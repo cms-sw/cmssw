@@ -24,33 +24,33 @@
 #include <iostream>
 #include <memory>
 
-static void createWatchers(const edm::ParameterSet &iP,
-                           SimActivityRegistry &iReg,
-                           std::vector<std::shared_ptr<SimWatcher>> &oWatchers,
-                           std::vector<std::shared_ptr<SimProducer>> &oProds) {
-  using namespace std;
-  using namespace edm;
-  std::vector<ParameterSet> watchers;
-  try {
-    watchers = iP.getParameter<vector<ParameterSet>>("Watchers");
-  } catch (edm::Exception const &) {
-  }
+namespace {
+  void createWatchers(const edm::ParameterSet& iP,
+                      SimActivityRegistry& iReg,
+                      std::vector<SimWatcher*>& oWatchers,
+                      std::vector<SimProducer*>& oProds) {
 
-  for (std::vector<ParameterSet>::iterator itWatcher = watchers.begin(); itWatcher != watchers.end(); ++itWatcher) {
-    std::unique_ptr<SimWatcherMakerBase> maker(
-        SimWatcherFactory::get()->create(itWatcher->getParameter<std::string>("type")));
-    if (maker.get() == nullptr) {
-      throw cms::Exception("SimG4CoreGeometryProducer", " createWatchers: Unable to find the requested Watcher");
+    std::vector<edm::ParameterSet> watchers = iP.getParameter<std::vector<edm::ParameterSet>>("Watchers");
+
+    // Watchers following old interface applicable only to 1-thread run
+    if (!watchers.empty()) {
+      for (auto& watcher : watchers) {
+	std::unique_ptr<SimWatcherMakerBase> maker(SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
+	if (maker == nullptr) {
+	  throw edm::Exception(edm::errors::Configuration)
+            << "RunManagerMTWorker: Unable to find the requested Watcher <" 
+	    << watcher.getParameter<std::string>("type");
+	}
+	SimWatcher* watcherTemp = nullptr;
+	SimProducer* producerTemp = nullptr;
+	maker->makeWatcher(watcher, iReg, watcherTemp, producerTemp);
+	if (nullptr != watcherTemp) { oWatchers.push_back(watcherTemp); }
+	if (nullptr != producerTemp) { oProds.push_back(producerTemp); }
+      }
     }
-
-    std::shared_ptr<SimWatcher> watcherTemp;
-    std::shared_ptr<SimProducer> producerTemp;
-    maker->make(*itWatcher, iReg, watcherTemp, producerTemp);
-    oWatchers.push_back(watcherTemp);
-    if (producerTemp)
-      oProds.push_back(producerTemp);
-  }
+  }  // namespace
 }
+
 
 GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
     : m_kernel(nullptr),
@@ -157,8 +157,8 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
                                      << " Tk type Producers, and " << m_sensCaloDets.size() << " Calo type producers ";
   }
 
-  for (Producers::iterator itProd = m_producers.begin(); itProd != m_producers.end(); ++itProd) {
-    (*itProd)->produce(e, es);
+  for (auto & prod : m_producers) {
+    prod->produce(e, es);
   }
 }
 

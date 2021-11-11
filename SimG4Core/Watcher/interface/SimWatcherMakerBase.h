@@ -38,10 +38,10 @@ public:
   virtual ~SimWatcherMakerBase() {}
 
   // ---------- const member functions ---------------------
-  virtual void make(const edm::ParameterSet &,
+  virtual void makeWatcher(const edm::ParameterSet &,
                     SimActivityRegistry &,
-                    std::shared_ptr<SimWatcher> &,
-                    std::shared_ptr<SimProducer> &) const = 0;
+                    SimWatcher*,
+                    SimProducer*) const = 0;
 };
 
 #endif

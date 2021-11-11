@@ -25,6 +25,8 @@
 // user include files
 #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
 #include "SimG4Core/Watcher/interface/SimWatcherMakerBase.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
+#include "SimG4Core/Watcher/interface/SimProducer.h"
 
 // forward declarations
 
@@ -34,24 +36,13 @@ public:
   SimWatcherMaker() {}
 
   // ---------- const member functions ---------------------
-  void make(const edm::ParameterSet &p,
+  void makeWatcher(const edm::ParameterSet &p,
             SimActivityRegistry &reg,
-            std::shared_ptr<SimWatcher> &oWatcher,
-            std::shared_ptr<SimProducer> &oProd) const override {
-    auto returnValue = std::make_shared<T>(p);
-    SimActivityRegistryEnroller::enroll(reg, returnValue.get());
-    oWatcher = returnValue;
-
-    // If this is also a SimProducer, set the value
-    oProd = this->getSimProducer(returnValue.get(), returnValue);
-  }
-
-private:
-  std::shared_ptr<SimProducer> getSimProducer(SimProducer *, std::shared_ptr<T> &iProd) const {
-    return std::shared_ptr<SimProducer>(iProd);
-  }
-  std::shared_ptr<SimProducer> getSimProducer(void *, std::shared_ptr<T> &iProd) const {
-    return std::shared_ptr<SimProducer>();
+            SimWatcher* oWatcher,
+            SimProducer* oProd) const override {
+    oWatcher = new T(p);
+    SimActivityRegistryEnroller::enroll(reg, oWatcher);
+    oProd = static_cast<SimProducer*>(oWatcher);
   }
 };
 

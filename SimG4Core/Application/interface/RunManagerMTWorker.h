@@ -26,6 +26,7 @@ namespace edm {
 class Generator;
 class RunManagerMT;
 
+class G4RunManagerKernel;
 class G4Event;
 class G4SimEvent;
 class G4Run;
@@ -44,6 +45,9 @@ class SensitiveDetectorMakerBase;
 
 class SimWatcher;
 class SimProducer;
+class SimRunInterface;
+class SimActivityRegistry;
+class SimTrackManager;
 
 class RunManagerMTWorker {
 public:
@@ -57,25 +61,24 @@ public:
                                       const edm::EventSetup& es,
                                       RunManagerMT& runManagerMaster);
 
+  void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
+
   void abortEvent();
   void abortRun(bool softAbort = false);
-
-  inline G4SimEvent* simEvent() { return m_simEvent; }
 
   void Connect(RunAction*);
   void Connect(EventAction*);
   void Connect(TrackingAction*);
   void Connect(SteppingAction*);
 
-  SimTrackManager* GetSimTrackManager();
-  std::vector<SensitiveTkDetector*>& sensTkDetectors();
-  std::vector<SensitiveCaloDetector*>& sensCaloDetectors();
-  std::vector<std::shared_ptr<SimProducer>>& producers();
-
-  void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
+  inline G4SimEvent* simEvent() const { return m_simEvent; }
+  inline SimTrackManager* GetSimTrackManager() const { return m_trackManager.get(); }
+  inline std::vector<SensitiveTkDetector*>& sensTkDetectors() { return m_sensTkDets; }
+  inline std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { return m_sensCaloDets; }
+  inline std::vector<SimProducer*>& producers() { return m_producers; }
 
 private:
-  void initializeTLS();
+
   void initializeUserActions();
 
   void initializeRun();
@@ -86,21 +89,26 @@ private:
 
   void DumpMagneticField(const G4Field*, const std::string&) const;
 
-  void resetTLS();
-  int getThreadIndex() const { return m_thread_index; }
+  inline int getThreadIndex() const { return m_thread_index; }
 
   Generator m_generator;
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
   edm::EDGetTokenT<edm::HepMCProduct> m_LHCToken;
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_theLHCTlinkToken;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagField;
-  const MagneticField* m_pMagField = nullptr;
+  const MagneticField* m_pMagField{nullptr};
 
-  bool m_nonBeam;
-  bool m_pUseMagneticField;
-  bool m_hasWatchers;
-  bool m_LHCTransport;
-  int m_EvtMgrVerbosity;
+  bool m_nonBeam{false};
+  bool m_pUseMagneticField{true};
+  bool m_hasWatchers{false};
+  bool m_LHCTransport{false};
+  bool m_threadInitialized{false};
+  bool m_runTerminated{false};
+  bool m_dumpMF{false};
+  int m_EvtMgrVerbosity{0};
+
+  const int m_thread_index{-1};
+  edm::RunNumber_t m_currentRunNumber{0};
 
   edm::ParameterSet m_pField;
   edm::ParameterSet m_pRunAction;
@@ -111,15 +119,23 @@ private:
   edm::ParameterSet m_pCustomUIsession;
   edm::ParameterSet m_p;
 
-  struct TLSData;
-  TLSData* m_tls{nullptr};
-  bool dumpMF{false};
+  std::unique_ptr<G4RunManagerKernel> m_kernel;
+  std::unique_ptr<RunAction> m_userRunAction;
+  std::unique_ptr<SimRunInterface> m_runInterface;
+  std::unique_ptr<SimActivityRegistry> m_registry;
+  std::unique_ptr<SimTrackManager> m_trackManager;
+  std::unique_ptr<G4Event> m_currentEvent;
+  std::unique_ptr<CMSSteppingVerbose> m_sVerbose{nullptr};
 
-  G4SimEvent* m_simEvent;
-  std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
+  G4Run* m_currentRun{nullptr};
+  G4SimEvent* m_simEvent{nullptr};
+
+  std::vector<SensitiveTkDetector*> m_sensTkDets;
+  std::vector<SensitiveCaloDetector*> m_sensCaloDets;
+  std::vector<SimWatcher*> m_watchers;
+  std::vector<SimProducer*> m_producers;
+
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
-
-  const int m_thread_index{-1};
 };
 
 #endif
