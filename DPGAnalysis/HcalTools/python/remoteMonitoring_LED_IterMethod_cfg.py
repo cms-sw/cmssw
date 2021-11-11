@@ -15,6 +15,11 @@ process.maxEvents = cms.untracked.PSet(
 # input = cms.untracked.int32(-1)
   )
 
+process.TFileService = cms.Service("TFileService",
+      fileName = cms.string("LED331388.root")
+#      ,closeFileFast = cms.untracked.bool(True)
+  )
+
 # readme: on lxplus:
 # eos ls /store/group/dpg_hcal/comm_hcal/USC/
 # eos ls /store/group/dpg_hcal/comm_hcal/USC/run309445
@@ -374,9 +379,9 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   splashesUpperLimit = cms.int32(10000),
                                   #
                                   #
-                                  HistOutFile = cms.untracked.string('LED331388.root'),
+                                  #HistOutFile = cms.untracked.string('LED331388.root'),
                                   #
-                                  MAPOutFile = cms.untracked.string('LogEleMapdb.h')
+                                  #MAPOutFile = cms.untracked.string('LogEleMapdb.h')
                                   #
                                   #
                                   )		
