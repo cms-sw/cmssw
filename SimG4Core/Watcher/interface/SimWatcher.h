@@ -32,9 +32,9 @@ public:
   SimWatcher() {}
   virtual ~SimWatcher() {}
 
-  // methods are needed to be implemented in the thread safe watchers 
+  // methods are needed to be implemented in the thread safe watchers
   virtual void registerConsumes(edm::ConsumesCollector) {}
-  virtual void beginRun(edm::EventSetup const&) {}
+  virtual void beginRun(edm::EventSetup const &) {}
 
   SimWatcher(const SimWatcher &) = delete;
   const SimWatcher &operator=(const SimWatcher &) = delete;

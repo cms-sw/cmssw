@@ -78,7 +78,6 @@ public:
   inline std::vector<SimProducer*>& producers() { return m_producers; }
 
 private:
-
   void initializeUserActions();
 
   void initializeRun();

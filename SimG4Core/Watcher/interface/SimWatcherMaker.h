@@ -36,10 +36,10 @@ public:
   SimWatcherMaker() {}
 
   // ---------- const member functions ---------------------
-  void makeWatcher(const edm::ParameterSet &p,
-            SimActivityRegistry &reg,
-            SimWatcher* oWatcher,
-            SimProducer* oProd) const override {
+  void makeWatcher(const edm::ParameterSet& p,
+                   SimActivityRegistry& reg,
+                   SimWatcher* oWatcher,
+                   SimProducer* oProd) const override {
     oWatcher = new T(p);
     SimActivityRegistryEnroller::enroll(reg, oWatcher);
     oProd = static_cast<SimProducer*>(oWatcher);

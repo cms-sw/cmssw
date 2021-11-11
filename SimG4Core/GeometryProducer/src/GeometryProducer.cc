@@ -25,32 +25,35 @@
 #include <memory>
 
 namespace {
-  void createWatchers(const edm::ParameterSet& iP,
-                      SimActivityRegistry& iReg,
-                      std::vector<SimWatcher*>& oWatchers,
-                      std::vector<SimProducer*>& oProds) {
-
+  void createWatchers(const edm::ParameterSet &iP,
+                      SimActivityRegistry &iReg,
+                      std::vector<SimWatcher *> &oWatchers,
+                      std::vector<SimProducer *> &oProds) {
     std::vector<edm::ParameterSet> watchers = iP.getParameter<std::vector<edm::ParameterSet>>("Watchers");
 
     // Watchers following old interface applicable only to 1-thread run
     if (!watchers.empty()) {
-      for (auto& watcher : watchers) {
-	std::unique_ptr<SimWatcherMakerBase> maker(SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
-	if (maker == nullptr) {
-	  throw edm::Exception(edm::errors::Configuration)
-            << "RunManagerMTWorker: Unable to find the requested Watcher <" 
-	    << watcher.getParameter<std::string>("type");
-	}
-	SimWatcher* watcherTemp = nullptr;
-	SimProducer* producerTemp = nullptr;
-	maker->makeWatcher(watcher, iReg, watcherTemp, producerTemp);
-	if (nullptr != watcherTemp) { oWatchers.push_back(watcherTemp); }
-	if (nullptr != producerTemp) { oProds.push_back(producerTemp); }
+      for (auto &watcher : watchers) {
+        std::unique_ptr<SimWatcherMakerBase> maker(
+            SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
+        if (maker == nullptr) {
+          throw edm::Exception(edm::errors::Configuration)
+              << "RunManagerMTWorker: Unable to find the requested Watcher <"
+              << watcher.getParameter<std::string>("type");
+        }
+        SimWatcher *watcherTemp = nullptr;
+        SimProducer *producerTemp = nullptr;
+        maker->makeWatcher(watcher, iReg, watcherTemp, producerTemp);
+        if (nullptr != watcherTemp) {
+          oWatchers.push_back(watcherTemp);
+        }
+        if (nullptr != producerTemp) {
+          oProds.push_back(producerTemp);
+        }
       }
     }
   }  // namespace
-}
-
+}  // namespace
 
 GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
     : m_kernel(nullptr),
@@ -157,7 +160,7 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
                                      << " Tk type Producers, and " << m_sensCaloDets.size() << " Calo type producers ";
   }
 
-  for (auto & prod : m_producers) {
+  for (auto &prod : m_producers) {
     prod->produce(e, es);
   }
 }
