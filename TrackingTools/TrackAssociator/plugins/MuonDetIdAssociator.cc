@@ -95,7 +95,11 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
     auto const& geomDetsGEM = geometry_->slaveGeometry(GEMDetId())->dets();
     for (auto it = geomDetsGEM.begin(); it != geomDetsGEM.end(); ++it) {
       if (auto gem = dynamic_cast<const GEMSuperChamber*>(*it)) {
-        validIds.push_back(gem->id());
+        if (gem->id().station() == 0)
+          validIds.push_back(gem->id());
+        else
+          for (auto ch : gem->chambers())
+            validIds.push_back(ch->id());
       }
     }
   }
