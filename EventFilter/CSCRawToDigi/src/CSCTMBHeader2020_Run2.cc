@@ -1,46 +1,43 @@
-#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2007_rev0x50c3.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2020_Run2.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-CSCTMBHeader2007_rev0x50c3::CSCTMBHeader2007_rev0x50c3() {
+CSCTMBHeader2020_Run2::CSCTMBHeader2020_Run2(int firmware_revision) {
   bzero(data(), sizeInWords() * 2);
   bits.nHeaderFrames = 42;
   bits.e0bline = 0x6E0B;
   bits.b0cline = 0xDB0C;
-  bits.firmRevCode = 0x50c3;
+  bits.firmRevCode = firmware_revision;
   bits.nTBins = 12;
   bits.nCFEBs = 5;
 }
 
-CSCTMBHeader2007_rev0x50c3::CSCTMBHeader2007_rev0x50c3(const unsigned short* buf) {
-  memcpy(data(), buf, sizeInWords() * 2);
-}
+CSCTMBHeader2020_Run2::CSCTMBHeader2020_Run2(const unsigned short* buf) { memcpy(data(), buf, sizeInWords() * 2); }
 
-void CSCTMBHeader2007_rev0x50c3::setEventInformation(const CSCDMBHeader& dmbHeader) {
+void CSCTMBHeader2020_Run2::setEventInformation(const CSCDMBHeader& dmbHeader) {
   bits.cscID = dmbHeader.dmbID();
-  bits.l1aNumber = dmbHeader.l1a24() & 0xFFF;
+  bits.l1aNumber = dmbHeader.l1a();
+  bits.bxnCount = dmbHeader.bxn();
 }
 
 ///returns CLCT digis
-std::vector<CSCCLCTDigi> CSCTMBHeader2007_rev0x50c3::CLCTDigis(uint32_t idlayer) {
+std::vector<CSCCLCTDigi> CSCTMBHeader2020_Run2::CLCTDigis(uint32_t idlayer) {
   std::vector<CSCCLCTDigi> result;
-  int halfstrip = bits.clct0_key_low + (bits.clct0_key_high << 7);
-  int strip = halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-  int cfeb = halfstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-  int pattern = bits.clct0_shape;
-  int bend = pattern & 0x1;
+  unsigned halfstrip = bits.clct0_key_low + (bits.clct0_key_high << 7);
+  unsigned strip = halfstrip % 32;
+  unsigned cfeb = halfstrip / 32;
+  unsigned pattern = bits.clct0_shape;
+  unsigned bend = pattern & 0x1;
 
-  //offlineStripNumbering(strip, cfeb, pattern, bend);
   CSCCLCTDigi digi0(
       bits.clct0_valid, bits.clct0_quality, pattern, 1, bend, strip, cfeb, bits.clct_bxn, 1, bits.bxnPreTrigger);
 
   halfstrip = bits.clct1_key_low + (bits.clct1_key_high << 7);
-  strip = halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-  cfeb = halfstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+  strip = halfstrip % 32;
+  cfeb = halfstrip / 32;
   pattern = bits.clct1_shape;
   bend = pattern & 0x1;
 
-  //offlineStripNumbering(strip, cfeb, pattern, bend);
   CSCCLCTDigi digi1(
       bits.clct1_valid, bits.clct1_quality, pattern, 1, bend, strip, cfeb, bits.clct_bxn, 2, bits.bxnPreTrigger);
   result.push_back(digi0);
@@ -49,11 +46,10 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2007_rev0x50c3::CLCTDigis(uint32_t idlayer)
 }
 
 ///returns CorrelatedLCT digis
-std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2007_rev0x50c3::CorrelatedLCTDigis(uint32_t idlayer) const {
+std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2020_Run2::CorrelatedLCTDigis(uint32_t idlayer) const {
   std::vector<CSCCorrelatedLCTDigi> result;
   /// for the zeroth MPC word:
-  int strip = bits.MPC_Muon0_halfstrip_clct_pattern;  //this goes from 0-159
-  //offlineHalfStripNumbering(strip);
+  unsigned strip = bits.MPC_Muon0_halfstrip_clct_pattern;  //this goes from 0-159
   CSCCorrelatedLCTDigi digi(1,
                             bits.MPC_Muon0_vpf_,
                             bits.MPC_Muon0_quality_,
@@ -69,7 +65,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2007_rev0x50c3::CorrelatedLCTDigis
   result.push_back(digi);
   /// for the first MPC word:
   strip = bits.MPC_Muon1_halfstrip_clct_pattern;  //this goes from 0-159
-  //offlineHalfStripNumbering(strip);
   digi = CSCCorrelatedLCTDigi(2,
                               bits.MPC_Muon1_vpf_,
                               bits.MPC_Muon1_quality_,
@@ -86,19 +81,17 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2007_rev0x50c3::CorrelatedLCTDigis
   return result;
 }
 
-void CSCTMBHeader2007_rev0x50c3::addALCT0(const CSCALCTDigi& digi) {
+void CSCTMBHeader2020_Run2::addALCT0(const CSCALCTDigi& digi) {
   throw cms::Exception("In CSC TMBHeaderFormat 2007, ALCTs belong in  ALCT header");
 }
 
-void CSCTMBHeader2007_rev0x50c3::addALCT1(const CSCALCTDigi& digi) {
+void CSCTMBHeader2020_Run2::addALCT1(const CSCALCTDigi& digi) {
   throw cms::Exception("In CSC TMBHeaderFormat 2007, ALCTs belong in  ALCT header");
 }
 
-void CSCTMBHeader2007_rev0x50c3::addCLCT0(const CSCCLCTDigi& digi) {
-  int halfStrip = digi.getKeyStrip();
-  int pattern = digi.getPattern();
-  //int bend = digi.getBend();
-  //hardwareStripNumbering(strip, cfeb, pattern, bend);
+void CSCTMBHeader2020_Run2::addCLCT0(const CSCCLCTDigi& digi) {
+  unsigned halfStrip = digi.getKeyStrip();
+  unsigned pattern = digi.getPattern();
   bits.clct0_valid = digi.isValid();
   bits.clct0_quality = digi.getQuality();
   bits.clct0_shape = pattern;
@@ -110,11 +103,9 @@ void CSCTMBHeader2007_rev0x50c3::addCLCT0(const CSCCLCTDigi& digi) {
   bits.bxnPreTrigger = digi.getFullBX();
 }
 
-void CSCTMBHeader2007_rev0x50c3::addCLCT1(const CSCCLCTDigi& digi) {
-  int halfStrip = digi.getKeyStrip();
-  int pattern = digi.getPattern();
-  //int bend = digi.getBend();
-  //hardwareStripNumbering(strip, cfeb, pattern, bend);
+void CSCTMBHeader2020_Run2::addCLCT1(const CSCCLCTDigi& digi) {
+  unsigned halfStrip = digi.getKeyStrip();
+  unsigned pattern = digi.getPattern();
   bits.clct1_valid = digi.isValid();
   bits.clct1_quality = digi.getQuality();
   bits.clct1_shape = pattern;
@@ -124,15 +115,11 @@ void CSCTMBHeader2007_rev0x50c3::addCLCT1(const CSCCLCTDigi& digi) {
   bits.clct1_key_high = (halfStrip >> 7) & (0x1);
   // There is just one BX field common for CLCT0 and CLCT1 (since both
   // are latched at the same BX); set it in addCLCT0().
-  //bits.clct_bxn = digi.getBX();
   bits.bxnPreTrigger = digi.getFullBX();
-  bits.bxnCount = (digi.getFullBX() + 167) & 0xFFF;
 }
 
-void CSCTMBHeader2007_rev0x50c3::addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) {
-  int halfStrip = digi.getStrip();
-  //hardwareHalfStripNumbering(halfStrip);
-
+void CSCTMBHeader2020_Run2::addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) {
+  unsigned halfStrip = digi.getStrip();
   bits.MPC_Muon0_vpf_ = digi.isValid();
   bits.MPC_Muon0_wire_ = digi.getKeyWG();
   bits.MPC_Muon0_clct_pattern_ = digi.getPattern();
@@ -146,10 +133,8 @@ void CSCTMBHeader2007_rev0x50c3::addCorrelatedLCT0(const CSCCorrelatedLCTDigi& d
   bits.MPC_Muon0_cscid_bit4 = (digi.getCSCID() >> 3) & 0x1;
 }
 
-void CSCTMBHeader2007_rev0x50c3::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) {
-  int halfStrip = digi.getStrip();
-  //hardwareHalfStripNumbering(halfStrip);
-
+void CSCTMBHeader2020_Run2::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) {
+  unsigned halfStrip = digi.getStrip();
   bits.MPC_Muon1_vpf_ = digi.isValid();
   bits.MPC_Muon1_wire_ = digi.getKeyWG();
   bits.MPC_Muon1_clct_pattern_ = digi.getPattern();
@@ -163,17 +148,35 @@ void CSCTMBHeader2007_rev0x50c3::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& d
   bits.MPC_Muon1_cscid_bit4 = (digi.getCSCID() >> 3) & 0x1;
 }
 
-void CSCTMBHeader2007_rev0x50c3::print(std::ostream& os) const {
-  os << "...............TMB Header.................."
+void CSCTMBHeader2020_Run2::print(std::ostream& os) const {
+  os << "...............(O)TMB2020 legacy Run2 Header.................."
      << "\n";
   os << std::hex << "BOC LINE " << bits.b0cline << " EOB " << bits.e0bline << "\n";
+  os << std::hex << "FW revision: 0x" << bits.firmRevCode << "\n";
   os << std::dec << "fifoMode = " << bits.fifoMode << ", nTBins = " << bits.nTBins << "\n";
   os << "boardID = " << bits.boardID << ", cscID = " << bits.cscID << "\n";
   os << "l1aNumber = " << bits.l1aNumber << ", bxnCount = " << bits.bxnCount << "\n";
-  os << "trigSourceVect = " << bits.trigSourceVect << ", activeCFEBs = " << bits.activeCFEBs << "\n";
+  os << "trigSourceVect = " << bits.trigSourceVect << ", activeCFEBs = 0x" << std::hex
+     << (bits.activeCFEBs | (bits.activeCFEBs_2 << 5)) << ", readCFEBs = 0x" << std::hex
+     << (bits.readCFEBs | (bits.readCFEBs_2 << 5)) << std::dec << "\n";
   os << "bxnPreTrigger = " << bits.bxnPreTrigger << "\n";
   os << "tmbMatch = " << bits.tmbMatch << " alctOnly = " << bits.alctOnly << " clctOnly = " << bits.clctOnly << "\n";
-  os << " bits.clct0_shape = " << bits.clct0_shape << " clct0_quality = " << bits.clct0_quality << "\n";
-  os << "..................CLCT....................."
-     << "\n";
+
+  os << "CLCT Words:\n"
+     << " bits.clct0_valid = " << bits.clct0_valid << " bits.clct0_shape = " << bits.clct0_shape
+     << " bits.clct0_quality = " << bits.clct0_quality
+     << " halfstrip = " << (bits.clct0_key_low + (bits.clct0_key_high << 7)) << "\n";
+
+  os << " bits.clct1_valid = " << bits.clct1_valid << " bits.clct1_shape = " << bits.clct1_shape
+     << " bits.clct1_quality = " << bits.clct1_quality
+     << " halfstrip = " << (bits.clct1_key_low + (bits.clct1_key_high << 7)) << "\n";
+
+  os << "MPC Words:\n"
+     << " LCT0 valid = " << bits.MPC_Muon0_vpf_ << " key WG = " << bits.MPC_Muon0_wire_
+     << " key halfstrip = " << bits.MPC_Muon0_halfstrip_clct_pattern << " pattern = " << bits.MPC_Muon0_clct_pattern_
+     << " quality = " << bits.MPC_Muon0_quality_ << "\n";
+
+  os << " LCT1 valid = " << bits.MPC_Muon1_vpf_ << " key WG = " << bits.MPC_Muon1_wire_
+     << " key halfstrip = " << bits.MPC_Muon1_halfstrip_clct_pattern << " pattern = " << bits.MPC_Muon1_clct_pattern_
+     << " quality = " << bits.MPC_Muon1_quality_ << "\n";
 }

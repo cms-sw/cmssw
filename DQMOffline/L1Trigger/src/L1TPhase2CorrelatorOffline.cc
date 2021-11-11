@@ -906,6 +906,31 @@ void L1TPhase2CorrelatorOffline::computeResponseResolution() {
   }
 }
 
+std::vector<float> L1TPhase2CorrelatorOffline::getQuantile(float quant, TH2F* hist) {
+  std::vector<float> quantiles(hist->GetNbinsX(), 1.);
+  for (int ix = 1; ix < hist->GetNbinsX() + 1; ix++) {
+    float thresh = quant * (hist->Integral(ix, ix, 0, -1));
+    if (hist->Integral(ix, ix, 0, -1) == 0.) {
+    } else if (quant <= 0. || thresh < hist->GetBinContent(ix, 0)) {
+      quantiles[ix - 1] = hist->GetYaxis()->GetBinLowEdge(1);
+    } else if (quant >= 1. || thresh >= hist->Integral(ix, ix, 0, hist->GetNbinsY())) {
+      quantiles[ix - 1] = hist->GetYaxis()->GetBinUpEdge(hist->GetNbinsY());
+    } else {
+      float sum = hist->GetBinContent(ix, 0);
+      for (int iy = 1; iy < hist->GetNbinsY() + 1; iy++) {
+        float add = hist->GetBinContent(ix, iy);
+        if (sum + add >= thresh) {
+          quantiles[ix - 1] =
+              hist->GetYaxis()->GetBinLowEdge(iy) + hist->GetYaxis()->GetBinWidth(iy) * ((thresh - sum) / add);
+          break;
+        }
+        sum += add;
+      }
+    }
+  }
+  return quantiles;
+}
+
 void L1TPhase2CorrelatorOffline::medianResponseCorrResolution(MonitorElement* in2D,
                                                               MonitorElement* response,
                                                               MonitorElement* resolution) {
@@ -913,19 +938,14 @@ void L1TPhase2CorrelatorOffline::medianResponseCorrResolution(MonitorElement* in
   auto hresp = response->getTH1F();
   if (hbase != nullptr && hresp != nullptr) {
     if (hbase->GetNbinsX() == hresp->GetNbinsX()) {
-      TDirectory threadsafeDir =
-          TDirectory(((std::string)(hbase->GetName()) + "dirL1TPhase2CorrelatorOffline").c_str(),
-                     ((std::string)(hbase->GetName()) + "dirL1TPhase2CorrelatorOffline").c_str());
-      TDirectory::TContext context(gDirectory, &threadsafeDir);
-      auto med = hbase->QuantilesX(0.5, "_qx");
+      auto med = getQuantile(0.5, hbase);
       TGraph* ptrecgen = new TGraph(hbase->GetNbinsX());
       for (int ib = 1; ib < hbase->GetNbinsX() + 1; ib++) {
-        float corr = med->GetBinContent(ib);
+        float corr = med[ib - 1];
         float xval = hbase->GetXaxis()->GetBinCenter(ib);
         ptrecgen->SetPoint(ib - 1, xval * corr, xval);
         hresp->SetBinContent(ib, corr);
       }
-      delete med;
       if (resolution != nullptr) {
         auto hresol = resolution->getTH1F();
         if (hresol != nullptr) {
@@ -943,17 +963,13 @@ void L1TPhase2CorrelatorOffline::medianResponseCorrResolution(MonitorElement* in
               }
             }
             delete ptrecgen;
-            auto qc = ch->QuantilesX(0.5, "_qc");
-            auto qhi = ch->QuantilesX(0.84, "_qhi");
-            auto qlo = ch->QuantilesX(0.16, "_qlo");
+            auto qc = getQuantile(0.5, ch);
+            auto qhi = getQuantile(0.84, ch);
+            auto qlo = getQuantile(0.16, ch);
             delete ch;
             for (int ibx = 1; ibx < hbase->GetNbinsX() + 1; ibx++) {
-              hresol->SetBinContent(
-                  ibx, qc->GetBinContent(ibx) > 0.2 ? (qhi->GetBinContent(ibx) - qlo->GetBinContent(ibx)) / 2. : 0.);
+              hresol->SetBinContent(ibx, qc[ibx - 1] > 0.2 ? (qhi[ibx - 1] - qlo[ibx - 1]) / 2. : 0.);
             }
-            delete qc;
-            delete qhi;
-            delete qlo;
           }
         }
       } else {
