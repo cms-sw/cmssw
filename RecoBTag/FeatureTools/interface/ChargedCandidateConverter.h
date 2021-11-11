@@ -51,25 +51,9 @@ namespace btagbtvdeep {
 
     c_pf_features.drminsv = catch_infs_and_bound(drminpfcandsv, 0, -1. * jetR, 0, -1. * jetR);
 
-    // subjet related
-    const auto* patJet = dynamic_cast<const pat::Jet*>(&jet);
-    if (!patJet) {
-      throw edm::Exception(edm::errors::InvalidReference) << "Input is not a pat::Jet.";
-    }
-
-    if (patJet->nSubjetCollections() > 0) {
-      auto subjets = patJet->subjets();
-      // sort by pt
-      std::sort(subjets.begin(), subjets.end(), [](const edm::Ptr<pat::Jet>& p1, const edm::Ptr<pat::Jet>& p2) {
-        return p1->pt() > p2->pt();
-      });
-      c_pf_features.drsubjet1 = !subjets.empty() ? reco::deltaR(*c_pf, *subjets.at(0)) : -1;
-      c_pf_features.drsubjet2 = subjets.size() > 1 ? reco::deltaR(*c_pf, *subjets.at(1)) : -1;
-    } else {
-      // AK4 jets don't have subjets
-      c_pf_features.drsubjet1 = -1;
-      c_pf_features.drsubjet2 = -1;
-    }
+    std::pair<float, float> drSubjetFeatures = getDRSubjetFeatures(jet, c_pf);
+    c_pf_features.drsubjet1 = drSubjetFeatures.first;
+    c_pf_features.drsubjet2 = drSubjetFeatures.second;
   }
 
   void packedCandidateToFeatures(const pat::PackedCandidate* c_pf,
