@@ -23,7 +23,7 @@ public:
                                                            const L1TMuonOverlapFwVersionO2ORcd& record) override;
 
   L1TMuonOverlapFwVersionOnlineProd(const edm::ParameterSet&);
-  ~L1TMuonOverlapFwVersionOnlineProd(void) override {}
+  ~L1TMuonOverlapFwVersionOnlineProd(void) override = default;
 };
 
 void replaceAll(std::string& str, const std::string& from, const std::string& to) {
