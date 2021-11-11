@@ -117,7 +117,7 @@ if not unitTest:
       process.ecalMonitorClient.workerParameters.TimingClient.params.minChannelEntries = cms.untracked.int32(0)
 
 process.ecalMonitorClient.verbosity = 0
-process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
+process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'MLClient', 'SummaryClient']
 process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
 process.ecalMonitorClient.commonParameters.onlineMode = True
 
@@ -135,7 +135,10 @@ process.preScaler.prescaleFactor = 1
 process.tcdsDigis = tcdsRawToDigi.clone(
   InputLabel = "rawDataCollector"
 )
-
+###### LumiScalars to get the PU/luminosity info ######
+process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
+    scalersInputTag = cms.InputTag( "rawDataCollector" )
+)
 
 process.dqmEnv.subSystemFolder = 'Ecal'
 process.dqmSaver.tag = 'Ecal'
@@ -158,6 +161,7 @@ process.ecalMonitorTask.collectionTags.TrigPrimEmulDigi = "simEcalTriggerPrimiti
 process.ecalMonitorTask.workerParameters.TrigPrimTask.params.runOnEmul = True
 process.ecalMonitorTask.commonParameters.willConvertToEDM = False
 process.ecalMonitorTask.commonParameters.onlineMode = True
+process.ecalMonitorTask.workerParameters.OccupancyTask.params.lumiCheck = True
 
 ### Sequences ###
 
@@ -168,7 +172,7 @@ process.hybridClusteringSequence = cms.Sequence(process.cleanedHybridSuperCluste
 
 ### Paths ###
 
-process.ecalMonitorPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalRecoSequence+process.tcdsDigis+process.ecalMonitorTask)
+process.ecalMonitorPath = cms.Path(process.hltScalersRawToDigi+process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalRecoSequence+process.tcdsDigis+process.ecalMonitorTask)
 process.ecalClientPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalMonitorClient)
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
@@ -186,7 +190,7 @@ if (runTypeName == 'pp_run' or runTypeName == 'pp_run_stage1'):
 elif (runTypeName == 'cosmic_run' or runTypeName == 'cosmic_run_stage1'):
 #    process.dqmEndPath.remove(process.dqmQTest)
     process.ecalMonitorTask.workers = ['EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']
-    process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
+    process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'MLClient', 'SummaryClient']
     process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
     process.ecalMonitorTask.workerParameters.PresampleTask.params.doPulseMaxCheck = False 
 elif runTypeName == 'hi_run':
