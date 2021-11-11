@@ -23,25 +23,75 @@
 #include <sys/stat.h>
 
 // user include files
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "TH2F.h"
-#include "TFile.h"
+// ROOT includes
 #include "TDirectory.h"
+#include "TFile.h"
+#include "TH2F.h"
 #include "TKey.h"
-#include "TString.h"
 #include "TList.h"
+#include "TString.h"
 #include "TTree.h"
 
-#include "SiPixelGainCalibrationReadDQMFile.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 //
 // class decleration
 //
+
+class SiPixelGainCalibrationReadDQMFile : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit SiPixelGainCalibrationReadDQMFile(const edm::ParameterSet &);
+
+private:
+  void analyze(const edm::Event &, const edm::EventSetup &) final;
+  // functions added by F.B.
+  void fillDatabase(const edm::EventSetup &iSetup, TFile *);
+  std::unique_ptr<TFile> getHistograms();
+  // ----------member data ---------------------------
+  std::map<uint32_t, std::map<std::string, TString> > bookkeeper_;
+  std::map<uint32_t, std::map<double, double> > Meankeeper_;
+  std::map<uint32_t, std::vector<std::map<int, int> > > noisyPixelsKeeper_;
+
+  const bool appendMode_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pddToken_;
+  SiPixelGainCalibrationService theGainCalibrationDbInputService_;
+  std::unique_ptr<TH2F> defaultGain_;
+  std::unique_ptr<TH2F> defaultPed_;
+  std::unique_ptr<TH2F> defaultChi2_;
+  std::unique_ptr<TH2F> defaultFitResult_;
+  std::unique_ptr<TH1F> meanGainHist_;
+  std::unique_ptr<TH1F> meanPedHist_;
+  const std::string record_;
+  // keep track of lowest and highest vals for range
+  float gainlow_;
+  float gainhi_;
+  float pedlow_;
+  float pedhi_;
+  const bool usemeanwhenempty_;
+  const std::string rootfilestring_;
+  float gainmax_;
+  float pedmax_;
+  const double badchi2_;
+  const size_t nmaxcols;
+  const size_t nmaxrows;
+};
 
 void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSetup, TFile *therootfile) {
   // only create when necessary.
@@ -485,9 +535,7 @@ SiPixelGainCalibrationReadDQMFile::SiPixelGainCalibrationReadDQMFile(const edm::
       pedmax_(200),
       badchi2_(iConfig.getUntrackedParameter<double>("badChi2Prob", 0.01)),
       nmaxcols(10 * 52),
-      nmaxrows(160)
-
-{
+      nmaxrows(160) {
   usesResource(TFileService::kSharedResource);
 
   //now do what ever initialization is needed
