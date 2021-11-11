@@ -156,6 +156,7 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
         continue;
       scale_db *= it_colgeom->second;
     }
+
     //DB PU factor calculation
     unsigned int pu_iterator = 0;
     for (it_pu = map_pufactor.begin(); it_pu != map_pufactor.end(); it_pu++, pu_iterator++) {
@@ -181,8 +182,9 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
         instlumi_pow *= instlumi;
       }
     }
+
     //Config PU factor calculation
-    for (size_t i = 0; i < 5; i++) {
+    for (size_t i = 0; i < pu_det; i++) {
       double instlumi = 30 * theInstLumiScaleFactor;
       double instlumi_pow = 1.;
       _pu_scale_conf[i] = 0;
@@ -191,6 +193,7 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
         instlumi_pow *= instlumi;
       }
     }
+
     //Config geom factor calculation
     double columnEfficiency = 1;
     if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
@@ -206,6 +209,7 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
       columnEfficiency *=
           theLadderEfficiency_BPix[layerIndex - 1][ladder - 1] * theModuleEfficiency_BPix[layerIndex - 1][module - 1];
     }
+
     if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
       unsigned int diskIndex = tTopo->layer(detid) + 3;  // Use diskIndex-1 later to stay consistent with BPix
       unsigned int panelIndex = tTopo->pxfPanel(detid);
@@ -218,6 +222,7 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
         columnEfficiency *= theOuterEfficiency_FPix[diskIndex - 1];
       }
     }
+
     if (scale_db == columnEfficiency) {
       //printf("Config match, detid %x\tfactor %f\n",detid.rawId(),columnEfficiency);
       match++;

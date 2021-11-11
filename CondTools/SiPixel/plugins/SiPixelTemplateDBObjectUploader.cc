@@ -87,8 +87,7 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
   // Open the template file(s)
   for (int m = 0; m < obj.numOfTempl(); ++m) {
     edm::FileInPath file(theTemplateCalibrations[m].c_str());
-    auto tempfile = (file.fullPath());
-    std::ifstream in_file(tempfile.c_str(), std::ios::in);
+    std::ifstream in_file(file.fullPath().c_str(), std::ios::in);
     if (in_file.is_open()) {
       edm::LogInfo("SiPixelTemplateDBObjectUploader") << "Opened Template File: " << file.fullPath().c_str();
 
@@ -141,7 +140,7 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
       in_file.close();
     } else {
       // If file didn't open, report this
-      edm::LogError("SiPixelTemplateDBObjectUploader") << "Error opening File" << tempfile;
+      edm::LogError("SiPixelTemplateDBObjectUploader") << "Error opening File: " << file.fullPath().c_str();
     }
   }
 
