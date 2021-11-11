@@ -13,6 +13,7 @@ bool HGCDoublet::checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
   double yi[VSIZE];
   double zi[VSIZE];
   int seedi[VSIZE];
+  bool siblingsClusters[VSIZE];
   auto xo = outerX();
   auto yo = outerY();
   auto zo = outerZ();
@@ -26,6 +27,7 @@ bool HGCDoublet::checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
       yi[j] = otherDoublet.innerY();
       zi[j] = otherDoublet.innerZ();
       seedi[j] = otherDoublet.seedIndex();
+      siblingsClusters[j] = otherDoublet.areSiblingClusters();
       if (debug) {
         LogDebug("HGCDoublet") << i + j << " is doublet " << otherDoubletId << std::endl;
       }
@@ -35,6 +37,10 @@ bool HGCDoublet::checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
         ok[j] = 0;
         continue;
       }
+      if (areSiblingClusters_ and siblingsClusters[j]) {
+        ok[j] = 1;
+        continue;
+      }
       ok[j] = areAligned(xi[j], yi[j], zi[j], xo, yo, zo, minCosTheta, minCosPointing, refDir, debug);
       if (debug) {
         LogDebug("HGCDoublet") << "Are aligned for InnerDoubletId: " << i + j << " is " << ok[j] << std::endl;
@@ -42,7 +48,7 @@ bool HGCDoublet::checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
     }
     for (int j = 0; j < vs; ++j) {
       auto otherDoubletId = innerDoublets[i + j];
-      auto &otherDoublet = allDoublets[otherDoubletId];
+      auto &otherDoublet = allDoublets.at(otherDoubletId);
       if (ok[j]) {
         otherDoublet.tagAsOuterNeighbor(doubletId);
         allDoublets[doubletId].tagAsInnerNeighbor(otherDoubletId);
