@@ -11,6 +11,9 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CondFormats/DTObjects/interface/DTDeadFlag.h"
+#include "CondFormats/DataRecord/interface/DTDeadFlagRcd.h"
+
 namespace edmtest {
   class DTDeadPrint : public edm::EDAnalyzer {
   public:
@@ -20,5 +23,6 @@ namespace edmtest {
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   private:
+    edm::ESGetToken<DTDeadFlag, DTDeadFlagRcd> es_token;
   };
 }  // namespace edmtest
