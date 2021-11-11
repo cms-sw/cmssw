@@ -15,22 +15,19 @@ TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet
   produces<int>("NumberOfConsideredJets");
 }
 
-TtSemiLepJetCombMVAComputer::~TtSemiLepJetCombMVAComputer() {}
-
 void TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup) {
   std::unique_ptr<std::vector<std::vector<int>>> pOut(new std::vector<std::vector<int>>);
   std::unique_ptr<std::vector<double>> pOutDisc(new std::vector<double>);
   std::unique_ptr<std::string> pOutMeth(new std::string);
   std::unique_ptr<int> pJetsConsidered(new int);
 
-  mvaComputer.update(&setup.getData(mvaToken_), "ttSemiLepJetCombMVA");
+  const auto& calibContainer = setup.getData(mvaToken_);
+  mvaComputer.update(&calibContainer, "ttSemiLepJetCombMVA");
 
   // read name of the processor that provides the MVA discriminator
   // (to be used as meta information)
-  edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> calibContainer;
-  setup.get<TtSemiLepJetCombMVARcd>().get(calibContainer);
   std::vector<const PhysicsTools::Calibration::VarProcessor*> processors =
-      (calibContainer->find("ttSemiLepJetCombMVA")).getProcessors();
+      (calibContainer.find("ttSemiLepJetCombMVA")).getProcessors();
   *pOutMeth = (processors[processors.size() - 3])->getInstanceName();
   evt.put(std::move(pOutMeth), "Method");
 
@@ -120,10 +117,6 @@ void TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup
   evt.put(std::move(pOutDisc), "Discriminators");
   evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
 }
-
-void TtSemiLepJetCombMVAComputer::beginJob() {}
-
-void TtSemiLepJetCombMVAComputer::endJob() {}
 
 // implement the plugins for the computer container
 // -> register TtSemiLepJetCombMVARcd
