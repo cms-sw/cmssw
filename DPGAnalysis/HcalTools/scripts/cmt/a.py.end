@@ -412,9 +412,9 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #
                                   #
                                   #HistOutFile = cms.untracked.string(histodir+'/LED_'+runnumber+'.root'),
-                                  HistOutFile = cms.untracked.string('Global.root'),
+                                  #HistOutFile = cms.untracked.string('Global.root'),
                                   #
-                                  MAPOutFile = cms.untracked.string('LogEleMapdb.h')
+                                  #MAPOutFile = cms.untracked.string('LogEleMapdb.h')
                                   #
                                   ##OutputFilePath = cms.string('/tmp/zhokin/'),        
                                   ##OutputFileExt = cms.string(''),
