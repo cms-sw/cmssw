@@ -38,6 +38,11 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(-1)
   )
 
+process.TFileService = cms.Service("TFileService",
+      fileName = cms.string(histodir+'/PEDESTAL_'+runnumber+'.root')
+#      ,closeFileFast = cms.untracked.bool(True)
+  )
+
 #process.source = cms.Source("PoolSource",
 process.source = cms.Source("HcalTBSource",
                             skipBadFiles=cms.untracked.bool(True),
@@ -456,8 +461,8 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #
                                   #
                                   #HistOutFile = cms.untracked.string('PEDESTAL_331370.root'),
-                                  HistOutFile = cms.untracked.string(histodir+'/PEDESTAL_'+runnumber+'.root'),
-                                  MAPOutFile = cms.untracked.string('LogEleMapdb.h')
+                                  #HistOutFile = cms.untracked.string(histodir+'/PEDESTAL_'+runnumber+'.root'),
+                                  #MAPOutFile = cms.untracked.string('LogEleMapdb.h')
                                   #
                                   ##OutputFilePath = cms.string('/tmp/zhokin/'),        
                                   ##OutputFileExt = cms.string(''),
