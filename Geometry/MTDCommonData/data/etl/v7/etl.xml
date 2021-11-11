@@ -167,15 +167,6 @@
     </Vector>
 
   </ConstantsSection>
-
-  <RotationSection label="etl.xml">
-    <Rotation name="0" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg" phiZ="0*deg"/>
-    <Rotation name="270" thetaX="90*deg" phiX="270*deg" thetaY="90*deg" phiY="0*deg" thetaZ="0*deg" phiZ="0*deg"/>
-    <Rotation name="180" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="270*deg" thetaZ="0*deg" phiZ="0*deg"/>
-    <Rotation name="90" thetaX="90*deg" phiX="90*deg" thetaY="90*deg" phiY="180*deg" thetaZ="0*deg" phiZ="0*deg"/>
-    <Rotation name="ReverseVert" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="270*deg" thetaZ="180*deg" phiZ="0*deg"/>
-    <Rotation name="ReverseHor" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg"/>
-  </RotationSection>
   
   <SolidSection label="etl.xml">
     <Polycone name="EndcapTimingLayer_0" startPhi="0*deg" deltaPhi="360*deg">
@@ -189,7 +180,7 @@
     <UnionSolid name="EndcapTimingLayer_1">
             <rSolid name="EndcapTimingLayer_0"/>
             <rSolid name="Notch_ext"/>
-            <rRotation name="etl:180" />
+            <rRotation name="rotations:R180" />
             <Translation x="-([Notch_Rmin]+0.5*[Notch_bl2])" y="0.*mm" z="0.5*[Notch_thickness]+[BackSupportPlate_Z2]"/>
     </UnionSolid>
     <UnionSolid name="EndcapTimingLayer">
@@ -247,7 +238,7 @@
     <UnionSolid name="BackSupportPlate_3">
             <rSolid name="BackSupportPlate_2"/>
             <rSolid name="Notch_left"/>
-            <rRotation name="etl:180" />
+            <rRotation name="rotations:R180" />
             <Translation x="-([Notch_Rmin]+0.5*[Notch_bl2])" y="0.*mm" z="0.5*[Notch_thickness]+[BackSupportPlate_Z2]"/>
     </UnionSolid>
     <UnionSolid name="BackSupportPlate">
@@ -577,19 +568,19 @@
     <PosPart copyNumber="2">
       <rParent name="etl:EndcapTimingLayer"/>
       <rChild name="etl:Cables"/>
-      <rRotation name="etl:ReverseVert" />
+      <rRotation name="rotations:RPCD" />
       <Translation x="0.*mm" y="0.*mm" z="[PatchPanel_Cables_FrontModcenter]" />
     </PosPart>
     <PosPart copyNumber="3">
       <rParent name="etl:EndcapTimingLayer"/>
       <rChild name="etl:Cables"/>
-      <rRotation name="etl:180" />
+      <rRotation name="rotations:R180" />
       <Translation x="0.*mm" y="0.*mm" z="[PatchPanel_Cables_FrontModcenter]" />
     </PosPart>
     <PosPart copyNumber="4">
       <rParent name="etl:EndcapTimingLayer"/>
       <rChild name="etl:Cables"/>
-      <rRotation name="etl:ReverseHor" />
+      <rRotation name="rotations:180D" />
       <Translation x="0.*mm" y="0.*mm" z="[PatchPanel_Cables_FrontModcenter]" />
     </PosPart>
     <PosPart copyNumber="1">
@@ -600,7 +591,7 @@
     <PosPart copyNumber="2">
         <rParent name="etl:EndcapTimingLayer"/>
         <rChild name="etl:PatchPanel"/>
-        <rRotation name="etl:ReverseVert" />
+        <rRotation name="rotations:RPCD" />
         <Translation x="0.*mm" y="0.*mm" z="[PatchPanel_Cables_FrontModcenter]" />
     </PosPart>
     <PosPart copyNumber="1">
@@ -617,7 +608,7 @@
     <PosPart copyNumber="2">
       <rParent name="etl:EndcapTimingLayer"/>
       <rChild name="etl:Notch_cables"/>
-      <rRotation name="etl:180" />
+      <rRotation name="rotations:R180" />
      <!-- <Translation x="-[Notch_Rmin]-0.5*([Notch_bl2]-2*[BackSupportPlate_thickness])-[BackSupportPlate_thickness]" y="0.*mm" z="[Notch_cables_center]" /> -->
      <Translation x="-([Notch_Rmin]+0.5*[Notch_bl2])-[BackSupportPlate_thickness]" y="0.*mm" z="0.5*[Notch_thickness]+[BackSupportPlate_Z2]-[BackSupportPlate_thickness]"/>
     </PosPart>
@@ -689,25 +680,25 @@
     <PosPart copyNumber="1">
       <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:DiscSector_Front"/>
-      <rRotation name="etl:0"/>
+      <rRotation name="rotations:000D"/>
       <Translation x="0.*mm" y="0.*mm" z="-1*[Disk_translation_z]" />
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:DiscSector_Front"/>
-      <rRotation name="etl:180"/>
+      <rRotation name="rotations:R180"/>
       <Translation x="0.*mm" y="0.*mm" z="-1*[Disk_translation_z]" />
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:DiscSector_Back"/>
-      <rRotation name="etl:0"/>
+      <rRotation name="rotations:000D"/>
       <Translation x="0.*mm" y="0.*mm" z="[Disk_translation_z]" />
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:DiscSector_Back"/>
-      <rRotation name="etl:180"/>
+      <rRotation name="rotations:R180"/>
       <Translation x="0.*mm" y="0.*mm" z="[Disk_translation_z]" />
     </PosPart>
 
@@ -720,25 +711,25 @@
     <PosPart copyNumber="1">
       <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:DiscSector_Front"/>
-      <rRotation name="etl:0"/>
+      <rRotation name="rotations:000D"/>
       <Translation x="0.*mm" y="0.*mm" z="-1*[Disk_translation_z]" />
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:DiscSector_Front"/>
-      <rRotation name="etl:180"/>
+      <rRotation name="rotations:R180"/>
       <Translation x="0.*mm" y="0.*mm" z="-1*[Disk_translation_z]" />
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:DiscSector_Back"/>
-      <rRotation name="etl:0"/>
+      <rRotation name="rotations:000D"/>
       <Translation x="0.*mm" y="0.*mm" z="[Disk_translation_z]" />
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:DiscSector_Back"/>
-      <rRotation name="etl:180"/>
+      <rRotation name="rotations:R180"/>
       <Translation x="0.*mm" y="0.*mm" z="[Disk_translation_z]" />
     </PosPart>
     
@@ -1048,7 +1039,7 @@
     <PosPart copyNumber="1">
       <rParent name="etl:SensorModule_Back_Left"/>
       <rChild name="etl:LGAD"/>
-      <rRotation name="etl:ReverseVert" />
+      <rRotation name="rotations:RPCD" />
       <Translation x="0.*mm" y="-1*[LGAD_translation_y]" z="-1*[LGAD_translation_z]" />
     </PosPart>
     
@@ -1128,7 +1119,7 @@
     <PosPart copyNumber="1">
       <rParent name="etl:SensorModule_Back_Right"/>
       <rChild name="etl:LGAD"/>
-      <rRotation name="etl:ReverseVert" />
+      <rRotation name="rotations:RPCD" />
       <Translation x="0.*mm" y="[LGAD_translation_y]" z="-1*[LGAD_translation_z]" />
     </PosPart>
   </PosPartSection>
