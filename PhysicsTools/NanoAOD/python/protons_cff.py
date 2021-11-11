@@ -67,7 +67,11 @@ singleRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
 protonTablesTask = cms.Task(filteredProtons,protonTable,multiRPTable)
 if singleRPProtons: protonTablesTask.add(singleRPTable)
 
-genProtonTablesTask = cms.Task(genProtonTable)
-
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1:
     modifier.toReplaceWith(protonTablesTask, cms.Task())
+
+# GEN-level signal/PU protons collection
+genProtonTablesTask = cms.Task(genProtonTable)
+
+# input GEN-level PU protons collection introduced in 9_4_X cycle
+run2_miniAOD_80XLegacy.toReplaceWith(genProtonTablesTask, cms.Task())
