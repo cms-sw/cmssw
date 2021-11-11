@@ -14,12 +14,10 @@ It gets a compact map from the EventSetup and dumps it as a full map.
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTFullMapPrint.h"
-#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 
 namespace edmtest {
 
-  DTFullMapPrint::DTFullMapPrint(edm::ParameterSet const& p) {}
+  DTFullMapPrint::DTFullMapPrint(edm::ParameterSet const& p) : es_token(esConsumes()) {}
 
   DTFullMapPrint::DTFullMapPrint(int i) {}
 
@@ -30,9 +28,8 @@ namespace edmtest {
     // Context is not used.
     std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
     std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
-    edm::ESHandle<DTReadOutMapping> dbMap;
-    context.get<DTReadOutMappingRcd>().get(dbMap);
-    const DTReadOutMapping* ro_map = dbMap->fullMap();
+    const auto& dbMap = context.getData(es_token);
+    const DTReadOutMapping* ro_map = dbMap.fullMap();
     std::cout << ro_map->mapCellTdc() << " - " << ro_map->mapRobRos() << std::endl;
     std::cout << std::distance(ro_map->begin(), ro_map->end()) << " connections in the map" << std::endl;
     DTReadOutMapping::const_iterator iter = ro_map->begin();
