@@ -174,10 +174,10 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
   if (poolDbService.isAvailable()) {  // if(poolDbService.isAvailable() )
 
     // start producing tag for permanent component removed
-    SiPixelQuality* siPixelQualityPermBad = new SiPixelQuality();
+    SiPixelQuality siPixelQualityPermBad;
     const std::vector<SiPixelQuality::disabledModuleType> badComponentList = badPixelInfo_->getBadComponentList();
     for (unsigned int i = 0; i < badComponentList.size(); i++) {
-      siPixelQualityPermBad->addDisabledModule(badComponentList[i]);
+      siPixelQualityPermBad.addDisabledModule(badComponentList[i]);
 
       uint32_t detId = badComponentList[i].DetID;
       int detid = int(detId);
@@ -194,7 +194,7 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
     }
     if (debug_ == true) {  // only produced for debugging reason
       cond::Time_t thisIOV = (cond::Time_t)iRun.id().run();
-      poolDbService->writeOneIOV<SiPixelQuality>(*siPixelQualityPermBad, thisIOV, recordName_ + "_permanentBad");
+      poolDbService->writeOneIOV<SiPixelQuality>(siPixelQualityPermBad, thisIOV, recordName_ + "_permanentBad");
     }
 
     // IOV for final payloads. FEDerror25 and pcl
@@ -203,7 +203,7 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
     std::map<edm::LuminosityBlockNumber_t, edm::LuminosityBlockNumber_t> pclIOV;
 
     // container for SiPixelQuality for the whole run
-    std::map<int, SiPixelQuality*> siPixelQualityStuckTBM_Tag;
+    std::map<int, SiPixelQuality> siPixelQualityStuckTBM_Tag;
 
     // stuckTBM tag from FED error 25 with permanent component removed
     for (SiPixelStatusManager::FEDerror25Map_iterator it = FEDerror25Map.begin(); it != FEDerror25Map.end(); it++) {
@@ -219,8 +219,8 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
       else
         interval = int(endLumiBlock_ - it->first + 1);  // +1 because need to include the last lumi section
 
-      SiPixelQuality* siPixelQuality_stuckTBM = new SiPixelQuality();
-      SiPixelQuality* siPixelQuality_FEDerror25 = new SiPixelQuality();
+      SiPixelQuality siPixelQuality_stuckTBM;
+      SiPixelQuality siPixelQuality_FEDerror25;
 
       std::map<int, std::vector<int>> tmpFEDerror25 = it->second;
       for (std::map<int, std::vector<int>>::iterator ilist = tmpFEDerror25.begin(); ilist != tmpFEDerror25.end();
@@ -272,7 +272,7 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
         // fill the badmodule only if there is(are) bad ROC(s) in it
         if (badrocs_stuckTBM != 0) {
           BadModule_stuckTBM.BadRocs = badrocs_stuckTBM;
-          siPixelQuality_stuckTBM->addDisabledModule(BadModule_stuckTBM);
+          siPixelQuality_stuckTBM.addDisabledModule(BadModule_stuckTBM);
         }
 
         // change module error type if all ROCs are bad
@@ -287,7 +287,7 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
         // fill the badmodule only if there is(are) bad ROC(s) in it
         if (badrocs_FEDerror25 != 0) {
           BadModule_FEDerror25.BadRocs = badrocs_FEDerror25;
-          siPixelQuality_FEDerror25->addDisabledModule(BadModule_FEDerror25);
+          siPixelQuality_FEDerror25.addDisabledModule(BadModule_FEDerror25);
         }
 
       }  // loop over modules
@@ -298,9 +298,7 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
       fedError25IOV[it->first] = it->first;
 
       if (debug_ == true)  // only produced for debugging reason
-        poolDbService->writeOneIOV<SiPixelQuality>(*siPixelQuality_FEDerror25, thisIOV, recordName_ + "_FEDerror25");
-
-      delete siPixelQuality_FEDerror25;
+        poolDbService->writeOneIOV<SiPixelQuality>(siPixelQuality_FEDerror25, thisIOV, recordName_ + "_FEDerror25");
     }
 
     // IOV for PCL output tags that "combines" permanent bad/stuckTBM/other
@@ -314,9 +312,9 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
     std::map<edm::LuminosityBlockNumber_t, edm::LuminosityBlockNumber_t>::iterator itIOV;
 
     // container for SiPixelQuality for the whole run
-    std::map<int, SiPixelQuality*> siPixelQualityPCL_Tag;
-    std::map<int, SiPixelQuality*> siPixelQualityPrompt_Tag;
-    std::map<int, SiPixelQuality*> siPixelQualityOther_Tag;
+    std::map<int, SiPixelQuality> siPixelQualityPCL_Tag;
+    std::map<int, SiPixelQuality> siPixelQualityPrompt_Tag;
+    std::map<int, SiPixelQuality> siPixelQualityOther_Tag;
 
     for (itIOV = finalIOV.begin(); itIOV != finalIOV.end(); itIOV++) {
       int interval = 0;
@@ -371,17 +369,17 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
         // add empty bad components to "other" tag
         edm::LogInfo("SiPixelStatusHarvester")
             << "Tag requested for other in low statistics IOV in the " << outputBase_ << " harvester" << std::endl;
-        siPixelQualityOther_Tag[itIOV->first] = new SiPixelQuality();
+        siPixelQualityOther_Tag[itIOV->first] = SiPixelQuality();
 
         continue;
       }
 
       // create the DB object
       // payload including all : PCL = permanent bad (low DIGI ROC) + other + stuckTBM
-      SiPixelQuality* siPixelQualityPCL = new SiPixelQuality();
-      SiPixelQuality* siPixelQualityOther = new SiPixelQuality();
+      SiPixelQuality siPixelQualityPCL;
+      SiPixelQuality siPixelQualityOther;
       // Prompt = permanent bad(low DIGI + low eff/damaged ROCs + other)
-      SiPixelQuality* siPixelQualityPrompt = new SiPixelQuality();
+      SiPixelQuality siPixelQualityPrompt;
 
       // loop over modules
       std::map<int, SiPixelModuleStatus> detectorStatus = tmpSiPixelStatus.getDetectorStatus();
@@ -472,7 +470,7 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
         }
         if (badrocsPCL != 0) {
           BadModulePCL.BadRocs = badrocsPCL;
-          siPixelQualityPCL->addDisabledModule(BadModulePCL);
+          siPixelQualityPCL.addDisabledModule(BadModulePCL);
         }
 
         // Other
@@ -483,7 +481,7 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
         }
         if (badrocsOther != 0) {
           BadModuleOther.BadRocs = badrocsOther;
-          siPixelQualityOther->addDisabledModule(BadModuleOther);
+          siPixelQualityOther.addDisabledModule(BadModuleOther);
         }
 
         // start constructing bad components for prompt = "other" + permanent
@@ -519,7 +517,7 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
         }
         if (badrocsPrompt != 0) {
           BadModulePrompt.BadRocs = badrocsPrompt;
-          siPixelQualityPrompt->addDisabledModule(BadModulePrompt);
+          siPixelQualityPrompt.addDisabledModule(BadModulePrompt);
         }
 
       }  // end module loop
@@ -549,25 +547,20 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
     // Add a dummy IOV starting from last lumisection+1 to close the tag for the run
     if ((outputBase_ == "nLumibased" || outputBase_ == "dynamicLumibased") && !finalIOV.empty()) {
       itIOV = std::prev(finalIOV.end());  // go to last element in the pixel quality tag
-      SiPixelQuality* lastPrompt = siPixelQualityPrompt_Tag[itIOV->first];
-      SiPixelQuality* lastOther = siPixelQualityOther_Tag[itIOV->first];
+      SiPixelQuality lastPrompt = siPixelQualityPrompt_Tag[itIOV->first];
+      SiPixelQuality lastOther = siPixelQualityOther_Tag[itIOV->first];
 
       // add permanent bad components to last lumi+1 IF AND ONLY IF the last payload of prompt is not equal to permanent bad components
       edm::LuminosityBlockID lu(iRun.id().run(), endLumiBlock_ + 1);
       cond::Time_t thisIOV = (cond::Time_t)(lu.value());
       if (!SiPixelStatusHarvester::equal(lastPrompt, siPixelQualityPermBad))
-        poolDbService->writeOneIOV<SiPixelQuality>(*siPixelQualityPermBad, thisIOV, recordName_ + "_prompt");
+        poolDbService->writeOneIOV<SiPixelQuality>(siPixelQualityPermBad, thisIOV, recordName_ + "_prompt");
 
       // add empty bad components to last lumi+1 IF AND ONLY IF the last payload of other is not equal to empty
-      SiPixelQuality* siPixelQualityDummy = new SiPixelQuality();
+      SiPixelQuality siPixelQualityDummy;
       if (!SiPixelStatusHarvester::equal(lastOther, siPixelQualityDummy))
-        poolDbService->writeOneIOV<SiPixelQuality>(*siPixelQualityDummy, thisIOV, recordName_ + "_other");
-
-      delete siPixelQualityDummy;
+        poolDbService->writeOneIOV<SiPixelQuality>(siPixelQualityDummy, thisIOV, recordName_ + "_other");
     }
-
-    delete siPixelQualityPermBad;
-
   }  // end of if(poolDbService.isAvailable() )
 }
 
@@ -609,15 +602,15 @@ edm::LuminosityBlockNumber_t SiPixelStatusHarvester::stepIOV(
 }
 
 //--------------------------------------------------------------------------------------------------
-bool SiPixelStatusHarvester::equal(SiPixelQuality* a, SiPixelQuality* b) {
+bool SiPixelStatusHarvester::equal(SiPixelQuality a, SiPixelQuality b) {
   std::vector<SiPixelQuality::disabledModuleType> badRocListA;
   std::vector<SiPixelQuality::disabledModuleType> badRocListB;
 
-  for (unsigned int ia = 0; ia < (a->getBadComponentList()).size(); ia++) {
-    badRocListA.push_back((a->getBadComponentList())[ia]);
+  for (unsigned int ia = 0; ia < (a.getBadComponentList()).size(); ia++) {
+    badRocListA.push_back((a.getBadComponentList())[ia]);
   }
-  for (unsigned int ib = 0; ib < (b->getBadComponentList()).size(); ib++) {
-    badRocListB.push_back((b->getBadComponentList())[ib]);
+  for (unsigned int ib = 0; ib < (b.getBadComponentList()).size(); ib++) {
+    badRocListB.push_back((b.getBadComponentList())[ib]);
   }
 
   if (badRocListA.size() != badRocListB.size())
@@ -646,23 +639,22 @@ bool SiPixelStatusHarvester::equal(SiPixelQuality* a, SiPixelQuality* b) {
 }
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::constructTag(std::map<int, SiPixelQuality*> siPixelQualityTag,
+void SiPixelStatusHarvester::constructTag(std::map<int, SiPixelQuality> siPixelQualityTag,
                                           edm::Service<cond::service::PoolDBOutputService>& poolDbService,
                                           std::string tagName,
                                           edm::Run const& iRun) {
-  for (std::map<int, SiPixelQuality*>::iterator qIt = siPixelQualityTag.begin(); qIt != siPixelQualityTag.end();
-       ++qIt) {
+  for (std::map<int, SiPixelQuality>::iterator qIt = siPixelQualityTag.begin(); qIt != siPixelQualityTag.end(); ++qIt) {
     edm::LuminosityBlockID lu(iRun.id().run(), qIt->first);
     cond::Time_t thisIOV = (cond::Time_t)(lu.value());
 
-    SiPixelQuality* thisPayload = qIt->second;
+    SiPixelQuality thisPayload = qIt->second;
     if (qIt == siPixelQualityTag.begin())
-      poolDbService->writeOneIOV<SiPixelQuality>(*thisPayload, thisIOV, recordName_ + "_" + tagName);
+      poolDbService->writeOneIOV<SiPixelQuality>(thisPayload, thisIOV, recordName_ + "_" + tagName);
     else {
-      SiPixelQuality* prevPayload = (std::prev(qIt))->second;
+      SiPixelQuality prevPayload = (std::prev(qIt))->second;
       if (!SiPixelStatusHarvester::equal(thisPayload,
                                          prevPayload))  // only append newIOV if this payload differs wrt last
-        poolDbService->writeOneIOV<SiPixelQuality>(*thisPayload, thisIOV, recordName_ + "_" + tagName);
+        poolDbService->writeOneIOV<SiPixelQuality>(thisPayload, thisIOV, recordName_ + "_" + tagName);
     }
   }
 }

@@ -53,7 +53,7 @@ namespace edm {
       }
       ProducingModuleAdaptor(const ProducingModuleAdaptor&) = delete;                   // stop default
       const ProducingModuleAdaptor& operator=(const ProducingModuleAdaptor&) = delete;  // stop default
-      ~ProducingModuleAdaptor() override {}
+      ~ProducingModuleAdaptor() override { this->deleteModulesEarly(); }
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions) { T::fillDescriptions(descriptions); }
       static void prevalidate(ConfigurationDescriptions& descriptions) { T::prevalidate(descriptions); }
