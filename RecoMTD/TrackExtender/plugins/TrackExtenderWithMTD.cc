@@ -128,7 +128,7 @@ namespace {
       return tof;
     }
 
-    inline const size_t getSize() { return nSegment_; }
+    inline size_t getSize() const { return nSegment_; }
 
     inline size_t removeFirstSegment() {
       if (nSegment_ > 0) {
@@ -139,7 +139,7 @@ namespace {
       return nSegment_;
     }
 
-    inline const std::pair<double, double> getSegment(size_t iSegment) {
+    inline std::pair<double, double> getSegment(size_t iSegment) const {
       if (iSegment >= nSegment_) {
         throw cms::Exception("TrackExtenderWithMTD") << "Requesting non existing track segment #" << iSegment;
       }
@@ -826,7 +826,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     for (const auto& trj : trajwithmtd) {
       const auto& thetrj = (updateTraj_ ? trj : trajs.front());
       float pathLength = 0.f, tmtd = 0.f, sigmatmtd = -1.f, tofpi = 0.f, tofk = 0.f, tofp = 0.f;
-      LogDebug("TrackExtenderWithMTD") << "Refit track " << itrack << " p/pT = " << track.p() << " " << track.pt();
+      LogTrace("TrackExtenderWithMTD") << "Refit track " << itrack << " p/pT = " << track.p() << " " << track.pt();
       reco::Track result = buildTrack(track,
                                       thetrj,
                                       trj,
@@ -879,6 +879,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         }
         npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
         npixEndcap.push_back(backtrack.hitPattern().numberOfValidPixelEndcapHits());
+        LogTrace("TrackExtenderWithMTD") << "tmtd " << tmtdMap << " +/- " << sigmatmtdMap << " t0 " << t0Map << " +/- " << sigmat0Map << " tof pi/K/p " << tofpiMap << " " << tofkMap << " " << tofpMap;
       } else {
         LogTrace("TrackExtenderWithMTD") << "Error in the MTD track refitting. This should not happen";
       }
@@ -961,13 +962,15 @@ namespace {
           if (pl.second == 0.)
             continue;
 
-          const double tot_pl = pathlength0 + std::abs(pl.second);
+          //const double tot_pl = pathlength0 + std::abs(pl.second);
           const double t_vtx = useVtxConstraint ? vtxTime : 0.;
 
           constexpr double vtx_res = 0.008;
           const double t_vtx_err = useVtxConstraint ? vtx_res : bsTimeSpread;
 
-          constexpr double t_res_manual = 0.035;
+          //constexpr double t_res_manual = 0.035;
+
+          double lastpmag2 = trs0.getSegment(0).second;
 
           for (auto detitr = range.first; detitr != range.second; ++detitr) {
             for (const auto& hit : *detitr) {
@@ -975,15 +978,26 @@ namespace {
               if (!est.first)
                 continue;
 
-              TrackTofPidInfo tof = computeTrackTofPidInfo(pmag2,
-                                                           tot_pl,
+              //TrackTofPidInfo tof = computeTrackTofPidInfo(pmag2,
+                                                           //tot_pl,
+                                                           //trs0,
+                                                           //hit.time(),
+                                                           //t_res_manual,  //put hit error by hand for the moment
+                                                           //t_vtx,
+                                                           //t_vtx_err,  //put vtx error by hand for the moment
+                                                           //false,
+                                                           //TofCalc::cost);
+
+              LogTrace("TrackExtenderWithMTD") << "Cand hit t = " << hit.time() << " +/- " << hit.timeError() << " p/lastp " << std::sqrt(pmag2) << " / " << std::sqrt(lastpmag2);
+              TrackTofPidInfo tof = computeTrackTofPidInfo(lastpmag2,
+                                                           std::abs(pl.second),
                                                            trs0,
                                                            hit.time(),
-                                                           t_res_manual,  //put hit error by hand for the moment
+                                                           hit.timeError(),
                                                            t_vtx,
                                                            t_vtx_err,  //put vtx error by hand for the moment
                                                            false,
-                                                           TofCalc::cost);
+                                                           TofCalc::mixd);
               MTDHitMatchingInfo mi;
               mi.hit = &hit;
               mi.estChi2 = est.second;
@@ -1225,8 +1239,8 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
         trs.removeFirstSegment();
         const MTDTrackingRecHit* mtdhit1 = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
         const MTDTrackingRecHit* mtdhit2 = static_cast<const MTDTrackingRecHit*>((*(ihit1 + 1)).recHit()->hit());
-	TrackTofPidInfo tofInfo = computeTrackTofPidInfo(
-	    lastStep.second, etlpathlength, trs, mtdhit1->time(), mtdhit1->timeError(), 0., 0., true, TofCalc::cost);
+        TrackTofPidInfo tofInfo = computeTrackTofPidInfo(
+          lastStep.second, etlpathlength, trs, mtdhit1->time(), mtdhit1->timeError(), 0., 0., true, TofCalc::cost);
         //
         // Protect against incompatible times
         //
