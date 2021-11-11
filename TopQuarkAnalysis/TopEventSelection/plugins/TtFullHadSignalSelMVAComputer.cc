@@ -22,13 +22,6 @@ void TtFullHadSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSet
 
   mvaComputer.update<TtFullHadSignalSelMVARcd>(setup, "ttFullHadSignalSelMVA");
 
-  // read name of the last processor in the MVA calibration
-  // (to be used as meta information)
-  edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> calibContainer;
-  setup.get<TtFullHadSignalSelMVARcd>().get(calibContainer);
-  std::vector<PhysicsTools::Calibration::VarProcessor*> processors =
-      (calibContainer->find("ttFullHadSignalSelMVA")).getProcessors();
-
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByToken(jetsToken_, jets);
 

@@ -28,7 +28,7 @@ void TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup
   // (to be used as meta information)
   edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> calibContainer;
   setup.get<TtSemiLepJetCombMVARcd>().get(calibContainer);
-  std::vector<PhysicsTools::Calibration::VarProcessor*> processors =
+  std::vector<const PhysicsTools::Calibration::VarProcessor*> processors =
       (calibContainer->find("ttSemiLepJetCombMVA")).getProcessors();
   *pOutMeth = (processors[processors.size() - 3])->getInstanceName();
   evt.put(std::move(pOutMeth), "Method");

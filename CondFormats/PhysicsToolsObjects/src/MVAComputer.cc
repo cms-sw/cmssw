@@ -138,7 +138,13 @@ namespace PhysicsTools {
       return *this;
     }
 
-    std::vector<VarProcessor *> MVAComputer::getProcessors() const { return processors; }
+    std::vector<VarProcessor *> MVAComputer::getProcessors() { return processors; }
+
+    std::vector<const VarProcessor *> MVAComputer::getProcessors() const {
+      std::vector<const VarProcessor *> ret(processors.size());
+      std::copy(processors.begin(), processors.end(), ret.begin());
+      return ret;
+    }
 
     void MVAComputer::addProcessor(const VarProcessor *proc) {
       cacheId = getNextMVAComputerCacheId();
