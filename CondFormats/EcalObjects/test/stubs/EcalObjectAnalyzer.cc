@@ -150,7 +150,6 @@ void EcalObjectAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &con
   }
 
   const auto &gr = context.getData(gainRatiosToken_);
-  EcalGainRatioMap::const_iterator grit;
   // Barrel loop
   for (const auto &mgpa : gr.barrelItems()) {
     edm::LogVerbatim("EcalObjectAnalyzer")
