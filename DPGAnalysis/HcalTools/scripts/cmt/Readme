@@ -38,6 +38,9 @@ III.-------   Necessary corrections:
 
 IVa.  -------  Running interactively: 
 ====================================
+setenv SCRAM_ARCH slc7_amd64_gcc900
+cmsenv
+voms-proxy-init -voms cms -rfc
 
 ./mkcfg_new120.csh runlist_run
 
