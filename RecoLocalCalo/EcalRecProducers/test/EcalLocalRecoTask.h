@@ -42,20 +42,13 @@ public:
   typedef dqm::legacy::MonitorElement MonitorElement;
 
   /// Constructor
-  EcalLocalRecoTask(const edm::ParameterSet& ps);
+  explicit EcalLocalRecoTask(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~EcalLocalRecoTask();
+  ~EcalLocalRecoTask() override;
 
-protected:
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  // BeginJob
-  void beginJob();
-
-  // EndJob
-  void endJob(void);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
   typedef std::map<uint32_t, float, std::less<uint32_t>> MapType;

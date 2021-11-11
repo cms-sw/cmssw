@@ -35,10 +35,11 @@ Implementation:
 class testEcalClusterTools : public edm::one::EDAnalyzer<> {
 public:
   explicit testEcalClusterTools(const edm::ParameterSet&);
+  ~testEcalClusterTools() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-
   using ClusterTools = noZS::EcalClusterTools;  // alternatively just EcalClusterTools
 
   const edm::EDGetToken barrelClusterToken_;

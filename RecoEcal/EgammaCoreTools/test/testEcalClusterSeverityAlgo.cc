@@ -54,13 +54,16 @@ Implementation:
 class testEcalClusterSeverityAlgo : public edm::one::EDAnalyzer<> {
 public:
   explicit testEcalClusterSeverityAlgo(const edm::ParameterSet&);
-  ~testEcalClusterSeverityAlgo();
+  ~testEcalClusterSeverityAlgo() override;
 
-  edm::InputTag barrelClusterCollection_;
-  edm::InputTag endcapClusterCollection_;
-  edm::InputTag reducedBarrelRecHitCollection_;
-  edm::InputTag reducedEndcapRecHitCollection_;
-  edm::InputTag mcTruthCollection_;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  const edm::InputTag barrelClusterCollection_;
+  const edm::InputTag endcapClusterCollection_;
+  const edm::InputTag reducedBarrelRecHitCollection_;
+  const edm::InputTag reducedEndcapRecHitCollection_;
+  const edm::InputTag mcTruthCollection_;
 
   struct ClusterSeverityTreeContent {
 #define NMAXOBJ 50
@@ -123,9 +126,6 @@ public:
   }
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-
   const edm::EDGetTokenT<reco::SuperClusterCollection> ebSCToken_;
   const edm::EDGetTokenT<reco::SuperClusterCollection> eeSCToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> ebRecHitsToken_;

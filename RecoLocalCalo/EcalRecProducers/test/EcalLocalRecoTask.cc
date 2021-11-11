@@ -4,10 +4,10 @@
  *
 */
 
-#include <RecoLocalCalo/EcalRecProducers/test/EcalLocalRecoTask.h>
-#include <DataFormats/EcalDetId/interface/EBDetId.h>
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
-#include <DataFormats/EcalDetId/interface/ESDetId.h>
+#include "RecoLocalCalo/EcalRecProducers/test/EcalLocalRecoTask.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
@@ -73,10 +73,6 @@ EcalLocalRecoTask::~EcalLocalRecoTask() {
   if (outputFile_.size() != 0 && dbe_)
     dbe_->save(outputFile_);
 }
-
-void EcalLocalRecoTask::beginJob() {}
-
-void EcalLocalRecoTask::endJob() {}
 
 void EcalLocalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
   edm::LogInfo("EcalLocalRecoTaskInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();

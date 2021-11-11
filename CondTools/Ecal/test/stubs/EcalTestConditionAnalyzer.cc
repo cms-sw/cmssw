@@ -55,12 +55,11 @@
 class EcalTestConditionAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalTestConditionAnalyzer(const edm::ParameterSet&);
+  ~EcalTestConditionAnalyzer() override = default;
+
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
 private:
-  virtual void beginJob() {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
-
   const edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> adcToGeVConstantToken_;
   const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> channelStatusToken_;
   const edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> gainRatiosToken_;

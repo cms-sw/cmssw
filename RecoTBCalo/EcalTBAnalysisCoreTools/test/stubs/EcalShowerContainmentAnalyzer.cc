@@ -7,9 +7,9 @@
  *
 */
 
-#include <FWCore/Framework/interface/one/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
@@ -32,21 +32,21 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include <TFile.h>
-#include <TTree.h>
+#include "TFile.h"
+#include "TTree.h"
 
 #include <vector>
 #include <map>
 
 class EcalShowerContainmentAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  EcalShowerContainmentAnalyzer(const edm::ParameterSet& ps);
-  ~EcalShowerContainmentAnalyzer();
+  explicit EcalShowerContainmentAnalyzer(const edm::ParameterSet& ps);
+  ~EcalShowerContainmentAnalyzer() override;
+
+  void analyze(edm::Event const& iEvent, const edm::EventSetup& iSetup) override;
+  void endJob() override;
 
 protected:
-  void analyze(edm::Event const& iEvent, const edm::EventSetup& iSetup);
-  void endJob();
-
   void readIntercalibrationConstants();
 
   std::vector<EBDetId> Xtals3x3(const edm::Event& iEvent, EBDetId centerXtal);

@@ -7,7 +7,7 @@ simple analyzer to dump information about ECAL cond objects
 ----------------------------------------------------------------------*/
 
 #include <sstream>
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -57,11 +57,12 @@ simple analyzer to dump information about ECAL cond objects
 
 using namespace std;
 
-class EcalObjectAnalyzer : public edm::one::EDAnalyzer<> {
+class EcalObjectAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   explicit EcalObjectAnalyzer(edm::ParameterSet const &p);
-  virtual ~EcalObjectAnalyzer() {}
-  virtual void analyze(const edm::Event &e, const edm::EventSetup &c);
+  ~EcalObjectAnalyzer() override = default;
+
+  void analyze(edm::StreamID, edm::Event const &, edm::EventSetup const &) const override;
 
 private:
   const edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedestalsToken_;
@@ -96,7 +97,7 @@ EcalObjectAnalyzer::EcalObjectAnalyzer(edm::ParameterSet const &p)
       laserAPDPNRatiosRefToken_(esConsumes()),
       mappingElectronicsToken_(esConsumes()) {}
 
-void EcalObjectAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &context) {
+void EcalObjectAnalyzer::analyze(edm::StreamID, const edm::Event &e, const edm::EventSetup &context) const {
   using namespace edm::eventsetup;
   // Context is not used.
   edm::LogVerbatim("EcalObjectAnalyzer") << ">>> EcalObjectAnalyzer: processing run " << e.id().run()
