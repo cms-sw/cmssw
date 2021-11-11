@@ -38,9 +38,9 @@
 class testEcalRingCalibrationTools : public edm::one::EDAnalyzer<> {
 public:
   explicit testEcalRingCalibrationTools(const edm::ParameterSet&);
-  ~testEcalRingCalibrationTools();
+  ~testEcalRingCalibrationTools() override = default;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
@@ -65,11 +65,6 @@ testEcalRingCalibrationTools::testEcalRingCalibrationTools(const edm::ParameterS
     : geometryToken_(esConsumes()), pass_(0) {
   //now do what ever initialization is needed
   //  fullEcalDump_=iConfig.getUntrackedParameter<bool>("fullEcalDump",false);
-}
-
-testEcalRingCalibrationTools::~testEcalRingCalibrationTools() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 void testEcalRingCalibrationTools::build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name) {

@@ -27,9 +27,9 @@
 class CaloNavigationAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit CaloNavigationAnalyzer(const edm::ParameterSet&);
-  ~CaloNavigationAnalyzer();
+  ~CaloNavigationAnalyzer() override = default;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
 private:
   const edm::ESGetToken<CaloTopology, CaloTopologyRecord> esToken_;
@@ -40,11 +40,6 @@ private:
 // constructors and destructor
 //
 CaloNavigationAnalyzer::CaloNavigationAnalyzer(const edm::ParameterSet& iConfig) : esToken_(esConsumes()), pass_(0) {}
-
-CaloNavigationAnalyzer::~CaloNavigationAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
 
 //
 // member functions

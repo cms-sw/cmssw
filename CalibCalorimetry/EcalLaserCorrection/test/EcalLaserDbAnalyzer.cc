@@ -6,7 +6,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -20,12 +20,12 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-class EcalLaserDbAnalyzer : public edm::one::EDAnalyzer<> {
+class EcalLaserDbAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   explicit EcalLaserDbAnalyzer(const edm::ParameterSet&);
-  ~EcalLaserDbAnalyzer();
+  ~EcalLaserDbAnalyzer() override = default;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
 
 private:
   // ----------member data ---------------------------
@@ -45,14 +45,12 @@ private:
 //
 EcalLaserDbAnalyzer::EcalLaserDbAnalyzer(const edm::ParameterSet& iConfig) : laserDbToken_(esConsumes()) {}
 
-EcalLaserDbAnalyzer::~EcalLaserDbAnalyzer() {}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void EcalLaserDbAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EcalLaserDbAnalyzer::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const& iSetup) const {
   // get record from offline DB
   const auto& setup = iSetup.getData(laserDbToken_);
   edm::LogInfo("EcalLaserDbService") << "EcalLaserDbAnalyzer::analyze-> got EcalLaserDbRecord:";

@@ -31,9 +31,9 @@ using namespace std;
 class EcalLaserTestAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalLaserTestAnalyzer(const edm::ParameterSet&);
-  ~EcalLaserTestAnalyzer();
+  ~EcalLaserTestAnalyzer() override = default;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
 private:
   //  std::string m_timetype;
@@ -82,11 +82,6 @@ EcalLaserTestAnalyzer::EcalLaserTestAnalyzer(const edm::ParameterSet& iConfig)
   //      m_records.insert( std::make_pair(container, record) );
 
   //    }
-}
-
-EcalLaserTestAnalyzer::~EcalLaserTestAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //

@@ -1,7 +1,5 @@
-
-
-#include <FWCore/Framework/interface/one/EDAnalyzer.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -12,10 +10,10 @@
 
 class EcalSeverityLevelAlgoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
-  EcalSeverityLevelAlgoAnalyzer(const edm::ParameterSet& ps);
+  explicit EcalSeverityLevelAlgoAnalyzer(const edm::ParameterSet& ps);
+  ~EcalSeverityLevelAlgoAnalyzer() override = default;
 
-protected:
-  void analyze(edm::Event const& iEvent, const edm::EventSetup& iSetup);
+  void analyze(edm::Event const& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   const edm::EDGetTokenT<EcalRecHitCollection> recHitsToken_;

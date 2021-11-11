@@ -29,10 +29,9 @@
 class ProbClustersFilter : public edm::stream::EDFilter<> {
 public:
   explicit ProbClustersFilter(const edm::ParameterSet&);
-  ~ProbClustersFilter();
+  ~ProbClustersFilter() override = default;
 
-private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
   int maxDistance_;
@@ -61,8 +60,6 @@ ProbClustersFilter::ProbClustersFilter(const edm::ParameterSet& iConfig)
       ebRecHitsToken_(consumes<EcalRecHitCollection>(reducedBarrelRecHitCollection_)),
       topologyToken_(esConsumes()),
       severityLevelAlgoToken_(esConsumes()) {}
-
-ProbClustersFilter::~ProbClustersFilter() {}
 
 bool ProbClustersFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   int problematicClusters = 0;
