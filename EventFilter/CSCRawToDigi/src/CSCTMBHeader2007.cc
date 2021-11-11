@@ -16,7 +16,6 @@ CSCTMBHeader2007::CSCTMBHeader2007(const unsigned short* buf) { memcpy(data(), b
 void CSCTMBHeader2007::setEventInformation(const CSCDMBHeader& dmbHeader) {
   bits.cscID = dmbHeader.dmbID();
   bits.l1aNumber = dmbHeader.l1a();
-  //    bits.bxnCount = dmbHeader.bxn();
 }
 
 ///returns CLCT digis
@@ -29,7 +28,6 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2007::CLCTDigis(uint32_t idlayer) {
   //offlineStripNumbering(strip, cfeb, pattern, bend);
   CSCCLCTDigi digi0(
       bits.clct0_valid, bits.clct0_quality, pattern, 1, bend, strip, cfeb, bits.clct0_bxn, 1, bits.bxnPreTrigger);
-  //digi0.setFullBX(bits.bxnPreTrigger);
 
   strip = bits.clct1_key;
   cfeb = (bits.clct1_cfeb_low) | (bits.clct1_cfeb_high << 1);
@@ -38,7 +36,6 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2007::CLCTDigis(uint32_t idlayer) {
   //offlineStripNumbering(strip, cfeb, pattern, bend);
   CSCCLCTDigi digi1(
       bits.clct1_valid, bits.clct1_quality, pattern, 1, bend, strip, cfeb, bits.clct1_bxn, 2, bits.bxnPreTrigger);
-  //digi1.setFullBX(bits.bxnPreTrigger);
 
   //if (digi0.isValid() && digi1.isValid()) swapCLCTs(digi0, digi1);
 
@@ -168,21 +165,13 @@ void CSCTMBHeader2007::print(std::ostream& os) const {
      << "\n";
   os << std::hex << "BOC LINE " << bits.b0cline << " EOB " << bits.e0bline << "\n";
   os << std::dec << "fifoMode = " << bits.fifoMode << ", nTBins = " << bits.nTBins << "\n";
-  //  os << "dumpCFEBs = " << dumpCFEBs << ", nHeaderFrames = "
-  //     << nHeaderFrames << "\n";
   os << "boardID = " << bits.boardID << ", cscID = " << bits.cscID << "\n";
   os << "l1aNumber = " << bits.l1aNumber << ", bxnCount = " << bits.bxnCount << "\n";
-  //  os << "preTrigTBins = " << preTrigTBins << ", nCFEBs = "<< nCFEBs<< " ";
   os << "trigSourceVect = " << bits.trigSourceVect << ", activeCFEBs = " << bits.activeCFEBs << "\n";
   os << "bxnPreTrigger = " << bits.bxnPreTrigger << "\n";
   os << "tmbMatch = " << bits.tmbMatch << " alctOnly = " << bits.alctOnly << " clctOnly = " << bits.clctOnly << "\n";
-  //     << " alctMatchTime = " << alctMatchTime << " ";
-  //  os << "hs_thresh = " << hs_thresh << ", ds_thresh = " << ds_thresh
-  //     << " ";
   os << "clct0_key = " << bits.clct0_key << " bits.clct0_shape = " << bits.clct0_shape
      << " clct0_quality = " << bits.clct0_quality << "\n";
-  //  os << "r_buf_nbusy = " << r_buf_nbusy << " ";
-
   os << "..................CLCT....................."
      << "\n";
 }

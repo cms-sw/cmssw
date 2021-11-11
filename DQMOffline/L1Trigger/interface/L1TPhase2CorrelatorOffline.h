@@ -75,8 +75,8 @@ private:
 
   void computeResponseResolution();
 
+  std::vector<float> getQuantile(float quant, TH2F* hist);
   void medianResponseCorrResolution(MonitorElement* in2D, MonitorElement* response, MonitorElement* resolution);
-  void medianResponse(MonitorElement* in2D, MonitorElement* response);
 
   struct SimpleObject {
     float pt, eta, phi;
