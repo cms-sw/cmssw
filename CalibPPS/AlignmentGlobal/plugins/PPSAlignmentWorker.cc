@@ -73,6 +73,7 @@ private:
 
       SlicePlots();
       SlicePlots(DQMStore::IBooker& iBooker, const PPSAlignmentConfiguration& cfg, bool debug);
+      void fill(const double y, const double yDiff, const bool debug);
     };
 
     std::map<unsigned int, SlicePlots> x_slice_plots_N, x_slice_plots_F;
@@ -169,6 +170,13 @@ PPSAlignmentWorker::SectorData::SlicePlots::SlicePlots(DQMStore::IBooker& iBooke
                                        cfg.binning().slice_n_bins_y_,
                                        cfg.binning().slice_y_min_,
                                        cfg.binning().slice_y_max_);
+}
+
+void PPSAlignmentWorker::SectorData::SlicePlots::fill(const double y, const double yDiff, const bool debug) {
+  h_y->Fill(y);
+  p_y_diffFN_vs_y->Fill(y, yDiff);
+  if (debug)
+    h2_y_diffFN_vs_y->Fill(y, yDiff);
 }
 
 void PPSAlignmentWorker::SectorData::init(DQMStore::IBooker& iBooker,
@@ -340,18 +348,12 @@ unsigned int PPSAlignmentWorker::SectorData::process(const CTPPSLocalTrackLiteCo
 
         int idx = (trUp.x() - scfg_.rp_N_.x_slice_min_) / scfg_.rp_N_.x_slice_w_;
         if (idx >= 0 && idx < scfg_.rp_N_.x_slice_n_) {
-          x_slice_plots_N[idx].h_y->Fill(trUp.y());
-          x_slice_plots_N[idx].p_y_diffFN_vs_y->Fill(trUp.y(), trDw.y() - trUp.y());
-          if (debug)
-            x_slice_plots_N[idx].h2_y_diffFN_vs_y->Fill(trUp.y(), trDw.y() - trUp.y());
+          x_slice_plots_N[idx].fill(trUp.y(), trDw.y() - trUp.y(), debug);
         }
 
         idx = (trDw.x() - scfg_.rp_F_.x_slice_min_) / scfg_.rp_F_.x_slice_w_;
         if (idx >= 0 && idx < scfg_.rp_F_.x_slice_n_) {
-          x_slice_plots_F[idx].h_y->Fill(trDw.y());
-          x_slice_plots_F[idx].p_y_diffFN_vs_y->Fill(trDw.y(), trDw.y() - trUp.y());
-          if (debug)
-            x_slice_plots_F[idx].h2_y_diffFN_vs_y->Fill(trDw.y(), trDw.y() - trUp.y());
+          x_slice_plots_F[idx].fill(trDw.y(), trDw.y() - trUp.y(), debug);
         }
       }
     }
