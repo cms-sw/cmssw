@@ -22,13 +22,12 @@
 #include "G4TransportationManager.hh"
 
 #include <iostream>
-#include <memory>
 
 namespace {
   void createWatchers(const edm::ParameterSet &iP,
                       SimActivityRegistry &iReg,
-                      std::vector<SimWatcher *> &oWatchers,
-                      std::vector<SimProducer *> &oProds) {
+                      std::vector<std::shared_ptr<SimWatcher>> &oWatchers,
+                      std::vector<std::shared_ptr<SimProducer>> &oProds) {
     std::vector<edm::ParameterSet> watchers = iP.getParameter<std::vector<edm::ParameterSet>>("Watchers");
 
     // Watchers following old interface applicable only to 1-thread run
@@ -38,16 +37,18 @@ namespace {
             SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
         if (maker == nullptr) {
           throw edm::Exception(edm::errors::Configuration)
-              << "RunManagerMTWorker: Unable to find the requested Watcher <"
+              << "RunManagerMTWorker: Unable to find the requested Watcher "
               << watcher.getParameter<std::string>("type");
-        }
-        SimWatcher *watcherTemp = maker->makeWatcher(watcher, iReg);
-        if (nullptr != watcherTemp) {
-          oWatchers.push_back(watcherTemp);
-        }
-        SimProducer *producerTemp = static_cast<SimProducer *>(watcherTemp);
-        if (nullptr != producerTemp) {
-          oProds.push_back(producerTemp);
+        } else {
+          std::shared_ptr<SimWatcher> watcherTemp;
+          std::shared_ptr<SimProducer> producerTemp;
+          maker->make(watcher, iReg, watcherTemp, producerTemp);
+          if (nullptr != watcherTemp) {
+            oWatchers.push_back(watcherTemp);
+          }
+          if (nullptr != producerTemp) {
+            oProds.push_back(producerTemp);
+          }
         }
       }
     }

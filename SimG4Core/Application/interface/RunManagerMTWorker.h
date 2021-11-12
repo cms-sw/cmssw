@@ -9,6 +9,7 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include <memory>
 #include <tbb/concurrent_vector.h>
@@ -46,7 +47,6 @@ class SensitiveDetectorMakerBase;
 class SimWatcher;
 class SimProducer;
 class SimRunInterface;
-class SimActivityRegistry;
 class SimTrackManager;
 
 class RunManagerMTWorker {
@@ -75,7 +75,7 @@ public:
   inline SimTrackManager* GetSimTrackManager() const { return m_trackManager.get(); }
   inline std::vector<SensitiveTkDetector*>& sensTkDetectors() { return m_sensTkDets; }
   inline std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { return m_sensCaloDets; }
-  inline std::vector<SimProducer*>& producers() { return m_producers; }
+  inline std::vector<std::shared_ptr<SimProducer>>& producers() { return m_producers; }
 
 private:
   void initializeUserActions();
@@ -118,10 +118,11 @@ private:
   edm::ParameterSet m_pCustomUIsession;
   edm::ParameterSet m_p;
 
+  SimActivityRegistry m_registry;
+
   std::unique_ptr<G4RunManagerKernel> m_kernel;
   std::unique_ptr<RunAction> m_userRunAction;
   std::unique_ptr<SimRunInterface> m_runInterface;
-  std::unique_ptr<SimActivityRegistry> m_registry;
   std::unique_ptr<SimTrackManager> m_trackManager;
   std::unique_ptr<G4Event> m_currentEvent;
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose{nullptr};
@@ -131,8 +132,8 @@ private:
 
   std::vector<SensitiveTkDetector*> m_sensTkDets;
   std::vector<SensitiveCaloDetector*> m_sensCaloDets;
-  std::vector<SimWatcher*> m_watchers;
-  std::vector<SimProducer*> m_producers;
+  std::vector<std::shared_ptr<SimWatcher>> m_watchers;
+  std::vector<std::shared_ptr<SimProducer>> m_producers;
 
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
 };

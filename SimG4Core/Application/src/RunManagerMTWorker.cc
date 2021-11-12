@@ -74,13 +74,11 @@ namespace {
   int get_new_thread_index() { return thread_counter++; }
 
   bool createWatchers(const edm::ParameterSet& iP,
-                      SimActivityRegistry* iReg,
-                      std::vector<SimWatcher*>& oWatchers,
-                      std::vector<SimProducer*>& oProds,
+                      SimActivityRegistry& iReg,
+                      std::vector<std::shared_ptr<SimWatcher>>& oWatchers,
+                      std::vector<std::shared_ptr<SimProducer>>& oProds,
                       int threadID) {
     std::vector<edm::ParameterSet> watchers = iP.getParameter<std::vector<edm::ParameterSet>>("Watchers");
-
-    // Watchers following old interface applicable only to 1-thread run
     if (watchers.empty()) {
       return false;
     }
@@ -93,16 +91,18 @@ namespace {
             << "RunManagerMTWorker::createWatchers: "
             << "Unable to find the requested Watcher " << watcher.getParameter<std::string>("type");
       } else {
-        SimWatcher* newWatcher = maker->makeWatcher(watcher, *(iReg));
-        if (nullptr != newWatcher) {
-          if (!newWatcher->isMT() && 0 < threadID) {
+        std::shared_ptr<SimWatcher> watcherTemp;
+        std::shared_ptr<SimProducer> producerTemp;
+        maker->make(watcher, iReg, watcherTemp, producerTemp);
+        edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::createWatchers for the thread " << threadID;
+        if (nullptr != watcherTemp) {
+          if (!watcherTemp->isMT() && 0 < threadID) {
             throw edm::Exception(edm::errors::Configuration)
                 << "RunManagerMTWorker::createWatchers: "
                 << "Unable to use Watcher " << watcher.getParameter<std::string>("type") << " if number of threads > 1";
 
           } else {
-            oWatchers.push_back(newWatcher);
-            SimProducer* producerTemp = static_cast<SimProducer*>(newWatcher);
+            oWatchers.push_back(watcherTemp);
             if (nullptr != producerTemp) {
               oProds.push_back(producerTemp);
             }
@@ -133,19 +133,19 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
       m_pSteppingAction(iConfig.getParameter<edm::ParameterSet>("SteppingAction")),
       m_pCustomUIsession(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomUIsession")),
       m_p(iConfig) {
+  int thisID = getThreadIndex();
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker for the thread " << thisID;
+
   std::vector<std::string> onlySDs = iConfig.getParameter<std::vector<std::string>>("OnlySDs");
   m_sdMakers = sim::sensitiveDetectorMakers(m_p, iC, onlySDs);
-  m_registry = std::make_unique<SimActivityRegistry>();
-
-  int thisID = getThreadIndex();
 
   // Look for an outside SimActivityRegistry this is used by the visualization code
   edm::Service<SimActivityRegistry> otherRegistry;
-  if (otherRegistry && 0 == thisID) {
-    m_registry->connect(*otherRegistry);
+  if (otherRegistry) {
+    m_registry.connect(*otherRegistry);
   }
 
-  m_hasWatchers = createWatchers(m_p, m_registry.get(), m_watchers, m_producers, thisID);
+  m_hasWatchers = createWatchers(m_p, m_registry, m_watchers, m_producers, thisID);
   if (m_hasWatchers) {
     for (auto& watcher : m_watchers) {
       watcher->registerConsumes(iC);
@@ -167,11 +167,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
     edm::LogVerbatim("SimG4CoreApplication") << "SD[" << k << "] " << itr->first;
 }
 
-RunManagerMTWorker::~RunManagerMTWorker() {
-  for (auto& watcher : m_watchers) {
-    delete watcher;
-  }
-}
+RunManagerMTWorker::~RunManagerMTWorker() {}
 
 void RunManagerMTWorker::beginRun(edm::EventSetup const& es) {
   int thisID = getThreadIndex();
@@ -264,8 +260,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   }
 
   // attach sensitive detector
-  auto sensDets =
-      sim::attachSD(m_sdMakers, es, runManagerMaster->catalog(), m_p, m_trackManager.get(), *(m_registry.get()));
+  auto sensDets = sim::attachSD(m_sdMakers, es, runManagerMaster->catalog(), m_p, m_trackManager.get(), m_registry);
 
   m_sensTkDets.swap(sensDets.first);
   m_sensCaloDets.swap(sensDets.second);
@@ -300,7 +295,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   }
   //tell all interesting parties that we are beginning the job
   BeginOfJob aBeginOfJob(&es);
-  m_registry->beginOfJobSignal_(&aBeginOfJob);
+  m_registry.beginOfJobSignal_(&aBeginOfJob);
 
   G4int sv = m_p.getUntrackedParameter<int>("SteppingVerbosity", 0);
   G4double elim = m_p.getUntrackedParameter<double>("StepVerboseThreshold", 0.1) * CLHEP::GeV;
@@ -348,22 +343,22 @@ void RunManagerMTWorker::initializeUserActions() {
 }
 
 void RunManagerMTWorker::Connect(RunAction* runAction) {
-  runAction->m_beginOfRunSignal.connect(m_registry->beginOfRunSignal_);
-  runAction->m_endOfRunSignal.connect(m_registry->endOfRunSignal_);
+  runAction->m_beginOfRunSignal.connect(m_registry.beginOfRunSignal_);
+  runAction->m_endOfRunSignal.connect(m_registry.endOfRunSignal_);
 }
 
 void RunManagerMTWorker::Connect(EventAction* eventAction) {
-  eventAction->m_beginOfEventSignal.connect(m_registry->beginOfEventSignal_);
-  eventAction->m_endOfEventSignal.connect(m_registry->endOfEventSignal_);
+  eventAction->m_beginOfEventSignal.connect(m_registry.beginOfEventSignal_);
+  eventAction->m_endOfEventSignal.connect(m_registry.endOfEventSignal_);
 }
 
 void RunManagerMTWorker::Connect(TrackingAction* trackingAction) {
-  trackingAction->m_beginOfTrackSignal.connect(m_registry->beginOfTrackSignal_);
-  trackingAction->m_endOfTrackSignal.connect(m_registry->endOfTrackSignal_);
+  trackingAction->m_beginOfTrackSignal.connect(m_registry.beginOfTrackSignal_);
+  trackingAction->m_endOfTrackSignal.connect(m_registry.endOfTrackSignal_);
 }
 
 void RunManagerMTWorker::Connect(SteppingAction* steppingAction) {
-  steppingAction->m_g4StepSignal.connect(m_registry->g4StepSignal_);
+  steppingAction->m_g4StepSignal.connect(m_registry.g4StepSignal_);
 }
 
 void RunManagerMTWorker::initializeRun() {

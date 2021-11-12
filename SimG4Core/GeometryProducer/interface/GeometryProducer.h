@@ -50,7 +50,7 @@ public:
   void produce(edm::Event &e, const edm::EventSetup &c) override;
   void beginLuminosityBlock(edm::LuminosityBlock &, edm::EventSetup const &);
 
-  std::vector<SimProducer *> &producers() { return m_producers; }
+  std::vector<std::shared_ptr<SimProducer>> &producers() { return m_producers; }
   std::vector<SensitiveTkDetector *> &sensTkDetectors() { return m_sensTkDets; }
   std::vector<SensitiveCaloDetector *> &sensCaloDetectors() { return m_sensCaloDets; }
 
@@ -60,8 +60,8 @@ private:
   G4RunManagerKernel *m_kernel;
   edm::ParameterSet m_pField;
   SimActivityRegistry m_registry;
-  std::vector<SimWatcher *> m_watchers;
-  std::vector<SimProducer *> m_producers;
+  std::vector<std::shared_ptr<SimWatcher>> m_watchers;
+  std::vector<std::shared_ptr<SimProducer>> m_producers;
   std::unique_ptr<sim::FieldBuilder> m_fieldBuilder;
   std::unique_ptr<SimTrackManager> m_trackManager;
   std::vector<SensitiveTkDetector *> m_sensTkDets;
