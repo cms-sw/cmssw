@@ -1,5 +1,5 @@
-#ifndef SOMEPACKAGE_WRITEESALIGNMENTS_H
-#define SOMEPACKAGE_WRITEESALIGNMENTS_H 1
+#ifndef Geometry_EcalAlgo_WriteESAlignments_h
+#define Geometry_EcalAlgo_WriteESAlignments_h
 
 namespace edm {
   class ConsumesCollector;
@@ -13,7 +13,6 @@ namespace edm {
 
 class WriteESAlignments {
 public:
-  typedef Alignments* AliPtr;
   typedef std::vector<AlignTransform> AliVec;
 
   typedef AlignTransform::Translation Trl;
@@ -43,7 +42,7 @@ private:
                const DVec& z,
                AliVec& va);
 
-  void write(AliPtr aliPtr);
+  void write(const Alignments& ali);
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   edm::ESGetToken<Alignments, ESAlignmentRcd> alignmentToken_;

@@ -7,7 +7,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <fstream>
-#include <iostream>
 #include <string>
 #include <cstring>
 #include <ctime>
@@ -65,94 +64,86 @@ void StoreESCondition::endJob() {
                                      << newTime << "\n";
     if (objectName_[i] == "ESChannelStatus") {
       edm::LogInfo("StoreESCondition") << " ESChannelStatus file " << inpFileName_[i] << "\n";
-      ESChannelStatus* mycali = readESChannelStatusFromFile(inpFileName_[i].c_str());
+      const auto mycali = readESChannelStatusFromFile(inpFileName_[i].c_str());
       edm::LogInfo("StoreESCondition") << " ESChannelStatus file read "
                                        << "\n";
       if (!toAppend) {
         edm::LogInfo("StoreESCondition") << " before create "
                                          << "\n";
-        mydbservice->createNewIOV<ESChannelStatus>(mycali, newTime, mydbservice->endOfTime(), "ESChannelStatusRcd");
+        mydbservice->createOneIOV<ESChannelStatus>(*mycali, newTime, "ESChannelStatusRcd");
         edm::LogInfo("StoreESCondition") << " after create "
                                          << "\n";
       } else {
         edm::LogInfo("StoreESCondition") << " before append "
                                          << "\n";
-        mydbservice->appendSinceTime<ESChannelStatus>(mycali, newTime, "ESChannelStatusRcd");
+        mydbservice->appendOneIOV<ESChannelStatus>(*mycali, newTime, "ESChannelStatusRcd");
         edm::LogInfo("StoreESCondition") << " after append "
                                          << "\n";
       }
     } else if (objectName_[i] == "ESIntercalibConstants") {
-      ESIntercalibConstants* myintercalib = readESIntercalibConstantsFromFile(inpFileName_[i].c_str());
+      const auto myintercalib = readESIntercalibConstantsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESIntercalibConstants>(
-            myintercalib, newTime, mydbservice->endOfTime(), "ESIntercalibConstantsRcd");
+        mydbservice->createOneIOV<ESIntercalibConstants>(*myintercalib, newTime, "ESIntercalibConstantsRcd");
       } else {
-        mydbservice->appendSinceTime<ESIntercalibConstants>(myintercalib, newTime, "ESIntercalibConstantsRcd");
+        mydbservice->appendOneIOV<ESIntercalibConstants>(*myintercalib, newTime, "ESIntercalibConstantsRcd");
       }
     } else if (objectName_[i] == "ESTimeSampleWeights") {
-      ESTimeSampleWeights* myintercalib = readESTimeSampleWeightsFromFile(inpFileName_[i].c_str());
+      const auto myintercalib = readESTimeSampleWeightsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESTimeSampleWeights>(
-            myintercalib, newTime, mydbservice->endOfTime(), "ESTimeSampleWeightsRcd");
+        mydbservice->createOneIOV<ESTimeSampleWeights>(*myintercalib, newTime, "ESTimeSampleWeightsRcd");
       } else {
-        mydbservice->appendSinceTime<ESTimeSampleWeights>(myintercalib, newTime, "ESTimeSampleWeightsRcd");
+        mydbservice->appendOneIOV<ESTimeSampleWeights>(*myintercalib, newTime, "ESTimeSampleWeightsRcd");
       }
     } else if (objectName_[i] == "ESGain") {
-      ESGain* myintercalib = readESGainFromFile(inpFileName_[i].c_str());
+      const auto myintercalib = readESGainFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESGain>(myintercalib, newTime, mydbservice->endOfTime(), "ESGainRcd");
+        mydbservice->createOneIOV<ESGain>(*myintercalib, newTime, "ESGainRcd");
       } else {
-        mydbservice->appendSinceTime<ESGain>(myintercalib, newTime, "ESGainRcd");
+        mydbservice->appendOneIOV<ESGain>(*myintercalib, newTime, "ESGainRcd");
       }
     } else if (objectName_[i] == "ESMissingEnergyCalibration") {
-      ESMissingEnergyCalibration* myintercalib = readESMissingEnergyFromFile(inpFileName_[i].c_str());
+      const auto myintercalib = readESMissingEnergyFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESMissingEnergyCalibration>(
-            myintercalib, newTime, mydbservice->endOfTime(), "ESMissingEnergyCalibrationRcd");
+        mydbservice->createOneIOV<ESMissingEnergyCalibration>(*myintercalib, newTime, "ESMissingEnergyCalibrationRcd");
       } else {
-        mydbservice->appendSinceTime<ESMissingEnergyCalibration>(
-            myintercalib, newTime, "ESMissingEnergyCalibrationRcd");
+        mydbservice->appendOneIOV<ESMissingEnergyCalibration>(*myintercalib, newTime, "ESMissingEnergyCalibrationRcd");
       }
     } else if (objectName_[i] == "ESRecHitRatioCuts") {
-      ESRecHitRatioCuts* myintercalib = readESRecHitRatioCutsFromFile(inpFileName_[i].c_str());
+      const auto myintercalib = readESRecHitRatioCutsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESRecHitRatioCuts>(
-            myintercalib, newTime, mydbservice->endOfTime(), "ESRecHitRatioCutsRcd");
+        mydbservice->createOneIOV<ESRecHitRatioCuts>(*myintercalib, newTime, "ESRecHitRatioCutsRcd");
       } else {
-        mydbservice->appendSinceTime<ESRecHitRatioCuts>(myintercalib, newTime, "ESRecHitRatioCutsRcd");
+        mydbservice->appendOneIOV<ESRecHitRatioCuts>(*myintercalib, newTime, "ESRecHitRatioCutsRcd");
       }
     } else if (objectName_[i] == "ESThresholds") {
-      ESThresholds* myintercalib = readESThresholdsFromFile(inpFileName_[i].c_str());
+      const auto myintercalib = readESThresholdsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESThresholds>(myintercalib, newTime, mydbservice->endOfTime(), "ESThresholdsRcd");
+        mydbservice->createOneIOV<ESThresholds>(*myintercalib, newTime, "ESThresholdsRcd");
       } else {
-        mydbservice->appendSinceTime<ESThresholds>(myintercalib, newTime, "ESThresholdsRcd");
+        mydbservice->appendOneIOV<ESThresholds>(*myintercalib, newTime, "ESThresholdsRcd");
       }
     } else if (objectName_[i] == "ESPedestals") {
-      ESPedestals* myintercalib = readESPedestalsFromFile(inpFileName_[i].c_str());
+      const auto myintercalib = readESPedestalsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESPedestals>(myintercalib, newTime, mydbservice->endOfTime(), "ESPedestalsRcd");
+        mydbservice->createOneIOV<ESPedestals>(*myintercalib, newTime, "ESPedestalsRcd");
       } else {
-        mydbservice->appendSinceTime<ESPedestals>(myintercalib, newTime, "ESPedestalsRcd");
+        mydbservice->appendOneIOV<ESPedestals>(*myintercalib, newTime, "ESPedestalsRcd");
       }
     } else if (objectName_[i] == "ESEEIntercalibConstants") {
-      ESEEIntercalibConstants* myintercalib = readESEEIntercalibConstantsFromFile(inpFileName_[i].c_str());
+      const auto myintercalib = readESEEIntercalibConstantsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESEEIntercalibConstants>(
-            myintercalib, newTime, mydbservice->endOfTime(), "ESEEIntercalibConstantsRcd");
+        mydbservice->createOneIOV<ESEEIntercalibConstants>(*myintercalib, newTime, "ESEEIntercalibConstantsRcd");
       } else {
-        mydbservice->appendSinceTime<ESEEIntercalibConstants>(myintercalib, newTime, "ESEEIntercalibConstantsRcd");
+        mydbservice->appendOneIOV<ESEEIntercalibConstants>(*myintercalib, newTime, "ESEEIntercalibConstantsRcd");
       }
     } else {
-      edm::LogError("StoreESCondition") << "Object " << objectName_[i] << " is not supported by this program."
-                                        << "\n";
+      edm::LogError("StoreESCondition") << "Object " << objectName_[i] << " is not supported by this program.";
     }
     // if more records write here else if ....
 
     writeToLogFileResults(messChar);
 
-    edm::LogInfo("StoreESCondition") << "Finished endJob"
-                                     << "\n";
+    edm::LogInfo("StoreESCondition") << "Finished endJob";
   }
 
   delete[] messChar;
@@ -207,25 +198,20 @@ void StoreESCondition::fillHeader(char* header) {
   strcpy(header, user);
 }
 
-ESThresholds* StoreESCondition::readESThresholdsFromFile(const char* inputFile) {
+std::shared_ptr<ESThresholds> StoreESCondition::readESThresholdsFromFile(const char* inputFile) {
   std::ifstream ESThresholdsFile(edm::FileInPath(inputFile).fullPath().c_str());
   float ts2, zs;  //2nd time sample, ZS threshold
   ESThresholdsFile >> ts2;
   ESThresholdsFile >> zs;
-  ESThresholds* esThresholds = new ESThresholds(ts2, zs);
+  auto esThresholds = std::make_shared<ESThresholds>(ts2, zs);
 
   return esThresholds;
 }
 
-ESEEIntercalibConstants* StoreESCondition::readESEEIntercalibConstantsFromFile(const char* inputFile) {
+std::shared_ptr<ESEEIntercalibConstants> StoreESCondition::readESEEIntercalibConstantsFromFile(const char* inputFile) {
   std::ifstream ESEEIntercalibFile(edm::FileInPath(inputFile).fullPath().c_str());
   float gammaLow0, alphaLow0, gammaHigh0, alphaHigh0, gammaLow1, alphaLow1, gammaHigh1, alphaHigh1, gammaLow2,
       alphaLow2, gammaHigh2, alphaHigh2, gammaLow3, alphaLow3, gammaHigh3, alphaHigh3;
-  //  const float ESEEIntercalibValue[16];
-  //  for (int i = 0; i < 16; ++i) {
-  //    ESEEIntercalibFile >> ESEEIntercalibValue[i];
-  //  }
-  //  ESEEIntercalibConstants* eseeIntercalibConstants = new ESEEIntercalibConstants(ESEEIntercalibValue);
   ESEEIntercalibFile >> gammaLow0;
   ESEEIntercalibFile >> alphaLow0;
   ESEEIntercalibFile >> gammaHigh0;
@@ -242,27 +228,27 @@ ESEEIntercalibConstants* StoreESCondition::readESEEIntercalibConstantsFromFile(c
   ESEEIntercalibFile >> alphaLow3;
   ESEEIntercalibFile >> gammaHigh3;
   ESEEIntercalibFile >> alphaHigh3;
-  ESEEIntercalibConstants* eseeIntercalibConstants = new ESEEIntercalibConstants(gammaLow0,
-                                                                                 alphaLow0,
-                                                                                 gammaHigh0,
-                                                                                 alphaHigh0,
-                                                                                 gammaLow1,
-                                                                                 alphaLow1,
-                                                                                 gammaHigh1,
-                                                                                 alphaHigh1,
-                                                                                 gammaLow2,
-                                                                                 alphaLow2,
-                                                                                 gammaHigh2,
-                                                                                 alphaHigh2,
-                                                                                 gammaLow3,
-                                                                                 alphaLow3,
-                                                                                 gammaHigh3,
-                                                                                 alphaHigh3);
+  auto eseeIntercalibConstants = std::make_shared<ESEEIntercalibConstants>(gammaLow0,
+                                                                           alphaLow0,
+                                                                           gammaHigh0,
+                                                                           alphaHigh0,
+                                                                           gammaLow1,
+                                                                           alphaLow1,
+                                                                           gammaHigh1,
+                                                                           alphaHigh1,
+                                                                           gammaLow2,
+                                                                           alphaLow2,
+                                                                           gammaHigh2,
+                                                                           alphaHigh2,
+                                                                           gammaLow3,
+                                                                           alphaLow3,
+                                                                           gammaHigh3,
+                                                                           alphaHigh3);
 
   return eseeIntercalibConstants;
 }
 
-ESMissingEnergyCalibration* StoreESCondition::readESMissingEnergyFromFile(const char* inputFile) {
+std::shared_ptr<ESMissingEnergyCalibration> StoreESCondition::readESMissingEnergyFromFile(const char* inputFile) {
   std::ifstream ESMissingEnergyFile(edm::FileInPath(inputFile).fullPath().c_str());
   float ConstAEta0, ConstBEta0, ConstAEta1, ConstBEta1, ConstAEta2, ConstBEta2, ConstAEta3, ConstBEta3;
   ESMissingEnergyFile >> ConstAEta0;
@@ -273,14 +259,14 @@ ESMissingEnergyCalibration* StoreESCondition::readESMissingEnergyFromFile(const 
   ESMissingEnergyFile >> ConstBEta2;
   ESMissingEnergyFile >> ConstAEta3;
   ESMissingEnergyFile >> ConstBEta3;
-  ESMissingEnergyCalibration* esMissingEnergy = new ESMissingEnergyCalibration(
+  auto esMissingEnergy = std::make_shared<ESMissingEnergyCalibration>(
       ConstAEta0, ConstBEta0, ConstAEta1, ConstBEta1, ConstAEta2, ConstBEta2, ConstAEta3, ConstBEta3);
 
   return esMissingEnergy;
 }
 
-ESPedestals* StoreESCondition::readESPedestalsFromFile(const char* inputFile) {
-  ESPedestals* esPedestals = new ESPedestals();
+std::shared_ptr<ESPedestals> StoreESCondition::readESPedestalsFromFile(const char* inputFile) {
+  auto esPedestals = std::make_shared<ESPedestals>();
 
   // int ped[2][2][40][40][32];
   // for (int i=0; i<2; ++i)
@@ -325,7 +311,7 @@ ESPedestals* StoreESCondition::readESPedestalsFromFile(const char* inputFile) {
   return esPedestals;
 }
 
-ESRecHitRatioCuts* StoreESCondition::readESRecHitRatioCutsFromFile(const char* inputFile) {
+std::shared_ptr<ESRecHitRatioCuts> StoreESCondition::readESRecHitRatioCutsFromFile(const char* inputFile) {
   std::ifstream ESRecHitRatioCutsFile(edm::FileInPath(inputFile).fullPath().c_str());
 
   float r12Low, r23Low, r12High, r23High;
@@ -333,33 +319,23 @@ ESRecHitRatioCuts* StoreESCondition::readESRecHitRatioCutsFromFile(const char* i
   ESRecHitRatioCutsFile >> r23Low;
   ESRecHitRatioCutsFile >> r12High;
   ESRecHitRatioCutsFile >> r23High;
-  ESRecHitRatioCuts* esRecHitRatioCuts = new ESRecHitRatioCuts(r12Low, r23Low, r12High, r23High);
-  //  cout<<"We are in RH ratio cut : gain : " << esgain_<<endl;
-
-  // HG (R12Low, R23Low, R12High, R23High)
-  //  ESRecHitRatioCuts* esRecHitRatioCuts;
-  //if (esgain_ == 2) esRecHitRatioCuts = new ESRecHitRatioCuts(-99999., 0.24, 0.61, 2.23);
-  //  if (esgain_ == 2) esRecHitRatioCuts = new ESRecHitRatioCuts(-99999., 0.61, 0.24, 2.23); // HG
-  //  else esRecHitRatioCuts = new ESRecHitRatioCuts(-99999., 0.2, 0.39, 2.8);
-  // LG (R12Low, R23Low, R12High, R23High)
-  //ESRecHitRatioCuts* esRecHitRatioCuts = new ESRecHitRatioCuts(-99999., 99999., -99999., 99999.); // first running
-  //ESRecHitRatioCuts* esRecHitRatioCuts = new ESRecHitRatioCuts(-99999., 0.2, 0.39, 2.8);
+  auto esRecHitRatioCuts = std::make_shared<ESRecHitRatioCuts>(r12Low, r23Low, r12High, r23High);
 
   return esRecHitRatioCuts;
 }
 
-ESGain* StoreESCondition::readESGainFromFile(const char* inputFile) {
+std::shared_ptr<ESGain> StoreESCondition::readESGainFromFile(const char* inputFile) {
   std::ifstream amplFile(edm::FileInPath(inputFile).fullPath().c_str());
 
   int gain;
   amplFile >> gain;
   edm::LogInfo("StoreESCondition") << "gain : " << gain << "\n";
 
-  ESGain* esGain = new ESGain(gain);  // 1: LG, 2: HG
+  auto esGain = std::make_shared<ESGain>(gain);  // 1: LG, 2: HG
   return esGain;
 }
 
-ESTimeSampleWeights* StoreESCondition::readESTimeSampleWeightsFromFile(const char* inputFile) {
+std::shared_ptr<ESTimeSampleWeights> StoreESCondition::readESTimeSampleWeightsFromFile(const char* inputFile) {
   std::ifstream amplFile(edm::FileInPath(inputFile).fullPath().c_str());
 
   float w[3];
@@ -370,12 +346,12 @@ ESTimeSampleWeights* StoreESCondition::readESTimeSampleWeightsFromFile(const cha
     edm::LogInfo("StoreESCondition") << "weight : " << k << " " << w[k] << "\n";
   }
 
-  ESTimeSampleWeights* esWeights = new ESTimeSampleWeights(w[0], w[1], w[2]);
+  auto esWeights = std::make_shared<ESTimeSampleWeights>(w[0], w[1], w[2]);
   return esWeights;
 }
 
-ESIntercalibConstants* StoreESCondition::readESIntercalibConstantsFromFile(const char* inputFile) {
-  ESIntercalibConstants* ical = new ESIntercalibConstants();
+std::shared_ptr<ESIntercalibConstants> StoreESCondition::readESIntercalibConstantsFromFile(const char* inputFile) {
+  auto ical = std::make_shared<ESIntercalibConstants>();
 
   std::ifstream mipFile(edm::FileInPath(inputFile).fullPath().c_str());
 
@@ -402,7 +378,7 @@ ESIntercalibConstants* StoreESCondition::readESIntercalibConstantsFromFile(const
   return ical;
 }
 
-ESChannelStatus* StoreESCondition::readESChannelStatusFromFile(const char* inputFile) {
+std::shared_ptr<ESChannelStatus> StoreESCondition::readESChannelStatusFromFile(const char* inputFile) {
   int z[1000], p[1000], x[1000], y[1000], nsensors;
   std::ifstream statusFile(edm::FileInPath(inputFile).fullPath().c_str());
   statusFile >> nsensors;
@@ -415,7 +391,7 @@ ESChannelStatus* StoreESCondition::readESChannelStatusFromFile(const char* input
   for (int i = 0; i < nsensors; ++i) {
     statusFile >> z[i] >> p[i] >> x[i] >> y[i];
   }
-  ESChannelStatus* ecalStatus = new ESChannelStatus();
+  auto ecalStatus = std::make_shared<ESChannelStatus>();
   int Nbstatus = 0, Nbstrip = 0;
   for (int istrip = ESDetId::ISTRIP_MIN; istrip <= ESDetId::ISTRIP_MAX; istrip++) {
     for (int ix = ESDetId::IX_MIN; ix <= ESDetId::IX_MAX; ix++) {
