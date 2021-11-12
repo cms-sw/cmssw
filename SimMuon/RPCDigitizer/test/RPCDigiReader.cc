@@ -30,7 +30,9 @@
 
 class RPCDigiReader : public edm::one::EDAnalyzer<> {
 public:
-  explicit RPCDigiReader(const edm::ParameterSet& pset) : label(pset.getUntrackedParameter<std::string>("label")), tokGeom_(esConsumes<RPCGeometry, MuonGeometryRecord>()) { }
+  explicit RPCDigiReader(const edm::ParameterSet& pset)
+      : label(pset.getUntrackedParameter<std::string>("label")),
+        tokGeom_(esConsumes<RPCGeometry, MuonGeometryRecord>()) {}
 
   ~RPCDigiReader() override = default;
 
