@@ -107,3 +107,20 @@ effPlotterTightMiniAOD = DQMEDHarvester("EfficiencyPlotter",
                                           )
 
 
+
+effPlotterLoose_Phase2=effPlotterLoose.clone()
+effPlotterLoose_Phase2.vtxBin=20
+effPlotterLoose_Phase2.vtxMin=149.5
+effPlotterLoose_Phase2.vtxMax=249.5
+
+
+effPlotterMedium_Phase2=effPlotterMedium.clone()                                                                                            
+effPlotterMedium_Phase2.vtxBin=20                                                                                                           
+effPlotterMedium_Phase2.vtxMin=149.5                                                                                                        
+effPlotterMedium_Phase2.vtxMax=249.5 
+
+
+effPlotterTight_Phase2=effPlotterTight.clone()                                                                                              
+effPlotterTight_Phase2.vtxBin=20                                                                                                           
+effPlotterTight_Phase2.vtxMin=149.5                                                                                                         
+effPlotterTight_Phase2.vtxMax=249.5 
