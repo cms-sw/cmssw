@@ -103,40 +103,37 @@ namespace {
   };
 }  // namespace
 
-GeometryTester::GeometryTester(const edm::ParameterSet &iConfig) :
-  m_xmltest(iConfig.getUntrackedParameter<bool>("XMLTest", true)),
-  m_tktest(iConfig.getUntrackedParameter<bool>("TrackerTest", true)),
-  m_ecaltest(iConfig.getUntrackedParameter<bool>("EcalTest", true)),
-  m_hcaltest(iConfig.getUntrackedParameter<bool>("HcalTest", true)),
-  m_hgcaltest(iConfig.getUntrackedParameter<bool>("HGCalTest", true)),
-  m_calotowertest(iConfig.getUntrackedParameter<bool>("CaloTowerTest", true)),
-  m_castortest(iConfig.getUntrackedParameter<bool>("CastorTest", true)),
-  m_zdctest(iConfig.getUntrackedParameter<bool>("ZDCTest", true)),
-  m_csctest(iConfig.getUntrackedParameter<bool>("CSCTest", true)),
-  m_dttest(iConfig.getUntrackedParameter<bool>("DTTest", true)),
-  m_rpctest(iConfig.getUntrackedParameter<bool>("RPCTest", true)),
-  m_geomLabel(iConfig.getUntrackedParameter<std::string>("geomLabel", "Extended")),
-  m_xmlGeoToken(esConsumes(edm::ESInputTag("", m_geomLabel)),
-  m_tkGeoToken(esConsumes<PGeometricDet, IdealGeometryRecord>()),
-  m_ebGeoToken(esConsumes()),
-  m_eeGeoToken(esConsumes()),
-  m_epGeoToken(esConsumes()),
-  m_hGeoToken(esConsumes()),
-  m_hgcGeoToken(esConsumes()),
-  m_ctGeoToken(esConsumes()),
-  m_castGeoToken(esConsumes()),
-  m_zdcGeoToken(esConsumes()),
-  m_cscDigiGeoToken(esConsumes()),
-  m_cscGeoToken(esConsumes()),
-  m_dtGeoToken(esConsumes()),
-  m_rpcGeoToken(esConsumes())
-{ }
+GeometryTester::GeometryTester(const edm::ParameterSet &iConfig)
+    : m_xmltest(iConfig.getUntrackedParameter<bool>("XMLTest", true)),
+      m_tktest(iConfig.getUntrackedParameter<bool>("TrackerTest", true)),
+      m_ecaltest(iConfig.getUntrackedParameter<bool>("EcalTest", true)),
+      m_hcaltest(iConfig.getUntrackedParameter<bool>("HcalTest", true)),
+      m_hgcaltest(iConfig.getUntrackedParameter<bool>("HGCalTest", true)),
+      m_calotowertest(iConfig.getUntrackedParameter<bool>("CaloTowerTest", true)),
+      m_castortest(iConfig.getUntrackedParameter<bool>("CastorTest", true)),
+      m_zdctest(iConfig.getUntrackedParameter<bool>("ZDCTest", true)),
+      m_csctest(iConfig.getUntrackedParameter<bool>("CSCTest", true)),
+      m_dttest(iConfig.getUntrackedParameter<bool>("DTTest", true)),
+      m_rpctest(iConfig.getUntrackedParameter<bool>("RPCTest", true)),
+      m_geomLabel(iConfig.getUntrackedParameter<std::string>("geomLabel", "Extended")),
+      m_xmlGeoToken(esConsumes(edm::ESInputTag("", m_geomLabel))),
+      m_tkGeoToken(esConsumes()),
+      m_ebGeoToken(esConsumes()),
+      m_eeGeoToken(esConsumes()),
+      m_epGeoToken(esConsumes()),
+      m_hGeoToken(esConsumes()),
+      m_hgcGeoToken(esConsumes()),
+      m_ctGeoToken(esConsumes()),
+      m_castGeoToken(esConsumes()),
+      m_zdcGeoToken(esConsumes()),
+      m_cscDigiGeoToken(esConsumes()),
+      m_cscGeoToken(esConsumes()),
+      m_dtGeoToken(esConsumes()),
+      m_rpcGeoToken(esConsumes()) {}
 
 void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) {
   if (m_xmltest) {
-    // edm::ESHandle<FileBlob> xmlgeo;
-    // iSetup.get<GeometryFileRcd>().get(m_geomLabel, xmlgeo);
-    auto const& xmlGeo  = iSetup.getData(m_xmlGeoToken);
+    auto const &xmlGeo = iSetup.getData(m_xmlGeoToken);
 
     std::cout << "XML FILE\n";
     std::unique_ptr<std::vector<unsigned char> > tb = xmlGeo.getUncompressedBlob();
@@ -149,9 +146,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
 
   FmtOstream outStream;
   if (m_tktest) {
-    // edm::ESHandle<PGeometricDet> tkGeo;
-    // iSetup.get<IdealGeometryRecord>().get(tkGeo);
-    auto const& tkGeo  = iSetup.getData(m_tkGeoToken);
+    auto const &tkGeo = iSetup.getData(m_tkGeoToken);
     std::cout << "TRACKER\n";
 
     for (auto it : tkGeo.pgeomdets_) {
@@ -167,9 +162,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
   }
 
   if (m_ecaltest) {
-    // edm::ESHandle<PCaloGeometry> ebgeo;
-    // iSetup.get<PEcalBarrelRcd>().get(ebgeo);
-    auto const& ebGeo  = iSetup.getData(m_ebGeoToken);
+    auto const &ebGeo = iSetup.getData(m_ebGeoToken);
     std::cout << "ECAL BARREL\n";
     auto tseb = ebGeo.getTranslation();
     auto dimeb = ebGeo.getDimension();
@@ -190,9 +183,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
       outStream << it;
     std::cout << "\n";
 
-    // edm::ESHandle<PCaloGeometry> eegeo;
-    // iSetup.get<PEcalEndcapRcd>().get(eegeo);
-    auto const& eeGeo  = iSetup.getData(m_eeGeoToken);
+    auto const &eeGeo = iSetup.getData(m_eeGeoToken);
     std::cout << "ECAL ENDCAP\n";
     auto tsee = eeGeo.getTranslation();
     auto dimee = eeGeo.getDimension();
@@ -213,9 +204,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
       outStream << it;
     std::cout << "\n";
 
-    // edm::ESHandle<PCaloGeometry> epgeo;
-    // iSetup.get<PEcalPreshowerRcd>().get(epgeo);
-    auto const& epGeo  = iSetup.getData(m_epGeoToken);
+    auto const &epGeo = iSetup.getData(m_epGeoToken);
     std::cout << "ECAL PRESHOWER\n";
     auto tsep = epGeo.getTranslation();
     auto dimep = epGeo.getDimension();
@@ -238,9 +227,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
   }
 
   if (m_hcaltest) {
-    // edm::ESHandle<PCaloGeometry> hgeo;
-    // iSetup.get<PHcalRcd>().get(hgeo);
-    auto const& hGeo  = iSetup.getData(m_hGeoToken);
+    auto const &hGeo = iSetup.getData(m_hGeoToken);
     std::cout << "HCAL\n";
     auto tsh = hGeo.getTranslation();
     auto dimh = hGeo.getDimension();
@@ -268,9 +255,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
   }
 
   if (m_hgcaltest) {
-    // edm::ESHandle<PCaloGeometry> hgcgeo;
-    // iSetup.get<PHGCalRcd>().get(hgcgeo);
-    auto const& hgcGeo  = iSetup.getData(m_hgcGeoToken);
+    auto const &hgcGeo = iSetup.getData(m_hgcGeoToken);
     std::cout << "HGCAL\n";
     auto tsh = hgcGeo.getTranslation();
     auto dimh = hgcGeo.getDimension();
@@ -299,9 +284,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
   }
 
   if (m_calotowertest) {
-    // edm::ESHandle<PCaloGeometry> ctgeo;
-    // iSetup.get<PCaloTowerRcd>().get(ctgeo);
-    auto const& ctGeo  = iSetup.getData(m_ctGeoToken);
+    auto const &ctGeo = iSetup.getData(m_ctGeoToken);
     std::cout << "CALO TOWER:\n";
     auto tsct = ctGeo.getTranslation();
     auto dimct = ctGeo.getDimension();
@@ -324,9 +307,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
   }
 
   if (m_castortest) {
-    // edm::ESHandle<PCaloGeometry> castgeo;
-    // iSetup.get<PCastorRcd>().get(castgeo);
-    auto const& castGeo  = iSetup.getData(m_castGeoToken);
+    auto const &castGeo = iSetup.getData(m_castGeoToken);
     std::cout << "CASTOR\n";
     std::cout << "castor ";
     for (auto it : castGeo.getTranslation())
@@ -343,9 +324,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
   }
 
   if (m_zdctest) {
-    // edm::ESHandle<PCaloGeometry> zdcgeo;
-    // iSetup.get<PZdcRcd>().get(zdcgeo);
-    auto const& zdcGeo  = iSetup.getData(m_zdcGeoToken);
+    auto const &zdcGeo = iSetup.getData(m_zdcGeoToken);
     std::cout << "ZDC\n";
     std::cout << "zdc ";
     for (auto it : zdcGeo.getTranslation())
@@ -362,13 +341,9 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
   }
 
   if (m_csctest) {
-    // edm::ESHandle<RecoIdealGeometry> cscgeo;
-    // iSetup.get<CSCRecoGeometryRcd>().get(cscgeo);
-    auto const& cscGeo  = iSetup.getData(m_cscGeoToken);
+    auto const &cscGeo = iSetup.getData(m_cscGeoToken);
 
-    // edm::ESHandle<CSCRecoDigiParameters> cscdigigeo;
-    // iSetup.get<CSCRecoDigiParametersRcd>().get(cscdigigeo);
-    auto const& cscDigiGeo  = iSetup.getData(m_cscDigiGeoToken);
+    auto const &cscDigiGeo = iSetup.getData(m_cscDigiGeoToken);
     std::cout << "CSC\n";
 
     std::vector<int> obj1(cscDigiGeo.pUserParOffset);
@@ -415,7 +390,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
         outStream << it;
       std::cout << "\n";
 
-      std::vector<double> shapecsc(cscGeo-shapeStart(i), cscGeo.shapeEnd(i));
+      std::vector<double> shapecsc(cscGeo.shapeStart(i), cscGeo.shapeEnd(i));
       std::cout << "csc ";
       for (auto it : shapecsc)
         outStream << it;
@@ -424,9 +399,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
   }
 
   if (m_dttest) {
-    // edm::ESHandle<RecoIdealGeometry> dtgeo;
-    // iSetup.get<DTRecoGeometryRcd>().get(dtgeo);
-    auto const& dtGeo  = iSetup.getData(m_dtGeoToken);
+    auto const &dtGeo = iSetup.getData(m_dtGeoToken);
     std::cout << "DT\n";
     std::vector<DetId> myIddt(dtGeo.detIds());
     std::cout << "dt ";
@@ -457,9 +430,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
   }
 
   if (m_rpctest) {
-    // edm::ESHandle<RecoIdealGeometry> rpcgeo;
-    // iSetup.get<RPCRecoGeometryRcd>().get(rpcgeo);
-    auto const& rpcGeo  = iSetup.getData(m_rpcGeoToken);
+    auto const &rpcGeo = iSetup.getData(m_rpcGeoToken);
     std::cout << "RPC\n";
 
     std::vector<DetId> myIdrpc(rpcGeo.detIds());
