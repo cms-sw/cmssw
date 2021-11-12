@@ -47,3 +47,13 @@ muonQualityTests_miniAOD = cms.Sequence(muonSourcesQualityTests*
                                         muonClientsQualityTests*
                                         muonTestSummary*
                                         triggerMatchEffPlotterTightMiniAOD)
+
+
+
+muonQualityTests_Phase2 = cms.Sequence(effPlotterLoose_Phase2*                                                                              
+                                       effPlotterMedium_Phase2*                                                                             
+                                       effPlotterTight_Phase2) 
+
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon                                                                        
+phase2_muon.toReplaceWith(muonQualityTests, muonQualityTests_Phase2)
