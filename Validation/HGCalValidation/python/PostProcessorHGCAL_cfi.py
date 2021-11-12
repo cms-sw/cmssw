@@ -18,7 +18,7 @@ eff_layers.extend(["merge_eta_layer{:02d} 'LayerCluster Merge Rate vs #eta Layer
 eff_layers.extend(["merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer{:02d} in z-' NumMerge_LayerCluster_Phi_perlayer{:02d} Denom_LayerCluster_Phi_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) if (i<maxlayerzm) else "merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer{:02d} in z+' NumMerge_LayerCluster_Phi_perlayer{:02d} Denom_LayerCluster_Phi_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) for i in range(maxlayerzp) ])
 
 lcToCP_linking = hgcalValidator.label_LCToCPLinking._InputTag__moduleLabel
-postProcessorHGCALlayerclusters= DQMEDHarvester('DQMGenericClient',
+postProcessorHGCALlayerclusters = DQMEDHarvester('DQMGenericClient',
     subDirs = cms.untracked.vstring(prefix + hgcalValidator.label_layerClusterPlots._InputTag__moduleLabel + '/' + lcToCP_linking),
     efficiency = cms.vstring(eff_layers),
     resolution = cms.vstring(),
@@ -39,7 +39,7 @@ eff_simclusters.extend(["merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi 
 
 subdirsSim = [prefix + hgcalValidator.label_SimClusters._InputTag__moduleLabel + '/ticlTracksters'+iteration+'/' for iteration in ticlIterLabelsMerge]
 subdirsSim.extend([prefix + hgcalValidator.label_SimClusters._InputTag__moduleLabel + '/ticlSimTracksters'])
-postProcessorHGCALsimclusters= DQMEDHarvester('DQMGenericClient',
+postProcessorHGCALsimclusters = DQMEDHarvester('DQMGenericClient',
     subDirs = cms.untracked.vstring(subdirsSim),
     efficiency = cms.vstring(eff_simclusters),
     resolution = cms.vstring(),
@@ -48,20 +48,21 @@ postProcessorHGCALsimclusters= DQMEDHarvester('DQMGenericClient',
     outputFileName = cms.untracked.string(""),
     verbose = cms.untracked.uint32(4))
 
+
 eff_tracksters = []
 simDict = {"CaloParticle":"_Link", "SimTrackster":"_PR"}
+metrics = {"purity":["Purity","_"], "effic":["Efficiency","Eff_"], "fake":["Fake Rate","_"], "duplicate":["Duplicate(Split)","Dup_"], "merge":["Merge Rate","Merge_"]}
+variables = {"eta":"#eta", "phi":"#phi", "energy":"energy", "pt":"p_{T}"}
 for elem in simDict:
-    eff_tracksters.extend(["purity_eta"+simDict[elem]+" 'Trackster Purity vs #eta' Num_"+elem+"_Eta Denom_"+elem+"_Eta"])
-    eff_tracksters.extend(["purity_phi"+simDict[elem]+" 'Trackster Purity vs #phi' Num_"+elem+"_Phi Denom_"+elem+"_Phi"])
-    eff_tracksters.extend(["effic_eta"+simDict[elem]+" 'Trackster Efficiency vs #eta' NumEff_"+elem+"_Eta Denom_"+elem+"_Eta"])
-    eff_tracksters.extend(["effic_phi"+simDict[elem]+" 'Trackster Efficiency vs #phi' NumEff_"+elem+"_Phi Denom_"+elem+"_Phi"])
-    eff_tracksters.extend(["fake_eta"+simDict[elem]+" 'Trackster Fake Rate vs #eta' Num_Trackster_Eta"+simDict[elem]+" Denom_Trackster_Eta"+simDict[elem]+" fake"])
-    eff_tracksters.extend(["fake_phi"+simDict[elem]+" 'Trackster Fake Rate vs #phi'  Num_Trackster_Phi"+simDict[elem]+" Denom_Trackster_Phi"+simDict[elem]+" fake"])
-    eff_tracksters.extend(["duplicate_eta"+simDict[elem]+" 'Trackster Duplicate(Split) Rate vs #eta' NumDup_Trackster_Eta"+simDict[elem]+" Denom_Trackster_Eta"+simDict[elem]])
-    eff_tracksters.extend(["duplicate_phi"+simDict[elem]+" 'Trackster Duplicate(Split) Rate vs #phi' NumDup_Trackster_Phi"+simDict[elem]+" Denom_Trackster_Phi"+simDict[elem]])
-    eff_tracksters.extend(["merge_eta"+simDict[elem]+" 'Trackster Merge Rate vs #eta' NumMerge_Trackster_Eta"+simDict[elem]+" Denom_Trackster_Eta"+simDict[elem]])
-    eff_tracksters.extend(["merge_phi"+simDict[elem]+" 'Trackster Merge Rate vs #phi' NumMerge_Trackster_Phi"+simDict[elem]+" Denom_Trackster_Phi"+simDict[elem]])
-
+    for m in list(metrics.keys())[:2]:
+        for v in variables:
+            V = v.capitalize()
+            eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v]+"' Num"+metrics[m][1]+elem+"_"+V+" Denom_"+elem+"_"+V])
+    for m in list(metrics.keys())[2:]:
+        fakerate = " fake" if (m == "fake") else ""
+        for v in variables:
+            V = v.capitalize()
+            eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v]+"' Num"+metrics[m][1]+"Trackster_"+V+simDict[elem]+" Denom_Trackster_"+V+simDict[elem]+fakerate])
 
 tsToCP_linking = hgcalValidator.label_TSToCPLinking._InputTag__moduleLabel
 subdirsTracksters = [prefix+'ticlSimTracksters/'+tsToCP_linking, prefix+'ticlSimTracksters_fromCPs/'+tsToCP_linking]

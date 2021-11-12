@@ -17,7 +17,7 @@ import Validation.RecoTrack.plotting.validation as validation
 import Validation.RecoTrack.plotting.html as html
 
 from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
-from Validation.HGCalValidation.PostProcessorHGCAL_cfi import lcToCP_linking, simDict, tsToCP_linking, tsToSTS_patternRec
+from Validation.HGCalValidation.PostProcessorHGCAL_cfi import lcToCP_linking, simDict, tsToCP_linking, tsToSTS_patternRec, variables
 
 #To be able to spot any issues both in -z and +z a layer id was introduced
 #that spans from 0 to 103 for hgcal_v9 geometry. The mapping for hgcal_v9 is:
@@ -1669,29 +1669,23 @@ _duplicates = []
 _fakes = []
 _merges = []
 for val in simDict:
-    _effplots = [Plot("effic_eta"+simDict[val], xtitle="", **_common_eff)]
-    _effplots.extend([Plot("effic_phi"+simDict[val], xtitle="", **_common_eff)])
-    _effplots.extend([Plot("globalEfficiencies", xtitle="", **_common_eff)])
+    _effplots = [Plot("globalEfficiencies", xtitle="", **_common_eff)]
+    _purityplots = [Plot("globalEfficiencies", xtitle="", **_common_purity)]
+    _dupplots = [Plot("globalEfficiencies", xtitle="", **_common_dup)]
+    _fakeplots = [Plot("globalEfficiencies", xtitle="", **_common_fake)]
+    _mergeplots = [Plot("globalEfficiencies", xtitle="", **_common_merge)]
+
+    for v in variables:
+        _effplots.extend([Plot("effic_"+v+simDict[val], xtitle="", **_common_eff)])
+        _purityplots.extend([Plot("purity_"+v+simDict[val], xtitle="", **_common_purity)])
+        _dupplots.extend([Plot("duplicate_"+v+simDict[val], xtitle="", **_common_dup)])
+        _fakeplots.extend([Plot("fake_"+v+simDict[val], xtitle="", **_common_fake)])
+        _mergeplots.extend([Plot("merge_"+v+simDict[val], xtitle="", **_common_merge)])
+
     _efficiencies.append(PlotGroup("Efficiencies"+simDict[val], _effplots, ncols=3))
-
-    _purityplots = [Plot("purity_eta"+simDict[val], xtitle="", **_common_purity)]
-    _purityplots.extend([Plot("purity_phi"+simDict[val], xtitle="", **_common_purity)])
-    _purityplots.extend([Plot("globalEfficiencies", xtitle="", **_common_purity)])
     _purities.append(PlotGroup("Purities"+simDict[val], _purityplots, ncols=3))
-
-    _dupplots = [Plot("duplicate_eta"+simDict[val], xtitle="", **_common_dup)]
-    _dupplots.extend([Plot("duplicate_phi"+simDict[val], xtitle="", **_common_dup)])
-    _dupplots.extend([Plot("globalEfficiencies", xtitle="", **_common_dup)])
     _duplicates.append(PlotGroup("Duplicates"+simDict[val], _dupplots, ncols=3))
-
-    _fakeplots = [Plot("fake_eta"+simDict[val], xtitle="", **_common_fake)]
-    _fakeplots.extend([Plot("fake_phi"+simDict[val], xtitle="", **_common_fake)])
-    _fakeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_fake)])
     _fakes.append(PlotGroup("FakeRate"+simDict[val], _fakeplots, ncols=3))
-
-    _mergeplots = [Plot("merge_eta"+simDict[val], xtitle="", **_common_merge)]
-    _mergeplots.extend([Plot("merge_phi"+simDict[val], xtitle="", **_common_merge)])
-    _mergeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_merge)])
     _merges.append(PlotGroup("MergeRate"+simDict[val], _mergeplots, ncols=3))
 
 

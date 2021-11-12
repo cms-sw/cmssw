@@ -149,8 +149,12 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2trackster[2];
   std::vector<dqm::reco::MonitorElement*> h_num_trackster_eta[2];
   std::vector<dqm::reco::MonitorElement*> h_num_trackster_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_num_trackster_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_num_trackster_pt[2];
   std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_eta[2];
   std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_pt[2];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2caloparticle[2];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster[2];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc[2];
@@ -160,14 +164,24 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_vs_phi[2];
   std::vector<dqm::reco::MonitorElement*> h_denom_trackster_eta[2];
   std::vector<dqm::reco::MonitorElement*> h_denom_trackster_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_pt[2];
   std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_eta[2];
   std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_pt[2];
   std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_eta[2];
   std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_pt[2];
   std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_eta[2];
   std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_pt[2];
   std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_eta[2];
   std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_en[2];
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_pt[2];
   // Generic histograms
   std::vector<dqm::reco::MonitorElement*> h_tracksternum;
   std::vector<dqm::reco::MonitorElement*> h_conttracksternum;
