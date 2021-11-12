@@ -186,12 +186,12 @@ TightMuonEfficiencyAnalyzer_Phase2.vtxBin=20
 TightMuonEfficiencyAnalyzer_Phase2.vtxMax=249.5
 TightMuonEfficiencyAnalyzer_Phase2.vtxMin=149.5
 
-LooseMuonEfficiencyAnalyzer_Phase2=TightMuonEfficiencyAnalyzer.clone()                                                                      
+LooseMuonEfficiencyAnalyzer_Phase2=LooseMuonEfficiencyAnalyzer.clone()                                                                      
 LooseMuonEfficiencyAnalyzer_Phase2.vtxBin=20                                                                                                
 LooseMuonEfficiencyAnalyzer_Phase2.vtxMin=149.5  
 LooseMuonEfficiencyAnalyzer_Phase2.vtxMax=249.5
 
-MediumMuonEfficiencyAnalyzer_Phase2=TightMuonEfficiencyAnalyzer.clone()                                                                     
+MediumMuonEfficiencyAnalyzer_Phase2=MediumMuonEfficiencyAnalyzer.clone()                                                                    
 MediumMuonEfficiencyAnalyzer_Phase2.vtxBin=30                                                                                               
 MediumMuonEfficiencyAnalyzer_Phase2.vtxMin=149.5  
 MediumMuonEfficiencyAnalyzer_Phase2.vtxMax=249.5 
