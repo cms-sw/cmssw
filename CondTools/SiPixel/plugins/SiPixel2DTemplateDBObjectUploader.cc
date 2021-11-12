@@ -79,7 +79,6 @@ void SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const 
   SiPixel2DTemplateDBObject obj;
 
   // Local variables
-  const char* tempfile;
   int m;
 
   // Set the number of templates to be passed to the dbobject
@@ -90,8 +89,7 @@ void SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const 
   // Open the template file(s)
   for (m = 0; m < obj.numOfTempl(); ++m) {
     edm::FileInPath file(theTemplateCalibrations[m].c_str());
-    tempfile = (file.fullPath()).c_str();
-    std::ifstream in_file(tempfile, std::ios::in);
+    std::ifstream in_file(file.fullPath().c_str(), std::ios::in);
     if (in_file.is_open()) {
       edm::LogInfo("Template Info") << "Opened Template File: " << file.fullPath().c_str();
 
@@ -131,7 +129,7 @@ void SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const 
       in_file.close();
     } else {
       // If file didn't open, report this
-      edm::LogError("SiPixel2DTemplateDBObjectUploader") << "Error opening File" << tempfile;
+      edm::LogError("SiPixel2DTemplateDBObjectUploader") << "Error opening File " << (file.fullPath()).c_str();
     }
   }
 
