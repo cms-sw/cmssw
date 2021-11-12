@@ -335,20 +335,18 @@ void SiStripHitEfficiencyHarvester::printTotalStatistics(const std::array<long, 
 }
 
 void SiStripHitEfficiencyHarvester::writeBadStripPayload(const SiStripQuality& quality) const {
-  auto pBadStrip = std::make_unique<SiStripBadStrip>();
+  SiStripBadStrip pBadStrip{};
   const auto pQdvBegin = quality.getDataVectorBegin();
   for (auto rIt = quality.getRegistryVectorBegin(); rIt != quality.getRegistryVectorEnd(); ++rIt) {
     const auto range = SiStripBadStrip::Range(pQdvBegin + rIt->ibegin, pQdvBegin + rIt->iend);
-    if (!pBadStrip->put(rIt->detid, range))
+    if (!pBadStrip.put(rIt->detid, range))
       edm::LogError("SiStripHitEfficiencyHarvester") << "detid already exists in SiStripBadStrip";
   }
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    // TODO check ownership
-    poolDbService->writeOne(pBadStrip.get(), poolDbService->currentTime(), record_);
+    poolDbService->writeOneIOV(pBadStrip, poolDbService->currentTime(), record_);
   } else {
-    // TODO throw a cms exception
-    throw std::runtime_error("PoolDBService required.");
+    throw cms::Exception("PoolDBService required");
   }
 }
 
