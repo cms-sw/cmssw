@@ -52,6 +52,7 @@ public:
     theDoubletId_ = doubletId;
     theLayerPairId_ = layerPairId;
     theUsed_ = 0;
+    theFishboneId = std::numeric_limits<hindex_type>::max();
 
     // optimization that depends on access pattern
     theInnerZ = hh.zGlobal(innerHitId);
@@ -334,6 +335,12 @@ public:
   __device__ __forceinline__ bool unused() const { return 0 == theUsed_; }
   __device__ __forceinline__ void setUsedBit(uint16_t bit) { theUsed_ |= bit; }
 
+  __device__ __forceinline__ void setFishbone(hindex_type id) { theFishboneId = id; }
+  __device__ __forceinline__ auto fishboneId() const { return theFishboneId; }
+  __device__ __forceinline__ bool hasFishbone() const {
+    return theFishboneId != std::numeric_limits<hindex_type>::max();
+  }
+
 private:
   CellNeighbors* theOuterNeighbors;
   CellTracks* theTracks;
@@ -346,6 +353,7 @@ private:
   float theInnerR;
   hindex_type theInnerHitId;
   hindex_type theOuterHitId;
+  hindex_type theFishboneId;
 };
 
 template <>
