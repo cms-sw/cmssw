@@ -17,19 +17,23 @@
 
  This class manages the cache of reusable objects and therefore an instance of this
  class must live as long as you want the cache to live.
- 
- The primary way of using the class it to call makeOrGetAndClear
- An example use would be
- \code
- auto objectToUse = holder.makeOrGetAndClear([]() { return new MyObject(10); },   //makes new one
-                                             [](MyObject* old) { old->reset(); }  //resets old one
- );
- \endcode
- 
- If you always want to set the values you can use makeOrGet
+
+ The primary way of using the class is to call makeOrGet:
  \code
  auto objectToUse = holder.makeOrGet([]() { return new MyObject(); });
- objectToUse->setValue(3);
+ use(*objectToUse);
+ \endcode
+
+ If the returned object should be be automatically set or reset, call makeOrGetAndClear:
+ \code
+ auto objectToUse = holder.makeOrGetAndClear([]() { return new MyObject(10); },   // makes new objects
+                                             [](MyObject* old) { old->reset(); }  // resets any object before returning it
+ );
+ \endcode
+ which is equivalent to
+ \code
+ auto objectToUse = holder.makeOrGet([]() { return new MyObject(10); });
+ objectToUse->reset();
  \endcode
  
  NOTE: If you hold onto the std::shared_ptr<> until another call to the ReusableObjectHolder,
