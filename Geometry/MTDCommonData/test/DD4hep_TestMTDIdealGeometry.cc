@@ -310,12 +310,12 @@ void DD4hep_TestMTDIdealGeometry::theBaseNumber(cms::DDFilteredView& fv) {
   thisN_.setSize(fv.navPos().size());
 
   for (uint ii = 0; ii < fv.navPos().size(); ii++) {
-    std::string name((fv.geoHistory()[ii])->GetName());
-    name.assign(name.erase(name.rfind('_')));
-    int copyN(fv.copyNos()[ii]);
-    thisN_.addLevel(name, copyN);
+    std::string_view name((fv.geoHistory()[ii])->GetName());
+    size_t ipos = name.rfind('_');
+    thisN_.addLevel((static_cast<std::string_view>((fv.geoHistory()[ii])->GetName())).substr(0, ipos),
+                    fv.copyNos()[ii]);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("DD4hep_TestMTDIdealGeometry") << name << " " << copyN;
+    edm::LogVerbatim("DD4hep_TestMTDIdealGeometry") << name.substr(0, ipos) << " " << fv.copyNos()[ii];
 #endif
   }
 }
