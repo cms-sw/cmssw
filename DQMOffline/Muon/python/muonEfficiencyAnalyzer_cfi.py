@@ -24,8 +24,8 @@ TightMuonEfficiencyAnalyzer = DQMEDAnalyzer('EfficiencyAnalyzer',
                                              phiMax = cms.double(3.2),
                                              phiMin = cms.double(-3.2),
                                              
-                                             vtxBin = cms.int32(10),
-                                             vtxMax = cms.double(40.5),
+                                             vtxBin = cms.int32(30),
+                                             vtxMax = cms.double(149.5),
                                              vtxMin = cms.double(0.5),
                                              
                                              ID = cms.string("Tight"),
@@ -52,8 +52,8 @@ TightMuonEfficiencyAnalyzer_miniAOD = DQMEDAnalyzer('EfficiencyAnalyzer',
                                                      phiMax = cms.double(3.2),
                                                      phiMin = cms.double(-3.2),
                                                      
-                                                     vtxBin = cms.int32(10),
-                                                     vtxMax = cms.double(40.5),
+                                                     vtxBin = cms.int32(30),
+                                                     vtxMax = cms.double(149.5),
                                                      vtxMin = cms.double(0.5),
                                                      
                                                      ID = cms.string("Tight"),
@@ -82,8 +82,8 @@ LooseMuonEfficiencyAnalyzer = DQMEDAnalyzer('EfficiencyAnalyzer',
                                              phiMax = cms.double(3.2),
                                              phiMin = cms.double(-3.2),
                                              
-                                             vtxBin = cms.int32(10),
-                                             vtxMax = cms.double(40.5),
+                                             vtxBin = cms.int32(30),
+                                             vtxMax = cms.double(149.5),
                                              vtxMin = cms.double(0.5),
                                              
                                              ID = cms.string("Loose"),
@@ -111,8 +111,8 @@ LooseMuonEfficiencyAnalyzer_miniAOD = DQMEDAnalyzer('EfficiencyAnalyzer',
                                                      phiMax = cms.double(3.2),
                                                      phiMin = cms.double(-3.2),
                                                      
-                                                     vtxBin = cms.int32(10),
-                                                     vtxMax = cms.double(40.5),
+                                                     vtxBin = cms.int32(30),
+                                                     vtxMax = cms.double(149.5),
                                                      vtxMin = cms.double(0.5),
 
                                                      ID = cms.string("Loose"),
@@ -142,13 +142,14 @@ MediumMuonEfficiencyAnalyzer = DQMEDAnalyzer('EfficiencyAnalyzer',
                                               phiMax = cms.double(3.2),
                                               phiMin = cms.double(-3.2),
                                               
-                                              vtxBin = cms.int32(10),
-                                              vtxMax = cms.double(40.5),
+                                              vtxBin = cms.int32(30),
+                                              vtxMax = cms.double(149.5),
                                               vtxMin = cms.double(0.5),
                                               
                                               ID = cms.string("Medium"),
                                               folder = cms.string("Muons/EfficiencyAnalyzer/")
                                               )
+
 MediumMuonEfficiencyAnalyzer_miniAOD = DQMEDAnalyzer('EfficiencyAnalyzer',
                                                       MuonServiceProxy,
                                                       MuonCollection  = cms.InputTag("slimmedMuons"),
@@ -170,11 +171,27 @@ MediumMuonEfficiencyAnalyzer_miniAOD = DQMEDAnalyzer('EfficiencyAnalyzer',
                                                       phiMax = cms.double(3.2),
                                                       phiMin = cms.double(-3.2),
                                                       
-                                                      vtxBin = cms.int32(10),
-                                                      vtxMax = cms.double(40.5),
+                                                      vtxBin = cms.int32(30),
+                                                      vtxMax = cms.double(149.5),
                                                       vtxMin = cms.double(0.5),
                                                       
                                                       ID = cms.string("Medium"),
                                                       folder = cms.string("Muons_miniAOD/EfficiencyAnalyzer/")
                                                       
                                                       )
+
+
+TightMuonEfficiencyAnalyzer_Phase2=TightMuonEfficiencyAnalyzer.clone()
+TightMuonEfficiencyAnalyzer_Phase2.vtxBin=20
+TightMuonEfficiencyAnalyzer_Phase2.vtxMax=249.5
+TightMuonEfficiencyAnalyzer_Phase2.vtxMin=149.5
+
+LooseMuonEfficiencyAnalyzer_Phase2=TightMuonEfficiencyAnalyzer.clone()                                                                      
+LooseMuonEfficiencyAnalyzer_Phase2.vtxBin=20                                                                                                
+LooseMuonEfficiencyAnalyzer_Phase2.vtxMin=149.5  
+LooseMuonEfficiencyAnalyzer_Phase2.vtxMax=249.5
+
+MediumMuonEfficiencyAnalyzer_Phase2=TightMuonEfficiencyAnalyzer.clone()                                                                     
+MediumMuonEfficiencyAnalyzer_Phase2.vtxBin=30                                                                                               
+MediumMuonEfficiencyAnalyzer_Phase2.vtxMin=149.5  
+MediumMuonEfficiencyAnalyzer_Phase2.vtxMax=249.5 
