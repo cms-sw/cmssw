@@ -124,3 +124,10 @@ effPlotterTight_Phase2=effPlotterTight.clone()
 effPlotterTight_Phase2.vtxBin=20                                                                                                           
 effPlotterTight_Phase2.vtxMin=149.5                                                                                                         
 effPlotterTight_Phase2.vtxMax=249.5 
+
+
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon                                                                         
+phase2_muon.toReplaceWith(effPlotterLoose, effPlotterLoose_Phase2)
+phase2_muon.toReplaceWith(effPlotterMedium, effPlotterMedium_Phase2)        
+phase2_muon.toReplaceWith(effPlotterTight, effPlotterTight_Phase2)        
