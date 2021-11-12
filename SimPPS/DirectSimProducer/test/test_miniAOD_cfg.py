@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Modifier_ctpps_cff import ctpps
-process = cms.Process('PPS', ctpps)
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+process = cms.Process('PPS', ctpps_2016)
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.EventContent.EventContent_cff')
@@ -14,6 +14,10 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.cerr.threshold = cms.untracked.string('')
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+
+# global tag
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, '106X_mcRun2_asymptotic_v17', '')
 
 # raw data source
 process.source = cms.Source("PoolSource",
@@ -35,8 +39,8 @@ process.load('SimPPS.Configuration.ppsDirectSim_cff')
 process.load('RecoPPS.Configuration.recoCTPPS_cff')
 
 process.p = cms.Path(
-    process.ppsDirectSim *
-    process.recoCTPPS
+    process.ppsDirectSim
+    * process.ctppsProtons
 )
 
 # output configuration
