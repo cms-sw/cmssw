@@ -16,17 +16,19 @@ def _build_query(menu):
   if menu.run:
     return '--runNumber %s' % menu.run
   else:
-    return '--%s --configName %s' % (menu.database, menu.name)
+    return '--%s --%s --configName %s' % (menu.database, menu.version, menu.name)
 
-def getPathList(menu, selection):
-  cmdline = 'hltConfigFromDB --cff %s --noedsources --noes --noservices --nosequences --nomodules' % _build_query(menu)
+def getPathList(config):
+  cmdline = 'hltConfigFromDB --cff %s --noedsources --noes --noservices --nosequences --nomodules' % _build_query(config.menu)
+  if config.proxy:
+     cmdline += f" --dbproxy --dbproxyhost {config.proxy_host} --dbproxyport {config.proxy_port}"
   data = pipe.pipe(cmdline).decode()
   if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
     raise ImportError('%s is not a valid HLT menu' % menu.value)
 
-  if selection == 'paths':
+  if config.selection == 'paths':
     filter = re.compile(r' *= *cms.Path.*')
-  elif selection == 'endpaths':
+  elif config.selection == 'endpaths':
     filter = re.compile(r' *= *cms.EndPath.*')
   else: # 'all'
     filter = re.compile(r' *= *cms.(End)?Path.*')
@@ -43,6 +45,9 @@ except:
   pass
 formatter = FixedWidthFormatter( HelpFormatterRespectNewlines, width = textwidth )
 
+# read defaults
+defaults = options.HLTProcessOptions()
+
 parser = argparse.ArgumentParser(
   description       = 'List all the Paths and EndPaths from an HLT configuration in the ConfDB database.''',
   argument_default  = argparse.SUPPRESS,
@@ -55,6 +60,24 @@ parser.add_argument('menu',
                     type    = options.ConnectionHLTMenu,
                     metavar = 'MENU', 
                     help    = 'HLT menu to dump from the database. Supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible converters are "v1", "v2, and "v3" (default).\nThe possible databases are "run3" (default, used for offline development), "run2" (used for accessing run2 offline development menus), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.\nNote other converters and databases exist as options but they are only for expert/special use.' )
+parser.add_argument('--dbproxy',
+                    dest    = 'proxy',
+                    action  = 'store_true',
+                    default = defaults.proxy,
+                    help    = 'Use a socks proxy to connect outside CERN network (default: False)' )
+parser.add_argument('--dbproxyport',
+                    dest    = 'proxy_port',
+                    action  = 'store',
+                    metavar = 'PROXYPORT',
+                    default = defaults.proxy_port,
+                    help    = 'Port of the socks proxy (default: 8080)' )
+parser.add_argument('--dbproxyhost',
+                    dest    = 'proxy_host',
+                    action  = 'store',
+                    metavar = 'PROXYHOST',
+                    default = defaults.proxy_host,
+                    help    = 'Host of the socks proxy (default: "localhost")' )
+
 
 # options
 group = parser.add_mutually_exclusive_group()
@@ -82,7 +105,7 @@ parser.add_argument('-h', '--help',
 
 # parse command line arguments and options
 config = parser.parse_args()
-paths  = getPathList(config.menu, config.selection)
+paths  = getPathList(config)
 for path in paths:
   print(path)
 
