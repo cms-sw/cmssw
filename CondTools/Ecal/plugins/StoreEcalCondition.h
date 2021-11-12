@@ -1,11 +1,11 @@
-#ifndef StoreEcalCondition_h
-#define StoreEcalCondition_h
+#ifndef CondTools_Ecal_StoreEcalCondition_h
+#define CondTools_Ecal_StoreEcalCondition_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include <string>
 #include <map>
-#include <iostream>
+#include <memory>
 #include <fstream>
 #include <cstdio>
 #include <typeinfo>
@@ -36,16 +36,16 @@ namespace edm {
 // class decleration
 //
 
-class StoreEcalCondition : public edm::EDAnalyzer {
+class StoreEcalCondition : public edm::one::EDAnalyzer<> {
 public:
-  EcalWeightXtalGroups* readEcalWeightXtalGroupsFromFile(const char*);
-  EcalTBWeights* readEcalTBWeightsFromFile(const char*);
-  EcalADCToGeVConstant* readEcalADCToGeVConstantFromFile(const char*);
-  EcalIntercalibConstants* readEcalIntercalibConstantsFromFile(const char*, const char*);
-  EcalPFRecHitThresholds* readEcalPFRecHitThresholdsFromFile(const char*, const char*);
-  EcalIntercalibConstantsMC* readEcalIntercalibConstantsMCFromFile(const char*, const char*);
-  EcalGainRatios* readEcalGainRatiosFromFile(const char*);
-  EcalChannelStatus* readEcalChannelStatusFromFile(const char*);
+  std::shared_ptr<EcalWeightXtalGroups> readEcalWeightXtalGroupsFromFile(const char*);
+  std::shared_ptr<EcalTBWeights> readEcalTBWeightsFromFile(const char*);
+  std::shared_ptr<EcalADCToGeVConstant> readEcalADCToGeVConstantFromFile(const char*);
+  std::shared_ptr<EcalIntercalibConstants> readEcalIntercalibConstantsFromFile(const char*, const char*);
+  std::shared_ptr<EcalPFRecHitThresholds> readEcalPFRecHitThresholdsFromFile(const char*, const char*);
+  std::shared_ptr<EcalIntercalibConstantsMC> readEcalIntercalibConstantsMCFromFile(const char*, const char*);
+  std::shared_ptr<EcalGainRatios> readEcalGainRatiosFromFile(const char*);
+  std::shared_ptr<EcalChannelStatus> readEcalChannelStatusFromFile(const char*);
   void writeToLogFile(std::string, std::string, unsigned long long);
   void writeToLogFileResults(char*);
   int convertFromConstructionSMToSlot(int, int);
