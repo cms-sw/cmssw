@@ -9,11 +9,10 @@
 #include "RPCFakeEvent.h"
 #include <iostream>
 
-RPCFakeEvent::RPCFakeEvent(const edm::ParameterSet& config) :
-  filesed(config.getParameter<std::vector<std::string> >("FakeEvents")),
-  rpcdigiprint(config.getParameter<bool>("printOut")),
-  tokGeom_(esConsumes<RPCGeometry, MuonGeometryRecord>()) {
-
+RPCFakeEvent::RPCFakeEvent(const edm::ParameterSet& config)
+    : filesed(config.getParameter<std::vector<std::string> >("FakeEvents")),
+      rpcdigiprint(config.getParameter<bool>("printOut")),
+      tokGeom_(esConsumes<RPCGeometry, MuonGeometryRecord>()) {
   std::cout << "Initialize the Event Dump" << std::endl;
   produces<RPCDigiCollection>();
 
@@ -31,7 +30,7 @@ void RPCFakeEvent::produce(edm::Event& e, const edm::EventSetup& c) {
   std::cout << "Getting the rpc geometry" << std::endl;
   std::cout << "Getting the Muon geometry" << std::endl;
   auto rpcGeom = c.getHandle(tokGeom_);
-  
+
   if (rpcdigiprint) {
     std::cout << " Evento Done : "
               << "run=" << e.id().run() << " event=" << e.id().event() << std::endl;
