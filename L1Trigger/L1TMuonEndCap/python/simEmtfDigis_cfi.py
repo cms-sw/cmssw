@@ -13,6 +13,10 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     # Verbosity level
     verbosity = cms.untracked.int32(0),
 
+    # expert options to use the pT lookup tables in default directory L1Trigger/L1TMuonEndCap/data/pt_xmls/$xmlLutVersion/
+    xmlLutVersion = cms.string(''),
+    useCustomLUTs = cms.bool(False),
+
     # Configure by firmware version, which may be different than the default parameters in this file
     FWConfig = cms.bool(True),
 

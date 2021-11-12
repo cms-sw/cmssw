@@ -72,6 +72,9 @@ private:
   unsigned fw_ver_;
   unsigned pt_lut_ver_;
   unsigned pc_lut_ver_;
+
+  std::string xmlLutVersion_;
+  bool useCustomLUTs_;
 };
 
 #endif
