@@ -5,6 +5,8 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="rootcore"/>
+<use name="onnxruntime"/>
+<use name="PhysicsTools/ONNXRuntime"/>
 <export>
   <lib name="1"/>
 </export>
