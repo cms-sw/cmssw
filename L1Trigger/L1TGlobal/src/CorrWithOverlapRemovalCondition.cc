@@ -1421,13 +1421,14 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
           chrgCorrel = false;
       }
 
-      if (!reqResult || !chrgCorrel) continue;
+      if (!reqResult || !chrgCorrel)
+        continue;
 
       // ///////////////////////////////////////////////////////////////////////////////////////////
       // loop over overlap-removal leg combination which produced individually "true" as Type1s
       // ///////////////////////////////////////////////////////////////////////////////////////////
-      for (std::vector<SingleCombInCond>::const_iterator it2Comb = cond2Comb.begin();
-           it2Comb != cond2Comb.end(); it2Comb++) {
+      for (std::vector<SingleCombInCond>::const_iterator it2Comb = cond2Comb.begin(); it2Comb != cond2Comb.end();
+           it2Comb++) {
         // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it2Comb)[0]
         // ... but add protection to not crash
         int obj2Index = -1;
@@ -1728,8 +1729,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
           double deltaRSqPhy = deltaPhiPhy * deltaPhiPhy + deltaEtaPhy * deltaEtaPhy;
           long long deltaRSq = deltaEtaLUT * deltaEtaLUT + deltaPhiLUT * deltaPhiLUT;
 
-          LogDebug("L1TGlobal") << "    Testing Leg1 Overlap Removal Delta R Cut (" << lutObj0 << "," << lutObj2 << ") ["
-                                << (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
+          LogDebug("L1TGlobal") << "    Testing Leg1 Overlap Removal Delta R Cut (" << lutObj0 << "," << lutObj2
+                                << ") [" << (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) << ","
                                 << (long long)(corrPar.maxOverlapRemovalDRCutValue * pow(10, preShift))
                                 << "] with precision = " << corrPar.precOverlapRemovalDRCut << "\n"
                                 << "    deltaPhiLUT = " << deltaPhiLUT << "\n"
