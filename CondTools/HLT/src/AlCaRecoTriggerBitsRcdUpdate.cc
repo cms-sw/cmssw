@@ -40,7 +40,7 @@ private:
   bool removeKeysFromMap(const std::vector<std::string> &keys, TriggerMap &triggerMap) const;
   bool replaceKeysFromMap(const std::vector<edm::ParameterSet> &alcarecoReplace, TriggerMap &triggerMap) const;
   bool addTriggerLists(const std::vector<edm::ParameterSet> &triggerListsAdd, AlCaRecoTriggerBits &bits) const;
-  void writeBitsToDB(const std::unique_ptr<AlCaRecoTriggerBits> &bitsToWrite) const;
+  void writeBitsToDB(const AlCaRecoTriggerBits &bitsToWrite) const;
 
   edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> triggerBitsToken_;
   unsigned int nEventCalls_;
@@ -94,7 +94,7 @@ void AlCaRecoTriggerBitsRcdUpdate::analyze(const edm::Event &evt, const edm::Eve
   this->replaceKeysFromMap(alcarecoReplace_, bitsToWrite->m_alcarecoToTrig);
 
   // finally write to DB
-  this->writeBitsToDB(bitsToWrite);
+  this->writeBitsToDB(*bitsToWrite);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -171,7 +171,7 @@ bool AlCaRecoTriggerBitsRcdUpdate::addTriggerLists(const std::vector<edm::Parame
 }
 
 ///////////////////////////////////////////////////////////////////////
-void AlCaRecoTriggerBitsRcdUpdate::writeBitsToDB(const std::unique_ptr<AlCaRecoTriggerBits> &bitsToWrite) const {
+void AlCaRecoTriggerBitsRcdUpdate::writeBitsToDB(const AlCaRecoTriggerBits &bitsToWrite) const {
   edm::LogInfo("") << "Uploading to the database...";
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -179,9 +179,7 @@ void AlCaRecoTriggerBitsRcdUpdate::writeBitsToDB(const std::unique_ptr<AlCaRecoT
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available.\n";
   }
 
-  // FIXME: Have to check that timetype is run number! How?
-  const std::string recordName("AlCaRecoTriggerBitsRcd");
-  poolDbService->writeOneIOV(*bitsToWrite, firstRunIOV_, recordName);
+  poolDbService->writeOneIOV(bitsToWrite, firstRunIOV_, "AlCaRecoTriggerBitsRcd");
 
   edm::LogInfo("") << "...done for runs " << firstRunIOV_ << " to " << lastRunIOV_ << " (< 0 meaning infinity)!";
 }
