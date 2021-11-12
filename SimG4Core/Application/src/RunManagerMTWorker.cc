@@ -26,6 +26,8 @@
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
+#include "SimG4Core/Watcher/interface/SimProducer.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
@@ -77,54 +79,40 @@ namespace {
                       std::vector<SimProducer*>& oProds,
                       int threadID) {
     std::vector<edm::ParameterSet> watchers = iP.getParameter<std::vector<edm::ParameterSet>>("Watchers");
-    std::vector<edm::ParameterSet> watchersMT = iP.getParameter<std::vector<edm::ParameterSet>>("WatchersMT");
 
     // Watchers following old interface applicable only to 1-thread run
-    if (!watchers.empty() && 0 == threadID) {
-      for (auto& watcher : watchers) {
-        std::unique_ptr<SimWatcherMakerBase> maker(
-            SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
-        if (maker == nullptr) {
-          throw edm::Exception(edm::errors::Configuration)
-              << "RunManagerMTWorker: Unable to find the requested Watcher <"
-              << watcher.getParameter<std::string>("type") << " threadID=" << threadID;
-        }
-        SimWatcher* watcherTemp = nullptr;
-        SimProducer* producerTemp = nullptr;
-        maker->makeWatcher(watcher, *(iReg), watcherTemp, producerTemp);
-        if (nullptr != watcherTemp) {
-          oWatchers.push_back(watcherTemp);
-        }
-        if (nullptr != producerTemp) {
-          oProds.push_back(producerTemp);
-        }
-      }
+    if (watchers.empty()) {
+      return false;
     }
 
-    // Watchers follwoing old interface applicable only to 1-thread run
-    if (!watchersMT.empty()) {
-      for (auto& watcher : watchersMT) {
-        std::unique_ptr<SimWatcherMakerBase> maker(
-            SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
-        if (maker == nullptr) {
-          throw edm::Exception(edm::errors::Configuration)
-              << "RunManagerMTWorker: Unable to find the requested Watcher <"
-              << watcher.getParameter<std::string>("type") << " threadID=" << threadID;
-        }
-        SimWatcher* watcherTemp = nullptr;
-        SimProducer* producerTemp = nullptr;
-        maker->makeWatcher(watcher, *(iReg), watcherTemp, producerTemp);
-        if (nullptr != watcherTemp) {
-          oWatchers.push_back(watcherTemp);
-        }
-        if (nullptr != producerTemp) {
-          oProds.push_back(producerTemp);
+    for (auto& watcher : watchers) {
+      std::unique_ptr<SimWatcherMakerBase> maker(
+          SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
+      if (maker == nullptr) {
+        throw edm::Exception(edm::errors::Configuration)
+            << "RunManagerMTWorker::createWatchers: "
+            << "Unable to find the requested Watcher " << watcher.getParameter<std::string>("type");
+      } else {
+        SimWatcher* newWatcher = maker->makeWatcher(watcher, *(iReg));
+        if (nullptr != newWatcher) {
+          if (!newWatcher->isMT() && 0 < threadID) {
+            throw edm::Exception(edm::errors::Configuration)
+                << "RunManagerMTWorker::createWatchers: "
+                << "Unable to use Watcher " << watcher.getParameter<std::string>("type") << " if number of threads > 1";
+
+          } else {
+            oWatchers.push_back(newWatcher);
+            SimProducer* producerTemp = static_cast<SimProducer*>(newWatcher);
+            if (nullptr != producerTemp) {
+              oProds.push_back(producerTemp);
+            }
+          }
         }
       }
     }
     return (!oWatchers.empty());
-  }  // namespace
-};   // namespace
+  }
+};  // namespace
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
     : m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -180,10 +168,8 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
 }
 
 RunManagerMTWorker::~RunManagerMTWorker() {
-  if (m_hasWatchers) {
-    for (auto& watcher : m_watchers) {
-      delete watcher;
-    }
+  for (auto& watcher : m_watchers) {
+    delete watcher;
   }
 }
 

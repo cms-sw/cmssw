@@ -41,12 +41,11 @@ namespace {
               << "RunManagerMTWorker: Unable to find the requested Watcher <"
               << watcher.getParameter<std::string>("type");
         }
-        SimWatcher *watcherTemp = nullptr;
-        SimProducer *producerTemp = nullptr;
-        maker->makeWatcher(watcher, iReg, watcherTemp, producerTemp);
+        SimWatcher *watcherTemp = maker->makeWatcher(watcher, iReg);
         if (nullptr != watcherTemp) {
           oWatchers.push_back(watcherTemp);
         }
+        SimProducer *producerTemp = static_cast<SimProducer *>(watcherTemp);
         if (nullptr != producerTemp) {
           oProds.push_back(producerTemp);
         }

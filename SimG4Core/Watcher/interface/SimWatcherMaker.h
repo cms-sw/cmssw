@@ -26,7 +26,6 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
 #include "SimG4Core/Watcher/interface/SimWatcherMakerBase.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
-#include "SimG4Core/Watcher/interface/SimProducer.h"
 
 // forward declarations
 
@@ -36,13 +35,10 @@ public:
   SimWatcherMaker() {}
 
   // ---------- const member functions ---------------------
-  void makeWatcher(const edm::ParameterSet& p,
-                   SimActivityRegistry& reg,
-                   SimWatcher* oWatcher,
-                   SimProducer* oProd) const override {
-    oWatcher = new T(p);
+  SimWatcher* makeWatcher(const edm::ParameterSet& p, SimActivityRegistry& reg) const override {
+    SimWatcher* oWatcher = new T(p);
     SimActivityRegistryEnroller::enroll(reg, oWatcher);
-    oProd = static_cast<SimProducer*>(oWatcher);
+    return oWatcher;
   }
 };
 

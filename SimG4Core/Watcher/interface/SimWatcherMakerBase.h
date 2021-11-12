@@ -31,14 +31,14 @@ namespace edm {
   class ParameterSet;
 }
 class SimWatcher;
-class SimProducer;
+
 class SimWatcherMakerBase {
 public:
   SimWatcherMakerBase() {}
   virtual ~SimWatcherMakerBase() {}
 
   // ---------- const member functions ---------------------
-  virtual void makeWatcher(const edm::ParameterSet &, SimActivityRegistry &, SimWatcher *, SimProducer *) const = 0;
+  virtual SimWatcher *makeWatcher(const edm::ParameterSet &, SimActivityRegistry &) const = 0;
 };
 
 #endif
