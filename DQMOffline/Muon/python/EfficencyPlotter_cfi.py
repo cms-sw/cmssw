@@ -12,9 +12,9 @@ effPlotterLoose = DQMEDHarvester("EfficiencyPlotter",
                                   etaMax = cms.double(2.5),
                                   phiMax = cms.double(3.2),
                                   ptMax  = cms.double(100),
-                                  vtxBin = cms.int32(10),
+                                  vtxBin = cms.int32(30),
                                   vtxMin = cms.double(0.5),
-                                  vtxMax = cms.double(40.5),
+                                  vtxMax = cms.double(149.5),
                                   MuonID = cms.string("Loose")
                                   )
 
@@ -30,9 +30,9 @@ effPlotterMedium = DQMEDHarvester("EfficiencyPlotter",
                                    etaMax = cms.double(2.5),
                                    phiMax = cms.double(3.2),
                                    ptMax  = cms.double(100),
-                                   vtxBin = cms.int32(10),
+                                   vtxBin = cms.int32(30),
                                    vtxMin = cms.double(0.5),
-                                   vtxMax = cms.double(40.5),
+                                   vtxMax = cms.double(149.5),
                                    MuonID = cms.string("Medium")
                                    )
 
@@ -48,9 +48,9 @@ effPlotterTight = DQMEDHarvester("EfficiencyPlotter",
                                   etaMax = cms.double(2.5),
                                   phiMax = cms.double(3.2),
                                   ptMax  = cms.double(100),
-                                  vtxBin = cms.int32(10),
+                                  vtxBin = cms.int32(30),
                                   vtxMin = cms.double(0.5),
-                                  vtxMax = cms.double(40.5),
+                                  vtxMax = cms.double(149.5),
                                   MuonID = cms.string("Tight")
                                   )
 effPlotterLooseMiniAOD = DQMEDHarvester("EfficiencyPlotter",
@@ -64,9 +64,9 @@ effPlotterLooseMiniAOD = DQMEDHarvester("EfficiencyPlotter",
                                           etaMax = cms.double(2.5),
                                           phiMax = cms.double(3.2),
                                           ptMax  = cms.double(100),
-                                          vtxBin = cms.int32(10),
+                                          vtxBin = cms.int32(30),
                                           vtxMin = cms.double(0.5),
-                                          vtxMax = cms.double(40.5),
+                                          vtxMax = cms.double(149.5),
                                           MuonID = cms.string("Loose")
                                           )
 
@@ -82,9 +82,9 @@ effPlotterMediumMiniAOD = DQMEDHarvester("EfficiencyPlotter",
                                            etaMax = cms.double(2.5),
                                            phiMax = cms.double(3.2),
                                            ptMax  = cms.double(100),
-                                           vtxBin = cms.int32(10),
+                                           vtxBin = cms.int32(30),
                                            vtxMin = cms.double(0.5),
-                                           vtxMax = cms.double(40.5),
+                                           vtxMax = cms.double(149.5),
                                            MuonID = cms.string("Medium")
                                            )
 
@@ -100,9 +100,9 @@ effPlotterTightMiniAOD = DQMEDHarvester("EfficiencyPlotter",
                                           etaMax = cms.double(2.5),
                                           phiMax = cms.double(3.2),
                                           ptMax  = cms.double(100),
-                                          vtxBin = cms.int32(10),
+                                          vtxBin = cms.int32(30),
                                           vtxMin = cms.double(0.5),
-                                          vtxMax = cms.double(40.5),
+                                          vtxMax = cms.double(149.5),
                                           MuonID = cms.string("Tight")
                                           )
 
