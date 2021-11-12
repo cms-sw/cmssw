@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,7 +17,7 @@
 
 using namespace std;
 
-class L1TMuonOverlapFwVersionTester : public edm::EDAnalyzer {
+class L1TMuonOverlapFwVersionTester : public edm::one::EDAnalyzer<> {
 private:
   bool isO2Opayload;
   bool writeToDB;
@@ -27,7 +27,7 @@ private:
 public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  explicit L1TMuonOverlapFwVersionTester(const edm::ParameterSet &pset) : edm::EDAnalyzer() {
+  explicit L1TMuonOverlapFwVersionTester(const edm::ParameterSet &pset) : edm::one::EDAnalyzer<>() {
     isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload", false);
     writeToDB = pset.getUntrackedParameter<bool>("writeToDB", false);
     esToken = esConsumes<L1TMuonOverlapFwVersion, L1TMuonOverlapFwVersionRcd>();
