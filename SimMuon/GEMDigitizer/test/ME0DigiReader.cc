@@ -50,7 +50,6 @@ public:
 private:
   const edm::EDGetTokenT<edm::PSimHitContainer> simhitToken_;
   const edm::EDGetTokenT<ME0DigiCollection> me0DigiToken_;
-  const edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > me0StripDigiSimLinkToken_;
   const edm::ESGetToken<ME0Geometry, MuonGeometryRecord> geomToken_;
   const bool debug_;
 
@@ -75,8 +74,6 @@ private:
 ME0DigiReader::ME0DigiReader(const edm::ParameterSet &pset)
     : simhitToken_(consumes<edm::PSimHitContainer>(pset.getParameter<edm::InputTag>("simhitToken"))),
       me0DigiToken_(consumes<ME0DigiCollection>(pset.getParameter<edm::InputTag>("me0DigiToken"))),
-      me0StripDigiSimLinkToken_(
-          consumes<edm::DetSetVector<StripDigiSimLink> >(pset.getParameter<edm::InputTag>("me0StripDigiSimLinkToken"))),
       geomToken_(esConsumes<ME0Geometry, MuonGeometryRecord>()),
       debug_(pset.getParameter<bool>("debugFlag")) {
   usesResource("TFileService");
@@ -110,8 +107,6 @@ void ME0DigiReader::analyze(const edm::Event &event, const edm::EventSetup &even
   const auto &simHits = event.getHandle(simhitToken_);
 
   const auto &digis = event.getHandle(me0DigiToken_);
-
-  const auto &thelinkDigis = event.getHandle(me0StripDigiSimLinkToken_);
 
   ME0DigiCollection::DigiRangeIterator detUnitIt;
 
