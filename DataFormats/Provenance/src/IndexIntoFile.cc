@@ -1725,6 +1725,284 @@ namespace edm {
     return indexIntoFile()->runOrLumiIndexes()[index].lumi();
   }
 
+  //*************************************
+  IndexIntoFile::IndexIntoFileItrEntryOrder::IndexIntoFileItrEntryOrder(IndexIntoFile const* indexIntoFile,
+                                                                        EntryType entryType,
+                                                                        int indexToRun,
+                                                                        int indexToLumi,
+                                                                        int indexToEventRange,
+                                                                        long long indexToEvent,
+                                                                        long long nEvents)
+      : IndexIntoFileItrImpl(
+            indexIntoFile, entryType, indexToRun, indexToLumi, indexToEventRange, indexToEvent, nEvents) {
+    auto const& runOrLumiEntries = this->indexIntoFile()->runOrLumiEntries();
+    fileOrderRunOrLumiEntry_.reserve(runOrLumiEntries.size());
+    auto const itBegin = runOrLumiEntries.begin();
+    auto itPresentEntryToRunOrLumis = runOrLumiEntries.begin();
+    auto itRestartSearchAt = runOrLumiEntries.begin();
+    EntryNumber_t endOfContiguousEventEntry = 0;
+    std::vector<bool> usedEntry(runOrLumiEntries.size(), false);
+    auto findFirstOpen = [](auto const& entries) {
+      return std::find(entries.begin(), entries.end(), false) - entries.begin();
+    };
+    while (fileOrderRunOrLumiEntry_.size() != runOrLumiEntries.size()) {
+      assert(itRestartSearchAt != runOrLumiEntries.end());
+      assert(itPresentEntryToRunOrLumis != runOrLumiEntries.end());
+
+      auto const index = itPresentEntryToRunOrLumis - itBegin;
+      if (usedEntry[index]) {
+        ++itPresentEntryToRunOrLumis;
+        continue;
+      }
+      assert(static_cast<std::size_t>(index) < runOrLumiEntries.size());
+      if (itPresentEntryToRunOrLumis->isRun()) {
+        //take Run as it is
+        fileOrderRunOrLumiEntry_.push_back(index);
+        usedEntry[index] = true;
+        itRestartSearchAt = runOrLumiEntries.begin() + findFirstOpen(usedEntry);
+        itPresentEntryToRunOrLumis = itRestartSearchAt;
+        continue;
+      }
+      auto const beginEvents = itPresentEntryToRunOrLumis->beginEvents();
+      if (beginEvents == invalidEntry) {
+        //this is an empty lumi. We want to preserve the order w.r.t previous entries
+        if (std::find(usedEntry.begin(), usedEntry.begin() + index, false) == usedEntry.begin() + index) {
+          fileOrderRunOrLumiEntry_.push_back(index);
+          usedEntry[index] = true;
+          itRestartSearchAt = runOrLumiEntries.begin() + findFirstOpen(usedEntry);
+          itPresentEntryToRunOrLumis = itRestartSearchAt;
+          continue;
+        }
+      } else if (beginEvents == endOfContiguousEventEntry) {
+        fileOrderRunOrLumiEntry_.push_back(index);
+        usedEntry[index] = true;
+        endOfContiguousEventEntry = itPresentEntryToRunOrLumis->endEvents();
+        itRestartSearchAt = runOrLumiEntries.begin() + findFirstOpen(usedEntry);
+        itPresentEntryToRunOrLumis = itRestartSearchAt;
+        continue;
+      }
+      ++itPresentEntryToRunOrLumis;
+    }
+  }
+
+  IndexIntoFile::IndexIntoFileItrImpl* IndexIntoFile::IndexIntoFileItrEntryOrder::clone() const {
+    return new IndexIntoFileItrEntryOrder(*this);
+  }
+
+  int IndexIntoFile::IndexIntoFileItrEntryOrder::processHistoryIDIndex() const {
+    if (type() == kEnd)
+      return invalidIndex;
+    return runOrLumisEntry(indexToRun()).processHistoryIDIndex();
+  }
+
+  RunNumber_t IndexIntoFile::IndexIntoFileItrEntryOrder::run() const {
+    if (type() == kEnd)
+      return invalidRun;
+    return runOrLumisEntry(indexToRun()).run();
+  }
+
+  LuminosityBlockNumber_t IndexIntoFile::IndexIntoFileItrEntryOrder::lumi() const {
+    if (type() == kEnd || type() == kRun)
+      return invalidLumi;
+    return runOrLumisEntry(indexToLumi()).lumi();
+  }
+
+  IndexIntoFile::EntryNumber_t IndexIntoFile::IndexIntoFileItrEntryOrder::entry() const {
+    if (type() == kEnd)
+      return invalidEntry;
+    if (type() == kRun)
+      return runOrLumisEntry(indexToRun()).entry();
+    if (type() == kLumi) {
+      auto entry = runOrLumisEntry(indexToLumi()).entry();
+      if (entry == invalidEntry) {
+        if (indexToLumi() + 1 < size()) {
+          if (runOrLumisEntry(indexToLumi()).lumi() != runOrLumisEntry(indexToLumi() + 1).lumi()) {
+            //find the end of this lumi
+            auto const& runLumiEntry = runOrLumisEntry(indexToLumi());
+            for (auto nextIndex = indexToLumi() + 1; nextIndex < size(); ++nextIndex) {
+              auto const& nextRunLumiEntry = runOrLumisEntry(nextIndex);
+              if (runLumiEntry.lumi() == nextRunLumiEntry.lumi() and runLumiEntry.run() == nextRunLumiEntry.run() and
+                  runLumiEntry.processHistoryIDIndex() == nextRunLumiEntry.processHistoryIDIndex()) {
+                auto nextEntry = nextRunLumiEntry.entry();
+                if (nextEntry != invalidEntry) {
+                  return nextEntry;
+                }
+              }
+            }
+            return continuedLumi;
+          }
+        }
+      }
+      return entry;
+    }
+    return runOrLumisEntry(indexToEventRange()).beginEvents() + indexToEvent();
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrEntryOrder::entryContinues() const {
+    auto entry = runOrLumisEntry(indexToLumi()).entry();
+    return entry == invalidEntry;
+  }
+
+  LuminosityBlockNumber_t IndexIntoFile::IndexIntoFileItrEntryOrder::peekAheadAtLumi() const {
+    if (indexToLumi() == invalidIndex)
+      return invalidLumi;
+    return runOrLumisEntry(indexToLumi()).lumi();
+  }
+
+  IndexIntoFile::EntryNumber_t IndexIntoFile::IndexIntoFileItrEntryOrder::peekAheadAtEventEntry() const {
+    if (indexToLumi() == invalidIndex)
+      return invalidEntry;
+    if (indexToEvent() >= nEvents())
+      return invalidEntry;
+    return runOrLumisEntry(indexToEventRange()).beginEvents() + indexToEvent();
+  }
+
+  void IndexIntoFile::IndexIntoFileItrEntryOrder::initializeLumi_() {
+    assert(indexToLumi() != invalidIndex);
+
+    setIndexToEventRange(invalidIndex);
+    setIndexToEvent(0);
+    setNEvents(0);
+
+    for (int i = 0; indexToLumi() + i < size(); ++i) {
+      if (runOrLumisEntry(indexToLumi() + i).isRun()) {
+        break;
+      } else if (runOrLumisEntry(indexToLumi() + i).lumi() == runOrLumisEntry(indexToLumi()).lumi()) {
+        if (runOrLumisEntry(indexToLumi() + i).beginEvents() == invalidEntry) {
+          continue;
+        }
+        setIndexToEventRange(indexToLumi() + i);
+        setIndexToEvent(0);
+        setNEvents(runOrLumisEntry(indexToEventRange()).endEvents() -
+                   runOrLumisEntry(indexToEventRange()).beginEvents());
+        break;
+      } else {
+        break;
+      }
+    }
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrEntryOrder::nextEventRange() {
+    if (indexToEventRange() == invalidIndex)
+      return false;
+
+    // Look for the next event range, same lumi but different entry
+    for (int i = 1; indexToEventRange() + i < size(); ++i) {
+      if (runOrLumisEntry(indexToEventRange() + i).isRun()) {
+        return false;  // hit next run
+      } else if (runOrLumisEntry(indexToEventRange() + i).lumi() == runOrLumisEntry(indexToEventRange()).lumi()) {
+        if (runOrLumisEntry(indexToEventRange() + i).beginEvents() == invalidEntry) {
+          continue;  // same lumi but has no events, keep looking
+        }
+        setIndexToEventRange(indexToEventRange() + i);
+        setIndexToEvent(0);
+        setNEvents(runOrLumisEntry(indexToEventRange()).endEvents() -
+                   runOrLumisEntry(indexToEventRange()).beginEvents());
+        return true;  // found more events in this lumi
+      }
+      return false;  // hit next lumi
+    }
+    return false;  // hit the end of the IndexIntoFile
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrEntryOrder::previousEventRange() {
+    if (indexToEventRange() == invalidIndex)
+      return false;
+    assert(indexToEventRange() < size());
+
+    // Look backward for a previous event range with events, same lumi but different entry
+    for (int i = 1; indexToEventRange() - i > 0; ++i) {
+      int newRange = indexToEventRange() - i;
+      if (runOrLumisEntry(newRange).isRun()) {
+        return false;  // hit run
+      } else if (isSameLumi(newRange, indexToEventRange())) {
+        if (runOrLumisEntry(newRange).beginEvents() == invalidEntry) {
+          continue;  // same lumi but has no events, keep looking
+        }
+        setIndexToEventRange(newRange);
+        setNEvents(runOrLumisEntry(indexToEventRange()).endEvents() -
+                   runOrLumisEntry(indexToEventRange()).beginEvents());
+        setIndexToEvent(nEvents() - 1);
+        return true;  // found previous event in this lumi
+      }
+      return false;  // hit previous lumi
+    }
+    return false;  // hit the beginning of the IndexIntoFile, 0th entry has to be a run
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrEntryOrder::setToLastEventInRange(int index) {
+    if (runOrLumisEntry(index).beginEvents() == invalidEntry) {
+      return false;
+    }
+    setIndexToEventRange(index);
+    setNEvents(runOrLumisEntry(indexToEventRange()).endEvents() - runOrLumisEntry(indexToEventRange()).beginEvents());
+    assert(nEvents() > 0);
+    setIndexToEvent(nEvents() - 1);
+    return true;
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrEntryOrder::skipLumiInRun() {
+    if (indexToLumi() == invalidIndex)
+      return false;
+    for (int i = 1; indexToLumi() + i < size(); ++i) {
+      int newLumi = indexToLumi() + i;
+      if (runOrLumisEntry(newLumi).isRun()) {
+        return false;  // hit next run
+      } else if (runOrLumisEntry(newLumi).lumi() == runOrLumisEntry(indexToLumi()).lumi()) {
+        continue;
+      }
+      setIndexToLumi(newLumi);
+      initializeLumi();
+      return true;  // hit next lumi
+    }
+    return false;  // hit the end of the IndexIntoFile
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrEntryOrder::lumiEntryValid(int index) const {
+    auto entry = runOrLumisEntry(index).entry();
+    if (entry == invalidEntry) {
+      if (index + 1 < size()) {
+        if (runOrLumisEntry(index).lumi() != runOrLumisEntry(index + 1).lumi()) {
+          return true;
+        }
+      }
+    }
+    return entry != invalidEntry;
+  }
+
+  IndexIntoFile::EntryType IndexIntoFile::IndexIntoFileItrEntryOrder::getRunOrLumiEntryType(int index) const {
+    if (index < 0 || index >= size()) {
+      return kEnd;
+    } else if (runOrLumisEntry(index).isRun()) {
+      return kRun;
+    }
+    return kLumi;
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrEntryOrder::isSameLumi(int index1, int index2) const {
+    if (index1 < 0 || index1 >= size() || index2 < 0 || index2 >= size()) {
+      return false;
+    }
+    return runOrLumisEntry(index1).lumi() == runOrLumisEntry(index2).lumi();
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrEntryOrder::isSameRun(int index1, int index2) const {
+    if (index1 < 0 || index1 >= size() || index2 < 0 || index2 >= size()) {
+      return false;
+    }
+    return runOrLumisEntry(index1).run() == runOrLumisEntry(index2).run() &&
+           runOrLumisEntry(index1).processHistoryIDIndex() == runOrLumisEntry(index2).processHistoryIDIndex();
+  }
+
+  LuminosityBlockNumber_t IndexIntoFile::IndexIntoFileItrEntryOrder::lumi(int index) const {
+    if (index < 0 || index >= size()) {
+      return invalidLumi;
+    }
+    return runOrLumisEntry(index).lumi();
+  }
+
+  //*************************************
+
   IndexIntoFile::IndexIntoFileItr::IndexIntoFileItr(IndexIntoFile const* indexIntoFile,
                                                     SortOrder sortOrder,
                                                     EntryType entryType,
@@ -1738,8 +2016,12 @@ namespace edm {
       value_ptr<IndexIntoFileItrImpl> temp(new IndexIntoFileItrSorted(
           indexIntoFile, entryType, indexToRun, indexToLumi, indexToEventRange, indexToEvent, nEvents));
       swap(temp, impl_);
-    } else {
+    } else if (sortOrder == firstAppearanceOrder) {
       value_ptr<IndexIntoFileItrImpl> temp(new IndexIntoFileItrNoSort(
+          indexIntoFile, entryType, indexToRun, indexToLumi, indexToEventRange, indexToEvent, nEvents));
+      swap(temp, impl_);
+    } else {
+      value_ptr<IndexIntoFileItrImpl> temp(new IndexIntoFileItrEntryOrder(
           indexIntoFile, entryType, indexToRun, indexToLumi, indexToEventRange, indexToEvent, nEvents));
       swap(temp, impl_);
     }
