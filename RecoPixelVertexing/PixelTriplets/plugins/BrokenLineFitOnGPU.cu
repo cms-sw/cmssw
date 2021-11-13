@@ -50,12 +50,12 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
     cudaCheck(cudaGetLastError());
 
     if (fit5as4_) {
-      // fit penta (only first 4)
-      kernel_BLFastFit<4><<<numberOfBlocks / 4, blockSize, 0, stream>>>(
+      // fit penta and sexta (only first 4, FIXME needs to load one per layer)
+      kernel_BLFastFit<4><<<1, blockSize, 0, stream>>>(
           tuples_, tupleMultiplicity_, hv, hitsGPU_.get(), hits_geGPU_.get(), fast_fit_resultsGPU_.get(), 5, offset);
       cudaCheck(cudaGetLastError());
 
-      kernel_BLFit<4><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
+      kernel_BLFit<4><<<1, blockSize, 0, stream>>>(tupleMultiplicity_,
                                                                     bField_,
                                                                     outputSoa_,
                                                                     hitsGPU_.get(),
@@ -64,13 +64,28 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
                                                                     5,
                                                                     offset);
       cudaCheck(cudaGetLastError());
+      kernel_BLFastFit<4><<<1, blockSize, 0, stream>>>(
+          tuples_, tupleMultiplicity_, hv, hitsGPU_.get(), hits_geGPU_.get(), fast_fit_resultsGPU_.get(), 6, offset);
+      cudaCheck(cudaGetLastError());
+
+      kernel_BLFit<4><<<1, blockSize, 0, stream>>>(tupleMultiplicity_,
+                                                                    bField_,
+                                                                    outputSoa_,
+                                                                    hitsGPU_.get(),
+                                                                    hits_geGPU_.get(),
+                                                                    fast_fit_resultsGPU_.get(),
+                                                                    6,
+                                                                    offset);
+      cudaCheck(cudaGetLastError());
+
+
     } else {
       // fit penta (all 5)
-      kernel_BLFastFit<5><<<numberOfBlocks / 4, blockSize, 0, stream>>>(
+      kernel_BLFastFit<5><<<1, blockSize, 0, stream>>>(
           tuples_, tupleMultiplicity_, hv, hitsGPU_.get(), hits_geGPU_.get(), fast_fit_resultsGPU_.get(), 5, offset);
       cudaCheck(cudaGetLastError());
 
-      kernel_BLFit<5><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
+      kernel_BLFit<5><<<1, blockSize, 0, stream>>>(tupleMultiplicity_,
                                                                     bField_,
                                                                     outputSoa_,
                                                                     hitsGPU_.get(),
@@ -79,6 +94,21 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
                                                                     5,
                                                                     offset);
       cudaCheck(cudaGetLastError());
+      // fit sexta (all 6)
+      kernel_BLFastFit<6><<<1, blockSize, 0, stream>>>(
+          tuples_, tupleMultiplicity_, hv, hitsGPU_.get(), hits_geGPU_.get(), fast_fit_resultsGPU_.get(), 6, offset);
+      cudaCheck(cudaGetLastError());
+
+      kernel_BLFit<6><<<1, blockSize, 0, stream>>>(tupleMultiplicity_,
+                                                                    bField_,
+                                                                    outputSoa_,
+                                                                    hitsGPU_.get(),
+                                                                    hits_geGPU_.get(),
+                                                                    fast_fit_resultsGPU_.get(),
+                                                                    6,
+                                                                    offset);
+      cudaCheck(cudaGetLastError());
+
     }
 
   }  // loop on concurrent fits
