@@ -56,7 +56,7 @@ private:
 
 //--------------------------------------------------------------------------------------------------
 RawPCCProducer::RawPCCProducer(const edm::ParameterSet& iConfig)
-    : lumiCorrectionsToken_(esConsumes()),
+    : lumiCorrectionsToken_(esConsumes<edm::Transition::EndLuminosityBlock>()),
       putToken_{produces<LumiInfo, edm::Transition::EndLuminosityBlock>(
           iConfig.getParameter<edm::ParameterSet>("RawPCCProducerParameters")
               .getUntrackedParameter<std::string>("outputProductName", "alcaLumi"))},
