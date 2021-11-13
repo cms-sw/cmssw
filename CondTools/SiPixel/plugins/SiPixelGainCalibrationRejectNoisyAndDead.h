@@ -43,10 +43,10 @@ private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pddToken_;
   SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
   //SiPixelGainCalibrationForHLTService SiPixelGainCalibrationService_;
-  SiPixelGainCalibrationOffline *theGainCalibrationDbInputOffline_;
+  std::unique_ptr<SiPixelGainCalibrationOffline> theGainCalibrationDbInputOffline_;
 
   SiPixelGainCalibrationForHLTService SiPixelGainCalibrationForHLTService_;
-  SiPixelGainCalibrationForHLT *theGainCalibrationDbInputForHLT_;
+  std::unique_ptr<SiPixelGainCalibrationForHLT> theGainCalibrationDbInputForHLT_;
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 

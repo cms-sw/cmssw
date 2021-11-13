@@ -182,7 +182,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
   geom->sortDetIds();
 
   if (counter != numberExpected) {
-    if (test) {
+    if (topology.tileTrapezoid()) {
       edm::LogVerbatim("HGCalGeom") << "Inconsistent # of cells: expected " << numberExpected << ":" << numberOfCells
                                     << " , inited " << counter;
     } else {

@@ -34,7 +34,7 @@ void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
   }
   edm::LogInfo("Modules") << "detectorModules_.size() = " << detectorModules_.size();
 
-  SiPixelPerformanceSummary* performanceSummary = new SiPixelPerformanceSummary();
+  SiPixelPerformanceSummary performanceSummary;
 
   for (std::vector<uint32_t>::const_iterator iDet = detectorModules_.begin();  // fill object
        iDet != detectorModules_.end();
@@ -43,24 +43,22 @@ void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
     float nDigisRMS = (float)CLHEP::RandGauss::shoot(20., 4.);
     float emptyFraction = (float)CLHEP::RandGauss::shoot(.5, .2);
 
-    performanceSummary->setNumberOfDigis(*iDet, nDigisMean, nDigisRMS, emptyFraction);  // set values
+    performanceSummary.setNumberOfDigis(*iDet, nDigisMean, nDigisRMS, emptyFraction);  // set values
   }
   clock_t presentTime = clock();
-  performanceSummary->setTimeStamp((unsigned long long)presentTime);
-  performanceSummary->print();
+  performanceSummary.setTimeStamp((unsigned long long)presentTime);
+  performanceSummary.print();
 
   edm::Service<cond::service::PoolDBOutputService> poolDBService;  // write to DB
   if (poolDBService.isAvailable()) {
     try {
       if (poolDBService->isNewTagRequest("SiPixelPerformanceSummaryRcd")) {
         edm::LogInfo("Tag") << " is a new tag request.";
-        poolDBService->createNewIOV<SiPixelPerformanceSummary>(performanceSummary,
-                                                               poolDBService->beginOfTime(),
-                                                               poolDBService->endOfTime(),
-                                                               "SiPixelPerformanceSummaryRcd");
+        poolDBService->createOneIOV<SiPixelPerformanceSummary>(
+            performanceSummary, poolDBService->beginOfTime(), "SiPixelPerformanceSummaryRcd");
       } else {
         edm::LogInfo("Tag") << " tag exists already";
-        poolDBService->appendSinceTime<SiPixelPerformanceSummary>(
+        poolDBService->appendOneIOV<SiPixelPerformanceSummary>(
             performanceSummary, poolDBService->currentTime(), "SiPixelPerformanceSummaryRcd");
       }
     } catch (const cond::Exception& err) {

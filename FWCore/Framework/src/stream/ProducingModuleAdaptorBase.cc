@@ -47,6 +47,14 @@ namespace edm {
       }
     }
 
+    template <typename T>
+    void ProducingModuleAdaptorBase<T>::deleteModulesEarly() {
+      for (auto m : m_streamModules) {
+        delete m;
+      }
+      m_streamModules.clear();
+    }
+
     //
     // member functions
     //

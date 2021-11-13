@@ -5,8 +5,8 @@
 #include <map>
 #include <memory>
 #include <string>
-#include "CondFormats/SiPixelObjects/interface/SiPixelVCal.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelVCal.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
@@ -31,8 +31,8 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
   std::string recordName_;
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters BPixParameters_;

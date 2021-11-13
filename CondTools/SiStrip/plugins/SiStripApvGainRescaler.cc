@@ -59,9 +59,9 @@ private:
   const std::string m_Record;
 
   // take G2_old and G1_old from the regular gain handle
-  edm::ESGetToken<SiStripGain, SiStripGainRcd> g1g2Token_;
+  const edm::ESGetToken<SiStripGain, SiStripGainRcd> g1g2Token_;
   // take the additional G1_new from the Gain3Rcd (dirty trick)
-  edm::ESGetToken<SiStripApvGain, SiStripApvGain3Rcd> g3Token_;
+  const edm::ESGetToken<SiStripApvGain, SiStripApvGain3Rcd> g3Token_;
 };
 
 //
@@ -72,11 +72,7 @@ SiStripApvGainRescaler::SiStripApvGainRescaler(const edm::ParameterSet& iConfig)
   //now do what ever initialization is needed
 }
 
-SiStripApvGainRescaler::~SiStripApvGainRescaler() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
+SiStripApvGainRescaler::~SiStripApvGainRescaler() = default;
 //
 // member functions
 //

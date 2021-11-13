@@ -20,6 +20,7 @@ Implementation:
 
 // system include files
 #include <memory>
+#include <algorithm>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -149,13 +150,13 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
   //get tracks
   Handle<std::vector<reco::Track> > tracks;
   iEvent.getByToken(tracksToken, tracks);
-  unsigned int tsize = tracks->size();
-  float teta[tsize], tphi[tsize];
-  unsigned int i = 0;
+  uint const asize = std::max(1u, (uint)tracks->size());
+  float teta[asize], tphi[asize];
+  uint tsize = 0;
   for (auto const& tr : *tracks) {
-    teta[i] = tr.eta();
-    tphi[i] = tr.phi();
-    ++i;
+    teta[tsize] = tr.eta();
+    tphi[tsize] = tr.phi();
+    ++tsize;
   }
 
   //get jets

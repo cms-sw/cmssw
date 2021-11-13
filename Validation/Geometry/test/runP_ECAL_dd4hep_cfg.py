@@ -45,14 +45,14 @@ process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('MaterialBudgetAction'),
     MaterialBudgetAction = cms.PSet(
-        HistosFile = cms.string('matbdg_ECAL_DD4HEP.root'),
+        HistosFile = cms.string('matbdg_ECAL_DD4hep.root'),
         AllStepsToTree = cms.bool(False),
         HistogramList = cms.string('ECAL'),
         SelectedVolumes = cms.vstring('ECAL'),
         # string TextFile = "None"          # "None" means this option 
         TreeFile = cms.string('None'),
         StopAfterProcess = cms.string('None'),
-        TextFile = cms.string('matbdg_ECAL_DD4HEP.txt')
+        TextFile = cms.string('matbdg_ECAL_DD4hep.txt')
     )
 ))
 

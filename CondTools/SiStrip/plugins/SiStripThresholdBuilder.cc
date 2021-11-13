@@ -1,7 +1,30 @@
-#include "CondTools/SiStrip/plugins/SiStripThresholdBuilder.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+
 #include <iostream>
 #include <fstream>
+
+class SiStripThresholdBuilder : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripThresholdBuilder(const edm::ParameterSet& iConfig);
+
+  ~SiStripThresholdBuilder() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::FileInPath fp_;
+  uint32_t printdebug_;
+};
 
 SiStripThresholdBuilder::SiStripThresholdBuilder(const edm::ParameterSet& iConfig)
     : fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",
@@ -16,8 +39,11 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
 
   SiStripThreshold obj;
 
+  const auto& reader = SiStripDetInfoFileReader::read(fp_.fullPath());
+  const auto& DetInfos = reader.getAllData();
+
   int count = -1;
-  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
+  for (const auto& it : DetInfos) {
     count++;
     //Generate Pedestal for det detid
     SiStripThreshold::Container theSiStripVector;
@@ -66,3 +92,8 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
     edm::LogError("SiStripThresholdBuilder") << "Service is unavailable" << std::endl;
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripThresholdBuilder);

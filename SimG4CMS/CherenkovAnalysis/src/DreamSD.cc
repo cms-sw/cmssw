@@ -30,11 +30,11 @@
 //________________________________________________________________________________________
 DreamSD::DreamSD(const std::string &name,
                  const DDCompactView *cpvDDD,
-                 const cms::DDCompactView *cpvDD4Hep,
+                 const cms::DDCompactView *cpvDD4hep,
                  const SensitiveDetectorCatalog &clg,
                  edm::ParameterSet const &p,
                  const SimTrackManager *manager)
-    : CaloSD(name, clg, p, manager), cpvDDD_(cpvDDD), cpvDD4Hep_(cpvDD4Hep) {
+    : CaloSD(name, clg, p, manager), cpvDDD_(cpvDDD), cpvDD4hep_(cpvDD4hep) {
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
   useBirk_ = m_EC.getParameter<bool>("UseBirkLaw");
   doCherenkov_ = m_EC.getParameter<bool>("doCherenkov");
@@ -120,7 +120,7 @@ uint32_t DreamSD::setDetUnitId(const G4Step *aStep) {
 void DreamSD::initMap(const std::string &sd) {
   if (dd4hep_) {
     const cms::DDFilter filter("ReadOutName", sd);
-    cms::DDFilteredView fv((*cpvDD4Hep_), filter);
+    cms::DDFilteredView fv((*cpvDD4hep_), filter);
     while (fv.firstChild()) {
       std::string name = static_cast<std::string>(dd4hep::dd::noNamespace(fv.name()));
       std::vector<double> paras(fv.parameters());
@@ -130,8 +130,8 @@ void DreamSD::initMap(const std::string &sd) {
 #endif
       // Set length to be the largest size, width the smallest
       std::sort(paras.begin(), paras.end());
-      double length = 2.0 * k_ScaleFromDD4HepToG4 * paras.back();
-      double width = 2.0 * k_ScaleFromDD4HepToG4 * paras.front();
+      double length = 2.0 * k_ScaleFromDD4hepToG4 * paras.back();
+      double width = 2.0 * k_ScaleFromDD4hepToG4 * paras.front();
       fillMap(name, length, width);
     }
   } else {

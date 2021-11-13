@@ -35,7 +35,7 @@ SiPixelLorentzAngleDB::~SiPixelLorentzAngleDB() = default;
 // Analyzer: Functions that gets called by framework every event
 
 void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& es) {
-  SiPixelLorentzAngle* LorentzAngle = new SiPixelLorentzAngle();
+  SiPixelLorentzAngle LorentzAngle;
 
   //Retrieve tracker topology from geometry
   const TrackerTopology* tTopo = &es.getData(tkTopoToken_);
@@ -62,7 +62,7 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
           for (Parameters::iterator it = ModuleParameters_.begin(); it != ModuleParameters_.end(); ++it) {
             if (it->getParameter<unsigned int>("rawid") == detidc.rawId()) {
               float lorentzangle = (float)it->getParameter<double>("angle");
-              LorentzAngle->putLorentzAngle(detid.rawId(), lorentzangle);
+              LorentzAngle.putLorentzAngle(detid.rawId(), lorentzangle);
               edm::LogPrint("SiPixelLorentzAngleDB")
                   << " individual value=" << lorentzangle << " put into rawid=" << detid.rawId() << endl;
             }
@@ -73,7 +73,7 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
             if (it->getParameter<unsigned int>("module") == tTopo->pxbModule(detidc.rawId()) &&
                 it->getParameter<unsigned int>("layer") == tTopo->pxbLayer(detidc.rawId())) {
               float lorentzangle = (float)it->getParameter<double>("angle");
-              LorentzAngle->putLorentzAngle(detid.rawId(), lorentzangle);
+              LorentzAngle.putLorentzAngle(detid.rawId(), lorentzangle);
             }
           }
 
@@ -94,7 +94,7 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
         for (Parameters::iterator it = ModuleParameters_.begin(); it != ModuleParameters_.end(); ++it) {
           if (it->getParameter<unsigned int>("rawid") == detidc.rawId()) {
             float lorentzangle = (float)it->getParameter<double>("angle");
-            LorentzAngle->putLorentzAngle(detid.rawId(), lorentzangle);
+            LorentzAngle.putLorentzAngle(detid.rawId(), lorentzangle);
             edm::LogPrint("SiPixelLorentzAngleDB")
                 << " individual value=" << lorentzangle << " put into rawid=" << detid.rawId() << endl;
           }
@@ -107,7 +107,7 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
               it->getParameter<unsigned int>("HVgroup") ==
                   HVgroup(tTopo->pxfPanel(detidc.rawId()), tTopo->pxfModule(detidc.rawId()))) {
             float lorentzangle = (float)it->getParameter<double>("angle");
-            LorentzAngle->putLorentzAngle(detid.rawId(), lorentzangle);
+            LorentzAngle.putLorentzAngle(detid.rawId(), lorentzangle);
           }
         }
 
@@ -122,10 +122,9 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
   if (mydbservice.isAvailable()) {
     try {
       if (mydbservice->isNewTagRequest(recordName_)) {
-        mydbservice->createNewIOV<SiPixelLorentzAngle>(
-            LorentzAngle, mydbservice->beginOfTime(), mydbservice->endOfTime(), recordName_);
+        mydbservice->createOneIOV<SiPixelLorentzAngle>(LorentzAngle, mydbservice->beginOfTime(), recordName_);
       } else {
-        mydbservice->appendSinceTime<SiPixelLorentzAngle>(LorentzAngle, mydbservice->currentTime(), recordName_);
+        mydbservice->appendOneIOV<SiPixelLorentzAngle>(LorentzAngle, mydbservice->currentTime(), recordName_);
       }
     } catch (const cond::Exception& er) {
       edm::LogError("SiPixelLorentzAngleDB") << er.what() << std::endl;

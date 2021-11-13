@@ -86,9 +86,11 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
       << "New payload will have pedlow,hi " << pedlow_ << "," << pedhi_ << " and gainlow,hi " << gainlow_ << ","
       << gainhi_ << endl;
   if (record_ == "SiPixelGainCalibrationOfflineRcd")
-    theGainCalibrationDbInputOffline_ = new SiPixelGainCalibrationOffline(pedlow_, pedhi_, gainlow_, gainhi_);
+    theGainCalibrationDbInputOffline_ =
+        std::make_unique<SiPixelGainCalibrationOffline>(pedlow_, pedhi_, gainlow_, gainhi_);
   if (record_ == "SiPixelGainCalibrationForHLTRcd")
-    theGainCalibrationDbInputForHLT_ = new SiPixelGainCalibrationForHLT(pedlow_, pedhi_, gainlow_, gainhi_);
+    theGainCalibrationDbInputForHLT_ =
+        std::make_unique<SiPixelGainCalibrationForHLT>(pedlow_, pedhi_, gainlow_, gainhi_);
 
   int nnoisy = 0;
   int ndead = 0;
@@ -361,26 +363,22 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
       edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
           << "now doing SiPixelGainCalibrationOfflineRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest("SiPixelGainCalibrationOfflineRcd")) {
-        mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(theGainCalibrationDbInputOffline_,
-                                                                 mydbservice->beginOfTime(),
-                                                                 mydbservice->endOfTime(),
-                                                                 "SiPixelGainCalibrationOfflineRcd");
+        mydbservice->createOneIOV<SiPixelGainCalibrationOffline>(
+            *theGainCalibrationDbInputOffline_, mydbservice->beginOfTime(), "SiPixelGainCalibrationOfflineRcd");
       } else {
-        mydbservice->appendSinceTime<SiPixelGainCalibrationOffline>(
-            theGainCalibrationDbInputOffline_, mydbservice->currentTime(), "SiPixelGainCalibrationOfflineRcd");
+        mydbservice->appendOneIOV<SiPixelGainCalibrationOffline>(
+            *theGainCalibrationDbInputOffline_, mydbservice->currentTime(), "SiPixelGainCalibrationOfflineRcd");
       }
     }
     if (record_ == "SiPixelGainCalibrationForHLTRcd") {
       edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
           << "now doing SiPixelGainCalibrationForHLTRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest("SiPixelGainCalibrationForHLTRcd")) {
-        mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(theGainCalibrationDbInputForHLT_,
-                                                                mydbservice->beginOfTime(),
-                                                                mydbservice->endOfTime(),
-                                                                "SiPixelGainCalibrationForHLTRcd");
+        mydbservice->createOneIOV<SiPixelGainCalibrationForHLT>(
+            *theGainCalibrationDbInputForHLT_, mydbservice->beginOfTime(), "SiPixelGainCalibrationForHLTRcd");
       } else {
-        mydbservice->appendSinceTime<SiPixelGainCalibrationForHLT>(
-            theGainCalibrationDbInputForHLT_, mydbservice->currentTime(), "SiPixelGainCalibrationForHLTRcd");
+        mydbservice->appendOneIOV<SiPixelGainCalibrationForHLT>(
+            *theGainCalibrationDbInputForHLT_, mydbservice->currentTime(), "SiPixelGainCalibrationForHLTRcd");
       }
     }
   }
