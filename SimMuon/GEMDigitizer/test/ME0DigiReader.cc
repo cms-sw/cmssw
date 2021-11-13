@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -49,10 +48,11 @@ public:
   void endJob() override;
 
 private:
-  edm::EDGetTokenT<edm::PSimHitContainer> simhitToken_;
-  edm::EDGetTokenT<ME0DigiCollection> me0DigiToken_;
-  edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > me0StripDigiSimLinkToken_;
-  bool debug_;
+  const edm::EDGetTokenT<edm::PSimHitContainer> simhitToken_;
+  const edm::EDGetTokenT<ME0DigiCollection> me0DigiToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > me0StripDigiSimLinkToken_;
+  const edm::ESGetToken<ME0Geometry, MuonGeometryRecord> geomToken_;
+  const bool debug_;
 
   TH1F *hProces;
   TH2F *hNstripEtaParts;
@@ -77,6 +77,7 @@ ME0DigiReader::ME0DigiReader(const edm::ParameterSet &pset)
       me0DigiToken_(consumes<ME0DigiCollection>(pset.getParameter<edm::InputTag>("me0DigiToken"))),
       me0StripDigiSimLinkToken_(
           consumes<edm::DetSetVector<StripDigiSimLink> >(pset.getParameter<edm::InputTag>("me0StripDigiSimLinkToken"))),
+      geomToken_(esConsumes<ME0Geometry, MuonGeometryRecord>()),
       debug_(pset.getParameter<bool>("debugFlag")) {
   usesResource("TFileService");
   edm::Service<TFileService> fs;
@@ -104,17 +105,13 @@ ME0DigiReader::ME0DigiReader(const edm::ParameterSet &pset)
 void ME0DigiReader::beginJob() {}
 
 void ME0DigiReader::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
-  edm::ESHandle<ME0Geometry> pDD;
-  eventSetup.get<MuonGeometryRecord>().get(pDD);
+  const auto& pDD = eventSetup.getHandle(geomToken_);
 
-  edm::Handle<edm::PSimHitContainer> simHits;
-  event.getByToken(simhitToken_, simHits);
+  const auto& simHits = event.getHandle(simhitToken_);
 
-  edm::Handle<ME0DigiCollection> digis;
-  event.getByToken(me0DigiToken_, digis);
+  const auto& digis = event.getHandle(me0DigiToken_);
 
-  edm::Handle<edm::DetSetVector<StripDigiSimLink> > thelinkDigis;
-  event.getByToken(me0StripDigiSimLinkToken_, thelinkDigis);
+  const auto& thelinkDigis = event.getHandle(me0StripDigiSimLinkToken_);
 
   ME0DigiCollection::DigiRangeIterator detUnitIt;
 
