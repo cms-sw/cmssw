@@ -74,6 +74,7 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<FileBlock>> fb_;
     edm::propagate_const<std::shared_ptr<EventSkipperByID>> eventSkipperByID_;
     int initialNumberOfEventsToSkip_;
+    bool noRunLumiSort_;
     bool noEventSort_;
     unsigned int treeCacheSize_;
     edm::propagate_const<std::shared_ptr<DuplicateChecker>> duplicateChecker_;

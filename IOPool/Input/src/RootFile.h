@@ -84,6 +84,7 @@ namespace edm {
              int treeMaxVirtualSize,
              InputSource::ProcessingMode processingMode,
              RunHelperBase* runHelper,
+             bool noRunLumiSort,
              bool noEventSort,
              ProductSelectorRules const& productSelectorRules,
              InputType inputType,
@@ -140,6 +141,7 @@ namespace edm {
                    processingMode,
                    runHelper,
                    false,
+                   false,
                    productSelectorRules,
                    inputType,
                    branchIDListHelper,
@@ -189,6 +191,7 @@ namespace edm {
                    treeMaxVirtualSize,
                    InputSource::RunsLumisAndEvents,
                    runHelper,
+                   false,
                    false,
                    productSelectorRules,
                    inputType,
@@ -371,6 +374,7 @@ namespace edm {
     std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_;  // backward compatibility
     edm::propagate_const<std::shared_ptr<RunAuxiliary>> savedRunAuxiliary_;
     bool skipAnyEvents_;
+    bool noRunLumiSort_;
     bool noEventSort_;
     bool enforceGUIDInFileName_;
     int whyNotFastClonable_;

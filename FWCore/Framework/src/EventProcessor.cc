@@ -1772,17 +1772,19 @@ namespace edm {
 
   void EventProcessor::writeLumiAsync(WaitingTaskHolder task, LuminosityBlockPrincipal& lumiPrincipal) {
     using namespace edm::waiting_task;
-    chain::first([&](auto nextTask) {
-      ServiceRegistry::Operate op(serviceToken_);
+    if (not lumiPrincipal.willBeContinued()) {
+      chain::first([&](auto nextTask) {
+        ServiceRegistry::Operate op(serviceToken_);
 
-      lumiPrincipal.runPrincipal().mergeableRunProductMetadata()->writeLumi(lumiPrincipal.luminosityBlock());
-      schedule_->writeLumiAsync(nextTask, lumiPrincipal, &processContext_, actReg_.get());
-    }) | chain::ifThen(not subProcesses_.empty(), [this, &lumiPrincipal](auto nextTask) {
-      ServiceRegistry::Operate op(serviceToken_);
-      for (auto& s : subProcesses_) {
-        s.writeLumiAsync(nextTask, lumiPrincipal);
-      }
-    }) | chain::lastTask(std::move(task));
+        lumiPrincipal.runPrincipal().mergeableRunProductMetadata()->writeLumi(lumiPrincipal.luminosityBlock());
+        schedule_->writeLumiAsync(nextTask, lumiPrincipal, &processContext_, actReg_.get());
+      }) | chain::ifThen(not subProcesses_.empty(), [this, &lumiPrincipal](auto nextTask) {
+        ServiceRegistry::Operate op(serviceToken_);
+        for (auto& s : subProcesses_) {
+          s.writeLumiAsync(nextTask, lumiPrincipal);
+        }
+      }) | chain::lastTask(std::move(task));
+    }
   }
 
   void EventProcessor::deleteLumiFromCache(LuminosityBlockProcessingStatus& iStatus) {

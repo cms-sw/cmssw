@@ -75,30 +75,30 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run &iRun, const edm::EventSetup &
 
   if (poolDbService.isAvailable()) {
     for (AlcaBeamSpotManager::bsMap_iterator it = beamSpotMap.begin(); it != beamSpotMap.end(); it++) {
-      BeamSpotObjects *aBeamSpot = new BeamSpotObjects();
-      aBeamSpot->SetType(it->second.second.type());
-      aBeamSpot->SetPosition(it->second.second.x0(), it->second.second.y0(), it->second.second.z0());
+      BeamSpotObjects aBeamSpot;
+      aBeamSpot.SetType(it->second.second.type());
+      aBeamSpot.SetPosition(it->second.second.x0(), it->second.second.y0(), it->second.second.z0());
       if (sigmaZValue_ == -1) {
-        aBeamSpot->SetSigmaZ(it->second.second.sigmaZ());
+        aBeamSpot.SetSigmaZ(it->second.second.sigmaZ());
       } else {
-        aBeamSpot->SetSigmaZ(sigmaZValue_);
+        aBeamSpot.SetSigmaZ(sigmaZValue_);
       }
-      aBeamSpot->Setdxdz(it->second.second.dxdz());
-      aBeamSpot->Setdydz(it->second.second.dydz());
-      aBeamSpot->SetBeamWidthX(it->second.second.BeamWidthX());
-      aBeamSpot->SetBeamWidthY(it->second.second.BeamWidthY());
-      aBeamSpot->SetEmittanceX(it->second.second.emittanceX());
-      aBeamSpot->SetEmittanceY(it->second.second.emittanceY());
-      aBeamSpot->SetBetaStar(it->second.second.betaStar());
+      aBeamSpot.Setdxdz(it->second.second.dxdz());
+      aBeamSpot.Setdydz(it->second.second.dydz());
+      aBeamSpot.SetBeamWidthX(it->second.second.BeamWidthX());
+      aBeamSpot.SetBeamWidthY(it->second.second.BeamWidthY());
+      aBeamSpot.SetEmittanceX(it->second.second.emittanceX());
+      aBeamSpot.SetEmittanceY(it->second.second.emittanceY());
+      aBeamSpot.SetBetaStar(it->second.second.betaStar());
 
       for (int i = 0; i < 7; ++i) {
         for (int j = 0; j < 7; ++j) {
-          aBeamSpot->SetCovariance(i, j, it->second.second.covariance(i, j));
+          aBeamSpot.SetCovariance(i, j, it->second.second.covariance(i, j));
         }
       }
 
       if (sigmaZValue_ > 0) {
-        aBeamSpot->SetCovariance(3, 3, 0.000025);
+        aBeamSpot.SetCovariance(3, 3, 0.000025);
       }
 
       cond::Time_t thisIOV = 1;
@@ -130,12 +130,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run &iRun, const edm::EventSetup &
       }
       if (poolDbService->isNewTagRequest(outputrecordName_)) {
         edm::LogInfo("AlcaBeamSpotHarvester") << "new tag requested" << std::endl;
-        // poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot,
-        // poolDbService->beginOfTime(),poolDbService->endOfTime(),"BeamSpotObjectsRcd");
-        // poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot,
-        // poolDbService->currentTime(),
-        // poolDbService->endOfTime(),"BeamSpotObjectsRcd");
-        poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
+        poolDbService->writeOneIOV<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
         if (dumpTxt_ && beamSpotOutputBase_ == "lumibased") {
           beamspot::dumpBeamSpotTxt(outFile, currentBS);
 
@@ -149,9 +144,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run &iRun, const edm::EventSetup &
         }
       } else {
         edm::LogInfo("AlcaBeamSpotHarvester") << "no new tag requested, appending IOV" << std::endl;
-        // poolDbService->appendSinceTime<BeamSpotObjects>(aBeamSpot,
-        // poolDbService->currentTime(),"BeamSpotObjectsRcd");
-        poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
+        poolDbService->writeOneIOV<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
         if (dumpTxt_ && beamSpotOutputBase_ == "lumibased") {
           beamspot::dumpBeamSpotTxt(outFile, currentBS);
         }
