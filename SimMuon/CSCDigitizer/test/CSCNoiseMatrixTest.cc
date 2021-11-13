@@ -13,7 +13,8 @@
 
 class CSCNoiseMatrixTest : public edm::one::EDAnalyzer<> {
 public:
-  CSCNoiseMatrixTest(const edm::ParameterSet &pset) : theDbConditions(pset, consumesCollector()), tokGeo_{esConsumes(edm::ESInputTag("", "idealForDigi"))} {
+  CSCNoiseMatrixTest(const edm::ParameterSet &pset)
+      : theDbConditions(pset, consumesCollector()), tokGeo_{esConsumes(edm::ESInputTag("", "idealForDigi"))} {
     edm::Service<edm::RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration") << "CSCNoiseMatrixTest requires the RandomNumberGeneratorService\n"
