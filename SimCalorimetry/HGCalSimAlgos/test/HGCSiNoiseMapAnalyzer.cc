@@ -65,7 +65,8 @@ private:
 };
 
 //
-HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet &iConfig) : tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
+HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet &iConfig)
+    : tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   usesResource("TFileService");
   fs_->file().cd();
 
@@ -105,7 +106,7 @@ HGCSiNoiseMapAnalyzer::~HGCSiNoiseMapAnalyzer() {}
 //
 void HGCSiNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
   //get geometry
-  const auto& geom = es.getHandle(tokGeom_);
+  const auto &geom = es.getHandle(tokGeom_);
 
   std::vector<DetId::Detector> dets = {DetId::HGCalEE, DetId::HGCalHSi};
   for (const auto &d : dets) {
