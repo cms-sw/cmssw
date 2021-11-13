@@ -14,7 +14,9 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/DTDigitizer/interface/Histograms.h"
 #include <DataFormats/MuonDetId/interface/DTWireId.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 class TH1F;
 class TFile;
@@ -30,7 +32,7 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class DTDigiAnalyzer : public edm::EDAnalyzer {
+class DTDigiAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit DTDigiAnalyzer(const edm::ParameterSet &pset);
   ~DTDigiAnalyzer() override;
@@ -44,6 +46,8 @@ private:
   TH1F *DigiTimeBox;
   TFile *file;
   std::string label;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> tokGeo_;
+
   //  DTMCStatistics        *MCStatistics;
   // DTMuonDigiStatistics  *MuonDigiStatistics;
   // DTHitsAnalysis        *HitsAnalysis;
