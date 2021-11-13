@@ -144,17 +144,21 @@ namespace edm {
   }
 
   bool RootPrimaryFileSequence::nextFile() {
-    if (!noMoreFiles())
-      setAtNextFile();
-    if (noMoreFiles()) {
-      return false;
-    }
+    do {
+      if (!noMoreFiles())
+        setAtNextFile();
+      if (noMoreFiles()) {
+        return false;
+      }
 
-    initFile(input_.skipBadFiles());
-
-    if (not rootFile()) {
-      return false;
-    }
+      initFile(input_.skipBadFiles());
+      if (rootFile()) {
+        break;
+      }
+      // If we are not skipping bad files and the file
+      // open failed, then initFile should have thrown
+      assert(input_.skipBadFiles());
+    } while (true);
 
     // make sure the new product registry is compatible with the main one
     std::string mergeInfo =
