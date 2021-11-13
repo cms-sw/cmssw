@@ -334,7 +334,7 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const {
   } else {
     uint8_t firstWordBits = HIT_LENGTH - secondWordBits;
     uint16_t firstWordBlock = hitPattern[secondWord - 1] >> (16 - firstWordBits);
-    if (!secondWordBits)
+    if (secondWordBits == 0)
       return firstWordBlock;
     uint16_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
     uint16_t myResult = firstWordBlock + (secondWordBlock << firstWordBits);
