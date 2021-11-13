@@ -45,6 +45,7 @@ PFCandidate::PFCandidate()
       dnn_e_bkgNonIsolated_(PFCandidate::bigMva_),
       dnn_e_bkgTau_(PFCandidate::bigMva_),
       dnn_e_bkgPhoton_(PFCandidate::bigMva_),
+      dnn_gamma_(PFCandidate::bigMva_),
       getter_(nullptr),
       storedRefsBitPattern_(0),
       time_(0.f),
@@ -89,6 +90,7 @@ PFCandidate::PFCandidate(Charge charge, const LorentzVector& p4, ParticleType pa
       dnn_e_bkgNonIsolated_(PFCandidate::bigMva_),
       dnn_e_bkgTau_(PFCandidate::bigMva_),
       dnn_e_bkgPhoton_(PFCandidate::bigMva_),
+      dnn_gamma_(PFCandidate::bigMva_),
       getter_(nullptr),
       storedRefsBitPattern_(0),
       time_(0.f),
@@ -150,6 +152,7 @@ PFCandidate::PFCandidate(PFCandidate const& iOther)
       dnn_e_bkgNonIsolated_(iOther.dnn_e_bkgNonIsolated_),
       dnn_e_bkgTau_(iOther.dnn_e_bkgTau_),
       dnn_e_bkgPhoton_(iOther.dnn_e_bkgPhoton_),
+      dnn_gamma_(iOther.dnn_gamma_),
       positionAtECALEntrance_(iOther.positionAtECALEntrance_),
       getter_(iOther.getter_),
       storedRefsBitPattern_(iOther.storedRefsBitPattern_),
@@ -199,6 +202,7 @@ PFCandidate& PFCandidate::operator=(PFCandidate const& iOther) {
   dnn_e_bkgNonIsolated_ = iOther.dnn_e_bkgNonIsolated_;
   dnn_e_bkgTau_ = iOther.dnn_e_bkgTau_;
   dnn_e_bkgPhoton_ = iOther.dnn_e_bkgPhoton_;
+  dnn_gamma_ = iOther.dnn_gamma_;
   positionAtECALEntrance_ = iOther.positionAtECALEntrance_;
   getter_ = iOther.getter_;
   storedRefsBitPattern_ = iOther.storedRefsBitPattern_;
