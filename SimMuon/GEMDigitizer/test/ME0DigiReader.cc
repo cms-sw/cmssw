@@ -105,13 +105,13 @@ ME0DigiReader::ME0DigiReader(const edm::ParameterSet &pset)
 void ME0DigiReader::beginJob() {}
 
 void ME0DigiReader::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
-  const auto& pDD = eventSetup.getHandle(geomToken_);
+  const auto &pDD = eventSetup.getHandle(geomToken_);
 
-  const auto& simHits = event.getHandle(simhitToken_);
+  const auto &simHits = event.getHandle(simhitToken_);
 
-  const auto& digis = event.getHandle(me0DigiToken_);
+  const auto &digis = event.getHandle(me0DigiToken_);
 
-  const auto& thelinkDigis = event.getHandle(me0StripDigiSimLinkToken_);
+  const auto &thelinkDigis = event.getHandle(me0StripDigiSimLinkToken_);
 
   ME0DigiCollection::DigiRangeIterator detUnitIt;
 

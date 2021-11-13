@@ -30,7 +30,8 @@ private:
   int nEtaPartitions_;
 };
 
-GEMFakeEvent::GEMFakeEvent(const edm::ParameterSet& config) : geomToken_(esConsumes<GEMGeometry, MuonGeometryRecord>()) {
+GEMFakeEvent::GEMFakeEvent(const edm::ParameterSet& config)
+    : geomToken_(esConsumes<GEMGeometry, MuonGeometryRecord>()) {
   cout << "Initialize the Event Dump" << endl;
   produces<GEMDigiCollection>();
 
