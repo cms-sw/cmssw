@@ -102,7 +102,7 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
 }
 
 /*
-  Constructor from DD4HEP Filtered view.
+  Constructor from DD4hep Filtered view.
 */
 GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
     : ddname_(dd4hep::dd::noNamespace(fv->name())),

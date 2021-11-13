@@ -48,6 +48,8 @@ namespace edm {
 
     void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
 
+    void setWillBeContinued(bool iContinued) { willBeContinued_ = iContinued; }
+
     LuminosityBlockIndex index() const { return index_; }
 
     LuminosityBlockID id() const { return aux().id(); }
@@ -71,6 +73,9 @@ namespace edm {
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const;
 
+    ///The source is replaying overlapping LuminosityBlocks and this is not the last part for this LumiosityBlock
+    bool willBeContinued() const { return willBeContinued_; }
+
   private:
     unsigned int transitionIndex_() const override;
 
@@ -79,6 +84,8 @@ namespace edm {
     LuminosityBlockAuxiliary aux_;
 
     LuminosityBlockIndex index_;
+
+    bool willBeContinued_ = false;
   };
 }  // namespace edm
 #endif

@@ -1,9 +1,9 @@
 /*
 //\class GEMGeometryBuilder
 
- Description: GEM Geometry builder from DD and DD4HEP
+ Description: GEM Geometry builder from DD and DD4hep
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
-              Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+              Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4hep migration)
               Updated by Sunanda Banerjee (Fermilab) to make it working for dd4hep
               Updated:  7 August 2020 
 */
@@ -301,7 +301,7 @@ GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const DDFiltere
   return RCPBoundPlane(new BoundPlane(posResult, rotResult, bounds));
 }
 
-// DD4HEP
+// DD4hep
 
 void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
                                const cms::DDCompactView* cview,

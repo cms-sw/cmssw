@@ -3,7 +3,7 @@
 
  Description: ME0 Geometry builder from DD & DD4hep
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
-              Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
+              Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4hep migration)
               Updated by Sunanda Banerjee (Fermilab) to make it work for DDD/DD4hep
             Updated:  7 August 2020
 */

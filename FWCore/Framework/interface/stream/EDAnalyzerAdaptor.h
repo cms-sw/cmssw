@@ -65,7 +65,7 @@ namespace edm {
       }
       EDAnalyzerAdaptor(const EDAnalyzerAdaptor&) = delete;                   // stop default
       const EDAnalyzerAdaptor& operator=(const EDAnalyzerAdaptor&) = delete;  // stop default
-      ~EDAnalyzerAdaptor() override {}
+      ~EDAnalyzerAdaptor() override { deleteModulesEarly(); }
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions) { T::fillDescriptions(descriptions); }
       static void prevalidate(ConfigurationDescriptions& descriptions) { T::prevalidate(descriptions); }

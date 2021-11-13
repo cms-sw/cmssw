@@ -34,7 +34,7 @@ SiPixelDynamicInefficiencyDB::~SiPixelDynamicInefficiencyDB() = default;
 // Analyzer: Functions that gets called by framework every event
 
 void SiPixelDynamicInefficiencyDB::analyze(const edm::Event& e, const edm::EventSetup& es) {
-  SiPixelDynamicInefficiency* DynamicInefficiency = new SiPixelDynamicInefficiency();
+  SiPixelDynamicInefficiency DynamicInefficiency;
 
   //Retrieve tracker topology from geometry
   const TrackerTopology* const tTopo = &es.getData(tkTopoToken_);
@@ -51,22 +51,22 @@ void SiPixelDynamicInefficiencyDB::analyze(const edm::Event& e, const edm::Event
 
   //Put BPix masks
   mask = tTopo->pxbDetId(max, LADDER, MODULE).rawId();
-  DynamicInefficiency->putDetIdmask(mask);
+  DynamicInefficiency.putDetIdmask(mask);
   mask = tTopo->pxbDetId(LAYER, max, MODULE).rawId();
-  DynamicInefficiency->putDetIdmask(mask);
+  DynamicInefficiency.putDetIdmask(mask);
   mask = tTopo->pxbDetId(LAYER, LADDER, max).rawId();
-  DynamicInefficiency->putDetIdmask(mask);
+  DynamicInefficiency.putDetIdmask(mask);
   //Put FPix masks
   mask = tTopo->pxfDetId(max, DISK, BLADE, PANEL, MODULE).rawId();
-  DynamicInefficiency->putDetIdmask(mask);
+  DynamicInefficiency.putDetIdmask(mask);
   mask = tTopo->pxfDetId(SIDE, max, BLADE, PANEL, MODULE).rawId();
-  DynamicInefficiency->putDetIdmask(mask);
+  DynamicInefficiency.putDetIdmask(mask);
   mask = tTopo->pxfDetId(SIDE, DISK, max, PANEL, MODULE).rawId();
-  DynamicInefficiency->putDetIdmask(mask);
+  DynamicInefficiency.putDetIdmask(mask);
   mask = tTopo->pxfDetId(SIDE, DISK, BLADE, max, MODULE).rawId();
-  DynamicInefficiency->putDetIdmask(mask);
+  DynamicInefficiency.putDetIdmask(mask);
   mask = tTopo->pxfDetId(SIDE, DISK, BLADE, PANEL, max).rawId();
-  DynamicInefficiency->putDetIdmask(mask);
+  DynamicInefficiency.putDetIdmask(mask);
 
   //Put PixelGeomFactors
   for (Parameters::iterator it = thePixelGeomFactors_.begin(); it != thePixelGeomFactors_.end(); ++it) {
@@ -83,13 +83,13 @@ void SiPixelDynamicInefficiencyDB::analyze(const edm::Event& e, const edm::Event
       DetId detID = tTopo->pxbDetId(layer, ladder, module);
       edm::LogPrint("SiPixelDynamicInefficiencyDB") << "Putting Pixel geom BPix layer " << layer << " ladder " << ladder
                                                     << " module " << module << " factor " << factor << std::endl;
-      DynamicInefficiency->putPixelGeomFactor(detID.rawId(), factor);
+      DynamicInefficiency.putPixelGeomFactor(detID.rawId(), factor);
     } else if (det == "fpix") {
       DetId detID = tTopo->pxfDetId(side, disk, blade, panel, module);
       edm::LogPrint("SiPixelDynamicInefficiencyDB")
           << "Putting Pixel geom FPix side " << side << " disk " << disk << " blade " << blade << " panel " << panel
           << " module " << module << " factor " << factor << std::endl;
-      DynamicInefficiency->putPixelGeomFactor(detID.rawId(), factor);
+      DynamicInefficiency.putPixelGeomFactor(detID.rawId(), factor);
     } else
       edm::LogError("SiPixelDynamicInefficiencyDB")
           << "SiPixelDynamicInefficiencyDB input detector part is neither bpix nor fpix" << std::endl;
@@ -111,13 +111,13 @@ void SiPixelDynamicInefficiencyDB::analyze(const edm::Event& e, const edm::Event
       edm::LogPrint("SiPixelDynamicInefficiencyDB")
           << "Putting Column geom BPix layer " << layer << " ladder " << ladder << " module " << module << " factor "
           << factor << std::endl;
-      DynamicInefficiency->putColGeomFactor(detID.rawId(), factor);
+      DynamicInefficiency.putColGeomFactor(detID.rawId(), factor);
     } else if (det == "fpix") {
       DetId detID = tTopo->pxfDetId(side, disk, blade, panel, module);
       edm::LogPrint("SiPixelDynamicInefficiencyDB")
           << "Putting Column geom FPix side " << side << " disk " << disk << " blade " << blade << " panel " << panel
           << " module " << module << " factor " << factor << std::endl;
-      DynamicInefficiency->putColGeomFactor(detID.rawId(), factor);
+      DynamicInefficiency.putColGeomFactor(detID.rawId(), factor);
     } else
       edm::LogError("SiPixelDynamicInefficiencyDB")
           << "SiPixelDynamicInefficiencyDB input detector part is neither bpix nor fpix" << std::endl;
@@ -138,13 +138,13 @@ void SiPixelDynamicInefficiencyDB::analyze(const edm::Event& e, const edm::Event
       DetId detID = tTopo->pxbDetId(layer, ladder, module);
       edm::LogPrint("SiPixelDynamicInefficiencyDB") << "Putting Chip geom BPix layer " << layer << " ladder " << ladder
                                                     << " module " << module << " factor " << factor << std::endl;
-      DynamicInefficiency->putChipGeomFactor(detID.rawId(), factor);
+      DynamicInefficiency.putChipGeomFactor(detID.rawId(), factor);
     } else if (det == "fpix") {
       DetId detID = tTopo->pxfDetId(side, disk, blade, panel, module);
       edm::LogPrint("SiPixelDynamicInefficiencyDB")
           << "Putting Chip geom FPix side " << side << " disk " << disk << " blade " << blade << " panel " << panel
           << " module " << module << " factor " << factor << std::endl;
-      DynamicInefficiency->putChipGeomFactor(detID.rawId(), factor);
+      DynamicInefficiency.putChipGeomFactor(detID.rawId(), factor);
     } else
       edm::LogError("SiPixelDynamicInefficiencyDB")
           << "SiPixelDynamicInefficiencyDB input detector part is neither bpix nor fpix" << std::endl;
@@ -166,26 +166,26 @@ void SiPixelDynamicInefficiencyDB::analyze(const edm::Event& e, const edm::Event
       edm::LogPrint("SiPixelDynamicInefficiencyDB")
           << "Putting PU efficiency BPix layer " << layer << " ladder " << ladder << " module " << module
           << " factor size " << factor.size() << std::endl;
-      DynamicInefficiency->putPUFactor(detID.rawId(), factor);
+      DynamicInefficiency.putPUFactor(detID.rawId(), factor);
     } else if (det == "fpix") {
       DetId detID = tTopo->pxfDetId(side, disk, blade, panel, module);
       edm::LogPrint("SiPixelDynamicInefficiencyDB")
           << "Putting PU efficiency FPix side " << side << " disk " << disk << " blade " << blade << " panel " << panel
           << " module " << module << " factor size " << factor.size() << std::endl;
-      DynamicInefficiency->putPUFactor(detID.rawId(), factor);
+      DynamicInefficiency.putPUFactor(detID.rawId(), factor);
     }
   }
   //Put theInstLumiScaleFactor
-  DynamicInefficiency->puttheInstLumiScaleFactor(theInstLumiScaleFactor_);
+  DynamicInefficiency.puttheInstLumiScaleFactor(theInstLumiScaleFactor_);
 
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (mydbservice.isAvailable()) {
     try {
       if (mydbservice->isNewTagRequest(recordName_)) {
-        mydbservice->createNewIOV<SiPixelDynamicInefficiency>(
-            DynamicInefficiency, mydbservice->beginOfTime(), mydbservice->endOfTime(), recordName_);
+        mydbservice->createOneIOV<SiPixelDynamicInefficiency>(
+            DynamicInefficiency, mydbservice->beginOfTime(), recordName_);
       } else {
-        mydbservice->appendSinceTime<SiPixelDynamicInefficiency>(
+        mydbservice->appendOneIOV<SiPixelDynamicInefficiency>(
             DynamicInefficiency, mydbservice->currentTime(), recordName_);
       }
     } catch (const cond::Exception& er) {

@@ -62,7 +62,7 @@ namespace cms {
     float maxgain = 10;
     float minped = 0;
     float maxped = 255;
-    SiPixelGainCalibration_ = new SiPixelGainCalibrationForHLT(minped, maxped, mingain, maxgain);
+    SiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationForHLT>(minped, maxped, mingain, maxgain);
 
     const TrackerGeometry* pDD = &iSetup.getData(tkGeometryToken_);
     edm::LogInfo("SiPixelCondObjForHLTBuilder") << " There are " << pDD->dets().size() << " detectors" << std::endl;
@@ -246,11 +246,11 @@ namespace cms {
       //           SiPixelGainCalibration_, tillTime , callbackToken);
 
       if (mydbservice->isNewTagRequest(recordName_)) {
-        mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(
-            SiPixelGainCalibration_, mydbservice->beginOfTime(), mydbservice->endOfTime(), recordName_);
+        mydbservice->createOneIOV<SiPixelGainCalibrationForHLT>(
+            *SiPixelGainCalibration_, mydbservice->beginOfTime(), recordName_);
       } else {
-        mydbservice->appendSinceTime<SiPixelGainCalibrationForHLT>(
-            SiPixelGainCalibration_, mydbservice->currentTime(), recordName_);
+        mydbservice->appendOneIOV<SiPixelGainCalibrationForHLT>(
+            *SiPixelGainCalibration_, mydbservice->currentTime(), recordName_);
       }
       edm::LogInfo(" --- all OK");
     } catch (const cond::Exception& er) {

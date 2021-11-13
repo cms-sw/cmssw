@@ -76,7 +76,7 @@ SiPixelCalibConfigurationObjectMaker::~SiPixelCalibConfigurationObjectMaker() = 
 
 void SiPixelCalibConfigurationObjectMaker::analyze(const edm::Event&, const edm::EventSetup&) {
   pos::PixelCalibConfiguration fancyCalib(inputfilename);
-  SiPixelCalibConfiguration* myCalib = new SiPixelCalibConfiguration(fancyCalib);
+  SiPixelCalibConfiguration myCalib(fancyCalib);
 
   std::string fixedmode = fancyCalib.mode();
   std::string tobereplaced = "WithSLink";
@@ -84,16 +84,16 @@ void SiPixelCalibConfigurationObjectMaker::analyze(const edm::Event&, const edm:
   if (fixedmode.find(tobereplaced) != std::string::npos)
     fixedmode.erase(fixedmode.find(tobereplaced), tobereplaced.length());
   edm::LogPrint("SiPixelCalibConfigurationObjectMaker") << "mode = " << fixedmode << std::endl;
-  myCalib->setCalibrationMode(fixedmode);
+  myCalib.setCalibrationMode(fixedmode);
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
   if (poolDbService.isAvailable()) {
     if (poolDbService->isNewTagRequest("SiPixelCalibConfigurationRcd")) {
-      poolDbService->createNewIOV<SiPixelCalibConfiguration>(
-          myCalib, poolDbService->beginOfTime(), poolDbService->endOfTime(), "SiPixelCalibConfigurationRcd");
+      poolDbService->createOneIOV<SiPixelCalibConfiguration>(
+          myCalib, poolDbService->beginOfTime(), "SiPixelCalibConfigurationRcd");
     } else {
-      poolDbService->appendSinceTime<SiPixelCalibConfiguration>(
+      poolDbService->appendOneIOV<SiPixelCalibConfiguration>(
           myCalib, poolDbService->currentTime(), "SiPixelCalibConfigurationRcd");
     }
   }

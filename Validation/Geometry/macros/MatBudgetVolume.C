@@ -25,7 +25,7 @@
 //                          by one of dddXML/dd4hepXML/dddDB/dd4hepDB strings
 //                          and finally with *tag* and ".root"
 // txt        (std::string) Part of the y-title coming after #frac for the plot
-//                          ("{DDD}{DD4Hep}")
+//                          ("{DDD}{DD4hep}")
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +66,7 @@ void etaPhiPlotComp(TString fileName1 = "matbdg_run3.root",
                     std::string plot = "intl",
                     bool ifEta = true,
                     std::string tag = "Run3",
-                    std::string txt = "{DDD}/{DD4Hep}",
+                    std::string txt = "{DDD}/{DD4hep}",
                     bool debug = false);
 void etaPhiPlotComp4(std::string filePreFix = "files/matbdgRun3",
                      std::string tag = "pre6",

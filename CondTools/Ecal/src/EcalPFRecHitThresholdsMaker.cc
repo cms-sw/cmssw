@@ -44,7 +44,7 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
 
   const auto laser = evtSetup.getHandle(ecalLaserDbServiceToken_);
 
-  EcalPFRecHitThresholds* pfthresh = new EcalPFRecHitThresholds();
+  EcalPFRecHitThresholds pfthresh;
 
   //    const EcalIntercalibConstantMap& icalMap = ical_db->getMap();
 
@@ -75,7 +75,7 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
         if (iPhi == 100)
           edm::LogInfo("EcalPFRecHitThresholdsMaker") << "Thresh(GeV)=" << thresh << std::endl;
 
-        pfthresh->insert(std::make_pair(ebdetid.rawId(), thresh));
+        pfthresh.insert(std::make_pair(ebdetid.rawId(), thresh));
       }
     }
   }
@@ -97,7 +97,7 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
         lasercalib = laser->getLaserCorrection(eedetid, evt.time());  // TODO correct time
 
         EcalPFRecHitThreshold thresh = aped.rms_x12 * calib * adc_EE * lasercalib * m_nsigma;
-        pfthresh->insert(std::make_pair(eedetid.rawId(), thresh));
+        pfthresh.insert(std::make_pair(eedetid.rawId(), thresh));
       }
       if (EEDetId::validDetId(iX, iY, -1)) {
         EEDetId eedetid(iX, iY, -1);
@@ -113,7 +113,7 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
         lasercalib = laser->getLaserCorrection(eedetid, evt.time());  // TODO correct time
 
         EcalPFRecHitThreshold thresh = aped.rms_x12 * calib * adc_EE * lasercalib * m_nsigma;
-        pfthresh->insert(std::make_pair(eedetid.rawId(), thresh));
+        pfthresh.insert(std::make_pair(eedetid.rawId(), thresh));
 
         if (iX == 50)
           edm::LogInfo("EcalPFRecHitThresholdsMaker") << "Thresh(GeV)=" << thresh << std::endl;
@@ -121,8 +121,7 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
     }
   }
 
-  dbOutput->createNewIOV<const EcalPFRecHitThresholds>(
-      pfthresh, dbOutput->beginOfTime(), dbOutput->endOfTime(), "EcalPFRecHitThresholdsRcd");
+  dbOutput->createOneIOV<const EcalPFRecHitThresholds>(pfthresh, dbOutput->beginOfTime(), "EcalPFRecHitThresholdsRcd");
 
   edm::LogInfo("EcalPFRecHitThresholdsMaker") << "EcalPFRecHitThresholdsMaker wrote it " << std::endl;
 }

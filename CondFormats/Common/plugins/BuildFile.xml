@@ -1,0 +1,9 @@
+<use name="cppunit"/>
+<use name="CondFormats/Common"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondCore/DBOutputService"/>
+<use name="CondFormats/DataRecord"/>
+<library name="CondFormatsCommonTest" file="ProduceDropBoxMetadata.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>

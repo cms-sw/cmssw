@@ -1,10 +1,9 @@
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
@@ -20,13 +19,14 @@
 
 using namespace PhysicsTools;
 
-class testMVAComputerEvaluate : public edm::EDAnalyzer {
+class testMVAComputerEvaluate : public edm::stream::EDAnalyzer<> {
 public:
   explicit testMVAComputerEvaluate(const edm::ParameterSet& params);
 
   virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:
+  edm::ESGetToken<PhysicsTools::Calibration::MVAComputerContainer, MVADemoRcd> mvaToken_;
   MVAComputerCache mvaComputer;
 };
 
@@ -38,7 +38,7 @@ void testMVAComputerEvaluate::analyze(const edm::Event& iEvent, const edm::Event
   // you can use a MVAComputerContainer to pass around
   // multiple different MVA's in one event setup record
   // identify the right one by a definable name string
-  mvaComputer.update<MVADemoRcd>(iSetup, "testMVA");
+  mvaComputer.update(&iSetup.getData(mvaToken_), "testMVA");
 
   Variable::Value values[] = {Variable::Value("x", 1.0), Variable::Value("y", 1.5)};
 
@@ -47,7 +47,7 @@ void testMVAComputerEvaluate::analyze(const edm::Event& iEvent, const edm::Event
   // std::vector also works, but plain array has better performance
   // for fixed-size arrays (no internal malloc/free)
 
-  std::cout << "mva.eval(x = 1.0, y = 1.5) = " << result << std::endl;
+  edm::LogPrint("testMVAComputerEvaluate") << "mva.eval(x = 1.0, y = 1.5) = " << result;
 }
 
 // define this as a plug-in
