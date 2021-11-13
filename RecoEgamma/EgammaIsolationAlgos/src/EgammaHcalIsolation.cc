@@ -9,13 +9,14 @@
 #include <Math/VectorUtil.h>
 
 //CMSSW includes
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Math/interface/deltaR.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
 
 double scaleToE(const double &eta) { return 1.; }
 double scaleToEt(const double &eta) { return std::sin(2. * std::atan(std::exp(-eta))); }
@@ -150,7 +151,7 @@ double EgammaHcalIsolation::goodHitEnergy(float pcluEta,
   if (!(goodHBe or goodHEe))
     return 0.;
 
-  const auto phit = caloGeometry_.getPosition(hit.detid());
+  const auto phit = caloGeometry_.getGeometry(hit.detid())->repPos();
   const float phitEta = phit.eta();
 
   if (extIncRule_ == InclusionRule::withinConeAroundCluster or intIncRule_ == InclusionRule::withinConeAroundCluster) {
