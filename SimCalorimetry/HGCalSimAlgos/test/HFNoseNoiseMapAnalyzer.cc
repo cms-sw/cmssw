@@ -65,7 +65,8 @@ private:
 };
 
 //
-HFNoseNoiseMapAnalyzer::HFNoseNoiseMapAnalyzer(const edm::ParameterSet &iConfig) : tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
+HFNoseNoiseMapAnalyzer::HFNoseNoiseMapAnalyzer(const edm::ParameterSet &iConfig)
+    : tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   usesResource("TFileService");
   fs_->file().cd();
 
@@ -99,7 +100,7 @@ HFNoseNoiseMapAnalyzer::~HFNoseNoiseMapAnalyzer() {}
 //
 void HFNoseNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
   //get geometry
-  const auto& geom = es.getHandle(tokGeom_);
+  const auto &geom = es.getHandle(tokGeom_);
 
   std::vector<DetId::Detector> dets = {DetId::Forward};
   for (const auto &d : dets) {

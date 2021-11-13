@@ -80,7 +80,8 @@ HGCHEbackSignalScalerAnalyzer::HGCHEbackSignalScalerAnalyzer(const edm::Paramete
       sipmMap_(iConfig.getParameter<std::string>("sipmMap")),
       refIdark_(iConfig.getParameter<double>("referenceIdark")),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag("", "HGCalHEScintillatorSensitive"))),
-      dddToken_(esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag("", "HGCalHEScintillatorSensitive"))) {
+      dddToken_(
+          esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag("", "HGCalHEScintillatorSensitive"))) {
   usesResource("TFileService");
   fs->file().cd();
 }
