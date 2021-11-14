@@ -15,6 +15,7 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <memory>
 
 class Event;
 class EventSetup;
@@ -45,13 +46,13 @@ public:
   bool DumpCocoaResults();
 
 private:
-  OpticalAlignments* BuildOpticalAlignments();
+  std::unique_ptr<OpticalAlignments> BuildOpticalAlignments();
   double GetEntryError(const Entry* entry);
   double GetEntryError(const Entry* entry1, const Entry* entry2);
 
   OpticalAlignInfo GetOptAlignInfoFromOptO(OpticalObject* opto);
 
-  std::pair<Alignments*, AlignmentErrorsExtended*> BuildAlignments(bool bDT);
+  std::pair<std::unique_ptr<Alignments>, std::unique_ptr<AlignmentErrorsExtended> > BuildAlignments(bool bDT);
   AlignTransform* GetAlignInfoFromOptO(OpticalObject* opto);
   AlignTransformErrorExtended* GetAlignInfoErrorFromOptO(OpticalObject* opto);
 
