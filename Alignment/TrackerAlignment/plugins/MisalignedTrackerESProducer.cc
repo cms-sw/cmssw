@@ -100,14 +100,14 @@ std::unique_ptr<TrackerGeometry> MisalignedTrackerESProducer::produce(const Trac
   // Create misalignment scenario, apply to geometry
   TrackerScenarioBuilder scenarioBuilder(&(*theAlignableTracker));
   scenarioBuilder.applyScenario(theScenario);
-  Alignments* alignments = theAlignableTracker->alignments();
-  AlignmentErrorsExtended* alignmentErrors = theAlignableTracker->alignmentErrors();
+  Alignments alignments = *(theAlignableTracker->alignments());
+  AlignmentErrorsExtended alignmentErrors = *(theAlignableTracker->alignmentErrors());
 
   // Store result to EventSetup
   GeometryAligner aligner;
   aligner.applyAlignments<TrackerGeometry>(&(*theTracker),
-                                           alignments,
-                                           alignmentErrors,
+                                           &alignments,
+                                           &alignmentErrors,
                                            AlignTransform());  // dummy global position
 
   // Write alignments to DB: have to sort beforhand!
@@ -117,16 +117,12 @@ std::unique_ptr<TrackerGeometry> MisalignedTrackerESProducer::produce(const Trac
     if (!poolDbService.isAvailable())  // Die if not available
       throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
     if (theSaveFakeScenario) {  // make empty!
-      alignments->clear();
-      alignmentErrors->clear();
+      alignments.clear();
+      alignmentErrors.clear();
     }
-    poolDbService->writeOne<Alignments>(alignments, poolDbService->currentTime(), theAlignRecordName);
-    poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->currentTime(), theErrorRecordName);
-  } else {
-    // poolDbService::writeOne takes over ownership
-    // we have to delete in the case that containers are not written
-    delete alignments;
-    delete alignmentErrors;
+    poolDbService->writeOneIOV<Alignments>(alignments, poolDbService->currentTime(), theAlignRecordName);
+    poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+        alignmentErrors, poolDbService->currentTime(), theErrorRecordName);
   }
 
   edm::LogInfo("MisalignedTracker") << "Producer done";
