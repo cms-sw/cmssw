@@ -33,12 +33,12 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
                                  double *__restrict__ phits,
                                  float *__restrict__ phits_ge,
                                  double *__restrict__ pfast_fit,
-                                 uint32_t nHits,
+                                 uint32_t nHitsL,uint32_t nHitsH,
                                  uint32_t offset) {
   constexpr uint32_t hitsInFit = N;
 
-  assert(hitsInFit <= nHits);
-
+  assert(hitsInFit <= nHitsL);
+  assert(nHitsL <= nHitsH);
   assert(hhp);
   assert(pfast_fit);
   assert(foundNtuplets);
@@ -53,21 +53,26 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
     printf("%d Ntuple of size %d for %d hits to fit\n", tupleMultiplicity->size(nHits), nHits, hitsInFit);
   }
 #endif
-
+  uint32_t totTK=0;
+  for (auto iH=nHitsL; iH<=nHitsH; ++iH)
+     totTK += tupleMultiplicity->size(iH);
   for (int local_idx = local_start, nt = riemannFit::maxNumberOfConcurrentFits; local_idx < nt;
        local_idx += gridDim.x * blockDim.x) {
     auto tuple_idx = local_idx + offset;
-    if (tuple_idx >= tupleMultiplicity->size(nHits)) {
+    if (tuple_idx >= totTK) {
       ptkids[local_idx] = invalidTkId;
       break;
     }
     // get it from the ntuple container (one to one to helix)
-    auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_idx);
+    auto tkid = *(tupleMultiplicity->begin(nHitsL) + tuple_idx);
     assert(tkid < foundNtuplets->nOnes());
 
     ptkids[local_idx] = tkid;
 
-    assert(foundNtuplets->size(tkid) == nHits);
+    auto nHits = foundNtuplets->size(tkid);
+
+    assert(nHits >= nHitsL);
+    assert(nHits <= nHitsH);
 
     riemannFit::Map3xNd<N> hits(phits + local_idx);
     riemannFit::Map4d fast_fit(pfast_fit + local_idx);
