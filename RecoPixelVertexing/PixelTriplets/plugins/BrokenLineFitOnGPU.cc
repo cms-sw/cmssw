@@ -28,7 +28,7 @@ void HelixFitOnGPU::launchBrokenLineKernelsOnCPU(HitsView const* hv, uint32_t hi
     if (fit5as4_) {
       // fit all as 4
       kernel_BLFastFit<4>(
-          tuples_, tupleMultiplicity_, hv,tkidGPU.get(), hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), 4,6, offset);
+          tuples_, tupleMultiplicity_, hv,tkidGPU.get(), hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), 4,8, offset);
 
       kernel_BLFit<4>(tupleMultiplicity_,
                       bField_,
@@ -61,9 +61,9 @@ void HelixFitOnGPU::launchBrokenLineKernelsOnCPU(HitsView const* hv, uint32_t hi
                       hits_geGPU.get(),
                       fast_fit_resultsGPU.get(),
                       offset);
-      // fit sexta (all 6)
+      // fit sexta and above (as 6)
       kernel_BLFastFit<6>(
-          tuples_, tupleMultiplicity_, hv,tkidGPU.get(), hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), 6,6, offset);
+          tuples_, tupleMultiplicity_, hv,tkidGPU.get(), hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), 6,8, offset);
 
       kernel_BLFit<6>(tupleMultiplicity_,
                       bField_,

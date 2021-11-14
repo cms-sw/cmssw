@@ -390,7 +390,7 @@ __global__ void kernel_countMultiplicity(HitContainer const *__restrict__ foundN
     if (quality[it] == pixelTrack::Quality::edup)
       continue;
     assert(quality[it] == pixelTrack::Quality::bad);
-    if (nhits > 5)
+    if (nhits > 7)
       printf("wrong mult %d %d\n", it, nhits);
     assert(nhits < 8);
     tupleMultiplicity->count(nhits);
@@ -408,7 +408,7 @@ __global__ void kernel_fillMultiplicity(HitContainer const *__restrict__ foundNt
     if (quality[it] == pixelTrack::Quality::edup)
       continue;
     assert(quality[it] == pixelTrack::Quality::bad);
-    if (nhits > 5)
+    if (nhits > 7)
       printf("wrong mult %d %d\n", it, nhits);
     assert(nhits < 8);
     tupleMultiplicity->fill(nhits, it);

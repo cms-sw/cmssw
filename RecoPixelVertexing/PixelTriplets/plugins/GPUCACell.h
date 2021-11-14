@@ -307,13 +307,20 @@ public:
             ((!startAt0) && hole0(hh, cells[tmpNtuplet[0]])))
 #endif
         {
-          hindex_type hits[6];
+          hindex_type hits[8];
           auto nh = 0U;
+          constexpr int maxFB = 2; // for the time being let's limit this
+          int nfb = 0;
           for (auto c : tmpNtuplet) {
             hits[nh++] = cells[c].theInnerHitId;
+            if (nfb<maxFB && cells[c].hasFishbone()) {
+              ++nfb;
+              hits[nh++] = cells[c].theFishboneId; // fishbone hit is always outer than inner hit
+            }
           }
+          assert(nh<8);
           hits[nh] = theOuterHitId;
-          auto it = foundNtuplets.bulkFill(apc, hits, tmpNtuplet.size() + 1);
+          auto it = foundNtuplets.bulkFill(apc, hits, nh+1);
           if (it >= 0) {  // if negative is overflow....
             for (auto c : tmpNtuplet)
               cells[c].addTrack(it, cellTracks);

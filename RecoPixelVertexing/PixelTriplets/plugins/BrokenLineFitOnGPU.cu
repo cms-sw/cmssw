@@ -37,7 +37,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
     if (fit5as4_) {
       // fit all as 4
       kernel_BLFastFit<4><<<numberOfBlocks / 4, blockSize, 0, stream>>>(
-          tuples_, tupleMultiplicity_, hv,tkidGPU.get(), hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), 4,6, offset);
+          tuples_, tupleMultiplicity_, hv,tkidGPU.get(), hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), 4,8, offset);
       cudaCheck(cudaGetLastError());
 
       kernel_BLFit<4><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
@@ -73,9 +73,9 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
                                                                     fast_fit_resultsGPU.get(),
                                                                     offset);
       cudaCheck(cudaGetLastError());
-      // fit sexta (all 6)
+      // fit sexta and above (as 6)
       kernel_BLFastFit<6><<<1, blockSize, 0, stream>>>(
-          tuples_, tupleMultiplicity_, hv,tkidGPU.get(), hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), 6,6, offset);
+          tuples_, tupleMultiplicity_, hv,tkidGPU.get(), hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), 6,8, offset);
       cudaCheck(cudaGetLastError());
 
       kernel_BLFit<6><<<1, blockSize, 0, stream>>>(tupleMultiplicity_,
