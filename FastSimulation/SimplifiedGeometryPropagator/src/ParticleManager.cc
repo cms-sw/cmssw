@@ -224,10 +224,16 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
       }
     }
 
-    // particle must not decay before it reaches the beam pipe
+    // FastSim will not make hits out of particles that decay before reaching the beam pipe
     if (endVertex && endVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_) {
       continue;
     }
+
+    // SM particles that descend from exotics and cross the beam pipe radius should make hits but not be decayed 
+    if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_ &&
+	endVertex && endVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_) {
+      exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
+    }    
 
     // make the particle
     std::unique_ptr<Particle> newParticle(
