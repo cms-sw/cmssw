@@ -16,6 +16,7 @@
 <use name="PhysicsTools/PatUtils"/>
 <use name="PhysicsTools/TensorFlow"/>
 <use name="PhysicsTools/ONNXRuntime"/>
+<use name="TrackingTools/Records"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>
