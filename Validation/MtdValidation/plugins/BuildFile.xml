@@ -8,7 +8,6 @@
 <use name="DQMServices/Core"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/PileupSummaryInfo"/>
-<use name="SimGeneral/HepPDTESSource"/>
 <use name="SimGeneral/HepPDTRecord"/>
 <use name="Geometry/Records"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
