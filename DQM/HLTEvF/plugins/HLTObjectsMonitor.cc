@@ -481,7 +481,7 @@ void HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
               if (key != key1 &&
                   kCnt1 > kCnt0) {  // avoid filling hists with same objs && avoid double counting separate objs
 
-                double pt2 = objects[key1].phi();
+                double pt2 = objects[key1].pt();
                 double eta2 = objects[key1].eta();
                 double phi2 = objects[key1].phi();
                 int id2 = objects[key1].id();
