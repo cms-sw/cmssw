@@ -59,6 +59,9 @@ private:
   std::string sipmMap_;
   double refIdark_;
 
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> dddToken_;
+
   std::set<int> allLayers_, allIphi_, allIeta_;
 
   const HGCalGeometry* gHGCal_;
@@ -75,7 +78,10 @@ HGCHEbackSignalScalerAnalyzer::HGCHEbackSignalScalerAnalyzer(const edm::Paramete
     : doseMap_(iConfig.getParameter<std::string>("doseMap")),
       doseMapAlgo_(iConfig.getParameter<uint32_t>("doseMapAlgo")),
       sipmMap_(iConfig.getParameter<std::string>("sipmMap")),
-      refIdark_(iConfig.getParameter<double>("referenceIdark")) {
+      refIdark_(iConfig.getParameter<double>("referenceIdark")),
+      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag("", "HGCalHEScintillatorSensitive"))),
+      dddToken_(
+          esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag("", "HGCalHEScintillatorSensitive"))) {
   usesResource("TFileService");
   fs->file().cd();
 }
@@ -89,8 +95,7 @@ HGCHEbackSignalScalerAnalyzer::~HGCHEbackSignalScalerAnalyzer() {}
 // ------------ method called on each new Event  ------------
 void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //get geometry
-  edm::ESHandle<HGCalGeometry> geomhandle;
-  iSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive", geomhandle);
+  const auto& geomhandle = iSetup.getHandle(geomToken_);
   if (!geomhandle.isValid()) {
     edm::LogError("HGCHEbackSignalScalerAnalyzer") << "Cannot get valid HGCalGeometry Object";
     return;
@@ -100,8 +105,7 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
   LogDebug("HGCHEbackSignalScalerAnalyzer") << "Total number of DetIDs: " << detIdVec.size();
 
   //get ddd constants
-  edm::ESHandle<HGCalDDDConstants> dddhandle;
-  iSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive", dddhandle);
+  const auto& dddhandle = iSetup.getHandle(dddToken_);
   if (!dddhandle.isValid()) {
     edm::LogError("HGCHEbackSignalScalerAnalyzer") << "Cannot initiate HGCalDDDConstants";
     return;
