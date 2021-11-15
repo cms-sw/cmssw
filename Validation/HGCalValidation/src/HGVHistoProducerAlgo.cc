@@ -2397,11 +2397,12 @@ return v.first == hitid; });
 
     // Loop through SimClusters
     for (const auto& simCluster : cP[cpId].simClusters()) {
+      auto iSim = simTSs[iSTS].seedIndex();
       if (simTSs[iSTS].seedID() != cPHandle_id) { // SimTrackster from SimCluster
-        if (simTSs[iSTS].seedIndex()  !=  (&(*simCluster) - &(sC[0])))
+        if (iSim  !=  (&(*simCluster) - &(sC[0])))
           continue;
-      }
-      const auto iSim = simTSs[iSTS].seedIndex();
+      } else
+        iSim = 0;
 
       for (const auto& it_haf : simCluster->hits_and_fractions()) {
         const auto hitid = (it_haf.first);
@@ -2584,6 +2585,9 @@ return v.first == hitid; });
 
           const auto iSTS = h.clusterId;
           const auto& simTS = simTSs[iSTS];
+          auto iSim = simTS.seedIndex();
+          if (simTSs[iSTS].seedID() == cPHandle_id) // SimTrackster from CaloParticle
+            iSim = 0;
 
           float lcFraction_s = 0;
           const auto lcId_s = getLCId(simTS.vertices(), layerClusters, rh_detid);
@@ -2604,9 +2608,9 @@ return v.first == hitid; });
           //Here cPOnLayer[caloparticle][layer] describe above is set.
           //Here for Tracksters with matched rechit the CP fraction times hit energy is added and saved .
           cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore[tstId].first += shared_fraction * hit->energy();
-          sCOnLayer[cpId][simTS.seedIndex()][layerId].layerClusterIdToEnergyAndScore[tstId].first += shared_fraction_lc * hit->energy();
+          sCOnLayer[cpId][iSim][layerId].layerClusterIdToEnergyAndScore[tstId].first += shared_fraction_lc * hit->energy();
           cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore[tstId].second = FLT_MAX;
-          sCOnLayer[cpId][simTS.seedIndex()][layerId].layerClusterIdToEnergyAndScore[tstId].second = FLT_MAX;
+          sCOnLayer[cpId][iSim][layerId].layerClusterIdToEnergyAndScore[tstId].second = FLT_MAX;
           //stsInTrackster[trackster][STSids]
           //Connects a Trackster with all related SimTracksters.
           stsInTrackster[tstId].emplace_back(iSTS, FLT_MAX);
@@ -2834,7 +2838,11 @@ else return false;
       if (std::find(cPSelectedIndices.begin(), cPSelectedIndices.end(), cpId) == cPSelectedIndices.end())
         continue;
 
-    auto& simOnLayer = (i == 0) ? cPOnLayer[cpId] : sCOnLayer[cpId][sts.seedIndex()];
+    auto iSim = sts.seedIndex();
+    if (sts.seedID() == cPHandle_id) // SimTrackster from CaloParticle
+      iSim = 0;
+
+    auto& simOnLayer = (i == 0) ? cPOnLayer[cpId] : sCOnLayer[cpId][iSim];
 
     // Keep the Trackster ids that are related to
     // SimTrackster under study for the final filling of the score
