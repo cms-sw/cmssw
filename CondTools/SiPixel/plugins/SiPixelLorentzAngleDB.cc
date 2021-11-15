@@ -1,16 +1,54 @@
+// system includes
+#include <map>
 #include <memory>
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "SiPixelLorentzAngleDB.h"
+
+// user includes
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
-#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+class SiPixelLorentzAngleDB : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiPixelLorentzAngleDB(const edm::ParameterSet& conf);
+  ~SiPixelLorentzAngleDB() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
+
+  unsigned int HVgroup(unsigned int panel, unsigned int module);
+
+  std::vector<std::pair<uint32_t, float> > detid_la;
+  double magneticField_;
+  std::string recordName_;
+
+  typedef std::vector<edm::ParameterSet> Parameters;
+  Parameters BPixParameters_;
+  Parameters FPixParameters_;
+  Parameters ModuleParameters_;
+
+  std::string fileName_;
+  bool useFile_;
+};
 
 using namespace std;
 using namespace edm;
@@ -18,15 +56,15 @@ using namespace edm;
 //Constructor
 
 SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf)
-    : tkGeomToken_(esConsumes()), tkTopoToken_(esConsumes()), conf_(conf) {
-  magneticField_ = conf_.getParameter<double>("magneticField");
-  recordName_ = conf_.getUntrackedParameter<std::string>("record", "SiPixelLorentzAngleRcd");
-  useFile_ = conf_.getParameter<bool>("useFile");
-  fileName_ = conf_.getParameter<string>("fileName");
+    : tkGeomToken_(esConsumes()), tkTopoToken_(esConsumes()) {
+  magneticField_ = conf.getParameter<double>("magneticField");
+  recordName_ = conf.getUntrackedParameter<std::string>("record", "SiPixelLorentzAngleRcd");
+  useFile_ = conf.getParameter<bool>("useFile");
+  fileName_ = conf.getParameter<string>("fileName");
 
-  BPixParameters_ = conf_.getUntrackedParameter<Parameters>("BPixParameters");
-  FPixParameters_ = conf_.getUntrackedParameter<Parameters>("FPixParameters");
-  ModuleParameters_ = conf_.getUntrackedParameter<Parameters>("ModuleParameters");
+  BPixParameters_ = conf.getUntrackedParameter<Parameters>("BPixParameters");
+  FPixParameters_ = conf.getUntrackedParameter<Parameters>("FPixParameters");
+  ModuleParameters_ = conf.getUntrackedParameter<Parameters>("ModuleParameters");
 }
 
 // Virtual destructor needed.
