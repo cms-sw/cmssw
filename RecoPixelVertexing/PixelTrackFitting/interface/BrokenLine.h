@@ -156,7 +156,7 @@ namespace brokenline {
 
     int mId = 1;
 
-    if constexpr (n>3) {
+    if constexpr (n > 3) {
       riemannFit::Vector2d middle = 0.5 * (hits.block(0, n - 1, 2, 1) + hits.block(0, 0, 2, 1));
       auto d1 = (hits.block(0, n / 2, 2, 1) - middle).squaredNorm();
       auto d2 = (hits.block(0, n / 2 - 1, 2, 1) - middle).squaredNorm();
@@ -260,7 +260,7 @@ namespace brokenline {
 
     int mId = 1;
 
-    if constexpr (n>3) {
+    if constexpr (n > 3) {
       riemannFit::Vector2d middle = 0.5 * (hits.block(0, n - 1, 2, 1) + hits.block(0, 0, 2, 1));
       auto d1 = (hits.block(0, n / 2, 2, 1) - middle).squaredNorm();
       auto d2 = (hits.block(0, n / 2 - 1, 2, 1) - middle).squaredNorm();
