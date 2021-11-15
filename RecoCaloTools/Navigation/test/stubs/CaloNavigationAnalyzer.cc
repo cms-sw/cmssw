@@ -3,11 +3,10 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -25,29 +24,22 @@
 
 #include <iostream>
 
-class CaloNavigationAnalyzer : public edm::EDAnalyzer {
+class CaloNavigationAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit CaloNavigationAnalyzer(const edm::ParameterSet&);
-  ~CaloNavigationAnalyzer();
+  ~CaloNavigationAnalyzer() override = default;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
 private:
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> esToken_;
   int pass_;
 };
 
 //
 // constructors and destructor
 //
-CaloNavigationAnalyzer::CaloNavigationAnalyzer(const edm::ParameterSet& iConfig) {
-  //now do what ever initialization is needed
-  pass_ = 0;
-}
-
-CaloNavigationAnalyzer::~CaloNavigationAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+CaloNavigationAnalyzer::CaloNavigationAnalyzer(const edm::ParameterSet& iConfig) : esToken_(esConsumes()), pass_(0) {}
 
 //
 // member functions
@@ -57,14 +49,13 @@ CaloNavigationAnalyzer::~CaloNavigationAnalyzer() {
 void CaloNavigationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
+  const auto& theCaloTopology = iSetup.getData(esToken_);
   if (pass_ == 0) {
     {
       std::cout << "Testing Ecal Barrel Navigator" << std::endl;
       EBDetId startEB(-85, 1);
       std::cout << "Starting at : (" << startEB.ieta() << "," << startEB.iphi() << ")" << std::endl;
-      EcalBarrelNavigator theEBNav(startEB, theCaloTopology->getSubdetectorTopology(DetId::Ecal, EcalBarrel));
+      EcalBarrelNavigator theEBNav(startEB, theCaloTopology.getSubdetectorTopology(DetId::Ecal, EcalBarrel));
 
       EBDetId next;
       int steps = 0;
@@ -97,7 +88,7 @@ void CaloNavigationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
       std::cout << "Testing Ecal Endcap Navigator" << std::endl;
       EEDetId startEE(1, 50, 1);
       std::cout << "Starting at : (" << startEE.ix() << "," << startEE.iy() << ")" << std::endl;
-      EcalEndcapNavigator theEENav(startEE, theCaloTopology->getSubdetectorTopology(DetId::Ecal, EcalEndcap));
+      EcalEndcapNavigator theEENav(startEE, theCaloTopology.getSubdetectorTopology(DetId::Ecal, EcalEndcap));
       theEENav.setHome(startEE);
 
       EEDetId next;
@@ -130,7 +121,7 @@ void CaloNavigationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
       std::cout << "Testing Ecal Preshower Navigator" << std::endl;
       ESDetId startES(1, 16, 1, 1, 1);
       std::cout << "Starting at : " << startES << std::endl;
-      EcalPreshowerNavigator theESNav(startES, theCaloTopology->getSubdetectorTopology(DetId::Ecal, EcalPreshower));
+      EcalPreshowerNavigator theESNav(startES, theCaloTopology.getSubdetectorTopology(DetId::Ecal, EcalPreshower));
       theESNav.setHome(startES);
 
       ESDetId next;
