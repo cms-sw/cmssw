@@ -1,4 +1,59 @@
-#include "SiPixelVCalReader.h"
+// system includes
+#include <cstdio>
+#include <iomanip>  // std::setw
+#include <iostream>
+#include <sys/time.h>
+
+// user includes
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CondFormats/DataRecord/interface/SiPixelVCalRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelVCalSimRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelVCal.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+// ROOT includes
+#include "TFile.h"
+#include "TH2F.h"
+#include "TROOT.h"
+#include "TTree.h"
+
+class SiPixelVCalReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit SiPixelVCalReader(const edm::ParameterSet&);
+  ~SiPixelVCalReader() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  // es tokens
+  const edm::ESGetToken<SiPixelVCal, SiPixelVCalSimRcd> siPixelVCalSimToken_;
+  const edm::ESGetToken<SiPixelVCal, SiPixelVCalRcd> siPixelVCalToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
+
+  const bool printdebug_;
+  const bool useSimRcd_;
+
+  TH1F* slopeBPix_;
+  TH1F* slopeFPix_;
+  TH1F* offsetBPix_;
+  TH1F* offsetFPix_;
+};
 
 using namespace cms;
 

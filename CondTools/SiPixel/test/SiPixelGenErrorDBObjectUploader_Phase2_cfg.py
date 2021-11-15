@@ -172,6 +172,8 @@ from Configuration.StandardSequences.Eras import eras
 process = cms.Process("SiPixelGenErrorDBUpload",eras.Phase2)#C2)
 process.load("CondCore.CondDB.CondDB_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger = cms.Service("MessageLogger",
+                                    destinations = cms.untracked.vstring('SiPixelGenErrorDBObjectUploader_Phase2.log'))
 
 geometry_cff = ''
 recoGeometry_cff = ''

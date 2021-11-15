@@ -1,23 +1,62 @@
-// PixelPopConCalibChecker.cc
+// -*- C++ -*-
 //
-// EDAnalyzer to check calibration configuration objects transferred to database
+// Package:    PixelPopConCalibChecker
+// Class:      PixelPopConCalibChecker
 //
-// M. Eads
-// Aug 2008
+/**\class PixelPopConCalibChecker PixelPopConCalibChecker.h SiPixel/test/PixelPopConCalibChecker.h
 
+ Description: Test analyzer for checking calib configuration objects written to db
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  M. Eads
+//         Created:  August 2008
+//
+//
+
+// system include files
+#include <memory>
+#include <string>
 #include <iostream>
-#include "PixelPopConCalibChecker.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+
+// user include files
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
+#include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+//
+// class decleration
+//
+class PixelPopConCalibChecker : public edm::one::EDAnalyzer<> {
+public:
+  explicit PixelPopConCalibChecker(const edm::ParameterSet&);
+  ~PixelPopConCalibChecker() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  // ----------member data ---------------------------
+  const edm::ESGetToken<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd> gainCalibToken_;
+  const std::string _filename;
+  const int _messageLevel;
+};
 
 using namespace std;
 
 //
 // constructors and destructor
 //
-PixelPopConCalibChecker::PixelPopConCalibChecker(const edm::ParameterSet& iConfig) : gainCalibToken_(esConsumes()) {
-  _filename = iConfig.getParameter<string>("filename");
-  _messageLevel = iConfig.getUntrackedParameter("messageLevel", 0);
+PixelPopConCalibChecker::PixelPopConCalibChecker(const edm::ParameterSet& iConfig)
+    : gainCalibToken_(esConsumes()),
+      _filename(iConfig.getParameter<string>("filename")),
+      _messageLevel(iConfig.getUntrackedParameter("messageLevel", 0)) {
   if (_messageLevel > 0)
     edm::LogPrint("PixelPopConCalibChecker") << "********* PixelPopConCalibChecker ************" << endl;
 }

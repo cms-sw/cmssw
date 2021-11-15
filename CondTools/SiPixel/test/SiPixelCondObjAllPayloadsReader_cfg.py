@@ -15,10 +15,10 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("histo.root")
                                    )
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:prova.db'
-process.CondDBCommon.DBParameters.messageLevel = 2
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = 'sqlite_file:prova.db'
+process.CondDB.DBParameters.messageLevel = 2
+process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 process.load("CalibTracker.SiPixelESProducers.SiPixelFakeGainESSource_cfi")
 
@@ -37,7 +37,7 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 )
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
+    process.CondDB,
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelGainCalibrationRcd'),
