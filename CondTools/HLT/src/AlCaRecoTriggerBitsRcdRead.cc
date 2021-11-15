@@ -28,7 +28,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -38,14 +38,14 @@
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 
-class AlCaRecoTriggerBitsRcdRead : public edm::EDAnalyzer {
+class AlCaRecoTriggerBitsRcdRead : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet &cfg);
   ~AlCaRecoTriggerBitsRcdRead() override {}
 
   void analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) override {}
   void beginRun(const edm::Run &run, const edm::EventSetup &evtSetup) override;
-  void endJob() override;
+  void endRun(edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // types
@@ -132,7 +132,7 @@ void AlCaRecoTriggerBitsRcdRead::beginRun(const edm::Run &run, const edm::EventS
 }
 
 ///////////////////////////////////////////////////////////////////////
-void AlCaRecoTriggerBitsRcdRead::endJob() {
+void AlCaRecoTriggerBitsRcdRead::endRun(edm::Run const &, edm::EventSetup const &) {
   // Print for very last IOV, not treated yet in beginRun(..):
   this->printMap(firstRun_, lastRun_, lastTriggerBits_);
 }
