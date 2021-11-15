@@ -1,7 +1,5 @@
 #include "GeneratorInterface/GenFilters/plugins/PythiaFilterIsolatedTrack.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -96,7 +94,8 @@ PythiaFilterIsolatedTrack::PythiaFilterIsolatedTrack(const edm::ParameterSet &iC
       nAll_(0),
       nGood_(0),
       ecDist_(317.0),
-      ecRad_(129.0) {
+      ecRad_(129.0),
+      pdt_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()) {
   edm::LogVerbatim("PythiaFilter") << "PythiaFilterIsolatedTrack: Eta " << minSeedEta_ << ":" << maxSeedEta_ << " p > "
                                    << minSeedMom_ << " Isolation Cone " << isolCone_ << " with p > " << minIsolTrackMom_
                                    << " OnlyHadron " << onlyHadrons_;
@@ -107,8 +106,8 @@ PythiaFilterIsolatedTrack::~PythiaFilterIsolatedTrack() {}
 // ------------ method called to produce the data  ------------
 bool PythiaFilterIsolatedTrack::filter(edm::Event &iEvent, edm::EventSetup const &iSetup) {
   ++nAll_;
-  edm::ESHandle<ParticleDataTable> pdt;
-  iSetup.getData(pdt);
+
+  auto const &pdt = iSetup.getData(pdt_);
 
   edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
@@ -126,9 +125,9 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event &iEvent, edm::EventSetup const
        iter != myGenEvent->particles_end();
        ++iter) {
     const HepMC::GenParticle *p = *iter;
-    if (!(pdt->particle(p->pdg_id())))
+    if (!(pdt.particle(p->pdg_id())))
       continue;
-    int charge3 = pdt->particle(p->pdg_id())->ID().threeCharge();
+    int charge3 = pdt.particle(p->pdg_id())->ID().threeCharge();
     int status = p->status();
     double momentum = p->momentum().rho();
     double abseta = fabs(p->momentum().eta());
@@ -146,13 +145,13 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event &iEvent, edm::EventSetup const
   unsigned int ntrk(0);
   for (std::vector<const HepMC::GenParticle *>::const_iterator it1 = seeds.begin(); it1 != seeds.end(); ++it1) {
     const HepMC::GenParticle *p1 = *it1;
-    if (!(pdt->particle(p1->pdg_id())))
+    if (!(pdt.particle(p1->pdg_id())))
       continue;
     if (p1->pdg_id() < -100 || p1->pdg_id() > 100 || (!onlyHadrons_)) {  // Select hadrons only
       std::pair<double, double> EtaPhi1 = GetEtaPhiAtEcal(p1->momentum().eta(),
                                                           p1->momentum().phi(),
                                                           p1->momentum().perp(),
-                                                          (pdt->particle(p1->pdg_id()))->ID().threeCharge() / 3,
+                                                          (pdt.particle(p1->pdg_id()))->ID().threeCharge() / 3,
                                                           0.0);
 
       // loop over all of the other charged particles in the event, and see if any are close by
@@ -167,7 +166,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event &iEvent, edm::EventSetup const
           std::pair<double, double> EtaPhi2 = GetEtaPhiAtEcal(p2->momentum().eta(),
                                                               p2->momentum().phi(),
                                                               p2->momentum().perp(),
-                                                              (pdt->particle(p2->pdg_id()))->ID().threeCharge() / 3,
+                                                              (pdt.particle(p2->pdg_id()))->ID().threeCharge() / 3,
                                                               0.0);
 
           // find out how far apart the particles are
