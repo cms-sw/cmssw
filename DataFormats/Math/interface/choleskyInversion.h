@@ -337,10 +337,9 @@ namespace math {
 
     // Eigen interface
     template <typename M1, typename M2>
-    inline constexpr  void __attribute__((always_inline))
-    invert(M1 const& src, M2& dst) {
-      if constexpr (M2::ColsAtCompileTime < 200)   // should be 7 but 
-         Inverter<M1, M2, M2::ColsAtCompileTime>::eval(src, dst);
+    inline constexpr void __attribute__((always_inline)) invert(M1 const& src, M2& dst) {
+      if constexpr (M2::ColsAtCompileTime < 200)  // should be 7 but
+        Inverter<M1, M2, M2::ColsAtCompileTime>::eval(src, dst);
       else
         dst = src.llt().solve(M1::Identity());  // ... this crashes on GPU
     }

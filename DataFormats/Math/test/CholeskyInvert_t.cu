@@ -85,7 +85,8 @@ template <int N>
 void go(bool soa) {
   constexpr unsigned int DIM = N;
   using MX = MXN<DIM>;
-  std::cout << "testing Matrix of dimension " << DIM << " size " << sizeof(MX) << " in " << (soa ? "SOA" : "AOS") << " mode" << std::endl;
+  std::cout << "testing Matrix of dimension " << DIM << " size " << sizeof(MX) << " in " << (soa ? "SOA" : "AOS")
+            << " mode" << std::endl;
 
   auto start = std::chrono::high_resolution_clock::now();
   auto delta = start - start;
