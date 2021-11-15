@@ -22,7 +22,7 @@ private:
   std::unique_ptr<JetTagPlotter> jetTagPlotter_;
 
   const std::string folder_;
-  const edm::ParameterSet disrParameters_;
+  const edm::ParameterSet discrParameters_;
 
   const int mclevel_;
   const bool doCTagPlots_;

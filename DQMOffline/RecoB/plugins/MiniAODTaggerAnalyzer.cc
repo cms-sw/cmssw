@@ -4,7 +4,7 @@
 
 MiniAODTaggerAnalyzer::MiniAODTaggerAnalyzer(const edm::ParameterSet& pSet)
     : jetToken_(consumes<std::vector<pat::Jet> >(pSet.getParameter<edm::InputTag>("JetTag"))),
-      disrParameters_(pSet.getParameter<edm::ParameterSet>("parameters")),
+      discrParameters_(pSet.getParameter<edm::ParameterSet>("parameters")),
 
       folder_(pSet.getParameter<std::string>("folder")),
       discrNumerator_(pSet.getParameter<vstring>("numerator")),
@@ -29,7 +29,7 @@ MiniAODTaggerAnalyzer::~MiniAODTaggerAnalyzer() {}
 void MiniAODTaggerAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& run, edm::EventSetup const& es) {
   jetTagPlotter_ = std::make_unique<JetTagPlotter>(folder_,
                                                    EtaPtBin(etaActive_, etaMin_, etaMax_, ptActive_, ptMin_, ptMax_),
-                                                   disrParameters_,
+                                                   discrParameters_,
                                                    mclevel_,
                                                    false,
                                                    ibook,
@@ -47,18 +47,18 @@ void MiniAODTaggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
     // fill numerator
     float numerator = 0;
     for (const auto& discrLabel : discrNumerator_) {
-      numerator = numerator + jet->bDiscriminator(discrLabel);
+      numerator += jet->bDiscriminator(discrLabel);
     }
 
     // fill denominator
     float denominator;
     if (discrDenominator_.empty()) {
-      denominator = 1;
+      denominator = 1;  // no division performed
     } else {
       denominator = 0;
 
       for (const auto& discrLabel : discrDenominator_) {
-        denominator = denominator + jet->bDiscriminator(discrLabel);
+        denominator += jet->bDiscriminator(discrLabel);
       }
     }
 

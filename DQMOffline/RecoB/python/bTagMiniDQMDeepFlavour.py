@@ -16,7 +16,7 @@ DeepFlavourDiscriminators = {
     'BvsAll': cms.PSet(
         bTagGenericAnalysisBlock,
 
-        folder = cms.string('deepFlavour_BvsAll'),
+        folder = cms.string('DeepFlavour_BvsAll'),
         CTagPlots = cms.bool(False),
         discrCut = cms.double(deepFlavourWP['BvsAll']),
         numerator = cms.vstring(
@@ -30,7 +30,7 @@ DeepFlavourDiscriminators = {
     'CvsL': cms.PSet(
         cTagGenericAnalysisBlock,
 
-        folder = cms.string('deepFlavour_CvsL'),
+        folder = cms.string('DeepFlavour_CvsL'),
         CTagPlots = cms.bool(True),
         discrCut = cms.double(deepFlavourWP['CvsL']),
         numerator = cms.vstring('pfDeepFlavourJetTags:probc'),
@@ -44,7 +44,7 @@ DeepFlavourDiscriminators = {
     'CvsB': cms.PSet(
         cTagGenericAnalysisBlock,
 
-        folder = cms.string('deepFlavour_CvsB'),
+        folder = cms.string('DeepFlavour_CvsB'),
         CTagPlots = cms.bool(True),
         discrCut = cms.double(deepFlavourWP['CvsB']),
         numerator = cms.vstring('pfDeepFlavourJetTags:probc'),

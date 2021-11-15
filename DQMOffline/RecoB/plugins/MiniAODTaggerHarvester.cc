@@ -4,7 +4,7 @@
 
 MiniAODTaggerHarvester::MiniAODTaggerHarvester(const edm::ParameterSet& pSet)
     : folder_(pSet.getParameter<std::string>("folder")),
-      disrParameters_(pSet.getParameter<edm::ParameterSet>("parameters")),
+      discrParameters_(pSet.getParameter<edm::ParameterSet>("parameters")),
 
       mclevel_(pSet.getParameter<int>("MClevel")),
       doCTagPlots_(pSet.getParameter<bool>("CTagPlots")),
@@ -25,7 +25,7 @@ MiniAODTaggerHarvester::~MiniAODTaggerHarvester() {}
 void MiniAODTaggerHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& iget) {
   jetTagPlotter_ = std::make_unique<JetTagPlotter>(folder_,
                                                    EtaPtBin(etaActive_, etaMin_, etaMax_, ptActive_, ptMin_, ptMax_),
-                                                   disrParameters_,
+                                                   discrParameters_,
                                                    mclevel_,
                                                    true,
                                                    ibook,
