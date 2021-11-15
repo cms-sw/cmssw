@@ -285,7 +285,6 @@ namespace edm {
     QIE11DigiCollectionDM_ = ps.getParameter<std::string>("QIE11DigiCollectionDM");
 
     dbToken_ = iC.esConsumes<HcalDbService, HcalDbRecord>();
-
   }
 
   // Virtual destructor needed.
@@ -294,7 +293,7 @@ namespace edm {
   void DataMixingHcalDigiWorker::addHcalSignals(const edm::Event &e, const edm::EventSetup &ES) {
     // Calibration stuff will look like this:
     // get conditions
-    const auto& conditions = ES.getHandle(dbToken_);
+    const auto &conditions = ES.getHandle(dbToken_);
 
     // fill in maps of hits
 
@@ -359,7 +358,7 @@ namespace edm {
                                          << " for bunchcrossing " << bcr;
 
     // get conditions
-    const auto& conditions = ES.getHandle(dbToken_);
+    const auto &conditions = ES.getHandle(dbToken_);
 
     convertPileupHcalDigis<HBHEDigiCollection>(*ep, HBHEPileInputTag_, mcc, *conditions, HBHEDigiStorage_);
     convertPileupHcalDigis<HODigiCollection>(*ep, HOPileInputTag_, mcc, *conditions, HODigiStorage_);
@@ -406,7 +405,7 @@ namespace edm {
   }
 
   void DataMixingHcalDigiWorker::putHcal(edm::Event &e, const edm::EventSetup &ES) {
-    const auto& conditions = ES.getHandle(dbToken_);
+    const auto &conditions = ES.getHandle(dbToken_);
 
     // collection of digis to put in the event
     std::unique_ptr<HBHEDigiCollection> HBHEdigis = buildHcalDigis<HBHEDigiCollection>(HBHEDigiStorage_, *conditions);
