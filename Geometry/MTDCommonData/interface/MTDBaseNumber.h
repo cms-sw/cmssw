@@ -18,12 +18,12 @@ public:
   MTDBaseNumber(const MTDBaseNumber& aBaseNumber);
   ~MTDBaseNumber() {}
 
-  void setSize(const int& size);
-  void addLevel(const std::string_view& name, const int& copyNumber);
+  void setSize(const int size);
+  void addLevel(const std::string_view name, const int copyNumber);
 
   int getLevels() const;
   int getCopyNumber(int level) const;
-  int getCopyNumber(const std::string_view& levelName) const;
+  int getCopyNumber(const std::string_view levelName) const;
   std::string_view const& getLevelName(int level) const;
   int getCapacity();
 
