@@ -1,13 +1,14 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include <iostream>
-#include <string>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBOutputService/interface/KeyedElement.h"
 #include "CondFormats/Calibration/interface/Conf.h"
 
-class writeKeyed : public edm::EDAnalyzer {
+#include <iostream>
+#include <string>
+
+class writeKeyed : public edm::one::EDAnalyzer<> {
 public:
   explicit writeKeyed(const edm::ParameterSet& iConfig);
   virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
@@ -50,21 +51,20 @@ void writeKeyed::endJob() {
       std::cout << k.m_skey << " " << k.m_key << std::endl;
 
       keys.insert(std::make_pair(k.m_key, k.m_obj));
-      //outdb->writeOne(k.m_obj,k.m_key,confcont);
     }
 
   std::cout << "# uploading keys..." << std::endl;
   for (auto k : keys)
-    outdb->writeOne(k.second, k.first, confcont);
+    outdb->writeOneIOV(k.second, k.first, confcont);
 
   std::cout << "# uploading master payloads..." << std::endl;
   // populate the master payload
   int run = 10;
   for (size_t j = 0; j < 7; ++j) {
-    std::vector<cond::Time_t>* kl = new std::vector<cond::Time_t>(dict.size());
+    std::vector<cond::Time_t> kl;
     for (size_t i = 0; i < dict.size(); ++i)
-      (*kl)[i] = cond::KeyedElement::convert(dict[i] + nums[j]);
-    outdb->writeOne(kl, run, confiov);
+      (kl).at(i) = cond::KeyedElement::convert(dict[i] + nums[j]);
+    outdb->writeOneIOV(kl, run, confiov);
     run += 10;
   }
 }
