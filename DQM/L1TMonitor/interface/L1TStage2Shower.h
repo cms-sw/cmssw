@@ -30,7 +30,6 @@ private:
   std::string monitorDir;
   bool verbose;
 
-
   MonitorElement* cscShowerOccupancyLoose;
   MonitorElement* cscShowerOccupancyNom;
   MonitorElement* cscShowerOccupancyTight;
