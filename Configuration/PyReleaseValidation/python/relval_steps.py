@@ -2851,7 +2851,7 @@ steps['DQMHLTonRAWAOD_2017']={
 
 steps['HARVESTDQMHLTonAOD_2017'] = merge([ {'--filein':'file:DQMHLTonAOD.root','-s':'HARVESTING:hltOfflineDQMClient'}, steps['HARVEST2017'] ]) ### Harvesting step for the DQM-only workflow
 
-steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@commonFakeHLT+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
+steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@allForPrompt'},steps['HARVESTD']])
 
 steps['HARVESTDfst2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTDR1']])
 
