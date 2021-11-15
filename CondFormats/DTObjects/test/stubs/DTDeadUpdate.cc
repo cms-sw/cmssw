@@ -24,7 +24,7 @@ namespace edmtest {
 
   DTDeadUpdate::DTDeadUpdate(int i) : dSum(0) {}
 
-  DTDeadUpdate::~DTDeadUpdate() {}
+  DTDeadUpdate::~DTDeadUpdate() { delete dSum; }
 
   void DTDeadUpdate::analyze(const edm::Event& e, const edm::EventSetup& context) {
     if (dSum == 0)
@@ -69,12 +69,12 @@ namespace edmtest {
     fill_discCat("discCat_list.txt", dSum);
 
     if (dbservice->isNewTagRequest("DTDeadFlagRcd")) {
-      dbservice->createNewIOV<DTDeadFlag>(dSum, dbservice->beginOfTime(), dbservice->endOfTime(), "DTDeadFlagRcd");
+      dbservice->createOneIOV<DTDeadFlag>(*dSum, dbservice->beginOfTime(), "DTDeadFlagRcd");
     } else {
       std::cout << "already present tag" << std::endl;
       int currentRun = 10;
       //      dbservice->appendTillTime<DTDeadFlag>(
-      dbservice->appendSinceTime<DTDeadFlag>(dSum, currentRun, "DTDeadFlagRcd");
+      dbservice->appendOneIOV<DTDeadFlag>(*dSum, currentRun, "DTDeadFlagRcd");
       //      dbservice->appendSinceTime<DTDeadFlag>(
       //                 dlist,dbservice->currentTime(),"DTDeadFlagRcd");
     }
