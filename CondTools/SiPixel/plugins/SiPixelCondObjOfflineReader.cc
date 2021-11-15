@@ -1,17 +1,85 @@
+// -*- C++ -*-
+//
+// Package:    SiPixelCondObjOfflineReader
+// Class:      SiPixelCondObjOfflineReader
+//
+/**\class SiPixelCondObjOfflineReader SiPixelCondObjOfflineReader.h SiPixel/test/SiPixelCondObjOfflineReader.h
+
+ Description: Test analyzer for reading pixel calibration from the DB
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Vincenzo CHIOCHIA
+//         Created:  Tue Oct 17 17:40:56 CEST 2006
+// $Id: SiPixelCondObjOfflineReader.h,v 1.11 2009/05/28 22:12:55 dlange Exp $
+//
+//
+
+// system includes
 #include <memory>
 
-#include "SiPixelCondObjOfflineReader.h"
+// user includes
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
-
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+// ROOT includes
+#include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TBranch.h"
+#include "TH1F.h"
 
 namespace cms {
-  SiPixelCondObjOfflineReader::SiPixelCondObjOfflineReader(const edm::ParameterSet& conf)
+  class SiPixelCondObjOfflineReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+  public:
+    explicit SiPixelCondObjOfflineReader(const edm::ParameterSet &iConfig);
+    void analyze(const edm::Event &, const edm::EventSetup &) override;
+    void endJob() override;
+
+  private:
+    edm::ParameterSet conf_;
+    const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+    const std::string recordName_;
+    std::unique_ptr<SiPixelGainCalibrationServiceBase> SiPixelGainCalibrationService_;
+
+    std::map<uint32_t, TH1F *> _TH1F_Pedestals_m;
+    std::map<uint32_t, TH1F *> _TH1F_Gains_m;
+    std::map<uint32_t, double> _deadfrac_m;
+    std::map<uint32_t, double> _noisyfrac_m;
+
+    TH1F *_TH1F_Dead_sum;
+    TH1F *_TH1F_Noisy_sum;
+    TH1F *_TH1F_Gains_sum;
+    TH1F *_TH1F_Pedestals_sum;
+    TH1F *_TH1F_Dead_all;
+    TH1F *_TH1F_Noisy_all;
+    TH1F *_TH1F_Gains_all;
+    TH1F *_TH1F_Pedestals_all;
+    TH1F *_TH1F_Gains_bpix;
+    TH1F *_TH1F_Gains_fpix;
+    TH1F *_TH1F_Pedestals_bpix;
+    TH1F *_TH1F_Pedestals_fpix;
+  };
+}  // namespace cms
+
+namespace cms {
+  SiPixelCondObjOfflineReader::SiPixelCondObjOfflineReader(const edm::ParameterSet &conf)
       : conf_(conf), tkGeomToken_(esConsumes()) {
     usesResource(TFileService::kSharedResource);
     if (conf_.getParameter<bool>("useSimRcd"))
@@ -22,7 +90,7 @@ namespace cms {
           std::make_unique<SiPixelGainCalibrationOfflineService>(conf_, consumesCollector());
   }
 
-  void SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  void SiPixelCondObjOfflineReader::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     //Create Subdirectories
     edm::Service<TFileService> fs;
     TFileDirectory subDirPed = fs->mkdir("Pedestals");
@@ -40,7 +108,7 @@ namespace cms {
         << "[SiPixelCondObjOfflineReader::beginJob] End Reading CondObjOfflineects" << std::endl;
 
     // Get the Geometry
-    const TrackerGeometry* tkgeom = &iSetup.getData(tkGeomToken_);
+    const TrackerGeometry *tkgeom = &iSetup.getData(tkGeomToken_);
     edm::LogInfo("SiPixelCondObjOfflineReader") << " There are " << tkgeom->dets().size() << " detectors" << std::endl;
 
     // Get the list of DetId's
@@ -71,7 +139,7 @@ namespace cms {
     _TH1F_Gains_bpix = fs->make<TH1F>("GainsBpix", "bpix Gains", 100, 0, 10);
     _TH1F_Gains_fpix = fs->make<TH1F>("GainsFpix", "fpix Gains", 100, 0, 10);
 
-    TTree* tree = new TTree("tree", "tree");
+    TTree *tree = new TTree("tree", "tree");
     uint32_t detid;
     double gainmeanfortree, gainrmsfortree, pedmeanfortree, pedrmsfortree;
     tree->Branch("detid", &detid, "detid/I");
@@ -92,8 +160,8 @@ namespace cms {
       _TH1F_Gains_m[detid] = subDirGain.make<TH1F>(name, name, 100, 0., 10.);
 
       DetId detIdObject(detid);
-      const PixelGeomDetUnit* _PixelGeomDetUnit =
-          dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
+      const PixelGeomDetUnit *_PixelGeomDetUnit =
+          dynamic_cast<const PixelGeomDetUnit *>(tkgeom->idToDetUnit(DetId(detid)));
       if (_PixelGeomDetUnit == nullptr) {
         edm::LogError("SiPixelCondObjOfflineDisplay") << "[SiPixelCondObjOfflineReader::beginJob] the detID " << detid
                                                       << " doesn't seem to belong to Tracker" << std::endl;
@@ -105,9 +173,9 @@ namespace cms {
 
       nmodules++;
 
-      const GeomDetUnit* geoUnit = tkgeom->idToDetUnit(detIdObject);
-      const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
-      const PixelTopology& topol = pixDet->specificTopology();
+      const GeomDetUnit *geoUnit = tkgeom->idToDetUnit(detIdObject);
+      const PixelGeomDetUnit *pixDet = dynamic_cast<const PixelGeomDetUnit *>(geoUnit);
+      const PixelTopology &topol = pixDet->specificTopology();
 
       // Get the module sizes.
       int nrows = topol.nrows();     // rows in x

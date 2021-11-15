@@ -1,17 +1,49 @@
+// system includes
 #include <memory>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <limits>
-#include "SiPixelDynamicInefficiencyDB.h"
+#include <map>
+
+// user includes
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+class SiPixelDynamicInefficiencyDB : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiPixelDynamicInefficiencyDB(const edm::ParameterSet& conf);
+
+  ~SiPixelDynamicInefficiencyDB() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
+  edm::ParameterSet conf_;
+  std::string recordName_;
+
+  typedef std::vector<edm::ParameterSet> Parameters;
+  Parameters thePixelGeomFactors_;
+  Parameters theColGeomFactors_;
+  Parameters theChipGeomFactors_;
+  Parameters thePUEfficiency_;
+  double theInstLumiScaleFactor_;
+};
 
 using namespace std;
 using namespace edm;
