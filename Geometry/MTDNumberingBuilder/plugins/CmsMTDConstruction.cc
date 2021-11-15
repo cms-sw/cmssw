@@ -160,8 +160,7 @@ void CmsMTDConstruction<cms::DDFilteredView>::buildETLModule(cms::DDFilteredView
   for (uint i = 0; i < fv.copyNos().size(); i++) {
     std::string_view name((fv.geoHistory()[i])->GetName());
     size_t ipos = name.rfind('_');
-    baseNumber_.addLevel((static_cast<std::string_view>((fv.geoHistory()[i])->GetName())).substr(0, ipos),
-                         fv.copyNos()[i]);
+    baseNumber_.addLevel(name.substr(0, ipos), fv.copyNos()[i]);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("CmsMTDConstruction") << name.substr(0, ipos) << " " << fv.copyNos()[i];
 #endif
