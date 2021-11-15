@@ -95,7 +95,7 @@ PythiaFilterIsolatedTrack::PythiaFilterIsolatedTrack(const edm::ParameterSet &iC
       nAll_(0),
       nGood_(0),
       ecDist_(317.0),
-      ecRad_(129.0), 
+      ecRad_(129.0),
       pdt_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()) {
   edm::LogVerbatim("PythiaFilter") << "PythiaFilterIsolatedTrack: Eta " << minSeedEta_ << ":" << maxSeedEta_ << " p > "
                                    << minSeedMom_ << " Isolation Cone " << isolCone_ << " with p > " << minIsolTrackMom_
@@ -107,8 +107,8 @@ PythiaFilterIsolatedTrack::~PythiaFilterIsolatedTrack() {}
 // ------------ method called to produce the data  ------------
 bool PythiaFilterIsolatedTrack::filter(edm::Event &iEvent, edm::EventSetup const &iSetup) {
   ++nAll_;
-  
-  auto const& pdt = iSetup.getData(pdt_);
+
+  auto const &pdt = iSetup.getData(pdt_);
 
   edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(token_, evt);
