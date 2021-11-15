@@ -229,11 +229,11 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
       continue;
     }
 
-    // SM particles that descend from exotics and cross the beam pipe radius should make hits but not be decayed 
-    if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_ &&
-	endVertex && endVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_) {
+    // SM particles that descend from exotics and cross the beam pipe radius should make hits but not be decayed
+    if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_ && endVertex &&
+        endVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_) {
       exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
-    }    
+    }
 
     // make the particle
     std::unique_ptr<Particle> newParticle(
