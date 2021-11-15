@@ -27,7 +27,7 @@ private:
   std::unique_ptr<JetTagPlotter> jetTagPlotter_;
 
   const edm::EDGetTokenT<std::vector<pat::Jet> > jetToken_;
-  const edm::ParameterSet disrParameters_;
+  const edm::ParameterSet discrParameters_;
 
   const std::string folder_;
   const vstring discrNumerator_;
