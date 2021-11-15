@@ -529,7 +529,7 @@ namespace edm {
     std::vector<float> pedeStals(3);
 
     // get pedestals
-    const auto& pedHandle = ES.getHandle(pedToken_);
+    const auto &pedHandle = ES.getHandle(pedToken_);
 
     const EcalPedestalsMap &pedMap = pedHandle.product()->getMap();  // map of pedestals
     EcalPedestalsMapIterator pedIter;                                // pedestal iterator
@@ -554,7 +554,7 @@ namespace edm {
   const std::vector<float> DataMixingEMDigiWorker::GetGainRatios(const edm::EventSetup &ES, const DetId &detid) {
     std::vector<float> gainRatios(3);
     // get gain ratios
-    const auto& grHandle = ES.getHandle(grToken_);
+    const auto &grHandle = ES.getHandle(grToken_);
     EcalMGPAGainRatio theRatio = (*grHandle)[detid];
 
     gainRatios[0] = 1.;
