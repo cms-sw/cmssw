@@ -17,10 +17,9 @@
 #include <iomanip>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -36,15 +35,16 @@
 // class decleration
 //
 
-class testEcalRingCalibrationTools : public edm::EDAnalyzer {
+class testEcalRingCalibrationTools : public edm::one::EDAnalyzer<> {
 public:
   explicit testEcalRingCalibrationTools(const edm::ParameterSet&);
-  ~testEcalRingCalibrationTools();
+  ~testEcalRingCalibrationTools() override = default;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   void build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name);
   int pass_;
   //  bool fullEcalDump_;
@@ -61,15 +61,10 @@ private:
 //
 // constructors and destructor
 //
-testEcalRingCalibrationTools::testEcalRingCalibrationTools(const edm::ParameterSet& iConfig) {
+testEcalRingCalibrationTools::testEcalRingCalibrationTools(const edm::ParameterSet& iConfig)
+    : geometryToken_(esConsumes()), pass_(0) {
   //now do what ever initialization is needed
-  pass_ = 0;
   //  fullEcalDump_=iConfig.getUntrackedParameter<bool>("fullEcalDump",false);
-}
-
-testEcalRingCalibrationTools::~testEcalRingCalibrationTools() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 void testEcalRingCalibrationTools::build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name) {
@@ -159,18 +154,15 @@ void testEcalRingCalibrationTools::build(const CaloGeometry& cg, DetId::Detector
 
 // ------------ method called to produce the data  ------------
 void testEcalRingCalibrationTools::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-
   std::cout << "Here I am " << std::endl;
 
   // get the ecal & hcal geometry
   //
   if (pass_ == 1) {
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    EcalRingCalibrationTools::setCaloGeometry(&(*pG));
-    build(*pG, DetId::Ecal, EcalBarrel, "eb.ringDump");
-    build(*pG, DetId::Ecal, EcalEndcap, "ee.ringDump");
+    const auto& geom = iSetup.getData(geometryToken_);
+    EcalRingCalibrationTools::setCaloGeometry(&geom);
+    build(geom, DetId::Ecal, EcalBarrel, "eb.ringDump");
+    build(geom, DetId::Ecal, EcalEndcap, "ee.ringDump");
   }
 
   pass_++;
