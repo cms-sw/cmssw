@@ -1,5 +1,4 @@
 #include "GeneratorInterface/GenFilters/plugins/PythiaFilterIsolatedTrack.h"
-//#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CLHEP/Random/RandomEngine.h"
