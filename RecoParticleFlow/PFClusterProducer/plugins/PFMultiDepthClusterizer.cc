@@ -176,7 +176,7 @@ std::vector<PFMultiDepthClusterizer::ClusterLink> PFMultiDepthClusterizer::link(
       const reco::PFCluster& cluster2 = clusters[j];
 
       // PFCluster depth stored as double but HCAL layer clusters have integral depths only
-      auto dz = ((int)cluster2.depth() - (int)cluster1.depth());
+      auto dz = (static_cast<int>(cluster2.depth()) - static_cast<int>(cluster1.depth()));
 
       //Do not link at the same layer and only link inside out!
       if (dz <= 0)
