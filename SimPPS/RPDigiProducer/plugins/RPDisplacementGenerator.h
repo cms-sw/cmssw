@@ -33,11 +33,12 @@ public:
   using RotationMatrix = ROOT::Math::Rotation3D;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
-  RPDisplacementGenerator(const edm::ParameterSet &, 
-			  RPDetId, 
-			  const edm::EventSetup &, 
-			  const edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> &tokenAlign,
-			  const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> &tokenGeom);
+  RPDisplacementGenerator(
+      const edm::ParameterSet &,
+      RPDetId,
+      const edm::EventSetup &,
+      const edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> &tokenAlign,
+      const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> &tokenGeom);
 
   /// returns displaced PSimHit
   PSimHit displace(const PSimHit &);

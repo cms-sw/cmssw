@@ -6,13 +6,14 @@
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-RPDetDigitizer::RPDetDigitizer(const edm::ParameterSet &params,
-                               CLHEP::HepRandomEngine &eng,
-                               RPDetId det_id,
-                               const edm::EventSetup &iSetup,
-			       const edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> &tokenAlign,
-			       const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> &tokenGeom)
-  : det_id_(det_id) {
+RPDetDigitizer::RPDetDigitizer(
+    const edm::ParameterSet &params,
+    CLHEP::HepRandomEngine &eng,
+    RPDetId det_id,
+    const edm::EventSetup &iSetup,
+    const edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> &tokenAlign,
+    const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> &tokenGeom)
+    : det_id_(det_id) {
   verbosity_ = params.getParameter<int>("RPVerbosity");
   numStrips_ = RPTopology().DetStripNo();
   theNoiseInElectrons = params.getParameter<double>("RPEquivalentNoiseCharge300um");
@@ -26,7 +27,8 @@ RPDetDigitizer::RPDetDigitizer(const edm::ParameterSet &params,
   theRPPileUpSignals = std::make_unique<RPPileUpSignals>(params, det_id_);
   theRPVFATSimulator = std::make_unique<RPVFATSimulator>(params, det_id_);
   theRPHitChargeConverter = std::make_unique<RPHitChargeConverter>(params, eng, det_id_);
-  theRPDisplacementGenerator = std::make_unique<RPDisplacementGenerator>(params, det_id_, iSetup, tokenAlign, tokenGeom);
+  theRPDisplacementGenerator =
+      std::make_unique<RPDisplacementGenerator>(params, det_id_, iSetup, tokenAlign, tokenGeom);
 }
 
 void RPDetDigitizer::run(const std::vector<PSimHit> &input,

@@ -12,16 +12,18 @@
 using namespace std;
 using namespace edm;
 
-RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps,
-                                                 RPDetId _detId,
-                                                 const edm::EventSetup &iSetup,
-						 const edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> &tokenAlign,
-						 const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> &tokenGeom)
-  : detId_(_detId) {
+RPDisplacementGenerator::RPDisplacementGenerator(
+    const edm::ParameterSet &ps,
+    RPDetId _detId,
+    const edm::EventSetup &iSetup,
+    const edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> &tokenAlign,
+    const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> &tokenGeom)
+    : detId_(_detId) {
   isOn_ = ps.getParameter<bool>("RPDisplacementOn");
 
   // read the alignment correction
-  const auto alignments = (iSetup.tryToGet<VeryForwardMisalignedGeometryRecord>()) ? iSetup.getHandle(tokenAlign) : nullptr;
+  const auto alignments =
+      (iSetup.tryToGet<VeryForwardMisalignedGeometryRecord>()) ? iSetup.getHandle(tokenAlign) : nullptr;
 
   unsigned int decId = rawToDecId(detId_);
 
@@ -36,7 +38,7 @@ RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps,
     isOn_ = false;
 
   // transform shift and rotation to the local coordinate frame
-  const auto& geom = iSetup.getHandle(tokenGeom);
+  const auto &geom = iSetup.getHandle(tokenGeom);
   const DetGeomDesc *g = geom->sensor(detId_);
   const RotationMatrix &R_l = g->rotation();
   rotation_ = R_l.Inverse() * R_m.Inverse() * R_l;

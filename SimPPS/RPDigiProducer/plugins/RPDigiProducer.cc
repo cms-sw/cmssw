@@ -92,7 +92,6 @@ private:
   edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> tokenAnalysisMask;
   edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> tokenAlign_;
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> tokenGeom_;
-
 };
 
 RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
@@ -183,7 +182,8 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     edm::DetSet<TotemRPDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
-      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup, tokenAlign_, tokenGeom_);
+      theAlgoMap[it->first] =
+          std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup, tokenAlign_, tokenGeom_);
     }
 
     std::vector<int> input_links;
