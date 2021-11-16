@@ -145,7 +145,7 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
   minVtxNdf_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexNdf");
   minVtxWgt_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexMeanWeight");
   useLockRecords_ = ps.getUntrackedParameter<bool>("useLockRecords");
-  nLS_for_upload_ = ps.getUntrackedParameter<int>("nLSForUpload",5);
+  nLS_for_upload_ = ps.getUntrackedParameter<int>("nLSForUpload", 5);
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
 
@@ -809,7 +809,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, const Event
   tmpTime = refBStime[1] = refPVtime[1] = fendtime;
 
   // end DB logger
-  if (onlineDbService_.isAvailable() && (nAnalyzedLS_<nLS_for_upload_ ||  nAnalyzedLS_%nLS_for_upload_ == 0)) {
+  if (onlineDbService_.isAvailable() && (nAnalyzedLS_ < nLS_for_upload_ || nAnalyzedLS_ % nLS_for_upload_ == 0)) {
     onlineDbService_->logger().logInfo() << "BeamMonitor::endLuminosityBlock";
     onlineDbService_->logger().end(DBloggerReturn_);
   }
