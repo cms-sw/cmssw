@@ -104,10 +104,13 @@ namespace {
 FWRecoGeometryESProducer::FWRecoGeometryESProducer(const edm::ParameterSet& pset) : m_current(-1) {
   m_tracker = pset.getUntrackedParameter<bool>("Tracker", true);
   m_muon = pset.getUntrackedParameter<bool>("Muon", true);
-  m_gem = pset.getUntrackedParameter<bool>("GEM", true);
+  m_gem = pset.getUntrackedParameter<bool>("GEM", false);
   m_calo = pset.getUntrackedParameter<bool>("Calo", true);
   m_timing = pset.getUntrackedParameter<bool>("Timing", false);
   auto cc = setWhatProduced(this);
+
+  if (m_muon)
+    m_gem = true;
   if (m_tracker or m_muon or m_gem) {
     m_trackingGeomToken = cc.consumes();
   }
