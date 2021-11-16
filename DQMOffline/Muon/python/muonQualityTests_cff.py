@@ -31,18 +31,20 @@ cosmicMuonQualityTests = cms.Sequence(ClientTrackEfficiencyTkTracks*
 
 muonQualityTests = cms.Sequence(muonSourcesQualityTests*
                                 muTrackResidualsTest*
-                                effPlotterLoose*
-                                effPlotterMedium*
-                                effPlotterTight*
+                                effPlotter*
+                                #effPlotterLoose*
+                                #effPlotterMedium*
+                                #effPlotterTight*
                                 muRecoTest*
                                 muonClientsQualityTests*
                                 muonTestSummary)
 
 muonQualityTests_miniAOD = cms.Sequence(muonSourcesQualityTests*
                                         muTrackResidualsTest*
-                                        effPlotterLooseMiniAOD*
-                                        effPlotterMediumMiniAOD*
-                                        effPlotterTightMiniAOD*
+                                        effPlotter_miniAOD*
+                                        #effPlotterLooseMiniAOD*
+                                        #effPlotterMediumMiniAOD*
+                                        #effPlotterTightMiniAOD*
                                         muRecoTest*
                                         muonClientsQualityTests*
                                         muonTestSummary*
@@ -50,10 +52,3 @@ muonQualityTests_miniAOD = cms.Sequence(muonSourcesQualityTests*
 
 
 
-muonQualityTests_Phase2 = cms.Sequence(effPlotterLoose_Phase2*                                                                              
-                                       effPlotterMedium_Phase2*                                                                             
-                                       effPlotterTight_Phase2) 
-
-
-from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon                                                                        
-phase2_muon.toReplaceWith(muonQualityTests, muonQualityTests_Phase2)
