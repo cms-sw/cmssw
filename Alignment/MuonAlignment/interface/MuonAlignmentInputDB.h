@@ -41,10 +41,10 @@ public:
                        const Alignments* dtAlignments,
                        const Alignments* cscAlignments,
                        const Alignments* gemAlignments,
-                       const Alignments* globalPositionRcd,
                        const AlignmentErrorsExtended* dtAlignmentErrorsExtended,
                        const AlignmentErrorsExtended* cscAlignmentErrorsExtended,
-                       const AlignmentErrorsExtended* gemAlignmentErrorsExtended);
+                       const AlignmentErrorsExtended* gemAlignmentErrorsExtended,
+                       const Alignments* globalPositionRcd);
   ~MuonAlignmentInputDB() override;
 
   // ---------- const member functions ---------------------
@@ -67,10 +67,10 @@ private:
   const Alignments* dtAlignments_;
   const Alignments* cscAlignments_;
   const Alignments* gemAlignments_;
-  const Alignments* globalPositionRcd_;
   const AlignmentErrorsExtended* dtAlignmentErrorsExtended_;
   const AlignmentErrorsExtended* cscAlignmentErrorsExtended_;
   const AlignmentErrorsExtended* gemAlignmentErrorsExtended_;
+  const Alignments* globalPositionRcd_;
 
   const bool m_getAPEs;
 };
