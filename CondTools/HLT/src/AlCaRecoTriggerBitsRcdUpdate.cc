@@ -16,7 +16,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -28,12 +28,14 @@
 // Rcd for reading old one:
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 
-class AlCaRecoTriggerBitsRcdUpdate : public edm::EDAnalyzer {
+class AlCaRecoTriggerBitsRcdUpdate : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit AlCaRecoTriggerBitsRcdUpdate(const edm::ParameterSet &cfg);
   ~AlCaRecoTriggerBitsRcdUpdate() override {}
 
   void analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) override;
+  void beginRun(const edm::Run &run, const edm::EventSetup &evtSetup) override {}
+  void endRun(edm::Run const &, edm::EventSetup const &) override {}
 
 private:
   typedef std::map<std::string, std::string> TriggerMap;
