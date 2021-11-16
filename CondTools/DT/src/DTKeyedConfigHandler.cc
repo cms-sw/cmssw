@@ -506,7 +506,6 @@ void DTKeyedConfigHandler::chkConfigList() {
   brickConfigQuery->addToOutputList("BRKID");
   brickConfigQuery->addToOutputList("BRKNAME");
   coral::ICursor& brickConfigCursor = brickConfigQuery->execute();
-  DTKeyedConfig* brickData = nullptr;
   std::vector<int> missingList;
   while (brickConfigCursor.next()) {
     const coral::AttributeList& row = brickConfigCursor.currentRow();
@@ -554,15 +553,15 @@ void DTKeyedConfigHandler::chkConfigList() {
     brickDataQuery->addToOutputList("CONFIGCMDS.CONFDATA");
     brickDataQuery->setCondition(brickCondition, bindVariableList);
     coral::ICursor& brickDataCursor = brickDataQuery->execute();
-    brickData = new DTKeyedConfig();
-    brickData->setId(brickConfigId);
+    DTKeyedConfig brickData;
+    brickData.setId(brickConfigId);
     while (brickDataCursor.next()) {
       const coral::AttributeList& row = brickDataCursor.currentRow();
-      brickData->add(row["CONFIGCMDS.CONFDATA"].data<std::string>());
+      brickData.add(row["CONFIGCMDS.CONFDATA"].data<std::string>());
     }
-    cond::KeyedElement k(brickData, brickConfigId);
+    cond::KeyedElement k(&brickData, brickConfigId);
     std::cout << "now writing brick: " << brickConfigId << std::endl;
-    outdb->writeOne(k.m_obj, k.m_key, brickContainer);
+    outdb->writeOneIOV(*(k.m_obj), k.m_key, brickContainer);
   }
 
   return;
