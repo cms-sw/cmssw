@@ -54,7 +54,6 @@ private:
   const std::string m_record;
   const unsigned int m_minNrecords;
   const std::vector<edm::ParameterSet> m_parameters;
-  AlignPCLThresholds* myThresholds;
 };
 
 //
@@ -63,12 +62,9 @@ private:
 AlignPCLThresholdsWriter::AlignPCLThresholdsWriter(const edm::ParameterSet& iConfig)
     : m_record(iConfig.getParameter<std::string>("record")),
       m_minNrecords(iConfig.getParameter<unsigned int>("minNRecords")),
-      m_parameters(iConfig.getParameter<std::vector<edm::ParameterSet> >("thresholds")) {
-  //now do what ever initialization is needed
-  myThresholds = new AlignPCLThresholds();
-}
+      m_parameters(iConfig.getParameter<std::vector<edm::ParameterSet> >("thresholds")) {}
 
-AlignPCLThresholdsWriter::~AlignPCLThresholdsWriter() { delete myThresholds; }
+AlignPCLThresholdsWriter::~AlignPCLThresholdsWriter() = default;
 
 //
 // member functions
@@ -78,7 +74,9 @@ AlignPCLThresholdsWriter::~AlignPCLThresholdsWriter() { delete myThresholds; }
 void AlignPCLThresholdsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::LogInfo("AlignPCLThresholdsWriter") << "Size of AlignPCLThresholds object " << myThresholds->size() << std::endl
+  AlignPCLThresholds myThresholds{};
+
+  edm::LogInfo("AlignPCLThresholdsWriter") << "Size of AlignPCLThresholds object " << myThresholds.size() << std::endl
                                            << std::endl;
 
   // loop on the PSet and insert the conditions
@@ -149,14 +147,14 @@ void AlignPCLThresholdsWriter::analyze(const edm::Event& iEvent, const edm::Even
         }
 
         AlignPCLThreshold a(my_X, my_tX, my_Y, my_tY, my_Z, my_tZ, extraDOFs);
-        myThresholds->setAlignPCLThreshold(alignableId, a);
+        myThresholds.setAlignPCLThreshold(alignableId, a);
 
       }  // if alignable is found in the PSet
     }    // loop on the PSets
 
     // checks if all mandatories are present
     edm::LogInfo("AlignPCLThresholdsWriter")
-        << "Size of AlignPCLThresholds object  " << myThresholds->size() << std::endl;
+        << "Size of AlignPCLThresholds object  " << myThresholds.size() << std::endl;
     for (auto& mandatory : mandatories) {
       if (std::find(presentDOF.begin(), presentDOF.end(), mandatory) == presentDOF.end()) {
         edm::LogWarning("AlignPCLThresholdsWriter")
@@ -168,18 +166,18 @@ void AlignPCLThresholdsWriter::analyze(const edm::Event& iEvent, const edm::Even
   }  // ends loop on the alignable units
 
   // set the minimum number of records to be used in pede
-  myThresholds->setNRecords(m_minNrecords);
+  myThresholds.setNRecords(m_minNrecords);
   edm::LogInfo("AlignPCLThresholdsWriter") << "Content of AlignPCLThresholds " << std::endl;
 
   // use buil-in method in the CondFormat
-  myThresholds->printAll();
+  myThresholds.printAll();
 
   // Form the data here
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
     cond::Time_t valid_time = poolDbService->currentTime();
     // this writes the payload to begin in current run defined in cfg
-    poolDbService->writeOneIOV(*myThresholds, valid_time, m_record);
+    poolDbService->writeOneIOV(myThresholds, valid_time, m_record);
   }
 }
 
