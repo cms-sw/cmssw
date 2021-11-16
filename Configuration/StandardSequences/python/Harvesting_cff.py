@@ -9,6 +9,7 @@ from HLTriggerOffline.Common.HLTValidationHarvest_cff import *
 from Validation.RecoHI.HarvestingHI_cff import *
 from Validation.RecoJets.JetPostProcessor_cff import *
 from Validation.RecoMET.METPostProcessor_cff import *
+from DQMOffline.RecoB.bTagMiniDQM_cff import *
 
 
 dqmHarvesting = cms.Path(DQMOffline_SecondStep*DQMOffline_Certification)
@@ -66,5 +67,5 @@ genHarvesting = cms.Path(postValidation_gen)
 alcaHarvesting = cms.Path()
 #alcaHarvesting = cms.Sequence()
 
-validationHarvestingMiniAOD = cms.Path(JetPostProcessor*METPostProcessorHarvesting*postValidationMiniAOD)
+validationHarvestingMiniAOD = cms.Path(JetPostProcessor*METPostProcessorHarvesting*bTagMiniValidationHarvesting*postValidationMiniAOD)
 #validationHarvestingMiniAOD = cms.Sequence(JetPostProcessor*METPostProcessorHarvesting*postValidationMiniAOD)
