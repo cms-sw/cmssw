@@ -12,7 +12,7 @@ inline int maxCoopBlocks(F kernel, int nthreads, int shmem, int device, int redF
 
 // to drive performance assessment by envvar
 #ifdef GET_COOP_RED_FACT_FROM_ENV
-  auto env = getenv("COOP_RED_FACT");
+  auto env = std::getenv("COOP_RED_FACT");
   int redFactFromEnv = env ? atoi(env) : 0;
   if (redFactFromEnv != 0)
     redFact = redFactFromEnv;
