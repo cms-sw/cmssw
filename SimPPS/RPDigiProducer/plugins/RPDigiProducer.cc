@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -30,6 +31,10 @@
 #include "SimPPS/RPDigiProducer/interface/RPSimTypes.h"
 #include "SimPPS/RPDigiProducer/plugins/RPDetDigitizer.h"
 #include "SimPPS/RPDigiProducer/plugins/DeadChannelsManager.h"
+#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 
 // system include files
 #include <memory>
@@ -85,6 +90,9 @@ private:
 
   edm::EDGetTokenT<CrossingFrame<PSimHit>> tokenCrossingFrameTotemRP;
   edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> tokenAnalysisMask;
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> tokenAlign_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> tokenGeom_;
+
 };
 
 RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
@@ -92,7 +100,8 @@ RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
   produces<edm::DetSetVector<TotemRPDigi>>();
 
   // register data to consume
-  tokenCrossingFrameTotemRP = consumes<CrossingFrame<PSimHit>>(edm::InputTag("mix", "g4SimHitsTotemHitsRP", ""));
+  edm::ConsumesCollector&& iC = consumesCollector();
+  tokenCrossingFrameTotemRP = iC.consumes<CrossingFrame<PSimHit>>(edm::InputTag("mix", "g4SimHitsTotemHitsRP", ""));
 
   RP_hit_containers_ = conf.getParameter<std::vector<std::string>>("ROUList");
   verbosity_ = conf.getParameter<int>("RPVerbosity");
@@ -103,8 +112,10 @@ RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
     simulateDeadChannels = conf.getParameter<bool>("simulateDeadChannels");
   }
   if (simulateDeadChannels) {
-    tokenAnalysisMask = esConsumes();
+    tokenAnalysisMask = iC.esConsumes();
   }
+  tokenAlign_ = iC.esConsumes();
+  tokenGeom_ = iC.esConsumes();
 }
 
 //
@@ -172,7 +183,7 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     edm::DetSet<TotemRPDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
-      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup);
+      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup, tokenAlign_, tokenGeom_);
     }
 
     std::vector<int> input_links;

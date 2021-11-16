@@ -62,7 +62,6 @@
 #include <cstdlib>  // I need it for random numbers
 //needed for the geometry:
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 

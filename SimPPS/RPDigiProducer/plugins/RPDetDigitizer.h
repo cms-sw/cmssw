@@ -14,6 +14,11 @@
 #include "SimPPS/RPDigiProducer/plugins/RPGaussianTailNoiseAdder.h"
 #include "SimPPS/RPDigiProducer/plugins/RPPileUpSignals.h"
 
+#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
+
 #include <vector>
 #include <string>
 
@@ -26,7 +31,9 @@ public:
   RPDetDigitizer(const edm::ParameterSet &params,
                  CLHEP::HepRandomEngine &eng,
                  RPDetId det_id,
-                 const edm::EventSetup &iSetup);
+                 const edm::EventSetup &iSetup,
+		 const edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> &tokenAlign,
+		 const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> &tokenGeom);
   void run(const std::vector<PSimHit> &input,
            const std::vector<int> &input_links,
            std::vector<TotemRPDigi> &output_digi,
