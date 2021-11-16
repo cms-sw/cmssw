@@ -52,17 +52,17 @@ postProcessorHGCALsimclusters = DQMEDHarvester('DQMGenericClient',
 eff_tracksters = []
 simDict = {"CaloParticle":"_Link", "SimTrackster":"_PR"}
 metrics = {"purity":["Purity","_"], "effic":["Efficiency","Eff_"], "fake":["Fake Rate","_"], "duplicate":["Duplicate(Split)","Dup_"], "merge":["Merge Rate","Merge_"]}
-variables = {"eta":"#eta", "phi":"#phi", "energy":"energy", "pt":"p_{T}"}
+variables = {"eta":["#eta",""], "phi":["#phi",""], "energy":["energy"," [GeV]"], "pt":["p_{T}"," [GeV]"]}
 for elem in simDict:
     for m in list(metrics.keys())[:2]:
         for v in variables:
             V = v.capitalize()
-            eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v]+"' Num"+metrics[m][1]+elem+"_"+V+" Denom_"+elem+"_"+V])
+            eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v][0]+"' Num"+metrics[m][1]+elem+"_"+V+" Denom_"+elem+"_"+V])
     for m in list(metrics.keys())[2:]:
         fakerate = " fake" if (m == "fake") else ""
         for v in variables:
             V = v.capitalize()
-            eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v]+"' Num"+metrics[m][1]+"Trackster_"+V+simDict[elem]+" Denom_Trackster_"+V+simDict[elem]+fakerate])
+            eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v][0]+"' Num"+metrics[m][1]+"Trackster_"+V+simDict[elem]+" Denom_Trackster_"+V+simDict[elem]+fakerate])
 
 tsToCP_linking = hgcalValidator.label_TSToCPLinking._InputTag__moduleLabel
 subdirsTracksters = [prefix+'ticlSimTracksters/'+tsToCP_linking, prefix+'ticlSimTracksters_fromCPs/'+tsToCP_linking]

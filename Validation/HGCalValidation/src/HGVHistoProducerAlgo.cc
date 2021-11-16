@@ -1101,7 +1101,7 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook, Hist
   const string val[] = {"_Link", "_PR"};
 
   histograms.h_score_trackster2caloparticle[i].push_back(
-      ibook.book1D("Score_trackster2" + ref[i], "Score of Trackster per " + refT[i], nintScore_, minScore_, maxScore_));
+      ibook.book1D("Score_trackster2" + ref[i], "Score of Trackster per best " + refT[i], nintScore_, minScore_, maxScore_));
   histograms.h_scoreMerge_trackster2caloparticle[i].push_back(
       ibook.book1D("ScoreMerge_trackster2" + ref[i], "Score of merged Trackster per " + refT[i], nintScore_, minScore_, maxScore_));
   histograms.h_score_caloparticle2trackster[i].push_back(ibook.book1D(
@@ -1112,7 +1112,7 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook, Hist
       "ScoreDupl_" + ref[i] + "2trackster", "Score of " + refT[i] + " per first duplicate Trackster", nintScore_, minScore_, maxScore_));
   histograms.h_energy_vs_score_trackster2caloparticle[i].push_back(
       ibook.book2D("Energy_vs_Score_trackster2" + ref[i],
-                   "Energy vs Score of Trackster per " + refT[i],
+                   "Energy vs Score of Trackster per best " + refT[i],
                    nintScore_,
                    minScore_,
                    maxScore_,
@@ -1161,12 +1161,12 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook, Hist
 
   histograms.h_sharedenergy_trackster2caloparticle[i].push_back(
       ibook.book1D("SharedEnergy_trackster2" + ref[i],
-                   "Shared Energy of Trackster per " + refT[i] + " in each layer",
+                   "Shared Energy of Trackster per best " + refT[i] + " in each layer",
                    nintSharedEneFrac_,
                    minTSTSharedEneFrac_,
                    maxTSTSharedEneFrac_));
   histograms.h_sharedenergy_trackster2caloparticle_vs_eta[i].push_back(
-      ibook.bookProfile("SharedEnergy_trackster2" + ref[i] + "_vs_eta",
+      ibook.bookProfile("SharedEnergy_trackster2" + ref[i] + "_assoc_vs_eta",
                         "Shared Energy of Trackster vs #eta per best " + refT[i] + " in each layer",
                         nintEta_,
                         minEta_,
@@ -1174,7 +1174,7 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook, Hist
                         minTSTSharedEneFrac_,
                         maxTSTSharedEneFrac_));
   histograms.h_sharedenergy_trackster2caloparticle_vs_phi[i].push_back(
-      ibook.bookProfile("SharedEnergy_trackster2" + ref[i] + "_vs_phi",
+      ibook.bookProfile("SharedEnergy_trackster2" + ref[i] + "_assoc_vs_phi",
                         "Shared Energy of Trackster vs #phi per best " + refT[i] + " in each layer",
                         nintPhi_,
                         minPhi_,
@@ -1190,20 +1190,20 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook, Hist
                    maxTSTSharedEneFrac_));
   histograms.h_sharedenergy_caloparticle2trackster_assoc[i].push_back(
       ibook.book1D("SharedEnergy_" + ref[i] + "2trackster_assoc",
-                   "Shared Energy of Associated " + refT[i] + " per Trackster",
+                   "Shared Energy of " + refT[i] + " per best Trackster",
                    nintSharedEneFrac_,
                    minTSTSharedEneFrac_,
                    maxTSTSharedEneFrac_));
-  histograms.h_sharedenergy_caloparticle2trackster_vs_eta[i].push_back(
-      ibook.bookProfile("SharedEnergy_" + ref[i] + "2trackster_vs_eta",
+  histograms.h_sharedenergy_caloparticle2trackster_assoc_vs_eta[i].push_back(
+      ibook.bookProfile("SharedEnergy_" + ref[i] + "2trackster_assoc_vs_eta",
                         "Shared Energy of " + refT[i] + " vs #eta per best Trackster",
                         nintEta_,
                         minEta_,
                         maxEta_,
                         minTSTSharedEneFrac_,
                         maxTSTSharedEneFrac_));
-  histograms.h_sharedenergy_caloparticle2trackster_vs_phi[i].push_back(
-      ibook.bookProfile("SharedEnergy_" + ref[i] + "2trackster_vs_phi",
+  histograms.h_sharedenergy_caloparticle2trackster_assoc_vs_phi[i].push_back(
+      ibook.bookProfile("SharedEnergy_" + ref[i] + "2trackster_assoc_vs_phi",
                         "Shared Energy of " + refT[i] + " vs #phi per best Trackster",
                         nintPhi_,
                         minPhi_,
@@ -3043,9 +3043,9 @@ else return false;
       const auto tstRawEnergyFrac = tracksters[bestTstId].raw_energy() / SimEnergy;
       const auto tstSharedEnergyFrac = tstSharedEnergy[iSTS][bestTstId] / SimEnergy;
 
-      histograms.h_sharedenergy_caloparticle2trackster_vs_eta[i][count]->Fill(
+      histograms.h_sharedenergy_caloparticle2trackster_assoc_vs_eta[i][count]->Fill(
           sts_eta, tstRawEnergyFrac);
-      histograms.h_sharedenergy_caloparticle2trackster_vs_phi[i][count]->Fill(
+      histograms.h_sharedenergy_caloparticle2trackster_assoc_vs_phi[i][count]->Fill(
           sts_phi, tstRawEnergyFrac);
       histograms.h_sharedenergy_caloparticle2trackster_assoc[i][count]->Fill(tstSharedEnergyFrac);
       LogDebug("HGCalValidator") << count << " " << sts_eta << " "

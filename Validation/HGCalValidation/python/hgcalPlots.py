@@ -1559,87 +1559,46 @@ _merges_sc_zplus = PlotGroup("Eff_Dup_Fake_Merge_Global_zplus", _mergeplots_sc_z
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 
 #--------------------------------------------------------------------------------------------
-# MULTICLUSTERS
+# TRACKSTERS
 #--------------------------------------------------------------------------------------------
-_common_score = {#"title": "Score CaloParticle/SimTrackster to Tracksters",
-                 "stat": False,
-                 "ymin": 0.1,
-                 "ymax": 100000,
-                 "xmin": 0,
-                 "xmax": 1.0,
-                 "drawStyle": "hist",
-                 "lineWidth": 1,
-                 "ylog": True
+_common_score = {"stat": False, "legend": False
+                 ,"ymin": 0.1
+                 ,"ymax": 100000
+                 ,"xmin": 0
+                 ,"xmax": 1.0
+                 ,"drawStyle": "hist"
+                 ,"lineWidth": 1
+                 ,"ylog": True
+                 ,"xlog": True
                 }
 _common_score.update(_legend_common)
-_score_caloparticle_to_tracksters = PlotGroup("ScoreCaloParticlesToTracksters", [
-        Plot("Score_caloparticle2trackster", **_common_score)
-        ], ncols=1)
-_score_simtrackster_to_tracksters = PlotGroup("ScoreSimTrackstersToTracksters", [
-        Plot("Score_simtrackster2trackster", **_common_score)
-        ], ncols=1)
-_score_trackster_to_caloparticles = PlotGroup("ScoreTrackstersToCaloParticles", [
-        Plot("Score_trackster2caloparticle", **_common_score)
-        ], ncols=1)
-_score_trackster_to_simtracksters = PlotGroup("ScoreTrackstersToSimTracksters", [
-        Plot("Score_trackster2simtrackster", **_common_score)
-        ], ncols=1)
 
-_common_shared_Link= {"title": "Shared Energy CaloParticle To Trackster ",
-                 "stat": False,
-                 "legend": True,
-                 "xmin": 0,
-                 "xmax": 1.0,
-               }
-_common_shared_Link.update(_legend_common)
-_shared_plots = [ Plot("SharedEnergy_caloparticle2trackster", **_common_shared_Link) ]
-_common_shared_Link["xmin"] = -4.0
-_common_shared_Link["xmax"] = 4.0
-_shared_plots.extend([Plot("SharedEnergy_caloparticle2trackster_vs_eta", xtitle="CaloParticle #eta", **_common_shared_Link)])
-_shared_plots.extend([Plot("SharedEnergy_caloparticle2trackster_vs_phi", xtitle="CaloParticle #phi", **_common_shared_Link)])
-_sharedEnergy_caloparticle_to_trackster = PlotGroup("SharedEnergy_CaloParticleToTrackster", _shared_plots, ncols=3)
+score_to_trackster = ["","Pur","Dupl"]
+_score_caloparticle_to_tracksters = PlotGroup("ScoreCaloParticlesToTracksters", [], ncols=len(score_to_trackster))
+_score_simtrackster_to_tracksters = PlotGroup("ScoreSimTrackstersToTracksters", [], ncols=len(score_to_trackster))
+for score in score_to_trackster:
+    _score_caloparticle_to_tracksters.append(Plot("Score"+score+"_caloparticle2trackster", **_common_score))
+    _score_simtrackster_to_tracksters.append(Plot("Score"+score+"_simtrackster2trackster", **_common_score))
 
-_common_shared_Link= {"title": "Shared Energy Trackster To CaloParticle ",
-                 "stat": False,
-                 "legend": True,
-                 "xmin": 0,
-                 "xmax": 1.0,
-                }
-_common_shared_Link.update(_legend_common)
-_shared_plots2 = [Plot("SharedEnergy_trackster2caloparticle", **_common_shared_Link)]
-_common_shared_Link["xmin"] = -4.0
-_common_shared_Link["xmax"] = 4.0
-_shared_plots2.extend([Plot("SharedEnergy_trackster2caloparticle_vs_eta", xtitle="Trackster #eta", **_common_shared_Link)])
-_shared_plots2.extend([Plot("SharedEnergy_trackster2caloparticle_vs_phi", xtitle="Trackster #phi", **_common_shared_Link)])
-_sharedEnergy_trackster_to_caloparticle = PlotGroup("SharedEnergy_TracksterToCaloParticle", _shared_plots2, ncols=3)
+score_trackster_to = ["","Merge"]
+_score_trackster_to_caloparticles = PlotGroup("ScoreTrackstersToCaloParticles", [], ncols=len(score_trackster_to))
+_score_trackster_to_simtracksters = PlotGroup("ScoreTrackstersToSimTracksters", [], ncols=len(score_trackster_to))
+for score in score_trackster_to:
+    _score_trackster_to_caloparticles.append(Plot("Score"+score+"_trackster2caloparticle", **_common_score))
+    _score_trackster_to_simtracksters.append(Plot("Score"+score+"_trackster2simtrackster", **_common_score))
 
-_common_shared_PR= {"title": "Shared Energy SimTrackster To Trackster ",
-                 "stat": False,
-                 "legend": True,
-                 "xmin": 0,
-                 "xmax": 1.0,
-               }
-_common_shared_PR.update(_legend_common)
-_shared_plots = [ Plot("SharedEnergy_simtrackster2trackster", **_common_shared_PR) ]
-_common_shared_PR["xmin"] = -4.0
-_common_shared_PR["xmax"] = 4.0
-_shared_plots.extend([Plot("SharedEnergy_simtrackster2trackster_vs_eta", xtitle="SimTrackster #eta", **_common_shared_PR)])
-_shared_plots.extend([Plot("SharedEnergy_simtrackster2trackster_vs_phi", xtitle="SimTrackster #phi", **_common_shared_PR)])
-_sharedEnergy_simtrackster_to_trackster = PlotGroup("SharedEnergy_SimTracksterToTrackster", _shared_plots, ncols=3)
 
-_common_shared_PR= {"title": "Shared Energy Trackster To SimTrackster ",
-                 "stat": False,
-                 "legend": True,
-                 "xmin": 0,
-                 "xmax": 1.0,
-                }
-_common_shared_PR.update(_legend_common)
-_shared_plots2 = [Plot("SharedEnergy_trackster2simtrackster", **_common_shared_PR)]
-_common_shared_PR["xmin"] = -4.0
-_common_shared_PR["xmax"] = 4.0
-_shared_plots2.extend([Plot("SharedEnergy_trackster2simtrackster_vs_eta", xtitle="Trackster #eta", **_common_shared_PR)])
-_shared_plots2.extend([Plot("SharedEnergy_trackster2simtrackster_vs_phi", xtitle="Trackster #phi", **_common_shared_PR)])
-_sharedEnergy_trackster_to_simtrackster = PlotGroup("SharedEnergy_TracksterToSimTrackster", _shared_plots2, ncols=3)
+_common_shared = {"stat": False, "legend": False}
+_common_shared.update(_legend_common)
+_sharedEnergy_to_trackster = []
+_sharedEnergy_trackster_to = []
+versions = {"":"energy fraction", "_assoc":"energy fraction", "_assoc_vs_eta":"#eta", "_assoc_vs_phi":"#phi"}
+for val in simDict:
+    _sharedEnergy_to_trackster.append(PlotGroup("SharedEnergy_"+val+"ToTrackster", [], ncols=2))
+    _sharedEnergy_trackster_to.append(PlotGroup("SharedEnergy_TracksterTo"+val, [], ncols=2))
+    for ver in versions:
+        _sharedEnergy_to_trackster[-1].append(Plot("SharedEnergy_"+val.lower()+"2trackster"+ver, xtitle=val+" "+versions[ver], **_common_shared))
+        _sharedEnergy_trackster_to[-1].append(Plot("SharedEnergy_trackster2"+val.lower()+ver, xtitle="Trackster "+versions[ver], **_common_shared))
 
 
 _common_assoc = {#"title": "Cell Association Table",
@@ -1657,11 +1616,9 @@ _cell_association_table = PlotGroup("cellAssociation_table", [
         ], ncols=8 )
 
 # Trackster plots
-_common_eff = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
-_common_purity = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
-_common_dup = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
-_common_fake = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
-_common_merge = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
+_common_metric = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
+_common_metric_logx = _common_metric.copy()
+_common_metric_logx["xlog"] = True
 
 _efficiencies = []
 _purities = []
@@ -1669,18 +1626,19 @@ _duplicates = []
 _fakes = []
 _merges = []
 for val in simDict:
-    _effplots = [Plot("globalEfficiencies", xtitle="", **_common_eff)]
-    _purityplots = [Plot("globalEfficiencies", xtitle="", **_common_purity)]
-    _dupplots = [Plot("globalEfficiencies", xtitle="", **_common_dup)]
-    _fakeplots = [Plot("globalEfficiencies", xtitle="", **_common_fake)]
-    _mergeplots = [Plot("globalEfficiencies", xtitle="", **_common_merge)]
+    _effplots = [Plot("globalEfficiencies", xtitle="", **_common_metric)]
+    _purityplots = [Plot("globalEfficiencies", xtitle="", **_common_metric)]
+    _dupplots = [Plot("globalEfficiencies", xtitle="", **_common_metric)]
+    _fakeplots = [Plot("globalEfficiencies", xtitle="", **_common_metric)]
+    _mergeplots = [Plot("globalEfficiencies", xtitle="", **_common_metric)]
 
     for v in variables:
-        _effplots.extend([Plot("effic_"+v+simDict[val], xtitle="", **_common_eff)])
-        _purityplots.extend([Plot("purity_"+v+simDict[val], xtitle="", **_common_purity)])
-        _dupplots.extend([Plot("duplicate_"+v+simDict[val], xtitle="", **_common_dup)])
-        _fakeplots.extend([Plot("fake_"+v+simDict[val], xtitle="", **_common_fake)])
-        _mergeplots.extend([Plot("merge_"+v+simDict[val], xtitle="", **_common_merge)])
+        kwargs = _common_metric_logx if v in ["energy","pt"] else _common_metric
+        _effplots.extend([Plot("effic_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _purityplots.extend([Plot("purity_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _dupplots.extend([Plot("duplicate_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _fakeplots.extend([Plot("fake_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _mergeplots.extend([Plot("merge_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
 
     _efficiencies.append(PlotGroup("Efficiencies"+simDict[val], _effplots, ncols=3))
     _purities.append(PlotGroup("Purities"+simDict[val], _purityplots, ncols=3))
@@ -1716,7 +1674,6 @@ _clusternum_in_trackster = PlotGroup("NumberofLayerClustersinTrackster",[
   Plot("clusternum_in_trackster", xtitle="", **_common)
 ],ncols=1)
 
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
 _common = {"stat": True, "drawStyle": "pcolz", "staty": 0.65}
 
 _clusternum_in_trackster_vs_layer = PlotGroup("NumberofLayerClustersinTracksterPerLayer",[
@@ -1770,10 +1727,10 @@ _clusternum_in_trackster_perlayer_zplus_BH = PlotGroup("NumberofLayerClustersinT
   Plot("clusternum_in_trackster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
-#Coming back to the usual box definition
+# Coming back to the usual box definition
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 
-#Some tracksters quantities
+# Some tracksters quantities
 _trackster_eppe_plots = [Plot("trackster_eta", xtitle="Trackster #eta", **_common)]
 _trackster_eppe_plots.extend([Plot("trackster_phi", xtitle="Trackster #phi", **_common)])
 _trackster_eppe_plots.extend([Plot("trackster_pt", xtitle="Trackster p_{T}", **_common)])
@@ -2481,8 +2438,8 @@ _trackstersToCPLinkPlots = [
   _merges[0],
   _score_caloparticle_to_tracksters,
   _score_trackster_to_caloparticles,
-  _sharedEnergy_caloparticle_to_trackster,
-  _sharedEnergy_trackster_to_caloparticle,
+  _sharedEnergy_to_trackster[0],
+  _sharedEnergy_trackster_to[0],
   _energyscore_cp2ts,
   _energyscore_ts2cp,
 ]
@@ -2495,8 +2452,8 @@ _trackstersToSTSPRPlots = [
   _merges[1],
   _score_simtrackster_to_tracksters,
   _score_trackster_to_simtracksters,
-  _sharedEnergy_simtrackster_to_trackster,
-  _sharedEnergy_trackster_to_simtrackster,
+  _sharedEnergy_to_trackster[1],
+  _sharedEnergy_trackster_to[1],
   _energyscore_sts2ts,
   _energyscore_ts2sts,
 ]
