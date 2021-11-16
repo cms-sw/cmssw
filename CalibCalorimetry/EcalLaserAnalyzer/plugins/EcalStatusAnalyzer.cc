@@ -76,7 +76,8 @@ void EcalStatusAnalyzer::beginJob() {
 }
 
 //========================================================================
-void EcalStatusAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
+void EcalStatusAnalyzer::analyze(edm::StreamID,const edm::Event & e, const edm::EventSetup& c) const {
+// void EcalStatusAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
   //========================================================================
 
   ++iEvent;

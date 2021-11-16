@@ -4,16 +4,17 @@
 #include <map>
 
 #include <memory>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/global/EDAnalyzer.h>
 
 class Timestamp;
 
-class EcalStatusAnalyzer : public edm::EDAnalyzer {
+class EcalStatusAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   explicit EcalStatusAnalyzer(const edm::ParameterSet& iConfig);
   ~EcalStatusAnalyzer() override;
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  // void analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& c) const override ;
   void beginJob() override;
   void endJob() override;
 
