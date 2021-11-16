@@ -160,8 +160,8 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc[2];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2caloparticle_vs_eta[2];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2caloparticle_vs_phi[2];
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_vs_eta[2];
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_vs_phi[2];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc_vs_eta[2];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc_vs_phi[2];
   std::vector<dqm::reco::MonitorElement*> h_denom_trackster_eta[2];
   std::vector<dqm::reco::MonitorElement*> h_denom_trackster_phi[2];
   std::vector<dqm::reco::MonitorElement*> h_denom_trackster_en[2];
