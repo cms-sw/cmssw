@@ -2,7 +2,6 @@
 
 //! ctor
 PUDumper::PUDumper(const edm::ParameterSet& iConfig) {
-  //  MCPileupTag_ = iConfig.getParameter<edm::InputTag>("MCPileupTag");
   pileupSummaryToken_ = consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("pileupSummary"));
 
   // create TTree

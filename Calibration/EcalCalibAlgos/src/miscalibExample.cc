@@ -21,8 +21,6 @@
 // user include files
 #include "Calibration/EcalCalibAlgos/interface/miscalibExample.h"
 
-//
-
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,32 +29,6 @@
 #include <stdexcept>
 #include <vector>
 
-// class declaration
-//
-/*
-class miscalibExample : public edm::EDAnalyzer {
-   public:
-      explicit miscalibExample(const edm::ParameterSet&);
-      ~miscalibExample();
-
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob();
-      virtual void endJob();
-   private:
-
-
-      // ----------member data ---------------------------
-      std::string rootfile_;
-      std::string correctedHybridSuperClusterProducer_;
-      std::string correctedHybridSuperClusterCollection_;
-      std::string BarrelHitsCollection_;
-      std::string ecalHitsProducer_ ;
-      int read_events;
-
-      TH1F* scEnergy;
-};
-
-*/
 miscalibExample::miscalibExample(const edm::ParameterSet& iConfig) {
   rootfile_ = iConfig.getUntrackedParameter<std::string>("rootfile", "ecalSimpleTBanalysis.root");
   correctedHybridSuperClusterProducer_ = iConfig.getParameter<std::string>("correctedHybridSuperClusterProducer");
@@ -114,6 +86,3 @@ void miscalibExample::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     scEnergy->Fill(superClusterIt->energy());
   }
 }
-
-//define this as a plug-in
-//DEFINE_FWK_MODULE(miscalibExample);
