@@ -71,6 +71,7 @@ private:
   unsigned int m_current;
   bool m_tracker;
   bool m_muon;
+  bool m_gem;
   bool m_calo;
   bool m_timing;
 };

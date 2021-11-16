@@ -63,10 +63,11 @@ namespace {
 FWTGeoRecoGeometryESProducer::FWTGeoRecoGeometryESProducer(const edm::ParameterSet& pset) : m_dummyMedium(nullptr) {
   m_tracker = pset.getUntrackedParameter<bool>("Tracker", true);
   m_muon = pset.getUntrackedParameter<bool>("Muon", true);
+  m_gem = pset.getUntrackedParameter<bool>("GEM", true);
   m_calo = pset.getUntrackedParameter<bool>("Calo", true);
 
   auto cc = setWhatProduced(this);
-  if (m_tracker || m_muon) {
+  if (m_tracker || m_muon || m_gem) {
     m_trackingGeomToken = cc.consumes();
   }
   if (m_tracker) {
@@ -290,7 +291,7 @@ std::unique_ptr<FWTGeoRecoGeometry> FWTGeoRecoGeometryESProducer::produce(const 
   top->SetVisibility(kFALSE);
   top->SetLineColor(kBlue);
 
-  if (m_tracker || m_muon) {
+  if (m_tracker || m_muon || m_gem) {
     m_trackingGeom = &record.get(m_trackingGeomToken);
   }
 
@@ -314,6 +315,9 @@ std::unique_ptr<FWTGeoRecoGeometry> FWTGeoRecoGeometryESProducer::produce(const 
     addCSCGeometry();
     addRPCGeometry();
     addME0Geometry();
+  }
+
+  if (m_gem) {
     addGEMGeometry();
   }
 

@@ -104,10 +104,11 @@ namespace {
 FWRecoGeometryESProducer::FWRecoGeometryESProducer(const edm::ParameterSet& pset) : m_current(-1) {
   m_tracker = pset.getUntrackedParameter<bool>("Tracker", true);
   m_muon = pset.getUntrackedParameter<bool>("Muon", true);
+  m_gem = pset.getUntrackedParameter<bool>("GEM", true);
   m_calo = pset.getUntrackedParameter<bool>("Calo", true);
   m_timing = pset.getUntrackedParameter<bool>("Timing", false);
   auto cc = setWhatProduced(this);
-  if (m_tracker or m_muon) {
+  if (m_tracker or m_muon or m_gem) {
     m_trackingGeomToken = cc.consumes();
   }
   if (m_timing) {
@@ -126,13 +127,13 @@ std::unique_ptr<FWRecoGeometry> FWRecoGeometryESProducer::produce(const FWRecoGe
 
   auto fwRecoGeometry = std::make_unique<FWRecoGeometry>();
 
-  if (m_tracker || m_muon) {
+  if (m_tracker || m_muon || m_gem) {
     m_trackingGeom = &record.get(m_trackingGeomToken);
-    DetId detId(DetId::Tracker, 0);
-    m_trackerGeom = static_cast<const TrackerGeometry*>(m_trackingGeom->slaveGeometry(detId));
   }
 
   if (m_tracker) {
+    DetId detId(DetId::Tracker, 0);
+    m_trackerGeom = static_cast<const TrackerGeometry*>(m_trackingGeom->slaveGeometry(detId));
     addPixelBarrelGeometry(*fwRecoGeometry);
     addPixelForwardGeometry(*fwRecoGeometry);
     addTIBGeometry(*fwRecoGeometry);
@@ -145,8 +146,10 @@ std::unique_ptr<FWRecoGeometry> FWRecoGeometryESProducer::produce(const FWRecoGe
     addDTGeometry(*fwRecoGeometry);
     addCSCGeometry(*fwRecoGeometry);
     addRPCGeometry(*fwRecoGeometry);
-    addGEMGeometry(*fwRecoGeometry);
     addME0Geometry(*fwRecoGeometry);
+  }
+  if (m_gem) {
+    addGEMGeometry(*fwRecoGeometry);
   }
   if (m_calo) {
     m_caloGeom = &record.get(m_caloGeomToken);
