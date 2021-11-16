@@ -15,6 +15,7 @@ dqmBeamMonitor = DQMEDAnalyzer("BeamMonitor",
                               recordName = cms.untracked.string('BeamSpotOnlineHLTObjectsRcd'),
                               useLockRecords = cms.untracked.bool(False),
                               hltResults = cms.InputTag("TriggerResults::HLT"),
+                              nLSForUpload = cms.untracked.int32(5),
                               BeamFitter = cms.PSet(
                                 Debug = cms.untracked.bool(False),
                                 TrackCollection = cms.untracked.InputTag('generalTracks'),
