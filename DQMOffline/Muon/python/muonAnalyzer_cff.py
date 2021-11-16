@@ -19,9 +19,6 @@ muonAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
                             muonKinVsEtaAnalyzer*
                             diMuonHistos*
                             EfficiencyAnalyzer*
-                            #LooseMuonEfficiencyAnalyzer*
-                            #MediumMuonEfficiencyAnalyzer*
-                            #TightMuonEfficiencyAnalyzer*
                             muonPFsequence*
                             muonRecoOneHLT)
 
@@ -31,9 +28,6 @@ muonAnalyzer_miniAOD = cms.Sequence(muonRecoAnalyzer_miniAOD*
                                     muonKinVsEtaAnalyzer_miniAOD*
                                     diMuonHistos_miniAOD*
                                     EfficiencyAnalyzer_miniAOD*
-                                    #LooseMuonEfficiencyAnalyzer_miniAOD*
-                                    #MediumMuonEfficiencyAnalyzer_miniAOD*
-                                    #TightMuonEfficiencyAnalyzer_miniAOD*
                                     triggerMatchMonitor_miniAOD)
 
 muonAnalyzer_noHLT = cms.Sequence(muonEnergyDepositAnalyzer*
@@ -44,9 +38,6 @@ muonAnalyzer_noHLT = cms.Sequence(muonEnergyDepositAnalyzer*
                                   muonKinVsEtaAnalyzer*
                                   diMuonHistos*
                                   EfficiencyAnalyzer* 
-                                  #LooseMuonEfficiencyAnalyzer*
-                                  #MediumMuonEfficiencyAnalyzer*
-                                  #TightMuonEfficiencyAnalyzer*                                
                                   muonPFsequence)
 
 
