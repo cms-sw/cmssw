@@ -16,8 +16,8 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -41,12 +41,12 @@
 #include <fstream>
 #include <map>
 
-class EcalPedestalHistory : public edm::EDAnalyzer {
+class EcalPedestalHistory : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalPedestalHistory(const edm::ParameterSet&);
   ~EcalPedestalHistory() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&); // no need to override beginRun when inheriting from one::EDAnalyzer 
   void beginJob() override;
   void endJob() override;
   EcalCondDBInterface* econn;
