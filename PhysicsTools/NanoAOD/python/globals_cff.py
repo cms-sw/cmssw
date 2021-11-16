@@ -17,6 +17,7 @@ beamSpotTable = cms.EDProducer("SimpleBeamspotFlatTableProducer",
 )
 
 rhoTable = cms.EDProducer("GlobalVariablesTableProducer",
+    name = cms.string("Rho"),
     variables = cms.PSet(
         fixedGridRhoAll = ExtVar( cms.InputTag("fixedGridRhoAll"), "double", doc = "rho from all PF Candidates, no foreground removal (for isolation of prompt photons)" ),
         fixedGridRhoFastjetAll = ExtVar( cms.InputTag("fixedGridRhoFastjetAll"), "double", doc = "rho from all PF Candidates, used e.g. for JECs" ),
