@@ -50,12 +50,11 @@ EcalSCDynamicDPhiParametersMaker::EcalSCDynamicDPhiParametersMaker(const edm::Pa
     : parametersToken_(esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>()) {}
 
 void EcalSCDynamicDPhiParametersMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<EcalSCDynamicDPhiParameters> esParamsHandle_ = iSetup.getHandle(parametersToken_);
+  const auto& esParams = iSetup.getData(parametersToken_);
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOneIOV(
-        *esParamsHandle_.product(), poolDbService->currentTime(), "EcalSCDynamicDPhiParametersRcd");
+    poolDbService->writeOneIOV(esParams, poolDbService->currentTime(), "EcalSCDynamicDPhiParametersRcd");
   } else {
     throw cms::Exception("PoolDBService") << "No PoolDBService available.";
   }
