@@ -56,7 +56,7 @@ private:
   bool m_done;
   std::string m_input, m_output;
 
-  std::string m_dtLabel, m_cscLabel, m_gemLabel;
+  std::string m_dtLabel, m_cscLabel, m_gemLabel, m_dtAPELabel, m_cscAPELabel, m_gemAPELabel;
   double m_shiftErr, m_angleErr;
   std::string m_fileName;
   bool m_getAPEs;
@@ -76,6 +76,11 @@ private:
   edm::ESGetToken<Alignments, DTAlignmentRcd> dtAliToken_;
   edm::ESGetToken<Alignments, CSCAlignmentRcd> cscAliToken_;
   edm::ESGetToken<Alignments, GEMAlignmentRcd> gemAliToken_;
+
+  edm::ESGetToken<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd> dtAPEToken_;
+  edm::ESGetToken<AlignmentErrorsExtended, CSCAlignmentErrorExtendedRcd> cscAPEToken_;
+  edm::ESGetToken<AlignmentErrorsExtended, GEMAlignmentErrorExtendedRcd> gemAPEToken_;
+
   const edm::ESGetToken<Alignments, GlobalPositionRcd> gprToken_;
 };
 
@@ -116,6 +121,9 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
     m_dtLabel = iConfig.getParameter<std::string>("dtLabel");
     m_cscLabel = iConfig.getParameter<std::string>("cscLabel");
     m_gemLabel = iConfig.getParameter<std::string>("gemLabel");
+    m_dtAPELabel = iConfig.getParameter<std::string>("dtAPELabel");
+    m_cscAPELabel = iConfig.getParameter<std::string>("cscAPELabel");
+    m_gemAPELabel = iConfig.getParameter<std::string>("gemAPELabel");
     m_shiftErr = iConfig.getParameter<double>("shiftErr");
     m_angleErr = iConfig.getParameter<double>("angleErr");
     m_getAPEs = iConfig.getParameter<bool>("getAPEs");
@@ -124,6 +132,10 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
     dtAliToken_ = esConsumes(edm::ESInputTag("", m_dtLabel));
     cscAliToken_ = esConsumes(edm::ESInputTag("", m_cscLabel));
     gemAliToken_ = esConsumes(edm::ESInputTag("", m_gemLabel));
+
+    dtAPEToken_ = esConsumes(edm::ESInputTag("", m_dtAPELabel));
+    cscAPEToken_ = esConsumes(edm::ESInputTag("", m_cscAPELabel));
+    gemAPEToken_ = esConsumes(edm::ESInputTag("", m_gemAPELabel));
 
     dtGeomToken_ = esConsumes(edm::ESInputTag("", idealGeometryLabelForInputXML));
     cscGeomToken_ = esConsumes(edm::ESInputTag("", idealGeometryLabelForInputXML));
@@ -173,6 +185,9 @@ void MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::Event
                                        &iSetup.getData(dtAliToken_),
                                        &iSetup.getData(cscAliToken_),
                                        &iSetup.getData(gemAliToken_),
+                                       &iSetup.getData(dtAPEToken_),
+                                       &iSetup.getData(cscAPEToken_),
+                                       &iSetup.getData(gemAPEToken_),
                                        &iSetup.getData(gprToken_));
       MuonAlignment *muonAlignment = new MuonAlignment(iSetup, inputMethod);
       if (m_getAPEs) {
@@ -216,6 +231,9 @@ void MuonGeometryDBConverter::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<std::string>("dtLabel", "");
   desc.add<std::string>("cscLabel", "");
   desc.add<std::string>("gemLabel", "");
+  desc.add<std::string>("dtAPELabel", "");
+  desc.add<std::string>("cscAPELabel", "");
+  desc.add<std::string>("gemAPELabel", "");
   desc.add<double>("shiftErr", 1000.0);
   desc.add<double>("angleErr", 6.28);
   desc.add<bool>("getAPEs", true);
