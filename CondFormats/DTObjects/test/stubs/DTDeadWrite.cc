@@ -39,20 +39,20 @@ namespace edmtest {
       return;
     }
 
-    DTDeadFlag* dlist = new DTDeadFlag("deadList");
+    DTDeadFlag dlist("deadList");
 
-    fill_dead_HV("dead_HV_list.txt", dlist);
-    fill_dead_TP("dead_TP_list.txt", dlist);
-    fill_dead_RO("dead_RO_list.txt", dlist);
-    fill_discCat("discCat_list.txt", dlist);
+    fill_dead_HV("dead_HV_list.txt", &dlist);
+    fill_dead_TP("dead_TP_list.txt", &dlist);
+    fill_dead_RO("dead_RO_list.txt", &dlist);
+    fill_discCat("discCat_list.txt", &dlist);
 
     if (dbservice->isNewTagRequest("DTDeadFlagRcd")) {
-      dbservice->createNewIOV<DTDeadFlag>(dlist, dbservice->beginOfTime(), dbservice->endOfTime(), "DTDeadFlagRcd");
+      dbservice->createOneIOV<DTDeadFlag>(dlist, dbservice->beginOfTime(), "DTDeadFlagRcd");
     } else {
       std::cout << "already present tag" << std::endl;
       int currentRun = 10;
       //      dbservice->appendTillTime<DTDeadFlag>(
-      dbservice->appendSinceTime<DTDeadFlag>(dlist, currentRun, "DTDeadFlagRcd");
+      dbservice->appendOneIOV<DTDeadFlag>(dlist, currentRun, "DTDeadFlagRcd");
       //      dbservice->appendSinceTime<DTDeadFlag>(
       //                 dlist,dbservice->currentTime(),"DTDeadFlagRcd");
     }
