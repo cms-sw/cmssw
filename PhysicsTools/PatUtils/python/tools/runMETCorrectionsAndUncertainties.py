@@ -719,7 +719,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
 
         #T1 parameter tuning when CHS jets are not used
-        if "T1" in correctionLevel and not self._parameters["CHS"].value:
+        if "T1" in correctionLevel and not self._parameters["CHS"].value and not self._parameters["Puppi"].value:
             addToProcessAndTask("corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone(), process, getCorrectedMET_task)
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJets"+postfix)
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabel = cms.InputTag("ak4PFL1FastL2L3Corrector")
