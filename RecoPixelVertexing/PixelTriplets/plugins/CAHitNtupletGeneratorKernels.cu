@@ -115,7 +115,7 @@ __inline__ void populateMultiplicity(HitContainer const *tuples_d,
   auto ws = cms::cuda::make_device_unique<View::Counter[]>(nchunks, cudaStream);
   auto wsp = ws.get();
   // FIXME: discuss with FW team: cuda calls are expensive and not needed for each event
-  static int maxBlocks = maxCoopBlocks(kernel, blockSize, 0, 0);
+  static int const maxBlocks = maxCoopBlocks(kernel, blockSize, 0, 0);
   auto ncoopblocks = std::min(nblocks, maxBlocks);
   assert(ncoopblocks > 0);
   void *kernelArgs[] = {&tuples_d, &quality_d, &view, &wsp};
