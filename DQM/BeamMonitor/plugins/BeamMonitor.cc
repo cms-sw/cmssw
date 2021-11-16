@@ -809,7 +809,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, const Event
   tmpTime = refBStime[1] = refPVtime[1] = fendtime;
 
   // end DB logger
-  if (onlineDbService_.isAvailable() && (nAnalyzedLS_ < nLS_for_upload_ || nAnalyzedLS_ % nLS_for_upload_ == 0)) {
+  if (onlineDbService_.isAvailable()) {
     onlineDbService_->logger().logInfo() << "BeamMonitor::endLuminosityBlock";
     onlineDbService_->logger().end(DBloggerReturn_);
   }
@@ -1401,7 +1401,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
       edm::LogInfo("BeamMonitor") << *BSOnline << std::endl;
 
       // Create the payload for BeamSpotOnlineObjects object
-      if (onlineDbService_.isAvailable()) {
+      if (onlineDbService_.isAvailable()&& (nAnalyzedLS_ < nLS_for_upload_ || nAnalyzedLS_ % nLS_for_upload_ == 0)) {
         edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] onlineDbService available \n" << std::endl;
         onlineDbService_->logger().logInfo() << "BeamMonitor::FitAndFill - Lumi of the current fit: " << currentlumi;
         onlineDbService_->logger().logInfo()
