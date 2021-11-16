@@ -504,6 +504,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         setattr(process,"fullPatMetSequence"+postfix,fullPatMetSequence)
         setattr(process,"fullPatMetTask"+postfix,fullPatMetTask)
+        task = getPatAlgosToolsTask(process)
+        task.add(getattr(process,"fullPatMetTask"+postfix))
 
         #removing the non used jet selectors
         #configtools.removeIfInSequence(process, "selectedPatJetsForMetT1T2Corr", "patPFMetT1T2CorrSequence", postfix )
