@@ -15,7 +15,10 @@ MuIsoDQM_trk = DQMEDAnalyzer('MuonIsolationDQM',
                               tkIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositTk"),
                               hoIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ho"),
                               vertexLabel = cms.untracked.InputTag("offlinePrimaryVertices"),
-                              directory = cms.string("Muons/Isolation/tracker")                             
+                              directory = cms.string("Muons/Isolation/tracker"),
+                             vtxBin = cms.int32(30),
+                             vtxMax = cms.double(149.5),
+                             vtxMin = cms.double(0.5)                             
                               )
 
 MuIsoDQM_sta = DQMEDAnalyzer('MuonIsolationDQM',
@@ -29,7 +32,10 @@ MuIsoDQM_sta = DQMEDAnalyzer('MuonIsolationDQM',
                               tkIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositTk"),
                               hoIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ho"),
                               vertexLabel = cms.untracked.InputTag("offlinePrimaryVertices"),
-                              directory = cms.string("Muons/Isolation/standalone")
+                              directory = cms.string("Muons/Isolation/standalone"),
+                             vtxBin = cms.int32(30),
+                             vtxMax = cms.double(149.5),
+                             vtxMin = cms.double(0.5)
                               )
 
 MuIsoDQM_glb = DQMEDAnalyzer('MuonIsolationDQM',
@@ -43,10 +49,30 @@ MuIsoDQM_glb = DQMEDAnalyzer('MuonIsolationDQM',
                               tkIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositTk"),
                               hoIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ho"),
                               vertexLabel = cms.untracked.InputTag("offlinePrimaryVertices"),
-                              directory = cms.string("Muons/Isolation/global")
+                              directory = cms.string("Muons/Isolation/global"),
+                             vtxBin = cms.int32(30),
+                             vtxMax = cms.double(149.5),
+                             vtxMin = cms.double(0.5)
                               )
 muIsoDQM_seq = cms.Sequence(MuIsoDQM_trk+MuIsoDQM_sta+MuIsoDQM_glb)
 
+
+MuIsoDQM_glb_Phase2=MuIsoDQM_glb.clone()
+MuIsoDQM_glb_Phase2.vtxBin=20
+MuIsoDQM_glb_Phase2.vtxMax=249.5
+MuIsoDQM_glb_Phase2.vtxMin=149.5
+
+MuIsoDQM_trk_Phase2=MuIsoDQM_trk.clone()                                                                                                    
+MuIsoDQM_trk_Phase2.vtxBin=20                                                                                                               
+MuIsoDQM_trk_Phase2.vtxMax=249.5                                                                                                            
+MuIsoDQM_trk_Phase2.vtxMin=149.5
+
+MuIsoDQM_sta_Phase2=MuIsoDQM_sta.clone()                                                                                                    
+MuIsoDQM_sta_Phase2.vtxBin=20                                                                                                               
+MuIsoDQM_sta_Phase2.vtxMax=249.5                                                                                                            
+MuIsoDQM_sta_Phase2.vtxMin=149.5  
+
+muIsoDQM_seq_Phase2 = cms.Sequence(MuIsoDQM_trk_Phase2+MuIsoDQM_sta_Phase2+MuIsoDQM_glb_Phase2) 
 
 
 MuIsoDQM_trk_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
@@ -60,7 +86,10 @@ MuIsoDQM_trk_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       tkIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositTk"),
                                       hoIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ho"),
                                       vertexLabel = cms.untracked.InputTag("offlinePrimaryVertices"),
-                                      directory = cms.string("Muons_miniAOD/Isolation/tracker")                             
+                                      directory = cms.string("Muons_miniAOD/Isolation/tracker"),
+                                     vtxBin = cms.int32(30),
+                                     vtxMax = cms.double(149.5),
+                                     vtxMin = cms.double(0.5)                             
                                       )
 
 MuIsoDQM_sta_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
@@ -74,7 +103,10 @@ MuIsoDQM_sta_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       tkIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositTk"),
                                       hoIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ho"),
                                       vertexLabel = cms.untracked.InputTag("offlinePrimaryVertices"),
-                                      directory = cms.string("Muons_miniAOD/Isolation/standalone")
+                                      directory = cms.string("Muons_miniAOD/Isolation/standalone"),
+                                     vtxBin = cms.int32(30),
+                                     vtxMax = cms.double(149.5),
+                                     vtxMin = cms.double(0.5)
                                       )
 
 MuIsoDQM_glb_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
@@ -88,6 +120,33 @@ MuIsoDQM_glb_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       tkIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositTk"),
                                       hoIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ho"),
                                       vertexLabel = cms.untracked.InputTag("offlinePrimaryVertices"),
-                                      directory = cms.string("Muons_miniAOD/Isolation/global")
+                                      directory = cms.string("Muons_miniAOD/Isolation/global"),
+                                     vtxBin = cms.int32(30),
+                                     vtxMax = cms.double(149.5),
+                                     vtxMin = cms.double(0.5),
                                       )
 muIsoDQM_seq_miniAOD = cms.Sequence(MuIsoDQM_trk_miniAOD+MuIsoDQM_sta_miniAOD+MuIsoDQM_glb_miniAOD)
+
+
+MuIsoDQM_glb_miniAOD_Phase2=MuIsoDQM_glb_miniAOD.clone()                                                                                   
+MuIsoDQM_glb_miniAOD_Phase2.vtxBin=20                                                                                                       
+MuIsoDQM_glb_miniAOD_Phase2.vtxMax=249.5                                                                                                   
+MuIsoDQM_glb_miniAOD_Phase2.vtxMin=149.5                                                                                           
+      
+MuIsoDQM_trk_miniAOD_Phase2=MuIsoDQM_trk_miniAOD.clone()                                                                                    
+MuIsoDQM_trk_miniAOD_Phase2.vtxBin=20                                                                                                       
+MuIsoDQM_trk_miniAOD_Phase2.vtxMax=249.5                                                                                 
+MuIsoDQM_trk_miniAOD_Phase2.vtxMin=149.5                                                                                                  
+
+MuIsoDQM_sta_miniAOD_Phase2=MuIsoDQM_sta_miniAOD.clone()                                                                                    
+MuIsoDQM_sta_miniAOD_Phase2.vtxBin=20                                                                                           
+MuIsoDQM_sta_miniAOD_Phase2.vtxMax=249.5                                                                                                  
+MuIsoDQM_sta_miniAOD_Phase2.vtxMin=149.5                                                                                                   
+
+muIsoDQM_seq_miniAOD_Phase2 = cms.Sequence(MuIsoDQM_trk_miniAOD_Phase2+MuIsoDQM_sta_miniAOD_Phase2+MuIsoDQM_glb_miniAOD_Phase2)   
+
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon                                                                         
+phase2_muon.toReplaceWith(muIsoDQM_seq, muIsoDQM_seq_Phase2)
+phase2_muon.toReplaceWith(muIsoDQM_seq_miniAOD, muIsoDQM_seq_miniAOD_Phase2)
+                                                                                    

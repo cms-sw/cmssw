@@ -63,6 +63,7 @@ class MuonIsolationDQM : public DQMEDAnalyzer {
   typedef edm::Handle<reco::IsoDepositMap> MuIsoDepHandle;
   typedef const reco::IsoDeposit MuIsoDepRef;
 
+
 public:
   //---------methods----------------------------
   explicit MuonIsolationDQM(const edm::ParameterSet&);
@@ -86,6 +87,11 @@ private:
   TH1* GetTH1FromMonitorElement(MonitorElement* me);
 
   //----------Static Variables---------------
+
+
+  int vtxBin_;
+  double vtxMin_;
+  double vtxMax_;
 
   //Collection labels
   edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionLabel_;
