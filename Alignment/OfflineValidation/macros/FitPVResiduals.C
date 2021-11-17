@@ -99,6 +99,12 @@ PVValidationVariables::PVValidationVariables(
 
   // check if the base dir exists
   file = TFile::Open(fileName.Data(), "READ");
+
+  if (!file) {
+    std::cout << "ERROR! file " << fileName.Data() << " does not exist!" << std::endl;
+    assert(false);
+  }
+
   if (file->Get(baseDir.Data())) {
     std::cout << "found base directory: " << baseDir.Data() << std::endl;
   } else {

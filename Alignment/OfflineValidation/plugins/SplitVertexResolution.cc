@@ -143,7 +143,7 @@ private:
   TH1F* h_lumiFromConfig;
   TH1I* h_runFromConfig;
 
-  std::map<unsigned int, std::pair<long long, long long> > runNumbersTimesLog_;
+  std::map<unsigned int, std::pair<long long, long long>> runNumbersTimesLog_;
   TH1I* h_runStartTimes;
   TH1I* h_runEndTimes;
 
@@ -242,22 +242,28 @@ private:
   TH1F* p_pullY_vsNvtx;
   TH1F* p_pullZ_vsNvtx;
 
+  TH1F* h_profileBinnings;
+
   std::mt19937 engine_;
 
   pvEvent event_;
   TTree* tree_;
 
   // ----------member data ---------------------------
+  const float sumpTStartScale_;
+  const float sumpTEndScale_;
   static const int nPtBins_ = 30;
-  std::array<float, nPtBins_ + 1> mypT_bins_ = PVValHelper::makeLogBins<float, nPtBins_>(1., 1e3);
+  std::array<float, nPtBins_ + 1> mypT_bins_;
 
   static const int nTrackBins_ = 60;
+  const double nVisTrackBins_;  // will be configured
   std::array<float, nTrackBins_ + 1> myNTrack_bins_;
 
   static const int nVtxBins_ = 40;
+  const double nVisVtxBins_;  // will be configured
   std::array<float, nVtxBins_ + 1> myNVtx_bins_;
 
-  std::map<std::string, std::pair<int, int> > triggerMap_;
+  std::map<std::string, std::pair<int, int>> triggerMap_;
 };
 
 SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
@@ -275,14 +281,21 @@ SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
       runInfoToken_(esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()),
       minVtxNdf_(iConfig.getUntrackedParameter<double>("minVertexNdf")),
       minVtxWgt_(iConfig.getUntrackedParameter<double>("minVertexMeanWeight")),
-      runControl_(iConfig.getUntrackedParameter<bool>("runControl", false)) {
+      runControl_(iConfig.getUntrackedParameter<bool>("runControl", false)),
+      // binning
+      sumpTStartScale_(iConfig.getUntrackedParameter<double>("sumpTStartScale", 1.)),
+      sumpTEndScale_(iConfig.getUntrackedParameter<double>("sumpTEndScale", 1e3)),
+      nVisTrackBins_(iConfig.getUntrackedParameter<double>("nTrackBins", 60.)),
+      nVisVtxBins_(iConfig.getUntrackedParameter<double>("nVtxBins", 40.)) {
   usesResource(TFileService::kSharedResource);
 
   std::vector<unsigned int> defaultRuns;
   defaultRuns.push_back(0);
-  runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int> >("runControlNumber", defaultRuns);
+  runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int>>("runControlNumber", defaultRuns);
 
-  std::vector<float> vect = PVValHelper::generateBins(nTrackBins_ + 1, -0.5, 120.);
+  mypT_bins_ = PVValHelper::makeLogBins<float, nPtBins_>(sumpTStartScale_, sumpTEndScale_);
+
+  std::vector<float> vect = PVValHelper::generateBins(nTrackBins_ + 1, 1., 120.);
   std::copy(vect.begin(), vect.begin() + nTrackBins_ + 1, myNTrack_bins_.begin());
 
   vect.clear();
@@ -651,6 +664,23 @@ void SplitVertexResolution::beginJob() {
     outfile_->file().SetCompressionSettings(compressionSettings_);
   }
 
+  // binning histogram
+  TFileDirectory BinningFeatures = outfile_->mkdir("BinningFeatures");
+  // sumpT
+  h_profileBinnings = BinningFeatures.make<TH1F>("h_profileBinnings", "profile binnings", 4, -0.5, 3.5);
+  h_profileBinnings->GetXaxis()->SetBinLabel(1, "#sum p_{T} min");
+  h_profileBinnings->GetXaxis()->SetBinLabel(2, "#sum p_{T} max");
+  // n. tracks
+  h_profileBinnings->GetXaxis()->SetBinLabel(3, "n. track bins");
+  // n. vertices
+  h_profileBinnings->GetXaxis()->SetBinLabel(4, "n. vertices bins");
+
+  // fill the binning book-keeping
+  h_profileBinnings->SetBinContent(1, sumpTStartScale_);
+  h_profileBinnings->SetBinContent(2, sumpTEndScale_);
+  h_profileBinnings->SetBinContent(3, nVisTrackBins_);
+  h_profileBinnings->SetBinContent(4, nVisVtxBins_);
+
   // luminosity histo
   TFileDirectory EventFeatures = outfile_->mkdir("EventFeatures");
   h_lumiFromConfig =
@@ -816,15 +846,15 @@ void SplitVertexResolution::beginJob() {
   // resolutions
 
   p_resolX_vsSumPt = outfile_->make<TH1F>("p_resolX_vsSumPt",
-                                          "x-resolution vs #Sigma p_{T};#sum p_{T}; x vertex resolution [#mum]",
+                                          "x-resolution vs #Sigma p_{T};#sum p_{T} [GeV]; x vertex resolution [#mum]",
                                           mypT_bins_.size() - 1,
                                           mypT_bins_.data());
   p_resolY_vsSumPt = outfile_->make<TH1F>("p_resolY_vsSumPt",
-                                          "y-resolution vs #Sigma p_{T};#sum p_{T}; y vertex resolution [#mum]",
+                                          "y-resolution vs #Sigma p_{T};#sum p_{T} [GeV]; y vertex resolution [#mum]",
                                           mypT_bins_.size() - 1,
                                           mypT_bins_.data());
   p_resolZ_vsSumPt = outfile_->make<TH1F>("p_resolZ_vsSumPt",
-                                          "z-resolution vs #Sigma p_{T};#sum p_{T}; z vertex resolution [#mum]",
+                                          "z-resolution vs #Sigma p_{T};#sum p_{T} [GeV]; z vertex resolution [#mum]",
                                           mypT_bins_.size() - 1,
                                           mypT_bins_.data());
 
@@ -856,12 +886,18 @@ void SplitVertexResolution::beginJob() {
 
   // pulls
 
-  p_pullX_vsSumPt = outfile_->make<TH1F>(
-      "p_pullX_vsSumPt", "x-pull vs #Sigma p_{T};#sum p_{T}; x vertex pull", mypT_bins_.size() - 1, mypT_bins_.data());
-  p_pullY_vsSumPt = outfile_->make<TH1F>(
-      "p_pullY_vsSumPt", "y-pull vs #Sigma p_{T};#sum p_{T}; y vertex pull", mypT_bins_.size() - 1, mypT_bins_.data());
-  p_pullZ_vsSumPt = outfile_->make<TH1F>(
-      "p_pullZ_vsSumPt", "z-pull vs #Sigma p_{T};#sum p_{T}; z vertex pull", mypT_bins_.size() - 1, mypT_bins_.data());
+  p_pullX_vsSumPt = outfile_->make<TH1F>("p_pullX_vsSumPt",
+                                         "x-pull vs #Sigma p_{T};#sum p_{T} [GeV]; x vertex pull",
+                                         mypT_bins_.size() - 1,
+                                         mypT_bins_.data());
+  p_pullY_vsSumPt = outfile_->make<TH1F>("p_pullY_vsSumPt",
+                                         "y-pull vs #Sigma p_{T};#sum p_{T} [GeV]; y vertex pull",
+                                         mypT_bins_.size() - 1,
+                                         mypT_bins_.data());
+  p_pullZ_vsSumPt = outfile_->make<TH1F>("p_pullZ_vsSumPt",
+                                         "z-pull vs #Sigma p_{T};#sum p_{T} [GeV]; z vertex pull",
+                                         mypT_bins_.size() - 1,
+                                         mypT_bins_.data());
 
   p_pullX_vsNtracks = outfile_->make<TH1F>("p_pullX_vsNtracks",
                                            "x-pull vs n_{tracks};n_{tracks}; x vertex pull",
@@ -944,7 +980,7 @@ void SplitVertexResolution::endJob() {
       "evtsByTrigger", "events by HLT path;;% of # events", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
 
   int i = 0;
-  for (std::map<std::string, std::pair<int, int> >::iterator it = triggerMap_.begin(); it != triggerMap_.end(); ++it) {
+  for (std::map<std::string, std::pair<int, int>>::iterator it = triggerMap_.begin(); it != triggerMap_.end(); ++it) {
     i++;
 
     double trkpercent = ((it->second).second) * 100. / double(itrks);
@@ -1012,11 +1048,25 @@ void SplitVertexResolution::endJob() {
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void SplitVertexResolution::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.setComment(
+      "Validates alignment payloads by evaluating the resulting Primary Vertex Resolution via vertex splitting method");
+
+  desc.addUntracked<int>("compressionSettings", -1);
+  desc.add<bool>("storeNtuple", false);
+  desc.addUntracked<double>("intLumi", 0.);
+  desc.addUntracked<bool>("Debug", false);
+  desc.add<edm::InputTag>("vtxCollection", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("trackCollection", edm::InputTag("generalTracks"));
+  desc.addUntracked<double>("minVertexNdf", 10);
+  desc.addUntracked<double>("minVertexMeanWeight", 0.5);
+  desc.addUntracked<bool>("runControl", false);
+  desc.addUntracked<std::vector<unsigned int>>("runControlNumber", {});
+  desc.addUntracked<double>("sumpTStartScale", 1.);
+  desc.addUntracked<double>("sumpTEndScale", 1e3);
+  desc.addUntracked<double>("nTrackBins", 60.);
+  desc.addUntracked<double>("nVtxBins", 40.);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //*************************************************************
@@ -1035,7 +1085,7 @@ void SplitVertexResolution::fillTrendPlotByIndex(TH1F* trendPlot, std::vector<TH
 //*************************************************************
 {
   for (auto iterator = h.begin(); iterator != h.end(); iterator++) {
-    unsigned int bin = std::distance(h.begin(), iterator) + 1;
+    unsigned int bin = std::distance(h.begin(), iterator);
     statmode::fitParams myFit = fitResiduals((*iterator));
 
     switch (fitPar_) {
