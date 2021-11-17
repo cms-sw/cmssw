@@ -229,32 +229,24 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     // to prevent crashes because you are booking histos for single b904 chamber
     if (useB904ME234s2_ or useB904ME21_)
       type = 0;
-    // remove the duplicate CLCTs
-    // these are CLCTs that have the same properties as CLCTs found
-    // before by the emulator, except for the BX, which is off by +1
-    std::vector<CSCCLCTDigi> cleanedemul;
     for (auto clct = range.first; clct != range.second; clct++) {
-      if (not isDuplicateCLCT(*clct, cleanedemul))
-        cleanedemul.push_back(*clct);
-    }
-    for (const auto& clct : cleanedemul) {
-      if (clct.isValid()) {
+      if (clct->isValid()) {
         if (preTriggerAnalysis_) {
-          tempemul.push_back(clct);
+          tempemul.push_back(*clct);
         }
-        chamberHistos[type]["clct_pattern_emul"]->Fill(clct.getPattern());
-        chamberHistos[type]["clct_quality_emul"]->Fill(clct.getQuality());
-        chamberHistos[type]["clct_halfstrip_emul"]->Fill(clct.getKeyStrip());
-        chamberHistos[type]["clct_bend_emul"]->Fill(clct.getBend());
+        chamberHistos[type]["clct_pattern_emul"]->Fill(clct->getPattern());
+        chamberHistos[type]["clct_quality_emul"]->Fill(clct->getQuality());
+        chamberHistos[type]["clct_halfstrip_emul"]->Fill(clct->getKeyStrip());
+        chamberHistos[type]["clct_bend_emul"]->Fill(clct->getBend());
         if (isRun3_) {
-          chamberHistos[type]["clct_run3pattern_emul"]->Fill(clct.getRun3Pattern());
-          chamberHistos[type]["clct_quartstrip_emul"]->Fill(clct.getKeyStrip(4));
-          chamberHistos[type]["clct_eighthstrip_emul"]->Fill(clct.getKeyStrip(8));
-          chamberHistos[type]["clct_slope_emul"]->Fill(clct.getSlope());
-          chamberHistos[type]["clct_compcode_emul"]->Fill(clct.getCompCode());
+          chamberHistos[type]["clct_run3pattern_emul"]->Fill(clct->getRun3Pattern());
+          chamberHistos[type]["clct_quartstrip_emul"]->Fill(clct->getKeyStrip(4));
+          chamberHistos[type]["clct_eighthstrip_emul"]->Fill(clct->getKeyStrip(8));
+          chamberHistos[type]["clct_slope_emul"]->Fill(clct->getSlope());
+          chamberHistos[type]["clct_compcode_emul"]->Fill(clct->getCompCode());
           if (useB904_) {
-            chamberHistos[type]["clct_quartstripbit_emul"]->Fill(clct.getQuartStripBit());
-            chamberHistos[type]["clct_eighthstripbit_emul"]->Fill(clct.getEighthStripBit());
+            chamberHistos[type]["clct_quartstripbit_emul"]->Fill(clct->getQuartStripBit());
+            chamberHistos[type]["clct_eighthstripbit_emul"]->Fill(clct->getEighthStripBit());
           }
         }
       }
@@ -328,30 +320,21 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     // to prevent crashes because you are booking histos for single b904 chamber
     if (useB904ME234s2_ or useB904ME21_)
       type = 0;
-    // remove the duplicate LCTs
-    // these are LCTs that have the same properties as LCTs found
-    // before by the emulator, except for the BX, which is off by +1
-    std::vector<CSCCorrelatedLCTDigi> cleanedemul;
     for (auto lct = range.first; lct != range.second; lct++) {
-      if (not isDuplicateLCT(*lct, cleanedemul))
-        cleanedemul.push_back(*lct);
-    }
-
-    for (const auto& lct : cleanedemul) {
-      if (lct.isValid()) {
-        chamberHistos[type]["lct_pattern_emul"]->Fill(lct.getPattern());
-        chamberHistos[type]["lct_quality_emul"]->Fill(lct.getQuality());
-        chamberHistos[type]["lct_wiregroup_emul"]->Fill(lct.getKeyWG());
-        chamberHistos[type]["lct_halfstrip_emul"]->Fill(lct.getStrip());
-        chamberHistos[type]["lct_bend_emul"]->Fill(lct.getBend());
+      if (lct->isValid()) {
+        chamberHistos[type]["lct_pattern_emul"]->Fill(lct->getPattern());
+        chamberHistos[type]["lct_quality_emul"]->Fill(lct->getQuality());
+        chamberHistos[type]["lct_wiregroup_emul"]->Fill(lct->getKeyWG());
+        chamberHistos[type]["lct_halfstrip_emul"]->Fill(lct->getStrip());
+        chamberHistos[type]["lct_bend_emul"]->Fill(lct->getBend());
         if (isRun3_) {
-          chamberHistos[type]["lct_run3pattern_emul"]->Fill(lct.getRun3Pattern());
-          chamberHistos[type]["lct_slope_emul"]->Fill(lct.getSlope());
-          chamberHistos[type]["lct_quartstrip_emul"]->Fill(lct.getStrip(4));
-          chamberHistos[type]["lct_eighthstrip_emul"]->Fill(lct.getStrip(8));
+          chamberHistos[type]["lct_run3pattern_emul"]->Fill(lct->getRun3Pattern());
+          chamberHistos[type]["lct_slope_emul"]->Fill(lct->getSlope());
+          chamberHistos[type]["lct_quartstrip_emul"]->Fill(lct->getStrip(4));
+          chamberHistos[type]["lct_eighthstrip_emul"]->Fill(lct->getStrip(8));
           if (useB904_) {
-            chamberHistos[type]["lct_quartstripbit_emul"]->Fill(lct.getQuartStripBit());
-            chamberHistos[type]["lct_eighthstripbit_emul"]->Fill(lct.getEighthStripBit());
+            chamberHistos[type]["lct_quartstripbit_emul"]->Fill(lct->getQuartStripBit());
+            chamberHistos[type]["lct_eighthstripbit_emul"]->Fill(lct->getEighthStripBit());
           }
         }
       }
