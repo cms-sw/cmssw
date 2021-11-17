@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/data/dd4hep/v4/geometryRPFromDD_2021.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/data/dd4hep/v5/geometryRPFromDD_2021.xml'),
                                             appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
 
