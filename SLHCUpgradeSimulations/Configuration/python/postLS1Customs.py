@@ -26,8 +26,6 @@ def customisePostLS1_Common(process):
         process = customise_Reco(process)
     if hasattr(process,'digitisation_step') or ( hasattr(process,'mix') and hasattr(process.mix,'digitizers')):
         process = customise_Digi_Common(process)
-    if hasattr(process,'HLTSchedule'):
-        process = customise_HLT(process)
     if hasattr(process,'L1simulation_step'):
         process = customise_L1Emulator(process)
     if hasattr(process,'dqmoffline_step'):
@@ -776,10 +774,6 @@ def customise_RawToDigi(process):
 
 
 def customise_DigiToRaw(process):
-    return process
-
-
-def customise_HLT(process):
     return process
 
 

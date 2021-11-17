@@ -228,7 +228,6 @@ process = customizeHLTforMC(process)
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
 #from SLHCUpgradeSimulations.Configuration.postLS1Customs import *
-#process = customise_HLT(process)
 #process = customisePostLS1(process)
 
 # Automatic addition of the customisation function from SimGeneral.MixingModule.fullMixCustomize_cff
