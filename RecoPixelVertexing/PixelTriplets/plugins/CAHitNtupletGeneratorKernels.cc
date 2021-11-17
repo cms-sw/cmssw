@@ -14,11 +14,6 @@ void CAHitNtupletGeneratorKernelsCPU::printCounters(Counters const *counters) {
 }
 
 template <>
-void CAHitNtupletGeneratorKernelsCPU::fillHitDetIndices(HitsView const *hv, TkSoA *tracks_d, cudaStream_t) {
-  kernel_fillHitDetIndices(&tracks_d->hitIndices, hv, &tracks_d->detIndices);
-}
-
-template <>
 void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStream_t stream) {
   auto nhits = hh.nHits();
 
@@ -85,6 +80,7 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
 template <>
 void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *tracks_d, cudaStream_t cudaStream) {
   auto *tuples_d = &tracks_d->hitIndices;
+  auto *detId_d = &tracks_d->detIndices;
   auto *quality_d = tracks_d->qualityData();
 
   assert(tuples_d && quality_d);
@@ -132,8 +128,11 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
 
   cms::cuda::finalizeBulk(device_hitTuple_apc_, tuples_d);
 
+  kernel_fillHitDetIndices(
+      tuples_d, hh.view(), detId_d);
+
   // remove duplicates (tracks that share a doublet)
-  kernel_earlyDuplicateRemover(device_theCells_.get(), device_nCells_, tuples_d, quality_d, params_.dupPassThrough_);
+  kernel_earlyDuplicateRemover(device_theCells_.get(), device_nCells_, tracks_d, quality_d, params_.dupPassThrough_);
 
   kernel_countMultiplicity(tuples_d, quality_d, device_tupleMultiplicity_.get());
   cms::cuda::launchFinalize(device_tupleMultiplicity_.get(), cudaStream);

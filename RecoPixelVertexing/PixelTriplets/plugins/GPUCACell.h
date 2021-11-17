@@ -309,7 +309,7 @@ public:
         {
           hindex_type hits[8];
           auto nh = 0U;
-          constexpr int maxFB = 0; // 2;  // for the time being let's limit this
+          constexpr int maxFB = 2;  // for the time being let's limit this
           int nfb = 0;
           for (auto c : tmpNtuplet) {
             hits[nh++] = cells[c].theInnerHitId;
