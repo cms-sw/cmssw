@@ -4,7 +4,7 @@
 #include <sstream>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
@@ -23,13 +23,13 @@
 using namespace std;
 using namespace edm;
 
-class RPCReadOutMapBuilder : public edm::EDAnalyzer {
+class RPCReadOutMapBuilder : public edm::one::EDAnalyzer<> {
 public:
   explicit RPCReadOutMapBuilder(const edm::ParameterSet&);
-  ~RPCReadOutMapBuilder();
+  ~RPCReadOutMapBuilder() override = default;
+  void analyze(const edm::Event&, const edm::EventSetup&) override{};
   virtual void beginJob();
   virtual void endJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
 
 private:
   RPCReadOutMapping* cabling;
@@ -42,8 +42,6 @@ RPCReadOutMapBuilder::RPCReadOutMapBuilder(const edm::ParameterSet& iConfig)
   ::putenv(const_cast<char*>(std::string("CORAL_AUTH_USER=me").c_str()));
   ::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD=test").c_str()));
 }
-
-RPCReadOutMapBuilder::~RPCReadOutMapBuilder() { cout << "DTOR called" << endl; }
 
 // ------------ method called to store map -------------------
 void RPCReadOutMapBuilder::endJob() {
