@@ -214,7 +214,8 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
                                 << "p4" << "\t" << "e4" << "\t"
                                 << "p5" << "\t" << "e5" << "\t"
                                 << "chi2" << "\t" << "prob" << "\t"
-                                << "newDetId" << std::endl;
+                                << "newDetId" << "\t" << "tan(LA)" << "\t"
+                                << "Error(LA)" << std::endl;
   // clang-format on
 
   std::unique_ptr<SiPixelLorentzAngle> LorentzAngle = std::make_unique<SiPixelLorentzAngle>();
@@ -228,6 +229,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   f1->SetParName(5, "quintic term");
 
   double p1_simul_newmodule = 0.294044;
+  double half_width = 0.0285 / 2 * 10000;  // pixel width in units of micro meter
 
   for (int j = 0; j < (int)hists.BPixnewDetIds_.size(); j++) {
     int new_index = j + 1 + hists.nModules_[hists.nlay - 1] + (hists.nlay - 1) * hists.nModules_[hists.nlay - 1];
@@ -268,12 +270,25 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     double chi2 = f1->GetChisquare();
     double prob = f1->GetProb();
 
+    double f1_halfwidth = p0 + p1 * half_width + p2 * pow(half_width, 2) + p3 * pow(half_width, 3) +
+                          p4 * pow(half_width, 4) + p5 * pow(half_width, 5);
+
+    double f1_zerowidth = p0;
+
+    double tan_LA =
+        (f1_halfwidth - f1_zerowidth) / half_width;  // tan_LA = (f1(x = half_width) - f1(x = 0)) / (half_width - 0)
+    double errsq_LA = (pow(e1, 2) + pow((half_width * e2), 2) + pow((half_width * half_width * e3), 2) +
+                       pow((half_width * half_width * half_width * e4), 2) +
+                       pow((half_width * half_width * half_width * half_width * e5), 2)) *
+                      pow(tan_LA, 2);  // Propagation of uncertainty
+    double error_LA = sqrt(errsq_LA);
+
     edm::LogPrint("LorentzAngle") << std::setprecision(4) << hists.BPixnewModule_[j] << "\t" << hists.BPixnewLayer_[j]
                                   << "\t" << p0 << "\t" << e0 << "\t" << p1 << std::setprecision(3) << "\t" << e1
                                   << "\t" << e1 / p1 * 100. << "\t" << (p1 - p1_simul_newmodule) / e1 << "\t" << p2
                                   << "\t" << e2 << "\t" << p3 << "\t" << e3 << "\t" << p4 << "\t" << e4 << "\t" << p5
                                   << "\t" << e5 << "\t" << chi2 << "\t" << prob << "\t" << hists.BPixnewDetIds_[j]
-                                  << std::endl;
+                                  << "\t" << tan_LA << "\t" << error_LA << std::endl;
   }
 
   double p1_simul[hists.nlay][hists.nModules_[hists.nlay - 1]];
@@ -335,12 +350,26 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
       double chi2 = f1->GetChisquare();
       double prob = f1->GetProb();
 
+      double f1_halfwidth = p0 + p1 * half_width + p2 * pow(half_width, 2) + p3 * pow(half_width, 3) +
+                            p4 * pow(half_width, 4) + p5 * pow(half_width, 5);
+
+      double f1_zerowidth = p0;
+
+      double tan_LA =
+          (f1_halfwidth - f1_zerowidth) / half_width;  // tan_LA = (f1(x = half_width) - f1(x = 0)) / (half_width - 0)
+      double errsq_LA = (pow(e1, 2) + pow((half_width * e2), 2) + pow((half_width * half_width * e3), 2) +
+                         pow((half_width * half_width * half_width * e4), 2) +
+                         pow((half_width * half_width * half_width * half_width * e5), 2)) *
+                        pow(tan_LA, 2);  // Propagation of uncertainty
+      double error_LA = sqrt(errsq_LA);
+
       edm::LogPrint("LorentzAngle") << std::setprecision(4) << i_module << "\t" << i_layer << "\t" << p0 << "\t" << e0
                                     << "\t" << p1 << std::setprecision(3) << "\t" << e1 << "\t" << e1 / p1 * 100.
                                     << "\t" << (p1 - p1_simul[i_layer - 1][i_module - 1]) / e1 << "\t" << p2 << "\t"
                                     << e2 << "\t" << p3 << "\t" << e3 << "\t" << p4 << "\t" << e4 << "\t" << p5 << "\t"
                                     << e5 << "\t" << chi2 << "\t" << prob << "\t"
-                                    << "null" << std::endl;
+                                    << "null"
+                                    << "\t" << tan_LA << "\t" << error_LA << std::endl;
 
       const auto& detIdsToFill = hists.detIdsList.at(i_index);
 
@@ -351,7 +380,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
       // if the fit quality is OK
       if (prob > fitProbCut_) {
         for (const auto& id : detIdsToFill) {
-          bPixLorentzAnglePerTesla_ = p1 / theMagField;
+          bPixLorentzAnglePerTesla_ = tan_LA / theMagField;
           if (!LorentzAngle->putLorentzAngle(id, bPixLorentzAnglePerTesla_)) {
             edm::LogError("SiPixelLorentzAnglePCLHarvester")
                 << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] detid already exists" << std::endl;
