@@ -64,9 +64,12 @@ process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
                                                  minVertexNdf        = cms.untracked.double(10.),
                                                  minVertexMeanWeight = cms.untracked.double(0.5),
                                                  runControl = cms.untracked.bool(.oO[runControl]Oo.),
-                                                 runControlNumber = cms.untracked.vuint32(runboundary)
+                                                 runControlNumber = cms.untracked.vuint32(runboundary),
+                                                 sumpTStartScale = cms.untracked.double(.oO[startScale]Oo.),
+                                                 sumpTEndScale = cms.untracked.double(.oO[endScale]Oo.),
+                                                 nTrackBins = cms.untracked.double(.oO[nTracksBins]Oo.),
+                                                 nVtxBins = cms.untracked.double(.oO[nVtxBins]Oo.)
                                                  )
-
 """
 
 ####################################################################
