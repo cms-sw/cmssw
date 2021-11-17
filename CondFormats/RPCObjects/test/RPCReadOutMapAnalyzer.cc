@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -17,38 +17,34 @@ using namespace std;
 using namespace edm;
 
 // class declaration
-class RPCReadOutMapAnalyzer : public edm::EDAnalyzer {
+class RPCReadOutMapAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit RPCReadOutMapAnalyzer(const edm::ParameterSet&);
-  ~RPCReadOutMapAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~RPCReadOutMapAnalyzer() override = default;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   bool m_flag;
+  edm::ESGetToken<RPCEMap, RPCEMapRcd> readoutMappingToken_;
+  edm::ESGetToken<RPCReadOutMapping, RPCReadOutMappingRcd> mapZeroToken_;
 };
 
 RPCReadOutMapAnalyzer::RPCReadOutMapAnalyzer(const edm::ParameterSet& iConfig)
-    : m_flag(iConfig.getUntrackedParameter<bool>("useNewEMap", false)) {
+    : m_flag(iConfig.getUntrackedParameter<bool>("useNewEMap", false)),
+      readoutMappingToken_(esConsumes()),
+      mapZeroToken_(esConsumes()) {
   ::putenv(const_cast<char*>(std::string("CORAL_AUTH_USER konec").c_str()));
   ::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD konecPass").c_str()));
 }
-
-RPCReadOutMapAnalyzer::~RPCReadOutMapAnalyzer() {}
 
 void RPCReadOutMapAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::cout << "====== RPCReadOutMapAnalyzer" << std::endl;
 
   const RPCReadOutMapping* map;
   if (m_flag) {
-    edm::ESHandle<RPCEMap> readoutMapping;
-    iSetup.get<RPCEMapRcd>().get(readoutMapping);
-    const RPCEMap* eMap = readoutMapping.product();
-    //     RPCReadOutMapping* map = eMap->convert();
-    map = eMap->convert();
+    map = iSetup.getHandle(readoutMappingToken_).product()->convert();
   } else {
-    edm::ESHandle<RPCReadOutMapping> map0;
-    iSetup.get<RPCReadOutMappingRcd>().get(map0);
-    map = map0.product();
+    map = iSetup.getHandle(mapZeroToken_).product();
   }
   cout << "version: " << map->version() << endl;
 
