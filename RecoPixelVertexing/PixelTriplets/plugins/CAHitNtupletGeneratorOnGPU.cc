@@ -152,7 +152,8 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& 
   desc.add<unsigned int>("minHitsForSharingCut", 10)
       ->setComment("Maximum number of hits in a tuple to clean also if the shared hit is on bpx1");
   desc.add<bool>("includeJumpingForwardDoublets", false);
-  desc.add<bool>("fit5as4", false)->setComment("fit only 4 hits out of N");;
+  desc.add<bool>("fit5as4", false)->setComment("fit only 4 hits out of N");
+  ;
   desc.add<bool>("doClusterCut", true);
   desc.add<bool>("doZ0Cut", true);
   desc.add<bool>("doPtCut", true);

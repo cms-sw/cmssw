@@ -126,30 +126,21 @@ namespace {
 
 }  // namespace
 
-
 constexpr void testLayer() {
-
   for (auto i = 0U; i < phase1PixelTopology::numberOfModules; ++i) {
     uint32_t layer = phase1PixelTopology::getLayer(i);
-    uint32_t tLayer= phase1PixelTopology::findLayer(i);
-    assert(tLayer==layer);
+    uint32_t tLayer = phase1PixelTopology::findLayer(i);
+    assert(tLayer == layer);
     //std::cout << "module " << i << ": " << "layer " << layer << ", \"" << phase1PixelTopology::layerName[layer] << "\", [" << phase1PixelTopology::layerStart[layer] << ", " << phase1PixelTopology::layerStart[layer+1] << ")" << std::endl;
     assert(layer < phase1PixelTopology::numberOfLayers);
     assert(i >= phase1PixelTopology::layerStart[layer]);
     assert(i < phase1PixelTopology::layerStart[layer + 1]);
   }
-
-
 }
 
-
-__global__ 
-void kernel_testLayer() {
-  testLayer();
-}
+__global__ void kernel_testLayer() { testLayer(); }
 
 int main() {
-
   cms::cudatest::requireDevices();
 
   for (uint16_t ix = 0; ix < 80 * 2; ++ix) {
@@ -173,16 +164,16 @@ int main() {
   for (auto i = 0U; i < phase1PixelTopology::numberOfLayers; ++i) {
     std::cout << "layer " << i << ", \"" << phase1PixelTopology::layerName[i] << "\", ["
               << phase1PixelTopology::layerStart[i] << ", " << phase1PixelTopology::layerStart[i + 1] << ") "
-              << phase1PixelTopology::layerStart[i+1]-phase1PixelTopology::layerStart[i] 
-              << std::endl;
+              << phase1PixelTopology::layerStart[i + 1] - phase1PixelTopology::layerStart[i] << std::endl;
   }
 
-  std::cout << "maxModuleStide layerIndexSize " << phase1PixelTopology::maxModuleStride << ' ' << phase1PixelTopology::layerIndexSize << std::endl;
+  std::cout << "maxModuleStide layerIndexSize " << phase1PixelTopology::maxModuleStride << ' '
+            << phase1PixelTopology::layerIndexSize << std::endl;
 
   testLayer();
 
-  kernel_testLayer<<<1,1>>>();
-  cudaCheck(cudaDeviceSynchronize());  
+  kernel_testLayer<<<1, 1>>>();
+  cudaCheck(cudaDeviceSynchronize());
 
   return 0;
 }
