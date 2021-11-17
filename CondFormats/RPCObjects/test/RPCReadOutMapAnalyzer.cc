@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,9 +41,9 @@ void RPCReadOutMapAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 
   const RPCReadOutMapping* map;
   if (m_flag) {
-    map = iSetup.getHandle(readoutMappingToken_).product()->convert();
+    map = iSetup.getData(readoutMappingToken_).convert();
   } else {
-    map = iSetup.getHandle(mapZeroToken_).product();
+    map = &iSetup.getData(mapZeroToken_);
   }
   cout << "version: " << map->version() << endl;
 
