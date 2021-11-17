@@ -88,10 +88,8 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   numberOfBlocks = (HitContainer::ctNOnes() + blockSize - 1) / blockSize;
   cms::cuda::finalizeBulk<<<numberOfBlocks, blockSize, 0, cudaStream>>>(device_hitTuple_apc_, tuples_d);
 
-   kernel_fillHitDetIndices<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-      tuples_d, hh.view(), detId_d);
+  kernel_fillHitDetIndices<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, hh.view(), detId_d);
   cudaCheck(cudaGetLastError());
-
 
   // remove duplicates (tracks that share a doublet)
   numberOfBlocks = nDoubletBlocks(blockSize);

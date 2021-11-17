@@ -143,8 +143,7 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
   // quality to mark rejected
   constexpr auto reject = pixelTrack::Quality::edup;  /// cannot be loose
 
-  auto const& tracks = *ptracks;
-
+  auto const &tracks = *ptracks;
 
   assert(nCells);
   auto first = threadIdx.x + blockIdx.x * blockDim.x;
@@ -687,7 +686,8 @@ __global__ void kernel_rejectDuplicate(TrackingRecHit2DSOAView const *__restrict
         auto dop = nSigma2 * (tracks.stateAtBS.covariance(jt)(9) + e2opi);
         if ((opi - opj) * (opi - opj) > dop)
           continue;
-        auto nlj = tracks.nLayers(jt);;
+        auto nlj = tracks.nLayers(jt);
+        ;
         if (nlj < nli || (nlj == nli && (qj < qi || (qj == qi && score(it, nli) < score(jt, nlj)))))
           quality[jt] = reject;
         else {
@@ -783,7 +783,8 @@ __global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict_
       if (quality[*it] <= good)
         continue;
       onlyTriplets &= tracks.isTriplet(*it);
-      if (!onlyTriplets) break;
+      if (!onlyTriplets)
+        break;
     }
 
     // only triplets

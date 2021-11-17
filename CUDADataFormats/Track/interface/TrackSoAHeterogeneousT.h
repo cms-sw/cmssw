@@ -10,7 +10,6 @@
 
 #include "CUDADataFormats/Common/interface/HeterogeneousSoA.h"
 
-
 namespace pixelTrack {
   enum class Quality : uint8_t { bad = 0, edup, dup, loose, strict, tight, highPurity, notQuality };
   constexpr uint32_t qualitySize{uint8_t(Quality::notQuality)};
@@ -44,30 +43,28 @@ public:
   // this is chi2/ndof as not necessarely all hits are used in the fit
   eigenSoA::ScalarSoA<float, S> chi2;
 
-
   constexpr int nHits(int i) const { return detIndices.size(i); }
 
   // we may store it if faster...
   constexpr int nLayers(int i) const { return computeNumberOfLayers(i); }
 
   // or store this one
-  constexpr bool isTriplet(int i) const { return nHits(i) ==3 || nLayers(i)==3; }
+  constexpr bool isTriplet(int i) const { return nHits(i) == 3 || nLayers(i) == 3; }
 
   constexpr int computeNumberOfLayers(int32_t i) const {
     // layers are in order and we assume tracks are either forward or backward
-    auto  pdet=detIndices.begin(i);
-    int nl=1;
+    auto pdet = detIndices.begin(i);
+    int nl = 1;
     auto ol = phase1PixelTopology::findLayer(*pdet);
-    for (;pdet<detIndices.end(i); ++pdet) {
-      auto il = phase1PixelTopology::findLayer(*pdet,ol);
-      if (il!=ol) ++nl;
-      ol=il;
+    for (; pdet < detIndices.end(i); ++pdet) {
+      auto il = phase1PixelTopology::findLayer(*pdet, ol);
+      if (il != ol)
+        ++nl;
+      ol = il;
     }
-    assert(nl>=3);
+    assert(nl >= 3);
     return nl;
   }
-  
-
 
   // State at the Beam spot
   // phi,tip,1/pt,cotan(theta),zip
