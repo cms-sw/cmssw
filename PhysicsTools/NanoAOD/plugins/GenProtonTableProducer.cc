@@ -51,13 +51,14 @@ GenProtonTableProducer::GenProtonTableProducer(const edm::ParameterSet& iConfig)
 
 void GenProtonTableProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
   // define the variables
-  std::vector<float> pts, pzs, vzs;
+  std::vector<float> pxs, pys, pzs, vzs;
   std::vector<bool> isPUs;
   // first loop over signal protons
   for (const auto& pruned_cand : iEvent.get(prunedCandsToken_)) {
     if (!protonsCut_(pruned_cand))
       continue;
-    pts.emplace_back(pruned_cand.pt());
+    pxs.emplace_back(pruned_cand.px());
+    pys.emplace_back(pruned_cand.py());
     pzs.emplace_back(pruned_cand.pz());
     vzs.emplace_back(pruned_cand.vz());
     isPUs.emplace_back(false);
@@ -67,22 +68,25 @@ void GenProtonTableProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
     if (!protonsCut_(pu_cand))
       continue;
     bool associated{false};
-    for (size_t i = 0; i < pts.size(); ++i) {
-      if (fabs(1. - pts.at(i) / pu_cand.pt()) < tolerance_ && fabs(1. - pzs.at(i) / pu_cand.pz()) < tolerance_) {
+    for (size_t i = 0; i < pzs.size(); ++i) {
+      if (fabs(1. - pxs.at(i) / pu_cand.px()) < tolerance_ && fabs(1. - pys.at(i) / pu_cand.py()) < tolerance_ &&
+          fabs(1. - pzs.at(i) / pu_cand.pz()) < tolerance_) {
         associated = true;
         break;
       }
     }
     if (associated)
       continue;
-    pts.emplace_back(pu_cand.pt());
+    pxs.emplace_back(pu_cand.px());
+    pys.emplace_back(pu_cand.py());
     pzs.emplace_back(pu_cand.pz());
     vzs.emplace_back(pu_cand.vz());
     isPUs.emplace_back(true);
   }
 
   auto protons_table = std::make_unique<nanoaod::FlatTable>(isPUs.size(), table_name_, false);
-  protons_table->addColumn<float>("pt", pts, "proton transverse momentum");
+  protons_table->addColumn<float>("px", pxs, "proton horizontal momentum");
+  protons_table->addColumn<float>("py", pys, "proton vertical momentum");
   protons_table->addColumn<float>("pz", pzs, "proton longitudinal momentum");
   protons_table->addColumn<float>("vz", vzs, "proton vertex longitudinal coordinate");
   protons_table->addColumn<bool>("isPU", isPUs, "pileup proton?");
