@@ -16,21 +16,23 @@
 
 class TrackerParametersGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit TrackerParametersGeometryAnalyzer(const edm::ParameterSet&) {}
+  explicit TrackerParametersGeometryAnalyzer(const edm::ParameterSet&)
+      : parToken_(esConsumes()), geoToken_(esConsumes()) {}
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+
+private:
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> parToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geoToken_;
 };
 
 void TrackerParametersGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::LogInfo("TrackerParametersGeometryAnalyzer") << "Here I am";
 
-  edm::ESHandle<PTrackerParameters> ptp;
-  iSetup.get<PTrackerParametersRcd>().get(ptp);
-
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  const auto& ptp = iSetup.getHandle(parToken_);
+  const auto& pDD = iSetup.getHandle(geoToken_);
 
   GeometricDet const* gd = pDD->trackerDet();
   GeometricDet::ConstGeometricDetContainer subdetgd = gd->components();
