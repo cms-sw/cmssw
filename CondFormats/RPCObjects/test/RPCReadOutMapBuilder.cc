@@ -28,8 +28,8 @@ public:
   explicit RPCReadOutMapBuilder(const edm::ParameterSet&);
   ~RPCReadOutMapBuilder() override = default;
   void analyze(const edm::Event&, const edm::EventSetup&) override{};
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
   RPCReadOutMapping* cabling;
