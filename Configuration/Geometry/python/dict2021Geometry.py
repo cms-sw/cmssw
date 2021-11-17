@@ -1562,7 +1562,6 @@ ppsDict = {
             'Geometry/VeryForwardData/data/CTPPS_Diamond_2021/Simu/v1/CTPPS_Detectors_Assembly_022.xml',
             'Geometry/VeryForwardData/data/CTPPS_Diamond_2021/Simu/v1/CTPPS_Detectors_Assembly_122.xml',
             'Geometry/VeryForwardData/data/CTPPS_Diamond_Sensitive_Dets_TimingHits.xml',
-            'Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Modules/v2/ppstrackerMaterials.xml',
             'Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Modules/v3/PPS_Pixel_Module_2x2_Run3.xml',
             'Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Modules/v2/PPS_Pixel_Sens.xml',
             'Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v2/CTPPS_Pixel_Assembly_Box_Real_003.xml',
