@@ -73,7 +73,6 @@ class testEventsetupRecord : public CppUnit::TestFixture {
   CPPUNIT_TEST(transientTest);
 
   CPPUNIT_TEST_EXCEPTION(getNodataExpTest, NoDataExceptionType);
-  CPPUNIT_TEST_EXCEPTION(getExepTest, ExceptionType);
   CPPUNIT_TEST_EXCEPTION(doGetExepTest, ExceptionType);
 
   CPPUNIT_TEST_SUITE_END();
@@ -92,7 +91,6 @@ public:
   void transientTest();
 
   void getNodataExpTest();
-  void getExepTest();
   void doGetExepTest();
 
   EventSetupRecordKey dummyRecordKey_;
@@ -495,26 +493,6 @@ void testEventsetupRecord::getNodataExpTest() {
 
   ESHandle<Dummy> dummyPtr = dummyRecord.getHandle(token);
   *dummyPtr;
-}
-
-void testEventsetupRecord::getExepTest() {
-  eventsetup::EventSetupRecordImpl dummyRecordImpl{dummyRecordKey_, &activityRegistry};
-  FailingDummyProxy dummyProxy;
-
-  edm::ESConsumesInfo consumesInfo;
-  edm::ESConsumesCollectorT<DummyRecord> cc(&consumesInfo, static_cast<unsigned int>(edm::Transition::Event));
-  auto token = cc.consumes<Dummy>();
-  std::vector<edm::ESProxyIndex> getTokenIndices{eventsetup::ESRecordsToProxyIndices::missingProxyIndex()};
-
-  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
-
-  dummyRecordImpl.add(dummyDataKey, &dummyProxy);
-
-  DummyRecord dummyRecord;
-  ESParentContext pc;
-  dummyRecord.setImpl(&dummyRecordImpl, 0, getTokenIndices.data(), &eventSetupImpl_, &pc);
-  ESHandle<Dummy> dummyPtr = dummyRecord.getHandle(token);
-  //CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr), ExceptionType);
 }
 
 void testEventsetupRecord::doGetTest() {
