@@ -35,7 +35,7 @@ private:
 
   class ClusterLink {
   public:
-    ClusterLink(unsigned int i, unsigned int j, double DR, double DZ, double energy) {
+    ClusterLink(unsigned int i, unsigned int j, double DR, int DZ, double energy) {
       from_ = i;
       to_ = j;
       linkDR_ = DR;
@@ -48,14 +48,14 @@ private:
     unsigned int from() const { return from_; }
     unsigned int to() const { return to_; }
     double dR() const { return linkDR_; }
-    double dZ() const { return linkDZ_; }
+    int dZ() const { return linkDZ_; }
     double energy() const { return linkE_; }
 
   private:
     unsigned int from_;
     unsigned int to_;
     double linkDR_;
-    double linkDZ_;
+    int linkDZ_;
     double linkE_;
   };
 
@@ -175,10 +175,11 @@ std::vector<PFMultiDepthClusterizer::ClusterLink> PFMultiDepthClusterizer::link(
       const reco::PFCluster& cluster1 = clusters[i];
       const reco::PFCluster& cluster2 = clusters[j];
 
-      auto dz = (cluster2.depth() - cluster1.depth());
+      // PFCluster depth stored as double but HCAL layer clusters have integral depths only
+      auto dz = (static_cast<int>(cluster2.depth()) - static_cast<int>(cluster1.depth()));
 
       //Do not link at the same layer and only link inside out!
-      if (dz < 0.0f || std::abs(dz) < 0.2f)
+      if (dz <= 0)
         continue;
 
       auto const& crep1 = cluster1.positionREP();
@@ -221,7 +222,7 @@ std::vector<PFMultiDepthClusterizer::ClusterLink> PFMultiDepthClusterizer::prune
           mask[j] = true;
         } else if (link1.dZ() > link2.dZ()) {
           mask[i] = true;
-        } else if (fabs(link1.dZ() - link2.dZ()) < 0.2) {  //if same layer-pick based on transverse compatibility
+        } else {  //if same layer-pick based on transverse compatibility
           if (link1.dR() < link2.dR()) {
             mask[j] = true;
           } else if (link1.dR() > link2.dR()) {
