@@ -92,7 +92,7 @@ void TrackFoldedOccupancyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore:
   hname = "TrackEtaPhiInvertedoutofphase_";
   MonitorElement* TrackEtaPhiInvertedoutofphase = igetter.get(inFolder + hname + histTag_);
 
-  if(TrackEtaPhi == nullptr || TrackEtaPhiInverted == nullptr || TrackEtaPhiInvertedoutofphase == nullptr){
+  if (TrackEtaPhi == nullptr || TrackEtaPhiInverted == nullptr || TrackEtaPhiInvertedoutofphase == nullptr) {
     edm::LogWarning("TrackFoldedOccupancyClient") << "MEs needed for this module not found. Skipping.";
     return;
   }
