@@ -114,7 +114,6 @@ void FixedGridRhoProducerFastjetFromRecHit::produce(edm::Event& iEvent, const ed
 
   bge_.set_particles(inputs);
   iEvent.put(std::make_unique<double>(bge_.rho()));
-  std::cout << "new rho from recHits " << bge_.rho() << std::endl;
 }
 
 void FixedGridRhoProducerFastjetFromRecHit::getHitP4(const DetId &detId, float hitE, TLorentzVector &hitp4, const CaloGeometry &caloGeometry) {
@@ -148,17 +147,5 @@ bool FixedGridRhoProducerFastjetFromRecHit::passedEcalNoiseCut(const EcalRecHit 
   if ( hit.energy() > (*thresholds)[hit.detid()]) passed=true;
   return passed;
 }
-
-//calotower-like flat noise threshold
-/*
-bool FixedGridRhoProducerFastjetFromRecHit::passedEcalNoiseCut(const EcalRecHit &hit,const EcalPFRecHitThresholds *thresholds) {
-  bool passed=false;
-  //if ( hit.energy() > (*thresholds)[hit.detid()]) passed=true;
-  //  const EcalDetId thisDetId(hit.detid());
-  if ( (hit.detid().subdetId() == EcalBarrel) &&  (hit.energy() >= 0.07 ) ) passed=true;
-  if ( (hit.detid().subdetId() == EcalEndcap) &&  (hit.energy() >= 0.3  ) ) passed=true;
-  return passed;
-}
-*/
 
 DEFINE_FWK_MODULE(FixedGridRhoProducerFastjetFromRecHit);
