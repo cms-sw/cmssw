@@ -10,6 +10,7 @@
 <use name="SimDataFormats/Vertex"/>
 <use name="SimDataFormats/Track"/>
 <use name="RecoJets/JetAlgorithms"/>
+<use name="CondFormats/EcalObjects"/>
 <use name="JetMETCorrections/JetCorrector"/>
 <use name="DataFormats/CastorReco"/>
 <use name="CommonTools/MVAUtils"/>
