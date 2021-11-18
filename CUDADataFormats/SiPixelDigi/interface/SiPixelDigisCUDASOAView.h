@@ -9,7 +9,8 @@
 
 class SiPixelDigisCUDASOAView {
 public:
-  enum class StorageLocation { XX = 0, YY = 1, ADC = 2, MODULEIND = 3, CLUS = 4, PDIGI = 6, RAWIDARR = 8 };
+  enum class StorageLocation { XX = 0, YY = 1, MODULEIND = 2, ADC = 3, CLUS = 4, PDIGI = 6, RAWIDARR = 8, MAX = 10 };
+  enum class StorageLocationHost { ADC = 0, CLUS = 1, PDIGI = 3, RAWIDARR = 5, MAX = 7 };
 
   __device__ __forceinline__ uint16_t xx(int i) const { return __ldg(xx_ + i); }
   __device__ __forceinline__ uint16_t yy(int i) const { return __ldg(yy_ + i); }

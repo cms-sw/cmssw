@@ -27,10 +27,7 @@ public:
   uint32_t nModules() const { return nModules_h; }
   uint32_t nDigis() const { return nDigis_h; }
 
-  cms::cuda::host::unique_ptr<uint16_t[]> adcToHostAsync(cudaStream_t stream) const;
-  cms::cuda::host::unique_ptr<int32_t[]> clusToHostAsync(cudaStream_t stream) const;
-  cms::cuda::host::unique_ptr<uint32_t[]> pdigiToHostAsync(cudaStream_t stream) const;
-  cms::cuda::host::unique_ptr<uint32_t[]> rawIdArrToHostAsync(cudaStream_t stream) const;
+  cms::cuda::host::unique_ptr<uint16_t[]> copyAllToHostAsync(cudaStream_t stream) const;
 
   SiPixelDigisCUDASOAView *view() { return m_view.get(); }
   SiPixelDigisCUDASOAView const *view() const { return m_view.get(); }
