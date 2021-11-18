@@ -1,4 +1,3 @@
-<use name="CondCore/DBOutputService"/>
 <use name="DQM/SiStripCommon"/>
 <use name="DQMServices/Core"/>
 <use name="DataFormats/Common"/>
