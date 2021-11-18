@@ -23,7 +23,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 # default source
 process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1),
-    numberEventsInLuminosityBlock = process.ctppsCompositeESSource.generateEveryNEvents
 )
 
 process.CondDB.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
@@ -94,7 +93,7 @@ process.p = cms.Path(
     * process.beamDivergenceVtxGenerator
 
     * process.directSimPPS
-    * process.recoCTPPS
+    * process.recoDirectSimPPS
 
     * process.ctppsLHCInfoPlotter
     * process.ctppsTrackDistributionPlotter
