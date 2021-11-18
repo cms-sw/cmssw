@@ -57,17 +57,6 @@ assert(m)
 m2=vre.search(function2)
 assert(m2)
 
-modules = list()
-with open('modules_in_ib.txt', 'r') as m:
-    for line in m:
-        modules.append(line.strip())
-mods='|'.join(modules)
-mods_regex=r'\b(' + mods+ r'QQQQQQQQ)\b'
-comp_mods_regex=re.compile(mods_regex)
-n=comp_mods_regex.search(function)
-assert(n)
-n2=comp_mods_regex.search(function2)
-assert(n2)
 
 module2package = dict()
 with open('module_to_package.yaml') as m:
@@ -85,36 +74,6 @@ for k,v in p.items():
 for k in module2package.keys():
     module2package[k]=sorted(set(module2package[k]))
 
-
-class2base = dict()
-mbcl = re.compile("(base|data) class")
-with open('classes.txt.dumperall') as f:
-    for line in f:
-        if mbcl.search(line):
-            fields = line.split("'")
-            if fields[2] == ' base class ' and not baseclassre.search(fields[3]):
-                class2base.setdefault(fields[1], []).append(fields[3])
-
-
-bmodules=[]
-for package, modules in module2package.items():
-    for module in modules:
-        for cl in class2base.keys():
-            clname=cl.split('::')[-1]
-            if module == clname:
-                for basecl in class2base[cl]:
-                    if not basecl in set(module2package[package]):
-                        module2package[package].append(basecl)
-                    if not basecl in set(bmodules):
-                        bmodules.append(basecl)
-
-
-bmods='|'.join(bmodules)
-bmods_regex=r'\b(' + bmods+ r'QQQQQQQQ)\b'
-comp_bmods_regex=re.compile(bmods_regex)
-n=comp_bmods_regex.search("function 'edm::BaseFlatGunProducer::beginRun(const edm::Run &, const class edm::EventSetup &)' calls function 'edm::EventSetup::getData<class edm::ESHandle<class HepPDT::ParticleDataTable>>(class edm::ESHandle<class HepPDT::ParticleDataTable> &) const'")
-assert(n)
-
 G = nx.DiGraph()
 with open('function-calls-db.txt') as f:
     for line in f:
@@ -128,7 +87,7 @@ with open('function-calls-db.txt') as f:
         if fields[2] == ' overrides function ':
             if baseclassre.match(fields[3]):
                 G.add_edge(fields[1], fields[3], kind=' overrides function ')
-                if topfuncre.search(fields[1]) and (comp_mods_regex.search(fields[1]) or comp_bmods_regex.search(fields[1])):
+                if topfuncre.search(fields[1]) :
                     toplevelfuncs.add(fields[1])
             else:
                 G.add_edge(fields[3], fields[1], kind=' overriden function calls function ')
@@ -156,7 +115,6 @@ for tfunc in toplevelfuncs:
 report = dict()
 for key in sorted(set(module2package.keys())):
     for value in sorted(set(module2package[key])):
-        if comp_mods_regex.match(value) or comp_bmods_regex.match(value):
             regex_str = r'\b%s\b'%value
             vre=re.compile(regex_str)
             for callstack in sorted(callstacks):
