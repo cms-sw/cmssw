@@ -1,5 +1,5 @@
 // Author: Marco Rovere - marco.rovere@cern.ch
-// Date: 04/2021
+// Date: 10/2021
 #include <algorithm>
 #include <set>
 #include <vector>
@@ -99,12 +99,12 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
   const CaloGeometry &geom = es.getData(caloGeomToken_);
   rhtools_.setGeometry(geom);
 
-  int type = input.tiles[0].typeT();
-  int nEtaBin = (type == 1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
-  int nPhiBin = (type == 1) ? ticl::TileConstantsHFNose::nPhiBins : ticl::TileConstants::nPhiBins;
+  constexpr auto isHFnose = std::is_same<TILES, TICLLayerTilesHFNose>::value;
+  constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
+  constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
 
   // We need to partition the two sides of the HGCAL detector
-  auto lastLayerPerSide = static_cast<unsigned int>(rhtools_.lastLayer(false)) - 1;
+  auto lastLayerPerSide = static_cast<unsigned int>(rhtools_.lastLayer(isHFnose)) - 1;
   unsigned int maxLayer = 2 * lastLayerPerSide - 1;
   std::vector<fastjet::PseudoJet> fjInputs;
   fjInputs.clear();
@@ -150,7 +150,7 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
                               input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(false), false).z());
+                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z());
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);
