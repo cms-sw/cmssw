@@ -18,8 +18,8 @@ ctppsCompositeESSource = _esComp.clone(
 
 # RP ids
 rpIds = cms.PSet(
-  rp_45_F = cms.uint32(23),
-  rp_45_N = cms.uint32(3),
-  rp_56_N = cms.uint32(103),
-  rp_56_F = cms.uint32(123)
+    rp_45_F = cms.uint32(23),
+    rp_45_N = cms.uint32(3),
+    rp_56_N = cms.uint32(103),
+    rp_56_F = cms.uint32(123)
 )
