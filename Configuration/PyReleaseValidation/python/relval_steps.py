@@ -100,7 +100,7 @@ steps['ZElSkim2011B']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2011B-ZElec
 steps['HighMet2011B']={'INPUT':InputInfo(dataSet='/Jet/Run2011B-HighMET-19Nov2011-v1/RAW-RECO',label='2011B',run=Run2011BSk)}
 
 steps['RunHI2010']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2010-v1/RAW',label='hi2010',run=[152698],events=10000,location='STD')}
-steps['RunHI2011']={'INPUT':InputInfo(dataSet='/HIMinBiasUPC/HIRun2011-v1/RAW',label='hi2011',ls={182124: [40]},events=10000,location='STD')}
+steps['RunHI2011']={'INPUT':InputInfo(dataSet='/HIMinBiasUPC/HIRun2011-v1/RAW',label='hi2011',run=[182124],events=10000,location='STD')}
 steps['RunPA2013']={'INPUT':InputInfo(dataSet='/PAMinBiasUPC/HIRun2013-v1/RAW',label='pa2013',run=[211313],events=10000,location='STD')}
 
 Run2015HI={263400: [[65,904]]}
@@ -2103,17 +2103,6 @@ steps['TIER0EXPPPSCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBasedSel,
                           '--eventcontent':'ALCARECO',
                           }
 
-steps['TIER0EXPPPSCALALIG']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBasedSel,ENDJOB',
-                             '-n':1000,
-                             '--process':'ALCARECO',
-                             '--scenario': 'pp',
-                             '--era':'Run2_2017',
-                             '--conditions':'auto:run2_data',
-                             '--data': '',
-                             '--datatier':'ALCARECO',
-                             '--eventcontent':'ALCARECO',
-                             }
-
 steps['ALCASPLITHPBS']={'-s':'ALCAOUTPUT:TkAlMinBias,ALCA:PromptCalibProdBeamSpotHP+PromptCalibProdBeamSpotHPLowPU',
                         '--scenario':'pp',
                         '--data':'',
@@ -2146,7 +2135,6 @@ steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSTimingCal
                         }
 
 steps['ALCASPLITPPSALIG']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSAlignment',
-                           '-n':1000,
                            '--scenario':'pp',
                            '--data':'',
                            '--era':'Run2_2017',
@@ -3137,7 +3125,6 @@ steps['COPYPASTE']={'-s':'NONE',
                     '--conditions':'auto:run1_mc',
                     '--output':'\'[{"t":"RAW","e":"ALL"}]\'',
                     '--customise_commands':'"process.ALLRAWoutput.fastCloning=cms.untracked.bool(False)"'}
-steps['COPYPASTER3'] = merge([{'--era' : 'Run3'}, steps['COPYPASTE']])
 
 #miniaod
 stepMiniAODDefaults = { '-s'              : 'PAT',
@@ -3352,7 +3339,6 @@ defaultDataSets['2023']='CMSSW_12_0_0_pre4-120X_mcRun3_2023_realistic_v2-v'
 defaultDataSets['2024']='CMSSW_12_0_0_pre4-120X_mcRun3_2024_realistic_v2-v'
 defaultDataSets['2026D49']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D49noPU-v'
 defaultDataSets['2026D76']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D76noPU-v'
-defaultDataSets['2026D77']='CMSSW_12_1_0_pre2-113X_mcRun4_realistic_v7_2026D77noPU-v'
 
 puDataSets = {}
 for key, value in defaultDataSets.items(): puDataSets[key+'PU'] = value
@@ -3510,12 +3496,12 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     }
 
     upgradeStepDict['HARVESTNano'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM+@nanoAODDQM',
-                                        '--conditions':gt,
-                                        '--mc':'',
-                                        '--geometry' : geom,
-                                        '--scenario' : 'pp',
-                                        '--filetype':'DQM',
-                                        }
+                                          '--conditions':gt,
+                                          '--mc':'',
+                                          '--geometry' : geom,
+                                          '--scenario' : 'pp',
+                                          '--filetype':'DQM',
+                                          }
                                     
     upgradeStepDict['HARVESTFakeHLT'][k]={'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM',
                                     '--conditions':gt,

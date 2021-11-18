@@ -221,6 +221,8 @@ upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
         'HARVEST',
         'RecoGlobal',
         'HARVESTGlobal',
+        'RecoNano',
+        'HARVESTNano',
     ],
     PU = [],
     suffix = '_trackingOnly',
@@ -294,6 +296,8 @@ upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
         'HARVEST',
         'RecoGlobal',
         'HARVESTGlobal',
+        'RecoNano',
+        'HARVESTNano',
     ],
     PU = [],
     suffix = '_pixelTrackingOnly',
@@ -317,6 +321,7 @@ upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
         'DigiTrigger',
         'Reco',
         'RecoGlobal',
+        'RecoNano',
     ],
     PU = [],
     suffix = '_trackingMkFit',
@@ -347,6 +352,8 @@ upgradeWFs['seedingDeepCore'] = UpgradeWorkflow_seedingDeepCore(
         'HARVEST',
         'RecoGlobal',
         'HARVESTGlobal',
+        'RecoNano',
+        'HARVESTNano',
     ],
     PU = [],
     suffix = '_seedingDeepCore',
@@ -382,9 +389,11 @@ class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
 upgradeWFs['trackdnn'] = UpgradeWorkflow_trackdnn(
     steps = [
         'Reco',
+        'RecoNano',
     ],
     PU = [
         'Reco',
+        'RecoNano',
     ],
     suffix = '_trackdnn',
     offset = 0.91,
@@ -402,16 +411,18 @@ class UpgradeWorkflow_mlpf(UpgradeWorkflow):
 upgradeWFs['mlpf'] = UpgradeWorkflow_mlpf(
     steps = [
         'Reco',
+        'RecoNano',
     ],
     PU = [
         'Reco',
+        'RecoNano',
     ],
     suffix = '_mlpf',
     offset = 0.13,
 )
 upgradeWFs['mlpf'].step3 = {
     '--datatier': 'GEN-SIM-RECO,RECOSIM,MINIAODSIM,NANOAODSIM,DQMIO',
-    '--eventcontent': 'FEVTDEBUGHLT,RECOSIM,MINIAODSIM,NANOAODSIM,DQM',
+    '--eventcontent': 'FEVTDEBUGHLT,RECOSIM,MINIAODSIM,NANOEDMAODSIM,DQM',
     '--procModifiers': 'mlpf'
 }
 
@@ -433,6 +444,8 @@ class PatatrackWorkflow(UpgradeWorkflow):
                 'HARVESTFakeHLT',
                 'RecoGlobal',
                 'HARVESTGlobal',
+                'RecoNano',
+                'HARVESTNano',
             ],
             PU = [],
             **kwargs)
@@ -750,8 +763,10 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
         'DigiTrigger',
         'Reco',
         'RecoGlobal',
+        'RecoNano',
         'HARVEST',
         'HARVESTGlobal',
+        'HARVESTNano',
         'MiniAOD',
         'ALCA',
         'Nano',
@@ -762,8 +777,10 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
         'DigiTrigger',
         'Reco',
         'RecoGlobal',
+        'RecoNano',
         'HARVEST',
         'HARVESTGlobal',
+        'HARVESTNano',
         'MiniAOD',
         'ALCA',
         'Nano',
@@ -863,12 +880,16 @@ upgradeWFs['0T'] = UpgradeWorkflow_0T(
         'Digi',
         'Reco',
         'HARVEST',
+        'RecoNano',
+        'HARVESTNano',
         'ALCA',
     ],
     PU = [
         'Digi',
         'Reco',
         'HARVEST',
+        'RecoNano',
+        'HARVESTNano',
     ],
     suffix = '_0T',
     offset = 0.24,
