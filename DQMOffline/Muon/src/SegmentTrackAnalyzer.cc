@@ -246,13 +246,12 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         segmFromCsc++;
       }
 
-#ifdef DEBUG                                                                                                                               
-      cout << "[SegmentTrackAnalyzer] # of segments from DT and CSC: " << segmFromDt << ", " << segmFromCsc << endl;                    
+#ifdef DEBUG
+      cout << "[SegmentTrackAnalyzer] # of segments from DT and CSC: " << segmFromDt << ", " << segmFromCsc << endl;
       cout << "[SegmentTrackAnalyzer] # of HITS from segments from DT: " << hitsFromSegmDt << endl;
-      cout << "[SegmentTrackAnalyzer] # of HITS from segments from CSC  " << hitsFromSegmCsc   << endl;
-#endif 
+      cout << "[SegmentTrackAnalyzer] # of HITS from segments from CSC  " << hitsFromSegmCsc << endl;
+#endif
     }
-
 
     // hits from track
     for (trackingRecHit_iterator recHit = recoTrack->recHitsBegin(); recHit != recoTrack->recHitsEnd(); ++recHit) {
