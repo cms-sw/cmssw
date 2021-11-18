@@ -16,20 +16,18 @@ So this recHit-based rho producer, FixedGridRhoProducerFastjetFromRecHit, can be
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "fastjet/tools/GridMedianBackgroundEstimator.hh"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "TLorentzVector.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "fastjet/tools/GridMedianBackgroundEstimator.hh"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
 
 class FixedGridRhoProducerFastjetFromRecHit : public edm::stream::EDProducer<> {
 public:
@@ -39,14 +37,14 @@ public:
 
 private:
   void produce(edm::Event &, const edm::EventSetup &) override;
-  void getHitP4(const DetId &detId, float hitE, TLorentzVector &hitp4, const CaloGeometry &caloGeometry);
+  void getHitP4(const DetId &detId, float hitE, math::XYZTLorentzVector &hitp4, const CaloGeometry &caloGeometry);
   bool passedHcalNoiseCut(const HBHERecHit &hit);
-  bool passedEcalNoiseCut(const EcalRecHit &hit, const EcalPFRecHitThresholds *thresholds);
+  bool passedEcalNoiseCut(const EcalRecHit &hit, const EcalPFRecHitThresholds &thresholds);
 
   fastjet::GridMedianBackgroundEstimator bge_;
-  edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitsTag_;
-  edm::EDGetTokenT<EcalRecHitCollection> ebRecHitsTag_;
-  edm::EDGetTokenT<EcalRecHitCollection> eeRecHitsTag_;
+  const edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitsTag_;
+  const edm::EDGetTokenT<EcalRecHitCollection> ebRecHitsTag_;
+  const edm::EDGetTokenT<EcalRecHitCollection> eeRecHitsTag_;
 
   const EgammaHcalIsolation::arrayHB eThresHB_;
   const EgammaHcalIsolation::arrayHE eThresHE_;
@@ -56,7 +54,7 @@ private:
   bool skipHCAL_;
   bool skipECAL_;
 
-  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
+  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRecHitThresholdsToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
 };
 
@@ -69,8 +67,12 @@ FixedGridRhoProducerFastjetFromRecHit::FixedGridRhoProducerFastjetFromRecHit(con
       eThresHE_(iConfig.getParameter<EgammaHcalIsolation::arrayHE>("eThresHE")),
       skipHCAL_(iConfig.getParameter<bool>("skipHCAL")),
       skipECAL_(iConfig.getParameter<bool>("skipECAL")),
-      ecalPFRechitThresholdsToken_{esConsumes()},
+      ecalPFRecHitThresholdsToken_{esConsumes()},
       caloGeometryToken_{esConsumes()} {
+  if (skipHCAL_ && skipECAL_) {
+    throw cms::Exception("FixedGridRhoProducerFastjetFromRecHit")
+        << "skipHCAL and skipECAL both can't be True. Please make at least one of them False.";
+  }
   produces<double>();
 }
 
@@ -88,43 +90,45 @@ void FixedGridRhoProducerFastjetFromRecHit::fillDescriptions(edm::ConfigurationD
   desc.add<std::vector<double> >("eThresHE", {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
   desc.add<double>("maxRapidity", 2.5);
   desc.add<double>("gridSpacing", 0.55);
-  descriptions.add("hltFixedGridRhoProducerFastjetFromRecHit", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
-FixedGridRhoProducerFastjetFromRecHit::~FixedGridRhoProducerFastjetFromRecHit() {}
+FixedGridRhoProducerFastjetFromRecHit::~FixedGridRhoProducerFastjetFromRecHit() = default;
 
 void FixedGridRhoProducerFastjetFromRecHit::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   std::vector<fastjet::PseudoJet> inputs;
-  auto const &thresholds = iSetup.getData(ecalPFRechitThresholdsToken_);
-
-  if (skipHCAL_ && skipECAL_) {
-    throw cms::Exception("FixedGridRhoProducerFastjetFromRecHit")
-        << "skipHCAL and skipECAL both can't be True. Make at least one of them False.";
-  }
+  auto const &thresholds = iSetup.getData(ecalPFRecHitThresholdsToken_);
+  auto const &caloGeometry = iSetup.getData(caloGeometryToken_);
 
   if (!skipHCAL_) {
-    for (const auto &hit : iEvent.get(hbheRecHitsTag_)) {
+    auto const &hbheRecHits = iEvent.get(hbheRecHitsTag_);
+    inputs.reserve(inputs.size() + hbheRecHits.size());
+    for (const auto &hit : hbheRecHits) {
       if (passedHcalNoiseCut(hit)) {
-        TLorentzVector hitp4(0, 0, 0, 0);
-        getHitP4(hit.id(), hit.energy(), hitp4, iSetup.getData(caloGeometryToken_));
+        math::XYZTLorentzVector hitp4(0, 0, 0, 0);
+        getHitP4(hit.id(), hit.energy(), hitp4, caloGeometry);
         inputs.push_back(fastjet::PseudoJet(hitp4.Px(), hitp4.Py(), hitp4.Pz(), hitp4.E()));
       }
     }
   }
 
   if (!skipECAL_) {
-    for (const auto &hit : iEvent.get(ebRecHitsTag_)) {
-      if (passedEcalNoiseCut(hit, &thresholds)) {
-        TLorentzVector hitp4(0, 0, 0, 0);
-        getHitP4(hit.id(), hit.energy(), hitp4, iSetup.getData(caloGeometryToken_));
+    auto const &ebRecHits = iEvent.get(ebRecHitsTag_);
+    inputs.reserve(inputs.size() + ebRecHits.size());
+    for (const auto &hit : ebRecHits) {
+      if (passedEcalNoiseCut(hit, thresholds)) {
+        math::XYZTLorentzVector hitp4(0, 0, 0, 0);
+        getHitP4(hit.id(), hit.energy(), hitp4, caloGeometry);
         inputs.push_back(fastjet::PseudoJet(hitp4.Px(), hitp4.Py(), hitp4.Pz(), hitp4.E()));
       }
     }
 
-    for (const auto &hit : iEvent.get(eeRecHitsTag_)) {
-      if (passedEcalNoiseCut(hit, &thresholds)) {
-        TLorentzVector hitp4(0, 0, 0, 0);
-        getHitP4(hit.id(), hit.energy(), hitp4, iSetup.getData(caloGeometryToken_));
+    auto const &eeRecHits = iEvent.get(eeRecHitsTag_);
+    inputs.reserve(inputs.size() + eeRecHits.size());
+    for (const auto &hit : eeRecHits) {
+      if (passedEcalNoiseCut(hit, thresholds)) {
+        math::XYZTLorentzVector hitp4(0, 0, 0, 0);
+        getHitP4(hit.id(), hit.energy(), hitp4, caloGeometry);
         inputs.push_back(fastjet::PseudoJet(hitp4.Px(), hitp4.Py(), hitp4.Pz(), hitp4.E()));
       }
     }
@@ -136,13 +140,11 @@ void FixedGridRhoProducerFastjetFromRecHit::produce(edm::Event &iEvent, const ed
 
 void FixedGridRhoProducerFastjetFromRecHit::getHitP4(const DetId &detId,
                                                      float hitE,
-                                                     TLorentzVector &hitp4,
+                                                     math::XYZTLorentzVector &hitp4,
                                                      const CaloGeometry &caloGeometry) {
   const CaloSubdetectorGeometry *subDetGeom = caloGeometry.getSubdetectorGeometry(detId);
-  std::shared_ptr<const CaloCellGeometry> cellGeom =
-      subDetGeom != nullptr ? subDetGeom->getGeometry(detId) : std::shared_ptr<const CaloCellGeometry>();
-  if (cellGeom != nullptr) {
-    const auto &gpPos = cellGeom->repPos();
+  if (subDetGeom != nullptr) {
+    const auto &gpPos = subDetGeom->getGeometry(detId)->repPos();
     double thispt = hitE / cosh(gpPos.eta());
     double thispx = thispt * cos(gpPos.phi());
     double thispy = thispt * sin(gpPos.phi());
@@ -150,31 +152,27 @@ void FixedGridRhoProducerFastjetFromRecHit::getHitP4(const DetId &detId,
     hitp4.SetPxPyPzE(thispx, thispy, thispz, hitE);
   } else {
     if (detId.rawId() != 0)
-      edm::LogInfo("FixedGridRhoProducerFastjetFromRecHit")
-          << "Warning : Geometry not found for a calo hit, setting p4 as (0,0,0,0)" << std::endl;
+      edm::LogWarning("FixedGridRhoProducerFastjetFromRecHit")
+          << "Geometry not found for a calo hit, setting p4 as (0,0,0,0)" << std::endl;
     hitp4.SetPxPyPzE(0, 0, 0, 0);
   }
 }
 
 //HCAL noise cleaning cuts.
 bool FixedGridRhoProducerFastjetFromRecHit::passedHcalNoiseCut(const HBHERecHit &hit) {
-  bool passed = false;
-  const HcalDetId thisDetId(hit.detid());
-  const int thisDepth = thisDetId.depth();
-  if ((thisDetId.subdet() == HcalBarrel) && (hit.energy() > eThresHB_[thisDepth - 1]))
-    passed = true;
-  else if ((thisDetId.subdet() == HcalEndcap) && (hit.energy() > eThresHE_[thisDepth - 1]))
-    passed = true;
-  return passed;
+  const auto thisDetId = hit.id();
+  const auto thisDepth = thisDetId.depth();
+  if (thisDetId.subdet() == HcalBarrel && hit.energy() > eThresHB_[thisDepth - 1])
+    return true;
+  else if (thisDetId.subdet() == HcalEndcap && hit.energy() > eThresHE_[thisDepth - 1])
+    return true;
+  return false;
 }
 
 //ECAL noise cleaning cuts using per-crystal PF-recHit thresholds.
 bool FixedGridRhoProducerFastjetFromRecHit::passedEcalNoiseCut(const EcalRecHit &hit,
-                                                               const EcalPFRecHitThresholds *thresholds) {
-  bool passed = false;
-  if (hit.energy() > (*thresholds)[hit.detid()])
-    passed = true;
-  return passed;
+                                                               const EcalPFRecHitThresholds &thresholds) {
+  return (hit.energy() > thresholds[hit.detid()]);
 }
 
 DEFINE_FWK_MODULE(FixedGridRhoProducerFastjetFromRecHit);
