@@ -57,6 +57,17 @@ validationNoHLT.remove(condDataValidation) # foca d'ovatta !
 validation = cms.Sequence(validationNoHLT
                          *hltvalidation)
 
+validationNoHLTHiMix = cms.Sequence(
+                               genvalid_all_hiMix
+                               *globaldigisanalyze
+                               *globalhitsanalyze
+                               *globalrechitsanalyze
+                               *globalValidation)
+validationNoHLTHiMix.remove(condDataValidation) # foca d'ovatta !
+validationHiMix = cms.Sequence(validationNoHLTHiMix
+                               *hltvalidation)
+
+
 _validation_fastsim = validation.copy()
 for _entry in [globaldigisanalyze,globalhitsanalyze,globalrechitsanalyze,hltvalidation]:
     _validation_fastsim.remove(_entry)
