@@ -138,9 +138,9 @@ class CalibrationSkeleton : public edm::EDAnalyzer {
       }
     
     
-    mydbservice->createNewIOV<TrackProbabilityCalibration>(calibration,  mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
+    mydbservice->createOneIOV<TrackProbabilityCalibration>(*calibration,  mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
     
-    mydbservice->createNewIOV<TrackProbabilityCalibration>(calibration2d,  mydbservice->endOfTime(),"BTagTrackProbability2DRcd");
+    mydbservice->createOneIOV<TrackProbabilityCalibration>(*calibration2d,  mydbservice->endOfTime(),"BTagTrackProbability2DRcd");
     
     
   }

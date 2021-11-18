@@ -33,9 +33,9 @@ void BTagCalibrationDbCreator::beginJob() {
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
     if (s->isNewTagRequest(tagger_)) {
-      s->createNewIOV<BTagCalibration>(calib, s->beginOfTime(), s->endOfTime(), tagger_);
+      s->createOneIOV<BTagCalibration>(*calib, s->beginOfTime(), tagger_);
     } else {
-      s->appendSinceTime<BTagCalibration>(calib, 111, tagger_);
+      s->appendOneIOV<BTagCalibration>(*calib, 111, tagger_);
     }
   } else {
     std::cout << "ERROR: DB service not available" << std::endl;
