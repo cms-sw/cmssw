@@ -1507,7 +1507,7 @@ ppsDict = {
             'Geometry/VeryForwardData/data/RP_Box/v3/RP_Box_124.xml',
             'Geometry/VeryForwardData/data/RP_Box/v3/RP_Box_125.xml',
             'Geometry/VeryForwardData/data/RP_Hybrid/v2/RP_Hybrid.xml',
-            'Geometry/VeryForwardData/data/RP_Materials/v4/RP_Materials.xml',
+            'Geometry/VeryForwardData/data/RP_Materials/v5/RP_Materials.xml',
             'Geometry/VeryForwardData/data/RP_Transformations.xml',
             'Geometry/VeryForwardData/data/RP_Detectors_Assembly.xml',
             'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_000.xml',
