@@ -1,9 +1,9 @@
 # Set M0 as default HCAL reconstruction over full HBHE Digi range
 # To be used in cmsDriver command: 
-# --customise RecoLocalCal/HcalRecProducers/M0defaultFullRange_cff.customiseM0
+# --customise RecoLocalCalo/Configuration/customiseHBHEreco.hbheUseM0FullRangePhase1
 
 import FWCore.ParameterSet.Config as cms
-def customiseM0(process):
+def hbheUseM0FullRangePhase1(process):
     if hasattr(process,'hbhereco'):
        process.hbhereco.cpu.tsFromDB = False
        process.hbhereco.cpu.recoParamsFromDB = False
