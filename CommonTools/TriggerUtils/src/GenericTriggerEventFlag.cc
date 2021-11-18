@@ -717,7 +717,7 @@ std::vector<std::string> GenericTriggerEventFlag::expressionsFromDB(const std::s
           << "Label " << dbLabel_ << " not found in DB for 'AlCaRecoTriggerBitsRcd'";
     return std::vector<std::string>(1, configError_);
   }
-  AlCaRecoTriggerBits const& alCaRecoTriggerBits = setup.get<AlCaRecoTriggerBitsRcd>().get(alCaRecoTriggerBitsToken_);
+  auto const& alCaRecoTriggerBits = setup.getData(alCaRecoTriggerBitsToken_);
   const std::map<std::string, std::string>& expressionMap = alCaRecoTriggerBits.m_alcarecoToTrig;
   std::map<std::string, std::string>::const_iterator listIter = expressionMap.find(key);
   if (listIter == expressionMap.end()) {
