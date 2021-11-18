@@ -26,16 +26,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-<<<<<<< HEAD
-=======
-process.TFileService = cms.Service("TFileService",
-      fileName = cms.string("Global.root")
-#      ,closeFileFast = cms.untracked.bool(True)
-  )
-
->>>>>>> 76f1031aade7860b45a2ca91862230afc5bfbd13
-
-
 #----------------------------------------------------------------------------
 # Input source
 process.source = cms.Source("PoolSource",
