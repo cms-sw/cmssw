@@ -31,6 +31,7 @@ from Validation.EventGenerator.BPhysicsValidation_cfi  import *
 
 # define sequences...
 basicGenTest_seq = cms.Sequence(basicHepMCValidation+basicGenParticleValidation)
+basicGenTestHiMix_seq = cms.Sequence(basicHepMCValidation+basicGenParticleValidationHiMix)
 duplicationChecker_seq = cms.Sequence(duplicationChecker)
 mbueAndqcdValidation_seq = cms.Sequence(mbueAndqcd_seq)
 drellYanValidation_seq = cms.Sequence(drellYanEleValidation+drellYanMuoValidation)
@@ -50,4 +51,5 @@ genvalid_w = cms.Sequence(basicGenTest_seq+mbueAndqcdValidation_seq+wValidation_
 genvalid_top = cms.Sequence(basicGenTest_seq+mbueAndqcdValidation_seq+TTbarfull_seq)
 genvalid_higgs = cms.Sequence(basicGenTest_seq+mbueAndqcdValidation_seq+higgsvalidation_seq)
 genvalid_all = cms.Sequence(basicGenTest_seq+mbueAndqcdValidation_seq+drellYanValidation_seq+wValidation_seq+tauValidation_seq+TTbarfull_seq+higgsValidation+bphysics)
+genvalid_all_hiMix = cms.Sequence(basicGenTestHiMix_seq+mbueAndqcdValidation_seq+drellYanValidation_seq+wValidation_seq+tauValidation_seq+TTbarfull_seq+higgsValidation+bphysics)
 genvalid_all_and_dup_check = cms.Sequence(duplicationChecker_seq+genvalid_all)
