@@ -185,9 +185,9 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
     if (s->isNewTagRequest(rec1)) {
-      s->createNewIOV<PerformancePayload>(btagpl, s->beginOfTime(), s->endOfTime(), rec1);
+      s->createOneIOV<PerformancePayload>(*btagpl, s->beginOfTime(), rec1);
     } else {
-      s->appendSinceTime<PerformancePayload>(btagpl,
+      s->appendOneIOV<PerformancePayload>(*btagpl,
                                              // JUST A STUPID PATCH
                                              111,
                                              rec1);
@@ -199,9 +199,9 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
   std::cout << "Start writing the WP" << std::endl;
   if (s.isAvailable()) {
     if (s->isNewTagRequest(rec2)) {
-      s->createNewIOV<PerformanceWorkingPoint>(wp, s->beginOfTime(), s->endOfTime(), rec2);
+      s->createOneIOV<PerformanceWorkingPoint>(*wp, s->beginOfTime(), rec2);
     } else {
-      s->appendSinceTime<PerformanceWorkingPoint>(wp,
+      s->appendOneIOV<PerformanceWorkingPoint>(*wp,
                                                   /// JUST A STUPID PATCH
                                                   111,
                                                   rec2);
