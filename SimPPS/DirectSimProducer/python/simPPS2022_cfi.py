@@ -25,5 +25,3 @@ rpIds = cms.PSet(
     rp_56_N = cms.uint32(103),
     rp_56_F = cms.uint32(123)
 )
-
-#generator.energy = profile_2022_default.ctppsLHCInfo.beamEnergy
