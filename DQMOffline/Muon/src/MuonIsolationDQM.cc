@@ -783,7 +783,8 @@ void MuonIsolationDQM::bookHistograms(DQMStore::IBooker& ibooker,
 
   //----Initialize 2D Histograms
   for (int var = 0; var < NUM_VARS_2D; var++) {
-    h_2D[var] = ibooker.bookProfile(names_2D[var] + "_VsPV", titles_2D[var] + " Vs PV", vtxBin_, vtxMin_, vtxMax_, 20, 0.0, 20.0);
+    h_2D[var] = ibooker.bookProfile(
+        names_2D[var] + "_VsPV", titles_2D[var] + " Vs PV", vtxBin_, vtxMin_, vtxMax_, 20, 0.0, 20.0);
     h_2D[var]->setAxisTitle("Number of PV", XAXIS);
     h_2D[var]->setAxisTitle(titles_2D[var] + " (GeV)", YAXIS);
     //    h_2D[var]->getTH1()->Sumw2();
