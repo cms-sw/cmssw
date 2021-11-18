@@ -288,7 +288,7 @@ public:
       }
 
       T smearedJet = jet;
-      SmearedJetProducer_namespace::SmearJet(smearedJet,smearFactor);
+      SmearedJetProducer_namespace::SmearJet(smearedJet, smearFactor);
 
       if (m_debug) {
         std::cout << "smeared jet (" << smearFactor << "):  pt: " << smearedJet.pt() << "  eta: " << smearedJet.eta()

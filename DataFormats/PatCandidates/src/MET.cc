@@ -343,7 +343,8 @@ void MET::setUncShift(double px, double py, double sumEt, METUncertainty shift, 
     // which is performed independently
     shift = (MET::METUncertainty)(METUncertainty::METUncertaintySize + shift + 1);
     const PackedMETUncertainty &ref = corrections_[METCorrectionType::Smear];
-    uncertainties_[shift].set(px - ref.dpx() - this->px(), py - ref.dpy() - this->py(), sumEt - ref.dsumEt() - this->sumEt() );
+    uncertainties_[shift].set(
+        px - ref.dpx() - this->px(), py - ref.dpy() - this->py(), sumEt - ref.dsumEt() - this->sumEt());
   } else
     uncertainties_[shift].set(px - this->px(), py - this->py(), sumEt - this->sumEt());
 }

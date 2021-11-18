@@ -29,8 +29,8 @@ namespace PFJetMETcorrInputProducer_namespace {
       else
         uncorrected_jet = jet.p4();
       // remove JER correction factor from pat::Jets
-      if(jet.hasUserFloat("SmearFactor")) {
-           uncorrected_jet*=(1.0/jet.userFloat("SmearFactor"));
+      if (jet.hasUserFloat("SmearFactor")) {
+        uncorrected_jet *= (1.0 / jet.userFloat("SmearFactor"));
       }
       return uncorrected_jet;
     }
@@ -40,17 +40,15 @@ namespace PFJetMETcorrInputProducer_namespace {
   // retrieve JER factor if it was saved previously
   // otherwise just return 1
   template <>
-  class RetrieveJerT<pat::Jet>
-  {
-    public:
-      RetrieveJerT(){}
-      float operator()(const pat::Jet& jet) const
-      {
-        if(jet.hasUserFloat("SmearFactor")) {
-            return jet.userFloat("SmearFactor");
-        }
-        else return 1.0;
-      }
+  class RetrieveJerT<pat::Jet> {
+  public:
+    RetrieveJerT() {}
+    float operator()(const pat::Jet& jet) const {
+      if (jet.hasUserFloat("SmearFactor")) {
+        return jet.userFloat("SmearFactor");
+      } else
+        return 1.0;
+    }
   };
 
 }  // namespace PFJetMETcorrInputProducer_namespace
