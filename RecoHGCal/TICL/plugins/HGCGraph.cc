@@ -243,9 +243,10 @@ bool HGCGraphT<TILES>::areOverlappingOnSiblingLayers(int innerIdx,
                                                      int outerIdx,
                                                      const std::vector<reco::CaloCluster> &layerClusters,
                                                      float maxRSquared) {
-  float etaDiff = layerClusters[outerIdx].eta() - layerClusters[innerIdx].eta();
-  float phiDiff = layerClusters[outerIdx].phi() - layerClusters[innerIdx].phi();
-  return etaDiff * etaDiff + phiDiff * phiDiff < maxRSquared;
+  return reco::deltaR2(layerClusters[outerIdx].eta(),
+                       layerClusters[outerIdx].phi(),
+                       layerClusters[innerIdx].eta(),
+                       layerClusters[innerIdx].phi()) < maxRSquared;
 }
 
 //also return a vector of seedIndex for the reconstructed tracksters
