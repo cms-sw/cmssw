@@ -486,7 +486,7 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    1.);
   meTrackResLowP_[1] =
       ibook.book1D("TrackResLowP-MediumMVA",
-                   "t_{rec} - t_{sim} for tracks with 0.5 < MVA < 0.5 and p < 2 GeV; t_{rec} - t_{sim} [ns] ",
+                   "t_{rec} - t_{sim} for tracks with 0.5 < MVA < 0.8 and p < 2 GeV; t_{rec} - t_{sim} [ns] ",
                    100,
                    -1.,
                    1.);
@@ -506,7 +506,7 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    1.);
   meTrackResHighP_[1] =
       ibook.book1D("TrackResHighP-MediumMVA",
-                   "t_{rec} - t_{sim} for tracks with 0.5 < MVA < 0.5 and p > 2 GeV; t_{rec} - t_{sim} [ns] ",
+                   "t_{rec} - t_{sim} for tracks with 0.5 < MVA < 0.8 and p > 2 GeV; t_{rec} - t_{sim} [ns] ",
                    100,
                    -1.,
                    1.);
