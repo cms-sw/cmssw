@@ -16,26 +16,8 @@ SiPixelDigisCUDA::SiPixelDigisCUDA(size_t maxFedWords, cudaStream_t stream)
   m_view->rawIdArr_ = reinterpret_cast<uint32_t*>(get16(SiPixelDigisCUDASOAView::StorageLocation::RAWIDARR));
 }
 
-cms::cuda::host::unique_ptr<uint16_t[]> SiPixelDigisCUDA::adcToHostAsync(cudaStream_t stream) const {
-  auto ret = cms::cuda::make_host_unique<uint16_t[]>(nDigis(), stream);
-  cudaCheck(cudaMemcpyAsync(ret.get(), view()->adc_, nDigis() * sizeof(uint16_t), cudaMemcpyDeviceToHost, stream));
-  return ret;
-}
-
-cms::cuda::host::unique_ptr<int32_t[]> SiPixelDigisCUDA::clusToHostAsync(cudaStream_t stream) const {
-  auto ret = cms::cuda::make_host_unique<int32_t[]>(nDigis(), stream);
-  cudaCheck(cudaMemcpyAsync(ret.get(), view()->clus_, nDigis() * sizeof(int32_t), cudaMemcpyDeviceToHost, stream));
-  return ret;
-}
-
-cms::cuda::host::unique_ptr<uint32_t[]> SiPixelDigisCUDA::pdigiToHostAsync(cudaStream_t stream) const {
-  auto ret = cms::cuda::make_host_unique<uint32_t[]>(nDigis(), stream);
-  cudaCheck(cudaMemcpyAsync(ret.get(), view()->pdigi_, nDigis() * sizeof(uint32_t), cudaMemcpyDeviceToHost, stream));
-  return ret;
-}
-
-cms::cuda::host::unique_ptr<uint32_t[]> SiPixelDigisCUDA::rawIdArrToHostAsync(cudaStream_t stream) const {
-  auto ret = cms::cuda::make_host_unique<uint32_t[]>(nDigis(), stream);
-  cudaCheck(cudaMemcpyAsync(ret.get(), view()->rawIdArr_, nDigis() * sizeof(uint32_t), cudaMemcpyDeviceToHost, stream));
+cms::cuda::host::unique_ptr<uint16_t[]> SiPixelDigisCUDA::copyAllToHostAsync(cudaStream_t stream) const {
+  auto ret = cms::cuda::make_host_unique<uint16_t[]>(nDigis() * 7, stream);
+  cudaCheck(cudaMemcpyAsync(ret.get(), view()->adc_, nDigis() * sizeof(uint16_t) * 7, cudaMemcpyDeviceToHost, stream));
   return ret;
 }

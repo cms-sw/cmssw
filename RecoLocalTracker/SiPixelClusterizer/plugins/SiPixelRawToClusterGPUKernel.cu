@@ -525,9 +525,9 @@ namespace pixelgpudetails {
     std::cout << "decoding " << wordCounter << " digis. Max is " << maxFedWords << std::endl;
 #endif
 
-    digis_d = SiPixelDigisCUDA(maxFedWords, stream);
+    digis_d = SiPixelDigisCUDA(wordCounter, stream);
     if (includeErrors) {
-      digiErrors_d = SiPixelDigiErrorsCUDA(maxFedWords, std::move(errors), stream);
+      digiErrors_d = SiPixelDigiErrorsCUDA(wordCounter, std::move(errors), stream);
     }
     clusters_d = SiPixelClustersCUDA(gpuClustering::maxNumModules, stream);
 
