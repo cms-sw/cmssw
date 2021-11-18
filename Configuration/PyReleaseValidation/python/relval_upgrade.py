@@ -46,7 +46,7 @@ for year in upgradeKeys:
                         # hack to add an extra step
                         if 'ProdLike' in specialType:
                             if 'Reco' in step: # handles both Reco and RecoGlobal
-                                stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','MiniAOD').replace('Reco','MiniAOD'),specialWF.suffix))
+                                stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','MiniAOD').replace('RecNan','MiniAOD').replace('Reco','MiniAOD'),specialWF.suffix))
                                 if 'RecNan' in step:
                                     stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecNan','Nano'),specialWF.suffix))
                         # similar hacks for premixing
