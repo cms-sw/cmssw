@@ -3,7 +3,8 @@ from Configuration.StandardSequences.Eras import eras
 from SimPPS.DirectSimProducer.ppsDirectProtonSimulation_cff import *
 
 directSimPPSTask = cms.Task(
-    ppsDirectProtonSimulation,
+    beamDivergenceVtxGenerator,
+    ppsDirectProtonSimulation
 )
 
 directSimPPS = cms.Sequence(directSimPPSTask)
