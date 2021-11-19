@@ -141,12 +141,12 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   // now create pl etc etc
   //
 
-  PerformanceWorkingPoint* wp = new PerformanceWorkingPoint(cut, tagger);
+  PerformanceWorkingPoint wp(cut, tagger);
 
-  PerformancePayloadFromTable* btagpl = nullptr;
+  PerformancePayloadFromTable btagpl;
 
   if (concreteType == "PerformancePayloadFromTable") {
-    btagpl = new PerformancePayloadFromTable(res, bin, stride, pl);
+    btagpl= PerformancePayloadFromTable(res, bin, stride, pl);
   } else {
     std::cout << " Non existing request: " << concreteType << std::endl;
   }
@@ -156,9 +156,9 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
     if (s->isNewTagRequest(rec1)) {
-      s->createOneIOV<PerformancePayload>(*btagpl, s->beginOfTime(), rec1);
+      s->createOneIOV<PerformancePayload>(btagpl, s->beginOfTime(), rec1);
     } else {
-      s->appendOneIOV<PerformancePayload>(*btagpl,
+      s->appendOneIOV<PerformancePayload>(btagpl,
                                              // JUST A STUPID PATCH
                                              111,
                                              rec1);
@@ -169,9 +169,9 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
 
   if (s.isAvailable()) {
     if (s->isNewTagRequest(rec2)) {
-      s->createOneIOV<PerformanceWorkingPoint>(*wp, s->beginOfTime(), rec2);
+      s->createOneIOV<PerformanceWorkingPoint>(wp, s->beginOfTime(), rec2);
     } else {
-      s->appendOneIOV<PerformanceWorkingPoint>(*wp,
+      s->appendOneIOV<PerformanceWorkingPoint>(wp,
                                                   /// JUST A STUPID PATCH
                                                   111,
                                                   rec2);
