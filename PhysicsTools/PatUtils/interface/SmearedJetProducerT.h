@@ -101,7 +101,7 @@ namespace SmearedJetProducer_namespace {
   }
   // template specialization for pat::Jets to store the JER factor
   template <>
-  void SmearJet<pat::Jet>(pat::Jet& jet, float smearfactor) {
+  inline void SmearJet<pat::Jet>(pat::Jet& jet, float smearfactor) {
     jet.scaleEnergy(smearfactor);
     jet.addUserFloat("SmearFactor", smearfactor);
   }
