@@ -21,7 +21,7 @@ cms::cuda::host::unique_ptr<uint16_t[]> SiPixelDigisCUDA::copyAllToHostAsync(cud
   auto ret = cms::cuda::make_host_unique<uint16_t[]>(nDigis() * int(SiPixelDigisCUDASOAView::StorageLocationHost::MAX),
                                                      stream);
   cudaCheck(cudaMemcpyAsync(ret.get(),
-                            view()->adc_,
+                            view()->clus_,
                             nDigis() * sizeof(uint16_t) * int(SiPixelDigisCUDASOAView::StorageLocationHost::MAX),
                             cudaMemcpyDeviceToHost,
                             stream));

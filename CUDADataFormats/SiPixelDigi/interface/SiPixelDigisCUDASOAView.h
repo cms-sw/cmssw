@@ -9,22 +9,22 @@
 
 class SiPixelDigisCUDASOAView {
 public:
-  enum class StorageLocation { XX = 0, YY = 1, MODULEIND = 2, ADC = 3, CLUS = 4, PDIGI = 6, RAWIDARR = 8, MAX = 10 };
+  enum class StorageLocation { CLUS = 0, PDIGI = 2, RAWIDARR = 4, ADC = 6, XX = 7, YY = 8, MODULEIND = 9, MAX = 10 };
   /*
   ============================================================================================================================
-  |    XX     |     YY    | MODULEIND |    ADC    |          CLUS         |          PDIGI         |         RAWIDARR        |
+  |          CLUS         |          PDIGI         |         RAWIDARR        |    ADC    |    XX     |     YY    | MODULEIND |
   ============================================================================================================================
-  |  0: N*16  |  1: N*16  |  2: N*16  |  3: N*16  |        4: N*32        |         6: N*32        |         8: N*32         |
+  |        0: N*32        |         2: N*32        |         4: N*32         |  6: N*16  |  7: N*16  |  8: N*16  |  9: N*16  |
   ============================================================================================================================
   */
   // These are for CPU output
   // we don't copy local x and y coordinates and module index
-  enum class StorageLocationHost { ADC = 0, CLUS = 1, PDIGI = 3, RAWIDARR = 5, MAX = 7 };
+  enum class StorageLocationHost { CLUS = 0, PDIGI = 2, RAWIDARR = 4, ADC = 6, MAX = 7 };
   /*
   ========================================================================================
-  |    ADC    |          CLUS         |          PDIGI         |         RAWIDARR        |
+  |          CLUS         |          PDIGI         |         RAWIDARR        |    ADC    |
   ========================================================================================
-  |  0: N*16  |        1: N*32        |         3: N*32        |         5: N*32         |
+  |        0: N*32        |         2: N*32        |         4: N*32         |  6: N*16  |
   ========================================================================================
   */
 
