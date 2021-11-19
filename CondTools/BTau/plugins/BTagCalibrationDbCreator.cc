@@ -29,13 +29,13 @@ BTagCalibrationDbCreator::BTagCalibrationDbCreator(const edm::ParameterSet& p)
       tagger_(p.getUntrackedParameter<std::string>("tagger")) {}
 
 void BTagCalibrationDbCreator::beginJob() {
-  auto calib = new BTagCalibration(tagger_, csvFile_, true);
+  BTagCalibration calib(tagger_, csvFile_, true);
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
     if (s->isNewTagRequest(tagger_)) {
-      s->createOneIOV<BTagCalibration>(*calib, s->beginOfTime(), tagger_);
+      s->createOneIOV<BTagCalibration>(calib, s->beginOfTime(), tagger_);
     } else {
-      s->appendOneIOV<BTagCalibration>(*calib, 111, tagger_);
+      s->appendOneIOV<BTagCalibration>(calib, 111, tagger_);
     }
   } else {
     std::cout << "ERROR: DB service not available" << std::endl;

@@ -93,27 +93,27 @@ class TrackProbabilityXMLtoDB : public edm::EDAnalyzer {
 
 	  vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data = calibrationOld->categoriesWithData();
 	  vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data2d = calibration2dOld->categoriesWithData();
-          TrackProbabilityCalibration * calibration= new TrackProbabilityCalibration();
-          TrackProbabilityCalibration * calibration2d= new TrackProbabilityCalibration();
+          TrackProbabilityCalibration calibration;
+          TrackProbabilityCalibration calibration2d;
 	  for(int i = 0 ; i < data.size();i++)
     	  {
             TrackProbabilityCalibration::Entry entry;
             entry.category=data[i].first.categoryData();
             entry.histogram=data[i].second;
-            calibration->data.push_back(entry);   
+            calibration.data.push_back(entry);   
           }
 	  for(int i = 0 ; i < data2d.size();i++)
     	  {
             TrackProbabilityCalibration::Entry entry;
             entry.category=data2d[i].first.categoryData();
             entry.histogram=data2d[i].second;
-            calibration2d->data.push_back(entry);   
+            calibration2d.data.push_back(entry);   
           }
 
 
-         mydbservice->createOneIOV<TrackProbabilityCalibration>(*calibration,  mydbservice->endOfTime(),"BTagTrackProbability3DRcd");    
+         mydbservice->createOneIOV<TrackProbabilityCalibration>(calibration,"BTagTrackProbability3DRcd");    
 
-         mydbservice->createOneIOV<TrackProbabilityCalibration>(*calibration2d,  mydbservice->endOfTime(),"BTagTrackProbability2DRcd");   
+         mydbservice->createOneIOV<TrackProbabilityCalibration>(calibration2d,"BTagTrackProbability2DRcd");   
                
 
     }    

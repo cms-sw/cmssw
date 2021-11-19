@@ -105,8 +105,8 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
   // read the variables
   //
 
-  PerformanceWorkingPoint* wp = new PerformanceWorkingPoint(cut, tagger);
-  PerformancePayloadFromBinnedTFormula* btagpl = nullptr;
+  PerformanceWorkingPoint wp(cut, tagger);
+  PerformancePayloadFromBinnedTFormula btagpl;
 
   std::vector<PhysicsTFormulaPayload> v_ppl;
 
@@ -173,8 +173,8 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
   in.close();
 
   if (concreteType == "PerformancePayloadFromBinnedTFormula") {
-    btagpl = new PerformancePayloadFromBinnedTFormula(res, bin, v_ppl);
-    std::cout << " CHECK: " << btagpl->formulaPayloads().size() << std::endl;
+    btagpl = PerformancePayloadFromBinnedTFormula(res, bin, v_ppl);
+    std::cout << " CHECK: " << btagpl.formulaPayloads().size() << std::endl;
   } else {
     std::cout << " Non existing request: " << concreteType << std::endl;
   }
@@ -185,9 +185,9 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
     if (s->isNewTagRequest(rec1)) {
-      s->createOneIOV<PerformancePayload>(*btagpl, s->beginOfTime(), rec1);
+      s->createOneIOV<PerformancePayload>(btagpl, s->beginOfTime(), rec1);
     } else {
-      s->appendOneIOV<PerformancePayload>(*btagpl,
+      s->appendOneIOV<PerformancePayload>(btagpl,
                                              // JUST A STUPID PATCH
                                              111,
                                              rec1);
@@ -199,9 +199,9 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
   std::cout << "Start writing the WP" << std::endl;
   if (s.isAvailable()) {
     if (s->isNewTagRequest(rec2)) {
-      s->createOneIOV<PerformanceWorkingPoint>(*wp, s->beginOfTime(), rec2);
+      s->createOneIOV<PerformanceWorkingPoint>(wp, s->beginOfTime(), rec2);
     } else {
-      s->appendOneIOV<PerformanceWorkingPoint>(*wp,
+      s->appendOneIOV<PerformanceWorkingPoint>(wp,
                                                   /// JUST A STUPID PATCH
                                                   111,
                                                   rec2);
