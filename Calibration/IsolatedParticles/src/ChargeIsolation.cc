@@ -45,12 +45,12 @@ namespace spr {
   }
 
   double chargeIsolationGenEcal(unsigned int trkIndex,
-			     std::vector<spr::propagatedGenParticleID>& vdetIds,
-                             const CaloGeometry* geo,
-                             const CaloTopology* caloTopology,
-                             int ieta,
-                             int iphi,
-                             bool debug) {
+                                std::vector<spr::propagatedGenParticleID>& vdetIds,
+                                const CaloGeometry* geo,
+                                const CaloTopology* caloTopology,
+                                int ieta,
+                                int iphi,
+                                bool debug) {
     const DetId coreDet = vdetIds[trkIndex].detIdECAL;
     if (debug) {
       if (coreDet.subdetId() == EcalBarrel)
@@ -62,7 +62,8 @@ namespace spr {
     if (vdetIds[trkIndex].okECAL) {
       std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, debug);
       if (debug)
-        edm::LogVerbatim("IsoTrack") << "chargeIsolationGenEcal:: eta/phi/dets " << ieta << " " << iphi << " " << vdets.size();
+        edm::LogVerbatim("IsoTrack") << "chargeIsolationGenEcal:: eta/phi/dets " << ieta << " " << iphi << " "
+                                     << vdets.size();
 
       for (unsigned int indx = 0; indx < vdetIds.size(); ++indx) {
         if (indx != trkIndex && vdetIds[indx].ok && vdetIds[indx].okECAL) {
@@ -333,10 +334,10 @@ namespace spr {
   }
 
   double chargeIsolationGenCone(unsigned int trkIndex,
-                             std::vector<spr::propagatedGenParticleID>& trkDirs,
-                             double dR,
-                             int& nNearTRKs,
-                             bool debug) {
+                                std::vector<spr::propagatedGenParticleID>& trkDirs,
+                                double dR,
+                                int& nNearTRKs,
+                                bool debug) {
     double maxNearP = -1.0;
     nNearTRKs = 0;
     if (trkDirs[trkIndex].okHCAL) {
@@ -357,7 +358,8 @@ namespace spr {
     }
 
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "chargeIsolationGenCone Track " << trkDirs[trkIndex].okHCAL << " maxNearP " << maxNearP;
+      edm::LogVerbatim("IsoTrack") << "chargeIsolationGenCone Track " << trkDirs[trkIndex].okHCAL << " maxNearP "
+                                   << maxNearP;
     return maxNearP;
   }
 
