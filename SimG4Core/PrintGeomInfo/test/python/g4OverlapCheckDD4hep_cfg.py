@@ -21,7 +21,8 @@ process.g4SimHits.G4CheckOverlap.Depth      = cms.int32(-1)
 # tells if NodeName is G4Region or G4PhysicalVolume
 process.g4SimHits.G4CheckOverlap.RegionFlag = cms.bool(False)
 # list of names
-process.g4SimHits.G4CheckOverlap.NodeNames  = cms.vstring('OCMS_1')
+process.g4SimHits.G4CheckOverlap.NodeNames  = cms.vstring('cms:OCMS_1')
+# process.g4SimHits.G4CheckOverlap.NodeNames  = cms.vstring('DefaultRegionForTheWorld')
 # enable dump gdml file 
 process.g4SimHits.G4CheckOverlap.gdmlFlag   = cms.bool(False)
 # if defined a G4PhysicsVolume info is printed
