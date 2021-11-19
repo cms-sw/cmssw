@@ -211,19 +211,29 @@ void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker& walker)
         rotStr = "0";
       const int rotCode(std::stoi(rotStr));
       //edm::LogVerbatim(logcat) << "rotStr " << rotStr << " rotCode " << rotCode;
-      
+
       // convert shape code to wafer types defined in HGCalTypes.h
       waferInfo.shapeCode = 99;
-      if (shapeStr == "F") waferInfo.shapeCode = 0;
-      if (shapeStr == "a") waferInfo.shapeCode = 4;
-      if (shapeStr == "am") waferInfo.shapeCode = 8;
-      if (shapeStr == "b") waferInfo.shapeCode = 1;
-      if (shapeStr == "bm") waferInfo.shapeCode = 9;
-      if (shapeStr == "c") waferInfo.shapeCode = 7;
-      if (shapeStr == "d") waferInfo.shapeCode = 5;
-      if (shapeStr == "dm") waferInfo.shapeCode = 6;
-      if (shapeStr == "g") waferInfo.shapeCode = 2;
-      if (shapeStr == "gm") waferInfo.shapeCode = 3;
+      if (shapeStr == "F")
+        waferInfo.shapeCode = 0;
+      if (shapeStr == "a")
+        waferInfo.shapeCode = 4;
+      if (shapeStr == "am")
+        waferInfo.shapeCode = 8;
+      if (shapeStr == "b")
+        waferInfo.shapeCode = 1;
+      if (shapeStr == "bm")
+        waferInfo.shapeCode = 9;
+      if (shapeStr == "c")
+        waferInfo.shapeCode = 7;
+      if (shapeStr == "d")
+        waferInfo.shapeCode = 5;
+      if (shapeStr == "dm")
+        waferInfo.shapeCode = 6;
+      if (shapeStr == "g")
+        waferInfo.shapeCode = 2;
+      if (shapeStr == "gm")
+        waferInfo.shapeCode = 3;
 
       waferInfo.rotCode = rotCode;
       // populate the map
@@ -352,11 +362,11 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     int waferV;
     int waferShapeCode;
     // extract wafer info from a textfile line
-    if ( tokens[2].substr(0,1) == "l" || tokens[2].substr(0,1) == "h" ) {
+    if (tokens[2].substr(0, 1) == "l" || tokens[2].substr(0, 1) == "h") {
       //if using new format flat file
       waferLayer = std::stoi(tokens[0]);
       waferShapeStr = tokens[1];
-      waferDensityStr = tokens[2].substr(0,1);
+      waferDensityStr = tokens[2].substr(0, 1);
       waferThickness = std::stoi(tokens[2].substr(1));
       waferX = std::stod(tokens[3]);
       waferY = std::stod(tokens[4]);
@@ -364,25 +374,36 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       waferU = std::stoi(tokens[6]);
       waferV = std::stoi(tokens[7]);
       waferShapeCode = 99;
-      if ( waferDensityStr == "l" ) {
-        if( waferShapeStr == "0") waferShapeCode = 0;
-        if( waferShapeStr == "1") waferShapeCode = 4; 
-        if( waferShapeStr == "2") waferShapeCode = 4; 
-        if( waferShapeStr == "3") waferShapeCode = 5; 
-        if( waferShapeStr == "4") waferShapeCode = 5; 
-        if( waferShapeStr == "5") waferShapeCode = 1; 
-        if( waferShapeStr == "6") waferShapeCode = 7; 
+      if (waferDensityStr == "l") {
+        if (waferShapeStr == "0")
+          waferShapeCode = 0;
+        if (waferShapeStr == "1")
+          waferShapeCode = 4;
+        if (waferShapeStr == "2")
+          waferShapeCode = 4;
+        if (waferShapeStr == "3")
+          waferShapeCode = 5;
+        if (waferShapeStr == "4")
+          waferShapeCode = 5;
+        if (waferShapeStr == "5")
+          waferShapeCode = 1;
+        if (waferShapeStr == "6")
+          waferShapeCode = 7;
+      } else if (waferDensityStr == "h") {
+        if (waferShapeStr == "0")
+          waferShapeCode = 0;
+        if (waferShapeStr == "1")
+          waferShapeCode = 8;
+        if (waferShapeStr == "2")
+          waferShapeCode = 3;
+        if (waferShapeStr == "3")
+          waferShapeCode = 6;
+        if (waferShapeStr == "4")
+          waferShapeCode = 6;
+        if (waferShapeStr == "5")
+          waferShapeCode = 9;
       }
-      else if ( waferDensityStr == "h" ) {
-        if( waferShapeStr == "0") waferShapeCode = 0;
-        if( waferShapeStr == "1") waferShapeCode = 8; 
-        if( waferShapeStr == "2") waferShapeCode = 3; 
-        if( waferShapeStr == "3") waferShapeCode = 6; 
-        if( waferShapeStr == "4") waferShapeCode = 6; 
-        if( waferShapeStr == "5") waferShapeCode = 9; 
-      }
-    }
-    else {
+    } else {
       //if using old format flat file
       waferLayer = std::stoi(tokens[0]);
       waferShapeStr = tokens[1];
@@ -393,16 +414,26 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       waferU = std::stoi(tokens[6]);
       waferV = std::stoi(tokens[7]);
       waferShapeCode = 99;
-      if (waferShapeStr == "F") waferShapeCode = 0;
-      if (waferShapeStr == "a") waferShapeCode = 4;
-      if (waferShapeStr == "am") waferShapeCode = 8;
-      if (waferShapeStr == "b") waferShapeCode = 1;
-      if (waferShapeStr == "bm") waferShapeCode = 9;
-      if (waferShapeStr == "c") waferShapeCode = 7;
-      if (waferShapeStr == "d") waferShapeCode = 5;
-      if (waferShapeStr == "dm") waferShapeCode = 6;
-      if (waferShapeStr == "g") waferShapeCode = 2;
-      if (waferShapeStr == "gm") waferShapeCode = 3;
+      if (waferShapeStr == "F")
+        waferShapeCode = 0;
+      if (waferShapeStr == "a")
+        waferShapeCode = 4;
+      if (waferShapeStr == "am")
+        waferShapeCode = 8;
+      if (waferShapeStr == "b")
+        waferShapeCode = 1;
+      if (waferShapeStr == "bm")
+        waferShapeCode = 9;
+      if (waferShapeStr == "c")
+        waferShapeCode = 7;
+      if (waferShapeStr == "d")
+        waferShapeCode = 5;
+      if (waferShapeStr == "dm")
+        waferShapeCode = 6;
+      if (waferShapeStr == "g")
+        waferShapeCode = 2;
+      if (waferShapeStr == "gm")
+        waferShapeCode = 3;
     }
 
     // map index for crosschecking with DD
