@@ -30,7 +30,7 @@ process.TFileService = cms.Service("TFileService",
    fileName = cms.string('outputNew.root')
 )
 
-process.hcalIsoTrackAnalyzer.useRaw = 0   # 2 for Raw
+process.hcalIsoTrackAnalyzer.useRaw = 0   # 1 for Raw
 
 process.p = cms.Path(process.hcalIsoTrackAnalyzer)
 
