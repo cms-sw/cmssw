@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Example script to test reading from local sqlite db.
@@ -25,6 +25,7 @@ def getCommandOutput(command):
     Arguments:
     - `command`: Shell command to be invoked by this function.
     """
+    print(command)
     child = os.popen(command)
     data = child.read()
     err = child.close()
@@ -136,23 +137,17 @@ def main():
          print("============================================================")
          if(i<len(sinces)-1):
              command = 'conddb_import -c sqlite_file:'+options.InputTag+"_IOV_"+str(sinces[i])+'.db -f '+sqlite_db_url+" -i "+options.InputTag+" -t "+options.InputTag+" -b "+str(sinces[i])+" -e "+str(sinces[i+1]-1)
-             print(command)
              getCommandOutput(command)
          else:
              command = 'conddb_import -c sqlite_file:'+options.InputTag+"_IOV_"+str(sinces[i])+'.db -f '+sqlite_db_url+" -i "+options.InputTag+" -t "+options.InputTag+" -b "+str(sinces[i])
-             print(command)
              getCommandOutput(command)
              
-         # update the trigger bits
-             
-         cmsRunCommand="cmsRun AlCaRecoTriggerBitsRcdUpdate_TEMPL_cfg.py inputDB=sqlite_file:"+options.InputTag+"_IOV_"+str(sinces[i])+".db inputTag="+options.InputTag+" outputDB=sqlite_file:"+options.InputTag+"_IOV_"+str(sinces[i])+"_updated.db outputTag="+options.destTag+" firstRun="+str(sinces[i])
-         print(cmsRunCommand)
+         # update the trigger bits             
+         cmsRunCommand="cmsRun $CMSSW_BASE/src/CondTools/HLT/test/AlCaRecoTriggerBitsRcdUpdate_TEMPL_cfg.py inputDB=sqlite_file:"+options.InputTag+"_IOV_"+str(sinces[i])+".db inputTag="+options.InputTag+" outputDB=sqlite_file:"+options.InputTag+"_IOV_"+str(sinces[i])+"_updated.db outputTag="+options.destTag+" firstRun="+str(sinces[i])
          getCommandOutput(cmsRunCommand)
      
          # merge the output
-          
          mergeCommand = 'conddb_import -f sqlite_file:'+options.InputTag+"_IOV_"+str(sinces[i])+'_updated.db -c sqlite_file:'+options.destTag+".db -i "+options.destTag+" -t "+options.destTag+" -b "+str(sinces[i])
-         print(mergeCommand)
          getCommandOutput(mergeCommand)
 
          # clean the house
@@ -163,6 +158,5 @@ def main():
          else:
              print("======> keeping the transient files")
           
-
 if __name__ == "__main__":        
      main()
