@@ -293,7 +293,11 @@ namespace pat {
     /// Soft Muon MVA
     float softMvaValue() const { return softMvaValue_; }
     void setSoftMvaValue(float softmva) { softMvaValue_ = softmva; }
-
+    
+    /// Muon MVA ID
+    float mvaIDValue() const { return mvaIDValue_; }
+    void setMvaIDValue(float mvaID) { mvaIDValue_ = mvaID; }
+    
     // 1/beta for prompt particle hypothesis
     /// (time is constraint to the bunch crossing time)
     float inverseBeta() const { return inverseBeta_; }
@@ -418,6 +422,7 @@ namespace pat {
     /// Muon MVA
     float mvaValue_;
     float lowptMvaValue_;
+    float mvaIDValue_;
     float softMvaValue_;
 
     /// Inverse beta
