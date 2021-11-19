@@ -427,21 +427,29 @@ workflows[136.888511] = ['',['RunJetHT2018D','HLTDR2_2018','RECODR2_2018reHLT_EC
 workflows[136.885521] = ['',['RunHLTPhy2018D','HLTDR2_2018','RECODR2_2018reHLT_HCALOnlyCPU','HARVEST2018_HCALOnly']]
 workflows[136.888521] = ['',['RunJetHT2018D','HLTDR2_2018','RECODR2_2018reHLT_HCALOnlyCPU','HARVEST2018_HCALOnly']]
 
-### run 2021 CRUZET ###
-workflows[136.897] = ['',['RunCosmics2021CRUZET','RECOCOSDRUN3','ALCACOSDRUN3','HARVESTDCRUN3']]
+### run 2021 CRUZET/CRAFT ###
+workflows[136.897] = ['',['RunCosmics2021CRUZET','RECOCOSDRUN3','ALCACOSDRUN3','HARVESTDCR3']]
+workflows[136.899] = ['',['RunCosmics2021CRAFT','RECOCOSDRUN3','ALCACOSDRUN3','HARVESTDCR3']]
 
 # multi-run harvesting
 workflows[137.8] = ['',['RunEGamma2018C','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Offline_L1TEgDQM',
                         'RunEGamma2018D','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_MULTIRUN']]
-### LS2 - MWGR ###
-workflows[138.1] = ['',['RunCosmics2021','RECOCOSDPROMPTRUN3','ALCACOSDPROMPTRUN3','HARVESTDCPROMPTRUN3']]
-workflows[138.2] = ['',['RunCosmics2021','RECOCOSDEXPRUN3','ALCACOSDEXPRUN3','HARVESTDCEXPRUN3']]
-### 2021 Splash events
-workflows[138.3] = ['',['RunMinimumBias2021Splash','COPYPASTER3', 'RECODR3Splash','HARVESTDR3']]
+### Prompt / Express / Splashes ###
+workflows[138.1] = ['PromptCosmics',['RunCosmics2021','RECOCOSDPROMPTRUN3','ALCACOSDPROMPTRUN3','HARVESTDCPROMPTRUN3']]
+workflows[138.2] = ['ExpressCosmics',['RunCosmics2021','RECOCOSDEXPRUN3','ALCACOSDEXPRUN3','HARVESTDCEXPRUN3']]
+workflows[138.3] = ['Splashes',['RunMinimumBias2021Splash','COPYPASTER3','RECODR3Splash','HARVESTDR3']]
+workflows[138.4] = ['PromptCollisions',['RunMinimumBias2021','ALCARECOPROMPTR3','HARVESTDPROMPTR3']]
+workflows[138.5] = ['ExpressCollisions',['RunMinimumBias2021','TIER0EXPRUN3','ALCARECOEXPR3','HARVESTDEXPR3']]
 
 #### Test of lumi section boundary crossing with run2 2018D ####
 workflows[136.8861] = ['',['RunEGamma2018Dml1','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]
 workflows[136.8862] = ['',['RunEGamma2018Dml2','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]
+
+### run 2021 collisions ###
+workflows[139.001] = ['',['RunMinimumBias2021','HLTDR3_2021','RECODR3_MinBiasOffline','HARVESTD2021MB']]
+workflows[139.002] = ['',['RunZeroBias2021','HLTDR3_2021','RECODR3_ZBOffline','HARVESTD2021ZB']]
+workflows[139.003] = ['',['RunHLTPhy2021','HLTDR3_2021','RECODR3_HLTPhysics_Offline','HARVESTD2021HLTPhy']]
+workflows[139.004] = ['',['RunNoBPTX2021','HLTDR3_2021','RECODR3_AlCaTkCosmics_Offline','HARVESTDR3']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
