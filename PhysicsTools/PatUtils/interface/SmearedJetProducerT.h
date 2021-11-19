@@ -93,6 +93,20 @@ namespace pat {
   };
 };  // namespace pat
 
+namespace SmearedJetProducer_namespace {
+  // template function to apply JER
+  template <typename T>
+  void SmearJet(T& jet, float smearfactor) {
+    jet.scaleEnergy(smearfactor);
+  }
+  // template specialization for pat::Jets to store the JER factor
+  template <>
+  void SmearJet<pat::Jet>(pat::Jet& jet, float smearfactor) {
+    jet.scaleEnergy(smearfactor);
+    jet.addUserFloat("SmearFactor", smearfactor);
+  }
+}  // namespace SmearedJetProducer_namespace
+
 template <typename T>
 class SmearedJetProducerT : public edm::stream::EDProducer<> {
   using JetCollection = std::vector<T>;
