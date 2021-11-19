@@ -28,7 +28,6 @@ ticlTrackstersTrk = _trackstersProducer.clone(
         min_layers_per_trackster = 10,
         min_cos_theta = 0.866, # ~30 degrees
         min_cos_pointing = 0.798, # ~ 37 degrees
-        siblings_maxRSquared = [6e-4, 6e-4, 6e-4],
         max_delta_time = -1.,
         algo_verbosity = 2,
         oneTracksterPerTrackSeed = True,
