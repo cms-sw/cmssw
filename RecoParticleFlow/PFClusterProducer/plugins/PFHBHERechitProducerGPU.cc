@@ -59,10 +59,12 @@ private:
   //Output Token
   using IProductType = cms::cuda::Product<hcal::RecHitCollection<calo::common::DevStoragePolicy>>;
   const edm::EDGetTokenT<IProductType> InputRecHitSoA_Token_; 
- 
-  edm::EDPutTokenT<PFRecHitSoAProductType> OutputPFRecHitSoA_Token_;
 
-  pf::rechit::OutputPFRecHitDataGPU PFRecHits_;
+  using OProductType = cms::cuda::Product<hcal::PFRecHitCollection<pf::common::DevStoragePolicy>>;
+  edm::EDPutTokenT<OProductType> OutputPFRecHitSoA_Token_;
+  //edm::EDPutTokenT<PFRecHitSoAProductType> OutputPFRecHitSoA_Token_;
+
+  pf::rechit::OutputPFRecHitDataGPU outputGPU;
   cms::cuda::ContextState cudaState_;
 
   hcal::RecHitCollection<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>> tmpRecHits;
@@ -112,6 +114,7 @@ private:
 
 PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
     : InputRecHitSoA_Token_{consumes<IProductType>(ps.getParameterSetVector("producers")[0].getParameter<edm::InputTag>("src"))},
+      OutputPFRecHitSoA_Token_{produces<OProductType>(ps.getParameter<std::string>("PFRecHitsGPUOut"))},
       hcalToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       geomToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()) {
     //: InputRecHitSoA_Token_{consumes<IProductType>(ps.getParameter<edm::InputTag>("recHitsM0LabelIn"))} {
@@ -141,7 +144,7 @@ PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
     qTestThresh = (float)qualityConf[0].getParameter<double>("threshold");
     std::cout<<"Quality test name from config: "<<qualityTestName<<std::endl;
 
-    const auto& navConf = ps.getParameterSet("navigator");
+    //const auto& navConf = ps.getParameterSet("navigator");
 }
 
 
@@ -160,7 +163,8 @@ void PFHBHERechitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& c
 
     //desc.add<edm::InputTag>("recHitsM0LabelIn", edm::InputTag{"hbheRecHitProducerGPU"});
     //desc.add<edm::InputTag>("recHitsM0LabelIn", edm::InputTag{"hltHbherecoGPU"});
-
+    
+    desc.add<std::string>("PFRecHitsGPUOut", "");
     // Prevents the producer and navigator parameter sets from throwing an exception
     // TODO: Replace with a proper parameter set description: twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideConfigurationValidationAndHelp
     desc.setAllowAnything();
@@ -393,8 +397,8 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
     //auto start = std::chrono::high_resolution_clock::now();
 
     auto const& HBHERecHitSoAProduct = event.get(InputRecHitSoA_Token_);
-    //cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder), cudaState_};
-    cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder)};
+    cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder), cudaState_};
+    //cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder)};
     auto const& HBHERecHitSoA = ctx.get(HBHERecHitSoAProduct);
     size_t num_rechits = HBHERecHitSoA.size;
     tmpRecHits.resize(num_rechits);
@@ -423,14 +427,15 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
 //        if (n != testDetId) std::cout<<"\t"<<n.rawId()<<std::endl;
 //    }
 //    std::cout<<std::endl;
+        
+    outputGPU.allocate(num_rechits, ctx.stream());
 
     if (initCuda) {
         // Initialize persistent arrays for rechit positions
         persistentDataCPU.allocate(nValidDetIds, ctx.stream());
         persistentDataGPU.allocate(nValidDetIds, ctx.stream());
         scratchDataGPU.allocate(nValidDetIds, ctx.stream());
-        //PFRecHits_.allocate(num_rechits, ctx.stream());
-        PFRecHits_.allocate(nValidDetIds, ctx.stream());
+        //outputGPU.allocate(nValidDetIds, ctx.stream());
 
         uint32_t nRHTotal = 0;
         for (const auto& denseId : vDenseIdHcal) {
@@ -497,37 +502,37 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
 //  }
   
   // Entry point for GPU calls 
-  pf::rechit::entryPoint(HBHERecHitSoA, PFRecHits_, persistentDataGPU, scratchDataGPU, ctx.stream());
+  pf::rechit::entryPoint(HBHERecHitSoA, outputGPU, persistentDataGPU, scratchDataGPU, ctx.stream());
 
   if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
   // For testing, copy back PFRecHit SoA data to CPU
   //cudaDeviceSynchronize();
-  nPFRHTotal = PFRecHits_.PFRecHits.size + PFRecHits_.PFRecHits.sizeCleaned;
+  nPFRHTotal = outputGPU.PFRecHits.size + outputGPU.PFRecHits.sizeCleaned;
   tmpPFRecHits.resize(nPFRHTotal);
-  tmpPFRecHits.size = PFRecHits_.PFRecHits.size;
-  tmpPFRecHits.sizeCleaned = PFRecHits_.PFRecHits.sizeCleaned;
+  tmpPFRecHits.size = outputGPU.PFRecHits.size;
+  tmpPFRecHits.sizeCleaned = outputGPU.PFRecHits.sizeCleaned;
   
   
-  lambdaToTransferSize(tmpPFRecHits.pfrh_depth, PFRecHits_.PFRecHits.pfrh_depth.get(), nPFRHTotal);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_layer, PFRecHits_.PFRecHits.pfrh_layer.get(), nPFRHTotal);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_detId, PFRecHits_.PFRecHits.pfrh_detId.get(), nPFRHTotal);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_neighbours, PFRecHits_.PFRecHits.pfrh_neighbours.get(), 8*nPFRHTotal);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_neighbourInfos, PFRecHits_.PFRecHits.pfrh_neighbourInfos.get(), 8*nPFRHTotal);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_time, PFRecHits_.PFRecHits.pfrh_time.get(), nPFRHTotal);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_energy, PFRecHits_.PFRecHits.pfrh_energy.get(), nPFRHTotal);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_pt2, PFRecHits_.PFRecHits.pfrh_pt2.get(), nPFRHTotal);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_x, PFRecHits_.PFRecHits.pfrh_x.get(), nPFRHTotal);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_y, PFRecHits_.PFRecHits.pfrh_y.get(), nPFRHTotal);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_z, PFRecHits_.PFRecHits.pfrh_z.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_depth, outputGPU.PFRecHits.pfrh_depth.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_layer, outputGPU.PFRecHits.pfrh_layer.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_detId, outputGPU.PFRecHits.pfrh_detId.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_neighbours, outputGPU.PFRecHits.pfrh_neighbours.get(), 8*nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_neighbourInfos, outputGPU.PFRecHits.pfrh_neighbourInfos.get(), 8*nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_time, outputGPU.PFRecHits.pfrh_time.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_energy, outputGPU.PFRecHits.pfrh_energy.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_pt2, outputGPU.PFRecHits.pfrh_pt2.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_x, outputGPU.PFRecHits.pfrh_x.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_y, outputGPU.PFRecHits.pfrh_y.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_z, outputGPU.PFRecHits.pfrh_z.get(), nPFRHTotal);
   if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
 }
 
 
 void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& setup) {
-  //cms::cuda::ScopedContextProduce ctx{cudaState_};
-  //ctx.emplace(event, OutputPFRecHitSoA_Token_, std::move(PFRecHits_));
- 
- 
+  
+  cms::cuda::ScopedContextProduce ctx{cudaState_};
+  ctx.emplace(event, OutputPFRecHitSoA_Token_, std::move(outputGPU.PFRecHits));
+
   const CaloSubdetectorGeometry* hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
   const CaloSubdetectorGeometry* hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
   auto pfrhLegacy = std::make_unique<reco::PFRecHitCollection>();

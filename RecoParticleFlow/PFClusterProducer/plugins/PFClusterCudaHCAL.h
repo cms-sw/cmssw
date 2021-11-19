@@ -2,6 +2,8 @@
 #define PFClusterCudaHCAL_h
 #include <Eigen/Dense>
 #include "RecoParticleFlow/PFClusterProducer/plugins/CudaPFCommon.h"
+#include "CUDADataFormats/PFRecHitSoA/interface/PFRecHitCollection.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/DeclsForKernels.h"
 
 namespace PFClusterCudaHCAL { 
   
@@ -47,6 +49,15 @@ void PFRechitToPFCluster_HCALV2(size_t size,
 				float (&timer)[8]  
                 );
 
+void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
+                int nEdges,
+                ::hcal::PFRecHitCollection<::pf::common::DevStoragePolicy> const& inputPFRecHits,
+                ::PFClustering::HCAL::InputDataGPU& inputGPU,
+                ::PFClustering::HCAL::OutputDataCPU& outputCPU,
+                ::PFClustering::HCAL::OutputDataGPU& outputGPU,
+                ::PFClustering::HCAL::ScratchDataGPU& scratchGPU,
+                float (&timer)[8]
+                );
 
 
 void PFRechitToPFCluster_HCAL_CCLClustering(cudaStream_t cudaStream,

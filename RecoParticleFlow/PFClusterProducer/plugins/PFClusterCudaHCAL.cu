@@ -14,7 +14,7 @@
 using PFClustering::common::PFLayer;
 
 // Uncomment for debugging
-//#define DEBUG_GPU_HCAL
+#define DEBUG_GPU_HCAL
 
 
 constexpr int sizeof_float = sizeof(float);
@@ -346,7 +346,7 @@ namespace PFClusterCudaHCAL {
      cudaCheck(cudaMemcpyFromSymbolAsync(&val, resHighE2B, sizeof_float, 0, cudaMemcpyDeviceToHost, cudaStream));
      std::cout<<"resHighE2B read from symbol: "<<val<<std::endl;
 #endif
-}
+  }
 
 __device__ __forceinline__ float timeResolution2Endcap(const float energy) {
   float res2 = 10000.;
@@ -3049,6 +3049,7 @@ __global__ void topoClusterContraction(size_t size,
     __syncthreads();
     if (threadIdx.x == 0) {
         *pcrhFracSize = totalSeedFracOffset;
+        printf("At the end of topoClusterContraction, found *pcrhFracSize = %d\n", *pcrhFracSize);
     }
 }
 
@@ -3306,6 +3307,195 @@ __global__ void printRhfIndex(int* pfrh_topoId, int* topoRHCount, int* seedFracO
     }
 }
 
+
+void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
+                int nEdges,
+                ::hcal::PFRecHitCollection<::pf::common::DevStoragePolicy> const& inputPFRecHits,
+                ::PFClustering::HCAL::InputDataGPU& inputGPU,
+                ::PFClustering::HCAL::OutputDataCPU& outputCPU,
+                ::PFClustering::HCAL::OutputDataGPU& outputGPU,
+                ::PFClustering::HCAL::ScratchDataGPU& scratchGPU,
+                float (&timer)[8] ) {
+   
+    int nRH = inputPFRecHits.size;
+    printf("Now in PFRechitToPFCluster_HCAL_entryPoint with nRH = %d\tnEdges = %d\n", nRH, nEdges);
+    if (nRH < 1) return;
+    cudaProfilerStart();
+
+#ifdef DEBUG_GPU_HCAL
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start, cudaStream);
+#endif
+    
+    // Combined seeding & topo clustering thresholds, array initialization
+    
+    seedingTopoThreshKernel_HCAL<<<(nRH+63)/64, 128, 0, cudaStream>>>(
+        nRH,
+        inputGPU.pfrh_energy.get(),
+        //inputPFRecHits.pfrh_energy.get(),
+        inputGPU.pfrh_pt2.get(),
+        //inputPFRecHits.pfrh_pt2.get(),  // this might be the problem?
+        outputGPU.pfrh_isSeed.get(),
+        outputGPU.pfrh_topoId.get(),
+        outputGPU.pfrh_passTopoThresh.get(),
+        inputGPU.pfrh_layer.get(),
+        inputGPU.pfrh_depth.get(),
+        //inputPFRecHits.pfrh_layer.get(),
+        //inputPFRecHits.pfrh_depth.get(),
+        inputGPU.pfNeighFourInd.get(),
+        inputGPU.rhcount.get(),
+        outputGPU.topoSeedCount.get(),
+        outputGPU.topoRHCount.get(),
+        outputGPU.seedFracOffsets.get(),
+        outputGPU.topoSeedOffsets.get(),
+        outputGPU.topoSeedList.get(),
+        outputGPU.pfc_iter.get());
+    
+    /*
+    seedingTopoThreshKernel_HCAL<<<(nRH+63)/64, 128, 0, cudaStream>>>(
+        nRH,
+        inputPFRecHits.pfrh_energy.get(),
+        inputPFRecHits.pfrh_pt2.get(),
+        outputGPU.pfrh_isSeed.get(),
+        outputGPU.pfrh_topoId.get(),
+        outputGPU.pfrh_passTopoThresh.get(),
+        inputPFRecHits.pfrh_layer.get(),
+        inputPFRecHits.pfrh_depth.get(),
+        inputGPU.pfNeighFourInd.get(),
+        inputGPU.rhcount.get(),
+        outputGPU.topoSeedCount.get(),
+        outputGPU.topoRHCount.get(),
+        outputGPU.seedFracOffsets.get(),
+        outputGPU.topoSeedOffsets.get(),
+        outputGPU.topoSeedList.get(),
+        outputGPU.pfc_iter.get());
+    */
+
+#ifdef DEBUG_GPU_HCAL
+    cudaEventRecord(stop, cudaStream);
+    cudaEventSynchronize(stop);   
+    cudaEventElapsedTime(&timer[0], start, stop);
+    cudaEventRecord(start, cudaStream);
+#endif
+
+    // Topo clustering
+    topoClusterLinking<<<1, 512, 0, cudaStream>>>(
+        nRH,
+        nEdges,
+        outputGPU.pfrh_topoId.get(),
+        inputGPU.pfrh_edgeId.get(),
+        inputGPU.pfrh_edgeList.get(),
+        inputGPU.pfrh_edgeMask.get(),
+        //scratchGPU.pfrh_edgeMask.get(),
+        outputGPU.pfrh_passTopoThresh.get(),
+        outputGPU.topoIter.get());
+
+    topoClusterContraction<<<1, 512, 0, cudaStream>>>(
+        nRH,
+        outputGPU.pfrh_topoId.get(),
+        outputGPU.pfrh_isSeed.get(),
+        inputGPU.rhcount.get(),
+        outputGPU.topoSeedCount.get(),
+        outputGPU.topoRHCount.get(),
+        outputGPU.seedFracOffsets.get(),
+        outputGPU.topoSeedOffsets.get(),
+        outputGPU.topoSeedList.get(),
+        outputGPU.pcrh_fracInd.get(),
+        outputGPU.pcrh_frac.get(),
+        outputGPU.pcrhFracSize.get());
+
+#ifdef DEBUG_GPU_HCAL
+    cudaEventRecord(stop, cudaStream);
+    cudaEventSynchronize(stop);   
+    cudaEventElapsedTime(&timer[1], start, stop);
+    cudaEventRecord(start, cudaStream);
+#endif
+
+    dim3 grid((nRH+31)/32, (nRH+31)/32);
+    dim3 block(32, 32);
+    
+    fillRhfIndex<<<grid, block, 0, cudaStream>>>(
+        nRH,
+        outputGPU.pfrh_topoId.get(),
+        outputGPU.pfrh_isSeed.get(),
+        outputGPU.topoSeedCount.get(),
+        outputGPU.topoRHCount.get(),
+        outputGPU.seedFracOffsets.get(),
+        inputGPU.rhcount.get(),
+        outputGPU.pcrh_fracInd.get());
+   
+#ifdef DEBUG_GPU_HCAL
+    cudaEventRecord(stop, cudaStream);
+    cudaEventSynchronize(stop);   
+    cudaEventElapsedTime(&timer[2], start, stop);
+    cudaEventRecord(start, cudaStream);
+#endif
+   
+    //hcalFastCluster_optimizedComplex<<<nRH, 256>>>( nRH, pfrh_x,  pfrh_y,  pfrh_z,  pfrh_energy, pfrh_topoId,  pfrh_isSeed,  pfrh_layer, pfrh_depth, neigh4_Ind, pcrhfrac, pcrhfracind, fracSum, rhCount, topoSeedCount, topoRHCount, seedFracOffsets, topoSeedOffsets, topoSeedList, pfc_pos, pfc_prevPos, pfc_energy, pfcIter);
+    
+    hcalFastCluster_selection<<<nRH, 256, 0, cudaStream>>>(
+        nRH,
+        inputGPU.pfrh_x.get(),
+        inputGPU.pfrh_y.get(),
+        inputGPU.pfrh_z.get(),
+        inputGPU.pfrh_energy.get(),
+        outputGPU.pfrh_topoId.get(),
+        outputGPU.pfrh_isSeed.get(),
+        inputGPU.pfrh_layer.get(),
+        inputGPU.pfrh_depth.get(),
+        inputGPU.pfNeighFourInd.get(),
+        outputGPU.pcrh_frac.get(),
+        outputGPU.pcrh_fracInd.get(),
+        inputGPU.pcrh_fracSum.get(),
+        inputGPU.rhcount.get(),
+        outputGPU.topoSeedCount.get(),
+        outputGPU.topoRHCount.get(),
+        outputGPU.seedFracOffsets.get(),
+        outputGPU.topoSeedOffsets.get(),
+        outputGPU.topoSeedList.get(),
+        inputGPU.pfc_pos4.get(),
+        inputGPU.pfc_prevPos4.get(),
+        inputGPU.pfc_energy.get(),
+        outputGPU.pfc_iter.get());
+
+    /*
+    hcalFastCluster_selection<<<nRH, 256, 0, cudaStream>>>(
+        nRH,
+        inputPFRecHits.pfrh_x.get(),
+        inputPFRecHits.pfrh_y.get(),
+        inputPFRecHits.pfrh_z.get(),
+        inputPFRecHits.pfrh_energy.get(),
+        outputGPU.pfrh_topoId.get(),
+        outputGPU.pfrh_isSeed.get(),
+        inputPFRecHits.pfrh_layer.get(),
+        inputPFRecHits.pfrh_depth.get(),
+        inputGPU.pfNeighFourInd.get(),
+        outputGPU.pcrh_frac.get(),
+        outputGPU.pcrh_fracInd.get(),
+        inputGPU.pcrh_fracSum.get(),
+        inputGPU.rhcount.get(),
+        outputGPU.topoSeedCount.get(),
+        outputGPU.topoRHCount.get(),
+        outputGPU.seedFracOffsets.get(),
+        outputGPU.topoSeedOffsets.get(),
+        outputGPU.topoSeedList.get(),
+        inputGPU.pfc_pos4.get(),
+        inputGPU.pfc_prevPos4.get(),
+        inputGPU.pfc_energy.get(),
+        outputGPU.pfc_iter.get());
+     */
+
+#ifdef DEBUG_GPU_HCAL
+    cudaEventRecord(stop, cudaStream);
+    cudaEventSynchronize(stop);   
+    cudaEventElapsedTime(&timer[3], start, stop);
+#endif
+    cudaProfilerStop();
+}
+
+
 void PFRechitToPFCluster_HCAL_CCLClustering(cudaStream_t cudaStream,
                 int nRH,
                 int nEdges,
@@ -3360,8 +3550,6 @@ void PFRechitToPFCluster_HCAL_CCLClustering(cudaStream_t cudaStream,
     cudaEventRecord(start, cudaStream);
 #endif
     
-    //topoclustering 
-    //topoClusterLinking<<<1, 1024 >>>(nRH, nEdges, pfrh_topoId, pfrh_edgeId, pfrh_edgeList, pfrh_edgeMask, pfrh_passTopoThresh, topoIter);
     topoClusterLinking<<<1, 512, 0, cudaStream>>>(nRH, nEdges, pfrh_topoId, pfrh_edgeId, pfrh_edgeList, pfrh_edgeMask, pfrh_passTopoThresh, topoIter);
     topoClusterContraction<<<1, 512, 0, cudaStream>>>(nRH, pfrh_topoId, pfrh_isSeed, rhCount, topoSeedCount, topoRHCount, seedFracOffsets, topoSeedOffsets, topoSeedList, pcrhfracind, pcrhfrac, pcrhFracSize);
 
