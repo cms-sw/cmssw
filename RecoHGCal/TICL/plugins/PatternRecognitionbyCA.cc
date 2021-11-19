@@ -187,13 +187,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       tmp.setSeed(input.regions[0].collectionID, seedIndices[tracksterId]);
 
       std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices()));
-      // Propagate the correct graph connections
-      tmp.edges().reserve(ntuplet.size());
-      for (auto const &t : ntuplet) {
-        std::array<unsigned int, 2> edge = {{static_cast<unsigned int>(doublets[t].innerClusterId()),
-                                             static_cast<unsigned int>(doublets[t].outerClusterId())}};
-        tmp.edges().push_back(edge);
-      }
       tmpTracksters.push_back(tmp);
     }
   }
