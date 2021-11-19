@@ -45,7 +45,7 @@ process.HcalIsoTrkAnalyzer.newDepth = [2, 4]
 process.HcalIsoTrkAnalyzer.hep17 = True
 process.HcalIsoTrkAnalyzer.dataType = 0 # 0 for jetHT else 1
 process.HcalIsoTrkAnalyzer.maximumEcalEnergy = 2.0 # set MIP cut  
-process.HcalIsoTrkAnalyzer.useRaw = 0   # 2 for Raw
+process.HcalIsoTrkAnalyzer.useRaw = 0   # 1 for Raw
 process.HcalIsoTrkAnalyzer.unCorrect = True
 
 process.HcalIsoTrkAnalyzer.EEHitEnergyThreshold1 = 0.00 # default 0.30
