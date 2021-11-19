@@ -23896,111 +23896,83 @@ std::cout<<" We are here to print ADC "<<std::endl;
     htmlFile << "<tr>" << std::endl;
 
     if (sub == 1) {
-      /*
-       htmlFile << "  <td><a href=\"HB_Tile.html\">Megatile Channels</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HB_Calib.html\">Calibration Channels</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HB_Drift.html\">Gain Stability</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HB_Pedestals.html\">Pedestals</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HB_Shapes.html\">ADC Shapes</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HB_PhiSymmetryDigi.html\">Phi-symmetryDigi</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HB_PhiSymmetryRecoSignal.html\">Phi-symmetryRecoSignal</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HB_PhiSymmetryRecoNoise.html\">Phi-symmetryRecoNoise</a></td>"<< std::endl;
-*/
+      htmlFile << "  <td><a href=\"HB_Tile.html\">Megatile Channels</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HB_Calib.html\">Calibration Channels</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HB_Drift.html\">Gain Stability</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HB_Pedestals.html\">Pedestals</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HB_Shapes.html\">ADC Shapes</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HB_PhiSymmetryDigi.html\">Phi-symmetryDigi</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HB_PhiSymmetryRecoSignal.html\">Phi-symmetryRecoSignal</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HB_PhiSymmetryRecoNoise.html\">Phi-symmetryRecoNoise</a></td>" << std::endl;
 
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HB_Tile.html\">Megatile Channels</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HB_Calib.html\">Calibration Channels</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HB_Drift.html\">Gain Stability</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HB_Pedestals.html\">Pedestals</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HB_Shapes.html\">ADC Shapes</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HB_PhiSymmetryDigi.html\">Phi-SymmetryDigi</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HB_PhiSymmetryRecoSignal.html\">Phi-SymmetryRecoSignal</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HB_PhiSymmetryRecoNoise.html\">Phi-SymmetryRecoNoise</a></td>" << std::endl;
+      /*
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HB_Tile.html\">Megatile Channels</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HB_Calib.html\">Calibration Channels</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HB_Drift.html\">Gain Stability</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HB_Pedestals.html\">Pedestals</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HB_Shapes.html\">ADC Shapes</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HB_PhiSymmetryDigi.html\">Phi-SymmetryDigi</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HB_PhiSymmetryRecoSignal.html\">Phi-SymmetryRecoSignal</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HB_PhiSymmetryRecoNoise.html\">Phi-SymmetryRecoNoise</a></td>"<< std::endl;
+*/
     }
     if (sub == 2) {
-      /*
-       htmlFile << "  <td><a href=\"HE_Tile.html\">Megatile Channels</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HE_Calib.html\">Calibration Channels</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HE_Drift.html\">Gain Stability</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HE_Pedestals.html\">Pedestals</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HE_Shapes.html\">ADC Shapes</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HE_PhiSymmetryDigi.html\">Phi-symmetryDigi</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HE_PhiSymmetryRecoSignal.html\">Phi-symmetryRecoSignal</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HE_PhiSymmetryRecoNoise.html\">Phi-symmetryRecoNoise</a></td>"<< std::endl;
-*/
+      htmlFile << "  <td><a href=\"HE_Tile.html\">Megatile Channels</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HE_Calib.html\">Calibration Channels</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HE_Drift.html\">Gain Stability</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HE_Pedestals.html\">Pedestals</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HE_Shapes.html\">ADC Shapes</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HE_PhiSymmetryDigi.html\">Phi-symmetryDigi</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HE_PhiSymmetryRecoSignal.html\">Phi-symmetryRecoSignal</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HE_PhiSymmetryRecoNoise.html\">Phi-symmetryRecoNoise</a></td>" << std::endl;
 
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HE_Tile.html\">Megatile Channels</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HE_Calib.html\">Calibration Channels</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HE_Drift.html\">Gain Stability</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HE_Pedestals.html\">Pedestals</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HE_Shapes.html\">ADC Shapes</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HE_PhiSymmetryDigi.html\">Phi-symmetryDigi</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HE_PhiSymmetryRecoSignal.html\">Phi-symmetryRecoSignal</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HE_PhiSymmetryRecoNoise.html\">Phi-symmetryRecoNoise</a></td>" << std::endl;
+      /*
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HE_Tile.html\">Megatile Channels</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HE_Calib.html\">Calibration Channels</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HE_Drift.html\">Gain Stability</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HE_Pedestals.html\">Pedestals</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HE_Shapes.html\">ADC Shapes</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HE_PhiSymmetryDigi.html\">Phi-symmetryDigi</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HE_PhiSymmetryRecoSignal.html\">Phi-symmetryRecoSignal</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HE_PhiSymmetryRecoNoise.html\">Phi-symmetryRecoNoise</a></td>"<< std::endl;
+       */
     }
     if (sub == 3) {
+      htmlFile << "  <td><a href=\"HO_Tile.html\">Megatile Channels</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HO_Calib.html\">Calibration Channels</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HO_Drift.html\">Gain Stability</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HO_Pedestals.html\">Pedestals</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HO_Shapes.html\">ADC Shapes</a></td>" << std::endl;
+
       /*
-       htmlFile << "  <td><a href=\"HO_Tile.html\">Megatile Channels</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HO_Calib.html\">Calibration Channels</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HO_Drift.html\">Gain Stability</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HO_Pedestals.html\">Pedestals</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HO_Shapes.html\">ADC Shapes</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HO_Tile.html\">Megatile Channels</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HO_Calib.html\">Calibration Channels</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HO_Drift.html\">Gain Stability</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HO_Pedestals.html\">Pedestals</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HO_Shapes.html\">ADC Shapes</a></td>"<< std::endl;
        */
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HO_Tile.html\">Megatile Channels</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HO_Calib.html\">Calibration Channels</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HO_Drift.html\">Gain Stability</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HO_Pedestals.html\">Pedestals</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HO_Shapes.html\">ADC Shapes</a></td>" << std::endl;
     }
 
     if (sub == 4) {
-      /*
-       htmlFile << "  <td><a href=\"HF_Tile.html\">Megatile Channels</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HF_Calib.html\">Calibration Channels</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HF_Drift.html\">Gain Stability</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HF_Pedestals.html\">Pedestals</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HF_Shapes.html\">ADC Shapes</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HF_PhiSymmetryDigi.html\">Phi-symmetryDigi</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HF_PhiSymmetryRecoSignal.html\">Phi-symmetryRecoSignal</a></td>"<< std::endl;
-       htmlFile << "  <td><a href=\"HF_PhiSymmetryRecoNoise.html\">Phi-symmetryRecoNoise</a></td>"<< std::endl;
-       */
+      htmlFile << "  <td><a href=\"HF_Tile.html\">Megatile Channels</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HF_Calib.html\">Calibration Channels</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HF_Drift.html\">Gain Stability</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HF_Pedestals.html\">Pedestals</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HF_Shapes.html\">ADC Shapes</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HF_PhiSymmetryDigi.html\">Phi-symmetryDigi</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HF_PhiSymmetryRecoSignal.html\">Phi-symmetryRecoSignal</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"HF_PhiSymmetryRecoNoise.html\">Phi-symmetryRecoNoise</a></td>" << std::endl;
 
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HF_Tile.html\">Megatile Channels</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HF_Calib.html\">Calibration Channels</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HF_Drift.html\">Gain Stability</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HF_Pedestals.html\">Pedestals</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HF_Shapes.html\">ADC Shapes</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HF_PhiSymmetryDigi.html\">Phi-symmetryDigi</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HF_PhiSymmetryRecoSignal.html\">Phi-symmetryRecoSignal</a></td>" << std::endl;
-      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-               << "/HF_PhiSymmetryRecoNoise.html\">Phi-symmetryRecoNoise</a></td>" << std::endl;
+      /*
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HF_Tile.html\">Megatile Channels</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HF_Calib.html\">Calibration Channels</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HF_Drift.html\">Gain Stability</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HF_Pedestals.html\">Pedestals</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HF_Shapes.html\">ADC Shapes</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HF_PhiSymmetryDigi.html\">Phi-symmetryDigi</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HF_PhiSymmetryRecoSignal.html\">Phi-symmetryRecoSignal</a></td>"<< std::endl;
+       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HF_PhiSymmetryRecoNoise.html\">Phi-symmetryRecoNoise</a></td>"<< std::endl;
+       */
     }
 
     htmlFile << "</tr>" << std::endl;
@@ -24578,21 +24550,17 @@ std::cout<<" We are here to print ADC "<<std::endl;
   htmlFile << "<table width=\"400\">" << std::endl;
   htmlFile << "<tr>" << std::endl;
 
-  /*
-     htmlFile << "  <td><a href=\"HB.html\">HB</a></td>"<< std::endl;
-     htmlFile << "  <td><a href=\"HE.html\">HE</a></td>"<< std::endl;
-     htmlFile << "  <td><a href=\"HO.html\">HO</a></td>"<< std::endl;
-     htmlFile << "  <td><a href=\"HF.html\">HF</a></td>"<< std::endl;    
-*/
+  htmlFile << "  <td><a href=\"HB.html\">HB</a></td>" << std::endl;
+  htmlFile << "  <td><a href=\"HE.html\">HE</a></td>" << std::endl;
+  htmlFile << "  <td><a href=\"HO.html\">HO</a></td>" << std::endl;
+  htmlFile << "  <td><a href=\"HF.html\">HF</a></td>" << std::endl;
 
-  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-           << "/HB.html\">HB</a></td>" << std::endl;
-  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-           << "/HE.html\">HE</a></td>" << std::endl;
-  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-           << "/HO.html\">HO</a></td>" << std::endl;
-  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_" << runnumber
-           << "/HF.html\">HF</a></td>" << std::endl;
+  /*
+     htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HB.html\">HB</a></td>"<< std::endl;
+     htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HE.html\">HE</a></td>"<< std::endl;
+     htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HO.html\">HO</a></td>"<< std::endl;
+     htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/RMT/LED_"<<runnumber<<"/HF.html\">HF</a></td>"<< std::endl;
+*/
 
   htmlFile << "</tr>" << std::endl;
   htmlFile << "</table>" << std::endl;
