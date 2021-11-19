@@ -34,6 +34,7 @@ jobs:
     - name: DebugPrint
       run: |
         echo "github.ref = ${{ github.ref }}"
+        env
 
     - name: Redefine branch on pull_request
       if: github.event_name == 'pull_request'
