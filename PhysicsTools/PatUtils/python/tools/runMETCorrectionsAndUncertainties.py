@@ -28,7 +28,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters, 'metType', "PF",
-                          "Type of considered MET (only PF and Puppi supported so far)", Type=str)
+                          "Type of considered MET (only PF and Puppi supported so far)", Type=str, allowedValues = ["PF","Puppi"])
         self.addParameter(self._defaultParameters, 'correctionLevel', [""],
                           "level of correction : available corrections for pfMet are T0, T1, T2, Txy and Smear; irrelevant entry for MVAMet)",
                           allowedValues=["T0","T1","T2","Txy","Smear",""])
@@ -50,11 +50,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'pfCandCollection', cms.InputTag('particleFlow'),
                           "pf Candidate collection", Type=cms.InputTag, acceptNoneValue=True)
         self.addParameter(self._defaultParameters, 'autoJetCleaning', 'LepClean',
-                          "Enable the jet cleaning for the uncertainty computation: Full for tau/photons/jet cleaning, Partial for jet cleaning, LepClean for jet cleaning with muon and electrons only, None or Manual for no cleaning", Type=str)
+                          "Enable the jet cleaning for the uncertainty computation: Full for tau/photons/jet cleaning, Partial for jet cleaning, LepClean for jet cleaning with muon and electrons only, None or Manual for no cleaning",
+                          allowedValues = ["Full","Partial","LepClean","None"])
         self.addParameter(self._defaultParameters, 'jetFlavor', 'AK4PFchs',
-                          "Use AK4PF/AK4PFchs for PFJets,AK4Calo for CaloJets", Type=str)
+                          "Use AK4PF/AK4PFchs for PFJets,AK4Calo for CaloJets", Type=str, allowedValues = ["AK4PF","AK4PFchs","AK4PFPuppi","CaloJets"])
         self.addParameter(self._defaultParameters, 'jetCorrectionType', 'L1L2L3-L1',
-                          "Use L1L2L3-L1 for the standard L1 removal / L1L2L3-RC for the random-cone correction", Type=str)
+                          "Use L1L2L3-L1 for the standard L1 removal / L1L2L3-RC for the random-cone correction", Type=str, allowedValues = ["L1L2L3-L1","L1L2L3-RC"])
 
         self.addParameter(self._defaultParameters, 'jetCorLabelUpToL3', "ak4PFCHSL1FastL2L3Corrector", "Use ak4PFL1FastL2L3Corrector (ak4PFCHSL1FastL2L3Corrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3Corrector for CaloJets", Type=str)
         self.addParameter(self._defaultParameters, 'jetCorLabelL3Res', "ak4PFCHSL1FastL2L3ResidualCorrector", "Use ak4PFL1FastL2L3ResidualCorrector (ak4PFCHSL1FastL2L3ResidualCorrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3ResidualCorrector for CaloJets", Type=str)
@@ -65,6 +66,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'jecUncertaintyTag', None,
                           "JES uncertainty Tag", acceptNoneValue=True) # Type=str,
 
+# FIXME STILL NEEDED?
         self.addParameter(self._defaultParameters, 'mvaMetLeptons',["Electrons","Muons"],
                           "Leptons to be used for recoil computation in the MVA MET, available values are: Electrons, Muons, Taus, Photons", allowedValues=["Electrons","Muons","Taus","Photons",""])
 
@@ -97,7 +99,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'extractDeepMETs', False,
                           "Extract DeepMETs from miniAOD, instead of recomputing them.", Type=bool)
 
-        #private parameters
+        # private parameters
         self.addParameter(self._defaultParameters, 'Puppi', False,
                           "Puppi algorithm (private)", Type=bool)
 
