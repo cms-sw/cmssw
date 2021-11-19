@@ -57,7 +57,7 @@ private:
   const GEMGeometry* geometry_;
 };
 
-GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {
+GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps) : use16GE21_(false), geometry_(nullptr) {
   digis_ = ps.getParameter<edm::InputTag>("InputCollection");
 
   digi_token_ = consumes<GEMDigiCollection>(digis_);
