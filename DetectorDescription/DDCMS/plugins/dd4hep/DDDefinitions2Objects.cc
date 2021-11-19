@@ -465,7 +465,8 @@ template <>
 void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   xml_dim_t xmat(element);
-  string nam = ns.prepend(xmat.nameStr());
+  const string xmatName(xmat.nameStr());
+  string nam = ns.prepend(xmatName);
   TGeoManager& mgr = description.manager();
   TGeoMaterial* mat = mgr.GetMaterial(nam.c_str());
   if (nullptr == mat) {
@@ -488,14 +489,15 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
       tab->BuildDefaultElements();
     }
     TGeoMixture* mix = new TGeoMixture(nam.c_str(), 1, density);
-    TGeoElement* elt = tab->FindElement(xmat.nameStr().c_str());
+    const char* const matNameNoNS = xmatName.c_str();
+    TGeoElement* elt = tab->FindElement(matNameNoNS);
 
 #ifdef EDM_ML_DEBUG
 
     printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
              "DD4CMS",
              "+++ Searching for material %-48s  elt_ptr = %ld",
-             xmat.nameStr().c_str(),
+             matNameNoNS,
              elt);
 
     printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
@@ -559,7 +561,7 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
 
 #endif
       }
-      elt = new TGeoElement(xmat.nameStr().c_str(), "CMS element", atomicNumber, atomicWeight);
+      elt = new TGeoElement(matNameNoNS, matNameNoNS, atomicNumber, atomicWeight);
     }
 
     mix->AddElement(elt, 1.0);
@@ -624,15 +626,11 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
         continue;
       }
 
-#ifdef EDM_ML_DEBUG
-
-      printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
+      printout(ns.context()->debug_materials ? ALWAYS : WARNING,
                "DD4CMS Warning",
                "+++ Composite material \"%s\" [nor \"%s\"] not present! [delay resolution]",
                fracname.c_str(),
                ns.prepend(fracname).c_str());
-
-#endif
 
       ns.context()->unresolvedMaterials[nam].emplace_back(
           cms::DDParsingContext::CompositeMaterial(ns.prepend(fracname), fraction));
@@ -2222,7 +2220,10 @@ static long load_dddefinition(Detector& det, xml_h element) {
         xml_coll_t(d.root(), DD_CMU(MaterialSection)).for_each(Converter<MaterialSection>(det, &context));
       }
       {
-        printout(context.debug_materials ? ALWAYS : DEBUG,
+        PrintLevel printLvl(DEBUG);
+        if (!context.unresolvedMaterials.empty())
+          printLvl = WARNING;
+        printout(context.debug_materials ? ALWAYS : printLvl,
                  "DD4CMS",
                  "+++ RESOLVING %ld unknown material constituents.....",
                  context.unresolvedMaterials.size());
@@ -2234,7 +2235,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
             auto const& name = it->first;
             std::vector<bool> valid;
 
-            printout(context.debug_materials ? ALWAYS : DEBUG,
+            printout(context.debug_materials ? ALWAYS : WARNING,
                      "DD4CMS",
                      "+++ [%06ld] ----------  %s",
                      context.unresolvedMaterials.size(),
@@ -2242,7 +2243,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
 
             auto mat = ns.material(name);
             for (auto& mit : it->second) {
-              printout(context.debug_materials ? ALWAYS : DEBUG,
+              printout(context.debug_materials ? ALWAYS : WARNING,
                        "DD4CMS",
                        "+++           component  %-48s Fraction: %.6f",
                        mit.name.c_str(),
