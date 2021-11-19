@@ -125,7 +125,7 @@ void TriggerBxMonitor::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 TriggerBxMonitor::TriggerBxMonitor(edm::ParameterSet const& config)
     :  // module configuration
-      m_l1tMenuToken{esConsumes()},
+      m_l1tMenuToken{esConsumes<edm::Transition::BeginRun>()},
       m_l1t_results(consumes<GlobalAlgBlkBxCollection>(config.getUntrackedParameter<edm::InputTag>("l1tResults"))),
       m_hlt_results(consumes<edm::TriggerResults>(config.getUntrackedParameter<edm::InputTag>("hltResults"))),
       m_dqm_path(config.getUntrackedParameter<std::string>("dqmPath")),
