@@ -51,7 +51,7 @@ public:
 
   double innerR() const { return innerR_; }
 
-  double outerR() const { return outerZ_; }
+  double outerR() const { return outerR_; }
 
   int seedIndex() const { return seedIndex_; }
 

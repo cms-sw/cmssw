@@ -48,7 +48,7 @@ bool HGCDoublet::checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
     }
     for (int j = 0; j < vs; ++j) {
       auto otherDoubletId = innerDoublets[i + j];
-      auto &otherDoublet = allDoublets.at(otherDoubletId);
+      auto &otherDoublet = allDoublets[otherDoubletId];
       if (ok[j]) {
         otherDoublet.tagAsOuterNeighbor(doubletId);
         allDoublets[doubletId].tagAsInnerNeighbor(otherDoubletId);
