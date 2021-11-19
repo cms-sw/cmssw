@@ -42,6 +42,7 @@ private:
   MonitorElement* hy;
   MonitorElement* hz;
   MonitorElement* hchi2;
+  MonitorElement* hchi2oNdof;
   MonitorElement* hptv2;
   MonitorElement* hntrks;
 };
@@ -88,7 +89,8 @@ void SiPixelPhase1MonitorVertexSoA::analyze(const edm::Event& iEvent, const edm:
     hy->Fill(y);
     hz->Fill(z);
     auto ndof = vsoa.ndof[si];
-    hchi2->Fill(vsoa.chi2[si] / ndof);
+    hchi2->Fill(vsoa.chi2[si]);
+    hchi2oNdof->Fill(vsoa.chi2[si] / ndof);
     hptv2->Fill(vsoa.ptv2[si]);
     hntrks->Fill(ndof + 1);
   }
@@ -109,6 +111,7 @@ void SiPixelPhase1MonitorVertexSoA::bookHistograms(DQMStore::IBooker& ibooker,
   hy = ibooker.book1D("vy", ";Vertez y;#entries", 10, -5., 5.);
   hz = ibooker.book1D("vz", ";Vertez z;#entries", 30, -30., 30);
   hchi2 = ibooker.book1D("chi2", ";Vertex chi-squared;#entries", 40, 0., 20.);
+  hchi2oNdof = ibooker.book1D("chi2oNdof", ";Vertex chi-squared/Ndof;#entries", 40, 0., 20.);
   hptv2 = ibooker.book1D("ptsq", ";Vertex p_T squared;#entries", 200, 0., 200.);
   hntrks = ibooker.book1D("ntrk", ";#tracks associated;#entries", 100, -0.5, 99.5);
 }
