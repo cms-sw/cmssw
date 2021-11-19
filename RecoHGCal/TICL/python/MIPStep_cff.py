@@ -24,7 +24,6 @@ ticlTrackstersMIP = _trackstersProducer.clone(
       min_layers_per_trackster = 10,
       min_cos_theta = 0.99, # ~10 degrees
       min_cos_pointing = 0.5,
-      siblings_maxRSquared = [6e-4, 6e-4, 6e-4],
       out_in_dfs = False,
       max_delta_time = -1
     ),
