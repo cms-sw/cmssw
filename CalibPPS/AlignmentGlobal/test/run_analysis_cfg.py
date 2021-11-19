@@ -19,7 +19,7 @@ write_sqlite_results = False
 output_conditions = 'sqlite_file:alignment_results.db'
 
 # Database tag. Used only if write_sqlite_results is set to True.
-output_db_tag = 'CTPPSRPAlignmentCorrectionsData_test'
+output_db_tag = 'CTPPSRPAlignment_real_pcl'
 ###################################
 
 import sys 
