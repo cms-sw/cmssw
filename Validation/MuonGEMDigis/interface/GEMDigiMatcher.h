@@ -110,10 +110,17 @@ public:
   std::shared_ptr<GEMSimHitMatcher> muonSimHitMatcher() { return muonSimHitMatcher_; }
 
 private:
+  // match digi simlink to a simtrack (based on track Id and particle type)
   void matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLink>&);
+  // match digi to a simtrack (based on BX and strip number)
   void matchDigisToSimTrack(const GEMDigiCollection&);
+  // match pad to a simtrack (based on BX and pad number)
   void matchPadsToSimTrack(const GEMPadDigiCollection&);
+  // match pad to a simtrack (based on BX and pad number)
+  void matchPadsInDetId(const GEMDetId& simhitId, const GEMPadDigiCollection&);
+  // match cluster to a simtrack (based on BX and pad number)
   void matchClustersToSimTrack(const GEMPadDigiClusterCollection&);
+  // match copad to a simtrack (based on previously matching pads)
   void matchCoPadsToSimTrack(const GEMCoPadDigiCollection&);
 
   void clear();
@@ -156,6 +163,7 @@ private:
 
   bool matchToSimLink_;
 
+  // map of raw GEMDetId to containers
   std::map<unsigned int, GEMDigiSimLinkContainer> detid_to_simLinks_;
 
   std::map<unsigned int, GEMDigiContainer> detid_to_digis_;
