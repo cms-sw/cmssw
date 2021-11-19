@@ -76,11 +76,8 @@ void L1TStage2Shower::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&
 }
 
 void L1TStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
-  edm::Handle<l1t::RegionalMuonShowerBxCollection> EmtfShowers;
-  e.getByToken(EMTFShowerToken, EmtfShowers);
-
-  edm::Handle<CSCShowerDigiCollection> CscShowers;
-  e.getByToken(CSCShowerToken, CscShowers);
+  l1t::RegionalMuonShowerBxCollection const& EmtfShowers = e.get(EMTFShowerToken);
+  CSCShowerDigiCollection const& CscShowers = e.get(CSCShowerToken);
 
   const std::map<std::pair<int, int>, int> histIndexCSC = {{{1, 1}, 8},
                                                            {{1, 2}, 7},
@@ -93,8 +90,8 @@ void L1TStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                                                            {{4, 2}, 0}};
 
   // Fill CSC local shower plots
-  for (auto element = CscShowers->begin(); element != CscShowers->end(); ++element) {
-    auto detId = (*element).first;
+  for (auto const& element : CscShowers) {
+    auto detId = element.first;
     int endcap = (detId.endcap() == 1 ? 1 : -1);
     int station = detId.station();
     int ring = detId.ring();
@@ -104,8 +101,8 @@ void L1TStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
       sr = 17 - sr;
     float evt_wgt = (station > 1 && ring == 1) ? 0.5 : 1.0;
 
-    auto cscShower = (*element).second.first;
-    auto cscShowerEnd = (*element).second.second;
+    auto cscShower = element.second.first;
+    auto cscShowerEnd = element.second.second;
     for (; cscShower != cscShowerEnd; ++cscShower) {
       if (station > 1 && (ring % 2) == 1) {
         if (cscShower->isLooseInTime())
@@ -165,17 +162,17 @@ void L1TStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
   }
 
   // Fill EMTF regional shower plots
-  for (auto Shower = EmtfShowers->begin(); Shower != EmtfShowers->end(); ++Shower) {
-    int endcap = Shower->endcap();
-    int sector = Shower->sector();
-    if (not Shower->isValid())
+  for (auto const& Shower : EmtfShowers) {
+    if (not Shower.isValid())
       continue;
-    if (Shower->isOneNominalInTime() or Shower->isTwoLooseInTime() or Shower->isOneTightInTime()) {
-      if (Shower->isOneTightInTime())
+    if (Shower.isOneNominalInTime() or Shower.isTwoLooseInTime() or Shower.isOneTightInTime()) {
+      int endcap = Shower.endcap();
+      int sector = Shower.sector();
+      if (Shower.isOneTightInTime())
         emtfShowerTypeOccupancy->Fill(sector, (endcap == 1) ? 7.5 : 0.5);
-      if (Shower->isTwoLooseInTime())
+      if (Shower.isTwoLooseInTime())
         emtfShowerTypeOccupancy->Fill(sector, (endcap == 1) ? 6.5 : 1.5);
-      if (Shower->isOneNominalInTime())
+      if (Shower.isOneNominalInTime())
         emtfShowerTypeOccupancy->Fill(sector, (endcap == 1) ? 5.5 : 2.5);
       emtfShowerTypeOccupancy->Fill(sector, (endcap == 1) ? 4.5 : 3.5);
     }
