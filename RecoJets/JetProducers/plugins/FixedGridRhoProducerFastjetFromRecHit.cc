@@ -37,9 +37,9 @@ public:
 
 private:
   void produce(edm::Event &, const edm::EventSetup &) override;
-  void getHitP4(const DetId &detId, float hitE, math::XYZTLorentzVector &hitp4, const CaloGeometry &caloGeometry);
-  bool passedHcalNoiseCut(const HBHERecHit &hit);
-  bool passedEcalNoiseCut(const EcalRecHit &hit, const EcalPFRecHitThresholds &thresholds);
+  std::array<double, 4> getHitP4(const DetId &detId, double hitE, const CaloGeometry &caloGeometry) const;
+  bool passedHcalNoiseCut(const HBHERecHit &hit) const;
+  bool passedEcalNoiseCut(const EcalRecHit &hit, const EcalPFRecHitThresholds &thresholds) const;
 
   fastjet::GridMedianBackgroundEstimator bge_;
   const edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitsTag_;
@@ -105,9 +105,8 @@ void FixedGridRhoProducerFastjetFromRecHit::produce(edm::Event &iEvent, const ed
     inputs.reserve(inputs.size() + hbheRecHits.size());
     for (const auto &hit : hbheRecHits) {
       if (passedHcalNoiseCut(hit)) {
-        math::XYZTLorentzVector hitp4(0, 0, 0, 0);
-        getHitP4(hit.id(), hit.energy(), hitp4, caloGeometry);
-        inputs.push_back(fastjet::PseudoJet(hitp4.Px(), hitp4.Py(), hitp4.Pz(), hitp4.E()));
+        const auto &hitp4 = getHitP4(hit.id(), hit.energy(), caloGeometry);
+        inputs.emplace_back(fastjet::PseudoJet(hitp4[0], hitp4[1], hitp4[2], hitp4[3]));
       }
     }
   }
@@ -117,9 +116,8 @@ void FixedGridRhoProducerFastjetFromRecHit::produce(edm::Event &iEvent, const ed
     inputs.reserve(inputs.size() + ebRecHits.size());
     for (const auto &hit : ebRecHits) {
       if (passedEcalNoiseCut(hit, thresholds)) {
-        math::XYZTLorentzVector hitp4(0, 0, 0, 0);
-        getHitP4(hit.id(), hit.energy(), hitp4, caloGeometry);
-        inputs.push_back(fastjet::PseudoJet(hitp4.Px(), hitp4.Py(), hitp4.Pz(), hitp4.E()));
+        const auto &hitp4 = getHitP4(hit.id(), hit.energy(), caloGeometry);
+        inputs.emplace_back(fastjet::PseudoJet(hitp4[0], hitp4[1], hitp4[2], hitp4[3]));
       }
     }
 
@@ -127,9 +125,8 @@ void FixedGridRhoProducerFastjetFromRecHit::produce(edm::Event &iEvent, const ed
     inputs.reserve(inputs.size() + eeRecHits.size());
     for (const auto &hit : eeRecHits) {
       if (passedEcalNoiseCut(hit, thresholds)) {
-        math::XYZTLorentzVector hitp4(0, 0, 0, 0);
-        getHitP4(hit.id(), hit.energy(), hitp4, caloGeometry);
-        inputs.push_back(fastjet::PseudoJet(hitp4.Px(), hitp4.Py(), hitp4.Pz(), hitp4.E()));
+        const auto &hitp4 = getHitP4(hit.id(), hit.energy(), caloGeometry);
+        inputs.emplace_back(fastjet::PseudoJet(hitp4[0], hitp4[1], hitp4[2], hitp4[3]));
       }
     }
   }
@@ -138,28 +135,21 @@ void FixedGridRhoProducerFastjetFromRecHit::produce(edm::Event &iEvent, const ed
   iEvent.put(std::make_unique<double>(bge_.rho()));
 }
 
-void FixedGridRhoProducerFastjetFromRecHit::getHitP4(const DetId &detId,
-                                                     float hitE,
-                                                     math::XYZTLorentzVector &hitp4,
-                                                     const CaloGeometry &caloGeometry) {
+std::array<double, 4> FixedGridRhoProducerFastjetFromRecHit::getHitP4(const DetId &detId,
+                                                     double hitE,
+                                                     const CaloGeometry &caloGeometry) const {
   const CaloSubdetectorGeometry *subDetGeom = caloGeometry.getSubdetectorGeometry(detId);
-  if (subDetGeom != nullptr) {
     const auto &gpPos = subDetGeom->getGeometry(detId)->repPos();
-    double thispt = hitE / cosh(gpPos.eta());
-    double thispx = thispt * cos(gpPos.phi());
-    double thispy = thispt * sin(gpPos.phi());
-    double thispz = thispt * sinh(gpPos.eta());
-    hitp4.SetPxPyPzE(thispx, thispy, thispz, hitE);
-  } else {
-    if (detId.rawId() != 0)
-      edm::LogWarning("FixedGridRhoProducerFastjetFromRecHit")
-          << "Geometry not found for a calo hit, setting p4 as (0,0,0,0)" << std::endl;
-    hitp4.SetPxPyPzE(0, 0, 0, 0);
-  }
+    const double thispt = hitE / cosh(gpPos.eta());
+    const double thispx = thispt * cos(gpPos.phi());
+    const double thispy = thispt * sin(gpPos.phi());
+    const double thispz = thispt * sinh(gpPos.eta());
+    std::array<double, 4> hitp4{{thispx, thispy, thispz, hitE}};
+    return hitp4; 
 }
 
 //HCAL noise cleaning cuts.
-bool FixedGridRhoProducerFastjetFromRecHit::passedHcalNoiseCut(const HBHERecHit &hit) {
+bool FixedGridRhoProducerFastjetFromRecHit::passedHcalNoiseCut(const HBHERecHit &hit) const {
   const auto thisDetId = hit.id();
   const auto thisDepth = thisDetId.depth();
   if (thisDetId.subdet() == HcalBarrel && hit.energy() > eThresHB_[thisDepth - 1])
@@ -171,7 +161,7 @@ bool FixedGridRhoProducerFastjetFromRecHit::passedHcalNoiseCut(const HBHERecHit 
 
 //ECAL noise cleaning cuts using per-crystal PF-recHit thresholds.
 bool FixedGridRhoProducerFastjetFromRecHit::passedEcalNoiseCut(const EcalRecHit &hit,
-                                                               const EcalPFRecHitThresholds &thresholds) {
+                                                               const EcalPFRecHitThresholds &thresholds) const {
   return (hit.energy() > thresholds[hit.detid()]);
 }
 
