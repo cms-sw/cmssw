@@ -20,12 +20,9 @@ Implementation:
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -35,19 +32,16 @@ using std::endl;
 //
 // class declaration
 //
-class DQMRootFileReader : public edm::EDAnalyzer {
+class DQMRootFileReader : public edm::one::EDAnalyzer<> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   explicit DQMRootFileReader(const edm::ParameterSet &);
-  ~DQMRootFileReader();
+  ~DQMRootFileReader() override = default;
 
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
-
-  virtual void endJob(void);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
   // ----------member data ---------------------------
-
   // back-end interface
   DQMStore *dbe;
   std::string filename;
@@ -59,17 +53,7 @@ private:
 DQMRootFileReader::DQMRootFileReader(const edm::ParameterSet &iConfig) {
   // get hold of back-end interface
   dbe = edm::Service<DQMStore>().operator->();
-
   filename = iConfig.getUntrackedParameter<std::string>("RootFileName", "test_playback.root");
-}
-
-DQMRootFileReader::~DQMRootFileReader() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-void DQMRootFileReader::endJob(void) {
-  // dbe->save("test.root");
 }
 
 //
