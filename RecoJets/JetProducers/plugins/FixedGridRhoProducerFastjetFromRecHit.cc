@@ -136,16 +136,16 @@ void FixedGridRhoProducerFastjetFromRecHit::produce(edm::Event &iEvent, const ed
 }
 
 std::array<double, 4> FixedGridRhoProducerFastjetFromRecHit::getHitP4(const DetId &detId,
-                                                     double hitE,
-                                                     const CaloGeometry &caloGeometry) const {
+                                                                      double hitE,
+                                                                      const CaloGeometry &caloGeometry) const {
   const CaloSubdetectorGeometry *subDetGeom = caloGeometry.getSubdetectorGeometry(detId);
-    const auto &gpPos = subDetGeom->getGeometry(detId)->repPos();
-    const double thispt = hitE / cosh(gpPos.eta());
-    const double thispx = thispt * cos(gpPos.phi());
-    const double thispy = thispt * sin(gpPos.phi());
-    const double thispz = thispt * sinh(gpPos.eta());
-    std::array<double, 4> hitp4{{thispx, thispy, thispz, hitE}};
-    return hitp4; 
+  const auto &gpPos = subDetGeom->getGeometry(detId)->repPos();
+  const double thispt = hitE / cosh(gpPos.eta());
+  const double thispx = thispt * cos(gpPos.phi());
+  const double thispy = thispt * sin(gpPos.phi());
+  const double thispz = thispt * sinh(gpPos.eta());
+  std::array<double, 4> hitp4{{thispx, thispy, thispz, hitE}};
+  return hitp4;
 }
 
 //HCAL noise cleaning cuts.
