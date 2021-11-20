@@ -11,5 +11,6 @@ class L1CondEnumExt:
     L1TCaloParams=7
     L1TGlobalPrescalesVetosFract=8
     L1TMuonEndCapForest=9
-    NumL1Cond=10
+    L1TMuonOverlapFwVersion=10
+    NumL1Cond=11
     

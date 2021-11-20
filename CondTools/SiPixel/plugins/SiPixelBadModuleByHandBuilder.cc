@@ -1,18 +1,53 @@
-#include "SiPixelBadModuleByHandBuilder.h"
-#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
-#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
-
+// system includes
+#include <vector>
 #include <cmath>
 #include <fstream>
 #include <iostream>
 
+// user includes
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
+class SiPixelBadModuleByHandBuilder : public ConditionDBWriter<SiPixelQuality> {
+public:
+  explicit SiPixelBadModuleByHandBuilder(const edm::ParameterSet&);
+  ~SiPixelBadModuleByHandBuilder() override;
+
+private:
+  std::unique_ptr<SiPixelQuality> getNewObject() override;
+
+  void algoBeginRun(const edm::Run& run, const edm::EventSetup& es) override {
+    if (!tTopo_) {
+      tTopo_ = std::make_unique<TrackerTopology>(es.getData(tkTopoToken_));
+    }
+  };
+
+private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
+  const bool printdebug_;
+  typedef std::vector<edm::ParameterSet> Parameters;
+  Parameters BadModuleList_;
+  const std::string ROCListFile_;
+  std::unique_ptr<TrackerTopology> tTopo_;
+};
+
 SiPixelBadModuleByHandBuilder::SiPixelBadModuleByHandBuilder(const edm::ParameterSet& iConfig)
-    : ConditionDBWriter<SiPixelQuality>(iConfig) {
-  tkTopoToken_ = esConsumes<edm::Transition::BeginRun>();
-  printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
-  BadModuleList_ = iConfig.getUntrackedParameter<Parameters>("BadModuleList");
-  ROCListFile_ = iConfig.getUntrackedParameter<std::string>("ROCListFile");
-}
+    : ConditionDBWriter<SiPixelQuality>(iConfig),
+      tkTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)),
+      BadModuleList_(iConfig.getUntrackedParameter<Parameters>("BadModuleList")),
+      ROCListFile_(iConfig.getUntrackedParameter<std::string>("ROCListFile")) {}
 
 SiPixelBadModuleByHandBuilder::~SiPixelBadModuleByHandBuilder() = default;
 

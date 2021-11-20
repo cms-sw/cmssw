@@ -70,6 +70,7 @@ private:
   edm::EDGetTokenT<std::vector<CaloParticle>> caloParticlesToken_;
   edm::EDGetTokenT<std::vector<SimCluster>> simClustersToken_;
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> collectionTagsToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
   int geometryType_ = 0;
   // ----------member data ---------------------------
 };
@@ -103,6 +104,7 @@ CaloParticleDebugger::CaloParticleDebugger(const edm::ParameterSet& iConfig)
   for (auto const& collectionTag : collectionTags_) {
     collectionTagsToken_.push_back(iC.consumes<std::vector<PCaloHit>>(collectionTag));
   }
+  geomToken_ = iC.esConsumes<CaloGeometry, CaloGeometryRecord>();
 }
 
 CaloParticleDebugger::~CaloParticleDebugger() {}
@@ -282,8 +284,7 @@ void CaloParticleDebugger::fillSimHits(std::map<int, float>& detIdToTotalSimEner
                                        const edm::Event& iEvent,
                                        const edm::EventSetup& iSetup) {
   // Taken needed quantities from the EventSetup
-  edm::ESHandle<CaloGeometry> geom;
-  iSetup.get<CaloGeometryRecord>().get(geom);
+  const auto& geom = iSetup.getHandle(geomToken_);
   const HGCalGeometry *eegeom = nullptr, *fhgeom = nullptr, *bhgeomnew = nullptr;
   const HcalGeometry* bhgeom = nullptr;
   const HGCalDDDConstants* hgddd[3];

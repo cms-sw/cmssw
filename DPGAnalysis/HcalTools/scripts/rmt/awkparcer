@@ -1,0 +1,10 @@
+#! /bin/awk -f
+BEGIN {
+#FS="[\"\"]|[><]"
+FS="[\"\"]"
+print "Start"
+}
+{
+print $2
+}
+END {print "END"}

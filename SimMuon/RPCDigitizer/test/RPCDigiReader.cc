@@ -7,7 +7,7 @@
  *  \authors: M. Maggi -- INFN Bari
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -28,11 +28,13 @@
 
 #include <iostream>
 
-class RPCDigiReader : public edm::EDAnalyzer {
+class RPCDigiReader : public edm::one::EDAnalyzer<> {
 public:
-  explicit RPCDigiReader(const edm::ParameterSet& pset) { label = pset.getUntrackedParameter<std::string>("label"); }
+  explicit RPCDigiReader(const edm::ParameterSet& pset)
+      : label(pset.getUntrackedParameter<std::string>("label")),
+        tokGeom_(esConsumes<RPCGeometry, MuonGeometryRecord>()) {}
 
-  ~RPCDigiReader() override {}
+  ~RPCDigiReader() override = default;
 
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {
     std::cout << "--- Run: " << event.id().run() << " Event: " << event.id().event() << std::endl;
@@ -43,8 +45,7 @@ public:
     edm::Handle<edm::PSimHitContainer> simHits;
     event.getByLabel("g4SimHits", "MuonRPCHits", simHits);
 
-    edm::ESHandle<RPCGeometry> pDD;
-    eventSetup.get<MuonGeometryRecord>().get(pDD);
+    const auto& pDD = eventSetup.getHandle(tokGeom_);
 
     edm::Handle<edm::DetSetVector<RPCDigiSimLink> > thelinkDigis;
     event.getByLabel("muonRPCDigis", "RPCDigiSimLink", thelinkDigis);
@@ -102,7 +103,8 @@ public:
   }
 
 private:
-  std::string label;
+  const std::string label;
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> tokGeom_;
 };
 #endif
 #include "FWCore/Framework/interface/MakerMacros.h"

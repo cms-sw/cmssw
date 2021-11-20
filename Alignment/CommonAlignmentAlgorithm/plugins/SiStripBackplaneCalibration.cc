@@ -114,7 +114,7 @@ private:
   /// and the given run.
   double getParameterForDetId(unsigned int detId, edm::RunNumber_t run) const;
 
-  void writeTree(const SiStripBackPlaneCorrection *backPlaneCorr,
+  void writeTree(const SiStripBackPlaneCorrection &backPlaneCorr,
                  const std::map<unsigned int, TreeStruct> &treeInfo,
                  const char *treeName) const;
   SiStripBackPlaneCorrection *createFromTree(const char *fileName, const char *treeName) const;
@@ -320,7 +320,7 @@ void SiStripBackplaneCalibration::endOfJob() {
   // now write 'input' tree
   const SiStripBackPlaneCorrection *input = this->getBackPlaneCorrectionInput();  // never NULL
   const std::string treeName(this->name() + '_' + readoutModeName_ + '_');
-  this->writeTree(input, treeInfo, (treeName + "input").c_str());  // empty treeInfo for input...
+  this->writeTree(*input, treeInfo, (treeName + "input").c_str());  // empty treeInfo for input...
 
   if (input->getBackPlaneCorrections().empty()) {
     edm::LogError("Alignment") << "@SUB=SiStripBackplaneCalibration::endOfJob"
@@ -335,7 +335,7 @@ void SiStripBackplaneCalibration::endOfJob() {
 
   for (unsigned int iIOV = 0; iIOV < moduleGroupSelector_->numIovs(); ++iIOV) {
     cond::Time_t firstRunOfIOV = moduleGroupSelector_->firstRunOfIOV(iIOV);
-    SiStripBackPlaneCorrection *output = new SiStripBackPlaneCorrection;
+    SiStripBackPlaneCorrection output{};
     // Loop on map of values from input and add (possible) parameter results
     for (auto iterIdValue = input->getBackPlaneCorrections().begin();
          iterIdValue != input->getBackPlaneCorrections().end();
@@ -370,7 +370,7 @@ void SiStripBackplaneCalibration::endOfJob() {
       // }
       const double param = this->getParameterForDetId(detId, firstRunOfIOV);
       // put result in output, i.e. sum of input and determined parameter:
-      output->putBackPlaneCorrection(detId, iterIdValue->second + param);
+      output.putBackPlaneCorrection(detId, iterIdValue->second + param);
       const int paramIndex = moduleGroupSelector_->getParameterIndexFromDetId(detId, firstRunOfIOV);
       treeInfo[detId] = TreeStruct(param, this->getParameterError(paramIndex), paramIndex);
     }
@@ -382,15 +382,12 @@ void SiStripBackplaneCalibration::endOfJob() {
     if (saveToDB_) {  // If requested, write out to DB
       edm::Service<cond::service::PoolDBOutputService> dbService;
       if (dbService.isAvailable()) {
-        dbService->writeOne(output, firstRunOfIOV, recordNameDBwrite_);
+        dbService->writeOneIOV(output, firstRunOfIOV, recordNameDBwrite_);
         // no 'delete output;': writeOne(..) took over ownership
       } else {
-        delete output;
         edm::LogError("BadConfig") << "@SUB=SiStripBackplaneCalibration::endOfJob"
                                    << "No PoolDBOutputService available, but saveToDB true!";
       }
-    } else {
-      delete output;
     }
   }  // end loop on IOVs
 }
@@ -470,12 +467,9 @@ double SiStripBackplaneCalibration::getParameterForDetId(unsigned int detId, edm
 }
 
 //======================================================================
-void SiStripBackplaneCalibration::writeTree(const SiStripBackPlaneCorrection *backPlaneCorrection,
+void SiStripBackplaneCalibration::writeTree(const SiStripBackPlaneCorrection &backPlaneCorrection,
                                             const std::map<unsigned int, TreeStruct> &treeInfo,
                                             const char *treeName) const {
-  if (!backPlaneCorrection)
-    return;
-
   TFile *file = TFile::Open(outFileName_.c_str(), "UPDATE");
   if (!file) {
     edm::LogError("BadConfig") << "@SUB=SiStripBackplaneCalibration::writeTree"
@@ -491,8 +485,8 @@ void SiStripBackplaneCalibration::writeTree(const SiStripBackPlaneCorrection *ba
   tree->Branch("value", &value, "value/F");
   tree->Branch("treeStruct", &treeStruct, TreeStruct::LeafList());
 
-  for (auto iterIdValue = backPlaneCorrection->getBackPlaneCorrections().begin();
-       iterIdValue != backPlaneCorrection->getBackPlaneCorrections().end();
+  for (auto iterIdValue = backPlaneCorrection.getBackPlaneCorrections().begin();
+       iterIdValue != backPlaneCorrection.getBackPlaneCorrections().end();
        ++iterIdValue) {
     // type of (*iterIdValue) is pair<unsigned int, float>
     id = iterIdValue->first;  // key of map is DetId

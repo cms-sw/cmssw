@@ -19,9 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -42,6 +40,7 @@ DTDigiAnalyzer::DTDigiAnalyzer(const ParameterSet &pset)
   //   MuonDigiStatistics = new DTMuonDigiStatistics();
   //   HitsAnalysis = new DTHitsAnalysis();
   label = pset.getUntrackedParameter<string>("label");
+  tokGeo_ = esConsumes<DTGeometry, MuonGeometryRecord>();
   file = new TFile("DTDigiPlots.root", "RECREATE");
   file->cd();
   DigiTimeBox = new TH1F("DigiTimeBox", "Digi Time Box", 2048, 0, 1600);
@@ -80,8 +79,7 @@ void DTDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
   Handle<PSimHitContainer> simHits;
   event.getByToken(psim_token, simHits);
 
-  ESHandle<DTGeometry> muonGeom;
-  eventSetup.get<MuonGeometryRecord>().get(muonGeom);
+  auto muonGeom = eventSetup.getHandle(tokGeo_);
 
   DTWireIdMap wireMap;
 
