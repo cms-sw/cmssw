@@ -62,15 +62,15 @@ void AlCaRecoTriggerBitsRcdUpdate::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::vector<std::string>>("listNamesRemove", {});
 
   edm::ParameterSetDescription desc_triggeListsToAdd;
-  desc_triggeListsToAdd.addOptional<std::string>("listName");
-  desc_triggeListsToAdd.addOptional<std::string>("hltPaths");
-  std::vector<edm::ParameterSet> default_triggerListsToAdd(1);
+  desc_triggeListsToAdd.add<std::string>("listName");
+  desc_triggeListsToAdd.add<std::vector<std::string>>("hltPaths");
+  std::vector<edm::ParameterSet> default_triggerListsToAdd;
   desc.addVPSet("triggerListsAdd", desc_triggeListsToAdd, default_triggerListsToAdd);
 
   edm::ParameterSetDescription desc_alcarecoToReplace;
-  desc_alcarecoToReplace.addOptional<std::string>("oldKey");
-  desc_alcarecoToReplace.addOptional<std::string>("newKey");
-  std::vector<edm::ParameterSet> default_alcarecoToReplace(1);
+  desc_alcarecoToReplace.add<std::string>("oldKey");
+  desc_alcarecoToReplace.add<std::string>("newKey");
+  std::vector<edm::ParameterSet> default_alcarecoToReplace;
   desc.addVPSet("alcarecoToReplace", desc_alcarecoToReplace, default_alcarecoToReplace);
 
   descriptions.addWithDefaultLabel(desc);
