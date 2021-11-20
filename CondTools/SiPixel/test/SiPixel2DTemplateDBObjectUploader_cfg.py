@@ -184,6 +184,8 @@ from Configuration.StandardSequences.Eras import eras
 process = cms.Process("SiPixel2DTemplateDBUpload",eras.Run2_2017)#C2)
 process.load("CondCore.CondDB.CondDB_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger = cms.Service("MessageLogger",
+                                    destinations = cms.untracked.vstring('SiPixel2DTemplateDBObjectUploader.log'))
 process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2017_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

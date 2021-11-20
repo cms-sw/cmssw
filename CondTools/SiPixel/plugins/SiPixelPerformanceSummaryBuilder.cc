@@ -1,20 +1,39 @@
+// system includes
 #include <sys/time.h>
+#include <memory>
 
+// CLHEP
 #include "CLHEP/Random/RandGauss.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+// user includes
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
-#include "CondTools/SiPixel/plugins/SiPixelPerformanceSummaryBuilder.h"
+namespace cms {
+  class SiPixelPerformanceSummaryBuilder : public edm::one::EDAnalyzer<> {
+  public:
+    explicit SiPixelPerformanceSummaryBuilder(const edm::ParameterSet&);
+    ~SiPixelPerformanceSummaryBuilder() override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  private:
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+    std::vector<uint32_t> detectorModules_;
+  };
+}  // namespace cms
 
 using namespace cms;
 

@@ -58,9 +58,7 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
 process.HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + process.hltTrigReport )
-process.HLTSchedule.append(process.HLTAnalyzerEndpath)
-process.schedule = cms.Schedule()
-process.schedule.extend(process.HLTSchedule)
+process.schedule.append(process.HLTAnalyzerEndpath)
 
 # If uncommented : All events are reconstructed, including those rejected at L1/HLT
 # process.reconstruction = cms.Path(process.reconstructionWithFamos)

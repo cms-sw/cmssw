@@ -15,10 +15,6 @@
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CLHEP/Random/RandGauss.h"
 
-// Database
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 CreateSurveyRcds::CreateSurveyRcds(const edm::ParameterSet& cfg)
     : tTopoToken_(esConsumes()),
       geomDetToken_(esConsumes()),

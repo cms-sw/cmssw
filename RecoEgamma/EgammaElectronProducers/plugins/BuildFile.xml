@@ -30,7 +30,6 @@
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/TrajectoryParametrization"/>
 <use name="TrackingTools/TrajectoryState"/>
-<use name="PhysicsTools/TensorFlow" />
 <library file="*.cc" name="RecoEgammaEgammaElectronProducersPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

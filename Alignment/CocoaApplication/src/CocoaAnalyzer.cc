@@ -1,5 +1,4 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h"
 #include <DD4hep/DD4hepUnits.h>

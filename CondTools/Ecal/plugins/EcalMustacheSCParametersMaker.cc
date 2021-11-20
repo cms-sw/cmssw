@@ -50,11 +50,11 @@ EcalMustacheSCParametersMaker::EcalMustacheSCParametersMaker(const edm::Paramete
     : parametersToken_(esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>()) {}
 
 void EcalMustacheSCParametersMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<EcalMustacheSCParameters> esParamsHandle_ = iSetup.getHandle(parametersToken_);
+  const auto& esParams = iSetup.getData(parametersToken_);
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOneIOV(*esParamsHandle_.product(), poolDbService->currentTime(), "EcalMustacheSCParametersRcd");
+    poolDbService->writeOneIOV(esParams, poolDbService->currentTime(), "EcalMustacheSCParametersRcd");
   } else {
     throw cms::Exception("PoolDBService") << "No PoolDBService available.";
   }

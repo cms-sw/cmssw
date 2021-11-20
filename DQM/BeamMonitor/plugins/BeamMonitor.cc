@@ -145,7 +145,7 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
   minVtxNdf_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexNdf");
   minVtxWgt_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexMeanWeight");
   useLockRecords_ = ps.getUntrackedParameter<bool>("useLockRecords");
-
+  nLS_for_upload_ = ps.getUntrackedParameter<int>("nLSForUpload", 5);
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
 
@@ -215,6 +215,7 @@ void BeamMonitor::dqmBeginRun(edm::Run const&, edm::EventSetup const&) {
   if (useLockRecords_ && onlineDbService_.isAvailable()) {
     onlineDbService_->lockRecords();
   }
+  nAnalyzedLS_ = 0;
 }
 
 void BeamMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
@@ -531,6 +532,7 @@ void BeamMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& iRu
 void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
   // start DB logger
   DBloggerReturn_ = 0;
+  nAnalyzedLS_++;
   if (onlineDbService_.isAvailable()) {
     onlineDbService_->logger().start();
     onlineDbService_->logger().logInfo() << "BeamMonitor::beginLuminosityBlock - LS: " << lumiSeg.luminosityBlock()
@@ -1399,7 +1401,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
       edm::LogInfo("BeamMonitor") << BSOnline << std::endl;
 
       // Create the payload for BeamSpotOnlineObjects object
-      if (onlineDbService_.isAvailable()) {
+      if (onlineDbService_.isAvailable() && (nAnalyzedLS_ < nLS_for_upload_ || nAnalyzedLS_ % nLS_for_upload_ == 0)) {
         edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] onlineDbService available \n" << std::endl;
         onlineDbService_->logger().logInfo() << "BeamMonitor::FitAndFill - Lumi of the current fit: " << currentlumi;
         onlineDbService_->logger().logInfo()

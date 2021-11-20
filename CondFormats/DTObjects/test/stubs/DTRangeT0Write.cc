@@ -43,7 +43,7 @@ namespace edmtest {
       return;
     }
 
-    DTRangeT0* rt0 = new DTRangeT0("cmssw_rt0");
+    DTRangeT0 rt0("cmssw_rt0");
 
     int status = 0;
     std::ifstream ifile("testRT0.txt");
@@ -54,13 +54,13 @@ namespace edmtest {
     int t0min;
     int t0max;
     while (ifile >> whe >> sta >> sec >> qua >> t0min >> t0max) {
-      status = rt0->set(whe, sta, sec, qua, t0min, t0max);
+      status = rt0.set(whe, sta, sec, qua, t0min, t0max);
       std::cout << whe << " " << sta << " " << sec << " " << qua << " " << t0min << " " << t0max << "  -> ";
       std::cout << "insert status: " << status << std::endl;
     }
 
     if (dbservice->isNewTagRequest("DTRangeT0Rcd")) {
-      dbservice->createNewIOV<DTRangeT0>(rt0, dbservice->beginOfTime(), dbservice->endOfTime(), "DTRangeT0Rcd");
+      dbservice->createOneIOV<DTRangeT0>(rt0, dbservice->beginOfTime(), "DTRangeT0Rcd");
     } else {
       std::cout << "already present tag" << std::endl;
       //      dbservice->appendSinceTime<DTRangeT0>(

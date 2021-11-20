@@ -13,6 +13,18 @@ copy(configFile,".")
 process = cms.Process("BeamSpotDipServer")
 process.load("DQMServices.Core.DQM_cfg")
 
+# message logger
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr = cms.untracked.PSet(
+    threshold = cms.untracked.string('INFO'),
+    default = cms.untracked.PSet(
+       limit = cms.untracked.int32(100000)
+    ),
+    BeamSpotDipServer = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000)
+    )
+)
+
 # input
 # for live online DQM in P5
 process.load("DQM.Integration.config.inputsource_cfi")
@@ -33,6 +45,8 @@ process.GlobalTag.toGet = cms.VPSet(
 
 # module
 process.load("DQM.BeamMonitor.BeamSpotDipServer_cff")
+
+process.beamSpotDipServer.verbose = cms.untracked.bool(True)
 
 # process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
