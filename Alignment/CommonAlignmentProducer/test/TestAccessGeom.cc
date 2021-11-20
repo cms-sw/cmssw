@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -47,42 +47,54 @@
 // class declaration
 //
 
-class TestAccessGeom : public edm::EDAnalyzer {
+class TestAccessGeom : public edm::one::EDAnalyzer<> {
 public:
   explicit TestAccessGeom(const edm::ParameterSet&);
-  ~TestAccessGeom();
+  ~TestAccessGeom() = default;
 
 private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   // ----------member data ---------------------------
-
   const std::vector<std::string> tkGeomLabels_;
   const std::vector<std::string> dtGeomLabels_;
   const std::vector<std::string> cscGeomLabels_;
+
+  std::vector<edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord>> tkGeoTokens_;
+  std::vector<edm::ESGetToken<DTGeometry, MuonGeometryRecord>> dtGeoTokens_;
+  std::vector<edm::ESGetToken<CSCGeometry, MuonGeometryRecord>> cscGeoTokens_;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
 TestAccessGeom::TestAccessGeom(const edm::ParameterSet& iConfig)
-    : tkGeomLabels_(iConfig.getParameter<std::vector<std::string> >("TrackerGeomLabels")),
-      dtGeomLabels_(iConfig.getParameter<std::vector<std::string> >("DTGeomLabels")),
-      cscGeomLabels_(iConfig.getParameter<std::vector<std::string> >("CSCGeomLabels")) {
+    : tkGeomLabels_(iConfig.getParameter<std::vector<std::string>>("TrackerGeomLabels")),
+      dtGeomLabels_(iConfig.getParameter<std::vector<std::string>>("DTGeomLabels")),
+      cscGeomLabels_(iConfig.getParameter<std::vector<std::string>>("CSCGeomLabels")) {
   //now do what ever initialization is needed
-}
 
-TestAccessGeom::~TestAccessGeom() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
+  for (std::vector<std::string>::const_iterator iL = tkGeomLabels_.begin(), iE = tkGeomLabels_.end(); iL != iE; ++iL) {
+    auto index = std::distance(tkGeomLabels_.begin(), iL);
+    TString label(iL->c_str());
+    label.ReplaceAll(" ", "");  // fix for buggy framework
+    tkGeoTokens_[index] = esConsumes(edm::ESInputTag("", label.Data()));
+  }
+
+  for (std::vector<std::string>::const_iterator iL = dtGeomLabels_.begin(), iE = dtGeomLabels_.end(); iL != iE; ++iL) {
+    auto index = std::distance(dtGeomLabels_.begin(), iL);
+    TString label(iL->c_str());
+    label.ReplaceAll(" ", "");  // fix for buggy framework
+    dtGeoTokens_[index] = esConsumes(edm::ESInputTag("", label.Data()));
+  }
+
+  for (std::vector<std::string>::const_iterator iL = cscGeomLabels_.begin(), iE = cscGeomLabels_.end(); iL != iE;
+       ++iL) {
+    auto index = std::distance(cscGeomLabels_.begin(), iL);
+    TString label(iL->c_str());
+    label.ReplaceAll(" ", "");  // fix for buggy framework
+    cscGeoTokens_[index] = esConsumes(edm::ESInputTag("", label.Data()));
+  }
 }
 
 //
@@ -102,9 +114,9 @@ void TestAccessGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     TString label(iL->c_str());
     label.ReplaceAll(" ", "");  // fix for buggy framework
     edm::LogInfo("Test") << "Try access to tracker geometry with label '" << label << "'.";
+    auto idx = std::distance(tkGeomLabels_.begin(), iL);
     //*iL << "'.";
-    edm::ESHandle<TrackerGeometry> tkGeomHandle;
-    iSetup.get<TrackerDigiGeometryRecord>().get(label, tkGeomHandle);  // *iL, tkGeomHandle);
+    edm::ESHandle<TrackerGeometry> tkGeomHandle = iSetup.getHandle(tkGeoTokens_[idx]);
     edm::LogInfo("Test") << "TrackerGeometry pointer: " << tkGeomHandle.product();
   }
 
@@ -112,9 +124,9 @@ void TestAccessGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     TString label(iL->c_str());
     label.ReplaceAll(" ", "");  // fix for buggy framework
     edm::LogInfo("Test") << "Try access to DT geometry with label '" << label << "'.";
+    auto idx = std::distance(dtGeomLabels_.begin(), iL);
     //*iL << "'.";
-    edm::ESHandle<DTGeometry> dtGeomHandle;
-    iSetup.get<MuonGeometryRecord>().get(label, dtGeomHandle);  //*iL, dtGeomHandle);
+    edm::ESHandle<DTGeometry> dtGeomHandle = iSetup.getHandle(dtGeoTokens_[idx]);
     edm::LogInfo("Test") << "DTGeometry pointer: " << dtGeomHandle.product();
   }
 
@@ -122,9 +134,9 @@ void TestAccessGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     TString label(iL->c_str());
     label.ReplaceAll(" ", "");  // fix for buggy framework
     edm::LogInfo("Test") << "Try access to CSC geometry with label '" << label << "'.";
+    auto idx = std::distance(cscGeomLabels_.begin(), iL);
     //*iL << "'.";
-    edm::ESHandle<CSCGeometry> cscGeomHandle;
-    iSetup.get<MuonGeometryRecord>().get(label, cscGeomHandle);  //*iL, cscGeomHandle);
+    edm::ESHandle<CSCGeometry> cscGeomHandle = iSetup.getHandle(cscGeoTokens_[idx]);
     edm::LogInfo("Test") << "CSCGeometry pointer: " << cscGeomHandle.product();
   }
 
