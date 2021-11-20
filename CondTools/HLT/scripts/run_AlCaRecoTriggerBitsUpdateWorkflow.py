@@ -32,7 +32,7 @@ def getCommandOutput(command):
     data = child.read()
     err = child.close()
     if err:
-        print('%s failed w/ exit code %d' % (command, err))
+        raise Exception('%s failed w/ exit code %d' % (command, err))
     return data
 
 ##############################################
