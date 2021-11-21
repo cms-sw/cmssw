@@ -144,15 +144,15 @@ std::array<double, 4> FixedGridRhoProducerFastjetFromRecHit::getHitP4(const DetI
   const double thispx = thispt * cos(gpPos.phi());
   const double thispy = thispt * sin(gpPos.phi());
   const double thispz = thispt * sinh(gpPos.eta());
-  return std::array<double, 4> {{thispx, thispy, thispz, hitE}};
+  return std::array<double, 4>{{thispx, thispy, thispz, hitE}};
 }
 
 //HCAL noise cleaning cuts.
 bool FixedGridRhoProducerFastjetFromRecHit::passedHcalNoiseCut(const HBHERecHit &hit) const {
   const auto thisDetId = hit.id();
   const auto thisDepth = thisDetId.depth();
-  return (thisDetId.subdet() == HcalBarrel && hit.energy() > eThresHB_[thisDepth - 1]) || 
-    (thisDetId.subdet() == HcalEndcap && hit.energy() > eThresHE_[thisDepth - 1]);
+  return (thisDetId.subdet() == HcalBarrel && hit.energy() > eThresHB_[thisDepth - 1]) ||
+         (thisDetId.subdet() == HcalEndcap && hit.energy() > eThresHE_[thisDepth - 1]);
 }
 
 //ECAL noise cleaning cuts using per-crystal PF-recHit thresholds.
