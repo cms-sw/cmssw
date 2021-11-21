@@ -52,20 +52,19 @@ void ME0RecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
   if (mydbservice->isNewTagRequest("ME0RecoGeometryRcd")) {
     auto pMNDC = es.getHandle(muonGeomConstantsToken_);
     ME0GeometryParsFromDD me0pd;
-    RecoIdealGeometry* rig = new RecoIdealGeometry;
+    RecoIdealGeometry rig;
     if (fromDD4hep_) {
       edm::LogVerbatim("ME0RecoIdealDBLoader") << "(0) ME0RecoIdealDBLoader - DD4hep ";
       auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
       const cms::DDCompactView& cpv = *pDD;
-      me0pd.build(&cpv, *pMNDC, *rig);
+      me0pd.build(&cpv, *pMNDC, rig);
     } else {
       edm::LogVerbatim("ME0RecoIdealDBLoader") << "(0) ME0RecoIdealDBLoader - DDD ";
       auto pDD = es.getTransientHandle(compactViewToken_);
       const DDCompactView& cpv = *pDD;
-      me0pd.build(&cpv, *pMNDC, *rig);
+      me0pd.build(&cpv, *pMNDC, rig);
     }
-    mydbservice->createNewIOV<RecoIdealGeometry>(
-        rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "ME0RecoGeometryRcd");
+    mydbservice->createOneIOV(rig, mydbservice->beginOfTime(), "ME0RecoGeometryRcd");
   } else {
     edm::LogError("ME0RecoIdealDBLoader") << "ME0RecoGeometryRcd Tag is already present";
   }

@@ -43,8 +43,8 @@ CSCRecoIdealDBLoader::CSCRecoIdealDBLoader(const edm::ParameterSet& iC) {
 void CSCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
   edm::LogInfo("CSCRecoIdealDBLoader") << "CSCRecoIdealDBLoader::beginRun";
 
-  RecoIdealGeometry* rig = new RecoIdealGeometry;
-  CSCRecoDigiParameters* rdp = new CSCRecoDigiParameters;
+  RecoIdealGeometry rig;
+  CSCRecoDigiParameters rdp;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("CSCRecoIdealDBLoader") << "PoolDBOutputService unavailable";
@@ -57,22 +57,20 @@ void CSCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
   if (fromDD4hep_) {
     auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
     const cms::DDCompactView& cpv = *pDD;
-    cscgp.build(&cpv, *pMNDC, *rig, *rdp);
+    cscgp.build(&cpv, *pMNDC, rig, rdp);
   } else {
     auto pDD = es.getTransientHandle(compactViewToken_);
     const DDCompactView& cpv = *pDD;
-    cscgp.build(&cpv, *pMNDC, *rig, *rdp);
+    cscgp.build(&cpv, *pMNDC, rig, rdp);
   }
 
   if (mydbservice->isNewTagRequest("CSCRecoGeometryRcd")) {
-    mydbservice->createNewIOV<RecoIdealGeometry>(
-        rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "CSCRecoGeometryRcd");
+    mydbservice->createOneIOV(rig, mydbservice->beginOfTime(), "CSCRecoGeometryRcd");
   } else {
     edm::LogError("CSCRecoIdealDBLoader") << "CSCRecoGeometryRcd Tag is already present.";
   }
   if (mydbservice->isNewTagRequest("CSCRecoDigiParametersRcd")) {
-    mydbservice->createNewIOV<CSCRecoDigiParameters>(
-        rdp, mydbservice->beginOfTime(), mydbservice->endOfTime(), "CSCRecoDigiParametersRcd");
+    mydbservice->createOneIOV(rdp, mydbservice->beginOfTime(), "CSCRecoDigiParametersRcd");
   } else {
     edm::LogError("CSCRecoIdealDBLoader") << "CSCRecoDigiParametersRcd Tag is already present.";
   }
