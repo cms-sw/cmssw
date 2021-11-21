@@ -15,16 +15,19 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 namespace {
-  edm::BranchDescription makeDescriptionForDaqProvHelper(edm::TypeID const& rawDataType) {
+  edm::BranchDescription makeDescriptionForDaqProvHelper(edm::TypeID const& rawDataType,
+                                                         std::string const& collectionName,
+                                                         std::string const& friendlyName,
+                                                         std::string const& sourceLabel) {
     edm::BranchDescription desc(edm::InEvent,
                                 "rawDataCollector",
                                 // "source",
                                 "LHC",
                                 // "HLT",
-                                "FEDRawDataCollection",
-                                "FEDRawDataCollection",
+                                collectionName,
+                                friendlyName,
                                 "",
-                                "FedRawDataInputSource",
+                                sourceLabel,
                                 edm::ParameterSetID(),
                                 edm::TypeWithDict(rawDataType.typeInfo()),
                                 false);
@@ -34,8 +37,12 @@ namespace {
 }  // namespace
 
 namespace edm {
-  DaqProvenanceHelper::DaqProvenanceHelper(TypeID const& rawDataType)
-      : constBranchDescription_(makeDescriptionForDaqProvHelper(rawDataType)),
+  DaqProvenanceHelper::DaqProvenanceHelper(TypeID const& rawDataType,
+                                           std::string const& collectionName,
+                                           std::string const& friendlyName,
+                                           std::string const& sourceLabel)
+      : constBranchDescription_(
+            makeDescriptionForDaqProvHelper(rawDataType, collectionName, friendlyName, sourceLabel)),
         dummyProvenance_(constBranchDescription_.branchID()),
         processParameterSet_(),
         oldProcessName_(),
@@ -79,6 +86,10 @@ namespace edm {
 
     //std::cerr << processParameterSet_.dump() << std::endl;
   }
+
+  //default
+  DaqProvenanceHelper::DaqProvenanceHelper(TypeID const& rawDataType)
+      : DaqProvenanceHelper(rawDataType, "FEDRawDataCollection", "FEDRawDataCollection", "FedRawDataInputSource") {}
 
   ProcessHistoryID DaqProvenanceHelper::daqInit(ProductRegistry& productRegistry,
                                                 ProcessHistoryRegistry& processHistoryRegistry) const {
