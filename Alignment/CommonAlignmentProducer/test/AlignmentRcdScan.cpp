@@ -13,7 +13,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -26,7 +26,7 @@
 
 #include "FWCore/Framework/interface/ESWatcher.h"
 
-class AlignmentRcdScan : public edm::EDAnalyzer {
+class AlignmentRcdScan : public edm::one::EDAnalyzer<> {
 public:
   enum Mode { Unknown = 0, Tk = 1, DT = 2, CSC = 3 };
 
@@ -36,7 +36,7 @@ public:
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
 
 private:
-  void inspectRecord(const std::string& rcdname, const edm::Event& evt, const edm::ESHandle<Alignments>& alignments);
+  void inspectRecord(const std::string& rcdname, const edm::Event& evt, const Alignments* alignments);
 
   int mode_;
   bool verbose_;
@@ -45,11 +45,19 @@ private:
   edm::ESWatcher<DTAlignmentRcd> watchDT_;
   edm::ESWatcher<CSCAlignmentRcd> watchCSC_;
 
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> tkAliToken_;
+  const edm::ESGetToken<Alignments, DTAlignmentRcd> dtAliToken_;
+  const edm::ESGetToken<Alignments, CSCAlignmentRcd> cscAliToken_;
+
   Alignments* refAlignments_;
 };
 
 AlignmentRcdScan::AlignmentRcdScan(const edm::ParameterSet& iConfig)
-    : verbose_(iConfig.getUntrackedParameter<bool>("verbose")), refAlignments_(0) {
+    : verbose_(iConfig.getUntrackedParameter<bool>("verbose")),
+      tkAliToken_(esConsumes()),
+      dtAliToken_(esConsumes()),
+      cscAliToken_(esConsumes()),
+      refAlignments_(0) {
   std::string modestring = iConfig.getUntrackedParameter<std::string>("mode");
   if (modestring == "Tk") {
     mode_ = Tk;
@@ -73,36 +81,31 @@ AlignmentRcdScan::~AlignmentRcdScan() {
 
 void AlignmentRcdScan::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   if (mode_ == Tk && watchTk_.check(evtSetup)) {
-    edm::ESHandle<Alignments> alignments;
-    evtSetup.get<TrackerAlignmentRcd>().get(alignments);
+    const Alignments* alignments = &evtSetup.getData(tkAliToken_);
     inspectRecord("TrackerAlignmentRcd", evt, alignments);
   }
   if (mode_ == DT && watchDT_.check(evtSetup)) {
-    edm::ESHandle<Alignments> alignments;
-    evtSetup.get<DTAlignmentRcd>().get(alignments);
+    const Alignments* alignments = &evtSetup.getData(dtAliToken_);
     inspectRecord("DTAlignmentRcd", evt, alignments);
   }
   if (mode_ == CSC && watchCSC_.check(evtSetup)) {
-    edm::ESHandle<Alignments> alignments;
-    evtSetup.get<CSCAlignmentRcd>().get(alignments);
+    const Alignments* alignments = &evtSetup.getData(cscAliToken_);
     inspectRecord("CSCAlignmentRcd", evt, alignments);
   }
 }
 
-void AlignmentRcdScan::inspectRecord(const std::string& rcdname,
-                                     const edm::Event& evt,
-                                     const edm::ESHandle<Alignments>& alignments) {
-  std::cout << rcdname << " content starting from run " << evt.run();
+void AlignmentRcdScan::inspectRecord(const std::string& rcdname, const edm::Event& evt, const Alignments* alignments) {
+  edm::LogPrint("inspectRecord") << rcdname << " content starting from run " << evt.run();
 
   if (verbose_ == false) {
-    std::cout << std::endl;
+    edm::LogPrint("inspectRecord") << std::endl;
     return;
   }
 
-  std::cout << " with " << alignments->m_align.size() << " entries" << std::endl;
+  edm::LogPrint("inspectRecord") << " with " << alignments->m_align.size() << " entries" << std::endl;
 
   if (refAlignments_) {
-    std::cout << "  Compared to previous record:" << std::endl;
+    edm::LogPrint("inspectRecord") << "  Compared to previous record:" << std::endl;
 
     double meanX = 0;
     double rmsX = 0;
@@ -132,10 +135,10 @@ void AlignmentRcdScan::inspectRecord(const std::string& rcdname,
       rmsR += pow(i->translation().perp() - iref->translation().perp(), 2);
 
       dPhi = i->translation().phi() - iref->translation().phi();
-      if (dPhi > TMath::Pi())
-        dPhi -= 2.0 * TMath::Pi();
-      if (dPhi < -TMath::Pi())
-        dPhi += 2.0 * TMath::Pi();
+      if (dPhi > M_PI)
+        dPhi -= 2.0 * M_PI;
+      if (dPhi < -M_PI)
+        dPhi += 2.0 * M_PI;
 
       meanPhi += dPhi;
       rmsPhi += dPhi * dPhi;
@@ -152,23 +155,23 @@ void AlignmentRcdScan::inspectRecord(const std::string& rcdname,
     meanPhi /= alignments->m_align.size();
     rmsPhi /= alignments->m_align.size();
 
-    std::cout << "    mean X shift:   " << std::setw(12) << std::scientific << std::setprecision(3) << meanX
-              << " (RMS = " << sqrt(rmsX) << ")" << std::endl;
-    std::cout << "    mean Y shift:   " << std::setw(12) << std::scientific << std::setprecision(3) << meanY
-              << " (RMS = " << sqrt(rmsY) << ")" << std::endl;
-    std::cout << "    mean Z shift:   " << std::setw(12) << std::scientific << std::setprecision(3) << meanZ
-              << " (RMS = " << sqrt(rmsZ) << ")" << std::endl;
-    std::cout << "    mean R shift:   " << std::setw(12) << std::scientific << std::setprecision(3) << meanR
-              << " (RMS = " << sqrt(rmsR) << ")" << std::endl;
-    std::cout << "    mean Phi shift: " << std::setw(12) << std::scientific << std::setprecision(3) << meanPhi
-              << " (RMS = " << sqrt(rmsPhi) << ")" << std::endl;
+    edm::LogPrint("inspectRecord") << "    mean X shift:   " << std::setw(12) << std::scientific << std::setprecision(3)
+                                   << meanX << " (RMS = " << sqrt(rmsX) << ")" << std::endl;
+    edm::LogPrint("inspectRecord") << "    mean Y shift:   " << std::setw(12) << std::scientific << std::setprecision(3)
+                                   << meanY << " (RMS = " << sqrt(rmsY) << ")" << std::endl;
+    edm::LogPrint("inspectRecord") << "    mean Z shift:   " << std::setw(12) << std::scientific << std::setprecision(3)
+                                   << meanZ << " (RMS = " << sqrt(rmsZ) << ")" << std::endl;
+    edm::LogPrint("inspectRecord") << "    mean R shift:   " << std::setw(12) << std::scientific << std::setprecision(3)
+                                   << meanR << " (RMS = " << sqrt(rmsR) << ")" << std::endl;
+    edm::LogPrint("inspectRecord") << "    mean Phi shift: " << std::setw(12) << std::scientific << std::setprecision(3)
+                                   << meanPhi << " (RMS = " << sqrt(rmsPhi) << ")" << std::endl;
 
     delete refAlignments_;
   }
 
   refAlignments_ = new Alignments(*alignments);
 
-  std::cout << std::endl;
+  edm::LogPrint("inspectRecord") << std::endl;
 }
 
 //define this as a plug-in
