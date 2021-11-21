@@ -55,21 +55,20 @@ void GEMRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
     auto pMNDC = es.getHandle(muonGeomConstantsToken_);
 
     GEMGeometryParsFromDD rpcpd;
-    RecoIdealGeometry* rig = new RecoIdealGeometry;
+    RecoIdealGeometry rig;
 
     if (fromDD4hep_) {
       edm::LogVerbatim("GEMRecoIdealDBLoader") << "(0) GEMRecoIdealDBLoader - DD4hep ";
       auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
       const cms::DDCompactView& cpv = *pDD;
-      rpcpd.build(&cpv, *pMNDC, *rig);
+      rpcpd.build(&cpv, *pMNDC, rig);
     } else {
       edm::LogVerbatim("GEMRecoIdealDBLoader") << "(0) GEMRecoIdealDBLoader - DDD ";
       auto pDD = es.getTransientHandle(compactViewToken_);
       const DDCompactView& cpv = *pDD;
-      rpcpd.build(&cpv, *pMNDC, *rig);
+      rpcpd.build(&cpv, *pMNDC, rig);
     }
-    mydbservice->createNewIOV<RecoIdealGeometry>(
-        rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "GEMRecoGeometryRcd");
+    mydbservice->createOneIOV(rig, mydbservice->beginOfTime(), "GEMRecoGeometryRcd");
   } else {
     edm::LogError("GEMRecoIdealDBLoader") << "GEMRecoGeometryRcd Tag is already present";
   }

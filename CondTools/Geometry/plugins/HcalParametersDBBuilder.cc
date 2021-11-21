@@ -47,7 +47,7 @@ void HcalParametersDBBuilder::fillDescriptions(edm::ConfigurationDescriptions& d
 }
 
 void HcalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  HcalParameters* php = new HcalParameters;
+  HcalParameters php;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("HcalParametersDBBuilder") << "PoolDBOutputService unavailable";
@@ -61,18 +61,17 @@ void HcalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& e
     edm::LogVerbatim("HCalGeom") << "HcalParametersDBBuilder::Try to access cms::DDCompactView";
 #endif
     auto cpv = es.getTransientHandle(dd4HepCompactViewToken_);
-    builder.build((*cpv), *php);
+    builder.build((*cpv), php);
   } else {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "HcalParametersDBBuilder::Try to access DDCompactView";
 #endif
     auto cpv = es.getTransientHandle(compactViewToken_);
-    builder.build(&(*cpv), *php);
+    builder.build(&(*cpv), php);
   }
 
   if (mydbservice->isNewTagRequest("HcalParametersRcd")) {
-    mydbservice->createNewIOV<HcalParameters>(
-        php, mydbservice->beginOfTime(), mydbservice->endOfTime(), "HcalParametersRcd");
+    mydbservice->createOneIOV(php, mydbservice->beginOfTime(), "HcalParametersRcd");
   } else {
     edm::LogError("HcalParametersDBBuilder") << "HcalParameters and HcalParametersRcd Tag already present";
   }
