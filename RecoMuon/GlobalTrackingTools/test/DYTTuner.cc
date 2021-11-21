@@ -49,7 +49,6 @@ private:
   double MinEnVal, MaxEnVal, IntegralCut, MaxEstVal;
   unsigned int MinNumValues, MaxValPlots, NBinsPlots;
   bool saveROOTfile;
-  DYTThrObject* thresholds;
   std::map<DetId, std::vector<double> > mapId;
   std::map<DetId, TH1F*> EstPlots;
   edm::EDGetTokenT<DYTestimators> dytInfoToken;
@@ -120,7 +119,7 @@ void DYTTuner::beginJob() {}
 void DYTTuner::endJob() {
   if (saveROOTfile)
     writePlots();
-  thresholds = new DYTThrObject();
+  DYTThrObject thresholds;
 
   // Full barrel/endcap computation
   std::map<DetId, std::vector<double> >::iterator it;
@@ -161,17 +160,17 @@ void DYTTuner::endJob() {
         int station = CSCDetId(id).station();
         obj.thr = endcapCut[station - 1];
       }
-      thresholds->thrsVec.push_back(obj);
+      thresholds.thrsVec.push_back(obj);
       continue;
     }
     obj.thr = doIntegral(estValCh, id);
-    thresholds->thrsVec.push_back(obj);
+    thresholds.thrsVec.push_back(obj);
   }
 
   // Writing to DB
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(thresholds, poolDbService->beginOfTime(), "DYTThrObjectRcd");
+    poolDbService->writeOneIOV(thresholds, poolDbService->beginOfTime(), "DYTThrObjectRcd");
   } else
     throw cms::Exception("NotAvailable") << "PoolDBOutputService is not available.";
 }

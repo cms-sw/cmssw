@@ -99,13 +99,12 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
     PhysicsTFormulaPayload allTFormulas(limitsToWrite, formulasToWrite);
 
     // put them in the container
-    PerformancePayloadFromTFormula* pfCalibrationFormulas =
-        new PerformancePayloadFromTFormula(resToWrite, binsToWrite, allTFormulas);
+    PerformancePayloadFromTFormula pfCalibrationFormulas(resToWrite, binsToWrite, allTFormulas);
 
     // actually write to DB
     edm::Service<cond::service::PoolDBOutputService> dbOut;
     if (dbOut.isAvailable()) {
-      dbOut->writeOne<PerformancePayloadFromTFormula>(pfCalibrationFormulas, 1, record);
+      dbOut->writeOneIOV(pfCalibrationFormulas, 1, record);
     }
   }
 
