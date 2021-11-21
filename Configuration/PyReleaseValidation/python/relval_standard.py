@@ -322,7 +322,7 @@ workflows[136.847] = ['',['RunCharmonium2017E','HLTDR2_2017','RECODR2_2017reHLT_
 
 ### run 2017F ###
 workflows[136.828] = ['',['RunHLTPhy2017F','HLTDR2_2017','RECODR2_2017reHLT_Prompt','HARVEST2017']]
-workflows[136.829] = ['',['RunDoubleEG2017F','HLTDR2_2017','RECODR2_2017reHLT_skimDoubleEG_Prompt','HARVEST2017']]
+workflows[136.829] = ['',['RunDoubleEG2017F','HLTDR2_2017','RECODR2_2017reHLT_skimDoubleEG_Prompt','HARVEST2017_skimDoubleEG']]
 workflows[136.830] = ['',['RunDoubleMuon2017F','HLTDR2_2017','RECODR2_2017reHLT_Prompt','HARVEST2017']]
 workflows[136.831] = ['',['RunJetHT2017F','HLTDR2_2017','RECODR2_2017reHLT_skimJetHT_Prompt','HARVEST2017_skimJetHT']]
 workflows[136.832] = ['',['RunMET2017F','HLTDR2_2017','RECODR2_2017reHLT_skimMET_Prompt','HARVEST2017_skimMET']]
