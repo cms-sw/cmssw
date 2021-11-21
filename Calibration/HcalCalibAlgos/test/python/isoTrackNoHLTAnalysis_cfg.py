@@ -30,15 +30,12 @@ process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cff')
 process.HcalIsoTrkAnalyzer.triggers = []
 process.HcalIsoTrkAnalyzer.useRaw = 0   # 1 for Raw
 process.HcalIsoTrkAnalyzer.ignoreTriggers = True
-#process.HcalIsoTrkAnalyzer.processName  = 'HLTNew1'
-#process.HcalIsoTrkAnalyzer.producerName = 'ALCAISOTRACK'
-#process.HcalIsoTrkAnalyzer.moduleName   = 'IsoProd'
 
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-        'file:PoolOutput.root'
-#       'file:/afs/cern.ch/user/h/huwang/work/public/for_Sunanda/ALCARECO_MC.root'
-    )
+                                'file:/eos/uscms/store/user/lpcrutgers/huiwang/HCAL/UL_DoublePion_E-50_RECO_DLPHIN_zeroOut_noPU-2021-09-21/MC_RECO_0.root',
+                                'file:/eos/uscms/store/user/lpcrutgers/huiwang/HCAL/UL_DoublePion_E-50_RECO_DLPHIN_zeroOut_noPU-2021-09-21/MC_RECO_1.root'
+                            )
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )

@@ -700,6 +700,10 @@ void FitHistExtended(const char* infile,
     numb = 22;
     for (int k = 0; k <= numb; ++k)
       xbins[k] = xbin[k];
+  } else if (type == 1) {
+    numb = 1;
+    xbins[0] = -25;
+    xbins[1] = 25;
   } else {
     int neta = numb / 2;
     for (int k = 0; k < neta; ++k) {
