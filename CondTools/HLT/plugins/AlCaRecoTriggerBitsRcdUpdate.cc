@@ -15,7 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -28,14 +27,13 @@
 // Rcd for reading old one:
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 
-class AlCaRecoTriggerBitsRcdUpdate : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+class AlCaRecoTriggerBitsRcdUpdate : public edm::one::EDAnalyzer<> {
 public:
   explicit AlCaRecoTriggerBitsRcdUpdate(const edm::ParameterSet &cfg);
-  ~AlCaRecoTriggerBitsRcdUpdate() override {}
+  ~AlCaRecoTriggerBitsRcdUpdate() override = default;
 
   void analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) override;
-  void beginRun(const edm::Run &run, const edm::EventSetup &evtSetup) override {}
-  void endRun(edm::Run const &, edm::EventSetup const &) override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   typedef std::map<std::string, std::string> TriggerMap;
@@ -44,7 +42,7 @@ private:
   bool addTriggerLists(const std::vector<edm::ParameterSet> &triggerListsAdd, AlCaRecoTriggerBits &bits) const;
   void writeBitsToDB(const AlCaRecoTriggerBits &bitsToWrite) const;
 
-  edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> triggerBitsToken_;
+  const edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> triggerBitsToken_;
   unsigned int nEventCalls_;
   const unsigned int firstRunIOV_;
   const int lastRunIOV_;
@@ -55,18 +53,39 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
+void AlCaRecoTriggerBitsRcdUpdate::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Plugin to write payloads of type AlCaRecoTriggerBits");
+  desc.add<unsigned int>("firstRunIOV", 1);
+  desc.add<int>("lastRunIOV", -1);
+  desc.add<bool>("startEmpty", true);
+  desc.add<std::vector<std::string>>("listNamesRemove", {});
 
+  edm::ParameterSetDescription desc_triggeListsToAdd;
+  desc_triggeListsToAdd.add<std::string>("listName");
+  desc_triggeListsToAdd.add<std::vector<std::string>>("hltPaths");
+  std::vector<edm::ParameterSet> default_triggerListsToAdd;
+  desc.addVPSet("triggerListsAdd", desc_triggeListsToAdd, default_triggerListsToAdd);
+
+  edm::ParameterSetDescription desc_alcarecoToReplace;
+  desc_alcarecoToReplace.add<std::string>("oldKey");
+  desc_alcarecoToReplace.add<std::string>("newKey");
+  std::vector<edm::ParameterSet> default_alcarecoToReplace;
+  desc.addVPSet("alcarecoToReplace", desc_alcarecoToReplace, default_alcarecoToReplace);
+
+  descriptions.addWithDefaultLabel(desc);
+}
+
+///////////////////////////////////////////////////////////////////////
 AlCaRecoTriggerBitsRcdUpdate::AlCaRecoTriggerBitsRcdUpdate(const edm::ParameterSet &cfg)
     : triggerBitsToken_(esConsumes()),
       nEventCalls_(0),
       firstRunIOV_(cfg.getParameter<unsigned int>("firstRunIOV")),
       lastRunIOV_(cfg.getParameter<int>("lastRunIOV")),
       startEmpty_(cfg.getParameter<bool>("startEmpty")),
-      listNamesRemove_(cfg.getParameter<std::vector<std::string> >("listNamesRemove")),
-      triggerListsAdd_(cfg.getParameter<std::vector<edm::ParameterSet> >("triggerListsAdd")),
-      alcarecoReplace_(cfg.getParameter<std::vector<edm::ParameterSet> >("alcarecoToReplace")) {}
+      listNamesRemove_(cfg.getParameter<std::vector<std::string>>("listNamesRemove")),
+      triggerListsAdd_(cfg.getParameter<std::vector<edm::ParameterSet>>("triggerListsAdd")),
+      alcarecoReplace_(cfg.getParameter<std::vector<edm::ParameterSet>>("alcarecoToReplace")) {}
 
 ///////////////////////////////////////////////////////////////////////
 void AlCaRecoTriggerBitsRcdUpdate::analyze(const edm::Event &evt, const edm::EventSetup &iSetup) {
@@ -122,7 +141,7 @@ bool AlCaRecoTriggerBitsRcdUpdate::removeKeysFromMap(const std::vector<std::stri
 ///////////////////////////////////////////////////////////////////////
 bool AlCaRecoTriggerBitsRcdUpdate::replaceKeysFromMap(const std::vector<edm::ParameterSet> &alcarecoReplace,
                                                       TriggerMap &triggerMap) const {
-  std::vector<std::pair<std::string, std::string> > keyPairs;
+  std::vector<std::pair<std::string, std::string>> keyPairs;
   keyPairs.reserve(alcarecoReplace.size());
 
   for (auto &iSet : alcarecoReplace) {
@@ -155,7 +174,7 @@ bool AlCaRecoTriggerBitsRcdUpdate::addTriggerLists(const std::vector<edm::Parame
   // loop on PSets, each containing the key (filter name) and a vstring with triggers
   for (std::vector<edm::ParameterSet>::const_iterator iSet = triggerListsAdd.begin(); iSet != triggerListsAdd.end();
        ++iSet) {
-    const std::vector<std::string> paths(iSet->getParameter<std::vector<std::string> >("hltPaths"));
+    const std::vector<std::string> paths(iSet->getParameter<std::vector<std::string>>("hltPaths"));
     // We must avoid a map<string,vector<string> > in DB for performance reason,
     // so we have to merge the paths into one string that will be decoded when needed:
     const std::string mergedPaths = bits.compose(paths);
