@@ -2,7 +2,7 @@ Commands to run the workflow multi-IOV:
 
 ## TO UPDATE
 ```
-python run_wf.py -f frontier://PromptProd/CMS_CONDITIONS -i AlCaRecoHLTpaths8e29_1e31_v24_offline -d AlCaRecoHLTpaths_TEST
+run_AlCaRecoTriggerBitsUpdateWorkflow.py -f frontier://PromptProd/CMS_CONDITIONS -i AlCaRecoHLTpaths8e29_1e31_v24_offline -d AlCaRecoHLTpaths_TEST
 ```
 
 will create an update sqlite file called `AlCaRecoHLTpaths_TEST.db` with an updated tag ` AlCaRecoHLTpaths_TEST` (the same IOV structure will be preserved)
@@ -16,5 +16,5 @@ Options available:
 
 ## TO READ BACK
 ```
-cmsRun AlCaRecoTriggerBitsRcdRead_TEMPL_cfg.py inputDB=sqlite_file:AlCaRecoHLTpaths_TEST.db inputTag=AlCaRecoHLTpaths_TEST
+cmsRun $CMSSW_BASE/src/CondTools/HLT/test/AlCaRecoTriggerBitsRcdRead_TEMPL_cfg.py inputDB=sqlite_file:AlCaRecoHLTpaths_TEST.db inputTag=AlCaRecoHLTpaths_TEST
 ```
