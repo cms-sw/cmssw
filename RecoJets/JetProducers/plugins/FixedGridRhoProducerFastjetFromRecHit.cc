@@ -37,7 +37,7 @@ public:
 
 private:
   void produce(edm::Event &, const edm::EventSetup &) override;
-  std::array<double, 4> getHitP4(const DetId &detId, double hitE, const CaloGeometry &caloGeometry) const;
+  std::array<double, 4> getHitP4(const DetId &detId, const double hitE, const CaloGeometry &caloGeometry) const;
   bool passedHcalNoiseCut(const HBHERecHit &hit) const;
   bool passedEcalNoiseCut(const EcalRecHit &hit, const EcalPFRecHitThresholds &thresholds) const;
 
@@ -51,8 +51,8 @@ private:
 
   //Muon HLT currently use ECAL-only rho for ECAL isolation,
   //and HCAL-only rho for HCAL isolation. So, this skipping option is needed.
-  bool skipHCAL_;
-  bool skipECAL_;
+  const bool skipHCAL_;
+  const bool skipECAL_;
 
   const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRecHitThresholdsToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
@@ -136,7 +136,7 @@ void FixedGridRhoProducerFastjetFromRecHit::produce(edm::Event &iEvent, const ed
 }
 
 std::array<double, 4> FixedGridRhoProducerFastjetFromRecHit::getHitP4(const DetId &detId,
-                                                                      double hitE,
+                                                                      const double hitE,
                                                                       const CaloGeometry &caloGeometry) const {
   const CaloSubdetectorGeometry *subDetGeom = caloGeometry.getSubdetectorGeometry(detId);
   const auto &gpPos = subDetGeom->getGeometry(detId)->repPos();
@@ -144,19 +144,15 @@ std::array<double, 4> FixedGridRhoProducerFastjetFromRecHit::getHitP4(const DetI
   const double thispx = thispt * cos(gpPos.phi());
   const double thispy = thispt * sin(gpPos.phi());
   const double thispz = thispt * sinh(gpPos.eta());
-  std::array<double, 4> hitp4{{thispx, thispy, thispz, hitE}};
-  return hitp4;
+  return std::array<double, 4> {{thispx, thispy, thispz, hitE}};
 }
 
 //HCAL noise cleaning cuts.
 bool FixedGridRhoProducerFastjetFromRecHit::passedHcalNoiseCut(const HBHERecHit &hit) const {
   const auto thisDetId = hit.id();
   const auto thisDepth = thisDetId.depth();
-  if (thisDetId.subdet() == HcalBarrel && hit.energy() > eThresHB_[thisDepth - 1])
-    return true;
-  else if (thisDetId.subdet() == HcalEndcap && hit.energy() > eThresHE_[thisDepth - 1])
-    return true;
-  return false;
+  return (thisDetId.subdet() == HcalBarrel && hit.energy() > eThresHB_[thisDepth - 1]) || 
+    (thisDetId.subdet() == HcalEndcap && hit.energy() > eThresHE_[thisDepth - 1]);
 }
 
 //ECAL noise cleaning cuts using per-crystal PF-recHit thresholds.
