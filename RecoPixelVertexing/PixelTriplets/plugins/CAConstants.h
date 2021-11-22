@@ -76,7 +76,7 @@ namespace caConstants {
   using OuterHitOfCellContainer = cms::cuda::VecArray<uint32_t, maxCellsPerHit>;
   using TuplesContainer = cms::cuda::OneToManyAssoc<hindex_type, maxTuples, 5 * maxTuples>;
   using HitToTuple = cms::cuda::OneToManyAssoc<tindex_type, -1, 4 * maxTuples>;  // 3.5 should be enough
-  using TupleMultiplicity = cms::cuda::OneToManyAssoc<tindex_type, 8, maxTuples>;
+  using TupleMultiplicity = cms::cuda::OneToManyAssoc<tindex_type, 10, maxTuples>;
 
   struct OuterHitOfCell {
     OuterHitOfCellContainer* container;

@@ -1000,10 +1000,10 @@ trackSelector = cms.EDFilter('TrackSelector',
                              cut = cms.string("")
 )
 
-cutstring = "numberOfValidHits == 3"
+cutstring = "hitPattern.trackerLayersWithMeasurement == 3"
 pixelTracks3hits = trackRefSelector.clone( cut = cutstring )
 
-cutstring = "numberOfValidHits >= 4"
+cutstring = "hitPattern.trackerLayersWithMeasurement >= 4"
 pixelTracks4hits = trackRefSelector.clone( cut = cutstring )
 
 cutstring = "pt > 0.9"
@@ -1014,7 +1014,7 @@ pixelTracksFromPV = generalTracksFromPV.clone(quality = "highPurity", ptMin = 0.
 #pixelTracksFromPVPt09 = generalTracksPt09.clone(quality = ["loose","tight","highPurity"], vertexTag = "pixelVertices", src = "pixelTracksFromPV")
 pixelTracksFromPVPt09 = pixelTracksFromPV.clone(ptMin = 0.9)
 
-cutstring = "numberOfValidHits >= 4"
+cutstring = "hitPattern.trackerLayersWithMeasurement >= 4"
 #pixelTracksFromPV4hits = trackRefSelector.clone( cut = cutstring, src = "pixelTracksFromPV" )
 pixelTracksFromPV4hits = pixelTracksFromPV.clone( numberOfValidPixelHits = 4 )
 
@@ -1124,7 +1124,7 @@ for key,value in quality.items():
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
 #-----------         
     label = "pixelTracks4hits"+key
-    cutstring = "numberOfValidHits == 4 & qualityMask <= 7 & qualityMask >= " + str(qualityBit)
+    cutstring = "hitPattern.trackerLayersWithMeasurement >= 4 & qualityMask <= 7 & qualityMask >= " + str(qualityBit)
     locals()[label] = trackRefSelector.clone( cut = cutstring )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
     
@@ -1134,7 +1134,7 @@ for key,value in quality.items():
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
 #--------    
     label = "pixelTracks3hits"+key
-    cutstring = "numberOfValidHits == 3 & qualityMask <= 7 & qualityMask >= " + str(qualityBit)
+    cutstring = "hitPattern.trackerLayersWithMeasurement == 3 & qualityMask <= 7 & qualityMask >= " + str(qualityBit)
     locals()[label] = trackRefSelector.clone( cut = cutstring )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
      

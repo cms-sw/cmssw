@@ -154,8 +154,17 @@ namespace brokenline {
     riemannFit::Vector2d dVec;
     riemannFit::Vector2d eVec;
 
-    dVec = hits.block(0, 1, 2, 1) - hits.block(0, 0, 2, 1);
-    eVec = hits.block(0, n - 1, 2, 1) - hits.block(0, n - 2, 2, 1);
+    int mId = 1;
+
+    if constexpr (n > 3) {
+      riemannFit::Vector2d middle = 0.5 * (hits.block(0, n - 1, 2, 1) + hits.block(0, 0, 2, 1));
+      auto d1 = (hits.block(0, n / 2, 2, 1) - middle).squaredNorm();
+      auto d2 = (hits.block(0, n / 2 - 1, 2, 1) - middle).squaredNorm();
+      mId = d1 < d2 ? n / 2 : n / 2 - 1;
+    }
+
+    dVec = hits.block(0, mId, 2, 1) - hits.block(0, 0, 2, 1);
+    eVec = hits.block(0, n - 1, 2, 1) - hits.block(0, mId, 2, 1);
     results.qCharge = riemannFit::cross2D(dVec, eVec) > 0 ? -1 : 1;
 
     const double slope = -results.qCharge / fast_fit(3);
@@ -249,8 +258,17 @@ namespace brokenline {
   __host__ __device__ inline void fastFit(const M3xN& hits, V4& result) {
     constexpr uint32_t n = M3xN::ColsAtCompileTime;
 
-    const riemannFit::Vector2d a = hits.block(0, n / 2, 2, 1) - hits.block(0, 0, 2, 1);
-    const riemannFit::Vector2d b = hits.block(0, n - 1, 2, 1) - hits.block(0, n / 2, 2, 1);
+    int mId = 1;
+
+    if constexpr (n > 3) {
+      riemannFit::Vector2d middle = 0.5 * (hits.block(0, n - 1, 2, 1) + hits.block(0, 0, 2, 1));
+      auto d1 = (hits.block(0, n / 2, 2, 1) - middle).squaredNorm();
+      auto d2 = (hits.block(0, n / 2 - 1, 2, 1) - middle).squaredNorm();
+      mId = d1 < d2 ? n / 2 : n / 2 - 1;
+    }
+
+    const riemannFit::Vector2d a = hits.block(0, mId, 2, 1) - hits.block(0, 0, 2, 1);
+    const riemannFit::Vector2d b = hits.block(0, n - 1, 2, 1) - hits.block(0, mId, 2, 1);
     const riemannFit::Vector2d c = hits.block(0, 0, 2, 1) - hits.block(0, n - 1, 2, 1);
 
     auto tmp = 0.5 / riemannFit::cross2D(c, a);
