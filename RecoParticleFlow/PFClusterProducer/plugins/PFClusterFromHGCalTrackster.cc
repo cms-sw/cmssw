@@ -82,7 +82,9 @@ void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHit
       }
     }
 
-    if (filterByTracksterIteration_ && std::find(filter_on_iterations_.begin(), filter_on_iterations_.end(), tst.ticlIteration()) == filter_on_iterations_.end()) {
+    if (filterByTracksterIteration_ &&
+        std::find(filter_on_iterations_.begin(), filter_on_iterations_.end(), tst.ticlIteration()) ==
+            filter_on_iterations_.end()) {
       continue;
     }
 
