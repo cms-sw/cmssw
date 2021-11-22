@@ -18,6 +18,7 @@ from DQMOffline.Muon.gem_dqm_offline_source_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from DQM.CTPPS.ctppsDQM_cff import *
 from DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff import *
+from DQM.SiPixelPhase1Heterogeneous.SiPixelPhase1HeterogenousDQM_FirstStep_cff import *
 
 DQMNone = cms.Sequence()
 
@@ -164,7 +165,8 @@ from DQM.SiOuterTracker.OuterTrackerSourceConfig_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 
 DQMOfflinePixelTracking = cms.Sequence( pixelTracksMonitoring *
-                                        pixelPVMonitor )
+                                        pixelPVMonitor *
+                                        monitorpixelSoASource )
 
 DQMOuterTracker = cms.Sequence( DQMOfflineDCS *
                                 OuterTrackerSource *
