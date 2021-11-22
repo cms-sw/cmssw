@@ -5,10 +5,11 @@ function cleanTheHouse {
     rm -fr millepede.*
     rm -fr pede*
     rm -fr treeFile.root
+    rm -fr testPCLAlCaHarvesting.db
 }
 
 echo "TESTING Calibration/TkAlCaRecoProducers ..."
-cmsRun -e ${LOCAL_TEST_DIR}/testPCLAlCaHarvesting.py || die "Failure running testPCLAlCaHarvesting.py" $? 
+cmsRun -e -j testPCLAlCaHarvesting.xml ${LOCAL_TEST_DIR}/testPCLAlCaHarvesting.py || die "Failure running testPCLAlCaHarvesting.py" $?
 cleanTheHouse
 echo "PARSING Framework Job Report ..."
 python ${LOCAL_TEST_DIR}/parseFwkJobReport.py
