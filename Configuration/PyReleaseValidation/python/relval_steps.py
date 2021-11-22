@@ -2810,7 +2810,7 @@ steps['ALCAHARVD6']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixel']),
                      '--data':'',
                      '--filein':'file:PromptCalibProdSiPixel.root'}
 
-steps['ALCAHARVD7']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelLA']),
+steps['ALCAHARVD7']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelLorentzAngle']),
                      '--conditions':'auto:run1_data',
                      '--scenario':'pp',
                      '--data':'',

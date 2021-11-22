@@ -26,7 +26,6 @@
 // Framework
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -41,11 +40,13 @@
 class AlCaRecoTriggerBitsRcdRead : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet &cfg);
-  ~AlCaRecoTriggerBitsRcdRead() override {}
+  ~AlCaRecoTriggerBitsRcdRead() override = default;
 
   void analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) override {}
   void beginRun(const edm::Run &run, const edm::EventSetup &evtSetup) override;
   void endRun(edm::Run const &, edm::EventSetup const &) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   // types
@@ -56,7 +57,7 @@ private:
   void printMap(edm::RunNumber_t firstRun, edm::RunNumber_t lastRun, const AlCaRecoTriggerBits &triggerMap) const;
 
   // members
-  edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> triggerBitsToken_;
+  const edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> triggerBitsToken_;
   const OutputType outputType_;
   edm::ESWatcher<AlCaRecoTriggerBitsRcd> watcher_;
   edm::RunNumber_t firstRun_;
@@ -66,9 +67,15 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
+void AlCaRecoTriggerBitsRcdRead::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Plugin to read payloads of type AlCaRecoTriggerBits");
+  desc.addUntracked<std::string>("rawFileName", "");
+  desc.addUntracked<std::string>("outputType", "twiki");
+  descriptions.addWithDefaultLabel(desc);
+}
 
+///////////////////////////////////////////////////////////////////////
 AlCaRecoTriggerBitsRcdRead::AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet &cfg)
     : triggerBitsToken_(esConsumes<edm::Transition::BeginRun>()),
       outputType_(this->stringToEnum(cfg.getUntrackedParameter<std::string>("outputType"))),
