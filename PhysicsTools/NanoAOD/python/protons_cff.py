@@ -20,12 +20,6 @@ protonTable = cms.EDProducer("ProtonProducer",
 protonTable.tagRecoProtonsSingle = cms.InputTag("filteredProtons" if singleRPProtons else "ctppsProtons","singleRP")
 
 
-genProtonTable = _genproton.clone(
-    cut = cms.string('(pdgId == 2212) && (abs(pz) > 5200) && (abs(pz) < 6467.5)'), # xi in [0.015, 0.2]
-    # PU protons source could have an extra 'genPUProtons' collection name for some samples
-    # srcPUProtons = cms.InputTag('genPUProtons', 'genPUProtons'),
-)
-
 multiRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
     src = cms.InputTag("filteredProtons","multiRP"),
     cut = cms.string(""),
@@ -71,7 +65,16 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_
     modifier.toReplaceWith(protonTablesTask, cms.Task())
 
 # GEN-level signal/PU protons collection
+genProtonTable = _genproton.clone(
+    cut = cms.string('(pdgId == 2212) && (abs(pz) > 5200) && (abs(pz) < 6467.5)') # xi in [0.015, 0.2]
+)
+
 genProtonTablesTask = cms.Task(genProtonTable)
 
 # input GEN-level PU protons collection introduced in 9_4_X cycle
 run2_miniAOD_80XLegacy.toReplaceWith(genProtonTablesTask, cms.Task())
+# re-MiniAODv2 appears to have this extra label
+(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2).toModify(genProtonTable,
+    # PU protons source could have an extra 'genPUProtons' collection name for some samples
+    srcPUProtons = cms.InputTag('genPUProtons', 'genPUProtons')
+)
