@@ -216,23 +216,23 @@ void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker& walker)
       waferInfo.shapeCode = 99;
       if (shapeStr == "F")
         waferInfo.shapeCode = 0;
-      if (shapeStr == "a")
+      else if (shapeStr == "a")
         waferInfo.shapeCode = 4;
-      if (shapeStr == "am")
+      else if (shapeStr == "am")
         waferInfo.shapeCode = 8;
-      if (shapeStr == "b")
+      else if (shapeStr == "b")
         waferInfo.shapeCode = 1;
-      if (shapeStr == "bm")
+      else if (shapeStr == "bm")
         waferInfo.shapeCode = 9;
-      if (shapeStr == "c")
+      else if (shapeStr == "c")
         waferInfo.shapeCode = 7;
-      if (shapeStr == "d")
+      else if (shapeStr == "d")
         waferInfo.shapeCode = 5;
-      if (shapeStr == "dm")
+      else if (shapeStr == "dm")
         waferInfo.shapeCode = 6;
-      if (shapeStr == "g")
+      else if (shapeStr == "g")
         waferInfo.shapeCode = 2;
-      if (shapeStr == "gm")
+      else if (shapeStr == "gm")
         waferInfo.shapeCode = 3;
 
       waferInfo.rotCode = rotCode;
@@ -377,30 +377,24 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       if (waferDensityStr == "l") {
         if (waferShapeStr == "0")
           waferShapeCode = 0;
-        if (waferShapeStr == "1")
+        else if (waferShapeStr == "1" || waferShapeStr == "2")
           waferShapeCode = 4;
-        if (waferShapeStr == "2")
-          waferShapeCode = 4;
-        if (waferShapeStr == "3")
+        else if (waferShapeStr == "3" || waferShapeStr == "4")
           waferShapeCode = 5;
-        if (waferShapeStr == "4")
-          waferShapeCode = 5;
-        if (waferShapeStr == "5")
+        else if (waferShapeStr == "5")
           waferShapeCode = 1;
-        if (waferShapeStr == "6")
+        else if (waferShapeStr == "6")
           waferShapeCode = 7;
       } else if (waferDensityStr == "h") {
         if (waferShapeStr == "0")
           waferShapeCode = 0;
-        if (waferShapeStr == "1")
+        else if (waferShapeStr == "1")
           waferShapeCode = 8;
-        if (waferShapeStr == "2")
+        else if (waferShapeStr == "2")
           waferShapeCode = 3;
-        if (waferShapeStr == "3")
+        else if (waferShapeStr == "3" || waferShapeStr == "4")
           waferShapeCode = 6;
-        if (waferShapeStr == "4")
-          waferShapeCode = 6;
-        if (waferShapeStr == "5")
+        else if (waferShapeStr == "5")
           waferShapeCode = 9;
       }
     } else {
@@ -416,23 +410,23 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       waferShapeCode = 99;
       if (waferShapeStr == "F")
         waferShapeCode = 0;
-      if (waferShapeStr == "a")
+      else if (waferShapeStr == "a")
         waferShapeCode = 4;
-      if (waferShapeStr == "am")
+      else if (waferShapeStr == "am")
         waferShapeCode = 8;
-      if (waferShapeStr == "b")
+      else if (waferShapeStr == "b")
         waferShapeCode = 1;
-      if (waferShapeStr == "bm")
+      else if (waferShapeStr == "bm")
         waferShapeCode = 9;
-      if (waferShapeStr == "c")
+      else if (waferShapeStr == "c")
         waferShapeCode = 7;
-      if (waferShapeStr == "d")
+      else if (waferShapeStr == "d")
         waferShapeCode = 5;
-      if (waferShapeStr == "dm")
+      else if (waferShapeStr == "dm")
         waferShapeCode = 6;
-      if (waferShapeStr == "g")
+      else if (waferShapeStr == "g")
         waferShapeCode = 2;
-      if (waferShapeStr == "gm")
+      else if (waferShapeStr == "gm")
         waferShapeCode = 3;
     }
 
