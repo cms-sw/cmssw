@@ -396,7 +396,7 @@ void SiPixelPhase1ResidualsExtra::fillMEs(DQMStore::IBooker& iBooker, DQMStore::
     MonitorElement* me2_y = iGetter.get(
         "PixelPhase1/Tracks/ResidualsExtra/PXForward/DRnR_y_per_PXDisk_per_SignedBladePanel_PXRing_" + ring);
 
-    if (me_x == nullptr || me_y == nullptr || me2_x == nullptr || me2_x == nullptr) {
+    if (me_x == nullptr || me_y == nullptr || me2_x == nullptr || me2_y == nullptr) {
       edm::LogWarning("SiPixelPhase1ResidualsExtra")
           << "Residuals plots for Pixel FPIX Ring" << ring << " not found. Skipping ResidualsExtra plots generation.";
       continue;
