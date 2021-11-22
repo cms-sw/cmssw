@@ -2669,7 +2669,7 @@ void arrangeCanvas2D(
     //meanmaps[i]->Draw("colzsame"); // draw the "color palette"
 
     makeNewPairOfAxes(meanmaps[i]);
-  
+
     pt[i]->Draw("same");
     pt2[i]->Draw("same");
     pt3[i]->Draw("same");
@@ -2681,7 +2681,7 @@ void arrangeCanvas2D(
 
     widthmaps[i]->Draw("colz1");
     makeNewPairOfAxes(widthmaps[i]);
-   
+
     widthmaps[i]->GetZaxis()->SetRangeUser(0., maxwidth);
 
     pt[i]->Draw("same");
@@ -2780,7 +2780,7 @@ void arrangeFitCanvas(TCanvas *canv, TH1F *meanplots[100], Int_t nFiles, TString
         hnewUp->Draw("same");
         makeNewXAxis(hnewUp);
       }
-      fright[j]->Draw("sames");
+      fright[j]->Draw("same");
       fleft[j]->Draw("same");
       fall[j]->Draw("same");
     }
@@ -4061,7 +4061,7 @@ void makeNewPairOfAxes(TH2F *h)
   float aymin = -999;
   float aymax = 999.;
   int ndivx = h->GetXaxis()->GetNdivisions();
-  int ndivy = h->GetYaxis()->GetNdivisions(); 
+  int ndivy = h->GetYaxis()->GetNdivisions();
 
   if (!myTitle.Contains("L1Map")) {
     ndivx = 505;
@@ -4069,13 +4069,13 @@ void makeNewPairOfAxes(TH2F *h)
     axmin = -etaRange;
     axmax = etaRange;
     aymin = -TMath::Pi();
-    aymax = TMath::Pi();  
-  } else { 
+    aymax = TMath::Pi();
+  } else {
     // this is a L1 map
-    axmin = 0.5;	  
-    axmax = 8.5;	  
-    aymin = 0.5; 
-    aymax = 12.5;  
+    axmin = 0.5;
+    axmax = nModZ_+0.5;
+    aymin = 0.5;
+    aymax = nLadders_+0.5;
   }
 
   // Remove the current axis
