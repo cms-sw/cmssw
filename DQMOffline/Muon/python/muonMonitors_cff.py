@@ -34,5 +34,3 @@ muonMonitors_miniAOD = cms.Sequence( muonAnalyzer_miniAOD*
 
 
 muonMonitorsAndQualityTests = cms.Sequence(muonMonitors*muonQualityTests)
-
-

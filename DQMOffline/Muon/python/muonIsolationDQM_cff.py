@@ -56,24 +56,25 @@ MuIsoDQM_glb = DQMEDAnalyzer('MuonIsolationDQM',
                               )
 muIsoDQM_seq = cms.Sequence(MuIsoDQM_trk+MuIsoDQM_sta+MuIsoDQM_glb)
 
+MuIsoDQM_glb_Phase2=MuIsoDQM_glb.clone(
+    vtxBin=20
+    vtxMin=149.5
+    vtxMax=249.5
+)
 
-MuIsoDQM_glb_Phase2=MuIsoDQM_glb.clone()
-MuIsoDQM_glb_Phase2.vtxBin=20
-MuIsoDQM_glb_Phase2.vtxMax=249.5
-MuIsoDQM_glb_Phase2.vtxMin=149.5
+MuIsoDQM_trk_Phase2=MuIsoDQM_trk.clone(
+    vtxBin=20
+    vtxMin=149.5
+    vtxMax=249.5                                                                                                    
+)
 
-MuIsoDQM_trk_Phase2=MuIsoDQM_trk.clone()                                                                                                    
-MuIsoDQM_trk_Phase2.vtxBin=20                                                                                                               
-MuIsoDQM_trk_Phase2.vtxMax=249.5                                                                                                            
-MuIsoDQM_trk_Phase2.vtxMin=149.5
-
-MuIsoDQM_sta_Phase2=MuIsoDQM_sta.clone()                                                                                                    
-MuIsoDQM_sta_Phase2.vtxBin=20                                                                                                               
-MuIsoDQM_sta_Phase2.vtxMax=249.5                                                                                                            
-MuIsoDQM_sta_Phase2.vtxMin=149.5  
+MuIsoDQM_sta_Phase2=MuIsoDQM_sta.clone(
+    vtxBin=20
+    vtxMin=149.5
+    vtxMax=249.5                                                                                                    
+)
 
 muIsoDQM_seq_Phase2 = cms.Sequence(MuIsoDQM_trk_Phase2+MuIsoDQM_sta_Phase2+MuIsoDQM_glb_Phase2) 
-
 
 MuIsoDQM_trk_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       Global_Muon_Label = cms.untracked.InputTag("slimmedMuons"),
@@ -127,26 +128,26 @@ MuIsoDQM_glb_miniAOD = DQMEDAnalyzer('MuonIsolationDQM',
                                       )
 muIsoDQM_seq_miniAOD = cms.Sequence(MuIsoDQM_trk_miniAOD+MuIsoDQM_sta_miniAOD+MuIsoDQM_glb_miniAOD)
 
-
-MuIsoDQM_glb_miniAOD_Phase2=MuIsoDQM_glb_miniAOD.clone()                                                                                   
-MuIsoDQM_glb_miniAOD_Phase2.vtxBin=20                                                                                                       
-MuIsoDQM_glb_miniAOD_Phase2.vtxMax=249.5                                                                                                   
-MuIsoDQM_glb_miniAOD_Phase2.vtxMin=149.5                                                                                           
+MuIsoDQM_glb_miniAOD_Phase2=MuIsoDQM_glb_miniAOD.clone(
+    vtxBin=20
+    vtxMin=149.5
+    vtxMax=249.5                                                                                   
+)
       
-MuIsoDQM_trk_miniAOD_Phase2=MuIsoDQM_trk_miniAOD.clone()                                                                                    
-MuIsoDQM_trk_miniAOD_Phase2.vtxBin=20                                                                                                       
-MuIsoDQM_trk_miniAOD_Phase2.vtxMax=249.5                                                                                 
-MuIsoDQM_trk_miniAOD_Phase2.vtxMin=149.5                                                                                                  
+MuIsoDQM_trk_miniAOD_Phase2=MuIsoDQM_trk_miniAOD.clone(
+    vtxBin=20
+    vtxMin=149.5
+    vtxMax=249.5                                                                                    
+)
 
-MuIsoDQM_sta_miniAOD_Phase2=MuIsoDQM_sta_miniAOD.clone()                                                                                    
-MuIsoDQM_sta_miniAOD_Phase2.vtxBin=20                                                                                           
-MuIsoDQM_sta_miniAOD_Phase2.vtxMax=249.5                                                                                                  
-MuIsoDQM_sta_miniAOD_Phase2.vtxMin=149.5                                                                                                   
+MuIsoDQM_sta_miniAOD_Phase2=MuIsoDQM_sta_miniAOD.clone(
+    vtxBin=20
+    vtxMin=149.5
+    vtxMax=249.5                                                                                    
+)
 
 muIsoDQM_seq_miniAOD_Phase2 = cms.Sequence(MuIsoDQM_trk_miniAOD_Phase2+MuIsoDQM_sta_miniAOD_Phase2+MuIsoDQM_glb_miniAOD_Phase2)   
-
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon                                                                         
 phase2_muon.toReplaceWith(muIsoDQM_seq, muIsoDQM_seq_Phase2)
 phase2_muon.toReplaceWith(muIsoDQM_seq_miniAOD, muIsoDQM_seq_miniAOD_Phase2)
-                                                                                    
