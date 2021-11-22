@@ -53,7 +53,7 @@ _hgcalTracksterMapper_HGCal = cms.PSet(
     filterByTracksterPID = cms.bool(False),
     pid_threshold = cms.double(0.8),
     filter_on_categories = cms.vint32([0, 1]),
-    filterByTracksterIteration = cms.bool(False),
+    filterByTracksterIteration = cms.bool(True),
     filter_on_iterations = cms.vint32([0, 1]),
 )
 
