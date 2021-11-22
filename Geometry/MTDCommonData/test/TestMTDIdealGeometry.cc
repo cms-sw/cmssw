@@ -275,11 +275,9 @@ void TestMTDIdealGeometry::theBaseNumber(const DDGeoHistory& gh) {
   thisN_.setSize(gh.size());
 
   for (uint i = gh.size(); i-- > 0;) {
-    std::string name(gh[i].logicalPart().name().name());
-    int copyN(gh[i].copyno());
-    thisN_.addLevel(name, copyN);
+    thisN_.addLevel(gh[i].logicalPart().name().name(), gh[i].copyno());
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("TestMTDIdealGeometry") << name << " " << copyN;
+    edm::LogInfo("TestMTDIdealGeometry") << gh[i].logicalPart().name().name() << " " << gh[i].copyno();
 #endif
   }
 }
