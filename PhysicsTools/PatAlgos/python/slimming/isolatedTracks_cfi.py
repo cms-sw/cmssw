@@ -24,6 +24,14 @@ _exoHighPtTrackCut = (
     " abs(dxy) < 0.5 && abs(dz) < 0.5 && "+
     " (miniPFIsolation().chargedHadronIso()/pt < 1.0 || pt > 100)"
 )
+_exoDisappearingTrackCut = (
+    "pt > 30 && "+
+    "abs(dxy) < 0.05 && abs(dz) < 1.0 &&"+
+    "numMissingInnerHits == 0 &&"+
+    "numMissingMiddleHits == 0 &&"+
+    "numMissingOuterHits >= 1 &&"+
+    "(pfIsolationDR03().chargedHadronIso + pfIsolationDR03().neutralHadronIso + pfIsolationDR03().photonIso + pfIsolationDR03().puChargedHadronIso)/pt < 0.1"
+)
 isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     tkAssocParamBlock,
     packedPFCandidates = cms.InputTag("packedPFCandidates"),
@@ -35,6 +43,9 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     dEdxDataPixel = cms.InputTag("dedxPixelHarmonic2"),
     dEdxHitInfo = cms.InputTag("dedxHitInfo"),
     dEdxHitInfoPrescale = cms.InputTag("dedxHitInfo","prescale"), 
+    #EBRecHits =  cms.InputTag  ("reducedEcalRecHitsEB"),
+    #EERecHits =  cms.InputTag  ("reducedEcalRecHitsEE"),
+    #HBHERecHits =  cms.InputTag  ("reducedHcalRecHits", "hbhereco"),
     addPrescaledDeDxTracks = cms.bool(False),
     usePrecomputedDeDxStrip = cms.bool(True),        # if these are set to True, will get estimated DeDx from DeDxData branches
     usePrecomputedDeDxPixel = cms.bool(True),        # if set to False, will manually compute using dEdxHitInfo
@@ -61,7 +72,7 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     useHighPurity = cms.bool(False),
 
     saveDeDxHitInfo = cms.bool(True),
-    saveDeDxHitInfoCut = cms.string("(%s) || (%s)" % (_susySoftDisappearingTrackCut,_exoHighPtTrackCut)), 
+    saveDeDxHitInfoCut = cms.string("(%s) || (%s) || (%s)" % (_susySoftDisappearingTrackCut,_exoHighPtTrackCut,_exoDisappearingTrackCut)), 
 )
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
