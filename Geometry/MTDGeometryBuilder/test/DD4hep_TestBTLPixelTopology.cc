@@ -318,12 +318,11 @@ void DD4hep_TestBTLPixelTopology::theBaseNumber(cms::DDFilteredView& fv) {
   thisN_.setSize(fv.navPos().size());
 
   for (uint ii = 0; ii < fv.navPos().size(); ii++) {
-    std::string name((fv.geoHistory()[ii])->GetName());
-    name.assign(name.erase(name.rfind('_')));
-    int copyN(fv.copyNos()[ii]);
-    thisN_.addLevel(name, copyN);
+    std::string_view name((fv.geoHistory()[ii])->GetName());
+    size_t ipos = name.rfind('_');
+    thisN_.addLevel(name.substr(0, ipos), fv.copyNos()[ii]);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("DD4hep_TestBTLPixelTopology") << name << " " << copyN;
+    edm::LogVerbatim("DD4hep_TestBTLPixelTopology") << name.substr(0, ipos) << " " << fv.copyNos()[ii];
 #endif
   }
 }
