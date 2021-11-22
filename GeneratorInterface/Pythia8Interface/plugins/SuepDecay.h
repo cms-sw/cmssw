@@ -8,12 +8,11 @@
 #include <memory>
 #include "GeneratorInterface/Pythia8Interface/interface/CustomHook.h"
 
-
 // Adapted by Kevin Pedro to run on cmssw as a user hook
 class SuepDecay : public Pythia8::UserHooks {
 public:
   SuepDecay(const edm::ParameterSet& iConfig);
-  ~SuepDecay() {}
+  ~SuepDecay() override {}
 
   bool initAfterBeams() override;
 
