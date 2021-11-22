@@ -72,7 +72,7 @@ std::vector<float> MuonMvaIDEstimator::computeMVAID(const pat::Muon &muon) const
   if (muon.globalTrack().isNonnull()) {
     norm_chi2 = muon.globalTrack()->normalizedChi2();
     n_Valid_hits = muon.globalTrack()->hitPattern().numberOfValidMuonHits();
-  } else if(muon.innerTrack().isNonnull()){
+  } else if (muon.innerTrack().isNonnull()) {
     norm_chi2 = muon.innerTrack()->normalizedChi2();
     n_Valid_hits = muon.innerTrack()->hitPattern().numberOfValidMuonHits();
   } else {

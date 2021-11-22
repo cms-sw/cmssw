@@ -1051,8 +1051,10 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float mvaID = 0.0;
     if (computeMuonIDMVA_) {
       if (muon.isLooseMuon() && muon.passed(reco::Muon::PFIsoTight)) {
-        mvaID = globalCache()->muonMvaIDEstimator().computeMVAID(muon)[1];}
-      else{mvaID=-99;}
+        mvaID = globalCache()->muonMvaIDEstimator().computeMVAID(muon)[1];
+      } else {
+        mvaID = -99;
+      }
       muon.setMvaIDValue(mvaID);
       muon.setSelector(reco::Muon::MvaIDwpMedium, muon.mvaIDValue() > 0.12);
       muon.setSelector(reco::Muon::MvaIDwpTight, muon.mvaIDValue() > 0.48);
