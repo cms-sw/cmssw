@@ -21,7 +21,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
 
   for (uint32_t offset = 0; offset < maxNumberOfTuples; offset += maxNumberOfConcurrentFits_) {
     // fit triplets
-    kernel_BLFastFit<3><<<numberOfBlocks/2, blockSize, 0, stream>>>(tuples_,
+    kernel_BLFastFit<3><<<numberOfBlocks, blockSize, 0, stream>>>(tuples_,
                                                                   tupleMultiplicity_,
                                                                   hv,
                                                                   tkidGPU.get(),
@@ -33,7 +33,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
                                                                   offset);
     cudaCheck(cudaGetLastError());
 
-    kernel_BLFit<3><<<numberOfBlocks/2, blockSize, 0, stream>>>(tupleMultiplicity_,
+    kernel_BLFit<3><<<numberOfBlocks, blockSize, 0, stream>>>(tupleMultiplicity_,
                                                               bField_,
                                                               outputSoa_,
                                                               tkidGPU.get(),
@@ -44,7 +44,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
 
     if (fit5as4_) {
       // fit all as 4
-      kernel_BLFastFit<4><<<numberOfBlocks, blockSize, 0, stream>>>(tuples_,
+      kernel_BLFastFit<4><<<numberOfBlocks/4, blockSize, 0, stream>>>(tuples_,
                                                                         tupleMultiplicity_,
                                                                         hv,
                                                                         tkidGPU.get(),
@@ -56,7 +56,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
                                                                         offset);
       cudaCheck(cudaGetLastError());
 
-      kernel_BLFit<4><<<numberOfBlocks, blockSize, 0, stream>>>(tupleMultiplicity_,
+      kernel_BLFit<4><<<numberOfBlocks/4, blockSize, 0, stream>>>(tupleMultiplicity_,
                                                                     bField_,
                                                                     outputSoa_,
                                                                     tkidGPU.get(),
@@ -65,7 +65,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
                                                                     fast_fit_resultsGPU.get());
     } else {
       // fit quads
-      kernel_BLFastFit<4><<<numberOfBlocks, blockSize, 0, stream>>>(tuples_,
+      kernel_BLFastFit<4><<<numberOfBlocks/4, blockSize, 0, stream>>>(tuples_,
                                                                         tupleMultiplicity_,
                                                                         hv,
                                                                         tkidGPU.get(),
@@ -77,7 +77,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
                                                                         offset);
       cudaCheck(cudaGetLastError());
 
-      kernel_BLFit<4><<<numberOfBlocks, blockSize, 0, stream>>>(tupleMultiplicity_,
+      kernel_BLFit<4><<<numberOfBlocks/4, blockSize, 0, stream>>>(tupleMultiplicity_,
                                                                     bField_,
                                                                     outputSoa_,
                                                                     tkidGPU.get(),
@@ -97,7 +97,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
                                                        offset);
       cudaCheck(cudaGetLastError());
 
-      kernel_BLFit<5><<<numberOfBlocks/4, blockSize, 0, stream>>>(tupleMultiplicity_,
+      kernel_BLFit<5><<<8, blockSize, 0, stream>>>(tupleMultiplicity_,
                                                    bField_,
                                                    outputSoa_,
                                                    tkidGPU.get(),
