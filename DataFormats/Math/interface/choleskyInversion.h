@@ -336,12 +336,12 @@ namespace math {
     };
 
     // Eigen interface
-    template <typename D1, typename D2>
-    inline constexpr void __attribute__((always_inline))
-    invert(Eigen::DenseBase<D1> const& src, Eigen::DenseBase<D2>& dst) {
-      using M1 = Eigen::DenseBase<D1>;
-      using M2 = Eigen::DenseBase<D2>;
-      Inverter<M1, M2, M2::ColsAtCompileTime>::eval(src, dst);
+    template <typename M1, typename M2>
+    inline constexpr void __attribute__((always_inline)) invert(M1 const& src, M2& dst) {
+      if constexpr (M2::ColsAtCompileTime < 200)  // should be 7 but
+        Inverter<M1, M2, M2::ColsAtCompileTime>::eval(src, dst);
+      else
+        dst = src.llt().solve(M1::Identity());  // ... this crashes on GPU
     }
 
   }  // namespace cholesky

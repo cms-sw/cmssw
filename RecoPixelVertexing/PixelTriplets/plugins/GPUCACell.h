@@ -52,6 +52,7 @@ public:
     theDoubletId_ = doubletId;
     theLayerPairId_ = layerPairId;
     theUsed_ = 0;
+    theFishboneId = std::numeric_limits<hindex_type>::max();
 
     // optimization that depends on access pattern
     theInnerZ = hh.zGlobal(innerHitId);
@@ -306,13 +307,20 @@ public:
             ((!startAt0) && hole0(hh, cells[tmpNtuplet[0]])))
 #endif
         {
-          hindex_type hits[6];
+          hindex_type hits[8];
           auto nh = 0U;
+          constexpr int maxFB = 2;  // for the time being let's limit this
+          int nfb = 0;
           for (auto c : tmpNtuplet) {
             hits[nh++] = cells[c].theInnerHitId;
+            if (nfb < maxFB && cells[c].hasFishbone()) {
+              ++nfb;
+              hits[nh++] = cells[c].theFishboneId;  // fishbone hit is always outer than inner hit
+            }
           }
+          assert(nh < 8);
           hits[nh] = theOuterHitId;
-          auto it = foundNtuplets.bulkFill(apc, hits, tmpNtuplet.size() + 1);
+          auto it = foundNtuplets.bulkFill(apc, hits, nh + 1);
           if (it >= 0) {  // if negative is overflow....
             for (auto c : tmpNtuplet)
               cells[c].addTrack(it, cellTracks);
@@ -334,6 +342,12 @@ public:
   __device__ __forceinline__ bool unused() const { return 0 == theUsed_; }
   __device__ __forceinline__ void setUsedBit(uint16_t bit) { theUsed_ |= bit; }
 
+  __device__ __forceinline__ void setFishbone(hindex_type id) { theFishboneId = id; }
+  __device__ __forceinline__ auto fishboneId() const { return theFishboneId; }
+  __device__ __forceinline__ bool hasFishbone() const {
+    return theFishboneId != std::numeric_limits<hindex_type>::max();
+  }
+
 private:
   CellNeighbors* theOuterNeighbors;
   CellTracks* theTracks;
@@ -346,6 +360,7 @@ private:
   float theInnerR;
   hindex_type theInnerHitId;
   hindex_type theOuterHitId;
+  hindex_type theFishboneId;
 };
 
 template <>
