@@ -18,6 +18,7 @@ using namespace Pythia8;
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
 #include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
+#include "GeneratorInterface/Pythia8Interface/interface/CustomHook.h"
 
 // PS matchning prototype
 //
@@ -145,6 +146,9 @@ private:
 
   //PT filter hook
   std::shared_ptr<PTFilterHook> fPTFilterHook;
+
+  //Generic customized hook
+  std::shared_ptr<Pythia8::UserHooks> fCustomHook;
 
   int EV1_nFinal;
   bool EV1_vetoOn;
@@ -308,7 +312,12 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
                                                    EV1_nFinalMode,
                                                    0));
   }
-
+ 
+  if (params.exists("UserCustomization")) {
+    auto userParams = params.getParameter<edm::ParameterSet>("UserCustomization");
+    fCustomHook = CustomHookFactory::get()->create(userParams.getParameter<std::string>("name"), userParams);
+  }
+    
   if (params.exists("VinciaPlugin")) {
     throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
         << " Obsolete parameter: VinciaPlugin \n Please use the parameter PartonShowers:model instead \n";
@@ -452,6 +461,10 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     }
     UserHooksSet = true;
   }
+  if (fCustomHook.get()){
+    edm::LogInfo("Pythia8Interface") << "Adding customized user hook";
+    fMasterGen->addUserHooksPtr(fCustomHook);
+  }
 
   edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
   status = fMasterGen->init();
@@ -508,6 +521,10 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
   if (fEmissionVetoHook1.get()) {
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook1);
+  }
+  if (fCustomHook.get()){
+    edm::LogInfo("Pythia8Interface") << "Adding customized user hook";
+    (fUserHooksVector->hooks).push_back(fCustomHook);
   }
 
   if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
