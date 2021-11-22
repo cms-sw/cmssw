@@ -316,12 +316,12 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
                                                    EV1_nFinalMode,
                                                    0));
   }
- 
+
   if (params.exists("UserCustomization")) {
     auto userParams = params.getParameter<edm::ParameterSet>("UserCustomization");
     fCustomHook = CustomHookFactory::get()->create(userParams.getParameter<std::string>("name"), userParams);
   }
-    
+
   if (params.exists("VinciaPlugin")) {
     fMasterGen.reset(new Pythia);
     fvincia.reset(new Vincia::VinciaPlugin(fMasterGen.get()));
@@ -458,7 +458,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   if (fMultiUserHook->nHooks() > 0) {
     fMasterGen->setUserHooksPtr(fMultiUserHook.get());
   }
-  if (fCustomHook.get()){
+  if (fCustomHook.get()) {
     edm::LogInfo("Pythia8Interface") << "Adding customized user hook";
     fMasterGen->addUserHooksPtr(fCustomHook);
   }
@@ -526,7 +526,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
     fMultiUserHook->addHook(fEmissionVetoHook1.get());
   }
-  if (fCustomHook.get()){
+  if (fCustomHook.get()) {
     edm::LogInfo("Pythia8Interface") << "Adding customized user hook";
     (fUserHooksVector->hooks).push_back(fCustomHook);
   }
