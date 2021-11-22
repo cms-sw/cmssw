@@ -800,6 +800,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-EcalEndcapGeometryEP" )
       self.options['esmodules'].append( "-EcalLaserCorrectionService" )
       self.options['esmodules'].append( "-EcalPreshowerGeometryEP" )
+      self.options['esmodules'].append( "-GEMGeometryESModule" )
       self.options['esmodules'].append( "-HcalHardcodeGeometryEP" )
       self.options['esmodules'].append( "-HcalTopologyIdealEP" )
       self.options['esmodules'].append( "-MuonNumberingInitialization" )
