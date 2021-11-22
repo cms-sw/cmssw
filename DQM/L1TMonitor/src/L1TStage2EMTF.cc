@@ -944,7 +944,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfTrackBX->Fill(endcap * (sector - 0.5), Track->BX());
     emtfTrackPt->Fill(Track->Pt());
     // Unconstrained pT, dxy (Suzanne 11 Nov 2021)
-    emtfTrackPtUnconstrained->Fill(Track->PtUnconstrained());
+    emtfTrackPtUnconstrained->Fill(Track->Pt_dxy());
     emtfTrackDxy->Fill(Track->Dxy());
     emtfTrackEta->Fill(eta);
 
