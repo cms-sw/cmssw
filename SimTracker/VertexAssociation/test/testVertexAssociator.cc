@@ -170,7 +170,7 @@ void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetu
   using namespace edm;
   using namespace reco;
 
-  const auto &theMF = setup.getHandle(tokenMF_);
+  //const auto &theMF = setup.getHandle(tokenMF_);
 
   edm::Handle<VertexToTrackingVertexAssociator> theTracksAssociator;
   event.getByToken(associatorByTracksToken, theTracksAssociator);
