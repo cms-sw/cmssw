@@ -300,7 +300,7 @@ void SiPixelPhase1ResidualsExtra::fillMEs(DQMStore::IBooker& iBooker, DQMStore::
     MonitorElement* me2_y = iGetter.get(
         "PixelPhase1/Tracks/ResidualsExtra/PXBarrel/DRnR_y_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
 
-    if (me_x == nullptr || me_y == nullptr || me2_x == nullptr || me2_x == nullptr) {
+    if (me_x == nullptr || me_y == nullptr || me2_x == nullptr || me2_y == nullptr) {
       edm::LogWarning("SiPixelPhase1ResidualsExtra")
           << "Residuals plots for Pixel BPIX Layer" << layer << " not found. Skipping ResidualsExtra plots generation.";
       continue;
