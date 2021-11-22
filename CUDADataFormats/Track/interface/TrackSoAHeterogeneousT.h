@@ -55,9 +55,9 @@ public:
     // layers are in order and we assume tracks are either forward or backward
     auto pdet = detIndices.begin(i);
     int nl = 1;
-    auto ol = phase1PixelTopology::findLayer(*pdet);
+    auto ol = phase1PixelTopology::getLayer(*pdet);
     for (; pdet < detIndices.end(i); ++pdet) {
-      auto il = phase1PixelTopology::findLayer(*pdet, ol);
+      auto il = phase1PixelTopology::getLayer(*pdet); // , ol);
       if (il != ol)
         ++nl;
       ol = il;
