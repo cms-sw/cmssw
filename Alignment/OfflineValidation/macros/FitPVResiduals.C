@@ -2669,7 +2669,7 @@ void arrangeCanvas2D(
     //meanmaps[i]->Draw("colzsame"); // draw the "color palette"
 
     makeNewPairOfAxes(meanmaps[i]);
-
+  
     pt[i]->Draw("same");
     pt2[i]->Draw("same");
     pt3[i]->Draw("same");
@@ -2681,7 +2681,7 @@ void arrangeCanvas2D(
 
     widthmaps[i]->Draw("colz1");
     makeNewPairOfAxes(widthmaps[i]);
-
+   
     widthmaps[i]->GetZaxis()->SetRangeUser(0., maxwidth);
 
     pt[i]->Draw("same");
@@ -4054,13 +4054,29 @@ void makeNewXAxis(TH1F *h)
 void makeNewPairOfAxes(TH2F *h)
 /*--------------------------------------------------------------------*/
 {
-  int ndivx = 505;
-  float axmin = -etaRange;
-  float axmax = etaRange;
+  TString myTitle = h->GetName();
+  // fake defaults
+  float axmin = -999;
+  float axmax = 999.;
+  float aymin = -999;
+  float aymax = 999.;
+  int ndivx = h->GetXaxis()->GetNdivisions();
+  int ndivy = h->GetYaxis()->GetNdivisions(); 
 
-  int ndivy = 510;
-  float aymin = -TMath::Pi();
-  float aymax = TMath::Pi();
+  if (!myTitle.Contains("L1Map")) {
+    ndivx = 505;
+    ndivy = 510;
+    axmin = -etaRange;
+    axmax = etaRange;
+    aymin = -TMath::Pi();
+    aymax = TMath::Pi();  
+  } else { 
+    // this is a L1 map
+    axmin = 0.5;	  
+    axmax = 8.5;	  
+    aymin = 0.5; 
+    aymax = 12.5;  
+  }
 
   // Remove the current axis
   h->GetXaxis()->SetLabelOffset(999);
