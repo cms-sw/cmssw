@@ -39,7 +39,3 @@ muonAnalyzer_noHLT = cms.Sequence(muonEnergyDepositAnalyzer*
                                   diMuonHistos*
                                   EfficiencyAnalyzer* 
                                   muonPFsequence)
-
-
-
-
