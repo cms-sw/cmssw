@@ -297,49 +297,61 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
     def toolCode(self, process):
+        # MET type, corrections, and uncertainties
         metType                 = self._parameters['metType'].value
         correctionLevel         = self._parameters['correctionLevel'].value
         computeUncertainties    = self._parameters['computeUncertainties'].value
         produceIntermediateCorrections = self._parameters['produceIntermediateCorrections'].value
+        # physics object collections to consider when recalculating MET
         electronCollection      = self._parameters['electronCollection'].value
         photonCollection        = self._parameters['photonCollection'].value
         muonCollection          = self._parameters['muonCollection'].value
         tauCollection           = self._parameters['tauCollection'].value
         jetCollectionUnskimmed  = self._parameters['jetCollectionUnskimmed'].value
         pfCandCollection        = self._parameters['pfCandCollection'].value
+        # jet specific options: jet corrections/uncertainties as well as jet selection/cleaning options
+        jetSelection            = self._parameters['jetSelection'].value
         autoJetCleaning         = self._parameters['autoJetCleaning'].value
         jetFlavor               = self._parameters['jetFlavor'].value
         jetCorLabelUpToL3       = self._parameters['jetCorLabelUpToL3'].value
         jetCorLabelL3Res        = self._parameters['jetCorLabelL3Res'].value
         jecUncertaintyFile      = self._parameters['jecUncertaintyFile'].value
         jecUncertaintyTag       = self._parameters['jecUncertaintyTag'].value
-
-        mvaMetLeptons           = self._parameters['mvaMetLeptons'].value
-        addToPatDefaultSequence = self._parameters['addToPatDefaultSequence'].value
-        jetSelection            = self._parameters['jetSelection'].value
+        # additional MET calculation/extraction options
         recoMetFromPFCs         = self._parameters['recoMetFromPFCs'].value
         reapplyJEC              = self._parameters['reapplyJEC'].value
         reclusterJets           = self._parameters['reclusterJets'].value
         computeMETSignificance  = self._parameters['computeMETSignificance'].value
-        onMiniAOD               = self._parameters['onMiniAOD'].value
-        postfix                 = self._parameters['postfix'].value
+        extractDeepMETs         = self._parameters['extractDeepMETs'].value
+        mvaMetLeptons           = self._parameters['mvaMetLeptons'].value
+        # specific option for 2017 EE noise mitigation
         fixEE2017               = self._parameters['fixEE2017'].value
         fixEE2017Params         = self._parameters['fixEE2017Params'].value
-        extractDeepMETs         = self._parameters['extractDeepMETs'].value
         campaign                = self._parameters['campaign'].value
         era                     = self._parameters['era'].value
+        # additional runtime options
+        onMiniAOD               = self._parameters['onMiniAOD'].value
+        addToPatDefaultSequence = self._parameters['addToPatDefaultSequence'].value
+        postfix                 = self._parameters['postfix'].value
 
-        #prepare jet configuration
-        jetUncInfos = { "jCorrPayload":jetFlavor, "jCorLabelUpToL3":jetCorLabelUpToL3,
-                        "jCorLabelL3Res":jetCorLabelL3Res, "jecUncFile":jecUncertaintyFile,
-                        "jecUncTag":"Uncertainty" }
+        # prepare jet configuration
+        jetUncInfos = {
+                        "jCorrPayload":jetFlavor,
+                        "jCorLabelUpToL3":jetCorLabelUpToL3,
+                        "jCorLabelL3Res":jetCorLabelL3Res,
+                        "jecUncFile":jecUncertaintyFile,
+                        "jecUncTag":"Uncertainty"
+        }
 
+        # get jet uncertainties from file
         if (jecUncertaintyFile!="" and jecUncertaintyTag==None):
             jetUncInfos[ "jecUncTag" ] = ""
-        elif(jecUncertaintyTag!=None):
+        # get jet uncertainties from tag
+        elif (jecUncertaintyTag!=None):
             jetUncInfos[ "jecUncTag" ] = jecUncertaintyTag
 
         patMetModuleSequence = cms.Sequence()
+        # task for main MET modules
         patMetModuleTask = cms.Task()
 
         # 2017 EE fix will modify pf cand and jet collections used downstream
