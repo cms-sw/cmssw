@@ -1244,7 +1244,11 @@ upgradeWFs['DD4hepDB'].allowReuse = False
 class UpgradeWorkflow_DDDDB(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:
-            stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2021_realistic_ddd', '--geometry': 'DB:Extended', '--era': 'Run3_DDD'}, stepDict[step][k]])
+            # retain any other eras
+            tmp_eras = stepDict[step][k]['--era'].split(',')
+            tmp_eras[tmp_eras.index("Run3")] = 'Run3_DDD'
+            tmp_eras = ','.join(tmp_eras)
+            stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2021_realistic_ddd', '--geometry': 'DB:Extended', '--era': tmp_eras}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return '2021' in key
 upgradeWFs['DDDDB'] = UpgradeWorkflow_DDDDB(
