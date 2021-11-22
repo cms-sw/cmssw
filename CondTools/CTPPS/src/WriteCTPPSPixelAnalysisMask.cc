@@ -71,7 +71,7 @@ void WriteCTPPSPixelAnalysisMask::analyze(const edm::Event &, edm::EventSetup co
   const auto analysisMask = &es.getData(tokenAnalysisMask_);
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOneIOV(analysisMask, analysismaskiov_, /*m_record*/ record_);
+    poolDbService->writeOneIOV(analysisMask, analysismaskiov_, record_);
   }
 }
 

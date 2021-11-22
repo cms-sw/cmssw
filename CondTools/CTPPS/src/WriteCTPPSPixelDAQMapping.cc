@@ -71,7 +71,7 @@ void WriteCTPPSPixelDAQMapping::analyze(const edm::Event &, edm::EventSetup cons
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOneIOV(mapping, daqmappingiov_, /*m_record*/ record_);
+    poolDbService->writeOneIOV(mapping, daqmappingiov_, record_);
   }
 }
 
