@@ -50,7 +50,6 @@ const reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackA
 std::vector<float> MuonMvaIDEstimator::computeMVAID(const pat::Muon &muon) const {
   float local_chi2 = muon.combinedQuality().chi2LocalPosition;
   float kink = muon.combinedQuality().trkKink;
-
   float segment_comp = muon.segmentCompatibility(arbitrationType);
   float n_MatchedStations = muon.numberOfMatchedStations();
   float pt = muon.pt();
@@ -73,9 +72,12 @@ std::vector<float> MuonMvaIDEstimator::computeMVAID(const pat::Muon &muon) const
   if (muon.globalTrack().isNonnull()) {
     norm_chi2 = muon.globalTrack()->normalizedChi2();
     n_Valid_hits = muon.globalTrack()->hitPattern().numberOfValidMuonHits();
-  } else {
+  } else if(muon.innerTrack().isNonnull()){
     norm_chi2 = muon.innerTrack()->normalizedChi2();
     n_Valid_hits = muon.innerTrack()->hitPattern().numberOfValidMuonHits();
+  } else {
+    norm_chi2 = -99;
+    n_Valid_hits = -99;
   }
   std::vector<std::string> input_names_{"float_input"};
   std::vector<float> vars = {global_muon,
@@ -99,7 +101,7 @@ std::vector<float> MuonMvaIDEstimator::computeMVAID(const pat::Muon &muon) const
   input_values_.emplace_back(vars);
   std::vector<float> outputs;  // init as all zeros
   //std::cout << Form("%d -- %d",input_values_[10], input_values_[11]) << std::endl;
-  std::cout << randomForest_.get() << std::endl;
+  //std::cout << randomForest_.get() << std::endl;
   outputs = randomForest_->run(input_names_, input_values_, {}, {"probabilities"})[0];
   assert(outputs.size() == flav_names_.size());
   return outputs;
