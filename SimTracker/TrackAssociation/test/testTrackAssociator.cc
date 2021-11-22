@@ -47,12 +47,11 @@ testTrackAssociator::testTrackAssociator(edm::ParameterSet const &conf) {
   tpTag = conf.getParameter<edm::InputTag>("tpTag");
   simtracksTag = conf.getParameter<edm::InputTag>("simtracksTag");
   simvtxTag = conf.getParameter<edm::InputTag>("simvtxTag");
-  tokenMF_ = esConsumes<MagneticField, IdealMagneticFieldRecord>() ;
-
+  tokenMF_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 }
 
 void testTrackAssociator::analyze(const edm::Event &event, const edm::EventSetup &setup) {
-  const auto& theMF = setup.getHandle(tokenMF_);
+  const auto &theMF = setup.getHandle(tokenMF_);
   edm::Handle<reco::TrackToTrackingParticleAssociator> theChiAssociator;
   event.getByLabel("trackAssociatorByChi2", theChiAssociator);
   associatorByChi2 = theChiAssociator.product();
