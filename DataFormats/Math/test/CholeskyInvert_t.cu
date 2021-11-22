@@ -198,14 +198,15 @@ int main() {
   go<4>(false);
   go<5>(false);
   go<6>(false);
+  go<7>(false);
+  go<10>(false);
 
   go<2>(true);
   go<3>(true);
   go<4>(true);
   go<5>(true);
   go<6>(true);
-
-  go<10>(false);
+  go<7>(true);
   go<10>(true);
   return 0;
 }

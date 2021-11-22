@@ -5,7 +5,79 @@
 
 #include <Eigen/Core>
 
-/**
+namespace math {
+  namespace cholesky {
+
+    template <typename M1, typename M2, int N = M2::ColsAtCompileTime>
+// without this: either does not compile or compiles and then fails silently at runtime
+#ifdef __CUDACC__
+    __host__ __device__
+#endif
+        inline constexpr void
+        invertNN(M1 const& src, M2& dst) {
+
+      // origin: CERNLIB
+
+      using T = typename M2::Scalar;
+
+      T a[N][N];
+      for (int i = 0; i < N; ++i) {
+        a[i][i] = src(i, i);
+        for (int j = i + 1; j < N; ++j)
+          // a[i][j] =
+          a[j][i] = src(i, j);
+      }
+
+      for (int j = 0; j < N; ++j) {
+        a[j][j] = T(1.) / a[j][j];
+        int jp1 = j + 1;
+        for (int l = jp1; l < N; ++l) {
+          a[j][l] = a[j][j] * a[l][j];
+          T s1 = -a[l][jp1];
+          for (int i = 0; i < jp1; ++i)
+            s1 += a[l][i] * a[i][jp1];
+          a[l][jp1] = -s1;
+        }
+      }
+
+      if constexpr (N == 1) {
+        dst(0, 0) = a[0][0];
+        return;
+      }
+      a[0][1] = -a[0][1];
+      a[1][0] = a[0][1] * a[1][1];
+      for (int j = 2; j < N; ++j) {
+        int jm1 = j - 1;
+        for (int k = 0; k < jm1; ++k) {
+          T s31 = a[k][j];
+          for (int i = k; i < jm1; ++i)
+            s31 += a[k][i + 1] * a[i + 1][j];
+          a[k][j] = -s31;
+          a[j][k] = -s31 * a[j][j];
+        }
+        a[jm1][j] = -a[jm1][j];
+        a[j][jm1] = a[jm1][j] * a[j][j];
+      }
+
+      int j = 0;
+      while (j < N - 1) {
+        T s33 = a[j][j];
+        for (int i = j + 1; i < N; ++i)
+          s33 += a[j][i] * a[i][j];
+        dst(j, j) = s33;
+
+        ++j;
+        for (int k = 0; k < j; ++k) {
+          T s32 = 0;
+          for (int i = j; i < N; ++i)
+            s32 += a[k][i] * a[i][j];
+          dst(k, j) = dst(j, k) = s32;
+        }
+      }
+      dst(j, j) = a[j][j];
+    }
+
+    /**
  * fully inlined specialized code to perform the inversion of a
  * positive defined matrix of rank up to 6.
  *
@@ -16,8 +88,6 @@
  *
  *
  */
-namespace math {
-  namespace cholesky {
 
     template <typename M1, typename M2>
     inline constexpr void __attribute__((always_inline)) invert11(M1 const& src, M2& dst) {
@@ -338,10 +408,10 @@ namespace math {
     // Eigen interface
     template <typename M1, typename M2>
     inline constexpr void __attribute__((always_inline)) invert(M1 const& src, M2& dst) {
-      if constexpr (M2::ColsAtCompileTime < 200)  // should be 7 but
+      if constexpr (M2::ColsAtCompileTime < 7)
         Inverter<M1, M2, M2::ColsAtCompileTime>::eval(src, dst);
       else
-        dst = src.llt().solve(M1::Identity());  // ... this crashes on GPU
+        invertNN(src, dst);
     }
 
   }  // namespace cholesky

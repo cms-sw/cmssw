@@ -2,7 +2,6 @@
 <use name="Geometry/TrackerNumberingBuilder"/>
 <use name="Geometry/CommonDetUnit"/>
 <use name="FWCore/Framework"/>
-<use name="cuda"/>
 <library file="TrackerDigiGeometryAnalyzer.cc" name="TrackerDigiGeometryAnalyzer">
   <use name="Geometry/Records"/>
   <flags EDM_PLUGIN="1"/>
@@ -43,6 +42,7 @@
 
 <bin file="phase1PixelTopology_t.cu">
   <use name="HeterogeneousCore/CUDAUtilities"/>
+  <use name="cuda"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>
 
