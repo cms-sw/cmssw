@@ -3,7 +3,7 @@
 #include <sstream>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
@@ -22,7 +22,7 @@ using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
 
-class SiPixelFedCablingMapTestWriter : public edm::EDAnalyzer {
+class SiPixelFedCablingMapTestWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit SiPixelFedCablingMapTestWriter(const edm::ParameterSet&);
   ~SiPixelFedCablingMapTestWriter();
