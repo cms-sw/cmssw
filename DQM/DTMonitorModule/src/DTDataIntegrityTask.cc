@@ -603,14 +603,14 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
                   errorX[value - 1][ros][wheel + 2] += 1;
                 if (mode != 1) {
                   if ((link == 46 || link == 57) && ros == 10)
-                    uROSErrorS4->Fill(value - 1, link - 23);
+                    uROSErrorS4->Fill(value - 1, link - 24);
                   else
-                    uROSError1->Fill(value - 1, link - 23);
+                    uROSError1->Fill(value - 1, link - 24);
                 }
               } else if (link < 72) {
                 errorX[value - 1][ros + 1][wheel + 2] += 1;
                 if (mode != 1)
-                  uROSError2->Fill(value - 1, link - 47);
+                  uROSError2->Fill(value - 1, link - 48);
               }
             }  //value>0
           }    //flag value
@@ -779,17 +779,17 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
           if ((link == 46 || link == 57) && ros == 10)
             uROSError1->Fill(tdcError_ROSError, sector4);
           else
-            uROSError1->Fill(tdcError_ROSError, link - 23);
+            uROSError1->Fill(tdcError_ROSError, link - 24);
         else if (link < 72)
-          uROSError2->Fill(tdcError_ROSError, link - 47);
+          uROSError2->Fill(tdcError_ROSError, link - 48);
 
         if (mode <= 1) {
           if (link < 24)
             urosHistos[(TDCError)*1000 + (wheel + 2) * 100 + (ros - 1)]->Fill(tdcError_TDCHisto + 6 * tdc, link);
           else if (link < 48)
-            urosHistos[(TDCError)*1000 + (wheel + 2) * 100 + (ros)]->Fill(tdcError_TDCHisto + 6 * tdc, link - 23);
+            urosHistos[(TDCError)*1000 + (wheel + 2) * 100 + (ros)]->Fill(tdcError_TDCHisto + 6 * tdc, link - 24);
           else if (link < 72)
-            urosHistos[(TDCError)*1000 + (wheel + 2) * 100 + (ros + 1)]->Fill(tdcError_TDCHisto + 6 * tdc, link - 47);
+            urosHistos[(TDCError)*1000 + (wheel + 2) * 100 + (ros + 1)]->Fill(tdcError_TDCHisto + 6 * tdc, link - 48);
 
         }  //mode<=1
       }    //mode<=2
