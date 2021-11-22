@@ -17,7 +17,7 @@
 // #include "TRotMatrix.h"
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -45,7 +45,7 @@
 //
 using namespace std;
 
-class TestIdealGeometry : public edm::EDAnalyzer {
+class TestIdealGeometry : public edm::one::EDAnalyzer<> {
   typedef SurveyDataReader::MapType MapType;
   typedef SurveyDataReader::PairType PairType;
   typedef SurveyDataReader::MapTypeOr MapTypeOr;
@@ -59,6 +59,8 @@ public:
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   TTree* theTree;
   TFile* theFile;
   edm::ParameterSet theParameterSet;
@@ -74,7 +76,8 @@ private:
 //
 // constructors and destructor
 //
-TestIdealGeometry::TestIdealGeometry(const edm::ParameterSet& iConfig) : theParameterSet(iConfig) {
+TestIdealGeometry::TestIdealGeometry(const edm::ParameterSet& iConfig)
+    : tTopoToken_(esConsumes()), tkGeomToken_(esConsumes()), theParameterSet(iConfig) {
   // Open root file and define tree
   std::string fileName = theParameterSet.getUntrackedParameter<std::string>("fileName", "testideal.root");
   theFile = new TFile(fileName.c_str(), "RECREATE");
@@ -102,10 +105,7 @@ TestIdealGeometry::~TestIdealGeometry() {
 
 void TestIdealGeometry::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
   edm::LogInfo("TrackerAlignment") << "Starting!";
 
   //
@@ -135,8 +135,7 @@ void TestIdealGeometry::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //
   // Retrieve tracker geometry from event setup
   //
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+  const TrackerGeometry* trackerGeometry = &iSetup.getData(tkGeomToken_);
 
   // Retrieve alignment[Error]s from DBase
   // edm::ESHandle<Alignments> alignments;

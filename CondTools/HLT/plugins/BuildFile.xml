@@ -1,0 +1,10 @@
+<use name="CondCore/DBOutputService"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/HLTObjects"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/ParameterSet"/>
+<library name="CondToolsHLTPlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>

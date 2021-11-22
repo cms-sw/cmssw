@@ -12,7 +12,7 @@
 
 // user include files
 //#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -33,12 +33,12 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 // Class declaration
-class ApeAdder : public edm::EDAnalyzer {
+class ApeAdder : public edm::one::EDAnalyzer<> {
 public:
   explicit ApeAdder(const edm::ParameterSet&);
-  ~ApeAdder(){};
+  ~ApeAdder() override = default;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // methods
@@ -46,11 +46,14 @@ private:
 
 private:
   // members
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   std::string theErrorRecordName;
   std::vector<double> theApe;  // Amount of APE to add (from config.)
 };
 
-ApeAdder::ApeAdder(const edm::ParameterSet& iConfig) : theErrorRecordName("TrackerAlignmentErrorExtendedRcd") {
+ApeAdder::ApeAdder(const edm::ParameterSet& iConfig)
+    : tTopoToken_(esConsumes()), tkGeomToken_(esConsumes()), theErrorRecordName("TrackerAlignmentErrorExtendedRcd") {
   // The APE to set to all GeomDets
   theApe = iConfig.getUntrackedParameter<std::vector<double> >("apeVector");
 }
@@ -60,13 +63,9 @@ void ApeAdder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
   // Get geometry from ES
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+  const TrackerGeometry* trackerGeometry = &iSetup.getData(tkGeomToken_);
 
   // Create the alignable hierarchy
   AlignableTracker* theAlignableTracker = new AlignableTracker(&(*trackerGeometry), tTopo);
