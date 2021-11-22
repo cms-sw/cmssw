@@ -97,22 +97,22 @@ void BeamSpotWrite2DB::endJob() {
   fasciiFile >> tag >> emittanceY;
   fasciiFile >> tag >> betastar;
 
-  BeamSpotObjects* abeam = new BeamSpotObjects();
+  BeamSpotObjects abeam;
 
-  abeam->SetType(type);
-  abeam->SetPosition(x, y, z);
-  abeam->SetSigmaZ(sigmaZ);
-  abeam->Setdxdz(dxdz);
-  abeam->Setdydz(dydz);
-  abeam->SetBeamWidthX(beamWidthX);
-  abeam->SetBeamWidthY(beamWidthY);
-  abeam->SetEmittanceX(emittanceX);
-  abeam->SetEmittanceY(emittanceY);
-  abeam->SetBetaStar(betastar);
+  abeam.SetType(type);
+  abeam.SetPosition(x, y, z);
+  abeam.SetSigmaZ(sigmaZ);
+  abeam.Setdxdz(dxdz);
+  abeam.Setdydz(dydz);
+  abeam.SetBeamWidthX(beamWidthX);
+  abeam.SetBeamWidthY(beamWidthY);
+  abeam.SetEmittanceX(emittanceX);
+  abeam.SetEmittanceY(emittanceY);
+  abeam.SetBetaStar(betastar);
 
   for (int i = 0; i < 7; ++i) {
     for (int j = 0; j < 7; ++j) {
-      abeam->SetCovariance(i, j, cov[i][j]);
+      abeam.SetCovariance(i, j, cov[i][j]);
     }
   }
 
@@ -123,11 +123,10 @@ void BeamSpotWrite2DB::endJob() {
     edm::LogPrint("BeamSpotWrite2DB") << "poolDBService available";
     if (poolDbService->isNewTagRequest("BeamSpotObjectsRcd")) {
       edm::LogPrint("BeamSpotWrite2DB") << "new tag requested";
-      poolDbService->createNewIOV<BeamSpotObjects>(
-          abeam, poolDbService->beginOfTime(), poolDbService->endOfTime(), "BeamSpotObjectsRcd");
+      poolDbService->createOneIOV<BeamSpotObjects>(abeam, poolDbService->beginOfTime(), "BeamSpotObjectsRcd");
     } else {
       edm::LogPrint("BeamSpotWrite2DB") << "no new tag requested";
-      poolDbService->appendSinceTime<BeamSpotObjects>(abeam, poolDbService->currentTime(), "BeamSpotObjectsRcd");
+      poolDbService->appendOneIOV<BeamSpotObjects>(abeam, poolDbService->currentTime(), "BeamSpotObjectsRcd");
     }
   }
   edm::LogPrint("BeamSpotWrite2DB") << "[BeamSpotWrite2DB] endJob done \n";

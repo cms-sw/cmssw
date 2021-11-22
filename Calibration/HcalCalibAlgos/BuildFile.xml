@@ -1,9 +1,6 @@
 <use name="root"/>
 <use name="rootgraphics"/>
 <use name="rootminuit"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/EcalDetId"/>
@@ -11,7 +8,6 @@
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/HcalRecHit"/>
 <use name="Geometry/HcalTowerAlgo"/>
-<use name="Geometry/Records"/>
 <use name="CondTools/Hcal"/>
 <use name="Calibration/Tools"/>
 <use name="DataFormats/EcalRecHit"/>

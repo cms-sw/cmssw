@@ -280,20 +280,16 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
   const int max_late_tbin = CSCConstants::MAX_LCT_TBINS - 1;
 
   // debugging messages when early_tbin or late_tbin has a suspicious value
-  bool debugTimeBins = true;
-  if (debugTimeBins) {
-    if (early_tbin < 0) {
-      edm::LogWarning("CSCMotherboard|SuspiciousParameters")
-          << "Early time bin (early_tbin) smaller than minimum allowed, which is 0. set early_tbin to 0.";
-      early_tbin = 0;
-    }
-    if (late_tbin > max_late_tbin) {
-      edm::LogWarning("CSCMotherboard|SuspiciousParameters")
-          << "Late time bin (late_tbin) larger than maximum allowed, which is " << max_late_tbin
-          << ". set early_tbin to max allowed";
-      late_tbin = CSCConstants::MAX_LCT_TBINS - 1;
-    }
-    debugTimeBins = false;
+  if (early_tbin < 0) {
+    edm::LogWarning("CSCMotherboard|SuspiciousParameters")
+        << "Early time bin (early_tbin) smaller than minimum allowed, which is 0. set early_tbin to 0.";
+    early_tbin = 0;
+  }
+  if (late_tbin > max_late_tbin) {
+    edm::LogWarning("CSCMotherboard|SuspiciousParameters")
+        << "Late time bin (late_tbin) larger than maximum allowed, which is " << max_late_tbin
+        << ". set early_tbin to max allowed";
+    late_tbin = CSCConstants::MAX_LCT_TBINS - 1;
   }
 
   // Start from the vector of all found correlated LCTs and select
@@ -570,34 +566,30 @@ void CSCMotherboard::encodeHighMultiplicityBits() {
   // get the high multiplicity
   // for anode this reflects what is already in the anode CSCShowerDigi object
   unsigned cathodeInTime = clctProc->getInTimeHMT();
-  unsigned cathodeOutTime = clctProc->getOutTimeHMT();
   unsigned anodeInTime = alctProc->getInTimeHMT();
-  unsigned anodeOutTime = alctProc->getOutTimeHMT();
 
   // assign the bits
   unsigned inTimeHMT_;
-  unsigned outTimeHMT_;
 
   // set the value according to source
   switch (showerSource_) {
     case 0:
       inTimeHMT_ = cathodeInTime;
-      outTimeHMT_ = cathodeOutTime;
       break;
     case 1:
       inTimeHMT_ = anodeInTime;
-      outTimeHMT_ = anodeOutTime;
       break;
     case 2:
       inTimeHMT_ = anodeInTime | cathodeInTime;
-      outTimeHMT_ = anodeOutTime | cathodeOutTime;
+      break;
+    case 3:
+      inTimeHMT_ = anodeInTime & cathodeInTime;
       break;
     default:
       inTimeHMT_ = cathodeInTime;
-      outTimeHMT_ = cathodeOutTime;
       break;
   };
 
   // create a new object
-  shower_ = CSCShowerDigi(inTimeHMT_, outTimeHMT_, theTrigChamber);
+  shower_ = CSCShowerDigi(inTimeHMT_, 0, theTrigChamber);
 }

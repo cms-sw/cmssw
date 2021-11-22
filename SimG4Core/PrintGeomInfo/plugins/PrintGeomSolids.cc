@@ -35,30 +35,30 @@ public:
 
 private:
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
-  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4Hep_;
-  bool fromDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4hep_;
+  bool fromDD4hep_;
 };
 
 PrintGeomSolids::PrintGeomSolids(const edm::ParameterSet& ps) {
-  fromDD4Hep_ = ps.getParameter<bool>("fromDD4Hep");
-  if (fromDD4Hep_)
-    cpvTokenDD4Hep_ = esConsumes<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  fromDD4hep_ = ps.getParameter<bool>("fromDD4hep");
+  if (fromDD4hep_)
+    cpvTokenDD4hep_ = esConsumes<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
   else
     cpvTokenDDD_ = esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
 
-  edm::LogVerbatim("PrintGeom") << "PrintGeomSolids created with dd4hep: " << fromDD4Hep_;
+  edm::LogVerbatim("PrintGeom") << "PrintGeomSolids created with dd4hep: " << fromDD4hep_;
 }
 
 void PrintGeomSolids::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("fromDD4Hep", false);
+  desc.add<bool>("fromDD4hep", false);
   descriptions.add("printGeomSolids", desc);
 }
 
 void PrintGeomSolids::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   int solids(0);
-  if (fromDD4Hep_) {
-    edm::ESTransientHandle<cms::DDCompactView> cpv = iSetup.getTransientHandle(cpvTokenDD4Hep_);
+  if (fromDD4hep_) {
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iSetup.getTransientHandle(cpvTokenDD4hep_);
     const cms::DDDetector* det = cpv->detector();
     TGeoManager const& geom = det->description()->manager();
     TGeoIterator next(geom.GetTopVolume());

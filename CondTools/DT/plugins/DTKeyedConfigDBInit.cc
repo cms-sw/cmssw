@@ -50,15 +50,15 @@ void DTKeyedConfigDBInit::analyze(const edm::Event& e, const edm::EventSetup& c)
 
 void DTKeyedConfigDBInit::endJob() {
   edm::Service<cond::service::PoolDBOutputService> outdb;
-  DTKeyedConfig* bk = new DTKeyedConfig();
-  bk->setId(999999999);
-  bk->add("dummy");
-  cond::KeyedElement k(bk, 999999999);
-  outdb->writeOne(k.m_obj, k.m_key, container);
+  DTKeyedConfig bk;
+  bk.setId(999999999);
+  bk.add("dummy");
+  cond::KeyedElement k(&bk, 999999999);
+  outdb->writeOneIOV(*(k.m_obj), k.m_key, container);
 
-  std::vector<cond::Time_t>* kl = new std::vector<cond::Time_t>;
-  kl->push_back(999999999);
-  outdb->writeOne(kl, 1, iov);
+  std::vector<cond::Time_t> kl;
+  kl.push_back(999999999);
+  outdb->writeOneIOV(kl, 1, iov);
 
   return;
 }

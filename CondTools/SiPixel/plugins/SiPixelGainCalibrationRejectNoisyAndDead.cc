@@ -17,27 +17,98 @@
 //
 //
 
+// system include files
 #include <fstream>
+#include <map>
+#include <memory>
+#include <sys/stat.h>
+#include <utility>
+#include <vector>
 
-#include "SiPixelGainCalibrationRejectNoisyAndDead.h"
-
+// user include files
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationServiceBase.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-//
-// constants, enums and typedefs
-//
+// ROOT includes
+#include "TH2F.h"
+#include "TFile.h"
+#include "TDirectory.h"
+#include "TKey.h"
+#include "TString.h"
+#include "TList.h"
 
-//
-// static data member definitions
-//
+class SiPixelGainCalibrationRejectNoisyAndDead : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiPixelGainCalibrationRejectNoisyAndDead(const edm::ParameterSet&);
+  ~SiPixelGainCalibrationRejectNoisyAndDead() override;
 
-//
-// constructors and destructor
-//
+private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pddToken_;
+  SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
+  std::unique_ptr<SiPixelGainCalibrationOffline> theGainCalibrationDbInputOffline_;
+
+  SiPixelGainCalibrationForHLTService SiPixelGainCalibrationForHLTService_;
+  std::unique_ptr<SiPixelGainCalibrationForHLT> theGainCalibrationDbInputForHLT_;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  std::map<int, std::vector<std::pair<int, int> > > noisypixelkeeper;
+  std::map<int, std::vector<std::pair<int, int> > > insertednoisypixel;
+  int nnoisyininput;
+
+  void fillDatabase(const edm::EventSetup&);
+  void getNoisyPixels();
+
+  // ----------member data ---------------------------
+  const std::string noisypixellist_;
+  const int insertnoisypixelsindb_;
+  const std::string record_;
+  const bool DEBUG;
+  float pedlow_;
+  float pedhi_;
+  float gainlow_;
+  float gainhi_;
+};
 
 using namespace edm;
 using namespace std;
+
+SiPixelGainCalibrationRejectNoisyAndDead::SiPixelGainCalibrationRejectNoisyAndDead(const edm::ParameterSet& iConfig)
+    : pddToken_(esConsumes()),
+      SiPixelGainCalibrationOfflineService_(iConfig, consumesCollector()),
+      SiPixelGainCalibrationForHLTService_(iConfig, consumesCollector()),
+      noisypixellist_(iConfig.getUntrackedParameter<std::string>("noisyPixelList", "noisypixel.txt")),
+      insertnoisypixelsindb_(iConfig.getUntrackedParameter<int>("insertNoisyPixelsInDB", 1)),
+      record_(iConfig.getUntrackedParameter<std::string>("record", "SiPixelGainCalibrationOfflineRcd")),
+      DEBUG(iConfig.getUntrackedParameter<bool>("debug", false)) {
+  //now do what ever initialization is needed
+}
+
+SiPixelGainCalibrationRejectNoisyAndDead::~SiPixelGainCalibrationRejectNoisyAndDead() = default;
+
+// ------------ method called to for each event  ------------
+void SiPixelGainCalibrationRejectNoisyAndDead::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if (insertnoisypixelsindb_ != 0)
+    getNoisyPixels();
+  fillDatabase(iSetup);
+}
 
 void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetup& iSetup) {
   if (DEBUG)
@@ -86,9 +157,11 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
       << "New payload will have pedlow,hi " << pedlow_ << "," << pedhi_ << " and gainlow,hi " << gainlow_ << ","
       << gainhi_ << endl;
   if (record_ == "SiPixelGainCalibrationOfflineRcd")
-    theGainCalibrationDbInputOffline_ = new SiPixelGainCalibrationOffline(pedlow_, pedhi_, gainlow_, gainhi_);
+    theGainCalibrationDbInputOffline_ =
+        std::make_unique<SiPixelGainCalibrationOffline>(pedlow_, pedhi_, gainlow_, gainhi_);
   if (record_ == "SiPixelGainCalibrationForHLTRcd")
-    theGainCalibrationDbInputForHLT_ = new SiPixelGainCalibrationForHLT(pedlow_, pedhi_, gainlow_, gainhi_);
+    theGainCalibrationDbInputForHLT_ =
+        std::make_unique<SiPixelGainCalibrationForHLT>(pedlow_, pedhi_, gainlow_, gainhi_);
 
   int nnoisy = 0;
   int ndead = 0;
@@ -361,26 +434,22 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
       edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
           << "now doing SiPixelGainCalibrationOfflineRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest("SiPixelGainCalibrationOfflineRcd")) {
-        mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(theGainCalibrationDbInputOffline_,
-                                                                 mydbservice->beginOfTime(),
-                                                                 mydbservice->endOfTime(),
-                                                                 "SiPixelGainCalibrationOfflineRcd");
+        mydbservice->createOneIOV<SiPixelGainCalibrationOffline>(
+            *theGainCalibrationDbInputOffline_, mydbservice->beginOfTime(), "SiPixelGainCalibrationOfflineRcd");
       } else {
-        mydbservice->appendSinceTime<SiPixelGainCalibrationOffline>(
-            theGainCalibrationDbInputOffline_, mydbservice->currentTime(), "SiPixelGainCalibrationOfflineRcd");
+        mydbservice->appendOneIOV<SiPixelGainCalibrationOffline>(
+            *theGainCalibrationDbInputOffline_, mydbservice->currentTime(), "SiPixelGainCalibrationOfflineRcd");
       }
     }
     if (record_ == "SiPixelGainCalibrationForHLTRcd") {
       edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
           << "now doing SiPixelGainCalibrationForHLTRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest("SiPixelGainCalibrationForHLTRcd")) {
-        mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(theGainCalibrationDbInputForHLT_,
-                                                                mydbservice->beginOfTime(),
-                                                                mydbservice->endOfTime(),
-                                                                "SiPixelGainCalibrationForHLTRcd");
+        mydbservice->createOneIOV<SiPixelGainCalibrationForHLT>(
+            *theGainCalibrationDbInputForHLT_, mydbservice->beginOfTime(), "SiPixelGainCalibrationForHLTRcd");
       } else {
-        mydbservice->appendSinceTime<SiPixelGainCalibrationForHLT>(
-            theGainCalibrationDbInputForHLT_, mydbservice->currentTime(), "SiPixelGainCalibrationForHLTRcd");
+        mydbservice->appendOneIOV<SiPixelGainCalibrationForHLT>(
+            *theGainCalibrationDbInputForHLT_, mydbservice->currentTime(), "SiPixelGainCalibrationForHLTRcd");
       }
     }
   }
@@ -443,29 +512,6 @@ void SiPixelGainCalibrationRejectNoisyAndDead::getNoisyPixels() {
     for(int i=0;i<(it->second).size();i++)
       edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")<<it->first<<"  "<<(it->second.at(i)).first<<"  "<<(it->second.at(i)).second<<std::endl;
   */
-}
-
-void SiPixelGainCalibrationRejectNoisyAndDead::getDeadPixels() {}
-
-SiPixelGainCalibrationRejectNoisyAndDead::SiPixelGainCalibrationRejectNoisyAndDead(const edm::ParameterSet& iConfig)
-    : conf_(iConfig),
-      pddToken_(esConsumes()),
-      SiPixelGainCalibrationOfflineService_(iConfig, consumesCollector()),
-      SiPixelGainCalibrationForHLTService_(iConfig, consumesCollector()),
-      noisypixellist_(iConfig.getUntrackedParameter<std::string>("noisyPixelList", "noisypixel.txt")),
-      insertnoisypixelsindb_(iConfig.getUntrackedParameter<int>("insertNoisyPixelsInDB", 1)),
-      record_(iConfig.getUntrackedParameter<std::string>("record", "SiPixelGainCalibrationOfflineRcd")),
-      DEBUG(iConfig.getUntrackedParameter<bool>("debug", false)) {
-  //now do what ever initialization is needed
-}
-
-SiPixelGainCalibrationRejectNoisyAndDead::~SiPixelGainCalibrationRejectNoisyAndDead() {}
-
-// ------------ method called to for each event  ------------
-void SiPixelGainCalibrationRejectNoisyAndDead::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  if (insertnoisypixelsindb_ != 0)
-    getNoisyPixels();
-  fillDatabase(iSetup);
 }
 
 //define this as a plug-in

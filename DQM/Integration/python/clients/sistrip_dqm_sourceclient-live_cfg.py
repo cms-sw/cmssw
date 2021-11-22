@@ -217,7 +217,10 @@ process.hltHighLevel.throw =  False
 # Scheduling
 #--------------------------
 process.SiStripSources_LocalReco = cms.Sequence(process.siStripFEDMonitor*process.SiStripMonitorDigi*process.SiStripMonitorClusterReal)
-process.DQMCommon                = cms.Sequence(process.stripQTester*process.trackingQTester*process.dqmEnv*process.dqmEnvTr*process.dqmSaver*process.dqmSaverPB)
+if (process.runType.getRunType() == process.runType.commissioning_run):
+    process.DQMCommon                = cms.Sequence(process.dqmEnv*process.dqmEnvTr*process.dqmSaver*process.dqmSaverPB)
+else:
+    process.DQMCommon                = cms.Sequence(process.stripQTester*process.trackingQTester*process.dqmEnv*process.dqmEnvTr*process.dqmSaver*process.dqmSaverPB)
 if (process.runType.getRunType() == process.runType.hi_run):
     process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
 else :
@@ -300,7 +303,8 @@ if (process.runType.getRunType() == process.runType.commissioning_run):
     process.SiStripFedMonitor = cms.Sequence(process.siStripFEDMonitor)
     process.p = cms.Path(
         process.siStripFEDCheck *
-        process.SiStripFedMonitor
+        process.SiStripFedMonitor *
+        process.DQMCommon
     )
 
 #else :

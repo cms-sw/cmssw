@@ -62,10 +62,11 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr = cms.untracked.PSet(enable = cms.untracked.bool(False))
 process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(1)
-    ))
+))
 
 # the module writing to DB
-process.load("CondTools.HLT.AlCaRecoTriggerBitsRcdUpdate_cfi")
+from CondTools.HLT.alCaRecoTriggerBitsRcdUpdate_cfi import alCaRecoTriggerBitsRcdUpdate as _alCaRecoTriggerBitsRcdUpdate
+process.AlCaRecoTriggerBitsRcdUpdate = _alCaRecoTriggerBitsRcdUpdate.clone()
 # The IOV that you want to write out, defaut is 1 to -1/inf. 
 process.AlCaRecoTriggerBitsRcdUpdate.firstRunIOV = options.firstRun # docu see...
 #process.AlCaRecoTriggerBitsRcdUpdate.lastRunIOV = -1 # ...cfi

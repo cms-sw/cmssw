@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -20,14 +19,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace {
 
@@ -103,6 +100,7 @@ private:
   };
 
   // module configuration
+  const edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1tMenuToken;
   const edm::EDGetTokenT<GlobalAlgBlkBxCollection> m_l1t_results;
   const edm::EDGetTokenT<edm::TriggerResults> m_hlt_results;
   const std::string m_dqm_path;
@@ -127,6 +125,7 @@ void TriggerBxMonitor::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 TriggerBxMonitor::TriggerBxMonitor(edm::ParameterSet const& config)
     :  // module configuration
+      m_l1tMenuToken{esConsumes<edm::Transition::BeginRun>()},
       m_l1t_results(consumes<GlobalAlgBlkBxCollection>(config.getUntrackedParameter<edm::InputTag>("l1tResults"))),
       m_hlt_results(consumes<edm::TriggerResults>(config.getUntrackedParameter<edm::InputTag>("hltResults"))),
       m_dqm_path(config.getUntrackedParameter<std::string>("dqmPath")),
@@ -229,7 +228,7 @@ void TriggerBxMonitor::bookHistograms(DQMStore::IBooker& booker,
 
     // book the individual histograms for the L1 triggers that are included in the L1 menu
     booker.setCurrentFolder(m_dqm_path + "/L1T");
-    auto const& l1tMenu = edm::get<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>(setup);
+    auto const& l1tMenu = setup.getData(m_l1tMenuToken);
     for (auto const& keyval : l1tMenu.getAlgorithmMap()) {
       unsigned int bit = keyval.second.getIndex();
       std::string const& name = fmt::sprintf("%s (bit %d)", keyval.first, bit);
@@ -296,7 +295,7 @@ void TriggerBxMonitor::dqmAnalyze(edm::Event const& event,
 
   // monitor the bx distribution for the L1 triggers
   {
-    auto const& bxvector = edm::get(event, m_l1t_results);
+    auto const& bxvector = event.get(m_l1t_results);
     if (not bxvector.isEmpty(0)) {
       auto const& results = bxvector.at(0, 0);
       for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
@@ -312,7 +311,7 @@ void TriggerBxMonitor::dqmAnalyze(edm::Event const& event,
 
   // monitor the bx distribution for the HLT triggers
   if (histograms.hltConfig.inited()) {
-    auto const& hltResults = edm::get(event, m_hlt_results);
+    auto const& hltResults = event.get(m_hlt_results);
     for (unsigned int i = 0; i < hltResults.size(); ++i) {
       if (hltResults.at(i).accept()) {
         if (m_make_1d_plots and histograms.hlt_bx.at(i))

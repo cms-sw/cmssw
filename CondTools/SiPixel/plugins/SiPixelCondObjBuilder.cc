@@ -1,33 +1,101 @@
+// -*- C++ -*-
+//
+// Package:    SiPixelCondObjBuilder
+// Class:      SiPixelCondObjBuilder
+//
+/**\class SiPixelCondObjBuilder SiPixelCondObjBuilder.h SiPixel/test/SiPixelCondObjBuilder.h
+
+ Description: Test analyzer for writing pixel calibration in the DB
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Vincenzo CHIOCHIA
+//         Created:  Tue Oct 17 17:40:56 CEST 2006
+// $Id: SiPixelCondObjBuilder.h,v 1.9 2009/05/28 22:12:54 dlange Exp $
+//
+//
+
+// system includes
 #include <memory>
 #include <iostream>
-#include "CondTools/SiPixel/plugins/SiPixelCondObjBuilder.h"
+#include <string>
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
+// user includes
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CLHEP/Random/RandGauss.h"
 
 namespace cms {
+  class SiPixelCondObjBuilder : public edm::one::EDAnalyzer<> {
+  public:
+    explicit SiPixelCondObjBuilder(const edm::ParameterSet& iConfig);
+
+    ~SiPixelCondObjBuilder() override = default;
+    void beginJob() override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    bool loadFromFile();
+
+  private:
+    const bool appendMode_;
+    const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pddToken_;
+    std::unique_ptr<SiPixelGainCalibration> SiPixelGainCalibration_;
+    SiPixelGainCalibrationService SiPixelGainCalibrationService_;
+    const std::string recordName_;
+
+    const double meanPed_;
+    const double rmsPed_;
+    const double meanGain_;
+    const double rmsGain_;
+    const double secondRocRowGainOffset_;
+    const double secondRocRowPedOffset_;
+    const int numberOfModules_;
+    const bool fromFile_;
+    const std::string fileName_;
+
+    // Internal class
+    class CalParameters {
+    public:
+      float p0;
+      float p1;
+    };
+    // Map for storing calibration constants
+    std::map<int, CalParameters, std::less<int> > calmap_;
+    PixelIndices* pIndexConverter_;  // Pointer to the index converter
+  };
+}  // namespace cms
+
+namespace cms {
   SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig)
-      : conf_(iConfig),
-        appendMode_(conf_.getUntrackedParameter<bool>("appendMode", true)),
+      : appendMode_(iConfig.getUntrackedParameter<bool>("appendMode", true)),
         pddToken_(esConsumes()),
         SiPixelGainCalibration_(nullptr),
         SiPixelGainCalibrationService_(iConfig, consumesCollector()),
         recordName_(iConfig.getParameter<std::string>("record")),
-        meanPed_(conf_.getParameter<double>("meanPed")),
-        rmsPed_(conf_.getParameter<double>("rmsPed")),
-        meanGain_(conf_.getParameter<double>("meanGain")),
-        rmsGain_(conf_.getParameter<double>("rmsGain")),
-        secondRocRowGainOffset_(conf_.getParameter<double>("secondRocRowGainOffset")),
-        secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
-        numberOfModules_(conf_.getParameter<int>("numberOfModules")),
-        fromFile_(conf_.getParameter<bool>("fromFile")),
-        fileName_(conf_.getParameter<std::string>("fileName")) {
+        meanPed_(iConfig.getParameter<double>("meanPed")),
+        rmsPed_(iConfig.getParameter<double>("rmsPed")),
+        meanGain_(iConfig.getParameter<double>("meanGain")),
+        rmsGain_(iConfig.getParameter<double>("rmsGain")),
+        secondRocRowGainOffset_(iConfig.getParameter<double>("secondRocRowGainOffset")),
+        secondRocRowPedOffset_(iConfig.getParameter<double>("secondRocRowPedOffset")),
+        numberOfModules_(iConfig.getParameter<int>("numberOfModules")),
+        fromFile_(iConfig.getParameter<bool>("fromFile")),
+        fileName_(iConfig.getParameter<std::string>("fileName")) {
     ::putenv((char*)"CORAL_AUTH_USER=me");
     ::putenv((char*)"CORAL_AUTH_PASSWORD=test");
   }
@@ -49,7 +117,7 @@ namespace cms {
     float maxgain = 10;
     float minped = 0;
     float maxped = 255;
-    SiPixelGainCalibration_ = new SiPixelGainCalibration(minped, maxped, mingain, maxgain);
+    SiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibration>(minped, maxped, mingain, maxgain);
 
     const TrackerGeometry* pDD = &iSetup.getData(pddToken_);
     edm::LogInfo("SiPixelCondObjBuilder") << " There are " << pDD->dets().size() << " detectors" << std::endl;
@@ -185,11 +253,11 @@ namespace cms {
       //           SiPixelGainCalibration_, tillTime , callbackToken);
 
       if (mydbservice->isNewTagRequest(recordName_)) {
-        mydbservice->createNewIOV<SiPixelGainCalibration>(
-            SiPixelGainCalibration_, mydbservice->beginOfTime(), mydbservice->endOfTime(), recordName_);
+        mydbservice->createOneIOV<SiPixelGainCalibration>(
+            *SiPixelGainCalibration_, mydbservice->beginOfTime(), recordName_);
       } else {
-        mydbservice->appendSinceTime<SiPixelGainCalibration>(
-            SiPixelGainCalibration_, mydbservice->currentTime(), recordName_);
+        mydbservice->appendOneIOV<SiPixelGainCalibration>(
+            *SiPixelGainCalibration_, mydbservice->currentTime(), recordName_);
       }
       edm::LogInfo(" --- all OK");
     } catch (const cond::Exception& er) {

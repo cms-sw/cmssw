@@ -75,23 +75,21 @@ void SiPixelGenErrorDBObjectUploader::beginJob() {}
 
 void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //--- Make the POOL-ORA object to store the database object
-  SiPixelGenErrorDBObject* obj = new SiPixelGenErrorDBObject;
+  SiPixelGenErrorDBObject obj;
 
   // Local variables
-  const char* tempfile;
   int m;
 
   // Set the number of GenErrors to be passed to the dbobject
-  obj->setNumOfTempl(theGenErrorCalibrations.size());
+  obj.setNumOfTempl(theGenErrorCalibrations.size());
 
   // Set the version of the GenError dbobject - this is an external parameter
-  obj->setVersion(theVersion);
+  obj.setVersion(theVersion);
 
   // Open the GenError file(s)
-  for (m = 0; m < obj->numOfTempl(); ++m) {
+  for (m = 0; m < obj.numOfTempl(); ++m) {
     edm::FileInPath file(theGenErrorCalibrations[m].c_str());
-    tempfile = (file.fullPath()).c_str();
-    std::ifstream in_file(tempfile, std::ios::in);
+    std::ifstream in_file(file.fullPath().c_str(), std::ios::in);
     if (in_file.is_open()) {
       edm::LogInfo("GenError Info") << "Opened GenError File: " << file.fullPath().c_str();
 
@@ -117,8 +115,8 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
         temp.c[1] = title_char[j + 1];
         temp.c[2] = title_char[j + 2];
         temp.c[3] = title_char[j + 3];
-        obj->push_back(temp.f);
-        obj->setMaxIndex(obj->maxIndex() + 1);
+        obj.push_back(temp.f);
+        obj.setMaxIndex(obj.maxIndex() + 1);
       }
 
       // Check if the magnetic field is the same as in the header of the input files
@@ -137,15 +135,15 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
       // Fill the dbobject
       in_file >> tempstore;
       while (!in_file.eof()) {
-        obj->setMaxIndex(obj->maxIndex() + 1);
-        obj->push_back(tempstore);
+        obj.setMaxIndex(obj.maxIndex() + 1);
+        obj.push_back(tempstore);
         in_file >> tempstore;
       }
 
       in_file.close();
     } else {
       // If file didn't open, report this
-      edm::LogError("SiPixelGenErrorDBObjectUploader") << "Error opening File" << tempfile;
+      edm::LogError("SiPixelGenErrorDBObjectUploader") << "Error opening File " << file.fullPath().c_str();
     }
   }
 
@@ -210,7 +208,7 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
             thisID = (short)theBarrelGenErrIds[iter];
         }
 
-        if (thisID == 10000 || (!(*obj).putGenErrorID(detid.rawId(), thisID)))
+        if (thisID == 10000 || (!obj.putGenErrorID(detid.rawId(), thisID)))
           edm::LogPrint("SiPixelGenErrorDBObjectUploader")
               << " Could not fill barrel layer " << layer << ", module " << module << "\n";
         edm::LogPrint("SiPixelGenErrorDBObjectUploader")
@@ -254,7 +252,7 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
             thisID = (short)theEndcapGenErrIds[iter];
         }
 
-        if (thisID == 10000 || (!(*obj).putGenErrorID(detid.rawId(), thisID)))
+        if (thisID == 10000 || (!obj.putGenErrorID(detid.rawId(), thisID)))
           edm::LogPrint("SiPixelGenErrorDBObjectUploader")
               << " Could not fill endcap det unit" << side << ", disk " << disk << ", blade " << blade << ", panel "
               << panel << ".\n";
@@ -266,7 +264,7 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
 
       //Print out the assignment of this DetID
       short mapnum;
-      mapnum = (*obj).getGenErrorID(detid.rawId());
+      mapnum = obj.getGenErrorID(detid.rawId());
       edm::LogPrint("SiPixelGenErrorDBObjectUploader")
           << "The DetID: " << detid.rawId() << " is mapped to the template: " << mapnum << "\n";
     }
@@ -277,9 +275,9 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
   if (!poolDbService.isAvailable())  // Die if not available
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
   if (poolDbService->isNewTagRequest("SiPixelGenErrorDBObjectRcd"))
-    poolDbService->writeOne(obj, poolDbService->beginOfTime(), "SiPixelGenErrorDBObjectRcd");
+    poolDbService->writeOneIOV(obj, poolDbService->beginOfTime(), "SiPixelGenErrorDBObjectRcd");
   else
-    poolDbService->writeOne(obj, poolDbService->currentTime(), "SiPixelGenErrorDBObjectRcd");
+    poolDbService->writeOneIOV(obj, poolDbService->currentTime(), "SiPixelGenErrorDBObjectRcd");
 }
 
 void SiPixelGenErrorDBObjectUploader::endJob() {}

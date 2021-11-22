@@ -1,0 +1,26 @@
+#! /bin/bash
+
+VERBOSE=false
+RELEASE=false
+
+for ARG in "$@"; do
+  case "$ARG" in
+    -v|--verbose)
+      VERBOSE=true
+      ;;
+    cmsenv_release)
+      RELEASE=true
+      ;;
+  esac
+done
+
+# additional options oassed to cmsenv_orted
+EXTRA_OPTIONS=""
+
+# if "-v" or "--verbose" are specified, add "-mca cmsenv_verbose true"
+$VERBOSE && EXTRA_OPTIONS="$EXTRA_OPTIONS -mca cmsenv_verbose true"
+
+# if "-mca cmsenv_release" is not specified, add "-mca cmsenv_release $CMSSW_BASE"
+$RELEASE || EXTRA_OPTIONS="$EXTRA_OPTIONS -mca cmsenv_release $CMSSW_BASE"
+
+exec mpirun --launch-agent $CMSSW_BASE/bin/$SCRAM_ARCH/cmsenv_orted $EXTRA_OPTIONS "$@"

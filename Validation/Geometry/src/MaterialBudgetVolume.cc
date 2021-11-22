@@ -79,7 +79,7 @@ MaterialBudgetVolume::MaterialBudgetVolume(const edm::ParameterSet& p) : init_(f
 
   lvNames_ = m_p.getParameter<std::vector<std::string> >("lvNames");
   lvLevel_ = m_p.getParameter<std::vector<int> >("lvLevels");
-  iaddLevel_ = (m_p.getParameter<bool>("useDD4Hep")) ? 1 : 0;
+  iaddLevel_ = (m_p.getParameter<bool>("useDD4hep")) ? 1 : 0;
 
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume: Studies Material budget for " << lvNames_.size()
                                      << " volumes with addLevel " << iaddLevel_;

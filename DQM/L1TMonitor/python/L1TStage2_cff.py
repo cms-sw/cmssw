@@ -18,6 +18,9 @@ from DQM.L1TMonitor.L1TStage2OMTF_cfi import *
 # EMTF
 from DQM.L1TMonitor.L1TStage2EMTF_cfi import *
 
+# Shower
+from DQM.L1TMonitor.L1TStage2Shower_cfi import *
+
 # uGMT
 from DQM.L1TMonitor.L1TStage2uGMT_cff import *
 

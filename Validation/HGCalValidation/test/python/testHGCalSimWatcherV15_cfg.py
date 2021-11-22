@@ -42,7 +42,12 @@ if hasattr(process,'MessageLogger'):
 process.source = cms.Source("EmptySource")
 
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+    wantSummary = cms.untracked.bool(True),
+    numberOfConcurrentRuns = cms.untracked.uint32(1),
+    numberOfStreams = cms.untracked.uint32(0),
+    numberOfThreads = cms.untracked.uint32(1),
+    printDependencies = cms.untracked.bool(False),
+    sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
 )
 
 # Production Info
@@ -77,13 +82,12 @@ process.output = cms.OutputModule("PoolOutputModule",
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     SimG4HGCalValidation = cms.PSet(
         Names = cms.vstring(
-		'HGCalEESensitive',  
-		'HGCalHESensitive',
-                'HGCalHESiliconSensitive',
+		'HGCalEECellSensitive',  
+                'HGCalHESiliconCellSensitive',
 		'HGCalHEScintillatorSensitive',
 		),
-	Types          = cms.vint32(0,0,0,0),
-	DetTypes       = cms.vint32(0,1,1,2),
+	Types          = cms.vint32(0,0,0),
+	DetTypes       = cms.vint32(0,1,2),
 	LabelLayerInfo = cms.string("HGCalInfoLayer"),
 	Verbosity      = cms.untracked.int32(0),
     ),

@@ -3,9 +3,8 @@ from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 
 process = cms.Process("HGCalParametersTest",Phase2C11)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D71XML_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
-#process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D83XML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCalV15XML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 

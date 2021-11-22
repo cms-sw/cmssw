@@ -228,7 +228,6 @@ if ALCAHARVESTSiPixelQuality.debug == cms.untracked.bool(True) :
 
 # --------------------------------------------------------------------------------------
 # PPS calibration
-ALCAHARVESTPPSTimingCalibration = ppsTimingCalibrationPCLHarvester.clone()
 ALCAHARVESTPPSTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd'))
 ALCAHARVESTPPSTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd'),
                                                     tag = cms.string('PPSDiamondTimingCalibration_pcl'),
@@ -240,7 +239,6 @@ ALCAHARVESTPPSDiamondSampicTimingCalibration_dbOutput = cms.PSet(record = cms.st
                                             tag = cms.string('DiamondSampicCalibration'),
                                             timetype = cms.untracked.string('runnumber'))
 
-ALCAHARVESTPPSAlignment = ppsAlignmentHarvester.clone()
 ALCAHARVESTPPSAlignment_metadata = cms.PSet(record = cms.untracked.string('CTPPSRPAlignmentCorrectionsDataRcd'))
 ALCAHARVESTPPSAlignment_dbOutput = cms.PSet(record = cms.string('CTPPSRPAlignmentCorrectionsDataRcd'),
                                             tag = cms.string('CTPPSRPAlignment_real_pcl'),

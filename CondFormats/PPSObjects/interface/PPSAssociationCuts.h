@@ -12,6 +12,7 @@ struct TF1;
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 #include <memory>
@@ -35,6 +36,9 @@ public:
 
     double getTiTrMin() const { return ti_tr_min_; }
     double getTiTrMax() const { return ti_tr_max_; }
+
+    // build TF1 representations of the mean and threshold functions
+    void buildFunctions();
 
     // returns whether the specified cut is applied
     bool isApplied(Quantities quantity) const;
@@ -66,7 +70,13 @@ public:
 
   ~PPSAssociationCuts() {}
 
-  const CutsPerArm &getAssociationCuts(const int sector) const { return association_cuts_.at(sector); }
+  // checks if the data have a valid structure
+  bool isValid() const;
+
+  // builds run-time data members, useful e.g. after loading data from DB
+  void initialize();
+
+  const CutsPerArm &getAssociationCuts(const int sector) const { return association_cuts_.find(sector)->second; }
 
   static edm::ParameterSetDescription getDefaultParameters();
 

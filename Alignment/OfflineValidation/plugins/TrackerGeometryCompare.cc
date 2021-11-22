@@ -54,7 +54,7 @@
 
 TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
     : cpvTokenDDD_(esConsumes()),
-      cpvTokenDD4Hep_(esConsumes()),
+      cpvTokenDD4hep_(esConsumes()),
       topoToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
@@ -261,9 +261,9 @@ void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& i
       if (!poolDbService.isAvailable())  // Die if not available
         throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
-      poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->beginOfTime(), "TrackerAlignmentRcd");
-      poolDbService->writeOne<AlignmentErrorsExtended>(
-          &(*myAlignmentErrorsExtended), poolDbService->beginOfTime(), "TrackerAlignmentErrorExtendedRcd");
+      poolDbService->writeOneIOV<Alignments>(*myAlignments, poolDbService->beginOfTime(), "TrackerAlignmentRcd");
+      poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+          *myAlignmentErrorsExtended, poolDbService->beginOfTime(), "TrackerAlignmentErrorExtendedRcd");
     }
 
     firstEvent_ = false;
@@ -363,7 +363,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
   if (!fromDD4hep_) {
     edm::ESTransientHandle<DDCompactView> cpv = iSetup.getTransientHandle(cpvTokenDDD_);
   } else {
-    edm::ESTransientHandle<cms::DDCompactView> cpv = iSetup.getTransientHandle(cpvTokenDD4Hep_);
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iSetup.getTransientHandle(cpvTokenDD4hep_);
   }
 
   const GeometricDet* theGeometricDet = &iSetup.getData(geomDetToken_);

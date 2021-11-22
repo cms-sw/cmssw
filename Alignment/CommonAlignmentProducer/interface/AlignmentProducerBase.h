@@ -143,7 +143,7 @@ private:
   void createMonitors(edm::ConsumesCollector&);
 
   /// Creates the calibrations
-  void createCalibrations();
+  void createCalibrations(edm::ConsumesCollector&);
 
   /// Checks if one of the EventSetup-Records has changed
   bool setupChanged(const edm::EventSetup&);
@@ -215,7 +215,7 @@ private:
 
   /// Writes SurfaceDeformations (bows & kinks) to DB for given record name
   /// Takes over ownership of AlignmentSurfaceDeformations.
-  void writeDB(AlignmentSurfaceDeformations*, const std::string&, cond::Time_t) const;
+  void writeDB(const AlignmentSurfaceDeformations&, const std::string&, cond::Time_t) const;
 
   //========================== PRIVATE DATA ====================================
   //============================================================================

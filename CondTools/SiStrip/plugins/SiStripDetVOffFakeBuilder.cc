@@ -2,17 +2,37 @@
 #include <memory>
 
 // user include files
-
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "CondTools/SiStrip/plugins/SiStripDetVOffFakeBuilder.h"
+class SiStripDetVOffFakeBuilder : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripDetVOffFakeBuilder(const edm::ParameterSet& iConfig);
+
+  ~SiStripDetVOffFakeBuilder() override;
+
+  virtual void initialize(const edm::EventSetup&);
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  bool printdebug_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  std::vector<uint32_t> detids;
+};
 
 using namespace std;
 using namespace cms;
@@ -20,7 +40,7 @@ using namespace cms;
 SiStripDetVOffFakeBuilder::SiStripDetVOffFakeBuilder(const edm::ParameterSet& iConfig)
     : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)), tkGeomToken_(esConsumes()) {}
 
-SiStripDetVOffFakeBuilder::~SiStripDetVOffFakeBuilder() {}
+SiStripDetVOffFakeBuilder::~SiStripDetVOffFakeBuilder() = default;
 
 void SiStripDetVOffFakeBuilder::initialize(const edm::EventSetup& iSetup) {
   const auto& tkGeom = iSetup.getData(tkGeomToken_);
@@ -51,7 +71,7 @@ void SiStripDetVOffFakeBuilder::analyze(const edm::Event& evt, const edm::EventS
   edm::LogInfo("SiStripDetVOffFakeBuilder")
       << "... creating dummy SiStripDetVOff Data for Run " << run << "\n " << std::endl;
 
-  SiStripDetVOff* SiStripDetVOff_ = new SiStripDetVOff();
+  SiStripDetVOff SiStripDetVOff_;
 
   // std::vector<uint32_t> TheDetIdHVVector;
 
@@ -61,19 +81,19 @@ void SiStripDetVOffFakeBuilder::analyze(const edm::Event& evt, const edm::EventS
     int lv = rand() % 20;
     if (hv <= 2) {
       edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " << *it << " HV\t OFF" << std::endl;
-      SiStripDetVOff_->put(*it, 1, -1);
+      SiStripDetVOff_.put(*it, 1, -1);
       // TheDetIdHVVector.push_back(*it);
     }
     if (lv <= 2) {
       edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " << *it << " LV\t OFF" << std::endl;
-      SiStripDetVOff_->put(*it, -1, 1);
+      SiStripDetVOff_.put(*it, -1, 1);
       // TheDetIdHVVector.push_back(*it);
     }
     if (lv <= 2 || hv <= 2)
       edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " << *it << " V\t OFF" << std::endl;
   }
 
-  // SiStripDetVOff_->put(TheDetIdHVVector);
+  // SiStripDetVOff_.put(TheDetIdHVVector);
 
   //End now write DetVOff data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
@@ -81,10 +101,9 @@ void SiStripDetVOffFakeBuilder::analyze(const edm::Event& evt, const edm::EventS
   if (mydbservice.isAvailable()) {
     try {
       if (mydbservice->isNewTagRequest("SiStripDetVOffRcd")) {
-        mydbservice->createNewIOV<SiStripDetVOff>(
-            SiStripDetVOff_, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripDetVOffRcd");
+        mydbservice->createOneIOV<SiStripDetVOff>(SiStripDetVOff_, mydbservice->beginOfTime(), "SiStripDetVOffRcd");
       } else {
-        mydbservice->appendSinceTime<SiStripDetVOff>(SiStripDetVOff_, mydbservice->currentTime(), "SiStripDetVOffRcd");
+        mydbservice->appendOneIOV<SiStripDetVOff>(SiStripDetVOff_, mydbservice->currentTime(), "SiStripDetVOffRcd");
       }
     } catch (const cond::Exception& er) {
       edm::LogError("SiStripDetVOffFakeBuilder") << er.what() << std::endl;
@@ -95,3 +114,8 @@ void SiStripDetVOffFakeBuilder::analyze(const edm::Event& evt, const edm::EventS
     edm::LogError("SiStripDetVOffFakeBuilder") << "Service is unavailable" << std::endl;
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripDetVOffFakeBuilder);

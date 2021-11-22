@@ -22,7 +22,15 @@ namespace edm {
 namespace hgcal {
   class RecHitTools {
   public:
-    RecHitTools() : geom_(nullptr), fhOffset_(0), bhOffset_(0), fhLastLayer_(0), noseLastLayer_(0), geometryType_(0) {}
+    RecHitTools()
+        : geom_(nullptr),
+          eeOffset_(0),
+          fhOffset_(0),
+          bhFirstLayer_(0),
+          bhOffset_(0),
+          fhLastLayer_(0),
+          noseLastLayer_(0),
+          geometryType_(0) {}
     ~RecHitTools() {}
 
     void setGeometry(CaloGeometry const&);
@@ -66,9 +74,10 @@ namespace hgcal {
     inline const CaloGeometry* getGeometry() const { return geom_; };
     unsigned int lastLayerEE(bool nose = false) const { return (nose ? HFNoseDetId::HFNoseLayerEEmax : fhOffset_); }
     unsigned int lastLayerFH() const { return fhLastLayer_; }
-    unsigned int firstLayerBH() const { return bhOffset_ + 1; }
+    unsigned int firstLayerBH() const { return bhFirstLayer_; }
     unsigned int lastLayerBH() const { return bhLastLayer_; }
     unsigned int lastLayer(bool nose = false) const { return (nose ? noseLastLayer_ : bhLastLayer_); }
+    std::pair<uint32_t, uint32_t> firstAndLastLayer(DetId::Detector det, int subdet) const;
     unsigned int maxNumberOfWafersPerLayer(bool nose = false) const {
       return (nose ? maxNumberOfWafersNose_ : maxNumberOfWafersPerLayer_);
     }
@@ -78,7 +87,7 @@ namespace hgcal {
 
   private:
     const CaloGeometry* geom_;
-    unsigned int fhOffset_, bhOffset_, bhLastLayer_, fhLastLayer_, noseLastLayer_;
+    unsigned int eeOffset_, fhOffset_, bhFirstLayer_, bhLastLayer_, bhOffset_, fhLastLayer_, noseLastLayer_;
     unsigned int maxNumberOfWafersPerLayer_, maxNumberOfWafersNose_;
     int geometryType_;
     int bhMaxIphi_;

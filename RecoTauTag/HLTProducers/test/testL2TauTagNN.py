@@ -140,8 +140,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 
 
 # Schedule definition
-process.schedule = cms.Schedule()
-process.schedule.extend(process.HLTSchedule)
+# process.schedule imported from cff in HLTrigger.Configuration
 process.schedule.extend([process.endjob_step])
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)

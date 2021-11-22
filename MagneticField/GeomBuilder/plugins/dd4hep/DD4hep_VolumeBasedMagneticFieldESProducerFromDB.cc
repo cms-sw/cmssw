@@ -81,7 +81,7 @@ DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticField
     const edm::ParameterSet& iConfig)
     : debug_(iConfig.getUntrackedParameter<bool>("debugBuilder")) {
   std::string const myConfigLabel = "VBMFESChoice";
-  usesResources({edm::ESSharedResourceNames::kDD4Hep});
+  usesResources({edm::ESSharedResourceNames::kDD4hep});
 
   //Based on configuration, pick algorithm to produce the proper MagFieldConfig with a specific label
   const int current = iConfig.getParameter<int>("valueOverride");

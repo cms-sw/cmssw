@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,7 +46,8 @@ private:
   std::string outputRootFile_;
   std::string outputTxtFile_;
 
-  edm::InputTag ESdigiCollection_;
+  const edm::InputTag ESdigiCollection_;
+  const edm::EDGetTokenT<ESDigiCollection> ecalDigiESToken_;
 
   TH3F *meESDigi3D_;
   TH1F *meESDigiADC_[3];

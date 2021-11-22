@@ -29,7 +29,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -39,6 +38,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -54,7 +54,7 @@
 class SiStripBackplaneCalibration : public IntegratedCalibrationBase {
 public:
   /// Constructor
-  explicit SiStripBackplaneCalibration(const edm::ParameterSet &cfg);
+  explicit SiStripBackplaneCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC);
 
   /// Destructor
   ~SiStripBackplaneCalibration() override;
@@ -114,7 +114,7 @@ private:
   /// and the given run.
   double getParameterForDetId(unsigned int detId, edm::RunNumber_t run) const;
 
-  void writeTree(const SiStripBackPlaneCorrection *backPlaneCorr,
+  void writeTree(const SiStripBackPlaneCorrection &backPlaneCorr,
                  const std::map<unsigned int, TreeStruct> &treeInfo,
                  const char *treeName) const;
   SiStripBackPlaneCorrection *createFromTree(const char *fileName, const char *treeName) const;
@@ -135,13 +135,17 @@ private:
 
   TkModuleGroupSelector *moduleGroupSelector_;
   const edm::ParameterSet moduleGroupSelCfg_;
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+  const edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> lorentzAngleToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<SiStripBackPlaneCorrection, SiStripBackPlaneCorrectionRcd> backPlaneCorrToken_;
 };
 
 //======================================================================
 //======================================================================
 //======================================================================
 
-SiStripBackplaneCalibration::SiStripBackplaneCalibration(const edm::ParameterSet &cfg)
+SiStripBackplaneCalibration::SiStripBackplaneCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
     : IntegratedCalibrationBase(cfg),
       readoutModeName_(cfg.getParameter<std::string>("readoutMode")),
       saveToDB_(cfg.getParameter<bool>("saveToDB")),
@@ -150,7 +154,11 @@ SiStripBackplaneCalibration::SiStripBackplaneCalibration(const edm::ParameterSet
       mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
       siStripBackPlaneCorrInput_(nullptr),
       moduleGroupSelector_(nullptr),
-      moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("BackplaneModuleGroups")) {
+      moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("BackplaneModuleGroups")),
+      latencyToken_(iC.esConsumes()),
+      lorentzAngleToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", readoutModeName_))),
+      magFieldToken_(iC.esConsumes()),
+      backPlaneCorrToken_(iC.esConsumes(edm::ESInputTag("", readoutModeName_))) {
   // SiStripLatency::singleReadOutMode() returns
   // 1: all in peak, 0: all in deco, -1: mixed state
   // (in principle one could treat even mixed state APV by APV...)
@@ -187,8 +195,7 @@ unsigned int SiStripBackplaneCalibration::derivatives(std::vector<ValuesIndexPai
 
   outDerivInds.clear();
 
-  edm::ESHandle<SiStripLatency> latency;
-  setup.get<SiStripLatencyRcd>().get(latency);
+  const SiStripLatency *latency = &setup.getData(latencyToken_);
   const int16_t mode = latency->singleReadOutMode();
 
   if (mode == readoutMode_) {
@@ -197,16 +204,14 @@ unsigned int SiStripBackplaneCalibration::derivatives(std::vector<ValuesIndexPai
       const int index =
           moduleGroupSelector_->getParameterIndexFromDetId(hit.det()->geographicalId(), eventInfo.eventId().run());
       if (index >= 0) {  // otherwise not treated
-        edm::ESHandle<MagneticField> magneticField;
-        setup.get<IdealMagneticFieldRecord>().get(magneticField);
+        const MagneticField *magneticField = &setup.getData(magFieldToken_);
         const GlobalVector bField(magneticField->inTesla(hit.det()->surface().position()));
         const LocalVector bFieldLocal(hit.det()->surface().toLocal(bField));
         //std::cout << "SiStripBackplaneCalibration derivatives " << readoutModeName_ << std::endl;
         const double dZ = hit.det()->surface().bounds().thickness();          // it's a float only...
         const double tanPsi = tsos.localParameters().mixedFormatVector()[1];  //float...
 
-        edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
-        setup.get<SiStripLorentzAngleRcd>().get(readoutModeName_, lorentzAngleHandle);
+        const SiStripLorentzAngle *lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
         // Yes, mobility (= LA/By) stored in object called LA...
         const double mobility = lorentzAngleHandle->getLorentzAngle(hit.det()->geographicalId());
         // shift due to dead back plane has two parts:
@@ -315,7 +320,7 @@ void SiStripBackplaneCalibration::endOfJob() {
   // now write 'input' tree
   const SiStripBackPlaneCorrection *input = this->getBackPlaneCorrectionInput();  // never NULL
   const std::string treeName(this->name() + '_' + readoutModeName_ + '_');
-  this->writeTree(input, treeInfo, (treeName + "input").c_str());  // empty treeInfo for input...
+  this->writeTree(*input, treeInfo, (treeName + "input").c_str());  // empty treeInfo for input...
 
   if (input->getBackPlaneCorrections().empty()) {
     edm::LogError("Alignment") << "@SUB=SiStripBackplaneCalibration::endOfJob"
@@ -330,7 +335,7 @@ void SiStripBackplaneCalibration::endOfJob() {
 
   for (unsigned int iIOV = 0; iIOV < moduleGroupSelector_->numIovs(); ++iIOV) {
     cond::Time_t firstRunOfIOV = moduleGroupSelector_->firstRunOfIOV(iIOV);
-    SiStripBackPlaneCorrection *output = new SiStripBackPlaneCorrection;
+    SiStripBackPlaneCorrection output{};
     // Loop on map of values from input and add (possible) parameter results
     for (auto iterIdValue = input->getBackPlaneCorrections().begin();
          iterIdValue != input->getBackPlaneCorrections().end();
@@ -365,7 +370,7 @@ void SiStripBackplaneCalibration::endOfJob() {
       // }
       const double param = this->getParameterForDetId(detId, firstRunOfIOV);
       // put result in output, i.e. sum of input and determined parameter:
-      output->putBackPlaneCorrection(detId, iterIdValue->second + param);
+      output.putBackPlaneCorrection(detId, iterIdValue->second + param);
       const int paramIndex = moduleGroupSelector_->getParameterIndexFromDetId(detId, firstRunOfIOV);
       treeInfo[detId] = TreeStruct(param, this->getParameterError(paramIndex), paramIndex);
     }
@@ -377,15 +382,12 @@ void SiStripBackplaneCalibration::endOfJob() {
     if (saveToDB_) {  // If requested, write out to DB
       edm::Service<cond::service::PoolDBOutputService> dbService;
       if (dbService.isAvailable()) {
-        dbService->writeOne(output, firstRunOfIOV, recordNameDBwrite_);
+        dbService->writeOneIOV(output, firstRunOfIOV, recordNameDBwrite_);
         // no 'delete output;': writeOne(..) took over ownership
       } else {
-        delete output;
         edm::LogError("BadConfig") << "@SUB=SiStripBackplaneCalibration::endOfJob"
                                    << "No PoolDBOutputService available, but saveToDB true!";
       }
-    } else {
-      delete output;
     }
   }  // end loop on IOVs
 }
@@ -393,16 +395,17 @@ void SiStripBackplaneCalibration::endOfJob() {
 //======================================================================
 bool SiStripBackplaneCalibration::checkBackPlaneCorrectionInput(const edm::EventSetup &setup,
                                                                 const EventInfo &eventInfo) {
-  edm::ESHandle<SiStripBackPlaneCorrection> backPlaneCorrHandle;
+  const SiStripBackPlaneCorrection *backPlaneCorrHandle = nullptr;
   if (!siStripBackPlaneCorrInput_) {
-    setup.get<SiStripBackPlaneCorrectionRcd>().get(readoutModeName_, backPlaneCorrHandle);
+    backPlaneCorrHandle = &setup.getData(backPlaneCorrToken_);
     siStripBackPlaneCorrInput_ = new SiStripBackPlaneCorrection(*backPlaneCorrHandle);
     // FIXME: Should we call 'watchBackPlaneCorrRcd_.check(setup)' as well?
     //        Otherwise could be that next check has to check via following 'else', though
     //        no new IOV has started... (to be checked)
   } else {
     if (watchBackPlaneCorrRcd_.check(setup)) {  // new IOV of input - but how to check peak vs deco?
-      setup.get<SiStripBackPlaneCorrectionRcd>().get(readoutModeName_, backPlaneCorrHandle);
+      backPlaneCorrHandle = &setup.getData(backPlaneCorrToken_);
+
       if (backPlaneCorrHandle->getBackPlaneCorrections()               // but only bad if non-identical values
           != siStripBackPlaneCorrInput_->getBackPlaneCorrections()) {  // (comparing maps)
         // Maps are containers sorted by key, but comparison problems may arise from
@@ -464,12 +467,9 @@ double SiStripBackplaneCalibration::getParameterForDetId(unsigned int detId, edm
 }
 
 //======================================================================
-void SiStripBackplaneCalibration::writeTree(const SiStripBackPlaneCorrection *backPlaneCorrection,
+void SiStripBackplaneCalibration::writeTree(const SiStripBackPlaneCorrection &backPlaneCorrection,
                                             const std::map<unsigned int, TreeStruct> &treeInfo,
                                             const char *treeName) const {
-  if (!backPlaneCorrection)
-    return;
-
   TFile *file = TFile::Open(outFileName_.c_str(), "UPDATE");
   if (!file) {
     edm::LogError("BadConfig") << "@SUB=SiStripBackplaneCalibration::writeTree"
@@ -485,8 +485,8 @@ void SiStripBackplaneCalibration::writeTree(const SiStripBackPlaneCorrection *ba
   tree->Branch("value", &value, "value/F");
   tree->Branch("treeStruct", &treeStruct, TreeStruct::LeafList());
 
-  for (auto iterIdValue = backPlaneCorrection->getBackPlaneCorrections().begin();
-       iterIdValue != backPlaneCorrection->getBackPlaneCorrections().end();
+  for (auto iterIdValue = backPlaneCorrection.getBackPlaneCorrections().begin();
+       iterIdValue != backPlaneCorrection.getBackPlaneCorrections().end();
        ++iterIdValue) {
     // type of (*iterIdValue) is pair<unsigned int, float>
     id = iterIdValue->first;  // key of map is DetId

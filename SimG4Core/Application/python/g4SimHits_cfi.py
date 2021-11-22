@@ -646,7 +646,7 @@ h2tb.toModify(g4SimHits.CaloSD,
               TmaxHits  = cms.vdouble(1000.0,1000.0,1000.0,1000.0,2000.0) )
 
 ##
-## DD4Hep migration
+## DD4hep migration
 ##
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )

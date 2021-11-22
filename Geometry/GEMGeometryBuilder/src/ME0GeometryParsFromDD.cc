@@ -1,5 +1,5 @@
 /* Implementation of the  ME0GeometryParsFromDD Class
- *  Build the ME0Geometry from the DDD and DD4Hep description
+ *  Build the ME0Geometry from the DDD and DD4hep description
  *  
  *  DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
  *  Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
@@ -181,7 +181,7 @@ std::vector<double> ME0GeometryParsFromDD::getRotation(DDFilteredView& fv) {
   return {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
 }
 
-// DD4HEP
+// DD4hep
 
 void ME0GeometryParsFromDD::build(const cms::DDCompactView* cview,
                                   const MuonGeometryConstants& muonConstants,
@@ -196,7 +196,7 @@ void ME0GeometryParsFromDD::build(const cms::DDCompactView* cview,
 void ME0GeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
                                           const MuonGeometryConstants& muonConstants,
                                           RecoIdealGeometry& rgeo) {
-  edm::LogVerbatim("ME0GeometryParsFromDD") << "(0) ME0GeometryParsFromDD - DD4HEP ";
+  edm::LogVerbatim("ME0GeometryParsFromDD") << "(0) ME0GeometryParsFromDD - DD4hep ";
 
   MuonGeometryNumbering mdddnum(muonConstants);
   ME0NumberingScheme me0Num(muonConstants);
@@ -228,7 +228,7 @@ void ME0GeometryParsFromDD::buildChamber(cms::DDFilteredView& fv, ME0DetId detId
   std::vector<double> vrot = getRotation(fv);
 
   edm::LogVerbatim("ME0GeometryParsFromDD")
-      << "(4) DD4HEP, Chamber DetID " << detId.chamberId().rawId() << " Name " << std::string(name);
+      << "(4) DD4hep, Chamber DetID " << detId.chamberId().rawId() << " Name " << std::string(name);
 
   rgeo.insert(detId.chamberId().rawId(), vtra, vrot, pars, {std::string(name)});
 }
@@ -240,7 +240,7 @@ void ME0GeometryParsFromDD::buildLayer(cms::DDFilteredView& fv, ME0DetId detId, 
   std::vector<double> vrot = getRotation(fv);
 
   edm::LogVerbatim("ME0GeometryParsFromDD")
-      << "(5) DD4HEP, Layer DetID " << detId.layerId().rawId() << " Name " << std::string(name);
+      << "(5) DD4hep, Layer DetID " << detId.layerId().rawId() << " Name " << std::string(name);
   rgeo.insert(detId.layerId().rawId(), vtra, vrot, pars, {std::string(name)});
 }
 
@@ -254,7 +254,7 @@ void ME0GeometryParsFromDD::buildEtaPartition(cms::DDFilteredView& fv, ME0DetId 
   std::vector<double> vtra = getTranslation(fv);
   std::vector<double> vrot = getRotation(fv);
 
-  edm::LogVerbatim("ME0GeometryParsFromDD") << "(6) DD4HEP, Eta Partion DetID " << detId.rawId() << " Name "
+  edm::LogVerbatim("ME0GeometryParsFromDD") << "(6) DD4hep, Eta Partion DetID " << detId.rawId() << " Name "
                                             << std::string(name) << " nStrips " << nStrips << " nPads " << nPads;
 
   rgeo.insert(detId.rawId(), vtra, vrot, pars, {std::string(name)});
@@ -264,7 +264,7 @@ std::vector<double> ME0GeometryParsFromDD::getDimension(cms::DDFilteredView& fv)
   std::vector<double> dpar = fv.parameters();
 
   edm::LogVerbatim("ME0GeometryParsFromDD")
-      << "(1) DD4HEP, dimension dx1 " << dpar[0] / dd4hep::mm << ", dx2 " << dpar[1] / dd4hep::mm << ", dy "
+      << "(1) DD4hep, dimension dx1 " << dpar[0] / dd4hep::mm << ", dx2 " << dpar[1] / dd4hep::mm << ", dy "
       << dpar[3] / dd4hep::mm << ", dz " << dpar[2] / dd4hep::mm;
 
   return {dpar[0] / dd4hep::mm, dpar[1] / dd4hep::mm, dpar[3] / dd4hep::mm, dpar[2] / dd4hep::mm};
@@ -277,7 +277,7 @@ std::vector<double> ME0GeometryParsFromDD::getTranslation(cms::DDFilteredView& f
   tran[2] = static_cast<double>(fv.translation().Z()) / dd4hep::mm;
 
   edm::LogVerbatim("ME0GeometryParsFromDD")
-      << "(2) DD4HEP, tran vector " << tran[0] << "  " << tran[1] << "  " << tran[2];
+      << "(2) DD4hep, tran vector " << tran[0] << "  " << tran[1] << "  " << tran[2];
   return {tran[0], tran[1], tran[2]};
 }
 
@@ -288,7 +288,7 @@ std::vector<double> ME0GeometryParsFromDD::getRotation(cms::DDFilteredView& fv) 
   rota.GetComponents(x, y, z);
   const std::vector<double> rot = {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
   edm::LogVerbatim("ME0GeometryParsFromDD")
-      << "(3) DD4HEP, rot matrix " << rot[0] << "  " << rot[1] << "  " << rot[2] << " " << rot[3] << "  " << rot[4]
+      << "(3) DD4hep, rot matrix " << rot[0] << "  " << rot[1] << "  " << rot[2] << " " << rot[3] << "  " << rot[4]
       << "  " << rot[5] << " " << rot[6] << "  " << rot[7] << "  " << rot[8];
   return {rot[0], rot[1], rot[2], rot[3], rot[4], rot[5], rot[6], rot[7], rot[8]};
 }

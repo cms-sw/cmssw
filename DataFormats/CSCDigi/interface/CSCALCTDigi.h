@@ -115,11 +115,12 @@ public:
   void setRun3(const bool isRun3);
 
   // wire hits in this ALCT
-  const WireContainer& getHits() const { return hits_; }
+  const WireContainer& getHits() const { return hits_.empty() ? emptyContainer() : hits_; }
 
   void setHits(const WireContainer& hits) { hits_ = hits; }
 
 private:
+  static const WireContainer& emptyContainer();
   uint16_t valid_;
   uint16_t quality_;
   uint16_t accel_;

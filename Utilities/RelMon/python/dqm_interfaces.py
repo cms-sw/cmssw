@@ -677,7 +677,7 @@ class DirWalkerFile(object):
                     directory.subdirs.append(subdir)
                     if depth==1:
                         print("Appended.")
-            else:
+            elif name != '':
                 # We have probably an histo. Let's make the plot and the png.        
                 if obj_type[:2]!="TH" and obj_type[:3]!="TPr" :
                     continue

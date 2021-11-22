@@ -1,3 +1,14 @@
+/** \class SurveyDBReader
+ *
+ * Module that reads survey info from DB and prints them out.
+ * 
+ * Only one parameter to set the name of the output ROOT file.
+ *
+ *  $Date: 2007/06/19 14:56:18 $
+ *  $Revision: 1.3 $
+ *  \author Chung Khim Lae
+ */
+
 #include "TFile.h"
 #include "TTree.h"
 #include "Math/EulerAngles.h"
@@ -10,22 +21,39 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-#include "Alignment/SurveyAnalysis/test/SurveyDBReader.h"
+typedef AlignTransform SurveyValue;
+typedef Alignments SurveyValues;
+
+class SurveyDBReader : public edm::one::EDAnalyzer<> {
+public:
+  /// Set file name
+  SurveyDBReader(const edm::ParameterSet&);
+
+  /// Read from DB and print survey info.
+  virtual void beginJob() { theFirstEvent = true; }
+
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+private:
+  const edm::ESGetToken<SurveyValues, TrackerSurveyRcd> tkSurveyToken_;
+  const edm::ESGetToken<SurveyErrors, TrackerSurveyErrorExtendedRcd> tkSurveyErrToken_;
+  const std::string theFileName;
+
+  bool theFirstEvent;
+};
 
 SurveyDBReader::SurveyDBReader(const edm::ParameterSet& cfg)
-    : theFileName(cfg.getParameter<std::string>("fileName")), theFirstEvent(true) {}
+    : tkSurveyToken_(esConsumes()),
+      tkSurveyErrToken_(esConsumes()),
+      theFileName(cfg.getParameter<std::string>("fileName")),
+      theFirstEvent(true) {}
 
 void SurveyDBReader::analyze(const edm::Event&, const edm::EventSetup& setup) {
-  typedef AlignTransform SurveyValue;
-  typedef Alignments SurveyValues;
-
   if (theFirstEvent) {
-    edm::ESHandle<SurveyValues> valuesHandle;
-    edm::ESHandle<SurveyErrors> errorsHandle;
-
-    setup.get<TrackerSurveyRcd>().get(valuesHandle);
-    setup.get<TrackerSurveyErrorExtendedRcd>().get(errorsHandle);
+    const SurveyValues* valuesHandle = &setup.getData(tkSurveyToken_);
+    const SurveyErrors* errorsHandle = &setup.getData(tkSurveyErrToken_);
 
     const std::vector<SurveyValue>& values = valuesHandle->m_align;
     const std::vector<SurveyError>& errors = errorsHandle->m_surveyErrors;
@@ -81,3 +109,6 @@ void SurveyDBReader::analyze(const edm::Event&, const edm::EventSetup& setup) {
     theFirstEvent = false;
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SurveyDBReader);

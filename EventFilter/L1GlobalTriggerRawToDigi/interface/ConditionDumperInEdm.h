@@ -33,12 +33,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/ConditionsInEdm.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 
 //
 // class declaration
@@ -62,13 +64,6 @@ private:
   void endRunProduce(edm::Run&, const edm::EventSetup&) final;
   void produce(edm::Event&, const edm::EventSetup&) final;
 
-  template <typename R, typename T>
-  const T* get(const edm::EventSetup& setup) {
-    edm::ESHandle<T> handle;
-    setup.get<R>().get(handle);
-    return handle.product();
-  }
-
   // ----------member data ---------------------------
 
   const edm::InputTag gtEvmDigisLabel_;
@@ -76,6 +71,7 @@ private:
   edm::ConditionsInEventBlock eventBlock_;
 
   const edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmDigisLabelToken_;
+  const edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
   const edm::EDPutTokenT<edm::ConditionsInLumiBlock> lumiToken_;
   const edm::EDPutTokenT<edm::ConditionsInRunBlock> runToken_;
   const edm::EDPutTokenT<edm::ConditionsInEventBlock> eventToken_;

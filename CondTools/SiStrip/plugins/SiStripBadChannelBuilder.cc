@@ -1,8 +1,36 @@
-#include "CondTools/SiStrip/plugins/SiStripBadChannelBuilder.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-
+// system include files
+#include <vector>
+#include <memory>
 #include <iostream>
 #include <fstream>
+
+// user include files
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+
+class SiStripBadChannelBuilder : public ConditionDBWriter<SiStripBadStrip> {
+public:
+  explicit SiStripBadChannelBuilder(const edm::ParameterSet&);
+  ~SiStripBadChannelBuilder() override;
+
+private:
+  std::unique_ptr<SiStripBadStrip> getNewObject() override;
+
+  edm::FileInPath fp_;
+  bool printdebug_;
+
+  typedef std::vector<edm::ParameterSet> Parameters;
+  Parameters BadComponentList_;
+};
 
 SiStripBadChannelBuilder::SiStripBadChannelBuilder(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig) {
@@ -11,7 +39,7 @@ SiStripBadChannelBuilder::SiStripBadChannelBuilder(const edm::ParameterSet& iCon
   BadComponentList_ = iConfig.getUntrackedParameter<Parameters>("BadComponentList");
 }
 
-SiStripBadChannelBuilder::~SiStripBadChannelBuilder() {}
+SiStripBadChannelBuilder::~SiStripBadChannelBuilder() = default;
 
 std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
   edm::LogInfo("SiStripBadChannelBuilder") << "... creating dummy SiStripBadStrip Data" << std::endl;
@@ -89,3 +117,8 @@ std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
 
   return obj;
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripBadChannelBuilder);

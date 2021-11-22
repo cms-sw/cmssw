@@ -17,21 +17,23 @@
 
  This class manages the cache of reusable objects and therefore an instance of this
  class must live as long as you want the cache to live.
- 
- The primary way of using the class it to call makeOrGetAndClear
- An example use would be
+
+ The primary way of using the class is to call makeOrGet:
  \code
- auto objectToUse = holder.makeOrGetAndClear(
-                             []() { return new MyObject(10); }, //makes new one
-                             [](MyObject* old) {old->reset(); } //resets old one
-                    );
+ auto objectToUse = holder.makeOrGet([]() { return new MyObject(); });
+ use(*objectToUse);
  \endcode
- 
- If you always want to set the values you can use makeOrGet
+
+ If the returned object should be be automatically set or reset, call makeOrGetAndClear:
  \code
- auto objectToUse = holder.makeOrGet(
-                         []() { return new MyObject(); });
- objectToUse->setValue(3);
+ auto objectToUse = holder.makeOrGetAndClear([]() { return new MyObject(10); },   // makes new objects
+                                             [](MyObject* old) { old->reset(); }  // resets any object before returning it
+ );
+ \endcode
+ which is equivalent to
+ \code
+ auto objectToUse = holder.makeOrGet([]() { return new MyObject(10); });
+ objectToUse->reset();
  \endcode
  
  NOTE: If you hold onto the std::shared_ptr<> until another call to the ReusableObjectHolder,
@@ -69,11 +71,11 @@
 //         Created:  Fri, 31 July 2014 14:29:41 GMT
 //
 
-#include <memory>
-#include <cassert>
 #include <atomic>
-#include "tbb/task.h"
-#include "tbb/concurrent_queue.h"
+#include <cassert>
+#include <memory>
+
+#include <tbb/concurrent_queue.h>
 
 namespace edm {
   template <class T, class Deleter = std::default_delete<T>>
@@ -108,43 +110,44 @@ namespace edm {
     /// Use this function in conjunction with add()
     std::shared_ptr<T> tryToGet() {
       std::unique_ptr<T, Deleter> item;
-      m_availableQueue.try_pop(item);
-      if (nullptr == item) {
+      if (m_availableQueue.try_pop(item)) {
+        return wrapCustomDeleter(std::move(item));
+      } else {
         return std::shared_ptr<T>{};
       }
-      //instead of deleting, hand back to queue
-      auto pHolder = this;
-      auto deleter = item.get_deleter();
-      ++m_outstandingObjects;
-      return std::shared_ptr<T>{item.release(), [pHolder, deleter](T* iItem) {
-                                  pHolder->addBack(std::unique_ptr<T, Deleter>{iItem, deleter});
-                                }};
     }
 
-    ///If there isn't an object already available, creates a new one using iFunc
-    template <typename F>
-    std::shared_ptr<T> makeOrGet(F iFunc) {
-      std::shared_ptr<T> returnValue;
-      while (!(returnValue = tryToGet())) {
-        add(makeUnique(iFunc()));
+    ///Takes an object from the queue if one is available, or creates one using iMakeFunc.
+    template <typename FM>
+    std::shared_ptr<T> makeOrGet(FM&& iMakeFunc) {
+      std::unique_ptr<T, Deleter> item;
+      if (m_availableQueue.try_pop(item)) {
+        return wrapCustomDeleter(std::move(item));
+      } else {
+        return wrapCustomDeleter(makeUnique(iMakeFunc()));
       }
-      return returnValue;
     }
 
-    ///If there is an object already available, passes the object to iClearFunc and then
-    /// returns the object.
-    ///If there is not an object already available, creates a new one using iMakeFunc
+    ///Takes an object from the queue if one is available, or creates one using iMakeFunc.
+    ///Then, passes the object to iClearFunc, and returns it.
     template <typename FM, typename FC>
-    std::shared_ptr<T> makeOrGetAndClear(FM iMakeFunc, FC iClearFunc) {
-      std::shared_ptr<T> returnValue;
-      while (!(returnValue = tryToGet())) {
-        add(makeUnique(iMakeFunc()));
-      }
+    std::shared_ptr<T> makeOrGetAndClear(FM&& iMakeFunc, FC&& iClearFunc) {
+      std::shared_ptr<T> returnValue = makeOrGet(std::forward<FM>(iMakeFunc));
       iClearFunc(returnValue.get());
       return returnValue;
     }
 
   private:
+    ///Wraps an object in a shared_ptr<T> with a custom deleter, that hands the wrapped object
+    // back to the queue instead of deleting it
+    std::shared_ptr<T> wrapCustomDeleter(std::unique_ptr<T, Deleter> item) {
+      auto deleter = item.get_deleter();
+      ++m_outstandingObjects;
+      return std::shared_ptr<T>{item.release(), [this, deleter](T* iItem) {
+                                  this->addBack(std::unique_ptr<T, Deleter>{iItem, deleter});
+                                }};
+    }
+
     std::unique_ptr<T> makeUnique(T* ptr) {
       static_assert(std::is_same_v<Deleter, std::default_delete<T>>,
                     "Generating functions returning raw pointers are supported only with std::default_delete<T>");

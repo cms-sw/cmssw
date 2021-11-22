@@ -149,6 +149,8 @@ namespace edm {
 
       const ProducerBase* producer() { return m_streamModules[0]; }
 
+      void deleteModulesEarly();
+
     private:
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocLumis(unsigned int) {}

@@ -9,11 +9,9 @@
 
 // user include files
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -26,7 +24,8 @@ public:
         l1TauSrc_(cfg.getParameter<edm::InputTag>("L1TauSrc")),
         l1TauSrcToken_(consumes<trigger::TriggerFilterObjectWithRefs>(l1TauSrc_)),
         l2OutcomesToken_(consumes<std::vector<float>>(cfg.getParameter<edm::InputTag>("L2Outcomes"))),
-        discrWP_(cfg.getParameter<double>("DiscrWP")) {}
+        discrWP_(cfg.getParameter<double>("DiscrWP")),
+        l1PtTh_(cfg.getParameter<double>("l1TauPtThreshold")) {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     makeHLTFilterDescription(desc);
@@ -35,6 +34,7 @@ public:
         ->setComment("Which trigger should the L1 Taus collection pass");
     desc.add<edm::InputTag>("L2Outcomes", edm::InputTag(""))->setComment("L2 CNN outcomes");
     desc.add<double>("DiscrWP", 0.1227)->setComment("value of discriminator threshold");
+    desc.add<double>("l1TauPtThreshold", 250)->setComment("value of L1Tau pass-through pt threshold");
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -55,7 +55,7 @@ public:
       throw cms::Exception("Inconsistent Data", "L2TauTagFilter::hltFilter") << "CNN output size != L1 taus size \n";
     }
     for (size_t l1_idx = 0; l1_idx < l1Taus.size(); l1_idx++) {
-      if (L2Outcomes[l1_idx] >= discrWP_) {
+      if (L2Outcomes[l1_idx] >= discrWP_ || l1Taus[l1_idx]->pt() > l1PtTh_) {
         filterproduct.addObject(nTauPassed, l1Taus[l1_idx]);
         nTauPassed++;
       }
@@ -70,6 +70,7 @@ private:
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> l1TauSrcToken_;
   const edm::EDGetTokenT<std::vector<float>> l2OutcomesToken_;
   const double discrWP_;
+  const double l1PtTh_;
 };
 
 //define this as a plug-in

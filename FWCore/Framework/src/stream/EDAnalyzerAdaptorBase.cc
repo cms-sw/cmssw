@@ -54,6 +54,13 @@ EDAnalyzerAdaptorBase::~EDAnalyzerAdaptorBase() {
   }
 }
 
+void EDAnalyzerAdaptorBase::deleteModulesEarly() {
+  for (auto m : m_streamModules) {
+    delete m;
+  }
+  m_streamModules.clear();
+}
+
 //
 // assignment operators
 //

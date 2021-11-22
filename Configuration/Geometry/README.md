@@ -91,6 +91,7 @@ Fast Timing system:
 * I12: Starting from I11, new ETL layout from MTD TDR
 * I13: Starting from I11, new ETL layout from post MTD TDR (2 sectors per disc face)
 * I14: Same as I13, updated sensor structure, disc z location and passive materials
+* I15: Same as I14, addition of notch and revision of envelope
 
 The script also handles the common and forward elements of the geometry:
 * O4: detailed cavern description, changes for modified CALO region for endcap part, no overlaps inside the Muon System 
@@ -98,6 +99,7 @@ The script also handles the common and forward elements of the geometry:
 * O6: same as O5 with changes needed for new defintion of boundaries
 * O7: same as O6 with changes needed for new defintion of calorimeter boundaries
 * O8: same as O7 with changes needed for a newer definition of calorimeter boundaries
+* O9: same as O8 with changes needed to support the additional notch in ETL
 
 * F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
 * F3: same as F2 but changes due to HFNose

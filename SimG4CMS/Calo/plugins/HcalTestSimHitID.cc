@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -29,10 +29,10 @@
 #include <vector>
 #include <string>
 
-class HcalTestSimHitID : public edm::EDAnalyzer {
+class HcalTestSimHitID : public edm::one::EDAnalyzer<> {
 public:
   HcalTestSimHitID(const edm::ParameterSet& ps);
-
+  ~HcalTestSimHitID() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:

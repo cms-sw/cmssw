@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDHGCalMixLayer.cc
-// Description: Geometry factory class for HGCal (Mix) adopted for DD4HEP
+// Description: Geometry factory class for HGCal (Mix) adopted for DD4hep
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cmath>
@@ -75,10 +75,10 @@ struct HGCalMixLayer {
     rMaxFront_ = args.value<std::vector<double>>("RMaxFront");
 #ifdef EDM_ML_DEBUG
     for (unsigned int i = 0; i < slopeB_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << cms::convert2mm(zFrontB_[i]) << " Rmin "
+      edm::LogVerbatim("HGCalGeom") << "Bottom Block [" << i << "] Zmin " << cms::convert2mm(zFrontB_[i]) << " Rmin "
                                     << cms::convert2mm(rMinFront_[i]) << " Slope " << slopeB_[i];
     for (unsigned int i = 0; i < slopeT_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << cms::convert2mm(zFrontT_[i]) << " Rmax "
+      edm::LogVerbatim("HGCalGeom") << "Top Block [" << i << "] Zmin " << cms::convert2mm(zFrontT_[i]) << " Rmax "
                                     << cms::convert2mm(rMaxFront_[i]) << " Slope " << slopeT_[i];
 #endif
 

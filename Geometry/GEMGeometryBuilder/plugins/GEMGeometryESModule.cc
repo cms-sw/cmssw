@@ -1,10 +1,10 @@
 /*
 //\class GEMGeometryESModule
 
- Description: GEM Geometry ES Module from DD & DD4HEP
+ Description: GEM Geometry ES Module from DD & DD4hep
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
 //
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4hep migration)
 //          Created:  27 Jan 2020 
 */
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilder.h"
@@ -65,7 +65,7 @@ private:
 
 GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
     : fromDDD_{p.getParameter<bool>("fromDDD")},
-      fromDD4hep_{p.getParameter<bool>("fromDD4Hep")},
+      fromDD4hep_{p.getParameter<bool>("fromDD4hep")},
       applyAlignment_(p.getParameter<bool>("applyAlignment")),
       alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")) {
   auto cc = setWhatProduced(this);
@@ -89,7 +89,7 @@ GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
 void GEMGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("fromDDD", true);
-  desc.add<bool>("fromDD4Hep", false);
+  desc.add<bool>("fromDD4hep", false);
   desc.add<bool>("applyAlignment", false);
   desc.add<std::string>("alignmentsLabel", "");
   descriptions.add("gemGeometry", desc);
