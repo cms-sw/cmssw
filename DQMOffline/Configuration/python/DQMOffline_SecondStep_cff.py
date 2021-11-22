@@ -16,6 +16,7 @@ from DQM.HcalTasks.OfflineHarvestingSequence_pp import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQM.SiTrackerPhase2.Phase2TrackerDQMHarvesting_cff import *
+from DQM.SiPixelPhase1Heterogeneous.SiPixelPhase1HeterogenousDQMHarvesting_cff import *
 
 DQMNone = cms.Sequence()
 
@@ -185,7 +186,8 @@ DQMHarvestTrackingZeroBias = cms.Sequence( TrackingOfflineDQMClientZeroBias *
                                            dqmFastTimerServiceClient )
 
 DQMHarvestPixelTracking = cms.Sequence( pixelTrackingEffFromHitPattern *
-                                        pixelVertexResolutionClient )
+                                        pixelVertexResolutionClient *
+                                        siPixelPhase1HeterogenousDQMHarvesting )
 
 DQMHarvestOuterTracker = cms.Sequence(
                                  OuterTrackerClient *
