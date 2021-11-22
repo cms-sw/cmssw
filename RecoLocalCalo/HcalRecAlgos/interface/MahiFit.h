@@ -115,13 +115,14 @@ public:
 
   void phase1Apply(const HBHEChannelInfo& channelData,
                    float& reconstructedEnergy,
+                   float& soiPlusOneEnergy,
                    float& reconstructedTime,
                    bool& useTriple,
                    float& chi2) const;
 
   void phase1Debug(const HBHEChannelInfo& channelData, MahiDebugInfo& mdi) const;
 
-  void doFit(std::array<float, 3>& correctedOutput, const int nbx) const;
+  void doFit(std::array<float, 4>& correctedOutput, const int nbx) const;
 
   void setPulseShapeTemplate(int pulseShapeId,
                              const HcalPulseShapes& ps,
