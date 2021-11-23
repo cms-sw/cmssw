@@ -30,7 +30,6 @@ bool SuepDecay::doVetoProcessLevel(Pythia8::Event& event) {
   // Find the mediator in the event
   for (int i = 0; i < event.size(); ++i) {
     //mediator w/ distinct daughters = last copy (decayed)
-    std::cout << "Looking for the mediator " << i << " " << event[i].id() << std::endl;
     if (event[i].id() == idMediator_ && event[i].daughter1() != event[i].daughter2() && event[i].daughter1() > 0 &&
         event[i].daughter2() > 0) {
       pMediator = event[i].p();
