@@ -1,36 +1,43 @@
+#include <map>
 #include <memory>
-#include <cmath>
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-
-#include "DataFormats/Common/interface/Ptr.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/MuonReco/interface/MuonRecHitCluster.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include <string>
+#include <utility>
+#include <vector>
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
+#include "DataFormats/Common/interface/RangeMap.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefVectorIterator.h"
+#include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/Math/interface/PtEtaPhiMass.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-
-#include "fastjet/JetDefinition.hh"
-#include "fastjet/ClusterSequence.hh"
-#include "fastjet/PseudoJet.hh"
-
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonReco/interface/MuonRecHitCluster.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/maker/WorkerMaker.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Math/interface/PtEtaPhiMass.h"
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
-#include "DataFormats/MuonReco/interface/MuonRecHitCluster.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "fastjet/ClusterSequence.hh"
+#include "fastjet/JetDefinition.hh"
+#include "fastjet/PseudoJet.hh"
 
 typedef std::vector<reco::MuonRecHitCluster> RecHitClusterCollection;
 
@@ -47,8 +54,8 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  const edm::ESGetToken<typename Trait::GeometryType, MuonGeometryRecord> GeometryToken_;
-  edm::EDGetTokenT<typename Trait::InputType> InputToken_;
+  const edm::ESGetToken<typename Trait::GeometryType, MuonGeometryRecord> geometryToken_;
+  edm::EDGetTokenT<typename Trait::InputType> inputToken_;
   typedef std::vector<reco::MuonRecHitCluster> RecHitClusterCollection;
 
   const double rParam_;      // distance paramter
@@ -58,8 +65,8 @@ private:
 
 template <typename Trait>
 RechitClusterProducerT<Trait>::RechitClusterProducerT(const edm::ParameterSet& iConfig)
-    : GeometryToken_(esConsumes<typename Trait::GeometryType, MuonGeometryRecord>()),
-      InputToken_(consumes<typename Trait::InputType>(iConfig.getParameter<edm::InputTag>("recHitLabel"))),
+    : geometryToken_(esConsumes<typename Trait::GeometryType, MuonGeometryRecord>()),
+      inputToken_(consumes<typename Trait::InputType>(iConfig.getParameter<edm::InputTag>("recHitLabel"))),
       rParam_(iConfig.getParameter<double>("rParam")),
       nRechitMin_(iConfig.getParameter<int>("nRechitMin")),
       nStationThres_(iConfig.getParameter<int>("nStationThres")) {
@@ -73,31 +80,28 @@ RechitClusterProducerT<Trait>::RechitClusterProducerT(const edm::ParameterSet& i
 // ------------ method called to produce the data  ------------
 template <typename Trait>
 void RechitClusterProducerT<Trait>::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& iSetup) const {
-  auto const& geo = iSetup.getData(GeometryToken_);
-  auto const& rechits = ev.get(InputToken_);
+  auto const& geo = iSetup.getData(geometryToken_);
+  auto const& rechits = ev.get(inputToken_);
 
   std::vector<fastjet::PseudoJet> fjInput;
-  RecHitRefVector inputs_;
+  RecHitRefVector inputs;
 
   fastjet::JetDefinition jet_def(fastjet::cambridge_algorithm, rParam_);
 
-  inputs_.clear();
-  fjInput.clear();
-
-  Trait RecHitTrait;
+  Trait recHitTrait;
 
   int recIt = 0;
   for (auto const& rechit : rechits) {
-    LocalPoint RecHitLocalPosition = rechit.localPosition();
-    auto detid = RecHitTrait.detid(rechit);
+    LocalPoint recHitLocalPosition = rechit.localPosition();
+    auto detid = recHitTrait.detid(rechit);
     auto thischamber = geo.chamber(detid);
     if (thischamber) {
-      GlobalPoint globalPosition = thischamber->toGlobal(RecHitLocalPosition);
+      GlobalPoint globalPosition = thischamber->toGlobal(recHitLocalPosition);
       float x = globalPosition.x();
       float y = globalPosition.y();
       float z = globalPosition.z();
       RechitRef ref = RechitRef(&rechits, recIt);
-      inputs_.push_back(ref);
+      inputs.push_back(ref);
       fjInput.push_back(fastjet::PseudoJet(x, y, z, globalPosition.mag()));
       fjInput.back().set_user_index(recIt);
     }
@@ -107,56 +111,51 @@ void RechitClusterProducerT<Trait>::produce(edm::StreamID, edm::Event& ev, const
 
   //keep all the clusters
   double ptmin = 0.0;
-  std::vector<fastjet::PseudoJet> fjJets = fastjet::sorted_by_pt(clus_seq.inclusive_jets(ptmin));
+  std::vector<fastjet::PseudoJet> fjJets = clus_seq.inclusive_jets(ptmin);
 
   auto clusters = std::make_unique<RecHitClusterCollection>();
-  if (!fjJets.empty()) {
-    for (unsigned int ijet = 0; ijet < fjJets.size(); ++ijet) {
-      // get the fastjet jet
-      const fastjet::PseudoJet& fjJet = fjJets[ijet];
-
-      // skip if the cluster has too few rechits
-      if (int(fjJet.constituents().size()) < nRechitMin_)
-        continue;
-      // get the constituents from fastjet
-      RecHitRefVector rechits;
-      for (unsigned int i = 0; i < fjJet.constituents().size(); i++) {
-        auto index = fjJet.constituents()[i].user_index();
-        if (index >= 0 && static_cast<unsigned int>(index) < inputs_.size()) {
-          rechits.push_back(inputs_[index]);
-        }
+  for (auto const& fjJet : fjJets) {
+    // skip if the cluster has too few rechits
+    if (int(fjJet.constituents().size()) < nRechitMin_)
+      continue;
+    // get the constituents from fastjet
+    RecHitRefVector rechits;
+    for (auto const& constituent : fjJet.constituents()) {
+      auto index = constituent.user_index();
+      if (index >= 0 && static_cast<unsigned int>(index) < inputs.size()) {
+        rechits.push_back(inputs[index]);
       }
-
-      //Derive cluster properties
-      int nStation = 0;
-      int totStation = 0;
-      float avgStation = 0.0;
-      std::map<int, int> station_count_map;
-      for (auto& rechit : rechits) {
-        station_count_map[RecHitTrait.station(*rechit)]++;
-      }
-      //station statistics
-      std::map<int, int>::iterator it;
-      for (auto const& [station, count] : station_count_map) {
-        if (count >= nStationThres_) {
-          nStation++;
-          avgStation += (station) * (count);
-          totStation += (count);
-        }
-      }
-      if (totStation != 0) {
-        avgStation = avgStation / totStation;
-      }
-      float invN = 1.f / rechits.size();
-      // cluster position is the average position of the constituent rechits
-      float jetX = fjJet.px() * invN;
-      float jetY = fjJet.py() * invN;
-      float jetZ = fjJet.pz() * invN;
-
-      math::RhoEtaPhiVectorF position(
-          std::sqrt(jetX * jetX + jetY * jetY), etaFromXYZ(jetX, jetY, jetZ), std::atan2(jetY, jetX));
-      Trait::emplace_back(clusters.get(), position, nStation, avgStation, rechits);
     }
+
+    //Derive cluster properties
+    int nStation = 0;
+    int totStation = 0;
+    float avgStation = 0.0;
+    std::map<int, int> station_count_map;
+    for (auto const& rechit : rechits) {
+      station_count_map[recHitTrait.station(*rechit)]++;
+    }
+    //station statistics
+    std::map<int, int>::iterator it;
+    for (auto const& [station, count] : station_count_map) {
+      if (count >= nStationThres_) {
+        nStation++;
+        avgStation += station * count;
+        totStation += count;
+      }
+    }
+    if (totStation != 0) {
+      avgStation = avgStation / totStation;
+    }
+    float invN = 1.f / rechits.size();
+    // cluster position is the average position of the constituent rechits
+    float jetX = fjJet.px() * invN;
+    float jetY = fjJet.py() * invN;
+    float jetZ = fjJet.pz() * invN;
+
+    math::RhoEtaPhiVectorF position(
+        std::sqrt(jetX * jetX + jetY * jetY), etaFromXYZ(jetX, jetY, jetZ), std::atan2(jetY, jetX));
+    Trait::emplace_back(clusters.get(), position, nStation, avgStation, rechits);
   }
   ev.put(std::move(clusters));
 }
@@ -177,7 +176,7 @@ struct DTRecHitTrait {
   using RecHitRef = edm::Ref<DTRecHitCollection>;
   using RecHitRefVector = edm::RefVector<DTRecHitCollection>;
   static std::string recHitLabel() { return "dt1DRecHits"; }
-  static std::string producerName() { return "DTrechitClusterProducer"; }
+  static std::string producerName() { return "dtRechitClusterProducer"; }
 
   static int station(const DTRecHit1DPair& dtRechit) { return detid(dtRechit).station(); }
   static DTChamberId detid(const DTRecHit1DPair& dtRechit) {
@@ -193,7 +192,7 @@ struct DTRecHitTrait {
     // compute nMB1, nMB2
     int nMB1 = 0;
     int nMB2 = 0;
-    for (auto& rechit : rechits) {
+    for (auto const& rechit : rechits) {
       DetId geoid = rechit->geographicalId();
       DTChamberId dtdetid = DTChamberId(geoid);
       if (dtdetid.station() == 1)
@@ -213,7 +212,7 @@ struct CSCRecHitTrait {
   using RecHitRef = edm::Ref<CSCRecHit2DCollection>;
   using RecHitRefVector = edm::RefVector<CSCRecHit2DCollection>;
   static std::string recHitLabel() { return "csc2DRecHits"; }
-  static std::string producerName() { return "CSCrechitClusterProducer"; }
+  static std::string producerName() { return "cscRechitClusterProducer"; }
 
   static int station(const CSCRecHit2D& cscRechit) { return CSCDetId::station(detid(cscRechit)); }
   static CSCDetId detid(const CSCRecHit2D& cscRechit) { return cscRechit.cscDetId(); }
@@ -229,7 +228,7 @@ struct CSCRecHitTrait {
     float timeSpread = 0.0;
     float time = 0.0;
     float time_strip = 0.0;  // for timeSpread calculation
-    for (auto& rechit : rechits) {
+    for (auto const& rechit : rechits) {
       CSCDetId cscdetid = rechit->cscDetId();
       int stationRing = (CSCDetId::station(cscdetid) * 10 + CSCDetId::ring(cscdetid));
       if (CSCDetId::ring(cscdetid) == 4)
