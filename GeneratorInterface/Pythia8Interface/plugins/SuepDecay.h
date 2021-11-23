@@ -25,4 +25,5 @@ protected:
   std::unique_ptr<Suep_shower> suep_shower_;
 };
 
+REGISTER_USERHOOK(SuepDecay);
 #endif
