@@ -25,9 +25,7 @@ void StubTripletsMemory::writeST(bool first, unsigned int iSector) {
     string stub1index = stubs1_[j]->stubindex().str();
     string stub2index = stubs2_[j]->stubindex().str();
     string stub3index = stubs3_[j]->stubindex().str();
-    out_ << std::setfill('0') << std::setw(2);
-    out_ << hex << j << dec;
-    out_ << " " << stub1index << "|" << stub2index << "|" << stub3index << endl;
+    out_ << hexstr(j) << " " << stub1index << "|" << stub2index << "|" << stub3index << endl;
   }
   out_.close();
 

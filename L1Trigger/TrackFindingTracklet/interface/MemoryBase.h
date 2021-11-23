@@ -32,12 +32,15 @@ namespace trklet {
     // extended is the seeding for displaced tracks
     void initSpecialSeeding(unsigned int pos, bool& overlap, bool& extra, bool& extended);
 
-    //Used for a hack below due to MAC OS case sensitiviy problem for files
+    //Used for a hack below due to MAC OS case insensitiviy problem for files
     void findAndReplaceAll(std::string& data, std::string toSearch, std::string replaceStr);
 
     void openFile(bool first, std::string dirName, std::string filebase);
 
     static size_t find_nth(const std::string& haystack, size_t pos, const std::string& needle, size_t nth);
+
+    //Format index position in hex
+    static std::string hexstr(unsigned int index);
 
   protected:
     std::string name_;

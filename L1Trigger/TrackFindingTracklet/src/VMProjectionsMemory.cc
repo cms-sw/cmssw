@@ -41,10 +41,7 @@ void VMProjectionsMemory::writeVMPROJ(bool first, unsigned int iSector) {
   for (unsigned int j = 0; j < tracklets_.size(); j++) {
     string vmproj = (layer_ > 0) ? tracklets_[j].first->vmstrlayer(layer_, tracklets_[j].second)
                                  : tracklets_[j].first->vmstrdisk(disk_, tracklets_[j].second);
-    out_ << "0x";
-    out_ << std::setfill('0') << std::setw(2);
-    out_ << hex << j << dec;
-    out_ << " " << vmproj << " " << trklet::hexFormat(vmproj) << endl;
+    out_ << hexstr(j) << " " << vmproj << " " << trklet::hexFormat(vmproj) << endl;
   }
   out_.close();
 

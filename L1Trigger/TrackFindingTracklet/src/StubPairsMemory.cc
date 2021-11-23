@@ -23,10 +23,8 @@ void StubPairsMemory::writeSP(bool first, unsigned int iSector) {
   for (unsigned int j = 0; j < stubs_.size(); j++) {
     string stub1index = stubs_[j].first.stub()->stubindex().str();
     string stub2index = stubs_[j].second.stub()->stubindex().str();
-    out_ << "0x";
-    out_ << std::setfill('0') << std::setw(2);
-    out_ << hex << j << dec;
-    out_ << " " << stub1index << "|" << stub2index << " " << trklet::hexFormat(stub1index + stub2index) << endl;
+    out_ << hexstr(j) << " " << stub1index << "|" << stub2index << " " << trklet::hexFormat(stub1index + stub2index)
+         << endl;
   }
   out_.close();
 

@@ -48,10 +48,7 @@ void CandidateMatchMemory::writeCM(bool first, unsigned int iSector) {
       projindex = (1 << 7) - 1;
     }
     tmp.set(projindex, 7, true, __LINE__, __FILE__);
-    out_ << "0x";
-    out_ << std::setfill('0') << std::setw(2);
-    out_ << hex << j << dec;
-    out_ << " " << tmp.str() << "|" << stubid << " " << trklet::hexFormat(tmp.str() + stubid) << endl;
+    out_ << hexstr(j) << " " << tmp.str() << "|" << stubid << " " << trklet::hexFormat(tmp.str() + stubid) << endl;
   }
   out_.close();
 
