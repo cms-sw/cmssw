@@ -17,7 +17,7 @@ namespace gpuPixelRecHits {
 
   __global__ void getHits(pixelCPEforGPU::ParamsOnGPU const* __restrict__ cpeParams,
                           BeamSpotPOD const* __restrict__ bs,
-                          SiPixelDigisCUDASOAView const* __restrict__ pdigis,
+                          SiPixelDigisCUDASOAView const digis,
                           int numElements,
                           SiPixelClustersCUDA::SiPixelClustersCUDASOAView const* __restrict__ pclusters,
                           TrackingRecHit2DSOAView* phits) {
@@ -31,7 +31,6 @@ namespace gpuPixelRecHits {
 
     auto& hits = *phits;
 
-    auto const digis = *pdigis;  // the copy is intentional!
     auto const& clusters = *pclusters;
 
     // copy average geometry corrected by beamspot . FIXME (move it somewhere else???)
