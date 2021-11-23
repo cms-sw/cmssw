@@ -89,6 +89,11 @@ process.PoolDBOutputService.toPut.append(process.ALCAHARVESTBeamSpotHPByRun_dbOu
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTBeamSpotHPByLumi_dbOutput)
 
 ##
+## change the output sqlite file in order to avoid concurrent writing from other unit tests
+##
+process.PoolDBOutputService.connect = cms.string('sqlite_file:testPCLAlCaHarvesting.db')
+
+##
 ## Define the file metadatas
 ##
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripQuality_metadata)
