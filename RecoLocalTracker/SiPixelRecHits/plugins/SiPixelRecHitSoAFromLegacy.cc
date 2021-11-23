@@ -221,7 +221,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
     digiView.rawIdArr_ = nullptr;
     assert(digiView.adc(0) != 0);
     // we run on blockId.x==0
-    gpuPixelRecHits::getHits(&cpeView, &bsHost, &digiView, ndigi, &clusterView, output->view());
+    gpuPixelRecHits::getHits(&cpeView, &bsHost, digiView, ndigi, &clusterView, output->view());
     for (auto h = fc; h < lc; ++h)
       if (h - fc < maxHitsInModule)
         assert(gind == output->view()->detectorIndex(h));
