@@ -4073,9 +4073,9 @@ void makeNewPairOfAxes(TH2F *h)
   } else {
     // this is a L1 map
     axmin = 0.5;
-    axmax = nModZ_+0.5;
+    axmax = nModZ_ + 0.5;
     aymin = 0.5;
-    aymax = nLadders_+0.5;
+    aymax = nLadders_ + 0.5;
   }
 
   // Remove the current axis
