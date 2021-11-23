@@ -111,9 +111,9 @@ class TrackProbabilityXMLtoDB : public edm::EDAnalyzer {
           }
 
 
-         mydbservice->createOneIOV<TrackProbabilityCalibration>(calibration,"BTagTrackProbability3DRcd");    
+         mydbservice->createOneIOV(calibration,"BTagTrackProbability3DRcd");    
 
-         mydbservice->createOneIOV<TrackProbabilityCalibration>(calibration2d,"BTagTrackProbability2DRcd");   
+         mydbservice->createOneIOV(calibration2d,"BTagTrackProbability2DRcd");   
                
 
     }    
