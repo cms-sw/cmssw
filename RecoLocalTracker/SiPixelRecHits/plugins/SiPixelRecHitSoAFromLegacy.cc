@@ -211,13 +211,14 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
     assert(clus.size() == ndigi);
     numberOfHits += nclus;
     // filled creates view
-    SiPixelDigisCUDASOAView digiView{.xx_ = xx.data(),
-                                     .yy_ = yy.data(),
-                                     .adc_ = adc.data(),
-                                     .moduleInd_ = moduleInd.data(),
-                                     .clus_ = clus.data(),
-                                     .pdigi_ = nullptr,
-                                     .rawIdArr_ = nullptr};
+    SiPixelDigisCUDASOAView digiView;
+    digiView.xx_ = xx.data();
+    digiView.yy_ = yy.data();
+    digiView.adc_ = adc.data();
+    digiView.moduleInd_ = moduleInd.data();
+    digiView.clus_ = clus.data();
+    digiView.pdigi_ = nullptr;
+    digiView.rawIdArr_ = nullptr;
     assert(digiView.adc(0) != 0);
     // we run on blockId.x==0
     gpuPixelRecHits::getHits(&cpeView, &bsHost, &digiView, ndigi, &clusterView, output->view());
