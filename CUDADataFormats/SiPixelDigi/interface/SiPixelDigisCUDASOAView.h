@@ -7,9 +7,13 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 
+#include <cstdint>
+
 class SiPixelDigisCUDASOAView {
 public:
-  enum class StorageLocation { CLUS = 0, PDIGI = 2, RAWIDARR = 4, ADC = 6, XX = 7, YY = 8, MODULEIND = 9, MAX = 10 };
+  friend class SiPixelDigisCUDA;
+  friend class SiPixelRecHitSoAFromLegacy;
+  enum class StorageLocation { kCLUS = 0, kPDIGI = 2, kRAWIDARR = 4, kADC = 6, kXX = 7, kYY = 8, kMODULEIND = 9, kMAX = 10 };
   /*
   ============================================================================================================================
   |          CLUS         |          PDIGI         |         RAWIDARR        |    ADC    |    XX     |     YY    | MODULEIND |
@@ -19,7 +23,7 @@ public:
   */
   // These are for CPU output
   // we don't copy local x and y coordinates and module index
-  enum class StorageLocationHost { CLUS = 0, PDIGI = 2, RAWIDARR = 4, ADC = 6, MAX = 7 };
+  enum class StorageLocationHost { kCLUS = 0, kPDIGI = 2, kRAWIDARR = 4, kADC = 6, kMAX = 7 };
   /*
   ========================================================================================
   |          CLUS         |          PDIGI         |         RAWIDARR        |    ADC    |
@@ -36,13 +40,22 @@ public:
   __device__ __forceinline__ uint32_t pdigi(int i) const { return __ldg(pdigi_ + i); }
   __device__ __forceinline__ uint32_t rawIdArr(int i) const { return __ldg(rawIdArr_ + i); }
 
-  uint16_t *xx_;  // local coordinates of each pixel
-  uint16_t *yy_;
-  uint16_t *adc_;        // ADC of each pixel
-  uint16_t *moduleInd_;  // module id of each pixel
-  int32_t *clus_;        // cluster id of each pixel
-  uint32_t *pdigi_;
-  uint32_t *rawIdArr_;
+  uint16_t* xx() const { return xx_; }
+  uint16_t* yy() const { return yy_; }
+  uint16_t* adc() const { return adc_; }
+  uint16_t* moduleInd() const { return moduleInd_; }
+  int32_t* clus() const { return clus_; }
+  uint32_t* pdigi() const { return pdigi_; }
+  uint32_t* rawIdArr() const { return rawIdArr_; }
+
+private:
+  uint16_t* xx_;  // local coordinates of each pixel
+  uint16_t* yy_;
+  uint16_t* adc_;        // ADC of each pixel
+  uint16_t* moduleInd_;  // module id of each pixel
+  int32_t* clus_;        // cluster id of each pixel
+  uint32_t* pdigi_;
+  uint32_t* rawIdArr_;
 };
 
 #endif

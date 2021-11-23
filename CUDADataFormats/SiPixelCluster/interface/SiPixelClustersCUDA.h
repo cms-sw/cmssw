@@ -49,7 +49,7 @@ public:
     uint32_t const *clusModuleStart_;
   };
 
-  SiPixelClustersCUDASOAView *view() const { return view_d.get(); }
+  SiPixelClustersCUDASOAView const *view() const { return view_d.get(); }
 
 private:
   cms::cuda::device::unique_ptr<uint32_t[]> moduleStart_d;   // index of the first pixel of each module

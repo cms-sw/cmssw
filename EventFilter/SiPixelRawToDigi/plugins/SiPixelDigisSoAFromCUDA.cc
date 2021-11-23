@@ -68,10 +68,10 @@ void SiPixelDigisSoAFromCUDA::produce(edm::Event& iEvent, const edm::EventSetup&
 
   auto get16 = [&](SiPixelDigisCUDASOAView::StorageLocationHost s) { return store_.get() + int(s) * nDigis_; };
 
-  auto adc = get16(SiPixelDigisCUDASOAView::StorageLocationHost::ADC);
-  auto clus = reinterpret_cast<int32_t*>(get16(SiPixelDigisCUDASOAView::StorageLocationHost::CLUS));
-  auto pdigi = reinterpret_cast<uint32_t*>(get16(SiPixelDigisCUDASOAView::StorageLocationHost::PDIGI));
-  auto rawIdArr = reinterpret_cast<uint32_t*>(get16(SiPixelDigisCUDASOAView::StorageLocationHost::RAWIDARR));
+  auto adc = get16(SiPixelDigisCUDASOAView::StorageLocationHost::kADC);
+  auto clus = reinterpret_cast<int32_t*>(get16(SiPixelDigisCUDASOAView::StorageLocationHost::kCLUS));
+  auto pdigi = reinterpret_cast<uint32_t*>(get16(SiPixelDigisCUDASOAView::StorageLocationHost::kPDIGI));
+  auto rawIdArr = reinterpret_cast<uint32_t*>(get16(SiPixelDigisCUDASOAView::StorageLocationHost::kRAWIDARR));
 
   iEvent.emplace(digiPutToken_, nDigis_, pdigi, rawIdArr, adc, clus);
 
