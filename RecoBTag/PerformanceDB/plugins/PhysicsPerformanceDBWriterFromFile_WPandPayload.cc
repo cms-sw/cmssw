@@ -49,7 +49,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   //
 
   std::ifstream in;
-  std::cout << "Opening " << inputTxtFile << std::endl;
+  edm::LogInfo("Opening ") << inputTxtFile << "\n";
   in.open(inputTxtFile.c_str());
   std::string tagger;
   float cut;
@@ -60,13 +60,13 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   int stride;
 
   in >> tagger;
-  std::cout << "WP Tagger is " << tagger << std::endl;
+  edm::LogInfo("WP Tagger is ") << tagger << "\n";
 
   in >> cut;
-  std::cout << "WP Cut is " << cut << std::endl;
+  edm::LogInfo("WP Cut is ") << cut << "\n";
 
   in >> concreteType;
-  std::cout << "concrete Type is " << concreteType << std::endl;
+  edm::LogInfo("concrete Type is ") << concreteType << "\n";
 
   //  return ;
 
@@ -75,11 +75,11 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   int nres, nbin;
   in >> nres;
   in >> nbin;
-  std::cout << " Results: " << nres << " Binning variables: " << nbin << std::endl;
+  edm::LogInfo(" Results: ") << nres << " Binning variables: " << nbin << "\n";
 
   stride = nres + nbin * 2;
   if (!stride) {
-    std::cout << " Malformed input file" << std::endl;
+    edm::LogInfo(" Malformed input file\n");
     exit(1);
   }
 
@@ -95,7 +95,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
     number++;
   }
   if (number != nres) {
-    std::cout << " Table not well formed" << std::endl;
+    edm::LogInfo("Table not well formed\n");
   }
   number = 0;
   while (number < nbin && !in.eof()) {
@@ -105,14 +105,14 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
     number++;
   }
   if (number != nbin) {
-    std::cout << " Table not well formed" << std::endl;
+    edm::LogInfo("Table not well formed\n");
   }
 
   number = 0;
   while (!in.eof()) {
     float temp;
     in >> temp;
-    std::cout << " Intersing " << temp << " in position " << number << std::endl;
+    edm::LogInfo(" Intersing ") << temp << " in position " << number << "\n";
     number++;
     pl.push_back(temp);
   }
@@ -121,13 +121,12 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   // CHECKS
   //
   if (stride != nbin * 2 + nres) {
-    std::cout << " Table not well formed" << std::endl;
+    edm::LogInfo("Table not well formed\n");
   }
   if ((number % stride) != 0) {
-    std::cout << " Table not well formed" << std::endl;
+    edm::LogInfo("Table not well formed\n");
   }
-
-  std::cout << " CLOSING " << std::endl;
+  edm::LogInfo(" CLOSING \n");
   in.close();
 
   /*  for (int k=0;k<(number/stride); k++){
@@ -146,12 +145,12 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   PerformancePayloadFromTable btagpl;
 
   if (concreteType == "PerformancePayloadFromTable") {
-    btagpl= PerformancePayloadFromTable(res, bin, stride, pl);
+    btagpl = PerformancePayloadFromTable(res, bin, stride, pl);
   } else {
-    std::cout << " Non existing request: " << concreteType << std::endl;
+    edm::LogInfo(" Non existing request: ") << concreteType << "\n";
   }
 
-  std::cout << " Created the " << concreteType << " object" << std::endl;
+  edm::LogInfo(" Created the ") << concreteType << " object\n";
 
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
