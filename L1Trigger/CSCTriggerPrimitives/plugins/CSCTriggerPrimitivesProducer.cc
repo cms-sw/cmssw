@@ -169,6 +169,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   if (keepShowers_) {
     produces<CSCShowerDigiCollection>();
     produces<CSCShowerDigiCollection>("Anode");
+    produces<CSCShowerDigiCollection>("Cathode");
   }
   if (runILT_) {
     produces<GEMCoPadDigiCollection>();
@@ -268,6 +269,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
   std::unique_ptr<CSCShowerDigiCollection> oc_shower(new CSCShowerDigiCollection);
   std::unique_ptr<CSCShowerDigiCollection> oc_shower_anode(new CSCShowerDigiCollection);
+  std::unique_ptr<CSCShowerDigiCollection> oc_shower_cathode(new CSCShowerDigiCollection);
   std::unique_ptr<GEMCoPadDigiCollection> oc_gemcopad(new GEMCoPadDigiCollection);
 
   if (!wireDigis.isValid()) {
@@ -296,8 +298,9 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
                     *oc_pretrig,
                     *oc_lct,
                     *oc_sorted_lct,
-                    *oc_shower,
                     *oc_shower_anode,
+                    *oc_shower_cathode,
+                    *oc_shower,
                     *oc_gemcopad);
     if (!checkBadChambers_)
       delete temp;
@@ -318,6 +321,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   if (keepShowers_) {
     ev.put(std::move(oc_shower));
     ev.put(std::move(oc_shower_anode), "Anode");
+    ev.put(std::move(oc_shower_cathode), "Cathode");
   }
   // only put GEM copad collections in the event when the
   // integrated local triggers are running
