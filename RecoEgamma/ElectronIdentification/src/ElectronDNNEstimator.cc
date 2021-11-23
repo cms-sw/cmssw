@@ -37,31 +37,51 @@ ElectronDNNEstimator::ElectronDNNEstimator(const egammaTools::DNNConfiguration& 
 
 std::vector<tensorflow::Session*> ElectronDNNEstimator::getSessions() const { return dnnHelper_.getSessions(); };
 
-const std::vector<std::string> ElectronDNNEstimator::dnnAvaibleInputs = {{"pt",
-                                                                          "eta",
-                                                                          "fbrem",
-                                                                          "abs(deltaEtaSuperClusterTrackAtVtx)",
-                                                                          "abs(deltaPhiSuperClusterTrackAtVtx)",
-                                                                          "full5x5_sigmaIetaIeta",
-                                                                          "full5x5_hcalOverEcal",
-                                                                          "eSuperClusterOverP",
-                                                                          "full5x5_e1x5",
-                                                                          "eEleClusterOverPout",
-                                                                          "closestCtfTrackNormChi2",
-                                                                          "closestCtfTrackNLayers",
-                                                                          "gsfTrack.missing_inner_hits",
-                                                                          "dr03TkSumPt",
-                                                                          "dr03EcalRecHitSumEt",
-                                                                          "dr03HcalTowerSumEt",
-                                                                          "gsfTrack.normalizedChi2",
-                                                                          "superCluster.eta",
-                                                                          "ecalPFClusterIso",
-                                                                          "hcalPFClusterIso",
-                                                                          "numberOfBrems",
-                                                                          "abs(deltaEtaSeedClusterTrackAtCalo)",
-                                                                          "hadronicOverEm",
-                                                                          "full5x5_e2x5Max",
-                                                                          "full5x5_e5x5"}};
+const std::vector<std::string> ElectronDNNEstimator::dnnAvaibleInputs = {
+    {"pt",
+     "eta",
+     "fbrem",
+     "abs(deltaEtaSuperClusterTrackAtVtx)",
+     "abs(deltaPhiSuperClusterTrackAtVtx)",
+     "full5x5_sigmaIetaIeta",
+     "full5x5_hcalOverEcal",
+     "eSuperClusterOverP",
+     "full5x5_e1x5",
+     "eEleClusterOverPout",
+     "closestCtfTrackNormChi2",
+     "closestCtfTrackNLayers",
+     "gsfTrack.missing_inner_hits",
+     "dr03TkSumPt",
+     "dr03EcalRecHitSumEt",
+     "dr03HcalTowerSumEt",
+     "gsfTrack.normalizedChi2",
+     "superCluster.eta",
+     "ecalPFClusterIso",
+     "hcalPFClusterIso",
+     "numberOfBrems",
+     "abs(deltaEtaSeedClusterTrackAtCalo)",
+     "hadronicOverEm",
+     "full5x5_e2x5Max",
+     "full5x5_e5x5",
+     "full5x5_sigmaIphiIphi",
+     "1_minus_full5x5_e1x5_ratio_full5x5_e5x5",
+     "full5x5_e1x5_ratio_full5x5_e5x5",
+     "full5x5_r9",
+     "gsfTrack.trackerLayersWithMeasurement",
+     "superCluster.energy",
+     "superCluster.rawEnergy",
+     "superClusterFbrem",
+     "1_ratio_ecalEnergy_minus_1_ratio_trackMomentumAtVtx.R",
+     "superCluster.preshowerEnergy_ratio_superCluster.rawEnergy",
+     "convVtxFitProb",
+     "superCluster.clustersSize",
+     "ecalEnergyError_ratio_ecalEnergy",
+     "superClusterFbrem_plus_superCluster.energy",
+     "superClusterFbrem_plus_superCluster.rawEnergy",
+     "trackMomentumError",
+     "trackMomentumError_ratio_pt",
+     "full5x5_e5x5_ratio_superCluster.rawEnergy",
+     "full5x5_e5x5_ratio_superCluster.energy"}};
 
 std::map<std::string, float> ElectronDNNEstimator::getInputsVars(const reco::GsfElectron& ele) const {
   // Prepare a map with all the defined variables
@@ -94,6 +114,31 @@ std::map<std::string, float> ElectronDNNEstimator::getInputsVars(const reco::Gsf
   variables["hadronicOverEm"] = ele.hcalOverEcalValid() ? ele.hadronicOverEm() : 0;
   variables["full5x5_e2x5Max"] = ele.full5x5_e2x5Max();
   variables["full5x5_e5x5"] = ele.full5x5_e5x5();
+
+  variables["full5x5_sigmaIphiIphi"] = ele.full5x5_sigmaIphiIphi();
+  variables["1_minus_full5x5_e1x5_ratio_full5x5_e5x5"] = 1 - ele.full5x5_e1x5() / ele.full5x5_e5x5();
+  variables["full5x5_e1x5_ratio_full5x5_e5x5"] = ele.full5x5_e1x5() / ele.full5x5_e5x5();
+  variables["full5x5_r9"] = ele.full5x5_r9();
+  variables["gsfTrack.hitPattern.trackerLayersWithMeasurement"] =
+      (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.;
+  variables["superCluster.energy"] = ele.superCluster()->energy();
+  variables["superCluster.rawEnergy"] = ele.superCluster()->rawEnergy();
+  variables["superClusterFbrem"] = ele.superClusterFbrem();
+  variables["1_ratio_ecalEnergy_minus_1_ratio_trackMomentumAtVtx.R"] =
+      1 / ele.ecalEnergy() - 1 / ele.trackMomentumAtVtx().R();
+  variables["superCluster.preshowerEnergy_ratio_superCluster.rawEnergy"] =
+      ele.superCluster()->preshowerEnergy() / ele.superCluster()->rawEnergy();
+  variables["convVtxFitProb"] = ele.convVtxFitProb();
+  variables["superCluster.clustersSize"] = ele.superCluster()->clustersSize();
+  variables["ecalEnergyError_ratio_ecalEnergy"] = ele.ecalEnergyError() / ele.ecalEnergy();
+  variables["superClusterFbrem_plus_superCluster.energy"] = ele.superClusterFbrem() + ele.superCluster()->energy();
+  variables["superClusterFbrem_plus_superCluster.rawEnergy"] =
+      ele.superClusterFbrem() + ele.superCluster()->rawEnergy();
+  variables["trackMomentumError"] = ele.trackMomentumError();
+  variables["trackMomentumError_ratio_pt"] = ele.trackMomentumError() / ele.pt();
+  variables["full5x5_e5x5_ratio_superCluster.rawEnergy"] = ele.full5x5_e5x5() / ele.superCluster()->rawEnergy();
+  variables["full5x5_e5x5_ratio_superCluster.energy"] = ele.full5x5_e5x5() / ele.superCluster()->energy();
+
   // Define more variables here and use them directly in the model config!
   return variables;
 }
