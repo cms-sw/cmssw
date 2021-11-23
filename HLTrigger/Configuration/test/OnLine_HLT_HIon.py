@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_2_0/HIon --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_12_2_0/HIon/V3 (CMSSW_12_2_0_pre1)
+# /dev/CMSSW_12_2_0/HIon/V6 (CMSSW_12_2_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_2_0/HIon/V3')
+  tableName = cms.string('/dev/CMSSW_12_2_0/HIon/V6')
 )
 
 process.transferSystem = cms.PSet( 
@@ -4492,6 +4492,13 @@ process.EcalLaserCorrectionService = cms.ESProducer( "EcalLaserCorrectionService
 process.EcalPreshowerGeometryFromDBEP = cms.ESProducer( "EcalPreshowerGeometryFromDBEP",
   applyAlignment = cms.bool( True )
 )
+process.GEMGeometryESModule = cms.ESProducer( "GEMGeometryESModule",
+  fromDDD = cms.bool( False ),
+  fromDD4hep = cms.bool( False ),
+  applyAlignment = cms.bool( False ),
+  alignmentsLabel = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
 process.GlobalParameters = cms.ESProducer( "StableParametersTrivialProducer",
   TotalBxInEvent = cms.int32( 5 ),
   NumberPhysTriggers = cms.uint32( 512 ),
@@ -6939,6 +6946,7 @@ process.hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
     ErrorMask = cms.uint32( 0 ),
     UnpackStatusDigis = cms.bool( False ),
     UseFormatStatus = cms.bool( True ),
+    useRPCs = cms.bool( False ),
     useGEMs = cms.bool( False ),
     useCSCShowers = cms.bool( False ),
     Debug = cms.untracked.bool( False ),
@@ -6947,7 +6955,9 @@ process.hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
     VisualFEDInspect = cms.untracked.bool( False ),
     VisualFEDShort = cms.untracked.bool( False ),
     FormatedEventDump = cms.untracked.bool( False ),
-    SuppressZeroLCT = cms.untracked.bool( True )
+    SuppressZeroLCT = cms.untracked.bool( True ),
+    DisableMappingCheck = cms.untracked.bool( False ),
+    B904Setup = cms.untracked.bool( False )
 )
 process.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCStripPeakThreshold = cms.double( 10.0 ),
