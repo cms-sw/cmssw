@@ -2,7 +2,6 @@
 #define DataFormats_MuonReco_MuonRecHitCluster_h
 
 #include <vector>
-#include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
 namespace reco {

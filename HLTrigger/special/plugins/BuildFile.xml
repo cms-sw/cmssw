@@ -25,6 +25,7 @@
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/MuonReco"/>
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/TCDS"/>
 <use name="DataFormats/TrackReco"/>
