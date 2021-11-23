@@ -19,6 +19,7 @@
 #include <chrono>
 #include <iostream>
 #include <random>
+#include <fmt/printf.h>
 #include <boost/range/adaptor/indexed.hpp>
 
 // ROOT include files
@@ -255,11 +256,11 @@ private:
   static const int nPtBins_ = 30;
   std::array<float, nPtBins_ + 1> mypT_bins_;
 
-  static const int nTrackBins_ = 60;
+  static const int nTrackBins_ = 120;
   const double nVisTrackBins_;  // will be configured
   std::array<float, nTrackBins_ + 1> myNTrack_bins_;
 
-  static const int nVtxBins_ = 40;
+  static const int nVtxBins_ = 60;
   const double nVisVtxBins_;  // will be configured
   std::array<float, nVtxBins_ + 1> myNVtx_bins_;
 
@@ -285,8 +286,8 @@ SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
       // binning
       sumpTStartScale_(iConfig.getUntrackedParameter<double>("sumpTStartScale", 1.)),
       sumpTEndScale_(iConfig.getUntrackedParameter<double>("sumpTEndScale", 1e3)),
-      nVisTrackBins_(iConfig.getUntrackedParameter<double>("nTrackBins", 60.)),
-      nVisVtxBins_(iConfig.getUntrackedParameter<double>("nVtxBins", 40.)) {
+      nVisTrackBins_(iConfig.getUntrackedParameter<double>("nTrackBins", 120.)),
+      nVisVtxBins_(iConfig.getUntrackedParameter<double>("nVtxBins", 60.)) {
   usesResource(TFileService::kSharedResource);
 
   std::vector<unsigned int> defaultRuns;
@@ -295,12 +296,55 @@ SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
 
   mypT_bins_ = PVValHelper::makeLogBins<float, nPtBins_>(sumpTStartScale_, sumpTEndScale_);
 
-  std::vector<float> vect = PVValHelper::generateBins(nTrackBins_ + 1, 1., 120.);
+  // IMPORTANT
+  // first argument is start, second argument is the range so it's [-0.5;nTracksBins_-0.5]
+  std::vector<float> vect = PVValHelper::generateBins(nTrackBins_ + 1, -0.5, nTrackBins_);
   std::copy(vect.begin(), vect.begin() + nTrackBins_ + 1, myNTrack_bins_.begin());
 
   vect.clear();
-  vect = PVValHelper::generateBins(nVtxBins_ + 1, 1., 40.);
+
+  // IMPORTANT
+  // first argument is start, second argument is the range so it's [-0.5;nVtxBins_-0.5]
+  vect = PVValHelper::generateBins(nVtxBins_ + 1, -0.5, nVtxBins_);
   std::copy(vect.begin(), vect.begin() + nVtxBins_ + 1, myNVtx_bins_.begin());
+
+  if (debug_) {
+    std::string toOutput = "";
+    for (const auto& pTbin : mypT_bins_ | boost::adaptors::indexed(1)) {
+      if (pTbin.index() != 1) {
+        toOutput += " ";
+      }
+      toOutput += fmt::sprintf("%.2f", pTbin.value());
+      if (pTbin.index() != nPtBins_ + 1) {
+        toOutput += ",";
+      }
+    }
+    edm::LogVerbatim("SplitVertexResolution") << "sum(pT) bins = [" << toOutput << "] \n";
+
+    toOutput.clear();
+    for (const auto& tkbin : myNTrack_bins_ | boost::adaptors::indexed(1)) {
+      if (tkbin.index() != 1) {
+        toOutput += " ";
+      }
+      toOutput += fmt::sprintf("%.1f", tkbin.value());
+      if (tkbin.index() != nTrackBins_ + 1) {
+        toOutput += ",";
+      }
+    }
+    edm::LogVerbatim("SplitVertexResolution") << "n. track bins = [" << toOutput << "] \n";
+
+    toOutput.clear();
+    for (const auto& vtxbin : myNVtx_bins_ | boost::adaptors::indexed(1)) {
+      if (vtxbin.index() != 1) {
+        toOutput += " ";
+      }
+      toOutput += fmt::sprintf("%.1f", vtxbin.value());
+      if (vtxbin.index() != nVtxBins_ + 1) {
+        toOutput += ",";
+      }
+    }
+    edm::LogVerbatim("SplitVertexResolution") << "n. vertices bins = [" << toOutput << "] \n";
+  }
 }
 
 SplitVertexResolution::~SplitVertexResolution() = default;
@@ -539,8 +583,8 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
     for (int inTrackBin = 0; inTrackBin < nTrackBins_; inTrackBin++) {
       float nTrackF = myNTrack_bins_[inTrackBin];
       float nTrackL = myNTrack_bins_[inTrackBin + 1];
-
       if (ntrks >= nTrackF && ntrks < nTrackL) {
+        //if (ntrks == inTrackBin) {
         PVValHelper::fillByIndex(h_resolX_Ntracks_, inTrackBin, resX * cmToUm, "7");
         PVValHelper::fillByIndex(h_resolY_Ntracks_, inTrackBin, resY * cmToUm, "8");
         PVValHelper::fillByIndex(h_resolZ_Ntracks_, inTrackBin, resZ * cmToUm, "9");
@@ -554,13 +598,10 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
     // filling the vertex multeplicity binned distributions
 
     for (int inVtxBin = 0; inVtxBin < nVtxBins_; inVtxBin++) {
-      /*
-	float nVtxF = myNVtx_bins_[inVtxBin];
-	float nVtxL = myNVtx_bins_[inVtxBin+1];
-	if(nOfflineVtx >= nVtxF && nOfflineVtx < nVtxL){
-      */
-
-      if (nOfflineVtx == inVtxBin) {
+      float nVtxF = myNVtx_bins_[inVtxBin];
+      float nVtxL = myNVtx_bins_[inVtxBin + 1];
+      if (nOfflineVtx >= nVtxF && nOfflineVtx < nVtxL) {
+        //if (nOfflineVtx == inVtxBin) {
         PVValHelper::fillByIndex(h_resolX_Nvtx_, inVtxBin, deltaX * cmToUm, "7");
         PVValHelper::fillByIndex(h_resolY_Nvtx_, inVtxBin, deltaY * cmToUm, "8");
         PVValHelper::fillByIndex(h_resolZ_Nvtx_, inVtxBin, deltaZ * cmToUm, "9");
@@ -1064,8 +1105,8 @@ void SplitVertexResolution::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.addUntracked<std::vector<unsigned int>>("runControlNumber", {});
   desc.addUntracked<double>("sumpTStartScale", 1.);
   desc.addUntracked<double>("sumpTEndScale", 1e3);
-  desc.addUntracked<double>("nTrackBins", 60.);
-  desc.addUntracked<double>("nVtxBins", 40.);
+  desc.addUntracked<double>("nTrackBins", 120.);
+  desc.addUntracked<double>("nVtxBins", 60.);
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -1075,7 +1116,8 @@ std::pair<long long, long long> SplitVertexResolution::getRunTime(const edm::Eve
 {
   const auto& runInfo = iSetup.getData(runInfoToken_);
   if (debug_) {
-    edm::LogInfo("SplitVertexResolution") << runInfo.m_start_time_str << " " << runInfo.m_stop_time_str << std::endl;
+    edm::LogInfo("SplitVertexResolution")
+        << "start time: " << runInfo.m_start_time_str << " - stop time: " << runInfo.m_stop_time_str << std::endl;
   }
   return std::make_pair(runInfo.m_start_time_ll, runInfo.m_stop_time_ll);
 }
@@ -1085,7 +1127,7 @@ void SplitVertexResolution::fillTrendPlotByIndex(TH1F* trendPlot, std::vector<TH
 //*************************************************************
 {
   for (auto iterator = h.begin(); iterator != h.end(); iterator++) {
-    unsigned int bin = std::distance(h.begin(), iterator);
+    unsigned int bin = std::distance(h.begin(), iterator) + 1;
     statmode::fitParams myFit = fitResiduals((*iterator));
 
     switch (fitPar_) {
