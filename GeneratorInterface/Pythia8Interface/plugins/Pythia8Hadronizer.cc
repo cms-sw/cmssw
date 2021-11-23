@@ -319,9 +319,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
 
   if (params.exists("UserCustomization")) {
     fCustomHooksVector.reset(new UserHooksVector);
-    std::vector<edm::ParameterSet> userParams =
+    const std::vector<edm::ParameterSet> userParams =
         params.getParameter<std::vector<edm::ParameterSet>>("UserCustomization");
-    for (auto &pluginParams : userParams) {
+    for (const auto &pluginParams : userParams) {
       (fCustomHooksVector->hooks)
           .push_back(
               CustomHookFactory::get()->create(pluginParams.getParameter<std::string>("pluginName"), pluginParams));
@@ -467,7 +467,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
 
   if (fCustomHooksVector.get()) {
     edm::LogInfo("Pythia8Interface") << "Adding customized user hooks";
-    for (auto &fUserHook : fCustomHooksVector->hooks) {
+    for (auto fUserHook : fCustomHooksVector->hooks) {
       fMasterGen->addUserHooksPtr(fUserHook);
     }
   }
@@ -538,7 +538,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
 
   if (fCustomHooksVector.get()) {
     edm::LogInfo("Pythia8Interface") << "Adding customized user hook";
-    for (auto &fUserHook : fCustomHooksVector->hooks) {
+    for (auto fUserHook : fCustomHooksVector->hooks) {
       (fUserHooksVector->hooks).push_back(fUserHook);
     }
   }

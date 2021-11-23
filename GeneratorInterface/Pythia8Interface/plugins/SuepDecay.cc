@@ -62,5 +62,3 @@ bool SuepDecay::doVetoProcessLevel(Pythia8::Event& event) {
   //allow event to continue
   return false;
 }
-
-DEFINE_EDM_PLUGIN(CustomHookFactory, SuepDecay, "SuepDecay");
