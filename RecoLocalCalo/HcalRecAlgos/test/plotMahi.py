@@ -69,7 +69,7 @@ for tag in tags:
             stack.Add(hists[i])
         
         hists['digi'].GetXaxis().SetRangeUser(-0.5, 7.5)
-        hists['digi'].GetYaxis().SetRangeUser(0, hists['digi'].GetBinContent(4)*1.5)
+        hists['digi'].GetYaxis().SetRangeUser(0, max(hists['digi'].GetBinContent(4), hists['digi'].GetBinContent(5))*1.5)
         hists['digi'].Draw('P0')
         stack.Draw('same')
         hists['digi'].Draw('P0,same')
