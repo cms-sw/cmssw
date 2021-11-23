@@ -19,6 +19,8 @@ import Validation.RecoTrack.plotting.html as html
 from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
 from Validation.HGCalValidation.PostProcessorHGCAL_cfi import lcToCP_linking, simDict, tsToCP_linking, tsToSTS_patternRec, variables
 
+hgcVal_dqm = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"
+
 #To be able to spot any issues both in -z and +z a layer id was introduced
 #that spans from 0 to 103 for hgcal_v9 geometry. The mapping for hgcal_v9 is:
 #-z: 0->51
@@ -38,7 +40,7 @@ if not os.path.isfile(theDQMfile):
 
 #Take general info from the first file is sufficient.
 thefile = TFile( theDQMfile )
-GeneralInfoDirectory = 'DQMData/Run 1/HGCAL/Run summary/HGCalValidator/GeneralInfo'
+GeneralInfoDirectory = hgcVal_dqm + 'GeneralInfo'
 
 if not gDirectory.GetDirectory( GeneralInfoDirectory ):
   print("Error: GeneralInfo directory not found in DQM file, exit")
@@ -1682,9 +1684,9 @@ _clusternum_in_trackster_vs_layer = PlotGroup("NumberofLayerClustersinTracksterP
 
 _common["scale"] = 100.
 #, ztitle = "% of clusters" normalizeToUnitArea=True
-_multiplicity_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/ticlTrackstersMerge/multiplicity_numberOfEventsHistogram"
-_multiplicity_zminus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/ticlTrackstersMerge/multiplicity_zminus_numberOfEventsHistogram"
-_multiplicity_zplus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/ticlTrackstersMerge/multiplicity_zplus_numberOfEventsHistogram"
+_multiplicity_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_numberOfEventsHistogram"
+_multiplicity_zminus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_zminus_numberOfEventsHistogram"
+_multiplicity_zplus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_zplus_numberOfEventsHistogram"
 
 _multiplicityOfLCinTST_plots = [Plot("multiplicityOfLCinTST", xtitle="Layer Cluster multiplicity in Tracksters", ytitle = "Cluster size (n_{hit})", 
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]
@@ -2412,7 +2414,7 @@ def append_hgcalSimClustersPlots(collection, name_collection):
 
 #=================================================================================================
 def _hgcalFolders(lastDirName="hgcalLayerClusters"):
-    return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+lastDirName
+    return hgcVal_dqm + lastDirName
 
 _trackstersPlots = [
   _trackster_eppe,
@@ -2513,7 +2515,7 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
                     "Energy of Rec-matched Hits vs layer (1SC)",
                     "Rec-matched Hits Sum Energy vs layer"]
 
-  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
+  dqmfolder = hgcVal_dqm + "SelectedCaloParticles/" + collection
   templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
   if not gDirectory.GetDirectory(dqmfolder):
     print("Error: GeneralInfo directory %s not found in DQM file, exit"%dqmfolder)
@@ -2563,7 +2565,7 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
   groupingFlag = " on Layer "
 
   hgcalTrackstersPlotter = Plotter()
-  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/" + collection
+  dqmfolder = hgcVal_dqm + collection
   #_multiplicity_tracksters_numberOfEventsHistogram = dqmfolder+"/Number of Trackster per Event"
 
   _common["ymin"] = 0.0
@@ -2634,7 +2636,7 @@ _common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, 
 hgcalCaloParticlesPlotter = Plotter()
 
 def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
-  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
+  dqmfolder = hgcVal_dqm + "SelectedCaloParticles/" + collection
   print(dqmfolder)
 #  _common["ymin"] = 0.0
   templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
