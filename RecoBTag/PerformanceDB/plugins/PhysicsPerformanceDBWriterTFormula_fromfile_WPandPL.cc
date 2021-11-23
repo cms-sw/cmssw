@@ -181,33 +181,16 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
 
   std::cout << " Created the " << concreteType << " object" << std::endl;
 
-  std::cout << "Start writing the payload" << std::endl;
+  std::cout << "Start writing the payload and WP" << std::endl;
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
-    if (s->isNewTagRequest(rec1)) {
-      s->createOneIOV<PerformancePayload>(btagpl, s->beginOfTime(), rec1);
-    } else {
-      s->appendOneIOV<PerformancePayload>(btagpl,
-                                             // JUST A STUPID PATCH
-                                             111,
-                                             rec1);
-    }
+    s->writeOneIOV(btagpl, s->beginOfTime(), rec1);
+    // write also the WP                                                                      
+    s->writeOneIOV(wp, s->beginOfTime(), rec2);
   }
-  std::cout << "Finised writing the payload" << std::endl;
 
-  // write also the WP
-  std::cout << "Start writing the WP" << std::endl;
-  if (s.isAvailable()) {
-    if (s->isNewTagRequest(rec2)) {
-      s->createOneIOV<PerformanceWorkingPoint>(wp, s->beginOfTime(), rec2);
-    } else {
-      s->appendOneIOV<PerformanceWorkingPoint>(wp,
-                                                  /// JUST A STUPID PATCH
-                                                  111,
-                                                  rec2);
-    }
-  }
-  std::cout << "Finished writing the WP" << std::endl;
+  std::cout << "Finised writing the payload and WP" << std::endl;
+
 }
 
 DEFINE_FWK_MODULE(PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL);

@@ -155,27 +155,9 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
 
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
-    if (s->isNewTagRequest(rec1)) {
-      s->createOneIOV<PerformancePayload>(btagpl, s->beginOfTime(), rec1);
-    } else {
-      s->appendOneIOV<PerformancePayload>(btagpl,
-                                             // JUST A STUPID PATCH
-                                             111,
-                                             rec1);
-    }
-  }
-
-  // write also the WP
-
-  if (s.isAvailable()) {
-    if (s->isNewTagRequest(rec2)) {
-      s->createOneIOV<PerformanceWorkingPoint>(wp, s->beginOfTime(), rec2);
-    } else {
-      s->appendOneIOV<PerformanceWorkingPoint>(wp,
-                                                  /// JUST A STUPID PATCH
-                                                  111,
-                                                  rec2);
-    }
+    s->writeOneIOV(btagpl, s->beginOfTime(), rec1);
+    // write also the WP
+    s->writeOneIOV(wp, s->beginOfTime(), rec2);
   }
 }
 
