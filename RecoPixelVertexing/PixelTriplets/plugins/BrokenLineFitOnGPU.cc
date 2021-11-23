@@ -3,7 +3,9 @@
 void HelixFitOnGPU::launchBrokenLineKernelsOnCPU(HitsView const* hv, uint32_t hitsInFit, uint32_t maxNumberOfTuples) {
   assert(tuples_);
 
+#ifdef BROKENLINE_DEBUG
   setlinebuf(stdout);
+#endif
 
   //  Fit internals
   auto tkidGPU = std::make_unique<caConstants::tindex_type[]>(maxNumberOfConcurrentFits_);
