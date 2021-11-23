@@ -44,8 +44,7 @@ PixelOfflineDQMClient = cms.Sequence(sipixelEDAClient)
 PixelOfflineDQMClientWithDataCertification = cms.Sequence(sipixelQTester+
                                                           sipixelEDAClient+
                                                           sipixelDaqInfo+
-                                                          sipixelDcsInfo+
-                                                          sipixelCertification)
+                                                          sipixelDcsInfo)
 PixelOfflineDQMClientNoDataCertification = cms.Sequence(sipixelQTester+
                                                           sipixelEDAClient)
 PixelOfflineDQMClientNoDataCertification_cosmics = cms.Sequence(sipixelQTester+
