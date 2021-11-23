@@ -155,7 +155,7 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
     //if (0==thisCell.theUsed) continue;
     // if (thisCell.theDoubletId < 0) continue;
 
-    int maxNl = 0;
+    int8_t maxNl = 0;
 
     // find maxNl
     for (auto it : thisCell.tracks()) {
@@ -564,6 +564,17 @@ __global__ void kernel_fillHitDetIndices(HitContainer const *__restrict__ tuples
   }
 }
 
+__global__ void kernel_fillNLayers(TkSoA *__restrict__ ptracks) {
+  auto &tracks = *ptracks;
+  auto first = blockIdx.x * blockDim.x + threadIdx.x;
+  for (int idx = first, nt = TkSoA::stride(); idx < nt; idx += gridDim.x * blockDim.x) {
+    auto nHits = tracks.nHits(idx);
+    if (nHits == 0)
+      break;  // this is a guard: maybe we need to move to nTracks...
+    tracks.nLayers(idx) = tracks.computeNumberOfLayers(idx);
+  }
+}
+
 __global__ void kernel_doStatsForHitInTracks(CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ hitToTuple,
                                              CAHitNtupletGeneratorKernelsGPU::Counters *counters) {
   auto &c = *counters;
@@ -725,7 +736,7 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
     if (hitToTuple.size(idx) < 2)
       continue;
 
-    int maxNl = 0;
+    int8_t maxNl = 0;
 
     // find maxNl
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {

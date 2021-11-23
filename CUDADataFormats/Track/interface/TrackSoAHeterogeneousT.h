@@ -43,13 +43,11 @@ public:
   // this is chi2/ndof as not necessarely all hits are used in the fit
   eigenSoA::ScalarSoA<float, S> chi2;
 
+  eigenSoA::ScalarSoA<int8_t, S> nLayers;
+
   constexpr int nHits(int i) const { return detIndices.size(i); }
 
-  // we may store it if faster...
-  constexpr int nLayers(int i) const { return computeNumberOfLayers(i); }
-
-  // or store this one
-  constexpr bool isTriplet(int i) const { return nHits(i) == 3 || nLayers(i) == 3; }
+  constexpr bool isTriplet(int i) const { return nLayers(i) == 3; }
 
   constexpr int computeNumberOfLayers(int32_t i) const {
     // layers are in order and we assume tracks are either forward or backward
