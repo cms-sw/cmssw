@@ -121,7 +121,6 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
     }  // level 2
     --lev;
   }
-  std::vector<const GeometricDet*> modules = tracker->deepComponents();
   if (mydbservice->isNewTagRequest("IdealGeometryRecord")) {
     mydbservice->createOneIOV(pgd, mydbservice->beginOfTime(), "IdealGeometryRecord");
   } else {
