@@ -75,8 +75,8 @@ from L1Trigger.L1THGCal.customNewProcessors import custom_stage1_truncation
 process = custom_stage1_truncation(process)
 
 # Switch to latest trigger geometry containing information on links mapping
-from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_decentralized_V11
-process = custom_geometry_decentralized_V11(process, links='signaldriven', implementation=2)
+from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V11_Imp3
+process = custom_geometry_V11_Imp3(process)
 
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 

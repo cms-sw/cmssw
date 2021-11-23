@@ -71,7 +71,16 @@ phi_edges = [0.98901991,0.72722052,0.6981317,0.87266463,0.93084227,0.90175345,
 truncation_params = cms.PSet(rozMin=cms.double(0.07587128),
         rozMax=cms.double(0.55508006),
         rozBins=cms.uint32(42),
-        maxTcsPerBin=cms.vuint32(ntcs_72links),
+        maxTcsPerBin=cms.vuint32(ntcs_120links),
+        phiSectorEdges=cms.vdouble(phi_edges),
+        doTruncation=cms.bool(True)
+        )
+
+truncation_paramsSA = cms.PSet(AlgoName=cms.string('HGCalStage1TruncationWrapper'),
+        rozMin=cms.double(0.07587128),
+        rozMax=cms.double(0.55508006),
+        rozBins=cms.uint32(42),
+        maxTcsPerBin=cms.vuint32(ntcs_120links),
         phiSectorEdges=cms.vdouble(phi_edges),
         doTruncation=cms.bool(True)
         )
@@ -82,7 +91,7 @@ layer1truncation_proc = cms.PSet(ProcessorName  = cms.string('HGCalBackendLayer1
                    truncation_parameters = truncation_params.clone()
                    )
 stage1truncation_proc = cms.PSet(ProcessorName  = cms.string('HGCalBackendStage1Processor'),
-                   truncation_parameters = truncation_params.clone()
+                   truncation_parameters = truncation_paramsSA.clone()
                    )
 
 be_proc = cms.PSet(ProcessorName  = cms.string('HGCalBackendLayer1Processor2DClustering'),

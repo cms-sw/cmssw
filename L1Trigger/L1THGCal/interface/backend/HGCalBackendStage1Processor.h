@@ -2,6 +2,7 @@
 #define __L1Trigger_L1THGCal_HGCalBackendStage1Processor_h__
 
 #include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalAlgoWrapperBase.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
@@ -18,7 +19,8 @@ public:
            const edm::EventSetup& es) override;
 
 private:
-  std::unique_ptr<HGCalStage1TruncationImpl> truncation_;
+  std::unique_ptr<HGCalStage1TruncationWrapperBase> truncationWrapper_;
+  const edm::ParameterSet conf_;
 };
 
 #endif
