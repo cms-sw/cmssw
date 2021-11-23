@@ -314,7 +314,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
   }
 
   if (params.exists("UserCustomization")) {
-    fCustomHooksVector.reset(new UserHooksVector);
+    fCustomHooksVector = std::make_shared<UserHooksVector>();
     const std::vector<edm::ParameterSet> userParams =
         params.getParameter<std::vector<edm::ParameterSet>>("UserCustomization");
     for (const auto &pluginParams : userParams) {
