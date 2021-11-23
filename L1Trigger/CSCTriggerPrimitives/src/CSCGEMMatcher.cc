@@ -38,6 +38,8 @@ unsigned CSCGEMMatcher::calculateGEMCSCBending(const CSCCLCTDigi& clct, const GE
   // difference in 1/8-strip number
   const unsigned diff = std::abs(int(clct.getKeyStrip(8)) - int(cluster.getKeyStrip(8)));
 
+  const bool isME1a(station_ == 1 and clct.getKeyStrip() > CSCConstants::MAX_HALF_STRIP_ME1B);
+
   unsigned slope = 0;
 
   // need LUT to convert differences in 1/8-strips between GEM and CSC to slope
@@ -53,33 +55,31 @@ unsigned CSCGEMMatcher::calculateGEMCSCBending(const CSCCLCTDigi& clct, const GE
       else
         slope = lookupTableME21ILT_->es_diff_slope_L2_ME21_odd(diff);
     }
-  }
-
-  const bool isME1a(station_ == 1 and clct.getKeyStrip() > CSCConstants::MAX_HALF_STRIP_ME1B);
-
-  if (station_ == 1 and isME1a) {
-    if (isEven_) {
-      if (cluster.id().layer() == 1)
-        slope = lookupTableME11ILT_->es_diff_slope_L1_ME1a_even(diff);
-      else
-        slope = lookupTableME11ILT_->es_diff_slope_L2_ME1a_even(diff);
+  } else {  // station == 1
+    if (isME1a) {
+      if (isEven_) {
+        if (cluster.id().layer() == 1)
+          slope = lookupTableME11ILT_->es_diff_slope_L1_ME1a_even(diff);
+        else
+          slope = lookupTableME11ILT_->es_diff_slope_L2_ME1a_even(diff);
+      } else {
+        if (cluster.id().layer() == 1)
+          slope = lookupTableME11ILT_->es_diff_slope_L1_ME1a_odd(diff);
+        else
+          slope = lookupTableME11ILT_->es_diff_slope_L2_ME1a_odd(diff);
+      }
     } else {
-      if (cluster.id().layer() == 1)
-        slope = lookupTableME11ILT_->es_diff_slope_L1_ME1a_odd(diff);
-      else
-        slope = lookupTableME11ILT_->es_diff_slope_L2_ME1a_odd(diff);
-    }
-  } else {
-    if (isEven_) {
-      if (cluster.id().layer() == 1)
-        slope = lookupTableME11ILT_->es_diff_slope_L1_ME1b_even(diff);
-      else
-        slope = lookupTableME11ILT_->es_diff_slope_L2_ME1b_even(diff);
-    } else {
-      if (cluster.id().layer() == 1)
-        slope = lookupTableME11ILT_->es_diff_slope_L1_ME1b_odd(diff);
-      else
-        slope = lookupTableME11ILT_->es_diff_slope_L2_ME1b_odd(diff);
+      if (isEven_) {
+        if (cluster.id().layer() == 1)
+          slope = lookupTableME11ILT_->es_diff_slope_L1_ME1b_even(diff);
+        else
+          slope = lookupTableME11ILT_->es_diff_slope_L2_ME1b_even(diff);
+      } else {
+        if (cluster.id().layer() == 1)
+          slope = lookupTableME11ILT_->es_diff_slope_L1_ME1b_odd(diff);
+        else
+          slope = lookupTableME11ILT_->es_diff_slope_L2_ME1b_odd(diff);
+      }
     }
   }
 
