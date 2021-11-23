@@ -159,10 +159,12 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
 
     // find maxNl
     for (auto it : thisCell.tracks()) {
+      // if (tracks.nHits(it)==3) continue;
       auto nl = tracks.nLayers(it);
       maxNl = std::max(nl, maxNl);
     }
 
+    // if (maxNl<4) continue;
     // quad pass through (leave it her for tests)
     //  maxNl = std::min(4, maxNl);
 
@@ -729,6 +731,7 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
       if (quality[*it] < longTqual)
         continue;
+      // if (tracks.nHits(*it)==3) continue;
       auto nl = tracks.nLayers(*it);
       maxNl = std::max(nl, maxNl);
     }
