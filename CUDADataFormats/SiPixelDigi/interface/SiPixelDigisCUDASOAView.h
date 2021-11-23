@@ -13,7 +13,16 @@ class SiPixelDigisCUDASOAView {
 public:
   friend class SiPixelDigisCUDA;
   friend class SiPixelRecHitSoAFromLegacy;
-  enum class StorageLocation { kCLUS = 0, kPDIGI = 2, kRAWIDARR = 4, kADC = 6, kXX = 7, kYY = 8, kMODULEIND = 9, kMAX = 10 };
+  enum class StorageLocation {
+    kCLUS = 0,
+    kPDIGI = 2,
+    kRAWIDARR = 4,
+    kADC = 6,
+    kXX = 7,
+    kYY = 8,
+    kMODULEIND = 9,
+    kMAX = 10
+  };
   /*
   ============================================================================================================================
   |          CLUS         |          PDIGI         |         RAWIDARR        |    ADC    |    XX     |     YY    | MODULEIND |
