@@ -147,8 +147,8 @@ private:
   //PT filter hook
   std::shared_ptr<PTFilterHook> fPTFilterHook;
 
-  //Generic customized hook
-  std::shared_ptr<Pythia8::UserHooks> fCustomHook;
+  //Generic customized hooks vector
+  std::shared_ptr<UserHooksVector> fCustomHooksVector;
 
   int EV1_nFinal;
   bool EV1_vetoOn;
@@ -314,8 +314,14 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
   }
 
   if (params.exists("UserCustomization")) {
-    auto userParams = params.getParameter<edm::ParameterSet>("UserCustomization");
-    fCustomHook = CustomHookFactory::get()->create(userParams.getParameter<std::string>("name"), userParams);
+    fCustomHooksVector.reset(new UserHooksVector);
+    edm::ParameterSet userParams = params.getParameter<edm::ParameterSet>("UserCustomization");
+    std::vector<std::string> names = userParams.getParameter<std::vector<std::string>>("name");
+    for (auto &pluginName : names) {
+      (fCustomHooksVector->hooks)
+          .push_back(CustomHookFactory::get()->create(
+              pluginName, userParams.getParameter<edm::ParameterSet>(pluginName + "Block")));
+    }
   }
 
   if (params.exists("VinciaPlugin")) {
@@ -461,9 +467,12 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     }
     UserHooksSet = true;
   }
-  if (fCustomHook.get()) {
-    edm::LogInfo("Pythia8Interface") << "Adding customized user hook";
-    fMasterGen->addUserHooksPtr(fCustomHook);
+
+  if (fCustomHooksVector.get()) {
+    edm::LogInfo("Pythia8Interface") << "Adding customized user hooks";
+    for (auto &fUserHook : fCustomHooksVector->hooks) {
+      fMasterGen->addUserHooksPtr(fUserHook);
+    }
   }
 
   edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
@@ -522,9 +531,12 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook1);
   }
-  if (fCustomHook.get()) {
+
+  if (fCustomHooksVector.get()) {
     edm::LogInfo("Pythia8Interface") << "Adding customized user hook";
-    (fUserHooksVector->hooks).push_back(fCustomHook);
+    for (auto &fUserHook : fCustomHooksVector->hooks) {
+      (fUserHooksVector->hooks).push_back(fUserHook);
+    }
   }
 
   if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
