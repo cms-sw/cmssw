@@ -81,8 +81,9 @@ public:
              CSCCLCTPreTriggerCollection& oc_pretrig,
              CSCCorrelatedLCTDigiCollection& oc_lct,
              CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
-             CSCShowerDigiCollection& oc_shower,
              CSCShowerDigiCollection& oc_shower_anode,
+             CSCShowerDigiCollection& oc_shower_cathode,
+             CSCShowerDigiCollection& oc_shower,
              GEMCoPadDigiCollection& oc_gemcopad);
 
   /** Max values of trigger labels for all CSCs; used to construct TMB
