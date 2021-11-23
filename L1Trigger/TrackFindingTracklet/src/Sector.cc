@@ -339,7 +339,7 @@ void Sector::executeVMR() {
     i->execute();
   }
   for (auto& i : VMRCM_) {
-    i->execute();
+    i->execute(isector_);
   }
 }
 

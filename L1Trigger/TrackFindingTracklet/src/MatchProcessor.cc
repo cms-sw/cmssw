@@ -276,10 +276,10 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
                                 tmpProj.use(1, 1),
                                 tmpProj.isPSseed(),
                                 tmpProj.proj(),
-                                print && (iME == 0));
+                                print);
         addedProjection = true;
       } else {
-        matchengines_[iME].step(print && iME == 0);
+        matchengines_[iME].step(print);
       }
     }
 
@@ -343,8 +343,9 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
                           (proj->proj(layerdisk_).fpgarzproj().nbits() - nrbits_)) &
                          ((1 << nrbits_) - 1);
 
-            int phiderindex = (proj->proj(layerdisk_).fpgaphiprojder().value() >>
-                               (proj->proj(layerdisk_).fpgaphiprojder().nbits() - nphiderbits_)) &
+            int phiprojder = proj->proj(layerdisk_).fpgaphiprojder().value();
+
+            int phiderindex = (phiprojder >> (proj->proj(layerdisk_).fpgaphiprojder().nbits() - nphiderbits_)) &
                               ((1 << nphiderbits_) - 1);
 
             int signindex = proj->proj(layerdisk_).fpgarzprojder().value() < 0;
@@ -429,7 +430,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
   }
 }
 
-bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, bool, unsigned int) {
+bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, bool print, unsigned int istep) {
   const L1TStub* stub = fpgastub->l1tstub();
 
   if (layerdisk_ < N_LAYER) {
