@@ -135,9 +135,13 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   auto otherPVsTable =
       std::make_unique<nanoaod::FlatTable>((*pvsIn).size() > 4 ? 3 : (*pvsIn).size() - 1, "Other" + pvName_, false);
   std::vector<float> pvsz;
-  for (size_t i = 1; i < (*pvsIn).size() && i < 4; i++)
-    pvsz.push_back((*pvsIn)[i - 1].position().z());
+  std::vector<float> pvscores;
+  for (size_t i = 1; i < (*pvsIn).size() && i < 4; i++) {
+    pvsz.push_back((*pvsIn)[i].position().z());
+    pvscores.push_back((*pvsScoreIn).get(pvsIn.id(), i));
+  }
   otherPVsTable->addColumn<float>("z", pvsz, "Z position of other primary vertices, excluding the main PV", 8);
+  otherPVsTable->addColumn<float>("score", pvscores, "scores of other primary vertices, excluding the main PV", 8);
 
   edm::Handle<edm::View<reco::VertexCompositePtrCandidate>> svsIn;
   iEvent.getByToken(svs_, svsIn);
