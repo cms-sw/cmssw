@@ -25,7 +25,7 @@ PTrackerAdditionalParametersPerDetDBBuilder::PTrackerAdditionalParametersPerDetD
     : geomDetToken_(esConsumes<edm::Transition::BeginRun>()) {}
 
 void PTrackerAdditionalParametersPerDetDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  PTrackerAdditionalParametersPerDet* ptitp = new PTrackerAdditionalParametersPerDet;
+  PTrackerAdditionalParametersPerDet ptitp;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("PTrackerAdditionalParametersPerDetDBBuilder") << "PoolDBOutputService unavailable";
@@ -38,13 +38,12 @@ void PTrackerAdditionalParametersPerDetDBBuilder::beginRun(const edm::Run&, edm:
   gd->deepComponents(comp);
 
   for (auto& i : comp) {
-    ptitp->setGeographicalId(i->geographicalId());
-    ptitp->setBricked(i->isBricked());
+    ptitp.setGeographicalId(i->geographicalId());
+    ptitp.setBricked(i->isBricked());
   }
 
   if (mydbservice->isNewTagRequest("PTrackerAdditionalParametersPerDetRcd")) {
-    mydbservice->createNewIOV<PTrackerAdditionalParametersPerDet>(
-        ptitp, mydbservice->beginOfTime(), mydbservice->endOfTime(), "PTrackerAdditionalParametersPerDetRcd");
+    mydbservice->createOneIOV(ptitp, mydbservice->beginOfTime(), "PTrackerAdditionalParametersPerDetRcd");
   } else {
     edm::LogError("PTrackerAdditionalParametersPerDetDBBuilder")
         << "PTrackerAdditionalParametersPerDet and PTrackerAdditionalParametersPerDetRcd Tag already present";
