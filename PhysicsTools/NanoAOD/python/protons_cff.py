@@ -73,8 +73,7 @@ genProtonTablesTask = cms.Task(genProtonTable)
 
 # input GEN-level PU protons collection introduced in 9_4_X cycle
 run2_miniAOD_80XLegacy.toReplaceWith(genProtonTablesTask, cms.Task())
-# re-MiniAODv2 appears to have this extra label
-(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2).toModify(genProtonTable,
-    # PU protons source could have an extra 'genPUProtons' collection name for some samples
+# PU protons tag could have an extra 'genPUProtons' collection name for some eras
+run2_nanoAOD_94XMiniAODv2.toModify(genProtonTable,
     srcPUProtons = cms.InputTag('genPUProtons', 'genPUProtons')
 )
