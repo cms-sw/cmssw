@@ -119,7 +119,7 @@ std::map<std::string, float> ElectronDNNEstimator::getInputsVars(const reco::Gsf
   variables["1_minus_full5x5_e1x5_ratio_full5x5_e5x5"] = 1 - ele.full5x5_e1x5() / ele.full5x5_e5x5();
   variables["full5x5_e1x5_ratio_full5x5_e5x5"] = ele.full5x5_e1x5() / ele.full5x5_e5x5();
   variables["full5x5_r9"] = ele.full5x5_r9();
-  variables["gsfTrack.hitPattern.trackerLayersWithMeasurement"] =
+  variables["gsfTrack.trackerLayersWithMeasurement"] =
       (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.;
   variables["superCluster.energy"] = ele.superCluster()->energy();
   variables["superCluster.rawEnergy"] = ele.superCluster()->rawEnergy();
