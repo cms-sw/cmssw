@@ -45,7 +45,7 @@ PGeometricDetBuilder::PGeometricDetBuilder(const edm::ParameterSet& iConfig) {
 }
 
 void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  PGeometricDet* pgd = new PGeometricDet;
+  PGeometricDet pgd;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("PGeometricDetBuilder") << "PoolDBOutputService unavailable";
@@ -59,14 +59,14 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
   const GeometricDet* tracker = &es.getData(geometricDetToken_);
 
   // so now I have the tracker itself. loop over all its components to store them.
-  putOne(tracker, pgd, 0);
+  putOne(tracker, &pgd, 0);
   std::vector<const GeometricDet*> tc = tracker->components();
   std::vector<const GeometricDet*>::const_iterator git = tc.begin();
   std::vector<const GeometricDet*>::const_iterator egit = tc.end();
   int count = 0;
   int lev = 1;
   for (; git != egit; ++git) {  // one level below "tracker"
-    putOne(*git, pgd, lev);
+    putOne(*git, &pgd, lev);
     std::vector<const GeometricDet*> inone = (*git)->components();
     if (inone.empty())
       ++count;
@@ -74,7 +74,7 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
     std::vector<const GeometricDet*>::const_iterator egit2 = inone.end();
     ++lev;
     for (; git2 != egit2; ++git2) {  // level 2
-      putOne(*git2, pgd, lev);
+      putOne(*git2, &pgd, lev);
       std::vector<const GeometricDet*> intwo = (*git2)->components();
       if (intwo.empty())
         ++count;
@@ -82,7 +82,7 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
       std::vector<const GeometricDet*>::const_iterator egit3 = intwo.end();
       ++lev;
       for (; git3 != egit3; ++git3) {  // level 3
-        putOne(*git3, pgd, lev);
+        putOne(*git3, &pgd, lev);
         std::vector<const GeometricDet*> inthree = (*git3)->components();
         if (inthree.empty())
           ++count;
@@ -90,7 +90,7 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
         std::vector<const GeometricDet*>::const_iterator egit4 = inthree.end();
         ++lev;
         for (; git4 != egit4; ++git4) {  //level 4
-          putOne(*git4, pgd, lev);
+          putOne(*git4, &pgd, lev);
           std::vector<const GeometricDet*> infour = (*git4)->components();
           if (infour.empty())
             ++count;
@@ -98,7 +98,7 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
           std::vector<const GeometricDet*>::const_iterator egit5 = infour.end();
           ++lev;
           for (; git5 != egit5; ++git5) {  // level 5
-            putOne(*git5, pgd, lev);
+            putOne(*git5, &pgd, lev);
             std::vector<const GeometricDet*> infive = (*git5)->components();
             if (infive.empty())
               ++count;
@@ -106,7 +106,7 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
             std::vector<const GeometricDet*>::const_iterator egit6 = infive.end();
             ++lev;
             for (; git6 != egit6; ++git6) {  //level 6
-              putOne(*git6, pgd, lev);
+              putOne(*git6, &pgd, lev);
               std::vector<const GeometricDet*> insix = (*git6)->components();
               if (insix.empty())
                 ++count;
@@ -121,10 +121,8 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
     }  // level 2
     --lev;
   }
-  std::vector<const GeometricDet*> modules = tracker->deepComponents();
   if (mydbservice->isNewTagRequest("IdealGeometryRecord")) {
-    mydbservice->createNewIOV<PGeometricDet>(
-        pgd, mydbservice->beginOfTime(), mydbservice->endOfTime(), "IdealGeometryRecord");
+    mydbservice->createOneIOV(pgd, mydbservice->beginOfTime(), "IdealGeometryRecord");
   } else {
     edm::LogError("PGeometricDetBuilder") << "PGeometricDetBuilder Tag already present";
   }

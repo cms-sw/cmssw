@@ -63,7 +63,7 @@ void PHGCalParametersDBBuilder::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 void PHGCalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  PHGCalParameters* phgp = new PHGCalParameters;
+  PHGCalParameters phgp;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("PHGCalParametersDBBuilder") << "PoolDBOutputService unavailable";
@@ -85,12 +85,11 @@ void PHGCalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const&
     auto cpv = es.getTransientHandle(compactViewToken_);
     builder.build(cpv.product(), *ptp, name_, namew_, namec_, namet_);
   }
-  swapParameters(ptp, phgp);
+  swapParameters(ptp, &phgp);
   delete ptp;
 
   if (mydbservice->isNewTagRequest("PHGCalParametersRcd")) {
-    mydbservice->createNewIOV<PHGCalParameters>(
-        phgp, mydbservice->beginOfTime(), mydbservice->endOfTime(), "PHGCalParametersRcd");
+    mydbservice->createOneIOV(phgp, mydbservice->beginOfTime(), "PHGCalParametersRcd");
   } else {
     edm::LogError("PHGCalParametersDBBuilder") << "PHGCalParameters and PHGCalParametersRcd Tag already present";
   }
