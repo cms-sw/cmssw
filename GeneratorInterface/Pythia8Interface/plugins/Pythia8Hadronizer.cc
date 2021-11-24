@@ -467,7 +467,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
 
   if (fCustomHooksVector.get()) {
     edm::LogInfo("Pythia8Interface") << "Adding customized user hooks";
-    for (auto fUserHook : fCustomHooksVector->hooks) {
+    for (const auto &fUserHook : fCustomHooksVector->hooks) {
       fMasterGen->addUserHooksPtr(fUserHook);
     }
   }
@@ -538,7 +538,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
 
   if (fCustomHooksVector.get()) {
     edm::LogInfo("Pythia8Interface") << "Adding customized user hook";
-    for (auto fUserHook : fCustomHooksVector->hooks) {
+    for (const auto &fUserHook : fCustomHooksVector->hooks) {
       (fUserHooksVector->hooks).push_back(fUserHook);
     }
   }
