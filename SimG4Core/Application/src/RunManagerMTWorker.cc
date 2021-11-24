@@ -86,17 +86,17 @@ namespace {
           SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
       if (maker == nullptr) {
         throw edm::Exception(edm::errors::Configuration)
-	  << "RunManagerMTWorker::createWatchers: "
-	  << "Unable to find the requested Watcher " << watcher.getParameter<std::string>("type");
+            << "RunManagerMTWorker::createWatchers: "
+            << "Unable to find the requested Watcher " << watcher.getParameter<std::string>("type");
       } else {
-	std::shared_ptr<SimWatcher> watcherTemp;
-	std::shared_ptr<SimProducer> producerTemp;
-	maker->make(watcher, *(iReg), watcherTemp, producerTemp);
+        std::shared_ptr<SimWatcher> watcherTemp;
+        std::shared_ptr<SimProducer> producerTemp;
+        maker->make(watcher, *(iReg), watcherTemp, producerTemp);
         if (nullptr != watcherTemp) {
           if (!watcherTemp->isMT() && 0 < threadID) {
             throw edm::Exception(edm::errors::Configuration)
-	      << "RunManagerMTWorker::createWatchers: "
-	      << "Unable to use Watcher " << watcher.getParameter<std::string>("type") << " if number of threads > 1";
+                << "RunManagerMTWorker::createWatchers: "
+                << "Unable to use Watcher " << watcher.getParameter<std::string>("type") << " if number of threads > 1";
           } else {
             oWatchers.push_back(watcherTemp);
             if (nullptr != producerTemp) {
@@ -230,7 +230,7 @@ void RunManagerMTWorker::initializeTLS() {
     m_tls->registry->connect(*otherRegistry);
     if (thisID > 0) {
       throw edm::Exception(edm::errors::Configuration)
-	  << "RunManagerMTWorker::initializeTLS : "
+          << "RunManagerMTWorker::initializeTLS : "
           << "SimActivityRegistry service (i.e. visualization) is not supported for more than 1 thread. "
           << " \n If this use case is needed, RunManagerMTWorker has to be updated.";
     }
@@ -303,7 +303,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
     if (!fieldFile.empty()) {
       std::call_once(applyOnce, [this]() { m_dumpMF = true; });
       if (m_dumpMF) {
-        edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::InitializeG4: Dump magnetic field to file " << fieldFile;
+        edm::LogVerbatim("SimG4CoreApplication")
+            << "RunManagerMTWorker::InitializeG4: Dump magnetic field to file " << fieldFile;
         DumpMagneticField(tM->GetFieldManager()->GetDetectorField(), fieldFile);
       }
     }
