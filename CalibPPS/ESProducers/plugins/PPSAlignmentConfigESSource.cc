@@ -1,8 +1,6 @@
 /****************************************************************************
  *
- *  CalibPPS/ESProducers/plugins/PPSAlignmentConfigESSource.cc
- * 
- *  Description: Constructs PPSAlignmentConfig instance
+ *  This module is obsolete! Use PPSAlignmentConfigurationESSource instead.
  *
  *  Authors:
  *  - Jan Kašpar
