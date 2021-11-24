@@ -59,7 +59,6 @@ private:
   string rootTag_;
   ofstream text_;
 
-  CentralityTable* CT;
   const CentralityBins* CB;
 
   unsigned int runnum_;
