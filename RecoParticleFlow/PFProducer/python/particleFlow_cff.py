@@ -15,14 +15,22 @@ particleFlowTmp = particleFlow.clone()
 particleFlowTmp.PFEGammaFiltersParameters.allowEEEinPF = cms.bool(False)
 
 # Thresholds for e/gamma PFID DNN 
+# Thresholds for electron: Sig_isolated+Sig_nonIsolated
 particleFlowTmp.PFEGammaFiltersParameters.electronDnnThresholds = cms.PSet(
-            electronDnnHighPtBarrelThr = cms.double(0.122),
-            electronDnnHighPtEndcapThr = cms.double(0.072),
-            electronDnnLowPtThr = cms.double(0.081)
+            electronDnnHighPtBarrelThr = cms.double(0.068),
+            electronDnnHighPtEndcapThr = cms.double(0.056),
+            electronDnnLowPtThr = cms.double(0.075) 
         )
+# Thresholds for electron: Bkg_nonIsolated
+particleFlowTmp.PFEGammaFiltersParameters.electronDnnBkgThresholds = cms.PSet(
+            electronDnnBkgHighPtBarrelThr = cms.double(0.8),
+            electronDnnBkgHighPtEndcapThr = cms.double(0.75),
+            electronDnnBkgLowPtThr = cms.double(0.75) 
+        )
+# Thresholds for photons
 particleFlowTmp.PFEGammaFiltersParameters.photonDnnThresholds = cms.PSet(
-            photonDnnBarrelThr = cms.double(0.70),
-            photonDnnEndcapThr = cms.double(0.79)
+            photonDnnBarrelThr = cms.double(0.22),
+            photonDnnEndcapThr = cms.double(0.35)
 )
 
 from Configuration.Eras.Modifier_pf_badHcalMitigationOff_cff import pf_badHcalMitigationOff
