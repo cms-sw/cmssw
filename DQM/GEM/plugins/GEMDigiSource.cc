@@ -168,7 +168,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
         GlobalPoint digi_global_pos = surface.toGlobal(iEta->centreOfStrip(d->strip()));
         Float_t fPhi = (Float_t)digi_global_pos.phi();
         Float_t fPhiDeg = fPhi * 180.0 / M_PI;
-        fPhiDeg = (fPhi >= -0.5 ? fPhi : fPhi + 360);
+        fPhiDeg = (fPhiDeg >= -0.5 ? fPhiDeg : fPhiDeg + 360);
         mapDigiOcc_phi_.Fill(key3, fPhiDeg);  // Phi
 
         // Filling of R-Phi occupancy
