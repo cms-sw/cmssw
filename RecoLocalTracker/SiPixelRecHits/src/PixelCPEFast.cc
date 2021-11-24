@@ -49,7 +49,6 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const& conf,
 }
 
 const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cudaStream_t cudaStream) const {
-
   const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cudaStream_t stream) {
     // and now copy to device...
 
@@ -210,7 +209,6 @@ void PixelCPEFast::fillParamsForGpu() {
     //--- Note that the normalization is not required as only the ratio used
 
     {
-
       // calculate angles (fed into errorFromTemplates)
       cp.cotalpha = gvx * gvz;
       cp.cotbeta = gvy * gvz;
@@ -386,30 +384,29 @@ void PixelCPEFast::fillParamsForGpu() {
       auto const& g = detParamsGPU_[im];
       aveGeom.endCapZ[1] = std::min(aveGeom.endCapZ[1], g.frame.z());
     }
-}
+  }
 #ifdef EDM_ML_DEBUG
-    for (int jl = 0, nl = numberOfLaddersInBarrel; jl < nl; ++jl) {
-      LogDebug("PixelCPEFast") << jl << ':' << aveGeom.ladderR[jl] << '/'
-                               << std::sqrt(aveGeom.ladderX[jl] * aveGeom.ladderX[jl] +
-                                            aveGeom.ladderY[jl] * aveGeom.ladderY[jl])
-                               << ',' << aveGeom.ladderZ[jl] << ',' << aveGeom.ladderMinZ[jl] << ','
-                               << aveGeom.ladderMaxZ[jl] << '\n';
-    }
-    LogDebug("PixelCPEFast") << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1];
+  for (int jl = 0, nl = numberOfLaddersInBarrel; jl < nl; ++jl) {
+    LogDebug("PixelCPEFast") << jl << ':' << aveGeom.ladderR[jl] << '/'
+                             << std::sqrt(aveGeom.ladderX[jl] * aveGeom.ladderX[jl] +
+                                          aveGeom.ladderY[jl] * aveGeom.ladderY[jl])
+                             << ',' << aveGeom.ladderZ[jl] << ',' << aveGeom.ladderMinZ[jl] << ','
+                             << aveGeom.ladderMaxZ[jl] << '\n';
+  }
+  LogDebug("PixelCPEFast") << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1];
 #endif  // EDM_ML_DEBUG
 
-    // fill Layer and ladders geometry
-    memset(&layerGeometry_, 0, sizeof(pixelCPEforGPU::LayerGeometry));
-    if (!isUpgrade_) {
-      memcpy(layerGeometry_.layerStart, phase1PixelTopology::layerStart, sizeof(phase1PixelTopology::layerStart));
-      memcpy(layerGeometry_.layer, phase1PixelTopology::layer.data(), phase1PixelTopology::layer.size());
-      layerGeometry_.maxModuleStride = phase1PixelTopology::maxModuleStride;
-    } else {
-      memcpy(layerGeometry_.layerStart, phase2PixelTopology::layerStart, sizeof(phase2PixelTopology::layerStart));
-      memcpy(layerGeometry_.layer, phase2PixelTopology::layer.data(), phase2PixelTopology::layer.size());
-      layerGeometry_.maxModuleStride = phase2PixelTopology::maxModuleStride;
-    }
-
+  // fill Layer and ladders geometry
+  memset(&layerGeometry_, 0, sizeof(pixelCPEforGPU::LayerGeometry));
+  if (!isUpgrade_) {
+    memcpy(layerGeometry_.layerStart, phase1PixelTopology::layerStart, sizeof(phase1PixelTopology::layerStart));
+    memcpy(layerGeometry_.layer, phase1PixelTopology::layer.data(), phase1PixelTopology::layer.size());
+    layerGeometry_.maxModuleStride = phase1PixelTopology::maxModuleStride;
+  } else {
+    memcpy(layerGeometry_.layerStart, phase2PixelTopology::layerStart, sizeof(phase2PixelTopology::layerStart));
+    memcpy(layerGeometry_.layer, phase2PixelTopology::layer.data(), phase2PixelTopology::layer.size());
+    layerGeometry_.maxModuleStride = phase2PixelTopology::maxModuleStride;
+  }
 }
 
 PixelCPEFast::GPUData::~GPUData() {

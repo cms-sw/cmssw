@@ -210,11 +210,35 @@ namespace phase2PixelTopology {
   constexpr uint32_t numberOfModules = 3892;
   constexpr uint8_t numberOfLayers = 28;
 
-  constexpr uint32_t layerStart[numberOfLayers + 1] = {
-      0,    108,  324,  504,  //Barrel
-      756,  864,  972,  1080, 1188, 1296, 1404, 1512, 1620, 1796, 1972, 2148, //Fp
-      2324, 2432, 2540, 2648, 2756, 2864, 2972, 3080, 3188, 3364, 3540, 3716, //Np
-      numberOfModules};
+  constexpr uint32_t layerStart[numberOfLayers + 1] = {0,
+                                                       108,
+                                                       324,
+                                                       504,  //Barrel
+                                                       756,
+                                                       864,
+                                                       972,
+                                                       1080,
+                                                       1188,
+                                                       1296,
+                                                       1404,
+                                                       1512,
+                                                       1620,
+                                                       1796,
+                                                       1972,
+                                                       2148,  //Fp
+                                                       2324,
+                                                       2432,
+                                                       2540,
+                                                       2648,
+                                                       2756,
+                                                       2864,
+                                                       2972,
+                                                       3080,
+                                                       3188,
+                                                       3364,
+                                                       3540,
+                                                       3716,  //Np
+                                                       numberOfModules};
 
   constexpr uint16_t findMaxModuleStride() {
     bool go = true;

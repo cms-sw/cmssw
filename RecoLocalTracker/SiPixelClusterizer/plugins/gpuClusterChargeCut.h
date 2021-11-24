@@ -14,7 +14,7 @@
 
 namespace gpuClustering {
 
-  template<bool isUpgrade>
+  template <bool isUpgrade>
   __global__ void clusterChargeCut(
       SiPixelClusterThresholds
           clusterThresholds,             // charge cut on cluster in electrons (for layer 1 and for other layers)
@@ -32,8 +32,8 @@ namespace gpuClustering {
     constexpr int startBPIX2 = isUpgrade ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
     constexpr int nMaxModules = isUpgrade ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
 
-    assert(nMaxModules<maxNumModules);
-    assert(startBPIX2<nMaxModules);
+    assert(nMaxModules < maxNumModules);
+    assert(startBPIX2 < nMaxModules);
 
     auto firstModule = blockIdx.x;
     auto endModule = moduleStart[0];
@@ -92,8 +92,7 @@ namespace gpuClustering {
       }
       __syncthreads();
 
-      auto chargeCut =
-          clusterThresholds.getThresholdForLayerOnCondition(thisModuleId < startBPIX2);
+      auto chargeCut = clusterThresholds.getThresholdForLayerOnCondition(thisModuleId < startBPIX2);
 
       bool good = true;
       for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {

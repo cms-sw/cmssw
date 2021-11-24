@@ -48,8 +48,7 @@ namespace gpuCalibPixel {
       if (invalidModuleId == id[i])
         continue;
 
-      if constexpr(!isUpgrade)
-      {
+      if constexpr (!isUpgrade) {
         bool isDeadColumn = false, isNoisyColumn = false;
 
         int row = x[i];
@@ -73,32 +72,29 @@ namespace gpuCalibPixel {
           adc[i] = std::max(100, int(vcal));
         }
       } else {
+        constexpr int mode = (Phase2ReadoutMode < -1 ? -1 : Phase2ReadoutMode);
 
-
-          constexpr int mode = (Phase2ReadoutMode < -1 ? -1 : Phase2ReadoutMode);
-
-          if constexpr (mode < 0)
-            adc[i] = int(adc[i] * ElectronPerADCGain);
+        if constexpr (mode < 0)
+          adc[i] = int(adc[i] * ElectronPerADCGain);
+        else {
+          if (adc[i] < Phase2KinkADC)
+            adc[i] = int((adc[i] - 0.5) * ElectronPerADCGain);
           else {
-            if (adc[i] < Phase2KinkADC)
-              adc[i] = int((adc[i] - 0.5) * ElectronPerADCGain);
-            else {
-              constexpr int8_t dspp = (Phase2ReadoutMode < 10 ? Phase2ReadoutMode : 10);
-              constexpr int8_t ds = int8_t(dspp <= 1 ? 1 : (dspp - 1) * (dspp - 1));
+            constexpr int8_t dspp = (Phase2ReadoutMode < 10 ? Phase2ReadoutMode : 10);
+            constexpr int8_t ds = int8_t(dspp <= 1 ? 1 : (dspp - 1) * (dspp - 1));
 
-              adc[i] -= (Phase2KinkADC - 1);
-              adc[i] *= ds;
-              adc[i] += (Phase2KinkADC - 1);
+            adc[i] -= (Phase2KinkADC - 1);
+            adc[i] *= ds;
+            adc[i] += (Phase2KinkADC - 1);
 
-              adc[i] = uint16_t((adc[i] + 0.5 * ds) * ElectronPerADCGain);
-            }
-
-            adc[i] += int(Phase2DigiBaseline);
+            adc[i] = uint16_t((adc[i] + 0.5 * ds) * ElectronPerADCGain);
           }
+
+          adc[i] += int(Phase2DigiBaseline);
         }
       }
     }
   }
-
+}  // namespace gpuCalibPixel
 
 #endif  // RecoLocalTracker_SiPixelClusterizer_plugins_gpuCalibPixel_h

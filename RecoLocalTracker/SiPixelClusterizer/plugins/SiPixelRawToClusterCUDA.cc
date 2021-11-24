@@ -96,22 +96,18 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
       maxFedWords_(iConfig.getParameter<uint32_t>("MaxFEDWords")),
       clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
                          iConfig.getParameter<int32_t>("clusterThreshold_otherLayers")} {
-  if(isRun2_ and isUpgrade_)
-  {
+  if (isRun2_ and isUpgrade_) {
     throw cms::Exception("SiPixelRawToClusterCUDA") << "Cannot use isRun2 and isUpgrade at the same time\n";
   }
 
-  if (isUpgrade_)
-  {
+  if (isUpgrade_) {
     pixelDigiToken_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("InputDigis"));
-  }
-  else
-  {
-     rawGetToken_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"));
-     gpuMapToken_ = esConsumes<SiPixelROCsStatusAndMappingWrapper, CkfComponentsRecord>();
-     gainsToken_ = esConsumes<SiPixelGainCalibrationForHLTGPU, SiPixelGainCalibrationForHLTGPURcd>();
-     cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>( edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")));
-
+  } else {
+    rawGetToken_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"));
+    gpuMapToken_ = esConsumes<SiPixelROCsStatusAndMappingWrapper, CkfComponentsRecord>();
+    gainsToken_ = esConsumes<SiPixelGainCalibrationForHLTGPU, SiPixelGainCalibrationForHLTGPURcd>();
+    cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(
+        edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")));
   }
 
   if (includeErrors_) {
@@ -158,8 +154,7 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
                                       edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   cms::cuda::ScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder), ctxState_};
 
-  if (!isUpgrade_)
-  {
+  if (!isUpgrade_) {
     auto hgpuMap = iSetup.getHandle(gpuMapToken_);
     if (hgpuMap->hasQuality() != useQuality_) {
       throw cms::Exception("LogicError")
@@ -179,8 +174,8 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
     if (regions_) {
       regions_->run(iEvent, iSetup);
       LogDebug("SiPixelRawToCluster") << "region2unpack #feds: " << regions_->nFEDs();
-      LogDebug("SiPixelRawToCluster") << "region2unpack #modules (BPIX,EPIX,total): " << regions_->nBarrelModules() << " "
-                                      << regions_->nForwardModules() << " " << regions_->nModules();
+      LogDebug("SiPixelRawToCluster") << "region2unpack #modules (BPIX,EPIX,total): " << regions_->nBarrelModules()
+                                      << " " << regions_->nForwardModules() << " " << regions_->nModules();
       modulesToUnpackRegional = hgpuMap->getModToUnpRegionalAsync(*(regions_->modulesToUnpack()), ctx.stream());
       gpuModulesToUnpack = modulesToUnpackRegional.get();
     } else {
@@ -280,9 +275,7 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
                                includeErrors_,
                                edm::MessageDrop::instance()->debugEnabled,
                                ctx.stream());
-  }
-  else
-  {
+  } else {
     edm::Handle<edm::DetSetVector<PixelDigi>> digis;
     iEvent.getByToken(pixelDigiToken_, digis);
     auto const& input = *digis;
@@ -307,7 +300,6 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
       const GeomDetUnit* genericDet = geom_->idToDetUnit(detIdObject);
       auto const gind = genericDet->index();
       for (auto const& px : *DSViter) {
-
         moduleIds[nDigis] = uint16_t(gind);
 
         xDigis[nDigis] = uint16_t(px.row());
@@ -322,12 +314,16 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
       }
     }
 
-    gpuAlgo_.makeClustersAsync(
-        clusterThresholds_, moduleIds.get(), xDigis.get(), yDigis.get(),
-              adcDigis.get(), packedData.get(), rawIds.get(), nDigis, ctx.stream());
+    gpuAlgo_.makeClustersAsync(clusterThresholds_,
+                               moduleIds.get(),
+                               xDigis.get(),
+                               yDigis.get(),
+                               adcDigis.get(),
+                               packedData.get(),
+                               rawIds.get(),
+                               nDigis,
+                               ctx.stream());
   }
-
-
 }
 
 void SiPixelRawToClusterCUDA::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

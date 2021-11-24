@@ -254,7 +254,8 @@ int main(void) {
     std::cout << "CUDA countModules kernel launch with " << blocksPerGrid << " blocks of " << threadsPerBlock
               << " threads\n";
 
-    cms::cuda::launch(countModules<false>, {blocksPerGrid, threadsPerBlock}, d_id.get(), d_moduleStart.get(), d_clus.get(), n);
+    cms::cuda::launch(
+        countModules<false>, {blocksPerGrid, threadsPerBlock}, d_id.get(), d_moduleStart.get(), d_clus.get(), n);
 
     blocksPerGrid = maxNumModules;  //nModules;
 
@@ -321,13 +322,13 @@ int main(void) {
       std::cout << "ERROR!!!!! wrong number of cluster found" << std::endl;
 
     clusterChargeCut<false>(clusterThresholds,
-                     h_id.get(),
-                     h_adc.get(),
-                     h_moduleStart.get(),
-                     h_clusInModule.get(),
-                     h_moduleId.get(),
-                     h_clus.get(),
-                     n);
+                            h_id.get(),
+                            h_adc.get(),
+                            h_moduleStart.get(),
+                            h_clusInModule.get(),
+                            h_moduleId.get(),
+                            h_clus.get(),
+                            n);
 #endif  // __CUDACC__
 
     std::cout << "found " << nModules << " Modules active" << std::endl;

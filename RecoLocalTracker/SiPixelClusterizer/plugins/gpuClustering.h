@@ -15,14 +15,14 @@ namespace gpuClustering {
   __device__ uint32_t gMaxHit = 0;
 #endif
 
-  template<bool isUpgrade>
+  template <bool isUpgrade>
   __global__ void countModules(uint16_t const* __restrict__ id,
                                uint32_t* __restrict__ moduleStart,
                                int32_t* __restrict__ clusterId,
                                int numElements) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
     constexpr int nMaxModules = isUpgrade ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
-    assert(nMaxModules<maxNumModules);
+    assert(nMaxModules < maxNumModules);
     for (int i = first; i < numElements; i += gridDim.x * blockDim.x) {
       clusterId[i] = i;
       if (invalidModuleId == id[i])
@@ -38,7 +38,7 @@ namespace gpuClustering {
     }
   }
 
-  template<bool isUpgrade>
+  template <bool isUpgrade>
   __global__ void findClus(uint16_t const* __restrict__ id,           // module id of each pixel
                            uint16_t const* __restrict__ x,            // local coordinates of each pixel
                            uint16_t const* __restrict__ y,            //
@@ -53,7 +53,7 @@ namespace gpuClustering {
     auto endModule = moduleStart[0];
 
     constexpr int nMaxModules = isUpgrade ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
-    assert(nMaxModules<maxNumModules);
+    assert(nMaxModules < maxNumModules);
 
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
@@ -86,7 +86,7 @@ namespace gpuClustering {
       //6000 max pixels required for HI operations with no measurable impact on pp performance
       constexpr uint32_t maxPixInModule = 6000;
       constexpr auto nbins = isUpgrade ? 1024 : phase1PixelTopology::numColsInModule + 2;  //2+2;
-      constexpr auto nbits = isUpgrade ? 10 : 9;  //2+2;
+      constexpr auto nbits = isUpgrade ? 10 : 9;                                           //2+2;
       using Hist = cms::cuda::HistoContainer<uint16_t, nbins, maxPixInModule, nbits, uint16_t>;
       __shared__ Hist hist;
       __shared__ typename Hist::Counter ws[32];
