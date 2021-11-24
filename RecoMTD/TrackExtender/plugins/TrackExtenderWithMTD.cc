@@ -95,13 +95,9 @@ namespace {
 
   class TrackSegments {
   public:
-    TrackSegments() {
-      nSegment_ = 0;
-      segmentPathOvc_.clear();
-      segmentMom2_.clear();
-    }
+    TrackSegments() = default;
 
-    inline size_t addSegment(double tPath, double tMom2) {
+    inline uint32_t addSegment(double tPath, double tMom2) {
       segmentPathOvc_.emplace_back(tPath * c_inv);
       segmentMom2_.emplace_back(tMom2);
       nSegment_++;
@@ -112,9 +108,9 @@ namespace {
       return nSegment_;
     }
 
-    inline const double computeTof(double mass_inv2) {
+    inline double computeTof(double mass_inv2) const {
       double tof(0.);
-      for (size_t iSeg = 0; iSeg < nSegment_; iSeg++) {
+      for (uint32_t iSeg = 0; iSeg < nSegment_; iSeg++) {
         double gammasq = 1. + segmentMom2_[iSeg] * mass_inv2;
         double beta = std::sqrt(1. - 1. / gammasq);
         tof += segmentPathOvc_[iSeg] / beta;
@@ -126,9 +122,9 @@ namespace {
       return tof;
     }
 
-    inline size_t getSize() const { return nSegment_; }
+    inline uint32_t size() const { return nSegment_; }
 
-    inline size_t removeFirstSegment() {
+    inline uint32_t removeFirstSegment() {
       if (nSegment_ > 0) {
         segmentPathOvc_.erase(segmentPathOvc_.begin());
         segmentMom2_.erase(segmentMom2_.begin());
@@ -137,14 +133,14 @@ namespace {
       return nSegment_;
     }
 
-    inline std::pair<double, double> getSegment(size_t iSegment) const {
+    inline std::pair<double, double> getSegmentPathAndMom2(uint32_t iSegment) const {
       if (iSegment >= nSegment_) {
         throw cms::Exception("TrackExtenderWithMTD") << "Requesting non existing track segment #" << iSegment;
       }
       return std::make_pair(segmentPathOvc_[iSegment], segmentMom2_[iSegment]);
     }
 
-    size_t nSegment_;
+    uint32_t nSegment_ = 0;
     std::vector<double> segmentPathOvc_;
     std::vector<double> segmentMom2_;
   };
@@ -181,7 +177,7 @@ namespace {
     double prob_p;
   };
 
-  enum class TofCalc { cost = 1, segm = 2, mixd = 3 };
+  enum class TofCalc { kCost = 1, kSegm = 2, kMixd = 3 };
 
   const TrackTofPidInfo computeTrackTofPidInfo(double magp2,
                                                double length,
@@ -191,7 +187,7 @@ namespace {
                                                double t_vtx,
                                                double t_vtx_err,
                                                bool addPIDError = true,
-                                               TofCalc choice = TofCalc::cost) {
+                                               TofCalc choice = TofCalc::kCost) {
     constexpr double m_pi = 0.13957018;
     constexpr double m_pi_inv2 = 1.0 / m_pi / m_pi;
     constexpr double m_k = 0.493677;
@@ -205,56 +201,33 @@ namespace {
     tofpid.tmtderror = t_mtderr;
     tofpid.pathlength = length;
 
+    auto deltat = [&](const double mass_inv2, const double betatmp) {
+      double res(1.);
+      switch (choice) {
+        case TofCalc::kCost:
+          res = tofpid.pathlength / betatmp * c_inv;
+          break;
+        case TofCalc::kSegm:
+          res = trs.computeTof(mass_inv2);
+          break;
+        case TofCalc::kMixd:
+          res = trs.computeTof(mass_inv2) + tofpid.pathlength / betatmp * c_inv;
+          break;
+      }
+      return res;
+    };
+
     tofpid.gammasq_pi = 1. + magp2 * m_pi_inv2;
     tofpid.beta_pi = std::sqrt(1. - 1. / tofpid.gammasq_pi);
-    switch (choice) {
-      case TofCalc::cost:
-        tofpid.dt_pi = tofpid.pathlength / tofpid.beta_pi * c_inv;
-        break;
-      case TofCalc::segm:
-        tofpid.dt_pi = trs.computeTof(m_pi_inv2);
-        break;
-      case TofCalc::mixd:
-        tofpid.dt_pi = trs.computeTof(m_pi_inv2) + tofpid.pathlength / tofpid.beta_pi * c_inv;
-        break;
-      default:
-        tofpid.dt_pi = 1;
-        break;
-    }
+    tofpid.dt_pi = deltat(m_pi_inv2, tofpid.beta_pi);
 
     tofpid.gammasq_k = 1. + magp2 * m_k_inv2;
     tofpid.beta_k = std::sqrt(1. - 1. / tofpid.gammasq_k);
-    switch (choice) {
-      case TofCalc::cost:
-        tofpid.dt_k = tofpid.pathlength / tofpid.beta_k * c_inv;
-        break;
-      case TofCalc::segm:
-        tofpid.dt_k = trs.computeTof(m_k_inv2);
-        break;
-      case TofCalc::mixd:
-        tofpid.dt_k = trs.computeTof(m_k_inv2) + tofpid.pathlength / tofpid.beta_k * c_inv;
-        break;
-      default:
-        tofpid.dt_k = 1;
-        break;
-    }
+    tofpid.dt_k = deltat(m_k_inv2, tofpid.beta_k);
 
     tofpid.gammasq_p = 1. + magp2 * m_p_inv2;
     tofpid.beta_p = std::sqrt(1. - 1. / tofpid.gammasq_p);
-    switch (choice) {
-      case TofCalc::cost:
-        tofpid.dt_p = tofpid.pathlength / tofpid.beta_p * c_inv;
-        break;
-      case TofCalc::segm:
-        tofpid.dt_p = trs.computeTof(m_p_inv2);
-        break;
-      case TofCalc::mixd:
-        tofpid.dt_p = trs.computeTof(m_p_inv2) + tofpid.pathlength / tofpid.beta_p * c_inv;
-        break;
-      default:
-        tofpid.dt_p = 1;
-        break;
-    }
+    tofpid.dt_p = deltat(m_p_inv2, tofpid.beta_p);
 
     tofpid.dt = tofpid.tmtd - tofpid.dt_pi - t_vtx;  //assume by default the pi hypothesis
     tofpid.dterror = sqrt(tofpid.tmtderror * tofpid.tmtderror + t_vtx_err * t_vtx_err);
@@ -350,15 +323,15 @@ namespace {
       }
       pathlength1 += layerpathlength;
       trs.addSegment(layerpathlength, (it + 1)->updatedState().globalMomentum().mag2());
-      LogTrace("TrackExtenderWithMTD") << "TSOS " << std::fixed << std::setw(4) << trs.getSize() << " R_i "
-                                       << std::fixed << std::setw(14) << it->updatedState().globalPosition().perp()
-                                       << " z_i " << std::fixed << std::setw(14)
-                                       << it->updatedState().globalPosition().z() << " R_e " << std::fixed
-                                       << std::setw(14) << (it + 1)->updatedState().globalPosition().perp() << " z_e "
-                                       << std::fixed << std::setw(14) << (it + 1)->updatedState().globalPosition().z()
-                                       << " p " << std::fixed << std::setw(14)
-                                       << (it + 1)->updatedState().globalMomentum().mag() << " dp " << std::fixed
-                                       << std::setw(14) << (it + 1)->updatedState().globalMomentum().mag() - oldp;
+      LogTrace("TrackExtenderWithMTD") << "TSOS " << std::fixed << std::setw(4) << trs.size() << " R_i " << std::fixed
+                                       << std::setw(14) << it->updatedState().globalPosition().perp() << " z_i "
+                                       << std::fixed << std::setw(14) << it->updatedState().globalPosition().z()
+                                       << " R_e " << std::fixed << std::setw(14)
+                                       << (it + 1)->updatedState().globalPosition().perp() << " z_e " << std::fixed
+                                       << std::setw(14) << (it + 1)->updatedState().globalPosition().z() << " p "
+                                       << std::fixed << std::setw(14) << (it + 1)->updatedState().globalMomentum().mag()
+                                       << " dp " << std::fixed << std::setw(14)
+                                       << (it + 1)->updatedState().globalMomentum().mag() - oldp;
       oldp = (it + 1)->updatedState().globalMomentum().mag();
     }
 
@@ -372,7 +345,7 @@ namespace {
     }
     pathlength = pathlength1 + pathlength2;
     trs.addSegment(pathlength2, tscblPCA.momentum().mag2());
-    LogTrace("TrackExtenderWithMTD") << "TSOS " << std::fixed << std::setw(4) << trs.getSize() << " R_e " << std::fixed
+    LogTrace("TrackExtenderWithMTD") << "TSOS " << std::fixed << std::setw(4) << trs.size() << " R_e " << std::fixed
                                      << std::setw(14) << tscblPCA.position().perp() << " z_e " << std::fixed
                                      << std::setw(14) << tscblPCA.position().z() << " p " << std::fixed << std::setw(14)
                                      << tscblPCA.momentum().mag() << " dp " << std::fixed << std::setw(14)
@@ -491,23 +464,23 @@ public:
   string dumpLayer(const DetLayer* layer) const;
 
 private:
-  edm::EDPutToken btlMatchChi2Token;
-  edm::EDPutToken etlMatchChi2Token;
-  edm::EDPutToken btlMatchTimeChi2Token;
-  edm::EDPutToken etlMatchTimeChi2Token;
-  edm::EDPutToken npixBarrelToken;
-  edm::EDPutToken npixEndcapToken;
-  edm::EDPutToken pOrigTrkToken;
-  edm::EDPutToken betaOrigTrkToken;
-  edm::EDPutToken t0OrigTrkToken;
-  edm::EDPutToken sigmat0OrigTrkToken;
-  edm::EDPutToken pathLengthOrigTrkToken;
-  edm::EDPutToken tmtdOrigTrkToken;
-  edm::EDPutToken sigmatmtdOrigTrkToken;
-  edm::EDPutToken tofpiOrigTrkToken;
-  edm::EDPutToken tofkOrigTrkToken;
-  edm::EDPutToken tofpOrigTrkToken;
-  edm::EDPutToken assocOrigTrkToken;
+  edm::EDPutToken btlMatchChi2Token_;
+  edm::EDPutToken etlMatchChi2Token_;
+  edm::EDPutToken btlMatchTimeChi2Token_;
+  edm::EDPutToken etlMatchTimeChi2Token_;
+  edm::EDPutToken npixBarrelToken_;
+  edm::EDPutToken npixEndcapToken_;
+  edm::EDPutToken pOrigTrkToken_;
+  edm::EDPutToken betaOrigTrkToken_;
+  edm::EDPutToken t0OrigTrkToken_;
+  edm::EDPutToken sigmat0OrigTrkToken_;
+  edm::EDPutToken pathLengthOrigTrkToken_;
+  edm::EDPutToken tmtdOrigTrkToken_;
+  edm::EDPutToken sigmatmtdOrigTrkToken_;
+  edm::EDPutToken tofpiOrigTrkToken_;
+  edm::EDPutToken tofkOrigTrkToken_;
+  edm::EDPutToken tofpOrigTrkToken_;
+  edm::EDPutToken assocOrigTrkToken_;
 
   edm::EDGetTokenT<InputCollection> tracksToken_;
   edm::EDGetTokenT<MTDTrackingDetSetVector> hitsToken_;
@@ -577,23 +550,23 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   theEstimator = std::make_unique<Chi2MeasurementEstimator>(estMaxChi2_, estMaxNSigma_);
   theTransformer = std::make_unique<TrackTransformer>(iConfig.getParameterSet("TrackTransformer"), consumesCollector());
 
-  btlMatchChi2Token = produces<edm::ValueMap<float>>("btlMatchChi2");
-  etlMatchChi2Token = produces<edm::ValueMap<float>>("etlMatchChi2");
-  btlMatchTimeChi2Token = produces<edm::ValueMap<float>>("btlMatchTimeChi2");
-  etlMatchTimeChi2Token = produces<edm::ValueMap<float>>("etlMatchTimeChi2");
-  npixBarrelToken = produces<edm::ValueMap<int>>("npixBarrel");
-  npixEndcapToken = produces<edm::ValueMap<int>>("npixEndcap");
-  pOrigTrkToken = produces<edm::ValueMap<float>>("generalTrackp");
-  betaOrigTrkToken = produces<edm::ValueMap<float>>("generalTrackBeta");
-  t0OrigTrkToken = produces<edm::ValueMap<float>>("generalTrackt0");
-  sigmat0OrigTrkToken = produces<edm::ValueMap<float>>("generalTracksigmat0");
-  pathLengthOrigTrkToken = produces<edm::ValueMap<float>>("generalTrackPathLength");
-  tmtdOrigTrkToken = produces<edm::ValueMap<float>>("generalTracktmtd");
-  sigmatmtdOrigTrkToken = produces<edm::ValueMap<float>>("generalTracksigmatmtd");
-  tofpiOrigTrkToken = produces<edm::ValueMap<float>>("generalTrackTofPi");
-  tofkOrigTrkToken = produces<edm::ValueMap<float>>("generalTrackTofK");
-  tofpOrigTrkToken = produces<edm::ValueMap<float>>("generalTrackTofP");
-  assocOrigTrkToken = produces<edm::ValueMap<int>>("generalTrackassoc");
+  btlMatchChi2Token_ = produces<edm::ValueMap<float>>("btlMatchChi2");
+  etlMatchChi2Token_ = produces<edm::ValueMap<float>>("etlMatchChi2");
+  btlMatchTimeChi2Token_ = produces<edm::ValueMap<float>>("btlMatchTimeChi2");
+  etlMatchTimeChi2Token_ = produces<edm::ValueMap<float>>("etlMatchTimeChi2");
+  npixBarrelToken_ = produces<edm::ValueMap<int>>("npixBarrel");
+  npixEndcapToken_ = produces<edm::ValueMap<int>>("npixEndcap");
+  pOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackp");
+  betaOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackBeta");
+  t0OrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackt0");
+  sigmat0OrigTrkToken_ = produces<edm::ValueMap<float>>("generalTracksigmat0");
+  pathLengthOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackPathLength");
+  tmtdOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTracktmtd");
+  sigmatmtdOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTracksigmatmtd");
+  tofpiOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackTofPi");
+  tofkOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackTofK");
+  tofpOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackTofP");
+  assocOrigTrkToken_ = produces<edm::ValueMap<int>>("generalTrackassoc");
 
   builderToken_ = esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", transientTrackBuilder_));
   hitbuilderToken_ =
@@ -914,23 +887,23 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   ev.put(std::move(extras));
   ev.put(std::move(outhits));
 
-  fillValueMap(ev, tracksH, btlMatchChi2, btlMatchChi2Token);
-  fillValueMap(ev, tracksH, etlMatchChi2, etlMatchChi2Token);
-  fillValueMap(ev, tracksH, btlMatchTimeChi2, btlMatchTimeChi2Token);
-  fillValueMap(ev, tracksH, etlMatchTimeChi2, etlMatchTimeChi2Token);
-  fillValueMap(ev, tracksH, npixBarrel, npixBarrelToken);
-  fillValueMap(ev, tracksH, npixEndcap, npixEndcapToken);
-  fillValueMap(ev, tracksH, pOrigTrkRaw, pOrigTrkToken);
-  fillValueMap(ev, tracksH, betaOrigTrkRaw, betaOrigTrkToken);
-  fillValueMap(ev, tracksH, t0OrigTrkRaw, t0OrigTrkToken);
-  fillValueMap(ev, tracksH, sigmat0OrigTrkRaw, sigmat0OrigTrkToken);
-  fillValueMap(ev, tracksH, pathLengthsOrigTrkRaw, pathLengthOrigTrkToken);
-  fillValueMap(ev, tracksH, tmtdOrigTrkRaw, tmtdOrigTrkToken);
-  fillValueMap(ev, tracksH, sigmatmtdOrigTrkRaw, sigmatmtdOrigTrkToken);
-  fillValueMap(ev, tracksH, tofpiOrigTrkRaw, tofpiOrigTrkToken);
-  fillValueMap(ev, tracksH, tofkOrigTrkRaw, tofkOrigTrkToken);
-  fillValueMap(ev, tracksH, tofpOrigTrkRaw, tofpOrigTrkToken);
-  fillValueMap(ev, tracksH, assocOrigTrkRaw, assocOrigTrkToken);
+  fillValueMap(ev, tracksH, btlMatchChi2, btlMatchChi2Token_);
+  fillValueMap(ev, tracksH, etlMatchChi2, etlMatchChi2Token_);
+  fillValueMap(ev, tracksH, btlMatchTimeChi2, btlMatchTimeChi2Token_);
+  fillValueMap(ev, tracksH, etlMatchTimeChi2, etlMatchTimeChi2Token_);
+  fillValueMap(ev, tracksH, npixBarrel, npixBarrelToken_);
+  fillValueMap(ev, tracksH, npixEndcap, npixEndcapToken_);
+  fillValueMap(ev, tracksH, pOrigTrkRaw, pOrigTrkToken_);
+  fillValueMap(ev, tracksH, betaOrigTrkRaw, betaOrigTrkToken_);
+  fillValueMap(ev, tracksH, t0OrigTrkRaw, t0OrigTrkToken_);
+  fillValueMap(ev, tracksH, sigmat0OrigTrkRaw, sigmat0OrigTrkToken_);
+  fillValueMap(ev, tracksH, pathLengthsOrigTrkRaw, pathLengthOrigTrkToken_);
+  fillValueMap(ev, tracksH, tmtdOrigTrkRaw, tmtdOrigTrkToken_);
+  fillValueMap(ev, tracksH, sigmatmtdOrigTrkRaw, sigmatmtdOrigTrkToken_);
+  fillValueMap(ev, tracksH, tofpiOrigTrkRaw, tofpiOrigTrkToken_);
+  fillValueMap(ev, tracksH, tofkOrigTrkRaw, tofkOrigTrkToken_);
+  fillValueMap(ev, tracksH, tofpOrigTrkRaw, tofpOrigTrkToken_);
+  fillValueMap(ev, tracksH, assocOrigTrkRaw, assocOrigTrkToken_);
 }
 
 namespace {
@@ -968,7 +941,7 @@ namespace {
           constexpr double vtx_res = 0.008;
           const double t_vtx_err = useVtxConstraint ? vtx_res : bsTimeSpread;
 
-          double lastpmag2 = trs0.getSegment(0).second;
+          double lastpmag2 = trs0.getSegmentPathAndMom2(0).second;
 
           for (auto detitr = range.first; detitr != range.second; ++detitr) {
             for (const auto& hit : *detitr) {
@@ -984,7 +957,7 @@ namespace {
                                                            t_vtx,
                                                            t_vtx_err,  //put vtx error by hand for the moment
                                                            false,
-                                                           TofCalc::mixd);
+                                                           TofCalc::kMixd);
               MTDHitMatchingInfo mi;
               mi.hit = &hit;
               mi.estChi2 = est.second;
@@ -1196,7 +1169,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       return routput();
     }
 
-    size_t ihitcount(0), ietlcount(0);
+    uint32_t ihitcount(0), ietlcount(0);
     for (auto const& hit : trajWithMtd.measurements()) {
       if (hit.recHit()->geographicalId().det() == DetId::Forward &&
           ForwardSubdetector(hit.recHit()->geographicalId().subdetId()) == FastTime) {
@@ -1214,8 +1187,8 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       thiterror = mtdhit->timeError();
       validmtd = true;
     } else if (ihitcount == 2 && ietlcount == 2) {
-      std::pair<double, double> lastStep = trs.getSegment(0);
-      double etlpathlength = std::abs(lastStep.first / c_inv);
+      std::pair<double, double> lastStep = trs.getSegmentPathAndMom2(0);
+      double etlpathlength = std::abs(lastStep.first * c_cm_ns);
       //
       // The information of the two ETL hits is combined and attributed to the innermost hit
       //
@@ -1227,7 +1200,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
         const MTDTrackingRecHit* mtdhit1 = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
         const MTDTrackingRecHit* mtdhit2 = static_cast<const MTDTrackingRecHit*>((*(ihit1 + 1)).recHit()->hit());
         TrackTofPidInfo tofInfo = computeTrackTofPidInfo(
-            lastStep.second, etlpathlength, trs, mtdhit1->time(), mtdhit1->timeError(), 0., 0., true, TofCalc::cost);
+            lastStep.second, etlpathlength, trs, mtdhit1->time(), mtdhit1->timeError(), 0., 0., true, TofCalc::kCost);
         //
         // Protect against incompatible times
         //
@@ -1263,7 +1236,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
     if (validmtd && validpropagation) {
       //here add the PID uncertainty for later use in the 1st step of 4D vtx reconstruction
       TrackTofPidInfo tofInfo =
-          computeTrackTofPidInfo(p.mag2(), pathlength, trs, thit, thiterror, 0., 0., true, TofCalc::segm);
+          computeTrackTofPidInfo(p.mag2(), pathlength, trs, thit, thiterror, 0., 0., true, TofCalc::kSegm);
       pathLengthOut = pathlength;  // set path length if we've got a timing hit
       tmtdOut = thit;
       sigmatmtdOut = thiterror;

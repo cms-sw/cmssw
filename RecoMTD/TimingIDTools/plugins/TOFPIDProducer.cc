@@ -128,33 +128,19 @@ void TOFPIDProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
   ev.getByToken(tracksToken_, tracksH);
   const auto& tracks = *tracksH;
 
-  edm::Handle<edm::ValueMap<float>> t0H;
-  ev.getByToken(t0Token_, t0H);
-  const auto& t0In = *t0H;
+  const auto& t0In = ev.get(t0Token_);
 
-  edm::Handle<edm::ValueMap<float>> tmtdH;
-  ev.getByToken(tmtdToken_, tmtdH);
-  const auto& tmtdIn = *tmtdH;
+  const auto& tmtdIn = ev.get(tmtdToken_);
 
-  edm::Handle<edm::ValueMap<float>> sigmat0H;
-  ev.getByToken(sigmat0Token_, sigmat0H);
-  const auto& sigmat0In = *sigmat0H;
+  const auto& sigmat0In = ev.get(sigmat0Token_);
 
-  edm::Handle<edm::ValueMap<float>> sigmatmtdH;
-  ev.getByToken(sigmatmtdToken_, sigmatmtdH);
-  const auto& sigmatmtdIn = *sigmatmtdH;
+  const auto& sigmatmtdIn = ev.get(sigmatmtdToken_);
 
-  edm::Handle<edm::ValueMap<float>> tofkH;
-  ev.getByToken(tofkToken_, tofkH);
-  const auto& tofkIn = *tofkH;
+  const auto& tofkIn = ev.get(tofkToken_);
 
-  edm::Handle<edm::ValueMap<float>> tofpH;
-  ev.getByToken(tofpToken_, tofpH);
-  const auto& tofpIn = *tofpH;
+  const auto& tofpIn = ev.get(tofpToken_);
 
-  edm::Handle<reco::VertexCollection> vtxsH;
-  ev.getByToken(vtxsToken_, vtxsH);
-  const auto& vtxs = *vtxsH;
+  const auto& vtxs = ev.get(vtxsToken_);
 
   //output value maps (PID probabilities and recalculated time at beamline)
   std::vector<float> t0OutRaw;
