@@ -77,7 +77,8 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob() {
   int nres, nbin;
   in >> nres;
   in >> nbin;
-  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << " Results: " << nres << " Binning variables: " << nbin;
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV")
+      << " Results: " << nres << " Binning variables: " << nbin;
 
   stride = nres + nbin * 2;
 
@@ -110,7 +111,8 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob() {
   while (!in.eof()) {
     float temp;
     in >> temp;
-    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << " Inserting " << temp << " in position " << number;
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV")
+        << " Inserting " << temp << " in position " << number;
     number++;
     pl.push_back(temp);
   }
