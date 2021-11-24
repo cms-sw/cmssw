@@ -86,7 +86,7 @@ BTagPerformaceRootProducerFromSQLITE::~BTagPerformaceRootProducerFromSQLITE() {}
 
 // ------------ method called to for each event  ------------
 void BTagPerformaceRootProducerFromSQLITE::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::LogInfo("Hello from BTagPerformaceRootProducerFromSQLITE!\n");
+  edm::LogInfo("BTagPerformaceRootProducerFromSQLITE") << "Hello from BTagPerformaceRootProducerFromSQLITE!";
   if (recWatcher_.check(iSetup)) {
     const BTagPerformanceRecord& r = iSetup.get<BTagPerformanceRecord>();
 
@@ -99,7 +99,7 @@ void BTagPerformaceRootProducerFromSQLITE::analyze(const edm::Event& iEvent, con
 
     for (size_t i = 0; i < names_.size(); i++) {
       edm::ESHandle<BtagPerformance> perfH;
-      edm::LogInfo(" Studying performance with label ") << names_.at(i) << "\n";
+      edm::LogInfo("BTagPerformaceRootProducerFromSQLITE") << " Studying performance with label " << names_.at(i);
       r.get(names_.at(i), perfH);
       const BtagPerformance& perf = *(perfH.product());
 
