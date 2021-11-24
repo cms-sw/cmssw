@@ -211,7 +211,7 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
 
         // Filling of RecHit (phi)
         Float_t fPhiDeg = fPhi * 180.0 / M_PI;
-        fPhiDeg = (fPhi >= -0.5 ? fPhi : fPhi + 360);
+        fPhiDeg = (fPhiDeg >= -0.5 ? fPhiDeg : fPhiDeg + 360);
         mapRecHitOcc_phi_.Fill(key3, fPhiDeg);
 
         // For total RecHits
