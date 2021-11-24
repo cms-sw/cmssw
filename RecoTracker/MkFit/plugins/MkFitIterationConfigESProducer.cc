@@ -36,11 +36,17 @@ namespace {
 
       const LayerInfo &outer_brl = trk_info.outer_barrel_layer();
 
-      const LayerInfo &tib1 = trk_info.m_layers[4];
-      const LayerInfo &tob1 = trk_info.m_layers[10];
+      // Define first (mkFit) layer IDs for each strip subdetector.
+      constexpr int tib1_id = 4;
+      constexpr int tob1_id = 10;
+      constexpr int tecp1_id = 27;
+      constexpr int tecn1_id = 54;
 
-      const LayerInfo &tecp1 = trk_info.m_layers[27];
-      const LayerInfo &tecn1 = trk_info.m_layers[54];
+      const LayerInfo &tib1 = trk_info.m_layers[tib1_id];
+      const LayerInfo &tob1 = trk_info.m_layers[tob1_id];
+
+      const LayerInfo &tecp1 = trk_info.m_layers[tecp1_id];
+      const LayerInfo &tecn1 = trk_info.m_layers[tecn1_id];
 
       const LayerInfo &tec_first = z_dir_pos ? tecp1 : tecn1;
 
@@ -87,26 +93,34 @@ namespace {
                                         const TrackVec &in_seeds,
                                         const EventOfHits &eoh,
                                         IterationSeedPartition &part) {
-    const LayerInfo &tib1 = trk_info.m_layers[4];
-    const LayerInfo &tob1 = trk_info.m_layers[10];
+    // Define first (mkFit) layer IDs for each strip subdetector.
+    constexpr int tib1_id = 4;
+    constexpr int tob1_id = 10;
+    constexpr int tidp1_id = 21;
+    constexpr int tidn1_id = 48;
+    constexpr int tecp1_id = 27;
+    constexpr int tecn1_id = 54;
 
-    const LayerInfo &tidp1 = trk_info.m_layers[21];
-    const LayerInfo &tidn1 = trk_info.m_layers[48];
+    const LayerInfo &tib1 = trk_info.m_layers[tib1_id];
+    const LayerInfo &tob1 = trk_info.m_layers[tob1_id];
 
-    const LayerInfo &tecp1 = trk_info.m_layers[27];
-    const LayerInfo &tecn1 = trk_info.m_layers[54];
+    const LayerInfo &tidp1 = trk_info.m_layers[tidp1_id];
+    const LayerInfo &tidn1 = trk_info.m_layers[tidn1_id];
+
+    const LayerInfo &tecp1 = trk_info.m_layers[tecp1_id];
+    const LayerInfo &tecn1 = trk_info.m_layers[tecn1_id];
 
     // Merge first two layers to account for mono/stereo coverage.
     // TrackerInfo could hold joint limits for sub-detectors.
     const auto &L = trk_info.m_layers;
-    const float tidp_rin = std::min(L[21].m_rin, L[22].m_rin);
-    const float tidp_rout = std::max(L[21].m_rout, L[22].m_rout);
-    const float tecp_rin = std::min(L[27].m_rin, L[28].m_rin);
-    const float tecp_rout = std::max(L[27].m_rout, L[28].m_rout);
-    const float tidn_rin = std::min(L[48].m_rin, L[49].m_rin);
-    const float tidn_rout = std::max(L[48].m_rout, L[49].m_rout);
-    const float tecn_rin = std::min(L[54].m_rin, L[55].m_rin);
-    const float tecn_rout = std::max(L[54].m_rout, L[55].m_rout);
+    const float tidp_rin = std::min(L[tidp1_id].m_rin, L[tidp1_id + 1].m_rin);
+    const float tidp_rout = std::max(L[tidp1_id].m_rout, L[tidp1_id + 1].m_rout);
+    const float tecp_rin = std::min(L[tecp1_id].m_rin, L[tecp1_id + 1].m_rin);
+    const float tecp_rout = std::max(L[tecp1_id].m_rout, L[tecp1_id + 1].m_rout);
+    const float tidn_rin = std::min(L[tidn1_id].m_rin, L[tidn1_id + 1].m_rin);
+    const float tidn_rout = std::max(L[tidn1_id].m_rout, L[tidn1_id + 1].m_rout);
+    const float tecn_rin = std::min(L[tecn1_id].m_rin, L[tecn1_id + 1].m_rin);
+    const float tecn_rout = std::max(L[tecn1_id].m_rout, L[tecn1_id + 1].m_rout);
 
     // Bias towards more aggressive transition-region assignemnts.
     // With current tunning it seems to make things a bit worse.
