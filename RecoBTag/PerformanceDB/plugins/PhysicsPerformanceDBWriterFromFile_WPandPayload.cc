@@ -49,7 +49,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   //
 
   std::ifstream in;
-  edm::LogInfo("Opening ") << inputTxtFile << "\n";
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << "Opening " << inputTxtFile;
   in.open(inputTxtFile.c_str());
   std::string tagger;
   float cut;
@@ -60,13 +60,13 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   int stride;
 
   in >> tagger;
-  edm::LogInfo("WP Tagger is ") << tagger << "\n";
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << "WP Tagger is " << tagger;
 
   in >> cut;
-  edm::LogInfo("WP Cut is ") << cut << "\n";
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << "WP Cut is " << cut;
 
   in >> concreteType;
-  edm::LogInfo("concrete Type is ") << concreteType << "\n";
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << "concrete Type is " << concreteType;
 
   //  return ;
 
@@ -75,11 +75,11 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   int nres, nbin;
   in >> nres;
   in >> nbin;
-  edm::LogInfo(" Results: ") << nres << " Binning variables: " << nbin << "\n";
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << " Results: " << nres << " Binning variables: " << nbin;
 
   stride = nres + nbin * 2;
   if (!stride) {
-    edm::LogInfo(" Malformed input file\n");
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << " Malformed input file";
     exit(1);
   }
 
@@ -95,7 +95,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
     number++;
   }
   if (number != nres) {
-    edm::LogInfo("Table not well formed\n");
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << "Table not well formed";
   }
   number = 0;
   while (number < nbin && !in.eof()) {
@@ -105,14 +105,14 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
     number++;
   }
   if (number != nbin) {
-    edm::LogInfo("Table not well formed\n");
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << "Table not well formed";
   }
 
   number = 0;
   while (!in.eof()) {
     float temp;
     in >> temp;
-    edm::LogInfo(" Intersing ") << temp << " in position " << number << "\n";
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << " Intersing " << temp << " in position " << number;
     number++;
     pl.push_back(temp);
   }
@@ -121,12 +121,12 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   // CHECKS
   //
   if (stride != nbin * 2 + nres) {
-    edm::LogInfo("Table not well formed\n");
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << "Table not well formed";
   }
   if ((number % stride) != 0) {
-    edm::LogInfo("Table not well formed\n");
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << "Table not well formed";
   }
-  edm::LogInfo(" CLOSING \n");
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << " CLOSING ";
   in.close();
 
   /*  for (int k=0;k<(number/stride); k++){
@@ -147,10 +147,10 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   if (concreteType == "PerformancePayloadFromTable") {
     btagpl = PerformancePayloadFromTable(res, bin, stride, pl);
   } else {
-    edm::LogInfo(" Non existing request: ") << concreteType << "\n";
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << " Non existing request: " << concreteType;
   }
 
-  edm::LogInfo(" Created the ") << concreteType << " object\n";
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload") << " Created the " << concreteType << " object";
 
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {

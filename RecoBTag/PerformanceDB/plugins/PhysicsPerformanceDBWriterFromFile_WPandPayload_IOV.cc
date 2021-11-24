@@ -62,13 +62,13 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob() {
   int stride;
 
   in >> tagger;
-  edm::LogInfo("WP Tagger is ") << tagger << "\n";
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << "WP Tagger is " << tagger;
 
   in >> cut;
-  edm::LogInfo("WP Cut is ") << cut << "\n";
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << "WP Cut is " << cut;
 
   in >> concreteType;
-  edm::LogInfo("concrete Type is ") << concreteType << "\n";
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << "concrete Type is " << concreteType;
 
   //  return ;
 
@@ -77,7 +77,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob() {
   int nres, nbin;
   in >> nres;
   in >> nbin;
-  edm::LogInfo(" Results: ") << nres << " Binning variables: " << nbin << "\n";
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << " Results: " << nres << " Binning variables: " << nbin;
 
   stride = nres + nbin * 2;
 
@@ -93,7 +93,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob() {
     number++;
   }
   if (number != nres) {
-    edm::LogInfo(" Table not well formed\n");
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << " Table not well formed";
   }
   number = 0;
   while (number < nbin && !in.eof()) {
@@ -103,14 +103,14 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob() {
     number++;
   }
   if (number != nbin) {
-    edm::LogInfo(" Table not well formed\n");
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << " Table not well formed";
   }
 
   number = 0;
   while (!in.eof()) {
     float temp;
     in >> temp;
-    edm::LogInfo(" Inserting ") << temp << " in position " << number << "\n";
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << " Inserting " << temp << " in position " << number;
     number++;
     pl.push_back(temp);
   }
@@ -119,10 +119,10 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob() {
   // CHECKS
   //
   if (stride != nbin * 2 + nres) {
-    edm::LogInfo(" Table not well formed\n");
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << " Table not well formed";
   }
   if (stride != 0 && (number % stride) != 0) {
-    edm::LogInfo(" Table not well formed\n");
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << " Table not well formed";
   }
 
   in.close();
@@ -145,10 +145,10 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob() {
   if (concreteType == "PerformancePayloadFromTable") {
     btagpl = PerformancePayloadFromTable(res, bin, stride, pl);
   } else {
-    edm::LogInfo(" Non existing request: ") << concreteType << "\n";
+    edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << " Non existing request: " << concreteType;
   }
 
-  edm::LogInfo(" Created the ") << concreteType << " object\n";
+  edm::LogInfo("PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV") << " Created the " << concreteType << " object";
 
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
