@@ -2780,7 +2780,7 @@ void arrangeFitCanvas(TCanvas *canv, TH1F *meanplots[100], Int_t nFiles, TString
         hnewUp->Draw("same");
         makeNewXAxis(hnewUp);
       }
-      fright[j]->Draw("sames");
+      fright[j]->Draw("same");
       fleft[j]->Draw("same");
       fall[j]->Draw("same");
     }
@@ -4054,13 +4054,29 @@ void makeNewXAxis(TH1F *h)
 void makeNewPairOfAxes(TH2F *h)
 /*--------------------------------------------------------------------*/
 {
-  int ndivx = 505;
-  float axmin = -etaRange;
-  float axmax = etaRange;
+  TString myTitle = h->GetName();
+  // fake defaults
+  float axmin = -999;
+  float axmax = 999.;
+  float aymin = -999;
+  float aymax = 999.;
+  int ndivx = h->GetXaxis()->GetNdivisions();
+  int ndivy = h->GetYaxis()->GetNdivisions();
 
-  int ndivy = 510;
-  float aymin = -TMath::Pi();
-  float aymax = TMath::Pi();
+  if (!myTitle.Contains("L1Map")) {
+    ndivx = 505;
+    ndivy = 510;
+    axmin = -etaRange;
+    axmax = etaRange;
+    aymin = -TMath::Pi();
+    aymax = TMath::Pi();
+  } else {
+    // this is a L1 map
+    axmin = 0.5;
+    axmax = nModZ_ + 0.5;
+    aymin = 0.5;
+    aymax = nLadders_ + 0.5;
+  }
 
   // Remove the current axis
   h->GetXaxis()->SetLabelOffset(999);
