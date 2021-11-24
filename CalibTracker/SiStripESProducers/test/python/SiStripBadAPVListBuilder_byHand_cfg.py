@@ -98,7 +98,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dbfile.db'),
+    connect = cms.string('sqlite_file:SiStripBadComponentsToMask.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadStrip'),
         tag = cms.string('SiStripBadComponentsToMask')
