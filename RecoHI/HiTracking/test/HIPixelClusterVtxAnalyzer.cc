@@ -6,7 +6,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -91,7 +90,7 @@ void HIPixelClusterVtxAnalyzer::analyze(const edm::Event &ev, const edm::EventSe
 
   // get tracker geometry
   if (hRecHits.isValid()) {
-    const auto& trackerHandle = es.getHandle(trackerToken_);
+    const auto &trackerHandle = es.getHandle(trackerToken_);
     const TrackerGeometry *tgeo = trackerHandle.product();
     const SiPixelRecHitCollection *hits = hRecHits.product();
 
