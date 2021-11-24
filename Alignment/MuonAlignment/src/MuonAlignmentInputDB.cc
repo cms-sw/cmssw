@@ -58,20 +58,20 @@ MuonAlignmentInputDB::MuonAlignmentInputDB(const DTGeometry* dtGeometry,
                                            const Alignments* dtAlignments,
                                            const Alignments* cscAlignments,
                                            const Alignments* gemAlignments,
-                                           const Alignments* globalPositionRcd,
                                            const AlignmentErrorsExtended* dtAlignmentErrorsExtended,
                                            const AlignmentErrorsExtended* cscAlignmentErrorsExtended,
-                                           const AlignmentErrorsExtended* gemAlignmentErrorsExtended)
+                                           const AlignmentErrorsExtended* gemAlignmentErrorsExtended,
+                                           const Alignments* globalPositionRcd)
     : dtGeometry_(dtGeometry),
       cscGeometry_(cscGeometry),
       gemGeometry_(gemGeometry),
       dtAlignments_(dtAlignments),
       cscAlignments_(cscAlignments),
       gemAlignments_(gemAlignments),
-      globalPositionRcd_(globalPositionRcd),
       dtAlignmentErrorsExtended_(dtAlignmentErrorsExtended),
       cscAlignmentErrorsExtended_(cscAlignmentErrorsExtended),
       gemAlignmentErrorsExtended_(gemAlignmentErrorsExtended),
+      globalPositionRcd_(globalPositionRcd),
       m_getAPEs(true) {}
 
 // MuonAlignmentInputDB::MuonAlignmentInputDB(const MuonAlignmentInputDB& rhs)
