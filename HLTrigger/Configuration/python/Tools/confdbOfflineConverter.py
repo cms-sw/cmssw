@@ -139,7 +139,10 @@ class OfflineConverter:
             stderr = subprocess.PIPE,
             shell = False,
             universal_newlines = True )
-        return sub.communicate()
+        out,err = sub.communicate()
+        #12_0, 12_1 use HLTSchedule, confdb was changed to make this schedule, this resets it back to that for those releases
+        out = out.replace("fragment.schedule","fragment.HLTSchedule").replace("process.schedule","process.HLTSchedule")
+        return out,err
 
 def help():
     sys.stdout.write("""Usage: %s OPTIONS
