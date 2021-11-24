@@ -72,7 +72,8 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
   in >> nres;
   in >> nvar;
 
-  edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << "Using " << nres << " results and " << nvar << " variables";
+  edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL")
+      << "Using " << nres << " results and " << nvar << " variables";
 
   unsigned int bins = 0;  //temporary for now!!!!!!
 
@@ -134,7 +135,8 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
     while (number < nres && (!in.eof())) {
       std::string temp;
       in >> temp;
-      edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << " Inserting " << temp << " as formula in position " << number;
+      edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL")
+          << " Inserting " << temp << " as formula in position " << number;
       number++;
       formulas.push_back(temp);
     }
@@ -150,7 +152,8 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
       float temp1, temp2;
       in >> temp1;
       in >> temp2;
-      edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << " Inserting " << temp1 << "," << temp2 << " as limits in position " << number;
+      edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL")
+          << " Inserting " << temp1 << "," << temp2 << " as limits in position " << number;
       number++;
       limits.push_back(std::pair<float, float>(temp1, temp2));
     }
@@ -172,7 +175,8 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
 
   if (concreteType == "PerformancePayloadFromBinnedTFormula") {
     btagpl = PerformancePayloadFromBinnedTFormula(res, bin, v_ppl);
-    edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << " CHECK: " << btagpl.formulaPayloads().size();
+    edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL")
+        << " CHECK: " << btagpl.formulaPayloads().size();
   } else {
     edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << " Non existing request: " << concreteType;
   }
