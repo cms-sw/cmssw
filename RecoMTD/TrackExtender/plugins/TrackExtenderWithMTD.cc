@@ -98,8 +98,8 @@ namespace {
     TrackSegments() = default;
 
     inline uint32_t addSegment(double tPath, double tMom2) {
-      segmentPathOvc_.emplace_back(tPath * c_inv);
-      segmentMom2_.emplace_back(tMom2);
+      segmentPathOvc_.emplace_back(static_cast<float>(tPath * c_inv));
+      segmentMom2_.emplace_back(static_cast<float>(tMom2));
       nSegment_++;
 
       LogTrace("TrackExtenderWithMTD") << "addSegment # " << nSegment_ << " s = " << tPath
@@ -109,17 +109,17 @@ namespace {
     }
 
     inline double computeTof(double mass_inv2) const {
-      double tof(0.);
+      float tof(0.f);
       for (uint32_t iSeg = 0; iSeg < nSegment_; iSeg++) {
-        double gammasq = 1. + segmentMom2_[iSeg] * mass_inv2;
-        double beta = std::sqrt(1. - 1. / gammasq);
+        float gammasq = 1.f + segmentMom2_[iSeg] * static_cast<float>(mass_inv2);
+        float beta = std::sqrt(1.f - 1.f / gammasq);
         tof += segmentPathOvc_[iSeg] / beta;
 
         LogTrace("TrackExtenderWithMTD") << " TOF Segment # " << iSeg + 1 << " p = " << std::sqrt(segmentMom2_[iSeg])
                                          << " tof = " << tof;
       }
 
-      return tof;
+      return static_cast<double>(tof);
     }
 
     inline uint32_t size() const { return nSegment_; }
@@ -137,12 +137,13 @@ namespace {
       if (iSegment >= nSegment_) {
         throw cms::Exception("TrackExtenderWithMTD") << "Requesting non existing track segment #" << iSegment;
       }
-      return std::make_pair(segmentPathOvc_[iSegment], segmentMom2_[iSegment]);
+      return std::make_pair(static_cast<double>(segmentPathOvc_[iSegment]),
+                            static_cast<double>(segmentMom2_[iSegment]));
     }
 
     uint32_t nSegment_ = 0;
-    std::vector<double> segmentPathOvc_;
-    std::vector<double> segmentMom2_;
+    std::vector<float> segmentPathOvc_;
+    std::vector<float> segmentMom2_;
   };
 
   struct TrackTofPidInfo {
