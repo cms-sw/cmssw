@@ -31,7 +31,7 @@ PTrackerParametersDBBuilder::PTrackerParametersDBBuilder(const edm::ParameterSet
 }
 
 void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  PTrackerParameters* ptp = new PTrackerParameters;
+  PTrackerParameters ptp;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("PTrackerParametersDBBuilder") << "PoolDBOutputService unavailable";
@@ -42,15 +42,14 @@ void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup cons
 
   if (!fromDD4hep_) {
     auto cpv = es.getTransientHandle(compactViewToken_);
-    builder.build(&(*cpv), *ptp);
+    builder.build(&(*cpv), ptp);
   } else {
     auto cpv = es.getTransientHandle(dd4HepCompactViewToken_);
-    builder.build(&(*cpv), *ptp);
+    builder.build(&(*cpv), ptp);
   }
 
   if (mydbservice->isNewTagRequest("PTrackerParametersRcd")) {
-    mydbservice->createNewIOV<PTrackerParameters>(
-        ptp, mydbservice->beginOfTime(), mydbservice->endOfTime(), "PTrackerParametersRcd");
+    mydbservice->createOneIOV(ptp, mydbservice->beginOfTime(), "PTrackerParametersRcd");
   } else {
     edm::LogError("PTrackerParametersDBBuilder") << "PTrackerParameters and PTrackerParametersRcd Tag already present";
   }
