@@ -23,13 +23,9 @@ protected:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  // CLCTs and LCTs are considered duplicates if there is an earlier copy
-  bool isDuplicateCLCT(const CSCCLCTDigi& clct, const std::vector<CSCCLCTDigi>& container) const;
-  bool isDuplicateLCT(const CSCCorrelatedLCTDigi& lct, const std::vector<CSCCorrelatedLCTDigi>& container) const;
-
-  // all properties are the same, except for the BX which is off by +1
-  bool isCLCTOffByOneBX(const CSCCLCTDigi& lhs, const CSCCLCTDigi& rhs) const;
-  bool isLCTOffByOneBX(const CSCCorrelatedLCTDigi& lhs, const CSCCorrelatedLCTDigi& rhs) const;
+  // customized equality function
+  bool areSameCLCTs(const CSCCLCTDigi& lhs, const CSCCLCTDigi& rhs) const;
+  bool areSameLCTs(const CSCCorrelatedLCTDigi& lhs, const CSCCorrelatedLCTDigi& rhs) const;
 
   edm::EDGetTokenT<CSCALCTDigiCollection> dataALCT_token_;
   edm::EDGetTokenT<CSCALCTDigiCollection> emulALCT_token_;
@@ -61,7 +57,7 @@ private:
   /*
     When set to True, we assume that the data comes from
     the Building 904 CSC test-stand. This test-stand is a single
-    ME1/1 chamber or ME4/2 chamber.
+    ME1/1 chamber, ME2/1, or ME4/2 chamber.
   */
   bool useB904_;
   bool useB904ME11_;
@@ -69,6 +65,12 @@ private:
   bool useB904ME234s2_;
 
   bool isRun3_;
+  /*
+     By default the DQM will make 2D summary plots. Do you also want
+     the very large number of 1D plots? Would recommend to keep it to
+     true so that it may help in the debugging process (S.D.)
+  */
+  bool make1DPlots_;
 
   // check the data CLCTs and emul CLCTs against emul preCLCTs
   bool preTriggerAnalysis_;
@@ -76,6 +78,21 @@ private:
   // first key is the chamber number
   // second key is the variable
   std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
+
+  // 2D plots
+  MonitorElement* lctDataSummary_denom_;
+  MonitorElement* lctDataSummary_num_;
+  MonitorElement* alctDataSummary_denom_;
+  MonitorElement* alctDataSummary_num_;
+  MonitorElement* clctDataSummary_denom_;
+  MonitorElement* clctDataSummary_num_;
+
+  MonitorElement* lctEmulSummary_denom_;
+  MonitorElement* lctEmulSummary_num_;
+  MonitorElement* alctEmulSummary_denom_;
+  MonitorElement* alctEmulSummary_num_;
+  MonitorElement* clctEmulSummary_denom_;
+  MonitorElement* clctEmulSummary_num_;
 };
 
 #endif
