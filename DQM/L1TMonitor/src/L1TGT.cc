@@ -747,13 +747,12 @@ void L1TGT::countPfsIndicesPerLs() {
   // count the number of pairs (lsNumber, pfIndex) per Ls
   // there are no duplicate entries, and pairs are sorted after both members
   // ... and fill again the histogram
+  int pfsIndicesPerLs = 1;
   for (CItVecPair cIt = m_pairLsNumberPfIndex.begin(); cIt != m_pairLsNumberPfIndex.end(); ++cIt) {
-    int pfsIndicesPerLs = 1;
-
     if ((*cIt).first == previousLsNumber) {
       if ((*cIt).second != previousPfsIndex) {
-        pfsIndicesPerLs++;
         previousPfsIndex = (*cIt).second;
+        pfsIndicesPerLs++;
       }
 
     } else {
@@ -765,7 +764,6 @@ void L1TGT::countPfsIndicesPerLs() {
       // new Ls
       previousLsNumber = (*cIt).first;
       previousPfsIndex = (*cIt).second;
-
       pfsIndicesPerLs = 1;
     }
   }
