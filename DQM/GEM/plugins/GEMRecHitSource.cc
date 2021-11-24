@@ -38,8 +38,8 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   nCLSMax_ = 10;
   fRadiusMin_ = 120.0;
   fRadiusMax_ = 250.0;
-  float radS = -5.0 / 180 * 3.141592;
-  float radL = 355.0 / 180 * 3.141592;
+  float radS = -5.0 / 180 * M_PI;
+  float radL = 355.0 / 180 * M_PI;
 
   mapTotalRecHit_layer_ = MEMap3Inf(this, "det", "RecHit Occupancy", 36, 0.5, 36.5, 8, 0.5, 8.5, "Chamber", "iEta");
   mapRecHitWheel_layer_ = MEMap3Inf(
@@ -131,7 +131,7 @@ int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   mapTotalRecHit_layer_.SetLabelForIEta(key, 2);
 
   mapRecHitWheel_layer_.SetBinLowEdgeX(stationInfo.fMinPhi_);
-  mapRecHitWheel_layer_.SetBinHighEdgeX(stationInfo.fMinPhi_ + 2 * 3.141592);
+  mapRecHitWheel_layer_.SetBinHighEdgeX(stationInfo.fMinPhi_ + 2 * M_PI);
   mapRecHitWheel_layer_.SetNbinsX(nNumVFATPerEta * stationInfo.nNumChambers_);
   mapRecHitWheel_layer_.SetNbinsY(stationInfo.nNumEtaPartitions_);
   mapRecHitWheel_layer_.bookND(bh, key);
@@ -203,14 +203,14 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
 
         // Filling of R-Phi occupancy
         Float_t fR = fRadiusMin_ + (fRadiusMax_ - fRadiusMin_) * (eId.ieta() - 0.5) / stationInfo.nNumEtaPartitions_;
-        Float_t fPhiShift = (fPhi >= stationInfo.fMinPhi_ ? fPhi : fPhi + 2 * 3.141592);
+        Float_t fPhiShift = (fPhi >= stationInfo.fMinPhi_ ? fPhi : fPhi + 2 * M_PI);
         mapRecHitWheel_layer_.Fill(key3, fPhiShift, fR);
 
         // Filling of RecHit (iEta)
         mapRecHitOcc_ieta_.Fill(key3, eId.ieta());
 
         // Filling of RecHit (phi)
-        Float_t fPhiDeg = fPhi * 180.0 / 3.141592;
+        Float_t fPhiDeg = fPhi * 180.0 / M_PI;
         fPhiDeg = (fPhi >= -0.5 ? fPhi : fPhi + 360);
         mapRecHitOcc_phi_.Fill(key3, fPhiDeg);
 
