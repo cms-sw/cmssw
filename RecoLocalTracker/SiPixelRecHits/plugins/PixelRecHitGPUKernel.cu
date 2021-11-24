@@ -18,15 +18,16 @@ namespace {
                                     pixelCPEforGPU::ParamsOnGPU const* cpeParams,
                                     uint32_t* hitsLayerStart) {
     auto i = blockIdx.x * blockDim.x + threadIdx.x;
-    auto m = cpeParams->commonParams().isUpgrade ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
+    auto m =
+        cpeParams->commonParams().isUpgrade ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
 
     assert(0 == hitsModuleStart[0]);
 
     if (i <= m) {
-    hitsLayerStart[i] = hitsModuleStart[cpeParams->layerGeometry().layerStart[i]];
-    #ifdef GPU_DEBUG
-          printf("LayerStart %d/%d at module %d: %d\n", i, m, cpeParams->layerGeometry().layerStart[i], hitsLayerStart[i]);
-    #endif
+      hitsLayerStart[i] = hitsModuleStart[cpeParams->layerGeometry().layerStart[i]];
+#ifdef GPU_DEBUG
+      printf("LayerStart %d/%d at module %d: %d\n", i, m, cpeParams->layerGeometry().layerStart[i], hitsLayerStart[i]);
+#endif
     }
   }
 }  // namespace
@@ -41,8 +42,10 @@ namespace pixelgpudetails {
                                                           cudaStream_t stream) const {
     auto nHits = clusters_d.nClusters();
 
-    TrackingRecHit2DGPU hits_d(nHits, isUpgrade, clusters_d.offsetBPIX2(), cpeParams, clusters_d.clusModuleStart(), stream);
-    assert(hits_d.nMaxModules() == isUpgrade ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules);
+    TrackingRecHit2DGPU hits_d(
+        nHits, isUpgrade, clusters_d.offsetBPIX2(), cpeParams, clusters_d.clusModuleStart(), stream);
+    assert(hits_d.nMaxModules() == isUpgrade ? phase2PixelTopology::numberOfModules
+                                             : phase1PixelTopology::numberOfModules);
 
     int activeModulesWithDigis = digis_d.nModules();
     // protect from empty events
@@ -51,7 +54,7 @@ namespace pixelgpudetails {
       int blocks = activeModulesWithDigis;
 
 #ifdef GPU_DEBUG
-      std::cout << "launching getHits kernel for " << blocks << " blocks" << std::endl;
+    std::cout << "launching getHits kernel for " << blocks << " blocks" << std::endl;
 #endif
       gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, stream>>>(
           cpeParams, bs_d.data(), digis_d.view(), digis_d.nDigis(), clusters_d.view(), hits_d.view());

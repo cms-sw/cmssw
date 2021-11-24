@@ -21,7 +21,6 @@ namespace gpuPixelRecHits {
                           int numElements,
                           SiPixelClustersCUDA::SiPixelClustersCUDASOAView const* __restrict__ pclusters,
                           TrackingRecHit2DSOAView* phits) {
-
     // FIXME
     // the compiler seems NOT to optimize loads from views (even in a simple test case)
     // The whole gimnastic here of copying or not is a pure heuristic exercise that seems to produce the fastest code with the above signature
@@ -34,10 +33,10 @@ namespace gpuPixelRecHits {
     auto isUpgrade = cpeParams->commonParams().isUpgrade;
     // copy average geometry corrected by beamspot . FIXME (move it somewhere else???)
     if (0 == blockIdx.x) {
-
       auto& agc = hits.averageGeometry();
       auto const& ag = cpeParams->averageGeometry();
-      auto nLadders = isUpgrade? phase2PixelTopology::numberOfLaddersInBarrel : phase1PixelTopology::numberOfLaddersInBarrel;
+      auto nLadders =
+          isUpgrade ? phase2PixelTopology::numberOfLaddersInBarrel : phase1PixelTopology::numberOfLaddersInBarrel;
 
       for (int il = threadIdx.x, nl = nLadders; il < nl; il += blockDim.x) {
         agc.ladderZ[il] = ag.ladderZ[il] - bs->z;

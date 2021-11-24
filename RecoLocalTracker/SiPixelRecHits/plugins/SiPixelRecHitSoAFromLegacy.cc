@@ -84,7 +84,6 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   //auto maxInModule = 0U, maxDigi = 0U;
   const reco::BeamSpot& bs = iEvent.get(bsGetToken_);
 
-
   BeamSpotPOD bsHost;
   bsHost.x = bs.x0();
   bsHost.y = bs.y0();
@@ -97,8 +96,8 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   int nMaxModules = isUpgrade_ ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
   int startBPIX2 = isUpgrade_ ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
 
-  assert(nMaxModules<gpuClustering::maxNumModules);
-  assert(startBPIX2<nMaxModules);
+  assert(nMaxModules < gpuClustering::maxNumModules);
+  assert(startBPIX2 < nMaxModules);
 
   // allocate a buffer for the indices of the clusters
   auto hmsp = std::make_unique<uint32_t[]>(nMaxModules + 1);
@@ -157,8 +156,8 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   // output SoA
   // element 96 is the start of BPIX2 (i.e. the number of clusters in BPIX1)
 
-  auto output =
-      std::make_unique<TrackingRecHit2DCPU>(numberOfClusters, isUpgrade_, hitsModuleStart[startBPIX2], &cpeView, hitsModuleStart, nullptr);
+  auto output = std::make_unique<TrackingRecHit2DCPU>(
+      numberOfClusters, isUpgrade_, hitsModuleStart[startBPIX2], &cpeView, hitsModuleStart, nullptr);
   assert(output->nMaxModules() == uint32_t(nMaxModules));
 
   if (0 == numberOfClusters) {
@@ -267,9 +266,9 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   auto nLayers = isUpgrade_ ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
   for (auto i = 0U; i < nLayers; ++i) {
     output->hitsLayerStart()[i] = hitsModuleStart[cpeView.layerGeometry().layerStart[i]];
-    LogDebug("SiPixelRecHitSoAFromLegacy") << "Layer n." << i
-                                           << " - starting at module: " << cpeView.layerGeometry().layerStart[i]
-                                           << " - starts ad cluster: "<< output->hitsLayerStart()[i] << "\n";
+    LogDebug("SiPixelRecHitSoAFromLegacy")
+        << "Layer n." << i << " - starting at module: " << cpeView.layerGeometry().layerStart[i]
+        << " - starts ad cluster: " << output->hitsLayerStart()[i] << "\n";
   }
 
   cms::cuda::fillManyFromVector(output->phiBinner(),
