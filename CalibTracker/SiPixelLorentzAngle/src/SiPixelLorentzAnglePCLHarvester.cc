@@ -358,9 +358,10 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
 
       double tan_LA =
           (f1_halfwidth - f1_zerowidth) / half_width;  // tan_LA = (f1(x = half_width) - f1(x = 0)) / (half_width - 0)
-      double errsq_LA = (pow(e1, 2) + pow((half_width * e2), 2) + pow((half_width * half_width * e3), 2) +
-                         pow((half_width * half_width * half_width * e4), 2) +
-                         pow((half_width * half_width * half_width * half_width * e5), 2));  // Propagation of uncertainty
+      double errsq_LA =
+          (pow(e1, 2) + pow((half_width * e2), 2) + pow((half_width * half_width * e3), 2) +
+           pow((half_width * half_width * half_width * e4), 2) +
+           pow((half_width * half_width * half_width * half_width * e5), 2));  // Propagation of uncertainty
       double error_LA = sqrt(errsq_LA);
 
       edm::LogPrint("LorentzAngle") << std::setprecision(4) << i_module << "\t" << i_layer << "\t" << p0 << "\t" << e0
