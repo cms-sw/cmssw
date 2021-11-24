@@ -24,7 +24,7 @@ process.siStripCond.toGet = cms.VPSet(cms.PSet(
     record = cms.string('SiStripFedCablingRcd'),
     tag = cms.string('SiStripFedCabling_Fake_30X')
 ))
-process.siStripCond.connect = 'sqlite_file:dbfile.db'
+process.siStripCond.connect = 'sqlite_file:SiStripConditionsDBFile.db'
 process.siStripCond.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 process.sistripconn = cms.ESProducer("SiStripConnectivity")

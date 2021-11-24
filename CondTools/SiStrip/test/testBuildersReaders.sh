@@ -2,9 +2,9 @@
 
 function die { echo $1: status $2 ; exit $2; }
 
-if test -f "dbfile.db"; then
+if test -f "SiStripConditionsDBFile.db"; then
     echo "cleaning the local test area"
-    rm -fr dbfile.db
+    rm -fr SiStripConditionsDBFile.db
 fi
 
 echo " testing CondTools/SiStrip"
