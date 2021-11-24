@@ -44,16 +44,21 @@ protected:
                          MonitorElement *h2Src,
                          std::string strSuffix,
                          MonitorElement *&h2Sum);
-  Float_t refineSummaryHistogram(MonitorElement *h2Sum,
+  Float_t refineSummaryHistogram(std::string strName,
+                                 MonitorElement *h2Sum,
                                  MonitorElement *h2SrcOcc,
                                  MonitorElement *h2SrcAllNum,
                                  MonitorElement *h2SrcStatusE,
                                  MonitorElement *h2SrcStatusW);
-  Int_t refineSummaryVFAT(MonitorElement *h2Sum,
+  Int_t refineSummaryVFAT(std::string strName,
+                          MonitorElement *h2Sum,
                           MonitorElement *h2SrcOcc,
                           MonitorElement *h2SrcStatusE,
                           MonitorElement *h2SrcStatusW);
-  Int_t assessOneBin(Float_t fAll, Float_t fNumOcc, Float_t fNumWarn, Float_t fNumErr);
+  Int_t assessOneBin(
+      std::string strName, Int_t nIdxX, Int_t nIdxY, Float_t fAll, Float_t fNumOcc, Float_t fNumWarn, Float_t fNumErr);
+
+  Float_t fCutErr_, fCutWarnErr_, fCutWarn_;
 
   Float_t fReportSummary_;
   std::string strOutFile_;
@@ -61,6 +66,9 @@ protected:
   std::string strDirSummary_;
   std::string strDirRecHit_;
   std::string strDirStatus_;
+
+  typedef std::vector<std::vector<Float_t>> TableStatusOcc;
+  typedef std::vector<std::vector<Int_t>> TableStatusNum;
 
   std::vector<std::string> listLayer_;
 };
@@ -71,6 +79,10 @@ GEMDQMHarvester::GEMDQMHarvester(const edm::ParameterSet &cfg) {
   strDirSummary_ = "GEM/EventInfo";
   strDirRecHit_ = "GEM/RecHits";
   strDirStatus_ = "GEM/DAQStatus";
+
+  fCutErr_ = 0.05;
+  fCutWarnErr_ = 0.00;
+  fCutWarn_ = 0.05;
 }
 
 void GEMDQMHarvester::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -104,10 +116,13 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
   MonitorElement *h2SrcStatusW = store->get(strSrcStatusW);
   MonitorElement *h2SrcStatusE = store->get(strSrcStatusE);
 
+  std::string strTitleSummary = "summary";
+
   if (h2SrcDigiOcc != nullptr && h2SrcStatusA != nullptr && h2SrcStatusW != nullptr && h2SrcStatusE != nullptr) {
     MonitorElement *h2Sum = nullptr;
     createSummaryHist(store, h2SrcStatusE, h2Sum, listLayer_);
-    fReportSummary_ = refineSummaryHistogram(h2Sum, h2SrcDigiOcc, h2SrcStatusA, h2SrcStatusE, h2SrcStatusW);
+    fReportSummary_ =
+        refineSummaryHistogram(strTitleSummary, h2Sum, h2SrcDigiOcc, h2SrcStatusA, h2SrcStatusE, h2SrcStatusW);
 
     for (const auto &strSuffix : listLayer_) {
       MonitorElement *h2SrcVFATOcc = store->get(strSrcVFATOcc + strSuffix);
@@ -115,9 +130,10 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
       MonitorElement *h2SrcVFATStatusE = store->get(strSrcVFATStatusE + strSuffix);
       if (h2SrcVFATOcc == nullptr || h2SrcVFATStatusW == nullptr || h2SrcVFATStatusE == nullptr)
         continue;
+
       MonitorElement *h2SumVFAT = nullptr;
       createSummaryVFAT(store, h2SrcVFATStatusE, strSuffix, h2SumVFAT);
-      refineSummaryVFAT(h2SumVFAT, h2SrcVFATOcc, h2SrcVFATStatusE, h2SrcVFATStatusW);
+      refineSummaryVFAT(strSuffix, h2SumVFAT, h2SrcVFATOcc, h2SrcVFATStatusE, h2SrcVFATStatusW);
       TString strNewTitle = h2SrcVFATStatusE->getTitle();
       h2SumVFAT->setTitle((const char *)strNewTitle.ReplaceAll("errors", "errors/warnings"));
       h2SumVFAT->setXTitle(h2SrcVFATStatusE->getAxisTitle(1));
@@ -178,10 +194,13 @@ void GEMDQMHarvester::createSummaryVFAT(edm::Service<DQMStore> &store,
   copyLabels(h2Src, h2Sum);
 }
 
-Int_t GEMDQMHarvester::assessOneBin(Float_t fAll, Float_t fNumOcc, Float_t fNumWarn, Float_t fNumErr) {
-  if (fNumErr > 0.05 * fAll)  // The error status criterion
+Int_t GEMDQMHarvester::assessOneBin(
+    std::string strName, Int_t nIdxX, Int_t nIdxY, Float_t fAll, Float_t fNumOcc, Float_t fNumWarn, Float_t fNumErr) {
+  if (fNumErr > fCutErr_ * fAll)  // The error status criterion
     return 2;
-  else if (fNumErr > 0.00 * fAll || fNumWarn > 0.05 * fAll)  // The warning status criterion
+  else if (fNumErr > fCutWarnErr_ * fAll)  // The low-error status criterion
+    return 4;
+  else if (fNumWarn > fCutWarn_ * fAll)  // The warning status criterion
     return 3;
   else if (fNumOcc > 0)
     return 1;
@@ -190,7 +209,8 @@ Int_t GEMDQMHarvester::assessOneBin(Float_t fAll, Float_t fNumOcc, Float_t fNumW
 }
 
 // FIXME: Need more study about how to summarize
-Float_t GEMDQMHarvester::refineSummaryHistogram(MonitorElement *h2Sum,
+Float_t GEMDQMHarvester::refineSummaryHistogram(std::string strName,
+                                                MonitorElement *h2Sum,
                                                 MonitorElement *h2SrcOcc,
                                                 MonitorElement *h2SrcStatusA,
                                                 MonitorElement *h2SrcStatusE,
@@ -207,7 +227,7 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(MonitorElement *h2Sum,
       Float_t fStatusWarn = h2SrcStatusW->getBinContent(i, j);
       Float_t fStatusErr = h2SrcStatusE->getBinContent(i, j);
 
-      Int_t nRes = assessOneBin(fStatusAll, fOcc, fStatusWarn, fStatusErr);
+      Int_t nRes = assessOneBin(strName, i, j, fStatusAll, fOcc, fStatusWarn, fStatusErr);
       if (nRes == 1)
         nFineBin++;
 
@@ -219,7 +239,8 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(MonitorElement *h2Sum,
   return ((Float_t)nFineBin) / nAllBin;
 }
 
-Int_t GEMDQMHarvester::refineSummaryVFAT(MonitorElement *h2Sum,
+Int_t GEMDQMHarvester::refineSummaryVFAT(std::string strName,
+                                         MonitorElement *h2Sum,
                                          MonitorElement *h2SrcOcc,
                                          MonitorElement *h2SrcStatusE,
                                          MonitorElement *h2SrcStatusW) {
@@ -231,7 +252,8 @@ Int_t GEMDQMHarvester::refineSummaryVFAT(MonitorElement *h2Sum,
       Float_t fStatusWarn = h2SrcStatusW->getBinContent(i, j);
       Float_t fStatusErr = h2SrcStatusE->getBinContent(i, j);
       Float_t fStatusAll = fOcc + fStatusWarn + fStatusErr;
-      Int_t nRes = assessOneBin(fStatusAll, fOcc, fStatusWarn, fStatusErr);
+
+      Int_t nRes = assessOneBin(strName, i, j, fStatusAll, fOcc, fStatusWarn, fStatusErr);
       h2Sum->setBinContent(i, j, (Float_t)nRes);
     }
   }
