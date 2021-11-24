@@ -2203,6 +2203,13 @@ steps['ALCAHARVDSIPIXELCALRUN1']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibPro
                         '--data':'',
                         '--filein':'file:PromptCalibProdSiPixel.root'}
 
+steps['ALCAHARVDSIPIXELCALLA']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelLorentzAngle']),
+                        '--conditions':'auto:run3_data_express',
+                        '--scenario':'pp',
+                        '--data':'',
+                        '--era':'Run2_2017',
+                        '--filein':'file:PromptCalibProdSiPixelLorentzAngle.root'}
+
 steps['ALCAHARVDPPSCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPS']),
                         '--conditions':'auto:run3_data_express',
                         '--scenario':'pp',
