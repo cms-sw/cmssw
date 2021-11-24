@@ -32,8 +32,8 @@
 
 float SUMPTMIN = 1.;
 float SUMPTMAX = 1e3;
-int TRACKBINS = 60;
-int VTXBINS = 40;
+int TRACKBINS = 120;
+int VTXBINS = 60;
 
 /* 
    This is an auxilliary class to store the list of files
@@ -257,9 +257,9 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
       std::cout << "File n. " << i << " getting the default minimum sum pT range: " << theSumPtMin_[i] << std::endl;
       theSumPtMax_[i] = 1e3;
       std::cout << "File n. " << i << " getting the default maxmum sum pT range: " << theSumPtMax_[i] << std::endl;
-      theTrackBINS_[i] = 60.;
+      theTrackBINS_[i] = 120.;
       std::cout << "File n. " << i << " getting the default number of tracks bins: " << theTrackBINS_[i] << std::endl;
-      theTrackBINS_[i] = 40.;
+      theTrackBINS_[i] = 60.;
       std::cout << "File n. " << i << " getting the default number of vertices bins: " << theVtxBINS_[i] << std::endl;
     }
   }
@@ -335,17 +335,17 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
   }
 
   // max vertices
-  const int max_n_vertices = std::min(40, VTXBINS);  // take the minimum to avoid overflow
+  const int max_n_vertices = std::min(60, VTXBINS);  // take the minimum to avoid overflow
   std::vector<float> myNVtx_bins_;
   for (float i = 0; i <= max_n_vertices; i++) {
-    myNVtx_bins_.push_back(1. + i);
+    myNVtx_bins_.push_back(i - 0.5f);
   }
 
   // max track
-  const int max_n_tracks = std::min(60, TRACKBINS);  // take the minimum to avoid overflow
+  const int max_n_tracks = std::min(120, TRACKBINS);  // take the minimum to avoid overflow
   std::vector<float> myNTrack_bins_;
   for (float i = 0; i <= max_n_tracks; i++) {
-    myNTrack_bins_.push_back(1 + i * 2);
+    myNTrack_bins_.push_back(i - 0.5f);
   }
 
   // max sumPt
@@ -988,7 +988,7 @@ void fillTrendPlotByIndex(TH1F* trendPlot,
       std::smatch match;
       if (std::regex_search(iterator.first, match, toMatch) && match.size() > 1) {
         result = match.str(1);
-        bin = std::stoi(result);
+        bin = std::stoi(result) + 1;
       } else {
         result = std::string("");
         continue;
@@ -1131,6 +1131,7 @@ void setPVResolStyle() {
 
   writeExtraText = true;  // if extra text
   lumi_13TeV = "p-p collisions";
+  lumi_0p9TeV = "p-p collisions";
   extraText = "Internal";
 
   TH1::StatOverflows(kTRUE);
