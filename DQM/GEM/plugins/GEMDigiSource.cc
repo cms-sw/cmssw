@@ -28,8 +28,8 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
   nBXMax_ = 10;
   fRadiusMin_ = 120.0;
   fRadiusMax_ = 250.0;
-  float radS = -5.0 / 180 * 3.141592;
-  float radL = 355.0 / 180 * 3.141592;
+  float radS = -5.0 / 180 * M_PI;
+  float radL = 355.0 / 180 * M_PI;
 
   mapTotalDigi_layer_ = MEMap3Inf(this, "det", "Digi Occupancy", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
   mapDigiWheel_layer_ = MEMap3Inf(
@@ -102,7 +102,7 @@ int GEMDigiSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   mapTotalDigi_layer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   mapDigiWheel_layer_.SetBinLowEdgeX(stationInfo.fMinPhi_);
-  mapDigiWheel_layer_.SetBinHighEdgeX(stationInfo.fMinPhi_ + 2 * 3.141592);
+  mapDigiWheel_layer_.SetBinHighEdgeX(stationInfo.fMinPhi_ + 2 * M_PI);
   mapDigiWheel_layer_.SetNbinsX(nNumVFATPerEta * stationInfo.nNumChambers_);
   mapDigiWheel_layer_.SetNbinsY(stationInfo.nNumEtaPartitions_);
   mapDigiWheel_layer_.bookND(bh, key);
@@ -167,13 +167,13 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
 
         GlobalPoint digi_global_pos = surface.toGlobal(iEta->centreOfStrip(d->strip()));
         Float_t fPhi = (Float_t)digi_global_pos.phi();
-        Float_t fPhiDeg = fPhi * 180.0 / 3.141592;
+        Float_t fPhiDeg = fPhi * 180.0 / M_PI;
         fPhiDeg = (fPhi >= -0.5 ? fPhi : fPhi + 360);
         mapDigiOcc_phi_.Fill(key3, fPhiDeg);  // Phi
 
         // Filling of R-Phi occupancy
         Float_t fR = fRadiusMin_ + (fRadiusMax_ - fRadiusMin_) * (eId.ieta() - 0.5) / stationInfo.nNumEtaPartitions_;
-        Float_t fPhiShift = (fPhi >= stationInfo.fMinPhi_ ? fPhi : fPhi + 2 * 3.141592);
+        Float_t fPhiShift = (fPhi >= stationInfo.fMinPhi_ ? fPhi : fPhi + 2 * M_PI);
         mapDigiWheel_layer_.Fill(key3, fPhiShift, fR);
 
         mapDigiOccPerCh_.Fill(key4Ch, d->strip(), eId.ieta());  // Per chamber
