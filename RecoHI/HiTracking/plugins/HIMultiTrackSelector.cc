@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <Math/DistFunc.h>
 #include <TMath.h>
