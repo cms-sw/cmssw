@@ -7,6 +7,7 @@ GEMRecHitSource::GEMRecHitSource(const edm::ParameterSet& cfg) : GEMDQMBase(cfg)
   tagRecHit_ = consumes<GEMRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitsInputLabel"));
 
   nIdxFirstDigi_ = cfg.getParameter<int>("idxFirstDigi");
+  nCLSMax_ = cfg.getParameter<int>("clsMax");
   nClusterSizeBinNum_ = cfg.getParameter<int>("ClusterSizeBinNum");
   bModeRelVal_ = cfg.getParameter<bool>("modeRelVal");
 }
@@ -16,6 +17,7 @@ void GEMRecHitSource::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("recHitsInputLabel", edm::InputTag("gemRecHits", ""));
 
   desc.add<int>("idxFirstDigi", 0);
+  desc.add<int>("clsMax", 10);
   desc.add<int>("ClusterSizeBinNum", 9);
   desc.add<bool>("modeRelVal", false);
 
@@ -35,7 +37,6 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/RecHits");
 
-  nCLSMax_ = 10;
   fRadiusMin_ = 120.0;
   fRadiusMax_ = 250.0;
   float radS = -5.0 / 180 * M_PI;
