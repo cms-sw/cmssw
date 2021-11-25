@@ -29,14 +29,14 @@ public:
 
   cms::cuda::host::unique_ptr<uint16_t[]> copyAllToHostAsync(cudaStream_t stream) const;
 
-  SiPixelDigisCUDASOAView *view() { return m_view.get(); }
-  SiPixelDigisCUDASOAView const *view() const { return m_view.get(); }
+  SiPixelDigisCUDASOAView view() { return m_view; }
+  SiPixelDigisCUDASOAView const view() const { return m_view; }
 
 private:
   // These are consumed by downstream device code
   cms::cuda::device::unique_ptr<uint16_t[]> m_store;
 
-  cms::cuda::host::unique_ptr<SiPixelDigisCUDASOAView> m_view;  // "me" pointer
+  SiPixelDigisCUDASOAView m_view;  // "me" pointer
 
   uint32_t nModules_h = 0;
   uint32_t nDigis_h = 0;
