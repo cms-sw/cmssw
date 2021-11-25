@@ -73,6 +73,8 @@ private:
   std::vector<double> max_PtMin_;    // maximum Pt for muon with min Pt in pair
   std::vector<double> min_InvMass_;  // minimum invariant mass of pair
   std::vector<double> max_InvMass_;  // maximum invariant mass of pair
+  std::vector<int> invertDiMuonMassSelection_;  // condition to invert the invariant mass selection
+  double min_DiMuAngle_; // minimum angular difference between the muons
   double min_Acop_;                  // minimum acoplanarity
   double max_Acop_;                  // maximum acoplanarity
   double min_PtBalance_;             // minimum Pt difference

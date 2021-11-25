@@ -75,6 +75,8 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig)
       max_PtMin_(iConfig.getParameter<vector<double> >("MaxPtMin")),
       min_InvMass_(iConfig.getParameter<vector<double> >("MinInvMass")),
       max_InvMass_(iConfig.getParameter<vector<double> >("MaxInvMass")),
+      invertDiMuonMassSelection_(iConfig.getParameter<vector<int> >("invertDiMuonMassSelection")),
+      min_DiMuAngle_(iConfig.getParameter<double>("MinDiMuAngle")),
       min_Acop_(iConfig.getParameter<double>("MinAcop")),
       max_Acop_(iConfig.getParameter<double>("MaxAcop")),
       min_PtBalance_(iConfig.getParameter<double>("MinPtBalance")),
@@ -93,9 +95,9 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig)
                                     << candTag_.encode() << " " << fast_Accept_ << " " << min_N_ << " " << max_Eta_
                                     << " " << min_Nhits_ << " " << max_Dr_ << " " << max_Dz_ << " " << chargeOpt_ << " "
                                     << Out(min_PtPair_) << " " << Out(min_PtMax_) << " " << Out(min_PtMin_) << " "
-                                    << Out(min_InvMass_) << " " << Out(max_InvMass_) << " " << min_Acop_ << " "
-                                    << max_Acop_ << " " << min_PtBalance_ << " " << max_PtBalance_ << " " << nsigma_Pt_
-                                    << " " << max_DCAMuMu_ << " " << max_YPair_;
+                                    << Out(min_InvMass_) << " " << Out(max_InvMass_) << " " << min_DiMuAngle_ << " " 
+				    << min_Acop_ << " " << max_Acop_ << " " << min_PtBalance_ << " " << max_PtBalance_ 
+				    << " " << nsigma_Pt_ << " " << max_DCAMuMu_ << " " << max_YPair_;
 }
 
 HLTMuonDimuonL3Filter::~HLTMuonDimuonL3Filter() = default;
@@ -131,6 +133,8 @@ void HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& des
   v6.push_back(2.8);
   vector<double> v7;
   v7.push_back(3.4);
+  vector<int> v8;
+  v8.push_back(0);
   desc.add<vector<double> >("MinPtPair", v1);
   desc.add<vector<double> >("MaxPtPair", v2);
   desc.add<vector<double> >("MinPtMax", v3);
@@ -138,6 +142,8 @@ void HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<vector<double> >("MaxPtMin", v5);
   desc.add<vector<double> >("MinInvMass", v6);
   desc.add<vector<double> >("MaxInvMass", v7);
+  desc.add<vector<int> >("invertDiMuonMassSelection", v8);
+  desc.add<double>("MinDiMuAngle", 0.0);
   desc.add<double>("MinAcop", -1.0);
   desc.add<double>("MaxAcop", 3.15);
   desc.add<double>("MinPtBalance", -1.0);
@@ -181,6 +187,10 @@ bool HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent,
     return false;
   }
   if (min_InvMass_.size() != max_InvMass_.size()) {
+    cout << "ERROR!!! Vector sizes don't match!" << endl;
+    return false;
+  }
+  if (min_InvMass_.size() != invertDiMuonMassSelection_.size()) {
     cout << "ERROR!!! Vector sizes don't match!" << endl;
     return false;
   }
@@ -595,6 +605,10 @@ bool HLTMuonDimuonL3Filter::applyDiMuonSelection(const RecoChargedCandidateRef& 
   double pt12 = p.pt();
   LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 pt12= " << pt12;
 
+  // Angle between the muons
+  if (deltaR(p1,p2)<min_DiMuAngle_)
+    return false;
+
   double ptLx1 = cand1->pt();
   double ptLx2 = cand2->pt();
   double invmass = abs(p.mass());
@@ -602,9 +616,9 @@ bool HLTMuonDimuonL3Filter::applyDiMuonSelection(const RecoChargedCandidateRef& 
   LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 invmass= " << invmass;
   bool proceed = false;
   for (unsigned int iv = 0; iv < min_InvMass_.size(); iv++) {
-    if (invmass < min_InvMass_[iv])
+    if ((invertDiMuonMassSelection_[iv]!=0) && invmass>min_InvMass_[iv] && invmass<max_InvMass_[iv])
       return false;
-    if (invmass > max_InvMass_[iv])
+    if ((invertDiMuonMassSelection_[iv]==0) && (invmass<min_InvMass_[iv] || invmass>max_InvMass_[iv]))
       return false;
     if (ptLx1 > ptLx2) {
       if (ptLx1 < min_PtMax_[iv])
