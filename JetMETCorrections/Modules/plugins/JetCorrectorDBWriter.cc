@@ -85,11 +85,8 @@ void JetCorrectorDBWriter::beginJob() {
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
     std::cout << "Setting up payload tag " << payloadTag << std::endl;
-    if (s->isNewTagRequest(payloadTag))
-      s->createOneIOV<JetCorrectorParametersCollection>(payload, s->beginOfTime(), payloadTag);
-    else
-      s->appendOneIOV<JetCorrectorParametersCollection>(payload, 111, payloadTag);
-  }
+    s->writeOneIOV(payload, s->beginOfTime(), payloadTag);
+}
   std::cout << "Wrote in CondDB payload label: " << payloadTag << std::endl;
 }
 

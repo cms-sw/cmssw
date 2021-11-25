@@ -83,13 +83,8 @@ void METCorrectorDBWriter::beginJob() {
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
     std::cout << "Setting up payload tag " << payloadTag << std::endl;
-    if (s->isNewTagRequest(payloadTag)) {
-      std::cout << "NewTagRequested" << std::endl;
-      s->createOneIOV<MEtXYcorrectParametersCollection>(payload, s->beginOfTime(), payloadTag);
-    } else {
-      s->appendOneIOV<MEtXYcorrectParametersCollection>(payload, 111, payloadTag);
+    s->writeOneIOV(payload, s->beginOfTime(), payloadTag);
     }
-  }
   std::cout << "Wrote in CondDB payload label: " << payloadTag << std::endl;
 }
 
