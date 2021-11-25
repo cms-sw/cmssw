@@ -25,7 +25,7 @@ public:
         dumpPDF_(cfg.getUntrackedParameter<bool>("dumpPDF")),
         checkPDG_(cfg.getUntrackedParameter<bool>("checkPDG")),
         srcToken_(consumes<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("src"))),
-	pdtToken_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()) {}
+        pdtToken_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()) {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
