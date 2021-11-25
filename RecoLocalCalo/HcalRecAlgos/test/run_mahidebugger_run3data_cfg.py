@@ -63,7 +63,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
 
 process.hbheprereco.cpu.saveInfos    = cms.bool(True)
 
-process.load("RecoLocalCalo.HcalRecAlgos.mahiDebugger_cfi")
+process.load("RecoLocalCalo.HcalRecAlgos.test.mahiDebugger_cfi")
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.hcalDigis)
