@@ -97,7 +97,7 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
       clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
                          iConfig.getParameter<int32_t>("clusterThreshold_otherLayers")} {
   if (isRun2_ and isUpgrade_) {
-    throw cms::Exception("SiPixelRawToClusterCUDA") << "Cannot use isRun2 and isUpgrade at the same time\n";
+    throw cms::Exception("Configuration") << "Cannot use isRun2 and isUpgrade at the same time\n";
   }
 
   if (isUpgrade_) {
