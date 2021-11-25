@@ -12,6 +12,7 @@ RecoTrackerAOD = cms.PSet(
         'keep *_dedxHarmonic2_*_*',
         'keep *_dedxPixelHarmonic2_*_*',
         'keep *_dedxHitInfo_*_*',
+        'keep *_siPixelTrackProbQXY_*_*',
         'keep *_trackExtrapolator_*_*',
         'keep *_generalTracks_MVAValues_*',
         'keep *_generalTracks_MVAVals_*'
@@ -34,7 +35,8 @@ RecoTrackerRECO = cms.PSet(
         'keep recoTrackExtras_conversionStepTracks_*_*', 
         'keep TrackingRecHitsOwned_conversionStepTracks_*_*',
         'keep *_ctfPixelLess_*_*', 
-        'keep *_dedxTruncated40_*_*'
+        'keep *_dedxTruncated40_*_*',
+        'keep *_siPixelTrackProbQXY_*_*'
     )
 )
 RecoTrackerRECO.outputCommands.extend(RecoTrackerAOD.outputCommands)

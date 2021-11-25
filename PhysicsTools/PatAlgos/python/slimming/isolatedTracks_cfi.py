@@ -38,6 +38,7 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     addPrescaledDeDxTracks = cms.bool(False),
     usePrecomputedDeDxStrip = cms.bool(True),        # if these are set to True, will get estimated DeDx from DeDxData branches
     usePrecomputedDeDxPixel = cms.bool(True),        # if set to False, will manually compute using dEdxHitInfo
+    siPixelTrackProbQXY = cms.InputTag("siPixelTrackProbQXY"),
     pT_cut = cms.double(5.0),         # save tracks above this pt
     pT_cut_noIso = cms.double(20.0),  # for tracks with at least this pT, don't apply any iso cut
     pfIsolation_DR = cms.double(0.3),

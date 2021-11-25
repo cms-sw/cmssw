@@ -22,6 +22,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
+#include "DataFormats/TrackReco/interface/SiPixelTrackProbQXY.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
@@ -92,6 +93,7 @@ namespace pat {
     const edm::EDGetTokenT<edm::ValueMap<int>> gt2dedxHitInfoPrescale_;
     const bool usePrecomputedDeDxStrip_;
     const bool usePrecomputedDeDxPixel_;
+    const edm::EDGetTokenT<reco::SiPixelTrackProbQXYAssociation> gt2siPixelTrackProbQXY_;
     const float pT_cut_;          // only save cands with pT>pT_cut_
     const float pT_cut_noIso_;    // above this pT, don't apply any iso cut
     const float pfIsolation_DR_;  // isolation radius
@@ -140,6 +142,8 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
                                                       : edm::EDGetTokenT<edm::ValueMap<int>>()),
       usePrecomputedDeDxStrip_(iConfig.getParameter<bool>("usePrecomputedDeDxStrip")),
       usePrecomputedDeDxPixel_(iConfig.getParameter<bool>("usePrecomputedDeDxPixel")),
+      gt2siPixelTrackProbQXY_(
+          consumes<reco::SiPixelTrackProbQXYAssociation>(iConfig.getParameter<edm::InputTag>("siPixelTrackProbQXY"))),
       pT_cut_(iConfig.getParameter<double>("pT_cut")),
       pT_cut_noIso_(iConfig.getParameter<double>("pT_cut_noIso")),
       pfIsolation_DR_(iConfig.getParameter<double>("pfIsolation_DR")),
@@ -228,6 +232,10 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
   if (addPrescaledDeDxTracks_) {
     iEvent.getByToken(gt2dedxHitInfoPrescale_, gt2dedxHitInfoPrescale);
   }
+
+  // associate generalTracks with their combined ProbQ and ProbXY
+  edm::Handle<reco::SiPixelTrackProbQXYAssociation> gt2siPixelTrackProbQXY;
+  iEvent.getByToken(gt2siPixelTrackProbQXY_, gt2siPixelTrackProbQXY);
 
   const HcalChannelQuality* hcalQ = &iSetup.getData(hcalQToken_);
 
@@ -374,6 +382,16 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
 
     int trackQuality = gentk.qualityMask();
 
+    // get combined probQ and probXY
+    float probQonTrack = 0, probXYonTrack = 0, probQonTrackNoL1 = 0, probXYonTrackNoL1 = 0;
+    if (gt2siPixelTrackProbQXY.isValid() && gt2siPixelTrackProbQXY->contains(tkref.id())) {
+      const reco::SiPixelTrackProbQXY* siPixelTrackProbQXY = (*gt2siPixelTrackProbQXY)[tkref].get();
+      probQonTrack = siPixelTrackProbQXY->probQonTrack();
+      probXYonTrack = siPixelTrackProbQXY->probXYonTrack();
+      probQonTrackNoL1 = siPixelTrackProbQXY->probQonTrackNoL1();
+      probXYonTrackNoL1 = siPixelTrackProbQXY->probXYonTrackNoL1();
+    }
+
     // get the associated ecal/hcal detectors
     TrackDetMatchInfo trackDetInfo = getTrackDetMatchInfo(iEvent, iSetup, gentk);
 
@@ -414,6 +432,10 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
                                           gentk.hitPattern(),
                                           dEdxStrip,
                                           dEdxPixel,
+                                          probQonTrack,
+                                          probXYonTrack,
+                                          probQonTrackNoL1,
+                                          probXYonTrackNoL1,
                                           fromPV,
                                           trackQuality,
                                           crossedEcalStatus,
@@ -506,6 +528,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     // fill with default values
     reco::HitPattern hp;
     float dEdxPixel = -1, dEdxStrip = -1;
+    float probQonTrack = 0, probXYonTrack = 0, probQonTrackNoL1 = 0, probXYonTrackNoL1 = 0;
     int trackQuality = 0;
     std::vector<uint16_t> ecalStatus;
     std::vector<uint32_t> hcalStatus;
@@ -528,6 +551,10 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
                                           hp,
                                           dEdxStrip,
                                           dEdxPixel,
+                                          probQonTrack,
+                                          probXYonTrack,
+                                          probQonTrackNoL1,
+                                          probXYonTrackNoL1,
                                           fromPV,
                                           trackQuality,
                                           ecalStatus,
