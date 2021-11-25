@@ -73,7 +73,7 @@ using namespace reco;
 // class decleration
 //
 
-class TrackProbabilityXMLtoDB : public edm::EDAnalyzer {
+class TrackProbabilityXMLtoDB : public edm::one::EDAnalyzer<> {
 public:
   explicit TrackProbabilityXMLtoDB(const edm::ParameterSet&);
 
@@ -106,9 +106,9 @@ public:
       calibration2d.data.push_back(entry);
     }
 
-    mydbservice->createOneIOV(calibration, "BTagTrackProbability3DRcd");
+    mydbservice->createOneIOV(calibration, mydbservice->endOfTime(), "BTagTrackProbability3DRcd");
 
-    mydbservice->createOneIOV(calibration2d, "BTagTrackProbability2DRcd");
+    mydbservice->createOneIOV(calibration2d, mydbservice->endOfTime(), "BTagTrackProbability2DRcd");
   }
   ~TrackProbabilityXMLtoDB() {}
 

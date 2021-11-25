@@ -76,7 +76,7 @@ using namespace reco;
 // class decleration
 //
 
-class CalibrationSkeleton : public edm::EDAnalyzer {
+class CalibrationSkeleton : public edm::one::EDAnalyzer<> {
 public:
   explicit CalibrationSkeleton(const edm::ParameterSet&);
 
@@ -132,9 +132,9 @@ public:
       calibration2d.data.push_back(entry);
     }
 
-    mydbservice->createOneIOV(calibration, "BTagTrackProbability3DRcd");
+    mydbservice->createOneIOV(calibration, mydbservice->endOfTime(), "BTagTrackProbability3DRcd");
 
-    mydbservice->createOneIOV(calibration2d, "BTagTrackProbability2DRcd");
+    mydbservice->createOneIOV(calibration2d, mydbservice->endOfTime(), "BTagTrackProbability2DRcd");
   }
 
   ~CalibrationSkeleton() {}
@@ -201,10 +201,7 @@ void CalibrationSkeleton::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   //***********************************************************************************
   //mandatory for ip significance reco
-  const TransientTrackBuilder* m_transientTrackBuilder_producer;
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  m_transientTrackBuilder_producer = builder.product();
+  auto const m_transientTrackBuilder_producer = &iSetup.getData(transientTrackBuilderToken_);
   //***********************************************************************************
 
   int i = 0;
