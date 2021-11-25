@@ -39,10 +39,10 @@ DBWriter::~DBWriter() {
 
 // ------------ method called to for each event  ------------
 void DBWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  MuScleFitDBobject* dbObject = new MuScleFitDBobject;
+  MuScleFitDBobject dbObject;
 
-  dbObject->identifiers = corrector_->identifiers();
-  dbObject->parameters = corrector_->parameters();
+  dbObject.identifiers = corrector_->identifiers();
+  dbObject.parameters = corrector_->parameters();
 
   //   if( dbObject->identifiers.size() != dbObject->parameters.size() ) {
   //     std::cout << "Error: size of parameters("<<dbObject->parameters.size()<<") and identifiers("<<dbObject->identifiers.size()<<") don't match" << std::endl;
@@ -64,10 +64,9 @@ void DBWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("MuScleFitDBobjectRcd")) {
-      mydbservice->createNewIOV<MuScleFitDBobject>(
-          dbObject, mydbservice->beginOfTime(), mydbservice->endOfTime(), "MuScleFitDBobjectRcd");
+      mydbservice->createOneIOV<MuScleFitDBobject>(dbObject, mydbservice->beginOfTime(), "MuScleFitDBobjectRcd");
     } else {
-      mydbservice->appendSinceTime<MuScleFitDBobject>(dbObject, mydbservice->currentTime(), "MuScleFitDBobjectRcd");
+      mydbservice->appendOneIOV<MuScleFitDBobject>(dbObject, mydbservice->currentTime(), "MuScleFitDBobjectRcd");
     }
   } else {
     edm::LogError("DBWriter") << "Service is unavailable" << std::endl;
