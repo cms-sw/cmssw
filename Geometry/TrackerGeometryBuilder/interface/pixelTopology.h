@@ -16,7 +16,7 @@ namespace pixelTopology {
     return map_to_array_helper(f, std::make_index_sequence<N>{});
   }
 
-  static constexpr auto maxNumberOfLadders = 160;
+  constexpr auto maxNumberOfLadders = 160;
   constexpr uint32_t maxLayers = 28;
 
   struct AverageGeometry {
