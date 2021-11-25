@@ -25,20 +25,6 @@ namespace hcaldqm {
                             _vhashuTCA);  // filter out uTCA
 
     //	INTIALIZE CONTAINERS ACTING AS HOLDERS OF RUN INFORAMTION
-    _cEvnMsm_ElectronicsVME.initialize(_name,
-                                       "EvnMsm",
-                                       hashfunctions::fElectronics,
-                                       new quantity::FEDQuantity(_vFEDsVME),
-                                       new quantity::ElectronicsQuantity(quantity::fSpigot),
-                                       new quantity::ValueQuantity(quantity::fN),
-                                       0);
-    _cBcnMsm_ElectronicsVME.initialize(_name,
-                                       "BcnMsm",
-                                       hashfunctions::fElectronics,
-                                       new quantity::FEDQuantity(_vFEDsVME),
-                                       new quantity::ElectronicsQuantity(quantity::fSpigot),
-                                       new quantity::ValueQuantity(quantity::fN),
-                                       0);
     _cEvnMsm_ElectronicsuTCA.initialize(_name,
                                         "EvnMsm",
                                         hashfunctions::fElectronics,
@@ -97,23 +83,9 @@ namespace hcaldqm {
     _xBadQ.reset();
 
     //	INITIALIZE LUMI BASED HISTOGRAMS
-    Container2D cEvnMsm_ElectronicsVME, cEvnMsm_ElectronicsuTCA;
-    Container2D cBcnMsm_ElectronicsVME, cBcnMsm_ElectronicsuTCA;
+    Container2D cEvnMsm_ElectronicsuTCA;
+    Container2D cBcnMsm_ElectronicsuTCA;
     Container2D cBadQuality_depth;
-    cEvnMsm_ElectronicsVME.initialize(_taskname,
-                                      "EvnMsm",
-                                      hashfunctions::fElectronics,
-                                      new quantity::FEDQuantity(_vFEDsVME),
-                                      new quantity::ElectronicsQuantity(quantity::fSpigot),
-                                      new quantity::ValueQuantity(quantity::fN),
-                                      0);
-    cBcnMsm_ElectronicsVME.initialize(_taskname,
-                                      "BcnMsm",
-                                      hashfunctions::fElectronics,
-                                      new quantity::FEDQuantity(_vFEDsVME),
-                                      new quantity::ElectronicsQuantity(quantity::fSpigot),
-                                      new quantity::ValueQuantity(quantity::fN),
-                                      0);
     cEvnMsm_ElectronicsuTCA.initialize(_taskname,
                                        "EvnMsm",
                                        hashfunctions::fElectronics,
@@ -137,8 +109,6 @@ namespace hcaldqm {
                                  0);
 
     //	LOAD LUMI BASED HISTOGRAMS
-    cEvnMsm_ElectronicsVME.load(ig, _emap, _filter_uTCA, _subsystem);
-    cBcnMsm_ElectronicsVME.load(ig, _emap, _filter_uTCA, _subsystem);
     cEvnMsm_ElectronicsuTCA.load(ig, _emap, _filter_VME, _subsystem);
     cBcnMsm_ElectronicsuTCA.load(ig, _emap, _filter_VME, _subsystem);
     cBadQuality_depth.load(ig, _emap, _subsystem);
@@ -147,8 +117,6 @@ namespace hcaldqm {
 
     //	BOOK for the very first time
     if (!_booked) {
-      _cEvnMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-      _cBcnMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
       _cEvnMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
       _cBcnMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
       _cBadQuality_depth.book(ib, _emap, _subsystem);
@@ -166,13 +134,7 @@ namespace hcaldqm {
 
       _xBadQ.get(eid) += cBadQuality_depth.getBinContent(did);
       _cBadQuality_depth.fill(did, cBadQuality_depth.getBinContent(did));
-      if (eid.isVMEid()) {
-        _xEvn.get(eid) += cEvnMsm_ElectronicsVME.getBinContent(eid);
-        _xBcn.get(eid) += cBcnMsm_ElectronicsVME.getBinContent(eid);
-
-        _cEvnMsm_ElectronicsVME.fill(eid, cEvnMsm_ElectronicsVME.getBinContent(eid));
-        _cBcnMsm_ElectronicsVME.fill(eid, cBcnMsm_ElectronicsVME.getBinContent(eid));
-      } else {
+      if (!eid.isVMEid()) {
         _xEvn.get(eid) += cEvnMsm_ElectronicsuTCA.getBinContent(eid);
         _xBcn.get(eid) += cBcnMsm_ElectronicsuTCA.getBinContent(eid);
 
