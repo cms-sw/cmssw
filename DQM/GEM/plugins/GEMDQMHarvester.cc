@@ -213,8 +213,7 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(std::string strName,
   Int_t nBinY = h2Sum->getNbinsY();
   Int_t nAllBin = 0, nFineBin = 0;
   for (Int_t j = 1; j <= nBinY; j++) {
-    Int_t nBinX = h2Sum->getNbinsX();
-    nBinX = (Int_t)(h2SrcOcc->getBinContent(0, j) + 0.5);
+    Int_t nBinX = (Int_t)(h2SrcOcc->getBinContent(0, j) + 0.5);
     h2Sum->setBinContent(0, j, nBinX);
     for (Int_t i = 1; i <= nBinX; i++) {
       Float_t fOcc = h2SrcOcc->getBinContent(i, j);
