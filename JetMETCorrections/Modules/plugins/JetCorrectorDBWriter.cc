@@ -86,7 +86,7 @@ void JetCorrectorDBWriter::beginJob() {
   if (s.isAvailable()) {
     std::cout << "Setting up payload tag " << payloadTag << std::endl;
     s->writeOneIOV(payload, s->beginOfTime(), payloadTag);
-}
+  }
   std::cout << "Wrote in CondDB payload label: " << payloadTag << std::endl;
 }
 
