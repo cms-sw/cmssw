@@ -11,26 +11,17 @@
 #include "DataFormats/PatCandidates/interface/Flags.h"
 
 TtSemiLepSignalSelMVAComputer::TtSemiLepSignalSelMVAComputer(const edm::ParameterSet& cfg)
-    : muonsToken_(consumes<edm::View<pat::Muon> >(cfg.getParameter<edm::InputTag>("muons"))),
+    : mvaToken_(esConsumes()),
+      muonsToken_(consumes<edm::View<pat::Muon> >(cfg.getParameter<edm::InputTag>("muons"))),
       jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
       METsToken_(consumes<edm::View<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
-      electronsToken_(consumes<edm::View<pat::Electron> >(cfg.getParameter<edm::InputTag>("elecs"))) {
-  produces<double>("DiscSel");
-}
+      electronsToken_(consumes<edm::View<pat::Electron> >(cfg.getParameter<edm::InputTag>("elecs"))),
+      putToken_(produces("DiscSel")) {}
 
 TtSemiLepSignalSelMVAComputer::~TtSemiLepSignalSelMVAComputer() {}
 
 void TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup) {
-  std::unique_ptr<double> pOutDisc(new double);
-
-  mvaComputer.update<TtSemiLepSignalSelMVARcd>(setup, "ttSemiLepSignalSelMVA");
-
-  // read name of the last processor in the MVA calibration
-  // (to be used as meta information)
-  edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> calibContainer;
-  setup.get<TtSemiLepSignalSelMVARcd>().get(calibContainer);
-  std::vector<PhysicsTools::Calibration::VarProcessor*> processors =
-      (calibContainer->find("ttSemiLepSignalSelMVA")).getProcessors();
+  mvaComputer.update(&setup.getData(mvaToken_), "ttSemiLepSignalSelMVA");
 
   //make your preselection! This must!! be the same one as in TraintreeSaver.cc
   edm::Handle<edm::View<pat::MET> > MET_handle;
@@ -113,16 +104,8 @@ void TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSet
     discrim = evaluateTtSemiLepSignalSel(mvaComputer, selection);
   }
 
-  *pOutDisc = discrim;
-
-  evt.put(std::move(pOutDisc), "DiscSel");
-
-  DiscSel = discrim;
+  evt.emplace(putToken_, discrim);
 }
-
-void TtSemiLepSignalSelMVAComputer::beginJob() {}
-
-void TtSemiLepSignalSelMVAComputer::endJob() {}
 
 double TtSemiLepSignalSelMVAComputer::DeltaPhi(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2) {
   double dPhi = fabs(v1.Phi() - v2.Phi());

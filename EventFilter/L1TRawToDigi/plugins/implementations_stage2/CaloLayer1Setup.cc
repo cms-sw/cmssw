@@ -70,18 +70,7 @@ namespace l1t {
                       << amc << " fw 0x" << std::hex << fw << std::dec;
       if (fed == 1354 || fed == 1356 || fed == 1358) {
         if (board < 18) {
-          if (fw == 0x12345678) {
-            res[0] = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker");
-          }
-          // e.g.
-          // else if (fw == 0xdeadbeef) {
-          //    res[0] = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker_v2");
-          // }
-          else {
-            edm::LogWarning("L1T")
-                << "CaloLayer1Setup: unexpected CTP7 firmware ID, will try unpacking with default unpacker anyway";
-            res[0] = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker");
-          }
+          res[0] = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker");
         }
       }
 

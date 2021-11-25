@@ -61,12 +61,12 @@ private:
   edm::ESGetToken<CSCGeometry, MuonGeometryRecord> esTokenCSC_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> esTokenGEM_;
 
-  Alignments* dt_Alignments;
-  AlignmentErrorsExtended* dt_AlignmentErrorsExtended;
-  Alignments* csc_Alignments;
-  AlignmentErrorsExtended* csc_AlignmentErrorsExtended;
-  Alignments* gem_Alignments;
-  AlignmentErrorsExtended* gem_AlignmentErrorsExtended;
+  Alignments dt_Alignments;
+  AlignmentErrorsExtended dt_AlignmentErrorsExtended;
+  Alignments csc_Alignments;
+  AlignmentErrorsExtended csc_AlignmentErrorsExtended;
+  Alignments gem_Alignments;
+  AlignmentErrorsExtended gem_AlignmentErrorsExtended;
 };
 
 //__________________________________________________________________________________________________
@@ -84,7 +84,7 @@ MuonMisalignedProducer::MuonMisalignedProducer(const edm::ParameterSet& p)
       esTokenGEM_(esConsumes(edm::ESInputTag("", "idealForMuonMisalignedProducer"))) {}
 
 //__________________________________________________________________________________________________
-MuonMisalignedProducer::~MuonMisalignedProducer() {}
+MuonMisalignedProducer::~MuonMisalignedProducer() = default;
 
 //__________________________________________________________________________________________________
 void MuonMisalignedProducer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
@@ -102,12 +102,12 @@ void MuonMisalignedProducer::analyze(const edm::Event& event, const edm::EventSe
   scenarioBuilder.applyScenario(theScenario);
 
   // Get alignments and errors
-  dt_Alignments = theAlignableMuon->dtAlignments();
-  dt_AlignmentErrorsExtended = theAlignableMuon->dtAlignmentErrorsExtended();
-  csc_Alignments = theAlignableMuon->cscAlignments();
-  csc_AlignmentErrorsExtended = theAlignableMuon->cscAlignmentErrorsExtended();
-  gem_Alignments = theAlignableMuon->gemAlignments();
-  gem_AlignmentErrorsExtended = theAlignableMuon->gemAlignmentErrorsExtended();
+  dt_Alignments = *(theAlignableMuon->dtAlignments());
+  dt_AlignmentErrorsExtended = *(theAlignableMuon->dtAlignmentErrorsExtended());
+  csc_Alignments = *(theAlignableMuon->cscAlignments());
+  csc_AlignmentErrorsExtended = *(theAlignableMuon->cscAlignmentErrorsExtended());
+  gem_Alignments = *(theAlignableMuon->gemAlignments());
+  gem_AlignmentErrorsExtended = *(theAlignableMuon->gemAlignmentErrorsExtended());
 
   // Misalign the EventSetup geometry
   /* GeometryAligner aligner;
@@ -132,17 +132,17 @@ void MuonMisalignedProducer::saveToDB(void) {
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
   // Store DT alignments and errors
-  poolDbService->writeOne<Alignments>(&(*dt_Alignments), poolDbService->beginOfTime(), theDTAlignRecordName);
-  poolDbService->writeOne<AlignmentErrorsExtended>(
-      &(*dt_AlignmentErrorsExtended), poolDbService->beginOfTime(), theDTErrorRecordName);
+  poolDbService->writeOneIOV<Alignments>(dt_Alignments, poolDbService->beginOfTime(), theDTAlignRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      dt_AlignmentErrorsExtended, poolDbService->beginOfTime(), theDTErrorRecordName);
 
   // Store CSC alignments and errors
-  poolDbService->writeOne<Alignments>(&(*csc_Alignments), poolDbService->beginOfTime(), theCSCAlignRecordName);
-  poolDbService->writeOne<AlignmentErrorsExtended>(
-      &(*csc_AlignmentErrorsExtended), poolDbService->beginOfTime(), theCSCErrorRecordName);
-  poolDbService->writeOne<Alignments>(&(*gem_Alignments), poolDbService->beginOfTime(), theGEMAlignRecordName);
-  poolDbService->writeOne<AlignmentErrorsExtended>(
-      &(*gem_AlignmentErrorsExtended), poolDbService->beginOfTime(), theGEMErrorRecordName);
+  poolDbService->writeOneIOV<Alignments>(csc_Alignments, poolDbService->beginOfTime(), theCSCAlignRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      csc_AlignmentErrorsExtended, poolDbService->beginOfTime(), theCSCErrorRecordName);
+  poolDbService->writeOneIOV<Alignments>(gem_Alignments, poolDbService->beginOfTime(), theGEMAlignRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      gem_AlignmentErrorsExtended, poolDbService->beginOfTime(), theGEMErrorRecordName);
 }
 //____________________________________________________________________________________________
 DEFINE_FWK_MODULE(MuonMisalignedProducer);

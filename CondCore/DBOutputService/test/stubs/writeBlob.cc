@@ -1,10 +1,28 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include <random>
+#include <string>
 
-#include "writeBlob.h"
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
+
+// class decleration
+class writeBlob : public edm::one::EDAnalyzer<> {
+public:
+  explicit writeBlob(const edm::ParameterSet& iConfig);
+  ~writeBlob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() {}
+
+private:
+  std::string m_StripRecordName;
+};
 
 typedef std::minstd_rand base_generator_type;
 writeBlob::writeBlob(const edm::ParameterSet& iConfig) : m_StripRecordName("mySiStripNoisesRcd") {}
@@ -24,7 +42,7 @@ void writeBlob::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) 
     return;
   }
   try {
-    mySiStripNoises* me = new mySiStripNoises;
+    mySiStripNoises me;
     unsigned int detidseed = 1234;
     unsigned int bsize = 100;
     unsigned int nAPV = 2;
@@ -34,22 +52,18 @@ void writeBlob::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) 
       for (unsigned int strip = 0; strip < 128 * nAPV; ++strip) {
         float noise = uni();
         ;
-        me->setData(noise, theSiStripVector);
+        me.setData(noise, theSiStripVector);
       }
-      me->put(detid, theSiStripVector);
+      me.put(detid, theSiStripVector);
     }
 
-    mydbservice->writeOne(me, mydbservice->currentTime(), m_StripRecordName);
+    mydbservice->writeOneIOV(me, mydbservice->currentTime(), m_StripRecordName);
   } catch (const cond::Exception& er) {
     throw cms::Exception("DBOutputServiceUnitTestFailure", "failed writeBlob", er);
     //std::cout<<er.what()<<std::endl;
   } catch (const cms::Exception& er) {
     throw cms::Exception("DBOutputServiceUnitTestFailure", "failed writeBlob", er);
-  } /*catch(const std::exception& er){
-    std::cout<<"caught std::exception "<<er.what()<<std::endl;
-  }catch(...){
-    std::cout<<"Funny error"<<std::endl;
-    }*/
+  }
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(writeBlob);

@@ -48,14 +48,14 @@ cscDigiValidation = DQMEDAnalyzer(
     preclctMaxBin = cms.vdouble(7, 224, 16),
     lctVars = cms.vstring(
         # For Run-2 eras
-        "quality", "wiregroup", "halfstrip", "pattern", "bend", "bx",
+        "quality", "wiregroup", "halfstrip", "pattern", "bend", "bx", "type",
         # Added in Run-3 eras
         # The quartstripbit and eighthstripbit are left out to prevent
         # too many plots being created by the release validation
         "quartstrip", "eighthstrip", "run3pattern", "slope"),
-    lctNBin = cms.vuint32(16, 116, 224, 16, 2, 16, 448, 896, 5, 16),
-    lctMinBin = cms.vdouble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-    lctMaxBin = cms.vdouble(16, 116, 224, 16, 2, 16, 448, 896, 5, 16),
+    lctNBin = cms.vuint32(16, 116, 224, 16, 2, 16, 8, 448, 896, 5, 16),
+    lctMinBin = cms.vdouble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+    lctMaxBin = cms.vdouble(16, 116, 224, 16, 2, 16, 8, 448, 896, 5, 16),
     isRun3 = cms.bool(False),
 )
 

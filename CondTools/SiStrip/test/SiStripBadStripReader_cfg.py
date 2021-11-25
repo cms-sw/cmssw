@@ -5,10 +5,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.source = cms.Source("EmptySource",
-    lastRun = cms.untracked.uint32(1),
-    timetype = cms.string('runnumber'),
     firstRun = cms.untracked.uint32(1),
-    interval = cms.uint32(1)
+    numberEventsInRun = cms.untracked.uint32(1),
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -31,7 +29,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         record = cms.string('SiStripBadStripRcd'),
         tag = cms.string('SiStripBadChannel_v1')
     )),
-    connect = cms.string('sqlite_file:dbfile.db')
+    connect = cms.string('sqlite_file:SiStripConditionsDBFile.db')
 )
 
 process.prod = cms.EDAnalyzer("SiStripBadStripReader",

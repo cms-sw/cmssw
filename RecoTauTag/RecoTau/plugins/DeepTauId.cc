@@ -1163,9 +1163,9 @@ public:
     desc.add<bool>("save_inputs", false);
     desc.add<bool>("is_online", false);
 
-    desc.add<std::vector<std::string>>("VSeWP");
-    desc.add<std::vector<std::string>>("VSmuWP");
-    desc.add<std::vector<std::string>>("VSjetWP");
+    desc.add<std::vector<std::string>>("VSeWP", {"-1."});
+    desc.add<std::vector<std::string>>("VSmuWP", {"-1."});
+    desc.add<std::vector<std::string>>("VSjetWP", {"-1."});
 
     desc.addUntracked<edm::InputTag>("basicTauDiscriminators", edm::InputTag("basicTauDiscriminators"));
     desc.addUntracked<edm::InputTag>("basicTauDiscriminatorsdR03", edm::InputTag("basicTauDiscriminatorsdR03"));

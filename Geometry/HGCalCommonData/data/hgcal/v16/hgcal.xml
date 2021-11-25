@@ -3,18 +3,18 @@
 
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="WaferSize"             value="166.4408*mm"/>
-  <Constant name="WaferThickness"        value="0.31*mm"/>
+  <Constant name="WaferThickness"        value="0.30*mm"/>
   <Constant name="WaferThicknessFine"    value="0.30*mm"/>
   <Constant name="WaferThicknessCoarse1" value="0.20*mm"/>
   <Constant name="WaferThicknessCoarse2" value="0.30*mm"/>
   <Constant name="SensorSeparation"      value="1.00*mm"/>
   <Constant name="MouseBite"             value="5.00*mm"/>
-  <Constant name="ModuleThicknessEE"     value="9.10*mm"/>
-  <Constant name="ModuleThicknessHE"     value="8.60*mm"/>
+  <Constant name="ModuleThicknessEE"     value="9.325*mm"/>
+  <Constant name="ModuleThicknessHE"     value="8.70*mm"/>
   <Constant name="CellThicknessFine"     value="0.12*mm"/>
   <Constant name="CellThicknessCoarse1"  value="0.20*mm"/>
   <Constant name="CellThicknessCoarse2"  value="0.30*mm"/>
-  <Constant name="ScintillatorThickness" value="3.88*mm"/>
+  <Constant name="ScintillatorThickness" value="3.0*mm"/>
   <Constant name="NumberOfCellsFine"     value="12"/>
   <Constant name="NumberOfCellsCoarse"   value="8"/>
   <Constant name="NPhiBinBH"             value="288"/>

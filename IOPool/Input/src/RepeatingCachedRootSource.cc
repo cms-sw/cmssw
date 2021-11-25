@@ -91,6 +91,10 @@ namespace edm {
     bool goToEvent_(EventID const& eventID) override;
     void beginJob() override;
 
+    void fillProcessBlockHelper_() override;
+    bool nextProcessBlock_(ProcessBlockPrincipal&) override;
+    void readProcessBlock_(ProcessBlockPrincipal&) override;
+
     std::unique_ptr<RootFile> makeRootFile(std::string const& logicalFileName,
                                            std::string const& pName,
                                            bool isSkipping,
@@ -267,11 +271,12 @@ std::unique_ptr<RootFile> RepeatingCachedRootSource::makeRootFile(
                                     -1,                          //treeMaxVirtualSize(),
                                     processingMode(),
                                     runHelper_,
-                                    true,  //noEventSort_,
+                                    false,  //noRunLumiSort_
+                                    true,   //noEventSort_,
                                     selectorRules_,
                                     InputType::Primary,
                                     branchIDListHelper(),
-                                    nullptr,
+                                    processBlockHelper().get(),
                                     thinnedAssociationsHelper(),
                                     nullptr,  // associationsFromSecondary
                                     duplicateChecker,
@@ -353,6 +358,16 @@ bool RepeatingCachedRootSource::readIt(EventID const& id,
 void RepeatingCachedRootSource::skip(int offset) {}
 
 bool RepeatingCachedRootSource::goToEvent_(EventID const& eventID) { return false; }
+
+void RepeatingCachedRootSource::fillProcessBlockHelper_() { rootFile_->fillProcessBlockHelper_(); }
+
+bool RepeatingCachedRootSource::nextProcessBlock_(ProcessBlockPrincipal& processBlockPrincipal) {
+  return rootFile_->nextProcessBlock_(processBlockPrincipal);
+}
+
+void RepeatingCachedRootSource::readProcessBlock_(ProcessBlockPrincipal& processBlockPrincipal) {
+  rootFile_->readProcessBlock_(processBlockPrincipal);
+}
 
 //
 // const member functions

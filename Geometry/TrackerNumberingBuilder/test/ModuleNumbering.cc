@@ -80,6 +80,10 @@ private:
   double changePhiRange_From_ZeroTwoPi_To_MinusPiPlusPi(double phiRad);
   double changePhiRange_From_MinusPiPlusPi_To_MinusTwoPiZero(double phiRad);
   double changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(double phiRad);
+
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tokTopo_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> tokGeo_;
+
   //
   // counters
   unsigned int iOK;
@@ -100,7 +104,9 @@ static const double tolerance_angle = 0.001;  // 0.001 rad
 //
 // constructors and destructor
 //
-ModuleNumbering::ModuleNumbering(const edm::ParameterSet& iConfig) {
+ModuleNumbering::ModuleNumbering(const edm::ParameterSet& iConfig)
+    : tokTopo_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+      tokGeo_(esConsumes<GeometricDet, IdealGeometryRecord>()) {
   //now do what ever initialization is needed
 }
 
@@ -168,9 +174,7 @@ double ModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(double ph
 // ------------ method called to produce the data  ------------
 void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* tTopo = &iSetup.getData(tokTopo_);
 
   edm::LogInfo("ModuleNumbering") << "begins";
 
@@ -182,8 +186,7 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //
   // get the GeometricDet
   //
-  edm::ESHandle<GeometricDet> rDD;
-  iSetup.get<IdealGeometryRecord>().get(rDD);
+  auto const& rDD = iSetup.getHandle(tokGeo_);
   edm::LogInfo("ModuleNumbering") << " Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
   edm::LogInfo("ModuleNumbering") << "    radLength " << rDD.product()->radLength() << "\n"
                                   << "           xi " << rDD.product()->xi() << "\n"
@@ -208,8 +211,6 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   //
   //first instance tracking geometry
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
   //
 
   std::vector<const GeometricDet*> modules = (*rDD).deepComponents();

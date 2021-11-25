@@ -412,7 +412,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (mydbservice.isAvailable()) {
     try {
-      mydbservice->writeOneIOV(LorentzAngle.get(), mydbservice->currentTime(), recordName_);
+      mydbservice->writeOneIOV(*LorentzAngle, mydbservice->currentTime(), recordName_);
     } catch (const cond::Exception& er) {
       edm::LogError("SiPixelLorentzAngleDB") << er.what() << std::endl;
     } catch (const std::exception& er) {

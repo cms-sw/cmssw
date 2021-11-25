@@ -27,14 +27,14 @@ public:
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
 
 private:
-  bool fromDD4Hep_;
+  bool fromDD4hep_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
   edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> muonGeomConstantsToken_;
 };
 
 ME0RecoIdealDBLoader::ME0RecoIdealDBLoader(const edm::ParameterSet& iC) {
-  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);  // set true for DD4HEP
+  fromDD4hep_ = iC.getUntrackedParameter<bool>("fromDD4hep", false);  // set true for DD4hep
   dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   muonGeomConstantsToken_ = esConsumes<edm::Transition::BeginRun>();
@@ -52,20 +52,19 @@ void ME0RecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
   if (mydbservice->isNewTagRequest("ME0RecoGeometryRcd")) {
     auto pMNDC = es.getHandle(muonGeomConstantsToken_);
     ME0GeometryParsFromDD me0pd;
-    RecoIdealGeometry* rig = new RecoIdealGeometry;
-    if (fromDD4Hep_) {
-      edm::LogVerbatim("ME0RecoIdealDBLoader") << "(0) ME0RecoIdealDBLoader - DD4HEP ";
+    RecoIdealGeometry rig;
+    if (fromDD4hep_) {
+      edm::LogVerbatim("ME0RecoIdealDBLoader") << "(0) ME0RecoIdealDBLoader - DD4hep ";
       auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
       const cms::DDCompactView& cpv = *pDD;
-      me0pd.build(&cpv, *pMNDC, *rig);
+      me0pd.build(&cpv, *pMNDC, rig);
     } else {
       edm::LogVerbatim("ME0RecoIdealDBLoader") << "(0) ME0RecoIdealDBLoader - DDD ";
       auto pDD = es.getTransientHandle(compactViewToken_);
       const DDCompactView& cpv = *pDD;
-      me0pd.build(&cpv, *pMNDC, *rig);
+      me0pd.build(&cpv, *pMNDC, rig);
     }
-    mydbservice->createNewIOV<RecoIdealGeometry>(
-        rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "ME0RecoGeometryRcd");
+    mydbservice->createOneIOV(rig, mydbservice->beginOfTime(), "ME0RecoGeometryRcd");
   } else {
     edm::LogError("ME0RecoIdealDBLoader") << "ME0RecoGeometryRcd Tag is already present";
   }

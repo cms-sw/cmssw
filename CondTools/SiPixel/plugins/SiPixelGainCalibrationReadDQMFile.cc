@@ -23,25 +23,75 @@
 #include <sys/stat.h>
 
 // user include files
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "TH2F.h"
-#include "TFile.h"
+// ROOT includes
 #include "TDirectory.h"
+#include "TFile.h"
+#include "TH2F.h"
 #include "TKey.h"
-#include "TString.h"
 #include "TList.h"
+#include "TString.h"
 #include "TTree.h"
 
-#include "SiPixelGainCalibrationReadDQMFile.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 //
 // class decleration
 //
+
+class SiPixelGainCalibrationReadDQMFile : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit SiPixelGainCalibrationReadDQMFile(const edm::ParameterSet &);
+
+private:
+  void analyze(const edm::Event &, const edm::EventSetup &) final;
+  // functions added by F.B.
+  void fillDatabase(const edm::EventSetup &iSetup, TFile *);
+  std::unique_ptr<TFile> getHistograms();
+  // ----------member data ---------------------------
+  std::map<uint32_t, std::map<std::string, TString> > bookkeeper_;
+  std::map<uint32_t, std::map<double, double> > Meankeeper_;
+  std::map<uint32_t, std::vector<std::map<int, int> > > noisyPixelsKeeper_;
+
+  const bool appendMode_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pddToken_;
+  SiPixelGainCalibrationService theGainCalibrationDbInputService_;
+  std::unique_ptr<TH2F> defaultGain_;
+  std::unique_ptr<TH2F> defaultPed_;
+  std::unique_ptr<TH2F> defaultChi2_;
+  std::unique_ptr<TH2F> defaultFitResult_;
+  std::unique_ptr<TH1F> meanGainHist_;
+  std::unique_ptr<TH1F> meanPedHist_;
+  const std::string record_;
+  // keep track of lowest and highest vals for range
+  float gainlow_;
+  float gainhi_;
+  float pedlow_;
+  float pedhi_;
+  const bool usemeanwhenempty_;
+  const std::string rootfilestring_;
+  float gainmax_;
+  float pedmax_;
+  const double badchi2_;
+  const size_t nmaxcols;
+  const size_t nmaxrows;
+};
 
 void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSetup, TFile *therootfile) {
   // only create when necessary.
@@ -115,11 +165,10 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
     }
   }
 
-  auto theGainCalibrationDbInput =
-      std::make_unique<SiPixelGainCalibration>(pedlow_ * 0.999, pedhi_ * 1.001, gainlow_ * 0.999, gainhi_ * 1.001);
-  auto theGainCalibrationDbInputHLT = std::make_unique<SiPixelGainCalibrationForHLT>(
+  SiPixelGainCalibration theGainCalibrationDbInput(pedlow_ * 0.999, pedhi_ * 1.001, gainlow_ * 0.999, gainhi_ * 1.001);
+  SiPixelGainCalibrationForHLT theGainCalibrationDbInputHLT(
       pedlow_ * 0.999, pedhi_ * 1.001, gainlow_ * 0.999, gainhi_ * 1.001);
-  auto theGainCalibrationDbInputOffline = std::make_unique<SiPixelGainCalibrationOffline>(
+  SiPixelGainCalibrationOffline theGainCalibrationDbInputOffline(
       pedlow_ * 0.999, pedhi_ * 1.001, gainlow_ * 0.999, gainhi_ * 1.001);
 
   uint32_t nchannels = 0;
@@ -205,13 +254,13 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
     //    int nrows=tempgain->GetNbinsY();
     //    int ncols=tempgain->GetNbinsX();
     //    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "next histo " << tempgain->GetTitle() << " has nrow,ncol:" << nrows << ","<< ncols << std::endl;
-    size_t nrowsrocsplit = theGainCalibrationDbInputHLT->getNumberOfRowsToAverageOver();
-    if (theGainCalibrationDbInputOffline->getNumberOfRowsToAverageOver() != nrowsrocsplit)
+    size_t nrowsrocsplit = theGainCalibrationDbInputHLT.getNumberOfRowsToAverageOver();
+    if (theGainCalibrationDbInputOffline.getNumberOfRowsToAverageOver() != nrowsrocsplit)
       throw cms::Exception("GainCalibration Payload configuration error")
           << "[SiPixelGainCalibrationAnalysis::fillDatabase] ERROR the SiPixelGainCalibrationOffline and "
              "SiPixelGainCalibrationForHLT database payloads have different settings for the number of rows per roc: "
-          << theGainCalibrationDbInputHLT->getNumberOfRowsToAverageOver() << "(HLT), "
-          << theGainCalibrationDbInputOffline->getNumberOfRowsToAverageOver() << "(offline)";
+          << theGainCalibrationDbInputHLT.getNumberOfRowsToAverageOver() << "(HLT), "
+          << theGainCalibrationDbInputOffline.getNumberOfRowsToAverageOver() << "(offline)";
     std::vector<char> theSiPixelGainCalibrationPerPixel;
     std::vector<char> theSiPixelGainCalibrationPerColumn;
     std::vector<char> theSiPixelGainCalibrationGainPerColPedPerPixel;
@@ -325,11 +374,11 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
         float gain = gains[jrow];
 
         if (ped > pedlow_ && gain > gainlow_ && ped < pedhi_ && gain < gainhi_) {
-          theGainCalibrationDbInput->setData(ped, gain, theSiPixelGainCalibrationPerPixel);
-          theGainCalibrationDbInputOffline->setDataPedestal(ped, theSiPixelGainCalibrationGainPerColPedPerPixel);
+          theGainCalibrationDbInput.setData(ped, gain, theSiPixelGainCalibrationPerPixel);
+          theGainCalibrationDbInputOffline.setDataPedestal(ped, theSiPixelGainCalibrationGainPerColPedPerPixel);
         } else {
-          theGainCalibrationDbInput->setDeadPixel(theSiPixelGainCalibrationPerPixel);
-          theGainCalibrationDbInputOffline->setDeadPixel(theSiPixelGainCalibrationGainPerColPedPerPixel);
+          theGainCalibrationDbInput.setDeadPixel(theSiPixelGainCalibrationPerPixel);
+          theGainCalibrationDbInputOffline.setDeadPixel(theSiPixelGainCalibrationGainPerColPedPerPixel);
         }
 
         if (jrow % nrowsrocsplit == 0) {
@@ -360,15 +409,15 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
 
           if (gainforthiscol[iglobalrow] > gainlow_ && gainforthiscol[iglobalrow] < gainhi_ &&
               pedforthiscol[iglobalrow] > pedlow_ && pedforthiscol[iglobalrow] < pedhi_) {
-            theGainCalibrationDbInputOffline->setDataGain(
+            theGainCalibrationDbInputOffline.setDataGain(
                 gainforthiscol[iglobalrow], nrowsrocsplit, theSiPixelGainCalibrationGainPerColPedPerPixel);
-            theGainCalibrationDbInputHLT->setData(
+            theGainCalibrationDbInputHLT.setData(
                 pedforthiscol[iglobalrow], gainforthiscol[iglobalrow], theSiPixelGainCalibrationPerColumn);
           } else {
             //	    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << pedforthiscol[iglobalrow] << " " << gainforthiscol[iglobalrow] << std::endl;
-            theGainCalibrationDbInputOffline->setDeadColumn(nrowsrocsplit,
-                                                            theSiPixelGainCalibrationGainPerColPedPerPixel);
-            theGainCalibrationDbInputHLT->setDeadColumn(nrowsrocsplit, theSiPixelGainCalibrationPerColumn);
+            theGainCalibrationDbInputOffline.setDeadColumn(nrowsrocsplit,
+                                                           theSiPixelGainCalibrationGainPerColPedPerPixel);
+            theGainCalibrationDbInputHLT.setDeadColumn(nrowsrocsplit, theSiPixelGainCalibrationPerColumn);
           }
         }
       }
@@ -384,15 +433,15 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
 
     //    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") <<"putting things in db..." << std::endl;
     // now start creating the various database objects
-    if (!theGainCalibrationDbInput->put(detid, range, ncols))
+    if (!theGainCalibrationDbInput.put(detid, range, ncols))
       edm::LogError("SiPixelGainCalibrationAnalysis")
           << "warning: detid already exists for Offline (gain per col, ped per pixel) calibration database"
           << std::endl;
-    if (!theGainCalibrationDbInputOffline->put(detid, offlinerange, ncols))
+    if (!theGainCalibrationDbInputOffline.put(detid, offlinerange, ncols))
       edm::LogError("SiPixelGainCalibrationAnalysis")
           << "warning: detid already exists for Offline (gain per col, ped per pixel) calibration database"
           << std::endl;
-    if (!theGainCalibrationDbInputHLT->put(detid, hltrange, ncols))
+    if (!theGainCalibrationDbInputHLT.put(detid, hltrange, ncols))
       edm::LogError("SiPixelGainCalibrationAnalysis")
           << "warning: detid already exists for HLT (pedestal and gain per column) calibration database" << std::endl;
 
@@ -451,20 +500,20 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
           << "now doing SiPixelGainCalibrationForHLTRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest(record_)) {
         mydbservice->createOneIOV<SiPixelGainCalibrationForHLT>(
-            *theGainCalibrationDbInputHLT, mydbservice->beginOfTime(), "SiPixelGainCalibrationForHLTRcd");
+            theGainCalibrationDbInputHLT, mydbservice->beginOfTime(), "SiPixelGainCalibrationForHLTRcd");
       } else {
         mydbservice->appendOneIOV<SiPixelGainCalibrationForHLT>(
-            *theGainCalibrationDbInputHLT, mydbservice->currentTime(), "SiPixelGainCalibrationForHLTRcd");
+            theGainCalibrationDbInputHLT, mydbservice->currentTime(), "SiPixelGainCalibrationForHLTRcd");
       }
     } else if (record_ == "SiPixelGainCalibrationOfflineRcd") {
       edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
           << "now doing SiPixelGainCalibrationOfflineRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest(record_)) {
         mydbservice->createOneIOV<SiPixelGainCalibrationOffline>(
-            *theGainCalibrationDbInputOffline, mydbservice->beginOfTime(), "SiPixelGainCalibrationOfflineRcd");
+            theGainCalibrationDbInputOffline, mydbservice->beginOfTime(), "SiPixelGainCalibrationOfflineRcd");
       } else {
         mydbservice->appendOneIOV<SiPixelGainCalibrationOffline>(
-            *theGainCalibrationDbInputOffline, mydbservice->currentTime(), "SiPixelGainCalibrationOfflineRcd");
+            theGainCalibrationDbInputOffline, mydbservice->currentTime(), "SiPixelGainCalibrationOfflineRcd");
       }
     }
     edm::LogInfo(" --- all OK");
@@ -486,9 +535,7 @@ SiPixelGainCalibrationReadDQMFile::SiPixelGainCalibrationReadDQMFile(const edm::
       pedmax_(200),
       badchi2_(iConfig.getUntrackedParameter<double>("badChi2Prob", 0.01)),
       nmaxcols(10 * 52),
-      nmaxrows(160)
-
-{
+      nmaxrows(160) {
   usesResource(TFileService::kSharedResource);
 
   //now do what ever initialization is needed

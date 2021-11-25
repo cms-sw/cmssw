@@ -75,6 +75,8 @@ namespace btagbtvdeep {
   float quality_from_pfcand(const reco::PFCandidate &pfcand);
   float lost_inner_hits_from_pfcand(const reco::PFCandidate &pfcand);
 
+  std::pair<float, float> getDRSubjetFeatures(const reco::Jet &jet, const reco::Candidate *cand);
+
   // struct to hold preprocessing parameters
   struct PreprocessParams {
     struct VarInfo {

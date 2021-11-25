@@ -11,7 +11,6 @@ process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag=autoCond['run2_mc']
-#process.GlobalTag.globaltag = 'START53_V15::All'
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.HcalIsoTrack=dict()
@@ -29,7 +28,7 @@ process.towerMakerAll.AllowMissingInputs = True
 
 process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cff')
 process.HcalIsoTrkAnalyzer.triggers = []
-process.HcalIsoTrkAnalyzer.useRaw = 0   # 2 for Raw
+process.HcalIsoTrkAnalyzer.useRaw = 0   # 1 for Raw
 process.HcalIsoTrkAnalyzer.ignoreTriggers = True
 #process.HcalIsoTrkAnalyzer.processName  = 'HLTNew1'
 #process.HcalIsoTrkAnalyzer.producerName = 'ALCAISOTRACK'

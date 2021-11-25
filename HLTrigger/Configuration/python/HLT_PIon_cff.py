@@ -1,13 +1,13 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_12_1_0/PIon --type PIon
+# hltGetConfiguration --cff --data /dev/CMSSW_12_2_0/PIon --type PIon
 
-# /dev/CMSSW_12_1_0/PIon/V10 (CMSSW_12_1_0_pre4)
+# /dev/CMSSW_12_2_0/PIon/V6 (CMSSW_12_2_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_1_0/PIon/V10')
+  tableName = cms.string('/dev/CMSSW_12_2_0/PIon/V6')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4030,11 +4030,6 @@ fragment.SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorES
 fragment.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
   ComponentName = cms.string( "TransientTrackBuilder" )
 )
-fragment.XMLIdealGeometryESSource_CTPPS = cms.ESProducer( "XMLIdealGeometryESProducer",
-  rootDDName = cms.string( "cms:CMSE" ),
-  label = cms.string( "CTPPS" ),
-  appendToDataLabel = cms.string( "XMLIdealGeometryESSource_CTPPS" )
-)
 fragment.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "CaloDetIdAssociator" ),
   etaBinSize = cms.double( 0.087 ),
@@ -4054,8 +4049,8 @@ fragment.ctppsGeometryESModule = cms.ESProducer( "CTPPSGeometryESModule",
   buildMisalignedGeometry = cms.bool( False ),
   isRun2 = cms.bool( False ),
   dbTag = cms.string( "" ),
-  compactViewTag = cms.string( "XMLIdealGeometryESSource_CTPPS" ),
-  fromPreprocessedDB = cms.untracked.bool( False ),
+  compactViewTag = cms.string( "" ),
+  fromPreprocessedDB = cms.untracked.bool( True ),
   fromDD4hep = cms.untracked.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
@@ -5621,6 +5616,9 @@ fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
 fragment.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
 )
+fragment.hltOnlineMetaDataDigis = cms.EDProducer( "OnlineMetaDataRawToDigi",
+    onlineMetaDataInputLabel = cms.InputTag( "rawDataCollector" )
+)
 fragment.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     changeToCMSCoordinates = cms.bool( False ),
     maxZ = cms.double( 40.0 ),
@@ -5699,7 +5697,7 @@ fragment.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 )
 
 fragment.HLTL1UnpackerSequence = cms.Sequence( fragment.hltGtStage2Digis + fragment.hltGtStage2ObjectMap )
-fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineBeamSpot )
+fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineMetaDataDigis + fragment.hltOnlineBeamSpot )
 fragment.HLTBeginSequenceL1Fat = cms.Sequence( fragment.hltTriggerType + fragment.hltL1EventNumberL1Fat + fragment.HLTL1UnpackerSequence + fragment.HLTBeamSpot )
 fragment.HLTEndSequence = cms.Sequence( fragment.hltBoolEnd )
 fragment.HLTBeginSequenceRandom = cms.Sequence( fragment.hltRandomEventsFilter + fragment.hltGtStage2Digis )

@@ -81,6 +81,8 @@ public:
   int layerIndex(int lay, bool reco) const;
   unsigned int layers(bool reco) const;
   unsigned int layersInit(bool reco) const;
+  std::pair<float, float> localToGlobal8(
+      int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const;
   std::pair<float, float> locateCell(int cell, int lay, int type, bool reco) const;
   std::pair<float, float> locateCell(
       int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool debug = false) const;
@@ -111,11 +113,20 @@ public:
   std::pair<int, int> rowColumnWafer(const int wafer) const;
   int sectors() const { return hgpar_->nSectors_; }
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
+  int tileCount(int layer, int ring) const;
   bool tileExist(int zside, int layer, int ring, int phi) const {
     int indx = HGCalTileIndex::tileIndex(layer, ring, 0);
     auto itr = hgpar_->tileInfoMap_.find(indx);
     bool ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileExist(itr->second.hex, zside, phi);
     return ok;
+  }
+  std::pair<int, int> tileRings(int layer) const {
+    if (mode_ == HGCalGeometryMode::TrapezoidFile) {
+      int ll = layer - hgpar_->firstLayer_;
+      if (ll >= 0 && ll < static_cast<int>(hgpar_->tileRingRange_.size()))
+        return hgpar_->tileRingRange_[ll];
+    }
+    return std::make_pair(0, 0);
   }
   int tileSiPM(int sipm) const { return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge); }
   bool tileTrapezoid() const {
@@ -210,16 +221,17 @@ public:
   int wafers() const;
   int wafers(int layer, int type) const;
   int waferToCopy(int wafer) const {
-    return ((wafer >= 0) && (wafer < (int)(hgpar_->waferCopy_.size()))) ? hgpar_->waferCopy_[wafer]
-                                                                        : (int)(hgpar_->waferCopy_.size());
+    return ((wafer >= 0) && (wafer < static_cast<int>(hgpar_->waferCopy_.size())))
+               ? hgpar_->waferCopy_[wafer]
+               : static_cast<int>(hgpar_->waferCopy_.size());
   }
   // wafer transverse thickness classification (2 = coarse, 1 = fine)
   int waferTypeT(int wafer) const {
-    return ((wafer >= 0) && (wafer < (int)(hgpar_->waferTypeT_.size()))) ? hgpar_->waferTypeT_[wafer] : 0;
+    return ((wafer >= 0) && (wafer < static_cast<int>(hgpar_->waferTypeT_.size()))) ? hgpar_->waferTypeT_[wafer] : 0;
   }
   // wafer longitudinal thickness classification (1 = 100um, 2 = 200um, 3=300um)
   int waferTypeL(int wafer) const {
-    return ((wafer >= 0) && (wafer < (int)(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[wafer] : 0;
+    return ((wafer >= 0) && (wafer < static_cast<int>(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[wafer] : 0;
   }
   int waferType(DetId const& id, bool fromFile = false) const;
   int waferType(int layer, int waferU, int waferV, bool fromFile = false) const;

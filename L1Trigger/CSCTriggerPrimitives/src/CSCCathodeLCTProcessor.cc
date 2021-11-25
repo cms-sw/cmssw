@@ -99,7 +99,7 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   showerMaxInTBin_ = shower.getParameter<unsigned>("showerMaxInTBin");
   showerMinOutTBin_ = shower.getParameter<unsigned>("showerMinOutTBin");
   showerMaxOutTBin_ = shower.getParameter<unsigned>("showerMaxOutTBin");
-
+  minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
   thePreTriggerDigis.clear();
 
   // quality control of stubs
@@ -180,7 +180,6 @@ void CSCCathodeLCTProcessor::clear() {
     secondCLCT[bx].clear();
   }
   inTimeHMT_ = 0;
-  outTimeHMT_ = 0;
 }
 
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
@@ -1074,20 +1073,16 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const {
   const int max_late_tbin = CSCConstants::MAX_CLCT_TBINS - 1;
 
   // debugging messages when early_tbin or late_tbin has a suspicious value
-  bool debugTimeBins = true;
-  if (debugTimeBins) {
-    if (early_tbin < 0) {
-      edm::LogWarning("CSCCathodeLCTProcessor|SuspiciousParameters")
-          << "Early time bin (early_tbin) smaller than minimum allowed, which is 0. set early_tbin to 0.";
-      early_tbin = 0;
-    }
-    if (late_tbin > max_late_tbin) {
-      edm::LogWarning("CSCCathodeLCTProcessor|SuspiciousParameters")
-          << "Late time bin (late_tbin) larger than maximum allowed, which is " << max_late_tbin
-          << ". set early_tbin to max allowed";
-      late_tbin = CSCConstants::MAX_CLCT_TBINS - 1;
-    }
-    debugTimeBins = false;
+  if (early_tbin < 0) {
+    edm::LogWarning("CSCCathodeLCTProcessor|SuspiciousParameters")
+        << "Early time bin (early_tbin) smaller than minimum allowed, which is 0. set early_tbin to 0.";
+    early_tbin = 0;
+  }
+  if (late_tbin > max_late_tbin) {
+    edm::LogWarning("CSCCathodeLCTProcessor|SuspiciousParameters")
+        << "Late time bin (late_tbin) larger than maximum allowed, which is " << max_late_tbin
+        << ". set early_tbin to max allowed";
+    late_tbin = CSCConstants::MAX_CLCT_TBINS - 1;
   }
 
   // get the valid LCTs. No BX selection is done here
@@ -1174,20 +1169,44 @@ CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
 void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
     const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) {
   inTimeHMT_ = 0;
-  outTimeHMT_ = 0;
+
+  auto layerTime = [=](unsigned time) { return time == CSCConstants::CLCT_CENTRAL_BX; };
+  // Calculate layers with hits
+  unsigned nLayersWithHits = 0;
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    bool atLeastOneWGHit = false;
+    for (int i_hstrip = 0; i_hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER; i_hstrip++) {
+      // there is at least one halfstrip...
+      if (!halfstrip[i_layer][i_hstrip].empty()) {
+        auto times = halfstrip[i_layer][i_hstrip];
+        int nLayerTime = std::count_if(times.begin(), times.end(), layerTime);
+        // ...for which at least one time bin was on for the central BX
+        if (nLayerTime > 0) {
+          atLeastOneWGHit = true;
+          break;
+        }
+      }
+    }
+    // add this layer to the number of layers hit
+    if (atLeastOneWGHit) {
+      nLayersWithHits++;
+    }
+  }
+
+  // require at least nLayersWithHits for the central time bin
+  // do nothing if there are not enough layers with hits
+  if (nLayersWithHits < minLayersCentralTBin_)
+    return;
 
   // functions for in-time and out-of-time
   auto inTime = [=](unsigned time) { return time >= showerMinInTBin_ and time <= showerMaxInTBin_; };
-  auto outTime = [=](unsigned time) { return time >= showerMinOutTBin_ and time <= showerMaxOutTBin_; };
 
   // count the half-strips in-time and out-time
   unsigned hitsInTime = 0;
-  unsigned hitsOutTime = 0;
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     for (int i_hstrip = 0; i_hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER; i_hstrip++) {
       auto times = halfstrip[i_layer][i_hstrip];
       hitsInTime += std::count_if(times.begin(), times.end(), inTime);
-      hitsOutTime += std::count_if(times.begin(), times.end(), outTime);
     }
   }
 
@@ -1204,12 +1223,9 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
     if (hitsInTime >= station_thresholds[i]) {
       inTimeHMT_ = i + 1;
     }
-    if (hitsOutTime >= station_thresholds[i]) {
-      outTimeHMT_ = i + 1;
-    }
   }
 
   // no shower object is created here. that is done at a later stage
-  // in the motherboar, where potentially the trigger decisions from
+  // in the motherboard, where the trigger decisions from
   // anode hit counters and cathode hit counters are combined
 }

@@ -15,7 +15,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader",
-                                           fromDD4Hep = cms.bool(False))
+                                           fromDD4hep = cms.bool(False))
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')

@@ -51,7 +51,7 @@ using namespace std;
 using namespace cms;
 
 void DTGeometryBuilder::buildGeometry(DDFilteredView& fview, DTGeometry& geom, const MuonGeometryConstants& num) const {
-  edm::LogVerbatim("DTGeometryBuilder") << "(0) DTGeometryBuilder - DD4Hep ";
+  edm::LogVerbatim("DTGeometryBuilder") << "(0) DTGeometryBuilder - DD4hep ";
 
   bool doChamber = fview.firstChild();
 

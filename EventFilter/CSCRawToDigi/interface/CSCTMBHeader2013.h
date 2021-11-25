@@ -26,10 +26,27 @@ struct CSCTMBHeader2013 : public CSCVTMBHeaderFormat {
   uint16_t syncErrorMPC0() const override { return bits.MPC_Muon0_SyncErr_; }
   uint16_t syncErrorMPC1() const override { return bits.MPC_Muon1_SyncErr_; }
 
+  /// == Run 3 CSC-GEM Trigger Format
+  uint16_t clct0_ComparatorCode() const override { return 0; }
+  uint16_t clct1_ComparatorCode() const override { return 0; }
+  uint16_t clct0_xky() const override { return 0; }
+  uint16_t clct1_xky() const override { return 0; }
+  uint16_t hmt_nhits() const override { return 0; }
+  uint16_t hmt_ALCTMatchTime() const override { return 0; }
+  uint16_t gem_enabled_fibers() const override { return 0; }
+  uint16_t gem_fifo_tbins() const override { return 0; }
+  uint16_t gem_fifo_pretrig() const override { return 0; }
+  uint16_t gem_zero_suppress() const override { return 0; }
+  uint16_t gem_sync_dataword() const override { return 0; }
+  uint16_t gem_timing_dataword() const override { return 0; }
+  uint16_t run3_CLCT_patternID() const override { return 0; }
+
   ///returns CLCT digis
   std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) override;
   ///returns CorrelatedLCT digis
   std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const override;
+  ///returns HMT Shower digi
+  CSCShowerDigi showerDigi(uint32_t idlayer) const override { return CSCShowerDigi(); }
 
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags
@@ -39,9 +56,6 @@ struct CSCTMBHeader2013 : public CSCVTMBHeaderFormat {
   /// returns the first data word
   unsigned short* data() override { return (unsigned short*)(&bits); }
   bool check() const override { return bits.e0bline == 0x6e0b; }
-
-  /// Needed before data packing
-  //void setChamberId(const CSCDetId & detId) {theChamberId = detId;}
 
   /// for data packing
   void addCLCT0(const CSCCLCTDigi& digi) override;
@@ -117,7 +131,6 @@ struct CSCTMBHeader2013 : public CSCVTMBHeaderFormat {
         flag38 : 1;
     unsigned buf_fence_cnt : 12, reverse_hs_csc : 1, reverse_hs_me1a : 1, reverse_hs_me1b : 1, flag39 : 1;
     // 40
-    // unsigned buf_fence_cnt_peak:12, reserved8:3, flag40:1;
     unsigned activeCFEBs_2 : 2, readCFEBs_2 : 2, cfeb_badbits_found_2 : 2, parity_err_cfeb_ram_2 : 2,
         CFEBsEnabled_2 : 2, buf_fence_cnt_is_peak : 1, mxcfeb : 1, trig_source_vec : 2, tmb_trig_pulse : 1, flag40 : 1;
     unsigned tmb_allow_alct : 1, tmb_allow_clct : 1, tmb_allow_match : 1, tmb_allow_alct_ro : 1, tmb_allow_clct_ro : 1,

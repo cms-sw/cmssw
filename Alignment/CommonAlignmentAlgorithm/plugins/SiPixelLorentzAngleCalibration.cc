@@ -23,7 +23,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -37,6 +36,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -54,7 +54,7 @@
 class SiPixelLorentzAngleCalibration : public IntegratedCalibrationBase {
 public:
   /// Constructor
-  explicit SiPixelLorentzAngleCalibration(const edm::ParameterSet &cfg);
+  explicit SiPixelLorentzAngleCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC);
 
   /// Destructor
   ~SiPixelLorentzAngleCalibration() override = default;
@@ -116,7 +116,8 @@ private:
   const std::string outFileName_;
   const std::vector<std::string> mergeFileNames_;
   const std::string lorentzAngleLabel_;
-
+  const edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> lorentzAngleToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
   edm::ESWatcher<SiPixelLorentzAngleRcd> watchLorentzAngleRcd_;
 
   // const AlignableTracker *alignableTracker_;
@@ -134,13 +135,15 @@ private:
 //======================================================================
 //======================================================================
 
-SiPixelLorentzAngleCalibration::SiPixelLorentzAngleCalibration(const edm::ParameterSet &cfg)
+SiPixelLorentzAngleCalibration::SiPixelLorentzAngleCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
     : IntegratedCalibrationBase(cfg),
       saveToDB_(cfg.getParameter<bool>("saveToDB")),
       recordNameDBwrite_(cfg.getParameter<std::string>("recordNameDBwrite")),
       outFileName_(cfg.getParameter<std::string>("treeFile")),
       mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
       lorentzAngleLabel_(cfg.getParameter<std::string>("lorentzAngleLabel")),
+      lorentzAngleToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", lorentzAngleLabel_))),
+      magFieldToken_(iC.esConsumes()),
       moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("LorentzAngleModuleGroups")) {}
 
 //======================================================================
@@ -165,9 +168,9 @@ void SiPixelLorentzAngleCalibration::beginRun(const edm::Run &run, const edm::Ev
     }
   }
 
-  edm::ESHandle<SiPixelLorentzAngle> lorentzAngleHandle;
+  const SiPixelLorentzAngle *lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
   const auto &lorentzAngleRcd = setup.get<SiPixelLorentzAngleRcd>();
-  lorentzAngleRcd.get(lorentzAngleLabel_, lorentzAngleHandle);
+
   if (cachedLorentzAngleInputs_.find(firstRun) == cachedLorentzAngleInputs_.end()) {
     cachedLorentzAngleInputs_.emplace(firstRun, SiPixelLorentzAngle(*lorentzAngleHandle));
   } else {
@@ -202,8 +205,8 @@ unsigned int SiPixelLorentzAngleCalibration::derivatives(std::vector<ValuesIndex
     const int index =
         moduleGroupSelector_->getParameterIndexFromDetId(hit.det()->geographicalId(), eventInfo.eventId().run());
     if (index >= 0) {  // otherwise not treated
-      edm::ESHandle<MagneticField> magneticField;
-      setup.get<IdealMagneticFieldRecord>().get(magneticField);
+
+      const MagneticField *magneticField = &setup.getData(magFieldToken_);
       const GlobalVector bField(magneticField->inTesla(hit.det()->surface().position()));
       const LocalVector bFieldLocal(hit.det()->surface().toLocal(bField));
       const double dZ = hit.det()->surface().bounds().thickness();  // it is a float only...

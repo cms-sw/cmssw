@@ -10,21 +10,28 @@
 #include <sstream>
 
 // core framework functionality
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 // topology and geometry
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 // alignment
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 class Alignable;
 
-class TrackerGeometryAnalyzer : public edm::EDAnalyzer {
+class TrackerGeometryAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
   //========================== PUBLIC METHODS =================================
 public:  //===================================================================
   TrackerGeometryAnalyzer(const edm::ParameterSet&);
@@ -32,6 +39,7 @@ public:  //===================================================================
 
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override{};
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override{};
 
   //========================= PRIVATE METHODS =================================
 private:  //==================================================================
@@ -61,6 +69,12 @@ private:  //==================================================================
 
   //========================== PRIVATE DATA ===================================
   //===========================================================================
+
+  // ESTokens
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptapToken_;
 
   // config-file parameters
   const bool analyzeAlignables_;

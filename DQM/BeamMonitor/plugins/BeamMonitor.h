@@ -119,6 +119,9 @@ private:
 
   bool processed_;
   bool useLockRecords_;
+
+  int nAnalyzedLS_;
+  int nLS_for_upload_;
   // ----------member data ---------------------------
 
   //   std::vector<BSTrkParameters> fBSvector;

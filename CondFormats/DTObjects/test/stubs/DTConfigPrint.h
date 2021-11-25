@@ -11,6 +11,9 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CondFormats/DTObjects/interface/DTCCBConfig.h"
+#include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
+
 //#include "CondFormats/DTObjects/interface/DTConfigList.h"
 //#include "CondTools/DT/interface/DTConfigHandler.h"
 //#include "CondTools/DT/interface/DTDBSession.h"
@@ -31,6 +34,7 @@ namespace edmtest {
     std::string catalog;
     std::string token;
     bool local;
+    edm::ESGetToken<DTCCBConfig, DTCCBConfigRcd> es_token;
     //    DTDBSession* session;
     //    const DTConfigList* rs;
     //    DTConfigHandler* ri;

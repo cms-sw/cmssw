@@ -25,7 +25,7 @@ public:
     calcmuTot();
   };
 
-  virtual ~EnergyResolutionVsLumi();
+  ~EnergyResolutionVsLumi() = default;
 
   struct DegradationAtEta {
     double eta;

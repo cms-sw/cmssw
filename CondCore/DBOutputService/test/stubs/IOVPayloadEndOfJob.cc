@@ -1,13 +1,33 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 
-#include "IOVPayloadEndOfJob.h"
+#include <string>
 #include <cstdlib>
 #include <iostream>
+
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
+
+// class decleration
+class Pedestals;
+class IOVPayloadEndOfJob : public edm::one::EDAnalyzer<> {
+public:
+  explicit IOVPayloadEndOfJob(const edm::ParameterSet& iConfig);
+  virtual ~IOVPayloadEndOfJob();
+  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
+  virtual void endJob();
+
+private:
+  std::string m_record;
+};
 
 IOVPayloadEndOfJob::IOVPayloadEndOfJob(const edm::ParameterSet& iConfig)
     : m_record(iConfig.getParameter<std::string>("record")) {
@@ -62,10 +82,6 @@ void IOVPayloadEndOfJob::endJob() {
     //std::cout<<er.what()<<std::endl;
   } catch (const cms::Exception& er) {
     throw cms::Exception("DataBaseUnitTestFailure", "failed IOVPayloadEndOfJob", er);
-  } /*catch(const std::exception& er){
-    std::cout<<"caught std::exception "<<er.what()<<std::endl;
-  }catch(...){
-    std::cout<<"Unknown error"<<std::endl;
-    }*/
+  }
 }
 DEFINE_FWK_MODULE(IOVPayloadEndOfJob);

@@ -1,10 +1,36 @@
-#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
-
-#include "CondTools/SiStrip/plugins/SiStripDetVOffReader.h"
-
+// system include files
 #include <iostream>
 #include <cstdio>
 #include <sys/time.h>
+
+// user include files
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+//
+//
+// class decleration
+//
+class SiStripDetVOffReader : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripDetVOffReader(const edm::ParameterSet&);
+  ~SiStripDetVOffReader() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  const bool printdebug_;
+  const edm::ESGetToken<SiStripDetVOff, SiStripDetVOffRcd> detVOffToken_;
+  std::vector<uint32_t> detids;
+};
 
 SiStripDetVOffReader::SiStripDetVOffReader(const edm::ParameterSet& iConfig)
     : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", true)), detVOffToken_(esConsumes()) {}
@@ -44,3 +70,8 @@ void SiStripDetVOffReader::analyze(const edm::Event& e, const edm::EventSetup& i
     }
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripDetVOffReader);

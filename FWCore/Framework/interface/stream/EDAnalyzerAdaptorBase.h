@@ -126,6 +126,8 @@ namespace edm {
 
       std::vector<ConsumesInfo> consumesInfo() const;
 
+      void deleteModulesEarly();
+
     private:
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&);

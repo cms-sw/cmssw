@@ -11,7 +11,8 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class DTDeadFlag;
+#include "CondFormats/DTObjects/interface/DTDeadFlag.h"
+#include "CondFormats/DataRecord/interface/DTDeadFlagRcd.h"
 
 namespace edmtest {
   class DTDeadUpdate : public edm::EDAnalyzer {
@@ -28,5 +29,6 @@ namespace edmtest {
     void fill_dead_RO(const char* file, DTDeadFlag* deadList);
     void fill_discCat(const char* file, DTDeadFlag* deadList);
     DTDeadFlag* dSum;
+    edm::ESGetToken<DTDeadFlag, DTDeadFlagRcd> es_token;
   };
 }  // namespace edmtest

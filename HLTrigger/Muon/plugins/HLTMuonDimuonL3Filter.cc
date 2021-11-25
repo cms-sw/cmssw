@@ -629,23 +629,23 @@ bool HLTMuonDimuonL3Filter::applyDiMuonSelection(const RecoChargedCandidateRef& 
       return false;
     if (ptLx1 > ptLx2) {
       if (ptLx1 < min_PtMax_[iv])
-        return false;
+        continue;
       if (ptLx2 < min_PtMin_[iv])
-        return false;
+        continue;
       if (ptLx2 > max_PtMin_[iv])
-        return false;
+        continue;
     } else {
       if (ptLx2 < min_PtMax_[iv])
-        return false;
+        continue;
       if (ptLx1 < min_PtMin_[iv])
-        return false;
+        continue;
       if (ptLx1 > max_PtMin_[iv])
-        return false;
+        continue;
     }
     if (pt12 < min_PtPair_[iv])
-      return false;
+      continue;
     if (pt12 > max_PtPair_[iv])
-      return false;
+      continue;
     proceed = true;
     break;
   }

@@ -1,5 +1,4 @@
 <use name="DataFormats/HcalDetId"/>
-<use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/Math"/>
 <use name="DQMServices/Core"/>
 <use name="FWCore/Framework"/>

@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # Ideal geometry, needed for simulation
 #
 # Strictly xpeaking muonOffsetESProducer_cff is not needed;
-# added for consistency with the DD4Hep version
+# added for consistency with the DD4hep version
 #
 from GeometryReaders.XMLIdealGeometryESSource.cmsGeometryDB_cff import *
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *

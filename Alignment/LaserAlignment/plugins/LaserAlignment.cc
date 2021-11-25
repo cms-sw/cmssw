@@ -894,8 +894,8 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
 
   // store the estimated alignment parameters into the DB
   // first get them
-  Alignments* alignments = theAlignableTracker->alignments();
-  AlignmentErrorsExtended* alignmentErrors = theAlignableTracker->alignmentErrors();
+  Alignments alignments = *(theAlignableTracker->alignments());
+  AlignmentErrorsExtended alignmentErrors = *(theAlignableTracker->alignmentErrors());
 
   if (theStoreToDB) {
     std::cout << " [LaserAlignment::endRun] -- Storing the calculated alignment parameters to the DataBase:"
@@ -914,7 +914,7 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
     //     else {
     //       poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(), theAlignRecordName );
     //     }
-    poolDbService->writeOne<Alignments>(alignments, poolDbService->beginOfTime(), theAlignRecordName);
+    poolDbService->writeOneIOV<Alignments>(alignments, poolDbService->beginOfTime(), theAlignRecordName);
 
     //     if ( poolDbService->isNewTagRequest(theErrorRecordName) ) {
     //       poolDbService->createNewIOV<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), poolDbService->endOfTime(), theErrorRecordName );
@@ -922,7 +922,8 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
     //     else {
     //       poolDbService->appendSinceTime<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), theErrorRecordName );
     //     }
-    poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->beginOfTime(), theErrorRecordName);
+    poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+        alignmentErrors, poolDbService->beginOfTime(), theErrorRecordName);
 
     std::cout << " [LaserAlignment::endRun] -- Storing done." << std::endl;
   }

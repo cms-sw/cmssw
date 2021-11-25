@@ -69,7 +69,7 @@ DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
       confGeomXMLFiles_(fromDB_ ? "none" : iConfig.getParameter<FileInPath>("confGeomXMLFiles").fullPath()),
       rootDDName_(iConfig.getParameter<string>("rootDDName")),
       label_(iConfig.getParameter<string>("label")) {
-  usesResources({edm::ESSharedResourceNames::kDD4Hep});
+  usesResources({edm::ESSharedResourceNames::kDD4hep});
   edm::LogVerbatim("Geometry") << "DDDetectorESProducer::fromDB " << fromDB_ << " appendToDataLabel "
                                << appendToDataLabel_ << " rootDDName " << rootDDName_ << " label " << label_
                                << " confGeomXMLFiles " << confGeomXMLFiles_;

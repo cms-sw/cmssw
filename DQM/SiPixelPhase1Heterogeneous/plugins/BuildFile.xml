@@ -1,0 +1,13 @@
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/Common"/>
+<use name="CUDADataFormats/Common"/>
+<use name="CUDADataFormats/SiPixelCluster"/>
+<use name="CUDADataFormats/Track"/>
+<use name="CUDADataFormats/Vertex"/>
+<use name="DataFormats/SiPixelDigi"/>
+<use name="DataFormats/BeamSpot"/>
+<flags EDM_PLUGIN="1"/>

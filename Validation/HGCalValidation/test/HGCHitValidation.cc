@@ -71,7 +71,7 @@ private:
   typedef std::tuple<float, float, float, float> HGCHitTuple;
 
   void beginJob() override;
-  void endJob() override;
+  void endJob() override {}
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &, edm::EventSetup const &) override;
   void endRun(edm::Run const &, edm::EventSetup const &) override {}
@@ -463,13 +463,6 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
     heeDetID_->clear();
     hefDetID_->clear();
     hebDetID_->clear();
-  }
-}
-
-void HGCHitValidation::endJob() {
-  if (makeTree_) {
-    hgcHits_->GetDirectory()->cd();
-    hgcHits_->Write();
   }
 }
 

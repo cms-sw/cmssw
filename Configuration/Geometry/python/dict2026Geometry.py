@@ -139,6 +139,33 @@ commonDict = {
         ],
         "era" : "phase2_common, phase2_trigger",
     },
+    "O9" : {
+        1 : [
+            'Geometry/CMSCommonData/data/materials/2021/v1/materials.xml',
+            'Geometry/CMSCommonData/data/rotations.xml',
+            'Geometry/CMSCommonData/data/extend/v2/cmsextent.xml',
+            'Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml',
+            'Geometry/CMSCommonData/data/cms/2026/v5/cms.xml',
+            'Geometry/CMSCommonData/data/cmsMother.xml',
+            'Geometry/CMSCommonData/data/eta3/etaMax.xml',
+            'Geometry/CMSCommonData/data/cmsTracker.xml',
+            'Geometry/CMSCommonData/data/caloBase/2026/v7/caloBase.xml',
+            'Geometry/CMSCommonData/data/cmsCalo.xml',
+            'Geometry/CMSCommonData/data/muonBase/2026/v5/muonBase.xml',
+            'Geometry/CMSCommonData/data/cmsMuon.xml',
+            'Geometry/CMSCommonData/data/mgnt.xml',
+            'Geometry/CMSCommonData/data/beampipe/2026/v3/beampipe.xml',
+            'Geometry/CMSCommonData/data/cmsBeam/2026/v1/cmsBeam.xml',
+            'Geometry/CMSCommonData/data/muonMB.xml',
+            'Geometry/CMSCommonData/data/muonMagnet.xml',
+            'Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml',
+            'Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml',
+        ],
+        5 : [
+            'Geometry/CMSCommonData/data/FieldParameters.xml',
+        ],
+        "era" : "phase2_common, phase2_trigger",
+    },
 }
 
 trackerDict = {
@@ -1517,6 +1544,34 @@ timingDict = {
            'Geometry/MTDCommonData/data/mtdMaterial/v3/mtdMaterial.xml',
            'Geometry/MTDCommonData/data/btl/v1/btl.xml',
            'Geometry/MTDCommonData/data/etl/v6/etl.xml',
+           'Geometry/MTDCommonData/data/mtdParameters/v3/mtdStructureTopology.xml',
+           'Geometry/MTDCommonData/data/mtdParameters/v2/mtdParameters.xml',
+           ],
+       3 : [
+           'Geometry/MTDSimData/data/v2/mtdsens.xml'
+           ],
+       4 : [
+           'Geometry/MTDSimData/data/v2/mtdProdCuts.xml'
+           ],
+       "sim" : [
+           'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
+           ],
+       "reco" :[
+           'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+           'from Geometry.MTDGeometryBuilder.mtdParameters_cff import *',
+           'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
+           'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+           'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+           'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+           'mtdGeometry.applyAlignment = cms.bool(False)'
+           ],
+       "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
+    },
+    "I15" : {
+        1 : [
+           'Geometry/MTDCommonData/data/mtdMaterial/v3/mtdMaterial.xml',
+           'Geometry/MTDCommonData/data/btl/v1/btl.xml',
+           'Geometry/MTDCommonData/data/etl/v7/etl.xml',
            'Geometry/MTDCommonData/data/mtdParameters/v3/mtdStructureTopology.xml',
            'Geometry/MTDCommonData/data/mtdParameters/v2/mtdParameters.xml',
            ],

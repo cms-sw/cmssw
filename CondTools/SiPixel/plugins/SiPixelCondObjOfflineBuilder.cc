@@ -1,43 +1,117 @@
+// -*- C++ -*-
+//
+// Package:    SiPixelCondObjOfflineBuilder
+// Class:      SiPixelCondObjOfflineBuilder
+//
+/**\class SiPixelCondObjOfflineBuilder SiPixelCondObjOfflineBuilder.h SiPixel/test/SiPixelCondObjOfflineBuilder.h
+
+ Description: Test analyzer for writing pixel calibration in the DB
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Vincenzo CHIOCHIA
+//         Created:  Tue Oct 17 17:40:56 CEST 2006
+// $Id: SiPixelCondObjOfflineBuilder.h,v 1.7 2009/11/20 19:21:29 rougny Exp $
+//
+//
+
+// system includes
+#include <string>
 #include <memory>
 #include <iostream>
-#include "SiPixelCondObjOfflineBuilder.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
+// user includes
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
 
 namespace cms {
+  class SiPixelCondObjOfflineBuilder : public edm::one::EDAnalyzer<> {
+  public:
+    explicit SiPixelCondObjOfflineBuilder(const edm::ParameterSet& iConfig);
+
+    void beginJob() override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    bool loadFromFile();
+
+  private:
+    const bool appendMode_;
+    const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pddToken_;
+    std::unique_ptr<SiPixelGainCalibrationOffline> SiPixelGainCalibration_;
+    SiPixelGainCalibrationOfflineService SiPixelGainCalibrationService_;
+    const std::string recordName_;
+
+    const double meanPed_;
+    const double rmsPed_;
+    const double meanGain_;
+    const double rmsGain_;
+    const double meanPedFPix_;
+    const double rmsPedFPix_;
+    const double meanGainFPix_;
+    const double rmsGainFPix_;
+    const double deadFraction_;
+    const double noisyFraction_;
+    const double secondRocRowGainOffset_;
+    const double secondRocRowPedOffset_;
+    const int numberOfModules_;
+    const bool fromFile_;
+    const std::string fileName_;
+    const bool generateColumns_;
+
+    // Internal class
+    class CalParameters {
+    public:
+      float p0;
+      float p1;
+    };
+    // Map for storing calibration constants
+    std::map<int, CalParameters, std::less<int> > calmap_;
+    PixelIndices* pIndexConverter_;  // Pointer to the index converter
+  };
+}  // namespace cms
+
+namespace cms {
   SiPixelCondObjOfflineBuilder::SiPixelCondObjOfflineBuilder(const edm::ParameterSet& iConfig)
-      : conf_(iConfig),
-        appendMode_(conf_.getUntrackedParameter<bool>("appendMode", true)),
+      : appendMode_(iConfig.getUntrackedParameter<bool>("appendMode", true)),
         pddToken_(esConsumes()),
         SiPixelGainCalibration_(nullptr),
         SiPixelGainCalibrationService_(iConfig, consumesCollector()),
         recordName_(iConfig.getParameter<std::string>("record")),
-        meanPed_(conf_.getParameter<double>("meanPed")),
-        rmsPed_(conf_.getParameter<double>("rmsPed")),
-        meanGain_(conf_.getParameter<double>("meanGain")),
-        rmsGain_(conf_.getParameter<double>("rmsGain")),
-        meanPedFPix_(conf_.getUntrackedParameter<double>("meanPedFPix", meanPed_)),
-        rmsPedFPix_(conf_.getUntrackedParameter<double>("rmsPedFPix", rmsPed_)),
-        meanGainFPix_(conf_.getUntrackedParameter<double>("meanGainFPix", meanGain_)),
-        rmsGainFPix_(conf_.getUntrackedParameter<double>("rmsGainFPix", rmsGain_)),
-        deadFraction_(conf_.getParameter<double>("deadFraction")),
-        noisyFraction_(conf_.getParameter<double>("noisyFraction")),
-        secondRocRowGainOffset_(conf_.getParameter<double>("secondRocRowGainOffset")),
-        secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
-        numberOfModules_(conf_.getParameter<int>("numberOfModules")),
-        fromFile_(conf_.getParameter<bool>("fromFile")),
-        fileName_(conf_.getParameter<std::string>("fileName")),
-        generateColumns_(conf_.getUntrackedParameter<bool>("generateColumns", true)) {
+        meanPed_(iConfig.getParameter<double>("meanPed")),
+        rmsPed_(iConfig.getParameter<double>("rmsPed")),
+        meanGain_(iConfig.getParameter<double>("meanGain")),
+        rmsGain_(iConfig.getParameter<double>("rmsGain")),
+        meanPedFPix_(iConfig.getUntrackedParameter<double>("meanPedFPix", meanPed_)),
+        rmsPedFPix_(iConfig.getUntrackedParameter<double>("rmsPedFPix", rmsPed_)),
+        meanGainFPix_(iConfig.getUntrackedParameter<double>("meanGainFPix", meanGain_)),
+        rmsGainFPix_(iConfig.getUntrackedParameter<double>("rmsGainFPix", rmsGain_)),
+        deadFraction_(iConfig.getParameter<double>("deadFraction")),
+        noisyFraction_(iConfig.getParameter<double>("noisyFraction")),
+        secondRocRowGainOffset_(iConfig.getParameter<double>("secondRocRowGainOffset")),
+        secondRocRowPedOffset_(iConfig.getParameter<double>("secondRocRowPedOffset")),
+        numberOfModules_(iConfig.getParameter<int>("numberOfModules")),
+        fromFile_(iConfig.getParameter<bool>("fromFile")),
+        fileName_(iConfig.getParameter<std::string>("fileName")),
+        generateColumns_(iConfig.getUntrackedParameter<bool>("generateColumns", true)) {
     ::putenv((char*)"CORAL_AUTH_USER=me");
     ::putenv((char*)"CORAL_AUTH_PASSWORD=test");
   }
@@ -61,7 +135,7 @@ namespace cms {
     float maxped = 100.;
     float mingain = 0.;
     float maxgain = 10.;
-    SiPixelGainCalibration_ = new SiPixelGainCalibrationOffline(minped, maxped, mingain, maxgain);
+    SiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationOffline>(minped, maxped, mingain, maxgain);
 
     const TrackerGeometry* pDD = &iSetup.getData(pddToken_);
     edm::LogInfo("SiPixelCondObjOfflineBuilder") << " There are " << pDD->dets().size() << " detectors" << std::endl;
@@ -232,11 +306,11 @@ namespace cms {
 
     try {
       if (mydbservice->isNewTagRequest(recordName_)) {
-        mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(
-            SiPixelGainCalibration_, mydbservice->beginOfTime(), mydbservice->endOfTime(), recordName_);
+        mydbservice->createOneIOV<SiPixelGainCalibrationOffline>(
+            *SiPixelGainCalibration_, mydbservice->beginOfTime(), recordName_);
       } else {
-        mydbservice->appendSinceTime<SiPixelGainCalibrationOffline>(
-            SiPixelGainCalibration_, mydbservice->currentTime(), recordName_);
+        mydbservice->appendOneIOV<SiPixelGainCalibrationOffline>(
+            *SiPixelGainCalibration_, mydbservice->currentTime(), recordName_);
       }
       edm::LogInfo(" --- all OK");
     } catch (const cond::Exception& er) {

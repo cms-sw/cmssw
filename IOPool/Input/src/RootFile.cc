@@ -155,6 +155,7 @@ namespace edm {
                      int treeMaxVirtualSize,
                      InputSource::ProcessingMode processingMode,
                      RunHelperBase* runHelper,
+                     bool noRunLumiSort,
                      bool noEventSort,
                      ProductSelectorRules const& productSelectorRules,
                      InputType inputType,
@@ -184,8 +185,9 @@ namespace edm {
         indexIntoFileSharedPtr_(new IndexIntoFile),
         indexIntoFile_(*indexIntoFileSharedPtr_),
         orderedProcessHistoryIDs_(orderedProcessHistoryIDs),
-        indexIntoFileBegin_(
-            indexIntoFile_.begin(noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder)),
+        indexIntoFileBegin_(indexIntoFile_.begin(
+            noRunLumiSort ? IndexIntoFile::entryOrder
+                          : (noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder))),
         indexIntoFileEnd_(indexIntoFileBegin_),
         indexIntoFileIter_(indexIntoFileBegin_),
         storedMergeableRunProductMetadata_((inputType == InputType::Primary) ? new StoredMergeableRunProductMetadata
@@ -194,6 +196,7 @@ namespace edm {
         eventProcessHistoryIter_(eventProcessHistoryIDs_.begin()),
         savedRunAuxiliary_(),
         skipAnyEvents_(skipAnyEvents),
+        noRunLumiSort_(noRunLumiSort),
         noEventSort_(noEventSort),
         enforceGUIDInFileName_(enforceGUIDInFileName),
         whyNotFastClonable_(0),
@@ -509,10 +512,12 @@ namespace edm {
     }
 
     initializeDuplicateChecker(indexesIntoFiles, currentIndexIntoFile);
-    indexIntoFileIter_ = indexIntoFileBegin_ =
-        indexIntoFile_.begin(noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder);
-    indexIntoFileEnd_ =
-        indexIntoFile_.end(noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder);
+    indexIntoFileIter_ = indexIntoFileBegin_ = indexIntoFile_.begin(
+        noRunLumiSort ? IndexIntoFile::entryOrder
+                      : (noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder));
+    indexIntoFileEnd_ = indexIntoFile_.end(
+        noRunLumiSort ? IndexIntoFile::entryOrder
+                      : (noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder));
     runHelper_->setForcedRunOffset(indexIntoFileBegin_ == indexIntoFileEnd_ ? 1 : indexIntoFileBegin_.run());
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
@@ -738,7 +743,8 @@ namespace edm {
 
     // From here on, record all reasons we can't fast clone.
     IndexIntoFile::SortOrder sortOrder =
-        (noEventSort_ ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder);
+        (noRunLumiSort_ ? IndexIntoFile::entryOrder
+                        : (noEventSort_ ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder));
     if (!indexIntoFile_.iterationWillBeInEntryOrder(sortOrder)) {
       whyNotFastClonable_ += (noEventSort_ ? FileBlock::RunOrLumiNotContiguous : FileBlock::EventsToBeSorted);
     }
@@ -1496,6 +1502,9 @@ namespace edm {
     IndexIntoFile::SortOrder sortOrder = IndexIntoFile::numericalOrder;
     if (noEventSort_)
       sortOrder = IndexIntoFile::firstAppearanceOrder;
+    if (noRunLumiSort_) {
+      sortOrder = IndexIntoFile::entryOrder;
+    }
 
     IndexIntoFile::IndexIntoFileItr iter =
         indexIntoFile_.findPosition(sortOrder, eventID.run(), eventID.luminosityBlock(), eventID.event());
@@ -1780,13 +1789,19 @@ namespace edm {
       return;
     }
     // End code for backward compatibility before the existence of lumi trees.
-    lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
-    // NOTE: we use 0 for the index since do not do delayed reads for LuminosityBlockPrincipals
-    lumiTree_.insertEntryForIndex(0);
-    auto history = processHistoryRegistry_->getMapped(lumiPrincipal.aux().processHistoryID());
-    lumiPrincipal.fillLuminosityBlockPrincipal(history, lumiTree_.resetAndGetRootDelayedReader());
-    // Read in all the products now.
-    lumiPrincipal.readAllFromSourceAndMergeImmediately();
+    if (not indexIntoFileIter_.entryContinues()) {
+      lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
+      // NOTE: we use 0 for the index since do not do delayed reads for LuminosityBlockPrincipals
+      lumiTree_.insertEntryForIndex(0);
+      auto history = processHistoryRegistry_->getMapped(lumiPrincipal.aux().processHistoryID());
+      lumiPrincipal.fillLuminosityBlockPrincipal(history, lumiTree_.resetAndGetRootDelayedReader());
+      // Read in all the products now.
+      lumiPrincipal.readAllFromSourceAndMergeImmediately();
+    } else {
+      auto history = processHistoryRegistry_->getMapped(lumiPrincipal.aux().processHistoryID());
+      lumiPrincipal.fillLuminosityBlockPrincipal(history, nullptr);
+      lumiPrincipal.setWillBeContinued(true);
+    }
     ++indexIntoFileIter_;
   }
 

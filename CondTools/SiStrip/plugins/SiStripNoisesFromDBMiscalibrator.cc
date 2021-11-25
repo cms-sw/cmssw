@@ -67,9 +67,9 @@ private:
   const bool m_fillDefaults;
   const bool m_saveMaps;
   const std::vector<edm::ParameterSet> m_parameters;
-  edm::FileInPath fp_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
-  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> m_noiseToken;
+  const edm::FileInPath fp_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
+  const edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> m_noiseToken;
 
   std::unique_ptr<TrackerMap> scale_map;
   std::unique_ptr<TrackerMap> smear_map;
@@ -298,11 +298,15 @@ std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject_wi
 
   std::vector<uint32_t> missingDetIds;
 
-  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
+  const auto& reader = SiStripDetInfoFileReader::read(fp_.fullPath());
+  const auto& DetInfos = reader.getAllData();
+
+  for (const auto& it : DetInfos) {
+    const auto& nAPVs = it.second.nApvs;
     //Generate Noise for det detid
     bool isMissing(false);
     SiStripNoises::InputVector theSiStripVector;
-    for (int t_strip = 0; t_strip < 128 * it.second.nApvs; ++t_strip) {
+    for (int t_strip = 0; t_strip < 128 * nAPVs; ++t_strip) {
       std::pair<uint32_t, int> index = std::make_pair(it.first, t_strip);
 
       if (theMap.find(index) == theMap.end()) {

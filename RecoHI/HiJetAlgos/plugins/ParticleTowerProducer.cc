@@ -29,6 +29,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -44,6 +45,7 @@
 #include <map>
 #include <utility>
 
+template <class T>
 class ParticleTowerProducer : public edm::stream::EDProducer<> {
 public:
   explicit ParticleTowerProducer(const edm::ParameterSet&);
@@ -57,7 +59,7 @@ private:
   double iphi2phi(int iphi, int ieta) const;
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<reco::PFCandidateCollection> src_;
+  edm::EDGetTokenT<typename edm::View<T> > src_;
   const bool useHF_;
 
   // tower edges from fast sim, used starting at index 30 for the HF
@@ -66,8 +68,9 @@ private:
 //
 // constructors and destructor
 //
-ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig)
-    : src_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+template <class T>
+ParticleTowerProducer<T>::ParticleTowerProducer(const edm::ParameterSet& iConfig)
+    : src_(consumes<typename edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
       useHF_(iConfig.getParameter<bool>("useHF")) {
   produces<CaloTowerCollection>();
 }
@@ -77,7 +80,8 @@ ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig)
 //
 
 // ------------ method called to produce the data  ------------
-void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template <class T>
+void ParticleTowerProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   typedef std::pair<int, int> EtaPhi;
@@ -122,7 +126,8 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
 // Taken from FastSimulation/CalorimeterProperties/src/HCALProperties.cc
 // Note this returns an abs(ieta)
-int ParticleTowerProducer::eta2ieta(double eta) const {
+template <class T>
+int ParticleTowerProducer<T>::eta2ieta(double eta) const {
   // binary search in the array of towers eta edges
 
   int ieta = 1;
@@ -136,7 +141,8 @@ int ParticleTowerProducer::eta2ieta(double eta) const {
   return ieta;
 }
 
-int ParticleTowerProducer::phi2iphi(double phi, int ieta) const {
+template <class T>
+int ParticleTowerProducer<T>::phi2iphi(double phi, int ieta) const {
   phi = angle0to2pi::make0To2pi(phi);
   int nphi = 72;
   int n = 1;
@@ -152,7 +158,8 @@ int ParticleTowerProducer::phi2iphi(double phi, int ieta) const {
   return iphi;
 }
 
-double ParticleTowerProducer::iphi2phi(int iphi, int ieta) const {
+template <class T>
+double ParticleTowerProducer<T>::iphi2phi(int iphi, int ieta) const {
   double phi = 0;
   int nphi = 72;
 
@@ -171,7 +178,8 @@ double ParticleTowerProducer::iphi2phi(int iphi, int ieta) const {
   return phi;
 }
 
-double ParticleTowerProducer::ieta2eta(int ieta) const {
+template <class T>
+double ParticleTowerProducer<T>::ieta2eta(int ieta) const {
   int sign = 1;
   if (ieta < 0) {
     sign = -1;
@@ -182,13 +190,23 @@ double ParticleTowerProducer::ieta2eta(int ieta) const {
   return eta;
 }
 
-void ParticleTowerProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // particleTowerProducer
+template <class T>
+void ParticleTowerProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag("particleFlow"));
   desc.add<bool>("useHF", true);
-  descriptions.add("particleTowerProducer", desc);
+  if (typeid(T) == typeid(reco::PFCandidate)) {
+    desc.add<edm::InputTag>("src", edm::InputTag("particleFlow"));
+    descriptions.add("PFTowers", desc);
+  }
+  if (typeid(T) == typeid(pat::PackedCandidate)) {
+    desc.add<edm::InputTag>("src", edm::InputTag("packedPFCandidates"));
+    descriptions.add("PackedPFTowers", desc);
+  }
 }
 
+using PFTowers = ParticleTowerProducer<reco::PFCandidate>;
+using PackedPFTowers = ParticleTowerProducer<pat::PackedCandidate>;
+
 // define this as a plug-in
-DEFINE_FWK_MODULE(ParticleTowerProducer);
+DEFINE_FWK_MODULE(PFTowers);
+DEFINE_FWK_MODULE(PackedPFTowers);

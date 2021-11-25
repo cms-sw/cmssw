@@ -26,7 +26,6 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithmRecord.h"
@@ -62,8 +61,7 @@ private:
   edm::EDGetTokenT<std::vector<TrackingParticle> > tpToken_;
   std::vector<edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<T> > > > ttClustersTokens_;
 
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry_;
-  edm::ESHandle<TrackerTopology> theTrackerTopology_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerGeometryToken_;
 
   /// Mandatory methods
   void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
@@ -93,6 +91,8 @@ TTClusterAssociator<T>::TTClusterAssociator(const edm::ParameterSet& iConfig) {
 
     produces<TTClusterAssociationMap<T> >(iTag.instance());
   }
+
+  theTrackerGeometryToken_ = esConsumes();
 }
 
 /// Destructor
@@ -102,10 +102,6 @@ TTClusterAssociator<T>::~TTClusterAssociator() {}
 /// Begin run
 template <typename T>
 void TTClusterAssociator<T>::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
-  /// Get the geometry
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry_);
-  iSetup.get<TrackerTopologyRcd>().get(theTrackerTopology_);
-
   /// Print some information when loaded
   edm::LogInfo("TTClusterAssociator< ") << templateNameFinder<T>() << " > loaded.";
 }

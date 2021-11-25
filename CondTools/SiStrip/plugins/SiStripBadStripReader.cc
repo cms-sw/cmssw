@@ -14,15 +14,15 @@
 class SiStripBadStripReader : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripBadStripReader(const edm::ParameterSet& iConfig)
-      : printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)), badStripToken_(esConsumes()) {}
+      : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)), badStripToken_(esConsumes()) {}
 
   ~SiStripBadStripReader() override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  uint32_t printdebug_;
-  edm::ESGetToken<SiStripBadStrip, SiStripBadStripRcd> badStripToken_;
+  const bool printdebug_;
+  const edm::ESGetToken<SiStripBadStrip, SiStripBadStripRcd> badStripToken_;
 };
 
 SiStripBadStripReader::~SiStripBadStripReader() = default;

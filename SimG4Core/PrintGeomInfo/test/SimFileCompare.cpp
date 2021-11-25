@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-//    Compares output files from PrintGeomInfo created using DDD and DD4Hep
+//    Compares output files from PrintGeomInfo created using DDD and DD4hep
 //    inputs. Usage:
 //
 //    SimFileCompare infile1 infile2 type files mode debug
@@ -9,8 +9,8 @@
 //    type     (int)           Type of file: material (0), solid (1),
 //                             LogicalVolume (2), PhysicalVolume (3)
 //    files    (int)           Double digits each inidicating the file source
-//                             (0 for DDD, 1 for DD4HEP). So if first file is
-//                             DDD and second is DD4HEP, it will be 10
+//                             (0 for DDD, 1 for DD4hep). So if first file is
+//                             DDD and second is DD4hep, it will be 10
 //    mode     (int)           Treat (0) or not treat (1) names from DDD
 //    deug     (int)           Single digit number (0 minimum printout)
 //
@@ -376,7 +376,7 @@ int main(int argc, char* argv[]) {
               << "name of the first input file\n"
               << "name of the second input file\n"
               << "type (Material:0, Solid:1, LV:2, PV:3\n"
-              << "files (10 if first file from DDD and second from DD4HEP)\n"
+              << "files (10 if first file from DDD and second from DD4hep)\n"
               << "mode (treat the name for DDD or not == needed for PV)\n"
               << "debug flag (0 for minimum printout)\n"
               << std::endl;

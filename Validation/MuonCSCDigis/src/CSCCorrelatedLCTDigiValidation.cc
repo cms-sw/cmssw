@@ -47,7 +47,7 @@ void CSCCorrelatedLCTDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) 
 
   // do not analyze Run-3 properties in Run-1 and Run-2 eras
   if (!isRun3_) {
-    lctVars_.resize(6);
+    lctVars_.resize(7);
   }
 
   // chamber type
@@ -58,7 +58,7 @@ void CSCCorrelatedLCTDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) 
       // lct variable
       for (unsigned iVar = 0; iVar < lctVars_.size(); iVar++) {
         if (std::find(chambersRun3_.begin(), chambersRun3_.end(), iType) == chambersRun3_.end()) {
-          if (iVar > 5)
+          if (iVar > 6)
             continue;
         }
         const std::string key("lct_" + lctVars_[iVar]);
@@ -68,6 +68,18 @@ void CSCCorrelatedLCTDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) 
         chamberHistos[iTypeCorrected][key] =
             iBooker.book1D(histName, histTitle, lctNBin_[iVar], lctMinBin_[iVar], lctMaxBin_[iVar]);
         chamberHistos[iTypeCorrected][key]->getTH1()->SetMinimum(0);
+        // set bin labels for the "type" plot. very useful in ME1/1 and ME2/1
+        // when the GEM-CSC ILTs will be running
+        if (lctVars_[iVar] == "type") {
+          chamberHistos[iTypeCorrected][key]->setBinLabel(1, "CLCTALCT", 1);
+          chamberHistos[iTypeCorrected][key]->setBinLabel(2, "ALCTCLCT", 1);
+          chamberHistos[iTypeCorrected][key]->setBinLabel(3, "ALCTCLCTGEM", 1);
+          chamberHistos[iTypeCorrected][key]->setBinLabel(4, "ALCTCLCT2GEM", 1);
+          chamberHistos[iTypeCorrected][key]->setBinLabel(5, "ALCT2GEM", 1);
+          chamberHistos[iTypeCorrected][key]->setBinLabel(6, "CLCT2GEM", 1);
+          chamberHistos[iTypeCorrected][key]->setBinLabel(7, "CLCTONLY", 1);
+          chamberHistos[iTypeCorrected][key]->setBinLabel(8, "ALCTONLY", 1);
+        }
       }
     }
   }
@@ -102,6 +114,7 @@ void CSCCorrelatedLCTDigiValidation::analyze(const edm::Event &e, const edm::Eve
         chamberHistos[typeCorrected]["lct_halfstrip"]->Fill(lct->getStrip());
         chamberHistos[typeCorrected]["lct_bend"]->Fill(lct->getBend());
         chamberHistos[typeCorrected]["lct_bx"]->Fill(lct->getBX());
+        chamberHistos[typeCorrected]["lct_type"]->Fill(lct->getType());
         if (isRun3_) {
           // ignore these fields for chambers that do not enable the Run-3 algorithm
           if (std::find(chambersRun3_.begin(), chambersRun3_.end(), chamberType - 2) == chambersRun3_.end())

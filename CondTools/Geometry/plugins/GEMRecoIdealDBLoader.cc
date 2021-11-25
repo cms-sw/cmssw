@@ -29,14 +29,14 @@ public:
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
 
 private:
-  bool fromDD4Hep_;
+  bool fromDD4hep_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
   edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> muonGeomConstantsToken_;
 };
 
 GEMRecoIdealDBLoader::GEMRecoIdealDBLoader(const edm::ParameterSet& iC) {
-  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);  // set true for DD4HEP
+  fromDD4hep_ = iC.getUntrackedParameter<bool>("fromDD4hep", false);  // set true for DD4hep
   dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   muonGeomConstantsToken_ = esConsumes<edm::Transition::BeginRun>();
@@ -55,21 +55,20 @@ void GEMRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
     auto pMNDC = es.getHandle(muonGeomConstantsToken_);
 
     GEMGeometryParsFromDD rpcpd;
-    RecoIdealGeometry* rig = new RecoIdealGeometry;
+    RecoIdealGeometry rig;
 
-    if (fromDD4Hep_) {
-      edm::LogVerbatim("GEMRecoIdealDBLoader") << "(0) GEMRecoIdealDBLoader - DD4HEP ";
+    if (fromDD4hep_) {
+      edm::LogVerbatim("GEMRecoIdealDBLoader") << "(0) GEMRecoIdealDBLoader - DD4hep ";
       auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
       const cms::DDCompactView& cpv = *pDD;
-      rpcpd.build(&cpv, *pMNDC, *rig);
+      rpcpd.build(&cpv, *pMNDC, rig);
     } else {
       edm::LogVerbatim("GEMRecoIdealDBLoader") << "(0) GEMRecoIdealDBLoader - DDD ";
       auto pDD = es.getTransientHandle(compactViewToken_);
       const DDCompactView& cpv = *pDD;
-      rpcpd.build(&cpv, *pMNDC, *rig);
+      rpcpd.build(&cpv, *pMNDC, rig);
     }
-    mydbservice->createNewIOV<RecoIdealGeometry>(
-        rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "GEMRecoGeometryRcd");
+    mydbservice->createOneIOV(rig, mydbservice->beginOfTime(), "GEMRecoGeometryRcd");
   } else {
     edm::LogError("GEMRecoIdealDBLoader") << "GEMRecoGeometryRcd Tag is already present";
   }

@@ -28,21 +28,21 @@ public:
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
 
 private:
-  bool fromDD4Hep_;
+  bool fromDD4hep_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
   edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> muonGeomConstantsToken_;
 };
 
 DTRecoIdealDBLoader::DTRecoIdealDBLoader(const edm::ParameterSet& iC) {
-  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);
+  fromDD4hep_ = iC.getUntrackedParameter<bool>("fromDD4hep", false);
   dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   muonGeomConstantsToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void DTRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  RecoIdealGeometry* rig = new RecoIdealGeometry;
+  RecoIdealGeometry rig;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("DTRecoIdealDBLoader") << "PoolDBOutputService unavailable";
@@ -52,18 +52,17 @@ void DTRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
   auto pMNDC = es.getHandle(muonGeomConstantsToken_);
   DTGeometryParsFromDD dtgp;
 
-  if (fromDD4Hep_) {
+  if (fromDD4hep_) {
     auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
     const cms::DDCompactView& cpv = *pDD;
-    dtgp.build(&cpv, *pMNDC, *rig);
+    dtgp.build(&cpv, *pMNDC, rig);
   } else {
     auto pDD = es.getTransientHandle(compactViewToken_);
     const DDCompactView& cpv = *pDD;
-    dtgp.build(&cpv, *pMNDC, *rig);
+    dtgp.build(&cpv, *pMNDC, rig);
   }
   if (mydbservice->isNewTagRequest("DTRecoGeometryRcd")) {
-    mydbservice->createNewIOV<RecoIdealGeometry>(
-        rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "DTRecoGeometryRcd");
+    mydbservice->createOneIOV(rig, mydbservice->beginOfTime(), "DTRecoGeometryRcd");
   } else {
     edm::LogError("DTRecoIdealDBLoader") << "DTRecoGeometryRcd Tag is already present.";
   }

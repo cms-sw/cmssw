@@ -90,13 +90,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                             new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
                             0);
   if (_ptype != fOffline) {  // hidefed2crate
-    _cMean1LS_FEDVME.initialize(_name,
-                                "Mean1LS",
-                                hcaldqm::hashfunctions::fFED,
-                                new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),
-                                0);
     _cMean1LS_FEDuTCA.initialize(_name,
                                  "Mean1LS",
                                  hcaldqm::hashfunctions::fFED,
@@ -104,13 +97,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),
                                  0);
-    _cRMS1LS_FEDVME.initialize(_name,
-                               "RMS1LS",
-                               hcaldqm::hashfunctions::fFED,
-                               new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                               new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
-                               0);
     _cRMS1LS_FEDuTCA.initialize(_name,
                                 "RMS1LS",
                                 hcaldqm::hashfunctions::fFED,
@@ -298,13 +284,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
     _xNMsn1LS.initialize(hcaldqm::hashfunctions::fFED);
     _xNBadMean1LS.initialize(hcaldqm::hashfunctions::fFED);
     _xNBadRMS1LS.initialize(hcaldqm::hashfunctions::fFED);
-    _cMeanTotal_FEDVME.initialize(_name,
-                                  "Mean",
-                                  hcaldqm::hashfunctions::fFED,
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),
-                                  0);
     _cMeanTotal_FEDuTCA.initialize(_name,
                                    "Mean",
                                    hcaldqm::hashfunctions::fFED,
@@ -312,13 +291,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),
                                    0);
-    _cRMSTotal_FEDVME.initialize(_name,
-                                 "RMS",
-                                 hcaldqm::hashfunctions::fFED,
-                                 new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                 new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                 new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
-                                 0);
     _cRMSTotal_FEDuTCA.initialize(_name,
                                   "RMS",
                                   hcaldqm::hashfunctions::fFED,
@@ -326,13 +298,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                                   new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
                                   0);
-    _cMeanDBRef1LS_FEDVME.initialize(_name,
-                                     "MeanDBRef1LS",
-                                     hcaldqm::hashfunctions::fFED,
-                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
-                                     0);
     _cMeanDBRef1LS_FEDuTCA.initialize(_name,
                                       "MeanDBRef1LS",
                                       hcaldqm::hashfunctions::fFED,
@@ -340,13 +305,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                                       new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
                                       0);
-    _cRMSDBRef1LS_FEDVME.initialize(_name,
-                                    "RMSDBRef1LS",
-                                    hcaldqm::hashfunctions::fFED,
-                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
-                                    0);
     _cRMSDBRef1LS_FEDuTCA.initialize(_name,
                                      "RMSDBRef1LS",
                                      hcaldqm::hashfunctions::fFED,
@@ -354,13 +312,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                                      new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
                                      0);
-    _cMeanDBRefTotal_FEDVME.initialize(_name,
-                                       "MeanDBRef",
-                                       hcaldqm::hashfunctions::fFED,
-                                       new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                       new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
-                                       0);
     _cMeanDBRefTotal_FEDuTCA.initialize(
         _name,
         "MeanDBRef",
@@ -369,13 +320,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
         new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
         new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
         0);
-    _cRMSDBRefTotal_FEDVME.initialize(_name,
-                                      "RMSDBRef",
-                                      hcaldqm::hashfunctions::fFED,
-                                      new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                      new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
-                                      0);
     _cRMSDBRefTotal_FEDuTCA.initialize(_name,
                                        "RMSDBRef",
                                        hcaldqm::hashfunctions::fFED,
@@ -383,13 +327,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                                        new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
                                        0);
-    _cMissing1LS_FEDVME.initialize(_name,
-                                   "Missing1LS",
-                                   hcaldqm::hashfunctions::fFED,
-                                   new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                   new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                   0);
     _cMissing1LS_FEDuTCA.initialize(_name,
                                     "Missing1LS",
                                     hcaldqm::hashfunctions::fFED,
@@ -397,13 +334,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                     0);
-    _cMeanBad1LS_FEDVME.initialize(_name,
-                                   "MeanBad1LS",
-                                   hcaldqm::hashfunctions::fFED,
-                                   new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                   new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                   0);
     _cMeanBad1LS_FEDuTCA.initialize(_name,
                                     "MeanBad1LS",
                                     hcaldqm::hashfunctions::fFED,
@@ -411,13 +341,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                     0);
-    _cRMSBad1LS_FEDVME.initialize(_name,
-                                  "RMSBad1LS",
-                                  hcaldqm::hashfunctions::fFED,
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                  0);
     _cRMSBad1LS_FEDuTCA.initialize(_name,
                                    "RMSBad1LS",
                                    hcaldqm::hashfunctions::fFED,
@@ -425,13 +348,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                    0);
-    _cMissingTotal_FEDVME.initialize(_name,
-                                     "Missing",
-                                     hcaldqm::hashfunctions::fFED,
-                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                     0);
     _cMissingTotal_FEDuTCA.initialize(_name,
                                       "Missing",
                                       hcaldqm::hashfunctions::fFED,
@@ -439,13 +355,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                                       new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                       0);
-    _cMeanBadTotal_FEDVME.initialize(_name,
-                                     "MeanBad",
-                                     hcaldqm::hashfunctions::fFED,
-                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                     0);
     _cMeanBadTotal_FEDuTCA.initialize(_name,
                                       "MeanBad",
                                       hcaldqm::hashfunctions::fFED,
@@ -453,13 +362,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                                       new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                       0);
-    _cRMSBadTotal_FEDVME.initialize(_name,
-                                    "RMSBad",
-                                    hcaldqm::hashfunctions::fFED,
-                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                    0);
     _cRMSBadTotal_FEDuTCA.initialize(_name,
                                      "RMSBad",
                                      hcaldqm::hashfunctions::fFED,
@@ -509,34 +411,20 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
   _cRMSBadTotal_depth.book(ib, _emap, _subsystem);
 
   if (_ptype != fOffline) {  // hidefed2crate
-    _cMean1LS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cMean1LS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cRMS1LS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cRMS1LS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cMeanDBRef1LS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cMeanDBRef1LS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cRMSDBRef1LS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cRMSDBRef1LS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cMissing1LS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cMissing1LS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cRMSBad1LS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cRMSBad1LS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cMeanBad1LS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cMeanBad1LS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 
-    _cMeanTotal_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cMeanTotal_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cRMSTotal_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cRMSTotal_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cMeanDBRefTotal_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cMeanDBRefTotal_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cRMSDBRefTotal_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cRMSDBRefTotal_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cMissingTotal_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cMissingTotal_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cRMSBadTotal_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cRMSBadTotal_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cMeanBadTotal_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cMeanBadTotal_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
   }
 
@@ -622,9 +510,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
   _cMean1LS_depth.reset();
   _cRMS1LS_depth.reset();
   if (_ptype != fOffline) {  // hidefed2crate
-    _cMean1LS_FEDVME.reset();
     _cMean1LS_FEDuTCA.reset();
-    _cRMS1LS_FEDVME.reset();
     _cRMS1LS_FEDuTCA.reset();
   }
 
@@ -633,9 +519,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
   _cMeanTotal_depth.reset();
   _cRMSTotal_depth.reset();
   if (_ptype != fOffline) {  // hidefed2crate
-    _cMeanTotal_FEDVME.reset();
     _cMeanTotal_FEDuTCA.reset();
-    _cRMSTotal_FEDVME.reset();
     _cRMSTotal_FEDuTCA.reset();
   }
 
@@ -651,14 +535,10 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
   _cRMSDBRefTotal_depth.reset();
 
   if (_ptype != fOffline) {  // hidefed2crate
-    _cMeanDBRef1LS_FEDVME.reset();
     _cMeanDBRef1LS_FEDuTCA.reset();
-    _cRMSDBRef1LS_FEDVME.reset();
     _cRMSDBRef1LS_FEDuTCA.reset();
 
-    _cMeanDBRefTotal_FEDVME.reset();
     _cMeanDBRefTotal_FEDuTCA.reset();
-    _cRMSDBRefTotal_FEDVME.reset();
     _cRMSDBRefTotal_FEDuTCA.reset();
   }
 
@@ -673,18 +553,12 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
 
   //	Missing or Bad
   if (_ptype != fOffline) {  // hidefed2crate
-    _cMissing1LS_FEDVME.reset();
     _cMissing1LS_FEDuTCA.reset();
-    _cMeanBad1LS_FEDVME.reset();
     _cMeanBad1LS_FEDuTCA.reset();
-    _cRMSBad1LS_FEDVME.reset();
     _cRMSBad1LS_FEDuTCA.reset();
 
-    _cMissingTotal_FEDVME.reset();
     _cMissingTotal_FEDuTCA.reset();
-    _cMeanBadTotal_FEDVME.reset();
     _cMeanBadTotal_FEDuTCA.reset();
-    _cRMSBadTotal_FEDVME.reset();
     _cRMSBadTotal_FEDuTCA.reset();
 
     //	reset some XXX containers
@@ -735,7 +609,8 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
       _cMissing1LS_depth.fill(did);
       _cMissingvsLS_Subdet.fill(did, _currentLS);
       if (_ptype != fOffline) {  // hidefed2crate
-        eid.isVMEid() ? _cMissing1LS_FEDVME.fill(eid) : _cMissing1LS_FEDuTCA.fill(eid);
+        if (!eid.isVMEid())
+          _cMissing1LS_FEDuTCA.fill(eid);
         _xNMsn1LS.get(eid)++;
       }
       //	ALSO CHECK
@@ -743,7 +618,8 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
       if (nTotal == 0) {
         _cMissingTotal_depth.fill(did);
         if (_ptype != fOffline) {  // hidefed2crate
-          eid.isVMEid() ? _cMissingTotal_FEDVME.fill(eid) : _cMissingTotal_FEDuTCA.fill(eid);
+          if (!eid.isVMEid())
+            _cMissingTotal_FEDuTCA.fill(eid);
         }
       }
       continue;
@@ -794,12 +670,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
 #endif
     //	FOR THIS LS
     if (_ptype != fOffline) {  // hidefed2crate
-      if (eid.isVMEid()) {
-        _cMean1LS_FEDVME.fill(eid, sum1LS);
-        _cRMS1LS_FEDVME.fill(eid, rms1LS);
-        _cMeanDBRef1LS_FEDVME.fill(eid, diffm1LS);
-        _cRMSDBRef1LS_FEDVME.fill(eid, diffr1LS);
-      } else {
+      if (!eid.isVMEid()) {
         _cMean1LS_FEDuTCA.fill(eid, sum1LS);
         _cRMS1LS_FEDuTCA.fill(eid, rms1LS);
         _cMeanDBRef1LS_FEDuTCA.fill(eid, diffm1LS);
@@ -807,12 +678,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
       }
 
       //	FOR THE WHOLE RUN
-      if (eid.isVMEid()) {
-        _cMeanTotal_FEDVME.fill(eid, sumTotal);
-        _cRMSTotal_FEDVME.fill(eid, rmsTotal);
-        _cMeanDBRefTotal_FEDVME.fill(eid, diffmTotal);
-        _cRMSDBRefTotal_FEDVME.fill(eid, diffrTotal);
-      } else {
+      if (!eid.isVMEid()) {
         _cMeanTotal_FEDuTCA.fill(eid, sumTotal);
         _cRMSTotal_FEDuTCA.fill(eid, rmsTotal);
         _cMeanDBRefTotal_FEDuTCA.fill(eid, diffmTotal);
@@ -826,9 +692,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
       _cMeanBad1LS_depth.fill(did);
       _cNBadMeanvsLS_Subdet.fill(did, _currentLS);
       if (_ptype != fOffline) {  // hidefed2crate
-        if (eid.isVMEid())
-          _cMeanBad1LS_FEDVME.fill(eid);
-        else
+        if (!eid.isVMEid())
           _cMeanBad1LS_FEDuTCA.fill(eid);
         _xNBadMean1LS.get(eid)++;
       }
@@ -837,9 +701,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
       _cRMSBad1LS_depth.fill(did);
       _cNBadRMSvsLS_Subdet.fill(did, _currentLS);
       if (_ptype != fOffline) {  // hidefed2crate
-        if (eid.isVMEid())
-          _cRMSBad1LS_FEDVME.fill(eid);
-        else
+        if (!eid.isVMEid())
           _cRMSBad1LS_FEDuTCA.fill(eid);
         _xNBadRMS1LS.get(eid)++;
       }
@@ -849,18 +711,14 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
     if (fabs(diffmTotal) > _thresh_mean) {
       _cMeanBadTotal_depth.fill(did);
       if (_ptype != fOffline) {  // hidefed2crate
-        if (eid.isVMEid())
-          _cMeanBadTotal_FEDVME.fill(eid);
-        else
+        if (!eid.isVMEid())
           _cMeanBadTotal_FEDuTCA.fill(eid);
       }
     }
     if (fabs(diffrTotal) > _thresh_rms) {
       _cRMSBadTotal_depth.fill(did);
       if (_ptype != fOffline) {  // hidefed2crate
-        if (eid.isVMEid())
-          _cRMSBadTotal_FEDVME.fill(eid);
-        else
+        if (!eid.isVMEid())
           _cRMSBadTotal_FEDuTCA.fill(eid);
       }
     }
