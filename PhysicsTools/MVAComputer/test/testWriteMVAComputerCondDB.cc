@@ -58,8 +58,8 @@ void testWriteMVAComputerCondDB::endJob() {
   // *                                                                         *
   // ***************************************************************************
 
-  MVAComputerContainer* container = new MVAComputerContainer();
-  MVAComputer* computer = &container->add("test");
+  MVAComputerContainer container;
+  MVAComputer* computer = &container.add("test");
 
   // vars
 
@@ -204,8 +204,7 @@ void testWriteMVAComputerCondDB::endJob() {
   if (!dbService.isAvailable())
     return;
 
-  dbService->createNewIOV<MVAComputerContainer>(
-      container, dbService->beginOfTime(), dbService->endOfTime(), "BTauGenericMVAJetTagComputerRcd");
+  dbService->createOneIOV(container, dbService->beginOfTime(), "BTauGenericMVAJetTagComputerRcd");
 }
 
 // define this as a plug-in
