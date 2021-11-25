@@ -118,7 +118,6 @@ process.hcalDigis.InputLabel = rawTag
 #-------------------------------------
 process.load('DQM.HcalTasks.RecHitTask')
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
-process.load('DQM.HcalTasks.DigiComparisonTask')
 
 #-------------------------------------
 #	To force using uTCA

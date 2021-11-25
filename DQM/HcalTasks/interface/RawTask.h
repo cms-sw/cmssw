@@ -62,7 +62,6 @@ protected:
   hcaldqm::filter::HashFilter _filter_FEDsuTCA;
 
   //	Bad Quality
-  hcaldqm::Container2D _cBadQuality_FEDVME;
   hcaldqm::Container2D _cBadQuality_FEDuTCA;
   hcaldqm::Container2D _cBadQuality_depth;
   hcaldqm::Container2D _cBadQualityLS_depth;  // online only
@@ -71,9 +70,6 @@ protected:
   hcaldqm::ContainerProf1D _cDataSizevsLS_FED;  // online only
 
   //	Mismatches
-  hcaldqm::Container2D _cEvnMsm_ElectronicsVME;
-  hcaldqm::Container2D _cBcnMsm_ElectronicsVME;
-  hcaldqm::Container2D _cOrnMsm_ElectronicsVME;
   hcaldqm::Container2D _cEvnMsm_ElectronicsuTCA;
   hcaldqm::Container2D _cBcnMsm_ElectronicsuTCA;
   hcaldqm::Container2D _cOrnMsm_ElectronicsuTCA;
