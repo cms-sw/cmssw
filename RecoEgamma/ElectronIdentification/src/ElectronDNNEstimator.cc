@@ -1,6 +1,7 @@
 #include "RecoEgamma/ElectronIdentification/interface/ElectronDNNEstimator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/FileInPath.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 #include <iostream>
 #include <fstream>
@@ -86,8 +87,6 @@ const std::vector<std::string> ElectronDNNEstimator::dnnAvaibleInputs = {
 std::map<std::string, float> ElectronDNNEstimator::getInputsVars(const reco::GsfElectron& ele) const {
   // Prepare a map with all the defined variables
   std::map<std::string, float> variables;
-  reco::TrackRef myTrackRef = ele.closestCtfTrackRef();
-  bool validKF = (myTrackRef.isNonnull() && myTrackRef.isAvailable());
   variables["pt"] = ele.pt();
   variables["eta"] = ele.eta();
   variables["fbrem"] = ele.fbrem();
@@ -101,11 +100,11 @@ std::map<std::string, float> ElectronDNNEstimator::getInputsVars(const reco::Gsf
   variables["closestCtfTrackNormChi2"] = ele.closestCtfTrackNormChi2();
   variables["closestCtfTrackNLayers"] = ele.closestCtfTrackNLayers();
   variables["gsfTrack.missing_inner_hits"] =
-      (validKF) ? myTrackRef->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) : -1.;
+      ele.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   variables["dr03TkSumPt"] = ele.dr03TkSumPt();
   variables["dr03EcalRecHitSumEt"] = ele.dr03EcalRecHitSumEt();
   variables["dr03HcalTowerSumEt"] = ele.dr03HcalTowerSumEt();
-  variables["gsfTrack.normalizedChi2"] = (validKF) ? myTrackRef->normalizedChi2() : 0;
+  variables["gsfTrack.normalizedChi2"] = ele.gsfTrack()->normalizedChi2();
   variables["superCluster.eta"] = ele.superCluster()->eta();
   variables["ecalPFClusterIso"] = ele.ecalPFClusterIso();
   variables["hcalPFClusterIso"] = ele.hcalPFClusterIso();
@@ -119,8 +118,7 @@ std::map<std::string, float> ElectronDNNEstimator::getInputsVars(const reco::Gsf
   variables["1_minus_full5x5_e1x5_ratio_full5x5_e5x5"] = 1 - ele.full5x5_e1x5() / ele.full5x5_e5x5();
   variables["full5x5_e1x5_ratio_full5x5_e5x5"] = ele.full5x5_e1x5() / ele.full5x5_e5x5();
   variables["full5x5_r9"] = ele.full5x5_r9();
-  variables["gsfTrack.trackerLayersWithMeasurement"] =
-      (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.;
+  variables["gsfTrack.trackerLayersWithMeasurement"] = ele.gsfTrack()->hitPattern().trackerLayersWithMeasurement();
   variables["superCluster.energy"] = ele.superCluster()->energy();
   variables["superCluster.rawEnergy"] = ele.superCluster()->rawEnergy();
   variables["superClusterFbrem"] = ele.superClusterFbrem();
