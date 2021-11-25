@@ -49,13 +49,21 @@ public:
   __device__ __forceinline__ uint32_t pdigi(int i) const { return __ldg(pdigi_ + i); }
   __device__ __forceinline__ uint32_t rawIdArr(int i) const { return __ldg(rawIdArr_ + i); }
 
-  uint16_t* xx() const { return xx_; }
-  uint16_t* yy() const { return yy_; }
-  uint16_t* adc() const { return adc_; }
-  uint16_t* moduleInd() const { return moduleInd_; }
-  int32_t* clus() const { return clus_; }
-  uint32_t* pdigi() const { return pdigi_; }
-  uint32_t* rawIdArr() const { return rawIdArr_; }
+  const uint16_t* xx() const { return xx_; }
+  const uint16_t* yy() const { return yy_; }
+  const uint16_t* adc() const { return adc_; }
+  const uint16_t* moduleInd() const { return moduleInd_; }
+  const int32_t* clus() const { return clus_; }
+  const uint32_t* pdigi() const { return pdigi_; }
+  const uint32_t* rawIdArr() const { return rawIdArr_; }
+
+  uint16_t* xx() { return xx_; }
+  uint16_t* yy() { return yy_; }
+  uint16_t* adc() { return adc_; }
+  uint16_t* moduleInd() { return moduleInd_; }
+  int32_t* clus() { return clus_; }
+  uint32_t* pdigi() { return pdigi_; }
+  uint32_t* rawIdArr() { return rawIdArr_; }
 
 private:
   uint16_t* xx_;  // local coordinates of each pixel
