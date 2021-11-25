@@ -58,14 +58,11 @@ protected:
   Int_t assessOneBin(
       std::string strName, Int_t nIdxX, Int_t nIdxY, Float_t fAll, Float_t fNumOcc, Float_t fNumWarn, Float_t fNumErr);
 
-  Float_t fCutErr_, fCutWarnErr_, fCutWarn_;
+  Float_t fCutErr_, fCutLowErr_, fCutWarn_;
 
-  Float_t fReportSummary_;
-  std::string strOutFile_;
-
-  std::string strDirSummary_;
-  std::string strDirRecHit_;
-  std::string strDirStatus_;
+  const std::string strDirSummary_ = "GEM/EventInfo";
+  const std::string strDirRecHit_ = "GEM/RecHits";
+  const std::string strDirStatus_ = "GEM/DAQStatus";
 
   typedef std::vector<std::vector<Float_t>> TableStatusOcc;
   typedef std::vector<std::vector<Int_t>> TableStatusNum;
@@ -74,20 +71,16 @@ protected:
 };
 
 GEMDQMHarvester::GEMDQMHarvester(const edm::ParameterSet &cfg) {
-  fReportSummary_ = -1.0;
-  strOutFile_ = cfg.getParameter<std::string>("fromFile");
-  strDirSummary_ = "GEM/EventInfo";
-  strDirRecHit_ = "GEM/RecHits";
-  strDirStatus_ = "GEM/DAQStatus";
-
-  fCutErr_ = 0.05;
-  fCutWarnErr_ = 0.00;
-  fCutWarn_ = 0.05;
+  fCutErr_ = cfg.getParameter<double>("cutErr");
+  fCutLowErr_ = cfg.getParameter<double>("cutLowErr");
+  fCutWarn_ = cfg.getParameter<double>("cutWarn");
 }
 
 void GEMDQMHarvester::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("fromFile", "");
+  desc.add<double>("cutErr", 0.05);
+  desc.add<double>("cutLowErr", 0.00);
+  desc.add<double>("cutWarn", 0.05);
   descriptions.add("GEMDQMHarvester", desc);
 }
 
@@ -100,6 +93,8 @@ void GEMDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &,
 }
 
 void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
+  Float_t fReportSummary = -1.0;
+
   std::string strSrcDigiOcc = "GEM/Digis/summaryOccDigi";
   std::string strSrcStatusA = "GEM/DAQStatus/chamberAllStatus";
   std::string strSrcStatusW = "GEM/DAQStatus/chamberWarnings";
@@ -121,7 +116,7 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
   if (h2SrcDigiOcc != nullptr && h2SrcStatusA != nullptr && h2SrcStatusW != nullptr && h2SrcStatusE != nullptr) {
     MonitorElement *h2Sum = nullptr;
     createSummaryHist(store, h2SrcStatusE, h2Sum, listLayer_);
-    fReportSummary_ =
+    fReportSummary =
         refineSummaryHistogram(strTitleSummary, h2Sum, h2SrcDigiOcc, h2SrcStatusA, h2SrcStatusE, h2SrcStatusW);
 
     for (const auto &strSuffix : listLayer_) {
@@ -141,7 +136,7 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
     }
   }
 
-  store->bookFloat("reportSummary")->Fill(fReportSummary_);
+  store->bookFloat("reportSummary")->Fill(fReportSummary);
 }
 
 void GEMDQMHarvester::copyLabels(MonitorElement *h2Src, MonitorElement *h2Dst) {
@@ -198,7 +193,7 @@ Int_t GEMDQMHarvester::assessOneBin(
     std::string strName, Int_t nIdxX, Int_t nIdxY, Float_t fAll, Float_t fNumOcc, Float_t fNumWarn, Float_t fNumErr) {
   if (fNumErr > fCutErr_ * fAll)  // The error status criterion
     return 2;
-  else if (fNumErr > fCutWarnErr_ * fAll)  // The low-error status criterion
+  else if (fNumErr > fCutLowErr_ * fAll)  // The low-error status criterion
     return 4;
   else if (fNumWarn > fCutWarn_ * fAll)  // The warning status criterion
     return 3;
