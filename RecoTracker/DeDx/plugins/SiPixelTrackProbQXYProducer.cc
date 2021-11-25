@@ -23,10 +23,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
- #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -60,7 +62,7 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-SiPixelTrackProbQXYProducer::SiPixelTrackProbQXYProducer(const edm::ParameterSet& iConfig) {
+SiPixelTrackProbQXYProducer::SiPixelTrackProbQXYProducer(const edm::ParameterSet& iConfig) : tTopoToken_(esConsumes()) {
   produces<reco::SiPixelTrackProbQXYCollection>();
   produces<reco::SiPixelTrackProbQXYAssociation>();
   trackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
@@ -102,9 +104,7 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
         continue;
 
       //Retrieve tracker topology from geometry
-      edm::ESHandle<TrackerTopology> TopoHandle;
-      iSetup.get<TrackerTopologyRcd>().get(TopoHandle);
-      const TrackerTopology* tTopo = TopoHandle.product();
+      const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
 
       // Have a separate variable that excludes Layer 1
       // Layer 1 was very noisy in 2017/2018
