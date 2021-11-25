@@ -187,6 +187,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                   0);
+  _cTimingCutHTH_SubdetPM.initialize(_name,
+                                     "TimingHighCut",
+                                     hcaldqm::hashfunctions::fSubdetPM,
+                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
+                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                     0);
   _cTimingCut_depth.initialize(_name,
                                "TimingCut",
                                hcaldqm::hashfunctions::fdepth,
@@ -438,12 +444,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                                    new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
                                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
                                                    0);
-    _cCapidMinusBXmod4_CrateSlotVME[i].initialize(_name,
-                                                  "CapID",
-                                                  new quantity::ElectronicsQuantity(quantity::fCrateVME),
-                                                  new quantity::ElectronicsQuantity(quantity::fSlotVME),
-                                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
-                                                  0);
   }
 
   if (_ptype != fOffline) {  // hidefed2crate
@@ -494,13 +494,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000),
                               0);
 
-    _cTimingCut_FEDVME.initialize(_name,
-                                  "TimingCut",
-                                  hcaldqm::hashfunctions::fFED,
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
-                                  0);
     _cTimingCut_FEDuTCA.initialize(_name,
                                    "TimingCut",
                                    hcaldqm::hashfunctions::fFED,
@@ -508,13 +501,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
                                    0);
-    _cTimingCut_ElectronicsVME.initialize(_name,
-                                          "TimingCut",
-                                          hcaldqm::hashfunctions::fElectronics,
-                                          new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-                                          new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                          new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
-                                          0);
     _cTimingCut_ElectronicsuTCA.initialize(_name,
                                            "TimingCut",
                                            hcaldqm::hashfunctions::fElectronics,
@@ -529,13 +515,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
                                    0);
 
-    _cOccupancy_FEDVME.initialize(_name,
-                                  "Occupancy",
-                                  hcaldqm::hashfunctions::fFED,
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                  new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                  0);
     _cOccupancy_FEDuTCA.initialize(_name,
                                    "Occupancy",
                                    hcaldqm::hashfunctions::fFED,
@@ -543,13 +522,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                    0);
-    _cOccupancy_ElectronicsVME.initialize(_name,
-                                          "Occupancy",
-                                          hcaldqm::hashfunctions::fElectronics,
-                                          new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-                                          new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                          new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                          0);
     _cOccupancy_ElectronicsuTCA.initialize(_name,
                                            "Occupancy",
                                            hcaldqm::hashfunctions::fElectronics,
@@ -558,13 +530,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                            new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                            0);
 
-    _cOccupancyCut_FEDVME.initialize(_name,
-                                     "OccupancyCut",
-                                     hcaldqm::hashfunctions::fFED,
-                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                     0);
     _cOccupancyCut_FEDuTCA.initialize(_name,
                                       "OccupancyCut",
                                       hcaldqm::hashfunctions::fFED,
@@ -572,13 +537,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                       new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                       0);
-    _cOccupancyCut_ElectronicsVME.initialize(_name,
-                                             "OccupancyCut",
-                                             hcaldqm::hashfunctions::fElectronics,
-                                             new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-                                             new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                             new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                             0);
     _cOccupancyCut_ElectronicsuTCA.initialize(_name,
                                               "OccupancyCut",
                                               hcaldqm::hashfunctions::fElectronics,
@@ -662,18 +620,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
 
   if (_ptype != fOffline) {  // hidefed2crate
     _cShapeCut_FED.book(ib, _emap, _subsystem);
-    _cTimingCut_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cTimingCut_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cTimingCut_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cTimingCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
     _cTimingCutvsLS_FED.book(ib, _emap, _subsystem);
-    _cOccupancy_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cOccupancy_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cOccupancy_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cOccupancy_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cOccupancyCut_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cOccupancyCut_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-    _cOccupancyCut_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cOccupancyCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
     _cDigiSize_FED.book(ib, _emap, _subsystem);
   }
@@ -683,6 +635,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
   }
 
   _cTimingCut_SubdetPM.book(ib, _emap, _subsystem);
+  _cTimingCutHTH_SubdetPM.book(ib, _emap, _subsystem);
   _cTimingCut_depth.book(ib, _emap, _subsystem);
   _cTimingCutvsLS_SubdetPM.book(ib, _emap, _subsystem);
 
@@ -712,9 +665,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     char aux[kSize];
     snprintf(aux, kSize, "%d_uTCA", i);
     _cCapidMinusBXmod4_CrateSlotuTCA[i].book(ib, _subsystem, aux);
-
-    snprintf(aux, kSize, "%d_VME", i);
-    _cCapidMinusBXmod4_CrateSlotVME[i].book(ib, _subsystem, aux);
   }
 
   if (_ptype != fLocal) {
@@ -950,10 +900,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
         _cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
         _cCapid_BadvsFEDvsLSmod60.fill(eid, _currentLS % 60);
       }
-      if (eid.isVMEid()) {
-        _cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
-
-      } else {
+      if (!eid.isVMEid()) {
         _cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
       }
     }
@@ -976,10 +923,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     _cDigiSize_Crate.fill(eid, digi.samples());
     if (_ptype != fOffline) {  // hidefed2crate
       _cDigiSize_FED.fill(eid, digi.samples());
-      if (eid.isVMEid()) {
-        _cOccupancy_FEDVME.fill(eid);
-        _cOccupancy_ElectronicsVME.fill(eid);
-      } else {
+      if (!eid.isVMEid()) {
         _cOccupancy_FEDuTCA.fill(eid);
         _cOccupancy_ElectronicsuTCA.fill(eid);
         /*
@@ -1032,9 +976,14 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
 
     if (sumQ > _cutSumQ_HBHE) {
       //double timing = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,digi.samples()-1);
+      // without pedestal substraction, request from https://gitlab.cern.ch/cmshcal/docs/-/issues/106
       double timing =
-          hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples() - 1);
+          hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples() - 1, false);
       _cTimingCut_SubdetPM.fill(did, timing);
+      // with pedestal substraction for energetic hits
+      if (sumQ > 100. * _cutSumQ_HBHE)
+        _cTimingCutHTH_SubdetPM.fill(
+            did, hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples() - 1));
       _cTimingCut_depth.fill(did, timing);
       _cOccupancyCut_depth.fill(did);
       _cTimingCutvsLS_SubdetPM.fill(did, _currentLS, timing);
@@ -1052,12 +1001,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
         _cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
       }
       if (_ptype != fOffline) {  // hidefed2crate
-        if (eid.isVMEid()) {
-          _cTimingCut_FEDVME.fill(eid, timing);
-          _cTimingCut_ElectronicsVME.fill(eid, timing);
-          _cOccupancyCut_FEDVME.fill(eid);
-          _cOccupancyCut_ElectronicsVME.fill(eid);
-        } else {
+        if (!eid.isVMEid()) {
           _cTimingCut_FEDuTCA.fill(eid, timing);
           _cTimingCut_ElectronicsuTCA.fill(eid, timing);
           _cOccupancyCut_FEDuTCA.fill(eid);
@@ -1149,10 +1093,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
         _cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
         _cCapid_BadvsFEDvsLSmod60.fill(eid, _currentLS % 60);
       }
-      if (eid.isVMEid()) {
-        _cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
-
-      } else {
+      if (!eid.isVMEid()) {
         _cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
       }
     }
@@ -1172,14 +1113,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     _cDigiSize_Crate.fill(eid, it->size());
     if (_ptype != fOffline) {  // hidefed2crate
       _cDigiSize_FED.fill(eid, it->size());
-      if (eid.isVMEid()) {
-        _cOccupancy_FEDVME.fill(eid);
-        _cOccupancy_ElectronicsVME.fill(eid);
-        /*
-				if (!it->validate(0, it->size()))
-					_cCapIdRots_FEDVME.fill(eid, 1);
-					*/
-      } else {
+      if (!eid.isVMEid()) {
         _cOccupancy_FEDuTCA.fill(eid);
         _cOccupancy_ElectronicsuTCA.fill(eid);
         /*
@@ -1200,11 +1134,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
 
     if (sumQ > _cutSumQ_HO) {
       //double timing = hcaldqm::utilities::aveTS<HODataFrame>(*it, 8.5, 0,it->size()-1);
-      double timing = hcaldqm::utilities::aveTSDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size() - 1);
+      // without pedestal substraction, request from https://gitlab.cern.ch/cmshcal/docs/-/issues/106
+      double timing = hcaldqm::utilities::aveTSDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size() - 1, false);
       _cSumQ_depth.fill(did, sumQ);
       _cSumQvsLS_SubdetPM.fill(did, _currentLS, sumQ);
       _cOccupancyCut_depth.fill(did);
       _cTimingCut_SubdetPM.fill(did, timing);
+      // with pedestal substraction for energetic hits
+      if (sumQ > 100. * _cutSumQ_HO)
+        _cTimingCutHTH_SubdetPM.fill(
+            did, hcaldqm::utilities::aveTSDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size() - 1));
       _cTimingCut_depth.fill(did, timing);
       _cTimingCutvsLS_SubdetPM.fill(did, _currentLS, timing);
       if (_ptype != fOffline) {  // hidefed2crate
@@ -1219,12 +1158,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
         _cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
       }
       if (_ptype != fOffline) {  // hidefed2crate
-        if (eid.isVMEid()) {
-          _cTimingCut_FEDVME.fill(eid, timing);
-          _cTimingCut_ElectronicsVME.fill(eid, timing);
-          _cOccupancyCut_FEDVME.fill(eid);
-          _cOccupancyCut_ElectronicsVME.fill(eid);
-        } else {
+        if (!eid.isVMEid()) {
           _cTimingCut_FEDuTCA.fill(eid, timing);
           _cTimingCut_ElectronicsuTCA.fill(eid, timing);
           _cOccupancyCut_FEDuTCA.fill(eid);
@@ -1324,10 +1258,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
           _cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
           _cCapid_BadvsFEDvsLSmod60.fill(eid, _currentLS % 60);
         }
-        if (eid.isVMEid()) {
-          _cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
-
-        } else {
+        if (!eid.isVMEid()) {
           _cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
         }
       }
@@ -1351,13 +1282,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
       _cDigiSize_Crate.fill(eid, digi.samples());
       if (_ptype != fOffline) {  // hidefed2crate
         _cDigiSize_FED.fill(eid, digi.samples());
-        if (eid.isVMEid()) {
-          _cOccupancy_FEDVME.fill(eid);
-          _cOccupancy_ElectronicsVME.fill(eid);
-          /*
-  				if (!it->validate(0, it->size()))
-  					_cCapIdRots_FEDVME.fill(eid, 1);*/
-        } else {
+        if (!eid.isVMEid()) {
           _cOccupancy_FEDuTCA.fill(eid);
           _cOccupancy_ElectronicsuTCA.fill(eid);
           /*
@@ -1404,7 +1329,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
         //if (!_filter_QIE1011.filter(did)) {
         _cSumQvsLS_SubdetPM_QIE1011.fill(did, _currentLS, sumQ);
         //}
-        _cTimingCut_SubdetPM.fill(did, timing);
+        _cTimingCut_SubdetPM.fill(did, hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 0., 0, digi.samples() - 1));
+        if (sumQ > 100. * _cutSumQ_HF)
+          _cTimingCutHTH_SubdetPM.fill(did, timing);
         _cTimingCut_depth.fill(did, timing);
         _cTimingCutvsLS_SubdetPM.fill(did, _currentLS, timing);
         if (_ptype == fOnline) {
@@ -1427,12 +1354,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
           if (_ptype == fOnline)
             _cQ2Q12CutvsLS_FEDHF.fill(eid, _currentLS, q2q12);
         if (_ptype != fOffline) {  // hidefed2crate
-          if (eid.isVMEid()) {
-            _cTimingCut_FEDVME.fill(eid, timing);
-            _cTimingCut_ElectronicsVME.fill(eid, timing);
-            _cOccupancyCut_FEDVME.fill(eid);
-            _cOccupancyCut_ElectronicsVME.fill(eid);
-          } else {
+          if (!eid.isVMEid()) {
             _cTimingCut_FEDuTCA.fill(eid, timing);
             _cTimingCut_ElectronicsuTCA.fill(eid, timing);
             _cOccupancyCut_FEDuTCA.fill(eid);
