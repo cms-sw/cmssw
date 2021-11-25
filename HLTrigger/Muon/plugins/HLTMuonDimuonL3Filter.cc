@@ -90,49 +90,40 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig)
       L1MatchingdR_(iConfig.getParameter<double>("L1MatchingdR")),
       matchPreviousCand_(iConfig.getParameter<bool>("MatchToPreviousCand")),
       MuMass2_(0.106 * 0.106) {
-
-  // Configure module in a way that it exits cmsRun as soon as 
+  // Configure module in a way that it exits cmsRun as soon as
   // it encounters an issue that makes it useless.
   // It should be done at construction so the problem is instantly figure.
   // Else it may not found it tests and we figure out later that it kills cmsRun.
   if (min_InvMass_.size() != min_PtPair_.size()) {
-    throw cms::Exception("InvalidConfig")
-      << "ERROR!!! Vector sizes don't match!\n";    
+    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
   }
   if (min_InvMass_.size() != max_PtPair_.size()) {
-    throw cms::Exception("InvalidConfig")
-      << "ERROR!!! Vector sizes don't match!\n";    
+    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
   }
   if (min_InvMass_.size() != min_PtMax_.size()) {
-    throw cms::Exception("InvalidConfig")
-      << "ERROR!!! Vector sizes don't match!\n";    
+    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
   }
   if (min_InvMass_.size() != min_PtMin_.size()) {
-    throw cms::Exception("InvalidConfig")
-      << "ERROR!!! Vector sizes don't match!\n";    
+    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
   }
   if (min_InvMass_.size() != max_PtMin_.size()) {
-    throw cms::Exception("InvalidConfig")
-      << "ERROR!!! Vector sizes don't match!\n";    
+    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
   }
   if (min_InvMass_.size() != max_InvMass_.size()) {
-    throw cms::Exception("InvalidConfig")
-      << "ERROR!!! Vector sizes don't match!\n";    
+    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
   }
   if (min_InvMass_.size() != invertDiMuonMassSelection_.size()) {
-    throw cms::Exception("InvalidConfig")
-      << "ERROR!!! Vector sizes don't match!\n";    
+    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
   }
-  
+
   LogDebug("HLTMuonDimuonL3Filter") << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/"
                                        "MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt/MaxDzMuMu/MaxRapidityPair : "
                                     << candTag_.encode() << " " << fast_Accept_ << " " << min_N_ << " " << max_Eta_
                                     << " " << min_Nhits_ << " " << max_Dr_ << " " << max_Dz_ << " " << chargeOpt_ << " "
                                     << Out(min_PtPair_) << " " << Out(min_PtMax_) << " " << Out(min_PtMin_) << " "
-                                    << Out(min_InvMass_) << " " << Out(max_InvMass_) << " " << min_DiMuAngle_ << " " 
-				    << min_Acop_ << " " << max_Acop_ << " " << min_PtBalance_ << " " << max_PtBalance_ 
-				    << " " << nsigma_Pt_ << " " << max_DCAMuMu_ << " " << max_YPair_;
-
+                                    << Out(min_InvMass_) << " " << Out(max_InvMass_) << " " << min_DiMuAngle_ << " "
+                                    << min_Acop_ << " " << max_Acop_ << " " << min_PtBalance_ << " " << max_PtBalance_
+                                    << " " << nsigma_Pt_ << " " << max_DCAMuMu_ << " " << max_YPair_;
 }
 
 HLTMuonDimuonL3Filter::~HLTMuonDimuonL3Filter() = default;
@@ -201,7 +192,6 @@ void HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& des
 bool HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent,
                                       const edm::EventSetup& iSetup,
                                       trigger::TriggerFilterObjectWithRefs& filterproduct) const {
-
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
@@ -613,7 +603,7 @@ bool HLTMuonDimuonL3Filter::applyDiMuonSelection(const RecoChargedCandidateRef& 
   LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 pt12= " << pt12;
 
   // Angle between the muons
-  if (deltaR(p1,p2)<min_DiMuAngle_)
+  if (deltaR(p1, p2) < min_DiMuAngle_)
     return false;
 
   double ptLx1 = cand1->pt();
@@ -623,9 +613,9 @@ bool HLTMuonDimuonL3Filter::applyDiMuonSelection(const RecoChargedCandidateRef& 
   LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 invmass= " << invmass;
   bool proceed = false;
   for (unsigned int iv = 0; iv < min_InvMass_.size(); iv++) {
-    if ((invertDiMuonMassSelection_[iv]!=0) && invmass>min_InvMass_[iv] && invmass<max_InvMass_[iv])
+    if ((invertDiMuonMassSelection_[iv] != 0) && invmass > min_InvMass_[iv] && invmass < max_InvMass_[iv])
       return false;
-    if ((invertDiMuonMassSelection_[iv]==0) && (invmass<min_InvMass_[iv] || invmass>max_InvMass_[iv]))
+    if ((invertDiMuonMassSelection_[iv] == 0) && (invmass < min_InvMass_[iv] || invmass > max_InvMass_[iv]))
       return false;
     if (ptLx1 > ptLx2) {
       if (ptLx1 < min_PtMax_[iv])
