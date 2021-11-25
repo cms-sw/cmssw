@@ -46,7 +46,7 @@ void JetResolutionDBWriter::beginJob() {
   if (s.isAvailable()) {
     std::cout << "Setting up payload record " << m_record << std::endl;
     cond::Time_t sinceTime = s->isNewTagRequest(m_record) ? s->beginOfTime() : s->currentTime();
-    s->writeOneIOV<JME::JetResolutionObject>(jerObject, sinceTime, m_record);
+    s->writeOneIOV(jerObject, sinceTime, m_record);
 
     std::cout << "Object saved into the database with the record: " << m_record << std::endl;
   }

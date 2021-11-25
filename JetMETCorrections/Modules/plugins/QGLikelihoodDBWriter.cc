@@ -214,10 +214,7 @@ void QGLikelihoodDBWriter::beginJob() {
   if (s.isAvailable()) {
     edm::LogInfo("UserOutput") << "Setting up payload with " << payload.data.size() << " entries and tag " << payloadTag
                                << std::endl;
-    if (s->isNewTagRequest(payloadTag))
-      s->createOneIOV<QGLikelihoodObject>(payload, s->beginOfTime(), payloadTag);
-    else
-      s->appendOneIOV<QGLikelihoodObject>(payload, 111, payloadTag);
+    s->writeOneIOV(payload, s->beginOfTime(), payloadTag);
   }
   edm::LogInfo("UserOutput") << "Wrote in CondDB QGLikelihood payload label: " << payloadTag << std::endl;
 }
