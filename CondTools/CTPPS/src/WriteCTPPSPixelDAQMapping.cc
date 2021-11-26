@@ -67,7 +67,7 @@ void WriteCTPPSPixelDAQMapping::analyze(const edm::Event &, edm::EventSetup cons
 
   // Write DAQ Mapping to sqlite file:
 
-  const auto& mapping = es.getData(tokenMapping_);
+  const auto &mapping = es.getData(tokenMapping_);
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
