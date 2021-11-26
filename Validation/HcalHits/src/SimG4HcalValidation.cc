@@ -21,7 +21,6 @@
 #include "SimG4CMS/Calo/interface/HCalSD.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -48,7 +47,6 @@
 using namespace geant_units::operators;
 
 class SimG4HcalValidation : public SimProducer,
-                            public Observer<const BeginOfJob *>,
                             public Observer<const BeginOfRun *>,
                             public Observer<const BeginOfEvent *>,
                             public Observer<const EndOfEvent *>,
@@ -59,13 +57,14 @@ public:
   const SimG4HcalValidation &operator=(const SimG4HcalValidation &) = delete;
   ~SimG4HcalValidation() override;
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void registerConsumes(edm::ConsumesCollector) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::EventSetup const &) override;
 
 private:
   void init();
 
   // observer classes
-  void update(const BeginOfJob *job) override;
   void update(const BeginOfRun *run) override;
   void update(const BeginOfEvent *evt) override;
   void update(const G4Step *step) override;
@@ -82,6 +81,8 @@ private:
   double getHcalScale(std::string, int) const;
 
 private:
+  edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> ddconsToken_;
+
   // Keep parameters to instantiate Jet finder later
   SimG4HcalHitJetFinder *jetf;
 
@@ -144,7 +145,7 @@ SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p)
   if (infolevel > 1)
     produces<PHcalValidInfoJets>(labelJets);
 
-  edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialised as observer of begin/end events and "
+  edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialized as observer of begin/end events and "
                                 << "of G4step with Parameter values: \n\tInfoLevel     = " << infolevel
                                 << "\n\thcalOnly      = " << hcalOnly << "\n\tapplySampling = " << applySampling
                                 << "\n\tconeSize      = " << coneSize << "\n\tehitThreshold = " << ehitThreshold
@@ -170,6 +171,11 @@ SimG4HcalValidation::~SimG4HcalValidation() {
     delete numberingFromDDD;
     numberingFromDDD = nullptr;
   }
+}
+
+void SimG4HcalValidation::registerConsumes(edm::ConsumesCollector cc) {
+  ddconsToken_ = cc.esConsumes<HcalDDDSimConstants, HcalSimNumberingRecord, edm::Transition::BeginRun>();
+  edm::LogVerbatim("ValidHcal") << "SimG4HcalValidation::Initialize ESGetToken for HcalDDDSimConstants";
 }
 
 void SimG4HcalValidation::produce(edm::Event &e, const edm::EventSetup &) {
@@ -223,13 +229,10 @@ void SimG4HcalValidation::init() {
   count = 0;
 }
 
-void SimG4HcalValidation::update(const BeginOfJob *job) {
+void SimG4HcalValidation::beginRun(edm::EventSetup const& es) {
   // Numbering From DDD
-  edm::ESHandle<HcalDDDSimConstants> hdc;
-  (*job)()->get<HcalSimNumberingRecord>().get(hdc);
-  const HcalDDDSimConstants *hcons = hdc.product();
-  edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialise "
-                                << "HcalNumberingFromDDD";
+  const HcalDDDSimConstants *hcons = &es.getData(ddconsToken_);
+  edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialise HcalNumberingFromDDD";
   numberingFromDDD = new HcalNumberingFromDDD(hcons);
 
   // Numbering scheme

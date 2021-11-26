@@ -20,7 +20,9 @@ process.load("Validation.HcalHits.HcalHitValidation_cfi")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 #if 'MessageLogger' in process.__dict__:
+#    process.MessageLogger.ValidHcal=dict()
 #    process.MessageLogger.HcalHitValid=dict()
+
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.maxEvents = cms.untracked.PSet(
