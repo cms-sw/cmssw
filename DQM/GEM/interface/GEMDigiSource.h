@@ -40,7 +40,6 @@ protected:
 
 private:
   int ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) override;
-  int ProcessWithMEMap2(BookingHelper& bh, ME2IdsKey key) override;
   int ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) override;
 
