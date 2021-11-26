@@ -58,7 +58,7 @@ public:
   ~SimG4HcalValidation() override;
 
   void registerConsumes(edm::ConsumesCollector) override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
   void beginRun(edm::EventSetup const &) override;
 
 private:
@@ -229,7 +229,7 @@ void SimG4HcalValidation::init() {
   count = 0;
 }
 
-void SimG4HcalValidation::beginRun(edm::EventSetup const& es) {
+void SimG4HcalValidation::beginRun(edm::EventSetup const &es) {
   // Numbering From DDD
   const HcalDDDSimConstants *hcons = &es.getData(ddconsToken_);
   edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialise HcalNumberingFromDDD";
