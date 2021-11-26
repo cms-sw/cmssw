@@ -492,7 +492,16 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
     ),
     outputCommands = cms.untracked.vstring( 'drop *',
         'keep edmTriggerResults_*_*_*',
-        'keep triggerTriggerEvent_*_*_*'
+        'keep triggerTriggerEvent_*_*_*',
+        'keep GlobalAlgBlkBXVector_*_*_*',                  
+        'keep GlobalExtBlkBXVector_*_*_*',
+        'keep l1tEGammaBXVector_*_EGamma_*',
+        'keep l1tEtSumBXVector_*_EtSum_*',
+        'keep l1tJetBXVector_*_Jet_*',
+        'keep l1tMuonBXVector_*_Muon_*',
+        'keep l1tTauBXVector_*_Tau_*',
+
+      
     )
 )
 %(process)s.MinimalOutput = cms.EndPath( %(process)s.hltOutputMinimal )
