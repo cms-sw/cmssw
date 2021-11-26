@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <FWCore/Framework/interface/stream/EDAnalyzer.h>
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -41,7 +41,7 @@
  * the each output file.Once a file is completed (see above), it is renamed
  * without the enclosing .part suffix.
  */
-class LaserSorter : public edm::EDAnalyzer {
+class LaserSorter : public edm::stream::EDAnalyzer<> {
   //inner classes
 private:
   struct IndexRecord {
@@ -121,8 +121,8 @@ public:
   //methods
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
-  void beginJob() override;
+  void endJob() ;
+  void beginJob() ;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:

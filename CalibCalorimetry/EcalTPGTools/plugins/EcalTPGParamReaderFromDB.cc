@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -12,14 +12,14 @@
 
 using namespace std;
 
-class EcalTPGParamReaderFromDB : public edm::EDAnalyzer {
+class EcalTPGParamReaderFromDB : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalTPGParamReaderFromDB(const edm::ParameterSet&);
   ~EcalTPGParamReaderFromDB() override;
 
 private:
   void beginJob() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&);
   void endJob() override;
 
   std::string host;
@@ -48,10 +48,6 @@ EcalTPGParamReaderFromDB::~EcalTPGParamReaderFromDB() {}
 void EcalTPGParamReaderFromDB::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   EcalTPGDBApp app(sid, user, pass);
 
-  //int i ;
-  //app.readTPGPedestals(i);
-  //app.writeTPGLUT();
-  //app.writeTPGWeights();
 }
 
 void EcalTPGParamReaderFromDB::beginJob() {}
