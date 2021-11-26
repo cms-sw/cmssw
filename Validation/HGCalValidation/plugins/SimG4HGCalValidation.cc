@@ -48,16 +48,14 @@
 #include <vector>
 #include <string>
 
-class SimG4HGCalValidation : public SimProducer,
-                             public Observer<const BeginOfEvent*>,
-                             public Observer<const G4Step*> {
+class SimG4HGCalValidation : public SimProducer, public Observer<const BeginOfEvent*>, public Observer<const G4Step*> {
 public:
   SimG4HGCalValidation(const edm::ParameterSet& p);
   ~SimG4HGCalValidation() override;
 
   void registerConsumes(edm::ConsumesCollector) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void beginRun(edm::EventSetup const &) override;
+  void beginRun(edm::EventSetup const&) override;
 
 private:
   SimG4HGCalValidation(const SimG4HGCalValidation&);  // stop default
@@ -154,8 +152,10 @@ void SimG4HGCalValidation::registerConsumes(edm::ConsumesCollector cc) {
       else
         nameX = "HGCalHEScintillatorSensitive";
       nameXs_.emplace_back(nameX);
-      ddconsToken_.emplace_back(cc.esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameX}));
-      edm::LogVerbatim("ValidHGCal") << "Defines ESGetToken for type " << type << ":" << dets_.back() << ":" << subdet_.back() << ":" << nameX;
+      ddconsToken_.emplace_back(
+          cc.esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameX}));
+      edm::LogVerbatim("ValidHGCal") << "Defines ESGetToken for type " << type << ":" << dets_.back() << ":"
+                                     << subdet_.back() << ":" << nameX;
     } else {
       edm::LogError("ValidHGCal") << "Wrong Type " << types_[type];
       throw cms::Exception("Unknown", "ValidHGCal") << "Wrong Type " << types_[type] << "\n";
@@ -178,14 +178,14 @@ void SimG4HGCalValidation::beginRun(edm::EventSetup const& es) {
       levelT1_ = hdc->levelTop(0);
       levelT2_ = hdc->levelTop(1);
       if (hdc->tileTrapezoid()) {
-	types_[type] = -1;
-	hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameXs_[type]));
+        types_[type] = -1;
+        hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameXs_[type]));
       } else if (hdc->waferHexagon6()) {
-	types_[type] = 1;
-	hgcNumbering_.emplace_back(new HGCNumberingScheme(*hdc, nameXs_[type]));
+        types_[type] = 1;
+        hgcNumbering_.emplace_back(new HGCNumberingScheme(*hdc, nameXs_[type]));
       } else {
-	types_[type] = 0;
-	hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameXs_[type]));
+        types_[type] = 0;
+        hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameXs_[type]));
       }
       layers = hdc->layers(false);
     } else {
