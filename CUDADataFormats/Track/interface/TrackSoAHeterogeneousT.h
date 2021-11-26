@@ -60,7 +60,6 @@ public:
         ++nl;
       ol = il;
     }
-    assert(nl >= 3);
     return nl;
   }
 

@@ -78,9 +78,9 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
   }
 
   for (int idx = first, nt = foundNtuplets->nOnes(); idx < nt; idx += gridDim.x * blockDim.x) {
-    if (foundNtuplets->size(idx) > 5)
+    if (foundNtuplets->size(idx) > 7)  // current real limit
       printf("ERROR %d, %d\n", idx, foundNtuplets->size(idx));
-    assert(foundNtuplets->size(idx) < 6);
+    assert(foundNtuplets->size(idx) <= caConstants::maxHitsOnTrack);
     for (auto ih = foundNtuplets->begin(idx); ih != foundNtuplets->end(idx); ++ih)
       assert(int(*ih) < nHits);
   }
@@ -178,7 +178,6 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
 // assume the above (so, short tracks already removed)
 __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
                                             uint32_t const *__restrict__ nCells,
-                                            HitContainer const *__restrict__ foundNtuplets,
                                             TkSoA *__restrict__ tracks,
                                             bool dupPassThrough) {
   // quality to mark rejected
@@ -199,7 +198,7 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
 
     /* chi2 penalize higher-pt tracks  (try rescale it?)
     auto score = [&](auto it) {
-      return foundNtuplets->size(it) < 4 ? 
+      return tracks->nHits(it) < 4 ? 
               std::abs(tracks->tip(it)) :  // tip for triplets
               tracks->chi2(it);            //chi2 for quads
     };
@@ -333,8 +332,8 @@ __global__ void kernel_connect(cms::cuda::AtomicPairCounter *apc1,
                                                                                               : dcaCutOuterTriplet,
                                      hardCurvCut)) {  // FIXME tune cuts
         oc.addOuterNeighbor(cellIndex, *cellNeighbors);
-        thisCell.setUsedBit(1);
-        oc.setUsedBit(1);
+        thisCell.setStatusBits(GPUCACell::StatusBit::kUsed);
+        oc.setStatusBits(GPUCACell::StatusBit::kUsed);
       }
     }  // loop on inner cells
   }    // loop on outer cells
@@ -372,14 +371,12 @@ __global__ void kernel_find_ntuplets(GPUCACell::Hits const *__restrict__ hhp,
   }
 }
 
-__global__ void kernel_mark_used(GPUCACell::Hits const *__restrict__ hhp,
-                                 GPUCACell *__restrict__ cells,
-                                 uint32_t const *nCells) {
+__global__ void kernel_mark_used(GPUCACell *__restrict__ cells, uint32_t const *nCells) {
   auto first = threadIdx.x + blockIdx.x * blockDim.x;
   for (int idx = first, nt = (*nCells); idx < nt; idx += gridDim.x * blockDim.x) {
     auto &thisCell = cells[idx];
     if (!thisCell.tracks().empty())
-      thisCell.setUsedBit(2);
+      thisCell.setStatusBits(GPUCACell::StatusBit::kInTrack);
   }
 }
 
@@ -394,9 +391,9 @@ __global__ void kernel_countMultiplicity(HitContainer const *__restrict__ foundN
     if (quality[it] == pixelTrack::Quality::edup)
       continue;
     assert(quality[it] == pixelTrack::Quality::bad);
-    if (nhits > 7)
+    if (nhits > 7)  // current limit
       printf("wrong mult %d %d\n", it, nhits);
-    assert(nhits < 8);
+    assert(nhits <= caConstants::maxHitsOnTrack);
     tupleMultiplicity->count(nhits);
   }
 }
@@ -414,7 +411,7 @@ __global__ void kernel_fillMultiplicity(HitContainer const *__restrict__ foundNt
     assert(quality[it] == pixelTrack::Quality::bad);
     if (nhits > 7)
       printf("wrong mult %d %d\n", it, nhits);
-    assert(nhits < 8);
+    assert(nhits <= caConstants::maxHitsOnTrack);
     tupleMultiplicity->fill(nhits, it);
   }
 }
@@ -648,9 +645,7 @@ __global__ void kernel_markSharedHit(int const *__restrict__ nshared,
 }
 
 // mostly for very forward triplets.....
-__global__ void kernel_rejectDuplicate(TrackingRecHit2DSOAView const *__restrict__ hhp,
-                                       HitContainer const *__restrict__ ptuples,
-                                       TkSoA const *__restrict__ ptracks,
+__global__ void kernel_rejectDuplicate(TkSoA const *__restrict__ ptracks,
                                        Quality *__restrict__ quality,
                                        uint16_t nmin,
                                        bool dupPassThrough,
@@ -659,7 +654,6 @@ __global__ void kernel_rejectDuplicate(TrackingRecHit2DSOAView const *__restrict
   auto const reject = dupPassThrough ? pixelTrack::Quality::loose : pixelTrack::Quality::dup;
 
   auto &hitToTuple = *phitToTuple;
-  // auto const &foundNtuplets = *ptuples;
   auto const &tracks = *ptracks;
 
   int first = blockDim.x * blockIdx.x + threadIdx.x;
@@ -713,7 +707,6 @@ __global__ void kernel_rejectDuplicate(TrackingRecHit2DSOAView const *__restrict
 }
 
 __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restrict__ hhp,
-                                        HitContainer const *__restrict__ ptuples,
                                         TkSoA const *__restrict__ ptracks,
                                         Quality *__restrict__ quality,
                                         int nmin,
@@ -725,7 +718,6 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
   auto const longTqual = pixelTrack::Quality::highPurity;
 
   auto &hitToTuple = *phitToTuple;
-  // auto const &foundNtuplets = *ptuples;
   auto const &tracks = *ptracks;
 
   auto const &hh = *hhp;
@@ -767,9 +759,7 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
   }
 }
 
-__global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict__ hhp,
-                                      HitContainer const *__restrict__ ptuples,
-                                      TkSoA const *__restrict__ ptracks,
+__global__ void kernel_tripletCleaner(TkSoA const *__restrict__ ptracks,
                                       Quality *__restrict__ quality,
                                       uint16_t nmin,
                                       bool dupPassThrough,
@@ -780,7 +770,6 @@ __global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict_
   auto const good = pixelTrack::Quality::strict;
 
   auto &hitToTuple = *phitToTuple;
-  // auto const &foundNtuplets = *ptuples;
   auto const &tracks = *ptracks;
 
   int first = blockDim.x * blockIdx.x + threadIdx.x;
@@ -828,8 +817,6 @@ __global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict_
 }
 
 __global__ void kernel_simpleTripletCleaner(
-    TrackingRecHit2DSOAView const *__restrict__ hhp,
-    HitContainer const *__restrict__ ptuples,
     TkSoA const *__restrict__ ptracks,
     Quality *__restrict__ quality,
     uint16_t nmin,
@@ -841,7 +828,6 @@ __global__ void kernel_simpleTripletCleaner(
   auto const good = pixelTrack::Quality::loose;
 
   auto &hitToTuple = *phitToTuple;
-  // auto const &foundNtuplets = *ptuples;
   auto const &tracks = *ptracks;
 
   int first = blockDim.x * blockIdx.x + threadIdx.x;

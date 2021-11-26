@@ -37,7 +37,7 @@ void HelixFitOnGPU::launchBrokenLineKernelsOnCPU(HitsView const* hv, uint32_t hi
                     hits_geGPU.get(),
                     fast_fit_resultsGPU.get());
 
-    if (fit5as4_) {
+    if (fitNas4_) {
       // fit all as 4
       kernel_BLFastFit<4>(tuples_,
                           tupleMultiplicity_,

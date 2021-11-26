@@ -63,7 +63,7 @@ CAHitNtupletGeneratorOnGPU::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& 
                cfg.getParameter<unsigned int>("maxNumberOfDoublets"),
                cfg.getParameter<unsigned int>("minHitsForSharingCut"),
                cfg.getParameter<bool>("useRiemannFit"),
-               cfg.getParameter<bool>("fit5as4"),
+               cfg.getParameter<bool>("fitNas4"),
                cfg.getParameter<bool>("includeJumpingForwardDoublets"),
                cfg.getParameter<bool>("earlyFishbone"),
                cfg.getParameter<bool>("lateFishbone"),
@@ -152,8 +152,7 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& 
   desc.add<unsigned int>("minHitsForSharingCut", 10)
       ->setComment("Maximum number of hits in a tuple to clean also if the shared hit is on bpx1");
   desc.add<bool>("includeJumpingForwardDoublets", false);
-  desc.add<bool>("fit5as4", false)->setComment("fit only 4 hits out of N");
-  ;
+  desc.add<bool>("fitNas4", false)->setComment("fit only 4 hits out of N");
   desc.add<bool>("doClusterCut", true);
   desc.add<bool>("doZ0Cut", true);
   desc.add<bool>("doPtCut", true);
@@ -196,7 +195,7 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecH
   kernels.buildDoublets(hits_d, stream);
   kernels.launchKernels(hits_d, soa, stream);
 
-  HelixFitOnGPU fitter(bfield, m_params.fit5as4_);
+  HelixFitOnGPU fitter(bfield, m_params.fitNas4_);
   fitter.allocateOnGPU(&(soa->hitIndices), kernels.tupleMultiplicity(), soa);
   if (m_params.useRiemannFit_) {
     fitter.launchRiemannKernels(hits_d.view(), hits_d.nHits(), caConstants::maxNumberOfQuadruplets, stream);
@@ -231,7 +230,7 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DC
     return tracks;
 
   // now fit
-  HelixFitOnGPU fitter(bfield, m_params.fit5as4_);
+  HelixFitOnGPU fitter(bfield, m_params.fitNas4_);
   fitter.allocateOnGPU(&(soa->hitIndices), kernels.tupleMultiplicity(), soa);
 
   if (m_params.useRiemannFit_) {

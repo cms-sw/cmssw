@@ -61,7 +61,7 @@ void HelixFitOnGPU::launchRiemannKernelsOnCPU(HitsView const *hv, uint32_t nhits
                       circle_fit_resultsGPU,
                       offset);
 
-    if (fit5as4_) {
+    if (fitNas4_) {
       // penta
       kernel_FastFit<4>(
           tuples_, tupleMultiplicity_, 5, hv, hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), offset);
