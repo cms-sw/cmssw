@@ -49,7 +49,7 @@ private:
 //---------------------------------------------------------------------------------------
 
 void WriteCTPPSBeamParameters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const auto beamParam = &iSetup.getData(tokenBeamParameters_);
+  const auto& beamParam = iSetup.getData(tokenBeamParameters_);
   // Using "lumiid" as IOV
   const edm::LuminosityBlock& iLBlock = iEvent.getLuminosityBlock();
   edm::LuminosityBlockID lu(iLBlock.run(), iLBlock.id().luminosityBlock());

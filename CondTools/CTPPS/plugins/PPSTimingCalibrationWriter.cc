@@ -38,7 +38,7 @@ private:
 
 void PPSTimingCalibrationWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get timing calibration parameters
-  const auto hTimingCalib = &iSetup.getData(tokenCalibration_);
+  const auto& hTimingCalib = iSetup.getData(tokenCalibration_);
   // store the calibration into a DB object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable())
