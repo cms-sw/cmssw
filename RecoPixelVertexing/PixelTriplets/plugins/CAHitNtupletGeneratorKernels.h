@@ -59,7 +59,7 @@ namespace cAHitNtupletGenerator {
            uint32_t maxNumberOfDoublets,
            uint16_t minHitsForSharingCuts,
            bool useRiemannFit,
-           bool fit5as4,
+           bool fitNas4,
            bool includeJumpingForwardDoublets,
            bool earlyFishbone,
            bool lateFishbone,
@@ -84,7 +84,7 @@ namespace cAHitNtupletGenerator {
           maxNumberOfDoublets_(maxNumberOfDoublets),
           minHitsForSharingCut_(minHitsForSharingCuts),
           useRiemannFit_(useRiemannFit),
-          fit5as4_(fit5as4),
+          fitNas4_(fitNas4),
           includeJumpingForwardDoublets_(includeJumpingForwardDoublets),
           earlyFishbone_(earlyFishbone),
           lateFishbone_(lateFishbone),
@@ -109,7 +109,7 @@ namespace cAHitNtupletGenerator {
     const uint32_t maxNumberOfDoublets_;
     const uint16_t minHitsForSharingCut_;
     const bool useRiemannFit_;
-    const bool fit5as4_;
+    const bool fitNas4_;
     const bool includeJumpingForwardDoublets_;
     const bool earlyFishbone_;
     const bool lateFishbone_;

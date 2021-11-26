@@ -42,7 +42,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
                                                               fast_fit_resultsGPU.get());
     cudaCheck(cudaGetLastError());
 
-    if (fit5as4_) {
+    if (fitNas4_) {
       // fit all as 4
       kernel_BLFastFit<4><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tuples_,
                                                                         tupleMultiplicity_,

@@ -38,7 +38,7 @@ public:
   using Quality = pixelTrack::Quality;
   static constexpr auto bad = pixelTrack::Quality::bad;
 
-  enum class StatusBit : uint16_t { used = 1, killed = 1 << 15 };
+  enum class StatusBit : uint16_t { kUsed = 1, kInTrack = 2, kKilled = 1 << 15 };
 
   GPUCACell() = default;
 
@@ -318,7 +318,7 @@ public:
               hits[nh++] = cells[c].theFishboneId;  // fishbone hit is always outer than inner hit
             }
           }
-          assert(nh < 8);
+          assert(nh < caConstants::maxHitsOnTrack);
           hits[nh] = theOuterHitId;
           auto it = foundNtuplets.bulkFill(apc, hits, nh + 1);
           if (it >= 0) {  // if negative is overflow....
@@ -334,13 +334,13 @@ public:
   }
 
   // Cell status management
-  __device__ __forceinline__ void kill() { theStatus_ |= uint16_t(StatusBit::killed); }
-  __device__ __forceinline__ bool isKilled() const { return theStatus_ & uint16_t(StatusBit::killed); }
+  __device__ __forceinline__ void kill() { theStatus_ |= uint16_t(StatusBit::kKilled); }
+  __device__ __forceinline__ bool isKilled() const { return theStatus_ & uint16_t(StatusBit::kKilled); }
 
   __device__ __forceinline__ int16_t layerPairId() const { return theLayerPairId_; }
 
   __device__ __forceinline__ bool unused() const { return 0 == (3 & theStatus_); }
-  __device__ __forceinline__ void setUsedBit(uint16_t mask) { theStatus_ |= mask; }
+  __device__ __forceinline__ void setStatusBits(StatusBit mask) { theStatus_ |= uint16_t(mask); }
 
   __device__ __forceinline__ void setFishbone(hindex_type id) { theFishboneId = id; }
   __device__ __forceinline__ auto fishboneId() const { return theFishboneId; }

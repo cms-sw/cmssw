@@ -24,7 +24,6 @@ namespace math {
       for (int i = 0; i < N; ++i) {
         a[i][i] = src(i, i);
         for (int j = i + 1; j < N; ++j)
-          // a[i][j] =
           a[j][i] = src(i, j);
       }
 
