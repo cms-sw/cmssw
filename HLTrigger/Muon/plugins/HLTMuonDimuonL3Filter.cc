@@ -90,30 +90,24 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig)
       L1MatchingdR_(iConfig.getParameter<double>("L1MatchingdR")),
       matchPreviousCand_(iConfig.getParameter<bool>("MatchToPreviousCand")),
       MuMass2_(0.106 * 0.106) {
-  // Configure module in a way that it exits cmsRun as soon as
-  // it encounters an issue that makes it useless.
-  // It should be done at construction so the problem is instantly figure.
-  // Else it may not found it tests and we figure out later that it kills cmsRun.
+  // check consistency of parameters for mass-window cuts
   if (min_InvMass_.size() != min_PtPair_.size()) {
-    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
+    throw cms::Exception("Configuration") << "size of \"MinInvMass\" (" << min_InvMass_.size() << ") and \"MinPtPair\" (" << min_PtPair_.size() << ") differ";
   }
   if (min_InvMass_.size() != max_PtPair_.size()) {
-    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
+    throw cms::Exception("Configuration") << "size of \"MinInvMass\" (" << min_InvMass_.size() << ") and \"MaxPtPair\" (" << max_PtPair_.size() << ") differ";
   }
   if (min_InvMass_.size() != min_PtMax_.size()) {
-    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
+    throw cms::Exception("Configuration") << "size of \"MinInvMass\" (" << min_InvMass_.size() << ") and \"MinPtMax\" (" << min_PtMax_.size() << ") differ";
   }
   if (min_InvMass_.size() != min_PtMin_.size()) {
-    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
+    throw cms::Exception("Configuration") << "size of \"MinInvMass\" (" << min_InvMass_.size() << ") and \"MinPtMin\" (" << min_PtMin_.size() << ") differ";
   }
   if (min_InvMass_.size() != max_PtMin_.size()) {
-    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
+    throw cms::Exception("Configuration") << "size of \"MinInvMass\" (" << min_InvMass_.size() << ") and \"MaxPtMin\" (" << max_PtMin_.size() << ") differ";
   }
   if (min_InvMass_.size() != max_InvMass_.size()) {
-    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
-  }
-  if (min_InvMass_.size() != invertDiMuonMassSelection_.size()) {
-    throw cms::Exception("InvalidConfig") << "ERROR!!! Vector sizes don't match!\n";
+    throw cms::Exception("Configuration") << "size of \"MinInvMass\" (" << min_InvMass_.size() << ") and \"MaxInvMass\" (" << max_InvMass_.size() << ") differ";
   }
 
   LogDebug("HLTMuonDimuonL3Filter") << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/"
