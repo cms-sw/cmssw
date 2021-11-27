@@ -339,7 +339,7 @@ public:
 
   __device__ __forceinline__ int16_t layerPairId() const { return theLayerPairId_; }
 
-  __device__ __forceinline__ bool unused() const { return 0 == (3 & theStatus_); }
+  __device__ __forceinline__ bool unused() const { return 0 == (uint16_t(StatusBit::kUsed) & theStatus_); }
   __device__ __forceinline__ void setStatusBits(StatusBit mask) { theStatus_ |= uint16_t(mask); }
 
   __device__ __forceinline__ void setFishbone(hindex_type id) { theFishboneId = id; }
