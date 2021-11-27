@@ -14,25 +14,13 @@
 <use name="SimDataFormats/Vertex"/>
 <use name="TrackingTools/PatternTools"/>
 <use name="root"/>
-<library file="TrackAnalyzer.cc" name="TrackAnalyzer">
-  <flags EDM_PLUGIN="1"/>
-</library>
 
-<library file="TrackValidator.cc" name="TrackValidator">
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library file="TrajectoryAnalyzer.cc" name="TrajectoryAnalyzer">
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library file="FakeCPEFiller.cc" name="FakeCPEFiller">
-  <use name="SimTracker/TrackerHitAssociation"/>
+<library file="ProbQXYAna.cc" name="ProbQXYAna">
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <environment>
-  <bin file="testMuonTrackRefitting.cpp">
-    <flags TEST_RUNNER_ARGS="/bin/bash RecoTracker/TrackProducer/test testMuonTrackRefitting.sh"/>
+  <bin file="testDeDxScripts.cpp">
+    <flags TEST_RUNNER_ARGS="/bin/bash RecoTracker/DeDx/test testProbQXY.sh"/>
   </bin>
 </environment>

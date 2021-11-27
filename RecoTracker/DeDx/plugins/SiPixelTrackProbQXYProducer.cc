@@ -102,12 +102,10 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
 
       // Have a separate variable that excludes Layer 1
       // Layer 1 was very noisy in 2017/2018
-      float probQNoLayer1 = 0;
-      float probXYNoLayer1 = 0;
       if (pixhit->geographicalId().subdetId() == PixelSubdetector::PixelBarrel &&
           tTopo->pxbLayer(pixhit->geographicalId()) != 1) {
-        probQNoLayer1 = pixhit->probabilityQ();
-        probXYNoLayer1 = pixhit->probabilityXY();
+        float probQNoLayer1 = pixhit->probabilityQ();
+        float probXYNoLayer1 = pixhit->probabilityXY();
         if (probQNoLayer1 != 0) {  // only save the non-zero rechits
           numRecHitsNoLayer1++;
           // Calculate alpha term needed for the combination
