@@ -192,7 +192,7 @@ std::unique_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(co
           if (!found) {
             float lorentzangle = (float)it.getParameter<double>("angle");
             obj->putLorentzAngle(detid.rawId(), lorentzangle);
-	    edm::LogInfo("SiPixelFakeLorentzAngleESSource") << " LA= " << lorentzangle << std::endl;
+            edm::LogInfo("SiPixelFakeLorentzAngleESSource") << " LA= " << lorentzangle << std::endl;
             found = 2;
           } else if (found == 1) {
             edm::LogWarning("SiPixelFakeLorentzAngleESSource")
@@ -228,8 +228,8 @@ int SiPixelFakeLorentzAngleESSource::HVgroup(int panel, int module) {
     return 2;
   } else {
     edm::LogError("SiPixelFakeLorentzAngleESSource")
-        << " ERROR! in SiPixelFakeLorentzAngleESSource::HVgroup(...), panel = " << panel
-        << ", module = " << module << std::endl;
+        << " ERROR! in SiPixelFakeLorentzAngleESSource::HVgroup(...), panel = " << panel << ", module = " << module
+        << std::endl;
     return 0;
   }
 }
