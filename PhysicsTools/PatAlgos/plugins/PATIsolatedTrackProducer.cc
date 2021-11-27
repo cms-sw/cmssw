@@ -383,13 +383,13 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     int trackQuality = gentk.qualityMask();
 
     // get combined probQ and probXY
-    float probQonTrack = 0, probXYonTrack = 0, probQonTrackNoL1 = 0, probXYonTrackNoL1 = 0;
+    float probQonTrack = 0, probXYonTrack = 0, probQonTrackNoLayer1 = 0, probXYonTrackNoLayer1 = 0;
     if (gt2siPixelTrackProbQXY.isValid() && gt2siPixelTrackProbQXY->contains(tkref.id())) {
       const reco::SiPixelTrackProbQXY* siPixelTrackProbQXY = (*gt2siPixelTrackProbQXY)[tkref].get();
       probQonTrack = siPixelTrackProbQXY->probQonTrack();
       probXYonTrack = siPixelTrackProbQXY->probXYonTrack();
-      probQonTrackNoL1 = siPixelTrackProbQXY->probQonTrackNoL1();
-      probXYonTrackNoL1 = siPixelTrackProbQXY->probXYonTrackNoL1();
+      probQonTrackNoLayer1 = siPixelTrackProbQXY->probQonTrackNoLayer1();
+      probXYonTrackNoLayer1 = siPixelTrackProbQXY->probXYonTrackNoLayer1();
     }
 
     // get the associated ecal/hcal detectors
@@ -434,8 +434,8 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
                                           dEdxPixel,
                                           probQonTrack,
                                           probXYonTrack,
-                                          probQonTrackNoL1,
-                                          probXYonTrackNoL1,
+                                          probQonTrackNoLayer1,
+                                          probXYonTrackNoLayer1,
                                           fromPV,
                                           trackQuality,
                                           crossedEcalStatus,
@@ -528,7 +528,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     // fill with default values
     reco::HitPattern hp;
     float dEdxPixel = -1, dEdxStrip = -1;
-    float probQonTrack = 0, probXYonTrack = 0, probQonTrackNoL1 = 0, probXYonTrackNoL1 = 0;
+    float probQonTrack = 0, probXYonTrack = 0, probQonTrackNoLayer1 = 0, probXYonTrackNoLayer1 = 0;
     int trackQuality = 0;
     std::vector<uint16_t> ecalStatus;
     std::vector<uint32_t> hcalStatus;
@@ -553,8 +553,8 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
                                           dEdxPixel,
                                           probQonTrack,
                                           probXYonTrack,
-                                          probQonTrackNoL1,
-                                          probXYonTrackNoL1,
+                                          probQonTrackNoLayer1,
+                                          probXYonTrackNoLayer1,
                                           fromPV,
                                           trackQuality,
                                           ecalStatus,

@@ -13,11 +13,11 @@ namespace reco {
   public:
     SiPixelTrackProbQXY() {}
 
-    SiPixelTrackProbQXY(float probQonTrack, float probXYonTrack, float probQonTrackNoL1, float probXYonTrackNoL1)
+    SiPixelTrackProbQXY(float probQonTrack, float probXYonTrack, float probQonTrackNoLayer1, float probXYonTrackNoLayer1)
         : probQonTrack_(probQonTrack),
           probXYonTrack_(probXYonTrack),
-          probQonTrackNoL1_(probQonTrackNoL1),
-          probXYonTrackNoL1_(probXYonTrackNoL1) {}
+          probQonTrackNoLayer1_(probQonTrackNoLayer1),
+          probXYonTrackNoLayer1_(probXYonTrackNoLayer1) {}
 
     // Return the combined charge probabilities for tracks that go through the SiPixel detector
     float probQonTrack() const { return probQonTrack_; }
@@ -27,17 +27,17 @@ namespace reco {
 
     // Return the combined charge probabilities for tracks that go through the SiPixel detector
     // This version now excludes layer 1 which was known to be noisy for 2017/2018
-    float probQonTrackNoL1() const { return probQonTrackNoL1_; }
+    float probQonTrackNoLayer1() const { return probQonTrackNoLayer1_; }
 
     // Return the combined shape probabilities for tracks that go through the SiPixel detector
     // This version now excludes layer 1 which was known to be noisy for 2017/2018
-    float probXYonTrackNoL1() const { return probXYonTrackNoL1_; }
+    float probXYonTrackNoLayer1() const { return probXYonTrackNoLayer1_; }
 
   private:
     float probQonTrack_;
     float probXYonTrack_;
-    float probQonTrackNoL1_;
-    float probXYonTrackNoL1_;
+    float probQonTrackNoLayer1_;
+    float probXYonTrackNoLayer1_;
   };
 
   typedef std::vector<SiPixelTrackProbQXY> SiPixelTrackProbQXYCollection;

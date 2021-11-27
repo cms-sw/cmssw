@@ -38,8 +38,8 @@ namespace pat {
           dEdxPixel_(0),
           probQonTrack_(0),
           probXYonTrack_(0),
-          probQonTrackNoL1_(0),
-          probXYonTrackNoL1_(0),
+          probQonTrackNoLayer1_(0),
+          probXYonTrackNoLayer1_(0),
           hitPattern_(reco::HitPattern()),
           crossedEcalStatus_(std::vector<uint16_t>()),
           crossedHcalStatus_(std::vector<uint32_t>()),
@@ -67,8 +67,8 @@ namespace pat {
                            float dEdxP,
                            float probQonTrack,
                            float probXYonTrack,
-                           float probQonTrackNoL1,
-                           float probXYonTrackNoL1,
+                           float probQonTrackNoLayer1,
+                           float probXYonTrackNoLayer1,
                            int fromPV,
                            int tkQual,
                            const std::vector<uint16_t>& ecalst,
@@ -95,8 +95,8 @@ namespace pat {
           dEdxPixel_(dEdxP),
           probQonTrack_(probQonTrack),
           probXYonTrack_(probXYonTrack),
-          probQonTrackNoL1_(probQonTrackNoL1),
-          probXYonTrackNoL1_(probXYonTrackNoL1),
+          probQonTrackNoLayer1_(probQonTrackNoLayer1),
+          probXYonTrackNoLayer1_(probXYonTrackNoLayer1),
           hitPattern_(hp),
           crossedEcalStatus_(ecalst),
           crossedHcalStatus_(hcalst),
@@ -137,8 +137,8 @@ namespace pat {
     float dEdxPixel() const { return dEdxPixel_; }
     float probQonTrack() const { return probQonTrack_; }
     float probXYonTrack() const { return probXYonTrack_; }
-    float probQonTrackNoL1() const { return probQonTrackNoL1_; }
-    float probXYonTrackNoL1() const { return probXYonTrackNoL1_; }
+    float probQonTrackNoLayer1() const { return probQonTrackNoLayer1_; }
+    float probXYonTrackNoLayer1() const { return probXYonTrackNoLayer1_; }
 
     //! just the status code part of an EcalChannelStatusCode for all crossed Ecal cells
     const std::vector<uint16_t>& crossedEcalStatus() const { return crossedEcalStatus_; }
@@ -165,7 +165,7 @@ namespace pat {
     int fromPV_;  //only stored for packedPFCandidates
     int trackQuality_;
     float dEdxStrip_, dEdxPixel_;  //in MeV/mm
-    float probQonTrack_, probXYonTrack_, probQonTrackNoL1_, probXYonTrackNoL1_;
+    float probQonTrack_, probXYonTrack_, probQonTrackNoLayer1_, probXYonTrackNoLayer1_;
 
     reco::HitPattern hitPattern_;
 

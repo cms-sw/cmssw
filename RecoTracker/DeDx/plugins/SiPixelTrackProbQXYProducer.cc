@@ -26,10 +26,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
-//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -54,18 +51,19 @@ private:
   int factorial(int);
 
   // ----------member data ---------------------------
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
-  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
 };
 
 using namespace reco;
 using namespace std;
 using namespace edm;
 
-SiPixelTrackProbQXYProducer::SiPixelTrackProbQXYProducer(const edm::ParameterSet& iConfig) : tTopoToken_(esConsumes()) {
+SiPixelTrackProbQXYProducer::SiPixelTrackProbQXYProducer(const edm::ParameterSet& iConfig)
+    : tTopoToken_(esConsumes()),
+      trackToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))) {
   produces<reco::SiPixelTrackProbQXYCollection>();
   produces<reco::SiPixelTrackProbQXYAssociation>();
-  trackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
 }
 
 void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -74,8 +72,8 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
   const TrackCollection& trackCollection(*trackCollectionHandle.product());
   float probQonTrack = 0.0;
   float probXYonTrack = 0.0;
-  float probQonTrackNoL1 = 0.0;
-  float probXYonTrackNoL1 = 0.0;
+  float probQonTrackNoLayer1 = 0.0;
+  float probXYonTrackNoLayer1 = 0.0;
   // creates the output collection
   auto resultSiPixelTrackProbQXYColl = std::make_unique<reco::SiPixelTrackProbQXYCollection>();
   std::vector<int> indices;
@@ -85,11 +83,11 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
     const reco::Track& track = trackCollection[j];
 
     int numRecHits = 0;
-    int numRecHitsNoL1 = 0;
+    int numRecHitsNoLayer1 = 0;
     float probQonTrackWMulti = 1;
     float probXYonTrackWMulti = 1;
-    float probQonTrackWMultiNoL1 = 1;
-    float probXYonTrackWMultiNoL1 = 1;
+    float probQonTrackWMultiNoLayer1 = 1;
+    float probXYonTrackWMultiNoLayer1 = 1;
 
     // Loop through the rechits on the given track
     auto hb = track.recHitsBegin();
@@ -108,16 +106,16 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
 
       // Have a separate variable that excludes Layer 1
       // Layer 1 was very noisy in 2017/2018
-      float probQNoL1 = 0;
-      float probXYNoL1 = 0;
+      float probQNoLayer1 = 0;
+      float probXYNoLayer1 = 0;
       if (tTopo->pxbLayer(pixhit->geographicalId()) != 1) {
-        probQNoL1 = pixhit->probabilityQ();
-        probXYNoL1 = pixhit->probabilityXY();
-        if (probQNoL1 != 0) {  // only save the non-zero rechits
-          numRecHitsNoL1++;
+        probQNoLayer1 = pixhit->probabilityQ();
+        probXYNoLayer1 = pixhit->probabilityXY();
+        if (probQNoLayer1 != 0) {  // only save the non-zero rechits
+          numRecHitsNoLayer1++;
           // Calculate alpha term needed for the combination
-          probQonTrackWMultiNoL1 *= probQNoL1;
-          probXYonTrackWMultiNoL1 *= probXYNoL1;
+          probQonTrackWMultiNoLayer1 *= probQNoLayer1;
+          probXYonTrackWMultiNoLayer1 *= probXYNoLayer1;
         }
       }
 
@@ -152,20 +150,20 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
     probXYonTrack = probXYonTrackWMulti * probXYonTrackTerm;
 
     // Repeat the above excluding Layer 1
-    float logprobQonTrackWMultiNoL1 = probQonTrackWMultiNoL1 > 0 ? log(probQonTrackWMultiNoL1) : 0;
-    float logprobXYonTrackWMultiNoL1 = probXYonTrackWMultiNoL1 > 0 ? log(probXYonTrackWMultiNoL1) : 0;
-    float probQonTrackTermNoL1 = 0;
-    float probXYonTrackTermNoL1 = 0;
-    for (int iTkRh = 0; iTkRh < numRecHitsNoL1; ++iTkRh) {
-      probQonTrackTermNoL1 += ((pow(-logprobQonTrackWMultiNoL1, iTkRh)) / (factorial(iTkRh)));
-      probXYonTrackTermNoL1 += ((pow(-logprobXYonTrackWMultiNoL1, iTkRh)) / (factorial(iTkRh)));
+    float logprobQonTrackWMultiNoLayer1 = probQonTrackWMultiNoLayer1 > 0 ? log(probQonTrackWMultiNoLayer1) : 0;
+    float logprobXYonTrackWMultiNoLayer1 = probXYonTrackWMultiNoLayer1 > 0 ? log(probXYonTrackWMultiNoLayer1) : 0;
+    float probQonTrackTermNoLayer1 = 0;
+    float probXYonTrackTermNoLayer1 = 0;
+    for (int iTkRh = 0; iTkRh < numRecHitsNoLayer1; ++iTkRh) {
+      probQonTrackTermNoLayer1 += ((pow(-logprobQonTrackWMultiNoLayer1, iTkRh)) / (factorial(iTkRh)));
+      probXYonTrackTermNoLayer1 += ((pow(-logprobXYonTrackWMultiNoLayer1, iTkRh)) / (factorial(iTkRh)));
     }
 
-    probQonTrackNoL1 = probQonTrackWMultiNoL1 * probQonTrackTermNoL1;
-    probXYonTrackNoL1 = probXYonTrackWMultiNoL1 * probXYonTrackTermNoL1;
+    probQonTrackNoLayer1 = probQonTrackWMultiNoLayer1 * probQonTrackTermNoLayer1;
+    probXYonTrackNoLayer1 = probXYonTrackWMultiNoLayer1 * probXYonTrackTermNoLayer1;
 
     reco::SiPixelTrackProbQXY siPixelTrackProbQXY =
-        SiPixelTrackProbQXY(probQonTrack, probXYonTrack, probQonTrackNoL1, probXYonTrackNoL1);
+        SiPixelTrackProbQXY(probQonTrack, probXYonTrack, probQonTrackNoLayer1, probXYonTrackNoLayer1);
     indices.push_back(resultSiPixelTrackProbQXYColl->size());
     resultSiPixelTrackProbQXYColl->push_back(siPixelTrackProbQXY);
   }  // end loop on track collection
