@@ -18,7 +18,7 @@
 #include <cmath>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -41,14 +41,14 @@
 // class declaration
 //
 
-class SiPixelTrackProbQXYProducer : public edm::stream::EDProducer<> {
+class SiPixelTrackProbQXYProducer : public edm::global::EDProducer<> {
 public:
   explicit SiPixelTrackProbQXYProducer(const edm::ParameterSet&);
   ~SiPixelTrackProbQXYProducer() override = default;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  int factorial(int);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  int factorial(int) const;
 
   // ----------member data ---------------------------
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
@@ -66,7 +66,7 @@ SiPixelTrackProbQXYProducer::SiPixelTrackProbQXYProducer(const edm::ParameterSet
   produces<reco::SiPixelTrackProbQXYAssociation>();
 }
 
-void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByToken(trackToken_, trackCollectionHandle);
   const TrackCollection& trackCollection(*trackCollectionHandle.product());
@@ -79,9 +79,7 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
   std::vector<int> indices;
 
   // Loop through the tracks
-  for (unsigned int j = 0; j < trackCollection.size(); j++) {
-    const reco::Track& track = trackCollection[j];
-
+  for (const auto& track : trackCollection) {
     int numRecHits = 0;
     int numRecHitsNoLayer1 = 0;
     float probQonTrackWMulti = 1;
@@ -90,10 +88,8 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
     float probXYonTrackWMultiNoLayer1 = 1;
 
     // Loop through the rechits on the given track
-    auto hb = track.recHitsBegin();
-    for (unsigned int h = 0; h < track.recHitsSize(); h++) {
-      auto recHit = *(hb + h);
-      const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(recHit);
+    for (auto const& hit : track.recHits()) {
+      const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit);
       if (pixhit == nullptr)
         continue;
       if (!pixhit->isValid())
@@ -108,7 +104,8 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
       // Layer 1 was very noisy in 2017/2018
       float probQNoLayer1 = 0;
       float probXYNoLayer1 = 0;
-      if (tTopo->pxbLayer(pixhit->geographicalId()) != 1) {
+      if (pixhit->geographicalId().subdetId() == PixelSubdetector::PixelBarrel &&
+          tTopo->pxbLayer(pixhit->geographicalId()) != 1) {
         probQNoLayer1 = pixhit->probabilityQ();
         probXYNoLayer1 = pixhit->probabilityXY();
         if (probQNoLayer1 != 0) {  // only save the non-zero rechits
@@ -120,10 +117,8 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
       }
 
       // Have a variable that includes all layers and disks
-      float probQ = 0;
-      float probXY = 0;
-      probQ = pixhit->probabilityQ();
-      probXY = pixhit->probabilityXY();
+      float probQ = pixhit->probabilityQ();
+      float probXY = pixhit->probabilityXY();
 
       if (probQ == 0) {
         continue;  // if any of the rechits have zero probQ, skip them
@@ -179,7 +174,7 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
   iEvent.put(std::move(trackProbQXYMatch));
 }
 
-int SiPixelTrackProbQXYProducer::factorial(int n) { return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n; }
+int SiPixelTrackProbQXYProducer::factorial(int n) const { return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n; }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelTrackProbQXYProducer);
