@@ -109,12 +109,9 @@ public:
     //------------------------------------------------------
     //
     inline void setProbabilityXY(float prob, QualWordType& qualWord) const {
-      if (prob < 0.0f) {
-        warningOutOfBoundProb("XY", prob, qualWord);
-        prob = 0;
-      } else if (prob > 1.0f && prob < 1.0f + std::numeric_limits<float>::epsilon()) {
+      if (prob > 1.0f && prob <= 1.0f + std::numeric_limits<float>::epsilon()) {
         prob = 1;
-      } else if (prob > 1.0f + std::numeric_limits<float>::epsilon()) {
+      } else if (prob < 0.0f || prob > 1.0f + std::numeric_limits<float>::epsilon()) {
         warningOutOfBoundProb("XY", prob, qualWord);
         prob = 0;
       }
@@ -124,12 +121,9 @@ public:
       qualWord |= ((raw & probX_mask) << probX_shift);
     }
     inline void setProbabilityQ(float prob, QualWordType& qualWord) const {
-      if (prob < 0.0f) {
-        warningOutOfBoundProb("Q", prob, qualWord);
-        prob = 0;
-      } else if (prob > 1.0f && prob < 1.0f + std::numeric_limits<float>::epsilon()) {
+      if (prob > 1.0f && prob <= 1.0f + std::numeric_limits<float>::epsilon()) {
         prob = 1;
-      } else if (prob > 1.0f + std::numeric_limits<float>::epsilon()) {
+      } else if (prob < 0.0f || prob > 1.0f + std::numeric_limits<float>::epsilon()) {
         warningOutOfBoundProb("Q", prob, qualWord);
         prob = 0;
       }
