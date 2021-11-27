@@ -355,8 +355,8 @@ std::vector<float> DTOccupancyTestML::interpolateLayers(std::vector<float> const
   float step = static_cast<float>(size) / targetSize;
   std::vector<float> reshapedInput(targetSize);
 
-  int limitInLoop=inputs.size();
-  limitInLoop = std::min(limitInLoop,targetSize)-1;
+  int limitInLoop = inputs.size();
+  limitInLoop = std::min(limitInLoop, targetSize) - 1;
   for (int i = 0; i < limitInLoop; i++) {
     interpolationFloor = static_cast<int>(std::floor(interpolationPoint));
     // Interpolating here
