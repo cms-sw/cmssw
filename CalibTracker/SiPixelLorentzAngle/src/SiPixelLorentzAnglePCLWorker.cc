@@ -379,7 +379,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           const PixelTopology* topol = &(theGeomDet->specificTopology());
 
           float ypitch_ = topol->pitch().second;
-          float width_ = 0.0285;
+          float width_ = theGeomDet->surface().bounds().thickness();
 
           if (!topol)
             continue;
