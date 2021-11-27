@@ -98,7 +98,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
   }
 
   // Run Mahi
-  float m4E = 0.f, m4chi2 = -1.f;
+  float m4E = 0.f, m4ESOIPlusOne = 0.f, m4chi2 = -1.f;
   float m4T = 0.f;
   bool m4UseTriple = false;
 
@@ -107,8 +107,9 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
   if (mahi) {
     mahiOOTpuCorr_->setPulseShapeTemplate(
         info.recoShape(), theHcalPulseShapes_, info.hasTimeInfo(), hcalTimeSlew_delay_, info.nSamples());
-    mahi->phase1Apply(info, m4E, m4T, m4UseTriple, m4chi2);
+    mahi->phase1Apply(info, m4E, m4ESOIPlusOne, m4T, m4UseTriple, m4chi2);
     m4E *= hbminusCorrectionFactor(channelId, m4E, isData);
+    m4ESOIPlusOne *= hbminusCorrectionFactor(channelId, m4ESOIPlusOne, isData);
   }
 
   // Finally, construct the rechit
@@ -134,7 +135,11 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     tdcTime += timeShift_;
   rh = HBHERecHit(channelId, rhE, rht, tdcTime);
   rh.setRawEnergy(m0E);
-  rh.setAuxEnergy(m3E);
+  if (method3) {
+    rh.setAuxEnergy(m3E);
+  } else {
+    rh.setAuxEnergy(m4ESOIPlusOne);
+  }
   rh.setChiSquared(rhX);
 
   // Set rechit aux words
