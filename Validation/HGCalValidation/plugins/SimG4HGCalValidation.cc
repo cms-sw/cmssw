@@ -48,15 +48,14 @@
 #include <vector>
 #include <string>
 
-class SimG4HGCalValidation : public SimProducer,
-                             public Observer<const BeginOfJob*>,
-                             public Observer<const BeginOfEvent*>,
-                             public Observer<const G4Step*> {
+class SimG4HGCalValidation : public SimProducer, public Observer<const BeginOfEvent*>, public Observer<const G4Step*> {
 public:
   SimG4HGCalValidation(const edm::ParameterSet& p);
   ~SimG4HGCalValidation() override;
 
+  void registerConsumes(edm::ConsumesCollector) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::EventSetup const&) override;
 
 private:
   SimG4HGCalValidation(const SimG4HGCalValidation&);  // stop default
@@ -65,7 +64,6 @@ private:
   void init();
 
   // observer classes
-  void update(const BeginOfJob* job) override;
   void update(const BeginOfEvent* evt) override;
   void update(const G4Step* step) override;
 
@@ -75,6 +73,7 @@ private:
 
 private:
   //HGCal numbering scheme
+  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> > ddconsToken_;
   std::vector<HGCNumberingScheme*> hgcNumbering_;
   std::vector<HGCalNumberingScheme*> hgcalNumbering_;
 
@@ -82,6 +81,7 @@ private:
   std::vector<std::string> names_;
   std::vector<int> types_, detTypes_, subdet_;
   std::string labelLayer_;
+  std::vector<std::string> nameXs_;
 
   // parameters from geometry
   int levelT1_, levelT2_;
@@ -123,16 +123,8 @@ SimG4HGCalValidation::~SimG4HGCalValidation() {
     delete number;
 }
 
-void SimG4HGCalValidation::produce(edm::Event& e, const edm::EventSetup&) {
-  std::unique_ptr<PHGCalValidInfo> productLayer(new PHGCalValidInfo);
-  layerAnalysis(*productLayer);
-  e.put(std::move(productLayer), labelLayer_);
-}
-
-void SimG4HGCalValidation::update(const BeginOfJob* job) {
-  const edm::EventSetup* es = (*job)();
+void SimG4HGCalValidation::registerConsumes(edm::ConsumesCollector cc) {
   for (unsigned int type = 0; type < types_.size(); ++type) {
-    int layers(0);
     int detType = detTypes_[type];
     G4String nameX = "HGCal";
     if (types_[type] <= 1) {
@@ -145,7 +137,7 @@ void SimG4HGCalValidation::update(const BeginOfJob* job) {
         else
           dets_.emplace_back((int)(DetId::HGCalHSc));
       } else {
-        dets_.push_back((unsigned int)(DetId::Forward));
+        dets_.emplace_back((unsigned int)(DetId::Forward));
         if (detType == 0)
           subdet_.emplace_back((int)(ForwardSubdetector::HGCEE));
         else if (detType == 1)
@@ -159,42 +151,59 @@ void SimG4HGCalValidation::update(const BeginOfJob* job) {
         nameX = "HGCalHESiliconSensitive";
       else
         nameX = "HGCalHEScintillatorSensitive";
-      edm::ESHandle<HGCalDDDConstants> hdc;
-      es->get<IdealGeometryRecord>().get(nameX, hdc);
-      if (hdc.isValid()) {
-        levelT1_ = hdc->levelTop(0);
-        levelT2_ = hdc->levelTop(1);
-        if (hdc->tileTrapezoid()) {
-          types_[type] = -1;
-          hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameX));
-        } else if (hdc->waferHexagon6()) {
-          types_[type] = 1;
-          hgcNumbering_.push_back(new HGCNumberingScheme(*hdc, nameX));
-        } else {
-          types_[type] = 0;
-          hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameX));
-        }
-        layers = hdc->layers(false);
-      } else {
-        edm::LogError("ValidHGCal") << "Cannot find HGCalDDDConstants for " << nameX;
-        throw cms::Exception("Unknown", "ValidHGCal") << "Cannot find HGCalDDDConstants for " << nameX << "\n";
-      }
+      nameXs_.emplace_back(nameX);
+      ddconsToken_.emplace_back(
+          cc.esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameX}));
+      edm::LogVerbatim("ValidHGCal") << "Defines ESGetToken for type " << type << ":" << dets_.back() << ":"
+                                     << subdet_.back() << ":" << nameX;
     } else {
       edm::LogError("ValidHGCal") << "Wrong Type " << types_[type];
       throw cms::Exception("Unknown", "ValidHGCal") << "Wrong Type " << types_[type] << "\n";
     }
+  }
+}
+
+void SimG4HGCalValidation::produce(edm::Event& e, const edm::EventSetup&) {
+  std::unique_ptr<PHGCalValidInfo> productLayer(new PHGCalValidInfo);
+  layerAnalysis(*productLayer);
+  e.put(std::move(productLayer), labelLayer_);
+}
+
+void SimG4HGCalValidation::beginRun(edm::EventSetup const& es) {
+  for (unsigned int type = 0; type < types_.size(); ++type) {
+    int layers(0);
+    int detType = detTypes_[type];
+    edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(ddconsToken_[type]);
+    if (hdc.isValid()) {
+      levelT1_ = hdc->levelTop(0);
+      levelT2_ = hdc->levelTop(1);
+      if (hdc->tileTrapezoid()) {
+        types_[type] = -1;
+        hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameXs_[type]));
+      } else if (hdc->waferHexagon6()) {
+        types_[type] = 1;
+        hgcNumbering_.emplace_back(new HGCNumberingScheme(*hdc, nameXs_[type]));
+      } else {
+        types_[type] = 0;
+        hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameXs_[type]));
+      }
+      layers = hdc->layers(false);
+    } else {
+      edm::LogError("ValidHGCal") << "Cannot find HGCalDDDConstants for " << nameXs_[type];
+      throw cms::Exception("Unknown", "ValidHGCal") << "Cannot find HGCalDDDConstants for " << nameXs_[type] << "\n";
+    }
     if (detType == 0) {
       for (int i = 0; i < layers; ++i)
-        hgcEEedep_.push_back(0);
+        hgcEEedep_.emplace_back(0);
     } else if (detType == 1) {
       for (int i = 0; i < layers; ++i)
-        hgcHEFedep_.push_back(0);
+        hgcHEFedep_.emplace_back(0);
     } else {
       for (int i = 0; i < layers; ++i)
-        hgcHEBedep_.push_back(0);
+        hgcHEBedep_.emplace_back(0);
     }
     if (verbosity_ > 0)
-      edm::LogVerbatim("ValidHGCal") << "[" << type << "]: " << nameX << " det " << dets_[type] << " subdet "
+      edm::LogVerbatim("ValidHGCal") << "[" << type << "]: " << nameXs_[type] << " det " << dets_[type] << " subdet "
                                      << subdet_[type] << " with " << layers << " layers";
   }
 }
@@ -305,11 +314,11 @@ void SimG4HGCalValidation::update(const G4Step* aStep) {
 
         if (nextVolume.c_str() != name.c_str()) {  //save hit when it exits cell
           if (std::find(hgchitIndex_.begin(), hgchitIndex_.end(), index) == hgchitIndex_.end()) {
-            hgchitDets_.push_back(dets_[type]);
-            hgchitIndex_.push_back(index);
-            hgchitX_.push_back(hitPoint.x());
-            hgchitY_.push_back(hitPoint.y());
-            hgchitZ_.push_back(hitPoint.z());
+            hgchitDets_.emplace_back(dets_[type]);
+            hgchitIndex_.emplace_back(index);
+            hgchitX_.emplace_back(hitPoint.x());
+            hgchitY_.emplace_back(hitPoint.y());
+            hgchitZ_.emplace_back(hitPoint.z());
           }
         }
       }  // it is right type of SD
