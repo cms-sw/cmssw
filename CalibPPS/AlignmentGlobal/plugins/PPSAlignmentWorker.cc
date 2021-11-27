@@ -111,8 +111,8 @@ PPSAlignmentWorker::PPSAlignmentWorker(const edm::ParameterSet& iConfig)
       tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagTracks"))),
       dqmDir_(iConfig.getParameter<std::string>("dqm_dir")),
       debug_(iConfig.getParameter<bool>("debug")) {
-  edm::LogInfo("PPS").log([&](auto& li) {
-    li << "[worker] parameters:\n";
+  edm::LogInfo("PPSAlignmentWorker").log([&](auto& li) {
+    li << "parameters:\n";
     li << "* label: " << iConfig.getParameter<std::string>("label") << "\n";
     li << "* tagTracks: " << iConfig.getParameter<edm::InputTag>("tagTracks") << "\n";
     li << "* dqm_dir: " << dqmDir_ << "\n";
