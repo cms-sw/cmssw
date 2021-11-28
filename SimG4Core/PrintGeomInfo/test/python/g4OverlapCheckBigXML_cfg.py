@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process('SIM',Run3)
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+process = cms.Process('SIM',Run3_DDD)
 process.load('SimG4Core.PrintGeomInfo.cmsExtendedGeometry2021_cfi')
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
