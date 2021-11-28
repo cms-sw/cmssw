@@ -84,13 +84,13 @@ private:
   edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> ddconsToken_;
 
   // Keep parameters to instantiate Jet finder later
-  SimG4HcalHitJetFinder *jetf;
+  std::unique_ptr<SimG4HcalHitJetFinder> jetf;
 
   // Keep reference to instantiate HcalNumberingFromDDD later
-  HcalNumberingFromDDD *numberingFromDDD;
+  std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD;
 
   // Keep parameters to instantiate HcalTestNumberingScheme later
-  HcalTestNumberingScheme *org;
+  std::unique_ptr<HcalTestNumberingScheme> org;
 
   // Hit cache for cluster analysis
   std::vector<CaloHit> hitcache;  // e, eta, phi, time, layer, calo type
@@ -120,8 +120,7 @@ private:
   double vhitec, vhithc, enEcal, enHcal;
 };
 
-SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p)
-    : jetf(nullptr), numberingFromDDD(nullptr), org(nullptr) {
+SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p) {
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("SimG4HcalValidation");
   infolevel = m_Anal.getParameter<int>("InfoLevel");
   hcalOnly = m_Anal.getParameter<bool>("HcalClusterOnly");
@@ -159,18 +158,7 @@ SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p)
 
 SimG4HcalValidation::~SimG4HcalValidation() {
   edm::LogVerbatim("ValidHcal") << "\n -------->  Total number of selected entries"
-                                << " : " << count << "\nPointers:: JettFinder " << jetf << ", Numbering Scheme " << org
-                                << " and FromDDD " << numberingFromDDD;
-  if (jetf) {
-    edm::LogVerbatim("ValidHcal") << "Delete Jetfinder";
-    delete jetf;
-    jetf = nullptr;
-  }
-  if (numberingFromDDD) {
-    edm::LogVerbatim("ValidHcal") << "Delete HcalNumberingFromDDD";
-    delete numberingFromDDD;
-    numberingFromDDD = nullptr;
-  }
+                                << " : " << count;
 }
 
 void SimG4HcalValidation::registerConsumes(edm::ConsumesCollector cc) {
@@ -223,7 +211,7 @@ void SimG4HcalValidation::init() {
   }
 
   // jetfinder conse size setting
-  jetf = new SimG4HcalHitJetFinder(coneSize);
+  jetf = std::make_unique<SimG4HcalHitJetFinder>(coneSize);
 
   // counter
   count = 0;
@@ -233,10 +221,10 @@ void SimG4HcalValidation::beginRun(edm::EventSetup const &es) {
   // Numbering From DDD
   const HcalDDDSimConstants *hcons = &es.getData(ddconsToken_);
   edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialise HcalNumberingFromDDD";
-  numberingFromDDD = new HcalNumberingFromDDD(hcons);
+  numberingFromDDD = std::make_unique<HcalNumberingFromDDD>(hcons);
 
   // Numbering scheme
-  org = new HcalTestNumberingScheme(false);
+  org = std::make_unique<HcalTestNumberingScheme>(false);
 }
 
 void SimG4HcalValidation::update(const BeginOfRun *run) {
@@ -256,8 +244,8 @@ void SimG4HcalValidation::update(const BeginOfRun *run) {
       HCalSD *theCaloSD = dynamic_cast<HCalSD *>(aSD);
       edm::LogVerbatim("ValidHcal") << "SimG4HcalValidation::beginOfRun: Finds SD with name " << theCaloSD->GetName()
                                     << " in this Setup";
-      if (org) {
-        theCaloSD->setNumberingScheme(org);
+      if (org.get()) {
+        theCaloSD->setNumberingScheme(org.get());
         edm::LogVerbatim("ValidHcal") << "SimG4HcalValidation::beginOfRun: set a new numbering scheme";
       }
     }
