@@ -42,7 +42,7 @@ using angle_units::operators::convertRadToDeg;
 
 typedef std::multimap<G4LogicalVolume *, G4VPhysicalVolume *, std::less<G4LogicalVolume *> > mmlvpv;
 
-class PrintGeomInfoAction : public SimWatcher, public Observer<const BeginOfRun*> {
+class PrintGeomInfoAction : public SimWatcher, public Observer<const BeginOfRun *> {
 public:
   PrintGeomInfoAction(edm::ParameterSet const &p);
   ~PrintGeomInfoAction() override = default;
@@ -51,7 +51,7 @@ public:
   void beginRun(edm::EventSetup const &) override;
 
 private:
-  void update(const BeginOfRun* run) override;
+  void update(const BeginOfRun *run) override;
   void dumpSummary(std::ostream &out = G4cout);
   void dumpG4LVList(std::ostream &out = G4cout);
   void dumpG4LVTree(std::ostream &out = G4cout);
@@ -142,7 +142,7 @@ void PrintGeomInfoAction::registerConsumes(edm::ConsumesCollector cc) {
 void PrintGeomInfoAction::beginRun(edm::EventSetup const &es) {
   if (dumpSense_) {
     if (dd4hep_) {
-      const cms::DDCompactView* pDD = &es.getData(dd4hepToken_);
+      const cms::DDCompactView *pDD = &es.getData(dd4hepToken_);
 
       G4cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes "
              << "for " << names_.size() << " Readout Units" << G4endl;
@@ -168,7 +168,7 @@ void PrintGeomInfoAction::beginRun(edm::EventSetup const &es) {
         }
       }
     } else {
-      const DDCompactView* pDD = &es.getData(dddToken_);
+      const DDCompactView *pDD = &es.getData(dddToken_);
 
       G4cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes "
              << "for " << names_.size() << " Readout Units" << G4endl;
