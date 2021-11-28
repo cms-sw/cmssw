@@ -58,7 +58,7 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
                                       "Events");
   mapTotalDigiPerEvtIEta_.SetNoUnderOverflowBin();
 
-  mapBX_iEta_ = MEMap3Inf(this, "bx", "Digi Bunch Crossing", 21, nBXMin_ - 0.5, nBXMax_ + 0.5, "Bunch crossing");
+  mapBX_ = MEMap2Inf(this, "bx", "Digi Bunch Crossing", 21, nBXMin_ - 0.5, nBXMax_ + 0.5, "Bunch crossing");
 
   mapDigiOccPerCh_ = MEMap4Inf(this, "occ", "Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Digi", "iEta");
 
@@ -80,8 +80,13 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
   }
 }
 
+int GEMDigiSource::ProcessWithMEMap2(BookingHelper& bh, ME2IdsKey key) {
+  mapBX_.bookND(bh, key);
+
+  return 0;
+}
+
 int GEMDigiSource::ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) {
-  mapBX_iEta_.bookND(bh, key);
   mapTotalDigiPerEvtIEta_.bookND(bh, key);
 
   return 0;
@@ -183,7 +188,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
         // Filling of bx
         Int_t nBX = std::min(std::max((Int_t)d->bx(), nBXMin_), nBXMax_);  // For under/overflow
         if (bTagVFAT.find(nIdxVFAT) == bTagVFAT.end()) {
-          mapBX_iEta_.Fill(key3IEta, nBX);
+          mapBX_.Fill(key2, nBX);
         }
 
         // Occupancy on a chamber
