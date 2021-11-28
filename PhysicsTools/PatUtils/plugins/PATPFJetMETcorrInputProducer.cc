@@ -29,8 +29,8 @@ namespace PFJetMETcorrInputProducer_namespace {
       else
         uncorrected_jet = jet.p4();
       // remove JER correction factor from pat::Jets
-      if (jet.hasUserFloat("SmearFactor")) {
-        uncorrected_jet *= (1.0 / jet.userFloat("SmearFactor"));
+      if (jet.isJerFactorValid()) {
+        uncorrected_jet *= (1.0 / jet.loadJerFactor());
       }
       return uncorrected_jet;
     }
@@ -44,8 +44,8 @@ namespace PFJetMETcorrInputProducer_namespace {
   public:
     RetrieveJerT() {}
     float operator()(const pat::Jet& jet) const {
-      if (jet.hasUserFloat("SmearFactor")) {
-        return jet.userFloat("SmearFactor");
+      if (jet.isJerFactorValid()) {
+        return jet.loadJerFactor();
       } else
         return 1.0;
     }

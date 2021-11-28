@@ -10,23 +10,43 @@ using namespace pat;
 
 /// default constructor
 Jet::Jet()
-    : PATObject<reco::Jet>(reco::Jet()), embeddedCaloTowers_(false), embeddedPFCandidates_(false), jetCharge_(0.) {}
+    : PATObject<reco::Jet>(reco::Jet()),
+      embeddedCaloTowers_(false),
+      embeddedPFCandidates_(false),
+      jetCharge_(0.),
+      jerFactor(0.0),
+      jerFactorValid(false) {}
 
 /// constructor from a reco::Jet
 Jet::Jet(const reco::Jet& aJet)
-    : PATObject<reco::Jet>(aJet), embeddedCaloTowers_(false), embeddedPFCandidates_(false), jetCharge_(0.0) {
+    : PATObject<reco::Jet>(aJet),
+      embeddedCaloTowers_(false),
+      embeddedPFCandidates_(false),
+      jetCharge_(0.0),
+      jerFactor(0.0),
+      jerFactorValid(false) {
   tryImportSpecific(aJet);
 }
 
 /// constructor from ref to reco::Jet
 Jet::Jet(const edm::Ptr<reco::Jet>& aJetRef)
-    : PATObject<reco::Jet>(aJetRef), embeddedCaloTowers_(false), embeddedPFCandidates_(false), jetCharge_(0.0) {
+    : PATObject<reco::Jet>(aJetRef),
+      embeddedCaloTowers_(false),
+      embeddedPFCandidates_(false),
+      jetCharge_(0.0),
+      jerFactor(0.0),
+      jerFactorValid(false) {
   tryImportSpecific(*aJetRef);
 }
 
 /// constructor from ref to reco::Jet
 Jet::Jet(const edm::RefToBase<reco::Jet>& aJetRef)
-    : PATObject<reco::Jet>(aJetRef), embeddedCaloTowers_(false), embeddedPFCandidates_(false), jetCharge_(0.0) {
+    : PATObject<reco::Jet>(aJetRef),
+      embeddedCaloTowers_(false),
+      embeddedPFCandidates_(false),
+      jetCharge_(0.0),
+      jerFactor(0.0),
+      jerFactorValid(false) {
   tryImportSpecific(*aJetRef);
 }
 
@@ -595,4 +615,31 @@ pat::JetPtrCollection const& Jet::subjets(std::string const& label) const {
 void Jet::addSubjets(pat::JetPtrCollection const& pieces, std::string const& label) {
   subjetCollections_.push_back(pieces);
   subjetLabels_.push_back(label);
+}
+
+// is the JER correction factor valid, i.e. has it been written using the saveJerFactor method
+bool Jet::isJerFactorValid() const { return jerFactorValid; }
+
+// load the currently saved JER correction factor and check whether the factor was propely set before loading
+float Jet::loadJerFactor() const {
+  if (isJerFactorValid()) {
+    return jerFactor;
+  } else {
+    throw cms::Exception(
+        "Loading JER factor of a pat::Jet, but it was not set properly before. You need to save a JER factor first, "
+        "see methods in pat::Jet.");
+    return 0.0;
+  }
+}
+
+// save a JER correction factor
+void Jet::saveJerFactor(float jerFactor_) {
+  jerFactor = jerFactor_;
+  jerFactorValid = true;
+}
+
+// reset a saved JER correction factor
+void Jet::resetJerFactor() {
+  jerFactor = 0.0;
+  jerFactorValid = false;
 }

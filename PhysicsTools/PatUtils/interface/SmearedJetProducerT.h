@@ -104,7 +104,7 @@ namespace SmearedJetProducer_namespace {
   template <>
   inline void SmearJet<pat::Jet>(pat::Jet& jet, float smearfactor) {
     jet.scaleEnergy(smearfactor);
-    jet.addUserFloat("SmearFactor", smearfactor);
+    jet.saveJerFactor(smearfactor);
   }
 }  // namespace SmearedJetProducer_namespace
 

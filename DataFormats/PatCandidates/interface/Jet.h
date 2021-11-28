@@ -177,6 +177,20 @@ namespace pat {
     void scaleEnergy(double fScale) override { scaleEnergy(fScale, "Unscaled"); }
     void scaleEnergy(double fScale, const std::string& level);
 
+    // Methods to work with a JER correction factor
+    //
+    // is the JER correction factor valid, i.e. has it been written using the saveJerFactor method
+    bool isJerFactorValid() const;
+
+    // load the currently saved JER correction factor and check whether the factor was propely set before loading
+    float loadJerFactor() const;
+
+    // save a JER correction factor
+    void saveJerFactor(float jerFactor_);
+
+    // reset a saved JER correction factor
+    void resetJerFactor();
+
   private:
     /// index of the set of jec factors with given label; returns -1 if no set
     /// of jec factors exists with the given label
@@ -649,6 +663,10 @@ namespace pat {
 
     // ---- id functions ----
     reco::JetID jetID_;
+
+    // ---- JER correction factor ----
+    float jerFactor;
+    bool jerFactorValid;
 
   private:
     // ---- helper functions ----
