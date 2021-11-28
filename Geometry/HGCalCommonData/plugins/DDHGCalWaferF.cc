@@ -1,3 +1,9 @@
+///////////////////////////////////////////////////////////////////////////////
+// File: DDHGCalWaferF.cc
+// Description: Geometry factory class for a full silicon Wafer
+// Created by Sunanda Banerjee
+// Extended for rotated wafer by Pruthvi Suryadevara
+///////////////////////////////////////////////////////////////////////////////
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -176,8 +182,8 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
       int n2 = nCells_ / 2;
       double y0 = (cellType_ >= 3) ? 0.5 : 0.0;
       double x0 = (cellType_ >= 3) ? 0.5 : 1.0;
-      int voff =  (cellType_ >= 3) ? 0 : 1;
-      int uoff =  1 - voff;
+      int voff = (cellType_ >= 3) ? 0 : 1;
+      int uoff = 1 - voff;
       int cellType = (cellType_ >= 3) ? (cellType_ - 3) : cellType_;
       for (int u = 0; u < 2 * nCells_; ++u) {
         for (int v = 0; v < 2 * nCells_; ++v) {
@@ -209,8 +215,8 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
               cell = 3;
             else if (v == 0)
               cell = 6;
-	    if ((cellType_ >= 3) && (cell != 0))
-	      cell += 12;
+            if ((cellType_ >= 3) && (cell != 0))
+              cell += 12;
             DDTranslation tran(xp, yp, 0);
             int copy = HGCalTypes::packCellTypeUV(cellType, u, v);
             cpv.position(DDName(cellNames_[cell]), glogs[i], copy, tran, rot);
