@@ -532,7 +532,6 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
-<<<<<<< HEAD
 electronMCold = cms.Sequence(electronsMCMatchForTable + electronMCTable)
 electronMC = cms.Sequence(tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTable)
 ( run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify( electronMCTable,
