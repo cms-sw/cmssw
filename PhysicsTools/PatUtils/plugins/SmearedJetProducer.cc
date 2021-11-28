@@ -1,7 +1,8 @@
+#include "PhysicsTools/PatUtils/interface/SmearedJetProducerT.h"
+
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "PhysicsTools/PatUtils/interface/SmearedJetProducerT.h"
 
 typedef SmearedJetProducerT<reco::CaloJet> SmearedCaloJetProducer;
 typedef SmearedJetProducerT<reco::PFJet> SmearedPFJetProducer;

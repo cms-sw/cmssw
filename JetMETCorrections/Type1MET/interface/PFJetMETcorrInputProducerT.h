@@ -62,9 +62,9 @@ namespace PFJetMETcorrInputProducer_namespace {
   };
 
   // functor to retrieve JER factors of jets
-  // only possible for pat::Jets because of their userFloat ability
-  // therefore general template just returns 1
-  // specialized template for pat::Jets returns desired userFloat value if available
+  // for pat::Jet a previously saved JER factor is retrieved
+  // general template just returns 1
+  // specialized template for pat::Jet returns desired JER correction value if available
   template <typename T>
   class RetrieveJerT {
   public:

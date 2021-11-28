@@ -16,8 +16,8 @@ namespace PFJetMETcorrInputProducer_namespace {
     bool isPatJet(const pat::Jet& jet) const { return true; }
   };
 
-  // template specialization for pat::Jets
-  // remove JER correction if JER factor was saved as userFloat previously
+  // template specialization for pat::Jet
+  // remove JER correction if JER factor was saved previously
   template <>
   class RawJetExtractorT<pat::Jet> {
   public:
