@@ -13,17 +13,19 @@
 
 class DummyHepMCAnalyzer : public edm::one::EDAnalyzer<> {
 private:
-  bool dumpHepMC_;
-  bool dumpPDF_;
-  bool checkPDG_;
-  edm::EDGetTokenT<edm::HepMCProduct> srcToken_;
+  const bool dumpHepMC_;
+  const bool dumpPDF_;
+  const bool checkPDG_;
+  const edm::EDGetTokenT<edm::HepMCProduct> srcToken_;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdtToken_;
 
 public:
   explicit DummyHepMCAnalyzer(const edm::ParameterSet& cfg)
       : dumpHepMC_(cfg.getUntrackedParameter<bool>("dumpHepMC")),
         dumpPDF_(cfg.getUntrackedParameter<bool>("dumpPDF")),
         checkPDG_(cfg.getUntrackedParameter<bool>("checkPDG")),
-        srcToken_(consumes<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("src"))) {}
+        srcToken_(consumes<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("src"))),
+        pdtToken_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()) {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -50,8 +52,7 @@ public:
     }
 
     if (checkPDG_) {
-      edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
-      es.getData(fPDGTable);
+      const auto& fPDGTable = es.getHandle(pdtToken_);
       for (HepMC::GenEvent::particle_const_iterator part = mc->particles_begin(); part != mc->particles_end(); ++part) {
         const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID((*part)->pdg_id()));
         if (!PData) {
