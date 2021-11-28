@@ -40,7 +40,7 @@ public:
   ~PrintGeomSummary() override = default;
 
   void registerConsumes(edm::ConsumesCollector) override;
-  void beginRun(edm::EventSetup const &) override;
+  void beginRun(edm::EventSetup const&) override;
 
 private:
   void update(const BeginOfRun* run) override;
@@ -98,8 +98,8 @@ void PrintGeomSummary::registerConsumes(edm::ConsumesCollector cc) {
   G4cout << "PrintGeomSummary::Initialize ESGetToken for DDCompactView" << G4endl;
 }
 
-void PrintGeomSummary::beginRun(edm::EventSetup const &es) {
-  const DDCompactView* cpv = &es.getData(ddcompToken_ );
+void PrintGeomSummary::beginRun(edm::EventSetup const& es) {
+  const DDCompactView* cpv = &es.getData(ddcompToken_);
 
   const auto& gra = cpv->graph();
 
@@ -122,7 +122,7 @@ void PrintGeomSummary::beginRun(edm::EventSetup const &es) {
   }
   G4cout << "Finds " << solidMap_.size() << " different solids in the tree" << G4endl;
 }
- 
+
 void PrintGeomSummary::update(const BeginOfRun* run) {
   theTopPV_ = getTopPV();
   if (theTopPV_) {
