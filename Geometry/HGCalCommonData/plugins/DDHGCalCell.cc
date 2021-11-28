@@ -67,7 +67,7 @@ void DDHGCalCell::initialize(const DDNumericArguments& nArgs,
                                  << " Truncated " << truncCN_.size() << ":" << truncSensN_.size() << " Extended "
                                  << extenCN_.size() << ":" << extenSensN_.size() << " Corners " << cornrCN_.size()
                                  << ":" << cornrSensN_.size();
-  if ((truncCN_.size() != 3) || (extenCN_.size() != 3) || (cornrCN_.size() != 6))
+  if ((truncCN_.size() < 3) || (extenCN_.size() < 3) || (cornrCN_.size() < 6))
     edm::LogWarning("HGCalGeom") << "DDHGCalCell: The number of cells does not"
                                  << " match with Standard: Truncated " << truncCN_.size() << ":3 Extended "
                                  << extenCN_.size() << ":3"
