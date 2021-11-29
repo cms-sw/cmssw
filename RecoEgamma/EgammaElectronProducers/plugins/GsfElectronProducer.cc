@@ -294,14 +294,14 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     psd1.add<uint>("outputDim", 5);  // Number of output nodes of DNN
     psd1.add<std::vector<std::string>>(
         "modelsFiles",
-        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_modelDNN.pb",
-         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_modelDNN.pb",
-         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEE/highpTEE_modelDNN.pb"});
+        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/lowpT/lowpT_modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEB/highpTEB_modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEE/highpTEE_modelDNN.pb"});
     psd1.add<std::vector<std::string>>(
         "scalersFiles",
-        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_scaler.txt",
-         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_scaler.txt",
-         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEE/highpTEE_scaler.txt"});
+        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/lowpT/lowpT_scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEB/highpTEB_scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEE/highpTEE_scaler.txt"});
     psd1.add<bool>("useEBModelInGap", true);
     // preselection parameters
     desc.add<edm::ParameterSetDescription>("EleDNNPFid", psd1);

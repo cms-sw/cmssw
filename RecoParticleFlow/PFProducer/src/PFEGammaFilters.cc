@@ -50,6 +50,7 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
   auto const& phoProtectionsForBadHcal = cfg.getParameter<edm::ParameterSet>("photon_protectionsForBadHcal");
   auto const& phoProtectionsForJetMET = cfg.getParameter<edm::ParameterSet>("photon_protectionsForJetMET");
   auto const& eleDNNIdThresholds = cfg.getParameter<edm::ParameterSet>("electronDnnThresholds");
+  auto const& eleDNNBkgIdThresholds = cfg.getParameter<edm::ParameterSet>("electronDnnBkgThresholds");
   auto const& photonDNNIdThresholds = cfg.getParameter<edm::ParameterSet>("photonDnnThresholds");
 
   pho_sumPtTrackIso_ = phoProtectionsForJetMET.getParameter<double>("sumPtTrackIso");
@@ -72,6 +73,11 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
   ele_dnnLowPtThr_ = eleDNNIdThresholds.getParameter<double>("electronDnnLowPtThr");
   ele_dnnHighPtBarrelThr_ = eleDNNIdThresholds.getParameter<double>("electronDnnHighPtBarrelThr");
   ele_dnnHighPtEndcapThr_ = eleDNNIdThresholds.getParameter<double>("electronDnnHighPtEndcapThr");
+
+  ele_dnnBkgLowPtThr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgLowPtThr");
+  ele_dnnBkgHighPtBarrelThr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgHighPtBarrelThr");
+  ele_dnnBkgHighPtEndcapThr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgHighPtEndcapThr");
+
   photon_dnnBarrelThr_ = photonDNNIdThresholds.getParameter<double>("photonDnnBarrelThr");
   photon_dnnEndcapThr_ = photonDNNIdThresholds.getParameter<double>("photonDnnEndcapThr");
 
@@ -170,16 +176,17 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
 
   if (useElePFidDNN_) {  // Use DNN for ele pfID >=CMSSW12_1
     const auto dnn_sig = electron.dnn_signal_Isolated() + electron.dnn_signal_nonIsolated();
+    const auto dnn_bkg = electron.dnn_bkg_nonIsolated();
     const auto etaThreshold = (useEBModelInGap_) ? ecalBarrelMaxEtaWithGap : ecalBarrelMaxEtaNoGap;
     if (electronPt > ele_iso_pt_) {
       // using the Barrel model for electron in the EB-EE gap
       if (eleEta <= etaThreshold) {
-        passEleSelection = dnn_sig > ele_dnnHighPtBarrelThr_;
+        passEleSelection = (dnn_sig > ele_dnnHighPtBarrelThr_) && (dnn_bkg < ele_dnnBkgHighPtBarrelThr_);
       } else if (eleEta > etaThreshold) {
-        passEleSelection = dnn_sig > ele_dnnHighPtEndcapThr_;
+        passEleSelection = (dnn_sig > ele_dnnHighPtEndcapThr_) && (dnn_sig < ele_dnnBkgHighPtEndcapThr_);
       }
     } else {  // pt < ele_iso_pt_
-      passEleSelection = dnn_sig > ele_dnnLowPtThr_;
+      passEleSelection = (dnn_sig > ele_dnnLowPtThr_) && (dnn_sig < ele_dnnBkgLowPtThr_);
     }
     // TODO: For the moment do not evaluate further conditions on isolation and HCAL cleaning..
     // To be understood if they are needed
@@ -496,8 +503,14 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     psd.add<double>("electronDnnLowPtThr", 0.5);
     psd.add<double>("electronDnnHighPtBarrelThr", 0.5);
     psd.add<double>("electronDnnHighPtEndcapThr", 0.5);
-
     iDesc.add<edm::ParameterSetDescription>("electronDnnThresholds", psd);
+  }
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<double>("electronDnnBkgLowPtThr", 1);
+    psd.add<double>("electronDnnBkgHighPtBarrelThr", 1);
+    psd.add<double>("electronDnnBkgHighPtEndcapThr", 1);
+    iDesc.add<edm::ParameterSetDescription>("electronDnnBkgThresholds", psd);
   }
   iDesc.add<bool>("usePhotonPFidDnn", false);
   {
