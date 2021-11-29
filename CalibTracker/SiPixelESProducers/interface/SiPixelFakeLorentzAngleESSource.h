@@ -49,8 +49,9 @@ private:
   int HVgroup(int panel, int module);
 
   // data members
-  edm::FileInPath fp_;
-  edm::FileInPath t_topo_fp_;
+  const edm::FileInPath fp_;
+  const edm::FileInPath t_topo_fp_;
+  const std::string myLabel_;
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters BPixParameters_;
   Parameters FPixParameters_;
