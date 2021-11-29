@@ -10,9 +10,7 @@
 #include "CalibCalorimetry/EcalLaserSorting/src/Majority.h"
 
 #include <iostream>
-//#include <fstream>
 #include <iomanip>
-//#include <limits>
 #include <algorithm>
 #include <sys/stat.h>
 #include <sys/types.h>

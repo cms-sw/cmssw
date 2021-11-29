@@ -44,7 +44,7 @@
 // CMSSW include files
 #include "CondCore/CondDB/interface/Time.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -130,7 +130,7 @@
 // class declaration
 //
 
-class EcnaAnalyzer : public edm::stream::EDAnalyzer<> {
+class EcnaAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   enum { kChannels = 1700, kGains = 3, kFirstGainId = 1 };
 

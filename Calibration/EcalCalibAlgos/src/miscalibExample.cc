@@ -59,6 +59,7 @@ void miscalibExample::endJob() {
 
   scEnergy->Write();
   f.Close();
+  scEnergy->~TH1();
 }
 
 //=================================================================================

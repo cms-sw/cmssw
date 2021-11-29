@@ -19,7 +19,7 @@ public:
 
 private:
   void beginJob() override;
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
   std::string host;
