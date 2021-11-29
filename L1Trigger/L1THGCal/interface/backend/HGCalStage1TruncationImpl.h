@@ -11,7 +11,7 @@ class HGCalStage1TruncationImpl {
 public:
   HGCalStage1TruncationImpl(const edm::ParameterSet& conf);
 
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
   void run(uint32_t fpga_id,
            const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& tcs_in,

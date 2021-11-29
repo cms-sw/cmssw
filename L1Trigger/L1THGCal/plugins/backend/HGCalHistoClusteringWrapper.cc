@@ -20,7 +20,8 @@ public:
   HGCalHistoClusteringWrapper(const edm::ParameterSet& conf);
   ~HGCalHistoClusteringWrapper() override {}
 
-  void configure(const std::pair<const edm::EventSetup&, const edm::ParameterSet&>& configuration) override;
+  void configure(
+      const std::pair<const HGCalTriggerGeometryBase* const, const edm::ParameterSet&>& configuration) override;
 
   void process(const std::pair<const std::vector<edm::Ptr<l1t::HGCalCluster>>,
                                const std::vector<std::pair<GlobalPoint, double>>>& inputClustersAndSeeds,
@@ -43,7 +44,7 @@ private:
                        l1thgcfirmware::HGCalMulticlusterSACollection& outputMulticlusters,
                        l1thgcfirmware::HGCalClusterSACollection& outputRejectedClusters) const;
 
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
   HGCalTriggerTools triggerTools_;
 
@@ -166,8 +167,8 @@ void HGCalHistoClusteringWrapper::clusterizeHisto(
 }
 
 void HGCalHistoClusteringWrapper::configure(
-    const std::pair<const edm::EventSetup&, const edm::ParameterSet&>& configuration) {
-  eventSetup(configuration.first);
+    const std::pair<const HGCalTriggerGeometryBase* const, const edm::ParameterSet&>& configuration) {
+  setGeometry(configuration.first);
 
   // theConfiguration_.setParameters( ... );
 

@@ -1,5 +1,5 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalStage1TruncationImpl.h"
-#include "L1Trigger/L1THGCal/interface/HGCalBackendDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerBackendDetId.h"
 #include <cmath>
 
 HGCalStage1TruncationImpl::HGCalStage1TruncationImpl(const edm::ParameterSet& conf)
@@ -21,7 +21,7 @@ HGCalStage1TruncationImpl::HGCalStage1TruncationImpl(const edm::ParameterSet& co
 void HGCalStage1TruncationImpl::run(uint32_t fpga_id,
                                     const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& tcs_in,
                                     std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& tcs_out) {
-  unsigned sector120 = HGCalBackendDetId(fpga_id).sector();
+  unsigned sector120 = HGCalTriggerBackendDetId(fpga_id).sector();
   std::unordered_map<unsigned, std::vector<edm::Ptr<l1t::HGCalTriggerCell>>> tcs_per_bin;
 
   // group TCs per (r/z, phi) bins

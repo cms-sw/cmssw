@@ -16,7 +16,8 @@ public:
   HGCalSortingTruncationWrapper(const edm::ParameterSet& conf);
   ~HGCalSortingTruncationWrapper() override {}
 
-  void configure(const std::pair<const edm::EventSetup&, const edm::ParameterSet&>& configuration) override;
+  void configure(
+      const std::pair<const HGCalTriggerGeometryBase* const, const edm::ParameterSet&>& configuration) override;
 
   void process(const l1t::HGCalMulticlusterBxCollection&, l1t::HGCalMulticlusterBxCollection&) const override;
 
@@ -27,7 +28,7 @@ private:
                                const l1t::HGCalMulticlusterBxCollection& multiclusters_original,
                                l1t::HGCalMulticlusterBxCollection& multiclustersBXCollection) const;
 
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
   HGCalTriggerTools triggerTools_;
   HGCalSortingTruncationImplSA theAlgo_;
@@ -101,8 +102,8 @@ void HGCalSortingTruncationWrapper::process(const l1t::HGCalMulticlusterBxCollec
 }
 
 void HGCalSortingTruncationWrapper::configure(
-    const std::pair<const edm::EventSetup&, const edm::ParameterSet&>& configuration) {
-  eventSetup(configuration.first);
+    const std::pair<const HGCalTriggerGeometryBase* const, const edm::ParameterSet&>& configuration) {
+  setGeometry(configuration.first);
 };
 
 DEFINE_EDM_PLUGIN(HGCalStage2FilteringWrapperBaseFactory,

@@ -12,7 +12,8 @@ public:
   HGCalStage1TruncationWrapper(const edm::ParameterSet& conf);
   ~HGCalStage1TruncationWrapper() override {}
 
-  void configure(const std::tuple<const edm::EventSetup&, const unsigned&, const uint32_t&>& configuration) override;
+  void configure(
+      const std::tuple<const HGCalTriggerGeometryBase* const, const unsigned&, const uint32_t&>& configuration) override;
 
   void process(const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& fpga_tcs,
                std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& tcs_out) const override;
@@ -25,7 +26,7 @@ private:
                                const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& fpga_tcs_original,
                                std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& fpga_tcs_trunc) const;
 
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
   HGCalTriggerTools triggerTools_;
   HGCalStage1TruncationImplSA theAlgo_;
@@ -87,8 +88,8 @@ void HGCalStage1TruncationWrapper::process(const std::vector<edm::Ptr<l1t::HGCal
 }
 
 void HGCalStage1TruncationWrapper::configure(
-    const std::tuple<const edm::EventSetup&, const unsigned&, const uint32_t&>& configuration) {
-  eventSetup(std::get<0>(configuration));
+    const std::tuple<const HGCalTriggerGeometryBase* const, const unsigned&, const uint32_t&>& configuration) {
+  setGeometry(std::get<0>(configuration));
 
   theConfiguration_.setSector120(std::get<1>(configuration));
   theConfiguration_.setFPGAID(std::get<2>(configuration));

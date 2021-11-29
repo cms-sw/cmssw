@@ -15,8 +15,7 @@ public:
   HGCalBackendStage1Processor(const edm::ParameterSet& conf);
 
   void run(const std::pair<uint32_t, std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>& fpga_id_tcs,
-           std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& truncated_tcs,
-           const edm::EventSetup& es) override;
+           std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& truncated_tcs) override;
 
 private:
   std::unique_ptr<HGCalStage1TruncationWrapperBase> truncationWrapper_;

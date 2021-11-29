@@ -42,11 +42,9 @@ public:
   }
 
   void run(const edm::Handle<l1t::HGCalClusterBxCollection>& collHandle,
-           std::pair<l1t::HGCalMulticlusterBxCollection, l1t::HGCalClusterBxCollection>& be_output,
-           const edm::EventSetup& es) override {
-    es.get<CaloGeometryRecord>().get("", triggerGeometry_);
+           std::pair<l1t::HGCalMulticlusterBxCollection, l1t::HGCalClusterBxCollection>& be_output) override {
     if (multiclusteringHistoSeeding_)
-      multiclusteringHistoSeeding_->eventSetup(es);
+      multiclusteringHistoSeeding_->setGeometry(geometry());
     l1t::HGCalMulticlusterBxCollection& collCluster3D_sorted = be_output.first;
     l1t::HGCalClusterBxCollection& rejectedClusters = be_output.second;
 
@@ -55,9 +53,9 @@ public:
 
     for (unsigned i = 0; i < collHandle->size(); ++i) {
       edm::Ptr<l1t::HGCalCluster> tc_ptr(collHandle, i);
-      uint32_t module = geometry_->getModuleFromTriggerCell(tc_ptr->detId());
-      uint32_t stage1_fpga = geometry_->getStage1FpgaFromModule(module);
-      HGCalTriggerGeometryBase::geom_set possible_stage2_fpgas = geometry_->getStage2FpgasFromStage1Fpga(stage1_fpga);
+      uint32_t module = geometry()->getModuleFromTriggerCell(tc_ptr->detId());
+      uint32_t stage1_fpga = geometry()->getStage1FpgaFromModule(module);
+      HGCalTriggerGeometryBase::geom_set possible_stage2_fpgas = geometry()->getStage2FpgasFromStage1Fpga(stage1_fpga);
 
       HGCalStage2ClusterDistribution distributor(conf_.getParameterSet("DistributionParameters"));
 
@@ -70,7 +68,7 @@ public:
     }
 
     // Configuration
-    const std::pair<const edm::EventSetup&, const edm::ParameterSet&> configuration{es, conf_};
+    const std::pair<const HGCalTriggerGeometryBase* const, const edm::ParameterSet&> configuration{geometry(), conf_};
     multiclusteringHistoClusteringWrapper_->configure(configuration);
     multiclusteringSortingTruncationWrapper_->configure(configuration);
 
@@ -100,7 +98,7 @@ public:
 
       // Call all the energy interpretation modules on the cluster collection
       for (const auto& interpreter : energy_interpreters_) {
-        interpreter->eventSetup(es);
+        interpreter->setGeometry(geometry());
         interpreter->interpret(collCluster3D_perFPGA_sorted);
       }
 
@@ -114,8 +112,6 @@ public:
   }
 
 private:
-  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
-
   /* algorithms instances */
   std::unique_ptr<HGCalHistoSeedingImpl> multiclusteringHistoSeeding_;
 

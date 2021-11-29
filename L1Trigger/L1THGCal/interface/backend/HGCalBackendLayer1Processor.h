@@ -14,8 +14,7 @@ public:
   HGCalBackendLayer1Processor(const edm::ParameterSet& conf);
 
   void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle,
-           l1t::HGCalClusterBxCollection& collCluster2D,
-           const edm::EventSetup& es) override;
+           l1t::HGCalClusterBxCollection& collCluster2D) override;
 
 private:
   std::unique_ptr<HGCalClusteringDummyImpl> clusteringDummy_;

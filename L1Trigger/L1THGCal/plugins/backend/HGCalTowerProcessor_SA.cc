@@ -19,14 +19,9 @@ public:
         towerMapsAlgoName, conf.getParameterSet("towermap_parameters"))};
   }
 
-  void eventSetup(const edm::EventSetup& es) override {}
-
   void run(const std::pair<edm::Handle<l1t::HGCalTowerMapBxCollection>, edm::Handle<l1t::HGCalClusterBxCollection>>&
                collHandle,
-           l1t::HGCalTowerBxCollection& collTowers,
-           const edm::EventSetup& es) override {
-    es.get<CaloGeometryRecord>().get("", triggerGeometry_);
-
+           l1t::HGCalTowerBxCollection& collTowers) override {
     auto& towerMapCollHandle = collHandle.first;
 
     /* create a persistent vector of pointers to the towerMaps */
@@ -36,7 +31,7 @@ public:
     }
 
     // Configuration
-    const std::pair<const edm::EventSetup&, const edm::ParameterSet&> configuration{es, conf_};
+    const std::pair<const HGCalTriggerGeometryBase* const, const edm::ParameterSet&> configuration{geometry(), conf_};
     towerMapWrapper_->configure(configuration);
     towerMapWrapper_->process(towerMapsPtrs, collTowers);
   }
