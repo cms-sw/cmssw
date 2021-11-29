@@ -50,7 +50,7 @@ public:
 
   void registerConsumes(edm::ConsumesCollector) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void beginRun(edm::EventSetup const &) override;
+  void beginRun(edm::EventSetup const&) override;
 
 private:
   // observer classes
@@ -218,7 +218,7 @@ std::vector<int> HcalTestAnalysis::towersToAdd(int centre, int nadd) {
 
 //==================================================================== per JOB
 
-void HcalTestAnalysis::beginRun(edm::EventSetup const &es) {
+void HcalTestAnalysis::beginRun(edm::EventSetup const& es) {
   // Numbering From DDD
   hcons_ = &es.getData(ddconsToken_);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis:: Initialise HcalNumberingFromDDD for " << names_[0];
