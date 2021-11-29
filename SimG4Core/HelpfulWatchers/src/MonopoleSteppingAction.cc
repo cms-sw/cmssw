@@ -19,7 +19,7 @@
 MonopoleSteppingAction::MonopoleSteppingAction(edm::ParameterSet const &p) : actOnTrack(false), bZ(0) {
   mode = p.getUntrackedParameter<bool>("ChangeFromFirstStep", true);
   edm::LogVerbatim("SimG4CoreWatcher") << "MonopoleSeppingAction set mode for"
-				       << " start at first step to " << mode;
+                                       << " start at first step to " << mode;
 }
 
 MonopoleSteppingAction::~MonopoleSteppingAction() {}
@@ -34,7 +34,7 @@ void MonopoleSteppingAction::beginRun(edm::EventSetup const &es) {
   const GlobalPoint p(0, 0, 0);
   bZ = (bField->inTesla(p)).z();
   edm::LogVerbatim("SimG4CoreWatcher") << "Magnetic Field (X): " << (bField->inTesla(p)).x()
-				       << " Y: " << (bField->inTesla(p)).y() << " Z: " << bZ;
+                                       << " Y: " << (bField->inTesla(p)).y() << " Z: " << bZ;
 }
 
 void MonopoleSteppingAction::update(const BeginOfRun *) {
@@ -56,8 +56,8 @@ void MonopoleSteppingAction::update(const BeginOfRun *) {
   cMeVToKgMByS = CLHEP::e_SI * CLHEP::meter / (CLHEP::eV * CLHEP::c_light * CLHEP::second);
   cInMByS = CLHEP::c_light * CLHEP::second / CLHEP::meter;
   edm::LogVerbatim("SimG4CoreWatcher") << "MonopoleSeppingAction Constants:"
-				       << " MevToJoules  = " << cMevToJ << ", MevToKgm/s  = " << cMeVToKgMByS
-				       << ", c in m/s    = " << cInMByS << ", mag. charge = " << magCharge;
+                                       << " MevToJoules  = " << cMevToJ << ", MevToKgm/s  = " << cMeVToKgMByS
+                                       << ", c in m/s    = " << cInMByS << ", mag. charge = " << magCharge;
 }
 
 void MonopoleSteppingAction::update(const BeginOfTrack *trk) {
