@@ -1,4 +1,3 @@
-#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
@@ -13,7 +12,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
@@ -42,7 +40,6 @@
 #include <vector>
 
 class HcalTestAnalysis : public SimProducer,
-                         public Observer<const BeginOfJob*>,
                          public Observer<const BeginOfRun*>,
                          public Observer<const BeginOfEvent*>,
                          public Observer<const EndOfEvent*>,
@@ -51,11 +48,12 @@ public:
   HcalTestAnalysis(const edm::ParameterSet& p);
   ~HcalTestAnalysis() override;
 
+  void registerConsumes(edm::ConsumesCollector) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::EventSetup const &) override;
 
 private:
   // observer classes
-  void update(const BeginOfJob* run) override;
   void update(const BeginOfRun* run) override;
   void update(const BeginOfEvent* evt) override;
   void update(const EndOfEvent* evt) override;
@@ -81,6 +79,7 @@ private:
   std::unique_ptr<HcalTestHistoClass> tuples_;
 
   // Numbering scheme
+  edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> ddconsToken_;
   std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD_;
   const HcalDDDSimConstants* hcons_;
   HcalTestNumberingScheme* org_;
@@ -137,6 +136,11 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p) : addTower_(3), h
 HcalTestAnalysis::~HcalTestAnalysis() {
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis: -------->  Total number of selected entries : " << count_;
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis: Pointers:: Numbering Scheme " << org_;
+}
+
+void HcalTestAnalysis::registerConsumes(edm::ConsumesCollector cc) {
+  ddconsToken_ = cc.esConsumes<HcalDDDSimConstants, HcalSimNumberingRecord, edm::Transition::BeginRun>();
+  edm::LogVerbatim("HcalSim") << "HcalTestAnalysis::Initialize ESGetToken for HcalDDDSimConstants";
 }
 
 void HcalTestAnalysis::produce(edm::Event& e, const edm::EventSetup&) {
@@ -214,11 +218,9 @@ std::vector<int> HcalTestAnalysis::towersToAdd(int centre, int nadd) {
 
 //==================================================================== per JOB
 
-void HcalTestAnalysis::update(const BeginOfJob* job) {
+void HcalTestAnalysis::beginRun(edm::EventSetup const &es) {
   // Numbering From DDD
-  edm::ESHandle<HcalDDDSimConstants> hdc;
-  (*job)()->get<HcalSimNumberingRecord>().get(hdc);
-  hcons_ = hdc.product();
+  hcons_ = &es.getData(ddconsToken_);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis:: Initialise HcalNumberingFromDDD for " << names_[0];
   numberingFromDDD_ = std::make_unique<HcalNumberingFromDDD>(hcons_);
 
