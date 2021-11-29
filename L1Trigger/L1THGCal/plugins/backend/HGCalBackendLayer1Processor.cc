@@ -9,19 +9,18 @@ HGCalBackendLayer1Processor::HGCalBackendLayer1Processor(const edm::ParameterSet
 }
 
 void HGCalBackendLayer1Processor::run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle,
-                                      l1t::HGCalClusterBxCollection& collCluster2D,
-                                      const edm::EventSetup& es) {
+                                      l1t::HGCalClusterBxCollection& collCluster2D) {
   if (clusteringDummy_)
-    clusteringDummy_->eventSetup(es);
+    clusteringDummy_->setGeometry(geometry());
   if (truncation_)
-    truncation_->eventSetup(es);
+    truncation_->setGeometry(geometry());
 
   std::unordered_map<uint32_t, std::vector<edm::Ptr<l1t::HGCalTriggerCell>>> tcs_per_fpga;
 
   for (unsigned i = 0; i < collHandle->size(); ++i) {
     edm::Ptr<l1t::HGCalTriggerCell> tc_ptr(collHandle, i);
-    uint32_t module = geometry_->getModuleFromTriggerCell(tc_ptr->detId());
-    uint32_t fpga = geometry_->getStage1FpgaFromModule(module);
+    uint32_t module = geometry()->getModuleFromTriggerCell(tc_ptr->detId());
+    uint32_t fpga = geometry()->getStage1FpgaFromModule(module);
     tcs_per_fpga[fpga].push_back(tc_ptr);
   }
 

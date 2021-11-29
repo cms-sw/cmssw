@@ -21,7 +21,7 @@ public:
   HGCalTowerMapsWrapper(const edm::ParameterSet& conf);
   ~HGCalTowerMapsWrapper() override {}
 
-  void configure(const std::pair<const edm::EventSetup&, const edm::ParameterSet&>& parameters) override;
+  void configure(const std::pair<const HGCalTriggerGeometryBase* const, const edm::ParameterSet&>& parameters) override;
 
   void process(const std::vector<edm::Ptr<l1t::HGCalTowerMap>>& inputs,
                l1t::HGCalTowerBxCollection& outputs) const override;
@@ -31,7 +31,6 @@ private:
                           std::vector<l1thgcfirmware::HGCalTowerMap>& towerMaps_SA) const;
   void convertAlgorithmOutputs(const std::vector<l1thgcfirmware::HGCalTower>& towerMaps_SA,
                                l1t::HGCalTowerBxCollection& outputTowerMaps) const;
-  void eventSetup(const edm::EventSetup& es) {}
 
   HGCalTowerMapImplSA theAlgo_;
 
@@ -76,6 +75,7 @@ void HGCalTowerMapsWrapper::process(const std::vector<edm::Ptr<l1t::HGCalTowerMa
   convertAlgorithmOutputs(outputs_SA, outputs);
 }
 
-void HGCalTowerMapsWrapper::configure(const std::pair<const edm::EventSetup&, const edm::ParameterSet&>& parameters) {}
+void HGCalTowerMapsWrapper::configure(
+    const std::pair<const HGCalTriggerGeometryBase* const, const edm::ParameterSet&>& parameters) {}
 
 DEFINE_EDM_PLUGIN(HGCalTowerMapsWrapperBaseFactory, HGCalTowerMapsWrapper, "HGCalTowerMapsWrapper");

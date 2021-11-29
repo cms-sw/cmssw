@@ -59,6 +59,8 @@ HGCalBackendStage1Producer::HGCalBackendStage1Producer(const edm::ParameterSet& 
 void HGCalBackendStage1Producer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
   triggerGeometry_ = es.getHandle(triggerGeomToken_);
   backendProcess_->setGeometry(triggerGeometry_.product());
+  if (clusteringDummy_)
+    clusteringDummy_->setGeometry(triggerGeometry_.product());
 }
 
 void HGCalBackendStage1Producer::produce(edm::Event& e, const edm::EventSetup& es) {
@@ -69,9 +71,6 @@ void HGCalBackendStage1Producer::produce(edm::Event& e, const edm::EventSetup& e
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
 
   // Split trigger cell collection per FPGA
-  if (clusteringDummy_)
-    clusteringDummy_->eventSetup(es);
-
   e.getByToken(input_cell_, trigCellBxColl);
 
   std::unordered_map<uint32_t, std::vector<edm::Ptr<l1t::HGCalTriggerCell>>> tcs_per_fpga;
@@ -87,7 +86,7 @@ void HGCalBackendStage1Producer::produce(edm::Event& e, const edm::EventSetup& e
   std::vector<edm::Ptr<l1t::HGCalTriggerCell>> truncated_tcs;
 
   for (auto& fpga_tcs : tcs_per_fpga) {
-    backendProcess_->run(fpga_tcs, truncated_tcs, es);
+    backendProcess_->run(fpga_tcs, truncated_tcs);
   }
 
   // Merge truncated tc collections
