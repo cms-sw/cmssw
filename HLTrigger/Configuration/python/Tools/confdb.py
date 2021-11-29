@@ -500,8 +500,6 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
         'keep l1tJetBXVector_*_Jet_*',
         'keep l1tMuonBXVector_*_Muon_*',
         'keep l1tTauBXVector_*_Tau_*',
-
-      
     )
 )
 %(process)s.MinimalOutput = cms.EndPath( %(process)s.hltOutputMinimal )
