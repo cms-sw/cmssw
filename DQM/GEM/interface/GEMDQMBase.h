@@ -500,7 +500,6 @@ public:
 protected:
   int initGeometry(edm::EventSetup const &iSetup);
   int loadChambers();
-  int readRadiusEtaPartition(int nRegion, int nStation);
 
   int GenerateMEPerChamber(DQMStore::IBooker &ibooker);
   virtual int ProcessWithMEMap2(BookingHelper &bh, ME2IdsKey key) { return 0; };              // must be overrided
@@ -546,6 +545,7 @@ protected:
   inline int getIEtaFromVFATGE11(const int vfat);
   inline int getMaxVFAT(const int);
   inline int getDetOccXBin(const int, const int, const int);
+  inline Float_t restrictAngle(const Float_t fTheta, const Float_t fStart);
 
   const GEMGeometry *GEMGeometry_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
@@ -613,6 +613,12 @@ inline int GEMDQMBase::getIEtaFromVFATGE11(const int vfat) { return 8 - (vfat % 
 
 inline int GEMDQMBase::getDetOccXBin(const int chamber, const int layer, const int n_chambers) {
   return n_chambers * (chamber - 1) + layer;
+}
+
+inline Float_t GEMDQMBase::restrictAngle(const Float_t fTheta, const Float_t fStart) {
+  Float_t fLoop = (fTheta - fStart) / (2 * M_PI);
+  int nLoop = (fLoop >= 0 ? (int)fLoop : (int)fLoop - 1);
+  return fTheta - nLoop * 2 * M_PI;
 }
 
 #endif  // DQM_GEM_INTERFACE_GEMDQMBase_h
