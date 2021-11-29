@@ -4,20 +4,18 @@
 #include <map>
 
 #include <memory>
-#include <FWCore/Framework/interface/stream/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 
 class Timestamp;
 
-class EcalStatusAnalyzer : public edm::stream::EDAnalyzer<> {
+class EcalStatusAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalStatusAnalyzer(const edm::ParameterSet& iConfig);
   ~EcalStatusAnalyzer() override;
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  //void analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& c);
-  //void analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& c) const override ;
-  void beginJob();
-  void endJob();
+  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+  void beginJob() override;
+  void endJob() override;
 
   enum EcalLaserColorType {
     iBLUE = 0,

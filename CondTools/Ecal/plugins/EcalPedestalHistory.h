@@ -46,7 +46,7 @@ public:
   explicit EcalPedestalHistory(const edm::ParameterSet&);
   ~EcalPedestalHistory() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginRun(edm::Run const&, edm::EventSetup const&); // no need to override beginRun when inheriting from one::EDAnalyzer 
+  void beginRun(edm::Run const&, edm::EventSetup const&);
   void beginJob() override;
   void endJob() override;
   EcalCondDBInterface* econn;
