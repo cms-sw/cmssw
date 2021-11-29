@@ -207,6 +207,12 @@ void CSCMotherboard::matchALCTCLCT(bool bunch_crossing_mask[CSCConstants::MAX_AL
         // do not consider previously matched CLCTs
         if (drop_used_clcts && used_clct_mask[bx_clct])
           continue;
+        // only consider >=4 layer CLCTs for ALCT-CLCT type LCTs
+        // this condition is lowered to >=3 layers for CLCTs in the
+        // matchALCTCLCTGEM function
+        if (clctProc->getBestCLCT(bx_clct).getQuality() <= 3)
+          continue;
+        // a valid CLCT with sufficient layers!
         if (clctProc->getBestCLCT(bx_clct).isValid()) {
           if (infoV > 1)
             LogTrace("CSCMotherboard") << "Successful ALCT-CLCT match: bx_alct = " << bx_alct
@@ -381,7 +387,18 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
   CSCCLCTDigi bestCLCT = bCLCT;
   CSCCLCTDigi secondCLCT = sCLCT;
 
+  // extra check to make sure that both CLCTs have at least 4 layers
+  // for regular ALCT-CLCT type LCTs. A check was already done on the
+  // best CLCT, but not yet on the second best CLCT. The check on best
+  // CLCT is repeated for completeness
+  if (bestCLCT.getQuality() <= 3)
+    bestCLCT.clear();
+  if (secondCLCT.getQuality() <= 3)
+    secondCLCT.clear();
+
   // check which ALCTs and CLCTs are valid
+  // if the best ALCT/CLCT is valid, but the second ALCT/CLCT is not,
+  // the information is copied over
   copyValidToInValid(bestALCT, secondALCT, bestCLCT, secondCLCT);
 
   // ALCT-only LCTs
