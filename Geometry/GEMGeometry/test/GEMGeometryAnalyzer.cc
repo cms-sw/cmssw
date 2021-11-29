@@ -231,6 +231,10 @@ void GEMGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
                      << "    \t\tDimensions[cm]: b = " << bottomEdge * 2 << ", B = " << topEdge * 2
                      << ", h  = " << height * 2 << endl
                      << "    \t\tnStrips = " << nStrips << ", nPads =  " << nPads << endl
+                     << "    \t\tfirst strip pos = (" << roll->toGlobal(lEdge1).x() << ", "
+                     << roll->toGlobal(lEdge1).y() << ", " << roll->toGlobal(lEdge1).z() << ")" << endl
+                     << "    \t\tlast  strip pos = (" << roll->toGlobal(lEdgeN).x() << ", "
+                     << roll->toGlobal(lEdgeN).y() << ", " << roll->toGlobal(lEdgeN).z() << ")" << endl
                      << "    \t\ttop(x,y,z)[cm] = (" << tx << ", " << ty << ", " << tz << "), top(eta,phi) = (" << teta
                      << ", " << tphi << ")" << endl
                      << "    \t\tcenter(x,y,z)[cm] = (" << cx << ", " << cy << ", " << cz << "), center(eta,phi) = ("
