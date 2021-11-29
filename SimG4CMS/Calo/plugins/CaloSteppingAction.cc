@@ -75,7 +75,7 @@ public:
 
   void registerConsumes(edm::ConsumesCollector) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void beginRun(edm::EventSetup const &) override;
+  void beginRun(edm::EventSetup const&) override;
 
 private:
   void fillHits(edm::PCaloHitContainer& cc, int type);
@@ -226,7 +226,7 @@ void CaloSteppingAction::fillPassiveHits(edm::PassiveHitContainer& cc) {
   }
 }
 
-void CaloSteppingAction::beginRun(edm::EventSetup const &es) {
+void CaloSteppingAction::beginRun(edm::EventSetup const& es) {
   edm::LogVerbatim("Step") << "CaloSteppingAction:: Enter BeginOfRun";
 
 #ifdef HcalNumberingTest
