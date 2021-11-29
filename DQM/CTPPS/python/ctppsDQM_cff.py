@@ -56,6 +56,7 @@ from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
 dqmPerLSsaving.toModify(ctppsDiamondDQMSource, perLSsaving=True)
 dqmPerLSsaving.toModify(diamondSampicDQMSourceOffline, perLSsaving=True)
 dqmPerLSsaving.toModify(ctppsCommonDQMSourceOffline, perLSsaving=True)
+dqmPerLSsaving.toModify(ctppsDiamondDQMOfflineSource, perLSsaving=True)
 
 _ctppsDQMOfflineSource = cms.Sequence(
   ctppsPixelDQMOfflineSource
