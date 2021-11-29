@@ -7,8 +7,8 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 #process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 #process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process('SIM',Run3)
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+process = cms.Process('SIM',Run3_DDD)
 process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')

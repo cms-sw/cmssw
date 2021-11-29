@@ -58,7 +58,7 @@ void PrintGeomSolids::fillDescriptions(edm::ConfigurationDescriptions& descripti
 void PrintGeomSolids::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   int solids(0);
   if (fromDD4hep_) {
-    edm::ESTransientHandle<cms::DDCompactView> cpv = iSetup.getTransientHandle(cpvTokenDD4hep_);
+    const cms::DDCompactView* cpv = &iSetup.getData(cpvTokenDD4hep_);
     const cms::DDDetector* det = cpv->detector();
     TGeoManager const& geom = det->description()->manager();
     TGeoIterator next(geom.GetTopVolume());
@@ -77,7 +77,7 @@ void PrintGeomSolids::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     }
 
   } else {
-    edm::ESTransientHandle<DDCompactView> cpv = iSetup.getTransientHandle(cpvTokenDDD_);
+    const DDCompactView* cpv = &iSetup.getData(cpvTokenDDD_);
     const auto& gra = cpv->graph();
     for (DDCompactView::Graph::const_adj_iterator git = gra.begin(); git != gra.end(); ++git) {
       const DDLogicalPart& ddLP = gra.nodeData(git);

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("PrintMaterialBudget",Run3)
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+process = cms.Process("PrintMaterialBudget",Run3_DDD)
 process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 
 #from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
