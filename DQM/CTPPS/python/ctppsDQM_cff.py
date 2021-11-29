@@ -57,6 +57,7 @@ dqmPerLSsaving.toModify(ctppsDiamondDQMSource, perLSsaving=True)
 dqmPerLSsaving.toModify(diamondSampicDQMSourceOffline, perLSsaving=True)
 dqmPerLSsaving.toModify(ctppsCommonDQMSourceOffline, perLSsaving=True)
 dqmPerLSsaving.toModify(ctppsDiamondDQMOfflineSource, perLSsaving=True)
+dqmPerLSsaving.toModify(totemTimingDQMSource, perLSsaving=True)
 
 _ctppsDQMOfflineSource = cms.Sequence(
   ctppsPixelDQMOfflineSource
