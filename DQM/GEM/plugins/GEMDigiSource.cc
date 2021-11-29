@@ -8,6 +8,8 @@ GEMDigiSource::GEMDigiSource(const edm::ParameterSet& cfg) : GEMDQMBase(cfg) {
   lumiScalers_ = consumes<LumiScalersCollection>(
       cfg.getUntrackedParameter<edm::InputTag>("lumiCollection", edm::InputTag("scalersRawToDigi")));
   bModeRelVal_ = cfg.getParameter<bool>("modeRelVal");
+  nBXMin_ = cfg.getParameter<int>("bxMin");
+  nBXMax_ = cfg.getParameter<int>("bxMax");
 }
 
 void GEMDigiSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -15,6 +17,8 @@ void GEMDigiSource::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<edm::InputTag>("digisInputLabel", edm::InputTag("muonGEMDigis", ""));
   desc.addUntracked<std::string>("logCategory", "GEMDigiSource");
   desc.add<bool>("modeRelVal", false);
+  desc.add<int>("bxMin", -10);
+  desc.add<int>("bxMax", 10);
   descriptions.add("GEMDigiSource", desc);
 }
 
@@ -24,8 +28,6 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
     return;
   loadChambers();
 
-  nBXMin_ = -10;
-  nBXMax_ = 10;
   fRadiusMin_ = 120.0;
   fRadiusMax_ = 250.0;
   float radS = -5.0 / 180 * M_PI;
@@ -111,6 +113,8 @@ int GEMDigiSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   mapDigiOcc_ieta_.bookND(bh, key);
   mapDigiOcc_ieta_.SetLabelForIEta(key, 1);
 
+  mapDigiOcc_phi_.SetBinLowEdgeX(stationInfo.fMinPhi_ * 180 / M_PI);
+  mapDigiOcc_phi_.SetBinHighEdgeX(stationInfo.fMinPhi_ * 180 / M_PI + 360);
   mapDigiOcc_phi_.bookND(bh, key);
   mapTotalDigiPerEvtLayer_.bookND(bh, key);
 
@@ -167,13 +171,12 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
 
         GlobalPoint digi_global_pos = surface.toGlobal(iEta->centreOfStrip(d->strip()));
         Float_t fPhi = (Float_t)digi_global_pos.phi();
-        Float_t fPhiDeg = fPhi * 180.0 / M_PI;
-        fPhiDeg = (fPhiDeg >= -0.5 ? fPhiDeg : fPhiDeg + 360);
+        Float_t fPhiShift = restrictAngle(fPhi, stationInfo.fMinPhi_);
+        Float_t fPhiDeg = fPhiShift * 180.0 / M_PI;
         mapDigiOcc_phi_.Fill(key3, fPhiDeg);  // Phi
 
         // Filling of R-Phi occupancy
         Float_t fR = fRadiusMin_ + (fRadiusMax_ - fRadiusMin_) * (eId.ieta() - 0.5) / stationInfo.nNumEtaPartitions_;
-        Float_t fPhiShift = (fPhi >= stationInfo.fMinPhi_ ? fPhi : fPhi + 2 * M_PI);
         mapDigiWheel_layer_.Fill(key3, fPhiShift, fR);
 
         mapDigiOccPerCh_.Fill(key4Ch, d->strip(), eId.ieta());  // Per chamber

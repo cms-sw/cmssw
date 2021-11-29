@@ -7,6 +7,7 @@ GEMRecHitSource::GEMRecHitSource(const edm::ParameterSet& cfg) : GEMDQMBase(cfg)
   tagRecHit_ = consumes<GEMRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitsInputLabel"));
 
   nIdxFirstDigi_ = cfg.getParameter<int>("idxFirstDigi");
+  nCLSMax_ = cfg.getParameter<int>("clsMax");
   nClusterSizeBinNum_ = cfg.getParameter<int>("ClusterSizeBinNum");
   bModeRelVal_ = cfg.getParameter<bool>("modeRelVal");
 }
@@ -16,6 +17,7 @@ void GEMRecHitSource::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("recHitsInputLabel", edm::InputTag("gemRecHits", ""));
 
   desc.add<int>("idxFirstDigi", 0);
+  desc.add<int>("clsMax", 10);
   desc.add<int>("ClusterSizeBinNum", 9);
   desc.add<bool>("modeRelVal", false);
 
@@ -35,7 +37,6 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/RecHits");
 
-  nCLSMax_ = 10;
   fRadiusMin_ = 120.0;
   fRadiusMax_ = 250.0;
   float radS = -5.0 / 180 * M_PI;
@@ -141,7 +142,10 @@ int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   mapRecHitOcc_ieta_.bookND(bh, key);
   mapRecHitOcc_ieta_.SetLabelForIEta(key, 1);
 
+  mapRecHitOcc_phi_.SetBinLowEdgeX(stationInfo.fMinPhi_ * 180 / M_PI);
+  mapRecHitOcc_phi_.SetBinHighEdgeX(stationInfo.fMinPhi_ * 180 / M_PI + 360);
   mapRecHitOcc_phi_.bookND(bh, key);
+
   mapTotalRecHitPerEvtLayer_.bookND(bh, key);
 
   mapCLSAverage_.bookND(bh, key);
@@ -203,15 +207,14 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
 
         // Filling of R-Phi occupancy
         Float_t fR = fRadiusMin_ + (fRadiusMax_ - fRadiusMin_) * (eId.ieta() - 0.5) / stationInfo.nNumEtaPartitions_;
-        Float_t fPhiShift = (fPhi >= stationInfo.fMinPhi_ ? fPhi : fPhi + 2 * M_PI);
+        Float_t fPhiShift = restrictAngle(fPhi, stationInfo.fMinPhi_);
+        Float_t fPhiDeg = fPhiShift * 180.0 / M_PI;
         mapRecHitWheel_layer_.Fill(key3, fPhiShift, fR);
 
         // Filling of RecHit (iEta)
         mapRecHitOcc_ieta_.Fill(key3, eId.ieta());
 
         // Filling of RecHit (phi)
-        Float_t fPhiDeg = fPhi * 180.0 / M_PI;
-        fPhiDeg = (fPhiDeg >= -0.5 ? fPhiDeg : fPhiDeg + 360);
         mapRecHitOcc_phi_.Fill(key3, fPhiDeg);
 
         // For total RecHits
