@@ -19,10 +19,6 @@ siPixelQualityRawToDigi.toModify(siPixelDigis.cpu,
     UseQualityInfo = True,                         
     SiPixelQualityLabel = 'forRawToDigi',
 )
-from CalibTracker.SiPixelESProducers.SiPixelQualityESProducer_cfi import siPixelQualityESProducer
-siPixelQualityRawToDigi.toModify(siPixelQualityESProducer, 
-    siPixelQualityLabel = 'forRawToDigi', 
-)
 
 
 # SwitchProducer wrapping the legacy pixel digis producer or an alias combining the pixel digis information converted from SoA
