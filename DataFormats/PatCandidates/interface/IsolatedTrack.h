@@ -122,13 +122,13 @@ namespace pat {
     const reco::HitPattern& hitPattern() const { return hitPattern_; }
 
     /// helper functions for string cut parser
-    int numMissingInnerHits() const {
+    int lostInnerLayers() const {
       return hitPattern_.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS);
     }
-    int numMissingMiddleHits() const {
+    int lostLayers() const {
       return hitPattern_.trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
     }
-    int numMissingOuterHits() const {
+    int lostOuterLayers() const {
       return hitPattern_.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS);
     }
 

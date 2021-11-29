@@ -27,10 +27,10 @@ _exoHighPtTrackCut = (
 _exoDisappearingTrackCut = (
     "pt > 30 && "+
     "abs(dxy) < 0.05 && abs(dz) < 1.0 &&"+
-    "numMissingInnerHits == 0 &&"+
-    "numMissingMiddleHits == 0 &&"+
-    "numMissingOuterHits >= 1 &&"+
-    "(pfIsolationDR03().chargedHadronIso + pfIsolationDR03().neutralHadronIso + pfIsolationDR03().photonIso + pfIsolationDR03().puChargedHadronIso)/pt < 0.1"
+    "lostInnerLayers == 0 &&"+
+    "lostLayers == 0 &&"+
+    "lostOuterLayers >= 1 &&"+
+    "(pfIsolationDR03().chargedHadronIso + pfIsolationDR03().neutralHadronIso + pfIsolationDR03().photonIso)/pt < 0.1"
 )
 isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     tkAssocParamBlock,
