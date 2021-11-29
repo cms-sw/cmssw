@@ -160,8 +160,6 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
     return;
 
   // step 3: match the ALCTs to the CLCTs
-  // note that the bunch_crossing_mask is irrelevant for regular ALCT-CLCT
-  // matching
   bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS] = {false};
   matchALCTCLCT(bunch_crossing_mask);
 
@@ -176,6 +174,15 @@ void CSCMotherboard::matchALCTCLCT(bool bunch_crossing_mask[CSCConstants::MAX_AL
   // Step 3: ALCT-centric ALCT-to-CLCT matching
   int bx_clct_matched = 0;  // bx of last matched CLCT
   for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
+
+    // do not consider LCT building in this BX if the mask was set
+    // this check should have no effect on the regular LCT finding
+    // it does play a role in the LCT finding for GEM-CSC ILTs
+    // namely, if a GEM-CSC ILT was found a bunch crossing, the
+    // algorithm would skip the bunch crossing for regular LCT finding
+    if (bunch_crossing_mask[bx_alct])
+      continue;
+
     // There should be at least one valid CLCT or ALCT for a
     // correlated LCT to be formed.  Decision on whether to reject
     // non-complete LCTs (and if yes of which type) is made further
