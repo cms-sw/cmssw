@@ -121,7 +121,7 @@ namespace pat {
 
     const reco::HitPattern& hitPattern() const { return hitPattern_; }
 
-    // helper functions for PhysicsTools/PatAlgos/python/slimming/isolatedTracks_cfi.py
+    /// helper functions for string cut parser
     int numMissingInnerHits() const {
       return hitPattern_.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS);
     }
