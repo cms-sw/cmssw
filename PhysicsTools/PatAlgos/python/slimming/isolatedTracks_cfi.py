@@ -69,7 +69,8 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     useHighPurity = cms.bool(False),
 
     saveDeDxHitInfo = cms.bool(True),
-    saveDeDxHitInfoCut = cms.string("(%s) || (%s) || (%s)" % (_susySoftDisappearingTrackCut,_exoHighPtTrackCut,_exoDisappearingTrackCut)), 
+    saveDeDxHitInfoCut = cms.string("(%s) || (%s) || (%s)" 
+      % (_susySoftDisappearingTrackCut,_exoHighPtTrackCut,_exoDisappearingTrackCut)), 
 )
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
