@@ -24,9 +24,9 @@ from __future__ import print_function
 # Copied from URL http://code.activestate.com/recipes/576694-orderedset/
 # on 15 November 2016
 
-import collections
+import collections.abc
 
-class OrderedSet(collections.MutableSet):
+class OrderedSet(collections.abc.MutableSet):
 
     def __init__(self, iterable=None):
         self.end = end = [] 
