@@ -202,6 +202,48 @@ namespace edm {
     return true;
   }
 
+  namespace {
+    void setMatchingBranchSizes(TBranchElement* inputBranch, TBranchElement* outputBranch) {
+      if (inputBranch->GetStreamerType() != outputBranch->GetStreamerType()) {
+        return;
+      }
+      TObjArray* inputArray = inputBranch->GetListOfBranches();
+      TObjArray* outputArray = outputBranch->GetListOfBranches();
+
+      if (outputArray->GetSize() < inputArray->GetSize()) {
+        return;
+      }
+      TIter iter(outputArray);
+      TObject* obj = nullptr;
+      while ((obj = iter.Next()) != nullptr) {
+        TBranchElement* outBranch = dynamic_cast<TBranchElement*>(obj);
+        if (outBranch) {
+          TBranchElement* inBranch = dynamic_cast<TBranchElement*>(inputArray->FindObject(outBranch->GetName()));
+          if (inBranch) {
+            outBranch->SetBasketSize(inBranch->GetBasketSize());
+            setMatchingBranchSizes(inBranch, outBranch);
+          }
+        }
+      }
+    }
+  }  // namespace
+
+  void RootOutputTree::setSubBranchBasketSizes(TTree* inputTree) const {
+    if (inputTree == nullptr)
+      return;
+
+    for (auto const& outputBr : readBranches_) {
+      TBranchElement* outputBranch = dynamic_cast<TBranchElement*>(outputBr);
+      if (outputBranch != nullptr) {
+        TBranchElement* inputBranch = dynamic_cast<TBranchElement*>(inputTree->GetBranch(outputBranch->GetName()));
+        if (inputBranch != nullptr) {
+          // We have a matching top level branch. Do the recursion on the subbranches.
+          setMatchingBranchSizes(inputBranch, outputBranch);
+        }
+      }
+    }
+  }
+
   bool RootOutputTree::checkEntriesInReadBranches(Long64_t expectedNumberOfEntries) const {
     for (auto const& readBranch : readBranches_) {
       if (readBranch->GetEntries() != expectedNumberOfEntries) {
