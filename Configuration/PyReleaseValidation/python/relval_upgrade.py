@@ -46,8 +46,9 @@ for year in upgradeKeys:
                         # hack to add an extra step
                         if 'ProdLike' in specialType:
                             if 'Reco' in step: # handles both Reco and RecoGlobal
-                                stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','MiniAOD').replace('Reco','MiniAOD'),specialWF.suffix))
-                                stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','Nano').replace('Reco','Nano'),specialWF.suffix))
+                                stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','MiniAOD').replace('RecoNano','MiniAOD').replace('Reco','MiniAOD'),specialWF.suffix))
+                                if 'RecoNano' in step:
+                                    stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoNano','Nano'),specialWF.suffix))
                         # similar hacks for premixing
                         if 'PMX' in specialType:
                             if 'GenSim' in step:
@@ -60,11 +61,6 @@ for year in upgradeKeys:
                                     else: stepList[specialType][-1] = stepMade
                     else:
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,''))
-                        
-                    if specialType in ['baseline']:
-                        for ist, st in enumerate(stepList[specialType]):
-                            if st.split('_')[0] == 'Reco': stepList[specialType][ist] = st.replace('Reco', 'RecNan')
-                            elif st.split('_')[0] == 'HARVEST': stepList[specialType][ist] = st.replace('HARVEST', 'HARVESTRecNan')
 
             for specialType,specialWF in upgradeWFs.items():
                 # remove other steps for premixS1
