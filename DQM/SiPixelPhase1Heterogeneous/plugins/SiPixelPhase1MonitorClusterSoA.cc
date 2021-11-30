@@ -1,9 +1,9 @@
 // -*- C++ -*-
 ///bookLayer
-// Package:    SiPixelPhase1MonitorDigiSoA
-// Class:      SiPixelPhase1MonitorDigiSoA
+// Package:    SiPixelPhase1MonitorClusterSoA
+// Class:      SiPixelPhase1MonitorClusterSoA
 //
-/**\class SiPixelPhase1MonitorDigiSoA SiPixelPhase1MonitorDigiSoA.cc 
+/**\class SiPixelPhase1MonitorClusterSoA SiPixelPhase1MonitorClusterSoA.cc 
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -33,7 +33,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tokenDigi_;
+  edm::EDGetTokenT<edm::DetSetVector<PixelCluster>> tokenCluster_;
   std::string topFolderName_;
   MonitorElement* hnClusters;
 };
@@ -43,7 +43,7 @@ private:
 //
 
 SiPixelPhase1MonitorClusterSoA::SiPixelPhase1MonitorClusterSoA(const edm::ParameterSet& iConfig) {
-  tokenDigi_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("pixelClusterSrc"));
+  tokenCluster_ = consumes<edm::DetSetVector<PixelCluster>>(iConfig.getParameter<edm::InputTag>("pixelClusterSrc"));
   topFolderName_ = iConfig.getParameter<std::string>("TopFolderName");  //"SiPixelHeterogeneous/PixelClusterSoA";
 }
 
@@ -51,19 +51,19 @@ SiPixelPhase1MonitorClusterSoA::SiPixelPhase1MonitorClusterSoA(const edm::Parame
 // -- Analyze
 //
 void SiPixelPhase1MonitorClusterSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<edm::DetSetVector<PixelDigi>> input;
-  iEvent.getByToken(tokenDigi_, input);
+  edm::Handle<edm::DetSetVector<PixelCluster>> input;
+  iEvent.getByToken(tokenCluster_, input);
   if (!input.isValid()){
     edm::LogWarning("SiPixelPhase1MonitorClusterSoA") << "No Clusters found \n returning!" << std::endl;
   }
   else{
-    edm::DetSetVector<PixelDigi>::const_iterator it;
+    edm::DetSetVector<PixelCluster>::const_iterator it;
     uint32_t nClusters = 0;
     for (it = input->begin(); it != input->end(); ++it) {
       nClusters += it->size();
     }
     edm::LogWarning("SiPixelPhase1MonitorClusterSoA") << "Found "<<nClusters<<" Clusters!" << std::endl;
-    hnDigis->Fill(nDigis);
+    hnClusters->Fill(nClusters);
   }
 }
 
@@ -75,14 +75,14 @@ void SiPixelPhase1MonitorClusterSoA::bookHistograms(DQMStore::IBooker& ibooker,
                                                   edm::EventSetup const& iSetup) {
   ibooker.cd();
   ibooker.setCurrentFolder(topFolderName_);
-  hnDigis = ibooker.book1D("nDigis", ";Number of digis per event;#entries", 1001, -0.5, 10000.5);
+  hnClusters = ibooker.book1D("nClusters", ";Number of clusters per event;#entries", 1001, -0.5, 10000.5);
 }
 
 void SiPixelPhase1MonitorClusterSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("pixelDigi", edm::InputTag("siPixelDigis"));
+  desc.add<edm::InputTag>("pixelCluster", edm::InputTag("siPixelClusters"));
   desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelClusterSoA");
   descriptions.addWithDefaultLabel(desc);
 }
-DEFINE_FWK_MODULE(SiPixelPhase1MonitorDigiSoA);
+DEFINE_FWK_MODULE(SiPixelPhase1MonitorClusterSoA);
