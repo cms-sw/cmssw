@@ -21,13 +21,15 @@ private:
   virtual void endJob();
 
   std::string algoName;
+
+  const edm::ESGetToken<CSCChannelMapperBase, CSCChannelMapperRecord> theCSCChannelMapperToken_;
 };
 
-CSCMapperTestPostls1::CSCMapperTestPostls1(const edm::ParameterSet &pset) {}
+CSCMapperTestPostls1::CSCMapperTestPostls1(const edm::ParameterSet &pset) : theCSCChannelMapperToken_(esConsumes()) {}
 
 CSCMapperTestPostls1::~CSCMapperTestPostls1() {}
 
-void CSCMapperTestPostls1::analyze(const edm::Event &ev, const edm::EventSetup &esu) {
+void CSCMapperTestPostls1::analyze(const edm::Event &ev, const edm::EventSetup &iSetup) {
   const int egeo[] = {1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};          // endcap 1=+z, 2=-z
   const int sgeo[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};          // station 1-4
   const int rgeo[] = {1, 1, 1, 4, 4, 4, 1, 1, 1, 4, 4, 4};          // ring 1-4
@@ -55,9 +57,7 @@ void CSCMapperTestPostls1::analyze(const edm::Event &ev, const edm::EventSetup &
   const int cdetid[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};  // chamber 1-18/36
   const int ldetid[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};  // layer 1-6
 
-  const CSCChannelMapperRecord &irec = esu.get<CSCChannelMapperRecord>();
-  edm::ESHandle<CSCChannelMapperBase> mapper_;
-  irec.get(mapper_);
+  const auto mapper_ = &iSetup.getData(theCSCChannelMapperToken_);
 
   algoName = mapper_->name();
 
