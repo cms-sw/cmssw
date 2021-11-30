@@ -6,6 +6,12 @@ from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 options = VarParsing('analysis')
 options.register("unpack", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
                  "Set to True when you want to unpack the CSC DAQ data.")
+options.register("selectCSCs", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when you want to (un)select certain CSCs.")
+options.register("maskedChambers", "", VarParsing.multiplicity.list, VarParsing.varType.string,
+                 "Chambers you want to explicitly mask.")
+options.register("selectedChambers", "", VarParsing.multiplicity.list, VarParsing.varType.string,
+                 "Chambers you want to explicitly mask.")
 options.register("unpackGEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
                  "Set to True when you want to unpack the GEM DAQ data.")
 options.register("l1", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
@@ -192,6 +198,36 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 
 ## schedule and path definition
 process.unpacksequence = cms.Sequence(process.muonCSCDigis)
+
+## when unpacking data only from select chambers...
+if options.selectCSCs:
+
+      from EventFilter.CSCRawToDigi.cscDigiFilterDef_cfi import cscDigiFilterDef
+
+      # clone the original producer
+      process.preCSCDigis = process.muonCSCDigis.clone()
+
+      # now apply the filter
+      process.muonCSCDigis = cscDigiFilterDef.clone(
+            stripDigiTag = "preCSCDigis:MuonCSCStripDigi",
+            wireDigiTag = "preCSCDigis:MuonCSCWireDigi",
+            compDigiTag = "preCSCDigis:MuonCSCComparatorDigi",
+            alctDigiTag = "preCSCDigis:MuonCSCALCTDigi",
+            clctDigiTag = "preCSCDigis:MuonCSCCLCTDigi",
+            lctDigiTag = "preCSCDigis:MuonCSCCorrelatedLCTDigi",
+            showerDigiTag = "preCSCDigis:MuonCSCShowerDigi",
+            gemPadClusterDigiTag = "preCSCDigis:MuonGEMPadDigiCluster",
+            maskedChambers = options.maskedChambers,
+            selectedChambers = options.selectedChambers
+      )
+
+      # these 3 chambers had Phase-2 firmware loaded partially during Run-2
+      # https://twiki.cern.ch/twiki/bin/viewauth/CMS/CSCOTMB2018
+      process.muonCSCDigis.maskedChambers = [
+            "ME+1/1/9", "ME+1/1/10", "ME+1/1/11"]
+
+      process.unpacksequence = cms.Sequence(process.preCSCDigis * process.muonCSCDigis)
+
 if options.unpackGEM:
       ## unpack GEM strip digis
       process.unpacksequence += process.muonGEMDigis
