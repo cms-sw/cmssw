@@ -45,7 +45,7 @@ namespace pixelgpudetails {
     TrackingRecHit2DGPU hits_d(
         nHits, isPhase2, clusters_d.offsetBPIX2(), cpeParams, clusters_d.clusModuleStart(), stream);
     assert(hits_d.nMaxModules() == isPhase2 ? phase2PixelTopology::numberOfModules
-                                             : phase1PixelTopology::numberOfModules);
+                                            : phase1PixelTopology::numberOfModules);
 
     int activeModulesWithDigis = digis_d.nModules();
     // protect from empty events

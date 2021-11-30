@@ -77,11 +77,9 @@ SiPixelPhase2DigiToClusterCUDA::SiPixelPhase2DigiToClusterCUDA(const edm::Parame
       includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
       clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
                          iConfig.getParameter<int32_t>("clusterThreshold_otherLayers")} {
-
   if (includeErrors_) {
     digiErrorPutToken_ = produces<cms::cuda::Product<SiPixelDigiErrorsCUDA>>();
   }
-
 }
 
 void SiPixelPhase2DigiToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -95,52 +93,55 @@ void SiPixelPhase2DigiToClusterCUDA::fillDescriptions(edm::ConfigurationDescript
 }
 
 void SiPixelPhase2DigiToClusterCUDA::acquire(const edm::Event& iEvent,
-                                      const edm::EventSetup& iSetup,
-                                      edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
+                                             const edm::EventSetup& iSetup,
+                                             edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   cms::cuda::ScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder), ctxState_};
 
-    auto const& input = iEvent.get(pixelDigiToken_);
+  auto const& input = iEvent.get(pixelDigiToken_);
 
-    const TrackerGeometry* geom_ = nullptr;
-    edm::ESHandle<TrackerGeometry> geom;
-    iSetup.get<TrackerDigiGeometryRecord>().get(geom);
-    geom_ = geom.product();
+  const TrackerGeometry* geom_ = nullptr;
+  edm::ESHandle<TrackerGeometry> geom;
+  iSetup.get<TrackerDigiGeometryRecord>().get(geom);
+  geom_ = geom.product();
 
-    uint32_t nDigis = 0;
+  uint32_t nDigis = 0;
 
-    auto xDigis = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
-    auto yDigis = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
-    auto adcDigis = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
-    auto moduleIds = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
-    auto packedData = cms::cuda::make_host_unique<uint32_t[]>(gpuClustering::maxNumDigis, ctx.stream());
-    auto rawIds = cms::cuda::make_host_unique<uint32_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+  auto xDigis = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+  auto yDigis = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+  auto adcDigis = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+  auto moduleIds = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+  auto packedData = cms::cuda::make_host_unique<uint32_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+  auto rawIds = cms::cuda::make_host_unique<uint32_t[]>(gpuClustering::maxNumDigis, ctx.stream());
 
-    for (auto DSViter = input.begin(); DSViter != input.end(); DSViter++) {
-      unsigned int detid = DSViter->detId();
-      DetId detIdObject(detid);
-      const GeomDetUnit* genericDet = geom_->idToDetUnit(detIdObject);
-      auto const gind = genericDet->index();
-      for (auto const& px : *DSViter) {
+  for (auto DSViter = input.begin(); DSViter != input.end(); DSViter++) {
+    unsigned int detid = DSViter->detId();
+    DetId detIdObject(detid);
+    const GeomDetUnit* genericDet = geom_->idToDetUnit(detIdObject);
+    auto const gind = genericDet->index();
+    for (auto const& px : *DSViter) {
+      moduleIds[nDigis] = uint16_t(gind);
 
-        moduleIds[nDigis] = uint16_t(gind);
+      xDigis[nDigis] = uint16_t(px.row());
+      yDigis[nDigis] = uint16_t(px.column());
+      adcDigis[nDigis] = uint16_t(px.adc());
 
-        xDigis[nDigis] = uint16_t(px.row());
-        yDigis[nDigis] = uint16_t(px.column());
-        adcDigis[nDigis] = uint16_t(px.adc());
+      packedData[nDigis] = uint32_t(px.packedData());
 
-        packedData[nDigis] = uint32_t(px.packedData());
+      rawIds[nDigis] = uint32_t(detid);
 
-        rawIds[nDigis] = uint32_t(detid);
-
-        nDigis++;
-      }
+      nDigis++;
     }
+  }
 
-    gpuAlgo_.makePhase2ClustersAsync(
-        clusterThresholds_, moduleIds.get(), xDigis.get(), yDigis.get(),
-              adcDigis.get(), packedData.get(), rawIds.get(), nDigis, ctx.stream());
-
-
+  gpuAlgo_.makePhase2ClustersAsync(clusterThresholds_,
+                                   moduleIds.get(),
+                                   xDigis.get(),
+                                   yDigis.get(),
+                                   adcDigis.get(),
+                                   packedData.get(),
+                                   rawIds.get(),
+                                   nDigis,
+                                   ctx.stream());
 }
 
 void SiPixelPhase2DigiToClusterCUDA::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
