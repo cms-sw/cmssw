@@ -1,17 +1,17 @@
 #include <stdexcept>
 #include <string>
-#include <iostream>
 #include <fstream>
 #include <vector>
 #include <bitset>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
 #include "CondFormats/DataRecord/interface/CSCBadStripsRcd.h"
@@ -19,24 +19,24 @@
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
 namespace edmtest {
-  class CSCReadBadStripsAnalyzer : public edm::EDAnalyzer {
+  class CSCReadBadStripsAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit CSCReadBadStripsAnalyzer(edm::ParameterSet const& ps)
         : outputToFile(ps.getParameter<bool>("outputToFile")),
-          readBadChannels_(ps.getParameter<bool>("readBadChannels")) {
+          readBadChannels_(ps.getParameter<bool>("readBadChannels")),
+          badStripsToken_{esConsumes()} {
       badStripWords.resize(3240, 0);
     }
 
-    explicit CSCReadBadStripsAnalyzer(int i) {}
-    virtual ~CSCReadBadStripsAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCReadBadStripsAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
     // Test code from CSCConditions
 
     /// did we request reading bad channel info from db?
     bool readBadChannels() const { return readBadChannels_; }
 
-    void fillBadStripWords();
+    void fillBadStripWords(edm::LogSystem&);
 
     /// return  bad channel words per CSCLayer - 1 bit per channel
     const std::bitset<80>& badStripWord(const CSCDetId& id) const;
@@ -44,6 +44,7 @@ namespace edmtest {
   private:
     bool outputToFile;
     bool readBadChannels_;  // flag whether or not to even attempt reading bad channel info from db
+    const edm::ESGetToken<CSCBadStrips, CSCBadStripsRcd> badStripsToken_;
     const CSCBadStrips* theBadStrips;
 
     std::vector<std::bitset<80> > badStripWords;
@@ -51,24 +52,23 @@ namespace edmtest {
 
   void CSCReadBadStripsAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
+    edm::LogSystem log("CSCBadStrips");
 
     int counter = 0;
-    std::cout << " RUN# " << e.id().run() << std::endl;
-    std::cout << " EVENT# " << e.id().event() << std::endl;
-    edm::ESHandle<CSCBadStrips> pBadStrip;
-    context.get<CSCBadStripsRcd>().get(pBadStrip);
+    log << " RUN# " << e.id().run() << std::endl;
+    log << " EVENT# " << e.id().event() << std::endl;
 
-    theBadStrips = pBadStrip.product();
+    theBadStrips = &context.getData(badStripsToken_);
 
     // Create the vectors of bitsets, one per layer, as done in CSCConditions
-    fillBadStripWords();  // code from CSCConditions pasted into this file!
+    fillBadStripWords(log);  // code from CSCConditions pasted into this file!
 
     CSCIndexer indexer;  // just to build a CSCDetId from chamber index
 
     std::vector<CSCBadStrips::BadChamber>::const_iterator itcham;
     std::vector<CSCBadStrips::BadChannel>::const_iterator itchan;
 
-    std::cout << "Bad Chambers:" << std::endl;
+    log << "Bad Chambers:" << std::endl;
 
     int ibad = 0;
     int ifailed = 0;
@@ -80,8 +80,8 @@ namespace edmtest {
       int indexc = itcham->chamber_index;
       int badstart = itcham->pointer;
       int nbad = itcham->bad_channels;
-      std::cout << counter << "  " << itcham->chamber_index << "  " << itcham->pointer << "  " << itcham->bad_channels
-                << std::endl;
+      log << counter << "  " << itcham->chamber_index << "  " << itcham->pointer << "  " << itcham->bad_channels
+          << std::endl;
       CSCDetId id = indexer.detIdFromChamberIndex(indexc);
 
       // Iterate over the bad channels in this chamber
@@ -96,21 +96,20 @@ namespace edmtest {
 
         // Test whether this bad channel has indeed been flagged in the badStripWord
         if (ibits.test(chan - 1)) {
-          std::cout << "count " << ++ibad << " found bad channel " << chan << " in layer " << id2 << std::endl;
+          log << "count " << ++ibad << " found bad channel " << chan << " in layer " << id2 << std::endl;
         } else {
-          std::cout << "count " << +ifailed << " failed to see bad channel " << chan << " in layer " << id2
-                    << std::endl;
+          log << "count " << +ifailed << " failed to see bad channel " << chan << " in layer " << id2 << std::endl;
         }
       }
     }
 
     /*
-    std::cout<< "Bad Channels:" << std::endl;
+    log<< "Bad Channels:" << std::endl;
     counter = 0; // reset it!
 
     for( itchan=theBadStrips->channels.begin();itchan!=theBadStrips->channels.end(); ++itchan ){    
       counter++;
-      std::cout<<counter<<"  "<<itchan->layer<<"  "<<itchan->channel<<"  "<<itchan->flag1<<std::endl;
+      log<<counter<<"  "<<itchan->layer<<"  "<<itchan->channel<<"  "<<itchan->flag1<<std::endl;
     }
     */
 
@@ -132,7 +131,7 @@ namespace edmtest {
     }
   }
 
-  void CSCReadBadStripsAnalyzer::fillBadStripWords() {
+  void CSCReadBadStripsAnalyzer::fillBadStripWords(edm::LogSystem& log) {
     // reset existing values
     badStripWords.assign(3240, 0);
     if (readBadChannels()) {
@@ -152,7 +151,7 @@ namespace edmtest {
 
         // The following is not in standard CSCConditions version but was required for our prototype bad strip db
         if (indexc == 0) {
-          std::cout << "WARNING: chamber index = 0. Quitting. " << std::endl;
+          log << "WARNING: chamber index = 0. Quitting. " << std::endl;
           break;  // prototype db has zero line at end
         }
 
@@ -166,7 +165,7 @@ namespace edmtest {
 
           // The following is not in standard CSCConditions version but was required for our prototype bad strip db
           if (lay == 0) {
-            std::cout << "WARNING: layer index = 0. Quitting. " << std::endl;
+            log << "WARNING: layer index = 0. Quitting. " << std::endl;
             break;
           }
 
@@ -177,8 +176,8 @@ namespace edmtest {
           int indexl = indexer.layerIndex(id.endcap(), id.station(), id.ring(), id.chamber(), lay);
 
           // Test output to monitor filling
-          std::cout << "count " << ++icount << " bad channel " << chan << " in layer " << lay << " of chamber=" << id
-                    << " chamber index=" << indexc << " layer index=" << indexl << std::endl;
+          log << "count " << ++icount << " bad channel " << chan << " in layer " << lay << " of chamber=" << id
+              << " chamber index=" << indexc << " layer index=" << indexl << std::endl;
 
           badStripWords[indexl - 1].set(chan - 1, 1);  // set bit in 80-bit bitset representing this layer
         }                                              // j
