@@ -38,6 +38,11 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
     edm::LogError("CSCGEMMotherboard") << "TMB constructed while runME21ILT_ is not set!";
   };
 
+  // These LogErrors are sanity checks and should not be printed
+  if (!isME11_ and !isME21_) {
+    edm::LogError("CSCGEMMotherboard") << "GEM-CSC OTMB constructed for a non-ME1/1 or a non-ME2/1 chamber!";
+  };
+
   // super chamber has layer=0!
   gemId = GEMDetId(theRegion, 1, theStation, 0, theChamber, 0).rawId();
 
