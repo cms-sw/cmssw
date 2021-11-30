@@ -49,6 +49,14 @@ namespace spr {
                              int iphi,
                              bool debug = false);
 
+  double chargeIsolationGenEcal(unsigned int trkIndex,
+                                std::vector<spr::propagatedGenParticleID>& trackIDs,
+                                const CaloGeometry* geo,
+                                const CaloTopology* caloTopology,
+                                int ieta,
+                                int iphi,
+                                bool debug = false);
+
   // Returns the maximum energy of a track within a NxN matrix around the
   // impact of a given track on the ECAL surface. It extrapolates all tracks
   // in the collection to the ECAL surface in order to do the tests
@@ -111,6 +119,12 @@ namespace spr {
                              double dR,
                              int& nNearTRKs,
                              bool debug = false);
+
+  double chargeIsolationGenCone(unsigned int trkIndex,
+                                std::vector<spr::propagatedGenParticleID>& trackIDs,
+                                double dR,
+                                int& nNearTRKs,
+                                bool debug = false);
 
   std::pair<double, double> chargeIsolationCone(unsigned int trkIndex,
                                                 std::vector<spr::propagatedTrackDirection>& trkDirs,
