@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Pythia8/Pythia.h"
-#include "GeneratorInterface/Pythia8Interface/interface/suep_shower.h"
+#include "GeneratorInterface/Pythia8Interface/interface/SuepShower.h"
 #include <memory>
 #include "GeneratorInterface/Pythia8Interface/interface/CustomHook.h"
 
@@ -21,8 +21,8 @@ public:
 
 protected:
   int idMediator_, idDark_;
-  float temperature_, mMediator_, mDark_;
-  std::unique_ptr<Suep_shower> suep_shower_;
+  float temperature_, mDark_;
+  std::unique_ptr<SuepShower> suep_shower_;
 };
 
 REGISTER_USERHOOK(SuepDecay);
