@@ -10,13 +10,13 @@ import FWCore.ParameterSet.Config as cms
 from Validation.CheckOverlap.testOverlap_cff import *
 
 process.g4SimHits.CheckOverlap = True
-process.g4SimHits.G4CheckOverlap = cms.PSet(
-    NodeNames = cms.vstring('ECAL'),
-    Tolerance = cms.untracked.double(0.0001), # in mm
-    Resolution = cms.untracked.int32(10000),
-    ErrorThreshold = cms.untracked.int32(1),
-    Level = cms.untracked.int32(0),
-    Depth = cms.untracked.int32(-1),
-    Verbose = cms.untracked.bool(True)
+process.g4SimHits.G4CheckOverlap = dict(
+    NodeNames = 'ECAL',
+    Tolerance = 0.0001, # in mm
+    Resolution = 10000,
+    ErrorThreshold = 1,
+    Level = 0,
+    Depth = -1,
+    Verbose = True
 )
 

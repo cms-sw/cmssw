@@ -25,21 +25,21 @@ process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
+    cerr = dict(
+        enable = False
     ),
-    cout = cms.untracked.PSet(
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+    cout = dict(
+        G4cerr = dict(
+            limit = -1
         ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+        G4cout = dict(
+            limit = -1
         ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+        default = dict(
+            limit = 0
         ),
-        enable = cms.untracked.bool(True),
-        threshold = cms.untracked.string('DEBUG')
+        enable = True,
+        threshold = 'DEBUG'
     ),
     debugModules = cms.untracked.vstring('*')
 )
@@ -49,22 +49,22 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
-    PGunParameters = cms.PSet(
-        PartID = cms.vint32(14),
-        MinEta = cms.double(-3.5),
-        MaxEta = cms.double(3.5),
-        MinPhi = cms.double(-3.14159265359),
-        MaxPhi = cms.double(3.14159265359),
-        MinE   = cms.double(9.99),
-        MaxE   = cms.double(10.01)
+    PGunParameters = dict(
+        PartID = 14,
+        MinEta = -3.5,
+        MaxEta = 3.5,
+        MinPhi = -3.14159265359,
+        MaxPhi = 3.14159265359,
+        MinE   = 9.99,
+        MaxE   = 10.01
     ),
     AddAntiParticle = cms.bool(False),
     Verbosity       = cms.untracked.int32(0),
     firstRun        = cms.untracked.uint32(1)
 )
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+process.maxEvents = dict(
+    input = 1
 )
 
 process.p1 = cms.Path(process.generator*process.g4SimHits)
