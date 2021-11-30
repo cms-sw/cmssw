@@ -1826,7 +1826,7 @@ void TrackletCalculatorDisplaced::approxprojdisk(double halfRinv,
   // double C_0 = -d0_0 * halfRinv_0;
 
   phiproj = phi0 - A + B * (1 + C - 2 * A_0 * A_0) + sixth * pow(-A_0 + B_0, 3);
-  phiprojder = -halfRinv / t - d0 * t * t * zmeanInv * zmeanInv;
+  phiprojder = -halfRinv / t + d0 * t * zmeanInv * zmeanInv;
 
   phiproj = angle0to2pi::make0To2pi(phiproj);
 
