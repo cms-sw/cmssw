@@ -14,6 +14,13 @@ phase1Pixel.toModify(siPixelDigis.cpu,
     UsePhase1 = True
 )
 
+from Configuration.ProcessModifiers.siPixelQualityRawToDigi_cff import siPixelQualityRawToDigi
+siPixelQualityRawToDigi.toModify(siPixelDigis.cpu,  
+    UseQualityInfo = True,                         
+    SiPixelQualityLabel = 'forRawToDigi',
+)
+
+
 # SwitchProducer wrapping the legacy pixel digis producer or an alias combining the pixel digis information converted from SoA
 gpu.toModify(siPixelDigis,
     cuda = cms.EDAlias(
