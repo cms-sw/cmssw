@@ -28,7 +28,7 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
   TString cls_title = "Cluster Size Distribution";
   TString cls_x_title = "Cluster size";
 
-  me_cls_ = booker.book1D("cls", cls_title + ";" + cls_x_title + ";" + "Entries", 10, 0.5, 10.5);
+  me_cls_ = booker.book1D("cls", cls_title + ";" + cls_x_title + ";" + "Entries", 10, 0, 10);
 
   // NOTE Occupancy
   for (const auto& region : gem->regions()) {
@@ -73,7 +73,7 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
         Int_t num_pads = etaPartitionVec.front()->npads();
 
         me_total_cluster_[key3] =
-            bookHist1D(booker, key3, "total_pad_cluster", "Number of pad digi cluster per event", 21, -0.5, 20.5);
+            bookHist1D(booker, key3, "total_pad_cluster", "Number of pad digi cluster per event", 20, 0, 20);
 
         me_pad_cluster_occ_eta_[key3] = bookHist1D(booker,
                                                    key3,
@@ -104,7 +104,7 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
                                                     "Pad number");
 
           me_detail_occ_pad_[key3] =
-              bookHist1D(booker, key3, "occ_pad", "Pad Cluster Occupancy", num_pads, 0.5, num_pads + 0.5, "Pad number");
+              bookHist1D(booker, key3, "occ_pad", "Pad Cluster Occupancy", num_pads, 0, num_pads, "Pad number");
         }
       }  // end loop over layer ids
     }    // end loop over station ids
@@ -133,7 +133,7 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
           Int_t layer_id = chamber->id().layer();
           ME3IdsKey key3(region_id, station_id, layer_id);
           me_detail_bx_[key3] =
-              bookHist1D(booker, key3, "bx", "Pad Cluster Bunch Crossing", 5, -2.5, 2.5, "Bunch crossing");
+              bookHist1D(booker, key3, "bx", "Pad Cluster Bunch Crossing", 5, -2, 3, "Bunch crossing");
         }  // chamber loop
       }    // station loop
     }      // region loop
@@ -201,10 +201,6 @@ void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::Ev
     ME3IdsKey key3(region_id, station_id, layer_id);
 
     for (auto digi = range.first; digi != range.second; ++digi) {
-      // ignore 16-partition GE2/1 pads
-      if (gemid.isGE21() and digi->nPartitions() == GEMPadDigiCluster::GE21SplitStrip)
-        continue;
-
       const auto& padsVec = digi->pads();
       if (padsVec.empty()) {
         edm::LogError(kLogCategory_) << "Pads missing for digi from GEM ID = " << gemid;
