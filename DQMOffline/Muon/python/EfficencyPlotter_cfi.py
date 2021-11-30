@@ -111,33 +111,33 @@ effPlotter=cms.Sequence(effPlotterLoose*effPlotterMedium*effPlotterTight)
 effPlotter_miniAOD=cms.Sequence(effPlotterLooseMiniAOD*effPlotterMediumMiniAOD*effPlotterTightMiniAOD)   
 
 effPlotterLoose_Phase2=effPlotterLoose.clone(
-    vtxBin=20
-    vtxMin=149.5
+    vtxBin=20,
+    vtxMin=149.5,
     vtxMax=249.5
-)
+    )
 effPlotterMedium_Phase2=effPlotterMedium.clone(
-    vtxBin=20
-    vtxMin=149.5
+    vtxBin=20,
+    vtxMin=149.5,
     vtxMax=249.5                                                                                           
 )
 effPlotterTight_Phase2=effPlotterTight.clone(
-    vtxBin=20
-    vtxMin=149.5
+    vtxBin=20,
+    vtxMin=149.5,
     vtxMax=249.5                                                                                              
 )
 effPlotterLooseMiniAOD_Phase2=effPlotterLooseMiniAOD.clone(                                                                                
-    vtxBin=20
-    vtxMin=149.5
+    vtxBin=20,
+    vtxMin=149.5,
     vtxMax=249.5
 )
 effPlotterMediumMiniAOD_Phase2=effPlotterMediumMiniAOD.clone(
-    vtxBin=20
-    vtxMin=149.5
+    vtxBin=20,
+    vtxMin=149.5,
     vtxMax=249.5
 )                                                                              
 effPlotterTightMiniAOD_Phase2=effPlotterTightMiniAOD.clone(
-    vtxBin=20
-    vtxMin=149.5
+    vtxBin=20,
+    vtxMin=149.5,
     vtxMax=249.5                                                                                
 )
 
