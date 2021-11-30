@@ -41,12 +41,13 @@
 #include <fstream>
 #include <map>
 
-class EcalPedestalHistory : public edm::one::EDAnalyzer<> {
+class EcalPedestalHistory : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit EcalPedestalHistory(const edm::ParameterSet&);
   ~EcalPedestalHistory() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginRun(edm::Run const&, edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   void beginJob() override;
   void endJob() override;
   EcalCondDBInterface* econn;

@@ -23,6 +23,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
 #include <string>
 #include "TH1.h"
 #include "TFile.h"
@@ -47,6 +50,10 @@ private:
   std::string BarrelHitsCollection_;
   std::string ecalHitsProducer_;
   int read_events;
+
+  edm::EDGetTokenT<edm::View<reco::SuperClusterCollection> > correctedHybridSuperClusterToken_; 
+
+  
 
   TH1F* scEnergy;
 };

@@ -34,7 +34,7 @@
 
 class ECALpedestalPCLworker : public DQMEDAnalyzer {
 public:
-  explicit ECALpedestalPCLworker(const edm::ParameterSet &, const DQMEDAnalyzerGlobalCache*);
+  explicit ECALpedestalPCLworker(const edm::ParameterSet &);
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 

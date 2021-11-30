@@ -32,7 +32,9 @@
 miscalibExample::miscalibExample(const edm::ParameterSet& iConfig) {
   rootfile_ = iConfig.getUntrackedParameter<std::string>("rootfile", "ecalSimpleTBanalysis.root");
   correctedHybridSuperClusterProducer_ = iConfig.getParameter<std::string>("correctedHybridSuperClusterProducer");
-  correctedHybridSuperClusterCollection_ = iConfig.getParameter<std::string>("correctedHybridSuperClusterCollection");
+  edm::InputTag correctedHybridSuperClusterTag_ = iConfig.getParameter<edm::InputTag>("correctedHybridSuperClusterCollection"); 
+  correctedHybridSuperClusterToken_ = consumes<edm::View<reco::SuperClusterCollection> >(correctedHybridSuperClusterTag_); 
+
 }
 
 miscalibExample::~miscalibExample() {}
@@ -59,7 +61,7 @@ void miscalibExample::endJob() {
 
   scEnergy->Write();
   f.Close();
-  scEnergy->~TH1();
+  delete scEnergy; 
 }
 
 //=================================================================================
@@ -73,8 +75,9 @@ void miscalibExample::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // Get hybrid super clusters after energy correction
 
   Handle<reco::SuperClusterCollection> pCorrectedHybridSuperClusters;
-  iEvent.getByLabel(
-      correctedHybridSuperClusterProducer_, correctedHybridSuperClusterCollection_, pCorrectedHybridSuperClusters);
+
+  iEvent.getByToken(correctedHybridSuperClusterToken_, pCorrectedHybridSuperClusters); 
+
   if (!pCorrectedHybridSuperClusters.isValid()) {
     LogError("EgammaSimpleAnalyzer") << "Error! can't get collection with label "
                                      << correctedHybridSuperClusterCollection_.c_str();

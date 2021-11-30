@@ -355,6 +355,14 @@ void EcalPedestalHistory::beginRun(edm::Run const&, edm::EventSetup const& c) {
 }  //beginRun
 
 //========================================================================
+void EcalPedestalHistory::endRun(edm::Run const&, edm::EventSetup const& c) {
+  //========================================================================
+
+  cout << "Entering endRun" << endl;
+  cout << "Exiting endRun" << endl;
+}  //endRun
+
+//========================================================================
 void EcalPedestalHistory::beginJob() {
   ///========================================================================
 
