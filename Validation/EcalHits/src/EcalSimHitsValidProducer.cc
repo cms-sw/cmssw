@@ -250,7 +250,7 @@ void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
       double pz = thePrim->GetPz();
       theMomentum.SetCoordinates(px, py, pz, 0.);
 
-      pInit = std::sqrt(px*px + py*py + pz*pz);
+      pInit = std::sqrt(px * px + py * py + pz * pz);
       if (pInit == 0)
         edm::LogWarning("EcalSimHitsValidProducer") << " Primary has p = 0 ; ";
       else {
