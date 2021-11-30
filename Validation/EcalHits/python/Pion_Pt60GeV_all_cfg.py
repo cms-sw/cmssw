@@ -4,27 +4,27 @@ process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789)
+    moduleSeeds = dict(
+        generator = 456789
     ),
     sourceSeed = cms.untracked.uint32(98765)
 )
 
-process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(10000)
+process.maxEvents = dict(
+        input = 10000
 )
 
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
-    PGunParameters = cms.PSet(
-        PartID = cms.vint32(211),
-        MinEta = cms.double(-3.0),
-        MaxEta = cms.double(3.0),
-        MinPhi = cms.double(-3.14159265359),
-        MaxPhi = cms.double(3.14159265359),
-        MinPt  = cms.double(60.0),
-        MaxPt  = cms.double(60.0)
+    PGunParameters = dict(
+        PartID = 211,
+        MinEta = -3.0,
+        MaxEta = 3.0,
+        MinPhi = -3.14159265359,
+        MaxPhi = 3.14159265359,
+        MinPt  = 60.0,
+        MaxPt  = 60.0
     ),
     AddAntiParticle = cms.bool(False),
     Verbosity       = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts

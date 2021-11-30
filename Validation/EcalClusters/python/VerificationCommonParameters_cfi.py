@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-VerificationCommonParameters = cms.PSet(
-#    CMSSW_Version = cms.untracked.string('V3_1_0_pre1'),
-    MCTruthCollection = cms.InputTag("generatorSmeared"),
-#    outputFile = cms.untracked.string('EcalClustersValidation.root'),
-    verboseDBE = cms.untracked.bool(False)
+VerificationCommonParameters = dict(
+    #CMSSW_Version = 'V3_1_0_pre1',
+    MCTruthCollection = "generatorSmeared",
+   #outputFile = 'EcalClustersValidation.root',
+    verboseDBE = False
 )
 
 
