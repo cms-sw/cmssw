@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <array>
-// #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 
 namespace phase1PixelTopology {
 

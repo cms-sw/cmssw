@@ -55,7 +55,7 @@ public:
     int nl = 1;
     auto ol = phase1PixelTopology::getLayer(*pdet);
     for (; pdet < detIndices.end(i); ++pdet) {
-      auto il = phase1PixelTopology::getLayer(*pdet);  // , ol);
+      auto il = phase1PixelTopology::getLayer(*pdet);
       if (il != ol)
         ++nl;
       ol = il;

@@ -152,14 +152,11 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
 
     if (thisCell.tracks().size() < 2)
       continue;
-    //if (0==thisCell.theUsed) continue;
-    // if (thisCell.theDoubletId < 0) continue;
 
     int8_t maxNl = 0;
 
     // find maxNl
     for (auto it : thisCell.tracks()) {
-      // if (tracks.nHits(it)==3) continue;
       auto nl = tracks.nLayers(it);
       maxNl = std::max(nl, maxNl);
     }
@@ -191,7 +188,6 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
     auto const &thisCell = cells[idx];
     if (thisCell.tracks().size() < 2)
       continue;
-    // if (thisCell.theDoubletId < 0) continue;
 
     float mc = maxScore;
     uint16_t im = tkNotFound;
@@ -694,7 +690,6 @@ __global__ void kernel_rejectDuplicate(TkSoA const *__restrict__ ptracks,
         if ((opi - opj) * (opi - opj) > dop)
           continue;
         auto nlj = tracks.nLayers(jt);
-        ;
         if (nlj < nli || (nlj == nli && (qj < qi || (qj == qi && score(it, nli) < score(jt, nlj)))))
           quality[jt] = reject;
         else {
