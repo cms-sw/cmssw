@@ -320,13 +320,13 @@ void PixelCPEFast::fillParamsForGpu() {
     }
   }  // loop over det
 
-  int numberOfModulesInLadder = isUpgrade_ ? int(phase2PixelTopology::numberOfModulesInLadder)
+  const int numberOfModulesInLadder = isUpgrade_ ? int(phase2PixelTopology::numberOfModulesInLadder)
                                            : int(phase1PixelTopology::numberOfModulesInLadder);
-  int numberOfModulesInBarrel = isUpgrade_ ? int(phase2PixelTopology::numberOfModulesInBarrel)
+  const int numberOfModulesInBarrel = isUpgrade_ ? int(phase2PixelTopology::numberOfModulesInBarrel)
                                            : int(phase1PixelTopology::numberOfModulesInBarrel);
-  int numberOfLaddersInBarrel = commonParamsGPU_.numberOfLaddersInBarrel;
+  const int numberOfLaddersInBarrel = commonParamsGPU_.numberOfLaddersInBarrel;
 
-  int firstEndcapPos = 4, firstEndcapNeg = isUpgrade_ ? 16 : 7;
+  const int firstEndcapPos = 4, firstEndcapNeg = isUpgrade_ ? 16 : 7;
   float ladderFactor = 1.f / float(numberOfModulesInLadder);
 
   // compute ladder baricenter (only in global z) for the barrel
