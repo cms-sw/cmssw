@@ -81,7 +81,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
     throw cms::Exception("Configuration") << "SiPixelRecHitSoAFromLegacy can only use a CPE of type PixelCPEFast";
   }
   auto const& cpeView = fcpe->getCPUProduct();
-  //auto maxInModule = 0U, maxDigi = 0U;
+
   const reco::BeamSpot& bs = iEvent.get(bsGetToken_);
 
   BeamSpotPOD bsHost;
@@ -216,7 +216,6 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
         moduleInd.push_back(gind);
         clus.push_back(ic);
         ++ndigi;
-        //++maxDigi;
       }
       assert(clust.originalId() == ic);  // make sure hits and clus are in sync
       if (convert2Legacy_)
@@ -247,7 +246,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
       SiPixelRecHitCollectionNew::FastFiller recHitsOnDetUnit(*legacyOutput, detid);
       for (auto h = fc; h < lc; ++h) {
         auto ih = h - fc;
-        //maxInModule = std::max(ih,maxInModule);
+
         if (ih >= maxHitsInModule)
           break;
         assert(ih < clusterRef.size());

@@ -112,15 +112,15 @@ namespace pixelgpudetails {
                            bool debug,
                            cudaStream_t stream);
 
-    void makeClustersAsync(const SiPixelClusterThresholds clusterThresholds,
-                           const uint16_t* moduleIds,
-                           const uint16_t* xDigis,
-                           const uint16_t* yDigis,
-                           const uint16_t* adcDigis,
-                           const uint32_t* packedData,
-                           const uint32_t* rawIds,
-                           const uint32_t numDigis,
-                           cudaStream_t stream);
+    void makePhase2ClustersAsync(const SiPixelClusterThresholds clusterThresholds,
+                                 const uint16_t* moduleIds,
+                                 const uint16_t* xDigis,
+                                 const uint16_t* yDigis,
+                                 const uint16_t* adcDigis,
+                                 const uint32_t* packedData,
+                                 const uint32_t* rawIds,
+                                 const uint32_t numDigis,
+                                 cudaStream_t stream);
 
     std::pair<SiPixelDigisCUDA, SiPixelClustersCUDA> getResults() {
       digis_d.setNModulesDigis(nModules_Clusters_h[0], nDigis);
