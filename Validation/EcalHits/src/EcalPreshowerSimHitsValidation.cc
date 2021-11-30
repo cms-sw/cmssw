@@ -17,12 +17,10 @@ using namespace std;
 
 EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::ParameterSet &ps)
     :
-
-      HepMCLabel(ps.getParameter<std::string>("moduleLabelMC")),
       g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")),
       EEHitsCollection(ps.getParameter<std::string>("EEHitsCollection")),
-      ESHitsCollection(ps.getParameter<std::string>("ESHitsCollection")) {
-  HepMCToken = consumes<edm::HepMCProduct>(HepMCLabel);
+      ESHitsCollection(ps.getParameter<std::string>("ESHitsCollection")),
+      HepMCToken(consumes<edm::HepMCProduct>(ps.getParameter<edm::InputTag>("moduleLabelMC"))) {
   EEHitsToken =
       consumes<edm::PCaloHitContainer>(edm::InputTag(std::string(g4InfoLabel), std::string(EEHitsCollection)));
   ESHitsToken =
