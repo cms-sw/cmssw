@@ -16,8 +16,7 @@ using namespace edm;
 using namespace std;
 
 EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::ParameterSet &ps)
-    :
-      g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")),
+    : g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")),
       EEHitsCollection(ps.getParameter<std::string>("EEHitsCollection")),
       ESHitsCollection(ps.getParameter<std::string>("ESHitsCollection")),
       HepMCToken(consumes<edm::HepMCProduct>(ps.getParameter<edm::InputTag>("moduleLabelMC"))) {
