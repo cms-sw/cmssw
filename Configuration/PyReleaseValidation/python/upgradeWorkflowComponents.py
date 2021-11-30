@@ -467,9 +467,9 @@ class PatatrackWorkflow(UpgradeWorkflow):
         ]
         result = any(selected) and hasHarvest
 
-        # skip ALCA and Nano steps
+        # skip ALCA and Nano steps (but not RecoNano or HARVESTNano for Run3)
         for skip in copy(stepList):
-            if ("ALCA" in skip) or ("Nano" in skip):
+            if ("ALCA" in skip) or ("Nano"==skip):
                 stepList.remove(skip)
         return result
 
