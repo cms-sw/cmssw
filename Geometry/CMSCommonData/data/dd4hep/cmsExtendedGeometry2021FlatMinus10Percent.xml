@@ -26,7 +26,7 @@
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/FlatMinus10Percent/2021/v2/trackermaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/FlatMinus10Percent/2021/pixfwdMaterials.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/FlatMinus10Percent/2021/pixbarmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/FlatMinus10Percent/2021/v1/pixbarmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/FlatMinus10Percent/2021/v2/tibtidcommonmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/FlatMinus10Percent/2021/v2/tibmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/FlatMinus10Percent/2021/v2/tidmaterial.xml'/>
