@@ -43,7 +43,7 @@ private:
 //
 
 SiPixelPhase1MonitorClusterSoA::SiPixelPhase1MonitorClusterSoA(const edm::ParameterSet& iConfig) {
-  tokenCluster_ = consumes<edm::DetSetVector<PixelCluster>>(iConfig.getParameter<edm::InputTag>("pixelClusterSrc"));
+  tokenCluster_ = consumes<edm::DetSetVector<SiPixelClusterCollectionNew>>(iConfig.getParameter<edm::InputTag>("pixelClusterSrc"));
   topFolderName_ = iConfig.getParameter<std::string>("TopFolderName");  //"SiPixelHeterogeneous/PixelClusterSoA";
 }
 
@@ -51,13 +51,13 @@ SiPixelPhase1MonitorClusterSoA::SiPixelPhase1MonitorClusterSoA(const edm::Parame
 // -- Analyze
 //
 void SiPixelPhase1MonitorClusterSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<edm::DetSetVector<PixelCluster>> input;
+  edm::Handle<edm::DetSetVector<SiPixelClusterCollectionNew>> input;
   iEvent.getByToken(tokenCluster_, input);
   if (!input.isValid()){
     edm::LogWarning("SiPixelPhase1MonitorClusterSoA") << "No Clusters found \n returning!" << std::endl;
   }
   else{
-    edm::DetSetVector<PixelCluster>::const_iterator it;
+    edm::DetSetVector<SiPixelClusterCollectionNew>::const_iterator it;
     uint32_t nClusters = 0;
     for (it = input->begin(); it != input->end(); ++it) {
       nClusters += it->size();
@@ -81,7 +81,7 @@ void SiPixelPhase1MonitorClusterSoA::bookHistograms(DQMStore::IBooker& ibooker,
 void SiPixelPhase1MonitorClusterSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("pixelCluster", edm::InputTag("siPixelClusters"));
+  desc.add<edm::InputTag>("pixelClusterSrc", edm::InputTag("siPixelDigisClustersPreSplitting"));
   desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelClusterSoA");
   descriptions.addWithDefaultLabel(desc);
 }
