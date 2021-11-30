@@ -14,7 +14,7 @@
 
 namespace gpuClustering {
 
-  template <bool isUpgrade>
+  template <bool isPhase2>
   __global__ void clusterChargeCut(
       SiPixelClusterThresholds
           clusterThresholds,             // charge cut on cluster in electrons (for layer 1 and for other layers)
@@ -29,8 +29,8 @@ namespace gpuClustering {
     __shared__ uint8_t ok[maxNumClustersPerModules];
     __shared__ uint16_t newclusId[maxNumClustersPerModules];
 
-    constexpr int startBPIX2 = isUpgrade ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
-    constexpr int nMaxModules = isUpgrade ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+    constexpr int startBPIX2 = isPhase2 ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
+    constexpr int nMaxModules = isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
 
     assert(nMaxModules < maxNumModules);
     assert(startBPIX2 < nMaxModules);
