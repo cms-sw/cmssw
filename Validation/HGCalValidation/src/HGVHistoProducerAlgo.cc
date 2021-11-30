@@ -1569,12 +1569,11 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
             auto findHitIt = std::find(detIdToCaloParticleId_Map[hitid].begin(),
                                        detIdToCaloParticleId_Map[hitid].end(),
                                        HGVHistoProducerAlgo::detIdInfoInCluster{cpId, 0.f}); // only the first element is used for the matching (overloaded operator==)
-            if (findHitIt != detIdToCaloParticleId_Map[hitid].end()) {
+            if (findHitIt != detIdToCaloParticleId_Map[hitid].end())
               findHitIt->fraction += it_haf.second;
-            } else {
+            else
               detIdToCaloParticleId_Map[hitid].emplace_back(
                   HGVHistoProducerAlgo::detIdInfoInCluster{cpId, it_haf.second});
-            }
           }
         }
       }
@@ -1665,9 +1664,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     const auto lc_en = clusters[lcId].energy();
     const auto& cps = cpsIt->val;
     if (lc_en == 0. && !cps.empty()) {
-      for (const auto& cpPair : cps) {
+      for (const auto& cpPair : cps)
         histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(cpPair.second);
-      }
       continue;
     }
     for (const auto& cpPair : cps) {
@@ -2717,11 +2715,16 @@ return v.first == hitid; });
 
     // Compute the correct normalization
     float invTracksterEnergyWeight = 0.f;
-    float hitFr = 1;
     for (const auto& haf : tst_hitsAndFractions) {
-      if (i==0) hitFr = haf.second; // for Linking the hit fraction is accounted for
-      invTracksterEnergyWeight +=
-          pow(hitFr * hitMap.at(haf.first)->energy(), 2);
+      float hitFr =1;
+      if (i == 0) {
+        hitFr = haf.second;
+      } else if (i == 1) {
+        const auto lcId = getLCId(tst.vertices(), layerClusters, haf.first);
+        const auto iLC = std::find(tst.vertices().begin(), tst.vertices().end(), lcId);
+        hitFr = 1.f / tst.vertex_multiplicity(std::distance(std::begin(tst.vertices()), iLC));
+      }
+      invTracksterEnergyWeight += pow(hitFr * hitMap.at(haf.first)->energy(), 2);
     }
     if (invTracksterEnergyWeight) invTracksterEnergyWeight = 1.f / invTracksterEnergyWeight;
 
@@ -2766,7 +2769,7 @@ return v.first == hitid; });
           stsPair.second = 0.f;
         }
         stsPair.second +=
-            pow((rhFraction - cpFraction), 2) * hitEnergyWeight * invTracksterEnergyWeight;
+            pow(min(rhFraction - cpFraction, rhFraction), 2) * hitEnergyWeight * invTracksterEnergyWeight;
       }
     } // end of loop through trackster rechits
 
@@ -2933,8 +2936,8 @@ else return false;
           if (tsPair.second.second == FLT_MAX) {
             tsPair.second.second = 0.f;
           }
-          tsPair.second.second += pow((tstFraction - cpFraction), 2) * hitEnergyWeight;
-          invHitsEnergyWeight += hitEnergyWeight;
+          tsPair.second.second += pow(min(tstFraction - cpFraction, cpFraction), 2) * hitEnergyWeight;
+          invHitsEnergyWeight += pow(cpFraction, 2) * hitEnergyWeight;
 
           LogDebug("HGCalValidator") << "\nTracksterId:\t" << tstId
                                      << "\tSimTracksterId:\t" << iSTS
@@ -3289,7 +3292,6 @@ void HGVHistoProducerAlgo::fill_trackster_histos(const Histograms& histograms,
       histograms.h_trackster_layersnum[count]->Fill((float)trackster_layers.size());
 
       histograms.h_trackster_pt[count]->Fill(tst.raw_pt());
-
       histograms.h_trackster_energy[count]->Fill(tst.raw_energy());
     }
 
