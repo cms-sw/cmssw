@@ -315,17 +315,11 @@ namespace pixelCPEforGPU {
 
     bool isUpgrade = comParams.isUpgrade;
     // FIXME these are errors form Run1
-    // float xerr_barrel_l1[] = isUpgrade ? {0.00025, 0.00030, 0.00035, 0.00035} : {0.00115, 0.00120, 0.00088};
     float xerr_barrel_l1_def = isUpgrade ? 0.00035 : 0.00200;  // 0.01030;
-    // float yerr_barrel_l1[] = isUpgrade ? {0.00210, 0.00115, 0.00125} : ;
     float yerr_barrel_l1_def = isUpgrade ? 0.00125 : 0.00210;
-    // float xerr_barrel_ln[] = isUpgrade ? {0.00025, 0.00030, 0.00035, 0.00035} : ;
     float xerr_barrel_ln_def = isUpgrade ? 0.00035 : 0.00200;  // 0.01030;
-    // float yerr_barrel_ln[] = isUpgrade ? {0.00210, 0.00115, 0.00125} : ;
     float yerr_barrel_ln_def = isUpgrade ? 0.00125 : 0.00210;
-    // float xerr_endcap[] = isUpgrade ? {0.00072, 0.00025} : ;
     float xerr_endcap_def = isUpgrade ? 0.00060 : 0.0020;
-    // float yerr_endcap[] = isUpgrade ? {0.00289, 0.00025} : ;
     float yerr_endcap_def = isUpgrade ? 0.00180 : 0.00210;
 
     constexpr float xerr_barrel_l1[] = {0.00115, 0.00120, 0.00088};

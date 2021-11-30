@@ -668,8 +668,6 @@ namespace pixelgpudetails {
 #endif
 
       // apply charge cut
-<<<<<<< HEAD
-
       clusterChargeCut<<<blocks, threadsPerBlock, 0, stream>>>(clusterThresholds,
                                                                digis_d.view().moduleInd(),
                                                                digis_d.view().adc(),
@@ -678,16 +676,7 @@ namespace pixelgpudetails {
                                                                clusters_d.moduleId(),
                                                                digis_d.view().clus(),
                                                                wordCounter);
-=======
-      clusterChargeCut<false><<<blocks, threadsPerBlock, 0, stream>>>(clusterThresholds,
-                                                                      digis_d.moduleInd(),
-                                                                      digis_d.adc(),
-                                                                      clusters_d.moduleStart(),
-                                                                      clusters_d.clusInModule(),
-                                                                      clusters_d.moduleId(),
-                                                                      digis_d.clus(),
-                                                                      wordCounter);
->>>>>>> Code formatting
+
       cudaCheck(cudaGetLastError());
 
       // count the module start indices already here (instead of
@@ -712,15 +701,15 @@ namespace pixelgpudetails {
     }  // end clusterizer scope
   }
 
-  void SiPixelRawToClusterGPUKernel::makeClustersAsync(const SiPixelClusterThresholds clusterThresholds,
-                                                       const uint16_t *moduleIds,
-                                                       const uint16_t *xDigis,
-                                                       const uint16_t *yDigis,
-                                                       const uint16_t *adcDigis,
-                                                       const uint32_t *packedData,
-                                                       const uint32_t *rawIds,
-                                                       const uint32_t numDigis,
-                                                       cudaStream_t stream) {
+  void SiPixelRawToClusterGPUKernel::makePhase2ClustersAsync(const SiPixelClusterThresholds clusterThresholds,
+                                                             const uint16_t *moduleIds,
+                                                             const uint16_t *xDigis,
+                                                             const uint16_t *yDigis,
+                                                             const uint16_t *adcDigis,
+                                                             const uint32_t *packedData,
+                                                             const uint32_t *rawIds,
+                                                             const uint32_t numDigis,
+                                                             cudaStream_t stream) {
     nDigis = numDigis;
     using namespace gpuClustering;
 
@@ -740,15 +729,14 @@ namespace pixelgpudetails {
     int threadsPerBlock = 256;
     int blocks = (int(numDigis) + threadsPerBlock - 1) / threadsPerBlock;
 
-    gpuCalibPixel::calibDigis<false, true><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
-                                                                                   digis_d.xx(),
-                                                                                   digis_d.yy(),
-                                                                                   digis_d.adc(),
-                                                                                   nullptr,
-                                                                                   numDigis,
-                                                                                   clusters_d.moduleStart(),
-                                                                                   clusters_d.clusInModule(),
-                                                                                   clusters_d.clusModuleStart());
+    gpuCalibPixel::calibDigisPhase2<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
+                                                                            digis_d.xx(),
+                                                                            digis_d.yy(),
+                                                                            digis_d.adc(),
+                                                                            numDigis,
+                                                                            clusters_d.moduleStart(),
+                                                                            clusters_d.clusInModule(),
+                                                                            clusters_d.clusModuleStart());
 
     cudaCheck(cudaGetLastError());
 
