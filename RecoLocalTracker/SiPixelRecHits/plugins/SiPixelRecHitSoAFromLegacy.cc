@@ -47,7 +47,7 @@ private:
   const edm::EDPutTokenT<TrackingRecHit2DCPU> tokenHit_;
   const edm::EDPutTokenT<HMSstorage> tokenModuleStart_;
   const bool convert2Legacy_;
-  const bool isUpgrade_;
+  const bool isPhase2_;
 };
 
 SiPixelRecHitSoAFromLegacy::SiPixelRecHitSoAFromLegacy(const edm::ParameterSet& iConfig)
@@ -58,7 +58,7 @@ SiPixelRecHitSoAFromLegacy::SiPixelRecHitSoAFromLegacy(const edm::ParameterSet& 
       tokenHit_{produces<TrackingRecHit2DCPU>()},
       tokenModuleStart_{produces<HMSstorage>()},
       convert2Legacy_(iConfig.getParameter<bool>("convertToLegacy")),
-      isUpgrade_(iConfig.getParameter<bool>("isUpgrade")) {
+      isPhase2_(iConfig.getParameter<bool>("isPhase2")) {
   if (convert2Legacy_)
     produces<SiPixelRecHitCollectionNew>();
 }
@@ -70,7 +70,7 @@ void SiPixelRecHitSoAFromLegacy::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersPreSplitting"));
   desc.add<std::string>("CPE", "PixelCPEFast");
   desc.add<bool>("convertToLegacy", false);
-  desc.add<bool>("isUpgrade", false);
+  desc.add<bool>("isPhase2", false);
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -93,8 +93,8 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   iEvent.getByToken(clusterToken_, hclusters);
   auto const& input = *hclusters;
 
-  int nMaxModules = isUpgrade_ ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
-  int startBPIX2 = isUpgrade_ ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
+  int nMaxModules = isPhase2_ ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+  int startBPIX2 = isPhase2_ ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
 
   assert(nMaxModules < gpuClustering::maxNumModules);
   assert(startBPIX2 < nMaxModules);
@@ -157,7 +157,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   // element 96 is the start of BPIX2 (i.e. the number of clusters in BPIX1)
 
   auto output = std::make_unique<TrackingRecHit2DCPU>(
-      numberOfClusters, isUpgrade_, hitsModuleStart[startBPIX2], &cpeView, hitsModuleStart, nullptr);
+      numberOfClusters, isPhase2_, hitsModuleStart[startBPIX2], &cpeView, hitsModuleStart, nullptr);
   assert(output->nMaxModules() == uint32_t(nMaxModules));
 
   if (0 == numberOfClusters) {
@@ -262,7 +262,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   assert(numberOfHits == numberOfClusters);
 
   // fill data structure to support CA
-  auto nLayers = isUpgrade_ ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
+  auto nLayers = isPhase2_ ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
   for (auto i = 0U; i < nLayers; ++i) {
     output->hitsLayerStart()[i] = hitsModuleStart[cpeView.layerGeometry().layerStart[i]];
     LogDebug("SiPixelRecHitSoAFromLegacy")

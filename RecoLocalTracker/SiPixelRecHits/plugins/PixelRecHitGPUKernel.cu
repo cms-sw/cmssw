@@ -19,7 +19,7 @@ namespace {
                                     uint32_t* hitsLayerStart) {
     auto i = blockIdx.x * blockDim.x + threadIdx.x;
     auto m =
-        cpeParams->commonParams().isUpgrade ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
+        cpeParams->commonParams().isPhase2 ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
 
     assert(0 == hitsModuleStart[0]);
 
@@ -38,13 +38,13 @@ namespace pixelgpudetails {
                                                           SiPixelClustersCUDA const& clusters_d,
                                                           BeamSpotCUDA const& bs_d,
                                                           pixelCPEforGPU::ParamsOnGPU const* cpeParams,
-                                                          bool isUpgrade,
+                                                          bool isPhase2,
                                                           cudaStream_t stream) const {
     auto nHits = clusters_d.nClusters();
 
     TrackingRecHit2DGPU hits_d(
-        nHits, isUpgrade, clusters_d.offsetBPIX2(), cpeParams, clusters_d.clusModuleStart(), stream);
-    assert(hits_d.nMaxModules() == isUpgrade ? phase2PixelTopology::numberOfModules
+        nHits, isPhase2, clusters_d.offsetBPIX2(), cpeParams, clusters_d.clusModuleStart(), stream);
+    assert(hits_d.nMaxModules() == isPhase2 ? phase2PixelTopology::numberOfModules
                                              : phase1PixelTopology::numberOfModules);
 
     int activeModulesWithDigis = digis_d.nModules();
@@ -67,7 +67,7 @@ namespace pixelgpudetails {
     if (nHits) {
       setHitsLayerStart<<<1, 32, 0, stream>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
       cudaCheck(cudaGetLastError());
-      auto nLayers = isUpgrade ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
+      auto nLayers = isPhase2 ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
       cms::cuda::fillManyFromVector(hits_d.phiBinner(),
                                     nLayers,
                                     hits_d.iphi(),

@@ -30,13 +30,13 @@ namespace gpuPixelRecHits {
     auto& hits = *phits;
 
     auto const& clusters = *pclusters;
-    auto isUpgrade = cpeParams->commonParams().isUpgrade;
+    auto isPhase2 = cpeParams->commonParams().isPhase2;
     // copy average geometry corrected by beamspot . FIXME (move it somewhere else???)
     if (0 == blockIdx.x) {
       auto& agc = hits.averageGeometry();
       auto const& ag = cpeParams->averageGeometry();
       auto nLadders =
-          isUpgrade ? phase2PixelTopology::numberOfLaddersInBarrel : phase1PixelTopology::numberOfLaddersInBarrel;
+          isPhase2 ? phase2PixelTopology::numberOfLaddersInBarrel : phase1PixelTopology::numberOfLaddersInBarrel;
 
       for (int il = threadIdx.x, nl = nLadders; il < nl; il += blockDim.x) {
         agc.ladderZ[il] = ag.ladderZ[il] - bs->z;
@@ -169,7 +169,7 @@ namespace gpuPixelRecHits {
         assert(h < clusters.clusModuleStart(me + 1));
 
         pixelCPEforGPU::position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
-        if (!isUpgrade)
+        if (!isPhase2)
           pixelCPEforGPU::errorFromDB(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
         else
           pixelCPEforGPU::errorFromSize(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);

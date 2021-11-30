@@ -450,13 +450,13 @@ namespace pixelgpudetails {
     }  // end of loop (gIndex < end)
 
   }  // end of Raw to Digi kernel
-  template <bool isUpgrade>
+  template <bool isPhase2>
   __global__ void fillHitsModuleStart(uint32_t const *__restrict__ clusInModule,
                                       uint32_t *__restrict__ moduleStart,
                                       uint32_t const *__restrict__ nModules,
                                       uint32_t *__restrict__ nModules_Clusters) {
-    constexpr int nMaxModules = isUpgrade ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
-    constexpr int startBPIX2 = isUpgrade ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
+    constexpr int nMaxModules = isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+    constexpr int startBPIX2 = isPhase2 ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
 
     assert(nMaxModules < phase2PixelTopology::numberOfModules);
     assert(startBPIX2 < nMaxModules);
@@ -475,20 +475,20 @@ namespace pixelgpudetails {
 
     __shared__ uint32_t ws[64];
     cms::cuda::blockPrefixScan(moduleStart + 1, moduleStart + 1, 1024, ws);
-    constexpr int lastModules = isUpgrade ? 1024 : nMaxModules - 1024;
+    constexpr int lastModules = isPhase2 ? 1024 : nMaxModules - 1024;
     cms::cuda::blockPrefixScan(moduleStart + 1024 + 1, moduleStart + 1024 + 1, lastModules, ws);
 
-    if constexpr (isUpgrade) {
+    if constexpr (isPhase2) {
       cms::cuda::blockPrefixScan(moduleStart + 2048 + 1, moduleStart + 2048 + 1, 1024, ws);
       cms::cuda::blockPrefixScan(moduleStart + 3072 + 1, moduleStart + 3072 + 1, nMaxModules - 3072, ws);
     }
 
-    for (int i = first + 1025, iend = isUpgrade ? 2049 : nMaxModules + 1; i < iend; i += blockDim.x) {
+    for (int i = first + 1025, iend = isPhase2 ? 2049 : nMaxModules + 1; i < iend; i += blockDim.x) {
       moduleStart[i] += moduleStart[1024];
     }
     __syncthreads();
 
-    if constexpr (isUpgrade) {
+    if constexpr (isPhase2) {
       for (int i = first + 2049, iend = 3073; i < iend; i += blockDim.x) {
         moduleStart[i] += moduleStart[2048];
       }
@@ -509,7 +509,7 @@ namespace pixelgpudetails {
     }
 
 #ifdef GPU_DEBUG
-    uint16_t maxH = isUpgrade ? 3027 : 1024;
+    uint16_t maxH = isPhase2 ? 3027 : 1024;
     assert(0 == moduleStart[0]);
     auto c0 = std::min(gpuClustering::maxHitsInModule(), clusInModule[0]);
     assert(c0 == moduleStart[1]);
@@ -517,8 +517,8 @@ namespace pixelgpudetails {
     assert(moduleStart[maxH + 1] >= moduleStart[maxH]);
     assert(moduleStart[nMaxModules] >= moduleStart[maxH + 1]);
 
-    constexpr int startFP1 = isUpgrade ? phase2PixelTopology::numberOfModulesInBarrel : phase1PixelTopology::numberOfModulesInBarrel;
-    constexpr int startLastFwd = isUpgrade ? phase2PixelTopology::layerStart[phase2PixelTopology::numberOfLayers] : phase1PixelTopology::layerStart[phase1PixelTopology::numberOfLayers];
+    constexpr int startFP1 = isPhase2 ? phase2PixelTopology::numberOfModulesInBarrel : phase1PixelTopology::numberOfModulesInBarrel;
+    constexpr int startLastFwd = isPhase2 ? phase2PixelTopology::layerStart[phase2PixelTopology::numberOfLayers] : phase1PixelTopology::layerStart[phase1PixelTopology::numberOfLayers];
     for (int i = first, iend = nMaxModules + 1; i < iend; i += blockDim.x) {
       if (0 != i)
         assert(moduleStart[i] >= moduleStart[i - i]);

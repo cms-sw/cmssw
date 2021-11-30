@@ -36,7 +36,7 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const& conf,
           << (*genErrorDBObject_).version();
   }
 
-  isUpgrade_ = conf.getParameter<bool>("isUpgrade");
+  isPhase2_ = conf.getParameter<bool>("isPhase2");
 
   fillParamsForGpu();
 
@@ -96,8 +96,8 @@ void PixelCPEFast::fillParamsForGpu() {
   commonParamsGPU_.thePitchY = m_DetParams[0].thePitchY;
 
   commonParamsGPU_.numberOfLaddersInBarrel =
-      isUpgrade_ ? phase2PixelTopology::numberOfLaddersInBarrel : phase1PixelTopology::numberOfLaddersInBarrel;
-  commonParamsGPU_.isUpgrade = isUpgrade_;
+      isPhase2_ ? phase2PixelTopology::numberOfLaddersInBarrel : phase1PixelTopology::numberOfLaddersInBarrel;
+  commonParamsGPU_.isPhase2 = isPhase2_;
 
   LogDebug("PixelCPEFast") << "pitch & thickness " << commonParamsGPU_.thePitchX << ' ' << commonParamsGPU_.thePitchY
                            << "  " << commonParamsGPU_.theThicknessB << ' ' << commonParamsGPU_.theThicknessE;
@@ -118,7 +118,7 @@ void PixelCPEFast::fillParamsForGpu() {
     auto& p = m_DetParams[i];
     auto& g = detParamsGPU_[i];
 
-    if (!isUpgrade_) {
+    if (!isPhase2_) {
       g.nRowsRoc = phase1PixelTopology::numRowsInRoc;
       g.nColsRoc = phase1PixelTopology::numColsInRoc;
       g.nRows = phase1PixelTopology::numRowsInModule;
@@ -164,7 +164,7 @@ void PixelCPEFast::fillParamsForGpu() {
       rl = 0;
       zl = 0;
       pl = 0;
-      miz = isUpgrade_ ? 500 : 90;
+      miz = isPhase2_ ? 500 : 90;
       mxz = 0;
       nl++;
     }
@@ -213,7 +213,7 @@ void PixelCPEFast::fillParamsForGpu() {
       cp.cotalpha = gvx * gvz;
       cp.cotbeta = gvy * gvz;
 
-      if (!isUpgrade_)
+      if (!isPhase2_)
         errorFromTemplates(p, cp, 20000.);
       else
         cp.qBin_ = 0.f;
@@ -320,13 +320,13 @@ void PixelCPEFast::fillParamsForGpu() {
     }
   }  // loop over det
 
-  const int numberOfModulesInLadder = isUpgrade_ ? int(phase2PixelTopology::numberOfModulesInLadder)
+  const int numberOfModulesInLadder = isPhase2_ ? int(phase2PixelTopology::numberOfModulesInLadder)
                                            : int(phase1PixelTopology::numberOfModulesInLadder);
-  const int numberOfModulesInBarrel = isUpgrade_ ? int(phase2PixelTopology::numberOfModulesInBarrel)
+  const int numberOfModulesInBarrel = isPhase2_ ? int(phase2PixelTopology::numberOfModulesInBarrel)
                                            : int(phase1PixelTopology::numberOfModulesInBarrel);
   const int numberOfLaddersInBarrel = commonParamsGPU_.numberOfLaddersInBarrel;
 
-  const int firstEndcapPos = 4, firstEndcapNeg = isUpgrade_ ? 16 : 7;
+  const int firstEndcapPos = 4, firstEndcapNeg = isPhase2_ ? 16 : 7;
   float ladderFactor = 1.f / float(numberOfModulesInLadder);
 
   // compute ladder baricenter (only in global z) for the barrel
@@ -347,7 +347,7 @@ void PixelCPEFast::fillParamsForGpu() {
   }
   assert(il + 1 == int(numberOfLaddersInBarrel));
   // add half_module and tollerance
-  float module_length = isUpgrade_ ? 4.345f : 6.7f;
+  float module_length = isPhase2_ ? 4.345f : 6.7f;
   constexpr float module_tolerance = 0.2f;
   for (int il = 0, nl = numberOfLaddersInBarrel; il < nl; ++il) {
     aveGeom.ladderMinZ[il] -= (0.5f * module_length - module_tolerance);
@@ -355,7 +355,7 @@ void PixelCPEFast::fillParamsForGpu() {
   }
 
   // compute "max z" for first layer in endcap (should we restrict to the outermost ring?)
-  if (!isUpgrade_) {
+  if (!isPhase2_) {
     for (auto im = phase1PixelTopology::layerStart[firstEndcapPos];
          im < phase1PixelTopology::layerStart[firstEndcapPos + 1];
          ++im) {
@@ -398,7 +398,7 @@ void PixelCPEFast::fillParamsForGpu() {
 
   // fill Layer and ladders geometry
   memset(&layerGeometry_, 0, sizeof(pixelCPEforGPU::LayerGeometry));
-  if (!isUpgrade_) {
+  if (!isPhase2_) {
     memcpy(layerGeometry_.layerStart, phase1PixelTopology::layerStart, sizeof(phase1PixelTopology::layerStart));
     memcpy(layerGeometry_.layer, phase1PixelTopology::layer.data(), phase1PixelTopology::layer.size());
     layerGeometry_.maxModuleStride = phase1PixelTopology::maxModuleStride;
@@ -547,5 +547,5 @@ LocalError PixelCPEFast::localError(DetParam const& theDetParam, ClusterParam& t
 void PixelCPEFast::fillPSetDescription(edm::ParameterSetDescription& desc) {
   // call PixelCPEGenericBase fillPSetDescription to add common rechit errors
   PixelCPEGenericBase::fillPSetDescription(desc);
-  desc.add<bool>("isUpgrade", false);
+  desc.add<bool>("isPhase2", false);
 }
