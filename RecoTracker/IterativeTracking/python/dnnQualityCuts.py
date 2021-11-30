@@ -9,7 +9,7 @@ qualityCutDictionary = cms.PSet(
    DetachedTripletStep =        cms.vdouble(-0.32, 0.24, 0.81),
    PixelPairStep       =        cms.vdouble(-0.38, -0.23, 0.04),
    MixedTripletStep    =        cms.vdouble(-0.83, -0.63, -0.38),
-   PixelLessStep       =        cms.vdouble(-0.6, -0.5, -0.4),
+   PixelLessStep       =        cms.vdouble(-0.60, -0.40, 0.02),
    TobTecStep          =        cms.vdouble(-0.71, -0.58, -0.46), 
    JetCoreRegionalStep =        cms.vdouble(-0.53, -0.33, 0.18)
 
