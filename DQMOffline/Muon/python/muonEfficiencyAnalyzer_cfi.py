@@ -184,38 +184,38 @@ EfficiencyAnalyzer = cms.Sequence(TightMuonEfficiencyAnalyzer*LooseMuonEfficienc
 EfficiencyAnalyzer_miniAOD = cms.Sequence(TightMuonEfficiencyAnalyzer_miniAOD*LooseMuonEfficiencyAnalyzer_miniAOD*MediumMuonEfficiencyAnalyzer_miniAOD)
 
 TightMuonEfficiencyAnalyzer_Phase2=TightMuonEfficiencyAnalyzer.clone(
-    vtxBin=20
-    vtxMin=149.5
+    vtxBin=20,
+    vtxMin=149.5,
     vtxMax=249.5
 )
 
 LooseMuonEfficiencyAnalyzer_Phase2=LooseMuonEfficiencyAnalyzer.clone(
-    vtxBin=20
-    vtxMin=149.5
+    vtxBin=20,
+    vtxMin=149.5,
     vtxMax=249.5 
 )                                                                     
 
 MediumMuonEfficiencyAnalyzer_Phase2=MediumMuonEfficiencyAnalyzer.clone(                                                                    
-    vtxBin=20
-    vtxMin=149.5
+    vtxBin=20,
+    vtxMin=149.5,
     vtxMax=249.5
 )
 
 TightMuonEfficiencyAnalyzer_miniAOD_Phase2=TightMuonEfficiencyAnalyzer_miniAOD.clone(                                                      
-    vtxBin=20
-    vtxMin=149.5
+    vtxBin=20,
+    vtxMin=149.5,
     vtxMax=249.5
 )
 
 LooseMuonEfficiencyAnalyzer_miniAOD_Phase2=LooseMuonEfficiencyAnalyzer_miniAOD.clone(
-    vtxBin=20
-    vtxMin=149.5
+    vtxBin=20,
+    vtxMin=149.5,
     vtxMax=249.5                                                      
 )
 
 MediumMuonEfficiencyAnalyzer_miniAOD_Phase2=MediumMuonEfficiencyAnalyzer.clone(
-    vtxBin=20
-    vtxMin=149.5
+    vtxBin=20,
+    vtxMin=149.5,
     vtxMax=249.5                                                           
 )
                                                         
