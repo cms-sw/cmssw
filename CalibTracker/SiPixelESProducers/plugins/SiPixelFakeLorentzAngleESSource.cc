@@ -34,6 +34,7 @@
 SiPixelFakeLorentzAngleESSource::SiPixelFakeLorentzAngleESSource(const edm::ParameterSet& conf_)
     : fp_(conf_.getParameter<edm::FileInPath>("file")),
       t_topo_fp_(conf_.getParameter<edm::FileInPath>("topologyInput")),
+      myLabel_(conf_.getParameter<std::string>("label")),
       BPixParameters_(conf_.getParameter<Parameters>("BPixParameters")),
       FPixParameters_(conf_.getParameter<Parameters>("FPixParameters")),
       ModuleParameters_(conf_.getParameter<Parameters>("ModuleParameters")),
@@ -41,7 +42,7 @@ SiPixelFakeLorentzAngleESSource::SiPixelFakeLorentzAngleESSource(const edm::Para
       fPixLorentzAnglePerTesla_((float)conf_.getUntrackedParameter<double>("fPixLorentzAnglePerTesla", -9999.)) {
   edm::LogInfo("SiPixelFakeLorentzAngleESSource::SiPixelFakeLorentzAngleESSource");
   // the following line is needed to tell the framework what data is being produced
-  setWhatProduced(this);
+  setWhatProduced(this, myLabel_);
   findingRecord<SiPixelLorentzAngleRcd>();
 }
 
@@ -239,11 +240,15 @@ void SiPixelFakeLorentzAngleESSource::fillDescriptions(edm::ConfigurationDescrip
   desc.setComment("ESSource to supply per-module SiPixelLorentzAngle payloads in the EventSetup");
 
   desc.add<edm::FileInPath>(
-      "file", edm::FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt"));
+          "file", edm::FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt"))
+      ->setComment("Tracker skimmed geometry");
   desc.add<edm::FileInPath>("topologyInput",
-                            edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml"));
-  desc.addUntracked<double>("bPixLorentzAnglePerTesla", -9999.);
-  desc.addUntracked<double>("fPixLorentzAnglePerTesla", -9999.);
+                            edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml"))
+      ->setComment("Tracker Topology");
+
+  desc.add<std::string>("label", "")->setComment("label to which write the data");
+  desc.addUntracked<double>("bPixLorentzAnglePerTesla", -9999.)->setComment("LA value for all BPix");
+  desc.addUntracked<double>("fPixLorentzAnglePerTesla", -9999.)->setComment("LA value for all FPix");
 
   edm::ParameterSetDescription desc_BPixParameters;
   desc_BPixParameters.addOptional<int>("layer");
@@ -252,7 +257,8 @@ void SiPixelFakeLorentzAngleESSource::fillDescriptions(edm::ConfigurationDescrip
   desc_BPixParameters.addOptional<int>("side");
   desc_BPixParameters.add<double>("angle");
   std::vector<edm::ParameterSet> default_BPixParametersToAdd;
-  desc.addVPSet("BPixParameters", desc_BPixParameters, default_BPixParametersToAdd);
+  desc.addVPSet("BPixParameters", desc_BPixParameters, default_BPixParametersToAdd)
+      ->setComment("LA values for given BPix regions");
 
   edm::ParameterSetDescription desc_FPixParameters;
   desc_FPixParameters.addOptional<int>("side");
@@ -263,13 +269,15 @@ void SiPixelFakeLorentzAngleESSource::fillDescriptions(edm::ConfigurationDescrip
   desc_FPixParameters.addOptional<int>("HVgroup");
   desc_FPixParameters.add<double>("angle");
   std::vector<edm::ParameterSet> default_FPixParametersToAdd;
-  desc.addVPSet("FPixParameters", desc_FPixParameters, default_FPixParametersToAdd);
+  desc.addVPSet("FPixParameters", desc_FPixParameters, default_FPixParametersToAdd)
+      ->setComment("LA values for given FPix regions");
 
   edm::ParameterSetDescription desc_ModuleParameters;
   desc_ModuleParameters.add<unsigned int>("rawid");
   desc_ModuleParameters.add<double>("angle");
   std::vector<edm::ParameterSet> default_ModuleParametersToAdd;
-  desc.addVPSet("ModuleParameters", desc_ModuleParameters, default_ModuleParametersToAdd);
+  desc.addVPSet("ModuleParameters", desc_ModuleParameters, default_ModuleParametersToAdd)
+      ->setComment("LA values for given modules");
 
   descriptions.addWithDefaultLabel(desc);
 }

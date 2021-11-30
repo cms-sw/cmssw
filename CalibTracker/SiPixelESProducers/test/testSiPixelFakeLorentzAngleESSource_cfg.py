@@ -70,6 +70,7 @@ process.SiPixelFakeLorentzAngleESSource = siPixelFakeLorentzAngleESSource.clone(
 
 if(options.isPhase2):
     print(" ========> Testing Phase-2")
+    process.SiPixelFakeLorentzAngleESSource.label = cms.string("forPhase2")
     process.SiPixelFakeLorentzAngleESSource.bPixLorentzAnglePerTesla = cms.untracked.double(0.106)
     process.SiPixelFakeLorentzAngleESSource.fPixLorentzAnglePerTesla = cms.untracked.double(0.106)
     process.SiPixelFakeLorentzAngleESSource.file = 'SLHCUpgradeSimulations/Geometry/data/PhaseII/Tilted/PixelSkimmedGeometryT14.txt'
@@ -174,9 +175,13 @@ else:
             cms.PSet( rawid=cms.uint32(344860676), angle=cms.double(FPix_300V_RNG2_PNL2) )
         )
     
+##
+## SiPixelLorentzAngleReader (from Event Setup)
+##
 process.LorentzAngleReader = cms.EDAnalyzer("SiPixelLorentzAngleReader",
-                                            printDebug = cms.untracked.bool(True),
-                                            useSimRcd = cms.bool(False)
-                                           )
+                                            printDebug = cms.untracked.uint32(10),
+                                            useSimRcd = cms.bool(False),
+                                            recoLabel = cms.string("forPhase2" if options.isPhase2 else "") # test the label
+                                            )
 
 process.p = cms.Path(process.LorentzAngleReader)
