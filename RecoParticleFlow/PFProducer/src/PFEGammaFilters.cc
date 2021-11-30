@@ -183,10 +183,10 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
       if (eleEta <= etaThreshold) {
         passEleSelection = (dnn_sig > ele_dnnHighPtBarrelThr_) && (dnn_bkg < ele_dnnBkgHighPtBarrelThr_);
       } else if (eleEta > etaThreshold) {
-        passEleSelection = (dnn_sig > ele_dnnHighPtEndcapThr_) && (dnn_sig < ele_dnnBkgHighPtEndcapThr_);
+        passEleSelection = (dnn_sig > ele_dnnHighPtEndcapThr_) && (dnn_bkg < ele_dnnBkgHighPtEndcapThr_);
       }
     } else {  // pt < ele_iso_pt_
-      passEleSelection = (dnn_sig > ele_dnnLowPtThr_) && (dnn_sig < ele_dnnBkgLowPtThr_);
+      passEleSelection = (dnn_sig > ele_dnnLowPtThr_) && (dnn_bkg < ele_dnnBkgLowPtThr_);
     }
     // TODO: For the moment do not evaluate further conditions on isolation and HCAL cleaning..
     // To be understood if they are needed
