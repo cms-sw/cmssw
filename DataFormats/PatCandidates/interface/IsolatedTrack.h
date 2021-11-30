@@ -125,9 +125,7 @@ namespace pat {
     int lostInnerLayers() const {
       return hitPattern_.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS);
     }
-    int lostLayers() const {
-      return hitPattern_.trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
-    }
+    int lostLayers() const { return hitPattern_.trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS); }
     int lostOuterLayers() const {
       return hitPattern_.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS);
     }
