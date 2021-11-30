@@ -75,7 +75,7 @@ Calorimeters:
 * C14: HGCal (v14 version reading the input from the flat file and uses it to create geometry, still using masking to define partial wafers) + Phase2 HCAL and EB (used in 2026D76-81, 2026D85, 2026D87)
 * C15: HGCal (as in C14) + HFNose with corrected wafer size  + Phase2 HCAL and EB (used in 2026D82)
 * C16: HGCal (v15 version of HGCal geometry created using real full and partial silicon modules using the constants of the flat file) + Phase2 HCAL and EB (used in 2026D83)
-* C17: HGCal (v16 version of HGCal geometry created with new longitudinal structure having 47 layers and new definition of partial wafers using the constants of the flat file) + Phase2 HCAL and EB (used in 2026D86)
+* C17: HGCal (v16 version of HGCal geometry created with new longitudinal structure having 47 layers and new definition of partial wafers using the constants of the flat file) + Phase2 HCAL and EB (used in 2026D86, 2025D88)
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
@@ -83,7 +83,7 @@ Muon system:
 * M7: same as M6 with further ajustment of ME0 for boundaries
 * M8: same as M7 with changed number of strips for GE21
 * M9: same as M8 with GE0 replacing ME0
-* M10: same as M9 but with a realistic support structure for GE0
+* M10: same as M9 but with a realistic support structure for GE0, Shield structure modified in muonYoke
 
 Fast Timing system:
 * I10: Fast Timing detector (LYSO barrel (bars along phi flat), silicon endcap), w/ passive materials, ETL in position defined in O4, material adjustments
@@ -125,3 +125,4 @@ Several detector combinations have been generated:
 * D85 = T24+C14+M9+I14+O7+F6
 * D86 = T24+C17+M10+I14+O8+F6
 * D87 = T27+C14+M9+I13+O7+F6
+* D88 = T24+C17+M10+I15+O9+F6

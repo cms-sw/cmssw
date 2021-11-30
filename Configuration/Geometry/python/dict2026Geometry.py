@@ -1277,7 +1277,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/mb3/2015/v2/mb3.xml',
             'Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml',
             'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
-            'Geometry/MuonCommonData/data/muonYoke/2026/v1/muonYoke.xml',
+            'Geometry/MuonCommonData/data/muonYoke/2026/v2/muonYoke.xml',
             'Geometry/MuonCommonData/data/mf/2026/v8/mf.xml',
             'Geometry/MuonCommonData/data/csc/2021/v2/csc.xml',
             'Geometry/MuonCommonData/data/rpcf/2026/v3/rpcf.xml',
@@ -1616,6 +1616,7 @@ detectorVersionDict = {
     ("O7","T24","C14","M9","F6","I14") : "D85",
     ("O8","T24","C17","M10","F6","I14") : "D86",
     ("O7","T27","C14","M9","F6","I13") : "D87",
+    ("O9","T24","C17","M10","F6","I15") : "D88",
  }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D50", "D51", "D52", "D53", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62", "D63", "D64", "D65", "D66", "D67", "D69", "D71", "D72", "D73", "D74", "D75"])
