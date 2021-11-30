@@ -449,7 +449,7 @@ void DTLocalTriggerTest::fillGlobalSummary(DQMStore::IGetter& igetter) {
       }
       (corr < 5 || second < 5) && nSecReadout++;
       int errcode = ((corr < 5 ? corr : 4) + (second < 5 ? second : 4) + (lut < 5 ? lut : 4));
-      errcode = min(int((errcode / maxErr + 0.01) * 5), 5);
+      errcode = min(int((errcode / maxErr + 0.01) * 4), 4);
       cmsME.find("TrigGlbSummary")->second->setBinContent(sect, wh + wheelArrayShift, glbPerc[errcode]);
     }
   }
