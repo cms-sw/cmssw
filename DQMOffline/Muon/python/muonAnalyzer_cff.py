@@ -18,24 +18,16 @@ muonAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
                             staMuonSegmentAnalyzer*
                             muonKinVsEtaAnalyzer*
                             diMuonHistos*
-                            LooseMuonEfficiencyAnalyzer*
-                            MediumMuonEfficiencyAnalyzer*
-                            TightMuonEfficiencyAnalyzer*
+                            EfficiencyAnalyzer*
                             muonPFsequence*
                             muonRecoOneHLT)
-from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
-from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-phase2_muon.toReplaceWith(muonAnalyzer, muonAnalyzer.copyAndExclude([ # FIXME
-    muonEnergyDepositAnalyzer
-]))
+
 
 muonAnalyzer_miniAOD = cms.Sequence(muonRecoAnalyzer_miniAOD* 
                                     muonKinVsEtaAnalyzer_miniAOD*
                                     diMuonHistos_miniAOD*
-                                    LooseMuonEfficiencyAnalyzer_miniAOD*
-                                    MediumMuonEfficiencyAnalyzer_miniAOD*
-                                    TightMuonEfficiencyAnalyzer_miniAOD*
+                                    EfficiencyAnalyzer_miniAOD*
                                     triggerMatchMonitor_miniAOD)
 
 muonAnalyzer_noHLT = cms.Sequence(muonEnergyDepositAnalyzer*
@@ -45,7 +37,5 @@ muonAnalyzer_noHLT = cms.Sequence(muonEnergyDepositAnalyzer*
                                   staMuonSegmentAnalyzer*
                                   muonKinVsEtaAnalyzer*
                                   diMuonHistos*
-                                  LooseMuonEfficiencyAnalyzer*
-                                  MediumMuonEfficiencyAnalyzer*
-                                  TightMuonEfficiencyAnalyzer*                                
+                                  EfficiencyAnalyzer* 
                                   muonPFsequence)

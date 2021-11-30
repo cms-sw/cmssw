@@ -61,6 +61,10 @@ MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig) {
   requireGLBMuon = iConfig.getUntrackedParameter<bool>("requireGLBMuon");
   dirName = iConfig.getParameter<std::string>("directory");
 
+  vtxBin_ = iConfig.getParameter<int>("vtxBin");
+  vtxMin_ = iConfig.getParameter<double>("vtxMin");
+  vtxMax_ = iConfig.getParameter<double>("vtxMax");
+
   //--------Initialize tags-------
   theMuonCollectionLabel_ =
       consumes<edm::View<reco::Muon> >(iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label"));
@@ -209,12 +213,12 @@ void MuonIsolationDQM::InitStatics() {
   titles_2D[8] = "Relative Detector-Based Isolation, #Delta R = 0.4";
   titles_2D[9] = "Relative PF Isolation, #Delta R = 0.4";
 
-  main_titles_NVtxs[0] = "Sum PF Neutral Hadron Pt, #DeltaR = 0.4 ( 0 < N_{Vtx} < 15)";
-  main_titles_NVtxs[1] = "Sum PF Neutral Hadron Pt, #DeltaR = 0.4 (15 < N_{Vtx} < 30)";
-  main_titles_NVtxs[2] = "Sum PF Neutral Hadron Pt, #DeltaR = 0.4 (30 < N_{Vtx})";
-  main_titles_NVtxs[3] = "Sum PF Photon Et, #DeltaR = 0.4 ( 0 < N_{Vtx} < 15)";
-  main_titles_NVtxs[4] = "Sum PF Photon Et, #DeltaR = 0.4 (15 < N_{Vtx} < 30)";
-  main_titles_NVtxs[5] = "Sum PF Photon Et, #DeltaR = 0.4 (30 < N_{Vtx})";
+  main_titles_NVtxs[0] = "Sum PF Neutral Hadron Pt, #DeltaR = 0.4 ( 20 < N_{Vtx} < 50)";
+  main_titles_NVtxs[1] = "Sum PF Neutral Hadron Pt, #DeltaR = 0.4 (50 < N_{Vtx} < 80)";
+  main_titles_NVtxs[2] = "Sum PF Neutral Hadron Pt, #DeltaR = 0.4 (80 < N_{Vtx})";
+  main_titles_NVtxs[3] = "Sum PF Photon Et, #DeltaR = 0.4 ( 20 < N_{Vtx} < 50)";
+  main_titles_NVtxs[4] = "Sum PF Photon Et, #DeltaR = 0.4 (50 < N_{Vtx} < 80)";
+  main_titles_NVtxs[5] = "Sum PF Photon Et, #DeltaR = 0.4 (80 < N_{Vtx})";
 
 #ifdef DEBUG
   cout << "InitStatistics(): main titles 2D DONE " << endl;
@@ -365,12 +369,12 @@ void MuonIsolationDQM::InitStatics() {
   cout << "InitStatistics(): names 2D DONE " << endl;
 #endif
 
-  names_NVtxs[0] = "pfNeutralPt_R04_PV0to15";
-  names_NVtxs[1] = "pfNeutralPt_R04_PV15to30";
-  names_NVtxs[2] = "pfNeutralPt_R04_PV30toInf";
-  names_NVtxs[3] = "pfPhotonPt_R04_PV0to15";
-  names_NVtxs[4] = "pfPhotonPt_R04_PV15to30";
-  names_NVtxs[5] = "pfPhotonPt_R04_PV30toInf";
+  names_NVtxs[0] = "pfNeutralPt_R04_PV20to50";
+  names_NVtxs[1] = "pfNeutralPt_R04_PV50to80";
+  names_NVtxs[2] = "pfNeutralPt_R04_PV80toInf";
+  names_NVtxs[3] = "pfPhotonPt_R04_PV20to50";
+  names_NVtxs[4] = "pfPhotonPt_R04_PV50to80";
+  names_NVtxs[5] = "pfPhotonPt_R04_PV80toInf";
 
   //----------Parameters for binning of histograms---------
   //param[var][0] is the number of bins
@@ -779,8 +783,8 @@ void MuonIsolationDQM::bookHistograms(DQMStore::IBooker& ibooker,
 
   //----Initialize 2D Histograms
   for (int var = 0; var < NUM_VARS_2D; var++) {
-    h_2D[var] = ibooker.bookProfile(names_2D[var] + "_VsPV", titles_2D[var] + " Vs PV", 50, 0.5, 50.5, 20, 0.0, 20.0);
-
+    h_2D[var] = ibooker.bookProfile(
+        names_2D[var] + "_VsPV", titles_2D[var] + " Vs PV", vtxBin_, vtxMin_, vtxMax_, 20, 0.0, 20.0);
     h_2D[var]->setAxisTitle("Number of PV", XAXIS);
     h_2D[var]->setAxisTitle(titles_2D[var] + " (GeV)", YAXIS);
     //    h_2D[var]->getTH1()->Sumw2();
@@ -827,15 +831,15 @@ void MuonIsolationDQM::FillHistos(int numPV) {
 #endif
 }
 void MuonIsolationDQM::FillNVtxHistos(int PV) {
-  if (PV < 15) {
+  if (PV >= 20 && PV < 50) {
     h_1D_NVTX[0]->Fill(theDataNVtx[0]);
     h_1D_NVTX[3]->Fill(theDataNVtx[3]);
   }
-  if (PV >= 15 && PV < 30) {
+  if (PV >= 50 && PV < 80) {
     h_1D_NVTX[1]->Fill(theDataNVtx[1]);
     h_1D_NVTX[4]->Fill(theDataNVtx[4]);
   }
-  if (PV >= 30) {
+  if (PV >= 80) {
     h_1D_NVTX[2]->Fill(theDataNVtx[2]);
     h_1D_NVTX[5]->Fill(theDataNVtx[5]);
   }
