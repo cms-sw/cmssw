@@ -108,7 +108,7 @@ namespace {
       return nSegment_;
     }
 
-    inline double computeTof(double mass_inv2) const {
+    inline float computeTof(double mass_inv2) const {
       float tof(0.f);
       for (uint32_t iSeg = 0; iSeg < nSegment_; iSeg++) {
         float gammasq = 1.f + segmentMom2_[iSeg] * static_cast<float>(mass_inv2);
@@ -119,7 +119,7 @@ namespace {
                                          << " tof = " << tof;
       }
 
-      return static_cast<double>(tof);
+      return tof;
     }
 
     inline uint32_t size() const { return nSegment_; }
@@ -133,12 +133,11 @@ namespace {
       return nSegment_;
     }
 
-    inline std::pair<double, double> getSegmentPathAndMom2(uint32_t iSegment) const {
+    inline std::pair<float, float> getSegmentPathAndMom2(uint32_t iSegment) const {
       if (iSegment >= nSegment_) {
         throw cms::Exception("TrackExtenderWithMTD") << "Requesting non existing track segment #" << iSegment;
       }
-      return std::make_pair(static_cast<double>(segmentPathOvc_[iSegment]),
-                            static_cast<double>(segmentMom2_[iSegment]));
+      return std::make_pair(segmentPathOvc_[iSegment], segmentMom2_[iSegment]);
     }
 
     uint32_t nSegment_ = 0;
