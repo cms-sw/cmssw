@@ -82,7 +82,7 @@ private:
   edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> ddconsToken_;
   std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD_;
   const HcalDDDSimConstants* hcons_;
-  HcalTestNumberingScheme* org_;
+  std::unique_ptr<HcalTestNumberingScheme> org_;
 
   // Hits for qie analysis
   std::vector<CaloHit> caloHitCache_;
@@ -101,7 +101,8 @@ private:
   double mudist_[20];  // Distance of muon from central part
 };
 
-HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p) : addTower_(3), hcons_(nullptr), org_(nullptr) {
+HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p) : addTower_(3), hcons_(nullptr) {
+  org_.reset(nullptr);
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTestAnalysis");
   eta0_ = m_Anal.getParameter<double>("Eta0");
   phi0_ = m_Anal.getParameter<double>("Phi0");
@@ -135,7 +136,7 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p) : addTower_(3), h
 
 HcalTestAnalysis::~HcalTestAnalysis() {
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis: -------->  Total number of selected entries : " << count_;
-  edm::LogVerbatim("HcalSim") << "HcalTestAnalysis: Pointers:: Numbering Scheme " << org_;
+  edm::LogVerbatim("HcalSim") << "HcalTestAnalysis: Pointers:: Numbering Scheme " << org_.get();
 }
 
 void HcalTestAnalysis::registerConsumes(edm::ConsumesCollector cc) {
@@ -225,7 +226,7 @@ void HcalTestAnalysis::beginRun(edm::EventSetup const& es) {
   numberingFromDDD_ = std::make_unique<HcalNumberingFromDDD>(hcons_);
 
   // Numbering scheme
-  org_ = new HcalTestNumberingScheme(false);
+  org_ = std::make_unique<HcalTestNumberingScheme>(false);
 }
 
 //==================================================================== per RUN
@@ -276,8 +277,8 @@ void HcalTestAnalysis::update(const BeginOfRun* run) {
       HCalSD* theCaloSD = dynamic_cast<HCalSD*>(aSD);
       edm::LogVerbatim("HcalSim") << "HcalTestAnalysis::beginOfRun: Finds SD with name " << theCaloSD->GetName()
                                   << " in this Setup";
-      if (org_) {
-        theCaloSD->setNumberingScheme(org_);
+      if (org_.get()) {
+        theCaloSD->setNumberingScheme(org_.get());
         edm::LogVerbatim("HcalSim") << "HcalTestAnalysis::beginOfRun: set a new numbering scheme";
       }
     }
