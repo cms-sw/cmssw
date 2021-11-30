@@ -13,7 +13,7 @@ public:
   explicit EcalStatusAnalyzer(const edm::ParameterSet& iConfig);
   ~EcalStatusAnalyzer() override;
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void beginJob() override;
   void endJob() override;
 
