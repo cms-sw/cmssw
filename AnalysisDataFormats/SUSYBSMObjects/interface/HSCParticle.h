@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPCaloInfo.h"
 
 namespace susybsm {
@@ -60,6 +61,10 @@ namespace susybsm {
     void setRpc(const RPCBetaMeasurement& data) { rpc_ = data; }
     void setCaloInfo(const HSCPCaloInfoRef& data) { caloInfoRef_ = data; }
 
+    // set infos for MiniAOD
+    void setMuon(const pat::MuonRef& data) { patMuonRef_ = data; }
+    void setMTMuon(const pat::MuonRef& data) { patMTMuonRef_ = data; }
+
     // get infos
     reco::TrackRef trackRef() const { return trackRef_; }
     reco::TrackRef trackIsoRef() const { return trackIsoRef_; }
@@ -67,6 +72,10 @@ namespace susybsm {
     reco::MuonRef MTMuonRef() const { return MTMuonRef_; }
     HSCPCaloInfoRef caloInfoRef() const { return caloInfoRef_; }
     const RPCBetaMeasurement& rpc() const { return rpc_; }
+
+    // get infos for MiniAOD
+    pat::MuonRef patMuonRef() const { return patMuonRef_; }
+    pat::MuonRef patMTMuonRef() const { return patMTMuonRef_; }
 
     // shortcut of long function
     float p() const;
@@ -78,6 +87,8 @@ namespace susybsm {
     reco::TrackRef trackIsoRef_;  //TrackRef from general track collection (isolation purposes)
     reco::MuonRef muonRef_;
     reco::MuonRef MTMuonRef_;  //Muon reconstructed from MT muon segments.  SA only
+    pat::MuonRef patMuonRef_;
+    pat::MuonRef patMTMuonRef_;  //Muon reconstructed from MT muon segments.  SA only
     HSCPCaloInfoRef caloInfoRef_;
 
     RPCBetaMeasurement rpc_;

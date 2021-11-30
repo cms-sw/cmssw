@@ -1,5 +1,6 @@
 <lcgdict>
-   <class name="susybsm::HSCParticle" ClassVersion="11">
+   <class name="susybsm::HSCParticle" ClassVersion="12">
+    <version ClassVersion="12" checksum="2254410240"/>
     <version ClassVersion="11" checksum="2205741811"/>
    </class>
    <class name="susybsm::RPCBetaMeasurement" ClassVersion="10">
