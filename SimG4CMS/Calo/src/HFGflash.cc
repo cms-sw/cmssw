@@ -42,11 +42,10 @@ HFGflash::HFGflash(edm::ParameterSet const& p) {
   edm::LogVerbatim("HFShower") << "HFGFlash:: Set B-Field to " << theBField << ", WatcherOn to " << theWatcherOn
                                << " and FillHisto to " << theFillHisto;
 
-  theHelix = new GflashTrajectory;
-  theGflashStep = new G4Step();
-  theGflashNavigator = new G4Navigator();
-  //  theGflashNavigator = 0;
-  theGflashTouchableHandle = new G4TouchableHistory();
+  theHelix = std::make_unique<GflashTrajectory>();
+  theGflashStep = std::make_unique<G4Step>();
+  theGflashNavigator = std::make_unique<G4Navigator>();
+  theGflashTouchableHandle = std::make_unique<G4TouchableHistory>();
 
 #ifdef EDM_ML_DEBUG
   if (theFillHisto) {
@@ -119,11 +118,7 @@ HFGflash::HFGflash(edm::ParameterSet const& p) {
   jCalorimeter = Gflash::kHF;
 }
 
-HFGflash::~HFGflash() {
-  delete theHelix;
-  delete theGflashStep;
-  delete theGflashNavigator;
-}
+HFGflash::~HFGflash() {}
 
 std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Step* aStep, bool onlyLong) {
   double tempZCalo = 26;            // Gflash::Z[jCalorimeter]
@@ -264,8 +259,6 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Step* aStep, boo
   // Uniqueness of G4Step is important otherwise hits won't be created.
   G4double timeGlobal = preStepPoint->GetGlobalTime();
 
-  // this needs to be deleted manually at the end of this loop.
-  //  theGflashNavigator = new G4Navigator();
   theGflashNavigator->SetWorldVolume(
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
@@ -457,6 +450,5 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Step* aStep, boo
     em_nSpots_sd->Fill(nSpots_sd);
   }
 #endif
-  //  delete theGflashNavigator;
   return hit;
 }
