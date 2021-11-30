@@ -101,13 +101,10 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
 
     float incr = std::max(1.f, float(nHits) / float(hitsInFit));
     float n = 0;
-    // int jold = -1;
     for (uint32_t i = 0; i < hitsInFit; ++i) {
       int j = int(n + 0.5f);  // round
       if (hitsInFit - 1 == i)
         j = nHits - 1;  // force last hit to ensure max lever arm.
-      // assert(j>jold);
-      // jold=j;
       assert(j < int(nHits));
       n += incr;
       auto hit = hitId[j];
