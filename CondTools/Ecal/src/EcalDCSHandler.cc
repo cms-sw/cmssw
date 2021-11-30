@@ -3,6 +3,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 
@@ -132,13 +133,6 @@ uint16_t popcon::EcalDCSHandler::updateLV(RunDCSLVDat* lv, uint16_t dbStatus) co
     lv_nomi_on_dbstatus = 1;
   if (lv->getStatus() == RunDCSLVDat::LVOFF)
     lv_on_dbstatus = 1;
-
-  //  uint16_t lv_off_dbstatus = (dbStatus & (1 << EcalDCSTowerStatusHelper::LVSTATUS));
-  // uint16_t lv_nomi_off_dbstatus = (dbStatus & (1 << EcalDCSTowerStatusHelper::LVNOMINALSTATUS));
-  // if (lv_off_dbstatus > 0)
-  //   lv_off_dbstatus = 1;
-  // if (lv_nomi_off_dbstatus > 0)
-  //   lv_nomi_off_dbstatus = 1;
 
   uint16_t temp = 0;
   for (int i = 0; i < 16; i++) {
@@ -273,7 +267,7 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline(const std::map<EcalLogicID
         ex_x[5] = 6;
         ex_y[5] = 11;
       } else {
-        std::cout << "Dee number not known !" << std::endl;
+        throw cms::Exception("Invalid EcalLogicID") << "Unknown ECAL Endcap Dee number " << dee;
       }
 
       int modo = 1;
