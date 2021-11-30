@@ -41,7 +41,7 @@ void WritePPSAssociationCuts::analyze(const edm::Event &iEvent, const edm::Event
   // store the data in a DB object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOneIOV(&ppsAssociationCuts, poolDbService->currentTime(), "PPSAssociationCutsRcd");
+    poolDbService->writeOneIOV(ppsAssociationCuts, poolDbService->currentTime(), "PPSAssociationCutsRcd");
   } else {
     throw cms::Exception("WritePPSAssociationCuts") << "PoolDBService required.";
   }
