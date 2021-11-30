@@ -1,0 +1,26 @@
+#include "DataFormats/MuonReco/interface/MuonRecHitCluster.h"
+
+reco::MuonRecHitCluster::MuonRecHitCluster(const math::RhoEtaPhiVectorF position,
+                                           const int size,
+                                           const int nStation,
+                                           const float avgStation,
+                                           const float time,
+                                           const float timeSpread,
+                                           const int nME11,
+                                           const int nME12,
+                                           const int nME41,
+                                           const int nME42,
+                                           const int nMB1,
+                                           const int nMB2)
+    : position_(position),
+      size_(size),
+      nStation_(nStation),
+      avgStation_(avgStation),
+      time_(time),
+      timeSpread_(timeSpread),
+      nME11_(nME11),
+      nME12_(nME12),
+      nME41_(nME41),
+      nME42_(nME42),
+      nMB1_(nMB1),
+      nMB2_(nMB2) {}
