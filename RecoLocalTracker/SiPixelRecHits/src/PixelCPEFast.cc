@@ -320,10 +320,10 @@ void PixelCPEFast::fillParamsForGpu() {
     }
   }  // loop over det
 
-  const int numberOfModulesInLadder = isPhase2_ ? int(phase2PixelTopology::numberOfModulesInLadder)
-                                           : int(phase1PixelTopology::numberOfModulesInLadder);
-  const int numberOfModulesInBarrel = isPhase2_ ? int(phase2PixelTopology::numberOfModulesInBarrel)
-                                           : int(phase1PixelTopology::numberOfModulesInBarrel);
+  const int numberOfModulesInLadder =
+      isPhase2_ ? int(phase2PixelTopology::numberOfModulesInLadder) : int(phase1PixelTopology::numberOfModulesInLadder);
+  const int numberOfModulesInBarrel =
+      isPhase2_ ? int(phase2PixelTopology::numberOfModulesInBarrel) : int(phase1PixelTopology::numberOfModulesInBarrel);
   const int numberOfLaddersInBarrel = commonParamsGPU_.numberOfLaddersInBarrel;
 
   const int firstEndcapPos = 4, firstEndcapNeg = isPhase2_ ? 16 : 7;

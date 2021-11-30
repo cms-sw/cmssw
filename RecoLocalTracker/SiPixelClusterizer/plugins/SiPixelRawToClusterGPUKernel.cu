@@ -517,8 +517,10 @@ namespace pixelgpudetails {
     assert(moduleStart[maxH + 1] >= moduleStart[maxH]);
     assert(moduleStart[nMaxModules] >= moduleStart[maxH + 1]);
 
-    constexpr int startFP1 = isPhase2 ? phase2PixelTopology::numberOfModulesInBarrel : phase1PixelTopology::numberOfModulesInBarrel;
-    constexpr int startLastFwd = isPhase2 ? phase2PixelTopology::layerStart[phase2PixelTopology::numberOfLayers] : phase1PixelTopology::layerStart[phase1PixelTopology::numberOfLayers];
+    constexpr int startFP1 =
+        isPhase2 ? phase2PixelTopology::numberOfModulesInBarrel : phase1PixelTopology::numberOfModulesInBarrel;
+    constexpr int startLastFwd = isPhase2 ? phase2PixelTopology::layerStart[phase2PixelTopology::numberOfLayers]
+                                          : phase1PixelTopology::layerStart[phase1PixelTopology::numberOfLayers];
     for (int i = first, iend = nMaxModules + 1; i < iend; i += blockDim.x) {
       if (0 != i)
         assert(moduleStart[i] >= moduleStart[i - i]);
