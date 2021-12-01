@@ -765,7 +765,9 @@ namespace dqm::impl {
       auto access = this->accessMut();
       update();
       if (getAxis(access, __PRETTY_FUNCTION__, axis)->GetNbins() >= bin) {
-        getAxis(access, __PRETTY_FUNCTION__, axis)->SetBinLabel(bin, label.c_str());
+        if (strcmp(label.c_str(), getAxis(access, __PRETTY_FUNCTION__, axis)->GetBinLabel(bin)) != 0) {
+          getAxis(access, __PRETTY_FUNCTION__, axis)->SetBinLabel(bin, label.c_str());
+        }
       } else {
         fail = true;
       }

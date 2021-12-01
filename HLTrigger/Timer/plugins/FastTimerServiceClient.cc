@@ -30,6 +30,15 @@ struct MEPSet {
   double xmax;
 };
 
+namespace {
+  void setBinLabel(TAxis* axis, int bin, const char* label) {
+    if (strcmp(axis->GetBinLabel(bin), label) != 0) {
+      axis->SetBinLabel(bin, label);
+    }
+  }
+
+}  // namespace
+
 class FastTimerServiceClient : public DQMEDHarvester {
 public:
   explicit FastTimerServiceClient(edm::ParameterSet const&);
@@ -165,7 +174,6 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
                                                   double events,
                                                   std::string const& current_path) {
   // note: the following checks need to be kept separate, as any of these histograms might be missing
-
   booker.setCurrentFolder(current_path);
   std::vector<std::string> subsubdirs = getter.getSubdirs();
   size_t npaths = subsubdirs.size();
@@ -262,7 +270,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       real_average->SetYTitle("average processing (real) time [ms]");
       for (uint32_t i = 1; i <= bins; ++i) {
         const char* module = counter->GetXaxis()->GetBinLabel(i);
-        real_average->GetXaxis()->SetBinLabel(i, module);
+        setBinLabel(real_average->GetXaxis(), i, module);
       }
     }
 
@@ -278,7 +286,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       thread_average->SetYTitle("average processing (thread) time [ms]");
       for (uint32_t i = 1; i <= bins; ++i) {
         const char* module = counter->GetXaxis()->GetBinLabel(i);
-        thread_average->GetXaxis()->SetBinLabel(i, module);
+        setBinLabel(thread_average->GetXaxis(), i, module);
       }
     }
 
@@ -293,7 +301,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       real_running->SetYTitle("running processing (real) time [ms]");
       for (uint32_t i = 1; i <= bins; ++i) {
         const char* module = counter->GetXaxis()->GetBinLabel(i);
-        real_running->GetXaxis()->SetBinLabel(i, module);
+        setBinLabel(real_running->GetXaxis(), i, module);
       }
     }
 
@@ -309,7 +317,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       thread_running->SetYTitle("running processing (thread) time [ms]");
       for (uint32_t i = 1; i <= bins; ++i) {
         const char* module = counter->GetXaxis()->GetBinLabel(i);
-        thread_running->GetXaxis()->SetBinLabel(i, module);
+        setBinLabel(thread_running->GetXaxis(), i, module);
       }
     }
 
@@ -325,7 +333,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       efficiency->SetMaximum(1.05);
       for (uint32_t i = 1; i <= bins; ++i) {
         const char* module = counter->GetXaxis()->GetBinLabel(i);
-        efficiency->GetXaxis()->SetBinLabel(i, module);
+        setBinLabel(efficiency->GetXaxis(), i, module);
       }
     }
 
