@@ -6,6 +6,7 @@
 SiPixelDigisCUDA::SiPixelDigisCUDA(size_t maxFedWords, cudaStream_t stream)
     : m_store(cms::cuda::make_device_unique<uint16_t[]>(
           maxFedWords * int(SiPixelDigisCUDASOAView::StorageLocation::kMAX), stream)) {
+  assert(maxFedWords != 0);
   auto get16 = [&](SiPixelDigisCUDASOAView::StorageLocation s) { return m_store.get() + int(s) * maxFedWords; };
   m_view.xx_ = get16(SiPixelDigisCUDASOAView::StorageLocation::kXX);
   m_view.yy_ = get16(SiPixelDigisCUDASOAView::StorageLocation::kYY);
