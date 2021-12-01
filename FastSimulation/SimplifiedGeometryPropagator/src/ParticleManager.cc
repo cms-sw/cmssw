@@ -218,7 +218,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
     int exoticRelativeId = 0;
     const bool producedWithinBeamPipe =
         productionVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_;
-    if (producedWithinBeamPipe) {
+    if (!producedWithinBeamPipe) {
       exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
       if (!isExotic(exoticRelativeId)) {
         continue;
