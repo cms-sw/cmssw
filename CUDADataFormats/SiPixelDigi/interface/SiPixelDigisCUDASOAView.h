@@ -9,6 +9,11 @@
 
 #include <cstdint>
 
+auto roundFor128ByteAlignment = [](int numFedWords) {
+  int mul = 128 / sizeof(uint16_t);
+  return ((numFedWords + mul - 1) / mul) * mul;
+};
+
 class SiPixelDigisCUDASOAView {
 public:
   friend class SiPixelDigisCUDA;
