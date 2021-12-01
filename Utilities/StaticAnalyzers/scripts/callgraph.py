@@ -113,20 +113,18 @@ for tfunc in toplevelfuncs:
                     callstacks.add(cs)
 
 report = dict()
-csset = set()
-for key in sorted(set(module2package.keys())):
-    for value in sorted(set(module2package[key])):
+csset = set(callstacks)
+for callstack in sorted(list(callstacks)):
+    for key in module2package.keys():
+        for value in module2package.get(key):
             regex_str = r'\b%s\b'%value
             vre=re.compile(regex_str)
-            for callstack in sorted(callstacks):
-                if vre.search(callstack):
-                     report.setdefault(str(key), {}).setdefault(str(value), []).append(str(callstack))
-                else:
-                     shortstack=tmpl.sub(callstack,'<>::')
-                     if shortstack not in csset:
-                         csset.add(shortstack)
-                         report.setdefault('no-package', {}).setdefault('no-package', []).append(str(shortstack))
+            if vre.search(callstack):
+                report.setdefault(str(key), {}).setdefault(str(value), []).append(str(callstack))
+                csset.discard(callstack)
 
+report['no-package']=dict()
+report['no-package']['no-package']=sorted(list(csset))
 
 r = open('eventsetuprecord-get.yaml', 'w')
 dump(report, r, width=float("inf"))
