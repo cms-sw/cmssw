@@ -80,7 +80,7 @@ void popcon::EcalTPGLinConstHandler::getNewObjects() {
 
   readFromFile("last_tpg_lin_settings.txt");
 
-  unsigned int min_run = m_i_run_number + 1;
+  unsigned int min_run;
 
   if (m_firstRun < m_i_run_number) {
     min_run = m_i_run_number + 1;  // we have to add 1 to the last transferred one
