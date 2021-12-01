@@ -306,7 +306,7 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize() {
     Sigin = hj2->GetSigin();
     Sigjet = hj2->GetSigjet();
   }
-  ev = 1;
+  ev = true;
 
   if (fParams.fNhsel < 3)
     nsub_++;
