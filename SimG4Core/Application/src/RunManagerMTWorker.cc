@@ -259,7 +259,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   if (uitype == "MessageLogger") {
     ui = new CustomUIsession();
   } else if (uitype == "MessageLoggerThreadPrefix") {
-    ui = new CustomUIsessionThreadPrefix(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix", ""), thisID);
+    ui = new CustomUIsessionThreadPrefix(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix", ""),
+                                         thisID);
   } else if (uitype == "FilePerThread") {
     ui = new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile", ""), thisID);
   } else {

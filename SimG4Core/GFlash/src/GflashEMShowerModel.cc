@@ -25,7 +25,7 @@ GflashEMShowerModel::GflashEMShowerModel(const G4String &modelName,
                                          const edm::ParameterSet &parSet)
     : G4VFastSimulationModel(modelName, envelope), theParSet(parSet) {
   theProfile = new GflashEMShowerProfile(parSet);
-  theRegion = reinterpret_cast<G4Region*>(envelope);
+  theRegion = reinterpret_cast<G4Region *>(envelope);
 
   theGflashStep = new G4Step();
   theGflashTouchableHandle = new G4TouchableHistory();
@@ -146,4 +146,3 @@ G4bool GflashEMShowerModel::excludeDetectorRegion(const G4FastTrack &fastTrack) 
   G4double eta = fastTrack.GetPrimaryTrack()->GetPosition().pseudoRapidity();
   return (std::fabs(eta) > 1.392 && std::fabs(eta) < 1.566);
 }
-

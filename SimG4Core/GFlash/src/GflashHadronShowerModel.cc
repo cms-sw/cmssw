@@ -75,7 +75,7 @@ G4bool GflashHadronShowerModel::ModelTrigger(const G4FastTrack &fastTrack) {
   G4bool trigger = false;
 
   // mininum energy cutoff to parameterize
-  if (fastTrack.GetPrimaryTrack()->GetKineticEnergy() < Gflash::energyCutOff*CLHEP::GeV)
+  if (fastTrack.GetPrimaryTrack()->GetKineticEnergy() < Gflash::energyCutOff * CLHEP::GeV)
     return trigger;
 
   // check whether this is called from the normal GPIL or the wrapper process
@@ -237,7 +237,7 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack &f
 }
 
 G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack &fastTrack) {
-  const double invcm = 1.0/CLHEP::cm;
+  const double invcm = 1.0 / CLHEP::cm;
   G4bool isExcluded = false;
   int verbosity = theParSet.getUntrackedParameter<int>("Verbosity");
 
@@ -252,7 +252,7 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack &fastTra
   } else {
     const G4StepPoint *postStep = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint();
 
-    Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(postStep->GetPosition()*invcm);
+    Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(postStep->GetPosition() * invcm);
     G4double distOut = 9999.0;
 
     // exclude the region where the shower starting point is inside the
@@ -268,11 +268,11 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack &fastTra
     //@@@if we extend parameterization including Magnet/HO, we need to change
     // this strategy
     if (kCalor == Gflash::kHB) {
-      distOut = Gflash::Rmax[Gflash::kHB] - postStep->GetPosition().getRho()*invcm;
+      distOut = Gflash::Rmax[Gflash::kHB] - postStep->GetPosition().getRho() * invcm;
       if (distOut < Gflash::MinDistanceToOut)
         isExcluded = true;
     } else if (kCalor == Gflash::kHE) {
-      distOut = Gflash::Zmax[Gflash::kHE] - std::fabs(postStep->GetPosition().getZ()*invcm);
+      distOut = Gflash::Zmax[Gflash::kHE] - std::fabs(postStep->GetPosition().getZ() * invcm);
       if (distOut < Gflash::MinDistanceToOut)
         isExcluded = true;
     }
@@ -280,8 +280,8 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack &fastTra
     //@@@remove this print statement later
     if (isExcluded && verbosity > 0) {
       G4cout << "GflashHadronShowerModel: skipping kCalor = " << kCalor << " DistanceToOut " << distOut << " from ("
-	     << (postStep->GetPosition()).getRho()*invcm << ":" << (postStep->GetPosition()).getZ()*invcm
-	     << ") of KE = " << fastTrack.GetPrimaryTrack()->GetKineticEnergy() / CLHEP::GeV << G4endl;
+             << (postStep->GetPosition()).getRho() * invcm << ":" << (postStep->GetPosition()).getZ() * invcm
+             << ") of KE = " << fastTrack.GetPrimaryTrack()->GetKineticEnergy() / CLHEP::GeV << G4endl;
     }
   }
 

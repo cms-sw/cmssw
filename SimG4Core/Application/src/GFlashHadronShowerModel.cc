@@ -82,8 +82,7 @@ G4bool GFlashHadronShowerModel::ModelTrigger(const G4FastTrack& fastTrack) {
 
   // This will be changed accordingly when the way
   // dealing with CaloRegion changes later.
-  const G4VPhysicalVolume* pCurrentVolume = 
-    fastTrack.GetPrimaryTrack()->GetTouchable()->GetVolume();
+  const G4VPhysicalVolume* pCurrentVolume = fastTrack.GetPrimaryTrack()->GetTouchable()->GetVolume();
   if (pCurrentVolume == nullptr) {
     return false;
   }
@@ -233,7 +232,7 @@ G4bool GFlashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& f
 }
 
 G4bool GFlashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTrack) {
-  const double invcm = 1.0/CLHEP::cm;
+  const double invcm = 1.0 / CLHEP::cm;
   G4bool isExcluded = false;
   int verbosity = theParSet.getUntrackedParameter<int>("Verbosity");
 
@@ -248,12 +247,12 @@ G4bool GFlashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
   } else {
     G4StepPoint* postStep = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint();
 
-    Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(postStep->GetPosition()*invcm);
+    Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(postStep->GetPosition() * invcm);
     G4double distOut = 9999.0;
 
     //exclude the region where the shower starting point is inside the preshower
     if (std::fabs(eta) > Gflash::EtaMin[Gflash::kENCA] &&
-        std::fabs((postStep->GetPosition()).getZ()*invcm) < Gflash::Zmin[Gflash::kENCA]) {
+        std::fabs((postStep->GetPosition()).getZ() * invcm) < Gflash::Zmin[Gflash::kENCA]) {
       return true;
     }
 
@@ -262,11 +261,11 @@ G4bool GFlashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
     //the hadronic envelopes (may need to be optimized further!)
     //@@@if we extend parameterization including Magnet/HO, we need to change this strategy
     if (kCalor == Gflash::kHB) {
-      distOut = Gflash::Rmax[Gflash::kHB] - postStep->GetPosition().getRho()*invcm;
+      distOut = Gflash::Rmax[Gflash::kHB] - postStep->GetPosition().getRho() * invcm;
       if (distOut < Gflash::MinDistanceToOut)
         isExcluded = true;
     } else if (kCalor == Gflash::kHE) {
-      distOut = Gflash::Zmax[Gflash::kHE] - std::fabs(postStep->GetPosition().getZ()*invcm);
+      distOut = Gflash::Zmax[Gflash::kHE] - std::fabs(postStep->GetPosition().getZ() * invcm);
       if (distOut < Gflash::MinDistanceToOut)
         isExcluded = true;
     }
@@ -275,7 +274,7 @@ G4bool GFlashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
     if (isExcluded && verbosity > 0) {
       edm::LogVerbatim("SimG4CoreApplication")
           << "GFlashHadronShowerModel: skipping kCalor = " << kCalor << " DistanceToOut " << distOut << " from ("
-          << (postStep->GetPosition()).getRho()*invcm << ":" << (postStep->GetPosition()).getZ()*invcm
+          << (postStep->GetPosition()).getRho() * invcm << ":" << (postStep->GetPosition()).getZ() * invcm
           << ") of KE = " << fastTrack.GetPrimaryTrack()->GetKineticEnergy() / CLHEP::GeV;
     }
   }
