@@ -8,38 +8,40 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/CSCObjects/interface/CSCDBGains.h"
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 
 namespace edmtest {
-  class CSCGainsDBReadAnalyzer : public edm::EDAnalyzer {
+  class CSCGainsDBReadAnalyzer : public edm::one::EDAnalyzer<> {
   public:
-    explicit CSCGainsDBReadAnalyzer(edm::ParameterSet const& p) {}
-    explicit CSCGainsDBReadAnalyzer(int i) {}
-    virtual ~CSCGainsDBReadAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    explicit CSCGainsDBReadAnalyzer(edm::ParameterSet const& p) : token_{esConsumes()} {}
+    ~CSCGainsDBReadAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
+    edm::ESGetToken<CSCDBGains, CSCDBGainsRcd> token_;
   };
 
   void CSCGainsDBReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
     std::ofstream DBGainsFile("dbgains.dat", std::ios::out);
     int counter = 0;
-    std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
-    std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
-    edm::ESHandle<CSCDBGains> pGains;
-    context.get<CSCDBGainsRcd>().get(pGains);
 
-    const CSCDBGains* mygains = pGains.product();
+    edm::LogInfo log("CSCDBGains");
+    log << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
+    log << " ---EVENT NUMBER " << e.id().event() << std::endl;
+
+    const CSCDBGains* mygains = &context.getData(token_);
     std::vector<CSCDBGains::Item>::const_iterator it;
 
     for (it = mygains->gains.begin(); it != mygains->gains.end(); ++it) {
