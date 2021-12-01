@@ -47,7 +47,6 @@ EcalTPGParamReaderFromDB::~EcalTPGParamReaderFromDB() {}
 
 void EcalTPGParamReaderFromDB::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   EcalTPGDBApp app(sid, user, pass);
-
 }
 
 void EcalTPGParamReaderFromDB::beginJob() {}

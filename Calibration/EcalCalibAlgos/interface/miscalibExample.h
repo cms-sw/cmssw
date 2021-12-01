@@ -49,7 +49,7 @@ private:
   const std::string correctedHybridSuperClusterCollection_;
   int read_events;
 
-  edm::EDGetTokenT<reco::SuperClusterCollection> correctedHybridSuperClusterToken_; 
+  edm::EDGetTokenT<reco::SuperClusterCollection> correctedHybridSuperClusterToken_;
 
   TH1F* scEnergy;
 };
