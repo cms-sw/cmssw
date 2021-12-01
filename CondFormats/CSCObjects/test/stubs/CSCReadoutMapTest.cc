@@ -1,15 +1,16 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
-#include <fstream>
 #include <map>
 #include <vector>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
@@ -20,29 +21,29 @@
 
 using namespace std;
 namespace edmtest {
-  class CSCReadoutMapTest : public edm::EDAnalyzer {
+  class CSCReadoutMapTest : public edm::global::EDAnalyzer<> {
   public:
-    explicit CSCReadoutMapTest(edm::ParameterSet const& p) {}
-    explicit CSCReadoutMapTest(int i) {}
-    virtual ~CSCReadoutMapTest() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    explicit CSCReadoutMapTest(edm::ParameterSet const& p) : token_{esConsumes()} {}
+    ~CSCReadoutMapTest() override {}
+    void analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& c) const override;
 
   private:
+    edm::ESGetToken<CSCCrateMap, CSCCrateMapRcd> token_;
   };
 
-  void CSCReadoutMapTest::analyze(const edm::Event& e, const edm::EventSetup& context) {
+  void CSCReadoutMapTest::analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& context) const {
     using namespace edm::eventsetup;
 
-    std::cout << "+===================+" << std::endl;
-    std::cout << "| CSCReadoutMapTest |" << std::endl;
-    std::cout << "+===================+" << std::endl;
+    edm::LogSystem log("CSCCrateMap");
 
-    std::cout << "run " << e.id().run() << std::endl;
-    std::cout << "event " << e.id().event() << std::endl;
+    log << "+===================+" << std::endl;
+    log << "| CSCReadoutMapTest |" << std::endl;
+    log << "+===================+" << std::endl;
 
-    edm::ESHandle<CSCCrateMap> hcrate;
-    context.get<CSCCrateMapRcd>().get(hcrate);
-    const CSCCrateMap* pcrate = hcrate.product();
+    log << "run " << e.id().run() << std::endl;
+    log << "event " << e.id().event() << std::endl;
+
+    const CSCCrateMap* pcrate = &context.getData(token_);
 
     const int ncrates = 60;
     const int ndmb = 10;
@@ -69,27 +70,27 @@ namespace edmtest {
         if (it != (pcrate->crate_map).end()) {
           ++count;
           CSCDetId id = pcrate->detId(jcrate, jdmb, jcfeb);  // *** TEST THE detId BUILDER FOR CHAMBER ***
-          std::cout << "Built CSCDetId for chamber # " << count << " id= " << id << " count " << countall << std::endl;
+          log << "Built CSCDetId for chamber # " << count << " id= " << id << " count " << countall << std::endl;
 
           if (id.station() == 1 && id.ring() == 1) {
             jcfeb = 4;                                         // Split off ME1a
             CSCDetId id = pcrate->detId(jcrate, jdmb, jcfeb);  // *** TEST THE detId BUILDER FOR CHAMBER ME1a ***
-            std::cout << "Built CSCDetId for ME1a, id= " << id << " count " << countall << std::endl;
+            log << "Built CSCDetId for ME1a, id= " << id << " count " << countall << std::endl;
           }
 
           for (int il = 1; il != 7; ++il) {
             CSCDetId id = pcrate->detId(jcrate, jdmb, jcfeb, il);  // *** TEST THE detId BUILDER FOR LAYER ***
-            std::cout << "Built CSCDetId for layer # " << il << " id= " << id << std::endl;
+            log << "Built CSCDetId for layer # " << il << " id= " << id << std::endl;
           }
 
         } else {
-          std::cout << "no chamber at count = " << countall << std::endl;
+          log << "no chamber at count = " << countall << std::endl;
         }
       }
     }
-    std::cout << "+==========================+" << std::endl;
-    std::cout << "| End of CSCReadoutMapTest |" << std::endl;
-    std::cout << "+==========================+" << std::endl;
+    log << "+==========================+" << std::endl;
+    log << "| End of CSCReadoutMapTest |" << std::endl;
+    log << "+==========================+" << std::endl;
 
   }  // namespace
   DEFINE_FWK_MODULE(CSCReadoutMapTest);
