@@ -12,6 +12,7 @@ SiPixelDigiErrorsCUDA::SiPixelDigiErrorsCUDA(size_t maxFedWords, SiPixelFormatte
       error_h(cms::cuda::make_host_unique<SiPixelErrorCompactVector>(stream)),
       formatterErrors_h(std::move(errors)),
       nErrors_(maxFedWords) {
+  assert(maxFedWords != 0);
   cms::cuda::memsetAsync(data_d, 0x00, maxFedWords, stream);
 
   cms::cuda::make_SimpleVector(error_h.get(), maxFedWords, data_d.get());
