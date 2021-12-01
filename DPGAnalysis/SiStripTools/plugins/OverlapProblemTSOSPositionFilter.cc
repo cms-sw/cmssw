@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -55,18 +55,17 @@
 
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "TH1F.h"
 //
 // class decleration
 //
 
-class OverlapProblemTSOSPositionFilter : public edm::EDFilter {
+class OverlapProblemTSOSPositionFilter : public edm::global::EDFilter<> {
 public:
   explicit OverlapProblemTSOSPositionFilter(const edm::ParameterSet&);
   ~OverlapProblemTSOSPositionFilter() override;
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
@@ -106,7 +105,7 @@ OverlapProblemTSOSPositionFilter::~OverlapProblemTSOSPositionFilter() {
 //
 
 // ------------ method called to for each event  ------------
-bool OverlapProblemTSOSPositionFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool OverlapProblemTSOSPositionFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   // loop on trajectories and plot TSOS local coordinate

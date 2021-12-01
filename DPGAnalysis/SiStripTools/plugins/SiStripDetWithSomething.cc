@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,14 +44,14 @@
 //
 
 template <class T>
-class SiStripDetWithSomething : public edm::EDFilter {
+class SiStripDetWithSomething : public edm::global::EDFilter<> {
 public:
   explicit SiStripDetWithSomething(const edm::ParameterSet&);
   ~SiStripDetWithSomething() override;
 
 private:
   void beginJob() override;
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   void endJob() override;
 
   // ----------member data ---------------------------
@@ -99,7 +99,7 @@ SiStripDetWithSomething<T>::~SiStripDetWithSomething() {
 
 // ------------ method called on each new Event  ------------
 template <class T>
-bool SiStripDetWithSomething<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool SiStripDetWithSomething<T>::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   Handle<T> digis;
