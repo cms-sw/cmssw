@@ -27,7 +27,7 @@
 #include <numeric>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -66,7 +66,7 @@
 // class decleration
 //
 
-class SeedMultiplicityAnalyzer : public edm::EDAnalyzer {
+class SeedMultiplicityAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit SeedMultiplicityAnalyzer(const edm::ParameterSet&);
   ~SeedMultiplicityAnalyzer() override;
@@ -144,6 +144,7 @@ SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iCon
       _hseedmult2D(),
       _hseedeta2D() {
   //now do what ever initialization is needed
+  usesResource(TFileService::kSharedResource);
 
   //
 
