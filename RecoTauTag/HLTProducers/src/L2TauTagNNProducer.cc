@@ -572,6 +572,8 @@ std::vector<int> L2TauNNProducer::selectGoodVertices(const ZVertexSoA& patavtx_s
   auto maxTracks = patatracks_tsoa.stride();
   const int nv = patavtx_soa.nvFinal;
   std::vector<int> VtxGood;
+  if (nv == 0)
+    return VtxGood;
   VtxGood.reserve(nv);
 
   std::vector<double> maxChi2_;
