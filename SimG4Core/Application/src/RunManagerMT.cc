@@ -112,6 +112,8 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   G4Timer timer;
   timer.Start();
 
+  G4UImanager::GetMasterUIpointer()->SetCoutDestination(m_UIsession);
+
   m_world = std::make_unique<DDDWorld>(pDD, pDD4hep, m_catalog, verb, cuts, protonCut);
   G4VPhysicalVolume* world = m_world.get()->GetWorldVolume();
 

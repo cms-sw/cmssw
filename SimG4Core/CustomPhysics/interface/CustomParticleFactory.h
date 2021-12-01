@@ -12,10 +12,10 @@ class G4ParticleDefinition;
 class CustomParticleFactory {
 public:
   explicit CustomParticleFactory();
-  ~CustomParticleFactory();
+  ~CustomParticleFactory() = default;
 
-  void loadCustomParticles(const std::string &filePath);
-  const std::vector<G4ParticleDefinition *> &GetCustomParticles();
+  void loadCustomParticles(const std::string& filePath);
+  const std::vector<G4ParticleDefinition*>& getCustomParticles();
 
 private:
   void addCustomParticle(int pdgCode, double mass, const std::string &name);
@@ -25,7 +25,7 @@ private:
   std::string ToLower(std::string str);
 
   static bool loaded;
-  static std::vector<G4ParticleDefinition *> m_particles;
+  static std::vector<G4ParticleDefinition*> m_particles;
 #ifdef G4MULTITHREADED
   static G4Mutex customParticleFactoryMutex;
 #endif
