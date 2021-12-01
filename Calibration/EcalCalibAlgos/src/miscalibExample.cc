@@ -29,12 +29,13 @@
 #include <stdexcept>
 #include <vector>
 
-miscalibExample::miscalibExample(const edm::ParameterSet& iConfig) : 
-  rootfile_{iConfig.getUntrackedParameter<std::string>("rootfile", "ecalSimpleTBanalysis.root")}, 
-  correctedHybridSuperClusterProducer_{iConfig.getParameter<std::string>("correctedHybridSuperClusterProducer")},
-  correctedHybridSuperClusterCollection_{iConfig.getParameter<std::string>("correctedHybridSuperClusterCollection")},
-  correctedHybridSuperClusterToken_{consumes<reco::SuperClusterCollection>(edm::InputTag(correctedHybridSuperClusterProducer_, correctedHybridSuperClusterCollection_))}
- {}
+miscalibExample::miscalibExample(const edm::ParameterSet& iConfig)
+    : rootfile_{iConfig.getUntrackedParameter<std::string>("rootfile", "ecalSimpleTBanalysis.root")},
+      correctedHybridSuperClusterProducer_{iConfig.getParameter<std::string>("correctedHybridSuperClusterProducer")},
+      correctedHybridSuperClusterCollection_{
+          iConfig.getParameter<std::string>("correctedHybridSuperClusterCollection")},
+      correctedHybridSuperClusterToken_{consumes<reco::SuperClusterCollection>(
+          edm::InputTag(correctedHybridSuperClusterProducer_, correctedHybridSuperClusterCollection_))} {}
 
 miscalibExample::~miscalibExample() {}
 
@@ -60,7 +61,7 @@ void miscalibExample::endJob() {
 
   scEnergy->Write();
   f.Close();
-  delete scEnergy; 
+  delete scEnergy;
 }
 
 //=================================================================================
@@ -75,7 +76,7 @@ void miscalibExample::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   Handle<reco::SuperClusterCollection> pCorrectedHybridSuperClusters;
 
-  iEvent.getByToken(correctedHybridSuperClusterToken_, pCorrectedHybridSuperClusters); 
+  iEvent.getByToken(correctedHybridSuperClusterToken_, pCorrectedHybridSuperClusters);
 
   if (!pCorrectedHybridSuperClusters.isValid()) {
     LogError("EgammaSimpleAnalyzer") << "Error! can't get collection with label "

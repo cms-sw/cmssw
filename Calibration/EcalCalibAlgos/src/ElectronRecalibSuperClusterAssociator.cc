@@ -134,7 +134,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
       pOutEleCore->push_back(*eleIt->core());  // clone the old core and add to the collection of new cores
       reco::GsfElectronCoreRef newEleCoreRef(rEleCore,
                                              idxEleCore++);  // reference to the new electron core in the new collection
-      reco::GsfElectronCore& newEleCore = pOutEleCore->back();  // pick the clone
+      reco::GsfElectronCore& newEleCore = pOutEleCore->back();                           // pick the clone
       reco::SuperClusterRef scRef(reco::SuperClusterRef(superClusterEBHandle, iscRef));  // Reference to the new SC
 #ifndef CMSSW_5_3_X
       newEleCore.setParentSuperCluster(scRef);  // mustache
@@ -200,7 +200,6 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 
   e.put(std::move(pOutEle));
   e.put(std::move(pOutEleCore));
-
 }
 
 DEFINE_FWK_MODULE(ElectronRecalibSuperClusterAssociator);
