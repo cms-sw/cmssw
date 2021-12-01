@@ -20,6 +20,10 @@ private:
   const int min_N_;
   const int min_Size_;
   const int min_SizeMinusMB1_;
+  const int min_SizeEtaLT1p9NstationGT1_;
+  const int min_SizeEtaLT1p9NstationEq1_;
+  const int min_SizeEtaGT1p9NstationGT1_;
+  const int min_SizeEtaGT1p9NstationEq1_;
   const int max_nMB1_;
   const int max_nMB2_;
   const int max_nME11_;
@@ -42,6 +46,10 @@ HLTMuonRecHitClusterFilter::HLTMuonRecHitClusterFilter(const edm::ParameterSet& 
       min_N_(iConfig.getParameter<int>("MinN")),
       min_Size_(iConfig.getParameter<int>("MinSize")),
       min_SizeMinusMB1_(iConfig.getParameter<int>("MinSizeMinusMB1")),
+      min_SizeEtaLT1p9NstationGT1_(iConfig.getParameter<int>("MinSizeEtaLT1p9NstationGT1")),
+      min_SizeEtaLT1p9NstationEq1_(iConfig.getParameter<int>("MinSizeEtaLT1p9NstationEq1")),
+      min_SizeEtaGT1p9NstationGT1_(iConfig.getParameter<int>("MinSizeEtaGT1p9NstationGT1")),
+      min_SizeEtaGT1p9NstationEq1_(iConfig.getParameter<int>("MinSizeEtaGT1p9NstationEq1")),
       max_nMB1_(iConfig.getParameter<int>("Max_nMB1")),
       max_nMB2_(iConfig.getParameter<int>("Max_nMB2")),
       max_nME11_(iConfig.getParameter<int>("Max_nME11")),
@@ -61,13 +69,15 @@ void HLTMuonRecHitClusterFilter::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("ClusterTag", edm::InputTag("hltCSCrechitClusters"));
   desc.add<int>("MinN", 1);
   desc.add<int>("MinSize", 50);
-  desc.add<int>("MinSizeMinusMB1", 0);
-  desc.add<int>("Max_nMB1", 0);
-  desc.add<int>("Max_nMB2", 0);
-  desc.add<int>("Max_nME11", 0);
-  desc.add<int>("Max_nME12", 0);
-  desc.add<int>("Max_nME41", 0);
-  desc.add<int>("Max_nME42", 0);
+  desc.add<int>("MinSizeMinusMB1", 999);
+  desc.add<int>("MinSizeEtaLT1p9NstationGT1", 999), desc.add<int>("MinSizeEtaLT1p9NstationEq1", 999),
+      desc.add<int>("MinSizeEtaGT1p9NstationGT1", 999), desc.add<int>("MinSizeEtaGT1p9NstationEq1", 999),
+      desc.add<int>("Max_nMB1", 999);
+  desc.add<int>("Max_nMB2", 999);
+  desc.add<int>("Max_nME11", 999);
+  desc.add<int>("Max_nME12", 999);
+  desc.add<int>("Max_nME41", 999);
+  desc.add<int>("Max_nME42", 999);
   desc.add<int>("MinNstation", 0);
   desc.add<double>("MinAvgStation", 0.0);
   desc.add<double>("MinTime", -999);
@@ -89,7 +99,11 @@ bool HLTMuonRecHitClusterFilter::filter(edm::StreamID, edm::Event& iEvent, const
   auto const& rechitClusters = iEvent.get(cluster_token_);
 
   for (auto const& cluster : rechitClusters) {
-    if ((cluster.size() >= min_Size_) && ((cluster.size() - cluster.nMB1()) >= min_SizeMinusMB1_) &&
+    if (((cluster.size() >= min_Size_) || ((cluster.size() - cluster.nMB1()) >= min_SizeMinusMB1_) ||
+         (std::abs(cluster.eta()) <= 1.9 && cluster.nStation() > 1 && cluster.size() >= min_SizeEtaLT1p9NstationGT1_) ||
+         (std::abs(cluster.eta()) <= 1.9 && cluster.nStation() <= 1 && cluster.size() >= min_SizeEtaLT1p9NstationEq1_) ||
+         (std::abs(cluster.eta()) > 1.9 && cluster.nStation() > 1 && cluster.size() >= min_SizeEtaGT1p9NstationGT1_) ||
+         (std::abs(cluster.eta()) > 1.9 && cluster.nStation() <= 1 && cluster.size() >= min_SizeEtaGT1p9NstationEq1_)) &&
         (cluster.nMB1() <= max_nMB1_) && (cluster.nMB2() <= max_nMB2_) && (cluster.nME11() <= max_nME11_) &&
         (cluster.nME12() <= max_nME12_) && (cluster.nME41() <= max_nME41_) && (cluster.nME42() <= max_nME42_) &&
         (cluster.nStation() >= min_Nstation_) && (cluster.avgStation() >= min_AvgStation_) &&
