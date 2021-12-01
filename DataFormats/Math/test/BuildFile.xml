@@ -127,4 +127,10 @@
     <flags CUDA_FLAGS="-w"/>
   </bin>
 
+  <bin file="simpleCholeskyTest.cu">
+    <use name="cuda"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <flags CUDA_FLAGS="-w"/>
+  </bin>
+
 </iftool>
