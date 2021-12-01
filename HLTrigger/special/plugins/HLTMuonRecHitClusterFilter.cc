@@ -70,9 +70,11 @@ void HLTMuonRecHitClusterFilter::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<int>("MinN", 1);
   desc.add<int>("MinSize", 50);
   desc.add<int>("MinSizeMinusMB1", 999);
-  desc.add<int>("MinSizeEtaLT1p9NstationGT1", 999), desc.add<int>("MinSizeEtaLT1p9NstationEq1", 999),
-      desc.add<int>("MinSizeEtaGT1p9NstationGT1", 999), desc.add<int>("MinSizeEtaGT1p9NstationEq1", 999),
-      desc.add<int>("Max_nMB1", 999);
+  desc.add<int>("MinSizeEtaLT1p9NstationGT1", 999);
+  desc.add<int>("MinSizeEtaLT1p9NstationEq1", 999);
+  desc.add<int>("MinSizeEtaGT1p9NstationGT1", 999);
+  desc.add<int>("MinSizeEtaGT1p9NstationEq1", 999);
+  desc.add<int>("Max_nMB1", 999);
   desc.add<int>("Max_nMB2", 999);
   desc.add<int>("Max_nME11", 999);
   desc.add<int>("Max_nME12", 999);
