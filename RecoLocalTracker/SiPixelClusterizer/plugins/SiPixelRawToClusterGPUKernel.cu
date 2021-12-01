@@ -519,19 +519,22 @@ namespace pixelgpudetails {
                                                        bool includeErrors,
                                                        bool debug,
                                                        cudaStream_t stream) {
+    // we're not opting for calling this function in case of early events
+    assert(wordCounter != 0);
     nDigis = wordCounter;
 
 #ifdef GPU_DEBUG
     std::cout << "decoding " << wordCounter << " digis. Max is " << maxFedWords << std::endl;
 #endif
 
+    // since wordCounter != 0 we're not allocating 0 bytes,
     digis_d = SiPixelDigisCUDA(wordCounter, stream);
     if (includeErrors) {
       digiErrors_d = SiPixelDigiErrorsCUDA(wordCounter, std::move(errors), stream);
     }
     clusters_d = SiPixelClustersCUDA(gpuClustering::maxNumModules, stream);
 
-    if (wordCounter)  // protect in case of empty event....
+    // Begin Raw2Digi block
     {
       const int threadsPerBlock = 512;
       const int blocks = (wordCounter + threadsPerBlock - 1) / threadsPerBlock;  // fill it all
