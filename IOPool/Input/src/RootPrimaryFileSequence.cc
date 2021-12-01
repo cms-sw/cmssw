@@ -80,7 +80,7 @@ namespace edm {
       }
     } else {
       if (!nextFile()) {
-        assert(0);
+        return std::unique_ptr<FileBlock>();
       }
     }
     if (!rootFile()) {
