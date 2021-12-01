@@ -2514,9 +2514,9 @@ steps['RECOUP15_PU25HS']=merge([PU25HS,step3Up2015Defaults])
 
 #Run3 reco
 steps['RECODR3_2021']=merge([{'--scenario':'pp','--conditions':'auto:run3_data','--era':'Run3','--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3'},dataReco])
-steps['RECODR3_MinBiasOffline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@commonSiStripZeroBias+@ExtraHLT+@miniAODDQM'},steps['RECODR3_2021']])
-steps['RECODR3_ZBOffline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@rerecoZeroBias+@ExtraHLT+@miniAODDQM'},steps['RECODR3_2021']])
-steps['RECODR3_HLTPhysics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:TkAlMinBias+HcalCalIterativePhiSym+HcalCalIsoTrkFilter+HcalCalHO+HcalCalHBHEMuonFilter,DQM:@commonReduced+@miniAODDQM'},steps['RECODR3_2021']])
+steps['RECODR3_MinBiasOffline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@commonSiStripZeroBias+@ExtraHLT+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_2021']])
+steps['RECODR3_ZBOffline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@rerecoZeroBias+@ExtraHLT+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_2021']])
+steps['RECODR3_HLTPhysics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:TkAlMinBias+HcalCalIterativePhiSym+HcalCalIsoTrkFilter+HcalCalHO+HcalCalHBHEMuonFilter,DQM:@commonReduced+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_2021']])
 steps['RECODR3_AlCaTkCosmics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:EXONoBPTXSkim,EI,PAT,ALCA:TkAlCosmicsInCollisions,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR3_2021']])
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
