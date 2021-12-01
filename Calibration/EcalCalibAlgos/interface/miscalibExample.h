@@ -44,9 +44,9 @@ public:
 
 private:
   // ----------member data ---------------------------
-  std::string rootfile_;
-  std::string correctedHybridSuperClusterProducer_;
-  std::string correctedHybridSuperClusterCollection_;
+  const std::string rootfile_;
+  const std::string correctedHybridSuperClusterProducer_;
+  const std::string correctedHybridSuperClusterCollection_;
   int read_events;
 
   edm::EDGetTokenT<reco::SuperClusterCollection> correctedHybridSuperClusterToken_; 
