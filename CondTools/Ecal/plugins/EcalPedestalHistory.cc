@@ -358,25 +358,18 @@ void EcalPedestalHistory::beginRun(edm::Run const&, edm::EventSetup const& c) {
 void EcalPedestalHistory::endRun(edm::Run const&, edm::EventSetup const& c) {
   //========================================================================
 
-  cout << "Entering endRun" << endl;
-  cout << "Exiting endRun" << endl;
 }  //endRun
 
 //========================================================================
 void EcalPedestalHistory::beginJob() {
   ///========================================================================
 
-  cout << "Entering beginJob" << endl;
-
-  cout << "Exiting beginJob" << endl;
 }  //beginJob
 
 //========================================================================
 void EcalPedestalHistory::endJob() {
   //========================================================================
 
-  cout << "Entering endJob" << endl;
-  cout << "Exiting endJob" << endl;
 }  //endJob
 
 //
@@ -409,7 +402,6 @@ void EcalPedestalHistory::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
   cnt_evt_++;
 
-  cout << "Exiting analyze" << endl;
 }  //analyze
 
 //define this as a plug-in

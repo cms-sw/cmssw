@@ -1,6 +1,4 @@
 // -*- C++ -*-
-//
-//
 
 // user include files
 #include "FWCore/Framework/interface/MakerMacros.h"

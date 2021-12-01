@@ -47,13 +47,9 @@ private:
   std::string rootfile_;
   std::string correctedHybridSuperClusterProducer_;
   std::string correctedHybridSuperClusterCollection_;
-  std::string BarrelHitsCollection_;
-  std::string ecalHitsProducer_;
   int read_events;
 
-  edm::EDGetTokenT<edm::View<reco::SuperClusterCollection> > correctedHybridSuperClusterToken_; 
-
-  
+  edm::EDGetTokenT<reco::SuperClusterCollection> correctedHybridSuperClusterToken_; 
 
   TH1F* scEnergy;
 };
