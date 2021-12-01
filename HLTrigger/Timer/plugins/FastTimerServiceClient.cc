@@ -32,6 +32,8 @@ struct MEPSet {
 
 namespace {
   void setBinLabel(TAxis* axis, int bin, const char* label) {
+    //TAxis::GetBinLabel currently doesnt have this check
+    //and changing a label is a slow operation
     if (strcmp(axis->GetBinLabel(bin), label) != 0) {
       axis->SetBinLabel(bin, label);
     }
