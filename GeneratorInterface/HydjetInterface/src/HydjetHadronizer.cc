@@ -329,7 +329,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
   LogDebug("Hydjet") << " Number of hard particles " << nhard_;
   LogDebug("Hydjet") << " Number of soft particles " << nsoft_;
   LogDebug("Hydjet") << " nhard_ + nsoft_ = " << nhard_ + nsoft_ << " hyjets.nhj = " << hyjets.nhj << endl;
-  
+
   int ihy = 0;
   int isub = -1;
   int isub_l = -1;

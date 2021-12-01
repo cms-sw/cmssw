@@ -78,7 +78,7 @@ PyquenHadronizer ::PyquenHadronizer(const ParameterSet& pset, edm::ConsumesColle
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint", 0);
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_ << endl;
 
-  if (embedding_==1) {
+  if (embedding_ == 1) {
     cflag_ = 0;
     src_ = iC.consumes<CrossingFrame<edm::HepMCProduct> >(
         pset.getUntrackedParameter<edm::InputTag>("backgroundLabel", edm::InputTag("mix", "generatorSmeared")));
@@ -131,7 +131,7 @@ bool PyquenHadronizer::generatePartonsAndHadronize() {
   // at this part, need to overwrite filter() in
   // PyquenGeneratorFilter
 
-  if (embedding_==1) {
+  if (embedding_ == 1) {
     const edm::Event& e = getEDMEvent();
     HepMC::GenVertex* genvtx = nullptr;
     const HepMC::GenEvent* inev = nullptr;
@@ -216,9 +216,9 @@ bool PyquenHadronizer::generatePartonsAndHadronize() {
   HepMC::GenEvent* evt = pyquen_hepevtio.read_next_event();
 
   // signal vertex
-  HepMC::GenVertex *sub_vertices = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), 0); // just initialization
+  HepMC::GenVertex* sub_vertices = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), 0);  // just initialization
   if (!evt->signal_process_vertex())
-        evt->set_signal_process_vertex(sub_vertices);
+    evt->set_signal_process_vertex(sub_vertices);
 
   evt->set_signal_process_id(pypars.msti[0]);  // type of the process
   evt->set_event_scale(pypars.pari[16]);       // Q^2
