@@ -20,7 +20,7 @@ process.ana = cms.EDAnalyzer('PyquenAnalyzer'
                              )
 
 process.TFileService = cms.Service('TFileService',
-                                   fileName = cms.string('treefile.root')
+                                   fileName = cms.string('Pyquen_0_5020GeV.root')
                                    )
 
 process.p = cms.Path(process.generator*process.ana)
