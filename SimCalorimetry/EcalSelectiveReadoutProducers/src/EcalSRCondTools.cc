@@ -66,7 +66,7 @@ EcalSRCondTools::~EcalSRCondTools() {}
 void EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es) {
   if (done_)
     return;
-  EcalSRSettings* sr = new EcalSRSettings;
+  EcalSRSettings sr;
 
   if (mode_ == "online_config" || mode_ == "combine_config") {
     string fname = ps_.getParameter<string>("onlineSrpConfigFile");
@@ -74,11 +74,11 @@ void EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es
     if (!f.good()) {
       throw cms::Exception("EcalSRCondTools") << "Failed to open file " << fname;
     }
-    importSrpConfigFile(*sr, f, true);
+    importSrpConfigFile(sr, f, true);
   }
 
   if (mode_ == "python_config" || mode_ == "combine_config") {
-    importParameterSet(*sr, ps_);
+    importParameterSet(sr, ps_);
   }
 
   if (!(mode_ == "python_config" || mode_ == "online_config" || mode_ == "combine_config" || (mode_ == "read"))) {
@@ -87,9 +87,9 @@ void EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es
   }
 
   if (iomode_write_) {
-    sr->bxGlobalOffset_ = ps_.getParameter<int>("bxGlobalOffset");
-    sr->automaticSrpSelect_ = ps_.getParameter<int>("automaticSrpSelect");
-    sr->automaticMasks_ = ps_.getParameter<int>("automaticMasks");
+    sr.bxGlobalOffset_ = ps_.getParameter<int>("bxGlobalOffset");
+    sr.automaticSrpSelect_ = ps_.getParameter<int>("automaticSrpSelect");
+    sr.automaticMasks_ = ps_.getParameter<int>("automaticMasks");
 
     edm::Service<cond::service::PoolDBOutputService> db;
     if (!db.isAvailable()) {
@@ -98,7 +98,7 @@ void EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es
     //fillup DB
     //create new infinite IOV
     cond::Time_t firstSinceTime = db->beginOfTime();
-    db->writeOne(sr, firstSinceTime, "EcalSRSettingsRcd");
+    db->writeOneIOV(sr, firstSinceTime, "EcalSRSettingsRcd");
     done_ = true;
   } else {  //read mode
     const edm::ESHandle<EcalSRSettings> hSr = es.getHandle(hSrToken_);
@@ -135,7 +135,6 @@ void EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es
       }
     }
   }
-  delete sr;
 }
 
 void EcalSRCondTools::importParameterSet(EcalSRSettings& sr, const edm::ParameterSet& ps) {

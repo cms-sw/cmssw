@@ -11,8 +11,6 @@ EnergyResolutionVsLumi::EnergyResolutionVsLumi() {
   m_instlumi = 0;
 }
 
-EnergyResolutionVsLumi::~EnergyResolutionVsLumi() {}
-
 EnergyResolutionVsLumi::DegradationAtEta EnergyResolutionVsLumi::CalculateDegradation(double eta) {
   DegradationAtEta result;
 

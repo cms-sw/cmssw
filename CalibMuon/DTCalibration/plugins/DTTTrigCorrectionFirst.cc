@@ -26,13 +26,13 @@ using namespace edm;
 using namespace std;
 
 DTTTrigCorrectionFirst::DTTTrigCorrectionFirst(const ParameterSet& pset)
-    : dtGeomToken_(esConsumes()), ttrigToken_(esConsumes(edm::ESInputTag("", pset.getParameter<string>("dbLabel")))) {
+    : dtGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      ttrigToken_(
+          esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")))) {
   debug = pset.getUntrackedParameter<bool>("debug", false);
   ttrigMin = pset.getUntrackedParameter<double>("ttrigMin", 0);
   ttrigMax = pset.getUntrackedParameter<double>("ttrigMax", 5000);
   rmsLimit = pset.getUntrackedParameter<double>("rmsLimit", 5.);
-
-  dbLabel = pset.getUntrackedParameter<string>("dbLabel", "");
 }
 
 DTTTrigCorrectionFirst::~DTTTrigCorrectionFirst() {}

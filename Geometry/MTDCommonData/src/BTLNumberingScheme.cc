@@ -44,18 +44,19 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   const uint32_t modCopy(baseNumber.getCopyNumber(2));
   const uint32_t rodCopy(baseNumber.getCopyNumber(3));
 
-  const std::string& modName(baseNumber.getLevelName(2));  // name of module volume
+  const std::string_view& modName(baseNumber.getLevelName(2));  // name of module volume
   uint32_t pos = modName.find("Positive");
 
-  const uint32_t zside = (pos <= strlen(modName.c_str()) ? 1 : 0);
-  std::string baseName = modName.substr(modName.find(':') + 1);
+  const uint32_t zside = (pos <= modName.size() ? 1 : 0);
+  std::string_view baseName = modName.substr(modName.find(':') + 1);
 
-  // trick to accomodate both 54, 42 and 48 modules designs
-  const int modtyp(
-      ::atoi((baseName.substr(8, 1)).c_str()) == 9 || ::atoi((baseName.substr(8, 1)).c_str()) == 5 ||
-              (::atoi((baseName.substr(8, 1)).c_str()) == 7 && ::atoi((baseName.substr(7, 1)).c_str()) == 1)
-          ? ::atoi((baseName.substr(7, 1)).c_str()) + 1
-          : ::atoi((baseName.substr(7, 1)).c_str()));
+  int tmptyp = ::atoi(&baseName.at(7));
+  if (tmptyp == 17) {
+    tmptyp = 2;
+  } else if (tmptyp == 33) {
+    tmptyp = 3;
+  }
+  const int modtyp(tmptyp);
 
   // error checking
 

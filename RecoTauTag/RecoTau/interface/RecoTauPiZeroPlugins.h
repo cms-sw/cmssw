@@ -18,7 +18,6 @@
  */
 
 #include <vector>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauPluginsCommon.h"
 
@@ -33,10 +32,8 @@ namespace reco {
     class RecoTauPiZeroBuilderPlugin : public RecoTauEventHolderPlugin {
     public:
       // Return a vector of pointers
-      typedef boost::ptr_vector<RecoTauPiZero> PiZeroVector;
-      // Storing the result in an auto ptr on function return allows
-      // allows us to safely release the ptr_vector in the virtual function
-      typedef std::unique_ptr<PiZeroVector> return_type;
+      typedef std::vector<std::unique_ptr<RecoTauPiZero>> PiZeroVector;
+      typedef PiZeroVector return_type;
       explicit RecoTauPiZeroBuilderPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
           : RecoTauEventHolderPlugin(pset) {}
       ~RecoTauPiZeroBuilderPlugin() override {}

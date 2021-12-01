@@ -38,8 +38,8 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 
 * *m_track_algorithm:* CMSSW track algorithm (used internally for reporting and consistency checks)
 * *m_requires_seed_hit_sorting:* do hits on seed tracks need to be sorted (required for seeds that include strip layers)
-* *m_require_quality_filter:* is additional post-processing required for result tracks
-* *m_require_dupclean_tight:* is tight duplicate removal post-processing required for result tracks
+* *m_requires_quality_filter:* is additional post-processing required for result tracks
+* *m_requires_dupclean_tight:* is tight duplicate removal post-processing required for result tracks
 * *m_params:* IterationParams structure for this iteration
 * *m_backward_params:* IterationParams structure for backward search for this iteration
 * *m_layer_configs:* std::vector of per-layer parameters

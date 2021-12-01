@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
@@ -11,26 +10,26 @@
 
 class TrackerParametersAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit TrackerParametersAnalyzer(const edm::ParameterSet&) {}
+  explicit TrackerParametersAnalyzer(const edm::ParameterSet&) : ptpToken_(esConsumes()) {}
 
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
+
+private:
+  edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
 };
 
 void TrackerParametersAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::LogVerbatim("TrackerParametersAnalyzer") << "Here I am";
 
-  edm::ESHandle<PTrackerParameters> ptp;
-  iSetup.get<PTrackerParametersRcd>().get(ptp);
+  auto const& ptp = iSetup.getData(ptpToken_);
 
-  for (const auto& vitem : ptp->vitems) {
+  for (const auto& vitem : ptp.vitems) {
     edm::LogVerbatim("TrackerParametersAnalyzer") << vitem.id << " has " << vitem.vpars.size() << ":";
     for (const auto& in : vitem.vpars) {
       edm::LogVerbatim("TrackerParametersAnalyzer") << in << ";";
     }
   }
-  for (int vpar : ptp->vpars) {
+  for (int vpar : ptp.vpars) {
     std::cout << vpar << "; ";
   }
 }

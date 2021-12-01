@@ -23,8 +23,8 @@ process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
 )
 
 process.hpa = cms.EDAnalyzer("HcalParametersAnalyzer")
-process.hcalParameters.fromDD4Hep = cms.bool(True)
-process.hcalSimulationParameters.fromDD4Hep = cms.bool(True)
+process.hcalParameters.fromDD4hep = cms.bool(True)
+process.hcalSimulationParameters.fromDD4hep = cms.bool(True)
 
 process.Timing = cms.Service("Timing")
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")

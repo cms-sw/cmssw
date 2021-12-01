@@ -1,10 +1,8 @@
-#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -36,13 +34,15 @@
 #include <set>
 #include <string>
 
-class PrintGeomSummary : public SimWatcher, public Observer<const BeginOfJob*>, public Observer<const BeginOfRun*> {
+class PrintGeomSummary : public SimWatcher, public Observer<const BeginOfRun*> {
 public:
   PrintGeomSummary(edm::ParameterSet const& p);
-  ~PrintGeomSummary() override;
+  ~PrintGeomSummary() override = default;
+
+  void registerConsumes(edm::ConsumesCollector) override;
+  void beginRun(edm::EventSetup const&) override;
 
 private:
-  void update(const BeginOfJob* job) override;
   void update(const BeginOfRun* run) override;
   void addSolid(const DDLogicalPart& part);
   void fillLV(G4LogicalVolume* lv);
@@ -53,6 +53,7 @@ private:
   void printSummary(std::ostream& out);
 
 private:
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddcompToken_;
   std::vector<std::string> nodeNames_;
   std::map<DDSolidShape, std::string> solidShape_;
   std::map<std::string, DDSolidShape> solidMap_;
@@ -92,12 +93,13 @@ PrintGeomSummary::PrintGeomSummary(const edm::ParameterSet& p) : theTopPV_(nullp
   solidShape_[DDSolidShape::dd_not_init] = "Unknown";
 }
 
-PrintGeomSummary::~PrintGeomSummary() {}
+void PrintGeomSummary::registerConsumes(edm::ConsumesCollector cc) {
+  ddcompToken_ = cc.esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
+  G4cout << "PrintGeomSummary::Initialize ESGetToken for DDCompactView" << G4endl;
+}
 
-void PrintGeomSummary::update(const BeginOfJob* job) {
-  edm::ESTransientHandle<DDCompactView> pDD;
-  (*job)()->get<IdealGeometryRecord>().get(pDD);
-  const DDCompactView* cpv = &(*pDD);
+void PrintGeomSummary::beginRun(edm::EventSetup const& es) {
+  const DDCompactView* cpv = &es.getData(ddcompToken_);
 
   const auto& gra = cpv->graph();
 
@@ -119,17 +121,6 @@ void PrintGeomSummary::update(const BeginOfJob* job) {
     }
   }
   G4cout << "Finds " << solidMap_.size() << " different solids in the tree" << G4endl;
-}
-
-void PrintGeomSummary::addSolid(const DDLogicalPart& part) {
-  const DDSolid& solid = part.solid();
-  std::map<DDSolidShape, std::string>::iterator it = solidShape_.find(solid.shape());
-  std::string name = solid.name().name();
-  if (it == solidShape_.end())
-    solidMap_[name] = DDSolidShape::dd_not_init;
-  else
-    solidMap_[name] = it->first;
-  //G4cout << "Solid " << name << " is of shape " << solidMap_[name] << G4endl;
 }
 
 void PrintGeomSummary::update(const BeginOfRun* run) {
@@ -169,6 +160,17 @@ void PrintGeomSummary::update(const BeginOfRun* run) {
       }
     }
   }
+}
+
+void PrintGeomSummary::addSolid(const DDLogicalPart& part) {
+  const DDSolid& solid = part.solid();
+  std::map<DDSolidShape, std::string>::iterator it = solidShape_.find(solid.shape());
+  std::string name = solid.name().name();
+  if (it == solidShape_.end())
+    solidMap_[name] = DDSolidShape::dd_not_init;
+  else
+    solidMap_[name] = it->first;
+  //G4cout << "Solid " << name << " is of shape " << solidMap_[name] << G4endl;
 }
 
 void PrintGeomSummary::fillLV(G4LogicalVolume* lv) {

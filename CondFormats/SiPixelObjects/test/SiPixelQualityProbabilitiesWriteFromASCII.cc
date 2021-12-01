@@ -50,7 +50,7 @@ private:
   const std::string m_ProbInputs;
   const std::string m_record;
   const bool printdebug_;
-  SiPixelQualityProbabilities* myProbabilities;
+  std::unique_ptr<SiPixelQualityProbabilities> myProbabilities;
 };
 
 //
@@ -61,10 +61,10 @@ SiPixelQualityProbabilitiesWriteFromASCII::SiPixelQualityProbabilitiesWriteFromA
       m_record(iConfig.getParameter<std::string>("record")),
       printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)) {
   //now do what ever initialization is needed
-  myProbabilities = new SiPixelQualityProbabilities();
+  myProbabilities = std::make_unique<SiPixelQualityProbabilities>();
 }
 
-SiPixelQualityProbabilitiesWriteFromASCII::~SiPixelQualityProbabilitiesWriteFromASCII() { delete myProbabilities; }
+SiPixelQualityProbabilitiesWriteFromASCII::~SiPixelQualityProbabilitiesWriteFromASCII() = default;
 
 //
 // member functions
@@ -127,7 +127,7 @@ void SiPixelQualityProbabilitiesWriteFromASCII::endJob() {
   if (poolDbService.isAvailable()) {
     cond::Time_t valid_time = poolDbService->currentTime();
     // this writes the payload to begin in current run defined in cfg
-    poolDbService->writeOne(myProbabilities, valid_time, m_record);
+    poolDbService->writeOneIOV(*myProbabilities, valid_time, m_record);
   }
 }
 

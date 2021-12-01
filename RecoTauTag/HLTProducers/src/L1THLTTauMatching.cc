@@ -3,6 +3,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/Common/interface/RefVector.h"
 
 //
 // class decleration
@@ -15,7 +16,9 @@ using namespace trigger;
 L1THLTTauMatching::L1THLTTauMatching(const edm::ParameterSet& iConfig)
     : jetSrc(consumes<PFTauCollection>(iConfig.getParameter<InputTag>("JetSrc"))),
       tauTrigger(consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<InputTag>("L1TauTrigger"))),
-      mEt_Min(iConfig.getParameter<double>("EtMin")) {
+      mEt_Min(iConfig.getParameter<double>("EtMin")),
+      reduceTauContent(iConfig.getParameter<bool>("ReduceTauContent")),
+      keepOriginalVertex(iConfig.getParameter<bool>("KeepOriginalVertex")) {
   produces<PFTauCollection>();
 }
 L1THLTTauMatching::~L1THLTTauMatching() {}
@@ -47,9 +50,16 @@ void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const ed
         if (myJet.leadChargedHadrCand().isNonnull()) {
           a = myJet.leadChargedHadrCand()->vertex();
         }
-        PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4(), a);
-        if (myJet.pt() > mEt_Min) {
-          tauL2jets->push_back(myPFTau);
+
+        auto myPFTau =
+            reduceTauContent ? PFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4(), myJet.vertex()) : PFTau(myJet);
+
+        if (!keepOriginalVertex) {
+          myPFTau.setVertex(a);
+        }
+
+        if (myPFTau.pt() > mEt_Min) {
+          tauL2jets->push_back(myJet);
         }
         break;
       }
@@ -66,8 +76,9 @@ void L1THLTTauMatching::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("JetSrc", edm::InputTag("hltSelectedPFTausTrackPt1MediumIsolationReg"))
       ->setComment("Input collection of PFTaus");
   desc.add<double>("EtMin", 0.0)->setComment("Minimal pT of PFTau to match");
-  descriptions.setComment(
-      "This module produces collection of PFTaus matched to L1 Taus / Jets passing a HLT filter (Only p4 and vertex of "
-      "returned PFTaus are set).");
+  desc.add<bool>("ReduceTauContent", true)->setComment("Should produce taus with reduced content (Only p4 and vertex)");
+  desc.add<bool>("KeepOriginalVertex", false)
+      ->setComment("Should use original vertex instead of setting the vertex to that of the leading charged hadron");
+  descriptions.setComment("This module produces collection of PFTaus matched to L1 Taus / Jets passing a HLT filter.");
   descriptions.add("L1THLTTauMatching", desc);
 }

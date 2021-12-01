@@ -33,7 +33,6 @@ process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
 # run HLT
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("HLTrigger.Configuration.HLT_2E30_cff")
-process.schedule = process.HLTSchedule
 
 process.hltL1gtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
     UseL1GlobalTriggerRecord = cms.bool( False ),

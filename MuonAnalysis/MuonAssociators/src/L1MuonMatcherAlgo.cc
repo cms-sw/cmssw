@@ -2,8 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet &iConfig)
-    : prop_(iConfig),
+L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet &iConfig, edm::ConsumesCollector iCollector)
+    : prop_(iConfig, iCollector),
       useStage2L1_(iConfig.existsAs<bool>("useStage2L1") ? iConfig.getParameter<bool>("useStage2L1") : false),
       preselectionCut_(
           (iConfig.existsAs<std::string>("preselection")) ? iConfig.getParameter<std::string>("preselection") : ""),

@@ -81,21 +81,23 @@ if __name__ == '__main__':
                      1306.0, #SingleMu Pt1 UP15
                      1325.81, #test NanoAOD from existing MINI UL 106Xv1
                      136.8523, #test NanoAOD from existing reMINI UL 106Xv2
-                     1330, #Run2 MC Zmm
-                     135.4, #Run 2 Zee ttbar
+                     1330, #Run2 2015/2016 MC Zmm
+                     135.4, #Run 2 2015/2016 Zee ttbar fastsim
                      10042.0, #2017 ZMM
                      10024.0, #2017 ttbar
                      10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
+                     2018.1, #2018 ttbar fastsim
                      11634.911, #2021 DD4hep ttbar reading geometry from XML
-                     11634.912, #2021 DD4hep ttbar reading geometry from the DB
-                     11634.0, #2021 ttbar
+                     11634.914, #2021 DDD ttbar reading geometry from the DB
+                     11634.0, #2021 ttbar (switching to DD4hep by default)
                      11634.7, #2021 ttbar mkFit
                      12434.0, #2023 ttbar
                      23234.0, #2026D49 ttbar (HLT TDR baseline w/ HGCal v11)
                      28234.0, #2026D60 (exercise HF nose)
-                     34634.0, #2026D76 ttbar (2021 new baseline)
-                     34834.999, #2026D76 ttbar premixing stage1+stage2, PU50
+                     35034.0, #2026D77 ttbar (2021 new baseline)
+                     35234.999, #2026D77 ttbar premixing stage1+stage2, PU50
+                     38634.0, #2026D86 ttbar
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],

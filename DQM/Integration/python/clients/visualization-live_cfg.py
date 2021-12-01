@@ -19,7 +19,7 @@ else:
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 #scenarios = {'pp_run': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','hi_run':'HeavyIons'}
 #scenarios = {'pp_run': 'ppEra_Run2_2016','pp_run_stage1': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','cosmic_run_stage1':'cosmicsEra_Run2_2016','hi_run':'HeavyIonsEra_Run2_HI'}
-scenarios = {'pp_run': 'ppEra_Run3','cosmic_run':'cosmicsEra_Run3','hi_run':'ppEra_Run2_2016_pA'}
+scenarios = {'pp_run': 'ppEra_Run3','cosmic_run':'cosmicsEra_Run3','hi_run':'ppEra_Run2_2016_pA', 'commissioning_run':'cosmicsEra_Run3'}
 
 if not runType.getRunTypeName() in scenarios.keys():
     msg = "Error getting the scenario out of the 'runkey', no mapping for: %s\n"%runType.getRunTypeName()
@@ -29,7 +29,7 @@ scenarioName = scenarios[runType.getRunTypeName()]
 
 if not unitTest :
   if options.BeamSplashRun :
-    # scenarioName = 'ppEra_Run3' #FIXME
+    scenarioName = 'ppEra_Run3'
     pass
 
 print("Using scenario:",scenarioName)

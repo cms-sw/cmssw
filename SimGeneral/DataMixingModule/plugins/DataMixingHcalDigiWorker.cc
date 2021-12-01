@@ -13,8 +13,6 @@
 // calibration headers, for future reference
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 //
 //
 #include "DataMixingHcalDigiWorker.h"
@@ -285,6 +283,8 @@ namespace edm {
     ZDCDigiCollectionDM_ = ps.getParameter<std::string>("ZDCDigiCollectionDM");
     QIE10DigiCollectionDM_ = ps.getParameter<std::string>("QIE10DigiCollectionDM");
     QIE11DigiCollectionDM_ = ps.getParameter<std::string>("QIE11DigiCollectionDM");
+
+    dbToken_ = iC.esConsumes<HcalDbService, HcalDbRecord>();
   }
 
   // Virtual destructor needed.
@@ -293,8 +293,7 @@ namespace edm {
   void DataMixingHcalDigiWorker::addHcalSignals(const edm::Event &e, const edm::EventSetup &ES) {
     // Calibration stuff will look like this:
     // get conditions
-    edm::ESHandle<HcalDbService> conditions;
-    ES.get<HcalDbRecord>().get(conditions);
+    const auto &conditions = ES.getHandle(dbToken_);
 
     // fill in maps of hits
 
@@ -359,8 +358,7 @@ namespace edm {
                                          << " for bunchcrossing " << bcr;
 
     // get conditions
-    edm::ESHandle<HcalDbService> conditions;
-    ES.get<HcalDbRecord>().get(conditions);
+    const auto &conditions = ES.getHandle(dbToken_);
 
     convertPileupHcalDigis<HBHEDigiCollection>(*ep, HBHEPileInputTag_, mcc, *conditions, HBHEDigiStorage_);
     convertPileupHcalDigis<HODigiCollection>(*ep, HOPileInputTag_, mcc, *conditions, HODigiStorage_);
@@ -407,8 +405,7 @@ namespace edm {
   }
 
   void DataMixingHcalDigiWorker::putHcal(edm::Event &e, const edm::EventSetup &ES) {
-    edm::ESHandle<HcalDbService> conditions;
-    ES.get<HcalDbRecord>().get(conditions);
+    const auto &conditions = ES.getHandle(dbToken_);
 
     // collection of digis to put in the event
     std::unique_ptr<HBHEDigiCollection> HBHEdigis = buildHcalDigis<HBHEDigiCollection>(HBHEDigiStorage_, *conditions);

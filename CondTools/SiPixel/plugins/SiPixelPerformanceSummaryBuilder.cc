@@ -1,20 +1,39 @@
+// system includes
 #include <sys/time.h>
+#include <memory>
 
+// CLHEP
 #include "CLHEP/Random/RandGauss.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+// user includes
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
-#include "CondTools/SiPixel/plugins/SiPixelPerformanceSummaryBuilder.h"
+namespace cms {
+  class SiPixelPerformanceSummaryBuilder : public edm::one::EDAnalyzer<> {
+  public:
+    explicit SiPixelPerformanceSummaryBuilder(const edm::ParameterSet&);
+    ~SiPixelPerformanceSummaryBuilder() override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  private:
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+    std::vector<uint32_t> detectorModules_;
+  };
+}  // namespace cms
 
 using namespace cms;
 
@@ -34,7 +53,7 @@ void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
   }
   edm::LogInfo("Modules") << "detectorModules_.size() = " << detectorModules_.size();
 
-  SiPixelPerformanceSummary* performanceSummary = new SiPixelPerformanceSummary();
+  SiPixelPerformanceSummary performanceSummary;
 
   for (std::vector<uint32_t>::const_iterator iDet = detectorModules_.begin();  // fill object
        iDet != detectorModules_.end();
@@ -43,24 +62,22 @@ void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
     float nDigisRMS = (float)CLHEP::RandGauss::shoot(20., 4.);
     float emptyFraction = (float)CLHEP::RandGauss::shoot(.5, .2);
 
-    performanceSummary->setNumberOfDigis(*iDet, nDigisMean, nDigisRMS, emptyFraction);  // set values
+    performanceSummary.setNumberOfDigis(*iDet, nDigisMean, nDigisRMS, emptyFraction);  // set values
   }
   clock_t presentTime = clock();
-  performanceSummary->setTimeStamp((unsigned long long)presentTime);
-  performanceSummary->print();
+  performanceSummary.setTimeStamp((unsigned long long)presentTime);
+  performanceSummary.print();
 
   edm::Service<cond::service::PoolDBOutputService> poolDBService;  // write to DB
   if (poolDBService.isAvailable()) {
     try {
       if (poolDBService->isNewTagRequest("SiPixelPerformanceSummaryRcd")) {
         edm::LogInfo("Tag") << " is a new tag request.";
-        poolDBService->createNewIOV<SiPixelPerformanceSummary>(performanceSummary,
-                                                               poolDBService->beginOfTime(),
-                                                               poolDBService->endOfTime(),
-                                                               "SiPixelPerformanceSummaryRcd");
+        poolDBService->createOneIOV<SiPixelPerformanceSummary>(
+            performanceSummary, poolDBService->beginOfTime(), "SiPixelPerformanceSummaryRcd");
       } else {
         edm::LogInfo("Tag") << " tag exists already";
-        poolDBService->appendSinceTime<SiPixelPerformanceSummary>(
+        poolDBService->appendOneIOV<SiPixelPerformanceSummary>(
             performanceSummary, poolDBService->currentTime(), "SiPixelPerformanceSummaryRcd");
       }
     } catch (const cond::Exception& err) {

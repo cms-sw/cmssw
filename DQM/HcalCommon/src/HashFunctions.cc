@@ -243,10 +243,15 @@ namespace hcaldqm {
       if (eid.isVMEid())
         return utilities::hash(HcalElectronicsId(FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, eid.dccid()));
       else {
-        //  tmp - we need to hash HF's FEDs with slot in mind
-        // bool isHF = eid.crateId()==22 || eid.crateId()==29 || eid.crateId()==32;
+        //  HO and HO are dual-FED
+        bool isHF = eid.crateId() == 22 || eid.crateId() == 29 || eid.crateId() == 32;
+        bool isHO = eid.crateId() == 23 || eid.crateId() == 27 || eid.crateId() == 26 || eid.crateId() == 38;
         //  for HF, slot number is either
-        int slotToUse = eid.slot() > 6 ? SLOT_uTCA_MIN + 6 : SLOT_uTCA_MIN;
+        int slotToUse = 1;
+        if (isHF || isHO)
+          slotToUse = eid.slot() > 6 ? SLOT_uTCA_MIN + 6 : SLOT_uTCA_MIN;
+        else
+          slotToUse = eid.slot() > 8 ? SLOT_uTCA_MIN + 8 : (eid.slot() > 4 ? SLOT_uTCA_MIN + 4 : SLOT_uTCA_MIN);
         return utilities::hash(HcalElectronicsId(eid.crateId(), slotToUse, FIBER_uTCA_MIN1, FIBERCH_MIN, false));
       }
     }

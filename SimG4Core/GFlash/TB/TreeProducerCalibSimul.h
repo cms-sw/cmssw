@@ -6,12 +6,11 @@
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 // for reconstruction
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -29,7 +28,6 @@
 
 // my include files
 #include "SimG4Core/GFlash/TB/TreeMatrixCalib.h"
-
 
 // root includes
 #include "TROOT.h"
@@ -55,41 +53,37 @@
 #include <math.h>
 #include <stdexcept>
 
+class TreeProducerCalibSimul : public edm::one::EDAnalyzer<> {
+public:
+  explicit TreeProducerCalibSimul(const edm::ParameterSet&);
+  ~TreeProducerCalibSimul();
 
-class TreeProducerCalibSimul : public edm::EDAnalyzer {
-   public:
-      explicit TreeProducerCalibSimul(const edm::ParameterSet&);
-      ~TreeProducerCalibSimul();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob();
-      virtual void endJob();
- private:
+private:
+  std::string rootfile_;
+  std::string txtfile_;
+  std::string EBRecHitCollection_;
+  std::string RecHitProducer_;
+  std::string hodoRecInfoCollection_;
+  std::string hodoRecInfoProducer_;
+  std::string tdcRecInfoCollection_;
+  std::string tdcRecInfoProducer_;
+  std::string eventHeaderCollection_;
+  std::string eventHeaderProducer_;
+  double posCluster_;
 
-      
-      std::string rootfile_;
-      std::string txtfile_;
-      std::string EBRecHitCollection_;
-      std::string RecHitProducer_;
-      std::string hodoRecInfoCollection_;
-      std::string hodoRecInfoProducer_;
-      std::string tdcRecInfoCollection_;
-      std::string tdcRecInfoProducer_;
-      std::string eventHeaderCollection_;
-      std::string eventHeaderProducer_;
-      double posCluster_;
+  TreeMatrixCalib* myTree;
 
-      TreeMatrixCalib* myTree;
-
-      int xtalInBeam;
-      int tot_events;
-      int tot_events_ok;
-      int noHits;
-      int noHodo;
-      int noTdc;
-      int noHeader;
+  int xtalInBeam;
+  int tot_events;
+  int tot_events_ok;
+  int noHits;
+  int noHodo;
+  int noTdc;
+  int noHeader;
 };
-
-
 
 #endif

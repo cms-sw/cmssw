@@ -87,19 +87,22 @@ from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
 MonitorTrackResiduals_cosmicTk = MonitorTrackResiduals.clone(
     trajectoryInput = 'cosmictrackfinderP5',
     Tracks = 'cosmictrackfinderP5',
-    Mod_On = False
+    Mod_On = False,
+    VertexCut = False
 )
 # Clone for CKF Tracks
 MonitorTrackResiduals_ckf = MonitorTrackResiduals.clone(
     trajectoryInput = 'ctfWithMaterialTracksP5',
     Tracks = 'ctfWithMaterialTracksP5',
-    Mod_On = False
+    Mod_On = False,
+    VertexCut = False
 )
 # Clone for Road Search  Tracks
 # MonitorTrackResiduals_rs = MonitorTrackResiduals.clone(
 #     trajectoryInput = 'rsWithMaterialTracksP5',
 #     Tracks = 'rsWithMaterialTracksP5',
-#     Mod_On = False
+#     Mod_On = False,
+#     VertexCut = False
 # )
 
 # DQM Services

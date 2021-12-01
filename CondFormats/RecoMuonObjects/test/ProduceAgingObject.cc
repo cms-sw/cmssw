@@ -51,19 +51,21 @@ private:
   virtual void endJob() override{};
 
   void createRpcAgingMap();
-  void createDtAgingMap(const edm::ESHandle<DTGeometry>& dtGeom);
-  void createCscAgingMap(const edm::ESHandle<CSCGeometry>& cscGeom);
+  void createDtAgingMap(const DTGeometry& dtGeom);
+  void createCscAgingMap(const CSCGeometry& cscGeom);
   void printAgingMap(const std::map<uint32_t, float>& map, const std::string& type) const;
 
   // -- member data --
 
-  std::vector<std::string> m_RPCRegEx;
-  std::map<uint32_t, float> m_RPCChambEffs;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> m_dtGeomToken;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> m_cscGeomToken;
 
   std::vector<std::string> m_DTRegEx;
-  std::map<uint32_t, float> m_DTChambEffs;
-
+  std::vector<std::string> m_RPCRegEx;
   std::vector<std::string> m_CSCRegEx;
+
+  std::map<uint32_t, float> m_DTChambEffs;
+  std::map<uint32_t, float> m_RPCChambEffs;
   std::map<uint32_t, std::pair<uint32_t, float>> m_CSCChambEffs;
 
   std::map<uint32_t, float> m_GEMChambEffs;
@@ -75,12 +77,11 @@ private:
 //
 
 ProduceAgingObject::ProduceAgingObject(const edm::ParameterSet& iConfig)
-
-{
-  m_DTRegEx = iConfig.getParameter<std::vector<std::string>>("dtRegEx");
-  m_RPCRegEx = iConfig.getParameter<std::vector<std::string>>("rpcRegEx");
-  m_CSCRegEx = iConfig.getParameter<std::vector<std::string>>("cscRegEx");
-
+    : m_dtGeomToken(esConsumes<edm::Transition::BeginRun>()),
+      m_cscGeomToken(esConsumes<edm::Transition::BeginRun>()),
+      m_DTRegEx(iConfig.getParameter<std::vector<std::string>>("dtRegEx")),
+      m_RPCRegEx(iConfig.getParameter<std::vector<std::string>>("rpcRegEx")),
+      m_CSCRegEx(iConfig.getParameter<std::vector<std::string>>("cscRegEx")) {
   for (auto gemId : iConfig.getParameter<std::vector<int>>("maskedGEMIDs")) {
     m_GEMChambEffs[gemId] = 0.;
   }
@@ -98,27 +99,24 @@ ProduceAgingObject::~ProduceAgingObject() {}
 
 // -- Called for each event --
 void ProduceAgingObject::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  MuonSystemAging* muonAgingObject = new MuonSystemAging();
+  MuonSystemAging muonAgingObject;
 
-  muonAgingObject->m_DTChambEffs = m_DTChambEffs;
-  muonAgingObject->m_RPCChambEffs = m_RPCChambEffs;
-  muonAgingObject->m_CSCChambEffs = m_CSCChambEffs;
+  muonAgingObject.m_DTChambEffs = m_DTChambEffs;
+  muonAgingObject.m_RPCChambEffs = m_RPCChambEffs;
+  muonAgingObject.m_CSCChambEffs = m_CSCChambEffs;
 
-  muonAgingObject->m_GEMChambEffs = m_GEMChambEffs;
-  muonAgingObject->m_ME0ChambEffs = m_ME0ChambEffs;
+  muonAgingObject.m_GEMChambEffs = m_GEMChambEffs;
+  muonAgingObject.m_ME0ChambEffs = m_ME0ChambEffs;
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(muonAgingObject, poolDbService->currentTime(), "MuonSystemAgingRcd");
+    poolDbService->writeOneIOV(muonAgingObject, poolDbService->currentTime(), "MuonSystemAgingRcd");
 }
 
 // -- Called at the beginning of each run --
 void ProduceAgingObject::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<DTGeometry> dtGeom;
-  iSetup.get<MuonGeometryRecord>().get(dtGeom);
-
-  edm::ESHandle<CSCGeometry> cscGeom;
-  iSetup.get<MuonGeometryRecord>().get(cscGeom);
+  auto const& dtGeom = iSetup.getData(m_dtGeomToken);
+  auto const& cscGeom = iSetup.getData(m_cscGeomToken);
 
   createDtAgingMap(dtGeom);
   createCscAgingMap(cscGeom);
@@ -141,8 +139,8 @@ void ProduceAgingObject::createRpcAgingMap() {
 }
 
 /// -- Create DT aging map ------------
-void ProduceAgingObject::createDtAgingMap(const edm::ESHandle<DTGeometry>& dtGeom) {
-  const std::vector<const DTChamber*> chambers = dtGeom->chambers();
+void ProduceAgingObject::createDtAgingMap(const DTGeometry& dtGeom) {
+  const std::vector<const DTChamber*> chambers = dtGeom.chambers();
 
   std::cout << "[ProduceAgingObject] List of aged DT chambers (ChamberID, efficiency)" << std::endl;
   for (const DTChamber* ch : chambers) {
@@ -175,8 +173,8 @@ void ProduceAgingObject::createDtAgingMap(const edm::ESHandle<DTGeometry>& dtGeo
 }
 
 /// -- Create CSC aging map ------------
-void ProduceAgingObject::createCscAgingMap(const edm::ESHandle<CSCGeometry>& cscGeom) {
-  const auto chambers = cscGeom->chambers();
+void ProduceAgingObject::createCscAgingMap(const CSCGeometry& cscGeom) {
+  const auto chambers = cscGeom.chambers();
 
   std::cout << "[ProduceAgingObject] List of aged CSC chambers (ChamberID, efficiency, type)" << std::endl;
 

@@ -18,6 +18,8 @@
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+
 #include "TFile.h"
 #include "TH1D.h"
 

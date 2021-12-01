@@ -41,6 +41,7 @@ private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const final;
 
   edm::EDGetTokenT<reco::PixelClusterCounts> pccToken_;
+  const edm::ESGetToken<LumiCorrections, LumiCorrectionsRcd> lumiCorrectionsToken_;
   const edm::EDPutTokenT<LumiInfo> putToken_;
   const std::string takeAverageValue_;  //Output average values
 
@@ -55,7 +56,8 @@ private:
 
 //--------------------------------------------------------------------------------------------------
 RawPCCProducer::RawPCCProducer(const edm::ParameterSet& iConfig)
-    : putToken_{produces<LumiInfo, edm::Transition::EndLuminosityBlock>(
+    : lumiCorrectionsToken_(esConsumes<edm::Transition::EndLuminosityBlock>()),
+      putToken_{produces<LumiInfo, edm::Transition::EndLuminosityBlock>(
           iConfig.getParameter<edm::ParameterSet>("RawPCCProducerParameters")
               .getUntrackedParameter<std::string>("outputProductName", "alcaLumi"))},
       takeAverageValue_{iConfig.getParameter<edm::ParameterSet>("RawPCCProducerParameters")
@@ -123,9 +125,8 @@ void RawPCCProducer::globalEndLuminosityBlockProduce(edm::LuminosityBlock& lumiS
 
   std::vector<float> correctionScaleFactors;
   if (applyCorr_) {
-    edm::ESHandle<LumiCorrections> corrHandle;
-    iSetup.get<LumiCorrectionsRcd>().get(corrHandle);
-    const LumiCorrections* pccCorrections = corrHandle.product();
+    //Get PCC corrections from the event setup through a token
+    const auto pccCorrections = &iSetup.getData(lumiCorrectionsToken_);
     correctionScaleFactors = pccCorrections->getCorrectionsBX();
   } else {
     correctionScaleFactors.resize(LumiConstants::numBX, 1.0);

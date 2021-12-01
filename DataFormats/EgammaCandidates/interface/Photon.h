@@ -556,25 +556,23 @@ namespace reco {
     /// Set Particle Flow Isolation variables
     void setPflowIsolationVariables(const PflowIsolationVariables& pfisol) { pfIsolation_ = pfisol; }
 
+    static constexpr float mvaPlaceholder = -999999999.;
+
     struct PflowIDVariables {
       int nClusterOutsideMustache;
       float etOutsideMustache;
       float mva;
+      float dnn;
 
       PflowIDVariables()
-          :
-
-            nClusterOutsideMustache(-1),
-            etOutsideMustache(-999999999.),
-            mva(-999999999.)
-
-      {}
+          : nClusterOutsideMustache(-1), etOutsideMustache(mvaPlaceholder), mva(mvaPlaceholder), dnn(mvaPlaceholder) {}
     };
 
     // getters
     int nClusterOutsideMustache() const { return pfID_.nClusterOutsideMustache; }
     float etOutsideMustache() const { return pfID_.etOutsideMustache; }
     float pfMVA() const { return pfID_.mva; }
+    float pfDNN() const { return pfID_.dnn; }
     // setters
     void setPflowIDVariables(const PflowIDVariables& pfid) { pfID_ = pfid; }
 

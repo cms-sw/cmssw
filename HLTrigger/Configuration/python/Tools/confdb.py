@@ -50,7 +50,7 @@ class HLTProcess(object):
 
     # get the configuration from ConfdB
     from .confdbOfflineConverter import OfflineConverter
-    self.converter = OfflineConverter(version = self.config.menu.version, database = self.config.menu.database)
+    self.converter = OfflineConverter(version = self.config.menu.version, database = self.config.menu.database, proxy = self.config.proxy, proxyHost = self.config.proxy_host, proxyPort = self.config.proxy_port)
     self.buildPathList()
     self.buildOptions()
     self.getSetupConfigurationFromDB()
@@ -91,7 +91,6 @@ class HLTProcess(object):
     for key, vals in self.options.items():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
-
     data, err = self.converter.query( *args )
     if 'ERROR' in err or 'Exhausted Resultset' in err or 'CONFIG_NOT_FOUND' in err:
         sys.stderr.write("%s: error while retrieving the HLT menu\n\n" % os.path.basename(sys.argv[0]))
@@ -208,6 +207,7 @@ _customInfo['maxEvents' ]=  %s
 _customInfo['globalTag' ]= "%s"
 _customInfo['inputFile' ]=  %s
 _customInfo['realData'  ]=  %s
+
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 %%(process)s = customizeHLTforAll(%%(process)s,"%s",_customInfo)
 """ % (self.config.type,_gtData,_gtMc,self.config.type,self.config.type,self.config.events,self.config.globaltag,self.source,self.config.data,self.config.type)
@@ -492,7 +492,14 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
     ),
     outputCommands = cms.untracked.vstring( 'drop *',
         'keep edmTriggerResults_*_*_*',
-        'keep triggerTriggerEvent_*_*_*'
+        'keep triggerTriggerEvent_*_*_*',
+        'keep GlobalAlgBlkBXVector_*_*_*',                  
+        'keep GlobalExtBlkBXVector_*_*_*',
+        'keep l1tEGammaBXVector_*_EGamma_*',
+        'keep l1tEtSumBXVector_*_EtSum_*',
+        'keep l1tJetBXVector_*_Jet_*',
+        'keep l1tMuonBXVector_*_Muon_*',
+        'keep l1tTauBXVector_*_Tau_*',
     )
 )
 %(process)s.MinimalOutput = cms.EndPath( %(process)s.hltOutputMinimal )
@@ -552,6 +559,7 @@ if 'PrescaleService' in process.__dict__:
   def updateMessageLogger(self):
     # request summary informations from the MessageLogger
     self.data += """
+# show summaries from trigger analysers used at HLT
 if 'MessageLogger' in %(dict)s:
     %(process)s.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
     %(process)s.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
@@ -598,6 +606,14 @@ if 'GlobalTag' in %%(dict)s:
     self.data += "\n"
 
 
+  def removeElementFromSequencesTasksAndPaths(self, label):
+    if label in self.data:
+      label_re = r'\b(process\.)?' + label
+      self.data = re.sub(r' *(\+|,) *' + label_re, '', self.data)
+      self.data = re.sub(label_re + r' *(\+|,) *', '', self.data)
+      self.data = re.sub(label_re, '', self.data)
+
+
   def instrumentTiming(self):
 
     if self.config.timing:
@@ -642,18 +658,11 @@ if 'GlobalTag' in %%(dict)s:
 
   def instrumentDQM(self):
     if not self.config.hilton:
-      # remove any reference to the hltDQMFileSaver and hltDQMFileSaverPB
-      # note the convert options remove the module itself, 
-      # here we are just removing the references in paths,sequences etc
-      if 'hltDQMFileSaverPB' in self.data:      
-        self.data = re.sub(r'\b(process\.)?hltDQMFileSaverPB \+ ', '', self.data)
-        self.data = re.sub(r' \+ \b(process\.)?hltDQMFileSaverPB', '', self.data)
-        self.data = re.sub(r'\b(process\.)?hltDQMFileSaverPB',     '', self.data)
-
-      if 'hltDQMFileSaver' in self.data:
-        self.data = re.sub(r'\b(process\.)?hltDQMFileSaver \+ ', '', self.data)
-        self.data = re.sub(r' \+ \b(process\.)?hltDQMFileSaver', '', self.data)
-        self.data = re.sub(r'\b(process\.)?hltDQMFileSaver',     '', self.data)
+      # remove any reference to the hltDQMFileSaver and hltDQMFileSaverPB:
+      # note the convert options remove the module itself,
+      # here we are just removing the references in paths, sequences, etc
+      self.removeElementFromSequencesTasksAndPaths('hltDQMFileSaverPB')
+      self.removeElementFromSequencesTasksAndPaths('hltDQMFileSaver')
 
       # instrument the HLT menu with DQMStore and DQMRootOutputModule suitable for running offline
       dqmstore  = "\n# load the DQMStore and DQMRootOutputModule\n"
@@ -798,6 +807,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-EcalEndcapGeometryEP" )
       self.options['esmodules'].append( "-EcalLaserCorrectionService" )
       self.options['esmodules'].append( "-EcalPreshowerGeometryEP" )
+      self.options['esmodules'].append( "-GEMGeometryESModule" )
       self.options['esmodules'].append( "-HcalHardcodeGeometryEP" )
       self.options['esmodules'].append( "-HcalTopologyIdealEP" )
       self.options['esmodules'].append( "-MuonNumberingInitialization" )
@@ -893,6 +903,7 @@ if 'GlobalTag' in %%(dict)s:
       self.parent = self.expand_filenames(self.config.parent)
 
     self.data += """
+# source module (EDM inputs)
 %(process)s.source = cms.Source( "PoolSource",
 """
     self.append_filenames("fileNames", self.source)

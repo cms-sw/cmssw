@@ -65,8 +65,8 @@ private:
   const uint32_t m_gainType;
   const bool m_saveMaps;
   const std::vector<edm::ParameterSet> m_parameters;
-  edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
   std::unique_ptr<TrackerMap> scale_map;
   std::unique_ptr<TrackerMap> smear_map;
@@ -239,7 +239,7 @@ void SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, co
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(theAPVGains.get(), poolDbService->currentTime(), m_Record);
+    poolDbService->writeOneIOV(*theAPVGains, poolDbService->currentTime(), m_Record);
   else
     throw std::runtime_error("PoolDBService required.");
 }

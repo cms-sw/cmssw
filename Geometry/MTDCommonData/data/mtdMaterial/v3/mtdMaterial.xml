@@ -159,6 +159,28 @@
         <rMaterial name="materials:Borated Polyethyl."/>
       </MaterialFraction>
     </CompositeMaterial>
+    <CompositeMaterial name="ETLServicesVolume" density="161.58972*mg/cm3" symbol=" " method="mixture by weight">
+      <MaterialFraction fraction="0.98">
+        <rMaterial name="materials:Air"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.02">
+        <rMaterial name="materials:StainlessSteel"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="ETLNotch" density="843.819822*mg/cm3" symbol=" " method="mixture by weight">
+      <MaterialFraction fraction="0.873">
+        <rMaterial name="materials:Air"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.018">
+        <rMaterial name="materials:StainlessSteel"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.037">
+        <rMaterial name="materials:Kevlar"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.072">
+        <rMaterial name="materials:Copper"/>
+      </MaterialFraction>
+    </CompositeMaterial>
   </MaterialSection>
-
+  
 </DDDefinition>

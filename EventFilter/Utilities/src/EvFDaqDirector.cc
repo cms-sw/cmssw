@@ -153,6 +153,7 @@ namespace evf {
     ss << run_;
     run_nstring_ = ss.str();
     run_dir_ = base_dir_ + "/" + run_string_;
+    input_throttled_file_ = run_dir_ + "/input_throttle";
     ss = std::stringstream();
     ss << getpid();
     pid_ = ss.str();
@@ -2059,6 +2060,11 @@ namespace evf {
 #else
     return {type, whence, start, len, pid};
 #endif
+  }
+
+  bool EvFDaqDirector::inputThrottled() {
+    struct stat buf;
+    return (stat(input_throttled_file_.c_str(), &buf) == 0);
   }
 
 }  // namespace evf

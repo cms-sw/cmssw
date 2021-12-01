@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
-import sys,os,commands
+import sys,os,subprocess
 from CommonMethods import *
 
 class FileObj:
@@ -35,7 +35,7 @@ def main():
             fileObjList[runNumber].run = runNumber 
         fileObjList[runNumber].fileNames.append(fileName) 
         aCommand  = 'ls -l '+ sourceDir + fileName 
-        output = commands.getstatusoutput( aCommand )
+        output = subprocess.getstatusoutput( aCommand )
         fileObjList[runNumber].size += int(output[1].split(' ')[4])
         totalSize += int(output[1].split(' ')[4]) 
 
@@ -51,7 +51,7 @@ def main():
         if dirSize > totalSize/split or run == sortedKeys[len(sortedKeys)-1]:
             newDir = sourceDir + "Run" + str(tmpList[0].run) + "_" + str(tmpList[len(tmpList)-1].run) + "/"
             aCommand  = 'mkdir '+ newDir
-            output = commands.getstatusoutput( aCommand )
+            output = subprocess.getstatusoutput( aCommand )
             print(str(100.*dirSize/totalSize) + "% " + "Run" + str(tmpList[0].run) + "_" + str(tmpList[len(tmpList)-1].run)) 
             for runs in tmpList:
                 #print 'cp '+ sourceDir + runs.fileNames[0] + " " + newDir
@@ -97,7 +97,7 @@ def main():
         if fileName != newFileName:
             aCmd = "mv " + destDir + fileName + " " + destDir + newFileName
             print(aCmd)
-            output =  commands.getstatusoutput(aCmd)
+            output =  subprocess.getstatusoutput(aCmd)
             if output[0] != 0:
                 print(output[1])
         else:

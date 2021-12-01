@@ -1,6 +1,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <cstdio>
@@ -12,9 +12,10 @@ using namespace std;
 
 author Kevin Klapoetke - Minnesota*/
 
-class HcalCableMapper : public edm::EDAnalyzer {
+class HcalCableMapper : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalCableMapper(edm::ParameterSet const &conf);
+  ~HcalCableMapper() override = default;
   void analyze(edm::Event const &e, edm::EventSetup const &c) override;
   void endJob() override;
   // std::string sourceDigi_;
@@ -121,7 +122,6 @@ void HcalCableMapper::process(const PathSet &ps, const IdMap &im) {
       }
     } else if (ieta + 64 == 0x75) {
       ieta = ((ss[2].adc()) & 0x3F);
-      z_ieta = (((ss[2].adc()) >> 6) & 0x1);
       iphi = ((ss[3].adc()) & 0x7F);
       depth = ((ss[4].adc()) & 0x7);
       det = (((ss[4].adc()) >> 3) & 0xF);
@@ -139,8 +139,7 @@ void HcalCableMapper::process(const PathSet &ps, const IdMap &im) {
       if ((spigot == eid.spigot()) && (fiber + 1 == eid.fiberIndex()) && (fiber_chan == eid.fiberChanId()) &&
           (H_slot == eid.htrSlot()) && (G_Dcc == eid.dccid()) && (TB == eid.htrTopBottom()) &&
           (crate == eid.readoutVMECrateId()) && (iphi == dd.iphi()) && (depth == dd.depth()) && (det == dd.subdet()) &&
-          (ieta == dd.ietaAbs())) {  //&&(z_ieta==dd.zside())
-
+          (ieta == dd.ietaAbs())) {
         std::cout << "Pathway match (SHIFT)" << std::endl;
       } else {
         is_header = " DATA SHIFT";

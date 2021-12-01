@@ -269,7 +269,7 @@ void DTCCablingMapProducer::endJob() {
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(pCablingMap_.release(), iovBeginTime_, record_);
+    poolDbService->writeOneIOV(*pCablingMap_, iovBeginTime_, record_);
   } else {
     throw cms::Exception("PoolDBServiceNotFound") << "A running PoolDBService instance is required.";
   }

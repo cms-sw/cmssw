@@ -238,8 +238,8 @@ void TrackerAlignment::saveToDB(void) {
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
   // Retrieve and store
-  Alignments* alignments = theAlignableTracker->alignments();
-  AlignmentErrorsExtended* alignmentErrors = theAlignableTracker->alignmentErrors();
+  Alignments alignments = *(theAlignableTracker->alignments());
+  AlignmentErrorsExtended alignmentErrors = *(theAlignableTracker->alignmentErrors());
 
   //   if ( poolDbService->isNewTagRequest(theAlignRecordName) )
   //     poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(),
@@ -247,7 +247,8 @@ void TrackerAlignment::saveToDB(void) {
   //   else
   //     poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(),
   //                                                 theAlignRecordName );
-  poolDbService->writeOne<Alignments>(alignments, poolDbService->currentTime(), theAlignRecordName);
+  // In the two calls below it is assumed that the delete of "theAlignableTracker" is also deleting the two concerned payloads...
+  poolDbService->writeOneIOV<Alignments>(alignments, poolDbService->currentTime(), theAlignRecordName);
   //   if ( poolDbService->isNewTagRequest(theErrorRecordName) )
   //     poolDbService->createNewIOV<AlignmentErrorsExtended>( alignmentErrors,
   //                                                   poolDbService->endOfTime(),
@@ -256,5 +257,6 @@ void TrackerAlignment::saveToDB(void) {
   //     poolDbService->appendSinceTime<AlignmentErrorsExtended>( alignmentErrors,
   //                                                      poolDbService->currentTime(),
   //                                                      theErrorRecordName );
-  poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->currentTime(), theErrorRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      alignmentErrors, poolDbService->currentTime(), theErrorRecordName);
 }

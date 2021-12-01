@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 #process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 #process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process('G4PrintGeometry',Run3)
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+process = cms.Process('G4PrintGeometry',Run3_DDD)
 process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 
 #from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
@@ -37,7 +37,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     DumpReplica      = cms.untracked.bool(False),
     DumpTouch        = cms.untracked.bool(False),
     DumpSense        = cms.untracked.bool(False),
-    DD4Hep           = cms.untracked.bool(False),
+    DD4hep           = cms.untracked.bool(False),
     Name             = cms.untracked.string(''),
     Names            = cms.untracked.vstring(''),
     MaterialFileName = cms.untracked.string('matfileDDD.txt'),

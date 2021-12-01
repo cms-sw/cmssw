@@ -10,6 +10,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -42,6 +43,7 @@ private:
             mkfit::EventOfHits& eventOfHits,
             const MkFitGeometry& mkFitGeom) const;
 
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   const edm::EDGetTokenT<MkFitHitWrapper> pixelHitsToken_;
   const edm::EDGetTokenT<MkFitHitWrapper> stripHitsToken_;
   const edm::EDGetTokenT<MkFitClusterIndexToHit> pixelClusterIndexToHitToken_;
@@ -56,7 +58,8 @@ private:
 };
 
 MkFitEventOfHitsProducer::MkFitEventOfHitsProducer(edm::ParameterSet const& iConfig)
-    : pixelHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("pixelHits"))},
+    : beamSpotToken_{consumes(iConfig.getParameter<edm::InputTag>("beamSpot"))},
+      pixelHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("pixelHits"))},
       stripHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("stripHits"))},
       pixelClusterIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("pixelHits"))},
       stripClusterIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("stripHits"))},
@@ -77,6 +80,7 @@ MkFitEventOfHitsProducer::MkFitEventOfHitsProducer(edm::ParameterSet const& iCon
 void MkFitEventOfHitsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
+  desc.add("beamSpot", edm::InputTag{"offlineBeamSpot"});
   desc.add("pixelHits", edm::InputTag{"mkFitSiPixelHits"});
   desc.add("stripHits", edm::InputTag{"mkFitSiStripHits"});
   desc.add("usePixelQualityDB", true)->setComment("Use SiPixelQuality DB information");
@@ -171,6 +175,10 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
   fill(iEvent.get(stripClusterIndexToHitToken_).hits(), *eventOfHits, mkFitGeom);
 
   mkfit::StdSeq::Cmssw_LoadHits_End(*eventOfHits);
+
+  auto const bs = iEvent.get(beamSpotToken_);
+  eventOfHits->SetBeamSpot(
+      mkfit::BeamSpot(bs.x0(), bs.y0(), bs.z0(), bs.sigmaZ(), bs.BeamWidthX(), bs.BeamWidthY(), bs.dxdz(), bs.dydz()));
 
   iEvent.emplace(putToken_, std::move(eventOfHits));
 }

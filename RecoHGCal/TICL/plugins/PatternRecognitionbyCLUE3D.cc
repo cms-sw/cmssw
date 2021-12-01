@@ -51,9 +51,8 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
 
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
-  int type = tiles[0].typeT();
-  int nEtaBin = (type == 1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
-  int nPhiBin = (type == 1) ? ticl::TileConstantsHFNose::nPhiBins : ticl::TileConstants::nPhiBins;
+  constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
+  constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
   auto lastLayerPerSide = (unsigned int)(rhtools_.lastLayer(false));
   unsigned int maxLayer = 2 * lastLayerPerSide - 1;
   for (unsigned int layer = 0; layer <= maxLayer; layer++) {
@@ -442,9 +441,8 @@ void PatternRecognitionbyCLUE3D<TILES>::energyRegressionAndID(const std::vector<
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
     const TILES &tiles, const unsigned int layerId, const std::vector<std::pair<int, int>> &layerIdx2layerandSoa) {
-  int type = tiles[0].typeT();
-  int nEtaBin = (type == 1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
-  int nPhiBin = (type == 1) ? ticl::TileConstantsHFNose::nPhiBins : ticl::TileConstants::nPhiBins;
+  constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
+  constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
   auto &clustersOnLayer = clusters_[layerId];
   unsigned int numberOfClusters = clustersOnLayer.x.size();
 
@@ -562,9 +560,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
     const TILES &tiles, const unsigned int layerId, const std::vector<std::pair<int, int>> &layerIdx2layerandSoa) {
-  int type = tiles[0].typeT();
-  int nEtaBin = (type == 1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
-  int nPhiBin = (type == 1) ? ticl::TileConstantsHFNose::nPhiBins : ticl::TileConstants::nPhiBins;
+  constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
+  constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
   auto &clustersOnLayer = clusters_[layerId];
   unsigned int numberOfClusters = clustersOnLayer.x.size();
 

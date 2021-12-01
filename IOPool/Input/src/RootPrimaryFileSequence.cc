@@ -29,7 +29,8 @@ namespace edm {
         orderedProcessHistoryIDs_(),
         eventSkipperByID_(EventSkipperByID::create(pset).release()),
         initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")),
-        noEventSort_(pset.getUntrackedParameter<bool>("noEventSort")),
+        noRunLumiSort_(pset.getUntrackedParameter<bool>("noRunLumiSort")),
+        noEventSort_(noRunLumiSort_ ? true : pset.getUntrackedParameter<bool>("noEventSort")),
         treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize") : 0U),
         duplicateChecker_(new DuplicateChecker(pset)),
         usingGoToEvent_(false),
@@ -69,7 +70,7 @@ namespace edm {
 
   RootPrimaryFileSequence::~RootPrimaryFileSequence() {}
 
-  void RootPrimaryFileSequence::endJob() { closeFile_(); }
+  void RootPrimaryFileSequence::endJob() { closeFile(); }
 
   std::shared_ptr<FileBlock> RootPrimaryFileSequence::readFile_() {
     std::shared_ptr<FileBlock> fileBlock;
@@ -149,6 +150,7 @@ namespace edm {
                                       input_.treeMaxVirtualSize(),
                                       input_.processingMode(),
                                       input_.runHelper(),
+                                      noRunLumiSort_,
                                       noEventSort_,
                                       input_.productSelectorRules(),
                                       InputType::Primary,
@@ -246,7 +248,7 @@ namespace edm {
   // Rewind to before the first event that was read.
   void RootPrimaryFileSequence::rewind_() {
     if (!atFirstFile()) {
-      closeFile_();
+      closeFile();
       setAtFirstFile();
     }
     if (!rootFile()) {
@@ -411,6 +413,10 @@ namespace edm {
             "Note 1: Events within the same lumi will always be processed contiguously.\n"
             "Note 2: Lumis within the same run will always be processed contiguously.\n"
             "Note 3: Any sorting occurs independently in each input file (no sorting across input files).");
+    desc.addUntracked<bool>("noRunLumiSort", false)
+        ->setComment(
+            "True:  Process runs, lumis and events in the order they appear in the file.\n"
+            "False: Follow settings based on 'noEventSort' setting.");
     desc.addUntracked<unsigned int>("cacheSize", roottree::defaultCacheSize)
         ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
     std::string defaultString("permissive");

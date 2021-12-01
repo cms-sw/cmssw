@@ -49,6 +49,7 @@ private:
   edm::EDGetTokenT<LumiScalersCollection> lumiScalers_;
 
   MEMap3Inf mapTotalDigi_layer_;
+  MEMap3Inf mapDigiWheel_layer_;
   MEMap3Inf mapDigiOcc_ieta_;
   MEMap3Inf mapDigiOcc_phi_;
   MEMap3Inf mapTotalDigiPerEvtLayer_;
@@ -60,6 +61,8 @@ private:
   MonitorElement* h2SummaryOcc_;
 
   Int_t nBXMin_, nBXMax_;
+  Float_t fRadiusMin_;
+  Float_t fRadiusMax_;
 
   Bool_t bModeRelVal_;
 };

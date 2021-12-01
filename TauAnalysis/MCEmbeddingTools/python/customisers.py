@@ -5,7 +5,6 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-
 ################################ Customizer for skimming ###########################
 ### There are four different parts.
 ##First step is the SELECT (former SKIM) part, where we identfy the events which are good for Embedding. Need to store RAWRECO [RAW is needed for the MERG and RECO for the CLEAN step]
@@ -443,9 +442,8 @@ def customisoptions(process):
         process.options = cms.untracked.PSet()
     process.options.emptyRunLumiMode = cms.untracked.string('doNotHandleEmptyRunsAndLumis')
     if not hasattr(process, "bunchSpacingProducer"):
-        process.bunchSpacingProducer = cms.EDProducer("BunchSpacingProducer")
-    process.bunchSpacingProducer.bunchSpacingOverride = cms.uint32(25)
-    process.bunchSpacingProducer.overrideBunchSpacing = cms.bool(True)
+        process.load('RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi')
+        process.bunchSpacingProducer = process.bunchSpacingProducer.clone(overrideBunchSpacing = True)
     process.options.numberOfThreads = cms.untracked.uint32(1)
     process.options.numberOfStreams = cms.untracked.uint32(0)
     return process

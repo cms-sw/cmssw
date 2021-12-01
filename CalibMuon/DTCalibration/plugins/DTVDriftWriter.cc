@@ -33,14 +33,15 @@ using namespace std;
 using namespace edm;
 
 DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset)
-    : mTimeMapToken_(esConsumes()),
-      vDriftMapToken_(esConsumes()),
-      dtGeomToken_(esConsumes()),
+    : mTimeMapToken_(esConsumes<edm::Transition::BeginRun>()),
+      vDriftMapToken_(esConsumes<edm::Transition::BeginRun>()),
+      dtGeomToken_(esConsumes<edm::Transition::BeginRun>()),
       granularity_(pset.getUntrackedParameter<string>("calibGranularity", "bySL")),
       mTimeMap_(nullptr),
       vDriftMap_(nullptr),
       vDriftAlgo_{DTVDriftPluginFactory::get()->create(pset.getParameter<string>("vDriftAlgo"),
-                                                       pset.getParameter<ParameterSet>("vDriftAlgoConfig"))} {
+                                                       pset.getParameter<ParameterSet>("vDriftAlgoConfig"),
+                                                       consumesCollector())} {
   LogVerbatim("Calibration") << "[DTVDriftWriter]Constructor called!";
 
   if (granularity_ != "bySL")

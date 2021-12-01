@@ -11,6 +11,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 
 #include <string>
 #include <fstream>
@@ -56,5 +58,8 @@ private:
   // Map of the vdrift, reso distributions by wheel/station/SL
   std::map<std::vector<int>, TH1D*> theVDriftDistribMap;
   std::map<std::vector<int>, TH1D*> theResoDistribMap;
+
+  edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeMapToken_;
+  edm::ESGetToken<DTRecoConditions, DTRecoConditionsVdriftRcd> vDriftMapToken_;
 };
 #endif

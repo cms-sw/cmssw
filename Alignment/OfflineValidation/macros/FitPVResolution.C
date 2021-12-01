@@ -8,6 +8,7 @@
 #include "TCanvas.h"
 #include "TObject.h"
 #include "TStyle.h"
+#include "TSystem.h"
 #include "TClass.h"
 #include "TLegend.h"
 #include "TObjString.h"
@@ -24,6 +25,15 @@
 #define PLOTTING_MACRO  // to remove message logger
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
 #include "Alignment/OfflineValidation/macros/CMS_lumi.h"
+
+/* 
+   Store here the globals binning settings
+*/
+
+float SUMPTMIN = 1.;
+float SUMPTMAX = 1e3;
+int TRACKBINS = 120;
+int VTXBINS = 60;
 
 /* 
    This is an auxilliary class to store the list of files
@@ -65,10 +75,16 @@ PVResolutionVariables::PVResolutionVariables(
 
   // check if the base dir exists
   file = TFile::Open(fileName.Data(), "READ");
+
+  if (!file) {
+    std::cout << "ERROR! file " << fileName.Data() << " does not exist!" << std::endl;
+    assert(false);
+  }
+
   if (file->Get(baseDir.Data())) {
-    std::cout << "found base directory: " << baseDir.Data() << std::endl;
+    std::cout << fileName.Data() << ", found base directory: " << baseDir.Data() << std::endl;
   } else {
-    std::cout << "no directory named: " << baseDir.Data() << std::endl;
+    std::cout << fileName.Data() << ", no directory named: " << baseDir.Data() << std::endl;
     assert(false);
   }
 }
@@ -118,9 +134,19 @@ statmode::fitParams fitResolutions(TH1* hist, bool singleTime = false);
 void makeNiceTrendPlotStyle(TH1* hist, Int_t color, Int_t style);
 void adjustMaximum(TH1F* histos[], int size);
 
+// inline function
+namespace pvresol {
+  int check(const double a[], int n) {
+    //while (--n > 0 && a[n] == a[0])    // exact match
+    while (--n > 0 && (a[n] - a[0]) < 0.01)  // merged input files, protection agains numerical precision
+      ;
+    return n != 0;
+  }
+}  // namespace pvresol
+
 // MAIN
 //*************************************************************
-void FitPVResolution(TString namesandlabels, TString theDate = "") {
+void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict = false) {
   //*************************************************************
 
   bool fromLoader = false;
@@ -203,23 +229,128 @@ void FitPVResolution(TString namesandlabels, TString theDate = "") {
     std::cout << "FitPVResolution::FitPVResolution(): label[" << j << "] " << LegLabels[j] << std::endl;
   }
 
+  // get the binnings
+  TH1F* theBinHistos[nFiles_];
+  double theSumPtMin_[nFiles_];
+  double theSumPtMax_[nFiles_];
+  double theTrackBINS_[nFiles_];
+  double theVtxBINS_[nFiles_];
+
+  for (Int_t i = 0; i < nFiles_; i++) {
+    fins[i]->cd("PrimaryVertexResolution/BinningFeatures/");
+    if (gDirectory->GetListOfKeys()->Contains("h_profileBinnings")) {
+      gDirectory->GetObject("h_profileBinnings", theBinHistos[i]);
+      theSumPtMin_[i] =
+          theBinHistos[i]->GetBinContent(1) / (theBinHistos[i]->GetEntries() / theBinHistos[i]->GetNbinsX());
+      std::cout << "File n. " << i << " has theSumPtMin[" << i << "] = " << theSumPtMin_[i] << std::endl;
+      theSumPtMax_[i] =
+          theBinHistos[i]->GetBinContent(2) / (theBinHistos[i]->GetEntries() / theBinHistos[i]->GetNbinsX());
+      std::cout << "File n. " << i << " has theSumPtMax[" << i << "] = " << theSumPtMax_[i] << std::endl;
+      theTrackBINS_[i] =
+          theBinHistos[i]->GetBinContent(3) / (theBinHistos[i]->GetEntries() / theBinHistos[i]->GetNbinsX());
+      std::cout << "File n. " << i << " has theTrackBINS[" << i << "] = " << theTrackBINS_[i] << std::endl;
+      theVtxBINS_[i] =
+          theBinHistos[i]->GetBinContent(4) / (theBinHistos[i]->GetEntries() / theBinHistos[i]->GetNbinsX());
+      std::cout << "File n. " << i << " has theVtxBINS[" << i << "] = " << theVtxBINS_[i] << std::endl;
+    } else {
+      theSumPtMin_[i] = 1.;
+      std::cout << "File n. " << i << " getting the default minimum sum pT range: " << theSumPtMin_[i] << std::endl;
+      theSumPtMax_[i] = 1e3;
+      std::cout << "File n. " << i << " getting the default maxmum sum pT range: " << theSumPtMax_[i] << std::endl;
+      theTrackBINS_[i] = 120.;
+      std::cout << "File n. " << i << " getting the default number of tracks bins: " << theTrackBINS_[i] << std::endl;
+      theTrackBINS_[i] = 60.;
+      std::cout << "File n. " << i << " getting the default number of vertices bins: " << theVtxBINS_[i] << std::endl;
+    }
+  }
+
+  // checks if all minimum sum pT ranges coincide
+  // if not, exits
+  if (pvresol::check(theSumPtMin_, nFiles_)) {
+    std::cout << "======================================================" << std::endl;
+    std::cout << "FitPVResolution::FitPVResolution(): the minimum sum pT is different" << std::endl;
+    std::cout << "exiting..." << std::endl;
+    exit(EXIT_FAILURE);
+  } else {
+    SUMPTMIN = theSumPtMin_[0];
+    std::cout << "======================================================" << std::endl;
+    std::cout << "FitPVResolution::FitPVResolution(): the minimum sum pT is: " << SUMPTMIN << std::endl;
+    std::cout << "======================================================" << std::endl;
+  }
+
+  // checks if all maximum sum pT ranges coincide
+  // if not, exits
+  if (pvresol::check(theSumPtMax_, nFiles_)) {
+    std::cout << "======================================================" << std::endl;
+    std::cout << "FitPVResolution::FitPVResolution(): the maximum sum pT is different" << std::endl;
+    std::cout << "exiting..." << std::endl;
+    exit(EXIT_FAILURE);
+  } else {
+    SUMPTMAX = theSumPtMax_[0];
+    std::cout << "======================================================" << std::endl;
+    std::cout << "FitPVResolution::FitPVResolution(): the maximum sum pT is: " << SUMPTMAX << std::endl;
+    std::cout << "======================================================" << std::endl;
+  }
+
+  // checks if all number of tracks bins coincide
+  // if not, exits
+  if (pvresol::check(theTrackBINS_, nFiles_)) {
+    std::cout << "======================================================" << std::endl;
+    std::cout << "FitPVResolution::FitPVResolution(): the number of track bins is different" << std::endl;
+    if (isStrict) {
+      std::cout << "exiting..." << std::endl;
+      std::cout << "======================================================" << std::endl;
+      exit(EXIT_FAILURE);  //this is stricter
+    } else {
+      TRACKBINS = *std::max_element(theTrackBINS_, theTrackBINS_ + nFiles_);
+      std::cout << "chosen the maximum: " << TRACKBINS << std::endl;
+      std::cout << "======================================================" << std::endl;
+    }
+  } else {
+    TRACKBINS = int(theTrackBINS_[0]);
+    std::cout << "======================================================" << std::endl;
+    std::cout << "FitPVResolution::FitPVResolution(): the number of track bins is: " << TRACKBINS << std::endl;
+    std::cout << "======================================================" << std::endl;
+  }
+
+  // checks if all number of vertices bins coincide
+  // if not, exits
+  if (pvresol::check(theVtxBINS_, nFiles_)) {
+    std::cout << "======================================================" << std::endl;
+    std::cout << "FitPVResolution::FitPVResolution(): the number of vertices bins is different" << std::endl;
+    if (isStrict) {
+      std::cout << "exiting..." << std::endl;
+      std::cout << "======================================================" << std::endl;
+      exit(EXIT_FAILURE);  //this is stricter
+    } else {
+      VTXBINS = *std::max_element(theVtxBINS_, theVtxBINS_ + nFiles_);
+      std::cout << "chosen the maximum: " << VTXBINS << std::endl;
+      std::cout << "======================================================" << std::endl;
+    }
+  } else {
+    VTXBINS = int(theVtxBINS_[0]);
+    std::cout << "======================================================" << std::endl;
+    std::cout << "FitPVResolution::FitPVResolution(): the number of vertices bins is: " << VTXBINS << std::endl;
+    std::cout << "======================================================" << std::endl;
+  }
+
   // max vertices
-  const int max_n_vertices = 40;
-  std::array<float, max_n_vertices + 1> myNVtx_bins_;
+  const int max_n_vertices = std::min(60, VTXBINS);  // take the minimum to avoid overflow
+  std::vector<float> myNVtx_bins_;
   for (float i = 0; i <= max_n_vertices; i++) {
-    myNVtx_bins_[i] = 1. + i;
+    myNVtx_bins_.push_back(i - 0.5f);
   }
 
   // max track
-  const int max_n_tracks = 60;
-  std::array<float, max_n_tracks + 1> myNTrack_bins_;
+  const int max_n_tracks = std::min(120, TRACKBINS);  // take the minimum to avoid overflow
+  std::vector<float> myNTrack_bins_;
   for (float i = 0; i <= max_n_tracks; i++) {
-    myNTrack_bins_[i] = 1 + i * 2;
+    myNTrack_bins_.push_back(i - 0.5f);
   }
 
   // max sumPt
   const int max_sum_pt = 30;
-  std::array<float, max_sum_pt + 1> mypT_bins_ = PVValHelper::makeLogBins<float, max_sum_pt>(1., 1e3);
+  std::array<float, max_sum_pt + 1> mypT_bins_ = PVValHelper::makeLogBins<float, max_sum_pt>(SUMPTMIN, SUMPTMAX);
 
   // define the maps
   std::unordered_map<std::string, TH1F*> hpulls_;
@@ -1000,6 +1131,7 @@ void setPVResolStyle() {
 
   writeExtraText = true;  // if extra text
   lumi_13TeV = "p-p collisions";
+  lumi_0p9TeV = "p-p collisions";
   extraText = "Internal";
 
   TH1::StatOverflows(kTRUE);

@@ -135,6 +135,11 @@ namespace gpuClustering {
 #ifdef __CUDA_ARCH__
       // assume that we can cover the whole module with up to 16 blockDim.x-wide iterations
       constexpr int maxiter = 16;
+      if (threadIdx.x == 0 && (hist.size() / blockDim.x) >= maxiter)
+        printf("THIS IS NOT SUPPOSED TO HAPPEN too many hits in module %d: %d for block size %d\n",
+               thisModuleId,
+               hist.size(),
+               blockDim.x);
 #else
       auto maxiter = hist.size();
 #endif

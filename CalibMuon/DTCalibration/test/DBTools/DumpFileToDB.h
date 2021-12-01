@@ -11,6 +11,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 #include <string>
 #include <fstream>
@@ -49,5 +50,7 @@ private:
   // sum the correction in the txt file (for the mean value) to what is input DB
   bool diffMode;
   const DTTtrig* tTrigMapOrig;
+
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
 };
 #endif

@@ -19,7 +19,23 @@ gedGsfElectronsTmp = ecalDrivenGsfElectrons.clone(
                                          "gedelectron_EBUncertainty_offline_v1",
                                          "gedelectron_EEUncertainty_offline_v1"],
     combinationRegressionWeightLabels = ["gedelectron_p4combination_offline"],
+
+    #Egamma PFID DNN model configuration
+    EleDNNPFid= dict(
+        outputTensorName = "sequential_1/FinalLayer/Softmax",
+        modelsFiles = [
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/lowpT/lowpT_modelDNN.pb",
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/EB_highpT/barrel_highpT_modelDNN.pb",
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/EE_highpT/endcap_highpT_modelDNN.pb"
+        ],
+        scalersFiles = [
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/lowpT/lowpT_scaler.txt",
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/EB_highpT/barrel_highpT_scaler.txt",
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/EE_highpT/endcap_highpT_scaler.txt"
+        ]
+    )    
 )
+
 
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
@@ -31,3 +47,10 @@ egamma_lowPt_exclusive.toModify(gedGsfElectronsTmp.preselection,
                                 minSCEtBarrel = 1.0, 
                                 minSCEtEndcaps = 1.0)
 egamma_lowPt_exclusive.toModify(gedGsfElectronsTmp, applyPreselection = False) 
+
+
+# Activate the Egamma PFID dnn only for Run3
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(gedGsfElectronsTmp.EleDNNPFid,
+    enabled = True
+)

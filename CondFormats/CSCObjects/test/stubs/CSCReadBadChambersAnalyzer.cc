@@ -6,13 +6,15 @@
 #include <vector>
 #include <bitset>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
@@ -20,46 +22,42 @@
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
 namespace edmtest {
-  class CSCReadBadChambersAnalyzer : public edm::EDAnalyzer {
+  class CSCReadBadChambersAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit CSCReadBadChambersAnalyzer(edm::ParameterSet const& ps)
-        : outputToFile_(ps.getParameter<bool>("outputToFile")),
+        : chambersToken_{esConsumes()},
+          outputToFile_(ps.getParameter<bool>("outputToFile")),
           readBadChambers_(ps.getParameter<bool>("readBadChambers")),
           me42installed_(ps.getParameter<bool>("me42installed")) {}
 
-    explicit CSCReadBadChambersAnalyzer(int i) {}
+    ~CSCReadBadChambersAnalyzer() override {}
 
-    virtual ~CSCReadBadChambersAnalyzer() {}
-
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-    /// did we request reading bad channel info from db?
-    bool readBadChambers() const { return readBadChambers_; }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
-    bool outputToFile_;
-    bool readBadChambers_;  // flag whether or not to even attempt reading bad channel info from db
-    bool me42installed_;    // flag whether ME42 chambers are installed in the geometry
-    const CSCBadChambers* theBadChambers;
+    const edm::ESGetToken<CSCBadChambers, CSCBadChambersRcd> chambersToken_;
+    const bool outputToFile_;
+    const bool readBadChambers_;  // flag whether or not to even attempt reading bad channel info from db
+    const bool me42installed_;    // flag whether ME42 chambers are installed in the geometry
   };
 
   void CSCReadBadChambersAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
 
-    int counter = 0;
-    std::cout << " RUN# " << e.id().run() << std::endl;
-    std::cout << " EVENT# " << e.id().event() << std::endl;
-    edm::ESHandle<CSCBadChambers> pBad;
-    context.get<CSCBadChambersRcd>().get(pBad);
+    edm::LogSystem log("CSCBadChambers");
 
-    theBadChambers = pBad.product();
+    int counter = 0;
+    log << " RUN# " << e.id().run() << std::endl;
+    log << " EVENT# " << e.id().event() << std::endl;
+
+    auto theBadChambers = &context.getData(chambersToken_);
 
     CSCIndexer indexer;  // just to build a CSCDetId from chamber index
 
-    std::cout << "Bad Chambers:" << std::endl;
+    log << "Bad Chambers:" << std::endl;
 
     int nbad = theBadChambers->numberOfChambers();
-    std::cout << "No. in list = " << nbad << std::endl;
+    log << "No. in list = " << nbad << std::endl;
 
     // Iterate over all chambers via their linear index
 
@@ -85,12 +83,12 @@ namespace edmtest {
       } else {
         ++countgood;
       }
-      std::cout << counter << "  " << indexc << " " << id << " In bad list? " << bbads << std::endl;
+      log << counter << "  " << indexc << " " << id << " In bad list? " << bbads << std::endl;
     }
 
-    std::cout << "Total number of chambers      = " << counter << std::endl;
-    std::cout << "Total number of good chambers = " << countgood << std::endl;
-    std::cout << "Total number of bad chambers  = " << countbad << std::endl;
+    log << "Total number of chambers      = " << counter << std::endl;
+    log << "Total number of good chambers = " << countgood << std::endl;
+    log << "Total number of bad chambers  = " << countbad << std::endl;
 
     if (outputToFile_) {
       std::ofstream BadChamberFile("dbBadChamber.dat", std::ios::app);

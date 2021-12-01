@@ -12,7 +12,6 @@
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -27,10 +26,12 @@ public:
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
   int nEtaPartitions_;
 };
 
-GEMFakeEvent::GEMFakeEvent(const edm::ParameterSet& config) {
+GEMFakeEvent::GEMFakeEvent(const edm::ParameterSet& config)
+    : geomToken_(esConsumes<GEMGeometry, MuonGeometryRecord>()) {
   cout << "Initialize the Event Dump" << endl;
   produces<GEMDigiCollection>();
 
@@ -41,8 +42,7 @@ void GEMFakeEvent::produce(edm::Event& ev, const edm::EventSetup& es) {
   cout << "RUN " << ev.id().run() << " EVENT " << ev.id().event() << endl;
 
   cout << "Getting the gem geometry" << endl;
-  edm::ESHandle<GEMGeometry> gemGeom;
-  es.get<MuonGeometryRecord>().get(gemGeom);
+  const auto& gemGeom = es.getHandle(geomToken_);
 
   unique_ptr<GEMDigiCollection> pDigis(new GEMDigiCollection());
 

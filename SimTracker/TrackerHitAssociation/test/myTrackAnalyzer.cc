@@ -13,7 +13,8 @@ myTrackAnalyzer::myTrackAnalyzer(edm::ParameterSet const& conf)
     : trackerHitAssociatorConfig_(conf, consumesCollector()),
       doPixel_(conf.getParameter<bool>("associatePixel")),
       doStrip_(conf.getParameter<bool>("associateStrip")),
-      trackCollectionTag_(conf.getParameter<edm::InputTag>("trackCollectionTag")) {}
+      trackCollectionTag_(conf.getParameter<edm::InputTag>("trackCollectionTag")),
+      tokGeo_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {}
 
 myTrackAnalyzer::~myTrackAnalyzer() {}
 
@@ -21,8 +22,7 @@ void myTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& se
   //
   // extract tracker geometry
   //
-  edm::ESHandle<TrackerGeometry> theG;
-  setup.get<TrackerDigiGeometryRecord>().get(theG);
+  auto const& theG = setup.getHandle(tokGeo_);
 
   using namespace std;
 

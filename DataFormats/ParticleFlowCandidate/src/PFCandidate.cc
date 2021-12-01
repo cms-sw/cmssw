@@ -18,8 +18,6 @@
 using namespace reco;
 using namespace std;
 
-const float PFCandidate::bigMva_ = -999.;
-
 #include "DataFormats/ParticleFlowCandidate/src/CountBits.h"
 
 PFCandidate::PFCandidate()
@@ -35,13 +33,19 @@ PFCandidate::PFCandidate()
       flags_(0),
       deltaP_(0.),
       vertexType_(kCandVertex),
-      mva_Isolated_(bigMva_),
-      mva_e_pi_(bigMva_),
-      mva_e_mu_(bigMva_),
-      mva_pi_mu_(bigMva_),
-      mva_nothing_gamma_(bigMva_),
-      mva_nothing_nh_(bigMva_),
-      mva_gamma_nh_(bigMva_),
+      mva_Isolated_(PFCandidate::bigMva_),
+      mva_e_pi_(PFCandidate::bigMva_),
+      mva_e_mu_(PFCandidate::bigMva_),
+      mva_pi_mu_(PFCandidate::bigMva_),
+      mva_nothing_gamma_(PFCandidate::bigMva_),
+      mva_nothing_nh_(PFCandidate::bigMva_),
+      mva_gamma_nh_(PFCandidate::bigMva_),
+      dnn_e_sigIsolated_(PFCandidate::bigMva_),
+      dnn_e_sigNonIsolated_(PFCandidate::bigMva_),
+      dnn_e_bkgNonIsolated_(PFCandidate::bigMva_),
+      dnn_e_bkgTau_(PFCandidate::bigMva_),
+      dnn_e_bkgPhoton_(PFCandidate::bigMva_),
+      dnn_gamma_(PFCandidate::bigMva_),
       getter_(nullptr),
       storedRefsBitPattern_(0),
       time_(0.f),
@@ -74,13 +78,19 @@ PFCandidate::PFCandidate(Charge charge, const LorentzVector& p4, ParticleType pa
       flags_(0),
       deltaP_(0.),
       vertexType_(kCandVertex),
-      mva_Isolated_(bigMva_),
-      mva_e_pi_(bigMva_),
-      mva_e_mu_(bigMva_),
-      mva_pi_mu_(bigMva_),
-      mva_nothing_gamma_(bigMva_),
-      mva_nothing_nh_(bigMva_),
-      mva_gamma_nh_(bigMva_),
+      mva_Isolated_(PFCandidate::bigMva_),
+      mva_e_pi_(PFCandidate::bigMva_),
+      mva_e_mu_(PFCandidate::bigMva_),
+      mva_pi_mu_(PFCandidate::bigMva_),
+      mva_nothing_gamma_(PFCandidate::bigMva_),
+      mva_nothing_nh_(PFCandidate::bigMva_),
+      mva_gamma_nh_(PFCandidate::bigMva_),
+      dnn_e_sigIsolated_(PFCandidate::bigMva_),
+      dnn_e_sigNonIsolated_(PFCandidate::bigMva_),
+      dnn_e_bkgNonIsolated_(PFCandidate::bigMva_),
+      dnn_e_bkgTau_(PFCandidate::bigMva_),
+      dnn_e_bkgPhoton_(PFCandidate::bigMva_),
+      dnn_gamma_(PFCandidate::bigMva_),
       getter_(nullptr),
       storedRefsBitPattern_(0),
       time_(0.f),
@@ -137,6 +147,12 @@ PFCandidate::PFCandidate(PFCandidate const& iOther)
       mva_nothing_gamma_(iOther.mva_nothing_gamma_),
       mva_nothing_nh_(iOther.mva_nothing_nh_),
       mva_gamma_nh_(iOther.mva_gamma_nh_),
+      dnn_e_sigIsolated_(iOther.dnn_e_sigIsolated_),
+      dnn_e_sigNonIsolated_(iOther.dnn_e_sigNonIsolated_),
+      dnn_e_bkgNonIsolated_(iOther.dnn_e_bkgNonIsolated_),
+      dnn_e_bkgTau_(iOther.dnn_e_bkgTau_),
+      dnn_e_bkgPhoton_(iOther.dnn_e_bkgPhoton_),
+      dnn_gamma_(iOther.dnn_gamma_),
       positionAtECALEntrance_(iOther.positionAtECALEntrance_),
       getter_(iOther.getter_),
       storedRefsBitPattern_(iOther.storedRefsBitPattern_),
@@ -181,6 +197,12 @@ PFCandidate& PFCandidate::operator=(PFCandidate const& iOther) {
   mva_nothing_gamma_ = iOther.mva_nothing_gamma_;
   mva_nothing_nh_ = iOther.mva_nothing_nh_;
   mva_gamma_nh_ = iOther.mva_gamma_nh_;
+  dnn_e_sigIsolated_ = iOther.dnn_e_sigIsolated_;
+  dnn_e_sigNonIsolated_ = iOther.dnn_e_sigNonIsolated_;
+  dnn_e_bkgNonIsolated_ = iOther.dnn_e_bkgNonIsolated_;
+  dnn_e_bkgTau_ = iOther.dnn_e_bkgTau_;
+  dnn_e_bkgPhoton_ = iOther.dnn_e_bkgPhoton_;
+  dnn_gamma_ = iOther.dnn_gamma_;
   positionAtECALEntrance_ = iOther.positionAtECALEntrance_;
   getter_ = iOther.getter_;
   storedRefsBitPattern_ = iOther.storedRefsBitPattern_;

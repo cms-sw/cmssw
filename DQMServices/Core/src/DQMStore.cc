@@ -338,7 +338,7 @@ namespace dqm::implementation {
       MonitorElement* oldme = *proto;
       assert(oldme->getScope() == key.scope_);
       prototypes.erase(proto);
-      auto medata = oldme->release(/* expectOwned */ true);  // destroy the ME, get its data.
+      auto medata = oldme->release();  // destroy the ME, get its data.
       // in this situation, nobody should be filling the ME concurrently.
       medata->data_.key_.id_ = key.id_;
       // We reuse the ME object here, even if we don't have to. This ensures
@@ -408,7 +408,7 @@ namespace dqm::implementation {
           // reuse that.
           MonitorElement* oldme = *proto;
           prototypes.erase(proto);
-          auto medata = oldme->release(/* expectOwned */ true);  // destroy the ME, get its data.
+          auto medata = oldme->release();  // destroy the ME, get its data.
           // in this situation, nobody should be filling the ME concurrently.
           medata->data_.key_.id_ = edm::LuminosityBlockID(run, lumi);
           // We reuse the ME object here, even if we don't have to. This ensures
@@ -518,7 +518,7 @@ namespace dqm::implementation {
       if (me->isValid() && checkScope(me->getScope()) == true) {
         // if we left the scope, simply release the data.
         debugTrackME("leaveLumi (release)", me, nullptr);
-        me->release(/* expectOwned */ false);
+        me->release();
       }
     }
   }
@@ -576,7 +576,7 @@ namespace dqm::implementation {
     meset.clear();
 
     for (MonitorElement* me : torecycle) {
-      auto medata = me->release(/* expectOwned */ true);  // destroy the ME, get its data.
+      auto medata = me->release();                        // destroy the ME, get its data.
       medata->data_.key_.id_ = edm::LuminosityBlockID();  // prototype
       // We reuse the ME object here, even if we don't have to. This ensures
       // that when running single-threaded without concurrent lumis/runs,

@@ -1,14 +1,4 @@
-#include "SiPixelBadModuleReader.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
-#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "TCanvas.h"
-#include "TStyle.h"
+// system include files
 #include <cmath>
 #include <cstdio>
 #include <fstream>
@@ -17,7 +7,70 @@
 #include <string>
 #include <sys/time.h>
 
-SiPixelBadModuleReader::SiPixelBadModuleReader(const edm::ParameterSet& iConfig)
+// user include files
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
+#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+// ROOT includes
+#include "TCanvas.h"
+#include "TStyle.h"
+#include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TBranch.h"
+#include "TH2F.h"
+
+class SiPixelBadModuleReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit SiPixelBadModuleReader(const edm::ParameterSet &);
+  ~SiPixelBadModuleReader() override;
+
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+
+private:
+  const edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> badModuleToken;
+  const edm::ESGetToken<SiPixelQuality, SiPixelQualityFromDbRcd> badModuleFromDBToken;
+  const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> siPixelFedCablingToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken;
+
+  const uint32_t printdebug_;
+  const std::string whichRcd;
+
+  TH2F *_TH2F_dead_modules_BPIX_lay1;
+  TH2F *_TH2F_dead_modules_BPIX_lay2;
+  TH2F *_TH2F_dead_modules_BPIX_lay3;
+  TH2F *_TH2F_dead_modules_FPIX_minusZ_disk1;
+  TH2F *_TH2F_dead_modules_FPIX_minusZ_disk2;
+  TH2F *_TH2F_dead_modules_FPIX_plusZ_disk1;
+  TH2F *_TH2F_dead_modules_FPIX_plusZ_disk2;
+};
+
+SiPixelBadModuleReader::SiPixelBadModuleReader(const edm::ParameterSet &iConfig)
     : badModuleToken(esConsumes()),
       badModuleFromDBToken(esConsumes()),
       siPixelFedCablingToken(esConsumes()),
@@ -31,8 +84,8 @@ SiPixelBadModuleReader::SiPixelBadModuleReader(const edm::ParameterSet& iConfig)
 
 SiPixelBadModuleReader::~SiPixelBadModuleReader() = default;
 
-void SiPixelBadModuleReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  const SiPixelQuality* SiPixelBadModule_ = nullptr;
+void SiPixelBadModuleReader::analyze(const edm::Event &e, const edm::EventSetup &iSetup) {
+  const SiPixelQuality *SiPixelBadModule_ = nullptr;
   if (whichRcd == "SiPixelQualityRcd") {
     SiPixelBadModule_ = &iSetup.getData(badModuleToken);
   } else if (whichRcd == "SiPixelQualityFromDbRcd") {
@@ -46,8 +99,8 @@ void SiPixelBadModuleReader::analyze(const edm::Event& e, const edm::EventSetup&
   edm::LogInfo("SiPixelBadModuleReader") << "[SiPixelBadModuleReader::analyze] End Reading SiPixelBadModule"
                                          << std::endl;
 
-  const TrackerGeometry* geom = &iSetup.getData(tkGeomToken);
-  const TrackerTopology& ttopo = iSetup.getData(tkTopoToken);
+  const TrackerGeometry *geom = &iSetup.getData(tkGeomToken);
+  const TrackerTopology &ttopo = iSetup.getData(tkTopoToken);
 
   edm::Service<TFileService> fs;
   _TH2F_dead_modules_BPIX_lay1 =
@@ -103,7 +156,7 @@ void SiPixelBadModuleReader::analyze(const edm::Event& e, const edm::EventSetup&
       }
       debugout << std::endl;
       debugout << ttopo.print(badmodule.DetID) << std::endl;
-      const auto& plane = geom->idToDet(badmodule.DetID)->surface();
+      const auto &plane = geom->idToDet(badmodule.DetID)->surface();
       debugout << "phiSpan " << plane.phiSpan().first << "," << plane.phiSpan().second << std::endl;
       debugout << "rSpan " << plane.rSpan().first << "," << plane.rSpan().second << std::endl;
       debugout << "zSpan " << plane.zSpan().first << "," << plane.zSpan().second << std::endl;
@@ -116,13 +169,13 @@ void SiPixelBadModuleReader::analyze(const edm::Event& e, const edm::EventSetup&
   int nbadmodules = 0;
   int npartialbad = 0;
   for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); it++) {
-    if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != nullptr) {
+    if (dynamic_cast<PixelGeomDetUnit const *>((*it)) != nullptr) {
       DetId detId = (*it)->geographicalId();
       uint32_t id = detId();
       nmodules++;
 
-      const GeomDetUnit* geoUnit = geom->idToDetUnit(detId);
-      const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
+      const GeomDetUnit *geoUnit = geom->idToDetUnit(detId);
+      const PixelGeomDetUnit *pixDet = dynamic_cast<const PixelGeomDetUnit *>(geoUnit);
       float detR = pixDet->surface().position().perp();
       float detZ = pixDet->surface().position().z();
       float detPhi = pixDet->surface().position().phi();

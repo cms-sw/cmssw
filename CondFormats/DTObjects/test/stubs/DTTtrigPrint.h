@@ -11,6 +11,9 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CondFormats/DTObjects/interface/DTTtrig.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+
 namespace edmtest {
   class DTTtrigPrint : public edm::EDAnalyzer {
   public:
@@ -20,5 +23,6 @@ namespace edmtest {
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   private:
+    edm::ESGetToken<DTTtrig, DTTtrigRcd> es_token;
   };
 }  // namespace edmtest

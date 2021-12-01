@@ -54,6 +54,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
 #include "DQM/TrackerRemapper/interface/Phase1PixelMaps.h"
+#include "DQM/TrackerRemapper/interface/Phase1PixelSummaryMap.h"
 #include "CondCore/SiPixelPlugins/interface/PixelRegionContainers.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -158,16 +159,16 @@ public:
     usesResource(TFileService::kSharedResource);
 
     TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
-    theTrackCollectionToken = consumes<reco::TrackCollection>(TkTag_);
+    theTrackCollectionToken_ = consumes<reco::TrackCollection>(TkTag_);
 
     TriggerResultsTag_ = pset.getParameter<edm::InputTag>("TriggerResultsTag");
-    hltresultsToken = consumes<edm::TriggerResults>(TriggerResultsTag_);
+    hltresultsToken_ = consumes<edm::TriggerResults>(TriggerResultsTag_);
 
     BeamSpotTag_ = pset.getParameter<edm::InputTag>("BeamSpotTag");
-    beamspotToken = consumes<reco::BeamSpot>(BeamSpotTag_);
+    beamspotToken_ = consumes<reco::BeamSpot>(BeamSpotTag_);
 
     VerticesTag_ = pset.getParameter<edm::InputTag>("VerticesTag");
-    vertexToken = consumes<reco::VertexCollection>(VerticesTag_);
+    vertexToken_ = consumes<reco::VertexCollection>(VerticesTag_);
 
     // initialize conventional Tracker maps
 
@@ -191,6 +192,10 @@ public:
 
     // set no rescale
     pixelmap->setNoRescale();
+
+    // initialize Full Pixel Map
+    fullPixelmapXDMR = std::make_unique<Phase1PixelSummaryMap>("", "DMR-x", "median of residuals [#mum]");
+    fullPixelmapYDMR = std::make_unique<Phase1PixelSummaryMap>("", "DMR-y", "median of residuals [#mum]");
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
@@ -225,6 +230,9 @@ private:
   edm::Service<TFileService> fs;
 
   std::unique_ptr<Phase1PixelMaps> pixelmap;
+  std::unique_ptr<Phase1PixelSummaryMap> fullPixelmapXDMR;
+  std::unique_ptr<Phase1PixelSummaryMap> fullPixelmapYDMR;
+
   std::unique_ptr<PixelRegions::PixelRegionContainers> PixelDMRS_x_ByLayer;
   std::unique_ptr<PixelRegions::PixelRegionContainers> PixelDMRS_y_ByLayer;
 
@@ -455,10 +463,10 @@ private:
   edm::InputTag BeamSpotTag_;
   edm::InputTag VerticesTag_;
 
-  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;
-  edm::EDGetTokenT<edm::TriggerResults> hltresultsToken;
-  edm::EDGetTokenT<reco::BeamSpot> beamspotToken;
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken_;
+  edm::EDGetTokenT<edm::TriggerResults> hltresultsToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 
   std::map<std::string, std::pair<int, int> > triggerMap_;
   std::map<int, std::pair<int, float> > conditionsMap_;
@@ -484,8 +492,7 @@ private:
   void analyze(const edm::Event &event, const edm::EventSetup &setup) override {
     ievt++;
 
-    edm::Handle<reco::TrackCollection> trackCollection;
-    event.getByToken(theTrackCollectionToken, trackCollection);
+    edm::Handle<reco::TrackCollection> trackCollection = event.getHandle(theTrackCollectionToken_);
 
     // magnetic field setup
     const MagneticField *magneticField_ = &setup.getData(magFieldToken_);
@@ -547,8 +554,7 @@ private:
 
     //edm::LogVerbatim("DMRChecker") << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
 
-    edm::Handle<edm::TriggerResults> hltresults;
-    event.getByToken(hltresultsToken, hltresults);
+    edm::Handle<edm::TriggerResults> hltresults = event.getHandle(hltresultsToken_);
     if (hltresults.isValid()) {
       const edm::TriggerNames &triggerNames_ = event.triggerNames(*hltresults);
       int ntrigs = hltresults->size();
@@ -1021,8 +1027,7 @@ private:
 
       //dxy with respect to the beamspot
       reco::BeamSpot beamSpot;
-      edm::Handle<reco::BeamSpot> beamSpotHandle;
-      event.getByToken(beamspotToken, beamSpotHandle);
+      edm::Handle<reco::BeamSpot> beamSpotHandle = event.getHandle(beamspotToken_);
       if (beamSpotHandle.isValid()) {
         beamSpot = *beamSpotHandle;
         math::XYZPoint point(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
@@ -1035,9 +1040,7 @@ private:
 
       //dxy with respect to the primary vertex
       reco::Vertex pvtx;
-      edm::Handle<reco::VertexCollection> vertexHandle;
-      reco::VertexCollection vertexCollection;
-      event.getByLabel("offlinePrimaryVertices", vertexHandle);
+      edm::Handle<reco::VertexCollection> vertexHandle = event.getHandle(vertexToken_);
       double mindxy = 100.;
       double dz = 100;
       if (vertexHandle.isValid()) {
@@ -1330,6 +1333,10 @@ private:
 
     firstEvent_ = true;
 
+    // create the full maps
+    fullPixelmapXDMR->createTrackerBaseMap();
+    fullPixelmapYDMR->createTrackerBaseMap();
+
   }  //beginJob
 
   void endJob() override {
@@ -1525,8 +1532,10 @@ private:
 
     for (auto &bpixid : resDetailsBPixX_) {
       DMRBPixX_->Fill(bpixid.second.runningMeanOfRes_);
-      if (phase_ == SiPixelPI::phase::one)
+      if (phase_ == SiPixelPI::phase::one) {
         pixelmap->fillBarrelBin("DMRsX", bpixid.first, bpixid.second.runningMeanOfRes_);
+        fullPixelmapXDMR->fillTrackerMap(bpixid.first, bpixid.second.runningMeanOfRes_);
+      }
 
       //auto myLocalTopo = PixelDMRS_x_ByLayer->getTheTopo();
       //edm::LogPrint("DMRChecker") << myLocalTopo->print(bpixid.first) << std::endl;
@@ -1548,8 +1557,11 @@ private:
 
     for (auto &bpixid : resDetailsBPixY_) {
       DMRBPixY_->Fill(bpixid.second.runningMeanOfRes_);
-      if (phase_ == SiPixelPI::phase::one)
+      if (phase_ == SiPixelPI::phase::one) {
         pixelmap->fillBarrelBin("DMRsY", bpixid.first, bpixid.second.runningMeanOfRes_);
+        fullPixelmapYDMR->fillTrackerMap(bpixid.first, bpixid.second.runningMeanOfRes_);
+      }
+
       PixelDMRS_y_ByLayer->fill(bpixid.first, bpixid.second.runningMeanOfRes_);
 
       // split DMR
@@ -1567,8 +1579,10 @@ private:
 
     for (auto &fpixid : resDetailsFPixX_) {
       DMRFPixX_->Fill(fpixid.second.runningMeanOfRes_);
-      if (phase_ == SiPixelPI::phase::one)
+      if (phase_ == SiPixelPI::phase::one) {
         pixelmap->fillForwardBin("DMRsX", fpixid.first, fpixid.second.runningMeanOfRes_);
+        fullPixelmapXDMR->fillTrackerMap(fpixid.first, fpixid.second.runningMeanOfRes_);
+      }
       PixelDMRS_x_ByLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
 
       // split DMR
@@ -1586,8 +1600,10 @@ private:
 
     for (auto &fpixid : resDetailsFPixY_) {
       DMRFPixY_->Fill(fpixid.second.runningMeanOfRes_);
-      if (phase_ == SiPixelPI::phase::one)
+      if (phase_ == SiPixelPI::phase::one) {
         pixelmap->fillForwardBin("DMRsY", fpixid.first, fpixid.second.runningMeanOfRes_);
+        fullPixelmapXDMR->fillTrackerMap(fpixid.first, fpixid.second.runningMeanOfRes_);
+      }
       PixelDMRS_y_ByLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
 
       // split DMR
@@ -1685,6 +1701,14 @@ private:
       TCanvas cFY("CanvXForward", "CanvXForward", 1600, 1000);
       pixelmap->drawForwardMaps("DMRsY", cFY);
       cFY.SaveAs("pixelForwardDMR_y.png");
+
+      TCanvas cFullPixelxDMR("CanvFullPixelX", "CanvFullPixelX", 3000, 2000);
+      fullPixelmapXDMR->printTrackerMap(cFullPixelxDMR);
+      cFullPixelxDMR.SaveAs("fullPixelDMR_x.png");
+
+      TCanvas cFullPixelyDMR("CanvFullPixelX", "CanvFullPixelY", 3000, 2000);
+      fullPixelmapXDMR->printTrackerMap(cFullPixelyDMR);
+      cFullPixelyDMR.SaveAs("fullPixelDMR_y.png");
     }
 
     // take care now of the 1D histograms

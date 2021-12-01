@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -37,16 +37,13 @@
 // class decleration
 //
 
-class CSCOverlapsBeamSplashCut : public edm::EDFilter {
+class CSCOverlapsBeamSplashCut : public edm::one::EDFilter<edm::one::SharedResources> {
 public:
   explicit CSCOverlapsBeamSplashCut(const edm::ParameterSet&);
-  ~CSCOverlapsBeamSplashCut() override;
+  ~CSCOverlapsBeamSplashCut() override = default;
 
 private:
-  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
-
   // ----------member data ---------------------------
   edm::InputTag m_src;
   int m_maxSegments;
@@ -54,25 +51,13 @@ private:
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 CSCOverlapsBeamSplashCut::CSCOverlapsBeamSplashCut(const edm::ParameterSet& iConfig)
     : m_src(iConfig.getParameter<edm::InputTag>("src")), m_maxSegments(iConfig.getParameter<int>("maxSegments")) {
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> tFileService;
   m_numSegments = tFileService->make<TH1F>("numSegments", "", 201, -0.5, 200.5);
-}
-
-CSCOverlapsBeamSplashCut::~CSCOverlapsBeamSplashCut() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -95,12 +80,6 @@ bool CSCOverlapsBeamSplashCut::filter(edm::Event& iEvent, const edm::EventSetup&
   else
     return false;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void CSCOverlapsBeamSplashCut::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void CSCOverlapsBeamSplashCut::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CSCOverlapsBeamSplashCut);

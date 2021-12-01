@@ -6,7 +6,7 @@
 #include <string>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,7 +15,7 @@
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-class QGLikelihoodSystematicsDBWriter : public edm::EDAnalyzer {
+class QGLikelihoodSystematicsDBWriter : public edm::one::EDAnalyzer<> {
 public:
   QGLikelihoodSystematicsDBWriter(const edm::ParameterSet&);
   void beginJob() override;

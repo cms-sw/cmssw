@@ -59,6 +59,11 @@ class TransientTrackingRecHitBuilder;
 class GeometricSearchTracker;
 class GlobalTrackingGeometry;
 class MuonDetLayerGeometry;
+class TrackerRecoGeometryRecord;
+class GlobalTrackingGeometryRecord;
+class IdealMagneticFieldRecord;
+class MuonGeometryRecord;
+class TransientRecHitRecord;
 
 class MuonShowerInformationFiller {
 public:
@@ -185,11 +190,11 @@ private:
   unsigned long long theCacheId_TRH;
   unsigned long long theCacheId_MT;
 
-  std::string theTrackerRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theTrackerRecHitBuilderToken;
 
-  std::string theMuonRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theMuonRecHitBuilderToken;
 
   edm::InputTag theDTRecHitLabel;
   edm::InputTag theCSCRecHitLabel;
@@ -212,5 +217,11 @@ private:
   edm::ESHandle<MagneticField> theField;
   edm::ESHandle<CSCGeometry> theCSCGeometry;
   edm::ESHandle<DTGeometry> theDTGeometry;
+
+  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> theTrackerToken;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theTrackingGeometryToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> theCSCGeometryToken;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDTGeometryToken;
 };
 #endif

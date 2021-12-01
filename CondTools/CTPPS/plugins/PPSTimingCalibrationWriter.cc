@@ -43,7 +43,7 @@ void PPSTimingCalibrationWriter::analyze(const edm::Event& iEvent, const edm::Ev
   // store the calibration into a DB object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(hTimingCalib.product(), poolDbService->currentTime(), "PPSTimingCalibrationRcd");
+    poolDbService->writeOneIOV(*hTimingCalib.product(), poolDbService->currentTime(), "PPSTimingCalibrationRcd");
   else
     throw cms::Exception("PPSTimingCalibrationWriter") << "PoolDBService required.";
 }

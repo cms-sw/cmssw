@@ -44,6 +44,41 @@ namespace spr {
     return maxNearP;
   }
 
+  double chargeIsolationGenEcal(unsigned int trkIndex,
+                                std::vector<spr::propagatedGenParticleID>& vdetIds,
+                                const CaloGeometry* geo,
+                                const CaloTopology* caloTopology,
+                                int ieta,
+                                int iphi,
+                                bool debug) {
+    const DetId coreDet = vdetIds[trkIndex].detIdECAL;
+    if (debug) {
+      if (coreDet.subdetId() == EcalBarrel)
+        edm::LogVerbatim("IsoTrack") << "DetId " << (EBDetId)(coreDet) << " Flag " << vdetIds[trkIndex].okECAL;
+      else
+        edm::LogVerbatim("IsoTrack") << "DetId " << (EEDetId)(coreDet) << " Flag " << vdetIds[trkIndex].okECAL;
+    }
+    double maxNearP = -1.0;
+    if (vdetIds[trkIndex].okECAL) {
+      std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, debug);
+      if (debug)
+        edm::LogVerbatim("IsoTrack") << "chargeIsolationGenEcal:: eta/phi/dets " << ieta << " " << iphi << " "
+                                     << vdets.size();
+
+      for (unsigned int indx = 0; indx < vdetIds.size(); ++indx) {
+        if (indx != trkIndex && vdetIds[indx].ok && vdetIds[indx].okECAL) {
+          const DetId anyCell = vdetIds[indx].detIdECAL;
+          if (!spr::chargeIsolation(anyCell, vdets)) {
+            const reco::GenParticle* pTrack = &(*(vdetIds[indx].trkItr));
+            if (maxNearP < pTrack->p())
+              maxNearP = pTrack->p();
+          }
+        }
+      }
+    }
+    return maxNearP;
+  }
+
   double chargeIsolationEcal(const DetId& coreDet,
                              reco::TrackCollection::const_iterator trkItr,
                              edm::Handle<reco::TrackCollection> trkCollection,
@@ -294,6 +329,36 @@ namespace spr {
 
     if (debug)
       edm::LogVerbatim("IsoTrack") << "chargeIsolationCone Track " << trkDirs[trkIndex].okHCAL << " maxNearP "
+                                   << maxNearP;
+    return maxNearP;
+  }
+
+  double chargeIsolationGenCone(unsigned int trkIndex,
+                                std::vector<spr::propagatedGenParticleID>& trkDirs,
+                                double dR,
+                                int& nNearTRKs,
+                                bool debug) {
+    double maxNearP = -1.0;
+    nNearTRKs = 0;
+    if (trkDirs[trkIndex].okHCAL) {
+      if (debug)
+        edm::LogVerbatim("IsoTrack") << "chargeIsolationCone with " << trkDirs.size() << " tracks ";
+      for (unsigned int indx = 0; indx < trkDirs.size(); ++indx) {
+        if (indx != trkIndex && trkDirs[indx].ok && trkDirs[indx].okHCAL) {
+          int isConeChargedIso = spr::coneChargeIsolation(
+              trkDirs[trkIndex].pointHCAL, trkDirs[indx].pointHCAL, trkDirs[trkIndex].directionHCAL, dR);
+          if (isConeChargedIso == 0) {
+            nNearTRKs++;
+            const reco::GenParticle* pTrack = &(*(trkDirs[indx].trkItr));
+            if (maxNearP < pTrack->p())
+              maxNearP = pTrack->p();
+          }
+        }
+      }
+    }
+
+    if (debug)
+      edm::LogVerbatim("IsoTrack") << "chargeIsolationGenCone Track " << trkDirs[trkIndex].okHCAL << " maxNearP "
                                    << maxNearP;
     return maxNearP;
   }

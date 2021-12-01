@@ -40,7 +40,6 @@
 class ShiftedPFCandidateProducerForNoPileUpPFMEt : public edm::stream::EDProducer<> {
 public:
   explicit ShiftedPFCandidateProducerForNoPileUpPFMEt(const edm::ParameterSet&);
-  ~ShiftedPFCandidateProducerForNoPileUpPFMEt() override;
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -50,9 +49,10 @@ private:
 
   edm::FileInPath jetCorrInputFileName_;
   std::string jetCorrPayloadName_;
+  edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> jetCorrPayloadToken_;
   std::string jetCorrUncertaintyTag_;
-  JetCorrectorParameters* jetCorrParameters_;
-  JetCorrectionUncertainty* jecUncertainty_;
+  std::unique_ptr<JetCorrectorParameters> jetCorrParameters_;
+  std::unique_ptr<JetCorrectionUncertainty> jecUncertainty_;
 
   double minJetPt_;
 
@@ -70,10 +70,12 @@ ShiftedPFCandidateProducerForNoPileUpPFMEt::ShiftedPFCandidateProducerForNoPileU
     if (jetCorrInputFileName_.location() == edm::FileInPath::Unknown)
       throw cms::Exception("ShiftedJetProducerT")
           << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
-    jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
-    jecUncertainty_ = new JetCorrectionUncertainty(*jetCorrParameters_);
+    jetCorrParameters_ =
+        std::make_unique<JetCorrectorParameters>(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
+    jecUncertainty_ = std::make_unique<JetCorrectionUncertainty>(*jetCorrParameters_);
   } else {
     jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
+    jetCorrPayloadToken_ = esConsumes(edm::ESInputTag("", jetCorrPayloadName_));
   }
 
   minJetPt_ = cfg.getParameter<double>("minJetPt");
@@ -83,10 +85,6 @@ ShiftedPFCandidateProducerForNoPileUpPFMEt::ShiftedPFCandidateProducerForNoPileU
   unclEnUncertainty_ = cfg.getParameter<double>("unclEnUncertainty");
 
   produces<reco::PFCandidateCollection>();
-}
-
-ShiftedPFCandidateProducerForNoPileUpPFMEt::~ShiftedPFCandidateProducerForNoPileUpPFMEt() {
-  // nothing to be done yet...
 }
 
 void ShiftedPFCandidateProducerForNoPileUpPFMEt::produce(edm::Event& evt, const edm::EventSetup& es) {
@@ -103,11 +101,9 @@ void ShiftedPFCandidateProducerForNoPileUpPFMEt::produce(edm::Event& evt, const 
   }
 
   if (!jetCorrPayloadName_.empty()) {
-    edm::ESHandle<JetCorrectorParametersCollection> jetCorrParameterSet;
-    es.get<JetCorrectionsRecord>().get(jetCorrPayloadName_, jetCorrParameterSet);
-    const JetCorrectorParameters& jetCorrParameters = (*jetCorrParameterSet)[jetCorrUncertaintyTag_];
-    delete jecUncertainty_;
-    jecUncertainty_ = new JetCorrectionUncertainty(jetCorrParameters);
+    const JetCorrectorParametersCollection& jetCorrParameterSet = es.getData(jetCorrPayloadToken_);
+    const JetCorrectorParameters& jetCorrParameters = (jetCorrParameterSet)[jetCorrUncertaintyTag_];
+    jecUncertainty_ = std::make_unique<JetCorrectionUncertainty>(jetCorrParameters);
   }
 
   auto shiftedPFCandidates = std::make_unique<reco::PFCandidateCollection>();

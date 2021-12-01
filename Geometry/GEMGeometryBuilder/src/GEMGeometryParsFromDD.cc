@@ -1,5 +1,5 @@
 /* Implementation of the  GEMGeometryParsFromDD Class
- *  Build the GEMGeometry from the DDD and DD4Hep description
+ *  Build the GEMGeometry from the DDD and DD4hep description
  *  
  *  DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
  *  Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
@@ -219,7 +219,7 @@ std::vector<double> GEMGeometryParsFromDD::getRotation(DDFilteredView& fv) {
   return {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
 }
 
-// DD4Hep
+// DD4hep
 
 void GEMGeometryParsFromDD::build(const cms::DDCompactView* cview,
                                   const MuonGeometryConstants& muonConstants,
@@ -236,7 +236,7 @@ void GEMGeometryParsFromDD::build(const cms::DDCompactView* cview,
 void GEMGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
                                           const MuonGeometryConstants& muonConstants,
                                           RecoIdealGeometry& rgeo) {
-  edm::LogVerbatim("GEMGeometryParsFromDD") << "(0) GEMGeometryParsFromDD - DD4HEP ";
+  edm::LogVerbatim("GEMGeometryParsFromDD") << "(0) GEMGeometryParsFromDD - DD4hep ";
 
   MuonGeometryNumbering mdddnum(muonConstants);
   GEMNumberingScheme gemNum(muonConstants);
@@ -305,7 +305,7 @@ void GEMGeometryParsFromDD::buildSuperChamber(cms::DDFilteredView& fv, GEMDetId 
   std::vector<double> vrot = getRotation(fv);
 
   edm::LogVerbatim("GEMGeometryParsFromDD")
-      << "(3) DD4HEP, SuperChamber DetID " << gemid.rawId() << " Name " << std::string(name) << " dx1 " << dx1
+      << "(3) DD4hep, SuperChamber DetID " << gemid.rawId() << " Name " << std::string(name) << " dx1 " << dx1
       << " dx2 " << dx2 << " dy " << dy << " dz " << dz;
   rgeo.insert(gemid.rawId(), vtra, vrot, pars, {std::string(name)});
 }
@@ -333,7 +333,7 @@ void GEMGeometryParsFromDD::buildChamber(cms::DDFilteredView& fv, GEMDetId detId
   std::vector<double> vrot = getRotation(fv);
 
   edm::LogVerbatim("GEMGeometryParsFromDD")
-      << "(4) DD4HEP, Chamber DetID " << gemid.rawId() << " Name " << std::string(name) << " dx1 " << dx1 << " dx2 "
+      << "(4) DD4hep, Chamber DetID " << gemid.rawId() << " Name " << std::string(name) << " dx1 " << dx1 << " dx2 "
       << dx2 << " dy " << dy << " dz " << dz;
   rgeo.insert(gemid.rawId(), vtra, vrot, pars, {std::string(name)});
 }
@@ -356,7 +356,7 @@ void GEMGeometryParsFromDD::buildEtaPartition(cms::DDFilteredView& fv, GEMDetId 
   std::vector<double> vrot = getRotation(fv);
 
   edm::LogVerbatim("GEMGeometryParsFromDD")
-      << "(5) DD4HEP, Eta Partion DetID " << detId.rawId() << " Name " << std::string(name) << " dx1 " << dx1 << " dx2 "
+      << "(5) DD4hep, Eta Partion DetID " << detId.rawId() << " Name " << std::string(name) << " dx1 " << dx1 << " dx2 "
       << dx2 << " dy " << dy << " dz " << dz << " nStrips " << nStrips << " nPads " << nPads << " dPhi " << dPhi;
   rgeo.insert(detId.rawId(), vtra, vrot, pars, {std::string(name)});
 }
@@ -368,7 +368,7 @@ std::vector<double> GEMGeometryParsFromDD::getTranslation(cms::DDFilteredView& f
   tran[2] = static_cast<double>(fv.translation().Z()) / dd4hep::mm;
 
   edm::LogVerbatim("GEMGeometryParsFromDD")
-      << "(1) DD4HEP, tran vector " << tran[0] << "  " << tran[1] << "  " << tran[2];
+      << "(1) DD4hep, tran vector " << tran[0] << "  " << tran[1] << "  " << tran[2];
   return {tran[0], tran[1], tran[2]};
 }
 
@@ -379,7 +379,7 @@ std::vector<double> GEMGeometryParsFromDD::getRotation(cms::DDFilteredView& fv) 
   rota.GetComponents(x, y, z);
   const std::vector<double> rot = {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
   edm::LogVerbatim("GEMGeometryParsFromDD")
-      << "(2) DD4HEP, rot matrix " << rot[0] << "  " << rot[1] << "  " << rot[2] << " " << rot[3] << "  " << rot[4]
+      << "(2) DD4hep, rot matrix " << rot[0] << "  " << rot[1] << "  " << rot[2] << " " << rot[3] << "  " << rot[4]
       << "  " << rot[5] << " " << rot[6] << "  " << rot[7] << "  " << rot[8];
   return {rot[0], rot[1], rot[2], rot[3], rot[4], rot[5], rot[6], rot[7], rot[8]};
 }

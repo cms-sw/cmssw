@@ -19,7 +19,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -52,9 +52,9 @@ using namespace edm;
 using namespace Geom;
 using namespace std;
 
-class testMagneticField : public edm::EDAnalyzer {
+class testMagneticField : public edm::one::EDAnalyzer<> {
 public:
-  testMagneticField(const edm::ParameterSet& pset) {
+  testMagneticField(const edm::ParameterSet& pset) : fieldToken(esConsumes()) {
     //    verbose::debugOut = true;
     outputFile = pset.getUntrackedParameter<string>("outputTable", "");
     inputFile = pset.getUntrackedParameter<string>("inputTable", "");
@@ -72,15 +72,12 @@ public:
     maxZ = pset.getUntrackedParameter<double>("maxZ", 2400);
   }
 
-  ~testMagneticField() {}
+  ~testMagneticField() override {}
 
   void go(GlobalPoint g) { std::cout << "At: " << g << " phi=" << g.phi() << " B= " << field->inTesla(g) << std::endl; }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
-    ESHandle<MagneticField> magfield;
-    setup.get<IdealMagneticFieldRecord>().get(magfield);
-
-    field = magfield.product();
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) final {
+    field = &setup.getData(fieldToken);
 
     std::cout << "Nominal Field " << field->nominalValue() << "\n" << std::endl;
 
@@ -131,6 +128,7 @@ public:
   void compareSectorTables(string file);
 
 private:
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldToken;
   const MagneticField* field;
   string inputFile;
   string inputFileType;

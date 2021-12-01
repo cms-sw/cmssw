@@ -1,9 +1,8 @@
-#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Notification/interface/Observer.h"
-#include "SimG4Core/Watcher/interface/SimWatcher.h"
+#include "SimG4Core/Watcher/interface/SimProducer.h"
 
 // to retreive hits
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -11,8 +10,8 @@
 #include "SimDataFormats/CaloHit/interface/CaloHit.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestHistoClass.h"
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
@@ -22,7 +21,6 @@
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "SimG4CMS/Calo/interface/HCalSD.h"
 #include "SimG4CMS/Calo/interface/HcalQie.h"
-#include "SimG4CMS/Calo/interface/HcalTestHistoManager.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 
 #include "G4SDManager.hh"
@@ -41,8 +39,7 @@
 #include <string>
 #include <vector>
 
-class HcalTestAnalysis : public SimWatcher,
-                         public Observer<const BeginOfJob*>,
+class HcalTestAnalysis : public SimProducer,
                          public Observer<const BeginOfRun*>,
                          public Observer<const BeginOfEvent*>,
                          public Observer<const EndOfEvent*>,
@@ -51,9 +48,12 @@ public:
   HcalTestAnalysis(const edm::ParameterSet& p);
   ~HcalTestAnalysis() override;
 
+  void registerConsumes(edm::ConsumesCollector) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::EventSetup const&) override;
+
 private:
   // observer classes
-  void update(const BeginOfJob* run) override;
   void update(const BeginOfRun* run) override;
   void update(const BeginOfEvent* evt) override;
   void update(const EndOfEvent* evt) override;
@@ -76,13 +76,13 @@ private:
   int addTower_;
 
   // Private Tuples
-  std::unique_ptr<HcalTestHistoManager> tuplesManager_;
-  HcalTestHistoClass* tuples_;
+  std::unique_ptr<HcalTestHistoClass> tuples_;
 
   // Numbering scheme
+  edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> ddconsToken_;
   std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD_;
   const HcalDDDSimConstants* hcons_;
-  HcalTestNumberingScheme* org_;
+  std::unique_ptr<HcalTestNumberingScheme> org_;
 
   // Hits for qie analysis
   std::vector<CaloHit> caloHitCache_;
@@ -101,8 +101,8 @@ private:
   double mudist_[20];  // Distance of muon from central part
 };
 
-HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
-    : addTower_(3), tuples_(nullptr), hcons_(nullptr), org_(nullptr) {
+HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p) : addTower_(3), hcons_(nullptr) {
+  org_.reset(nullptr);
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTestAnalysis");
   eta0_ = m_Anal.getParameter<double>("Eta0");
   phi0_ = m_Anal.getParameter<double>("Phi0");
@@ -111,7 +111,7 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
   names_ = m_Anal.getParameter<std::vector<std::string> >("Names");
   fileName_ = m_Anal.getParameter<std::string>("FileName");
 
-  tuplesManager_.reset(nullptr);
+  tuples_.reset(nullptr);
   numberingFromDDD_.reset(nullptr);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis:: Initialised as observer of begin/end events"
                               << " and of G4step";
@@ -130,11 +130,23 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
 
   // qie
   myqie_ = std::make_unique<HcalQie>(p);
+
+  produces<HcalTestHistoClass>();
 }
 
 HcalTestAnalysis::~HcalTestAnalysis() {
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis: -------->  Total number of selected entries : " << count_;
-  edm::LogVerbatim("HcalSim") << "HcalTestAnalysis: Pointers:: HistoClass " << tuples_ << ", Numbering Scheme " << org_;
+  edm::LogVerbatim("HcalSim") << "HcalTestAnalysis: Pointers:: Numbering Scheme " << org_.get();
+}
+
+void HcalTestAnalysis::registerConsumes(edm::ConsumesCollector cc) {
+  ddconsToken_ = cc.esConsumes<HcalDDDSimConstants, HcalSimNumberingRecord, edm::Transition::BeginRun>();
+  edm::LogVerbatim("HcalSim") << "HcalTestAnalysis::Initialize ESGetToken for HcalDDDSimConstants";
+}
+
+void HcalTestAnalysis::produce(edm::Event& e, const edm::EventSetup&) {
+  e.put(std::move(tuples_));
+  tuples_.reset(nullptr);
 }
 
 std::vector<int> HcalTestAnalysis::layerGrouping(int group) {
@@ -207,19 +219,14 @@ std::vector<int> HcalTestAnalysis::towersToAdd(int centre, int nadd) {
 
 //==================================================================== per JOB
 
-void HcalTestAnalysis::update(const BeginOfJob* job) {
+void HcalTestAnalysis::beginRun(edm::EventSetup const& es) {
   // Numbering From DDD
-  edm::ESHandle<HcalDDDSimConstants> hdc;
-  (*job)()->get<HcalSimNumberingRecord>().get(hdc);
-  hcons_ = hdc.product();
+  hcons_ = &es.getData(ddconsToken_);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis:: Initialise HcalNumberingFromDDD for " << names_[0];
   numberingFromDDD_ = std::make_unique<HcalNumberingFromDDD>(hcons_);
 
-  // Ntuples
-  tuplesManager_ = std::make_unique<HcalTestHistoManager>(fileName_);
-
   // Numbering scheme
-  org_ = new HcalTestNumberingScheme(false);
+  org_ = std::make_unique<HcalTestNumberingScheme>(false);
 }
 
 //==================================================================== per RUN
@@ -270,8 +277,8 @@ void HcalTestAnalysis::update(const BeginOfRun* run) {
       HCalSD* theCaloSD = dynamic_cast<HCalSD*>(aSD);
       edm::LogVerbatim("HcalSim") << "HcalTestAnalysis::beginOfRun: Finds SD with name " << theCaloSD->GetName()
                                   << " in this Setup";
-      if (org_) {
-        theCaloSD->setNumberingScheme(org_);
+      if (org_.get()) {
+        theCaloSD->setNumberingScheme(org_.get());
         edm::LogVerbatim("HcalSim") << "HcalTestAnalysis::beginOfRun: set a new numbering scheme";
       }
     }
@@ -284,7 +291,7 @@ void HcalTestAnalysis::update(const BeginOfRun* run) {
 //=================================================================== per EVENT
 void HcalTestAnalysis::update(const BeginOfEvent* evt) {
   // create tuple object
-  tuples_ = new HcalTestHistoClass();
+  tuples_ = std::make_unique<HcalTestHistoClass>();
   // Reset counters
   tuples_->setCounters();
 
@@ -376,11 +383,6 @@ void HcalTestAnalysis::update(const EndOfEvent* evt) {
   // Layers tuples filling
   layerAnalysis();
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis:: ---  after LayerAnalysis";
-
-  // Writing the data to the Tree
-  tuplesManager_.get()->fillTree(tuples_);  // (no need to delete it...)
-  tuples_ = nullptr;                        // but avoid to reuse it...
-  edm::LogVerbatim("HcalSim") << "HcalTestAnalysis:: --- after fillTree";
 }
 
 //---------------------------------------------------

@@ -38,20 +38,21 @@ public:
   using Quality = pixelTrack::Quality;
   static constexpr auto bad = pixelTrack::Quality::bad;
 
+  enum class StatusBit : uint16_t { kUsed = 1, kInTrack = 2, kKilled = 1 << 15 };
+
   GPUCACell() = default;
 
   __device__ __forceinline__ void init(CellNeighborsVector& cellNeighbors,
                                        CellTracksVector& cellTracks,
                                        Hits const& hh,
                                        int layerPairId,
-                                       int doubletId,
                                        hindex_type innerHitId,
                                        hindex_type outerHitId) {
     theInnerHitId = innerHitId;
     theOuterHitId = outerHitId;
-    theDoubletId_ = doubletId;
     theLayerPairId_ = layerPairId;
-    theUsed_ = 0;
+    theStatus_ = 0;
+    theFishboneId = std::numeric_limits<hindex_type>::max();
 
     // optimization that depends on access pattern
     theInnerZ = hh.zGlobal(innerHitId);
@@ -130,8 +131,7 @@ public:
   constexpr unsigned int outer_hit_id() const { return theOuterHitId; }
 
   __device__ void print_cell() const {
-    printf("printing cell: %d, on layerPair: %d, innerHitId: %d, outerHitId: %d \n",
-           theDoubletId_,
+    printf("printing cell: on layerPair: %d, innerHitId: %d, outerHitId: %d \n",
            theLayerPairId_,
            theInnerHitId,
            theOuterHitId);
@@ -287,12 +287,13 @@ public:
     // the ntuplets is then saved if the number of hits it contains is greater
     // than a threshold
 
-    tmpNtuplet.push_back_unsafe(theDoubletId_);
+    auto doubletId = this - cells;
+    tmpNtuplet.push_back_unsafe(doubletId);
     assert(tmpNtuplet.size() <= 4);
 
     bool last = true;
     for (unsigned int otherCell : outerNeighbors()) {
-      if (cells[otherCell].theDoubletId_ < 0)
+      if (cells[otherCell].isKilled())
         continue;  // killed by earlyFishbone
       last = false;
       cells[otherCell].find_ntuplets<DEPTH - 1>(
@@ -306,13 +307,20 @@ public:
             ((!startAt0) && hole0(hh, cells[tmpNtuplet[0]])))
 #endif
         {
-          hindex_type hits[6];
+          hindex_type hits[8];
           auto nh = 0U;
+          constexpr int maxFB = 2;  // for the time being let's limit this
+          int nfb = 0;
           for (auto c : tmpNtuplet) {
             hits[nh++] = cells[c].theInnerHitId;
+            if (nfb < maxFB && cells[c].hasFishbone()) {
+              ++nfb;
+              hits[nh++] = cells[c].theFishboneId;  // fishbone hit is always outer than inner hit
+            }
           }
+          assert(nh < caConstants::maxHitsOnTrack);
           hits[nh] = theOuterHitId;
-          auto it = foundNtuplets.bulkFill(apc, hits, tmpNtuplet.size() + 1);
+          auto it = foundNtuplets.bulkFill(apc, hits, nh + 1);
           if (it >= 0) {  // if negative is overflow....
             for (auto c : tmpNtuplet)
               cells[c].addTrack(it, cellTracks);
@@ -326,26 +334,32 @@ public:
   }
 
   // Cell status management
-  __device__ __forceinline__ void kill() { theDoubletId_ = -1; }
-  __device__ __forceinline__ bool isKilled() const { return theDoubletId_ < 0; }
+  __device__ __forceinline__ void kill() { theStatus_ |= uint16_t(StatusBit::kKilled); }
+  __device__ __forceinline__ bool isKilled() const { return theStatus_ & uint16_t(StatusBit::kKilled); }
 
   __device__ __forceinline__ int16_t layerPairId() const { return theLayerPairId_; }
 
-  __device__ __forceinline__ bool unused() const { return !theUsed_; }
-  __device__ __forceinline__ void setUsedBit(uint16_t bit) { theUsed_ |= bit; }
+  __device__ __forceinline__ bool unused() const { return 0 == (uint16_t(StatusBit::kUsed) & theStatus_); }
+  __device__ __forceinline__ void setStatusBits(StatusBit mask) { theStatus_ |= uint16_t(mask); }
+
+  __device__ __forceinline__ void setFishbone(hindex_type id) { theFishboneId = id; }
+  __device__ __forceinline__ auto fishboneId() const { return theFishboneId; }
+  __device__ __forceinline__ bool hasFishbone() const {
+    return theFishboneId != std::numeric_limits<hindex_type>::max();
+  }
 
 private:
   CellNeighbors* theOuterNeighbors;
   CellTracks* theTracks;
 
-  int32_t theDoubletId_;
   int16_t theLayerPairId_;
-  uint16_t theUsed_;  // tbd
+  uint16_t theStatus_;  // tbd
 
   float theInnerZ;
   float theInnerR;
   hindex_type theInnerHitId;
   hindex_type theOuterHitId;
+  hindex_type theFishboneId;
 };
 
 template <>

@@ -9,6 +9,7 @@
 <use name="FWCore/Utilities"/>
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
+<use name="Utilities/StorageFactory"/>
 <library file="*.cc *.cu" name="EventFilterEcalRawToDigiPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

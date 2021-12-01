@@ -56,10 +56,12 @@ from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
 dqmPerLSsaving.toModify(ctppsDiamondDQMSource, perLSsaving=True)
 dqmPerLSsaving.toModify(diamondSampicDQMSourceOffline, perLSsaving=True)
 dqmPerLSsaving.toModify(ctppsCommonDQMSourceOffline, perLSsaving=True)
+dqmPerLSsaving.toModify(ctppsDiamondDQMOfflineSource, perLSsaving=True)
+dqmPerLSsaving.toModify(totemTimingDQMSource, perLSsaving=True)
 
 _ctppsDQMOfflineSource = cms.Sequence(
   ctppsPixelDQMOfflineSource
-  + ctppsDiamondDQMSource
+  + ctppsDiamondDQMOfflineSource
   + diamondSampicDQMSourceOffline
   + ctppsCommonDQMSourceOffline
 )
@@ -72,7 +74,7 @@ ctpps_2018.toReplaceWith(
     _ctppsDQMOfflineSource,
     cms.Sequence(
 	  ctppsPixelDQMOfflineSource
-	  + ctppsDiamondDQMSource
+	  + ctppsDiamondDQMOfflineSource
 	  + totemTimingDQMSource
 	  + ctppsCommonDQMSourceOffline
     )

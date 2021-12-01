@@ -20,16 +20,33 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   uint16_t NTBins() const override { return bits.nTBins; }
   uint16_t NCFEBs() const override { return bits.nCFEBs; }
   void setNCFEBs(uint16_t ncfebs) override { bits.nCFEBs = ncfebs & 0x1F; }
+  uint16_t firmwareRevision() const override { return bits.firmRevCode; }
   uint16_t syncError() const override { return bits.syncError; }
   uint16_t syncErrorCLCT() const override { return bits.clct_sync_err; }
   uint16_t syncErrorMPC0() const override { return bits.MPC_Muon0_SyncErr_; }
   uint16_t syncErrorMPC1() const override { return bits.MPC_Muon1_SyncErr_; }
-  uint16_t firmwareRevision() const override { return bits.firmRevCode; }
+
+  /// == Run 3 CSC-GEM Trigger Format
+  uint16_t clct0_ComparatorCode() const override { return 0; }
+  uint16_t clct1_ComparatorCode() const override { return 0; }
+  uint16_t clct0_xky() const override { return 0; }
+  uint16_t clct1_xky() const override { return 0; }
+  uint16_t hmt_nhits() const override { return 0; }
+  uint16_t hmt_ALCTMatchTime() const override { return 0; }
+  uint16_t gem_enabled_fibers() const override { return 0; }
+  uint16_t gem_fifo_tbins() const override { return 0; }
+  uint16_t gem_fifo_pretrig() const override { return 0; }
+  uint16_t gem_zero_suppress() const override { return 0; }
+  uint16_t gem_sync_dataword() const override { return 0; }
+  uint16_t gem_timing_dataword() const override { return 0; }
+  uint16_t run3_CLCT_patternID() const override { return 0; }
 
   ///returns CLCT digis
   std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) override;
   ///returns CorrelatedLCT digis
   std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const override;
+  ///returns HMT Shower digi
+  CSCShowerDigi showerDigi(uint32_t idlayer) const override { return CSCShowerDigi(); }
 
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags
@@ -39,9 +56,6 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   /// returns the first data word
   unsigned short* data() override { return (unsigned short*)(&bits); }
   bool check() const override { return bits.e0bline == 0x6e0b; }
-
-  /// Needed before data packing
-  //void setChamberId(const CSCDetId & detId) {theChamberId = detId;}
 
   /// for data packing
   void addCLCT0(const CSCCLCTDigi& digi) override;

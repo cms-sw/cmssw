@@ -50,29 +50,5 @@ bTagCommonBlock = cms.PSet(
             folder = cms.string("JP")
         ),
 
-        cms.PSet(
-            bTagGenericAnalysisBlock,
-            label = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll"),
-            folder = cms.string("deepCSV_BvsAll"),
-            differentialPlots = cms.bool(True),
-            discrCut = cms.double(0.1522)
-        ),
-        cms.PSet(
-            cTagGenericAnalysisBlock,
-            label = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:CvsL"),
-            folder = cms.string("deepCSV_CvsL"),
-            doCTagPlots = cms.bool(True),
-            differentialPlots = cms.bool(True),
-            discrCut = cms.double(0.15)
-        ),
-        cms.PSet(
-            cTagGenericAnalysisBlock,
-            label = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:CvsB"),
-            folder = cms.string("deepCSV_CvsB"),
-            doCTagPlots = cms.bool(True),
-            differentialPlots = cms.bool(True),
-            discrCut = cms.double(0.28)
-        ),
-
     )
 )

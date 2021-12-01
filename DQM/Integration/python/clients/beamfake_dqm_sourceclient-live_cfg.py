@@ -10,8 +10,8 @@ BSOnlineJobName = 'BeamSpotOnlineLegacy'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 import sys
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process = cms.Process("FakeBeamMonitor", Run2_2018)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("FakeBeamMonitor", Run3)
 
 # Configure tag and jobName if running Playback system
 if "dqm_cmssw/playback" in str(sys.argv[1]):
@@ -155,7 +155,6 @@ if unitTest == False:
 
         runNumber = cms.untracked.uint64(options.runNumber),
         omsServiceUrl = cms.untracked.string(BSOnlineOmsServiceUrl),
-        writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         saveLogsOnDB = cms.untracked.bool(True),
@@ -182,7 +181,6 @@ else:
         preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db'),
         runNumber = cms.untracked.uint64(options.runNumber),
         lastLumiFile = cms.untracked.string('last_lumi.txt'),
-        writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         toPut = cms.VPSet(cms.PSet(

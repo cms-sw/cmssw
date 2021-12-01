@@ -100,7 +100,7 @@ public:
   template <class M, class K>
   class MEMapInfT {
   public:
-    MEMapInfT() : bOperating_(false){};
+    MEMapInfT() : bOperating_(false), bIsNoUnderOverflowBin_(false){};
 
     MEMapInfT(
         GEMDQMBase *pDQMBase, TString strName, TString strTitle, TString strTitleX = "", TString strTitleY = "Entries")
@@ -126,6 +126,7 @@ public:
           strTitleY_(strTitleY),
           bOperating_(true),
           bIsProfile_(false),
+          bIsNoUnderOverflowBin_(false),
           nBinsX_(nBinsX),
           dXL_(dXL),
           dXH_(dXH),
@@ -145,6 +146,7 @@ public:
           strTitleY_(strTitleY),
           bOperating_(true),
           bIsProfile_(false),
+          bIsNoUnderOverflowBin_(false),
           nBinsX_(-1),
           nBinsY_(-1),
           log_category_own_(pDQMBase->log_category_) {
@@ -170,6 +172,7 @@ public:
           strTitleY_(strTitleY),
           bOperating_(true),
           bIsProfile_(false),
+          bIsNoUnderOverflowBin_(false),
           nBinsX_(nBinsX),
           dXL_(dXL),
           dXH_(dXH),
@@ -200,6 +203,7 @@ public:
           strTitleY_(strTitleY),
           bOperating_(true),
           bIsProfile_(true),
+          bIsNoUnderOverflowBin_(false),
           nBinsX_(nBinsX),
           dXL_(dXL),
           dXH_(dXH),
@@ -223,6 +227,7 @@ public:
     //      strTitleX_(strTitleX),
     //      strTitleY_(strTitleY),
     //      bOperating_(true),
+    //      bIsNoUnderOverflowBin_(false),
     //      nBinsX_(nBinsX),
     //      dXL_(dXL),
     //      dXH_(dXH),
@@ -237,6 +242,7 @@ public:
     void SetOperating(Bool_t bOperating) { bOperating_ = bOperating; };
     void TurnOn() { bOperating_ = true; };
     void TurnOff() { bOperating_ = false; };
+    void SetNoUnderOverflowBin() { bIsNoUnderOverflowBin_ = true; };
 
     Bool_t isProfile() { return bIsProfile_; };
     void SetProfile(Bool_t bIsProfile) { bIsProfile_ = bIsProfile; };
@@ -286,10 +292,20 @@ public:
       dYH_ = dH;
     };
 
+    void SetPointUOFlow() {
+      dXU_ = dXL_ + (dXH_ - dXL_) / nBinsX_ * 0.5;
+      dXO_ = dXL_ + (dXH_ - dXL_) / nBinsX_ * (nBinsX_ - 0.5);
+      dYU_ = dYL_ + (dYH_ - dYL_) / nBinsY_ * 0.5;
+      dYO_ = dYL_ + (dYH_ - dYL_) / nBinsY_ * (nBinsY_ - 0.5);
+      dZU_ = dZL_ + (dZH_ - dZL_) / nBinsZ_ * 0.5;
+      dZO_ = dZL_ + (dZH_ - dZL_) / nBinsZ_ * (nBinsZ_ - 0.5);
+    };
+
     M &map() { return mapHist; }
     int bookND(BookingHelper &bh, K key) {
       if (!bOperating_)
         return 0;
+      SetPointUOFlow();
       if (bIsProfile_) {
         mapHist[key] = bh.bookProfile2D(
             strName_, strTitle_, nBinsX_, dXL_, dXH_, nBinsY_, dYL_, dYH_, dZL_, dZH_, strTitleX_, strTitleY_);
@@ -364,6 +380,12 @@ public:
       dqm::impl::MonitorElement *hist = FindHist(key);
       if (hist == nullptr)
         return -999;
+      if (bIsNoUnderOverflowBin_) {
+        if (x <= dXL_)
+          x = dXU_;
+        else if (x >= dXH_)
+          x = dXO_;
+      }
       hist->Fill(x);
       return 1;
     };
@@ -374,6 +396,16 @@ public:
       dqm::impl::MonitorElement *hist = FindHist(key);
       if (hist == nullptr)
         return -999;
+      if (bIsNoUnderOverflowBin_) {
+        if (x <= dXL_)
+          x = dXU_;
+        else if (x >= dXH_)
+          x = dXO_;
+        if (y <= dYL_)
+          y = dYU_;
+        else if (y >= dYH_)
+          y = dYO_;
+      }
       hist->Fill(x, y, w);
       return 1;
     };
@@ -404,13 +436,18 @@ public:
     TString strName_, strTitle_, strTitleX_, strTitleY_;
     Bool_t bOperating_;
     Bool_t bIsProfile_;
+    Bool_t bIsNoUnderOverflowBin_;
 
     std::vector<double> x_binning_;
     Int_t nBinsX_;
     Double_t dXL_, dXH_;
     Int_t nBinsY_;
     Double_t dYL_, dYH_;
+    Int_t nBinsZ_;
     Double_t dZL_, dZH_;
+    Double_t dXU_, dXO_;
+    Double_t dYU_, dYO_;
+    Double_t dZU_, dZO_;
 
     std::string log_category_own_;
   };
@@ -450,6 +487,8 @@ public:
     Int_t nNumEtaPartitions_;  // the number of eta partitions of the chambers
     Int_t nMaxVFAT_;  // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
     Int_t nNumDigi_;  // the number of digis of each VFAT
+
+    Float_t fMinPhi_;
   };
 
 public:
@@ -461,7 +500,6 @@ public:
 protected:
   int initGeometry(edm::EventSetup const &iSetup);
   int loadChambers();
-  int readRadiusEtaPartition(int nRegion, int nStation);
 
   int GenerateMEPerChamber(DQMStore::IBooker &ibooker);
   virtual int ProcessWithMEMap2(BookingHelper &bh, ME2IdsKey key) { return 0; };              // must be overrided
@@ -507,6 +545,7 @@ protected:
   inline int getIEtaFromVFATGE11(const int vfat);
   inline int getMaxVFAT(const int);
   inline int getDetOccXBin(const int, const int, const int);
+  inline Float_t restrictAngle(const Float_t fTheta, const Float_t fStart);
 
   const GEMGeometry *GEMGeometry_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
@@ -574,6 +613,12 @@ inline int GEMDQMBase::getIEtaFromVFATGE11(const int vfat) { return 8 - (vfat % 
 
 inline int GEMDQMBase::getDetOccXBin(const int chamber, const int layer, const int n_chambers) {
   return n_chambers * (chamber - 1) + layer;
+}
+
+inline Float_t GEMDQMBase::restrictAngle(const Float_t fTheta, const Float_t fStart) {
+  Float_t fLoop = (fTheta - fStart) / (2 * M_PI);
+  int nLoop = (fLoop >= 0 ? (int)fLoop : (int)fLoop - 1);
+  return fTheta - nLoop * 2 * M_PI;
 }
 
 #endif  // DQM_GEM_INTERFACE_GEMDQMBase_h

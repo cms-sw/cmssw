@@ -7,6 +7,9 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 # NEW CLUSTERS (remove previously used clusters)
 lowPtTripletStepClusters = _cfg.clusterRemoverForIter('LowPtTripletStep')
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
@@ -216,6 +219,8 @@ lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     # of the outermost Tracker barrel layer (with B=3.8T)
     maxPtForLooperReconstruction = cms.double(0.7) 
 )
+trackingNoLoopers.toModify(lowPtTripletStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingLowPU.toModify(lowPtTripletStepTrajectoryBuilder, maxCand = 3)
 trackingPhase2PU140.toModify(lowPtTripletStepTrajectoryBuilder, 
     inOutTrajectoryFilter = dict(refToPSet_ = 'lowPtTripletStepTrajectoryFilterInOut'),
@@ -305,13 +310,13 @@ trackingPhase1.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
      qualityCuts = [-0.4,0.0,0.3],
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(lowPtTripletStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(lowPtTripletStep, trackTfClassifier.clone(
     src = 'lowPtTripletStepTracks',
-    qualityCuts = qualityCutDictionary['LowPtTripletStep']
+    qualityCuts = qualityCutDictionary.LowPtTripletStep.value()
 ))
-
 highBetaStar_2018.toModify(lowPtTripletStep,qualityCuts = [-0.7,-0.3,-0.1])
 pp_on_AA.toModify(lowPtTripletStep, 
         mva         = dict(GBRForestLabel = 'HIMVASelectorLowPtTripletStep_Phase1'),

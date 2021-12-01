@@ -105,7 +105,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   int verb = m_pPhysics.getUntrackedParameter<int>("Verbosity", 0);
   int stepverb = m_p.getUntrackedParameter<int>("SteppingVerbosity", 0);
   edm::LogVerbatim("SimG4CoreApplication")
-      << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
+      << "RunManagerMT: start initialising of geometry DD4hep: " << geoFromDD4hep << "\n"
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
       << "              G4 verbosity: " << verb;
 
@@ -133,7 +133,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   }
   m_kernel->DefineWorldVolume(world, true);
   m_registry.dddWorldSignal_(m_world.get());
-  G4StateManager::GetStateManager()->SetNewState(G4State_PreInit);
+  m_stateManager->SetNewState(G4State_PreInit);
 
   // Create physics list
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: create PhysicsList";

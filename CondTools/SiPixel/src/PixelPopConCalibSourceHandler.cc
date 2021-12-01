@@ -40,7 +40,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
 
 // test poolDBOutput
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 using namespace std;
@@ -286,8 +285,8 @@ void PixelPopConCalibSourceHandler::getNewObjects_file() {
 
   // use online code to parse the file
   pos::PixelCalibConfiguration fancyCalib(inputFilename);
-  SiPixelCalibConfiguration *calibConfig = new SiPixelCalibConfiguration(fancyCalib);
+  auto calibConfig = std::make_shared<SiPixelCalibConfiguration>(fancyCalib);
 
-  m_to_transfer.push_back(std::make_pair(calibConfig, _sinceIOV));
+  m_iovs.insert(std::make_pair(_sinceIOV, calibConfig));
 
 }  // void PixelPopConCalibSourceHandler::getNewObjects_file()

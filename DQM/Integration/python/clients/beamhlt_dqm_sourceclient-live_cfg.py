@@ -12,8 +12,8 @@ useLockRecords = True
 #from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 #process = cms.Process("BeamMonitor", Run2_2018) # FIMXE
 import sys
-from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
-process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("BeamMonitor", Run3)
 
 # Configure tag and jobName if running Playback system
 if "dqm_cmssw/playback" in str(sys.argv[1]):
@@ -120,22 +120,28 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor)
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
+#-----------------------------------------------------------
+# Swap offline <-> online BeamSpot as in Express and HLT
+import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
+import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+
 #--------------------------
 # Proton-Proton Stuff
 #--------------------------
 
 if (process.runType.getRunType() == process.runType.pp_run or
     process.runType.getRunType() == process.runType.pp_run_stage1 or
-    process.runType.getRunType() == process.runType.cosmic_run or
-    process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
     process.runType.getRunType() == process.runType.hpu_run or
-    process.runType.getRunType() == process.runType.hi_run):
+    process.runType.getRunType() == process.runType.hi_run or
+    process.runType.getRunType() == process.runType.commissioning_run):
 
     print("[beamhlt_dqm_sourceclient-live_cfg]:: Running pp")
 
     process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
-    process.dqmBeamMonitor.monitorName = 'BeamMonitor'
+    process.dqmBeamMonitor.monitorName = 'BeamMonitorHLT'
 
     process.dqmBeamMonitor.OnlineMode = True              
     process.dqmBeamMonitor.recordName = BSOnlineRecordName
@@ -160,11 +166,12 @@ if (process.runType.getRunType() == process.runType.pp_run or
     process.dqmBeamMonitor.PVFitter.errorScale = 0.95
 
     #TriggerName for selecting pv for DIP publication, NO wildcard needed here
-    #it will pick all triggers which has these strings in theri name
+    #it will pick all triggers which have these strings in their name
     process.dqmBeamMonitor.jetTrigger = cms.untracked.vstring(
         "HLT_HT300_Beamspot", "HLT_HT300_Beamspot",
         "HLT_PAZeroBias_v", "HLT_ZeroBias_", "HLT_QuadJet",
-        "HLT_HI")
+        "HLT_HI",
+        "HLT_PixelClusters")
 
     process.dqmBeamMonitor.hltResults = "TriggerResults::HLT"
 
@@ -182,7 +189,6 @@ if (process.runType.getRunType() == process.runType.pp_run or
         preLoadConnectionString = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS'),
         runNumber = cms.untracked.uint64(options.runNumber),
         omsServiceUrl = cms.untracked.string(BSOnlineOmsServiceUrl),
-        writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         saveLogsOnDB = cms.untracked.bool(True),
@@ -208,7 +214,6 @@ if (process.runType.getRunType() == process.runType.pp_run or
         preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db'),
         runNumber = cms.untracked.uint64(options.runNumber),
         lastLumiFile = cms.untracked.string('last_lumi.txt'),
-        writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         toPut = cms.VPSet(cms.PSet(
@@ -226,4 +231,6 @@ if (process.runType.getRunType() == process.runType.pp_run or
                         * process.dqmcommon
                         * process.offlineBeamSpot
                         * process.monitor )
+
+print("Final Source settings:", process.source)
 

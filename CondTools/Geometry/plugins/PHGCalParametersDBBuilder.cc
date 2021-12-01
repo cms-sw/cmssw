@@ -30,7 +30,7 @@ private:
   void swapParameters(HGCalParameters*, PHGCalParameters*);
 
   std::string name_, name2_, namew_, namec_, namet_;
-  bool fromDD4Hep_;
+  bool fromDD4hep_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
 };
@@ -41,13 +41,13 @@ PHGCalParametersDBBuilder::PHGCalParametersDBBuilder(const edm::ParameterSet& iC
   namew_ = iC.getParameter<std::string>("nameW");
   namec_ = iC.getParameter<std::string>("nameC");
   namet_ = iC.getParameter<std::string>("nameT");
-  fromDD4Hep_ = iC.getParameter<bool>("fromDD4Hep");
+  fromDD4hep_ = iC.getParameter<bool>("fromDD4hep");
   dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << name2_ << ":" << namew_ << ":"
-                                << namec_ << ":" << namet_ << " and fromDD4Hep flag " << fromDD4Hep_;
+                                << namec_ << ":" << namet_ << " and fromDD4hep flag " << fromDD4hep_;
 #endif
 }
 
@@ -58,12 +58,12 @@ void PHGCalParametersDBBuilder::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<std::string>("nameW", "HGCalEEWafer");
   desc.add<std::string>("nameC", "HGCalEECell");
   desc.add<std::string>("nameT", "HGCal");
-  desc.add<bool>("fromDD4Hep", false);
+  desc.add<bool>("fromDD4hep", false);
   descriptions.add("HGCalEEParametersWriter", desc);
 }
 
 void PHGCalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  PHGCalParameters* phgp = new PHGCalParameters;
+  PHGCalParameters phgp;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("PHGCalParametersDBBuilder") << "PoolDBOutputService unavailable";
@@ -72,7 +72,7 @@ void PHGCalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const&
 
   HGCalParameters* ptp = new HGCalParameters(name_);
   HGCalParametersFromDD builder;
-  if (fromDD4Hep_) {
+  if (fromDD4hep_) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "PHGCalParametersDBBuilder::Try to access cm::DDCompactView";
 #endif
@@ -85,12 +85,11 @@ void PHGCalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const&
     auto cpv = es.getTransientHandle(compactViewToken_);
     builder.build(cpv.product(), *ptp, name_, namew_, namec_, namet_);
   }
-  swapParameters(ptp, phgp);
+  swapParameters(ptp, &phgp);
   delete ptp;
 
   if (mydbservice->isNewTagRequest("PHGCalParametersRcd")) {
-    mydbservice->createNewIOV<PHGCalParameters>(
-        phgp, mydbservice->beginOfTime(), mydbservice->endOfTime(), "PHGCalParametersRcd");
+    mydbservice->createOneIOV(phgp, mydbservice->beginOfTime(), "PHGCalParametersRcd");
   } else {
     edm::LogError("PHGCalParametersDBBuilder") << "PHGCalParameters and PHGCalParametersRcd Tag already present";
   }

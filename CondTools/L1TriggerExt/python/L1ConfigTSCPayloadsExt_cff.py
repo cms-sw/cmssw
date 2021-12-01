@@ -2,6 +2,7 @@ from L1TriggerConfig.L1TConfigProducers.L1TUtmTriggerMenuOnline_cfi import *
 from L1TriggerConfig.L1TConfigProducers.L1TMuonBarrelParamsOnline_cfi import *
 from L1TriggerConfig.L1TConfigProducers.L1TMuonGlobalParamsOnline_cfi import *
 from L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapParamsOnline_cfi import *
+from L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapFwVersionOnline_cfi import *
 from L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapParamsOnline_cfi import *
 from L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapForestOnline_cfi import *
 from L1TriggerConfig.L1TConfigProducers.L1TCaloParamsOnline_cfi import *
@@ -16,6 +17,7 @@ def setTSCPayloadsDB(process, DBConnect, DBAuth, protoDBConnect, protoDBAuth):
     process.L1TMuonEndCapForestOnlineProd.onlineDB     = cms.string( DBConnect )
     process.L1TMuonGlobalParamsOnlineProd.onlineDB     = cms.string( DBConnect )
     process.L1TMuonOverlapParamsOnlineProd.onlineDB    = cms.string( DBConnect )
+    process.L1TMuonOverlapFwVersionOnlineProd.onlineDB = cms.string( DBConnect )
     process.L1TUtmTriggerMenuOnlineProd.onlineDB       = cms.string( DBConnect )
 
     process.L1TCaloParamsOnlineProd.onlineAuthentication           = cms.string( DBAuth )
@@ -25,15 +27,18 @@ def setTSCPayloadsDB(process, DBConnect, DBAuth, protoDBConnect, protoDBAuth):
     process.L1TMuonEndCapForestOnlineProd.onlineAuthentication     = cms.string( DBAuth )
     process.L1TMuonGlobalParamsOnlineProd.onlineAuthentication     = cms.string( DBAuth )
     process.L1TMuonOverlapParamsOnlineProd.onlineAuthentication    = cms.string( DBAuth )
+    process.L1TMuonOverlapFwVersionOnlineProd.onlineAuthentication = cms.string( DBAuth )
     process.L1TUtmTriggerMenuOnlineProd.onlineAuthentication       = cms.string( DBAuth )
 
     process.l1caloparProtodb.connect                         = cms.string( protoDBConnect )
     process.l1bmtfparProtodb.connect                         = cms.string( protoDBConnect )
     process.l1emtfparProtodb.connect                         = cms.string( protoDBConnect )
+#    process.l1omtfparProtodb.connect                         = cms.string( protoDBConnect )
     process.l1gmtparProtodb.connect                          = cms.string( protoDBConnect )
     process.l1caloparProtodb.DBParameters.authenticationPath = cms.untracked.string( protoDBAuth )
     process.l1bmtfparProtodb.DBParameters.authenticationPath = cms.untracked.string( protoDBAuth )
     process.l1emtfparProtodb.DBParameters.authenticationPath = cms.untracked.string( protoDBAuth )
+#    process.l1omtfparProtodb.DBParameters.authenticationPath = cms.untracked.string( protoDBAuth )
     process.l1gmtparProtodb.DBParameters.authenticationPath  = cms.untracked.string( protoDBAuth )
 
 def liftPayloadSafetyFor(process, systems):
@@ -55,4 +60,5 @@ def liftPayloadSafetyFor(process, systems):
 
     if 'OMTF' in systems:
         process.L1TMuonOverlapParamsOnlineProd.transactionSafe    = cms.bool(False)
+        process.L1TMuonOverlapFwVersionOnlineProd.transactionSafe = cms.bool(False)
 

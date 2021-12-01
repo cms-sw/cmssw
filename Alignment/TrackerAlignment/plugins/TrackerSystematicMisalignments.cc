@@ -198,8 +198,8 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
   applySystematicMisalignment(&(*theAlignableTracker));
 
   // -------------- writing out to alignment record --------------
-  Alignments* myAlignments = theAlignableTracker->alignments();
-  AlignmentErrorsExtended* myAlignmentErrorsExtended = theAlignableTracker->alignmentErrors();
+  Alignments myAlignments = *(theAlignableTracker->alignments());
+  AlignmentErrorsExtended myAlignmentErrorsExtended = *(theAlignableTracker->alignmentErrors());
 
   // Store alignment[Error]s to DB
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -210,9 +210,9 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
   if (!poolDbService.isAvailable())  // Die if not available
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
-  poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->beginOfTime(), theAlignRecordName);
-  poolDbService->writeOne<AlignmentErrorsExtended>(
-      &(*myAlignmentErrorsExtended), poolDbService->beginOfTime(), theErrorRecordName);
+  poolDbService->writeOneIOV<Alignments>(myAlignments, poolDbService->beginOfTime(), theAlignRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      myAlignmentErrorsExtended, poolDbService->beginOfTime(), theErrorRecordName);
 }
 
 void TrackerSystematicMisalignments::applySystematicMisalignment(Alignable* ali) {

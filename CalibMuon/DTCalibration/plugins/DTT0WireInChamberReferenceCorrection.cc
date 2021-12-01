@@ -16,6 +16,7 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 #include <sstream>
@@ -25,8 +26,11 @@ using namespace edm;
 
 namespace dtCalibration {
 
-  DTT0WireInChamberReferenceCorrection::DTT0WireInChamberReferenceCorrection(const ParameterSet& pset)
-      : calibChamber_(pset.getParameter<string>("calibChamber")) {
+  DTT0WireInChamberReferenceCorrection::DTT0WireInChamberReferenceCorrection(const ParameterSet& pset,
+                                                                             edm::ConsumesCollector cc)
+      : calibChamber_(pset.getParameter<string>("calibChamber")),
+        t0Token_(cc.esConsumes<edm::Transition::BeginRun>()),
+        dtGeomToken_(cc.esConsumes<edm::Transition::BeginRun>()) {
     //DTChamberId chosenChamberId;
     if (!calibChamber_.empty() && calibChamber_ != "None" && calibChamber_ != "All") {
       stringstream linestr;
@@ -44,13 +48,12 @@ namespace dtCalibration {
 
   void DTT0WireInChamberReferenceCorrection::setES(const EventSetup& setup) {
     // Get t0 record from DB
-    ESHandle<DTT0> t0H;
-    setup.get<DTT0Rcd>().get(t0H);
+    ESHandle<DTT0> t0H = setup.getHandle(t0Token_);
     t0Map_ = &*t0H;
     LogVerbatim("Calibration") << "[DTT0WireInChamberReferenceCorrection] T0 version: " << t0H->version();
 
     // Get geometry from Event Setup
-    setup.get<MuonGeometryRecord>().get(dtGeom_);
+    dtGeom_ = setup.getHandle(dtGeomToken_);
   }
 
   DTT0Data DTT0WireInChamberReferenceCorrection::correction(const DTWireId& wireId) {

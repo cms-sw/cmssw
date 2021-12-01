@@ -13,7 +13,15 @@ gedPhotonsTmp = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone
     photonProducer         = "gedPhotonCore",
     candidateP4type        = "fromEcalEnergy",
     outputPhotonCollection = "",
-    reconstructionStep     = "tmp"
+    reconstructionStep     = "tmp",
+    #Photon PFID DNN model configuration
+    PhotonDNNPFid = dict(
+        modelsFiles = [ "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EB/barrel_modelDNN.pb",
+                        "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EE/endcap_modelDNN.pb"],
+        scalersFiles = [
+                    "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EB/barrel_scaler.txt",
+                    "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EE/endcap_scaler.txt"]
+    )
 )
 del gedPhotonsTmp.regressionConfig
 
@@ -27,13 +35,13 @@ gedPhotons = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone(
     pfECALClusIsolation    = cms.InputTag("photonEcalPFClusterIsolationProducer"),
     pfHCALClusIsolation    = cms.InputTag("photonHcalPFClusterIsolationProducer"),
     pfIsolCfg = cms.PSet(
-	chargedHadronIso = cms.InputTag("photonIDValueMaps","phoChargedIsolation"),
-	neutralHadronIso = cms.InputTag("photonIDValueMaps","phoNeutralHadronIsolation"),
-	photonIso        = cms.InputTag("photonIDValueMaps","phoPhotonIsolation"),
-	chargedHadronWorstVtxIso = cms.InputTag("photonIDValueMaps","phoWorstChargedIsolation"),
-	chargedHadronWorstVtxGeomVetoIso = cms.InputTag("photonIDValueMaps","phoWorstChargedIsolationConeVeto"),
-	chargedHadronPFPVIso     = cms.InputTag("egmPhotonIsolationCITK:h+-DR030-"),
-    )
+        chargedHadronIso = cms.InputTag("photonIDValueMaps","phoChargedIsolation"),
+        neutralHadronIso = cms.InputTag("photonIDValueMaps","phoNeutralHadronIsolation"),
+        photonIso        = cms.InputTag("photonIDValueMaps","phoPhotonIsolation"),
+        chargedHadronWorstVtxIso = cms.InputTag("photonIDValueMaps","phoWorstChargedIsolation"),
+        chargedHadronWorstVtxGeomVetoIso = cms.InputTag("photonIDValueMaps","phoWorstChargedIsolationConeVeto"),
+        chargedHadronPFPVIso     = cms.InputTag("egmPhotonIsolationCITK:h+-DR030-"),
+        ),
 )
 gedPhotonTask    = cms.Task(gedPhotons)
 gedPhotonSequence    = cms.Sequence(gedPhotonTask)
@@ -45,3 +53,10 @@ egamma_lowPt_exclusive.toModify(gedPhotons,
 egamma_lowPt_exclusive.toModify(gedPhotonsTmp,
                            minSCEtBarrel = 1.0,
                            minSCEtEndcap = 1.0)
+
+
+# Activate the Egamma PFID dnn only for Run3
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(gedPhotonsTmp.PhotonDNNPFid,
+    enabled = True
+)

@@ -8,7 +8,7 @@ function parse_HLT_schema() {
   fi
 
   # default values
-  Vx="v2"
+  Vx="v3"
   DB="$1"
 
   # parse the connection string [version/]database
@@ -28,8 +28,8 @@ function parse_HLT_menu() {
   fi
 
   # default values
-  Vx="v2"
-  DB="offline"
+  Vx="v3"
+  DB="run3"
   MENU="$1"
 
   # parse the connection string [[version/]database:]menu
