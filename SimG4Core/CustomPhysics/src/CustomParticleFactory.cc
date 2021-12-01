@@ -20,7 +20,7 @@
 #include <sstream>
 
 bool CustomParticleFactory::loaded = false;
-std::vector<G4ParticleDefinition*> CustomParticleFactory::m_particles;
+std::vector<G4ParticleDefinition *> CustomParticleFactory::m_particles;
 
 #ifdef G4MULTITHREADED
 G4Mutex CustomParticleFactory::customParticleFactoryMutex = G4MUTEX_INITIALIZER;
@@ -44,8 +44,9 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
   std::ifstream configFile(filePath.c_str());
 
   std::string line;
-  edm::LogVerbatim("SimG4CoreCustomPhysics") << "CustomParticleFactory: Reading Custom Particle and G4DecayTable from \n"
-                                             << filePath;
+  edm::LogVerbatim("SimG4CoreCustomPhysics")
+      << "CustomParticleFactory: Reading Custom Particle and G4DecayTable from \n"
+      << filePath;
   // This should be compatible IMO to SLHA
   G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
   while (getline(configFile, line)) {
@@ -294,9 +295,9 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
           << ", GetAntiPDGEncoding() " << aParticle->GetAntiPDGEncoding() << " sign= " << sign;
 
       if (std::abs(sign) != 1) {
-        edm::LogVerbatim("SimG4CoreCustomPhysics") << "CustomParticleFactory: sign= " << sign
-                                                   << " a: " << aParticle->GetAntiPDGEncoding() 
-                                                   << " b: " << pdgIdPartner;
+        edm::LogVerbatim("SimG4CoreCustomPhysics")
+            << "CustomParticleFactory: sign= " << sign << " a: " << aParticle->GetAntiPDGEncoding()
+            << " b: " << pdgIdPartner;
         aParticle->DumpTable();
       }
       if (sign == -1 && pdgId != 25 && pdgId != 35 && pdgId != 36 && pdgId != 37 && pdgId != 1000039) {
@@ -326,8 +327,8 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
     }
     if (pdgId == 9000006) {
       tmp = name + "bar";
-      edm::LogVerbatim("CustomPhysics") << "Calling addCustomParticle for antiparticle with pdgId: " << -pdgId << ", mass "
-                                    << mass << ", name " << tmp;
+      edm::LogVerbatim("CustomPhysics") << "Calling addCustomParticle for antiparticle with pdgId: " << -pdgId
+                                        << ", mass " << mass << ", name " << tmp;
       addCustomParticle(-pdgId, mass, tmp);
       theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(-pdgId);
     }
@@ -433,4 +434,4 @@ std::string CustomParticleFactory::ToLower(std::string str) {
   return str;
 }
 
-const std::vector<G4ParticleDefinition*>& CustomParticleFactory::getCustomParticles() { return m_particles; }
+const std::vector<G4ParticleDefinition *> &CustomParticleFactory::getCustomParticles() { return m_particles; }
