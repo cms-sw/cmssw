@@ -55,6 +55,7 @@ EcalSimHitsValidProducer::EcalSimHitsValidProducer(const edm::ParameterSet &iPSe
     eBX0[i] = 0.0;
     eEX0[i] = 0.0;
   }
+  setMT(true);
 }
 
 EcalSimHitsValidProducer::~EcalSimHitsValidProducer() {}
@@ -249,16 +250,11 @@ void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
       double pz = thePrim->GetPz();
       theMomentum.SetCoordinates(px, py, pz, 0.);
 
-      pInit = sqrt(pow(px, 2.) + pow(py, 2.) + pow(pz, 2.));
+      pInit = std::sqrt(px * px + py * py + pz * pz);
       if (pInit == 0)
         edm::LogWarning("EcalSimHitsValidProducer") << " Primary has p = 0 ; ";
       else {
         theMomentum.SetE(pInit);
-        // double costheta  = pz/pInit; // UNUSED
-        // double theta = acos(std::min(std::max(costheta, -1.),1.)); // UNUSED
-        // etaInit = -log(tan(theta/2)); // UNUSED
-
-        // if ( px != 0 || py != 0) phiInit = atan2(py,px); // UNUSED
       }
 
       thePID = thePrim->GetPDGcode();
