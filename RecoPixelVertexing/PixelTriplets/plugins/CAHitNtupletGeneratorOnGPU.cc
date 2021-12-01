@@ -63,7 +63,7 @@ CAHitNtupletGeneratorOnGPU::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& 
                cfg.getParameter<unsigned int>("maxNumberOfDoublets"),
                cfg.getParameter<unsigned int>("minHitsForSharingCut"),
                cfg.getParameter<bool>("useRiemannFit"),
-               cfg.getParameter<bool>("fit5as4"),
+               cfg.getParameter<bool>("fitNas4"),
                cfg.getParameter<bool>("includeJumpingForwardDoublets"),
                cfg.getParameter<bool>("earlyFishbone"),
                cfg.getParameter<bool>("lateFishbone"),
@@ -149,17 +149,17 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& 
   desc.add<bool>("fillStatistics", false);
   desc.add<unsigned int>("minHitsPerNtuplet", 4);
   desc.add<unsigned int>("maxNumberOfDoublets", caConstants::maxNumberOfDoublets);
-  desc.add<unsigned int>("minHitsForSharingCut", 5)
+  desc.add<unsigned int>("minHitsForSharingCut", 10)
       ->setComment("Maximum number of hits in a tuple to clean also if the shared hit is on bpx1");
   desc.add<bool>("includeJumpingForwardDoublets", false);
-  desc.add<bool>("fit5as4", true);
+  desc.add<bool>("fitNas4", false)->setComment("fit only 4 hits out of N");
   desc.add<bool>("doClusterCut", true);
   desc.add<bool>("doZ0Cut", true);
   desc.add<bool>("doPtCut", true);
   desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
   desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
   desc.add<bool>("dupPassThrough", false)->setComment("Do not reject duplicate");
-  desc.add<bool>("useSimpleTripletCleaner", false)->setComment("use alternate implementation");
+  desc.add<bool>("useSimpleTripletCleaner", true)->setComment("use alternate implementation");
 
   edm::ParameterSetDescription trackQualityCuts;
   trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
@@ -194,9 +194,8 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecH
 
   kernels.buildDoublets(hits_d, stream);
   kernels.launchKernels(hits_d, soa, stream);
-  kernels.fillHitDetIndices(hits_d.view(), soa, stream);  // in principle needed only if Hits not "available"
 
-  HelixFitOnGPU fitter(bfield, m_params.fit5as4_);
+  HelixFitOnGPU fitter(bfield, m_params.fitNas4_);
   fitter.allocateOnGPU(&(soa->hitIndices), kernels.tupleMultiplicity(), soa);
   if (m_params.useRiemannFit_) {
     fitter.launchRiemannKernels(hits_d.view(), hits_d.nHits(), caConstants::maxNumberOfQuadruplets, stream);
@@ -226,13 +225,12 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DC
 
   kernels.buildDoublets(hits_d, nullptr);
   kernels.launchKernels(hits_d, soa, nullptr);
-  kernels.fillHitDetIndices(hits_d.view(), soa, nullptr);  // in principle needed only if Hits not "available"
 
   if (0 == hits_d.nHits())
     return tracks;
 
   // now fit
-  HelixFitOnGPU fitter(bfield, m_params.fit5as4_);
+  HelixFitOnGPU fitter(bfield, m_params.fitNas4_);
   fitter.allocateOnGPU(&(soa->hitIndices), kernels.tupleMultiplicity(), soa);
 
   if (m_params.useRiemannFit_) {

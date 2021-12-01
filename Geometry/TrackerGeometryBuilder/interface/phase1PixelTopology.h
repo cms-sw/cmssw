@@ -27,17 +27,20 @@ namespace phase1PixelTopology {
 
   constexpr uint32_t numberOfModules = 1856;
   constexpr uint32_t numberOfLayers = 10;
-  constexpr uint32_t layerStart[numberOfLayers + 1] = {0,
-                                                       96,
-                                                       320,
-                                                       672,  // barrel
-                                                       1184,
-                                                       1296,
-                                                       1408,  // positive endcap
-                                                       1520,
-                                                       1632,
-                                                       1744,  // negative endcap
-                                                       numberOfModules};
+#ifdef __CUDA_ARCH__
+  __device__
+#endif
+      constexpr uint32_t layerStart[numberOfLayers + 1] = {0,
+                                                           96,
+                                                           320,
+                                                           672,  // barrel
+                                                           1184,
+                                                           1296,
+                                                           1408,  // positive endcap
+                                                           1520,
+                                                           1632,
+                                                           1744,  // negative endcap
+                                                           numberOfModules};
   constexpr char const* layerName[numberOfLayers] = {
       "BL1",
       "BL2",
@@ -84,8 +87,8 @@ namespace phase1PixelTopology {
 
   constexpr uint32_t maxModuleStride = findMaxModuleStride();
 
-  constexpr uint8_t findLayer(uint32_t detId) {
-    for (uint8_t i = 0; i < std::size(layerStart); ++i)
+  constexpr uint8_t findLayer(uint32_t detId, uint8_t sl = 0) {
+    for (uint8_t i = sl; i < std::size(layerStart); ++i)
       if (detId < layerStart[i + 1])
         return i;
     return std::size(layerStart);
@@ -100,7 +103,15 @@ namespace phase1PixelTopology {
   }
 
   constexpr uint32_t layerIndexSize = numberOfModules / maxModuleStride;
-  constexpr std::array<uint8_t, layerIndexSize> layer = map_to_array<layerIndexSize>(findLayerFromCompact);
+#ifdef __CUDA_ARCH__
+  __device__
+#endif
+      constexpr std::array<uint8_t, layerIndexSize>
+          layer = map_to_array<layerIndexSize>(findLayerFromCompact);
+
+  constexpr uint8_t getLayer(uint32_t detId) {
+    return phase1PixelTopology::layer[detId / phase1PixelTopology::maxModuleStride];
+  }
 
   constexpr bool validateLayerIndex() {
     bool res = true;
