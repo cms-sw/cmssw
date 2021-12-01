@@ -40,7 +40,7 @@ public:
 
   using TupleMultiplicity = caConstants::TupleMultiplicity;
 
-  explicit HelixFitOnGPU(float bf, bool fit5as4) : bField_(bf), fit5as4_(fit5as4) {}
+  explicit HelixFitOnGPU(float bf, bool fitNas4) : bField_(bf), fitNas4_(fitNas4) {}
   ~HelixFitOnGPU() { deallocateOnGPU(); }
 
   void setBField(double bField) { bField_ = bField; }
@@ -62,7 +62,7 @@ private:
   OutputSoA *outputSoa_;
   float bField_;
 
-  const bool fit5as4_;
+  const bool fitNas4_;
 };
 
 #endif  // RecoPixelVertexing_PixelTriplets_plugins_HelixFitOnGPU_h
