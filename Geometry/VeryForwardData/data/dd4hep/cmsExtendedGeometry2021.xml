@@ -287,7 +287,7 @@
     <Include ref='Geometry/VeryForwardData/data/RP_Box/v3/RP_Box_124.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Box/v3/RP_Box_125.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Hybrid/v2/RP_Hybrid.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/RP_Materials/v4/RP_Materials.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/RP_Materials/v5/RP_Materials.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Transformations.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_000.xml'/>
@@ -342,7 +342,6 @@
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2021/Simu/v1/CTPPS_Detectors_Assembly_022.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2021/Simu/v1/CTPPS_Detectors_Assembly_122.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Sensitive_Dets_TimingHits.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Modules/v2/ppstrackerMaterials.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Modules/v3/PPS_Pixel_Module_2x2_Run3.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Modules/v2/PPS_Pixel_Sens.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v2/CTPPS_Pixel_Assembly_Box_Real_003.xml'/>
