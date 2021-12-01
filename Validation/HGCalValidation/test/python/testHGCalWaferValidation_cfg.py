@@ -5,6 +5,12 @@
 #   Options for geometry D49, D68, D77, D83, D84
 #
 ###############################################################################
+###############################################################################
+# Modified by Yulun Miao
+# Modified at Wed, 17 Nov 2021
+# Details of Modification:
+#   * Allowing options for geometry D86
+#   * Allowing options for flatfile by flatfile=path_to_flat_file, default set to Validation/HGCalValidation/data/geomnew_corrected_360.txt
 import FWCore.ParameterSet.Config as cms
 import os, sys, imp, re
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -17,6 +23,11 @@ options.register('geometry',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D49, D68, D84, D77, D83")
+options.register('flatfile',
+                 "Validation/HGCalValidation/data/geomnew_corrected_360.txt",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "path to flat file")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -41,6 +52,10 @@ elif (options.geometry == "D84"):
     from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
     process = cms.Process('TEST',Phase2C11)
     process.load('Configuration.Geometry.GeometryExtended2026D84_cff')
+elif (options.geometry == "D86"):
+    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+    process = cms.Process('TEST',Phase2C11I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D86_cff')
 else:
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('TEST',Phase2C11M9)
@@ -60,6 +75,5 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 process.load('Validation.HGCalValidation.hgcalWaferValidation_cfi')
-process.hgcalWaferValidation.GeometryFileName = "Validation/HGCalValidation/data/geomnew_corrected_360.txt"
-
+process.hgcalWaferValidation.GeometryFileName = options.flatfile
 process.p = cms.Path(process.hgcalWaferValidation)
