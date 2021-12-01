@@ -103,6 +103,8 @@ private:
   /// Number of OOT indices monitored
   static constexpr unsigned int FIRST_RUN_W_PIXELS = 300000;
 
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
+
   /// plots related to the whole system
   struct GlobalPlots {
     GlobalPlots() = default;
@@ -167,7 +169,12 @@ private:
     // MonitorElement* trackTimeVsXAngleProfile = nullptr;
 
     PotPlots() = default;
-    PotPlots(DQMStore::IBooker& ibooker, unsigned int id, unsigned int windowsNum, bool plotOnline, bool plotOffline);
+    PotPlots(DQMStore::IBooker& ibooker,
+             unsigned int id,
+             unsigned int windowsNum,
+             bool plotOnline,
+             bool plotOffline,
+             bool perLSsaving);
   };
   /// plots related to one Diamond plane
   struct PlanePlots {
@@ -217,7 +224,6 @@ private:
   // edm::ESGetToken<LHCInfo, LHCInfoRcd> ctppsLhcInfoToken_;
 
   bool excludeMultipleHits_;
-  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
   const bool extract_digi_info_;
   struct DiamondShifts {
     double global, withPixels;
@@ -273,8 +279,12 @@ CTPPSDiamondDQMSource::SectorPlots::SectorPlots(DQMStore::IBooker& ibooker, unsi
 }
 
 //----------------------------------------------------------------------------------------------------
-CTPPSDiamondDQMSource::PotPlots::PotPlots(
-    DQMStore::IBooker& ibooker, unsigned int id, unsigned int windowsNum, bool plotOnline, bool plotOffline)
+CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker,
+                                          unsigned int id,
+                                          unsigned int windowsNum,
+                                          bool plotOnline,
+                                          bool plotOffline,
+                                          bool perLSsaving)
     : HitCounter(0),
       MHCounter(0),
       LeadingOnlyCounter(0),
@@ -328,7 +338,7 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(
                        13);
   }
 
-  if (plotOffline) {
+  if (plotOffline && !perLSsaving) {
     ibooker.setCurrentFolder(path + "/timing_profiles");
     // TOTVsLS=ibooker.book2D("ToT vs LS",title +" ToT vs LS;LS;ToT(ns)",4000,0,4000, 200,5,25);
     // trackTimeVsLS=ibooker.book2D("track time vs LS",title+" track time vs LS;LS;track_time(ns)",4000,0,4000, 500, -25, 25);
@@ -576,7 +586,8 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
-    : tokenPixelTrack_(
+    : perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)),
+      tokenPixelTrack_(
           consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(ps.getParameter<edm::InputTag>("tagPixelLocalTracks"))),
       tokenDiamondHit_(
           consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(ps.getParameter<edm::InputTag>("tagDiamondRecHits"))),
@@ -586,7 +597,6 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
       ctppsGeometryEventToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       // ctppsLhcInfoToken_(esConsumes<LHCInfo, LHCInfoRcd>()),
       excludeMultipleHits_(ps.getParameter<bool>("excludeMultipleHits")),
-      perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)),
       extract_digi_info_(ps.getParameter<bool>("extractDigiInfo")),
       centralOOT_(-999),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
@@ -660,7 +670,7 @@ void CTPPSDiamondDQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm
     // per-pot plots
     const CTPPSDiamondDetId rpId(chId.rpId());
     if (potPlots_.count(rpId) == 0)
-      potPlots_[rpId] = PotPlots(ibooker, rpId, windowsNum_, plotOnline_, plotOffline_);
+      potPlots_[rpId] = PotPlots(ibooker, rpId, windowsNum_, plotOnline_, plotOffline_, perLSsaving_);
 
     // per-sector plots
     const CTPPSDiamondDetId secId(chId.armId());
@@ -969,7 +979,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         for (int i = 0; i < numOfBins; ++i)
           trackHistoInTimeTmp->Fill(trackHistoInTimeTmp->GetBinCenter(startBin + i));
       }
-      if (plotOffline_) {
+      if (plotOffline_ && !perLSsaving_) {
         // potPlots_[detId_pot].trackTimeVsLS->Fill(event.luminosityBlock(),track.time());
         potPlots_[detId_pot].trackTimeVsBX->Fill(event.bunchCrossing(), track.time());
         //potPlots_[detId_pot].trackTimeVsXAngle->Fill(hLhcInfo->crossingAngle(), track.time());
@@ -1360,7 +1370,7 @@ void CTPPSDiamondDQMSource::checkEventNumber(const CTPPSDiamondDetId& detId,
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSDiamondDQMSource::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
-  if (plotOffline_)
+  if (plotOffline_ && !perLSsaving_)
     for (const auto& rpPlots : potPlots_) {
       auto plots = rpPlots.second;
       // *(plots.TOTVsLSProfile->getTProfile())=*plots.TOTVsLS->getTH2F()->ProfileX();
