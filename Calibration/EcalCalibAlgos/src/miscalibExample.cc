@@ -29,13 +29,12 @@
 #include <stdexcept>
 #include <vector>
 
-miscalibExample::miscalibExample(const edm::ParameterSet& iConfig) {
-  rootfile_ = iConfig.getUntrackedParameter<std::string>("rootfile", "ecalSimpleTBanalysis.root");
-  correctedHybridSuperClusterProducer_ = iConfig.getParameter<std::string>("correctedHybridSuperClusterProducer");
-  edm::InputTag correctedHybridSuperClusterTag_ = iConfig.getParameter<edm::InputTag>("correctedHybridSuperClusterCollection"); 
-  correctedHybridSuperClusterCollection_ = iConfig.getParameter<std::string>("correctedHybridSuperClusterCollection");
-  correctedHybridSuperClusterToken_ = consumes<reco::SuperClusterCollection>(edm::InputTag(correctedHybridSuperClusterProducer_, correctedHybridSuperClusterCollection_));
-}
+miscalibExample::miscalibExample(const edm::ParameterSet& iConfig) : 
+  rootfile_{iConfig.getUntrackedParameter<std::string>("rootfile", "ecalSimpleTBanalysis.root")}, 
+  correctedHybridSuperClusterProducer_{iConfig.getParameter<std::string>("correctedHybridSuperClusterProducer")},
+  correctedHybridSuperClusterCollection_{iConfig.getParameter<std::string>("correctedHybridSuperClusterCollection")},
+  correctedHybridSuperClusterToken_{consumes<reco::SuperClusterCollection>(edm::InputTag(correctedHybridSuperClusterProducer_, correctedHybridSuperClusterCollection_))}
+ {}
 
 miscalibExample::~miscalibExample() {}
 
