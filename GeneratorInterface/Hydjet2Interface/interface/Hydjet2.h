@@ -82,18 +82,18 @@ public:
   std::vector<Int_t> GetLastDaughterIndex() && { return std::move(LastDaughterIndex); }   ///< Getter (rvalue) for output information: last daughter index
   std::vector<Int_t> GetiJet() && { return std::move(iJet); }                             ///< Getter (rvalue) for output information: subevent number (0 - for hydro, number of origin jet for others)
   std::vector<Int_t> GetFinal() && { return std::move(ifFinal); }                         ///< Getter (rvalue) for output information: if the partical is final(=0 no, this particle has decayed; 1= yes, final state particle)
-  Int_t GetNtot() && { return std::move(Ntot); }                                          ///< Getter (rvalue) for output information: generated value of total event multiplicity (Ntot=Nhyd+Npyt)
-  Int_t GetNpyt() && { return std::move(Npyt); }                                          ///< Getter (rvalue) for output information: generated multiplicity of "hard" jet-induced particles
-  Int_t GetNhyd() && { return std::move(Nhyd); }                                          ///< Getter (rvalue) for output information: generated multiplicity of "soft" hydro-induced particles
-  Int_t GetNjet() && { return std::move(Njet); }                                          ///< Getter (rvalue) for output information: generated number of hard parton-parton scatterings with pt>fPtmin
-  Int_t GetNbcol() && { return std::move(Nbcol); }                                        ///< Getter (rvalue) for output information: mean number of binary NN sub-collisions at given "Bgen"
-  Int_t GetNpart() && { return std::move(Npart); }                                        ///< Getter (rvalue) for output information: mean number of nucleons-participants at given "Bgen"
-  Double_t GetBgen() && { return std::move(Bgen); }                                       ///< Getter (rvalue) for output information: generated value of impact parameter in units of nucleus radius RA
-  Double_t GetSigin() && { return std::move(Sigin); }                                     ///< Getter (rvalue) for output information: total inelastic NN cross section at given "fSqrtS" (in mb)
-  Double_t GetSigjet() && { return std::move(Sigjet); }                                   ///< Getter (rvalue) for output information: hard scattering NN cross section at given "fSqrtS"  &  &  "fPtmin" (in mb)
-  Double_t GetPsiv3() && { return std::move(v3psi); }                                     ///< Getter (rvalue) for output information: angle for third Fourier harmonic of azimuthal particle distribution
-  Int_t GetNev() && { return std::move(nev); }                                            ///< Getter (rvalue) for output information: requested number of events
-  Bool_t IsEmpty() && { return std::move(emptyEvent); }                                   ///< Getter (rvalue) for output information: if true - the event is empty
+  Int_t GetNtot() && { return Ntot; }                                          ///< Getter (rvalue) for output information: generated value of total event multiplicity (Ntot=Nhyd+Npyt)
+  Int_t GetNpyt() && { return Npyt; }                                          ///< Getter (rvalue) for output information: generated multiplicity of "hard" jet-induced particles
+  Int_t GetNhyd() && { return Nhyd; }                                          ///< Getter (rvalue) for output information: generated multiplicity of "soft" hydro-induced particles
+  Int_t GetNjet() && { return Njet; }                                          ///< Getter (rvalue) for output information: generated number of hard parton-parton scatterings with pt>fPtmin
+  Int_t GetNbcol() && { return Nbcol; }                                        ///< Getter (rvalue) for output information: mean number of binary NN sub-collisions at given "Bgen"
+  Int_t GetNpart() && { return Npart; }                                        ///< Getter (rvalue) for output information: mean number of nucleons-participants at given "Bgen"
+  Double_t GetBgen() && { return Bgen; }                                       ///< Getter (rvalue) for output information: generated value of impact parameter in units of nucleus radius RA
+  Double_t GetSigin() && { return Sigin; }                                     ///< Getter (rvalue) for output information: total inelastic NN cross section at given "fSqrtS" (in mb)
+  Double_t GetSigjet() && { return Sigjet; }                                   ///< Getter (rvalue) for output information: hard scattering NN cross section at given "fSqrtS"  &  &  "fPtmin" (in mb)
+  Double_t GetPsiv3() && { return v3psi; }                                     ///< Getter (rvalue) for output information: angle for third Fourier harmonic of azimuthal particle distribution
+  Int_t GetNev() && { return nev; }                                            ///< Getter (rvalue) for output information: requested number of events
+  Bool_t IsEmpty() && { return emptyEvent; }                                   ///< Getter (rvalue) for output information: if true - the event is empty
   std::vector<Int_t> GetVersion() && { return std::move(Version); }                       ///< Getter (rvalue) for output information: version information
 
 private:
