@@ -6,15 +6,15 @@
 #include "GeneratorInterface/Hydjet2Interface/interface/Hydjet2Hadronizer.h"
 
 namespace edm {
-template <>
-inline GeneratorFilter<gen::Hydjet2Hadronizer, gen::ExternalDecayDriver>::GeneratorFilter(ParameterSet const &ps)
-    : hadronizer_(ps, consumesCollector()) {
-  init(ps);
-}
-} // namespace edm
+  template <>
+  inline GeneratorFilter<gen::Hydjet2Hadronizer, gen::ExternalDecayDriver>::GeneratorFilter(ParameterSet const &ps)
+      : hadronizer_(ps, consumesCollector()) {
+    init(ps);
+  }
+}  // namespace edm
 
 namespace gen {
-typedef edm::GeneratorFilter<gen::Hydjet2Hadronizer, gen::ExternalDecayDriver> Hydjet2GeneratorFilter;
+  typedef edm::GeneratorFilter<gen::Hydjet2Hadronizer, gen::ExternalDecayDriver> Hydjet2GeneratorFilter;
 }
 
 #endif
