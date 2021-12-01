@@ -262,7 +262,7 @@ void popcon::EcalChannelStatusHandler::pedOnlineMasking() {
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
 
   std::map<EcalLogicID, RunCrystalErrorsDat> theMask;
-  EcalErrorMask::fetchDataSet(&theMask);
+  ecalErrorMask_.fetchDataSet(&theMask);
 
   if (!theMask.empty()) {
     std::map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
@@ -303,7 +303,7 @@ void popcon::EcalChannelStatusHandler::pedMasking() {
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
 
   std::map<EcalLogicID, RunCrystalErrorsDat> theMask;
-  EcalErrorMask::fetchDataSet(&theMask);
+  ecalErrorMask_.fetchDataSet(&theMask);
 
   if (!theMask.empty()) {
     std::map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
@@ -338,7 +338,7 @@ void popcon::EcalChannelStatusHandler::laserMasking() {
   bits03 |= EcalErrorDictionary::getMask("LASER_RMS_TIMING_WARNING");
 
   std::map<EcalLogicID, RunCrystalErrorsDat> theMask;
-  EcalErrorMask::fetchDataSet(&theMask);
+  ecalErrorMask_.fetchDataSet(&theMask);
 
   if (!theMask.empty()) {
     std::map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
@@ -369,7 +369,7 @@ void popcon::EcalChannelStatusHandler::physicsMasking() {
   bits03 |= EcalErrorDictionary::getMask("PHYSICS_BAD_CHANNEL_ERROR");
 
   std::map<EcalLogicID, RunCrystalErrorsDat> theMask;
-  EcalErrorMask::fetchDataSet(&theMask);
+  ecalErrorMask_.fetchDataSet(&theMask);
 
   if (!theMask.empty()) {
     std::map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
@@ -1996,7 +1996,7 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
 
         // here we read the list of masked channel in the DB for this run and create masked channels std::maps
         std::cout << "Fetching masked channels from DB" << std::endl;
-        EcalErrorMask::readDB(econn, &runiov_prime);
+        ecalErrorMask_.readDB(econn, &runiov_prime);
 
         // -----------------------------------------------------------------------------------
         // here we do all the different types of analyses
