@@ -395,6 +395,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
     externalVariables = cms.PSet(
         mvaTTH = ExtVar(cms.InputTag("electronMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
+        fsrPhotonIdx = ExtVar(cms.InputTag("leptonFSRphotons:eleFsrIndex"),int, doc="Index of the lowest-dR/ET2 among associated FSR photons"),
     ),
 )
 
@@ -554,7 +555,8 @@ electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCM
 )
 
 (run3_nanoAOD_devel).toReplaceWith(electronTablesTask, electronTablesTask.copyAndExclude([electronMVATTH]))
-(run3_nanoAOD_devel).toModify(electronTable, externalVariables = None)
+(run3_nanoAOD_devel).toModify(electronTable, externalVariables = cms.PSet(fsrPhotonIdx = ExtVar(cms.InputTag("leptonFSRphotons:eleFsrIndex"),int, doc="Index of the  lowest-dR/ET2 among associated FSR photons")),
+)
 ##### end TEMPORARY Run3
 
 

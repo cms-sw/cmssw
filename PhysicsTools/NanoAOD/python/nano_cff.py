@@ -23,7 +23,7 @@ from PhysicsTools.NanoAOD.isotracks_cff import *
 from PhysicsTools.NanoAOD.protons_cff import *
 from PhysicsTools.NanoAOD.btagWeightTable_cff import *
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
-
+from PhysicsTools.NanoAOD.fsrPhotons_cff import *
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -66,7 +66,7 @@ nanoTableTaskCommon = cms.Task(
      electronTask , lowPtElectronTask, photonTask,
      vertexTask, isoTrackTask, jetLepTask,  # must be after all the leptons
      cms.Task(linkedObjects),
-     jetTablesTask, muonTablesTask, tauTablesTask, boostedTauTablesTask,
+     jetTablesTask, muonTablesTask, fsrTablesTask, tauTablesTask, boostedTauTablesTask,
      electronTablesTask, lowPtElectronTablesTask, photonTablesTask,
      globalTablesTask, vertexTablesTask, metTablesTask, simpleCleanerTable, extraFlagsTableTask,
      isoTrackTablesTask
