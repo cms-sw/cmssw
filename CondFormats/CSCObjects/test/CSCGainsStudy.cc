@@ -21,7 +21,7 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-CSCGainsStudy::CSCGainsStudy(const ParameterSet& pset) {
+CSCGainsStudy::CSCGainsStudy(const ParameterSet& pset) : gainsToken{esConsumes()} {
   // Get the various input parameters
   debug = pset.getUntrackedParameter<bool>("debug");
   rootFileName = pset.getUntrackedParameter<string>("rootFileName");
@@ -136,6 +136,8 @@ CSCGainsStudy::~CSCGainsStudy() {
   theFile->Close();
   if (debug)
     cout << "************* Finished writing histograms to file" << endl;
+
+  delete theFile;
 }
 
 /* analyze
@@ -143,9 +145,7 @@ CSCGainsStudy::~CSCGainsStudy() {
  */
 void CSCGainsStudy::analyze(const Event& event, const EventSetup& eventSetup) {
   // Get the gains and compute global gain average to store for later use in strip calibration
-  edm::ESHandle<CSCGains> hGains;
-  eventSetup.get<CSCGainsRcd>().get(hGains);
-  const CSCGains* hGains_ = &*hGains.product();
+  const CSCGains* hGains_ = &eventSetup.getData(gainsToken);
 
   // Store so it can be used in member functions
   pGains = hGains_;
