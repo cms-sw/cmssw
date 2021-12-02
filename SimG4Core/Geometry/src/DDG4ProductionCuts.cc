@@ -89,7 +89,7 @@ void DDG4ProductionCuts::initialize() {
     if (num != 1) {
       throw cms::Exception("SimG4CoreGeometry", " DDG4ProductionCuts::initialize: Problem with Region tags.");
       return;
-    } 
+    }
     if (regionName != curName) {
       edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : regionName " << regionName << ", the store of size "
                                    << store->size();
@@ -97,7 +97,7 @@ void DDG4ProductionCuts::initialize() {
       edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : region " << region->GetName();
       if (nullptr == region) {
         throw cms::Exception("SimG4CoreGeometry", " DDG4ProductionCuts::initialize: Problem with Region tags.");
-	return;
+        return;
       }
       curName = regionName;
       edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : new G4Region " << vv.first->GetName();
