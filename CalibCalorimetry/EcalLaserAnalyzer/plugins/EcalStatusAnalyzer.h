@@ -4,11 +4,11 @@
 #include <map>
 
 #include <memory>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 
 class Timestamp;
 
-class EcalStatusAnalyzer : public edm::EDAnalyzer {
+class EcalStatusAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalStatusAnalyzer(const edm::ParameterSet& iConfig);
   ~EcalStatusAnalyzer() override;

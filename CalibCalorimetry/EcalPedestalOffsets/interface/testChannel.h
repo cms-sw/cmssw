@@ -12,7 +12,7 @@
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedResult.h"
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <map>
@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-class testChannel : public edm::EDAnalyzer {
+class testChannel : public edm::one::EDAnalyzer<> {
 public:
   //! Constructor
   testChannel(const edm::ParameterSet &ps);
