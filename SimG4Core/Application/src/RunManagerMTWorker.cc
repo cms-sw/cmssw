@@ -190,9 +190,10 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
     edm::LogVerbatim("SimG4CoreApplication") << "SD[" << k << "] " << itr->first;
 }
 
-RunManagerMTWorker::~RunManagerMTWorker() { resetTLS(); }
-
-void RunManagerMTWorker::resetTLS() { m_tls = nullptr; }
+RunManagerMTWorker::~RunManagerMTWorker() {
+  m_tls = nullptr;
+  delete m_UIsession;
+}
 
 void RunManagerMTWorker::beginRun(edm::EventSetup const& es) {
   for (auto& maker : m_sdMakers) {
@@ -255,20 +256,18 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   G4Threading::G4SetThreadId(thisID);
   G4UImanager::GetUIpointer()->SetUpForAThread(thisID);
   const std::string& uitype = m_pCustomUIsession.getUntrackedParameter<std::string>("Type", "MessageLogger");
-  CustomUIsession* ui = nullptr;
   if (uitype == "MessageLogger") {
-    ui = new CustomUIsession();
+    m_UIsession = new CustomUIsession();
   } else if (uitype == "MessageLoggerThreadPrefix") {
-    ui = new CustomUIsessionThreadPrefix(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix", ""),
-                                         thisID);
+    m_UIsession = new CustomUIsessionThreadPrefix(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix", ""), thisID);
   } else if (uitype == "FilePerThread") {
-    ui = new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile", ""), thisID);
+    m_UIsession = new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile", ""), thisID);
   } else {
     throw edm::Exception(edm::errors::Configuration)
         << "RunManagerMTWorker::initializeG4: Invalid value of CustomUIsession.Type '" << uitype
         << "', valid are MessageLogger, MessageLoggerThreadPrefix, FilePerThread";
   }
-  G4UImanager::GetUIpointer()->SetCoutDestination(ui);
+  G4UImanager::GetUIpointer()->SetCoutDestination(m_UIsession);
 
   // Initialize worker part of shared resources (geometry, physics)
   G4WorkerThread::BuildGeometryAndPhysicsVector();

@@ -30,6 +30,7 @@ class G4Event;
 class G4SimEvent;
 class G4Run;
 class SimTrackManager;
+class CustomUIsession;
 
 class RunAction;
 class EventAction;
@@ -77,7 +78,6 @@ public:
 private:
   void initializeTLS();
   void initializeUserActions();
-
   void initializeRun();
   void terminateRun();
 
@@ -86,7 +86,6 @@ private:
 
   void DumpMagneticField(const G4Field*, const std::string&) const;
 
-  void resetTLS();
   inline int getThreadIndex() const { return m_thread_index; }
 
   Generator m_generator;
@@ -117,6 +116,7 @@ private:
   struct TLSData;
   TLSData* m_tls{nullptr};
 
+  CustomUIsession* m_UIsession{nullptr};
   G4SimEvent* m_simEvent{nullptr};
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
