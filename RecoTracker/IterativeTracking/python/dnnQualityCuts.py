@@ -12,7 +12,6 @@ qualityCutDictionary = cms.PSet(
    PixelLessStep       =        cms.vdouble(-0.60, -0.40, 0.02),
    TobTecStep          =        cms.vdouble(-0.71, -0.58, -0.46), 
    JetCoreRegionalStep =        cms.vdouble(-0.53, -0.33, 0.18)
-
 )
 
 from Configuration.ProcessModifiers.trackdnn_CKF_cff import trackdnn_CKF
