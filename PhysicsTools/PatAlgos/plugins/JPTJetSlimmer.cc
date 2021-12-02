@@ -45,7 +45,7 @@ public:
         // Add specific : only reference to CaloJet collection. It is necessary for
         // recalibration JPTJet at MiniAod.
         const edm::RefToBase<reco::Jet>& jptjetRef = ijet.getCaloJetRef();
-        reco::CaloJet const * rawcalojet = dynamic_cast<reco::CaloJet const *>( &* jptjetRef);
+        reco::CaloJet const* rawcalojet = dynamic_cast<reco::CaloJet const*>(&*jptjetRef);
         int icalo = -1;
         int i = 0;
         for (auto const& icjet : *h_calojets) {
@@ -57,7 +57,7 @@ public:
         }
         reco::JPTJet::Specific tmp_specific;
         if (icalo < 0) {
-          // Add reference to the created CaloJet collection          
+          // Add reference to the created CaloJet collection
           reco::CaloJetRef myjet(pOut1RefProd, idxCaloJet++);
           tmp_specific.theCaloJetRef = edm::RefToBase<reco::Jet>(myjet);
           caloJets->push_back(*rawcalojet);
