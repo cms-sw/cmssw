@@ -20,6 +20,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TPostScript.h"
 #include "TCanvas.h"
 #include "TFile.h"
@@ -56,6 +57,8 @@ private:
                 TString chamber,
                 TPostScript *ps,
                 TCanvas *c1) const;
+
+  void make2DPlot(TH2F *effMon, TPostScript *ps, TCanvas *c1) const;
 
   // plots of data vs emulator
   std::string rootFileName_;
@@ -203,6 +206,22 @@ void CSCTriggerPrimitivesAnalyzer::makeDataVsEmulatorPlots() {
     }
   }
 
+  if (!useB904_) {
+    TH2F *h_lctDataSummary_eff = (TH2F *)directory->Get("lct_csctp_data_summary_eff");
+    make2DPlot(h_lctDataSummary_eff, ps, c1);
+    TH2F *h_alctDataSummary_eff = (TH2F *)directory->Get("alct_csctp_data_summary_eff");
+    make2DPlot(h_alctDataSummary_eff, ps, c1);
+    TH2F *h_clctDataSummary_eff = (TH2F *)directory->Get("clct_csctp_data_summary_eff");
+    make2DPlot(h_clctDataSummary_eff, ps, c1);
+
+    TH2F *h_lctEmulSummary_eff = (TH2F *)directory->Get("lct_csctp_emul_summary_eff");
+    make2DPlot(h_lctEmulSummary_eff, ps, c1);
+    TH2F *h_alctEmulSummary_eff = (TH2F *)directory->Get("alct_csctp_emul_summary_eff");
+    make2DPlot(h_alctEmulSummary_eff, ps, c1);
+    TH2F *h_clctEmulSummary_eff = (TH2F *)directory->Get("clct_csctp_emul_summary_eff");
+    make2DPlot(h_clctEmulSummary_eff, ps, c1);
+  }
+
   ps->Close();
   // close the DQM file
   theFile->Close();
@@ -262,6 +281,18 @@ void CSCTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
   diffMon->GetXaxis()->SetTitleSize(0.05);
   diffMon->GetYaxis()->SetTitleSize(0.05);
   diffMon->Draw("ep");
+  c1->Update();
+}
+
+void CSCTriggerPrimitivesAnalyzer::make2DPlot(TH2F *effMon, TPostScript *ps, TCanvas *c1) const {
+  ps->NewPage();
+
+  TString runTitle = "(CMS Run " + std::to_string(runNumber_) + ")";
+  if (useB904_)
+    runTitle = "(B904 Cosmic Run " + TString(B904RunNumber_) + ")";
+  gStyle->SetOptStat(0);
+  effMon->SetTitle(effMon->GetTitle() + runTitle);
+  effMon->Draw("colz");
   c1->Update();
 }
 
