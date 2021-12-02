@@ -1,7 +1,7 @@
 // $Id: EcalPerEvtMatacqAnalyzer.h
 
 #include <memory>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 
 class TTree;
 class TFile;
@@ -9,7 +9,7 @@ class TFile;
 #define N_samples 2560
 #define N_channels 1
 
-class EcalPerEvtMatacqAnalyzer : public edm::EDAnalyzer {
+class EcalPerEvtMatacqAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalPerEvtMatacqAnalyzer(const edm::ParameterSet& iConfig);
   ~EcalPerEvtMatacqAnalyzer() override;
