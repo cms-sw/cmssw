@@ -25,7 +25,9 @@ nanoDQMIO_perLSoutput = cms.PSet(
                 #'Muons/MuonIdDQM/GlobalMuons/hDT1Pullx'  #particular ME
             
               #Version 0.1 for nanoDQMIO in CMSSW_12_1_0 ReReco of Pilot Test Runs taken in Autumn 2021
-              
+ #DT
+ 'DT/02-Segments/03-MeanT0/T0MeanAllWheels',
+            
  #ECAL            
  'EcalBarrel/EBOccupancyTask/EBOT digi occupancy',
  'EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE -',
