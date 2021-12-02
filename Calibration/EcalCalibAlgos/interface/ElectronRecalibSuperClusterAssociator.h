@@ -7,7 +7,7 @@
 //
 // Description:
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,9 +20,7 @@
 
 #include <string>
 
-//class PixelMatchElectronAlgo;
-
-class ElectronRecalibSuperClusterAssociator : public edm::EDProducer {
+class ElectronRecalibSuperClusterAssociator : public edm::stream::EDProducer<> {
 public:
   explicit ElectronRecalibSuperClusterAssociator(const edm::ParameterSet& conf);
 

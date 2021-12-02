@@ -10,9 +10,7 @@
 #include "CalibCalorimetry/EcalLaserSorting/src/Majority.h"
 
 #include <iostream>
-//#include <fstream>
 #include <iomanip>
-//#include <limits>
 #include <algorithm>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -1156,6 +1154,6 @@ void LaserSorter::restoreStreamsOfLumiBlock(int lumiBlock) {
   }
 }
 
-void LaserSorter::beginRun(edm::Run const& run, edm::EventSetup const& es) {
-  //  cout << "Run starts at :" << run.runAuxiliary().beginTime().value() << "\n";
-}
+void LaserSorter::beginRun(edm::Run const& run, edm::EventSetup const& es) {}
+
+void LaserSorter::endRun(edm::Run const& run, edm::EventSetup const& es) {}
