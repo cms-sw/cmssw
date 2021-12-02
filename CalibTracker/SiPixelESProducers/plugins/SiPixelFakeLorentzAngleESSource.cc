@@ -34,7 +34,7 @@
 SiPixelFakeLorentzAngleESSource::SiPixelFakeLorentzAngleESSource(const edm::ParameterSet& conf_)
     : fp_(conf_.getParameter<edm::FileInPath>("file")),
       t_topo_fp_(conf_.getParameter<edm::FileInPath>("topologyInput")),
-      myLabel_(conf_.getParameter<std::string>("label")),
+      myLabel_(conf_.getParameter<std::string>("appendToDataLabel")),
       BPixParameters_(conf_.getParameter<Parameters>("BPixParameters")),
       FPixParameters_(conf_.getParameter<Parameters>("FPixParameters")),
       ModuleParameters_(conf_.getParameter<Parameters>("ModuleParameters")),
@@ -42,7 +42,7 @@ SiPixelFakeLorentzAngleESSource::SiPixelFakeLorentzAngleESSource(const edm::Para
       fPixLorentzAnglePerTesla_((float)conf_.getUntrackedParameter<double>("fPixLorentzAnglePerTesla", -9999.)) {
   edm::LogInfo("SiPixelFakeLorentzAngleESSource::SiPixelFakeLorentzAngleESSource");
   // the following line is needed to tell the framework what data is being produced
-  setWhatProduced(this, myLabel_);
+  setWhatProduced(this);
   findingRecord<SiPixelLorentzAngleRcd>();
 }
 
@@ -246,7 +246,7 @@ void SiPixelFakeLorentzAngleESSource::fillDescriptions(edm::ConfigurationDescrip
                             edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml"))
       ->setComment("Tracker Topology");
 
-  desc.add<std::string>("label", "")->setComment("label to which write the data");
+  desc.add<std::string>("appendToDataLabel", "")->setComment("label to which write the data");
   desc.addUntracked<double>("bPixLorentzAnglePerTesla", -9999.)->setComment("LA value for all BPix");
   desc.addUntracked<double>("fPixLorentzAnglePerTesla", -9999.)->setComment("LA value for all FPix");
 
