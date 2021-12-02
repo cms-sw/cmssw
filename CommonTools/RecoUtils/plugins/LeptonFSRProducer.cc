@@ -185,6 +185,7 @@ void LeptonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, cons
         // Candidate matching
         dRMin = dR;
         closestEle = eleIdx;
+        closestMu = -1;  // reset match to muons
       }
     }  // end loop on electrons
 
