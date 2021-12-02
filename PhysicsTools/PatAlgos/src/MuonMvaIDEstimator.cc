@@ -7,7 +7,6 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
-
 using namespace pat;
 using namespace cms::Ort;
 
