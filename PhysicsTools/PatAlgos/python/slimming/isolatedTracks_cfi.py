@@ -30,7 +30,7 @@ _exoDisappearingTrackCut = (
     "lostInnerLayers == 0 &&"+
     "lostLayers == 0 &&"+
     "lostOuterLayers >= 1 &&"+
-    "(pfIsolationDR03().chargedHadronIso + pfIsolationDR03().neutralHadronIso + pfIsolationDR03().photonIso)/pt < 0.1"
+    "(pfIsolationDR03().chargedHadronIso)/pt < 0.1"
 )
 isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     tkAssocParamBlock,
