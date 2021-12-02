@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -38,7 +38,7 @@
 // class declaration
 //
 
-class ValueMapTraslator : public edm::EDProducer {
+class ValueMapTraslator : public edm::stream::EDProducer<> {
   typedef double value_t;
   typedef edm::ValueMap<value_t> Map_t;
 
