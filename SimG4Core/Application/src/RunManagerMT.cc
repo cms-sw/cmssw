@@ -90,9 +90,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_check = p.getUntrackedParameter<bool>("CheckGeometry", false);
 }
 
-RunManagerMT::~RunManagerMT() {
-  delete m_UIsession;
-}
+RunManagerMT::~RunManagerMT() { delete m_UIsession; }
 
 void RunManagerMT::initG4(const DDCompactView* pDD,
                           const cms::DDCompactView* pDD4hep,
