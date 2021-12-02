@@ -89,7 +89,6 @@ PFClusterProducerCudaHCAL::PFClusterProducerCudaHCAL(const edm::ParameterSet& co
   clusterTree->Branch("rechits_z", &__rh_z);
   clusterTree->Branch("rechits_eta", &__rh_eta);
   clusterTree->Branch("rechits_phi", &__rh_phi);
-  clusterTree->Branch("rechits_pt2", &__rh_pt2);
   clusterTree->Branch("rechits_neighbours4", &__rh_neighbours4);
   clusterTree->Branch("rechits_neighbours8", &__rh_neighbours8);
 #endif
@@ -320,6 +319,14 @@ PFClusterProducerCudaHCAL::~PFClusterProducerCudaHCAL()
   deltaEn->Write();
   deltaEta->Write();
   deltaPhi->Write();
+#ifdef DEBUG_GPU_HCAL
+  std::cout<<"\n--- CPU/GPU Comparison plots ---\nPlot\t\tEntries\tMean\t\tRMS\n\n"
+           <<"deltaRH\t\t"<<deltaRH->GetEntries()<<"\t"<<deltaRH->GetMean()<<"\t\t"<<deltaRH->GetRMS()<<std::endl
+           <<"deltaEn\t\t"<<deltaEn->GetEntries()<<"\t"<<deltaEn->GetMean()<<"\t"<<deltaEn->GetRMS()<<std::endl
+           <<"deltaEta\t"<<deltaEta->GetEntries()<<"\t"<<deltaEta->GetMean()<<"\t"<<deltaEta->GetRMS()<<std::endl
+           <<"deltaPhi\t"<<deltaPhi->GetEntries()<<"\t"<<deltaPhi->GetMean()<<"\t"<<deltaPhi->GetRMS()<<std::endl<<std::endl;
+#endif
+  
   if (numEvents > 10) {
       // Skip first 10 entries
       hTimers->Scale(1. / (numEvents - 10.));
@@ -386,6 +393,8 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     };
 
     lambdaToTransferSize(tmpPFRecHits.pfrh_detId, PFRecHits.pfrh_detId.get(), PFRecHits.size);
+//    lambdaToTransferSize(tmpPFRecHits.pfrh_layer, PFRecHits.pfrh_layer.get(), PFRecHits.size);
+//    lambdaToTransferSize(tmpPFRecHits.pfrh_pt2, PFRecHits.pfrh_pt2.get(), PFRecHits.size);
     if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
 //
 //    std::cout<<"\nPFClusterProducer found first 10 PFRecHit detIds:\n";
@@ -430,7 +439,6 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   __rh_z.clear();
   __rh_eta.clear();
   __rh_phi.clear();
-  __rh_pt2.clear();
   __rh_neighbours4.clear();
   __rh_neighbours8.clear();
 #endif
@@ -454,7 +462,6 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     inputCPU.pfrh_y[p]=rh.position().y();
     inputCPU.pfrh_z[p]=rh.position().z();
     inputCPU.pfrh_energy[p]=rh.energy();
-    inputCPU.pfrh_pt2[p]=rh.pt2();
     inputCPU.pfrh_layer[p]=(int)rh.layer();
     inputCPU.pfrh_depth[p]=(int)rh.depth();
 
@@ -466,7 +473,6 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     __rh_z.push_back(inputCPU.pfrh_z[p]);
     __rh_eta.push_back(rh.positionREP().eta());
     __rh_phi.push_back(rh.positionREP().phi()); 
-    __rh_pt2.push_back(inputCPU.pfrh_pt2[p]);
 #endif
     std::vector<int> n4;
     std::vector<int> n8;
@@ -525,7 +531,6 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   cudaCheck(cudaMemcpyAsync(inputGPU.pfrh_y.get(), inputCPU.pfrh_y.get(), numbytes_float, cudaMemcpyHostToDevice, cudaStream));
   cudaCheck(cudaMemcpyAsync(inputGPU.pfrh_z.get(), inputCPU.pfrh_z.get(), numbytes_float, cudaMemcpyHostToDevice, cudaStream));
   cudaCheck(cudaMemcpyAsync(inputGPU.pfrh_energy.get(), inputCPU.pfrh_energy.get(), numbytes_float, cudaMemcpyHostToDevice, cudaStream));
-  cudaCheck(cudaMemcpyAsync(inputGPU.pfrh_pt2.get(), inputCPU.pfrh_pt2.get(), numbytes_float, cudaMemcpyHostToDevice, cudaStream));
   cudaCheck(cudaMemcpyAsync(inputGPU.pfrh_layer.get(), inputCPU.pfrh_layer.get(), numbytes_int, cudaMemcpyHostToDevice, cudaStream));
   cudaCheck(cudaMemcpyAsync(inputGPU.pfrh_depth.get(), inputCPU.pfrh_depth.get(), numbytes_int, cudaMemcpyHostToDevice, cudaStream));
   cudaCheck(cudaMemcpyAsync(inputGPU.pfNeighEightInd.get(), inputCPU.pfNeighEightInd.get(), numbytes_int*8, cudaMemcpyHostToDevice, cudaStream));  
@@ -631,8 +636,11 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   cudaCheck(cudaMemcpyAsync(outputCPU.pcrh_frac.get()       , outputGPU.pcrh_frac.get()  , sizeof(int) * nFracs , cudaMemcpyDeviceToHost, cudaStream));
   cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_isSeed.get()    , outputGPU.pfrh_isSeed.get()  , numbytes_int , cudaMemcpyDeviceToHost, cudaStream));
   cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_topoId.get()    , outputGPU.pfrh_topoId.get()  , numbytes_int , cudaMemcpyDeviceToHost, cudaStream));
-  
-//  cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_passTopoThresh.get(), outputGPU.pfrh_passTopoThresh.get(), sizeof(bool)*rh_size, cudaMemcpyDeviceToHost, cudaStream));
+
+  std::cout<<"Now copying pfrh_passTopoThresh"<<std::endl;
+  //cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_passTopoThresh.get(), outputGPU.pfrh_passTopoThresh.get(), sizeof(bool)*rh_size, cudaMemcpyDeviceToHost, cudaStream));
+  cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_passTopoThresh.get(), outputGPU.pfrh_passTopoThresh.get(), sizeof(int)*rh_size, cudaMemcpyDeviceToHost, cudaStream));
+  std::cout<<"Done copying pfrh_passTopoThresh"<<std::endl;
 
 #ifdef DEBUG_GPU_HCAL
   cudaEventRecord(stop, cudaStream);
@@ -702,15 +710,15 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 
     nPFCluster_GPU->Fill(intTopoCount);
 
-//  if(doComparison){ 
-//      for(unsigned int i=0;i<rh_size;i++){
-//        int topoIda = outputCPU.pfrh_topoId[i];
-//        if (nTopoSeeds.count(topoIda) == 0) continue;
-//        for(unsigned int j=0;j<8;j++){
-//          if(inputCPU.pfNeighEightInd[i*8+j]>-1 && outputCPU.pfrh_topoId[inputCPU.pfNeighEightInd[i*8+j]]!=topoIda && outputCPU.pfrh_passTopoThresh[i*8+j]) std::cout<<"HCAL HAS DIFFERENT TOPOID "<<i<<"  "<<j<<"  "<<topoIda<<"  "<<outputCPU.pfrh_topoId[inputCPU.pfNeighEightInd[i*8+j]]<<std::endl; 
-//        }
-//      }
-//  }
+  if(doComparison){ 
+      for(unsigned int i=0;i<rh_size;i++){
+        int topoIda = outputCPU.pfrh_topoId[i];
+        if (nTopoSeeds.count(topoIda) == 0) continue;
+        for(unsigned int j=0;j<8;j++){
+          if(inputCPU.pfNeighEightInd[i*8+j]>-1 && outputCPU.pfrh_topoId[inputCPU.pfNeighEightInd[i*8+j]]!=topoIda && outputCPU.pfrh_passTopoThresh[i*8+j]) std::cout<<"HCAL HAS DIFFERENT TOPOID "<<i<<"  "<<j<<"  "<<topoIda<<"  "<<outputCPU.pfrh_topoId[inputCPU.pfNeighEightInd[i*8+j]]<<std::endl; 
+        }
+      }
+  }
   
   topoIter = outputCPU.topoIter[0];
   topoIterations->Fill(topoIter);

@@ -440,10 +440,13 @@ static __device__ __forceinline__ float atomicMaxF(float *address, float val)
  __global__ void seedingTopoThreshKernel_HCAL(
      				size_t size, 
 				    const float* __restrict__ pfrh_energy,
-				    const float* __restrict__ pfrh_pt2,
+                    const float* __restrict__ pfrh_x,
+                    const float* __restrict__ pfrh_y,
+                    const float* __restrict__ pfrh_z,
 				    int*   pfrh_isSeed,
 				    int*   pfrh_topoId,
-                    bool*  pfrh_passTopoThresh,
+                    //bool*  pfrh_passTopoThresh,
+                    int*  pfrh_passTopoThresh,
 				    const int* __restrict__ pfrh_layer,
 				    const int* __restrict__ pfrh_depth,
 				    const int* __restrict__ neigh4_Ind,
@@ -470,29 +473,36 @@ static __device__ __forceinline__ float atomicMaxF(float *address, float val)
      topoSeedList[i] = -1;
      pfcIter[i] = -1;
 
+     int layer = pfrh_layer[i];
+     int depthOffset = pfrh_depth[i] - 1;
+     float energy = pfrh_energy[i];
+     float3 pos = make_float3(pfrh_x[i], pfrh_y[i], pfrh_z[i]);
+
+     // cmssdt.cern.ch/lxr/source/DataFormats/ParticleFlowReco/interface/PFRecHit.h#0108
+     float pt2 = energy * energy * (pos.x*pos.x + pos.y*pos.y) / (pos.x*pos.x + pos.y*pos.y + pos.z*pos.z);
+
      // Seeding threshold test
-     if ( (pfrh_layer[i] == PFLayer::HCAL_BARREL1 && pfrh_energy[i]>seedEThresholdEB_vec[pfrh_depth[i]-1] && pfrh_pt2[i]>seedPt2ThresholdEB) || 
-          (pfrh_layer[i] == PFLayer::HCAL_ENDCAP && pfrh_energy[i]>seedEThresholdEE_vec[pfrh_depth[i]-1] && pfrh_pt2[i]>seedPt2ThresholdEE) )
-       {
-	 pfrh_isSeed[i]=1;		 
-	 for(int k=0; k<nNeigh; k++){
-	   if(neigh4_Ind[nNeigh*i+k]<0) continue; 
-	   if(pfrh_energy[i]<pfrh_energy[neigh4_Ind[nNeigh*i+k]]){
-	     pfrh_isSeed[i]=0;
-	     //pfrh_topoId[i]=-1;	     
-	     break;
-	   }
+     if ( (layer == PFLayer::HCAL_BARREL1 && energy>seedEThresholdEB_vec[depthOffset] && pt2>seedPt2ThresholdEB) || 
+          (layer == PFLayer::HCAL_ENDCAP  && energy>seedEThresholdEE_vec[depthOffset] && pt2>seedPt2ThresholdEE) ) {
+         pfrh_isSeed[i]=1;		 
+         for(int k=0; k<nNeigh; k++){
+           if(neigh4_Ind[nNeigh*i+k]<0) continue; 
+           if(energy < pfrh_energy[neigh4_Ind[nNeigh*i+k]]){
+             pfrh_isSeed[i]=0;
+             //pfrh_topoId[i]=-1;	     
+             break;
+           }
 	 }		
        }
      else{ 
        // pfrh_topoId[i]=-1;
-       pfrh_isSeed[i]=0;
+         pfrh_isSeed[i]=0;
        	    
      }
     
      // Topo clustering threshold test
-     if ( (pfrh_layer[i] == PFLayer::HCAL_ENDCAP && pfrh_energy[i]>topoEThresholdEE_vec[pfrh_depth[i]-1]) ||
-             (pfrh_layer[i] == PFLayer::HCAL_BARREL1 && pfrh_energy[i]>topoEThresholdEB_vec[pfrh_depth[i]-1])) {
+     if ( (layer == PFLayer::HCAL_ENDCAP  && energy>topoEThresholdEE_vec[depthOffset]) ||
+          (layer == PFLayer::HCAL_BARREL1 && energy>topoEThresholdEB_vec[depthOffset])) {
             pfrh_passTopoThresh[i] = true;
         }
      //else { pfrh_passTopoThresh[i] = false; }
@@ -3181,7 +3191,8 @@ __global__ void topoClusterLinking(int nRH,
     int* pfrh_edgeId,
     int* pfrh_edgeList,
     int* pfrh_edgeMask,
-    const bool* pfrh_passTopoThresh,
+    //const bool* pfrh_passTopoThresh,
+    const int* pfrh_passTopoThresh,
     int* topoIter) {
 
     __shared__ bool notDone;
@@ -3333,19 +3344,17 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
     
     seedingTopoThreshKernel_HCAL<<<(nRH+63)/64, 128, 0, cudaStream>>>(
         nRH,
-        inputGPU.pfrh_energy.get(),
-        //inputPFRecHits.pfrh_energy.get(),
-        inputGPU.pfrh_pt2.get(),
-        //inputPFRecHits.pfrh_pt2.get(),  // this might be the problem?
+        inputPFRecHits.pfrh_energy.get(),
+        inputPFRecHits.pfrh_x.get(),
+        inputPFRecHits.pfrh_y.get(),
+        inputPFRecHits.pfrh_z.get(),
         outputGPU.pfrh_isSeed.get(),
         outputGPU.pfrh_topoId.get(),
         outputGPU.pfrh_passTopoThresh.get(),
-        inputGPU.pfrh_layer.get(),
-        inputGPU.pfrh_depth.get(),
-        //inputPFRecHits.pfrh_layer.get(),
-        //inputPFRecHits.pfrh_depth.get(),
+        inputPFRecHits.pfrh_layer.get(),
+        inputPFRecHits.pfrh_depth.get(),
         inputGPU.pfNeighFourInd.get(),
-        inputGPU.rhcount.get(),
+        scratchGPU.rhcount.get(),
         outputGPU.topoSeedCount.get(),
         outputGPU.topoRHCount.get(),
         outputGPU.seedFracOffsets.get(),
@@ -3364,7 +3373,7 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
         inputPFRecHits.pfrh_layer.get(),
         inputPFRecHits.pfrh_depth.get(),
         inputGPU.pfNeighFourInd.get(),
-        inputGPU.rhcount.get(),
+        scratchGPU.rhcount.get(),
         outputGPU.topoSeedCount.get(),
         outputGPU.topoRHCount.get(),
         outputGPU.seedFracOffsets.get(),
@@ -3396,7 +3405,7 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
         nRH,
         outputGPU.pfrh_topoId.get(),
         outputGPU.pfrh_isSeed.get(),
-        inputGPU.rhcount.get(),
+        scratchGPU.rhcount.get(),
         outputGPU.topoSeedCount.get(),
         outputGPU.topoRHCount.get(),
         outputGPU.seedFracOffsets.get(),
@@ -3423,7 +3432,7 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
         outputGPU.topoSeedCount.get(),
         outputGPU.topoRHCount.get(),
         outputGPU.seedFracOffsets.get(),
-        inputGPU.rhcount.get(),
+        scratchGPU.rhcount.get(),
         outputGPU.pcrh_fracInd.get());
    
 #ifdef DEBUG_GPU_HCAL
@@ -3437,19 +3446,19 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
     
     hcalFastCluster_selection<<<nRH, 256, 0, cudaStream>>>(
         nRH,
-        inputGPU.pfrh_x.get(),
-        inputGPU.pfrh_y.get(),
-        inputGPU.pfrh_z.get(),
-        inputGPU.pfrh_energy.get(),
+        inputPFRecHits.pfrh_x.get(),
+        inputPFRecHits.pfrh_y.get(),
+        inputPFRecHits.pfrh_z.get(),
+        inputPFRecHits.pfrh_energy.get(),
         outputGPU.pfrh_topoId.get(),
         outputGPU.pfrh_isSeed.get(),
-        inputGPU.pfrh_layer.get(),
-        inputGPU.pfrh_depth.get(),
+        inputPFRecHits.pfrh_layer.get(),
+        inputPFRecHits.pfrh_depth.get(),
         inputGPU.pfNeighFourInd.get(),
         outputGPU.pcrh_frac.get(),
         outputGPU.pcrh_fracInd.get(),
         inputGPU.pcrh_fracSum.get(),
-        inputGPU.rhcount.get(),
+        scratchGPU.rhcount.get(),
         outputGPU.topoSeedCount.get(),
         outputGPU.topoRHCount.get(),
         outputGPU.seedFracOffsets.get(),
@@ -3475,7 +3484,7 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
         outputGPU.pcrh_frac.get(),
         outputGPU.pcrh_fracInd.get(),
         inputGPU.pcrh_fracSum.get(),
-        inputGPU.rhcount.get(),
+        scratchGPU.rhcount.get(),
         outputGPU.topoSeedCount.get(),
         outputGPU.topoRHCount.get(),
         outputGPU.seedFracOffsets.get(),
@@ -3513,7 +3522,8 @@ void PFRechitToPFCluster_HCAL_CCLClustering(cudaStream_t cudaStream,
                 int* pfrh_edgeId,
                 int* pfrh_edgeList,
                 int* pfrh_edgeMask,
-                bool* pfrh_passTopoThresh,
+                //bool* pfrh_passTopoThresh,
+                int* pfrh_passTopoThresh,
                 int* pcrhfracind,
 				float* pcrhfrac,
 				float* fracSum,
@@ -3542,7 +3552,7 @@ void PFRechitToPFCluster_HCAL_CCLClustering(cudaStream_t cudaStream,
 #endif
     
     // Combined seeding & topo clustering thresholds
-    seedingTopoThreshKernel_HCAL<<<(nRH+63)/64, 128, 0, cudaStream>>>(nRH, pfrh_energy, pfrh_pt2, pfrh_isSeed, pfrh_topoId, pfrh_passTopoThresh, pfrh_layer, pfrh_depth, neigh4_Ind, rhCount, topoSeedCount, topoRHCount, seedFracOffsets, topoSeedOffsets, topoSeedList, pfcIter);
+    seedingTopoThreshKernel_HCAL<<<(nRH+63)/64, 128, 0, cudaStream>>>(nRH, pfrh_energy, pfrh_x, pfrh_y, pfrh_z, pfrh_isSeed, pfrh_topoId, pfrh_passTopoThresh, pfrh_layer, pfrh_depth, neigh4_Ind, rhCount, topoSeedCount, topoRHCount, seedFracOffsets, topoSeedOffsets, topoSeedList, pfcIter);
 #ifdef DEBUG_GPU_HCAL
     cudaEventRecord(stop, cudaStream);
     cudaEventSynchronize(stop);   

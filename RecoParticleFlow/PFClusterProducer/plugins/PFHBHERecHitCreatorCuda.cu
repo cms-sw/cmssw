@@ -6,6 +6,7 @@
 #include "RecoLocalCalo/HcalRecProducers/src/DeclsForKernels.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/SimplePFGPUAlgos.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
 // Uncomment for debug mode
 #define DEBUG_ENABLE
@@ -70,11 +71,9 @@ namespace pf {
 						 const uint32_t* recHits_did,
 						 int* pfrechits_depth,
 						 int* pfrechits_layer,
-						 int* pfrechits_caloId,
 						 int* pfrechits_detId,
 						 float* pfrechits_time,
 						 float* pfrechits_energy,
-						 float* pfrechits_pt2,
 						 float* pfrechits_x,
 						 float* pfrechits_y,
 						 float* pfrechits_z,
@@ -86,13 +85,27 @@ namespace pf {
           int i = pfrhToInputIdx[pfIdx]; // Get index corresponding to rechit input array
           if (i < 0) printf("convert kernel with pfIdx = %u has input index i = %u\n", pfIdx, i);
           pfrechits_time[pfIdx] = recHits_timeM0[i];
-          pfrechits_energy[pfIdx] = recHits_energy[i];
+          float energy = recHits_energy[i];
+          pfrechits_energy[pfIdx] = energy;
           
           uint32_t detid = recHits_did[i];
           pfrechits_detId[pfIdx] = detid;
 
           // cmssdt.cern.ch/lxr/source/DataFormats/HcalDetId/interface/HcalDetId.h#0168
           pfrechits_depth[pfIdx] = (detid >> 20) & 0xf;
+
+          // cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0050
+          int subdet = (detid >> 25) & 0x7;
+          int layer = 0;
+          if (subdet == HcalBarrel)
+            layer = PFLayer::HCAL_BARREL1;
+          else if (subdet == HcalEndcap)
+            layer = PFLayer::HCAL_ENDCAP;
+          else
+            printf("Invalid subdetector (%d) for detId %d\n", subdet, detid);
+          
+          pfrechits_layer[pfIdx] = layer;
+
 
           int index = rh_inputToFullIdx[i];  // Determine table index corresponding to this detId
           if (index < 0) printf("convert kernel with pfIdx = %u has full index = %u\n", pfIdx, index);
@@ -441,11 +454,9 @@ namespace pf {
             HBHERecHits_asInput.did.get(),
             HBHEPFRecHits_asOutput.PFRecHits.pfrh_depth.get(),
             HBHEPFRecHits_asOutput.PFRecHits.pfrh_layer.get(),
-            HBHEPFRecHits_asOutput.PFRecHits.pfrh_caloId.get(),
             HBHEPFRecHits_asOutput.PFRecHits.pfrh_detId.get(),
             HBHEPFRecHits_asOutput.PFRecHits.pfrh_time.get(),
             HBHEPFRecHits_asOutput.PFRecHits.pfrh_energy.get(),
-            HBHEPFRecHits_asOutput.PFRecHits.pfrh_pt2.get(),
             HBHEPFRecHits_asOutput.PFRecHits.pfrh_x.get(),
             HBHEPFRecHits_asOutput.PFRecHits.pfrh_y.get(),
             HBHEPFRecHits_asOutput.PFRecHits.pfrh_z.get(),

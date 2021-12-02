@@ -103,7 +103,6 @@ private:
   std::vector<float>  __rh_z;
   std::vector<float>  __rh_eta;
   std::vector<float>  __rh_phi;
-  std::vector<float> __rh_pt2;
   // rechit neighbours4, neighbours8 vectors
   std::vector<std::vector<int>> __rh_neighbours4;
   std::vector<std::vector<int>> __rh_neighbours8;
@@ -520,7 +519,6 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
   lambdaToTransferSize(tmpPFRecHits.pfrh_neighbourInfos, outputGPU.PFRecHits.pfrh_neighbourInfos.get(), 8*nPFRHTotal);
   lambdaToTransferSize(tmpPFRecHits.pfrh_time, outputGPU.PFRecHits.pfrh_time.get(), nPFRHTotal);
   lambdaToTransferSize(tmpPFRecHits.pfrh_energy, outputGPU.PFRecHits.pfrh_energy.get(), nPFRHTotal);
-  lambdaToTransferSize(tmpPFRecHits.pfrh_pt2, outputGPU.PFRecHits.pfrh_pt2.get(), nPFRHTotal);
   lambdaToTransferSize(tmpPFRecHits.pfrh_x, outputGPU.PFRecHits.pfrh_x.get(), nPFRHTotal);
   lambdaToTransferSize(tmpPFRecHits.pfrh_y, outputGPU.PFRecHits.pfrh_y.get(), nPFRHTotal);
   lambdaToTransferSize(tmpPFRecHits.pfrh_z, outputGPU.PFRecHits.pfrh_z.get(), nPFRHTotal);
@@ -593,8 +591,6 @@ void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
   __rh_eta.reserve((int)pfrhLegacy->size());
   __rh_phi.clear();
   __rh_phi.reserve((int)pfrhLegacy->size());
-  __rh_pt2.clear();
-  __rh_pt2.reserve((int)pfrhLegacy->size());
   __rh_neighbours4.clear();
   __rh_neighbours4.reserve((int)pfrhLegacy->size());
   __rh_neighbours8.clear();
@@ -607,7 +603,6 @@ void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
     __rh_z.push_back(pos.z());
     __rh_eta.push_back(pfrh.positionREP().eta());
     __rh_phi.push_back(pfrh.positionREP().phi());
-    __rh_pt2.push_back(pfrh.pt2());
     std::vector<int> n4, n8;
     for (auto n : pfrh.neighbours4()) {
         n4.push_back(n);

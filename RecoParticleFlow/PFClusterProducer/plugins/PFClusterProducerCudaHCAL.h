@@ -247,7 +247,6 @@ public:
   std::vector<float>  __rh_z;
   std::vector<float>  __rh_eta;
   std::vector<float>  __rh_phi;
-  std::vector<float> __rh_pt2;
   // rechit neighbours4, neighbours8 vectors
   std::vector<std::vector<int>> __rh_neighbours4;
   std::vector<std::vector<int>> __rh_neighbours8;

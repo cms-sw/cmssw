@@ -20,15 +20,12 @@ namespace pf {
       void allocate(size_t Num_rechits, cudaStream_t cudaStream) {
         PFRecHits.pfrh_depth = cms::cuda::make_device_unique<int[]>(Num_rechits, cudaStream);
         PFRecHits.pfrh_layer = cms::cuda::make_device_unique<int[]>(Num_rechits, cudaStream);
-        PFRecHits.pfrh_caloId = cms::cuda::make_device_unique<int[]>(Num_rechits, cudaStream);
         PFRecHits.pfrh_detId = cms::cuda::make_device_unique<int[]>(Num_rechits, cudaStream);
         PFRecHits.pfrh_neighbours = cms::cuda::make_device_unique<int[]>(Num_rechits*8, cudaStream);
         PFRecHits.pfrh_neighbourInfos = cms::cuda::make_device_unique<short[]>(Num_rechits*8, cudaStream);
 
-
         PFRecHits.pfrh_time = cms::cuda::make_device_unique<float[]>(Num_rechits, cudaStream);
         PFRecHits.pfrh_energy = cms::cuda::make_device_unique<float[]>(Num_rechits, cudaStream);
-        PFRecHits.pfrh_pt2 = cms::cuda::make_device_unique<float[]>(Num_rechits, cudaStream);
         PFRecHits.pfrh_x = cms::cuda::make_device_unique<float[]>(Num_rechits, cudaStream);
         PFRecHits.pfrh_y = cms::cuda::make_device_unique<float[]>(Num_rechits, cudaStream);
         PFRecHits.pfrh_z = cms::cuda::make_device_unique<float[]>(Num_rechits, cudaStream);
@@ -94,7 +91,6 @@ namespace PFClustering {
       cms::cuda::host::unique_ptr<float[]> pfrh_y;
       cms::cuda::host::unique_ptr<float[]> pfrh_z;
       cms::cuda::host::unique_ptr<float[]> pfrh_energy;
-      cms::cuda::host::unique_ptr<float[]> pfrh_pt2;
 
       cms::cuda::host::unique_ptr<int[]> pfrh_layer;
       cms::cuda::host::unique_ptr<int[]> pfrh_depth;
@@ -108,7 +104,6 @@ namespace PFClustering {
         pfrh_y = cms::cuda::make_host_unique<float[]>(sizeof(float)*config.maxRH, cudaStream);
         pfrh_z = cms::cuda::make_host_unique<float[]>(sizeof(float)*config.maxRH, cudaStream);
         pfrh_energy = cms::cuda::make_host_unique<float[]>(sizeof(float)*config.maxRH, cudaStream);
-        pfrh_pt2 = cms::cuda::make_host_unique<float[]>(sizeof(float)*config.maxRH, cudaStream);
         pfrh_layer = cms::cuda::make_host_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
         pfrh_depth = cms::cuda::make_host_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
         pfNeighFourInd = cms::cuda::make_host_unique<int[]>(sizeof(int)*config.maxRH*4, cudaStream);
@@ -123,7 +118,8 @@ namespace PFClustering {
       cms::cuda::host::unique_ptr<int[]> pfrh_isSeed;
       cms::cuda::host::unique_ptr<float[]> pcrh_frac;
       cms::cuda::host::unique_ptr<int[]> pcrh_fracInd;
-      cms::cuda::host::unique_ptr<bool[]> pfrh_passTopoThresh;
+      //cms::cuda::host::unique_ptr<bool[]> pfrh_passTopoThresh;
+      cms::cuda::host::unique_ptr<int[]> pfrh_passTopoThresh;
 
       cms::cuda::host::unique_ptr<int[]> topoSeedCount;
       cms::cuda::host::unique_ptr<int[]> topoRHCount;
@@ -140,7 +136,8 @@ namespace PFClustering {
         pfrh_isSeed = cms::cuda::make_host_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
         pcrh_frac = cms::cuda::make_host_unique<float[]>(sizeof(float)*config.maxPFCFracs, cudaStream);
         pcrh_fracInd = cms::cuda::make_host_unique<int[]>(sizeof(int)*config.maxPFCFracs, cudaStream);
-        pfrh_passTopoThresh = cms::cuda::make_host_unique<bool[]>(sizeof(bool)*config.maxRH, cudaStream);
+        //pfrh_passTopoThresh = cms::cuda::make_host_unique<bool[]>(sizeof(bool)*config.maxRH, cudaStream);
+        pfrh_passTopoThresh = cms::cuda::make_host_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
 
         topoSeedCount = cms::cuda::make_host_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
         topoRHCount = cms::cuda::make_host_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
@@ -159,10 +156,8 @@ namespace PFClustering {
       cms::cuda::device::unique_ptr<float[]> pfrh_y;
       cms::cuda::device::unique_ptr<float[]> pfrh_z;
       cms::cuda::device::unique_ptr<float[]> pfrh_energy;
-      cms::cuda::device::unique_ptr<float[]> pfrh_pt2;
       cms::cuda::device::unique_ptr<float[]> pcrh_fracSum;
 
-      cms::cuda::device::unique_ptr<int[]> rhcount;
       cms::cuda::device::unique_ptr<int[]> pfrh_layer;
       cms::cuda::device::unique_ptr<int[]> pfrh_depth;
       cms::cuda::device::unique_ptr<int[]> pfNeighFourInd;
@@ -182,10 +177,8 @@ namespace PFClustering {
         pfrh_y = cms::cuda::make_device_unique<float[]>(sizeof(float)*config.maxRH, cudaStream);
         pfrh_z = cms::cuda::make_device_unique<float[]>(sizeof(float)*config.maxRH, cudaStream);
         pfrh_energy = cms::cuda::make_device_unique<float[]>(sizeof(float)*config.maxRH, cudaStream);
-        pfrh_pt2 = cms::cuda::make_device_unique<float[]>(sizeof(float)*config.maxRH, cudaStream);
         pcrh_fracSum = cms::cuda::make_device_unique<float[]>(sizeof(float)*config.maxRH, cudaStream);
 
-        rhcount = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
         pfrh_layer = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
         pfrh_depth = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
         pfNeighFourInd = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH*4, cudaStream);
@@ -205,7 +198,8 @@ namespace PFClustering {
       cms::cuda::device::unique_ptr<int[]> pfrh_isSeed;
       cms::cuda::device::unique_ptr<float[]> pcrh_frac;
       cms::cuda::device::unique_ptr<int[]>   pcrh_fracInd;
-      cms::cuda::device::unique_ptr<bool[]> pfrh_passTopoThresh;
+      //cms::cuda::device::unique_ptr<bool[]> pfrh_passTopoThresh;
+      cms::cuda::device::unique_ptr<int[]> pfrh_passTopoThresh;
 
       cms::cuda::device::unique_ptr<int[]> topoSeedCount;
       cms::cuda::device::unique_ptr<int[]> topoRHCount;
@@ -222,7 +216,8 @@ namespace PFClustering {
         pfrh_isSeed = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
         pcrh_frac = cms::cuda::make_device_unique<float[]>(sizeof(float)*config.maxPFCFracs, cudaStream);
         pcrh_fracInd = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxPFCFracs, cudaStream);
-        pfrh_passTopoThresh = cms::cuda::make_device_unique<bool[]>(sizeof(bool)*config.maxRH, cudaStream);
+        //pfrh_passTopoThresh = cms::cuda::make_device_unique<bool[]>(sizeof(bool)*config.maxRH, cudaStream);
+        pfrh_passTopoThresh = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
 
         topoSeedCount = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
         topoRHCount = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
@@ -237,11 +232,13 @@ namespace PFClustering {
   };
 
   struct ScratchDataGPU {
+      cms::cuda::device::unique_ptr<int[]> rhcount;
       cms::cuda::device::unique_ptr<int[]> pfrh_edgeId;
       cms::cuda::device::unique_ptr<int[]> pfrh_edgeList;
       cms::cuda::device::unique_ptr<int[]> pfrh_edgeMask;
 
       void allocate(ConfigurationParameters const& config, cudaStream_t cudaStream = 0) {
+        rhcount = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH, cudaStream);
         pfrh_edgeId = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH*config.maxNeighbors, cudaStream);
         pfrh_edgeList = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH*config.maxNeighbors, cudaStream);
         pfrh_edgeMask = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH*config.maxNeighbors, cudaStream);
