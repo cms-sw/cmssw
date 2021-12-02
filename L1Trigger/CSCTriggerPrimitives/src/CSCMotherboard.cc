@@ -159,12 +159,29 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
   if (alctV.empty() and clctV.empty())
     return;
 
+  // step 3: match the ALCTs to the CLCTs
+  bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS] = {false};
+  matchALCTCLCT(bunch_crossing_mask);
+
+  // Step 4: Select at most 2 LCTs per BX
+  selectLCTs();
+}
+
+void CSCMotherboard::matchALCTCLCT(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]) {
   // array to mask CLCTs
   bool used_clct_mask[CSCConstants::MAX_CLCT_TBINS] = {false};
 
   // Step 3: ALCT-centric ALCT-to-CLCT matching
   int bx_clct_matched = 0;  // bx of last matched CLCT
   for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
+    // do not consider LCT building in this BX if the mask was set
+    // this check should have no effect on the regular LCT finding
+    // it does play a role in the LCT finding for GEM-CSC ILTs
+    // namely, if a GEM-CSC ILT was found a bunch crossing, the
+    // algorithm would skip the bunch crossing for regular LCT finding
+    if (bunch_crossing_mask[bx_alct])
+      continue;
+
     // There should be at least one valid CLCT or ALCT for a
     // correlated LCT to be formed.  Decision on whether to reject
     // non-complete LCTs (and if yes of which type) is made further
@@ -189,6 +206,12 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
         // do not consider previously matched CLCTs
         if (drop_used_clcts && used_clct_mask[bx_clct])
           continue;
+        // only consider >=4 layer CLCTs for ALCT-CLCT type LCTs
+        // this condition is lowered to >=3 layers for CLCTs in the
+        // matchALCTCLCTGEM function
+        if (clctProc->getBestCLCT(bx_clct).getQuality() <= 3)
+          continue;
+        // a valid CLCT with sufficient layers!
         if (clctProc->getBestCLCT(bx_clct).isValid()) {
           if (infoV > 1)
             LogTrace("CSCMotherboard") << "Successful ALCT-CLCT match: bx_alct = " << bx_alct
@@ -207,6 +230,8 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
           if (allLCTs_(bx_alct, mbx, 0).isValid()) {
             is_matched = true;
             used_clct_mask[bx_clct] = true;
+            bunch_crossing_mask[bx_alct] = true;
+            bx_clct_matched = bx_clct;
             if (match_earliest_clct_only_)
               break;
           }
@@ -249,9 +274,6 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
       }
     }
   }
-
-  // Step 4: Select at most 2 LCTs per BX
-  selectLCTs();
 }
 
 // Returns vector of read-out correlated LCTs, if any.  Starts with
@@ -364,7 +386,18 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
   CSCCLCTDigi bestCLCT = bCLCT;
   CSCCLCTDigi secondCLCT = sCLCT;
 
+  // extra check to make sure that both CLCTs have at least 4 layers
+  // for regular ALCT-CLCT type LCTs. A check was already done on the
+  // best CLCT, but not yet on the second best CLCT. The check on best
+  // CLCT is repeated for completeness
+  if (bestCLCT.getQuality() <= 3)
+    bestCLCT.clear();
+  if (secondCLCT.getQuality() <= 3)
+    secondCLCT.clear();
+
   // check which ALCTs and CLCTs are valid
+  // if the best ALCT/CLCT is valid, but the second ALCT/CLCT is not,
+  // the information is copied over
   copyValidToInValid(bestALCT, secondALCT, bestCLCT, secondCLCT);
 
   // ALCT-only LCTs
