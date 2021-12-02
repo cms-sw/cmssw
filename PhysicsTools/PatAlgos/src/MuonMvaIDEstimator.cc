@@ -1,23 +1,12 @@
 #include "PhysicsTools/PatAlgos/interface/MuonMvaIDEstimator.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/Framework/interface/stream/EDProducer.h"
-//#include "FWCore/Utilities/interface/StreamID.h"
-//#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
-
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+
 
 using namespace pat;
 using namespace cms::Ort;
@@ -27,10 +16,7 @@ MuonMvaIDEstimator::MuonMvaIDEstimator(const edm::FileInPath &weightsfile) {
   std::cout << randomForest_.get() << std::endl;
 }
 
-MuonMvaIDEstimator::~MuonMvaIDEstimator() {}
-
 void MuonMvaIDEstimator::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  // pfDeepBoostedJetTags
   edm::ParameterSetDescription desc;
   desc.add<edm::FileInPath>("mvaIDTrainingFile", edm::FileInPath("RecoMuon/MuonIdentification/data/mvaID.onnx"));
   desc.add<std::vector<std::string>>("flav_names",
@@ -48,13 +34,13 @@ std::unique_ptr<cms::Ort::ONNXRuntime> MuonMvaIDEstimator::initializeGlobalCache
 void MuonMvaIDEstimator::globalEndJob(const cms::Ort::ONNXRuntime *cache) {}
 const reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration;
 std::vector<float> MuonMvaIDEstimator::computeMVAID(const pat::Muon &muon) const {
-  float local_chi2 = muon.combinedQuality().chi2LocalPosition;
-  float kink = muon.combinedQuality().trkKink;
-  float segment_comp = muon.segmentCompatibility(arbitrationType);
-  float n_MatchedStations = muon.numberOfMatchedStations();
-  float pt = muon.pt();
-  float eta = muon.eta();
-  float global_muon = muon.isGlobalMuon();
+  const float local_chi2 = muon.combinedQuality().chi2LocalPosition;
+  const float kink = muon.combinedQuality().trkKink;
+  const float segment_comp = muon.segmentCompatibility(arbitrationType);
+  const float n_MatchedStations = muon.numberOfMatchedStations();
+  const float pt = muon.pt();
+  const float eta = muon.eta();
+  const float global_muon = muon.isGlobalMuon();
   float Valid_pixel;
   float tracker_layers;
   float validFraction;
@@ -79,7 +65,7 @@ std::vector<float> MuonMvaIDEstimator::computeMVAID(const pat::Muon &muon) const
     norm_chi2 = -99;
     n_Valid_hits = -99;
   }
-  std::vector<std::string> input_names_{"float_input"};
+  const std::vector<std::string> input_names_{"float_input"};
   std::vector<float> vars = {global_muon,
                              validFraction,
                              norm_chi2,
@@ -92,16 +78,11 @@ std::vector<float> MuonMvaIDEstimator::computeMVAID(const pat::Muon &muon) const
                              tracker_layers,
                              pt,
                              eta};
-  std::vector<std::string> flav_names_{"probBAD", "probGOOD"};
-  //for (long unsigned int i=0; i < vars.size(); i++){
-  //  input_values_.emplace_back(vars[i]);
-  //}
+  const std::vector<std::string> flav_names_{"probBAD", "probGOOD"};
   cms::Ort::FloatArrays input_values_;
-  //cms::Ort::FloatArrays outputs;
   input_values_.emplace_back(vars);
-  std::vector<float> outputs;  // init as all zeros
-  //std::cout << Form("%d -- %d",input_values_[10], input_values_[11]) << std::endl;
-  //std::cout << randomForest_.get() << std::endl;
+  std::vector<float> outputs;
+  LogDebug("MuonMvaIDEstimator") << randomForest_.get();
   outputs = randomForest_->run(input_names_, input_values_, {}, {"probabilities"})[0];
   assert(outputs.size() == flav_names_.size());
   return outputs;

@@ -1,5 +1,5 @@
-#ifndef __PhysicsTools_PatAlgos_MuonMvaIDEstimator__
-#define __PhysicsTools_PatAlgos_MuonMvaIDEstimator__
+#ifndef PhysicsTools_PatAlgos_MuonMvaIDEstimator_h
+#define PhysicsTools_PatAlgos_MuonMvaIDEstimator_h
 
 #include <memory>
 #include <string>
@@ -21,7 +21,7 @@ namespace pat {
   class MuonMvaIDEstimator {
   public:
     MuonMvaIDEstimator(const edm::FileInPath &weightsfile);
-    ~MuonMvaIDEstimator();
+    ~MuonMvaIDEstimator() = default;
 
     static void fillDescriptions(edm::ConfigurationDescriptions &);
     static std::unique_ptr<cms::Ort::ONNXRuntime> initializeGlobalCache(const edm::ParameterSet &);
