@@ -475,7 +475,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
             int chamber = detid.chamber();
 
             int sr = histIndexCSC.at({stat, ring});
-            if (endc == 2)
+            if (endc == 1)
               sr = 17 - sr;
 
             // ALCT analysis
