@@ -97,7 +97,7 @@ void L1TStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
     int ring = detId.ring();
     int chamber = detId.chamber();
     int sr = histIndexCSC.at({station, ring});
-    if (endcap == -1)
+    if (endcap == 1)
       sr = 17 - sr;
     float evt_wgt = (station > 1 && ring == 1) ? 0.5 : 1.0;
 
