@@ -98,8 +98,8 @@ namespace {
     TrackSegments() = default;
 
     inline uint32_t addSegment(float tPath, float tMom2) {
-      segmentPathOvc_.emplace_back(static_cast<float>(tPath * c_inv));
-      segmentMom2_.emplace_back(static_cast<float>(tMom2));
+      segmentPathOvc_.emplace_back(tPath * c_inv);
+      segmentMom2_.emplace_back(tMom2);
       nSegment_++;
 
       LogTrace("TrackExtenderWithMTD") << "addSegment # " << nSegment_ << " s = " << tPath
@@ -111,7 +111,7 @@ namespace {
     inline float computeTof(float mass_inv2) const {
       float tof(0.f);
       for (uint32_t iSeg = 0; iSeg < nSegment_; iSeg++) {
-        float gammasq = 1.f + segmentMom2_[iSeg] * static_cast<float>(mass_inv2);
+        float gammasq = 1.f + segmentMom2_[iSeg] * mass_inv2;
         float beta = std::sqrt(1.f - 1.f / gammasq);
         tof += segmentPathOvc_[iSeg] / beta;
 
