@@ -1166,6 +1166,9 @@ CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
   return lct;
 }
 
+/** Returns shower bits */
+CSCShowerDigi CSCCathodeLCTProcessor::readoutShower() const { return shower_; }
+
 void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
     const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) {
   inTimeHMT_ = 0;
@@ -1225,7 +1228,6 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
     }
   }
 
-  // no shower object is created here. that is done at a later stage
-  // in the motherboard, where the trigger decisions from
-  // anode hit counters and cathode hit counters are combined
+  // create a new object
+  shower_ = CSCShowerDigi(inTimeHMT_, false, theTrigChamber);
 }
