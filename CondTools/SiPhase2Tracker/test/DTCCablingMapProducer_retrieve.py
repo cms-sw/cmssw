@@ -6,7 +6,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("CondCore.CondDB.CondDB_cfi")
 # input database (in this case the local sqlite file)
-process.CondDB.connect = 'sqlite_file:OuterTrackerDTCCablingMap.db'
+process.CondDB.connect = 'sqlite_file:OTandITDTCCablingMap.db'
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDB,

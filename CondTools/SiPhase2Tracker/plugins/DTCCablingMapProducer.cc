@@ -185,7 +185,7 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
 
         if (csvColumn.size() == csvFormat_ncolumns_) {
           // Skip the legend lines
-          if (0 == csvColumn[0].compare(std::string("Module DetId/U"))) {
+          if (0 == csvColumn[0].compare(std::string("Module_DetId/U"))) {
             if (verbosity_ >= 1) {
               edm::LogInfo("CSVParser") << "-- skipping legend line" << endl;
             }
