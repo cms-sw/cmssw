@@ -27,11 +27,12 @@ public:
   /** Runs the CoPad processor code. */
   void run(const GEMPadDigiClusterCollection*);
 
-  /* Returns clusters for a given BX */
-  std::vector<GEMInternalCluster> getClusters(int bx) const;
-
-  /* Returns clusters around deltaBX for a given BX */
-  std::vector<GEMInternalCluster> getClusters(int bx, int deltaBX) const;
+  /* Returns clusters around deltaBX for a given BX
+    The parameter option determines which clusters should be returned
+    1: single and coincidence, 2: only coincidence, 3: only single
+  */
+  enum ClusterTypes { AllClusters = 1, SingleClusters = 2, CoincidenceClusters = 3 };
+  std::vector<GEMInternalCluster> getClusters(int bx, int deltaBX = 0, ClusterTypes option = AllClusters) const;
 
   /* Returns coincidence clusters for a given BX */
   std::vector<GEMInternalCluster> getCoincidenceClusters(int bx) const;

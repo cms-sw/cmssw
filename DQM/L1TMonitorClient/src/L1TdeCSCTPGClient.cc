@@ -268,4 +268,9 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
   lctEmulSummary_eff_->getTH2F()->Divide(lctEmulSummary_num_->getTH2F(), lctEmulSummary_denom_->getTH2F(), 1, 1, "");
   alctEmulSummary_eff_->getTH2F()->Divide(alctEmulSummary_num_->getTH2F(), alctEmulSummary_denom_->getTH2F(), 1, 1, "");
   clctEmulSummary_eff_->getTH2F()->Divide(clctEmulSummary_num_->getTH2F(), clctEmulSummary_denom_->getTH2F(), 1, 1, "");
+
+  // set minima to 0.95 so the contrast comes out better!
+  lctDataSummary_eff_->getTH2F()->GetZaxis()->SetRangeUser(0.95, 1);
+  alctDataSummary_eff_->getTH2F()->GetZaxis()->SetRangeUser(0.95, 1);
+  clctDataSummary_eff_->getTH2F()->GetZaxis()->SetRangeUser(0.95, 1);
 }
