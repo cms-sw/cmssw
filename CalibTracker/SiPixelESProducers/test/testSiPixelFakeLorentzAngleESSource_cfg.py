@@ -70,7 +70,7 @@ process.SiPixelFakeLorentzAngleESSource = siPixelFakeLorentzAngleESSource.clone(
 
 if(options.isPhase2):
     print(" ========> Testing Phase-2")
-    process.SiPixelFakeLorentzAngleESSource.label = cms.string("forPhase2")
+    process.SiPixelFakeLorentzAngleESSource.appendToDataLabel = cms.string("forPhase2")
     process.SiPixelFakeLorentzAngleESSource.bPixLorentzAnglePerTesla = cms.untracked.double(0.106)
     process.SiPixelFakeLorentzAngleESSource.fPixLorentzAnglePerTesla = cms.untracked.double(0.106)
     process.SiPixelFakeLorentzAngleESSource.file = 'SLHCUpgradeSimulations/Geometry/data/PhaseII/Tilted/PixelSkimmedGeometryT14.txt'
