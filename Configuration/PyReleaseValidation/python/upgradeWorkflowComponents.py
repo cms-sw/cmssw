@@ -446,6 +446,8 @@ class PatatrackWorkflow(UpgradeWorkflow):
                 'HARVESTGlobal',
                 'RecoNano',
                 'HARVESTNano',
+                'Nano',
+                'ALCA',
             ],
             PU = [],
             **kwargs)
@@ -467,14 +469,13 @@ class PatatrackWorkflow(UpgradeWorkflow):
         ]
         result = any(selected) and hasHarvest
 
-        # skip ALCA and Nano steps (but not RecoNano or HARVESTNano for Run3)
-        for skip in copy(stepList):
-            if ("ALCA" in skip) or ("Nano"==skip):
-                stepList.remove(skip)
         return result
 
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Digi' in step:
+        # skip ALCA and Nano steps (but not RecoNano or HARVESTNano for Run3)
+        if 'ALCA' in step or 'Nano'==step:
+            stepDict[stepName][k] = None
+        elif 'Digi' in step:
             if self.__digi is None:
               stepDict[stepName][k] = None
             else:
