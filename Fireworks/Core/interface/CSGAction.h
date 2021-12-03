@@ -97,7 +97,7 @@ public:
   Bool_t resizeMenuEntry();
   void activate() { activated.emit(); }
 
-  sigc::signal<void> activated;
+  sigc::signal<void()> activated;
 
   CSGAction(const CSGAction&) = delete;  // stop default
 
