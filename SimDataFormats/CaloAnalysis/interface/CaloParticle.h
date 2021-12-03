@@ -169,6 +169,7 @@ public:
   void addRecHitAndFraction(uint32_t hit, float fraction) {
     hits_.emplace_back(hit);
     fractions_.emplace_back(fraction);
+    ++nsimhits_;
   }
 
   /** @brief Returns list of rechit IDs and fractions for this CaloParticle */
@@ -187,11 +188,11 @@ public:
   void addSimHit(const PCaloHit &hit) { simhit_energy_ += hit.energy(); }
 
 private:
-  uint64_t nsimhits_;
+  uint64_t nsimhits_{0};
   EncodedEventId event_;
 
-  uint32_t particleId_;
-  float simhit_energy_;
+  uint32_t particleId_{0};
+  float simhit_energy_{0.f};
   std::vector<uint32_t> hits_;
   std::vector<float> fractions_;
 
