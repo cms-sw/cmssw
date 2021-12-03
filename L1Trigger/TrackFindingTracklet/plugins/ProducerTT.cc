@@ -21,9 +21,9 @@ using namespace edm;
 using namespace trackerTFP;
 using namespace tt;
 
-namespace trackFindingTracklet {
+namespace trklet {
 
-  /*! \class  trackFindingTracklet::ProducerTT
+  /*! \class  trklet::ProducerTT
    *  \brief  Converts KF output into TTTracks
    *  \author Thomas Schuh
    *  \date   2021, Aug
@@ -129,6 +129,6 @@ namespace trackFindingTracklet {
     iEvent.emplace(edPutToken_, move(ttTracks));
   }
 
-}  // namespace trackFindingTracklet
+}  // namespace trklet
 
-DEFINE_FWK_MODULE(trackFindingTracklet::ProducerTT);
+DEFINE_FWK_MODULE(trklet::ProducerTT);

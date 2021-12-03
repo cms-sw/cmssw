@@ -21,9 +21,9 @@ using namespace std;
 using namespace edm;
 using namespace tt;
 
-namespace trackFindingTracklet {
+namespace trklet {
 
-  /*! \class  trackFindingTracklet::AnalyzerTT
+  /*! \class  trklet::AnalyzerTT
    *  \brief  Class to analyze TTTracks
    *  \author Thomas Schuh
    *  \date   2020, Oct
@@ -147,6 +147,6 @@ namespace trackFindingTracklet {
     }
   }
 
-}  // namespace trackFindingTracklet
+}  // namespace trklet
 
-DEFINE_FWK_MODULE(trackFindingTracklet::AnalyzerTT);
+DEFINE_FWK_MODULE(trklet::AnalyzerTT);

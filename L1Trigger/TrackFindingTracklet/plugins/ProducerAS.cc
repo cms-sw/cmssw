@@ -19,9 +19,9 @@ using namespace std;
 using namespace edm;
 using namespace tt;
 
-namespace trackFindingTracklet {
+namespace trklet {
 
-  /*! \class  trackFindingTracklet::ProducerAS
+  /*! \class  trklet::ProducerAS
    *  \brief  Associate the TTTracks output by KF fitter with the tracks input to KF fitter.
    *  \author Thomas Schuh
    *  \date   2020, Oct
@@ -94,6 +94,6 @@ namespace trackFindingTracklet {
     iEvent.emplace(edPutToken_, move(ttTrackMap));
   }
 
-}  // namespace trackFindingTracklet
+}  // namespace trklet
 
-DEFINE_FWK_MODULE(trackFindingTracklet::ProducerAS);
+DEFINE_FWK_MODULE(trklet::ProducerAS);
