@@ -2,15 +2,9 @@
 # Way to use this:
 #   cmsRun testHGCalWaferValidation_cfg.py geometry=D83
 #
-#   Options for geometry D49, D68, D77, D83, D84
+#   Options for geometry D77, D83, D86
 #
 ###############################################################################
-###############################################################################
-# Modified by Yulun Miao
-# Modified at Wed, 17 Nov 2021
-# Details of Modification:
-#   * Allowing options for geometry D86
-#   * Allowing options for flatfile by flatfile=path_to_flat_file, default set to Validation/HGCalValidation/data/geomnew_corrected_360.txt
 import FWCore.ParameterSet.Config as cms
 import os, sys, imp, re
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -22,12 +16,7 @@ options.register('geometry',
                  "D83",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D68, D84, D77, D83")
-options.register('flatfile',
-                 "Validation/HGCalValidation/data/geomnew_corrected_360.txt",
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.string,
-                  "path to flat file")
+                  "geometry of operations: D77, D83, D86")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -36,30 +25,28 @@ options.parseArguments()
 ####################################################################
 # Use the options
 
-if (options.geometry == "D49"):
-    from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-    process = cms.Process('TEST',Phase2C9)
-    process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-elif (options.geometry == "D68"):
-    from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
-    process = cms.Process('TEST',Phase2C12)
-    process.load('Configuration.Geometry.GeometryExtended2026D68_cff')
-elif (options.geometry == "D77"):
+if (options.geometry == "D77"):
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('TEST',Phase2C11M9)
     process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
-elif (options.geometry == "D84"):
+    fileName = 'Validation/HGCalValidation/data/geomnew_corrected_360.txt'
+elif (options.geometry == "D86"):
     from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
     process = cms.Process('TEST',Phase2C11)
-    process.load('Configuration.Geometry.GeometryExtended2026D84_cff')
-elif (options.geometry == "D86"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('TEST',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D86_cff')
+    fileName = 'Validation/HGCalValidation/data/geomnew_corrected_360_V1.txt'
 else:
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('TEST',Phase2C11M9)
     process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
+    fileName = 'Validation/HGCalValidation/data/geomnew_corrected_360.txt'
+
+process.load('Validation.HGCalValidation.hgcalWaferValidation_cfi')
+process.hgcalWaferValidation.GeometryFileName = cms.FileInPath(fileName)
+#if (options.geometry == "D84"):
+#    process.hgcalWaferValidation.GeometryFileName = cms.FileInPath('Validation/HGCalValidation/data/geomnew_corrected_360_V1.txt')
+#else:
+#    process.hgcalWaferValidation.GeometryFileName = cms.FileInPath('Validation/HGCalValidation/data/geomnew_corrected_360.txt')
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
@@ -74,6 +61,5 @@ process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
-process.load('Validation.HGCalValidation.hgcalWaferValidation_cfi')
-process.hgcalWaferValidation.GeometryFileName = options.flatfile
+
 process.p = cms.Path(process.hgcalWaferValidation)
