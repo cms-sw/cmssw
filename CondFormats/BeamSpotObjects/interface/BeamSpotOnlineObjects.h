@@ -45,107 +45,107 @@ public:
 
   /// Setters Methods
   // set lastAnalyzedLumi_, last analyzed lumisection
-  void SetLastAnalyzedLumi(int val) { lastAnalyzedLumi_ = val; }
+  void setLastAnalyzedLumi(int val) { lastAnalyzedLumi_ = val; }
 
   // set lastAnalyzedRun_, run of the last analyzed lumisection
-  void SetLastAnalyzedRun(int val) { lastAnalyzedRun_ = val; }
+  void setLastAnalyzedRun(int val) { lastAnalyzedRun_ = val; }
 
   // set lastAnalyzedFill_, fill of the last analyzed lumisection
-  void SetLastAnalyzedFill(int val) { lastAnalyzedFill_ = val; }
+  void setLastAnalyzedFill(int val) { lastAnalyzedFill_ = val; }
 
   // set number of tracks used in the BeamSpot fit
-  void SetNumTracks(int val);
+  void setNumTracks(int val);
 
   // set number of Primary Vertices used in the BeamSpot fit
-  void SetNumPVs(int val);
+  void setNumPVs(int val);
 
   // set number of Events used in the BeamSpot fit (for DIP)
-  void SetUsedEvents(int val);
+  void setUsedEvents(int val);
 
   // set max number of Primary Vertices used in the BeamSpot fit (for DIP)
-  void SetMaxPVs(int val);
+  void setMaxPVs(int val);
 
   // set mean number of PVs (for DIP)
-  void SetMeanPV(float val);
+  void setMeanPV(float val);
 
   // set error on mean number of PVs (for DIP)
-  void SetMeanErrorPV(float val);
+  void setMeanErrorPV(float val);
 
   // set rms of number of PVs (for DIP)
-  void SetRmsPV(float val);
+  void setRmsPV(float val);
 
   // set error on rm of number of PVs (for DIP)
-  void SetRmsErrorPV(float val);
+  void setRmsErrorPV(float val);
 
   // set start time of the firs LS as string (for DIP)
-  void SetStartTime(std::string val);
+  void setStartTime(std::string val);
 
   // set end time of the last LS as string (for DIP)
-  void SetEndTime(std::string val);
+  void setEndTime(std::string val);
 
   // set lumi range as string (for DIP)
-  void SetLumiRange(std::string val);
+  void setLumiRange(std::string val);
 
   // set creation time of the payload
-  void SetCreationTime(cond::Time_t val);
+  void setCreationTime(cond::Time_t val);
 
   // set timestamp of the first LS (for DIP)
-  void SetStartTimeStamp(cond::Time_t val);
+  void setStartTimeStamp(cond::Time_t val);
 
   // set timestamp of the last LS (for DIP)
-  void SetEndTimeStamp(cond::Time_t val);
+  void setEndTimeStamp(cond::Time_t val);
 
   /// Getters Methods
   // get lastAnalyzedLumi_, last analyzed lumisection
-  int GetLastAnalyzedLumi() const { return lastAnalyzedLumi_; }
+  int lastAnalyzedLumi() const { return lastAnalyzedLumi_; }
 
   // get lastAnalyzedRun_, run of the last analyzed lumisection
-  int GetLastAnalyzedRun() const { return lastAnalyzedRun_; }
+  int lastAnalyzedRun() const { return lastAnalyzedRun_; }
 
   // get lastAnalyzedFill_, fill of the last analyzed lumisection
-  int GetLastAnalyzedFill() const { return lastAnalyzedFill_; }
+  int lastAnalyzedFill() const { return lastAnalyzedFill_; }
 
   // get number of tracks used in the BeamSpot fit
-  int GetNumTracks() const;
+  int numTracks() const;
 
   // get number of Primary Vertices used in the BeamSpot fit
-  int GetNumPVs() const;
+  int numPVs() const;
 
   // get number of Events used in the BeamSpot fit (for DIP)
-  int GetUsedEvents() const;
+  int usedEvents() const;
 
   // get max number of Primary Vertices used in the BeamSpot fit (for DIP)
-  int GetMaxPVs() const;
+  int maxPVs() const;
 
   // get mean number of PVs (for DIP)
-  float GetMeanPV() const;
+  float meanPV() const;
 
   // get error on mean number of PVs (for DIP)
-  float GetMeanErrorPV() const;
+  float meanErrorPV() const;
 
   // get rms of number of PVs (for DIP)
-  float GetRmsPV() const;
+  float rmsPV() const;
 
   // get error on rm of number of PVs (for DIP)
-  float GetRmsErrorPV() const;
+  float rmsErrorPV() const;
 
   // get start time of the firs LS as string (for DIP)
-  std::string GetStartTime() const;
+  std::string startTime() const;
 
   // get end time of the last LS as string (for DIP)
-  std::string GetEndTime() const;
+  std::string endTime() const;
 
   // get lumi range as string (for DIP)
-  std::string GetLumiRange() const;
+  std::string lumiRange() const;
 
   // get creation time of the payload
-  cond::Time_t GetCreationTime() const;
+  cond::Time_t creationTime() const;
 
   // get timestamp of the first LS (for DIP)
-  cond::Time_t GetStartTimeStamp() const;
+  cond::Time_t startTimeStamp() const;
 
   // get timestamp of the last LS (for DIP)
-  cond::Time_t GetEndTimeStamp() const;
+  cond::Time_t endTimeStamp() const;
 
   /// Print BeamSpotOnline parameters
   void print(std::stringstream& ss) const;
