@@ -16,7 +16,7 @@
 // system include files
 #include <memory>
 
-//#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackReco/interface/SiPixelTrackProbQXY.h"
@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 //
@@ -49,6 +50,8 @@ private:
   // ----------member data ---------------------------
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  const edm::EDPutTokenT<edm::ValueMap<reco::SiPixelTrackProbQXY>> putProbQXYVMToken_;
+  const edm::EDPutTokenT<edm::ValueMap<reco::SiPixelTrackProbQXY>> putProbQXYNoLayer1VMToken_;
 };
 
 using namespace reco;
@@ -57,10 +60,9 @@ using namespace edm;
 
 SiPixelTrackProbQXYProducer::SiPixelTrackProbQXYProducer(const edm::ParameterSet& iConfig)
     : tTopoToken_(esConsumes()),
-      trackToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))) {
-  produces<reco::SiPixelTrackProbQXYCollection>();
-  produces<reco::SiPixelTrackProbQXYAssociation>();
-}
+      trackToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
+      putProbQXYVMToken_(produces<edm::ValueMap<reco::SiPixelTrackProbQXY>>()),
+      putProbQXYNoLayer1VMToken_(produces<edm::ValueMap<reco::SiPixelTrackProbQXY>>("NoLayer1")) {}
 
 void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Retrieve track collection from the event
@@ -72,7 +74,7 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
 
   // Creates the output collection
   auto resultSiPixelTrackProbQXYColl = std::make_unique<reco::SiPixelTrackProbQXYCollection>();
-  std::vector<int> indices;
+  auto resultSiPixelTrackProbQXYNoLayer1Coll = std::make_unique<reco::SiPixelTrackProbQXYCollection>();
 
   // Loop through the tracks
   for (const auto& track : trackCollection) {
@@ -86,7 +88,6 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
     float probXYonTrackWMulti = 1;
     float probQonTrackWMultiNoLayer1 = 1;
     float probXYonTrackWMultiNoLayer1 = 1;
-
     // Loop through the rechits on the given track
     for (auto const& hit : track.recHits()) {
       const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit);
@@ -161,28 +162,33 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
     probQonTrackNoLayer1 = probQonTrackWMultiNoLayer1 * probQonTrackTermNoLayer1;
     probXYonTrackNoLayer1 = probXYonTrackWMultiNoLayer1 * probXYonTrackTermNoLayer1;
 
-    indices.push_back(resultSiPixelTrackProbQXYColl->size());
-    resultSiPixelTrackProbQXYColl->emplace_back(
-        probQonTrack, probXYonTrack, probQonTrackNoLayer1, probXYonTrackNoLayer1);
+    // Store the values in the collection
+    resultSiPixelTrackProbQXYColl->emplace_back(probQonTrack, probXYonTrack);
+    resultSiPixelTrackProbQXYNoLayer1Coll->emplace_back(probQonTrackNoLayer1, probXYonTrackNoLayer1);
   }  // end loop on track collection
 
-  edm::OrphanHandle<reco::SiPixelTrackProbQXYCollection> siPixelTrackProbQXYCollHandle =
-      iEvent.put(std::move(resultSiPixelTrackProbQXYColl));
-
-  //create map passing the handle to the matched collection
-  auto trackProbQXYMatch = std::make_unique<reco::SiPixelTrackProbQXYAssociation>(siPixelTrackProbQXYCollHandle);
-  reco::SiPixelTrackProbQXYAssociation::Filler filler(*trackProbQXYMatch);
-  filler.insert(trackCollectionHandle, indices.begin(), indices.end());
+  // Populate the event with the value map
+  auto trackProbQXYMatch = std::make_unique<edm::ValueMap<reco::SiPixelTrackProbQXY>>();
+  edm::ValueMap<reco::SiPixelTrackProbQXY>::Filler filler(*trackProbQXYMatch);
+  filler.insert(trackCollectionHandle, resultSiPixelTrackProbQXYColl->begin(), resultSiPixelTrackProbQXYColl->end());
   filler.fill();
-  iEvent.put(std::move(trackProbQXYMatch));
+  iEvent.put(putProbQXYVMToken_, std::move(trackProbQXYMatch));
+
+  auto trackProbQXYMatchNoLayer1 = std::make_unique<edm::ValueMap<reco::SiPixelTrackProbQXY>>();
+  edm::ValueMap<reco::SiPixelTrackProbQXY>::Filler fillerNoLayer1(*trackProbQXYMatchNoLayer1);
+  fillerNoLayer1.insert(trackCollectionHandle,
+                        resultSiPixelTrackProbQXYNoLayer1Coll->begin(),
+                        resultSiPixelTrackProbQXYNoLayer1Coll->end());
+  fillerNoLayer1.fill();
+  iEvent.put(putProbQXYNoLayer1VMToken_, std::move(trackProbQXYMatchNoLayer1));
 }
 
 void SiPixelTrackProbQXYProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("Producer that creates SiPixel Charge and shape probabilities combined for tracks");
-  desc.addUntracked<edm::InputTag>("track", edm::InputTag("isolatedTracks"))
+  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"))
       ->setComment("Input track collection for the producer");
-  descriptions.add("siPixelTrackProbQXYProducer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

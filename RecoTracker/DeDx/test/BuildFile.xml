@@ -4,7 +4,6 @@
 <use name="DataFormats/TrackReco"/>
 <use name="RecoTracker/TrackProducer"/>
 <use name="TrackingTools/TransientTrack"/>
-<use name="clhep"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/TrackerGeometryBuilder"/>

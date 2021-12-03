@@ -6,7 +6,7 @@ process = cms.Process('RECO2',Run2_2018)
 
 options = VarParsing.VarParsing('analysis')
 options.register('globalTag',
-                 "auto:run2_mc", # default value
+                 "auto:run2_data", # default value
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.string, # string, int, or float
                  "input file name")

@@ -35,7 +35,7 @@ RecoTrackerRECO = cms.PSet(
         'keep recoTrackExtras_conversionStepTracks_*_*', 
         'keep TrackingRecHitsOwned_conversionStepTracks_*_*',
         'keep *_ctfPixelLess_*_*', 
-        'keep *_dedxTruncated40_*_*',
+        'keep *_dedxTruncated40_*_*'
     )
 )
 RecoTrackerRECO.outputCommands.extend(RecoTrackerAOD.outputCommands)

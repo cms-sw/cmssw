@@ -93,7 +93,8 @@ namespace pat {
     const edm::EDGetTokenT<edm::ValueMap<int>> gt2dedxHitInfoPrescale_;
     const bool usePrecomputedDeDxStrip_;
     const bool usePrecomputedDeDxPixel_;
-    const edm::EDGetTokenT<reco::SiPixelTrackProbQXYAssociation> gt2siPixelTrackProbQXY_;
+    const edm::EDGetTokenT<edm::ValueMap<reco::SiPixelTrackProbQXY>> gt2siPixelTrackProbQXY_;
+    const edm::EDGetTokenT<edm::ValueMap<reco::SiPixelTrackProbQXY>> gt2siPixelTrackProbQXYNoLayer1_;
     const float pT_cut_;          // only save cands with pT>pT_cut_
     const float pT_cut_noIso_;    // above this pT, don't apply any iso cut
     const float pfIsolation_DR_;  // isolation radius
@@ -142,8 +143,10 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
                                                       : edm::EDGetTokenT<edm::ValueMap<int>>()),
       usePrecomputedDeDxStrip_(iConfig.getParameter<bool>("usePrecomputedDeDxStrip")),
       usePrecomputedDeDxPixel_(iConfig.getParameter<bool>("usePrecomputedDeDxPixel")),
-      gt2siPixelTrackProbQXY_(
-          consumes<reco::SiPixelTrackProbQXYAssociation>(iConfig.getParameter<edm::InputTag>("siPixelTrackProbQXY"))),
+      gt2siPixelTrackProbQXY_(consumes<edm::ValueMap<reco::SiPixelTrackProbQXY>>(
+          iConfig.getParameter<edm::InputTag>("siPixelTrackProbQXY"))),
+      gt2siPixelTrackProbQXYNoLayer1_(consumes<edm::ValueMap<reco::SiPixelTrackProbQXY>>(
+          iConfig.getParameter<edm::InputTag>("siPixelTrackProbQXYNoLayer1"))),
       pT_cut_(iConfig.getParameter<double>("pT_cut")),
       pT_cut_noIso_(iConfig.getParameter<double>("pT_cut_noIso")),
       pfIsolation_DR_(iConfig.getParameter<double>("pfIsolation_DR")),
@@ -235,6 +238,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
 
   // associate generalTracks with their combined ProbQ and ProbXY
   auto gt2siPixelTrackProbQXY = iEvent.getHandle(gt2siPixelTrackProbQXY_);
+  auto gt2siPixelTrackProbQXYNoLayer1 = iEvent.getHandle(gt2siPixelTrackProbQXYNoLayer1_);
 
   const HcalChannelQuality* hcalQ = &iSetup.getData(hcalQToken_);
 
@@ -383,12 +387,16 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
 
     // get combined probQ and probXY
     float probQonTrack = 0, probXYonTrack = 0, probQonTrackNoLayer1 = 0, probXYonTrackNoLayer1 = 0;
-    if (gt2siPixelTrackProbQXY_.isUninitialized() && gt2siPixelTrackProbQXY->contains(tkref.id())) {
-      const reco::SiPixelTrackProbQXY* siPixelTrackProbQXY = (*gt2siPixelTrackProbQXY)[tkref].get();
-      probQonTrack = siPixelTrackProbQXY->probQ();
-      probXYonTrack = siPixelTrackProbQXY->probXY();
-      probQonTrackNoLayer1 = siPixelTrackProbQXY->probQNoLayer1();
-      probXYonTrackNoLayer1 = siPixelTrackProbQXY->probXYNoLayer1();
+    if (!gt2siPixelTrackProbQXY_.isUninitialized() && gt2siPixelTrackProbQXY->contains(tkref.id())) {
+      const reco::SiPixelTrackProbQXY siPixelTrackProbQXY = (*gt2siPixelTrackProbQXY)[tkref];
+      probQonTrack = siPixelTrackProbQXY.probQ();
+      probXYonTrack = siPixelTrackProbQXY.probXY();
+    }
+
+    if (!gt2siPixelTrackProbQXYNoLayer1_.isUninitialized() && gt2siPixelTrackProbQXYNoLayer1->contains(tkref.id())) {
+      const reco::SiPixelTrackProbQXY siPixelTrackProbQXYNoLayer1 = (*gt2siPixelTrackProbQXYNoLayer1)[tkref];
+      probQonTrackNoLayer1 = siPixelTrackProbQXYNoLayer1.probQ();
+      probXYonTrackNoLayer1 = siPixelTrackProbQXYNoLayer1.probXY();
     }
 
     // get the associated ecal/hcal detectors

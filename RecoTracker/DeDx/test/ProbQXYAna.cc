@@ -41,6 +41,7 @@ void ProbQXYAna::analyze(edm::StreamID id, const edm::Event& iEvent, const edm::
   iEvent.getByToken(trackToken_, trackCollectionHandle);
   const auto trackCollection(*trackCollectionHandle.product());
   int numTrack = 0;
+  LogPrint("ProbQXYAna") << "Analyzing run " << iEvent.id().run() << " / event " << iEvent.id().event();
   for (const auto& track : trackCollection) {
     numTrack++;
     float probQonTrack = track.probQonTrack();
