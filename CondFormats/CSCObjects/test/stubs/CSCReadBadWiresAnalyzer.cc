@@ -5,13 +5,14 @@
 #include <vector>
 #include <bitset>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/CSCObjects/interface/CSCBadWires.h"
 #include "CondFormats/DataRecord/interface/CSCBadWiresRcd.h"
@@ -19,11 +20,12 @@
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
 namespace edmtest {
-  class CSCReadBadWiresAnalyzer : public edm::EDAnalyzer {
+  class CSCReadBadWiresAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit CSCReadBadWiresAnalyzer(edm::ParameterSet const& ps)
         : outputToFile(ps.getParameter<bool>("outputToFile")),
-          readBadChannels_(ps.getParameter<bool>("readBadChannels")) {
+          readBadChannels_(ps.getParameter<bool>("readBadChannels")),
+          badWiresToken_{esConsumes()} {
       badWireWords.resize(3240, 0);  // incl. ME42
     }
 
@@ -36,7 +38,7 @@ namespace edmtest {
     /// did we request reading bad channel info from db?
     bool readBadChannels() const { return readBadChannels_; }
 
-    void fillBadWireWords();
+    void fillBadWireWords(edm::LogSystem&);
 
     /// return  bad channel words per CSCLayer - 1 bit per channel
     const std::bitset<112>& badWireWord(const CSCDetId& id) const;
@@ -44,6 +46,7 @@ namespace edmtest {
   private:
     bool outputToFile;
     bool readBadChannels_;  // flag whether or not to even attempt reading bad channel info from db
+    const edm::ESGetToken<CSCBadWires, CSCBadWiresRcd> badWiresToken_;
     const CSCBadWires* theBadWires;
 
     std::vector<std::bitset<112> > badWireWords;
@@ -52,23 +55,23 @@ namespace edmtest {
   void CSCReadBadWiresAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
 
-    int counter = 0;
-    std::cout << " RUN# " << e.id().run() << std::endl;
-    std::cout << " EVENT# " << e.id().event() << std::endl;
-    edm::ESHandle<CSCBadWires> pBadWire;
-    context.get<CSCBadWiresRcd>().get(pBadWire);
+    edm::LogSystem log("CSCBadWires");
 
-    theBadWires = pBadWire.product();
+    int counter = 0;
+    log << " RUN# " << e.id().run() << std::endl;
+    log << " EVENT# " << e.id().event() << std::endl;
+
+    theBadWires = &context.getData(badWiresToken_);
 
     // Create the vectors of bitsets, one per layer, as done in CSCConditions
-    fillBadWireWords();  // code from CSCConditions pasted into this file!
+    fillBadWireWords(log);  // code from CSCConditions pasted into this file!
 
     CSCIndexer indexer;  // just to build a CSCDetId from chamber index
 
     std::vector<CSCBadWires::BadChamber>::const_iterator itcham;
     std::vector<CSCBadWires::BadChannel>::const_iterator itchan;
 
-    std::cout << "Bad Chambers:" << std::endl;
+    log << "Bad Chambers:" << std::endl;
 
     int ibad = 0;
     int ifailed = 0;
@@ -80,8 +83,8 @@ namespace edmtest {
       int indexc = itcham->chamber_index;
       int badstart = itcham->pointer;
       int nbad = itcham->bad_channels;
-      std::cout << counter << "  " << itcham->chamber_index << "  " << itcham->pointer << "  " << itcham->bad_channels
-                << std::endl;
+      log << counter << "  " << itcham->chamber_index << "  " << itcham->pointer << "  " << itcham->bad_channels
+          << std::endl;
       CSCDetId id = indexer.detIdFromChamberIndex(indexc);
 
       // Iterate over the bad channels in this chamber
@@ -96,21 +99,20 @@ namespace edmtest {
 
         // Test whether this bad channel has indeed been flagged in the badWireWord
         if (ibits.test(chan - 1)) {
-          std::cout << "count " << ++ibad << " found bad channel " << chan << " in layer " << id2 << std::endl;
+          log << "count " << ++ibad << " found bad channel " << chan << " in layer " << id2 << std::endl;
         } else {
-          std::cout << "count " << +ifailed << " failed to see bad channel " << chan << " in layer " << id2
-                    << std::endl;
+          log << "count " << +ifailed << " failed to see bad channel " << chan << " in layer " << id2 << std::endl;
         }
       }
     }
 
     /*
-    std::cout<< "Bad Channels:" << std::endl;
+    log<< "Bad Channels:" << std::endl;
     counter = 0; // reset it!
 
     for( itchan=theBadWires->channels.begin();itchan!=theBadWires->channels.end(); ++itchan ){    
       counter++;
-      std::cout<<counter<<"  "<<itchan->layer<<"  "<<itchan->channel<<"  "<<itchan->flag1<<std::endl;
+      log<<counter<<"  "<<itchan->layer<<"  "<<itchan->channel<<"  "<<itchan->flag1<<std::endl;
     }
     */
 
@@ -132,7 +134,7 @@ namespace edmtest {
     }
   }
 
-  void CSCReadBadWiresAnalyzer::fillBadWireWords() {
+  void CSCReadBadWiresAnalyzer::fillBadWireWords(edm::LogSystem& log) {
     // reset existing values
     badWireWords.assign(3240, 0);
     if (readBadChannels()) {
@@ -152,7 +154,7 @@ namespace edmtest {
 
         // The following is not in standard CSCConditions version but was required for our prototype bad strip db
         if (indexc == 0) {
-          std::cout << "WARNING: chamber index = 0. Quitting. " << std::endl;
+          log << "WARNING: chamber index = 0. Quitting. " << std::endl;
           break;  // prototype db has zero line at end
         }
 
@@ -166,7 +168,7 @@ namespace edmtest {
 
           // The following is not in standard CSCConditions version but was required for our prototype bad strip db
           if (lay == 0) {
-            std::cout << "WARNING: layer index = 0. Quitting. " << std::endl;
+            log << "WARNING: layer index = 0. Quitting. " << std::endl;
             break;
           }
 
@@ -177,8 +179,8 @@ namespace edmtest {
           int indexl = indexer.layerIndex(id.endcap(), id.station(), id.ring(), id.chamber(), lay);
 
           // Test output to monitor filling
-          std::cout << "count " << ++icount << " bad channel " << chan << " in layer " << lay << " of chamber=" << id
-                    << " chamber index=" << indexc << " layer index=" << indexl << std::endl;
+          log << "count " << ++icount << " bad channel " << chan << " in layer " << lay << " of chamber=" << id
+              << " chamber index=" << indexc << " layer index=" << indexl << std::endl;
 
           badWireWords[indexl - 1].set(chan - 1, 1);  // set bit in 112-bit bitset representing this layer
         }                                             // j

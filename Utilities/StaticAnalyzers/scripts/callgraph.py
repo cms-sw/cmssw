@@ -28,7 +28,7 @@ assert(not baseclassre.match('edm::FlatRandomEGunProducer'))
 assert(baseclassre.match('edm::ProducerSourceBase'))
 assert(baseclassre.match('edm::one::OutputModuleBase'))
 farg = re.compile(r"\(.*?\)")
-tmpl = re.compile(r'<.*?>')
+tmpl = re.compile(r'<(.*)>')
 toplevelfuncs = set()
 
 getfuncre = re.compile(r"edm::eventsetup::EventSetupRecord::get<")
@@ -113,13 +113,20 @@ for tfunc in toplevelfuncs:
                     callstacks.add(cs)
 
 report = dict()
-for key in sorted(set(module2package.keys())):
-    for value in sorted(set(module2package[key])):
+csset = set(callstacks)
+for callstack in sorted(list(callstacks)):
+    for key in module2package.keys():
+        for value in module2package.get(key):
             regex_str = r'\b%s\b'%value
             vre=re.compile(regex_str)
-            for callstack in sorted(callstacks):
-                if vre.search(callstack):
-                     report.setdefault(str(key), {}).setdefault(str(value), []).append(str(callstack))
+            if vre.search(callstack):
+                report.setdefault(str(key), {}).setdefault(str(value), []).append(str(callstack))
+                csset.discard(callstack)
+
+report['no-package']=dict()
+for cs in sorted(list(csset)):
+    key=tmpl.split(topfuncre.split(cs)[0])[0]
+    report['no-package'].setdefault(key,[]).append(str(cs))
 
 r = open('eventsetuprecord-get.yaml', 'w')
 dump(report, r, width=float("inf"))

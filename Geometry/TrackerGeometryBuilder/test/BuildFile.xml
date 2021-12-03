@@ -40,7 +40,11 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="phase1PixelTopology_t.cpp"/>
+<bin file="phase1PixelTopology_t.cu">
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <use name="cuda"/>
+  <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+</bin>
 
 <bin file="runTests.cpp" name="GeometryTrackerGeometryBuilderTestDriver">
   <use name="FWCore/Utilities"/>

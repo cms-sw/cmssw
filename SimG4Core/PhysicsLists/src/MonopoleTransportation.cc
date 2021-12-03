@@ -255,7 +255,7 @@ G4double MonopoleTransportation::AlongStepGetPhysicalInteractionLength(const G4T
         geometryStepLength = currentMinimumStep;
       }
     } else {
-      geometryStepLength = lengthAlongCurve = 0.0;
+      geometryStepLength = 0.0;
       fGeometryLimitedStep = false;
     }
 
@@ -481,7 +481,7 @@ G4VParticleChange* MonopoleTransportation::PostStepDoIt(const G4Track& track, co
 
   const G4VPhysicalVolume* pNewVol = retCurrentTouchable->GetVolume();
   const G4Material* pNewMaterial = nullptr;
-  const G4VSensitiveDetector* pNewSensitiveDetector = nullptr;
+  G4VSensitiveDetector* pNewSensitiveDetector = nullptr;
 
   if (pNewVol != nullptr) {
     pNewMaterial = pNewVol->GetLogicalVolume()->GetMaterial();

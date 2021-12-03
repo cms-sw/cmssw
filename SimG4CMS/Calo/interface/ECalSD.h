@@ -57,7 +57,7 @@ private:
 
   // initialised before run
   const EcalSimulationParameters *ecalSimParameters_;
-  EcalNumberingScheme *numberingScheme_;
+  std::unique_ptr<EcalNumberingScheme> numberingScheme_;
   bool useWeight, storeTrack, storeRL, storeLayerTimeSim;
   bool useBirk, useBirkL3;
   double birk1, birk2, birk3, birkSlope, birkCut;

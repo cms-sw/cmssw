@@ -18,7 +18,6 @@
 #include "RecoHI/HiTracking/interface/HICaloCompatibleTrackSelector.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include <Math/DistFunc.h>

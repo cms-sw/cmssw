@@ -23,7 +23,6 @@
 //#include <signal.h>
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisModules/interface/EcnaAnalyzer.h"
-//#include <DataFormats/Provenance/interface/Timestamp.h>
 
 //--------------------------------------
 //  EcnaAnalyzer.cc

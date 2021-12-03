@@ -28,10 +28,15 @@ l1tdeCSCTPGCommon = cms.PSet(
     lctNBin = cms.vuint32(16, 116, 224, 16, 2, 448, 896, 5, 16, 2, 2),
     lctMinBin = cms.vdouble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
     lctMaxBin = cms.vdouble(16, 116, 224, 16, 2, 448, 896, 5, 16, 2, 2),
+    # options when running on test data from the  B904 test-stands
     useB904ME11 = cms.bool(False),
     useB904ME21 = cms.bool(False),
     useB904ME234s2 = cms.bool(False),
     isRun3 = cms.bool(False),
+    # B y default the DQM will make 2D summary plots. Do you also want
+    # the very large number of 1D plots? Would recommend to keep it to
+    # true so that it may help in the debugging process (S.D.)
+    make1DPlots = cms.bool(True),
     preTriggerAnalysis = cms.bool(False)
 )
 

@@ -19,7 +19,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,12 +31,15 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 
+#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+
 #include <vector>
 
 #include "TH1F.h"
 #include "TGraph.h"
 
-class SyncDCSO2O : public edm::EDAnalyzer {
+class SyncDCSO2O : public edm::one::EDAnalyzer<> {
 public:
   explicit SyncDCSO2O(const edm::ParameterSet&);
   ~SyncDCSO2O();
@@ -51,6 +54,7 @@ private:
   TGraph* buildGraph(TH1F* histo, Float_t* timeArray);
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<SiStripDetVOff, SiStripDetVOffRcd> dcsToken_;
   edm::Handle<edm::DetSetVector<SiStripDigi> > digiDetsetVector_[4];
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters digiProducersList_;

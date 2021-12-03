@@ -54,7 +54,7 @@ namespace testinter {
         {
           auto nlines = std::to_string(std::count(iConfig.begin(), iConfig.end(), '\n'));
           auto result = fwrite(nlines.data(), sizeof(char), nlines.size(), pipe_);
-          assert(result = nlines.size());
+          assert(result == nlines.size());
           result = fwrite(iConfig.data(), sizeof(char), iConfig.size(), pipe_);
           assert(result == iConfig.size());
           fflush(pipe_);

@@ -46,11 +46,12 @@ namespace hcaldqm {
                    const HcalDetId did,
                    const Digi &digi,
                    unsigned int i_start,
-                   unsigned int i_end) {
+                   unsigned int i_end,
+                   bool dopedsubtr = true) {
       double sumQ = 0;
       double sumQT = 0;
       for (unsigned int i = i_start; i <= i_end; ++i) {
-        double q = adc2fCDBMinusPedestal(conditions, calo_samples, did, digi, i);
+        double q = dopedsubtr ? adc2fCDBMinusPedestal(conditions, calo_samples, did, digi, i) : calo_samples[i];
         sumQ += q;
         sumQT += (i + 1) * q;
       }

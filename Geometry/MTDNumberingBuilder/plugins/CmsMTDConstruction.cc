@@ -122,11 +122,9 @@ void CmsMTDConstruction<DDFilteredView>::buildETLModule(DDFilteredView& fv, Geom
     baseNumber_.setSize(gh.size());
 
     for (uint i = gh.size(); i-- > 0;) {
-      std::string name(gh[i].logicalPart().name().name());
-      int copyN(gh[i].copyno());
-      baseNumber_.addLevel(name, copyN);
+      baseNumber_.addLevel(gh[i].logicalPart().name().name(), gh[i].copyno());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("CmsMTDConstruction") << name << " " << copyN;
+      edm::LogVerbatim("CmsMTDConstruction") << gh[i].logicalPart().name().name() << " " << gh[i].copyno();
 #endif
     }
 
@@ -160,12 +158,11 @@ void CmsMTDConstruction<cms::DDFilteredView>::buildETLModule(cms::DDFilteredView
   baseNumber_.setSize(fv.copyNos().size());
 
   for (uint i = 0; i < fv.copyNos().size(); i++) {
-    std::string name((fv.geoHistory()[i])->GetName());
-    name.assign(name.erase(name.rfind('_')));
-    int copyN(fv.copyNos()[i]);
-    baseNumber_.addLevel(name, copyN);
+    std::string_view name((fv.geoHistory()[i])->GetName());
+    size_t ipos = name.rfind('_');
+    baseNumber_.addLevel(name.substr(0, ipos), fv.copyNos()[i]);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CmsMTDConstruction") << name << " " << copyN;
+    edm::LogVerbatim("CmsMTDConstruction") << name.substr(0, ipos) << " " << fv.copyNos()[i];
 #endif
   }
 

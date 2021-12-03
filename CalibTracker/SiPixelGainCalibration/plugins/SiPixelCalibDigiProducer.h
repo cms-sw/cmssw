@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -52,7 +52,7 @@
 // class decleration
 //
 
-class SiPixelCalibDigiProducer : public edm::EDProducer {
+class SiPixelCalibDigiProducer : public edm::stream::EDProducer<> {
 public:
   explicit SiPixelCalibDigiProducer(const edm::ParameterSet& iConfig);
   ~SiPixelCalibDigiProducer() override;

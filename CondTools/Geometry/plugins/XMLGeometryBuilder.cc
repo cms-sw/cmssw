@@ -43,10 +43,10 @@ void XMLGeometryBuilder::beginJob() {
     return;
   }
 
-  FileBlob* pgf = new FileBlob(m_fname, m_zip);
+  FileBlob pgf(m_fname, m_zip);
 
   if (mydbservice->isNewTagRequest(m_record)) {
-    mydbservice->createNewIOV<FileBlob>(pgf, mydbservice->beginOfTime(), mydbservice->endOfTime(), m_record);
+    mydbservice->createOneIOV(pgf, mydbservice->beginOfTime(), m_record);
   } else {
     edm::LogError("XMLGeometryBuilder") << "GeometryFileRcd Tag already exist";
   }

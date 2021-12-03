@@ -28,7 +28,7 @@ class SiPixelPhase1MonitorVertexSoA : public DQMEDAnalyzer {
 public:
   using IndToEdm = std::vector<uint16_t>;
   explicit SiPixelPhase1MonitorVertexSoA(const edm::ParameterSet&);
-  ~SiPixelPhase1MonitorVertexSoA() override;
+  ~SiPixelPhase1MonitorVertexSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -57,15 +57,17 @@ SiPixelPhase1MonitorVertexSoA::SiPixelPhase1MonitorVertexSoA(const edm::Paramete
   topFolderName_ = iConfig.getParameter<std::string>("TopFolderName");
 }
 
-SiPixelPhase1MonitorVertexSoA::~SiPixelPhase1MonitorVertexSoA() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
+//
 // -- Analyze
 //
 void SiPixelPhase1MonitorVertexSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  auto const& vsoa = *(iEvent.get(tokenSoAVertex_).get());
+  const auto& vsoaHandle = iEvent.getHandle(tokenSoAVertex_);
+  if (!vsoaHandle.isValid()) {
+    edm::LogWarning("SiPixelPhase1MonitorTrackSoA") << "No Vertex SoA found \n returning!" << std::endl;
+    return;
+  }
+
+  auto const& vsoa = *((vsoaHandle.product())->get());
   int nVertices = vsoa.nvFinal;
   auto bsHandle = iEvent.getHandle(tokenBeamSpot_);
   float x0 = 0., y0 = 0., z0 = 0., dxdz = 0., dydz = 0.;

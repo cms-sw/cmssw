@@ -202,7 +202,7 @@ MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
                        deltaChiSqThresh_,
                        nnlsThresh_);
 
-  token_ChannelInfo_ = consumes<HBHEChannelInfoCollection>(edm::InputTag("hbheprereco", ""));
+  token_ChannelInfo_ = consumes<HBHEChannelInfoCollection>(iConfig.getParameter<edm::InputTag>("recoLabel"));
 }
 
 MahiDebugger::~MahiDebugger() {}
@@ -355,6 +355,7 @@ void MahiDebugger::endJob() {}
 void MahiDebugger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
+  desc.add<edm::InputTag>("recoLabel");
   desc.add<bool>("dynamicPed");
   desc.add<bool>("calculateArrivalTime");
   desc.add<double>("ts4Thresh");

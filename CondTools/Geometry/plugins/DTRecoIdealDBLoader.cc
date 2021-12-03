@@ -42,7 +42,7 @@ DTRecoIdealDBLoader::DTRecoIdealDBLoader(const edm::ParameterSet& iC) {
 }
 
 void DTRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  RecoIdealGeometry* rig = new RecoIdealGeometry;
+  RecoIdealGeometry rig;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("DTRecoIdealDBLoader") << "PoolDBOutputService unavailable";
@@ -55,15 +55,14 @@ void DTRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
   if (fromDD4hep_) {
     auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
     const cms::DDCompactView& cpv = *pDD;
-    dtgp.build(&cpv, *pMNDC, *rig);
+    dtgp.build(&cpv, *pMNDC, rig);
   } else {
     auto pDD = es.getTransientHandle(compactViewToken_);
     const DDCompactView& cpv = *pDD;
-    dtgp.build(&cpv, *pMNDC, *rig);
+    dtgp.build(&cpv, *pMNDC, rig);
   }
   if (mydbservice->isNewTagRequest("DTRecoGeometryRcd")) {
-    mydbservice->createNewIOV<RecoIdealGeometry>(
-        rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "DTRecoGeometryRcd");
+    mydbservice->createOneIOV(rig, mydbservice->beginOfTime(), "DTRecoGeometryRcd");
   } else {
     edm::LogError("DTRecoIdealDBLoader") << "DTRecoGeometryRcd Tag is already present.";
   }

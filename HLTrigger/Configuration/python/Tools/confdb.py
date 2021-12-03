@@ -492,7 +492,14 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
     ),
     outputCommands = cms.untracked.vstring( 'drop *',
         'keep edmTriggerResults_*_*_*',
-        'keep triggerTriggerEvent_*_*_*'
+        'keep triggerTriggerEvent_*_*_*',
+        'keep GlobalAlgBlkBXVector_*_*_*',                  
+        'keep GlobalExtBlkBXVector_*_*_*',
+        'keep l1tEGammaBXVector_*_EGamma_*',
+        'keep l1tEtSumBXVector_*_EtSum_*',
+        'keep l1tJetBXVector_*_Jet_*',
+        'keep l1tMuonBXVector_*_Muon_*',
+        'keep l1tTauBXVector_*_Tau_*',
     )
 )
 %(process)s.MinimalOutput = cms.EndPath( %(process)s.hltOutputMinimal )
@@ -800,6 +807,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-EcalEndcapGeometryEP" )
       self.options['esmodules'].append( "-EcalLaserCorrectionService" )
       self.options['esmodules'].append( "-EcalPreshowerGeometryEP" )
+      self.options['esmodules'].append( "-GEMGeometryESModule" )
       self.options['esmodules'].append( "-HcalHardcodeGeometryEP" )
       self.options['esmodules'].append( "-HcalTopologyIdealEP" )
       self.options['esmodules'].append( "-MuonNumberingInitialization" )

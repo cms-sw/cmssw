@@ -28,8 +28,6 @@ G4Mutex CustomParticleFactory::customParticleFactoryMutex = G4MUTEX_INITIALIZER;
 
 CustomParticleFactory::CustomParticleFactory() {}
 
-CustomParticleFactory::~CustomParticleFactory() {}
-
 void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
   if (loaded) {
     return;
@@ -46,8 +44,9 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
   std::ifstream configFile(filePath.c_str());
 
   std::string line;
-  edm::LogInfo("SimG4CoreCustomPhysics") << "CustomParticleFactory: Reading Custom Particle and G4DecayTable from \n"
-                                         << filePath;
+  edm::LogVerbatim("SimG4CoreCustomPhysics")
+      << "CustomParticleFactory: Reading Custom Particle and G4DecayTable from \n"
+      << filePath;
   // This should be compatible IMO to SLHA
   G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
   while (getline(configFile, line)) {
@@ -57,7 +56,7 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
     }  // Skip blank lines and comments.
     // The mass table begins with a line containing "BLOCK MASS"
     if (ToLower(line).find("block") < line.npos && ToLower(line).find("mass") < line.npos) {
-      edm::LogInfo("SimG4CoreCustomPhysics") << "CustomParticleFactory: Retrieving mass table.";
+      edm::LogVerbatim("SimG4CoreCustomPhysics") << "CustomParticleFactory: Retrieving mass table.";
       getMassTable(&configFile);
     }
     if (line.find("DECAY") < line.npos) {
@@ -67,10 +66,10 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
       std::stringstream lineStream(line);
       lineStream >> tmpString >> pdgId >> width;
       // assume SLHA format, e.g.: DECAY  1000021  5.50675438E+00   # gluino decays
-      edm::LogInfo("SimG4CoreCustomPhysics")
+      edm::LogVerbatim("SimG4CoreCustomPhysics")
           << "CustomParticleFactory: entry to G4DecayTable: pdgID, width " << pdgId << ",  " << width;
       G4ParticleDefinition *aParticle = theParticleTable->FindParticle(pdgId);
-      if (!aParticle || width == 0.0) {
+      if (nullptr == aParticle || width == 0.0) {
         continue;
       }
       G4DecayTable *aDecayTable = getDecayTable(&configFile, pdgId);
@@ -78,7 +77,7 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
       aParticle->SetPDGStable(false);
       aParticle->SetPDGLifeTime(1.0 / (width * CLHEP::GeV) * 6.582122e-22 * CLHEP::MeV * CLHEP::s);
       G4ParticleDefinition *aAntiParticle = theParticleTable->FindAntiParticle(pdgId);
-      if (aAntiParticle && aAntiParticle->GetPDGEncoding() != pdgId) {
+      if (nullptr != aAntiParticle && aAntiParticle->GetPDGEncoding() != pdgId) {
         aAntiParticle->SetDecayTable(getAntiDecayTable(pdgId, aDecayTable));
         aAntiParticle->SetPDGStable(false);
         aAntiParticle->SetPDGLifeTime(1.0 / (width * CLHEP::GeV) * 6.582122e-22 * CLHEP::MeV * CLHEP::s);
@@ -202,7 +201,7 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
     particle->SetCloud(tmpParticle);
     particle->SetSpectator(spectator);
 
-    edm::LogInfo("SimG4CoreCustomPhysics")
+    edm::LogVerbatim("SimG4CoreCustomPhysics")
         << "CustomParticleFactory: " << name << " being assigned spectator" << spectator->GetParticleName()
         << " and cloud " << cloudname << "\n"
         << "                        Masses: " << mass << " Gev, " << spectatormass / CLHEP::GeV << " GeV and "
@@ -224,7 +223,7 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
         edm::LogError("SimG4CoreCustomPhysics") << "CustomParticleFactory: Cannot find spectator parton";
       }
     }
-    if (spectator) {
+    if (nullptr != spectator) {
       spectatormass = spectator->GetPDGMass();
     }
     G4double cloudmass = massGeV - spectatormass;
@@ -233,7 +232,7 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
     particle->SetCloud(tmpParticle);
     particle->SetSpectator(spectator);
 
-    if (spectator)
+    if (nullptr != spectator)
       edm::LogVerbatim("SimG4CoreCustomPhysics")
           << "CustomParticleFactory: " << name << " being assigned spectator" << spectator->GetParticleName()
           << " and cloud " << cloudname << "\n"
@@ -270,7 +269,7 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
       continue;
     }
 
-    edm::LogInfo("SimG4CoreCustomPhysics")
+    edm::LogVerbatim("SimG4CoreCustomPhysics")
         << "CustomParticleFactory: Calling addCustomParticle for pdgId: " << pdgId << ", mass " << mass << " GeV  "
         << name << ", isgluinoHadron: " << CustomPDGParser::s_isgluinoHadron(pdgId)
         << ", isstopHadron: " << CustomPDGParser::s_isstopHadron(pdgId)
@@ -281,29 +280,30 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
     int pdgIdPartner = pdgId % 100;
     G4ParticleDefinition *aParticle = theParticleTable->FindParticle(pdgIdPartner);
     //Add antiparticles for SUSY particles only, not for rHadrons.
-    if (aParticle) {
-      edm::LogInfo("SimG4CoreCustomPhysics")
+    if (nullptr != aParticle) {
+      edm::LogVerbatim("SimG4CoreCustomPhysics")
           << "CustomParticleFactory: Found partner particle for "
           << " pdgId= " << pdgId << ", pdgIdPartner= " << pdgIdPartner << " " << aParticle->GetParticleName();
     }
 
-    if (aParticle && !CustomPDGParser::s_isgluinoHadron(pdgId) && !CustomPDGParser::s_isstopHadron(pdgId) &&
+    if (nullptr != aParticle && !CustomPDGParser::s_isgluinoHadron(pdgId) && !CustomPDGParser::s_isstopHadron(pdgId) &&
         !CustomPDGParser::s_isSIMP(pdgId) && pdgId != 1000006 && pdgId != -1000006 && pdgId != 25 && pdgId != 35 &&
         pdgId != 36 && pdgId != 37) {
       int sign = aParticle->GetAntiPDGEncoding() / pdgIdPartner;
-      edm::LogInfo("SimG4CoreCustomPhysics")
+      edm::LogVerbatim("SimG4CoreCustomPhysics")
           << "CustomParticleFactory: For " << aParticle->GetParticleName() << " pdg= " << pdgIdPartner
           << ", GetAntiPDGEncoding() " << aParticle->GetAntiPDGEncoding() << " sign= " << sign;
 
       if (std::abs(sign) != 1) {
-        edm::LogInfo("SimG4CoreCustomPhysics") << "CustomParticleFactory: sign= " << sign
-                                               << " a: " << aParticle->GetAntiPDGEncoding() << " b: " << pdgIdPartner;
+        edm::LogVerbatim("SimG4CoreCustomPhysics")
+            << "CustomParticleFactory: sign= " << sign << " a: " << aParticle->GetAntiPDGEncoding()
+            << " b: " << pdgIdPartner;
         aParticle->DumpTable();
       }
       if (sign == -1 && pdgId != 25 && pdgId != 35 && pdgId != 36 && pdgId != 37 && pdgId != 1000039) {
         tmp = "anti_" + name;
-        if (!theParticleTable->FindParticle(-pdgId)) {
-          edm::LogInfo("SimG4CoreCustomPhysics")
+        if (nullptr != theParticleTable->FindParticle(-pdgId)) {
+          edm::LogVerbatim("SimG4CoreCustomPhysics")
               << "CustomParticleFactory: Calling addCustomParticle for antiparticle with pdgId: " << -pdgId << ", mass "
               << mass << " GeV, name " << tmp;
           addCustomParticle(-pdgId, mass, tmp);
@@ -318,7 +318,7 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
     if (pdgId == 1000024 || pdgId == 1000037 || pdgId == 37) {
       tmp = "anti_" + name;
       if (!theParticleTable->FindParticle(-pdgId)) {
-        edm::LogInfo("SimG4CoreCustomPhysics")
+        edm::LogVerbatim("SimG4CoreCustomPhysics")
             << "CustomParticleFactory: Calling addCustomParticle for antiparticle (2) with pdgId: " << -pdgId
             << ", mass " << mass << " GeV, name " << tmp;
         addCustomParticle(-pdgId, mass, tmp);
@@ -327,8 +327,8 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
     }
     if (pdgId == 9000006) {
       tmp = name + "bar";
-      edm::LogInfo("CustomPhysics") << "Calling addCustomParticle for antiparticle with pdgId: " << -pdgId << ", mass "
-                                    << mass << ", name " << tmp;
+      edm::LogVerbatim("CustomPhysics") << "Calling addCustomParticle for antiparticle with pdgId: " << -pdgId
+                                        << ", mass " << mass << ", name " << tmp;
       addCustomParticle(-pdgId, mass, tmp);
       theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(-pdgId);
     }
@@ -388,7 +388,7 @@ G4DecayTable *CustomParticleFactory::getDecayTable(std::ifstream *configFile, in
     G4PhaseSpaceDecayChannel *aDecayChannel =
         new G4PhaseSpaceDecayChannel(parentName, br, nDaughters, name[0], name[1], name[2], name[3]);
     decaytable->Insert(aDecayChannel);
-    edm::LogInfo("SimG4CoreCustomPhysics")
+    edm::LogVerbatim("SimG4CoreCustomPhysics")
         << "CustomParticleFactory: inserted decay channel "
         << " for pdgID= " << pdgId << "  " << parentName << " BR= " << br << " Daughters: " << name[0] << "  "
         << name[1] << "  " << name[2] << "  " << name[3];
@@ -408,8 +408,8 @@ G4DecayTable *CustomParticleFactory::getAntiDecayTable(int pdgId, G4DecayTable *
     int nd = std::min(4, theDecayChannel->GetNumberOfDaughters());
     for (int j = 0; j < nd; ++j) {
       int id = theDecayChannel->GetDaughter(j)->GetAntiPDGEncoding();
-      const G4ParticleDefinition *part = theParticleTable->FindParticle(id);
-      if (!part) {
+      G4ParticleDefinition *part = theParticleTable->FindParticle(id);
+      if (nullptr == part) {
         edm::LogWarning("SimG4CoreCustomPhysics")
             << "CustomParticleFactory: antiparticle with PDG code" << id << " not found!";
         continue;
@@ -419,7 +419,7 @@ G4DecayTable *CustomParticleFactory::getAntiDecayTable(int pdgId, G4DecayTable *
     G4PhaseSpaceDecayChannel *aDecayChannel =
         new G4PhaseSpaceDecayChannel(parentName, theDecayChannel->GetBR(), nd, name[0], name[1], name[2], name[3]);
     decaytable->Insert(aDecayChannel);
-    edm::LogInfo("SimG4CoreCustomPhysics")
+    edm::LogVerbatim("SimG4CoreCustomPhysics")
         << "CustomParticleFactory: inserted decay channel "
         << " for pdgID= " << -pdgId << "  " << parentName << " BR= " << theDecayChannel->GetBR()
         << " Daughters: " << name[0] << "  " << name[1] << "  " << name[2] << "  " << name[3];
@@ -434,4 +434,4 @@ std::string CustomParticleFactory::ToLower(std::string str) {
   return str;
 }
 
-const std::vector<G4ParticleDefinition *> &CustomParticleFactory::GetCustomParticles() { return m_particles; }
+const std::vector<G4ParticleDefinition *> &CustomParticleFactory::getCustomParticles() { return m_particles; }

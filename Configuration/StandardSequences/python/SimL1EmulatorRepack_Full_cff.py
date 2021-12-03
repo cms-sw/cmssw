@@ -8,10 +8,10 @@ from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 
 def _print(ignored):
-    print("L1T WARN:  L1REPACK:Full (intended for 2016 data) only supports Stage 2 eras for now.")
-    print("L1T WARN:  Use a legacy version of L1REPACK for now.")
+    print("# L1T WARN:  L1REPACK:Full (intended for 2016 data) only supports Stage 2 eras for now.")
+    print("# L1T WARN:  Use a legacy version of L1REPACK for now.")
 stage2L1Trigger.toModify(None, _print)
-(~stage2L1Trigger).toModify(None, lambda x: print("L1T INFO:  L1REPACK:Full (intended for 2016 & 2017 data) will unpack all L1T inputs, re-emulated (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."))
+(~stage2L1Trigger).toModify(None, lambda x: print("# L1T INFO:  L1REPACK:Full (intended for 2016 & 2017 data) will unpack all L1T inputs, re-emulated (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."))
 
 # First, Unpack all inputs to L1:
 

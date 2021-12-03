@@ -7,4 +7,5 @@ mahiDebugger = cms.EDAnalyzer('MahiDebugger',
                                         meanTime = method2.m2Parameters.meanTime,
                                         timeSigmaHPD = method2.m2Parameters.timeSigmaHPD,
                                         timeSigmaSiPM = method2.m2Parameters.timeSigmaSiPM),
-                              mahi.mahiParameters)
+                              mahi.mahiParameters,
+                              recoLabel = cms.InputTag('hbheprereco'))

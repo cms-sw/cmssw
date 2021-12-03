@@ -34,7 +34,7 @@ namespace gpuVertexFinder {
       // initialize soa...
       soa->idv[idx] = -1;
 
-      if (nHits < 4)
+      if (tracks.isTriplet(idx))
         continue;  // no triplets
       if (quality[idx] < pixelTrack::Quality::highPurity)
         continue;

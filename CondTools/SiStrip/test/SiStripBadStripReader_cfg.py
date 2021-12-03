@@ -29,7 +29,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         record = cms.string('SiStripBadStripRcd'),
         tag = cms.string('SiStripBadChannel_v1')
     )),
-    connect = cms.string('sqlite_file:dbfile.db')
+    connect = cms.string('sqlite_file:SiStripConditionsDBFile.db')
 )
 
 process.prod = cms.EDAnalyzer("SiStripBadStripReader",

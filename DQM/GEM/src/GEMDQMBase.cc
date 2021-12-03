@@ -86,6 +86,7 @@ int GEMDQMBase::loadChambers() {
         ME3IdsKey key3(region_number, station_number, layer_number);
         mapStationInfo_[key3] =
             MEStationInfo(region_number, station_number, layer_number, num_superchambers, num_etas, num_vfat, num_digi);
+        mapStationInfo_[key3].fMinPhi_ = -0.088344;  // FIXME
       }
     }
   }
