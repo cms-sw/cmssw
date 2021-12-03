@@ -434,6 +434,15 @@ namespace trklet {
       return fact * bendcut(ibend, layerdisk, isPSmodule);
     }
 
+    //layers/disks used by each seed
+    std::array<std::array<int, 3>, N_SEED> seedlayers() const { return seedlayers_; }
+
+    //projection layers by seed index. For each seeding index (row) the list of layers that we consider projections to
+    std::array<std::array<unsigned int, N_LAYER - 2>, N_SEED> projlayers() const { return projlayers_; }
+
+    //projection disks by seed index. For each seeding index (row) the list of diks that we consider projections to
+    std::array<std::array<unsigned int, N_DISK>, N_SEED> projdisks() const { return projdisks_; }
+
   private:
     std::string fitPatternFile_;
     std::string processingModulesFile_;

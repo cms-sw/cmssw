@@ -32,9 +32,9 @@ using namespace edm;
 using namespace trackerTFP;
 using namespace tt;
 
-namespace trackFindingTracklet {
+namespace trklet {
 
-  /*! \class  trackFindingTracklet::AnalyzerTracklet
+  /*! \class  trklet::AnalyzerTracklet
    *  \brief  Class to analyze TTTracks found by tracklet pattern recognition
    *  \author Thomas Schuh
    *  \date   2020, Oct
@@ -272,6 +272,6 @@ namespace trackFindingTracklet {
     }
   }
 
-}  // namespace trackFindingTracklet
+}  // namespace trklet
 
-DEFINE_FWK_MODULE(trackFindingTracklet::AnalyzerTracklet);
+DEFINE_FWK_MODULE(trklet::AnalyzerTracklet);

@@ -13,7 +13,7 @@
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
-#include "L1Trigger/TrackFindingTracklet/interface/TrackBuilderChannel.h"
+#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
 
 #include <string>
 #include <vector>
@@ -27,9 +27,9 @@ using namespace edm;
 using namespace trackerTFP;
 using namespace tt;
 
-namespace trackFindingTracklet {
+namespace trklet {
 
-  /*! \class  trackFindingTracklet::ProducerKFin
+  /*! \class  trklet::ProducerKFin
    *  \brief  Transforms format of TTTracks from Tracklet pattern reco. to that expected by KF input.
    *  \author Thomas Schuh
    *  \date   2020, Oct
@@ -58,8 +58,8 @@ namespace trackFindingTracklet {
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // LayerEncoding token
     ESGetToken<LayerEncoding, LayerEncodingRcd> esGetTokenLayerEncoding_;
-    // TrackBuilderChannel token
-    ESGetToken<TrackBuilderChannel, TrackBuilderChannelRcd> esGetTokenTrackBuilderChannel_;
+    // ChannelAssignment token
+    ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
     // configuration
     ParameterSet iConfig_;
     // helper class to store configurations
@@ -69,7 +69,7 @@ namespace trackFindingTracklet {
     // helper class to encode layer
     const LayerEncoding* layerEncoding_;
     // helper class to assign tracks to channel
-    TrackBuilderChannel* trackBuilderChannel_;
+    ChannelAssignment* channelAssignment_;
     //
     bool enableTruncation_;
   };
@@ -90,12 +90,12 @@ namespace trackFindingTracklet {
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
     esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, LayerEncodingRcd, Transition::BeginRun>();
-    esGetTokenTrackBuilderChannel_ = esConsumes<TrackBuilderChannel, TrackBuilderChannelRcd, Transition::BeginRun>();
+    esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
     // initial ES products
     setup_ = nullptr;
     dataFormats_ = nullptr;
     layerEncoding_ = nullptr;
-    trackBuilderChannel_ = nullptr;
+    channelAssignment_ = nullptr;
     //
     enableTruncation_ = iConfig.getParameter<bool>("EnableTruncation");
   }
@@ -113,7 +113,7 @@ namespace trackFindingTracklet {
     // helper class to encode layer
     layerEncoding_ = &iSetup.getData(esGetTokenLayerEncoding_);
     // helper class to assign tracks to channel
-    trackBuilderChannel_ = const_cast<TrackBuilderChannel*>(&iSetup.getData(esGetTokenTrackBuilderChannel_));
+    channelAssignment_ = const_cast<ChannelAssignment*>(&iSetup.getData(esGetTokenChannelAssignment_));
   }
 
   void ProducerKFin::produce(Event& iEvent, const EventSetup& iSetup) {
@@ -125,7 +125,7 @@ namespace trackFindingTracklet {
     const DataFormat& dfinv2R = dataFormats_->format(Variable::inv2R, Process::kfin);
     // dataformat used for track phi at radius schoenRofPhi wrt phi sector centre
     const DataFormat& dfphiT = dataFormats_->format(Variable::phiT, Process::kfin);
-    const int numStreamsTracks = setup_->numRegions() * trackBuilderChannel_->numChannels();
+    const int numStreamsTracks = setup_->numRegions() * channelAssignment_->numChannels();
     const int numStreamsStubs = numStreamsTracks * setup_->numLayers();
     // empty KFin products
     StreamsStub streamAcceptedStubs(numStreamsStubs);
@@ -134,23 +134,26 @@ namespace trackFindingTracklet {
     StreamsTrack streamLostTracks(numStreamsTracks);
     // read in hybrid track finding product and produce KFin product
     if (setup_->configurationSupported()) {
+      // create TTrackRefs
       Handle<TTTracks> handleTTTracks;
       iEvent.getByToken<TTTracks>(edGetTokenTTTracks_, handleTTTracks);
-      const TTTracks& ttTracks = *handleTTTracks;
+      vector<TTTrackRef> ttTrackRefs;
+      ttTrackRefs.reserve(handleTTTracks->size());
+      for (int i = 0; i < (int)handleTTTracks->size(); i++)
+        ttTrackRefs.emplace_back(TTTrackRef(handleTTTracks, i));
       // Assign input tracks to channels according to TrackBuilder step.
       vector<vector<TTTrackRef>> ttTrackRefsStreams(numStreamsTracks);
       vector<int> nTTTracksStreams(numStreamsTracks, 0);
       int channelId;
-      for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : ttTracks)
-        if (trackBuilderChannel_->channelId(ttTrack, channelId))
+      for (const TTTrackRef& ttTrackRef : ttTrackRefs)
+        if (channelAssignment_->channelId(ttTrackRef, channelId))
           nTTTracksStreams[channelId]++;
       channelId = 0;
       for (int nTTTracksStream : nTTTracksStreams)
         ttTrackRefsStreams[channelId++].reserve(nTTTracksStream);
-      int i(0);
-      for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : ttTracks)
-        if (trackBuilderChannel_->channelId(ttTrack, channelId))
-          ttTrackRefsStreams[channelId].emplace_back(TTTrackRef(handleTTTracks, i++));
+      for (const TTTrackRef& ttTrackRef : ttTrackRefs)
+        if (channelAssignment_->channelId(ttTrackRef, channelId))
+          ttTrackRefsStreams[channelId].push_back(ttTrackRef);
       for (channelId = 0; channelId < numStreamsTracks; channelId++) {
         // Create vector of stubs/tracks in KF format from TTTracks
         deque<FrameTrack> streamTracks;
@@ -279,6 +282,6 @@ namespace trackFindingTracklet {
     iEvent.emplace(edPutTokenLostTracks_, move(streamLostTracks));
   }
 
-}  // namespace trackFindingTracklet
+}  // namespace trklet
 
-DEFINE_FWK_MODULE(trackFindingTracklet::ProducerKFin);
+DEFINE_FWK_MODULE(trklet::ProducerKFin);
