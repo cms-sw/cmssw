@@ -66,6 +66,8 @@ tmbPhase2GEM = tmbPhase2.clone(
     # efficiency recovery switches
     dropLowQualityALCTsNoGEMs = cms.bool(False),
     dropLowQualityCLCTsNoGEMs = cms.bool(True),
+    buildLCTfromALCTCLCTand2GEM = cms.bool(True),
+    buildLCTfromALCTCLCTand1GEM = cms.bool(True),
     buildLCTfromALCTandGEM = cms.bool(True),
     buildLCTfromCLCTandGEM = cms.bool(True),
     # assign GEM-CSC bending angle. Works only for

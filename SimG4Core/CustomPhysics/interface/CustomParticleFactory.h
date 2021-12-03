@@ -12,10 +12,10 @@ class G4ParticleDefinition;
 class CustomParticleFactory {
 public:
   explicit CustomParticleFactory();
-  ~CustomParticleFactory();
+  ~CustomParticleFactory() = default;
 
   void loadCustomParticles(const std::string &filePath);
-  const std::vector<G4ParticleDefinition *> &GetCustomParticles();
+  const std::vector<G4ParticleDefinition *> &getCustomParticles();
 
 private:
   void addCustomParticle(int pdgCode, double mass, const std::string &name);

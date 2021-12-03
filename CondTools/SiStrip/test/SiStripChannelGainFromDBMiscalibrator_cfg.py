@@ -157,7 +157,7 @@ process.load("CondCore.CondDB.CondDB_cfi")
 ##
 ## Output database (in this case local sqlite file)
 ##
-process.CondDB.connect = 'sqlite_file:modifiedGains_'+ process.GlobalTag.globaltag._value+'_IOV_'+str(options.runNumber)+".db"
+process.CondDB.connect = 'sqlite_file:modifiedSiStripGains_'+ process.GlobalTag.globaltag._value+'_IOV_'+str(options.runNumber)+".db"
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
                                           timetype = cms.untracked.string('runnumber'),

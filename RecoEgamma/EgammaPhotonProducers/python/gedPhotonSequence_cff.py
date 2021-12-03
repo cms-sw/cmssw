@@ -14,12 +14,13 @@ gedPhotonsTmp = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone
     candidateP4type        = "fromEcalEnergy",
     outputPhotonCollection = "",
     reconstructionStep     = "tmp",
+    #Photon PFID DNN model configuration
     PhotonDNNPFid = dict(
-        modelsFiles = [ "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EB/EB_modelDNN.pb",
-                        "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EE/EE_modelDNN.pb"],
+        modelsFiles = [ "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EB/barrel_modelDNN.pb",
+                        "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EE/endcap_modelDNN.pb"],
         scalersFiles = [
-                    "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EB/EB_scaler.txt",
-                    "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EE/EE_scaler.txt"]
+                    "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EB/barrel_scaler.txt",
+                    "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/Run3Summer21_120X/EE/endcap_scaler.txt"]
     )
 )
 del gedPhotonsTmp.regressionConfig

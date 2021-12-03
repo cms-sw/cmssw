@@ -99,18 +99,18 @@ ProduceAgingObject::~ProduceAgingObject() {}
 
 // -- Called for each event --
 void ProduceAgingObject::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  MuonSystemAging* muonAgingObject = new MuonSystemAging();
+  MuonSystemAging muonAgingObject;
 
-  muonAgingObject->m_DTChambEffs = m_DTChambEffs;
-  muonAgingObject->m_RPCChambEffs = m_RPCChambEffs;
-  muonAgingObject->m_CSCChambEffs = m_CSCChambEffs;
+  muonAgingObject.m_DTChambEffs = m_DTChambEffs;
+  muonAgingObject.m_RPCChambEffs = m_RPCChambEffs;
+  muonAgingObject.m_CSCChambEffs = m_CSCChambEffs;
 
-  muonAgingObject->m_GEMChambEffs = m_GEMChambEffs;
-  muonAgingObject->m_ME0ChambEffs = m_ME0ChambEffs;
+  muonAgingObject.m_GEMChambEffs = m_GEMChambEffs;
+  muonAgingObject.m_ME0ChambEffs = m_ME0ChambEffs;
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(muonAgingObject, poolDbService->currentTime(), "MuonSystemAgingRcd");
+    poolDbService->writeOneIOV(muonAgingObject, poolDbService->currentTime(), "MuonSystemAgingRcd");
 }
 
 // -- Called at the beginning of each run --

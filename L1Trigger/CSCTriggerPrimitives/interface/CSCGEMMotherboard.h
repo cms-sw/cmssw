@@ -53,8 +53,11 @@ public:
   void setGEMGeometry(const GEMGeometry* g) { gem_g = g; }
 
 private:
-  // match ALCT-CLCT-GEM pairs
+  // match ALCT-CLCT-(2)GEM pairs
   void matchALCTCLCTGEM(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]);
+
+  // match ALCT-CLCT pairs
+  void matchALCTCLCT(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]);
 
   // match CLCT-2GEM pairs. The GEM coincidence cluster BX is considered the
   // reference
@@ -141,6 +144,8 @@ private:
   bool drop_low_quality_clct_no_gems_;
 
   // build LCT from ALCT/CLCT and GEM in ME1/b or ME2/1
+  bool build_lct_from_alct_clct_2gem_;
+  bool build_lct_from_alct_clct_1gem_;
   bool build_lct_from_alct_gem_;
   bool build_lct_from_clct_gem_;
 

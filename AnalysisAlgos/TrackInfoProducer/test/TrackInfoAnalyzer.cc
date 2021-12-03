@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -21,7 +21,7 @@
 
 using namespace edm;
 
-class TrackInfoAnalyzer : public edm::EDAnalyzer {
+class TrackInfoAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   TrackInfoAnalyzer(const edm::ParameterSet& pset);
   void beginJob() {
@@ -47,9 +47,7 @@ public:
     using namespace reco;
 
     //Retrieve tracker topology from geometry
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-    const TrackerTopology* const tTopo = tTopoHandle.product();
+    const TrackerTopology* const tTopo = &setup.getData(tkTopoToken);
 
     //std::cout << "\nEvent ID = "<< event.id() << std::endl ;
     edm::Handle<reco::TrackInfoCollection> trackCollection;
@@ -124,12 +122,14 @@ private:
   TH1F* tib3ext;
   TH1F* tib4int;
   TH1F* tib4ext;
-  std::string filename;
-  edm::EDGetTokenT<reco::TrackInfoCollection> trackCollectionToken;
+  const std::string filename;
+  const edm::EDGetTokenT<reco::TrackInfoCollection> trackCollectionToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken;
 };
 
 TrackInfoAnalyzer::TrackInfoAnalyzer(const edm::ParameterSet& pset)
     : filename(pset.getParameter<std::string>("OutFileName")),
-      trackCollectionToken(consumes<reco::TrackInfoCollection>(pset.getParameter<edm::InputTag>("TrackInfo"))) {}
+      trackCollectionToken(consumes<reco::TrackInfoCollection>(pset.getParameter<edm::InputTag>("TrackInfo"))),
+      tkTopoToken(esConsumes()) {}
 
 DEFINE_FWK_MODULE(TrackInfoAnalyzer);

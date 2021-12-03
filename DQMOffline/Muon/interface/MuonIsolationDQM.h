@@ -87,6 +87,10 @@ private:
 
   //----------Static Variables---------------
 
+  int vtxBin_;
+  double vtxMin_;
+  double vtxMax_;
+
   //Collection labels
   edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionLabel_;
   edm::EDGetTokenT<edm::View<reco::Muon> > theMuonCollectionLabel_;

@@ -567,7 +567,7 @@ def createPlots_(plot, geometry):
 
         # category profiles
         for label, [num, color, leg] in hist_label_to_num.items():
-            if label is 'SUM': continue
+            if label == 'SUM': continue
             hist_label = get1DHisto_(subDetector, num + plots[plot].plotNumber, geometry)
             hist_X0_elements[label] = assignOrAddIfExists_(
                 hist_X0_elements.setdefault(label,None),
@@ -643,7 +643,7 @@ def createPlots_(plot, geometry):
     stack_X0_Materials = THStack("stack_X0",stackTitle_Materials)
     stack_X0_Materials.Add(hist_X0_detectors["BeamPipe"])
     for label, [num, color, leg] in hist_label_to_num.items():
-        if label is 'SUM':
+        if label == 'SUM':
             continue
         stack_X0_Materials.Add(hist_X0_elements[label])
 
@@ -666,7 +666,7 @@ def createPlots_(plot, geometry):
 
     theLegend_Materials.AddEntry(hist_X0_detectors["BeamPipe"],  "Beam Pipe", "f")
     for label, [num, color, leg] in hist_label_to_num.items():
-        if label is 'SUM':
+        if label == 'SUM':
             continue
         theLegend_Materials.AddEntry(hist_X0_elements[label], leg, "f")
     theLegend_Materials.Draw()
@@ -829,7 +829,7 @@ def createCompoundPlots(detector, plot, geometry):
 
     for label, [num, color, leg] in hist_label_to_num.items():
         # We don't want the sum to be added as part of the stack
-        if label is 'SUM':
+        if label == 'SUM':
             continue
         hist_X0_elements[label] = get1DHisto_(detector,
                                               num + plots[plot].plotNumber,

@@ -26,7 +26,7 @@
 class SiPixelPhase1MonitorTrackSoA : public DQMEDAnalyzer {
 public:
   explicit SiPixelPhase1MonitorTrackSoA(const edm::ParameterSet&);
-  ~SiPixelPhase1MonitorTrackSoA() override;
+  ~SiPixelPhase1MonitorTrackSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -57,15 +57,17 @@ SiPixelPhase1MonitorTrackSoA::SiPixelPhase1MonitorTrackSoA(const edm::ParameterS
   minQuality_ = pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"));
 }
 
-SiPixelPhase1MonitorTrackSoA::~SiPixelPhase1MonitorTrackSoA() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
+//
 // -- Analyze
 //
 void SiPixelPhase1MonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  auto const& tsoa = *iEvent.get(tokenSoATrack_);
+  const auto& tsoaHandle = iEvent.getHandle(tokenSoATrack_);
+  if (!tsoaHandle.isValid()) {
+    edm::LogWarning("SiPixelPhase1MonitorTrackSoA") << "No Track SoA found \n returning!" << std::endl;
+    return;
+  }
+
+  auto const& tsoa = *((tsoaHandle.product())->get());
   auto maxTracks = tsoa.stride();
   auto const* quality = tsoa.qualityData();
   int32_t nTracks = 0;

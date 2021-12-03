@@ -57,6 +57,10 @@ private:
   float ele_dnnLowPtThr_;
   float ele_dnnHighPtBarrelThr_;
   float ele_dnnHighPtEndcapThr_;
+  // Thresholds for DNN Bkg ele pfid
+  float ele_dnnBkgLowPtThr_;
+  float ele_dnnBkgHighPtBarrelThr_;
+  float ele_dnnBkgHighPtEndcapThr_;
   // Threshold for DNN photon pfid
   float photon_dnnBarrelThr_;
   float photon_dnnEndcapThr_;

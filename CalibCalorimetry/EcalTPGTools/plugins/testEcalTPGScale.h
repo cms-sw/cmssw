@@ -9,7 +9,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,7 +28,7 @@
 
 class CaloSubdetectorGeometry;
 
-class testEcalTPGScale : public edm::EDAnalyzer {
+class testEcalTPGScale : public edm::one::EDAnalyzer<> {
 public:
   explicit testEcalTPGScale(edm::ParameterSet const& pSet);
   void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;

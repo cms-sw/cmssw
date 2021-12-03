@@ -179,8 +179,6 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
   bool regionFlag = p.getParameter<bool>("RegionFlag");
   bool gdmlFlag = p.getParameter<bool>("gdmlFlag");
   int nPrints = p.getParameter<int>("ErrorThreshold");
-  int level = p.getParameter<int>("Level");
-  int depth = p.getParameter<int>("Depth");
 
   const G4RegionStore* regStore = G4RegionStore::GetInstance();
 
@@ -211,7 +209,7 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
         G4VPhysicalVolume* pv = pvs->GetVolume("DDDWorld");
         G4GeomTestVolume test(pv, tolerance, nPoints, verbose);
         test.SetErrorsThreshold(nPrints);
-        test.TestRecursiveOverlap(level, depth);
+        test.TestOverlapInTree();
       } else if (regionFlag) {
         fout << "---------------------------------------------------------------"
              << "\n";
@@ -255,7 +253,7 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
               }
               G4GeomTestVolume test(((*pvs)[i]), tolerance, nPoints, verbose);
               test.SetErrorsThreshold(nPrints);
-              test.TestRecursiveOverlap(level, depth);
+              test.TestOverlapInTree();
             }
           }
         }
@@ -264,7 +262,7 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
         G4VPhysicalVolume* pv = pvs->GetVolume((G4String)nodeNames[ii]);
         G4GeomTestVolume test(pv, tolerance, nPoints, verbose);
         test.SetErrorsThreshold(nPrints);
-        test.TestRecursiveOverlap(level, depth);
+        test.TestOverlapInTree();
       }
     }
   }
@@ -312,5 +310,3 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
   fout << "---------------- End of overlap checks ---------------------"
        << "\n";
 }
-
-CMSG4CheckOverlap::~CMSG4CheckOverlap() {}

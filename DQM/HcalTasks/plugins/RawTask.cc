@@ -81,27 +81,6 @@ RawTask::RawTask(edm::ParameterSet const& ps)
     _filter_FEDsuTCA.initialize(filter::fPreserver, hcaldqm::hashfunctions::fFED, vhashFEDsuTCA);
 
     //	INITIALIZE FIRST
-    _cEvnMsm_ElectronicsVME.initialize(_name,
-                                       "EvnMsm",
-                                       hcaldqm::hashfunctions::fElectronics,
-                                       new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-                                       new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                       0);
-    _cBcnMsm_ElectronicsVME.initialize(_name,
-                                       "BcnMsm",
-                                       hcaldqm::hashfunctions::fElectronics,
-                                       new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-                                       new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                       0);
-    _cOrnMsm_ElectronicsVME.initialize(_name,
-                                       "OrnMsm",
-                                       hcaldqm::hashfunctions::fElectronics,
-                                       new hcaldqm::quantity::FEDQuantity(vFEDsVME),
-                                       new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                       0);
     _cEvnMsm_ElectronicsuTCA.initialize(_name,
                                         "EvnMsm",
                                         hcaldqm::hashfunctions::fElectronics,
@@ -125,18 +104,11 @@ RawTask::RawTask(edm::ParameterSet const& ps)
                                         0);
 
     //	Bad Quality
-    _cBadQuality_FEDVME.initialize(_name,
-                                   "BadQuality",
-                                   hcaldqm::hashfunctions::fCrate,
-                                   new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-                                   new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                   0);
     _cBadQuality_FEDuTCA.initialize(_name,
                                     "BadQuality",
                                     hcaldqm::hashfunctions::fCrate,
                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCA),
                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                     0);
 
@@ -171,14 +143,10 @@ RawTask::RawTask(edm::ParameterSet const& ps)
 
   //	BOOK HISTOGRAMS
   if (_ptype != fOffline) {
-    _cEvnMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-    _cBcnMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-    _cOrnMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cEvnMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
     _cBcnMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
     _cOrnMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
 
-    _cBadQuality_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cBadQuality_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
   }
   if (_ptype == fOffline) {
@@ -276,11 +244,7 @@ RawTask::RawTask(edm::ParameterSet const& ps)
     if (_ptype == fOnline)
       _xBadQLS.get(eid)++;
     if (_ptype != fOffline) {  // hidefed2crate
-      if (eid.isVMEid()) {
-        if (_filter_FEDsVME.filter(eid))
-          continue;
-        _cBadQuality_FEDVME.fill(eid);
-      } else {
+      if (!eid.isVMEid()) {
         if (_filter_FEDsuTCA.filter(eid))
           continue;
         _cBadQuality_FEDuTCA.fill(eid);
@@ -337,20 +301,14 @@ RawTask::RawTask(edm::ParameterSet const& ps)
           bool qbcn = (htr_bcn != bcn);
           bool qorn = (htr_orn != orn);
           if (qevn) {
-            _cEvnMsm_ElectronicsVME.fill(eid);
-
             if (_ptype == fOnline && is <= constants::SPIGOT_MAX)
               _xEvnMsmLS.get(eid)++;
           }
           if (qorn) {
-            _cOrnMsm_ElectronicsVME.fill(eid);
-
             if (_ptype == fOnline && is <= constants::SPIGOT_MAX)
               _xOrnMsmLS.get(eid)++;
           }
           if (qbcn) {
-            _cBcnMsm_ElectronicsVME.fill(eid);
-
             if (_ptype == fOnline && is <= constants::SPIGOT_MAX)
               _xBcnMsmLS.get(eid)++;
           }

@@ -14,7 +14,6 @@ from DQMOffline.EGamma.egammaDataCertification_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_Cert_cff import *
 
 crt_dqmoffline = cms.Sequence( siStripCertificationInfo *
-                               sipixelCertification *
                                ecalCertification *
                                dtCertificationSummary *
                                rpcDataCertification *
@@ -25,8 +24,4 @@ crt_dqmoffline = cms.Sequence( siStripCertificationInfo *
                                egammaDataCertificationTask *
                                dqmOfflineTriggerCert )
 
-from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith(crt_dqmoffline, crt_dqmoffline.copyAndExclude([ # FIXME
-#    dqmOfflineTriggerCert, # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
-    sipixelCertification # segfaults with pixel harvesting plots missing
-]))
+

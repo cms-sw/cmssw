@@ -9,7 +9,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/isFinite.h"
@@ -35,7 +34,6 @@
 
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Notification/interface/Observer.h"
-#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
@@ -67,7 +65,6 @@
 #include <vector>
 
 class CaloSteppingAction : public SimProducer,
-                           public Observer<const BeginOfJob*>,
                            public Observer<const BeginOfRun*>,
                            public Observer<const BeginOfEvent*>,
                            public Observer<const EndOfEvent*>,
@@ -76,13 +73,14 @@ public:
   CaloSteppingAction(const edm::ParameterSet& p);
   ~CaloSteppingAction() override;
 
+  void registerConsumes(edm::ConsumesCollector) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::EventSetup const&) override;
 
 private:
   void fillHits(edm::PCaloHitContainer& cc, int type);
   void fillPassiveHits(edm::PassiveHitContainer& cc);
   // observer classes
-  void update(const BeginOfJob* job) override;
   void update(const BeginOfRun* run) override;
   void update(const BeginOfEvent* evt) override;
   void update(const G4Step* step) override;
@@ -102,6 +100,7 @@ private:
   std::unique_ptr<EcalEndcapNumberingScheme> eeNumberingScheme_;
   std::unique_ptr<HcalNumberingFromPS> hcNumberingPS_;
 #ifdef HcalNumberingTest
+  edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> ddconsToken_;
   std::unique_ptr<HcalNumberingFromDDD> hcNumbering_;
 #endif
   std::unique_ptr<HcalNumberingScheme> hcNumberingScheme_;
@@ -177,6 +176,13 @@ CaloSteppingAction::~CaloSteppingAction() {
                            << "selected entries : " << count_;
 }
 
+void CaloSteppingAction::registerConsumes(edm::ConsumesCollector cc) {
+#ifdef HcalNumberingTest
+  ddconsToken_ = cc.esConsumes<HcalDDDSimConstants, HcalSimNumberingRecord, edm::Transition::BeginRun>();
+  edm::LogVerbatim("Step") << "CaloSteppingAction::Initialize ESGetToken for HcalDDDSimConstants";
+#endif
+}
+
 void CaloSteppingAction::produce(edm::Event& e, const edm::EventSetup&) {
   for (int k = 0; k < CaloSteppingAction::nSD_; ++k) {
     saveHits(k);
@@ -220,14 +226,12 @@ void CaloSteppingAction::fillPassiveHits(edm::PassiveHitContainer& cc) {
   }
 }
 
-void CaloSteppingAction::update(const BeginOfJob* job) {
-  edm::LogVerbatim("Step") << "CaloSteppingAction:: Enter BeginOfJob";
+void CaloSteppingAction::beginRun(edm::EventSetup const& es) {
+  edm::LogVerbatim("Step") << "CaloSteppingAction:: Enter BeginOfRun";
 
 #ifdef HcalNumberingTest
   // Numbering From DDD
-  edm::ESHandle<HcalDDDSimConstants> hdc;
-  (*job)()->get<HcalSimNumberingRecord>().get(hdc);
-  const HcalDDDSimConstants* hcons_ = hdc.product();
+  const HcalDDDSimConstants* hcons_ = &es.getData(ddconsToken_);
   edm::LogVerbatim("Step") << "CaloSteppingAction:: Initialise "
                            << "HcalNumberingFromDDD";
   hcNumbering_ = std::make_unique<HcalNumberingFromDDD>(hcons_);

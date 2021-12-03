@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
-// #include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 //
 // class decleration
 //
@@ -35,11 +35,10 @@
 class SiPixelFakeLorentzAngleESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiPixelFakeLorentzAngleESSource(const edm::ParameterSet &);
-  ~SiPixelFakeLorentzAngleESSource() override;
-
-  //      typedef edm::ESProducts<> ReturnType;
-
+  ~SiPixelFakeLorentzAngleESSource() override = default;
   virtual std::unique_ptr<SiPixelLorentzAngle> produce(const SiPixelLorentzAngleRcd &);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
@@ -47,6 +46,18 @@ protected:
                       edm::ValidityInterval &) override;
 
 private:
-  edm::FileInPath fp_;
+  int HVgroup(int panel, int module);
+
+  // data members
+  const edm::FileInPath fp_;
+  const edm::FileInPath t_topo_fp_;
+  const std::string myLabel_;
+  typedef std::vector<edm::ParameterSet> Parameters;
+  Parameters BPixParameters_;
+  Parameters FPixParameters_;
+  Parameters ModuleParameters_;
+
+  float bPixLorentzAnglePerTesla_;
+  float fPixLorentzAnglePerTesla_;
 };
 #endif

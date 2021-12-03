@@ -7,7 +7,6 @@
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include <FWCore/Framework/interface/ESHandle.h>
 class TrajectoryStateClosestToBeamLineBuilder;
 
 ParametersDefinerForTP::ParametersDefinerForTP(const edm::InputTag &beamspot, edm::ConsumesCollector iC)

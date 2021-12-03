@@ -11,6 +11,7 @@ OutALCARECOHcalCalIsoTrkProducerFilter_noDrop = cms.PSet(
     outputCommands = cms.untracked.vstring( 
         'keep *_alcaHcalIsotrkProducer_HcalIsoTrack_*',
         'keep *_alcaHcalIsotrkProducer_HcalIsoTrackEvent_*',
+        'keep *_genParticles_*_*',
         )
 )
 

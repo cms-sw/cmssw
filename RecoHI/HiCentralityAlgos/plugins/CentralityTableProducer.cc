@@ -59,7 +59,6 @@ private:
   string rootTag_;
   ofstream text_;
 
-  CentralityTable* CT;
   const CentralityBins* CB;
 
   unsigned int runnum_;
@@ -118,8 +117,8 @@ void CentralityTableProducer::endJob() {
     // Get values from root file
     CB = (CentralityBins*)inputTFile_->Get(Form("%s/run%d", rootTag_.data(), runnum_));
     cout << rootTag_.data() << endl;
-    CT = new CentralityTable();
-    CT->m_table.reserve(CB->getNbins());
+    CentralityTable CT;
+    CT.m_table.reserve(CB->getNbins());
 
     text_ << "# BinEdge NpartMean NpartVar NcollMean NcollVar NhardMean NhardVar bMean bVar" << endl;
     for (int j = 0; j < CB->getNbins(); j++) {
@@ -134,18 +133,14 @@ void CentralityTableProducer::endJob() {
       thisBin->b.mean = CB->bMeanOfBin(j);
       thisBin->b.var = CB->bSigmaOfBin(j);
       printBin(thisBin);
-      CT->m_table.push_back(*thisBin);
+      CT.m_table.push_back(*thisBin);
       if (thisBin)
         delete thisBin;
     }
 
     edm::Service<cond::service::PoolDBOutputService> pool;
     if (pool.isAvailable()) {
-      if (pool->isNewTagRequest("HeavyIonRcd")) {
-        pool->createNewIOV<CentralityTable>(CT, pool->beginOfTime(), pool->endOfTime(), "HeavyIonRcd");
-      } else {
-        pool->appendSinceTime<CentralityTable>(CT, pool->currentTime(), "HeavyIonRcd");
-      }
+      pool->writeOneIOV(CT, pool->currentTime(), "HeavyIonRcd");
     }
   }
 }

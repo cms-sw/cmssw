@@ -33,6 +33,7 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/ComparatorCodeLUT.h"
@@ -89,12 +90,17 @@ public:
   unsigned getInTimeHMT() const { return inTimeHMT_; }
   unsigned getOutTimeHMT() const { return outTimeHMT_; }
 
+  /** Returns shower bits */
+  CSCShowerDigi readoutShower() const;
+
 protected:
   /** Best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
 
   /** Second best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
+
+  CSCShowerDigi shower_;
 
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);

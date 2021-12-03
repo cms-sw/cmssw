@@ -23,6 +23,8 @@ diamondSampicDQMSourceOffline = DQMEDAnalyzer('DiamondSampicDQMSource',
 
     samplesForNoise = cms.untracked.uint32(6),
 
+    perLSsaving = cms.untracked.bool(False), #driven by DQMServices/Core/python/DQMStore_cfi.py
+
     verbosity = cms.untracked.uint32(10),
     plotOnline=cms.untracked.bool(False)
 )
