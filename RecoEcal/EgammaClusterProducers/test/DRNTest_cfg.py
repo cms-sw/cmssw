@@ -8,7 +8,7 @@ process.load("HeterogeneousCore.SonicTriton.TritonService_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.options.numberOfThreads = cms.untracked.uint32(4)
 process.options.numberOfStreams = cms.untracked.uint32(4)
 process.options.SkipEvent = cms.untracked.vstring('ProductNotFound')
