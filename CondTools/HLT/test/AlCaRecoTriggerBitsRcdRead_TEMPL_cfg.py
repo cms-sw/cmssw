@@ -22,10 +22,7 @@ options.parseArguments()
 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr = cms.untracked.PSet(enable = cms.untracked.bool(False))
-process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
-    reportEvery = cms.untracked.int32(1000)
-    ))
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000000
 
 # the module writing to DB
 from CondTools.HLT.alCaRecoTriggerBitsRcdRead_cfi import alCaRecoTriggerBitsRcdRead as _alCaRecoTriggerBitsRcdRead
