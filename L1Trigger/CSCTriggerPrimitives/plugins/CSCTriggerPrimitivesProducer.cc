@@ -284,6 +284,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
     // no valid label, let the user know that GEM clusters are missing
     // the algorithm should not crash. instead it should just produce the regular CSC LCTs
     // in ME1/1 and/or ME2/1
+    ev.getByToken(gem_pad_cluster_token_, gemPadDigiClusters);
     if (!gemPadDigiClusters.isValid()) {
       edm::LogWarning("CSCTriggerPrimitivesProducer|NoInputCollection")
           << "+++ Warning: Collection of GEM clusters with label " << gemPadDigiClusterProducer_.label()
@@ -291,7 +292,6 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
           << " Running CSC-only trigger algorithm +++\n";
     } else {
       // when the GEM-CSC trigger should be run and the label is not empty, set a valid pointer
-      ev.getByToken(gem_pad_cluster_token_, gemPadDigiClusters);
       gemPadClusters = gemPadDigiClusters.product();
     }
   }
