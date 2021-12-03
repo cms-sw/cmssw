@@ -49,8 +49,8 @@ public:
                                UInt_t option = 0);
   void stop();
 
-  sigc::signal<void> started_;
-  sigc::signal<void> stopped_;
+  sigc::signal<void()> started_;
+  sigc::signal<void()> stopped_;
 
   //override
   void globalEnable() override;
