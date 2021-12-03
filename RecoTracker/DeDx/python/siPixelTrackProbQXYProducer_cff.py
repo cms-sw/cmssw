@@ -1,9 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import RecoTracker.DeDx.siPixelTrackProbQXYProducer_cfi as _probQXY
 
-siPixelTrackProbQXY = cms.EDProducer("SiPixelTrackProbQXYProducer",
-    tracks                     = cms.InputTag("generalTracks"),
-)
+siPixelTrackProbQXY = _probQXY.siPixelTrackProbQXYProducer.clone()
 
- 
-doSiPixelTrackProbQXYTask = cms.Task(siPixelTrackProbQXY)
-doSiPixelTrackProbQXY = cms.Sequence(doSiPixelTrackProbQXYTask)

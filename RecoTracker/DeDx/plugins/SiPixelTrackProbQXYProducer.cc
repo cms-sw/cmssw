@@ -15,27 +15,22 @@
 
 // system include files
 #include <memory>
-#include <cmath>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+//#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackReco/interface/SiPixelTrackProbQXY.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackReco/interface/SiPixelTrackProbQXY.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //
 // class declaration
@@ -46,9 +41,10 @@ public:
   explicit SiPixelTrackProbQXYProducer(const edm::ParameterSet&);
   ~SiPixelTrackProbQXYProducer() override = default;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  int factorial(int) const;
 
   // ----------member data ---------------------------
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
@@ -67,19 +63,23 @@ SiPixelTrackProbQXYProducer::SiPixelTrackProbQXYProducer(const edm::ParameterSet
 }
 
 void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  edm::Handle<reco::TrackCollection> trackCollectionHandle;
-  iEvent.getByToken(trackToken_, trackCollectionHandle);
+  // Retrieve track collection from the event
+  auto trackCollectionHandle = iEvent.getHandle(trackToken_);
   const TrackCollection& trackCollection(*trackCollectionHandle.product());
-  float probQonTrack = 0.0;
-  float probXYonTrack = 0.0;
-  float probQonTrackNoLayer1 = 0.0;
-  float probXYonTrackNoLayer1 = 0.0;
-  // creates the output collection
+
+  // Retrieve tracker topology from geometry
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
+
+  // Creates the output collection
   auto resultSiPixelTrackProbQXYColl = std::make_unique<reco::SiPixelTrackProbQXYCollection>();
   std::vector<int> indices;
 
   // Loop through the tracks
   for (const auto& track : trackCollection) {
+    float probQonTrack = 0.0;
+    float probXYonTrack = 0.0;
+    float probQonTrackNoLayer1 = 0.0;
+    float probXYonTrackNoLayer1 = 0.0;
     int numRecHits = 0;
     int numRecHitsNoLayer1 = 0;
     float probQonTrackWMulti = 1;
@@ -94,11 +94,6 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
         continue;
       if (!pixhit->isValid())
         continue;
-      if (pixhit->geographicalId().det() != DetId::Tracker)
-        continue;
-
-      //Retrieve tracker topology from geometry
-      const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
 
       // Have a separate variable that excludes Layer 1
       // Layer 1 was very noisy in 2017/2018
@@ -132,11 +127,16 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
     // Combine the probabilities into a track level quantity
     float logprobQonTrackWMulti = probQonTrackWMulti > 0 ? log(probQonTrackWMulti) : 0;
     float logprobXYonTrackWMulti = probXYonTrackWMulti > 0 ? log(probXYonTrackWMulti) : 0;
-    float probQonTrackTerm = 0;
-    float probXYonTrackTerm = 0;
-    for (int iTkRh = 0; iTkRh < numRecHits; ++iTkRh) {
-      probQonTrackTerm += ((pow(-logprobQonTrackWMulti, iTkRh)) / (factorial(iTkRh)));
-      probXYonTrackTerm += ((pow(-logprobXYonTrackWMulti, iTkRh)) / (factorial(iTkRh)));
+    float factQ = -logprobQonTrackWMulti;
+    float factXY = -logprobXYonTrackWMulti;
+    float probQonTrackTerm = 1.f + factQ;
+    float probXYonTrackTerm = 1.f + factXY;
+
+    for (int iTkRh = 2; iTkRh < numRecHits; ++iTkRh) {
+      factQ *= -logprobQonTrackWMulti / float(iTkRh);
+      factXY *= -logprobXYonTrackWMulti / float(iTkRh);
+      probQonTrackTerm += factQ;
+      probXYonTrackTerm += factXY;
     }
 
     probQonTrack = probQonTrackWMulti * probQonTrackTerm;
@@ -145,20 +145,25 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
     // Repeat the above excluding Layer 1
     float logprobQonTrackWMultiNoLayer1 = probQonTrackWMultiNoLayer1 > 0 ? log(probQonTrackWMultiNoLayer1) : 0;
     float logprobXYonTrackWMultiNoLayer1 = probXYonTrackWMultiNoLayer1 > 0 ? log(probXYonTrackWMultiNoLayer1) : 0;
-    float probQonTrackTermNoLayer1 = 0;
-    float probXYonTrackTermNoLayer1 = 0;
-    for (int iTkRh = 0; iTkRh < numRecHitsNoLayer1; ++iTkRh) {
-      probQonTrackTermNoLayer1 += ((pow(-logprobQonTrackWMultiNoLayer1, iTkRh)) / (factorial(iTkRh)));
-      probXYonTrackTermNoLayer1 += ((pow(-logprobXYonTrackWMultiNoLayer1, iTkRh)) / (factorial(iTkRh)));
+
+    float factQNoLayer1 = -logprobQonTrackWMultiNoLayer1;
+    float factXYNoLayer1 = -logprobXYonTrackWMultiNoLayer1;
+    float probQonTrackTermNoLayer1 = 1.f + factQNoLayer1;
+    float probXYonTrackTermNoLayer1 = 1.f + factXYNoLayer1;
+
+    for (int iTkRh = 2; iTkRh < numRecHits; ++iTkRh) {
+      factQNoLayer1 *= -logprobQonTrackWMultiNoLayer1 / float(iTkRh);
+      factXYNoLayer1 *= -logprobXYonTrackWMultiNoLayer1 / float(iTkRh);
+      probQonTrackTermNoLayer1 += factQNoLayer1;
+      probXYonTrackTermNoLayer1 += factXYNoLayer1;
     }
 
     probQonTrackNoLayer1 = probQonTrackWMultiNoLayer1 * probQonTrackTermNoLayer1;
     probXYonTrackNoLayer1 = probXYonTrackWMultiNoLayer1 * probXYonTrackTermNoLayer1;
 
-    reco::SiPixelTrackProbQXY siPixelTrackProbQXY =
-        SiPixelTrackProbQXY(probQonTrack, probXYonTrack, probQonTrackNoLayer1, probXYonTrackNoLayer1);
     indices.push_back(resultSiPixelTrackProbQXYColl->size());
-    resultSiPixelTrackProbQXYColl->push_back(siPixelTrackProbQXY);
+    resultSiPixelTrackProbQXYColl->emplace_back(
+        probQonTrack, probXYonTrack, probQonTrackNoLayer1, probXYonTrackNoLayer1);
   }  // end loop on track collection
 
   edm::OrphanHandle<reco::SiPixelTrackProbQXYCollection> siPixelTrackProbQXYCollHandle =
@@ -172,7 +177,13 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
   iEvent.put(std::move(trackProbQXYMatch));
 }
 
-int SiPixelTrackProbQXYProducer::factorial(int n) const { return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n; }
+void SiPixelTrackProbQXYProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Producer that creates SiPixel Charge and shape probabilities combined for tracks");
+  desc.addUntracked<edm::InputTag>("track", edm::InputTag("isolatedTracks"))
+      ->setComment("Input track collection for the producer");
+  descriptions.add("siPixelTrackProbQXYProducer", desc);
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelTrackProbQXYProducer);

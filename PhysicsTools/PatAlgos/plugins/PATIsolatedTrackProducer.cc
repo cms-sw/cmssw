@@ -234,8 +234,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
   }
 
   // associate generalTracks with their combined ProbQ and ProbXY
-  edm::Handle<reco::SiPixelTrackProbQXYAssociation> gt2siPixelTrackProbQXY;
-  iEvent.getByToken(gt2siPixelTrackProbQXY_, gt2siPixelTrackProbQXY);
+  auto gt2siPixelTrackProbQXY = iEvent.getHandle(gt2siPixelTrackProbQXY_);
 
   const HcalChannelQuality* hcalQ = &iSetup.getData(hcalQToken_);
 
@@ -384,12 +383,12 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
 
     // get combined probQ and probXY
     float probQonTrack = 0, probXYonTrack = 0, probQonTrackNoLayer1 = 0, probXYonTrackNoLayer1 = 0;
-    if (gt2siPixelTrackProbQXY.isValid() && gt2siPixelTrackProbQXY->contains(tkref.id())) {
+    if (gt2siPixelTrackProbQXY_.isUninitialized() && gt2siPixelTrackProbQXY->contains(tkref.id())) {
       const reco::SiPixelTrackProbQXY* siPixelTrackProbQXY = (*gt2siPixelTrackProbQXY)[tkref].get();
-      probQonTrack = siPixelTrackProbQXY->probQonTrack();
-      probXYonTrack = siPixelTrackProbQXY->probXYonTrack();
-      probQonTrackNoLayer1 = siPixelTrackProbQXY->probQonTrackNoLayer1();
-      probXYonTrackNoLayer1 = siPixelTrackProbQXY->probXYonTrackNoLayer1();
+      probQonTrack = siPixelTrackProbQXY->probQ();
+      probXYonTrack = siPixelTrackProbQXY->probXY();
+      probQonTrackNoLayer1 = siPixelTrackProbQXY->probQNoLayer1();
+      probXYonTrackNoLayer1 = siPixelTrackProbQXY->probXYNoLayer1();
     }
 
     // get the associated ecal/hcal detectors
