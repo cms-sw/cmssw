@@ -1,10 +1,10 @@
-#ifndef ME_hh
-#define ME_hh
+#ifndef CalibCalorimetry_EcalLaserAnalyzer_ME_h
+#define CalibCalorimetry_EcalLaserAnalyzer_ME_h
 
 #include <vector>
 #include <map>
 #include <string>
-#include <TString.h>
+#include "TString.h"
 
 class MEChannel;
 
@@ -33,7 +33,7 @@ public:
   // get trees of channels
   static MEChannel* regTree(int ireg);
   static MEChannel* lmrTree(int ilmr);
-  static bool useElectronicNumbering;
+  static const bool useElectronicNumbering;
 
   typedef int DCCid;
   typedef int LMRid;
@@ -48,10 +48,10 @@ public:
   static std::vector<int> apdRefChannels(ME::LMMid ilmmod, ME::LMRid ilmr);
 
   // ECAL Region names
-  static TString region[4];
+  static const TString region[iSizeE];
 
   // unit names
-  static TString granularity[iSizeG];
+  static const TString granularity[iSizeG];
 
   // Super-Module name from Laser Monitoring Region
   static TString smNameFromDcc(int idcc);
@@ -128,23 +128,23 @@ public:
     iAPD_TIME_NEVT,
     iSizeAPD
   };
-  static TString APDPrimVar[iSizeAPD];
+  static const TString APDPrimVar[iSizeAPD];
 
   // PN primitive variables (table LmfLaserPnPrim)
   enum { iPN_FLAG, iPN_MEAN, iPN_RMS, iPN_M3, iPNA_OVER_PNB_MEAN, iPNA_OVER_PNB_RMS, iPNA_OVER_PNB_M3, iSizePN };
-  static TString PNPrimVar[iSizePN];
+  static const TString PNPrimVar[iSizePN];
 
   // MATAQ Primitive variables (table iLmfLaserPulse)
   enum { iMTQ_FIT_METHOD, iMTQ_AMPL, iMTQ_TIME, iMTQ_RISE, iMTQ_FWHM, iMTQ_FW20, iMTQ_FW80, iMTQ_SLIDING, iSizeMTQ };
-  static TString MTQPrimVar[iSizeMTQ];
+  static const TString MTQPrimVar[iSizeMTQ];
 
   // TP-APD Primitive variables (table iLmfTestPulsePrim)
   enum { iTPAPD_FLAG, iTPAPD_MEAN, iTPAPD_RMS, iTPAPD_M3, iTPAPD_NEVT, iSizeTPAPD };
-  static TString TPAPDPrimVar[iSizeTPAPD];
+  static const TString TPAPDPrimVar[iSizeTPAPD];
 
   // TP-PN Primitive variables (table iLmfTestPulsePnPrim)
   enum { iTPPN_GAIN, iTPPN_MEAN, iTPPN_RMS, iTPPN_M3, iSizeTPPN };
-  static TString TPPNPrimVar[iSizeTPPN];
+  static const TString TPPNPrimVar[iSizeTPPN];
 
   // Time functions
   enum TUnit { iDay, iHour, iMinute, iSecond, iSizeTU };
@@ -154,8 +154,8 @@ public:
   static Time time_low(TimeStamp t);
   static Time time_high(TimeStamp t);
 
-  static TString type[iSizeT];
-  static TString color[iSizeC];
+  static const TString type[iSizeT];
+  static const TString color[iSizeC];
 
   // get file names
   static TString path();               // MusEcal main working directory
