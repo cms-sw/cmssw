@@ -28,12 +28,11 @@ namespace edm {
 
   class RootInputFileSequence {
   public:
-    explicit RootInputFileSequence(ParameterSet const& pset,
-                                   InputFileCatalog const& catalog);
+    explicit RootInputFileSequence(ParameterSet const& pset, InputFileCatalog const& catalog);
     virtual ~RootInputFileSequence();
 
-    RootInputFileSequence(RootInputFileSequence const&) = delete; // Disallow copying and moving
-    RootInputFileSequence& operator=(RootInputFileSequence const&) = delete; // Disallow copying and moving
+    RootInputFileSequence(RootInputFileSequence const&) = delete;             // Disallow copying and moving
+    RootInputFileSequence& operator=(RootInputFileSequence const&) = delete;  // Disallow copying and moving
 
     bool containedInCurrentFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const;
     void readEvent(EventPrincipal& cache);
@@ -41,42 +40,52 @@ namespace edm {
     void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_();
     void readRun_(RunPrincipal& runPrincipal);
-    bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, size_t fileNameHash = 0U, bool currentFileFirst = true);
+    bool skipToItem(RunNumber_t run,
+                    LuminosityBlockNumber_t lumi,
+                    EventNumber_t event,
+                    size_t fileNameHash = 0U,
+                    bool currentFileFirst = true);
     std::shared_ptr<ProductRegistry const> fileProductRegistry() const;
     std::shared_ptr<BranchIDListHelper const> fileBranchIDListHelper() const;
+
   protected:
     typedef std::shared_ptr<RootFile> RootFileSharedPtr;
-    void initFile(bool skipBadFiles) {initFile_(skipBadFiles);}
-    void initTheFile(bool skipBadFiles, bool deleteIndexIntoFile, InputSource* input, char const* inputTypeName, InputType inputType);
+    void initFile(bool skipBadFiles) { initFile_(skipBadFiles); }
+    void initTheFile(bool skipBadFiles,
+                     bool deleteIndexIntoFile,
+                     InputSource* input,
+                     char const* inputTypeName,
+                     InputType inputType);
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, size_t fileNameHash);
 
-    bool atFirstFile() const {return fileIter_ == fileIterBegin_;}
-    bool atLastFile() const {return fileIter_ + 1 == fileIterEnd_;}
-    bool noMoreFiles() const {return fileIter_ == fileIterEnd_;}
-    bool noFiles() const {return fileIterBegin_ == fileIterEnd_;}
-    size_t sequenceNumberOfFile() const {return fileIter_ - fileIterBegin_;}
-    size_t numberOfFiles() const {return fileIterEnd_ - fileIterBegin_;}
+    bool atFirstFile() const { return fileIter_ == fileIterBegin_; }
+    bool atLastFile() const { return fileIter_ + 1 == fileIterEnd_; }
+    bool noMoreFiles() const { return fileIter_ == fileIterEnd_; }
+    bool noFiles() const { return fileIterBegin_ == fileIterEnd_; }
+    size_t sequenceNumberOfFile() const { return fileIter_ - fileIterBegin_; }
+    size_t numberOfFiles() const { return fileIterEnd_ - fileIterBegin_; }
 
-    void setAtFirstFile() {fileIter_ = fileIterBegin_;}
-    void setAtFileSequenceNumber(size_t offset) {fileIter_ = fileIterBegin_ + offset;}
-    void setNoMoreFiles() {fileIter_ = fileIterEnd_;}
-    void setAtNextFile() {++fileIter_;}
-    void setAtPreviousFile() {--fileIter_;}
+    void setAtFirstFile() { fileIter_ = fileIterBegin_; }
+    void setAtFileSequenceNumber(size_t offset) { fileIter_ = fileIterBegin_ + offset; }
+    void setNoMoreFiles() { fileIter_ = fileIterEnd_; }
+    void setAtNextFile() { ++fileIter_; }
+    void setAtPreviousFile() { --fileIter_; }
 
-    std::string const& fileName() const {return fileIter_->fileName();}
-    std::string const& logicalFileName() const {return fileIter_->logicalFileName();}
-    std::string const& fallbackFileName() const {return fileIter_->fallbackFileName();}
-    std::string const& lfn() const {return lfn_;}
+    std::string const& fileName() const { return fileIter_->fileName(); }
+    std::string const& logicalFileName() const { return fileIter_->logicalFileName(); }
+    std::string const& fallbackFileName() const { return fileIter_->fallbackFileName(); }
+    std::string const& lfn() const { return lfn_; }
     std::vector<FileCatalogItem> const& fileCatalogItems() const;
 
-    std::vector<std::shared_ptr<IndexIntoFile> > const& indexesIntoFiles() const {return indexesIntoFiles_;}
+    std::vector<std::shared_ptr<IndexIntoFile>> const& indexesIntoFiles() const { return indexesIntoFiles_; }
     void setIndexIntoFile(size_t index);
-    size_t lfnHash() const {return lfnHash_;}
-    bool usedFallback() const {return usedFallback_;}
+    size_t lfnHash() const { return lfnHash_; }
+    bool usedFallback() const { return usedFallback_; }
 
-    std::shared_ptr<RootFile const> rootFile() const {return get_underlying_safe(rootFile_);}
-    std::shared_ptr<RootFile>& rootFile() {return get_underlying_safe(rootFile_);}
+    std::shared_ptr<RootFile const> rootFile() const { return get_underlying_safe(rootFile_); }
+    std::shared_ptr<RootFile>& rootFile() { return get_underlying_safe(rootFile_); }
+
   private:
     InputFileCatalog const& catalog_;
     std::string lfn_;
@@ -88,13 +97,13 @@ namespace edm {
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     std::vector<FileCatalogItem>::const_iterator fileIterLastOpened_;
     edm::propagate_const<RootFileSharedPtr> rootFile_;
-    std::vector<std::shared_ptr<IndexIntoFile> > indexesIntoFiles_;
+    std::vector<std::shared_ptr<IndexIntoFile>> indexesIntoFiles_;
 
   private:
-    virtual RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) = 0; 
+    virtual RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) = 0;
     virtual void initFile_(bool skipBadFiles) = 0;
     virtual void closeFile_() = 0;
 
-  }; // class RootInputFileSequence
-}
+  };  // class RootInputFileSequence
+}  // namespace edm
 #endif
