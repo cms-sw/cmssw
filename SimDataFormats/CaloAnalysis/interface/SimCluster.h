@@ -213,7 +213,7 @@ public:
   float simEnergy() const { return simhit_energy_; }
 
   /** @brief add simhit's energy to cluster */
-  void addSimHit(const PCaloHit &hit) { 
+  void addSimHit(const PCaloHit &hit) {
     simhit_energy_ += hit.energy();
     ++nsimhits_;
   }
