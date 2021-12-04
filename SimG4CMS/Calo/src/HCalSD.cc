@@ -299,11 +299,10 @@ HCalSD::HCalSD(const std::string& name,
   }
 #endif
   if (dumpGeom) {
-    const HcalNumberingFromDDD* hcn = new HcalNumberingFromDDD(hcalConstants_);
+    std::unique_ptr<HcalNumberingFromDDD> hcn = std::make_unique<HcalNumberingFromDDD>(hcalConstants_);
     const auto& lvNames = clg.logicalNames(name);
-    HcalDumpGeometry geom(lvNames, hcn, testNumber, false);
+    HcalDumpGeometry geom(lvNames, hcn.get(), testNumber, false);
     geom.update();
-    delete hcn;
   }
 }
 
