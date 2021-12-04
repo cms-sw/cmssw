@@ -95,7 +95,7 @@ public:
   uint32_t lv1Id() const { return CDFHeader{cdfh_}.lv1Id; }
   uint16_t sourceId() const { return CDFHeader{cdfh_}.sourceId; }
 
-  uint16_t orbitNumber() const { return AMC13Header{amc13h_}.orbitN; }
+  uint32_t orbitNumber() const { return AMC13Header{amc13h_}.orbitN; }
   uint8_t nAMC() const { return AMC13Header{amc13h_}.nAMC; }
 
   const std::vector<uint64_t>* getAMCheaders() const { return &amcHeaders_; }
