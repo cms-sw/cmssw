@@ -175,7 +175,6 @@ public:
   void addRecHitAndFraction(uint32_t hit, float fraction) {
     hits_.emplace_back(hit);
     fractions_.emplace_back(fraction);
-    ++nsimhits_;
   }
 
   /** @brief add rechit energy */
@@ -214,7 +213,10 @@ public:
   float simEnergy() const { return simhit_energy_; }
 
   /** @brief add simhit's energy to cluster */
-  void addSimHit(const PCaloHit &hit) { simhit_energy_ += hit.energy(); }
+  void addSimHit(const PCaloHit &hit) { 
+    simhit_energy_ += hit.energy();
+    ++nsimhits_;
+  }
 
 private:
   uint64_t nsimhits_{0};
