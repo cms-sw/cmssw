@@ -44,7 +44,7 @@ public:
 
   void analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) override {}
   void beginRun(const edm::Run &run, const edm::EventSetup &evtSetup) override;
-  void endRun(edm::Run const &, edm::EventSetup const &) override{};
+  void endRun(edm::Run const &, edm::EventSetup const &) override {}
   void endJob() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
@@ -126,7 +126,7 @@ AlCaRecoTriggerBitsRcdRead::OutputType AlCaRecoTriggerBitsRcdRead::stringToEnum(
 ///////////////////////////////////////////////////////////////////////
 void AlCaRecoTriggerBitsRcdRead::beginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
   if (watcher_.check(iSetup)) {  // new IOV for this run
-    edm::LogPrint("AlCaRecoTriggerBitsRcdRead") << "new IOV: " << firstRun_ << "-" << lastRun_ << std::endl;
+    edm::LogPrint("AlCaRecoTriggerBitsRcdRead") << "new IOV: " << firstRun_ << "-" << lastRun_;
     // Print last IOV - if there has already been one:
     if (lastRun_ != 0)
       this->printMap(firstRun_, lastRun_, lastTriggerBits_);
