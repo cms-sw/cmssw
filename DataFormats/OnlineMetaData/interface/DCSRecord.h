@@ -54,6 +54,7 @@ public:
 
   DCSRecord();
   explicit DCSRecord(const online::DCS_v1&);
+  explicit DCSRecord(const online::DCS_v2&);
   virtual ~DCSRecord();
 
   /// Return the time of the last change
@@ -69,6 +70,9 @@ public:
   /// Return true if the high voltage of the given parition is ready
   bool highVoltageReady(const uint8_t partitionNumber) const { return highVoltageReady_.test(partitionNumber); }
 
+  /// Return true if the high voltage bit of the given partition is valid
+  bool highVoltageValid(const uint8_t partitionNumber) const { return highVoltageValid_.test(partitionNumber); }
+
   /// Return the current of the CMS magnet in A
   float magnetCurrent() const { return magnetCurrent_; }
 
@@ -79,6 +83,7 @@ public:
 private:
   edm::Timestamp timestamp_;
   std::bitset<Partition::Last> highVoltageReady_;
+  std::bitset<Partition::Last> highVoltageValid_;
   float magnetCurrent_;
   static const ParitionNames partitionNames_;
 };
