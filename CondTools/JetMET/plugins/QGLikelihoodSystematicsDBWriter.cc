@@ -36,8 +36,8 @@ QGLikelihoodSystematicsDBWriter::QGLikelihoodSystematicsDBWriter(const edm::Para
 
 // Begin Job
 void QGLikelihoodSystematicsDBWriter::beginJob() {
-  QGLikelihoodSystematicsObject* payload = new QGLikelihoodSystematicsObject();
-  payload->data.clear();
+  QGLikelihoodSystematicsObject payload;
+  payload.data.clear();
 
   std::ifstream database;
   database.open(edm::FileInPath(fileName.c_str()).fullPath().c_str(), std::ios::in);
@@ -92,8 +92,8 @@ void QGLikelihoodSystematicsDBWriter::beginJob() {
     gluonEntry.a = a_g;
     gluonEntry.b = b_g;
 
-    payload->data.push_back(quarkEntry);
-    payload->data.push_back(gluonEntry);
+    payload.data.push_back(quarkEntry);
+    payload.data.push_back(gluonEntry);
   }
   database.close();
 
@@ -101,12 +101,9 @@ void QGLikelihoodSystematicsDBWriter::beginJob() {
   edm::LogInfo("UserOutput") << "Opening PoolDBOutputService" << std::endl;
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
-    edm::LogInfo("UserOutput") << "Setting up payload with " << payload->data.size() << " entries and tag "
-                               << payloadTag << std::endl;
-    if (s->isNewTagRequest(payloadTag))
-      s->createNewIOV<QGLikelihoodSystematicsObject>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
-    else
-      s->appendSinceTime<QGLikelihoodSystematicsObject>(payload, 111, payloadTag);
+    edm::LogInfo("UserOutput") << "Setting up payload with " << payload.data.size() << " entries and tag " << payloadTag
+                               << std::endl;
+    s->writeOneIOV(payload, s->beginOfTime(), payloadTag);
   }
   edm::LogInfo("UserOutput") << "Wrote in CondDB QGLikelihoodSystematic payload label: " << payloadTag << std::endl;
 }

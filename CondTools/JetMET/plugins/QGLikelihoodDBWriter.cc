@@ -105,8 +105,8 @@ void QGLikelihoodDBWriter::tryToMerge(std::map<std::vector<int>, QGLikelihoodCat
 
 // Begin Job
 void QGLikelihoodDBWriter::beginJob() {
-  QGLikelihoodObject* payload = new QGLikelihoodObject();
-  payload->data.clear();
+  QGLikelihoodObject payload;
+  payload.data.clear();
 
   // Get the ROOT file
   TFile* f = TFile::Open(edm::FileInPath(inputRootFile.c_str()).fullPath().c_str());
@@ -180,7 +180,7 @@ void QGLikelihoodDBWriter::beginJob() {
     entry.histogram = transformToHistogramObject(pdfs[category.first]);
     entry.mean =
         0;  // not used by the algorithm, is an old data member used in the past, but DB objects are not allowed to change
-    payload->data.push_back(entry);
+    payload.data.push_back(entry);
 
     char buff[1000];
     sprintf(buff,
@@ -198,26 +198,23 @@ void QGLikelihoodDBWriter::beginJob() {
   }
 
   // Define the valid range, if no category is found within these bounds a warning will be thrown
-  payload->qgValidRange.EtaMin = gridOfBins["eta"].front();
-  payload->qgValidRange.EtaMax = gridOfBins["eta"].back();
-  payload->qgValidRange.PtMin = gridOfBins["pt"].front();
-  payload->qgValidRange.PtMax = gridOfBins["pt"].back();
-  payload->qgValidRange.RhoMin = gridOfBins["rho"].front();
-  payload->qgValidRange.RhoMax = gridOfBins["rho"].back();
-  payload->qgValidRange.QGIndex = -1;
-  payload->qgValidRange.VarIndex = -1;
+  payload.qgValidRange.EtaMin = gridOfBins["eta"].front();
+  payload.qgValidRange.EtaMax = gridOfBins["eta"].back();
+  payload.qgValidRange.PtMin = gridOfBins["pt"].front();
+  payload.qgValidRange.PtMax = gridOfBins["pt"].back();
+  payload.qgValidRange.RhoMin = gridOfBins["rho"].front();
+  payload.qgValidRange.RhoMax = gridOfBins["rho"].back();
+  payload.qgValidRange.QGIndex = -1;
+  payload.qgValidRange.VarIndex = -1;
 
   // Now write it into the DB
   edm::LogInfo("UserOutput") << "Opening PoolDBOutputService" << std::endl;
 
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
-    edm::LogInfo("UserOutput") << "Setting up payload with " << payload->data.size() << " entries and tag "
-                               << payloadTag << std::endl;
-    if (s->isNewTagRequest(payloadTag))
-      s->createNewIOV<QGLikelihoodObject>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
-    else
-      s->appendSinceTime<QGLikelihoodObject>(payload, 111, payloadTag);
+    edm::LogInfo("UserOutput") << "Setting up payload with " << payload.data.size() << " entries and tag " << payloadTag
+                               << std::endl;
+    s->writeOneIOV(payload, s->beginOfTime(), payloadTag);
   }
   edm::LogInfo("UserOutput") << "Wrote in CondDB QGLikelihood payload label: " << payloadTag << std::endl;
 }

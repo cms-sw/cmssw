@@ -44,7 +44,7 @@ JetCorrectorDBWriter::JetCorrectorDBWriter(const edm::ParameterSet& pSet) {
 void JetCorrectorDBWriter::beginJob() {
   //  std::string path("CondFormats/JetMETObjects/data/");
 
-  JetCorrectorParametersCollection* payload = new JetCorrectorParametersCollection();
+  JetCorrectorParametersCollection payload;
   std::cout << "Starting to import payload " << payloadTag << " from text files." << std::endl;
   for (int i = 0; i < JetCorrectorParametersCollection::N_LEVELS; ++i) {
     std::string append("_");
@@ -62,14 +62,14 @@ void JetCorrectorDBWriter::beginJob() {
       std::vector<std::string> sections;
       JetCorrectorParametersCollection::getSections(fip.fullPath(), sections);
       if (sections.empty()) {
-        payload->push_back(i, JetCorrectorParameters(fip.fullPath(), ""));
+        payload.push_back(i, JetCorrectorParameters(fip.fullPath(), ""));
       } else {
         for (std::vector<std::string>::const_iterator isectbegin = sections.begin(),
                                                       isectend = sections.end(),
                                                       isect = isectbegin;
              isect != isectend;
              ++isect) {
-          payload->push_back(i, JetCorrectorParameters(fip.fullPath(), *isect), ilev + "_" + *isect);
+          payload.push_back(i, JetCorrectorParameters(fip.fullPath(), *isect), ilev + "_" + *isect);
           std::cout << "Added " << ilev + "_" + *isect << " to record " << i << std::endl;
         }
       }
@@ -85,10 +85,7 @@ void JetCorrectorDBWriter::beginJob() {
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
     std::cout << "Setting up payload tag " << payloadTag << std::endl;
-    if (s->isNewTagRequest(payloadTag))
-      s->createNewIOV<JetCorrectorParametersCollection>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
-    else
-      s->appendSinceTime<JetCorrectorParametersCollection>(payload, 111, payloadTag);
+    s->writeOneIOV(payload, s->beginOfTime(), payloadTag);
   }
   std::cout << "Wrote in CondDB payload label: " << payloadTag << std::endl;
 }
