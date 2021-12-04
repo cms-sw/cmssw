@@ -15,6 +15,7 @@
 #include "G4TouchableHandle.hh"
 #include "G4Navigator.hh"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -43,10 +44,10 @@ public:
   std::vector<Hit> gfParameterization(const G4Step *aStep, bool onlyLong = false);
 
 private:
-  GflashTrajectory *theHelix;
-  G4Step *theGflashStep;
-  G4Navigator *theGflashNavigator;
-  G4TouchableHandle theGflashTouchableHandle;
+  std::unique_ptr<GflashTrajectory> theHelix;
+  std::unique_ptr<G4Step> theGflashStep;
+  std::unique_ptr<G4Navigator> theGflashNavigator;
+  std::unique_ptr<G4TouchableHistory> theGflashTouchableHandle;
 
   Gflash::CalorimeterNumber jCalorimeter;
 

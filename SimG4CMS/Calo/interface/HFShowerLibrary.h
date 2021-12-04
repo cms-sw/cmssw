@@ -79,7 +79,7 @@ private:
 
   int npe;
   HFShowerPhotonCollection pe;
-  HFShowerPhotonCollection *photo;
+  std::unique_ptr<HFShowerPhotonCollection> photo;
   HFShowerPhotonCollection photon;
 };
 #endif
