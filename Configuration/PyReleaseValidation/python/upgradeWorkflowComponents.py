@@ -154,7 +154,6 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         if cust is not None: stepDict[stepName][k]['--customise']=cust
         if era is not None: 
             stepDict[stepName][k]['--era']=era
-            if 'RecoNano' in stepName: stepDict[stepName][k]['--era'] += ',run3_nanoAOD_devel'
         if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
     def condition(self, fragment, stepList, key, hasHarvest):
         return True
@@ -202,19 +201,27 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
 
 # some commonalities among tracking WFs
 class UpgradeWorkflowTracking(UpgradeWorkflow):
+    # skip the PU argument since PU workflows never used here
+    def __init__(self, steps, suffix, offset):
+        # always include some steps that will be skipped
+        steps = steps + ["ALCA","Nano"]
+        super().__init__(steps, [], suffix, offset)
     def condition(self, fragment, stepList, key, hasHarvest):
         result = (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and not 'PU' in key and hasHarvest and self.condition_(fragment, stepList, key, hasHarvest)
-        if result:
-            # skip ALCA and Nano
-            skipList = [s for s in stepList if (("ALCA" in s) or ("Nano" in s))]
-            for skip in skipList:
-                stepList.remove(skip)
         return result
     def condition_(self, fragment, stepList, key, hasHarvest):
         return True
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # skip ALCA and Nano steps (but not RecoNano or HARVESTNano for Run3)
+        if 'ALCA' in step or 'Nano'==step:
+            stepDict[stepName][k] = None
+        self.setup__(step, stepName, stepDict, k, properties)
+    # subordinate function for inherited classes
+    def setup__(self, step, stepName, stepDict, k, properties):
+        pass
 
 class UpgradeWorkflow_trackingOnly(UpgradeWorkflowTracking):
-    def setup_(self, step, stepName, stepDict, k, properties):
+    def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
 upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
@@ -226,7 +233,6 @@ upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
         'RecoNano',
         'HARVESTNano',
     ],
-    PU = [],
     suffix = '_trackingOnly',
     offset = 0.1,
 )
@@ -239,7 +245,7 @@ upgradeWFs['trackingOnly'].step3 = {
 step3_trackingOnly = upgradeWFs['trackingOnly'].step3
 
 class UpgradeWorkflow_trackingRun2(UpgradeWorkflowTracking):
-    def setup_(self, step, stepName, stepDict, k, properties):
+    def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step and stepDict[step][k]['--era']=='Run2_2017':
             stepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
@@ -248,13 +254,12 @@ upgradeWFs['trackingRun2'] = UpgradeWorkflow_trackingRun2(
     steps = [
         'Reco',
     ],
-    PU = [],
     suffix = '_trackingRun2',
     offset = 0.2,
 )
 
 class UpgradeWorkflow_trackingOnlyRun2(UpgradeWorkflowTracking):
-    def setup_(self, step, stepName, stepDict, k, properties):
+    def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step and stepDict[step][k]['--era']=='Run2_2017':
             stepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
@@ -265,14 +270,13 @@ upgradeWFs['trackingOnlyRun2'] = UpgradeWorkflow_trackingOnlyRun2(
         'Reco',
         'HARVEST',
     ],
-    PU = [],
     suffix = '_trackingOnlyRun2',
     offset = 0.3,
 )
 upgradeWFs['trackingOnlyRun2'].step3 = upgradeWFs['trackingOnly'].step3
 
 class UpgradeWorkflow_trackingLowPU(UpgradeWorkflowTracking):
-    def setup_(self, step, stepName, stepDict, k, properties):
+    def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step and stepDict[step][k]['--era']=='Run2_2017':
             stepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingLowPU'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
@@ -281,13 +285,12 @@ upgradeWFs['trackingLowPU'] = UpgradeWorkflow_trackingLowPU(
     steps = [
         'Reco',
     ],
-    PU = [],
     suffix = '_trackingLowPU',
     offset = 0.4,
 )
 
 class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
-    def setup_(self, step, stepName, stepDict, k, properties):
+    def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
@@ -301,7 +304,6 @@ upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
         'RecoNano',
         'HARVESTNano',
     ],
-    PU = [],
     suffix = '_pixelTrackingOnly',
     offset = 0.5,
 )
@@ -312,7 +314,7 @@ upgradeWFs['pixelTrackingOnly'].step3 = {
 }
 
 class UpgradeWorkflow_trackingMkFit(UpgradeWorkflowTracking):
-    def setup_(self, step, stepName, stepDict, k, properties):
+    def setup__(self, step, stepName, stepDict, k, properties):
         if 'Digi' in step: stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
@@ -325,7 +327,6 @@ upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
         'RecoGlobal',
         'RecoNano',
     ],
-    PU = [],
     suffix = '_trackingMkFit',
     offset = 0.7,
 )
@@ -339,14 +340,12 @@ upgradeWFs['trackingMkFit'].step3 = {
 #DeepCore seeding for JetCore iteration workflow
 class UpgradeWorkflow_seedingDeepCore(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step or 'HARVEST' in step: stepDict[stepName][k] = merge([{'--procModifiers': 'seedingDeepCore'}, stepDict[step][k]])
+        # skip ALCA and Nano steps (but not RecoNano or HARVESTNano for Run3)
+        if 'ALCA' in step or 'Nano'==step:
+            stepDict[stepName][k] = None
+        elif 'Reco' in step or 'HARVEST' in step: stepDict[stepName][k] = merge([{'--procModifiers': 'seedingDeepCore'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         result = (fragment=="QCD_Pt_1800_2400_14" or fragment=="TTbar_14TeV" ) and ('2021' in key or '2024' in key) and hasHarvest
-        if result:
-            # skip ALCA and Nano
-            skipList = [s for s in stepList if (("ALCA" in s) or ("Nano" in s))]
-            for skip in skipList:
-                stepList.remove(skip)
         return result
 upgradeWFs['seedingDeepCore'] = UpgradeWorkflow_seedingDeepCore(
     steps = [
@@ -356,6 +355,8 @@ upgradeWFs['seedingDeepCore'] = UpgradeWorkflow_seedingDeepCore(
         'HARVESTGlobal',
         'RecoNano',
         'HARVESTNano',
+        'Nano',
+        'ALCA',
     ],
     PU = [],
     suffix = '_seedingDeepCore',
@@ -755,7 +756,7 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
         elif 'ALCA' in step or 'HARVEST' in step:
             # remove step
             stepDict[stepName][k] = None
-        elif 'Nano' in step:
+        elif 'Nano'==step:
             stepDict[stepName][k] = merge([{'--filein':'file:step4.root','-s':'NANO','--datatier':'NANOAODSIM','--eventcontent':'NANOEDMAODSIM'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key)
@@ -1019,7 +1020,7 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
                     d["--procModifiers"] = "premix_stage2"
             stepDict[stepName][k] = d
         # Increase the input file step number by one for Nano in combined stage1+stage2
-        elif "Nano" in step:
+        elif "Nano"==step:
             # go back to non-PU step version
             d = merge([stepDict[self.getStepName(step)][k]])
             if "--filein" in d:
@@ -1135,7 +1136,7 @@ class UpgradeWorkflowPremixProdLike(UpgradeWorkflowPremix,UpgradeWorkflow_ProdLi
                         "--eventcontent": "PREMIXRAW"},
                        d])
             stepDict[stepName][k] = d
-        if 'Nano' in step:
+        if 'Nano'==step:
             stepDict[stepName][k] = merge([{'--filein':'file:step5.root','-s':'NANO','--datatier':'NANOAODSIM','--eventcontent':'NANOEDMAODSIM'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         # use both conditions
