@@ -38,6 +38,7 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     addPrescaledDeDxTracks = cms.bool(False),
     usePrecomputedDeDxStrip = cms.bool(True),        # if these are set to True, will get estimated DeDx from DeDxData branches
     usePrecomputedDeDxPixel = cms.bool(True),        # if set to False, will manually compute using dEdxHitInfo
+    useSiPixelTrackProbQXY = cms.bool(True),         # Set to false if siPixelTrackProbQXY is not available (older AODs)
     siPixelTrackProbQXY = cms.InputTag("siPixelTrackProbQXY"),
     siPixelTrackProbQXYNoLayer1 = cms.InputTag("siPixelTrackProbQXY","NoLayer1"),
     pT_cut = cms.double(5.0),         # save tracks above this pt
@@ -69,7 +70,16 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(isolatedTracks, useHighPurity = True)
 
+# full set of track extras not available in existing AOD
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+from Configuration.ProcessModifiers.run2_miniAOD_UL_preSummer20_cff import run2_miniAOD_UL_preSummer20
+from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
+
+(run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL_preSummer20 | run2_miniAOD_pp_on_AA_103X).toModify(isolatedTracks, useSiPixelTrackProbQXY = False)
+
 def miniAOD_customizeIsolatedTracksFastSim(process):
     """Switch off dE/dx hit info on fast sim, as it's not available"""
     process.isolatedTracks.saveDeDxHitInfo = False
+    process.isolatedTracks.useSiPixelTrackProbQXY = False
     return process
