@@ -3,7 +3,7 @@
 // Package:    SiPixelPhase1MonitorClusterSoA
 // Class:      SiPixelPhase1MonitorClusterSoA
 //
-/**\class SiPixelPhase1MonitorClusterSoA SiPixelPhase1MonitorClusterSoA.cc 
+/**\class SiPixelPhase1MonitorClusterSoA SiPixelPhase1MonitorClusterSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -21,7 +21,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/SiPixelCluster.h/interface/SiPixelCluster.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 class SiPixelPhase1MonitorClusterSoA : public DQMEDAnalyzer {
@@ -33,7 +33,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::EDGetTokenT<edm::DetSetVector<PixelCluster>> tokenCluster_;
+  //edm::EDGetTokenT<edm::DetSetVector<SiPixelCluster>> tokenCluster_;
+  //edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> tokenCluster_;
+  //edm::EDGetTokenT<edm::DetSetVector<SiPixelClusterCollectionNew>> tokenCluster_;
+  edm::EDGetTokenT<SiPixelClusterCollectionNew> tokenCluster_;
   std::string topFolderName_;
   MonitorElement* hnClusters;
 };
@@ -43,7 +46,10 @@ private:
 //
 
 SiPixelPhase1MonitorClusterSoA::SiPixelPhase1MonitorClusterSoA(const edm::ParameterSet& iConfig) {
-  tokenCluster_ = consumes<edm::DetSetVector<SiPixelClusterCollectionNew>>(iConfig.getParameter<edm::InputTag>("pixelClusterSrc"));
+  //tokenCluster_ = auto consumes(edm::InputTag
+  tokenCluster_ = consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("pixelClusterSrc"));
+  //auto consumes(edm::InputTag const&)
+  //tokenCluster_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("pixelClusterSrc"));
   topFolderName_ = iConfig.getParameter<std::string>("TopFolderName");  //"SiPixelHeterogeneous/PixelClusterSoA";
 }
 
@@ -51,17 +57,24 @@ SiPixelPhase1MonitorClusterSoA::SiPixelPhase1MonitorClusterSoA(const edm::Parame
 // -- Analyze
 //
 void SiPixelPhase1MonitorClusterSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<edm::DetSetVector<SiPixelClusterCollectionNew>> input;
-  iEvent.getByToken(tokenCluster_, input);
-  if (!input.isValid()){
+  //edm::Handle<edm::DetSetVector<SiPixelClusterCollectionNew>> input;
+  //edm::Handle<edmNew::DetSetVector<SiPixelCluster>> input;
+
+  const auto& dsoaHandle = iEvent.getHandle(tokenCluster_);
+  //iEvent.getByToken(tokenCluster_, input);
+  //if (!input.isValid()){
+  if (false){
     edm::LogWarning("SiPixelPhase1MonitorClusterSoA") << "No Clusters found \n returning!" << std::endl;
   }
   else{
-    edm::DetSetVector<SiPixelClusterCollectionNew>::const_iterator it;
-    uint32_t nClusters = 0;
-    for (it = input->begin(); it != input->end(); ++it) {
-      nClusters += it->size();
-    }
+    //edmNew::DetSetVector<SiPixelCluster>::const_iterator it;
+    //edm::DetSetVector<SiPixelClusterCollectionNew>::const_iterator it;
+    auto const& dsoa = iEvent.get(tokenCluster_);
+    const uint32_t nClusters = dsoa.size();
+    //uint32_t nClusters = 0;
+    //for (it = input->begin(); it != input->end(); ++it) {
+    //  nClusters += it->size();
+    //}
     edm::LogWarning("SiPixelPhase1MonitorClusterSoA") << "Found "<<nClusters<<" Clusters!" << std::endl;
     hnClusters->Fill(nClusters);
   }
