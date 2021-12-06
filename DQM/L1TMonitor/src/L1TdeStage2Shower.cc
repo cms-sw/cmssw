@@ -53,20 +53,22 @@ void L1TdeStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if (dSh->isValid()) {
       emtfShowerDataSummary_denom_->Fill(dSh->sector(), (dSh->endcap() == 1) ? 1.5 : 0.5);
       for (auto eSh = emulShowers->begin(); eSh != emulShowers->end(); ++eSh) {
-        if (eSh->isValid() and dSh->sector() == eSh->sector() and dSh->endcap() == eSh->endcap() and  *dSh == *eSh) {
+        if (eSh->isValid() and dSh->sector() == eSh->sector() and dSh->endcap() == eSh->endcap() and  *dSh == *eSh)
           emtfShowerDataSummary_num_->Fill(dSh->sector(), (dSh->endcap() == 1) ? 1.5 : 0.5);
-        }
       }
     }
   }
 
   for (auto eSh = emulShowers->begin(); eSh != emulShowers->end(); ++eSh) {
+    bool isMatched = false;
     if (eSh->isValid()) {
       emtfShowerEmulSummary_denom_->Fill(eSh->sector(), (eSh->endcap() == 1) ? 1.5 : 0.5);
       for (auto dSh = dataShowers->begin(); dSh != dataShowers->end(); ++dSh) {
-        if (dSh->isValid() and eSh->sector() == dSh->sector() and eSh->endcap() == dSh->endcap() and  *dSh == *eSh) {
-          emtfShowerEmulSummary_num_->Fill(eSh->sector(), (eSh->endcap() == 1) ? 1.5 : 0.5);
-        }
+        if (dSh->isValid() and eSh->sector() == dSh->sector() and eSh->endcap() == dSh->endcap() and  *dSh == *eSh)
+          isMatched = true;
+      }
+      if (not isMatched) {
+        emtfShowerEmulSummary_num_->Fill(eSh->sector(), (eSh->endcap() == 1) ? 1.5 : 0.5);
       }
     }
   }
