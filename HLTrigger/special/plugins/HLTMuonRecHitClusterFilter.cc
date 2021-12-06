@@ -116,10 +116,10 @@ bool HLTMuonRecHitClusterFilter::filter(edm::StreamID, edm::Event& iEvent, const
     if (cluster.size() - cluster.nMB1() >= min_SizeMinusMB1_)
       passSizeCut = true;
     for (size_t i = 0; i < min_SizeRegionCutEtas_.size(); ++i) {
-      if ((min_SizeRegionCutEtas_ < 0.0 || std::abs(cluster.eta()) > min_SizeRegionCutEtas_[i]) &&
-          (max_SizeRegionCutEtas_ < 0.0 || std::abs(cluster.eta()) <= max_SizeRegionCutEtas_[i]) &&
-          (min_SizeRegionCutNstations_ < 0 || cluster.nStation() > min_SizeRegionCutNstations_[i]) &&
-          (max_SizeRegionCutNstations_ < 0 || cluster.nStation() <= max_SizeRegionCutNstations_[i]) &&
+      if (((min_SizeRegionCutEtas_[i] < 0.0) || std::abs(cluster.eta()) > min_SizeRegionCutEtas_[i]) &&
+          ((max_SizeRegionCutEtas_[i] < 0.0) || std::abs(cluster.eta()) <= max_SizeRegionCutEtas_[i]) &&
+          ((min_SizeRegionCutNstations_[i] < 0) || cluster.nStation() > min_SizeRegionCutNstations_[i]) &&
+          ((max_SizeRegionCutNstations_[i] < 0) || cluster.nStation() <= max_SizeRegionCutNstations_[i]) &&
           cluster.size() >= min_SizeRegionCutClusterSize_[i])
         passSizeCut = true;
     }
