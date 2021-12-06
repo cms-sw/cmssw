@@ -16,9 +16,9 @@ L1TdeCSCTPGShowerClient::L1TdeCSCTPGShowerClient(const edm::ParameterSet &ps)
 L1TdeCSCTPGShowerClient::~L1TdeCSCTPGShowerClient() {}
 
 void L1TdeCSCTPGShowerClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,
-                                              DQMStore::IGetter &igetter,
-                                              const edm::LuminosityBlock &lumiSeg,
-                                              const edm::EventSetup &c) {
+                                                    DQMStore::IGetter &igetter,
+                                                    const edm::LuminosityBlock &lumiSeg,
+                                                    const edm::EventSetup &c) {
   book(ibooker);
   processHistograms(igetter);
 }
@@ -34,17 +34,47 @@ void L1TdeCSCTPGShowerClient::book(DQMStore::IBooker &iBooker) {
 
   lctShowerDataSummary_eff_ = iBooker.book2D(
       "lct_cscshower_data_summary_eff", "Efficiency of data LCT shower being correctly emulated", 36, 1, 37, 18, 0, 18);
-  alctShowerDataSummary_eff_ = iBooker.book2D(
-      "alct_cscshower_data_summary_eff", "Efficiency of data ALCT shower being correctly emulated", 36, 1, 37, 18, 0, 18);
-  clctShowerDataSummary_eff_ = iBooker.book2D(
-      "clct_cscshower_data_summary_eff", "Efficiency of data CLCT shower being correctly emulated", 36, 1, 37, 18, 0, 18);
+  alctShowerDataSummary_eff_ = iBooker.book2D("alct_cscshower_data_summary_eff",
+                                              "Efficiency of data ALCT shower being correctly emulated",
+                                              36,
+                                              1,
+                                              37,
+                                              18,
+                                              0,
+                                              18);
+  clctShowerDataSummary_eff_ = iBooker.book2D("clct_cscshower_data_summary_eff",
+                                              "Efficiency of data CLCT shower being correctly emulated",
+                                              36,
+                                              1,
+                                              37,
+                                              18,
+                                              0,
+                                              18);
 
-  lctShowerEmulSummary_eff_ = iBooker.book2D(
-      "lct_cscshower_emul_summary_eff", "Fraction of emulated LCT shower without matching data LCT", 36, 1, 37, 18, 0, 18);
-  alctShowerEmulSummary_eff_ = iBooker.book2D(
-      "alct_cscshower_emul_summary_eff", "Fraction of emulated ALCT shower without matching data ALCT", 36, 1, 37, 18, 0, 18);
-  clctShowerEmulSummary_eff_ = iBooker.book2D(
-      "clct_cscshower_emul_summary_eff", "Fraction of emulated CLCT shower without matching data CLCT", 36, 1, 37, 18, 0, 18);
+  lctShowerEmulSummary_eff_ = iBooker.book2D("lct_cscshower_emul_summary_eff",
+                                             "Fraction of emulated LCT shower without matching data LCT",
+                                             36,
+                                             1,
+                                             37,
+                                             18,
+                                             0,
+                                             18);
+  alctShowerEmulSummary_eff_ = iBooker.book2D("alct_cscshower_emul_summary_eff",
+                                              "Fraction of emulated ALCT shower without matching data ALCT",
+                                              36,
+                                              1,
+                                              37,
+                                              18,
+                                              0,
+                                              18);
+  clctShowerEmulSummary_eff_ = iBooker.book2D("clct_cscshower_emul_summary_eff",
+                                              "Fraction of emulated CLCT shower without matching data CLCT",
+                                              36,
+                                              1,
+                                              37,
+                                              18,
+                                              0,
+                                              18);
 
   // x labels
   lctShowerDataSummary_eff_->setAxisTitle("Chamber", 1);
@@ -102,13 +132,19 @@ void L1TdeCSCTPGShowerClient::processHistograms(DQMStore::IGetter &igetter) {
   MonitorElement *clctShowerEmulSummary_denom_ = igetter.get(monitorDir_ + "/clct_cscshower_emul_summary_denom");
   MonitorElement *clctShowerEmulSummary_num_ = igetter.get(monitorDir_ + "/clct_cscshower_emul_summary_num");
 
-  lctShowerDataSummary_eff_->getTH2F()->Divide(lctShowerDataSummary_num_->getTH2F(), lctShowerDataSummary_denom_->getTH2F(), 1, 1, "");
-  alctShowerDataSummary_eff_->getTH2F()->Divide(alctShowerDataSummary_num_->getTH2F(), alctShowerDataSummary_denom_->getTH2F(), 1, 1, "");
-  clctShowerDataSummary_eff_->getTH2F()->Divide(clctShowerDataSummary_num_->getTH2F(), clctShowerDataSummary_denom_->getTH2F(), 1, 1, "");
+  lctShowerDataSummary_eff_->getTH2F()->Divide(
+      lctShowerDataSummary_num_->getTH2F(), lctShowerDataSummary_denom_->getTH2F(), 1, 1, "");
+  alctShowerDataSummary_eff_->getTH2F()->Divide(
+      alctShowerDataSummary_num_->getTH2F(), alctShowerDataSummary_denom_->getTH2F(), 1, 1, "");
+  clctShowerDataSummary_eff_->getTH2F()->Divide(
+      clctShowerDataSummary_num_->getTH2F(), clctShowerDataSummary_denom_->getTH2F(), 1, 1, "");
 
-  lctShowerEmulSummary_eff_->getTH2F()->Divide(lctShowerEmulSummary_num_->getTH2F(), lctShowerEmulSummary_denom_->getTH2F(), 1, 1, "");
-  alctShowerEmulSummary_eff_->getTH2F()->Divide(alctShowerEmulSummary_num_->getTH2F(), alctShowerEmulSummary_denom_->getTH2F(), 1, 1, "");
-  clctShowerEmulSummary_eff_->getTH2F()->Divide(clctShowerEmulSummary_num_->getTH2F(), clctShowerEmulSummary_denom_->getTH2F(), 1, 1, "");
+  lctShowerEmulSummary_eff_->getTH2F()->Divide(
+      lctShowerEmulSummary_num_->getTH2F(), lctShowerEmulSummary_denom_->getTH2F(), 1, 1, "");
+  alctShowerEmulSummary_eff_->getTH2F()->Divide(
+      alctShowerEmulSummary_num_->getTH2F(), alctShowerEmulSummary_denom_->getTH2F(), 1, 1, "");
+  clctShowerEmulSummary_eff_->getTH2F()->Divide(
+      clctShowerEmulSummary_num_->getTH2F(), clctShowerEmulSummary_denom_->getTH2F(), 1, 1, "");
 
   lctShowerDataSummary_eff_->getTH2F()->GetZaxis()->SetRangeUser(0.95, 1);
   alctShowerDataSummary_eff_->getTH2F()->GetZaxis()->SetRangeUser(0.95, 1);
