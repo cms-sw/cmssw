@@ -162,7 +162,6 @@ namespace edm {
         number_of_unscheduled_modules_(0),
         streamID_(streamID),
         streamContext_(streamID_, processContext),
-        endpathsAreActive_(true),
         skippingEvent_(false) {
     ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
     bool hasPath = false;
@@ -831,10 +830,6 @@ namespace edm {
       }
     }
   }
-
-  void StreamSchedule::enableEndPaths(bool active) { endpathsAreActive_ = active; }
-
-  bool StreamSchedule::endPathsEnabled() const { return endpathsAreActive_; }
 
   static void fillModuleInPathSummary(Path const& path, size_t which, ModuleInPathSummary& sum) {
     sum.timesVisited += path.timesVisited(which);
