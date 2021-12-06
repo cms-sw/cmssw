@@ -2,10 +2,6 @@
   <flags EDM_PLUGIN="1"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/Utilities"/>
   <use name="DQM/GEM"/>
   <use name="DQMServices/Core"/>
-  <use name="DataFormats/GEMDigi"/>
-  <use name="DataFormats/GEMRecHit"/>
-  <use name="Validation/MuonGEMHits"/>
 </library>

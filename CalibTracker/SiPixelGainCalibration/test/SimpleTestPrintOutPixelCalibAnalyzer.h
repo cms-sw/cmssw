@@ -20,7 +20,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,18 +32,15 @@
 // class decleration
 //
 
-class SimpleTestPrintOutPixelCalibAnalyzer : public edm::EDAnalyzer {
+class SimpleTestPrintOutPixelCalibAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   explicit SimpleTestPrintOutPixelCalibAnalyzer(const edm::ParameterSet&);
-  ~SimpleTestPrintOutPixelCalibAnalyzer();
+  ~SimpleTestPrintOutPixelCalibAnalyzer() = default;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void printInfo(const edm::Event&,
-                         const edm::EventSetup&);  // print method added by Freya, this way the analyzer stays clean
-  virtual void endJob();
-
+  virtual void analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const override;
+  virtual void printInfo(const edm::Event&, const edm::EventSetup&)
+      const;  // print method added by Freya, this way the analyzer stays clean
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::DetSetVector<SiPixelCalibDigi> > tPixelCalibDigi;
 };

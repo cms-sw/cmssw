@@ -55,18 +55,18 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  std::unique_ptr<SiStripApvGain> getNewObject(const std::map<std::pair<uint32_t, int>, float>& theMap);
+  SiStripApvGain getNewObject(const std::map<std::pair<uint32_t, int>, float>& theMap);
   void endJob() override;
 
   // ----------member data ---------------------------
+  const uint32_t m_printdebug;
   const std::string m_Record;
   const uint32_t m_gainType;
   const bool m_saveMaps;
   const std::vector<edm::ParameterSet> m_parameters;
-  edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
   std::unique_ptr<TrackerMap> scale_map;
   std::unique_ptr<TrackerMap> smear_map;
@@ -79,7 +79,8 @@ private:
 // constructors and destructor
 //
 SiStripChannelGainFromDBMiscalibrator::SiStripChannelGainFromDBMiscalibrator(const edm::ParameterSet& iConfig)
-    : m_Record{iConfig.getUntrackedParameter<std::string>("record", "SiStripApvGainRcd")},
+    : m_printdebug{iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)},
+      m_Record{iConfig.getUntrackedParameter<std::string>("record", "SiStripApvGainRcd")},
       m_gainType{iConfig.getUntrackedParameter<uint32_t>("gainType", 1)},
       m_saveMaps{iConfig.getUntrackedParameter<bool>("saveMaps", true)},
       m_parameters{iConfig.getParameter<std::vector<edm::ParameterSet> >("params")},
@@ -110,7 +111,7 @@ SiStripChannelGainFromDBMiscalibrator::SiStripChannelGainFromDBMiscalibrator(con
   old_payload_map->setPalette(1);
 }
 
-SiStripChannelGainFromDBMiscalibrator::~SiStripChannelGainFromDBMiscalibrator() {}
+SiStripChannelGainFromDBMiscalibrator::~SiStripChannelGainFromDBMiscalibrator() = default;
 
 //
 // member functions
@@ -203,13 +204,14 @@ void SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, co
     }  // loop over APVs
   }    // loop over DetIds
 
-  std::unique_ptr<SiStripApvGain> theAPVGains = this->getNewObject(theMap);
+  SiStripApvGain theAPVGains = this->getNewObject(theMap);
 
   // make the payload ratio map
   uint32_t cachedId(0);
   SiStripMiscalibrate::Entry gain_ratio;
   SiStripMiscalibrate::Entry o_gain;
   SiStripMiscalibrate::Entry n_gain;
+  unsigned int countDetIds(0);  // count DetIds to print
   for (const auto& element : theMap) {
     uint32_t DetId = element.first.first;
     int nAPV = element.first.second;
@@ -227,6 +229,15 @@ void SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, co
       gain_ratio.reset();
       o_gain.reset();
       n_gain.reset();
+      countDetIds++;
+    }
+
+    // printout for debug
+    if (countDetIds < m_printdebug) {
+      edm::LogPrint("SiStripChannelGainFromDBMiscalibrator")
+          << "SiStripChannelGainFromDBMiscalibrator"
+          << "::" << __FUNCTION__ << " detid " << DetId << " \t"
+          << " APV " << nAPV << " \t new gain: " << new_gain << " \t old gain: " << old_gain << " \t" << std::endl;
     }
 
     cachedId = DetId;
@@ -238,14 +249,16 @@ void SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, co
   // write out the APVGains record
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
-  if (poolDbService.isAvailable())
-    poolDbService->writeOne(theAPVGains.get(), poolDbService->currentTime(), m_Record);
-  else
+  if (poolDbService.isAvailable()) {
+    if (poolDbService->isNewTagRequest(m_Record)) {
+      poolDbService->createOneIOV(theAPVGains, poolDbService->currentTime(), m_Record);
+    } else {
+      poolDbService->appendOneIOV(theAPVGains, poolDbService->currentTime(), m_Record);
+    }
+  } else {
     throw std::runtime_error("PoolDBService required.");
+  }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void SiStripChannelGainFromDBMiscalibrator::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void SiStripChannelGainFromDBMiscalibrator::endJob() {
@@ -274,9 +287,9 @@ void SiStripChannelGainFromDBMiscalibrator::endJob() {
 }
 
 //********************************************************************************//
-std::unique_ptr<SiStripApvGain> SiStripChannelGainFromDBMiscalibrator::getNewObject(
+SiStripApvGain SiStripChannelGainFromDBMiscalibrator::getNewObject(
     const std::map<std::pair<uint32_t, int>, float>& theMap) {
-  std::unique_ptr<SiStripApvGain> obj = std::make_unique<SiStripApvGain>();
+  SiStripApvGain obj{};
 
   std::vector<float> theSiStripVector;
   uint32_t PreviousDetId = 0;
@@ -285,7 +298,7 @@ std::unique_ptr<SiStripApvGain> SiStripChannelGainFromDBMiscalibrator::getNewObj
     if (DetId != PreviousDetId) {
       if (!theSiStripVector.empty()) {
         SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
-        if (!obj->put(PreviousDetId, range))
+        if (!obj.put(PreviousDetId, range))
           printf("Bug to put detId = %i\n", PreviousDetId);
       }
       theSiStripVector.clear();
@@ -299,7 +312,7 @@ std::unique_ptr<SiStripApvGain> SiStripChannelGainFromDBMiscalibrator::getNewObj
 
   if (!theSiStripVector.empty()) {
     SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
-    if (!obj->put(PreviousDetId, range))
+    if (!obj.put(PreviousDetId, range))
       printf("Bug to put detId = %i\n", PreviousDetId);
   }
 
@@ -326,6 +339,7 @@ void SiStripChannelGainFromDBMiscalibrator::fillDescriptions(edm::ConfigurationD
   descScaler.add<double>("smearFactor", 1.0);
   desc.addVPSet("params", descScaler, std::vector<edm::ParameterSet>(1));
 
+  desc.addUntracked<unsigned int>("printDebug", 1);
   desc.addUntracked<std::string>("record", "SiStripApvGainRcd");
   desc.addUntracked<unsigned int>("gainType", 1);
   desc.addUntracked<bool>("saveMaps", true);

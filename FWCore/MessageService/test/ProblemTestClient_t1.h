@@ -2,7 +2,7 @@
 #define FWCore_MessageService_test_ProblemTestClient_t1_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 namespace edm {
   class ParameterSet;
@@ -10,13 +10,11 @@ namespace edm {
 
 namespace edmtest {
 
-  class ProblemTestClient_t1 : public edm::EDAnalyzer {
+  class ProblemTestClient_t1 : public edm::global::EDAnalyzer<> {
   public:
     explicit ProblemTestClient_t1(edm::ParameterSet const&) {}
 
-    virtual ~ProblemTestClient_t1() {}
-
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& c) const final;
 
   private:
   };

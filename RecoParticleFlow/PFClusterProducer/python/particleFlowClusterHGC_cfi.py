@@ -53,6 +53,8 @@ _hgcalTracksterMapper_HGCal = cms.PSet(
     filterByTracksterPID = cms.bool(False),
     pid_threshold = cms.double(0.8),
     filter_on_categories = cms.vint32([0, 1]),
+    filterByTracksterIteration = cms.bool(True),
+    filter_on_iterations = cms.vint32([0, 1]),
 )
 
 particleFlowClusterHGCal = cms.EDProducer(
@@ -61,12 +63,12 @@ particleFlowClusterHGCal = cms.EDProducer(
     recHitCleaners = cms.VPSet(),
     seedCleaners   = cms.VPSet(),
     seedFinder = _passThruSeeds_HGCal,
-    initialClusteringStep = _simClusterMapper_HGCal,
+    initialClusteringStep = _hgcalTracksterMapper_HGCal,
     pfClusterBuilder = cms.PSet(),
     positionReCalc = _positionCalcPCA_HGCal,
     energyCorrector = cms.PSet()
     )
 
-particleFlowClusterHGCalFromMultiCl = particleFlowClusterHGCal.clone(
-    initialClusteringStep = _hgcalTracksterMapper_HGCal
+particleFlowClusterHGCalFromSimCl = particleFlowClusterHGCal.clone(
+    initialClusteringStep = _simClusterMapper_HGCal
 )

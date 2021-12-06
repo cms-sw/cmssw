@@ -1,6 +1,4 @@
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "SimMuon/RPCDigitizer/src/RPCandIRPCDigiProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
@@ -76,7 +74,6 @@ void RPCandIRPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& 
   edm::ESHandle<RPCStripNoises> noiseRcd = eventSetup.getHandle(noiseToken);
 
   edm::ESHandle<RPCClusterSize> clsRcd = eventSetup.getHandle(clsToken);
-  eventSetup.get<RPCClusterSizeRcd>().get(clsRcd);
 
   //setup the two digi models
   theRPCSimSetUpRPC->setGeometry(pGeom);

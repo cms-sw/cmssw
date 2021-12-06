@@ -44,7 +44,6 @@
 #include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
 #include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDMException.h"

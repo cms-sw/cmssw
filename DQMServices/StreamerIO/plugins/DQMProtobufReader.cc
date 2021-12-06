@@ -7,7 +7,7 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 // #include "FWCore/Sources/interface/ProducerSourceBase.h"
 
-#include "DQMServices/Core/src/ROOTFilePB.pb.h"
+#include "DQMServices/Core/interface/ROOTFilePB.pb.h"
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/gzip_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>

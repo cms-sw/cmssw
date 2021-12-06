@@ -11,6 +11,10 @@
 
 #include "CalibMuon/DTCalibration/interface/DTT0BaseCorrection.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
+#include "CondFormats/DTObjects/interface/DTT0.h"
 
 #include <string>
 
@@ -25,7 +29,7 @@ namespace dtCalibration {
   class DTT0ChamberReferenceCorrection : public DTT0BaseCorrection {
   public:
     // Constructor
-    DTT0ChamberReferenceCorrection(const edm::ParameterSet&);
+    DTT0ChamberReferenceCorrection(const edm::ParameterSet&, edm::ConsumesCollector);
 
     // Destructor
     ~DTT0ChamberReferenceCorrection() override;
@@ -40,6 +44,7 @@ namespace dtCalibration {
 
     DTChamberId chosenChamberId_;
     const DTT0* t0Map_;
+    edm::ESGetToken<DTT0, DTT0Rcd> t0Token_;
   };
 
 }  // namespace dtCalibration

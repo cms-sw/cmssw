@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/src/Box.h"
+#include "DetectorDescription/Core/interface/Box.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <ostream>

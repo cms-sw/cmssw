@@ -404,7 +404,8 @@ const double THIS_CLASS::fun_sigma_t[N_alpha][N_By][N_Bz][N_Sigma_t] = {
 
 /*** Auxiliary functions ***/
 
-unsigned short THIS_CLASS::MB_DT_Check_boundaries(double distime, double alpha, double by, double bz, short ifl) const {
+inline unsigned short THIS_CLASS::MB_DT_Check_boundaries(
+    double distime, double alpha, double by, double bz, short ifl) const {
   unsigned short status = 1;
   std::string name = "MB_DT_drift_time";
 
@@ -458,7 +459,7 @@ unsigned short THIS_CLASS::MB_DT_Check_boundaries(double distime, double alpha, 
   return (status);
 }
 
-void THIS_CLASS::MB_DT_Get_grid_values(
+inline void THIS_CLASS::MB_DT_Get_grid_values(
     double Var, unsigned short *pi, unsigned short *pj, short Initial, unsigned short N, const double *Values) const {
   unsigned short i, iValue, jValue;
 
@@ -482,15 +483,15 @@ void THIS_CLASS::MB_DT_Get_grid_values(
   }
 }
 
-void THIS_CLASS::MB_DT_Get_grid_points(double alpha,
-                                       double by,
-                                       double bz,
-                                       unsigned short *p_alpha,
-                                       unsigned short *p_By,
-                                       unsigned short *p_Bz,
-                                       unsigned short *q_alpha,
-                                       unsigned short *q_By,
-                                       unsigned short *q_Bz) const {
+inline void THIS_CLASS::MB_DT_Get_grid_points(double alpha,
+                                              double by,
+                                              double bz,
+                                              unsigned short *p_alpha,
+                                              unsigned short *p_By,
+                                              unsigned short *p_Bz,
+                                              unsigned short *q_alpha,
+                                              unsigned short *q_By,
+                                              unsigned short *q_Bz) const {
   MB_DT_Get_grid_values(fabs(alpha), p_alpha, q_alpha, 4, N_alpha, alpha_value);
   MB_DT_Get_grid_values(by, p_By, q_By, 0, N_By, By_value);
   MB_DT_Get_grid_values(bz, p_Bz, q_Bz, 0, N_Bz, Bz_value);
@@ -503,7 +504,7 @@ void THIS_CLASS::MB_DT_Get_grid_points(double alpha,
 
 /*** Multidimensional linear interpolation ***/
 
-double THIS_CLASS::MB_DT_MLInterpolation(double *al, double *by, double *bz, double *f) const {
+inline double THIS_CLASS::MB_DT_MLInterpolation(double *al, double *by, double *bz, double *f) const {
   double q1, q2, q3, p1, p2, p3;
   double fx11, fx21, fxy1, fx12, fx22, fxy2, fxyz;
 
@@ -528,7 +529,7 @@ double THIS_CLASS::MB_DT_MLInterpolation(double *al, double *by, double *bz, dou
   return (fxyz);
 }
 
-double THIS_CLASS::MB_DT_sigma_t_m(double dist, double *par) const {
+inline double THIS_CLASS::MB_DT_sigma_t_m(double dist, double *par) const {
   double x = fabs(dist);  // the parametrisations are symmetric under 'distance'
 
   if (x > 20.5)
@@ -537,7 +538,7 @@ double THIS_CLASS::MB_DT_sigma_t_m(double dist, double *par) const {
   return (par[6] * x);
 }
 
-double THIS_CLASS::MB_DT_sigma_t_p(double dist, double *par) const {
+inline double THIS_CLASS::MB_DT_sigma_t_p(double dist, double *par) const {
   double x2, x = fabs(dist);  // the parametrisations are symmetric under 'distance'
 
   if (x > 20.5)

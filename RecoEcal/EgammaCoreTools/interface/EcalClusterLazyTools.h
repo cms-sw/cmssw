@@ -54,7 +54,7 @@ public:
 
   class ESGetTokens {
   public:
-    ESGetTokens(edm::ConsumesCollector &&cc)
+    ESGetTokens(edm::ConsumesCollector cc)
         : caloGeometryToken_{cc.esConsumes()},
           caloTopologyToken_{cc.esConsumes()},
           ecalIntercalibConstantsToken_{cc.esConsumes()},

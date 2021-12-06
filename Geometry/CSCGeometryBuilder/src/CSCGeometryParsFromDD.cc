@@ -4,13 +4,13 @@
 //  Description: CSC Geometry Pars for DD4hep
 //              
 //
-// \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+// \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4hep migration)
 //         Created:  Thu, 05 March 2020 
 //         Modified: Thu, 04 June 2020, following what made in PR #30047               
 //         Modified: Wed, 23 December 2020 
 //         Original author: Tim Cox
 */
-#include "CSCGeometryParsFromDD.h"
+#include "Geometry/CSCGeometryBuilder/interface/CSCGeometryParsFromDD.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
@@ -18,7 +18,7 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
-#include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
+#include "Geometry/CSCGeometry/interface/CSCWireGroupPackage.h"
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -390,7 +390,7 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
   std::vector<double> grmat(9);
   std::vector<double> trm(9);
 
-  edm::LogVerbatim("CSCGeometryParsFromDD") << "(0) CSCGeometryParsFromDD - DD4HEP ";
+  edm::LogVerbatim("CSCGeometryParsFromDD") << "(0) CSCGeometryParsFromDD - DD4hep ";
 
   while (fv.firstChild()) {
     MuonGeometryNumbering mbn(muonConstants);

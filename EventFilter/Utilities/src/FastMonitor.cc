@@ -32,11 +32,12 @@ FastMonitor::FastMonitor(
     getHostAndPID(sourceInfo_);
 
   //load definition file
-  dpd_ = new DataPointDefinition();
-  DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_, &defGroup);
+  auto temp = new DataPointDefinition();
+  DataPointDefinition::getDataPointDefinitionFor(defPath_, temp, &defGroup);
+  dpd_ = temp;
 }
 
-FastMonitor::FastMonitor(DataPointDefinition* dpd, bool strictChecking, bool useSource, bool useDefinition)
+FastMonitor::FastMonitor(DataPointDefinition const* dpd, bool strictChecking, bool useSource, bool useDefinition)
     : strictChecking_(strictChecking), useSource_(useSource), useDefinition_(useDefinition), nStreams_(1), dpd_(dpd) {
   //get host and PID info
   if (useSource)
@@ -55,8 +56,9 @@ FastMonitor::~FastMonitor() {
 void FastMonitor::addFastPathDefinition(std::string const& defPathFast, std::string const defGroupFast, bool strict) {
   haveFastPath_ = true;
   defPathFast_ = defPathFast;
-  dpdFast_ = new DataPointDefinition();
-  DataPointDefinition::getDataPointDefinitionFor(defPathFast_, dpdFast_, &defGroupFast);
+  auto temp = new DataPointDefinition();
+  DataPointDefinition::getDataPointDefinitionFor(defPathFast_, temp, &defGroupFast);
+  dpdFast_ = temp;
   fastPathStrictChecking_ = strict;
   deleteDefFast_ = true;
 }

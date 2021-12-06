@@ -152,6 +152,7 @@ private:  // member data
   const edm::ESGetToken<TrajectoryFitter, TrajectoryFitter::Record> trajectoryFitterToken_;
   const edm::ESGetToken<TrajectorySmoother, TrajectoryFitter::Record> trajectorySmootherToken_;
   const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> builderToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
   const noZS::EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
   const bool passThrough_;
@@ -183,6 +184,7 @@ LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer(const edm::ParameterS
       trajectoryFitterToken_{esConsumes(conf.getParameter<edm::ESInputTag>("Fitter"))},
       trajectorySmootherToken_{esConsumes(conf.getParameter<edm::ESInputTag>("Smoother"))},
       builderToken_{esConsumes(conf.getParameter<edm::ESInputTag>("TTRHBuilder"))},
+      magToken_{esConsumes<edm::Transition::BeginLuminosityBlock>()},
       ecalClusterToolsESGetTokens_{consumesCollector()},
       passThrough_(conf.getParameter<bool>("PassThrough")),
       usePfTracks_(conf.getParameter<bool>("UsePfTracks")),
@@ -203,7 +205,7 @@ LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer(const edm::ParameterS
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 void LowPtGsfElectronSeedProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& setup) {
-  setup.get<IdealMagneticFieldRecord>().get(field_);
+  field_ = setup.getHandle(magToken_);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

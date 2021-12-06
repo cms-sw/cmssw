@@ -69,6 +69,17 @@ private:
   DDSolid(const DDName&, DDSolidShape, const std::vector<double>&);
 };
 
+//! Interface to an Assembly
+/**
+   The definition of an Assembly is
+   the same as in Geant4.
+*/
+class DDAssembly : public DDSolid {
+public:
+  DDAssembly(const DDSolid& s);
+  DDAssembly(void) = delete;
+};
+
 //! Interface to a Trapezoid
 /**
    The definition (parameters, local frame) of the Trapezoid is 
@@ -387,6 +398,9 @@ public:
 // Solid generation functions
 //
 struct DDSolidFactory {
+  //! Creates an assembly
+  static DDSolid assembly(const DDName& name);
+
   //! Creates a box with side length 2*xHalf, 2*yHalf, 2*zHalf
   /** \arg \c name unique name identifying the box
       \arg \c xHalf half length in x 

@@ -17,6 +17,7 @@ namespace cAHitNtupletGenerator {
     unsigned long long nCells;
     unsigned long long nTuples;
     unsigned long long nFitTracks;
+    unsigned long long nLooseTracks;
     unsigned long long nGoodTracks;
     unsigned long long nUsedHits;
     unsigned long long nDupHits;
@@ -51,14 +52,14 @@ namespace cAHitNtupletGenerator {
     Region quadruplet;
   };
 
-  // params
+  // params (FIXME: thi si a POD: so no constructor no traling _  and no const as params_ is already const)
   struct Params {
     Params(bool onGPU,
            uint32_t minHitsPerNtuplet,
            uint32_t maxNumberOfDoublets,
            uint16_t minHitsForSharingCuts,
            bool useRiemannFit,
-           bool fit5as4,
+           bool fitNas4,
            bool includeJumpingForwardDoublets,
            bool earlyFishbone,
            bool lateFishbone,
@@ -68,6 +69,8 @@ namespace cAHitNtupletGenerator {
            bool doZ0Cut,
            bool doPtCut,
            bool doSharedHitCut,
+           bool dupPassThrough,
+           bool useSimpleTripletCleaner,
            float ptmin,
            float CAThetaCutBarrel,
            float CAThetaCutForward,
@@ -81,7 +84,7 @@ namespace cAHitNtupletGenerator {
           maxNumberOfDoublets_(maxNumberOfDoublets),
           minHitsForSharingCut_(minHitsForSharingCuts),
           useRiemannFit_(useRiemannFit),
-          fit5as4_(fit5as4),
+          fitNas4_(fitNas4),
           includeJumpingForwardDoublets_(includeJumpingForwardDoublets),
           earlyFishbone_(earlyFishbone),
           lateFishbone_(lateFishbone),
@@ -91,6 +94,8 @@ namespace cAHitNtupletGenerator {
           doZ0Cut_(doZ0Cut),
           doPtCut_(doPtCut),
           doSharedHitCut_(doSharedHitCut),
+          dupPassThrough_(dupPassThrough),
+          useSimpleTripletCleaner_(useSimpleTripletCleaner),
           ptmin_(ptmin),
           CAThetaCutBarrel_(CAThetaCutBarrel),
           CAThetaCutForward_(CAThetaCutForward),
@@ -104,7 +109,7 @@ namespace cAHitNtupletGenerator {
     const uint32_t maxNumberOfDoublets_;
     const uint16_t minHitsForSharingCut_;
     const bool useRiemannFit_;
-    const bool fit5as4_;
+    const bool fitNas4_;
     const bool includeJumpingForwardDoublets_;
     const bool earlyFishbone_;
     const bool lateFishbone_;
@@ -114,6 +119,8 @@ namespace cAHitNtupletGenerator {
     const bool doZ0Cut_;
     const bool doPtCut_;
     const bool doSharedHitCut_;
+    const bool dupPassThrough_;
+    const bool useSimpleTripletCleaner_;
     const float ptmin_;
     const float CAThetaCutBarrel_;
     const float CAThetaCutForward_;
@@ -178,8 +185,6 @@ public:
 
   void classifyTuples(HitsOnCPU const& hh, TkSoA* tuples_d, cudaStream_t cudaStream);
 
-  void fillHitDetIndices(HitsView const* hv, TkSoA* tuples_d, cudaStream_t cudaStream);
-
   void buildDoublets(HitsOnCPU const& hh, cudaStream_t stream);
   void allocateOnGPU(int32_t nHits, cudaStream_t stream);
   void cleanup(cudaStream_t cudaStream);
@@ -198,7 +203,8 @@ private:
   caConstants::CellTracks* device_theCellTracksContainer_;
 
   unique_ptr<GPUCACell[]> device_theCells_;
-  unique_ptr<GPUCACell::OuterHitOfCell[]> device_isOuterHitOfCell_;
+  unique_ptr<GPUCACell::OuterHitOfCellContainer[]> device_isOuterHitOfCell_;
+  GPUCACell::OuterHitOfCell isOuterHitOfCell_;
   uint32_t* device_nCells_ = nullptr;
 
   unique_ptr<HitToTuple> device_hitToTuple_;

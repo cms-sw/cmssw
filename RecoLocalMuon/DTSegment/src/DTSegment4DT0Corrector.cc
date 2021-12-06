@@ -32,7 +32,7 @@ DTSegment4DT0Corrector::DTSegment4DT0Corrector(const ParameterSet& pset) {
   recHits4DToken_ = consumes<DTRecSegment4DCollection>(pset.getParameter<InputTag>("recHits4DLabel"));
 
   // the updator
-  theUpdator = new DTSegmentUpdator(pset);
+  theUpdator = new DTSegmentUpdator(pset, consumesCollector());
 }
 
 /// Destructor
@@ -46,10 +46,6 @@ void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup) {
   // Get the 4D Segment from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByToken(recHits4DToken_, all4DSegments);
-
-  // get the geometry
-  ESHandle<DTGeometry> theGeom;
-  setup.get<MuonGeometryRecord>().get(theGeom);
 
   // Percolate the setup
   theUpdator->setES(setup);

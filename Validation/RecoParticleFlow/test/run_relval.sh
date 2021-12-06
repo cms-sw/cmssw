@@ -48,6 +48,11 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd $CMSSW_BASE
 eval `scram runtime -sh`
 
+#define HOME if not defined.
+if [ -z "$HOME" ]; then
+    export HOME=/tmp
+fi
+
 #if the _CONDOR_SCRATCH_DIR is not defined, we are not inside a condor batch job
 if [ -z "$_CONDOR_SCRATCH_DIR" ]; then
     cd $LAUNCHDIR
@@ -64,13 +69,13 @@ elif [ "$1" == "QCDPU" ]; then
     NAME=QCDPU
 elif [ "$1" == "ZEEPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/ZEE_PU.txt
-    NAME=ZEE
+    NAME=ZEEPU
 elif [ "$1" == "ZMMPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/ZMM_PU.txt
-    NAME=ZMM
+    NAME=ZMMPU
 elif [ "$1" == "TenTauPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/TenTau_PU.txt
-    NAME=TenTau
+    NAME=TenTauPU
 elif [ "$1" == "NuGunPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/NuGun_PU.txt
     NAME=NuGunPU

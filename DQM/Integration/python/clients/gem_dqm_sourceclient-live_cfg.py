@@ -33,10 +33,10 @@ process.load("DQM.GEM.GEMDQM_cff")
 
 
 if (process.runType.getRunType() == process.runType.hi_run):
-  process.muonGEMDigis.InputLabel = cms.InputTag("rawDataRepacker")
+  process.muonGEMDigis.InputLabel = "rawDataRepacker"
 
 process.muonGEMDigis.useDBEMap = True
-process.muonGEMDigis.unPackStatusDigis = True
+process.muonGEMDigis.keepDAQStatus = True
 
 process.path = cms.Path(
   process.muonGEMDigis *
@@ -58,4 +58,5 @@ process.schedule = cms.Schedule(
 process.dqmProvInfo.runType = process.runType.getRunTypeName()
 
 from DQM.Integration.config.online_customizations_cfi import *
+print("Final Source settings:", process.source)
 process = customise(process)

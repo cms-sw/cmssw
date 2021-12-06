@@ -166,14 +166,14 @@ void fillEEMap_TwoIOVs(std::shared_ptr<floatCondObj> payload,
         }  // validDetId
 }
 
-void fillTableWithSummary(TH2F*& align,
-                          std::string title,
-                          const float& mean_x_EB,
-                          const float& rms_EB,
-                          const int& num_x_EB,
-                          const float& mean_x_EE,
-                          const float& rms_EE,
-                          const int& num_x_EE) {
+inline void fillTableWithSummary(TH2F*& align,
+                                 std::string title,
+                                 const float& mean_x_EB,
+                                 const float& rms_EB,
+                                 const int& num_x_EB,
+                                 const float& mean_x_EE,
+                                 const float& rms_EE,
+                                 const int& num_x_EE) {
   int NbRows = 2;
   align = new TH2F(title.c_str(), "EB/EE      mean_x      rms        num_x", 4, 0, 4, NbRows, 0, NbRows);
 

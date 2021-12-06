@@ -5,8 +5,8 @@ process = cms.Process('PROD',Phase2C11)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D71_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -52,7 +52,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent.root')
+    fileName = cms.untracked.string('hgcV14.root')
 )
 
 process.generation_step = cms.Path(process.pgen)

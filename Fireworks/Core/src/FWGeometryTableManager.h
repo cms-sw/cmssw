@@ -80,10 +80,11 @@ protected:
   //   virtual FWGeometryTableManagerBase::ESelectionState nodeSelectionState(int) const;
   const char* cellName(const NodeInfo& data) const override;
 
-private:
+public:
   FWGeometryTableManager(const FWGeometryTableManager&) = delete;                   // stop default
   const FWGeometryTableManager& operator=(const FWGeometryTableManager&) = delete;  // stop default
 
+private:
   FWGeometryTableView* m_browser;
 
   mutable Volumes_t m_volumes;

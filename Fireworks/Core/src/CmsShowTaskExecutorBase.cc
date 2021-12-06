@@ -15,7 +15,7 @@
 #include <TTimer.h>
 
 // user include files
-#include "Fireworks/Core/src/CmsShowTaskExecutorBase.h"
+#include "Fireworks/Core/interface/CmsShowTaskExecutorBase.h"
 #include "Fireworks/Core/src/CmsShowTaskTimer.h"
 
 //

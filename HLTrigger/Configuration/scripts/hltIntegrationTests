@@ -31,7 +31,9 @@ Usage:
   MENU is the HLT menu to test.
 
   -s | --setup SETUP          Use the Services and EventSetup modules from a different menu
-                              (usefull when testing a ConfDB area with only some new paths)
+                              (usefull when testing a ConfDB area with only some new paths).
+                              Note it is an error to specify the converter/db here, 
+                              it uses the same as set by the HLT menu
   -d | --dir      WORKDIR     Create all files and run all tests inside WORKDIR (defauls: ./hltintegration)
   -i | --input    INPUT       Use the specified RAW data file as input
   -n | --size     EVENTS      Run on EVENTS events (-1 for all, default is 100)
@@ -42,18 +44,22 @@ Usage:
        --threads  THREADS     Run with THREADS threads when running the whole HLT (default 4)
   -x | --extra    OPTIONS     Pass OPTIONS directly to hltGetConfiguration
        --mc                   Run over MC instead of data (the default)
+  --dbproxy                   Use a socks proxy to connect to the HLT database
+  --dbproxyhost    PROXYHOST  Host of the socks proxy (default: "localhost")
+  --dbproxyport    PROXYPORT  Port of the socks proxy (default: 8080)
   -h | --help                 Print this help message and exit.
 
 
   The supported formats for both menu specifications are:
     - /path/to/configuration[/Vn]
-    - [[{v1|v2}/]{offline|online|adg}:]/path/to/configuration[/Vn]
+    - [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]
     - run:runnumber
-  The possible database schemas are \"v1\" and \"v2\" (default).
-  The possible databases are \"offline\" (default, used for offline development), \"online\" (used to
+  The possible converters are \"v1\", \"v2\", and \"v3\" (default).
+  The possible databases are \"run3\" (default, used for offline run3 development), \"run2\" (previously used for run2 development), \"online\" (used to
   extract online menus within Point 5) and \"adg\" (used to extract the online menus outside Point 5).
   If no menu version is specified, the latest one is automatically used.
   If \"run:\" is used instead, the HLT menu used for the given run number is looked up and used.
+  Note other converters and databases exist but they are for expert/special use only.
 
   It's possible to pass arbitrary command line options to hltGetConfiguration, using \"-x --option\".
   To pass multiple options, enclose them in quotes, or use \"-x\" more than once.
@@ -81,7 +87,7 @@ Exmples:
 "
 
 # parse command line argument and options
-OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:k:e:x:h" -l "setup:,dir:,input:,jobs:,size:,skip:,streams:,threads:,events:,mc,extra:,help" -- "$@")
+OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:k:e:x:h" -l "setup:,dir:,input:,jobs:,size:,skip:,streams:,threads:,events:,mc,extra:,help,dbproxy,dbproxyhost:,dbproxyport:" -- "$@")
 
 # invalid options
 if [ $? != 0 ]; then
@@ -106,6 +112,8 @@ STREAMS=0
 WORKDIR="hltintegration"
 EXTRA=""
 DATA="--data"
+HLTLISTPATHPROXY=""
+
 
 SELECTION=""
 
@@ -191,6 +199,21 @@ while true; do
       DATA="--mc"
       shift 1
       ;;
+    "--dbproxy" )
+      HLTLISTPATHPROXY="$HLTLISTPATHPROXY --dbproxy"
+      EXTRA="$EXTRA --dbproxy"
+      shift 1
+      ;;
+    "--dbproxyhost" )
+      HLTLISTPATHPROXY="$HLTLISTPATHPROXY --dbproxyhost $2"
+      EXTRA="$EXTRA --dbproxyhost $2"
+      shift 2
+      ;;
+    "--dbproxyport" )
+      HLTLISTPATHPROXY="$HLTLISTPATHPROXY --dbproxyport $2"
+      EXTRA="$EXTRA --dbproxyport $2"
+      shift 2
+      ;;
     "--" )
       # inserted by getopt to singal the end of options
       shift
@@ -219,7 +242,7 @@ mkdir  "$WORKDIR"
 cd     "$WORKDIR"
 
 # find the list of all trigger paths
-TRIGGERS=$(hltListPaths -p "$MENU" | grep -v HLTriggerFinalPath)
+TRIGGERS=$(hltListPaths -p "$MENU" $HLTLISTPATHPROXY | grep -v HLTriggerFinalPath)
 
 # print some info
 if [ "$SELECTION" == "complex" ]; then
@@ -306,8 +329,12 @@ done
 # if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
 if [ "$SETUP" ]; then
   log "Extracting setup_cff dump"
-  read SETUP_Vx SETUP_DB SETUP <<< $(parse_HLT_menu "$SETUP")
-  hltConfigFromDB --$SETUP_Vx --$SETUP_DB --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService,-EvFDaqDirector,-FastMonitoringService > setup_cff.py
+  #we use $MENU not $SETUP here as we force the same DB / converter as the main menu
+  #this is the hltGetConfiguration behaviour and would be confusing if you had to 
+  #specify converter/db on the setup menu on hltIntegration tests but not on hltGetConfiguration
+  read SETUP_Vx SETUP_DB SETUP <<< $(parse_HLT_menu "$MENU")
+
+  hltConfigFromDB --$SETUP_Vx --$SETUP_DB $HLTLISTPATHPROXY --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService,-EvFDaqDirector,-FastMonitoringService > setup_cff.py
   sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
 fi
 

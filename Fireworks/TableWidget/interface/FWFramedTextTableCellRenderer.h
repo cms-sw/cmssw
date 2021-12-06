@@ -57,11 +57,11 @@ public:
 
   void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
 
-private:
   FWFramedTextTableCellRenderer(const FWFramedTextTableCellRenderer&) = delete;  // stop default
 
   const FWFramedTextTableCellRenderer& operator=(const FWFramedTextTableCellRenderer&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   const TGGC* m_context;
   const TGGC* m_frameContext;

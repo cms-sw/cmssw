@@ -23,7 +23,6 @@
 #include <sstream>
 //#include <stdio.h>
 #include <string>
-#include <boost/lexical_cast.hpp>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -96,27 +95,27 @@ namespace {
     int getInt() {
       const char* t = getItem();
       //std::cout <<"int '"<<t <<"'"<<std::endl;
-      return boost::lexical_cast<int>(t);
+      return std::stoi(t);
     }
     long getLong() {
       const char* t = getItem();
       //std::cout <<"long '"<<t <<"'"<<std::endl;
-      return boost::lexical_cast<long>(t);
+      return std::stol(t);
     }
     unsigned int getUInt() {
       const char* t = getItem();
       //std::cout <<"uint '"<<t <<"'"<<std::endl;
-      return boost::lexical_cast<unsigned int>(t);
+      return std::stoul(t);
     }
     unsigned long getULong() {
       const char* t = getItem();
       //std::cout <<"ulong '"<<t <<"'"<<std::endl;
-      return boost::lexical_cast<unsigned long>(t);
+      return std::stoul(t);
     }
     unsigned long long getULongLong() {
       const char* t = getItem();
       //std::cout <<"ulong '"<<t <<"'"<<std::endl;
-      return boost::lexical_cast<unsigned long long>(t);
+      return std::stoull(t);
     }
     char getChar() { return *getItem(); }
     std::string getString() { return std::string(getItem()); }
@@ -210,7 +209,7 @@ namespace edm {
               pinfo.num_threads >> pinfo.itrealvalue >> pinfo.starttime >> pinfo.vsize >> pinfo.rss >> pinfo.rlim >>
               pinfo.startcode >> pinfo.endcode >> pinfo.startstack >> pinfo.kstkesp >> pinfo.kstkeip >> pinfo.signal >>
               pinfo.blocked >> pinfo.sigignore >> pinfo.sigcatch >> pinfo.wchan;
-        } catch (boost::bad_lexical_cast& iE) {
+        } catch (const std::exception& iE) {
           LogWarning("ProcInfoFetcher") << "Parsing of Prof file failed:" << iE.what() << std::endl;
           return ProcInfo();
         }

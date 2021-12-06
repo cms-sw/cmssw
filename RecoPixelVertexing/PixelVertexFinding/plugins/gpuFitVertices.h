@@ -63,8 +63,8 @@ namespace gpuVertexFinder {
       assert(iv[i] >= 0);
       assert(iv[i] < int(foundClusters));
       auto w = 1.f / ezt2[i];
-      atomicAdd(&zv[iv[i]], zt[i] * w);
-      atomicAdd(&wv[iv[i]], w);
+      atomicAdd_block(&zv[iv[i]], zt[i] * w);
+      atomicAdd_block(&wv[iv[i]], w);
     }
 
     __syncthreads();
@@ -87,8 +87,8 @@ namespace gpuVertexFinder {
         iv[i] = 9999;
         continue;
       }
-      atomicAdd(&chi2[iv[i]], c2);
-      atomicAdd(&nn[iv[i]], 1);
+      atomicAdd_block(&chi2[iv[i]], c2);
+      atomicAdd_block(&nn[iv[i]], 1);
     }
     __syncthreads();
     for (auto i = threadIdx.x; i < foundClusters; i += blockDim.x)

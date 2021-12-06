@@ -7,6 +7,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMCharacterData.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/util/XMLUni.hpp>
@@ -34,7 +35,7 @@ void HcalConstantsXMLWriter::writeXML(std::string& newfile0,
   char const* fend = "\0";
   newfile[nn] = *fend;
 
-  std::cout << " New file " << newfile << std::endl;
+  edm::LogVerbatim("HcalCalib") << " New file " << newfile << std::endl;
 
   std::filebuf fb;
   fb.open(newfile, std::ios::out);
@@ -68,11 +69,11 @@ void HcalConstantsXMLWriter::writeXML(std::string& newfile0,
     rootelem->appendChild(theDOMVec[i]);
   }
 
-  std::cout << " Write Doc " << theDOMVec.size() << std::endl;
+  edm::LogVerbatim("HcalCalib") << " Write Doc " << theDOMVec.size();
   DOMLSOutput* output = mDom->createLSOutput();
   output->setByteStream(&formTarget);
   domWriter->write(mDoc, output);
-  std::cout << " End of Writting " << std::endl;
+  edm::LogVerbatim("HcalCalib") << " End of Writting ";
   mDoc->release();
   output->release();
   domWriter->release();

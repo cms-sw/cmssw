@@ -173,6 +173,13 @@ process.a1006 = cms.EDAnalyzer("TestFindProduct",
   expectedSum = cms.untracked.int32(93)
 )
 
+process.a2000 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag(),
+  inputTagsInputProcessBlock = cms.untracked.VInputTag( cms.InputTag("intProducerBeginProcessBlock"), cms.InputTag("intProducerEndProcessBlock")),
+  expectedSum = cms.untracked.int32(110000),
+  expectedCache = cms.untracked.int32(110000)
+)
+
 process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3 * process.a4 * process.a5 * process.a6)
 
 process.p0 = cms.Path(process.a10 * process.a20 * process.a30 * process.a40 * process.a50 * process.a60 * process.a70)
@@ -197,6 +204,8 @@ process.p00 = cms.Path(process.a100 * process.a200 * process.a300 * process.a400
 process.p1004 = cms.Path(process.a1004)
 
 process.p1005 = cms.Path(process.a1005 * process.a1006)
+
+process.p2000 = cms.Path(process.a2000)
 
 process.t = cms.Task(process.intProducerU, process.intProducerA, process.nonProducer,
                      process.intVectorSetProducer, process.intVectorProducer)

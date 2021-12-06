@@ -1,5 +1,3 @@
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
@@ -25,18 +23,16 @@ HepPDT::ParticleData const &PdtEntry::data() const {
   return *data_;
 }
 
-void PdtEntry::setup(edm::EventSetup const &es) {
-  edm::ESHandle<HepPDT::ParticleDataTable> pdt;
-  es.getData(pdt);
+void PdtEntry::setup(HepPDT::ParticleDataTable const &pdt) {
   HepPDT::ParticleData const *p = nullptr;
   if (pdgId_ == 0) {
-    p = pdt->particle(name_);
+    p = pdt.particle(name_);
     if (p == nullptr)
       throw cms::Exception("ConfigError") << "PDT has no entry for " << name_ << "."
                                           << "PdtEntry can't be set.";
     pdgId_ = p->pid();
   } else {
-    p = pdt->particle(pdgId_);
+    p = pdt.particle(pdgId_);
     if (p == nullptr)
       throw cms::Exception("ConfigError") << "PDT has no entry for " << pdgId_ << "."
                                           << "PdtEntry can't be set.";

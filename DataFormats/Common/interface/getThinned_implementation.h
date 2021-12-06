@@ -7,6 +7,7 @@
 #include <optional>
 #include <tuple>
 #include <variant>
+#include <limits>
 
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchID.h"

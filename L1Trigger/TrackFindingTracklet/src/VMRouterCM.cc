@@ -4,6 +4,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubTE.h"
 #include "L1Trigger/TrackFindingTracklet/interface/InputLinkMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/AllStubsMemory.h"
+#include "L1Trigger/TrackFindingTracklet/interface/AllInnerStubsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsMEMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsTEMemory.h"
 
@@ -13,21 +14,28 @@
 using namespace std;
 using namespace trklet;
 
-VMRouterCM::VMRouterCM(string name, Settings const& settings, Globals* global, unsigned int iSector)
-    : ProcessBase(name, settings, global, iSector), vmrtable_(settings) {
+VMRouterCM::VMRouterCM(string name, Settings const& settings, Globals* global)
+    : ProcessBase(name, settings, global), meTable_(settings), diskTable_(settings) {
   layerdisk_ = initLayerDisk(4);
+
+  unsigned int region = name[9] - 'A';
+  assert(region < settings_.nallstubs(layerdisk_));
 
   vmstubsMEPHI_.resize(1, nullptr);
 
   overlapbits_ = 7;
   nextrabits_ = overlapbits_ - (settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_));
 
-  vmrtable_.init(layerdisk_, getName());
+  meTable_.initVMRTable(layerdisk_, TrackletLUT::VMRTableType::me, region);  //used for ME and outer TE barrel
+
+  if (layerdisk_ == LayerDisk::D1 || layerdisk_ == LayerDisk::D2 || layerdisk_ == LayerDisk::D4) {
+    diskTable_.initVMRTable(layerdisk_, TrackletLUT::VMRTableType::disk, region);  //outer disk used by D1, D2, and D4
+  }
 
   nbitszfinebintable_ = settings_.vmrlutzbits(layerdisk_);
   nbitsrfinebintable_ = settings_.vmrlutrbits(layerdisk_);
 
-  nvmmebins_ = settings_.NLONGVMBINS() * ((layerdisk_ >= 6) ? 2 : 1);  //number of long z/r bins in VM
+  nvmmebins_ = settings_.NLONGVMBINS() * ((layerdisk_ >= N_LAYER) ? 2 : 1);  //number of long z/r bins in VM
 }
 
 void VMRouterCM::addOutput(MemoryBase* memory, string output) {
@@ -36,14 +44,17 @@ void VMRouterCM::addOutput(MemoryBase* memory, string output) {
                                  << output;
   }
 
+  if (output == "allinnerstubout") {
+    AllInnerStubsMemory* tmp = dynamic_cast<AllInnerStubsMemory*>(memory);
+    assert(tmp != nullptr);
+    char memtype = memory->getName().back();
+    allinnerstubs_.emplace_back(memtype, tmp);
+    return;
+  }
+
   if (output.substr(0, 10) == "allstubout") {
     AllStubsMemory* tmp = dynamic_cast<AllStubsMemory*>(memory);
-    assert(tmp != nullptr);
-    char memtype = 0;
-    if (output.size() > 10) {
-      memtype = output[11];
-    }
-    allstubs_.emplace_back(memtype, tmp);
+    allstubs_.push_back(tmp);
     return;
   }
 
@@ -59,13 +70,12 @@ void VMRouterCM::addOutput(MemoryBase* memory, string output) {
     }
     if (memory->getName().substr(3, 2) == "TE") {
       VMStubsTEMemory* tmp = dynamic_cast<VMStubsTEMemory*>(memory);
-      int iseed = output[output.size() - 1] - '0';
-      assert(iseed >= 0);
-      assert(iseed < 8);
+      unsigned int iseed = output[output.size() - 1] - '0';
+      assert(iseed < N_SEED_PROMPT);
 
       int seedindex = -1;
       for (unsigned int k = 0; k < vmstubsTEPHI_.size(); k++) {
-        if (vmstubsTEPHI_[k].seednumber == (unsigned int)iseed) {
+        if (vmstubsTEPHI_[k].seednumber == iseed) {
           seedindex = k;
         }
       }
@@ -119,7 +129,7 @@ void VMRouterCM::execute() {
     for (unsigned int i = 0; i < stubinput->nStubs(); i++) {
       if (allStubCounter > settings_.maxStep("VMR"))
         continue;
-      if (allStubCounter > 127)
+      if (allStubCounter >= (1 << N_BITSMEMADDRESS))
         continue;
 
       Stub* stub = stubinput->getStub(i);
@@ -130,7 +140,7 @@ void VMRouterCM::execute() {
 
       //use &127 to make sure we fit into the number of bits -
       //though we should have protected against overflows above
-      FPGAWord allStubIndex(allStubCounter & 127, 7, true, __LINE__, __FILE__);
+      FPGAWord allStubIndex(allStubCounter & ((1 << N_BITSMEMADDRESS) - 1), N_BITSMEMADDRESS, true, __LINE__, __FILE__);
 
       //TODO - should not be needed - but need to migrate some other pieces of code before removing
       stub->setAllStubIndex(allStubCounter);
@@ -139,16 +149,69 @@ void VMRouterCM::execute() {
 
       allStubCounter++;
 
-      FPGAWord iphi = stub->phicorr();
-      unsigned int iphipos = iphi.bits(iphi.nbits() - (settings_.nbitsallstubs(layerdisk_) + 3), 3);
-
-      //Fill allstubs memories - in HLS this is the same write to multiple memories
       for (auto& allstub : allstubs_) {
+        allstub->addStub(stub);
+        if (settings_.debugTracklet()) {
+          edm::LogVerbatim("Tracklet") << getName() << " adding stub to " << allstub->getName();
+        }
+      }
+
+      FPGAWord iphi = stub->phicorr();
+      unsigned int iphipos = iphi.bits(iphi.nbits() - (settings_.nbitsallstubs(layerdisk_) + N_PHIBITS), N_PHIBITS);
+
+      unsigned int phicutmax = 4;
+      unsigned int phicutmin = 4;
+
+      if (layerdisk_ != 0) {
+        phicutmax = 6;
+        phicutmin = 2;
+      }
+
+      //Fill inner allstubs memories - in HLS this is the same write to multiple memories
+      for (auto& allstub : allinnerstubs_) {
         char memtype = allstub.first;
-        if ((memtype == 'R' && iphipos < 5) || (memtype == 'L' && iphipos >= 3) || (memtype == 'A' && iphipos < 4) ||
-            (memtype == 'B' && iphipos >= 4) || (memtype == 'E' && iphipos >= 4) || (memtype == 'F' && iphipos < 4) ||
-            (memtype == 'C' && iphipos >= 4) || (memtype == 'D' && iphipos < 4))
+        if (memtype == 'R' && iphipos < phicutmax)
           continue;
+        if (memtype == 'L' && iphipos >= phicutmin)
+          continue;
+        if (memtype == 'A' && iphipos < 4)
+          continue;
+        if (memtype == 'B' && iphipos >= 4)
+          continue;
+        if (memtype == 'E' && iphipos >= 4)
+          continue;
+        if (memtype == 'F' && iphipos < 4)
+          continue;
+        if (memtype == 'C' && iphipos >= 4)
+          continue;
+        if (memtype == 'D' && iphipos < 4)
+          continue;
+
+        int absz = std::abs(stub->z().value());
+        if (layerdisk_ == LayerDisk::L2 && absz < VMROUTERCUTZL2 / settings_.kz(layerdisk_))
+          continue;
+        if ((layerdisk_ == LayerDisk::L3 || layerdisk_ == LayerDisk::L5) &&
+            absz > VMROUTERCUTZL1L3L5 / settings_.kz(layerdisk_))
+          continue;
+        if ((layerdisk_ == LayerDisk::D1 || layerdisk_ == LayerDisk::D3) &&
+            stub->r().value() > VMROUTERCUTRD1D3 / settings_.kr())
+          continue;
+        if ((layerdisk_ == LayerDisk::D1 || layerdisk_ == LayerDisk::D3) && stub->r().value() < 2 * int(N_DSS_MOD))
+          continue;
+        if (layerdisk_ == LayerDisk::L1) {
+          if (memtype == 'M' || memtype == 'R' || memtype == 'L') {
+            if (absz < VMROUTERCUTZL1 / settings_.kz(layerdisk_))
+              continue;
+          } else {
+            if (absz > VMROUTERCUTZL1L3L5 / settings_.kz(layerdisk_))
+              continue;
+          }
+        }
+
+        if (settings_.debugTracklet()) {
+          edm::LogVerbatim("Tracklet") << getName() << " adding stub to " << allstub.second->getName();
+        }
+
         allstub.second->addStub(stub);
       }
 
@@ -156,24 +219,15 @@ void VMRouterCM::execute() {
       unsigned int ivm =
           iphi.bits(iphi.nbits() - (settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_)),
                     settings_.nbitsvmme(layerdisk_));
-      unsigned int extrabits = iphi.bits(iphi.nbits() - overlapbits_, nextrabits_);
-
-      unsigned int ivmPlus = ivm;
-
-      if (extrabits == ((1U << nextrabits_) - 1) && ivm != ((1U << settings_.nbitsvmme(layerdisk_)) - 1))
-        ivmPlus++;
-      unsigned int ivmMinus = ivm;
-      if (extrabits == 0 && ivm != 0)
-        ivmMinus--;
 
       //Calculate the z and r position for the vmstub
 
       //Take the top nbitszfinebintable_ bits of the z coordinate
-      int indexz = (((1 << (stub->z().nbits() - 1)) + stub->z().value()) >> (stub->z().nbits() - nbitszfinebintable_));
+      int indexz = (stub->z().value() >> (stub->z().nbits() - nbitszfinebintable_)) & ((1 << nbitszfinebintable_) - 1);
       int indexr = -1;
       if (layerdisk_ > (N_LAYER - 1)) {
         if (negdisk) {
-          indexz = (1 << nbitszfinebintable_) - indexz;
+          indexz = ((1 << nbitszfinebintable_) - 1) - indexz;
         }
         indexr = stub->r().value();
         if (stub->isPSmodule()) {
@@ -181,7 +235,7 @@ void VMRouterCM::execute() {
         }
       } else {
         //Take the top nbitsfinebintable_ bits of the z coordinate. The & is to handle the negative z values.
-        indexr = (((1 << (stub->r().nbits() - 1)) + stub->r().value()) >> (stub->r().nbits() - nbitsrfinebintable_));
+        indexr = (stub->r().value() >> (stub->r().nbits() - nbitsrfinebintable_)) & ((1 << nbitsrfinebintable_) - 1);
       }
 
       assert(indexz >= 0);
@@ -189,7 +243,7 @@ void VMRouterCM::execute() {
       assert(indexz < (1 << nbitszfinebintable_));
       assert(indexr < (1 << nbitsrfinebintable_));
 
-      int melut = vmrtable_.lookup(indexz, indexr);
+      int melut = meTable_.lookup((indexz << nbitsrfinebintable_) + indexr);
 
       assert(melut >= 0);
 
@@ -211,14 +265,11 @@ void VMRouterCM::execute() {
           allStubIndex);
 
       assert(vmstubsMEPHI_[0] != nullptr);
-      vmstubsMEPHI_[0]->addStub(vmstub, ivmPlus * nvmmebins_ + vmbin);
 
-      if (ivmMinus != ivmPlus) {
-        vmstubsMEPHI_[0]->addStub(vmstub, ivmMinus * nvmmebins_ + vmbin);
-      }
+      vmstubsMEPHI_[0]->addStub(vmstub, ivm * nvmmebins_ + vmbin);
 
       //Fill the TE VM memories
-      if (layerdisk_ >= 6 && (!stub->isPSmodule()))
+      if (layerdisk_ >= N_LAYER && (!stub->isPSmodule()))
         continue;
 
       for (auto& ivmstubTEPHI : vmstubsTEPHI_) {
@@ -230,10 +281,11 @@ void VMRouterCM::execute() {
         if (layerdisk_ < N_LAYER) {
           lutval = melut;
         } else {
-          lutval = vmrtable_.lookupdisk(indexz, indexr);
+          lutval = diskTable_.lookup((indexz << nbitsrfinebintable_) + indexr);
+          if (lutval == 0) {
+            continue;
+          }
         }
-        if (lutval == -1)
-          continue;
 
         assert(lutval >= 0);
 

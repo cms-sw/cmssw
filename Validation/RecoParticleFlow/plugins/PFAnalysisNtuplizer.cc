@@ -267,6 +267,8 @@ private:
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topologyToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> hcalDDDrecToken_;
 
   CaloGeometry* geom;
   HcalTopology* hcal_topo;
@@ -289,6 +291,8 @@ PFAnalysis::PFAnalysis(const edm::ParameterSet& iConfig) {
 
   geometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{});
   topologyToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag{});
+  magFieldToken_ = esConsumes<edm::Transition::BeginRun>();
+  hcalDDDrecToken_ = esConsumes<edm::Transition::BeginRun>();
 
   usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
@@ -1114,14 +1118,8 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
 }
 
 void PFAnalysis::beginRun(edm::Run const& iEvent, edm::EventSetup const& es) {
-  edm::ESHandle<MagneticField> magfield;
-  es.get<IdealMagneticFieldRecord>().get(magfield);
-
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  es.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hcons = &(*pHRNDC);
-
-  aField_ = &(*magfield);
+  hcons = &es.getData(hcalDDDrecToken_);
+  aField_ = &es.getData(magFieldToken_);
 }
 
 void PFAnalysis::endRun(edm::Run const& iEvent, edm::EventSetup const&) {}

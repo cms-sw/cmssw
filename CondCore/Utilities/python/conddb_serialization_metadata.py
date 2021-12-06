@@ -141,19 +141,18 @@ def lookup_boost_for_run( iov, timeType, boost_run_map ):
         raise e
     return entry[2]
 
-def get_boost_version_from_streamer_info( streamer_info ):
+def get_boost_version_from_streamer_info( s_info ):
+    streamer_info = s_info.decode()
     streamer_info = streamer_info.replace('\x00','')
     iovBoostVersion = None
     if streamer_info == '0':
         iovBoostVersion = '1.51.0'
-    elif streamer_info[0:2]==' {':
+    else:
         try:
             iovBoostVersion = str(json.loads(streamer_info)['tech_version'])
             iovBoostVersion = strip_boost_version(iovBoostVersion)
         except ValueError as e:
             raise Exception("Could not parse streamer info [%s]: %s" %(streamer_info,str(e)))
-    else:
-        raise Exception("Streamer info found in unexpected format.")
     return iovBoostVersion
 
 def do_update_tag_boost_version( tagBoostVersion, minIov, iovBoostVersion, iov, timetype, boost_run_map ):

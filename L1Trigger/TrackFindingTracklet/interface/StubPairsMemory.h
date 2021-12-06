@@ -12,7 +12,7 @@ namespace trklet {
 
   class StubPairsMemory : public MemoryBase {
   public:
-    StubPairsMemory(std::string name, Settings const& settings, unsigned int iSector);
+    StubPairsMemory(std::string name, Settings const& settings);
 
     ~StubPairsMemory() override = default;
 
@@ -39,7 +39,7 @@ namespace trklet {
       tedNames_.clear();
     }
 
-    void writeSP(bool first);
+    void writeSP(bool first, unsigned int iSector);
 
   private:
     std::vector<std::pair<const VMStubTE, const VMStubTE> > stubs_;

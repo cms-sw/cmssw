@@ -15,7 +15,6 @@
  */
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,6 +31,7 @@
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 #include "DataFormats/MuonReco/interface/DYTInfo.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "DynamicTruncation.h"
 
 namespace reco {
   class TransientTrack;
@@ -182,11 +182,12 @@ private:
   const TransientTrackingRecHitBuilder* theMuonRecHitBuilder;
 
   const MuonServiceProxy* theService;
-  const edm::Event* theEvent;
-
+  const edm::EventSetup* theEventSetup;
   edm::EDGetTokenT<CSCSegmentCollection> CSCSegmentsToken;
   edm::EDGetTokenT<DTRecSegment4DCollection> all4DSegmentsToken;
   edm::Handle<CSCSegmentCollection> CSCSegments;
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
+
+  DynamicTruncation::Config theDynamicTruncationConfig;
 };
 #endif

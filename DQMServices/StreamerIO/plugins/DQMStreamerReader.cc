@@ -15,12 +15,8 @@
 #include <fstream>
 #include <memory>
 #include <queue>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include <boost/range.hpp>
-#include <boost/regex.hpp>
-#include <boost/algorithm/string.hpp>
+#include <algorithm>
+#include <cctype>
 
 #include <IOPool/Streamer/interface/DumpTools.h>
 
@@ -347,7 +343,10 @@ namespace dqmservices {
     acceptAllEvt_ = false;
     for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); i != end; ++i) {
       std::string hltPath(*i);
-      boost::erase_all(hltPath, " \t");
+      hltPath.erase(
+          std::remove_if(
+              hltPath.begin(), hltPath.end(), [](char c) { return std::isspace(static_cast<unsigned char>(c)); }),
+          hltPath.end());
       if (hltPath == "*")
         acceptAllEvt_ = true;
     }
@@ -361,7 +360,10 @@ namespace dqmservices {
     matchTriggerSel_ = false;
     for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); i != end; ++i) {
       std::string hltPath(*i);
-      boost::erase_all(hltPath, " \t");
+      hltPath.erase(
+          std::remove_if(
+              hltPath.begin(), hltPath.end(), [](char c) { return std::isspace(static_cast<unsigned char>(c)); }),
+          hltPath.end());
       std::vector<Strings::const_iterator> matches = edm::regexMatch(tnames, hltPath);
       if (!matches.empty()) {
         matchTriggerSel_ = true;

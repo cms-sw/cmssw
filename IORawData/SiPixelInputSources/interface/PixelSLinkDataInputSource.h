@@ -49,7 +49,7 @@ private:
 
   int m_fedid;
   uint32_t m_fileindex;
-  std::unique_ptr<Storage> storage;
+  std::unique_ptr<edm::storage::Storage> storage;
   int m_runnumber;
   uint64_t m_data;
   uint32_t m_currenteventnumber;

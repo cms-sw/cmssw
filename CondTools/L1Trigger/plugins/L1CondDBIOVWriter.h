@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,8 +34,9 @@
 #include "CondTools/L1Trigger/interface/DataWriter.h"
 
 // forward declarations
-
-class L1CondDBIOVWriter : public edm::EDAnalyzer {
+class L1TriggerKey;
+class L1TriggerKeyRcd;
+class L1CondDBIOVWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit L1CondDBIOVWriter(const edm::ParameterSet&);
   ~L1CondDBIOVWriter() override;
@@ -65,6 +66,8 @@ private:
   bool m_logTransactions;
 
   bool m_forceUpdate;
+
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> l1TriggerKeyToken_;
 };
 
 #endif

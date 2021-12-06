@@ -8,21 +8,6 @@
 
 #include <fmt/printf.h>
 
-template <class T, std::size_t N>
-std::array<T, N> make_array(std::vector<T> const& values) {
-  assert(N == values.size());
-  std::array<T, N> ret;
-  std::copy(values.begin(), values.end(), ret.begin());
-  return ret;
-}
-
-template <class T>
-bool empty(T const& container) {
-  return container.empty();
-}
-
-bool empty(const char* container) { return container != nullptr; }
-
 using namespace std::literals;
 
 namespace {
@@ -63,12 +48,7 @@ namespace {
   }
 
   template <class T>
-#if __cplusplus > 201400
-  // extended constexpr support in C++14 and later
-  constexpr
-#endif
-      T
-      get_enum_value(Entry<T> const* entries, const char* tag) {
+  constexpr T get_enum_value(Entry<T> const* entries, const char* tag) {
     for (; entries->tag; ++entries)
       if (std::strcmp(entries->tag, tag) == 0)
         return entries->value;
@@ -76,12 +56,7 @@ namespace {
   }
 
   template <class T>
-#if __cplusplus > 201400
-  // extended constexpr support in C++14 and later
-  constexpr
-#endif
-      T
-      get_enum_value(Entry<T> const* entries, const char* tag, T default_value) {
+  constexpr T get_enum_value(Entry<T> const* entries, const char* tag, T default_value) {
     for (; entries->tag; ++entries)
       if (std::strcmp(entries->tag, tag) == 0)
         return entries->value;
@@ -105,22 +80,6 @@ namespace {
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
-
-namespace {
-
-  template <typename T, std::size_t N, typename S>
-  std::array<T, N> getParameterArray(edm::ParameterSet const& config, S const& name) {
-    std::vector<T> values = config.getParameter<std::vector<T>>(name);
-    if (values.size() != N)
-      throw edm::Exception(edm::errors::Configuration)
-          << "Parameter \"" << name << "\" should have " << N << " elements.\n"
-          << "The number of elements in the configuration is incorrect.";
-    std::array<T, N> ret;
-    std::copy(values.begin(), values.end(), ret.begin());
-    return ret;
-  }
-
-}  // namespace
 
 class L1TGlobalPrescaler : public edm::one::EDFilter<> {
 public:
@@ -179,8 +138,8 @@ L1TGlobalPrescaler::L1TGlobalPrescaler(edm::ParameterSet const& config)
       m_l1tResultsToken(consumes<GlobalAlgBlkBxCollection>(config.getParameter<edm::InputTag>("l1tResults"))),
       m_l1tPrescales(m_mode == Mode::ApplyPrescaleValues or m_mode == Mode::ApplyPrescaleRatios or
                              m_mode == Mode::ForcePrescaleValues
-                         ? getParameterArray<double, GlobalAlgBlk::maxPhysicsTriggers>(config, "l1tPrescales")
-                         : std::array<double, GlobalAlgBlk::maxPhysicsTriggers>()),
+                         ? config.getParameter<std::array<double, GlobalAlgBlk::maxPhysicsTriggers>>("l1tPrescales")
+                         : std::array<double, GlobalAlgBlk::maxPhysicsTriggers>{}),
       m_l1tPrescaleColumn(m_mode == Mode::ApplyColumnValues or m_mode == Mode::ApplyColumnRatios or
                                   m_mode == Mode::ForceColumnValues
                               ? config.getParameter<uint32_t>("l1tPrescaleColumn")

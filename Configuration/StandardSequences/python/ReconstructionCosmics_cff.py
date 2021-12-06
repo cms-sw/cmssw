@@ -80,7 +80,7 @@ reconstructionCosmics         = cms.Sequence(reconstructionCosmicsTask)
 #logErrorHarvester should only wait for items produced in the reconstructionCosmics sequence
 _modulesInReconstruction = list()
 reconstructionCosmics.visit(cms.ModuleNamesFromGlobalsVisitor(globals(),_modulesInReconstruction))
-logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstruction))
+logErrorHarvester.includeModules = cms.untracked.vstring(sorted(set(_modulesInReconstruction)))
 
 reconstructionCosmics_HcalNZSTask = cms.Task(localReconstructionCosmics_HcalNZSTask,
                                              beamhaloTracksTask,

@@ -232,9 +232,7 @@ protected:
   const SiPixelLorentzAngle* lorentzAngle_;
   const SiPixelLorentzAngle* lorentzAngleWidth_;  // for the charge width (generic)
 
-  const SiPixelGenErrorDBObject* genErrorDBObject_;  // NEW
-  //const SiPixelCPEGenericErrorParm * genErrorParm_;  // OLD
-
+  const SiPixelGenErrorDBObject* genErrorDBObject_;
   const SiPixelTemplateDBObject* templateDBobject_;
   bool alpha2Order;  // switch on/off E.B effect.
 

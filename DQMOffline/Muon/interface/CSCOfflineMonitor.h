@@ -156,16 +156,19 @@ private:
 
   // Wire digis
   MonitorElement *hWirenGroupsTotal;
+  MonitorElement *hWirenGroupsTotalHi;
   std::vector<MonitorElement *> hWireTBin;
   std::vector<MonitorElement *> hWireNumber;
 
   // Strip Digis
   MonitorElement *hStripNFired;
+  MonitorElement *hStripNFiredHi;
   std::vector<MonitorElement *> hStripNumber;
   std::vector<MonitorElement *> hStripPed;
 
   // Rechits
   MonitorElement *hRHnrechits;
+  MonitorElement *hRHnrechitsHi;
   std::vector<MonitorElement *> hRHGlobal;
   std::vector<MonitorElement *> hRHSumQ;
   std::vector<MonitorElement *> hRHTiming;

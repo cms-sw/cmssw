@@ -4,7 +4,6 @@
 <use name="CalibFormats/SiStripObjects"/>
 <use name="CalibTracker/Records"/>
 <use name="CondFormats/SiStripObjects"/>
-<use name="CalibTracker/SiStripCommon"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/TrackerCommon"/>

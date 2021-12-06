@@ -29,6 +29,9 @@ namespace edm {
     public:
       OutputModule(edm::ParameterSet const& iPSet)
           : OutputModuleBase(iPSet), outputmodule::AbilityToImplementor<T>::Type(iPSet)... {}
+      OutputModule(const OutputModule&) = delete;                   // stop default
+      const OutputModule& operator=(const OutputModule&) = delete;  // stop default
+
       // Required to work around ICC bug, but possible source of bloat in gcc.
       // We do this only in the case of the intel compiler as this might end up
       // creating a lot of code bloat due to inline symbols being generated in
@@ -48,10 +51,6 @@ namespace edm {
       // ---------- member functions ---------------------------
 
     private:
-      OutputModule(const OutputModule&) = delete;  // stop default
-
-      const OutputModule& operator=(const OutputModule&) = delete;  // stop default
-
       // ---------- member data --------------------------------
     };
   }  // namespace limited

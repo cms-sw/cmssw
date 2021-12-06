@@ -416,6 +416,8 @@ void EDConsumerBase::throwESConsumesInProcessBlock() const {
       << "EventSetup products can only be consumed in Event, Lumi, or Run transitions.\n";
 }
 
+void EDConsumerBase::doSelectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) {}
+
 namespace {
   struct CharStarComp {
     bool operator()(const char* iLHS, const char* iRHS) const { return strcmp(iLHS, iRHS) < 0; }

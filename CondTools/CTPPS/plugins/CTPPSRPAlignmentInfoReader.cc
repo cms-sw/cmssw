@@ -21,32 +21,52 @@ public:
   cond::Time_t iov_;
   std::string record_;
 
-  explicit CTPPSRPAlignmentInfoReader(edm::ParameterSet const& iConfig)
-      : iov_(iConfig.getParameter<unsigned long long>("iov")), record_(iConfig.getParameter<string>("record")) {}
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, CTPPSRPAlignmentCorrectionsDataRcd> tokenAlignmentsIdeal_;
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord> tokenAlignmentsReal_;
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord> tokenAlignmentsMisaligned_;
+
+  explicit CTPPSRPAlignmentInfoReader(edm::ParameterSet const& iConfig);
+
   explicit CTPPSRPAlignmentInfoReader(int i) {}
   ~CTPPSRPAlignmentInfoReader() override {}
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void printInfo(const CTPPSRPAlignmentCorrectionsData& alignments, const edm::Event& event);
 };
 
+//----------------------------------------------------------------------------------------------------
+
+CTPPSRPAlignmentInfoReader::CTPPSRPAlignmentInfoReader(edm::ParameterSet const& iConfig)
+    : iov_(iConfig.getParameter<unsigned long long>("iov")), record_(iConfig.getParameter<string>("record")) {
+  if (strcmp(record_.c_str(), "CTPPSRPAlignmentCorrectionsDataRcd") == 0) {
+    tokenAlignmentsIdeal_ = esConsumes<CTPPSRPAlignmentCorrectionsData, CTPPSRPAlignmentCorrectionsDataRcd>();
+  } else if (strcmp(record_.c_str(), "RPRealAlignmentRecord") == 0) {
+    tokenAlignmentsReal_ = esConsumes<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>();
+  } else {
+    tokenAlignmentsMisaligned_ = esConsumes<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>();
+  }
+}
+
+//----------------------------------------------------------------------------------------------------
+
 void CTPPSRPAlignmentInfoReader::analyze(const edm::Event& e, const edm::EventSetup& context) {
   using namespace edm;
 
   //this part gets the handle of the event source and the record (i.e. the Database)
   if (e.id().run() == iov_) {
-    ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
+    ESHandle<CTPPSRPAlignmentCorrectionsData> hAlignments;
+
     if (strcmp(record_.c_str(), "CTPPSRPAlignmentCorrectionsDataRcd") == 0) {
-      context.get<CTPPSRPAlignmentCorrectionsDataRcd>().get(alignments);
+      hAlignments = context.getHandle(tokenAlignmentsIdeal_);
     } else if (strcmp(record_.c_str(), "RPRealAlignmentRecord") == 0) {
-      context.get<RPRealAlignmentRecord>().get(alignments);
+      hAlignments = context.getHandle(tokenAlignmentsReal_);
     } else {
-      context.get<RPMisalignedAlignmentRecord>().get(alignments);
+      hAlignments = context.getHandle(tokenAlignmentsMisaligned_);
     }
 
     //std::cout
     edm::LogPrint("CTPPSRPAlignmentInfoReader")
         << "New alignments found in run=" << e.id().run() << ", event=" << e.id().event() << ":\n"
-        << *alignments;
+        << *hAlignments;
   }
 }
 

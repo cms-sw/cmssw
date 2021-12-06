@@ -38,11 +38,11 @@ public:
   // ---------- member functions ---------------------------
   Bool_t Notify() override;
 
-private:
   CmsShowTaskTimer(const CmsShowTaskTimer&) = delete;  // stop default
 
   const CmsShowTaskTimer& operator=(const CmsShowTaskTimer&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   CmsShowTaskExecutorBase* m_taskExec;
 };

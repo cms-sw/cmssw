@@ -8,8 +8,8 @@
 
 class CkfDebugTrajectoryBuilder : public CkfTrajectoryBuilder {
 public:
-  CkfDebugTrajectoryBuilder(const edm::ParameterSet& conf)
-      : CkfTrajectoryBuilder(conf, std::unique_ptr<TrajectoryFilter>{}) {
+  CkfDebugTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
+      : CkfTrajectoryBuilder(conf, iC, std::unique_ptr<TrajectoryFilter>{}) {
     //edm::LogVerbatim("CkfDebugger") <<"CkfDebugTrajectoryBuilder::CkfDebugTrajectoryBuilder";
   }
 

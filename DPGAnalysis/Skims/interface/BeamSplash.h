@@ -17,7 +17,7 @@
 // user include files
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,7 +28,7 @@
 // class declaration
 //
 
-class BeamSplash : public edm::EDFilter {
+class BeamSplash : public edm::stream::EDFilter<> {
 public:
   explicit BeamSplash(const edm::ParameterSet &);
   ~BeamSplash() override;

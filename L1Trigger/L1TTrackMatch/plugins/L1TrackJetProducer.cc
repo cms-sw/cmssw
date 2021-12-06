@@ -343,8 +343,10 @@ void L1TrackJetProducer::L2_cluster(
 
     for (int phislice = 0; phislice < phiBins_; ++phislice) {
       L1clusters[phislice] = L1_cluster(epbins[phislice]);
-      for (int ind = 0; L1clusters[phislice][ind].pTtot != 0; ++ind) {
-        L1clusters[phislice][ind].used = false;
+      if (L1clusters[phislice] != nullptr) {
+        for (int ind = 0; L1clusters[phislice][ind].pTtot != 0; ++ind) {
+          L1clusters[phislice][ind].used = false;
+        }
       }
     }
 
@@ -593,19 +595,23 @@ EtaPhiBin *L1TrackJetProducer::L1_cluster(EtaPhiBin *phislice) {
     clusters[nclust] = phislice[etabin];
     phislice[etabin].used = true;
     if (left_pt > 0) {
-      clusters[nclust].pTtot += left_pt;
-      clusters[nclust].numtracks += phislice[etabin - 1].numtracks;
-      clusters[nclust].numttrks += phislice[etabin - 1].numttrks;
-      clusters[nclust].numtdtrks += phislice[etabin - 1].numtdtrks;
-      clusters[nclust].numttdtrks += phislice[etabin - 1].numttdtrks;
+      if (clusters != nullptr) {
+        clusters[nclust].pTtot += left_pt;
+        clusters[nclust].numtracks += phislice[etabin - 1].numtracks;
+        clusters[nclust].numttrks += phislice[etabin - 1].numttrks;
+        clusters[nclust].numtdtrks += phislice[etabin - 1].numtdtrks;
+        clusters[nclust].numttdtrks += phislice[etabin - 1].numttdtrks;
+      }
     }
     if (my_pt >= right2pt && right_pt > 0) {
-      clusters[nclust].pTtot += right_pt;
-      clusters[nclust].numtracks += phislice[etabin + 1].numtracks;
-      clusters[nclust].numttrks += phislice[etabin + 1].numttrks;
-      clusters[nclust].numtdtrks += phislice[etabin + 1].numtdtrks;
-      clusters[nclust].numttdtrks += phislice[etabin + 1].numttdtrks;
-      phislice[etabin + 1].used = true;
+      if (clusters != nullptr) {
+        clusters[nclust].pTtot += right_pt;
+        clusters[nclust].numtracks += phislice[etabin + 1].numtracks;
+        clusters[nclust].numttrks += phislice[etabin + 1].numttrks;
+        clusters[nclust].numtdtrks += phislice[etabin + 1].numtdtrks;
+        clusters[nclust].numttdtrks += phislice[etabin + 1].numttdtrks;
+        phislice[etabin + 1].used = true;
+      }
     }
     nclust++;
   }  // for each etabin

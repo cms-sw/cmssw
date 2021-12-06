@@ -23,6 +23,7 @@ from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 process = cms.Process("TEST",Run2_2018)
 
 process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load("CalibMuon.CSCCalibration.CSCL1TPLookupTableEP_cff")
 process.load('L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag

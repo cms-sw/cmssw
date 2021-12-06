@@ -17,6 +17,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/EventToProcessBlockIndexes.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
@@ -89,6 +90,10 @@ namespace edm {
     void skip(int offset) override;
     bool goToEvent_(EventID const& eventID) override;
     void beginJob() override;
+
+    void fillProcessBlockHelper_() override;
+    bool nextProcessBlock_(ProcessBlockPrincipal&) override;
+    void readProcessBlock_(ProcessBlockPrincipal&) override;
 
     std::unique_ptr<RootFile> makeRootFile(std::string const& logicalFileName,
                                            std::string const& pName,
@@ -266,10 +271,12 @@ std::unique_ptr<RootFile> RepeatingCachedRootSource::makeRootFile(
                                     -1,                          //treeMaxVirtualSize(),
                                     processingMode(),
                                     runHelper_,
-                                    true,  //noEventSort_,
+                                    false,  //noRunLumiSort_
+                                    true,   //noEventSort_,
                                     selectorRules_,
                                     InputType::Primary,
                                     branchIDListHelper(),
+                                    processBlockHelper().get(),
                                     thinnedAssociationsHelper(),
                                     nullptr,  // associationsFromSecondary
                                     duplicateChecker,
@@ -330,6 +337,7 @@ void RepeatingCachedRootSource::readEvent_(EventPrincipal& eventPrincipal) {
                                     history,
                                     selectionIDs_,
                                     branchListIndexes_,
+                                    EventToProcessBlockIndexes(),
                                     provRetriever_,
                                     &delayedReaders_[eventPrincipal.streamID().value()]);
 }
@@ -350,6 +358,16 @@ bool RepeatingCachedRootSource::readIt(EventID const& id,
 void RepeatingCachedRootSource::skip(int offset) {}
 
 bool RepeatingCachedRootSource::goToEvent_(EventID const& eventID) { return false; }
+
+void RepeatingCachedRootSource::fillProcessBlockHelper_() { rootFile_->fillProcessBlockHelper_(); }
+
+bool RepeatingCachedRootSource::nextProcessBlock_(ProcessBlockPrincipal& processBlockPrincipal) {
+  return rootFile_->nextProcessBlock_(processBlockPrincipal);
+}
+
+void RepeatingCachedRootSource::readProcessBlock_(ProcessBlockPrincipal& processBlockPrincipal) {
+  rootFile_->readProcessBlock_(processBlockPrincipal);
+}
 
 //
 // const member functions

@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,10 +39,9 @@
 #include "TH1.h"
 #include "TH2.h"
 
-// class decleration
-//
+// class declaration
 
-class ElectronCalibration : public edm::EDAnalyzer {
+class ElectronCalibration : public edm::one::EDAnalyzer<> {
 public:
   explicit ElectronCalibration(const edm::ParameterSet&);
   ~ElectronCalibration() override;

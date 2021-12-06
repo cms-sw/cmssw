@@ -4,15 +4,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //Pixel Specific stuff
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
@@ -32,7 +28,8 @@
 
 using namespace pixeltrackfitting;
 
-PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) : theRegionProducer(nullptr) {
+PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf)
+    : theRegionProducer(nullptr), ttopoToken(esConsumes()) {
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
@@ -62,9 +59,7 @@ void PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   TracksWithRecHits pixeltracks;
   TracksWithRecHits cleanedTracks;
 
-  edm::ESHandle<TrackerTopology> httopo;
-  es.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology& ttopo = *httopo;
+  const TrackerTopology& ttopo = es.getData(ttopoToken);
 
   edm::Handle<PixelFitter> hfitter;
   e.getByToken(fitterToken, hfitter);
@@ -107,7 +102,7 @@ void PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       }
 
       // fitting the triplet
-      std::unique_ptr<reco::Track> track = fitter.run(TripletHits, region, es);
+      std::unique_ptr<reco::Track> track = fitter.run(TripletHits, region);
 
       // decide if track should be skipped according to filter
       if (!theFilter(track.get(), TripletHits)) {

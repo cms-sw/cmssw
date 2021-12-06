@@ -3,6 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
+#include "HeterogeneousCore/SonicTriton/interface/TritonException.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 
@@ -11,14 +12,26 @@
 
 #include <string>
 #include <cmath>
-#include <chrono>
 #include <exception>
 #include <sstream>
 #include <utility>
 #include <tuple>
 
-namespace ni = nvidia::inferenceserver;
-namespace nic = ni::client;
+namespace tc = triton::client;
+
+namespace {
+  grpc_compression_algorithm getCompressionAlgo(const std::string& name) {
+    if (name.empty() or name.compare("none") == 0)
+      return grpc_compression_algorithm::GRPC_COMPRESS_NONE;
+    else if (name.compare("deflate") == 0)
+      return grpc_compression_algorithm::GRPC_COMPRESS_DEFLATE;
+    else if (name.compare("gzip") == 0)
+      return grpc_compression_algorithm::GRPC_COMPRESS_GZIP;
+    else
+      throw cms::Exception("GrpcCompression")
+          << "Unknown compression algorithm requested: " << name << " (choices: none, deflate, gzip)";
+  }
+}  // namespace
 
 //based on https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/examples/simple_grpc_async_infer_client.cc
 //and https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/perf_client/perf_client.cc
@@ -26,22 +39,25 @@ namespace nic = ni::client;
 TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& debugName)
     : SonicClient(params, debugName, "TritonClient"),
       verbose_(params.getUntrackedParameter<bool>("verbose")),
+      useSharedMemory_(params.getUntrackedParameter<bool>("useSharedMemory")),
+      compressionAlgo_(getCompressionAlgo(params.getUntrackedParameter<std::string>("compression"))),
       options_(params.getParameter<std::string>("modelName")) {
   //get appropriate server for this model
   edm::Service<TritonService> ts;
-  const auto& [url, isFallbackCPU] =
-      ts->serverAddress(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
+  const auto& server =
+      ts->serverInfo(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
+  serverType_ = server.type;
   if (verbose_)
-    edm::LogInfo(fullDebugName_) << "Using server: " << url;
+    edm::LogInfo(fullDebugName_) << "Using server: " << server.url;
   //enforce sync mode for fallback CPU server to avoid contention
   //todo: could enforce async mode otherwise (unless mode was specified by user?)
-  if (isFallbackCPU)
+  if (serverType_ == TritonServerType::LocalCPU)
     setMode(SonicMode::Sync);
 
   //connect to the server
-  //TODO: add SSL options
-  triton_utils::throwIfError(nic::InferenceServerGrpcClient::Create(&client_, url, false),
-                             "TritonClient(): unable to create inference context");
+  triton_utils::throwIfError(
+      tc::InferenceServerGrpcClient::Create(&client_, server.url, false, server.useSsl, server.sslOptions),
+      "TritonClient(): unable to create inference context");
 
   //set options
   options_.model_version_ = params.getParameter<std::string>("modelVersion");
@@ -95,8 +111,9 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   inputsTriton_.reserve(nicInputs.size());
   for (const auto& nicInput : nicInputs) {
     const auto& iname = nicInput.name();
-    auto [curr_itr, success] = input_.emplace(
-        std::piecewise_construct, std::forward_as_tuple(iname), std::forward_as_tuple(iname, nicInput, noBatch_));
+    auto [curr_itr, success] = input_.emplace(std::piecewise_construct,
+                                              std::forward_as_tuple(iname),
+                                              std::forward_as_tuple(iname, nicInput, this, ts->pid()));
     auto& curr_input = curr_itr->second;
     inputsTriton_.push_back(curr_input.data());
     if (verbose_) {
@@ -118,8 +135,9 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
     const auto& oname = nicOutput.name();
     if (!s_outputs.empty() and s_outputs.find(oname) == s_outputs.end())
       continue;
-    auto [curr_itr, success] = output_.emplace(
-        std::piecewise_construct, std::forward_as_tuple(oname), std::forward_as_tuple(oname, nicOutput, noBatch_));
+    auto [curr_itr, success] = output_.emplace(std::piecewise_construct,
+                                               std::forward_as_tuple(oname),
+                                               std::forward_as_tuple(oname, nicOutput, this, ts->pid()));
     auto& curr_output = curr_itr->second;
     outputsTriton_.push_back(curr_output.data());
     if (verbose_) {
@@ -146,6 +164,15 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
               << "Model max batch size: " << (noBatch_ ? 0 : maxBatchSize_) << "\n";
     edm::LogInfo(fullDebugName_) << model_msg.str() << io_msg.str();
   }
+}
+
+TritonClient::~TritonClient() {
+  //by default: members of this class destroyed before members of base class
+  //in shared memory case, TritonMemResource (member of TritonData) unregisters from client_ in its destructor
+  //but input/output objects are member of base class, so destroyed after client_ (member of this class)
+  //therefore, clear the maps here
+  input_.clear();
+  output_.clear();
 }
 
 bool TritonClient::setBatchSize(unsigned bsize) {
@@ -175,22 +202,39 @@ void TritonClient::reset() {
   }
 }
 
-bool TritonClient::getResults(std::shared_ptr<nic::InferResult> results) {
+template <typename F>
+bool TritonClient::handle_exception(F&& call) {
+  //caught exceptions will be propagated to edm::WaitingTaskWithArenaHolder
+  CMS_SA_ALLOW try {
+    call();
+    return true;
+  }
+  //TritonExceptions are intended/expected to be recoverable, i.e. retries should be allowed
+  catch (TritonException& e) {
+    e.convertToWarning();
+    finish(false);
+    return false;
+  }
+  //other exceptions are not: execution should stop if they are encountered
+  catch (...) {
+    finish(false, std::current_exception());
+    return false;
+  }
+}
+
+void TritonClient::getResults(std::shared_ptr<tc::InferResult> results) {
   for (auto& [oname, output] : output_) {
     //set shape here before output becomes const
     if (output.variableDims()) {
       std::vector<int64_t> tmp_shape;
-      bool status = triton_utils::warnIfError(results->Shape(oname, &tmp_shape),
-                                              "getResults(): unable to get output shape for " + oname);
-      if (!status)
-        return status;
-      output.setShape(tmp_shape, false);
+      triton_utils::throwIfError(results->Shape(oname, &tmp_shape),
+                                 "getResults(): unable to get output shape for " + oname);
+      output.setShape(tmp_shape);
+      output.computeSizes();
     }
     //extend lifetime
     output.setResult(results);
   }
-
-  return true;
 }
 
 //default case for sync and pseudo async
@@ -201,76 +245,92 @@ void TritonClient::evaluate() {
     return;
   }
 
+  //set up shared memory for output
+  auto success = handle_exception([&]() {
+    for (auto& element : output_) {
+      element.second.prepare();
+    }
+  });
+  if (!success)
+    return;
+
   // Get the status of the server prior to the request being made.
-  const auto& start_status = getServerSideStatus();
+  inference::ModelStatistics start_status;
+  success = handle_exception([&]() {
+    if (verbose())
+      start_status = getServerSideStatus();
+  });
+  if (!success)
+    return;
 
   if (mode_ == SonicMode::Async) {
     //non-blocking call
-    auto t1 = std::chrono::high_resolution_clock::now();
-    bool status = triton_utils::warnIfError(
-        client_->AsyncInfer(
-            [t1, start_status, this](nic::InferResult* results) {
-              //get results
-              std::shared_ptr<nic::InferResult> results_ptr(results);
-              bool status = triton_utils::warnIfError(results_ptr->RequestStatus(), "evaluate(): unable to get result");
-              if (!status) {
-                finish(false);
-                return;
-              }
-              auto t2 = std::chrono::high_resolution_clock::now();
+    success = handle_exception([&]() {
+      triton_utils::throwIfError(client_->AsyncInfer(
+                                     [start_status, this](tc::InferResult* results) {
+                                       //get results
+                                       std::shared_ptr<tc::InferResult> results_ptr(results);
+                                       auto success = handle_exception([&]() {
+                                         triton_utils::throwIfError(results_ptr->RequestStatus(),
+                                                                    "evaluate(): unable to get result");
+                                       });
+                                       if (!success)
+                                         return;
 
-              if (!debugName_.empty())
-                edm::LogInfo(fullDebugName_)
-                    << "Remote time: " << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+                                       if (verbose()) {
+                                         inference::ModelStatistics end_status;
+                                         success = handle_exception([&]() { end_status = getServerSideStatus(); });
+                                         if (!success)
+                                           return;
 
-              const auto& end_status = getServerSideStatus();
+                                         const auto& stats = summarizeServerStats(start_status, end_status);
+                                         reportServerSideStats(stats);
+                                       }
 
-              if (verbose()) {
-                const auto& stats = summarizeServerStats(start_status, end_status);
-                reportServerSideStats(stats);
-              }
+                                       //check result
+                                       success = handle_exception([&]() { getResults(results_ptr); });
+                                       if (!success)
+                                         return;
 
-              //check result
-              status = getResults(results_ptr);
-
-              //finish
-              finish(status);
-            },
-            options_,
-            inputsTriton_,
-            outputsTriton_),
-        "evaluate(): unable to launch async run");
-
-    //if AsyncRun failed, finish() wasn't called
-    if (!status)
-      finish(false);
+                                       //finish
+                                       finish(true);
+                                     },
+                                     options_,
+                                     inputsTriton_,
+                                     outputsTriton_,
+                                     headers_,
+                                     compressionAlgo_),
+                                 "evaluate(): unable to launch async run");
+    });
+    if (!success)
+      return;
   } else {
     //blocking call
-    auto t1 = std::chrono::high_resolution_clock::now();
-    nic::InferResult* results;
-    bool status = triton_utils::warnIfError(client_->Infer(&results, options_, inputsTriton_, outputsTriton_),
-                                            "evaluate(): unable to run and/or get result");
-    if (!status) {
-      finish(false);
+    tc::InferResult* results;
+    success = handle_exception([&]() {
+      triton_utils::throwIfError(
+          client_->Infer(&results, options_, inputsTriton_, outputsTriton_, headers_, compressionAlgo_),
+          "evaluate(): unable to run and/or get result");
+    });
+    if (!success)
       return;
-    }
-
-    auto t2 = std::chrono::high_resolution_clock::now();
-    if (!debugName_.empty())
-      edm::LogInfo(fullDebugName_) << "Remote time: "
-                                   << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-
-    const auto& end_status = getServerSideStatus();
 
     if (verbose()) {
+      inference::ModelStatistics end_status;
+      success = handle_exception([&]() { end_status = getServerSideStatus(); });
+      if (!success)
+        return;
+
       const auto& stats = summarizeServerStats(start_status, end_status);
       reportServerSideStats(stats);
     }
 
-    std::shared_ptr<nic::InferResult> results_ptr(results);
-    status = getResults(results_ptr);
+    std::shared_ptr<tc::InferResult> results_ptr(results);
+    success = handle_exception([&]() { getResults(results_ptr); });
+    if (!success)
+      return;
 
-    finish(status);
+    finish(true);
   }
 }
 
@@ -335,11 +395,9 @@ TritonClient::ServerSideStats TritonClient::summarizeServerStats(const inference
 inference::ModelStatistics TritonClient::getServerSideStatus() const {
   if (verbose_) {
     inference::ModelStatisticsResponse resp;
-    bool success = triton_utils::warnIfError(
-        client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_),
-        "getServerSideStatus(): unable to get model statistics");
-    if (success)
-      return *(resp.model_stats().begin());
+    triton_utils::throwIfError(client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_),
+                               "getServerSideStatus(): unable to get model statistics");
+    return *(resp.model_stats().begin());
   }
   return inference::ModelStatistics{};
 }
@@ -355,6 +413,8 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descClient.addUntracked<std::string>("preferredServer", "");
   descClient.addUntracked<unsigned>("timeout");
   descClient.addUntracked<bool>("verbose", false);
+  descClient.addUntracked<bool>("useSharedMemory", true);
+  descClient.addUntracked<std::string>("compression", "");
   descClient.addUntracked<std::vector<std::string>>("outputs", {});
   iDesc.add<edm::ParameterSetDescription>("Client", descClient);
 }

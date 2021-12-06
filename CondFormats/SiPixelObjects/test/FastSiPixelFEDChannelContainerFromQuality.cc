@@ -24,8 +24,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -87,7 +85,7 @@ private:
   const bool isMC_;
   const bool removeEmptyPayloads_;
 
-  SiPixelFEDChannelContainer* myQualities;
+  std::unique_ptr<SiPixelFEDChannelContainer> myQualities;
 
   inline unsigned int closest_from_above(std::vector<unsigned int> const& vec, unsigned int value) {
     auto const it = std::lower_bound(vec.begin(), vec.end(), value);
@@ -117,10 +115,10 @@ FastSiPixelFEDChannelContainerFromQuality::FastSiPixelFEDChannelContainerFromQua
   m_connectionPool.configure();
 
   //now do what ever initialization is needed
-  myQualities = new SiPixelFEDChannelContainer();
+  myQualities = std::make_unique<SiPixelFEDChannelContainer>();
 }
 
-FastSiPixelFEDChannelContainerFromQuality::~FastSiPixelFEDChannelContainerFromQuality() { delete myQualities; }
+FastSiPixelFEDChannelContainerFromQuality::~FastSiPixelFEDChannelContainerFromQuality() = default;
 
 void FastSiPixelFEDChannelContainerFromQuality::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   std::stringstream ss;
@@ -420,10 +418,10 @@ void FastSiPixelFEDChannelContainerFromQuality::endJob() {
     cond::Time_t valid_time = poolDbService->currentTime();
     // this writes the payload to begin in current run defined in cfg
     if (!isMC_) {
-      poolDbService->writeOne(myQualities, valid_time, m_record);
+      poolDbService->writeOneIOV(*myQualities, valid_time, m_record);
     } else {
       // for MC IOV since=1
-      poolDbService->writeOne(myQualities, 1, m_record);
+      poolDbService->writeOneIOV(*myQualities, 1, m_record);
     }
   }
 }

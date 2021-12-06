@@ -14,11 +14,7 @@
 
 class ZdcSD : public CaloSD {
 public:
-  ZdcSD(const std::string &,
-        const edm::EventSetup &,
-        const SensitiveDetectorCatalog &,
-        edm::ParameterSet const &,
-        const SimTrackManager *);
+  ZdcSD(const std::string &, const SensitiveDetectorCatalog &, edm::ParameterSet const &, const SimTrackManager *);
 
   ~ZdcSD() override = default;
 

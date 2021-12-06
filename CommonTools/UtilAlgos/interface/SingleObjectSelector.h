@@ -4,7 +4,12 @@
  *
  * \author Luca Lista, INFN
  */
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorBase.h"
+#include "CommonTools/UtilAlgos/interface/NonNullNumberSelector.h"
+#include "CommonTools/UtilAlgos/interface/StoreManagerTrait.h"
+#include "CommonTools/UtilAlgos/interface/SelectedOutputCollectionTrait.h"
+#include "CommonTools/UtilAlgos/interface/NullPostProcessor.h"
+#include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"
 #include "CommonTools/UtilAlgos/interface/StoreContainerTrait.h"
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include "CommonTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
@@ -19,38 +24,37 @@ template <typename InputCollection,
           typename EdmFilter,
           typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<InputCollection>::type,
           typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
-          typename PostProcessor = ::helper::NullPostProcessor<OutputCollection, EdmFilter>,
+          typename PostProcessor = ::helper::NullPostProcessor<OutputCollection>,
           typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection, EdmFilter>::type,
           typename Base = typename ::helper::StoreManagerTrait<OutputCollection, EdmFilter>::base,
           typename RefAdder = typename ::helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 class SingleObjectSelectorBase
-    : public ObjectSelector<
+    : public ObjectSelectorBase<
           SingleElementCollectionSelector<InputCollection, Selector, OutputCollection, StoreContainer, RefAdder>,
           OutputCollection,
           NonNullNumberSelector,
           PostProcessor,
           StoreManager,
-          Base> {
+          Base,
+          typename ::reco::modules::EventSetupInit<
+              SingleElementCollectionSelector<InputCollection, Selector, OutputCollection, StoreContainer, RefAdder>>::
+              type> {
+  using Init = typename ::reco::modules::EventSetupInit<
+      SingleElementCollectionSelector<InputCollection, Selector, OutputCollection, StoreContainer, RefAdder>>::type;
+
 public:
   // SingleObjectSelectorBase() = default;
   explicit SingleObjectSelectorBase(const edm::ParameterSet& cfg)
-      : ObjectSelector<
+      : ObjectSelectorBase<
             SingleElementCollectionSelector<InputCollection, Selector, OutputCollection, StoreContainer, RefAdder>,
             OutputCollection,
             NonNullNumberSelector,
             PostProcessor,
             StoreManager,
-            Base>(cfg) {}
+            Base,
+            Init>(cfg) {}
   ~SingleObjectSelectorBase() override {}
 };
-
-template <typename InputCollection,
-          typename Selector,
-          typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<InputCollection>::type,
-          typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
-          typename PostProcessor = ::helper::NullPostProcessor<OutputCollection, edm::EDFilter> >
-using SingleObjectSelectorLegacy =
-    SingleObjectSelectorBase<InputCollection, Selector, edm::EDFilter, OutputCollection, StoreContainer, PostProcessor>;
 
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 
@@ -58,7 +62,7 @@ template <typename InputCollection,
           typename Selector,
           typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<InputCollection>::type,
           typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
-          typename PostProcessor = ::helper::NullPostProcessor<OutputCollection, edm::stream::EDFilter<> > >
+          typename PostProcessor = ::helper::NullPostProcessor<OutputCollection>>
 using SingleObjectSelectorStream = SingleObjectSelectorBase<InputCollection,
                                                             Selector,
                                                             edm::stream::EDFilter<>,
@@ -70,7 +74,7 @@ template <typename InputCollection,
           typename Selector,
           typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<InputCollection>::type,
           typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
-          typename PostProcessor = ::helper::NullPostProcessor<OutputCollection, edm::stream::EDFilter<> > >
+          typename PostProcessor = ::helper::NullPostProcessor<OutputCollection>>
 using SingleObjectSelector =
     SingleObjectSelectorStream<InputCollection, Selector, OutputCollection, StoreContainer, PostProcessor>;
 

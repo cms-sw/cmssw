@@ -166,6 +166,7 @@ namespace edm {
       std::vector<std::array<char, 64>> transitionInfoCache_;
       unsigned int lumiInfoBegin_ = 0;
       unsigned int runInfoBegin_ = 0;
+      unsigned int processBlockInfoBegin_ = 0;
 
       std::set<std::string> debugEnabledModules_;
       std::map<std::string, messagelogger::ELseverityLevel> suppression_levels_;

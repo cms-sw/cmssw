@@ -16,6 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/RedundantSeedCleaner.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -47,6 +48,7 @@ public:
     usePt_Cleaner = pset.getParameter<bool>("ptCleaner");
     cleanBySharedHits = pset.getParameter<bool>("cleanerFromSharedHits");
     beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotTag);
+    theTTRHBuilderToken = iC.esConsumes(edm::ESInputTag("", builderName_));
   }
 
   ///intizialization
@@ -70,6 +72,7 @@ private:
 
   std::string builderName_;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theTTRHBuilderToken;
   bool useDirection_Cleaner, usePt_Cleaner, cleanBySharedHits;
 };
 

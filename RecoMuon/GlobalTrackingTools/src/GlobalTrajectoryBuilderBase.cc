@@ -107,6 +107,8 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
       iC.esConsumes(edm::ESInputTag("", par.getParameter<std::string>("TrackerRecHitBuilder")));
   theMuonRecHitBuilderToken = iC.esConsumes(edm::ESInputTag("", par.getParameter<std::string>("MuonRecHitBuilder")));
   theTopoToken = iC.esConsumes();
+  theFieldToken = iC.esConsumes();
+  theMSMakerToken = iC.esConsumes();
 
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
@@ -137,7 +139,7 @@ void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
   theEvent = &event;
 
   theTrackTransformer->setServices(theService->eventSetup());
-  theRegionBuilder->setEvent(event);
+  theRegionBuilder->setEvent(event, theService->eventSetup());
 
   theGlbRefitter->setEvent(event);
   theGlbRefitter->setServices(theService->eventSetup());
@@ -147,6 +149,9 @@ void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
 
   //Retrieve tracker topology from geometry
   theTopo = &theService->eventSetup().getData(theTopoToken);
+
+  theField = &theService->eventSetup().getData(theFieldToken);
+  theMSMaker = &theService->eventSetup().getData(theMSMakerToken);
 }
 
 //
@@ -345,7 +350,9 @@ RectangularEtaPhiTrackingRegion GlobalTrajectoryBuilderBase::defineRegionOfInter
                                           region1->originRBound(),
                                           region1->originZBound(),
                                           etaMargin,
-                                          region1->phiMargin());
+                                          region1->phiMargin(),
+                                          *theField,
+                                          theMSMaker);
 
   return region2;
 }

@@ -1,11 +1,16 @@
 #ifndef HitPairGeneratorFromLayerPair_h
 #define HitPairGeneratorFromLayerPair_h
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 class DetLayer;
+class IdealMagneticFieldRecord;
+class MagneticField;
+class MultipleScatteringParametrisationMaker;
+class TrackerMultipleScatteringRecord;
 class TrackingRegion;
 
 class HitPairGeneratorFromLayerPair {
@@ -14,7 +19,8 @@ public:
   typedef SeedingLayerSetsHits::SeedingLayerSet Layers;
   typedef SeedingLayerSetsHits::SeedingLayer Layer;
 
-  HitPairGeneratorFromLayerPair(unsigned int inner,
+  HitPairGeneratorFromLayerPair(edm::ConsumesCollector iC,
+                                unsigned int inner,
                                 unsigned int outer,
                                 LayerCacheType* layerCache,
                                 unsigned int max = 0);
@@ -56,7 +62,8 @@ public:
                        const DetLayer& outerHitDetLayer,
                        const RecHitsSortedInPhi& innerHitsMap,
                        const RecHitsSortedInPhi& outerHitsMap,
-                       const edm::EventSetup& iSetup,
+                       const MagneticField& field,
+                       const MultipleScatteringParametrisationMaker& msmaker,
                        const unsigned int theMaxElement,
                        HitDoublets& result);
 
@@ -65,6 +72,8 @@ public:
 
 private:
   LayerCacheType* theLayerCache;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  const edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> theMSMakerToken;
   const unsigned int theOuterLayer;
   const unsigned int theInnerLayer;
   const unsigned int theMaxElement;

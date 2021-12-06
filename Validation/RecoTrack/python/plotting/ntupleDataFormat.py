@@ -6,7 +6,6 @@ import ROOT
 
 from Validation.RecoTrack.plotting.ntupleEnum import *
 from Validation.RecoTrack.plotting.ntupleEnum import _Enum
-import six
 
 class _Collection(object):
     """Adaptor class representing a collection of objects.
@@ -1020,7 +1019,7 @@ class TrackingParticle(_Object):
                         tracks[track.index()] = 1
 
         best = (None, 2)
-        for trackIndex, nhits in six.iteritems(tracks):
+        for trackIndex, nhits in tracks.items():
             if nhits > best[1]:
                 best = (trackIndex, nhits)
         if best[0] is None:

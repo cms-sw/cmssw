@@ -20,14 +20,18 @@ public:
 
 private:
   bool fromDD4hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
 };
 
 PTrackerParametersDBBuilder::PTrackerParametersDBBuilder(const edm::ParameterSet& iConfig) {
   fromDD4hep_ = iConfig.getParameter<bool>("fromDD4hep");
+  dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  PTrackerParameters* ptp = new PTrackerParameters;
+  PTrackerParameters ptp;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("PTrackerParametersDBBuilder") << "PoolDBOutputService unavailable";
@@ -37,18 +41,15 @@ void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup cons
   TrackerParametersFromDD builder;
 
   if (!fromDD4hep_) {
-    edm::ESTransientHandle<DDCompactView> cpv;
-    es.get<IdealGeometryRecord>().get(cpv);
-    builder.build(&(*cpv), *ptp);
+    auto cpv = es.getTransientHandle(compactViewToken_);
+    builder.build(&(*cpv), ptp);
   } else {
-    edm::ESTransientHandle<cms::DDCompactView> cpv;
-    es.get<IdealGeometryRecord>().get(cpv);
-    builder.build(&(*cpv), *ptp);
+    auto cpv = es.getTransientHandle(dd4HepCompactViewToken_);
+    builder.build(&(*cpv), ptp);
   }
 
   if (mydbservice->isNewTagRequest("PTrackerParametersRcd")) {
-    mydbservice->createNewIOV<PTrackerParameters>(
-        ptp, mydbservice->beginOfTime(), mydbservice->endOfTime(), "PTrackerParametersRcd");
+    mydbservice->createOneIOV(ptp, mydbservice->beginOfTime(), "PTrackerParametersRcd");
   } else {
     edm::LogError("PTrackerParametersDBBuilder") << "PTrackerParameters and PTrackerParametersRcd Tag already present";
   }

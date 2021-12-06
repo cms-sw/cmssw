@@ -35,11 +35,11 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWTrajectorySeedProxyBuilder(const FWTrajectorySeedProxyBuilder&) = delete;  // stop default
 
   const FWTrajectorySeedProxyBuilder& operator=(const FWTrajectorySeedProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<TrajectorySeed>::build;
   void build(const TrajectorySeed& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };

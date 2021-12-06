@@ -25,18 +25,19 @@ DTT0Analyzer::DTT0Analyzer(const ParameterSet& pset) {
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
+  t0Token_ = esConsumes<edm::Transition::BeginRun>();
+  dtGeomToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 DTT0Analyzer::~DTT0Analyzer() { theFile->Close(); }
 
 void DTT0Analyzer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
   //Get the t0 map from the DB
-  ESHandle<DTT0> t0;
-  eventSetup.get<DTT0Rcd>().get(t0);
+  ESHandle<DTT0> t0 = eventSetup.getHandle(t0Token_);
   tZeroMap = &*t0;
 
   // Get the DT Geometry
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = eventSetup.getHandle(dtGeomToken_);
 }
 
 void DTT0Analyzer::endJob() {

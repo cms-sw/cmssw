@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("RaddamMuon")
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+process = cms.Process("RaddamMuon",Run2_2017)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
@@ -8,7 +9,8 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("RecoJets.Configuration.CaloTowersES_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag='101X_dataRun2_Prompt_v11'
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run2_data']
 
 process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 process.load("Calibration.HcalCalibAlgos.hcalHBHEMuon_cfi")
@@ -16,15 +18,18 @@ process.load("Calibration.HcalCalibAlgos.hcalHBHEMuon_cfi")
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.HBHEMuon=dict()
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-        'root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/ALCARECO/HcalCalHBHEMuonFilter-PromptReco-v1/000/319/337/00000/004EC357-9184-E811-A588-FA163EFF1C10.root',
-        )
+                            fileNames = cms.untracked.vstring(
+                                'file:/afs/cern.ch/work/a/amkaur/public/ForSunandaDa/AlcaProducer_codecheck/old/OutputHBHEMuon_old_2017.root'
                             )
+)
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("Validation.root")
+                                   fileName = cms.string("ValidationOld.root")
 )
 
 process.hcalHBHEMuon.useRaw = 0

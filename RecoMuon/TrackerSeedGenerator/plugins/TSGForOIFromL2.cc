@@ -50,7 +50,13 @@ TSGForOIFromL2::TSGForOIFromL2(const edm::ParameterSet& iConfig)
       tsosDiff1_(iConfig.getParameter<double>("tsosDiff1")),
       tsosDiff2_(iConfig.getParameter<double>("tsosDiff2")),
       propagatorName_(iConfig.getParameter<std::string>("propagatorName")),
-      theCategory_(std::string("Muon|RecoMuon|TSGForOIFromL2")) {
+      theCategory_(std::string("Muon|RecoMuon|TSGForOIFromL2")),
+      estimatorToken_(esConsumes(edm::ESInputTag("", estimatorName_))),
+      magfieldToken_(esConsumes()),
+      propagatorToken_(esConsumes(edm::ESInputTag("", propagatorName_))),
+      tmpTkGeometryToken_(esConsumes()),
+      geometryToken_(esConsumes()),
+      sHPOppositeToken_(esConsumes(edm::ESInputTag("", "hltESPSteppingHelixPropagatorOpposite"))) {
   produces<std::vector<TrajectorySeed> >();
 }
 
@@ -72,19 +78,13 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
 
   // Read ESHandles
   edm::Handle<MeasurementTrackerEvent> measurementTrackerH;
-  edm::ESHandle<Chi2MeasurementEstimatorBase> estimatorH;
-  edm::ESHandle<MagneticField> magfieldH;
-  edm::ESHandle<Propagator> propagatorAlongH;
-  edm::ESHandle<Propagator> propagatorOppositeH;
-  edm::ESHandle<TrackerGeometry> tmpTkGeometryH;
-  edm::ESHandle<GlobalTrackingGeometry> geometryH;
+  const edm::ESHandle<Chi2MeasurementEstimatorBase> estimatorH = iSetup.getHandle(estimatorToken_);
+  const edm::ESHandle<MagneticField> magfieldH = iSetup.getHandle(magfieldToken_);
+  const edm::ESHandle<Propagator> propagatorAlongH = iSetup.getHandle(propagatorToken_);
+  const edm::ESHandle<Propagator>& propagatorOppositeH = propagatorAlongH;
+  const edm::ESHandle<TrackerGeometry> tmpTkGeometryH = iSetup.getHandle(tmpTkGeometryToken_);
+  const edm::ESHandle<GlobalTrackingGeometry> geometryH = iSetup.getHandle(geometryToken_);
 
-  iSetup.get<IdealMagneticFieldRecord>().get(magfieldH);
-  iSetup.get<TrackingComponentsRecord>().get(propagatorName_, propagatorOppositeH);
-  iSetup.get<TrackingComponentsRecord>().get(propagatorName_, propagatorAlongH);
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometryH);
-  iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometryH);
-  iSetup.get<TrackingComponentsRecord>().get(estimatorName_, estimatorH);
   iEvent.getByToken(measurementTrackerTag_, measurementTrackerH);
 
   // Read L2 track collection
@@ -110,8 +110,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
   std::unique_ptr<Propagator> propagatorOpposite = SetPropagationDirection(*propagatorOppositeH, oppositeToMomentum);
 
   // Stepping Helix Propagator for propogation from muon system to tracker
-  edm::ESHandle<Propagator> SHPOpposite;
-  iSetup.get<TrackingComponentsRecord>().get("hltESPSteppingHelixPropagatorOpposite", SHPOpposite);
+  const edm::ESHandle<Propagator> SHPOpposite = iSetup.getHandle(sHPOppositeToken_);
 
   // Loop over the L2's and make seeds for all of them
   LogTrace(theCategory_) << "TSGForOIFromL2::produce: Number of L2's: " << l2TrackCol->size();
@@ -329,7 +328,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
 void TSGForOIFromL2::makeSeedsWithoutHits(const GeometricSearchDet& layer,
                                           const TrajectoryStateOnSurface& tsos,
                                           const Propagator& propagatorAlong,
-                                          edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
+                                          const edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
                                           double errorSF,
                                           unsigned int& hitlessSeedsMade,
                                           unsigned int& numSeedsMade,
@@ -363,8 +362,8 @@ void TSGForOIFromL2::makeSeedsWithoutHits(const GeometricSearchDet& layer,
 void TSGForOIFromL2::makeSeedsFromHits(const GeometricSearchDet& layer,
                                        const TrajectoryStateOnSurface& tsos,
                                        const Propagator& propagatorAlong,
-                                       edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
-                                       edm::Handle<MeasurementTrackerEvent>& measurementTracker,
+                                       const edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
+                                       const edm::Handle<MeasurementTrackerEvent>& measurementTracker,
                                        double errorSF,
                                        unsigned int& hitSeedsMade,
                                        unsigned int& numSeedsMade,

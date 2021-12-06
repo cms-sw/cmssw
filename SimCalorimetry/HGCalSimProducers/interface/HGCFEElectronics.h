@@ -43,14 +43,16 @@ public:
                         float lsbADC = -1,
                         uint32_t gainIdx = 0,
                         float maxADC = -1,
-                        int thickness = 1) {
+                        int thickness = 1,
+                        float tdcOnsetAuto = -1) {
     switch (fwVersion_) {
       case SIMPLE: {
         runSimpleShaper(dataFrame, chargeColl, thrADC, lsbADC, gainIdx, maxADC, adcPulse);
         break;
       }
       case WITHTOT: {
-        runShaperWithToT(dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, adcPulse);
+        runShaperWithToT(
+            dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, tdcOnsetAuto, adcPulse);
         break;
       }
       default: {
@@ -84,15 +86,24 @@ public:
   };
 
   /**
-     @short returns the LSB in MIP currently configured
+     @short returns the LSB currently configured
   */
   float getADClsb() { return adcLSB_fC_; }
   float getTDClsb() { return tdcLSB_fC_; }
   int getTargetMipValue() { return targetMIPvalue_ADC_; }
   float getADCThreshold() { return adcThreshold_fC_; }
+  float getMaxADC() { return adcSaturation_fC_; }
+  float getMaxTDC() { return tdcSaturation_fC_; }
   float getTDCOnset() { return tdcOnset_fC_; }
   std::array<float, 3> getTDCForToAOnset() { return tdcForToAOnset_fC_; }
   void setADClsb(float newLSB) { adcLSB_fC_ = newLSB; }
+  void setTDCfsc(float newTDCfsc) {
+    tdcSaturation_fC_ = newTDCfsc;
+    tdcLSB_fC_ = tdcSaturation_fC_ / pow(2., tdcNbits_);
+    // lower tdcSaturation_fC_ by one part in a million
+    // to ensure largest charge converted in bits is 0xfff and not 0x000
+    tdcSaturation_fC_ *= (1. - 1e-6);
+  }
 
   /**
      @short converts charge to digis without pulse shape
@@ -127,6 +138,7 @@ public:
                         uint32_t gainIdx,
                         float maxADC,
                         int thickness,
+                        float tdcOnsetAuto,
                         const hgc_digi::FEADCPulseShape& adcPulse);
   void runShaperWithToT(DFr& dataFrame,
                         hgc::HGCSimHitData& chargeColl,
@@ -136,8 +148,10 @@ public:
                         float lsbADC,
                         uint32_t gainIdx,
                         float maxADC,
-                        int thickness) {
-    runShaperWithToT(dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, adcPulse_);
+                        int thickness,
+                        float tdcOnsetAuto) {
+    runShaperWithToT(
+        dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, tdcOnsetAuto, adcPulse_);
   }
 
   /**
@@ -167,6 +181,7 @@ private:
   std::array<float, 3> jitterNoise2_ns_, jitterConstant2_ns_;
   std::vector<float> noise_fC_;
   uint32_t toaMode_;
+  uint32_t tdcNbits_;
   bool thresholdFollowsMIP_;
   //caches
   std::array<bool, hgc::nSamples> busyFlags, totFlags, toaFlags;

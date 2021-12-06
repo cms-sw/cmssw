@@ -7,7 +7,7 @@
  * It inherits from CSCBaseboard. Neither are physical boards at CMS
  * But they are convenient classes in the trigger code.
  *
- * Author: Sven Dildick
+ * Author: Sven Dildick (Rice University)
  *
  */
 

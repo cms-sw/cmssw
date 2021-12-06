@@ -14,12 +14,14 @@ using namespace XrdAdaptor;
 // To be re-enabled when the monitoring interface is back.
 //static const char *kCrabJobIdEnv = "CRAB_UNIQUE_JOB_ID";
 
-#define XRD_CL_MAX_CHUNK 512 * 1024
-#define XRD_CL_MAX_SIZE 1024
+static constexpr int XRD_CL_MAX_CHUNK = 512 * 1024;
+static constexpr int XRD_CL_MAX_SIZE = 1024;
 
-#define XRD_CL_MAX_READ_SIZE (8 * 1024 * 1024)
+static constexpr int XRD_CL_MAX_READ_SIZE = (8 * 1024 * 1024);
 
-XrdFile::XrdFile(void) : m_offset(0), m_size(-1), m_close(false), m_name(), m_op_count(0) {}
+using namespace edm::storage;
+
+XrdFile::XrdFile() : m_offset(0), m_size(-1), m_close(false), m_name(), m_op_count(0) {}
 
 XrdFile::XrdFile(const char *name, int flags /* = IOFlags::OpenRead */, int perms /* = 066 */)
     : m_offset(0), m_size(-1), m_close(false), m_name(), m_op_count(0) {
@@ -31,7 +33,7 @@ XrdFile::XrdFile(const std::string &name, int flags /* = IOFlags::OpenRead */, i
   open(name.c_str(), flags, perms);
 }
 
-XrdFile::~XrdFile(void) {
+XrdFile::~XrdFile() {
   if (m_close)
     edm::LogError("XrdFileError") << "Destructor called on XROOTD file '" << m_name << "' but the file is still open";
 }
@@ -150,7 +152,7 @@ void XrdFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int pe
   edm::LogInfo("XrdFileInfo") << ss.str();
 }
 
-void XrdFile::close(void) {
+void XrdFile::close() {
   if (!m_requestmanager.get()) {
     edm::LogError("XrdFileError") << "XrdFile::close(name='" << m_name << "') called but the file is not open";
     m_close = false;
@@ -165,7 +167,7 @@ void XrdFile::close(void) {
   edm::LogInfo("XrdFileInfo") << "Closed " << m_name;
 }
 
-void XrdFile::abort(void) {
+void XrdFile::abort() {
   m_requestmanager = nullptr;  // propagate_const<T> has no reset() function
   m_close = false;
   m_offset = 0;

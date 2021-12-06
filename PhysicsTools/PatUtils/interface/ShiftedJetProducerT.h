@@ -55,10 +55,12 @@ public:
         if (jetCorrInputFileName_.location() == edm::FileInPath::Unknown)
           throw cms::Exception("ShiftedJetProducerT")
               << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
-        jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
-        jecUncertainty_ = new JetCorrectionUncertainty(*jetCorrParameters_);
+        jetCorrParameters_ =
+            std::make_unique<JetCorrectorParameters>(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
+        jecUncertainty_ = std::make_unique<JetCorrectionUncertainty>(*jetCorrParameters_);
       } else {
         jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
+        jetCorrPayloadToken_ = esConsumes(edm::ESInputTag("", jetCorrPayloadName_));
       }
     }
 
@@ -78,10 +80,6 @@ public:
     verbosity_ = (cfg.exists("verbosity")) ? cfg.getParameter<int>("verbosity") : 0;
 
     produces<JetCollection>();
-  }
-  ~ShiftedJetProducerT() override {
-    delete jetCorrParameters_;
-    delete jecUncertainty_;
   }
 
 private:
@@ -103,11 +101,9 @@ private:
     auto shiftedJets = std::make_unique<JetCollection>();
 
     if (!jetCorrPayloadName_.empty()) {
-      edm::ESHandle<JetCorrectorParametersCollection> jetCorrParameterSet;
-      es.get<JetCorrectionsRecord>().get(jetCorrPayloadName_, jetCorrParameterSet);
-      const JetCorrectorParameters& jetCorrParameters = (*jetCorrParameterSet)[jetCorrUncertaintyTag_];
-      delete jecUncertainty_;
-      jecUncertainty_ = new JetCorrectionUncertainty(jetCorrParameters);
+      const JetCorrectorParametersCollection& jetCorrParameterSet = es.getData(jetCorrPayloadToken_);
+      const JetCorrectorParameters& jetCorrParameters = (jetCorrParameterSet)[jetCorrUncertaintyTag_];
+      jecUncertainty_ = std::make_unique<JetCorrectionUncertainty>(jetCorrParameters);
     }
 
     for (typename JetCollection::const_iterator originalJet = originalJets->begin(); originalJet != originalJets->end();
@@ -175,9 +171,10 @@ private:
 
   edm::FileInPath jetCorrInputFileName_;
   std::string jetCorrPayloadName_;
+  edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> jetCorrPayloadToken_;
   std::string jetCorrUncertaintyTag_;
-  JetCorrectorParameters* jetCorrParameters_;
-  JetCorrectionUncertainty* jecUncertainty_;
+  std::unique_ptr<JetCorrectorParameters> jetCorrParameters_;
+  std::unique_ptr<JetCorrectionUncertainty> jecUncertainty_;
 
   bool addResidualJES_;
   edm::InputTag jetCorrLabelUpToL3_;                            // L1+L2+L3 correction

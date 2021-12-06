@@ -34,11 +34,11 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // ----------------------- Data Members ----------------------------
   FWCandidateHGCalLegoProxyBuilder(const FWCandidateHGCalLegoProxyBuilder &) = delete;
   const FWCandidateHGCalLegoProxyBuilder &operator=(const FWCandidateHGCalLegoProxyBuilder &) = delete;
 
+private:
   // --------------------- Member Functions --------------------------
   using FWSimpleProxyBuilderTemplate<reco::HGCalMultiCluster>::build;
   void build(const reco::HGCalMultiCluster &, unsigned int, TEveElement &, const FWViewContext *) override;

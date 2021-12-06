@@ -99,8 +99,17 @@ namespace {
         } break;
         case MuonSubdetId::GEM: {
           GEMDetId gemid(id.rawId());
-          layer = ((gemid.station() - 1) << 2);
-          layer |= abs(gemid.layer() - 1);
+          {
+            uint16_t st = gemid.station();
+            uint16_t la = gemid.layer();
+            if (st == 0) {
+              layer |= 0b1000;
+              layer |= (la - 1);
+            } else {
+              layer |= (st - 1) << 2;
+              layer |= (la - 1);
+            }
+          }
         } break;
         case MuonSubdetId::ME0: {
           ME0DetId me0id(id.rawId());
@@ -325,6 +334,8 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const {
   } else {
     uint8_t firstWordBits = HIT_LENGTH - secondWordBits;
     uint16_t firstWordBlock = hitPattern[secondWord - 1] >> (16 - firstWordBits);
+    if (secondWordBits == 0)
+      return firstWordBlock;
     uint16_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
     uint16_t myResult = firstWordBlock + (secondWordBlock << firstWordBits);
     return myResult;
@@ -818,7 +829,8 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
     } else if (muonRPCHitFilter(pattern)) {
       stream << "\trpc " << (getRPCregion(pattern) ? "endcaps" : "barrel") << ", layer " << getRPCLayer(pattern);
     } else if (muonGEMHitFilter(pattern)) {
-      stream << "\tgem " << (getGEMLayer(pattern) ? "layer1" : "layer2") << ", station " << getGEMStation(pattern);
+      stream << "\tgem "
+             << " station " << getGEMStation(pattern) << ", layer" << getGEMLayer(pattern);
     } else if (muonME0HitFilter(pattern)) {
       stream << "\tme0 ";
     } else {
@@ -872,16 +884,16 @@ uint16_t HitPattern::isStereo(DetId i, const TrackerTopology& ttopo) {
 }
 
 int HitPattern::muonStations(int subdet, int hitType) const {
-  int stations[4] = {0, 0, 0, 0};
+  int stations[5] = {0, 0, 0, 0, 0};
   for (int i = beginTrackHits; i < endTrackHits; ++i) {
     uint16_t pattern = getHitPatternByAbsoluteIndex(i);
     if (muonHitFilter(pattern) && (subdet == 0 || int(getSubStructure(pattern)) == subdet) &&
         (hitType == -1 || int(getHitType(pattern)) == hitType)) {
-      stations[getMuonStation(pattern) - 1] = 1;
+      stations[getMuonStation(pattern)] = 1;
     }
   }
 
-  return stations[0] + stations[1] + stations[2] + stations[3];
+  return stations[0] + stations[1] + stations[2] + stations[3] + stations[4];
 }
 
 int HitPattern::innermostMuonStationWithHits(int hitType) const {

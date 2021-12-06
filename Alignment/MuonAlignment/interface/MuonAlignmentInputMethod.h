@@ -28,13 +28,16 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 // forward declarations
 
 class MuonAlignmentInputMethod {
 public:
   MuonAlignmentInputMethod();
-  MuonAlignmentInputMethod(std::string idealLabel);
+  MuonAlignmentInputMethod(const DTGeometry* dtGeometry,
+                           const CSCGeometry* cscGeometry,
+                           const GEMGeometry* gemGeometry);
   virtual ~MuonAlignmentInputMethod();
 
   // ---------- const member functions ---------------------
@@ -43,15 +46,17 @@ public:
 
   // ---------- member functions ---------------------------
 
-  virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
+  virtual AlignableMuon* newAlignableMuon() const;
+
+  MuonAlignmentInputMethod(const MuonAlignmentInputMethod&) = delete;  // stop default
+
+  const MuonAlignmentInputMethod& operator=(const MuonAlignmentInputMethod&) = delete;  // stop default
 
 private:
-  MuonAlignmentInputMethod(const MuonAlignmentInputMethod &) = delete;  // stop default
-
-  const MuonAlignmentInputMethod &operator=(const MuonAlignmentInputMethod &) = delete;  // stop default
-
   // ---------- member data --------------------------------
-  std::string idealGeometryLabel;
+  const DTGeometry* dtGeometry_;
+  const CSCGeometry* cscGeometry_;
+  const GEMGeometry* gemGeometry_;
 };
 
 #endif

@@ -62,10 +62,11 @@ protected:
   FWDoubleParameter m_maxTowerHeight;
   FWBoolParameter m_plotEt;
 
-private:
+public:
   FWViewEnergyScale(const FWViewEnergyScale&) = delete;                   // stop default
   const FWViewEnergyScale& operator=(const FWViewEnergyScale&) = delete;  // stop default
 
+private:
   float calculateScaleFactor(float iMaxVal, bool isLego) const;
 
   const std::string m_name;

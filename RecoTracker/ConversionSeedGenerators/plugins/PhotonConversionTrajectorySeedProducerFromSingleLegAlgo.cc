@@ -4,7 +4,6 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 //#define debugTSPFSLA
@@ -17,7 +16,7 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::PhotonConversionTraject
     const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
     : theHitsGenerator(new CombinedHitPairGeneratorForPhotonConversion(
           conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet"), iC)),
-      theSeedCreator(new SeedForPhotonConversion1Leg(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet"))),
+      theSeedCreator(new SeedForPhotonConversion1Leg(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet"), iC)),
       theRegionProducer(
           new GlobalTrackingRegionProducerFromBeamSpot(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet"), iC)),
       theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), iC),
@@ -33,6 +32,7 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::PhotonConversionTraject
   token_vertex = iC.consumes<reco::VertexCollection>(_primaryVtxInputTag);
   token_bs = iC.consumes<reco::BeamSpot>(_beamSpotInputTag);
   token_refitter = iC.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackRefitter"));
+  token_magField = iC.esConsumes();
 }
 
 PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo() {}
@@ -55,15 +55,13 @@ void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::find(const edm::Ev
     return;
   }
 
-  edm::ESHandle<MagneticField> handleMagField;
-  setup.get<IdealMagneticFieldRecord>().get(handleMagField);
-  magField = handleMagField.product();
-  if (UNLIKELY(magField->inTesla(GlobalPoint(0., 0., 0.)).z() < 0.01)) {
+  const auto& magField = setup.getData(token_magField);
+  if (UNLIKELY(magField.inTesla(GlobalPoint(0., 0., 0.)).z() < 0.01)) {
     seedCollection = nullptr;
     return;
   }
 
-  _IdealHelixParameters.setMagnField(magField);
+  _IdealHelixParameters.setMagnField(&magField);
 
   event.getByToken(token_vertex, vertexHandle);
   if (!vertexHandle.isValid() || vertexHandle->empty()) {

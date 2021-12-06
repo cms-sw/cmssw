@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,7 +36,7 @@
 // class declaration
 //
 
-class SecondaryVertexFilter : public edm::EDFilter {
+class SecondaryVertexFilter : public edm::stream::EDFilter<> {
 public:
   explicit SecondaryVertexFilter(const edm::ParameterSet&);
   ~SecondaryVertexFilter() override;

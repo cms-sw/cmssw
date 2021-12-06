@@ -33,9 +33,10 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-DTTPDeadWriter::DTTPDeadWriter(const ParameterSet& pset) {
+DTTPDeadWriter::DTTPDeadWriter(const ParameterSet& pset) : dtGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   // get selected debug option
   debug = pset.getUntrackedParameter<bool>("debug", false);
+  t0Token_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getParameter<string>("debug")));
 
   // Create the object to be written to DB
   tpDeadList = new DTDeadFlag();
@@ -52,12 +53,10 @@ DTTPDeadWriter::~DTTPDeadWriter() {
 
 void DTTPDeadWriter::beginRun(const edm::Run&, const EventSetup& setup) {
   // Get the t0 map
-  ESHandle<DTT0> t0;
-  setup.get<DTT0Rcd>().get(t0);
-  tZeroMap = &*t0;
+  tZeroMap = &setup.getData(t0Token_);
 
   // Get the muon Geometry
-  setup.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = setup.getHandle(dtGeomToken_);
 }
 
 // Do the job

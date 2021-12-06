@@ -12,12 +12,11 @@ void APDShape::fillShape(float& time_interval,
     if (es == nullptr) {
       throw cms::Exception("EcalShapeBase:: DB conditions are not available, const edm::EventSetup* es == nullptr ");
     }
-    edm::ESHandle<EcalSimPulseShape> esps;
-    es->get<EcalSimPulseShapeRcd>().get(esps);
+    auto const& esps = es->getData(espsToken_);
 
-    aVec = esps->apd_shape;
-    time_interval = esps->time_interval;
-    m_thresh = esps->apd_thresh;
+    aVec = esps.apd_shape;
+    time_interval = esps.time_interval;
+    m_thresh = esps.apd_thresh;
   } else {
     m_thresh = 0.0;
     time_interval = 1.0;

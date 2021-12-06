@@ -46,7 +46,8 @@ ecalTimingTask = cms.untracked.PSet(
         energyThresholdEEFwd = cms.untracked.double(energyThresholdEEFwd),
         energyThresholdEB = cms.untracked.double(energyThresholdEB),
         timingVsBXThreshold = cms.untracked.double(timingVsBXThreshold),
-        timeErrorThreshold = cms.untracked.double(timeErrorThreshold)
+        timeErrorThreshold = cms.untracked.double(timeErrorThreshold),
+        splashSwitch = cms.untracked.bool(False)
     ),
     MEs = cms.untracked.PSet(
         TimeMap = cms.untracked.PSet(

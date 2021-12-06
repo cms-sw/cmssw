@@ -14,7 +14,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -46,11 +46,10 @@
 #include "TGLScenePad.h"
 #include "TGLRnrCtx.h"
 
-class DummyEvelyser : public edm::EDAnalyzer {
+class DummyEvelyser : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit DummyEvelyser(const edm::ParameterSet&);
   ~DummyEvelyser() override;
-  edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
 
 protected:
   TEveGeoTopNode* make_node(const TString& path, Int_t vis_level, Bool_t global_cs);
@@ -70,6 +69,8 @@ private:
   TEveElement* m_geomList;
   TEveTrackList* m_trackList;
 
+  edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
+  const edm::ESGetToken<TGeoManager, DisplayGeomRecord> geomToken_;
   edm::ESWatcher<DisplayGeomRecord> m_geomWatcher;
   void remakeGeometry(const DisplayGeomRecord& dgRec);
 };
@@ -93,6 +94,7 @@ DummyEvelyser::DummyEvelyser(const edm::ParameterSet& iConfig)
       m_trackTags(iConfig.getUntrackedParameter<edm::InputTag>("tracks")),
       m_geomList(nullptr),
       m_trackList(nullptr),
+      geomToken_(esConsumes()),
       m_geomWatcher(this, &DummyEvelyser::remakeGeometry) {
   trackCollectionToken_ = consumes<reco::TrackCollection>(m_trackTags);
 }
@@ -172,9 +174,7 @@ void DummyEvelyser::endRun(const edm::Run&, const edm::EventSetup&) { printf("Du
 void DummyEvelyser::remakeGeometry(const DisplayGeomRecord& dgRec) {
   m_geomList->DestroyElements();
 
-  edm::ESHandle<TGeoManager> geom;
-  dgRec.get(geom);
-  TEveGeoManagerHolder _tgeo(const_cast<TGeoManager*>(geom.product()));
+  TEveGeoManagerHolder _tgeo(const_cast<TGeoManager*>(&dgRec.get(geomToken_)));
 
   // To have a full one, all detectors in one top-node:
   // make_node("/cms:World_1/cms:CMSE_1", 4, kTRUE);

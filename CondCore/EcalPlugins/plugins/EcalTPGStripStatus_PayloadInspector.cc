@@ -15,6 +15,8 @@
 #include "TLatex.h"
 
 #include <string>
+#include <array>
+#include <memory>
 
 namespace {
   enum { NTCC = 108, NTower = 28, NStrip = 5, NXtal = 5 };
@@ -138,9 +140,9 @@ namespace {
 
       float xmi[2] = {0.0, 0.5};
       float xma[2] = {0.5, 1.0};
-      TPad** pad = new TPad*;
+      std::array<std::unique_ptr<TPad>, 2> pad;
       for (int obj = 0; obj < 2; obj++) {
-        pad[obj] = new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
+        pad[obj] = std::make_unique<TPad>(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
         pad[obj]->Draw();
       }
 
@@ -365,9 +367,9 @@ namespace {
 
       float xmi[2] = {0.0, 0.5};
       float xma[2] = {0.5, 1.0};
-      TPad** pad = new TPad*;
+      std::array<std::unique_ptr<TPad>, 2> pad;
       for (int obj = 0; obj < 2; obj++) {
-        pad[obj] = new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
+        pad[obj] = std::make_unique<TPad>(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
         pad[obj]->Draw();
       }
 
@@ -442,9 +444,9 @@ namespace {
       t1.SetTextColor(2);
       t1.DrawLatex(0.5, 0.96, Form("Endcap:Number of masked Trigger Strips, IOV %i", run));
 
-      TPad* pad = new TPad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
-      pad->Draw();
-      pad->cd();
+      TPad pad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
+      pad.Draw();
+      pad.cd();
       align->Draw("TEXT");
 
       drawTable(NbRows, NbColumns);

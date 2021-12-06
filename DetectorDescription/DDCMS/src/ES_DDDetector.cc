@@ -8,7 +8,7 @@
 
 using namespace cms;
 
-TYPELOOKUP_DATA_REG(DDCompactView);
+TYPELOOKUP_DATA_REG(cms::DDCompactView);
 TYPELOOKUP_DATA_REG(DDDetector);
 TYPELOOKUP_DATA_REG(dd4hep::SpecParRegistry);
 TYPELOOKUP_DATA_REG(DDVectorRegistry);

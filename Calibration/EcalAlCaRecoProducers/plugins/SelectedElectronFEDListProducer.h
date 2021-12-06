@@ -1,17 +1,33 @@
-#ifndef SelectedElectronFEDListProducer_h
-#define SelectedElectronFEDListProducer_h
+#ifndef Calibration_EcalAlCaRecoProducers_SelectedElectronFEDListProducer_h
+#define Calibration_EcalAlCaRecoProducers_SelectedElectronFEDListProducer_h
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 // egamma objects
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+// Geometry
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+// strip geometry
+#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
+// Strip and pixel
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+// Hcal objects
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+
 // Math
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-// #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 // Message logger
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -19,14 +35,10 @@ class InputTag;
 
 class FEDRawDataCollection;
 
-class SiPixelFedCablingMap;
 class SiPixelFedCablingTree;
 class SiStripFedCabling;
-class SiStripRegionCabling;
 
-class CaloGeometry;
 class CaloSubdetectorGeometry;
-class EcalElectronicsMapping;
 class HcalElectronicsMap;
 
 // Hcal rec hit: this is a Fwd file defining typedefs
@@ -130,6 +142,14 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitToken_;
   std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> > recoEcalCandidateToken_;
   std::vector<edm::EDGetTokenT<TEleColl> > electronToken_;
+
+  // Token for the input collection
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbToken_;
+  const edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> ecalMappingToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> siPixelFedCablingMapToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  const edm::ESGetToken<SiStripRegionCabling, SiStripRegionCablingRcd> siStripRegionCablingToken_;
 
   // used inside the producer
   math::XYZVector beamSpotPosition_;

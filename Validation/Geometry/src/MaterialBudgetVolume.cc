@@ -41,6 +41,8 @@ class MaterialBudgetVolume : public SimProducer,
                              public Observer<const EndOfTrack*> {
 public:
   MaterialBudgetVolume(const edm::ParameterSet& p);
+  MaterialBudgetVolume(const MaterialBudgetVolume&) = delete;  // stop default
+  const MaterialBudgetVolume& operator=(const MaterialBudgetVolume&) = delete;
   ~MaterialBudgetVolume() override {}
 
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -51,9 +53,6 @@ public:
   };
 
 private:
-  MaterialBudgetVolume(const MaterialBudgetVolume&) = delete;  // stop default
-  const MaterialBudgetVolume& operator=(const MaterialBudgetVolume&) = delete;
-
   // observer classes
   void update(const BeginOfRun* run) override;
   void update(const BeginOfEvent* evt) override;
@@ -80,7 +79,7 @@ MaterialBudgetVolume::MaterialBudgetVolume(const edm::ParameterSet& p) : init_(f
 
   lvNames_ = m_p.getParameter<std::vector<std::string> >("lvNames");
   lvLevel_ = m_p.getParameter<std::vector<int> >("lvLevels");
-  iaddLevel_ = (m_p.getParameter<bool>("useDD4Hep")) ? 1 : 0;
+  iaddLevel_ = (m_p.getParameter<bool>("useDD4hep")) ? 1 : 0;
 
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume: Studies Material budget for " << lvNames_.size()
                                      << " volumes with addLevel " << iaddLevel_;

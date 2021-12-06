@@ -1,16 +1,19 @@
-#include "FWCore/MessageService/test/UnitTestClient_F.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include <iostream>
-#include <string>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 namespace edmtest {
 
-  void UnitTestClient_F::analyze(edm::Event const& /*unused*/
-                                 ,
-                                 edm::EventSetup const& /*unused*/
-  ) {
+  class UnitTestClient_F : public edm::global::EDAnalyzer<> {
+  public:
+    explicit UnitTestClient_F(edm::ParameterSet const&) {}
+
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
+  };
+
+  void UnitTestClient_F::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const {
     edm::LogInfo("expect_overall_unnamed") << "The following outputs are expected: \n"
                                            << "unlisted_category    appearing in events 1,6,11,16,21,26,31,36,41,46 \n";
 
@@ -34,8 +37,7 @@ namespace edmtest {
       edm::LogInfo("int7bycommondefault") << "message with specific overall default interval of 7: " << i;
       edm::LogInfo("int25bydefaults") << "message with overall default and dest default interval of 25: " << i;
     }
-
-  }  // MessageLoggerClient::analyze()
+  }
 
 }  // namespace edmtest
 

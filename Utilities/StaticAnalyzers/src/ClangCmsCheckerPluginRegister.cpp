@@ -69,7 +69,7 @@ extern "C" void clang_registerCheckers(clang::ento::CheckerRegistry &registry) {
   registry.addChecker<clangcms::CatchAll>(
       "cms.CodeRules.CatchAll", "Checks for 'catch(...)' in source files", "no docs");
   registry.addChecker<clangcms::edmChecker>(
-      "cms.edmChecker",
+      "deprecated.edmChecker",
       "Flags classes inheriting from edm::EDProducer,edm::EDFilter,edm::Analyzer or edm::OutputModule",
       "no docs");
   registry.addChecker<clangcms::getByChecker>(
@@ -85,9 +85,9 @@ extern "C" void clang_registerCheckers(clang::ento::CheckerRegistry &registry) {
   registry.addChecker<clangcms::EDMPluginDumper>(
       "optional.EDMPluginDumper", "Dumps macro DEFINE_EDM_PLUGIN types", "no docs");
   registry.addChecker<clangcms::ThrUnsafeFCallChecker>(
-      "cms.ThrUnsafeFCallChecker", "Reports calls of known thread unsafe functions", "no docs");
+      "threadsafety.ThrUnsafeFCallChecker", "Reports calls of known thread unsafe functions", "no docs");
   registry.addChecker<clangcms::ESRGetChecker>(
-      "threadsafety.ESRecordGetChecker", "Checks for calls to EventSetupRecord::get", "no docs");
+      "deprecated.ESRecordGetChecker", "Checks for calls to EventSetupRecord::get", "no docs");
 }
 
 extern "C" const char clang_analyzerAPIVersionString[] = CLANG_ANALYZER_API_VERSION_STRING;

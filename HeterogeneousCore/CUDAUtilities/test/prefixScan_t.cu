@@ -39,7 +39,7 @@ __global__ void testPrefixScan(uint32_t size) {
       printf(format_traits<T>::failed_msg, size, i, blockDim.x, c[i], c[i - 1]);
     assert(c[i] == c[i - 1] + 1);
     assert(c[i] == i + 1);
-    assert(c[i] = co[i]);
+    assert(c[i] == co[i]);
   }
 }
 

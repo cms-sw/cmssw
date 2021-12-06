@@ -12,17 +12,17 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/Framework/src/MakeModuleParams.h"
-#include "FWCore/Framework/src/WorkerT.h"
+#include "FWCore/Framework/interface/maker/WorkerMaker.h"
+#include "FWCore/Framework/interface/maker/MakeModuleParams.h"
+#include "FWCore/Framework/interface/maker/WorkerT.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

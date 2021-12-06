@@ -166,7 +166,7 @@ namespace edmtest {
       desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
       descriptions.addDefault(desc);
     }
-    void beginProcessBlockProduce(edm::ProcessBlock&) const override {
+    void beginProcessBlockProduce(edm::ProcessBlock&) override {
       throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
     }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override {

@@ -90,14 +90,14 @@ class ResultPlotter:
             posX = (float(i)+0.5)/numSectors*(1-ROOT.gPad.GetLeftMargin()-ROOT.gPad.GetRightMargin())+ROOT.gPad.GetLeftMargin()
             posY = (1-ROOT.gPad.GetTopMargin()-size)-1.2*size*self.numHitCounters
             
-            label = ROOT.TLatex(posX, posY, "%.2E"%(num))
-            label.SetNDC(True)
-            label.SetTextColor(self.colors[label])
-            label.SetTextSize(size)
-            label.SetTextFont(font)
-            label.SetTextAngle(45)
-            label.SetTextAlign(align)
-            labels.append(label)
+            labelTex = ROOT.TLatex(posX, posY, "%.2E"%(num))
+            labelTex.SetNDC(True)
+            labelTex.SetTextColor(self.colors[label])
+            labelTex.SetTextSize(size)
+            labelTex.SetTextFont(font)
+            labelTex.SetTextAngle(45)
+            labelTex.SetTextAlign(align)
+            labels.append(labelTex)
         return labels
             
     def makeHist(self, label, sectorRange, coordinate, number):
@@ -161,7 +161,7 @@ class ResultPlotter:
             plotNumber = 0
             rangeList = self.granularity.sectors[coordinate]
             for sectorRange in rangeList:
-                self.canvas = ROOT.TCanvas("canvas", "canvas", int(ROOT.gStyle.GetCanvasDefW()*len(list(range(sectorRange[0],sectorRange[1]+1)))/10.),ROOT.gStyle.GetCanvasDefH())
+                self.canvas = ROOT.TCanvas("canvas", "canvas", max(int(ROOT.gStyle.GetCanvasDefW()*len(list(range(sectorRange[0],sectorRange[1]+1)))/10.), int(ROOT.gStyle.GetCanvasDefW()/2)),ROOT.gStyle.GetCanvasDefH())
                 ROOT.gPad.SetRightMargin(0.10)
                 
                 legend = ROOT.TLegend(0.2,0.62,0.5,0.82)

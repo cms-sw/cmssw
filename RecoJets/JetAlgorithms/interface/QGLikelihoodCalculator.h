@@ -2,7 +2,6 @@
 #define JetAlgorithms_QGLikelihoodCalculator_h
 
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 /**
  * The QGLikelihoodCalculater calculates the likelihood for a jet
@@ -16,8 +15,8 @@ public:
   ~QGLikelihoodCalculator(){};
 
   float computeQGLikelihood(
-      edm::ESHandle<QGLikelihoodObject> &QGLParamsColl, float pt, float eta, float rho, std::vector<float> vars) const;
-  float systematicSmearing(edm::ESHandle<QGLikelihoodSystematicsObject> &QGLParamsColl,
+      const QGLikelihoodObject &QGLParamsColl, float pt, float eta, float rho, std::vector<float> vars) const;
+  float systematicSmearing(const QGLikelihoodSystematicsObject &QGLParamsColl,
                            float pt,
                            float eta,
                            float rho,

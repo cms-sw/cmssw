@@ -36,8 +36,8 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 ## Uncertainty DB
 if uncertDB != "" : 
     process.GlobalTag.toGet = cms.VPSet(
-        cms.PSet(record = cms.string("DTRecoUncertaintiesRcd"),
-                 tag = cms.string("DTRecoUncertainties_test"),
+        cms.PSet(record = cms.string("DTRecoConditionsUncertRcd"),
+                 tag = cms.string("UncertDB"),
                  connect = cms.untracked.string("sqlite_file:"+uncertDB))
         )
 

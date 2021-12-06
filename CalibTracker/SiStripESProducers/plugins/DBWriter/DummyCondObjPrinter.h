@@ -2,7 +2,7 @@
 #define CalibTracker_SiStripESProducer_DummyCondObjPrinter_h
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,7 +14,7 @@
 #include <string>
 
 template <typename TObject, typename TRecord>
-class DummyCondObjPrinter : public edm::EDAnalyzer {
+class DummyCondObjPrinter : public edm::one::EDAnalyzer<> {
 public:
   explicit DummyCondObjPrinter(const edm::ParameterSet& iConfig);
   ~DummyCondObjPrinter() override;

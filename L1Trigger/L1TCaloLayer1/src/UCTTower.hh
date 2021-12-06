@@ -49,6 +49,18 @@ public:
 
   UCTTower(uint16_t location, int fwv);
 
+  // No default constructor is needed
+
+  UCTTower() = delete;
+
+  // No copy constructor is needed
+
+  UCTTower(const UCTTower &) = delete;
+
+  // No equality operator is needed
+
+  const UCTTower &operator=(const UCTTower &) = delete;
+
   virtual ~UCTTower() { ; }
 
   bool clearEvent() {
@@ -128,18 +140,6 @@ public:
   friend std::ostream &operator<<(std::ostream &, const UCTTower &);
 
 private:
-  // No default constructor is needed
-
-  UCTTower() = delete;
-
-  // No copy constructor is needed
-
-  UCTTower(const UCTTower &) = delete;
-
-  // No equality operator is needed
-
-  const UCTTower &operator=(const UCTTower &) = delete;
-
   // Tower location definition
 
   uint32_t crate;

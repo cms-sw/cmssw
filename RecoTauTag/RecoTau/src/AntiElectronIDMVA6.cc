@@ -9,7 +9,6 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <TFile.h>
 #include <array>
@@ -73,6 +72,22 @@ AntiElectronIDMVA6<TauType, ElectronType>::AntiElectronIDMVA6(const edm::Paramet
     mvaName_NoEleMatch_wGwoGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_wGwoGSF_VFEC");
     mvaName_woGwGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_woGwGSF_VFEC");
     mvaName_wGwGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_wGwGSF_VFEC");
+  }
+  if (loadMVAfromDB_) {
+    mvaToken_NoEleMatch_woGwoGSF_BL_ = cc.esConsumes(edm::ESInputTag{"", mvaName_NoEleMatch_woGwoGSF_BL_});
+    mvaToken_NoEleMatch_wGwoGSF_BL_ = cc.esConsumes(edm::ESInputTag{"", mvaName_NoEleMatch_wGwoGSF_BL_});
+    mvaToken_woGwGSF_BL_ = cc.esConsumes(edm::ESInputTag{"", mvaName_woGwGSF_BL_});
+    mvaToken_wGwGSF_BL_ = cc.esConsumes(edm::ESInputTag{"", mvaName_wGwGSF_BL_});
+    mvaToken_NoEleMatch_woGwoGSF_EC_ = cc.esConsumes(edm::ESInputTag{"", mvaName_NoEleMatch_woGwoGSF_EC_});
+    mvaToken_NoEleMatch_wGwoGSF_EC_ = cc.esConsumes(edm::ESInputTag{"", mvaName_NoEleMatch_wGwoGSF_EC_});
+    mvaToken_woGwGSF_EC_ = cc.esConsumes(edm::ESInputTag{"", mvaName_woGwGSF_EC_});
+    mvaToken_wGwGSF_EC_ = cc.esConsumes(edm::ESInputTag{"", mvaName_wGwGSF_EC_});
+    if (isPhase2_) {
+      mvaToken_NoEleMatch_woGwoGSF_VFEC_ = cc.esConsumes(edm::ESInputTag{"", mvaName_NoEleMatch_woGwoGSF_VFEC_});
+      mvaToken_NoEleMatch_wGwoGSF_VFEC_ = cc.esConsumes(edm::ESInputTag{"", mvaName_NoEleMatch_wGwoGSF_VFEC_});
+      mvaToken_woGwGSF_VFEC_ = cc.esConsumes(edm::ESInputTag{"", mvaName_woGwGSF_VFEC_});
+      mvaToken_wGwGSF_VFEC_ = cc.esConsumes(edm::ESInputTag{"", mvaName_wGwGSF_VFEC_});
+    }
   }
   usePhiAtEcalEntranceExtrapolation_ = cfg.getParameter<bool>("usePhiAtEcalEntranceExtrapolation");
 
@@ -145,31 +160,25 @@ namespace {
 
     return mva;
   }
-
-  const GBRForest* loadMVAfromDB(const edm::EventSetup& es, const std::string& mvaName) {
-    edm::ESHandle<GBRForest> mva;
-    es.get<GBRWrapperRcd>().get(mvaName, mva);
-    return mva.product();
-  }
 }  // namespace
 
 template <class TauType, class ElectronType>
 void AntiElectronIDMVA6<TauType, ElectronType>::beginEvent(const edm::Event& evt, const edm::EventSetup& es) {
   if (!isInitialized_) {
     if (loadMVAfromDB_) {
-      mva_NoEleMatch_woGwoGSF_BL_ = loadMVAfromDB(es, mvaName_NoEleMatch_woGwoGSF_BL_);
-      mva_NoEleMatch_wGwoGSF_BL_ = loadMVAfromDB(es, mvaName_NoEleMatch_wGwoGSF_BL_);
-      mva_woGwGSF_BL_ = loadMVAfromDB(es, mvaName_woGwGSF_BL_);
-      mva_wGwGSF_BL_ = loadMVAfromDB(es, mvaName_wGwGSF_BL_);
-      mva_NoEleMatch_woGwoGSF_EC_ = loadMVAfromDB(es, mvaName_NoEleMatch_woGwoGSF_EC_);
-      mva_NoEleMatch_wGwoGSF_EC_ = loadMVAfromDB(es, mvaName_NoEleMatch_wGwoGSF_EC_);
-      mva_woGwGSF_EC_ = loadMVAfromDB(es, mvaName_woGwGSF_EC_);
-      mva_wGwGSF_EC_ = loadMVAfromDB(es, mvaName_wGwGSF_EC_);
+      mva_NoEleMatch_woGwoGSF_BL_ = &es.getData(mvaToken_NoEleMatch_woGwoGSF_BL_);
+      mva_NoEleMatch_wGwoGSF_BL_ = &es.getData(mvaToken_NoEleMatch_wGwoGSF_BL_);
+      mva_woGwGSF_BL_ = &es.getData(mvaToken_woGwGSF_BL_);
+      mva_wGwGSF_BL_ = &es.getData(mvaToken_wGwGSF_BL_);
+      mva_NoEleMatch_woGwoGSF_EC_ = &es.getData(mvaToken_NoEleMatch_woGwoGSF_EC_);
+      mva_NoEleMatch_wGwoGSF_EC_ = &es.getData(mvaToken_NoEleMatch_wGwoGSF_EC_);
+      mva_woGwGSF_EC_ = &es.getData(mvaToken_woGwGSF_EC_);
+      mva_wGwGSF_EC_ = &es.getData(mvaToken_wGwGSF_EC_);
       if (isPhase2_) {
-        mva_NoEleMatch_woGwoGSF_VFEC_ = loadMVAfromDB(es, mvaName_NoEleMatch_woGwoGSF_VFEC_);
-        mva_NoEleMatch_wGwoGSF_VFEC_ = loadMVAfromDB(es, mvaName_NoEleMatch_wGwoGSF_VFEC_);
-        mva_woGwGSF_VFEC_ = loadMVAfromDB(es, mvaName_woGwGSF_VFEC_);
-        mva_wGwGSF_VFEC_ = loadMVAfromDB(es, mvaName_wGwGSF_VFEC_);
+        mva_NoEleMatch_woGwoGSF_VFEC_ = &es.getData(mvaToken_NoEleMatch_woGwoGSF_VFEC_);
+        mva_NoEleMatch_wGwoGSF_VFEC_ = &es.getData(mvaToken_NoEleMatch_wGwoGSF_VFEC_);
+        mva_woGwGSF_VFEC_ = &es.getData(mvaToken_woGwGSF_VFEC_);
+        mva_wGwGSF_VFEC_ = &es.getData(mvaToken_wGwGSF_VFEC_);
       }
     } else {
       if (inputFileName_.location() == edm::FileInPath::Unknown)

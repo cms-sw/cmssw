@@ -24,10 +24,12 @@ CaloPoint::CaloPoint(const DetId& cell, CaloDirection side, const XYZPoint& posi
 CaloPoint::CaloPoint(DetId::Detector det, const XYZPoint& position) : XYZPoint(position), detector_(det) {
   subdetector_ = 0;
   layer_ = 0;
+  side_ = CaloDirection::NONE;
 }
 
 //preshower
 CaloPoint::CaloPoint(DetId::Detector detector, int subdetn, int layer, const XYZPoint& position)
     : XYZPoint(position), detector_(detector), subdetector_(subdetn), layer_(layer) {
   cellid_ = DetId();
+  side_ = CaloDirection::NONE;
 }

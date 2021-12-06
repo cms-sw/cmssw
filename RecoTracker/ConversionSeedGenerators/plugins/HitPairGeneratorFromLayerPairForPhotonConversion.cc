@@ -9,7 +9,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
-#include "RecoTracker/TkHitPairs/src/InnerDeltaPhi.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -37,8 +36,17 @@ namespace {
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 HitPairGeneratorFromLayerPairForPhotonConversion::HitPairGeneratorFromLayerPairForPhotonConversion(
-    unsigned int inner, unsigned int outer, LayerCacheType* layerCache, unsigned int nSize, unsigned int max)
-    : theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner), theMaxElement(max) {}
+    edm::ConsumesCollector iC,
+    unsigned int inner,
+    unsigned int outer,
+    LayerCacheType* layerCache,
+    unsigned int nSize,
+    unsigned int max)
+    : theLayerCache(*layerCache),
+      theOuterLayer(outer),
+      theInnerLayer(inner),
+      theMaxElement(max),
+      theFieldToken(iC.esConsumes()) {}
 
 void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const ConversionRegion& convRegion,
                                                                 const TrackingRegion& region,
@@ -70,11 +78,11 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
     return;  //FIXME, the maxSearchR(Z) are not optimized
 
   /*get hit sorted in phi for each layer: NB: doesn't apply any region cut*/
-  const RecHitsSortedInPhi& innerHitsMap = theLayerCache(innerLayerObj, region, es);
+  const RecHitsSortedInPhi& innerHitsMap = theLayerCache(innerLayerObj, region);
   if (innerHitsMap.empty())
     return;
 
-  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, es);
+  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region);
   if (outerHitsMap.empty())
     return;
   /*----------------*/
@@ -89,7 +97,8 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
   float innerPhimin, innerPhimax;
 
   /*Getting only the Hits in the outer layer that are compatible with the conversion region*/
-  if (!getPhiRange(outerPhimin, outerPhimax, *outerLayerObj.detLayer(), convRegion, es))
+  const auto& field = es.getData(theFieldToken);
+  if (!getPhiRange(outerPhimin, outerPhimax, *outerLayerObj.detLayer(), convRegion, field))
     return;
   outerHitsMap.hits(outerPhimin, outerPhimax, outerHits);
 
@@ -119,7 +128,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
     if (phiRange.empty()) continue;
     */
 
-    std::unique_ptr<const HitRZCompatibility> checkRZ = region.checkRZ(innerLayerObj.detLayer(), ohit, es);
+    std::unique_ptr<const HitRZCompatibility> checkRZ = region.checkRZ(innerLayerObj.detLayer(), ohit);
     if (!checkRZ) {
 #ifdef mydebug_Seed
       ss << "*******\nNo valid checkRZ\n*******" << std::endl;
@@ -129,7 +138,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
 
     /*Get only the inner hits compatible with the conversion region*/
     innerHits.clear();
-    if (!getPhiRange(innerPhimin, innerPhimax, *innerLayerObj.detLayer(), convRegion, es))
+    if (!getPhiRange(innerPhimin, innerPhimax, *innerLayerObj.detLayer(), convRegion, field))
       continue;
     innerHitsMap.hits(innerPhimin, innerPhimax, innerHits);
 
@@ -281,19 +290,19 @@ bool HitPairGeneratorFromLayerPairForPhotonConversion::getPhiRange(float& Phimin
                                                                    float& Phimax,
                                                                    const DetLayer& layer,
                                                                    const ConversionRegion& convRegion,
-                                                                   const edm::EventSetup& es) {
+                                                                   const MagneticField& field) {
   if (layer.location() == GeomDetEnumerators::barrel) {
-    return getPhiRange(Phimin, Phimax, getLayerRadius(layer), convRegion, es);
+    return getPhiRange(Phimin, Phimax, getLayerRadius(layer), convRegion, field);
   } else if (layer.location() == GeomDetEnumerators::endcap) {
     float Z = getLayerZ(layer);
     float R = Z / convRegion.cotTheta();
-    return getPhiRange(Phimin, Phimax, R, convRegion, es);  //FIXME
+    return getPhiRange(Phimin, Phimax, R, convRegion, field);  //FIXME
   }
   return false;
 }
 
 bool HitPairGeneratorFromLayerPairForPhotonConversion::getPhiRange(
-    float& Phimin, float& Phimax, const float& layerR, const ConversionRegion& convRegion, const edm::EventSetup& es) {
+    float& Phimin, float& Phimax, const float& layerR, const ConversionRegion& convRegion, const MagneticField& field) {
   Phimin = reco::deltaPhi(convRegion.convPoint().phi(), 0.);
 
   float dphi;
@@ -306,7 +315,7 @@ bool HitPairGeneratorFromLayerPairForPhotonConversion::getPhiRange(
     return false;
   }
 
-  float theRCurvatureMin = PixelRecoUtilities::bendingRadius(ptmin, es);
+  float theRCurvatureMin = PixelRecoUtilities::bendingRadius(ptmin, field);
 
   if (theRCurvatureMin < DeltaL)
     dphi = atan(DeltaL / layerR);

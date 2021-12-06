@@ -58,9 +58,10 @@ private:
   edm::InputTag sCInputProducerTag_;
   edm::EDGetTokenT<EcalRecHitCollection> rHInputProducer_;
   edm::EDGetTokenT<reco::SuperClusterCollection> sCInputProducer_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoToken_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> topologyToken_;
 
   reco::CaloCluster::AlgoId sCAlgo_;
   std::string outputCollection_;
-  edm::ESHandle<CaloTopology> theCaloTopo_;
 };
 #endif

@@ -104,8 +104,7 @@ bool AlCaIsolatedBunchFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
     accept = true;
   } else {
     /////////////////////////////TriggerResults
-    edm::Handle<edm::TriggerResults> triggerResults;
-    iEvent.getByToken(tok_trigRes_, triggerResults);
+    auto const& triggerResults = iEvent.getHandle(tok_trigRes_);
     if (triggerResults.isValid()) {
       const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
       const std::vector<std::string>& triggerNames_ = triggerNames.triggerNames();

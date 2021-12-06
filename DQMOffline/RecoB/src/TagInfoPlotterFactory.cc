@@ -8,7 +8,6 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
 #include "DQMOffline/RecoB/interface/TaggingVariablePlotter.h"
-#include "DQMOffline/RecoB/interface/MVAJetTagPlotter.h"
 #include "FWCore/Utilities/interface/Exception.h"
 //#include "DQMOffline/RecoB/interface/Track2IPTagPlotter.h"
 
@@ -36,8 +35,6 @@ std::unique_ptr<BaseTagInfoPlotter> TagInfoPlotterFactory::buildPlotter(const st
         folderName, etaPtBin, pSet, mc, wf, ibook);
   } else if (dataFormatType == "TaggingVariable") {
     return std::make_unique<TaggingVariablePlotter>(folderName, etaPtBin, pSet, mc, wf, ibook);
-  } else if (dataFormatType == "GenericMVA") {
-    return std::make_unique<MVAJetTagPlotter>(tagName, etaPtBin, pSet, folderName, mc, wf, ibook);
   }
   throw cms::Exception("Configuration")
       << "BTagPerformanceAnalysis: Unknown ExtendedTagInfo " << dataFormatType << endl

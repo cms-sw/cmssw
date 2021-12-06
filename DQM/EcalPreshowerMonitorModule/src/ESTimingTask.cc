@@ -39,7 +39,7 @@ double fitf(double* x, double* par) {
 ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
   digilabel_ = consumes<ESDigiCollection>(ps.getParameter<InputTag>("DigiLabel"));
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "EcalPreshower");
-
+  esgainToken_ = esConsumes();
   eCount_ = 0;
 
   fit_ = new TF1("fitShape", fitf, -200, 200, 4);
@@ -171,8 +171,7 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
 }
 
 void ESTimingTask::set(const edm::EventSetup& es) {
-  es.get<ESGainRcd>().get(esgain_);
-  const ESGain* gain = esgain_.product();
+  const ESGain* gain = &es.getData(esgainToken_);
 
   int ESGain = (int)gain->getESGain();
 

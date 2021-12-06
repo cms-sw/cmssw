@@ -43,10 +43,9 @@ public:
   // ---------- member functions ---------------------------
   //virtual void setFrom(const FWConfiguration&) = 0;
 
-private:
   FWParameterBase(const FWParameterBase&) = delete;                   // stop default
   const FWParameterBase& operator=(const FWParameterBase&) = delete;  // stop default
-
+private:
   // ---------- member data --------------------------------
 
   std::string m_name;

@@ -47,10 +47,10 @@ public:
 
   TGComboBox* getWidget() { return m_widget; }
 
-private:
   FWEnumParameterSetter(const FWEnumParameterSetter&) = delete;                   // stop default
   const FWEnumParameterSetter& operator=(const FWEnumParameterSetter&) = delete;  // stop default
 
+private:
   void attach(FWParameterBase*) override;
 
   // ---------- member data --------------------------------

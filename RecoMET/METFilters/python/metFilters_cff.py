@@ -95,39 +95,28 @@ from RecoMET.METFilters.BadPFMuonDzFilter_cfi import *
 from RecoMET.METFilters.hfNoisyHitsFilter_cfi import *
 
 metFilters = cms.Sequence(
-   HBHENoiseFilterResultProducer *
-   HBHENoiseFilter *
-   primaryVertexFilter*
-#   HBHENoiseIsoFilter*
-#   HcalStripHaloFilter *
-   CSCTightHaloFilter *
-#   hcalLaserEventFilter *
-   #Various proposals for updated halo filters.
-   ##2015 proposals: 
-   #CSCTightHaloTrkMuUnvetoFilter *
-   #CSCTightHalo2015Filter *
-   ##2016 proposals
-   #globalTightHalo2016Filter*
-   #globalSuperTightHalo2016Filter*
-   EcalDeadCellTriggerPrimitiveFilter* 
-   ecalBadCalibFilter*
-#   *goodVertices * trackingFailureFilter *
-   eeBadScFilter*
-#   ecalLaserCorrFilter *
-#   trkPOGFilters
-   chargedHadronTrackResolutionFilter *
-   BadChargedCandidateFilter*
-   BadPFMuonFilter *
-   BadPFMuonDzFilter *
-   hfNoisyHitsFilter *
-   BadChargedCandidateSummer16Filter*
-   BadPFMuonSummer16Filter *
-   muonBadTrackFilter
+    goodVertices *
+    globalSuperTightHalo2016Filter *
+    HBHENoiseFilterResultProducer  *
+    HBHENoiseFilter *
+    HBHENoiseIsoFilter *
+    EcalDeadCellTriggerPrimitiveFilter *  
+    BadPFMuonFilter *
+    BadPFMuonDzFilter *
+    hfNoisyHitsFilter *
+    eeBadScFilter *
+    ecalBadCalibFilter 
 )
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(metFilters, metFilters.copyAndExclude([
-    HBHENoiseFilterResultProducer, HBHENoiseFilter, # No hcalnoise for hgcal
+    HBHENoiseFilterResultProducer, HBHENoiseFilter, HBHENoiseIsoFilter, # No hcalnoise for hgcal
     eeBadScFilter                                   # No EE
+]))
+
+
+from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
+run2_jme_2016.toReplaceWith(metFilters, metFilters.copyAndExclude([
+    ecalBadCalibFilter, hfNoisyHitsFilter
 ]))
 

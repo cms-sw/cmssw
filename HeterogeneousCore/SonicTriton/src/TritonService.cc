@@ -8,7 +8,6 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "grpc_client.h"
 #include "grpc_service.pb.h"
@@ -20,8 +19,7 @@
 #include <tuple>
 #include <unistd.h>
 
-namespace ni = nvidia::inferenceserver;
-namespace nic = ni::client;
+namespace tc = triton::client;
 
 const std::string TritonService::Server::fallbackName{"fallback"};
 const std::string TritonService::Server::fallbackAddress{"0.0.0.0"};
@@ -58,7 +56,8 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
       fallbackOpts_(pset.getParameterSet("fallback")),
       currentModuleId_(0),
       allowAddModel_(false),
-      startedFallback_(false) {
+      startedFallback_(false),
+      pid_(std::to_string(::getpid())) {
   //module construction is assumed to be serial (correct at the time this code was written)
   areg.watchPreModuleConstruction(this, &TritonService::preModuleConstruction);
   areg.watchPostModuleConstruction(this, &TritonService::postModuleConstruction);
@@ -67,10 +66,19 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
   areg.watchPreBeginJob(this, &TritonService::preBeginJob);
 
   //include fallback server in set if enabled
-  if (fallbackOpts_.enable)
+  if (fallbackOpts_.enable) {
+    auto serverType = TritonServerType::Remote;
+    if (!fallbackOpts_.useGPU)
+      serverType = TritonServerType::LocalCPU;
+#ifdef TRITON_ENABLE_GPU
+    else
+      serverType = TritonServerType::LocalGPU;
+#endif
+
     servers_.emplace(std::piecewise_construct,
                      std::forward_as_tuple(Server::fallbackName),
-                     std::forward_as_tuple(Server::fallbackName, Server::fallbackAddress));
+                     std::forward_as_tuple(Server::fallbackName, Server::fallbackAddress, serverType));
+  }
 
   //loop over input servers: check which models they have
   std::string msg;
@@ -83,17 +91,25 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
     if (!unique)
       throw cms::Exception("DuplicateServer")
           << "Not allowed to specify more than one server with same name (" << serverName << ")";
-    auto& serverInfo(sit->second);
+    auto& server(sit->second);
 
-    std::unique_ptr<nic::InferenceServerGrpcClient> client;
+    std::unique_ptr<tc::InferenceServerGrpcClient> client;
     triton_utils::throwIfError(
-        nic::InferenceServerGrpcClient::Create(&client, serverInfo.url, false),
-        "TritonService(): unable to create inference context for " + serverName + " (" + serverInfo.url + ")");
+        tc::InferenceServerGrpcClient::Create(&client, server.url, false, server.useSsl, server.sslOptions),
+        "TritonService(): unable to create inference context for " + serverName + " (" + server.url + ")");
+
+    if (verbose_) {
+      inference::ServerMetadataResponse serverMetaResponse;
+      triton_utils::throwIfError(client->ServerMetadata(&serverMetaResponse),
+                                 "TritonService(): unable to get metadata for " + serverName + " (" + server.url + ")");
+      edm::LogInfo("TritonService") << "Server " << serverName << ": url = " << server.url
+                                    << ", version = " << serverMetaResponse.version();
+    }
 
     inference::RepositoryIndexResponse repoIndexResponse;
     triton_utils::throwIfError(
         client->ModelRepositoryIndex(&repoIndexResponse),
-        "TritonService(): unable to get repository index for " + serverName + " (" + serverInfo.url + ")");
+        "TritonService(): unable to get repository index for " + serverName + " (" + server.url + ")");
 
     //servers keep track of models and vice versa
     if (verbose_)
@@ -105,7 +121,7 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
         mit = models_.emplace(modelName, "").first;
       auto& modelInfo(mit->second);
       modelInfo.servers.insert(serverName);
-      serverInfo.models.insert(modelName);
+      server.models.insert(modelName);
       if (verbose_)
         msg += modelName + ", ";
     }
@@ -158,8 +174,7 @@ void TritonService::preModuleDestruction(edm::ModuleDescription const& desc) {
 }
 
 //second return value is only true if fallback CPU server is being used
-std::pair<std::string, bool> TritonService::serverAddress(const std::string& model,
-                                                          const std::string& preferred) const {
+TritonService::Server TritonService::serverInfo(const std::string& model, const std::string& preferred) const {
   auto mit = models_.find(model);
   if (mit == models_.end())
     throw cms::Exception("MissingModel") << "There are no servers that provide model " << model;
@@ -177,9 +192,8 @@ std::pair<std::string, bool> TritonService::serverAddress(const std::string& mod
   const auto& serverName(msit == modelServers.end() ? *modelServers.begin() : preferred);
 
   //todo: use some algorithm to select server rather than just picking arbitrarily
-  const auto& serverInfo(servers_.find(serverName)->second);
-  bool isFallbackCPU = serverInfo.isFallback and !fallbackOpts_.useGPU;
-  return std::make_pair(serverInfo.url, isFallbackCPU);
+  const auto& server(servers_.find(serverName)->second);
+  return server;
 }
 
 void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&) {
@@ -191,24 +205,19 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   if (verbose_)
     msg = "List of models for fallback server: ";
   //all unserved models are provided by fallback server
-  auto& serverInfo(servers_.find(Server::fallbackName)->second);
+  auto& server(servers_.find(Server::fallbackName)->second);
   for (const auto& [modelName, model] : unservedModels_) {
     auto& modelInfo(models_.emplace(modelName, model).first->second);
     modelInfo.servers.insert(Server::fallbackName);
-    serverInfo.models.insert(modelName);
+    server.models.insert(modelName);
     if (verbose_)
       msg += modelName + ", ";
   }
   if (verbose_)
     edm::LogInfo("TritonService") << msg;
 
-  //randomize instance name
-  if (fallbackOpts_.instanceName.empty()) {
-    fallbackOpts_.instanceName = "triton_server_instance_" + edm::createGlobalIdentifier();
-  }
-
   //assemble server start command
-  std::string command("cmsTriton -P -1 -p " + std::to_string(::getpid()));
+  std::string command("cmsTriton -P -1 -p " + pid_);
   if (fallbackOpts_.debug)
     command += " -c";
   if (fallbackOpts_.verbose)
@@ -226,6 +235,10 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   for (const auto& [modelName, model] : unservedModels_) {
     command += " -m " + model.path;
   }
+  if (!fallbackOpts_.imageName.empty())
+    command += " -i " + fallbackOpts_.imageName;
+  if (!fallbackOpts_.sandboxName.empty())
+    command += " -s " + fallbackOpts_.sandboxName;
   //don't need this anymore
   unservedModels_.clear();
 
@@ -261,7 +274,7 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
     auto pos2 = pos + portIndicator.size();
     auto pos3 = output.find('\n', pos2);
     const auto& portNum = output.substr(pos2, pos3 - pos2);
-    serverInfo.url += ":" + portNum;
+    server.url += ":" + portNum;
   } else
     throw cms::Exception("FallbackFailed") << "Unknown port for fallback server, log follows:\n" << output;
 }
@@ -274,6 +287,10 @@ void TritonService::fillDescriptions(edm::ConfigurationDescriptions& description
   validator.addUntracked<std::string>("name");
   validator.addUntracked<std::string>("address");
   validator.addUntracked<unsigned>("port");
+  validator.addUntracked<bool>("useSsl", false);
+  validator.addUntracked<std::string>("rootCertificates", "");
+  validator.addUntracked<std::string>("privateKey", "");
+  validator.addUntracked<std::string>("certificateChain", "");
 
   desc.addVPSetUntracked("servers", validator, {});
 
@@ -285,8 +302,11 @@ void TritonService::fillDescriptions(edm::ConfigurationDescriptions& description
   fallbackDesc.addUntracked<bool>("useGPU", false);
   fallbackDesc.addUntracked<int>("retries", -1);
   fallbackDesc.addUntracked<int>("wait", -1);
+  fallbackDesc.addUntracked<std::string>("instanceBaseName", "triton_server_instance");
   fallbackDesc.addUntracked<std::string>("instanceName", "");
   fallbackDesc.addUntracked<std::string>("tempDir", "");
+  fallbackDesc.addUntracked<std::string>("imageName", "");
+  fallbackDesc.addUntracked<std::string>("sandboxName", "");
   desc.add<edm::ParameterSetDescription>("fallback", fallbackDesc);
 
   descriptions.addWithDefaultLabel(desc);

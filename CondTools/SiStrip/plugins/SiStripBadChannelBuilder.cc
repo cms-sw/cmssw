@@ -1,25 +1,52 @@
-#include "CondTools/SiStrip/plugins/SiStripBadChannelBuilder.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-
+// system include files
+#include <vector>
+#include <memory>
 #include <iostream>
 #include <fstream>
 
+// user include files
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+
+class SiStripBadChannelBuilder : public ConditionDBWriter<SiStripBadStrip> {
+public:
+  explicit SiStripBadChannelBuilder(const edm::ParameterSet&);
+  ~SiStripBadChannelBuilder() override;
+
+private:
+  std::unique_ptr<SiStripBadStrip> getNewObject() override;
+
+  edm::FileInPath fp_;
+  bool printdebug_;
+
+  typedef std::vector<edm::ParameterSet> Parameters;
+  Parameters BadComponentList_;
+};
+
 SiStripBadChannelBuilder::SiStripBadChannelBuilder(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig) {
-  fp_ = iConfig.getUntrackedParameter<edm::FileInPath>(
-      "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
+  fp_ = iConfig.getUntrackedParameter<edm::FileInPath>("file", edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile));
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
   BadComponentList_ = iConfig.getUntrackedParameter<Parameters>("BadComponentList");
 }
 
-SiStripBadChannelBuilder::~SiStripBadChannelBuilder() {}
+SiStripBadChannelBuilder::~SiStripBadChannelBuilder() = default;
 
 std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
   edm::LogInfo("SiStripBadChannelBuilder") << "... creating dummy SiStripBadStrip Data" << std::endl;
 
   auto obj = std::make_unique<SiStripBadStrip>();
 
-  SiStripDetInfoFileReader reader(fp_.fullPath());
+  const auto detInfo = SiStripDetInfoFileReader::read(fp_.fullPath());
 
   for (Parameters::iterator iBadComponent = BadComponentList_.begin(); iBadComponent != BadComponentList_.end();
        ++iBadComponent) {
@@ -27,7 +54,7 @@ std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
     std::vector<uint32_t> BadChannelList_ = iBadComponent->getParameter<std::vector<uint32_t> >("BadChannelList");
 
     std::vector<unsigned int> theSiStripVector;
-    unsigned int NStrips = reader.getNumberOfApvsAndStripLength(BadModule_).first * 128;
+    unsigned int NStrips = detInfo.getNumberOfApvsAndStripLength(BadModule_).first * 128;
 
     uint32_t lastBad = 999;
     unsigned short firstBadStrip = 0, NconsecutiveBadStrips = 0;
@@ -80,11 +107,9 @@ std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripBadStripRcd")) {
-      mydbservice->createNewIOV<SiStripBadStrip>(
-          obj.get(), mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripBadStripRcd");
+      mydbservice->createOneIOV<SiStripBadStrip>(*obj, mydbservice->beginOfTime(), "SiStripBadStripRcd");
     } else {
-      //mydbservice->createNewIOV<SiStripBadStrip>(obj.get(),mydbservice->currentTime(),"SiStripBadStripRcd");
-      mydbservice->appendSinceTime<SiStripBadStrip>(obj.get(), mydbservice->currentTime(), "SiStripBadStripRcd");
+      mydbservice->appendOneIOV<SiStripBadStrip>(*obj, mydbservice->currentTime(), "SiStripBadStripRcd");
     }
   } else {
     edm::LogError("SiStripBadStripBuilder") << "Service is unavailable" << std::endl;
@@ -92,3 +117,8 @@ std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
 
   return obj;
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripBadChannelBuilder);

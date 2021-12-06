@@ -18,9 +18,13 @@ public:
   SiPixelClustersCUDA(SiPixelClustersCUDA &&) = default;
   SiPixelClustersCUDA &operator=(SiPixelClustersCUDA &&) = default;
 
-  void setNClusters(uint32_t nClusters) { nClusters_h = nClusters; }
+  void setNClusters(uint32_t nClusters, int32_t offsetBPIX2) {
+    nClusters_h = nClusters;
+    offsetBPIX2_h = offsetBPIX2;
+  }
 
   uint32_t nClusters() const { return nClusters_h; }
+  int32_t offsetBPIX2() const { return offsetBPIX2_h; }
 
   uint32_t *moduleStart() { return moduleStart_d.get(); }
   uint32_t *clusInModule() { return clusInModule_d.get(); }
@@ -58,6 +62,7 @@ private:
   cms::cuda::device::unique_ptr<DeviceConstView> view_d;  // "me" pointer
 
   uint32_t nClusters_h = 0;
+  int32_t offsetBPIX2_h = 0;
 };
 
 #endif  // CUDADataFormats_SiPixelCluster_interface_SiPixelClustersCUDA_h

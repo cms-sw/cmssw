@@ -15,6 +15,6 @@ ecalCertification = DQMEDHarvester("EcalDQMonitorClient",
     workerParameters = cms.untracked.PSet(
         CertificationClient = ecalCertificationClient.clone()
     ),
-    commonParameters = ecalCommonParams.clone(willConvertToEDM = cms.untracked.bool(False)),
+    commonParameters = ecalCommonParams.clone(willConvertToEDM = False),
     verbosity = cms.untracked.int32(0)
 )

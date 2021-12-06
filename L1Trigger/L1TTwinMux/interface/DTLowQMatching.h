@@ -33,9 +33,7 @@ class DTLowQMatching {
 public:
   DTLowQMatching(L1MuDTChambPhContainer const*, L1MuDTChambPhContainer const&);
 
-  void run(const edm::EventSetup& c);
-
-  edm::ESHandle<L1TTwinMuxParams> tmParamsHandle;
+  void run(const L1TTwinMuxParams&);
 
   static int noRPCHits(L1MuDTChambPhContainer inCon, int bx, int wh, int sec, int st);
 

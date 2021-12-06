@@ -1,38 +1,94 @@
 // system include files
-#include <memory>
-
-#include "SimGeneral/Debugging/test/SimDigiDumper.h"
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// muon geometry info
-//#include "Geometry/DTGeometry/interface/DTGeometry.h"
-//#include "Geometry/Records/interface/MuonGeometryRecord.h"
-//#include "Geometry/Records/interface/MuonNumberingRecord.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Common/interface/DetSetVector.h"
+// ecal calorimeter info
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+// hcal calorimeter info
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+// silicon strip info
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+// silicon pixel info
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 // muon DT info
-#include "CondFormats/DTObjects/interface/DTT0.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+// muon CSC Strip info
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+// muon CSC Wire info
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+// muon RPC info
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+// BTL/ETL info
+#include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+class SimDigiDumper : public edm::one::EDAnalyzer<> {
+public:
+  explicit SimDigiDumper(const edm::ParameterSet&);
+  virtual ~SimDigiDumper(){};
+
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void beginJob(){};
+  virtual void endJob(){};
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  edm::EDGetTokenT<EBDigiCollection> ECalEBSrc_;
+  edm::EDGetTokenT<EEDigiCollection> ECalEESrc_;
+  edm::EDGetTokenT<ESDigiCollection> ECalESSrc_;
+
+  edm::EDGetTokenT<HBHEDigiCollection> HCalSrc_;
+  edm::EDGetTokenT<HODigiCollection> HCalHOSrc_;
+  edm::EDGetTokenT<HFDigiCollection> HCalHFSrc_;
+
+  edm::EDGetTokenT<ZDCDigiCollection> ZdcSrc_;
+
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > SiStripSrc_;
+
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > SiPxlSrc_;
+
+  edm::EDGetTokenT<DTDigiCollection> MuDTSrc_;
+
+  edm::EDGetTokenT<CSCStripDigiCollection> MuCSCStripSrc_;
+
+  edm::EDGetTokenT<CSCWireDigiCollection> MuCSCWireSrc_;
+
+  edm::EDGetTokenT<RPCDigiCollection> MuRPCSrc_;
+
+  edm::EDGetTokenT<BTLDigiCollection> BTLSrc_;
+  edm::EDGetTokenT<ETLDigiCollection> ETLSrc_;
+
+  static const int sdSiTIB = 3;
+  static const int sdSiTID = 4;
+  static const int sdSiTOB = 5;
+  static const int sdSiTEC = 6;
+  static const int sdPxlBrl = 1;
+  static const int sdPxlFwd = 2;
+};
 
 SimDigiDumper::SimDigiDumper(const edm::ParameterSet& iPSet) {
   //get Labels to use to extract information
   ECalEBSrc_ = consumes<EBDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEBSrc"));
   ECalEESrc_ = consumes<EEDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEESrc"));
   ECalESSrc_ = consumes<ESDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalESSrc"));
-  HCalDigi_ = consumes<HBHEDigiCollection>(iPSet.getParameter<edm::InputTag>("HCalDigi"));
-  HCalHODigi_ = consumes<HODigiCollection>(iPSet.getParameter<edm::InputTag>("HCalDigi"));
-  HCalHFDigi_ = consumes<HFDigiCollection>(iPSet.getParameter<edm::InputTag>("HCalDigi"));
-  ZdcDigi_ = consumes<ZDCDigiCollection>(iPSet.getParameter<edm::InputTag>("ZdcDigi"));
+  HCalSrc_ = consumes<HBHEDigiCollection>(iPSet.getParameter<edm::InputTag>("HCalSrc"));
+  HCalHOSrc_ = consumes<HODigiCollection>(iPSet.getParameter<edm::InputTag>("HCalSrc"));
+  HCalHFSrc_ = consumes<HFDigiCollection>(iPSet.getParameter<edm::InputTag>("HCalSrc"));
+  ZdcSrc_ = consumes<ZDCDigiCollection>(iPSet.getParameter<edm::InputTag>("ZdcSrc"));
   SiStripSrc_ = consumes<edm::DetSetVector<SiStripDigi> >(iPSet.getParameter<edm::InputTag>("SiStripSrc"));
   SiPxlSrc_ = consumes<edm::DetSetVector<PixelDigi> >(iPSet.getParameter<edm::InputTag>("SiPxlSrc"));
   MuDTSrc_ = consumes<DTDigiCollection>(iPSet.getParameter<edm::InputTag>("MuDTSrc"));
@@ -41,38 +97,6 @@ SimDigiDumper::SimDigiDumper(const edm::ParameterSet& iPSet) {
   MuRPCSrc_ = consumes<RPCDigiCollection>(iPSet.getParameter<edm::InputTag>("MuRPCSrc"));
   BTLSrc_ = consumes<BTLDigiCollection>(iPSet.getParameter<edm::InputTag>("BTLSrc"));
   ETLSrc_ = consumes<ETLDigiCollection>(iPSet.getParameter<edm::InputTag>("ETLSrc"));
-
-  // TODO(proper responsible): update the cout, for sure not my
-  // business.
-
-  //   // print out Parameter Set information being used
-  //   std::cout
-  //       << "\n===============================\n"
-  //       << "Dumping event digis for the collections:\n"
-  //       << "    ECalEBSrc     = " << ECalEBSrc_.label()
-  //       << ":" << ECalEBSrc_.instance() << "\n"
-  //       << "    ECalEESrc     = " << ECalEESrc_.label()
-  //       << ":" << ECalEESrc_.instance() << "\n"
-  //       << "    ECalESSrc     = " << ECalESSrc_.label()
-  //       << ":" << ECalESSrc_.instance() << "\n"
-  //       << "    HCalDigi       = " << HCalDigi_.label()
-  //       << ":" << HCalDigi_.instance() << "\n"
-  //       << "    ZdcDigi       = " << ZdcDigi_.label()
-  //       << ":" << ZdcDigi_.instance() << "\n"
-  //       << "    SiStripSrc    = " << SiStripSrc_.label()
-  //       << ":" << SiStripSrc_.instance() << "\n"
-  //       << "    SiPixelSrc    = " << SiPxlSrc_.label()
-  //       << ":" << SiPxlSrc_.instance() << "\n"
-  //       << "    MuDTSrc       = " << MuDTSrc_.label()
-  //       << ":" << MuDTSrc_.instance() << "\n"
-  //       << "    MuCSCStripSrc = " << MuCSCStripSrc_.label()
-  //       << ":" << MuCSCStripSrc_.instance() << "\n"
-  //       << "    MuCSCWireSrc  = " << MuCSCWireSrc_.label()
-  //       << ":" << MuCSCWireSrc_.instance() << "\n"
-  //       << "    MuRPCSrc      = " << MuRPCSrc_.label()
-  //       << ":" << MuRPCSrc_.instance() << "\n"
-  //       << "===============================\n"
-  //       << std::endl;
 }
 
 //
@@ -86,218 +110,164 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // ECAL Barrel
 
   bool isBarrel = true;
-  edm::Handle<EBDigiCollection> EcalDigiEB;
   const EBDigiCollection* EBdigis = 0;
-  iEvent.getByToken(ECalEBSrc_, EcalDigiEB);
+  auto EcalDigiEB = iEvent.getHandle(ECalEBSrc_);
   if (!EcalDigiEB.isValid()) {
-    std::cout << "Unable to find EcalDigiEB in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find EcalDigiEB in event!";
   } else {
     EBdigis = EcalDigiEB.product();
     if (EcalDigiEB->size() == 0)
       isBarrel = false;
-    std::cout << "Ecal Barrel, digi multiplicity = " << EcalDigiEB->size() << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Ecal Barrel, digi multiplicity = " << EcalDigiEB->size();
 
     if (isBarrel) {
       // loop over digis
       for (unsigned int digis = 0; digis < EcalDigiEB->size(); ++digis) {
         EBDataFrame ebdf = (*EBdigis)[digis];
-        std::cout << ebdf << std::endl;
+        edm::LogPrint("SimDigiDumper") << ebdf;
       }
     }
   }
 
   // ECAL Endcap
   bool isEndcap = true;
-  edm::Handle<EEDigiCollection> EcalDigiEE;
   const EEDigiCollection* EEdigis = 0;
-  iEvent.getByToken(ECalEESrc_, EcalDigiEE);
+  auto EcalDigiEE = iEvent.getHandle(ECalEESrc_);
   if (!EcalDigiEE.isValid()) {
-    std::cout << "Unable to find EcalDigiEE in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find EcalDigiEE in event!";
   } else {
     EEdigis = EcalDigiEE.product();
     if (EcalDigiEE->size() == 0)
       isEndcap = false;
-    std::cout << "Ecal Endcap, digi multiplicity = " << EcalDigiEE->size() << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Ecal Endcap, digi multiplicity = " << EcalDigiEE->size();
 
     if (isEndcap) {
       // loop over digis
       for (unsigned int digis = 0; digis < EcalDigiEE->size(); ++digis) {
         EEDataFrame eedf = (*EEdigis)[digis];
-        std::cout << eedf << std::endl;
+        edm::LogPrint("SimDigiDumper") << eedf;
       }
     }
   }
 
   // ECAL Preshower
   bool isPreshower = true;
-  edm::Handle<ESDigiCollection> EcalDigiES;
   const ESDigiCollection* ESdigis = 0;
-  iEvent.getByToken(ECalESSrc_, EcalDigiES);
+  auto EcalDigiES = iEvent.getHandle(ECalESSrc_);
   if (!EcalDigiES.isValid()) {
-    std::cout << "Unable to find EcalDigiES in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find EcalDigiES in event!";
   } else {
     ESdigis = EcalDigiES.product();
     if (EcalDigiES->size() == 0)
       isPreshower = false;
-    std::cout << "Ecal Preshower, digi multiplicity = " << EcalDigiES->size() << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Ecal Preshower, digi multiplicity = " << EcalDigiES->size();
 
     if (isPreshower) {
       // loop over digis
       for (unsigned int digis = 0; digis < EcalDigiES->size(); ++digis) {
         ESDataFrame esdf = (*ESdigis)[digis];
-        std::cout << esdf << std::endl;
-      }
-    }
-  }
-
-  // BTL
-  bool isBTL = true;
-  edm::Handle<BTLDigiCollection> BTLDigi;
-  const BTLDigiCollection* BTLdigis = 0;
-  iEvent.getByToken(BTLSrc_, BTLDigi);
-  if (!BTLDigi.isValid()) {
-    std::cout << "Unable to find BTLDigi in event!" << std::endl;
-  } else {
-    BTLdigis = BTLDigi.product();
-    if (BTLDigi->size() == 0)
-      isBTL = false;
-    std::cout << "Barrel Timing Layer, digi multiplicity = " << BTLDigi->size() << std::endl;
-
-    if (isBTL) {
-      // loop over digis
-      for (unsigned int digis = 0; digis < BTLDigi->size(); ++digis) {
-        BTLDataFrame btldf = (*BTLdigis)[digis];
-        std::cout << btldf.id().rawId() << std::endl;
-        btldf.print();
-      }
-    }
-  }
-
-  // ETL
-  bool isETL = true;
-  edm::Handle<ETLDigiCollection> ETLDigi;
-  const ETLDigiCollection* ETLdigis = 0;
-  iEvent.getByToken(ETLSrc_, ETLDigi);
-  if (!ETLDigi.isValid()) {
-    std::cout << "Unable to find ETLDigi in event!" << std::endl;
-  } else {
-    ETLdigis = ETLDigi.product();
-    if (ETLDigi->size() == 0)
-      isETL = false;
-    std::cout << "Endcap Timing Layer, digi multiplicity = " << ETLDigi->size() << std::endl;
-
-    if (isETL) {
-      // loop over digis
-      for (unsigned int digis = 0; digis < ETLDigi->size(); ++digis) {
-        ETLDataFrame etldf = (*ETLdigis)[digis];
-        std::cout << etldf.id().rawId() << std::endl;
-        etldf.print();
+        edm::LogPrint("SimDigiDumper") << esdf;
       }
     }
   }
 
   // HBHE
   bool isHBHE = true;
-  edm::Handle<HBHEDigiCollection> hbhe;
   const HBHEDigiCollection* HBHEdigis = 0;
-  iEvent.getByToken(HCalDigi_, hbhe);
+  auto hbhe = iEvent.getHandle(HCalSrc_);
   if (!hbhe.isValid()) {
-    std::cout << "Unable to find HBHEDataFrame in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find HBHEDataFrame in event!";
   } else {
     HBHEdigis = hbhe.product();
     if (hbhe->size() == 0)
       isHBHE = false;
-    std::cout << "HBHE, digi multiplicity = " << hbhe->size() << std::endl;
+    edm::LogPrint("SimDigiDumper") << "HBHE, digi multiplicity = " << hbhe->size();
 
     if (isHBHE) {
       //loop over digis
       for (unsigned int digis = 0; digis < hbhe->size(); ++digis) {
         HBHEDataFrame hehbdf = (*HBHEdigis)[digis];
-        std::cout << hehbdf << std::endl;
+        edm::LogPrint("SimDigiDumper") << hehbdf;
         //edm::SortedCollection<HBHEDataFrame>::const_iterator ihbhe;
         //for  (ihbhe == hbhe->begin(); ihbhe != hbhe->end(); ihbhe++) {
-        //std::cout << "Nothing" << std::endl;
-        //std::cout << (*ihbhe) << std::endl;
+        //edm::LogPrint("SimDigiDumper") << "Nothing" ;
+        //edm::LogPrint("SimDigiDumper") << (*ihbhe) ;
       }
     }
   }
 
   // HO
   bool isHO = true;
-  edm::Handle<HODigiCollection> ho;
   const HODigiCollection* HOdigis = 0;
-  iEvent.getByToken(HCalHODigi_, ho);
+  auto ho = iEvent.getHandle(HCalHOSrc_);
   if (!ho.isValid()) {
-    std::cout << "Unable to find HODataFrame in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find HODataFrame in event!";
   } else {
     HOdigis = ho.product();
     if (ho->size() == 0)
       isHO = false;
-    std::cout << "HO, digi multiplicity = " << ho->size() << std::endl;
+    edm::LogPrint("SimDigiDumper") << "HO, digi multiplicity = " << ho->size();
 
     if (isHO) {
       //loop over digis
       for (unsigned int digis = 0; digis < ho->size(); ++digis) {
         HODataFrame hodf = (*HOdigis)[digis];
-        std::cout << hodf << std::endl;
+        edm::LogPrint("SimDigiDumper") << hodf;
       }
     }
   }
 
   // HF
   bool isHF = true;
-  edm::Handle<HFDigiCollection> hf;
   const HFDigiCollection* HFdigis = 0;
-  iEvent.getByToken(HCalHFDigi_, hf);
+  auto hf = iEvent.getHandle(HCalHFSrc_);
   if (!hf.isValid()) {
-    std::cout << "Unable to find HFDataFrame in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find HFDataFrame in event!";
   } else {
     HFdigis = hf.product();
     if (hf->size() == 0)
       isHF = false;
-    std::cout << "HF, digi multiplicity = " << hf->size() << std::endl;
+    edm::LogPrint("SimDigiDumper") << "HF, digi multiplicity = " << hf->size();
 
     if (isHF) {
       //loop over digis
       for (unsigned int digis = 0; digis < hf->size(); ++digis) {
         HFDataFrame hodf = (*HFdigis)[digis];
-        std::cout << hodf << std::endl;
+        edm::LogPrint("SimDigiDumper") << hodf;
       }
     }
   }
 
   // ZDC
   bool isZDC = true;
-  edm::Handle<ZDCDigiCollection> zdc;
   const ZDCDigiCollection* ZDCdigis = 0;
-  iEvent.getByToken(ZdcDigi_, zdc);
+  auto zdc = iEvent.getHandle(ZdcSrc_);
   if (!zdc.isValid()) {
-    std::cout << "Unable to find ZDCDataFrame in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find ZDCDataFrame in event!";
   } else {
     ZDCdigis = zdc.product();
     if (zdc->size() == 0)
       isZDC = false;
-    std::cout << "ZDC, digi multiplicity = " << zdc->size() << std::endl;
+    edm::LogPrint("SimDigiDumper") << "ZDC, digi multiplicity = " << zdc->size();
 
     if (isZDC) {
       //loop over digis
       for (unsigned int digis = 0; digis < zdc->size(); ++digis) {
         ZDCDataFrame hodf = (*ZDCdigis)[digis];
-        std::cout << hodf << std::endl;
+        edm::LogPrint("SimDigiDumper") << hodf;
       }
     }
   }
 
   // Strip Tracker
   bool isStrip = true;
-  edm::Handle<edm::DetSetVector<SiStripDigi> > stripDigis;
-  iEvent.getByToken(SiStripSrc_, stripDigis);
+  auto stripDigis = iEvent.getHandle(SiStripSrc_);
   if (!stripDigis.isValid()) {
-    std::cout << "Unable to find stripDigis in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find stripDigis in event!";
   } else {
     if (stripDigis->size() == 0)
       isStrip = false;
-    std::cout << "Strip Tracker, digi multiplicity = " << stripDigis->size() << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Strip Tracker, digi multiplicity = " << stripDigis->size();
     if (isStrip) {
       edm::DetSetVector<SiStripDigi>::const_iterator DSViter;
       for (DSViter = stripDigis->begin(); DSViter != stripDigis->end(); ++DSViter) {
@@ -308,17 +278,17 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         DetId detId(id);
 
         if (detId.subdetId() == sdSiTIB) {
-          std::cout << "TIB " << DSViter->data.size() << std::endl;
+          edm::LogPrint("SimDigiDumper") << "TIB " << DSViter->data.size();
         } else if (detId.subdetId() == sdSiTOB) {
-          std::cout << "TOB " << DSViter->data.size() << std::endl;
+          edm::LogPrint("SimDigiDumper") << "TOB " << DSViter->data.size();
         } else if (detId.subdetId() == sdSiTID) {
-          std::cout << "TID " << DSViter->data.size() << std::endl;
+          edm::LogPrint("SimDigiDumper") << "TID " << DSViter->data.size();
         }
         if (detId.subdetId() == sdSiTEC) {
-          std::cout << "TEC " << DSViter->data.size() << std::endl;
+          edm::LogPrint("SimDigiDumper") << "TEC " << DSViter->data.size();
         }
         for (iter = begin; iter != end; ++iter) {
-          std::cout << (*iter) << std::endl;
+          edm::LogPrint("SimDigiDumper") << (*iter);
         }
       }
     }
@@ -326,14 +296,13 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // Pixel Tracker
   bool isPixel = true;
-  edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;
-  iEvent.getByToken(SiPxlSrc_, pixelDigis);
+  auto pixelDigis = iEvent.getHandle(SiPxlSrc_);
   if (!pixelDigis.isValid()) {
-    std::cout << "Unable to find pixelDigis in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find pixelDigis in event!";
   } else {
     if (pixelDigis->size() == 0)
       isPixel = false;
-    std::cout << "Pixel Tracker, digi multiplicity = " << pixelDigis->size() << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Pixel Tracker, digi multiplicity = " << pixelDigis->size();
 
     if (isPixel) {
       edm::DetSetVector<PixelDigi>::const_iterator DSViter;
@@ -345,12 +314,12 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         DetId detId(id);
 
         if (detId.subdetId() == sdPxlBrl) {
-          std::cout << "Pixel barrel " << DSViter->data.size() << std::endl;
+          edm::LogPrint("SimDigiDumper") << "Pixel barrel " << DSViter->data.size();
         } else if (detId.subdetId() == sdPxlFwd) {
-          std::cout << "Pixel forward " << DSViter->data.size() << std::endl;
+          edm::LogPrint("SimDigiDumper") << "Pixel forward " << DSViter->data.size();
         }
         for (iter = begin; iter != end; ++iter) {
-          std::cout << (*iter) << std::endl;
+          edm::LogPrint("SimDigiDumper") << (*iter);
         }
       }
     }
@@ -358,36 +327,33 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // DT
   bool isDT = true;
-  edm::Handle<DTDigiCollection> dtDigis;
-  //edm::Handle<DTLayerIdDTDigiMuonDigiCollection> dtDigis;
-  iEvent.getByToken(MuDTSrc_, dtDigis);
+  auto dtDigis = iEvent.getHandle(MuDTSrc_);
   if (!dtDigis.isValid()) {
-    std::cout << "Unable to find dtDigis in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find dtDigis in event!";
   }
   unsigned int nDT = 0;
   if (dtDigis->begin() == dtDigis->end()) {
     isDT = false;
-    std::cout << "dtDigis seem empty!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "dtDigis seem empty!";
   }
   if (isDT) {
     DTDigiCollection::DigiRangeIterator dtLayerIt;
     for (dtLayerIt = dtDigis->begin(); dtLayerIt != dtDigis->end(); ++dtLayerIt) {
       const DTDigiCollection::Range& range = (*dtLayerIt).second;
-      std::cout << "DT layer = " << (*dtLayerIt).first << " digi " << std::endl;
+      edm::LogPrint("SimDigiDumper") << "DT layer = " << (*dtLayerIt).first << " digi ";
       for (DTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
-        std::cout << (*digiIt) << std::endl;
+        edm::LogPrint("SimDigiDumper") << (*digiIt);
         nDT++;
       }
     }
   }
-  std::cout << "DT, digi multiplicity = " << nDT << std::endl;
+  edm::LogPrint("SimDigiDumper") << "DT, digi multiplicity = " << nDT;
 
   // CSC strip
   bool isCSCStrip = true;
-  edm::Handle<CSCStripDigiCollection> cscStripDigis;
-  iEvent.getByToken(MuCSCStripSrc_, cscStripDigis);
+  auto cscStripDigis = iEvent.getHandle(MuCSCStripSrc_);
   if (!cscStripDigis.isValid()) {
-    std::cout << "Unable to find cscStripDigis in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find cscStripDigis in event!";
   }
   if (cscStripDigis->begin() == cscStripDigis->end())
     isCSCStrip = false;
@@ -397,21 +363,20 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     CSCStripDigiCollection::DigiRangeIterator detUnitIt;
     for (detUnitIt = cscStripDigis->begin(); detUnitIt != cscStripDigis->end(); ++detUnitIt) {
       const CSCStripDigiCollection::Range& range = (*detUnitIt).second;
-      std::cout << "CSC detid = " << (*detUnitIt).first << " digi " << std::endl;
+      edm::LogPrint("SimDigiDumper") << "CSC detid = " << (*detUnitIt).first << " digi ";
       for (CSCStripDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
-        std::cout << (*digiIt) << std::endl;
+        edm::LogPrint("SimDigiDumper") << (*digiIt);
         nCSCStrip++;
       }
     }
   }
-  std::cout << "CSC strip, digi multiplicity = " << nCSCStrip << std::endl;
+  edm::LogPrint("SimDigiDumper") << "CSC strip, digi multiplicity = " << nCSCStrip;
 
   // CSC wire
   bool isCSCWire = true;
-  edm::Handle<CSCWireDigiCollection> cscWireDigis;
-  iEvent.getByToken(MuCSCWireSrc_, cscWireDigis);
+  auto cscWireDigis = iEvent.getHandle(MuCSCWireSrc_);
   if (!cscWireDigis.isValid()) {
-    std::cout << "Unable to find cscWireDigis in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find cscWireDigis in event!";
   }
   if (cscWireDigis->begin() == cscWireDigis->end())
     isCSCWire = false;
@@ -421,21 +386,20 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     CSCWireDigiCollection::DigiRangeIterator detUnitIt;
     for (detUnitIt = cscWireDigis->begin(); detUnitIt != cscWireDigis->end(); ++detUnitIt) {
       const CSCWireDigiCollection::Range& range = (*detUnitIt).second;
-      std::cout << "CSC detid = " << (*detUnitIt).first << " digi " << std::endl;
+      edm::LogPrint("SimDigiDumper") << "CSC detid = " << (*detUnitIt).first << " digi ";
       for (CSCWireDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
-        std::cout << (*digiIt) << std::endl;
+        edm::LogPrint("SimDigiDumper") << (*digiIt);
         nCSCWire++;
       }
     }
   }
-  std::cout << "CSC wire, digi multiplicity = " << nCSCWire << std::endl;
+  edm::LogPrint("SimDigiDumper") << "CSC wire, digi multiplicity = " << nCSCWire;
 
   // RPC
   bool isRPC = true;
-  edm::Handle<RPCDigiCollection> rpcDigis;
-  iEvent.getByToken(MuRPCSrc_, rpcDigis);
+  auto rpcDigis = iEvent.getHandle(MuRPCSrc_);
   if (!rpcDigis.isValid()) {
-    std::cout << "Unable to find rpcDigis in event!" << std::endl;
+    edm::LogPrint("SimDigiDumper") << "Unable to find rpcDigis in event!";
   }
   if (rpcDigis->begin() == rpcDigis->end())
     isRPC = false;
@@ -445,16 +409,81 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     RPCDigiCollection::DigiRangeIterator detUnitIt;
     for (detUnitIt = rpcDigis->begin(); detUnitIt != rpcDigis->end(); ++detUnitIt) {
       const RPCDigiCollection::Range& range = (*detUnitIt).second;
-      std::cout << "RPC detid = " << (*detUnitIt).first << " digi " << std::endl;
+      edm::LogPrint("SimDigiDumper") << "RPC detid = " << (*detUnitIt).first << " digi ";
       for (RPCDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
-        std::cout << (*digiIt) << std::endl;
+        edm::LogPrint("SimDigiDumper") << (*digiIt);
         nRPC++;
       }
     }
   }
-  std::cout << "RPC, digi multiplicity = " << nRPC << std::endl;
+  edm::LogPrint("SimDigiDumper") << "RPC, digi multiplicity = " << nRPC;
+
+  // BTL
+  bool isBTL = true;
+  const BTLDigiCollection* BTLdigis = 0;
+  auto BTLDigi = iEvent.getHandle(BTLSrc_);
+  if (!BTLDigi.isValid()) {
+    edm::LogPrint("SimDigiDumper") << "Unable to find BTLDigi in event!";
+  } else {
+    BTLdigis = BTLDigi.product();
+    if (BTLDigi->size() == 0)
+      isBTL = false;
+    edm::LogPrint("SimDigiDumper") << "Barrel Timing Layer, digi multiplicity = " << BTLDigi->size();
+
+    if (isBTL) {
+      // loop over digis
+      for (unsigned int digis = 0; digis < BTLDigi->size(); ++digis) {
+        BTLDataFrame btldf = (*BTLdigis)[digis];
+        edm::LogPrint("SimDigiDumper") << btldf.id().rawId();
+        btldf.print();
+      }
+    }
+  }
+
+  // ETL
+  bool isETL = true;
+  const ETLDigiCollection* ETLdigis = 0;
+  auto ETLDigi = iEvent.getHandle(ETLSrc_);
+  if (!ETLDigi.isValid()) {
+    edm::LogPrint("SimDigiDumper") << "Unable to find ETLDigi in event!";
+  } else {
+    ETLdigis = ETLDigi.product();
+    if (ETLDigi->size() == 0)
+      isETL = false;
+    edm::LogPrint("SimDigiDumper") << "Endcap Timing Layer, digi multiplicity = " << ETLDigi->size();
+
+    if (isETL) {
+      // loop over digis
+      for (unsigned int digis = 0; digis < ETLDigi->size(); ++digis) {
+        ETLDataFrame etldf = (*ETLdigis)[digis];
+        edm::LogPrint("SimDigiDumper") << etldf.id().rawId();
+        etldf.print();
+      }
+    }
+  }
 
   return;
+}
+
+void SimDigiDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("ECalEBSrc", edm::InputTag("simEcalDigis", "ebDigis"))->setComment("ECAL barrel digis");
+  desc.add<edm::InputTag>("ECalEESrc", edm::InputTag("simEcalDigis", "eeDigis"))->setComment("ECAL endcap digis");
+  desc.add<edm::InputTag>("ECalESSrc", edm::InputTag("simEcalPreshowerDigis"))->setComment("ECAL preshower digis");
+  desc.add<edm::InputTag>("HCalSrc", edm::InputTag("simHcalDigis"))->setComment("HCAL digis");
+  desc.add<edm::InputTag>("ZdcSrc", edm::InputTag("simHcalUnsuppressedDigis"))->setComment("ZDC digis");
+  desc.add<edm::InputTag>("SiStripSrc", edm::InputTag("simSiStripDigis", "ZeroSuppressed"))
+      ->setComment("Si strip digis");
+  desc.add<edm::InputTag>("SiPxlSrc", edm::InputTag("simSiPixelDigis"))->setComment("Si pixel digis");
+  desc.add<edm::InputTag>("MuDTSrc", edm::InputTag("simMuonDTDigis"))->setComment("DT digis");
+  desc.add<edm::InputTag>("MuCSCStripSrc", edm::InputTag("simMuonCSCDigis", "MuonCSCStripDigi"))
+      ->setComment("CSC strip digis");
+  desc.add<edm::InputTag>("MuCSCWireSrc", edm::InputTag("simMuonCSCDigis", "MuonCSCWireDigi"))
+      ->setComment("CSC wire digis");
+  desc.add<edm::InputTag>("MuRPCSrc", edm::InputTag("simMuonRPCDigis"))->setComment("RPC digis");
+  desc.add<edm::InputTag>("BTLSrc", edm::InputTag("mix", "FTLBarrel"))->setComment("BTL digis");
+  desc.add<edm::InputTag>("ETLSrc", edm::InputTag("mix", "FTLEndcap"))->setComment("ETL digis");
+  descriptions.add("simDigiDumper", desc);
 }
 
 //define this as a plug-in

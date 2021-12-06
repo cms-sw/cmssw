@@ -14,6 +14,8 @@ class TTree;
 #include <memory>
 #include <array>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace edm {
   class BranchDescription;
@@ -70,12 +72,14 @@ namespace edm {
           branchChildren_(new BranchChildren) {}
 
     FileBlock(FileFormatVersion const& version,
-              TTree const* ev,
-              TTree const* meta,
-              TTree const* lumi,
-              TTree const* lumiMeta,
-              TTree const* run,
-              TTree const* runMeta,
+              TTree* ev,
+              TTree* meta,
+              TTree* lumi,
+              TTree* lumiMeta,
+              TTree* run,
+              TTree* runMeta,
+              std::vector<TTree*> processBlockTrees,
+              std::vector<std::string> processesWithProcessBlockTrees,
               int whyNotFastClonable,
               std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch,
               std::string const& fileName,
@@ -83,12 +87,14 @@ namespace edm {
               bool modifiedIDs,
               std::shared_ptr<BranchChildren const> branchChildren)
         : fileFormatVersion_(version),
-          tree_(const_cast<TTree*>(ev)),
-          metaTree_(const_cast<TTree*>(meta)),
-          lumiTree_(const_cast<TTree*>(lumi)),
-          lumiMetaTree_(const_cast<TTree*>(lumiMeta)),
-          runTree_(const_cast<TTree*>(run)),
-          runMetaTree_(const_cast<TTree*>(runMeta)),
+          tree_(ev),
+          metaTree_(meta),
+          lumiTree_(lumi),
+          lumiMetaTree_(lumiMeta),
+          runTree_(run),
+          runMetaTree_(runMeta),
+          processBlockTrees_(std::move(processBlockTrees)),
+          processesWithProcessBlockTrees_(std::move(processesWithProcessBlockTrees)),
           whyNotFastClonable_(whyNotFastClonable),
           hasNewlyDroppedBranch_(hasNewlyDroppedBranch),
           fileName_(fileName),
@@ -98,6 +104,15 @@ namespace edm {
 
     ~FileBlock() {}
 
+    void updateTTreePointers(TTree* ev,
+                             TTree* meta,
+                             TTree* lumi,
+                             TTree* lumiMeta,
+                             TTree* run,
+                             TTree* runMeta,
+                             std::vector<TTree*> processBlockTrees,
+                             std::vector<std::string> processesWithProcessBlockTrees);
+
     FileFormatVersion const& fileFormatVersion() const { return fileFormatVersion_; }
     TTree* tree() const { return tree_; }
     TTree* metaTree() const { return metaTree_; }
@@ -105,6 +120,10 @@ namespace edm {
     TTree* lumiMetaTree() const { return lumiMetaTree_; }
     TTree* runTree() const { return runTree_; }
     TTree* runMetaTree() const { return runMetaTree_; }
+    TTree* processBlockTree(std::string const& processName) const;
+
+    std::vector<TTree*> const& processBlockTrees() const { return processBlockTrees_; }
+    std::vector<std::string> const& processesWithProcessBlockTrees() const { return processesWithProcessBlockTrees_; }
 
     int whyNotFastClonable() const { return whyNotFastClonable_; }
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
@@ -114,7 +133,7 @@ namespace edm {
 
     void setNotFastClonable(WhyNotFastClonable const& why) { whyNotFastClonable_ |= why; }
     BranchChildren const& branchChildren() const { return *branchChildren_; }
-    void close() { runMetaTree_ = lumiMetaTree_ = metaTree_ = runTree_ = lumiTree_ = tree_ = nullptr; }
+    void close();
 
   private:
     FileFormatVersion fileFormatVersion_;
@@ -125,6 +144,8 @@ namespace edm {
     TTree* lumiMetaTree_;
     TTree* runTree_;
     TTree* runMetaTree_;
+    std::vector<TTree*> processBlockTrees_;
+    std::vector<std::string> processesWithProcessBlockTrees_;
     int whyNotFastClonable_;
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
     std::string fileName_;

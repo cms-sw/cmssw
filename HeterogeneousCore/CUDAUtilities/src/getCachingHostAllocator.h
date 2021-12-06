@@ -4,9 +4,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "CachingHostAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cachingAllocators.h"
 
-#include "getCachingDeviceAllocator.h"
+#include "CachingDeviceAllocator.h"
+#include "CachingHostAllocator.h"
+#include "cachingAllocatorCommon.h"
 
 #include <iomanip>
 

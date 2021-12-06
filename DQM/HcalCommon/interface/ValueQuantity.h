@@ -41,6 +41,8 @@ namespace hcaldqm {
       fEnergyTotal,
       fN_m0to10000,
       fEtCorr_256,
+      fEtCorr_data,
+      fEtCorr_emul,
       fADCCorr_128,
       fBX,
       fEnergy_1TeV,
@@ -66,6 +68,7 @@ namespace hcaldqm {
       fCapidMinusBXmod4,
       fBX_36,
       fADC_256_4,  // ADC from 0-255, with 4 ADC granularity
+      fEtlog2,     // scale log2(ET+1)
     };
     const std::map<ValueQuantityType, std::string> name_value = {
         {fN, "N"},
@@ -109,6 +112,8 @@ namespace hcaldqm {
         {fEnergyTotal, "Energy"},
         {fN_m0to10000, "N"},
         {fEtCorr_256, "Et"},
+        {fEtCorr_data, "256*TS + Et (Data TP)"},
+        {fEtCorr_emul, "256*TS + Et (Emul TP)"},
         {fADCCorr_128, "ADC"},
         {fBX, "BX"},
         {fEnergy_1TeV, "Energy"},
@@ -126,6 +131,7 @@ namespace hcaldqm {
         {fCapidMinusBXmod4, "(CapId - BX) % 4"},
         {fBX_36, "BX"},
         {fADC_256_4, "ADC"},
+        {fEtlog2, "log_{2}(Et+1)"},
     };
     const std::map<ValueQuantityType, double> min_value = {
         {fN, -0.05},
@@ -162,6 +168,8 @@ namespace hcaldqm {
         {fEnergyTotal, 0},
         {fN_m0to10000, -0.05},
         {fEtCorr_256, -1},
+        {fEtCorr_data, -4},
+        {fEtCorr_emul, -4},
         {fADCCorr_128, -2},
         {fBX, -0.5},
         {fEnergy_1TeV, 0},
@@ -186,6 +194,7 @@ namespace hcaldqm {
         {fCapidMinusBXmod4, -0.5},
         {fBX_36, -0.5},
         {fADC_256_4, -0.5},
+        {fEtlog2, 0.},
     };
     const std::map<ValueQuantityType, double> max_value = {
         {fN, 1000},
@@ -222,6 +231,8 @@ namespace hcaldqm {
         {fEnergyTotal, 100000},
         {fN_m0to10000, 10000},
         {fEtCorr_256, 257},
+        {fEtCorr_data, 1028},
+        {fEtCorr_emul, 1028},
         {fADCCorr_128, 128},
         {fBX, 3600.5},
         {fEnergy_1TeV, 1000},
@@ -246,6 +257,7 @@ namespace hcaldqm {
         {fCapidMinusBXmod4, 3.5},
         {fBX_36, 3564. - 0.5},
         {fADC_256_4, 255},
+        {fEtlog2, 9.},
     };
     const std::map<ValueQuantityType, int> nbins_value = {
         {fN, 200},
@@ -281,6 +293,8 @@ namespace hcaldqm {
         {fEnergyTotal, 500},
         {fN_m0to10000, 100},
         {fEtCorr_256, 258},
+        {fEtCorr_data, 258},
+        {fEtCorr_emul, 258},
         {fADCCorr_128, 130},
         {fBX, 3601},
         {fEnergy_1TeV, 200},
@@ -305,6 +319,7 @@ namespace hcaldqm {
         {fCapidMinusBXmod4, 4},
         {fBX_36, 99},
         {fADC_256_4, 64},
+        {fEtlog2, 9},
     };
     class ValueQuantity : public Quantity {
     public:

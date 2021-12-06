@@ -28,15 +28,17 @@ using namespace std;
 // constructors and destructor
 //
 LeptonRecoSkim::LeptonRecoSkim(const edm::ParameterSet& iConfig)
-    : hltLabel(iConfig.getParameter<edm::InputTag>("HltLabel")),
+    : m_CaloGeoToken(esConsumes()),
+      m_CaloTopoToken(esConsumes()),
+      hltLabel(iConfig.getParameter<edm::InputTag>("HltLabel")),
       filterName(iConfig.getParameter<std::string>("@module_label")),
-      m_electronSrc(iConfig.getParameter<edm::InputTag>("electronCollection")),
-      m_pfelectronSrc(iConfig.getParameter<edm::InputTag>("pfElectronCollection")),
-      m_muonSrc(iConfig.getParameter<edm::InputTag>("muonCollection")),
-      m_jetsSrc(iConfig.getParameter<edm::InputTag>("caloJetCollection")),
-      m_pfjetsSrc(iConfig.getParameter<edm::InputTag>("PFJetCollection")),
-      m_ebRecHitsSrc(iConfig.getParameter<edm::InputTag>("ecalBarrelRecHitsCollection")),
-      m_eeRecHitsSrc(iConfig.getParameter<edm::InputTag>("ecalEndcapRecHitsCollection")),
+      gsfElectronCollectionToken_(consumes(iConfig.getParameter<edm::InputTag>("electronCollection"))),
+      pfCandidateCollectionToken_(consumes(iConfig.getParameter<edm::InputTag>("pfElectronCollection"))),
+      muonCollectionToken_(consumes(iConfig.getParameter<edm::InputTag>("muonCollection"))),
+      caloJetCollectionToken_(consumes(iConfig.getParameter<edm::InputTag>("caloJetCollection"))),
+      pfJetCollectionToken_(consumes(iConfig.getParameter<edm::InputTag>("PFJetCollection"))),
+      ebRecHitCollectionToken_(consumes(iConfig.getParameter<edm::InputTag>("ecalBarrelRecHitsCollection"))),
+      eeRecHitCollectionToken_(consumes(iConfig.getParameter<edm::InputTag>("ecalEndcapRecHitsCollection"))),
       useElectronSelection(iConfig.getParameter<bool>("UseElectronSelection")),
       usePfElectronSelection(iConfig.getParameter<bool>("UsePfElectronSelection")),
       useMuonSelection(iConfig.getParameter<bool>("UseMuonSelection")),
@@ -204,65 +206,45 @@ void LeptonRecoSkim::beginJob() { firstEvent = true; }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void LeptonRecoSkim::endJob() {
-  cout << "Filter Name            = " << filterName << endl;
-  cout << "Total number of events = " << NeventsTotal << endl;
-  cout << "Total HLT_Mu9          = " << NHltMu9 << endl;
-  cout << "Total HLT_DoubleMu3    = " << NHltDiMu3 << endl;
-  cout << "Filtered events        = " << NeventsFiltered << endl;
-  cout << "Filter Efficiency      = " << (float)NeventsFiltered / (float)NeventsTotal << endl;
-  cout << endl;
-  cout << "N total electrons      = " << NtotalElectrons << endl;
-  cout << "N mva>-0.1 electrons   = " << NmvaElectrons << endl;
-  cout << endl;
-  cout << endl;
+  edm::LogPrint("LeptonRecoSkim") << "Filter Name            = " << filterName << endl;
+  edm::LogPrint("LeptonRecoSkim") << "Total number of events = " << NeventsTotal << endl;
+  edm::LogPrint("LeptonRecoSkim") << "Total HLT_Mu9          = " << NHltMu9 << endl;
+  edm::LogPrint("LeptonRecoSkim") << "Total HLT_DoubleMu3    = " << NHltDiMu3 << endl;
+  edm::LogPrint("LeptonRecoSkim") << "Filtered events        = " << NeventsFiltered << endl;
+  edm::LogPrint("LeptonRecoSkim") << "Filter Efficiency      = " << (float)NeventsFiltered / (float)NeventsTotal
+                                  << endl;
+  edm::LogPrint("LeptonRecoSkim") << endl;
+  edm::LogPrint("LeptonRecoSkim") << "N total electrons      = " << NtotalElectrons << endl;
+  edm::LogPrint("LeptonRecoSkim") << "N mva>-0.1 electrons   = " << NmvaElectrons << endl;
+  edm::LogPrint("LeptonRecoSkim") << endl;
+  edm::LogPrint("LeptonRecoSkim") << endl;
 }
 
 void LeptonRecoSkim::handleObjects(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Get the electrons
-  Handle<GsfElectronCollection> theElectronCollectionHandle;
-  iEvent.getByLabel(m_electronSrc, theElectronCollectionHandle);
-  theElectronCollection = theElectronCollectionHandle.product();
+  theElectronCollection = &iEvent.get(gsfElectronCollectionToken_);
 
   //Get the pf electrons
-  Handle<reco::PFCandidateCollection> thePfCandidateHandle;
-  iEvent.getByLabel(m_pfelectronSrc, thePfCandidateHandle);
-  thePfCandidateCollection = thePfCandidateHandle.product();
+  thePfCandidateCollection = &iEvent.get(pfCandidateCollectionToken_);
 
   //Get the Muons
-  Handle<MuonCollection> theMuonCollectionHandle;
-  iEvent.getByLabel(m_muonSrc, theMuonCollectionHandle);
-  theMuonCollection = theMuonCollectionHandle.product();
+  theMuonCollection = &iEvent.get(muonCollectionToken_);
 
   //Get the CaloJets
-  Handle<CaloJetCollection> theCaloJetCollectionHandle;
-  iEvent.getByLabel(m_jetsSrc, theCaloJetCollectionHandle);
-  theCaloJetCollection = theCaloJetCollectionHandle.product();
+  theCaloJetCollection = &iEvent.get(caloJetCollectionToken_);
 
   //Get the PfJets
-  Handle<PFJetCollection> thePFJetCollectionHandle;
-  iEvent.getByLabel(m_pfjetsSrc, thePFJetCollectionHandle);
-  thePFJetCollection = thePFJetCollectionHandle.product();
+  thePFJetCollection = &iEvent.get(pfJetCollectionToken_);
 
-  //Get the ECAL rechhits to clean the spikes
+  // Get the ECAL rechhits to clean the spikes
   // Get EB RecHits
-  edm::Handle<EcalRecHitCollection> ebRecHitsHandle;
-  iEvent.getByLabel(m_ebRecHitsSrc, ebRecHitsHandle);
-  theEcalBarrelCollection = ebRecHitsHandle.product();
+  theEcalBarrelCollection = &iEvent.get(ebRecHitCollectionToken_);
   // Get EE RecHits
-  edm::Handle<EcalRecHitCollection> eeRecHitsHandle;
-  iEvent.getByLabel(m_eeRecHitsSrc, eeRecHitsHandle);
-  theEcalEndcapCollection = eeRecHitsHandle.product();
+  theEcalEndcapCollection = &iEvent.get(eeRecHitCollectionToken_);
 
   // Get topology for spike cleaning
-  edm::ESHandle<CaloGeometry> geometryHandle;
-  iSetup.get<CaloGeometryRecord>().get(geometryHandle);
-  theCaloGeometry = geometryHandle.product();
-  //   theCaloBarrelSubdetTopology = new EcalBarrelTopology(geometryHandle);
-  //   theCaloEndcapSubdetTopology = new EcalEndcapTopology(geometryHandle);
-
-  edm::ESHandle<CaloTopology> pTopology;
-  iSetup.get<CaloTopologyRecord>().get(pTopology);
-  theCaloTopology = pTopology.product();
+  theCaloGeometry = &iSetup.getData(m_CaloGeoToken);
+  theCaloTopology = &iSetup.getData(m_CaloTopoToken);
 }
 
 //define this as a plug-in

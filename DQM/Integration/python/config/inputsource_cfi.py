@@ -33,17 +33,17 @@ options.register('skipFirstLumis',
                  VarParsing.VarParsing.varType.bool,
                  "Skip (and ignore the minEventsPerLumi parameter) for the files which have been available at the begining of the processing. ")
 
-options.register('transDelay',
-                 0, #default value, int limit -3
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "delay in seconds for the commit of the db transaction")
-
 options.register('noDB',
                  True, # default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Don't upload the BeamSpot conditions to the DB")
+
+options.register('BeamSplashRun',
+                 False, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Set client source settings for beam SPLASH run")
 
 # Parameters for runType
 
@@ -94,6 +94,7 @@ if not options.inputFiles:
         skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
         deleteDatFiles = cms.untracked.bool(False),
         endOfRunKills  = cms.untracked.bool(endOfRunKills),
+        inputFileTransitionsEachEvent = cms.untracked.bool(False)
     )
 else:
     print("The list of input files is provided. Disabling discovery and running on everything.")
@@ -110,4 +111,17 @@ else:
 #    secondaryFileNames = cms.untracked.vstring()
 #)
 
-print("Source:", source)
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/CMSBeamSplash2017
+def set_BeamSplashRun_settings( source ):
+  source.minEventsPerLumi      = 1000000
+  source.nextLumiTimeoutMillis = 15000
+
+if options.BeamSplashRun : set_BeamSplashRun_settings( source )
+
+print("Initial Source settings:", source)
+
+
+
+
+
+

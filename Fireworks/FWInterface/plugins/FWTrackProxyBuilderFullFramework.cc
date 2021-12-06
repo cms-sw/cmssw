@@ -40,10 +40,10 @@ public:
   void setItem(const FWEventItem* iItem) override;
   bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*) override;
 
-private:
-  FWTrackProxyBuilderFullFramework(const FWTrackProxyBuilderFullFramework&) = delete;                   // stop default
+  FWTrackProxyBuilderFullFramework(const FWTrackProxyBuilderFullFramework&) = delete;                   // stop default
   const FWTrackProxyBuilderFullFramework& operator=(const FWTrackProxyBuilderFullFramework&) = delete;  // stop default
 
+private:
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
   void buildTrack(TrajTrackAssociationCollection::const_iterator it, TEveCompound* comp);
 

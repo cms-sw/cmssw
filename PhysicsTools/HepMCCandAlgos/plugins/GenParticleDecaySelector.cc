@@ -6,8 +6,11 @@
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 class GenParticleDecaySelector : public edm::EDProducer {
@@ -22,6 +25,7 @@ private:
   /// source collection name
   edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
   /// particle type
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> tableToken_;
   PdtEntry particle_;
   /// particle status
   int status_;
@@ -43,6 +47,7 @@ using namespace std;
 GenParticleDecaySelector::GenParticleDecaySelector(const edm::ParameterSet& cfg)
     : firstEvent_(true),
       srcToken_(consumes<GenParticleCollection>(cfg.getParameter<InputTag>("src"))),
+      tableToken_(esConsumes()),
       particle_(cfg.getParameter<PdtEntry>("particle")),
       status_(cfg.getParameter<int>("status")) {
   produces<GenParticleCollection>();
@@ -50,7 +55,8 @@ GenParticleDecaySelector::GenParticleDecaySelector(const edm::ParameterSet& cfg)
 
 void GenParticleDecaySelector::produce(edm::Event& evt, const edm::EventSetup& es) {
   if (firstEvent_) {
-    particle_.setup(es);
+    auto const& pdt = es.getData(tableToken_);
+    particle_.setup(pdt);
     firstEvent_ = false;
   }
 

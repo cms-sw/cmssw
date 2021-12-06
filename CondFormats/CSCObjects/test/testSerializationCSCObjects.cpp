@@ -34,6 +34,9 @@ int main() {
   testSerialization<CSCIdentifier>();
   testSerialization<CSCIdentifier::Item>();
   testSerialization<CSCL1TPParameters>();
+  testSerialization<CSCL1TPLookupTableCCLUT>();
+  testSerialization<CSCL1TPLookupTableME11ILT>();
+  testSerialization<CSCL1TPLookupTableME21ILT>();
   testSerialization<CSCMapItem>();
   testSerialization<CSCMapItem::MapItem>();
   testSerialization<CSCNoiseMatrix>();

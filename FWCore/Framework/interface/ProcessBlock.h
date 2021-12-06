@@ -77,6 +77,8 @@ namespace edm {
 
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 
+    std::string const& processName() const;
+
   private:
     ProcessBlockPrincipal const& processBlockPrincipal() const;
 

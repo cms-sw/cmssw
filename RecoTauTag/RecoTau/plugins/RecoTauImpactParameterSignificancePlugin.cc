@@ -18,7 +18,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -36,6 +35,7 @@ namespace reco {
       void beginEvent() override;
 
     private:
+      const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transTrackBuilderToken_;
       RecoTauVertexAssociator vertexAssociator_;
       const TransientTrackBuilder* builder_;
     };
@@ -43,14 +43,13 @@ namespace reco {
     RecoTauImpactParameterSignificancePlugin ::RecoTauImpactParameterSignificancePlugin(const edm::ParameterSet& pset,
                                                                                         edm::ConsumesCollector&& iC)
         : RecoTauModifierPlugin(pset, std::move(iC)),
+          transTrackBuilderToken_(iC.esConsumes(edm::ESInputTag{"", "TransientTrackBuilder"})),
           vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"), std::move(iC)) {}
 
     void RecoTauImpactParameterSignificancePlugin::beginEvent() {
       vertexAssociator_.setEvent(*evt());
       // Get tranisent track builder.
-      edm::ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
-      evtSetup()->get<TransientTrackRecord>().get("TransientTrackBuilder", myTransientTrackBuilder);
-      builder_ = myTransientTrackBuilder.product();
+      builder_ = &evtSetup()->getData(transTrackBuilderToken_);
     }
 
     namespace {

@@ -10,6 +10,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TSystem.h"
 
@@ -61,6 +63,21 @@ namespace edm {
   void RootInputFileSequence::readRun_(RunPrincipal& runPrincipal) {
     assert(rootFile());
     rootFile()->readRun_(runPrincipal);
+  }
+
+  void RootInputFileSequence::fillProcessBlockHelper_() {
+    assert(rootFile());
+    return rootFile()->fillProcessBlockHelper_();
+  }
+
+  bool RootInputFileSequence::nextProcessBlock_(ProcessBlockPrincipal& processBlockPrincipal) {
+    assert(rootFile());
+    return rootFile()->nextProcessBlock_(processBlockPrincipal);
+  }
+
+  void RootInputFileSequence::readProcessBlock_(ProcessBlockPrincipal& processBlockPrincipal) {
+    assert(rootFile());
+    rootFile()->readProcessBlock_(processBlockPrincipal);
   }
 
   void RootInputFileSequence::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
@@ -193,7 +210,7 @@ namespace edm {
       }
       fileIterLastOpened_ = fileIterEnd_;
     }
-    closeFile_();
+    closeFile();
 
     if (noMoreFiles()) {
       // No files specified
@@ -225,31 +242,36 @@ namespace edm {
 
     //this tries to open the file using multiple PFNs corresponding to different data catalogs
     std::list<std::string> exInfo;
-    for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
-      try {
-        std::unique_ptr<InputSource::FileOpenSentry> sentry(
-            input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
-        std::unique_ptr<char[]> name(gSystem->ExpandPathName(it->c_str()));
-        filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
-        break;
-      } catch (cms::Exception const& e) {
-        if (!skipBadFiles && std::next(it) == fNames.end()) {
-          InputFile::reportSkippedFile((*it), logicalFileName());
-          Exception ex(errors::FileOpenError, "", e);
-          ex.addContext("Calling RootInputFileSequence::initTheFile()");
-          std::ostringstream out;
-          out << "Input file " << (*it) << " could not be opened.";
-          ex.addAdditionalInfo(out.str());
-          //report previous exceptions when use other names to open file
-          for (auto const& s : exInfo)
-            ex.addAdditionalInfo(s);
-          throw ex;
-        } else {
-          exInfo.push_back("Calling RootInputFileSequence::initTheFile(): fail to open the file with name " + (*it));
+    {
+      std::unique_ptr<InputSource::FileOpenSentry> sentry(
+          input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
+      edm::Service<edm::storage::StatisticsSenderService> service;
+      if (service.isAvailable()) {
+        service->openingFile(lfn(), inputType, -1);
+      }
+      for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
+        try {
+          std::unique_ptr<char[]> name(gSystem->ExpandPathName(it->c_str()));
+          filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
+          break;
+        } catch (cms::Exception const& e) {
+          if (!skipBadFiles && std::next(it) == fNames.end()) {
+            InputFile::reportSkippedFile((*it), logicalFileName());
+            Exception ex(errors::FileOpenError, "", e);
+            ex.addContext("Calling RootInputFileSequence::initTheFile()");
+            std::ostringstream out;
+            out << "Input file " << (*it) << " could not be opened.";
+            ex.addAdditionalInfo(out.str());
+            //report previous exceptions when use other names to open file
+            for (auto const& s : exInfo)
+              ex.addAdditionalInfo(s);
+            throw ex;
+          } else {
+            exInfo.push_back("Calling RootInputFileSequence::initTheFile(): fail to open the file with name " + (*it));
+          }
         }
       }
     }
-
     if (filePtr) {
       size_t currentIndexIntoFile = fileIter_ - fileIterBegin_;
       rootFile_ = makeRootFile(filePtr);
@@ -270,6 +292,14 @@ namespace edm {
       LogWarning("RootInputFileSequence")
           << "Input file: " << fName << " was not found or could not be opened, and will be skipped.\n";
     }
+  }
+
+  void RootInputFileSequence::closeFile() {
+    edm::Service<edm::storage::StatisticsSenderService> service;
+    if (rootFile() and service.isAvailable()) {
+      service->closedFile(lfn(), usedFallback());
+    }
+    closeFile_();
   }
 
   void RootInputFileSequence::setIndexIntoFile(size_t index) {

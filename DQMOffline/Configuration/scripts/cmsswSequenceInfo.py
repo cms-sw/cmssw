@@ -496,6 +496,7 @@ if __name__ == "__main__":
     parser.add_argument("--steps", default="ALCA,ALCAPRODUCER,ALCAHARVEST,DQM,HARVESTING,VALIDATION", help="Which workflow steps to inspect from runTheMatrix.")
     parser.add_argument("--sqlite", default=False, action="store_true", help="Write information to SQLite DB instead of stdout.")
     parser.add_argument("--dbfile", default="sequences.db", help="Name of the DB file to use.")
+    parser.add_argument("--infile", default=INFILE, help="LFN/PFN of input file to use. Default is %s" % INFILE)
     parser.add_argument("--threads", default=None, type=int, help="Use a fixed number of threads (default is #cores).")
     parser.add_argument("--limit", default=None, type=int, help="Process only this many sequences.")
     parser.add_argument("--offset", default=None, type=int, help="Process sequences starting from this index. Used with --limit to divide the work into jobs.")
@@ -514,6 +515,7 @@ if __name__ == "__main__":
       tp = ThreadPool(args.threads)
       stp = ThreadPool(args.threads)
 
+    INFILE = args.infile
     if args.serve:
         serve()
     elif args.workflow or args.runTheMatrix:

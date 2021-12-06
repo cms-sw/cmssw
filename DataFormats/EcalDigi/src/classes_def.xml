@@ -48,7 +48,8 @@
    <class name="EcalPnDiodeDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="3691846555"/>
    </class>
-   <class name="EcalMatacqDigi" ClassVersion="11">
+   <class name="EcalMatacqDigi" ClassVersion="12">
+    <version ClassVersion="12" checksum="1211538371"/>
     <version ClassVersion="11" checksum="515819338"/>
     <version ClassVersion="10" checksum="804498184"/>
    </class>

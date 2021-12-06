@@ -9,6 +9,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProjectionsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsMEMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/AllStubsMemory.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 
 #include <vector>
 
@@ -23,20 +24,18 @@ namespace trklet {
 
   class MatchProcessor : public ProcessBase {
   public:
-    MatchProcessor(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
+    MatchProcessor(std::string name, Settings const& settings, Globals* global);
 
     ~MatchProcessor() override = default;
 
     void addOutput(MemoryBase* memory, std::string output) override;
     void addInput(MemoryBase* memory, std::string input) override;
 
-    void execute();
+    void execute(unsigned int iSector, double phimin);
 
-    bool matchCalculator(Tracklet* tracklet, const Stub* fpgastub);
+    bool matchCalculator(Tracklet* tracklet, const Stub* fpgastub, bool print, unsigned int istep);
 
   private:
-    int layer_;
-    int disk_;
     unsigned int layerdisk_;
     bool barrel_;
 
@@ -45,24 +44,20 @@ namespace trklet {
     int nvm_;      //VMs in sector
     int nvmbits_;  //# of bits for VMs in sector
     int nvmbins_;  //VMs in in phi region
+    int nrinv_;    //# of bits for rinv
 
-    int fact_;
+    int dzshift_;
     int icorrshift_;
     int icorzshift_;
-    int phi0shift_;
+    int phishift_;
 
-    double phioffset_;
+    TrackletLUT phimatchcuttable_;
+    TrackletLUT zmatchcuttable_;
 
-    unsigned int phimatchcut_[N_SEED];
-    unsigned int zmatchcut_[N_SEED];
-
-    unsigned int rphicutPS_[N_SEED];
-    unsigned int rphicut2S_[N_SEED];
-    unsigned int rcutPS_[N_SEED];
-    unsigned int rcut2S_[N_SEED];
-
-    double phifact_;
-    double rzfact_;
+    TrackletLUT rphicutPStable_;
+    TrackletLUT rphicut2Stable_;
+    TrackletLUT rcutPStable_;
+    TrackletLUT rcut2Stable_;
 
     int nrbits_;
     int nphiderbits_;
@@ -77,12 +72,13 @@ namespace trklet {
     //Memory for the full matches
     std::vector<FullMatchMemory*> fullmatches_;
 
-    //used in the layers
-    std::vector<bool> table_;
+    //disk projectionrinv table
+    TrackletLUT rinvbendlut_;
 
-    //used in the disks
-    std::vector<bool> tablePS_;
-    std::vector<bool> table2S_;
+    //LUT for bend consistency
+    TrackletLUT luttable_;
+
+    double phimin_;
 
     unsigned int nMatchEngines_;
     std::vector<MatchEngineUnit> matchengines_;

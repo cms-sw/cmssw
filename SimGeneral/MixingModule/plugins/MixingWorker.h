@@ -17,10 +17,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/DataRecord/interface/MixingRcd.h"
-#include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
@@ -108,15 +105,10 @@ namespace edm {
     ~MixingWorker() override { ; }
 
   public:
-    void reload(const edm::EventSetup &setup) override {
-      // TODO for esConsumes migration: assume for now this function is mostly unused
-      //get the required parameters from DB.
-      // watch the label/tag
-      edm::ESHandle<MixingModuleConfig> config;
-      setup.get<MixingRcd>().get(config);
-      minBunch_ = config->minBunch();
-      maxBunch_ = config->maxBunch();
-      bunchSpace_ = config->bunchSpace();
+    void reload(int minBunch, int maxBunch, int bunchSpace) override {
+      minBunch_ = minBunch;
+      maxBunch_ = maxBunch;
+      bunchSpace_ = bunchSpace;
     }
 
     bool checkSignal(const edm::Event &e) override {

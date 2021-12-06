@@ -23,6 +23,13 @@ namespace hcaldqm {
     _tokRaw = consumes<FEDRawDataCollection>(_tagRaw);
   }
 
+  void DQTask::fillPSetDescription(edm::ParameterSetDescription &desc) {
+    //from class inheritance
+    hcaldqm::DQModule::fillPSetDescription(desc);
+
+    desc.addUntracked<edm::InputTag>("tagRaw", edm::InputTag("rawDataCollector"));
+  }
+
   /*
  *	By design, all the sources will ahve this function inherited and will
  *	never override.

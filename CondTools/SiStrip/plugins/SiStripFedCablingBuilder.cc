@@ -1,14 +1,46 @@
-#include "CondTools/SiStrip/plugins/SiStripFedCablingBuilder.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/Run.h"
+// sytem include files
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
+// user include files
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibTracker/Records/interface/SiStripFecCablingRcd.h"
+#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+class SiStripFedCablingBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+public:
+  SiStripFedCablingBuilder(const edm::ParameterSet& iConfig);
+
+  ~SiStripFedCablingBuilder() override = default;
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endRun(const edm::Run&, const edm::EventSetup&) override{};
+
+private:
+  const bool printFecCabling_;
+  const bool printDetCabling_;
+  const bool printRegionCabling_;
+  const edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  const edm::ESGetToken<SiStripFecCabling, SiStripFecCablingRcd> fecCablingToken_;
+  const edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  const edm::ESGetToken<SiStripRegionCabling, SiStripRegionCablingRcd> regionCablingToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+};
 
 // -----------------------------------------------------------------------------
 //
@@ -91,19 +123,23 @@ void SiStripFedCablingBuilder::beginRun(const edm::Run& run, const edm::EventSet
 
   edm::LogVerbatim("SiStripFedCablingBuilder") << "[SiStripFedCablingBuilder::" << __func__ << "]"
                                                << " Copying FED cabling...";
-  SiStripFedCabling* obj = new SiStripFedCabling(*(fed.product()));
+  SiStripFedCabling obj(*(fed.product()));
 
   //End now write sistripnoises data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripFedCablingRcd")) {
-      mydbservice->createNewIOV<SiStripFedCabling>(
-          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripFedCablingRcd");
+      mydbservice->createOneIOV<SiStripFedCabling>(obj, mydbservice->beginOfTime(), "SiStripFedCablingRcd");
     } else {
-      mydbservice->appendSinceTime<SiStripFedCabling>(obj, mydbservice->currentTime(), "SiStripFedCablingRcd");
+      mydbservice->appendOneIOV<SiStripFedCabling>(obj, mydbservice->currentTime(), "SiStripFedCablingRcd");
     }
   } else {
     edm::LogError("SiStripFedCablingBuilder") << "Service is unavailable" << std::endl;
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripFedCablingBuilder);

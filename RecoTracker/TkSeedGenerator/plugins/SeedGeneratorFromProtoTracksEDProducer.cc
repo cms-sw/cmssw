@@ -8,16 +8,14 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromProtoTrack.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
-#include "SeedFromConsecutiveHitsCreator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -64,17 +62,17 @@ void SeedGeneratorFromProtoTracksEDProducer::fillDescriptions(edm::Configuration
 }
 
 SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(const ParameterSet& cfg)
-    : theConfig(cfg),
-      originHalfLength(cfg.getParameter<double>("originHalfLength")),
+    : originHalfLength(cfg.getParameter<double>("originHalfLength")),
       originRadius(cfg.getParameter<double>("originRadius")),
       useProtoTrackKinematics(cfg.getParameter<bool>("useProtoTrackKinematics")),
       useEventsWithNoVertex(cfg.getParameter<bool>("useEventsWithNoVertex")),
-      builderName(cfg.getParameter<std::string>("TTRHBuilder")),
       usePV_(cfg.getParameter<bool>("usePV")),
       includeFourthHit_(cfg.getParameter<bool>("includeFourthHit")),
       theInputCollectionTag(consumes<reco::TrackCollection>(cfg.getParameter<InputTag>("InputCollection"))),
       theInputVertexCollectionTag(
-          consumes<reco::VertexCollection>(cfg.getParameter<InputTag>("InputVertexCollection"))) {
+          consumes<reco::VertexCollection>(cfg.getParameter<InputTag>("InputVertexCollection"))),
+      seedCreator_(cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet"), consumesCollector()),
+      config_(consumesCollector()) {
   produces<TrajectorySeedCollection>();
 }
 
@@ -124,12 +122,10 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
       continue;
 
     if (useProtoTrackKinematics) {
-      SeedFromProtoTrack seedFromProtoTrack(proto, es);
+      SeedFromProtoTrack seedFromProtoTrack(config_, proto, es);
       if (seedFromProtoTrack.isValid())
         (*result).push_back(seedFromProtoTrack.trajectorySeed());
     } else {
-      edm::ESHandle<TransientTrackingRecHitBuilder> ttrhbESH;
-      es.get<TransientRecHitRecord>().get(builderName, ttrhbESH);
       std::vector<Hit> hits;
       for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
         TrackingRecHitRef refHit = proto.recHit(iHit);
@@ -143,10 +139,8 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
             sqrt(proto.momentum().x() * proto.momentum().x() + proto.momentum().y() * proto.momentum().y());
         GlobalTrackingRegion region(mom_perp, vtx, 0.2, 0.2);
 
-        edm::ParameterSet seedCreatorPSet = theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
-        SeedFromConsecutiveHitsCreator seedCreator(seedCreatorPSet);
-        seedCreator.init(region, es, nullptr);
-        seedCreator.makeSeed(
+        seedCreator_.init(region, es, nullptr);
+        seedCreator_.makeSeed(
             *result,
             SeedingHitSet(hits[0],
                           hits[1],

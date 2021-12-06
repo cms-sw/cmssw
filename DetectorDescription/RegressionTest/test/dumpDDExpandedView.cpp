@@ -7,7 +7,7 @@
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/RegressionTest/src/DDCheck.h"
-#include "DetectorDescription/Core/src/Material.h"
+#include "DetectorDescription/Core/interface/Material.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"

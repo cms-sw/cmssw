@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -49,6 +48,7 @@ private:
   // input parameters
   // ecal rechit collection (from AOD)
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRHSrcToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoToken_;
 
   //config parameters (defining the cuts on the bad SCs)
   const double ecalMin_;  // ecal rechit et threshold
@@ -62,6 +62,7 @@ private:
 // read the parameters from the config file
 EcalBadCalibFilter::EcalBadCalibFilter(const edm::ParameterSet& iConfig)
     : ecalRHSrcToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EcalRecHitSource"))),
+      geoToken_(esConsumes()),
       ecalMin_(iConfig.getParameter<double>("ecalMinEt")),
       baddetEcal_(iConfig.getParameter<std::vector<unsigned int> >("baddetEcal")),
       taggingMode_(iConfig.getParameter<bool>("taggingMode")),
@@ -77,9 +78,7 @@ bool EcalBadCalibFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Ev
   iEvent.getByToken(ecalRHSrcToken_, ecalRHs);
 
   // Calo Geometry - needed for computing E_t
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
+  const CaloGeometry& geo = iSetup.getData(geoToken_);
 
   // by default the event is OK
   bool pass = true;
@@ -109,7 +108,7 @@ bool EcalBadCalibFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Ev
     ene = ecalhit->energy();
 
     // compute transverse energy
-    const GlobalPoint& posecal = geo->getPosition(ecaldet);
+    const GlobalPoint& posecal = geo.getPosition(ecaldet);
     float pf = posecal.perp() / posecal.mag();
     et = ene * pf;
 

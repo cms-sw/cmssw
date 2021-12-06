@@ -34,6 +34,8 @@
 
 #include <vector>
 
+class GBRWrapperRcd;
+
 namespace antiElecIDMVA6_blocks {
   struct TauVars {
     float pt = 0;
@@ -176,6 +178,19 @@ private:
   std::string mvaName_NoEleMatch_wGwoGSF_VFEC_;
   std::string mvaName_woGwGSF_VFEC_;
   std::string mvaName_wGwGSF_VFEC_;
+
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaToken_NoEleMatch_woGwoGSF_BL_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaToken_NoEleMatch_wGwoGSF_BL_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaToken_woGwGSF_BL_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaToken_wGwGSF_BL_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaToken_NoEleMatch_woGwoGSF_EC_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaToken_NoEleMatch_wGwoGSF_EC_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaToken_woGwGSF_EC_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaToken_wGwGSF_EC_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaToken_NoEleMatch_woGwoGSF_VFEC_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaToken_NoEleMatch_wGwoGSF_VFEC_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaToken_woGwGSF_VFEC_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaToken_wGwGSF_VFEC_;
 
   bool usePhiAtEcalEntranceExtrapolation_;
 

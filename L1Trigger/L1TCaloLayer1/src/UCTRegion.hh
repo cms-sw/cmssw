@@ -26,6 +26,18 @@ class UCTRegion {
 public:
   UCTRegion(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn, int fwv);
 
+  // No default constructor is needed
+
+  UCTRegion() = delete;
+
+  // No copy constructor is needed
+
+  UCTRegion(const UCTRegion&) = delete;
+
+  // No equality operator is needed
+
+  const UCTRegion& operator=(const UCTRegion&) = delete;
+
   virtual ~UCTRegion();
 
   // To setData for towers before processing
@@ -37,6 +49,8 @@ public:
   bool clearEvent();
   bool setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET);
   bool setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET);
+  bool setRegionSummary(
+      uint16_t regionData);  // Use when the region collection is available and no direct access to TPGs
   bool process();
 
   // Packed data access
@@ -81,19 +95,6 @@ public:
   const UCTTower* getTower(UCTTowerIndex t) const { return getTower(t.first, t.second); }
 
   friend std::ostream& operator<<(std::ostream&, const UCTRegion&);
-
-private:
-  // No default constructor is needed
-
-  UCTRegion() = delete;
-
-  // No copy constructor is needed
-
-  UCTRegion(const UCTRegion&) = delete;
-
-  // No equality operator is needed
-
-  const UCTRegion& operator=(const UCTRegion&) = delete;
 
 protected:
   // Helper functions

@@ -20,7 +20,6 @@
 
 // system include files
 #include <cstdlib>
-#include "boost/lexical_cast.hpp"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // forward declarations
@@ -47,7 +46,7 @@
     return s_type;                                                        \
   }                                                                       \
   const std::string& _builder_::classView() {                             \
-    static std::string s_view(boost::lexical_cast<std::string>(_view_));  \
+    static std::string s_view(std::to_string(_view_));                    \
     return s_view;                                                        \
   }                                                                       \
   const std::string& _builder_::classPurpose() {                          \

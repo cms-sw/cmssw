@@ -15,7 +15,8 @@ public:
       : nodeMin_(cfg.getParameter<unsigned>("nodeMin")),
         nodeMax_(cfg.getParameter<unsigned>("nodeMax")),
         edgeMin_(cfg.getParameter<unsigned>("edgeMin")),
-        edgeMax_(cfg.getParameter<unsigned>("edgeMax")) {}
+        edgeMax_(cfg.getParameter<unsigned>("edgeMax")),
+        brief_(cfg.getParameter<bool>("brief")) {}
   void makeInput(edm::Event const& iEvent, TritonInputMap& iInput) const {
     //get event-based seed for RNG
     unsigned int runNum_uint = static_cast<unsigned int>(iEvent.id().run());
@@ -32,15 +33,13 @@ public:
     //set shapes
     auto& input1 = iInput.at("x__0");
     input1.setShape(0, nnodes);
-    auto data1 = std::make_shared<TritonInput<float>>(1);
+    auto data1 = input1.allocate<float>();
     auto& vdata1 = (*data1)[0];
-    vdata1.reserve(input1.sizeShape());
 
     auto& input2 = iInput.at("edgeindex__1");
     input2.setShape(1, nedges);
-    auto data2 = std::make_shared<TritonInput<int64_t>>(1);
+    auto data2 = input2.allocate<int64_t>();
     auto& vdata2 = (*data2)[0];
-    vdata2.reserve(input2.sizeShape());
 
     //fill
     std::normal_distribution<float> randx(-10, 4);
@@ -62,27 +61,32 @@ public:
     const auto& output1 = iOutput.begin()->second;
     // convert from server format
     const auto& tmp = output1.fromServer<float>();
-    std::stringstream msg;
-    for (int i = 0; i < output1.shape()[0]; ++i) {
-      msg << "output " << i << ": ";
-      for (int j = 0; j < output1.shape()[1]; ++j) {
-        msg << tmp[0][output1.shape()[1] * i + j] << " ";
+    if (brief_)
+      edm::LogInfo(debugName) << "output shape: " << output1.shape()[0] << ", " << output1.shape()[1];
+    else {
+      edm::LogInfo msg(debugName);
+      for (int i = 0; i < output1.shape()[0]; ++i) {
+        msg << "output " << i << ": ";
+        for (int j = 0; j < output1.shape()[1]; ++j) {
+          msg << tmp[0][output1.shape()[1] * i + j] << " ";
+        }
+        msg << "\n";
       }
-      msg << "\n";
     }
-    edm::LogInfo(debugName) << msg.str();
   }
   static void fillPSetDescription(edm::ParameterSetDescription& desc) {
     desc.add<unsigned>("nodeMin", 100);
     desc.add<unsigned>("nodeMax", 4000);
     desc.add<unsigned>("edgeMin", 8000);
     desc.add<unsigned>("edgeMax", 15000);
+    desc.add<bool>("brief", false);
   }
 
 private:
   //members
   unsigned nodeMin_, nodeMax_;
   unsigned edgeMin_, edgeMax_;
+  bool brief_;
 };
 
 class TritonGraphProducer : public TritonEDProducer<> {

@@ -14,10 +14,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWHGCalMultiClusterProxyBuilder(const FWHGCalMultiClusterProxyBuilder &) = delete;                   // stop default
   const FWHGCalMultiClusterProxyBuilder &operator=(const FWHGCalMultiClusterProxyBuilder &) = delete;  // stop default
 
+private:
   void build(const reco::HGCalMultiCluster &iData,
              unsigned int iIndex,
              TEveElement &oItemHolder,

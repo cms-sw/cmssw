@@ -33,7 +33,7 @@ process.source = cms.Source("PoolSource",
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 process.load('Configuration.EventContent.EventContent_cff')
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

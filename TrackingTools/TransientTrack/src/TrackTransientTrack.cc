@@ -181,10 +181,6 @@ TrackTransientTrack::TrackTransientTrack(const TrackTransientTrack& tt)
   }
 }
 
-void TrackTransientTrack::setES(const edm::EventSetup& setup) {
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-}
-
 void TrackTransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& tg) {
   theTrackingGeometry = tg;
 }

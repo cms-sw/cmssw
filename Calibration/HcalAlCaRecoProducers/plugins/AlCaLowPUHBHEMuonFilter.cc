@@ -134,8 +134,7 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
 #endif
   //Step1: Find if the event passes one of the chosen triggers
   /////////////////////////////TriggerResults
-  edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByToken(tok_trigRes_, triggerResults);
+  auto const& triggerResults = iEvent.getHandle(tok_trigRes_);
   if (triggerResults.isValid()) {
     bool ok(false);
     std::vector<std::string> modules;
@@ -166,13 +165,13 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
       const CaloGeometry* geo = &(iSetup.getData(tok_geom_));
 
       // Relevant blocks from iEvent
-      edm::Handle<reco::MuonCollection> _Muon;
-      iEvent.getByToken(tok_Muon_, _Muon);
+      auto muonHandle = iEvent.getHandle(tok_Muon_);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Muon Handle " << _Muon.isValid();
+      edm::LogVerbatim("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Muon Handle " << muonHandle.isValid();
 #endif
-      if (_Muon.isValid()) {
-        for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+      if (muonHandle.isValid()) {
+        for (reco::MuonCollection::const_iterator RecMuon = muonHandle->begin(); RecMuon != muonHandle->end();
+             ++RecMuon) {
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("LowPUHBHEMuon")
               << "AlCaLowPUHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull() << " innerTrack "

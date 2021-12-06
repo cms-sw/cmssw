@@ -52,7 +52,7 @@ namespace CLHEP {
   class RandGauss;
 }  // namespace CLHEP
 
-CLHEP::HepRandomEngine* hjRandomEngine;
+extern CLHEP::HepRandomEngine* hjRandomEngine;
 
 namespace HepMC {
   class GenEvent;

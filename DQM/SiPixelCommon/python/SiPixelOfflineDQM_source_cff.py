@@ -97,16 +97,17 @@ SiPixelHitEfficiencySource.ringOn = False
 
 #HI track modules
 hiTracks = "hiGeneralTracks"
-hiRefittedForPixelDQM= refittedForPixelDQM.clone()
-hiRefittedForPixelDQM.src=hiTracks
+hiRefittedForPixelDQM= refittedForPixelDQM.clone(
+    src = hiTracks
+)
 
 SiPixelTrackResidualSource_HeavyIons = SiPixelTrackResidualSource.clone(
-    vtxsrc='hiSelectedVertex'
-    )
+    vtxsrc = 'hiSelectedVertex'
+)
 
 SiPixelHitEfficiencySource_HeavyIons = SiPixelHitEfficiencySource.clone(
-    vtxsrc='hiSelectedVertex'
-    )
+    vtxsrc = 'hiSelectedVertex'
+)
 
 
 #DQM service
@@ -114,6 +115,10 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 dqmInfo = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('Pixel')
 )
+
+#Check if perLSsaving is enabled to mask MEs vs LS
+from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
+dqmPerLSsaving.toModify(SiPixelDigiSource, perLSsaving=True)
 
 #FED integrity
 from DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi import *

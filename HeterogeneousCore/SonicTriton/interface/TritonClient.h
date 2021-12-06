@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HeterogeneousCore/SonicCore/interface/SonicClient.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
+#include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
 
 #include <map>
 #include <vector>
@@ -31,20 +32,28 @@ public:
   //constructor
   TritonClient(const edm::ParameterSet& params, const std::string& debugName);
 
+  //destructor
+  ~TritonClient() override;
+
   //accessors
   unsigned batchSize() const { return batchSize_; }
   bool verbose() const { return verbose_; }
+  bool useSharedMemory() const { return useSharedMemory_; }
+  void setUseSharedMemory(bool useShm) { useSharedMemory_ = useShm; }
   bool setBatchSize(unsigned bsize);
   void reset() override;
+  bool noBatch() const { return noBatch_; }
+  TritonServerType serverType() const { return serverType_; }
 
   //for fillDescriptions
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
 protected:
-  //helper
-  bool getResults(std::shared_ptr<nvidia::inferenceserver::client::InferResult> results);
-
+  //helpers
+  void getResults(std::shared_ptr<triton::client::InferResult> results);
   void evaluate() override;
+  template <typename F>
+  bool handle_exception(F&& call);
 
   void reportServerSideStats(const ServerSideStats& stats) const;
   ServerSideStats summarizeServerStats(const inference::ModelStatistics& start_status,
@@ -57,14 +66,25 @@ protected:
   unsigned batchSize_;
   bool noBatch_;
   bool verbose_;
+  bool useSharedMemory_;
+  TritonServerType serverType_;
+  grpc_compression_algorithm compressionAlgo_;
+  triton::client::Headers headers_;
 
   //IO pointers for triton
-  std::vector<nvidia::inferenceserver::client::InferInput*> inputsTriton_;
-  std::vector<const nvidia::inferenceserver::client::InferRequestedOutput*> outputsTriton_;
+  std::vector<triton::client::InferInput*> inputsTriton_;
+  std::vector<const triton::client::InferRequestedOutput*> outputsTriton_;
 
-  std::unique_ptr<nvidia::inferenceserver::client::InferenceServerGrpcClient> client_;
+  std::unique_ptr<triton::client::InferenceServerGrpcClient> client_;
   //stores timeout, model name and version
-  nvidia::inferenceserver::client::InferOptions options_;
+  triton::client::InferOptions options_;
+
+private:
+  friend TritonInputData;
+  friend TritonOutputData;
+
+  //private accessors only used by data
+  auto client() { return client_.get(); }
 };
 
 #endif

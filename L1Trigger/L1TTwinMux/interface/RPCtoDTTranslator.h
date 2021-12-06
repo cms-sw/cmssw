@@ -16,32 +16,24 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
-#include "CondFormats/L1TObjects/interface/L1TTwinMuxParams.h"
-#include "CondFormats/DataRecord/interface/L1TTwinMuxParamsRcd.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include <iostream>
 
 class RPCtoDTTranslator {
 public:
   RPCtoDTTranslator(const RPCDigiCollection& inrpcDigis);
 
-  void run(const edm::EventSetup& c);
+  void run(const RPCGeometry&);
 
   ///Return Output PhContainer
   L1MuDTChambPhContainer const& getDTContainer() const { return m_rpcdt_translated; }
   L1MuDTChambPhContainer const& getDTRPCHitsContainer() const { return m_rpchitsdt_translated; }
 
-  static int radialAngle(RPCDetId, const edm::EventSetup&, int);
+  static int radialAngle(RPCDetId, const RPCGeometry&, int);
   static int bendingAngle(int, int, int);
   //static int bendingAngle(int);
-  static int localX(RPCDetId, const edm::EventSetup&, int);
+  static int localX(RPCDetId, const RPCGeometry&, int);
   static int localXX(int, int, int);
 
 private:

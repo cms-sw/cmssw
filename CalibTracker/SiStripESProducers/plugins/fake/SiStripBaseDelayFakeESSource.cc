@@ -40,7 +40,7 @@ public:
 private:
   uint16_t m_coarseDelay;
   uint16_t m_fineDelay;
-  SiStripDetInfoFileReader m_detInfoFileReader;
+  SiStripDetInfo m_detInfo;
 };
 
 SiStripBaseDelayFakeESSource::SiStripBaseDelayFakeESSource(const edm::ParameterSet& iConfig) {
@@ -49,8 +49,7 @@ SiStripBaseDelayFakeESSource::SiStripBaseDelayFakeESSource(const edm::ParameterS
 
   m_coarseDelay = iConfig.getParameter<uint32_t>("CoarseDelay");
   m_fineDelay = iConfig.getParameter<uint32_t>("FineDelay");
-  m_detInfoFileReader =
-      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
+  m_detInfo = SiStripDetInfoFileReader::read(iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath());
 }
 
 SiStripBaseDelayFakeESSource::~SiStripBaseDelayFakeESSource() {}
@@ -67,11 +66,11 @@ SiStripBaseDelayFakeESSource::ReturnType SiStripBaseDelayFakeESSource::produce(c
 
   auto baseDelay = std::make_unique<SiStripBaseDelay>();
 
-  const auto& detInfos = m_detInfoFileReader.getAllData();
+  const auto& detInfos = m_detInfo.getAllData();
   if (detInfos.empty()) {
     edm::LogError("SiStripBaseDelayGenerator") << "Error: detInfo map is empty.";
   }
-  for (const auto& elm : m_detInfoFileReader.getAllData()) {
+  for (const auto& elm : detInfos) {
     baseDelay->put(elm.first, m_coarseDelay, m_fineDelay);
   }
 

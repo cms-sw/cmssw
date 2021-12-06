@@ -8,7 +8,6 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
-//#include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
 #include "CalibTracker/Records/interface/SiPixel2DTemplateDBObjectESProducerRcd.h"

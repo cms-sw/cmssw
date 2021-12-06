@@ -5,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("myprocess")
 
 process.load("CondCore.CondDB.CondDB_cfi")
+process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.CondDB.connect = 'sqlite_file:DropBoxMetadata.db' 
 
@@ -20,7 +21,7 @@ import json
 
 def encodeJsonInString(filename):
     """This function open the json file and encodes it in a string replacing probelamtic characters"""
-    thefile = open(filename)
+    thefile = open("../data/"+filename)
     thejson = json.load(thefile)
     thefile.close()
     return json.JSONEncoder().encode(thejson).replace('"',"&quot;")
@@ -70,7 +71,7 @@ EcalPedestalsRcd_prep_str = encodeJsonInString("EcalPedestal_prep.json")
 LumiCorrectionsRcd_prod_str = encodeJsonInString("LumiCorrections_prod.json")
 LumiCorrectionsRcd_prep_str = encodeJsonInString("LumiCorrections_prep.json")
 
-#PixelQuality
+#SiPixelQuality
 SiPixelQualityFromDbRcd_prompt_prod_str = encodeJsonInString("SiPixelQualityFromDbRcd_prompt_prod.json")
 SiPixelQualityFromDbRcd_prompt_prep_str = encodeJsonInString("SiPixelQualityFromDbRcd_prompt_prep.json")
 SiPixelQualityFromDbRcd_stuckTBM_prod_str = encodeJsonInString("SiPixelQualityFromDbRcd_stuckTBM_prod.json")
@@ -78,12 +79,28 @@ SiPixelQualityFromDbRcd_stuckTBM_prep_str = encodeJsonInString("SiPixelQualityFr
 SiPixelQualityFromDbRcd_other_prod_str = encodeJsonInString("SiPixelQualityFromDbRcd_other_prod.json")
 SiPixelQualityFromDbRcd_other_prep_str = encodeJsonInString("SiPixelQualityFromDbRcd_other_prep.json")
 
+#SiPixelLorenzAngle
+SiPixelLorentzAngleRcd_prod_str =  encodeJsonInString("SiPixelLorentzAngleRcd_prod.json")
+SiPixelLorentzAngleRcd_multirun_prod_str =  encodeJsonInString("SiPixelLorentzAngleRcd_multirun_prod.json")
+SiPixelLorentzAngleRcd_prep_str = encodeJsonInString("SiPixelLorentzAngleRcd_prep.json")
+SiPixelLorentzAngleRcd_multirun_prep_str = encodeJsonInString("SiPixelLorentzAngleRcd_multirun_prep.json")
+
+#CT-PPS alignment and timing
+CTPPSRPAlignmentCorrectionsDataRcd_prod_str =  encodeJsonInString("CTPPSRPAlignmentCorrectionsDataRcd_prod.json")
+CTPPSRPAlignmentCorrectionsDataRcd_prep_str = encodeJsonInString("CTPPSRPAlignmentCorrectionsDataRcd_prep.json")
+PPSTimingCalibrationRcd_prod_str = encodeJsonInString("PPSTimingCalibrationRcd_prod.json")
+PPSTimingCalibrationRcd_prep_str = encodeJsonInString("PPSTimingCalibrationRcd_prep.json")
+PPSTimingCalibrationRcd_Sampic_prod_str = encodeJsonInString("PPSTimingCalibrationRcd_Sampic_prod.json")
+PPSTimingCalibrationRcd_Sampic_prep_str = encodeJsonInString("PPSTimingCalibrationRcd_Sampic_prep.json")
+
+
 # given a set of .json files in the current dir, ProduceDropBoxMetadata produces a sqlite containign the payload with the prod/and/prep metadata
 process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                   # set to True if you want to write out a sqlite.db translating the json's into a payload
                                   write = cms.untracked.bool(True),
 
-                                  # toWrite holds a list of Pset's, one for each workflow you want to produce DropBoxMetadata for; you need to have 2 .json files for each PSet
+                                  # toWrite holds a list of Pset's, one for each workflow you want to produce DropBoxMetadata for;
+                                  # you need to have 2 .json files for each PSet
                                   toWrite = cms.VPSet(cms.PSet(record              = cms.untracked.string("BeamSpotObjectsRcdByRun"), 
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
@@ -172,13 +189,37 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                prodMetaData        = cms.untracked.string(SiPixelQualityFromDbRcd_other_prod_str),
                                                                prepMetaData        = cms.untracked.string(SiPixelQualityFromDbRcd_other_prep_str),
                                                                ),
+                                                      cms.PSet(record              = cms.untracked.string('SiPixelLorentzAngleRcd'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(SiPixelLorentzAngleRcd_prod_str),
+                                                               prodMetaDataMultiRun = cms.untracked.string(SiPixelLorentzAngleRcd_multirun_prod_str),
+                                                               prepMetaData        = cms.untracked.string(SiPixelLorentzAngleRcd_prep_str),
+                                                               prepMetaDataMultiRun = cms.untracked.string(SiPixelLorentzAngleRcd_multirun_prep_str),
+                                                               ),
+                                                      cms.PSet(record              = cms.untracked.string('CTPPSRPAlignmentCorrectionsDataRcd'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(CTPPSRPAlignmentCorrectionsDataRcd_prod_str),
+                                                               prepMetaData        = cms.untracked.string(CTPPSRPAlignmentCorrectionsDataRcd_prep_str),
+                                                               ),
+                                                      cms.PSet(record              = cms.untracked.string('PPSTimingCalibrationRcd'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_prod_str),
+                                                               prepMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_prep_str),
+                                                               ),
+                                                      cms.PSet(record              = cms.untracked.string('PPSTimingCalibrationRcd_Sampic'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_Sampic_prod_str),
+                                                               prepMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_Sampic_prep_str),
+                                                               ),
                                                       ),
                                   # this boolean will read the content of whichever payload is available and print its content to stoutput
                                   # set this to false if you write out a sqlite.db translating the json's into a payload
                                   read = cms.untracked.bool(False),
-
-                                  # toRead lists of record naemes to be sought inside the DropBoxMetadataRcd payload avaialble to the ProduceDropBoxMetadata; for instance, if write is True, you're reading back the metadata you've just entered in the payload from the .json files
-                                  toRead = cms.untracked.vstring('BeamSpotObjectsRcdByRun','BeamSpotObjectsRcdByLumi','BeamSpotObjectsRcdHPByLumi','BeamSpotObjectsRcdHPByRun','SiStripBadStripRcd','SiStripApvGainRcd','TrackerAlignmentRcd','SiStripApvGainRcdAfterAbortGap','SiStripApvGainRcdAAG','EcalPedestalsRcd',"LumiCorrectionsRcd","SiPixelQualityFromDbRcd_prompt","SiPixelQualityFromDbRcd_stuckTBM","SiPixelQualityFromDbRcd_other") # same strings as fType
+                                  toRead = cms.untracked.vstring() 
                                   )
 
 process.p = cms.Path(process.mywriter)
@@ -201,18 +242,5 @@ if process.mywriter.write:
                                               )
     
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = '92X_dataRun2_Express_Queue'
+process.GlobalTag.globaltag = '121X_dataRun3_Express_Queue'
 
-#process.GlobalTag.connect   = 'frontier://PromptProd/CMS_CONDITIONS'
-#process.GlobalTag.connect   = 'sqlite_file:/data/franzoni/92x/CMSSW_9_2_X_2017-05-16-1100_metadata/src/CondFormats/Common/test/last-iov-DropBoxMetadata_v5.1_express.db'
-
-# Set to True if you want to read a DropBoxMetadata payload from a local sqlite
-# specify the name of the sqlitefile.db and the tag name; the payload loaded will be for run 300000
-readsqlite = False
-if readsqlite:
-    process.GlobalTag.toGet = cms.VPSet(
-        cms.PSet(record = cms.string("DropBoxMetadataRcd"),
-                 tag = cms.string("DropBoxMetadata"),
-                 connect = cms.string("sqlite_file:DropBoxMetadata_addHPbyRun.db")
-                )
-        )

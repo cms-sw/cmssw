@@ -44,6 +44,7 @@ private:
 
   /// PDT table
   edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
 
   MonitorElement *nEvt;
   MonitorElement *Zmass, *ZmassPeak, *Zpt, *ZptLog, *Zrap, *Zdaughters;

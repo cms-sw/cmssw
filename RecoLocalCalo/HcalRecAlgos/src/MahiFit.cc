@@ -45,16 +45,24 @@ void MahiFit::setParameters(bool iDynamicPed,
 
 void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
                           float& reconstructedEnergy,
+                          float& soiPlusOneEnergy,
                           float& reconstructedTime,
                           bool& useTriple,
                           float& chi2) const {
-  assert(channelData.nSamples() == 8 || channelData.nSamples() == 10);
+  const unsigned nSamples = channelData.nSamples();
+  const unsigned soi = channelData.soi();
+
+  // Check some of the assumptions used by the subsequent code
+  assert(nSamples == 8 || nSamples == 10);
+  assert(nnlsWork_.tsSize <= nSamples);
+  assert(soi + 1U < nnlsWork_.tsSize);
 
   resetWorkspace();
 
-  nnlsWork_.tsOffset = channelData.soi();
+  nnlsWork_.tsOffset = soi;
 
-  std::array<float, 3> reconstructedVals{{0.0f, -9999.f, -9999.f}};
+  // Packing energy, time, chiSq, soiPlus1Energy, in that order
+  std::array<float, 4> reconstructedVals{{0.f, -9999.f, -9999.f, 0.f}};
 
   double tsTOT = 0, tstrig = 0;  // in GeV
   for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
@@ -77,11 +85,15 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     nnlsWork_.pedVals.coeffRef(iTS) = pedWidth;
 
     tsTOT += amplitude;
-    if (iTS == nnlsWork_.tsOffset)
+    if (iTS == soi)
       tstrig += amplitude;
   }
-  tsTOT *= channelData.tsGain(0);
-  tstrig *= channelData.tsGain(0);
+
+  // This preserves the original Mahi approach but will have to
+  // change in case we eventually calibrate gains per capId
+  const float gain0 = channelData.tsGain(0);
+  tsTOT *= gain0;
+  tstrig *= gain0;
 
   useTriple = false;
   if (tstrig > ts4Thresh_ && tsTOT > 0) {
@@ -108,18 +120,15 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
       doFit(reconstructedVals, 0);
       useTriple = true;
     }
-  } else {
-    reconstructedVals.at(0) = 0.f;      //energy
-    reconstructedVals.at(1) = -9999.f;  //time
-    reconstructedVals.at(2) = -9999.f;  //chi2
   }
 
-  reconstructedEnergy = reconstructedVals[0] * channelData.tsGain(0);
+  reconstructedEnergy = reconstructedVals[0] * gain0;
+  soiPlusOneEnergy = reconstructedVals[3] * gain0;
   reconstructedTime = reconstructedVals[1];
   chi2 = reconstructedVals[2];
 }
 
-void MahiFit::doFit(std::array<float, 3>& correctedOutput, int nbx) const {
+void MahiFit::doFit(std::array<float, 4>& correctedOutput, int nbx) const {
   unsigned int bxSize = 1;
 
   if (nbx == 1) {
@@ -196,7 +205,8 @@ void MahiFit::doFit(std::array<float, 3>& correctedOutput, int nbx) const {
   }
 
   if (foundintime) {
-    correctedOutput.at(0) = nnlsWork_.ampVec.coeff(ipulseintime);  //charge
+    correctedOutput.at(0) = nnlsWork_.ampVec.coeff(ipulseintime);       //charge
+    correctedOutput.at(3) = nnlsWork_.ampVec.coeff(ipulseintime + 1U);  //charge for SOI+1
     if (correctedOutput.at(0) != 0) {
       // fixME store the timeslew
       float arrivalTime = 0.f;
@@ -540,9 +550,9 @@ void MahiFit::nnlsConstrainParameter(Index minratioidx) const {
 }
 
 void MahiFit::phase1Debug(const HBHEChannelInfo& channelData, MahiDebugInfo& mdi) const {
-  float recoEnergy, recoTime, chi2;
+  float recoEnergy, soiPlus1Energy, recoTime, chi2;
   bool use3;
-  phase1Apply(channelData, recoEnergy, recoTime, use3, chi2);
+  phase1Apply(channelData, recoEnergy, soiPlus1Energy, recoTime, use3, chi2);
 
   mdi.nSamples = channelData.nSamples();
   mdi.soi = channelData.soi();

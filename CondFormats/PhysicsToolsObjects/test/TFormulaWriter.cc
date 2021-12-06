@@ -1,11 +1,10 @@
-#include "CondFormats/PhysicsToolsObjects/test/TFormulaWriter.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
+#include "CondFormats/PhysicsToolsObjects/test/TFormulaWriter.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <TFile.h>
 #include <TFormula.h>
@@ -48,9 +47,9 @@ void TFormulaWriter::analyze(const edm::Event&, const edm::EventSetup&) {
     limits.push_back(vfloat(0., 1.e+6));
     std::vector<std::string> formulas;
     formulas.push_back((formula->GetExpFormula("p")).Data());
-    PhysicsTFormulaPayload* formulaPayload = new PhysicsTFormulaPayload(limits, formulas);
+    PhysicsTFormulaPayload formulaPayload(limits, formulas);
     delete formula;
-    dbService->writeOne(formulaPayload, dbService->beginOfTime(), (*job)->outputRecord_);
+    dbService->writeOneIOV(formulaPayload, dbService->beginOfTime(), (*job)->outputRecord_);
   }
 
   std::cout << "done." << std::endl;

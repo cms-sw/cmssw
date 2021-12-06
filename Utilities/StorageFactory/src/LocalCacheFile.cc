@@ -9,7 +9,9 @@
 #include <cerrno>
 #include <sstream>
 
-static const IOOffset CHUNK_SIZE = 128 * 1024 * 1024;
+using namespace edm::storage;
+
+static constexpr IOOffset CHUNK_SIZE = 128 * 1024 * 1024;
 
 static void nowrite(const std::string &why) {
   cms::Exception ex("LocalCacheFile");

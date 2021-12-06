@@ -6,6 +6,7 @@
 int main(int, char ** /*argv*/) try {
   initTest();
 
+  using namespace edm::storage;
   char buf[1024];
   std::unique_ptr<Storage> s = StorageFactory::get()->open(
       "http://i.am.davix.plugin.fake.url:1234/store/mc/HC/GenericTTbar/ "

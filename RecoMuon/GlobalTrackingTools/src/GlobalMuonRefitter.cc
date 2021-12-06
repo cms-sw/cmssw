@@ -80,7 +80,8 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
       theCSCRecHitLabel(par.getParameter<InputTag>("CSCRecSegmentLabel")),
       theGEMRecHitLabel(par.getParameter<InputTag>("GEMRecHitLabel")),
       theME0RecHitLabel(par.getParameter<InputTag>("ME0RecHitLabel")),
-      theService(service) {
+      theService(service),
+      theDynamicTruncationConfig(iC) {
   theCategory = par.getUntrackedParameter<string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalMuonRefitter");
 
   theHitThreshold = par.getParameter<int>("HitThreshold");
@@ -151,7 +152,6 @@ GlobalMuonRefitter::~GlobalMuonRefitter() { delete dytInfo; }
 // set Event
 //
 void GlobalMuonRefitter::setEvent(const edm::Event& event) {
-  theEvent = &event;
   event.getByToken(theDTRecHitToken, theDTRecHits);
   event.getByToken(theCSCRecHitToken, theCSCRecHits);
   event.getByToken(theGEMRecHitToken, theGEMRecHits);
@@ -172,6 +172,7 @@ void GlobalMuonRefitter::setServices(const EventSetup& setup) {
     hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder)->cloner();
   }
   theFitter->setHitCloner(&hitCloner);
+  theEventSetup = &setup;
 }
 
 //
@@ -262,7 +263,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
       //
       // DYT 2.0
       //
-      DynamicTruncation dytRefit(*theEvent, *theService);
+      DynamicTruncation dytRefit(theDynamicTruncationConfig, *theEventSetup, *theService);
       dytRefit.setProd(all4DSegments, CSCSegments);
       dytRefit.setSelector(theDYTselector);
       dytRefit.setThr(theDYTthrs);

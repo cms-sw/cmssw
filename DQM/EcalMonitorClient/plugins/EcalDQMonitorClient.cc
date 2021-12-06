@@ -16,22 +16,25 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
-#include "CondFormats/DataRecord/interface/EcalDQMChannelStatusRcd.h"
-#include "CondFormats/DataRecord/interface/EcalDQMTowerStatusRcd.h"
-
 #include <ctime>
 #include <fstream>
 
 EcalDQMonitorClient::EcalDQMonitorClient(edm::ParameterSet const& _ps)
-    : DQMEDHarvester(), ecaldqm::EcalDQMonitor(_ps), iEvt_(0), statusManager_() {
+    : DQMEDHarvester(),
+      ecaldqm::EcalDQMonitor(_ps),
+      iEvt_(0),
+      cStHndl(esConsumes<edm::Transition::BeginRun>()),
+      tStHndl(esConsumes<edm::Transition::BeginRun>()),
+      statusManager_() {
+  edm::ConsumesCollector collector(consumesCollector());
   executeOnWorkers_(
-      [this](ecaldqm::DQWorker* worker) {
+      [this, &collector](ecaldqm::DQWorker* worker) {
         ecaldqm::DQWorkerClient* client(dynamic_cast<ecaldqm::DQWorkerClient*>(worker));
         if (!client)
           throw cms::Exception("InvalidConfiguration") << "Non-client DQWorker " << worker->getName() << " passed";
         client->setStatusManager(this->statusManager_);
+        client->setTokens(collector);
+        worker->setTokens(collector);
       },
       "initialization");
 
@@ -70,13 +73,10 @@ void EcalDQMonitorClient::beginRun(edm::Run const& _run, edm::EventSetup const& 
 
   if (_es.find(edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMChannelStatusRcd>()) &&
       _es.find(edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMTowerStatusRcd>())) {
-    edm::ESHandle<EcalDQMChannelStatus> cStHndl;
-    _es.get<EcalDQMChannelStatusRcd>().get(cStHndl);
+    const EcalDQMChannelStatus* ChStatus = &_es.getData(cStHndl);
+    const EcalDQMTowerStatus* TStatus = &_es.getData(tStHndl);
 
-    edm::ESHandle<EcalDQMTowerStatus> tStHndl;
-    _es.get<EcalDQMTowerStatusRcd>().get(tStHndl);
-
-    statusManager_.readFromObj(*cStHndl, *tStHndl);
+    statusManager_.readFromObj(*ChStatus, *TStatus);
   }
 
   ecaldqmBeginRun(_run, _es);

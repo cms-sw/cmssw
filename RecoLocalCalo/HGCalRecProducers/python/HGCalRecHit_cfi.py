@@ -132,4 +132,4 @@ HGCalRecHit = cms.EDProducer(
 # For silicon the order is: CE_E_120um, CE_E_200um, CE_E_300um, CE_H_120um, CE_H_200um, CE_H_300um
 phase2_hgcalV10.toModify( HGCalRecHit , thicknessCorrection = [0.77, 0.77, 0.77, 0.84, 0.84, 0.84] , sciThicknessCorrection =  0.90 ) 
 
-phase2_hfnose.toModify( HGCalRecHit , thicknessNoseCorrection = [0.759,0.760,0.773])
+phase2_hfnose.toModify( HGCalRecHit , thicknessNoseCorrection = [0.58,0.58,0.58])

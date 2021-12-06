@@ -33,8 +33,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -42,7 +40,8 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 class L1MuBMSectorProcessor;
 class L1MuBMSEU;
 class L1MuDTTFParameters;
@@ -51,22 +50,22 @@ class L1MuDTTFParameters;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMExtrapolationUnit : public L1AbstractProcessor {
+class L1MuBMExtrapolationUnit {
 public:
   typedef std::pair<Extrapolation, unsigned int> SEUId;
   typedef std::map<SEUId, L1MuBMSEU*, std::less<SEUId> > SEUmap;
 
   /// constructor
-  L1MuBMExtrapolationUnit(const L1MuBMSectorProcessor&);
+  L1MuBMExtrapolationUnit(const L1MuBMSectorProcessor&, edm::ConsumesCollector iC);
 
   /// destructor
-  ~L1MuBMExtrapolationUnit() override;
+  ~L1MuBMExtrapolationUnit();
 
   /// run Extrapolation Unit
-  void run(const edm::EventSetup& c) override;
+  void run(const edm::EventSetup& c);
 
   /// reset Extrapolation Unit
-  void reset() override;
+  void reset();
 
   /// reset a single extrapolation
   void reset(Extrapolation ext, unsigned int startAdr, unsigned int relAdr);
@@ -97,8 +96,7 @@ private:
 
   mutable SEUmap m_SEUs;  // Single Extrapolation Units
 
-  //edm::ESHandle< L1MuDTTFParameters > pars;
-  edm::ESHandle<L1TMuonBarrelParams> bmtfParamsHandle;
+  edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> m_paramsToken;
   L1MuDTTFParameters pars;
 };
 

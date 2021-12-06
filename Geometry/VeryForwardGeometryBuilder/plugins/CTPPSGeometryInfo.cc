@@ -5,7 +5,6 @@
  *
  ****************************************************************************/
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -38,9 +37,11 @@ public:
   explicit CTPPSGeometryInfo(const edm::ParameterSet&);
 
 private:
-  std::string geometryType_;
-
-  bool printRPInfo_, printSensorInfo_;
+  const std::string geometryType_;
+  const bool printRPInfo_, printSensorInfo_;
+  const edm::ESGetToken<CTPPSGeometry, IdealGeometryRecord> tokIdeal_;
+  const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> tokReal_;
+  const edm::ESGetToken<CTPPSGeometry, VeryForwardMisalignedGeometryRecord> tokMis_;
 
   edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry_;
   edm::ESWatcher<VeryForwardRealGeometryRecord> watcherRealGeometry_;
@@ -58,33 +59,34 @@ private:
 CTPPSGeometryInfo::CTPPSGeometryInfo(const edm::ParameterSet& iConfig)
     : geometryType_(iConfig.getUntrackedParameter<std::string>("geometryType", "real")),
       printRPInfo_(iConfig.getUntrackedParameter<bool>("printRPInfo", true)),
-      printSensorInfo_(iConfig.getUntrackedParameter<bool>("printSensorInfo", true)) {}
+      printSensorInfo_(iConfig.getUntrackedParameter<bool>("printSensorInfo", true)),
+      tokIdeal_(esConsumes<CTPPSGeometry, IdealGeometryRecord>()),
+      tokReal_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
+      tokMis_(esConsumes<CTPPSGeometry, VeryForwardMisalignedGeometryRecord>()) {}
 
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSGeometryInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CTPPSGeometry> geometry;
-
   if (geometryType_ == "ideal") {
     if (watcherIdealGeometry_.check(iSetup)) {
-      iSetup.get<IdealGeometryRecord>().get(geometry);
-      printGeometry(*geometry, iEvent);
+      const auto& geometry = iSetup.getData(tokIdeal_);
+      printGeometry(geometry, iEvent);
     }
     return;
   }
 
   else if (geometryType_ == "real") {
     if (watcherRealGeometry_.check(iSetup)) {
-      iSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
-      printGeometry(*geometry, iEvent);
+      const auto& geometry = iSetup.getData(tokReal_);
+      printGeometry(geometry, iEvent);
     }
     return;
   }
 
   else if (geometryType_ == "misaligned") {
     if (watcherMisalignedGeometry_.check(iSetup)) {
-      iSetup.get<VeryForwardMisalignedGeometryRecord>().get(geometry);
-      printGeometry(*geometry, iEvent);
+      const auto& geometry = iSetup.getData(tokMis_);
+      printGeometry(geometry, iEvent);
     }
     return;
   }

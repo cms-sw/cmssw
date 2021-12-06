@@ -1,0 +1,17 @@
+<use name="root"/>
+<use name="dd4hep"/>
+<use name="geant4core"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="Geometry/Records"/>
+<use name="SimDataFormats/ValidationFormats"/>
+<use name="SimG4Core/Notification"/>
+<use name="SimG4Core/Watcher"/>
+<library file="*.cc" name="ValidationGeometryPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

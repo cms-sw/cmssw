@@ -15,7 +15,9 @@ VolumeBasedMagneticField::VolumeBasedMagneticField(int geomVersion,
       maxZ(zMax),
       paramField(param),
       magGeomOwned(true),
-      paramFieldOwned(isParamFieldOwned) {}
+      paramFieldOwned(isParamFieldOwned) {
+  setNominalValue();
+}
 
 VolumeBasedMagneticField::VolumeBasedMagneticField(const VolumeBasedMagneticField& vbf)
     : MagneticField::MagneticField(vbf),
@@ -26,6 +28,7 @@ VolumeBasedMagneticField::VolumeBasedMagneticField(const VolumeBasedMagneticFiel
       magGeomOwned(false),
       paramFieldOwned(false) {
   // std::cout << "VolumeBasedMagneticField::clone() (shallow copy)" << std::endl;
+  setNominalValue();
 }
 
 MagneticField* VolumeBasedMagneticField::clone() const { return new VolumeBasedMagneticField(*this); }

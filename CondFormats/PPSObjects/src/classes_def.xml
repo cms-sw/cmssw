@@ -27,6 +27,12 @@
     
     <class name="CTPPSPixelFramePosition"  class_version="0"/>
 
+    <class name="PPSAssociationCuts"  class_version="0"/>
+    <class name="PPSAssociationCuts::CutsPerArm"  class_version="0"/>
+    <class name="std::map<unsigned int,PPSAssociationCuts::CutsPerArm >"/>
+    <class name="std::pair<unsigned int, PPSAssociationCuts::CutsPerArm>"/>
+    <class name="std::vector<std::string>"/>
+
     <class name="CTPPSPixelROCInfo"  class_version="0"/>
 
     <class name="CTPPSPixelDAQMapping"  class_version="0"/>
@@ -68,4 +74,28 @@
     <class name="LHCInterpolatedOpticalFunctionsSetCollection"/>
 
     <class name="PPSDirectSimulationData"  class_version="0"/>
-</lcgdict>
+
+    <class name="PointErrors"/>
+    <class name="SelectionRange"/>
+    <class name="RPConfig"/>
+    <class name="SectorConfig"/>
+    <class name="Binning"/>
+    <class name="std::vector<PointErrors>"/>
+    <class name="std::map<unsigned int, std::vector<PointErrors>>"/>
+    <class name="std::pair<unsigned int, std::vector<PointErrors>>"/>
+    <class name="std::map<unsigned int, SelectionRange>"/>
+    <class name="std::pair<unsigned int, SelectionRange>"/>
+    <class name="PPSAlignmentConfig" class_version="0"/>
+    <class name="PPSAlignmentConfiguration::PointErrors"/>
+    <class name="PPSAlignmentConfiguration::SelectionRange"/>
+    <class name="PPSAlignmentConfiguration::RPConfig"/>
+    <class name="PPSAlignmentConfiguration::SectorConfig"/>
+    <class name="PPSAlignmentConfiguration::Binning"/>
+    <class name="std::vector<PPSAlignmentConfiguration::PointErrors>"/>
+    <class name="std::map<unsigned int, std::vector<PPSAlignmentConfiguration::PointErrors>>"/>
+    <class name="std::pair<unsigned int, std::vector<PPSAlignmentConfiguration::PointErrors>>"/>
+    <class name="std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange>"/>
+    <class name="std::pair<unsigned int, PPSAlignmentConfiguration::SelectionRange>"/>
+    <class name="PPSAlignmentConfiguration" class_version="0"/>
+
+  </lcgdict> 

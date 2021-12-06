@@ -32,11 +32,9 @@ using namespace std;
 void L1TTwinMuxAlgorithm::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
                               edm::Handle<L1MuDTChambThContainer> thetaDigis,
                               edm::Handle<RPCDigiCollection> rpcDigis,
-                              const edm::EventSetup& c) {
+                              const L1TTwinMuxParams& tmParams,
+                              const RPCGeometry& rpcGeometry) {
   ///ES Parameters
-  const L1TTwinMuxParamsRcd& tmParamsRcd = c.get<L1TTwinMuxParamsRcd>();
-  tmParamsRcd.get(tmParamsHandle);
-  const L1TTwinMuxParams& tmParams = *tmParamsHandle.product();
   bool onlyRPC = tmParams.get_UseOnlyRPC();
   bool onlyDT = tmParams.get_UseOnlyDT();
   bool useLowQDT = tmParams.get_UseLowQDT();
@@ -45,7 +43,7 @@ void L1TTwinMuxAlgorithm::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
 
   ///Align track segments that are coming in bx-1.
   AlignTrackSegments alignedDTs{*inphiDigis};
-  alignedDTs.run(c);
+  alignedDTs.run();
   L1MuDTChambPhContainer const& phiDigis = alignedDTs.getDTContainer();
   //if only DTs are required without bx correction
   //return the aligned track segments
@@ -55,12 +53,12 @@ void L1TTwinMuxAlgorithm::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
   }
   ///Clean RPC hits
   RPCHitCleaner rpcHitCl{*rpcDigis};
-  rpcHitCl.run(c);
+  rpcHitCl.run();
   RPCDigiCollection const& rpcDigisCleaned = rpcHitCl.getRPCCollection();
 
   ///Translate RPC digis to DT primitives.
   RPCtoDTTranslator dt_from_rpc{rpcDigisCleaned};
-  dt_from_rpc.run(c);
+  dt_from_rpc.run(rpcGeometry);
   L1MuDTChambPhContainer const& rpcPhiDigis =
       dt_from_rpc.getDTContainer();  //Primitves used for RPC->DT (only station 1 and 2)
   L1MuDTChambPhContainer const& rpcHitsPhiDigis =
@@ -68,16 +66,16 @@ void L1TTwinMuxAlgorithm::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
 
   ///Match low q DT primitives with RPC hits in dphiWindow
   DTLowQMatching dtlowq{&phiDigis, rpcHitsPhiDigis};
-  dtlowq.run(c);
+  dtlowq.run(tmParams);
 
   if (onlyDT && !correctBX && useLowQDT) {
     m_tm_phi_output = phiDigis;
     if (verbose) {
       IOPrinter ioPrinter;
       cout << "======DT========" << endl;
-      ioPrinter.run(inphiDigis, m_tm_phi_output, rpcDigis, c);
+      ioPrinter.run(inphiDigis, m_tm_phi_output, rpcDigis, rpcGeometry);
       cout << "======RPC========" << endl;
-      ioPrinter.run(&rpcHitsPhiDigis, m_tm_phi_output, &rpcDigisCleaned, c);
+      ioPrinter.run(&rpcHitsPhiDigis, m_tm_phi_output, &rpcDigisCleaned, rpcGeometry);
       cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     }
 
@@ -87,7 +85,7 @@ void L1TTwinMuxAlgorithm::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
   ///Correct(in bx) DT primitives by comparing them to RPC.
   //  DTRPCBxCorrection *rpc_dt_bx = new DTRPCBxCorrection(phiDigis,rpcHitsPhiDigis);
   DTRPCBxCorrection rpc_dt_bx{phiDigis, rpcHitsPhiDigis};
-  rpc_dt_bx.run(c);
+  rpc_dt_bx.run(tmParams);
 
   L1MuDTChambPhContainer const& phiDigiscp = rpc_dt_bx.getDTContainer();
 
@@ -153,9 +151,9 @@ void L1TTwinMuxAlgorithm::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
   if (verbose) {
     IOPrinter ioPrinter;
     cout << "======DT========" << endl;
-    ioPrinter.run(inphiDigis, m_tm_phi_output, rpcDigis, c);
+    ioPrinter.run(inphiDigis, m_tm_phi_output, rpcDigis, rpcGeometry);
     cout << "======RPC========" << endl;
-    ioPrinter.run(&rpcHitsPhiDigis, m_tm_phi_output, &rpcDigisCleaned, c);
+    ioPrinter.run(&rpcHitsPhiDigis, m_tm_phi_output, &rpcDigisCleaned, rpcGeometry);
     cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
   }
 }

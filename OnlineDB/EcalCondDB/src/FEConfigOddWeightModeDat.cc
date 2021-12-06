@@ -4,6 +4,7 @@
 
 #include "OnlineDB/EcalCondDB/interface/FEConfigOddWeightModeDat.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigOddWeightInfo.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace oracle::occi;
@@ -51,7 +52,7 @@ void FEConfigOddWeightModeDat::prepareWrite() noexcept(false) {
         "VALUES (:wei2_conf_id,  "
         " :w1, :w2, :w3, :w4, :w5, :w6, :w7, :w8, :w9, :w10, :w11, :w12, :w13, :w14, :w15 , :w16, :w17, :w18 )");
   } catch (SQLException& e) {
-    throw(std::runtime_error("FEConfigOddWeightModeDat::prepareWrite():  " + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigOddWeightModeDat::prepareWrite():  " << e.getMessage();
   }
 }
 
@@ -90,7 +91,7 @@ void FEConfigOddWeightModeDat::writeDB(const EcalLogicID* ecid,
 
     m_writeStmt->executeUpdate();
   } catch (SQLException& e) {
-    throw(std::runtime_error("FEConfigOddWeightModeDat::writeDB():  " + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigOddWeightModeDat::writeDB():  " << e.getMessage();
   }
 }
 
@@ -150,7 +151,7 @@ void FEConfigOddWeightModeDat::fetchData(map<EcalLogicID, FEConfigOddWeightModeD
       fillMap->insert(p);
     }
   } catch (SQLException& e) {
-    throw(std::runtime_error("FEConfigOddWeightModeDat::fetchData:  " + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigOddWeightModeDat::fetchData:  " << e.getMessage();
   }
 }
 

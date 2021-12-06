@@ -5,7 +5,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "getBestVertex.h"
+#include "RecoTracker/FinalTrackSelectors/interface/getBestVertex.h"
 
 #include "TrackingTools/Records/interface/TfGraphRecord.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
@@ -14,25 +14,23 @@
 namespace {
   class TfDnn {
   public:
-    TfDnn(const edm::ParameterSet& cfg)
+    TfDnn(const edm::ParameterSet& cfg, edm::ConsumesCollector iC)
         : tfDnnLabel_(cfg.getParameter<std::string>("tfDnnLabel")),
+          tfDnnToken_(iC.esConsumes(edm::ESInputTag("", tfDnnLabel_))),
           session_(nullptr)
 
     {}
 
-    static const char* name() { return "TrackTfClassifier"; }
+    static const char* name() { return "trackTfClassifierDefault"; }
 
     static void fillDescriptions(edm::ParameterSetDescription& desc) {
       desc.add<std::string>("tfDnnLabel", "trackSelectionTf");
     }
-
     void beginStream() {}
 
     void initEvent(const edm::EventSetup& es) {
       if (session_ == nullptr) {
-        edm::ESHandle<TfGraphDefWrapper> tfDnnHandle;
-        es.get<TfGraphRecord>().get(tfDnnLabel_, tfDnnHandle);
-        session_ = tfDnnHandle.product()->getSession();
+        session_ = es.getData(tfDnnToken_).getSession();
       }
     }
 
@@ -96,6 +94,7 @@ namespace {
     }
 
     const std::string tfDnnLabel_;
+    const edm::ESGetToken<TfGraphDefWrapper, TfGraphRecord> tfDnnToken_;
     const tensorflow::Session* session_;
   };
 

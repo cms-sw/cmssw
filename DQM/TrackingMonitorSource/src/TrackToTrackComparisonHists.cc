@@ -120,7 +120,7 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
 
   edm::Handle<reco::VertexCollection> monitoredPVHandle;
   iEvent.getByToken(monitoredPVToken_, monitoredPVHandle);
-  if (!monitoredTracksHandle.isValid()) {
+  if (!monitoredPVHandle.isValid()) {
     edm::LogError("TrackToTrackComparisonHists") << "monitoredPVHandle not found, skipping event";
     return;
   }

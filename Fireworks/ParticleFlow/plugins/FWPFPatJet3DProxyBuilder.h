@@ -36,10 +36,10 @@ public:
   FWPFPatJet3DProxyBuilder();
   ~FWPFPatJet3DProxyBuilder() override;
 
-private:
   FWPFPatJet3DProxyBuilder(const FWPFPatJet3DProxyBuilder&) = delete;                   // Stop default
   const FWPFPatJet3DProxyBuilder& operator=(const FWPFPatJet3DProxyBuilder&) = delete;  // Stop default
 
+private:
   // --------------------- Member Functions --------------------------
   using FWSimpleProxyBuilderTemplate<T>::build;
   void build(const T&, unsigned int, TEveElement&, const FWViewContext*) override;

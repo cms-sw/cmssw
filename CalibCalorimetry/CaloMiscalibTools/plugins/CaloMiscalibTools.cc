@@ -25,6 +25,7 @@
 // user include files
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibTools.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalBarrel.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
@@ -45,8 +46,8 @@ CaloMiscalibTools::CaloMiscalibTools(const edm::ParameterSet& iConfig) {
   barrelfile_ = barrelfiletmp.fullPath();
   endcapfile_ = endcapfiletmp.fullPath();
 
-  std::cout << "Barrel file is:" << barrelfile_ << std::endl;
-  std::cout << "endcap file is:" << endcapfile_ << std::endl;
+  edm::LogVerbatim("CaloMiscalibTools") << "Barrel file is:" << barrelfile_;
+  edm::LogVerbatim("CaloMiscalibTools") << "endcap file is:" << endcapfile_;
 
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this, &CaloMiscalibTools::produce);
@@ -75,9 +76,7 @@ CaloMiscalibTools::ReturnType CaloMiscalibTools::produce(const EcalIntercalibCon
     endcapreader_.parseXMLMiscalibFile(endcapfile_);
   map.print();
   // Added by Zhen, need a new object so to not be deleted at exit
-  //    std::cout<<"about to copy"<<std::endl;
   CaloMiscalibTools::ReturnType mydata = std::make_unique<EcalIntercalibConstants>(map.get());
-  //    std::cout<<"mydata "<<mydata<<std::endl;
   return mydata;
 }
 

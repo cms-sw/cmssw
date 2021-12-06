@@ -20,8 +20,8 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 //
@@ -45,6 +45,14 @@ namespace edm {
       for (auto m : m_streamModules) {
         delete m;
       }
+    }
+
+    template <typename T>
+    void ProducingModuleAdaptorBase<T>::deleteModulesEarly() {
+      for (auto m : m_streamModules) {
+        delete m;
+      }
+      m_streamModules.clear();
     }
 
     //
@@ -252,11 +260,6 @@ namespace edm {
       mod->endLuminosityBlock(lb, c);
       streamEndLuminosityBlockSummary(mod, lb, c);
     }
-
-    template <typename T>
-    void ProducingModuleAdaptorBase<T>::doRespondToOpenInputFile(FileBlock const&) {}
-    template <typename T>
-    void ProducingModuleAdaptorBase<T>::doRespondToCloseInputFile(FileBlock const&) {}
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doRegisterThinnedAssociations(ProductRegistry const& registry,

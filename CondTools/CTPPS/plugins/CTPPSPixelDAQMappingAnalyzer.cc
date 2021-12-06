@@ -21,10 +21,15 @@ public:
   cond::Time_t daqmappingiov_;
   cond::Time_t analysismaskiov_;
 
+  edm::ESGetToken<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd> tokenMapping_;
+  edm::ESGetToken<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd> tokenMask_;
+
   explicit CTPPSPixelDAQMappingAnalyzer(edm::ParameterSet const& iConfig)
       : label_(iConfig.getUntrackedParameter<string>("label", "RPix")),
         daqmappingiov_(iConfig.getParameter<unsigned long long>("daqmappingiov")),
-        analysismaskiov_(iConfig.getParameter<unsigned long long>("analysismaskiov")) {}
+        analysismaskiov_(iConfig.getParameter<unsigned long long>("analysismaskiov")),
+        tokenMapping_(esConsumes<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd>(edm::ESInputTag("", label_))),
+        tokenMask_(esConsumes<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd>(edm::ESInputTag("", label_))) {}
   explicit CTPPSPixelDAQMappingAnalyzer(int i) {}
   ~CTPPSPixelDAQMappingAnalyzer() override {}
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
@@ -41,8 +46,7 @@ void CTPPSPixelDAQMappingAnalyzer::analyze(const edm::Event& e, const edm::Event
 
   //this part gets the handle of the event source and the record (i.e. the Database)
   if (e.id().run() == daqmappingiov_) {
-    ESHandle<CTPPSPixelDAQMapping> mapping;
-    context.get<CTPPSPixelDAQMappingRcd>().get("RPix", mapping);
+    ESHandle<CTPPSPixelDAQMapping> mapping = context.getHandle(tokenMapping_);
 
     // print mapping
     /*printf("* DAQ mapping\n");
@@ -58,8 +62,7 @@ void CTPPSPixelDAQMappingAnalyzer::analyze(const edm::Event& e, const edm::Event
 
   if (e.id().run() == analysismaskiov_) {
     // get analysis mask to mask channels
-    ESHandle<CTPPSPixelAnalysisMask> analysisMask;
-    context.get<CTPPSPixelAnalysisMaskRcd>().get(label_, analysisMask);
+    ESHandle<CTPPSPixelAnalysisMask> analysisMask = context.getHandle(tokenMask_);
 
     // print mask
     /*printf("* mask\n");

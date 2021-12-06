@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #____________________________________________________________
 #
 #
@@ -30,8 +30,7 @@ from __future__ import print_function
 
 from builtins import range
 import os, string, re, sys, math
-import commands, time
-import six
+import subprocess, time
 
 #_______________OPTIONS________________
 import optparse
@@ -40,7 +39,7 @@ USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
 
 def nonzero(self): # will become the nonzero method of optparse.Values
     "True if options were given"
-    for v in six.itervalues(self.__dict__):
+    for v in self.__dict__.values():
         if v is not None: return True
     return False
 
@@ -188,7 +187,7 @@ def get_listoftags(dest, auth,):
 
     queryTags_cmd = "cmscond_list_iov -c "+dest+" -P "+auth+" -a | grep BeamSpotObjects"
     print(queryTags_cmd)
-    outcmd = commands.getstatusoutput( queryTags_cmd )
+    outcmd = subprocess.getstatusoutput( queryTags_cmd )
     print(outcmd[1])
 
     listtags = outcmd[1].split()
@@ -243,7 +242,7 @@ def get_lastIOVs( listoftags, dest, auth ):
         queryIOVs_cmd = "cmscond_list_iov -c "+dest+" -P "+auth+" -t "+ lasttag
         print(queryIOVs_cmd)
 
-        outcmd = commands.getstatusoutput( queryIOVs_cmd )
+        outcmd = subprocess.getstatusoutput( queryIOVs_cmd )
 
         tmparr = outcmd[1].split('\n')
 
@@ -304,19 +303,19 @@ def get_plots(path,output, iovs, tag):
     initial = str(int(initial) -100 )
     cmd = path+"/plotBeamSpotDB.py -b -P -t "+tag+" -i "+initial +" -f "+final
     print(cmd)
-    outcmd = commands.getstatusoutput( cmd )
+    outcmd = subprocess.getstatusoutput( cmd )
     print(outcmd[1])
 
     cmd = "ls *.png"
-    outcmd = commands.getstatusoutput( cmd )
+    outcmd = subprocess.getstatusoutput( cmd )
 
     pngfiles = outcmd[1].split('\n')
     print(pngfiles)
 
     cmd = "cp *.png "+os.path.dirname(output)
-    outcmd = commands.getstatusoutput( cmd )
+    outcmd = subprocess.getstatusoutput( cmd )
     cmd = "rm *.png"
-    outcmd = commands.getstatusoutput( cmd )
+    outcmd = subprocess.getstatusoutput( cmd )
 
     pngfiles.sort()
     return pngfiles
@@ -346,7 +345,7 @@ def write_plots(lines, plots,web):
 #________________________________
 def get_productionFiles( directory ):
 
-    list = commands.getstatusoutput('ls -t '+directory)
+    list = subprocess.getstatusoutput('ls -t '+directory)
     list = list[1].split()
     newlist = []
     for i in list:

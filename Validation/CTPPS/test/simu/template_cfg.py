@@ -48,9 +48,6 @@ process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstruc
   rpId_56_N = process.rpIds.rp_56_N,
   rpId_56_F = process.rpIds.rp_56_F,
 
-  association_cuts_45 = process.ctppsProtons.association_cuts_45,
-  association_cuts_56 = process.ctppsProtons.association_cuts_56,
-
   outputFile = cms.string("$OUT_PROTONS")
 )
 

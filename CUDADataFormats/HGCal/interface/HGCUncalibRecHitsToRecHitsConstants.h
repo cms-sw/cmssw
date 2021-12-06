@@ -2,6 +2,7 @@
 #define CUDADataFormats_HGCal_HGCUncalibRecHitsToRecHitsConstants_h
 
 #include <cstdint>
+#include <cstddef>
 #include <vector>
 
 class HGCConstantVectorData {

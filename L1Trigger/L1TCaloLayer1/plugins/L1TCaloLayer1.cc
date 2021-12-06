@@ -76,6 +76,7 @@ private:
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSource;
   edm::EDPutTokenT<CaloTowerBxCollection> towerPutToken;
   edm::EDPutTokenT<L1CaloRegionCollection> regionPutToken;
+  const L1TCaloLayer1FetchLUTsTokens lutsTokens;
 
   std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > ecalLUT;
   std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > hcalLUT;
@@ -116,6 +117,9 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig)
       hcalTPSource(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalToken"))),
       towerPutToken{produces<CaloTowerBxCollection>()},
       regionPutToken{produces<L1CaloRegionCollection>()},
+      lutsTokens{esConsumes<edm::Transition::BeginRun>(),
+                 esConsumes<edm::Transition::BeginRun>(),
+                 esConsumes<edm::Transition::BeginRun>()},
       ePhiMap(72 * 2, 0),
       hPhiMap(72 * 2, 0),
       hfPhiMap(72 * 2, 0),
@@ -282,7 +286,8 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 // ------------ method called when starting to processes a run  ------------
 void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  if (!L1TCaloLayer1FetchLUTs(iSetup,
+  if (!L1TCaloLayer1FetchLUTs(lutsTokens,
+                              iSetup,
                               ecalLUT,
                               hcalLUT,
                               hfLUT,

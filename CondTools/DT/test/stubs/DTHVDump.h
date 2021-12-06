@@ -12,7 +12,8 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
-
+class DTHVStatus;
+class DTHVStatusRcd;
 namespace edmtest {
   class DTHVDump : public edm::EDAnalyzer {
   public:
@@ -22,5 +23,6 @@ namespace edmtest {
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   private:
+    edm::ESGetToken<DTHVStatus, DTHVStatusRcd> dthvstatusToken_;
   };
 }  // namespace edmtest

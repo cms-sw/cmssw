@@ -17,6 +17,13 @@
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 namespace edm {
   class Run;
   class LuminosityBlock;
@@ -24,6 +31,7 @@ namespace edm {
   class EventSetup;
   class ParameterSet;
   class ParameterSetDescription;
+  class ConsumesCollector;
 }  // namespace edm
 
 namespace ecaldqm {
@@ -58,6 +66,7 @@ namespace ecaldqm {
     virtual ~DQWorker() noexcept(false);
 
     static void fillDescriptions(edm::ParameterSetDescription &_desc);
+    void setTokens(edm::ConsumesCollector &);
 
     virtual void beginRun(edm::Run const &, edm::EventSetup const &) {}
     virtual void endRun(edm::Run const &, edm::EventSetup const &) {}
@@ -82,12 +91,24 @@ namespace ecaldqm {
     // which leads to poor multi-threading performance.
     // Original issue here:
     // https://github.com/cms-sw/cmssw/issues/28858
+
     void setSetupObjects(edm::EventSetup const &);
+    void setSetupObjectsEndLumi(edm::EventSetup const &);
     EcalElectronicsMapping const *GetElectronicsMap();
     EcalTrigTowerConstituentsMap const *GetTrigTowerMap();
     CaloGeometry const *GetGeometry();
     CaloTopology const *GetTopology();
     EcalDQMSetupObjects const getEcalDQMSetupObjects();
+
+    edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> elecMapHandle;
+    edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> ttMapHandle;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomHandle;
+    edm::ESGetToken<CaloTopology, CaloTopologyRecord> topoHandle;
+
+    edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> elecMapHandleEndLumi;
+    edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> ttMapHandleEndLumi;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomHandleEndLumi;
+    edm::ESGetToken<CaloTopology, CaloTopologyRecord> topoHandleEndLumi;
 
     void setTime(time_t _t) { timestamp_.now = _t; }
     void setRunNumber(edm::RunNumber_t _r) { timestamp_.iRun = _r; }

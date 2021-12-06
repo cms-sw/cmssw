@@ -20,14 +20,16 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 
 //#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 
 using namespace std;
 
-CRackTrajectoryBuilder::CRackTrajectoryBuilder(const edm::ParameterSet& conf) {
+CRackTrajectoryBuilder::CRackTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
+    : magfieldToken_(iC.esConsumes()),
+      trackerToken_(iC.esConsumes()),
+      builderToken_(iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("TTRHBuilder")))) {
   //minimum number of hits per tracks
 
   theMinHits = conf.getParameter<int>("MinHits");
@@ -40,7 +42,6 @@ CRackTrajectoryBuilder::CRackTrajectoryBuilder(const edm::ParameterSet& conf) {
   useMatchedHits = conf.getUntrackedParameter<bool>("useMatchedHits", true);
 
   geometry = conf.getUntrackedParameter<std::string>("GeometricStructure", "STANDARD");
-  theBuilderName = conf.getParameter<std::string>("TTRHBuilder");
 }
 
 CRackTrajectoryBuilder::~CRackTrajectoryBuilder() {
@@ -52,8 +53,8 @@ void CRackTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus) {
   // theInitialState          = new TransientInitialStateEstimator( es,tise_params);
 
   //services
-  es.get<IdealMagneticFieldRecord>().get(magfield);
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  magfield = &es.getData(magfieldToken_);
+  tracker = &es.getData(trackerToken_);
 
   if (seedplus) {
     seed_plus = true;
@@ -69,10 +70,7 @@ void CRackTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus) {
   //  theUpdator=       new KFStripUpdator();
   theEstimator = new Chi2MeasurementEstimator(chi2cut);
 
-  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  es.get<TransientRecHitRecord>().get(theBuilderName, theBuilder);
-
-  RHBuilder = theBuilder.product();
+  RHBuilder = &es.getData(builderToken_);
 
   theFitter = new KFTrajectoryFitter(*thePropagator, *theUpdator, *theEstimator);
 

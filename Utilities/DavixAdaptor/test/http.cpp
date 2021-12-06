@@ -6,6 +6,7 @@
 int main(int, char** /*argv*/) try {
   initTest();
 
+  using namespace edm::storage;
   IOSize n;
   char buf[1024];
   auto s = StorageFactory::get()->open("http://google.com", IOFlags::OpenRead);

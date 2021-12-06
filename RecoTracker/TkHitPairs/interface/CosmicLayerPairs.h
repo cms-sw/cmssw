@@ -15,23 +15,28 @@
 #include <vector>
 
 class TrackerTopology;
+class GeometricSearchTracker;
 
 class CosmicLayerPairs : public SeedLayerPairs {
 public:
-  CosmicLayerPairs(std::string geometry) : _geometry(geometry){};  //:isFirstCall(true){};
+  CosmicLayerPairs(std::string geometry,
+                   const SiStripRecHit2DCollection &collrphi,
+                   const SiStripMatchedRecHit2DCollection &collmatched,
+                   const GeometricSearchTracker &track,
+                   const TrackerTopology &ttopo)
+      : _geometry(geometry) {
+    init(collrphi, collmatched, track, ttopo);
+  };
   ~CosmicLayerPairs() override;
-  //  explicit PixelSeedLayerPairs(const edm::EventSetup& iSetup);
 
-  //  virtual vector<LayerPair> operator()() const;
   std::vector<SeedLayerPairs::LayerPair> operator()() override;
-  void init(const SiStripRecHit2DCollection &collstereo,
-            const SiStripRecHit2DCollection &collrphi,
-            const SiStripMatchedRecHit2DCollection &collmatched,
-            //std::string geometry,
-            const edm::EventSetup &iSetup);
 
 private:
-  //bool isFirstCall;
+  void init(const SiStripRecHit2DCollection &collrphi,
+            const SiStripMatchedRecHit2DCollection &collmatched,
+            const GeometricSearchTracker &,
+            const TrackerTopology &);
+
   std::string _geometry;
 
   std::vector<BarrelDetLayer const *> bl;

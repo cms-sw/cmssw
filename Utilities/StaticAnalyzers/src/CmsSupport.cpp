@@ -48,6 +48,11 @@ bool clangcms::support::isCmsLocalFile(const char *file) {
 // which would otherwise be ambiguous.
 std::string clangcms::support::getQualifiedName(const clang::NamedDecl &d) {
   std::string ret;
+  LangOptions LangOpts;
+  LangOpts.CPlusPlus = true;
+  PrintingPolicy Policy(LangOpts);
+  Policy.FullyQualifiedName = true;
+  Policy.PrintCanonicalTypes = true;
   const DeclContext *ctx = d.getDeclContext();
   if (ctx->isFunctionOrMethod() && isa<NamedDecl>(ctx)) {
     // This is a local variable.
@@ -88,7 +93,7 @@ std::string clangcms::support::getQualifiedName(const clang::NamedDecl &d) {
       for (unsigned i = 0; i < num_params; ++i) {
         if (i)
           ret += ", ";
-        ret += fd->getParamDecl(i)->getType().getAsString();
+        ret += fd->getParamDecl(i)->getType().getAsString(Policy);
       }
 
       if (fpt->isVariadic()) {

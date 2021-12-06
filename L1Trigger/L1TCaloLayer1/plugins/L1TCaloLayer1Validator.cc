@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -43,7 +43,7 @@ using namespace l1t;
 // class declaration
 //
 
-class L1TCaloLayer1Validator : public edm::EDAnalyzer {
+class L1TCaloLayer1Validator : public edm::one::EDAnalyzer<> {
 public:
   explicit L1TCaloLayer1Validator(const edm::ParameterSet&);
   ~L1TCaloLayer1Validator() override;

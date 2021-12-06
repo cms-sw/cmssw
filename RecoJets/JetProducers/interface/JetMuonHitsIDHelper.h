@@ -11,6 +11,9 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+
 namespace reco {
 
   namespace helper {
@@ -47,6 +50,7 @@ namespace reco {
       int numberOfHitsRPC_;
 
       edm::EDGetTokenT<RPCRecHitCollection> input_rpchits_token_;
+      edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeometryToken_;
     };
   }  // namespace helper
 }  // namespace reco

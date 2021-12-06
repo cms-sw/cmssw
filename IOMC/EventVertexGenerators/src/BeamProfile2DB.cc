@@ -103,8 +103,7 @@ void BeamProfile2DB::beginJob() {}
 // ------------ method called once each job just after ending the event loop  ------------
 void BeamProfile2DB::endJob() {
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  poolDbService->createNewIOV<SimBeamSpotObjects>(
-      &beamSpot_, poolDbService->beginOfTime(), poolDbService->endOfTime(), "SimBeamSpotObjectsRcd");
+  poolDbService->createOneIOV<SimBeamSpotObjects>(beamSpot_, poolDbService->beginOfTime(), "SimBeamSpotObjectsRcd");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

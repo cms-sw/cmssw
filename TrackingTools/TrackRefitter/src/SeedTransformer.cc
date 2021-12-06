@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -43,12 +44,17 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-SeedTransformer::SeedTransformer(const ParameterSet& iConfig) {
+SeedTransformer::SeedTransformer(const ParameterSet& iConfig, ConsumesCollector iC) {
   LogTrace("Reco|TrackingTools|SeedTransformer") << "SeedTransformer constructor called." << endl << endl;
 
-  theFitterName = iConfig.getParameter<string>("Fitter");
-  theMuonRecHitBuilderName = iConfig.getParameter<string>("MuonRecHitBuilder");
-  thePropagatorName = iConfig.getParameter<string>("Propagator");
+  theTrackingGeometryToken = iC.esConsumes();
+  theMagneticFieldToken = iC.esConsumes();
+  auto fitterName = iConfig.getParameter<string>("Fitter");
+  theFitterToken = iC.esConsumes(edm::ESInputTag("", fitterName));
+  auto muonRecHitBuilderName = iConfig.getParameter<string>("MuonRecHitBuilder");
+  theMuonRecHitBuilderToken = iC.esConsumes(edm::ESInputTag("", muonRecHitBuilderName));
+  auto propagatorName = iConfig.getParameter<string>("Propagator");
+  thePropagatorToken = iC.esConsumes(edm::ESInputTag("", propagatorName));
 
   nMinRecHits = iConfig.getParameter<unsigned int>("NMinRecHits");
   errorRescale = iConfig.getParameter<double>("RescaleError");
@@ -60,11 +66,11 @@ SeedTransformer::~SeedTransformer() {
 }
 
 void SeedTransformer::setServices(const EventSetup& iSetup) {
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagneticField);
-  iSetup.get<TrajectoryFitter::Record>().get(theFitterName, theFitter);
-  iSetup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
-  iSetup.get<TrackingComponentsRecord>().get(thePropagatorName, thePropagator);
+  theTrackingGeometry = &iSetup.getData(theTrackingGeometryToken);
+  theMagneticField = &iSetup.getData(theMagneticFieldToken);
+  theFitter = &iSetup.getData(theFitterToken);
+  theMuonRecHitBuilder = &iSetup.getData(theMuonRecHitBuilderToken);
+  thePropagator = &iSetup.getData(thePropagatorToken);
 }
 
 vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) const {

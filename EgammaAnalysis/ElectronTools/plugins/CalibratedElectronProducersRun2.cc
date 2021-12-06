@@ -32,11 +32,12 @@ public:
 private:
   edm::EDGetTokenT<edm::View<T> > theElectronToken;
   std::string theGBRForestName;
-  edm::ESHandle<GBRForest> theGBRForestHandle;
 
   EpCombinationTool theEpCombinationTool;
   ElectronEnergyCalibratorRun2 theEnCorrectorRun2;
   std::unique_ptr<TRandom> theSemiDeterministicRng;
+
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> gbrforestToken_;
 };
 
 template <typename T>
@@ -52,6 +53,7 @@ CalibratedElectronProducerRun2T<T>::CalibratedElectronProducerRun2T(const edm::P
     theSemiDeterministicRng = std::make_unique<TRandom2>();
     theEnCorrectorRun2.initPrivateRng(theSemiDeterministicRng.get());
   }
+  gbrforestToken_ = esConsumes(edm::ESInputTag("", theGBRForestName));
   produces<std::vector<T> >();
 }
 
@@ -60,8 +62,8 @@ CalibratedElectronProducerRun2T<T>::~CalibratedElectronProducerRun2T() {}
 
 template <typename T>
 void CalibratedElectronProducerRun2T<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  iSetup.get<GBRWrapperRcd>().get(theGBRForestName, theGBRForestHandle);
-  theEpCombinationTool.init(theGBRForestHandle.product());
+  const GBRForest *theGBRForest = &iSetup.getData(gbrforestToken_);
+  theEpCombinationTool.init(theGBRForest);
 
   edm::Handle<edm::View<T> > in;
   iEvent.getByToken(theElectronToken, in);

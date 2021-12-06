@@ -57,11 +57,11 @@ namespace reco {
       unsigned int precedence() const { return m_precedence; }
       void setPrecedenceToParenthesis() { m_precedence = static_cast<unsigned int>(Precedence::kParenthesis); }
 
-    private:
       EvaluatorBase(const EvaluatorBase&) = delete;
 
       const EvaluatorBase& operator=(const EvaluatorBase&) = delete;
 
+    private:
       // ---------- member data --------------------------------
       unsigned int m_precedence;
     };

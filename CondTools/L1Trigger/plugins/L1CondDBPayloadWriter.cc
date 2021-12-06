@@ -38,10 +38,6 @@
 //
 
 //
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 L1CondDBPayloadWriter::L1CondDBPayloadWriter(const edm::ParameterSet& iConfig)
@@ -51,6 +47,7 @@ L1CondDBPayloadWriter::L1CondDBPayloadWriter(const edm::ParameterSet& iConfig)
       m_logTransactions(iConfig.getParameter<bool>("logTransactions")),
       m_newL1TriggerKeyList(iConfig.getParameter<bool>("newL1TriggerKeyList")) {
   //now do what ever initialization is needed
+  l1TriggerKeyToken_ = esConsumes();
 }
 
 L1CondDBPayloadWriter::~L1CondDBPayloadWriter() {
@@ -87,7 +84,7 @@ void L1CondDBPayloadWriter::analyze(const edm::Event& iEvent, const edm::EventSe
   bool triggerKeyOK = true;
   try {
     // Get L1TriggerKey
-    iSetup.get<L1TriggerKeyRcd>().get(key);
+    key = iSetup.getHandle(l1TriggerKeyToken_);
 
     if (!m_overwriteKeys) {
       triggerKeyOK = oldKeyList.token(key->tscKey()).empty();

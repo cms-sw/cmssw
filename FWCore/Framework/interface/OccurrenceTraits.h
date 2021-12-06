@@ -15,7 +15,7 @@ OccurrenceTraits:
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"

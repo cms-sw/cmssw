@@ -101,7 +101,6 @@ void FWTauProxyBuilderBase::buildBaseTau(const reco::BaseTau& iTau,
     FWViewEnergyScale* caloScale = vc->getEnergyScale();
     marker->SetScale(caloScale->getScaleFactor3D() * (caloScale->getPlotEt() ? iTau.et() : iTau.energy()));
     setupAddElement(marker, comp);
-    m_lines.push_back(fireworks::scaleMarker(marker, iTau.et(), iTau.energy(), vc));
 
     context().voteMaxEtAndEnergy(iTau.et(), iTau.energy());
   } else if (iJet) {
@@ -152,20 +151,27 @@ void FWTauProxyBuilderBase::localModelChanges(const FWModelId& iId,
     increaseComponentTransparency(iId.index(), iCompound, "TEveJetCone", 80);
 }
 
-void FWTauProxyBuilderBase::scaleProduct(TEveElementList* parent, FWViewType::EType viewType, const FWViewContext* vc) {
-  if (FWViewType::isProjected(viewType)) {
-    typedef std::vector<fireworks::scaleMarker> Lines_t;
-    FWViewEnergyScale* caloScale = vc->getEnergyScale();
-    // printf("%p -> %f\n", this,caloScale->getValToHeight() );
-    for (Lines_t::iterator i = m_lines.begin(); i != m_lines.end(); ++i) {
-      if (vc == (*i).m_vc) {
-        float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;
-        (*i).m_ls->SetScale(caloScale->getScaleFactor3D() * value);
-        TEveProjected* proj = *(*i).m_ls->BeginProjecteds();
-        proj->UpdateProjection();
+void FWTauProxyBuilderBase::scaleProduct(TEveElementList* product,
+                                         FWViewType::EType viewType,
+                                         const FWViewContext* vc) {
+  int idx = 0;
+  for (auto& c : product->RefChildren()) {
+    // check the compound has more than one element (the first one is jet)
+    for (auto& compChld : c->RefChildren()) {
+      TEveScalableStraightLineSet* lineSet = dynamic_cast<TEveScalableStraightLineSet*>(compChld);
+      if (lineSet) {
+        // compund index in the product is an index of model data in the collection
+        const void* modelData = item()->modelData(idx);
+        const reco::BaseTau* ptr = (const reco::BaseTau*)(modelData);
+        float value = vc->getEnergyScale()->getPlotEt() ? ptr->et() : ptr->energy();
+        lineSet->SetScale(vc->getEnergyScale()->getScaleFactor3D() * value);
+        for (TEveProjectable::ProjList_i j = lineSet->BeginProjecteds(); j != lineSet->EndProjecteds(); ++j) {
+          (*j)->UpdateProjection();
+        }
       }
     }
+    idx++;
   }
 }
 
-void FWTauProxyBuilderBase::cleanLocal() { m_lines.clear(); }
+void FWTauProxyBuilderBase::cleanLocal() {}

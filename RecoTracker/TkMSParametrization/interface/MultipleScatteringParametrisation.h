@@ -15,20 +15,9 @@ class DetLayer;
 
 class MultipleScatteringParametrisation {
 public:
-  static void initKeepers(const edm::EventSetup &iSetup);
-
-  enum X0Source { useDetLayer = 0, useX0AtEta = 1, useX0DataAveraged = 2 };
   enum Consecutive { notAssumeConsecutive, useConsecutive };
 
-  MultipleScatteringParametrisation() {}
-
-  MultipleScatteringParametrisation(const DetLayer *layer,
-                                    const edm::EventSetup &iSetup,
-                                    X0Source x0source = useX0AtEta) {
-    init(layer, iSetup, x0source);
-  }
-
-  void init(const DetLayer *layer, const edm::EventSetup &iSetup, X0Source x0source = useX0AtEta);
+  MultipleScatteringParametrisation(const DetLayer *layer, const MSLayersKeeper *layerKeeper);
 
   /// MS sigma  at the layer for which parametrisation is initialised;
   /// particle assumed to come from nominal vertex, "fast" methods called

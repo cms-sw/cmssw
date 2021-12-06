@@ -51,6 +51,7 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString& SubDet) {
   } else {
     fCnaParCout = (TEcnaParCout*)iCnaParCout;
   }
+  fCodePrintAllComments = fCnaParCout->GetCodePrint("AllComments");
 
   //............................ fCnaParPaths
   fCnaParPaths = nullptr;
@@ -118,6 +119,7 @@ TEcnaWrite::TEcnaWrite(const TString& SubDet,
   } else {
     fCnaParCout = (TEcnaParCout*)pCnaParCout;
   }
+  fCodePrintAllComments = fCnaParCout->GetCodePrint("AllComments");
 
   fEcal = nullptr;
   if (pEcal == nullptr) {
@@ -194,8 +196,6 @@ void TEcnaWrite::Init() {
 
   fjustap_2d_ss = nullptr;
   fjustap_1d_ss = nullptr;
-
-  fCodePrintAllComments = fCnaParCout->GetCodePrint("AllComments");
 }
 // end of Init()
 

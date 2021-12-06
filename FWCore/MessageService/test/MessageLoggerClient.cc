@@ -6,10 +6,11 @@
 
 namespace edmtest {
 
-  void MessageLoggerClient::analyze(edm::Event const& /*unused*/
+  void MessageLoggerClient::analyze(edm::StreamID,
+                                    edm::Event const& /*unused*/
                                     ,
                                     edm::EventSetup const& /*unused*/
-  ) {
+  ) const {
     //std::cout << "Module reached\n";
     LogDebug("aTestMessage") << "LogDebug was used to send this message";
     edm::LogInfo("aTestMessage") << "LogInfo was used to send this message";

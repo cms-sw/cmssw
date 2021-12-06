@@ -11,6 +11,18 @@ class UCTCrate {
 public:
   UCTCrate(uint32_t crt, int fwv);
 
+  // No default constructor is needed
+
+  UCTCrate() = delete;
+
+  // No copy constructor is needed
+
+  UCTCrate(const UCTCrate&) = delete;
+
+  // No equality operator is needed
+
+  const UCTCrate& operator=(const UCTCrate&) = delete;
+
   virtual ~UCTCrate();
 
   // To set up event data before processing
@@ -40,18 +52,6 @@ public:
   friend std::ostream& operator<<(std::ostream&, const UCTCrate&);
 
 private:
-  // No default constructor is needed
-
-  UCTCrate() = delete;
-
-  // No copy constructor is needed
-
-  UCTCrate(const UCTCrate&) = delete;
-
-  // No equality operator is needed
-
-  const UCTCrate& operator=(const UCTCrate&) = delete;
-
   // Owned crate level data
 
   uint32_t crate;

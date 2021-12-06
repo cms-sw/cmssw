@@ -6,7 +6,7 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctUnsignedInt.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"

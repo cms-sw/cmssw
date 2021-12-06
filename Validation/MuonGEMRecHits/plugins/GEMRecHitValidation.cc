@@ -26,27 +26,27 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
 
   // NOTE Cluster Size
-  booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/ClusterSize");
+  booker.setCurrentFolder("GEM/RecHits");
 
   TString cls_title = "Cluster Size Distribution";
   TString cls_x_title = "Cluster size";
 
-  me_cls_ = booker.book1D("cls", cls_title + ";" + cls_x_title + ";" + "Entries", 10, 0.5, 10.5);
-
-  for (const auto& station : gem->regions()[0]->stations()) {
-    Int_t station_id = station->station();
-    for (const auto& roll : station->superChambers()[0]->chambers()[0]->etaPartitions()) {
-      Int_t ieta = roll->id().ieta();
-      ME2IdsKey key{station_id, ieta};
-      me_cls_roll_[key] = booker.book1D(Form("cls_GE%d1_iEta%d", station_id, ieta),
-                                        Form("Cluster Size Distribution : GE%d1 iEta %d", station_id, ieta),
-                                        10,
-                                        0.5,
-                                        10.5);
-    }
-  }
-
   if (detail_plot_) {
+    me_detail_cls_total_ = booker.book1D("cls", cls_title + ";" + cls_x_title + ";" + "Entries", 10, 0.5, 10.5);
+
+    for (const auto& station : gem->regions()[0]->stations()) {
+      Int_t station_id = station->station();
+      for (const auto& roll : station->superChambers()[0]->chambers()[0]->etaPartitions()) {
+        Int_t ieta = roll->id().ieta();
+        ME2IdsKey key{station_id, ieta};
+        me_detail_cls_roll_[key] = booker.book1D(Form("cls_GE%d1-E%d", station_id, ieta),
+                                                 Form("Cluster Size Distribution : GE%d1-E%d", station_id, ieta),
+                                                 10,
+                                                 0.5,
+                                                 10.5);
+      }
+    }
+
     for (const auto& region : gem->regions()) {
       Int_t region_id = region->region();
 
@@ -74,32 +74,24 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }            // detail plot
 
   // NOTE Residual
-  booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/Residual");
-
   for (const auto& station : gem->regions()[0]->stations()) {
     Int_t station_id = station->station();
     for (const auto& roll : station->superChambers()[0]->chambers()[0]->etaPartitions()) {
       Int_t ieta = roll->id().ieta();
       ME2IdsKey key{station_id, ieta};
 
-      me_residual_x_[key] = booker.book1D(Form("residual_x_GE%d1_R%d", station_id, ieta),
-                                          Form("Residual in X : GE%d1 iEta %d; Residual in X [cm]", station_id, ieta),
-                                          60,
-                                          -2,
-                                          2);
-
-      me_residual_y_[key] = booker.book1D(Form("residual_y_GE%d1_iEta%d", station_id, ieta),
-                                          Form("Residual in Y : GE%d1 iEta %d; Residual in Y [cm]", station_id, ieta),
+      me_residual_y_[key] = booker.book1D(Form("residual_y_GE%d1-E%d", station_id, ieta),
+                                          Form("Residual in Y : GE%d1-E%d; Residual in Y [cm]", station_id, ieta),
                                           60,
                                           -15,
                                           15);
 
-      me_residual_rphi_[key] = booker.book1D(
-          Form("residual_rphi_GE%d1_iEta%d", station_id, ieta),
-          Form("Residual in R #times #phi : GE%d1 iEta %d; Residual in r #times #phi [cm]", station_id, ieta),
-          60,
-          -15,
-          15);
+      me_residual_rphi_[key] =
+          booker.book1D(Form("residual_rphi_GE%d1-E%d", station_id, ieta),
+                        Form("Residual in R #times #phi : GE%d1-E%d; Residual in r #times #phi [cm]", station_id, ieta),
+                        60,
+                        -15,
+                        15);
     }
   }
 
@@ -118,9 +110,6 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
             for (const auto& roll : chamber->etaPartitions()) {
               Int_t ieta = roll->id().ieta();
               ME4IdsKey key4{region_id, station_id, layer_id, ieta};
-
-              me_detail_residual_x_[key4] =
-                  bookHist1D(booker, key4, "residual_x", "Residual in x", 60, -2, 2, "Residual in x [cm]");
 
               me_detail_residual_y_[key4] =
                   bookHist1D(booker, key4, "residual_y", "Residual in y", 60, -15, 15, "Residual in y [cm]");
@@ -141,8 +130,6 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }            // detail plot
 
   // NOTE Pull
-  booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/Pull");
-
   if (detail_plot_) {
     for (const auto& station : gem->regions()[0]->stations()) {
       Int_t station_id = station->station();
@@ -150,17 +137,11 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
         Int_t ieta = roll->id().ieta();
         ME2IdsKey key{station_id, ieta};
 
-        me_detail_pull_x_[key] = booker.book1D(Form("pull_x_GE%d1_iEta%d", station_id, ieta),
-                                               Form("Pull in X : GE%d1 iEta %d", station_id, ieta),
-                                               60,
-                                               -3,
-                                               3);
+        me_detail_pull_x_[key] = booker.book1D(
+            Form("pull_x_GE%d1-E%d", station_id, ieta), Form("Pull in X : GE%d1-E%d", station_id, ieta), 60, -3, 3);
 
-        me_detail_pull_y_[key] = booker.book1D(Form("pull_y_GE%d1_iEta%d", station_id, ieta),
-                                               Form("Pull in Y : GE%d1 iEta %d", station_id, ieta),
-                                               60,
-                                               -3,
-                                               3);
+        me_detail_pull_y_[key] = booker.book1D(
+            Form("pull_y_GE%d1-E%d", station_id, ieta), Form("Pull in Y : GE%d1-E%d", station_id, ieta), 60, -3, 3);
       }
     }
 
@@ -190,7 +171,6 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }            // detail plot
 
   // NOTE Occupancy
-  booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/Occupancy");
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
@@ -202,8 +182,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       ME2IdsKey key2{region_id, station_id};
 
       if (detail_plot_)
-        me_detail_rechit_occ_det_[key2] =
-            bookDetectorOccupancy(booker, key2, station, "matched_rechit", "Matched RecHit");
+        me_detail_rechit_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "sim_matched", "Matched RecHit");
 
       const auto& superChamberVec = station->superChambers();
       if (!superChamberVec.empty() && superChamberVec[0] != nullptr) {
@@ -213,24 +192,9 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
 
           Int_t num_eta_partitions = chamber->nEtaPartitions();
 
-          me_total_rechit_[key3] =
-              bookHist1D(booker, key3, "total_rechit", "Number of rec hits per event", 25, -0.5, 24.5);
-
-          me_occ_pid_[key3] = bookPIDHist(booker, key3, "rechit_occ_pid", "Number of entreis for each particle");
-
-          me_occ_ieta_[key3] = bookHist1D(booker,
-                                          key3,
-                                          "rechit_occ_ieta",
-                                          "Rechit Occupancy per eta partition",
-                                          num_eta_partitions,
-                                          0.5,
-                                          num_eta_partitions + 0.5);
-
-          me_occ_phi_[key3] = bookHist1D(booker, key3, "rechit_occ_phi", "Rechit Phi Occupancy", 108, -5, 355);
-
           me_rechit_occ_eta_[key3] = bookHist1D(booker,
                                                 key3,
-                                                "matched_rechit_occ_eta",
+                                                "sim_matched_occ_eta",
                                                 "Matched RecHit Eta Occupancy",
                                                 16,
                                                 eta_range_[station_id * 2 + 0],
@@ -238,9 +202,24 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
                                                 "|#eta|");
 
           me_rechit_occ_phi_[key3] =
-              bookHist1D(booker, key3, "matched_rechit_occ_phi", "Matched RecHit Phi Occupancy", 36, -5, 355, "#phi");
+              bookHist1D(booker, key3, "sim_matched_occ_phi", "Matched RecHit Phi Occupancy", 36, -5, 355, "#phi");
 
           if (detail_plot_) {
+            me_detail_total_rechit_[key3] =
+                bookHist1D(booker, key3, "total_rechit", "Number of rec hits per event", 25, -0.5, 24.5);
+
+            me_detail_occ_pid_[key3] = bookPIDHist(booker, key3, "sim_occ_pid", "Number of entreis for each particle");
+
+            me_detail_occ_ieta_[key3] = bookHist1D(booker,
+                                                   key3,
+                                                   "occ_ieta",
+                                                   "Rechit Occupancy per eta partition",
+                                                   num_eta_partitions,
+                                                   0.5,
+                                                   num_eta_partitions + 0.5);
+
+            me_detail_occ_phi_[key3] = bookHist1D(booker, key3, "occ_phi", "Rechit Phi Occupancy", 108, -5, 355);
+
             me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "rechit", "RecHit");
 
             me_detail_occ_polar_[key3] = bookPolarOccupancy(booker, key3, "rechit", "RecHit");
@@ -313,15 +292,14 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     Int_t cls = rechit.clusterSize();
     cls = cls > 10 ? 10 : cls;
 
-    me_cls_roll_[key]->Fill(cls);
-    me_occ_ieta_[key3]->Fill(ieta);
-    me_occ_phi_[key3]->Fill(rechit_g_phi);
     total_rechit[key3]++;
 
-    me_cls_->Fill(cls);
-
     if (detail_plot_) {
+      me_detail_cls_total_->Fill(cls);
       me_detail_cls_[key4]->Fill(cls);
+      me_detail_cls_roll_[key]->Fill(cls);
+      me_detail_occ_ieta_[key3]->Fill(ieta);
+      me_detail_occ_phi_[key3]->Fill(rechit_g_phi);
       me_detail_occ_zr_[region_id]->Fill(rechit_g_abs_z, rechit_g_r);
       me_detail_occ_xy_[key3]->Fill(rechit_g_x, rechit_g_y);
       me_detail_occ_polar_[key3]->Fill(rechit_g_phi, rechit_g_r);
@@ -343,20 +321,24 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
         }
       }
     }
-    Int_t max_pid = 0;
-    Int_t max_count = 0;
-    for (auto& [pid, count] : pid_count) {
-      if (max_count < count) {
-        max_pid = pid;
-        max_count = count;
+    if (detail_plot_) {
+      Int_t max_pid = 0;
+      Int_t max_count = 0;
+      for (auto& [pid, count] : pid_count) {
+        if (max_count < count) {
+          max_pid = pid;
+          max_count = count;
+        }
       }
+      Int_t pid_idx = getPidIdx(max_pid);
+      me_detail_occ_pid_[key3]->Fill(pid_idx);
     }
-    Int_t pid_idx = getPidIdx(max_pid);
-    me_occ_pid_[key3]->Fill(pid_idx);
   }
 
-  for (auto [key, num_total_rechit] : total_rechit) {
-    me_total_rechit_[key]->Fill(num_total_rechit);
+  if (detail_plot_) {
+    for (auto [key, num_total_rechit] : total_rechit) {
+      me_detail_total_rechit_[key]->Fill(num_total_rechit);
+    }
   }
 
   // NOTE
@@ -428,7 +410,6 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
         Float_t pull_x = residual_x / resolution_x;
         Float_t pull_y = residual_y / resolution_y;
 
-        me_residual_x_[key]->Fill(residual_x);
         me_residual_y_[key]->Fill(residual_y);
         me_residual_rphi_[key]->Fill(residual_rphi);
 
@@ -438,7 +419,6 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
         if (detail_plot_) {
           me_detail_rechit_occ_det_[key2]->Fill(det_occ_bin_x, ieta);
 
-          me_detail_residual_x_[key4]->Fill(residual_x);
           me_detail_residual_y_[key4]->Fill(residual_y);
           me_detail_residual_rphi_[key4]->Fill(residual_rphi);
 

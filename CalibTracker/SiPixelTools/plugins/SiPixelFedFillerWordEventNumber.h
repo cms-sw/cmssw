@@ -6,7 +6,7 @@
 #include <vector>
 #include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -19,7 +19,7 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 //===== class decleration
-class SiPixelFedFillerWordEventNumber : public edm::EDProducer {
+class SiPixelFedFillerWordEventNumber : public edm::stream::EDProducer<> {
 public:
   explicit SiPixelFedFillerWordEventNumber(const edm::ParameterSet &);
   ~SiPixelFedFillerWordEventNumber() override;
@@ -28,9 +28,7 @@ public:
   bool SaveFillerWordsbool;
 
 private:
-  void beginJob() override;
   void produce(edm::Event &, const edm::EventSetup &) override;
-  void endJob() override;
   edm::ParameterSet config_;
   int status;
   unsigned int EventNum;

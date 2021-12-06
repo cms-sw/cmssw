@@ -5,7 +5,6 @@ from PhysicsTools.PatAlgos.slimming.extraJets_MuEGFixMoriond2017 import backupJe
 #from RecoEgamma.EgammaTools.egammaGainSwitchFixToolsForPAT_cff import customizeGSFixForPAT
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 import sys
-import six
 
 def addBadMuonFilters(process):
 
@@ -35,7 +34,7 @@ def cleanPFCandidates(process, badMuons, verbose=False):
     needOriginalMuons = [ process.muonsCleaned ] + [ getattr(process,l.moduleLabel) for l in badMuons ]
     replacePFCandidates = MassSearchReplaceAnyInputTagVisitor("particleFlow", "pfCandidatesBadMuonsCleaned", verbose=verbose)
     for everywhere in [ process.producers, process.filters, process.analyzers, process.psets, process.vpsets ]:
-        for name,obj in six.iteritems(everywhere):
+        for name,obj in everywhere.items():
             if obj not in needOriginalMuons:
                 replaceMuons.doIt(obj, name)
             if obj != process.pfCandidatesBadMuonsCleaned: 

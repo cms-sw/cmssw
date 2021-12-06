@@ -53,10 +53,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWElectronProxyBuilder(const FWElectronProxyBuilder&) = delete;                   // stop default
   const FWElectronProxyBuilder& operator=(const FWElectronProxyBuilder&) = delete;  // stop default
 
+private:
   TEveElementList* requestCommon();
 
   TEveElementList* m_common;
@@ -134,11 +134,11 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWElectronGlimpseProxyBuilder(const FWElectronGlimpseProxyBuilder&) = delete;  // stop default
 
   const FWElectronGlimpseProxyBuilder& operator=(const FWElectronGlimpseProxyBuilder&) = delete;  // stop default
 
+private:
   void build(const reco::GsfElectron& iData,
              unsigned int iIndex,
              TEveElement& oItemHolder,

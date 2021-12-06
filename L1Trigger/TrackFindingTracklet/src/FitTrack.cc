@@ -11,8 +11,8 @@
 using namespace std;
 using namespace trklet;
 
-FitTrack::FitTrack(string name, Settings const& settings, Globals* global, unsigned int iSector)
-    : ProcessBase(name, settings, global, iSector), trackfit_(nullptr) {}
+FitTrack::FitTrack(string name, Settings const& settings, Globals* global)
+    : ProcessBase(name, settings, global), trackfit_(nullptr) {}
 
 void FitTrack::addOutput(MemoryBase* memory, string output) {
   if (settings_.writetrace()) {
@@ -200,15 +200,16 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
         layers[nlayers++] = l;
         continue;
       }
-      if (tracklet->match(l)) {
+      if (tracklet->match(l - 1)) {
+        const Residual& resid = tracklet->resid(l - 1);
         lmatches.set(N_LAYER - l);
         layermask |= (1 << (N_LAYER - l));
-        phiresid[nlayers] = tracklet->phiresidapprox(l);
-        zresid[nlayers] = tracklet->zresidapprox(l);
-        phiresidexact[nlayers] = tracklet->phiresid(l);
-        zresidexact[nlayers] = tracklet->zresid(l);
-        iphiresid[nlayers] = tracklet->fpgaphiresid(l).value();
-        izresid[nlayers] = tracklet->fpgazresid(l).value();
+        phiresid[nlayers] = resid.phiresidapprox();
+        zresid[nlayers] = resid.rzresidapprox();
+        phiresidexact[nlayers] = resid.phiresid();
+        zresidexact[nlayers] = resid.rzresid();
+        iphiresid[nlayers] = resid.fpgaphiresid().value();
+        izresid[nlayers] = resid.fpgarzresid().value();
 
         layers[nlayers++] = l;
       }
@@ -223,13 +224,15 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
 
       if (ndisks + nlayers >= N_FITSTUB)
         continue;
-      if (tracklet->matchdisk(d)) {
-        if (std::abs(tracklet->alphadisk(d)) < 1e-20) {
+      if (tracklet->match(N_LAYER + d - 1)) {
+        const Residual& resid = tracklet->resid(N_LAYER + d - 1);
+        double pitch = settings_.stripPitch(resid.stubptr()->l1tstub()->isPSmodule());
+        if (std::abs(resid.stubptr()->l1tstub()->alpha(pitch)) < 1e-20) {
           dmatches.set(2 * d - 1);
           diskmask |= (1 << (2 * (N_DISK - d) + 1));
         } else {
-          int ialpha = tracklet->ialphadisk(d).value();
-          int nalpha = tracklet->ialphadisk(d).nbits();
+          int ialpha = resid.stubptr()->alpha().value();
+          int nalpha = resid.stubptr()->alpha().nbits();
           nalpha = nalpha - settings_.alphaBitsTable();
           ialpha = (1 << (settings_.alphaBitsTable() - 1)) + (ialpha >> nalpha);
 
@@ -239,13 +242,13 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
           diskmask |= (1 << (2 * (N_DISK - d)));
           mult = mult << settings_.alphaBitsTable();
         }
-        alpha[ndisks] = tracklet->alphadisk(d);
-        phiresid[nlayers + ndisks] = tracklet->phiresidapproxdisk(d);
-        zresid[nlayers + ndisks] = tracklet->rresidapproxdisk(d);
-        phiresidexact[nlayers + ndisks] = tracklet->phiresiddisk(d);
-        zresidexact[nlayers + ndisks] = tracklet->rresiddisk(d);
-        iphiresid[nlayers + ndisks] = tracklet->fpgaphiresiddisk(d).value();
-        izresid[nlayers + ndisks] = tracklet->fpgarresiddisk(d).value();
+        alpha[ndisks] = resid.stubptr()->l1tstub()->alpha(pitch);
+        phiresid[nlayers + ndisks] = resid.phiresidapprox();
+        zresid[nlayers + ndisks] = resid.rzresidapprox();
+        phiresidexact[nlayers + ndisks] = resid.phiresid();
+        zresidexact[nlayers + ndisks] = resid.rzresid();
+        iphiresid[nlayers + ndisks] = resid.fpgaphiresid().value();
+        izresid[nlayers + ndisks] = resid.fpgarzresid().value();
 
         disks[ndisks++] = d;
       }
@@ -261,17 +264,17 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
 
   if (tracklet->isDisk()) {
     for (unsigned int l = 1; l <= 2; l++) {
-      if (tracklet->match(l)) {
+      if (tracklet->match(l - 1)) {
         lmatches.set(N_LAYER - l);
 
         layermask |= (1 << (N_LAYER - l));
-
-        phiresid[nlayers] = tracklet->phiresidapprox(l);
-        zresid[nlayers] = tracklet->zresidapprox(l);
-        phiresidexact[nlayers] = tracklet->phiresid(l);
-        zresidexact[nlayers] = tracklet->zresid(l);
-        iphiresid[nlayers] = tracklet->fpgaphiresid(l).value();
-        izresid[nlayers] = tracklet->fpgazresid(l).value();
+        const Residual& resid = tracklet->resid(l - 1);
+        phiresid[nlayers] = resid.phiresidapprox();
+        zresid[nlayers] = resid.rzresidapprox();
+        phiresidexact[nlayers] = resid.phiresid();
+        zresidexact[nlayers] = resid.rzresid();
+        iphiresid[nlayers] = resid.fpgaphiresid().value();
+        izresid[nlayers] = resid.fpgarzresid().value();
 
         layers[nlayers++] = l;
       }
@@ -296,13 +299,15 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
 
       if (ndisks + nlayers >= N_FITSTUB)
         continue;
-      if (tracklet->matchdisk(d)) {
-        if (std::abs(tracklet->alphadisk(d)) < 1e-20) {
+      if (tracklet->match(N_LAYER + abs(d) - 1)) {
+        const Residual& resid = tracklet->resid(N_LAYER + abs(d) - 1);
+        double pitch = settings_.stripPitch(resid.stubptr()->l1tstub()->isPSmodule());
+        if (std::abs(resid.stubptr()->l1tstub()->alpha(pitch)) < 1e-20) {
           dmatches.set(2 * d1 - 1);
           diskmask |= (1 << (2 * (N_DISK - d1) + 1));
         } else {
-          int ialpha = tracklet->ialphadisk(d).value();
-          int nalpha = tracklet->ialphadisk(d).nbits();
+          int ialpha = resid.stubptr()->alpha().value();
+          int nalpha = resid.stubptr()->alpha().nbits();
           nalpha = nalpha - settings_.alphaBitsTable();
           ialpha = (1 << (settings_.alphaBitsTable() - 1)) + (ialpha >> nalpha);
 
@@ -313,15 +318,15 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
           mult = mult << settings_.alphaBitsTable();
         }
 
-        alpha[ndisks] = tracklet->alphadisk(d);
-        assert(std::abs(tracklet->phiresidapproxdisk(d)) < 0.2);
-        phiresid[nlayers + ndisks] = tracklet->phiresidapproxdisk(d);
-        zresid[nlayers + ndisks] = tracklet->rresidapproxdisk(d);
-        assert(std::abs(tracklet->phiresiddisk(d)) < 0.2);
-        phiresidexact[nlayers + ndisks] = tracklet->phiresiddisk(d);
-        zresidexact[nlayers + ndisks] = tracklet->rresiddisk(d);
-        iphiresid[nlayers + ndisks] = tracklet->fpgaphiresiddisk(d).value();
-        izresid[nlayers + ndisks] = tracklet->fpgarresiddisk(d).value();
+        alpha[ndisks] = resid.stubptr()->l1tstub()->alpha(pitch);
+        assert(std::abs(resid.phiresidapprox()) < 0.2);
+        phiresid[nlayers + ndisks] = resid.phiresidapprox();
+        zresid[nlayers + ndisks] = resid.rzresidapprox();
+        assert(std::abs(resid.phiresid()) < 0.2);
+        phiresidexact[nlayers + ndisks] = resid.phiresid();
+        zresidexact[nlayers + ndisks] = resid.rzresid();
+        iphiresid[nlayers + ndisks] = resid.fpgaphiresid().value();
+        izresid[nlayers + ndisks] = resid.fpgarzresid().value();
 
         disks[ndisks++] = d;
       }
@@ -336,17 +341,18 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
         layers[nlayers++] = l;
         continue;
       }
-      if (tracklet->match(l)) {
+      if (tracklet->match(l - 1)) {
         lmatches.set(N_LAYER - l);
         layermask |= (1 << (N_LAYER - l));
-        assert(std::abs(tracklet->phiresidapprox(l)) < 0.2);
-        phiresid[nlayers] = tracklet->phiresidapprox(l);
-        zresid[nlayers] = tracklet->zresidapprox(l);
-        assert(std::abs(tracklet->phiresid(l)) < 0.2);
-        phiresidexact[nlayers] = tracklet->phiresid(l);
-        zresidexact[nlayers] = tracklet->zresid(l);
-        iphiresid[nlayers] = tracklet->fpgaphiresid(l).value();
-        izresid[nlayers] = tracklet->fpgazresid(l).value();
+        const Residual& resid = tracklet->resid(l - 1);
+        assert(std::abs(resid.phiresidapprox()) < 0.2);
+        phiresid[nlayers] = resid.phiresidapprox();
+        zresid[nlayers] = resid.rzresidapprox();
+        assert(std::abs(resid.phiresid()) < 0.2);
+        phiresidexact[nlayers] = resid.phiresid();
+        zresidexact[nlayers] = resid.rzresid();
+        iphiresid[nlayers] = resid.fpgaphiresid().value();
+        izresid[nlayers] = resid.fpgarzresid().value();
 
         layers[nlayers++] = l;
       }
@@ -368,15 +374,17 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
 
       if (ndisks + nlayers >= N_FITSTUB)
         continue;
-      if (tracklet->matchdisk(d)) {
-        if (std::abs(tracklet->alphadisk(d)) < 1e-20) {
+      if (tracklet->match(N_LAYER + abs(d) - 1)) {
+        const Residual& resid = tracklet->resid(N_LAYER + abs(d) - 1);
+        double pitch = settings_.stripPitch(resid.stubptr()->l1tstub()->isPSmodule());
+        if (std::abs(resid.stubptr()->l1tstub()->alpha(pitch)) < 1e-20) {
           dmatches.set(2 * (N_DISK - d1));
           diskmask |= (1 << (2 * (N_DISK - d1) + 1));
           FPGAWord tmp;
           tmp.set(diskmask, 10);
         } else {
-          int ialpha = tracklet->ialphadisk(d).value();
-          int nalpha = tracklet->ialphadisk(d).nbits();
+          int ialpha = resid.stubptr()->alpha().value();
+          int nalpha = resid.stubptr()->alpha().nbits();
           nalpha = nalpha - settings_.alphaBitsTable();
           ialpha = (1 << (settings_.alphaBitsTable() - 1)) + (ialpha >> nalpha);
 
@@ -389,15 +397,15 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
           mult = mult << settings_.alphaBitsTable();
         }
 
-        alpha[ndisks] = tracklet->alphadisk(d);
-        assert(std::abs(tracklet->phiresidapproxdisk(d)) < 0.2);
-        phiresid[nlayers + ndisks] = tracklet->phiresidapproxdisk(d);
-        zresid[nlayers + ndisks] = tracklet->rresidapproxdisk(d);
-        assert(std::abs(tracklet->phiresiddisk(d)) < 0.2);
-        phiresidexact[nlayers + ndisks] = tracklet->phiresiddisk(d);
-        zresidexact[nlayers + ndisks] = tracklet->rresiddisk(d);
-        iphiresid[nlayers + ndisks] = tracklet->fpgaphiresiddisk(d).value();
-        izresid[nlayers + ndisks] = tracklet->fpgarresiddisk(d).value();
+        alpha[ndisks] = resid.stubptr()->l1tstub()->alpha(pitch);
+        assert(std::abs(resid.phiresidapprox()) < 0.2);
+        phiresid[nlayers + ndisks] = resid.phiresidapprox();
+        zresid[nlayers + ndisks] = resid.rzresidapprox();
+        assert(std::abs(resid.phiresid()) < 0.2);
+        phiresidexact[nlayers + ndisks] = resid.phiresid();
+        zresidexact[nlayers + ndisks] = resid.rzresid();
+        iphiresid[nlayers + ndisks] = resid.fpgaphiresid().value();
+        izresid[nlayers + ndisks] = resid.fpgarzresid().value();
 
         disks[ndisks++] = d;
       }
@@ -448,16 +456,16 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
     r[i] = settings_.rmean(layers[i] - 1);
     if (layers[i] == tracklet->layer()) {
       if (tracklet->isOverlap()) {
-        realrstub[i] = tracklet->outerStub()->r();
+        realrstub[i] = tracklet->outerFPGAStub()->l1tstub()->r();
       } else {
-        realrstub[i] = tracklet->innerStub()->r();
+        realrstub[i] = tracklet->innerFPGAStub()->l1tstub()->r();
       }
     }
     if (layers[i] == tracklet->layer() + 1) {
-      realrstub[i] = tracklet->outerStub()->r();
+      realrstub[i] = tracklet->outerFPGAStub()->l1tstub()->r();
     }
-    if (tracklet->validResid(layers[i]) && layers[i] < 4) {
-      const Stub* stubptr = tracklet->stubptr(layers[i]);
+    if (tracklet->match(layers[i] - 1) && layers[i] < 4) {
+      const Stub* stubptr = tracklet->resid(layers[i] - 1).stubptr();
       realrstub[i] = stubptr->l1tstub()->r();
       assert(std::abs(realrstub[i] - r[i]) < 5.0);
     }
@@ -859,19 +867,21 @@ std::vector<Tracklet*> FitTrack::orderedMatches(vector<FullMatchMemory*>& fullma
   return tmp;
 }
 
-void FitTrack::execute() {
+void FitTrack::execute(unsigned int iSector) {
   // merge
   const std::vector<Tracklet*>& matches1 = orderedMatches(fullmatch1_);
   const std::vector<Tracklet*>& matches2 = orderedMatches(fullmatch2_);
   const std::vector<Tracklet*>& matches3 = orderedMatches(fullmatch3_);
   const std::vector<Tracklet*>& matches4 = orderedMatches(fullmatch4_);
 
+  iSector_ = iSector;
+
   if (settings_.debugTracklet() && (matches1.size() + matches2.size() + matches3.size() + matches4.size()) > 0) {
     for (auto& imatch : fullmatch1_) {
       edm::LogVerbatim("Tracklet") << imatch->getName() << " " << imatch->nMatches();
     }
-    edm::LogVerbatim("Tracklet") << getName() << "[" << iSector_ << "] matches : " << matches1.size() << " "
-                                 << matches2.size() << " " << matches3.size() << " " << matches4.size();
+    edm::LogVerbatim("Tracklet") << getName() << " matches : " << matches1.size() << " " << matches2.size() << " "
+                                 << matches3.size() << " " << matches4.size();
   }
 
   unsigned int indexArray[4];
@@ -979,7 +989,7 @@ void FitTrack::execute() {
 
     std::vector<const Stub*> trackstublist;
     std::vector<std::pair<int, int>> stubidslist;
-    if ((bestTracklet->getISeed() >= 8 && nMatchesUniq >= 1) ||
+    if ((bestTracklet->getISeed() >= (int)N_SEED_PROMPT && nMatchesUniq >= 1) ||
         nMatchesUniq >= 2) {  //For seeds index >=8 (triplet seeds), there are three stubs associated from start.
       countFit++;
 
@@ -996,15 +1006,17 @@ void FitTrack::execute() {
       if (settings_.removalType() == "merge") {
         trackfit_->addStubList(trackstublist);
         trackfit_->addStubidsList(stubidslist);
+        bestTracklet->setTrackIndex(trackfit_->nTracks());
         trackfit_->addTrack(bestTracklet);
       } else if (bestTracklet->fit()) {
         assert(trackfit_ != nullptr);
         if (settings_.writeMonitorData("Seeds")) {
           ofstream fout("seeds.txt", ofstream::app);
-          fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << bestTracklet->getISeed()
-               << endl;
+          fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_"
+               << " " << bestTracklet->getISeed() << endl;
           fout.close();
         }
+        bestTracklet->setTrackIndex(trackfit_->nTracks());
         trackfit_->addTrack(bestTracklet);
       }
     }

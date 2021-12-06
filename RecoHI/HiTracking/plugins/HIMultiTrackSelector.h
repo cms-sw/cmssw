@@ -50,6 +50,8 @@ enum MVAVARIABLES {
   etaerror = 14
 };
 
+class GBRWrapperRcd;
+
 class dso_hidden HIMultiTrackSelector : public edm::stream::EDProducer<> {
 private:
 public:
@@ -175,6 +177,7 @@ protected:
   std::string forestLabel_;
   std::vector<std::string> forestVars_;
   GBRForest *forest_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> forestToken_;
   bool useForestFromDB_;
   std::string dbFileName_;
 };

@@ -4,13 +4,13 @@
 using namespace std;
 
 // Constructor
-GEMHitAssociator::GEMHitAssociator(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC)
+GEMHitAssociator::Config::Config(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
     : GEMdigisimlinkTag(conf.getParameter<edm::InputTag>("GEMdigisimlinkTag")),
       // CrossingFrame used or not ?
-      crossingframe(conf.getParameter<bool>("crossingframe")),
-      useGEMs_(conf.getParameter<bool>("useGEMs")),
       GEMsimhitsTag(conf.getParameter<edm::InputTag>("GEMsimhitsTag")),
-      GEMsimhitsXFTag(conf.getParameter<edm::InputTag>("GEMsimhitsXFTag")) {
+      GEMsimhitsXFTag(conf.getParameter<edm::InputTag>("GEMsimhitsXFTag")),
+      crossingframe(conf.getParameter<bool>("crossingframe")),
+      useGEMs_(conf.getParameter<bool>("useGEMs")) {
   if (crossingframe) {
     GEMsimhitsXFToken_ = iC.consumes<CrossingFrame<PSimHit>>(GEMsimhitsXFTag);
   } else if (!GEMsimhitsTag.label().empty()) {
@@ -20,26 +20,15 @@ GEMHitAssociator::GEMHitAssociator(const edm::ParameterSet &conf, edm::ConsumesC
   GEMdigisimlinkToken_ = iC.consumes<edm::DetSetVector<GEMDigiSimLink>>(GEMdigisimlinkTag);
 }
 
-GEMHitAssociator::GEMHitAssociator(const edm::Event &e,
-                                   const edm::EventSetup &eventSetup,
-                                   const edm::ParameterSet &conf)
-    : GEMdigisimlinkTag(conf.getParameter<edm::InputTag>("GEMdigisimlinkTag")),
-      // CrossingFrame used or not ?
-      crossingframe(conf.getParameter<bool>("crossingframe")),
-      useGEMs_(conf.getParameter<bool>("useGEMs")),
-      GEMsimhitsTag(conf.getParameter<edm::InputTag>("GEMsimhitsTag")),
-      GEMsimhitsXFTag(conf.getParameter<edm::InputTag>("GEMsimhitsXFTag")) {
-  initEvent(e, eventSetup);
-}
+GEMHitAssociator::GEMHitAssociator(const edm::Event &e, const Config &config) : theConfig(config) { initEvent(e); }
 
-void GEMHitAssociator::initEvent(const edm::Event &e, const edm::EventSetup &eventSetup) {
-  if (useGEMs_) {
-    if (crossingframe) {
-      edm::Handle<CrossingFrame<PSimHit>> cf;
-      LogTrace("GEMHitAssociator") << "getting CrossingFrame<PSimHit> collection - " << GEMsimhitsXFTag;
-      e.getByLabel(GEMsimhitsXFTag, cf);
+void GEMHitAssociator::initEvent(const edm::Event &e) {
+  if (theConfig.useGEMs_) {
+    if (theConfig.crossingframe) {
+      LogTrace("GEMHitAssociator") << "getting CrossingFrame<PSimHit> collection - " << theConfig.GEMsimhitsXFTag;
+      CrossingFrame<PSimHit> const &cf = e.get(theConfig.GEMsimhitsXFToken_);
 
-      std::unique_ptr<MixCollection<PSimHit>> GEMsimhits(new MixCollection<PSimHit>(cf.product()));
+      std::unique_ptr<MixCollection<PSimHit>> GEMsimhits(new MixCollection<PSimHit>(&cf));
       LogTrace("GEMHitAssociator") << "... size = " << GEMsimhits->size();
 
       //   MixCollection<PSimHit> & simHits = *hits;
@@ -48,22 +37,19 @@ void GEMHitAssociator::initEvent(const edm::Event &e, const edm::EventSetup &eve
         _SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
       }
 
-    } else if (!GEMsimhitsTag.label().empty()) {
-      edm::Handle<edm::PSimHitContainer> GEMsimhits;
-      LogTrace("GEMHitAssociator") << "getting PSimHit collection - " << GEMsimhitsTag;
-      e.getByLabel(GEMsimhitsTag, GEMsimhits);
-      LogTrace("GEMHitAssociator") << "... size = " << GEMsimhits->size();
+    } else if (!theConfig.GEMsimhitsTag.label().empty()) {
+      LogTrace("GEMHitAssociator") << "getting PSimHit collection - " << theConfig.GEMsimhitsTag;
+      edm::PSimHitContainer const &GEMsimhits = e.get(theConfig.GEMsimhitsToken_);
+      LogTrace("GEMHitAssociator") << "... size = " << GEMsimhits.size();
 
       // arrange the hits by detUnit
-      for (edm::PSimHitContainer::const_iterator hitItr = GEMsimhits->begin(); hitItr != GEMsimhits->end(); ++hitItr) {
+      for (edm::PSimHitContainer::const_iterator hitItr = GEMsimhits.begin(); hitItr != GEMsimhits.end(); ++hitItr) {
         _SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
       }
     }
 
-    edm::Handle<DigiSimLinks> digiSimLinks;
-    LogTrace("GEMHitAssociator") << "getting GEM Strip DigiSimLink collection - " << GEMdigisimlinkTag;
-    e.getByLabel(GEMdigisimlinkTag, digiSimLinks);
-    theDigiSimLinks = digiSimLinks.product();
+    LogTrace("GEMHitAssociator") << "getting GEM Strip DigiSimLink collection - " << theConfig.GEMdigisimlinkTag;
+    theDigiSimLinks = &e.get(theConfig.GEMdigisimlinkToken_);
   }
 }
 // end of constructor
@@ -71,7 +57,7 @@ void GEMHitAssociator::initEvent(const edm::Event &e, const edm::EventSetup &eve
 std::vector<GEMHitAssociator::SimHitIdpr> GEMHitAssociator::associateRecHit(const GEMRecHit *gemrechit) const {
   std::vector<SimHitIdpr> matched;
 
-  if (useGEMs_) {
+  if (theConfig.useGEMs_) {
     if (gemrechit) {
       GEMDetId gemDetId = gemrechit->gemId();
       int fstrip = gemrechit->firstClusterStrip();

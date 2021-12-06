@@ -25,43 +25,45 @@ public:
 
 private:
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
-  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4Hep_;
-  bool fromDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4hep_;
+  bool fromDD4hep_;
 };
 
 MuonGeometryConstantsESModule::MuonGeometryConstantsESModule(const edm::ParameterSet& ps) {
-  fromDD4Hep_ = ps.getParameter<bool>("fromDD4Hep");
+  fromDD4hep_ = ps.getParameter<bool>("fromDD4hep");
   auto cc = setWhatProduced(this);
-  cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
-  cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  if (fromDD4hep_)
+    cpvTokenDD4hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  else
+    cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonGeometryConstantsESModule::MuonGeometryConstantsESModule called with dd4hep: "
-                               << fromDD4Hep_;
+  edm::LogVerbatim("MuonGeom") << "MuonGeometryConstantsESModule::MuonGeometryConstantsESModule called with dd4hep: "
+                               << fromDD4hep_;
 #endif
 }
 
 void MuonGeometryConstantsESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("fromDD4Hep", false);
+  desc.add<bool>("fromDD4hep", false);
   descriptions.add("muonGeometryConstants", desc);
 }
 
 MuonGeometryConstantsESModule::ReturnType MuonGeometryConstantsESModule::produce(const IdealGeometryRecord& iRecord) {
-  edm::LogInfo("Geometry") << "MuonGeometryConstantsESModule::produce(const IdealGeometryRecord& iRecord)";
+  edm::LogInfo("MuonGeom") << "MuonGeometryConstantsESModule::produce(const IdealGeometryRecord& iRecord)";
 
   auto ptp = std::make_unique<MuonGeometryConstants>();
   MuonGeometryConstantsBuild builder;
 
-  if (fromDD4Hep_) {
+  if (fromDD4hep_) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << "MuonGeometryConstantsESModule::Try to access cms::DDCompactView";
+    edm::LogVerbatim("MuonGeom") << "MuonGeometryConstantsESModule::Try to access cms::DDCompactView";
 #endif
-    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4hep_);
     builder.build(&(*cpv), *ptp);
   } else {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << "MuonGeometryConstantsESModule::Try to access DDCompactView";
+    edm::LogVerbatim("MuonGeom") << "MuonGeometryConstantsESModule::Try to access DDCompactView";
 #endif
     edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);
     builder.build(&(*cpv), *ptp);

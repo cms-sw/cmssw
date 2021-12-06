@@ -38,8 +38,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTAddressArray.h"
 class L1MuDTChambThContainer;
 class L1MuDTTrackSegEta;
 class L1MuDTTrackFinder;
@@ -47,7 +48,9 @@ class L1MuDTTrack;
 class L1MuDTEtaPatternLut;
 class L1MuDTQualPatternLut;
 class L1MuDTTFMasks;
-
+class L1MuDTTFMasksRcd;
+class L1MuDTEtaPatternLutRcd;
+class L1MuDTQualPatternLutRcd;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -118,6 +121,9 @@ private:
   std::vector<const L1MuDTTrackSegEta*> m_tseta;
   edm::EDGetTokenT<L1MuDTChambThContainer> m_DTDigiToken;
 
+  edm::ESGetToken<L1MuDTEtaPatternLut, L1MuDTEtaPatternLutRcd> theEtaToken;
+  edm::ESGetToken<L1MuDTQualPatternLut, L1MuDTQualPatternLutRcd> theQualToken;
+  edm::ESGetToken<L1MuDTTFMasks, L1MuDTTFMasksRcd> theMsksToken;
   edm::ESHandle<L1MuDTEtaPatternLut> theEtaPatternLUT;    // ETF look-up table
   edm::ESHandle<L1MuDTQualPatternLut> theQualPatternLUT;  // EMU look-up tables
   edm::ESHandle<L1MuDTTFMasks> msks;

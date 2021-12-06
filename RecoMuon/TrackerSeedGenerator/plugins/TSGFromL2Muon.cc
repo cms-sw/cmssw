@@ -42,6 +42,8 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg) {
   //L2 collection
   theL2CollectionLabel = cfg.getParameter<edm::InputTag>("MuonCollectionLabel");
   l2muonToken = consumes<reco::TrackCollection>(theL2CollectionLabel);
+
+  theTTopoToken = esConsumes();
 }
 
 TSGFromL2Muon::~TSGFromL2Muon() = default;
@@ -59,15 +61,13 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   auto result = std::make_unique<L3MuonTrajectorySeedCollection>();
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology* tTopo = tTopoHand.product();
+  const TrackerTopology* tTopo = &es.getData(theTTopoToken);
 
   //intialize tools
   theService->update(es);
   theTkSeedGenerator->setEvent(ev);
   if (theRegionBuilder)
-    theRegionBuilder->setEvent(ev);
+    theRegionBuilder->setEvent(ev, es);
   if (theSeedCleaner)
     theSeedCleaner->setEvent(ev);
 
@@ -90,6 +90,8 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
     std::unique_ptr<RectangularEtaPhiTrackingRegion> region;
     if (theRegionBuilder) {
       region = theRegionBuilder->region(muRef);
+    } else {
+      region = std::make_unique<RectangularEtaPhiTrackingRegion>();
     }
 
     //Make seeds container

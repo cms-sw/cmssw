@@ -22,8 +22,6 @@
 #include "TLine.h"
 #include "TProfile2D.h"
 #include <utility>
-#include <string>
-#include <vector>
 using namespace edm;
 using namespace std;
 
@@ -46,6 +44,13 @@ EcalDisplaysByEvent::EcalDisplaysByEvent(const edm::ParameterSet& iConfig)
       EBDigis_(iConfig.getParameter<edm::InputTag>("EBDigiCollection")),
       EEDigis_(iConfig.getParameter<edm::InputTag>("EEDigiCollection")),
       headerProducer_(iConfig.getParameter<edm::InputTag>("headerProducer")),
+      rawDataToken_(consumes<EcalRawDataCollection>(headerProducer_)),
+      ebRecHitToken_(consumes<EcalRecHitCollection>(EBRecHitCollection_)),
+      eeRecHitToken_(consumes<EcalRecHitCollection>(EERecHitCollection_)),
+      ebDigiToken_(consumes<EBDigiCollection>(EBDigis_)),
+      eeDigiToken_(consumes<EEDigiCollection>(EEDigis_)),
+      ecalMappingToken_(esConsumes<edm::Transition::BeginRun>()),
+      topologyToken_(esConsumes()),
       runNum_(-1),
       side_(iConfig.getUntrackedParameter<int>("side", 3)),
       threshold_(iConfig.getUntrackedParameter<double>("amplitudeThreshold", 0.5)),
@@ -102,17 +107,17 @@ EcalDisplaysByEvent::~EcalDisplaysByEvent() {}
 
 // ------------ method called once each job just before starting event loop  ------------
 void EcalDisplaysByEvent::beginRun(edm::Run const&, edm::EventSetup const& c) {
-  edm::ESHandle<EcalElectronicsMapping> handle;
-  c.get<EcalMappingRcd>().get(handle);
-  ecalElectronicsMap_ = handle.product();
+  ecalElectronicsMap_ = &c.getData(ecalMappingToken_);
 }
+
+void EcalDisplaysByEvent::endRun(edm::Run const&, edm::EventSetup const& c) {}
 
 // ------------ method called to for each event  ------------
 void EcalDisplaysByEvent::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   // get the headers
   // (one header for each supermodule)
   edm::Handle<EcalRawDataCollection> DCCHeaders;
-  iEvent.getByLabel(headerProducer_, DCCHeaders);
+  iEvent.getByToken(rawDataToken_, DCCHeaders);
 
   for (EcalRawDataCollection::const_iterator headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end();
        ++headerItr) {
@@ -138,14 +143,14 @@ void EcalDisplaysByEvent::analyze(edm::Event const& iEvent, edm::EventSetup cons
   listEEChannels.clear();
 
   //Get hits, digis, caloTopology from event/eventSetup
+  caloTopo_ = &iSetup.getData(topologyToken_);
+
   Handle<EcalRecHitCollection> EBhits;
   Handle<EcalRecHitCollection> EEhits;
-  ESHandle<CaloTopology> caloTopo;
-  iSetup.get<CaloTopologyRecord>().get(caloTopo);
-  iEvent.getByLabel(EBRecHitCollection_, EBhits);
-  iEvent.getByLabel(EERecHitCollection_, EEhits);
-  iEvent.getByLabel(EBDigis_, EBdigisHandle);
-  iEvent.getByLabel(EEDigis_, EEdigisHandle);
+  iEvent.getByToken(ebRecHitToken_, EBhits);
+  iEvent.getByToken(eeRecHitToken_, EEhits);
+  iEvent.getByToken(ebDigiToken_, EBdigisHandle);
+  iEvent.getByToken(eeDigiToken_, EEdigisHandle);
 
   // Initialize histos for this event
   initEvtByEvtHists(naiveEvtNum_, ievt);
@@ -160,9 +165,9 @@ void EcalDisplaysByEvent::analyze(edm::Event const& iEvent, edm::EventSetup cons
   // Produce the digi graphs
   if (makeDigiGraphs_) {
     if (hasEBdigis)  //if event has digis, it should have hits
-      selectHits(EBhits, ievt, caloTopo);
+      selectHits(EBhits, ievt);
     if (hasEEdigis)
-      selectHits(EEhits, ievt, caloTopo);
+      selectHits(EEhits, ievt);
   }
 
   // Produce the histos
@@ -181,7 +186,7 @@ void EcalDisplaysByEvent::analyze(edm::Event const& iEvent, edm::EventSetup cons
   deleteEvtByEvtHists();
 }
 
-void EcalDisplaysByEvent::selectHits(Handle<EcalRecHitCollection> hits, int ievt, ESHandle<CaloTopology> caloTopo) {
+void EcalDisplaysByEvent::selectHits(Handle<EcalRecHitCollection> hits, int ievt) {
   for (EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
     EcalRecHit hit = (*hitItr);
     DetId det = hit.id();
@@ -230,7 +235,7 @@ void EcalDisplaysByEvent::selectHits(Handle<EcalRecHitCollection> hits, int ievt
       can.Divide(side_, side_);
       TGraph* myGraph;
 
-      CaloNavigator<DetId> cursor = CaloNavigator<DetId>(det, caloTopo->getSubdetectorTopology(det));
+      CaloNavigator<DetId> cursor = CaloNavigator<DetId>(det, caloTopo_->getSubdetectorTopology(det));
       //Now put each graph in one by one
       for (int j = side_ / 2; j >= -side_ / 2; --j) {
         for (int i = -side_ / 2; i <= side_ / 2; ++i) {

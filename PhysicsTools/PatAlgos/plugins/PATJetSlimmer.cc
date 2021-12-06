@@ -29,7 +29,6 @@ namespace pat {
     ~PATJetSlimmer() override {}
 
     void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-    void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final;
 
   private:
     edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
@@ -71,14 +70,12 @@ pat::PATJetSlimmer::PATJetSlimmer(const edm::ParameterSet& iConfig)
   produces<std::vector<pat::Jet>>();
 }
 
-void pat::PATJetSlimmer::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& iSetup) {
-  if (modifyJet_)
-    jetModifier_->setEventContent(iSetup);
-}
-
 void pat::PATJetSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace std;
+
+  if (modifyJet_)
+    jetModifier_->setEventContent(iSetup);
 
   Handle<View<pat::Jet>> src;
   iEvent.getByToken(jets_, src);

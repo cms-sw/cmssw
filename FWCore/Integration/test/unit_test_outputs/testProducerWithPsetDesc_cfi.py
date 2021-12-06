@@ -344,5 +344,16 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
   
   ),
   plugin1 = cms.PSet(),
+  plugin2 = cms.VPSet(
+  ),
+  plugin3 = cms.VPSet(
+    cms.PSet(
+      type = cms.string('edmtestAnotherOneMaker')
+    ),
+    cms.PSet(
+      type = cms.string('edmtestAnotherValueMaker'),
+      value = cms.int32(11)
+    )
+  ),
   mightGet = cms.optional.untracked.vstring
 )

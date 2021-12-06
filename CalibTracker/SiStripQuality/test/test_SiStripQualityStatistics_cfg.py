@@ -96,11 +96,11 @@ process.load("DQM.SiStripCommon.TkHistoMap_cff")
 #-------------------------------------------------
 
 # be sure that the dataLabel parameter matches with the label of the SiStripQuality object you want to explore
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
-                             dataLabel = cms.untracked.string(""),
-                             SaveTkHistoMap = cms.untracked.bool(False),
-                             TkMapFileName = cms.untracked.string("TkMapBadComponents.pdf")  #available filetypes: .pdf .png .jpg .svg
-                             )
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.stat = siStripQualityStatistics.clone(
+        StripQualityLabel=cms.string(""),
+        SaveTkHistoMap=cms.untracked.bool(False),
+        TkMapFileName=cms.untracked.string("TkMapBadComponents.pdf")  #available filetypes: .pdf .png .jpg .svg
+        )
 
 process.p = cms.Path(process.stat)

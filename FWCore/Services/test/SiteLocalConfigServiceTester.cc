@@ -10,7 +10,7 @@
 //         Created:  Tue Apr 20 16:51:38 CDT 2010
 //
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
@@ -20,11 +20,11 @@
 #include <string>
 
 namespace edmtest {
-  class SiteLocalConfigServiceTester : public edm::EDAnalyzer {
+  class SiteLocalConfigServiceTester : public edm::global::EDAnalyzer<> {
   public:
     SiteLocalConfigServiceTester(const edm::ParameterSet& iPSet);
 
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
 
   private:
     std::string m_cacheHint;
@@ -88,7 +88,7 @@ namespace {
 
 }  // namespace
 
-void SiteLocalConfigServiceTester::analyze(const edm::Event&, const edm::EventSetup&) {
+void SiteLocalConfigServiceTester::analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const {
   edm::Service<edm::SiteLocalConfig> pConfig;
   if (m_valuesSet) {
     testValue("sourceCacheTempDir", m_tempDir, pConfig->sourceCacheTempDir());

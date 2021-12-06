@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <iostream>
 #include <iomanip>
@@ -24,22 +25,22 @@
 using namespace std;
 using namespace edm;
 
-DTParametrizedDriftAlgo::DTParametrizedDriftAlgo(const ParameterSet& config)
-    : DTRecHitBaseAlgo(config),
+DTParametrizedDriftAlgo::DTParametrizedDriftAlgo(const ParameterSet& config, ConsumesCollector cc)
+    : DTRecHitBaseAlgo(config, cc),
       interpolate(config.getParameter<bool>("interpolate")),
       minTime(config.getParameter<double>("minTime")),  // FIXME: Default was -3 ns
       maxTime(config.getParameter<double>("maxTime")),  // FIXME: Default was 415 ns
       // Set verbose output
-      debug(config.getUntrackedParameter<bool>("debug", "false")) {}
+      debug(config.getUntrackedParameter<bool>("debug", "false")),
+      magField(nullptr),
+      magFieldToken_(cc.esConsumes()) {}
 
 DTParametrizedDriftAlgo::~DTParametrizedDriftAlgo() {}
 
 void DTParametrizedDriftAlgo::setES(const EventSetup& setup) {
   theSync->setES(setup);
   // Access the magnetic field
-  ESHandle<MagneticField> magneticField;
-  setup.get<IdealMagneticFieldRecord>().get(magneticField);
-  magField = &*magneticField;
+  magField = &setup.getData(magFieldToken_);
 }
 
 // First Step

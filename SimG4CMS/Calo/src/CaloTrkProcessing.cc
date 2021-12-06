@@ -5,11 +5,6 @@
 
 #include "SimG4CMS/Calo/interface/CaloTrkProcessing.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/HcalParametersRcd.h"
-#include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4EventManager.hh"
@@ -21,28 +16,30 @@
 #include "DD4hep/Filter.h"
 
 #include <sstream>
-//#define EDM_ML_DEBUG
+// #define EDM_ML_DEBUG
 
 CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
-                                     const edm::EventSetup& es,
+                                     const CaloSimulationParameters& csps,
                                      const SensitiveDetectorCatalog& clg,
-                                     edm::ParameterSet const& p,
+                                     bool testBeam,
+                                     double eMin,
+                                     bool putHistory,
+                                     bool doFineCalo,
+                                     double eMinFine,
+                                     int addlevel,
+                                     const std::vector<std::string>& fineNames,
+                                     const std::vector<int>& fineLevels,
+                                     const std::vector<int>& useFines,
                                      const SimTrackManager*)
-    : SensitiveCaloDetector(name, clg), lastTrackID_(-1) {
+    : SensitiveCaloDetector(name, clg),
+      testBeam_(testBeam),
+      eMin_(eMin),
+      putHistory_(putHistory),
+      doFineCalo_(doFineCalo),
+      eMinFine_(eMinFine),
+      addlevel_(addlevel),
+      lastTrackID_(-1) {
   //Initialise the parameter set
-  bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
-  int addlevel = dd4hep ? 1 : 0;
-  edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("CaloTrkProcessing");
-  testBeam_ = m_p.getParameter<bool>("TestBeam");
-  eMin_ = m_p.getParameter<double>("EminTrack") * CLHEP::MeV;
-  putHistory_ = m_p.getParameter<bool>("PutHistory");
-  doFineCalo_ = m_p.getParameter<bool>("DoFineCalo");
-  eMinFine_ = m_p.getParameter<double>("EminFineTrack") * CLHEP::MeV;
-  std::vector<std::string> fineNames = m_p.getParameter<std::vector<std::string> >("FineCaloNames");
-  std::vector<int> fineLevels = m_p.getParameter<std::vector<int> >("FineCaloLevels");
-  std::vector<int> useFines = m_p.getParameter<std::vector<int> >("UseFineCalo");
-  for (auto& level : fineLevels)
-    level += addlevel;
 
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Initialised with TestBeam = " << testBeam_ << " Emin = " << eMin_
                               << " Flags " << putHistory_ << " (History), " << doFineCalo_ << " (Special Calorimeter)";
@@ -55,110 +52,100 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
     st1 << " [" << k << "] " << useFines[k] << ":" << fineNames[useFines[k]];
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing used calorimeters" << st1.str();
 
-  // Get pointer to CaloSimulationParameters
-  edm::ESHandle<CaloSimulationParameters> csps;
-  es.get<HcalParametersRcd>().get(csps);
-  if (csps.isValid()) {
-    const CaloSimulationParameters* csp = csps.product();
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->caloNames_.size() << " entries for caloNames:";
-    for (unsigned int i = 0; i < csp->caloNames_.size(); i++)
-      edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->caloNames_[i];
-    edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->levels_.size() << " entries for levels:";
-    for (unsigned int i = 0; i < csp->levels_.size(); i++)
-      edm::LogVerbatim("CaloSim") << " (" << i << ") " << (csp->levels_[i] + addlevel);
-    edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->neighbours_.size() << " entries for neighbours:";
-    for (unsigned int i = 0; i < csp->neighbours_.size(); i++)
-      edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->neighbours_[i];
-    edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->insideNames_.size() << " entries for insideNames:";
-    for (unsigned int i = 0; i < csp->insideNames_.size(); i++)
-      edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->insideNames_[i];
-    edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->insideLevel_.size() << " entries for insideLevel:";
-    for (unsigned int i = 0; i < csp->insideLevel_.size(); i++)
-      edm::LogVerbatim("CaloSim") << " (" << i << ") " << (csp->insideLevel_[i] + addlevel);
-#endif
+  // Debug prints
+  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csps.caloNames_.size() << " entries for caloNames:";
+  for (unsigned int i = 0; i < csps.caloNames_.size(); i++)
+    edm::LogVerbatim("CaloSim") << " (" << i << ") " << csps.caloNames_[i];
+  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csps.levels_.size() << " entries for levels:";
+  for (unsigned int i = 0; i < csps.levels_.size(); i++)
+    edm::LogVerbatim("CaloSim") << " (" << i << ") " << (csps.levels_[i] + addlevel_);
+  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csps.neighbours_.size() << " entries for neighbours:";
+  for (unsigned int i = 0; i < csps.neighbours_.size(); i++)
+    edm::LogVerbatim("CaloSim") << " (" << i << ") " << csps.neighbours_[i];
+  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csps.insideNames_.size() << " entries for insideNames:";
+  for (unsigned int i = 0; i < csps.insideNames_.size(); i++)
+    edm::LogVerbatim("CaloSim") << " (" << i << ") " << csps.insideNames_[i];
+  edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csps.insideLevel_.size() << " entries for insideLevel:";
+  for (unsigned int i = 0; i < csps.insideLevel_.size(); i++)
+    edm::LogVerbatim("CaloSim") << " (" << i << ") " << (csps.insideLevel_[i] + addlevel_);
 
-    if (csp->caloNames_.size() < csp->neighbours_.size()) {
-      edm::LogError("CaloSim") << "CaloTrkProcessing: # of Calorimeter bins " << csp->caloNames_.size()
-                               << " does not match with " << csp->neighbours_.size() << " ==> illegal ";
-      throw cms::Exception("Unknown", "CaloTrkProcessing")
-          << "Calorimeter array size does not match with size of neighbours\n";
-    }
+  if (csps.caloNames_.size() < csps.neighbours_.size()) {
+    edm::LogError("CaloSim") << "CaloTrkProcessing: # of Calorimeter bins " << csps.caloNames_.size()
+                             << " does not match with " << csps.neighbours_.size() << " ==> illegal ";
+    throw cms::Exception("Unknown", "CaloTrkProcessing")
+        << "Calorimeter array size does not match with size of neighbours\n";
+  }
 
-    const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
-    std::vector<G4LogicalVolume*>::const_iterator lvcite;
-    int istart = 0;
-    for (unsigned int i = 0; i < csp->caloNames_.size(); i++) {
-      G4LogicalVolume* lv = nullptr;
-      G4String name(csp->caloNames_[i]);
-      for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-        G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
-        if (namx == name) {
-          lv = (*lvcite);
-          break;
-        }
+  const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
+  std::vector<G4LogicalVolume*>::const_iterator lvcite;
+  int istart = 0;
+  for (unsigned int i = 0; i < csps.caloNames_.size(); i++) {
+    G4LogicalVolume* lv = nullptr;
+    G4String name(csps.caloNames_[i]);
+    for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+      G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+      if (namx == name) {
+        lv = (*lvcite);
+        break;
       }
-      if (lv != nullptr) {
-        CaloTrkProcessing::Detector detector;
-        detector.name = name;
-        detector.lv = lv;
-        detector.level = (csp->levels_[i] + addlevel);
-        if (istart + csp->neighbours_[i] > static_cast<int>(csp->insideNames_.size())) {
-          edm::LogError("CaloSim") << "CaloTrkProcessing: # of InsideNames bins " << csp->insideNames_.size()
-                                   << " too few compaerd to " << istart + csp->neighbours_[i]
-                                   << " requested ==> illegal ";
-          throw cms::Exception("Unknown", "CaloTrkProcessing")
-              << "InsideNames array size does not match with list of neighbours\n";
-        }
-        std::vector<std::string> inside;
-        std::vector<G4LogicalVolume*> insideLV;
-        std::vector<int> insideLevels;
-        for (int k = 0; k < csp->neighbours_[i]; k++) {
-          lv = nullptr;
-          name = static_cast<G4String>(csp->insideNames_[istart + k]);
-          for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-            G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
-            if (namx == name) {
-              lv = (*lvcite);
-              break;
-            }
+    }
+    if (lv != nullptr) {
+      CaloTrkProcessing::Detector detector;
+      detector.name = name;
+      detector.lv = lv;
+      detector.level = (csps.levels_[i] + addlevel_);
+      if (istart + csps.neighbours_[i] > static_cast<int>(csps.insideNames_.size())) {
+        edm::LogError("CaloSim") << "CaloTrkProcessing: # of InsideNames bins " << csps.insideNames_.size()
+                                 << " too few compaerd to " << istart + csps.neighbours_[i]
+                                 << " requested ==> illegal ";
+        throw cms::Exception("Unknown", "CaloTrkProcessing")
+            << "InsideNames array size does not match with list of neighbours\n";
+      }
+      std::vector<std::string> inside;
+      std::vector<G4LogicalVolume*> insideLV;
+      std::vector<int> insideLevels;
+      for (int k = 0; k < csps.neighbours_[i]; k++) {
+        lv = nullptr;
+        name = static_cast<G4String>(csps.insideNames_[istart + k]);
+        for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+          G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+          if (namx == name) {
+            lv = (*lvcite);
+            break;
           }
-          inside.push_back(name);
-          insideLV.push_back(lv);
-          insideLevels.push_back(csp->insideLevel_[istart + k] + addlevel);
         }
-        detector.fromDets = inside;
-        detector.fromDetL = insideLV;
-        detector.fromLevels = insideLevels;
-        detectors_.emplace_back(detector);
+        inside.push_back(name);
+        insideLV.push_back(lv);
+        insideLevels.push_back(csps.insideLevel_[istart + k] + addlevel_);
       }
-      istart += csp->neighbours_[i];
+      detector.fromDets = inside;
+      detector.fromDetL = insideLV;
+      detector.fromLevels = insideLevels;
+      detectors_.emplace_back(detector);
     }
+    istart += csps.neighbours_[i];
+  }
 
-    for (unsigned int i = 0; i < useFines.size(); i++) {
-      G4LogicalVolume* lv = nullptr;
-      G4String name = static_cast<G4String>(fineNames[useFines[i]]);
-      for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-        G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
-        if (namx == name) {
-          lv = (*lvcite);
-          break;
-        }
-      }
-      if (lv != nullptr) {
-        CaloTrkProcessing::Detector detector;
-        detector.name = name;
-        detector.lv = lv;
-        detector.level = fineLevels[useFines[i]];
-        detector.fromDets.clear();
-        detector.fromDetL.clear();
-        detector.fromLevels.clear();
-        fineDetectors_.emplace_back(detector);
+  for (unsigned int i = 0; i < useFines.size(); i++) {
+    G4LogicalVolume* lv = nullptr;
+    G4String name = static_cast<G4String>(fineNames[useFines[i]]);
+    for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+      G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+      if (namx == name) {
+        lv = (*lvcite);
+        break;
       }
     }
-  } else {
-    edm::LogError("CaloSim") << "CaloTrkProcessing: Cannot find CaloSimulationParameters";
-    throw cms::Exception("Unknown", "CaloTrkProcessing") << "Cannot find CaloSimulationParameters\n";
+    if (lv != nullptr) {
+      CaloTrkProcessing::Detector detector;
+      detector.name = name;
+      detector.lv = lv;
+      detector.level = fineLevels[useFines[i]];
+      detector.fromDets.clear();
+      detector.fromDetL.clear();
+      detector.fromLevels.clear();
+      fineDetectors_.emplace_back(detector);
+    }
   }
 
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << detectors_.size() << " calorimetric volumes";
@@ -196,20 +183,22 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
   }
 
   if (doFineCalo_) {
-    // Boundary-crossing logic
     int prestepLV = isItCalo(aStep->GetPreStepPoint()->GetTouchable(), fineDetectors_);
     int poststepLV = isItCalo(aStep->GetPostStepPoint()->GetTouchable(), fineDetectors_);
-    if (prestepLV < 0 && poststepLV >= 0
-        // Allow back-scattering and filter it out later; ensure consistency during the SIM step
-        // && std::abs(theTrack->GetStep()->GetPreStepPoint()->GetPosition().z()) < std::abs(theTrack->GetPosition().z())
-    ) {
+
+    // Once per track, determine whether track started in fine volume
+    if (!trkInfo->startedInFineVolumeIsSet())
+      trkInfo->setStartedInFineVolume(prestepLV >= 0);
+
+    // Boundary-crossing logic
+    if (prestepLV < 0 && poststepLV >= 0) {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("DoFineCalo") << "Entered fine volume " << poststepLV << ":"
-                                     << " Track " << id << " pdgid=" << theTrack->GetDefinition()->GetPDGEncoding()
+      edm::LogVerbatim("DoFineCalo") << "Track " << id << " entered a fine volume:"
+                                     << " pdgid=" << theTrack->GetDefinition()->GetPDGEncoding()
+                                     << " theTrack->GetCurrentStepNumber()=" << theTrack->GetCurrentStepNumber()
                                      << " prestepLV=" << prestepLV << " poststepLV=" << poststepLV
                                      << " GetKineticEnergy[GeV]=" << theTrack->GetKineticEnergy() / CLHEP::GeV
-                                     << " GetVertexKineticEnergy[GeV]="
-                                     << theTrack->GetVertexKineticEnergy() / CLHEP::GeV << " prestepPosition[cm]=("
+                                     << " prestepPosition[cm]=("
                                      << theTrack->GetStep()->GetPreStepPoint()->GetPosition().x() / CLHEP::cm << ","
                                      << theTrack->GetStep()->GetPreStepPoint()->GetPosition().y() / CLHEP::cm << ","
                                      << theTrack->GetStep()->GetPreStepPoint()->GetPosition().z() / CLHEP::cm << ")"
@@ -222,17 +211,33 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
                                      << theTrack->GetPosition().z() / CLHEP::cm << ")"
                                      << " vertex_position[cm]=(" << theTrack->GetVertexPosition().x() / CLHEP::cm << ","
                                      << theTrack->GetVertexPosition().y() / CLHEP::cm << ","
-                                     << theTrack->GetVertexPosition().z() / CLHEP::cm << ")";
+                                     << theTrack->GetVertexPosition().z() / CLHEP::cm << ")"
+                                     << " GetVertexKineticEnergy[GeV]="
+                                     << theTrack->GetVertexKineticEnergy() / CLHEP::GeV;
 #endif
-      trkInfo->setCrossedBoundary(theTrack);
+      if (!trkInfo->startedInFineVolume() && !trkInfo->crossedBoundary()) {
+        trkInfo->setCrossedBoundary(theTrack);
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("DoFineCalo") << "Track " << id << " marked as boundary-crossing; sanity check:"
+                                       << " theTrack->GetTrackID()=" << theTrack->GetTrackID()
+                                       << " trkInfo->crossedBoundary()=" << trkInfo->crossedBoundary();
+#endif
+      }
+#ifdef EDM_ML_DEBUG
+      else {
+        edm::LogVerbatim("DoFineCalo") << "Track " << id << " REENTERED a fine volume;"
+                                       << " not counting this boundary crossing!";
+      }
+#endif
+
     }
 #ifdef EDM_ML_DEBUG
     else if (prestepLV >= 0 && poststepLV < 0) {
-      edm::LogVerbatim("DoFineCalo") << "Exited fine volume " << prestepLV << ":"
-                                     << " Track " << id
+      edm::LogVerbatim("DoFineCalo") << "Track " << id << " exited a fine volume:"
+                                     << " theTrack->GetCurrentStepNumber()=" << theTrack->GetCurrentStepNumber()
+                                     << " prestepLV=" << prestepLV << " poststepLV=" << poststepLV
                                      << " GetKineticEnergy[GeV]=" << theTrack->GetKineticEnergy() / CLHEP::GeV
-                                     << " GetVertexKineticEnergy[GeV]="
-                                     << theTrack->GetVertexKineticEnergy() / CLHEP::GeV << " prestepPosition[cm]=("
+                                     << " prestepPosition[cm]=("
                                      << theTrack->GetStep()->GetPreStepPoint()->GetPosition().x() / CLHEP::cm << ","
                                      << theTrack->GetStep()->GetPreStepPoint()->GetPosition().y() / CLHEP::cm << ","
                                      << theTrack->GetStep()->GetPreStepPoint()->GetPosition().z() / CLHEP::cm << ")"
@@ -288,7 +293,8 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
           trkInfo->setIDonCaloSurface(
               id, ical, inside, theTrack->GetDefinition()->GetPDGEncoding(), theTrack->GetMomentum().mag());
           trkInfo->setCaloIDChecked(true);
-          trkInfo->setCrossedBoundary(theTrack);
+          if (!doFineCalo_)
+            trkInfo->setCrossedBoundary(theTrack);
           lastTrackID_ = id;
           if (theTrack->GetKineticEnergy() / CLHEP::MeV > eMin_)
             trkInfo->putInHistory();

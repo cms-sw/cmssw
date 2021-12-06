@@ -1,29 +1,13 @@
 #include "RecoTauTag/HLTProducers/interface/VertexFromTrackProducer.h"
-
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
-//using namespace reco;
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 VertexFromTrackProducer::VertexFromTrackProducer(const edm::ParameterSet& conf)
     : trackToken(consumes<edm::View<reco::Track> >(conf.getParameter<edm::InputTag>("trackLabel"))),
       candidateToken(consumes<edm::View<reco::RecoCandidate> >(conf.getParameter<edm::InputTag>("trackLabel"))),
@@ -45,13 +29,6 @@ VertexFromTrackProducer::VertexFromTrackProducer(const edm::ParameterSet& conf)
   produces<reco::VertexCollection>();
 }
 
-VertexFromTrackProducer::~VertexFromTrackProducer() {}
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void VertexFromTrackProducer::produce(edm::StreamID iStreamId,
                                       edm::Event& iEvent,
                                       const edm::EventSetup& iSetup) const {

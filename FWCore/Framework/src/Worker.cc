@@ -2,8 +2,8 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 #include "FWCore/Concurrency/interface/include_first_syncWait.h"
-#include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/EarlyDeleteHelper.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/EarlyDeleteHelper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -108,58 +108,6 @@ namespace edm {
   Worker::~Worker() {}
 
   void Worker::setActivityRegistry(std::shared_ptr<ActivityRegistry> areg) { actReg_ = areg; }
-
-  void Worker::exceptionContext(cms::Exception& ex, ModuleCallingContext const* mcc) {
-    ModuleCallingContext const* imcc = mcc;
-    while ((imcc->type() == ParentContext::Type::kModule) or (imcc->type() == ParentContext::Type::kInternal)) {
-      std::ostringstream iost;
-      if (imcc->state() == ModuleCallingContext::State::kPrefetching) {
-        iost << "Prefetching for module ";
-      } else {
-        iost << "Calling method for module ";
-      }
-      iost << imcc->moduleDescription()->moduleName() << "/'" << imcc->moduleDescription()->moduleLabel() << "'";
-
-      if (imcc->type() == ParentContext::Type::kInternal) {
-        iost << " (probably inside some kind of mixing module)";
-        imcc = imcc->internalContext()->moduleCallingContext();
-      } else {
-        imcc = imcc->moduleCallingContext();
-      }
-      ex.addContext(iost.str());
-    }
-    std::ostringstream ost;
-    if (imcc->state() == ModuleCallingContext::State::kPrefetching) {
-      ost << "Prefetching for module ";
-    } else {
-      ost << "Calling method for module ";
-    }
-    ost << imcc->moduleDescription()->moduleName() << "/'" << imcc->moduleDescription()->moduleLabel() << "'";
-    ex.addContext(ost.str());
-
-    if (imcc->type() == ParentContext::Type::kPlaceInPath) {
-      ost.str("");
-      ost << "Running path '";
-      ost << imcc->placeInPathContext()->pathContext()->pathName() << "'";
-      ex.addContext(ost.str());
-      auto streamContext = imcc->placeInPathContext()->pathContext()->streamContext();
-      if (streamContext) {
-        ost.str("");
-        edm::exceptionContext(ost, *streamContext);
-        ex.addContext(ost.str());
-      }
-    } else {
-      if (imcc->type() == ParentContext::Type::kStream) {
-        ost.str("");
-        edm::exceptionContext(ost, *(imcc->streamContext()));
-        ex.addContext(ost.str());
-      } else if (imcc->type() == ParentContext::Type::kGlobal) {
-        ost.str("");
-        edm::exceptionContext(ost, *(imcc->globalContext()));
-        ex.addContext(ost.str());
-      }
-    }
-  }
 
   bool Worker::shouldRethrowException(std::exception_ptr iPtr, ParentContext const& parentContext, bool isEvent) const {
     // NOTE: the warning printed as a result of ignoring or failing
@@ -456,7 +404,7 @@ namespace edm {
     try {
       convertException::wrap([&]() { this->implDoAcquire(info, &moduleCallingContext_, holder); });
     } catch (cms::Exception& ex) {
-      exceptionContext(ex, &moduleCallingContext_);
+      edm::exceptionContext(ex, moduleCallingContext_);
       if (shouldRethrowException(std::current_exception(), parentContext, true)) {
         timesRun_.fetch_add(1, std::memory_order_relaxed);
         throw;
@@ -496,7 +444,7 @@ namespace edm {
         convertException::wrap([iEPtr]() { std::rethrow_exception(*iEPtr); });
       } catch (cms::Exception& ex) {
         ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-        exceptionContext(ex, &moduleCallingContext_);
+        edm::exceptionContext(ex, moduleCallingContext_);
         return std::current_exception();
       }
     }

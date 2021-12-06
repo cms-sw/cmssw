@@ -19,7 +19,6 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 import sys
-import commands
 options = VarParsing.VarParsing ('analysis')
 options = VarParsing.VarParsing ('analysis')
 options.register ('ntuple', "",  VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "The output ntuple file name")

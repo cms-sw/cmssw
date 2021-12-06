@@ -8,9 +8,6 @@ from Validation.RecoMuon.track_selectors_cff import *
 from Validation.RecoMuon.associators_cff import *
 from Validation.RecoMuon.histoParameters_cff import *
 
-from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
-from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
-
 from Validation.RecoMuon.RecoMuonValidator_cff import *
 
 import Validation.RecoMuon.MuonTrackValidator_cfi

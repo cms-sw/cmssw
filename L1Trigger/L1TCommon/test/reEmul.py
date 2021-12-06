@@ -26,7 +26,6 @@ from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 import os
 import sys
-import commands
 
 options = VarParsing.VarParsing ('analysis')
 

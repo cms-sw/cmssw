@@ -8,6 +8,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/trackerHitRTTI.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
@@ -111,17 +112,16 @@ mkfit::TrackVec MkFitSeedConverter::convertSeeds(const edm::View<TrajectorySeed>
     SVector3 pos(gpos.x(), gpos.y(), gpos.z());
     SVector3 mom(gmom.x(), gmom.y(), gmom.z());
 
-    const auto cartError = tsos.cartesianError();  // returns a temporary, so can't chain with the following line
-    const auto& cov = cartError.matrix();
-    SMatrixSym66 err;
-    for (int i = 0; i < 6; ++i) {
-      for (int j = i; j < 6; ++j) {
+    const auto& cov = tsos.curvilinearError().matrix();
+    SMatrixSym66 err;  //fill a sub-matrix, mkfit::TrackState will convert internally
+    for (int i = 0; i < 5; ++i) {
+      for (int j = i; j < 5; ++j) {
         err.At(i, j) = cov[i][j];
       }
     }
 
     mkfit::TrackState state(tsos.charge(), pos, mom, err);
-    state.convertFromCartesianToCCS();
+    state.convertFromGlbCurvilinearToCCS();
     ret.emplace_back(state, 0, seed_index, 0, nullptr);
     LogTrace("MkFitSeedConverter") << "Inserted seed with index " << seed_index;
 
@@ -130,13 +130,28 @@ mkfit::TrackVec MkFitSeedConverter::convertSeeds(const edm::View<TrajectorySeed>
       if (not trackerHitRTTI::isFromDet(recHit)) {
         throw cms::Exception("Assert") << "Encountered a seed with a hit which is not trackerHitRTTI::isFromDet()";
       }
-      const auto& clusterRef = static_cast<const BaseTrackerRecHit&>(recHit).firstClusterRef();
-      const auto detId = recHit.geographicalId();
-      const auto ilay = mkFitGeom.layerNumberConverter().convertLayerNumber(
-          detId.subdetId(), ttopo.layer(detId), false, ttopo.isStereo(detId), isPlusSide(detId));
-      LogTrace("MkFitSeedConverter") << " addin hit detid " << detId.rawId() << " index " << clusterRef.index()
-                                     << " ilay " << ilay;
-      ret.back().addHitIdx(clusterRef.index(), ilay, 0);  // per-hit chi2 is not known
+      auto& baseTrkRecHit = static_cast<const BaseTrackerRecHit&>(recHit);
+      if (!baseTrkRecHit.isMatched()) {
+        const auto& clusterRef = baseTrkRecHit.firstClusterRef();
+        const auto detId = recHit.geographicalId();
+        const auto ilay = mkFitGeom.layerNumberConverter().convertLayerNumber(
+            detId.subdetId(), ttopo.layer(detId), false, ttopo.isStereo(detId), isPlusSide(detId));
+        LogTrace("MkFitSeedConverter") << " adding hit detid " << detId.rawId() << " index " << clusterRef.index()
+                                       << " ilay " << ilay;
+        ret.back().addHitIdx(clusterRef.index(), ilay, 0);  // per-hit chi2 is not known
+      } else {
+        auto& matched2D = dynamic_cast<const SiStripMatchedRecHit2D&>(recHit);
+        const OmniClusterRef* const clRefs[2] = {&matched2D.monoClusterRef(), &matched2D.stereoClusterRef()};
+        const DetId detIds[2] = {matched2D.monoId(), matched2D.stereoId()};
+        for (int ii = 0; ii < 2; ++ii) {
+          const auto& detId = detIds[ii];
+          const auto ilay = mkFitGeom.layerNumberConverter().convertLayerNumber(
+              detId.subdetId(), ttopo.layer(detId), false, ttopo.isStereo(detId), isPlusSide(detId));
+          LogTrace("MkFitSeedConverter") << " adding matched hit detid " << detId.rawId() << " index "
+                                         << clRefs[ii]->index() << " ilay " << ilay;
+          ret.back().addHitIdx(clRefs[ii]->index(), ilay, 0);  // per-hit chi2 is not known
+        }
+      }
     }
     ++seed_index;
   }

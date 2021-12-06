@@ -1,11 +1,5 @@
 #include "SimG4CMS/Calo/interface/EvolutionECAL.h"
-
-// destructor
-
-EvolutionECAL::~EvolutionECAL() {}
-
-// constructor
-EvolutionECAL::EvolutionECAL() {}
+#include <memory>
 
 //_____________________________________________________
 double EvolutionECAL::LightCollectionEfficiency(double z, double mu) {
@@ -234,18 +228,17 @@ double EvolutionECAL::InducedAbsorptionEM(double lumi, double eta) {
   double mu_max = 2.0;
   double alpha1 = 3.41488e+00;
 
-  TF1 *ftmp1 = new TF1("ftmp1",
-                       this,
-                       &EvolutionECAL::EquilibriumFractionColorCentersEM,
-                       0.0,
-                       22.0,
-                       3,
-                       "EvolutionECAL",
-                       "EquilibriumFractionColorCentersEM");
+  std::unique_ptr<TF1> ftmp1 = std::make_unique<TF1>("ftmp1",
+                                                     this,
+                                                     &EvolutionECAL::EquilibriumFractionColorCentersEM,
+                                                     0.0,
+                                                     22.0,
+                                                     3,
+                                                     "EvolutionECAL",
+                                                     "EquilibriumFractionColorCentersEM");
   ftmp1->SetParameters(lumi, eta, alpha1);
   double muEM = mu_max * ftmp1->Integral(0.0, 22.0) / 22.0;
 
-  delete ftmp1;
   return muEM;
 }
 

@@ -33,11 +33,11 @@ public:
   // ---------- member functions ---------------------------
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWGenParticleProxyBuilder(const FWGenParticleProxyBuilder&) = delete;  // stop default
 
   const FWGenParticleProxyBuilder& operator=(const FWGenParticleProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::GenParticle>::build;
   void build(const reco::GenParticle& iData,
              unsigned int iIndex,

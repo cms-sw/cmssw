@@ -67,6 +67,7 @@ public:
   double getTimeSlice() const { return hitID.timeSlice(); }
   int getTimeSliceID() const { return hitID.timeSliceID(); }
   uint16_t getDepth() const { return hitID.depth(); }
+  bool isFinecaloTrackID() const { return hitID.isFinecaloTrackID(); }
 
   CaloHitID getID() const { return hitID; }
   void setID(uint32_t i, double d, int j, uint16_t k = 0) { hitID.setID(i, d, j, k); }
@@ -98,8 +99,6 @@ public:
       return (a->getUnitID() < b->getUnitID());
     } else if (a->getDepth() != b->getDepth()) {
       return (a->getDepth() < b->getDepth());
-    } else if (a->getID().fineTrackID() != b->getID().fineTrackID()) {
-      return (a->getID().fineTrackID() < b->getID().fineTrackID());
     } else {
       return (a->getTimeSliceID() < b->getTimeSliceID());
     }
@@ -110,7 +109,7 @@ class CaloG4HitEqual {
 public:
   bool operator()(const CaloG4Hit* a, const CaloG4Hit* b) {
     return (a->getTrackID() == b->getTrackID() && a->getUnitID() == b->getUnitID() && a->getDepth() == b->getDepth() &&
-            a->getTimeSliceID() == b->getTimeSliceID() && a->getID().fineTrackID() == b->getID().fineTrackID());
+            a->getTimeSliceID() == b->getTimeSliceID());
   }
 };
 

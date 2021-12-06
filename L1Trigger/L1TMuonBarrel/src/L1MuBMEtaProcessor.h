@@ -33,10 +33,10 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMAddressArray.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
@@ -54,6 +54,7 @@ class L1MuBMTrack;
 class L1MuBMTEtaPatternLut;
 class L1MuBMTQualPatternLut;
 class L1MuDTTFMasks;
+class L1TMuonBarrelParamsRcd;
 
 //              ---------------------
 //              -- Class Interface --
@@ -90,16 +91,16 @@ public:
 
 private:
   /// receive data (eta trigger primitives)
-  void receiveData(int bx, const edm::Event& e, const edm::EventSetup& c);
+  void receiveData(int bx, const edm::Event& e, const L1TMuonBarrelParams& params);
 
   /// receive addresses (from 6 Sector Processors)
   void receiveAddresses();
 
   /// run Eta Track Finder (ETF)
-  void runEtaTrackFinder(const edm::EventSetup& c);
+  void runEtaTrackFinder(const L1TMuonBarrelParams& params);
 
   /// run Eta Matching Unit (EMU)
-  void runEtaMatchingUnit(const edm::EventSetup& c);
+  void runEtaMatchingUnit(const L1TMuonBarrelParams& params);
 
   /// assign eta and etaFineBit
   void assign();
@@ -124,10 +125,7 @@ private:
   L1MuBMTrack* m_TracKCand[12];
   std::vector<const L1MuBMTrackSegEta*> m_tseta;
 
-  //edm::ESHandle< L1MuDTEtaPatternLut >  theEtaPatternLUT;  // ETF look-up table
-  //edm::ESHandle< L1MuDTQualPatternLut > theQualPatternLUT; // EMU look-up tables
-  //edm::ESHandle< L1MuDTTFMasks >        msks;
-  edm::ESHandle<L1TMuonBarrelParams> bmtfParamsHandle;
+  edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> m_bmtfParamsToken;
   L1MuDTTFMasks msks;
   L1MuBMTEtaPatternLut theEtaPatternLUT;    // ETF look-up table
   L1MuBMTQualPatternLut theQualPatternLUT;  // EMU look-up tables

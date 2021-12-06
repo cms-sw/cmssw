@@ -1,7 +1,25 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 
 process = cms.Process("summary")
+options = VarParsing.VarParsing()
+options.register('inputTag',
+                 "BeamSpotObjects_PCL_byLumi_v0_prompt", # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.string, # string, int, or float
+                 "output tag name")
+options.register('startIOV',
+                 1406713458589700, # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.int, # string, int, or float
+                 "location of the input data")
+options.register('endIOV',
+                 1406876667347162, # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.int, # string, int, or float
+                 "location of the input data")
+options.parseArguments()
 
 process.MessageLogger = cms.Service( "MessageLogger",
                                      debugModules = cms.untracked.vstring( "*" ),
@@ -20,11 +38,16 @@ process.source = cms.Source("EmptySource",
 process.load("CondCore.CondDB.CondDB_cfi")
 process.load("CondTools.BeamSpot.BeamSpotRcdPrinter_cfi")
 
+process.BeamSpotRcdPrinter.tagName  = options.inputTag
+process.BeamSpotRcdPrinter.startIOV = options.startIOV
+process.BeamSpotRcdPrinter.endIOV   = options.endIOV
+process.BeamSpotRcdPrinter.output   = "summary.txt"
+
 ### 2018 Prompt
-process.BeamSpotRcdPrinter.tagName  = "BeamSpotObjects_PCL_byLumi_v0_prompt"
-process.BeamSpotRcdPrinter.startIOV = 1350646955507767
-process.BeamSpotRcdPrinter.endIOV   = 1406876667347162
-process.BeamSpotRcdPrinter.output   = "summary2018_Prompt.txt"
+#process.BeamSpotRcdPrinter.tagName  = "BeamSpotObjects_PCL_byLumi_v0_prompt"
+#process.BeamSpotRcdPrinter.startIOV = 1350646955507767
+#process.BeamSpotRcdPrinter.endIOV   = 1406876667347162
+#process.BeamSpotRcdPrinter.output   = "summary2018_Prompt.txt"
 
 ### 2017 ReReco
 #process.BeamSpotRcdPrinter.tagName  = "BeamSpotObjects_LumiBased_v4_offline"

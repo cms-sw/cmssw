@@ -4,6 +4,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
@@ -16,7 +20,8 @@
 
 class L3MumuTrackingRegion : public TrackingRegionProducer {
 public:
-  L3MumuTrackingRegion(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) {
+  L3MumuTrackingRegion(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+      : theFieldToken(iC.esConsumes()), theMSMakerToken(iC.esConsumes()) {
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
     theVertexTag = regionPSet.getParameter<edm::InputTag>("vertexSrc");
@@ -49,7 +54,7 @@ public:
     }
   }
 
-  ~L3MumuTrackingRegion() override {}
+  ~L3MumuTrackingRegion() override = default;
 
   std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev,
                                                         const edm::EventSetup& es) const override {
@@ -61,6 +66,8 @@ public:
       ev.getByToken(theMeasurementTrackerToken, hmte);
       measurementTracker = hmte.product();
     }
+    const auto& field = es.getData(theFieldToken);
+    const auto& msmaker = es.getData(theMSMakerToken);
 
     // optional constraint for vertex
     // get highest Pt pixel vertex (if existing)
@@ -89,8 +96,10 @@ public:
                                                                                deltaZVertex,
                                                                                theDeltaEta,
                                                                                theDeltaPhi,
-                                                                               m_howToUseMeasurementTracker,
+                                                                               field,
+                                                                               &msmaker,
                                                                                true,
+                                                                               m_howToUseMeasurementTracker,
                                                                                measurementTracker,
                                                                                m_searchOpt));
           }
@@ -110,8 +119,10 @@ public:
                                                                          deltaZVertex,
                                                                          theDeltaEta,
                                                                          theDeltaPhi,
-                                                                         m_howToUseMeasurementTracker,
+                                                                         field,
+                                                                         &msmaker,
                                                                          true,
+                                                                         m_howToUseMeasurementTracker,
                                                                          measurementTracker,
                                                                          m_searchOpt));
     }
@@ -136,6 +147,8 @@ private:
   double theDeltaPhi;
   edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerToken;
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_howToUseMeasurementTracker;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> theMSMakerToken;
   bool m_searchOpt;
 };
 

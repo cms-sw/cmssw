@@ -21,12 +21,13 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   int startCopyNo = args.find("StartCopyNo") ? args.value<int>("StartCopyNo") : 1;  //Start copy number
   int incrCopyNo = args.find("IncrCopyNo") ? args.value<int>("IncrCopyNo") : 1;     //Increment in copy number
 
-  LogDebug("TECGeom") << "debug: Parameters for "
-                      << "positioning--"
-                      << "\tStartAngle " << convertRadToDeg(startAngle) << "\tIncrAngle " << convertRadToDeg(incrAngle)
-                      << "\tZ in/out " << zIn << ", " << zOut << "\tCopy Numbers " << number << " Start/Increment "
-                      << startCopyNo << ", " << incrCopyNo;
-  LogDebug("TECGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace " << ns.name();
+  edm::LogVerbatim("TECGeom") << "debug: Parameters for "
+                              << "positioning--"
+                              << "\tStartAngle " << convertRadToDeg(startAngle) << "\tIncrAngle "
+                              << convertRadToDeg(incrAngle) << "\tZ in/out " << zIn << ", " << zOut << "\tCopy Numbers "
+                              << number << " Start/Increment " << startCopyNo << ", " << incrCopyNo;
+  edm::LogVerbatim("TECGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
+                              << ns.name();
 
   if (number > 0) {
     double theta = 90._deg;
@@ -37,8 +38,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       Rotation3D rotation = makeRotation3D(theta, phix, theta, phiy, 0, 0);
       Position tran(0., 0., (i % 2 == 0) ? zIn : zOut);
       /* PlacedVolume pv = */ mother.placeVolume(child, copyNo, Transform3D(rotation, tran));
-      LogDebug("TECGeom") << "test: " << child.name() << " number " << copyNo << " positioned in " << mother.name()
-                          << " at " << tran << " with " << rotation;
+      edm::LogVerbatim("TECGeom") << "test: " << child.name() << " number " << copyNo << " positioned in "
+                                  << mother.name() << " at " << tran << " with " << rotation;
       copyNo += incrCopyNo;
     }
   }

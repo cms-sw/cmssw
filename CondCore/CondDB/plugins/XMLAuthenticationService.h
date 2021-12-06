@@ -28,6 +28,9 @@ namespace cond {
     public:
       /// Constructor
       DataSourceEntry(const std::string& serviceName, const std::string& connectionName);
+      DataSourceEntry() = delete;
+      DataSourceEntry(const DataSourceEntry&) = delete;
+      DataSourceEntry& operator=(const DataSourceEntry&) = delete;
 
       /// Destructor
       ~DataSourceEntry();
@@ -65,11 +68,6 @@ namespace cond {
 
       /// The structure with the authentication data for the various roles
       std::map<std::string, coral::AuthenticationCredentials*> m_data;
-
-    private:
-      DataSourceEntry() = delete;
-      DataSourceEntry(const DataSourceEntry&) = delete;
-      DataSourceEntry& operator=(const DataSourceEntry&) = delete;
     };
 
     /**

@@ -15,6 +15,7 @@ public:
   ~CSCComparatorDigiValidation() override;
   void bookHistograms(DQMStore::IBooker &);
   void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void plotResolution(const PSimHit &hit, int strip, const CSCLayer *layer, int chamberType);
 
 private:
   edm::EDGetTokenT<CSCStripDigiCollection> strips_Token_;
@@ -26,8 +27,8 @@ private:
   MonitorElement *theNDigisPerLayerPlots[10];
   MonitorElement *theStripDigiPlots[10];
   MonitorElement *the3StripPlots[10];
-
   MonitorElement *theNDigisPerEventPlot;
+  MonitorElement *theResolutionPlots[10];
 };
 
 #endif

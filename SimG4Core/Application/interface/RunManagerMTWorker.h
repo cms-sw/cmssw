@@ -7,6 +7,9 @@
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include <memory>
 #include <tbb/concurrent_vector.h>
 #include <unordered_map>
@@ -19,6 +22,7 @@ namespace edm {
   class ConsumesCollector;
   class HepMCProduct;
 }  // namespace edm
+
 class Generator;
 class RunManagerMT;
 
@@ -26,6 +30,7 @@ class G4Event;
 class G4SimEvent;
 class G4Run;
 class SimTrackManager;
+class CustomUIsession;
 
 class RunAction;
 class EventAction;
@@ -43,7 +48,7 @@ class SimProducer;
 
 class RunManagerMTWorker {
 public:
-  explicit RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& i);
+  explicit RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
   ~RunManagerMTWorker();
 
   void beginRun(const edm::EventSetup&);
@@ -73,7 +78,6 @@ public:
 private:
   void initializeTLS();
   void initializeUserActions();
-
   void initializeRun();
   void terminateRun();
 
@@ -82,18 +86,23 @@ private:
 
   void DumpMagneticField(const G4Field*, const std::string&) const;
 
-  static void resetTLS();
+  inline int getThreadIndex() const { return m_thread_index; }
 
   Generator m_generator;
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
   edm::EDGetTokenT<edm::HepMCProduct> m_LHCToken;
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_theLHCTlinkToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagField;
+  const MagneticField* m_pMagField{nullptr};
 
-  bool m_nonBeam;
-  bool m_pUseMagneticField;
-  bool m_hasWatchers;
-  bool m_LHCTransport;
-  int m_EvtMgrVerbosity;
+  bool m_nonBeam{false};
+  bool m_pUseMagneticField{true};
+  bool m_hasWatchers{false};
+  bool m_LHCTransport{false};
+  bool m_dumpMF{false};
+
+  const int m_thread_index{-1};
+  int m_EvtMgrVerbosity{0};
 
   edm::ParameterSet m_pField;
   edm::ParameterSet m_pRunAction;
@@ -105,10 +114,10 @@ private:
   edm::ParameterSet m_p;
 
   struct TLSData;
-  static thread_local TLSData* m_tls;
-  static thread_local bool dumpMF;
+  TLSData* m_tls{nullptr};
 
-  G4SimEvent* m_simEvent;
+  CustomUIsession* m_UIsession{nullptr};
+  G4SimEvent* m_simEvent{nullptr};
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
 };

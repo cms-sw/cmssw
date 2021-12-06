@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
@@ -47,7 +48,7 @@ namespace AlCaGammaJet {
 class AlCaGammaJetSelector : public edm::stream::EDFilter<edm::GlobalCache<AlCaGammaJet::Counters> > {
 public:
   explicit AlCaGammaJetSelector(const edm::ParameterSet&, const AlCaGammaJet::Counters* count);
-  ~AlCaGammaJetSelector() override;
+  ~AlCaGammaJetSelector() override = default;
 
   static std::unique_ptr<AlCaGammaJet::Counters> initializeGlobalCache(edm::ParameterSet const&) {
     return std::make_unique<AlCaGammaJet::Counters>();
@@ -101,8 +102,6 @@ AlCaGammaJetSelector::AlCaGammaJetSelector(const edm::ParameterSet& iConfig, con
   tok_PFJet_ = consumes<reco::PFJetCollection>(labelPFJet_);
 }
 
-AlCaGammaJetSelector::~AlCaGammaJetSelector() {}
-
 //
 // member functions
 //
@@ -116,7 +115,7 @@ void AlCaGammaJetSelector::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("PFjetInput", edm::InputTag("ak4PFJetsCHS"));
   desc.add<double>("MinPtJet", 10.0);
   desc.add<double>("MinPtPhoton", 10.0);
-  descriptions.addDefault(desc);
+  descriptions.add("alcaGammaJetSelector", desc);
 }
 
 // ------------ method called on each new Event  ------------
@@ -124,16 +123,14 @@ bool AlCaGammaJetSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   nProcessed_++;
 
   // Access the collections from iEvent
-  edm::Handle<reco::PhotonCollection> phoHandle;
-  iEvent.getByToken(tok_Photon_, phoHandle);
+  auto const& phoHandle = iEvent.getHandle(tok_Photon_);
   if (!phoHandle.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get the product " << labelPhoton_;
     return false;  // do not filter
   }
   const reco::PhotonCollection photons = *(phoHandle.product());
 
-  edm::Handle<reco::PFJetCollection> pfjetHandle;
-  iEvent.getByToken(tok_PFJet_, pfjetHandle);
+  auto const& pfjetHandle = iEvent.getHandle(tok_PFJet_);
   if (!pfjetHandle.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelPFJet_;
     return false;  // do not filter

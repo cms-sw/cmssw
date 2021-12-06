@@ -1,6 +1,7 @@
 ---
 Checks: -*,
   ,boost-use-to-string,
+  ,misc-definitions-in-headers,
   ,misc-string-compare,
   ,misc-uniqueptr-reset-release,
   ,modernize-deprecated-headers,
@@ -32,6 +33,8 @@ CheckOptions:
     value:           '10'
   - key:             google-readability-namespace-comments.SpacesBeforeComments
     value:           '2'
+  - key:             misc-definitions-in-headers.HeaderFileExtensions
+    value:           'h,hh,hpp,hxx,icc'
   - key:             modernize-loop-convert.MaxCopySize
     value:           '16'
   - key:             modernize-loop-convert.MinConfidence

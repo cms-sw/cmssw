@@ -1,7 +1,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
-#include "DetectorDescription/Core/src/Box.h"
+#include "DetectorDescription/Core/interface/Box.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
 #include <G4Box.hh>

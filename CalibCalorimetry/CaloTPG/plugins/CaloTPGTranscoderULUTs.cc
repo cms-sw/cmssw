@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
-#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
+#include "CalibCalorimetry/CaloTPG/interface/CaloTPGTranscoderULUT.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

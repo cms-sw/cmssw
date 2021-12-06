@@ -6,14 +6,21 @@
 namespace l1t {
   class RegionalMuonRawDigiTranslator {
   public:
+    static void fillRegionalMuonCand(RegionalMuonCand& mu,
+                                     uint32_t raw_data_00_31,
+                                     uint32_t raw_data_32_63,
+                                     int proc,
+                                     tftype tf,
+                                     bool isKbmtf,
+                                     bool useEmtfDisplacementInfo);
     static void fillRegionalMuonCand(
-        RegionalMuonCand& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int proc, tftype tf, bool isRun3);
-    static void fillRegionalMuonCand(RegionalMuonCand& mu, uint64_t dataword, int proc, tftype tf, bool isRun3);
+        RegionalMuonCand& mu, uint64_t dataword, int proc, tftype tf, bool isKbmtf, bool useEmtfDisplacementInfo);
     static void generatePackedDataWords(const RegionalMuonCand& mu,
                                         uint32_t& raw_data_00_31,
                                         uint32_t& raw_data_32_63,
-                                        bool isRun3);
-    static uint64_t generate64bitDataWord(const RegionalMuonCand& mu, bool isRun3);
+                                        bool isKbmtf,
+                                        bool useEmtfDisplacementInfo);
+    static uint64_t generate64bitDataWord(const RegionalMuonCand& mu, bool isKbmtf, bool useEmtfDisplacementInfo);
     static int generateRawTrkAddress(const RegionalMuonCand&, bool isKalman);
 
     static constexpr unsigned ptMask_ = 0x1FF;

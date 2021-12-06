@@ -11,12 +11,10 @@
 #include "EcalPerEvtLaserAnalyzer.h"
 
 #include <sstream>
-#include <iostream>
 #include <iomanip>
 #include <ctime>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/Utilities/interface/Exception.h>
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/MEEEGeom.h>
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/MEEBGeom.h>
@@ -25,17 +23,9 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 
-#include <Geometry/EcalMapping/interface/EcalElectronicsMapping.h>
-#include <Geometry/EcalMapping/interface/EcalMappingRcd.h>
-
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
 #include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
-#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
-
-#include <vector>
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TPNFit.h>
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFitWithFunction.h>
@@ -46,14 +36,19 @@ using namespace std;
 EcalPerEvtLaserAnalyzer::EcalPerEvtLaserAnalyzer(const edm::ParameterSet& iConfig)
     //========================================================================
     : iEvent(0),
-
+      eventHeaderCollection_(iConfig.getParameter<std::string>("eventHeaderCollection")),
+      eventHeaderProducer_(iConfig.getParameter<std::string>("eventHeaderProducer")),
+      digiCollection_(iConfig.getParameter<std::string>("digiCollection")),
+      digiProducer_(iConfig.getParameter<std::string>("digiProducer")),
+      digiPNCollection_(iConfig.getParameter<std::string>("digiPNCollection")),
+      rawDataToken_(consumes<EcalRawDataCollection>(edm::InputTag(eventHeaderProducer_, eventHeaderCollection_))),
+      pnDiodeDigiToken_(consumes<EcalPnDiodeDigiCollection>(edm::InputTag(digiProducer_, digiPNCollection_))),
+      mappingToken_(esConsumes()),
       // framework parameters with default values
       _nsamples(iConfig.getUntrackedParameter<unsigned int>("nSamples", 10)),
       _presample(iConfig.getUntrackedParameter<unsigned int>("nPresamples", 3)),
       _firstsample(iConfig.getUntrackedParameter<unsigned int>("firstSample", 1)),
       _lastsample(iConfig.getUntrackedParameter<unsigned int>("lastSample", 2)),
-      _samplemin(iConfig.getUntrackedParameter<unsigned int>("sampleMin", 3)),
-      _samplemax(iConfig.getUntrackedParameter<unsigned int>("sampleMax", 9)),
       _nsamplesPN(iConfig.getUntrackedParameter<unsigned int>("nSamplesPN", 50)),
       _presamplePN(iConfig.getUntrackedParameter<unsigned int>("nPresamplesPN", 6)),
       _firstsamplePN(iConfig.getUntrackedParameter<unsigned int>("firstSamplePN", 7)),
@@ -65,11 +60,10 @@ EcalPerEvtLaserAnalyzer::EcalPerEvtLaserAnalyzer(const edm::ParameterSet& iConfi
       _tower(iConfig.getUntrackedParameter<unsigned int>("tower", 1)),
       _channel(iConfig.getUntrackedParameter<unsigned int>("channel", 1)),
       _ecalPart(iConfig.getUntrackedParameter<std::string>("ecalPart", "EB")),
+      resdir_(iConfig.getUntrackedParameter<std::string>("resDir")),
+      refalphabeta_(iConfig.getUntrackedParameter<std::string>("refAlphaBeta")),
       nCrys(NCRYSEB),
-      nTT(NTTEB),
-      nSides(NSIDES),
       IsFileCreated(0),
-      nCh(0),
       runType(-1),
       runNum(0),
       dccID(-1),
@@ -83,26 +77,18 @@ EcalPerEvtLaserAnalyzer::EcalPerEvtLaserAnalyzer(const edm::ParameterSet& iConfi
 //========================================================================
 
 {
-  //now do what ever initialization is needed
-
-  resdir_ = iConfig.getUntrackedParameter<std::string>("resDir");
-  refalphabeta_ = iConfig.getUntrackedParameter<std::string>("refAlphaBeta");
-
-  digiCollection_ = iConfig.getParameter<std::string>("digiCollection");
-  digiPNCollection_ = iConfig.getParameter<std::string>("digiPNCollection");
-  digiProducer_ = iConfig.getParameter<std::string>("digiProducer");
-
-  eventHeaderCollection_ = iConfig.getParameter<std::string>("eventHeaderCollection");
-  eventHeaderProducer_ = iConfig.getParameter<std::string>("eventHeaderProducer");
+  if (_ecalPart == "EB") {
+    ebDigiToken_ = consumes<EBDigiCollection>(edm::InputTag(digiProducer_, digiCollection_));
+  } else if (_ecalPart == "EE") {
+    eeDigiToken_ = consumes<EEDigiCollection>(edm::InputTag(digiProducer_, digiCollection_));
+  }
 
   // Define geometrical constants
-
+  //
   if (_ecalPart == "EB") {
     nCrys = NCRYSEB;
-    nTT = NTTEB;
   } else {
     nCrys = NCRYSEE;
-    nTT = NTTEE;
   }
 }
 
@@ -157,7 +143,6 @@ void EcalPerEvtLaserAnalyzer::beginJob() {
   ADCtrees->SetBranchAddress("pn1", &pn1);
 
   IsFileCreated = 0;
-  nCh = nCrys;
 }
 
 //========================================================================
@@ -169,11 +154,11 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
   // retrieving DCC header
   edm::Handle<EcalRawDataCollection> pDCCHeader;
   const EcalRawDataCollection* DCCHeader = nullptr;
-  try {
-    e.getByLabel(eventHeaderProducer_, eventHeaderCollection_, pDCCHeader);
+  e.getByToken(rawDataToken_, pDCCHeader);
+  if (!pDCCHeader.isValid()) {
+    edm::LogError("nodata") << "Error! can't get the product  retrieving DCC header" << eventHeaderCollection_.c_str();
+  } else {
     DCCHeader = pDCCHeader.product();
-  } catch (std::exception& ex) {
-    std::cerr << "Error! can't get the product  retrieving DCC header" << eventHeaderCollection_.c_str() << std::endl;
   }
 
   // retrieving crystal data from Event
@@ -181,42 +166,34 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
   const EBDigiCollection* EBDigi = nullptr;
   edm::Handle<EEDigiCollection> pEEDigi;
   const EEDigiCollection* EEDigi = nullptr;
-
   if (_ecalPart == "EB") {
-    try {
-      e.getByLabel(digiProducer_, digiCollection_, pEBDigi);
+    e.getByToken(ebDigiToken_, pEBDigi);
+    if (!pEBDigi.isValid()) {
+      edm::LogError("nodata") << "Error! can't get the product retrieving EB crystal data " << digiCollection_.c_str();
+    } else {
       EBDigi = pEBDigi.product();
-    } catch (std::exception& ex) {
-      std::cerr << "Error! can't get the product retrieving EB crystal data " << digiCollection_.c_str() << std::endl;
     }
   } else {
-    try {
-      e.getByLabel(digiProducer_, digiCollection_, pEEDigi);
+    e.getByToken(eeDigiToken_, pEEDigi);
+    if (!pEEDigi.isValid()) {
+      edm::LogError("nodata") << "Error! can't get the product retrieving EE crystal data " << digiCollection_.c_str();
+    } else {
       EEDigi = pEEDigi.product();
-    } catch (std::exception& ex) {
-      std::cerr << "Error! can't get the product retrieving EE crystal data " << digiCollection_.c_str() << std::endl;
     }
   }
 
   // retrieving crystal PN diodes from Event
   edm::Handle<EcalPnDiodeDigiCollection> pPNDigi;
   const EcalPnDiodeDigiCollection* PNDigi = nullptr;
-  try {
-    e.getByLabel(digiProducer_, digiPNCollection_, pPNDigi);
+  e.getByToken(pnDiodeDigiToken_, pPNDigi);
+  if (!pPNDigi.isValid()) {
+    edm::LogError("nodata") << "Error! can't get the product " << digiPNCollection_.c_str();
+  } else {
     PNDigi = pPNDigi.product();
-  } catch (std::exception& ex) {
-    std::cerr << "Error! can't get the product " << digiPNCollection_.c_str() << std::endl;
   }
 
   // retrieving electronics mapping
-  edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-  const EcalElectronicsMapping* TheMapping = nullptr;
-  try {
-    c.get<EcalMappingRcd>().get(ecalmapping);
-    TheMapping = ecalmapping.product();
-  } catch (std::exception& ex) {
-    std::cerr << "Error! can't get the product EcalMappingRcd" << std::endl;
-  }
+  const auto& TheMapping = c.getData(mappingToken_);
 
   // ====================================
   // Decode Basic DCCHeader Information
@@ -285,7 +262,7 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
     vector<int>::iterator iter = find(colors.begin(), colors.end(), color);
     if (iter == colors.end()) {
       colors.push_back(color);
-      cout << " new color found " << color << " " << colors.size() << endl;
+      edm::LogVerbatim("EcalPerEvtLaserAnalyzer") << " new color found " << color << " " << colors.size();
     }
   }
 
@@ -391,7 +368,7 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
 
       side = MEEBGeom::side(etaG, phiG);
 
-      EcalElectronicsId elecid_crystal = TheMapping->getElectronicsId(id_crystal);
+      EcalElectronicsId elecid_crystal = TheMapping.getElectronicsId(id_crystal);
 
       int towerID = elecid_crystal.towerId();
       // int channelID=elecid_crystal.channelId()-1;  // FIXME so far for endcap only
@@ -479,7 +456,7 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
 
       // Recover the TT id and the electronic crystal numbering from EcalElectronicsMapping
 
-      EcalElectronicsId elecid_crystal = TheMapping->getElectronicsId(id_crystal);
+      EcalElectronicsId elecid_crystal = TheMapping.getElectronicsId(id_crystal);
 
       int towerID = elecid_crystal.towerId();
       int channelID = elecid_crystal.channelId() - 1;
@@ -563,10 +540,14 @@ void EcalPerEvtLaserAnalyzer::endJob() {
 
   ADCtrees->Write();
 
-  cout << "\n\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+" << endl;
-  cout << "\t+=+       Analyzing laser data: getting per event               +=+" << endl;
-  cout << "\t+=+            APD Amplitudes and ADC samples                   +=+" << endl;
-  cout << "\t+=+    for fed:" << _fedid << ", tower:" << _tower << ", and channel:" << _channel << endl;
+  edm::LogVerbatim("EcalPerEvtLaserAnalyzer")
+      << "\n\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
+  edm::LogVerbatim("EcalPerEvtLaserAnalyzer")
+      << "\t+=+       Analyzing laser data: getting per event               +=+";
+  edm::LogVerbatim("EcalPerEvtLaserAnalyzer")
+      << "\t+=+            APD Amplitudes and ADC samples                   +=+";
+  edm::LogVerbatim("EcalPerEvtLaserAnalyzer")
+      << "\t+=+    for fed:" << _fedid << ", tower:" << _tower << ", and channel:" << _channel;
 
   // Define temporary tree to save APD amplitudes
 
@@ -739,8 +720,10 @@ void EcalPerEvtLaserAnalyzer::endJob() {
   del << "rm " << ADCfile;
   system(del.str().c_str());
 
-  cout << "\t+=+    .................................................. done  +=+" << endl;
-  cout << "\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+" << endl;
+  edm::LogVerbatim("EcalPerEvtLaserAnalyzer")
+      << "\t+=+    .................................................. done  +=+";
+  edm::LogVerbatim("EcalPerEvtLaserAnalyzer")
+      << "\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
 }
 
 DEFINE_FWK_MODULE(EcalPerEvtLaserAnalyzer);

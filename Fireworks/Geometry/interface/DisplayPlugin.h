@@ -41,7 +41,6 @@ namespace fireworks {
       // ---------- member functions ---------------------------
       virtual void run(const edm::EventSetup&) = 0;
 
-    private:
       DisplayPlugin(const DisplayPlugin&) = delete;  // stop default
 
       const DisplayPlugin& operator=(const DisplayPlugin&) = delete;  // stop default

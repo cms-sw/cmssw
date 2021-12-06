@@ -26,6 +26,10 @@ class SiG4UniversalFluctuation {
 public:
   explicit SiG4UniversalFluctuation();
 
+  // hide assignment operator
+  SiG4UniversalFluctuation &operator=(const SiG4UniversalFluctuation &right) = delete;
+  SiG4UniversalFluctuation(const SiG4UniversalFluctuation &) = delete;
+
   ~SiG4UniversalFluctuation();
 
   // momentum in MeV/c, mass in MeV, tmax (delta cut) in MeV,
@@ -38,10 +42,6 @@ public:
                             CLHEP::HepRandomEngine *);
 
 private:
-  // hide assignment operator
-  SiG4UniversalFluctuation &operator=(const SiG4UniversalFluctuation &right) = delete;
-  SiG4UniversalFluctuation(const SiG4UniversalFluctuation &) = delete;
-
   double particleMass;
   double chargeSquare;
 

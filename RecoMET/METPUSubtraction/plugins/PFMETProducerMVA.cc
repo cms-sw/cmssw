@@ -7,7 +7,8 @@ const double dR2Min = 0.01 * 0.01;
 const double dR2Max = 0.5 * 0.5;
 const double dPtMatch = 0.1;
 
-PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg) : mvaMEtAlgo_(cfg), mvaMEtAlgo_isInitialized_(false) {
+PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg)
+    : mvaMEtAlgo_(cfg, consumesCollector()), mvaMEtAlgo_isInitialized_(false) {
   srcCorrJets_ = consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("srcCorrJets"));
   srcUncorrJets_ = consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("srcUncorrJets"));
   srcJetIds_ = consumes<edm::ValueMap<float> >(cfg.getParameter<edm::InputTag>("srcMVAPileupJetId"));

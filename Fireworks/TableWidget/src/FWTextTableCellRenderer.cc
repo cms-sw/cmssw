@@ -18,7 +18,7 @@
 
 // user include files
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
-#include "Fireworks/TableWidget/src/FWTabularWidget.h"
+#include "Fireworks/TableWidget/interface/FWTabularWidget.h"
 
 //
 // constants, enums and typedefs

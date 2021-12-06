@@ -7,16 +7,16 @@ import FWCore.ParameterSet.Config as cms
 #==============================================================================
 
 from RecoEgamma.EgammaElectronProducers.ecalDrivenGsfElectronCores_cfi import ecalDrivenGsfElectronCores
-from RecoEgamma.EgammaElectronProducers.ecalDrivenGsfElectronCoresFromMultiCl_cff import ecalDrivenGsfElectronCoresFromMultiCl
+from RecoEgamma.EgammaElectronProducers.ecalDrivenGsfElectronCoresHGC_cff import ecalDrivenGsfElectronCoresHGC
 from RecoEgamma.EgammaElectronProducers.gsfElectrons_cfi import *
 
 gsfEcalDrivenElectronTask = cms.Task(ecalDrivenGsfElectronCores,ecalDrivenGsfElectrons)
 gsfEcalDrivenElectronSequence = cms.Sequence(gsfEcalDrivenElectronTask)
 
-_gsfEcalDrivenElectronTaskFromMultiCl = gsfEcalDrivenElectronTask.copy()
-_gsfEcalDrivenElectronTaskFromMultiCl.add(cms.Task(ecalDrivenGsfElectronCoresFromMultiCl,ecalDrivenGsfElectronsFromMultiCl))
+_gsfEcalDrivenElectronTaskHGC = gsfEcalDrivenElectronTask.copy()
+_gsfEcalDrivenElectronTaskHGC.add(cms.Task(ecalDrivenGsfElectronCoresHGC,ecalDrivenGsfElectronsHGC))
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(
-  gsfEcalDrivenElectronTask, _gsfEcalDrivenElectronTaskFromMultiCl
+  gsfEcalDrivenElectronTask, _gsfEcalDrivenElectronTaskHGC
 )

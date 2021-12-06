@@ -32,6 +32,9 @@ namespace edm {
     class LoadAllDictionaries {
     public:
       LoadAllDictionaries(const edm::ParameterSet&);
+      LoadAllDictionaries(const LoadAllDictionaries&) = delete;                   // stop default
+      const LoadAllDictionaries& operator=(const LoadAllDictionaries&) = delete;  // stop default
+
       //virtual ~LoadAllDictionaries();
 
       // ---------- const member functions ---------------------
@@ -42,10 +45,6 @@ namespace edm {
       // ---------- member functions ---------------------------
 
     private:
-      LoadAllDictionaries(const LoadAllDictionaries&) = delete;  // stop default
-
-      const LoadAllDictionaries& operator=(const LoadAllDictionaries&) = delete;  // stop default
-
       // ---------- member data --------------------------------
     };
   }  // namespace service

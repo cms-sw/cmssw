@@ -21,9 +21,6 @@
 // this class header
 #include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
 
-// system include files
-#include <ext/hash_map>
-
 // user include files
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
 #include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"

@@ -10,6 +10,9 @@
 
 #include "CalibMuon/DTCalibration/interface/DTTTrigBaseCorrection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 namespace edm {
   class ParameterSet;
@@ -23,7 +26,7 @@ namespace dtCalibration {
   class DTTTrigFillWithAverage : public DTTTrigBaseCorrection {
   public:
     // Constructor
-    DTTTrigFillWithAverage(const edm::ParameterSet&);
+    DTTTrigFillWithAverage(const edm::ParameterSet&, edm::ConsumesCollector);
 
     // Destructor
     ~DTTTrigFillWithAverage() override;
@@ -37,7 +40,8 @@ namespace dtCalibration {
     const DTTtrig* tTrigMap_;
     edm::ESHandle<DTGeometry> muonGeom_;
 
-    std::string dbLabel;
+    edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
+    edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 
     struct {
       float aveMean;

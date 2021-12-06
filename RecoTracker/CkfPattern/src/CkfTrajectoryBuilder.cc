@@ -26,13 +26,16 @@
 
 using namespace std;
 
-CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC)
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
     : CkfTrajectoryBuilder(conf,
+                           iC,
                            BaseCkfTrajectoryBuilder::createTrajectoryFilter(
                                conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC)) {}
 
-CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, std::unique_ptr<TrajectoryFilter> filter)
-    : BaseCkfTrajectoryBuilder(conf, std::move(filter)) {
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                                           edm::ConsumesCollector iC,
+                                           std::unique_ptr<TrajectoryFilter> filter)
+    : BaseCkfTrajectoryBuilder(conf, iC, std::move(filter)) {
   theMaxCand = conf.getParameter<int>("maxCand");
   theLostHitPenalty = conf.getParameter<double>("lostHitPenalty");
   theIntermediateCleaning = conf.getParameter<bool>("intermediateCleaning");

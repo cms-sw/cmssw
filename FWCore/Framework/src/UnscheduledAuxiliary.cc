@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "UnscheduledAuxiliary.h"
+#include "FWCore/Framework/interface/UnscheduledAuxiliary.h"
 
 //
 // constants, enums and typedefs

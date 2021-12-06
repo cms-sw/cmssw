@@ -54,7 +54,7 @@ pixelLessLayerPairs4PixelLessTracking = seedingLayersEDProducer.clone(
         maxRing = cms.int32(2),
         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
-    TEC = cms.PSet(
+    TEC = dict(
         useSimpleRphiHitsCleaner = cms.bool(False),        
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),

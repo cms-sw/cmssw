@@ -23,6 +23,10 @@ namespace XrdAdaptor {
     friend class Source;
 
   public:
+    using IOPosBuffer = edm::storage::IOPosBuffer;
+    using IOSize = edm::storage::IOSize;
+    using IOOffset = edm::storage::IOOffset;
+
     ClientRequest(const ClientRequest &) = delete;
     ClientRequest &operator=(const ClientRequest &) = delete;
 
@@ -32,7 +36,7 @@ namespace XrdAdaptor {
     ClientRequest(RequestManager &manager, std::shared_ptr<std::vector<IOPosBuffer>> iolist, IOSize size = 0)
         : m_failure_count(0), m_into(nullptr), m_size(size), m_off(0), m_iolist(iolist), m_manager(manager) {
       if (!m_iolist->empty() && !m_size) {
-        for (IOPosBuffer const &buf : *m_iolist) {
+        for (edm::storage::IOPosBuffer const &buf : *m_iolist) {
           m_size += buf.size();
         }
       }
@@ -42,14 +46,14 @@ namespace XrdAdaptor {
 
     ~ClientRequest() override;
 
-    std::future<IOSize> get_future() { return m_promise.get_future(); }
+    std::future<edm::storage::IOSize> get_future() { return m_promise.get_future(); }
 
     /**
      * Handle the response from the Xrootd server.
      */
     void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override;
 
-    IOSize getSize() const { return m_size; }
+    edm::storage::IOSize getSize() const { return m_size; }
 
     size_t getCount() const { return m_into ? 1 : m_iolist->size(); }
 
@@ -66,9 +70,9 @@ namespace XrdAdaptor {
 
     unsigned m_failure_count;
     void *m_into;
-    IOSize m_size;
-    IOOffset m_off;
-    edm::propagate_const<std::shared_ptr<std::vector<IOPosBuffer>>> m_iolist;
+    edm::storage::IOSize m_size;
+    edm::storage::IOOffset m_off;
+    edm::propagate_const<std::shared_ptr<std::vector<edm::storage::IOPosBuffer>>> m_iolist;
     RequestManager &m_manager;
     edm::propagate_const<std::shared_ptr<Source>> m_source;
     edm::propagate_const<std::shared_ptr<XrdReadStatistics>> m_stats;
@@ -80,7 +84,7 @@ namespace XrdAdaptor {
     // ourself to prevent the object from being unexpectedly deleted.
     edm::propagate_const<std::shared_ptr<ClientRequest>> m_self_reference;
 
-    std::promise<IOSize> m_promise;
+    std::promise<edm::storage::IOSize> m_promise;
 
     QualityMetricWatch m_qmw;
   };

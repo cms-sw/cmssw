@@ -171,6 +171,7 @@ namespace hitfit {
   //   The uncertainty for a momentum P.
   //
   {
+    p = std::fabs(p);
     if (_inverse)
       p = 1 / p;
 

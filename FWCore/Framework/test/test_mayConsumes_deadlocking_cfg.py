@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("DEADLOCKTEST")
 process.source = cms.Source("EmptySource")
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20000))
+process.maxEvents.input = 20000
 
 process.a = cms.EDAnalyzer("ConsumingOneSharedResourceAnalyzer", 
                             valueMustMatch = cms.untracked.int32(1),
@@ -25,9 +25,10 @@ process.two = cms.EDProducer("IntLegacyProducer",
                              ivalue = cms.int32(2)
 )
            
-process.options = cms.untracked.PSet(
-                    numberOfThreads = cms.untracked.uint32(2),
-                    numberOfStreams = cms.untracked.uint32(0)
+process.options = dict(
+    numberOfThreads = 2,
+    numberOfStreams = 0,
+    numberOfConcurrentLuminosityBlocks = 1
 )                 
 
 process.t = cms.Task(process.one, process.two)

@@ -11,6 +11,10 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class DTMtime;
+class DTMtimeRcd;
+class DTRecoConditions;
+class DTRecoConditionsVdriftRcd;
 class DTMtimeValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTMtimeValidateDBRead(edm::ParameterSet const& p);
@@ -22,4 +26,7 @@ public:
 private:
   std::string dataFileName;
   std::string elogFileName;
+  bool readLegacyVDriftDB;  // which DB to use
+  edm::ESGetToken<DTMtime, DTMtimeRcd> dtmtTimeToken_;
+  edm::ESGetToken<DTRecoConditions, DTRecoConditionsVdriftRcd> dtrecoCondToken_;
 };

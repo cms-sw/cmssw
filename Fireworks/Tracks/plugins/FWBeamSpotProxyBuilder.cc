@@ -19,11 +19,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // Disable default copy constructor
   FWBeamSpotProxyBuilder(const FWBeamSpotProxyBuilder&) = delete;
   // Disable default assignment operator
   const FWBeamSpotProxyBuilder& operator=(const FWBeamSpotProxyBuilder&) = delete;
+
+private:
   void localModelChanges(const FWModelId& iId,
                          TEveElement* parent,
                          FWViewType::EType viewType,

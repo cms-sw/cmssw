@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
-import sys,os,commands
+import sys,os,subprocess
 from CommonMethods import *
 def main():
     if len(sys.argv) < 3:
@@ -36,7 +36,7 @@ def main():
         if fileName != newFileName:
             aCmd = "mv " + destDir + fileName + " " + destDir + newFileName
             print(aCmd)
-            output =  commands.getstatusoutput(aCmd)
+            output =  subprocess.getstatusoutput(aCmd)
             if output[0] != 0:
                 print(output[1])
         else:

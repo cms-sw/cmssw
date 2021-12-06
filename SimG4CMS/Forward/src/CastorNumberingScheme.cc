@@ -10,7 +10,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include <iostream>
 
-//#define castornumschemedebug
+//#define EDM_ML_DEBUG
 
 CastorNumberingScheme::CastorNumberingScheme()
     : lvCASTFar(nullptr),
@@ -62,7 +62,7 @@ CastorNumberingScheme::CastorNumberingScheme()
     if (strcmp(((*lvcite)->GetName()).c_str(), "C4HF") == 0)
       lvC4HF = (*lvcite);
   }
-#ifdef castornumschemedebug
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ForwardSim") << "Creating CastorNumberingScheme";
   LogDebug("ForwardSim") << "CastorNumberingScheme:: LogicalVolume pointers\n"
                          << lvCASTFar << " for CASTFar; " << lvCASTNear << " for CASTNear; " << lvCAST << " for CAST; "
@@ -89,7 +89,7 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
   lvp lvs[20];
   detectorLevel(aStep, level, copyno, lvs);
 
-#ifdef castornumschemedebug
+#ifdef EDM_ML_DEBUG
   LogDebug("ForwardSim") << "CastorNumberingScheme number of levels= " << level;
 #endif
 
@@ -145,7 +145,7 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
         sector = sector * 2 - 1;
       }
 
-#ifdef castornumschemedebug
+#ifdef EDM_ML_DEBUG
       LogDebug("ForwardSim") << "CastorNumberingScheme  "
                              << "ich = " << ich << "copyno = " << copyno[ich] << "name = " << lvs[ich]->GetName();
 #endif
@@ -164,7 +164,7 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
     HcalCastorDetId castorId = HcalCastorDetId(true_for_positive_eta, sector, module);
     index = castorId.rawId();
 
-#ifdef castornumschemedebug
+#ifdef EDM_ML_DEBUG
     uint32_t intindex = 0;
     intindex = packIndex(zside, sector, module);
     LogDebug("ForwardSim") << "CastorNumberingScheme: "

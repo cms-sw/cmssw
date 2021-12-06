@@ -18,7 +18,10 @@ HFSimParameters::HFSimParameters(double simHitToPhotoelectrons,
       theSamplingFactor(samplingFactor) {}
 
 HFSimParameters::HFSimParameters(const edm::ParameterSet& p)
-    : CaloSimParameters(p), theDbService(nullptr), theSamplingFactor(p.getParameter<double>("samplingFactor")) {}
+    : CaloSimParameters(p),
+      theDbService(nullptr),
+      theSamplingFactor(p.getParameter<double>("samplingFactor")),
+      threshold_currentTDC_(p.getParameter<double>("threshold_currentTDC")) {}
 
 double HFSimParameters::photoelectronsToAnalog(const DetId& detId) const {
   // pe/fC = pe/GeV * GeV/fC  = (0.24 pe/GeV * 6 for photomult * 0.2146GeV/fC)

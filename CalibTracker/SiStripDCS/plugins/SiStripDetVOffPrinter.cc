@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -60,7 +59,7 @@ SiStripDetVOffPrinter::SiStripDetVOffPrinter(const edm::ParameterSet& iConfig)
   m_connectionPool.configure();
 }
 
-SiStripDetVOffPrinter::~SiStripDetVOffPrinter() {}
+SiStripDetVOffPrinter::~SiStripDetVOffPrinter() = default;
 
 void SiStripDetVOffPrinter::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   // use start and end time from config file

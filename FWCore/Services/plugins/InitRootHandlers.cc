@@ -113,7 +113,7 @@ namespace edm {
       static std::atomic<std::size_t> nextModule_, doneModules_;
 
     private:
-      static char* const* getPstackArgv();
+      static char const* const* getPstackArgv();
       void enableWarnings_() override;
       void ignoreWarnings_(edm::RootHandlers::SeverityLevel level) override;
       void willBeUsingThreads() override;
@@ -121,9 +121,9 @@ namespace edm {
       void cachePidInfo();
       static void stacktraceHelperThread();
 
-      static const int pidStringLength_ = 200;
+      static constexpr int pidStringLength_ = 200;
       static char pidString_[pidStringLength_];
-      static char* const pstackArgv_[];
+      static char const* const pstackArgv_[];
       static int parentToChild_[2];
       static int childToParent_[2];
       static std::unique_ptr<std::thread> helperThread_;
@@ -156,7 +156,7 @@ namespace edm {
 namespace {
   thread_local edm::RootHandlers::SeverityLevel s_ignoreWarnings = edm::RootHandlers::SeverityLevel::kInfo;
 
-  bool s_ignoreEverything = false;
+  constexpr bool s_ignoreEverything = false;
 
   template <std::size_t SIZE>
   bool find_if_string(const std::string& search, const std::array<const char* const, SIZE>& substrs) {
@@ -735,7 +735,7 @@ namespace edm {
     int cmssw_stacktrace(void* /*arg*/) {
       set_default_signals();
 
-      char* const* argv = edm::service::InitRootHandlers::getPstackArgv();
+      char const* const* argv = edm::service::InitRootHandlers::getPstackArgv();
       // NOTE: this is NOT async-signal-safe at CERN's lxplus service.
       // CERN uses LD_PRELOAD to replace execv with a function from libsnoopy which
       // calls dlsym.
@@ -748,10 +748,10 @@ namespace edm {
       return 1;
     }
 
-    static char pstackName[] = "(CMSSW stack trace helper)";
-    static char dashC[] = "-c";
+    static constexpr char pstackName[] = "(CMSSW stack trace helper)";
+    static constexpr char dashC[] = "-c";
     char InitRootHandlers::pidString_[InitRootHandlers::pidStringLength_] = {};
-    char* const InitRootHandlers::pstackArgv_[] = {pstackName, dashC, InitRootHandlers::pidString_, nullptr};
+    char const* const InitRootHandlers::pstackArgv_[] = {pstackName, dashC, InitRootHandlers::pidString_, nullptr};
     int InitRootHandlers::parentToChild_[2] = {-1, -1};
     int InitRootHandlers::childToParent_[2] = {-1, -1};
     std::unique_ptr<std::thread> InitRootHandlers::helperThread_;
@@ -909,7 +909,7 @@ namespace edm {
       descriptions.add("InitRootHandlers", desc);
     }
 
-    char* const* InitRootHandlers::getPstackArgv() { return pstackArgv_; }
+    char const* const* InitRootHandlers::getPstackArgv() { return pstackArgv_; }
 
     void InitRootHandlers::enableWarnings_() { s_ignoreWarnings = edm::RootHandlers::SeverityLevel::kInfo; }
 

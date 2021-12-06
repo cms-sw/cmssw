@@ -18,14 +18,14 @@
 //
 //
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include <string>
 #include <iostream>
 #include <fstream>
 
-class SiPixelDetInfoFileWriter : public edm::EDAnalyzer {
+class SiPixelDetInfoFileWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit SiPixelDetInfoFileWriter(const edm::ParameterSet &);
   ~SiPixelDetInfoFileWriter() override;
@@ -34,6 +34,7 @@ private:
   void beginJob() override;
   void beginRun(const edm::Run &, const edm::EventSetup &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override{};
 
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;

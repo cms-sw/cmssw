@@ -55,7 +55,7 @@ void CustomPhysicsListSS::ConstructProcess() {
 
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
-  for (auto particle : fParticleFactory.get()->GetCustomParticles()) {
+  for (auto particle : fParticleFactory.get()->getCustomParticles()) {
     CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
     if (cp) {
       G4ProcessManager* pmanager = particle->GetProcessManager();
@@ -67,7 +67,10 @@ void CustomPhysicsListSS::ConstructProcess() {
           ph->RegisterProcess(new G4CoulombScattering, particle);
           ph->RegisterProcess(new G4hIonisation, particle);
         }
-        if (cp->GetCloud() && fHadronicInteraction && CustomPDGParser::s_isRHadron(particle->GetPDGEncoding())) {
+        if (cp->GetCloud() && fHadronicInteraction &&
+            (CustomPDGParser::s_isgluinoHadron(particle->GetPDGEncoding()) ||
+             (CustomPDGParser::s_isstopHadron(particle->GetPDGEncoding())) ||
+             (CustomPDGParser::s_issbottomHadron(particle->GetPDGEncoding())))) {
           edm::LogVerbatim("SimG4CoreCustomPhysics")
               << "CustomPhysicsListSS: " << particle->GetParticleName()
               << " CloudMass= " << cp->GetCloud()->GetPDGMass() / GeV

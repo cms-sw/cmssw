@@ -14,7 +14,6 @@
 <use name="DQMOffline/RecoB"/>
 <use name="Validation/RecoB"/>
 <use name="DataFormats/PatCandidates"/>
-<use name="boost"/>
 <use name="clhep"/>
 <use name="rootcore"/>
 <use name="root"/>

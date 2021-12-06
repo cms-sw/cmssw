@@ -14,6 +14,7 @@ public:
 
   inline explicit AbsFFTJetScaleCalculator(std::shared_ptr<npstat::AbsMultivariateFunctor> f)
       : functor(f), buffer_(f->minDim()) {}
+  AbsFFTJetScaleCalculator() = delete;
 
   inline virtual ~AbsFFTJetScaleCalculator() {}
 
@@ -25,8 +26,6 @@ public:
   }
 
 private:
-  AbsFFTJetScaleCalculator() = delete;
-
   virtual void map(const Jet& jet, const Adjustable& current, double* buf, unsigned dim) const = 0;
 
   std::shared_ptr<npstat::AbsMultivariateFunctor> functor;

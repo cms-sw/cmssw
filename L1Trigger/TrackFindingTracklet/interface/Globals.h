@@ -17,13 +17,11 @@
 
 namespace trklet {
 
-  class TETableBase;
   class TrackDerTable;
-  class ProjectionRouterBendTable;
   class SLHCEvent;
   class HistBase;
   class Settings;
-  class VMRouterPhiCorrTable;
+  class TrackletLUT;
   struct imathGlobals;
   class IMATH_TrackletCalculator;
   class IMATH_TrackletCalculatorDisk;
@@ -41,9 +39,7 @@ namespace trklet {
 
     TrackDerTable*& trackDerTable() { return trackDerTable_; }
 
-    VMRouterPhiCorrTable*& phiCorr(unsigned int layer) { return thePhiCorr_[layer]; }
-
-    ProjectionRouterBendTable*& projectionRouterBendTable() { return projectionRouterBendTable_; }
+    TrackletLUT*& phiCorr(unsigned int layer) { return thePhiCorr_[layer]; }
 
     std::map<std::string, std::vector<int> >& ILindex() { return ILindex_; }
 
@@ -98,14 +94,12 @@ namespace trklet {
 
     TrackDerTable* trackDerTable_{nullptr};
 
-    ProjectionRouterBendTable* projectionRouterBendTable_{nullptr};
-
 #ifdef USEHYBRID
     std::unique_ptr<tmtt::Settings> tmttSettings_;
     std::unique_ptr<tmtt::KFParamsComb> tmttKFParamsComb_;
 #endif
 
-    std::array<VMRouterPhiCorrTable*, 6> thePhiCorr_{{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
+    std::array<TrackletLUT*, 6> thePhiCorr_{{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
 
     std::map<std::string, std::vector<int> > ILindex_;
 

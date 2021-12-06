@@ -2,41 +2,44 @@
 #include "RecoTracker/TkHitPairs/interface/CosmicLayerPairs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 void SeedGeneratorForCRack::init(const SiStripRecHit2DCollection& collstereo,
                                  const SiStripRecHit2DCollection& collrphi,
                                  const SiStripMatchedRecHit2DCollection& collmatched,
                                  const edm::EventSetup& iSetup) {
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield);
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  magfield = iSetup.getHandle(theMagfieldToken);
+  tracker = iSetup.getHandle(theTrackerToken);
   thePropagatorAl = new PropagatorWithMaterial(alongMomentum, 0.1057, &(*magfield));
   thePropagatorOp = new PropagatorWithMaterial(oppositeToMomentum, 0.1057, &(*magfield));
   theUpdator = new KFUpdator();
 
   // get the transient builder
+  TTTRHBuilder = &iSetup.getData(theTTRHToken);
 
-  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  GeometricSearchTracker const& track = iSetup.getData(theSearchTrackerToken);
+  TrackerTopology const& ttopo = iSetup.getData(theTTopoToken);
 
-  iSetup.get<TransientRecHitRecord>().get(builderName, theBuilder);
-  TTTRHBuilder = theBuilder.product();
-  CosmicLayerPairs cosmiclayers(geometry);
-  cosmiclayers.init(collstereo, collrphi, collmatched, iSetup);
-  thePairGenerator = new CosmicHitPairGenerator(cosmiclayers, iSetup);
+  CosmicLayerPairs cosmiclayers(geometry, collrphi, collmatched, track, ttopo);
+  thePairGenerator = new CosmicHitPairGenerator(cosmiclayers, *tracker);
   HitPairs.clear();
-  thePairGenerator->hitPairs(region, HitPairs, iSetup);
+  thePairGenerator->hitPairs(region, HitPairs);
   LogDebug("CosmicSeedFinder") << "Initialized with " << HitPairs.size() << " hit pairs" << std::endl;
 }
 
-SeedGeneratorForCRack::SeedGeneratorForCRack(edm::ParameterSet const& conf)
-    : conf_(conf),
+SeedGeneratorForCRack::SeedGeneratorForCRack(edm::ParameterSet const& conf, edm::ConsumesCollector iCC)
+    : theMagfieldToken(iCC.esConsumes()),
+      theTrackerToken(iCC.esConsumes()),
+      theSearchTrackerToken(iCC.esConsumes()),
+      theTTopoToken(iCC.esConsumes()),
+      theTTRHToken(iCC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("TTRHBuilder")))),
       region(conf.getParameter<double>("ptMin"),
              conf.getParameter<double>("originRadius"),
              conf.getParameter<double>("originHalfLength"),
              conf.getParameter<double>("originZPosition")) {
-  seedpt = conf_.getParameter<double>("SeedPt");
-  builderName = conf_.getParameter<std::string>("TTRHBuilder");
-  geometry = conf_.getUntrackedParameter<std::string>("GeometricStructure", "STANDARD");
-  multipleScatteringFactor = conf_.getUntrackedParameter<double>("multipleScatteringFactor", 1.0);
-  seedMomentum = conf_.getUntrackedParameter<double>("SeedMomentum", 1);
+  seedpt = conf.getParameter<double>("SeedPt");
+  geometry = conf.getUntrackedParameter<std::string>("GeometricStructure", "STANDARD");
+  multipleScatteringFactor = conf.getUntrackedParameter<double>("multipleScatteringFactor", 1.0);
+  seedMomentum = conf.getUntrackedParameter<double>("SeedMomentum", 1);
 }
 
 void SeedGeneratorForCRack::run(TrajectorySeedCollection& output, const edm::EventSetup& iSetup) {

@@ -20,7 +20,7 @@ class G4Step;
 class HGCalSD : public CaloSD, public Observer<const BeginOfJob *> {
 public:
   HGCalSD(const std::string &,
-          const edm::EventSetup &,
+          const HGCalDDDConstants *,
           const SensitiveDetectorCatalog &,
           edm::ParameterSet const &,
           const SimTrackManager *);

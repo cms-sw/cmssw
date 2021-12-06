@@ -132,7 +132,7 @@ bool JetCorrectorParametersHelper::binBoundChecks(unsigned dim,
                                                   const float& value,
                                                   const float& min,
                                                   const float& max) const {
-  if (value < min || value > max)
+  if (value < min || value >= max)
     return false;
   else
     return true;

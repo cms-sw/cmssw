@@ -99,7 +99,7 @@ void createPlots(TString plot) {
     abscissaName = TString("#eta");
     ordinateName = TString("t/#lambda_{I}");
     ymin = 0.0;
-    ymax = 0.08;
+    ymax = 0.18;
     xmin = -4.0;
     xmax = 4.0;
   } else if (plot.CompareTo("l_vs_phi") == 0) {
@@ -107,7 +107,7 @@ void createPlots(TString plot) {
     abscissaName = TString("#varphi [rad]");
     ordinateName = TString("t/#lambda_{I}");
     ymin = 0.0;
-    ymax = 0.08;
+    ymax = 0.18;
     xmin = -3.2;
     xmax = 3.2;
   } else {

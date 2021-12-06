@@ -14,6 +14,7 @@ pushd ${LOCAL_TMP_DIR}
   grep "global write event" testOutput1.log > /dev/null || die "grep failed to find 'global write event'" $?
   grep "global writeLuminosityBlock" testOutput1.log > /dev/null || die "grep failed to find 'global writeLuminosityBlock'" $?
   grep "global writeRun" testOutput1.log > /dev/null || die "grep failed to find 'global writeRun'" $?
+  grep "global writeProcessBlock" testOutput1.log > /dev/null || die "grep failed to find 'global writeProcessBlock'" $?
   grep "global respondToOpenInputFile" testOutput1.log > /dev/null || die "grep failed to find 'global respondToOpenInputFile'" $?
   grep "global respondToCloseInputFile" testOutput1.log > /dev/null || die "grep failed to find 'global respondToCloseInputFile'" $?
   grep "global globalBeginRun" testOutput1.log > /dev/null || die "grep failed to find 'global globalBeginRun'" $?
@@ -28,6 +29,7 @@ pushd ${LOCAL_TMP_DIR}
   grep "limited write event" testOutput1.log > /dev/null || die "grep failed to find 'limited write event'" $?
   grep "limited writeLuminosityBlock" testOutput1.log > /dev/null || die "grep failed to find 'limited writeLuminosityBlock'" $?
   grep "limited writeRun" testOutput1.log > /dev/null || die "grep failed to find 'limited writeRun'" $?
+  grep "limited writeProcessBlock" testOutput1.log > /dev/null || die "grep failed to find 'limited writeProcessBlock'" $?
   grep "limited respondToOpenInputFile" testOutput1.log > /dev/null || die "grep failed to find 'limited respondToOpenInputFile'" $?
   grep "limited respondToCloseInputFile" testOutput1.log > /dev/null || die "grep failed to find 'limited respondToCloseInputFile'" $?
   grep "limited globalBeginRun" testOutput1.log > /dev/null || die "grep failed to find 'limited globalBeginRun'" $?
@@ -43,6 +45,7 @@ pushd ${LOCAL_TMP_DIR}
   grep "global write event" testOutput2.log > /dev/null || die "grep failed to find 'global write event'" $?
   grep "global writeLuminosityBlock" testOutput2.log > /dev/null || die "grep failed to find 'global writeLuminosityBlock'" $?
   grep "global writeRun" testOutput2.log > /dev/null || die "grep failed to find 'global writeRun'" $?
+  grep "global writeProcessBlock" testOutput2.log > /dev/null || die "grep failed to find 'global writeProcessBlock'" $?
   grep "global respondToOpenInputFile" testOutput2.log > /dev/null || die "grep failed to find 'global respondToOpenInputFile'" $?
   grep "global respondToCloseInputFile" testOutput2.log > /dev/null || die "grep failed to find 'global respondToCloseInputFile'" $?
   grep "global globalBeginRun" testOutput2.log > /dev/null || die "grep failed to find 'global globalBeginRun'" $?
@@ -54,6 +57,7 @@ pushd ${LOCAL_TMP_DIR}
   grep "limited write event" testOutput2.log > /dev/null || die "grep failed to find 'limited write event'" $?
   grep "limited writeLuminosityBlock" testOutput2.log > /dev/null || die "grep failed to find 'limited writeLuminosityBlock'" $?
   grep "limited writeRun" testOutput2.log > /dev/null || die "grep failed to find 'limited writeRun'" $?
+  grep "limited writeProcessBlock" testOutput2.log > /dev/null || die "grep failed to find 'limited writeProcessBlock'" $?
   grep "limited respondToOpenInputFile" testOutput2.log > /dev/null || die "grep failed to find 'limited respondToOpenInputFile'" $?
   grep "limited respondToCloseInputFile" testOutput2.log > /dev/null || die "grep failed to find 'limited respondToCloseInputFile'" $?
   grep "limited globalBeginRun" testOutput2.log > /dev/null || die "grep failed to find 'limited globalBeginRun'" $?

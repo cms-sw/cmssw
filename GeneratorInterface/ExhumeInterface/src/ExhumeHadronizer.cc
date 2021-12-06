@@ -24,7 +24,7 @@
 #include <string>
 #include <sstream>
 
-HepMC::IO_HEPEVT conv;
+HepMC::IO_HEPEVT exhume_conv;
 
 namespace gen {
   extern "C" {
@@ -158,7 +158,7 @@ namespace gen {
     exhumeEvent_->Generate();
     exhumeProcess_->Hadronise();
 
-    event().reset(conv.read_next_event());
+    event().reset(exhume_conv.read_next_event());
 
     return true;
   }

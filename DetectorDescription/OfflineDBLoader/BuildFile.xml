@@ -1,4 +1,9 @@
 <use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="dd4hep"/>
+<use name="dd4hep-core"/>
+<use name="rootmath"/>
+<use name="rootgeom"/>
 <export>
   <lib name="1"/>
 </export>

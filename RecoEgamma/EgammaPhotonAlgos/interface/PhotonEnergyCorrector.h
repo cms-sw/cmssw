@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
+#include "RecoEgamma/EgammaTools/interface/EGEnergyCorrectorFactoryFromEventSetup.h"
 #include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
@@ -38,6 +39,7 @@ private:
   std::string w_file_;
   std::string w_db_;
   std::string candidateP4type_;
+  std::unique_ptr<EGEnergyCorrectorFactoryFromEventSetup> regressionCorrectorFactory_;
   std::unique_ptr<EGEnergyCorrector> regressionCorrector_;
   std::unique_ptr<EcalClusterFunctionBaseClass> scEnergyFunction_;
   std::unique_ptr<EcalClusterFunctionBaseClass> scCrackEnergyFunction_;
@@ -52,6 +54,7 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHitsToken_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHitsToken_;
   const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 
   std::unique_ptr<EnergyUncertaintyPhotonSpecific> photonUncertaintyCalculator_;
 };

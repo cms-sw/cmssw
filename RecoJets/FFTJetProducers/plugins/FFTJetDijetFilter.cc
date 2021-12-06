@@ -54,14 +54,13 @@ public:
   typedef fftjet::SparseClusteringTree<fftjet::Peak, long> SparseTree;
 
   explicit FFTJetDijetFilter(const edm::ParameterSet&);
+  FFTJetDijetFilter() = delete;
+  FFTJetDijetFilter(const FFTJetDijetFilter&) = delete;
+  FFTJetDijetFilter& operator=(const FFTJetDijetFilter&) = delete;
   ~FFTJetDijetFilter() override;
 
 private:
   typedef reco::PattRecoTree<float, reco::PattRecoPeak<float> > StoredTree;
-
-  FFTJetDijetFilter() = delete;
-  FFTJetDijetFilter(const FFTJetDijetFilter&) = delete;
-  FFTJetDijetFilter& operator=(const FFTJetDijetFilter&) = delete;
 
   void beginJob() override;
   bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;

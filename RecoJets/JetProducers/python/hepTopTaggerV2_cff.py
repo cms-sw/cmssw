@@ -5,7 +5,8 @@ from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 from RecoJets.JetProducers.PFJetParameters_cfi import *
 
 # CHS
-chsForHTT = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))  
+from CommonTools.ParticleFlow.pfCHS_cff import pfCHS
+chsForHTT = pfCHS.clone()
 
 # Schedule HEPTopTagger
 hepTopTaggerV2 = cms.EDProducer(

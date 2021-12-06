@@ -2,7 +2,7 @@
 #define EcalSimAlgos_EcalSignalGenerator_h
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalBaseSignalGenerator.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -42,7 +42,7 @@
  *  as noise 
  */
 
-#include <iostream>
+//#include <iostream>
 #include <memory>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -61,45 +61,54 @@ public:
 
   EcalSignalGenerator() : EcalBaseSignalGenerator() {}
 
-  EcalSignalGenerator(const edm::InputTag& inputTag,
-                      const edm::EDGetTokenT<COLLECTION>& t,
+  EcalSignalGenerator(edm::ConsumesCollector& cc,
+                      const edm::InputTag& inputTag,
                       const double EBs25notCont,
                       const double EEs25notCont,
                       const double peToABarrel,
                       const double peToAEndcap,
                       const bool timeDependent = false)
-      : EcalBaseSignalGenerator(), theEvent(nullptr), theEventPrincipal(nullptr), theInputTag(inputTag), tok_(t) {
+      : EcalBaseSignalGenerator(),
+        m_gainRatiosToken(cc.esConsumes()),
+        m_interCalibConstantsMCToken(cc.esConsumes()),
+        m_adcToGeVConstantToken(cc.esConsumes()),
+        m_esGainToken(cc.esConsumes()),
+        m_esMIPToGeVConstantToken(cc.esConsumes()),
+        m_esIntercalibConstantsToken(cc.esConsumes()),
+        theEvent(nullptr),
+        theEventPrincipal(nullptr),
+        theInputTag(inputTag),
+        m_tok(cc.consumes<COLLECTION>(inputTag)),
+        m_EBs25notCont(EBs25notCont),
+        m_EEs25notCont(EEs25notCont),
+        m_peToABarrel(peToABarrel),
+        m_peToAEndcap(peToAEndcap),
+        m_timeDependent(timeDependent) {
     EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
     theDefaultGains[2] = defaultRatios->gain6Over1();
     theDefaultGains[1] = theDefaultGains[2] * (defaultRatios->gain12Over6());
-    m_EBs25notCont = EBs25notCont;
-    m_EEs25notCont = EEs25notCont;
-    m_peToABarrel = peToABarrel;
-    m_peToAEndcap = peToAEndcap;
-    m_timeDependent = timeDependent;
+
+    if (m_timeDependent) {
+      m_laserDbToken = cc.esConsumes();
+      m_laserDbMCToken = cc.esConsumes();
+    }
   }
 
   ~EcalSignalGenerator() override {}
 
   void initializeEvent(const edm::Event* event, const edm::EventSetup* eventSetup) {
     theEvent = event;
-    eventSetup->get<EcalGainRatiosRcd>().get(grHandle);  // find the gains
+    m_gainRatios = &eventSetup->getData(m_gainRatiosToken);  // find the gains
     // Ecal Intercalibration Constants
-    eventSetup->get<EcalIntercalibConstantsMCRcd>().get(pIcal);
-    ical = pIcal.product();
+    ical = &eventSetup->getData(m_interCalibConstantsMCToken);
     // adc to GeV
-    eventSetup->get<EcalADCToGeVConstantRcd>().get(pAgc);
-    agc = pAgc.product();
+    agc = &eventSetup->getData(m_adcToGeVConstantToken);
 
     m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
     m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
 
     if (m_timeDependent) {
       //----
-      // Ecal LaserCorrection Constants for laser correction ratio
-      edm::ESHandle<EcalLaserDbService> laser;
-      eventSetup->get<EcalLaserDbRecord>().get(laser);
-
       //
       const edm::TimeValue_t eventTimeValue = theEvent->getRun().runAuxiliary().beginTime().value();
       //
@@ -108,7 +117,8 @@ public:
       //
       m_iTime = eventTimeValue;
 
-      m_lasercals = laser.product();
+      // Ecal LaserCorrection Constants for laser correction ratio
+      m_lasercals = &eventSetup->getData(m_laserDbToken);
 
       //
       // the "prime" is exactly the same as the usual laser service, BUT
@@ -116,25 +126,18 @@ public:
       // NB: in the creation of the tag make sure the "prime" (MC) tag is prepared properly!
       // NB again: if many IOVs also in "MC" tag, then fancy things could be perfomed ... left for the future
       //
-      edm::ESHandle<EcalLaserDbService> laser_prime;
-      eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
-      m_lasercals_prime = laser_prime.product();
+      m_lasercals_prime = &eventSetup->getData(m_laserDbMCToken);
 
       //clear the laser cache for each event time
       CalibCache().swap(m_valueLCCache_LC);
       CalibCache().swap(m_valueLCCache_LC_prime);  //--- also the "prime" ... yes
-
       //----
     }
 
     //ES
-    eventSetup->get<ESGainRcd>().get(hesgain);
-    eventSetup->get<ESMIPToGeVConstantRcd>().get(hesMIPToGeV);
-    eventSetup->get<ESIntercalibConstantsRcd>().get(hesMIPs);
-
-    esgain = hesgain.product();
-    esmips = hesMIPs.product();
-    esMipToGeV = hesMIPToGeV.product();
+    esgain = &eventSetup->getData(m_esGainToken);
+    esmips = &eventSetup->getData(m_esIntercalibConstantsToken);
+    esMipToGeV = &eventSetup->getData(m_esMIPToGeVConstantToken);
     if (1.1 > esgain->getESGain())
       ESgain = 1;
     else
@@ -148,21 +151,16 @@ public:
   /// some users use EventPrincipals, not Events.  We support both
   void initializeEvent(const edm::EventPrincipal* eventPrincipal, const edm::EventSetup* eventSetup) {
     theEventPrincipal = eventPrincipal;
-    eventSetup->get<EcalGainRatiosRcd>().get(grHandle);  // find the gains
+    m_gainRatios = &eventSetup->getData(m_gainRatiosToken);  // find the gains
     // Ecal Intercalibration Constants
-    eventSetup->get<EcalIntercalibConstantsMCRcd>().get(pIcal);
-    ical = pIcal.product();
+    ical = &eventSetup->getData(m_interCalibConstantsMCToken);
     // adc to GeV
-    eventSetup->get<EcalADCToGeVConstantRcd>().get(pAgc);
-    agc = pAgc.product();
+    agc = &eventSetup->getData(m_adcToGeVConstantToken);
     m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
     m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
 
     if (m_timeDependent) {
       //----
-      // Ecal LaserCorrection Constants for laser correction ratio
-      edm::ESHandle<EcalLaserDbService> laser;
-      eventSetup->get<EcalLaserDbRecord>().get(laser);
       edm::TimeValue_t eventTimeValue = 0;
       if (theEventPrincipal) {
         //
@@ -175,11 +173,10 @@ public:
         edm::LogError("EcalSignalGenerator") << " theEventPrincipal not defined??? " << std::endl;
       }
       m_iTime = eventTimeValue;
-      m_lasercals = laser.product();
 
-      edm::ESHandle<EcalLaserDbService> laser_prime;
-      eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
-      m_lasercals_prime = laser_prime.product();
+      // Ecal LaserCorrection Constants for laser correction ratio
+      m_lasercals = &eventSetup->getData(m_laserDbToken);
+      m_lasercals_prime = &eventSetup->getData(m_laserDbMCToken);
 
       //clear the laser cache for each event time
       CalibCache().swap(m_valueLCCache_LC);
@@ -188,13 +185,9 @@ public:
     }
 
     //ES
-    eventSetup->get<ESGainRcd>().get(hesgain);
-    eventSetup->get<ESMIPToGeVConstantRcd>().get(hesMIPToGeV);
-    eventSetup->get<ESIntercalibConstantsRcd>().get(hesMIPs);
-
-    esgain = hesgain.product();
-    esmips = hesMIPs.product();
-    esMipToGeV = hesMIPToGeV.product();
+    esgain = &eventSetup->getData(m_esGainToken);
+    esmips = &eventSetup->getData(m_esIntercalibConstantsToken);
+    esMipToGeV = &eventSetup->getData(m_esMIPToGeVConstantToken);
     if (1.1 > esgain->getESGain())
       ESgain = 1;
     else
@@ -211,7 +204,7 @@ public:
     const COLLECTION* digis = nullptr;
     // try accessing by whatever is set, Event or EventPrincipal
     if (theEvent) {
-      if (theEvent->getByToken(tok_, pDigis)) {
+      if (theEvent->getByToken(m_tok, pDigis)) {
         digis = pDigis.product();  // get a ptr to the product
       } else {
         throw cms::Exception("EcalSignalGenerator") << "Cannot find input data " << theInputTag;
@@ -278,7 +271,7 @@ private:
   const std::vector<float> GetGainRatios(const DetId& detid) {
     std::vector<float> gainRatios(4);
     // get gain ratios
-    EcalMGPAGainRatio theRatio = (*grHandle)[detid];
+    EcalMGPAGainRatio theRatio = (*m_gainRatios)[detid];
 
     gainRatios[0] = 0.;
     gainRatios[3] = 1.;
@@ -294,21 +287,24 @@ private:
     return detId.subdetId() == EcalBarrel ? m_peToABarrel : m_peToAEndcap;
   }
 
+  const edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> m_gainRatiosToken;
+  const edm::ESGetToken<EcalIntercalibConstantsMC, EcalIntercalibConstantsMCRcd> m_interCalibConstantsMCToken;
+  const edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> m_adcToGeVConstantToken;
+  edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> m_laserDbToken;
+  edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecordMC> m_laserDbMCToken;
+  const edm::ESGetToken<ESGain, ESGainRcd> m_esGainToken;
+  const edm::ESGetToken<ESMIPToGeVConstant, ESMIPToGeVConstantRcd> m_esMIPToGeVConstantToken;
+  const edm::ESGetToken<ESIntercalibConstants, ESIntercalibConstantsRcd> m_esIntercalibConstantsToken;
+
   /// these fields are set in initializeEvent()
   const edm::Event* theEvent;
   const edm::EventPrincipal* theEventPrincipal;
 
-  edm::ESHandle<EcalGainRatios> grHandle;
-  edm::ESHandle<EcalIntercalibConstantsMC> pIcal;
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
+  const EcalGainRatios* m_gainRatios;
 
   /// these come from the ParameterSet
-  edm::InputTag theInputTag;
-  edm::EDGetTokenT<COLLECTION> tok_;
-
-  edm::ESHandle<ESGain> hesgain;
-  edm::ESHandle<ESMIPToGeVConstant> hesMIPToGeV;
-  edm::ESHandle<ESIntercalibConstants> hesMIPs;
+  const edm::InputTag theInputTag;
+  const edm::EDGetTokenT<COLLECTION> m_tok;
 
   const ESGain* esgain;
   const ESIntercalibConstants* esmips;
@@ -316,11 +312,11 @@ private:
   int ESgain;
   double ESMIPToGeV;
 
-  double m_EBs25notCont;
-  double m_EEs25notCont;
+  const double m_EBs25notCont;
+  const double m_EEs25notCont;
 
-  double m_peToABarrel;
-  double m_peToAEndcap;
+  const double m_peToABarrel;
+  const double m_peToAEndcap;
 
   double m_maxEneEB;  // max attainable energy in the ecal barrel
   double m_maxEneEE;  // max attainable energy in the ecal endcap
@@ -328,7 +324,7 @@ private:
   const EcalADCToGeVConstant* agc;
   const EcalIntercalibConstantsMC* ical;
 
-  bool m_timeDependent;
+  const bool m_timeDependent;
   edm::TimeValue_t m_iTime;
   CalibCache m_valueLCCache_LC;
   CalibCache m_valueLCCache_LC_prime;

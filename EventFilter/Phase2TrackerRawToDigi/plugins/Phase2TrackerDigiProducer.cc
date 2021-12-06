@@ -6,8 +6,6 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/src/fed_header.h"
-#include "DataFormats/FEDRawData/src/fed_trailer.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDChannel.h"

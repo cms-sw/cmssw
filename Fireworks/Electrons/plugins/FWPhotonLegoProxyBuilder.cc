@@ -18,10 +18,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPhotonLegoProxyBuilder(const FWPhotonLegoProxyBuilder&) = delete;
   const FWPhotonLegoProxyBuilder& operator=(const FWPhotonLegoProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::Photon>::build;
   void build(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };

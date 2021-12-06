@@ -18,6 +18,26 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps)
   _laserType = ps.getUntrackedParameter<int32_t>("laserType", -1);
   _eventType = ps.getUntrackedParameter<int32_t>("eventType", -1);
 }
+//statis
+void QIE11Task::fillDescriptions(edm::ConfigurationDescriptions& _desc) {
+  edm::ParameterSetDescription desc;
+
+  //from class inheritance
+  hcaldqm::DQTask::fillPSetDescription(desc);
+
+  desc.addUntracked<std::string>("name", "QIE11Task");
+  desc.addUntracked<int>("debug", 0);
+  desc.addUntracked<int>("runkeyVal", 0);
+  desc.addUntracked<std::string>("runkeyName", "pp_run");
+  desc.addUntracked<edm::InputTag>("tagQIE11", edm::InputTag("hcalDigis"));
+  desc.addUntracked<double>("cut", 20);
+  desc.addUntracked<int>("ped", 4);
+  desc.addUntracked<int>("laserType", -1);
+  desc.addUntracked<int>("eventType", -1);
+
+  _desc.addDefault(desc);
+}
+
 /* virtual */ void QIE11Task::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
   if (_ptype == fLocal)
     if (r.runAuxiliary().run() == 1)

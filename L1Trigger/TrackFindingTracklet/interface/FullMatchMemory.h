@@ -16,7 +16,7 @@ namespace trklet {
 
   class FullMatchMemory : public MemoryBase {
   public:
-    FullMatchMemory(std::string name, Settings const& settings, unsigned int iSector);
+    FullMatchMemory(std::string name, Settings const& settings);
 
     ~FullMatchMemory() override = default;
 
@@ -30,7 +30,7 @@ namespace trklet {
 
     void clean() override { matches_.clear(); }
 
-    void writeMC(bool first);
+    void writeMC(bool first, unsigned int iSector);
 
     int layer() const { return layer_; }
     int disk() const { return disk_; }

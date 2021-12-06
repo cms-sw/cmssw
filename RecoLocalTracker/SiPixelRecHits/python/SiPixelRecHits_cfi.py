@@ -9,6 +9,11 @@ siPixelRecHits = cms.EDProducer("SiPixelRecHitConverter",
     VerboseLevel = cms.untracked.int32(0)
 )
 
+from Configuration.Eras.Modifier_phase2_brickedPixels_cff import phase2_brickedPixels
+phase2_brickedPixels.toModify(siPixelRecHits,
+                              CPE = 'PixelCPEGenericForBricked'
+)
+
 # SwitchProducer wrapping the legacy pixel rechit producer
 siPixelRecHitsPreSplitting = SwitchProducerCUDA(
     cpu = siPixelRecHits.clone(
@@ -44,3 +49,4 @@ gpu.toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
     # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
     siPixelRecHitsPreSplittingTask.copy()
 ))
+

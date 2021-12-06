@@ -24,10 +24,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWElectronLegoProxyBuilder(const FWElectronLegoProxyBuilder&) = delete;
   const FWElectronLegoProxyBuilder& operator=(const FWElectronLegoProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::GsfElectron>::build;
   void build(const reco::GsfElectron& iData,
              unsigned int iIndex,

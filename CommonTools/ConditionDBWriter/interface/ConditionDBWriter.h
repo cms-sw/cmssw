@@ -130,7 +130,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -146,7 +146,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 template <class T>
-class ConditionDBWriter : public edm::EDAnalyzer {
+class ConditionDBWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   explicit ConditionDBWriter(const edm::ParameterSet &iConfig)
       : minRunRange_(1 << 31),
@@ -332,8 +332,7 @@ private:
 
     edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " << Record_ << " in since mode " << std::endl;
 
-    // The Framework will take control over the DB object now, therefore the release.
-    mydbservice->writeOne<T>(objPointer.release(), since, Record_);
+    mydbservice->writeOneIOV<T>(*objPointer, since, Record_);
   }
 
   void setTime() {

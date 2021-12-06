@@ -13,7 +13,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -63,11 +62,13 @@ public:
 private:
   const edm::InputTag PFTauTag_;
   const edm::EDGetTokenT<std::vector<reco::PFTau>> PFTauToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transTrackBuilderToken_;
 };
 
 PFTauSecondaryVertexProducer::PFTauSecondaryVertexProducer(const edm::ParameterSet& iConfig)
     : PFTauTag_(iConfig.getParameter<edm::InputTag>("PFTauTag")),
-      PFTauToken_(consumes<std::vector<reco::PFTau>>(iConfig.getParameter<edm::InputTag>("PFTauTag"))) {
+      PFTauToken_(consumes<std::vector<reco::PFTau>>(iConfig.getParameter<edm::InputTag>("PFTauTag"))),
+      transTrackBuilderToken_(esConsumes(edm::ESInputTag{"", "TransientTrackBuilder"})) {
   produces<edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef>>>>();
   produces<VertexCollection>("PFTauSecondaryVertices");
 }
@@ -91,8 +92,7 @@ namespace {
 }  // namespace
 void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Obtain
-  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+  auto const& transTrackBuilder = iSetup.getData(transTrackBuilderToken_);
 
   edm::Handle<std::vector<reco::PFTau>> Tau;
   iEvent.getByToken(PFTauToken_, Tau);
@@ -119,7 +119,7 @@ void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, co
             continue;
           const reco::Track* track = getTrack(*cand);
           if (track != nullptr)
-            transTrk.push_back(transTrackBuilder->build(*track));
+            transTrk.push_back(transTrackBuilder.build(*track));
         }
         ///////////////////////////////////////////////////////////////////////////////////////////////
         // Fit the secondary vertex

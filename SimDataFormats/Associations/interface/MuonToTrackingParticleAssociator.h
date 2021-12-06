@@ -21,6 +21,8 @@ namespace reco {
 #endif
     MuonToTrackingParticleAssociator(MuonToTrackingParticleAssociator &&) = default;
     MuonToTrackingParticleAssociator &operator=(MuonToTrackingParticleAssociator &&) = default;
+    MuonToTrackingParticleAssociator(const MuonToTrackingParticleAssociator &) = delete;
+    MuonToTrackingParticleAssociator &operator=(const MuonToTrackingParticleAssociator &) = delete;
 
     void associateMuons(MuonToSimCollection &recoToSim,
                         SimToMuonCollection &simToReco,
@@ -38,9 +40,6 @@ namespace reco {
     }
 
   private:
-    MuonToTrackingParticleAssociator(const MuonToTrackingParticleAssociator &) = delete;
-    MuonToTrackingParticleAssociator &operator=(const MuonToTrackingParticleAssociator &) = delete;
-
     std::unique_ptr<MuonToTrackingParticleAssociatorBaseImpl const> impl_;
   };
 }  // namespace reco

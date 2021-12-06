@@ -49,13 +49,13 @@ public:
   void setItem(const FWEventItem* x) { m_item = x; }
   const fireworks::Context& context() const;
 
+  FWDetailViewBase(const FWDetailViewBase&) = delete;                   // stop default
+  const FWDetailViewBase& operator=(const FWDetailViewBase&) = delete;  // stop default
+
 protected:
   FWDetailViewBase(const std::type_info&);
 
 private:
-  FWDetailViewBase(const FWDetailViewBase&) = delete;                   // stop default
-  const FWDetailViewBase& operator=(const FWDetailViewBase&) = delete;  // stop default
-
   virtual void build(const FWModelId&, const void*) = 0;
 
   const FWEventItem* m_item;

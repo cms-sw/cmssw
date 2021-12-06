@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Top level script to run SiStrip DCS O2O.
 @author: Huilin Qu

@@ -27,25 +27,25 @@ DDDWorld::DDDWorld(const DDCompactView *pDD,
                    bool cuts,
                    bool pcut) {
   LogVerbatim("SimG4CoreApplication") << "+++ DDDWorld: initialisation of Geant4 geometry";
-  if (pDD4hep) {
-    // DD4Hep
+  if (nullptr != pDD4hep) {
+    // DD4hep
     const cms::DDDetector *det = pDD4hep->detector();
     dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;
 
     cms::DDG4Builder theBuilder(pDD4hep, lvMap, false);
     m_world = theBuilder.BuildGeometry(catalog);
-    LogVerbatim("SimG4CoreApplication") << "DDDWorld: worldLV: " << m_world->GetName();
+    LogVerbatim("SimG4CoreApplication") << "DDDWorld: DD4hep worldLV: " << m_world->GetName();
     if (cuts) {
       DDG4ProductionCuts pcuts(&det->specpars(), &lvMap, verb, pcut);
     }
     catalog.printMe();
   } else {
-    // old DD code
+    // old DDD code
     G4LogicalVolumeToDDLogicalPartMap lvMap;
 
     DDG4Builder theBuilder(pDD, lvMap, false);
     G4LogicalVolume *world = theBuilder.BuildGeometry(catalog);
-    LogVerbatim("SimG4CoreApplication") << "DDDWorld: worldLV: " << world->GetName();
+    LogVerbatim("SimG4CoreApplication") << "DDDWorld: DDD worldLV: " << world->GetName();
     m_world = new G4PVPlacement(nullptr, G4ThreeVector(), world, "DDDWorld", nullptr, false, 0);
     if (cuts) {
       DDG4ProductionCuts pcuts(&lvMap, verb, pcut);

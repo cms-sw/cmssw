@@ -55,9 +55,10 @@ public:
 
   sigc::signal<void> newEvent_;
 
-private:
   FWNavigatorBase(const FWNavigatorBase&) = delete;                   // stop default
   const FWNavigatorBase& operator=(const FWNavigatorBase&) = delete;  // stop default
+
+private:
   // ---------- member data --------------------------------
   // entry is an event index nubmer which runs from 0 to
   // #events or #selected_events depending on if we filter

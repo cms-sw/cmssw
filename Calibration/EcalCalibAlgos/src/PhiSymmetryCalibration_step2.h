@@ -1,15 +1,20 @@
+#ifndef Calibration_EcalCalibAlgos_PhiSymmetryCalibration_step2_h
+#define Calibration_EcalCalibAlgos_PhiSymmetryCalibration_step2_h
+
 #include "Calibration/EcalCalibAlgos/interface/EcalGeomPhiSymHelper.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 class TH1F;
 class TH2F;
 
-class PhiSymmetryCalibration_step2 : public edm::EDAnalyzer {
+class PhiSymmetryCalibration_step2 : public edm::one::EDAnalyzer<> {
 public:
   PhiSymmetryCalibration_step2(const edm::ParameterSet& iConfig);
   ~PhiSymmetryCalibration_step2() override;
@@ -29,6 +34,9 @@ public:
   void readEtSums();
 
 private:
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> channelStatusToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+
   // Transverse energy sum arrays
   double etsum_barl_[kBarlRings][kBarlWedges][kSides];
   double etsum_endc_[kEndcWedgesX][kEndcWedgesX][kSides];
@@ -62,10 +70,10 @@ private:
   std::vector<DetId> endcapCells;
 
   bool firstpass_;
-  int statusThreshold_;
+  const int statusThreshold_;
 
-  bool reiteration_;
-  std::string oldcalibfile_;
+  const bool reiteration_;
+  const std::string oldcalibfile_;
 
   /// the old calibration constants (when reiterating, the last ones derived)
   EcalIntercalibConstants oldCalibs_;
@@ -77,8 +85,8 @@ private:
   EcalIntercalibConstants miscalib_;
 
   ///
-  bool have_initial_miscalib_;
-  std::string initialmiscalibfile_;
+  const bool have_initial_miscalib_;
+  const std::string initialmiscalibfile_;
 
   /// res miscalib histos
   std::vector<TH1F*> miscal_resid_barl_histos;
@@ -87,3 +95,4 @@ private:
   std::vector<TH1F*> miscal_resid_endc_histos;
   std::vector<TH2F*> correl_endc_histos;
 };
+#endif

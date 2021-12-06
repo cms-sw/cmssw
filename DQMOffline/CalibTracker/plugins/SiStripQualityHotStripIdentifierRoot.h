@@ -8,8 +8,6 @@
 
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 #include "DQMServices/Core/interface/DQMStore.h"

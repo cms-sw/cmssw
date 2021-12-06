@@ -4,7 +4,7 @@ process = cms.Process("PixelDBReader")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 #process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -17,10 +17,10 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("histo.root")
                                    )
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:prova.db'
-process.CondDBCommon.DBParameters.authenticationPath = '.' #'/afs/cern.ch/cms/DB/conddb'
-process.CondDBCommon.DBParameters.messageLevel = 10
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = 'sqlite_file:prova.db'
+process.CondDB.DBParameters.authenticationPath = '.' #'/afs/cern.ch/cms/DB/conddb'
+process.CondDB.DBParameters.messageLevel = 10
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -37,7 +37,7 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 )
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
+    process.CondDB,
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelGainCalibrationOfflineRcd'),

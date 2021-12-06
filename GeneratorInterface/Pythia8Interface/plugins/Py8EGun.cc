@@ -40,6 +40,13 @@ namespace gen {
   bool Py8EGun::generatePartonsAndHadronize() {
     fMasterGen->event.reset();
 
+    int NTotParticles = fPartIDs.size();
+    if (fAddAntiParticle)
+      NTotParticles *= 2;
+
+    // energy below is dummy, it is not used
+    (fMasterGen->event).append(990, -11, 0, 0, 2, 1 + NTotParticles, 0, 0, 0., 0., 0., 15000., 15000.);
+
     int colorindex = 101;
 
     for (size_t i = 0; i < fPartIDs.size(); i++) {
@@ -66,18 +73,18 @@ namespace gen {
         particleID = std::fabs(particleID);
       }
       if (1 <= std::abs(particleID) && std::abs(particleID) <= 6) {  // quarks
-        (fMasterGen->event).append(particleID, 23, colorindex, 0, px, py, pz, ee, mass);
+        (fMasterGen->event).append(particleID, 23, 1, 0, 0, 0, colorindex, 0, px, py, pz, ee, mass);
         if (!fAddAntiParticle)
           colorindex += 1;
       } else if (std::abs(particleID) == 21) {  // gluons
-        (fMasterGen->event).append(21, 23, colorindex, colorindex + 1, px, py, pz, ee, mass);
+        (fMasterGen->event).append(21, 23, 1, 0, 0, 0, colorindex, colorindex + 1, px, py, pz, ee, mass);
         if (!fAddAntiParticle) {
           colorindex += 2;
         }
       }
       // other
       else {
-        (fMasterGen->event).append(particleID, 1, 0, 0, px, py, pz, ee, mass);
+        (fMasterGen->event).append(particleID, 1, 1, 0, 0, 0, 0, 0, px, py, pz, ee, mass);
         int eventSize = (fMasterGen->event).size() - 1;
         // -log(flat) = exponential distribution
         double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
@@ -90,16 +97,16 @@ namespace gen {
       //
       if (fAddAntiParticle) {
         if (1 <= std::abs(particleID) && std::abs(particleID) <= 6) {  // quarks
-          (fMasterGen->event).append(-particleID, 23, 0, colorindex, -px, -py, -pz, ee, mass);
+          (fMasterGen->event).append(-particleID, 23, 1, 0, 0, 0, 0, colorindex, -px, -py, -pz, ee, mass);
           colorindex += 1;
         } else if (std::abs(particleID) == 21) {  // gluons
-          (fMasterGen->event).append(21, 23, colorindex + 1, colorindex, -px, -py, -pz, ee, mass);
+          (fMasterGen->event).append(21, 23, 1, 0, 0, 0, colorindex + 1, colorindex, -px, -py, -pz, ee, mass);
           colorindex += 2;
         } else {
           if ((fMasterGen->particleData).isParticle(-particleID)) {
-            (fMasterGen->event).append(-particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
+            (fMasterGen->event).append(-particleID, 1, 1, 0, 0, 0, 0, 0, -px, -py, -pz, ee, mass);
           } else {
-            (fMasterGen->event).append(particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
+            (fMasterGen->event).append(particleID, 1, 1, 0, 0, 0, 0, 0, -px, -py, -pz, ee, mass);
           }
           int eventSize = (fMasterGen->event).size() - 1;
           // -log(flat) = exponential distribution

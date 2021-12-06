@@ -27,8 +27,8 @@ int main(int argc, char** argv) {
   // BeamSpot
 
   std::string tag = "BeamSpotObjects_PCL_byLumi_v0_prompt";
-  cond::Time_t start = boost::lexical_cast<unsigned long long>(1406876667347162);
-  //cond::Time_t end = boost::lexical_cast<unsigned long long>(1406876667347162);
+  cond::Time_t start = static_cast<unsigned long long>(1406876667347162);
+  //cond::Time_t end = static_cast<unsigned long long>(1406876667347162);
 
   edm::LogPrint("testBeamSpotPayloadInspector") << "## Exercising BeamSpot plots " << std::endl;
 
@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
   edm::LogPrint("testBeamSpotPayloadInspector") << histoParameters.data() << std::endl;
 
   tag = "BeamSpotOnlineTestLegacy";
-  start = boost::lexical_cast<unsigned long long>(1443392479297557);
+  start = static_cast<unsigned long long>(1443392479297557);
 
   edm::LogPrint("testBeamSpotPayloadInspector") << "## Exercising BeamSpotOnline plots " << std::endl;
 

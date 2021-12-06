@@ -1,47 +1,48 @@
-#ifndef DATAFORMATS_PIXELCHANMNELIDENTIFIER_H
-#define DATAFORMATS_PIXELCHANMNELIDENTIFIER_H
+#ifndef DataFormats_SiPixelDetId_interface_PixelChannelIdentifier_h
+#define DataFormats_SiPixelDetId_interface_PixelChannelIdentifier_h
 
 #include <utility>
+#include <cstdint>
 
-namespace pixelchanelidentifierimpl {
+namespace pixelchannelidentifierimpl {
   /**
    * Pack the pixel information to use less memory
    */
 
   class Packing {
   public:
-    using PackedDigiType = unsigned int;
+    using PackedDigiType = uint32_t;
 
     // Constructor: pre-computes masks and shifts from field widths
-    constexpr Packing(unsigned int row_w, unsigned int column_w, unsigned int time_w, unsigned int adc_w)
+    constexpr Packing(unsigned int row_w, unsigned int column_w, unsigned int flag_w, unsigned int adc_w)
         : row_width(row_w),
           column_width(column_w),
           adc_width(adc_w),
           row_shift(0),
           column_shift(row_shift + row_w),
-          time_shift(column_shift + column_w),
-          adc_shift(time_shift + time_w),
+          flag_shift(column_shift + column_w),
+          adc_shift(flag_shift + flag_w),
           row_mask(~(~0U << row_w)),
           column_mask(~(~0U << column_w)),
-          time_mask(~(~0U << time_w)),
+          flag_mask(~(~0U << flag_w)),
           adc_mask(~(~0U << adc_w)),
           rowcol_mask(~(~0U << (column_w + row_w))),
           max_row(row_mask),
           max_column(column_mask),
           max_adc(adc_mask) {}
 
-    const int row_width;
-    const int column_width;
-    const int adc_width;
+    const uint32_t row_width;
+    const uint32_t column_width;
+    const uint32_t adc_width;
 
-    const int row_shift;
-    const int column_shift;
-    const int time_shift;
-    const int adc_shift;
+    const uint32_t row_shift;
+    const uint32_t column_shift;
+    const uint32_t flag_shift;
+    const uint32_t adc_shift;
 
     const PackedDigiType row_mask;
     const PackedDigiType column_mask;
-    const PackedDigiType time_mask;
+    const PackedDigiType flag_mask;
     const PackedDigiType adc_mask;
     const PackedDigiType rowcol_mask;
 
@@ -49,7 +50,7 @@ namespace pixelchanelidentifierimpl {
     const int max_column;
     const int max_adc;
   };
-}  // namespace pixelchanelidentifierimpl
+}  // namespace pixelchannelidentifierimpl
 
 class PixelChannelIdentifier {
 public:
@@ -64,12 +65,12 @@ public:
 
   static int pixelToChannel(int row, int col) { return (row << thePacking.column_width) | col; }
 
-  using Packing = pixelchanelidentifierimpl::Packing;
+  using Packing = pixelchannelidentifierimpl::Packing;
 
 public:
   constexpr static Packing packing() { return Packing(8, 9, 4, 11); }
 
-  constexpr static Packing thePacking = {11, 11, 0, 10};
+  constexpr static Packing thePacking = {11, 10, 1, 10};
 };
 
-#endif
+#endif  // DataFormats_SiPixelDetId_interface_PixelChannelIdentifier_h

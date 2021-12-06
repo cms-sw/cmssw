@@ -40,6 +40,7 @@
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
 #include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #define LOGERROR(x) LogError(x)
 #define LOGINFO(x) LogInfo(x)
 #define ENDL " "
@@ -679,6 +680,12 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
       throw cms::Exception("DataCorrupt")
           << "SiPixelTemplate2D::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
+
+      //check for nan's
+      if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
+        success_ = false;
+        return success_;
+      }
 #else
       std::cout << "SiPixelTemplate:2D:illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
 #endif

@@ -9,7 +9,7 @@ public:
   HGCalTriggerNtupleHGCMulticlusters(const edm::ParameterSet& conf);
   ~HGCalTriggerNtupleHGCMulticlusters() override{};
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event& e, const edm::EventSetup& es) final;
+  void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 
 private:
   void clear() final;
@@ -62,7 +62,9 @@ DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCMulticlusters,
 HGCalTriggerNtupleHGCMulticlusters::HGCalTriggerNtupleHGCMulticlusters(const edm::ParameterSet& conf)
     : HGCalTriggerNtupleBase(conf),
       fill_layer_info_(conf.getParameter<bool>("FillLayerInfo")),
-      fill_interpretation_info_(conf.getParameter<bool>("FillInterpretationInfo")) {}
+      fill_interpretation_info_(conf.getParameter<bool>("FillInterpretationInfo")) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleHGCMulticlusters::initialize(TTree& tree,
                                                     const edm::ParameterSet& conf,
@@ -119,15 +121,11 @@ void HGCalTriggerNtupleHGCMulticlusters::initialize(TTree& tree,
   }
 }
 
-void HGCalTriggerNtupleHGCMulticlusters::fill(const edm::Event& e, const edm::EventSetup& es) {
+void HGCalTriggerNtupleHGCMulticlusters::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
   // retrieve clusters 3D
   edm::Handle<l1t::HGCalMulticlusterBxCollection> multiclusters_h;
   e.getByToken(multiclusters_token_, multiclusters_h);
   const l1t::HGCalMulticlusterBxCollection& multiclusters = *multiclusters_h;
-
-  // retrieve geometry
-  edm::ESHandle<HGCalTriggerGeometryBase> geometry;
-  es.get<CaloGeometryRecord>().get(geometry);
 
   clear();
   for (auto cl3d_itr = multiclusters.begin(0); cl3d_itr != multiclusters.end(0); cl3d_itr++) {
@@ -174,10 +172,10 @@ void HGCalTriggerNtupleHGCMulticlusters::fill(const edm::Event& e, const edm::Ev
 
     //Per layer cluster information
     if (fill_layer_info_) {
-      const unsigned nlayers = geometry->lastTriggerLayer();
+      const unsigned nlayers = es.geometry->lastTriggerLayer();
       std::vector<float> layer_pt(nlayers, 0.0);
       for (const auto& cl_ptr : cl3d_itr->constituents()) {
-        unsigned layer = geometry->triggerLayer(cl_ptr.second->detId());
+        unsigned layer = es.geometry->triggerLayer(cl_ptr.second->detId());
         layer_pt[layer] += cl_ptr.second->pt();
       }
       cl3d_layer_pt_.emplace_back(layer_pt);

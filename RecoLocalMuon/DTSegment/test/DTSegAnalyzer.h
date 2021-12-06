@@ -30,6 +30,8 @@ class DTLayerId;
 class DTSuperLayerId;
 class DTChamberId;
 class DTTTrigBaseSync;
+class DTGeometry;
+class MuonGeometryRecord;
 
 /* C++ Headers */
 #include <iosfwd>
@@ -94,5 +96,6 @@ private:
   bool doSegs;
 
   std::unique_ptr<DTTTrigBaseSync> theSync;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDTGeomToken;
 };
 #endif  // DTANALYZER_H

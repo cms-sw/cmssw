@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 
-generator = cms.EDFilter("Pythia8GeneratorFilter",
+generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
                          comEnergy = cms.double(14000.0),
                          maxEventsToPrint = cms.untracked.int32(0),

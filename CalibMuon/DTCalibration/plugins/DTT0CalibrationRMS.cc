@@ -24,7 +24,7 @@ using namespace edm;
 // using namespace cond;
 
 // Constructor
-DTT0CalibrationRMS::DTT0CalibrationRMS(const edm::ParameterSet& pset) {
+DTT0CalibrationRMS::DTT0CalibrationRMS(const edm::ParameterSet& pset) : dtGeomToken_(esConsumes()) {
   // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
   if (debug)
@@ -102,7 +102,7 @@ void DTT0CalibrationRMS::analyze(const edm::Event& event, const edm::EventSetup&
   event.getByLabel(digiLabel, digis);
 
   // Get the DT Geometry
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = eventSetup.getHandle(dtGeomToken_);
 
   // Iterate through all digi collections ordered by LayerId
   DTDigiCollection::DigiRangeIterator dtLayerIt;

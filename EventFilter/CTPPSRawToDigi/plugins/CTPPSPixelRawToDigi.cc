@@ -30,6 +30,7 @@ CTPPSPixelRawToDigi::CTPPSPixelRawToDigi(const edm::ParameterSet& conf)
 
   produces<edm::DetSetVector<CTPPSPixelDigi>>();
 
+  isRun3_ = config_.getParameter<bool>("isRun3");
   includeErrors_ = config_.getParameter<bool>("includeErrors");
   mappingLabel_ = config_.getParameter<std::string>("mappingLabel");
 
@@ -44,6 +45,7 @@ CTPPSPixelRawToDigi::~CTPPSPixelRawToDigi() {
 
 void CTPPSPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<bool>("isRun3", true);
   desc.add<bool>("includeErrors", true);
   desc.add<edm::InputTag>("inputLabel", edm::InputTag("rawDataCollector"));
   desc.add<std::string>("mappingLabel", "RPix");
@@ -89,7 +91,7 @@ void CTPPSPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
       /// get event data for this fed
       const FEDRawData& fedRawData = buffers->FEDData(fedId);
 
-      formatter.interpretRawData(errorsInEvent, fedId, fedRawData, *collection, errors);
+      formatter.interpretRawData(isRun3_, errorsInEvent, fedId, fedRawData, *collection, errors);
 
       if (includeErrors_) {
         for (auto const& is : errors) {

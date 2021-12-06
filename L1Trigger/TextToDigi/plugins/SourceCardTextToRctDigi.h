@@ -36,7 +36,7 @@
 // RCT data includes
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
-#include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
+#include "L1Trigger/TextToDigi/interface/SourceCardRouting.h"
 
 #include <fstream>
 #include <iostream>

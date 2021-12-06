@@ -21,5 +21,5 @@ protected:
   TCanvas* m_viewCanvas;
 };
 
-#include "Fireworks/Core/src/FWDetailViewCanvas.icc"
+#include "Fireworks/Core/interface/FWDetailViewCanvas.icc"
 #endif

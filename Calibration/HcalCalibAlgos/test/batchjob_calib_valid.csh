@@ -33,7 +33,7 @@ process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.VtxSmearedBetafuncEarlyCollision_cff")
 process.load("Configuration.StandardSequences.Generator_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff")
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_cff")

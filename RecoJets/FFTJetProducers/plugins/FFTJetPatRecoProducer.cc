@@ -64,6 +64,9 @@ using namespace fftjetcms;
 class FFTJetPatRecoProducer : public FFTJetInterface {
 public:
   explicit FFTJetPatRecoProducer(const edm::ParameterSet&);
+  FFTJetPatRecoProducer() = delete;
+  FFTJetPatRecoProducer(const FFTJetPatRecoProducer&) = delete;
+  FFTJetPatRecoProducer& operator=(const FFTJetPatRecoProducer&) = delete;
   ~FFTJetPatRecoProducer() override;
 
 protected:
@@ -136,10 +139,6 @@ protected:
   const bool sparsify;
 
 private:
-  FFTJetPatRecoProducer() = delete;
-  FFTJetPatRecoProducer(const FFTJetPatRecoProducer&) = delete;
-  FFTJetPatRecoProducer& operator=(const FFTJetPatRecoProducer&) = delete;
-
   // Members needed for storing grids externally
   std::ofstream externalGridStream;
   bool storeGridsExternally;

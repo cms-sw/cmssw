@@ -294,6 +294,12 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
         myPFElectron.set_mva_e_pi(gedEleRef->mva_e_pi());
         myPFElectron.set_mva_Isolated(gedEleRef->mva_Isolated());
 
+        myPFElectron.set_dnn_e_sigIsolated(gedEleRef->dnn_signal_Isolated());
+        myPFElectron.set_dnn_e_sigNonIsolated(gedEleRef->dnn_signal_nonIsolated());
+        myPFElectron.set_dnn_e_bkgNonIsolated(gedEleRef->dnn_bkg_nonIsolated());
+        myPFElectron.set_dnn_e_bkgTau(gedEleRef->dnn_bkg_Tau());
+        myPFElectron.set_dnn_e_bkgPhoton(gedEleRef->dnn_bkg_Photon());
+
         LogTrace("PFAlgo|egammaFilters") << " PFAlgo: found an electron with NEW EGamma code ";
         LogTrace("PFAlgo|egammaFilters") << " myPFElectron: pt " << myPFElectron.pt() << " eta,phi "
                                          << myPFElectron.eta() << ", " << myPFElectron.phi() << " mva "
@@ -339,6 +345,8 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
         ::math::XYZPoint v(primaryVertex_.x(), primaryVertex_.y(), primaryVertex_.z());
         myPFPhoton.setVertex(v);
         myPFPhoton.setP4(gedPhoRef->p4());
+        // DNN pfid
+        myPFPhoton.set_dnn_gamma(gedPhoRef->pfDNN());
         LogTrace("PFAlgo|egammaFilters") << " PFAlgo: found a photon with NEW EGamma code ";
         LogTrace("PFAlgo|egammaFilters") << " myPFPhoton: pt " << myPFPhoton.pt() << " eta,phi " << myPFPhoton.eta()
                                          << ", " << myPFPhoton.phi() << " charge " << myPFPhoton.charge();

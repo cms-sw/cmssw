@@ -14,6 +14,8 @@
 #include "TLatex.h"
 
 #include <string>
+#include <memory>
+#include <array>
 
 namespace {
 
@@ -100,9 +102,9 @@ namespace {
 
       float xmi[3] = {0.0, 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
-      TPad** pad = new TPad*;
+      std::array<std::unique_ptr<TPad>, 3> pad;
       for (int obj = 0; obj < 3; obj++) {
-        pad[obj] = new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
+        pad[obj] = std::make_unique<TPad>(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
         pad[obj]->Draw();
       }
       //      EcalDrawMaps ICMap;

@@ -24,7 +24,8 @@ hiRegitMuInitialStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuonsEDProdu
 )
 
 ###################################  
-from RecoTracker.IterativeTracking.InitialStep_cff import *
+import RecoTracker.IterativeTracking.InitialStep_cff
+from RecoTracker.IterativeTracking.InitialStep_cff import initialStepTrajectoryFilterShape,initialStepChi2Est
 
 # SEEDING LAYERS
 hiRegitMuInitialStepSeedLayers =  RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.clone()
@@ -62,7 +63,7 @@ hiRegitMuInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialSte
 )
 
 # track candidates
-hiRegitMuInitialStepTrackCandidates = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrackCandidates.clone(
+hiRegitMuInitialStepTrackCandidates = RecoTracker.IterativeTracking.InitialStep_cff._initialStepTrackCandidatesCkf.clone(
     src               = 'hiRegitMuInitialStepSeeds',
     TrajectoryBuilderPSet = cms.PSet(
        refToPSet_ = cms.string('hiRegitMuInitialStepTrajectoryBuilder')

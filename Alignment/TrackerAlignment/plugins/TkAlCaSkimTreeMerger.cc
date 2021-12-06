@@ -1,19 +1,17 @@
-
-#ifndef TrackerAlignment_TkAlCaSkimTreeMerger_H
-#define TrackerAlignment_TkAlCaSkimTreeMerger_H
-
-#include <Riostream.h>
 #include <string>
 #include <fstream>
 #include <map>
+#include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "TFile.h"
@@ -21,13 +19,14 @@
 #include "TChain.h"
 #include "TStopwatch.h"
 
-class TkAlCaSkimTreeMerger : public edm::EDAnalyzer {
+class TkAlCaSkimTreeMerger : public edm::one::EDAnalyzer<> {
 public:
   TkAlCaSkimTreeMerger(const edm::ParameterSet &iConfig);
   ~TkAlCaSkimTreeMerger() override;
   void beginJob() override;
   void endJob() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 private:
   TTree *out_;            //TTree containing the merged result
@@ -49,13 +48,10 @@ private:
   TStopwatch myclock;
 };
 
-#endif
-
 TkAlCaSkimTreeMerger::TkAlCaSkimTreeMerger(const edm::ParameterSet &iConfig)
     : filelist_(iConfig.getParameter<std::string>("FileList")),
       treename_(iConfig.getParameter<std::string>("TreeName")),
       outfilename_(iConfig.getParameter<std::string>("OutputFile")),
-      // maxhits_(iConfig.getParameter<vint>("NhitsMaxLimit"))
       maxhits_(iConfig.getParameter<int32_t>("NhitsMaxLimit")),
       maxhitsSet_(iConfig.getParameter<edm::ParameterSet>("NhitsMaxSet")) {
   maxPXBhits_ = maxhitsSet_.getParameter<int32_t>("PXBmaxhits");
@@ -65,19 +61,15 @@ TkAlCaSkimTreeMerger::TkAlCaSkimTreeMerger(const edm::ParameterSet &iConfig)
   maxTOBhits_ = maxhitsSet_.getParameter<int32_t>("TOBmaxhits");
   maxTEChits_ = maxhitsSet_.getParameter<int32_t>("TECmaxhits");
   //anything you want to do for initializing
-  std::cout << "\n\n*** MAX N HITS = " << maxhits_ << std::endl << std::endl;
+  LogDebug("TkAlCaSkimTreeMerger") << "\n\n*** MAX N HITS = " << maxhits_ << std::endl << std::endl;
   out_ = nullptr;
   firsttree_ = nullptr;
   ch_ = nullptr;
 }
 
 TkAlCaSkimTreeMerger::~TkAlCaSkimTreeMerger() {
-  //default destructor
-  // delete out_;
-  // delete firsttree_;
-
   delete ch_;
-  std::cout << "finished." << std::endl;
+  LogDebug("TkAlCaSkimTreeMerger") << "finished." << std::endl;
 }
 
 // ------------ method called before analyzing the first event  ------------
@@ -86,7 +78,7 @@ void TkAlCaSkimTreeMerger::beginJob() {
 
   //prepare the chain
   ch_ = new TChain(treename_.c_str());
-  std::cout << "The chain contains " << ch_->GetNtrees() << " trees" << std::endl;
+  LogDebug("TkAlCaSkimTreeMerger") << "The chain contains " << ch_->GetNtrees() << " trees" << std::endl;
 
   //load the trees into the chain
   std::ifstream flist(filelist_.c_str(), std::ios::in);
@@ -98,15 +90,15 @@ void TkAlCaSkimTreeMerger::beginJob() {
     flist >> filename;
     if (filename.empty())
       continue;
-    //std::cout<<"Adding "<<filename<<std::endl;
+    LogDebug("TkAlCaSkimTreeMerger") << "Adding " << filename << std::endl;
     ch_->Add(filename.c_str());
     if (first) {
       firstfilename_ = filename;
       first = false;
     }
   }
-  std::cout << "Now the chain contains " << ch_->GetNtrees() << " trees (" << ch_->GetEntries() << " entries)"
-            << std::endl;
+  LogDebug("TkAlCaSkimTreeMerger") << "Now the chain contains " << ch_->GetNtrees() << " trees (" << ch_->GetEntries()
+                                   << " entries)" << std::endl;
 
   unsigned int id_ch = 0;
   uint32_t nhits_ch = 0, noverlaps_ch = 0;
@@ -153,18 +145,18 @@ void TkAlCaSkimTreeMerger::beginJob() {
 
   }  //end loop on ent - entries in the chain
 
-  std::cout << "Nhits in the chain: " << totnhits << std::endl;
-  std::cout << "NOverlaps in the chain: " << totnoverlaps << std::endl;
+  LogDebug("TkAlCaSkimTreeMerger") << "Nhits in the chain: " << totnhits << std::endl;
+  LogDebug("TkAlCaSkimTreeMerger") << "NOverlaps in the chain: " << totnoverlaps << std::endl;
 
   myclock.Stop();
-  std::cout << "Finished beginJob after " << myclock.RealTime() << " s (real time) / " << myclock.CpuTime()
-            << " s (cpu time)" << std::endl;
+  LogDebug("TkAlCaSkimTreeMerger") << "Finished beginJob after " << myclock.RealTime() << " s (real time) / "
+                                   << myclock.CpuTime() << " s (cpu time)" << std::endl;
   myclock.Continue();
 }  //end beginJob
 
 // ------------ method called to for each event  ------------
 void TkAlCaSkimTreeMerger::analyze(const edm::Event &, const edm::EventSetup &) {
-  // std::cout<<firsttree_->GetEntries()<<std::endl;
+  LogDebug("TkAlCaSkimTreeMerger") << firsttree_->GetEntries() << std::endl;
 }  //end analyze
 
 // ------------ method called after having analyzed all the events  ------------
@@ -172,7 +164,7 @@ void TkAlCaSkimTreeMerger::endJob() {
   //address variables in the first tree and in the chain
   TFile *firstfile = new TFile(firstfilename_.c_str(), "READ");
   firsttree_ = (TTree *)firstfile->Get(treename_.c_str());
-  std::cout << "the first tree has " << firsttree_->GetEntries() << " entries" << std::endl;
+  LogDebug("TkAlCaSkimTreeMerger") << "the first tree has " << firsttree_->GetEntries() << " entries" << std::endl;
   unsigned int id = 0;
   uint32_t nhits = 0, noverlaps = 0;
   float posX(-99999.0), posY(-77777.0), posZ(-88888.0);
@@ -235,7 +227,7 @@ void TkAlCaSkimTreeMerger::endJob() {
     firsttree_->GetEntry(mod);
     nhits_out = hitmap_[id];
     noverlaps_out = overlapmap_[id];
-    // if(mod<25)std::cout<<"Nhits 1st tree: "<<nhits<<"\tTotal nhits chain: "<<nhits_out<<std::endl;
+    // if(mod<25)LogDebug("TkAlCaSkimTreeMerger")<<"Nhits 1st tree: "<<nhits<<"\tTotal nhits chain: "<<nhits_out<<std::endl;
     id_out = id;
     subdet_out = subdet;
     layer_out = layer;
@@ -286,15 +278,34 @@ void TkAlCaSkimTreeMerger::endJob() {
   }  //end loop on mod - first tree modules
 
   myclock.Stop();
-  std::cout << "Finished endJob after " << myclock.RealTime() << " s (real time) / " << myclock.CpuTime()
-            << " s (cpu time)" << std::endl;
-  std::cout << "Ending the tree merging." << std::endl;
+  LogDebug("TkAlCaSkimTreeMerger") << "Finished endJob after " << myclock.RealTime() << " s (real time) / "
+                                   << myclock.CpuTime() << " s (cpu time)" << std::endl;
+  LogDebug("TkAlCaSkimTreeMerger") << "Ending the tree merging." << std::endl;
   out_->Write();
-  std::cout << "Deleting..." << std::flush;
+  LogDebug("TkAlCaSkimTreeMerger") << "Deleting..." << std::flush;
   delete firstfile;
   delete outfile;
-
 }  //end endJob
+
+void TkAlCaSkimTreeMerger::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Merger of TkAlCaSkim Trees");
+  desc.add<std::string>("FileList", "DQMHitMapsList.txt");
+  desc.add<std::string>("TreeName", "AlignmentHitMaps");
+  desc.add<std::string>("OutputFile", "AlignmentHitMapsMerged.root");
+  desc.add<int>("NhitsMaxLimit", 0);
+
+  edm::ParameterSetDescription tkAlCaSkimTreeParamsDesc;
+  std::vector<edm::ParameterSet> tkAlCaSkimDefaults(1);
+  tkAlCaSkimDefaults[0].addParameter("PXBmaxhits", -1);
+  tkAlCaSkimDefaults[0].addParameter("PXFmaxhits", -1);
+  tkAlCaSkimDefaults[0].addParameter("TIBmaxhits", -1);
+  tkAlCaSkimDefaults[0].addParameter("TIDmaxhits", -1);
+  tkAlCaSkimDefaults[0].addParameter("TOBmaxhits", -1);
+  tkAlCaSkimDefaults[0].addParameter("TECmaxhits", -1);
+  desc.addVPSet("NhitsMaxSet", tkAlCaSkimTreeParamsDesc, tkAlCaSkimDefaults);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 // ========= MODULE DEF ==============
 #include "FWCore/PluginManager/interface/ModuleDef.h"

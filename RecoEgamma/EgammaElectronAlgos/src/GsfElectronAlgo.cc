@@ -45,6 +45,20 @@ GsfElectronAlgo::HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& con
   ElectronMVAEstimator::Configuration iconfig;
   iconfig.vweightsfiles = conf.getParameter<std::vector<std::string>>("ElecMVAFilesString");
   iElectronMVAEstimator = std::make_unique<ElectronMVAEstimator>(iconfig);
+
+  // Here we will have to load the DNN PFID if present in the config
+  egammaTools::DNNConfiguration dconfig;
+  const auto& pset_dnn = conf.getParameter<edm::ParameterSet>("EleDNNPFid");
+  const bool dnnEnabled = pset_dnn.getParameter<bool>("enabled");
+  if (dnnEnabled) {
+    dconfig.inputTensorName = pset_dnn.getParameter<std::string>("inputTensorName");
+    dconfig.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
+    dconfig.modelsFiles = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
+    dconfig.scalersFiles = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
+    dconfig.outputDim = pset_dnn.getParameter<uint>("outputDim");
+    const auto useEBModelInGap = pset_dnn.getParameter<bool>("useEBModelInGap");
+    iElectronDNNEstimator = std::make_unique<ElectronDNNEstimator>(dconfig, useEBModelInGap);
+  }
 }
 
 //===================================================================
@@ -69,10 +83,8 @@ struct GsfElectronAlgo::EventData {
   edm::Handle<reco::ConversionCollection> conversions;
 
   // isolation helpers
-  EgammaTowerIsolation hadDepth1Isolation03, hadDepth1Isolation04;
-  EgammaTowerIsolation hadDepth2Isolation03, hadDepth2Isolation04;
-  EgammaTowerIsolation hadDepth1Isolation03Bc, hadDepth1Isolation04Bc;
-  EgammaTowerIsolation hadDepth2Isolation03Bc, hadDepth2Isolation04Bc;
+  EgammaHcalIsolation hadIsolation03, hadIsolation04;
+  EgammaHcalIsolation hadIsolation03Bc, hadIsolation04Bc;
   EgammaRecHitIsolation ecalBarrelIsol03, ecalBarrelIsol04;
   EgammaRecHitIsolation ecalEndcapIsol03, ecalEndcapIsol04;
 
@@ -86,6 +98,10 @@ struct GsfElectronAlgo::EventData {
 
   bool originalCtfTrackCollectionRetreived = false;
   bool originalGsfTrackCollectionRetreived = false;
+
+  //PFCluster Isolation handles
+  edm::Handle<reco::PFClusterCollection> ecalClustersHandle;
+  std::vector<edm::Handle<reco::PFClusterCollection>> hcalClustersHandle;
 };
 
 //===================================================================
@@ -290,7 +306,8 @@ reco::GsfElectron::SaturationInfo GsfElectronAlgo::calculateSaturationInfo(const
 
 template <bool full5x5>
 reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco::SuperClusterRef& theClus,
-                                                                     ElectronHcalHelper const& hcalHelper,
+                                                                     ElectronHcalHelper const& hcalHelperCone,
+                                                                     ElectronHcalHelper const& hcalHelperBc,
                                                                      EventData const& eventData,
                                                                      CaloTopology const& topology,
                                                                      CaloGeometry const& geometry,
@@ -340,15 +357,13 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
 
   const float scale = full5x5 ? showerShape.e5x5 : theClus->energy();
 
-  showerShape.hcalDepth1OverEcal = hcalHelper.hcalESumDepth1(*theClus) / theClus->energy();
-  showerShape.hcalDepth2OverEcal = hcalHelper.hcalESumDepth2(*theClus) / theClus->energy();
-  showerShape.hcalTowersBehindClusters = hcalHelper.hcalTowersBehindClusters(*theClus);
-  showerShape.hcalDepth1OverEcalBc =
-      hcalHelper.hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters) / scale;
-  showerShape.hcalDepth2OverEcalBc =
-      hcalHelper.hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters) / scale;
-  showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && showerShape.hcalDepth2OverEcalBc == 0 &&
-                             !hcalHelper.hasActiveHcal(*theClus));
+  for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
+    showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*theClus, id + 1) / scale;
+    showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*theClus, id + 1) / scale;
+  }
+  showerShape.invalidHcal = !hcalHelperBc.hasActiveHcal(*theClus);
+  showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*theClus);
+  showerShape.pre7DepthHcal = false;
 
   // extra shower shapes
   const float see_by_spp = showerShape.sigmaIetaIeta * showerShape.sigmaIphiIphi;
@@ -381,8 +396,10 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
 GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
                                  const StrategyConfiguration& strategy,
                                  const CutsConfiguration& cuts,
-                                 const ElectronHcalHelper::Configuration& hcal,
+                                 const ElectronHcalHelper::Configuration& hcalCone,
+                                 const ElectronHcalHelper::Configuration& hcalBc,
                                  const IsolationConfiguration& iso,
+                                 const PFClusterIsolationConfiguration& pfiso,
                                  const EcalRecHitsConfiguration& recHits,
                                  std::unique_ptr<EcalClusterFunctionBaseClass>&& crackCorrectionFunction,
                                  const RegressionHelper::Configuration& reg,
@@ -391,7 +408,7 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
                                  const edm::ParameterSet& tkIsolHEEP03,
                                  const edm::ParameterSet& tkIsolHEEP04,
                                  edm::ConsumesCollector&& cc)
-    : cfg_{input, strategy, cuts, iso, recHits},
+    : cfg_{input, strategy, cuts, iso, pfiso, recHits},
       tkIsol03CalcCfg_(tkIsol03),
       tkIsol04CalcCfg_(tkIsol04),
       tkIsolHEEP03CalcCfg_(tkIsolHEEP03),
@@ -402,11 +419,29 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
       trackerGeometryToken_{cc.esConsumes()},
       ecalSeveretyLevelAlgoToken_{cc.esConsumes()},
       ecalPFRechitThresholdsToken_{cc.esConsumes()},
-      hcalHelper_{hcal, std::move(cc)},
+      hcalHelperCone_{hcalCone, std::move(cc)},
+      hcalHelperBc_{hcalBc, std::move(cc)},
       crackCorrectionFunction_{std::forward<std::unique_ptr<EcalClusterFunctionBaseClass>>(crackCorrectionFunction)},
       regHelper_{reg, cfg_.strategy.useEcalRegression, cfg_.strategy.useCombinationRegression, cc}
 
-{}
+{
+  ///PF ECAL cluster based isolations
+  ecalisoAlgo_ = std::make_unique<ElectronEcalPFClusterIsolation>(pfiso.ecaldrMax,
+                                                                  pfiso.ecaldrVetoBarrel,
+                                                                  pfiso.ecaldrVetoEndcap,
+                                                                  pfiso.ecaletaStripBarrel,
+                                                                  pfiso.ecaletaStripEndcap,
+                                                                  pfiso.ecalenergyBarrel,
+                                                                  pfiso.ecalenergyEndcap);
+  hcalisoAlgo_ = std::make_unique<ElectronHcalPFClusterIsolation>(pfiso.hcaldrMax,
+                                                                  pfiso.hcaldrVetoBarrel,
+                                                                  pfiso.hcaldrVetoEndcap,
+                                                                  pfiso.hcaletaStripBarrel,
+                                                                  pfiso.hcaletaStripEndcap,
+                                                                  pfiso.hcalenergyBarrel,
+                                                                  pfiso.hcalenergyEndcap,
+                                                                  pfiso.hcaluseEt);
+}
 
 void GsfElectronAlgo::checkSetup(const edm::EventSetup& es) {
   if (cfg_.strategy.useEcalRegression || cfg_.strategy.useCombinationRegression)
@@ -420,12 +455,11 @@ void GsfElectronAlgo::checkSetup(const edm::EventSetup& es) {
 GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
                                                        CaloGeometry const& caloGeometry,
                                                        EcalSeverityLevelAlgo const& ecalSeveretyLevelAlgo) {
-  auto const& towers = event.get(cfg_.tokens.hcalTowersTag);
+  auto const& hbheRecHits = event.get(cfg_.tokens.hbheRecHitsTag);
 
   // Isolation algos
   float egHcalIsoConeSizeOutSmall = 0.3, egHcalIsoConeSizeOutLarge = 0.4;
   float egHcalIsoConeSizeIn = cfg_.iso.intRadiusHcal, egHcalIsoPtMin = cfg_.iso.etMinHcal;
-  int egHcalDepth1 = 1, egHcalDepth2 = 2;
 
   float egIsoConeSizeOutSmall = 0.3, egIsoConeSizeOutLarge = 0.4, egIsoJurassicWidth = cfg_.iso.jurassicWidth;
   float egIsoPtMinBarrel = cfg_.iso.etMinBarrel, egIsoEMinBarrel = cfg_.iso.eMinBarrel,
@@ -435,6 +469,17 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
 
   auto barrelRecHits = event.getHandle(cfg_.tokens.barrelRecHitCollection);
   auto endcapRecHits = event.getHandle(cfg_.tokens.endcapRecHitCollection);
+
+  edm::Handle<reco::PFClusterCollection> ecalPFClusters;
+  std::vector<edm::Handle<reco::PFClusterCollection>> hcalPFClusters;
+  if (cfg_.strategy.computePfClusterIso) {
+    ecalPFClusters = event.getHandle(cfg_.tokens.pfClusterProducer);
+    hcalPFClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHCAL));
+    if (cfg_.pfiso.useHF) {
+      hcalPFClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHFEM));
+      hcalPFClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHFHAD));
+    }
+  }
 
   auto ctfTracks = event.getHandle(cfg_.tokens.ctfTracks);
 
@@ -449,22 +494,100 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
       .vertices = event.getHandle(cfg_.tokens.vtxCollectionTag),
       .conversions = cfg_.strategy.fillConvVtxFitProb ? event.getHandle(cfg_.tokens.conversions)
                                                       : edm::Handle<reco::ConversionCollection>(),
-      .hadDepth1Isolation03 =
-          EgammaTowerIsolation(egHcalIsoConeSizeOutSmall, egHcalIsoConeSizeIn, egHcalIsoPtMin, egHcalDepth1, &towers),
-      .hadDepth1Isolation04 =
-          EgammaTowerIsolation(egHcalIsoConeSizeOutLarge, egHcalIsoConeSizeIn, egHcalIsoPtMin, egHcalDepth1, &towers),
-      .hadDepth2Isolation03 =
-          EgammaTowerIsolation(egHcalIsoConeSizeOutSmall, egHcalIsoConeSizeIn, egHcalIsoPtMin, egHcalDepth2, &towers),
-      .hadDepth2Isolation04 =
-          EgammaTowerIsolation(egHcalIsoConeSizeOutLarge, egHcalIsoConeSizeIn, egHcalIsoPtMin, egHcalDepth2, &towers),
-      .hadDepth1Isolation03Bc =
-          EgammaTowerIsolation(egHcalIsoConeSizeOutSmall, 0., egHcalIsoPtMin, egHcalDepth1, &towers),
-      .hadDepth1Isolation04Bc =
-          EgammaTowerIsolation(egHcalIsoConeSizeOutLarge, 0., egHcalIsoPtMin, egHcalDepth1, &towers),
-      .hadDepth2Isolation03Bc =
-          EgammaTowerIsolation(egHcalIsoConeSizeOutSmall, 0., egHcalIsoPtMin, egHcalDepth2, &towers),
-      .hadDepth2Isolation04Bc =
-          EgammaTowerIsolation(egHcalIsoConeSizeOutLarge, 0., egHcalIsoPtMin, egHcalDepth2, &towers),
+
+      .hadIsolation03 = EgammaHcalIsolation(
+          EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+          egHcalIsoConeSizeOutSmall,
+          EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+          egHcalIsoConeSizeIn,
+          EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
+          EgammaHcalIsolation::arrayHB{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
+          hcalHelperCone_.maxSeverityHB(),
+          EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
+          EgammaHcalIsolation::arrayHE{{egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin}},
+          hcalHelperCone_.maxSeverityHE(),
+          hbheRecHits,
+          caloGeometry,
+          *hcalHelperCone_.hcalTopology(),
+          *hcalHelperCone_.hcalChannelQuality(),
+          *hcalHelperCone_.hcalSevLvlComputer(),
+          *hcalHelperCone_.towerMap()),
+      .hadIsolation04 = EgammaHcalIsolation(
+          EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+          egHcalIsoConeSizeOutLarge,
+          EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+          egHcalIsoConeSizeIn,
+          EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
+          EgammaHcalIsolation::arrayHB{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
+          hcalHelperCone_.maxSeverityHB(),
+          EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
+          EgammaHcalIsolation::arrayHE{{egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin}},
+          hcalHelperCone_.maxSeverityHE(),
+          hbheRecHits,
+          caloGeometry,
+          *hcalHelperCone_.hcalTopology(),
+          *hcalHelperCone_.hcalChannelQuality(),
+          *hcalHelperCone_.hcalSevLvlComputer(),
+          *hcalHelperCone_.towerMap()),
+      .hadIsolation03Bc = EgammaHcalIsolation(
+          EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+          egHcalIsoConeSizeOutSmall,
+          EgammaHcalIsolation::InclusionRule::isBehindClusterSeed,
+          0.,
+          EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
+          EgammaHcalIsolation::arrayHB{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
+          hcalHelperCone_.maxSeverityHB(),
+          EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
+          EgammaHcalIsolation::arrayHE{{egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin}},
+          hcalHelperCone_.maxSeverityHE(),
+          hbheRecHits,
+          caloGeometry,
+          *hcalHelperCone_.hcalTopology(),
+          *hcalHelperCone_.hcalChannelQuality(),
+          *hcalHelperCone_.hcalSevLvlComputer(),
+          *hcalHelperCone_.towerMap()),
+      .hadIsolation04Bc = EgammaHcalIsolation(
+          EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+          egHcalIsoConeSizeOutLarge,
+          EgammaHcalIsolation::InclusionRule::isBehindClusterSeed,
+          0.,
+          EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
+          EgammaHcalIsolation::arrayHB{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
+          hcalHelperCone_.maxSeverityHB(),
+          EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
+          EgammaHcalIsolation::arrayHE{{egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin,
+                                        egHcalIsoPtMin}},
+          hcalHelperCone_.maxSeverityHE(),
+          hbheRecHits,
+          caloGeometry,
+          *hcalHelperCone_.hcalTopology(),
+          *hcalHelperCone_.hcalChannelQuality(),
+          *hcalHelperCone_.hcalSevLvlComputer(),
+          *hcalHelperCone_.towerMap()),
+
       .ecalBarrelIsol03 = EgammaRecHitIsolation(egIsoConeSizeOutSmall,
                                                 egIsoConeSizeInBarrel,
                                                 egIsoJurassicWidth,
@@ -506,7 +629,12 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
       .tkIsolHEEP03Calc = EleTkIsolFromCands(tkIsolHEEP03CalcCfg_, *ctfTracks),
       .tkIsolHEEP04Calc = EleTkIsolFromCands(tkIsolHEEP04CalcCfg_, *ctfTracks),
       .originalCtfTracks = {},
-      .originalGsfTracks = {}};
+      .originalGsfTracks = {},
+
+      .ecalClustersHandle = ecalPFClusters,
+      .hcalClustersHandle = hcalPFClusters
+
+  };
 
   eventData.ecalBarrelIsol03.setUseNumCrystals(cfg_.iso.useNumCrystals);
   eventData.ecalBarrelIsol03.setVetoClustered(cfg_.iso.vetoClustered);
@@ -545,14 +673,15 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
   auto const& thresholds = eventSetup.getData(ecalPFRechitThresholdsToken_);
 
   // prepare access to hcal data
-  hcalHelper_.beginEvent(event, eventSetup);
+  hcalHelperCone_.beginEvent(event, eventSetup);
+  hcalHelperBc_.beginEvent(event, eventSetup);
 
   checkSetup(eventSetup);
   auto eventData = beginEvent(event, caloGeometry, ecalSeveretyLevelAlgo);
   double magneticFieldInTesla = magneticField.inTesla(GlobalPoint(0., 0., 0.)).z();
 
   MultiTrajectoryStateTransform mtsTransform(&trackerGeometry, &magneticField);
-  GsfConstraintAtVertex constraintAtVtx(eventSetup);
+  GsfConstraintAtVertex constraintAtVtx(&trackerGeometry, &magneticField);
 
   std::optional<egamma::conv::TrackTable> ctfTrackTable = std::nullopt;
   std::optional<egamma::conv::TrackTable> gsfTrackTable = std::nullopt;
@@ -644,20 +773,20 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag(GsfElectron& ele, const reco::
   LogTrace("GsfElectronAlgo") << "E/p criteria are satisfied";
 
   // HoE cuts
-  LogTrace("GsfElectronAlgo") << "HoE1 : " << ele.hcalDepth1OverEcal() << ", HoE2 : " << ele.hcalDepth2OverEcal();
+  LogTrace("GsfElectronAlgo") << "HoE : " << ele.hcalOverEcal();
   double hoeCone = ele.hcalOverEcal();
-  double hoeTower = ele.hcalOverEcalBc();
+  double hoeBc = ele.hcalOverEcalBc();
   const reco::CaloCluster& seedCluster = *(ele.superCluster()->seed());
   int detector = seedCluster.hitsAndFractions()[0].first.subdetId();
   bool HoEveto = false;
   double scle = ele.superCluster()->energy();
 
   if (detector == EcalBarrel)
-    HoEveto = hoeCone * scle < cfg.maxHBarrelCone || hoeTower * scle < cfg.maxHBarrelTower ||
-              hoeCone < cfg.maxHOverEBarrelCone || hoeTower < cfg.maxHOverEBarrelTower;
+    HoEveto = hoeCone * scle < cfg.maxHBarrelCone || hoeBc * scle < cfg.maxHBarrelBc ||
+              hoeCone < cfg.maxHOverEBarrelCone || hoeBc < cfg.maxHOverEBarrelBc;
   else if (detector == EcalEndcap)
-    HoEveto = hoeCone * scle < cfg.maxHEndcapsCone || hoeTower * scle < cfg.maxHEndcapsTower ||
-              hoeCone < cfg.maxHOverEEndcapsCone || hoeTower < cfg.maxHOverEEndcapsTower;
+    HoEveto = hoeCone * scle < cfg.maxHEndcapsCone || hoeBc * scle < cfg.maxHEndcapsBc ||
+              hoeCone < cfg.maxHOverEEndcapsCone || hoeBc < cfg.maxHOverEEndcapsBc;
 
   if (!HoEveto)
     return;
@@ -860,9 +989,9 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   reco::GsfElectron::ShowerShape full5x5_showerShape;
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
     showerShape = calculateShowerShape<false>(
-        electronData.superClusterRef, hcalHelper_, eventData, topology, geometry, thresholds);
+        electronData.superClusterRef, hcalHelperCone_, hcalHelperBc_, eventData, topology, geometry, thresholds);
     full5x5_showerShape = calculateShowerShape<true>(
-        electronData.superClusterRef, hcalHelper_, eventData, topology, geometry, thresholds);
+        electronData.superClusterRef, hcalHelperCone_, hcalHelperBc_, eventData, topology, geometry, thresholds);
   }
 
   //====================================================
@@ -1024,25 +1153,38 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   dr04.tkSumPtHEEP = eventData.tkIsolHEEP04Calc(*ele.gsfTrack()).ptSum;
 
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
-    dr03.hcalDepth1TowerSumEt = eventData.hadDepth1Isolation03.getTowerEtSum(&ele);
-    dr03.hcalDepth2TowerSumEt = eventData.hadDepth2Isolation03.getTowerEtSum(&ele);
-    dr03.hcalDepth1TowerSumEtBc =
-        eventData.hadDepth1Isolation03Bc.getTowerEtSum(&ele, &(showerShape.hcalTowersBehindClusters));
-    dr03.hcalDepth2TowerSumEtBc =
-        eventData.hadDepth2Isolation03Bc.getTowerEtSum(&ele, &(showerShape.hcalTowersBehindClusters));
+    for (uint id = 0; id < dr03.hcalRecHitSumEt.size(); ++id) {
+      dr03.hcalRecHitSumEt[id] = eventData.hadIsolation03.getHcalEtSum(&ele, id + 1);
+      dr03.hcalRecHitSumEtBc[id] = eventData.hadIsolation03Bc.getHcalEtSumBc(&ele, id + 1);
+
+      dr04.hcalRecHitSumEt[id] = eventData.hadIsolation04.getHcalEtSum(&ele, id + 1);
+      dr04.hcalRecHitSumEtBc[id] = eventData.hadIsolation04Bc.getHcalEtSumBc(&ele, id + 1);
+    }
+
     dr03.ecalRecHitSumEt = eventData.ecalBarrelIsol03.getEtSum(&ele);
     dr03.ecalRecHitSumEt += eventData.ecalEndcapIsol03.getEtSum(&ele);
-    dr04.hcalDepth1TowerSumEt = eventData.hadDepth1Isolation04.getTowerEtSum(&ele);
-    dr04.hcalDepth2TowerSumEt = eventData.hadDepth2Isolation04.getTowerEtSum(&ele);
-    dr04.hcalDepth1TowerSumEtBc =
-        eventData.hadDepth1Isolation04Bc.getTowerEtSum(&ele, &(showerShape.hcalTowersBehindClusters));
-    dr04.hcalDepth2TowerSumEtBc =
-        eventData.hadDepth2Isolation04Bc.getTowerEtSum(&ele, &(showerShape.hcalTowersBehindClusters));
+
     dr04.ecalRecHitSumEt = eventData.ecalBarrelIsol04.getEtSum(&ele);
     dr04.ecalRecHitSumEt += eventData.ecalEndcapIsol04.getEtSum(&ele);
   }
+
+  dr03.pre7DepthHcal = false;
+  dr04.pre7DepthHcal = false;
+
   ele.setIsolation03(dr03);
   ele.setIsolation04(dr04);
+
+  //====================================================
+  // PFclusters based ISO !
+  // Added in CMSSW_12_0_1 at this stage to be able to use them in PF ID DNN
+  //====================================================
+  if (cfg_.strategy.computePfClusterIso) {
+    reco::GsfElectron::PflowIsolationVariables isoVariables;
+    isoVariables.sumEcalClusterEt = ecalisoAlgo_->getSum(ele, eventData.ecalClustersHandle);
+    isoVariables.sumHcalClusterEt = hcalisoAlgo_->getSum(ele, eventData.hcalClustersHandle);
+    // Other Pfiso variables are initialized at 0 and not used
+    ele.setPfIsolationVariables(isoVariables);
+  }
 
   //====================================================
   // preselection flag

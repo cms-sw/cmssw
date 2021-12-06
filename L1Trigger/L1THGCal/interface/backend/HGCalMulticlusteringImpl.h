@@ -15,9 +15,9 @@ class HGCalMulticlusteringImpl {
 public:
   HGCalMulticlusteringImpl(const edm::ParameterSet& conf);
 
-  void eventSetup(const edm::EventSetup& es) {
-    triggerTools_.eventSetup(es);
-    shape_.eventSetup(es);
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) {
+    triggerTools_.setGeometry(geom);
+    shape_.setGeometry(geom);
   }
 
   bool isPertinent(const l1t::HGCalCluster& clu, const l1t::HGCalMulticluster& mclu, double dR) const;

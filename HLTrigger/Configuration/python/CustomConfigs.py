@@ -120,25 +120,28 @@ def HLTDropPrevious(process):
     return(process)
 
 
-def L1REPACK(process,sequence="Full"):
+def L1REPACK(process, sequence="Full"):
 
     from Configuration.Eras.Era_Run3_cff import Run3
-    l1repack = cms.Process('L1REPACK',Run3)
+    l1repack = cms.Process('L1REPACK', Run3)
     l1repack.load('Configuration.StandardSequences.SimL1EmulatorRepack_'+sequence+'_cff')
 
     for module in l1repack.es_sources_():
-        if (not hasattr(process,module)):
-            setattr(process,module,getattr(l1repack,module))
+        if not hasattr(process, module):
+            setattr(process, module, getattr(l1repack, module))
     for module in l1repack.es_producers_():
-        if (not hasattr(process,module)):
-            setattr(process,module,getattr(l1repack,module))
+        if not hasattr(process, module):
+            setattr(process, module, getattr(l1repack, module))
 
     for module in l1repack.SimL1Emulator.expandAndClone().moduleNames():
-        setattr(process,module,getattr(l1repack,module))
-    for task in l1repack.tasks_():
-        setattr(process,task,getattr(l1repack,task))
-    for sequence in l1repack.sequences_():
-        setattr(process,sequence,getattr(l1repack,sequence))
+        setattr(process, module, getattr(l1repack, module))
+    for taskName, task in l1repack.tasks_().items():
+        if l1repack.SimL1Emulator.contains(task):
+            setattr(process, taskName, task)
+    for sequenceName, sequence in l1repack.sequences_().items():
+        if l1repack.SimL1Emulator.contains(sequence):
+            setattr(process, sequenceName, sequence)
+
     process.SimL1Emulator = l1repack.SimL1Emulator
 
     for path in process.paths_():
@@ -147,43 +150,11 @@ def L1REPACK(process,sequence="Full"):
         getattr(process,path).insert(0,process.SimL1Emulator)
 
     # special L1T cleanup
-    cleanupL1T = ('SimL1TCalorimeter'
-                  ,'SimL1TCalorimeterTask'
-                  ,'SimL1TMuonCommon'
-                  ,'SimL1TMuonCommonTask'
-                  ,'SimL1TMuon'
-                  ,'SimL1TMuonTask'
-                  ,'SimL1TechnicalTriggers'
-                  ,'SimL1TechnicalTriggersTask'
-                  ,'SimL1EmulatorCore'
-                  ,'SimL1EmulatorCoreTask'
-                  ,'ecalDigiSequence'
-                  ,'ecalDigiTask'
-                  ,'hcalDigiSequence'
-                  ,'hcalDigiTask'
-                  ,'calDigi'
-                  ,'calDigiTask'
-                  ,'me0TriggerPseudoDigis'
-                  ,'me0TriggerPseudoDigiTask'
-                  ,'simMuonGEMPadTask'
-                  ,'hgcalTriggerPrimitives'
-                  ,'hgcalTriggerPrimitivesTask'
-                  ,'hgcalVFE'
-                  ,'hgcalVFEProducer'
-                  ,'hgcalBackEndLayer2'
-                  ,'hgcalBackEndLayer2Producer'
-                  ,'hgcalTowerMap'
-                  ,'hgcalTowerMapProducer'
-                  ,'hgcalConcentrator'
-                  ,'hgcalConcentratorProducer'
-                  ,'hgcalBackEndLayer1'
-                  ,'hgcalBackEndLayer1Producer'
-                  ,'hgcalTower'
-                  ,'hgcalTowerProducer'
-                  ,'hgcalTriggerGeometryESProducer')
-    for obj in cleanupL1T:
-        if hasattr(process,obj):
-            delattr(process,obj)
+    for obj in [
+      'hgcalTriggerGeometryESProducer',
+    ]:
+        if hasattr(process, obj):
+            delattr(process, obj)
 
     return process
 

@@ -12,32 +12,9 @@
 #include <utility>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
-
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
 
 #include "EcalTPGAnalyzer.h"
 
@@ -47,17 +24,24 @@
 using namespace edm;
 class CaloSubdetectorGeometry;
 
-EcalTPGAnalyzer::EcalTPGAnalyzer(const edm::ParameterSet& iConfig) {
-  tpCollection_ = iConfig.getParameter<edm::InputTag>("TPCollection");
-  tpEmulatorCollection_ = iConfig.getParameter<edm::InputTag>("TPEmulatorCollection");
-  digiCollectionEB_ = iConfig.getParameter<edm::InputTag>("DigiCollectionEB");
-  digiCollectionEE_ = iConfig.getParameter<edm::InputTag>("DigiCollectionEE");
-  gtRecordCollectionTag_ = iConfig.getParameter<std::string>("GTRecordCollection");
-
-  allowTP_ = iConfig.getParameter<bool>("ReadTriggerPrimitives");
-  useEE_ = iConfig.getParameter<bool>("UseEndCap");
-  print_ = iConfig.getParameter<bool>("Print");
-
+EcalTPGAnalyzer::EcalTPGAnalyzer(const edm::ParameterSet& iConfig)
+    : tpCollection_(iConfig.getParameter<edm::InputTag>("TPCollection")),
+      tpEmulatorCollection_(iConfig.getParameter<edm::InputTag>("TPEmulatorCollection")),
+      digiCollectionEB_(iConfig.getParameter<edm::InputTag>("DigiCollectionEB")),
+      digiCollectionEE_(iConfig.getParameter<edm::InputTag>("DigiCollectionEE")),
+      gtRecordCollectionTag_(iConfig.getParameter<std::string>("GTRecordCollection")),
+      l1GtReadoutRecordToken_(consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag(gtRecordCollectionTag_))),
+      tpToken_(consumes<EcalTrigPrimDigiCollection>(tpCollection_)),
+      tpEmulToken_(consumes<EcalTrigPrimDigiCollection>(tpEmulatorCollection_)),
+      ebDigiToken_(consumes<EBDigiCollection>(digiCollectionEB_)),
+      eeDigiToken_(consumes<EEDigiCollection>(digiCollectionEE_)),
+      eTTMapToken_(esConsumes<edm::Transition::BeginRun>()),
+      ebGeometryToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "EcalBarrel"))),
+      eeGeometryToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "EcalEndcap"))),
+      l1GtMaskToken_(esConsumes()),
+      allowTP_(iConfig.getParameter<bool>("ReadTriggerPrimitives")),
+      useEE_(iConfig.getParameter<bool>("UseEndCap")),
+      print_(iConfig.getParameter<bool>("Print")) {
   // file
   file_ = new TFile("ECALTPGtree.root", "RECREATE");
   file_->cd();
@@ -93,17 +77,12 @@ EcalTPGAnalyzer::~EcalTPGAnalyzer() {
 
 void EcalTPGAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& evtSetup) {
   // geometry
-  ESHandle<CaloGeometry> theGeometry;
-  ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
-
-  evtSetup.get<CaloGeometryRecord>().get(theGeometry);
-  evtSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap", theEndcapGeometry_handle);
-  evtSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel", theBarrelGeometry_handle);
-
-  evtSetup.get<IdealGeometryRecord>().get(eTTmap_);
-  theEndcapGeometry_ = &(*theEndcapGeometry_handle);
-  theBarrelGeometry_ = &(*theBarrelGeometry_handle);
+  eTTmap_ = &evtSetup.getData(eTTMapToken_);
+  theBarrelGeometry_ = &evtSetup.getData(ebGeometryToken_);
+  theEndcapGeometry_ = &evtSetup.getData(eeGeometryToken_);
 }
+
+void EcalTPGAnalyzer::endRun(edm::Run const&, edm::EventSetup const& evtSetup) {}
 
 void EcalTPGAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   using namespace edm;
@@ -129,12 +108,11 @@ void EcalTPGAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   ///////////////////////////
 
   edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
-  iEvent.getByLabel(edm::InputTag(gtRecordCollectionTag_), gtRecord);
+  iEvent.getByToken(l1GtReadoutRecordToken_, gtRecord);
   DecisionWord dWord = gtRecord->decisionWord();  // this will get the decision word *before* masking disabled bits
 
-  edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
-  iSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
-  std::vector<unsigned int> triggerMaskAlgoTrig = l1GtTmAlgo.product()->gtTriggerMask();
+  const auto& l1GtTmAlgo = iSetup.getData(l1GtMaskToken_);
+  std::vector<unsigned int> triggerMaskAlgoTrig = l1GtTmAlgo.gtTriggerMask();
 
   // apply masks on algo
   int iDaq = 0;
@@ -156,7 +134,7 @@ void EcalTPGAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   ///////////////////////////
 
   edm::Handle<EcalTrigPrimDigiCollection> tp;
-  iEvent.getByLabel(tpCollection_, tp);
+  iEvent.getByToken(tpToken_, tp);
   if (print_)
     std::cout << "TP collection size=" << tp.product()->size() << std::endl;
 
@@ -175,7 +153,7 @@ void EcalTPGAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   ///////////////////////////
 
   edm::Handle<EcalTrigPrimDigiCollection> tpEmul;
-  iEvent.getByLabel(tpEmulatorCollection_, tpEmul);
+  iEvent.getByToken(tpEmulToken_, tpEmul);
   if (print_)
     std::cout << "TPEmulator collection size=" << tpEmul.product()->size() << std::endl;
 
@@ -194,7 +172,7 @@ void EcalTPGAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
 
   // Get EB xtal digi inputs
   edm::Handle<EBDigiCollection> digiEB;
-  iEvent.getByLabel(digiCollectionEB_, digiEB);
+  iEvent.getByToken(ebDigiToken_, digiEB);
 
   for (unsigned int i = 0; i < digiEB.product()->size(); i++) {
     const EBDataFrame& df = (*(digiEB.product()))[i];
@@ -208,11 +186,11 @@ void EcalTPGAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   if (useEE_) {
     // Get EE xtal digi inputs
     edm::Handle<EEDigiCollection> digiEE;
-    iEvent.getByLabel(digiCollectionEE_, digiEE);
+    iEvent.getByToken(eeDigiToken_, digiEE);
     for (unsigned int i = 0; i < digiEE.product()->size(); i++) {
       const EEDataFrame& df = (*(digiEE.product()))[i];
       const EEDetId& id = df.id();
-      const EcalTrigTowerDetId towid = (*eTTmap_).towerOf(id);
+      const EcalTrigTowerDetId towid = eTTmap_->towerOf(id);
       itTT = mapTower.find(towid);
       if (itTT != mapTower.end())
         (itTT->second).nbXtal_++;

@@ -81,5 +81,6 @@ genParticleTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 
-genParticleSequence = cms.Sequence(finalGenParticles)
-genParticleTables = cms.Sequence(genParticleTable)
+genParticleTask = cms.Task(finalGenParticles)
+genParticleTablesTask = cms.Task(genParticleTable)
+

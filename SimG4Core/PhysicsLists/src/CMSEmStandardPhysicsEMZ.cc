@@ -105,7 +105,6 @@ void CMSEmStandardPhysicsEMZ::ConstructProcess() {
 
   // processes used by several particles
   G4hMultipleScattering* hmsc = new G4hMultipleScattering("ionmsc");
-  //  G4NuclearStopping* pnuc(nullptr);
   G4double nielEnergyLimit = G4EmParameters::Instance()->MaxNIELEnergy();
   G4NuclearStopping* pnuc = nullptr;
   if (nielEnergyLimit > 0.0) {

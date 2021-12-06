@@ -5,13 +5,13 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
@@ -27,7 +27,7 @@
 // class declaration
 //
 
-class ElectronRegressionEnergyProducer : public edm::EDFilter {
+class ElectronRegressionEnergyProducer : public edm::stream::EDFilter<> {
 public:
   explicit ElectronRegressionEnergyProducer(const edm::ParameterSet&);
   ~ElectronRegressionEnergyProducer() override;
@@ -57,6 +57,9 @@ private:
 
   edm::EDGetTokenT<reco::VertexCollection> hVertexToken_;
   edm::EDGetTokenT<double> hRhoKt6PFJetsToken_;
+
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> ecalTopoToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 };
 
 ElectronRegressionEnergyProducer::ElectronRegressionEnergyProducer(const edm::ParameterSet& iConfig) {
@@ -74,6 +77,9 @@ ElectronRegressionEnergyProducer::ElectronRegressionEnergyProducer(const edm::Pa
 
   hVertexToken_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
   hRhoKt6PFJetsToken_ = consumes<double>(edm::InputTag("kt6PFJets", "rho"));
+
+  ecalTopoToken_ = esConsumes();
+  caloGeomToken_ = esConsumes();
 
   produces<edm::ValueMap<double> >(nameEnergyReg_);
   produces<edm::ValueMap<double> >(nameEnergyErrorReg_);
@@ -104,13 +110,8 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
   assert(regressionEvaluator->isInitialized());
 
   if (!geomInitialized_) {
-    edm::ESHandle<CaloTopology> theCaloTopology;
-    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-    ecalTopology_ = &(*theCaloTopology);
-
-    edm::ESHandle<CaloGeometry> theCaloGeometry;
-    iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
-    caloGeometry_ = &(*theCaloGeometry);
+    ecalTopology_ = &(iSetup.getData(ecalTopoToken_));
+    caloGeometry_ = &(iSetup.getData(caloGeomToken_));
     geomInitialized_ = true;
   }
 

@@ -14,7 +14,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#include "G4String.hh"
 #include <map>
 
 class EcalBaseNumber;
@@ -22,7 +21,6 @@ class EcalBaseNumber;
 class EcalTBH4BeamSD : public CaloSD {
 public:
   EcalTBH4BeamSD(const std::string &,
-                 const edm::EventSetup &,
                  const SensitiveDetectorCatalog &,
                  edm::ParameterSet const &,
                  const SimTrackManager *);

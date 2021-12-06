@@ -15,7 +15,7 @@ EcalSRSettings::EcalSRSettings()
 #define SR_PRINT(a) o << #a ": " << val.a##_ << "\n";
 #define SR_VPRINT(a)                              \
   o << #a;                                        \
-  if (val.a##_.size())                            \
+  if (val.a##_.empty())                           \
     o << "[0.." << (val.a##_.size() - 1) << "]:"; \
   else                                            \
     o << "[]: <empty>";                           \
@@ -23,11 +23,11 @@ EcalSRSettings::EcalSRSettings()
     o << "\t" << val.a##_[i];                     \
   o << "\n";
 #define SR_VVPRINT(a)                                  \
-  if (val.a##_.size() == 0)                            \
+  if (val.a##_.empty())                                \
     o << #a "[][]: <empty>\n";                         \
   for (size_t i = 0; i < val.a##_.size(); ++i) {       \
     o << #a "[" << i << "]";                           \
-    if (val.a##_.size())                               \
+    if (val.a##_.empty())                              \
       o << "[0.." << (val.a##_[i].size() - 1) << "]:"; \
     else                                               \
       o << "[]: <empty>";                              \

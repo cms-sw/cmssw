@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Original author: Joerg Behr
 # Translation from Perl to Python: Gregor Mittag

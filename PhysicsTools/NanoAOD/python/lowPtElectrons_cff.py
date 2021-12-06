@@ -122,22 +122,13 @@ lowPtElectronTable = cms.EDProducer(
 # electronTable (MC)
 ################################################################################
 
-from PhysicsTools.NanoAOD.particlelevel_cff import particleLevel
-particleLevelForMatchingLowPt = particleLevel.clone(
-    lepMinPt = cms.double(1.),
-    phoMinPt = cms.double(1),
-)
-
-tautaggerForMatchingLowPt = cms.EDProducer(
-    "GenJetTauTaggerProducer",
-    src = cms.InputTag('particleLevelForMatchingLowPt:leptons')
-)
-
+# Depends on tautaggerForMatching being run in electrons_cff
 matchingLowPtElecPhoton = cms.EDProducer(
     "GenJetGenPartMerger",
-    srcJet =cms.InputTag("particleLevelForMatchingLowPt:leptons"),
-    srcPart=cms.InputTag("particleLevelForMatchingLowPt:photons"),
-    hasTauAnc=cms.InputTag("tautaggerForMatchingLowPt"),
+    srcJet =cms.InputTag("particleLevel:leptons"),
+    srcPart=cms.InputTag("particleLevel:photons"),
+    cut = cms.string(""),
+    hasTauAnc=cms.InputTag("tautaggerForMatching"),
 )
 
 lowPtElectronsMCMatchForTableAlt = cms.EDProducer(
@@ -181,23 +172,23 @@ lowPtElectronMCTable = cms.EDProducer(
 )
 
 ################################################################################
-# Sequences
+# Tasks
 ################################################################################
 
-lowPtElectronSequence = cms.Sequence(modifiedLowPtElectrons
-                                     +updatedLowPtElectrons
-                                     +lowPtPATElectronID
-                                     +isoForLowPtEle
-                                     +updatedLowPtElectronsWithUserData
-                                     +finalLowPtElectrons)
-lowPtElectronTables = cms.Sequence(lowPtElectronTable)
-lowPtElectronMC = cms.Sequence(
-    particleLevelForMatchingLowPt
-    +tautaggerForMatchingLowPt
-    +matchingLowPtElecPhoton
-    +lowPtElectronsMCMatchForTable
-    +lowPtElectronsMCMatchForTableAlt
-    +lowPtElectronMCTable)
+lowPtElectronTask = cms.Task(modifiedLowPtElectrons,
+                             updatedLowPtElectrons,
+                             lowPtPATElectronID,
+                             isoForLowPtEle,
+                             updatedLowPtElectronsWithUserData,
+                             finalLowPtElectrons)
+
+lowPtElectronTablesTask = cms.Task(lowPtElectronTable)
+
+lowPtElectronMCTask = cms.Task(
+    matchingLowPtElecPhoton,
+    lowPtElectronsMCMatchForTable,
+    lowPtElectronsMCMatchForTableAlt,
+    lowPtElectronMCTable)
 
 ################################################################################
 # Modifiers
@@ -209,6 +200,6 @@ _modifiers = ( run2_miniAOD_80XLegacy |
                run2_nanoAOD_94X2016 |
                run2_nanoAOD_102Xv1 |
                run2_nanoAOD_106Xv1 )
-(_modifiers).toReplaceWith(lowPtElectronSequence,cms.Sequence())
-(_modifiers).toReplaceWith(lowPtElectronTables,cms.Sequence())
-(_modifiers).toReplaceWith(lowPtElectronMC,cms.Sequence())
+(_modifiers).toReplaceWith(lowPtElectronTask,cms.Task())
+(_modifiers).toReplaceWith(lowPtElectronTablesTask,cms.Task())
+(_modifiers).toReplaceWith(lowPtElectronMCTask,cms.Task())

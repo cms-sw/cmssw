@@ -9,13 +9,12 @@ public:
   ExTestEcalChannelStatusAnalyzer(const edm::ParameterSet& pset)
       : popcon::PopConAnalyzer<popcon::EcalChannelStatusHandler>(pset),
         m_populator(pset),
-        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+        m_source(pset.getParameter<edm::ParameterSet>("Source")),
+        ecalElectronicsMappingToken_(esConsumes()) {}
 
 private:
   void analyze(const edm::Event& ev, const edm::EventSetup& iSetup) override {
-    edm::ESHandle<EcalElectronicsMapping> eleMap;
-    iSetup.get<EcalMappingRcd>().get(eleMap);
-    ecalElectronicsMap = eleMap.product();
+    ecalElectronicsMap = &iSetup.getData(ecalElectronicsMappingToken_);
   }
 
   void endJob() override {
@@ -29,6 +28,7 @@ private:
   popcon::PopCon m_populator;
   SourceHandler m_source;
   const EcalElectronicsMapping* ecalElectronicsMap;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> ecalElectronicsMappingToken_;
 };
 
 //define this as a plug-in

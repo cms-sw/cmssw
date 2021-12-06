@@ -3,7 +3,7 @@
 
 #include <map>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -30,7 +30,7 @@
 
 class TrackerTopology;
 
-class SiStripLAProfileBooker : public edm::EDAnalyzer {
+class SiStripLAProfileBooker : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
@@ -39,6 +39,8 @@ public:
   ~SiStripLAProfileBooker() override;
 
   void beginRun(edm::Run const&, const edm::EventSetup& c) override;
+
+  void endRun(edm::Run const&, const edm::EventSetup& c) override;
 
   void endJob() override;
 

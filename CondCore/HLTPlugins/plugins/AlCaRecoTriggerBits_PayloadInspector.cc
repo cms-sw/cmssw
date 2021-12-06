@@ -3,6 +3,7 @@
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 
+#include <fmt/printf.h>
 #include <memory>
 #include <sstream>
 #include <iostream>
@@ -12,18 +13,18 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     Display AlCaRecoTriggerBits mapping
   *************************************************/
-  class AlCaRecoTriggerBits_Display : public cond::payloadInspector::PlotImage<AlCaRecoTriggerBits> {
+  class AlCaRecoTriggerBits_Display : public PlotImage<AlCaRecoTriggerBits, SINGLE_IOV> {
   public:
-    AlCaRecoTriggerBits_Display()
-        : cond::payloadInspector::PlotImage<AlCaRecoTriggerBits>("Table of AlCaRecoTriggerBits") {
-      setSingleIov(true);
-    }
+    AlCaRecoTriggerBits_Display() : PlotImage<AlCaRecoTriggerBits, SINGLE_IOV>("Table of AlCaRecoTriggerBits") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<AlCaRecoTriggerBits> payload = fetchPayload(std::get<1>(iov));
 
       std::string IOVsince = std::to_string(std::get<0>(iov));
@@ -49,7 +50,7 @@ namespace {
       y_x1.push_back(y);
       s_x1.push_back("#scale[1.2]{Key}");
       y_x2.push_back(y);
-      s_x2.push_back("#scale[1.2]{in IOV: " + IOVsince + "}");
+      s_x2.push_back("#scale[1.2]{tag: " + tag.name + " in IOV: " + IOVsince + "}");
 
       y -= pitch / 2.;
       y_line.push_back(y);
@@ -127,24 +128,33 @@ namespace {
   /************************************************
     Compare AlCaRecoTriggerBits mapping
   *************************************************/
-  class AlCaRecoTriggerBits_CompareBase : public cond::payloadInspector::PlotImage<AlCaRecoTriggerBits> {
+  template <IOVMultiplicity nIOVs, int ntags>
+  class AlCaRecoTriggerBits_CompareBase : public PlotImage<AlCaRecoTriggerBits, nIOVs, ntags> {
   public:
     AlCaRecoTriggerBits_CompareBase()
-        : cond::payloadInspector::PlotImage<AlCaRecoTriggerBits>("Table of AlCaRecoTriggerBits comparison") {}
+        : PlotImage<AlCaRecoTriggerBits, nIOVs, ntags>("Table of AlCaRecoTriggerBits comparison") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto f_tagname = PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        l_tagname = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<AlCaRecoTriggerBits> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<AlCaRecoTriggerBits> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<AlCaRecoTriggerBits> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<AlCaRecoTriggerBits> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -195,9 +205,9 @@ namespace {
       y_x1.push_back(y);
       s_x1.push_back("#scale[1.2]{Key}");
       y_x2.push_back(y);
-      s_x2.push_back("#scale[1.2]{in IOV: " + firstIOVsince + "}");
+      s_x2.push_back(fmt::sprintf("#scale[1.2]{%s in IOV: %s}", f_tagname, firstIOVsince));
       y_x3.push_back(y);
-      s_x3.push_back("#scale[1.2]{in IOV: " + lastIOVsince + "}");
+      s_x3.push_back(fmt::sprintf("#scale[1.2]{%s in IOV: %s}", l_tagname, lastIOVsince));
       y -= pitch / 3;
 
       // print the ones missing in the last key
@@ -391,21 +401,14 @@ namespace {
       }
 
       //canvas.SetCanvasSize(2000,(1-y)*1000);
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
       return true;
     }
   };
 
-  class AlCaRecoTriggerBits_Compare : public AlCaRecoTriggerBits_CompareBase {
-  public:
-    AlCaRecoTriggerBits_Compare() : AlCaRecoTriggerBits_CompareBase() { this->setSingleIov(false); }
-  };
-
-  class AlCaRecoTriggerBits_CompareTwoTags : public AlCaRecoTriggerBits_CompareBase {
-  public:
-    AlCaRecoTriggerBits_CompareTwoTags() : AlCaRecoTriggerBits_CompareBase() { this->setTwoTags(true); }
-  };
+  using AlCaRecoTriggerBits_Compare = AlCaRecoTriggerBits_CompareBase<MULTI_IOV, 1>;
+  using AlCaRecoTriggerBits_CompareTwoTags = AlCaRecoTriggerBits_CompareBase<SINGLE_IOV, 2>;
 
 }  // namespace
 

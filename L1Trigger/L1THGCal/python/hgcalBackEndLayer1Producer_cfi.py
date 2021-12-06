@@ -17,7 +17,7 @@ c2d_thresholds_pset = cms.PSet(seeding_threshold_silicon=cms.double(5.),
                                clustering_threshold_silicon=cms.double(2.),
                                clustering_threshold_scintillator=cms.double(2.))
 
-# V9 samples have a different definition of the dEdx calibrations. To account for it
+# >= V9 samples have a different definition of the dEdx calibrations. To account for it
 # we rescale the thresholds for the clustering
 # (see https://indico.cern.ch/event/806845/contributions/3359859/attachments/1815187/2966402/19-03-20_EGPerf_HGCBE.pdf
 # for more details)
@@ -28,7 +28,7 @@ phase2_hgcalV10.toModify(c2d_thresholds_pset,
                         clustering_threshold_scintillator=1.5,
                         )
 
-# we still don't have layer calibrations for V9 geometry. Switching this off we
+# we still don't have layer calibrations for >=V9 geometry. Switching this off we
 # use the dEdx calibrated energy of the TCs
 phase2_hgcalV10.toModify(c2d_calib_pset,
                         applyLayerCalibration=False

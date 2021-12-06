@@ -3,11 +3,12 @@ import FWCore.ParameterSet.Config as cms
 ##____________________________________________________________________________||
 from RecoMET.METProducers.pfMet_cfi import *
 from RecoMET.METProducers.pfChMet_cfi import *
+from CommonTools.ParticleFlow.pfNoPileUpJME_cff import goodOfflinePrimaryVertices, primaryVertexAssociationJME
 from CommonTools.PileupAlgos.Puppi_cff import puppiNoLep
 from RecoMET.METProducers.pfMetPuppi_cfi import *
 
 ##____________________________________________________________________________||
-recoPFMETTask = cms.Task(pfMet , particleFlowForChargedMET , pfChMet, puppiNoLep, pfMetPuppi)
+recoPFMETTask = cms.Task(pfMet , particleFlowForChargedMET , goodOfflinePrimaryVertices, primaryVertexAssociationJME, pfChMet, puppiNoLep, pfMetPuppi)
 recoPFMET = cms.Sequence(recoPFMETTask)
 
 ##____________________________________________________________________________||

@@ -677,7 +677,7 @@ class DirWalkerFile(object):
                     directory.subdirs.append(subdir)
                     if depth==1:
                         print("Appended.")
-            else:
+            elif name != '':
                 # We have probably an histo. Let's make the plot and the png.        
                 if obj_type[:2]!="TH" and obj_type[:3]!="TPr" :
                     continue
@@ -714,7 +714,7 @@ class DirWalkerFile(object):
             #print  self.ls().keys()
             first_run_dir = ""
             try:
-                first_run_dir = filter(lambda k: "Run " in k, self.ls().keys())[0]
+                first_run_dir = list(filter(lambda k: "Run " in k, self.ls().keys()))[0]
             except:
                 print("\nRundir not there: Is this a generic rootfile?\n")
             rundir=first_run_dir

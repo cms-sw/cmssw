@@ -39,7 +39,7 @@ bool UCTLayer1::clearEvent() {
 }
 
 const UCTRegion* UCTLayer1::getRegion(int regionEtaIndex, uint32_t regionPhiIndex) const {
-  if (regionEtaIndex == 0 || (uint32_t)std::abs(regionEtaIndex) > NRegionsInCard ||
+  if (regionEtaIndex == 0 || (uint32_t)std::abs(regionEtaIndex) > (NRegionsInCard + NHFRegionsInCard) ||
       regionPhiIndex >= MaxUCTRegionsPhi) {
     return nullptr;
   }

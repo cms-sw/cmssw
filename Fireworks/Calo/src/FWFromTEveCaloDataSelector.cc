@@ -16,7 +16,7 @@
 #include <functional>
 
 // user include files
-#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
+#include "Fireworks/Calo/interface/FWFromTEveCaloDataSelector.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 

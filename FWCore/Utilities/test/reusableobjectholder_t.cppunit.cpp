@@ -237,9 +237,9 @@ void reusableobjectholder_test::testSimultaneousUse() {
   t1.join();
   t2.join();
 
+  std::cout << " # seen: " << t1ItemsSeen.size() << " " << t2ItemsSeen.size() << std::endl;
   CPPUNIT_ASSERT(t1ItemsSeen.size() > 0 && t1ItemsSeen.size() < 3);
   CPPUNIT_ASSERT(t2ItemsSeen.size() > 0 && t2ItemsSeen.size() < 3);
-  //std::cout <<" # seen: "<<t1ItemsSeen.size() <<" "<<t2ItemsSeen.size()<<std::endl;
 #endif
 }
 

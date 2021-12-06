@@ -41,6 +41,8 @@
 #include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShapeBase.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 
 #include <TH1F.h>
 
@@ -162,6 +164,9 @@ private:
   //modif-alex 30/01/2012
   std::map<int, double> Transparency_Correction_;
 
+  EBShape shapeEB_;
+  EEShape shapeEE_;
+
   std::ofstream* out_file_;
   std::ofstream* geomFile_;
   EcalTPGDBApp* db_;
@@ -198,7 +203,5 @@ private:
   Int_t* ntupleInts_;
   Char_t ntupleDet_[10];
   Char_t ntupleCrate_[10];
-
-  bool useDBShape_;
 };
 #endif

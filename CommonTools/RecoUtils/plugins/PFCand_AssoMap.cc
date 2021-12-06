@@ -78,7 +78,7 @@ void PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   PFCand_AssoMapAlgos::GetInputCollections(iEvent, iSetup);
 
   if (asstype == "PFCandsToVertex" || asstype == "VertexToPFCands" || asstype == "Both") {
-    auto mappings = createMappings(pfCandH, iSetup);
+    auto mappings = createMappings(pfCandH);
     if (asstype == "PFCandsToVertex" || asstype == "Both") {
       iEvent.put(SortPFCandAssociationMap(&(*mappings.first), &iEvent.productGetter()));
     }

@@ -19,10 +19,8 @@
 // user include files
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -75,7 +73,8 @@ CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig,
       theWireError_(iConfig.getParameter<double>("CSCWireError")),
       UseWireTime(iConfig.getParameter<bool>("UseWireTime")),
       UseStripTime(iConfig.getParameter<bool>("UseStripTime")),
-      debug(iConfig.getParameter<bool>("debug")) {
+      debug(iConfig.getParameter<bool>("debug")),
+      thePropagatorToken(iC.esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))) {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = std::make_unique<MuonServiceProxy>(serviceParameters, edm::ConsumesCollector(iC));
   theMatcher = segMatcher;
@@ -97,9 +96,7 @@ void CSCTimingExtractor::fillTiming(TimeMeasurementSequence& tmSequence,
   const GlobalTrackingGeometry* theTrackingGeometry = &*theService->trackingGeometry();
 
   // get the propagator
-  edm::ESHandle<Propagator> propagator;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
-  const Propagator* propag = propagator.product();
+  const Propagator* propag = &iSetup.getData(thePropagatorToken);
 
   math::XYZPoint pos = muonTrack->innerPosition();
   math::XYZVector mom = muonTrack->innerMomentum();

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # L1 Emulator sequence running on unpacked data
-#    each emulator run on the unpacked data of the previous (in the hardware chain) subsystem 
+#    each emulator run on the unpacked data of the previous (in the hardware chain) subsystem
 #
 #    Order if using the standard sequence
 #    RawToDigi,ValL1Emulator
@@ -38,7 +38,7 @@ valHcalTTPDigis = SimCalorimetry.HcalTrigPrimProducers.hcalTTPDigis_cfi.simHcalT
 #
 valHcalTTPDigis.HFDigiCollection = cms.InputTag('hcalDigis')
 
-   
+
 # RCT emulator
 import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
 valRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()
@@ -85,6 +85,8 @@ from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
 valDtTriggerPrimitiveDigis = L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi.dtTriggerPrimitiveDigis.clone()
 
 
+# Lookup tables for the CSC TP emulator
+from CalibMuon.CSCCalibration.CSCL1TPLookupTableEP_cff import *
 # CSC TP emulator
 from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
 valCscTriggerPrimitiveDigis = L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi.cscTriggerPrimitiveDigis.clone()
@@ -95,7 +97,7 @@ valCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag('muonCSCDigis',
                                                                'MuonCSCWireDigi')
 valCscTriggerPrimitiveDigis.gangedME1a = cms.untracked.bool(False)
 
-# CSC Track Finder - digi track generation 
+# CSC Track Finder - digi track generation
 # currently used also by DT TF to generate CSCTF stubs
 import L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi
 valCsctfTrackDigis = L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi.csctfTrackDigis.clone()
@@ -128,7 +130,7 @@ valRpcTriggerDigis = L1Trigger.RPCTrigger.rpcTriggerDigis_cff.rpcTriggerDigis.cl
 valRpcTriggerDigis.label = 'muonRPCDigis'
 
 
-# Global Muon Trigger emulator - input from common GMT/GT unpacker (gtDigis) 
+# Global Muon Trigger emulator - input from common GMT/GT unpacker (gtDigis)
 import L1Trigger.GlobalMuonTrigger.gmtDigis_cfi
 valGmtDigis = L1Trigger.GlobalMuonTrigger.gmtDigis_cfi.gmtDigis.clone()
 #
@@ -138,7 +140,7 @@ valGmtDigis.RPCbCandidates = cms.InputTag('l1GtUnpack','RPCb')
 valGmtDigis.RPCfCandidates = cms.InputTag('l1GtUnpack','RPCf')
 valGmtDigis.MipIsoData = 'caloStage1Digis'
 
-# producers for technical triggers 
+# producers for technical triggers
 #
 
 
@@ -164,7 +166,7 @@ valGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
                                                     cms.InputTag('valRpcTechTrigDigis'),
                                                     cms.InputTag('valHcalTechTrigDigis')                                         )
 
-# Global Trigger emulator for Stage1 
+# Global Trigger emulator for Stage1
 import L1Trigger.GlobalTrigger.gtDigis_cfi
 valStage1GtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
 valStage1GtDigis.GmtInputTag = 'l1GtUnpack'
@@ -189,8 +191,3 @@ ValL1Emulator = cms.Task(
     ,ValL1TechnicalTriggers
     ,valGtDigis
 )
-
-
-
-
-

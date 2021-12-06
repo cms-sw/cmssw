@@ -25,9 +25,9 @@ public:
 
 private:
   std::string name_, name2_, namew_, namec_, namet_, namex_;
-  bool fromDD4Hep_;
+  bool fromDD4hep_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
-  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4hep_;
 };
 
 HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
@@ -37,14 +37,16 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
   namec_ = iC.getParameter<std::string>("nameC");
   namet_ = iC.getParameter<std::string>("nameT");
   namex_ = iC.getParameter<std::string>("nameX");
-  fromDD4Hep_ = iC.getParameter<bool>("fromDD4Hep");
+  fromDD4hep_ = iC.getParameter<bool>("fromDD4hep");
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << namew_ << ":" << namec_ << ":"
-                                << namet_ << " and fromDD4Hep flag " << fromDD4Hep_;
+                                << namet_ << " and fromDD4hep flag " << fromDD4hep_;
 #endif
   auto cc = setWhatProduced(this, namex_);
-  cpvTokenDDD_ = cc.consumes<DDCompactView>(edm::ESInputTag());
-  cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  if (fromDD4hep_)
+    cpvTokenDD4hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  else
+    cpvTokenDDD_ = cc.consumes<DDCompactView>(edm::ESInputTag());
 }
 
 void HGCalParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -55,7 +57,7 @@ void HGCalParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<std::string>("nameC", "HGCalEECell");
   desc.add<std::string>("nameT", "HGCal");
   desc.add<std::string>("nameX", "HGCalEESensitive");
-  desc.add<bool>("fromDD4Hep", false);
+  desc.add<bool>("fromDD4hep", false);
   descriptions.add("hgcalEEParametersInitialize", desc);
 }
 
@@ -65,11 +67,11 @@ HGCalParametersESModule::ReturnType HGCalParametersESModule::produce(const Ideal
 #endif
   auto ptp = std::make_unique<HGCalParameters>(name_);
   HGCalParametersFromDD builder;
-  if (fromDD4Hep_) {
+  if (fromDD4hep_) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule::Try to access cms::DDCompactView";
 #endif
-    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4hep_);
     builder.build(cpv.product(), *ptp, name_, namew_, namec_, namet_, name2_);
   } else {
 #ifdef EDM_ML_DEBUG

@@ -44,6 +44,8 @@ public:
   typedef typename std::vector<Key>::const_iterator ElementKey;
 
   DTBufferTree();
+  DTBufferTree(DTBufferTree const&) = delete;
+  DTBufferTree& operator=(DTBufferTree const&) = delete;
   virtual ~DTBufferTree();
 
   void clear();
@@ -56,9 +58,6 @@ public:
   int find(const Key& k, typename DTBufferTreeTrait<Content>::outputTypeOfNonConstFind& cont);
 
 private:
-  DTBufferTree(DTBufferTree const&) = delete;
-  DTBufferTree& operator=(DTBufferTree const&) = delete;
-
   typedef DTBufferTree<Key, Content> map_node;
   typedef typename std::map<Key, DTBufferTree<Key, Content>*> map_cont;
   typedef typename std::map<Key, DTBufferTree<Key, Content>*>::const_iterator map_iter;

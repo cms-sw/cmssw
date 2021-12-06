@@ -11,13 +11,14 @@
 //--------------------------------------------------
 #include "L1Trigger/L1TTwinMux/interface/IOPrinter.h"
 #include "L1Trigger/L1TTwinMux/interface/L1MuTMChambPhContainer.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 using namespace std;
 
 void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
                     const L1MuDTChambPhContainer& outphiDigis,
                     edm::Handle<RPCDigiCollection> rpcDigis,
-                    const edm::EventSetup& c) {
+                    const RPCGeometry& rpcGeometry) {
   cout << "======================================================" << endl;
   int bx = 0, wheel = 0, sector = 0, station = 1;
 
@@ -58,8 +59,8 @@ void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
     for (auto digi = (*chamber).second.first; digi != (*chamber).second.second; ++digi) {
       RPCDigi digi_out(digi->strip(), digi->bx());
       //if(digi->bx()!=0) continue;
-      int phi = RPCtoDTTranslator::radialAngle(detid, c, digi->strip()) << 2;
-      float localx = RPCtoDTTranslator::localX(detid, c, digi->strip());
+      int phi = RPCtoDTTranslator::radialAngle(detid, rpcGeometry, digi->strip()) << 2;
+      float localx = RPCtoDTTranslator::localX(detid, rpcGeometry, digi->strip());
       cout << digi->bx() << "\t" << detid.ring() << "\t" << detid.sector() - 1 << "\t" << detid.station() << "\t"
            << detid.roll() << "\t" << detid.layer() << "\t" << digi->strip() << "\t" << phi << "\t" << localx << endl;
     }  ///for digicout
@@ -98,7 +99,7 @@ void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
 void IOPrinter::run(L1MuDTChambPhContainer const* inphiDigis,
                     const L1MuDTChambPhContainer& outphiDigis,
                     RPCDigiCollection const* rpcDigis,
-                    const edm::EventSetup& c) {
+                    const RPCGeometry& rpcGeometry) {
   cout << "======================================================" << endl;
   int bx = 0, wheel = 0, sector = 0, station = 1;
   L1MuTMChambPhContainer inphiDigis_tm;
@@ -137,8 +138,8 @@ void IOPrinter::run(L1MuDTChambPhContainer const* inphiDigis,
     for (auto digi = (*chamber).second.first; digi != (*chamber).second.second; ++digi) {
       RPCDigi digi_out(digi->strip(), digi->bx());
       //if(digi->bx()!=0) continue;
-      int phi = RPCtoDTTranslator::radialAngle(detid, c, digi->strip()) << 2;
-      float localx = RPCtoDTTranslator::localX(detid, c, digi->strip());
+      int phi = RPCtoDTTranslator::radialAngle(detid, rpcGeometry, digi->strip()) << 2;
+      float localx = RPCtoDTTranslator::localX(detid, rpcGeometry, digi->strip());
       cout << digi->bx() << "\t" << detid.ring() << "\t" << detid.sector() - 1 << "\t" << detid.station() << "\t"
            << detid.roll() << "\t" << detid.layer() << "\t" << digi->strip() << "\t" << phi << "\t" << localx << endl;
     }  ///for digicout

@@ -8,29 +8,20 @@
 #include <TFile.h>
 #include <TTree.h>
 
-using namespace std;
 #include "EcalTestPulseAnalyzer.h"
 
 #include <sstream>
-#include <iostream>
 #include <iomanip>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/Utilities/interface/Exception.h>
 
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
-#include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
-#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
-
-#include <Geometry/EcalMapping/interface/EcalElectronicsMapping.h>
-#include <Geometry/EcalMapping/interface/EcalMappingRcd.h>
 #include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
+#include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TPNFit.h>
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TSFit.h>
@@ -45,9 +36,15 @@ using namespace std;
 EcalTestPulseAnalyzer::EcalTestPulseAnalyzer(const edm::ParameterSet& iConfig)
     //========================================================================
     : iEvent(0),
-
+      eventHeaderCollection_(iConfig.getParameter<std::string>("eventHeaderCollection")),
+      eventHeaderProducer_(iConfig.getParameter<std::string>("eventHeaderProducer")),
+      digiCollection_(iConfig.getParameter<std::string>("digiCollection")),
+      digiProducer_(iConfig.getParameter<std::string>("digiProducer")),
+      digiPNCollection_(iConfig.getParameter<std::string>("digiPNCollection")),
+      rawDataToken_(consumes<EcalRawDataCollection>(edm::InputTag(eventHeaderProducer_, eventHeaderCollection_))),
+      pnDiodeDigiToken_(consumes<EcalPnDiodeDigiCollection>(edm::InputTag(digiProducer_, digiPNCollection_))),
+      mappingToken_(esConsumes()),
       // framework parameters with default values
-
       _nsamples(iConfig.getUntrackedParameter<unsigned int>("nSamples", 10)),
       _presample(iConfig.getUntrackedParameter<unsigned int>("nPresamples", 3)),
       _firstsample(iConfig.getUntrackedParameter<unsigned int>("firstSample", 1)),
@@ -63,8 +60,8 @@ EcalTestPulseAnalyzer::EcalTestPulseAnalyzer(const edm::ParameterSet& iConfig)
       _timeofmax(iConfig.getUntrackedParameter<double>("timeOfMax", 4.5)),
       _ecalPart(iConfig.getUntrackedParameter<std::string>("ecalPart", "EB")),
       _fedid(iConfig.getUntrackedParameter<int>("fedID", -999)),
+      resdir_(iConfig.getUntrackedParameter<std::string>("resDir")),
       nCrys(NCRYSEB),
-      nTT(NTTEB),
       nMod(NMODEB),
       nGainPN(NGAINPN),
       nGainAPD(NGAINAPD),
@@ -89,25 +86,18 @@ EcalTestPulseAnalyzer::EcalTestPulseAnalyzer(const edm::ParameterSet& iConfig)
 //========================================================================
 
 {
-  //now do what ever initialization is needed
-
-  resdir_ = iConfig.getUntrackedParameter<std::string>("resDir");
-
-  digiCollection_ = iConfig.getParameter<std::string>("digiCollection");
-  digiPNCollection_ = iConfig.getParameter<std::string>("digiPNCollection");
-  digiProducer_ = iConfig.getParameter<std::string>("digiProducer");
-
-  eventHeaderCollection_ = iConfig.getParameter<std::string>("eventHeaderCollection");
-  eventHeaderProducer_ = iConfig.getParameter<std::string>("eventHeaderProducer");
+  if (_ecalPart == "EB") {
+    ebDigiToken_ = consumes<EBDigiCollection>(edm::InputTag(digiProducer_, digiCollection_));
+  } else if (_ecalPart == "EE") {
+    eeDigiToken_ = consumes<EEDigiCollection>(edm::InputTag(digiProducer_, digiCollection_));
+  }
 
   // Define geometrical constants
 
   if (_ecalPart == "EB") {
     nCrys = NCRYSEB;
-    nTT = NTTEB;
   } else {
     nCrys = NCRYSEE;
-    nTT = NTTEE;
   }
 
   iZ = 1;
@@ -209,56 +199,47 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
   // Retrieve DCC header
   edm::Handle<EcalRawDataCollection> pDCCHeader;
   const EcalRawDataCollection* DCCHeader = nullptr;
-  try {
-    e.getByLabel(eventHeaderProducer_, eventHeaderCollection_, pDCCHeader);
+  e.getByToken(rawDataToken_, pDCCHeader);
+  if (!pDCCHeader.isValid()) {
+    edm::LogError("nodata") << "Error! can't get the product  retrieving DCC header" << eventHeaderCollection_.c_str();
+  } else {
     DCCHeader = pDCCHeader.product();
-  } catch (std::exception& ex) {
-    std::cerr << "Error! can't get the product  retrieving DCC header" << eventHeaderCollection_.c_str() << std::endl;
   }
 
-  // retrieving crystal EB data from Event
+  // retrieving crystal data from Event
   edm::Handle<EBDigiCollection> pEBDigi;
   const EBDigiCollection* EBDigi = nullptr;
-
-  // retrieving crystal EE data from Event
   edm::Handle<EEDigiCollection> pEEDigi;
   const EEDigiCollection* EEDigi = nullptr;
-
   if (_ecalPart == "EB") {
-    try {
-      e.getByLabel(digiProducer_, digiCollection_, pEBDigi);
+    e.getByToken(ebDigiToken_, pEBDigi);
+    if (!pEBDigi.isValid()) {
+      edm::LogError("nodata") << "Error! can't get the product retrieving EB crystal data " << digiCollection_.c_str();
+    } else {
       EBDigi = pEBDigi.product();
-    } catch (std::exception& ex) {
-      std::cerr << "Error! can't get the product retrieving EB crystal data " << digiCollection_.c_str() << std::endl;
     }
   } else {
-    try {
-      e.getByLabel(digiProducer_, digiCollection_, pEEDigi);
+    e.getByToken(eeDigiToken_, pEEDigi);
+    if (!pEEDigi.isValid()) {
+      edm::LogError("nodata") << "Error! can't get the product retrieving EE crystal data " << digiCollection_.c_str();
+    } else {
       EEDigi = pEEDigi.product();
-    } catch (std::exception& ex) {
-      std::cerr << "Error! can't get the product retrieving EE crystal data " << digiCollection_.c_str() << std::endl;
     }
   }
 
   // Retrieve crystal PN diodes from Event
   edm::Handle<EcalPnDiodeDigiCollection> pPNDigi;
   const EcalPnDiodeDigiCollection* PNDigi = nullptr;
-  try {
-    e.getByLabel(digiProducer_, digiPNCollection_, pPNDigi);
+  e.getByToken(pnDiodeDigiToken_, pPNDigi);
+  if (!pPNDigi.isValid()) {
+    edm::LogError("nodata") << "Error! can't get the product " << digiCollection_.c_str();
+  } else {
     PNDigi = pPNDigi.product();
-  } catch (std::exception& ex) {
-    std::cerr << "Error! can't get the product " << digiCollection_.c_str() << std::endl;
   }
 
   // retrieving electronics mapping
-  edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-  const EcalElectronicsMapping* TheMapping = nullptr;
-  try {
-    c.get<EcalMappingRcd>().get(ecalmapping);
-    TheMapping = ecalmapping.product();
-  } catch (std::exception& ex) {
-    std::cerr << "Error! can't get the product EcalMappingRcd" << std::endl;
-  }
+  const auto& TheMapping = c.getData(mappingToken_);
+  ;
 
   // ====================================
   // Decode Basic DCCHeader Information
@@ -338,7 +319,7 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
       pnG[samId] = (*pnItr).sample(samId).gainId();
 
       if (pnG[samId] != 1)
-        std::cout << "PN gain different from 1 for sample " << samId << std::endl;
+        edm::LogVerbatim("EcalTestPulseAnalyzer") << "PN gain different from 1 for sample " << samId;
       if (samId == 0)
         pngain = pnG[samId];
       if (samId > 0)
@@ -406,7 +387,7 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
 
       side = MEEBGeom::side(etaG, phiG);
 
-      EcalElectronicsId elecid_crystal = TheMapping->getElectronicsId(id_crystal);
+      EcalElectronicsId elecid_crystal = TheMapping.getElectronicsId(id_crystal);
 
       towerID = elecid_crystal.towerId();
       int strip = elecid_crystal.stripId();
@@ -522,7 +503,7 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
 
       // Recover the TT id and the electronic crystal numbering from EcalElectronicsMapping
 
-      EcalElectronicsId elecid_crystal = TheMapping->getElectronicsId(id_crystal);
+      EcalElectronicsId elecid_crystal = TheMapping.getElectronicsId(id_crystal);
 
       towerID = elecid_crystal.towerId();
       channelID = elecid_crystal.channelId() - 1;
@@ -652,16 +633,16 @@ void EcalTestPulseAnalyzer::endJob() {
     del << "rm " << rootfile;
     system(del.str().c_str());
 
-    std::cout << " No TP Events " << std::endl;
+    edm::LogVerbatim("EcalTestPulseAnalyzer") << " No TP Events ";
     return;
   }
 
-  std::cout << "\n\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+" << std::endl;
-  std::cout << "\t+=+     Analyzing test pulse data: getting APD, PN  +=+" << std::endl;
+  edm::LogVerbatim("EcalTestPulseAnalyzer") << "\n\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
+  edm::LogVerbatim("EcalTestPulseAnalyzer") << "\t+=+     Analyzing test pulse data: getting APD, PN  +=+";
 
   // Create output ntuples:
 
-  //std::cout<< "TP Test Name File "<< resfile.c_str() << std::endl;
+  //edm::LogVerbatim("EcalTestPulseAnalyzer")<< "TP Test Name File "<< resfile.c_str();
 
   resFile = new TFile(resfile.c_str(), "RECREATE");
 
@@ -810,8 +791,8 @@ void EcalTestPulseAnalyzer::endJob() {
   respntrees->Write();
   resFile->Close();
 
-  std::cout << "\t+=+    ...................................... done  +=+" << std::endl;
-  std::cout << "\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+" << std::endl;
+  edm::LogVerbatim("EcalTestPulseAnalyzer") << "\t+=+    ...................................... done  +=+";
+  edm::LogVerbatim("EcalTestPulseAnalyzer") << "\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
 }
 
 DEFINE_FWK_MODULE(EcalTestPulseAnalyzer);

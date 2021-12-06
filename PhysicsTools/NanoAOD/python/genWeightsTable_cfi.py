@@ -26,3 +26,5 @@ genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
     keepAllPSWeights = cms.bool(False),
     debug = cms.untracked.bool(False),
 )
+
+genWeightsTableTask = cms.Task(genWeightsTable)

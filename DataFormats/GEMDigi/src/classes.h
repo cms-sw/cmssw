@@ -10,17 +10,17 @@
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
-#include "DataFormats/GEMDigi/interface/GEMVfatStatusDigi.h"
-#include "DataFormats/GEMDigi/interface/GEMVfatStatusDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMAMC13Status.h"
+#include "DataFormats/GEMDigi/interface/GEMAMC13StatusCollection.h"
 
-#include "DataFormats/GEMDigi/interface/GEBdata.h"
-#include "DataFormats/GEMDigi/interface/GEMGEBdataCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMAMCStatus.h"
+#include "DataFormats/GEMDigi/interface/GEMAMCStatusCollection.h"
 
-#include "DataFormats/GEMDigi/interface/AMCdata.h"
-#include "DataFormats/GEMDigi/interface/GEMAMCdataCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMOHStatus.h"
+#include "DataFormats/GEMDigi/interface/GEMOHStatusCollection.h"
 
-#include "DataFormats/GEMDigi/interface/AMC13Event.h"
-#include "DataFormats/GEMDigi/interface/GEMAMC13EventCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMVFATStatus.h"
+#include "DataFormats/GEMDigi/interface/GEMVFATStatusCollection.h"
 
 #include "DataFormats/GEMDigi/interface/ME0DigiPreReco.h"
 #include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"

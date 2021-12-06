@@ -65,7 +65,9 @@
 //                               method; 2 for overall response corrections;
 //                               1 for depth dependence corrections;
 //                               0 for raddam corrections);
-//                               t=1/0 for applying cut or not on L1 closeness;
+//                               t = bit information (lower bit set will
+//                               apply a cut on L1 closeness; and higher bit
+//                               set read correction file with Marina format);
 //                               h = 0/1/2 for not creating / creating in
 //                               recreate mode / creating in append mode
 //                               the output text file;
@@ -78,8 +80,10 @@
 //                               energy distributions;  l=2/1/0 for type of
 //                               correction (2 for overall response corrections;
 //                               1 for depth dependence corrections; 0 for
-//                               raddam corrections); t=1/0 for applying cut or
-//                               not on L1 closeness; h=1/0 for making or not
+//                               raddam corrections); t=bit information (lower
+//                               bit set will apply a cut on L1 closeness; and
+//                               higher bit set read correction file with
+//                               Marina format); h=1/0 for making or not
 //                               plots of momentum and total energies in the
 //                               two calorimeters ECAL/HCAL; d=1/0 for making
 //                               plots of momentum and eta distributions;
@@ -387,7 +391,9 @@ CalibMonitor::CalibMonitor(const char *fname,
   if (plotType_ < 0 || plotType_ > 3)
     plotType_ = 3;
   flexibleSelect_ = (((flag_ / 1) % 10));
-  cutL1T_ = ((flag_ / 1000) % 10);
+  int oneplace = ((flag_ / 1000) % 10);
+  cutL1T_ = (oneplace % 2);
+  bool marina = ((oneplace / 2) % 2);
   ifDepth_ = ((flag_ / 10000) % 10);
   selRBX_ = (((flag_ / 100000) % 10) > 0);
   coarseBin_ = ((flag_ / 1000000) % 10);
@@ -405,12 +411,12 @@ CalibMonitor::CalibMonitor(const char *fname,
             << " run range " << runlo_ << ":" << runhi_ << " (inclusion flag " << includeRun_ << ")\n Selection of RBX "
             << selRBX_ << " Vertex Range " << nvxlo_ << ":" << nvxhi_ << "\n corrFileName: " << corrFileName
             << " useScale " << useScale << ":" << scale << ":" << etam << "\n rcorFileName: " << rcorFileName
-            << " flag " << ifDepth_ << std::endl;
+            << " flag " << ifDepth_ << ":" << cutL1T_ << ":" << marina << std::endl;
   if (!fillChain(chain, fname)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
     std::cout << "Proceed with a tree chain with " << chain->GetEntries() << " entries" << std::endl;
-    corrFactor_ = new CalibCorrFactor(corrFileName, useScale, scale, etam, false);
+    corrFactor_ = new CalibCorrFactor(corrFileName, useScale, scale, etam, marina, false);
     Init(chain, dupFileName, comFileName, outFName);
     if (std::string(rcorFileName) != "") {
       cFactor_ = new CalibCorr(rcorFileName, ifDepth_, false);
@@ -1242,7 +1248,7 @@ void CalibMonitor::Loop() {
     fileout_.close();
     std::cout << "Writes " << good << " events in the file " << outFileName_ << std::endl;
   }
-  std::cout << "Finds " << duplicate << " Duplicate events out of " << kount << " evnts in this file with p>10 Gev"
+  std::cout << "Finds " << duplicate << " Duplicate events out of " << kount << " events in this file with p>10 Gev"
             << std::endl;
   std::cout << "Number of selected events:" << std::endl;
   for (unsigned int k = 1; k < ps_.size(); ++k)
@@ -1628,19 +1634,21 @@ void GetEntries::Init(TTree *tree, const char *dupFileName) {
   fChain->SetBranchAddress("t_trackType", &t_trackType, &b_t_trackType);
   Notify();
 
-  ifstream infile(dupFileName);
-  if (!infile.is_open()) {
-    std::cout << "Cannot open " << dupFileName << std::endl;
-  } else {
-    while (1) {
-      Long64_t jentry;
-      infile >> jentry;
-      if (!infile.good())
-        break;
-      entries_.push_back(jentry);
+  if (std::string(dupFileName) != "") {
+    ifstream infile(dupFileName);
+    if (!infile.is_open()) {
+      std::cout << "Cannot open " << dupFileName << std::endl;
+    } else {
+      while (1) {
+        Long64_t jentry;
+        infile >> jentry;
+        if (!infile.good())
+          break;
+        entries_.push_back(jentry);
+      }
+      infile.close();
+      std::cout << "Reads a list of " << entries_.size() << " events from " << dupFileName << std::endl;
     }
-    infile.close();
-    std::cout << "Reads a list of " << entries_.size() << " events from " << dupFileName << std::endl;
   }
 
   h_tk[0] = new TH1I("Track0", "# of tracks produced", 2000, 0, 2000);
@@ -2234,7 +2242,9 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
   flexibleSelect_ = ((flag_ / 1) % 10);
   plotBasic_ = (((flag_ / 10) % 10) > 0);
   plotEnergy_ = (((flag_ / 10) % 10) > 0);
-  cutL1T_ = ((flag_ / 1000) % 10);
+  int oneplace = ((flag_ / 1000) % 10);
+  cutL1T_ = (oneplace % 2);
+  bool marina = ((oneplace / 2) % 2);
   ifDepth_ = ((flag_ / 10000) % 10);
   plotHists_ = (((flag_ / 100000) % 10) > 0);
   log2by18_ = std::log(2.5) / 18.0;
@@ -2258,7 +2268,7 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
   } else {
     std::cout << "Proceed with a tree chain with " << chain->GetEntries() << " entries" << std::endl;
     Init(chain, dupFileName);
-    corrFactor_ = new CalibCorrFactor(corrFileName, useScale, scl, etam, false);
+    corrFactor_ = new CalibCorrFactor(corrFileName, useScale, scl, etam, marina, false);
     if (std::string(rcorFileName) != "") {
       cFactor_ = new CalibCorr(rcorFileName, ifDepth_, false);
     } else {

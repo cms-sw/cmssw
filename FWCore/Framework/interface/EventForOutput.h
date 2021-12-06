@@ -70,6 +70,8 @@ namespace edm {
 
     BranchListIndexes const& branchListIndexes() const;
 
+    EventToProcessBlockIndexes const& eventToProcessBlockIndexes() const;
+
     EventSelectionIDVector const& eventSelectionIDs() const;
 
     ProductProvenanceRetriever const* productProvenanceRetrieverPtr() const;

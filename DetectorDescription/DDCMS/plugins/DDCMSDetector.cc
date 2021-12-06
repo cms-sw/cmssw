@@ -29,13 +29,17 @@ public:
 
 private:
   const ESInputTag m_tag;
+  const ESGetToken<DDDetector, IdealGeometryRecord> m_detectorToken;
+  const ESGetToken<DDVectorRegistry, DDVectorRegistryRcd> m_registryToken;
 };
 
-DDCMSDetector::DDCMSDetector(const ParameterSet& iConfig) : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")) {}
+DDCMSDetector::DDCMSDetector(const ParameterSet& iConfig)
+    : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")),
+      m_detectorToken(esConsumes(m_tag)),
+      m_registryToken(esConsumes(m_tag)) {}
 
 void DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup) {
-  ESTransientHandle<DDDetector> det;
-  iEventSetup.get<IdealGeometryRecord>().get(m_tag, det);
+  ESTransientHandle<DDDetector> det = iEventSetup.getTransientHandle(m_detectorToken);
 
   LogVerbatim("Geometry") << "Iterate over the detectors:\n";
   LogVerbatim("Geometry").log([&](auto& log) {
@@ -46,8 +50,7 @@ void DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup) {
   });
   LogVerbatim("Geometry") << "..done!";
 
-  ESTransientHandle<DDVectorRegistry> registry;
-  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag, registry);
+  ESTransientHandle<DDVectorRegistry> registry = iEventSetup.getTransientHandle(m_registryToken);
 
   LogVerbatim("Geometry") << "DD Vector Registry size: " << registry->vectors.size();
   LogVerbatim("Geometry").log([&](auto& log) {

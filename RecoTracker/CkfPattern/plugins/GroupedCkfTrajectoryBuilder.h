@@ -1,7 +1,6 @@
 #ifndef GroupedCkfTrajectoryBuilder_H
 #define GroupedCkfTrajectoryBuilder_H
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 

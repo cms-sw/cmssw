@@ -22,6 +22,8 @@
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"
+#include "CondFormats/PPSObjects/interface/PPSAssociationCuts.h"
 
 #include "TFile.h"
 #include "TGraphErrors.h"
@@ -45,21 +47,10 @@ private:
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsSingleRP_;
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsMultiRP_;
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryESToken_;
+  edm::ESGetToken<PPSAssociationCuts, PPSAssociationCutsRcd> ppsAssociationCutsToken_;
 
   unsigned int rpId_45_N_, rpId_45_F_;
   unsigned int rpId_56_N_, rpId_56_F_;
-
-  struct AssociationCuts {
-    double ti_tr_min;
-    double ti_tr_max;
-
-    void load(const edm::ParameterSet &ps) {
-      ti_tr_min = ps.getParameter<double>("ti_tr_min");
-      ti_tr_max = ps.getParameter<double>("ti_tr_max");
-    }
-  };
-
-  std::map<unsigned int, AssociationCuts> association_cuts_;
 
   std::string outputFile_;
 
@@ -488,6 +479,7 @@ CTPPSProtonReconstructionPlotter::CTPPSProtonReconstructionPlotter(const edm::Pa
       tokenRecoProtonsMultiRP_(
           consumes<reco::ForwardProtonCollection>(ps.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
       geometryESToken_(esConsumes()),
+      ppsAssociationCutsToken_(esConsumes<PPSAssociationCuts, PPSAssociationCutsRcd>()),
 
       rpId_45_N_(ps.getParameter<unsigned int>("rpId_45_N")),
       rpId_45_F_(ps.getParameter<unsigned int>("rpId_45_F")),
@@ -503,12 +495,7 @@ CTPPSProtonReconstructionPlotter::CTPPSProtonReconstructionPlotter(const edm::Pa
       p_y_L_diffNF_vs_y_L_N_(new TProfile("p_y_L_diffNF_vs_y_L_N", ";y_{LN};y_{LF} - y_{LN}", 100, -20., +20.)),
       p_y_R_diffNF_vs_y_R_N_(new TProfile("p_y_R_diffNF_vs_y_R_N", ";y_{RN};y_{RF} - y_{RN}", 100, -20., +20.)),
 
-      n_non_empty_events_(0) {
-  for (const std::string &sector : {"45", "56"}) {
-    const unsigned int arm = (sector == "45") ? 0 : 1;
-    association_cuts_[arm].load(ps.getParameterSet("association_cuts_" + sector));
-  }
-}
+      n_non_empty_events_(0) {}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -561,6 +548,7 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
 
   // get conditions
   const auto &geometry = iSetup.getData(geometryESToken_);
+  edm::ESHandle<PPSAssociationCuts> ppsAssociationCuts = iSetup.getHandle(ppsAssociationCutsToken_);
 
   // track plots
   const CTPPSLocalTrackLite *tr_L_N = nullptr;
@@ -679,8 +667,8 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
       CalculateTimingTrackingDistance(proton, tr, geometry, x_tr, x_ti, de_x, de_x_unc);
 
       const double rd = (de_x_unc > 0.) ? de_x / de_x_unc : -1E10;
-      const auto &ac = association_cuts_[armId];
-      const bool match = (ac.ti_tr_min <= fabs(rd) && fabs(rd) <= ac.ti_tr_max);
+      const auto &ac = ppsAssociationCuts->getAssociationCuts(armId);
+      const bool match = (ac.getTiTrMin() <= fabs(rd) && fabs(rd) <= ac.getTiTrMax());
 
       pl.h_de_x_timing_vs_tracking->Fill(de_x);
       pl.h_de_x_rel_timing_vs_tracking->Fill(rd);

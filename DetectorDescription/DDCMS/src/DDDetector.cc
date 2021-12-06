@@ -1,4 +1,5 @@
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
+#include "DetectorDescription/DDCMS/interface/DDParsingContext.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <DD4hep/Detector.h>
 #include <DD4hep/DetectorTools.h>
@@ -17,8 +18,16 @@ namespace cms {
     auto resetManager = [oldGeoManager](TGeoManager*) { gGeoManager = oldGeoManager; };
     std::unique_ptr<TGeoManager, decltype(resetManager)> sentry(oldGeoManager, resetManager);
 
-    m_description = &dd4hep::Detector::getInstance(tag);
+    std::string tagStr(m_tag);
+    bool makePayload = false;
+    if (tagStr == "make-payload") {
+      makePayload = true;
+      tagStr = "";
+    }
+    m_description = &dd4hep::Detector::getInstance(tagStr);
     m_description->addExtension<cms::DDVectorsMap>(&m_vectors);
+    auto parsingContext = new cms::DDParsingContext(*m_description, makePayload);  // Removed at end of constructor
+    m_description->addExtension<cms::DDParsingContext>(parsingContext);
     m_description->addExtension<dd4hep::PartSelectionMap>(&m_partsels);
     m_description->addExtension<dd4hep::SpecParRegistry>(&m_specpars);
     m_description->setStdConditions("NTP");
@@ -27,6 +36,8 @@ namespace cms {
       processXML(fileName);
     else
       process(fileName);
+    if (makePayload == false)  // context no longer needed if not making payloads
+      m_description->removeExtension<cms::DDParsingContext>();
   }
 
   void DDDetector::process(const std::string& fileName) {
@@ -38,6 +49,7 @@ namespace cms {
   void DDDetector::processXML(const std::string& xml) {
     edm::LogVerbatim("Geometry") << "DDDetector::processXML process string size " << xml.size() << " with max_size "
                                  << xml.max_size();
+    edm::LogVerbatim("Geometry") << "DDDetector::processXML XML string contents = " << xml.substr(0, 800);
     std::string name("DD4hep_XMLProcessor");
     dd4hep::xml::DocumentHolder doc(dd4hep::xml::DocumentHandler().parse(xml.c_str(), xml.length()));
 

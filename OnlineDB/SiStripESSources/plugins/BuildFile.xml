@@ -1,5 +1,4 @@
 <library file="*.cc" name="OnlineDBSiStripESSourcesPlugins">
   <use name="OnlineDB/SiStripESSources"/>
-  <use name="Geometry/TrackerGeometryBuilder"/>
   <flags EDM_PLUGIN="1"/>
 </library>

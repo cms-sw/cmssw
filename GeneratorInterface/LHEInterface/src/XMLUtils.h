@@ -16,12 +16,16 @@
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <lzma.h>
 
-class Storage;
+namespace edm::storage {
+  class Storage;
+}
 
 namespace lhef {
 
   class StorageWrap {
   public:
+    using Storage = edm::storage::Storage;
+
     StorageWrap(std::unique_ptr<Storage> storage);
     ~StorageWrap();
 
@@ -48,13 +52,12 @@ namespace lhef {
     class XercesPlatform {
     public:
       XercesPlatform();
-      ~XercesPlatform();
-
-    private:
       // do not make any kind of copies
       XercesPlatform(const XercesPlatform &orig) = delete;
       XercesPlatform &operator=(const XercesPlatform &orig) = delete;
+      ~XercesPlatform();
 
+    private:
       static unsigned int instances;
     };
 

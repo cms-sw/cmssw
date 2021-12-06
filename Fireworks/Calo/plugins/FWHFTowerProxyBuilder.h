@@ -22,7 +22,7 @@
 
 // user include files
 #include "Fireworks/Calo/interface/FWCaloDataProxyBuilderBase.h"
-#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
+#include "Fireworks/Calo/interface/FWFromTEveCaloDataSelector.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
@@ -49,11 +49,12 @@ protected:
 
   void itemBeingDestroyed(const FWEventItem*) override;
 
-private:
+public:
   FWHFTowerProxyBuilderBase(const FWHFTowerProxyBuilderBase&) = delete;  // stop default
 
   const FWHFTowerProxyBuilderBase& operator=(const FWHFTowerProxyBuilderBase&) = delete;  // stop default
 
+private:
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 
   int fillTowerForDetId(unsigned int rawid, float);

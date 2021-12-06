@@ -21,7 +21,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 //
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"

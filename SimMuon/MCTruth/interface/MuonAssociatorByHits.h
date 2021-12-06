@@ -15,12 +15,18 @@
 
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHitsHelper.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+#include "SimMuon/MCTruth/interface/GEMHitAssociator.h"
+#include "SimMuon/MCTruth/interface/RPCHitAssociator.h"
+#include "SimMuon/MCTruth/interface/CSCHitAssociator.h"
+#include "SimMuon/MCTruth/interface/DTHitAssociator.h"
 
 #include <memory>
 
 namespace muonAssociatorByHitsDiagnostics {
   class InputDumper;
 }
+
+class TrackerTopologyRcd;
 
 class MuonAssociatorByHits {
 public:
@@ -74,9 +80,13 @@ public:
 
 private:
   MuonAssociatorByHitsHelper helper_;
-  edm::ParameterSet const conf_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  GEMHitAssociator::Config gemHitAssociatorConfig_;
+  RPCHitAssociator::Config rpcHitAssociatorConfig_;
+  CSCHitAssociator::Config cscHitAssociatorConfig_;
+  DTHitAssociator::Config dtHitAssociatorConfig_;
 
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
   std::unique_ptr<muonAssociatorByHitsDiagnostics::InputDumper> diagnostics_;
 };
 

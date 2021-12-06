@@ -13,11 +13,11 @@
 
 template <typename InputType,
           typename Selector,
-          typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<edm::View<InputType> >::type,
+          typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<edm::View<InputType>>::type,
           typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
           typename PostProcessor = ::helper::NullPostProcessor<OutputCollection>,
-          typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::type,
-          typename Base = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::base,
+          typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection, edm::stream::EDFilter<>>::type,
+          typename Base = typename ::helper::StoreManagerTrait<OutputCollection, edm::stream::EDFilter<>>::base,
           typename RefAdder = typename ::helper::SelectionAdderTrait<edm::View<InputType>, StoreContainer>::type>
 class SingleObjectRefSelector
     : public ObjectSelector<

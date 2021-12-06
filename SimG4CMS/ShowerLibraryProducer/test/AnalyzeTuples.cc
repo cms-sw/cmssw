@@ -41,8 +41,6 @@ Implementation:
 #include "TH1F.h"
 #include "TH1I.h"
 
-#define EDM_ML_DEBUG
-
 class AnalyzeTuples : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit AnalyzeTuples(const edm::ParameterSet&);

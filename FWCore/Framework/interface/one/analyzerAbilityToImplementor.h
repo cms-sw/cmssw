@@ -36,37 +36,37 @@ namespace edm {
 
       template <>
       struct AbilityToImplementor<edm::one::SharedResources> {
-        typedef edm::one::impl::SharedResourcesUser<edm::one::EDAnalyzerBase> Type;
+        using Type = edm::one::impl::SharedResourcesUser<edm::one::EDAnalyzerBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::one::WatchRuns> {
-        typedef edm::one::impl::RunWatcher<edm::one::EDAnalyzerBase> Type;
+        using Type = edm::one::impl::RunWatcher<edm::one::EDAnalyzerBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::one::WatchLuminosityBlocks> {
-        typedef edm::one::impl::LuminosityBlockWatcher<edm::one::EDAnalyzerBase> Type;
+        using Type = edm::one::impl::LuminosityBlockWatcher<edm::one::EDAnalyzerBase>;
       };
 
-      template <typename C>
-      struct AbilityToImplementor<edm::InputProcessBlockCache<C>> {
-        typedef edm::one::impl::InputProcessBlockCacheHolder<edm::one::EDAnalyzerBase, C> Type;
+      template <typename... Cs>
+      struct AbilityToImplementor<edm::InputProcessBlockCache<Cs...>> {
+        using Type = edm::one::impl::InputProcessBlockCacheHolder<edm::one::EDAnalyzerBase, Cs...>;
       };
 
       template <typename C>
       struct AbilityToImplementor<edm::RunCache<C>> {
-        typedef edm::one::impl::RunCacheHolder<edm::one::EDAnalyzerBase, C> Type;
+        using Type = edm::one::impl::RunCacheHolder<edm::one::EDAnalyzerBase, C>;
       };
 
       template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
-        typedef edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDAnalyzerBase, C> Type;
+        using Type = edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDAnalyzerBase, C>;
       };
 
       template <>
       struct AbilityToImplementor<edm::WatchProcessBlock> {
-        typedef edm::one::impl::WatchProcessBlock<edm::one::EDAnalyzerBase> Type;
+        using Type = edm::one::impl::WatchProcessBlock<edm::one::EDAnalyzerBase>;
       };
     }  // namespace analyzer
   }    // namespace one

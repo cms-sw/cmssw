@@ -7,7 +7,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 
 ###################################
-from RecoTracker.IterativeTracking.PixelPairStep_cff import *
+import RecoTracker.IterativeTracking.PixelPairStep_cff
+from RecoTracker.IterativeTracking.PixelPairStep_cff import pixelPairStepTrajectoryBuilder,pixelPairStepTrajectoryFilter,pixelPairStepTrajectoryFilterBase,pixelPairStepTrajectoryFilterInOut,pixelPairStepTrajectoryFilterShape
 
 # NEW CLUSTERS (remove previously used clusters)
 hiRegitPixelPairStepClusters = cms.EDProducer("HITrackClusterRemover",
@@ -54,7 +55,7 @@ hiRegitPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairS
 )
 
 # trackign candidate
-hiRegitPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrackCandidates.clone(
+hiRegitPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelPairStep_cff._pixelPairStepTrackCandidatesCkf.clone(
     src               = 'hiRegitPixelPairStepSeeds',
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitPixelPairStepTrajectoryBuilder')),
     maxNSeeds = 100000

@@ -125,8 +125,6 @@ private:
   float pedestal_unc;
   TGraphErrors* pedestalGraph;
 
-  LumiCorrections* pccCorrections;
-
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 };
 
@@ -567,20 +565,18 @@ void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventS
     }
 
     //Writing the corrections to SQL lite file for db
-    pccCorrections = new LumiCorrections();
-    pccCorrections->setOverallCorrection(overallCorrection_);
-    pccCorrections->setType1Fraction(type1Frac);
-    pccCorrections->setType1Residual(mean_type1_residual);
-    pccCorrections->setType2Residual(mean_type2_residual);
-    pccCorrections->setCorrectionsBX(correctionScaleFactors_);
+    LumiCorrections pccCorrections;
+    pccCorrections.setOverallCorrection(overallCorrection_);
+    pccCorrections.setType1Fraction(type1Frac);
+    pccCorrections.setType1Residual(mean_type1_residual);
+    pccCorrections.setType2Residual(mean_type2_residual);
+    pccCorrections.setCorrectionsBX(correctionScaleFactors_);
 
     if (poolDbService.isAvailable()) {
-      poolDbService->writeOne<LumiCorrections>(pccCorrections, thisIOV, "LumiCorrectionsRcd");
+      poolDbService->writeOneIOV(pccCorrections, thisIOV, "LumiCorrectionsRcd");
     } else {
       throw std::runtime_error("PoolDBService required.");
     }
-
-    delete pccCorrections;
 
     histoFile->cd();
     corrlumiAvg_h->Write();

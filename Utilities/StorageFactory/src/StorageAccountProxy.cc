@@ -1,4 +1,5 @@
 #include "Utilities/StorageFactory/interface/StorageAccountProxy.h"
+using namespace edm::storage;
 
 StorageAccountProxy::StorageAccountProxy(const std::string &storageClass, std::unique_ptr<Storage> baseStorage)
     : m_baseStorage(std::move(baseStorage)),
@@ -13,7 +14,7 @@ StorageAccountProxy::StorageAccountProxy(const std::string &storageClass, std::u
   stats.tick();
 }
 
-StorageAccountProxy::~StorageAccountProxy(void) {
+StorageAccountProxy::~StorageAccountProxy() {
   StorageAccount::Stamp stats(StorageAccount::counter(m_token, StorageAccount::Operation::destruct));
   releaseStorage();
   stats.tick();
@@ -88,13 +89,13 @@ void StorageAccountProxy::resize(IOOffset size) {
   stats.tick();
 }
 
-void StorageAccountProxy::flush(void) {
+void StorageAccountProxy::flush() {
   StorageAccount::Stamp stats(StorageAccount::counter(m_token, StorageAccount::Operation::flush));
   m_baseStorage->flush();
   stats.tick();
 }
 
-void StorageAccountProxy::close(void) {
+void StorageAccountProxy::close() {
   StorageAccount::Stamp stats(StorageAccount::counter(m_token, StorageAccount::Operation::close));
   m_baseStorage->close();
   stats.tick();

@@ -31,7 +31,6 @@
 // of the pixel algorithm.
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericBase.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
 // The template header files
 //#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
@@ -49,7 +48,7 @@
 #endif
 
 class MagneticField;
-class PixelCPEGeneric final : public PixelCPEGenericBase {
+class PixelCPEGeneric : public PixelCPEGenericBase {
 public:
   PixelCPEGeneric(edm::ParameterSet const &conf,
                   const MagneticField *,
@@ -63,7 +62,7 @@ public:
 
   static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
-private:
+protected:
   LocalPoint localPosition(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
   LocalError localError(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
 
@@ -93,7 +92,6 @@ private:
 
   //--- DB Error Parametrization object, new light templates
   std::vector<SiPixelGenErrorStore> thePixelGenError_;
-  //SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
 };
 
 #endif

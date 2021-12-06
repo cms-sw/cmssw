@@ -10,7 +10,6 @@
 #include "Geometry/EcalCommonData/interface/EcalEndcapNumberingScheme.h"
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 #include "Geometry/EcalCommonData/interface/ESTBNumberingScheme.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -40,7 +39,7 @@ bool any(const std::vector<T>& v, const T& what) {
 }
 
 ECalSD::ECalSD(const std::string& name,
-               const edm::EventSetup& es,
+               const EcalSimulationParameters* ecpar,
                const SensitiveDetectorCatalog& clg,
                edm::ParameterSet const& p,
                const SimTrackManager* manager)
@@ -50,8 +49,8 @@ ECalSD::ECalSD(const std::string& name,
              manager,
              (float)(p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("ECalSD").getParameter<bool>("IgnoreTrackID")),
-      ecalSimParameters_(nullptr),
-      numberingScheme_(nullptr) {
+      ecalSimParameters_(ecpar) {
+  numberingScheme_.reset(nullptr);
   //   static SimpleConfigurable<bool>   on1(false,  "ECalSD:UseBirkLaw");
   //   static SimpleConfigurable<double> bk1(0.00463,"ECalSD:BirkC1");
   //   static SimpleConfigurable<double> bk2(-0.03,  "ECalSD:BirkC2");
@@ -86,11 +85,7 @@ ECalSD::ECalSD(const std::string& name,
     ageing.setLumies(p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("DelivLuminosity"),
                      p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("InstLuminosity"));
 
-  edm::ESHandle<EcalSimulationParameters> esp;
-  es.get<IdealGeometryRecord>().get(name, esp);
-  if (esp.isValid()) {
-    ecalSimParameters_ = esp.product();
-  } else {
+  if (ecalSimParameters_ == nullptr) {
     edm::LogError("EcalSim") << "ECalSD : Cannot find EcalSimulationParameters for " << name;
     throw cms::Exception("Unknown", "ECalSD") << "Cannot find EcalSimulationParameters for " << name << "\n";
   }
@@ -180,7 +175,7 @@ ECalSD::ECalSD(const std::string& name,
   }
 }
 
-ECalSD::~ECalSD() { delete numberingScheme_; }
+ECalSD::~ECalSD() {}
 
 double ECalSD::getEnergyDeposit(const G4Step* aStep) {
   const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
@@ -321,7 +316,7 @@ uint16_t ECalSD::getLayerIDForTimeSim() {
 }
 
 uint32_t ECalSD::setDetUnitId(const G4Step* aStep) {
-  if (numberingScheme_ == nullptr) {
+  if (numberingScheme_.get() == nullptr) {
     return EBDetId(1, 1)();
   } else {
     getBaseNumber(aStep);
@@ -332,9 +327,7 @@ uint32_t ECalSD::setDetUnitId(const G4Step* aStep) {
 void ECalSD::setNumberingScheme(EcalNumberingScheme* scheme) {
   if (scheme != nullptr) {
     edm::LogVerbatim("EcalSim") << "EcalSD: updates numbering scheme for " << GetName();
-    if (numberingScheme_)
-      delete numberingScheme_;
-    numberingScheme_ = scheme;
+    numberingScheme_.reset(scheme);
   }
 }
 

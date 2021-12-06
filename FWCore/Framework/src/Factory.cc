@@ -1,5 +1,6 @@
 
 #include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/interface/maker/MakerPluginFactory.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"

@@ -13,6 +13,7 @@ int main(int argc, char** argv) try {
     return EXIT_FAILURE;
   }
 
+  using namespace edm::storage;
   StorageFactory::getToModify()->enableAccounting(true);
   std::vector<std::unique_ptr<Storage>> storages;
   std::vector<IOOffset> sizes;

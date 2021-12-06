@@ -32,11 +32,11 @@ public:
 
   void setItem(const FWEventItem* iItem) override;
 
-private:
   FWTrackProxyBuilder(const FWTrackProxyBuilder&) = delete;  // stop default
 
   const FWTrackProxyBuilder& operator=(const FWTrackProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::Track>::build;
   void build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };

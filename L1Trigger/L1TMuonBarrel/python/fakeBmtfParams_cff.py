@@ -14,7 +14,8 @@ bmbtfParamsSource = cms.ESSource(
     firstValid = cms.vuint32(1)
 )
 
-fakeBmtfParams = cms.ESProducer('L1TMuonBarrelParamsESProducer',
+fakeBmtfParams = cms.ESProducer(
+    'L1TMuonBarrelParamsESProducer',
     configFromXML = cms.bool(False),
     hwXmlFile = cms.string('L1Trigger/L1TMuonBarell/test/BMTF_HW.xml'),
     topCfgXmlFile = cms.string('L1Trigger/L1TMuonBarell/test/bmtf_top_config_p5.xml'),

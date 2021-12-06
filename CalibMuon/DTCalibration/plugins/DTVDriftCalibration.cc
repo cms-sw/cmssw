@@ -11,6 +11,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -20,6 +21,7 @@
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
 #include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
@@ -41,8 +43,10 @@ using namespace dttmaxenums;
 
 DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset)
     :  // Get the synchronizer
+      theDTGeomToken{esConsumes()},
       theSync{DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
-                                                pset.getParameter<ParameterSet>("tTrigModeConfig"))}
+                                                pset.getParameter<ParameterSet>("tTrigModeConfig"),
+                                                consumesCollector())}
 
 {
   edm::ConsumesCollector collector(consumesCollector());
@@ -81,6 +85,8 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset)
 
   // the granularity to be used for tMax
   string tMaxGranularity = pset.getUntrackedParameter<string>("tMaxGranularity", "bySL");
+
+  writeLegacyVDriftDB = pset.getParameter<bool>("writeLegacyVDriftDB");
 
   // Enforce it to be by SL since rest is not implemented
   if (tMaxGranularity != "bySL") {
@@ -122,18 +128,11 @@ void DTVDriftCalibration::analyze(const Event& event, const EventSetup& eventSet
   }
 
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  const DTGeometry& dtGeom = eventSetup.getData(theDTGeomToken);
 
   // Get the rechit collection from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByToken(theRecHits4DToken, all4DSegments);
-
-  // Get the map of noisy channels
-  /*ESHandle<DTStatusFlag> statusMap;
-  if(checkNoisyChannels) {
-    eventSetup.get<DTStatusFlagRcd>().get(statusMap);
-  }*/
 
   // Set the event setup in the Synchronizer
   theSync->setES(eventSetup);
@@ -142,7 +141,7 @@ void DTVDriftCalibration::analyze(const Event& event, const EventSetup& eventSet
   DTRecSegment4DCollection::id_iterator chamberIdIt;
   for (chamberIdIt = all4DSegments->id_begin(); chamberIdIt != all4DSegments->id_end(); ++chamberIdIt) {
     // Get the chamber from the setup
-    const DTChamber* chamber = dtGeom->chamber(*chamberIdIt);
+    const DTChamber* chamber = dtGeom.chamber(*chamberIdIt);
     LogTrace("Calibration") << "Chamber Id: " << *chamberIdIt;
 
     // Calibrate just the chosen chamber/s
@@ -281,7 +280,16 @@ void DTVDriftCalibration::endJob() {
   // Instantiate a DTCalibrationMap object if you want to calculate the calibration constants
   DTCalibrationMap calibValuesFile(theCalibFilePar);
   // Create the object to be written to DB
-  DTMtime* mTime = new DTMtime();
+  DTMtime* mTime = nullptr;
+  DTRecoConditions* vDrift = nullptr;
+  if (writeLegacyVDriftDB) {
+    mTime = new DTMtime();
+  } else {
+    vDrift = new DTRecoConditions();
+    vDrift->setFormulaExpr("[0]");
+    //vDriftNewMap->setFormulaExpr("[0]*(1-[1]*x)"); // add parametrization for dependency along Y
+    vDrift->setVersion(1);
+  }
 
   // write the TMax histograms of each SL to the root file
   if (theGranularity == bySL) {
@@ -322,7 +330,12 @@ void DTVDriftCalibration::endJob() {
         calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
 
         // vdrift is cm/ns , resolution is cm
-        mTime->set((wireId.layerId()).superlayerId(), vDriftAndReso[0], vDriftAndReso[1], DTVelocityUnits::cm_per_ns);
+        if (writeLegacyVDriftDB) {
+          mTime->set((wireId.layerId()).superlayerId(), vDriftAndReso[0], vDriftAndReso[1], DTVelocityUnits::cm_per_ns);
+        } else {
+          vector<double> params = {vDriftAndReso[0]};
+          vDrift->set(wireId, params);
+        }
         LogTrace("Calibration") << " SL: " << (wireId.layerId()).superlayerId() << " vDrift = " << vDriftAndReso[0]
                                 << " reso = " << vDriftAndReso[1];
       }
@@ -366,8 +379,12 @@ void DTVDriftCalibration::endJob() {
   LogVerbatim("Calibration") << "[DTVDriftCalibration]Writing vdrift object to DB!";
 
   // Write the vdrift object to DB
-  string record = "DTMtimeRcd";
-  DTCalibDBUtils::writeToDB<DTMtime>(record, mTime);
+  if (writeLegacyVDriftDB) {
+    string record = "DTMtimeRcd";
+    DTCalibDBUtils::writeToDB<DTMtime>(record, mTime);
+  } else {
+    DTCalibDBUtils::writeToDB<DTRecoConditions>("DTRecoConditionsVdriftRcd", vDrift);
+  }
 }
 
 // to be implemented: granularity different from bySL

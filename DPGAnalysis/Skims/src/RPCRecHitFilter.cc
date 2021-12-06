@@ -4,11 +4,8 @@
 //
 
 #include "DPGAnalysis/Skims/src/RPCRecHitFilter.h"
-//#include "../interface/RecHitFilter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "DataFormats/RPCDigi/interface/RPCDigi.h"
-//#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,7 +14,6 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -39,14 +35,6 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
-
-/*#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
-*/
 
 using namespace reco;
 
@@ -75,12 +63,12 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-RPCRecHitFilter::RPCRecHitFilter(const edm::ParameterSet& iConfig) {
-  LogTrace("RPCEffTrackExtrapolation") << "Dentro Costruttore" << std::endl;
+RPCRecHitFilter::RPCRecHitFilter(const edm::ParameterSet& iConfig)
+    : rpcGeomToken_(esConsumes()), trackingGeoToken_(esConsumes()) {
+  LogTrace("RPCEffTrackExtrapolation") << "inside constructor" << std::endl;
 
-  RPCDataLabel = iConfig.getUntrackedParameter<std::string>("rpcRecHitLabel");
-
-  //  RPCRecHits = iConfig.getParameter< edm::InputTag >("RPCRecHits");
+  RPCDataLabel_ = iConfig.getUntrackedParameter<std::string>("rpcRecHitLabel");
+  rpcRecHitToken_ = consumes<RPCRecHitCollection>(edm::InputTag(RPCDataLabel_));
 
   centralBX_ = iConfig.getUntrackedParameter<int>("CentralBunchCrossing", 0);
   BXWindow_ = iConfig.getUntrackedParameter<int>("BunchCrossingWindow", 9999);
@@ -99,14 +87,10 @@ RPCRecHitFilter::RPCRecHitFilter(const edm::ParameterSet& iConfig) {
 }
 
 bool RPCRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+  edm::ESHandle<RPCGeometry> rpcGeo = iSetup.getHandle(rpcGeomToken_);
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry = iSetup.getHandle(trackingGeoToken_);
 
-  edm::Handle<RPCRecHitCollection> rpcHits;
-  iEvent.getByLabel(RPCDataLabel, rpcHits);
-
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  edm::Handle<RPCRecHitCollection> rpcHits = iEvent.getHandle(rpcRecHitToken_);
 
   std::map<int, int> numberOfRecHitsBarrel;
   std::map<int, int> numberOfDigisBarrel;

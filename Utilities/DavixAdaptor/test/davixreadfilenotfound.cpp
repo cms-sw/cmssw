@@ -6,6 +6,7 @@
 int main(int, char ** /*argv*/) try {
   initTest();
 
+  using namespace edm::storage;
   char buf[1024];
   std::unique_ptr<Storage> s =
       StorageFactory::get()->open("http://cern.ch/cmsbuild/cms/mc/this/file/does/not/exist.root");

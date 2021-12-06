@@ -2,14 +2,18 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                               'PostDQMOffline',
                               'DQMMessageLoggerClientSeq'],
 
-            'common': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@L1TMon+@hlt+@beam+@castor+@physics+@tau',
+           'commonReduced': ['@dcs+@DQMMessageLogger+@hlt+@beam+@castor+@physics',
                         'PostDQMOffline',
-                        '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@L1TMon+@hlt+@beam+@fed+@tau+dqmFastTimerServiceClient'],
+                        '@dcs+@DQMMessageLogger+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
 
-            'commonFakeHLT': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@L1TMon+@beam+@castor+@physics+@tau',
+	   'common': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@castor+@physics',
                         'PostDQMOffline',
-                        '@dcs+@DQMMessageLoggerClient+@stripCommon+@pixel+@tracking+@L1TMon+@beam+@fed+@tau+dqmFastTimerServiceClient'],
+                        '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
 
+            'commonFakeHLT': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@beam+@castor+@physics',
+                        'PostDQMOffline',
+                        '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@beam+@fed+dqmFastTimerServiceClient'],
+                        
             'commonSiStripZeroBias': ['@dcs+@DQMMessageLogger+@stripZeroBias+@pixelOnlyDQM+@trackingZeroBias+@L1TMon+@hlt+@beam+@castor+@physics',
                                       'PostDQMOffline',
                                       '@dcs+@DQMMessageLogger+@stripZeroBias+@pixelOnlyDQM+@trackingZeroBias+@L1TMon+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
@@ -150,6 +154,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                         'PostDQMOffline',
                         'DQMHarvestL1TMuon'],
 
+            'L1TMonPhase2': ['DQMOfflineL1TPhase2',
+                       'PostDQMOffline',
+                       'DQMHarvestL1TPhase2'],
+
             'HLTMon': ['HLTMonitoring',
                        'PostDQMOffline',
                        'HLTMonitoringClient'],
@@ -162,9 +170,9 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                         'PostDQMOffline',
                         '@commonSiStripZeroBias+@muon+@hcal+@jetmet+@ecal'],
 
-            'allForPrompt': ['@common+@muon+@hcal+@jetmet+@ecal+@egamma',
+            'allForPrompt': ['@common+@muon+@L1TMon+@hcal+@jetmet+@ecal+@egamma',
                              'PostDQMOffline',
-                             '@common+@muon+@hcal+@jetmet+@ecal+@egamma'],
+                             '@common+@muon+@L1TMon+@hcal+@jetmet+@ecal+@egamma'],
 
             'rerecoCommon': ['@common+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps',
                              'PostDQMOffline',
@@ -229,7 +237,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                      'DQMNone'],
             }
 
-_phase2_allowed = ['trackingOnlyDQM','outerTracker', 'trackerPhase2', 'muon','hcal','hcal2','egamma']
+_phase2_allowed = ['trackingOnlyDQM','outerTracker', 'trackerPhase2', 'muon','hcal','hcal2','egamma','L1TMonPhase2']
 autoDQM['phase2'] = ['','','']
 for i in [0,2]:
     autoDQM['phase2'][i] = '+'.join([autoDQM[m][i] for m in _phase2_allowed])

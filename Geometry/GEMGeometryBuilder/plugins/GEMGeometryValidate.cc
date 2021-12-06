@@ -1,17 +1,16 @@
 /*
 //\class GEMGeometryValidate
 
- Description: GEM GeometryValidate from DD & DD4HEP
+ Description: GEM GeometryValidate from DD & DD4hep
  
  //
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4hep migration)
 //          Created:  27 Jan 2020 
 */
 
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -84,7 +83,8 @@ private:
     stripslen_.clear();
   }
 
-  edm::ESHandle<GEMGeometry> gemGeometry_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> tokGeom_;
+  const GEMGeometry* gemGeometry_;
   FWGeometry fwGeometry_;
   TFile* outFile_;
   vector<float> globalDistances_;
@@ -101,7 +101,8 @@ private:
 };
 
 GEMGeometryValidate::GEMGeometryValidate(const edm::ParameterSet& iConfig)
-    : infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsRecoGeom-2021.root")),
+    : tokGeom_{esConsumes<GEMGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
+      infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsRecoGeom-2021.root")),
       outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateGEMGeometry.root")),
       tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
   fwGeometry_.loadMap(infileName_.c_str());
@@ -109,17 +110,13 @@ GEMGeometryValidate::GEMGeometryValidate(const edm::ParameterSet& iConfig)
 }
 
 void GEMGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
-  eventSetup.get<MuonGeometryRecord>().get(gemGeometry_);
+  gemGeometry_ = &eventSetup.getData(tokGeom_);
 
-  if (gemGeometry_.isValid()) {
-    LogVerbatim("GEMGeometry") << "Validating GEM chamber geometry";
+  LogVerbatim("GEMGeometry") << "Validating GEM chamber geometry";
 
-    validateGEMChamberGeometry();
+  validateGEMChamberGeometry();
 
-    validateGEMEtaPartitionGeometry();
-
-  } else
-    LogVerbatim("GEMGeometry") << "Invalid GEM geometry";
+  validateGEMEtaPartitionGeometry();
 }
 
 void GEMGeometryValidate::validateGEMChamberGeometry() {

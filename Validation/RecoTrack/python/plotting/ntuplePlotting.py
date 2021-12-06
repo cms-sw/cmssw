@@ -4,7 +4,6 @@ import itertools
 import ROOT
 
 import Validation.RecoTrack.plotting.plotting as plotting
-import six
 
 def saveHistograms(tdirectory, histos):
     for h in histos:
@@ -130,7 +129,7 @@ def drawMany(name, histoDicts, styles=_defaultStyles, opts={}, ncolumns=4):
     histoNames = histoDicts[0].keys()
     ratio = False
     ratioFactor = _ratioFactor
-    for opt in six.itervalues(opts):
+    for opt in opts.values():
         if "ratio" in opt:
             ratio = True
         if "ratioFactor" in opt:
@@ -150,7 +149,7 @@ def drawMany(name, histoDicts, styles=_defaultStyles, opts={}, ncolumns=4):
     histos = collections.defaultdict(list)
 
     for d in histoDicts:
-        for n, h in six.iteritems(d):
+        for n, h in d.items():
             histos[n].append(h)
 
     for i, histoName in enumerate(histoNames):

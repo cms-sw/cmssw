@@ -322,11 +322,8 @@ if options.QualityMon == True:
                                                       )
 
 # this module is almost useless since SiStripQualityDQM does all the job. If we want to remove it the log file has to be filled with SiStripQualityDQM
-    from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-    process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
-                                 TkMapFileName = cms.untracked.string(''),
-                                 dataLabel = cms.untracked.string('')
-                                 )
+    from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+    process.stat = siStripQualityStatistics.clone()
 
     process.e = cms.EndPath(process.stat)
 
@@ -344,11 +341,8 @@ if options.CablingMon == True:
     process.sistripconn = cms.ESProducer("SiStripConnectivity")
 
 
-    from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-    process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
-                                 TkMapFileName = cms.untracked.string(''),
-                                 dataLabel = cms.untracked.string('')
-                                 )
+    from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+    process.stat = siStripQualityStatistics.clone()
     
     process.reader = cms.EDAnalyzer("SiStripFedCablingReader")
     

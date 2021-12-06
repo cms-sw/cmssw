@@ -1,14 +1,15 @@
 import FWCore.ParameterSet.Config as cms
+import SimTracker.TrackAssociation.digiSimLinkPrunerDefault_cfi as _mod
 
-prunedDigiSimLinks = cms.EDProducer("DigiSimLinkPruner",
-    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
-    trackingParticles = cms.InputTag('prunedTrackingParticles')
+prunedDigiSimLinks = _mod.digiSimLinkPrunerDefault.clone(
+    stripSimLinkSrc = "simSiStripDigis",
+    trackingParticles = "prunedTrackingParticles"
 )
 
-_prunedDigiSimLinks_phase2 = cms.EDProducer("DigiSimLinkPruner",
-    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"),
-    phase2OTSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker"),
-    trackingParticles = cms.InputTag('prunedTrackingParticles')
+_prunedDigiSimLinks_phase2 = _mod.digiSimLinkPrunerDefault.clone(
+    pixelSimLinkSrc = "simSiPixelDigis:Pixel",
+    phase2OTSimLinkSrc = "simSiPixelDigis:Tracker",
+    trackingParticles = "prunedTrackingParticles"
 )
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker

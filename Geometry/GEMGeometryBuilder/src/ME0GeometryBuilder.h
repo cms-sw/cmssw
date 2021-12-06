@@ -3,10 +3,10 @@
 /*
 //\class ME0GeometryBuilder
 
- Description: ME0 Geometry builder for DD4HEP
+ Description: ME0 Geometry builder for DD4hep
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
 //
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4hep migration)
 //          Created:  29 Apr 2019 
 */
 
@@ -63,7 +63,7 @@ private:
 
   ME0EtaPartition* buildEtaPartition(cms::DDFilteredView& fv, ME0DetId detId) const;
 
-  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
+  static constexpr double k_ScaleFromDD4hep = (1.0 / dd4hep::cm);
 };
 
 #endif

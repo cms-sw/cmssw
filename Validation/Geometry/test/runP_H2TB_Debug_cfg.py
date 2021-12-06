@@ -1,12 +1,15 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_h2tb_cff import h2tb
 
-process = cms.Process("PROD")
+process = cms.Process("PROD",h2tb)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #Geometry
 #
 process.load("SimG4CMS.HcalTestBeam.TB2007GeometryXML_cfi")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+process.load('Geometry.HcalTestBeamData.hcalDDDSimConstants_cff')
 
 # Detector simulation (Geant4-based)
 #
@@ -17,22 +20,9 @@ process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
-    ),
-    cout = cms.untracked.PSet(
-        MaterialBudget = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        enable = cms.untracked.bool(True),
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    debugModules = cms.untracked.vstring('*')
-)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.MaterialBudget=dict()
 
 process.common_beam_direction_parameters = cms.PSet(
     MinEta       = cms.double(1.562),

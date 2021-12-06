@@ -5,6 +5,9 @@ process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
 
 process.source = cms.Source("EmptySource")
 
+process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
+process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )

@@ -3,7 +3,8 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-class StorageMaker;
-typedef edmplugin::PluginFactory<StorageMaker *(void)> StorageMakerFactory;
-
+namespace edm::storage {
+  class StorageMaker;
+  typedef edmplugin::PluginFactory<StorageMaker *()> StorageMakerFactory;
+}  // namespace edm::storage
 #endif  // STORAGE_FACTORY_STORAGE_MAKER_FACTORY_H

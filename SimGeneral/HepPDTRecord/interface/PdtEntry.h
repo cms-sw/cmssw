@@ -14,7 +14,8 @@ namespace edm {
 }
 namespace HepPDT {
   class ParticleData;
-}
+  class ParticleDataTable;
+}  // namespace HepPDT
 
 class PdtEntry {
 public:
@@ -31,7 +32,7 @@ public:
   /// particle data
   const HepPDT::ParticleData &data() const;
   /// fill data from Event Setup
-  void setup(const edm::EventSetup &);
+  void setup(const HepPDT::ParticleDataTable &);
 
 private:
   /// PDG id

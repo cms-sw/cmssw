@@ -566,7 +566,7 @@ namespace {
       auto paramValues = PlotBase::inputParamValues();
       auto ip = paramValues.find("nsigma");
       if (ip != paramValues.end()) {
-        nsigma = boost::lexical_cast<unsigned int>(ip->second);
+        nsigma = std::stoul(ip->second);
       }
 
       // trick to deal with the multi-ioved tag and two tag case at the same time
@@ -674,7 +674,7 @@ namespace {
       auto paramValues = PlotBase::inputParamValues();
       auto ip = paramValues.find("nsigma");
       if (ip != paramValues.end()) {
-        nsigma = boost::lexical_cast<unsigned int>(ip->second);
+        nsigma = std::stoul(ip->second);
         edm::LogPrint("SiStripApvGain_PayloadInspector")
             << "using custom z-axis saturation: " << nsigma << " sigmas" << std::endl;
       } else {

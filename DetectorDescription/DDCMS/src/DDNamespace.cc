@@ -1,15 +1,54 @@
 #include "DetectorDescription/DDCMS/interface/DDNamespace.h"
 #include "DetectorDescription/DDCMS/interface/DDParsingContext.h"
+#include "DataFormats/Math/interface/Rounding.h"
 #include "DD4hep/Path.h"
 #include "DD4hep/Printout.h"
+#include "Evaluator/Evaluator.h"
 #include "XML/XML.h"
 
 #include <TClass.h>
+#include <iomanip>
+#include <sstream>
 #include <unordered_map>
 #include <vector>
 
 using namespace std;
 using namespace cms;
+
+double cms::rotation_utils::roundBinary(double value) {
+  value = cms_rounding::roundIfNear0(value);
+  static constexpr double roundingVal = 1 << 24;
+  value = (round(value * roundingVal) / roundingVal);
+  // Set -0 to 0
+  return (cms_rounding::roundIfNear0(value));
+}
+
+std::string cms::rotation_utils::rotHash(const Double_t* rot) {
+  std::string hashVal;
+  for (int row = 0; row <= 2; ++row) {
+    for (int col = 0; col <= 2; ++col) {
+      std::ostringstream numStream;
+      numStream << std::fixed << std::setprecision(7);
+      numStream << roundBinary(rot[(3 * row) + col]);
+      hashVal += numStream.str();
+    }
+  }
+  return (hashVal);
+}
+
+std::string cms::rotation_utils::rotHash(const dd4hep::Rotation3D& rot) {
+  std::string hashVal;
+  std::vector<double> matrix;
+  matrix.assign(9, 0.);
+  rot.GetComponents(matrix.begin());
+  for (double val : matrix) {
+    std::ostringstream numStream;
+    numStream << std::fixed << std::setprecision(7);
+    numStream << roundBinary(val);
+    hashVal += numStream.str();
+  }
+  return (hashVal);
+}
 
 DDNamespace::DDNamespace(DDParsingContext* context, xml_h element) : m_context(context) {
   dd4hep::Path path(xml_handler_t::system_path(element));
@@ -98,6 +137,10 @@ void DDNamespace::addConstant(const string& name, const string& val, const strin
   addConstantNS(prepend(name), val, type);
 }
 
+namespace dd4hep {
+  dd4hep::tools::Evaluator& evaluator();
+}
+
 void DDNamespace::addConstantNS(const string& name, const string& val, const string& type) const {
   const string& v = val;
   const string& n = name;
@@ -107,7 +150,14 @@ void DDNamespace::addConstantNS(const string& name, const string& val, const str
                    n.c_str(),
                    v.c_str(),
                    type.c_str());
-  dd4hep::_toDictionary(n, v, type);
+  const dd4hep::tools::Evaluator& eval(dd4hep::evaluator());
+  bool constExists = eval.findVariable(n);
+  dd4hep::printout(
+      m_context->debug_constants ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS", "findVariable result = %d", constExists);
+  if (constExists == false) {
+    // Only add it to the dictionary if it is not yet defined
+    dd4hep::_toDictionary(n, v, type);
+  }
   dd4hep::Constant c(n, v, type);
 
   m_context->description.addConstant(c);
@@ -120,6 +170,13 @@ dd4hep::Material DDNamespace::material(const string& name) const {
 void DDNamespace::addRotation(const string& name, const dd4hep::Rotation3D& rot) const {
   string n = prepend(name);
   m_context->rotations[n] = rot;
+  if (m_context->makePayload) {
+    string hashVal = cms::rotation_utils::rotHash(rot);
+    if (m_context->rotRevMap.find(hashVal) == m_context->rotRevMap.end()) {
+      // Only set a rotation that is not already in the map
+      m_context->rotRevMap[hashVal] = n;
+    }
+  }
 }
 
 const dd4hep::Rotation3D& DDNamespace::rotation(const string& name) const {
@@ -161,7 +218,6 @@ dd4hep::Volume DDNamespace::addVolumeNS(dd4hep::Volume vol) const {
   return vol;
 }
 
-/// Add rotation matrix to current namespace
 dd4hep::Volume DDNamespace::addVolume(dd4hep::Volume vol) const {
   string n = prepend(vol.name());
   dd4hep::Solid s = vol.solid();
@@ -181,15 +237,26 @@ dd4hep::Volume DDNamespace::addVolume(dd4hep::Volume vol) const {
   return vol;
 }
 
-dd4hep::Assembly DDNamespace::addAssembly(dd4hep::Assembly assembly) const {
+dd4hep::Assembly DDNamespace::addAssembly(dd4hep::Assembly assembly, bool addSolid) const {
   string n = assembly.name();
   m_context->assemblies[n] = assembly;
+  if (addSolid) {  // In algorithms, Assembly solids are not added separately, so add it here
+    m_context->assemblySolids.emplace(n);
+  }
   dd4hep::printout(
-      m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS", "+++ Add assembly:%-38s", assembly.name());
+      m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS", "+++ Add assembly: %-38s", n.c_str());
   return assembly;
 }
 
-dd4hep::Assembly DDNamespace::assembly(const std::string& name) const {
+dd4hep::Assembly DDNamespace::addAssemblySolid(dd4hep::Assembly assembly) const {
+  string n = prepend(assembly.name());
+  m_context->assemblySolids.emplace(n);
+  dd4hep::printout(
+      m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS", "+++ Add assembly solid: %-38s", n.c_str());
+  return assembly;
+}
+
+dd4hep::Assembly DDNamespace::assembly(const std::string& name, bool exception) const {
   auto i = m_context->assemblies.find(name);
   if (i != m_context->assemblies.end()) {
     return (*i).second;
@@ -199,7 +266,11 @@ dd4hep::Assembly DDNamespace::assembly(const std::string& name) const {
     if (i != m_context->assemblies.end())
       return (*i).second;
   }
-  throw runtime_error("Unknown assembly identifier:" + name);
+  if (exception) {
+    throw runtime_error("Unknown assembly identifier: " + name);
+  }
+  dd4hep::Volume nullVol(nullptr);
+  return nullVol;
 }
 
 dd4hep::Volume DDNamespace::volume(const string& name, bool exc) const {

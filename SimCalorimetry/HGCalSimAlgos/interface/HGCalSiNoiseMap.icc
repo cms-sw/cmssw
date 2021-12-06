@@ -1,4 +1,5 @@
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSiNoiseMap.h"
+#include "TMath.h"
 
 //
 template <typename T>
@@ -90,6 +91,16 @@ double HGCalSiNoiseMap<T>::getENCpad(double ileak) {
     return 202.73 * pow(ileak, 0.81);
   else
     return 457.15 * pow(ileak, 0.57);
+}
+
+//
+template <typename T>
+double HGCalSiNoiseMap<T>::getTDCOnsetAuto(uint32_t gainIdx) {
+  if (gainIdx < 3) {
+    return chargeAtFullScaleADCPerGain_[gainIdx] - 1e-6;
+  }
+
+  return -1;
 }
 
 //
@@ -192,11 +203,18 @@ typename HGCalSiNoiseMap<T>::SiCellOpCharacteristics HGCalSiNoiseMap<T>::getSiCe
     if (ignoreCCE_) {
       siop.core.cce = 1.0;
     } else {
-      //lin+log parametrization
-      //cceParam are parameters as defined in equation (2) of DN-19-045
-      siop.core.cce = siop.fluence <= cceParam[0] ? 1. + cceParam[1] * siop.fluence
-                                                  : (1. - cceParam[2] * siop.lnfluence) +
-                                                        (cceParam[1] * cceParam[0] + cceParam[2] * log(cceParam[0]));
+      //in the region where measurements are available we have used a linear approximation in log (f)
+      //the extrapolation to the lower fluence regions is done with an error function matched at the boundary
+      //this is a bit more expensive than the previous approximation (lin-lin approx) but it fits
+      //better the TDR, TTU and the new 2021 data
+      if (siop.fluence > cceParam[0]) {
+        siop.core.cce = cceParam[2] * siop.lnfluence + cceParam[1];
+      } else {
+        double at = cceParam[2] * log(cceParam[0]) + cceParam[1];
+        double bt = -cceParam[0] / TMath::ErfcInverse(1. / at);
+        siop.core.cce = at * TMath::Erfc((siop.fluence - cceParam[0]) / bt);
+      }
+
       siop.core.cce = std::max((float)0., siop.core.cce);
     }
   }

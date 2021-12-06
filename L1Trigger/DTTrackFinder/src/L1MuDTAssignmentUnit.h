@@ -29,17 +29,20 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTAssParam.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTAddressArray.h"
 class L1MuDTPhiLut;
 class L1MuDTPtaLut;
+class L1MuDTPhiLutRcd;
+class L1MuDTPtaLutRcd;
 class L1MuDTTrackSegPhi;
 class L1MuDTSectorProcessor;
 
@@ -47,19 +50,19 @@ class L1MuDTSectorProcessor;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTAssignmentUnit : public L1AbstractProcessor {
+class L1MuDTAssignmentUnit {
 public:
   /// constructor
-  L1MuDTAssignmentUnit(L1MuDTSectorProcessor& sp, int id);
+  L1MuDTAssignmentUnit(L1MuDTSectorProcessor& sp, int id, edm::ConsumesCollector);
 
   /// destructor
-  ~L1MuDTAssignmentUnit() override;
+  ~L1MuDTAssignmentUnit();
 
   /// run Assignment Unit
-  void run(const edm::EventSetup& c) override;
+  void run(const edm::EventSetup& c);
 
   /// reset Assignment Unit
-  void reset() override;
+  void reset();
 
   /// assign phi
   void PhiAU(const edm::EventSetup& c);
@@ -103,6 +106,8 @@ private:
   std::vector<const L1MuDTTrackSegPhi*> m_TSphi;
   PtAssMethod m_ptAssMethod;
 
+  edm::ESGetToken<L1MuDTPhiLut, L1MuDTPhiLutRcd> thePhiToken;
+  edm::ESGetToken<L1MuDTPtaLut, L1MuDTPtaLutRcd> thePtaToken;
   edm::ESHandle<L1MuDTPhiLut> thePhiLUTs;  ///< phi-assignment look-up tables
   edm::ESHandle<L1MuDTPtaLut> thePtaLUTs;  ///< pt-assignment look-up tables
   unsigned short nbit_phi;                 ///< # of bits used for pt-assignment

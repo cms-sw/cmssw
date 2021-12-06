@@ -41,7 +41,7 @@ void L1TCaloStage2ParamsWriter::analyze(const edm::Event& iEvent, const edm::Eve
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {
     cond::Time_t firstSinceTime = poolDb->beginOfTime();
-    poolDb->writeOne(ptr1.get(), firstSinceTime, (isO2Opayload ? "L1TCaloParamsO2ORcd" : "L1TCaloParamsRcd"));
+    poolDb->writeOneIOV(*ptr1, firstSinceTime, (isO2Opayload ? "L1TCaloParamsO2ORcd" : "L1TCaloParamsRcd"));
   }
 }
 

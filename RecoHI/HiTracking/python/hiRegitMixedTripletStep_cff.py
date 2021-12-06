@@ -7,7 +7,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 
 ###################################
-from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
+import RecoTracker.IterativeTracking.MixedTripletStep_cff
+from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepTrajectoryBuilder
 
 # NEW CLUSTERS (remove previously used clusters)
 hiRegitMixedTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
@@ -77,7 +78,7 @@ hiRegitMixedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.MixedTr
     clustersToSkip       = cms.InputTag('hiRegitMixedTripletStepClusters'),
 )
 
-hiRegitMixedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrackCandidates.clone(
+hiRegitMixedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.MixedTripletStep_cff._mixedTripletStepTrackCandidatesCkf.clone(
     src               = 'hiRegitMixedTripletStepSeeds',
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMixedTripletStepTrajectoryBuilder')),
     maxNSeeds = 100000

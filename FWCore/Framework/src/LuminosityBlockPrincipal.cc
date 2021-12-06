@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 namespace edm {
@@ -16,6 +16,7 @@ namespace edm {
   void LuminosityBlockPrincipal::fillLuminosityBlockPrincipal(ProcessHistory const* processHistory,
                                                               DelayedReader* reader) {
     fillPrincipal(aux_.processHistoryID(), processHistory, reader);
+    willBeContinued_ = false;
   }
 
   void LuminosityBlockPrincipal::put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const {

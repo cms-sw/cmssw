@@ -21,7 +21,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/transform.h"
@@ -45,7 +45,7 @@ Implementation:
 // class declaration
 //
 
-class EGammaCutBasedEleIdAnalyzer : public edm::EDAnalyzer {
+class EGammaCutBasedEleIdAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   typedef std::vector<edm::Handle<edm::ValueMap<reco::IsoDeposit> > > IsoDepositMaps;
   typedef std::vector<edm::Handle<edm::ValueMap<double> > > IsoDepositVals;
@@ -61,11 +61,12 @@ private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endJob() override;
 
+  /*
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
   void endRun(edm::Run const &, edm::EventSetup const &) override;
   void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
   void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
-
+  */
   // ----------member data ---------------------------
 
   // input tags
@@ -254,7 +255,7 @@ void EGammaCutBasedEleIdAnalyzer::beginJob() {
 
 // ------------ method called once each job just after ending the event loop  ------------
 void EGammaCutBasedEleIdAnalyzer::endJob() {}
-
+/*
 // ------------ method called when starting to processes a run  ------------
 void EGammaCutBasedEleIdAnalyzer::beginRun(edm::Run const &, edm::EventSetup const &) {}
 
@@ -266,7 +267,7 @@ void EGammaCutBasedEleIdAnalyzer::beginLuminosityBlock(edm::LuminosityBlock cons
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void EGammaCutBasedEleIdAnalyzer::endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
-
+*/
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void EGammaCutBasedEleIdAnalyzer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   //The following says we do not know what parameters are allowed so do no validation

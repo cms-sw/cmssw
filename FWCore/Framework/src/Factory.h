@@ -1,10 +1,9 @@
 #ifndef FWCore_Framework_Factory_h
 #define FWCore_Framework_Factory_h
 
-#include "FWCore/PluginManager/interface/PluginFactory.h"
-#include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/Framework/src/MakeModuleParams.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/WorkerMaker.h"
+#include "FWCore/Framework/interface/maker/MakeModuleParams.h"
 
 #include <map>
 #include <string>
@@ -14,8 +13,6 @@
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
-  typedef edmplugin::PluginFactory<Maker*()> MakerPluginFactory;
-
   class Factory {
   public:
     typedef std::map<std::string, edm::propagate_const<Maker*>> MakerMap;

@@ -7,12 +7,17 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 //#define EDM_ML_DEBUG
 
 MuonOffsetFromDD::MuonOffsetFromDD(std::vector<std::string> name) : specpars_(name), nset_(name.size()) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonGeom") << "MuonOffsetFromDD initialized with " << nset_ << " specpars";
+  std::ostringstream st1;
+  for (const auto& name : specpars_)
+    st1 << " " << name;
+  edm::LogVerbatim("MuonGeom") << "MuonOffsetFromDD::SpecPars:" << st1.str();
 #endif
 }
 

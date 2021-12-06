@@ -12,7 +12,6 @@
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
-#include <boost/lexical_cast.hpp>
 
 using namespace std;
 using namespace magneticfield;
@@ -81,8 +80,8 @@ vector<unsigned> MagFieldConfig::expandList(const string& list) {
   for (vstring::const_iterator i = v1.begin(); i != v1.end(); ++i) {
     vstring v2;
     boost::split(v2, *i, boost::is_any_of("-"));
-    unsigned start = boost::lexical_cast<unsigned>(v2.front());
-    unsigned end = boost::lexical_cast<unsigned>(v2.back());
+    unsigned start = std::stoul(v2.front());
+    unsigned end = std::stoul(v2.back());
     if ((v2.size() > 2) || (start > end)) {
       throw cms::Exception("ConfigurationError")
           << "VolumeBasedMagneticFieldESProducerFromDB: malformed configuration" << list << endl;

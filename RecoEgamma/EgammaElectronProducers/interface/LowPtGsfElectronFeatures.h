@@ -11,6 +11,10 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include <vector>
 
+namespace reco {
+  class Track;
+}
+
 namespace lowptgsfeleseed {
 
   std::vector<float> features(const reco::PreId& ecal,
@@ -24,7 +28,8 @@ namespace lowptgsfeleseed {
 namespace lowptgsfeleid {
 
   // feature list for new model (2019Sept15)
-  std::vector<float> features_V1(reco::GsfElectron const& ele, float rho, float unbiased, float field_z);
+  std::vector<float> features_V1(
+      reco::GsfElectron const& ele, float rho, float unbiased, float field_z, const reco::Track* trk = nullptr);
 
   // feature list for original models (2019Aug07 and earlier)
   std::vector<float> features_V0(reco::GsfElectron const& ele, float rho, float unbiased);

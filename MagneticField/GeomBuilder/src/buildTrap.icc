@@ -4,17 +4,17 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void volumeHandle::buildTrap(double x1,
-                             double x2,
-                             double x3,
-                             double x4,
-                             double y1,
-                             double y2,
-                             double theta,
-                             double phi,
-                             double halfZ,
-                             double alpha1,
-                             double alpha2) {
+inline void volumeHandle::buildTrap(double x1,
+                                    double x2,
+                                    double x3,
+                                    double x4,
+                                    double y1,
+                                    double y2,
+                                    double theta,
+                                    double phi,
+                                    double halfZ,
+                                    double alpha1,
+                                    double alpha2) {
   LogTrace("MagGeoBuilder") << "Building trapezoid surfaces...: ";
   LogTrace("MagGeoBuilder") << "x1 " << x1 << newln << "x2 " << x2 << newln << "x3 " << x3 << newln << "x4 " << x4
                             << newln << "y1 " << y1 << newln << "y2 " << y2 << newln << "theta  " << theta << newln

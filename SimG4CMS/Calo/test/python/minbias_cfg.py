@@ -7,15 +7,13 @@ process.load("SimG4CMS.Calo.PythiaMinBias_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load('Configuration.Geometry.GeometryExtended2018Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load("SimG4CMS.Calo.CaloSimHitStudy_cfi")
+process.load("SimG4CMS.Calo.hcalSimHitDump_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
@@ -23,6 +21,8 @@ process.GlobalTag.globaltag = autoCond['run2_mc']
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.HitStudy=dict()
+    process.MessageLogger.HcalSim=dict()
 
 process.source = cms.Source("EmptySource")
 
@@ -57,13 +57,14 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.CaloSimHitStudy)
+process.analysis_step   = cms.Path(process.CaloSimHitStudy+process.hcalSimHitDump)
 process.out_step = cms.EndPath(process.output)
 
 process.generator.pythiaHepMCVerbosity = False
 process.generator.pythiaPylistVerbosity = 0
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
 process.CaloSimHitStudy.TestNumbering = True
+process.hcalSimHitDump.MaxEvent = 5
 
 # process.g4SimHits.ECalSD.IgnoreTrackID      = True
 # process.g4SimHits.HCalSD.IgnoreTrackID      = True

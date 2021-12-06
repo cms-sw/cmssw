@@ -26,13 +26,13 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
@@ -71,7 +71,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  void beginRun(edm::Run const&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   void makeCalibrationMap(const TrackerGeometry& tkGeom);
@@ -82,7 +82,6 @@ private:
                   int& NClusterSaturating);
 
   // ----------member data ---------------------------
-  //BaseDeDxEstimator*               m_estimator;
 
   std::unique_ptr<BaseDeDxEstimator> m_estimator;
 
@@ -100,7 +99,7 @@ private:
 
   edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken;
   edm::EDGetTokenT<FastTrackerRecHitRefCollection> simHit2RecHitMapToken;
-  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken;
 
   bool usePixel;
   bool useStrip;
@@ -139,8 +138,7 @@ void FastTrackDeDxProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
     : simHitsToken(consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHits"))),
       simHit2RecHitMapToken(
-          consumes<FastTrackerRecHitRefCollection>(iConfig.getParameter<edm::InputTag>("simHit2RecHitMap"))),
-      tkGeomToken(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()) {
+          consumes<FastTrackerRecHitRefCollection>(iConfig.getParameter<edm::InputTag>("simHit2RecHitMap"))) {
   produces<ValueMap<DeDxData>>();
 
   auto cCollector = consumesCollector();
@@ -183,22 +181,25 @@ FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
   if (!usePixel && !useStrip)
     throw cms::Exception("fastsim::SimplifiedGeometry::FastTrackDeDxProducer.cc")
         << " neither pixel hits nor strips hits will be used to compute de/dx";
+
+  if (useCalibration) {
+    tkGeomToken = esConsumes<edm::Transition::BeginRun>();
+  }
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void FastTrackDeDxProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
   if (useCalibration && calibGains.empty()) {
-    edm::ESHandle<TrackerGeometry> tkGeom;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom);
-    m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel);  //index start at the first pixel
+    auto const& tkGeom = iSetup.getData(tkGeomToken);
+    m_off = tkGeom.offsetDU(GeomDetEnumerators::PixelBarrel);  //index start at the first pixel
 
-    DeDxTools::makeCalibrationMap(m_calibrationPath, *tkGeom, calibGains, m_off);
+    DeDxTools::makeCalibrationMap(m_calibrationPath, tkGeom, calibGains, m_off);
   }
 
   m_estimator->beginRun(run, iSetup);
 }
 
-void FastTrackDeDxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void FastTrackDeDxProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
   auto trackDeDxEstimateAssociation = std::make_unique<ValueMap<DeDxData>>();
   ValueMap<DeDxData>::Filler filler(*trackDeDxEstimateAssociation);
 

@@ -1,8 +1,27 @@
-#include "PhysicsTools/TagAndProbe/interface/ElectronMatchedCandidateProducer.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Math/interface/deltaR.h"  // reco::deltaR
+#include <memory>
+
+class ElectronMatchedCandidateProducer : public edm::EDProducer {
+public:
+  explicit ElectronMatchedCandidateProducer(const edm::ParameterSet &);
+
+private:
+  void beginJob() override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
+
+  // ----------member data ---------------------------
+
+  edm::EDGetTokenT<edm::View<reco::GsfElectron>> electronCollectionToken_;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> scCollectionToken_;
+  double delRMatchingCut_;
+};
 
 ElectronMatchedCandidateProducer::ElectronMatchedCandidateProducer(const edm::ParameterSet &params) {
   const edm::InputTag allelectrons("gsfElectrons");
@@ -16,15 +35,13 @@ ElectronMatchedCandidateProducer::ElectronMatchedCandidateProducer(const edm::Pa
   produces<edm::RefToBaseVector<reco::Candidate>>();
 }
 
-ElectronMatchedCandidateProducer::~ElectronMatchedCandidateProducer() {}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
 
-void ElectronMatchedCandidateProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
+void ElectronMatchedCandidateProducer::produce(edm::Event &event, const edm::EventSetup &) {
   // Create the output collection
   auto outColRef = std::make_unique<edm::RefToBaseVector<reco::Candidate>>();
   auto outColPtr = std::make_unique<edm::PtrVector<reco::Candidate>>();
@@ -68,4 +85,5 @@ void ElectronMatchedCandidateProducer::beginJob() {}
 void ElectronMatchedCandidateProducer::endJob() {}
 
 //define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ElectronMatchedCandidateProducer);

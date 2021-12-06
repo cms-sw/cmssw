@@ -5,3 +5,8 @@
   <test name="SiStripDCS_O2O_test" command="testSiStripDCSO2O.sh"/>
   <test name="SiStripDAQ_O2O_test" command="testSiStripDAQO2O.sh"/>
 </architecture>
+
+<bin file="runTests.cpp" name="testCondToolsSiStripBuildersReaders">
+  <use name="FWCore/Utilities"/>
+  <flags TEST_RUNNER_ARGS="/bin/bash CondTools/SiStrip/test testBuildersReaders.sh"/>
+</bin>

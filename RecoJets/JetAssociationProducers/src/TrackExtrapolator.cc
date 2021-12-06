@@ -1,15 +1,16 @@
 #include "RecoJets/JetAssociationProducers/interface/TrackExtrapolator.h"
-#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
-#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 
 #include <vector>
 
 //
 // constructors and destructor
 //
-TrackExtrapolator::TrackExtrapolator(const edm::ParameterSet& iConfig) {
-  tracksSrc_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackSrc"));
-  trackQuality_ = reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"));
+TrackExtrapolator::TrackExtrapolator(const edm::ParameterSet& iConfig)
+    : tracksSrc_(consumes(iConfig.getParameter<edm::InputTag>("trackSrc"))),
+      fieldToken_(esConsumes()),
+      propagatorToken_(esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAlong"))),
+      ecalDetIdAssociatorToken_(esConsumes(edm::ESInputTag("", "EcalDetIdAssociator"))),
+      trackQuality_(reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"))) {
   if (trackQuality_ == reco::TrackBase::undefQuality) {  // we have a problem
     throw cms::Exception("InvalidInput") << "Unknown trackQuality value '"
                                          << iConfig.getParameter<std::string>("trackQuality")
@@ -28,13 +29,9 @@ TrackExtrapolator::~TrackExtrapolator() {}
 // ------------ method called on each new Event  ------------
 void TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get stuff from Event Setup
-  edm::ESHandle<MagneticField> field_h;
-  iSetup.get<IdealMagneticFieldRecord>().get(field_h);
-  edm::ESHandle<Propagator> propagator_h;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", propagator_h);
-  edm::ESHandle<DetIdAssociator> ecalDetIdAssociator_h;
-  iSetup.get<DetIdAssociatorRecord>().get("EcalDetIdAssociator", ecalDetIdAssociator_h);
-  FiducialVolume const& ecalvolume = ecalDetIdAssociator_h->volume();
+  auto const& field = iSetup.getData(fieldToken_);
+  auto const& propagator = iSetup.getData(propagatorToken_);
+  FiducialVolume const& ecalvolume = iSetup.getData(ecalDetIdAssociatorToken_).volume();
 
   // get stuff from Event
   edm::Handle<reco::TrackCollection> tracks_h;
@@ -63,7 +60,7 @@ void TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                                                    itrk = trkBegin;
        itrk != trkEnd;
        ++itrk) {
-    if (propagateTrackToVolume(**itrk, *field_h, *propagator_h, ecalvolume, vresultPos[0], vresultMom[0])) {
+    if (propagateTrackToVolume(**itrk, field, propagator, ecalvolume, vresultPos[0], vresultMom[0])) {
       extrapolations->push_back(reco::TrackExtrapolation(*itrk, vresultPos, vresultMom));
     }
   }

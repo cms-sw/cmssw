@@ -1,14 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoBTag.Combined.pfDeepCSVDiscriminatorsJetTags_cfi import pfDeepCSVDiscriminatorsJetTags
-
 ######### DATA ############
 from DQMOffline.RecoB.bTagAnalysisData_cfi import *
 bTagAnalysis.ptRanges = cms.vdouble(0.0)
 bTagAnalysis.doJetID = True
 bTagAnalysis.doJEC = True
 #Residual correction will be added inside the c++ code only for data (checking the presence of genParticles collection), not explicit here as this sequence also ran on MC FullSim
-bTagPlotsDATA = cms.Sequence(pfDeepCSVDiscriminatorsJetTags * bTagAnalysis)
+bTagPlotsDATA = cms.Sequence(bTagAnalysis)
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
@@ -55,7 +53,7 @@ bTagValidation.doJetID = True
 bTagValidation.doJEC = True
 bTagValidation.genJetsMatched = cms.InputTag("newpatJetGenJetMatch")
 #to run on fastsim
-prebTagSequenceMC = cms.Sequence(ak4GenJetsForPUid*newpatJetGenJetMatch*selectedHadronsAndPartons*myak4JetFlavourInfos*pfDeepCSVDiscriminatorsJetTags)
+prebTagSequenceMC = cms.Sequence(ak4GenJetsForPUid*newpatJetGenJetMatch*selectedHadronsAndPartons*myak4JetFlavourInfos)
 bTagPlotsMC = cms.Sequence(bTagValidation)
 
 ## customizations for the pp_on_AA eras

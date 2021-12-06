@@ -7,9 +7,6 @@
 
 #include <vector>
 
-namespace edm {
-  class EventSetup;
-}
 namespace reco {
   class Track;
   class BeamSpot;
@@ -33,8 +30,7 @@ public:
   ~KFBasedPixelFitter() override {}
 
   std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *> &hits,
-                                   const TrackingRegion &region,
-                                   const edm::EventSetup &setup) const override;
+                                   const TrackingRegion &region) const override;
 
 private:
   //this two simple classes are copied from Alignment/ReferenceTrajectories in order to avoid dependencies

@@ -11,9 +11,25 @@
 #include <iomanip>
 #include <iostream>
 
-enum Pattern_Info { NUM_LAYERS = 6, ALCT_PATTERN_WIDTH = 5 };
-
 using namespace std;
+
+namespace {
+  enum Pattern_Info { NUM_LAYERS = 6, ALCT_PATTERN_WIDTH = 5 };
+
+  CSCALCTDigi::WireContainer makeEmptyContainer() {
+    CSCALCTDigi::WireContainer ret;
+    ret.resize(NUM_LAYERS);
+    for (auto& p : ret) {
+      p.resize(ALCT_PATTERN_WIDTH);
+    }
+    return ret;
+  }
+}  // namespace
+
+CSCALCTDigi::WireContainer const& CSCALCTDigi::emptyContainer() {
+  static WireContainer const s_container = makeEmptyContainer();
+  return s_container;
+}
 
 /// Constructors
 CSCALCTDigi::CSCALCTDigi(const uint16_t valid,
@@ -33,17 +49,11 @@ CSCALCTDigi::CSCALCTDigi(const uint16_t valid,
       bx_(bx),
       trknmb_(trknmb),
       hmt_(hmt),
-      version_(version) {
-  hits_.resize(NUM_LAYERS);
-  for (auto& p : hits_) {
-    p.resize(ALCT_PATTERN_WIDTH);
-  }
-}
+      version_(version) {}
 
 /// Default
 CSCALCTDigi::CSCALCTDigi() {
   clear();  // set contents to zero
-  version_ = Version::Legacy;
 }
 
 /// Clears this ALCT.
@@ -57,10 +67,8 @@ void CSCALCTDigi::clear() {
   trknmb_ = 0;
   fullbx_ = 0;
   hmt_ = 0;
-  hits_.resize(NUM_LAYERS);
-  for (auto& p : hits_) {
-    p.resize(ALCT_PATTERN_WIDTH);
-  }
+  hits_.clear();
+  version_ = Version::Legacy;
 }
 
 uint16_t CSCALCTDigi::getHMT() const { return (isRun3() ? hmt_ : std::numeric_limits<uint16_t>::max()); }
@@ -97,8 +105,7 @@ bool CSCALCTDigi::operator==(const CSCALCTDigi& rhs) const {
   // Exact equality.
   bool returnValue = false;
   if (isValid() == rhs.isValid() && getQuality() == rhs.getQuality() && getAccelerator() == rhs.getAccelerator() &&
-      getCollisionB() == rhs.getCollisionB() && getKeyWG() == rhs.getKeyWG() && getBX() == rhs.getBX() &&
-      getHMT() == rhs.getHMT()) {
+      getCollisionB() == rhs.getCollisionB() && getKeyWG() == rhs.getKeyWG() && getBX() == rhs.getBX()) {
     returnValue = true;
   }
   return returnValue;
@@ -119,8 +126,7 @@ void CSCALCTDigi::print() const {
                                 << " Quality = " << setw(2) << getQuality() << " Accel. = " << setw(1)
                                 << getAccelerator() << " PatternB = " << setw(1) << getCollisionB()
                                 << " Key wire group = " << setw(3) << getKeyWG() << " BX = " << setw(2) << getBX()
-                                << " Full BX = " << std::setw(1) << getFullBX() << " HMT = " << std::setw(1)
-                                << getHMT();
+                                << " Full BX = " << std::setw(1) << getFullBX();
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid Anode LCT.";
   }
@@ -129,5 +135,5 @@ void CSCALCTDigi::print() const {
 std::ostream& operator<<(std::ostream& o, const CSCALCTDigi& digi) {
   return o << "CSC ALCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
            << " Accel. = " << digi.getAccelerator() << " PatternB = " << digi.getCollisionB()
-           << " Key wire group = " << digi.getKeyWG() << " BX = " << digi.getBX() << " HMT = " << digi.getHMT();
+           << " Key wire group = " << digi.getKeyWG() << " BX = " << digi.getBX();
 }

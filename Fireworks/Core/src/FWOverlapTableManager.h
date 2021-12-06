@@ -70,10 +70,11 @@ protected:
   bool nodeIsParent(const NodeInfo&) const override;
   //   virtual  const char* cellName(const NodeInfo& data) const;
 
-private:
+public:
   FWOverlapTableManager(const FWOverlapTableManager&) = delete;                   // stop default
   const FWOverlapTableManager& operator=(const FWOverlapTableManager&) = delete;  // stop default
 
+private:
   void addOverlapEntry(TGeoOverlap*, int, int, TGeoHMatrix*);
   FWOverlapTableView* m_browser;
 

@@ -10,6 +10,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 #include <map>
 
@@ -44,10 +47,12 @@ private:
   edm::InputTag theRecHits4DLabel_;
   bool doTTrigCorrection_;
   std::string theCalibChamber_;
-  std::string dbLabel_;
 
   TFile* rootFile_;
   const DTTtrig* tTrigMap_;
   ChamberHistosMap theT0SegHistoMap_;
+
+  const edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif

@@ -15,21 +15,21 @@ MuonGeometryNumbering::MuonGeometryNumbering(const MuonGeometryConstants &muonCo
   // some consistency checks
 
   if (theBasePart != 1) {
-    edm::LogWarning("Geometry") << "MuonGeometryNumbering finds unusual base constant:" << theBasePart;
+    edm::LogWarning("MuonGeom") << "MuonGeometryNumbering finds unusual base constant:" << theBasePart;
   }
   if (theSuperPart < 100) {
-    edm::LogWarning("Geometry") << "MuonGeometryNumbering finds unusual super constant:" << theSuperPart;
+    edm::LogWarning("MuonGeom") << "MuonGeometryNumbering finds unusual super constant:" << theSuperPart;
   }
   if (theLevelPart < 10 * theSuperPart) {
-    edm::LogWarning("Geometry") << "MuonGeometryNumbering finds unusual level constant:" << theLevelPart;
+    edm::LogWarning("MuonGeom") << "MuonGeometryNumbering finds unusual level constant:" << theLevelPart;
   }
   if ((theStartCopyNo != 0) && (theStartCopyNo != 1)) {
-    edm::LogWarning("Geometry") << "MuonGeometryNumbering finds unusual start value for copy numbers:"
+    edm::LogWarning("MuonGeom") << "MuonGeometryNumbering finds unusual start value for copy numbers:"
                                 << theStartCopyNo;
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonGeometryNumbering configured with"
+  edm::LogVerbatim("MuonGeom") << "MuonGeometryNumbering configured with"
                                << " Level = " << theLevelPart << " Super = " << theSuperPart
                                << " Base = " << theBasePart << " StartCopyNo = " << theStartCopyNo;
 #endif
@@ -39,7 +39,7 @@ MuonBaseNumber MuonGeometryNumbering::geoHistoryToBaseNumber(const DDGeoHistory 
   MuonBaseNumber num;
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonGeometryNumbering create MuonBaseNumber for " << history;
+  edm::LogVerbatim("MuonGeom") << "MuonGeometryNumbering create MuonBaseNumber for " << history;
 #endif
 
   //loop over all parents and check
@@ -58,9 +58,9 @@ MuonBaseNumber MuonGeometryNumbering::geoHistoryToBaseNumber(const DDGeoHistory 
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonGeometryNumbering::" << num.getLevels();
+  edm::LogVerbatim("MuonGeom") << "MuonGeometryNumbering::" << num.getLevels();
   for (int i = 1; i <= num.getLevels(); i++) {
-    edm::LogVerbatim("Geometry") << "[" << i << "] " << num.getSuperNo(i) << " " << num.getBaseNo(i);
+    edm::LogVerbatim("MuonGeom") << "[" << i << "] " << num.getSuperNo(i) << " " << num.getBaseNo(i);
   }
 #endif
 
@@ -97,7 +97,7 @@ int MuonGeometryNumbering::getInt(const std::string &s, const DDLogicalPart &par
   if (foundIt) {
     std::vector<double> temp = val.doubles();
     if (temp.size() != 1) {
-      edm::LogError("Geometry") << "MuonGeometryNumbering:: ERROR: I need only 1 " << s << " in DDLogicalPart "
+      edm::LogError("MuonGeom") << "MuonGeometryNumbering:: ERROR: I need only 1 " << s << " in DDLogicalPart "
                                 << part.name();
       abort();
     }

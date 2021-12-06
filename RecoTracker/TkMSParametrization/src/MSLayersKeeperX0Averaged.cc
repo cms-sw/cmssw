@@ -4,19 +4,15 @@
 
 using namespace std;
 
-void MSLayersKeeperX0Averaged::init(const edm::EventSetup &iSetup) {
-  if (isInitialised)
-    return;
-  isInitialised = true;
+MSLayersKeeperX0Averaged::MSLayersKeeperX0Averaged(const GeometricSearchTracker &tracker, const MagneticField &bfield) {
   //  cout << "HERE INITIALISATION! MSLayersKeeperX0Averaged"<<endl;
-  MSLayersKeeperX0AtEta layersX0Eta;
-  layersX0Eta.init(iSetup);
-  MultipleScatteringGeometry geom(iSetup);
-  vector<MSLayer> allLayers = geom.detLayers(iSetup);
+  MSLayersKeeperX0AtEta layersX0Eta(tracker, bfield);
+  MultipleScatteringGeometry geom(tracker);
+  vector<MSLayer> allLayers = geom.detLayers();
   vector<MSLayer>::iterator it;
   for (int i = -1; i <= 1; i++) {
     float eta = i * (-1.8);
-    vector<MSLayer> tmpLayers = geom.otherLayers(eta, iSetup);
+    vector<MSLayer> tmpLayers = geom.otherLayers(eta);
     vector<MSLayer>::const_iterator ic;
     for (ic = tmpLayers.begin(); ic != tmpLayers.end(); ic++) {
       it = find(allLayers.begin(), allLayers.end(), *ic);

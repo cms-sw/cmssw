@@ -9,7 +9,7 @@ public:
   HGCalTriggerClusterInterpretationEM();
   ~HGCalTriggerClusterInterpretationEM() override{};
   void initialize(const edm::ParameterSet& conf) final;
-  void eventSetup(const edm::EventSetup& es) final;
+  void setGeometry(const HGCalTriggerGeometryBase* const) final;
   void interpret(l1t::HGCalMulticlusterBxCollection& multiclusters) const final;
 
 private:
@@ -42,7 +42,9 @@ void HGCalTriggerClusterInterpretationEM::initialize(const edm::ParameterSet& co
   }
 }
 
-void HGCalTriggerClusterInterpretationEM::eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+void HGCalTriggerClusterInterpretationEM::setGeometry(const HGCalTriggerGeometryBase* const geom) {
+  triggerTools_.setGeometry(geom);
+}
 
 void HGCalTriggerClusterInterpretationEM::interpret(l1t::HGCalMulticlusterBxCollection& multiclusters) const {
   for (unsigned int idx = 0; idx != multiclusters.size(); idx++) {

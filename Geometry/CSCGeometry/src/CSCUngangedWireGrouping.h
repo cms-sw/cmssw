@@ -8,13 +8,12 @@
  *
  */
 
-#include "Geometry/CSCGeometry/src/CSCWireGrouping.h"
+#include "Geometry/CSCGeometry/interface/CSCWireGrouping.h"
 
 class CSCUngangedWireGrouping : public CSCWireGrouping {
- public:
+public:
   virtual ~CSCUngangedWireGrouping() {}
-  explicit CSCUngangedWireGrouping( int nwires ) : 
-      theNumberOfWires( nwires ) {}
+  explicit CSCUngangedWireGrouping(int nwires) : theNumberOfWires(nwires) {}
 
   /**
    * Total number of (virtual) wires.
@@ -22,26 +21,22 @@ class CSCUngangedWireGrouping : public CSCWireGrouping {
    * This is the number which would fill the region covered
    * by wires, assuming the constant wire spacing.
    */
-  int numberOfWires() const {
-    return theNumberOfWires; }
+  int numberOfWires() const { return theNumberOfWires; }
 
   /**
    * How many wire groups. Unganged so #groups = #wires.
    */
-  int numberOfWireGroups() const {
-    return numberOfWires(); }
+  int numberOfWireGroups() const { return numberOfWires(); }
 
   /**
    * How many wires in a wiregroup. Unganged so 1 wire/group.
    */
-  int numberOfWiresPerGroup( int wireGroup ) const {
-    return 1; }
+  int numberOfWiresPerGroup(int wireGroup) const { return 1; }
 
   /**
    * Wire group containing a given wire. Unganged means wire group is wire.
    */
-  int wireGroup(int wire) const {
-    return wire; }
+  int wireGroup(int wire) const { return wire; }
 
   /**
    * Middle of wire-group.
@@ -50,20 +45,16 @@ class CSCUngangedWireGrouping : public CSCWireGrouping {
    * Accordingly, it is non-integer.
    * Unganged, wire group is wire is middle!
    */
-  float middleWireOfGroup( int wireGroup ) const {
-    return static_cast<float>( wireGroup ); }
+  float middleWireOfGroup(int wireGroup) const { return static_cast<float>(wireGroup); }
 
- /**
+  /**
    * Clone to handle correct copy of component objects referenced
    * by base class pointer.
    */
-  CSCWireGrouping* clone() const {
-    return new CSCUngangedWireGrouping(*this);
-  }
+  CSCWireGrouping* clone() const { return new CSCUngangedWireGrouping(*this); }
 
- private:
+private:
   int theNumberOfWires;
-
 };
 
 #endif

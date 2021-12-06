@@ -4,7 +4,7 @@
  Description: ME0 GeometryESModule from DD & DD4hep
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
 //
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4hep migration)
 //          Created:  29 Apr 2020 
 */
 
@@ -23,7 +23,6 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -83,7 +82,7 @@ std::unique_ptr<ME0Geometry> ME0GeometryESModule::produce(const MuonGeometryReco
     ME0GeometryBuilder builder;
     return std::unique_ptr<ME0Geometry>(builder.build(cpv.product(), mdc));
   } else if (fromDD4hep_) {
-    edm::LogVerbatim("ME0GeometryESModule") << "(0) ME0GeometryESModule - DD4HEP ";
+    edm::LogVerbatim("ME0GeometryESModule") << "(0) ME0GeometryESModule - DD4hep ";
     edm::LogVerbatim("GEMGeometry") << "ME0GeometryESModule::produce :: ME0GeometryBuilder builder DD4hep";
     auto cpv = record.getTransientHandle(dd4hepcpvToken_);
     const auto& mdc = record.get(mdcToken_);

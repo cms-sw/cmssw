@@ -16,16 +16,10 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #ifdef DB_WRITE_SUPPORT
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -59,7 +53,12 @@ EcalDccWeightBuilder::EcalDccWeightBuilder(edm::ParameterSet const& ps)
       dbTag_(ps.getParameter<string>("dbTag")),
       dbVersion_(ps.getParameter<int>("dbVersion")),
       sqlMode_(ps.getParameter<bool>("sqlMode")),
-      calibMap_(emptyCalibMap_) {
+      geometryToken_(esConsumes()),
+      mappingToken_(esConsumes()),
+      intercalibConstToken_(esConsumes()),
+      calibMap_(emptyCalibMap_),
+      ebShape_(consumesCollector()),
+      eeShape_(consumesCollector()) {
   if (mode_ == "weightsFromConfig") {
     imode_ = WEIGHTS_FROM_CONFIG;
     if (inputWeights_.size() != (unsigned)nDccWeights_) {
@@ -76,20 +75,17 @@ EcalDccWeightBuilder::EcalDccWeightBuilder(edm::ParameterSet const& ps)
 }
 
 void EcalDccWeightBuilder::analyze(const edm::Event& event, const edm::EventSetup& es) {
-  edm::ESHandle<EcalElectronicsMapping> handle;
-  es.get<EcalMappingRcd>().get(handle);
-  ecalElectronicsMap_ = handle.product();
+  const auto mappingHandle = es.getHandle(mappingToken_);
+  ecalElectronicsMap_ = mappingHandle.product();
 
   // Retrieval of intercalib constants
   if (dccWeightsWithIntercalib_) {
-    ESHandle<EcalIntercalibConstants> hIntercalib;
-    es.get<EcalIntercalibConstantsRcd>().get(hIntercalib);
-    const EcalIntercalibConstants* intercalib = hIntercalib.product();
-    calibMap_ = intercalib->getMap();
+    const auto& intercalibConst = es.getData(intercalibConstToken_);
+    calibMap_ = intercalibConst.getMap();
   }
 
   //gets geometry
-  es.get<CaloGeometryRecord>().get(geom_);
+  geom_ = es.getHandle(geometryToken_);
 
   //computes the weights:
   computeAllWeights(dccWeightsWithIntercalib_, es);
@@ -109,14 +105,7 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
 
   EcalSimParameterMap parameterMap;
   const vector<DetId>& ebDetIds = geom_->getValidDetIds(DetId::Ecal, EcalBarrel);
-
-  //   cout << __FILE__ << ":" << __LINE__ << ": "
-  //        <<  "Number of EB det IDs: " << ebDetIds.size() << "\n";
-
   const vector<DetId>& eeDetIds = geom_->getValidDetIds(DetId::Ecal, EcalEndcap);
-
-  //  cout << __FILE__ << ":" << __LINE__ << ": "
-  //        <<  "Number of EE det IDs: " << eeDetIds.size() << "\n";
 
   vector<DetId> detIds(ebDetIds.size() + eeDetIds.size());
   copy(ebDetIds.begin(), ebDetIds.end(), detIds.begin());
@@ -138,12 +127,12 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
 
 #if 0
     //for debugging...
-    cout << __FILE__ << ":" << __LINE__ << ": ";
+    edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": ";
     if(it->subdetId()==EcalBarrel){
-      cout << "ieta = " << setw(4) << ((EBDetId)(*it)).ieta()
+      edm::LogVerbatim("EcalDccWeightBuilder") << "ieta = " << setw(4) << ((EBDetId)(*it)).ieta()
            << " iphi = " << setw(4) << ((EBDetId)(*it)).iphi() << " ";
     } else if(it->subdetId()==EcalEndcap){
-      cout << "ix = " << setw(3) << ((EEDetId)(*it)).ix()
+      edm::LogVerbatim("EcalDccWeightBuilder") << "ix = " << setw(3) << ((EEDetId)(*it)).ix()
            << " iy = " << setw(3) << ((EEDetId)(*it)).iy()
            << " iz = " << setw(1) << ((EEDetId)(*it)).iy() << " ";
     } else{
@@ -152,20 +141,17 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
         << "Got a detId which is neither tagged as ECAL Barrel "
         << "not ECAL endcap while looping on ECAL cell detIds\n";
     }
-    cout << " -> phase: "  << phase << "\n";
-    cout << " -> binOfMax: " << binOfMax << "\n";
+    edm::LogVerbatim("EcalDccWeightBuilder") << " -> phase: "  << phase << "\n";
+    edm::LogVerbatim("EcalDccWeightBuilder") << " -> binOfMax: " << binOfMax << "\n";
 #endif
 
     try {
-      bool useDBShape = true;
-      EBShape ebShape(useDBShape);
-      EEShape eeShape(useDBShape);
       EcalShapeBase* pShape;
 
       if (it->subdetId() == EcalBarrel) {
-        pShape = &ebShape;
+        pShape = &ebShape_;
       } else if (it->subdetId() == EcalEndcap) {
-        pShape = &eeShape;
+        pShape = &eeShape_;
       } else {
         throw cms::Exception("EcalDccWeightBuilder") << "Bug found in " << __FILE__ << ":" << __LINE__ << ": "
                                                      << "Got a detId which is neither tagged as ECAL Barrel "
@@ -188,17 +174,18 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
       unbiasWeights(w, &W);
       encodedWeights_[*it] = W;
     } catch (std::exception& e) {
-      cout << __FILE__ << ":" << __LINE__ << ": ";
+      edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": ";
       if (it->subdetId() == EcalBarrel) {
-        cout << "ieta = " << setw(4) << ((EBDetId)(*it)).ieta() << " iphi = " << setw(4) << ((EBDetId)(*it)).iphi()
-             << " ";
+        edm::LogVerbatim("EcalDccWeightBuilder") << "ieta = " << setw(4) << ((EBDetId)(*it)).ieta()
+                                                 << " iphi = " << setw(4) << ((EBDetId)(*it)).iphi() << " ";
       } else if (it->subdetId() == EcalEndcap) {
-        cout << "ix = " << setw(3) << ((EEDetId)(*it)).ix() << " iy = " << setw(3) << ((EEDetId)(*it)).iy()
-             << " iz = " << setw(1) << ((EEDetId)(*it)).iy() << " ";
+        edm::LogVerbatim("EcalDccWeightBuilder")
+            << "ix = " << setw(3) << ((EEDetId)(*it)).ix() << " iy = " << setw(3) << ((EEDetId)(*it)).iy()
+            << " iz = " << setw(1) << ((EEDetId)(*it)).iy() << " ";
       } else {
-        cout << "DetId " << (uint32_t)(*it);
+        edm::LogVerbatim("EcalDccWeightBuilder") << "DetId " << (uint32_t)(*it);
       }
-      cout << "phase: " << phase << "\n";
+      edm::LogVerbatim("EcalDccWeightBuilder") << "phase: " << phase << "\n";
       throw;
     }
   }
@@ -245,13 +232,6 @@ double EcalDccWeightBuilder::decodeWeight(int W) { return ((double)W) / weightSc
 
 template <class T>
 void EcalDccWeightBuilder::sort(const std::vector<T>& a, std::vector<int>& s, bool decreasingOrder) {
-  //   cout << __FILE__ << ":" << __LINE__ << ": "
-  //        << "sort input array:" ;
-  //   for(unsigned i=0; i<a.size(); ++i){
-  //     cout << "\t" << a[i];
-  //   }
-  //   cout << "\n";
-
   //performs a bubble sort: adjacent elements are successively swapped 2 by 2
   //until the list is finally sorted.
   bool changed = false;
@@ -271,13 +251,6 @@ void EcalDccWeightBuilder::sort(const std::vector<T>& a, std::vector<int>& s, bo
       }
     }
   } while (changed);
-
-  //   cout << __FILE__ << ":" << __LINE__ << ": "
-  //        << "sorted list of indices:" ;
-  //   for(unsigned i=0; i < s.size(); ++i){
-  //     cout << "\t" << s[i];
-  //   }
-  //   cout << "\n";
 }
 
 void EcalDccWeightBuilder::unbiasWeights(std::vector<double>& weights, std::vector<int>* encodedWeights) {
@@ -292,14 +265,6 @@ void EcalDccWeightBuilder::unbiasWeights(std::vector<double>& weights, std::vect
     dw[i] = decodeWeight(W[i]) - weights[i];
     wsum += W[i];
   }
-
-  //   cout << __FILE__ << ":" << __LINE__ << ": "
-  //        <<  "weights before bias correction: ";
-  //   for(unsigned i=0; i<weights.size(); ++i){
-  //     const double w = weights[i];
-  //     cout << "\t" << encodeWeight(w) << "(" << w << ", dw = " << dw[i] << ")";
-  //   }
-  //   cout << "\t sum: " << wsum << "\n";
 
   //sorts weight residuals in decreasing order:
   vector<int> iw(nw);
@@ -330,14 +295,6 @@ void EcalDccWeightBuilder::unbiasWeights(std::vector<double>& weights, std::vect
       i = 0;
   }
 
-  //   cout << __FILE__ << ":" << __LINE__ << ": "
-  //        <<  "weights after bias correction: ";
-  //   for(unsigned i=0; i<weights.size(); ++i){
-  //     cout << "\t" << W[i] << "(" << decodeWeight(W[i]) << ", dw = "
-  // 	 << (decodeWeight(W[i])-weights[i]) << ")";
-  //   }
-  //   cout << "\n";
-
   //copy result
   if (encodedWeights != nullptr)
     encodedWeights->resize(nw);
@@ -356,19 +313,19 @@ double EcalDccWeightBuilder::intercalib(const DetId& detId) {
     coef = (*itCalib);
   } else {
     coef = 1.;
-    std::cout << (uint32_t)detId << " not found in EcalIntercalibConstantMap" << std::endl;
+    edm::LogVerbatim("EcalDccWeightBuilder") << (uint32_t)detId << " not found in EcalIntercalibConstantMap";
   }
 #if 0
-  cout << __FILE__ << ":" << __LINE__ << ": ";
+  edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": ";
   if(detId.subdetId()==EcalBarrel){
-    cout <<  "ieta = " << ((EBDetId)detId).ieta()
+    edm::LogVerbatim("EcalDccWeightBuilder") <<  "ieta = " << ((EBDetId)detId).ieta()
 	 << " iphi = " << ((EBDetId)detId).iphi();
   } else{
-    cout << "ix = " << ((EEDetId)detId).ix()
+    edm::LogVerbatim("EcalDccWeightBuilder") << "ix = " << ((EEDetId)detId).ix()
 	 << " iy = " << ((EEDetId)detId).iy()
 	 << " iz = " << ((EEDetId)detId).zside();
   }
-  cout << " coef = " <<  coef << "\n";
+  edm::LogVerbatim("EcalDccWeightBuilder") << " coef = " <<  coef << "\n";
 #endif
   return coef;
 }
@@ -511,12 +468,12 @@ void EcalDccWeightBuilder::writeWeightToDB() {
 }
 #else   //DB_WRITE_SUPPORT defined
 void EcalDccWeightBuilder::writeWeightToDB() {
-  cout << "going to write to the online DB " << dbSid_ << " user " << dbUser_ << endl;
+  edm::LogVerbatim("EcalDccWeightBuilder") << "going to write to the online DB " << dbSid_ << " user " << dbUser_;
   ;
   EcalCondDBInterface* econn;
 
   try {
-    cout << "Making connection..." << flush;
+    edm::LogVerbatim("EcalDccWeightBuilder") << "Making connection..." << flush;
     const string& filePrefix = string("file:");
     if (dbPassword_.find(filePrefix) == 0) {  //password must be read for a file
       string fileName = dbPassword_.substr(filePrefix.size());
@@ -525,25 +482,22 @@ void EcalDccWeightBuilder::writeWeightToDB() {
       pr.readPassword(fileName, dbUser_, dbPassword_);
     }
 
-    //     cout << __FILE__ << ":" << __LINE__ << ": "
-    //           <<  "Password: " << dbPassword_ << "\n";
-
     econn = new EcalCondDBInterface(dbSid_, dbUser_, dbPassword_);
-    cout << "Done." << endl;
+    edm::LogVerbatim("EcalDccWeightBuilder") << "Done.";
   } catch (runtime_error& e) {
-    cerr << e.what() << endl;
+    edm::LogError("dbconnection") << e.what();
     exit(-1);
   }
 
   ODFEWeightsInfo weight_info;
   weight_info.setConfigTag(dbTag_);
   weight_info.setVersion(dbVersion_);
-  cout << "Inserting in DB..." << endl;
+  edm::LogVerbatim("EcalDccWeightBuilder") << "Inserting in DB...";
 
   econn->insertConfigSet(&weight_info);
 
   int weight_id = weight_info.getId();
-  cout << "WeightInfo inserted with ID " << weight_id << endl;
+  edm::LogVerbatim("EcalDccWeightBuilder") << "WeightInfo inserted with ID " << weight_id;
 
   vector<ODWeightsDat> datadel;
   datadel.reserve(encodedWeights_.size());
@@ -596,9 +550,9 @@ void EcalDccWeightBuilder::writeWeightToDB() {
     datadel.push_back(one_dat);
   }
   econn->insertConfigDataArraySet(datadel, &weight_info);
-  std::cout << " .. done insertion in DB " << endl;
+  edm::LogVerbatim("EcalDccWeightBuilder") << " .. done insertion in DB ";
   delete econn;
-  cout << "closed DB connection ... done" << endl;
+  edm::LogVerbatim("EcalDccWeightBuilder") << "closed DB connection ... done";
 }
 #endif  //DB_WRITE_SUPPORT not defined
 
@@ -618,22 +572,22 @@ void EcalDccWeightBuilder::dbId(const DetId& detId, int& fedId, int& smId, int& 
   xtalId = (elecId.stripId() - 1) * stripLength + elecId.xtalId();
 
 #if 0
-  cout << __FILE__ << ":" << __LINE__ << ": FED ID "
+  edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": FED ID "
        <<  fedId << "\n";
 
-  cout << __FILE__ << ":" << __LINE__ << ": SM logical ID "
+  edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": SM logical ID "
        <<  smId << "\n";
   
-  cout << __FILE__ << ":" << __LINE__ << ": RU ID (TT or SC): "
+  edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": RU ID (TT or SC): "
        <<  ruId << "\n";
   
-  cout << __FILE__ << ":" << __LINE__ << ": strip:"
+  edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": strip:"
        <<  elecId.stripId() << "\n";
   
-  cout << __FILE__ << ":" << __LINE__ << ": xtal in strip: "
+  edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": xtal in strip: "
        <<  elecId.xtalId() << "\n";
 
-  cout << __FILE__ << ":" << __LINE__ << ": xtalId in RU: "
+  edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": xtalId in RU: "
        <<  xtalId << "\n";
 #endif
 }

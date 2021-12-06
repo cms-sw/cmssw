@@ -1,31 +1,19 @@
-from __future__ import print_function
-# In order to produce what you need (or in a loop)
-#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=BeamPipe
-#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=Tracker
-#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=ECAL
-#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=HCal
-##EndcapTimingLayer + Thermal Screen (Barrel Timing Layer is included in the Tracker)
-#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label='EndcapTimingLayer + Thermal Screen'
-##Neutron Moderator + Thermal Screen
-#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label='Neutron Moderator + Thermal Screen'
-##HGCal + HGCal Service + Thermal Screen
-#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label='HGCal + HGCal Service + Thermal Screen'
-##Solenoid Magnet
-#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label='Solenoid Magnet'
-##Muon Wheels and Cables
-#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label='Muon Wheels and Cables'
-##Finally, all together 
-#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=FromVertexToBackOfHGCal
+#Check the material bugdet sections of the HGCAL DPG website for the recipe. Namely,
+#HGCAL only: https://hgcal.web.cern.ch/MaterialBudget/MaterialBudget/
+#From vertex: https://hgcal.web.cern.ch/MaterialBudget/MaterialBudgetFromVertexUpToInfrontOfMuonStations/
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 import sys, re
 
-process = cms.Process("PROD")
+from FWCore.PythonFramework.CmsRun import CmsRun
+from Configuration.Eras.Era_Phase2_cff import Phase2
+
+process = cms.Process("PROD", Phase2)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-# The default geometry is Extended2023D41. If a different geoemtry
+# The default geometry is Extended2023D86Reco. If a different geoemtry
 # is needed, the appropriate flag has to be passed at command line,
 # e.g.: cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom="XYZ"
 
@@ -40,7 +28,7 @@ _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
 options = VarParsing('analysis')
 options.register('geom',             #name
-                 'Extended2023D41',      #default value
+                 'Extended2023D86',      #default value
                  VarParsing.multiplicity.singleton,   # kind of options
                  VarParsing.varType.string,           # type of option
                  "Select the geometry to be studied"  # help message
@@ -67,7 +55,7 @@ if options.label not in _ALLOWED_LABELS:
 _components = _LABELS2COMPS[options.label]
 
 # Load geometry either from the Database of from files
-process.load("Configuration.Geometry.Geometry%s_cff" % options.geom)
+process.load("Configuration.Geometry.Geometry%sReco_cff" % options.geom)
 
 #
 #Magnetic Field
@@ -112,10 +100,10 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         #        TextFile = cms.string("matbdg_HGCal.txt")
         TextFile = cms.string('None'), 
         #Setting ranges for histos
-        #Make z 2mm per bin. Be careful this could lead to memory crashes if too low. 
+        #Make z 4mm per bin. Be careful this could lead to memory crashes if too low. 
         minZ = cms.double(-7000.),
         maxZ = cms.double(7000.),
-        nintZ = cms.int32(7000), 
+        nintZ = cms.int32(3500), 
         # Make r 1cm per bin
         rMin = cms.double(-50.), 
         rMax = cms.double(8000.),
@@ -135,3 +123,9 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 
      )
 ))
+
+
+cmsRun = CmsRun(process)
+cmsRun.run()
+
+

@@ -30,10 +30,11 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet &pset,
                                const std::vector<string> &stepLabels,
                                const std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
                                                 edm::EDGetTokenT<reco::GenParticleCollection>,
-                                                edm::EDGetTokenT<reco::MuonCollection>> &tokens)
+                                                edm::EDGetTokenT<reco::MuonCollection>> &tokens,
+                               const ESTokens &esTokens)
     :
 
-      l1Matcher_(pset) {
+      l1Matcher_(pset, esTokens) {
   hltPath_ = hltPath;
   moduleLabels_ = moduleLabels;
   stepLabels_ = stepLabels;
@@ -270,6 +271,15 @@ HLTMuonPlotter::getTokens(const edm::ParameterSet &pset, edm::ConsumesCollector 
       myTuple(_hltTriggerSummaryRAW, _genParticleLabel, _recMuonLabel);
 
   return (myTuple);
+}
+
+std::tuple<edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>,
+           edm::ESGetToken<Propagator, TrackingComponentsRecord>,
+           edm::ESGetToken<Propagator, TrackingComponentsRecord>,
+           edm::ESGetToken<Propagator, TrackingComponentsRecord>,
+           edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord>>
+HLTMuonPlotter::getESTokens(edm::ConsumesCollector iC) {
+  return hltriggeroffline::PropagateToMuon::getESTokens(iC);
 }
 
 void HLTMuonPlotter::findMatches(vector<MatchStruct> &matches,

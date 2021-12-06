@@ -52,13 +52,12 @@
 class FFTJetPileupAnalyzer : public edm::EDAnalyzer {
 public:
   explicit FFTJetPileupAnalyzer(const edm::ParameterSet&);
-  ~FFTJetPileupAnalyzer() override;
-
-private:
   FFTJetPileupAnalyzer() = delete;
   FFTJetPileupAnalyzer(const FFTJetPileupAnalyzer&) = delete;
   FFTJetPileupAnalyzer& operator=(const FFTJetPileupAnalyzer&) = delete;
+  ~FFTJetPileupAnalyzer() override;
 
+private:
   // The following method should take all necessary info from
   // PileupSummaryInfo and fill out the ntuple
   void analyzePileup(const std::vector<PileupSummaryInfo>& pInfo);

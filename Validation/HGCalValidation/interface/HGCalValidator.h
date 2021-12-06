@@ -62,14 +62,18 @@ protected:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   edm::InputTag label_lcl;
   std::vector<edm::InputTag> label_tst;
+  edm::InputTag label_simTSFromCP;
   edm::InputTag associator_;
   edm::InputTag associatorSim_;
   const bool SaveGeneralInfo_;
   const bool doCaloParticlePlots_;
   const bool doCaloParticleSelection_;
   const bool doSimClustersPlots_;
+  edm::InputTag label_SimClustersPlots_, label_SimClustersLevel_;
   const bool doLayerClustersPlots_;
+  edm::InputTag label_layerClustersPlots_, label_LCToCPLinking_;
   const bool doTrackstersPlots_;
+  edm::InputTag label_TSToCPLinking_;
   std::vector<edm::InputTag> label_clustersmask;
   const edm::FileInPath cummatbudinxo_;
 
@@ -77,6 +81,7 @@ protected:
   edm::EDGetTokenT<std::vector<SimCluster>> simClusters_;
   edm::EDGetTokenT<reco::CaloClusterCollection> layerclusters_;
   std::vector<edm::EDGetTokenT<ticl::TracksterCollection>> label_tstTokens;
+  edm::EDGetTokenT<ticl::TracksterCollection> simTrackstersFromCPs_;
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_effic;
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_fake;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;

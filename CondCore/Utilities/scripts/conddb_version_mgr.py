@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import cx_Oracle
@@ -467,7 +467,7 @@ def main():
     parser_show_version.set_defaults(func=tool.show_tag_boost_version,accessType='r')
     args = parser.parse_args()
     tool.args = args
-    if args.verbose >=1:
+    if args.verbose is not None and args.verbose >=1:
         tool.logger.setLevel(logging.DEBUG)
         tool.connect()
         return args.func()

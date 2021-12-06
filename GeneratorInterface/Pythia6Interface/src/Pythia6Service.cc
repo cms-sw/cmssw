@@ -7,7 +7,6 @@
 #include <string>
 #include <set>
 
-#include <boost/bind.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <filesystem>

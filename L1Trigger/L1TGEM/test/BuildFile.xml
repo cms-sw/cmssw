@@ -1,0 +1,5 @@
+<use name="FWCore/Framework"/>
+<use name="rootgraphics"/>
+<library file="*.cc" name="GEMTriggerPrimitivesTest">
+  <flags EDM_PLUGIN="1"/>
+</library>

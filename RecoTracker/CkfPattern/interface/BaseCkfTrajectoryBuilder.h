@@ -3,8 +3,10 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 #include <cassert>
@@ -26,6 +28,7 @@ class TrajectoryMeasurement;
 class TrajectoryContainer;
 class TrajectoryStateOnSurface;
 class TrajectoryFitter;
+class TransientRecHitRecord;
 class TransientTrackingRecHitBuilder;
 class Trajectory;
 class TempTrajectory;
@@ -65,6 +68,7 @@ public:
 
   // Claims ownership of TrajectoryFilter pointers
   BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                           edm::ConsumesCollector iC,
                            std::unique_ptr<TrajectoryFilter> filter,
                            std::unique_ptr<TrajectoryFilter> inOutFilter = nullptr);
   BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder&) = delete;
@@ -182,11 +186,11 @@ private:
   std::unique_ptr<TrajectoryFilter> theInOutFilter; /** Filter used at end of in-out tracking */
 
   // for EventSetup
-  const std::string theUpdatorName;
-  const std::string thePropagatorAlongName;
-  const std::string thePropagatorOppositeName;
-  const std::string theEstimatorName;
-  const std::string theRecHitBuilderName;
+  const edm::ESGetToken<TrajectoryStateUpdator, TrackingComponentsRecord> theUpdatorToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorAlongToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorOppositeToken;
+  const edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> theEstimatorToken;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theRecHitBuilderToken;
 };
 
 #endif

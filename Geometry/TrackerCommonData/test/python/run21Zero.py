@@ -14,6 +14,7 @@ process.load('Geometry.TrackerCommonData.cmsExtendedGeometry2021ZeroMaterialXML_
 process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
 process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
 process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
+process.load('Geometry.HcalCommonData.hcalDDDRecConstants_cfi')
 process.load('Geometry.MuonNumbering.muonGeometryConstants_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -28,8 +29,8 @@ process.maxEvents = cms.untracked.PSet(
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.SimG4CoreGeometry=dict()
+#if hasattr(process,'MessageLogger'):
+#    process.MessageLogger.SimG4CoreGeometry=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -90,59 +91,7 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
-process.generator = cms.EDFilter("Pythia8GeneratorFilter",
-    PythiaParameters = cms.PSet(
-        parameterSets = cms.vstring(
-            'pythia8CommonSettings', 
-            'pythia8CP5Settings', 
-            'processParameters'
-        ),
-        processParameters = cms.vstring(
-            'Top:gg2ttbar = on ', 
-            'Top:qqbar2ttbar = on ', 
-            '6:m0 = 175 '
-        ),
-        pythia8CP5Settings = cms.vstring(
-            'Tune:pp 14', 
-            'Tune:ee 7', 
-            'MultipartonInteractions:ecmPow=0.03344', 
-            'MultipartonInteractions:bProfile=2', 
-            'MultipartonInteractions:pT0Ref=1.41', 
-            'MultipartonInteractions:coreRadius=0.7634', 
-            'MultipartonInteractions:coreFraction=0.63', 
-            'ColourReconnection:range=5.176', 
-            'SigmaTotal:zeroAXB=off', 
-            'SpaceShower:alphaSorder=2', 
-            'SpaceShower:alphaSvalue=0.118', 
-            'SigmaProcess:alphaSvalue=0.118', 
-            'SigmaProcess:alphaSorder=2', 
-            'MultipartonInteractions:alphaSvalue=0.118', 
-            'MultipartonInteractions:alphaSorder=2', 
-            'TimeShower:alphaSorder=2', 
-            'TimeShower:alphaSvalue=0.118', 
-            'SigmaTotal:mode = 0', 
-            'SigmaTotal:sigmaEl = 21.89', 
-            'SigmaTotal:sigmaTot = 100.309', 
-            'PDF:pSet=LHAPDF6:NNPDF31_nnlo_as_0118'
-        ),
-        pythia8CommonSettings = cms.vstring(
-            'Tune:preferLHAPDF = 2', 
-            'Main:timesAllowErrors = 10000', 
-            'Check:epTolErr = 0.01', 
-            'Beams:setProductionScalesFromLHEF = off', 
-            'SLHA:minMassSM = 1000.', 
-            'ParticleDecays:limitTau0 = on', 
-            'ParticleDecays:tau0Max = 10', 
-            'ParticleDecays:allowPhotonRadiation = on'
-        )
-    ),
-    comEnergy = cms.double(14000.0),
-    filterEfficiency = cms.untracked.double(1.0),
-    maxEventsToPrint = cms.untracked.int32(0),
-    pythiaHepMCVerbosity = cms.untracked.bool(False),
-    pythiaPylistVerbosity = cms.untracked.int32(0)
-)
-
+process.load('Configuration.Generator.TTbar_14TeV_TuneCP5_cfi')
 process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 # Path and EndPath definitions

@@ -1,3 +1,5 @@
+#ifndef CalibCalorimetry_EcalLaserAnalyzer_EcalLaserAnalyzer_h
+#define CalibCalorimetry_EcalLaserAnalyzer_EcalLaserAnalyzer_h
 // $Id: EcalLaserAnalyzer.h
 
 #include <memory>
@@ -5,7 +7,12 @@
 #include <vector>
 #include <map>
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
+
+#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
+#include <Geometry/EcalMapping/interface/EcalElectronicsMapping.h>
+#include <Geometry/EcalMapping/interface/EcalMappingRcd.h>
 
 class TFile;
 class TTree;
@@ -44,7 +51,7 @@ class TMem;
 #define NSIDES 2    // Number of sides
 #define NREFCHAN 2  // Ref number for APDB
 
-class EcalLaserAnalyzer : public edm::EDAnalyzer {
+class EcalLaserAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalLaserAnalyzer(const edm::ParameterSet &iConfig);
   ~EcalLaserAnalyzer() override;
@@ -62,37 +69,49 @@ public:
 private:
   int iEvent;
 
+  const std::string eventHeaderCollection_;
+  const std::string eventHeaderProducer_;
+  const std::string digiCollection_;
+  const std::string digiProducer_;
+  const std::string digiPNCollection_;
+
+  const edm::EDGetTokenT<EcalRawDataCollection> rawDataToken_;
+  edm::EDGetTokenT<EBDigiCollection> ebDigiToken_;
+  edm::EDGetTokenT<EEDigiCollection> eeDigiToken_;
+  const edm::EDGetTokenT<EcalPnDiodeDigiCollection> pnDiodeDigiToken_;
+  const edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> mappingToken_;
+
   // Framework parameters
 
-  unsigned int _nsamples;
+  const unsigned int _nsamples;
   unsigned int _presample;
-  unsigned int _firstsample;
-  unsigned int _lastsample;
-  unsigned int _nsamplesPN;
-  unsigned int _presamplePN;
-  unsigned int _firstsamplePN;
-  unsigned int _lastsamplePN;
-  unsigned int _timingcutlow;
-  unsigned int _timingcuthigh;
-  unsigned int _timingquallow;
-  unsigned int _timingqualhigh;
-  double _ratiomincutlow;
-  double _ratiomincuthigh;
-  double _ratiomaxcutlow;
-  double _presamplecut;
-  unsigned int _niter;
+  const unsigned int _firstsample;
+  const unsigned int _lastsample;
+  const unsigned int _nsamplesPN;
+  const unsigned int _presamplePN;
+  const unsigned int _firstsamplePN;
+  const unsigned int _lastsamplePN;
+  const unsigned int _timingcutlow;
+  const unsigned int _timingcuthigh;
+  const unsigned int _timingquallow;
+  const unsigned int _timingqualhigh;
+  const double _ratiomincutlow;
+  const double _ratiomincuthigh;
+  const double _ratiomaxcutlow;
+  const double _presamplecut;
+  const unsigned int _niter;
   bool _fitab;
-  double _alpha;
-  double _beta;
-  unsigned int _nevtmax;
-  double _noise;
-  double _chi2cut;
-  std::string _ecalPart;
-  bool _docorpn;
-  int _fedid;
-  bool _saveallevents;
-  double _qualpercent;
-  int _debug;
+  const double _alpha;
+  const double _beta;
+  const unsigned int _nevtmax;
+  const double _noise;
+  const double _chi2cut;
+  const std::string _ecalPart;
+  const bool _docorpn;
+  const int _fedid;
+  const bool _saveallevents;
+  const double _qualpercent;
+  const int _debug;
 
   TAPDPulse *APDPulse;
   TPNPulse *PNPulse;
@@ -102,13 +121,8 @@ private:
 
   bool doesABTreeExist;
 
-  std::string resdir_;
-  std::string pncorfile_;
-  std::string digiCollection_;
-  std::string digiPNCollection_;
-  std::string digiProducer_;
-  std::string eventHeaderCollection_;
-  std::string eventHeaderProducer_;
+  const std::string resdir_;
+  const std::string pncorfile_;
 
   // Output file names
 
@@ -232,3 +246,4 @@ private:
   bool isGainOK;
   bool isTimingOK;
 };
+#endif

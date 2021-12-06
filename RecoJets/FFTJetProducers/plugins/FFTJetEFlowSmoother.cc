@@ -51,6 +51,9 @@ using namespace fftjetcms;
 class FFTJetEFlowSmoother : public FFTJetInterface {
 public:
   explicit FFTJetEFlowSmoother(const edm::ParameterSet&);
+  FFTJetEFlowSmoother() = delete;
+  FFTJetEFlowSmoother(const FFTJetEFlowSmoother&) = delete;
+  FFTJetEFlowSmoother& operator=(const FFTJetEFlowSmoother&) = delete;
   ~FFTJetEFlowSmoother() override;
 
 protected:
@@ -60,10 +63,6 @@ protected:
   void endJob() override;
 
 private:
-  FFTJetEFlowSmoother() = delete;
-  FFTJetEFlowSmoother(const FFTJetEFlowSmoother&) = delete;
-  FFTJetEFlowSmoother& operator=(const FFTJetEFlowSmoother&) = delete;
-
   void buildKernelConvolver(const edm::ParameterSet&);
 
   // Storage for convolved energy flow

@@ -56,6 +56,7 @@ private:
     ~DiscriminantCutEntry() {}
     double cutValue_;
     std::string cutName_;
+    edm::ESGetToken<PhysicsTGraphPayload, PhysicsTGraphPayloadRcd> cutToken_;
     std::unique_ptr<StringObjectFunction<TauType>> cutVariable_;
     std::unique_ptr<const TGraph> cutFunction_;
     enum { kUndefined, kFixedCut, kVariableCut };
@@ -68,6 +69,7 @@ private:
   int raw_category_idx_ = -1;
 
   std::string mvaOutputNormalizationName_;
+  edm::ESGetToken<PhysicsTFormulaPayload, PhysicsTFormulaPayloadRcd> formulaToken_;
   std::unique_ptr<const TFormula> mvaOutput_normalization_;
 
   bool isInitialized_;
@@ -98,31 +100,32 @@ namespace {
     return std::unique_ptr<const T>{static_cast<T*>(object->Clone())};
   }
 
-  std::unique_ptr<const TGraph> loadTGraphFromDB(const edm::EventSetup& es,
-                                                 const std::string& graphName,
-                                                 const int& verbosity_ = 0) {
+  std::unique_ptr<const TGraph> loadTGraphFromDB(
+      const edm::EventSetup& es,
+      const std::string& graphName,
+      const edm::ESGetToken<PhysicsTGraphPayload, PhysicsTGraphPayloadRcd>& graphToken,
+      const int& verbosity_ = 0) {
     if (verbosity_) {
       std::cout << "<loadTGraphFromDB>:" << std::endl;
       std::cout << " graphName = " << graphName << std::endl;
     }
-    edm::ESHandle<PhysicsTGraphPayload> graphPayload;
-    es.get<PhysicsTGraphPayloadRcd>().get(graphName, graphPayload);
-    return std::unique_ptr<const TGraph>{new TGraph(*graphPayload.product())};
+    return std::make_unique<TGraph>(es.getData(graphToken));
   }
 
-  std::unique_ptr<TFormula> loadTFormulaFromDB(const edm::EventSetup& es,
-                                               const std::string& formulaName,
-                                               const TString& newName,
-                                               const int& verbosity_ = 0) {
+  std::unique_ptr<TFormula> loadTFormulaFromDB(
+      const edm::EventSetup& es,
+      const std::string& formulaName,
+      const edm::ESGetToken<PhysicsTFormulaPayload, PhysicsTFormulaPayloadRcd>& formulaToken_,
+      const TString& newName,
+      const int& verbosity_ = 0) {
     if (verbosity_) {
       std::cout << "<loadTFormulaFromDB>:" << std::endl;
       std::cout << " formulaName = " << formulaName << std::endl;
     }
-    edm::ESHandle<PhysicsTFormulaPayload> formulaPayload;
-    es.get<PhysicsTFormulaPayloadRcd>().get(formulaName, formulaPayload);
+    auto const& formulaPayload = es.getData(formulaToken_);
 
-    if (formulaPayload->formulas().size() == 1 && formulaPayload->limits().size() == 1) {
-      return std::make_unique<TFormula>(newName, formulaPayload->formulas().at(0).data());
+    if (formulaPayload.formulas().size() == 1 && formulaPayload.limits().size() == 1) {
+      return std::make_unique<TFormula>(newName, formulaPayload.formulas().at(0).data());
     } else {
       throw cms::Exception("TauDiscriminantCutMultiplexerT::loadTFormulaFromDB")
           << "Failed to load TFormula = " << formulaName << " from Database !!\n";
@@ -143,13 +146,16 @@ TauDiscriminantCutMultiplexerT<TauType, TauTypeRef, ParentClass>::TauDiscriminan
 
   verbosity_ = cfg.getParameter<int>("verbosity");
 
+  mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization");
+
   loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
   if (!loadMVAfromDB_) {
     inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
+  } else if (not mvaOutputNormalizationName_.empty()) {
+    formulaToken_ = this->esConsumes(edm::ESInputTag{"", mvaOutputNormalizationName_});
   }
   if (verbosity_)
     std::cout << moduleLabel_ << " loadMVA = " << loadMVAfromDB_ << std::endl;
-  mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization");
 
   // Setup our cut map, first raw values then working points
   typedef std::vector<edm::ParameterSet> VPSet;
@@ -218,6 +224,9 @@ TauDiscriminantCutMultiplexerT<TauType, TauTypeRef, ParentClass>::TauDiscriminan
       for (auto const& wp : workingPoints) {
         std::unique_ptr<DiscriminantCutEntry> cut{new DiscriminantCutEntry()};
         cut->cutName_ = categoryname + wp;
+        if (loadMVAfromDB_) {
+          cut->cutToken_ = this->esConsumes(edm::ESInputTag{"", cut->cutName_});
+        }
         std::string cutVariable_string = mappingEntry.getParameter<std::string>("variable");
         cut->cutVariable_.reset(new StringObjectFunction<TauType>(cutVariable_string));
         cut->mode_ = DiscriminantCutEntry::kVariableCut;
@@ -249,8 +258,11 @@ void TauDiscriminantCutMultiplexerT<TauType, TauTypeRef, ParentClass>::beginEven
         inputFile = openInputFile(inputFileName_);
         mvaOutput_normalization_ = loadObjectFromFile<TFormula>(*inputFile, mvaOutputNormalizationName_);
       } else {
-        auto temp = loadTFormulaFromDB(
-            es, mvaOutputNormalizationName_, Form("%s_mvaOutput_normalization", moduleLabel_.data()), verbosity_);
+        auto temp = loadTFormulaFromDB(es,
+                                       mvaOutputNormalizationName_,
+                                       formulaToken_,
+                                       Form("%s_mvaOutput_normalization", moduleLabel_.data()),
+                                       verbosity_);
         mvaOutput_normalization_ = std::move(temp);
       }
     }
@@ -267,7 +279,7 @@ void TauDiscriminantCutMultiplexerT<TauType, TauTypeRef, ParentClass>::beginEven
           } else {
             if (verbosity_)
               std::cout << "Loading from DB" << std::endl;
-            cut->cutFunction_ = loadTGraphFromDB(es, cut->cutName_, verbosity_);
+            cut->cutFunction_ = loadTGraphFromDB(es, cut->cutName_, cut->cutToken_, verbosity_);
           }
         }
       }

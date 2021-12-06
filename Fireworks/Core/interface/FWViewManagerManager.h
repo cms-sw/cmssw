@@ -51,11 +51,11 @@ public:
   void eventBegin();
   void eventEnd();
 
-private:
   FWViewManagerManager(const FWViewManagerManager&) = delete;  // stop default
 
   const FWViewManagerManager& operator=(const FWViewManagerManager&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   std::vector<std::shared_ptr<FWViewManagerBase> > m_viewManagers;
   FWModelChangeManager* m_changeManager;

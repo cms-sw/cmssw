@@ -51,8 +51,46 @@ int BeamSpotOnlineObjects::GetNumTracks() const {
 
 int BeamSpotOnlineObjects::GetNumPVs() const { return BeamSpotOnlineObjectsImpl::getOneParam(intParams_, NUM_PVS); }
 
+int BeamSpotOnlineObjects::GetUsedEvents() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(intParams_, USED_EVENTS);
+}
+
+int BeamSpotOnlineObjects::GetMaxPVs() const { return BeamSpotOnlineObjectsImpl::getOneParam(intParams_, MAX_PVS); }
+
+float BeamSpotOnlineObjects::GetMeanPV() const { return BeamSpotOnlineObjectsImpl::getOneParam(floatParams_, MEAN_PV); }
+
+float BeamSpotOnlineObjects::GetMeanErrorPV() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(floatParams_, ERR_MEAN_PV);
+}
+
+float BeamSpotOnlineObjects::GetRmsPV() const { return BeamSpotOnlineObjectsImpl::getOneParam(floatParams_, RMS_PV); }
+
+float BeamSpotOnlineObjects::GetRmsErrorPV() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(floatParams_, ERR_RMS_PV);
+}
+
+std::string BeamSpotOnlineObjects::GetStartTime() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(stringParams_, START_TIME);
+}
+
+std::string BeamSpotOnlineObjects::GetEndTime() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(stringParams_, END_TIME);
+}
+
+std::string BeamSpotOnlineObjects::GetLumiRange() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(stringParams_, LUMI_RANGE);
+}
+
 cond::Time_t BeamSpotOnlineObjects::GetCreationTime() const {
   return BeamSpotOnlineObjectsImpl::getOneParam(timeParams_, CREATE_TIME);
+}
+
+cond::Time_t BeamSpotOnlineObjects::GetStartTimeStamp() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(timeParams_, START_TIMESTAMP);
+}
+
+cond::Time_t BeamSpotOnlineObjects::GetEndTimeStamp() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(timeParams_, END_TIMESTAMP);
 }
 
 // setters
@@ -62,8 +100,52 @@ void BeamSpotOnlineObjects::SetNumTracks(int nTracks) {
 
 void BeamSpotOnlineObjects::SetNumPVs(int nPVs) { BeamSpotOnlineObjectsImpl::setOneParam(intParams_, NUM_PVS, nPVs); }
 
+void BeamSpotOnlineObjects::SetUsedEvents(int usedEvents) {
+  BeamSpotOnlineObjectsImpl::setOneParam(intParams_, USED_EVENTS, usedEvents);
+}
+
+void BeamSpotOnlineObjects::SetMaxPVs(int maxPVs) {
+  BeamSpotOnlineObjectsImpl::setOneParam(intParams_, MAX_PVS, maxPVs);
+}
+
+void BeamSpotOnlineObjects::SetMeanPV(float meanPVs) {
+  BeamSpotOnlineObjectsImpl::setOneParam(floatParams_, MEAN_PV, meanPVs);
+}
+
+void BeamSpotOnlineObjects::SetMeanErrorPV(float errMeanPVs) {
+  BeamSpotOnlineObjectsImpl::setOneParam(floatParams_, ERR_MEAN_PV, errMeanPVs);
+}
+
+void BeamSpotOnlineObjects::SetRmsPV(float rmsPVs) {
+  BeamSpotOnlineObjectsImpl::setOneParam(floatParams_, RMS_PV, rmsPVs);
+}
+
+void BeamSpotOnlineObjects::SetRmsErrorPV(float errRmsPVs) {
+  BeamSpotOnlineObjectsImpl::setOneParam(floatParams_, ERR_RMS_PV, errRmsPVs);
+}
+
+void BeamSpotOnlineObjects::SetStartTime(std::string startTime) {
+  BeamSpotOnlineObjectsImpl::setOneParam(stringParams_, START_TIME, startTime);
+}
+
+void BeamSpotOnlineObjects::SetEndTime(std::string endTime) {
+  BeamSpotOnlineObjectsImpl::setOneParam(stringParams_, END_TIME, endTime);
+}
+
+void BeamSpotOnlineObjects::SetLumiRange(std::string lumiRange) {
+  BeamSpotOnlineObjectsImpl::setOneParam(stringParams_, LUMI_RANGE, lumiRange);
+}
+
 void BeamSpotOnlineObjects::SetCreationTime(cond::Time_t createTime) {
   BeamSpotOnlineObjectsImpl::setOneParam(timeParams_, CREATE_TIME, createTime);
+}
+
+void BeamSpotOnlineObjects::SetStartTimeStamp(cond::Time_t starTimeStamp) {
+  BeamSpotOnlineObjectsImpl::setOneParam(timeParams_, START_TIMESTAMP, starTimeStamp);
+}
+
+void BeamSpotOnlineObjects::SetEndTimeStamp(cond::Time_t endTimeStamp) {
+  BeamSpotOnlineObjectsImpl::setOneParam(timeParams_, END_TIMESTAMP, endTimeStamp);
 }
 
 // printers

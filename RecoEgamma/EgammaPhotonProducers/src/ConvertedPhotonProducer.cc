@@ -16,6 +16,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -28,7 +29,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackEcalImpactPoint.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionVertexFinder.h"
@@ -37,6 +37,7 @@
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 
 #include <vector>
 
@@ -50,13 +51,13 @@ public:
 private:
   void buildCollections(
       edm::EventSetup const& es,
-      const edm::Handle<edm::View<reco::CaloCluster> >& scHandle,
-      const edm::Handle<edm::View<reco::CaloCluster> >& bcHandle,
-      CaloTowerCollection const& hcalTowers,
+      const edm::Handle<edm::View<reco::CaloCluster>>& scHandle,
+      const edm::Handle<edm::View<reco::CaloCluster>>& bcHandle,
+      ElectronHcalHelper const& hcalHelper,
       const edm::Handle<reco::TrackCollection>& trkHandle,
       std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr, CompareTwoTracksVectors>& allPairs,
       reco::ConversionCollection& outputConvPhotonCollection);
-  void cleanCollections(const edm::Handle<edm::View<reco::CaloCluster> >& scHandle,
+  void cleanCollections(const edm::Handle<edm::View<reco::CaloCluster>>& scHandle,
                         const edm::OrphanHandle<reco::ConversionCollection>& conversionHandle,
                         reco::ConversionCollection& outputCollection);
 
@@ -78,11 +79,11 @@ private:
   edm::EDPutTokenT<reco::ConversionCollection> convertedPhotonCollectionPutToken_;
   edm::EDPutTokenT<reco::ConversionCollection> cleanedConvertedPhotonCollectionPutToken_;
 
-  edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcBarrelCollection_;
-  edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcEndcapCollection_;
-  edm::EDGetTokenT<edm::View<reco::CaloCluster> > scHybridBarrelProducer_;
-  edm::EDGetTokenT<edm::View<reco::CaloCluster> > scIslandEndcapProducer_;
-  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster>> bcBarrelCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster>> bcEndcapCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster>> scHybridBarrelProducer_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster>> scIslandEndcapProducer_;
+  edm::EDGetTokenT<HBHERecHitCollection> hbheRecHits_;
 
   MagneticField const* magneticField_;
   TransientTrackBuilder const* transientTrackBuilder_;
@@ -104,6 +105,8 @@ private:
   double minApproachDisCut_;
   int maxNumOfCandidates_;
   bool risolveAmbiguity_;
+
+  std::unique_ptr<ElectronHcalHelper> hcalHelper_;
 
   ConversionLikelihoodCalculator likelihoodCalc_;
   std::string likelihoodWeights_;
@@ -134,7 +137,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
       bcEndcapCollection_{consumes(config.getParameter<edm::InputTag>("bcEndcapCollection"))},
       scHybridBarrelProducer_{consumes(config.getParameter<edm::InputTag>("scHybridBarrelProducer"))},
       scIslandEndcapProducer_{consumes(config.getParameter<edm::InputTag>("scIslandEndcapProducer"))},
-      hcalTowers_{consumes(config.getParameter<edm::InputTag>("hcalTowers"))},
+      hbheRecHits_{consumes(config.getParameter<edm::InputTag>("hbheRecHits"))},
       caloGeomToken_{esConsumes()},
       mFToken_{esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()},
       transientTrackToken_{esConsumes<TransientTrackBuilder, TransientTrackRecord, edm::Transition::BeginRun>(
@@ -155,6 +158,22 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
       likelihoodWeights_{config.getParameter<std::string>("MVA_weights_location")} {
   // instantiate the Track Pair Finder algorithm
   likelihoodCalc_.setWeightsFile(edm::FileInPath{likelihoodWeights_.c_str()}.fullPath().c_str());
+
+  ElectronHcalHelper::Configuration cfgCone;
+  cfgCone.hOverEConeSize = hOverEConeSize_;
+  if (cfgCone.hOverEConeSize > 0) {
+    cfgCone.onlyBehindCluster = false;
+    cfgCone.checkHcalStatus = false;
+
+    cfgCone.hbheRecHits = hbheRecHits_;
+
+    cfgCone.eThresHB = config.getParameter<EgammaHcalIsolation::arrayHB>("recHitEThresholdHB");
+    cfgCone.maxSeverityHB = config.getParameter<int>("maxHcalRecHitSeverity");
+    cfgCone.eThresHE = config.getParameter<EgammaHcalIsolation::arrayHE>("recHitEThresholdHE");
+    cfgCone.maxSeverityHE = cfgCone.maxSeverityHB;
+  }
+
+  hcalHelper_ = std::make_unique<ElectronHcalHelper>(cfgCone, consumesCollector());
 }
 
 void ConvertedPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
@@ -183,7 +202,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   // Get the Super Cluster collection in the Endcap
   bool validEndcapSCHandle = true;
-  edm::Handle<edm::View<reco::CaloCluster> > scEndcapHandle;
+  edm::Handle<edm::View<reco::CaloCluster>> scEndcapHandle;
   theEvent.getByToken(scIslandEndcapProducer_, scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the scIslandEndcapProducer";
@@ -240,21 +259,18 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   }
 
   // Get the basic cluster collection in the Barrel
-  edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
+  edm::Handle<edm::View<reco::CaloCluster>> bcBarrelHandle;
   theEvent.getByToken(bcBarrelCollection_, bcBarrelHandle);
   if (!bcBarrelHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the bcBarrelCollection";
   }
 
   // Get the basic cluster collection in the Endcap
-  edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;
+  edm::Handle<edm::View<reco::CaloCluster>> bcEndcapHandle;
   theEvent.getByToken(bcEndcapCollection_, bcEndcapHandle);
   if (!bcEndcapHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the bcEndcapCollection";
   }
-
-  // get Hcal towers collection
-  auto const& hcalTowers = theEvent.get(hcalTowers_);
 
   if (validTrackInputs) {
     //do the conversion:
@@ -267,17 +283,19 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
         t_outInTrk, outInTrkHandle, outInTrkSCAssocHandle, t_inOutTrk, inOutTrkHandle, inOutTrkSCAssocHandle);
     //LogDebug("ConvertedPhotonProducer")  << "ConvertedPhotonProducer  allPairs.size " << allPairs.size() << "\n";
 
+    hcalHelper_->beginEvent(theEvent, theEventSetup);
+
     buildCollections(theEventSetup,
                      scBarrelHandle,
                      bcBarrelHandle,
-                     hcalTowers,
+                     *hcalHelper_,
                      generalTrkHandle,
                      allPairs,
                      outputConvPhotonCollection);
     buildCollections(theEventSetup,
                      scEndcapHandle,
                      bcEndcapHandle,
-                     hcalTowers,
+                     *hcalHelper_,
                      generalTrkHandle,
                      allPairs,
                      outputConvPhotonCollection);
@@ -298,9 +316,9 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
 void ConvertedPhotonProducer::buildCollections(
     edm::EventSetup const& es,
-    const edm::Handle<edm::View<reco::CaloCluster> >& scHandle,
-    const edm::Handle<edm::View<reco::CaloCluster> >& bcHandle,
-    CaloTowerCollection const& hcalTowers,
+    const edm::Handle<edm::View<reco::CaloCluster>>& scHandle,
+    const edm::Handle<edm::View<reco::CaloCluster>>& bcHandle,
+    ElectronHcalHelper const& hcalHelper,
     const edm::Handle<reco::TrackCollection>& generalTrkHandle,
     std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr, CompareTwoTracksVectors>& allPairs,
     reco::ConversionCollection& outputConvPhotonCollection)
@@ -324,13 +342,12 @@ void ConvertedPhotonProducer::buildCollections(
       continue;
     const reco::CaloCluster* pClus = &(*aClus);
     auto const* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
-    EgammaTowerIsolation towerIso(hOverEConeSize_, 0., 0., -1, &hcalTowers);
-    double HoE = towerIso.getTowerESum(sc) / sc->energy();
+    double HoE = hcalHelper.hcalESum(*sc, 0) / sc->energy();
     if (HoE >= maxHOverE_)
       continue;
     /////
 
-    std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
+    std::vector<edm::Ref<reco::TrackCollection>> trackPairRef;
     std::vector<math::XYZPointF> trackInnPos;
     std::vector<math::XYZVectorF> trackPin;
     std::vector<math::XYZVectorF> trackPout;
@@ -529,7 +546,7 @@ void ConvertedPhotonProducer::buildCollections(
   }
 }
 
-void ConvertedPhotonProducer::cleanCollections(const edm::Handle<edm::View<reco::CaloCluster> >& scHandle,
+void ConvertedPhotonProducer::cleanCollections(const edm::Handle<edm::View<reco::CaloCluster>>& scHandle,
                                                const edm::OrphanHandle<reco::ConversionCollection>& conversionHandle,
                                                reco::ConversionCollection& outputConversionCollection) {
   reco::Conversion* newCandidate = nullptr;
@@ -571,7 +588,7 @@ void ConvertedPhotonProducer::cleanCollections(const edm::Handle<edm::View<reco:
 
 std::vector<reco::ConversionRef> ConvertedPhotonProducer::solveAmbiguity(
     const edm::OrphanHandle<reco::ConversionCollection>& conversionHandle, reco::CaloClusterPtr const& scRef) {
-  std::multimap<double, reco::ConversionRef, std::greater<double> > convMap;
+  std::multimap<double, reco::ConversionRef, std::greater<double>> convMap;
 
   for (unsigned int icp = 0; icp < conversionHandle->size(); icp++) {
     reco::ConversionRef cpRef{conversionHandle, icp};

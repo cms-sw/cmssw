@@ -28,11 +28,11 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTDataBuffer.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegLoc.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegLoc.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTExtrapolationUnit.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTEUX.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTERS.h"
@@ -82,7 +82,7 @@ L1MuDTSEU::~L1MuDTSEU() {
 //
 // run SEU
 //
-void L1MuDTSEU::run(const edm::EventSetup& c) {
+void L1MuDTSEU::run(const L1MuDTExtLut& extLUTs, const L1MuDTTFParameters& pars) {
   if (L1MuDTTFConfig::Debug(3))
     cout << "Run SEU " << m_ext << " " << m_startTS_Id << endl;
 
@@ -121,7 +121,7 @@ void L1MuDTSEU::run(const edm::EventSetup& c) {
     const L1MuDTTrackSegPhi* target_ts = m_sp.data()->getTSphi(target, reladr);
     if (target_ts && !target_ts->empty()) {
       m_EUXs[reladr]->load(m_startTS, target_ts);
-      m_EUXs[reladr]->run(c);
+      m_EUXs[reladr]->run(extLUTs, pars);
       if (m_EUXs[reladr]->result())
         m_EXtable.set(reladr);
     }

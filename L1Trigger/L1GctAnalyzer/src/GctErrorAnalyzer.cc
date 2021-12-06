@@ -55,10 +55,12 @@ Implementation:
 //
 
 class GctErrorAnalyzer : public edm::EDAnalyzer {
-private:
+public:
   GctErrorAnalyzer() = delete;
   GctErrorAnalyzer(const GctErrorAnalyzer &) = delete;
   GctErrorAnalyzer operator=(const GctErrorAnalyzer &) = delete;
+
+private:
   void plotRCTRegions(const edm::Handle<L1CaloRegionCollection> &caloRegions);
   void plotIsoEm(const edm::Handle<L1GctEmCandCollection> &data, const edm::Handle<L1GctEmCandCollection> &emu);
   void plotNonIsoEm(const edm::Handle<L1GctEmCandCollection> &data, const edm::Handle<L1GctEmCandCollection> &emu);

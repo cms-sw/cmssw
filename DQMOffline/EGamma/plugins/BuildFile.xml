@@ -12,6 +12,7 @@
 <use name="clhep"/>
 <use name="CommonTools/Statistics"/>
 <use name="CommonTools/UtilAlgos"/>
+<use name="TrackingTools/TrajectoryState"/>
 <use name="root"/>
 <use name="roofit"/>
 <use name="boost"/>

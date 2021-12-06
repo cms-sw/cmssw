@@ -33,7 +33,7 @@ process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 
 # customise for playback
-if process.dqmRunConfig.type.value() is "playback":
+if process.dqmRunConfig.type.value() == "playback":
     process.dqmEnv.eventInfoFolder = 'EventInfo/Random'
 
 # DQM Modules
@@ -41,8 +41,8 @@ if process.dqmRunConfig.type.value() is "playback":
 process.load('HLTrigger.Timer.fastTimerServiceClient_cfi')
 process.fastTimerServiceClient.dqmPath = "HLT/TimerService"
 # timing VS lumi
-process.fastTimerServiceClient.doPlotsVsScalLumi  = cms.bool(True)
-process.fastTimerServiceClient.doPlotsVsPixelLumi = cms.bool(False)
+process.fastTimerServiceClient.doPlotsVsScalLumi  = True
+process.fastTimerServiceClient.doPlotsVsPixelLumi = False
 process.fastTimerServiceClient.scalLumiME = cms.PSet(
     folder = cms.string('HLT/LumiMonitoring'),
     name   = cms.string('lumiVsLS'),
@@ -85,5 +85,5 @@ process.psColumnVsLumi = process.dqmCorrelationClient.clone(
 process.load('DQM.HLTEvF.psMonitorClient_cfi')
 process.psChecker = process.psMonitorClient.clone()
 
-
+print("Final Source settings:", process.source)
 process.p = cms.EndPath( process.fastTimerServiceClient + process.throughputServiceClient + process.psColumnVsLumi + process.psChecker + process.dqmEnv + process.dqmSaver + process.dqmSaverPB )

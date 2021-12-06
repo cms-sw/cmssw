@@ -16,7 +16,6 @@
     <Numeric name="waferSize"        value="[hgcal:WaferSize]"/>
     <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>
     <Numeric name="Sectors"          value="36"/>
-    <String  name="LayerRotation"    value="hgcal:LayerRotation"/>
     <Vector name="SlopeBottom" type="numeric" nEntries="4">
       0, 0, 0, 0</Vector>
     <Vector name="ZFrontBottom" type="numeric" nEntries="4">
@@ -126,8 +125,6 @@
       -1, 0, -1, 1, -2, -1, 0, -1, 1, -2, -1, 0, -1, 1, -2,
       -1, 0, -1, 1, -2, -1, 0, -1, 1, -2, -1, 0, -1, 1, -2,
       -1, 0, -1, 1, -2, -1, 0, -1, 1, -2</Vector>
-    <Vector name="LayerCenter" type="numeric" nEntries="14">
-      1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2</Vector>
     <Vector name="TopMaterialNames" type="string" nEntries="6">
       materials:Air, materials:Cables, materials:Air,
       materials:H_Scintillator, materials:Epoxy,

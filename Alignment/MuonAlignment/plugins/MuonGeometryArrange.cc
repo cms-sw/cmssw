@@ -47,7 +47,20 @@ MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg)
       firstEvent_(true),
       idealInputLabel1("MuonGeometryArrangeLabel1"),
       idealInputLabel2("MuonGeometryArrangeLabel2"),
-      idealInputLabel2a("MuonGeometryArrangeLabel2a") {
+      idealInputLabel2a("MuonGeometryArrangeLabel2a"),
+      geomIdeal("MuonGeometryArrangeGeomIdeal"),
+      dtGeomToken1_(esConsumes(edm::ESInputTag("", idealInputLabel1))),
+      cscGeomToken1_(esConsumes(edm::ESInputTag("", idealInputLabel1))),
+      gemGeomToken1_(esConsumes(edm::ESInputTag("", idealInputLabel1))),
+      dtGeomToken2_(esConsumes(edm::ESInputTag("", idealInputLabel2))),
+      cscGeomToken2_(esConsumes(edm::ESInputTag("", idealInputLabel2))),
+      gemGeomToken2_(esConsumes(edm::ESInputTag("", idealInputLabel2))),
+      dtGeomToken3_(esConsumes(edm::ESInputTag("", idealInputLabel2a))),
+      cscGeomToken3_(esConsumes(edm::ESInputTag("", idealInputLabel2a))),
+      gemGeomToken3_(esConsumes(edm::ESInputTag("", idealInputLabel2a))),
+      dtGeomIdealToken_(esConsumes(edm::ESInputTag("", geomIdeal))),
+      cscGeomIdealToken_(esConsumes(edm::ESInputTag("", geomIdeal))),
+      gemGeomIdealToken_(esConsumes(edm::ESInputTag("", geomIdeal))) {
   referenceMuon = nullptr;
   currentMuon = nullptr;
   // Input is XML
@@ -622,14 +635,31 @@ void MuonGeometryArrange::createROOTGeometry(const edm::EventSetup& iSetup) {}
 //////////////////////////////////////////////////
 void MuonGeometryArrange::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   if (firstEvent_) {
-    // My stuff
-    MuonAlignmentInputXML inputMethod1(_inputXMLCurrent, idealInputLabel1);
+    MuonAlignmentInputXML inputMethod1(_inputXMLCurrent,
+                                       &iSetup.getData(dtGeomToken1_),
+                                       &iSetup.getData(cscGeomToken1_),
+                                       &iSetup.getData(gemGeomToken1_),
+                                       &iSetup.getData(dtGeomToken1_),
+                                       &iSetup.getData(cscGeomToken1_),
+                                       &iSetup.getData(gemGeomToken1_));
     inputAlign1 = new MuonAlignment(iSetup, inputMethod1);
     inputAlign1->fillGapsInSurvey(0, 0);
-    MuonAlignmentInputXML inputMethod2(_inputXMLReference, idealInputLabel2);
+    MuonAlignmentInputXML inputMethod2(_inputXMLReference,
+                                       &iSetup.getData(dtGeomToken2_),
+                                       &iSetup.getData(cscGeomToken2_),
+                                       &iSetup.getData(gemGeomToken2_),
+                                       &iSetup.getData(dtGeomToken1_),
+                                       &iSetup.getData(cscGeomToken1_),
+                                       &iSetup.getData(gemGeomToken1_));
     inputAlign2 = new MuonAlignment(iSetup, inputMethod2);
     inputAlign2->fillGapsInSurvey(0, 0);
-    MuonAlignmentInputXML inputMethod2a(_inputXMLReference, idealInputLabel2a);
+    MuonAlignmentInputXML inputMethod2a(_inputXMLReference,
+                                        &iSetup.getData(dtGeomToken3_),
+                                        &iSetup.getData(cscGeomToken3_),
+                                        &iSetup.getData(gemGeomToken3_),
+                                        &iSetup.getData(dtGeomToken1_),
+                                        &iSetup.getData(cscGeomToken1_),
+                                        &iSetup.getData(gemGeomToken1_));
     inputAlign2a = new MuonAlignment(iSetup, inputMethod2a);
     inputAlign2a->fillGapsInSurvey(0, 0);
 

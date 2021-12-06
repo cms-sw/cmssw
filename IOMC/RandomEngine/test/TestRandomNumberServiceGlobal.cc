@@ -65,7 +65,7 @@ the text file containing the states.
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
-#include "IOMC/RandomEngine/src/TRandomAdaptor.h"
+#include "IOMC/RandomEngine/interface/TRandomAdaptor.h"
 
 #include "CLHEP/Random/RandExponential.h"
 #include "CLHEP/Random/RandomEngine.h"

@@ -84,7 +84,7 @@ TEST_CASE("test ESRecordsToProxyIndices", "[ESRecordsToProxyIndices]") {
       index = 0;
       auto it = pr.second.second.begin();
       for (auto const& dk : pr.second.first) {
-        REQUIRE(index == r2pi.indexInRecord(pr.first, dk).value());
+        REQUIRE(index == (unsigned)r2pi.indexInRecord(pr.first, dk).value());
         REQUIRE(*it == r2pi.component(pr.first, dk));
         ++index;
         ++it;

@@ -60,7 +60,7 @@ public:
   enum class SeedingMode { CANDIDATE_SEEDED, POINT_SEEDED, CANDIDATE_POINT_SEEDED };
 
   explicit CandidatePointSeededTrackingRegionsProducer(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
-      : m_origins(conf.getParameter<edm::ParameterSet>("RegionPSet"), iC) {
+      : m_origins(conf.getParameter<edm::ParameterSet>("RegionPSet"), iC), token_field(iC.esConsumes()) {
     edm::ParameterSet regPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
 
     // seeding mode
@@ -142,9 +142,13 @@ public:
     m_searchOpt = false;
     if (regPSet.exists("searchOpt"))
       m_searchOpt = regPSet.getParameter<bool>("searchOpt");
+
+    if (m_precise) {
+      token_msmaker = iC.esConsumes();
+    }
   }
 
-  ~CandidatePointSeededTrackingRegionsProducer() override {}
+  ~CandidatePointSeededTrackingRegionsProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -209,6 +213,12 @@ public:
       measurementTracker = hmte.product();
     }
 
+    const auto& field = es.getData(token_field);
+    const MultipleScatteringParametrisationMaker* msmaker = nullptr;
+    if (m_precise) {
+      msmaker = &es.getData(token_msmaker);
+    }
+
     // create tracking regions (maximum MaxNRegions of them) in directions of the
     // objects of interest (we expect that the collection was sorted in decreasing pt order)
     int n_regions = 0;
@@ -225,8 +235,10 @@ public:
                                                                              origin.second,
                                                                              m_deltaEta_Cand,
                                                                              m_deltaPhi_Cand,
-                                                                             m_whereToUseMeasurementTracker,
+                                                                             field,
+                                                                             msmaker,
                                                                              m_precise,
+                                                                             m_whereToUseMeasurementTracker,
                                                                              measurementTracker,
                                                                              m_searchOpt));
           ++n_regions;
@@ -250,8 +262,10 @@ public:
                                                                              origin.second,
                                                                              m_deltaEta_Point,
                                                                              m_deltaPhi_Point,
-                                                                             m_whereToUseMeasurementTracker,
+                                                                             field,
+                                                                             msmaker,
                                                                              m_precise,
+                                                                             m_whereToUseMeasurementTracker,
                                                                              measurementTracker,
                                                                              m_searchOpt));
           ++n_regions;
@@ -318,8 +332,10 @@ public:
                                                                                origin.second,
                                                                                deltaEta_RoI,
                                                                                deltaPhi_RoI,
-                                                                               m_whereToUseMeasurementTracker,
+                                                                               field,
+                                                                               msmaker,
                                                                                m_precise,
+                                                                               m_whereToUseMeasurementTracker,
                                                                                measurementTracker,
                                                                                m_searchOpt));
             ++n_regions;
@@ -360,6 +376,8 @@ private:
   bool m_precise;
   edm::EDGetTokenT<MeasurementTrackerEvent> m_token_measurementTracker;
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_whereToUseMeasurementTracker;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_field;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> token_msmaker;
   bool m_searchOpt;
 };
 

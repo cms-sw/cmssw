@@ -6,9 +6,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
 
@@ -18,6 +17,8 @@
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
+#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
 #include "G4ThreeVector.hh"
 
@@ -38,8 +39,8 @@ class RandomEngineAndDistribution;
 class FastHFShowerLibrary {
 public:
   // Constructor and Destructor
-  FastHFShowerLibrary(edm::ParameterSet const& p);
-  ~FastHFShowerLibrary() { ; }
+  FastHFShowerLibrary(edm::ParameterSet const&, edm::ConsumesCollector&&);
+  ~FastHFShowerLibrary() {}
 
 public:
   void const initHFShowerLibrary(const edm::EventSetup&);
@@ -60,5 +61,8 @@ private:
 
   bool applyFidCut;
   std::string name;
+
+  const edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> hcalDDDSimConstantsESToken_;
+  const edm::ESGetToken<HcalSimulationConstants, HcalSimNumberingRecord> hcalSimulationConstantsESToken_;
 };
 #endif

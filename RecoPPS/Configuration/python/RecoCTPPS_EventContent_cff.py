@@ -20,6 +20,9 @@ RecoCTPPSAOD = cms.PSet(
     'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*',
     'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHits_*_*',
     'keep CTPPSDiamondLocalTrackedmDetSetVector_ctppsDiamondLocalTracks_*_*',
+    
+    #diamond sampic
+    'keep TotemTimingLocalTrackedmDetSetVector_diamondSampicLocalTracks_*_*',
 
     # TOTEM timing
     'keep TotemTimingDigiedmDetSetVector_totemTimingRawToDigi_*_*',

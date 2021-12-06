@@ -13,7 +13,7 @@ MuonSubDetector::MuonSubDetector(const std::string& name) : detectorName(name) {
   } else if (name == "MuonME0Hits") {
     detector = me0;
   } else {
-    edm::LogWarning("Geometry") << "MuonSubDetector::MuonSubDetector does not recognize " << name;
+    edm::LogWarning("MuonGeom") << "MuonSubDetector::MuonSubDetector does not recognize " << name;
     detector = nodef;
   }
 }

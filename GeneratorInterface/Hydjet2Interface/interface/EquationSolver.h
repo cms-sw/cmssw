@@ -64,6 +64,6 @@ public:
   bool Brent(Function& theFunction);
 };
 
-#include "GeneratorInterface/Hydjet2Interface/src/EquationSolver.icc"
+#include "GeneratorInterface/Hydjet2Interface/interface/EquationSolver.icc"
 
 #endif

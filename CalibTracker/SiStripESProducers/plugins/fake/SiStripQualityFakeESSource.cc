@@ -25,10 +25,9 @@ SiStripQualityFakeESSource::SiStripQualityFakeESSource(const edm::ParameterSet& 
 }
 
 std::unique_ptr<SiStripQuality> SiStripQualityFakeESSource::produce(const SiStripQualityRcd& iRecord) {
-  edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
-  SiStripDetInfoFileReader reader(path.fullPath());
-
-  return std::make_unique<SiStripQuality>(reader.info());
+  const auto detInfo =
+      SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+  return std::make_unique<SiStripQuality>(detInfo);
 }
 
 void SiStripQualityFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,

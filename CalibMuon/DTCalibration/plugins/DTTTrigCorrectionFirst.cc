@@ -25,24 +25,24 @@
 using namespace edm;
 using namespace std;
 
-DTTTrigCorrectionFirst::DTTTrigCorrectionFirst(const ParameterSet& pset) {
+DTTTrigCorrectionFirst::DTTTrigCorrectionFirst(const ParameterSet& pset)
+    : dtGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      ttrigToken_(
+          esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")))) {
   debug = pset.getUntrackedParameter<bool>("debug", false);
   ttrigMin = pset.getUntrackedParameter<double>("ttrigMin", 0);
   ttrigMax = pset.getUntrackedParameter<double>("ttrigMax", 5000);
   rmsLimit = pset.getUntrackedParameter<double>("rmsLimit", 5.);
-
-  dbLabel = pset.getUntrackedParameter<string>("dbLabel", "");
 }
 
 DTTTrigCorrectionFirst::~DTTTrigCorrectionFirst() {}
 
 void DTTTrigCorrectionFirst::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(dbLabel, tTrig);
-  tTrigMap = &*tTrig;
+  tTrig = setup.getHandle(ttrigToken_);
+  tTrigMap = &setup.getData(ttrigToken_);
   cout << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
-
-  setup.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = setup.getHandle(dtGeomToken_);
 }
 
 void DTTTrigCorrectionFirst::endJob() {

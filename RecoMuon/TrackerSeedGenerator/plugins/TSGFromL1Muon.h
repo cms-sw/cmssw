@@ -9,6 +9,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromProtoTrack.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
@@ -30,10 +31,10 @@ public:
 
 private:
 private:
-  edm::ParameterSet theConfig;
   edm::InputTag theSourceTag;
   edm::EDGetTokenT<l1extra::L1MuonParticleCollection> theSourceToken;
   edm::EDGetTokenT<PixelTrackFilter> theFilterToken;
+  const SeedFromProtoTrack::Config theSFPTConfig;
 
   std::unique_ptr<L1MuonRegionProducer> theRegionProducer;
   std::unique_ptr<OrderedHitsGenerator> theHitGenerator;

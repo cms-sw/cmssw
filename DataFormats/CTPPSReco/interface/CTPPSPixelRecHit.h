@@ -1,10 +1,10 @@
 /*
  *
-* This is a part of CTPPS offline software.
-* Author:
-*   Fabrizio Ferro (ferro@ge.infn.it)
-*
-*/
+ * This is a part of CTPPS offline software.
+ * Author:
+ *   Fabrizio Ferro (ferro@ge.infn.it)
+ *
+ */
 
 #ifndef DataFormats_CTPPSReco_CTPPSPixelRecHit_H
 #define DataFormats_CTPPSReco_CTPPSPixelRecHit_H
@@ -16,10 +16,8 @@
 
 class CTPPSPixelRecHit {
 public:
-  CTPPSPixelRecHit() {}
-
-  CTPPSPixelRecHit(LocalPoint lp,
-                   LocalError le,
+  CTPPSPixelRecHit(LocalPoint lp = LocalPoint(0., 0., 0.),
+                   LocalError le = LocalError(0., 0., 0.),
                    bool edge = false,
                    bool bad = false,
                    bool rocs = false,

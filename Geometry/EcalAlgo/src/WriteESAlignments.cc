@@ -2,6 +2,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
@@ -31,23 +32,23 @@ void WEA::writeAlignments(const edm::EventSetup& eventSetup,
   assert(ytranslVec.size() == k_nA);
   assert(ztranslVec.size() == k_nA);
 
-  AliPtr aliPtr(new Alignments);  // writeOne will take ownership!
-  AliVec& vali(aliPtr->m_align);
+  Alignments ali;
+  AliVec& vali(ali.m_align);
 
   convert(eventSetup, alphaVec, betaVec, gammaVec, xtranslVec, ytranslVec, ztranslVec, vali);
 
-  write(aliPtr);
+  write(ali);
 }
 
-void WEA::write(WEA::AliPtr aliPtr) {
-  std::cout << "Uploading ES alignments to the database" << std::endl;
+void WEA::write(const Alignments& ali) {
+  edm::LogVerbatim("WriteESAlignments") << "Uploading ES alignments to the database";
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
   if (!poolDbService.isAvailable())
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
-  poolDbService->writeOne<Alignments>(&(*aliPtr), poolDbService->currentTime(), "ESAlignmentRcd");
+  poolDbService->writeOneIOV<Alignments>(ali, poolDbService->currentTime(), "ESAlignmentRcd");
 }
 
 void WEA::convert(const edm::EventSetup& eS,
@@ -92,20 +93,22 @@ void WEA::convert(const edm::EventSetup& eS,
 
     const Trl s_n(t_n + s_p + q_I - InvL_n * q_I);
 
-    std::cout << "For i = " << i << ", q_I=" << q_I << std::endl;
-    std::cout << "For i = " << i << ", s_p=" << s_p << std::endl;
-    std::cout << "For i = " << i << ", alpha = " << 1000. * alpha << " mr" << std::endl;
-    std::cout << "For i = " << i << ", beta  = " << 1000. * beta << " mr" << std::endl;
-    std::cout << "For i = " << i << ", gamma = " << 1000. * gamma << " mr" << std::endl;
-    std::cout << " For i = " << i << ", L_n = " << L_n << "   Euler angles=" << InvL_n.eulerAngles() << "\n"
-              << std::endl;
-    std::cout << "For i = " << i << ", t_n=" << t_n << std::endl;
-    std::cout << "For i = " << i << ", G_p=" << G_p << "   Euler angles=" << G_p.eulerAngles() << "\n" << std::endl;
-    std::cout << " For i = " << i << ", InvL_n = " << InvL_n << "   Euler angles=" << InvL_n.eulerAngles() << "\n"
-              << std::endl;
-    std::cout << " For i =" << i << ", G_n = " << G_n << "    Euler angles=" << G_n.eulerAngles() << "\n" << std::endl;
-    std::cout << " For i =" << i << ", s_n = " << s_n << std::endl;
-    std::cout << "++++++++++++++++++++++++++\n\n" << std::endl;
+    edm::LogVerbatim("WriteESAlignments") << "For i = " << i << ", q_I=" << q_I;
+    edm::LogVerbatim("WriteESAlignments") << "For i = " << i << ", s_p=" << s_p;
+    edm::LogVerbatim("WriteESAlignments") << "For i = " << i << ", alpha = " << 1000. * alpha << " mr";
+    edm::LogVerbatim("WriteESAlignments") << "For i = " << i << ", beta  = " << 1000. * beta << " mr";
+    edm::LogVerbatim("WriteESAlignments") << "For i = " << i << ", gamma = " << 1000. * gamma << " mr";
+    edm::LogVerbatim("WriteESAlignments")
+        << " For i = " << i << ", L_n = " << L_n << "   Euler angles=" << InvL_n.eulerAngles() << "\n";
+    edm::LogVerbatim("WriteESAlignments") << "For i = " << i << ", t_n=" << t_n;
+    edm::LogVerbatim("WriteESAlignments")
+        << "For i = " << i << ", G_p=" << G_p << "   Euler angles=" << G_p.eulerAngles() << "\n";
+    edm::LogVerbatim("WriteESAlignments")
+        << " For i = " << i << ", InvL_n = " << InvL_n << "   Euler angles=" << InvL_n.eulerAngles() << "\n";
+    edm::LogVerbatim("WriteESAlignments")
+        << " For i =" << i << ", G_n = " << G_n << "    Euler angles=" << G_n.eulerAngles() << "\n";
+    edm::LogVerbatim("WriteESAlignments") << " For i =" << i << ", s_n = " << s_n;
+    edm::LogVerbatim("WriteESAlignments") << "++++++++++++++++++++++++++\n\n";
 
     va.emplace_back(AlignTransform(s_n, G_n, id));
   }

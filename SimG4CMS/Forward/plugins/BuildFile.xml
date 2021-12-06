@@ -4,6 +4,7 @@
 <use name="SimG4Core/Notification"/>
 <use name="SimG4CMS/Forward"/>
 <use name="SimDataFormats/CaloTest"/>
+<use name="SimDataFormats/Forward"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>

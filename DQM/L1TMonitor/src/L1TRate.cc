@@ -495,12 +495,11 @@ bool L1TRate::getXSexFitsPython(const edm::ParameterSet& ps) {
           foundFit = true;
           break;
         }
-
-        if (!foundFit) {
-          noError = false;
-          string eName = "WARNING_PY_MISSING_FIT";
-          m_ErrorMonitor->Fill(eName);
-        }
+      }
+      if (!foundFit) {
+        noError = false;
+        string eName = "WARNING_PY_MISSING_FIT";
+        m_ErrorMonitor->Fill(eName);
       }
     }
   }

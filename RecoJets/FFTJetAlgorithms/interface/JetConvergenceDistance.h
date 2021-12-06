@@ -11,13 +11,12 @@ namespace fftjetcms {
       : public fftjet::Functor2<double, fftjet::RecombinedJet<VectorLike>, fftjet::RecombinedJet<VectorLike> > {
   public:
     JetConvergenceDistance(double etaToPhiBandwidthRatio, double relativePtBandwidth);
+    JetConvergenceDistance() = delete;
 
     double operator()(const fftjet::RecombinedJet<VectorLike>& jet1,
                       const fftjet::RecombinedJet<VectorLike>& jet2) const override;
 
   private:
-    JetConvergenceDistance() = delete;
-
     double etaBw_;
     double phiBw_;
     double ptBw_;

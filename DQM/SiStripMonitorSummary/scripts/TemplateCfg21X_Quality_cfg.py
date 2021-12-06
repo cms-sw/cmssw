@@ -50,40 +50,38 @@ process.DQMStore = cms.Service("DQMStore",
     verbose = cms.untracked.int32(1)
 )
 
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-siStripCond = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
+from CalibTracker.Configuration.Common.PoolDBESSource_cfi import *
+siStripCond = poolDBESSource.clone(
+    toGet = (
+        poolDBESSource.toGet[0].clone(
+            record = 'SiStripFedCablingRcd',
+            tag = 'insert_FedCablingTag'
+        ), 
+        poolDBESSource.toGet[0].clone( 
+            record = 'SiStripNoisesRcd',
+            tag = 'insert_NoiseTag'
+        ), 
+        poolDBESSource.toGet[0].clone(
+            record = 'SiStripPedestalsRcd',
+            tag = 'insert_PedestalTag'
+        ),
+        poolDBESSource.toGet[0].clone(
+            record = 'SiStripApvGainRcd',
+            tag = 'SiStripGain_Ideal_21X'
+        ),
+        poolDBESSource.toGet[0].clone(
+            record = 'SiStripLorentzAngleRcd',
+            tag = 'SiStripLorentzAngle_Ideal_21X'
+        ),     
+        poolDBESSource.toGet[0].clone(
+            record = 'SiStripThresholdRcd',
+            tag = 'insert_ThresholdTag'
+        )
+    ),
+    connect = 'frontier://cmsfrontier.cern.ch:8000/FrontierProd/insertAccount'
+)
 
 sistripconn = cms.ESProducer("SiStripConnectivity")
-
-siStripCond.toGet = cms.VPSet(
-    cms.PSet(
-    record = cms.string('SiStripFedCablingRcd'),
-    tag = cms.string('insert_FedCablingTag')
-    ), 
-    cms.PSet( 
-        record = cms.string('SiStripNoisesRcd'),
-        tag = cms.string('insert_NoiseTag')
-    ), 
-    cms.PSet(
-        record = cms.string('SiStripPedestalsRcd'),
-        tag = cms.string('insert_PedestalTag')
-    ),
-    cms.PSet(
-        record = cms.string('SiStripApvGainRcd'),
-        tag = cms.string('SiStripGain_Ideal_21X')
-    ),
-    cms.PSet(
-        record = cms.string('SiStripLorentzAngleRcd'),
-        tag = cms.string('SiStripLorentzAngle_Ideal_21X')
-    ),     
-    cms.PSet(
-        record = cms.string('SiStripThresholdRcd'),
-        tag = cms.string('insert_ThresholdTag')
-    ))
-
-
-    
-siStripCond.connect = 'frontier://cmsfrontier.cern.ch:8000/FrontierProd/insertAccount'
 
 process.a = cms.ESSource("PoolDBESSource",
     appendToDataLabel = cms.string('test'),

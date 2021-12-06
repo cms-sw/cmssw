@@ -10,6 +10,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/Common/interface/ValidHandle.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
@@ -32,6 +33,11 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "HepMC/GenRanges.h"
+#include "CLHEP/Units/PhysicalConstants.h"
+
 class MtdTracksValidation : public DQMEDAnalyzer {
 public:
   explicit MtdTracksValidation(const edm::ParameterSet&);
@@ -44,6 +50,10 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
+  const bool mvaGenSel(const HepMC::GenParticle&, const float&);
+  const bool mvaRecSel(const reco::TrackBase&, const reco::Vertex&, const double&, const double&);
+  const bool mvaGenRecMatch(const HepMC::GenParticle&, const double&, const reco::TrackBase&);
+
   // ------------ member data ------------
 
   const std::string folder_;
@@ -51,9 +61,18 @@ private:
   const float trackMinEta_;
   const float trackMaxEta_;
 
+  static constexpr double etacutGEN_ = 4.;     // |eta| < 4;
+  static constexpr double etacutREC_ = 3.;     // |eta| < 3;
+  static constexpr double pTcut_ = 0.7;        // PT > 0.7 GeV
+  static constexpr double deltaZcut_ = 0.1;    // dz separation 1 mm
+  static constexpr double deltaPTcut_ = 0.05;  // dPT < 5%
+  static constexpr double deltaDRcut_ = 0.03;  // DeltaR separation
+
   edm::EDGetTokenT<reco::TrackCollection> GenRecTrackToken_;
   edm::EDGetTokenT<reco::TrackCollection> RecTrackToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> RecVertexToken_;
+
+  edm::EDGetTokenT<edm::HepMCProduct> HepMCProductToken_;
 
   edm::EDGetTokenT<edm::ValueMap<int>> trackAssocToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> pathLengthToken_;
@@ -69,6 +88,7 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> trackMVAQualToken_;
 
   edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleTableToken_;
 
   MonitorElement* meBTLTrackRPTime_;
   MonitorElement* meBTLTrackEffEtaTot_;
@@ -99,9 +119,15 @@ private:
   MonitorElement* meTrackMVAQual_;
   MonitorElement* meTrackPathLenghtvsEta_;
 
-  MonitorElement* meVerNumber_;
-  MonitorElement* meVerZ_;
-  MonitorElement* meVerTime_;
+  MonitorElement* meMVATrackEffPtTot_;
+  MonitorElement* meMVATrackMatchedEffPtTot_;
+  MonitorElement* meMVATrackMatchedEffPtMtd_;
+  MonitorElement* meMVATrackEffEtaTot_;
+  MonitorElement* meMVATrackMatchedEffEtaTot_;
+  MonitorElement* meMVATrackMatchedEffEtaMtd_;
+  MonitorElement* meMVATrackResTot_;
+  MonitorElement* meMVATrackPullTot_;
+  MonitorElement* meMVATrackZposResTot_;
 };
 
 // ------------ constructor and destructor --------------
@@ -113,6 +139,7 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   GenRecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagG"));
   RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
   RecVertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTagV"));
+  HepMCProductToken_ = consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("inputTagH"));
   trackAssocToken_ = consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("trackAssocSrc"));
   pathLengthToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pathLengthSrc"));
   tmtdToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("tmtd"));
@@ -125,6 +152,7 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   Sigmat0SafePidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0SafePID"));
   trackMVAQualToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("trackMVAQual"));
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
+  particleTableToken_ = esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord>();
 }
 
 MtdTracksValidation::~MtdTracksValidation() {}
@@ -169,7 +197,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     index++;
 
     if (trackAssoc[trackref] == -1) {
-      LogWarning("mtdTracks") << "Extended track not associated";
+      LogInfo("mtdTracks") << "Extended track not associated";
       continue;
     }
 
@@ -179,8 +207,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     if (track.pt() < trackMinPt_)
       continue;
 
-    meTracktmtd_->Fill(tMtd[mtdTrackref]);
-    if (std::round(SigmatMtd[mtdTrackref] - Sigmat0Pid[trackref]) != 0) {
+    meTracktmtd_->Fill(tMtd[trackref]);
+    if (std::round(SigmatMtd[trackref] - Sigmat0Pid[trackref]) != 0) {
       LogWarning("mtdTracks") << "TimeError associated to refitted track is different from TimeError stored in tofPID "
                                  "sigmat0 ValueMap: this should not happen";
     }
@@ -194,7 +222,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     meTrackSigmat0SafePid_->Fill(Sigmat0Safe[trackref]);
     meTrackMVAQual_->Fill(mtdQualMVA[trackref]);
 
-    meTrackPathLenghtvsEta_->Fill(std::abs(track.eta()), pathLength[mtdTrackref]);
+    meTrackPathLenghtvsEta_->Fill(std::abs(track.eta()), pathLength[trackref]);
 
     if (std::abs(track.eta()) < trackMinEta_) {
       // --- all BTL tracks (with and without hit in MTD) ---
@@ -312,17 +340,65 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
   }  //RECO tracks loop
 
-  // --- Loop over the RECO vertices ---
-  int nv = 0;
-  for (const auto& v : *RecVertexHandle) {
-    if (v.isValid()) {
-      meVerZ_->Fill(v.z());
-      meVerTime_->Fill(v.t());
-      nv++;
-    } else
-      cout << "The vertex is not valid" << endl;
+  // reco-gen matching used for MVA quality flag
+  const auto& primRecoVtx = *(RecVertexHandle.product()->begin());
+
+  auto GenEventHandle = makeValid(iEvent.getHandle(HepMCProductToken_));
+  const HepMC::GenEvent* mc = GenEventHandle->GetEvent();
+  double zsim = convertMmToCm((*(mc->vertices_begin()))->position().z());
+  double tsim = (*(mc->vertices_begin()))->position().t() * CLHEP::mm / CLHEP::c_light;
+
+  auto pdt = iSetup.getHandle(particleTableToken_);
+  const HepPDT::ParticleDataTable* pdTable = pdt.product();
+
+  // select events with reco vertex close to true simulated primary vertex
+  if (std::abs(primRecoVtx.z() - zsim) < deltaZcut_) {
+    index = 0;
+    for (const auto& trackGen : *GenRecTrackHandle) {
+      const reco::TrackRef trackref(iEvent.getHandle(GenRecTrackToken_), index);
+      index++;
+
+      // select the reconstructed track
+
+      if (trackAssoc[trackref] == -1) {
+        continue;
+      }
+
+      if (mvaRecSel(trackGen, primRecoVtx, t0Safe[trackref], Sigmat0Safe[trackref])) {
+        meMVATrackEffPtTot_->Fill(trackGen.pt());
+        meMVATrackEffEtaTot_->Fill(std::abs(trackGen.eta()));
+
+        double dZ = trackGen.vz() - zsim;
+        double dT(-9999.);
+        double pullT(-9999.);
+        if (Sigmat0Safe[trackref] != -1.) {
+          dT = t0Safe[trackref] - tsim;
+          pullT = dT / Sigmat0Safe[trackref];
+        }
+        for (const auto& genP : mc->particle_range()) {
+          // select status 1 genParticles and match them to the reconstructed track
+
+          float charge = pdTable->particle(HepPDT::ParticleID(genP->pdg_id())) != nullptr
+                             ? pdTable->particle(HepPDT::ParticleID(genP->pdg_id()))->charge()
+                             : 0.f;
+          if (mvaGenSel(*genP, charge)) {
+            if (mvaGenRecMatch(*genP, zsim, trackGen)) {
+              meMVATrackZposResTot_->Fill(dZ);
+              meMVATrackMatchedEffPtTot_->Fill(trackGen.pt());
+              meMVATrackMatchedEffEtaTot_->Fill(std::abs(trackGen.eta()));
+              if (pullT > -9999.) {
+                meMVATrackResTot_->Fill(dT);
+                meMVATrackPullTot_->Fill(pullT);
+                meMVATrackMatchedEffPtMtd_->Fill(trackGen.pt());
+                meMVATrackMatchedEffEtaMtd_->Fill(std::abs(trackGen.eta()));
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
   }
-  meVerNumber_->Fill(nv);
 }
 
 // ------------ method for histogram booking ------------
@@ -383,9 +459,22 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meTrackMVAQual_ = ibook.book1D("TrackMVAQual", "Track MVA Quality as stored in Value Map ; MVAQual", 100, 0, 1);
   meTrackPathLenghtvsEta_ = ibook.bookProfile(
       "TrackPathLenghtvsEta", "MTD Track pathlength vs MTD track Eta;|#eta|;Pathlength", 100, 0, 3.2, 100.0, 400.0, "S");
-  meVerZ_ = ibook.book1D("VerZ", "RECO Vertex Z;Z_{RECO} [cm]", 180, -18, 18);
-  meVerTime_ = ibook.book1D("VerTime", "RECO Vertex Time;t0 [ns]", 100, -1, 1);
-  meVerNumber_ = ibook.book1D("VerNumber", "RECO Vertex Number: Number of vertices", 100, 0, 500);
+  meMVATrackEffPtTot_ = ibook.book1D("MVAEffPtTot", "Pt of tracks associated to LV; track pt [GeV] ", 110, 0., 11.);
+  meMVATrackMatchedEffPtTot_ =
+      ibook.book1D("MVAMatchedEffPtTot", "Pt of tracks associated to LV matched to GEN; track pt [GeV] ", 110, 0., 11.);
+  meMVATrackMatchedEffPtMtd_ = ibook.book1D(
+      "MVAMatchedEffPtMtd", "Pt of tracks associated to LV matched to GEN with time; track pt [GeV] ", 110, 0., 11.);
+  meMVATrackEffEtaTot_ = ibook.book1D("MVAEffEtaTot", "Pt of tracks associated to LV; track eta ", 66, 0., 3.3);
+  meMVATrackMatchedEffEtaTot_ =
+      ibook.book1D("MVAMatchedEffEtaTot", "Pt of tracks associated to LV matched to GEN; track eta ", 66, 0., 3.3);
+  meMVATrackMatchedEffEtaMtd_ = ibook.book1D(
+      "MVAMatchedEffEtaMtd", "Pt of tracks associated to LV matched to GEN with time; track eta ", 66, 0., 3.3);
+  meMVATrackResTot_ = ibook.book1D(
+      "MVATrackRes", "t_{rec} - t_{sim} for LV associated tracks; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
+  meMVATrackPullTot_ =
+      ibook.book1D("MVATrackPull", "Pull for associated tracks; (t_{rec}-t_{sim})/#sigma_{t}", 50, -5., 5.);
+  meMVATrackZposResTot_ = ibook.book1D(
+      "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for associated tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -397,13 +486,14 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("inputTagG", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("inputTagT", edm::InputTag("trackExtenderWithMTD"));
   desc.add<edm::InputTag>("inputTagV", edm::InputTag("offlinePrimaryVertices4D"));
-  desc.add<edm::InputTag>("tmtd", edm::InputTag("trackExtenderWithMTD:tmtd"));
-  desc.add<edm::InputTag>("sigmatmtd", edm::InputTag("trackExtenderWithMTD:sigmatmtd"));
+  desc.add<edm::InputTag>("inputTagH", edm::InputTag("generatorSmeared"));
+  desc.add<edm::InputTag>("tmtd", edm::InputTag("trackExtenderWithMTD:generalTracktmtd"));
+  desc.add<edm::InputTag>("sigmatmtd", edm::InputTag("trackExtenderWithMTD:generalTracksigmatmtd"));
   desc.add<edm::InputTag>("t0Src", edm::InputTag("trackExtenderWithMTD:generalTrackt0"));
   desc.add<edm::InputTag>("sigmat0Src", edm::InputTag("trackExtenderWithMTD:generalTracksigmat0"));
   desc.add<edm::InputTag>("trackAssocSrc", edm::InputTag("trackExtenderWithMTD:generalTrackassoc"))
       ->setComment("Association between General and MTD Extended tracks");
-  desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD:pathLength"));
+  desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD:generalTrackPathLength"));
   desc.add<edm::InputTag>("t0SafePID", edm::InputTag("tofPID:t0safe"));
   desc.add<edm::InputTag>("sigmat0SafePID", edm::InputTag("tofPID:sigmat0safe"));
   desc.add<edm::InputTag>("sigmat0PID", edm::InputTag("tofPID:sigmat0"));
@@ -414,6 +504,38 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("trackMaximumEta", 3.2);
 
   descriptions.add("mtdTracks", desc);
+}
+
+const bool MtdTracksValidation::mvaGenSel(const HepMC::GenParticle& gp, const float& charge) {
+  bool match = false;
+  if (gp.status() != 1) {
+    return match;
+  }
+  match = charge != 0.f && gp.momentum().perp() > pTcut_ && std::abs(gp.momentum().eta()) < etacutGEN_;
+  return match;
+}
+
+const bool MtdTracksValidation::mvaRecSel(const reco::TrackBase& trk,
+                                          const reco::Vertex& vtx,
+                                          const double& t0,
+                                          const double& st0) {
+  bool match = false;
+  match = trk.pt() > pTcut_ && std::abs(trk.eta()) < etacutREC_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
+  if (st0 > 0.) {
+    match = match && std::abs(t0 - vtx.t()) < 3. * st0;
+  }
+  return match;
+}
+
+const bool MtdTracksValidation::mvaGenRecMatch(const HepMC::GenParticle& genP,
+                                               const double& zsim,
+                                               const reco::TrackBase& trk) {
+  bool match = false;
+  double dR = reco::deltaR(genP.momentum(), trk.momentum());
+  double genPT = genP.momentum().perp();
+  match =
+      std::abs(genPT - trk.pt()) < trk.pt() * deltaPTcut_ && dR < deltaDRcut_ && std::abs(trk.vz() - zsim) < deltaZcut_;
+  return match;
 }
 
 DEFINE_FWK_MODULE(MtdTracksValidation);

@@ -1,4 +1,4 @@
-#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
+#include "CalibCalorimetry/CaloTPG/interface/CaloTPGTranscoderULUT.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"

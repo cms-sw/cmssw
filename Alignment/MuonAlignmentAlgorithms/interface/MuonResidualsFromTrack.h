@@ -51,8 +51,11 @@
 
 class MuonResidualsFromTrack {
 public:
+  using BuilderToken = edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord>;
+  static edm::ESInputTag builderESInputTag();
+
   // residuals from global muon trajectories
-  MuonResidualsFromTrack(const edm::EventSetup &iSetup,
+  MuonResidualsFromTrack(edm::ESHandle<TransientTrackingRecHitBuilder> builder,
                          edm::ESHandle<MagneticField> magneticField,
                          edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
                          edm::ESHandle<DetIdAssociator> muonDetIdAssociator_,

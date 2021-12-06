@@ -13,8 +13,8 @@
 
 namespace edmtest {
 
-  void makeSignals::analyze(edm::Event const& e, edm::EventSetup const& /*unused*/
-  ) {
+  void makeSignals::analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& /*unused*/
+  ) const {
 #ifdef RAISE_SEGV
     int signum = 11;
     std::string SigName("SIGSEGV");

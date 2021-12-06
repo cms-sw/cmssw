@@ -25,15 +25,13 @@ private:
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomTokenBeginRun_;
 
   // MonitorElement
-  MonitorElement* me_cls_;
-  MEMap2Ids me_cls_roll_;
+  MonitorElement* me_detail_cls_total_;
+  MEMap2Ids me_detail_cls_roll_;
   MEMap4Ids me_detail_cls_;
 
   // Residual
-  MEMap2Ids me_residual_x_;
   MEMap2Ids me_residual_y_;
   MEMap2Ids me_residual_rphi_;
-  MEMap4Ids me_detail_residual_x_;
   MEMap4Ids me_detail_residual_y_;
   MEMap4Ids me_detail_residual_rphi_;
 
@@ -43,10 +41,10 @@ private:
   MEMap4Ids me_detail_pull_y_la_;
 
   // Occupancy
-  MEMap3Ids me_total_rechit_;
-  MEMap3Ids me_occ_pid_;
-  MEMap3Ids me_occ_ieta_;
-  MEMap3Ids me_occ_phi_;
+  MEMap3Ids me_detail_total_rechit_;
+  MEMap3Ids me_detail_occ_pid_;
+  MEMap3Ids me_detail_occ_ieta_;
+  MEMap3Ids me_detail_occ_phi_;
   MEMap1Ids me_detail_occ_zr_;
   MEMap3Ids me_detail_occ_xy_;
   MEMap3Ids me_detail_occ_polar_;

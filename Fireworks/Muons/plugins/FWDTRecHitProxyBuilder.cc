@@ -27,12 +27,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // Disable default copy constructor
   FWDTRecHitProxyBuilder(const FWDTRecHitProxyBuilder&) = delete;
   // Disable default assignment operator
   const FWDTRecHitProxyBuilder& operator=(const FWDTRecHitProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<DTRecHit1DPair>::buildViewType;
   void buildViewType(const DTRecHit1DPair& iData,
                      unsigned int iIndex,

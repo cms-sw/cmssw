@@ -71,7 +71,7 @@ void PixelInactiveAreaTrackingRegionsSeedingLayersProducer::produce(edm::Event& 
   auto regions = std::make_unique<TrackingRegionsSeedingLayerSets>(seedingLayers);
 
   const auto origins = origins_.origins(iEvent);
-  const auto builder = trackingRegionsBuilder_.beginEvent(iEvent);
+  const auto builder = trackingRegionsBuilder_.beginEvent(iEvent, iSetup);
 
   const auto allAreas = inactiveAreaFinder_.inactiveAreas(iEvent, iSetup);
   for (const auto& origin : origins) {

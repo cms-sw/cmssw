@@ -1,4 +1,4 @@
-#include "IOMC/RandomEngine/src/TRandomAdaptor.h"
+#include "IOMC/RandomEngine/interface/TRandomAdaptor.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "CLHEP/Random/engineIDulong.h"

@@ -7,16 +7,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -35,9 +31,11 @@ private:
   void doTest(const HcalTopology& topology);
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tokTopo_;
 };
 
-HcalTopologyTester::HcalTopologyTester(const edm::ParameterSet&) {}
+HcalTopologyTester::HcalTopologyTester(const edm::ParameterSet&)
+    : tokTopo_{esConsumes<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag{})} {}
 
 void HcalTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -45,20 +43,7 @@ void HcalTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.addDefault(desc);
 }
 
-void HcalTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  edm::ESTransientHandle<DDCompactView> pDD;
-  iSetup.get<IdealGeometryRecord>().get(pDD);
-  std::cout << "Gets Compact View\n";
-  edm::ESHandle<HcalDDDRecConstants> pHSNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHSNDC);
-  std::cout << "Gets RecNumbering Record\n";
-  edm::ESHandle<HcalTopology> topo;
-  iSetup.get<HcalRecNumberingRecord>().get(topo);
-  if (topo.isValid())
-    doTest(*topo);
-  else
-    std::cout << "Cannot get a valid HcalTopology Object\n";
-}
+void HcalTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup) { doTest(iSetup.getData(tokTopo_)); }
 
 void HcalTopologyTester::doTest(const HcalTopology& topology) {
   // First test on movements along eta/phi directions

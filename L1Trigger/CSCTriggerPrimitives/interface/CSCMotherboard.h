@@ -31,13 +31,21 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- *
+ * Extended for Run-3 and Phase-2 by Vadim Khotilovich, Tao Huang and Sven Dildick
  */
 
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTContainer.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCALCTCrossCLCT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeAnodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeCathodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityAssignment.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableCCLUT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME21ILT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME11ILT.h"
 
 class CSCMotherboard : public CSCBaseboard {
 public:
@@ -54,13 +62,30 @@ public:
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
-  virtual void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
+  void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
 
-  /** Returns vector of correlated LCTs in the read-out time window, if any. */
+  /*
+    Returns vector of good correlated LCTs in the read-out time window.
+    LCTs in the BX window [early_tbins,...,late_tbins] are considered
+    good for physics. The central LCT BX is time bin 8.
+    - tmb_l1a_window_size = 7 (Run-1, Run-2) -> [5, 6, 7, 8, 9, 10, 11]
+    - tmb_l1a_window_size = 5 (Run-3)        ->    [6, 7, 8, 9, 10]
+    - tmb_l1a_window_size = 3 (Run-4?)       ->       [7, 8, 9]
+
+    Note, this function does not have an exact counterpart in the
+    firmware. The reason is that the DAQ of LCTs is not correctly
+    simulated in CMSSW - at least the simulation of the L1-accept.
+    So, this function corresponds to both the trigger path and the
+    DAQ path in the firmware. In general, the function will return
+    LCTs that would not be used in the OMTF or EMTF emulator,
+    because they are out-of-time relative for tracking purposes. For
+    instance an LCT with BX5 would be read out by the DAQ, but would
+    likely not be used by the EMTF.
+  */
   virtual std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
 
-  /** Returns vector of all found correlated LCTs, if any. */
-  std::vector<CSCCorrelatedLCTDigi> getLCTs() const;
+  // LCT selection: at most 2 in each BX
+  void selectLCTs();
 
   /** Returns shower bits */
   CSCShowerDigi readoutShower() const;
@@ -71,6 +96,9 @@ public:
 
   /** Set configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
+  void setESLookupTables(const CSCL1TPLookupTableCCLUT* conf);
+  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
+  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
 
   /** Anode LCT processor. */
   std::unique_ptr<CSCAnodeLCTProcessor> alctProc;
@@ -80,15 +108,20 @@ public:
 
   // VK: change to protected, to allow inheritance
 protected:
+  // access to lookup tables via eventsetup
+  const CSCL1TPLookupTableCCLUT* lookupTableCCLUT_;
+  const CSCL1TPLookupTableME11ILT* lookupTableME11ILT_;
+  const CSCL1TPLookupTableME21ILT* lookupTableME21ILT_;
+
   /* Containers for reconstructed ALCTs and CLCTs */
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV;
 
-  /** Container for first correlated LCT. */
-  CSCCorrelatedLCTDigi firstLCT[CSCConstants::MAX_LCT_TBINS];
+  /** Container with all LCTs prior to sorting and selecting. */
+  LCTContainer allLCTs_;
 
-  /** Container for second correlated LCT. */
-  CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
+  /* Container with sorted and selected LCTs */
+  std::vector<CSCCorrelatedLCTDigi> lctV;
 
   CSCShowerDigi shower_;
 
@@ -101,9 +134,6 @@ protected:
   unsigned int alct_trig_enable, clct_trig_enable, match_trig_enable;
   unsigned int match_trig_window_size, tmb_l1a_window_size;
 
-  /** Phase2: whether to not reuse ALCTs that were used by previous matching CLCTs */
-  bool drop_used_alcts;
-
   /** Phase2: whether to not reuse CLCTs that were used by previous matching ALCTs */
   bool drop_used_clcts;
 
@@ -113,8 +143,20 @@ protected:
   /** Phase2: whether to readout only the earliest two LCTs in readout window */
   bool readout_earliest_2;
 
+  // when set to true, ignore CLCTs found in later BX's
+  bool match_earliest_clct_only_;
+
   // encode special bits for high-multiplicity triggers
   unsigned showerSource_;
+
+  bool ignoreAlctCrossClct_;
+
+  /*
+     Preferential index array in matching window, relative to the ALCT BX.
+     Where the central match BX goes first,
+     then the closest early, the closest late, etc.
+  */
+  std::vector<int> preferred_bx_match_;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
@@ -128,18 +170,68 @@ protected:
   /* quality control */
   std::unique_ptr<LCTQualityControl> qualityControl_;
 
+  /*
+    Helper class to check if an ALCT intersects with a CLCT. Normally
+    this class should not be used. It is left in the code as a potential
+    improvement for ME1/1 when unphysical LCTs are not desired. This
+    function is not implemented in the firmware.
+  */
+  std::unique_ptr<CSCALCTCrossCLCT> cscOverlap_;
+
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
+  /*
+     For valid ALCTs in the trigger time window, look for CLCTs within the
+     match-time window. Valid CLCTs are matched in-time. If a match was found
+     for the best ALCT and best CLCT, also the second best ALCT and second
+     best CLCT are sent to a correlation function "correlateLCTs" that will
+     make the best-best pair and second-second pair (if applicable). This
+     "matchALCTCLCT" function used to be directly in the "run" function, but
+     was put in a separate procedure so it can be reused for the GEM-CSC
+     motherboards. The argument is a mask, which plays no role for regular
+     CSC motherboards (TMB or OTMB). It does play a role in the GEM-CSC
+     motherboard. Different kinds of LCTs can be made there (see
+     CSCGEMMotherboard class), and the matching follows a sequence of priority
+     (first ALCT-CLCT-(2)GEM, then ALCT-CLCT, then CLCT-2GEM, then ALCT-2GEM).
+     At each step bunch crossings are masked where at least one LCT was found.
+  */
+  void matchALCTCLCT(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]);
+
+  /*
+    This function matches maximum two ALCTs with maximum two CLCTs in
+    a bunch crossing. The best ALCT is considered the one with the highest
+    quality in a BX. Similarly for the best CLCT. If there is just one
+    ALCT and just one CLCT, the correlated LCT is made from those two
+    components. If there are exactly two ALCTs and two CLCTs, the best
+    LCT and second best LCT are formed from the best ALCT-CLCT combination
+    and the second best ALCT-CLCT combination. In case there is missing
+    information (e.g. second best ALCT, but no second best CLCT), information
+    is copied over.
+   */
   void correlateLCTs(const CSCALCTDigi& bestALCT,
                      const CSCALCTDigi& secondALCT,
                      const CSCCLCTDigi& bestCLCT,
                      const CSCCLCTDigi& secondCLCT,
-                     int type);
+                     CSCCorrelatedLCTDigi& bLCT,
+                     CSCCorrelatedLCTDigi& sLCT,
+                     int type) const;
 
-  // This method calculates all the TMB words and then passes them to the
-  // constructor of correlated LCTs.
-  CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb) const;
+  /*
+     This method calculates all the TMB words and then passes them to the
+     constructor of correlated LCTs. The LCT data members are filled with
+     information from the ALCT-CLCT combination.
+  */
+  void constructLCTs(
+      const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& lct) const;
+
+  /*
+    This function copies valid ALCT/CLCT information to invalid the ALCT/CLCT
+    if present, so that we always construct the maximum number of valid LCts
+  */
+  void copyValidToInValid(CSCALCTDigi&, CSCALCTDigi&, CSCCLCTDigi&, CSCCLCTDigi&) const;
+
+  bool doesALCTCrossCLCT(const CSCALCTDigi&, const CSCCLCTDigi&) const;
 
   // CLCT pattern number: encodes the pattern number itself
   unsigned int encodePattern(const int clctPattern) const;

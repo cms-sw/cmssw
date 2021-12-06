@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,9 +33,11 @@ private:
   void doTest(const CaloTowerTopology& topology);
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<CaloTowerTopology, HcalRecNumberingRecord> tokTopo_;
 };
 
-CaloTowerTopologyTester::CaloTowerTopologyTester(const edm::ParameterSet&) {}
+CaloTowerTopologyTester::CaloTowerTopologyTester(const edm::ParameterSet&)
+    : tokTopo_{esConsumes<CaloTowerTopology, HcalRecNumberingRecord>(edm::ESInputTag{})} {}
 
 void CaloTowerTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -45,12 +46,7 @@ void CaloTowerTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& d
 }
 
 void CaloTowerTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  edm::ESHandle<CaloTowerTopology> topo;
-  iSetup.get<HcalRecNumberingRecord>().get(topo);
-  if (topo.isValid())
-    doTest(*topo);
-  else
-    std::cout << "Cannot get a valid CaloTowerTopology Object\n";
+  doTest(iSetup.getData(tokTopo_));
 }
 
 void CaloTowerTopologyTester::doTest(const CaloTowerTopology& topology) {
@@ -65,19 +61,19 @@ void CaloTowerTopologyTester::doTest(const CaloTowerTopology& topology) {
         std::cout << "Neighbours for : Tower " << id << std::endl;
         std::cout << "          " << idE.size() << " sets along East:";
         for (auto& i : idE)
-          std::cout << " " << (CaloTowerDetId)(i());
+          std::cout << " " << static_cast<CaloTowerDetId>(i());
         std::cout << std::endl;
         std::cout << "          " << idW.size() << " sets along West:";
         for (auto& i : idW)
-          std::cout << " " << (CaloTowerDetId)(i());
+          std::cout << " " << static_cast<CaloTowerDetId>(i());
         std::cout << std::endl;
         std::cout << "          " << idN.size() << " sets along North:";
         for (auto& i : idN)
-          std::cout << " " << (CaloTowerDetId)(i());
+          std::cout << " " << static_cast<CaloTowerDetId>(i());
         std::cout << std::endl;
         std::cout << "          " << idS.size() << " sets along South:";
         for (auto& i : idS)
-          std::cout << " " << (CaloTowerDetId)(i());
+          std::cout << " " << static_cast<CaloTowerDetId>(i());
         std::cout << std::endl;
       }
     }

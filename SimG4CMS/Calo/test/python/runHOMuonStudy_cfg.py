@@ -7,7 +7,9 @@ process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load("Geometry.MuonNumbering.muonOffsetESProducer_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -69,16 +71,16 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.g4SimHits.HCalSD.TestNumberingScheme = True
-process.hoSimHitStudy.TestNumbering          = True
-process.hoSimHitStudy.PrintExcessEnergy      = False
-process.hoSimHitStudy.MaxEnergy = 10.0
-process.hoSimHitStudy.ScaleEB   = 1.02
-process.hoSimHitStudy.ScaleHB   = 104.4
-process.hoSimHitStudy.ScaleHO   = 2.33
+process.HOSimHitStudy.TestNumbering          = True
+process.HOSimHitStudy.PrintExcessEnergy      = False
+process.HOSimHitStudy.MaxEnergy = 10.0
+process.HOSimHitStudy.ScaleEB   = 1.02
+process.HOSimHitStudy.ScaleHB   = 104.4
+process.HOSimHitStudy.ScaleHO   = 2.33
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.hoSimHitStudy)
+process.analysis_step   = cms.Path(process.HOSimHitStudy)
 
 # Schedule definition 
 process.schedule = cms.Schedule(process.generation_step,

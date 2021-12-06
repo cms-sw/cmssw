@@ -107,7 +107,6 @@ private:
   double tanPhiThw1min_;
   double tanPhiThw0_;
   int cellLayout_[cmsdt::NUM_LAYERS];
-  bool cmssw_for_global_;
   std::string geometry_tag_;
   std::vector<CELL_VALID_LAYOUT_CONSTANTS> LAYOUT_VALID_TO_LATCOMB_CONSTS_ENCODER;
 

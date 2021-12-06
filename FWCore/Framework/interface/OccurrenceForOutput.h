@@ -6,7 +6,7 @@
 // Package:     Framework
 // Class  :     OccurrenceForOutput
 //
-/**\class OccurrenceForOutput OccurrenceForOutputForOutput.h FWCore/Framework/interface/OccurrenceForOutputForOutput.h
+/**\class edm::OccurrenceForOutput
 
 */
 /*----------------------------------------------------------------------

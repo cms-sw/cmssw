@@ -21,6 +21,7 @@
 //
 
 // system include files
+#include <functional>
 
 // user include files
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociatorBaseImpl.h"
@@ -31,9 +32,26 @@ class TrackerMuonHitExtractor;
 
 class MuonToTrackingParticleAssociatorByHitsImpl : public reco::MuonToTrackingParticleAssociatorBaseImpl {
 public:
-  MuonToTrackingParticleAssociatorByHitsImpl(TrackerMuonHitExtractor const &iHitExtractor,
-                                             MuonAssociatorByHitsHelper::Resources const &iResources,
-                                             MuonAssociatorByHitsHelper const *iHelper);
+  using TrackHitsCollection = MuonAssociatorByHitsHelper::TrackHitsCollection;
+
+  MuonToTrackingParticleAssociatorByHitsImpl(
+      TrackerMuonHitExtractor const &iHitExtractor,
+      TrackerHitAssociator::Config const &iTracker,
+      CSCHitAssociator::Config const &iCSC,
+      DTHitAssociator::Config const &iDT,
+      RPCHitAssociator::Config const &iRPC,
+      GEMHitAssociator::Config const &iGEM,
+      edm::Event const &iEvent,
+      edm::EventSetup const &iSetup,
+      const TrackerTopology *iTopo,
+      std::function<void(const TrackHitsCollection &, const TrackingParticleCollection &)>,
+      MuonAssociatorByHitsHelper const *iHelper);
+
+  MuonToTrackingParticleAssociatorByHitsImpl(const MuonToTrackingParticleAssociatorByHitsImpl &) =
+      delete;  // stop default
+
+  const MuonToTrackingParticleAssociatorByHitsImpl &operator=(const MuonToTrackingParticleAssociatorByHitsImpl &) =
+      delete;  // stop default
 
   // ---------- const member functions ---------------------
   void associateMuons(reco::MuonToSimCollection &recoToSim,
@@ -53,14 +71,13 @@ public:
   // ---------- member functions ---------------------------
 
 private:
-  MuonToTrackingParticleAssociatorByHitsImpl(const MuonToTrackingParticleAssociatorByHitsImpl &) =
-      delete;  // stop default
-
-  const MuonToTrackingParticleAssociatorByHitsImpl &operator=(const MuonToTrackingParticleAssociatorByHitsImpl &) =
-      delete;  // stop default
-
   // ---------- member data --------------------------------
   TrackerMuonHitExtractor const *m_hitExtractor;
+  TrackerHitAssociator const m_tracker;
+  CSCHitAssociator const m_csc;
+  DTHitAssociator const m_dt;
+  RPCHitAssociator const m_rpc;
+  GEMHitAssociator const m_gem;
   MuonAssociatorByHitsHelper::Resources m_resources;
   MuonAssociatorByHitsHelper const *m_helper;
 };

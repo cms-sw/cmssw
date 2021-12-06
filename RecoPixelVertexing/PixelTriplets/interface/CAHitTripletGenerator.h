@@ -8,6 +8,7 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
@@ -17,7 +18,7 @@
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
-#include "RecoPixelVertexing/PixelTriplets/src/CACut.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CACut.h"
 class TrackingRegion;
 class SeedingLayerSetsHits;
 
@@ -47,13 +48,15 @@ public:
 
   void hitNtuplets(const IntermediateHitDoublets& regionDoublets,
                    std::vector<OrderedHitSeeds>& result,
-                   const edm::EventSetup& es,
                    const SeedingLayerSetsHits& layers);
 
 private:
   LayerCacheType theLayerCache;
 
   std::unique_ptr<SeedComparitor> theComparitor;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  const MagneticField* theField = nullptr;
 
   class QuantityDependsPtEval {
   public:
@@ -102,12 +105,12 @@ private:
             << "CAHitTripletGenerator::QuantityDependsPt: pt2 needs to be > 0; is " << pt2_;
     }
 
-    QuantityDependsPtEval evaluator(const edm::EventSetup& es) const {
+    QuantityDependsPtEval evaluator(const MagneticField& field) const {
       if (enabled_) {
         return QuantityDependsPtEval(value1_,
                                      value2_,
-                                     PixelRecoUtilities::curvature(1.f / pt1_, es),
-                                     PixelRecoUtilities::curvature(1.f / pt2_, es));
+                                     PixelRecoUtilities::curvature(1.f / pt1_, field),
+                                     PixelRecoUtilities::curvature(1.f / pt2_, field));
       }
       return QuantityDependsPtEval(value2_, value2_, 0.f, 0.f);
     }

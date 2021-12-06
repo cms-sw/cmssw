@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #Script cloned from cmsTiming_parser.py
 
 from __future__ import print_function

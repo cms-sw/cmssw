@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,7 +17,7 @@
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
 
-class L1CondDBPayloadWriterExt : public edm::EDAnalyzer {
+class L1CondDBPayloadWriterExt : public edm::one::EDAnalyzer<> {
 public:
   explicit L1CondDBPayloadWriterExt(const edm::ParameterSet&);
   ~L1CondDBPayloadWriterExt() override;

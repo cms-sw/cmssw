@@ -468,7 +468,7 @@ void FastFedCablingHistosUsingDb::connections(SiStripConfigDb::DeviceDescription
     if (idet == detids.end()) {
       continue;
     }
-    if (idet->second) {
+    if (!idet->second) {
       continue;
     }
 

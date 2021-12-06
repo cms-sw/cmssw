@@ -26,7 +26,7 @@
 namespace cms {
 
   CosmicTrackFinder::CosmicTrackFinder(edm::ParameterSet const& conf)
-      : cosmicTrajectoryBuilder_(conf), crackTrajectoryBuilder_(conf) {
+      : cosmicTrajectoryBuilder_(conf, consumesCollector()), crackTrajectoryBuilder_(conf, consumesCollector()) {
     geometry = conf.getUntrackedParameter<std::string>("GeometricStructure", "STANDARD");
     useHitsSplitting_ = conf.getParameter<bool>("useHitsSplitting");
     matchedrecHitsToken_ =
@@ -76,8 +76,6 @@ namespace cms {
     // Step B: create empty output collection
     auto output = std::make_unique<TrackCandidateCollection>();
 
-    edm::ESHandle<TrackerGeometry> tracker;
-    es.get<TrackerDigiGeometryRecord>().get(tracker);
     edm::LogVerbatim("CosmicTrackFinder") << "========== Cosmic Track Finder Info ==========";
     edm::LogVerbatim("CosmicTrackFinder") << " Numbers of Seeds " << (*seed).size();
     if (!(*seed).empty()) {

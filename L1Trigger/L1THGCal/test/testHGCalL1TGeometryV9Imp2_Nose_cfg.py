@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-
-from Configuration.Eras.Era_Phase2C6_cff import Phase2C6
-process = cms.Process('DIGI',Phase2C6)
+from Configuration.Eras.Era_Phase2C10_cff import Phase2C10
+process = cms.Process('REDOL1',Phase2C10)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D44Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D44_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D60Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D60_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -68,10 +67,13 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = cms.untracked.vstring(
         'keep *_genParticles_*_*',
+        'keep *_caloParticles_*_*',
         'keep *_*hgcalBackEndLayer1Producer*_*_*',
         'keep *_*hgcalBackEndLayer2Producer*_*_*',
-        'keep *_hgcalTowerProducer_*_*',
+        'keep *_*hgcalTowerMapProducer*_*_*',
+        'keep *_*hgcalTowerProducer*_*_*'
     ),
+
     fileName = cms.untracked.string('file:/tmp/dalfonso/test.root')
 )
 
@@ -87,7 +89,7 @@ process.TFileService = cms.Service(
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')
 
 
 process.generator = cms.EDFilter("Pythia8PtGun",
@@ -127,8 +129,9 @@ process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 # Eventually modify default geometry parameters
-from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
-process = custom_geometry_V9(process, 2)
+##from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
+from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_decentralized_V11
+process = custom_geometry_decentralized_V11(process)
 
 process.hgcaltriggergeomtester = cms.EDAnalyzer(
     "HGCalTriggerGeomTesterV9Imp2"

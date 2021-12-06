@@ -10,6 +10,8 @@ Toy EDAnalyzer for testing purposes only.
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+class DTTtrig;
+class DTTtrigRcd;
 
 class DTTtrigValidateDBRead : public edm::EDAnalyzer {
 public:
@@ -22,4 +24,5 @@ public:
 private:
   std::string dataFileName;
   std::string elogFileName;
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> dtTrigToken_;
 };

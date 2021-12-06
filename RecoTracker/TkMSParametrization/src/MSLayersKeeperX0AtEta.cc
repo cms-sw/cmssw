@@ -34,10 +34,7 @@ int MSLayersKeeperX0AtEta::idxBin(float eta) const {
 }
 
 //------------------------------------------------------------------------------
-void MSLayersKeeperX0AtEta::init(const edm::EventSetup& iSetup) {
-  if (isInitialised)
-    return;
-  isInitialised = true;
+MSLayersKeeperX0AtEta::MSLayersKeeperX0AtEta(const GeometricSearchTracker& tracker, const MagneticField& bfield) {
   const float BIG = 99999.;
 
   // set size from data file
@@ -47,13 +44,13 @@ void MSLayersKeeperX0AtEta::init(const edm::EventSetup& iSetup) {
   theDeltaEta = (theHalfNBins != 0) ? etaMax / theHalfNBins : BIG;
 
   theLayersData = vector<MSLayersAtAngle>(max(2 * theHalfNBins, 1));
-  MultipleScatteringGeometry layout(iSetup);
+  MultipleScatteringGeometry layout(tracker);
   for (int idxbin = 0; idxbin < 2 * theHalfNBins; idxbin++) {
     float etaValue = eta(idxbin);
     float cotTheta = sinh(etaValue);
 
-    vector<MSLayer> layers = layout.detLayers(etaValue, 0, iSetup);
-    vector<MSLayer> tmplay = layout.otherLayers(etaValue, iSetup);
+    vector<MSLayer> layers = layout.detLayers(etaValue, 0, bfield);
+    vector<MSLayer> tmplay = layout.otherLayers(etaValue);
     layers.insert(layers.end(), tmplay.begin(), tmplay.end());
     sort(layers.begin(), layers.end());
     setX0(layers, etaValue, msX0data);
@@ -76,7 +73,7 @@ void MSLayersKeeperX0AtEta::init(const edm::EventSetup& iSetup) {
     for (int isign = -1; isign <= 1; isign += 2) {
       float z = isign * 15.9;  //3 sigma from zero
       const MSLayersAtAngle& layersAtAngle = theLayersData[idxbin];
-      vector<MSLayer> candidates = layout.detLayers(etaValue, z, iSetup);
+      vector<MSLayer> candidates = layout.detLayers(etaValue, z, bfield);
       vector<MSLayer>::iterator it;
       for (it = candidates.begin(); it != candidates.end(); it++) {
         if (layersAtAngle.findLayer(*it))
@@ -144,3 +141,6 @@ void MSLayersKeeperX0AtEta::setX0(vector<MSLayer>& layers, float eta, const SumX
     sumX0atAngleLast = sumX0atAngle;
   }
 }
+
+//------------------------------------------------------------------------------
+MSLayersKeeperX0AtEta::~MSLayersKeeperX0AtEta() = default;

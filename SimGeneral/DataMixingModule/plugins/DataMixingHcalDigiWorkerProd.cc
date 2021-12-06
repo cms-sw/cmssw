@@ -16,13 +16,16 @@
 using namespace std;
 namespace edm {
   // Constructor
-  DataMixingHcalDigiWorkerProd::DataMixingHcalDigiWorkerProd(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC)
+  DataMixingHcalDigiWorkerProd::DataMixingHcalDigiWorkerProd(const edm::ParameterSet &ps,
+                                                             edm::ConsumesCollector &&iC,
+                                                             const edm::ESGetToken<HcalDbService, HcalDbRecord> &tok)
       : HBHEPileInputTag_(ps.getParameter<edm::InputTag>("HBHEPileInputTag")),
         HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
         HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
         ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
         QIE10PileInputTag_(ps.getParameter<edm::InputTag>("QIE10PileInputTag")),
         QIE11PileInputTag_(ps.getParameter<edm::InputTag>("QIE11PileInputTag")),
+        tokDB_(tok),
         label_(ps.getParameter<std::string>("Label")) {
     //
     tok_hbhe_ = iC.consumes<HBHEDigitizerTraits::DigiCollection>(HBHEPileInputTag_);
@@ -91,12 +94,12 @@ namespace edm {
     LogDebug("DataMixingHcalDigiWorkerProd")
         << "\n===============> adding pileups from event  " << ep->id() << " for bunchcrossing " << bcr;
 
-    theHBHESignalGenerator.initializeEvent(ep, &ES);
-    theHOSignalGenerator.initializeEvent(ep, &ES);
-    theHFSignalGenerator.initializeEvent(ep, &ES);
-    theZDCSignalGenerator.initializeEvent(ep, &ES);
-    theQIE10SignalGenerator.initializeEvent(ep, &ES);
-    theQIE11SignalGenerator.initializeEvent(ep, &ES);
+    theHBHESignalGenerator.initializeEvent(ep, &ES, tokDB_);
+    theHOSignalGenerator.initializeEvent(ep, &ES, tokDB_);
+    theHFSignalGenerator.initializeEvent(ep, &ES, tokDB_);
+    theZDCSignalGenerator.initializeEvent(ep, &ES, tokDB_);
+    theQIE10SignalGenerator.initializeEvent(ep, &ES, tokDB_);
+    theQIE11SignalGenerator.initializeEvent(ep, &ES, tokDB_);
 
     // put digis from pileup event into digitizer
 

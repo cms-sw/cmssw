@@ -35,7 +35,8 @@ DTResidualCalibration::DTResidualCalibration(const edm::ParameterSet& pset)
     : histRange_(pset.getParameter<double>("histogramRange")),
       segment4DLabel_(pset.getParameter<edm::InputTag>("segment4DLabel")),
       rootBaseDir_(pset.getUntrackedParameter<std::string>("rootBaseDir", "DT/Residuals")),
-      detailedAnalysis_(pset.getUntrackedParameter<bool>("detailedAnalysis", false)) {
+      detailedAnalysis_(pset.getUntrackedParameter<bool>("detailedAnalysis", false)),
+      dtGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::ConsumesCollector collector(consumesCollector());
   select_ = new DTSegmentSelector(pset, collector);
 
@@ -63,7 +64,7 @@ void DTResidualCalibration::beginJob() { TH1::SetDefaultSumw2(true); }
 void DTResidualCalibration::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   // get the geometry
   edm::ESHandle<DTGeometry> dtGeomH;
-  setup.get<MuonGeometryRecord>().get(dtGeomH);
+  dtGeomH = setup.getHandle(dtGeomToken_);
   dtGeom_ = dtGeomH.product();
 
   // Loop over all the chambers

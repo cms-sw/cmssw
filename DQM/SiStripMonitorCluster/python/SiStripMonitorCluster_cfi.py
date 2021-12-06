@@ -21,9 +21,21 @@ SiStripMonitorCluster = DQMEDAnalyzer('SiStripMonitorCluster',
 
     TopFolderName = cms.string('SiStrip'),
 
-    BPTXfilter     = cms.PSet(),
-    PixelDCSfilter = cms.PSet(),
-    StripDCSfilter = cms.PSet(),
+    BPTXfilter = cms.PSet(),
+    PixelDCSfilter = cms.PSet(
+        andOr = cms.bool(False),
+        dcsInputTag = cms.InputTag("scalersRawToDigi"),
+        dcsPartitions = cms.vint32(28, 29),
+        andOrDcs = cms.bool(False),
+        errorReplyDcs = cms.bool(True)
+    ),
+    StripDCSfilter = cms.PSet(
+        andOr = cms.bool(False),
+        dcsInputTag = cms.InputTag("scalersRawToDigi"),
+        dcsPartitions = cms.vint32(24, 25, 26, 27),
+        andOrDcs = cms.bool(False),
+        errorReplyDcs = cms.bool(True)
+    ),
 
     CreateTrendMEs = cms.bool(False),
     TrendVs10LS = cms.bool(False),

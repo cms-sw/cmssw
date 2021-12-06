@@ -26,6 +26,7 @@
 // user include files
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -93,9 +94,11 @@ namespace edm {
     protected:
       template <typename T>
       void createStreamModules(T iFunc) {
+        unsigned int iStreamModule = 0;
         for (auto& m : m_streamModules) {
-          m = iFunc();
+          m = iFunc(iStreamModule);
           setModuleDescriptionPtr(m);
+          ++iStreamModule;
         }
       }
 
@@ -109,6 +112,7 @@ namespace edm {
 
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
       void updateLookup(eventsetup::ESRecordsToProxyIndices const&);
+      virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
 
       const EDConsumerBase* consumer() const;
 
@@ -121,6 +125,8 @@ namespace edm {
       void convertCurrentProcessAlias(std::string const& processName);
 
       std::vector<ConsumesInfo> consumesInfo() const;
+
+      void deleteModulesEarly();
 
     private:
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
@@ -158,9 +164,9 @@ namespace edm {
       virtual void doBeginLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
       virtual void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
 
-      //For now, the following are just dummy implemenations with no ability for users to override
-      void doRespondToOpenInputFile(FileBlock const& fb);
-      void doRespondToCloseInputFile(FileBlock const& fb);
+      void doRespondToOpenInputFile(FileBlock const&) {}
+      void doRespondToCloseInputFile(FileBlock const&) {}
+      virtual void doRespondToCloseOutputFile() = 0;
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       bool hasAcquire() const { return false; }

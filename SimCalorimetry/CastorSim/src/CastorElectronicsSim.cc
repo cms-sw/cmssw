@@ -1,7 +1,7 @@
 #include "DataFormats/HcalDigi/interface/CastorDataFrame.h"
-#include "SimCalorimetry/CastorSim/src/CastorAmplifier.h"
-#include "SimCalorimetry/CastorSim/src/CastorCoderFactory.h"
-#include "SimCalorimetry/CastorSim/src/CastorElectronicsSim.h"
+#include "SimCalorimetry/CastorSim/interface/CastorAmplifier.h"
+#include "SimCalorimetry/CastorSim/interface/CastorCoderFactory.h"
+#include "SimCalorimetry/CastorSim/interface/CastorElectronicsSim.h"
 
 #include "CLHEP/Random/RandFlat.h"
 

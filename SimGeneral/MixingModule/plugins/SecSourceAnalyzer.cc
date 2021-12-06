@@ -60,7 +60,8 @@ namespace edm {
     bool playback = false;
 
     auto conf = std::make_shared<PileUpConfig>("input", averageNumber, histoName, playback);
-    input_.reset(new edm::PileUp(iConfig.getParameter<edm::ParameterSet>("input"), conf));
+    input_ = std::make_unique<edm::PileUp>(
+        iConfig.getParameter<edm::ParameterSet>("input"), conf, consumesCollector(), false);
 
     dataStep2_ = iConfig.getParameter<bool>("dataStep2");
 

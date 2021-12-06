@@ -5,52 +5,50 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 void SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection& collstereo,
                                    const SiStripRecHit2DCollection& collrphi,
                                    const SiStripMatchedRecHit2DCollection& collmatched,
                                    const edm::EventSetup& iSetup) {
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield);
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  magfield = iSetup.getHandle(theMagfieldToken);
+  tracker = iSetup.getHandle(theTrackerToken);
   thePropagatorAl = new PropagatorWithMaterial(alongMomentum, 0.1057, &(*magfield));
   thePropagatorOp = new PropagatorWithMaterial(oppositeToMomentum, 0.1057, &(*magfield));
   theUpdator = new KFUpdator();
 
-  // get the transient builder
-  //
-
-  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-
-  iSetup.get<TransientRecHitRecord>().get(builderName, theBuilder);
-  TTTRHBuilder = theBuilder.product();
   LogDebug("CosmicSeedFinder") << " Hits built with  " << hitsforseeds << " hits";
 
-  CosmicLayerPairs cosmiclayers(geometry);
+  GeometricSearchTracker const& track = iSetup.getData(theSearchTrackerToken);
+  TrackerTopology const& ttopo = iSetup.getData(theTTopoToken);
 
-  cosmiclayers.init(collstereo, collrphi, collmatched, iSetup);
-  thePairGenerator = new CosmicHitPairGenerator(cosmiclayers, iSetup);
+  CosmicLayerPairs cosmiclayers(geometry, collrphi, collmatched, track, ttopo);
+
+  thePairGenerator = new CosmicHitPairGenerator(cosmiclayers, *tracker);
   HitPairs.clear();
   if ((hitsforseeds == "pairs") || (hitsforseeds == "pairsandtriplets")) {
-    thePairGenerator->hitPairs(region, HitPairs, iSetup);
+    thePairGenerator->hitPairs(region, HitPairs);
   }
 
-  CosmicLayerTriplets cosmiclayers2;
-  cosmiclayers2.init(collstereo, collrphi, collmatched, geometry, iSetup);
-  theTripletGenerator = new CosmicHitTripletGenerator(cosmiclayers2, iSetup);
+  CosmicLayerTriplets cosmiclayers2(geometry, collrphi, track, ttopo);
+  theTripletGenerator = new CosmicHitTripletGenerator(cosmiclayers2, *tracker);
   HitTriplets.clear();
   if ((hitsforseeds == "triplets") || (hitsforseeds == "pairsandtriplets")) {
-    theTripletGenerator->hitTriplets(region, HitTriplets, iSetup);
+    theTripletGenerator->hitTriplets(region, HitTriplets);
   }
 }
 
-SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf)
-    : maxSeeds_(conf.getParameter<int32_t>("maxSeeds")) {
+SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf, edm::ConsumesCollector iCC)
+    : maxSeeds_(conf.getParameter<int32_t>("maxSeeds")),
+      theMagfieldToken(iCC.esConsumes()),
+      theTrackerToken(iCC.esConsumes()),
+      theSearchTrackerToken(iCC.esConsumes()),
+      theTTopoToken(iCC.esConsumes()) {
   float ptmin = conf.getParameter<double>("ptMin");
   float originradius = conf.getParameter<double>("originRadius");
   float halflength = conf.getParameter<double>("originHalfLength");
   float originz = conf.getParameter<double>("originZPosition");
   seedpt = conf.getParameter<double>("SeedPt");
 
-  builderName = conf.getParameter<std::string>("TTRHBuilder");
   geometry = conf.getUntrackedParameter<std::string>("GeometricStructure", "STANDARD");
   region = GlobalTrackingRegion(ptmin, originradius, halflength, originz);
   hitsforseeds = conf.getUntrackedParameter<std::string>("HitsForSeeds", "pairs");
@@ -64,17 +62,20 @@ SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf)
   //***
 }
 
-void SeedGeneratorForCosmics::run(TrajectorySeedCollection& output, const edm::EventSetup& iSetup) {
-  seeds(output, iSetup, region);
+void SeedGeneratorForCosmics::run(const SiStripRecHit2DCollection& collstereo,
+                                  const SiStripRecHit2DCollection& collrphi,
+                                  const SiStripMatchedRecHit2DCollection& collmatched,
+                                  const edm::EventSetup& c,
+                                  TrajectorySeedCollection& output) {
+  init(collstereo, collrphi, collmatched, c);
+  seeds(output, region);
   delete thePairGenerator;
   delete theTripletGenerator;
   delete thePropagatorAl;
   delete thePropagatorOp;
   delete theUpdator;
 }
-bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection& output,
-                                    const edm::EventSetup& iSetup,
-                                    const TrackingRegion& region) {
+bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection& output, const TrackingRegion& region) {
   LogDebug("CosmicSeedFinder") << "Number of triplets " << HitTriplets.size();
   LogDebug("CosmicSeedFinder") << "Number of pairs " << HitPairs.size();
 
@@ -99,8 +100,6 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection& output,
     GlobalPoint outer = tracker->idToDet((*(HitTriplets[it].outer())).geographicalId())
                             ->surface()
                             .toGlobal((*(HitTriplets[it].outer())).localPosition());
-
-    // SeedingHitSet::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitPairs[is].outer())
 
     SeedingHitSet::ConstRecHitPointer outrhit = HitTriplets[it].outer();
     //***top-bottom
@@ -183,7 +182,6 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection& output,
                             .toGlobal((*(HitPairs[is].outer())).localPosition());
 
     LogDebug("CosmicSeedFinder") << "inner point of the seed " << inner << " outer point of the seed " << outer;
-    //RC const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[is].outer().RecHit());
     SeedingHitSet::ConstRecHitPointer outrhit = HitPairs[is].outer();
     //***top-bottom
     SeedingHitSet::ConstRecHitPointer innrhit = HitPairs[is].inner();

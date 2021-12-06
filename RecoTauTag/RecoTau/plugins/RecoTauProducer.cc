@@ -23,7 +23,6 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
@@ -193,22 +192,24 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     // Loop over our builders and create the set of taus for this jet
     unsigned int nTausBuilt = 0;
     for (const auto& builder : builders_) {
-      // Get a ptr_vector of taus from the builder
+      // Get a std::vector of std::unique_ptr to taus from the builder
       reco::tau::RecoTauBuilderPlugin::output_type taus(
           (*builder)(jetRef, chargedHadrons, piZeros, uniqueRegionalCands));
 
       // Make sure all taus have their jetref set correctly
-      std::for_each(taus.begin(), taus.end(), [&](auto& arg) { arg.setjetRef(reco::JetBaseRef(jetRef)); });
+      std::for_each(taus.begin(), taus.end(), [&](auto& arg) { arg->setjetRef(reco::JetBaseRef(jetRef)); });
       // Copy without selection
       if (!outputSelector_.get()) {
-        output->insert(output->end(), taus.begin(), taus.end());
+        for (auto& tau : taus) {
+          output->push_back(*tau);
+        }
         nTausBuilt += taus.size();
       } else {
         // Copy only those that pass the selection.
         for (auto const& tau : taus) {
-          if ((*outputSelector_)(tau)) {
+          if ((*outputSelector_)(*tau)) {
             nTausBuilt++;
-            output->push_back(tau);
+            output->push_back(*tau);
           }
         }
       }
@@ -224,9 +225,9 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   }
 
   // Loop over the taus we have created and apply our modifiers to the taus
-  for (reco::PFTauCollection::iterator tau = output->begin(); tau != output->end(); ++tau) {
+  for (auto& tau : *output) {
     for (const auto& modifier : modifiers_) {
-      (*modifier)(*tau);
+      (*modifier)(tau);
     }
   }
 

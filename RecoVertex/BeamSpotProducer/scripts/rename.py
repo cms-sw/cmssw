@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 from builtins import range
-import sys,os,commands,re
+import sys,os,re
 from CommonMethods import *
 def main():
 #    sourcePath = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/Repro_2011Feb24/"
@@ -64,7 +64,7 @@ def main():
                                 allTxt = ''
                                 #aCmd = "cp " + destDir + fileName + " " + finalDir + newFileName
                                 #print aCmd
-                                #output =  commands.getstatusoutput(aCmd)
+                                #output =  subprocess.getstatusoutput(aCmd)
                                 #if output[0] != 0:
                                     #print output[1]
                             else:

@@ -39,8 +39,7 @@ namespace {
 
 /*****************************************************************************/
 std::unique_ptr<reco::Track> TrackFitter::run(const std::vector<const TrackingRecHit*>& hits,
-                                              const TrackingRegion& region,
-                                              const edm::EventSetup& setup) const {
+                                              const TrackingRegion& region) const {
   std::unique_ptr<reco::Track> ret;
 
   int nhits = hits.size();
@@ -67,7 +66,7 @@ std::unique_ptr<reco::Track> TrackFitter::run(const std::vector<const TrackingRe
   float curvature = circle.curvature();
 
   // pt
-  float invPt = PixelRecoUtilities::inversePt(curvature, setup);
+  float invPt = PixelRecoUtilities::inversePt(curvature, *theField);
   float valPt = (invPt > 1.e-4) ? 1. / invPt : 1.e4;
   float errPt = 0.055 * valPt + 0.017 * valPt * valPt;
 

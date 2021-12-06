@@ -264,25 +264,19 @@ std::vector<unsigned int> FWGeometry::getMatchedIds(Detector det, SubDetector su
 
 std::vector<unsigned int> FWGeometry::getMatchedIds(Detector det) const {
   std::vector<unsigned int> ids;
-
+  std::set<unsigned int> cached_wafers;
   for (const auto& it : m_idToInfo) {
     if (((it.id >> kDetOffset) & 0xF) != det)
       continue;
-    // select only the 1st layer
-    // if(((it->id>>17)&0x1F) != 12) continue;
 
     // select only the first cell of each wafer
     if (det != HGCalHSc) {
-      bool flag(false);
-
-      for (const auto& id_it : ids) {
-        flag = (~0x3FF & it.id) == (~0x3FF & id_it);
-        if (flag)
-          break;
+      auto key = ~0x3FF & it.id;
+      if (cached_wafers.find(key) == cached_wafers.end()) {
+        cached_wafers.insert(key);
+        ids.push_back(it.id);
       }
-
-      if (flag)
-        continue;
+      continue;
     }
 
     ids.push_back(it.id);

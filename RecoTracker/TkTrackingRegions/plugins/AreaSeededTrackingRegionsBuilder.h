@@ -12,6 +12,12 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
+
 #include "TrackingSeedCandidates.h"
 class AreaSeededTrackingRegionsBuilder {
 public:
@@ -72,7 +78,10 @@ public:
 
   class Builder {
   public:
-    explicit Builder(const AreaSeededTrackingRegionsBuilder* conf) : m_conf(conf) {}
+    explicit Builder(const AreaSeededTrackingRegionsBuilder* conf,
+                     const MagneticField* field,
+                     const MultipleScatteringParametrisationMaker* msmaker)
+        : m_conf(conf), m_field(field), m_msmaker(msmaker) {}
     ~Builder() = default;
 
     void setMeasurementTracker(const MeasurementTrackerEvent* mte) { m_measurementTracker = mte; }
@@ -88,6 +97,8 @@ public:
 
     const AreaSeededTrackingRegionsBuilder* m_conf = nullptr;
     const MeasurementTrackerEvent* m_measurementTracker = nullptr;
+    const MagneticField* m_field = nullptr;
+    const MultipleScatteringParametrisationMaker* m_msmaker = nullptr;
     TrackingSeedCandidates::Objects candidates;
   };
 
@@ -98,7 +109,7 @@ public:
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
 
-  Builder beginEvent(const edm::Event& e) const;
+  Builder beginEvent(const edm::Event& e, const edm::EventSetup& es) const;
 
 private:
   std::vector<Area> m_areas;
@@ -110,6 +121,8 @@ private:
   bool m_precise;
   edm::EDGetTokenT<MeasurementTrackerEvent> token_measurementTracker;
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_whereToUseMeasurementTracker;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_field;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> token_msmaker;
   bool m_searchOpt;
 };
 

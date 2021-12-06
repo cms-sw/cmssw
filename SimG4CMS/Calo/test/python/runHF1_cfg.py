@@ -2,51 +2,24 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.CMSCommonData.cmsExtendedGeometryHFParametrizeXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load("Geometry.MuonNumbering.muonOffsetESProducer_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load("SimG4CMS.Calo.HFPMTHitAnalyzer_cfi")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('CaloSim', 
-        'EcalSim', 'G4cerr', 'G4cout',
-        'HcalSim', 'HFShower'),
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    )
-)
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.HFShower=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -99,7 +72,7 @@ process.common_maximum_timex = cms.PSet(
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.hfPMTHitAnalyzer)
+process.analysis_step   = cms.Path(process.HFPMTHitAnalyzer)
 process.out_step = cms.EndPath(process.output)
 
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
@@ -111,9 +84,8 @@ process.g4SimHits.HCalSD.UseFibreBundleHits = True
 process.g4SimHits.HFShower.UseShowerLibrary = False
 process.g4SimHits.HFShower.UseHFGflash      = True
 process.g4SimHits.HFShower.TrackEM          = False
-process.g4SimHits.HFShower.OnlyLong         = True
 process.g4SimHits.HFShower.EminLibrary      = 0.0
-process.g4SimHits.HFShower.ApplyFiducialCut = True
+process.g4SimHits.HFShower.HFShowerBlock.OnlyLong = cms.bool(True)
 process.g4SimHits.HFShower.Aperture         = 0.33
 process.g4SimHits.HFShower.ParametrizeLast  = True
 # Schedule definition                                                          

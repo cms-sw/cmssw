@@ -15,7 +15,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "CommonTools/RecoAlgos/interface/GsfElectronSelector.h"
 
-typedef SingleObjectSelector<reco::GsfElectronCollection, AndSelector<EtaRangeSelector, PtMinSelector> >
+typedef GsfElectronSingleObjectSelector<AndSelector<EtaRangeSelector, PtMinSelector> >
     EtaPtMinPixelMatchGsfElectronFullCloneSelector;
 
 DEFINE_FWK_MODULE(EtaPtMinPixelMatchGsfElectronFullCloneSelector);

@@ -179,15 +179,11 @@ namespace {
 
         if (myType == SiPixelPI::t_barrel) {
           theMaps.bookBarrelHistograms("templateLABarrel", "#muH", "#mu_{H} [1/T]");
-          theMaps.bookBarrelBins("templateLABarrel");
         } else if (myType == SiPixelPI::t_forward) {
           theMaps.bookForwardHistograms("templateLAForward", "#muH", "#mu_{H} [1/T]");
-          theMaps.bookForwardBins("templateLAForward");
         } else if (myType == SiPixelPI::t_all) {
           theMaps.bookBarrelHistograms("templateLA", "#muH", "#mu_{H} [1/T]");
-          theMaps.bookBarrelBins("templateLA");
           theMaps.bookForwardHistograms("templateLA", "#muH", "#mu_{H} [1/T]");
-          theMaps.bookForwardBins("templateLA");
         } else {
           edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
               << " un-recognized detector type " << myType << std::endl;

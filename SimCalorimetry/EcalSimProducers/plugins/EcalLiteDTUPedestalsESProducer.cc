@@ -7,7 +7,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/DataRecord/interface/EcalLiteDTUPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
-#include "CondFormats/EcalObjects/src/classes.h"
 #include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 //

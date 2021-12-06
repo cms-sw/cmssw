@@ -21,8 +21,18 @@ TrajectoryFilterForElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilte
     maxConsecLostHits = 1,
     nSigmaMinPt = 5.0,
     minimumNumberOfHits = 5,
+    highEtaSwitch = 2.5,
+    minHitsAtHighEta = 3,
     maxCCCLostHits = 9999,
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutNone')
+)
+
+# Phase2 has extended outer-tracker coverage
+# so no need to relax cuts on number of hits at high eta 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(TrajectoryFilterForElectrons, 
+    highEtaSwitch = 5.0,
+    minHitsAtHighEta = 5
 )
 
 # Trajectory Builder
@@ -69,7 +79,3 @@ from TrackingTools.GsfTracking.bwdGsfElectronPropagator_cff import *
 # "forward" propagator for electrons
 from TrackingTools.GsfTracking.fwdGsfElectronPropagator_cff import *
 # TrajectoryFilter
-
-electronCkfTrackCandidatesFromMultiCl = electronCkfTrackCandidates.clone(
-  src = 'electronMergedSeedsFromMultiCl'
-)

@@ -44,6 +44,26 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(-1)
   )
 
+# process.TFileService = cms.Service("TFileService",
+#     fileName = cms.string('histoTFileService.root'),
+#     closeFileFast = cms.untracked.bool(False)
+# )
+#process.TFileService = cms.Service('TFileService',
+#   fileName=cms.string("testhisto.root"),
+# closeFileFast = cms.untracked.bool(True)
+#)
+#process.TFileService = cms.Service("TFileService",
+#      fileName = cms.string("analysis_minbias_Full.root"),
+#      closeFileFast = cms.untracked.bool(True)
+#  )
+process.TFileService = cms.Service("TFileService",
+      fileName = cms.string(histodir+'/LED_'+runnumber+'.root')
+#      ,closeFileFast = cms.untracked.bool(True)
+  )
+
+
+# process.TFileService = cms.Service("TFileService", fileName = cms.string("plotting%03d.root" % jobnumber))
+
 #process.source = cms.Source("PoolSource",
 process.source = cms.Source("HcalTBSource",
                             skipBadFiles=cms.untracked.bool(True),
@@ -338,24 +358,24 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   splashesUpperLimit = cms.int32(10000),
                                   #
                                   #
-                                  # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
-                                  flagIterativeMethodCalibrationGroup = cms.int32(0),
+                                  # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0) This flag name is only present in early version of main cc-code & visualiz.script
+                                  #flagIterativeMethodCalibrationGroup = cms.int32(0),
                                   #
                                   #
                                   # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
-                                  #flagIterativeMethodCalibrationGroupDigi = cms.int32(1),
+                                  flagIterativeMethodCalibrationGroupDigi = cms.int32(0),
                                   #
                                   # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
-                                  #flagIterativeMethodCalibrationGroupReco = cms.int32(1),
+                                  flagIterativeMethodCalibrationGroupReco = cms.int32(0),
                                   #
-                                  #hbheInputSignalTag = cms.InputTag('hbherecoMBNZS'),
-                                  #hbheInputNoiseTag = cms.InputTag('hbherecoNoise'),
-                                  #hfInputSignalTag = cms.InputTag('hfrecoMBNZS'),
-                                  # hfInputNoiseTag = cms.InputTag('hfrecoNoise'),
+                                  hbheInputSignalTag = cms.InputTag('hbherecoMBNZS'),
+                                  hbheInputNoiseTag = cms.InputTag('hbherecoNoise'),
+                                  hfInputSignalTag = cms.InputTag('hfrecoMBNZS'),
+                                  hfInputNoiseTag = cms.InputTag('hfrecoNoise'),
                                   #
                                   #HistOutFile = cms.untracked.string('LED_331370.root'),
-                                  HistOutFile = cms.untracked.string(histodir+'/LED_'+runnumber+'.root'),
-                                  MAPOutFile = cms.untracked.string('LogEleMapdb.h')
+                                  #HistOutFile = cms.untracked.string(histodir+'/LED_'+runnumber+'.root'),
+                                  #MAPOutFile = cms.untracked.string('LogEleMapdb.h')
                                   #
                                   ##OutputFilePath = cms.string('/tmp/zhokin/'),        
                                   ##OutputFileExt = cms.string(''),

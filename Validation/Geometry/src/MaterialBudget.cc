@@ -15,7 +15,6 @@
 #include "DD4hep/Filter.h"
 
 #include <iostream>
-#define EDM_ML_DEBUG
 
 MaterialBudget::MaterialBudget(const edm::ParameterSet& p) {
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudget");

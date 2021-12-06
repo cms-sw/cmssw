@@ -76,9 +76,10 @@ pfJetAnalyzerDQM = cms.EDProducer("PFJetAnalyzerDQM",
 
 )
 
-pfPuppiJetAnalyzerDQM = pfJetAnalyzerDQM.clone()
-pfPuppiJetAnalyzerDQM.recoJetCollection = cms.InputTag('slimmedJetsPuppi')
-pfPuppiJetAnalyzerDQM.genJetsOn = cms.bool(False)
+pfPuppiJetAnalyzerDQM = pfJetAnalyzerDQM.clone(
+    recoJetCollection = 'slimmedJetsPuppi',
+    genJetsOn = False
+)
 
 vjetResponseDir = [jetResponseDir + "slimmedJets/JEC/",
                    jetResponseDir + "slimmedJets/noJEC/",

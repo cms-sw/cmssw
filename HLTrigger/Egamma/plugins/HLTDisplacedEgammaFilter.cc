@@ -6,14 +6,11 @@
  */
 
 #include "HLTDisplacedEgammaFilter.h"
-
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "RecoTracker/TrackProducer/plugins/TrackProducer.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 //

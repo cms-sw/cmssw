@@ -19,13 +19,21 @@
 //
 
 // system include files
-#include <string>
+#include <cstddef>
+#include <memory>
 #include <set>
+#include <string>
+#include <tuple>
+#include <utility>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Framework/interface/CacheHandle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/InputProcessBlockCacheImpl.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ProcessBlockIndex.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
@@ -203,7 +211,7 @@ namespace edm {
         virtual void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) = 0;
       };
 
-      template <typename T, typename C>
+      template <typename T, typename... CacheTypes>
       class InputProcessBlockCacheHolder : public virtual T {
       public:
         InputProcessBlockCacheHolder() = default;
@@ -211,21 +219,43 @@ namespace edm {
         InputProcessBlockCacheHolder& operator=(InputProcessBlockCacheHolder const&) = delete;
         ~InputProcessBlockCacheHolder() override {}
 
-      protected:
-        // Not implemented yet
-        // const C* inputProcessBlockCache(ProcessBlockIndex index) const { return caches_.at(index).get(); }
-
-      private:
-        // Not yet fully implemented, will never get called
-        // THINK ABOUT HOW CACHES ARE CLEARED!!!
-        void doAccessInputProcessBlock_(ProcessBlock const& pb) final {
-          caches_.push_back(accessInputProcessBlock(pb));
+        std::tuple<CacheHandle<CacheTypes>...> processBlockCaches(Event const& event) const {
+          return cacheImpl_.processBlockCaches(event);
         }
 
-        // Not yet fully implemented, will never get called
-        virtual std::shared_ptr<C> accessInputProcessBlock(ProcessBlock const&) = 0;
+        template <std::size_t ICacheType, typename DataType, typename Func>
+        void registerProcessBlockCacheFiller(EDGetTokenT<DataType> const& token, Func&& func) {
+          cacheImpl_.template registerProcessBlockCacheFiller<ICacheType, DataType, Func>(token,
+                                                                                          std::forward<Func>(func));
+        }
 
-        std::vector<std::shared_ptr<C>> caches_;
+        template <typename CacheType, typename DataType, typename Func>
+        void registerProcessBlockCacheFiller(EDGetTokenT<DataType> const& token, Func&& func) {
+          cacheImpl_.template registerProcessBlockCacheFiller<CacheType, DataType, Func>(token,
+                                                                                         std::forward<Func>(func));
+        }
+
+        // This is intended for use by Framework unit tests only
+        unsigned int cacheSize() const { return cacheImpl_.cacheSize(); }
+
+      private:
+        void doSelectInputProcessBlocks(ProductRegistry const& productRegistry,
+                                        ProcessBlockHelperBase const& processBlockHelperBase) final {
+          cacheImpl_.selectInputProcessBlocks(productRegistry, processBlockHelperBase, *this);
+        }
+
+        void doAccessInputProcessBlock_(ProcessBlock const& pb) final {
+          cacheImpl_.accessInputProcessBlock(pb);
+          accessInputProcessBlock(pb);
+        }
+
+        // Alternate method to access ProcessBlocks without using the caches
+        // Mostly intended for unit testing, but might have other uses...
+        virtual void accessInputProcessBlock(ProcessBlock const&) {}
+
+        void clearInputProcessBlockCaches() final { cacheImpl_.clearCaches(); }
+
+        edm::impl::InputProcessBlockCacheImpl<CacheTypes...> cacheImpl_;
       };
 
       template <typename T, typename C>

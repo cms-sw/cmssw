@@ -44,10 +44,10 @@ public:
 
   // ---------- static member functions --------------------
 
-private:
   FWGlimpseView(const FWGlimpseView&) = delete;                   // stop default
   const FWGlimpseView& operator=(const FWGlimpseView&) = delete;  // stop default
 
+private:
   void createAxis();
   void showAxes();
   void showCylinder();

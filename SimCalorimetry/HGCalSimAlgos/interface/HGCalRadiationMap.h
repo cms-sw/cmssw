@@ -48,7 +48,7 @@ private:
   const HGCalTopology *hgcalTopology_;
   const HGCalDDDConstants *hgcalDDD_;
   doseParametersMap doseMap_;
-  //conversion from grey to krad
+  //conversion from gray to krad (1Gy=100rad=0.1krad)
   const double grayToKrad_ = 0.1;
   double fluenceSFlog10_;
 };

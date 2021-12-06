@@ -27,16 +27,14 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSEU.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
-#include "CondFormats/DataRecord/interface/L1MuDTExtLutRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
-#include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 
 using namespace std;
 
@@ -89,10 +87,7 @@ bool L1MuDTEUX::operator==(const L1MuDTEUX& eux) const {
 //
 // run EUX
 //
-void L1MuDTEUX::run(const edm::EventSetup& c) {
-  c.get<L1MuDTExtLutRcd>().get(theExtLUTs);
-  c.get<L1MuDTTFParametersRcd>().get(pars);
-
+void L1MuDTEUX::run(const L1MuDTExtLut& extLUTs, const L1MuDTTFParameters& pars) {
   const bool debug4 = m_sp.tf().config()->Debug(4);
   if (debug4)
     cout << "Run EUX " << m_id << endl;
@@ -138,19 +133,19 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
   // Extrapolation TS quality filter
   int qcut = 0;
   if (m_seu.ext() == EX12)
-    qcut = pars->get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
+    qcut = pars.get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
   if (m_seu.ext() == EX13)
-    qcut = pars->get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
+    qcut = pars.get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
   if (m_seu.ext() == EX14)
-    qcut = pars->get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
+    qcut = pars.get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
   if (m_seu.ext() == EX21)
-    qcut = pars->get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
+    qcut = pars.get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
   if (m_seu.ext() == EX23)
-    qcut = pars->get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
+    qcut = pars.get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
   if (m_seu.ext() == EX24)
-    qcut = pars->get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
+    qcut = pars.get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
   if (m_seu.ext() == EX34)
-    qcut = pars->get_soc_qcut_st4(m_sp.id().wheel(), m_sp.id().sector());
+    qcut = pars.get_soc_qcut_st4(m_sp.id().wheel(), m_sp.id().sector());
 
   if (m_start->quality() < qcut)
     return;
@@ -172,8 +167,8 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
   // and add offset (30 degrees ) for extrapolation to adjacent sector
   int offset = -2144 >> sh_phi;
   offset *= sec_mod(sector_ta - sector_st);
-  int low = theExtLUTs->getLow(lut_idx, phib_start);
-  int high = theExtLUTs->getHigh(lut_idx, phib_start);
+  int low = extLUTs.getLow(lut_idx, phib_start);
+  int high = extLUTs.getHigh(lut_idx, phib_start);
   if (low < 0)
     low += (1 << sh_phi) - 1;
   if (high < 0)
@@ -190,7 +185,7 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
     return;
 
   // is phi-difference within the extrapolation window?
-  bool openlut = pars->get_soc_openlut_extr(m_sp.id().wheel(), m_sp.id().sector());
+  bool openlut = pars.get_soc_openlut_extr(m_sp.id().wheel(), m_sp.id().sector());
   if ((diff >= low && diff <= high) || m_sp.tf().config()->getopenLUTs() || openlut) {
     m_result = true;
     int qual_st = m_start->quality();

@@ -36,6 +36,7 @@ def customizeHLTIter0ToMkFit(process):
         minGoodStripCharge = dict(refToPSet_ = 'HLTSiStripClusterChargeCutLoose'),
     )
     process.hltIter0PFlowCkfTrackCandidatesMkFitEventOfHits = mkFitEventOfHitsProducer_cfi.mkFitEventOfHitsProducer.clone(
+        beamSpot  = "hltOnlineBeamSpot",
         pixelHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHits",
         stripHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits",
     )
@@ -68,12 +69,16 @@ def customizeHLTIter0ToMkFit(process):
     )
 
     process.HLTDoLocalStripSequence += process.hltSiStripRecHits
-    process.HLTIterativeTrackingIteration0.replace(process.hltIter0PFlowCkfTrackCandidates,
-                                                   process.hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHits +
-                                                   process.hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits +
-                                                   process.hltIter0PFlowCkfTrackCandidatesMkFitEventOfHits +
-                                                   process.hltIter0PFlowCkfTrackCandidatesMkFitSeeds +
-                                                   process.hltIter0PFlowCkfTrackCandidatesMkFit +
-                                                   process.hltIter0PFlowCkfTrackCandidates)
+
+    replaceWith = (process.hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHits + 
+                   process.hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits + 
+                   process.hltIter0PFlowCkfTrackCandidatesMkFitEventOfHits + 
+                   process.hltIter0PFlowCkfTrackCandidatesMkFitSeeds + 
+                   process.hltIter0PFlowCkfTrackCandidatesMkFit + 
+                   process.hltIter0PFlowCkfTrackCandidates)
+
+    process.HLTIterativeTrackingIteration0.replace(process.hltIter0PFlowCkfTrackCandidates, replaceWith)
+    process.HLT_IsoTrackHB_v4.replace(process.hltIter0PFlowCkfTrackCandidates, replaceWith)
+    process.HLT_IsoTrackHE_v4.replace(process.hltIter0PFlowCkfTrackCandidates, replaceWith)
 
     return process

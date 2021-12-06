@@ -10,13 +10,15 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <fstream>
 #include <map>
 #include <vector>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/CSCObjects/interface/CSCChamberTimeCorrections.h"
 #include "CondFormats/DataRecord/interface/CSCChamberTimeCorrectionsRcd.h"
@@ -24,25 +26,27 @@ Toy EDProducers and EDProducts for testing purposes only.
 using namespace std;
 
 namespace edmtest {
-  class CSCReadChamberTimeCorrectionsValuesAnalyzer : public edm::EDAnalyzer {
+  class CSCReadChamberTimeCorrectionsValuesAnalyzer : public edm::global::EDAnalyzer<> {
   public:
-    explicit CSCReadChamberTimeCorrectionsValuesAnalyzer(edm::ParameterSet const& p) {}
+    explicit CSCReadChamberTimeCorrectionsValuesAnalyzer(edm::ParameterSet const& p) : token_{esConsumes()} {}
     explicit CSCReadChamberTimeCorrectionsValuesAnalyzer(int i) {}
-    virtual ~CSCReadChamberTimeCorrectionsValuesAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCReadChamberTimeCorrectionsValuesAnalyzer() override {}
+    void analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& c) const override;
 
   private:
+    edm::ESGetToken<CSCChamberTimeCorrections, CSCChamberTimeCorrectionsRcd> token_;
   };
 
-  void CSCReadChamberTimeCorrectionsValuesAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
+  void CSCReadChamberTimeCorrectionsValuesAnalyzer::analyze(edm::StreamID,
+                                                            const edm::Event& e,
+                                                            const edm::EventSetup& context) const {
     using namespace edm::eventsetup;
-    // Context is not used.
-    std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
-    std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
-    edm::ESHandle<CSCChamberTimeCorrections> pChamberTimeCorrections;
-    context.get<CSCChamberTimeCorrectionsRcd>().get(pChamberTimeCorrections);
 
-    const CSCChamberTimeCorrections* myChamberTimeCorrections = pChamberTimeCorrections.product();
+    edm::LogSystem log("CSCChamberTimeCorrections");
+    log << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
+    log << " ---EVENT NUMBER " << e.id().event() << std::endl;
+
+    const CSCChamberTimeCorrections* myChamberTimeCorrections = &context.getData(token_);
 
     //    std::map<int,CSCMapItem::MapItem>::const_iterator it;
     std::vector<CSCChamberTimeCorrections::ChamberTimeCorrections>::const_iterator it;
@@ -52,16 +56,16 @@ namespace edmtest {
          it != myChamberTimeCorrections->chamberCorrections.end();
          ++it) {
       count = count + 1;
-      //      std::cout<<"Key: ddu_crate*10+ddu_input "<<it->first<<std::endl;
+      //      log<<"Key: ddu_crate*10+ddu_input "<<it->first<<std::endl;
 
-      std::cout << count << ") ";
-      //      std::cout<<it->chamber_label<<"  ";
-      std::cout << it->cfeb_length * 1. / myChamberTimeCorrections->factor_precision << "  ";
-      std::cout << it->cfeb_rev << "  ";
-      std::cout << it->alct_length * 1. / myChamberTimeCorrections->factor_precision << "  ";
-      std::cout << it->cfeb_tmb_skew_delay * 1. / myChamberTimeCorrections->factor_precision << "  ";
-      std::cout << it->cfeb_timing_corr * 1. / myChamberTimeCorrections->factor_precision << "  ";
-      std::cout << "delay " << it->cfeb_cable_delay << std::endl;
+      log << count << ") ";
+      //      log<<it->chamber_label<<"  ";
+      log << it->cfeb_length * 1. / myChamberTimeCorrections->factor_precision << "  ";
+      log << it->cfeb_rev << "  ";
+      log << it->alct_length * 1. / myChamberTimeCorrections->factor_precision << "  ";
+      log << it->cfeb_tmb_skew_delay * 1. / myChamberTimeCorrections->factor_precision << "  ";
+      log << it->cfeb_timing_corr * 1. / myChamberTimeCorrections->factor_precision << "  ";
+      log << "delay " << it->cfeb_cable_delay << std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCReadChamberTimeCorrectionsValuesAnalyzer);

@@ -100,8 +100,9 @@ namespace edm {
       void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
 
       //For now, the following are just dummy implemenations with no ability for users to override
-      void doRespondToOpenInputFile(FileBlock const& fb);
-      void doRespondToCloseInputFile(FileBlock const& fb);
+      void doRespondToOpenInputFile(FileBlock const&) {}
+      void doRespondToCloseInputFile(FileBlock const&) {}
+      void doRespondToCloseOutputFile() { clearInputProcessBlockCaches(); }
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       void registerProductsAndCallbacks(EDProducerBase* module, ProductRegistry* reg) {
@@ -150,6 +151,7 @@ namespace edm {
       virtual void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
       virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
 
+      virtual void clearInputProcessBlockCaches();
       virtual bool hasAccumulator() const { return false; }
 
       bool hasAcquire() const { return false; }

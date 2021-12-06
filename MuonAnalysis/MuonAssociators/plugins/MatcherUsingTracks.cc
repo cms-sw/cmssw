@@ -9,7 +9,7 @@
   \version  $Id: MatcherUsingTracks.cc,v 1.5 2010/07/12 20:56:11 gpetrucc Exp $
 */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -29,7 +29,7 @@ namespace edm {
 
 namespace pat {
 
-  class MatcherUsingTracks : public edm::EDProducer {
+  class MatcherUsingTracks : public edm::stream::EDProducer<> {
   public:
     explicit MatcherUsingTracks(const edm::ParameterSet &iConfig);
     ~MatcherUsingTracks() override {}
@@ -61,7 +61,7 @@ namespace pat {
 pat::MatcherUsingTracks::MatcherUsingTracks(const edm::ParameterSet &iConfig)
     : srcToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src"))),
       matchedToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("matched"))),
-      algo_(iConfig),
+      algo_(iConfig, consumesCollector()),
       dontFailOnMissingInput_(iConfig.existsAs<bool>("dontFailOnMissingInput")
                                   ? iConfig.getParameter<bool>("dontFailOnMissingInput")
                                   : false),

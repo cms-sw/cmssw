@@ -25,6 +25,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                allow_confirmation = cms.untracked.bool(True),
                                                minx_match_2digis = cms.untracked.double(1.),
                                                scenario = cms.int32(0), #0 for mc, 1 for data, 2 for slice test
+                                               df_extended = cms.int32(0), # DF: 0 for standard, 1 for extended, 2 for both 
                                                filter_cousins = cms.untracked.bool(True),
 
                                                ttrig_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_ttrig.txt'),
@@ -32,10 +33,10 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                shift_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_x.txt'),
                                                shift_theta_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/theta_shift.txt'),
                                                global_coords_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/global_coord_perp_x_phi0.txt'),
-                                               cmssw_for_global = cms.untracked.bool(False),
                                                algo = cms.int32(0), # 0 = STD gr., 2 = Hough transform, 1 = PseudoBayes Approach
 
-                                               minHits4Fit = cms.untracked.int32(4),
+                                               minHits4Fit = cms.untracked.int32(3),
+                                               splitPathPerSL = cms.untracked.bool(True),
 
                                                #debugging
                                                debug = cms.untracked.bool(False),

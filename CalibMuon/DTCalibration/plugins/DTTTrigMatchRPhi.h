@@ -9,6 +9,8 @@
  */
 
 #include "CalibMuon/DTCalibration/interface/DTTTrigBaseCorrection.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 
@@ -23,7 +25,7 @@ namespace dtCalibration {
   class DTTTrigMatchRPhi : public DTTTrigBaseCorrection {
   public:
     // Constructor
-    DTTTrigMatchRPhi(const edm::ParameterSet&);
+    DTTTrigMatchRPhi(const edm::ParameterSet&, edm::ConsumesCollector);
 
     // Destructor
     ~DTTTrigMatchRPhi() override;
@@ -33,8 +35,7 @@ namespace dtCalibration {
 
   private:
     const DTTtrig* tTrigMap_;
-
-    std::string dbLabel;
+    edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
   };
 
 }  // namespace dtCalibration

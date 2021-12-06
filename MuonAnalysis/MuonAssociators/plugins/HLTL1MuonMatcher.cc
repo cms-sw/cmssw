@@ -9,7 +9,7 @@
   \version  $Id: HLTL1MuonMatcher.cc,v 1.3 2010/07/12 20:56:11 gpetrucc Exp $
 */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -22,7 +22,7 @@
 #include "DataFormats/Common/interface/View.h"
 
 #include "MuonAnalysis/MuonAssociators/interface/L1MuonMatcherAlgo.h"
-#include "PhysicsTools/PatAlgos/plugins/PATTriggerMatchSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
@@ -30,20 +30,18 @@
 
 namespace pat {
 
-  class HLTL1MuonMatcher : public edm::EDProducer {
+  class HLTL1MuonMatcher : public edm::stream::EDProducer<> {
   public:
     explicit HLTL1MuonMatcher(const edm::ParameterSet &iConfig);
     ~HLTL1MuonMatcher() override {}
 
     void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
-    void beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
-
     /// select L1s with patName_ and filterLabel_ (public, so it can be used by L1MuonMatcherAlgo)
     bool operator()(const pat::TriggerObjectStandAlone &l1) const {
       if (resolveAmbiguities_ && (std::find(lockedItems_.begin(), lockedItems_.end(), &l1) != lockedItems_.end()))
         return false;
-      return selector_(false, l1);
+      return selector_(l1);
     }
 
   private:
@@ -58,8 +56,7 @@ namespace pat {
     edm::EDGetTokenT<PATPrimitiveCollection> l1Token_;
 
     /// Select HLT objects.
-    /// First template argument is dummy and useless,
-    pat::PATTriggerMatchSelector<bool, PATPrimitive> selector_;
+    StringCutObjectSelector<PATPrimitive> selector_;
     bool resolveAmbiguities_;
 
     /// Labels to set as filter names in the output
@@ -82,10 +79,10 @@ namespace pat {
 }  // namespace pat
 
 pat::HLTL1MuonMatcher::HLTL1MuonMatcher(const edm::ParameterSet &iConfig)
-    : matcher_(iConfig),
+    : matcher_(iConfig, consumesCollector()),
       recoToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src"))),
       l1Token_(consumes<PATPrimitiveCollection>(iConfig.getParameter<edm::InputTag>("matched"))),
-      selector_(iConfig),
+      selector_{iConfig.getParameter<std::string>("matchedCuts")},
       resolveAmbiguities_(iConfig.getParameter<bool>("resolveAmbiguities")),
       labelProp_(iConfig.getParameter<std::string>("setPropLabel")),
       writeExtraInfo_(iConfig.existsAs<bool>("writeExtraInfo") ? iConfig.getParameter<bool>("writeExtraInfo") : false) {
@@ -101,6 +98,8 @@ pat::HLTL1MuonMatcher::HLTL1MuonMatcher(const edm::ParameterSet &iConfig)
 void pat::HLTL1MuonMatcher::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace std;
+
+  matcher_.init(iSetup);
 
   Handle<View<reco::Candidate> > reco;
   Handle<PATPrimitiveCollection> l1s;
@@ -164,8 +163,6 @@ void pat::HLTL1MuonMatcher::storeExtraInfo(edm::Event &iEvent,
   filler.fill();
   iEvent.put(std::move(valMap), label);
 }
-
-void pat::HLTL1MuonMatcher::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) { matcher_.init(iSetup); }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 using namespace pat;

@@ -5,8 +5,8 @@
 
 #include "Alignment/SurveyAnalysis/plugins/SurveyAlignmentAlgorithm.h"
 
-SurveyAlignmentAlgorithm::SurveyAlignmentAlgorithm(const edm::ParameterSet& cfg)
-    : AlignmentAlgorithmBase(cfg),
+SurveyAlignmentAlgorithm::SurveyAlignmentAlgorithm(const edm::ParameterSet& cfg, const edm::ConsumesCollector& iC)
+    : AlignmentAlgorithmBase(cfg, iC),
       theOutfile(cfg.getParameter<std::string>("outfile")),
       theIterations(cfg.getParameter<unsigned int>("nIteration")),
       theLevels(cfg.getParameter<std::vector<std::string> >("levels")) {}

@@ -63,132 +63,132 @@ public:
   UInt_t LumiNumber;
   UInt_t BXNumber;
   UInt_t GoodVertex;
-  std::vector<bool> *PF_Muon;
-  std::vector<bool> *Global_Muon;
-  std::vector<bool> *Tracker_muon;
-  std::vector<bool> *MuonIsTight;
-  std::vector<bool> *MuonIsMedium;
-  std::vector<double> *pt_of_muon;
-  std::vector<double> *eta_of_muon;
-  std::vector<double> *phi_of_muon;
-  std::vector<double> *energy_of_muon;
-  std::vector<double> *p_of_muon;
-  std::vector<float> *muon_trkKink;
-  std::vector<float> *muon_chi2LocalPosition;
-  std::vector<float> *muon_segComp;
-  std::vector<int> *TrackerLayer;
-  std::vector<int> *NumPixelLayers;
-  std::vector<int> *InnerTrackPixelHits;
-  std::vector<bool> *innerTrack;
-  std::vector<double> *chiTracker;
-  std::vector<double> *DxyTracker;
-  std::vector<double> *DzTracker;
-  std::vector<double> *innerTrackpt;
-  std::vector<double> *innerTracketa;
-  std::vector<double> *innerTrackphi;
-  std::vector<double> *tight_validFraction;
-  std::vector<bool> *OuterTrack;
-  std::vector<double> *OuterTrackPt;
-  std::vector<double> *OuterTrackEta;
-  std::vector<double> *OuterTrackPhi;
-  std::vector<double> *OuterTrackChi;
-  std::vector<int> *OuterTrackHits;
-  std::vector<int> *OuterTrackRHits;
-  std::vector<bool> *GlobalTrack;
-  std::vector<double> *GlobalTrckPt;
-  std::vector<double> *GlobalTrckEta;
-  std::vector<double> *GlobalTrckPhi;
-  std::vector<int> *Global_Muon_Hits;
-  std::vector<int> *MatchedStations;
-  std::vector<double> *GlobTrack_Chi;
-  std::vector<double> *Tight_LongitudinalImpactparameter;
-  std::vector<double> *Tight_TransImpactparameter;
-  std::vector<double> *IsolationR04;
-  std::vector<double> *IsolationR03;
-  std::vector<double> *ecal_3into3;
-  std::vector<double> *hcal_3into3;
-  std::vector<double> *tracker_3into3;
-  std::vector<bool> *matchedId;
-  std::vector<bool> *hcal_cellHot;
-  std::vector<double> *ecal_3x3;
-  std::vector<double> *hcal_1x1;
-  std::vector<unsigned int> *ecal_detID;
-  std::vector<unsigned int> *hcal_detID;
-  std::vector<unsigned int> *ehcal_detID;
-  std::vector<int> *hcal_ieta;
-  std::vector<int> *hcal_iphi;
-  std::vector<double> *hcal_edepth1;
-  std::vector<double> *hcal_activeL1;
-  std::vector<double> *hcal_edepthHot1;
-  std::vector<double> *hcal_activeHotL1;
-  std::vector<double> *hcal_edepthCorrect1;
-  std::vector<double> *hcal_edepthHotCorrect1;
-  std::vector<double> *hcal_cdepthHot1;
-  std::vector<double> *hcal_cdepthHotBG1;
-  std::vector<bool> *hcal_depthMatch1;
-  std::vector<bool> *hcal_depthMatchHot1;
-  std::vector<double> *hcal_edepth2;
-  std::vector<double> *hcal_activeL2;
-  std::vector<double> *hcal_edepthHot2;
-  std::vector<double> *hcal_activeHotL2;
-  std::vector<double> *hcal_edepthCorrect2;
-  std::vector<double> *hcal_edepthHotCorrect2;
-  std::vector<double> *hcal_cdepthHot2;
-  std::vector<double> *hcal_cdepthHotBG2;
-  std::vector<bool> *hcal_depthMatch2;
-  std::vector<bool> *hcal_depthMatchHot2;
-  std::vector<double> *hcal_edepth3;
-  std::vector<double> *hcal_activeL3;
-  std::vector<double> *hcal_edepthHot3;
-  std::vector<double> *hcal_activeHotL3;
-  std::vector<double> *hcal_edepthCorrect3;
-  std::vector<double> *hcal_edepthHotCorrect3;
-  std::vector<double> *hcal_cdepthHot3;
-  std::vector<double> *hcal_cdepthHotBG3;
-  std::vector<bool> *hcal_depthMatch3;
-  std::vector<bool> *hcal_depthMatchHot3;
-  std::vector<double> *hcal_edepth4;
-  std::vector<double> *hcal_activeL4;
-  std::vector<double> *hcal_edepthHot4;
-  std::vector<double> *hcal_activeHotL4;
-  std::vector<double> *hcal_edepthCorrect4;
-  std::vector<double> *hcal_edepthHotCorrect4;
-  std::vector<double> *hcal_cdepthHot4;
-  std::vector<double> *hcal_cdepthHotBG4;
-  std::vector<bool> *hcal_depthMatch4;
-  std::vector<bool> *hcal_depthMatchHot4;
-  std::vector<double> *hcal_edepth5;
-  std::vector<double> *hcal_activeL5;
-  std::vector<double> *hcal_edepthHot5;
-  std::vector<double> *hcal_activeHotL5;
-  std::vector<double> *hcal_edepthCorrect5;
-  std::vector<double> *hcal_edepthHotCorrect5;
-  std::vector<double> *hcal_cdepthHot5;
-  std::vector<double> *hcal_cdepthHotBG5;
-  std::vector<bool> *hcal_depthMatch5;
-  std::vector<bool> *hcal_depthMatchHot5;
-  std::vector<double> *hcal_edepth6;
-  std::vector<double> *hcal_activeL6;
-  std::vector<double> *hcal_edepthHot6;
-  std::vector<double> *hcal_activeHotL6;
-  std::vector<double> *hcal_edepthCorrect6;
-  std::vector<double> *hcal_edepthHotCorrect6;
-  std::vector<double> *hcal_cdepthHot6;
-  std::vector<double> *hcal_cdepthHotBG6;
-  std::vector<bool> *hcal_depthMatch6;
-  std::vector<bool> *hcal_depthMatchHot6;
-  std::vector<double> *hcal_edepth7;
-  std::vector<double> *hcal_activeL7;
-  std::vector<double> *hcal_edepthHot7;
-  std::vector<double> *hcal_activeHotL7;
-  std::vector<double> *hcal_edepthCorrect7;
-  std::vector<double> *hcal_edepthHotCorrect7;
-  std::vector<double> *hcal_cdepthHot7;
-  std::vector<double> *hcal_cdepthHotBG7;
-  std::vector<bool> *hcal_depthMatch7;
-  std::vector<bool> *hcal_depthMatchHot7;
-  std::vector<double> *activeLength;
-  std::vector<double> *activeLengthHot;
+  bool PF_Muon;
+  bool Global_Muon;
+  bool Tracker_muon;
+  bool MuonIsTight;
+  bool MuonIsMedium;
+  double pt_of_muon;
+  double eta_of_muon;
+  double phi_of_muon;
+  double energy_of_muon;
+  double p_of_muon;
+  float muon_trkKink;
+  float muon_chi2LocalPosition;
+  float muon_segComp;
+  int TrackerLayer;
+  int NumPixelLayers;
+  int InnerTrackPixelHits;
+  bool innerTrack;
+  double chiTracker;
+  double DxyTracker;
+  double DzTracker;
+  double innerTrackpt;
+  double innerTracketa;
+  double innerTrackphi;
+  double tight_validFraction;
+  bool OuterTrack;
+  double OuterTrackPt;
+  double OuterTrackEta;
+  double OuterTrackPhi;
+  double OuterTrackChi;
+  int OuterTrackHits;
+  int OuterTrackRHits;
+  bool GlobalTrack;
+  double GlobalTrckPt;
+  double GlobalTrckEta;
+  double GlobalTrckPhi;
+  int Global_Muon_Hits;
+  int MatchedStations;
+  double GlobTrack_Chi;
+  double Tight_LongitudinalImpactparameter;
+  double Tight_TransImpactparameter;
+  double IsolationR04;
+  double IsolationR03;
+  double ecal_3into3;
+  double hcal_3into3;
+  double tracker_3into3;
+  bool matchedId;
+  bool hcal_cellHot;
+  double ecal_3x3;
+  double hcal_1x1;
+  unsigned int ecal_detID;
+  unsigned int hcal_detID;
+  unsigned int ehcal_detID;
+  int hcal_ieta;
+  int hcal_iphi;
+  double hcal_edepth1;
+  double hcal_activeL1;
+  double hcal_edepthHot1;
+  double hcal_activeHotL1;
+  double hcal_edepthCorrect1;
+  double hcal_edepthHotCorrect1;
+  double hcal_cdepthHot1;
+  double hcal_cdepthHotBG1;
+  bool hcal_depthMatch1;
+  bool hcal_depthMatchHot1;
+  double hcal_edepth2;
+  double hcal_activeL2;
+  double hcal_edepthHot2;
+  double hcal_activeHotL2;
+  double hcal_edepthCorrect2;
+  double hcal_edepthHotCorrect2;
+  double hcal_cdepthHot2;
+  double hcal_cdepthHotBG2;
+  bool hcal_depthMatch2;
+  bool hcal_depthMatchHot2;
+  double hcal_edepth3;
+  double hcal_activeL3;
+  double hcal_edepthHot3;
+  double hcal_activeHotL3;
+  double hcal_edepthCorrect3;
+  double hcal_edepthHotCorrect3;
+  double hcal_cdepthHot3;
+  double hcal_cdepthHotBG3;
+  bool hcal_depthMatch3;
+  bool hcal_depthMatchHot3;
+  double hcal_edepth4;
+  double hcal_activeL4;
+  double hcal_edepthHot4;
+  double hcal_activeHotL4;
+  double hcal_edepthCorrect4;
+  double hcal_edepthHotCorrect4;
+  double hcal_cdepthHot4;
+  double hcal_cdepthHotBG4;
+  bool hcal_depthMatch4;
+  bool hcal_depthMatchHot4;
+  double hcal_edepth5;
+  double hcal_activeL5;
+  double hcal_edepthHot5;
+  double hcal_activeHotL5;
+  double hcal_edepthCorrect5;
+  double hcal_edepthHotCorrect5;
+  double hcal_cdepthHot5;
+  double hcal_cdepthHotBG5;
+  bool hcal_depthMatch5;
+  bool hcal_depthMatchHot5;
+  double hcal_edepth6;
+  double hcal_activeL6;
+  double hcal_edepthHot6;
+  double hcal_activeHotL6;
+  double hcal_edepthCorrect6;
+  double hcal_edepthHotCorrect6;
+  double hcal_cdepthHot6;
+  double hcal_cdepthHotBG6;
+  bool hcal_depthMatch6;
+  bool hcal_depthMatchHot6;
+  double hcal_edepth7;
+  double hcal_activeL7;
+  double hcal_edepthHot7;
+  double hcal_activeHotL7;
+  double hcal_edepthCorrect7;
+  double hcal_edepthHotCorrect7;
+  double hcal_cdepthHot7;
+  double hcal_cdepthHotBG7;
+  bool hcal_depthMatch7;
+  bool hcal_depthMatchHot7;
+  double activeLength;
+  double activeLengthHot;
   std::vector<int> *hltresults;
   std::vector<std::string> *all_triggers;
 
@@ -375,20 +375,12 @@ public:
   bool fillChain(TChain *chain, const char *inputFileList);
   bool readCorr(const char *rcorFileName);
   void bookHistograms(const char *);
-  bool getEnergy(unsigned int ml,
-                 int dep,
-                 double &enb,
-                 double &enu,
-                 double &enh,
-                 double &enc,
-                 double &chgS,
-                 double &chgB,
-                 double &actL);
+  bool getEnergy(int dep, double &enb, double &enu, double &enh, double &enc, double &chgS, double &chgB, double &actL);
   void writeHistograms();
-  bool looseMuon(unsigned int ml);
-  bool tightMuon(unsigned int ml);
-  bool softMuon(unsigned int ml);
-  bool mediumMuon2016(unsigned int ml);
+  bool looseMuon();
+  bool tightMuon();
+  bool softMuon();
+  bool mediumMuon2016();
   void etaPhiHcal(unsigned int detId, int &eta, int &phi, int &depth);
   void etaPhiEcal(unsigned int detId, int &type, int &zside, int &etaX, int &phiY, int &plane, int &strip);
   void calculateP(double pt, double eta, double &pM);
@@ -862,224 +854,220 @@ void HBHEMuonOfflineAnalyzer::Loop() {
     if ((int)(Run_No) < runLo_ || (int)(Run_No) > runHi_)
       continue;
     if (debug_)
-      std::cout << "Run " << Run_No << " Event " << Event_No << " Muons " << pt_of_muon->size() << std::endl;
+      std::cout << "Run " << Run_No << " Event " << Event_No << " Muon pt " << pt_of_muon << std::endl;
 
     bool loose(false), soft(false), tight(false), pcut(false), ptcut(false);
-    for (unsigned int ml = 0; ml < pt_of_muon->size(); ml++) {
-      t_ene.clear();
-      t_enec.clear();
-      t_charge.clear();
-      t_actln.clear();
-      t_depth.clear();
+    t_ene.clear();
+    t_enec.clear();
+    t_charge.clear();
+    t_actln.clear();
+    t_depth.clear();
 
-      if (debug_)
-        std::cout << "ecal_det_id " << ecal_detID->at(ml) << std::endl;
+    if (debug_)
+      std::cout << "ecal_det_id " << ecal_detID << std::endl;
 
-      int typeEcal, etaXEcal, phiYEcal, zsideEcal, planeEcal, stripEcal;
-      etaPhiEcal(ecal_detID->at(ml), typeEcal, zsideEcal, etaXEcal, phiYEcal, planeEcal, stripEcal);
-      double etaEcal = (etaXEcal - 0.5) * zsideEcal;
-      double phiEcal = phiYEcal - 0.5;
+    int typeEcal, etaXEcal, phiYEcal, zsideEcal, planeEcal, stripEcal;
+    etaPhiEcal(ecal_detID, typeEcal, zsideEcal, etaXEcal, phiYEcal, planeEcal, stripEcal);
+    double etaEcal = (etaXEcal - 0.5) * zsideEcal;
+    double phiEcal = phiYEcal - 0.5;
 
-      if (debug_)
-        std::cout << "hcal_det_id " << std::hex << hcal_detID->at(ml) << std::dec;
+    if (debug_)
+      std::cout << "hcal_det_id " << std::hex << hcal_detID << std::dec;
 
-      int etaHcal, phiHcal, depthHcal;
-      etaPhiHcal(hcal_detID->at(ml), etaHcal, phiHcal, depthHcal);
+    int etaHcal, phiHcal, depthHcal;
+    etaPhiHcal(hcal_detID, etaHcal, phiHcal, depthHcal);
 
-      int eta = (etaHcal > 0) ? etaHcal - 1 : -(1 + etaHcal);
-      double etaXHcal = (etaHcal > 0) ? etaHcal - 0.5 : etaHcal + 0.5;
-      int nDepth = nDepthBins(eta + 1, phiHcal);
-      int nPhi = nPhiBins(eta + 1);
-      int PHI = (nPhi > 36) ? (phiHcal - 1) : (phiHcal - 1) / 2;
-      double phiYHcal = (phiHcal - 0.5);
-      t_ieta = etaHcal;
-      t_iphi = PHI;
-      t_p = p_of_muon->at(ml);
-      t_ediff = hcal_3into3->at(ml) - hcal_1x1->at(ml);
-      t_nvtx = GoodVertex;
-      if (p_of_muon->at(ml) > 20)
-        pcut = true;
-      if (pt_of_muon->at(ml) > 20)
-        ptcut = true;
-      if (looseMuon(ml))
-        loose = true;
-      if (softMuon(ml))
-        soft = true;
-      if (tightMuon(ml))
-        tight = true;
+    int eta = (etaHcal > 0) ? etaHcal - 1 : -(1 + etaHcal);
+    double etaXHcal = (etaHcal > 0) ? etaHcal - 0.5 : etaHcal + 0.5;
+    int nDepth = nDepthBins(eta + 1, phiHcal);
+    int nPhi = nPhiBins(eta + 1);
+    int PHI = (nPhi > 36) ? (phiHcal - 1) : (phiHcal - 1) / 2;
+    double phiYHcal = (phiHcal - 0.5);
+    t_ieta = etaHcal;
+    t_iphi = PHI;
+    t_p = p_of_muon;
+    t_ediff = hcal_3into3 - hcal_1x1;
+    t_nvtx = GoodVertex;
+    if (p_of_muon > 20)
+      pcut = true;
+    if (pt_of_muon > 20)
+      ptcut = true;
+    if (looseMuon())
+      loose = true;
+    if (softMuon())
+      soft = true;
+    if (tightMuon())
+      tight = true;
 
-      if (debug_)
-        std::cout << " etaHcal " << etaHcal << ":" << etaXHcal << " phiHcal " << phiHcal << ":" << phiYHcal << ":"
-                  << PHI << " Depth " << nDepth << " Muon Pt " << pt_of_muon->at(ml) << " Isol " << IsolationR04->at(ml)
-                  << std::endl;
+    if (debug_)
+      std::cout << " etaHcal " << etaHcal << ":" << etaXHcal << " phiHcal " << phiHcal << ":" << phiYHcal << ":" << PHI
+                << " Depth " << nDepth << " Muon Pt " << pt_of_muon << " Isol " << IsolationR04 << std::endl;
 
-      for (int cut = 0; cut < nCut_; ++cut) {
-        bool select(false);
-        if (cut == 0)
-          select = tightMuon(ml);
-        else if (cut == 1)
-          select = softMuon(ml);
-        else
-          select = looseMuon(ml);
+    for (int cut = 0; cut < nCut_; ++cut) {
+      bool select(false);
+      if (cut == 0)
+        select = tightMuon();
+      else if (cut == 1)
+        select = softMuon();
+      else
+        select = looseMuon();
 
-        if (select && ((eta + 1) >= etaMin_) && ((eta + 1) <= etaMax_)) {
-          //	  h_P_Muon[cut]->Fill(p_of_muon->at(ml));
-          h_Pt_Muon[cut]->Fill(pt_of_muon->at(ml));
-          h_Eta_Muon[cut]->Fill(eta_of_muon->at(ml));
-          h_Phi_Muon[cut]->Fill(phi_of_muon->at(ml));
-          h_PF_Muon[cut]->Fill(PF_Muon->at(ml));
-          h_GlobTrack_Chi[cut]->Fill(GlobTrack_Chi->at(ml));
-          h_Global_Muon_Hits[cut]->Fill(Global_Muon_Hits->at(ml));
-          h_MatchedStations[cut]->Fill(MatchedStations->at(ml));
-          h_Tight_TransImpactparameter[cut]->Fill(Tight_TransImpactparameter->at(ml));
-          h_Tight_LongitudinalImpactparameter[cut]->Fill(Tight_LongitudinalImpactparameter->at(ml));
-          h_InnerTrackPixelHits[cut]->Fill(InnerTrackPixelHits->at(ml));
-          h_TrackerLayer[cut]->Fill(TrackerLayer->at(ml));
-          h_IsolationR04[cut]->Fill(IsolationR04->at(ml));
-          h_Global_Muon[cut]->Fill(Global_Muon->at(ml));
+      if (select && ((eta + 1) >= etaMin_) && ((eta + 1) <= etaMax_)) {
+        h_Pt_Muon[cut]->Fill(pt_of_muon);
+        h_Eta_Muon[cut]->Fill(eta_of_muon);
+        h_Phi_Muon[cut]->Fill(phi_of_muon);
+        h_PF_Muon[cut]->Fill(PF_Muon);
+        h_GlobTrack_Chi[cut]->Fill(GlobTrack_Chi);
+        h_Global_Muon_Hits[cut]->Fill(Global_Muon_Hits);
+        h_MatchedStations[cut]->Fill(MatchedStations);
+        h_Tight_TransImpactparameter[cut]->Fill(Tight_TransImpactparameter);
+        h_Tight_LongitudinalImpactparameter[cut]->Fill(Tight_LongitudinalImpactparameter);
+        h_InnerTrackPixelHits[cut]->Fill(InnerTrackPixelHits);
+        h_TrackerLayer[cut]->Fill(TrackerLayer);
+        h_IsolationR04[cut]->Fill(IsolationR04);
+        h_Global_Muon[cut]->Fill(Global_Muon);
 
-          h_TransImpactParameter[cut]->Fill(Tight_TransImpactparameter->at(ml));
-          h_LongImpactParameter[cut]->Fill(Tight_LongitudinalImpactparameter->at(ml));
+        h_TransImpactParameter[cut]->Fill(Tight_TransImpactparameter);
+        h_LongImpactParameter[cut]->Fill(Tight_LongitudinalImpactparameter);
 
-          //in Phi Bins
-          if (((phi_of_muon->at(ml)) >= -1.5) || ((phi_of_muon->at(ml)) <= 0.5)) {
-            h_TransImpactParameterBin1[cut]->Fill(Tight_TransImpactparameter->at(ml));
-            h_LongImpactParameterBin1[cut]->Fill(Tight_LongitudinalImpactparameter->at(ml));
-            h_2D_Bin1[cut]->Fill(Tight_TransImpactparameter->at(ml), Tight_LongitudinalImpactparameter->at(ml));
+        //in Phi Bins
+        if (((phi_of_muon) >= -1.5) || ((phi_of_muon) <= 0.5)) {
+          h_TransImpactParameterBin1[cut]->Fill(Tight_TransImpactparameter);
+          h_LongImpactParameterBin1[cut]->Fill(Tight_LongitudinalImpactparameter);
+          h_2D_Bin1[cut]->Fill(Tight_TransImpactparameter, Tight_LongitudinalImpactparameter);
+        }
+
+        if ((phi_of_muon > 0.5) || (phi_of_muon < -1.5)) {
+          h_TransImpactParameterBin2[cut]->Fill(Tight_TransImpactparameter);
+          h_LongImpactParameterBin2[cut]->Fill(Tight_LongitudinalImpactparameter);
+          h_2D_Bin2[cut]->Fill(Tight_TransImpactparameter, Tight_LongitudinalImpactparameter);
+        }
+
+        h_ecal_energy[cut]->Fill(ecal_3into3);
+        h_3x3_ecal[cut]->Fill(ecal_3x3);
+        h_Eta_ecal[cut]->Fill(eta_of_muon, ecal_3x3);
+        h_Phi_ecal[cut]->Fill(phi_of_muon, ecal_3x3);
+        h_MuonHittingEcal[cut]->Fill(typeEcal);
+        if (typeEcal == 1) {
+          h_EtaX_ecal[cut]->Fill(etaEcal, ecal_3x3);
+          h_PhiY_ecal[cut]->Fill(phiEcal, ecal_3x3);
+        }
+
+        h_hcal_energy[cut]->Fill(hcal_3into3);
+        h_1x1_hcal[cut]->Fill(hcal_1x1);
+        h_EtaX_hcal[cut]->Fill(etaXHcal, hcal_1x1);
+        h_PhiY_hcal[cut]->Fill(phiYHcal, hcal_1x1);
+        h_HotCell[cut]->Fill(hcal_cellHot);
+        if (mergeDepth_) {
+          double en1(0), en2(0), energyFill(0), chargeS(0), chargeBG(0);
+          double enh(0), enc(0);
+          for (int dep = 0; dep < nDepth; ++dep) {
+            double enb(0), enu(0), eh0(0), ec0(0), chgS(0), chgB(0), actL(0);
+            getEnergy(dep, enb, enu, eh0, ec0, chgS, chgB, actL);
+            en1 += ((useCorrect_) ? enu : enb);
+            en2 += ((useCorrect_) ? ec0 : eh0);
+            enh += (eh0);
+            enc += (ec0);
+            energyFill += (actL);
+            chargeS += (chgS);
+            chargeBG += (chgB);
           }
+          int ind = (etaHcal > 0) ? indxEta[eta][0][PHI] : 1 + indxEta[eta][0][PHI];
+          if (debug_)  // || eta==15 || eta==17)
+            std::cout << "Matched Id " << matchedId << " Hot " << hcal_cellHot << " eta " << etaHcal << ":" << eta
+                      << " phi " << phiHcal << ":" << PHI << " Index " << ind << " E " << en1 << ":" << en2 << ":"
+                      << enh << ":" << enc << " L " << energyFill << " Charge " << chargeS << ":" << chargeBG
+                      << std::endl;
+          if (!(matchedId))
+            continue;
+          if (hcal_cellHot == 1) {
+            if (energyFill > 0) {
+              h_Hot_MuonEnergy_hcal_HotCell[cut][ind]->Fill(en2);
+              h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[cut][ind]->Fill(en2 / energyFill);
+              h_active_length_Fill[cut][ind]->Fill(energyFill);
+              h_p_muon_ineta[cut][ind]->Fill(p_of_muon);
+              h_charge_signal[cut][ind]->Fill(chargeS);
+              h_charge_bg[cut][ind]->Fill(chargeBG);
 
-          if ((phi_of_muon->at(ml) > 0.5) || (phi_of_muon->at(ml) < -1.5)) {
-            h_TransImpactParameterBin2[cut]->Fill(Tight_TransImpactparameter->at(ml));
-            h_LongImpactParameterBin2[cut]->Fill(Tight_LongitudinalImpactparameter->at(ml));
-            h_2D_Bin2[cut]->Fill(Tight_TransImpactparameter->at(ml), Tight_LongitudinalImpactparameter->at(ml));
-          }
+              t_ene.push_back(enh);
+              t_enec.push_back(enc);
+              t_charge.push_back(chargeS);
+              t_actln.push_back(energyFill);
+              t_depth.push_back(0);
 
-          h_ecal_energy[cut]->Fill(ecal_3into3->at(ml));
-          h_3x3_ecal[cut]->Fill(ecal_3x3->at(ml));
-          h_Eta_ecal[cut]->Fill(eta_of_muon->at(ml), ecal_3x3->at(ml));
-          h_Phi_ecal[cut]->Fill(phi_of_muon->at(ml), ecal_3x3->at(ml));
-          h_MuonHittingEcal[cut]->Fill(typeEcal);
-          if (typeEcal == 1) {
-            h_EtaX_ecal[cut]->Fill(etaEcal, ecal_3x3->at(ml));
-            h_PhiY_ecal[cut]->Fill(phiEcal, ecal_3x3->at(ml));
-          }
-
-          h_hcal_energy[cut]->Fill(hcal_3into3->at(ml));
-          h_1x1_hcal[cut]->Fill(hcal_1x1->at(ml));
-          h_EtaX_hcal[cut]->Fill(etaXHcal, hcal_1x1->at(ml));
-          h_PhiY_hcal[cut]->Fill(phiYHcal, hcal_1x1->at(ml));
-          h_HotCell[cut]->Fill(hcal_cellHot->at(ml));
-          if (mergeDepth_) {
-            double en1(0), en2(0), energyFill(0), chargeS(0), chargeBG(0);
-            double enh(0), enc(0);
-            for (int dep = 0; dep < nDepth; ++dep) {
-              double enb(0), enu(0), eh0(0), ec0(0), chgS(0), chgB(0), actL(0);
-              getEnergy(ml, dep, enb, enu, eh0, ec0, chgS, chgB, actL);
-              en1 += ((useCorrect_) ? enu : enb);
-              en2 += ((useCorrect_) ? ec0 : eh0);
-              enh += (eh0);
-              enc += (ec0);
-              energyFill += (actL);
-              chargeS += (chgS);
-              chargeBG += (chgB);
-            }
-            int ind = (etaHcal > 0) ? indxEta[eta][0][PHI] : 1 + indxEta[eta][0][PHI];
-            if (debug_)  // || eta==15 || eta==17)
-              std::cout << "Matched Id " << matchedId->at(ml) << " Hot " << hcal_cellHot->at(ml) << " eta " << etaHcal
-                        << ":" << eta << " phi " << phiHcal << ":" << PHI << " Index " << ind << " E " << en1 << ":"
-                        << en2 << ":" << enh << ":" << enc << " L " << energyFill << " Charge " << chargeS << ":"
-                        << chargeBG << std::endl;
-            if (!(matchedId->at(ml)))
-              continue;
-            if (hcal_cellHot->at(ml) == 1) {
-              if (energyFill > 0) {
-                h_Hot_MuonEnergy_hcal_HotCell[cut][ind]->Fill(en2);
-                h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[cut][ind]->Fill(en2 / energyFill);
-                h_active_length_Fill[cut][ind]->Fill(energyFill);
-                h_p_muon_ineta[cut][ind]->Fill(p_of_muon->at(ml));
-                h_charge_signal[cut][ind]->Fill(chargeS);
-                h_charge_bg[cut][ind]->Fill(chargeBG);
-
-                t_ene.push_back(enh);
-                t_enec.push_back(enc);
-                t_charge.push_back(chargeS);
-                t_actln.push_back(energyFill);
-                t_depth.push_back(0);
-
-                outtree_->Fill();
-              }
-            }
-          } else {
-            bool fillTree(false);
-            for (int dep = 0; dep < nDepth; ++dep) {
-              if (debug_)
-                std::cout << "dep:" << dep << std::endl;
-
-              double energyFill(0), chargeS(-9999), chargeBG(-9999);
-              double enh(-9999), enc(-9999), enb(0), enu(0);
-              bool ok1 = getEnergy(ml, dep, enb, enu, enh, enc, chargeS, chargeBG, energyFill);
-              double en1 = ((useCorrect_) ? enu : enb);
-              double en2 = ((useCorrect_) ? enc : enh);
-              if (debug_)
-                std::cout << "Hello in " << dep + 1 << " " << en1 << ":" << en2 << ":" << energyFill << std::endl;
-
-              bool ok2 = ok1;
-
-              if (debug_)
-                std::cout << "Before Index " << ok1 << ":" << ok2 << std::endl;
-
-              int ind = (etaHcal > 0) ? indxEta[eta][dep][PHI] : 1 + indxEta[eta][dep][PHI];
-              if (debug_)  // || eta==15 || eta==17)
-                std::cout << "Matched Id " << matchedId->at(ml) << " Hot " << hcal_cellHot->at(ml) << " eta " << etaHcal
-                          << ":" << eta << " phi " << phiHcal << ":" << PHI << " depth " << dep << " Index " << ind
-                          << " E " << en1 << ":" << en2 << ":" << enh << ":" << enc << " L " << energyFill << " Charge "
-                          << chargeS << ":" << chargeBG << std::endl;
-              if (!(matchedId->at(ml)))
-                continue;
-              if (ok1) {
-                if (debug_)
-                  std::cout << "enter ok1" << std::endl;
-
-                if (hcal_cellHot->at(ml) == 1) {
-                  if (energyFill > 0) {
-                    h_Hot_MuonEnergy_hcal_HotCell[cut][ind]->Fill(en2);
-                    h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[cut][ind]->Fill(en2 / energyFill);
-                    h_active_length_Fill[cut][ind]->Fill(energyFill);
-                    h_p_muon_ineta[cut][ind]->Fill(p_of_muon->at(ml));
-                    h_charge_signal[cut][ind]->Fill(chargeS);
-                    h_charge_bg[cut][ind]->Fill(chargeBG);
-                    t_ene.push_back(enh);
-                    t_enec.push_back(enc);
-                    t_charge.push_back(chargeS);
-                    t_actln.push_back(energyFill);
-                    // added depth vector AmanKalsi
-                    t_depth.push_back(dep);
-                    fillTree = true;
-                  } else {
-                    t_ene.push_back(-999.0);
-                    t_enec.push_back(-999.0);
-                    t_charge.push_back(-999.0);
-                    t_actln.push_back(-999.0);
-                    t_depth.push_back(-999.0);
-                  }
-                  if (debug_)
-                    std::cout << "enter hot cell" << std::endl;
-                }
-              }
-
-              if (ok2) {
-                if (debug_)
-                  std::cout << "enter ok2" << std::endl;
-                if (hcal_cellHot->at(ml) != 1) {
-                }
-              }
-
-              if (debug_)
-                std::cout << "ETA \t" << eta << "DEPTH \t" << dep << std::endl;
-            }
-            if (fillTree)
               outtree_->Fill();
+            }
           }
+        } else {
+          bool fillTree(false);
+          for (int dep = 0; dep < nDepth; ++dep) {
+            if (debug_)
+              std::cout << "dep:" << dep << std::endl;
+
+            double energyFill(0), chargeS(-9999), chargeBG(-9999);
+            double enh(-9999), enc(-9999), enb(0), enu(0);
+            bool ok1 = getEnergy(dep, enb, enu, enh, enc, chargeS, chargeBG, energyFill);
+            double en1 = ((useCorrect_) ? enu : enb);
+            double en2 = ((useCorrect_) ? enc : enh);
+            if (debug_)
+              std::cout << "Hello in " << dep + 1 << " " << en1 << ":" << en2 << ":" << energyFill << std::endl;
+
+            bool ok2 = ok1;
+
+            if (debug_)
+              std::cout << "Before Index " << ok1 << ":" << ok2 << std::endl;
+
+            int ind = (etaHcal > 0) ? indxEta[eta][dep][PHI] : 1 + indxEta[eta][dep][PHI];
+            if (debug_)  // || eta==15 || eta==17)
+              std::cout << "Matched Id " << matchedId << " Hot " << hcal_cellHot << " eta " << etaHcal << ":" << eta
+                        << " phi " << phiHcal << ":" << PHI << " depth " << dep << " Index " << ind << " E " << en1
+                        << ":" << en2 << ":" << enh << ":" << enc << " L " << energyFill << " Charge " << chargeS << ":"
+                        << chargeBG << std::endl;
+            if (!(matchedId))
+              continue;
+            if (ok1) {
+              if (debug_)
+                std::cout << "enter ok1" << std::endl;
+
+              if (hcal_cellHot == 1) {
+                if (energyFill > 0) {
+                  h_Hot_MuonEnergy_hcal_HotCell[cut][ind]->Fill(en2);
+                  h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[cut][ind]->Fill(en2 / energyFill);
+                  h_active_length_Fill[cut][ind]->Fill(energyFill);
+                  h_p_muon_ineta[cut][ind]->Fill(p_of_muon);
+                  h_charge_signal[cut][ind]->Fill(chargeS);
+                  h_charge_bg[cut][ind]->Fill(chargeBG);
+                  t_ene.push_back(enh);
+                  t_enec.push_back(enc);
+                  t_charge.push_back(chargeS);
+                  t_actln.push_back(energyFill);
+                  // added depth vector AmanKalsi
+                  t_depth.push_back(dep);
+                  fillTree = true;
+                } else {
+                  t_ene.push_back(-999.0);
+                  t_enec.push_back(-999.0);
+                  t_charge.push_back(-999.0);
+                  t_actln.push_back(-999.0);
+                  t_depth.push_back(-999.0);
+                }
+                if (debug_)
+                  std::cout << "enter hot cell" << std::endl;
+              }
+            }
+
+            if (ok2) {
+              if (debug_)
+                std::cout << "enter ok2" << std::endl;
+              if (hcal_cellHot != 1) {
+              }
+            }
+
+            if (debug_)
+              std::cout << "ETA \t" << eta << "DEPTH \t" << dep << std::endl;
+          }
+          if (fillTree)
+            outtree_->Fill();
         }
       }
     }
@@ -1482,90 +1470,78 @@ void HBHEMuonOfflineAnalyzer::bookHistograms(const char *fname) {
   //output_file->cd();
 }
 
-bool HBHEMuonOfflineAnalyzer::getEnergy(unsigned int ml,
-                                        int dep,
-                                        double &enb,
-                                        double &enu,
-                                        double &enh,
-                                        double &enc,
-                                        double &chgS,
-                                        double &chgB,
-                                        double &actL) {
+bool HBHEMuonOfflineAnalyzer::getEnergy(
+    int dep, double &enb, double &enu, double &enh, double &enc, double &chgS, double &chgB, double &actL) {
   double cfac(1.0);
   bool flag(true);
   if (cFactor_) {
-    int ieta = hcal_ieta->at(ml);
-    int iphi = hcal_iphi->at(ml);
+    int ieta = hcal_ieta;
+    int iphi = hcal_iphi;
     unsigned int detId = getDetIdHBHE(ieta, iphi, dep + 1);
     cfac = getCorr(Run_No, detId);
   }
   if (dep == 0) {
-    enb = cfac * hcal_edepth1->at(ml);
-    enu = cfac * hcal_edepthCorrect1->at(ml);
-    enh = cfac * hcal_edepthHot1->at(ml);
-    enc = cfac * hcal_edepthHotCorrect1->at(ml);
-    chgS = hcal_cdepthHot1->at(ml);
-    actL = hcal_activeHotL1->at(ml);
-    chgB = hcal_cdepthHotBG1->at(ml);
+    enb = cfac * hcal_edepth1;
+    enu = cfac * hcal_edepthCorrect1;
+    enh = cfac * hcal_edepthHot1;
+    enc = cfac * hcal_edepthHotCorrect1;
+    chgS = hcal_cdepthHot1;
+    actL = hcal_activeHotL1;
+    chgB = hcal_cdepthHotBG1;
   } else if (dep == 1) {
-    enb = cfac * hcal_edepth2->at(ml);
-    enu = cfac * hcal_edepthCorrect2->at(ml);
-    enh = cfac * hcal_edepthHot2->at(ml);
-    enc = cfac * hcal_edepthHotCorrect2->at(ml);
-    chgS = hcal_cdepthHot2->at(ml);
-    actL = hcal_activeHotL2->at(ml);
-    chgB = hcal_cdepthHotBG2->at(ml);
+    enb = cfac * hcal_edepth2;
+    enu = cfac * hcal_edepthCorrect2;
+    enh = cfac * hcal_edepthHot2;
+    enc = cfac * hcal_edepthHotCorrect2;
+    chgS = hcal_cdepthHot2;
+    actL = hcal_activeHotL2;
+    chgB = hcal_cdepthHotBG2;
   } else if (dep == 2) {
-    enb = cfac * hcal_edepth3->at(ml);
-    enu = cfac * hcal_edepthCorrect3->at(ml);
-    enh = cfac * hcal_edepthHot3->at(ml);
-    enc = cfac * hcal_edepthHotCorrect3->at(ml);
-    chgS = hcal_cdepthHot3->at(ml);
-    actL = hcal_activeHotL3->at(ml);
-    chgB = hcal_cdepthHotBG3->at(ml);
+    enb = cfac * hcal_edepth3;
+    enu = cfac * hcal_edepthCorrect3;
+    enh = cfac * hcal_edepthHot3;
+    enc = cfac * hcal_edepthHotCorrect3;
+    chgS = hcal_cdepthHot3;
+    actL = hcal_activeHotL3;
+    chgB = hcal_cdepthHotBG3;
   } else if (dep == 3) {
-    enb = cfac * hcal_edepth4->at(ml);
-    enu = cfac * hcal_edepthCorrect4->at(ml);
-    enh = cfac * hcal_edepthHot4->at(ml);
-    enc = cfac * hcal_edepthHotCorrect4->at(ml);
-    chgS = hcal_cdepthHot4->at(ml);
-    actL = hcal_activeHotL4->at(ml);
-    chgB = hcal_cdepthHotBG4->at(ml);
+    enb = cfac * hcal_edepth4;
+    enu = cfac * hcal_edepthCorrect4;
+    enh = cfac * hcal_edepthHot4;
+    enc = cfac * hcal_edepthHotCorrect4;
+    chgS = hcal_cdepthHot4;
+    actL = hcal_activeHotL4;
+    chgB = hcal_cdepthHotBG4;
   } else if (dep == 4) {
-    if (hcal_edepthCorrect5->size() > ml) {
-      enb = cfac * hcal_edepth5->at(ml);
-      enu = cfac * hcal_edepthCorrect5->at(ml);
-      enh = cfac * hcal_edepthHot5->at(ml);
-      enc = cfac * hcal_edepthHotCorrect5->at(ml);
-      chgS = hcal_cdepthHot5->at(ml);
-      actL = hcal_activeHotL5->at(ml);
-      chgB = hcal_cdepthHotBG5->at(ml);
-    } else {
-      enb = enu = enh = enc = chgS = actL = chgB = 0;
-      flag = false;
-    }
+    enb = cfac * hcal_edepth5;
+    enu = cfac * hcal_edepthCorrect5;
+    enh = cfac * hcal_edepthHot5;
+    enc = cfac * hcal_edepthHotCorrect5;
+    chgS = hcal_cdepthHot5;
+    actL = hcal_activeHotL5;
+    chgB = hcal_cdepthHotBG5;
   } else if (dep == 5) {
-    if (hcal_edepthCorrect6->size() > ml) {
-      enb = cfac * hcal_edepth6->at(ml);
-      enu = cfac * hcal_edepthCorrect6->at(ml);
-      enh = cfac * hcal_edepthHot6->at(ml);
-      enc = cfac * hcal_edepthHotCorrect6->at(ml);
-      chgS = hcal_cdepthHot6->at(ml);
-      actL = hcal_activeHotL6->at(ml);
-      chgB = hcal_cdepthHotBG6->at(ml);
+    if (dep <= maxDepth_) {
+      enb = cfac * hcal_edepth6;
+      enu = cfac * hcal_edepthCorrect6;
+      enh = cfac * hcal_edepthHot6;
+      enc = cfac * hcal_edepthHotCorrect6;
+      chgS = hcal_cdepthHot6;
+      actL = hcal_activeHotL6;
+      chgB = hcal_cdepthHotBG6;
     } else {
       enb = enu = enh = enc = chgS = actL = chgB = 0;
       flag = false;
     }
   } else if (dep == 6) {
-    if (hcal_edepthCorrect7->size() > ml) {
-      enb = cfac * hcal_edepth7->at(ml);
-      enu = cfac * hcal_edepthCorrect7->at(ml);
-      enh = cfac * hcal_edepthHot7->at(ml);
-      enc = cfac * hcal_edepthHotCorrect7->at(ml);
-      chgS = hcal_cdepthHot7->at(ml);
-      actL = hcal_activeHotL7->at(ml);
-      chgB = hcal_cdepthHotBG7->at(ml);
+    if (dep <= maxDepth_) {
+      enb = cfac * hcal_edepth7;
+      enu = cfac * hcal_edepthCorrect7;
+      enh = cfac * hcal_edepthHot7;
+      enc = cfac * hcal_edepthHotCorrect7;
+      chgS = hcal_cdepthHot7;
+      actL = hcal_activeHotL7;
+      chgB = hcal_cdepthHotBG7;
     } else {
       enb = enu = enh = enc = chgS = actL = chgB = 0;
       flag = false;
@@ -1577,10 +1553,10 @@ bool HBHEMuonOfflineAnalyzer::getEnergy(unsigned int ml,
   return flag;
 }
 
-bool HBHEMuonOfflineAnalyzer::looseMuon(unsigned int ml) {
-  if (pt_of_muon->at(ml) > 20.) {
-    if (mediumMuon2016(ml)) {
-      if (IsolationR04->at(ml) < 0.25) {
+bool HBHEMuonOfflineAnalyzer::looseMuon() {
+  if (pt_of_muon > 20.) {
+    if (mediumMuon2016()) {
+      if (IsolationR04 < 0.25) {
         return true;
       }
     }
@@ -1588,10 +1564,10 @@ bool HBHEMuonOfflineAnalyzer::looseMuon(unsigned int ml) {
   return false;
 }
 
-bool HBHEMuonOfflineAnalyzer::softMuon(unsigned int ml) {
-  if (pt_of_muon->at(ml) > 20.) {
-    if (mediumMuon2016(ml)) {
-      if (IsolationR03->at(ml) < 0.10) {
+bool HBHEMuonOfflineAnalyzer::softMuon() {
+  if (pt_of_muon > 20.) {
+    if (mediumMuon2016()) {
+      if (IsolationR03 < 0.10) {
         return true;
       }
     }
@@ -1599,10 +1575,10 @@ bool HBHEMuonOfflineAnalyzer::softMuon(unsigned int ml) {
   return false;
 }
 
-bool HBHEMuonOfflineAnalyzer::tightMuon(unsigned int ml) {
-  if (pt_of_muon->at(ml) > 20.) {
-    if (mediumMuon2016(ml)) {
-      if (IsolationR04->at(ml) < 0.15) {
+bool HBHEMuonOfflineAnalyzer::tightMuon() {
+  if (pt_of_muon > 20.) {
+    if (mediumMuon2016()) {
+      if (IsolationR04 < 0.15) {
         return true;
       }
     }
@@ -1610,15 +1586,13 @@ bool HBHEMuonOfflineAnalyzer::tightMuon(unsigned int ml) {
   return false;
 }
 
-bool HBHEMuonOfflineAnalyzer::mediumMuon2016(unsigned int ml) {
-  bool medium16 =
-      (((PF_Muon->at(ml)) && (Global_Muon->at(ml) || Tracker_muon->at(ml))) && (tight_validFraction->at(ml) > 0.49));
+bool HBHEMuonOfflineAnalyzer::mediumMuon2016() {
+  bool medium16 = (((PF_Muon) && (Global_Muon || Tracker_muon)) && (tight_validFraction > 0.49));
   if (!medium16)
     return medium16;
 
-  bool goodGlob = (Global_Muon->at(ml) && GlobTrack_Chi->at(ml) < 3 && muon_chi2LocalPosition->at(ml) < 12 &&
-                   muon_trkKink->at(ml) < 20);
-  medium16 = muon_segComp->at(ml) > (goodGlob ? 0.303 : 0.451);
+  bool goodGlob = (Global_Muon && GlobTrack_Chi < 3 && muon_chi2LocalPosition < 12 && muon_trkKink < 20);
+  medium16 = muon_segComp > (goodGlob ? 0.303 : 0.451);
   return medium16;
 }
 

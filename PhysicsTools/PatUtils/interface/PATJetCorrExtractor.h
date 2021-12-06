@@ -29,25 +29,6 @@
 #include <string>
 #include <vector>
 
-namespace {
-  std::string format_vstring(const std::vector<std::string>& v) {
-    std::string retVal;
-
-    retVal.append("{ ");
-
-    unsigned numEntries = v.size();
-    for (unsigned iEntry = 0; iEntry < numEntries; ++iEntry) {
-      retVal.append(v[iEntry]);
-      if (iEntry < (numEntries - 1))
-        retVal.append(", ");
-    }
-
-    retVal.append(" }");
-
-    return retVal;
-  }
-}  // namespace
-
 class PATJetCorrExtractor {
 public:
   reco::Candidate::LorentzVector operator()(
@@ -83,10 +64,19 @@ public:
     } catch (cms::Exception const&) {
       throw cms::Exception("InvalidRequest")
           << "The JEC level " << jetCorrLabel << " does not exist !!\n"
-          << "Available levels = " << format_vstring(jet.availableJECLevels()) << ".\n";
+          << "Available levels = { " << format_vstring(jet.availableJECLevels()) << " }.\n";
     }
 
     return corrJetP4;
+  }
+
+private:
+  static std::string format_vstring(const std::vector<std::string>& v) {
+    std::string retVal;
+    auto ss = std::accumulate(v.begin(), v.end(), 0, [](int a, std::string const& s) { return a + s.length() + 2; });
+    retVal.reserve(ss);
+    for_each(v.begin(), v.end(), [&](std::string const& s) { retVal += (retVal.empty() ? "" : ", ") + s; });
+    return retVal;
   }
 };
 

@@ -7,7 +7,7 @@
 
 int MuonGeometryConstants::getValue(const std::string& name) const {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "about to look for ... " << name << std::endl;
+  edm::LogVerbatim("MuonGeom") << "about to look for ... " << name << std::endl;
 #endif
   if (namesAndValues_.empty())
     throw cms::Exception("GeometryBuildFailure", "MuonGeometryConstants does not have requested value for " + name);
@@ -17,7 +17,7 @@ int MuonGeometryConstants::getValue(const std::string& name) const {
     throw cms::Exception("GeometryBuildFailure", "MuonGeometryConstants does not have requested value for " + name);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonGeometryConstants::Value for " << name << " is " << findIt->second;
+  edm::LogVerbatim("MuonGeom") << "MuonGeometryConstants::Value for " << name << " is " << findIt->second;
 #endif
   return findIt->second;
 }

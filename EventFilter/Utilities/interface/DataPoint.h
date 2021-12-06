@@ -68,13 +68,15 @@ namespace jsoncollector {
     void snapStreamAtomic(unsigned int lumi, unsigned int streamID);
 
     //set to track a variable
-    void trackMonitorable(JsonMonitorable* monitorable, bool NAifZeroUpdates);
+    void trackMonitorable(JsonMonitorable const* monitorable, bool NAifZeroUpdates);
 
     //set to track a vector of variables
-    void trackVectorUInt(std::string const& name, std::vector<unsigned int>* monvec, bool NAifZeroUpdates);
+    void trackVectorUInt(std::string const& name, std::vector<unsigned int> const* monvec, bool NAifZeroUpdates);
 
     //set to track a vector of atomic variables with guaranteed collection
-    void trackVectorUIntAtomic(std::string const& name, std::vector<AtomicMonUInt*>* monvec, bool NAifZeroUpdates);
+    void trackVectorUIntAtomic(std::string const& name,
+                               std::vector<AtomicMonUInt*> const* monvec,
+                               bool NAifZeroUpdates);
 
     //variable not found by the service, but want to output something to JSON
     void trackDummy(std::string const& name, bool setNAifZeroUpdates) {
@@ -106,7 +108,7 @@ namespace jsoncollector {
     //this parameter sets location where we can find hwo many bins are needed for histogram
     void setNBins(unsigned int* nBins) { nBinsPtr_ = nBins; }
 
-    std::string const& getName() { return name_; }
+    std::string const& getName() const { return name_; }
 
     void updateDefinition(std::string const& definition) { definition_ = definition; }
 
@@ -123,7 +125,7 @@ namespace jsoncollector {
 
     std::vector<MonPtrMap> streamDataMaps_;
     MonPtrMap globalDataMap_;
-    void* tracked_ = nullptr;
+    void const* tracked_ = nullptr;
 
     //stream lumi block position
     std::vector<unsigned int>* streamLumisPtr_ = nullptr;

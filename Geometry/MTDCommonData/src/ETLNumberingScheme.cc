@@ -36,10 +36,10 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
   const uint32_t modCopy(baseNumber.getCopyNumber(2));
 
-  const std::string& ringName(baseNumber.getLevelName(3));  // name of ring volume
+  const std::string_view& ringName(baseNumber.getLevelName(3));  // name of ring volume
   int modtyp(0);
-  std::string baseName = ringName.substr(ringName.find(':') + 1);
-  int ringCopy(::atoi(baseName.c_str() + 4));
+  std::string_view baseName = ringName.substr(ringName.find(':') + 1);
+  int ringCopy(::atoi(baseName.data() + 4));
 
   uint32_t discN, sectorS, sectorN;
   if (!preTDR) {
@@ -55,7 +55,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
   // Side choice: up to scenario D38 is given by level 7 (HGCal v9)
   int nSide(7);
-  const std::string& sideName(baseNumber.getLevelName(nSide));
+  const std::string_view& sideName(baseNumber.getLevelName(nSide));
   // Side choice: from scenario D41 is given by level 8 (HGCal v10)
   if (sideName.find("CALOECTSFront") != std::string::npos) {
     nSide = 8;

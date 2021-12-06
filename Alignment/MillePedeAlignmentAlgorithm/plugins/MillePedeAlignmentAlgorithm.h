@@ -15,12 +15,18 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
+
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
+#include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
 
 #include <vector>
 #include <string>
@@ -53,7 +59,7 @@ class TrajectoryFactoryBase;
 class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase {
 public:
   /// Constructor
-  MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg);
+  MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC);
 
   /// Destructor
   ~MillePedeAlignmentAlgorithm() override;
@@ -263,6 +269,10 @@ private:
   //--------------------------------------------------------
   // Data members
   //--------------------------------------------------------
+
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<AlignPCLThresholds, AlignPCLThresholdsRcd> aliThrToken_;
+
   enum EModeBit { myMilleBit = 1 << 0, myPedeRunBit = 1 << 1, myPedeSteerBit = 1 << 2, myPedeReadBit = 1 << 3 };
   unsigned int decodeMode(const std::string &mode) const;
   bool isMode(unsigned int testMode) const { return (theMode & testMode); }

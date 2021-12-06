@@ -13,8 +13,7 @@ DQMCertTrackerStrip = cms.Sequence(siStripDaqInfo *
 				   siStripCertificationInfo)
 
 DQMCertTrackerPixel = cms.Sequence(sipixelDaqInfo *
-				   sipixelDcsInfo *
-				   sipixelCertification)
+				   sipixelDcsInfo)
 
 DQMCertTracking = cms.Sequence(trackingCertificationInfo) 
 
@@ -37,14 +36,6 @@ DQMCertCommon = cms.Sequence( DQMCertTrackerStrip *
 			      DQMCertTracking *
 			      DQMCertEGamma *
 			      DQMCertTrigger)
-
-from DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_harvesting_cff import *
-from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-
-phase1Pixel.toReplaceWith(DQMCertTrackerPixel,DQMCertTrackerPixel.copyAndExclude([ # FIXME
-    sipixelCertification # segfaults when included
-]))
-
 
 DQMCertCommonFakeHLT = cms.Sequence( DQMCertCommon )
 DQMCertCommonFakeHLT.remove( dqmOfflineTriggerCert )

@@ -24,13 +24,14 @@
 #include "PhysicsTools/SelectorUtils/interface/strbitset.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -81,30 +82,17 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
-// HCAL
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-#include "TFile.h"
-#include "TTree.h"
-#include "TH1.h"
-
-class EcalDeadCellDeltaRFilter : public edm::EDFilter {
+class EcalDeadCellDeltaRFilter : public edm::stream::EDFilter<> {
 public:
   explicit EcalDeadCellDeltaRFilter(const edm::ParameterSet &);
-  ~EcalDeadCellDeltaRFilter() override;
+  ~EcalDeadCellDeltaRFilter() override = default;
 
 private:
   bool filter(edm::Event &, const edm::EventSetup &) override;
-  void beginJob() override;
-  void endJob() override;
   void beginRun(const edm::Run &, const edm::EventSetup &) override;
   void endRun(const edm::Run &, const edm::EventSetup &) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
   virtual void envSet(const edm::EventSetup &);
 
   // ----------member data ---------------------------
@@ -133,11 +121,12 @@ private:
   double calomet, calometPhi, tcmet, tcmetPhi, pfmet, pfmetPhi;
 
   // Channel status related
-  edm::ESHandle<EcalChannelStatus> ecalStatus;   // these come from EventSetup
-  edm::ESHandle<HcalChannelQuality> hcalStatus;  // these may come per LS
+  edm::ESHandle<EcalChannelStatus> ecalStatus;  // these come from EventSetup
   edm::ESHandle<CaloGeometry> geometry;
-
-  edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
+  const EcalTrigTowerConstituentsMap *ttMap_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> ecalChannelStatusToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> ecalTrigTowerConstituentsMapToken_;
 
   const int maskedEcalChannelStatusThreshold_;
   const int chnStatusToBeEvaluated_;
@@ -156,11 +145,6 @@ private:
 
   int evtProcessedCnt, totTPFilteredCnt;
   double wtdEvtProcessed, wtdTPFiltered;
-
-  const bool makeProfileRoot_;
-  const std::string profileRootName_;
-  TFile *profFile;
-  TH1F *h1_dummy;
 
   const bool isProd_;
   const int verbose_;
@@ -221,71 +205,40 @@ void EcalDeadCellDeltaRFilter::loadJets(const edm::Event &iEvent, const edm::Eve
 //
 EcalDeadCellDeltaRFilter::EcalDeadCellDeltaRFilter(const edm::ParameterSet &iConfig)
     : jetToken_(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jetInputTag"))),
-      jetSelCuts_(iConfig.getParameter<std::vector<double> >("jetSelCuts"))
-
-      ,
-      metToken_(consumes<edm::View<reco::MET> >(iConfig.getParameter<edm::InputTag>("metInputTag")))
-
-      ,
+      jetSelCuts_(iConfig.getParameter<std::vector<double> >("jetSelCuts")),
+      metToken_(consumes<edm::View<reco::MET> >(iConfig.getParameter<edm::InputTag>("metInputTag"))),
       debug_(iConfig.getUntrackedParameter<bool>("debug", false)),
-      printSkimInfo_(iConfig.getUntrackedParameter<bool>("printSkimInfo", false))
-
-      ,
+      printSkimInfo_(iConfig.getUntrackedParameter<bool>("printSkimInfo", false)),
+      ecalChannelStatusToken_(esConsumes<edm::Transition::BeginRun>()),
+      caloGeometryToken_(esConsumes<edm::Transition::BeginRun>()),
+      ecalTrigTowerConstituentsMapToken_(esConsumes<edm::Transition::BeginRun>()),
       maskedEcalChannelStatusThreshold_(iConfig.getParameter<int>("maskedEcalChannelStatusThreshold")),
-      chnStatusToBeEvaluated_(iConfig.getParameter<int>("chnStatusToBeEvaluated"))
-
-      ,
-      makeProfileRoot_(iConfig.getUntrackedParameter<bool>("makeProfileRoot", true)),
-      profileRootName_(iConfig.getUntrackedParameter<std::string>("profileRootName", "EcalDeadCellDeltaRFilter.root"))
-
-      ,
+      chnStatusToBeEvaluated_(iConfig.getParameter<int>("chnStatusToBeEvaluated")),
       isProd_(iConfig.getUntrackedParameter<bool>("isProd")),
-      verbose_(iConfig.getParameter<int>("verbose"))
-
-      ,
+      verbose_(iConfig.getParameter<int>("verbose")),
       doCracks_(iConfig.getUntrackedParameter<bool>("doCracks")),
       cracksHBHEdef_(iConfig.getParameter<std::vector<double> >("cracksHBHEdef")),
-      cracksHEHFdef_(iConfig.getParameter<std::vector<double> >("cracksHEHFdef"))
-
-      ,
-      EcalDeadCellDeltaRFilterInput_(iConfig.getParameter<std::vector<double> >("EcalDeadCellDeltaRFilterInput"))
-
-      ,
+      cracksHEHFdef_(iConfig.getParameter<std::vector<double> >("cracksHEHFdef")),
+      EcalDeadCellDeltaRFilterInput_(iConfig.getParameter<std::vector<double> >("EcalDeadCellDeltaRFilterInput")),
       taggingMode_(iConfig.getParameter<bool>("taggingMode")) {
   produces<int>("deadCellStatus");
   produces<int>("boundaryStatus");
   produces<bool>();
-
-  if (makeProfileRoot_) {
-    profFile = new TFile(profileRootName_.c_str(), "RECREATE");
-    h1_dummy = new TH1F("dummy", "dummy", 500, 0, 500);
-  }
-}
-
-EcalDeadCellDeltaRFilter::~EcalDeadCellDeltaRFilter() {
-  if (makeProfileRoot_) {
-    profFile->cd();
-
-    h1_dummy->Write();
-
-    profFile->Close();
-    delete profFile;
-  }
 }
 
 void EcalDeadCellDeltaRFilter::envSet(const edm::EventSetup &iSetup) {
   if (debug_)
     std::cout << "***envSet***" << std::endl;
 
-  iSetup.get<IdealGeometryRecord>().get(ttMap_);
+  ttMap_ = &iSetup.getData(ecalTrigTowerConstituentsMapToken_);
 
-  iSetup.get<EcalChannelStatusRcd>().get(ecalStatus);
-  iSetup.get<CaloGeometryRecord>().get(geometry);
+  ecalStatus = iSetup.getHandle(ecalChannelStatusToken_);
+  geometry = iSetup.getHandle(caloGeometryToken_);
 
   if (!ecalStatus.isValid())
-    throw "Failed to get ECAL channel status!";
+    throw cms::Exception("ESDataError") << "Failed to get ECAL channel status!";
   if (!geometry.isValid())
-    throw "Failed to get the geometry!";
+    throw cms::Exception("ESDataError") << "Failed to get the geometry!";
 }
 
 // ------------ method called on each new Event  ------------
@@ -337,10 +290,6 @@ bool EcalDeadCellDeltaRFilter::filter(edm::Event &iEvent, const edm::EventSetup 
            dRtoDeadCell);
   }
 
-  if (makeProfileRoot_) {
-    //     h1_dummy->Fill(xxx);
-  }
-
   iEvent.put(std::make_unique<int>(deadCellStatus), "deadCellStatus");
   iEvent.put(std::make_unique<int>(boundaryStatus), "boundaryStatus");
 
@@ -350,18 +299,6 @@ bool EcalDeadCellDeltaRFilter::filter(edm::Event &iEvent, const edm::EventSetup 
   iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void EcalDeadCellDeltaRFilter::beginJob() {
-  if (debug_)
-    std::cout << "beginJob" << std::endl;
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void EcalDeadCellDeltaRFilter::endJob() {
-  if (debug_)
-    std::cout << "endJob" << std::endl;
 }
 
 // ------------ method called once each run just before starting event loop  ------------
@@ -382,16 +319,6 @@ void EcalDeadCellDeltaRFilter::beginRun(const edm::Run &run, const edm::EventSet
 void EcalDeadCellDeltaRFilter::endRun(const edm::Run &run, const edm::EventSetup &iSetup) {
   if (debug_)
     std::cout << "endRun" << std::endl;
-  return;
-}
-
-// ------------ method called at lumi block start
-void EcalDeadCellDeltaRFilter::beginLuminosityBlock(const edm::LuminosityBlock &iLSblock,
-                                                    const edm::EventSetup &iSetup) {
-  // needs per-LS access, if used at all
-  iSetup.get<HcalChannelQualityRcd>().get("withTopo", hcalStatus);
-  if (!hcalStatus.isValid())
-    throw "Failed to get HCAL channel status!";
   return;
 }
 

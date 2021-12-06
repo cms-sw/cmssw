@@ -10,12 +10,13 @@
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 
 class EcalClusterEnergyCorrection : public EcalClusterFunctionBaseClass {
 public:
-  EcalClusterEnergyCorrection(const edm::ParameterSet &){};
+  EcalClusterEnergyCorrection(const edm::ParameterSet &, edm::ConsumesCollector iC) : paramsToken_(iC.esConsumes()) {}
 
   // get/set explicit methods for parameters
   const EcalClusterEnergyCorrectionParameters *getParameters() const { return params_; }
@@ -34,8 +35,8 @@ private:
   float fBrem(float e, float eta, int algorithm) const;
   float fEtEta(float et, float eta, int algorithm) const;
 
-  edm::ESHandle<EcalClusterEnergyCorrectionParameters> esParams_;
-  const EcalClusterEnergyCorrectionParameters *params_;
+  const edm::ESGetToken<EcalClusterEnergyCorrectionParameters, EcalClusterEnergyCorrectionParametersRcd> paramsToken_;
+  const EcalClusterEnergyCorrectionParameters *params_ = nullptr;
 };
 
 // Shower leakage corrections developed by Jungzhie et al. using TB data
@@ -240,10 +241,7 @@ float EcalClusterEnergyCorrection::getValue(const reco::SuperCluster &superClust
   }
 }
 
-void EcalClusterEnergyCorrection::init(const edm::EventSetup &es) {
-  es.get<EcalClusterEnergyCorrectionParametersRcd>().get(esParams_);
-  params_ = esParams_.product();
-}
+void EcalClusterEnergyCorrection::init(const edm::EventSetup &es) { params_ = &es.getData(paramsToken_); }
 
 void EcalClusterEnergyCorrection::checkInit() const {
   if (!params_) {

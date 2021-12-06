@@ -69,8 +69,8 @@ namespace cond {
     if (!std::getline(sinfo, slumi, ',')) {
       throw Exception("Can't get lumi id from OMS Service.");
     }
-    unsigned int run = boost::lexical_cast<unsigned int>(srun);
-    unsigned int lumi = boost::lexical_cast<unsigned int>(slumi);
+    unsigned int run = std::stoul(srun);
+    unsigned int lumi = std::stoul(slumi);
     lastLumiProcessed = cond::time::lumiTime(run, lumi);
     return lastLumiProcessed;
   }

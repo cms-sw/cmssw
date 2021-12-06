@@ -33,6 +33,9 @@ namespace edm {
   class ESProducerLooper : public ESProducer, public EventSetupRecordIntervalFinder, public EDLooper {
   public:
     ESProducerLooper();
+    ESProducerLooper(const ESProducerLooper&) = delete;                   // stop default
+    const ESProducerLooper& operator=(const ESProducerLooper&) = delete;  // stop default
+
     //virtual ~ESProducerLooper();
 
     // ---------- const member functions ---------------------
@@ -53,10 +56,6 @@ namespace edm {
                                 const std::string& iLabel = std::string()) override;
 
   private:
-    ESProducerLooper(const ESProducerLooper&) = delete;  // stop default
-
-    const ESProducerLooper& operator=(const ESProducerLooper&) = delete;  // stop default
-
     // ---------- member data --------------------------------
   };
 }  // namespace edm

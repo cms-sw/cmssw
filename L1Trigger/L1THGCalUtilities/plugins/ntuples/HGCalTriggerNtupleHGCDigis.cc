@@ -1,7 +1,4 @@
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "L1Trigger/L1THGCalUtilities/interface/HGCalTriggerNtupleBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -18,7 +15,7 @@ public:
   HGCalTriggerNtupleHGCDigis(const edm::ParameterSet& conf);
   ~HGCalTriggerNtupleHGCDigis() override{};
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event& e, const edm::EventSetup& es) final;
+  void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 
 private:
   void simhits(const edm::Event& e,
@@ -48,10 +45,6 @@ private:
   std::vector<std::vector<uint32_t>> hgcdigi_data_;
   std::vector<std::vector<int>> hgcdigi_isadc_;
   std::vector<float> hgcdigi_simenergy_;
-  // V8 detid scheme
-  std::vector<int> hgcdigi_wafer_;
-  std::vector<int> hgcdigi_cell_;
-  // V9 detid scheme
   std::vector<int> hgcdigi_waferu_;
   std::vector<int> hgcdigi_waferv_;
   std::vector<int> hgcdigi_cellu_;
@@ -70,13 +63,12 @@ private:
   std::vector<std::vector<uint32_t>> bhdigi_data_;
   std::vector<std::vector<int>> bhdigi_isadc_;
   std::vector<float> bhdigi_simenergy_;
-
-  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCDigis, "HGCalTriggerNtupleHGCDigis");
 
 HGCalTriggerNtupleHGCDigis::HGCalTriggerNtupleHGCDigis(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
   is_Simhit_comp_ = conf.getParameter<bool>("isSimhitComp");
   digiBXselect_ = conf.getParameter<std::vector<unsigned int>>("digiBXselect");
 
@@ -130,14 +122,10 @@ void HGCalTriggerNtupleHGCDigis::initialize(TTree& tree,
     tree.Branch(withBX("hgcdigi_data", bxi), &hgcdigi_data_[i]);
     tree.Branch(withBX("hgcdigi_isadc", bxi), &hgcdigi_isadc_[i]);
   }
-  // V9 detid scheme
   tree.Branch("hgcdigi_waferu", &hgcdigi_waferu_);
   tree.Branch("hgcdigi_waferv", &hgcdigi_waferv_);
   tree.Branch("hgcdigi_cellu", &hgcdigi_cellu_);
   tree.Branch("hgcdigi_cellv", &hgcdigi_cellv_);
-  // V8 detid scheme
-  tree.Branch("hgcdigi_wafer", &hgcdigi_wafer_);
-  tree.Branch("hgcdigi_cell", &hgcdigi_cell_);
   if (is_Simhit_comp_)
     tree.Branch("hgcdigi_simenergy", &hgcdigi_simenergy_);
 
@@ -160,9 +148,7 @@ void HGCalTriggerNtupleHGCDigis::initialize(TTree& tree,
     tree.Branch("bhdigi_simenergy", &bhdigi_simenergy_);
 }
 
-void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup& es) {
-  es.get<CaloGeometryRecord>().get(triggerGeometry_);
-
+void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
   edm::Handle<HGCalDigiCollection> ee_digis_h;
   e.getByToken(ee_token_, ee_digis_h);
   const HGCalDigiCollection& ee_digis = *ee_digis_h;
@@ -173,7 +159,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
   e.getByToken(bh_token_, bh_digis_h);
   const HGCalDigiCollection& bh_digis = *bh_digis_h;
 
-  triggerTools_.eventSetup(es);
+  triggerTools_.setGeometry(es.geometry.product());
 
   // sim hit association
   std::unordered_map<uint32_t, double> simhits_ee;
@@ -196,15 +182,10 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
     hgcdigi_data_[i].reserve(hgcdigi_n_);
     hgcdigi_isadc_[i].reserve(hgcdigi_n_);
   }
-  if (triggerGeometry_->isV9Geometry()) {
-    hgcdigi_waferu_.reserve(hgcdigi_n_);
-    hgcdigi_waferv_.reserve(hgcdigi_n_);
-    hgcdigi_cellu_.reserve(hgcdigi_n_);
-    hgcdigi_cellv_.reserve(hgcdigi_n_);
-  } else {
-    hgcdigi_wafer_.reserve(hgcdigi_n_);
-    hgcdigi_cell_.reserve(hgcdigi_n_);
-  }
+  hgcdigi_waferu_.reserve(hgcdigi_n_);
+  hgcdigi_waferv_.reserve(hgcdigi_n_);
+  hgcdigi_cellu_.reserve(hgcdigi_n_);
+  hgcdigi_cellv_.reserve(hgcdigi_n_);
   if (is_Simhit_comp_)
     hgcdigi_simenergy_.reserve(hgcdigi_n_);
 
@@ -228,10 +209,10 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
   for (const auto& digi : ee_digis) {
     const DetId id(digi.id());
     hgcdigi_id_.emplace_back(id.rawId());
-    hgcdigi_subdet_.emplace_back(id.subdetId());
+    hgcdigi_subdet_.emplace_back(id.det());
     hgcdigi_side_.emplace_back(triggerTools_.zside(id));
     hgcdigi_layer_.emplace_back(triggerTools_.layerWithOffset(id));
-    GlobalPoint cellpos = triggerGeometry_->eeGeometry()->getPosition(id.rawId());
+    GlobalPoint cellpos = triggerTools_.getTriggerGeometry()->eeGeometry()->getPosition(id.rawId());
     hgcdigi_eta_.emplace_back(cellpos.eta());
     hgcdigi_phi_.emplace_back(cellpos.phi());
     hgcdigi_z_.emplace_back(cellpos.z());
@@ -239,19 +220,12 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
       hgcdigi_data_[i].emplace_back(digi[digiBXselect_[i]].data());
       hgcdigi_isadc_[i].emplace_back(!digi[digiBXselect_[i]].mode());
     }
-    if (triggerGeometry_->isV9Geometry()) {
-      const HGCSiliconDetId idv9(digi.id());
-      hgcdigi_waferu_.emplace_back(idv9.waferU());
-      hgcdigi_waferv_.emplace_back(idv9.waferV());
-      hgcdigi_wafertype_.emplace_back(idv9.type());
-      hgcdigi_cellu_.emplace_back(idv9.cellU());
-      hgcdigi_cellv_.emplace_back(idv9.cellV());
-    } else {
-      const HGCalDetId idv8(digi.id());
-      hgcdigi_wafer_.emplace_back(idv8.wafer());
-      hgcdigi_wafertype_.emplace_back(idv8.waferType());
-      hgcdigi_cell_.emplace_back(idv8.cell());
-    }
+    const HGCSiliconDetId idsi(digi.id());
+    hgcdigi_waferu_.emplace_back(idsi.waferU());
+    hgcdigi_waferv_.emplace_back(idsi.waferV());
+    hgcdigi_wafertype_.emplace_back(idsi.type());
+    hgcdigi_cellu_.emplace_back(idsi.cellU());
+    hgcdigi_cellv_.emplace_back(idsi.cellV());
     if (is_Simhit_comp_) {
       double hit_energy = 0;
       auto itr = simhits_ee.find(id);
@@ -264,10 +238,10 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
   for (const auto& digi : fh_digis) {
     const DetId id(digi.id());
     hgcdigi_id_.emplace_back(id.rawId());
-    hgcdigi_subdet_.emplace_back(id.subdetId());
+    hgcdigi_subdet_.emplace_back(id.det());
     hgcdigi_side_.emplace_back(triggerTools_.zside(id));
     hgcdigi_layer_.emplace_back(triggerTools_.layerWithOffset(id));
-    GlobalPoint cellpos = triggerGeometry_->hsiGeometry()->getPosition(id.rawId());
+    GlobalPoint cellpos = triggerTools_.getTriggerGeometry()->hsiGeometry()->getPosition(id.rawId());
     hgcdigi_eta_.emplace_back(cellpos.eta());
     hgcdigi_phi_.emplace_back(cellpos.phi());
     hgcdigi_z_.emplace_back(cellpos.z());
@@ -275,19 +249,12 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
       hgcdigi_data_[i].emplace_back(digi[digiBXselect_[i]].data());
       hgcdigi_isadc_[i].emplace_back(!digi[digiBXselect_[i]].mode());
     }
-    if (triggerGeometry_->isV9Geometry()) {
-      const HGCSiliconDetId idv9(digi.id());
-      hgcdigi_waferu_.emplace_back(idv9.waferU());
-      hgcdigi_waferv_.emplace_back(idv9.waferV());
-      hgcdigi_wafertype_.emplace_back(idv9.type());
-      hgcdigi_cellu_.emplace_back(idv9.cellU());
-      hgcdigi_cellv_.emplace_back(idv9.cellV());
-    } else {
-      const HGCalDetId idv8(digi.id());
-      hgcdigi_wafer_.emplace_back(idv8.wafer());
-      hgcdigi_wafertype_.emplace_back(idv8.waferType());
-      hgcdigi_cell_.emplace_back(idv8.cell());
-    }
+    const HGCSiliconDetId idsi(digi.id());
+    hgcdigi_waferu_.emplace_back(idsi.waferU());
+    hgcdigi_waferv_.emplace_back(idsi.waferV());
+    hgcdigi_wafertype_.emplace_back(idsi.type());
+    hgcdigi_cellu_.emplace_back(idsi.cellU());
+    hgcdigi_cellv_.emplace_back(idsi.cellV());
     if (is_Simhit_comp_) {
       double hit_energy = 0;
       auto itr = simhits_fh.find(id);
@@ -300,11 +267,10 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
   for (const auto& digi : bh_digis) {
     const DetId id(digi.id());
     bhdigi_id_.emplace_back(id.rawId());
-    bhdigi_subdet_.emplace_back(id.subdetId());
+    bhdigi_subdet_.emplace_back(id.det());
     bhdigi_side_.emplace_back(triggerTools_.zside(id));
     bhdigi_layer_.emplace_back(triggerTools_.layerWithOffset(id));
-    GlobalPoint cellpos = (triggerGeometry_->isV9Geometry() ? triggerGeometry_->hscGeometry()->getPosition(id.rawId())
-                                                            : triggerGeometry_->bhGeometry()->getPosition(id.rawId()));
+    GlobalPoint cellpos = triggerTools_.getTriggerGeometry()->hscGeometry()->getPosition(id.rawId());
     bhdigi_eta_.emplace_back(cellpos.eta());
     bhdigi_phi_.emplace_back(cellpos.phi());
     bhdigi_z_.emplace_back(cellpos.z());
@@ -312,15 +278,9 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
       bhdigi_data_[i].emplace_back(digi[digiBXselect_[i]].data());
       bhdigi_isadc_[i].emplace_back(!digi[digiBXselect_[i]].mode());
     }
-    if (triggerGeometry_->isV9Geometry()) {
-      const HGCScintillatorDetId idv9(digi.id());
-      bhdigi_ieta_.emplace_back(idv9.ietaAbs());
-      bhdigi_iphi_.emplace_back(idv9.iphi());
-    } else {
-      const HcalDetId idv8(digi.id());
-      bhdigi_ieta_.emplace_back(idv8.ieta());
-      bhdigi_iphi_.emplace_back(idv8.iphi());
-    }
+    const HGCScintillatorDetId idsci(digi.id());
+    bhdigi_ieta_.emplace_back(idsci.ietaAbs());
+    bhdigi_iphi_.emplace_back(idsci.iphi());
     if (is_Simhit_comp_) {
       double hit_energy = 0;
       auto itr = simhits_bh.find(id);
@@ -347,7 +307,7 @@ void HGCalTriggerNtupleHGCDigis::simhits(const edm::Event& e,
 
   //EE
   for (const auto& simhit : ee_simhits) {
-    DetId id = triggerTools_.simToReco(simhit.id(), triggerGeometry_->eeTopology());
+    DetId id = triggerTools_.simToReco(simhit.id(), triggerTools_.getTriggerGeometry()->eeTopology());
     if (id.rawId() == 0)
       continue;
     auto itr_insert = simhits_ee.emplace(id, 0.);
@@ -355,7 +315,7 @@ void HGCalTriggerNtupleHGCDigis::simhits(const edm::Event& e,
   }
   //  FH
   for (const auto& simhit : fh_simhits) {
-    DetId id = triggerTools_.simToReco(simhit.id(), triggerGeometry_->fhTopology());
+    DetId id = triggerTools_.simToReco(simhit.id(), triggerTools_.getTriggerGeometry()->fhTopology());
     if (id.rawId() == 0)
       continue;
     auto itr_insert = simhits_fh.emplace(id, 0.);
@@ -363,9 +323,7 @@ void HGCalTriggerNtupleHGCDigis::simhits(const edm::Event& e,
   }
   //  BH
   for (const auto& simhit : bh_simhits) {
-    DetId id =
-        (triggerGeometry_->isV9Geometry() ? triggerTools_.simToReco(simhit.id(), triggerGeometry_->hscTopology())
-                                          : triggerTools_.simToReco(simhit.id(), triggerGeometry_->bhTopology()));
+    DetId id = triggerTools_.simToReco(simhit.id(), triggerTools_.getTriggerGeometry()->hscTopology());
     if (id.rawId() == 0)
       continue;
     auto itr_insert = simhits_bh.emplace(id, 0.);
@@ -379,11 +337,9 @@ void HGCalTriggerNtupleHGCDigis::clear() {
   hgcdigi_subdet_.clear();
   hgcdigi_side_.clear();
   hgcdigi_layer_.clear();
-  hgcdigi_wafer_.clear();
   hgcdigi_waferu_.clear();
   hgcdigi_waferv_.clear();
   hgcdigi_wafertype_.clear();
-  hgcdigi_cell_.clear();
   hgcdigi_cellu_.clear();
   hgcdigi_cellv_.clear();
   hgcdigi_eta_.clear();

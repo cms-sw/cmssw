@@ -481,7 +481,7 @@ void HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
               if (key != key1 &&
                   kCnt1 > kCnt0) {  // avoid filling hists with same objs && avoid double counting separate objs
 
-                double pt2 = objects[key1].phi();
+                double pt2 = objects[key1].pt();
                 double eta2 = objects[key1].eta();
                 double phi2 = objects[key1].phi();
                 int id2 = objects[key1].id();
@@ -494,11 +494,6 @@ void HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
                 int q2 = (id2 == 0 ? 0 : id2 / abs(id2));
                 int q1q2 = q1 * q2;
                 plot.q1q2ME.first->Fill(q1q2);
-
-                if (abs(id) != abs(id2))
-                  edm::LogInfo("HLTObjectsMonitor")
-                      << plot.pathNAME << " " << plot.moduleNAME << " objects have different ID !?!" << abs(id)
-                      << " and " << abs(id2);
 
                 if ((id + id2) == 0) {  // check di-object system charge and flavor
 

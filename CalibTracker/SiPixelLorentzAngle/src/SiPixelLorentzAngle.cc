@@ -67,7 +67,7 @@ SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf)
 }
 
 // Virtual destructor needed.
-SiPixelLorentzAngle::~SiPixelLorentzAngle() {}
+SiPixelLorentzAngle::~SiPixelLorentzAngle() = default;
 
 void SiPixelLorentzAngle::beginJob() {
   // 	cout << "started SiPixelLorentzAngle" << endl;

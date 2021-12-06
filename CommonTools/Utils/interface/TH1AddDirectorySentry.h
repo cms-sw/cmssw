@@ -26,9 +26,10 @@ public:
   TH1AddDirectorySentry();
   ~TH1AddDirectorySentry();
 
-private:
   TH1AddDirectorySentry(const TH1AddDirectorySentry&) = delete;
   TH1AddDirectorySentry& operator=(const TH1AddDirectorySentry&) = delete;
+
+private:
   bool status_;
 };
 

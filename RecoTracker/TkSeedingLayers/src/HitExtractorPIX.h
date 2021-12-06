@@ -9,6 +9,8 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 namespace ctfseeding {
   class HitExtractorPIX final : public HitExtractor {
@@ -26,6 +28,7 @@ namespace ctfseeding {
 
     edm::EDGetTokenT<SkipClustersCollection> theSkipClusters;
     edm::EDGetTokenT<SiPixelRecHitCollection> theHitProducer;
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTtopo;
     TrackerDetSide theSide;
     int theIdLayer;
   };

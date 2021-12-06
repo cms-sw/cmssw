@@ -12,7 +12,7 @@
 
 // framework & common header files
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -90,7 +90,6 @@
 //#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <cstdlib>
-#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
@@ -99,8 +98,9 @@
 #include "TString.h"
 
 class PGlobalDigi;
-
-class GlobalDigisProducer : public edm::EDProducer {
+class TrackerTopology;
+class TrackerTopologyRcd;
+class GlobalDigisProducer : public edm::one::EDProducer<> {
 public:
   typedef std::vector<float> FloatVector;
   typedef std::vector<double> DoubleVector;
@@ -174,6 +174,9 @@ private:
   edm::InputTag HCalSrc_;
   edm::InputTag HCalDigi_;
 
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> ecalADCtoGevToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcaldbToken_;
   // Tracker info
   // SiStrip
 

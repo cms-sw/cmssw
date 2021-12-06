@@ -1,11 +1,12 @@
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletEventProcessor.h"
+#include "L1Trigger/TrackFindingTracklet/interface/SLHCEvent.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 #include "L1Trigger/TrackFindingTracklet/interface/SLHCEvent.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Sector.h"
 #include "L1Trigger/TrackFindingTracklet/interface/HistBase.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Track.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletConfigBuilder.h"
 #include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
-#include "L1Trigger/TrackFindingTracklet/interface/Cabling.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -41,6 +42,12 @@ void TrackletEventProcessor::init(Settings const& theSettings) {
     throw cms::Exception("Inconsistency") << "t conversion parameter inconsistency\n";
   }
 
+  if (settings_->kphider() != globals_->ITC_L1L2()->der_phiL_final.K()) {
+    throw cms::Exception("Inconsistency")
+        << "t conversion parameter inconsistency:" << settings_->kphider() / globals_->ITC_L1L2()->der_phiL_final.K()
+        << "\n";
+  }
+
   if (settings_->debugTracklet()) {
     edm::LogVerbatim("Tracklet") << "========================================================= \n"
                                  << "Conversion factors for global coordinates: \n"
@@ -71,20 +78,46 @@ void TrackletEventProcessor::init(Settings const& theSettings) {
     globals_->histograms() = histbase_;
   }
 
-  // create the sector processors (1 sector processor = 1 board)
-  sectors_.resize(N_SECTOR);
+  sector_ = make_unique<Sector>(*settings_, globals_.get());
 
-  for (unsigned int i = 0; i < N_SECTOR; i++) {
-    sectors_[i] = make_unique<Sector>(i, *settings_, globals_.get());
+  if (settings_->extended()) {
+    ifstream inmem(settings_->memoryModulesFile().c_str());
+    assert(inmem.good());
+
+    ifstream inproc(settings_->processingModulesFile().c_str());
+    assert(inproc.good());
+
+    ifstream inwire(settings_->wiresFile().c_str());
+    assert(inwire.good());
+
+    configure(inwire, inmem, inproc);
+
+  } else {
+    TrackletConfigBuilder config(*settings_);
+
+    //Write configurations to file.
+    if (settings_->writeConfig()) {
+      std::ofstream wires = openfile(settings_->tablePath(), "wires.dat", __FILE__, __LINE__);
+      std::ofstream memorymodules = openfile(settings_->tablePath(), "memorymodules.dat", __FILE__, __LINE__);
+      std::ofstream processingmodules = openfile(settings_->tablePath(), "processingmodules.dat", __FILE__, __LINE__);
+
+      config.writeAll(wires, memorymodules, processingmodules);
+    }
+
+    std::stringstream wires;
+    std::stringstream memorymodules;
+    std::stringstream processingmodules;
+
+    config.writeAll(wires, memorymodules, processingmodules);
+    configure(wires, memorymodules, processingmodules);
   }
+}
 
+void TrackletEventProcessor::configure(istream& inwire, istream& inmem, istream& inproc) {
   // get the memory modules
   if (settings_->debugTracklet()) {
-    edm::LogVerbatim("Tracklet") << "Will read memory modules file";
+    edm::LogVerbatim("Tracklet") << "Will read memory modules";
   }
-
-  ifstream inmem(settings_->memoryModulesFile().c_str());
-  assert(inmem.good());
 
   while (inmem.good()) {
     string memType, memName, size;
@@ -94,18 +127,13 @@ void TrackletEventProcessor::init(Settings const& theSettings) {
     if (settings_->writetrace()) {
       edm::LogVerbatim("Tracklet") << "Read memory: " << memType << " " << memName;
     }
-    for (auto& sector : sectors_) {
-      sector->addMem(memType, memName);
-    }
+    sector_->addMem(memType, memName);
   }
 
   // get the processing modules
   if (settings_->debugTracklet()) {
-    edm::LogVerbatim("Tracklet") << "Will read processing modules file";
+    edm::LogVerbatim("Tracklet") << "Will read processing modules";
   }
-
-  ifstream inproc(settings_->processingModulesFile().c_str());
-  assert(inproc.good());
 
   while (inproc.good()) {
     string procType, procName;
@@ -115,18 +143,13 @@ void TrackletEventProcessor::init(Settings const& theSettings) {
     if (settings_->writetrace()) {
       edm::LogVerbatim("Tracklet") << "Read process: " << procType << " " << procName;
     }
-    for (auto& sector : sectors_) {
-      sector->addProc(procType, procName);
-    }
+    sector_->addProc(procType, procName);
   }
 
   // get the wiring information
   if (settings_->debugTracklet()) {
     edm::LogVerbatim("Tracklet") << "Will read wiring information";
   }
-
-  ifstream inwire(settings_->wiresFile().c_str());
-  assert(inwire.good());
 
   while (inwire.good()) {
     string line;
@@ -146,29 +169,8 @@ void TrackletEventProcessor::init(Settings const& theSettings) {
       ss >> tmp2 >> procout;
     }
 
-    for (auto& sector : sectors_) {
-      sector->addWire(mem, procin, procout);
-    }
+    sector_->addWire(mem, procin, procout);
   }
-
-  // get the DTC/cabling information
-  ifstream indtc(settings_->DTCLinkLayerDiskFile());
-  assert(indtc.good());
-  string dtc;
-  indtc >> dtc;
-  while (indtc.good()) {
-    vector<int> tmp;
-    dtclayerdisk_[dtc] = tmp;
-    int layerdisk;
-    indtc >> layerdisk;
-    while (layerdisk > 0) {
-      dtclayerdisk_[dtc].push_back(layerdisk);
-      indtc >> layerdisk;
-    }
-    indtc >> dtc;
-  }
-
-  cabling_ = make_unique<Cabling>(settings_->DTCLinkFile(), settings_->moduleCablingFile(), *settings_);
 }
 
 void TrackletEventProcessor::event(SLHCEvent& ev) {
@@ -179,327 +181,207 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
   eventnum_++;
   bool first = (eventnum_ == 1);
 
-  cleanTimer_.start();
   for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->clean();
-  }
-  cleanTimer_.stop();
+    sector_->setSector(k);
 
-  addStubTimer_.start();
+    cleanTimer_.start();
+    sector_->clean();
+    cleanTimer_.stop();
 
-  for (int j = 0; j < ev.nstubs(); j++) {
-    L1TStub stub = ev.stub(j);
+    addStubTimer_.start();
 
-    int layer = stub.layer() + 1;
-    int ladder = stub.ladder();
-    int module = stub.module();
+    vector<int> layerstubs(N_LAYER + N_DISK, 0);
+    vector<int> layerstubssector(N_SECTOR * (N_LAYER + N_DISK), 0);
 
-    string dtc = cabling_->dtc(layer, ladder, module);
-    string dtcbase = dtc.substr(2, dtc.size() - 2);
-    if (dtc[0] == 'n') {
-      dtcbase = dtc.substr(0, 4) + dtc.substr(6, dtc.size() - 6);
-    }
-
-    cabling_->addphi(dtc, stub.phi(), layer, module);
-
-    double phi = angle0to2pi::make0To2pi(stub.phi() + 0.5 * settings_->dphisectorHG());
-
-    unsigned int isector = N_SECTOR * phi / (2 * M_PI);
-
-    for (unsigned int k = 0; k < N_SECTOR; k++) {
-      int diff = k - isector;
-      if (diff > (int)N_SECTOR / 2)
-        diff -= (int)N_SECTOR;
-      if (diff < (-1) * (int)N_SECTOR / 2)
-        diff += (int)N_SECTOR;
-      if (abs(diff) > 1)
+    for (int j = 0; j < ev.nstubs(); j++) {
+      const L1TStub& stub = ev.stub(j);
+      unsigned int isector = stub.region();
+      if (isector != k) {
         continue;
-      double phiminsect =
-          k * 2 * M_PI / N_SECTOR - 0.5 * (settings_->dphisectorHG() - 2 * M_PI / N_SECTOR) - M_PI / N_SECTOR;
-      double dphi = stub.phi() - phiminsect;
-      if (dphi > M_PI)
-        dphi -= 2 * M_PI;
-      while (dphi < 0.0)
-        dphi += 2 * M_PI;
-      if (dphi > settings_->dphisectorHG())
-        continue;
-      bool add = sectors_[k]->addStub(stub, dtcbase);
-
-      static std::map<string, ofstream*> dtcstubs;
-
-      if (settings_->writeMem()) {
-        vector<string> dtcs = cabling_->DTCs();
-        for (const auto& dtc : dtcs) {
-          string dtcbase = dtc.substr(2, dtc.size() - 2);
-          if (dtc[0] == 'n') {
-            dtcbase = dtc.substr(0, 4) + dtc.substr(6, dtc.size() - 6);
-          }
-
-          const string dirIS = settings_->memPath() + "InputStubs/";
-          string fname = dirIS + "Link_";
-          fname += dtcbase;
-          if (dtcstubs.find(dtcbase + "A") != dtcstubs.end())
-            continue;
-          fname += "_A.dat";
-
-          if (not std::filesystem::exists(dirIS)) {
-            int fail = system((string("mkdir -p ") + dirIS).c_str());
-            if (fail)
-              throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory " << dirIS;
-          }
-
-          ofstream* out = new ofstream;
-          out->open(fname);
-          if (out->fail())
-            throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
-          dtcstubs[dtcbase + "A"] = out;
-
-          fname = dirIS + "Link_";
-          fname += dtcbase;
-          if (dtcstubs.find(dtcbase + "B") != dtcstubs.end())
-            continue;
-          fname += "_B.dat";
-          out = new ofstream;
-          out->open(fname);
-          if (out->fail())
-            throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
-          dtcstubs[dtcbase + "B"] = out;
-        }
-
-        static int oldevent = -1;
-        if (eventnum_ != oldevent) {
-          oldevent = eventnum_;
-          for (auto& dtcstub : dtcstubs) {
-            FPGAWord tmp;
-            tmp.set(eventnum_ % 8, 3);
-            (*(dtcstub.second)) << "BX " << tmp.str() << " Event : " << eventnum_ + 1 << endl;
-          }
-        }
       }
 
-      if (add && settings_->writeMem() && k == settings_->writememsect()) {
-        Stub fpgastub(stub, *settings_, sectors_[k]->phimin(), sectors_[k]->phimax());
-        FPGAWord phi = fpgastub.phi();
-        int topbit = phi.value() >> (phi.nbits() - 1);
-        std::vector<int> tmp = dtclayerdisk_[dtcbase];
-        int layerdisk = stub.layer() + 1;
-        if (layerdisk > 999) {
-          layerdisk = 10 + abs(stub.disk());
-        }
-        int layerdiskcode = -1;
-        for (unsigned int i = 0; i < tmp.size(); i++) {
-          if (tmp[i] == layerdisk)
-            layerdiskcode = i;
-        }
-        if (layerdiskcode == -1) {
-          edm::LogVerbatim("Tracklet") << "dtcbase layerdisk layer disk : " << dtcbase << " " << layerdisk << " "
-                                       << stub.layer() + 1 << " " << stub.disk();
-        }
-        assert(layerdiskcode >= 0);
-        assert(layerdiskcode < 4);
-        FPGAWord ldcode;
-        ldcode.set(layerdiskcode, 2);
-        string dataword = fpgastub.str() + "|" + ldcode.str() + "|1";
-        if (topbit == 0) {
-          (*dtcstubs[dtcbase + "A"]) << dataword << " " << trklet::hexFormat(dataword) << endl;
-        } else {
-          (*dtcstubs[dtcbase + "B"]) << dataword << " " << trklet::hexFormat(dataword) << endl;
-        }
+      const string& dtc = stub.DTClink();
+
+      layerstubs[stub.layerdisk()]++;
+      layerstubssector[isector * (N_LAYER + N_DISK) + stub.layerdisk()]++;
+
+      sector_->addStub(stub, dtc);
+    }
+
+    if (settings_->writeMonitorData("StubsLayerSector")) {
+      for (unsigned int index = 0; index < layerstubssector.size(); index++) {
+        int layerdisk = index % (N_LAYER + N_DISK);
+        int sector = index / (N_LAYER + N_DISK);
+        globals_->ofstream("stubslayersector.txt")
+            << layerdisk << " " << sector << " " << layerstubssector[index] << endl;
       }
     }
-  }
 
-  addStubTimer_.stop();
+    if (settings_->writeMonitorData("StubsLayer")) {
+      for (unsigned int layerdisk = 0; layerdisk < layerstubs.size(); layerdisk++) {
+        globals_->ofstream("stubslayer.txt") << layerdisk << " " << layerstubs[layerdisk] << endl;
+      }
+    }
 
-  // ----------------------------------------------------------------------------------------
-  // Now start the tracklet processing
+    addStubTimer_.stop();
 
-  // VM router
-  VMRouterTimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executeVMR();
+    // ----------------------------------------------------------------------------------------
+    // Now start the tracklet processing
+
+    // VM router
+    InputRouterTimer_.start();
+    sector_->executeIR();
     if (settings_->writeMem() && k == settings_->writememsect()) {
-      sectors_[k]->writeInputStubs(first);
-      sectors_[k]->writeVMSTE(first);
-      sectors_[k]->writeVMSME(first);
-      sectors_[k]->writeAS(first);
+      sector_->writeDTCStubs(first);
+      sector_->writeIRStubs(first);
     }
-  }
-  VMRouterTimer_.stop();
+    InputRouterTimer_.stop();
 
-  // tracklet engine
-  TETimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executeTE();
-  }
-  TETimer_.stop();
-
-  // tracklet engine displaced
-  TEDTimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executeTED();
-  }
-  TEDTimer_.stop();
-
-  // triplet engine
-  TRETimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executeTRE();
+    VMRouterTimer_.start();
+    sector_->executeVMR();
     if (settings_->writeMem() && k == settings_->writememsect()) {
-      sectors_[k]->writeST(first);
+      sector_->writeVMSTE(first);
+      sector_->writeVMSME(first);
+      sector_->writeAS(first);
+      sector_->writeAIS(first);
     }
-  }
-  TRETimer_.stop();
+    VMRouterTimer_.stop();
 
-  // tracklet processor (alternative implementation to TE+TC)
-  TPTimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executeTP();
-  }
-  TPTimer_.stop();
+    // tracklet engine
+    TETimer_.start();
+    sector_->executeTE();
+    TETimer_.stop();
 
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
+    // tracklet engine displaced
+    TEDTimer_.start();
+    sector_->executeTED();
+    TEDTimer_.stop();
+
+    // triplet engine
+    TRETimer_.start();
+    sector_->executeTRE();
     if (settings_->writeMem() && k == settings_->writememsect()) {
-      sectors_[k]->writeSP(first);
+      sector_->writeST(first);
     }
-  }
+    TRETimer_.stop();
 
-  // tracklet calculator
-  TCTimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executeTC();
-  }
-  TCTimer_.stop();
+    // tracklet processor (alternative implementation to TE+TC)
+    TPTimer_.start();
+    sector_->executeTP();
+    TPTimer_.stop();
 
-  int nTP = globals_->event()->nsimtracks();
-  for (int iTP = 0; iTP < nTP; iTP++) {
-    L1SimTrack simtrk = globals_->event()->simtrack(iTP);
-    if (simtrk.pt() < 2.0)
-      continue;
-    if (std::abs(simtrk.vz()) > 15.0)
-      continue;
-    if (hypot(simtrk.vx(), simtrk.vy()) > 0.1)
-      continue;
-    bool electron = (abs(simtrk.type()) == 11);
-    bool muon = (abs(simtrk.type()) == 13);
-    bool pion = (abs(simtrk.type()) == 211);
-    bool kaon = (abs(simtrk.type()) == 321);
-    bool proton = (abs(simtrk.type()) == 2212);
-    if (!(electron || muon || pion || kaon || proton))
-      continue;
-    int nlayers = 0;
-    int ndisks = 0;
-    int simtrackid = simtrk.trackid();
-    unsigned int hitmask = ev.layersHit(simtrackid, nlayers, ndisks);
-    if (nlayers + ndisks < 4)
-      continue;
-
-    if (settings_->writeMonitorData("HitEff")) {
-      static ofstream outhit("hiteff.txt");
-      outhit << simtrk.eta() << " " << (hitmask & 1) << " " << (hitmask & 2) << " " << (hitmask & 4) << " "
-             << (hitmask & 8) << " " << (hitmask & 16) << " " << (hitmask & 32) << " " << (hitmask & 64) << " "
-             << (hitmask & 128) << " " << (hitmask & 256) << " " << (hitmask & 512) << " " << (hitmask & 1024) << endl;
+    if (settings_->writeMem() && k == settings_->writememsect()) {
+      sector_->writeSP(first);
     }
 
-    std::unordered_set<int> matchseed;
-    for (unsigned int k = 0; k < N_SECTOR; k++) {
-      std::unordered_set<int> matchseedtmp = sectors_[k]->seedMatch(iTP);
+    // tracklet calculator
+    TCTimer_.start();
+    sector_->executeTC();
+    TCTimer_.stop();
+
+    int nTP = globals_->event()->nsimtracks();
+    for (int iTP = 0; iTP < nTP; iTP++) {
+      L1SimTrack simtrk = globals_->event()->simtrack(iTP);
+      if (simtrk.pt() < 2.0)
+        continue;
+      if (std::abs(simtrk.vz()) > 15.0)
+        continue;
+      if (hypot(simtrk.vx(), simtrk.vy()) > 0.1)
+        continue;
+      bool electron = (abs(simtrk.type()) == 11);
+      bool muon = (abs(simtrk.type()) == 13);
+      bool pion = (abs(simtrk.type()) == 211);
+      bool kaon = (abs(simtrk.type()) == 321);
+      bool proton = (abs(simtrk.type()) == 2212);
+      if (!(electron || muon || pion || kaon || proton))
+        continue;
+      int nlayers = 0;
+      int ndisks = 0;
+      int simtrackid = simtrk.trackid();
+      unsigned int hitmask = ev.layersHit(simtrackid, nlayers, ndisks);
+      if (nlayers + ndisks < 4)
+        continue;
+
+      if (settings_->writeMonitorData("HitEff")) {
+        static ofstream outhit("hiteff.txt");
+        outhit << simtrk.eta() << " " << (hitmask & 1) << " " << (hitmask & 2) << " " << (hitmask & 4) << " "
+               << (hitmask & 8) << " " << (hitmask & 16) << " " << (hitmask & 32) << " " << (hitmask & 64) << " "
+               << (hitmask & 128) << " " << (hitmask & 256) << " " << (hitmask & 512) << " " << (hitmask & 1024)
+               << endl;
+      }
+
+      std::unordered_set<int> matchseed;
+      std::unordered_set<int> matchseedtmp = sector_->seedMatch(iTP);
       matchseed.insert(matchseedtmp.begin(), matchseedtmp.end());
-    }
-    if (settings_->bookHistos()) {
-      for (int iseed = 0; iseed < 8; iseed++) {
-        bool eff = matchseed.find(iseed) != matchseed.end();
-        globals_->histograms()->fillSeedEff(iseed, simtrk.eta(), eff);
+      if (settings_->bookHistos()) {
+        for (int iseed = 0; iseed < 8; iseed++) {
+          bool eff = matchseed.find(iseed) != matchseed.end();
+          globals_->histograms()->fillSeedEff(iseed, simtrk.eta(), eff);
+        }
       }
     }
-  }
 
-  // tracklet calculator displaced
-  TCDTimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executeTCD();
-  }
-  TCDTimer_.stop();
+    // tracklet calculator displaced
+    TCDTimer_.start();
+    sector_->executeTCD();
+    TCDTimer_.stop();
 
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
     if (settings_->writeMem() && k == settings_->writememsect()) {
-      sectors_[k]->writeTPAR(first);
-      sectors_[k]->writeTPROJ(first);
+      sector_->writeTPAR(first);
+      sector_->writeTPROJ(first);
     }
-  }
 
-  // projection router
-  PRTimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executePR();
+    // projection router
+    PRTimer_.start();
+    sector_->executePR();
     if (settings_->writeMem() && k == settings_->writememsect()) {
-      sectors_[k]->writeVMPROJ(first);
-      sectors_[k]->writeAP(first);
+      sector_->writeVMPROJ(first);
+      sector_->writeAP(first);
     }
-  }
-  PRTimer_.stop();
+    PRTimer_.stop();
 
-  // match engine
-  METimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executeME();
+    // match engine
+    METimer_.start();
+    sector_->executeME();
     if (settings_->writeMem() && k == settings_->writememsect()) {
-      sectors_[k]->writeCM(first);
+      sector_->writeCM(first);
     }
-  }
-  METimer_.stop();
+    METimer_.stop();
 
-  // match calculator
-  MCTimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executeMC();
-  }
-  MCTimer_.stop();
+    // match calculator
+    MCTimer_.start();
+    sector_->executeMC();
+    MCTimer_.stop();
 
-  // match processor (alternative to ME+MC)
-  MPTimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executeMP();
-  }
-  MPTimer_.stop();
+    // match processor (alternative to ME+MC)
+    MPTimer_.start();
+    sector_->executeMP();
+    MPTimer_.stop();
 
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
     if (settings_->writeMem() && k == settings_->writememsect()) {
-      sectors_[k]->writeMC(first);
+      sector_->writeMC(first);
     }
-  }
 
-  // fit track
-  FTTimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executeFT();
-#ifndef USEHYBRID  //don't try to print these memories if running hybrid
+    // fit track
+    FTTimer_.start();
+    sector_->executeFT();
     if ((settings_->writeMem() || settings_->writeMonitorData("IFit")) && k == settings_->writememsect()) {
-      sectors_[k]->writeTF(first);
+      sector_->writeTF(first);
     }
-#endif
-  }
-  FTTimer_.stop();
+    FTTimer_.stop();
 
-  // purge duplicate
-  PDTimer_.start();
-  for (unsigned int k = 0; k < N_SECTOR; k++) {
-    sectors_[k]->executePD(tracks_);
-#ifndef USEHYBRID  //don't try to print these memories if running hybrid
+    // purge duplicate
+    PDTimer_.start();
+    sector_->executePD(tracks_);
     if (((settings_->writeMem() || settings_->writeMonitorData("IFit")) && k == settings_->writememsect()) ||
         settings_->writeMonitorData("CT")) {
-      sectors_[k]->writeCT(first);
+      sector_->writeCT(first);
     }
-#endif
+    PDTimer_.stop();
   }
-  PDTimer_.stop();
 }
 
 void TrackletEventProcessor::printSummary() {
-  if (settings_->writeMonitorData("Cabling")) {
-    cabling_->writephirange();
-  }
-
   if (settings_->bookHistos()) {
     globals_->histograms()->close();
   }
@@ -512,6 +394,9 @@ void TrackletEventProcessor::printSummary() {
                                << "Add Stubs             " << setw(10) << addStubTimer_.ntimes() << setw(20)
                                << setprecision(3) << addStubTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
                                << addStubTimer_.tottime() << "\n"
+                               << "InputRouter           " << setw(10) << InputRouterTimer_.ntimes() << setw(20)
+                               << setprecision(3) << InputRouterTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                               << InputRouterTimer_.tottime() << "\n"
                                << "VMRouter              " << setw(10) << VMRouterTimer_.ntimes() << setw(20)
                                << setprecision(3) << VMRouterTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
                                << VMRouterTimer_.tottime();
@@ -523,23 +408,32 @@ void TrackletEventProcessor::printSummary() {
                                  << setprecision(3) << MPTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
                                  << MPTimer_.tottime();
   } else {
-    edm::LogVerbatim("Tracklet")
-        << "TrackletEngine        " << setw(10) << TETimer_.ntimes() << setw(20) << setprecision(3)
-        << TETimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TETimer_.tottime() << "\n"
-        << "TrackletEngineDisplaced" << setw(10) << TEDTimer_.ntimes() << setw(20) << setprecision(3)
-        << TEDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TEDTimer_.tottime() << "\n"
-        << "TripletEngine         " << setw(10) << TRETimer_.ntimes() << setw(20) << setprecision(3)
-        << TRETimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TRETimer_.tottime() << "\n"
-        << "TrackletCalculator    " << setw(10) << TCTimer_.ntimes() << setw(20) << setprecision(3)
-        << TCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TCTimer_.tottime() << "\n"
-        << "TrackletCalculatorDisplaced" << setw(10) << TCDTimer_.ntimes() << setw(20) << setprecision(3)
-        << TCDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TCDTimer_.tottime() << "\n"
-        << "ProjectionRouter      " << setw(10) << PRTimer_.ntimes() << setw(20) << setprecision(3)
-        << PRTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << PRTimer_.tottime() << "\n"
-        << "MatchEngine           " << setw(10) << METimer_.ntimes() << setw(20) << setprecision(3)
-        << METimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << METimer_.tottime() << "\n"
-        << "MatchCalculator       " << setw(10) << MCTimer_.ntimes() << setw(20) << setprecision(3)
-        << MCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << MCTimer_.tottime();
+    edm::LogVerbatim("Tracklet") << "TrackletEngine        " << setw(10) << TETimer_.ntimes() << setw(20)
+                                 << setprecision(3) << TETimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                                 << TETimer_.tottime();
+    if (settings_->extended()) {
+      edm::LogVerbatim("Tracklet") << "TrackletEngineDisplaced" << setw(10) << TEDTimer_.ntimes() << setw(20)
+                                   << setprecision(3) << TEDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                                   << TEDTimer_.tottime() << "\n"
+                                   << "TripletEngine         " << setw(10) << TRETimer_.ntimes() << setw(20)
+                                   << setprecision(3) << TRETimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                                   << TRETimer_.tottime() << "\n"
+                                   << "TrackletCalculatorDisplaced" << setw(10) << TCDTimer_.ntimes() << setw(20)
+                                   << setprecision(3) << TCDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                                   << TCDTimer_.tottime();
+    }
+    edm::LogVerbatim("Tracklet") << "TrackletCalculator    " << setw(10) << TCTimer_.ntimes() << setw(20)
+                                 << setprecision(3) << TCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                                 << TCTimer_.tottime() << "\n"
+                                 << "ProjectionRouter      " << setw(10) << PRTimer_.ntimes() << setw(20)
+                                 << setprecision(3) << PRTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                                 << PRTimer_.tottime() << "\n"
+                                 << "MatchEngine           " << setw(10) << METimer_.ntimes() << setw(20)
+                                 << setprecision(3) << METimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                                 << METimer_.tottime() << "\n"
+                                 << "MatchCalculator       " << setw(10) << MCTimer_.ntimes() << setw(20)
+                                 << setprecision(3) << MCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                                 << MCTimer_.tottime();
   }
   edm::LogVerbatim("Tracklet") << "FitTrack              " << setw(10) << FTTimer_.ntimes() << setw(20)
                                << setprecision(3) << FTTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)

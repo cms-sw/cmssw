@@ -6,6 +6,7 @@
 #include "HGCDoublet.h"
 #include "HGCGraph.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 template <typename TILES>
 void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
@@ -179,12 +180,12 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                                                                               minCosPointing,
                                                                               verbosity_ > Advanced);
                     if (isRootDoublet and checkDistanceRootDoubletVsSeed) {
-                      auto dEtaSquared = (layerClusters[innerClusterId].eta() - origin_eta);
-                      dEtaSquared *= dEtaSquared;
-                      auto dPhiSquared = (layerClusters[innerClusterId].phi() - origin_phi);
-                      dPhiSquared *= dPhiSquared;
-                      if (dEtaSquared + dPhiSquared > root_doublet_max_distance_from_seed_squared)
+                      if (reco::deltaR2(layerClusters[innerClusterId].eta(),
+                                        layerClusters[innerClusterId].phi(),
+                                        origin_eta,
+                                        origin_phi) > root_doublet_max_distance_from_seed_squared) {
                         isRootDoublet = false;
+                      }
                     }
                     if (isRootDoublet) {
                       theRootDoublets_.push_back(doubletId);

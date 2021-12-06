@@ -46,6 +46,7 @@ private:
   const edm::EDGetTokenT<edm::View<pat::Muon> > mu_input_;
 
   std::map<std::string, edm::EDGetTokenT<RecHitCollection> > inputs_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
 
   TrackDetectorAssociator trackAssociator_;
   TrackAssociatorParameters parameters_;
@@ -56,7 +57,8 @@ private:
 
 template <typename T>
 CaloCleaner<T>::CaloCleaner(const edm::ParameterSet& iConfig)
-    : mu_input_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("MuonCollection"))) {
+    : mu_input_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("MuonCollection"))),
+      propagatorToken_(esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))) {
   std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag> >("oldCollection");
   for (const auto& inCollection : inCollections) {
     inputs_[inCollection.instance()] = consumes<RecHitCollection>(inCollection);
@@ -77,9 +79,8 @@ CaloCleaner<T>::~CaloCleaner() {
 
 template <typename T>
 void CaloCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<Propagator> propagator;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
-  trackAssociator_.setPropagator(propagator.product());
+  auto const& propagator = iSetup.getData(propagatorToken_);
+  trackAssociator_.setPropagator(&propagator);
 
   edm::Handle<edm::View<pat::Muon> > muonHandle;
   iEvent.getByToken(mu_input_, muonHandle);

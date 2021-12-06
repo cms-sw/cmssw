@@ -2,10 +2,7 @@
 #define SimG4Core_RunManagerMT_H
 
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 
@@ -36,7 +33,6 @@ class G4MTRunManagerKernel;
 class G4Run;
 class G4Event;
 class G4StateManager;
-class G4GeometryManager;
 class RunAction;
 
 class SimRunInterface;
@@ -59,7 +55,6 @@ public:
   explicit RunManagerMT(edm::ParameterSet const&);
   ~RunManagerMT();
 
-  //  void initG4(const DDCompactView*, const cms::DDCompactView*, const MagneticField*, const HepPDT::ParticleDataTable*);
   void initG4(const DDCompactView*, const cms::DDCompactView*, const HepPDT::ParticleDataTable*);
 
   void initializeUserActions();
@@ -69,8 +64,8 @@ public:
   void Connect(RunAction*);
 
   // Keep this to keep ExceptionHandler to compile, probably removed
-  // later (or functionality moved to RunManagerMTWorker)
-  inline void abortRun(bool softAbort = false) {}
+  // later (or functionality moved to RunManagerMTWorker).
+  //  inline void abortRun(bool softAbort = false) {}
 
   inline const DDDWorld& world() const { return *m_world; }
 
@@ -79,8 +74,7 @@ public:
   inline const std::vector<std::string>& G4Commands() const { return m_G4Commands; }
 
   // In order to share the physics list with the worker threads, we
-  // need a non-const pointer. Thread-safety is handled inside Geant4
-  // with TLS.
+  // need a non-const pointer. Thread-safety is handled inside Geant4.
   inline PhysicsList* physicsListForWorker() const { return m_physicsList.get(); }
 
 private:
@@ -95,7 +89,6 @@ private:
   RunAction* m_userRunAction;
   G4Run* m_currentRun;
   G4StateManager* m_stateManager;
-  G4GeometryManager* m_geometryManager;
 
   std::unique_ptr<SimRunInterface> m_runInterface;
 

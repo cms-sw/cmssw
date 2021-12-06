@@ -4,7 +4,6 @@
 // 2016 Nov
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/PPS/interface/PPSDiamondSD.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -27,7 +26,6 @@
 #include <string>
 
 PPSDiamondSD::PPSDiamondSD(const std::string& name_,
-                           const edm::EventSetup& es,
                            const SensitiveDetectorCatalog& clg,
                            edm::ParameterSet const& p,
                            const SimTrackManager* manager)

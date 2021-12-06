@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/src/Solid.h"
+#include "DetectorDescription/Core/interface/Solid.h"
 
 #include <ostream>
 

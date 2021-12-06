@@ -234,6 +234,7 @@ namespace edm {
     static constexpr LuminosityBlockNumber_t invalidLumi = 0U;
     static constexpr EventNumber_t invalidEvent = 0U;
     static constexpr EntryNumber_t invalidEntry = -1LL;
+    static constexpr EntryNumber_t continuedLumi = -2LL;
 
     enum EntryType { kRun, kLumi, kEvent, kEnd };
 
@@ -263,7 +264,7 @@ namespace edm {
     ///   4. event number
     ///
     ///   5. entry number
-    enum SortOrder { numericalOrder, firstAppearanceOrder };
+    enum SortOrder { numericalOrder, firstAppearanceOrder, entryOrder };
 
     /// Used to start an iteration over the Runs, Lumis, and Events in a file.
     /// Note the argument specifies the order
@@ -545,6 +546,7 @@ namespace edm {
       virtual RunNumber_t run() const = 0;
       virtual LuminosityBlockNumber_t lumi() const = 0;
       virtual EntryNumber_t entry() const = 0;
+      virtual bool entryContinues() const = 0;
       virtual LuminosityBlockNumber_t peekAheadAtLumi() const = 0;
       virtual EntryNumber_t peekAheadAtEventEntry() const = 0;
       EntryNumber_t firstEventEntryThisRun();
@@ -625,6 +627,7 @@ namespace edm {
       RunNumber_t run() const override;
       LuminosityBlockNumber_t lumi() const override;
       EntryNumber_t entry() const override;
+      bool entryContinues() const final { return false; };
       LuminosityBlockNumber_t peekAheadAtLumi() const override;
       EntryNumber_t peekAheadAtEventEntry() const override;
       bool skipLumiInRun() override;
@@ -659,6 +662,7 @@ namespace edm {
       RunNumber_t run() const override;
       LuminosityBlockNumber_t lumi() const override;
       EntryNumber_t entry() const override;
+      bool entryContinues() const final { return false; }
       LuminosityBlockNumber_t peekAheadAtLumi() const override;
       EntryNumber_t peekAheadAtEventEntry() const override;
       bool skipLumiInRun() override;
@@ -673,6 +677,45 @@ namespace edm {
       bool isSameLumi(int index1, int index2) const override;
       bool isSameRun(int index1, int index2) const override;
       LuminosityBlockNumber_t lumi(int index) const override;
+    };
+
+    //*****************************************************************************
+    //*****************************************************************************
+
+    class IndexIntoFileItrEntryOrder : public IndexIntoFileItrImpl {
+    public:
+      IndexIntoFileItrEntryOrder(IndexIntoFile const* indexIntoFile,
+                                 EntryType entryType,
+                                 int indexToRun,
+                                 int indexToLumi,
+                                 int indexToEventRange,
+                                 long long indexToEvent,
+                                 long long nEvents);
+
+      IndexIntoFileItrImpl* clone() const override;
+      int processHistoryIDIndex() const override;
+      RunNumber_t run() const override;
+      LuminosityBlockNumber_t lumi() const override;
+      EntryNumber_t entry() const override;
+      bool entryContinues() const override;
+      LuminosityBlockNumber_t peekAheadAtLumi() const override;
+      EntryNumber_t peekAheadAtEventEntry() const override;
+      bool skipLumiInRun() override;
+      bool lumiEntryValid(int index) const override;
+
+    private:
+      RunOrLumiEntry const& runOrLumisEntry(EntryNumber_t iEntry) const {
+        return indexIntoFile()->runOrLumiEntries()[fileOrderRunOrLumiEntry_[iEntry]];
+      }
+      void initializeLumi_() override;
+      bool nextEventRange() override;
+      bool previousEventRange() override;
+      bool setToLastEventInRange(int index) override;
+      EntryType getRunOrLumiEntryType(int index) const override;
+      bool isSameLumi(int index1, int index2) const override;
+      bool isSameRun(int index1, int index2) const override;
+      LuminosityBlockNumber_t lumi(int index) const override;
+      std::vector<EntryNumber_t> fileOrderRunOrLumiEntry_;
     };
 
     //*****************************************************************************
@@ -702,6 +745,7 @@ namespace edm {
       RunNumber_t run() const { return impl_->run(); }
       LuminosityBlockNumber_t lumi() const { return impl_->lumi(); }
       EntryNumber_t entry() const { return impl_->entry(); }
+      bool entryContinues() const { return impl_->entryContinues(); }
 
       /// Same as lumi() except when the the current type is kRun.
       /// In that case instead of always returning 0 (invalid), it will return the lumi that will be processed next

@@ -55,7 +55,7 @@ protected:
   TGGC *m_graphicsContext;
   FWTextTableCellRenderer *m_renderer;
 
-private:
+public:
   FWTriggerTableViewTableManager(const FWTriggerTableViewTableManager &) = delete;                   // stop default
   const FWTriggerTableViewTableManager &operator=(const FWTriggerTableViewTableManager &) = delete;  // stop default
 };

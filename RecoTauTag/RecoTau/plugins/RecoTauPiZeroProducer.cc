@@ -12,14 +12,11 @@
  */
 
 #include <algorithm>
-#include <boost/ptr_container/ptr_list.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <functional>
 #include <memory>
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -53,15 +50,14 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  typedef boost::ptr_vector<Builder> builderList;
-  typedef boost::ptr_vector<Ranker> rankerList;
-  typedef boost::ptr_vector<reco::RecoTauPiZero> PiZeroVector;
-  typedef boost::ptr_list<reco::RecoTauPiZero> PiZeroList;
+  typedef std::vector<std::unique_ptr<Ranker>> RankerList;
+  typedef Builder::return_type PiZeroVector;
+  typedef std::list<std::unique_ptr<reco::RecoTauPiZero>> PiZeroList;
 
-  typedef reco::tau::RecoTauLexicographicalRanking<rankerList, reco::RecoTauPiZero> PiZeroPredicate;
+  typedef reco::tau::RecoTauLexicographicalRanking<RankerList, reco::RecoTauPiZero> PiZeroPredicate;
 
-  builderList builders_;
-  rankerList rankers_;
+  std::vector<std::unique_ptr<Builder>> builders_;
+  RankerList rankers_;
   std::unique_ptr<PiZeroPredicate> predicate_;
   double piZeroMass_;
 
@@ -93,7 +89,7 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
     // Get plugin name
     const std::string& pluginType = builderPSet->getParameter<std::string>("plugin");
     // Build the plugin
-    builders_.push_back(
+    builders_.emplace_back(
         RecoTauPiZeroBuilderPluginFactory::get()->create(pluginType, *builderPSet, consumesCollector()));
   }
 
@@ -101,7 +97,7 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
   const VPSet& rankers = pset.getParameter<VPSet>("ranking");
   for (VPSet::const_iterator rankerPSet = rankers.begin(); rankerPSet != rankers.end(); ++rankerPSet) {
     const std::string& pluginType = rankerPSet->getParameter<std::string>("plugin");
-    rankers_.push_back(RecoTauPiZeroQualityPluginFactory::get()->create(pluginType, *rankerPSet));
+    rankers_.emplace_back(RecoTauPiZeroQualityPluginFactory::get()->create(pluginType, *rankerPSet));
   }
 
   // Build the sorting predicate
@@ -125,13 +121,11 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 
   // Give each of our plugins a chance at doing something with the edm::Event
   for (auto& builder : builders_) {
-    builder.setup(evt, es);
+    builder->setup(evt, es);
   }
 
   // Make our association
-  std::unique_ptr<reco::JetPiZeroAssociation> association;
-
-  association = std::make_unique<reco::JetPiZeroAssociation>(reco::JetRefBaseProd(jetView));
+  auto association = std::make_unique<reco::JetPiZeroAssociation>(reco::JetRefBaseProd(jetView));
 
   // Loop over our jets
   size_t nJets = jetView->size();
@@ -148,23 +142,24 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     // Compute the pi zeros from this jet for all the desired algorithms
     for (auto const& builder : builders_) {
       try {
-        PiZeroVector result(builder(*jet));
-        dirtyPiZeros.transfer(dirtyPiZeros.end(), result);
+        PiZeroVector result((*builder)(*jet));
+        std::move(result.begin(), result.end(), std::back_inserter(dirtyPiZeros));
       } catch (cms::Exception& exception) {
         edm::LogError("BuilderPluginException")
-            << "Exception caught in builder plugin " << builder.name() << ", rethrowing" << std::endl;
+            << "Exception caught in builder plugin " << builder->name() << ", rethrowing" << std::endl;
         throw exception;
       }
     }
     // Rank the candidates according to our quality plugins
-    dirtyPiZeros.sort(*predicate_);
+    dirtyPiZeros.sort([this](const auto& a, const auto& b) { return (*predicate_)(*a, *b); });
 
     // Keep track of the photons in the clean collection
     std::vector<reco::RecoTauPiZero> cleanPiZeros;
     std::set<reco::CandidatePtr> photonsInCleanCollection;
     while (!dirtyPiZeros.empty()) {
       // Pull our candidate pi zero from the front of the list
-      std::unique_ptr<reco::RecoTauPiZero> toAdd(dirtyPiZeros.pop_front().release());
+      std::unique_ptr<reco::RecoTauPiZero> toAdd(dirtyPiZeros.front().release());
+      dirtyPiZeros.pop_front();
       // If this doesn't pass our basic selection, discard it.
       if (!(*outputSelector_)(*toAdd)) {
         continue;
@@ -197,8 +192,10 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
         AddFourMomenta p4Builder_;
         p4Builder_.set(*toAdd);
         // Put this pi zero back into the collection of sorted dirty pizeros
-        PiZeroList::iterator insertionPoint =
-            std::lower_bound(dirtyPiZeros.begin(), dirtyPiZeros.end(), *toAdd, *predicate_);
+        auto insertionPoint =
+            std::lower_bound(dirtyPiZeros.begin(), dirtyPiZeros.end(), *toAdd, [this](const auto& a, const auto& b) {
+              return (*predicate_)(*a, b);
+            });
         dirtyPiZeros.insert(insertionPoint, std::move(toAdd));
       }
     }
@@ -223,7 +220,7 @@ void RecoTauPiZeroProducer::print(const std::vector<reco::RecoTauPiZero>& piZero
   for (auto const& piZero : piZeros) {
     out << piZero;
     out << "* Rankers:" << std::endl;
-    for (rankerList::const_iterator ranker = rankers_.begin(); ranker != rankers_.end(); ++ranker) {
+    for (auto const& ranker : rankers_) {
       out << "* " << std::setiosflags(std::ios::left) << std::setw(width) << ranker->name() << " "
           << std::resetiosflags(std::ios::left) << std::setprecision(3) << (*ranker)(piZero);
       out << std::endl;

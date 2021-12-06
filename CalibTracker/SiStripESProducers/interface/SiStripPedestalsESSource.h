@@ -17,6 +17,8 @@ class SiStripPedestalsRcd;
 class SiStripPedestalsESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripPedestalsESSource(const edm::ParameterSet&);
+  SiStripPedestalsESSource(const SiStripPedestalsESSource&) = delete;
+  const SiStripPedestalsESSource& operator=(const SiStripPedestalsESSource&) = delete;
   ~SiStripPedestalsESSource() override { ; }
 
   virtual std::unique_ptr<SiStripPedestals> produce(const SiStripPedestalsRcd&);
@@ -27,9 +29,6 @@ protected:
                       edm::ValidityInterval&) override;
 
 private:
-  SiStripPedestalsESSource(const SiStripPedestalsESSource&) = delete;
-  const SiStripPedestalsESSource& operator=(const SiStripPedestalsESSource&) = delete;
-
   virtual SiStripPedestals* makePedestals() = 0;
 };
 

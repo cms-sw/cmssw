@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -10,24 +10,21 @@
 #include "CalibMuon/CSCCalibration/interface/CSCIndexerRecord.h"
 #include <iostream>
 
-class CSCIndexerAnalyzer : public edm::EDAnalyzer {
+class CSCIndexerAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCIndexerAnalyzer(const edm::ParameterSet &);
-  ~CSCIndexerAnalyzer();
+  ~CSCIndexerAnalyzer() override = default;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
-  virtual void endJob();
+  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
+  const edm::ESGetToken<CSCIndexerBase, CSCIndexerRecord> theCSCIndexerToken_;
 
   std::string algoName;
 };
 
-CSCIndexerAnalyzer::CSCIndexerAnalyzer(const edm::ParameterSet &pset) {}
+CSCIndexerAnalyzer::CSCIndexerAnalyzer(const edm::ParameterSet &pset) : theCSCIndexerToken_(esConsumes()) {}
 
-CSCIndexerAnalyzer::~CSCIndexerAnalyzer() {}
-
-void CSCIndexerAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &esu) {
+void CSCIndexerAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &iSetup) {
   const int evalues[10] = {1, 2, 1, 2, 1, 2, 1, 2, 1, 2};    // endcap 1=+z, 2=-z
   const int svalues[10] = {1, 1, 1, 1, 4, 4, 4, 4, 4, 4};    // station 1-4
   const int rvalues[10] = {1, 1, 4, 4, 2, 2, 2, 2, 2, 2};    // ring 1-4
@@ -35,10 +32,7 @@ void CSCIndexerAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &es
   const int lvalues[10] = {1, 1, 1, 1, 1, 1, 1, 1, 6, 6};    // layer 1-6
   const int tvalues[10] = {1, 1, 1, 1, 1, 1, 1, 1, 80, 80};  // strip 1-80 (16, 48 64)
 
-  const CSCIndexerRecord &irec = esu.get<CSCIndexerRecord>();
-  edm::ESHandle<CSCIndexerBase> indexer_;
-  irec.get(indexer_);
-
+  const auto indexer_ = &iSetup.getData(theCSCIndexerToken_);
   algoName = indexer_->name();
 
   std::cout << "CSCIndexerAnalyzer: analyze sees algorithm " << algoName << " in Event Setup" << std::endl;
@@ -56,10 +50,6 @@ void CSCIndexerAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &es
               << ") = " << indexer_->stripChannelIndex(ie, is, ir, ic, il, istrip) << std::endl;
   }
 }
-
-void CSCIndexerAnalyzer::beginJob() {}
-
-void CSCIndexerAnalyzer::endJob() {}
 
 // define this as a plug-in
 DEFINE_FWK_MODULE(CSCIndexerAnalyzer);

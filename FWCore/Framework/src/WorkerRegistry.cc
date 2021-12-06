@@ -6,11 +6,11 @@
    \date 18 May 2005
 */
 #include <memory>
-#include "FWCore/Framework/src/WorkerRegistry.h"
-#include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/ModuleHolder.h"
-#include "FWCore/Framework/src/MakeModuleParams.h"
-#include "FWCore/Framework/src/ModuleRegistry.h"
+#include "FWCore/Framework/interface/WorkerRegistry.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/ModuleHolder.h"
+#include "FWCore/Framework/interface/maker/MakeModuleParams.h"
+#include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 namespace edm {

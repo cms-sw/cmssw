@@ -28,7 +28,9 @@ DTLinearDriftFromDBAlgo_CosmicData = cms.PSet(
         # The module to be used for ttrig synchronization and its set parameter
         tTrigMode = cms.string('DTTTrigSyncFromDB'),
         doVdriftCorr = cms.bool(False),
-        useUncertDB = cms.bool(False)
+        useUncertDB = cms.bool(False),
+        readLegacyTTrigDB = cms.bool(True),
+        readLegacyVDriftDB = cms.bool(True),
     ),
     recAlgo = cms.string('DTLinearDriftFromDBAlgo')
 )

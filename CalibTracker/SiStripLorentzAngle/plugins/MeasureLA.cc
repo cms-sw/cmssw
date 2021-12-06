@@ -3,10 +3,10 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
-#include <boost/lexical_cast.hpp>
 #include <TChain.h>
 #include <TFile.h>
 #include <regex>
+#include <fstream>
 
 namespace sistrip {
 
@@ -56,7 +56,7 @@ namespace sistrip {
   std::map<uint32_t,LA_Filler_Fitter::Result> 
     module_results = LA_Filler_Fitter::module_results(book, LA_Filler_Fitter::SQRTVAR);
   
-  BOOST_FOREACH(const uint32_t& detid, SiStripDetInfoFileReader(fp_.fullPath()).getAllDetIds()) {
+  BOOST_FOREACH(const uint32_t& detid, SiStripDetInfoFileReader::read(fp_.fullPath()).getAllDetIds()) {
     float la = module_results[detid].measure / module_results[detid].field ;
     lorentzAngle->putLorentzAngle( detid, la );
   }
@@ -183,7 +183,7 @@ namespace sistrip {
     std::regex format(".*(T[IO]B)_layer(\\d)([as]).*");
     const bool isTIB = "TIB" == std::regex_replace(layer, format, "\\1");
     const bool stereo = "s" == std::regex_replace(layer, format, "\\3");
-    const unsigned layerNum = boost::lexical_cast<unsigned>(std::regex_replace(layer, format, "\\2"));
+    const unsigned layerNum = std::stoul(std::regex_replace(layer, format, "\\2"));
     return std::make_pair(LA_Filler_Fitter::layer_index(isTIB, stereo, layerNum), method);
   }
 

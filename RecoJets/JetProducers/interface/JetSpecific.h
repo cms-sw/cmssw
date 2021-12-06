@@ -9,10 +9,10 @@
 #include "DataFormats/JetReco/interface/PFClusterJet.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 class CaloSubdetectorGeometry;
+class CaloGeometry;
 
 namespace reco {
 
@@ -29,7 +29,8 @@ namespace reco {
                      reco::Particle::LorentzVector const& p4,
                      reco::Particle::Point const& point,
                      std::vector<reco::CandidatePtr> const& constituents,
-                     edm::EventSetup const& c);
+                     CaloGeometry const& geometry,
+                     HcalTopology const& topology);
 
   /// Make PFlowJet specifics. Assumes PseudoJet is made from ParticleFlowCandidates
   bool makeSpecific(std::vector<reco::CandidatePtr> const& particles,
@@ -40,7 +41,6 @@ namespace reco {
                      reco::Particle::LorentzVector const& p4,
                      reco::Particle::Point const& point,
                      std::vector<reco::CandidatePtr> const& constituents,
-                     edm::EventSetup const& c,
                      edm::ValueMap<float> const* weights = nullptr);
 
   /// Make GenJet specifics. Assumes PseudoJet is made from HepMCCandidate
@@ -49,29 +49,25 @@ namespace reco {
   void writeSpecific(reco::GenJet& jet,
                      reco::Particle::LorentzVector const& p4,
                      reco::Particle::Point const& point,
-                     std::vector<reco::CandidatePtr> const& constituents,
-                     edm::EventSetup const& c);
+                     std::vector<reco::CandidatePtr> const& constituents);
 
   /// Make TrackJet. Assumes constituents point to tracks, through RecoChargedCandidates.
   void writeSpecific(reco::TrackJet& jet,
                      reco::Particle::LorentzVector const& p4,
                      reco::Particle::Point const& point,
-                     std::vector<reco::CandidatePtr> const& constituents,
-                     edm::EventSetup const& c);
+                     std::vector<reco::CandidatePtr> const& constituents);
 
   /// Make PFClusterJet. Assumes PseudoJet is made from PFCluster
   void writeSpecific(reco::PFClusterJet& jet,
                      reco::Particle::LorentzVector const& p4,
                      reco::Particle::Point const& point,
-                     std::vector<reco::CandidatePtr> const& constituents,
-                     edm::EventSetup const& c);
+                     std::vector<reco::CandidatePtr> const& constituents);
 
   /// Make BasicJet. Assumes nothing about the jet.
   void writeSpecific(reco::BasicJet& jet,
                      reco::Particle::LorentzVector const& p4,
                      reco::Particle::Point const& point,
-                     std::vector<reco::CandidatePtr> const& constituents,
-                     edm::EventSetup const& c);
+                     std::vector<reco::CandidatePtr> const& constituents);
 
   /// converts eta to the corresponding HCAL subdetector.
   HcalSubdetector hcalSubdetector(int iEta, const HcalTopology& topology);

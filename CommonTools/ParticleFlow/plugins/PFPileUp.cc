@@ -1,4 +1,20 @@
-#include "CommonTools/ParticleFlow/plugins/PFPileUp.h"
+// system include files
+#include <memory>
+#include <string>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Common/interface/Association.h"
+
+#include "CommonTools/ParticleFlow/interface/PFPileUpAlgo.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
@@ -6,7 +22,6 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-// #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -14,11 +29,68 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
+/**\class PFPileUp
+\brief Identifies pile-up candidates from a collection of PFCandidates, and
+produces the corresponding collection of PileUpCandidates.
+
+\author Colin Bernet
+\date   february 2008
+\updated Florian Beaudette 30/03/2012
+
+*/
+
+class PFPileUp : public edm::stream::EDProducer<> {
+public:
+  typedef std::vector<edm::FwdPtr<reco::PFCandidate>> PFCollection;
+  typedef edm::View<reco::PFCandidate> PFView;
+  typedef std::vector<reco::PFCandidate> PFCollectionByValue;
+  typedef edm::Association<reco::VertexCollection> CandToVertex;
+
+  explicit PFPileUp(const edm::ParameterSet&);
+
+  ~PFPileUp() override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  PFPileUpAlgo pileUpAlgo_;
+
+  /// PFCandidates to be analyzed
+  edm::EDGetTokenT<PFCollection> tokenPFCandidates_;
+  /// fall-back token
+  edm::EDGetTokenT<PFView> tokenPFCandidatesView_;
+
+  /// vertices
+  edm::EDGetTokenT<reco::VertexCollection> tokenVertices_;
+
+  /// enable PFPileUp selection
+  bool enable_;
+
+  /// verbose ?
+  bool verbose_;
+
+  /// use the closest z vertex if a track is not in a vertex
+  bool checkClosestZVertex_;
+
+  edm::EDGetTokenT<CandToVertex> tokenVertexAssociation_;
+  edm::EDGetTokenT<edm::ValueMap<int>> tokenVertexAssociationQuality_;
+  bool fUseVertexAssociation;
+  int vertexAssociationQuality_;
+};
+
 PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   tokenPFCandidates_ = consumes<PFCollection>(iConfig.getParameter<InputTag>("PFCandidates"));
   tokenPFCandidatesView_ = mayConsume<PFView>(iConfig.getParameter<InputTag>("PFCandidates"));
 
   tokenVertices_ = consumes<VertexCollection>(iConfig.getParameter<InputTag>("Vertices"));
+
+  fUseVertexAssociation = iConfig.getParameter<bool>("useVertexAssociation");
+  vertexAssociationQuality_ = iConfig.getParameter<int>("vertexAssociationQuality");
+  if (fUseVertexAssociation) {
+    tokenVertexAssociation_ = consumes<CandToVertex>(iConfig.getParameter<edm::InputTag>("vertexAssociation"));
+    tokenVertexAssociationQuality_ =
+        consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("vertexAssociation"));
+  }
 
   enable_ = iConfig.getParameter<bool>("Enable");
 
@@ -93,10 +165,22 @@ void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
           "error.");
     }
 
-    pileUpAlgo_.process(*pfCandidatesRef, *vertices);
-    pOutput->insert(
-        pOutput->end(), pileUpAlgo_.getPFCandidatesFromPU().begin(), pileUpAlgo_.getPFCandidatesFromPU().end());
-
+    if (fUseVertexAssociation) {
+      const edm::Association<reco::VertexCollection>& associatedPV = iEvent.get(tokenVertexAssociation_);
+      const edm::ValueMap<int>& associationQuality = iEvent.get(tokenVertexAssociationQuality_);
+      PFCollection pfCandidatesFromPU;
+      for (auto& p : (*pfCandidatesRef)) {
+        const reco::VertexRef& PVOrig = associatedPV[p];
+        int quality = associationQuality[p];
+        if (PVOrig.isNonnull() && (PVOrig.key() > 0) && (quality >= vertexAssociationQuality_))
+          pfCandidatesFromPU.push_back(p);
+      }
+      pOutput->insert(pOutput->end(), pfCandidatesFromPU.begin(), pfCandidatesFromPU.end());
+    } else {
+      pileUpAlgo_.process(*pfCandidatesRef, *vertices);
+      pOutput->insert(
+          pOutput->end(), pileUpAlgo_.getPFCandidatesFromPU().begin(), pileUpAlgo_.getPFCandidatesFromPU().end());
+    }
     // for ( PFCollection::const_iterator byValueBegin = pileUpAlgo_.getPFCandidatesFromPU().begin(),
     // 	    byValueEnd = pileUpAlgo_.getPFCandidatesFromPU().end(), ibyValue = byValueBegin;
     // 	  ibyValue != byValueEnd; ++ibyValue ) {
@@ -108,3 +192,4 @@ void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.put(std::move(pOutput));
   // iEvent.put(std::move(pOutputByValue));
 }
+DEFINE_FWK_MODULE(PFPileUp);

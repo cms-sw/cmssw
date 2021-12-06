@@ -24,7 +24,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -94,6 +93,8 @@ private:
   edm::InputTag inputTagEcalRecHitsEE_;
   edm::EDGetTokenT<EcalRecHitCollection> tokenEcalRecHitsEE_;
 
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> pdtToken_;
+
   // parameters for retrieving true particles information --
 
   edm::ParameterSet particleFilter_;
@@ -160,6 +161,8 @@ PFSimParticleProducer::PFSimParticleProducer(const edm::ParameterSet& iConfig) {
   inputTagEcalRecHitsEE_ = iConfig.getParameter<InputTag>("ecalRecHitsEE");
   tokenEcalRecHitsEE_ = consumes<EcalRecHitCollection>(inputTagEcalRecHitsEE_);
 
+  pdtToken_ = esConsumes();
+
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
 
   // register products
@@ -172,10 +175,7 @@ PFSimParticleProducer::PFSimParticleProducer(const edm::ParameterSet& iConfig) {
 
 void PFSimParticleProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   // init Particle data table (from Pythia)
-  edm::ESHandle<HepPDT::ParticleDataTable> pdt;
-  //  edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
-  iSetup.getData(pdt);
-  mySimEvent->initializePdt(&(*pdt));
+  mySimEvent->initializePdt(&iSetup.getData(pdtToken_));
 
   LogDebug("PFSimParticleProducer") << "START event: " << iEvent.id().event() << " in run " << iEvent.id().run()
                                     << endl;

@@ -6,6 +6,7 @@
 int main(int, char ** /*argv*/) try {
   initTest();
 
+  using namespace edm::storage;
   IOSize n;
   IOSize size = 1024;
   char buf[size];

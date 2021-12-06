@@ -4,6 +4,7 @@
  * Authors:
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
  *   Nicola Minafra
+ *   Christopher Misan (krzysztof.misan@cern.ch)
  *
  ****************************************************************************/
 
@@ -58,6 +59,8 @@ private:
   int smoothingPoints_;
   double lowPassFrequency_;
   double hysteresis_;
+  double sampicOffset_;
+  double sampicSamplingPeriodNs_;
   TotemTimingRecHit::TimingAlgorithm mode_;
 };
 

@@ -1022,7 +1022,7 @@ Process uncleaned superclusters
   <var name="TEST_HISTOS_FILE" value="${DD_SAMPLE}-IDEAL-UNCLEANED-RECO.root">
   
   <target name="dd" cmd="electronDataDiscovery.py">
-  <target name="py" cmd="python ElectronFromUncleanedOnly_cfg.py">
+  <target name="py" cmd="python3 ElectronFromUncleanedOnly_cfg.py">
   <target name="reco" cmd="cmsRun ElectronFromUncleanedOnly_cfg.py">
   
 </environment>

@@ -77,7 +77,7 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> TrackCollectionTag_;
   edm::EDGetTokenT<reco::VertexCollection> PrimaryVertexColl_;
   edm::EDGetTokenT<ClusterTPAssociation> clusterTPMapToken_;
-
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttrackToken_;
   // TrackClassifier
   TrackClassifier classifier_;
 

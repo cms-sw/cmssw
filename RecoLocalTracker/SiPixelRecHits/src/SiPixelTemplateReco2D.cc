@@ -681,7 +681,7 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id,
   } else {
     sigmay = 10000.f;
   }
-  if (id > 0) {
+  if (id >= 0) {  //if id < 0 bypass interpolation (used in calibration)
     // Do chi2 probability calculation
     double meanxy = (double)(npixel * templ2D.chi2ppix());
     double chi2scale = (double)templ2D.chi2scale();
