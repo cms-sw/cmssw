@@ -25,7 +25,9 @@ l1tdeStage2EmtfComp = DQMEDAnalyzer(
 # sequences
 l1tdeStage2EmtfOnlineDQMSeq = cms.Sequence(
     l1tdeStage2Emtf +
-    l1tdeStage2Shower +
     l1tdeStage2EmtfComp
 )
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+_run3shower_l1tdeStage2EmtfOnlineDQMSeq = l1tdeStage2EmtfOnlineDQMSeq.copy()
+run3_common.toReplaceWith(l1tdeStage2EmtfOnlineDQMSeq, cms.Sequence(_run3shower_l1tdeStage2EmtfOnlineDQMSeq + l1tdeStage2Shower))
