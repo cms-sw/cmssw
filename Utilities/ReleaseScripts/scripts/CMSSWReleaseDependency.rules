@@ -29,7 +29,6 @@ IOMC/RandomEngine/bin/.*               : geant4core
 
 #geant4 (indirect)
 FastSimulation/Calorimetry/.*          : geant4.*
-FastSimulation/EventProducer/.*        : geant4.*
 FastSimulation/MaterialEffects/.*      : geant4.*
 VisSimulation/VisSimBase/.*            : geant4.*
 Validation/TrackerHits/.*              : geant4.*

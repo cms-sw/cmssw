@@ -9,6 +9,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "RPCReadOutMappingWithFastSearch.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
@@ -42,6 +43,7 @@ private:
   unsigned long eventCounter_;
 
   edm::ESWatcher<RPCEMapRcd> theRecordWatcher;
+  edm::ESGetToken<RPCEMap, RPCEMapRcd> theReadoutMappingToken;
   const RPCReadOutMapping* theCabling;
   RPCReadOutMappingWithFastSearch theReadoutMappingSearch;
   edm::EDGetTokenT<FEDRawDataCollection> fedToken_;

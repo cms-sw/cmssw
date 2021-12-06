@@ -1,19 +1,18 @@
 #include "RecoJets/JetAlgorithms/interface/QGLikelihoodCalculator.h"
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include <cmath>
 
 /// Compute likelihood for a jet using the QGLikelihoodObject information and a set of variables
 float QGLikelihoodCalculator::computeQGLikelihood(
-    edm::ESHandle<QGLikelihoodObject> &QGLParamsColl, float pt, float eta, float rho, std::vector<float> vars) const {
-  if (!isValidRange(pt, rho, eta, QGLParamsColl->qgValidRange))
+    const QGLikelihoodObject &QGLParamsColl, float pt, float eta, float rho, std::vector<float> vars) const {
+  if (!isValidRange(pt, rho, eta, QGLParamsColl.qgValidRange))
     return -1;
 
   float Q = 1., G = 1.;
   for (unsigned int varIndex = 0; varIndex < vars.size(); ++varIndex) {
-    auto quarkEntry = findEntry(QGLParamsColl->data, eta, pt, rho, 0, varIndex);
-    auto gluonEntry = findEntry(QGLParamsColl->data, eta, pt, rho, 1, varIndex);
+    auto quarkEntry = findEntry(QGLParamsColl.data, eta, pt, rho, 0, varIndex);
+    auto gluonEntry = findEntry(QGLParamsColl.data, eta, pt, rho, 1, varIndex);
     if (!quarkEntry || !gluonEntry)
       return -2;
 
@@ -97,7 +96,7 @@ float QGLikelihoodCalculator::smearingFunction(float x0, float a, float b, float
 }
 
 // Get systematic smearing
-float QGLikelihoodCalculator::systematicSmearing(edm::ESHandle<QGLikelihoodSystematicsObject> &QGLSystematicsColl,
+float QGLikelihoodCalculator::systematicSmearing(const QGLikelihoodSystematicsObject &QGLSystematicsColl,
                                                  float pt,
                                                  float eta,
                                                  float rho,
@@ -113,10 +112,10 @@ float QGLikelihoodCalculator::systematicSmearing(edm::ESHandle<QGLikelihoodSyste
   myParameters.QGIndex = qgIndex;
   myParameters.VarIndex = -1;
 
-  auto myDataObject = QGLSystematicsColl->data.begin();
+  auto myDataObject = QGLSystematicsColl.data.begin();
   while (!(myParameters == myDataObject->systCategory)) {
     ++myDataObject;
-    if (myDataObject == QGLSystematicsColl->data.end())
+    if (myDataObject == QGLSystematicsColl.data.end())
       return -1;  //Smearing not available in the whole qgValidRange: do not throw warnings or errors
   }
   return smearingFunction(qgValue, myDataObject->a, myDataObject->b, myDataObject->lmin, myDataObject->lmax);

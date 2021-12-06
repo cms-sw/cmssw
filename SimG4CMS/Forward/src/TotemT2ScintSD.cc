@@ -18,7 +18,6 @@
 //#define EDM_ML_DEBUG
 
 TotemT2ScintSD::TotemT2ScintSD(const std::string& name,
-                               const edm::EventSetup& es,
                                const SensitiveDetectorCatalog& clg,
                                edm::ParameterSet const& p,
                                const SimTrackManager* manager)
@@ -30,7 +29,7 @@ TotemT2ScintSD::TotemT2ScintSD(const std::string& name,
              p.getParameter<edm::ParameterSet>("TotemT2ScintSD").getParameter<bool>("IgnoreTrackID")) {
   edm::ParameterSet m_T2SD = p.getParameter<edm::ParameterSet>("TotemT2ScintSD");
   useBirk_ = m_T2SD.getParameter<bool>("UseBirkLaw");
-  birk1_ = m_T2SD.getParameter<double>("BirkC1") * (g / (MeV * cm2));
+  birk1_ = m_T2SD.getParameter<double>("BirkC1") * (CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
   birk2_ = m_T2SD.getParameter<double>("BirkC2");
   birk3_ = m_T2SD.getParameter<double>("BirkC3");
   setNumberingScheme(new TotemT2ScintNumberingScheme());

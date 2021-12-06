@@ -10,15 +10,8 @@
 #include "CondFormats/HIObjects/interface/RPFlatParams.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlatten.h"
@@ -27,10 +20,10 @@
 
 class LoadEPDB {
 public:
-  explicit LoadEPDB(const edm::ESHandle<RPFlatParams> flatparmsDB_, HiEvtPlaneFlatten** flat) {
+  explicit LoadEPDB(const RPFlatParams& flatparmsDB_, HiEvtPlaneFlatten** flat) {
     int Hbins;
     int Obins;
-    int flatTableSize = flatparmsDB_->m_table.size();
+    int flatTableSize = flatparmsDB_.m_table.size();
     genFlatPsi_ = kTRUE;
     if (flatTableSize < flat[0]->getHBins() + 2 * flat[0]->getOBins()) {
       genFlatPsi_ = kFALSE;
@@ -39,7 +32,7 @@ public:
       Obins = flat[0]->getOBins();
 
       for (int i = 0; i < flatTableSize; i++) {
-        const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[i]);
+        const RPFlatParams::EP* thisBin = &(flatparmsDB_.m_table[i]);
         for (int j = 0; j < hi::NumEPNames; j++) {
           int indx = thisBin->RPNameIndx[j];
           if (indx < 0 || indx >= hi::NumEPNames) {
@@ -62,13 +55,13 @@ public:
       }
       int cbins = 0;
       while (flatTableSize > Hbins + 2 * Obins + cbins) {
-        const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[Hbins + 2 * Obins + cbins]);
+        const RPFlatParams::EP* thisBin = &(flatparmsDB_.m_table[Hbins + 2 * Obins + cbins]);
         double centbinning = thisBin->x[0];
         int ncentbins = (int)thisBin->y[0] + 0.01;
         if (ncentbins == 0)
           break;
         for (int j = 0; j < ncentbins; j++) {
-          const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[Hbins + 2 * Obins + cbins + j + 1]);
+          const RPFlatParams::EP* thisBin = &(flatparmsDB_.m_table[Hbins + 2 * Obins + cbins + j + 1]);
           if (fabs(centbinning - 1.) < 0.01) {
             for (int i = 0; i < hi::NumEPNames; i++) {
               flat[i]->setCentRes1(j, thisBin->x[i], thisBin->y[i]);

@@ -18,7 +18,7 @@ from Configuration.StandardSequences.EDMtoMEAtJobEnd_cff import *
 onlineSaver = cms.EDAnalyzer("DQMFileSaverOnline",
     producer = cms.untracked.string('DQM'),
     path = cms.untracked.string('./'),
-    tag = cms.untracked.string('new')
+    tag = cms.untracked.string('validation_HGCAL_TPG')
 )
 
 hgcalTPGRunEmulatorValidation = cms.Sequence(hgcalTriggerPrimitives*hgcalTrigPrimValidation*onlineSaver)

@@ -76,6 +76,7 @@ L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesC
   m_ms = nullptr;
 
   m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(L1MuBMTFConfig::getBMDigiInputTag());
+  m_mbParamsToken = iC.esConsumes();
 }
 
 //--------------
@@ -158,7 +159,7 @@ void L1MuBMTrackFinder::setup(edm::ConsumesCollector&& iC) {
 // run MTTF
 //
 void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
-  m_config->setDefaultsES(c);
+  m_config->setDefaultsES(c.getData(m_mbParamsToken));
   int bx_min = L1MuBMTFConfig::getBxMin();
   int bx_max = L1MuBMTFConfig::getBxMax();
 

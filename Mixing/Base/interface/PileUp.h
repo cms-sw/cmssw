@@ -5,7 +5,9 @@
 #include <string>
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,6 +25,9 @@ namespace CLHEP {
   class HepRandomEngine;
 }  // namespace CLHEP
 
+class MixingModuleConfig;
+class MixingRcd;
+
 namespace edm {
   class SecondaryEventProvider;
   class StreamID;
@@ -39,7 +44,10 @@ namespace edm {
 
   class PileUp {
   public:
-    explicit PileUp(ParameterSet const& pset, const std::shared_ptr<PileUpConfig>& config);
+    explicit PileUp(ParameterSet const& pset,
+                    const std::shared_ptr<PileUpConfig>& config,
+                    edm::ConsumesCollector iC,
+                    const bool mixingConfigFromDB);
     ~PileUp();
 
     template <typename T>
@@ -128,6 +136,7 @@ namespace edm {
     int minBunch_cosmics_;
     int maxBunch_cosmics_;
 
+    edm::ESGetToken<MixingModuleConfig, MixingRcd> configToken_;
     size_t fileNameHash_;
     std::shared_ptr<ProductRegistry> productRegistry_;
     std::unique_ptr<VectorInputSource> const input_;

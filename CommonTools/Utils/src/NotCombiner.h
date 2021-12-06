@@ -10,8 +10,8 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "CommonTools/Utils/src/SelectorBase.h"
-#include "CommonTools/Utils/src/SelectorPtr.h"
+#include "CommonTools/Utils/interface/SelectorBase.h"
+#include "CommonTools/Utils/interface/SelectorPtr.h"
 
 namespace reco {
   namespace parser {

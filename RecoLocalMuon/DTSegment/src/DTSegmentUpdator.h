@@ -21,6 +21,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
@@ -33,6 +34,8 @@ class DTRecSegment4D;
 class DTLinearFit;
 class DTRecHitBaseAlgo;
 class DTChamberRecSegment2D;
+class DTGeometry;
+class MuonGeometryRecord;
 
 namespace edm {
   class EventSetup;
@@ -43,7 +46,7 @@ namespace edm {
 class DTSegmentUpdator {
 public:
   /// Constructor
-  DTSegmentUpdator(const edm::ParameterSet& config);
+  DTSegmentUpdator(const edm::ParameterSet& config, edm::ConsumesCollector);
 
   /// Destructor
   ~DTSegmentUpdator();
@@ -82,6 +85,7 @@ private:
   std::unique_ptr<DTLinearFit> theFitter;     // the linear fitter
   std::unique_ptr<DTRecHitBaseAlgo> theAlgo;  // the algo for hit reconstruction
   edm::ESHandle<DTGeometry> theGeom;          // the geometry
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> theGeomToken;
 
   void updateHits(DTRecSegment2D* seg, GlobalPoint& gpos, GlobalVector& gdir, const int step = 2) const;
 

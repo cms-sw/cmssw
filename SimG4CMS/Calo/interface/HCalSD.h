@@ -20,9 +20,9 @@
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
 #include "Geometry/Records/interface/HcalParametersRcd.h"
-#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "G4String.hh"
 #include <map>
@@ -38,7 +38,11 @@ class TH1F;
 class HCalSD : public CaloSD, public Observer<const BeginOfJob*> {
 public:
   HCalSD(const std::string&,
-         const edm::EventSetup&,
+         const HcalDDDSimConstants*,
+         const HcalDDDRecConstants*,
+         const HcalSimulationConstants*,
+         const HBHEDarkening*,
+         const HBHEDarkening*,
          const SensitiveDetectorCatalog&,
          edm::ParameterSet const&,
          const SimTrackManager*);

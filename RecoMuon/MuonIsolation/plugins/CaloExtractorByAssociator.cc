@@ -1,18 +1,13 @@
 #include "CaloExtractorByAssociator.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
@@ -55,6 +50,7 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par, ed
       theNoiseTow_EE(par.getParameter<double>("NoiseTow_EE")),
       theService(nullptr),
       theAssociator(nullptr),
+      bFieldToken_(iC.esConsumes()),
       thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport")) {
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters, edm::ConsumesCollector(iC));
@@ -63,6 +59,10 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par, ed
   theAssociatorParameters = new TrackAssociatorParameters();
   theAssociatorParameters->loadParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC);
   theAssociator = new TrackDetectorAssociator();
+
+  if (theUseRecHitsFlag) {
+    caloGeomToken_ = iC.esConsumes();
+  }
 }
 
 CaloExtractorByAssociator::~CaloExtractorByAssociator() {
@@ -124,10 +124,9 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits(const Event& event,
   IsoDeposit depHcal(muonDir);
   IsoDeposit depHOcal(muonDir);
 
-  edm::ESHandle<MagneticField> bField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(bField);
+  auto const& bField = eventSetup.getData(bFieldToken_);
 
-  reco::TransientTrack tMuon(muon, &*bField);
+  reco::TransientTrack tMuon(muon, &bField);
   FreeTrajectoryState iFTS = tMuon.initialFreeState();
   TrackDetMatchInfo mInfo = theAssociator->associate(event, eventSetup, iFTS, *theAssociatorParameters);
 
@@ -159,14 +158,13 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits(const Event& event,
   if (theUseRecHitsFlag) {
     //! do things based on rec-hits here
     //! too much copy-pasting now (refactor later?)
-    edm::ESHandle<CaloGeometry> caloGeom;
-    eventSetup.get<CaloGeometryRecord>().get(caloGeom);
+    auto const& caloGeom = eventSetup.getData(caloGeomToken_);
 
     //Ecal
     std::vector<const EcalRecHit*>::const_iterator eHitCI = mInfo.ecalRecHits.begin();
     for (; eHitCI != mInfo.ecalRecHits.end(); ++eHitCI) {
       const EcalRecHit* eHitCPtr = *eHitCI;
-      GlobalPoint eHitPos = caloGeom->getPosition(eHitCPtr->detid());
+      GlobalPoint eHitPos = caloGeom.getPosition(eHitCPtr->detid());
       double deltar0 = reco::deltaR(muon, eHitPos);
       double cosTheta = 1. / cosh(eHitPos.eta());
       double energy = eHitCPtr->energy();
@@ -207,7 +205,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits(const Event& event,
     std::vector<const HBHERecHit*>::const_iterator hHitCI = mInfo.hcalRecHits.begin();
     for (; hHitCI != mInfo.hcalRecHits.end(); ++hHitCI) {
       const HBHERecHit* hHitCPtr = *hHitCI;
-      GlobalPoint hHitPos = caloGeom->getPosition(hHitCPtr->detid());
+      GlobalPoint hHitPos = caloGeom.getPosition(hHitCPtr->detid());
       double deltar0 = reco::deltaR(muon, hHitPos);
       double cosTheta = 1. / cosh(hHitPos.eta());
       double energy = hHitCPtr->energy();
@@ -248,7 +246,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits(const Event& event,
     std::vector<const HORecHit*>::const_iterator hoHitCI = mInfo.hoRecHits.begin();
     for (; hoHitCI != mInfo.hoRecHits.end(); ++hoHitCI) {
       const HORecHit* hoHitCPtr = *hoHitCI;
-      GlobalPoint hoHitPos = caloGeom->getPosition(hoHitCPtr->detid());
+      GlobalPoint hoHitPos = caloGeom.getPosition(hoHitCPtr->detid());
       double deltar0 = reco::deltaR(muon, hoHitPos);
       double cosTheta = 1. / cosh(hoHitPos.eta());
       double energy = hoHitCPtr->energy();

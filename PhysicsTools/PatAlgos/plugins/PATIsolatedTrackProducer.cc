@@ -85,6 +85,9 @@ namespace pat {
     const edm::EDGetTokenT<edm::ValueMap<reco::DeDxData>> gt2dedxStrip_;
     const edm::EDGetTokenT<edm::ValueMap<reco::DeDxData>> gt2dedxPixel_;
     const edm::EDGetTokenT<reco::DeDxHitInfoAss> gt2dedxHitInfo_;
+    const edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> hcalQToken_;
+    const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> ecalSToken_;
+    const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
     const bool addPrescaledDeDxTracks_;
     const edm::EDGetTokenT<edm::ValueMap<int>> gt2dedxHitInfoPrescale_;
     const bool usePrecomputedDeDxStrip_;
@@ -128,6 +131,9 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
       gt2dedxStrip_(consumes<edm::ValueMap<reco::DeDxData>>(iConfig.getParameter<edm::InputTag>("dEdxDataStrip"))),
       gt2dedxPixel_(consumes<edm::ValueMap<reco::DeDxData>>(iConfig.getParameter<edm::InputTag>("dEdxDataPixel"))),
       gt2dedxHitInfo_(consumes<reco::DeDxHitInfoAss>(iConfig.getParameter<edm::InputTag>("dEdxHitInfo"))),
+      hcalQToken_(esConsumes(edm::ESInputTag("", "withTopo"))),
+      ecalSToken_(esConsumes()),
+      bFieldToken_(esConsumes()),
       addPrescaledDeDxTracks_(iConfig.getParameter<bool>("addPrescaledDeDxTracks")),
       gt2dedxHitInfoPrescale_(addPrescaledDeDxTracks_ ? consumes<edm::ValueMap<int>>(
                                                             iConfig.getParameter<edm::InputTag>("dEdxHitInfoPrescale"))
@@ -223,13 +229,9 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     iEvent.getByToken(gt2dedxHitInfoPrescale_, gt2dedxHitInfoPrescale);
   }
 
-  edm::ESHandle<HcalChannelQuality> hcalQ_h;
-  iSetup.get<HcalChannelQualityRcd>().get("withTopo", hcalQ_h);
-  const HcalChannelQuality* hcalQ = hcalQ_h.product();
+  const HcalChannelQuality* hcalQ = &iSetup.getData(hcalQToken_);
 
-  edm::ESHandle<EcalChannelStatus> ecalS_h;
-  iSetup.get<EcalChannelStatusRcd>().get(ecalS_h);
-  const EcalChannelStatus* ecalS = ecalS_h.product();
+  const EcalChannelStatus* ecalS = &iSetup.getData(ecalSToken_);
 
   auto outDeDxC = std::make_unique<reco::DeDxHitInfoCollection>();
   std::vector<int> dEdXass;
@@ -749,9 +751,8 @@ float pat::PATIsolatedTrackProducer::getDeDx(const reco::DeDxHitInfo* hitInfo, b
 TrackDetMatchInfo pat::PATIsolatedTrackProducer::getTrackDetMatchInfo(const edm::Event& iEvent,
                                                                       const edm::EventSetup& iSetup,
                                                                       const reco::Track& track) {
-  edm::ESHandle<MagneticField> bField;
-  iSetup.get<IdealMagneticFieldRecord>().get(bField);
-  FreeTrajectoryState initialState = trajectoryStateTransform::initialFreeState(track, &*bField);
+  auto const& bField = iSetup.getData(bFieldToken_);
+  FreeTrajectoryState initialState = trajectoryStateTransform::initialFreeState(track, &bField);
 
   // can't use the associate() using reco::Track directly, since
   // track->extra() is non-null but segfaults when trying to use it

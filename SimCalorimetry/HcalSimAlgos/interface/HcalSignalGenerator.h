@@ -2,7 +2,6 @@
 #define HcalSimAlgos_HcalSignalGenerator_h
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalBaseSignalGenerator.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -40,17 +39,21 @@ public:
 
   ~HcalSignalGenerator() override {}
 
-  void initializeEvent(const edm::Event* event, const edm::EventSetup* eventSetup) {
+  void initializeEvent(const edm::Event* event,
+                       const edm::EventSetup* eventSetup,
+                       const edm::ESGetToken<HcalDbService, HcalDbRecord>& tok) {
     theEvent = event;
-    eventSetup->get<HcalDbRecord>().get(theConditions);
-    theParameterMap->setDbService(theConditions.product());
+    theConditions = &(eventSetup->getData(tok));
+    theParameterMap->setDbService(theConditions);
   }
 
   /// some users use EventPrincipals, not Events.  We support both
-  void initializeEvent(const edm::EventPrincipal* eventPrincipal, const edm::EventSetup* eventSetup) {
+  void initializeEvent(const edm::EventPrincipal* eventPrincipal,
+                       const edm::EventSetup* eventSetup,
+                       const edm::ESGetToken<HcalDbService, HcalDbRecord>& tok) {
     theEventPrincipal = eventPrincipal;
-    eventSetup->get<HcalDbRecord>().get(theConditions);
-    theParameterMap->setDbService(theConditions.product());
+    theConditions = &(eventSetup->getData(tok));
+    theParameterMap->setDbService(theConditions);
   }
 
   virtual void fill(edm::ModuleCallingContext const* mcc) {
@@ -156,7 +159,7 @@ private:
   /// these fields are set in initializeEvent()
   const edm::Event* theEvent;
   const edm::EventPrincipal* theEventPrincipal;
-  edm::ESHandle<HcalDbService> theConditions;
+  const HcalDbService* theConditions;
   /// these come from the ParameterSet
   edm::InputTag theInputTag;
   edm::EDGetTokenT<COLLECTION> tok_;

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 from __future__ import print_function
 __version__ = "$Revision: 1.19 $"
@@ -6,7 +6,6 @@ __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
-import six
 # The following import is provided for backward compatibility reasons.
 # The function used to be defined in this file.
 from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
@@ -253,6 +252,7 @@ class ConfigBuilder(object):
         self.create_process()
         self.define_Configs()
         self.schedule = list()
+        self.scheduleIndexOfFirstHLTPath = None
 
         # we are doing three things here:
         # creating a process to catch errors
@@ -303,8 +303,8 @@ class ConfigBuilder(object):
             profilerFormat = "%s___%s___%%I.gz" % (
                 self._options.evt_type.replace("_cfi", ""),
                 hashlib.md5(
-                    str(self._options.step) + str(self._options.pileup) + str(self._options.conditions) +
-                    str(self._options.datatier) + str(self._options.profileTypeLabel)
+                    (str(self._options.step) + str(self._options.pileup) + str(self._options.conditions) +
+                    str(self._options.datatier) + str(self._options.profileTypeLabel)).encode('utf-8')
                 ).hexdigest()
             )
         if not profilerJobFormat and profilerFormat.endswith(".gz"):
@@ -763,7 +763,9 @@ class ConfigBuilder(object):
                 if ('SIM' in self.stepMap or 'reSIM' in self.stepMap) and not self._options.fast:
                     self.loadAndRemember(self.SimGeometryCFF)
                     if self.geometryDBLabel:
-                        self.executeAndRemember('process.XMLFromDBSource.label = cms.string("%s")'%(self.geometryDBLabel))
+                        self.executeAndRemember('if hasattr(process, "XMLFromDBSource"): process.XMLFromDBSource.label="%s"'%(self.geometryDBLabel))
+                        self.executeAndRemember('if hasattr(process, "DDDetectorESProducerFromDB"): process.DDDetectorESProducerFromDB.label="%s"'%(self.geometryDBLabel))
+
         except ImportError:
             print("Geometry option",self._options.geometry,"unknown.")
             raise
@@ -1150,7 +1152,7 @@ class ConfigBuilder(object):
         self.REDIGIDefaultSeq=self.DIGIDefaultSeq
 
     # for alca, skims, etc
-    def addExtraStream(self,name,stream,workflow='full'):
+    def addExtraStream(self, name, stream, workflow='full'):
             # define output module and go from there
         output = cms.OutputModule("PoolOutputModule")
         if stream.selectEvents.parameters_().__len__()!=0:
@@ -1274,7 +1276,7 @@ class ConfigBuilder(object):
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
         maxLevel=0
-        from Configuration.AlCa.autoAlca import autoAlca
+        from Configuration.AlCa.autoAlca import autoAlca, AlCaNoConcurrentLumis
         # support @X from autoAlca.py, and recursion support: i.e T0:@Mu+@EG+...
         self.expandMapping(alcaList,autoAlca)
         self.AlCaPaths=[]
@@ -1282,6 +1284,10 @@ class ConfigBuilder(object):
             alcastream = getattr(alcaConfig,name)
             shortName = name.replace('ALCARECOStream','')
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
+                if shortName in AlCaNoConcurrentLumis:
+                    print("Setting numberOfConcurrentLuminosityBlocks=1 because of AlCa sequence {}".format(shortName))
+                    self._options.nConcurrentLumis = "1"
+                    self._options.nConcurrentIOVs = "1"
                 output = self.addExtraStream(name,alcastream, workflow = workflow)
                 self.executeAndRemember('process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECO'+shortName+'_noDrop.outputCommands)')
                 self.AlCaPaths.append(shortName)
@@ -1363,6 +1369,8 @@ class ConfigBuilder(object):
                 raise Exception("Neither gen fragment of input files provided: this is an inconsistent GEN step configuration")
 
         if not loadFailure:
+            from Configuration.Generator.concurrentLumisDisable import noConcurrentLumiGenerators
+
             generatorModule=sys.modules[loadFragment]
             genModules=generatorModule.__dict__
             #remove lhe producer module since this should have been
@@ -1380,6 +1388,10 @@ class ConfigBuilder(object):
                     theObject = getattr(generatorModule,name)
                     if isinstance(theObject, cmstypes._Module):
                         self._options.inlineObjets=name+','+self._options.inlineObjets
+                        if theObject.type_() in noConcurrentLumiGenerators:
+                            print("Setting numberOfConcurrentLuminosityBlocks=1 because of generator {}".format(theObject.type_()))
+                            self._options.nConcurrentLumis = "1"
+                            self._options.nConcurrentIOVs = "1"
                     elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
                         self._options.inlineObjets+=','+name
 
@@ -1514,7 +1526,6 @@ class ConfigBuilder(object):
             print("L1REPACK with '",sequence,"' is not supported! Supported choices are: ",supported)
             raise Exception('unsupported feature')
 
-
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
         if not sequence:
@@ -1538,7 +1549,7 @@ class ConfigBuilder(object):
                 optionsForHLT['type'] = 'HIon'
             else:
                 optionsForHLT['type'] = 'GRun'
-            optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in six.iteritems(optionsForHLT))
+            optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.items())
             if sequence == 'run,fromSource':
                 if hasattr(self.process.source,'firstRun'):
                     self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.firstRun.value()),%s)'%(optionsForHLTConfig))
@@ -1549,7 +1560,7 @@ class ConfigBuilder(object):
             else:
                 self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
         else:
-            self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
+            self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff' % sequence)
 
         if self._options.isMC:
             self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC")
@@ -1561,10 +1572,13 @@ class ConfigBuilder(object):
             from HLTrigger.Configuration.CustomConfigs import ProcessName
             self.process = ProcessName(self.process)
 
-        self.schedule.append(self.process.HLTSchedule)
-        [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
+        if self.process.schedule == None:
+            raise Exception('the HLT step did not attach a valid schedule to the process')
 
-        #this is a fake, to be removed with fastim migration and HLT menu dump
+        self.scheduleIndexOfFirstHLTPath = len(self.schedule)
+        [self.blacklist_paths.append(path) for path in self.process.schedule if isinstance(path,(cms.Path,cms.EndPath))]
+
+        # this is a fake, to be removed with fastim migration and HLT menu dump
         if self._options.fast:
             if not hasattr(self.process,'HLTEndSequence'):
                 self.executeAndRemember("process.HLTEndSequence = cms.Sequence( process.dummyModule )")
@@ -1847,7 +1861,7 @@ class ConfigBuilder(object):
             if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
                 self._options.restoreRNDSeeds=True
 
-        if not 'DIGI' in self.stepMap and not self._options.fast:
+        if not 'DIGI' in self.stepMap and not self._options.isData and not self._options.fast:
             self.executeAndRemember("process.mix.playback = True")
             self.executeAndRemember("process.mix.digitizers = cms.PSet()")
             self.executeAndRemember("for a in process.aliases: delattr(process, a)")
@@ -2123,7 +2137,9 @@ class ConfigBuilder(object):
         if hasattr(self._options,"procModifiers") and self._options.procModifiers:
             import importlib
             thingsImported=[]
-            for pm in self._options.procModifiers.split(','):
+            for c in self._options.procModifiers:
+                thingsImported.extend(c.split(","))
+            for pm in thingsImported:
                 modifierStrings.append(pm)
                 modifierImports.append('from Configuration.ProcessModifiers.'+pm+'_cff import '+pm)
                 modifiers.append(getattr(importlib.import_module('Configuration.ProcessModifiers.'+pm+'_cff'),pm))
@@ -2228,27 +2244,29 @@ class ConfigBuilder(object):
 
         # dump the schedule
         self.pythonCfgCode += "\n# Schedule definition\n"
-        result = "process.schedule = cms.Schedule("
 
         # handling of the schedule
-        self.process.schedule = cms.Schedule()
-        for item in self.schedule:
-            if not isinstance(item, cms.Schedule):
+        pathNames = ['process.'+p.label_() for p in self.schedule]
+        if self.process.schedule == None:
+            self.process.schedule = cms.Schedule()
+            for item in self.schedule:
                 self.process.schedule.append(item)
-            else:
-                self.process.schedule.extend(item)
-
-        if hasattr(self.process,"HLTSchedule"):
-            beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
-            afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
-            pathNames = ['process.'+p.label_() for p in beforeHLT]
-            result += ','.join(pathNames)+')\n'
-            result += 'process.schedule.extend(process.HLTSchedule)\n'
-            pathNames = ['process.'+p.label_() for p in afterHLT]
-            result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
+            result = 'process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         else:
-            pathNames = ['process.'+p.label_() for p in self.schedule]
-            result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+            if not isinstance(self.scheduleIndexOfFirstHLTPath, int):
+                raise Exception('the schedule was imported from a cff in HLTrigger.Configuration, but the final index of the first HLT path is undefined')
+
+            for index, item in enumerate(self.schedule):
+                if index < self.scheduleIndexOfFirstHLTPath:
+                    self.process.schedule.insert(index, item)
+                else:
+                    self.process.schedule.append(item)
+
+            result = "# process.schedule imported from cff in HLTrigger.Configuration\n"
+            for index, item in enumerate(pathNames[:self.scheduleIndexOfFirstHLTPath]):
+                result += 'process.schedule.insert('+str(index)+', '+item+')\n'
+            if self.scheduleIndexOfFirstHLTPath < len(pathNames):
+                result += 'process.schedule.extend(['+','.join(pathNames[self.scheduleIndexOfFirstHLTPath:])+'])\n'
 
         self.pythonCfgCode += result
 
@@ -2261,7 +2279,7 @@ class ConfigBuilder(object):
         self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
         self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
 
-        if self._options.nThreads is not "1":
+        if self._options.nThreads != "1":
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="#Setup FWK for multithreaded\n"
             self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"

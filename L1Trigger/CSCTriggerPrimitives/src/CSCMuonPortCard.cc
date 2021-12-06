@@ -16,8 +16,6 @@ CSCMuonPortCard::CSCMuonPortCard(unsigned endcap, unsigned station, unsigned sec
   drop_low_quality_stubs_ = mpcParams.getParameter<bool>("dropLowQualityStubs");
   max_stubs_ = mpcParams.getParameter<unsigned>("maxStubs");
 
-  qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, 1, 1, conf);
-
   const std::string eSign = endcap == 1 ? "+" : "-";
   vmeName_ = "VME" + eSign + std::to_string(theStation) + "/" + std::to_string(theSector);
 }
@@ -98,14 +96,6 @@ void CSCMuonPortCard::sortLCTs(const unsigned subsector, const int bx) {
     unsigned i = 0;
     for (auto LCT = result.begin(); LCT != result.end(); LCT++) {
       LCT->setMPCLink(++i);
-    }
-
-    // check if the MPC stubs are valid
-    for (const auto& lct : result) {
-      const CSCDetId& detid(lct.getDetId().rawId());
-      const unsigned station(detid.station());
-      const unsigned ring(detid.ring());
-      qualityControl_->checkValid(*(lct.getDigi()), station, ring);
     }
 
     // now insert the temporary vector in the output collection

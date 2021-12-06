@@ -54,9 +54,6 @@ int main(const int argc, const char **argv) {
   // ---------------------------------------------------------
   // these are options that are read from python configuration files for the CMSSW running, set manually for the standalone version
 
-  settings.setDTCLinkFile("../data/calcNumDTCLinks.txt");
-  settings.setModuleCablingFile("../data/modules_T5v3_27SP_nonant_tracklet.dat");
-  settings.setDTCLinkLayerDiskFile("../data/dtclinklayerdisk.dat");
   settings.setFitPatternFile("../data/fitpattern.txt");
   settings.setProcessingModulesFile("../data/processingmodules_" + settings.geomext() + ".dat");
   settings.setMemoryModulesFile("../data/memorymodules_" + settings.geomext() + ".dat");
@@ -66,10 +63,6 @@ int main(const int argc, const char **argv) {
     settings.setTableTEDFile("../data/table_TED/table_TED_Dummy.txt");
     settings.setTableTREFile("../data/table_TRE/table_TRE_Dummy.txt");
   }
-
-  edm::LogVerbatim("Tracklet") << "cabling DTC links :     " << settings.DTCLinkFile();
-  edm::LogVerbatim("Tracklet") << "module cabling :     " << settings.moduleCablingFile();
-  edm::LogVerbatim("Tracklet") << "DTC link layer disk :     " << settings.DTCLinkLayerDiskFile();
 
   edm::LogVerbatim("Tracklet") << "fit pattern :     " << settings.fitPatternFile();
   edm::LogVerbatim("Tracklet") << "process modules : " << settings.processingModulesFile();
@@ -116,7 +109,8 @@ int main(const int argc, const char **argv) {
   for (int eventnum = 0; eventnum < nevents && !in->eof(); eventnum++) {
     SLHCEvent ev(*in);
 
-    L1SimTrack simtrk;
+    //auto simtrk = ev.simtrack(0);
+    //if (std::abs(std::abs(simtrk.eta())-1.3)>0.1) continue;
 
     // -----------------------------------------------------------------
     // setup ROOT Tree and Add Monte Carlo tracks to the ROOT-Tree Event
@@ -216,7 +210,7 @@ int main(const int argc, const char **argv) {
 
     eventProcessor.event(ev);
 
-    std::vector<Track *> &tracks = eventProcessor.tracks();
+    const std::vector<Track> &tracks = eventProcessor.tracks();
 
     // ---------------------------------------------------------
     // Block for producing ROOT-Tree
@@ -253,23 +247,23 @@ int main(const int argc, const char **argv) {
         if (nlayers + ndisks < 4)
           continue;
         nsim++;
-        for (int seed = -1; seed < 8; seed++) {
+        for (int seed = -1; seed < 12; seed++) {
           bool eff = false;
           bool effloose = false;
           int itrackmatch = -1;
           for (unsigned int itrack = 0; itrack < tracks.size(); itrack++) {
-            const std::vector<const L1TStub *> &stubs = tracks[itrack]->stubs();
+            const std::vector<L1TStub> &stubs = tracks[itrack].stubs();
             if (seed == -1) {
-              if (tracks[itrack]->duplicate())
+              if (tracks[itrack].duplicate())
                 continue;
             } else {
-              if (seed != tracks[itrack]->seed())
+              if (seed != tracks[itrack].seed())
                 continue;
             }
 
             unsigned int nmatch = 0;
             for (auto stub : stubs) {
-              if (stub->tpmatch(simtrackid)) {
+              if (stub.tpmatch(simtrackid)) {
                 nmatch++;
               }
             }
@@ -295,14 +289,14 @@ int main(const int argc, const char **argv) {
           }
 
           if (itrackmatch >= 0) {
-            dpt = tracks[itrackmatch]->pt(settings) - q * simtrack.pt();
-            dphi = tracks[itrackmatch]->phi0(settings) - simtrack.phi();
+            dpt = tracks[itrackmatch].pt(settings) - q * simtrack.pt();
+            dphi = tracks[itrackmatch].phi0(settings) - simtrack.phi();
             if (dphi > M_PI)
               dphi -= 2 * M_PI;
             if (dphi < -M_PI)
               dphi += 2 * M_PI;
-            deta = tracks[itrackmatch]->eta(settings) - simtrack.eta();
-            dz0 = tracks[itrackmatch]->z0(settings) - simtrack.vz();
+            deta = tracks[itrackmatch].eta(settings) - simtrack.eta();
+            dz0 = tracks[itrackmatch].z0(settings) - simtrack.vz();
           }
 
           out << eventnum << " " << simeventid << " " << seed << " " << simtrackid << " " << simtrack.type() << " "
@@ -314,18 +308,20 @@ int main(const int argc, const char **argv) {
     }
 
     int ntrack = 0;
+    int i = 0;
     for (auto &track : tracks) {
+      i++;
       if (settings.writeMonitorData("Pars")) {
-        outpars << track->duplicate() << " " << track->eta(settings) << " " << track->phi0(settings) << " "
-                << track->z0(settings) << " " << angle0to2pi::make0To2pi(track->phi0(settings)) / (2 * M_PI / N_SECTOR)
-                << " " << track->rinv(settings);
+        outpars << track.duplicate() << " " << track.eta(settings) << " " << track.phi0(settings) << " "
+                << track.z0(settings) << " " << angle0to2pi::make0To2pi(track.phi0(settings)) / (2 * M_PI / N_SECTOR)
+                << " " << track.rinv(settings);
       }
-      if (!track->duplicate()) {
+      if (!track.duplicate()) {
         ntrack++;
       }
     }
 
-    edm::LogVerbatim("Tracklet") << "Number of found tracks : " << tracks.size() << " unique " << ntrack;
+    edm::LogVerbatim("Tracklet") << "Number of found tracks : " << tracks.size() << " unique " << ntrack << " ";
   }
 
   eventProcessor.printSummary();

@@ -26,7 +26,8 @@ using namespace std;
 DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset)
     :  // Get the concrete 4D-segments reconstruction algo from the factory
       the4DAlgo{DTRecSegment4DAlgoFactory::get()->create(pset.getParameter<string>("Reco4DAlgoName"),
-                                                         pset.getParameter<ParameterSet>("Reco4DAlgoConfig"))} {
+                                                         pset.getParameter<ParameterSet>("Reco4DAlgoConfig"),
+                                                         consumesCollector())} {
   produces<DTRecSegment4DCollection>();
 
   // debug parameter
@@ -63,10 +64,6 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup) {
 
   // Create the pointer to the collection which will store the rechits
   auto segments4DCollection = std::make_unique<DTRecSegment4DCollection>();
-
-  // get the geometry
-  ESHandle<DTGeometry> theGeom;
-  setup.get<MuonGeometryRecord>().get(theGeom);
 
   // Percolate the setup
   the4DAlgo->setES(setup);

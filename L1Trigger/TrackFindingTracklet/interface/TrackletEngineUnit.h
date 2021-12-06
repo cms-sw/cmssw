@@ -3,6 +3,7 @@
 
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsTEMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/CircularBuffer.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 
 #include <cassert>
 #include <vector>
@@ -28,12 +29,13 @@ namespace trklet {
   public:
     TrackletEngineUnit(const Settings* const settings,
                        unsigned int nbitsfinephi,
+                       unsigned int layerdisk1,
                        unsigned int layerdisk2,
                        unsigned int iSeed,
                        unsigned int nbitsfinephiediff,
                        unsigned int iAllStub,
-                       std::vector<bool> const& pttableinner,
-                       std::vector<bool> const& pttableouter,
+                       const TrackletLUT* pttableinnernew,
+                       const TrackletLUT* pttableouternew,
                        VMStubsTEMemory* outervmstubs);
 
     ~TrackletEngineUnit() = default;
@@ -48,19 +50,28 @@ namespace trklet {
 
     bool idle() const { return idle_; }
 
+    void setNearFull() { nearfull_ = candpairs_.nearfull(); }
+
     void reset();
 
-    void step();
+    void step(bool print, int istep, int iTE);
+
+    int rptr() const { return candpairs_.rptr(); }
+
+    int wptr() const { return candpairs_.wptr(); }
+
+    const Stub* innerStub() const { return tedata_.stub_; }
 
   private:
     VMStubsTEMemory* outervmstubs_;
     TEData tedata_;
     const Settings* settings_;
     unsigned int nbitsfinephi_;
+    unsigned int layerdisk1_;
     unsigned int layerdisk2_;
     unsigned int iSeed_;
     unsigned int nbitsfinephidiff_;
-
+    bool nearfull_;  //initialized at start of each processing step
     unsigned int iAllStub_;
 
     //unsigned int memory slot
@@ -72,8 +83,11 @@ namespace trklet {
 
     bool idle_;
 
-    std::vector<bool> pttableinner_;
-    std::vector<bool> pttableouter_;
+    const TrackletLUT* pttableinnernew_;
+    const TrackletLUT* pttableouternew_;
+
+    std::pair<const Stub*, const Stub*> candpair_, candpair__;
+    bool goodpair_, goodpair__;
 
     //save the candidate matches
     CircularBuffer<std::pair<const Stub*, const Stub*> > candpairs_;

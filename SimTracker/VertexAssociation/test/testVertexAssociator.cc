@@ -1,4 +1,8 @@
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -9,15 +13,89 @@
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/VertexAssociation/test/testVertexAssociator.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "DataFormats/Math/interface/Vector.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include <Math/GenVector/PxPyPzE4D.h>
+#include <Math/GenVector/PxPyPzM4D.h>
 
+#include "TFile.h"
+#include "TH1F.h"
+#include "TMath.h"
+#include "TROOT.h"
+#include "TTree.h"
+
+#include <cmath>
 #include <iostream>
+#include <map>
 #include <memory>
+#include <set>
 #include <string>
+#include <vector>
+
+namespace reco {
+  class TrackToTrackingParticleAssociator;
+  class VertexToTrackingVertexAssociator;
+}  // namespace reco
+
+class testVertexAssociator : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  testVertexAssociator(const edm::ParameterSet &conf);
+  ~testVertexAssociator() override = default;
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+
+private:
+  const reco::TrackToTrackingParticleAssociator *associatorByChi2;
+  const reco::TrackToTrackingParticleAssociator *associatorByHits;
+  const reco::VertexToTrackingVertexAssociator *associatorByTracks;
+
+  edm::InputTag vertexCollection_;
+  edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> associatorByTracksToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenMF_;
+
+  int n_event_;
+  int n_rs_vertices_;
+  int n_rs_vtxassocs_;
+  int n_sr_vertices_;
+  int n_sr_vtxassocs_;
+
+  //--------- RecoToSim Histos -----
+
+  TH1F *rs_resx;
+  TH1F *rs_resy;
+  TH1F *rs_resz;
+  TH1F *rs_pullx;
+  TH1F *rs_pully;
+  TH1F *rs_pullz;
+  TH1F *rs_dist;
+  TH1F *rs_simz;
+  TH1F *rs_recz;
+  TH1F *rs_nrectrk;
+  TH1F *rs_nsimtrk;
+  TH1F *rs_qual;
+  TH1F *rs_chi2norm;
+  TH1F *rs_chi2prob;
+
+  //--------- SimToReco Histos -----
+
+  TH1F *sr_resx;
+  TH1F *sr_resy;
+  TH1F *sr_resz;
+  TH1F *sr_pullx;
+  TH1F *sr_pully;
+  TH1F *sr_pullz;
+  TH1F *sr_dist;
+  TH1F *sr_simz;
+  TH1F *sr_recz;
+  TH1F *sr_nrectrk;
+  TH1F *sr_nsimtrk;
+  TH1F *sr_qual;
+  TH1F *sr_chi2norm;
+  TH1F *sr_chi2prob;
+};
 
 // class TrackAssociator;
 class TrackAssociatorByHits;
@@ -30,7 +108,9 @@ using namespace edm;
 testVertexAssociator::testVertexAssociator(edm::ParameterSet const &conf)
     : associatorByTracksToken(consumes<reco::VertexToTrackingVertexAssociator>(
           conf.getUntrackedParameter<edm::InputTag>("vertexAssociation"))) {
+  usesResource(TFileService::kSharedResource);
   vertexCollection_ = conf.getUntrackedParameter<edm::InputTag>("vertexCollection");
+  tokenMF_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
   n_event_ = 0;
   n_rs_vertices_ = 0;
@@ -38,8 +118,6 @@ testVertexAssociator::testVertexAssociator(edm::ParameterSet const &conf)
   n_sr_vertices_ = 0;
   n_sr_vtxassocs_ = 0;
 }
-
-testVertexAssociator::~testVertexAssociator() {}
 
 void testVertexAssociator::beginJob() {
   edm::Service<TFileService> fs;
@@ -92,8 +170,7 @@ void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetu
   using namespace edm;
   using namespace reco;
 
-  edm::ESHandle<MagneticField> theMF;
-  setup.get<IdealMagneticFieldRecord>().get(theMF);
+  //const auto &theMF = setup.getHandle(tokenMF_);
 
   edm::Handle<VertexToTrackingVertexAssociator> theTracksAssociator;
   event.getByToken(associatorByTracksToken, theTracksAssociator);

@@ -11,20 +11,8 @@
 using namespace trklet;
 using namespace std;
 
-ProcessBase::ProcessBase(string name, Settings const& settings, Globals* global, unsigned int iSector)
-    : name_(name), settings_(settings), globals_(global) {
-  iSector_ = iSector;
-  double dphi = 2 * M_PI / N_SECTOR;
-  double dphiHG = 0.5 * settings_.dphisectorHG() - M_PI / N_SECTOR;
-  phimin_ = iSector_ * dphi - dphiHG;
-  phimax_ = phimin_ + dphi + 2 * dphiHG;
-  phimin_ -= M_PI / N_SECTOR;
-  phimax_ -= M_PI / N_SECTOR;
-  if (phimin_ > M_PI) {
-    phimin_ -= 2 * M_PI;
-    phimax_ -= 2 * M_PI;
-  }
-}
+ProcessBase::ProcessBase(string name, Settings const& settings, Globals* global)
+    : name_(name), settings_(settings), globals_(global) {}
 
 unsigned int ProcessBase::nbits(unsigned int power) {
   if (power == 2)
@@ -60,7 +48,7 @@ void ProcessBase::initLayerDisk(unsigned int pos, int& layer, int& disk, int& la
 
   layerdisk = layer - 1;
   if (disk > 0)
-    layerdisk = N_DISK + disk;
+    layerdisk = N_LAYER + disk - 1;
 }
 
 unsigned int ProcessBase::initLayerDisk(unsigned int pos) {
@@ -68,7 +56,7 @@ unsigned int ProcessBase::initLayerDisk(unsigned int pos) {
   initLayerDisk(pos, layer, disk);
 
   if (disk > 0)
-    return N_DISK + disk;
+    return N_LAYER + disk - 1;
   return layer - 1;
 }
 
@@ -80,16 +68,16 @@ void ProcessBase::initLayerDisksandISeed(unsigned int& layerdisk1, unsigned int&
     if (name_[3] == 'L') {
       layerdisk1 = name_[4] - '1';
     } else if (name_[3] == 'D') {
-      layerdisk1 = 6 + name_[4] - '1';
+      layerdisk1 = N_LAYER + name_[4] - '1';
     }
     if (name_[11] == 'L') {
       layerdisk2 = name_[12] - '1';
     } else if (name_[11] == 'D') {
-      layerdisk2 = 6 + name_[12] - '1';
+      layerdisk2 = N_LAYER + name_[12] - '1';
     } else if (name_[12] == 'L') {
       layerdisk2 = name_[13] - '1';
     } else if (name_[12] == 'D') {
-      layerdisk2 = 6 + name_[13] - '1';
+      layerdisk2 = N_LAYER + name_[13] - '1';
     }
   }
 
@@ -97,31 +85,31 @@ void ProcessBase::initLayerDisksandISeed(unsigned int& layerdisk1, unsigned int&
     if (name_[3] == 'L') {
       layerdisk1 = name_[4] - '1';
     } else if (name_[3] == 'D') {
-      layerdisk1 = 6 + name_[4] - '1';
+      layerdisk1 = N_LAYER + name_[4] - '1';
     }
     if (name_[5] == 'L') {
       layerdisk2 = name_[6] - '1';
     } else if (name_[5] == 'D') {
-      layerdisk2 = 6 + name_[6] - '1';
+      layerdisk2 = N_LAYER + name_[6] - '1';
     }
   }
 
-  if (layerdisk1 == 0 && layerdisk2 == 1)
-    iSeed = 0;
-  else if (layerdisk1 == 1 && layerdisk2 == 2)
-    iSeed = 1;
-  else if (layerdisk1 == 2 && layerdisk2 == 3)
-    iSeed = 2;
-  else if (layerdisk1 == 4 && layerdisk2 == 5)
-    iSeed = 3;
-  else if (layerdisk1 == 6 && layerdisk2 == 7)
-    iSeed = 4;
-  else if (layerdisk1 == 8 && layerdisk2 == 9)
-    iSeed = 5;
-  else if (layerdisk1 == 0 && layerdisk2 == 6)
-    iSeed = 6;
-  else if (layerdisk1 == 1 && layerdisk2 == 6)
-    iSeed = 7;
+  if (layerdisk1 == LayerDisk::L1 && layerdisk2 == LayerDisk::L2)
+    iSeed = Seed::L1L2;
+  else if (layerdisk1 == LayerDisk::L2 && layerdisk2 == LayerDisk::L3)
+    iSeed = Seed::L2L3;
+  else if (layerdisk1 == LayerDisk::L3 && layerdisk2 == LayerDisk::L4)
+    iSeed = Seed::L3L4;
+  else if (layerdisk1 == LayerDisk::L5 && layerdisk2 == LayerDisk::L6)
+    iSeed = Seed::L5L6;
+  else if (layerdisk1 == LayerDisk::D1 && layerdisk2 == LayerDisk::D2)
+    iSeed = Seed::D1D2;
+  else if (layerdisk1 == LayerDisk::D3 && layerdisk2 == LayerDisk::D4)
+    iSeed = Seed::D3D4;
+  else if (layerdisk1 == LayerDisk::L1 && layerdisk2 == LayerDisk::D1)
+    iSeed = Seed::L1D1;
+  else if (layerdisk1 == LayerDisk::L2 && layerdisk2 == LayerDisk::D1)
+    iSeed = Seed::L2D1;
   else {
     throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " layerdisk1 " << layerdisk1 << " layerdisk2 "
                                        << layerdisk2;

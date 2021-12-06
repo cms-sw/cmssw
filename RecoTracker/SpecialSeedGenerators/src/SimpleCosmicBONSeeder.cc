@@ -23,8 +23,10 @@ namespace {
 
 using namespace std;
 SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const &conf)
-    : conf_(conf),
-      seedingLayerToken_(consumes<SeedingLayerSetsHits>(conf.getParameter<edm::InputTag>("TripletsSrc"))),
+    : seedingLayerToken_(consumes<SeedingLayerSetsHits>(conf.getParameter<edm::InputTag>("TripletsSrc"))),
+      magfieldToken_(esConsumes()),
+      trackerToken_(esConsumes()),
+      ttrhBuilderToken_(esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("TTRHBuilder")))),
       writeTriplets_(conf.getParameter<bool>("writeTriplets")),
       seedOnMiddle_(conf.existsAs<bool>("seedOnMiddle") ? conf.getParameter<bool>("seedOnMiddle") : false),
       rescaleError_(conf.existsAs<double>("rescaleError") ? conf.getParameter<double>("rescaleError") : 1.0),
@@ -34,7 +36,7 @@ SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const &conf)
       check_(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), consumesCollector()),
       maxTriplets_(conf.getParameter<int32_t>("maxTriplets")),
       maxSeeds_(conf.getParameter<int32_t>("maxSeeds")) {
-  edm::ParameterSet regionConf = conf_.getParameter<edm::ParameterSet>("RegionPSet");
+  edm::ParameterSet regionConf = conf.getParameter<edm::ParameterSet>("RegionPSet");
   float ptmin = regionConf.getParameter<double>("ptMin");
   float originradius = regionConf.getParameter<double>("originRadius");
   float halflength = regionConf.getParameter<double>("originHalfLength");
@@ -42,11 +44,9 @@ SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const &conf)
   region_ = GlobalTrackingRegion(ptmin, originradius, halflength, originz);
   pMin_ = regionConf.getParameter<double>("pMin");
 
-  builderName = conf_.getParameter<std::string>("TTRHBuilder");
-
   //***top-bottom
-  positiveYOnly = conf_.getParameter<bool>("PositiveYOnly");
-  negativeYOnly = conf_.getParameter<bool>("NegativeYOnly");
+  positiveYOnly = conf.getParameter<bool>("PositiveYOnly");
+  negativeYOnly = conf.getParameter<bool>("NegativeYOnly");
   //***
 
   produces<TrajectorySeedCollection>();
@@ -90,16 +90,16 @@ void SimpleCosmicBONSeeder::produce(edm::Event &ev, const edm::EventSetup &es) {
   auto output = std::make_unique<TrajectorySeedCollection>();
   auto outtriplets = std::make_unique<edm::OwnVector<TrackingRecHit>>();
 
-  es.get<IdealMagneticFieldRecord>().get(magfield);
+  magfield = &es.getData(magfieldToken_);
   if (magfield->inTesla(GlobalPoint(0, 0, 0)).mag() > 0.01) {
     size_t clustsOrZero = check_.tooManyClusters(ev);
     if (clustsOrZero) {
       edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
     } else {
       init(es);
-      bool tripletsOk = triplets(ev, es);
+      bool tripletsOk = triplets(ev);
       if (tripletsOk) {
-        bool seedsOk = seeds(*output, es);
+        bool seedsOk = seeds(*output);
         if (!seedsOk) {
         }
 
@@ -125,12 +125,11 @@ void SimpleCosmicBONSeeder::produce(edm::Event &ev, const edm::EventSetup &es) {
 }
 
 void SimpleCosmicBONSeeder::init(const edm::EventSetup &iSetup) {
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  iSetup.get<TransientRecHitRecord>().get(builderName, TTTRHBuilder);
-  cloner = ((TkTransientTrackingRecHitBuilder const *)(TTTRHBuilder.product()))->cloner();
+  tracker = &iSetup.getData(trackerToken_);
+  cloner = dynamic_cast<TkTransientTrackingRecHitBuilder const &>(iSetup.getData(ttrhBuilderToken_)).cloner();
   // FIXME: these should come from ES too!!
-  thePropagatorAl = new PropagatorWithMaterial(alongMomentum, 0.1057, &(*magfield));
-  thePropagatorOp = new PropagatorWithMaterial(oppositeToMomentum, 0.1057, &(*magfield));
+  thePropagatorAl = new PropagatorWithMaterial(alongMomentum, 0.1057, magfield);
+  thePropagatorOp = new PropagatorWithMaterial(oppositeToMomentum, 0.1057, magfield);
   theUpdator = new KFUpdator();
 }
 
@@ -168,7 +167,7 @@ struct HigherInnerHit {
   }
 };
 
-bool SimpleCosmicBONSeeder::triplets(const edm::Event &e, const edm::EventSetup &es) {
+bool SimpleCosmicBONSeeder::triplets(const edm::Event &e) {
   hitTriplets.clear();
   hitTriplets.reserve(0);
   edm::Handle<SeedingLayerSetsHits> hlayers;
@@ -183,9 +182,9 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event &e, const edm::EventSetup 
   for (SeedingLayerSetsHits::LayerSetIndex layerIndex = 0; layerIndex < layers.size(); ++layerIndex) {
     SeedingLayerSetsHits::SeedingLayerSet ls = layers[layerIndex];
     /// ctfseeding SeedinHits and their iterators
-    auto innerHits = region_.hits(es, ls[0]);
-    auto middleHits = region_.hits(es, ls[1]);
-    auto outerHits = region_.hits(es, ls[2]);
+    auto innerHits = region_.hits(ls[0]);
+    auto middleHits = region_.hits(ls[1]);
+    auto outerHits = region_.hits(ls[2]);
 
     if (tripletsVerbosity_ > 0) {
       std::cout << "GenericTripletGenerator iLss = " << seedingLayersToString(ls) << " (" << layerIndex
@@ -291,7 +290,7 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event &e, const edm::EventSetup 
                         << " + " << outerpos << std::endl;
             }
             if (tripletsVerbosity_ > 3 && (helixVerbosity_ > 0)) {  // debug the momentum here too
-              pqFromHelixFit(innerpos, middlepos, outerpos, es);
+              pqFromHelixFit(innerpos, middlepos, outerpos);
             }
           }
         }
@@ -402,8 +401,7 @@ bool SimpleCosmicBONSeeder::goodTriplet(const GlobalPoint &inner,
 
 std::pair<GlobalVector, int> SimpleCosmicBONSeeder::pqFromHelixFit(const GlobalPoint &inner,
                                                                    const GlobalPoint &middle,
-                                                                   const GlobalPoint &outer,
-                                                                   const edm::EventSetup &iSetup) const {
+                                                                   const GlobalPoint &outer) const {
   if (helixVerbosity_ > 0) {
     std::cout << "DEBUG PZ =====" << std::endl;
     FastHelix helix(inner, middle, outer, magfield->nominalValue(), &*magfield);
@@ -453,7 +451,7 @@ std::pair<GlobalVector, int> SimpleCosmicBONSeeder::pqFromHelixFit(const GlobalP
   return mypq;
 }
 
-bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::EventSetup &iSetup) {
+bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output) {
   typedef TrajectoryStateOnSurface TSOS;
 
   for (size_t it = 0; it < hitTriplets.size(); it++) {
@@ -483,7 +481,7 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
     }
 
     // First use FastHelix out of the box
-    std::pair<GlobalVector, int> pq = pqFromHelixFit(inner, middle, outer, iSetup);
+    std::pair<GlobalVector, int> pq = pqFromHelixFit(inner, middle, outer);
     GlobalVector gv = pq.first;
     float ch = pq.second;
     float Mom = sqrt(gv.x() * gv.x() + gv.y() * gv.y() + gv.z() * gv.z());

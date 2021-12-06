@@ -1,13 +1,13 @@
 #ifndef PixelTripletNoTipGenerator_H
 #define PixelTripletNoTipGenerator_H
 
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
-#include "CombinedHitTripletGenerator.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 
-namespace edm {
-  class Event;
-  class EventSetup;
-}  // namespace edm
+#include "CombinedHitTripletGenerator.h"
 
 #include <utility>
 #include <vector>
@@ -35,6 +35,8 @@ public:
                    const int nThirdLayers) override;
 
 private:
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldToken_;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> msmakerToken_;
   float extraHitRZtolerance;
   float extraHitRPhitolerance;
   float extraHitPhiToleranceForPreFiltering;

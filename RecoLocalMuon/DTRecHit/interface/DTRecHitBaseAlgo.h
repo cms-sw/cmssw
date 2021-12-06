@@ -24,12 +24,13 @@ class DTTTrigBaseSync;
 namespace edm {
   class ParameterSet;
   class EventSetup;
+  class ConsumesCollector;
 }  // namespace edm
 
 class DTRecHitBaseAlgo {
 public:
   /// Constructor
-  DTRecHitBaseAlgo(const edm::ParameterSet& config);
+  DTRecHitBaseAlgo(const edm::ParameterSet& config, edm::ConsumesCollector);
 
   /// Destructor
   virtual ~DTRecHitBaseAlgo();

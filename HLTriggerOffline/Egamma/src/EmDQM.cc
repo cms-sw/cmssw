@@ -1215,7 +1215,7 @@ double EmDQM::getPrimaryEtCut(const std::string &path) {
 
   boost::smatch what;
   if (boost::regex_match(path, what, reg, boost::match_extra)) {
-    minEt = boost::lexical_cast<double>(what[2]);
+    minEt = std::stod(what[2]);
   }
 
   return minEt;

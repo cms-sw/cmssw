@@ -2,52 +2,38 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLHcal.h"
 
-HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig) {
-  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
-  tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
-  tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
-
-  //   HBHEHitsProducer_ = iConfig.getParameter< std::string > ("HBHERecHitsProducer");
-  //   HOHitsProducer_ = iConfig.getParameter< std::string > ("HERecHitsProducer");
-  //   HFHitsProducer_ = iConfig.getParameter< std::string > ("HERecHitsProducer");
-  //   HBHEHits_ = iConfig.getParameter< std::string > ("HBHEHitCollection");
-  //   HFHits_ = iConfig.getParameter< std::string > ("HFHitCollection");
-  //   HOHits_ = iConfig.getParameter< std::string > ("HOHitCollection");
-
-  RecalibHBHEHits_ = iConfig.getParameter<std::string>("RecalibHBHEHitCollection");
-  RecalibHFHits_ = iConfig.getParameter<std::string>("RecalibHFHitCollection");
-  RecalibHOHits_ = iConfig.getParameter<std::string>("RecalibHOHitCollection");
-
-  refactor_ = iConfig.getUntrackedParameter<double>("Refactor", (double)1);
-  refactor_mean_ = iConfig.getUntrackedParameter<double>("Refactor_mean", (double)1);
-
+HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig)
+    : tok_hbhe_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"))),
+      tok_ho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"))),
+      tok_hf_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"))),
+      topologyToken_(esConsumes<edm::Transition::BeginRun>()),
+      recalibHBHEHits_(iConfig.getParameter<std::string>("RecalibHBHEHitCollection")),
+      recalibHFHits_(iConfig.getParameter<std::string>("RecalibHFHitCollection")),
+      recalibHOHits_(iConfig.getParameter<std::string>("RecalibHOHitCollection")),
+      hcalfileinpath_(iConfig.getUntrackedParameter<std::string>("fileNameHcal", "")),
+      refactor_(iConfig.getUntrackedParameter<double>("Refactor", (double)1)),
+      refactor_mean_(iConfig.getUntrackedParameter<double>("Refactor_mean", (double)1)) {
   //register your products
-  produces<HBHERecHitCollection>(RecalibHBHEHits_);
-  produces<HFRecHitCollection>(RecalibHFHits_);
-  produces<HORecHitCollection>(RecalibHOHits_);
+  produces<HBHERecHitCollection>(recalibHBHEHits_);
+  produces<HFRecHitCollection>(recalibHFHits_);
+  produces<HORecHitCollection>(recalibHOHits_);
 
   // here read them from xml (particular to HCAL)
-
-  hcalfileinpath_ = iConfig.getUntrackedParameter<std::string>("fileNameHcal", "");
   edm::FileInPath hcalfiletmp("CalibCalorimetry/CaloMiscalibTools/data/" + hcalfileinpath_);
-
   hcalfile_ = hcalfiletmp.fullPath();
 }
 
 HcalRecHitRecalib::~HcalRecHitRecalib() {}
 
 void HcalRecHitRecalib::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HcalTopology> topology;
-  iSetup.get<HcalRecNumberingRecord>().get(topology);
+  const HcalTopology& topology = iSetup.getData(topologyToken_);
 
-  mapHcal_.prefillMap(*topology);
+  mapHcal_.prefillMap(topology);
 
   MiscalibReaderFromXMLHcal hcalreader_(mapHcal_);
   if (!hcalfile_.empty())
@@ -89,46 +75,16 @@ void HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     HFRecHits = HFRecHitsHandle.product();  // get a ptr to the product
   }
 
-  //     iEvent.getByLabel(HBHEHitsProducer_,HBHEHits_,HBHERecHitsHandle);
-  //     HBHERecHits = HBHERecHitsHandle.product(); // get a ptr to the product
-
-  //     iEvent.getByLabel(HFHitsProducer_,HFHits_,HFRecHitsHandle);
-  //     HFRecHits = HFRecHitsHandle.product(); // get a ptr to the product
-
-  //     iEvent.getByLabel(HOHitsProducer_,HOHits_,HORecHitsHandle);
-  //     HORecHits = HORecHitsHandle.product(); // get a ptr to the product
-
   //Create empty output collections
   auto RecalibHBHERecHitCollection = std::make_unique<HBHERecHitCollection>();
   auto RecalibHFRecHitCollection = std::make_unique<HFRecHitCollection>();
   auto RecalibHORecHitCollection = std::make_unique<HORecHitCollection>();
 
-  // Intercalib constants
-  //  edm::ESHandle<EcalIntercalibConstants> pIcal;
-  //  iSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
-  //  const EcalIntercalibConstants* ical = pIcal.product();
-
   if (HBHERecHits) {
-    //loop on all EcalRecHits (barrel)
     HBHERecHitCollection::const_iterator itHBHE;
     for (itHBHE = HBHERecHits->begin(); itHBHE != HBHERecHits->end(); ++itHBHE) {
-      // find intercalib constant for this cell
-
-      //	EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(itb->id().rawId());
-      //	EcalIntercalibConstants::EcalIntercalibConstant icalconst;
-
-      //	if( icalit!=ical->getMap().end() ){
-      //	  icalconst = icalit->second;
-      // edm::LogDebug("EcalRecHitMiscalib") << "Found intercalib for xtal " << EBDetId(itb->id()) << " " << icalconst ;
-
-      //	} else {
-      //	  edm::LogError("EcalRecHitMiscalib") << "No intercalib const found for xtal " << EBDetId(itb->id()) << "! something wrong with EcalIntercalibConstants in your DB? "
-      //              ;
-      //          }
-
-      float icalconst = (mapHcal_.get().find(itHBHE->id().rawId()))->second;
       // make the rechit with rescaled energy and put in the output collection
-
+      float icalconst = (mapHcal_.get().find(itHBHE->id().rawId()))->second;
       icalconst = refactor_mean_ +
                   (icalconst - refactor_mean_) * refactor_;  //apply additional scaling factor (works if gaussian)
       HBHERecHit aHit(itHBHE->id(), itHBHE->energy() * icalconst, itHBHE->time());
@@ -138,25 +94,9 @@ void HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   if (HFRecHits) {
-    //loop on all EcalRecHits (barrel)
     HFRecHitCollection::const_iterator itHF;
     for (itHF = HFRecHits->begin(); itHF != HFRecHits->end(); ++itHF) {
-      // find intercalib constant for this cell
-
-      //	EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(itb->id().rawId());
-      //	EcalIntercalibConstants::EcalIntercalibConstant icalconst;
-
-      //	if( icalit!=ical->getMap().end() ){
-      //	  icalconst = icalit->second;
-      // edm::LogDebug("EcalRecHitMiscalib") << "Found intercalib for xtal " << EBDetId(itb->id()) << " " << icalconst ;
-
-      //	} else {
-      //	  edm::LogError("EcalRecHitMiscalib") << "No intercalib const found for xtal " << EBDetId(itb->id()) << "! something wrong with EcalIntercalibConstants in your DB? "
-      //              ;
-      //          }
-
       // make the rechit with rescaled energy and put in the output collection
-
       float icalconst = (mapHcal_.get().find(itHF->id().rawId()))->second;
       icalconst = refactor_mean_ +
                   (icalconst - refactor_mean_) * refactor_;  //apply additional scaling factor (works if gaussian)
@@ -167,25 +107,9 @@ void HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   if (HORecHits) {
-    //loop on all EcalRecHits (barrel)
     HORecHitCollection::const_iterator itHO;
     for (itHO = HORecHits->begin(); itHO != HORecHits->end(); ++itHO) {
-      // find intercalib constant for this cell
-
-      //	EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(itb->id().rawId());
-      //	EcalIntercalibConstants::EcalIntercalibConstant icalconst;
-
-      //	if( icalit!=ical->getMap().end() ){
-      //	  icalconst = icalit->second;
-      // edm::LogDebug("EcalRecHitMiscalib") << "Found intercalib for xtal " << EBDetId(itb->id()) << " " << icalconst ;
-
-      //	} else {
-      //	  edm::LogError("EcalRecHitMiscalib") << "No intercalib const found for xtal " << EBDetId(itb->id()) << "! something wrong with EcalIntercalibConstants in your DB? "
-      //              ;
-      //          }
-
       // make the rechit with rescaled energy and put in the output collection
-
       float icalconst = (mapHcal_.get().find(itHO->id().rawId()))->second;
       icalconst = refactor_mean_ +
                   (icalconst - refactor_mean_) * refactor_;  //apply additional scaling factor (works if gaussian)
@@ -196,7 +120,7 @@ void HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   //Put Recalibrated rechit in the event
-  iEvent.put(std::move(RecalibHBHERecHitCollection), RecalibHBHEHits_);
-  iEvent.put(std::move(RecalibHFRecHitCollection), RecalibHFHits_);
-  iEvent.put(std::move(RecalibHORecHitCollection), RecalibHOHits_);
+  iEvent.put(std::move(RecalibHBHERecHitCollection), recalibHBHEHits_);
+  iEvent.put(std::move(RecalibHFRecHitCollection), recalibHFHits_);
+  iEvent.put(std::move(RecalibHORecHitCollection), recalibHOHits_);
 }

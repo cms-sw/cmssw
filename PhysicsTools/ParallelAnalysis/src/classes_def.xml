@@ -1,4 +1,0 @@
-<lcgdict>
-  <class name="examples::TrackTSelector" />
-  <class name="TFWLiteSelector<examples::TrackAnalysisAlgorithm>" />
-</lcgdict>

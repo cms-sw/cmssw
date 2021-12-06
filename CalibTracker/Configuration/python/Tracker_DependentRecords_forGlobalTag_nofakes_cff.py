@@ -45,3 +45,6 @@ siPixelQualityESProducer.ListOfRecordToMerge = cms.VPSet(
                   tag    = cms.string("")
                   )
         )
+
+# Multiple scattering parametrisation
+from RecoTracker.TkMSParametrization.multipleScatteringParametrisationMakerESProducer_cfi import *

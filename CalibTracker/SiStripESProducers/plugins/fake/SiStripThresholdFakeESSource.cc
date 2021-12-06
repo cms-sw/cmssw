@@ -41,7 +41,7 @@ private:
   float m_lTh;
   float m_hTh;
   float m_cTh;
-  SiStripDetInfoFileReader m_detInfoFileReader;
+  SiStripDetInfo m_detInfo;
 };
 
 SiStripThresholdFakeESSource::SiStripThresholdFakeESSource(const edm::ParameterSet& iConfig) {
@@ -51,8 +51,7 @@ SiStripThresholdFakeESSource::SiStripThresholdFakeESSource(const edm::ParameterS
   m_lTh = iConfig.getParameter<double>("LowTh");
   m_hTh = iConfig.getParameter<double>("HighTh");
   m_cTh = iConfig.getParameter<double>("ClusTh");
-  m_detInfoFileReader =
-      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
+  m_detInfo = SiStripDetInfoFileReader::read(iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath());
 }
 
 SiStripThresholdFakeESSource::~SiStripThresholdFakeESSource() {}
@@ -69,7 +68,7 @@ SiStripThresholdFakeESSource::ReturnType SiStripThresholdFakeESSource::produce(c
 
   auto threshold = std::make_unique<SiStripThreshold>();
 
-  for (const auto& elm : m_detInfoFileReader.getAllData()) {
+  for (const auto& elm : m_detInfo.getAllData()) {
     //Generate Thresholds for det detid
     SiStripThreshold::Container theSiStripVector;
     uint16_t strip = 0;

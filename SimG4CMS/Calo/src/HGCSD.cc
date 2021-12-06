@@ -9,11 +9,8 @@
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "G4LogicalVolumeStore.hh"
@@ -33,7 +30,7 @@
 //#define plotDebug
 
 HGCSD::HGCSD(const std::string& name,
-             const edm::EventSetup& es,
+             const HGCalDDDConstants* hgc,
              const SensitiveDetectorCatalog& clg,
              edm::ParameterSet const& p,
              const SimTrackManager* manager)
@@ -43,6 +40,7 @@ HGCSD::HGCSD(const std::string& name,
              manager,
              (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")),
+      hgcons_(hgc),
       slopeMin_(0),
       levelT_(99),
       tree_(nullptr) {
@@ -201,19 +199,15 @@ uint32_t HGCSD::setDetUnitId(const G4Step* aStep) {
 }
 
 void HGCSD::update(const BeginOfJob* job) {
-  const edm::EventSetup* es = (*job)();
-  edm::ESHandle<HGCalDDDConstants> hdc;
-  es->get<IdealGeometryRecord>().get(nameX_, hdc);
-  if (hdc.isValid()) {
-    const HGCalDDDConstants* hgcons = hdc.product();
-    geom_mode_ = hgcons->geomMode();
-    slopeMin_ = hgcons->minSlope();
-    levelT_ = hgcons->levelTop();
-    numberingScheme_ = std::make_unique<HGCNumberingScheme>(*hgcons, nameX_);
+  if (hgcons_ != nullptr) {
+    geom_mode_ = hgcons_->geomMode();
+    slopeMin_ = hgcons_->minSlope();
+    levelT_ = hgcons_->levelTop();
+    numberingScheme_ = std::make_unique<HGCNumberingScheme>(*hgcons_, nameX_);
     if (rejectMB_)
-      mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons, angles_, mouseBiteCut_, waferRot_);
+      mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
   } else {
-    edm::LogError("HGCSim") << "HCalSD : Cannot find HGCalDDDConstants for " << nameX_;
+    edm::LogError("HGCSim") << "HGCSD : Cannot find HGCalDDDConstants for " << nameX_;
     throw cms::Exception("Unknown", "HGCSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }
 #ifdef EDM_ML_DEBUG

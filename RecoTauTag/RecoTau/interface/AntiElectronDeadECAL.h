@@ -22,12 +22,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "RecoTauTag/RecoTau/interface/PositionAtECalEntranceComputer.h"
 
 #include <vector>
 #include <string>
 
+class EcalTrigTowerConstituentsMap;
 class EcalChannelStatusRcd;
 class CaloGeometryRecord;
 class IdealGeometryRecord;
@@ -46,6 +48,9 @@ private:
   const double dR2_;
   const bool extrapolateToECalEntrance_;
   const int verbosity_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> channelStatusToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> ttMapToken_;
 
   PositionAtECalEntranceComputer positionAtECalEntrance_;
 

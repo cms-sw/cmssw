@@ -265,7 +265,7 @@ void PreMixingSiPixelWorker::put(edm::Event& e,
 
   // Load inefficiency constants (1st pass), set pileup information.
   if (firstFinalizeEvent_) {
-    digitizer_.init_DynIneffDB(iSetup, bs);
+    digitizer_.init_DynIneffDB(iSetup);
     firstFinalizeEvent_ = false;
   }
 

@@ -18,7 +18,7 @@ public:
 
   ~HGCalShowerShape() {}
 
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
   int firstLayer(const l1t::HGCalMulticluster& c3d) const;
   int lastLayer(const l1t::HGCalMulticluster& c3d) const;

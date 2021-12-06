@@ -43,6 +43,10 @@
 #include "EventFilter/L1TRawToDigi/interface/OmtfDtUnpacker.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfMuonUnpacker.h"
 
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
+#include "CondFormats/DataRecord/interface/RPCOMTFLinkMapRcd.h"
+
 namespace omtf {
 
   class OmtfUnpacker : public edm::stream::EDProducer<> {
@@ -61,6 +65,9 @@ namespace omtf {
     unsigned long theEventCounter;
 
     edm::EDGetTokenT<FEDRawDataCollection> theFedDataToken;
+
+    edm::ESGetToken<RPCEMap, RPCEMapRcd> theRPCEMapToken;
+    edm::ESGetToken<RPCAMCLinkMap, RPCOMTFLinkMapRcd> theAmcMappingToken;
 
     RpcUnpacker theRpcUnpacker;
     CscUnpacker theCscUnpacker;
@@ -88,6 +95,13 @@ namespace omtf {
     theSkipMuon = pset.getParameter<bool>("skipMuon");
 
     theFedDataToken = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("inputLabel"));
+
+    if (!theSkipRpc) {
+      theRPCEMapToken = esConsumes<edm::Transition::BeginRun>();
+      if (not theConfig.getParameter<bool>("useRpcConnectionFile")) {
+        theAmcMappingToken = esConsumes<edm::Transition::BeginRun>();
+      }
+    }
   }
 
   void OmtfUnpacker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -108,10 +122,13 @@ namespace omtf {
     // rpc unpacker
     //
     if (!theSkipRpc) {
+      edm::ESTransientHandle<RPCEMap> readoutMapping = es.getTransientHandle(theRPCEMapToken);
       if (theConfig.getParameter<bool>("useRpcConnectionFile")) {
-        theRpcUnpacker.init(es, edm::FileInPath(theConfig.getParameter<std::string>("rpcConnectionFile")).fullPath());
+        theRpcUnpacker.init(*readoutMapping,
+                            edm::FileInPath(theConfig.getParameter<std::string>("rpcConnectionFile")).fullPath());
       } else {
-        theRpcUnpacker.init(es);
+        auto const& amcMapping = es.getData(theAmcMappingToken);
+        theRpcUnpacker.init(*readoutMapping, amcMapping);
       }
     }
 

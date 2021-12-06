@@ -12,6 +12,7 @@
 
 /* Base Class Headers */
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DBaseAlgo.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 /* Collaborating Class Declarations */
 namespace edm {
@@ -23,6 +24,7 @@ class DTSegmentUpdator;
 class DTSegmentCleaner;
 class DTHitPairForFit;
 class DTSegmentCand;
+class MuonGeometryRecord;
 
 /* C++ Headers */
 #include <deque>
@@ -33,6 +35,7 @@ class DTSegmentCand;
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
 /* ====================================================================== */
@@ -42,7 +45,7 @@ class DTSegmentCand;
 class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
 public:
   /// Constructor
-  DTCombinatorialPatternReco(const edm::ParameterSet& pset);
+  DTCombinatorialPatternReco(const edm::ParameterSet& pset, edm::ConsumesCollector);
 
   /// Destructor
   ~DTCombinatorialPatternReco() override;
@@ -102,6 +105,7 @@ private:
   DTSegmentCleaner* theCleaner;  // the cleaner
 
   edm::ESHandle<DTGeometry> theDTGeometry;  // the DT geometry
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDTGeometryToken;
 
 public:
   // The type must be public, as otherwise the global 'hash_value' function can't locate it

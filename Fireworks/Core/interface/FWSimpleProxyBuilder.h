@@ -58,11 +58,11 @@ protected:
   void clean() override;
   FWSimpleProxyHelper m_helper;
 
-private:
+public:
   FWSimpleProxyBuilder(const FWSimpleProxyBuilder&) = delete;  // stop default
 
   const FWSimpleProxyBuilder& operator=(const FWSimpleProxyBuilder&) = delete;  // stop default
-
+private:
   virtual void itemChangedImp(const FWEventItem*);
 
   bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*) override;

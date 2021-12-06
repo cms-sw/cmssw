@@ -1,4 +1,4 @@
-#include "SimCalorimetry/CastorSim/src/CastorShape.h"
+#include "SimCalorimetry/CastorSim/interface/CastorShape.h"
 #include <cmath>
 
 CastorShape::CastorShape() : nbin_(256), nt_(nbin_, 0.) { computeShapeCastor(); }

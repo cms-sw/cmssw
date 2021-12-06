@@ -1,33 +1,73 @@
-#include "Alignment/TrackerAlignment/plugins/AlignmentPrescaler.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
-#include "Utilities/General/interface/ClassName.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
-
+#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
+#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
-#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
-#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
+#include "Utilities/General/interface/ClassName.h"
 
-// #include "Riostream.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TRandom3.h"
+#include "TH1F.h"
+#include <string>
+
+class TrackerTopology;
+
+class AlignmentPrescaler : public edm::one::EDProducer<> {
+public:
+  AlignmentPrescaler(const edm::ParameterSet& iConfig);
+  ~AlignmentPrescaler() override;
+  void beginJob() override;
+  void endJob() override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+private:
+  // tokens
+  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;   //tracks in input
+  edm::EDGetTokenT<AliClusterValueMap> aliClusterToken_;  //Hit-quality association map
+
+  std::string prescfilename_;  //name of the file containing the TTree with the prescaling factors
+  std::string presctreename_;  //name of the  TTree with the prescaling factors
+
+  TFile* fpresc_;
+  TTree* tpresc_;
+  TRandom3* myrand_;
+
+  int layerFromId(const DetId& id, const TrackerTopology* tTopo) const;
+
+  unsigned int detid_;
+  float hitPrescFactor_, overlapPrescFactor_;
+  int totnhitspxl_;
+};
 
 using namespace std;
 
 AlignmentPrescaler::AlignmentPrescaler(const edm::ParameterSet& iConfig)
-    : src_(iConfig.getParameter<edm::InputTag>("src")),
-      srcQualityMap_(iConfig.getParameter<edm::InputTag>("assomap")),
+    : tracksToken_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
+      aliClusterToken_(consumes(iConfig.getParameter<edm::InputTag>("assomap"))),
       prescfilename_(iConfig.getParameter<std::string>("PrescFileName")),
       presctreename_(iConfig.getParameter<std::string>("PrescTreeName")) {
   // issue the produce<>
@@ -35,13 +75,11 @@ AlignmentPrescaler::AlignmentPrescaler(const edm::ParameterSet& iConfig)
   produces<AliTrackTakenClusterValueMap>();
 }
 
-AlignmentPrescaler::~AlignmentPrescaler() {
-  //
-}
+AlignmentPrescaler::~AlignmentPrescaler() = default;
 
 void AlignmentPrescaler::beginJob() {
   //
-  std::cout << "in AlignmentPrescaler::beginJob" << std::flush;
+  edm::LogPrint("AlignmentPrescaler") << "in AlignmentPrescaler::beginJob" << std::flush;
   fpresc_ = new TFile(prescfilename_.c_str(), "READ");
   tpresc_ = (TTree*)fpresc_->Get(presctreename_.c_str());
   tpresc_->BuildIndex("DetId");
@@ -49,7 +87,7 @@ void AlignmentPrescaler::beginJob() {
   tpresc_->SetBranchStatus("DetId", true);
   tpresc_->SetBranchStatus("PrescaleFactor", true);
   tpresc_->SetBranchStatus("PrescaleFactorOverlap", true);
-  cout << " Branches activated " << std::flush;
+  edm::LogPrint("AlignmentPrescaler") << " Branches activated " << std::flush;
   detid_ = 0;
   hitPrescFactor_ = 99.0;
   overlapPrescFactor_ = 88.0;
@@ -57,10 +95,10 @@ void AlignmentPrescaler::beginJob() {
   tpresc_->SetBranchAddress("DetId", &detid_);
   tpresc_->SetBranchAddress("PrescaleFactor", &hitPrescFactor_);
   tpresc_->SetBranchAddress("PrescaleFactorOverlap", &overlapPrescFactor_);
-  cout << " addressed " << std::flush;
+  edm::LogPrint("AlignmentPrescaler") << " addressed " << std::flush;
   myrand_ = new TRandom3();
   //   myrand_->SetSeed();
-  cout << " ok " << std::endl;
+  edm::LogPrint("AlignmentPrescaler") << " ok ";
 }
 
 void AlignmentPrescaler::endJob() {
@@ -71,25 +109,25 @@ void AlignmentPrescaler::endJob() {
 }
 
 void AlignmentPrescaler::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // std::cout<<"\n\n#################\n### Starting the AlignmentPrescaler::produce ; Event: "<<iEvent.id().run() <<", "<<iEvent.id().event()<<std::endl;
+  LogDebug("AlignmentPrescaler") << "\n\n#################\n### Starting the AlignmentPrescaler::produce ; Event: "
+                                 << iEvent.id().run() << ", " << iEvent.id().event() << std::endl;
+
   edm::Handle<reco::TrackCollection> Tracks;
-  iEvent.getByLabel(src_, Tracks);
+  iEvent.getByToken(tracksToken_, Tracks);
 
   //take  HitAssomap
-  edm::Handle<AliClusterValueMap> hMap;
-  iEvent.getByLabel(srcQualityMap_, hMap);
-  AliClusterValueMap InValMap = *hMap;
+  AliClusterValueMap InValMap = iEvent.get(aliClusterToken_);
 
   //prepare the output of the ValueMap flagging tracks
   std::vector<int> trackflags(Tracks->size(), 0);
 
-  //int npxlhits=0;
+  int npxlhits = 0;
 
   //loop on tracks
   for (std::vector<reco::Track>::const_iterator ittrk = Tracks->begin(), edtrk = Tracks->end(); ittrk != edtrk;
        ++ittrk) {
     //loop on tracking rechits
-    // std::cout << "Loop on hits of track #" << (ittrk - Tracks->begin()) << std::endl;
+    LogDebug("AlignmentPrescaler") << "Loop on hits of track #" << (ittrk - Tracks->begin()) << std::endl;
     int nhit = 0;
     int ntakenhits = 0;
     bool firstTakenHit = false;
@@ -135,10 +173,11 @@ void AlignmentPrescaler::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             tmpflag.SetDetId(hit->geographicalId());
             if (tmpflag.isOverlap())
               isOverlapHit = true;
-            // std::cout<<"~*~*~* Prescale (1D) for module "<<tmpflag.detId().rawId()<<"("<<InValMap[stripclust].detId().rawId() <<") is "<<hitPrescFactor_<<std::flush;
-            //  if(tmpflag.isOverlap())cout<<" (it is Overlap)"<<endl;
-            // else cout<<endl;
-
+            LogDebug("AlignmentPrescaler")
+                << "~*~*~* Prescale (1D) for module " << tmpflag.detId().rawId() << "("
+                << InValMap[stripclust].detId().rawId() << ") is " << hitPrescFactor_ << std::flush;
+            if (tmpflag.isOverlap())
+              LogDebug("AlignmentPrescaler") << " (it is Overlap)";
           }  //end if striphit1D!=0
         } else if (stripType == 2) {
           //const SiStripRecHit2D* stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
@@ -148,17 +187,18 @@ void AlignmentPrescaler::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             tmpflag.SetDetId(hit->geographicalId());
             if (tmpflag.isOverlap())
               isOverlapHit = true;
-            // std::cout<<"~*~*~* Prescale (2D) for module "<<tmpflag.detId().rawId()<<"("<<InValMap[stripclust].detId().rawId() <<") is "<<hitPrescFactor_<<std::flush;
-            //  if(tmpflag.isOverlap())cout<<" (it is Overlap)"<<endl;
-            // else cout<<endl;
-
+            LogDebug("AlignmentPrescaler")
+                << "~*~*~* Prescale (2D) for module " << tmpflag.detId().rawId() << "("
+                << InValMap[stripclust].detId().rawId() << ") is " << hitPrescFactor_ << std::flush;
+            if (tmpflag.isOverlap())
+              LogDebug("AlignmentPrescaler") << " (it is Overlap)" << endl;
           }  //end if striphit2D!=0
         }
       }  //end if is a strip hit
       else {
         //	const SiPixelRecHit*   pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
         if (pixelhit != nullptr) {
-          //npxlhits++;
+          npxlhits++;
           SiPixelClusterRefNew pixclust(pixelhit->cluster());
           tmpflag = InValMap[pixclust];
           tmpflag.SetDetId(hit->geographicalId());
@@ -169,7 +209,7 @@ void AlignmentPrescaler::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       //      tmpflag.SetDetId(hit->geographicalId());
 
       if (isOverlapHit) {
-        //cout<<"  DetId="<<tmpdetid<<" is Overlap! "<<flush;
+        LogDebug("AlignmentPrescaler") << "  DetId=" << tmpdetid << " is Overlap! " << flush;
         takeit = (float(myrand_->Rndm()) <= overlapPrescFactor_);
       }
       if (!takeit) {
@@ -177,7 +217,7 @@ void AlignmentPrescaler::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         takeit = (rr <= hitPrescFactor_);
       }
       if (takeit) {  //HIT TAKEN !
-        //cout<<"  DetId="<<tmpdetid<<" taken!"<<flush;
+        LogDebug("AlignmentPrescaler") << "  DetId=" << tmpdetid << " taken!" << flush;
         tmpflag.SetTakenFlag();
 
         if (subdetId > 2) {
@@ -196,21 +236,14 @@ void AlignmentPrescaler::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
         if (!firstTakenHit) {
           firstTakenHit = true;
-          //std::cout<<"Index of the track iterator is "<< ittrk-Tracks->begin() <<endl;
+          LogDebug("AlignmentPrescaler") << "Index of the track iterator is " << ittrk - Tracks->begin();
         }
         ntakenhits++;
       }  //end if take this hit
-         //cout<<endl;
-
       nhit++;
-      //cout<<endl;
     }  //end loop on RecHits
     trackflags[ittrk - Tracks->begin()] = ntakenhits;
-
   }  //end loop on tracks
-
-  // totnhitspxl_+=ntakenhits;
-  //cout<<"AlignmentPrescaler::produce says that in this event "<<ntakenhits<<" pixel clusters were taken (out of "<<npxlhits<<" total pixel hits."<<endl;
 
   //save the asso map, tracks...
   // prepare output
@@ -242,8 +275,17 @@ int AlignmentPrescaler::layerFromId(const DetId& id, const TrackerTopology* tTop
     return tTopo->tidWheel(id) + (3 * (tTopo->tidSide(id) - 1));
   }
   return -1;
-
 }  //end layerfromId
+
+void AlignmentPrescaler::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Prescale Tracker Alignment hits for alignment procedures");
+  desc.add<edm::InputTag>("src", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("assomap", edm::InputTag("OverlapAssoMap"));
+  desc.add<std::string>("PrescFileName", "PrescaleFactors.root");
+  desc.add<std::string>("PrescTreeName", "AlignmentHitMap");
+  descriptions.addWithDefaultLabel(desc);
+}
 
 // ========= MODULE DEF ==============
 #include "FWCore/PluginManager/interface/ModuleDef.h"

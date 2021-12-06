@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,7 +11,7 @@
 
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEffectiveArea.h"
 
-class ElectronIsolatorFromEffectiveArea : public edm::EDFilter {
+class ElectronIsolatorFromEffectiveArea : public edm::stream::EDFilter<> {
 public:
   typedef edm::ValueMap<double> CandDoubleMap;
   typedef ElectronEffectiveArea EEA;

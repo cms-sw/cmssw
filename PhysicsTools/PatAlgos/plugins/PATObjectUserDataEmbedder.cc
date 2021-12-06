@@ -75,7 +75,7 @@ namespace pat {
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("src");
-      for (const std::string &what : {"userFloats", "userInts", "userIntFromBools", "userCands"}) {
+      for (auto &&what : {"userFloats", "userInts", "userIntFromBools", "userCands"}) {
         edm::ParameterSetDescription descNested;
         descNested.addWildcard<edm::InputTag>("*");
         desc.add<edm::ParameterSetDescription>(what, descNested);

@@ -7,10 +7,11 @@
 
 namespace edmtest {
 
-  void ProblemTestClient_t1::analyze(edm::Event const& /*unused*/
+  void ProblemTestClient_t1::analyze(edm::StreamID,
+                                     edm::Event const& /*unused*/
                                      ,
                                      edm::EventSetup const& /*unused*/
-  ) {
+  ) const {
     LogDebug("cat_A") << "This message should not appear";
     LogDebug("TrackerGeom") << "LogDebug was used to send this message";
 

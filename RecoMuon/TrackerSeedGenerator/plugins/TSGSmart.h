@@ -2,6 +2,7 @@
 #define RecoMuon_TrackerSeedGenerator_TSGSmart_H
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class SeedGeneratorFromRegionHits;

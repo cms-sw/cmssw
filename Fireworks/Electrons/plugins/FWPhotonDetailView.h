@@ -31,10 +31,10 @@ public:
   using FWDetailViewGL<reco::Photon>::setTextInfo;
   void setTextInfo(const FWModelId& id, const reco::Photon*) override;
 
-private:
   FWPhotonDetailView(const FWPhotonDetailView&) = delete;                   // stop default
   const FWPhotonDetailView& operator=(const FWPhotonDetailView&) = delete;  // stop default
 
+private:
   void addSceneInfo(const reco::Photon*, TEveElementList*);
 
   TEveCaloData* m_data;

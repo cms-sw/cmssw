@@ -18,18 +18,20 @@ hltHighLevel = cms.EDFilter("HLTHighLevel",
 hltfilter = cms.Sequence(hltHighLevel)
 
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters
-filtersiPixelClusters = siPixelClusters.clone()
-filtersiPixelClusters.src = cms.InputTag("filtersiPixelDigis")
+filtersiPixelClusters = siPixelClusters.clone(
+  src = "filtersiPixelDigis"
+)
 
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import siPixelDigis
-filtersiPixelDigis = siPixelDigis.clone()
-filtersiPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
+filtersiPixelDigis = siPixelDigis.clone(
+  InputLabel = "rawDataCollector"
+)
 
 import  HLTrigger.special.hltPixelActivityFilter_cfi
 multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
-    inputTag  = cms.InputTag('filtersiPixelClusters'),
-    minClusters = cms.uint32(10000),
-    maxClusters = cms.uint32(50000)
+    inputTag  = 'filtersiPixelClusters',
+    minClusters = 10000,
+    maxClusters = 50000
 )
 
 pixelClusterFilter = cms.Sequence(filtersiPixelDigis * filtersiPixelClusters * multFilter)

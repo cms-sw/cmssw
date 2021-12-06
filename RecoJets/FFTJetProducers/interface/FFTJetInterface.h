@@ -51,6 +51,10 @@
 namespace fftjetcms {
   class FFTJetInterface : public edm::EDProducer {
   public:
+    // Explicitly disable other ways to construct this object
+    FFTJetInterface() = delete;
+    FFTJetInterface(const FFTJetInterface&) = delete;
+    FFTJetInterface& operator=(const FFTJetInterface&) = delete;
     ~FFTJetInterface() override {}
 
   protected:
@@ -103,11 +107,6 @@ namespace fftjetcms {
     edm::Handle<reco::CandidateView> inputCollection;
 
   private:
-    // Explicitly disable other ways to construct this object
-    FFTJetInterface() = delete;
-    FFTJetInterface(const FFTJetInterface&) = delete;
-    FFTJetInterface& operator=(const FFTJetInterface&) = delete;
-
     const bool insertCompleteEvent;
     const double completeEventScale;
     reco::Particle::Point vertex_;

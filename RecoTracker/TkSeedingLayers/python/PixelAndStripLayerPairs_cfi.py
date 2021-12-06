@@ -26,20 +26,12 @@ PixelAndStripLayerPairs = seedingLayersEDProducer.clone(
                  'FPix2_neg+TID2_neg',
                  'FPix2_neg+TID3_neg',
                  'FPix2_neg+TEC1_neg'],
-    TIB = cms.PSet(
+    TIB = dict(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle'),
         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
-    TID = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
-        minRing = cms.int32(1),
-        maxRing = cms.int32(1),
-        clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
-    ),
-    TEC = cms.PSet(
+    TID = dict(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
@@ -47,11 +39,19 @@ PixelAndStripLayerPairs = seedingLayersEDProducer.clone(
         maxRing = cms.int32(1),
         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
-    BPix = cms.PSet(
+    TEC = dict(
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        useRingSlector = cms.bool(True),
+        TTRHBuilder = cms.string('WithTrackAngle'),
+        minRing = cms.int32(1),
+        maxRing = cms.int32(1),
+        clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
+    ),
+    BPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
     ),
-    FPix = cms.PSet(
+    FPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
     ),

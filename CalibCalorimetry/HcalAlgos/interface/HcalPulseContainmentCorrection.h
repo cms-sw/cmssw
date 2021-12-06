@@ -16,11 +16,13 @@ class HcalPulseContainmentCorrection {
 public:
   HcalPulseContainmentCorrection(int num_samples,
                                  float fixedphase_ns,
+                                 bool phaseAsInSim,
                                  float max_fracerror,
                                  const HcalTimeSlew* hcalTimeSlew_delay);
   HcalPulseContainmentCorrection(const HcalPulseShape* shape,
                                  int num_samples,
                                  float fixedphase_ns,
+                                 bool phaseAsInSim,
                                  float max_fracerror,
                                  const HcalTimeSlew* hcalTimeSlew_delay);
   double getCorrection(double fc_ampl) const;

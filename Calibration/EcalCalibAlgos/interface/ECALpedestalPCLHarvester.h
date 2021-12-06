@@ -29,6 +29,8 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 class ECALpedestalPCLHarvester : public DQMEDHarvester {
 public:
@@ -41,24 +43,30 @@ private:
 
   void dqmPlots(const EcalPedestals& newpeds, DQMStore::IBooker& ibooker);
 
-  const EcalPedestals* currentPedestals_;
-  const EcalPedestals* g6g1Pedestals_;
-  const EcalChannelStatus* channelStatus_;
+  bool checkVariation(const EcalPedestalsMap& oldPedestals, const EcalPedestalsMap& newPedestals);
   bool checkStatusCode(const DetId& id);
   bool isGood(const DetId& id);
 
-  bool checkVariation(const EcalPedestalsMap& oldPedestals, const EcalPedestalsMap& newPedestals);
   std::vector<int> chStatusToExclude_;
-  int minEntries_;
+  const int minEntries_;
 
   int entriesEB_[EBDetId::kSizeForDenseIndexing];
   int entriesEE_[EEDetId::kSizeForDenseIndexing];
-  bool checkAnomalies_;           // whether or not to avoid creating sqlite file in case of many changed pedestals
-  double nSigma_;                 // threshold in sigmas to define a pedestal as changed
-  double thresholdAnomalies_;     // threshold (fraction of changed pedestals) to avoid creation of sqlite file
-  std::string dqmDir_;            // DQM directory where histograms are stored
-  std::string labelG6G1_;         // DB label from which pedestals for G6 and G1 are to be copied
-  float threshDiffEB_;            // if the new pedestals differs more than this from old, keep old
-  float threshDiffEE_;            // same as above for EE. Stray channel protection
-  float threshChannelsAnalyzed_;  // threshold for minimum percentage of channels analized to produce DQM plots
+  const bool checkAnomalies_;        // whether or not to avoid creating sqlite file in case of many changed pedestals
+  const double nSigma_;              // threshold in sigmas to define a pedestal as changed
+  const double thresholdAnomalies_;  // threshold (fraction of changed pedestals) to avoid creation of sqlite file
+  const std::string dqmDir_;         // DQM directory where histograms are stored
+  const std::string labelG6G1_;      // DB label from which pedestals for G6 and G1 are to be copied
+  const float threshDiffEB_;         // if the new pedestals differs more than this from old, keep old
+  const float threshDiffEE_;         // same as above for EE. Stray channel protection
+  const float threshChannelsAnalyzed_;  // threshold for minimum percentage of channels analized to produce DQM plots
+
+  // ES token
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> channelsStatusToken_;
+  const edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedestalsToken_;
+  const edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> g6g1PedestalsToken_;
+
+  const EcalPedestals* currentPedestals_;
+  const EcalPedestals* g6g1Pedestals_;
+  const EcalChannelStatus* channelStatus_;
 };

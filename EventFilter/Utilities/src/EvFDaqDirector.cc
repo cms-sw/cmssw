@@ -22,7 +22,6 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <cstdio>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
 //using boost::asio::ip::tcp;
@@ -84,10 +83,10 @@ namespace evf {
     char* fuLockPollIntervalPtr = std::getenv("FFF_LOCKPOLLINTERVAL");
     if (fuLockPollIntervalPtr) {
       try {
-        fuLockPollInterval_ = boost::lexical_cast<unsigned int>(std::string(fuLockPollIntervalPtr));
+        fuLockPollInterval_ = std::stoul(std::string(fuLockPollIntervalPtr));
         edm::LogInfo("EvFDaqDirector") << "Setting fu lock poll interval by environment string: " << fuLockPollInterval_
                                        << " us";
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fuLockPollIntervalPtr);
       }
     }
@@ -96,9 +95,9 @@ namespace evf {
     char* fileBrokerParamPtr = std::getenv("FFF_USEFILEBROKER");
     if (fileBrokerParamPtr) {
       try {
-        useFileBroker_ = (boost::lexical_cast<unsigned int>(std::string(fileBrokerParamPtr))) > 0;
+        useFileBroker_ = (std::stoul(std::string(fileBrokerParamPtr))) > 0;
         edm::LogInfo("EvFDaqDirector") << "Setting useFileBroker parameter by environment string: " << useFileBroker_;
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileBrokerParamPtr);
       }
     }
@@ -123,12 +122,12 @@ namespace evf {
       socket_ = std::make_unique<boost::asio::ip::tcp::socket>(io_service_);
     }
 
-    char* startFromLSPtr = std::getenv("FFF_STARTFROMLS");
+    char* startFromLSPtr = std::getenv("FFF_START_LUMISECTION");
     if (startFromLSPtr) {
       try {
-        startFromLS_ = boost::lexical_cast<unsigned int>(std::string(startFromLSPtr));
+        startFromLS_ = std::stoul(std::string(startFromLSPtr));
         edm::LogInfo("EvFDaqDirector") << "Setting start from LS by environment string: " << startFromLS_;
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(startFromLSPtr);
       }
     }
@@ -137,10 +136,10 @@ namespace evf {
     char* fileBrokerUseLockParamPtr = std::getenv("FFF_FILEBROKERUSELOCALLOCK");
     if (fileBrokerUseLockParamPtr) {
       try {
-        fileBrokerUseLocalLock_ = (boost::lexical_cast<unsigned int>(std::string(fileBrokerUseLockParamPtr))) > 0;
+        fileBrokerUseLocalLock_ = (std::stoul(std::string(fileBrokerUseLockParamPtr))) > 0;
         edm::LogInfo("EvFDaqDirector") << "Setting fileBrokerUseLocalLock parameter by environment string: "
                                        << fileBrokerUseLocalLock_;
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileBrokerUseLockParamPtr);
       }
     }
@@ -154,6 +153,7 @@ namespace evf {
     ss << run_;
     run_nstring_ = ss.str();
     run_dir_ = base_dir_ + "/" + run_string_;
+    input_throttled_file_ = run_dir_ + "/input_throttle";
     ss = std::stringstream();
     ss << getpid();
     pid_ = ss.str();
@@ -773,7 +773,7 @@ namespace evf {
       edm::LogError("EvFDaqDirector") << " error reading number of files from BU JSON -: " << BUEoLSFile;
       return -1;
     }
-    return boost::lexical_cast<int>(data);
+    return std::stoi(data);
   }
 
   bool EvFDaqDirector::bumpFile(unsigned int& ls,
@@ -942,14 +942,18 @@ namespace evf {
 
   void EvFDaqDirector::createLumiSectionFiles(const uint32_t lumiSection,
                                               const uint32_t currentLumiSection,
-                                              bool doCreateBoLS) {
+                                              bool doCreateBoLS,
+                                              bool doCreateEoLS) {
     if (currentLumiSection > 0) {
       const std::string fuEoLS = getEoLSFilePathOnFU(currentLumiSection);
       struct stat buf;
       bool found = (stat(fuEoLS.c_str(), &buf) == 0);
       if (!found) {
-        int eol_fd = open(fuEoLS.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-        close(eol_fd);
+        if (doCreateEoLS) {
+          int eol_fd =
+              open(fuEoLS.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+          close(eol_fd);
+        }
         if (doCreateBoLS)
           createBoLSFile(lumiSection, false);
       }
@@ -1326,8 +1330,8 @@ namespace evf {
           if (i < dp.getData().size()) {
             std::string dataSize = dp.getData()[i];
             try {
-              fileSizeFromJson = boost::lexical_cast<long>(dataSize);
-            } catch (boost::bad_lexical_cast const&) {
+              fileSizeFromJson = std::stol(dataSize);
+            } catch (const std::exception&) {
               //non-fatal currently, processing can continue without this value
               edm::LogWarning("EvFDaqDirector") << "grabNextJsonFile - error parsing number of Bytes from BU JSON. "
                                                 << "Input value is -: " << dataSize;
@@ -1336,9 +1340,12 @@ namespace evf {
           }
         }
       }
-      return boost::lexical_cast<int>(data);
-    } catch (boost::bad_lexical_cast const& e) {
+      return std::stoi(data);
+    } catch (const std::out_of_range& e) {
       edm::LogError("EvFDaqDirector") << "grabNextJsonFile - error parsing number of events from BU JSON. "
+                                      << "Input value is -: " << data;
+    } catch (const std::invalid_argument& e) {
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFile - argument error parsing events from BU JSON. "
                                       << "Input value is -: " << data;
     } catch (std::runtime_error const& e) {
       //Can be thrown by Json parser
@@ -1423,7 +1430,7 @@ namespace evf {
           throw cms::Exception("EvFDaqDirector::grabNextJsonFileUnlock")
               << " error reading number of events from BU JSON -: No input value " << data;
       }
-      return boost::lexical_cast<int>(data);
+      return std::stoi(data);
     } catch (std::filesystem::filesystem_error const& ex) {
       // Input dir gone?
       unlockFULocal();
@@ -1432,8 +1439,11 @@ namespace evf {
       // Another process grabbed the file and NFS did not register this
       unlockFULocal();
       edm::LogError("EvFDaqDirector") << "grabNextFile runtime Exception -: " << e.what();
-    } catch (boost::bad_lexical_cast const&) {
+    } catch (const std::out_of_range&) {
       edm::LogError("EvFDaqDirector") << "grabNextFile error parsing number of events from BU JSON. "
+                                      << "Input value is -: " << data;
+    } catch (const std::invalid_argument&) {
+      edm::LogError("EvFDaqDirector") << "grabNextFile argument error parsing events from BU JSON. "
                                       << "Input value is -: " << data;
     } catch (std::exception const& e) {
       // BU run directory disappeared?
@@ -1677,8 +1687,10 @@ namespace evf {
             serverError = true;
           }
         }
+
         break;
       }
+
     } catch (std::exception const& e) {
       edm::LogWarning("EvFDaqDirector") << "Exception in socket handling";
       serverError = true;
@@ -1704,6 +1716,7 @@ namespace evf {
       fileStatus = noFile;
       sleep(1);  //back-off if error detected
     }
+
     return fileStatus;
   }
 
@@ -1760,7 +1773,7 @@ namespace evf {
 
     //local lock to force index json and EoLS files to appear in order
     if (fileBrokerUseLocalLock_)
-      lockFULocal2();
+      lockFULocal();
 
     int maxLS = stopFileLS < 0 ? -1 : std::max(stopFileLS, (int)currentLumiSection);
     bool rawHeader = false;
@@ -1770,22 +1783,21 @@ namespace evf {
     if (serverError) {
       //do not update anything
       if (fileBrokerUseLocalLock_)
-        unlockFULocal2();
+        unlockFULocal();
       return noFile;
     }
 
-    //handle creation of EoLS and BoLS files if lumisection has changed
+    //handle creation of BoLS files if lumisection has changed
     if (currentLumiSection == 0) {
-      if (fileStatus == runEnded) {
-        createLumiSectionFiles(closedServerLS, 0);
-        createLumiSectionFiles(serverLS, closedServerLS, false);  // +1
-      } else
-        createLumiSectionFiles(serverLS, 0);
+      if (fileStatus == runEnded)
+        createLumiSectionFiles(closedServerLS, 0, true, false);
+      else
+        createLumiSectionFiles(serverLS, 0, true, false);
     } else {
-      //loop over and create any EoLS files missing
       if (closedServerLS >= currentLumiSection) {
+        //only BoLS files
         for (uint32_t i = std::max(currentLumiSection, 1U); i <= closedServerLS; i++)
-          createLumiSectionFiles(i + 1, i);
+          createLumiSectionFiles(i + 1, i, true, false);
       }
     }
 
@@ -1803,6 +1815,11 @@ namespace evf {
       close(rawFd);
       rawFd = -1;
     }
+
+    //can unlock because all files have been created locally
+    if (fileBrokerUseLocalLock_)
+      unlockFULocal();
+
     if (!fileFound) {
       //catch condition where directory got deleted
       fileStatus = noFile;
@@ -1813,9 +1830,26 @@ namespace evf {
       }
     }
 
-    //can unlock because all files have been created locally
-    if (fileBrokerUseLocalLock_)
+    //handle creation of EoLS files if lumisection has changed, this needs to be locked exclusively
+    //so that EoLS files can not appear locally before index files
+    if (currentLumiSection == 0) {
+      lockFULocal2();
+      if (fileStatus == runEnded) {
+        createLumiSectionFiles(closedServerLS, 0, false, true);
+        createLumiSectionFiles(serverLS, closedServerLS, false, true);  // +1
+      } else {
+        createLumiSectionFiles(serverLS, 0, false, true);
+      }
       unlockFULocal2();
+    } else {
+      if (closedServerLS >= currentLumiSection) {
+        //lock exclusive to create EoLS files
+        lockFULocal2();
+        for (uint32_t i = std::max(currentLumiSection, 1U); i <= closedServerLS; i++)
+          createLumiSectionFiles(i + 1, i, false, true);
+        unlockFULocal2();
+      }
+    }
 
     if (fileStatus == runEnded)
       ls = std::max(currentLumiSection, serverLS);
@@ -1863,7 +1897,7 @@ namespace evf {
     std::string fileprefix = run_dir_ + "/" + run_string_ + "_ls";
     std::string fullpath;
     struct stat buf;
-    unsigned int lscount = startFromLS_;
+    unsigned int lscount = 1;
     do {
       std::stringstream ss;
       ss << fileprefix << std::setfill('0') << std::setw(4) << lscount << "_EoLS.jsn";
@@ -2026,6 +2060,11 @@ namespace evf {
 #else
     return {type, whence, start, len, pid};
 #endif
+  }
+
+  bool EvFDaqDirector::inputThrottled() {
+    struct stat buf;
+    return (stat(input_throttled_file_.c_str(), &buf) == 0);
   }
 
 }  // namespace evf

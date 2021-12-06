@@ -181,6 +181,8 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   verbose_ = parameters.getParameter<int>("verbose");
 
   FolderName_ = parameters.getUntrackedParameter<std::string>("FolderName");
+
+  l1gtTrigMenuToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 // ***********************************************************
@@ -1178,9 +1180,7 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
 
 // ***********************************************************
 void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<L1GtTriggerMenu> menuRcd;
-  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
-  const L1GtTriggerMenu* menu = menuRcd.product();
+  const L1GtTriggerMenu* menu = &iSetup.getData(l1gtTrigMenuToken_);
   for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end();
        ++techTrig) {
     if ((techTrig->second).algoName() == m_l1algoname_) {

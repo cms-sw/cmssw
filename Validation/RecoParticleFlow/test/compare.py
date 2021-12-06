@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import os
 import ROOT
@@ -25,7 +25,7 @@ def parse_sample_string(ss):
 
     #check that all supplied files are actually ROOT files
     for fi in files:
-        print "Trying to open DQM file {0} for sample {1}".format(fi, name)
+        print("Trying to open DQM file {0} for sample {1}".format(fi, name))
         if not os.path.isfile(fi):
             raise Exception("Could not read DQM file {0}, it does not exist".format(fi))
         tf = ROOT.TFile(fi)
@@ -189,43 +189,42 @@ def doPFCandPlots(files, plots):
 
 
 def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
-    folders = [folder]
+	folders = [folder]
     #plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
     #KH print plots
-    if Offset :
-        plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
-        plotter.append("Offset", folders, PlotFolder(*plots, loopSubFolders=False, page="offset", section=section))
-    elif "JetResponse" in folder :
-        plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
-        plotter.append("ParticleFlow/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="pf", section=section))
-        for plot in plots:
-            plot.setProperties(ncols=3)
-	    plot.setProperties(legendDw=-0.68)
-	    plot.setProperties(legendDh=0.005)
-	    plot.setProperties(legendDy=0.24)
-	    plot.setProperties(legendDx=0.05)
-    elif "JetMET" in folder:
-        for h in histograms:
-            plots = [PlotGroup(h, [Plot(h, **opts)])]
-        for plot in plots:
-            plot.setProperties(legendDw=-0.5)
-            plot.setProperties(legendDh=0.01)
-            plot.setProperties(legendDy=0.24)
-            plot.setProperties(legendDx=0.05)
-        plotter.append("JetMET" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="JetMET", section=section))
-    if "PackedCandidates" in folder:
-        for h in histograms:
-            if ("PtMid" in h or "PtHigh" in h):
-                plots = [PlotGroup(h, [Plot(h, ymin = pow(10,-1), ylog = True)])]
-            else:
-                plots = [PlotGroup(h, [Plot(h, **opts)])]
-
-        for plot in plots:
-            plot.setProperties(legendDw=-0.5)
-            plot.setProperties(legendDh=0.01)
-            plot.setProperties(legendDy=0.24)
-            plot.setProperties(legendDx=0.05)
-        plotter.append("ParticleFlow/PackedCandidates/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="PackedCandidates", section= section))
+	if Offset :
+		plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
+		plotter.append("Offset", folders, PlotFolder(*plots, loopSubFolders=False, page="offset", section=section))
+	elif "JetResponse" in folder :
+		plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
+		plotter.append("ParticleFlow/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="pf", section=section))
+		for plot in plots:
+			plot.setProperties(ncols=3)
+			plot.setProperties(legendDw=-0.68)
+			plot.setProperties(legendDh=0.005)
+			plot.setProperties(legendDy=0.24)
+			plot.setProperties(legendDx=0.05)
+	elif "JetMET" in folder:
+		for h in histograms:
+			plots = [PlotGroup(h, [Plot(h, **opts)])]
+		for plot in plots:
+			plot.setProperties(legendDw=-0.5)
+			plot.setProperties(legendDh=0.01)
+			plot.setProperties(legendDy=0.24)
+			plot.setProperties(legendDx=0.05)
+		plotter.append("JetMET" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="JetMET", section=section))
+	if "PackedCandidates" in folder:
+		for h in histograms:
+			if ("PtMid" in h or "PtHigh" in h):
+				plots = [PlotGroup(h, [Plot(h, ymin = pow(10,-1), ylog = True)])]
+			else:
+				plots = [PlotGroup(h, [Plot(h, **opts)])]
+		for plot in plots:
+			plot.setProperties(legendDw=-0.5)
+			plot.setProperties(legendDh=0.01)
+			plot.setProperties(legendDy=0.24)
+			plot.setProperties(legendDx=0.05)
+		plotter.append("ParticleFlow/PackedCandidates/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="PackedCandidates", section= section))
 
 
 def main():
@@ -260,7 +259,7 @@ def main():
         fullJetFolder = "DQMData/Run 1/ParticleFlow/Run summary/{0}".format(folder)
         fullMETFolder = "DQMData/Run 1/JetMET/Run summary/{0}".format(folder)
         fullPFCandFolder = "DQMData/Run 1/ParticleFlow/Run summary/PackedCandidates/{0}".format(folder)
-        print "Booking histogram group {0}={1} from folder {2}".format(name, histograms, folder)
+        print("Booking histogram group {0}={1} from folder {2}".format(name, histograms, folder))
         if "Offset/" in folder:
             opts = {'xtitle':'Default', 'ytitle':'Default'}
             addPlots(plotter, fullJetFolder, name, folder, histograms, opts, True)

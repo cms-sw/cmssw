@@ -33,7 +33,7 @@
 
 class AlignmentMonitorMuonSystemMap1D : public AlignmentMonitorBase {
 public:
-  AlignmentMonitorMuonSystemMap1D(const edm::ParameterSet &cfg);
+  AlignmentMonitorMuonSystemMap1D(const edm::ParameterSet &cfg, edm::ConsumesCollector iC);
   ~AlignmentMonitorMuonSystemMap1D() override {}
 
   void book() override;
@@ -46,6 +46,13 @@ public:
   void afterAlignment() override;
 
 private:
+  // es token
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_esTokenGBTGeom;
+  const edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> m_esTokenDetId;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> m_esTokenProp;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_esTokenMF;
+  const MuonResidualsFromTrack::BuilderToken m_esTokenBuilder;
+
   // parameters
   edm::InputTag m_muonCollectionTag;
   double m_minTrackPt;
@@ -142,8 +149,14 @@ private:
   UInt_t m_run;
 };
 
-AlignmentMonitorMuonSystemMap1D::AlignmentMonitorMuonSystemMap1D(const edm::ParameterSet &cfg)
-    : AlignmentMonitorBase(cfg, "AlignmentMonitorMuonSystemMap1D"),
+AlignmentMonitorMuonSystemMap1D::AlignmentMonitorMuonSystemMap1D(const edm::ParameterSet &cfg,
+                                                                 edm::ConsumesCollector iC)
+    : AlignmentMonitorBase(cfg, iC, "AlignmentMonitorMuonSystemMap1D"),
+      m_esTokenGBTGeom(iC.esConsumes()),
+      m_esTokenDetId(iC.esConsumes(edm::ESInputTag("", "MuonDetIdAssociator"))),
+      m_esTokenProp(iC.esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
+      m_esTokenMF(iC.esConsumes()),
+      m_esTokenBuilder(iC.esConsumes(MuonResidualsFromTrack::builderESInputTag())),
       m_muonCollectionTag(cfg.getParameter<edm::InputTag>("muonCollectionTag")),
       m_minTrackPt(cfg.getParameter<double>("minTrackPt")),
       m_maxTrackPt(cfg.getParameter<double>("maxTrackPt")),
@@ -253,20 +266,14 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent,
                                             const ConstTrajTrackPairCollection &trajtracks) {
   m_counter_event++;
 
-  edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
-
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByLabel(m_beamSpotTag, beamSpot);
 
-  edm::ESHandle<DetIdAssociator> muonDetIdAssociator_;
-  iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator_);
-
-  edm::ESHandle<Propagator> prop;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", prop);
-
-  edm::ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const GlobalTrackingGeometry *globalGeometry = &iSetup.getData(m_esTokenGBTGeom);
+  const DetIdAssociator *muonDetIdAssociator_ = &iSetup.getData(m_esTokenDetId);
+  const Propagator *prop = &iSetup.getData(m_esTokenProp);
+  const MagneticField *magneticField = &iSetup.getData(m_esTokenMF);
+  auto builder = iSetup.getHandle(m_esTokenBuilder);
 
   if (m_muonCollectionTag.label().empty())  // use trajectories
   {
@@ -283,7 +290,7 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent,
           m_counter_trackdxy++;
 
           MuonResidualsFromTrack muonResidualsFromTrack(
-              iSetup, magneticField, globalGeometry, muonDetIdAssociator_, prop, traj, track, pNavigator(), 1000.);
+              builder, magneticField, globalGeometry, muonDetIdAssociator_, prop, traj, track, pNavigator(), 1000.);
           processMuonResidualsFromTrack(muonResidualsFromTrack, iEvent);
         }
       }  // end if track has acceptable momentum

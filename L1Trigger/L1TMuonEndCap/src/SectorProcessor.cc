@@ -105,7 +105,9 @@ void SectorProcessor::process_single_bx(int bx,
                       cfg.fixZonePhi_,
                       cfg.useNewZones_,
                       cfg.fixME11Edges_,
-                      cfg.bugME11Dupes_);
+                      cfg.bugME11Dupes_,
+                      cfg.useRun3CCLUT_OTMB_,
+                      cfg.useRun3CCLUT_TMB_);
 
   PatternRecognition patt_recog;
   patt_recog.configure(verbose_,

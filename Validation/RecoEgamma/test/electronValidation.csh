@@ -31,7 +31,7 @@
 # 
 # VAL_HISTOS : name of the file describing the histograms to extract and generate.
 # VAL_ANALYZER : name of the analyzer used.
-# VAL_CONFIGURATION : name of the cmsRun python configuration used.
+# VAL_CONFIGURATION : name of the cmsRun python3 configuration used.
 #
 # DD_SAMPLE : short chosen name for the current dataset ; used in web pages
 #   and used to build the subdirectory where the web pages will be

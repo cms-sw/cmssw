@@ -37,11 +37,11 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // ----------------------- Data Members ----------------------------
   FWCandidateLegoProxyBuilder(const FWCandidateLegoProxyBuilder &) = delete;
   const FWCandidateLegoProxyBuilder &operator=(const FWCandidateLegoProxyBuilder &) = delete;
 
+private:
   // --------------------- Member Functions --------------------------
   using FWSimpleProxyBuilderTemplate<reco::Candidate>::build;
   void build(const reco::Candidate &, unsigned int, TEveElement &, const FWViewContext *) override;

@@ -10,6 +10,7 @@
   <use name="DataFormats/METReco"/>
   <use name="DataFormats/TauReco"/>
   <use name="DataFormats/TrackReco"/>
+  <use name="DataFormats/HGCalReco"/>
   <use name="Fireworks/Calo"/>
   <use name="Fireworks/Core"/>
   <use name="rootinteractive"/>

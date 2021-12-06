@@ -1077,9 +1077,6 @@ void ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetu
       for (auto& i_sector : m_tkSector_) {
         delete a_sectorName[i_sector.first];
       }
-      delete sectorNameTree;
-      delete defaultTreeX;
-      delete defaultTreeY;
     }
 
     firstEvent = false;

@@ -3,7 +3,6 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from CondTools.DQM.DQMReferenceHistogramRootFileEventSetupAnalyzer_cfi import *
 from DQMServices.Components.DQMMessageLoggerClient_cff import *
 
 from DQMOffline.Ecal.ecal_dqm_client_offline_cff import *
@@ -30,8 +29,7 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence(
                                             #dqmFEDIntegrityClient
                                              
 
-DQMOffline_SecondStepDPG = cms.Sequence( #dqmRefHistoRootFileGetter *
-                                         DQMOffline_SecondStep_PreDPG *
+DQMOffline_SecondStepDPG = cms.Sequence( DQMOffline_SecondStep_PreDPG *
                                          DQMMessageLoggerClientSeq )
 
 
@@ -54,12 +52,10 @@ from DQMOffline.JetMET.SusyPostProcessor_cff import *
 
 DQMOffline_SecondStep_PrePOG = cms.Sequence( muonQualityTests )
 
-DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
-                                         DQMOffline_SecondStep_PrePOG *
+DQMOffline_SecondStepPOG = cms.Sequence( DQMOffline_SecondStep_PrePOG *
                                          DQMMessageLoggerClientSeq )
 
-DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
-                                      DQMOffline_SecondStep_PreDPG *
+DQMOffline_SecondStep = cms.Sequence( DQMOffline_SecondStep_PreDPG *
                                       DQMOffline_SecondStep_PrePOG *
                                       DQMMessageLoggerClientSeq )
 

@@ -18,7 +18,7 @@ namespace l1t {
                double etHad,
                double eta,
                double phi,
-               unsigned short id,
+               uint32_t id,
                int hwpt = 0,
                int hweta = 0,
                int hwphi = 0,

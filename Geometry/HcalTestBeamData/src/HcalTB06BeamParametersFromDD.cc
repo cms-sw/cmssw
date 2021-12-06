@@ -7,8 +7,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HcalTestBeamData/interface/HcalTB06BeamParametersFromDD.h"
 
-#define EDM_ML_DEBUG
-
 bool HcalTB06BeamParametersFromDD::build(const DDCompactView* cpv,
                                          HcalTB06BeamParameters& php,
                                          const std::string& name1,

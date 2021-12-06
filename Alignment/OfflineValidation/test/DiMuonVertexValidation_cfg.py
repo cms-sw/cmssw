@@ -160,22 +160,27 @@ process.GlobalTag.toGet = cms.VPSet(
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 #process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+#process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 ###################################################################
 # Messages
 ###################################################################
 process.load('FWCore.MessageService.MessageLogger_cfi')   
 process.MessageLogger.cerr.enable = False
-process.MessageLogger.DiMuonVertexValidation=dict()  
+process.MessageLogger.TrackRefitter=dict()
+process.MessageLogger.PrimaryVertexProducer=dict()
+process.MessageLogger.DiMuonVertexValidation=dict()
+process.MessageLogger.DiLeptonHelpCounts=dict()
+process.MessageLogger.PlotsVsKinematics=dict()
 process.MessageLogger.cout = cms.untracked.PSet(
     enable = cms.untracked.bool(True),
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
-                                   reportEvery = cms.untracked.int32(1000)
+                                   reportEvery = cms.untracked.int32(100)
                                    ),                                                      
     DiMuonVertexValidation = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    DiLeptonHelpCounts = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     enableStatistics = cms.untracked.bool(True)
     )
 
@@ -214,6 +219,7 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 import RecoTracker.TrackProducer.TrackRefitters_cff
 process.TrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
 process.TrackRefitter.src = "generalTracks"
+#process.TrackRefitter.src = "ALCARECOTkAlDiMuonVertexTracks"
 process.TrackRefitter.TrajectoryInEvent = True
 process.TrackRefitter.NavigationSchool = ''
 process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
@@ -240,8 +246,11 @@ process.TFileService = cms.Service("TFileService",fileName=cms.string("DiMuonVer
 
 # Additional output definition
 process.analysis = cms.EDAnalyzer("DiMuonVertexValidation",
+                                  useReco = cms.bool(True),
+                                  ## the two parameters below are mutually exclusive,
+                                  ## depending if RECO or ALCARECO is used
                                   muons  = cms.InputTag('muons'),
-                                  #tracks = cms.InputTag('generalTracks'),
+                                  #muonTracks = cms.InputTag('ALCARECOTkAlDiMuon'),
                                   tracks = cms.InputTag('TrackRefitter'),
                                   vertices = cms.InputTag('offlinePrimaryVerticesFromRefittedTrks'))
 
@@ -250,4 +259,5 @@ process.analysis = cms.EDAnalyzer("DiMuonVertexValidation",
 ####################################################################
 process.p = cms.Path(process.seqTrackselRefit                        +
                      process.offlinePrimaryVerticesFromRefittedTrks  +
-                     process.analysis)
+                     process.analysis
+                     )

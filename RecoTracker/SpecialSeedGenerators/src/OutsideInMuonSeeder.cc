@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -62,22 +61,23 @@ private:
   /// How much to rescale errors from STA
   const double errorRescaling_;
 
-  const std::string trackerPropagatorName_;
-  const std::string muonPropagatorName_;
-  edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerTag_;
-  const std::string measurementTrackerName_;
-  const std::string estimatorName_;
-  const std::string updatorName_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> trackerPropagatorToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> muonPropagatorToken_;
+  const edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerTag_;
+  const edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estimatorToken_;
+  const edm::ESGetToken<TrajectoryStateUpdator, TrackingComponentsRecord> updatorToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geometryToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeometryToken_;
 
   float const minEtaForTEC_;
   float const maxEtaForTOB_;
 
-  edm::ESHandle<MagneticField> magfield_;
-  edm::ESHandle<Propagator> muonPropagator_;
-  edm::ESHandle<Propagator> trackerPropagator_;
-  edm::ESHandle<GlobalTrackingGeometry> geometry_;
-  edm::ESHandle<Chi2MeasurementEstimatorBase> estimator_;
-  edm::ESHandle<TrajectoryStateUpdator> updator_;
+  const MagneticField *magfield_;
+  const Propagator *muonPropagator_;
+  const GlobalTrackingGeometry *geometry_;
+  const Chi2MeasurementEstimatorBase *estimator_;
+  const TrajectoryStateUpdator *updator_;
 
   /// Dump deug information
   const bool debug_;
@@ -98,11 +98,14 @@ OutsideInMuonSeeder::OutsideInMuonSeeder(const edm::ParameterSet &iConfig)
       hitsToTry_(iConfig.getParameter<int32_t>("hitsToTry")),
       fromVertex_(iConfig.getParameter<bool>("fromVertex")),
       errorRescaling_(iConfig.getParameter<double>("errorRescaleFactor")),
-      trackerPropagatorName_(iConfig.getParameter<std::string>("trackerPropagator")),
-      muonPropagatorName_(iConfig.getParameter<std::string>("muonPropagator")),
+      trackerPropagatorToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("trackerPropagator")))),
+      muonPropagatorToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("muonPropagator")))),
       measurementTrackerTag_(consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvent"))),
-      estimatorName_(iConfig.getParameter<std::string>("hitCollector")),
-      updatorName_("KFUpdator"),
+      estimatorToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("hitCollector")))),
+      updatorToken_(esConsumes(edm::ESInputTag("", "KFUpdator"))),
+      magfieldToken_(esConsumes()),
+      geometryToken_(esConsumes()),
+      tkGeometryToken_(esConsumes()),
       minEtaForTEC_(iConfig.getParameter<double>("minEtaForTEC")),
       maxEtaForTOB_(iConfig.getParameter<double>("maxEtaForTOB")),
       debug_(iConfig.getUntrackedParameter<bool>("debug", false)) {
@@ -113,18 +116,17 @@ void OutsideInMuonSeeder::produce(edm::Event &iEvent, const edm::EventSetup &iSe
   using namespace edm;
   using namespace std;
 
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
-  iSetup.get<TrackingComponentsRecord>().get(trackerPropagatorName_, trackerPropagator_);
-  iSetup.get<TrackingComponentsRecord>().get(muonPropagatorName_, muonPropagator_);
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
-  iSetup.get<TrackingComponentsRecord>().get(estimatorName_, estimator_);
-  iSetup.get<TrackingComponentsRecord>().get(updatorName_, updator_);
+  magfield_ = &iSetup.getData(magfieldToken_);
+  auto const &trackerPropagator = iSetup.getData(trackerPropagatorToken_);
+  muonPropagator_ = &iSetup.getData(muonPropagatorToken_);
+  geometry_ = &iSetup.getData(geometryToken_);
+  estimator_ = &iSetup.getData(estimatorToken_);
+  updator_ = &iSetup.getData(updatorToken_);
 
   Handle<MeasurementTrackerEvent> measurementTracker;
   iEvent.getByToken(measurementTrackerTag_, measurementTracker);
 
-  ESHandle<TrackerGeometry> tmpTkGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometry);
+  const auto &tmpTkGeometry = iSetup.getData(tkGeometryToken_);
 
   Handle<View<reco::Muon>> src;
   iEvent.getByToken(src_, src);
@@ -142,7 +144,7 @@ void OutsideInMuonSeeder::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     // very same direction every single time.
     std::unique_ptr<Propagator> pmuon_cloned =
         SetPropagationDirection(*muonPropagator_, fromVertex_ ? alongMomentum : oppositeToMomentum);
-    std::unique_ptr<Propagator> ptracker_cloned = SetPropagationDirection(*trackerPropagator_, alongMomentum);
+    std::unique_ptr<Propagator> ptracker_cloned = SetPropagationDirection(trackerPropagator, alongMomentum);
 
     int sizeBefore = out->size();
     if (debug_)
@@ -151,8 +153,8 @@ void OutsideInMuonSeeder::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     const reco::Track &tk = *mu.outerTrack();
 
     TrajectoryStateOnSurface state =
-        fromVertex_ ? TrajectoryStateOnSurface(trajectoryStateTransform::initialFreeState(tk, magfield_.product()))
-                    : trajectoryStateTransform::innerStateOnSurface(tk, *geometry_, magfield_.product());
+        fromVertex_ ? TrajectoryStateOnSurface(trajectoryStateTransform::initialFreeState(tk, magfield_))
+                    : trajectoryStateTransform::innerStateOnSurface(tk, *geometry_, magfield_);
 
     if (std::abs(tk.eta()) < maxEtaForTOB_) {
       std::vector<BarrelDetLayer const *> const &tob = measurementTracker->geometricSearchTracker()->tobLayers();
@@ -171,10 +173,10 @@ void OutsideInMuonSeeder::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       }
     }
     if (tk.eta() > minEtaForTEC_) {
-      const auto &forwLayers = tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC)
+      const auto &forwLayers = tmpTkGeometry.isThere(GeomDetEnumerators::P2OTEC)
                                    ? measurementTracker->geometricSearchTracker()->posTidLayers()
                                    : measurementTracker->geometricSearchTracker()->posTecLayers();
-      if (tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC)) {
+      if (tmpTkGeometry.isThere(GeomDetEnumerators::P2OTEC)) {
         LogDebug("OutsideInMuonSeeder") << "\n We are using the Phase2 Outer Tracker (defined as a TID+). ";
       }
       LogTrace("OutsideInMuonSeeder") << "\n ==== TEC+ tot layers " << forwLayers.size() << " ====" << std::endl;
@@ -195,10 +197,10 @@ void OutsideInMuonSeeder::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       }
     }
     if (tk.eta() < -minEtaForTEC_) {
-      const auto &forwLayers = tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC)
+      const auto &forwLayers = tmpTkGeometry.isThere(GeomDetEnumerators::P2OTEC)
                                    ? measurementTracker->geometricSearchTracker()->negTidLayers()
                                    : measurementTracker->geometricSearchTracker()->negTecLayers();
-      if (tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC)) {
+      if (tmpTkGeometry.isThere(GeomDetEnumerators::P2OTEC)) {
         LogDebug("OutsideInMuonSeeder") << "\n We are using the Phase2 Outer Tracker (defined as a TID-). ";
       }
       LogTrace("OutsideInMuonSeeder") << "\n ==== TEC- tot layers " << forwLayers.size() << " ====" << std::endl;
@@ -295,7 +297,7 @@ int OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer,
 }
 
 void OutsideInMuonSeeder::doDebug(const reco::Track &tk) const {
-  TrajectoryStateOnSurface tsos = trajectoryStateTransform::innerStateOnSurface(tk, *geometry_, &*magfield_);
+  TrajectoryStateOnSurface tsos = trajectoryStateTransform::innerStateOnSurface(tk, *geometry_, magfield_);
   std::unique_ptr<Propagator> pmuon_cloned = SetPropagationDirection(*muonPropagator_, alongMomentum);
   for (unsigned int i = 0; i < tk.recHitsSize(); ++i) {
     const TrackingRecHit *hit = &*tk.recHit(i);

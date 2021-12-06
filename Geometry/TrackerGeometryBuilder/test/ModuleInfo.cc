@@ -22,7 +22,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -64,24 +63,25 @@ using namespace cms_rounding;
 class ModuleInfo : public edm::one::EDAnalyzer<> {
 public:
   explicit ModuleInfo(const edm::ParameterSet&);
-  ~ModuleInfo() override;
 
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
 
 private:
   bool fromDDD_;
   bool printDDD_;
   double tolerance_;
+  edm::ESGetToken<GeometricDet, IdealGeometryRecord> rDDToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 };
 
 ModuleInfo::ModuleInfo(const edm::ParameterSet& ps)
     : fromDDD_(ps.getParameter<bool>("fromDDD")),
       printDDD_(ps.getUntrackedParameter<bool>("printDDD", true)),
-      tolerance_(ps.getUntrackedParameter<double>("tolerance", 1.e-23)) {}
-
-ModuleInfo::~ModuleInfo() {}
+      tolerance_(ps.getUntrackedParameter<double>("tolerance", 1.e-23)),
+      rDDToken_(esConsumes()),
+      pDDToken_(esConsumes()),
+      tTopoToken_(esConsumes()) {}
 
 // ------------ method called to produce the data  ------------
 void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -91,23 +91,21 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   std::ofstream Output("ModuleInfo.log", std::ios::out);
   // TEC output as Martin Weber's
   std::ofstream TECOutput("TECLayout_CMSSW.dat", std::ios::out);
+  TECOutput << std::fixed << std::setprecision(4);
+
   // Numbering Scheme
   std::ofstream NumberingOutput("ModuleNumbering.dat", std::ios::out);
 
   // get the GeometricDet
   //
-  edm::ESHandle<GeometricDet> rDD;
-  iSetup.get<IdealGeometryRecord>().get(rDD);
+  auto const& rDD = iSetup.getData(rDDToken_);
 
-  edm::LogInfo("ModuleInfo") << " Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
-  edm::LogInfo("ModuleInfo") << " And Contains  Daughters: " << rDD.product()->deepComponents().size() << std::endl;
+  edm::LogInfo("ModuleInfo") << " Top node is  " << &rDD << " " << rDD.name() << std::endl;
+  edm::LogInfo("ModuleInfo") << " And Contains  Daughters: " << rDD.deepComponents().size() << std::endl;
   //
   //first instance tracking geometry
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  edm::ESHandle<TrackerTopology> tTopo_handle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo_handle);
-  const TrackerTopology* tTopo = tTopo_handle.product();
+  auto const& pDD = iSetup.getData(pDDToken_);
+  const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
   //
 
   // counters
@@ -147,7 +145,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   unsigned int tec_r6_rphiN = 0;
   unsigned int tec_r7_rphiN = 0;
 
-  std::vector<const GeometricDet*> modules = (*rDD).deepComponents();
+  std::vector<const GeometricDet*> modules = rDD.deepComponents();
   Output << "************************ List of modules with positions ************************" << std::endl;
 
   for (auto& module : modules) {
@@ -399,7 +397,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 
     // Local axes from Reco
-    const GeomDet* geomdet = pDD->idToDet(module->geographicalId());
+    const GeomDet* geomdet = pDD.idToDet(module->geographicalId());
     // Global Coordinates (i,j,k)
     LocalVector xLocal(1, 0, 0);
     LocalVector yLocal(0, 1, 0);

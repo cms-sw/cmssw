@@ -29,10 +29,20 @@ public:
     edm::EDGetTokenT<edm::ValueMap<float>> tok_e2x5Max;
     edm::EDGetTokenT<edm::ValueMap<float>> tok_e5x5;
     edm::EDGetTokenT<edm::ValueMap<float>> tok_r9;
-    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalDepth1OverEcal;
-    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalDepth2OverEcal;
-    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalDepth1OverEcalBc;
-    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalDepth2OverEcalBc;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth1;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth2;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth3;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth4;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth5;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth6;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth7;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth1;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth2;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth3;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth4;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth5;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth6;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth7;
   };
 
   struct photon_config {
@@ -44,10 +54,20 @@ public:
     edm::EDGetTokenT<edm::ValueMap<float>> tok_e3x3;
     edm::EDGetTokenT<edm::ValueMap<float>> tok_e5x5;
     edm::EDGetTokenT<edm::ValueMap<float>> tok_maxEnergyXtal;
-    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalDepth1OverEcal;
-    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalDepth2OverEcal;
-    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalDepth1OverEcalBc;
-    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalDepth2OverEcalBc;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth1;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth2;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth3;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth4;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth5;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth6;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalDepth7;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth1;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth2;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth3;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth4;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth5;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth6;
+    edm::EDGetTokenT<edm::ValueMap<float>> tok_hcalOverEcalBcDepth7;
   };
 
   EGFull5x5ShowerShapeModifierFromValueMaps(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
@@ -93,14 +113,34 @@ EGFull5x5ShowerShapeModifierFromValueMaps::EGFull5x5ShowerShapeModifierFromValue
       make_consumes(electrons.getParameter<edm::InputTag>("e5x5"), e_conf.tok_e5x5, cc);
     if (electrons.exists("r9"))
       make_consumes(electrons.getParameter<edm::InputTag>("r9"), e_conf.tok_r9, cc);
-    if (electrons.exists("hcalDepth1OverEcal"))
-      make_consumes(electrons.getParameter<edm::InputTag>("hcalDepth1OverEcal"), e_conf.tok_hcalDepth1OverEcal, cc);
-    if (electrons.exists("hcalDepth2OverEcal"))
-      make_consumes(electrons.getParameter<edm::InputTag>("hcalDepth2OverEcal"), e_conf.tok_hcalDepth2OverEcal, cc);
-    if (electrons.exists("hcalDepth1OverEcalBc"))
-      make_consumes(electrons.getParameter<edm::InputTag>("hcalDepth1OverEcalBc"), e_conf.tok_hcalDepth1OverEcalBc, cc);
-    if (electrons.exists("hcalDepth2OverEcalBc"))
-      make_consumes(electrons.getParameter<edm::InputTag>("hcalDepth2OverEcalBc"), e_conf.tok_hcalDepth2OverEcalBc, cc);
+    if (electrons.exists("hcalOverEcalDepth1"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalDepth1"), e_conf.tok_hcalOverEcalDepth1, cc);
+    if (electrons.exists("hcalOverEcalDepth2"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalDepth2"), e_conf.tok_hcalOverEcalDepth2, cc);
+    if (electrons.exists("hcalOverEcalDepth3"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalDepth3"), e_conf.tok_hcalOverEcalDepth3, cc);
+    if (electrons.exists("hcalOverEcalDepth4"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalDepth4"), e_conf.tok_hcalOverEcalDepth4, cc);
+    if (electrons.exists("hcalOverEcalDepth5"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalDepth5"), e_conf.tok_hcalOverEcalDepth5, cc);
+    if (electrons.exists("hcalOverEcalDepth6"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalDepth6"), e_conf.tok_hcalOverEcalDepth6, cc);
+    if (electrons.exists("hcalOverEcalDepth7"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalDepth7"), e_conf.tok_hcalOverEcalDepth7, cc);
+    if (electrons.exists("hcalOverEcalBcDepth1"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalBcDepth1"), e_conf.tok_hcalOverEcalBcDepth1, cc);
+    if (electrons.exists("hcalOverEcalBcDepth2"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalBcDepth2"), e_conf.tok_hcalOverEcalBcDepth2, cc);
+    if (electrons.exists("hcalOverEcalBcDepth3"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalBcDepth3"), e_conf.tok_hcalOverEcalBcDepth3, cc);
+    if (electrons.exists("hcalOverEcalBcDepth4"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalBcDepth4"), e_conf.tok_hcalOverEcalBcDepth4, cc);
+    if (electrons.exists("hcalOverEcalBcDepth5"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalBcDepth5"), e_conf.tok_hcalOverEcalBcDepth5, cc);
+    if (electrons.exists("hcalOverEcalBcDepth6"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalBcDepth6"), e_conf.tok_hcalOverEcalBcDepth6, cc);
+    if (electrons.exists("hcalOverEcalBcDepth7"))
+      make_consumes(electrons.getParameter<edm::InputTag>("hcalOverEcalBcDepth7"), e_conf.tok_hcalOverEcalBcDepth7, cc);
   }
   if (conf.exists("photon_config")) {
     auto const& photons = conf.getParameterSet("photon_config");
@@ -120,14 +160,34 @@ EGFull5x5ShowerShapeModifierFromValueMaps::EGFull5x5ShowerShapeModifierFromValue
       make_consumes(photons.getParameter<edm::InputTag>("e5x5"), ph_conf.tok_e5x5, cc);
     if (photons.exists("maxEnergyXtal"))
       make_consumes(photons.getParameter<edm::InputTag>("maxEnergyXtal"), ph_conf.tok_maxEnergyXtal, cc);
-    if (photons.exists("hcalDepth1OverEcal"))
-      make_consumes(photons.getParameter<edm::InputTag>("hcalDepth1OverEcal"), ph_conf.tok_hcalDepth1OverEcal, cc);
-    if (photons.exists("hcalDepth2OverEcal"))
-      make_consumes(photons.getParameter<edm::InputTag>("hcalDepth2OverEcal"), ph_conf.tok_hcalDepth2OverEcal, cc);
-    if (photons.exists("hcalDepth1OverEcalBc"))
-      make_consumes(photons.getParameter<edm::InputTag>("hcalDepth1OverEcalBc"), ph_conf.tok_hcalDepth1OverEcalBc, cc);
-    if (photons.exists("hcalDepth2OverEcalBc"))
-      make_consumes(photons.getParameter<edm::InputTag>("hcalDepth2OverEcalBc"), ph_conf.tok_hcalDepth2OverEcalBc, cc);
+    if (photons.exists("hcalOverEcalDepth1"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalDepth1"), ph_conf.tok_hcalOverEcalDepth1, cc);
+    if (photons.exists("hcalOverEcalDepth2"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalDepth2"), ph_conf.tok_hcalOverEcalDepth2, cc);
+    if (photons.exists("hcalOverEcalDepth3"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalDepth3"), ph_conf.tok_hcalOverEcalDepth3, cc);
+    if (photons.exists("hcalOverEcalDepth4"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalDepth4"), ph_conf.tok_hcalOverEcalDepth4, cc);
+    if (photons.exists("hcalOverEcalDepth5"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalDepth5"), ph_conf.tok_hcalOverEcalDepth5, cc);
+    if (photons.exists("hcalOverEcalDepth6"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalDepth6"), ph_conf.tok_hcalOverEcalDepth6, cc);
+    if (photons.exists("hcalOverEcalDepth7"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalDepth7"), ph_conf.tok_hcalOverEcalDepth7, cc);
+    if (photons.exists("hcalOverEcalBcDepth1"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalBcDepth1"), ph_conf.tok_hcalOverEcalBcDepth1, cc);
+    if (photons.exists("hcalOverEcalBcDepth2"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalBcDepth2"), ph_conf.tok_hcalOverEcalBcDepth2, cc);
+    if (photons.exists("hcalOverEcalBcDepth3"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalBcDepth3"), ph_conf.tok_hcalOverEcalBcDepth3, cc);
+    if (photons.exists("hcalOverEcalBcDepth4"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalBcDepth4"), ph_conf.tok_hcalOverEcalBcDepth4, cc);
+    if (photons.exists("hcalOverEcalBcDepth5"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalBcDepth5"), ph_conf.tok_hcalOverEcalBcDepth5, cc);
+    if (photons.exists("hcalOverEcalBcDepth6"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalBcDepth6"), ph_conf.tok_hcalOverEcalBcDepth6, cc);
+    if (photons.exists("hcalOverEcalBcDepth7"))
+      make_consumes(photons.getParameter<edm::InputTag>("hcalOverEcalBcDepth7"), ph_conf.tok_hcalOverEcalBcDepth7, cc);
   }
 
   ele_idx = pho_idx = 0;
@@ -164,10 +224,20 @@ void EGFull5x5ShowerShapeModifierFromValueMaps::setEvent(const edm::Event& evt) 
   get_product(evt, e_conf.tok_e2x5Max, ele_vmaps);
   get_product(evt, e_conf.tok_e5x5, ele_vmaps);
   get_product(evt, e_conf.tok_r9, ele_vmaps);
-  get_product(evt, e_conf.tok_hcalDepth1OverEcal, ele_vmaps);
-  get_product(evt, e_conf.tok_hcalDepth2OverEcal, ele_vmaps);
-  get_product(evt, e_conf.tok_hcalDepth1OverEcalBc, ele_vmaps);
-  get_product(evt, e_conf.tok_hcalDepth2OverEcalBc, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalDepth1, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalDepth2, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalDepth3, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalDepth4, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalDepth5, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalDepth6, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalDepth7, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalBcDepth1, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalBcDepth2, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalBcDepth3, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalBcDepth4, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalBcDepth5, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalBcDepth6, ele_vmaps);
+  get_product(evt, e_conf.tok_hcalOverEcalBcDepth7, ele_vmaps);
 
   if (!ph_conf.tok_photon_src.isUninitialized()) {
     auto phos = evt.getHandle(ph_conf.tok_photon_src);
@@ -183,10 +253,20 @@ void EGFull5x5ShowerShapeModifierFromValueMaps::setEvent(const edm::Event& evt) 
   get_product(evt, ph_conf.tok_e3x3, pho_vmaps);
   get_product(evt, ph_conf.tok_e5x5, pho_vmaps);
   get_product(evt, ph_conf.tok_maxEnergyXtal, pho_vmaps);
-  get_product(evt, ph_conf.tok_hcalDepth1OverEcal, pho_vmaps);
-  get_product(evt, ph_conf.tok_hcalDepth2OverEcal, pho_vmaps);
-  get_product(evt, ph_conf.tok_hcalDepth1OverEcalBc, pho_vmaps);
-  get_product(evt, ph_conf.tok_hcalDepth2OverEcalBc, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalDepth1, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalDepth2, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalDepth3, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalDepth4, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalDepth5, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalDepth6, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalDepth7, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalBcDepth1, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalBcDepth2, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalBcDepth3, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalBcDepth4, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalBcDepth5, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalBcDepth6, pho_vmaps);
+  get_product(evt, ph_conf.tok_hcalOverEcalBcDepth7, pho_vmaps);
 }
 
 namespace {
@@ -218,10 +298,20 @@ void EGFull5x5ShowerShapeModifierFromValueMaps::modifyObject(pat::Electron& ele)
   assignValue(ptr, e_conf.tok_e2x5Max, ele_vmaps, full5x5.e2x5Max);
   assignValue(ptr, e_conf.tok_e5x5, ele_vmaps, full5x5.e5x5);
   assignValue(ptr, e_conf.tok_r9, ele_vmaps, full5x5.r9);
-  assignValue(ptr, e_conf.tok_hcalDepth1OverEcal, ele_vmaps, full5x5.hcalDepth1OverEcal);
-  assignValue(ptr, e_conf.tok_hcalDepth2OverEcal, ele_vmaps, full5x5.hcalDepth2OverEcal);
-  assignValue(ptr, e_conf.tok_hcalDepth1OverEcalBc, ele_vmaps, full5x5.hcalDepth1OverEcalBc);
-  assignValue(ptr, e_conf.tok_hcalDepth2OverEcalBc, ele_vmaps, full5x5.hcalDepth2OverEcalBc);
+  assignValue(ptr, e_conf.tok_hcalOverEcalDepth1, ele_vmaps, full5x5.hcalOverEcal[0]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalDepth2, ele_vmaps, full5x5.hcalOverEcal[1]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalDepth3, ele_vmaps, full5x5.hcalOverEcal[2]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalDepth4, ele_vmaps, full5x5.hcalOverEcal[3]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalDepth5, ele_vmaps, full5x5.hcalOverEcal[4]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalDepth6, ele_vmaps, full5x5.hcalOverEcal[5]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalDepth7, ele_vmaps, full5x5.hcalOverEcal[6]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalBcDepth1, ele_vmaps, full5x5.hcalOverEcalBc[0]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalBcDepth2, ele_vmaps, full5x5.hcalOverEcalBc[1]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalBcDepth3, ele_vmaps, full5x5.hcalOverEcalBc[2]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalBcDepth4, ele_vmaps, full5x5.hcalOverEcalBc[3]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalBcDepth5, ele_vmaps, full5x5.hcalOverEcalBc[4]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalBcDepth6, ele_vmaps, full5x5.hcalOverEcalBc[5]);
+  assignValue(ptr, e_conf.tok_hcalOverEcalBcDepth7, ele_vmaps, full5x5.hcalOverEcalBc[6]);
 
   ele.full5x5_setShowerShape(full5x5);
   ++ele_idx;
@@ -248,10 +338,20 @@ void EGFull5x5ShowerShapeModifierFromValueMaps::modifyObject(pat::Photon& pho) c
   assignValue(ptr, ph_conf.tok_e3x3, pho_vmaps, full5x5.e3x3);
   assignValue(ptr, ph_conf.tok_e5x5, pho_vmaps, full5x5.e5x5);
   assignValue(ptr, ph_conf.tok_maxEnergyXtal, pho_vmaps, full5x5.maxEnergyXtal);
-  assignValue(ptr, ph_conf.tok_hcalDepth1OverEcal, pho_vmaps, full5x5.hcalDepth1OverEcal);
-  assignValue(ptr, ph_conf.tok_hcalDepth2OverEcal, pho_vmaps, full5x5.hcalDepth2OverEcal);
-  assignValue(ptr, ph_conf.tok_hcalDepth1OverEcalBc, pho_vmaps, full5x5.hcalDepth1OverEcalBc);
-  assignValue(ptr, ph_conf.tok_hcalDepth2OverEcalBc, pho_vmaps, full5x5.hcalDepth2OverEcalBc);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalDepth1, pho_vmaps, full5x5.hcalOverEcal[0]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalDepth2, pho_vmaps, full5x5.hcalOverEcal[1]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalDepth3, pho_vmaps, full5x5.hcalOverEcal[2]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalDepth4, pho_vmaps, full5x5.hcalOverEcal[3]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalDepth5, pho_vmaps, full5x5.hcalOverEcal[4]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalDepth6, pho_vmaps, full5x5.hcalOverEcal[5]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalDepth7, pho_vmaps, full5x5.hcalOverEcal[6]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalBcDepth1, pho_vmaps, full5x5.hcalOverEcalBc[0]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalBcDepth2, pho_vmaps, full5x5.hcalOverEcalBc[1]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalBcDepth3, pho_vmaps, full5x5.hcalOverEcalBc[2]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalBcDepth4, pho_vmaps, full5x5.hcalOverEcalBc[3]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalBcDepth5, pho_vmaps, full5x5.hcalOverEcalBc[4]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalBcDepth6, pho_vmaps, full5x5.hcalOverEcalBc[5]);
+  assignValue(ptr, ph_conf.tok_hcalOverEcalBcDepth7, pho_vmaps, full5x5.hcalOverEcalBc[6]);
 
   pho.full5x5_setShowerShapeVariables(full5x5);
   ++pho_idx;

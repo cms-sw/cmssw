@@ -29,6 +29,7 @@ XERCES_CPP_NAMESPACE_USE
 #include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
@@ -45,8 +46,20 @@ XERCES_CPP_NAMESPACE_USE
 //
 // constructors and destructor
 //
-MuonAlignmentInputXML::MuonAlignmentInputXML(const std::string &fileName, std::string idealLabel)
-    : m_fileName(fileName), idealGeometryLabel(idealLabel) {
+MuonAlignmentInputXML::MuonAlignmentInputXML(const std::string &fileName,
+                                             const DTGeometry *dtGeometry,
+                                             const CSCGeometry *cscGeometry,
+                                             const GEMGeometry *gemGeometry,
+                                             const DTGeometry *dtGeometryIdeal,
+                                             const CSCGeometry *cscGeometryIdeal,
+                                             const GEMGeometry *gemGeometryIdeal)
+    : m_fileName(fileName),
+      dtGeometry_(dtGeometry),
+      cscGeometry_(cscGeometry),
+      gemGeometry_(gemGeometry),
+      dtGeometryIdeal_(dtGeometryIdeal),
+      cscGeometryIdeal_(cscGeometryIdeal),
+      gemGeometryIdeal_(gemGeometryIdeal) {
   cms::concurrency::xercesInitialize();
   str_operation = XMLString::transcode("operation");
   str_collection = XMLString::transcode("collection");
@@ -62,6 +75,12 @@ MuonAlignmentInputXML::MuonAlignmentInputXML(const std::string &fileName, std::s
   str_CSCRing = XMLString::transcode("CSCRing");
   str_CSCChamber = XMLString::transcode("CSCChamber");
   str_CSCLayer = XMLString::transcode("CSCLayer");
+  str_GEMEndcap = XMLString::transcode("GEMEndcap");
+  str_GEMStation = XMLString::transcode("GEMStation");
+  str_GEMRing = XMLString::transcode("GEMRing");
+  str_GEMSuperChamber = XMLString::transcode("GEMSuperChamber");
+  str_GEMChamber = XMLString::transcode("GEMChamber");
+  str_GEMEtaPartition = XMLString::transcode("GEMEtaPartition");
   str_setposition = XMLString::transcode("setposition");
   str_setape = XMLString::transcode("setape");
   str_setsurveyerr = XMLString::transcode("setsurveyerr");
@@ -80,6 +99,8 @@ MuonAlignmentInputXML::MuonAlignmentInputXML(const std::string &fileName, std::s
   str_endcap = XMLString::transcode("endcap");
   str_ring = XMLString::transcode("ring");
   str_chamber = XMLString::transcode("chamber");
+  str_superChamber = XMLString::transcode("SuperChamber");
+  str_etaPartition = XMLString::transcode("etaPartition");
   str_axisx = XMLString::transcode("axisx");
   str_axisy = XMLString::transcode("axisy");
   str_axisz = XMLString::transcode("axisz");
@@ -141,6 +162,12 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
   XMLString::release(&str_CSCRing);
   XMLString::release(&str_CSCChamber);
   XMLString::release(&str_CSCLayer);
+  XMLString::release(&str_GEMEndcap);
+  XMLString::release(&str_GEMStation);
+  XMLString::release(&str_GEMRing);
+  XMLString::release(&str_GEMSuperChamber);
+  XMLString::release(&str_GEMChamber);
+  XMLString::release(&str_GEMEtaPartition);
   XMLString::release(&str_setposition);
   XMLString::release(&str_setape);
   XMLString::release(&str_setsurveyerr);
@@ -159,6 +186,8 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
   XMLString::release(&str_endcap);
   XMLString::release(&str_ring);
   XMLString::release(&str_chamber);
+  XMLString::release(&str_superChamber);
+  XMLString::release(&str_etaPartition);
   XMLString::release(&str_axisx);
   XMLString::release(&str_axisy);
   XMLString::release(&str_axisz);
@@ -225,7 +254,10 @@ void MuonAlignmentInputXML::recursiveGetId(std::map<unsigned int, Alignable *> &
         (*ali)->alignableObjectId() == align::AlignableDTSuperLayer ||
         (*ali)->alignableObjectId() == align::AlignableDTLayer ||
         (*ali)->alignableObjectId() == align::AlignableCSCChamber ||
-        (*ali)->alignableObjectId() == align::AlignableCSCLayer) {
+        (*ali)->alignableObjectId() == align::AlignableCSCLayer ||
+        (*ali)->alignableObjectId() == align::AlignableGEMSuperChamber ||
+        (*ali)->alignableObjectId() == align::AlignableGEMChamber ||
+        (*ali)->alignableObjectId() == align::AlignableGEMEtaPartition) {
       alignableNavigator[(*ali)->geomDetId().rawId()] = *ali;
     }
     recursiveGetId(alignableNavigator, (*ali)->components());
@@ -253,23 +285,18 @@ void MuonAlignmentInputXML::fillAliToIdeal(std::map<Alignable *, Alignable *> &a
   }
 }
 
-AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup &iSetup) const {
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  edm::ESHandle<GEMGeometry> gemGeometry;
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
-
-  AlignableMuon *alignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
+AlignableMuon *MuonAlignmentInputXML::newAlignableMuon() const {
+  AlignableMuon *alignableMuon = new AlignableMuon(dtGeometry_, cscGeometry_, gemGeometry_);
   std::map<unsigned int, Alignable *> alignableNavigator;  // real AlignableNavigators don't have const methods
   recursiveGetId(alignableNavigator, alignableMuon->DTBarrel());
   recursiveGetId(alignableNavigator, alignableMuon->CSCEndcaps());
+  recursiveGetId(alignableNavigator, alignableMuon->GEMEndcaps());
 
-  AlignableMuon *ideal_alignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
+  AlignableMuon *ideal_alignableMuon = new AlignableMuon(dtGeometryIdeal_, cscGeometryIdeal_, gemGeometryIdeal_);
   std::map<unsigned int, Alignable *> ideal_alignableNavigator;  // real AlignableNavigators don't have const methods
   recursiveGetId(ideal_alignableNavigator, ideal_alignableMuon->DTBarrel());
   recursiveGetId(ideal_alignableNavigator, ideal_alignableMuon->CSCEndcaps());
+  recursiveGetId(ideal_alignableNavigator, ideal_alignableMuon->GEMEndcaps());
 
   try {
     cms::concurrency::xercesInitialize();
@@ -304,6 +331,7 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup &iS
   std::map<Alignable *, Alignable *> alitoideal;
   fillAliToIdeal(alitoideal, alignableMuon->DTBarrel(), ideal_alignableMuon->DTBarrel());
   fillAliToIdeal(alitoideal, alignableMuon->CSCEndcaps(), ideal_alignableMuon->CSCEndcaps());
+  fillAliToIdeal(alitoideal, alignableMuon->GEMEndcaps(), ideal_alignableMuon->GEMEndcaps());
 
   const auto &alignableObjectId = alignableMuon->objectIdProvider();
   std::map<std::string, std::map<Alignable *, bool> > alicollections;
@@ -473,6 +501,18 @@ Alignable *MuonAlignmentInputXML::getNode(std::map<unsigned int, Alignable *> &a
     return getCSCnode(align::AlignableCSCChamber, alignableNavigator, node, alignableObjectId);
   else if (XMLString::equals(node->getNodeName(), str_CSCLayer))
     return getCSCnode(align::AlignableDetUnit, alignableNavigator, node, alignableObjectId);
+  else if (XMLString::equals(node->getNodeName(), str_GEMEndcap))
+    return getGEMnode(align::AlignableGEMEndcap, alignableNavigator, node, alignableObjectId);
+  else if (XMLString::equals(node->getNodeName(), str_GEMStation))
+    return getGEMnode(align::AlignableGEMStation, alignableNavigator, node, alignableObjectId);
+  else if (XMLString::equals(node->getNodeName(), str_GEMRing))
+    return getGEMnode(align::AlignableGEMRing, alignableNavigator, node, alignableObjectId);
+  else if (XMLString::equals(node->getNodeName(), str_GEMSuperChamber))
+    return getGEMnode(align::AlignableGEMSuperChamber, alignableNavigator, node, alignableObjectId);
+  else if (XMLString::equals(node->getNodeName(), str_GEMChamber))
+    return getGEMnode(align::AlignableGEMChamber, alignableNavigator, node, alignableObjectId);
+  else if (XMLString::equals(node->getNodeName(), str_GEMEtaPartition))
+    return getGEMnode(align::AlignableDetUnit, alignableNavigator, node, alignableObjectId);
   else
     return nullptr;
 }
@@ -645,6 +685,97 @@ Alignable *MuonAlignmentInputXML::getCSCnode(align::StructureType structureType,
 
     CSCDetId layerId(endcap, station, ring, chamber, layer);
     rawId = layerId.rawId();
+  }  // end if it's specified by endcap, station, ring, chamber, layer
+
+  Alignable *ali = alignableNavigator[rawId];
+  if (ali == nullptr)
+    throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not recognized" << std::endl;
+
+  while (ali->alignableObjectId() != structureType) {
+    ali = ali->mother();
+
+    if (ali == nullptr) {
+      throw cms::Exception("XMLException")
+          << "rawId \"" << rawId << "\" is not a " << alignableObjectId.idToString(structureType) << std::endl;
+    }
+  }
+  return ali;
+}
+
+Alignable *MuonAlignmentInputXML::getGEMnode(align::StructureType structureType,
+                                             std::map<unsigned int, Alignable *> &alignableNavigator,
+                                             const XERCES_CPP_NAMESPACE::DOMElement *node,
+                                             const AlignableObjectId &alignableObjectId) const {
+  unsigned int rawId;
+
+  DOMAttr *node_rawId = node->getAttributeNode(str_rawId);
+  if (node_rawId != nullptr) {
+    try {
+      rawId = XMLString::parseInt(node_rawId->getValue());
+    } catch (const XMLException &toCatch) {
+      throw cms::Exception("XMLException") << "Value of \"rawId\" must be an integer" << std::endl;
+    }
+  } else {
+    int endcap, station, ring, superChamber, chamber;
+    endcap = station = ring = superChamber = chamber = 1;
+
+    DOMAttr *node_endcap = node->getAttributeNode(str_endcap);
+    if (node_endcap == nullptr)
+      throw cms::Exception("XMLException") << "GEM node is missing required \"endcap\" attribute" << std::endl;
+    try {
+      endcap = XMLString::parseInt(node_endcap->getValue());
+    } catch (const XMLException &toCatch) {
+      throw cms::Exception("XMLException") << "Value of \"endcap\" must be an integer" << std::endl;
+    }
+
+    if (structureType != align::AlignableGEMEndcap) {
+      DOMAttr *node_station = node->getAttributeNode(str_station);
+      if (node_station == nullptr)
+        throw cms::Exception("XMLException") << "GEM node is missing required \"station\" attribute" << std::endl;
+      try {
+        station = XMLString::parseInt(node_station->getValue());
+      } catch (const XMLException &toCatch) {
+        throw cms::Exception("XMLException") << "Value of \"station\" must be an integer" << std::endl;
+      }
+
+      if (structureType != align::AlignableGEMStation) {
+        DOMAttr *node_ring = node->getAttributeNode(str_ring);
+        if (node_ring == nullptr)
+          throw cms::Exception("XMLException") << "GEM node is missing required \"ring\" attribute" << std::endl;
+        try {
+          ring = XMLString::parseInt(node_ring->getValue());
+        } catch (const XMLException &toCatch) {
+          throw cms::Exception("XMLException") << "Value of \"ring\" must be an integer" << std::endl;
+        }
+
+        if (structureType != align::AlignableGEMRing) {
+          DOMAttr *node_superChamber = node->getAttributeNode(str_chamber);
+          if (node_superChamber == nullptr)
+            throw cms::Exception("XMLException")
+                << "GEM node is missing required \"superChamber\" attribute" << std::endl;
+          try {
+            superChamber = XMLString::parseInt(node_superChamber->getValue());
+          } catch (const XMLException &toCatch) {
+            throw cms::Exception("XMLException") << "Value of \"superChamber\" must be an integer" << std::endl;
+          }
+
+          if (structureType != align::AlignableGEMSuperChamber) {
+            DOMAttr *node_chamber = node->getAttributeNode(str_chamber);
+            if (node_chamber == nullptr)
+              throw cms::Exception("XMLException") << "GEM node is missing required \"chamber\" attribute" << std::endl;
+            try {
+              chamber = XMLString::parseInt(node_chamber->getValue());
+            } catch (const XMLException &toCatch) {
+              throw cms::Exception("XMLException") << "Value of \"chamber\" must be an integer" << std::endl;
+            }
+
+          }  // end if we need a layer number
+        }    // end if we need a chamber number
+      }      // end if we need a ring number
+    }        // end if we need a station number
+
+    GEMDetId chamberId(endcap, station, ring, 0, chamber, 0);
+    rawId = chamberId.rawId();
   }  // end if it's specified by endcap, station, ring, chamber, layer
 
   Alignable *ali = alignableNavigator[rawId];

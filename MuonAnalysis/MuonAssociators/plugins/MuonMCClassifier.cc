@@ -37,7 +37,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -56,14 +56,13 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h>
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 //
 // class decleration
-class MuonMCClassifier : public edm::EDProducer {
+class MuonMCClassifier : public edm::stream::EDProducer<> {
 public:
   explicit MuonMCClassifier(const edm::ParameterSet &);
   ~MuonMCClassifier() override;

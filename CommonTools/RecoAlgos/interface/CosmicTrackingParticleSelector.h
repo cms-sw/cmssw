@@ -70,7 +70,9 @@ public:
         minHit_(cfg.getParameter<int>("minHit")),
         chargedOnly_(cfg.getParameter<bool>("chargedOnly")),
         pdgId_(cfg.getParameter<std::vector<int> >("pdgId")),
-        beamSpotToken_(iC.consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))) {}
+        beamSpotToken_(iC.consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
+        globalTrackingGeomToken_(iC.esConsumes()),
+        theMFToken_(iC.esConsumes()) {}
 
   void select(const edm::Handle<collection>& c, const edm::Event& event, const edm::EventSetup& setup) {
     selected_.clear();
@@ -103,13 +105,7 @@ public:
     //if (tpr->pdgId()==pdgId_[it]) testId = true;
     //}
 
-    edm::ESHandle<TrackerGeometry> tracker;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-    edm::ESHandle<GlobalTrackingGeometry> theGeometry;
-    iSetup.get<GlobalTrackingGeometryRecord>().get(theGeometry);
-
-    edm::ESHandle<MagneticField> theMF;
-    iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+    edm::ESHandle<GlobalTrackingGeometry> theGeometry = iSetup.getHandle(globalTrackingGeomToken_);
 
     GlobalVector finalGV(0, 0, 0);
     GlobalPoint finalGP(0, 0, 0);
@@ -180,7 +176,7 @@ public:
     if (!found)
       return false;
     else {
-      FreeTrajectoryState ftsAtProduction(finalGP, finalGV, TrackCharge(tpr->charge()), theMF.product());
+      FreeTrajectoryState ftsAtProduction(finalGP, finalGV, TrackCharge(tpr->charge()), &iSetup.getData(theMFToken_));
       TSCBLBuilderNoMaterial tscblBuilder;
       //as in TrackProducerAlgorithm
       TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction, *bs);
@@ -217,6 +213,8 @@ private:
   std::vector<int> pdgId_;
   container selected_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalTrackingGeomToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMFToken_;
 
   mutable edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
 };

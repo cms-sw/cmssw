@@ -17,9 +17,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <cmath>
 
@@ -35,19 +33,13 @@ void reco::writeSpecific(reco::CaloJet& jet,
                          reco::Particle::LorentzVector const& p4,
                          reco::Particle::Point const& point,
                          std::vector<reco::CandidatePtr> const& constituents,
-                         edm::EventSetup const& c) {
-  // Get geometry
-  edm::ESHandle<CaloGeometry> geometry;
-  c.get<CaloGeometryRecord>().get(geometry);
-  const CaloSubdetectorGeometry* towerGeometry =
-      geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
-
-  edm::ESHandle<HcalTopology> topology;
-  c.get<HcalRecNumberingRecord>().get(topology);
+                         CaloGeometry const& geometry,
+                         HcalTopology const& topology) {
+  const CaloSubdetectorGeometry* towerGeometry = geometry.getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
 
   // Make the specific
   reco::CaloJet::Specific specific;
-  makeSpecific(constituents, towerGeometry, &specific, *topology);
+  makeSpecific(constituents, towerGeometry, &specific, topology);
   // Set the calo jet
   jet = reco::CaloJet(p4, point, specific, constituents);
 }
@@ -56,8 +48,7 @@ void reco::writeSpecific(reco::CaloJet& jet,
 void reco::writeSpecific(reco::BasicJet& jet,
                          reco::Particle::LorentzVector const& p4,
                          reco::Particle::Point const& point,
-                         std::vector<reco::CandidatePtr> const& constituents,
-                         edm::EventSetup const& c) {
+                         std::vector<reco::CandidatePtr> const& constituents) {
   jet = reco::BasicJet(p4, point, constituents);
 }
 
@@ -65,8 +56,7 @@ void reco::writeSpecific(reco::BasicJet& jet,
 void reco::writeSpecific(reco::GenJet& jet,
                          reco::Particle::LorentzVector const& p4,
                          reco::Particle::Point const& point,
-                         std::vector<reco::CandidatePtr> const& constituents,
-                         edm::EventSetup const& c) {
+                         std::vector<reco::CandidatePtr> const& constituents) {
   // Make the specific
   reco::GenJet::Specific specific;
   makeSpecific(constituents, &specific);
@@ -79,7 +69,6 @@ void reco::writeSpecific(reco::PFJet& jet,
                          reco::Particle::LorentzVector const& p4,
                          reco::Particle::Point const& point,
                          std::vector<reco::CandidatePtr> const& constituents,
-                         edm::EventSetup const& c,
                          edm::ValueMap<float> const* weights) {
   // Make the specific
   reco::PFJet::Specific specific;
@@ -100,8 +89,7 @@ void reco::writeSpecific(reco::PFJet& jet,
 void reco::writeSpecific(reco::TrackJet& jet,
                          reco::Particle::LorentzVector const& p4,
                          reco::Particle::Point const& point,
-                         std::vector<reco::CandidatePtr> const& constituents,
-                         edm::EventSetup const& c) {
+                         std::vector<reco::CandidatePtr> const& constituents) {
   jet = reco::TrackJet(p4, point, constituents);
 }
 
@@ -109,8 +97,7 @@ void reco::writeSpecific(reco::TrackJet& jet,
 void reco::writeSpecific(reco::PFClusterJet& jet,
                          reco::Particle::LorentzVector const& p4,
                          reco::Particle::Point const& point,
-                         std::vector<reco::CandidatePtr> const& constituents,
-                         edm::EventSetup const& c) {
+                         std::vector<reco::CandidatePtr> const& constituents) {
   jet = reco::PFClusterJet(p4, point, constituents);
 }
 

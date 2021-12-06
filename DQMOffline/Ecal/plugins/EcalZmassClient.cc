@@ -21,7 +21,6 @@
 #include <memory>
 
 // user include files
-#include "DQM/Physics/src/EwkDQM.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

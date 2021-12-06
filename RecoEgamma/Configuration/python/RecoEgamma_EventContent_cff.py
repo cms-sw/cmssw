@@ -52,10 +52,10 @@ RecoEgammaAOD = cms.PSet(
 # mods for HGCAL
 _phase2_hgcal_RecoEgamma_tokeep = [ 'keep *_ecalDrivenGsfElectronCores_*_*',
                                     'keep *_ecalDrivenGsfElectrons_*_*',
-                                    'keep *_ecalDrivenGsfElectronCoresFromMultiCl_*_*',
-                                    'keep *_ecalDrivenGsfElectronsFromMultiCl_*_*',
-                                    'keep *_photonCoreFromMultiCl_*_*',
-                                    'keep *_photonsFromMultiCl_*_*']
+                                    'keep *_ecalDrivenGsfElectronCoresHGC_*_*',
+                                    'keep *_ecalDrivenGsfElectronsHGC_*_*',
+                                    'keep *_photonCoreHGC_*_*',
+                                    'keep *_photonsHGC_*_*']
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( RecoEgammaAOD,  

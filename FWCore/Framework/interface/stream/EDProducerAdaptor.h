@@ -23,7 +23,7 @@
 // user include files
 #include "FWCore/Framework/interface/stream/EDProducerAdaptorBase.h"
 #include "FWCore/Framework/interface/stream/ProducingModuleAdaptor.h"
-#include "FWCore/Framework/src/MakeModuleHelper.h"
+#include "FWCore/Framework/interface/maker/MakeModuleHelper.h"
 // forward declarations
 
 namespace edm {

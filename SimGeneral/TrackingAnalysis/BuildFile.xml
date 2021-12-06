@@ -15,7 +15,6 @@
 <use name="DataFormats/L1TrackTrigger"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="FWCore/Utilities"/>
-<use name="Geometry/Records"/>
 <use name="SimDataFormats/CrossingFrame"/>
 <use name="SimDataFormats/EncodedEventId"/>
 <export>

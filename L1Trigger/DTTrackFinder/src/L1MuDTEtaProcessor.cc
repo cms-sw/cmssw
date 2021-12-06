@@ -34,9 +34,9 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegEta.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTFConfig.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegEta.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
@@ -65,7 +65,10 @@ L1MuDTEtaProcessor::L1MuDTEtaProcessor(const L1MuDTTrackFinder& tf, int id, edm:
       m_epid(id),
       m_foundPattern(0),
       m_tseta(15),
-      m_DTDigiToken(iC.consumes<L1MuDTChambThContainer>(m_tf.config()->getDTDigiInputTag())) {
+      m_DTDigiToken(iC.consumes<L1MuDTChambThContainer>(m_tf.config()->getDTDigiInputTag())),
+      theEtaToken(iC.esConsumes()),
+      theQualToken(iC.esConsumes()),
+      theMsksToken(iC.esConsumes()) {
   m_tseta.reserve(15);
 }
 
@@ -208,7 +211,7 @@ void L1MuDTEtaProcessor::print() const {
 // receive data ( 15*3 DTBX eta trigger primitives )
 //
 void L1MuDTEtaProcessor::receiveData(int bx, const edm::Event& e, const edm::EventSetup& c) {
-  c.get<L1MuDTTFMasksRcd>().get(msks);
+  msks = c.getHandle(theMsksToken);
 
   edm::Handle<L1MuDTChambThContainer> dttrig;
   e.getByToken(m_DTDigiToken, dttrig);
@@ -301,7 +304,7 @@ void L1MuDTEtaProcessor::receiveAddresses() {
 // run Eta Track Finder (ETF)
 //
 void L1MuDTEtaProcessor::runEtaTrackFinder(const edm::EventSetup& c) {
-  c.get<L1MuDTEtaPatternLutRcd>().get(theEtaPatternLUT);
+  theEtaPatternLUT = c.getHandle(theEtaToken);
 
   // check if there are any data
   bool empty = true;
@@ -347,7 +350,7 @@ void L1MuDTEtaProcessor::runEtaTrackFinder(const edm::EventSetup& c) {
 // run Eta Matching Unit (EMU)
 //
 void L1MuDTEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
-  c.get<L1MuDTQualPatternLutRcd>().get(theQualPatternLUT);
+  theQualPatternLUT = c.getHandle(theQualToken);
 
   // loop over all addresses
   for (int i = 0; i < 12; i++) {

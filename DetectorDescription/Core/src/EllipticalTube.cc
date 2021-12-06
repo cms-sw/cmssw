@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/src/EllipticalTube.h"
+#include "DetectorDescription/Core/interface/EllipticalTube.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <ostream>

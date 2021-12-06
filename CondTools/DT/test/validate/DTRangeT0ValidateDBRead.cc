@@ -25,9 +25,11 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTRangeT0Rcd.h"
 
 DTRangeT0ValidateDBRead::DTRangeT0ValidateDBRead(edm::ParameterSet const& p)
-    : dataFileName(p.getParameter<std::string>("chkFile")), elogFileName(p.getParameter<std::string>("logFile")) {}
+    : dataFileName(p.getParameter<std::string>("chkFile")),
+      elogFileName(p.getParameter<std::string>("logFile")),
+      dtrangeToken_(esConsumes()) {}
 
-DTRangeT0ValidateDBRead::DTRangeT0ValidateDBRead(int i) {}
+DTRangeT0ValidateDBRead::DTRangeT0ValidateDBRead(int i) : dtrangeToken_(esConsumes()) {}
 
 DTRangeT0ValidateDBRead::~DTRangeT0ValidateDBRead() {}
 
@@ -40,8 +42,7 @@ void DTRangeT0ValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup
   run_fn << "run" << e.id().run() << dataFileName;
   std::ifstream chkFile(run_fn.str().c_str());
   std::ofstream logFile(elogFileName.c_str(), std::ios_base::app);
-  edm::ESHandle<DTRangeT0> tR;
-  context.get<DTRangeT0Rcd>().get(tR);
+  auto tR = context.getHandle(dtrangeToken_);
   std::cout << tR->version() << std::endl;
   std::cout << std::distance(tR->begin(), tR->end()) << " data in the container" << std::endl;
   int status;

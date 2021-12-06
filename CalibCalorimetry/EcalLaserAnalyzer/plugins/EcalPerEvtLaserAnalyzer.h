@@ -1,10 +1,20 @@
+#ifndef CalibCalorimetry_EcalLaserAnalyzer_EcalPerEvtLaserAnalyzer_h
+#define CalibCalorimetry_EcalLaserAnalyzer_EcalPerEvtLaserAnalyzer_h
 // $Id: EcalPerEvtLaserAnalyzer.h
 
 #include <memory>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 
-class TTree;
+#include <vector>
+
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
+
+#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
+#include <Geometry/EcalMapping/interface/EcalElectronicsMapping.h>
+#include <Geometry/EcalMapping/interface/EcalMappingRcd.h>
+
 class TFile;
+class TTree;
 
 // Define geometrical constants
 // NOT the same for "EB" and "EE"
@@ -30,7 +40,7 @@ class TFile;
 #define NTTEE 33     // Number of EE Trigger Towers
 #define NPNEE 4      // Number of PN per EE supermodule
 
-class EcalPerEvtLaserAnalyzer : public edm::EDAnalyzer {
+class EcalPerEvtLaserAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalPerEvtLaserAnalyzer(const edm::ParameterSet &iConfig);
   ~EcalPerEvtLaserAnalyzer() override;
@@ -44,53 +54,50 @@ public:
 private:
   int iEvent;
 
+  const std::string eventHeaderCollection_;
+  const std::string eventHeaderProducer_;
+  const std::string digiCollection_;
+  const std::string digiProducer_;
+  const std::string digiPNCollection_;
+
+  const edm::EDGetTokenT<EcalRawDataCollection> rawDataToken_;
+  edm::EDGetTokenT<EBDigiCollection> ebDigiToken_;
+  edm::EDGetTokenT<EEDigiCollection> eeDigiToken_;
+  const edm::EDGetTokenT<EcalPnDiodeDigiCollection> pnDiodeDigiToken_;
+  const edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> mappingToken_;
+
   // Framework parameters
 
-  unsigned int _nsamples;
-  unsigned int _presample;
-  unsigned int _firstsample;
-  unsigned int _lastsample;
-  unsigned int _samplemin;
-  unsigned int _samplemax;
-  unsigned int _nsamplesPN;
-  unsigned int _presamplePN;
-  unsigned int _firstsamplePN;
-  unsigned int _lastsamplePN;
-  unsigned int _timingcutlow;
-  unsigned int _timingcuthigh;
-  unsigned int _niter;
-  int _fedid;
-  unsigned int _tower;
-  unsigned int _channel;
-  std::string _ecalPart;
+  const unsigned int _nsamples;
+  const unsigned int _presample;
+  const unsigned int _firstsample;
+  const unsigned int _lastsample;
+  const unsigned int _nsamplesPN;
+  const unsigned int _presamplePN;
+  const unsigned int _firstsamplePN;
+  const unsigned int _lastsamplePN;
+  const unsigned int _timingcutlow;
+  const unsigned int _timingcuthigh;
+  const unsigned int _niter;
+  const int _fedid;
+  const unsigned int _tower;
+  const unsigned int _channel;
+  const std::string _ecalPart;
 
-  std::string resdir_;
-  std::string refalphabeta_;
-  std::string digiCollection_;
-  std::string digiPNCollection_;
-  std::string digiProducer_;
-  std::string eventHeaderCollection_;
-  std::string eventHeaderProducer_;
+  const std::string resdir_;
+  const std::string refalphabeta_;
 
   // Output file names
 
-  std::string alphafile;
   std::string ADCfile;
-  std::string APDfile;
   std::string resfile;
 
   //  Define geometrical constants
   //  Default values correspond to "EB" geometry (1700 crystals)
 
   unsigned int nCrys;
-  unsigned int nTT;
-  unsigned int nSides;
 
   int IsFileCreated;
-
-  // Define number of channels (68 or 1700) for alpha and beta calculation
-
-  unsigned int nCh;
 
   // Identify run type
 
@@ -137,3 +144,4 @@ private:
   double apdTime;
   double pnAmpl;
 };
+#endif

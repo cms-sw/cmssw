@@ -1,9 +1,8 @@
 #ifndef STORAGE_FACTORY_STORAGE_H
 #define STORAGE_FACTORY_STORAGE_H
 
-#include "Utilities/StorageFactory/interface/IOInput.h"
-#include "Utilities/StorageFactory/interface/IOOutput.h"
 #include "Utilities/StorageFactory/interface/IOPosBuffer.h"
+#include "Utilities/StorageFactory/interface/IOBuffer.h"
 
 //
 // ROOT will probe for prefetching support by calling
@@ -15,44 +14,58 @@
 // implementation, but prefers it not to be used by default, it
 // should detect the probe and return true.
 //
-#define PREFETCH_PROBE_LENGTH 4096
+namespace edm::storage {
+  constexpr int PREFETCH_PROBE_LENGTH = 4096;
 
-class Storage : public virtual IOInput, public virtual IOOutput {
-public:
-  enum Relative { SET, CURRENT, END };
+  class Storage {
+  public:
+    enum Relative { SET, CURRENT, END };
 
-  Storage(void);
-  ~Storage(void) override;
+    Storage();
 
-  using IOInput::read;
-  using IOInput::readv;
-  using IOOutput::write;
-  using IOOutput::writev;
+    // undefined, no semantics
+    Storage(const Storage &) = delete;
+    Storage &operator=(const Storage &) = delete;
 
-  virtual bool prefetch(const IOPosBuffer *what, IOSize n);
-  virtual IOSize read(void *into, IOSize n, IOOffset pos);
-  IOSize read(IOBuffer into, IOOffset pos);
-  virtual IOSize readv(IOPosBuffer *into, IOSize buffers);
-  virtual IOSize write(const void *from, IOSize n, IOOffset pos);
-  IOSize write(IOBuffer from, IOOffset pos);
-  virtual IOSize writev(const IOPosBuffer *from, IOSize buffers);
+    virtual ~Storage();
 
-  virtual bool eof(void) const;
-  virtual IOOffset size(void) const;
-  virtual IOOffset position(void) const;
-  virtual IOOffset position(IOOffset offset, Relative whence = SET) = 0;
+    int read();
+    IOSize read(IOBuffer into);
+    virtual IOSize read(void *into, IOSize n) = 0;
+    virtual IOSize readv(IOBuffer *into, IOSize buffers);
 
-  virtual void rewind(void);
+    IOSize xread(IOBuffer into);
+    IOSize xread(void *into, IOSize n);
+    IOSize xreadv(IOBuffer *into, IOSize buffers);
 
-  virtual void resize(IOOffset size) = 0;
+    IOSize write(unsigned char byte);
+    IOSize write(IOBuffer from);
+    virtual IOSize write(const void *from, IOSize n) = 0;
+    virtual IOSize writev(const IOBuffer *from, IOSize buffers);
 
-  virtual void flush(void);
-  virtual void close(void);
+    IOSize xwrite(const void *from, IOSize n);
+    IOSize xwrite(IOBuffer from);
+    IOSize xwritev(const IOBuffer *from, IOSize buffers);
 
-private:
-  // undefined, no semantics
-  Storage(const Storage &) = delete;
-  Storage &operator=(const Storage &) = delete;
-};
+    virtual bool prefetch(const IOPosBuffer *what, IOSize n);
+    virtual IOSize read(void *into, IOSize n, IOOffset pos);
+    IOSize read(IOBuffer into, IOOffset pos);
+    virtual IOSize readv(IOPosBuffer *into, IOSize buffers);
+    virtual IOSize write(const void *from, IOSize n, IOOffset pos);
+    IOSize write(IOBuffer from, IOOffset pos);
+    virtual IOSize writev(const IOPosBuffer *from, IOSize buffers);
 
+    virtual bool eof() const;
+    virtual IOOffset size() const;
+    virtual IOOffset position() const;
+    virtual IOOffset position(IOOffset offset, Relative whence = SET) = 0;
+
+    virtual void rewind();
+
+    virtual void resize(IOOffset size) = 0;
+
+    virtual void flush();
+    virtual void close();
+  };
+}  // namespace edm::storage
 #endif  // STORAGE_FACTORY_STORAGE_H

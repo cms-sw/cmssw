@@ -1,7 +1,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
 <use name="SimG4Core/PhysicsLists"/>
-<use name="SimG4Core/Application"/>
 <use name="SimGeneral/GFlash"/>
 <use name="geant4core"/>
 <use name="clhep"/>

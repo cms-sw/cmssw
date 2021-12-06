@@ -35,7 +35,9 @@ using namespace std;
 /// Constructor
 DTRecSegment2DProducer::DTRecSegment2DProducer(const edm::ParameterSet& pset)
     : theAlgo{DTRecSegment2DAlgoFactory::get()->create(pset.getParameter<string>("Reco2DAlgoName"),
-                                                       pset.getParameter<ParameterSet>("Reco2DAlgoConfig"))} {
+                                                       pset.getParameter<ParameterSet>("Reco2DAlgoConfig"),
+                                                       consumesCollector())},
+      dtGeomToken_{esConsumes()} {
   // Set verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
 
@@ -63,8 +65,7 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const edm::EventSetup& s
   if (debug)
     cout << "[DTRecSegment2DProducer] produce called" << endl;
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  DTGeometry const& dtGeom = setup.getData(dtGeomToken_);
 
   theAlgo->setES(setup);
 
@@ -89,7 +90,7 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const edm::EventSetup& s
     if (debug)
       cout << "Reconstructing the 2D segments in " << SLId << endl;
 
-    const DTSuperLayer* sl = dtGeom->superLayer(SLId);
+    const DTSuperLayer* sl = dtGeom.superLayer(SLId);
 
     // Get all the rec hit in the same superLayer in which layerId relies
     DTRecHitCollection::range range = allHits->get(DTRangeMapAccessor::layersBySuperLayer(SLId));

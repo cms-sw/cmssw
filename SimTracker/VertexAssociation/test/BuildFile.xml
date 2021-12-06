@@ -6,7 +6,6 @@
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="MagneticField/Records"/>
 <use name="MagneticField/Engine"/>
-<use name="SimTracker/Records"/>
 <use name="DataFormats/Math"/>
 <use name="clhep"/>
 <use name="boost"/>

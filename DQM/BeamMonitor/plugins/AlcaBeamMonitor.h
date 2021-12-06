@@ -59,6 +59,7 @@ private:
   const edm::EDGetTokenT<reco::TrackCollection> trackLabel_;
   const edm::EDGetTokenT<reco::BeamSpot> scalerLabel_;
   const edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamSpotToken_;
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
 
   //Service variables
   int numberOfValuesToSave_;

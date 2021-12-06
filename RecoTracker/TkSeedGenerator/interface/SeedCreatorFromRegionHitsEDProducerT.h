@@ -37,7 +37,7 @@ template <typename T_SeedCreator>
 SeedCreatorFromRegionHitsEDProducerT<T_SeedCreator>::SeedCreatorFromRegionHitsEDProducerT(
     const edm::ParameterSet& iConfig)
     : seedingHitSetsToken_(consumes<RegionsSeedingHitSets>(iConfig.getParameter<edm::InputTag>("seedingHitSets"))),
-      seedCreator_(iConfig) {
+      seedCreator_(iConfig, consumesCollector()) {
   edm::ConsumesCollector iC = consumesCollector();
   edm::ParameterSet comparitorPSet = iConfig.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");

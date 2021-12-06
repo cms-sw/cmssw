@@ -55,7 +55,7 @@ private:
   edm::EDGetTokenT<TICLLayerTilesHFNose> layer_clusters_tiles_hfnose_token_;
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seeding_regions_token_;
   const std::string itername_;
-  ticl::Trackster::IterationIndex iterIndex_;
+  ticl::Trackster::IterationIndex iterIndex_ = ticl::Trackster::IterationIndex(0);
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
 

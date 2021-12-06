@@ -36,6 +36,8 @@
 #include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 
 namespace edm {
+  void exceptionContext(cms::Exception&, ESModuleCallingContext const&);
+
   namespace eventsetup {
     class EventSetupRecordImpl;
 
@@ -208,10 +210,7 @@ namespace edm {
               decorator_.post(rec);
             });
           } catch (cms::Exception& iException) {
-            auto const& description = producer_->description();
-            std::ostringstream ost;
-            ost << "Running EventSetup component " << description.type_ << "/'" << description.label_;
-            iException.addContext(ost.str());
+            edm::exceptionContext(iException, callingContext_);
             exceptPtr = std::current_exception();
           }
           taskList_.doneWaiting(exceptPtr);

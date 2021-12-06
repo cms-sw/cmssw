@@ -169,7 +169,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&) {
         std::string outputRecord = (*job)->outputRecord_;
         if (gbrForests.size() > 1)
           outputRecord.append("_").append(gbrForest->first);
-        dbService->writeOne(gbrForest->second, dbService->beginOfTime(), outputRecord);
+        dbService->writeOneIOV(*gbrForest->second, dbService->beginOfTime(), outputRecord);
       }
     }
 

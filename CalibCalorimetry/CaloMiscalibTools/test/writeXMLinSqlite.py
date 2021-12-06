@@ -36,7 +36,7 @@ process.CaloMiscalibTools = cms.ESSource("CaloMiscalibTools",
 )
 
 process.prefer("CaloMiscalibTools")
-process.WriteInDB = cms.EDFilter("WriteEcalMiscalibConstants",
+process.WriteInDB = cms.EDAnalyzer("WriteEcalMiscalibConstants",
     NewTagRequest = cms.string('EcalIntercalibConstantsRcd')
 )
 

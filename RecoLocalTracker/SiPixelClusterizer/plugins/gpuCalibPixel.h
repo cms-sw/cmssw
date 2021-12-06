@@ -18,8 +18,8 @@ namespace gpuCalibPixel {
   constexpr float VCaltoElectronOffset = -60;      // L2-4: -60 +- 130
   constexpr float VCaltoElectronOffset_L1 = -670;  // L1:   -670 +- 220
 
-  __global__ void calibDigis(bool isRun2,
-                             uint16_t* id,
+  template <bool isRun2>
+  __global__ void calibDigis(uint16_t* id,
                              uint16_t const* __restrict__ x,
                              uint16_t const* __restrict__ y,
                              uint16_t* adc,
@@ -42,9 +42,6 @@ namespace gpuCalibPixel {
       if (invalidModuleId == id[i])
         continue;
 
-      float conversionFactor = (isRun2) ? (id[i] < 96 ? VCaltoElectronGain_L1 : VCaltoElectronGain) : 1.f;
-      float offset = (isRun2) ? (id[i] < 96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset) : 0;
-
       bool isDeadColumn = false, isNoisyColumn = false;
 
       int row = x[i];
@@ -54,12 +51,17 @@ namespace gpuCalibPixel {
       float gain = ret.second;
       // float pedestal = 0; float gain = 1.;
       if (isDeadColumn | isNoisyColumn) {
+        printf("bad pixel at %d in %d\n", i, id[i]);
         id[i] = invalidModuleId;
         adc[i] = 0;
-        printf("bad pixel at %d in %d\n", i, id[i]);
       } else {
-        float vcal = adc[i] * gain - pedestal * gain;
-        adc[i] = std::max(100, int(vcal * conversionFactor + offset));
+        float vcal = float(adc[i]) * gain - pedestal * gain;
+        if constexpr (isRun2) {
+          float conversionFactor = id[i] < 96 ? VCaltoElectronGain_L1 : VCaltoElectronGain;
+          float offset = id[i] < 96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset;
+          vcal = vcal * conversionFactor + offset;
+        }
+        adc[i] = std::max(100, int(vcal));
       }
     }
   }

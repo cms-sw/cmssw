@@ -8,17 +8,11 @@
  *
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include "CaloOnlineTools/EcalTools/plugins/EcalDigiDisplay.h"
 #include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
@@ -26,17 +20,18 @@
 
 #include <iostream>
 #include <vector>
-#include <set>
-#include <map>
 
 //==========================================================================
-EcalDigiDisplay::EcalDigiDisplay(const edm::ParameterSet& ps) {
+EcalDigiDisplay::EcalDigiDisplay(const edm::ParameterSet& ps)
+    : ebDigiCollection_(ps.getParameter<std::string>("ebDigiCollection")),
+      eeDigiCollection_(ps.getParameter<std::string>("eeDigiCollection")),
+      digiProducer_(ps.getParameter<std::string>("digiProducer")),
+      rawDataToken_(consumes<EcalRawDataCollection>(edm::InputTag(digiProducer_))),
+      ebDigiToken_(consumes<EBDigiCollection>(edm::InputTag(digiProducer_, ebDigiCollection_))),
+      eeDigiToken_(consumes<EEDigiCollection>(edm::InputTag(digiProducer_, eeDigiCollection_))),
+      pnDiodeDigiToken_(consumes<EcalPnDiodeDigiCollection>(edm::InputTag(digiProducer_))),
+      ecalMappingToken_(esConsumes<edm::Transition::BeginRun>()) {
   //=========================================================================
-
-  ebDigiCollection_ = ps.getParameter<std::string>("ebDigiCollection");
-  eeDigiCollection_ = ps.getParameter<std::string>("eeDigiCollection");
-  digiProducer_ = ps.getParameter<std::string>("digiProducer");
-
   requestedFeds_ = ps.getUntrackedParameter<std::vector<int> >("requestedFeds");
   requestedEbs_ = ps.getUntrackedParameter<std::vector<std::string> >("requestedEbs");
 
@@ -175,10 +170,12 @@ void EcalDigiDisplay::beginRun(edm::Run const&, edm::EventSetup const& c) {
   //========================================================================
   edm::LogInfo("EcalDigiDisplay") << "entering beginRun! ";
 
-  edm::ESHandle<EcalElectronicsMapping> elecHandle;
-  c.get<EcalMappingRcd>().get(elecHandle);
-  ecalElectronicsMap_ = elecHandle.product();
+  ecalElectronicsMap_ = &c.getData(ecalMappingToken_);
 }
+
+//========================================================================
+void EcalDigiDisplay::endRun(edm::Run const&, edm::EventSetup const& c) {}
+//========================================================================
 
 //========================================================================
 void EcalDigiDisplay::analyze(edm::Event const& e, edm::EventSetup const& c) {
@@ -189,9 +186,8 @@ void EcalDigiDisplay::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
   //Get DCC headers
   edm::Handle<EcalRawDataCollection> dccHeader;
-  try {
-    e.getByLabel(digiProducer_, dccHeader);
-  } catch (cms::Exception& ex) {
+  e.getByToken(rawDataToken_, dccHeader);
+  if (!dccHeader.isValid()) {
     edm::LogError("EcalDigiUnpackerModule") << "Can't get DCC Headers!";
   }
 
@@ -201,33 +197,30 @@ void EcalDigiDisplay::analyze(edm::Event const& e, edm::EventSetup const& c) {
   bool pnDigisFound = false;
   // retrieving crystal data from Event
   edm::Handle<EBDigiCollection> eb_digis;
-  try {
-    e.getByLabel(digiProducer_, ebDigiCollection_, eb_digis);
-    if (!eb_digis->empty())
-      ebDigisFound = true;
-  } catch (cms::Exception& ex) {
+  e.getByToken(ebDigiToken_, eb_digis);
+  if (!eb_digis.isValid()) {
     edm::LogError("EcalDigiUnpackerModule") << "EB Digis were not found!";
   }
+  if (!eb_digis->empty())
+    ebDigisFound = true;
 
   //
   edm::Handle<EEDigiCollection> ee_digis;
-  try {
-    e.getByLabel(digiProducer_, eeDigiCollection_, ee_digis);
-    if (!ee_digis->empty())
-      eeDigisFound = true;
-  } catch (cms::Exception& ex) {
+  e.getByToken(eeDigiToken_, ee_digis);
+  if (!ee_digis.isValid()) {
     edm::LogError("EcalDigiUnpackerModule") << "EE Digis were not found!";
   }
+  if (!ee_digis->empty())
+    eeDigisFound = true;
 
   // retrieving crystal PN diodes from Event
   edm::Handle<EcalPnDiodeDigiCollection> pn_digis;
-  try {
-    e.getByLabel(digiProducer_, pn_digis);
-    if (!pn_digis->empty())
-      pnDigisFound = true;
-  } catch (cms::Exception& ex) {
+  e.getByToken(pnDiodeDigiToken_, pn_digis);
+  if (!pn_digis.isValid()) {
     edm::LogError("EcalDigiUnpackerModule") << "PNs were not found!";
   }
+  if (!pn_digis->empty())
+    pnDigisFound = true;
 
   //=============================
   //Call for funcitons

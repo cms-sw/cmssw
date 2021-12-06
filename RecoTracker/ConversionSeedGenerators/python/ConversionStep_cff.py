@@ -124,53 +124,59 @@ import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
 convLayerPairs = _mod.seedingLayersEDProducer.clone(
                                 layerList = _convLayerPairsLayerList, 
-                                BPix = cms.PSet(
+                                BPix = dict(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
                                     HitProducer = cms.string('siPixelRecHits'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                FPix = cms.PSet(
+                                FPix = dict(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
                                     HitProducer = cms.string('siPixelRecHits'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TIB = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+                                TIB = dict(
+                                    TTRHBuilder = cms.string('WithTrackAngle'), 
+                                    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                MTIB = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+                                MTIB = dict(
+                                    TTRHBuilder = cms.string('WithTrackAngle'), 
+                                    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     rphiRecHits = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TID = cms.PSet(
+                                TID = dict(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
                                     matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
                                     useRingSlector = cms.bool(True),
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), 
+                                    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     maxRing = cms.int32(2),
                                     minRing = cms.int32(1),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TEC = cms.PSet(
+                                TEC = dict(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
                                     minRing = cms.int32(1),
                                     matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
                                     useRingSlector = cms.bool(True),
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), 
+                                    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     rphiRecHits = cms.InputTag('siStripMatchedRecHits','rphiRecHitUnmatched'),
                                     maxRing = cms.int32(7),
                                     stereoRecHits = cms.InputTag('siStripMatchedRecHits','stereoRecHitUnmatched'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TOB = cms.PSet(
+                                TOB = dict(
                                     matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                MTOB = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+                                MTOB = dict(
+                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     rphiRecHits = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),

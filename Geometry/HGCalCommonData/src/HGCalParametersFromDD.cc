@@ -88,6 +88,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     php.levelZSide_ = 3;        // Default level for ZSide
     php.detectorType_ = 0;      // These two parameters are
     php.firstMixedLayer_ = -1;  // defined for post TDR geometry
+    php.layerRotation_ = 0;     // default layer rotation angle
     std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       attribute = "OnlyForHGCalNumbering";
@@ -119,11 +120,14 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.minTileSize_ = 0;
       php.waferMaskMode_ = static_cast<int>(getDDDValue("WaferMaskMode", sv));
       php.waferZSide_ = static_cast<int>(getDDDValue("WaferZside", sv));
+      if (php.mode_ == HGCalGeometryMode::Hexagon8Module)
+        php.layerRotation_ = getDDDValue("LayerRotation", sv);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " ZSide Level "
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
                                     << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
-                                    << php.waferMaskMode_ << " Zside " << php.waferZSide_;
+                                    << php.waferMaskMode_ << " Zside " << php.waferZSide_ << " Layer Rotation "
+                                    << convertRadToDeg(php.layerRotation_);
 #endif
       attribute = "OnlyForHGCalNumbering";
       value = namet;
@@ -254,7 +258,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
                                   const std::string& namet,
                                   const std::string& name2) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalParametersFromDD (DD4Hep)::build called with "
+  edm::LogVerbatim("HGCalGeom") << "HGCalParametersFromDD (DD4hep)::build called with "
                                 << "names " << name << ":" << namew << ":" << namec << ":" << namet << ":" << name2;
 #endif
   cms::DDVectorsMap vmap = cpv->detector()->vectors();
@@ -283,6 +287,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
     php.levelZSide_ = 3;        // Default level for ZSide
     php.detectorType_ = 0;      // These two parameters are
     php.firstMixedLayer_ = -1;  // defined for post TDR geometry
+    php.layerRotation_ = 0;     // default layer rotation angle
     std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
@@ -312,11 +317,16 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.waferMaskMode_ = static_cast<int>(tempD[0]);
       tempD = fv.get<std::vector<double> >(name, "WaferZside");
       php.waferZSide_ = static_cast<int>(tempD[0]);
+      if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
+        tempD = fv.get<std::vector<double> >(name, "LayerRotation");
+        php.layerRotation_ = tempD[0];
+      }
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " ZSide Level "
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
                                     << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
-                                    << php.waferMaskMode_ << " ZSide " << php.waferZSide_;
+                                    << php.waferMaskMode_ << " ZSide " << php.waferZSide_ << " Layer Rotation "
+                                    << convertRadToDeg(php.layerRotation_);
 #endif
 
       tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
@@ -327,13 +337,13 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       tempD = fv.get<std::vector<double> >(namet, "NumberOfCellsCoarse");
       php.nCellsCoarse_ = static_cast<int>(tempD[0]);
       tempD = fv.get<std::vector<double> >(namet, "WaferSize");
-      php.waferSize_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
+      php.waferSize_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       tempD = fv.get<std::vector<double> >(namet, "WaferThickness");
-      php.waferThick_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
+      php.waferThick_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       tempD = fv.get<std::vector<double> >(namet, "SensorSeparation");
-      php.sensorSeparation_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
+      php.sensorSeparation_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       tempD = fv.get<std::vector<double> >(namet, "MouseBite");
-      php.mouseBite_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
+      php.mouseBite_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       php.waferR_ = HGCalParameters::k_ScaleToDDD * php.waferSize_ * tan30deg_;
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsFine_);
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsCoarse_);
@@ -411,9 +421,9 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       tempD = fv.get<std::vector<double> >(name, "DetectorType");
       php.detectorType_ = static_cast<int>(tempD[0]);
       tempD = fv.get<std::vector<double> >(name, "WaferThickness");
-      php.waferThick_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
+      php.waferThick_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       tempD = fv.get<std::vector<double> >(name, "MinimumTileSize");
-      php.minTileSize_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
+      php.minTileSize_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       php.waferSize_ = php.waferR_ = 0;
       php.sensorSeparation_ = php.mouseBite_ = 0;
       tempD = fv.get<std::vector<double> >(name, "WaferMaskMode");
@@ -492,6 +502,7 @@ void HGCalParametersFromDD::getCellPosition(HGCalParameters& php, int type) {
     php.cellCoarseIndex_ = cellIndex;
   else
     php.cellFineIndex_ = cellIndex;
+
 #ifdef EDM_ML_DEBUG
   if (type == 1) {
     edm::LogVerbatim("HGCalGeom") << "CellPosition for  type " << type << " for " << php.cellCoarseX_.size()

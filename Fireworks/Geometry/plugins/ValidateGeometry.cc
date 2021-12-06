@@ -3,7 +3,7 @@
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -59,7 +59,7 @@
 #include <TFile.h>
 #include <TH1.h>
 
-class ValidateGeometry : public edm::EDAnalyzer {
+class ValidateGeometry : public edm::one::EDAnalyzer<> {
 public:
   explicit ValidateGeometry(const edm::ParameterSet&);
   ~ValidateGeometry() override;
@@ -97,6 +97,12 @@ private:
 
   std::string infileName_;
   std::string outfileName_;
+
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeometryToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeometryToken_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeometryToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
 
   edm::ESHandle<RPCGeometry> rpcGeometry_;
   edm::ESHandle<DTGeometry> dtGeometry_;
@@ -139,6 +145,18 @@ ValidateGeometry::ValidateGeometry(const edm::ParameterSet& iConfig)
   doMuon_ = iConfig.getUntrackedParameter<bool>("Muon", true);
   doCalo_ = iConfig.getUntrackedParameter<bool>("Calo", true);
 
+  if (doMuon_) {
+    rpcGeometryToken_ = esConsumes();
+    dtGeometryToken_ = esConsumes();
+    cscGeometryToken_ = esConsumes();
+  }
+  if (doCalo_) {
+    caloGeometryToken_ = esConsumes();
+  }
+  if (doTracker_) {
+    trackerGeometryToken_ = esConsumes();
+  }
+
   fwGeometry_.loadMap(infileName_.c_str());
 
   outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
@@ -148,7 +166,7 @@ ValidateGeometry::~ValidateGeometry() {}
 
 void ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   if (doMuon_) {
-    eventSetup.get<MuonGeometryRecord>().get(rpcGeometry_);
+    rpcGeometry_ = eventSetup.getHandle(rpcGeometryToken_);
 
     if (rpcGeometry_.isValid()) {
       std::cout << "Validating RPC -z endcap geometry" << std::endl;
@@ -162,7 +180,7 @@ void ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& e
     } else
       fwLog(fwlog::kWarning) << "Invalid RPC geometry" << std::endl;
 
-    eventSetup.get<MuonGeometryRecord>().get(dtGeometry_);
+    dtGeometry_ = eventSetup.getHandle(dtGeometryToken_);
 
     if (dtGeometry_.isValid()) {
       std::cout << "Validating DT chamber geometry" << std::endl;
@@ -173,7 +191,7 @@ void ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& e
     } else
       fwLog(fwlog::kWarning) << "Invalid DT geometry" << std::endl;
 
-    eventSetup.get<MuonGeometryRecord>().get(cscGeometry_);
+    cscGeometry_ = eventSetup.getHandle(cscGeometryToken_);
 
     if (cscGeometry_.isValid()) {
       std::cout << "Validating CSC -z geometry" << std::endl;
@@ -192,7 +210,7 @@ void ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& e
   }
 
   if (doTracker_) {
-    eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
+    trackerGeometry_ = eventSetup.getHandle(trackerGeometryToken_);
 
     if (trackerGeometry_.isValid()) {
       std::cout << "Validating TIB geometry and topology" << std::endl;
@@ -223,7 +241,7 @@ void ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& e
   }
 
   if (doCalo_) {
-    eventSetup.get<CaloGeometryRecord>().get(caloGeometry_);
+    caloGeometry_ = eventSetup.getHandle(caloGeometryToken_);
 
     if (caloGeometry_.isValid()) {
       std::cout << "Validating EB geometry" << std::endl;

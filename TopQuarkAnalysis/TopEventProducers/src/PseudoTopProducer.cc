@@ -150,7 +150,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
 
     const LorentzVector jetP4(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E());
     reco::GenJet lepJet;
-    reco::writeSpecific(lepJet, jetP4, genVertex_, constituents, eventSetup);
+    reco::writeSpecific(lepJet, jetP4, genVertex_, constituents);
 
     lepJet.setPdgId(lepCand->pdgId());
     lepJet.setCharge(lepCand->charge());
@@ -226,7 +226,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
 
     const LorentzVector jetP4(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E());
     reco::GenJet genJet;
-    reco::writeSpecific(genJet, jetP4, genVertex_, constituents, eventSetup);
+    reco::writeSpecific(genJet, jetP4, genVertex_, constituents);
 
     const double jetArea = fjJet.has_area() ? fjJet.area() : 0;
     genJet.setJetArea(jetArea);

@@ -1,7 +1,6 @@
 ZMuMuValidationTemplate="""
-
+compressionSettings = 207
 ###### MuSclFit SETTINGS  ##############################################
-
 
 ### MuScleFit specific configuration
 

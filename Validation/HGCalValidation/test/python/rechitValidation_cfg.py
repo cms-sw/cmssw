@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import six
 
 from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
 process = cms.Process('testHGCalRECLocal',Phase2C9)
@@ -134,7 +133,7 @@ for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
 # End of customisation functions
-for label, prod in six.iteritems(process.producers_()):
+for label, prod in process.producers_().items():
         if prod.type_() == "OscarMTProducer":
             # ugly hack
             prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"

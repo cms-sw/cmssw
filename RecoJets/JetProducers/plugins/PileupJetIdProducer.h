@@ -103,6 +103,7 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
   edm::EDGetTokenT<edm::ValueMap<StoredPileupJetIdentifier>> input_vm_pujetid_token_;
   edm::EDGetTokenT<double> input_rho_token_;
+  edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> parameters_token_;
 };
 
 #endif

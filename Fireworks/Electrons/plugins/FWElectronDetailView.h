@@ -33,10 +33,10 @@ public:
   FWElectronDetailView();
   ~FWElectronDetailView() override;
 
-private:
   FWElectronDetailView(const FWElectronDetailView &) = delete;                   // stop default
   const FWElectronDetailView &operator=(const FWElectronDetailView &) = delete;  // stop default
 
+private:
   using FWDetailViewGL<reco::GsfElectron>::build;
   void build(const FWModelId &id, const reco::GsfElectron *) override;
 

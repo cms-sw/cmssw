@@ -12,6 +12,8 @@ namespace hcaldqm {
       uint16_t slot = 0;
       if (fed <= FED_VME_MAX) {
         slot = fed % 2 == 0 ? SLOT_uTCA_MIN : SLOT_uTCA_MIN + 6;
+      } else if ((fed >= 1100 && fed <= 1117) || (fed >= 1140 && fed <= 1148)) {
+        slot = fed >= 1140 ? SLOT_uTCA_MIN + 8 : fed % 2 == 0 ? SLOT_uTCA_MIN : SLOT_uTCA_MIN + 4;
       } else {
         slot = fed % 2 == 0 ? SLOT_uTCA_MIN : SLOT_uTCA_MIN + 6;
       }
@@ -36,9 +38,21 @@ namespace hcaldqm {
             ++fed;
           }
         } else {
-          if (slot > 6 && (std::find(constants::crateListuTCA.begin(), constants::crateListuTCA.end(), crate) !=
-                           constants::crateListuTCA.end())) {  // needed to handle dual fed readout
-            ++fed;
+          if (crate == 22 || crate == 29 || crate == 32 || crate == 23 || crate == 27 || crate == 26 ||
+              crate == 38) {  // needed to handle dual fed readout for HF and HO
+            if (slot > 6 && (std::find(constants::crateListuTCA.begin(), constants::crateListuTCA.end(), crate) !=
+                             constants::crateListuTCA.end())) {
+              ++fed;  // hard coded mid slot FED numbering
+            }
+          } else {  // needed to handle  3-FED readout for HBHE
+            if (slot > 8 && (std::find(constants::crateListuTCA.begin(), constants::crateListuTCA.end(), crate) !=
+                             constants::crateListuTCA.end())) {
+              fed = (fed + 1100) / 2 + 40;  // hard coded right slot FED numbering, no better way
+            } else if (slot > 4 &&
+                       (std::find(constants::crateListuTCA.begin(), constants::crateListuTCA.end(), crate) !=
+                        constants::crateListuTCA.end())) {
+              ++fed;  // hard coded mid slot FED numbering
+            }
           }
         }
       }
@@ -144,7 +158,7 @@ namespace hcaldqm {
         return false;
       } else {
         int fed = crate2fed(eid.crateId(), eid.slot());
-        if (fed >= 1100 && fed < 1118)
+        if ((fed >= 1100 && fed < 1118) || (fed >= 1140 && fed <= 1148))
           return true;
         else
           return false;
@@ -154,17 +168,6 @@ namespace hcaldqm {
     }
 
     bool isFEDHF(HcalElectronicsId const &eid) {
-      /*
-  if (eid.isVMEid())
-  {
-          int fed = eid.dccid()+FED_VME_MIN;
-          if (fed>=718 && fed<=723)
-                  return true;
-          else
-                  return false;
-  }*/
-      //			else
-      //			{
       if (eid.isVMEid())
         return false;
       int fed = crate2fed(eid.crateId(), eid.slot());
@@ -172,17 +175,15 @@ namespace hcaldqm {
         return true;
       else
         return false;
-      //			}
 
       return false;
     }
 
     bool isFEDHO(HcalElectronicsId const &eid) {
-      if (!eid.isVMEid())
+      if (eid.isVMEid())
         return false;
-
-      int fed = eid.dccid() + FED_VME_MIN;
-      if (fed >= 724 && fed <= 731)
+      int fed = crate2fed(eid.crateId(), eid.slot());
+      if (fed >= 1124 && fed <= 1135)
         return true;
       else
         return false;

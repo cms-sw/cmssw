@@ -4,6 +4,7 @@
 #include <functional>
 #include <optional>
 
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "CUDADataFormats/HcalDigi/interface/DigiCollection.h"
 #include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
@@ -18,6 +19,7 @@
 #include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalSiPMParametersRcd.h"
 #include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
 #include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalsGPU.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidthsGPU.h"
@@ -30,6 +32,7 @@
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristicsGPU.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMParametersGPU.h"
 #include "CondFormats/HcalObjects/interface/HcalTimeCorrsGPU.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQualityGPU.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
@@ -49,6 +52,7 @@ namespace hcal {
       HcalConvertedEffectivePedestalWidthsGPU::Product const& effectivePedestalWidths;
       HcalConvertedPedestalsGPU::Product const& pedestals;
       HcalQIECodersGPU::Product const& qieCoders;
+      HcalChannelQualityGPU::Product const& channelQuality;
       HcalRecoParamsWithPulseShapesGPU::Product const& recoParams;
       HcalRespCorrsGPU::Product const& respCorrs;
       HcalTimeCorrsGPU::Product const& timeCorrs;

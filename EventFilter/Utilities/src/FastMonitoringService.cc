@@ -116,7 +116,9 @@ namespace evf {
       "WaitChunk_newFileWaitThreadCopying",
       "WaitChunk_newFileWaitThread",
       "WaitChunk_newFileWaitChunkCopying",
-      "WaitChunk_newFileWaitChunk"};
+      "WaitChunk_newFileWaitChunk",
+      "inSupThrottled",
+      "inThrottled"};
 
   const std::string FastMonitoringService::nopath_ = "NoPath";
 
@@ -972,6 +974,9 @@ namespace evf {
             microstateCopy[i] == &reservedMicroStateNames[FastMonState::mFwkEoL])
           fmt_->m_data.inputState_[i] = FastMonState::inNewLumi;
       }
+    } else if (inputSupervisorState_ == FastMonState::inSupThrottled) {
+      //apply directly throttled state from supervisor
+      fmt_->m_data.inputState_[0] = inputSupervisorState_;
     } else
       fmt_->m_data.inputState_[0] = inputState_;
 

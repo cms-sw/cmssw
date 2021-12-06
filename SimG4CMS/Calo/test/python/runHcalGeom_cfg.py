@@ -7,8 +7,8 @@ process = cms.Process('Dump',Run3)
 
 # import of standard configurations
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.Geometry.GeometryExtended2021_cff') 
-#process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff') 
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff') 
+#process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff') 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')

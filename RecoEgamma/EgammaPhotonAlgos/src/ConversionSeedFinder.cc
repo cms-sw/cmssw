@@ -21,10 +21,15 @@ ConversionSeedFinder::ConversionSeedFinder(const edm::ParameterSet& config, edm:
   beamSpotToken_ = iC.consumes<reco::BeamSpot>(
       edm::InputTag("offlineBeamSpot"));  //hardcoded because the original was and no time to fix (sigh)
 
+  theMFToken_ = iC.esConsumes();
+  theGeomSearchTrackerToken_ = iC.esConsumes();
+  thePropagatorAlongMomentumToken_ = iC.esConsumes(edm::ESInputTag("", "alongMomElePropagator"));
+  thePropagatorOppositeToMomentumToken_ = iC.esConsumes(edm::ESInputTag("", "oppositeToMomElePropagator"));
   LogDebug("ConversionSeedFinder") << " CTOR "
                                    << "\n";
 
-  theMeasurementTrackerName_ = config.getParameter<std::string>("MeasurementTrackerName");
+  auto measurementTrackerName = config.getParameter<std::string>("MeasurementTrackerName");
+  theMeasurementTrackerToken_ = iC.esConsumes(edm::ESInputTag("", measurementTrackerName));
 }
 
 void ConversionSeedFinder::setEvent(const edm::Event& evt) {
@@ -39,20 +44,14 @@ void ConversionSeedFinder::setEvent(const edm::Event& evt) {
 }
 
 void ConversionSeedFinder::setEventSetup(const edm::EventSetup& es) {
-  es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker_);
-  es.get<IdealMagneticFieldRecord>().get(theMF_);
+  theGeomSearchTracker_ = es.getHandle(theGeomSearchTrackerToken_);
+  theMF_ = es.getHandle(theMFToken_);
 
-  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-  es.get<CkfComponentsRecord>().get(theMeasurementTrackerName_, measurementTrackerHandle);
-  theMeasurementTracker_ = measurementTrackerHandle.product();
+  theMeasurementTracker_ = &es.getData(theMeasurementTrackerToken_);
 
-  edm::ESHandle<Propagator> propagatorAlongMomHandle;
-  es.get<TrackingComponentsRecord>().get("alongMomElePropagator", propagatorAlongMomHandle);
-  thePropagatorAlongMomentum_ = &(*propagatorAlongMomHandle);
+  thePropagatorAlongMomentum_ = &es.getData(thePropagatorAlongMomentumToken_);
 
-  edm::ESHandle<Propagator> propagatorOppoToMomHandle;
-  es.get<TrackingComponentsRecord>().get("oppositeToMomElePropagator", propagatorOppoToMomHandle);
-  thePropagatorOppositeToMomentum_ = &(*propagatorOppoToMomHandle);
+  thePropagatorOppositeToMomentum_ = &es.getData(thePropagatorOppositeToMomentumToken_);
 }
 
 void ConversionSeedFinder::findLayers() {

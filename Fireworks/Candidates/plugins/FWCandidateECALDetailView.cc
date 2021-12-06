@@ -6,7 +6,6 @@ public:
   FWCandidateECALDetailView() {}
   ~FWCandidateECALDetailView() override {}
 
-private:
   FWCandidateECALDetailView(const FWCandidateECALDetailView&) = delete;                   // stop default
   const FWCandidateECALDetailView& operator=(const FWCandidateECALDetailView&) = delete;  // stop default
 };

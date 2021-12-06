@@ -127,7 +127,8 @@ namespace evf {
     void createBoLSFile(const uint32_t lumiSection, bool checkIfExists) const;
     void createLumiSectionFiles(const uint32_t lumiSection,
                                 const uint32_t currentLumiSection,
-                                bool doCreateBoLS = true);
+                                bool doCreateBoLS,
+                                bool doCreateEoLS);
     static int parseFRDFileHeader(std::string const& rawSourcePath,
                                   int& rawFd,
                                   uint16_t& rawHeaderSize,
@@ -172,6 +173,7 @@ namespace evf {
     void createProcessingNotificationMaybe() const;
     int readLastLSEntry(std::string const& file);
     unsigned int getLumisectionToStart() const;
+    unsigned int getStartLumisectionFromEnv() const { return startFromLS_; }
     void setDeleteTracking(std::mutex* fileDeleteLock,
                            std::list<std::pair<int, std::unique_ptr<InputFile>>>* filesToDelete) {
       fileDeleteLockPtr_ = fileDeleteLock;
@@ -182,6 +184,7 @@ namespace evf {
     std::string getStreamDestinations(std::string const& stream) const;
     std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
     static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
+    bool inputThrottled();
 
   private:
     bool bumpFile(unsigned int& ls,
@@ -281,9 +284,8 @@ namespace evf {
     std::unique_ptr<boost::asio::ip::tcp::resolver::query> query_;
     std::unique_ptr<boost::asio::ip::tcp::resolver::iterator> endpoint_iterator_;
     std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
-    //boost::asio::io_context io_context_;
-    //tcp::resolver resolver_;
-    //tcp::resolver::results_type endpoints_;
+
+    std::string input_throttled_file_;
   };
 }  // namespace evf
 

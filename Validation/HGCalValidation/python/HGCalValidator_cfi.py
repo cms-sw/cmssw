@@ -25,6 +25,7 @@ hgcalValidator = DQMEDAnalyzer(
     #2DLayerClusters, PFClusters, Tracksters
     label_lcl = layerClusterCaloParticleAssociation.label_lc,
     label_tst = cms.VInputTag(labelTst),
+    label_simTSFromCP = cms.InputTag("ticlSimTracksters", "fromCPs"),
 
     associator = cms.untracked.InputTag("layerClusterCaloParticleAssociationProducer"),
 
@@ -38,10 +39,15 @@ hgcalValidator = DQMEDAnalyzer(
     doCaloParticleSelection = cms.untracked.bool(True),
     #SimCluster related plots
     doSimClustersPlots = cms.untracked.bool(True),
+    label_SimClusters = cms.InputTag("SimClusters"),
+    label_SimClustersLevel = cms.InputTag("ClusterLevel"),
     #Layer Cluster related plots
     doLayerClustersPlots = cms.untracked.bool(True),
+    label_layerClusterPlots = cms.InputTag("hgcalLayerClusters"),
+    label_LCToCPLinking = cms.InputTag("LCToCP_association"),
     #Trackster related plots
     doTrackstersPlots = cms.untracked.bool(True),
+    label_TSToCPLinking = cms.InputTag("TSToCP_linking"),
 
     #The cumulative material budget in front of each layer. To be more specific, it
     #is the material budget just in front of the active material (not including it).

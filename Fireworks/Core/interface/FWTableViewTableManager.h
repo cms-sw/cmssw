@@ -114,7 +114,7 @@ protected:
   // bool m_sortOrder;
   mutable bool m_caughtExceptionInCellRender;
 
-private:
+public:
   FWTableViewTableManager(const FWTableViewTableManager &) = delete;                   // stop default
   const FWTableViewTableManager &operator=(const FWTableViewTableManager &) = delete;  // stop default
 };

@@ -22,6 +22,7 @@ process.genParticlePlusGEANT = cms.EDProducer("GenPlusSimParticleProducer",
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -32,6 +33,7 @@ process.genParticlePlusGEANT = cms.EDProducer("GenPlusSimParticleProducer",
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include <ext/algorithm>
 #include <memory>
@@ -60,6 +62,7 @@ namespace pat {
     edm::EDGetTokenT<reco::GenParticleCollection> gensToken_;
     edm::EDGetTokenT<std::vector<int>> genBarcodesToken_;
 
+    edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> tableToken_;
     /// Try to link the GEANT particle to the generator particle it came from
     /** Arguments:
    * -- Specific --
@@ -110,6 +113,9 @@ GenPlusSimParticleProducer::GenPlusSimParticleProducer(const ParameterSet &cfg)
   // Possibly allow a list of particle types
   if (cfg.exists("particleTypes")) {
     pdts_ = cfg.getParameter<vector<PdtEntry>>("particleTypes");
+    if (!pdts_.empty()) {
+      tableToken_ = esConsumes();
+    }
   }
 
   // Possibly allow a string cut
@@ -186,9 +192,10 @@ void GenPlusSimParticleProducer::addGenParticle(const SimTrack &stMom,
 void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup) {
   if (firstEvent_) {
     if (!pdts_.empty()) {
+      auto const &pdt = iSetup.getData(tableToken_);
       pdgIds_.clear();
       for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
-        itp->setup(iSetup);  // decode string->pdgId and vice-versa
+        itp->setup(pdt);  // decode string->pdgId and vice-versa
         pdgIds_.insert(std::abs(itp->pdgId()));
       }
       pdts_.clear();

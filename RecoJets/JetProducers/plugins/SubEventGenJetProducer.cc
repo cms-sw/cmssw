@@ -147,7 +147,7 @@ void SubEventGenJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup co
     double jetArea = 0.0;
     double pu = 0.;
 
-    writeSpecific(jet, Particle::LorentzVector(px, py, pz, E), vertex_, constituents, iSetup);
+    writeSpecific(jet, Particle::LorentzVector(px, py, pz, E), vertex_, constituents);
 
     jet.setJetArea(jetArea);
     jet.setPileup(pu);

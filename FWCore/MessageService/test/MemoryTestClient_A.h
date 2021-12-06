@@ -2,7 +2,7 @@
 #define FWCore_MessageService_test_MemoryTestClient_A_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <vector>
@@ -16,7 +16,7 @@ namespace edm {
 
 namespace edmtest {
 
-  class MemoryTestClient_A : public edm::EDAnalyzer {
+  class MemoryTestClient_A : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
     explicit MemoryTestClient_A(edm::ParameterSet const&);
 

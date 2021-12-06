@@ -33,7 +33,7 @@
 
 class AlignmentMonitorMuonVsCurvature : public AlignmentMonitorBase {
 public:
-  AlignmentMonitorMuonVsCurvature(const edm::ParameterSet &cfg);
+  AlignmentMonitorMuonVsCurvature(const edm::ParameterSet &cfg, edm::ConsumesCollector iC);
   ~AlignmentMonitorMuonVsCurvature() override {}
 
   void book() override;
@@ -44,6 +44,14 @@ public:
   void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft, const Trajectory *traj = nullptr);
 
 private:
+  // es token
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_esTokenGBTGeom;
+  const edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> m_esTokenDetId;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> m_esTokenProp;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_esTokenMF;
+  const MuonResidualsFromTrack::BuilderToken m_esTokenBuilder;
+
+  // parameters
   edm::InputTag m_muonCollectionTag;
   double m_minTrackPt;
   double m_minTrackP;
@@ -74,8 +82,14 @@ private:
   TH1F *th1f_trackerRedChi2Diff;
 };
 
-AlignmentMonitorMuonVsCurvature::AlignmentMonitorMuonVsCurvature(const edm::ParameterSet &cfg)
-    : AlignmentMonitorBase(cfg, "AlignmentMonitorMuonVsCurvature"),
+AlignmentMonitorMuonVsCurvature::AlignmentMonitorMuonVsCurvature(const edm::ParameterSet &cfg,
+                                                                 edm::ConsumesCollector iC)
+    : AlignmentMonitorBase(cfg, iC, "AlignmentMonitorMuonVsCurvature"),
+      m_esTokenGBTGeom(iC.esConsumes()),
+      m_esTokenDetId(iC.esConsumes(edm::ESInputTag("", "MuonDetIdAssociator"))),
+      m_esTokenProp(iC.esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
+      m_esTokenMF(iC.esConsumes()),
+      m_esTokenBuilder(iC.esConsumes(MuonResidualsFromTrack::builderESInputTag())),
       m_muonCollectionTag(cfg.getParameter<edm::InputTag>("muonCollectionTag")),
       m_minTrackPt(cfg.getParameter<double>("minTrackPt")),
       m_minTrackP(cfg.getParameter<double>("minTrackP")),
@@ -182,20 +196,14 @@ void AlignmentMonitorMuonVsCurvature::book() {
 void AlignmentMonitorMuonVsCurvature::event(const edm::Event &iEvent,
                                             const edm::EventSetup &iSetup,
                                             const ConstTrajTrackPairCollection &trajtracks) {
-  edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
-
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByLabel(m_beamSpotTag, beamSpot);
 
-  edm::ESHandle<DetIdAssociator> muonDetIdAssociator_;
-  iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator_);
-
-  edm::ESHandle<Propagator> prop;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", prop);
-
-  edm::ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const GlobalTrackingGeometry *globalGeometry = &iSetup.getData(m_esTokenGBTGeom);
+  const DetIdAssociator *muonDetIdAssociator_ = &iSetup.getData(m_esTokenDetId);
+  const Propagator *prop = &iSetup.getData(m_esTokenProp);
+  const MagneticField *magneticField = &iSetup.getData(m_esTokenMF);
+  auto builder = iSetup.getHandle(m_esTokenBuilder);
 
   if (m_muonCollectionTag.label().empty())  // use trajectories
   {
@@ -206,7 +214,7 @@ void AlignmentMonitorMuonVsCurvature::event(const edm::Event &iEvent,
 
       if (track->pt() > m_minTrackPt && track->p() > m_minTrackP && fabs(track->dxy(beamSpot->position())) < m_maxDxy) {
         MuonResidualsFromTrack muonResidualsFromTrack(
-            iSetup, magneticField, globalGeometry, muonDetIdAssociator_, prop, traj, track, pNavigator(), 1000.);
+            builder, magneticField, globalGeometry, muonDetIdAssociator_, prop, traj, track, pNavigator(), 1000.);
         processMuonResidualsFromTrack(muonResidualsFromTrack, traj);
       }  // end if track pT is within range
     }    // end loop over tracks

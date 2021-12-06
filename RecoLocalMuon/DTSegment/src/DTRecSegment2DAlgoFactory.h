@@ -12,6 +12,7 @@
 
 /* Base Class Headers */
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DBaseAlgo.h"
 
 /* Collaborating Class Declarations */
@@ -22,5 +23,6 @@
 
 /* Class DTRecSegment2DAlgoFactory Interface */
 
-typedef edmplugin::PluginFactory<DTRecSegment2DBaseAlgo *(const edm::ParameterSet &)> DTRecSegment2DAlgoFactory;
+typedef edmplugin::PluginFactory<DTRecSegment2DBaseAlgo *(const edm::ParameterSet &, edm::ConsumesCollector)>
+    DTRecSegment2DAlgoFactory;
 #endif  // DTSegment_DTRecSegment2DAlgoFactory_h

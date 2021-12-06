@@ -29,11 +29,11 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTDataBuffer.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegLoc.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegLoc.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
@@ -53,10 +53,12 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-L1MuDTSectorReceiver::L1MuDTSectorReceiver(L1MuDTSectorProcessor& sp, edm::ConsumesCollector&& iC)
+L1MuDTSectorReceiver::L1MuDTSectorReceiver(L1MuDTSectorProcessor& sp, edm::ConsumesCollector iC)
     : m_sp(sp),
       m_DTDigiToken(iC.consumes<L1MuDTChambPhContainer>(m_sp.tf().config()->getDTDigiInputTag())),
-      m_CSCTrSToken(iC.mayConsume<CSCTriggerContainer<csctf::TrackStub> >(m_sp.tf().config()->getCSCTrSInputTag())) {}
+      m_CSCTrSToken(iC.mayConsume<CSCTriggerContainer<csctf::TrackStub> >(m_sp.tf().config()->getCSCTrSInputTag())),
+      m_parsToken(iC.esConsumes()),
+      m_msksToken(iC.esConsumes()) {}
 
 //--------------
 // Destructor --
@@ -73,8 +75,8 @@ L1MuDTSectorReceiver::~L1MuDTSectorReceiver() {
 // receive track segment data from the DTBX and CSC chamber triggers
 //
 void L1MuDTSectorReceiver::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
-  c.get<L1MuDTTFParametersRcd>().get(pars);
-  c.get<L1MuDTTFMasksRcd>().get(msks);
+  pars = c.getHandle(m_parsToken);
+  msks = c.getHandle(m_msksToken);
 
   // get track segments from DTBX chamber trigger
   receiveDTBXData(bx, e, c);

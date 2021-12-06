@@ -20,7 +20,7 @@
 // constructors and destructor
 //
 TotemRPNumberingScheme::TotemRPNumberingScheme(int i) {
-  edm::LogInfo("ForwardSim") << " Creating TotemRPNumberingScheme";
+  edm::LogVerbatim("ForwardSim") << " Creating TotemRPNumberingScheme";
 }
 
 TotemRPNumberingScheme::~TotemRPNumberingScheme() {}

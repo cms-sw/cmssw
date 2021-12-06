@@ -20,7 +20,7 @@
 // constructors and destructor
 //
 TotemT1NumberingScheme::TotemT1NumberingScheme(int i) {
-  edm::LogInfo("ForwardSim") << " Creating TotemT1NumberingScheme";
+  edm::LogVerbatim("ForwardSim") << " Creating TotemT1NumberingScheme";
   setCurrentDetectorPosition(i);
 }
 

@@ -15,7 +15,7 @@
 
 using namespace std;
 CosmicSeedGenerator::CosmicSeedGenerator(edm::ParameterSet const& conf)
-    : cosmic_seed(conf),
+    : cosmic_seed(conf, consumesCollector()),
       check(conf, consumesCollector())
 
 {
@@ -45,10 +45,8 @@ void CosmicSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es) {
   //check on the number of clusters
   size_t clustsOrZero = check.tooManyClusters(ev);
   if (!clustsOrZero) {
-    cosmic_seed.init(*stereorecHits, *rphirecHits, *matchedrecHits, es);
-
     // invoke the seed finding algorithm
-    cosmic_seed.run(*output, es);
+    cosmic_seed.run(*stereorecHits, *rphirecHits, *matchedrecHits, es, *output);
   } else
     edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
 

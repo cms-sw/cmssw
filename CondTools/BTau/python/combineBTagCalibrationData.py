@@ -7,7 +7,6 @@ import sys
 import itertools
 from . import checkBTagCalibrationConsistency as checker
 
-import six
 
 def check_csv_data(csv_data):
     res = checker.run_check_csv(csv_data, False, False, False)
@@ -41,7 +40,7 @@ def main():
     print('\n' + '='*80)
     print('Checking consistency of individual input files...')
     print('='*80)
-    for fname, csv_data in six.iteritems(all_csv_data):
+    for fname, csv_data in all_csv_data.items():
         print('\nChecking file:', fname)
         print('='*80)
         check_csv_data(csv_data)
@@ -49,7 +48,7 @@ def main():
     print('\n' + '='*80)
     print('Checking consistency of combinations...')
     print('='*80)
-    for one, two in itertools.combinations(six.iteritems(all_csv_data), 2):
+    for one, two in itertools.combinations(all_csv_data.items(), 2):
         print('\nChecking combination:', one[0], two[0])
         print('='*80)
         check_csv_data(one[1] + two[1])
@@ -58,7 +57,7 @@ def main():
     print('='*80)
     with open(sys.argv[-1], 'w') as f:
         f.write(header)
-        for csv_data in six.itervalues(all_csv_data):
+        for csv_data in all_csv_data.values():
             f.write('\n')
             f.writelines(csv_data)
 

@@ -1,6 +1,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -50,7 +50,7 @@
 // class decleration
 //
 
-class DisplayGeom : public edm::EDAnalyzer {
+class DisplayGeom : public edm::one::EDAnalyzer<> {
 public:
   explicit DisplayGeom(const edm::ParameterSet&);
   ~DisplayGeom() override;
@@ -82,13 +82,20 @@ private:
 
   edm::ESWatcher<DisplayGeomRecord> m_geomWatcher;
 
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_magFieldToken;
+  const edm::ESGetToken<TGeoManager, DisplayGeomRecord> m_displayGeomToken;
+
   void remakeGeometry(const DisplayGeomRecord& dgRec);
 };
 
 DEFINE_FWK_MODULE(DisplayGeom);
 
 DisplayGeom::DisplayGeom(const edm::ParameterSet& iConfig)
-    : m_eve(), m_geomList(nullptr), m_MF_component(0), m_geomWatcher(this, &DisplayGeom::remakeGeometry) {
+    : m_eve(),
+      m_geomList(nullptr),
+      m_MF_component(0),
+      m_geomWatcher(this, &DisplayGeom::remakeGeometry),
+      m_displayGeomToken(esConsumes()) {
   m_level = iConfig.getUntrackedParameter<int>("level", 2);  // Geometry level to visualize
 
   m_MF = iConfig.getUntrackedParameter<int>("MF", false);  // Show the MF geometry, instead of detector geometry
@@ -110,6 +117,10 @@ DisplayGeom::DisplayGeom(const edm::ParameterSet& iConfig)
     m_MF_component = 5;
   } else {  // Anything else -> |B|
     m_MF_component = 0;
+  }
+
+  if (m_MF_component != -1) {
+    m_magFieldToken = esConsumes();
   }
 
   if (m_MF_component == 0) {
@@ -157,8 +168,7 @@ void DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     m_geomWatcher.check(iSetup);
 
     if (m_MF_component != -1) {
-      edm::ESHandle<MagneticField> field;
-      iSetup.get<IdealMagneticFieldRecord>().get(field);
+      MagneticField const& field = iSetup.getData(m_magFieldToken);
 
       gStyle->SetPalette(1, nullptr);
 
@@ -180,7 +190,7 @@ void DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       TEveStraightLineSet* ls = nullptr;
       if (m_MF_plane_draw_dir) {
-        new TEveStraightLineSet("MF_line_direction");
+        ls = new TEveStraightLineSet("MF_line_direction");
         ls->SetPickable(false);
         ls->SetLineColor(kGreen);
         ls->SetMarkerColor(kGreen);
@@ -230,7 +240,7 @@ void DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         for (int j = 0; j < m_MF_plane_N2; j++) {
           TEveVectorD p = d1 * Double_t(i) + d2 * Double_t(j) + v0;
           GlobalPoint pos(p.fX, p.fY, p.fZ);
-          GlobalVector b = field->inTesla(pos) * 1000.;  // in mT
+          GlobalVector b = field.inTesla(pos) * 1000.;  // in mT
           float value = 0.;
           if (m_MF_component == 0) {  //BMOD
             value = b.mag();
@@ -312,9 +322,7 @@ void DisplayGeom::endJob() {}
 void DisplayGeom::remakeGeometry(const DisplayGeomRecord& dgRec) {
   m_geomList->DestroyElements();
 
-  edm::ESHandle<TGeoManager> geom;
-  dgRec.get(geom);
-  TEveGeoManagerHolder _tgeo(const_cast<TGeoManager*>(geom.product()));
+  TEveGeoManagerHolder _tgeo(const_cast<TGeoManager*>(&dgRec.get(m_displayGeomToken)));
 
   // To have a full one, all detectors in one top-node:
   // make_node("/cms:World_1/cms:CMSE_1", 4, kTRUE);

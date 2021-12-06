@@ -15,6 +15,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
@@ -26,20 +27,20 @@
 using namespace std;
 using namespace edm;
 
-DTRefitAndCombineReco4D::DTRefitAndCombineReco4D(const ParameterSet& pset)
-    : DTRecSegment4DBaseAlgo(pset), theAlgoName("DTRefitAndCombineReco4D") {
+DTRefitAndCombineReco4D::DTRefitAndCombineReco4D(const ParameterSet& pset, ConsumesCollector cc)
+    : DTRecSegment4DBaseAlgo(pset), theAlgoName("DTRefitAndCombineReco4D"), theDTGeometryToken(cc.esConsumes()) {
   // debug parameter
   debug = pset.getUntrackedParameter<bool>("debug");
 
   // the updator
-  theUpdator = new DTSegmentUpdator(pset);
+  theUpdator = new DTSegmentUpdator(pset, cc);
 
   // the max allowd chi^2 for the fit of th combination of two phi segments
   theMaxChi2forPhi = pset.getParameter<double>("MaxChi2forPhi");
 }
 
 void DTRefitAndCombineReco4D::setES(const EventSetup& setup) {
-  setup.get<MuonGeometryRecord>().get(theDTGeometry);
+  theDTGeometry = setup.getHandle(theDTGeometryToken);
   theUpdator->setES(setup);
   //  the2DAlgo->setES(setup);
 }

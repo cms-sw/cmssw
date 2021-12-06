@@ -2,12 +2,8 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include <cmath>
 
@@ -16,20 +12,13 @@ typedef TransientTrackingRecHit::ConstRecHitPointer TkHitPairsCachedHit;
 CosmicHitTripletGeneratorFromLayerTriplet::CosmicHitTripletGeneratorFromLayerTriplet(const LayerWithHits *inner,
                                                                                      const LayerWithHits *middle,
                                                                                      const LayerWithHits *outer,
-                                                                                     const edm::EventSetup &iSetup)
-    : TTRHbuilder(nullptr),
-      trackerGeometry(nullptr),
+                                                                                     const TrackerGeometry &trackGeom)
+    : trackerGeometry(&trackGeom),
       //theLayerCache(*layerCache),
       theOuterLayer(outer),
       theMiddleLayer(middle),
-      theInnerLayer(inner) {
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  trackerGeometry = tracker.product();
-}
-void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(const TrackingRegion &region,
-                                                            OrderedHitTriplets &result,
-                                                            const edm::EventSetup &iSetup) {
+      theInnerLayer(inner) {}
+void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(const TrackingRegion &region, OrderedHitTriplets &result) {
   if (theInnerLayer->recHits().empty())
     return;
   if (theMiddleLayer->recHits().empty())
@@ -43,10 +32,6 @@ void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(const TrackingRegion
   std::vector<const TrackingRecHit *>::const_iterator ohh;
   std::vector<const TrackingRecHit *>::const_iterator mhh;
   std::vector<const TrackingRecHit *>::const_iterator ihh;
-
-  std::string builderName = "WithTrackAngle";
-  edm::ESHandle<TransientTrackingRecHitBuilder> builder;
-  iSetup.get<TransientRecHitRecord>().get(builderName, builder);
 
   if (!seedfromoverlaps) {
     for (ohh = theOuterLayer->recHits().begin(); ohh != theOuterLayer->recHits().end(); ohh++) {

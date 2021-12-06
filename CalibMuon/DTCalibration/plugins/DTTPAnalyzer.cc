@@ -3,9 +3,11 @@
  *  \author A. Vilela Pereira
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <string>
 #include <map>
@@ -17,13 +19,11 @@ class DTGeometry;
 class DTTTrigBaseSync;
 class TFile;
 
-class DTTPAnalyzer : public edm::EDAnalyzer {
+class DTTPAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   DTTPAnalyzer(const edm::ParameterSet&);
   ~DTTPAnalyzer() override;
 
-  //void beginJob();
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
@@ -34,16 +34,14 @@ private:
   edm::InputTag digiLabel_;
 
   TFile* rootFile_;
-  //const DTT0* tZeroMap_;
   edm::ESHandle<DTGeometry> dtGeom_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
   std::unique_ptr<DTTTrigBaseSync> tTrigSync_;
 
   // Map of the t0 and sigma histos by layer
   std::map<DTWireId, int> nDigisPerWire_;
   std::map<DTWireId, double> sumWPerWire_;
   std::map<DTWireId, double> sumW2PerWire_;
-  //std::map<DTLayerId, TH1F*> meanHistoMap_;
-  //std::map<DTLayerId, TH1F*> sigmaHistoMap_;
 };
 
 #include "FWCore/Framework/interface/Event.h"
@@ -53,7 +51,6 @@ private:
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
@@ -66,34 +63,31 @@ private:
 #include "TFile.h"
 
 DTTPAnalyzer::DTTPAnalyzer(const edm::ParameterSet& pset)
-    : subtractT0_(pset.getParameter<bool>("subtractT0")), digiLabel_(pset.getParameter<edm::InputTag>("digiLabel")) {
+    : subtractT0_(pset.getParameter<bool>("subtractT0")),
+      digiLabel_(pset.getParameter<edm::InputTag>("digiLabel")),
+      dtGeomToken_(esConsumes()) {
   std::string rootFileName = pset.getUntrackedParameter<std::string>("rootFileName");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
   rootFile_->cd();
 
   if (subtractT0_)
     tTrigSync_ = DTTTrigSyncFactory::get()->create(pset.getParameter<std::string>("tTrigMode"),
-                                                   pset.getParameter<edm::ParameterSet>("tTrigModeConfig"));
+                                                   pset.getParameter<edm::ParameterSet>("tTrigModeConfig"),
+                                                   consumesCollector());
 }
 
 DTTPAnalyzer::~DTTPAnalyzer() { rootFile_->Close(); }
-
-void DTTPAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
-  // Get the t0 map from the DB
-  if (subtractT0_) {
-    /*ESHandle<DTT0> t0;
-     setup.get<DTT0Rcd>().get(t0);
-     tZeroMap_ = &*t0;*/
-    tTrigSync_->setES(setup);
-  }
-  // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom_);
-}
 
 void DTTPAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   // Get the digis from the event
   edm::Handle<DTDigiCollection> digis;
   event.getByLabel(digiLabel_, digis);
+
+  if (subtractT0_) {
+    tTrigSync_->setES(setup);
+  }
+  // Get the DT Geometry
+  dtGeom_ = setup.getHandle(dtGeomToken_);
 
   // Iterate through all digi collections ordered by LayerId
   DTDigiCollection::DigiRangeIterator dtLayerIt;

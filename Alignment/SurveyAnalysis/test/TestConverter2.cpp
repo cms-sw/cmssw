@@ -18,7 +18,7 @@
 // #include "TRotMatrix.h"
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,7 +45,7 @@
 //
 using namespace std;
 
-class TestConverter2 : public edm::EDAnalyzer {
+class TestConverter2 : public edm::one::EDAnalyzer<> {
 public:
   explicit TestConverter2(const edm::ParameterSet&);
   ~TestConverter2();
@@ -54,6 +54,11 @@ public:
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
+  const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> aliErrToken_;
+
   TTree* theTree;
   TFile* theFile;
   edm::ParameterSet theParameterSet;
@@ -69,7 +74,12 @@ private:
 //
 // constructors and destructor
 //
-TestConverter2::TestConverter2(const edm::ParameterSet& iConfig) : theParameterSet(iConfig) {
+TestConverter2::TestConverter2(const edm::ParameterSet& iConfig)
+    : tTopoToken_(esConsumes()),
+      tkGeomToken_(esConsumes()),
+      aliToken_(esConsumes()),
+      aliErrToken_(esConsumes()),
+      theParameterSet(iConfig) {
   // Open root file and define tree
   std::string fileName = theParameterSet.getUntrackedParameter<std::string>("fileName", "test.root");
   theFile = new TFile(fileName.c_str(), "RECREATE");
@@ -106,23 +116,16 @@ TestConverter2::~TestConverter2() {
 
 void TestConverter2::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::LogInfo("TrackerAlignment") << "Starting!";
-
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
   //
   // Retrieve tracker geometry from event setup
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+  const TrackerGeometry* trackerGeometry = &iSetup.getData(tkGeomToken_);
 
   // Retrieve alignment[Error]s from DBase
-  edm::ESHandle<Alignments> alignments;
-  iSetup.get<TrackerAlignmentRcd>().get(alignments);
-  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-  iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
-
+  const Alignments* alignments = &iSetup.getData(aliToken_);
+  const AlignmentErrorsExtended* alignmentErrors = &iSetup.getData(aliErrToken_);
   auto alignErrors = alignmentErrors->m_alignError;
 
   // Now loop on detector units, and store difference position and orientation w.r.t. survey

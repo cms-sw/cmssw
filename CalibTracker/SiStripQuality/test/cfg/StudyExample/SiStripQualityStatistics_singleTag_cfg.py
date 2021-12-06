@@ -81,11 +81,10 @@ process.onlineSiStripQualityProducer = cms.ESProducer("SiStripQualityESProducer"
 #-------------------------------------------------
 process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
-                             dataLabel = cms.untracked.string(""),
-                             TkMapFileName = cms.untracked.string("TkMapBadComponents_singleTag.png")  #available filetypes: .pdf .png .jpg .svg
-                             )
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.stat = siStripQualityStatistics.clone(
+        TkMapFileName=cms.untracked.string("TkMapBadComponents_singleTag.png")  #available filetypes: .pdf .png .jpg .svg
+        )
 
 process.p = cms.Path(process.stat)
 

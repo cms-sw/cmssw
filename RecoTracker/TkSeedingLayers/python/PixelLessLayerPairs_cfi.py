@@ -29,12 +29,12 @@ PixelLessLayerPairs = seedingLayersEDProducer.clone(
 # we need a different configuaration of rings for TID disks. Is it feasible 
 # in the current framework?? 
 
-    TIB = cms.PSet(
+    TIB = dict(
 	matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle'),
         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
-    TID = cms.PSet(
+    TID = dict(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
@@ -42,7 +42,7 @@ PixelLessLayerPairs = seedingLayersEDProducer.clone(
         maxRing = cms.int32(2),
         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
-    TEC = cms.PSet(
+    TEC = dict(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),

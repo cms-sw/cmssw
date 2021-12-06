@@ -3,9 +3,7 @@
   <use name="FWCore/ParameterSet"/>
   <use name="SimDataFormats/Track"/>
   <use name="DataFormats/TrackReco"/>
-  <use name="DataFormats/MuonReco"/>
   <use name="SimDataFormats/TrackingAnalysis"/>
-  <use name="SimTracker/Records"/>
   <use name="SimMuon/MCTruth"/>
   <flags EDM_PLUGIN="1"/>
 </library>

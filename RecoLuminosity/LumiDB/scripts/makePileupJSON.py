@@ -4,7 +4,6 @@ import argparse
 import RecoLuminosity.LumiDB.LumiConstants as LumiConstants
 import re
 from math import sqrt
-import six
 
 ##############################
 ## ######################## ##

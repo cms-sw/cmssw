@@ -48,10 +48,12 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset)
       useAbsoluteRate_(pset.getParameter<bool>("useAbsoluteRate")),
       readDB_(true),
       defaultTtrig_(0),
-      dbLabel_(pset.getUntrackedParameter<string>("dbLabel", "")),
       //fastAnalysis_( pset.getParameter<bool>("fastAnalysis", true) ),
       wireIdWithHisto_(std::vector<DTWireId>()),
-      lumiMax_(3000) {
+      lumiMax_(3000),
+      dtGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      ttrigToken_(
+          esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")))) {
   // Get the debug parameter for verbose output
   //debug = ps.getUntrackedParameter<bool>("debug");
   /*// The analysis type
@@ -96,12 +98,10 @@ void DTNoiseCalibration::beginJob() {
 
 void DTNoiseCalibration::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom_);
-
+  dtGeom_ = setup.getHandle(dtGeomToken_);
   // tTrig
   if (readDB_)
-    setup.get<DTTtrigRcd>().get(dbLabel_, tTrigMap_);
-
+    tTrigMap_ = &setup.getData(ttrigToken_);
   runBeginTime_ = time_t(run.beginTime().value() >> 32);
   runEndTime_ = time_t(run.endTime().value() >> 32);
   /*

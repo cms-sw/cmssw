@@ -18,10 +18,11 @@ namespace edmtest {
     //  std::cerr << "...xa = " << xa << "xb = " << xb << "\n";
   }
 
-  void PSetTestClient_A::analyze(edm::Event const& /*unused*/
+  void PSetTestClient_A::analyze(edm::StreamID,
+                                 edm::Event const& /*unused*/
                                  ,
                                  edm::EventSetup const& /*unused*/
-  ) {
+  ) const {
     //  std::cerr << "PSetTestClient_A::analyze called\n";
     edm::LogError("x") << "xa = " << xa << " xb = " << xb;
   }

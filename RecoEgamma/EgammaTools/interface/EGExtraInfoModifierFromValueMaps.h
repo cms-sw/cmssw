@@ -281,7 +281,7 @@ void EGXtraModFromVMObjFiller<int>::addValueToObject(
 
 template <>
 template <>
-void EGXtraModFromVMObjFiller<egmodifier::EGID>::addValuesToObject(
+inline void EGXtraModFromVMObjFiller<egmodifier::EGID>::addValuesToObject(
     pat::Electron& obj,
     const edm::Ptr<reco::Candidate>& ptr,
     const std::unordered_map<std::string, edm::EDGetTokenT<edm::ValueMap<float>>>& vmaps_token,
@@ -299,7 +299,7 @@ void EGXtraModFromVMObjFiller<egmodifier::EGID>::addValuesToObject(
 
 template <>
 template <>
-void EGXtraModFromVMObjFiller<egmodifier::EGID>::addValuesToObject(
+inline void EGXtraModFromVMObjFiller<egmodifier::EGID>::addValuesToObject(
     pat::Photon& obj,
     const edm::Ptr<reco::Candidate>& ptr,
     const std::unordered_map<std::string, edm::EDGetTokenT<edm::ValueMap<float>>>& vmaps_token,

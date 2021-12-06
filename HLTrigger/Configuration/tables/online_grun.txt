@@ -691,6 +691,9 @@ HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS30_Trk1_eta2p1_Reg_CrossL1_v*	#	CMSHL
 
 HLT_L1SingleMuCosmics_v*							#	CMSHLT-2097
 
+HLT_PPSMaxTracksPerArm1_v*							#	CMSHLT-2179
+HLT_PPSMaxTracksPerRP4_v*							#	CMSHLT-2179
+
 ## EndPath ##
 
 PhysicsEndOfFillOutput

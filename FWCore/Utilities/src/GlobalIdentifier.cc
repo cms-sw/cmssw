@@ -1,5 +1,5 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
-#include "Guid.h"
+#include "FWCore/Utilities/interface/Guid.h"
 
 namespace edm {
   std::string createGlobalIdentifier(bool binary) {

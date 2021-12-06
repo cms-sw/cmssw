@@ -14,6 +14,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include <vector>
 
@@ -38,6 +40,7 @@ private:
   double maxChi2_;
   double maxAnglePhi_;
   double maxAngleZ_;
+  edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> theStatusMapToken_;
 };
 
 #endif

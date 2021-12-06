@@ -16,7 +16,7 @@ namespace trklet {
 
   class CandidateMatchMemory : public MemoryBase {
   public:
-    CandidateMatchMemory(std::string name, Settings const& settings, unsigned int iSector);
+    CandidateMatchMemory(std::string name, Settings const& settings);
 
     ~CandidateMatchMemory() override = default;
 
@@ -28,7 +28,7 @@ namespace trklet {
 
     void clean() override { matches_.clear(); }
 
-    void writeCM(bool first);
+    void writeCM(bool first, unsigned int iSector);
 
   private:
     std::vector<std::pair<std::pair<Tracklet*, int>, const Stub*> > matches_;

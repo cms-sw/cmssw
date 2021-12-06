@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // File: HGCalSD.cc
 // Description: Sensitive Detector class for High Granularity Calorimeter
 ///////////////////////////////////////////////////////////////////////////////
@@ -8,9 +8,6 @@
 #include "SimG4CMS/Calo/interface/HGCalSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "G4LogicalVolumeStore.hh"
@@ -29,7 +26,7 @@
 //#define EDM_ML_DEBUG
 
 HGCalSD::HGCalSD(const std::string& name,
-                 const edm::EventSetup& es,
+                 const HGCalDDDConstants* hgc,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
@@ -39,7 +36,7 @@ HGCalSD::HGCalSD(const std::string& name,
              manager,
              static_cast<float>(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")),
-      hgcons_(nullptr),
+      hgcons_(hgc),
       slopeMin_(0),
       levelT1_(99),
       levelT2_(99),
@@ -144,9 +141,15 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
       module = touch->GetReplicaNumber(3);
       cell = touch->GetReplicaNumber(1);
     } else {
-      layer = touch->GetReplicaNumber(2);
-      module = touch->GetReplicaNumber(1);
+      layer = touch->GetReplicaNumber(3);
+      module = touch->GetReplicaNumber(2);
     }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_
+                               << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":"
+                               << module << ":" << cell;
+    printDetectorLevels(touch);
+#endif
   } else if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
     layer = touch->GetReplicaNumber(0);
 #ifdef EDM_ML_DEBUG
@@ -200,11 +203,7 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
 }
 
 void HGCalSD::update(const BeginOfJob* job) {
-  const edm::EventSetup* es = (*job)();
-  edm::ESHandle<HGCalDDDConstants> hdc;
-  es->get<IdealGeometryRecord>().get(nameX_, hdc);
-  if (hdc.isValid()) {
-    hgcons_ = hdc.product();
+  if (hgcons_ != nullptr) {
     geom_mode_ = hgcons_->geomMode();
     slopeMin_ = hgcons_->minSlope();
     levelT1_ = hgcons_->levelTop(0);

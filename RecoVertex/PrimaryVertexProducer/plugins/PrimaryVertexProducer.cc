@@ -242,31 +242,20 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       }
 
       TransientVertex v;
-      if (algorithm->useBeamConstraint && validBS && ((*iclus).size() > 1)) {
+      if (algorithm->useBeamConstraint && validBS && (iclus->size() > 1)) {
         v = algorithm->fitter->vertex(*iclus, beamSpot);
-
-        if (f4D) {
-          if (v.isValid()) {
-            auto err = v.positionError().matrix4D();
-            auto trkweightMap3d = v.weightMap();  // copy the 3 fit weights
-            err(3, 3) = vartime;
-            v = TransientVertex(v.position(), meantime, err, v.originalTracks(), v.totalChiSquared());
-            v.weightMap(trkweightMap3d);
-          }
-        }
-
-      } else if (!(algorithm->useBeamConstraint) && ((*iclus).size() > 1)) {
+      } else if (!(algorithm->useBeamConstraint) && (iclus->size() > 1)) {
         v = algorithm->fitter->vertex(*iclus);
-
-        if (f4D) {
-          if (v.isValid()) {
-            auto err = v.positionError().matrix4D();
-            err(3, 3) = vartime;
-            v = TransientVertex(v.position(), meantime, err, v.originalTracks(), v.totalChiSquared());
-          }
-        }
-
       }  // else: no fit ==> v.isValid()=False
+
+      // 4D vertices: add timing information
+      if (f4D and v.isValid()) {
+        auto err = v.positionError().matrix4D();
+        err(3, 3) = vartime;
+        auto trkWeightMap3d = v.weightMap();  // copy the 3d-fit weights
+        v = TransientVertex(v.position(), meantime, err, v.originalTracks(), v.totalChiSquared(), v.degreesOfFreedom());
+        v.weightMap(trkWeightMap3d);
+      }
 
       if (fVerbose) {
         if (v.isValid()) {

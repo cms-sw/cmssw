@@ -19,11 +19,11 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
@@ -77,7 +77,7 @@ void CaloPropagationTest::analyze(const edm::Event& iEvent, const edm::EventSetu
       const HcalDetId hid(id);
       std::pair<DetId, bool> info = spr::propagateIdECAL(hid, geo, bField, debug);
       if (!info.second) {
-        std::cout << "No valid Ecal Id found for " << hid << std::endl;
+        edm::LogVerbatim("IsoTrack") << "No valid Ecal Id found for " << hid;
       } else {
         CaloTowerDetId tower = ctmap->towerOf(id);
         std::vector<DetId> idts = ctmap->constituentsOf(tower);
@@ -89,11 +89,11 @@ void CaloPropagationTest::analyze(const edm::Event& iEvent, const edm::EventSetu
           }
         }
         if ((info.first).subdetId() == EcalBarrel) {
-          std::cout << "Find " << EBDetId(info.first) << " as partner of " << hid << " and mtaching with tower "
-                    << found << std::endl;
+          edm::LogVerbatim("IsoTrack") << "Find " << EBDetId(info.first) << " as partner of " << hid
+                                       << " and mtaching with tower " << found;
         } else {
-          std::cout << "Find " << EEDetId(info.first) << " as partner of " << hid << " and mtaching with tower "
-                    << found << std::endl;
+          edm::LogVerbatim("IsoTrack") << "Find " << EEDetId(info.first) << " as partner of " << hid
+                                       << " and mtaching with tower " << found;
         }
       }
     }

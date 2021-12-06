@@ -11,7 +11,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,7 +29,7 @@
 // class decleration
 //
 
-class TkVoltageMapCreator : public edm::EDAnalyzer {
+class TkVoltageMapCreator : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit TkVoltageMapCreator(const edm::ParameterSet&);
   ~TkVoltageMapCreator() override;
@@ -73,10 +73,7 @@ TkVoltageMapCreator::TkVoltageMapCreator(const edm::ParameterSet& iConfig)
   //now do what ever initialization is needed
 }
 
-TkVoltageMapCreator::~TkVoltageMapCreator() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+TkVoltageMapCreator::~TkVoltageMapCreator() = default;
 
 //
 // member functions

@@ -24,8 +24,6 @@
 #include <algorithm>
 
 // user include files
-//   base classes
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -65,7 +63,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "boost/lexical_cast.hpp"
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 // forward declarations
@@ -84,7 +81,7 @@ public:
   class L1ExtraMonElement {
   public:
     // constructor
-    L1ExtraMonElement(const edm::EventSetup&, const int);
+    L1ExtraMonElement(const L1GetHistLimits::Tokens&, const int);
 
     // destructor
     virtual ~L1ExtraMonElement();
@@ -139,6 +136,7 @@ public:
                           const int bxInEvent);
 
   private:
+    L1GetHistLimits::Tokens m_tokens;
     std::vector<MonitorElement*> m_monElement;
 
     /// histogram index for each quantity, set during histogram booking
@@ -175,7 +173,6 @@ protected:
 
 private:
   /// input parameters
-
   L1RetrieveL1Extra m_retrieveL1Extra;
   edm::InputTag L1ExtraIsoTauJetSource;
   /// directory name for L1Extra plots
@@ -197,6 +194,8 @@ private:
 
 private:
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraIsoTauJetTok;
+
+  L1GetHistLimits::Tokens m_histTokens;
 
   /// pointers to L1ExtraMonElement for each sub-analysis
   std::vector<L1ExtraMonElement<l1extra::L1MuonParticleCollection>*> m_meAnalysisL1ExtraMuon;

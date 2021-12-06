@@ -28,6 +28,8 @@ namespace edm {
   public:
     ConstRespectingPtr();
     explicit ConstRespectingPtr(T*);
+    ConstRespectingPtr(ConstRespectingPtr<T> const&) = delete;
+    ConstRespectingPtr& operator=(ConstRespectingPtr<T> const&) = delete;
     ~ConstRespectingPtr();
 
     T const* operator->() const { return m_data; }
@@ -46,9 +48,6 @@ namespace edm {
     void reset();
 
   private:
-    ConstRespectingPtr(ConstRespectingPtr<T> const&) = delete;
-    ConstRespectingPtr& operator=(ConstRespectingPtr<T> const&) = delete;
-
     edm::propagate_const<T*> m_data;
   };
 

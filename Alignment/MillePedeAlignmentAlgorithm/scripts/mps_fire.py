@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #  Submit jobs that are setup in local mps database to batch system
 #
 #  The bsub sytax: bsub -J 'jobname' -q 'queue name' theProgram
@@ -39,7 +39,7 @@ def forward_proxy(rundir):
         print("Please create proxy via 'voms-proxy-init -voms cms -rfc'.")
         sys.exit(1)
 
-    local_proxy = subprocess.check_output(["voms-proxy-info", "--path"]).strip()
+    local_proxy = subprocess.check_output(["voms-proxy-info", "--path"]).decode().strip()
     shutil.copyfile(local_proxy, os.path.join(rundir,".user_proxy"))
 
 
@@ -107,7 +107,7 @@ periodic_remove       = !regexp("group_u_CMS.e_cms_caf_bigmem", AccountingGroup)
                   for directory in ("binaries", "monitors", "tree_files")
                   for item
                   in spco(cmd+
-                          glob.glob(opj(lib.mssDir, directory, "*"))).splitlines()]
+                          glob.glob(opj(lib.mssDir, directory, "*"))).decode().splitlines()]
     disk_usage = sum(disk_usage)
     disk_usage *= 1.1 # reserve 10% additional space
 
@@ -272,7 +272,7 @@ if not args.fireMerge:
         resources = '-q'+resources+' -m g_cmscaf'
     elif "htcondor" in resources:
         fire_htcondor = True
-        schedinfo = subprocess.check_output(["myschedd","show"])
+        schedinfo = subprocess.check_output(["myschedd","show"]).decode()
         if 'cafalca' in resources:
             if not 'tzero' in schedinfo:
                 print("\nMPS fire: request to use CAF pool which has not been set up. Call `module load lxbatch/tzero` and try again")
@@ -310,10 +310,10 @@ if not args.fireMerge:
                 try:
                     result = subprocess.check_output(submission,
                                                      stderr=subprocess.STDOUT,
-                                                     shell=True)
+                                                     shell=True).decode()
                 except subprocess.CalledProcessError as e:
                     result = "" # -> check for successful job submission will fail
-                print('      '+result, end=' ')
+                print(result)
                 result = result.strip()
 
                 # check if job was submitted and updating jobdatabase
@@ -374,7 +374,7 @@ if not args.fireMerge:
                 try:
                     result = subprocess.check_output(submission,
                                                      stderr=subprocess.STDOUT,
-                                                     shell=True)
+                                                     shell=True).decode()
                 except subprocess.CalledProcessError as e:
                     result = "" # -> check for successful job submission will fail
                 print('      '+result, end=' ')
@@ -404,7 +404,7 @@ else:
         resources = '-q cmscafalcamille'
     elif "htcondor" in resources:
         fire_htcondor = True
-        schedinfo = subprocess.check_output(["myschedd","show"])
+        schedinfo = subprocess.check_output(["myschedd","show"]).decode()
         if 'bigmem' in resources:
             if not 'share' in schedinfo:
                 print("\nMPS fire: CAF pool is set up, but request to use high-memory machines which live in the standard pool. Call `module load lxbatch/share` and try again")
@@ -453,7 +453,7 @@ else:
 
                 # get the name of merge cfg file -> either the.py or alignment_merge.py
                 command  = 'cat '+backupScriptPath+' | grep CONFIG_FILE | head -1 | awk -F"/" \'{print $NF}\''
-                mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+                mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode()
                 mergeCfg = mergeCfg.strip()
 
                 if fire_htcondor:
@@ -493,9 +493,9 @@ else:
 
                 # get the name of merge cfg file
                 command  = "cat "+scriptPath+" | grep '^\s*CONFIG_FILE' | awk -F'=' '{print $2}'"
-                mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+                mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode()
                 command  = 'basename '+mergeCfg
-                mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+                mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode()
                 mergeCfg = mergeCfg.replace('\n','')
 
                 if fire_htcondor:
@@ -521,7 +521,7 @@ else:
                 submission = ["bsub", "-J", curJobName, resources, scriptPath]
             for _ in range(5):
                 try:
-                    result = subprocess.check_output(submission, stderr=subprocess.STDOUT)
+                    result = subprocess.check_output(submission, stderr=subprocess.STDOUT).decode()
                     break
                 except subprocess.CalledProcessError as e:
                     result = e.output
@@ -577,9 +577,9 @@ else:
 
             # get the name of merge cfg file
             command  = "cat "+scriptPath+" | grep '^\s*CONFIG_FILE' | awk -F'=' '{print $2}'"
-            mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+            mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode()
             command  = 'basename '+mergeCfg
-            mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+            mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode()
             mergeCfg = mergeCfg.replace('\n','')
 
             if fire_htcondor:
@@ -604,7 +604,7 @@ else:
                 submission = ["bsub", "-J", curJobName, resources, scriptPath]
             for _ in range(5):
                 try:
-                    result = subprocess.check_output(submission, stderr=subprocess.STDOUT)
+                    result = subprocess.check_output(submission, stderr=subprocess.STDOUT).decode()
                     break
                 except subprocess.CalledProcessError as e:
                     result = e.output

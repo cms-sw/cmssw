@@ -6,17 +6,16 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 
 //----------------------------------------------------------------------------------------------------
 
-class XangleBetaStarFilter : public edm::EDFilter {
+class XangleBetaStarFilter : public edm::stream::EDFilter<> {
 public:
   explicit XangleBetaStarFilter(const edm::ParameterSet &);
 

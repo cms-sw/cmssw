@@ -173,7 +173,7 @@ namespace {
     }
 
     //    std::for_each(frames.begin(),frames.end(),
-    //		  boost::bind(verifyId,boost::bind(&edm::DataFrame::id,_1)));
+    //		  std::bind(verifyId,std::bind(&edm::DataFrame::id, std::placeholders::_1)));
     // same as above....
     for (int n = 0; n < int(frames.size()); ++n) {
       edm::DataFrame df = frames[n];

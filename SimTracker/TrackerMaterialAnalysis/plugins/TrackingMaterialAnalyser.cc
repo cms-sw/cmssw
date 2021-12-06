@@ -30,6 +30,7 @@
 TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSet) {
   m_materialToken =
       consumes<std::vector<MaterialAccountingTrack> >(iPSet.getParameter<edm::InputTag>("MaterialAccounting"));
+  m_dddToken = esConsumes();
   m_groupNames = iPSet.getParameter<std::vector<std::string> >("Groups");
   const std::string& splitmode = iPSet.getParameter<std::string>("SplitMode");
   if (strcasecmp(splitmode.c_str(), "NearestLayer") == 0) {
@@ -152,8 +153,7 @@ void TrackingMaterialAnalyser::endJob(void) {
 //-------------------------------------------------------------------------
 void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   using namespace edm;
-  ESTransientHandle<DDCompactView> hDDD;
-  setup.get<IdealGeometryRecord>().get(hDDD);
+  auto hDDD = setup.getHandle(m_dddToken);
 
   m_groups.reserve(m_groupNames.size());
   // Initialize m_groups iff it has size equal to zero, so that we are

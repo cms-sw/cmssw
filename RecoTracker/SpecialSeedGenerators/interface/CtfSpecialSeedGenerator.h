@@ -67,6 +67,14 @@ private:
 
 private:
   edm::ParameterSet conf_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMFToken;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theBuilderToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropAlongToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropOppositeToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTopoToken;
+
   edm::ESHandle<MagneticField> theMagfield;
   edm::ESHandle<TrackerGeometry> theTracker;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;

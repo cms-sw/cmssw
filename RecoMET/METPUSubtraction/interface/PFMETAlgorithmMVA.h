@@ -11,9 +11,11 @@
  */
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/GBRForest/interface/GBRForest.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/METReco/interface/MET.h"
@@ -29,7 +31,7 @@
 
 class PFMETAlgorithmMVA {
 public:
-  PFMETAlgorithmMVA(const edm::ParameterSet& cfg);
+  PFMETAlgorithmMVA(const edm::ParameterSet& cfg, edm::ConsumesCollector iC);
   ~PFMETAlgorithmMVA();
 
   void initialize(const edm::EventSetup&);
@@ -56,7 +58,6 @@ public:
 private:
   const std::string updateVariableNames(std::string input);
   const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, const std::string& mvaName);
-  const GBRForest* loadMVAfromDB(const edm::EventSetup& es, const std::string& mvaName);
 
   const float evaluateU();
   const float evaluateDPhi();
@@ -69,6 +70,11 @@ private:
   std::string mvaNameDPhi_;
   std::string mvaNameCovU1_;
   std::string mvaNameCovU2_;
+
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaTokenU_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaTokenDPhi_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaTokenCovU1_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> mvaTokenCovU2_;
 
   int mvaType_;
   bool hasPhotons_;

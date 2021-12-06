@@ -29,7 +29,7 @@ BeamConditionsMonitor::BeamConditionsMonitor(const ParameterSet& ps) : countEvt_
   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName", "YourSubsystemName");
   bsSrc_ = parameters_.getUntrackedParameter<InputTag>("beamSpot");
   debug_ = parameters_.getUntrackedParameter<bool>("Debug");
-
+  beamSpotToken_ = esConsumes();
   dbe_ = Service<DQMStore>().operator->();
 
   if (!monitorName_.empty())
@@ -66,9 +66,7 @@ void BeamConditionsMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 // ----------------------------------------------------------
 void BeamConditionsMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
   countEvt_++;
-  ESHandle<BeamSpotObjects> beamhandle;
-  iSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
-  condBeamSpot = *beamhandle;
+  condBeamSpot = iSetup.getData(beamSpotToken_);
 }
 
 //--------------------------------------------------------

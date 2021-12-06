@@ -199,13 +199,15 @@ egamma_identification_drnn_dbscan = cms.PSet(
         )
 
 egamma_identification_histomax = cms.PSet(
-        Inputs=cms.vstring(input_features_histomax['v8_352']),
+        Inputs=cms.vstring(input_features_histomax['v10_3151']),
         CategoriesEtaMin=cms.vdouble([cat.eta_min for cat in categories]),
         CategoriesEtaMax=cms.vdouble([cat.eta_max for cat in categories]),
         CategoriesPtMin=cms.vdouble([cat.pt_min for cat in categories]),
         CategoriesPtMax=cms.vdouble([cat.pt_max for cat in categories]),
-        Weights=cms.vstring(bdt_weights_histomax['v8_352']),
-        WorkingPoints=cms.vdouble([wps[eff] for wps,eff in zip(working_points_histomax['v8_352'],tight_wp)]),
+        Weights=cms.vstring(bdt_weights_histomax['v10_3151']),
+        WorkingPoints=cms.vdouble(
+                [wps[eff] for wps,eff in zip(working_points_histomax['v10_3151'],tight_wp)]
+                )
         )
 
 phase2_hgcalV10.toModify(egamma_identification_histomax,

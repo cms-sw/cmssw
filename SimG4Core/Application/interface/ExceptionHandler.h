@@ -18,7 +18,7 @@
 
 class ExceptionHandler : public G4VExceptionHandler {
 public:
-  explicit ExceptionHandler();
+  explicit ExceptionHandler(double th);
   ~ExceptionHandler() override;
 
   int operator==(const ExceptionHandler &right) const { return (this == &right); }
@@ -31,6 +31,9 @@ public:
 
   ExceptionHandler(const ExceptionHandler &) = delete;
   ExceptionHandler &operator=(const ExceptionHandler &right) = delete;
+
+private:
+  double m_eth;
 };
 
 #endif

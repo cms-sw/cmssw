@@ -1,7 +1,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
@@ -16,6 +15,7 @@
 #include "G4FieldManager.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4Mag_UsualEqRhs.hh"
+#include "G4TMagFieldEquation.hh"
 #include "G4PropagatorInField.hh"
 
 using namespace sim;
@@ -23,7 +23,7 @@ using namespace sim;
 FieldBuilder::FieldBuilder(const MagneticField *f, const edm::ParameterSet &p) : theTopVolume(nullptr), thePSet(p) {
   theDelta = p.getParameter<double>("delta") * CLHEP::mm;
   theField = new Field(f, theDelta);
-  theFieldEquation = new G4Mag_UsualEqRhs(theField);
+  theFieldEquation = nullptr;
 }
 
 FieldBuilder::~FieldBuilder() {}
@@ -55,6 +55,12 @@ void FieldBuilder::configureForVolume(const std::string &volName,
 
   edm::ParameterSet stpPSet = volPSet.getParameter<edm::ParameterSet>("StepperParam");
   double minStep = stpPSet.getParameter<double>("MinStep") * CLHEP::mm;
+
+  if (stepper == "G4TDormandPrince45") {
+    theFieldEquation = new G4TMagFieldEquation<Field>(theField);
+  } else {
+    theFieldEquation = new G4Mag_UsualEqRhs(theField);
+  }
 
   FieldStepper *dStepper = new FieldStepper(theFieldEquation, theDelta, stepper);
   G4ChordFinder *cf = new G4ChordFinder(theField, minStep, dStepper);

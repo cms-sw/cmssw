@@ -137,10 +137,7 @@ namespace clangcms {
     fixAnonNS(mname);
     std::string tname = "function-dumper.txt.unsorted";
     std::string ostring;
-    if (MD->isVirtual())
-      ostring = "function '" + mdname + "' " + "calls function '" + mname + " virtual'\n";
-    else
-      ostring = "function '" + mdname + "' " + "calls function '" + mname + "'\n";
+    ostring = "function '" + mdname + "' " + "calls function '" + mname + "'\n";
     support::writeLog(ostring, tname);
 
     VisitChildren(CXE);
@@ -162,14 +159,11 @@ namespace clangcms {
     if (!support::isInterestingLocation(sname))
       return;
     std::string mname;
-    fixAnonNS(mname);
     mname = support::getQualifiedName(*FD);
+    fixAnonNS(mname);
     std::string tname = "function-dumper.txt.unsorted";
     std::string ostring;
-    if (FD->isVirtualAsWritten() || FD->isPure())
-      ostring = "function '" + mdname + "' " + "calls function '" + mname + " virtual'\n";
-    else
-      ostring = "function '" + mdname + "' " + "calls function '" + mname + "'\n";
+    ostring = "function '" + mdname + "' " + "calls function '" + mname + "'\n";
     support::writeLog(ostring, tname);
 
     VisitChildren(CE);
@@ -194,7 +188,7 @@ namespace clangcms {
     for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I != E; ++I) {
       std::string oname = support::getQualifiedName(*(*I));
       walker.fixAnonNS(oname);
-      std::string ostring = "function '" + mname + "' " + "overrides function '" + oname + " virtual'\n";
+      std::string ostring = "function '" + mname + "' " + "overrides function '" + oname + "'\n";
       support::writeLog(ostring, tname);
     }
     return;

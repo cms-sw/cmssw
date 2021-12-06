@@ -35,6 +35,7 @@ namespace edm {
   class Event;
   class EventSetup;
 }  // namespace edm
+class GlobalTrackingGeometryRecord;
 
 class SegmentsTrackAssociator {
 public:
@@ -62,6 +63,7 @@ private:
 
   edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentsToken;
   edm::EDGetTokenT<CSCSegmentCollection> cscSegmentsToken;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeometryToken;
 
   std::string metname;
 };

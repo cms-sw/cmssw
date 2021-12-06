@@ -2,7 +2,7 @@
 /*
  */
 
-#include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
+#include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadout.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "FWCore/Utilities/interface/EDMException.h"

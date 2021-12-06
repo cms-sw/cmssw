@@ -5,7 +5,7 @@
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/src/Material.h"
+#include "DetectorDescription/Core/interface/Material.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

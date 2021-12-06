@@ -54,7 +54,7 @@
 
 #include <vector>
 
-class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
+class dso_hidden PixelThresholdClusterizer : public PixelClusterizerBase {
 public:
   PixelThresholdClusterizer(edm::ParameterSet const& conf);
   ~PixelThresholdClusterizer() override;
@@ -77,7 +77,7 @@ public:
 
   static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
-private:
+protected:
   template <typename T>
   void clusterizeDetUnitT(const T& input,
                           const PixelGeomDetUnit* pixDet,
@@ -89,6 +89,8 @@ private:
   SiPixelArrayBuffer theBuffer;                    // internal nrow * ncol matrix
   std::vector<SiPixelCluster::PixelPos> theSeeds;  // cached seed pixels
   std::vector<SiPixelCluster> theClusters;         // resulting clusters
+
+  std::vector<bool> theFakePixels;  // fake pixels introduced to guide clustering
 
   //! Clustering-related quantities:
   float thePixelThresholdInNoiseUnits;    // Pixel threshold in units of noise

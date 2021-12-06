@@ -30,7 +30,8 @@ buildFileTemplate = """
 <flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -Os"/>
 <library   file="%s" name="%s">
   <use   name="CondCore/Utilities"/>
-  <use   name="boost_python"/>
+  <use name="py3-pybind11"/>
+  <use name="python3"/>
 </library>
 <export>
   <lib   name="1"/>
@@ -46,7 +47,14 @@ def localLibName( payloadType ):
     prefix = ''
     if '<' in payloadType and '>' in payloadType:
         prefix = 't'
-    return "%s_%spayload2xml" %(sanitize(payloadType),prefix)
+    ptype = payloadType
+    if '::' in payloadType:
+        ptype = payloadType.replace('::','_')
+    return "%s_%spayload2xml" %(sanitize(ptype),prefix)
+
+def boost_version_for_this_release():
+    import pluginUtilities_payload2xml as mod2XML
+    return mod2XML.boost_version_label()
 
 class CondXmlProcessor(object):
 
@@ -179,7 +187,7 @@ class CondXmlProcessor(object):
 
         if xmlConverter is not None:
             obj = xmlConverter()
-            resultXML = obj.write( str(data) )
+            resultXML = obj.write( data )
             if destFile is None:
                 print(resultXML)    
             else:

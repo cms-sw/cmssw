@@ -1,5 +1,5 @@
 #include "CommonTools/RecoAlgos/src/RecoChargedRefCandidateToTrackRef.h"
-#include "CommonTools/RecoAlgos/src/CandidateProducer.h"
+#include "CommonTools/RecoAlgos/interface/CandidateProducer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

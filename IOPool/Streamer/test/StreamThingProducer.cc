@@ -42,7 +42,7 @@ namespace edmtest_thing {
   StreamThingProducer::~StreamThingProducer() {}
 
   // Functions that gets called by framework every event
-  void StreamThingProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void StreamThingProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     for (int i = 0; i < inst_count_; ++i) {
       auto result = std::make_unique<WriteThis>(size_);
 

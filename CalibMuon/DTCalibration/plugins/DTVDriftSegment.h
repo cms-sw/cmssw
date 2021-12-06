@@ -10,6 +10,12 @@
 
 #include "CalibMuon/DTCalibration/interface/DTVDriftBaseAlgo.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <string>
 
@@ -23,7 +29,7 @@ namespace dtCalibration {
 
   class DTVDriftSegment : public DTVDriftBaseAlgo {
   public:
-    DTVDriftSegment(edm::ParameterSet const&);
+    DTVDriftSegment(edm::ParameterSet const&, edm::ConsumesCollector);
     ~DTVDriftSegment() override;
 
     void setES(const edm::EventSetup& setup) override;
@@ -40,6 +46,9 @@ namespace dtCalibration {
     bool readLegacyVDriftDB;             // which one to use
     TFile* rootFile_;
     DTResidualFitter* fitter_;
+
+    edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeMapToken_;
+    edm::ESGetToken<DTRecoConditions, DTRecoConditionsVdriftRcd> vDriftMapToken_;
   };
 
 }  // namespace dtCalibration

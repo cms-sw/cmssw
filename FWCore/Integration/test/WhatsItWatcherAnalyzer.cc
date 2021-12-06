@@ -21,7 +21,7 @@
 #include <iostream>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -38,12 +38,11 @@
 
 namespace edmtest {
 
-  class WhatsItWatcherAnalyzer : public edm::EDAnalyzer {
+  class WhatsItWatcherAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit WhatsItWatcherAnalyzer(const edm::ParameterSet&);
-    ~WhatsItWatcherAnalyzer();
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
     // ----------member data ---------------------------
@@ -53,6 +52,8 @@ namespace edmtest {
     edm::ESWatcher<GadgetRcd> watch1_;
     edm::ESWatcher<GadgetRcd> watch2_;
     edm::ESWatcher<GadgetRcd> watchBool_;
+
+    edm::ESGetToken<edmtest::WhatsIt, GadgetRcd> token_;
   };
 
   //
@@ -69,13 +70,9 @@ namespace edmtest {
   WhatsItWatcherAnalyzer::WhatsItWatcherAnalyzer(const edm::ParameterSet& /*iConfig*/)
       : watch1_(this, &WhatsItWatcherAnalyzer::watch1),
         watch2_(std::bind(&WhatsItWatcherAnalyzer::watch2, this, std::placeholders::_1)),
-        watchBool_() {
+        watchBool_(),
+        token_(esConsumes()) {
     //now do what ever initialization is needed
-  }
-
-  WhatsItWatcherAnalyzer::~WhatsItWatcherAnalyzer() {
-    // do anything here that needs to be done at desctruction time
-    // (e.g. close files, deallocate resources etc.)
   }
 
   //
@@ -92,15 +89,13 @@ namespace edmtest {
   }
 
   void WhatsItWatcherAnalyzer::watch1(const GadgetRcd& iRcd) {
-    edm::ESHandle<edmtest::WhatsIt> pSetup;
-    iRcd.get(pSetup);
+    edm::ESHandle<edmtest::WhatsIt> pSetup = iRcd.getHandle(token_);
 
     std::cout << "watch1: WhatsIt " << pSetup->a << " changed" << std::endl;
   }
 
   void WhatsItWatcherAnalyzer::watch2(const GadgetRcd& iRcd) {
-    edm::ESHandle<WhatsIt> pSetup;
-    iRcd.get(pSetup);
+    edm::ESHandle<WhatsIt> pSetup = iRcd.getHandle(token_);
 
     std::cout << "watch2: WhatsIt " << pSetup->a << " changed" << std::endl;
   }

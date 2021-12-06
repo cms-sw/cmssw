@@ -1,7 +1,7 @@
 #ifndef L1GCTLUTFROMFILE_H_
 #define L1GCTLUTFROMFILE_H_
 
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctLut.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctLut.h"
 
 #include <vector>
 #include <fstream>

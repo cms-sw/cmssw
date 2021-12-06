@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.Modules.logErrorHarvester_cfi import logErrorHarvester
-import six
 
 def customiseLogErrorHarvesterUsingOutputCommands(process):
     logName = 'logErrorHarvester'
@@ -9,7 +8,7 @@ def customiseLogErrorHarvesterUsingOutputCommands(process):
 
     modulesFromAllOutput = set()
     onlyOneOutput = (len(process.outputModules_()) == 1)
-    for o in six.itervalues(process.outputModules_()):
+    for o in process.outputModules_().values():
         if not hasattr(o,"outputCommands"):
             continue
         modulesFromOutput = set()
@@ -35,7 +34,7 @@ def customiseLogErrorHarvesterUsingOutputCommands(process):
         toExclude = includeMods.difference(modulesFromAllOutput)
         if hasattr(process.logErrorHarvester,"excludeModules"):
             toExclude = toExclude.union(set(process.logErrorHarvester.excludeModules.value()))
-        process.logErrorHarvester.excludeModules = cms.untracked.vstring(*toExclude)
+        process.logErrorHarvester.excludeModules = cms.untracked.vstring(sorted(toExclude))
     else:
-        process.logErrorHarvester.includeModules = cms.untracked.vstring(*modulesFromAllOutput)
+        process.logErrorHarvester.includeModules = cms.untracked.vstring(sorted(modulesFromAllOutput))
     return process

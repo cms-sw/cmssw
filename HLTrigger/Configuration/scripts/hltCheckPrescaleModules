@@ -1,7 +1,8 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
+from __future__ import print_function
 import sys
-import imp
+import types
 import re
 
 # global options
@@ -12,16 +13,16 @@ if '-w' in sys.argv:
   enableWarnings = True
 
 if len(sys.argv) != 2:
-  print "usage: %s [-w] menu.py" % sys.argv[0]
+  print("usage: %s [-w] menu.py" % sys.argv[0])
   sys.exit(1)
 
 # whitelist paths exempt from validation
 whitelist = ('HLTriggerFirstPath', 'HLTriggerFinalPath')
 
 # load the menu and get the "process" object
-menu = imp.new_module('menu')
+menu = types.ModuleType('menu')
 name = sys.argv[1]
-execfile(name, globals(), menu.__dict__)
+exec(open(name).read(), globals(), menu.__dict__)
 process = menu.process
 
 # get all paths
@@ -46,23 +47,23 @@ for path in paths:
         if module in process.filters_(): # found a filter
             if process.filters_()[module].type_() == 'HLTPrescaler': # it's a prescaler
                 if found:
-                    print 'ERROR: path %s has more than one HLTPrescaler module' % path
+                    print('ERROR: path %s has more than one HLTPrescaler module' % path)
                 found = True
                 label = process.filters_()[module].label()
                 if enableWarnings and label != goodLabel:
-                    print 'WARNING: path %s has an HLTPrescaler module labaled "%s", while the suggested label is "%s"' % (path, label, goodLabel)
+                    print('WARNING: path %s has an HLTPrescaler module labaled "%s", while the suggested label is "%s"' % (path, label, goodLabel))
                 if label in prescalerNames:
                     duplicateNames.add(label)
                 else:
                     prescalerNames.add(label)
     if not found:
-        print 'ERROR: path %s dos not have an HLTPrescaler module' % path
+        print('ERROR: path %s dos not have an HLTPrescaler module' % path)
 
 # print the duplicate prescales, and the affected paths
 for label in duplicateNames:
-    print 'ERROR: prescale  "%s"  is shared by the paths' % label
+    print('ERROR: prescale  "%s"  is shared by the paths' % label)
     for path in paths:
         if label in paths[path].moduleNames():
-            print '\t%s' % path
-    print
+            print('\t%s' % path)
+    print()
 

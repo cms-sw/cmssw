@@ -76,6 +76,8 @@ public:
   /** Constructor
    */
   DTStatusFlag();
+  DTStatusFlag(DTStatusFlag const&) = delete;
+  DTStatusFlag& operator=(DTStatusFlag const&) = delete;
   DTStatusFlag(const std::string& version);
 
   /** Destructor
@@ -196,9 +198,6 @@ public:
   void initialize();
 
 private:
-  DTStatusFlag(DTStatusFlag const&) = delete;
-  DTStatusFlag& operator=(DTStatusFlag const&) = delete;
-
   std::string dataVersion;
 
   std::vector<std::pair<DTStatusFlagId, DTStatusFlagData> > dataList;

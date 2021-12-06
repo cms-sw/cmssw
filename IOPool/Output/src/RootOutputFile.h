@@ -18,7 +18,9 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/FileID.h"
@@ -45,9 +47,8 @@ namespace edm {
 
   class RootOutputFile {
   public:
-    typedef PoolOutputModule::OutputItem OutputItem;
-    typedef PoolOutputModule::OutputItemList OutputItemList;
-    typedef std::array<edm::propagate_const<RootOutputTree*>, NumBranchTypes> RootOutputTreePtrArray;
+    using OutputItem = PoolOutputModule::OutputItem;
+    using OutputItemList = PoolOutputModule::OutputItemList;
     explicit RootOutputFile(PoolOutputModule* om,
                             std::string const& fileName,
                             std::string const& logicalFileName,
@@ -57,6 +58,7 @@ namespace edm {
     //void endFile();
     void writeLuminosityBlock(LuminosityBlockForOutput const& lb);
     void writeRun(RunForOutput const& r);
+    void writeProcessBlock(ProcessBlockForOutput const&);
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
@@ -69,6 +71,7 @@ namespace edm {
     void writeThinnedAssociationsHelper();
     void writeProductDependencies();
     void writeEventAuxiliary();
+    void writeProcessBlockHelper();
 
     void finishEndFile();
     void beginInputFile(FileBlock const& fb, int remainingEvents);
@@ -78,17 +81,11 @@ namespace edm {
     std::string const& fileName() const { return file_; }
 
   private:
-    //-------------------------------
-    // Local types
-    //
-
-    //-------------------------------
-    // Private functions
-
-    void setBranchAliases(TTree* tree, SelectedProducts const& branches) const;
+    void setBranchAliases(TTree* tree, SelectedProducts const& branches, std::string const& processName) const;
 
     void fillBranches(BranchType const& branchType,
                       OccurrenceForOutput const& occurrence,
+                      unsigned int ttreeIndex,
                       StoredProductProvenanceVector* productProvenanceVecPtr = nullptr,
                       ProductProvenanceRetriever const* provRetriever = nullptr);
 
@@ -135,11 +132,13 @@ namespace edm {
     StoredProductProvenanceVector eventEntryInfoVector_;
     edm::propagate_const<StoredProductProvenanceVector*> pEventEntryInfoVector_;
     BranchListIndexes const* pBranchListIndexes_;
+    EventToProcessBlockIndexes const* pEventToProcessBlockIndexes_;
     EventSelectionIDVector const* pEventSelectionIDs_;
     RootOutputTree eventTree_;
     RootOutputTree lumiTree_;
     RootOutputTree runTree_;
-    RootOutputTreePtrArray treePointers_;
+    std::vector<edm::propagate_const<std::unique_ptr<RootOutputTree>>> processBlockTrees_;
+    std::vector<edm::propagate_const<RootOutputTree*>> treePointers_;
     bool dataTypeReported_;
     ProcessHistoryRegistry processHistoryRegistry_;
     std::map<ParentageID, unsigned int> parentageIDs_;

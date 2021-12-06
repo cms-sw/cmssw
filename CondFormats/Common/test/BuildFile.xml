@@ -10,14 +10,14 @@
 <bin file="SmallWORMDict_t.cpp">
 </bin>
 
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
-<use name="CondCore/DBOutputService"/>
-<use name="CondFormats/DataRecord"/>
 <use name="root"/>
-<library name="CondFormatsCommonTest" file="ProduceDropBoxMetadata.cc">
-  <flags EDM_PLUGIN="1"/>
-</library>
 
 <bin file="testSerializationCommon.cpp">
 </bin>
+
+<environment>
+  <bin file="testDropboxMetadataDB.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash CondFormats/Common/test createTestDBObjects.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+</environment>

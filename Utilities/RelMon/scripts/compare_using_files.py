@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 ################################################################################
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #

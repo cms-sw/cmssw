@@ -4,21 +4,17 @@
 #include "RecoHI/HiEgammaAlgos/interface/EcalClusterIsoCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
 using namespace edm;
 using namespace reco;
 using namespace std;
 
-EcalClusterIsoCalculator::EcalClusterIsoCalculator(const edm::Event &iEvent,
-                                                   const edm::EventSetup &iSetup,
-                                                   const edm::Handle<BasicClusterCollection> pEBclusters,
+EcalClusterIsoCalculator::EcalClusterIsoCalculator(const edm::Handle<BasicClusterCollection> pEBclusters,
                                                    const edm::Handle<BasicClusterCollection> pEEclusters) {
   if (pEBclusters.isValid())
     fEBclusters_ = pEBclusters.product();
@@ -29,13 +25,6 @@ EcalClusterIsoCalculator::EcalClusterIsoCalculator(const edm::Event &iEvent,
     fEEclusters_ = pEEclusters.product();
   else
     fEEclusters_ = nullptr;
-
-  ESHandle<CaloGeometry> geometryHandle;
-  iSetup.get<CaloGeometryRecord>().get(geometryHandle);
-  if (geometryHandle.isValid())
-    geometry_ = geometryHandle.product();
-  else
-    geometry_ = nullptr;
 }
 
 double EcalClusterIsoCalculator::getEcalClusterIso(const reco::SuperClusterRef cluster,
@@ -73,7 +62,6 @@ double EcalClusterIsoCalculator::getEcalClusterIso(const reco::SuperClusterRef c
 
   for (BasicClusterCollection::const_iterator iclu = fEEclusters_->begin(); iclu != fEEclusters_->end(); ++iclu) {
     const BasicCluster *clu = &(*iclu);
-    const GlobalPoint clusPoint(clu->x(), clu->y(), clu->z());
     math::XYZVector ClusPoint(clu->x(), clu->y(), clu->z());
     double eta = ClusPoint.eta();
 

@@ -229,8 +229,8 @@ private:
   GlobalPoint hadPosition_;
 
   //hcal subdetector info
-  HcalSubdetector subdet_;
-  bool inHO_, inHBHEgap_;
+  HcalSubdetector subdet_{HcalEmpty};
+  bool inHO_{false}, inHBHEgap_{false};
 
   // time
   int ecalTime_;

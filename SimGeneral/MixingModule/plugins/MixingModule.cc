@@ -266,6 +266,9 @@ namespace edm {
     produces<CrossingFramePlaybackInfoNew>();
 
     edm::ConsumesCollector iC(consumesCollector());
+    if (globalConf->configFromDB_) {
+      configToken_ = esConsumes<edm::Transition::BeginLuminosityBlock>();
+    }
     // Create and configure digitizers
     createDigiAccumulators(ps_mix, iC);
   }
@@ -288,16 +291,14 @@ namespace edm {
   }
 
   void MixingModule::reload(const edm::EventSetup& setup) {
-    // TODO for esConsumes migration: assume for now this function is mostly unused
     //change the basic parameters.
-    edm::ESHandle<MixingModuleConfig> config;
-    setup.get<MixingRcd>().get(config);
-    minBunch_ = config->minBunch();
-    maxBunch_ = config->maxBunch();
-    bunchSpace_ = config->bunchSpace();
+    auto const& config = setup.getData(configToken_);
+    minBunch_ = config.minBunch();
+    maxBunch_ = config.maxBunch();
+    bunchSpace_ = config.bunchSpace();
     //propagate to change the workers
     for (unsigned int ii = 0; ii < workersObjects_.size(); ++ii) {
-      workersObjects_[ii]->reload(setup);
+      workersObjects_[ii]->reload(minBunch_, maxBunch_, bunchSpace_);
     }
   }
 

@@ -14,6 +14,7 @@
 // Our own stuff
 #include "SiPixelClusterProducer.h"
 #include "PixelThresholdClusterizer.h"
+#include "PixelThresholdClusterizerForBricked.h"
 
 // Geometry
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
@@ -141,6 +142,9 @@ void SiPixelClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 void SiPixelClusterProducer::setupClusterizer(const edm::ParameterSet& conf) {
   if (clusterMode_ == "PixelThresholdReclusterizer" || clusterMode_ == "PixelThresholdClusterizer") {
     clusterizer_ = std::make_unique<PixelThresholdClusterizer>(conf);
+    clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_.get());
+  } else if (clusterMode_ == "PixelThresholdClusterizerForBricked") {
+    clusterizer_ = std::make_unique<PixelThresholdClusterizerForBricked>(conf);
     clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_.get());
   } else {
     throw cms::Exception("Configuration") << "[SiPixelClusterProducer]:"

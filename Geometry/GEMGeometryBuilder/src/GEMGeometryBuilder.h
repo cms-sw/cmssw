@@ -5,10 +5,10 @@
 /*
 //\class GEMGeometryBuilder
 
- Description: GEM Geometry builder from DD & DD4HEP
+ Description: GEM Geometry builder from DD & DD4hep
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
 //
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4hep migration)
 //          Created:  27 Jan 2020 
 */
 #include <string>
@@ -68,7 +68,7 @@ private:
   // Common
   void buildRegions(GEMGeometry&, const std::vector<GEMSuperChamber*>&);
 
-  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
+  static constexpr double k_ScaleFromDD4hep = (1.0 / dd4hep::cm);
 };
 
 #endif

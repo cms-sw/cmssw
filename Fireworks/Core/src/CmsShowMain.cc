@@ -33,7 +33,7 @@
 #include "TVirtualX.h"
 #include <KeySymbols.h>
 
-#include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/interface/CmsShowMain.h"
 
 #include "Fireworks/Core/interface/FWEveViewManager.h"
 
@@ -61,7 +61,7 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWMagField.h"
 
-#include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 

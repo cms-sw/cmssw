@@ -43,7 +43,7 @@ class TrackCandidateProducer : public edm::stream::EDProducer<> {
 public:
   explicit TrackCandidateProducer(const edm::ParameterSet& conf);
 
-  void produce(edm::Event& e, const edm::EventSetup& es) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   // tokens & labels
@@ -52,6 +52,10 @@ private:
   edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   std::string propagatorLabel;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldESToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryESToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyESToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorESToken_;
 
   // other data
   bool rejectOverlaps;
@@ -60,7 +64,13 @@ private:
   double maxSeedMatchEstimator;
 };
 
-TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf) : hitSplitter() {
+TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
+    : propagatorLabel(conf.getParameter<std::string>("propagator")),
+      magneticFieldESToken_(esConsumes()),
+      trackerGeometryESToken_(esConsumes()),
+      trackerTopologyESToken_(esConsumes()),
+      propagatorESToken_(esConsumes(edm::ESInputTag("", propagatorLabel))),
+      hitSplitter() {
   // produces
   produces<TrackCandidateCollection>();
 
@@ -77,22 +87,14 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf) : 
   maxSeedMatchEstimator = conf.getUntrackedParameter<double>("maxSeedMatchEstimator", 0);
   rejectOverlaps = conf.getParameter<bool>("OverlapCleaning");
   splitHits = conf.getParameter<bool>("SplitHits");
-  propagatorLabel = conf.getParameter<std::string>("propagator");
 }
 
 void TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // get records
-  edm::ESHandle<MagneticField> magneticField;
-  es.get<IdealMagneticFieldRecord>().get(magneticField);
-
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  es.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
-
-  edm::ESHandle<TrackerTopology> trackerTopology;
-  es.get<TrackerTopologyRcd>().get(trackerTopology);
-
-  edm::ESHandle<Propagator> propagator;
-  es.get<TrackingComponentsRecord>().get(propagatorLabel, propagator);
+  auto const& magneticField = es.getData(magneticFieldESToken_);
+  auto const& trackerGeometry = es.getData(trackerGeometryESToken_);
+  auto const& trackerTopology = es.getData(trackerTopologyESToken_);
+  auto const& propagator = es.getData(propagatorESToken_);
 
   // get products
   edm::Handle<edm::View<TrajectorySeed> > seeds;
@@ -120,7 +122,7 @@ void TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // match hitless seeds to simTracks and find corresponding recHitCombination
     if (seed.nHits() == 0) {
       recHitCombinationIndices = SeedMatcher::matchRecHitCombinations(
-          seed, *recHitCombinations, *simTracks, maxSeedMatchEstimator, *propagator, *magneticField, *trackerGeometry);
+          seed, *recHitCombinations, *simTracks, maxSeedMatchEstimator, propagator, magneticField, trackerGeometry);
     }
     // for normal seeds, retrieve the corresponding recHitCombination from the seed hits
     else {
@@ -176,8 +178,8 @@ void TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
         //  always accept the first hit
         //  also accept a hit if it is not on the layer of the previous hit
         if (!rejectOverlaps || selectedRecHits.empty() ||
-            (TrackingLayer::createFromDetId(selectedRecHits.back()->geographicalId(), *trackerTopology.product()) !=
-             TrackingLayer::createFromDetId(selectedRecHit->geographicalId(), *trackerTopology.product()))) {
+            (TrackingLayer::createFromDetId(selectedRecHits.back()->geographicalId(), trackerTopology) !=
+             TrackingLayer::createFromDetId(selectedRecHit->geographicalId(), trackerTopology))) {
           selectedRecHits.push_back(selectedRecHit);
         }
         //  else:
@@ -207,12 +209,12 @@ void TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       // create track candidate state
       //   1. get seed state (defined on the surface of the most outer hit)
       DetId seedDetId(seed.startingState().detId());
-      const GeomDet* gdet = trackerGeometry->idToDet(seedDetId);
+      const GeomDet* gdet = trackerGeometry.idToDet(seedDetId);
       TrajectoryStateOnSurface seedTSOS =
-          trajectoryStateTransform::transientState(seed.startingState(), &(gdet->surface()), magneticField.product());
+          trajectoryStateTransform::transientState(seed.startingState(), &(gdet->surface()), &magneticField);
       //   2. backPropagate the seedState to the surfuce of the most inner hit
-      const GeomDet* initialLayer = trackerGeometry->idToDet(hitsForTrackCandidate.front().geographicalId());
-      const TrajectoryStateOnSurface initialTSOS = propagator->propagate(seedTSOS, initialLayer->surface());
+      const GeomDet* initialLayer = trackerGeometry.idToDet(hitsForTrackCandidate.front().geographicalId());
+      const TrajectoryStateOnSurface initialTSOS = propagator.propagate(seedTSOS, initialLayer->surface());
       //   3. check validity and transform
       if (!initialTSOS.isValid())
         continue;

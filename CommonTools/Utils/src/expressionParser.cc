@@ -1,4 +1,4 @@
-#include "CommonTools/Utils/src/Grammar.h"
+#include "CommonTools/Utils/interface/Grammar.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CommonTools/Utils/interface/expressionParser.h"
 

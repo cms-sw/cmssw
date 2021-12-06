@@ -4,7 +4,7 @@ process = cms.Process("PixelDBReader")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 #process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -13,7 +13,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.load("CalibTracker.SiPixelESProducers.SiPixelFakeGainESSource_cfi")
 
@@ -21,9 +21,9 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("histo.root")
                                    )
 
-process.CondDBCommon.connect = 'sqlite_file:prova.db'
-process.CondDBCommon.DBParameters.messageLevel = 2
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.CondDB.connect = 'sqlite_file:prova.db'
+process.CondDB.DBParameters.messageLevel = 2
+process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -41,7 +41,7 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 )
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
+    process.CondDB,
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelGainCalibrationRcd'),

@@ -33,13 +33,13 @@ compressionSettings = 207
  ## Load and Configure OfflineValidation and Output File
  ##
 process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineValidationMode]Oo._cff")
-process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..compressionSettings = compressionSettings,
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..compressionSettings = compressionSettings
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'FinalTrackRefitter'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'FinalTrackRefitter'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = .oO[offlineModuleLevelHistsTransient]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfiles = .oO[offlineModuleLevelProfiles]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..stripYResiduals = .oO[stripYResiduals]Oo.
-process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..maxTracks = .oO[maxtracks]Oo./ .oO[parallelJobs]Oo.
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..maxTracks = int(.oO[maxtracks]Oo./.oO[parallelJobs]Oo.)
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..chargeCut = .oO[chargeCut]Oo.
 """
 

@@ -1,6 +1,6 @@
-#include <iostream>
+#include "HcalMaterials.h"
 
-#include "RecoLocalCalo/CaloTowersCreator/interface/HcalMaterials.h"
+#include <iostream>
 
 HcalMaterials::HcalMaterials() {}
 

@@ -5,11 +5,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
-#include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
-#include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
-
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -40,13 +35,18 @@ namespace ecaldqm {
       throw cms::Exception("InvalidConfiguration") << "Nothing to do in TowerStatusTask";
   }
 
+  void TowerStatusTask::setTokens(edm::ConsumesCollector& _collector) {
+    daqHndlToken = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();
+    dcsHndlToken = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();
+  }
+
   void TowerStatusTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& _es) {
     if (doDAQInfo_) {
       std::fill_n(daqStatus_, nDCC, 1.);
 
-      edm::ESHandle<EcalDAQTowerStatus> daqHndl;
-      _es.get<EcalDAQTowerStatusRcd>().get(daqHndl);
-      if (daqHndl.isValid()) {
+      const EcalDAQTowerStatus* daqHndl = &_es.getData(daqHndlToken);
+      auto daqhandle = _es.getHandle(daqHndlToken);
+      if (daqhandle.isValid()) {
         for (unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++) {
           if (daqHndl->barrel(id).getStatusCode() != 0) {
             EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
@@ -67,9 +67,9 @@ namespace ecaldqm {
     if (doDCSInfo_) {
       std::fill_n(dcsStatus_, nDCC, 1.);
 
-      edm::ESHandle<EcalDCSTowerStatus> dcsHndl;
-      _es.get<EcalDCSTowerStatusRcd>().get(dcsHndl);
-      if (dcsHndl.isValid()) {
+      const EcalDCSTowerStatus* dcsHndl = &_es.getData(dcsHndlToken);
+      auto dcshandle = _es.getHandle(dcsHndlToken);
+      if (dcshandle.isValid()) {
         for (unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++) {
           if (dcsHndl->barrel(id).getStatusCode() != 0) {
             EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));

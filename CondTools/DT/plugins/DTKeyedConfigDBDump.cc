@@ -7,11 +7,16 @@
  *
  */
 
-//-----------------------
-// This Class' Header --
-//-----------------------
-#include "CondTools/DT/plugins/DTKeyedConfigDBDump.h"
-
+//----------------------
+// Base Class Headers --
+//----------------------
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+//------------------------------------
+// Collaborating Class Declarations --
+//------------------------------------
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
@@ -21,12 +26,28 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-//---------------
-// C++ Headers --
-//---------------
-#include <iostream>
-#include <memory>
+//-----------------------
+// This Class' Header --
+//-----------------------
+class DTKeyedConfigDBDump : public edm::one::EDAnalyzer<> {
+public:
+  /** Constructor                                                                                                
+   */
+  explicit DTKeyedConfigDBDump(const edm::ParameterSet& ps);
 
+  /** Destructor                                                                                                 
+   */
+  ~DTKeyedConfigDBDump() override;
+
+  /** Operations 
+   */
+  ///
+  void beginJob() override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+private:
+  edm::ESGetToken<cond::persistency::KeyList, DTKeyedConfigListRcd> perskeylistToken_;
+};
 //-------------------
 // Initializations --
 //-------------------
@@ -34,7 +55,7 @@
 //----------------
 // Constructors --
 //----------------
-DTKeyedConfigDBDump::DTKeyedConfigDBDump(const edm::ParameterSet& ps) {}
+DTKeyedConfigDBDump::DTKeyedConfigDBDump(const edm::ParameterSet& ps) : perskeylistToken_(esConsumes()) {}
 
 //--------------
 // Destructor --
@@ -46,28 +67,23 @@ DTKeyedConfigDBDump::~DTKeyedConfigDBDump() {}
 //--------------
 void DTKeyedConfigDBDump::beginJob() { return; }
 
-void DTKeyedConfigDBDump::analyze(const edm::Event& e, const edm::EventSetup& c) {
+void DTKeyedConfigDBDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::eventsetup::EventSetupRecordKey recordKey(
       edm::eventsetup::EventSetupRecordKey::TypeTag::findType("DTKeyedConfigListRcd"));
   if (recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
     //record not found
-    std::cout << "Record \"DTKeyedConfigListRcd "
-              << "\" does not exist " << std::endl;
+    edm::LogWarning("DTKeyedConfigDBDump") << "Record \"DTKeyedConfigListRcd "
+                                           << "\" does not exist " << std::endl;
   }
-  edm::ESHandle<cond::persistency::KeyList> klh;
-  std::cout << "got eshandle" << std::endl;
-  c.get<DTKeyedConfigListRcd>().get(klh);
-  std::cout << "got context" << std::endl;
-  cond::persistency::KeyList const& kl = *klh.product();
-  cond::persistency::KeyList const* kp = &kl;
-  std::cout << "now load and get" << std::endl;
+  cond::persistency::KeyList const* kp = &iSetup.getData(perskeylistToken_);
+  edm::LogInfo("DTKeyedConfigDBDump") << "now load and get" << std::endl;
   auto pkc = kp->getUsingKey<DTKeyedConfig>(999999999);
-  std::cout << "now check" << std::endl;
+  edm::LogInfo("DTKeyedConfigDBDump") << "now check" << std::endl;
   if (pkc.get())
-    std::cout << pkc->getId() << " " << *(pkc->dataBegin()) << std::endl;
+    edm::LogInfo("DTKeyedConfigDBDump") << pkc->getId() << " " << *(pkc->dataBegin()) << std::endl;
   else
-    std::cout << "not found" << std::endl;
-  std::cout << std::endl;
+    edm::LogInfo("DTKeyedConfigDBDump") << "not found" << std::endl;
+  edm::LogInfo("DTKeyedConfigDBDump") << std::endl;
   return;
 }
 

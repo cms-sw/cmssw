@@ -1,4 +1,4 @@
-#include "Fireworks/Core/src/SimpleSAXParser.h"
+#include "Fireworks/Core/interface/SimpleSAXParser.h"
 
 /** Helper function to handle entities, i.e. characters specified with
     the "&label;" syntax.

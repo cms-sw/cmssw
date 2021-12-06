@@ -10,9 +10,9 @@
 class HcalPulseContainmentManager {
 public:
   // for callers not calling beginRun(EventSetup)
-  HcalPulseContainmentManager(float max_fracerror);
+  HcalPulseContainmentManager(float max_fracerror, bool phaseAsInSim);
   // for callers calling beginRun(EventSetup)
-  HcalPulseContainmentManager(float max_fracerror, edm::ConsumesCollector iC);
+  HcalPulseContainmentManager(float max_fracerror, bool phaseAsInSim, edm::ConsumesCollector iC);
   double correction(const HcalDetId& detId, int toAdd, float fixedphase_ns, double fc_ampl);
   const HcalPulseContainmentCorrection* get(const HcalDetId& detId, int toAdd, float fixedphase_ns);
 
@@ -38,6 +38,7 @@ private:
   HcalPulseShapes shapes_;
   float fixedphase_ns_;
   float max_fracerror_;
+  bool phaseAsInSim_;
   const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> delayToken_;
 
   const HcalTimeSlew* hcalTimeSlew_delay_;

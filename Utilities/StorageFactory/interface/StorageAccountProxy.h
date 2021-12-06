@@ -15,41 +15,42 @@
     Future improvement would be to implement more methods so that the
     wrapper itself doesn't cause peroformance degradation if the base
     storage does actually implement "sophisticated" features.  */
-class StorageAccountProxy : public Storage {
-public:
-  StorageAccountProxy(const std::string &storageClass, std::unique_ptr<Storage> baseStorage);
-  ~StorageAccountProxy(void) override;
+namespace edm::storage {
+  class StorageAccountProxy : public Storage {
+  public:
+    StorageAccountProxy(const std::string &storageClass, std::unique_ptr<Storage> baseStorage);
+    ~StorageAccountProxy(void) override;
 
-  using Storage::read;
-  using Storage::write;
+    using Storage::read;
+    using Storage::write;
 
-  bool prefetch(const IOPosBuffer *what, IOSize n) override;
-  IOSize read(void *into, IOSize n) override;
-  IOSize read(void *into, IOSize n, IOOffset pos) override;
-  IOSize readv(IOBuffer *into, IOSize n) override;
-  IOSize readv(IOPosBuffer *into, IOSize n) override;
-  IOSize write(const void *from, IOSize n) override;
-  IOSize write(const void *from, IOSize n, IOOffset pos) override;
-  IOSize writev(const IOBuffer *from, IOSize n) override;
-  IOSize writev(const IOPosBuffer *from, IOSize n) override;
+    bool prefetch(const IOPosBuffer *what, IOSize n) override;
+    IOSize read(void *into, IOSize n) override;
+    IOSize read(void *into, IOSize n, IOOffset pos) override;
+    IOSize readv(IOBuffer *into, IOSize n) override;
+    IOSize readv(IOPosBuffer *into, IOSize n) override;
+    IOSize write(const void *from, IOSize n) override;
+    IOSize write(const void *from, IOSize n, IOOffset pos) override;
+    IOSize writev(const IOBuffer *from, IOSize n) override;
+    IOSize writev(const IOPosBuffer *from, IOSize n) override;
 
-  IOOffset position(IOOffset offset, Relative whence = SET) override;
-  void resize(IOOffset size) override;
-  void flush(void) override;
-  void close(void) override;
+    IOOffset position(IOOffset offset, Relative whence = SET) override;
+    void resize(IOOffset size) override;
+    void flush(void) override;
+    void close(void) override;
 
-protected:
-  void releaseStorage() { get_underlying_safe(m_baseStorage).release(); }
+  protected:
+    void releaseStorage() { get_underlying_safe(m_baseStorage).release(); }
 
-  edm::propagate_const<std::unique_ptr<Storage>> m_baseStorage;
+    edm::propagate_const<std::unique_ptr<Storage>> m_baseStorage;
 
-  StorageAccount::StorageClassToken m_token;
-  StorageAccount::Counter &m_statsRead;
-  StorageAccount::Counter &m_statsReadV;
-  StorageAccount::Counter &m_statsWrite;
-  StorageAccount::Counter &m_statsWriteV;
-  StorageAccount::Counter &m_statsPosition;
-  StorageAccount::Counter &m_statsPrefetch;
-};
-
+    StorageAccount::StorageClassToken m_token;
+    StorageAccount::Counter &m_statsRead;
+    StorageAccount::Counter &m_statsReadV;
+    StorageAccount::Counter &m_statsWrite;
+    StorageAccount::Counter &m_statsWriteV;
+    StorageAccount::Counter &m_statsPosition;
+    StorageAccount::Counter &m_statsPrefetch;
+  };
+}  // namespace edm::storage
 #endif  // STORAGE_FACTORY_STORAGE_ACCOUNT_PROXY_H

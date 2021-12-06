@@ -9,7 +9,6 @@
  */
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -63,6 +62,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::PFTau>> PFTauToken_;
   edm::EDGetTokenT<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef>>> PFTauPVAToken_;
   edm::EDGetTokenT<edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef>>>> PFTauSVAToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transTrackBuilderToken_;
   bool useFullCalculation_;
 };
 
@@ -72,6 +72,7 @@ PFTauTransverseImpactParameters::PFTauTransverseImpactParameters(const edm::Para
           iConfig.getParameter<edm::InputTag>("PFTauPVATag"))),
       PFTauSVAToken_(consumes<edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef>>>>(
           iConfig.getParameter<edm::InputTag>("PFTauSVATag"))),
+      transTrackBuilderToken_(esConsumes(edm::ESInputTag{"", "TransientTrackBuilder"})),
       useFullCalculation_(iConfig.getParameter<bool>("useFullCalculation")) {
   produces<edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>>();
   produces<PFTauTransverseImpactParameterCollection>("PFTauTIP");
@@ -100,8 +101,7 @@ namespace {
 
 void PFTauTransverseImpactParameters::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Obtain Collections
-  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+  auto const& transTrackBuilder = iSetup.getData(transTrackBuilderToken_);
 
   edm::Handle<std::vector<reco::PFTau>> Tau;
   iEvent.getByToken(PFTauToken_, Tau);
@@ -134,7 +134,7 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent, const edm::Eve
         const reco::Track* track = getTrack(*RefPFTau->leadChargedHadrCand());
         if (track != nullptr) {
           if (useFullCalculation_) {
-            reco::TransientTrack transTrk = transTrackBuilder->build(*track);
+            reco::TransientTrack transTrk = transTrackBuilder.build(*track);
             GlobalVector direction(
                 RefPFTau->p4().px(), RefPFTau->p4().py(), RefPFTau->p4().pz());  //To compute sign of IP
             std::pair<bool, Measurement1D> signed_IP2D =

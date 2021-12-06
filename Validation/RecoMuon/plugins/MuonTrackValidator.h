@@ -14,6 +14,14 @@
 #include "SimDataFormats/Associations/interface/TrackAssociation.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
+#include "SimTracker/TrackAssociation/interface/CosmicParametersDefinerForTP.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBase {
 public:
   /// Constructor
@@ -63,6 +71,14 @@ public:
     }
     simToRecoCollection_Token = consumes<reco::SimToRecoCollection>(associatormap);
     recoToSimCollection_Token = consumes<reco::RecoToSimCollection>(associatormap);
+
+    if (parametersDefiner == "LhcParametersDefinerForTP") {
+      lhcParametersDefinerTP_ = std::make_unique<ParametersDefinerForTP>(bsSrc, consumesCollector());
+    } else if (parametersDefiner == "CosmicParametersDefinerForTP") {
+      cosmicParametersDefinerTP_ = std::make_unique<CosmicParametersDefinerForTP>(consumesCollector());
+    } else {
+      throw cms::Exception("Configuration") << "Unexpected label: parametersDefiner = " << parametersDefiner;
+    }
 
     _simHitTpMapTag = mayConsume<SimHitTPAssociationProducer::SimHitTPAssociationList>(
         pset.getParameter<edm::InputTag>("simHitTpMapTag"));
@@ -152,6 +168,9 @@ private:
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoCollection_Token;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimCollection_Token;
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
+
+  std::unique_ptr<ParametersDefinerForTP> lhcParametersDefinerTP_;
+  std::unique_ptr<CosmicParametersDefinerForTP> cosmicParametersDefinerTP_;
 
   bool UseAssociators;
   bool useGEMs_;

@@ -15,9 +15,12 @@
 #include "SimDataFormats/DigiSimLinks/interface/DTDigiSimLinkCollection.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 
 #include <map>
 #include <vector>
+
+class MuonGeometryRecord;
 
 class DTHitAssociator {
 public:
@@ -28,12 +31,34 @@ public:
   typedef std::map<DTWireId, std::vector<DTDigi>> DigiMap;
   typedef std::map<DTWireId, std::vector<DTDigiSimLink>> LinksMap;
 
-  DTHitAssociator(const edm::Event &, const edm::EventSetup &, const edm::ParameterSet &, bool printRtS);
-  DTHitAssociator(const edm::ParameterSet &, edm::ConsumesCollector &&iC);
+  class Config {
+  public:
+    Config(const edm::ParameterSet &, edm::ConsumesCollector iC);
 
-  void initEvent(const edm::Event &, const edm::EventSetup &);
+  private:
+    friend class DTHitAssociator;
 
-  virtual ~DTHitAssociator() {}
+    edm::InputTag DTsimhitsTag;
+    edm::InputTag DTsimhitsXFTag;
+    edm::InputTag DTdigiTag;
+    edm::InputTag DTdigisimlinkTag;
+    edm::InputTag DTrechitTag;
+
+    edm::EDGetTokenT<edm::PSimHitContainer> DTsimhitsToken;
+    edm::EDGetTokenT<CrossingFrame<PSimHit>> DTsimhitsXFToken;
+    edm::EDGetTokenT<DTDigiCollection> DTdigiToken;
+    edm::EDGetTokenT<DTDigiSimLinkCollection> DTdigisimlinkToken;
+    edm::EDGetTokenT<DTRecHitCollection> DTrechitToken;
+
+    edm::ESGetToken<DTGeometry, MuonGeometryRecord> geomToken;
+
+    bool dumpDT;
+    bool crossingframe;
+    bool links_exist;
+    bool associatorByWire;
+  };
+
+  DTHitAssociator(const edm::Event &, const edm::EventSetup &, const Config &, bool printRtS);
 
   std::vector<SimHitIdpr> associateHitId(const TrackingRecHit &hit) const;
   std::vector<SimHitIdpr> associateDTHitId(const DTRecHit1D *dtrechit) const;
@@ -46,18 +71,10 @@ public:
   LinksMap mapOfLinks;
 
 private:
-  edm::InputTag DTsimhitsTag;
-  edm::InputTag DTsimhitsXFTag;
-  edm::InputTag DTdigiTag;
-  edm::InputTag DTdigisimlinkTag;
-  edm::InputTag DTrechitTag;
-
-  bool dumpDT;
-  bool crossingframe;
-  bool links_exist;
-  bool associatorByWire;
+  void initEvent(const edm::Event &, const edm::EventSetup &);
 
   bool SimHitOK(const edm::ESHandle<DTGeometry> &, const PSimHit &);
+  Config const &config_;
   bool printRtS;
 };
 

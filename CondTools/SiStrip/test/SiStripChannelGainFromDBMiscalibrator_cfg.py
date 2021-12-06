@@ -152,14 +152,14 @@ process.scaleAndSmearSiStripGains.params   = subsets  # as a cms.VPset
 ##
 ## Database output service
 ##
-process.load("CondCore.CondDB.CondDB_cfi")
+from CondCore.CondDB.CondDB_cfi import CondDB as _CondDB
 
 ##
 ## Output database (in this case local sqlite file)
 ##
-process.CondDB.connect = 'sqlite_file:modifiedGains_'+ process.GlobalTag.globaltag._value+'_IOV_'+str(options.runNumber)+".db"
+process.CondDBOutput = _CondDB.clone(connect = 'sqlite_file:modifiedSiStripGains_'+ process.GlobalTag.globaltag._value+'_IOV_'+str(options.runNumber)+".db")
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          process.CondDB,
+                                          process.CondDBOutput,
                                           timetype = cms.untracked.string('runnumber'),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('SiStripApvGainRcd'),
                                                                      tag = cms.string('modifiedGains')

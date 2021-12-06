@@ -13,10 +13,10 @@ ecalDaqInfoTask = DQMEDHarvester("EcalDQMonitorClient",
     ),
     # task parameters (included from indivitual cfis)
     workerParameters =  cms.untracked.PSet(
-        TowerStatusTask = ecalTowerStatusTask.clone()
+        TowerStatusTask = ecalTowerStatusTask.clone(
+	  params = dict(doDCSInfo = False)
+	)
     ),
     commonParameters = ecalCommonParams,
     verbosity = cms.untracked.int32(0)
 )
-
-ecalDaqInfoTask.workerParameters.TowerStatusTask.params.doDCSInfo = False

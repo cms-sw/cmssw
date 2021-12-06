@@ -13,7 +13,7 @@ def createPickleFile(fileName, listRule, path = os.getcwd()):
     try:
         for filePath, lines in listRule:
            dict[filePath] = lines
-        file = open(join(path, fileName), 'w')
+        file = open(join(path, fileName), 'wb')
         pickle.dump(dict, file)
         file.close()
     except TypeError:

@@ -226,7 +226,8 @@ namespace PhysicsTools {
 
       MVAComputer &operator=(const MVAComputer &orig);
 
-      virtual std::vector<VarProcessor *> getProcessors() const;
+      virtual std::vector<VarProcessor *> getProcessors();
+      virtual std::vector<const VarProcessor *> getProcessors() const;
       void addProcessor(const VarProcessor *proc);
 
       // cacheId stuff to detect changes

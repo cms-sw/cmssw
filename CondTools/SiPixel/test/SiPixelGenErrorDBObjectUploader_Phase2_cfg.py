@@ -72,7 +72,7 @@ if len(magfieldstrsplit)>1 :
 	MagFieldString+=magfieldstrsplit[1]
 
 #open the map file
-mapfile = open(options.Map,'rU', newline='')
+mapfile = open(options.Map,'r', newline='')
 #read the csv file into a reader
 mapfilereader = csv.reader(mapfile,delimiter=options.Delimiter,quotechar=options.Quotechar)
 #separate into the different sections
@@ -172,6 +172,8 @@ from Configuration.StandardSequences.Eras import eras
 process = cms.Process("SiPixelGenErrorDBUpload",eras.Phase2)#C2)
 process.load("CondCore.CondDB.CondDB_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger = cms.Service("MessageLogger",
+                                    destinations = cms.untracked.vstring('SiPixelGenErrorDBObjectUploader_Phase2.log'))
 
 geometry_cff = ''
 recoGeometry_cff = ''

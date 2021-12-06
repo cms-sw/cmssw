@@ -3,6 +3,7 @@
 
 <test name="testPandas" command="testPandas.py"/>
 <test name="test_pycurl" command="test_pycurl.py"/>
+<test name="test_bs4" command="test_bs4.py"/>
 <test name="testBottleneck" command="testBottleneck.py"/>
 <test name="testNumExpr" command="testNumExpr.py"/>
 <test name="testTables" command="testTables.py"/>
@@ -33,8 +34,9 @@
   <test name="testCxOracle" command="python3 -c 'import cx_Oracle'"/>
 </iftool>
 
+<test name="import-anyio" command="python3 -c 'import anyio'"/>
 <test name="import-jinja2" command="python3 -c 'import jinja2'"/>
-<test name="import-keras" command="python3 -c 'import keras'"/>
+<test name="import-keras" command="python3 -c 'import tensorflow.keras'"/>
 <test name="import-markupsafe" command="python3 -c 'import markupsafe'"/>
 <test name="import-yaml" command="python3 -c 'import yaml'"/>
 <test name="import-pygments" command="python3 -c 'import pygments'"/>
@@ -63,8 +65,6 @@
 <test name="import-hep_ml" command="python3 -c 'import hep_ml'"/>
 <test name="import-histbook" command="python3 -c 'import histbook'"/>
 <test name="import-html5lib" command="python3 -c 'import html5lib'"/>
-<test name="import-hyperas" command="python3 -c 'import hyperas'"/>
-<test name="import-hyperopt" command="python3 -c 'import hyperopt'"/>
 <test name="import-idna" command="python3 -c 'import idna'"/>
 <test name="import-ipykernel" command="python3 -c 'import ipykernel'"/>
 <test name="import-ipython_genutils" command="python3 -c 'import ipython_genutils'"/>
@@ -82,7 +82,6 @@
 <test name="import-mpmath" command="python3 -c 'import mpmath'"/>
 <test name="import-nbformat" command="python3 -c 'import nbformat'"/>
 <test name="import-networkx" command="python3 -c 'import networkx'"/>
-<test name="import-nose" command="python3 -c 'import nose'"/>
 <test name="import-notebook" command="python3 -c 'import notebook'"/>
 <test name="import-numexpr" command="python3 -c 'import numexpr'"/>
 <test name="import-numpy" command="python3 -c 'import numpy'"/>
@@ -106,11 +105,11 @@
 <test name="import-pycodestyle" command="python3 -c 'import pycodestyle'"/>
 <test name="import-pycurl" command="python3 -c 'import pycurl'"/>
 <test name="import-pyparsing" command="python3 -c 'import pyparsing'"/>
+<test name="import-pytest" command="python3 -m pytest --version"/>
 <test name="import-sqlite3" command="python3 -c 'import sqlite3'"/>
 <test name="import-pytz" command="python3 -c 'import pytz'"/>
 <test name="import-zmq" command="python3 -c 'import zmq'"/>
 <test name="import-qtconsole" command="python3 -c 'import qtconsole'"/>
-<test name="import-rep" command="python3 -c 'import rep'"/>
 <test name="import-requests" command="python3 -c 'import requests'"/>
 <test name="import-scandir" command="python3 -c 'import scandir'"/>
 <test name="import-schema" command="python3 -c 'import schema'"/>
@@ -120,7 +119,7 @@
 <test name="import-send2trash" command="python3 -c 'import send2trash'"/>
 <test name="import-simplegeneric" command="python3 -c 'import simplegeneric'"/>
 <test name="import-singledispatch" command="python3 -c 'import singledispatch'"/>
-<test name="import-six" command="python3 -c 'import six'"/>
+<test name="import-sniffio" command="python3 -c 'import sniffio'"/>
 <test name="import-sqlalchemy" command="python3 -c 'import sqlalchemy'"/>
 <test name="import-sympy" command="python3 -c 'import sympy'"/>
 <test name="import-tables" command="python3 -c 'import tables'"/>
@@ -145,5 +144,5 @@
 <test name="import-lxml" command="python3 -c 'import lxml'"/>
 <test name="import-bs4" command="python3 -c 'import bs4'"/>
 <test name="run-flawfinder" command="flawfinder -h"/>
-<test name="run-ipython3" command="ipython3 -h"/>
-<test name="run-pylint3" command="pylint3 -h"/>
+<test name="run-ipython" command="ipython -h"/>
+<test name="run-pylint" command="pylint -h"/>

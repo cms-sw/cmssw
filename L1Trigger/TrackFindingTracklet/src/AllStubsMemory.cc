@@ -6,10 +6,10 @@
 using namespace std;
 using namespace trklet;
 
-AllStubsMemory::AllStubsMemory(string name, Settings const& settings, unsigned int iSector)
-    : MemoryBase(name, settings, iSector) {}
+AllStubsMemory::AllStubsMemory(string name, Settings const& settings) : MemoryBase(name, settings) {}
 
-void AllStubsMemory::writeStubs(bool first) {
+void AllStubsMemory::writeStubs(bool first, unsigned int iSector) {
+  iSector_ = iSector;
   const string dirS = settings_.memPath() + "Stubs/";
   openFile(first, dirS, "AllStubs_");
 

@@ -16,7 +16,7 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     particleFlowSuperClusterHGCal,
     PFClusters                     = 'particleFlowClusterHGCal',
-    useRegression                  = False, #no HGCal regression yet
+    useRegression                  = True,
     use_preshower                  = False,
     PFBasicClusterCollectionEndcap = "",
     PFSuperClusterCollectionEndcap = "",
@@ -25,13 +25,7 @@ phase2_hgcal.toModify(
     dropUnseedable                 = True,
 )
 
-particleFlowSuperClusterHGCalFromMultiCl = particleFlowSuperClusterHGCal.clone()
-phase2_hgcal.toModify(
-    particleFlowSuperClusterHGCalFromMultiCl,
-    PFClusters = 'particleFlowClusterHGCalFromMultiCl',
-    useRegression  = True,
-)
-phase2_hgcal.toModify( particleFlowSuperClusterHGCalFromMultiCl.regressionConfig,
+phase2_hgcal.toModify( particleFlowSuperClusterHGCal.regressionConfig,
     regressionKeyEE = "superclus_hgcal_mean_offline",
     uncertaintyKeyEE = "superclus_hgcal_sigma_offline",
     isPhaseII = True,
@@ -40,7 +34,6 @@ phase2_hgcal.toModify( particleFlowSuperClusterHGCalFromMultiCl.regressionConfig
 )
 _phase2_hgcal_particleFlowSuperClusteringTask = particleFlowSuperClusteringTask.copy()
 _phase2_hgcal_particleFlowSuperClusteringTask.add(particleFlowSuperClusterHGCal)
-_phase2_hgcal_particleFlowSuperClusteringTask.add(particleFlowSuperClusterHGCalFromMultiCl)
 
 phase2_hgcal.toReplaceWith( particleFlowSuperClusteringTask, _phase2_hgcal_particleFlowSuperClusteringTask )
 

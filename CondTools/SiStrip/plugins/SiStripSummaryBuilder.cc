@@ -1,7 +1,33 @@
-#include "CondTools/SiStrip/plugins/SiStripSummaryBuilder.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+// system include files
 #include <iostream>
 #include <fstream>
+
+// user include files
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+
+class SiStripSummaryBuilder : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripSummaryBuilder(const edm::ParameterSet& iConfig);
+
+  ~SiStripSummaryBuilder() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::FileInPath fp_;
+  bool printdebug_;
+
+  edm::ParameterSet iConfig_;
+};
 
 SiStripSummaryBuilder::SiStripSummaryBuilder(const edm::ParameterSet& iConfig)
     : fp_(iConfig.getUntrackedParameter<edm::FileInPath>(
@@ -14,8 +40,8 @@ void SiStripSummaryBuilder::analyze(const edm::Event& evt, const edm::EventSetup
   edm::LogInfo("SiStripSummaryBuilder") << "... creating dummy SiStripSummary Data for Run " << run << "\n "
                                         << std::endl;
 
-  SiStripSummary* obj = new SiStripSummary();
-  obj->setRunNr(run);
+  SiStripSummary obj;
+  obj.setRunNr(run);
 
   //* DISCOVER SET OF HISTOGRAMS & QUANTITIES TO BE UPLOADED*//
 
@@ -52,12 +78,12 @@ void SiStripSummaryBuilder::analyze(const edm::Event& evt, const edm::EventSetup
       }
     }
   }
-  obj->setUserDBContent(userDBContent);
+  obj.setUserDBContent(userDBContent);
 
   std::stringstream ss1;
   ss1 << "QUANTITIES TO BE INSERTED IN DB :"
       << " \n";
-  std::vector<std::string> userDBContentA = obj->getUserDBContent();
+  std::vector<std::string> userDBContentA = obj.getUserDBContent();
   for (size_t i = 0; i < userDBContentA.size(); ++i)
     ss1 << userDBContentA[i] << std::endl;
   edm::LogInfo("SiStripSummaryBuilder") << ss1.str();
@@ -74,7 +100,7 @@ void SiStripSummaryBuilder::analyze(const edm::Event& evt, const edm::EventSetup
     for (size_t j = 0; j < values.size(); ++j)
       ss2 << "\n\t\t " << userDBContent[j] << " " << values[j];
 
-    obj->put(detid, values, userDBContent);
+    obj.put(detid, values, userDBContent);
 
     // See CondFormats/SiStripObjects/SiStripSummary.h for detid definitions
 
@@ -104,12 +130,16 @@ void SiStripSummaryBuilder::analyze(const edm::Event& evt, const edm::EventSetup
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripSummaryRcd")) {
-      mydbservice->createNewIOV<SiStripSummary>(
-          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripSummaryRcd");
+      mydbservice->createOneIOV<SiStripSummary>(obj, mydbservice->beginOfTime(), "SiStripSummaryRcd");
     } else {
-      mydbservice->appendSinceTime<SiStripSummary>(obj, mydbservice->currentTime(), "SiStripSummaryRcd");
+      mydbservice->appendOneIOV<SiStripSummary>(obj, mydbservice->currentTime(), "SiStripSummaryRcd");
     }
   } else {
     edm::LogError("SiStripSummaryBuilder") << "Service is unavailable" << std::endl;
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripSummaryBuilder);

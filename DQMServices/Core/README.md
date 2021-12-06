@@ -97,7 +97,7 @@ Actions on the `DQMStore` are usually indirect and done via the `IBooker` and `I
 
 The behavior of the `DQMStore` is not affected by any configuration options (this differs from earlier implementations, where multiple _modes_ existed). Yet, there are a few options that can be set:
 - There are two options to control per-lumi saving (`saveByLumi` in the `DQMStore`) and harvesting (`reScope` in `DQMRootSource`). Both can be expressed in terms of _Scope_, see later. These options do not affect what the `DQMStore` itself does: `saveByLumi` affects the default scope and is passed down to the booking code in the DQM modules, while `reScope` is handled in the input sources.
-- Another option, `assertLegacySafe`, only adds assertions to make sure no operations that would be unsafe in the presence of legacy modules sneak in. It does not affect the behaviour.It is enabled by default, but should be disabled in production RECO jobs where concurrent lumisections are expected.
+- Another option, `assertLegacySafe`, only adds assertions to make sure no operations that would be unsafe in the presence of legacy modules sneak in. It does not affect the behaviour. It is disabled by default and indeed it should be kept disabled in production RECO jobs where concurrent lumisections are expected.
 - The `verbose` option should not affect the behavior. Setting it to a value of at least 4 will enable printing a backtrace for every booking call.
 - The `trackME` option is a tool for debugging. When it is set, the `DQMStore` will log all life cycle events affecting MEs matching this name. This does not include things done to the ME (like filling -- the `DQMStore` is not involved there), but it does include creation, reset, recycling, and saving of MEs.
     

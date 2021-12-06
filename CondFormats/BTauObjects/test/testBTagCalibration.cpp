@@ -18,7 +18,7 @@ int main() {
       "0, comb, down, 0, 1, 2, 3, 4, 5, 6, \"2*x\" \n");
   stringstream csv1Stream(csv1);
   BTagCalibration b1("csv");
-  b1.readCSV(csv1Stream);
+  b1.readCSV(csv1Stream, true);
 
   // assert correct length of vectors
   auto e1 = b1.getEntries(BTagEntry::Parameters(BTagEntry::OP_LOOSE, "comb", "central"));
@@ -37,7 +37,7 @@ int main() {
   csv2Stream1 << tggr << ";" << BTagEntry::makeCSVHeader() << csv2_1 << csv2_2;
   csv2Stream2 << tggr << ";" << BTagEntry::makeCSVHeader() << csv2_2 << csv2_1;
   BTagCalibration b2(tggr);
-  b2.readCSV(csv2Stream1);
+  b2.readCSV(csv2Stream1, true);
 
   stringstream csv3Stream;
   b2.makeCSV(csv3Stream);

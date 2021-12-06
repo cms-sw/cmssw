@@ -10,6 +10,8 @@
 #include <iostream>
 #include <cstring>
 
+using namespace edm::storage;
+
 // dlsym isn't reentrant, need a locak around it
 pthread_mutex_t LStoreFile::m_dlopen_lock = PTHREAD_MUTEX_INITIALIZER;
 

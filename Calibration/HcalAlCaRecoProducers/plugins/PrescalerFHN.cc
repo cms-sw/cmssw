@@ -120,8 +120,7 @@ bool PrescalerFHN::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // Trying to mirror HLTrigger/HLTfilters/src/HLTHighLevel.cc where possible
 
-  Handle<TriggerResults> trh;
-  iEvent.getByToken(tok_trigger, trh);
+  auto const& trh = iEvent.getHandle(tok_trigger);
 
   if (trh.isValid()) {
     LogDebug("") << "TriggerResults found, number of HLT paths: " << trh->size();

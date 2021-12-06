@@ -3,6 +3,8 @@
 #include "Utilities/StorageFactory/interface/IOFlags.h"
 #include <cstdlib>
 
+using namespace edm::storage;
+
 void StorageMaker::stagein(const std::string & /*proto*/, const std::string & /*path*/, const AuxSettings &) const {}
 
 bool StorageMaker::check(const std::string &proto,

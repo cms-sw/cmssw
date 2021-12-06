@@ -46,6 +46,8 @@ class L1MuBMTrackAssembler;
 class L1MuBMAssignmentUnit;
 class L1MuBMTrackFinder;
 class L1MuBMTrack;
+class L1TMuonBarrelParams;
+class L1TMuonBarrelParamsRcd;
 
 //              ---------------------
 //              -- Class Interface --
@@ -114,6 +116,7 @@ private:
   L1MuBMDataBuffer* m_DataBuffer;
   L1MuBMExtrapolationUnit* m_EU;
   L1MuBMTrackAssembler* m_TA;
+  const edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> m_bmtfParamsToken;
   std::vector<L1MuBMAssignmentUnit*> m_AUs;
 
   std::vector<L1MuBMTrack*> m_TrackCands;

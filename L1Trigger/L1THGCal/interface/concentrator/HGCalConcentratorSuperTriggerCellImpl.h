@@ -16,14 +16,14 @@ public:
 
   void select(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput,
               std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput);
-  void eventSetup(const edm::EventSetup& es) {
-    triggerTools_.eventSetup(es);
-    coarseTCmapping_.eventSetup(es);
-    superTCmapping_.eventSetup(es);
-    calibrationEE_.eventSetup(es);
-    calibrationHEsi_.eventSetup(es);
-    calibrationHEsc_.eventSetup(es);
-    calibrationNose_.eventSetup(es);
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) {
+    triggerTools_.setGeometry(geom);
+    coarseTCmapping_.setGeometry(geom);
+    superTCmapping_.setGeometry(geom);
+    calibrationEE_.setGeometry(geom);
+    calibrationHEsi_.setGeometry(geom);
+    calibrationHEsc_.setGeometry(geom);
+    calibrationNose_.setGeometry(geom);
   }
 
 private:

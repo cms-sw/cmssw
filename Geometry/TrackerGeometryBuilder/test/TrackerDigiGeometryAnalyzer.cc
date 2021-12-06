@@ -25,7 +25,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -55,22 +54,19 @@
 class TrackerDigiGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TrackerDigiGeometryAnalyzer(const edm::ParameterSet&);
-  ~TrackerDigiGeometryAnalyzer() override;
 
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
 
 private:
   void analyseTrapezoidal(const GeomDetUnit& det);
   void checkRotation(const GeomDetUnit& det);
   void checkTopology(const GeomDetUnit& det);
   std::ostream& cylindrical(std::ostream& os, const GlobalPoint& gp) const;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
 };
 
-TrackerDigiGeometryAnalyzer::TrackerDigiGeometryAnalyzer(const edm::ParameterSet& iConfig) {}
-
-TrackerDigiGeometryAnalyzer::~TrackerDigiGeometryAnalyzer() {}
+TrackerDigiGeometryAnalyzer::TrackerDigiGeometryAnalyzer(const edm::ParameterSet& iConfig) : pDDToken_(esConsumes()) {}
 
 // ------------ method called to produce the data  ------------
 void TrackerDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -78,13 +74,12 @@ void TrackerDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::E
   //
   // get the TrackerGeom
   //
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  PRINT("TrackerDigiGeometryAnalyzer") << " Geometry node for TrackerGeom is  " << &(*pDD) << '\n';
-  PRINT("TrackerDigiGeometryAnalyzer") << " I have " << pDD->detUnits().size() << " detectors" << '\n';
-  PRINT("TrackerDigiGeometryAnalyzer") << " I have " << pDD->detTypes().size() << " types" << '\n';
+  auto const& pDD = iSetup.getData(pDDToken_);
+  PRINT("TrackerDigiGeometryAnalyzer") << " Geometry node for TrackerGeom is  " << &pDD << '\n';
+  PRINT("TrackerDigiGeometryAnalyzer") << " I have " << pDD.detUnits().size() << " detectors" << '\n';
+  PRINT("TrackerDigiGeometryAnalyzer") << " I have " << pDD.detTypes().size() << " types" << '\n';
 
-  for (auto const& it : pDD->detUnits()) {
+  for (auto const& it : pDD.detUnits()) {
     if (dynamic_cast<const PixelGeomDetUnit*>((it)) != nullptr) {
       const BoundPlane& p = (dynamic_cast<const PixelGeomDetUnit*>((it)))->specificSurface();
       PRINT("TrackerDigiGeometryAnalyzer") << it->geographicalId() << " RadLeng Pixel " << p.mediumProperties().radLen()
@@ -100,11 +95,12 @@ void TrackerDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::E
     //analyseTrapezoidal(*it);
   }
 
-  for (auto const& it : pDD->detTypes()) {
+  for (auto const& it : pDD.detTypes()) {
     if (dynamic_cast<const PixelGeomDetType*>((it)) != nullptr) {
       const PixelTopology& p = (dynamic_cast<const PixelGeomDetType*>((it)))->specificTopology();
       PRINT("TrackerDigiGeometryAnalyzer") << " PIXEL Det "  // << it->geographicalId()
-                                           << "    Rows    " << p.nrows() << "    Columns " << p.ncolumns() << '\n';
+                                           << "   isBricked    " << p.isBricked() << "    Rows    " << p.nrows()
+                                           << "    Columns " << p.ncolumns() << '\n';
     } else {
       const StripTopology& p = (dynamic_cast<const StripGeomDetType*>((it)))->specificTopology();
       PRINT("TrackerDigiGeometryAnalyzer") << " STRIP Det "  // << it->geographicalId()

@@ -36,20 +36,19 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
      RunInfo Payload Inspector of 1 IOV 
   *************************************************/
-  class RunInfoTest : public cond::payloadInspector::Histogram1D<RunInfo> {
+  class RunInfoTest : public Histogram1D<RunInfo, SINGLE_IOV> {
   public:
-    RunInfoTest() : cond::payloadInspector::Histogram1D<RunInfo>("Test RunInfo", "Test RunInfo", 1, 0.0, 1.0) {
-      Base::setSingleIov(true);
-    }
+    RunInfoTest() : Histogram1D<RunInfo, SINGLE_IOV>("Test RunInfo", "Test RunInfo", 1, 0.0, 1.0) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<RunInfo> payload = Base::fetchPayload(std::get<1>(iov));
-
         if (payload.get()) {
           payload->printAllValues();
         }
@@ -61,19 +60,18 @@ namespace {
   /************************************************
     Summary of RunInfo of 1 IOV 
   *************************************************/
-  class RunInfoParameters : public cond::payloadInspector::PlotImage<RunInfo> {
+  class RunInfoParameters : public PlotImage<RunInfo, SINGLE_IOV> {
   public:
-    RunInfoParameters() : cond::payloadInspector::PlotImage<RunInfo>("Display of RunInfo parameters") {
-      setSingleIov(true);
-    }
+    RunInfoParameters() : PlotImage<RunInfo, SINGLE_IOV>("Display of RunInfo parameters") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       gStyle->SetPaintTextFormat("g");
-
+      auto tag = PlotBase::getTag<0>();
+      auto iovs = tag.iovs;
       auto iov = iovs.front();
       std::shared_ptr<RunInfo> payload = fetchPayload(std::get<1>(iov));
 
-      TCanvas canvas("Beam Spot Parameters Summary", "RunInfo Parameters summary", 1000, 1000);
+      TCanvas canvas("RunInfo Parameters Summary", "RunInfo Parameters summary", 1000, 1000);
       canvas.cd();
 
       gStyle->SetHistMinimumZero();
@@ -139,16 +137,16 @@ namespace {
           if ((payload->m_avg_current) <= -1) {
             // go in error state
             h2_RunInfoState->SetBinContent(1, yBin, 0.);
-            theState = RunInfoPI::invalid;
+            theState = RunInfoPI::k_invalid;
           } else {
             // all is OK
             h2_RunInfoState->SetBinContent(1, yBin, 1.);
-            theState = RunInfoPI::valid;
+            theState = RunInfoPI::k_valid;
           }
         } else {
           // this is a fake payload
           h2_RunInfoState->SetBinContent(1, yBin, 0.9);
-          theState = RunInfoPI::fake;
+          theState = RunInfoPI::k_fake;
         }
         yBin--;
       }
@@ -189,13 +187,13 @@ namespace {
       ksPt.SetFillColor(0);
       const char* textToAdd;
       switch (theState) {
-        case RunInfoPI::fake:
+        case RunInfoPI::k_fake:
           textToAdd = "This is a fake RunInfoPayload";
           break;
-        case RunInfoPI::valid:
+        case RunInfoPI::k_valid:
           textToAdd = "This is a valid RunInfoPayload";
           break;
-        case RunInfoPI::invalid:
+        case RunInfoPI::k_invalid:
           textToAdd = "This is an invalid RunInfoPayload";
           break;
         default:
@@ -216,11 +214,11 @@ namespace {
     time history of Magnet currents from RunInfo
   *************************************************/
   template <RunInfoPI::parameters param>
-  class RunInfoCurrentHistory : public cond::payloadInspector::HistoryPlot<RunInfo, std::pair<bool, float> > {
+  class RunInfoCurrentHistory : public HistoryPlot<RunInfo, std::pair<bool, float> > {
   public:
     RunInfoCurrentHistory()
-        : cond::payloadInspector::HistoryPlot<RunInfo, std::pair<bool, float> >(
-              getStringFromTypeEnum(param), getStringFromTypeEnum(param) + " value") {}
+        : HistoryPlot<RunInfo, std::pair<bool, float> >(getStringFromTypeEnum(param),
+                                                        getStringFromTypeEnum(param) + " value") {}
     ~RunInfoCurrentHistory() override = default;
 
     std::pair<bool, float> getFromPayload(RunInfo& payload) override {
@@ -275,6 +273,40 @@ namespace {
   typedef RunInfoCurrentHistory<RunInfoPI::m_min_current> RunInfoMinCurrentHistory;
   typedef RunInfoCurrentHistory<RunInfoPI::m_BField> RunInfoBFieldHistory;
 
+  /************************************************
+    time history of Magnet currents from RunInfo
+  *************************************************/
+  template <RunInfoPI::DET theDet>
+  class RunInfoDetHistory : public HistoryPlot<RunInfo, std::pair<bool, float> > {
+  public:
+    RunInfoDetHistory() : HistoryPlot<RunInfo, std::pair<bool, float> >("Det Status History", "Det Status History") {}
+    ~RunInfoDetHistory() override = default;
+
+    std::pair<bool, float> getFromPayload(RunInfo& payload) override {
+      bool isRealRun = ((payload.m_run) != -1);
+      float returnValue = 0.;
+      // early return in case the run is fake
+      if (!isRealRun) {
+        return std::make_pair(isRealRun, returnValue);
+      }
+
+      const auto fedBounds = RunInfoPI::buildFEDBounds();
+      const auto limits = fedBounds.at(theDet);
+      const auto& FEDsIn = payload.m_fed_in;
+      for (const auto& FED : FEDsIn) {
+        if (FED > limits.first && FED < limits.second) {
+          returnValue = 1.;
+          break;  // break the loop to speed up time
+        }
+      }
+      return std::make_pair(isRealRun, returnValue);
+    }  // payload
+  };
+
+  using RunInfoTrackerHistory = RunInfoDetHistory<RunInfoPI::SISTRIP>;
+  using RunInfoSiPixelHistory = RunInfoDetHistory<RunInfoPI::SIPIXEL>;
+  using RunInfoSiPixelPhase1History = RunInfoDetHistory<RunInfoPI::SIPIXELPHASE1>;
+  //.... other could be implemented
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(RunInfo) {
@@ -285,4 +317,7 @@ PAYLOAD_INSPECTOR_MODULE(RunInfo) {
   PAYLOAD_INSPECTOR_CLASS(RunInfoMaxCurrentHistory);
   PAYLOAD_INSPECTOR_CLASS(RunInfoMinCurrentHistory);
   PAYLOAD_INSPECTOR_CLASS(RunInfoBFieldHistory);
+  PAYLOAD_INSPECTOR_CLASS(RunInfoTrackerHistory);
+  PAYLOAD_INSPECTOR_CLASS(RunInfoSiPixelHistory);
+  PAYLOAD_INSPECTOR_CLASS(RunInfoSiPixelPhase1History);
 }

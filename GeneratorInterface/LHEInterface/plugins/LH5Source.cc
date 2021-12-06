@@ -4,8 +4,6 @@
 #include <string>
 #include <memory>
 
-#include <boost/bind.hpp>
-
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -148,13 +146,13 @@ void LH5Source::readEvent_(edm::EventPrincipal& eventPrincipal) {
   }
   std::for_each(partonLevel_->weights().begin(),
                 partonLevel_->weights().end(),
-                boost::bind(&LHEEventProduct::addWeight, product.get(), _1));
+                std::bind(&LHEEventProduct::addWeight, product.get(), std::placeholders::_1));
   product->setScales(partonLevel_->scales());
   product->setNpLO(partonLevel_->npLO());
   product->setNpNLO(partonLevel_->npNLO());
   std::for_each(partonLevel_->getComments().begin(),
                 partonLevel_->getComments().end(),
-                boost::bind(&LHEEventProduct::addComment, product.get(), _1));
+                std::bind(&LHEEventProduct::addComment, product.get(), std::placeholders::_1));
 
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<LHEEventProduct>(std::move(product)));
   eventPrincipal.put(lheProvenanceHelper_.eventProductBranchDescription_,

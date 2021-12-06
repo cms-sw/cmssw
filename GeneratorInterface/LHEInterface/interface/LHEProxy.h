@@ -13,6 +13,10 @@ namespace lhef {
   public:
     typedef unsigned long ProxyID;
 
+    // not allowed and not implemented
+    LHEProxy(const LHEProxy &orig) = delete;
+    LHEProxy &operator=(const LHEProxy &orig) = delete;
+
     ~LHEProxy();
 
     const std::shared_ptr<LHERunInfo> &getRunInfo() const { return runInfo; }
@@ -42,10 +46,6 @@ namespace lhef {
 
   private:
     LHEProxy(ProxyID id);
-
-    // not allowed and not implemented
-    LHEProxy(const LHEProxy &orig) = delete;
-    LHEProxy &operator=(const LHEProxy &orig) = delete;
 
     const ProxyID id;
 

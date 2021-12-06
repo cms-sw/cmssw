@@ -70,6 +70,8 @@ public:
   /** Constructor
    */
   DTMtime();
+  DTMtime(DTMtime const&) = delete;
+  DTMtime& operator=(DTMtime const&) = delete;
   DTMtime(const std::string& version);
 
   /** Destructor
@@ -188,9 +190,6 @@ public:
   void initialize();
 
 private:
-  DTMtime(DTMtime const&) = delete;
-  DTMtime& operator=(DTMtime const&) = delete;
-
   std::string dataVersion;
   float nsPerCount;
 

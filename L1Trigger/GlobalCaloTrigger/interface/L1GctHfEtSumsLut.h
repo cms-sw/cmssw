@@ -1,7 +1,7 @@
 #ifndef L1GCTHFETSUMSLUT_H_
 #define L1GCTHFETSUMSLUT_H_
 
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctLut.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctLut.h"
 
 #include <vector>
 

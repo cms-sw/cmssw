@@ -19,11 +19,14 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 // Forward declarations
 namespace edm {
   class EventSetup;
-}
+  class ConsumesCollector;
+}  // namespace edm
 
 class DTGeometry;
 class CSCGeometry;
@@ -40,7 +43,7 @@ namespace L1TMuon {
 
   class GeometryTranslator {
   public:
-    GeometryTranslator();
+    GeometryTranslator(edm::ConsumesCollector);
     ~GeometryTranslator();
 
     double calculateGlobalEta(const TriggerPrimitive&) const;
@@ -67,8 +70,15 @@ namespace L1TMuon {
     edm::ESHandle<GEMGeometry> _geogem;
     edm::ESHandle<ME0Geometry> _geome0;
 
+    edm::ESGetToken<DTGeometry, MuonGeometryRecord> geodtToken_;
+    edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geocscToken_;
+    edm::ESGetToken<RPCGeometry, MuonGeometryRecord> georpcToken_;
+    edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geogemToken_;
+    edm::ESGetToken<ME0Geometry, MuonGeometryRecord> geome0Token_;
+
     unsigned long long _magfield_cache_id;
     edm::ESHandle<MagneticField> _magfield;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
 
     GlobalPoint getME0SpecificPoint(const TriggerPrimitive&) const;
     double calcME0SpecificEta(const TriggerPrimitive&) const;

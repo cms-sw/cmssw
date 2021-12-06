@@ -15,12 +15,12 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "HepPDT/ParticleDataTable.hh"
 
-class BasicGenTester : public edm::EDAnalyzer {
+class BasicGenTester : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   //
   explicit BasicGenTester(const edm::ParameterSet&);
@@ -45,6 +45,7 @@ private:
   double fPtMin;
   double fPtMax;
   edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
 };
 
 using namespace edm;
@@ -59,6 +60,9 @@ BasicGenTester::BasicGenTester(const ParameterSet& pset)
   fNPart = pset.getUntrackedParameter<int>("NPartForHisto", 500);
   fPtMin = pset.getUntrackedParameter<double>("PtMinForHisto", 0.);
   fPtMax = pset.getUntrackedParameter<double>("PtMaxForHisto", 25.);
+  usesResource(TFileService::kSharedResource);
+  fPDGTableToken = esConsumes<edm::Transition::BeginRun>();
+  consumes<HepMCProduct>(edm::InputTag("VtxSmeared"));
 }
 
 void BasicGenTester::beginJob() {
@@ -82,7 +86,7 @@ void BasicGenTester::beginJob() {
 }
 
 void BasicGenTester::beginRun(const edm::Run& r, const edm::EventSetup& es) {
-  es.getData(fPDGTable);
+  fPDGTable = es.getHandle(fPDGTableToken);
 
   return;
 }

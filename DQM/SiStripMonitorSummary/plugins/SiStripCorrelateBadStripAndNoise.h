@@ -45,7 +45,6 @@
 //
 class TrackerTopology;
 class TrackerGeometry;
-class SiStripDetInfoFileReader;
 class SiStripCorrelateBadStripAndNoise : public edm::EDAnalyzer {
 public:
   explicit SiStripCorrelateBadStripAndNoise(const edm::ParameterSet &);
@@ -73,7 +72,6 @@ private:
 
   // ----------member data ---------------------------
 
-  SiStripDetInfoFileReader *fr;
   edm::ESWatcher<SiStripQualityRcd> qualityWatcher_;
   edm::ESWatcher<SiStripNoisesRcd> noiseWatcher_;
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;

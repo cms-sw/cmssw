@@ -8,8 +8,8 @@
 using namespace std;
 using namespace trklet;
 
-TrackletParametersMemory::TrackletParametersMemory(string name, Settings const& settings, unsigned int iSector)
-    : MemoryBase(name, settings, iSector) {}
+TrackletParametersMemory::TrackletParametersMemory(string name, Settings const& settings)
+    : MemoryBase(name, settings) {}
 
 void TrackletParametersMemory::clean() {
   for (auto& tracklet : tracklets_) {
@@ -18,23 +18,8 @@ void TrackletParametersMemory::clean() {
   tracklets_.clear();
 }
 
-void TrackletParametersMemory::writeMatches(Globals* globals, int& matchesL1, int& matchesL3, int& matchesL5) {
-  ofstream& out = globals->ofstream("nmatches.txt");
-  for (auto& tracklet : tracklets_) {
-    if ((tracklet->nMatches() + tracklet->nMatchesDisk()) > 0) {
-      if (tracklet->layer() == 1)
-        matchesL1++;
-      if (tracklet->layer() == 3)
-        matchesL3++;
-      if (tracklet->layer() == 5)
-        matchesL5++;
-    }
-    out << tracklet->layer() << " " << tracklet->disk() << " " << tracklet->nMatches() << " "
-        << tracklet->nMatchesDisk() << endl;
-  }
-}
-
-void TrackletParametersMemory::writeTPAR(bool first) {
+void TrackletParametersMemory::writeTPAR(bool first, unsigned int iSector) {
+  iSector_ = iSector;
   const string dirTP = settings_.memPath() + "TrackletParameters/";
 
   std::ostringstream oss;
@@ -42,21 +27,7 @@ void TrackletParametersMemory::writeTPAR(bool first) {
       << ".dat";
   auto const& fname = oss.str();
 
-  if (first) {
-    bx_ = 0;
-    event_ = 1;
-
-    if (not std::filesystem::exists(dirTP)) {
-      int fail = system((string("mkdir -p ") + dirTP).c_str());
-      if (fail)
-        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory " << dirTP;
-    }
-    out_.open(fname);
-    if (out_.fail())
-      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
-
-  } else
-    out_.open(fname, std::ofstream::app);
+  openfile(out_, first, dirTP, fname, __FILE__, __LINE__);
 
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
 

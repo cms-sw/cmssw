@@ -42,7 +42,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
-#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
@@ -158,6 +157,11 @@ void Phase2OTValidateTrackingRecHit::fillOTHistos(const edm::Event& iEvent,
       }
       //GetSimHits
       const Phase2TrackerRecHit1D* rechit = dynamic_cast<const Phase2TrackerRecHit1D*>(hit);
+      if (!rechit) {
+        edm::LogError("Phase2OTValidateTrackingRecHit")
+            << "Cannot cast tracking rechit to Phase2TrackerRecHit1D!" << std::endl;
+        continue;
+      }
       const std::vector<SimHitIdpr>& matchedId = associateRecHit.associateHitId(*rechit);
       const PSimHit* simhitClosest = nullptr;
       LocalPoint lp = rechit->localPosition();

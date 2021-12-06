@@ -76,11 +76,19 @@ MuonShowerInformationFiller::MuonShowerInformationFiller(const edm::ParameterSet
   theCSCSegmentsToken = iC.consumes<CSCSegmentCollection>(theCSCSegmentsLabel);
   theDT4DRecSegmentToken = iC.consumes<DTRecSegment4DCollection>(theDT4DRecSegmentLabel);
 
+  theTrackerToken = iC.esConsumes();
+  theTrackingGeometryToken = iC.esConsumes();
+  theFieldToken = iC.esConsumes();
+  theCSCGeometryToken = iC.esConsumes();
+  theDTGeometryToken = iC.esConsumes();
+
   edm::ParameterSet serviceParameters = par.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters, edm::ConsumesCollector(iC));
 
-  theTrackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
-  theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");
+  auto trackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
+  theTrackerRecHitBuilderToken = iC.esConsumes(edm::ESInputTag("", trackerRecHitBuilderName));
+  auto muonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");
+  theMuonRecHitBuilderToken = iC.esConsumes(edm::ESInputTag("", muonRecHitBuilderName));
 
   theCacheId_TRH = 0;
   theCacheId_MT = 0;
@@ -153,17 +161,17 @@ void MuonShowerInformationFiller::setEvent(const edm::Event& event) {
 //
 void MuonShowerInformationFiller::setServices(const EventSetup& setup) {
   // DetLayer Geometry
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-  setup.get<IdealMagneticFieldRecord>().get(theField);
-  setup.get<TrackerRecoGeometryRecord>().get(theTracker);
-  setup.get<MuonGeometryRecord>().get(theCSCGeometry);
-  setup.get<MuonGeometryRecord>().get(theDTGeometry);
+  theTrackingGeometry = setup.getHandle(theTrackingGeometryToken);
+  theField = setup.getHandle(theFieldToken);
+  theTracker = setup.getHandle(theTrackerToken);
+  theCSCGeometry = setup.getHandle(theCSCGeometryToken);
+  theDTGeometry = setup.getHandle(theDTGeometryToken);
 
   // Transient Rechit Builders
   unsigned long long newCacheId_TRH = setup.get<TransientRecHitRecord>().cacheIdentifier();
   if (newCacheId_TRH != theCacheId_TRH) {
-    setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, theTrackerRecHitBuilder);
-    setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
+    theTrackerRecHitBuilder = setup.getHandle(theTrackerRecHitBuilderToken);
+    theMuonRecHitBuilder = setup.getHandle(theMuonRecHitBuilderToken);
   }
 }
 

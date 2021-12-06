@@ -8,8 +8,6 @@
 #include <cstdio>
 #include <sys/time.h>
 
-#include <boost/lexical_cast.hpp>
-
 using namespace std;
 
 SiStripBadComponentsDQMServiceReader::SiStripBadComponentsDQMServiceReader(const edm::ParameterSet& iConfig)
@@ -47,7 +45,7 @@ void SiStripBadComponentsDQMServiceReader::analyze(const edm::Event& e, const ed
       unsigned int value = (*(range.first + it));
       ss << detIdToString(detid[id], tTopo) << "\t" << detid[id] << "\t";
 
-      uint32_t flag = boost::lexical_cast<uint32_t>(siStripBadStrip.decode(value).flag);
+      uint32_t flag = static_cast<uint32_t>(siStripBadStrip.decode(value).flag);
 
       printError(ss, ((flag & FedErrorMask) == FedErrorMask), "Fed error, ");
       printError(ss, ((flag & DigiErrorMask) == DigiErrorMask), "Digi error, ");
@@ -120,7 +118,7 @@ string SiStripBadComponentsDQMServiceReader::detIdToString(DetId detid, const Tr
     name += "+";
   }
   //   if( side != -1 ) {
-  //     name += boost::lexical_cast<string>(side);
+  //     name += std::to_string(side);
   //   }
 
   return name;

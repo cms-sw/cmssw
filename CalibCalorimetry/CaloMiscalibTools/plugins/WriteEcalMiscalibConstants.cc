@@ -16,23 +16,15 @@
 //
 //
 
-// system include files
-#include <iostream>
-
 // user include files
-
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DB includes
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 // user include files
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-//For Checks
-
 //this one
 #include "CalibCalorimetry/CaloMiscalibTools/interface/WriteEcalMiscalibConstants.h"
 
@@ -43,15 +35,10 @@
 //
 // constructors and destructor
 //
-WriteEcalMiscalibConstants::WriteEcalMiscalibConstants(const edm::ParameterSet& iConfig) {
-  //now do what ever initialization is needed
-  newTagRequest_ = iConfig.getParameter<std::string>("NewTagRequest");
-}
+WriteEcalMiscalibConstants::WriteEcalMiscalibConstants(const edm::ParameterSet& iConfig)
+    : newTagRequest_(iConfig.getParameter<std::string>("NewTagRequest")), intercalibConstsToken_(esConsumes()) {}
 
-WriteEcalMiscalibConstants::~WriteEcalMiscalibConstants() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+WriteEcalMiscalibConstants::~WriteEcalMiscalibConstants() {}
 
 //
 // member functions
@@ -61,20 +48,17 @@ WriteEcalMiscalibConstants::~WriteEcalMiscalibConstants() {
 void WriteEcalMiscalibConstants::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   // Intercalib constants
-  edm::ESHandle<EcalIntercalibConstants> pIcal;
-  iSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
-  const EcalIntercalibConstants* Mcal = pIcal.product();
+  const EcalIntercalibConstants* Mcal = &iSetup.getData(intercalibConstsToken_);
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
     if (poolDbService->isNewTagRequest(newTagRequest_)) {
-      std::cout << " Creating a  new one " << std::endl;
-      poolDbService->createNewIOV<const EcalIntercalibConstants>(
-          Mcal, poolDbService->beginOfTime(), poolDbService->endOfTime(), newTagRequest_);
-      std::cout << "Done" << std::endl;
+      edm::LogVerbatim("WriteEcalMiscalibConstants") << "Creating a new IOV";
+      poolDbService->createOneIOV<const EcalIntercalibConstants>(*Mcal, poolDbService->beginOfTime(), newTagRequest_);
+      edm::LogVerbatim("WriteEcalMiscalibConstants") << "Done";
     } else {
-      std::cout << "Old One " << std::endl;
-      poolDbService->appendSinceTime<const EcalIntercalibConstants>(Mcal, poolDbService->currentTime(), newTagRequest_);
+      edm::LogVerbatim("WriteEcalMiscalibConstants") << "Old IOV";
+      poolDbService->appendOneIOV<const EcalIntercalibConstants>(*Mcal, poolDbService->currentTime(), newTagRequest_);
     }
   }
 }
@@ -83,8 +67,4 @@ void WriteEcalMiscalibConstants::analyze(const edm::Event& iEvent, const edm::Ev
 void WriteEcalMiscalibConstants::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-
-WriteEcalMiscalibConstants::endJob() {
-  std::cout << "Here is the end" << std::endl;
-}
+void WriteEcalMiscalibConstants::endJob() { edm::LogVerbatim("WriteEcalMiscalibConstants") << "Here is the end"; }

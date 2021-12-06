@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -40,7 +40,8 @@
 //
 
 namespace edm {
-  class EventSetupCacheIdentifierChecker : public edm::EDAnalyzer {
+  class EventSetupCacheIdentifierChecker
+      : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
   public:
     explicit EventSetupCacheIdentifierChecker(const edm::ParameterSet&);
     ~EventSetupCacheIdentifierChecker() override;
@@ -53,9 +54,9 @@ namespace edm {
     //virtual void endJob() ;
 
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void endRun(edm::Run const&, edm::EventSetup const&);
+    void endRun(edm::Run const&, edm::EventSetup const&) override {}
     void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
 
     void check(edm::EventSetup const&);
     void initialize();

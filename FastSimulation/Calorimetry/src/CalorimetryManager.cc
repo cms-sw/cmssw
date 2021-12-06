@@ -2,6 +2,7 @@
 //Framework headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 // Fast Simulation headers
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
@@ -56,9 +57,6 @@
 //#include "DataFormats/EcalDetId/interface/EcalDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-
 //ROOT headers
 #include "TROOT.h"
 #include "TH1.h"
@@ -77,7 +75,8 @@ CalorimetryManager::CalorimetryManager(FSimEvent* aSimEvent,
                                        const edm::ParameterSet& fastCalo,
                                        const edm::ParameterSet& fastMuECAL,
                                        const edm::ParameterSet& fastMuHCAL,
-                                       const edm::ParameterSet& parGflash)
+                                       const edm::ParameterSet& parGflash,
+                                       edm::ConsumesCollector&& iC)
     : mySimEvent(aSimEvent),
       initialized_(false),
       theMuonEcalEffects(nullptr),
@@ -93,7 +92,7 @@ CalorimetryManager::CalorimetryManager(FSimEvent* aSimEvent,
   theAntiProtonProfile = new GflashAntiProtonShowerProfile(parGflash);
 
   // FastHFShowerLibrary
-  theHFShowerLibrary = new FastHFShowerLibrary(fastCalo);
+  theHFShowerLibrary = new FastHFShowerLibrary(fastCalo, std::move(iC));
 
   readParameters(fastCalo);
 

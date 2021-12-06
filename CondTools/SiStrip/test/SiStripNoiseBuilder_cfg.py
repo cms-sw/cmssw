@@ -25,7 +25,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                           DBParameters = cms.PSet(authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')),
                                           timetype = cms.untracked.string('runnumber'),
-                                          connect = cms.string('sqlite_file:dbfile.db'),
+                                          connect = cms.string('sqlite_file:SiStripConditionsDBFile.db'),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('SiStripNoisesRcd'),
                                                                      tag = cms.string('SiStripNoise_test')
                                                                      )

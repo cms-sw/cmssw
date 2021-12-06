@@ -199,12 +199,14 @@ void EcalTrigPrimFunctionalAlgo::run_part2(
   estrip_->getFGVB()->setbadStripMissing(false);
 
   for (int itow = 0; itow < nrTowers_; ++itow) {
-    if (tpInfoPrintout_) {
-      std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-      std::cout << "on Tower " << itow << " of " << nrTowers_ << std::endl;
-    }
     int index = hitTowers_[itow].first;
     const EcalTrigTowerDetId &thisTower = hitTowers_[itow].second;
+
+    if (tpInfoPrintout_) {
+      edm::LogVerbatim("EcalTPG") << "+++++++++++++++++++++++++++++++++++++++++++++++++";
+      edm::LogVerbatim("EcalTPG") << "on Tower " << itow << " of " << nrTowers_;
+      edm::LogVerbatim("EcalTPG") << "Tower ieta, iphi: " << thisTower.ieta() << ", " << thisTower.iphi();
+    }
 
     // loop over all strips assigned to this trigger tower
     int nstr = 0;
@@ -214,8 +216,8 @@ void EcalTrigPrimFunctionalAlgo::run_part2(
 
       if ((towerMap[index])[i].first > 0) {
         if (tpInfoPrintout_) {
-          std::cout << "-------------------------------------------------" << std::endl;
-          std::cout << "on Strip index " << i << std::endl;
+          edm::LogVerbatim("EcalTPG") << "-------------------------------------------------";
+          edm::LogVerbatim("EcalTPG") << "on Strip index " << i;
         }
         estrip_->process(df, (towerMap[index])[i].first, striptp_[nstr++]);
       }

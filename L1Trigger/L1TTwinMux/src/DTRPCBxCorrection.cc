@@ -12,6 +12,7 @@
 #include <iostream>
 #include <iomanip>
 #include <iterator>
+#include <algorithm>
 
 #include "L1Trigger/L1TTwinMux/interface/DTRPCBxCorrection.h"
 #include "L1Trigger/L1TTwinMux/interface/L1MuTMChambPhContainer.h"
@@ -25,11 +26,7 @@ DTRPCBxCorrection::DTRPCBxCorrection(L1MuDTChambPhContainer inphiDTDigis, L1MuDT
           //  m_phiRPCDigis=inphiRPCDigis;
       };
 
-void DTRPCBxCorrection::run(const edm::EventSetup& c) {
-  const L1TTwinMuxParamsRcd& tmParamsRcd = c.get<L1TTwinMuxParamsRcd>();
-  tmParamsRcd.get(tmParamsHandle);
-  const L1TTwinMuxParams& tmParams = *tmParamsHandle.product();
-
+void DTRPCBxCorrection::run(const L1TTwinMuxParams& tmParams) {
   m_QualityLimit = tmParams.get_USERPCBXFORDTBELOWQUALITY();
   m_DphiWindow = tmParams.get_DphiWindowBxShift();
 

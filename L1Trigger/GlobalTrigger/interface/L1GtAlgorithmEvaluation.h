@@ -15,44 +15,16 @@
  *
  */
 
-//   for L1GtLogicParser
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
-// system include files
 #include <iostream>
-
 #include <map>
 #include <queue>
 #include <stack>
 #include <string>
+#include <unordered_map>
 #include <vector>
-
-// if hash map is used
-
-#include <ext/hash_map>
-
-//   how to hash std::string, using a "template specialization"
-namespace __gnu_cxx {
-
-  /**
- Explicit template specialization of hash of a string class,
- which just uses the internal char* representation as a wrapper.
- */
-  template <>
-  struct hash<std::string> {
-    size_t operator()(const std::string &x) const { return hash<const char *>()(x.c_str()); }
-  };
-
-}  // namespace __gnu_cxx
-// end hash map
-
-// user include files
-
-//   base class
-#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
-
-//
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 
 // forward declarations
 class L1GtAlgorithm;
@@ -79,7 +51,7 @@ public:
 
   // typedef std::map<std::string, L1GtConditionEvaluation*>
   // ConditionEvaluationMap;
-  typedef __gnu_cxx ::hash_map<std::string, L1GtConditionEvaluation *> ConditionEvaluationMap;
+  typedef std ::unordered_map<std::string, L1GtConditionEvaluation *> ConditionEvaluationMap;
   typedef ConditionEvaluationMap::const_iterator CItEvalMap;
   typedef ConditionEvaluationMap::iterator ItEvalMap;
 

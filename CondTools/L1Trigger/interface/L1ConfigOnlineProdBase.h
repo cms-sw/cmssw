@@ -60,6 +60,8 @@ public:
 
 private:
   // ----------member data ---------------------------
+  edm::ESGetToken<L1TriggerKeyList, TRcd> l1TriggerKeyListToken_;
+  edm::ESGetToken<L1TriggerKey, TRcd> l1TriggerKeyToken_;
 
 protected:
   l1t::OMDSReader m_omdsReader;
@@ -84,9 +86,11 @@ L1ConfigOnlineProdBase<TRcd, TData>::L1ConfigOnlineProdBase(const edm::Parameter
       m_copyFromCondDB(false) {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this);
+  auto cc = setWhatProduced(this);
 
   //now do what ever other initialization is needed
+  l1TriggerKeyListToken_ = cc.consumes();
+  l1TriggerKeyToken_ = cc.consumes();
 
   if (iConfig.exists("copyFromCondDB")) {
     m_copyFromCondDB = iConfig.getParameter<bool>("copyFromCondDB");
@@ -118,10 +122,7 @@ std::unique_ptr<TData> L1ConfigOnlineProdBase<TRcd, TData>::produce(const TRcd& 
   std::string key;
   if (getObjectKey(iRecord, key) || m_forceGeneration) {
     if (m_copyFromCondDB) {
-      // Get L1TriggerKeyList from EventSetup
-      const L1TriggerKeyListRcd& keyListRcd = iRecord.template getRecord<L1TriggerKeyListRcd>();
-      edm::ESHandle<L1TriggerKeyList> keyList;
-      keyListRcd.get(keyList);
+      auto keyList = iRecord.getHandle(l1TriggerKeyListToken_);
 
       // Find payload token
       std::string recordName = edm::typelookup::className<TRcd>();
@@ -159,10 +160,7 @@ std::unique_ptr<TData> L1ConfigOnlineProdBase<TRcd, TData>::produce(const TRcd& 
 }
 
 template <class TRcd, class TData>
-bool L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(const TRcd& record, std::string& objectKey) {
-  // Get L1TriggerKey
-  const L1TriggerKeyRcd& keyRcd = record.template getRecord<L1TriggerKeyRcd>();
-
+bool L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(const TRcd& iRecord, std::string& objectKey) {
   // Explanation of funny syntax: since record is dependent, we are not
   // expecting getRecord to be a template so the compiler parses it
   // as a non-template. http://gcc.gnu.org/ml/gcc-bugs/2005-11/msg03685.html
@@ -171,7 +169,7 @@ bool L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(const TRcd& record, std::
   // already in ORCON.
   edm::ESHandle<L1TriggerKey> key;
   try {
-    keyRcd.get(key);
+    key = iRecord.getHandle(l1TriggerKeyToken_);
   } catch (l1t::DataAlreadyPresentException& ex) {
     objectKey = std::string();
     return false;
@@ -182,10 +180,6 @@ bool L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(const TRcd& record, std::
   std::string dataType = edm::typelookup::className<TData>();
 
   objectKey = key->get(recordName, dataType);
-
-  /*    edm::LogVerbatim( "L1-O2O" ) */
-  /*      << "L1ConfigOnlineProdBase record " << recordName */
-  /*      << " type " << dataType << " obj key " << objectKey ; */
 
   // Get L1TriggerKeyList
   L1TriggerKeyList keyList;

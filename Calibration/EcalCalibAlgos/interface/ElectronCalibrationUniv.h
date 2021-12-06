@@ -24,9 +24,8 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Geometry
@@ -40,6 +39,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "Calibration/Tools/interface/HouseholderDecomposition.h"
 #include "Calibration/Tools/interface/MinL3Algorithm.h"
 #include "Calibration/Tools/interface/CalibrationCluster.h"
@@ -53,7 +55,7 @@
 // class decleration
 //
 
-class ElectronCalibrationUniv : public edm::EDAnalyzer {
+class ElectronCalibrationUniv : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit ElectronCalibrationUniv(const edm::ParameterSet &);
   ~ElectronCalibrationUniv() override;
@@ -61,6 +63,7 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void beginJob() override;
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void endRun(edm::Run const &, edm::EventSetup const &) override;
   void endJob() override;
 
 private:
@@ -69,35 +72,32 @@ private:
 
   // ----------member data ---------------------------
 
-  std::string rootfile_;
-  edm::InputTag EBrecHitLabel_;
-  edm::InputTag EErecHitLabel_;
-  edm::InputTag electronLabel_;
-  edm::InputTag trackLabel_;
-  std::string calibAlgo_;
-  std::string miscalibfile_;
-  std::string miscalibfileEndCap_;
-  int keventweight_;
-  double ElePt_;
-  int maxeta_;
-  int mineta_;
-  int maxphi_;
-  int minphi_;
-  double cut1_;
-  double cut2_;
-  double cut3_;
-  double cutEPCalo1_;
-  double cutEPCalo2_;
-  double cutEPin1_;
-  double cutEPin2_;
-  double cutCalo1_;
-  double cutCalo2_;
-  double cutESeed_;
-  int ClusterSize_;
-  int elecclass_;
-  int theMaxLoops;
-
-  bool FirstIteration;
+  const edm::InputTag ebRecHitLabel_;
+  const edm::InputTag eeRecHitLabel_;
+  const edm::InputTag electronLabel_;
+  const std::string rootfile_;
+  const std::string calibAlgo_;
+  const std::string miscalibfile_;
+  const std::string miscalibfileEndCap_;
+  const int keventweight_;
+  const double elePt_;
+  const int maxeta_;
+  const int mineta_;
+  const int maxphi_;
+  const int minphi_;
+  const double cut1_;
+  const double cut2_;
+  const double cut3_;
+  const int numevent_;
+  const double cutEPCalo1_;
+  const double cutEPCalo2_;
+  const double cutEPin1_;
+  const double cutEPin2_;
+  const double cutCalo1_;
+  const double cutCalo2_;
+  const double cutESeed_;
+  const int clusterSize_;
+  const int elecclass_;
 
   int read_events;
 
@@ -116,7 +116,11 @@ private:
   MinL3Algorithm *MyL3Algo1;
   MinL3AlgoUniv<DetId> *UnivL3;
 
-  edm::ESHandle<CaloTopology> theCaloTopology;
+  const edm::EDGetTokenT<EBRecHitCollection> ebRecHitToken_;
+  const edm::EDGetTokenT<EERecHitCollection> eeRecHitToken_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronToken_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> topologyToken_;
+  const CaloTopology *theCaloTopology_;
 
   std::vector<float> solution;
   std::vector<float> solutionNoCuts;
@@ -126,7 +130,6 @@ private:
   std::map<DetId, float> Univsolution;
 
   // int eventcrystal[25][25];
-  int numevent_;
 
   TFile *f;
 

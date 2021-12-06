@@ -10,7 +10,6 @@
 namespace mkfit {
   class LayerNumberConverter;
   class TrackerInfo;
-  class IterationsInfo;
 }  // namespace mkfit
 
 class DetLayer;
@@ -26,22 +25,20 @@ public:
   explicit MkFitGeometry(const TrackerGeometry& geom,
                          const GeometricSearchTracker& tracker,
                          const TrackerTopology& ttopo,
-                         std::unique_ptr<mkfit::TrackerInfo> trackerInfo,
-                         std::unique_ptr<mkfit::IterationsInfo> iterationsInfo);
+                         std::unique_ptr<mkfit::TrackerInfo> trackerInfo);
   ~MkFitGeometry();
 
   int mkFitLayerNumber(DetId detId) const;
   mkfit::LayerNumberConverter const& layerNumberConverter() const { return *lnc_; }
   mkfit::TrackerInfo const& trackerInfo() const { return *trackerInfo_; }
-  mkfit::IterationsInfo const& iterationsInfo() const { return *iterationsInfo_; }
   const std::vector<const DetLayer*>& detLayers() const { return dets_; }
   unsigned int uniqueIdInLayer(int layer, unsigned int detId) const { return detIdToShortId_.at(layer).at(detId); }
+  const TrackerTopology* topology() const { return ttopo_; }
 
 private:
   const TrackerTopology* ttopo_;
   std::unique_ptr<mkfit::LayerNumberConverter> lnc_;  // for pimpl pattern
   std::unique_ptr<mkfit::TrackerInfo> trackerInfo_;
-  std::unique_ptr<mkfit::IterationsInfo> iterationsInfo_;  // only temporarily here, to be moved into proper place later
   std::vector<const DetLayer*> dets_;
   std::vector<std::unordered_map<unsigned int, unsigned int>> detIdToShortId_;
 };

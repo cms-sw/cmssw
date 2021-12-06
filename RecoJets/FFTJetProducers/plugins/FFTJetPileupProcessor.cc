@@ -53,6 +53,9 @@ using namespace fftjetcms;
 class FFTJetPileupProcessor : public FFTJetInterface {
 public:
   explicit FFTJetPileupProcessor(const edm::ParameterSet&);
+  FFTJetPileupProcessor() = delete;
+  FFTJetPileupProcessor(const FFTJetPileupProcessor&) = delete;
+  FFTJetPileupProcessor& operator=(const FFTJetPileupProcessor&) = delete;
   ~FFTJetPileupProcessor() override;
 
 protected:
@@ -62,10 +65,6 @@ protected:
   void endJob() override;
 
 private:
-  FFTJetPileupProcessor() = delete;
-  FFTJetPileupProcessor(const FFTJetPileupProcessor&) = delete;
-  FFTJetPileupProcessor& operator=(const FFTJetPileupProcessor&) = delete;
-
   void buildKernelConvolver(const edm::ParameterSet&);
   void mixExtraGrid();
   void loadFlatteningFactors(const edm::EventSetup& iSetup);

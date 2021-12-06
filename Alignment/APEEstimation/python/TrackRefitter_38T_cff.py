@@ -23,13 +23,20 @@ import Alignment.APEEstimation.AlignmentTrackSelector_cff
 HighPuritySelector = Alignment.APEEstimation.AlignmentTrackSelector_cff.HighPuritySelector
 HighPuritySelector.src = 'MuSkim'
 
-
+NoPuritySelector = Alignment.APEEstimation.AlignmentTrackSelector_cff.NoPuritySelector
+NoPuritySelector.src = 'MuSkim'
 
 ## SEQUENCE
 
 RefitterHighPuritySequence = cms.Sequence(
     offlineBeamSpot*
     HighPuritySelector*
+    TrackRefitterForApeEstimator
+)
+
+RefitterNoPuritySequence = cms.Sequence(
+    offlineBeamSpot*
+    NoPuritySelector*
     TrackRefitterForApeEstimator
 )
 

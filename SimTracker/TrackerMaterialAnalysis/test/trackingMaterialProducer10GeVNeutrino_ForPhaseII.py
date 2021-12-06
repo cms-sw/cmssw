@@ -5,7 +5,8 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
-process = cms.Process("Geometry")
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+process = cms.Process("Geometry",phase2_common)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.files.debugTrackingMaterialProducer = dict()
@@ -52,7 +53,7 @@ if options.fromDB :
    from Configuration.AlCa.GlobalTag import GlobalTag
    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 else:
-   process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+   process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.nEvents)

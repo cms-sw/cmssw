@@ -19,7 +19,7 @@ namespace trklet {
 
   class TrackletCalculatorDisplaced : public ProcessBase {
   public:
-    TrackletCalculatorDisplaced(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
+    TrackletCalculatorDisplaced(std::string name, Settings const& settings, Globals* global);
 
     ~TrackletCalculatorDisplaced() override = default;
 
@@ -28,7 +28,7 @@ namespace trklet {
     void addOutput(MemoryBase* memory, std::string output) override;
     void addInput(MemoryBase* memory, std::string input) override;
 
-    void execute();
+    void execute(unsigned int iSector, double phimin, double phimax);
 
     void addDiskProj(Tracklet* tracklet, int disk);
     bool addLayerProj(Tracklet* tracklet, int layer);
@@ -159,11 +159,15 @@ namespace trklet {
     int TCIndex_;
     int layer_;
     int disk_;
+    unsigned int iSeed_;
     double rproj_[N_LAYER - 2];
     int lproj_[N_LAYER - 2];
     double zproj_[N_DISK - 2];
     int dproj_[N_DISK - 2];
     double rzmeanInv_[N_DISK - 2];
+
+    unsigned int iSector_;
+    double phimin_, phimax_;
 
     std::vector<double> toR_;
     std::vector<double> toZ_;

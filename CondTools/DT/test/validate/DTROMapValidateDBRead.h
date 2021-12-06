@@ -11,6 +11,9 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class DTReadOutMapping;
+class DTReadOutMappingRcd;
+
 class DTROMapValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTROMapValidateDBRead(edm::ParameterSet const& p);
@@ -22,4 +25,5 @@ public:
 private:
   std::string dataFileName;
   std::string elogFileName;
+  edm::ESGetToken<DTReadOutMapping, DTReadOutMappingRcd> dtreadoutmappingToken_;
 };

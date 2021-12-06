@@ -5,11 +5,10 @@ process = cms.Process("CastorTest")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+process.load('Configuration/StandardSequences/Generator_cff')
 
 process.load("Configuration.StandardSequences.GeometryExtended_cff")
-#process.load("SimG4CMS.Forward.castorGeometryXML_cfi")
-#process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Configuration.Geometry.GeometryReco_cff")
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -68,10 +67,15 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 
 process.common_maximum_timex = cms.PSet( # need to be localy redefined
    MaxTrackTime  = cms.double(500.0),  # need to be localy redefined
+   MaxTrackTimeForward = cms.double(2000.0), # ns
    MaxTimeNames  = cms.vstring('ZDCRegion','QuadRegion','InterimRegion'), # need to be localy redefined
-   MaxTrackTimes = cms.vdouble(2000.0,0.,0.)  # need to be localy redefined
+   MaxTrackTimes = cms.vdouble(2000.0,0.,0.),  # need to be localy redefined
+   MaxZCentralCMS = cms.double(50.0), # m
+   DeadRegions   = cms.vstring('QuadRegion','InterimRegion'),
+   CriticalEnergyForVacuum = cms.double(2.0),   # MeV
+   CriticalDensity         = cms.double(1e-15)  # g/cm3
 )
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 
 process.g4SimHits.UseMagneticField = False
@@ -80,7 +84,7 @@ process.g4SimHits.Generator.ApplyEtaCuts = False
 process.g4SimHits.CaloTrkProcessing.TestBeam = True
 process.g4SimHits.CastorSD.useShowerLibrary = True
 process.g4SimHits.CastorSD.minEnergyInGeVforUsingSLibrary = 1.0   # default = 1.0
-process.g4SimHits.CastorShowerLibrary.FileName = 'SimG4CMS/Forward/data/castorShowerLibrary.root'
+#process.g4SimHits.CastorShowerLibrary.FileName = 'SimG4CMS/Forward/data/castorShowerLibrary.root'
 process.g4SimHits.CastorShowerLibrary.BranchEvt = 'hadShowerLibInfo.'
 process.g4SimHits.CastorShowerLibrary.BranchEM  = 'emParticles.'
 process.g4SimHits.CastorShowerLibrary.BranchHAD = 'hadParticles.'
@@ -91,25 +95,38 @@ process.g4SimHits.StackingAction = cms.PSet(
    KillDeltaRay  = cms.bool(False),
    TrackNeutrino = cms.bool(False),
    KillHeavy     = cms.bool(False),
+   KillGamma     = cms.bool(True),
+   GammaThreshold = cms.double(0.0001), ## (MeV)
    SaveFirstLevelSecondary = cms.untracked.bool(True),
    SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
    SavePrimaryDecayProductsAndConversionsInCalo    = cms.untracked.bool(True),
    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True),
-   RusRoEcalNeutron         = cms.double(1.0),
-   RusRoEcalNeutronLimit    = cms.double(0.0),
-   RusRoHcalNeutron         = cms.double(1.0),
-   RusRoHcalNeutronLimit    = cms.double(0.0),
-   RusRoEcalProton      = cms.double(1.0),
-   RusRoEcalProtonLimit = cms.double(0.0),
-   RusRoHcalProton      = cms.double(1.0),
-   RusRoHcalProtonLimit = cms.double(0.0)
+   RusRoGammaEnergyLimit  = cms.double(5.0), ## (MeV)
+   RusRoEcalGamma         = cms.double(0.3),
+   RusRoHcalGamma         = cms.double(0.3),
+   RusRoMuonIronGamma     = cms.double(0.3),
+   RusRoPreShowerGamma    = cms.double(0.3),
+   RusRoCastorGamma       = cms.double(0.3),
+   RusRoWorldGamma        = cms.double(0.3),
+   RusRoNeutronEnergyLimit  = cms.double(10.0), ## (MeV)
+   RusRoEcalNeutron         = cms.double(0.1),
+   RusRoHcalNeutron         = cms.double(0.1),
+   RusRoMuonIronNeutron     = cms.double(0.1),
+   RusRoPreShowerNeutron    = cms.double(0.1),
+   RusRoCastorNeutron       = cms.double(0.1),
+   RusRoWorldNeutron        = cms.double(0.1),
+   RusRoProtonEnergyLimit  = cms.double(0.0),
+   RusRoEcalProton         = cms.double(1.0),
+   RusRoHcalProton         = cms.double(1.0),
+   RusRoMuonIronProton     = cms.double(1.0),
+   RusRoPreShowerProton    = cms.double(1.0),
+   RusRoCastorProton       = cms.double(1.0),
+   RusRoWorldProton        = cms.double(1.0)
 )
 
 process.g4SimHits.SteppingAction = cms.PSet(
    process.common_maximum_timex, # need to be localy redefined
-   KillBeamPipe            = cms.bool(True),
-   CriticalEnergyForVacuum = cms.double(2.0),
-   CriticalDensity         = cms.double(1e-15),
+   MaxNumberOfSteps        = cms.int32(50000),
    EkinNames               = cms.vstring(),
    EkinThresholds          = cms.vdouble(),
    EkinParticles           = cms.vstring(),

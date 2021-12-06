@@ -1,15 +1,47 @@
+// -*- C++ -*-
 //
+// Package:    PhysicsTools/PatAlgos
+// Class:      PATTriggerMatchSelector
 //
-#include "PhysicsTools/PatAlgos/plugins/PATTriggerMatchSelector.h"
-#include "CommonTools/UtilAlgos/interface/PhysObjectMatcher.h"
+/**
+  \class    pat::PATTriggerMatchSelector PATTriggerMatchSelector.cc "PhysicsTools/PatAlgos/plugins/PATTriggerMatchSelector.cc"
+  \brief
+
+   .
+
+  \author   Volker Adler
+  \version  $Id: PATTriggerMatchSelector.h,v 1.5 2010/06/16 15:40:58 vadler Exp $
+*/
+
+#include "CommonTools/UtilAlgos/interface/MatchByDEta.h"
 #include "CommonTools/UtilAlgos/interface/MatchByDR.h"
 #include "CommonTools/UtilAlgos/interface/MatchByDRDPt.h"
-#include "CommonTools/UtilAlgos/interface/MatchLessByDPt.h"
-#include "CommonTools/UtilAlgos/interface/MatchByDEta.h"
 #include "CommonTools/UtilAlgos/interface/MatchLessByDEta.h"
-
+#include "CommonTools/UtilAlgos/interface/MatchLessByDPt.h"
+#include "CommonTools/UtilAlgos/interface/PhysObjectMatcher.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <map>
+#include <string>
+#include <vector>
+
+namespace pat {
+
+  template <typename T1, typename T2>
+  class PATTriggerMatchSelector : public StringCutObjectSelector<T2> {
+  public:
+    PATTriggerMatchSelector(const edm::ParameterSet& iConfig)
+        : StringCutObjectSelector<T2>(iConfig.getParameter<std::string>("matchedCuts")) {}
+
+    bool operator()(const T1& patObj, const T2& trigObj) const {
+      return StringCutObjectSelector<T2>::operator()(trigObj);
+    }
+  };
+
+}  // namespace pat
 
 /// Match by deltaR (default), ranking by deltaR (default)
 typedef reco::PhysObjectMatcher<

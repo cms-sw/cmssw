@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 ##########################################################################
 # Create histograms out of treeFile_merge.root . The pede.dump.gz file is

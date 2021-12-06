@@ -9,16 +9,13 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:gen.root')
+    fileNames = cms.untracked.vstring('file:step1.root')
 )
 
-process.dummy = cms.EDAnalyzer("DummyHepMCAnalyzer",
-    src = cms.InputTag("VtxSmeared"),
-    dumpHepMC = cms.untracked.bool(True),
-    dumpPDF = cms.untracked.bool(False),
-    checkPDG = cms.untracked.bool(False)
-)
+process.load("PhysicsTools.HepMCCandAlgos.dummyHepMCAnalyzer_cfi")
+process.dummyHepMCAnalyzer.dumpPDF = True
+process.dummyHepMCAnalyzer.checkPDG = True
 
-process.p = cms.Path(process.dummy)
+process.p = cms.Path(process.dummyHepMCAnalyzer)
 
 

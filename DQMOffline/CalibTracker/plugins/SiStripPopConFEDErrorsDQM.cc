@@ -41,7 +41,6 @@ private:
   void addErrors();
 
 private:
-  edm::FileInPath fp_;
   double threshold_;
   unsigned int debug_;
   edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
@@ -51,7 +50,6 @@ private:
   std::map<uint32_t, std::vector<unsigned int> > detIdErrors_;
 };
 
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -60,8 +58,6 @@ private:
 SiStripPopConFEDErrorsHandlerFromDQM::SiStripPopConFEDErrorsHandlerFromDQM(const edm::ParameterSet& iConfig,
                                                                            edm::ConsumesCollector&& iC)
     : SiStripDQMPopConSourceHandler<SiStripBadStrip>(iConfig),
-      fp_(iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
       threshold_(iConfig.getUntrackedParameter<double>("Threshold", 0)),
       debug_(iConfig.getUntrackedParameter<unsigned int>("Debug", 0)),
       fedCablingToken_(iC.esConsumes<SiStripFedCabling, SiStripFedCablingRcd, edm::Transition::BeginRun>()) {
@@ -80,8 +76,6 @@ void SiStripPopConFEDErrorsHandlerFromDQM::initES(const edm::EventSetup& iSetup)
 
 void SiStripPopConFEDErrorsHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter& getter) {
   obj_ = SiStripBadStrip();
-
-  SiStripDetInfoFileReader lReader(fp_.fullPath());
 
   std::ostringstream lPath;
   lPath << "Run " << getRunNumber() << "/SiStrip/Run summary/ReadoutView/";

@@ -2,11 +2,10 @@ from __future__ import print_function
 import FWCore.ParameterSet.SequenceTypes as sqt
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.Modules as mod
-import six
 
 def printPaths(process):
     "print all the paths in the process"
-    for p  in six.itervalues(process.paths):
+    for p  in process.paths.values():
         printPath(p)
 
 def printPath(pth, indent="", indentDelta=" ", type="path"):

@@ -1,12 +1,14 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_h2tb_cff import h2tb
 
-process = cms.Process("PROD")
+process = cms.Process("PROD", h2tb)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 process.load("SimG4CMS.HcalTestBeam.TB2002GeometryXML_cfi")
-
+process.load("Geometry.HcalTestBeamData.hcalDDDSimConstants_cff")
+process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 process.load("Configuration.EventContent.EventContent_cff")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
@@ -15,46 +17,10 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('hcaltb02.root')
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
-    ),
-    cout = cms.untracked.PSet(
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalTBSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        VertexGenerator = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        enable = cms.untracked.bool(True),
-        threshold = cms.untracked.string('INFO')
-    ),
-    debugModules = cms.untracked.vstring('*')
-)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HcalTBSim=dict()
+    process.MessageLogger.VertexGenerator=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -98,7 +64,7 @@ process.Tracer = cms.Service("Tracer")
 
 process.Timing = cms.Service("Timing")
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.VtxSmeared.MeanX = -420.0
 process.VtxSmeared.MeanY = 18.338
@@ -109,24 +75,11 @@ process.VtxSmeared.SigmaZ = 0.000001
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
-process.g4SimHits.CaloSD = cms.PSet(
-    process.common_beam_direction_parameters,
-    process.common_heavy_suppression,
-    EminTrack      = cms.double(1.0),
-    TmaxHit        = cms.double(1000.0),
-    EminHits       = cms.vdouble(0.0,0.0,0.0,0.0),
-    EminHitsDepth  = cms.vdouble(0.0,0.0,0.0,0.0),
-    TmaxHits       = cms.vdouble(1000.0,1000.0,1000.0,1000.0),
-    HCNames        = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
-    UseResponseTables = cms.vint32(0,0,0,0),
-    SuppressHeavy  = cms.bool(False),
-    UseFineCaloID  = cms.bool(False),
-    CheckHits      = cms.untracked.int32(25),
-    UseMap         = cms.untracked.bool(True),
-    Verbosity      = cms.untracked.int32(0),
-    DetailedTiming = cms.untracked.bool(False),
-    CorrectTOFBeam = cms.bool(False)
-)
+process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
+                             'HcalTB02SensitiveDetector']
+process.g4SimHits.CaloSD.EminHits = [0.0,0.0,0.0,0.0]
+process.g4SimHits.CaloSD.TmaxHits = [1000.0,1000.0,1000.0,1000.0]
+process.g4SimHits.CaloSD.UseMap = True
 process.g4SimHits.HCalSD.ForTBH2 = True
 process.g4SimHits.CaloTrkProcessing.TestBeam = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(

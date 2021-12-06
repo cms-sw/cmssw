@@ -7,7 +7,7 @@ function die { echo $1: status $2 ;  exit $2; }
 ${LOCAL_TEST_DIR}/RefTest_a.sh || die 'Failed to create file' $?
 root -b -n -q ${LOCAL_TEST_DIR}/event_looping_cint.C || die 'Failed in event_looping_cint.C' $?
 root -b -n -q ${LOCAL_TEST_DIR}/chainevent_looping_cint.C || die 'Failed in chainevent_looping_cint.C' $?
-python ${LOCAL_TEST_DIR}/chainEvent_python.py || die 'Failed in chainEvent_python.py' $?
+python3 ${LOCAL_TEST_DIR}/chainEvent_python.py || die 'Failed in chainEvent_python.py' $?
 #root -b -n -q ${LOCAL_TEST_DIR}/autoload_with_std.C || die 'Failed in autoload_with_std.C' $?
 #root -b -n -q ${LOCAL_TEST_DIR}/autoload_with_missing_std.C || die 'Failed in autoload_with_missing_std.C' $?
 
@@ -22,9 +22,9 @@ root -b -n -q ${LOCAL_TEST_DIR}/triggerResultsByName_multi_cint.C || die 'Failed
 ${LOCAL_TEST_DIR}/VIPTest.sh || die 'Failed to create file' $?
 root -b -n -q ${LOCAL_TEST_DIR}/vector_int_cint.C || die 'Failed in vector_int_cint.C' $?
 
-python ${LOCAL_TEST_DIR}/pyroot_handle_reuse.py || die 'Failed in pyroot_handle_reuse.py' $?
-python ${LOCAL_TEST_DIR}/pyroot_multichain.py inputFiles=file:prodmerge.root secondaryInputFiles=file:prod1.root,file:prod2.root || die 'Failed in pyroot_multichain.py (non-empty files)' $?
-python ${LOCAL_TEST_DIR}/pyroot_multichain.py inputFiles=file:empty_a.root secondaryInputFiles=file:good_a.root  || die 'Failed in pyroot_multichain.py (empty file)' $?
+python3 ${LOCAL_TEST_DIR}/pyroot_handle_reuse.py || die 'Failed in pyroot_handle_reuse.py' $?
+python3 ${LOCAL_TEST_DIR}/pyroot_multichain.py inputFiles=file:prodmerge.root secondaryInputFiles=file:prod1.root,file:prod2.root || die 'Failed in pyroot_multichain.py (non-empty files)' $?
+python3 ${LOCAL_TEST_DIR}/pyroot_multichain.py inputFiles=file:empty_a.root secondaryInputFiles=file:good_a.root  || die 'Failed in pyroot_multichain.py (empty file)' $?
 
 #NOTE: ROOT has a bug which keeps the AssociationVector from running its ioread rule and therefore it never clears its cache
 #test AssociationVector reading

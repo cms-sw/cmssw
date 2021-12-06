@@ -72,11 +72,11 @@ process.SiStripMonitorCluster.TH1ClusterWidth.moduleswitchon = cms.bool(False)
 #--------------------------
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
-                             dataLabel = cms.untracked.string(""),
-                             TkMapFileName = cms.untracked.string("TkMapBadComponents.pdf")  #available filetypes: .pdf .png .jpg .svg
-                             )
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.stat = siStripQualityStatistics.clone(
+        #available filetypes: .pdf .png .jpg .svg
+        TkMapFileName = cms.untracked.string("TkMapBadComponents.png")
+        )
 
 
 process.p = cms.Path(process.siStripDigis*process.siStripZeroSuppression*process.siStripClusters*process.SiStripMonitorCluster*process.dqmSaver*process.stat)

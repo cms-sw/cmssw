@@ -353,7 +353,7 @@ void PixelROCMapHelper::dress_plot(TPad*& canv,
     double max = h->GetMaximum();
     double min = h->GetMinimum();
     double val_white = 0.;
-    double per_white = (val_white - min) / (max - min);
+    double per_white = (max != min) ? ((val_white - min) / (max - min)) : 0.5;
 
     const int Number = 3;
     double Red[Number] = {0., 1., 1.};
@@ -363,6 +363,9 @@ void PixelROCMapHelper::dress_plot(TPad*& canv,
     int nb = 256;
     h->SetContour(nb);
     TColor::CreateGradientColorTable(Number, Stops, Red, Green, Blue, nb);
+    // if max == min impose the range to be the same as it was a real diff
+    if (max == min)
+      h->GetZaxis()->SetRangeUser(-1., 1.);
   }
 
   h->SetMarkerSize(0.7);
@@ -642,6 +645,7 @@ void Phase1PixelROCMaps::drawBarrelMaps(TCanvas& canvas, const std::string& text
   bottomPad->cd();
   bottomPad->Divide(2, 2);
   for (unsigned int lay = 1; lay <= n_layers; lay++) {
+    h_bpix_maps[lay - 1]->SetStats(false);
     PixelROCMapHelper::dress_plot(bottomPad, h_bpix_maps[lay - 1].get(), lay, 0, 1, found == std::string::npos);
   }
 }
@@ -673,6 +677,7 @@ void Phase1PixelROCMaps::drawForwardMaps(TCanvas& canvas, const std::string& tex
   bottomPad->cd();
   bottomPad->Divide(2, 1);
   for (unsigned int ring = 1; ring <= n_rings; ring++) {
+    h_fpix_maps[ring - 1]->SetStats(false);
     PixelROCMapHelper::dress_plot(bottomPad, h_fpix_maps[ring - 1].get(), 0, ring, 1, found == std::string::npos);
   }
 }
@@ -706,6 +711,7 @@ void Phase1PixelROCMaps::drawMaps(TCanvas& canvas, const std::string& text)
 
   // dress the plots
   for (unsigned int lay = 1; lay <= n_layers; lay++) {
+    h_bpix_maps[lay - 1]->SetStats(false);
     PixelROCMapHelper::dress_plot(bottomPad, h_bpix_maps[lay - 1].get(), lay, 0, 1, found == std::string::npos);
   }
 
@@ -714,6 +720,7 @@ void Phase1PixelROCMaps::drawMaps(TCanvas& canvas, const std::string& text)
   bottomPad->cd();
 
   for (unsigned int ring = 1; ring <= n_rings; ring++) {
+    h_fpix_maps[ring - 1]->SetStats(false);
     PixelROCMapHelper::dress_plot(
         bottomPad, h_fpix_maps[ring - 1].get(), 0, n_layers + ring, 1, found == std::string::npos);
   }

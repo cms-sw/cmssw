@@ -7,7 +7,7 @@ class FWGeoTopNode;
 class TGLViewer;
 
 class FWGeoTopNodeGLScene : public TGLScenePad {
-private:
+public:
   FWGeoTopNodeGLScene(const FWGeoTopNodeGLScene&) = delete;             // Not implemented
   FWGeoTopNodeGLScene& operator=(const FWGeoTopNodeGLScene&) = delete;  // Not implemented
 protected:

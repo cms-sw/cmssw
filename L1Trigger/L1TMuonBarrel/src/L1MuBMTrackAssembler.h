@@ -32,8 +32,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -46,19 +44,19 @@ class L1MuBMSectorProcessor;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMTrackAssembler : public L1AbstractProcessor {
+class L1MuBMTrackAssembler {
 public:
   /// constructor
   L1MuBMTrackAssembler(const L1MuBMSectorProcessor&);
 
   /// destructor
-  ~L1MuBMTrackAssembler() override;
+  ~L1MuBMTrackAssembler();
 
   /// run Track Assembler
-  void run() override;
+  void run();
 
   /// reset Track Assembler
-  void reset() override;
+  void reset();
 
   /// print result of Track Assembler
   void print() const;

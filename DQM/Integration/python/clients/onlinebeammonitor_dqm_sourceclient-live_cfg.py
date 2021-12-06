@@ -4,11 +4,10 @@ import FWCore.ParameterSet.Config as cms
 # Define once the BeamSpotOnline record name,
 # will be used both in BeamMonitor setup and in payload creation/upload
 
-#from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-#process = cms.Process("BeamMonitor", Run2_2018) # FIMXE
 import sys
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process = cms.Process("OnlineBeamMonitor", Run2_2018)
+
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("OnlineBeamMonitor", Run3)
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -42,13 +41,13 @@ if unitTest:
   )
 
   options.register('runNumber',
-                  336055,
+                  346508,
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,
                   "Run number. This run number has to be present in the dataset configured with the dataset option.")
 
   options.register('dataset',
-                  '/ExpressCosmics/Commissioning2019-Express-v1/FEVT',
+                  '/ExpressPhysics/Commissioning2021-Express-v1/FEVT',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "Dataset name like '/ExpressCosmics/Commissioning2019-Express-v1/FEVT'")
@@ -77,12 +76,6 @@ if unitTest:
                   VarParsing.VarParsing.varType.int,
                   "This number of last events in each lumisection will be processed.")
 
-  options.register('transDelay',
-                  0, #default value, int limit -3
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.int,
-                  "delay in seconds for the commit of the db transaction")
-
   # This is used only by the online clients themselves. 
   # We need to register it here because otherwise an error occurs saying that there is an unidentified option.
   options.register('unitTest',
@@ -102,7 +95,7 @@ if unitTest:
   process.source = cms.Source("EmptySource")
   process.source.numberEventsInRun=cms.untracked.uint32(100)
   process.source.firstRun = cms.untracked.uint32(options.runNumber)
-  process.source.firstLuminosityBlock = cms.untracked.uint32(49)
+  process.source.firstLuminosityBlock = cms.untracked.uint32(1)
   process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(2)
   process.maxEvents = cms.untracked.PSet(
               input = cms.untracked.int32(100)
@@ -117,43 +110,23 @@ else:
 
 #ESProducer
 process.load("CondCore.CondDB.CondDB_cfi")
-process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
-                      process.CondDB,
-                      toGet = cms.VPSet(
-                            cms.PSet(
-                                record = cms.string('BeamSpotOnlineLegacyObjectsRcd'),
-                                tag = cms.string("BeamSpotOnlineTestLegacy"),
-                                refreshTime = cms.uint64(1)
-                            ),
-                            cms.PSet(
-                                record = cms.string('BeamSpotOnlineHLTObjectsRcd'),
-                                tag = cms.string("BeamSpotOnlineTestHLT"),
-                                refreshTime = cms.uint64(1)
-
-                            ),
-                      )
-
-)
 process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")
-#if unitTest == True:
-process.BeamSpotDBSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-#else:
-#  process.BeamSpotDBSource.connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS')
+
 #-----------------------------
 # DQM Live Environment
 #-----------------------------
 process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'TrackingHLTBeamspotStream'
-process.dqmSaver.tag           = 'TrackingHLTBeamspotStream'
+process.dqmEnv.subSystemFolder = 'OnlineBeamMonitor'
+process.dqmSaver.tag           = 'OnlineBeamMonitor'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'TrackingHLTBeamspotStream'
+process.dqmSaverPB.tag         = 'OnlineBeamMonitor'
 process.dqmSaverPB.runNumber   = options.runNumber
 
 #-----------------------------
 # BeamMonitor
 #-----------------------------
 process.dqmOnlineBeamMonitor = cms.EDProducer("OnlineBeamMonitor",
-MonitorName = cms.untracked.string("onlineBeamMonitor")
+MonitorName = cms.untracked.string("OnlineBeamMonitor")
 )
 
 #---------------
@@ -165,6 +138,18 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
+# Please *do not* delete this toGet statement as it is needed to fetch BeamSpotOnline
+# information every lumisection (instead of every run as for the other records in the GT)
+process.GlobalTag.toGet = cms.VPSet(
+  cms.PSet(
+    record = cms.string("BeamSpotOnlineLegacyObjectsRcd"),
+    refreshTime = cms.uint64(1)
+  ),
+  cms.PSet(
+    record = cms.string("BeamSpotOnlineHLTObjectsRcd"),
+    refreshTime = cms.uint64(1)
+  )
+)
 
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver * process.dqmSaverPB)
@@ -179,4 +164,4 @@ process = customise(process)
 
 process.p = cms.Path( process.dqmcommon
                         * process.monitor )
-
+print("Final Source settings:", process.source)

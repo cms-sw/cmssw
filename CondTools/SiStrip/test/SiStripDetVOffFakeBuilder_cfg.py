@@ -24,15 +24,18 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dbfile.db'),
+    connect = cms.string('sqlite_file:SiStripConditionsDBFile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripDetVOffRcd'),
         tag = cms.string('SiStripDetVOff_v1')
     ))
 )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.TrackerDigiGeometryESModule.applyAlignment = False
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run2_design']
+print("taking geometry from %s" % process.GlobalTag.globaltag.value())
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.prod = cms.EDAnalyzer("SiStripDetVOffFakeBuilder")
 

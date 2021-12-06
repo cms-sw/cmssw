@@ -52,10 +52,10 @@ public:
   void add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet) override;
 
   // Addition four xtalk-related parameters to PixelDigitizerAlgorithm specific parameters initialized in Phase2TrackerDigitizerAlgorithm
-  const double odd_row_interchannelCoupling_next_row_;
-  const double even_row_interchannelCoupling_next_row_;
-  const double odd_column_interchannelCoupling_next_column_;
-  const double even_column_interchannelCoupling_next_column_;
+  double odd_row_interchannelCoupling_next_row_;
+  double even_row_interchannelCoupling_next_row_;
+  double odd_column_interchannelCoupling_next_column_;
+  double even_column_interchannelCoupling_next_column_;
 
   // Timewalk parameters
   bool apply_timewalk_;

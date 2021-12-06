@@ -7,8 +7,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HcalTestBeamData/interface/HcalTB02ParametersFromDD.h"
 
-#define EDM_ML_DEBUG
-
 bool HcalTB02ParametersFromDD::build(const DDCompactView* cpv, HcalTB02Parameters& php, const std::string& name) {
   DDSpecificsMatchesValueFilter filter{DDValue("ReadOutName", name, 0)};
   DDFilteredView fv(*cpv, filter);
@@ -43,7 +41,7 @@ bool HcalTB02ParametersFromDD::build(const cms::DDCompactView* cpv, HcalTB02Para
     edm::LogVerbatim("HcalTBSim") << "HcalTB02ParametersFromDD (for " << name << "): Solid " << namx << " Shape "
                                   << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " Parameter 0 = " << paras[0];
     if (dd4hep::isA<dd4hep::Trap>(fv.solid())) {
-      double dz = 2 * k_ScaleFromDD4HepToG4 * paras[0];
+      double dz = 2 * k_ScaleFromDD4hepToG4 * paras[0];
       php.lengthMap_.insert(std::pair<std::string, double>(namx, dz));
     }
   }

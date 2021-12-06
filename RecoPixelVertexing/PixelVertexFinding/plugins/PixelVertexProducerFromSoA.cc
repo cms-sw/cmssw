@@ -69,6 +69,7 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEv
 
   float x0 = 0, y0 = 0, z0 = 0, dxdz = 0, dydz = 0;
   std::vector<int32_t> itrk;
+  itrk.reserve(64);  // avoid first relocations
   if (!bsHandle.isValid()) {
     edm::LogWarning("PixelVertexProducer") << "No beamspot found. returning vertexes with (0,0,Z) ";
   } else {
@@ -89,7 +90,7 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEv
             << " from " << indToEdm.size() << " tracks" << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
 
-  std::set<uint16_t> uind;  // fort verifing index consistency
+  std::set<uint16_t> uind;  // for verifing index consistency
   for (int j = nv - 1; j >= 0; --j) {
     auto i = soa.sortInd[j];  // on gpu sorted in ascending order....
     assert(i < nv);
@@ -120,6 +121,7 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEv
     }  // remove outliers
     (*vertexes).emplace_back(reco::Vertex::Point(x, y, z), err, soa.chi2[i], soa.ndof[i], nt);
     auto &v = (*vertexes).back();
+    v.reserve(itrk.size());
     for (auto it : itrk) {
       assert(it < int(indToEdm.size()));
       auto k = indToEdm[it];
@@ -128,7 +130,7 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEv
         continue;
       }
       auto tk = reco::TrackRef(tracksHandle, k);
-      v.add(reco::TrackBaseRef(tk));
+      v.add(tk);
     }
     itrk.clear();
   }

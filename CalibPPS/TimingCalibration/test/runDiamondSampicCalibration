@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------------------------
+
+cmsRun DiamondSampicCalibrationWorker_cfg.py &> log_DiamondSampicCalibrationWorker.log &
+wait
+cmsRun DiamondSampicCalibrationHarvester_cfg.py &> log_DiamondSampicCalibrationHarvester.log &

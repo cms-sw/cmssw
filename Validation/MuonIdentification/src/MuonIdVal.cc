@@ -1,6 +1,7 @@
 #include "Validation/MuonIdentification/interface/MuonIdVal.h"
 
-MuonIdVal::MuonIdVal(const edm::ParameterSet &ps) {
+MuonIdVal::MuonIdVal(const edm::ParameterSet &ps)
+    : trackingGeomToken_(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()) {
   iConfig = ps;
   inputMuonCollection_ = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
   inputDTRecSegment4DCollection_ = iConfig.getParameter<edm::InputTag>("inputDTRecSegment4DCollection");
@@ -425,7 +426,7 @@ void MuonIdVal::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
   iEvent.getByToken(inputMuonShowerInformationValueMapToken_, muonShowerInformationValueMapH_);
   iEvent.getByToken(inputMuonCosmicCompatibilityValueMapToken_, muonCosmicCompatibilityValueMapH_);
 
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
+  geometry_ = iSetup.getHandle(trackingGeomToken_);
 
   unsigned int muonIdx = 0;
   for (MuonCollection::const_iterator muon = muonCollectionH_->begin(); muon != muonCollectionH_->end(); ++muon) {

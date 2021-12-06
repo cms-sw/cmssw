@@ -88,14 +88,7 @@ bool L1MuBMEUX::operator==(const L1MuBMEUX& eux) const {
 //
 // run EUX
 //
-void L1MuBMEUX::run(const edm::EventSetup& c) {
-  //c.get< L1MuDTExtLutRcd >().get( theExtLUTs );
-  //  c.get< L1MuDTTFParametersRcd >().get( pars );
-
-  const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
-  bmtfParamsRcd.get(bmtfParamsHandle);
-  const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
-
+void L1MuBMEUX::run(const L1TMuonBarrelParams& bmtfParams) {
   pars = bmtfParams.l1mudttfparams;
   theExtLUTs = new L1MuBMLUTHandler(bmtfParams);  ///< ext look-up tables
 

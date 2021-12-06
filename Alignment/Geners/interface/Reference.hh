@@ -35,8 +35,9 @@ namespace gs {
     CPP11_auto_ptr<T> get(unsigned long index) const;
     std::shared_ptr<T> getShared(unsigned long index) const;
 
-  private:
     Reference() = delete;
+
+  private:
     T *getPtr(unsigned long index) const;
   };
 }  // namespace gs

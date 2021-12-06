@@ -1,36 +1,60 @@
-#include "Validation/RecoParticleFlow/plugins/PFTester.h"
 // author: Mike Schmitt, University of Florida
 // first version 11/7/2007
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-
-//#include "DataFormats/HepMCCandidate/interface/GenParticleCollection.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
-//#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <ostream>
+#include <string>
 #include <vector>
+
+class PFTester : public edm::EDAnalyzer {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
+  explicit PFTester(const edm::ParameterSet &);
+  ~PFTester() override;
+
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginJob() override;
+  void endJob() override;
+
+private:
+  // DAQ Tools
+  DQMStore *dbe_;
+  std::map<std::string, MonitorElement *> me;
+
+  // Inputs from Configuration File
+  std::string outputFile_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> inputPFlowLabel_tok_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFTester);
 
 using namespace edm;
 using namespace std;

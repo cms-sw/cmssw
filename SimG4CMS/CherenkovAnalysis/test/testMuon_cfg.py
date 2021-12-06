@@ -60,22 +60,20 @@ process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
-process.analyzer = cms.EDAnalyzer("XtalDedxAnalysis",
-    caloHitSource = cms.InputTag("g4SimHits","HcalHits"),
-    EnergyMax = cms.double(200.0)
-)
+process.load("SimG4CMS.CherenkovAnalysis.xtalDedxAnalysis_cfi")
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.analyzer)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.xtalDedxAnalysis)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.DefaultCutValue = 0.07
 process.g4SimHits.StackingAction.SaveFirstLevelSecondary = True
+process.g4SimHits.OnlySDs = ['CaloTrkProcessing', 'DreamSensitiveDetector']
 process.g4SimHits.ECalSD = cms.PSet(
     TestBeam = cms.untracked.bool(False),
     ReadBothSide = cms.untracked.bool(False),
     BirkL3Parametrization = cms.bool(False),
-    DD4Hep = cms.untracked.bool(False),
+    DD4hep = cms.untracked.bool(False),
     doCherenkov = cms.bool(False),
     BirkCut = cms.double(0.1),
     BirkC1 = cms.double(0.0045),
@@ -85,4 +83,3 @@ process.g4SimHits.ECalSD = cms.PSet(
     UseBirkLaw = cms.bool(False),
     BirkSlope = cms.double(0.253694)
 )
-

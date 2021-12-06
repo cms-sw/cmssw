@@ -62,7 +62,7 @@ public:
   };
 
   BTagEntry() {}
-  BTagEntry(const std::string& csvLine);
+  BTagEntry(const std::string& csvLine, bool validate);
   BTagEntry(const std::string& func, Parameters p);
   BTagEntry(const TF1* func, Parameters p);
   BTagEntry(const TH1* histo, Parameters p);

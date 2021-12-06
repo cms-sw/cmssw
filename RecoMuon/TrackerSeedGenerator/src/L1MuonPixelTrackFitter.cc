@@ -41,6 +41,7 @@ reco::Track* L1MuonPixelTrackFitter::run(const edm::EventSetup& es,
                                          const TrackingRegion& region) const {
   edm::ESHandle<MagneticField> fieldESH;
   es.get<IdealMagneticFieldRecord>().get(fieldESH);
+  const auto& field = *fieldESH;
 
   double phi_vtx_fromHits = (theHit2 - theHit1).phi();
 
@@ -48,7 +49,7 @@ reco::Track* L1MuonPixelTrackFitter::run(const edm::EventSetup& es,
   double invPtErr = errInversePt(invPt, theEtaL1);
 
   int charge = (invPt > 0.) ? 1 : -1;
-  double curvature = PixelRecoUtilities::curvature(invPt, es);
+  double curvature = PixelRecoUtilities::curvature(invPt, field);
 
   Circle circle(theHit1, theHit2, curvature);
 
@@ -88,7 +89,7 @@ reco::Track* L1MuonPixelTrackFitter::run(const edm::EventSetup& es,
   std::cout <<str.str()<< std::endl;
 */
 
-  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits, fieldESH.product());
+  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits, &field);
 }
 
 double L1MuonPixelTrackFitter::valPhi(const Circle& circle, int charge) const {

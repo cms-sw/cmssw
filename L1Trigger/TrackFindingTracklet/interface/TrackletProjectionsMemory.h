@@ -14,7 +14,7 @@ namespace trklet {
 
   class TrackletProjectionsMemory : public MemoryBase {
   public:
-    TrackletProjectionsMemory(std::string name, Settings const& settings, unsigned int iSector);
+    TrackletProjectionsMemory(std::string name, Settings const& settings);
 
     ~TrackletProjectionsMemory() override = default;
 
@@ -26,7 +26,7 @@ namespace trklet {
 
     void clean() override;
 
-    void writeTPROJ(bool first);
+    void writeTPROJ(bool first, unsigned int iSector);
 
     int layer() const { return layer_; }
     int disk() const { return disk_; }

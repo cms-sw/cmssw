@@ -66,23 +66,25 @@ void DataPoint::deserialize(Json::Value &root) {
  *
  * */
 
-void DataPoint::trackMonitorable(JsonMonitorable *monitorable, bool NAifZeroUpdates) {
+void DataPoint::trackMonitorable(JsonMonitorable const *monitorable, bool NAifZeroUpdates) {
   name_ = monitorable->getName();
-  tracked_ = (void *)monitorable;
-  if (dynamic_cast<IntJ *>(monitorable))
+  tracked_ = (void const *)monitorable;
+  if (dynamic_cast<IntJ const *>(monitorable))
     monType_ = TYPEINT;
-  else if (dynamic_cast<DoubleJ *>(monitorable))
+  else if (dynamic_cast<DoubleJ const *>(monitorable))
     monType_ = TYPEDOUBLE;
-  else if (dynamic_cast<StringJ *>(monitorable))
+  else if (dynamic_cast<StringJ const *>(monitorable))
     monType_ = TYPESTRING;
   else
     assert(0);
   NAifZeroUpdates_ = NAifZeroUpdates;
 }
 
-void DataPoint::trackVectorUInt(std::string const &name, std::vector<unsigned int> *monvec, bool NAifZeroUpdates) {
+void DataPoint::trackVectorUInt(std::string const &name,
+                                std::vector<unsigned int> const *monvec,
+                                bool NAifZeroUpdates) {
   name_ = name;
-  tracked_ = (void *)monvec;
+  tracked_ = (void const *)monvec;
   isStream_ = true;
   monType_ = TYPEUINT;
   NAifZeroUpdates_ = NAifZeroUpdates;
@@ -90,10 +92,10 @@ void DataPoint::trackVectorUInt(std::string const &name, std::vector<unsigned in
 }
 
 void DataPoint::trackVectorUIntAtomic(std::string const &name,
-                                      std::vector<AtomicMonUInt *> *monvec,
+                                      std::vector<AtomicMonUInt *> const *monvec,
                                       bool NAifZeroUpdates) {
   name_ = name;
-  tracked_ = (void *)monvec;
+  tracked_ = (void const *)monvec;
   isStream_ = true;
   isAtomic_ = true;
   monType_ = TYPEUINT;
@@ -127,13 +129,14 @@ void DataPoint::snap(unsigned int lumi) {
 
 #if ATOMIC_LEVEL > 0
         if (isAtomic_)
-          monVal = (static_cast<std::vector<AtomicMonUInt *> *>(tracked_))->at(i)->load(std::memory_order_relaxed);
+          monVal =
+              (static_cast<std::vector<AtomicMonUInt *> const *>(tracked_))->at(i)->load(std::memory_order_relaxed);
 #else
         if (isAtomic_)
-          monVal = *((static_cast<std::vector<AtomicMonUInt *> *>(tracked_))->at(i));
+          monVal = *((static_cast<std::vector<AtomicMonUInt *> const *>(tracked_))->at(i));
 #endif
         else
-          monVal = (static_cast<std::vector<unsigned int> *>(tracked_))->at(i);
+          monVal = (static_cast<std::vector<unsigned int> const *>(tracked_))->at(i);
 
         auto itr = streamDataMaps_[i].find(streamLumi_);
         if (itr == streamDataMaps_[i].end()) {
@@ -172,26 +175,26 @@ void DataPoint::snapGlobal(unsigned int lumi) {
   if (itr == globalDataMap_.end()) {
     if (monType_ == TYPEINT) {
       IntJ *ij = new IntJ;
-      ij->update((static_cast<IntJ *>(tracked_))->value());
+      ij->update((static_cast<IntJ const *>(tracked_))->value());
       globalDataMap_[lumi] = ij;
     }
     if (monType_ == TYPEDOUBLE) {
       DoubleJ *dj = new DoubleJ;
-      dj->update((static_cast<DoubleJ *>(tracked_))->value());
+      dj->update((static_cast<DoubleJ const *>(tracked_))->value());
       globalDataMap_[lumi] = dj;
     }
     if (monType_ == TYPESTRING) {
       StringJ *sj = new StringJ;
-      sj->update((static_cast<StringJ *>(tracked_))->value());
+      sj->update((static_cast<StringJ const *>(tracked_))->value());
       globalDataMap_[lumi] = sj;
     }
   } else {
     if (monType_ == TYPEINT)
-      static_cast<IntJ *>(itr->second.get())->update((static_cast<IntJ *>(tracked_))->value());
+      static_cast<IntJ *>(itr->second.get())->update((static_cast<IntJ const *>(tracked_))->value());
     else if (monType_ == TYPEDOUBLE)
-      static_cast<DoubleJ *>(itr->second.get())->update((static_cast<DoubleJ *>(tracked_))->value());
+      static_cast<DoubleJ *>(itr->second.get())->update((static_cast<DoubleJ const *>(tracked_))->value());
     else if (monType_ == TYPESTRING)
-      static_cast<StringJ *>(itr->second.get())->concatenate((static_cast<StringJ *>(tracked_))->value());
+      static_cast<StringJ *>(itr->second.get())->concatenate((static_cast<StringJ const *>(tracked_))->value());
   }
 }
 
@@ -203,13 +206,14 @@ void DataPoint::snapStreamAtomic(unsigned int lumi, unsigned int streamID) {
     unsigned int monVal;
 #if ATOMIC_LEVEL > 0
     if (isAtomic_)
-      monVal = (static_cast<std::vector<AtomicMonUInt *> *>(tracked_))->at(streamID)->load(std::memory_order_relaxed);
+      monVal =
+          (static_cast<std::vector<AtomicMonUInt *> const *>(tracked_))->at(streamID)->load(std::memory_order_relaxed);
 #else
     if (isAtomic_)
-      monVal = *((static_cast<std::vector<AtomicMonUInt *> *>(tracked_))->at(streamID));
+      monVal = *((static_cast<std::vector<AtomicMonUInt *> const *>(tracked_))->at(streamID));
 #endif
     else
-      monVal = (static_cast<std::vector<unsigned int> *>(tracked_))->at(streamID);
+      monVal = (static_cast<std::vector<unsigned int> const *>(tracked_))->at(streamID);
 
     auto itr = streamDataMaps_[streamID].find(lumi);
     if (itr == streamDataMaps_[streamID].end())  //insert
@@ -247,22 +251,22 @@ std::string DataPoint::fastOutCSV(int sid) {
           //        if ATOMIC_LEVEL>0
           //        ss << (unsigned int) (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(fastIndex_)->load(std::memory_order_relaxed);
 
-          ss << (unsigned int)*((static_cast<std::vector<AtomicMonUInt *> *>(tracked_))->at(fastIndex_));
-          fastIndex_ = (fastIndex_ + 1) % (static_cast<std::vector<AtomicMonUInt *> *>(tracked_))->size();
+          ss << (unsigned int)*((static_cast<std::vector<AtomicMonUInt *> const *>(tracked_))->at(fastIndex_));
+          fastIndex_ = (fastIndex_ + 1) % (static_cast<std::vector<AtomicMonUInt *> const *>(tracked_))->size();
         } else {
-          ss << (static_cast<std::vector<unsigned int> *>(tracked_))->at(fastIndex_);
-          fastIndex_ = (fastIndex_ + 1) % (static_cast<std::vector<unsigned int> *>(tracked_))->size();
+          ss << (static_cast<std::vector<unsigned int> const *>(tracked_))->at(fastIndex_);
+          fastIndex_ = (fastIndex_ + 1) % (static_cast<std::vector<unsigned int> const *>(tracked_))->size();
         }
 
       } else {
         if (isAtomic_)
-          ss << (unsigned int)*((static_cast<std::vector<AtomicMonUInt *> *>(tracked_))->at(unsigned(sid)));
+          ss << (unsigned int)*((static_cast<std::vector<AtomicMonUInt *> const *>(tracked_))->at(unsigned(sid)));
         else
-          ss << (static_cast<std::vector<unsigned int> *>(tracked_))->at(unsigned(sid));
+          ss << (static_cast<std::vector<unsigned int> const *>(tracked_))->at(unsigned(sid));
       }
       return ss.str();
     }
-    return (static_cast<JsonMonitorable *>(tracked_))->toString();
+    return (static_cast<JsonMonitorable const *>(tracked_))->toString();
   }
   return std::string("");
 }

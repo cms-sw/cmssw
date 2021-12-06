@@ -60,7 +60,7 @@
 
 class CSCOverlapsAlignmentAlgorithm : public AlignmentAlgorithmBase {
 public:
-  CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet &iConfig);
+  CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet &iConfig, edm::ConsumesCollector &);
   ~CSCOverlapsAlignmentAlgorithm() override;
 
   void initialize(const edm::EventSetup &iSetup,
@@ -133,6 +133,10 @@ public:
   bool m_makeHistograms;
 
 private:
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> m_cscGeometryToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> m_propToken;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> m_tthbToken;
+
   std::string m_mode_string;
   std::string m_reportFileName;
   double m_minP;
@@ -149,7 +153,6 @@ private:
   std::map<std::pair<CSCDetId, CSCDetId>, CSCPairResidualsConstraint *> m_quickChamberLookup;
 
   TrackTransformer *m_trackTransformer;
-  std::string m_propagatorName;
   const Propagator *m_propagatorPointer;
 
   TH1F *m_histP10;

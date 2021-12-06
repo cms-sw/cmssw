@@ -1,6 +1,4 @@
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCalUtilities/interface/HGCalTriggerNtupleBase.h"
 
 class HGCalTriggerNtupleHGCTowers : public HGCalTriggerNtupleBase {
@@ -8,7 +6,7 @@ public:
   HGCalTriggerNtupleHGCTowers(const edm::ParameterSet& conf);
   ~HGCalTriggerNtupleHGCTowers() override{};
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event& e, const edm::EventSetup& es) final;
+  void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 
 private:
   void clear() final;
@@ -28,8 +26,9 @@ private:
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCTowers, "HGCalTriggerNtupleHGCTowers");
 
-HGCalTriggerNtupleHGCTowers::HGCalTriggerNtupleHGCTowers(const edm::ParameterSet& conf)
-    : HGCalTriggerNtupleBase(conf) {}
+HGCalTriggerNtupleHGCTowers::HGCalTriggerNtupleHGCTowers(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleHGCTowers::initialize(TTree& tree,
                                              const edm::ParameterSet& conf,
@@ -55,15 +54,11 @@ void HGCalTriggerNtupleHGCTowers::initialize(TTree& tree,
   tree.Branch(withPrefix("iPhi"), &tower_iPhi_);
 }
 
-void HGCalTriggerNtupleHGCTowers::fill(const edm::Event& e, const edm::EventSetup& es) {
+void HGCalTriggerNtupleHGCTowers::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
   // retrieve towers
   edm::Handle<l1t::HGCalTowerBxCollection> towers_h;
   e.getByToken(towers_token_, towers_h);
   const l1t::HGCalTowerBxCollection& towers = *towers_h;
-
-  // retrieve geometry
-  edm::ESHandle<HGCalTriggerGeometryBase> geometry;
-  es.get<CaloGeometryRecord>().get(geometry);
 
   clear();
   for (auto tower_itr = towers.begin(0); tower_itr != towers.end(0); tower_itr++) {

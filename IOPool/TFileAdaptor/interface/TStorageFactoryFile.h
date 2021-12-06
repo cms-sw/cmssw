@@ -9,7 +9,9 @@
 #include "Utilities/StorageFactory/interface/IOPosBuffer.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
-class Storage;
+namespace edm::storage {
+  class Storage;
+}
 
 /** TFile wrapper around #StorageFactory and #Storage.  */
 class TStorageFactoryFile : public TFile {
@@ -57,7 +59,7 @@ private:
 
   TStorageFactoryFile(void);
 
-  edm::propagate_const<std::unique_ptr<Storage>> storage_;  //< Real underlying storage
+  edm::propagate_const<std::unique_ptr<edm::storage::Storage>> storage_;  //< Real underlying storage
 };
 
 #endif  // TFILE_ADAPTOR_TSTORAGE_FACTORY_FILE_H

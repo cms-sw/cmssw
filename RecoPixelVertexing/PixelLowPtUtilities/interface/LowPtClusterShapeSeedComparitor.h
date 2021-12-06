@@ -2,18 +2,15 @@
 #define _LowPtClusterShapeSeedComparitor_h_
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
-
-class TrackerTopology;
-
-namespace edm {
-  class ParameterSet;
-  class EventSetup;
-}  // namespace edm
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 class LowPtClusterShapeSeedComparitor : public SeedComparitor {
 public:
@@ -31,12 +28,13 @@ public:
   }
 
 private:
-  /// something
-  edm::ESHandle<ClusterShapeHitFilter> theShapeFilter;
-  edm::ESHandle<TrackerTopology> theTTopo;
   edm::EDGetTokenT<SiPixelClusterShapeCache> thePixelClusterShapeCacheToken;
   edm::Handle<SiPixelClusterShapeCache> thePixelClusterShapeCache;
   std::string theShapeFilterLabel_;
+  const edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> clusterShapeHitFilterESToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyESToken_;
+  const ClusterShapeHitFilter *clusterShapeHitFilter_ = nullptr;
+  const TrackerTopology *trackerTopology_ = nullptr;
 };
 
 #endif

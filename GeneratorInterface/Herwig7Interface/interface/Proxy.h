@@ -15,6 +15,10 @@ namespace ThePEG {
   public:
     typedef unsigned long ProxyID;
 
+    // not allowed and not implemented
+    ProxyBase(const ProxyBase &orig) = delete;
+    ProxyBase &operator=(const ProxyBase &orig) = delete;
+
     virtual ~ProxyBase();
 
     ProxyID getID() const { return id; }
@@ -29,10 +33,6 @@ namespace ThePEG {
 
     static std::shared_ptr<ProxyBase> create(ctor_t ctor);
     static std::shared_ptr<ProxyBase> find(ProxyID id);
-
-    // not allowed and not implemented
-    ProxyBase(const ProxyBase &orig) = delete;
-    ProxyBase &operator=(const ProxyBase &orig) = delete;
 
     const ProxyID id;
   };

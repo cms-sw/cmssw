@@ -3,12 +3,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include <algorithm>
 using namespace std;
 using namespace edm;
 
 GenJetParticleSelector::GenJetParticleSelector(const ParameterSet& cfg, edm::ConsumesCollector& iC)
-    : stableOnly_(cfg.getParameter<bool>("stableOnly")), partons_(false), bInclude_(false) {
+    : stableOnly_(cfg.getParameter<bool>("stableOnly")),
+      partons_(false),
+      bInclude_(false),
+      tableToken_(iC.esConsumes()) {
   const string excludeString("excludeList");
   const string includeString("includeList");
   vpdt includeList, excludeList;
@@ -55,6 +59,8 @@ bool GenJetParticleSelector::operator()(const reco::Candidate& p) {
 }
 
 void GenJetParticleSelector::init(const edm::EventSetup& es) {
+  auto const& pdt = es.getData(tableToken_);
+
   for (vpdt::iterator i = pdtList_.begin(); i != pdtList_.end(); ++i)
-    i->setup(es);
+    i->setup(pdt);
 }

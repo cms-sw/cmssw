@@ -24,22 +24,19 @@ hiPixel3ProtoTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     produceSeedingHitSets = True,
 )
 
-# Pixel tracks
-hiPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
+import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod
 
-    passLabel  = cms.string('Pixel triplet tracks for vertexing'),
-	
+# Pixel tracks
+hiPixel3ProtoTracks = _mod.pixelTracks.clone( 
+    passLabel  = 'Pixel triplet tracks for vertexing',
     # Ordered Hits
-    SeedingHitSets = cms.InputTag("hiPixel3ProtoTracksHitTriplets"),
-	
+    SeedingHitSets = "hiPixel3ProtoTracksHitTriplets",
     # Fitter
-    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
-	
+    Fitter = "pixelFitterByHelixProjections",
     # Filter
-    Filter = cms.InputTag("hiProtoTrackFilter"),
-	
+    Filter = "hiProtoTrackFilter",
     # Cleaner
-    Cleaner = cms.string("pixelTrackCleanerBySharedHits")
+    Cleaner = "pixelTrackCleanerBySharedHits"
 )
 
 hiPixel3ProtoTracksTask = cms.Task(

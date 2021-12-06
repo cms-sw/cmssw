@@ -21,6 +21,7 @@ public:
 
 private:
   const bool useGsfPfRecTracks_;
+  const bool hgcalOnly_;
 
   const edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksToken_;
   const edm::EDGetTokenT<reco::GsfTrackCollection> gsfTracksToken_;
@@ -41,11 +42,13 @@ void GsfElectronCoreEcalDrivenProducer::fillDescriptions(edm::ConfigurationDescr
   desc.add<edm::InputTag>("gsfTracks", {"electronGsfTracks"});
   desc.add<edm::InputTag>("ctfTracks", {"generalTracks"});
   desc.add<bool>("useGsfPfRecTracks", true);
+  desc.add<bool>("hgcalOnly", false);
   descriptions.add("ecalDrivenGsfElectronCores", desc);
 }
 
 GsfElectronCoreEcalDrivenProducer::GsfElectronCoreEcalDrivenProducer(const edm::ParameterSet& config)
     : useGsfPfRecTracks_(config.getParameter<bool>("useGsfPfRecTracks")),
+      hgcalOnly_(config.getParameter<bool>("hgcalOnly")),
       gsfPfRecTracksToken_(mayConsume<GsfPFRecTrackCollection>(config.getParameter<edm::InputTag>("gsfPfRecTracks"))),
       gsfTracksToken_(consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"))),
       ctfTracksToken_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("ctfTracks"))),
@@ -74,7 +77,11 @@ void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event
 
     auto scRef = gsfTrackRef->extra()->seedRef().castTo<ElectronSeedRef>()->caloCluster().castTo<SuperClusterRef>();
     if (!scRef.isNull()) {
-      eleCore.setSuperCluster(scRef);
+      // if hgcalOnly flag is true but this seed is not from HGCAL, skip it.
+      if (hgcalOnly_ && !scRef->seed()->caloID().detector(reco::CaloID::DET_HGCAL_ENDCAP))
+        electrons.pop_back();
+      else
+        eleCore.setSuperCluster(scRef);
     } else {
       electrons.pop_back();
       edm::LogWarning("GsfElectronCoreEcalDrivenProducer") << "Seed CaloCluster is not a SuperCluster, unexpected...";

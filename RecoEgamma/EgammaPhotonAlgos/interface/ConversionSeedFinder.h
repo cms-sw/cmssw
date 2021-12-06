@@ -44,6 +44,10 @@ class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
 class NavigationSchool;
 class TrackingGeometry;
+class IdealMagneticFieldRecord;
+class TrackerRecoGeometryRecord;
+class CkfComponentsRecord;
+class TrackingComponentsRecord;
 
 class ConversionSeedFinder {
 public:
@@ -86,13 +90,18 @@ protected:
   TrajectorySeedCollection theSeeds_;
   GlobalPoint theSCPosition_;
 
-  std::string theMeasurementTrackerName_;
   const MeasurementTracker* theMeasurementTracker_;
   const TrackingGeometry* theTrackerGeom_;
   const NavigationSchool* theNavigationSchool_ = nullptr;
 
   edm::ESHandle<MagneticField> theMF_;
   edm::ESHandle<GeometricSearchTracker> theGeomSearchTracker_;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMFToken_;
+  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> theGeomSearchTrackerToken_;
+  edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> theMeasurementTrackerToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorAlongMomentumToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorOppositeToMomentumToken_;
 
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrkToken_;

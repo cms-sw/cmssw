@@ -29,7 +29,8 @@ namespace edm {
         orderedProcessHistoryIDs_(),
         eventSkipperByID_(EventSkipperByID::create(pset).release()),
         initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")),
-        noEventSort_(pset.getUntrackedParameter<bool>("noEventSort")),
+        noRunLumiSort_(pset.getUntrackedParameter<bool>("noRunLumiSort")),
+        noEventSort_(noRunLumiSort_ ? true : pset.getUntrackedParameter<bool>("noEventSort")),
         treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize") : 0U),
         duplicateChecker_(new DuplicateChecker(pset)),
         usingGoToEvent_(false),
@@ -51,7 +52,7 @@ namespace edm {
 
     // Prestage the files
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
-      StorageFactory::get()->stagein(fileNames()[0]);
+      storage::StorageFactory::get()->stagein(fileNames()[0]);
     }
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
@@ -62,33 +63,56 @@ namespace edm {
     if (rootFile()) {
       input_.productRegistryUpdate().updateFromInput(rootFile()->productRegistry()->productList());
       if (initialNumberOfEventsToSkip_ != 0) {
-        skipEvents(initialNumberOfEventsToSkip_);
+        skipEventsAtBeginning(initialNumberOfEventsToSkip_);
       }
     }
   }
 
   RootPrimaryFileSequence::~RootPrimaryFileSequence() {}
 
-  void RootPrimaryFileSequence::endJob() { closeFile_(); }
+  void RootPrimaryFileSequence::endJob() { closeFile(); }
 
-  std::unique_ptr<FileBlock> RootPrimaryFileSequence::readFile_() {
+  std::shared_ptr<FileBlock> RootPrimaryFileSequence::readFile_() {
+    std::shared_ptr<FileBlock> fileBlock;
     if (firstFile_) {
-      // The first input file has already been opened.
       firstFile_ = false;
+      // Usually the first input file will already be open
       if (!rootFile()) {
         initFile(input_.skipBadFiles());
       }
+    } else if (goToEventInNewFile_) {
+      goToEventInNewFile_ = false;
+      setAtFileSequenceNumber(goToFileSequenceOffset_);
+      initFile(false);
+      assert(rootFile());
+      bool found = rootFile()->goToEvent(goToEventID_);
+      assert(found);
+    } else if (skipIntoNewFile_) {
+      skipIntoNewFile_ = false;
+      setAtFileSequenceNumber(skipToFileSequenceNumber_);
+      initFile(false);
+      assert(rootFile());
+      if (skipToOffsetInFinalFile_ < 0) {
+        rootFile()->setToLastEntry();
+      }
+      bool atEnd = rootFile()->skipEvents(skipToOffsetInFinalFile_);
+      assert(!atEnd && skipToOffsetInFinalFile_ == 0);
     } else {
       if (!nextFile()) {
         // handle case with last file bad and
         // skipBadFiles true
-        return std::unique_ptr<FileBlock>();
+        fb_ = fileBlock;
+        return fileBlock;
       }
     }
     if (!rootFile()) {
-      return std::make_unique<FileBlock>();
+      fileBlock = std::make_shared<FileBlock>();
+      fb_ = fileBlock;
+      return fileBlock;
     }
-    return rootFile()->createFileBlock();
+    fileBlock = rootFile()->createFileBlock();
+    fb_ = fileBlock;
+    return fileBlock;
   }
 
   void RootPrimaryFileSequence::closeFile_() {
@@ -126,10 +150,12 @@ namespace edm {
                                       input_.treeMaxVirtualSize(),
                                       input_.processingMode(),
                                       input_.runHelper(),
+                                      noRunLumiSort_,
                                       noEventSort_,
                                       input_.productSelectorRules(),
                                       InputType::Primary,
                                       input_.branchIDListHelper(),
+                                      input_.processBlockHelper().get(),
                                       input_.thinnedAssociationsHelper(),
                                       nullptr,  // associationsFromSecondary
                                       duplicateChecker(),
@@ -161,10 +187,6 @@ namespace edm {
       // open failed, then initFile should have thrown
       assert(input_.skipBadFiles());
     } while (true);
-
-    if (not rootFile()) {
-      return false;
-    }
 
     // make sure the new product registry is compatible with the main one
     std::string mergeInfo =
@@ -199,10 +221,11 @@ namespace edm {
   InputSource::ItemType RootPrimaryFileSequence::getNextItemType(RunNumber_t& run,
                                                                  LuminosityBlockNumber_t& lumi,
                                                                  EventNumber_t& event) {
-    if (noMoreFiles()) {
+    if (noMoreFiles() || skipToStop_) {
+      skipToStop_ = false;
       return InputSource::IsStop;
     }
-    if (firstFile_) {
+    if (firstFile_ || goToEventInNewFile_ || skipIntoNewFile_) {
       return InputSource::IsFile;
     }
     if (rootFile()) {
@@ -225,7 +248,7 @@ namespace edm {
   // Rewind to before the first event that was read.
   void RootPrimaryFileSequence::rewind_() {
     if (!atFirstFile()) {
-      closeFile_();
+      closeFile();
       setAtFirstFile();
     }
     if (!rootFile()) {
@@ -233,9 +256,12 @@ namespace edm {
     }
     rewindFile();
     firstFile_ = true;
+    goToEventInNewFile_ = false;
+    skipIntoNewFile_ = false;
+    skipToStop_ = false;
     if (rootFile()) {
       if (initialNumberOfEventsToSkip_ != 0) {
-        skipEvents(initialNumberOfEventsToSkip_);
+        skipEventsAtBeginning(initialNumberOfEventsToSkip_);
       }
     }
   }
@@ -246,20 +272,77 @@ namespace edm {
       rootFile()->rewind();
   }
 
-  // Advance "offset" events.  Offset can be positive or negative (or zero).
-  bool RootPrimaryFileSequence::skipEvents(int offset) {
+  // Advance "offset" events.  Offset will be positive.
+  void RootPrimaryFileSequence::skipEventsAtBeginning(int offset) {
     assert(rootFile());
+    assert(offset >= 0);
     while (offset != 0) {
       bool atEnd = rootFile()->skipEvents(offset);
       if ((offset > 0 || atEnd) && !nextFile()) {
-        return false;
-      }
-      if (offset < 0 && !previousFile()) {
-        setNoMoreFiles();
-        return false;
+        return;
       }
     }
-    return true;
+  }
+
+  // Advance "offset" events.  Offset can be positive or negative (or zero).
+  void RootPrimaryFileSequence::skipEvents(int offset) {
+    assert(rootFile());
+
+    bool atEnd = rootFile()->skipEvents(offset);
+    if (!atEnd && offset == 0) {
+      // successfully completed skip within current file
+      return;
+    }
+
+    // Return, if without closing the current file we know the skip cannot be completed
+    skipToStop_ = false;
+    if (offset > 0 || atEnd) {
+      if (atLastFile() || noMoreFiles()) {
+        skipToStop_ = true;
+        return;
+      }
+    }
+    if (offset < 0 && atFirstFile()) {
+      skipToStop_ = true;
+      return;
+    }
+
+    // Save the current file and position so that we can restore them
+    size_t const originalFileSequenceNumber = sequenceNumberOfFile();
+    IndexIntoFile::IndexIntoFileItr originalPosition = rootFile()->indexIntoFileIter();
+
+    if ((offset > 0 || atEnd) && !nextFile()) {
+      skipToStop_ = true;  // Can only get here if skipBadFiles is true
+    }
+    if (offset < 0 && !previousFile()) {
+      skipToStop_ = true;  // Can't actually get here
+    }
+
+    if (!skipToStop_) {
+      while (offset != 0) {
+        skipToOffsetInFinalFile_ = offset;
+        bool atEnd = rootFile()->skipEvents(offset);
+        if ((offset > 0 || atEnd) && !nextFile()) {
+          skipToStop_ = true;
+          break;
+        }
+        if (offset < 0 && !previousFile()) {
+          skipToStop_ = true;
+          break;
+        }
+      }
+      if (!skipToStop_) {
+        skipIntoNewFile_ = true;
+      }
+    }
+    skipToFileSequenceNumber_ = sequenceNumberOfFile();
+
+    // Restore the original file and position
+    setAtFileSequenceNumber(originalFileSequenceNumber);
+    initFile(false);
+    assert(rootFile());
+    rootFile()->setPosition(originalPosition);
+    rootFile()->updateFileBlock(*fb_);
   }
 
   bool RootPrimaryFileSequence::goToEvent(EventID const& eventID) {
@@ -272,36 +355,34 @@ namespace edm {
       if (rootFile() && indexesIntoFiles().size() == 1) {
         return false;
       }
+      // Look for item (run/lumi/event) in files previously opened without reopening unnecessary files.
+      for (auto it = indexesIntoFiles().begin(), itEnd = indexesIntoFiles().end(); it != itEnd; ++it) {
+        if (*it && (*it)->containsItem(eventID.run(), eventID.luminosityBlock(), eventID.event())) {
+          goToEventInNewFile_ = true;
+          goToFileSequenceOffset_ = it - indexesIntoFiles().begin();
+          goToEventID_ = eventID;
+          return true;
+        }
+      }
+
       // Save the current file and position so that we can restore them
-      // if we fail to restore the desired event
       bool closedOriginalFile = false;
       size_t const originalFileSequenceNumber = sequenceNumberOfFile();
       IndexIntoFile::IndexIntoFileItr originalPosition = rootFile()->indexIntoFileIter();
 
-      // Look for item (run/lumi/event) in files previously opened without reopening unnecessary files.
-      for (auto it = indexesIntoFiles().begin(), itEnd = indexesIntoFiles().end(); it != itEnd; ++it) {
-        if (*it && (*it)->containsItem(eventID.run(), eventID.luminosityBlock(), eventID.event())) {
-          // We found it. Close the currently open file, and open the correct one.
-          setAtFileSequenceNumber(it - indexesIntoFiles().begin());
-          initFile(false);
-          // Now get the item from the correct file.
-          assert(rootFile());
-          bool found = rootFile()->goToEvent(eventID);
-          assert(found);
-          return true;
-        }
-      }
       // Look for item in files not yet opened.
+      bool foundIt = false;
       for (auto it = indexesIntoFiles().begin(), itEnd = indexesIntoFiles().end(); it != itEnd; ++it) {
         if (!*it) {
           setAtFileSequenceNumber(it - indexesIntoFiles().begin());
           initFile(false);
+          assert(rootFile());
           closedOriginalFile = true;
           if ((*it)->containsItem(eventID.run(), eventID.luminosityBlock(), eventID.event())) {
-            assert(rootFile());
-            if (rootFile()->goToEvent(eventID)) {
-              return true;
-            }
+            foundIt = true;
+            goToEventInNewFile_ = true;
+            goToFileSequenceOffset_ = it - indexesIntoFiles().begin();
+            goToEventID_ = eventID;
           }
         }
       }
@@ -310,7 +391,9 @@ namespace edm {
         initFile(false);
         assert(rootFile());
         rootFile()->setPosition(originalPosition);
+        rootFile()->updateFileBlock(*fb_);
       }
+      return foundIt;
     }
     return false;
   }
@@ -330,6 +413,10 @@ namespace edm {
             "Note 1: Events within the same lumi will always be processed contiguously.\n"
             "Note 2: Lumis within the same run will always be processed contiguously.\n"
             "Note 3: Any sorting occurs independently in each input file (no sorting across input files).");
+    desc.addUntracked<bool>("noRunLumiSort", false)
+        ->setComment(
+            "True:  Process runs, lumis and events in the order they appear in the file.\n"
+            "False: Follow settings based on 'noEventSort' setting.");
     desc.addUntracked<unsigned int>("cacheSize", roottree::defaultCacheSize)
         ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
     std::string defaultString("permissive");

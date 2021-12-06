@@ -31,6 +31,10 @@ namespace CLHEP {
 class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator {
 public:
   BetafuncEvtVtxGenerator(const edm::ParameterSet& p);
+  /** Copy constructor */
+  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator& p) = delete;
+  /** Copy assignment operator */
+  BetafuncEvtVtxGenerator& operator=(const BetafuncEvtVtxGenerator& rhs) = delete;
   ~BetafuncEvtVtxGenerator() override;
 
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -60,11 +64,6 @@ public:
   double BetaFunction(double z, double z0) const;
 
 private:
-  /** Copy constructor */
-  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator& p) = delete;
-  /** Copy assignment operator */
-  BetafuncEvtVtxGenerator& operator=(const BetafuncEvtVtxGenerator& rhs) = delete;
-
   void setBoost(double alpha, double phi);
 
 private:

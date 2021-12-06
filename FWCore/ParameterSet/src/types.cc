@@ -8,7 +8,6 @@
 
 #include "FWCore/ParameterSet/interface/types.h"
 
-#include "boost/lexical_cast.hpp"
 #include "FWCore/ParameterSet/src/split.h"
 #include "FWCore/Utilities/interface/Parse.h"
 #include <cctype>
@@ -459,9 +458,9 @@ bool edm::decode(double& to, std::string const& from) {
   else {
     try {
       // std::cerr << "from:" << from << std::endl;
-      to = boost::lexical_cast<double>(from);
+      to = std::stod(from);
       // std::cerr << "to:" << to << std::endl;
-    } catch (boost::bad_lexical_cast&) {
+    } catch (const std::exception&) {
       return false;
     }
   }
@@ -472,7 +471,7 @@ bool edm::decode(double& to, std::string const& from) {
 
 bool edm::encode(std::string& to, double from) {
   std::ostringstream ost;
-  ost.precision(std::numeric_limits<double>::digits10 + 1);
+  ost.precision(std::numeric_limits<double>::max_digits10);
   ost << from;
   if (!ost)
     return false;

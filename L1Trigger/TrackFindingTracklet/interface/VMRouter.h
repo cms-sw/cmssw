@@ -4,7 +4,7 @@
 
 #include "L1Trigger/TrackFindingTracklet/interface/ProcessBase.h"
 #include "L1Trigger/TrackFindingTracklet/interface/FPGAWord.h"
-#include "L1Trigger/TrackFindingTracklet/interface/VMRouterTable.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 
 #include <string>
 #include <vector>
@@ -34,7 +34,7 @@ namespace trklet {
 
   class VMRouter : public ProcessBase {
   public:
-    VMRouter(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
+    VMRouter(std::string name, Settings const& settings, Globals* global);
 
     ~VMRouter() override = default;
 
@@ -55,10 +55,14 @@ namespace trklet {
     int nbitszfinebintable_;
     int nbitsrfinebintable_;
 
-    VMRouterTable vmrtable_;
+    TrackletLUT meTable_;            //used for ME and outer TE barrel
+    TrackletLUT diskTable_;          //outer disk used by D1, D2, and D4
+    TrackletLUT innerTable_;         //projection to next layer/disk
+    TrackletLUT innerOverlapTable_;  //projection to disk from layer
+    TrackletLUT innerThirdTable_;    //projection to disk1 for extended - iseed=10
 
-    //The input stub memories
-    std::vector<InputLinkMemory*> stubinputs_;
+    //The input stub memories the two tmp inputs are used to build the order needed in HLS
+    std::vector<InputLinkMemory*> stubinputs_, stubinputtmp_, stubinputdisk2stmp_;
 
     //The all stub memories
     std::vector<AllStubsMemory*> allstubs_;

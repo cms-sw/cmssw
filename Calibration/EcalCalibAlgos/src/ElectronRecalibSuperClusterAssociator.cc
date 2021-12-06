@@ -1,22 +1,13 @@
 // -*- C++ -*-
-//
-//
 
 // user include files
 #include "FWCore/Framework/interface/MakerMacros.h"
-//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-//#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "Calibration/EcalCalibAlgos/interface/ElectronRecalibSuperClusterAssociator.h"
 
-//#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-//#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-//#include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
-//#include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include <iostream>
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h"
-//#define DEBUG
 
 using namespace reco;
 using namespace edm;
@@ -29,7 +20,6 @@ ElectronRecalibSuperClusterAssociator::ElectronRecalibSuperClusterAssociator(con
   //register your products
   produces<GsfElectronCollection>();
   produces<GsfElectronCoreCollection>();
-  //  produces<SuperClusterCollection>();
 
   superClusterCollectionEB_ = iConfig.getParameter<edm::InputTag>("superClusterCollectionEB");
   superClusterCollectionEE_ = iConfig.getParameter<edm::InputTag>("superClusterCollectionEE");
@@ -61,7 +51,6 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
   // Get SuperClusters in EB
   Handle<reco::SuperClusterCollection> superClusterEBHandle;
   e.getByToken(ebScToken_, superClusterEBHandle);
-  //const reco::SuperClusterCollection* scCollection = superClusterEBHandle.product();
 
 #ifdef DEBUG
   std::cout << "EB scCollection->size()" << superClusterEBHandle->size() << std::endl;
@@ -70,7 +59,6 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
   // Get SuperClusters in EE
   Handle<reco::SuperClusterCollection> superClusterEEHandle;
   e.getByToken(eeScToken_, superClusterEEHandle);
-  //  const reco::SuperClusterCollection* eeScCollection = superClusterEEHandle.product();
 
 #ifdef DEBUG
   std::cout << "EE scCollection->size()" << superClusterEEHandle->size() << std::endl;
@@ -79,9 +67,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
   // Get Electrons
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   e.getByToken(electronToken_, eleHandle);
-  //  const reco::GsfElectronCollection* electronCollection = eleHandle.product();
 
-  //  GsfElectronCoreRefProd rEleCore = const_cast<edm::Event&>(iEvent).getRefBeforePut<GsfElectronCoreCollection>();
   GsfElectronCoreRefProd rEleCore = e.getRefBeforePut<GsfElectronCoreCollection>();
   edm::Ref<GsfElectronCoreCollection>::key_type idxEleCore = 0;
 
@@ -138,9 +124,6 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
         iscRefendcap = iSC;
       }
     }
-    ////////////////////////
-    //      if(eleIt->isEB()) assert(DeltaRMineleSCbarrel < DeltaRMineleSCendcap);
-    //else assert(DeltaRMineleSCbarrel > DeltaRMineleSCendcap);
     if (eleIt->isEB() && DeltaRMineleSCbarrel > DeltaRMineleSCendcap) {
       edm::LogError("ElectronRecalibAssociator") << "EB electron, but nearest SC is in EE";
       ;
@@ -151,8 +134,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
       pOutEleCore->push_back(*eleIt->core());  // clone the old core and add to the collection of new cores
       reco::GsfElectronCoreRef newEleCoreRef(rEleCore,
                                              idxEleCore++);  // reference to the new electron core in the new collection
-      reco::GsfElectronCore& newEleCore = pOutEleCore->back();  // pick the clone
-      //newEleCore.setGsfTrack(eleIt->gsfTrack());           // set the gsf track (not needed since it is not changed)
+      reco::GsfElectronCore& newEleCore = pOutEleCore->back();                           // pick the clone
       reco::SuperClusterRef scRef(reco::SuperClusterRef(superClusterEBHandle, iscRef));  // Reference to the new SC
 #ifndef CMSSW_5_3_X
       newEleCore.setParentSuperCluster(scRef);  // mustache
@@ -181,7 +163,6 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
       reco::GsfElectronCoreRef newEleCoreRef(rEleCore,
                                              idxEleCore++);  // reference to the new electron core in the new collection
       reco::GsfElectronCore& newEleCore = pOutEleCore->back();  // pick the clone
-      //newEleCore.setGsfTrack(eleIt->gsfTrack());           // set the gsf track (not needed since it is not changed)
       reco::SuperClusterRef scRef(
           reco::SuperClusterRef(superClusterEEHandle, iscRefendcap));  // Reference to the new SC
 #ifndef CMSSW_5_3_X
@@ -213,15 +194,12 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 #ifdef DEBUG
   std::cout << "Filled new electrons  " << pOutEle->size() << std::endl;
   std::cout << "Filled new electronsCore  " << pOutEleCore->size() << std::endl;
-  //  std::cout << "Filled new endcapSC  " << pOutNewEndcapSC->size() << std::endl;
 #endif
 
   // put result into the Event
 
   e.put(std::move(pOutEle));
   e.put(std::move(pOutEleCore));
-
-  //  e.put(std::move(pOutNewEndcapSC));
 }
 
 DEFINE_FWK_MODULE(ElectronRecalibSuperClusterAssociator);

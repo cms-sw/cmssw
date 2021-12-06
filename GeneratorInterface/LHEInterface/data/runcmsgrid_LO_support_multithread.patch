@@ -45,7 +45,7 @@
 @@ -98,1 +134,1 @@
 -  ./run.sh $submitting_event $run_random_seed
 +  ../process/run.sh $submitting_event $run_random_seed
-@@ -124,3 +160,53 @@
+@@ -124,3 +160,58 @@
 +cd $LHEWORKDIR
 +
 +} ### end of function
@@ -67,6 +67,11 @@
 +    nevt_per_thread[$(( $ncpu-1 ))]=$(( $nevt - ($ncpu-1)*$nevt_ave ))
 +
 +    cd $LHEWORKDIR
++
++    # first do restore_data from the gridpack (necessary for the readonly mode)
++    cd process/madevent
++    ./bin/internal/restore_data default
++    cd ../..
 +
 +    # make the gridpack directory read-only to enable the multi-threading feature
 +    if fs listacl &>/dev/null; then
@@ -90,7 +95,7 @@
 +    cd process
 +
 +    # merge files produced in different threads
-+    cp /cvmfs/cms.cern.ch/phys_generator/gridpacks/lhe_merger/merge.pl ./
++    curl -s -L -o merge.pl https://raw.githubusercontent.com/cms-sw/genproductions/master/bin/MadGraph5_aMCatNLO/Utilities/merge.pl
 +    chmod 755 merge.pl
 +    ./merge.pl ../thread*/events.lhe.gz events.lhe.gz banner.txt
 +    rm -r ../thread* banner.txt;

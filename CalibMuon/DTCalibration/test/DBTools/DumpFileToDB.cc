@@ -24,7 +24,6 @@
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "CondFormats/DTObjects/interface/DTDeadFlag.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-#include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
 #include "CondFormats/DTObjects/interface/DTRecoConditions.h"
 #include "CondFormats/DataRecord/interface/DTRecoConditionsTtrigRcd.h"
 #include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
@@ -37,6 +36,7 @@ using namespace std;
 DumpFileToDB::DumpFileToDB(const ParameterSet& pset) {
   dbToDump = pset.getUntrackedParameter<string>("dbToDump", "TTrigDB");
   format = pset.getUntrackedParameter<string>("dbFormat", "Legacy");
+  ttrigToken_ = esConsumes<edm::Transition::BeginRun>();
 
   cout << "Writing DB: " << dbToDump << " with format: " << format << endl;
 
@@ -268,43 +268,27 @@ void DumpFileToDB::endJob() {
     //---------- Uncertainties
   } else if (dbToDump == "RecoUncertDB") {  // Write the Uncertainties
 
-    if (format == "Legacy") {
-      DTRecoUncertainties* uncert = new DTRecoUncertainties();
-      int version = 1;  // Uniform uncertainties per SL and step; parameters 0-3 are for steps 1-4.
-      uncert->setVersion(version);
-      // Loop over file entries
-      for (DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
-           keyAndCalibs != theCalibFile->keyAndConsts_end();
-           ++keyAndCalibs) {
-        vector<float> values = (*keyAndCalibs).second;
-        vector<float> uncerts(values.begin() + 11, values.end());
-        uncert->set((*keyAndCalibs).first, uncerts);
-      }
-      DTCalibDBUtils::writeToDB<DTRecoUncertainties>("DTRecoUncertaintiesRcd", uncert);
+    DTRecoConditions* conds = new DTRecoConditions();
+    conds->setFormulaExpr("par[step]");
+    int version = 1;  // Uniform uncertainties per SL and step; parameters 0-3 are for steps 1-4.
+    conds->setVersion(version);
 
-    } else if (format == "DTRecoConditions") {
-      DTRecoConditions* conds = new DTRecoConditions();
-      conds->setFormulaExpr("par[step]");
-      int version = 1;  // Uniform uncertainties per SL and step; parameters 0-3 are for steps 1-4.
-      conds->setVersion(version);
+    for (DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
+         keyAndCalibs != theCalibFile->keyAndConsts_end();
+         ++keyAndCalibs) {
+      vector<float> values = (*keyAndCalibs).second;
+      int fversion = int(values[10] / 1000);
+      int type = (int(values[10]) % 1000) / 100;
+      int nfields = int(values[10]) % 100;
+      if (type != 2)
+        throw cms::Exception("IncorrectSetup") << "Only type==2 supported for uncertainties DB";
+      if (values.size() != unsigned(nfields + 11))
+        throw cms::Exception("IncorrectSetup") << "Inconsistent number of fields";
+      if (fversion != version)
+        throw cms::Exception("IncorrectSetup") << "Inconsistent version of file";
 
-      for (DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
-           keyAndCalibs != theCalibFile->keyAndConsts_end();
-           ++keyAndCalibs) {
-        vector<float> values = (*keyAndCalibs).second;
-        int fversion = int(values[10] / 1000);
-        int type = (int(values[10]) % 1000) / 100;
-        int nfields = int(values[10]) % 100;
-        if (type != 2)
-          throw cms::Exception("IncorrectSetup") << "Only type==2 supported for uncertainties DB";
-        if (values.size() != unsigned(nfields + 11))
-          throw cms::Exception("IncorrectSetup") << "Inconsistent number of fields";
-        if (fversion != version)
-          throw cms::Exception("IncorrectSetup") << "Inconsistent version of file";
-
-        vector<double> params(values.begin() + 11, values.begin() + 11 + nfields);
-        conds->set((*keyAndCalibs).first, params);
-      }
+      vector<double> params(values.begin() + 11, values.begin() + 11 + nfields);
+      conds->set((*keyAndCalibs).first, params);
       DTCalibDBUtils::writeToDB<DTRecoConditions>("DTRecoConditionsUncertRcd", conds);
     }
   }
@@ -346,8 +330,7 @@ vector<int> DumpFileToDB::readChannelsMap(stringstream& linestr) {
 void DumpFileToDB::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   if (diffMode) {
     if (dbToDump == "TTrigDB") {  // read the original DB
-      ESHandle<DTTtrig> tTrig;
-      setup.get<DTTtrigRcd>().get(tTrig);
+      ESHandle<DTTtrig> tTrig = setup.getHandle(ttrigToken_);
       tTrigMapOrig = &*tTrig;
       cout << "[DumpDBToFile] TTrig version: " << tTrig->version() << endl;
     }

@@ -6,6 +6,7 @@ process.source =cms.Source("EmptySource")
 process.maxEvents.input = 10
 process.options.numberOfStreams = 2
 process.options.numberOfThreads = 2
+process.options.numberOfConcurrentLuminosityBlocks = 1 # because Pythia8GeneratorFilter requires synchronization at LuminosityBlock boundaries
 
 process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 process.RandomNumberGeneratorService.gen1 = process.RandomNumberGeneratorService.generator.clone()

@@ -11,6 +11,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 
 #include <string>
 #include <fstream>
@@ -18,6 +20,7 @@
 #include <vector>
 
 class DTMtime;
+class DTRecoConditions;
 class TFile;
 class TH1D;
 
@@ -45,7 +48,9 @@ private:
   TFile* theFile;
 
   //The t0 map
-  const DTMtime* mTimeMap;
+  const DTMtime* mTimeMap;             // legacy DB object
+  const DTRecoConditions* vDriftMap_;  // DB object in new format
+  bool readLegacyVDriftDB;             // which one to use
 
   // Map of the vdrift, reso histos by wheel/sector/SL
   std::map<std::pair<int, int>, TH1D*> theVDriftHistoMap;
@@ -53,5 +58,8 @@ private:
   // Map of the vdrift, reso distributions by wheel/station/SL
   std::map<std::vector<int>, TH1D*> theVDriftDistribMap;
   std::map<std::vector<int>, TH1D*> theResoDistribMap;
+
+  edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeMapToken_;
+  edm::ESGetToken<DTRecoConditions, DTRecoConditionsVdriftRcd> vDriftMapToken_;
 };
 #endif

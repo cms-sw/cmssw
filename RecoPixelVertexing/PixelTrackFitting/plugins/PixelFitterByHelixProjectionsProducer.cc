@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -15,14 +14,17 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 class PixelFitterByHelixProjectionsProducer : public edm::global::EDProducer<> {
 public:
   explicit PixelFitterByHelixProjectionsProducer(const edm::ParameterSet& iConfig)
-      : thescaleErrorsForBPix1(iConfig.getParameter<bool>("scaleErrorsForBPix1")),
-        thescaleFactor(iConfig.getParameter<double>("scaleFactor")) {
-    produces<PixelFitter>();
-  }
+      : theTopoToken(esConsumes()),
+        theFieldToken(esConsumes()),
+        thePutToken(produces<PixelFitter>()),
+        thescaleErrorsForBPix1(iConfig.getParameter<bool>("scaleErrorsForBPix1")),
+        thescaleFactor(iConfig.getParameter<double>("scaleFactor")) {}
   ~PixelFitterByHelixProjectionsProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -34,6 +36,10 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTopoToken;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  const edm::EDPutTokenT<PixelFitter> thePutToken;
   const bool thescaleErrorsForBPix1;
   const float thescaleFactor;
 };
@@ -41,13 +47,10 @@ private:
 void PixelFitterByHelixProjectionsProducer::produce(edm::StreamID,
                                                     edm::Event& iEvent,
                                                     const edm::EventSetup& iSetup) const {
-  edm::ESHandle<MagneticField> fieldESH;
-  iSetup.get<IdealMagneticFieldRecord>().get(fieldESH);
-
-  auto impl = std::make_unique<PixelFitterByHelixProjections>(
-      &iSetup, fieldESH.product(), thescaleErrorsForBPix1, thescaleFactor);
-  auto prod = std::make_unique<PixelFitter>(std::move(impl));
-  iEvent.put(std::move(prod));
+  iEvent.emplace(
+      thePutToken,
+      std::make_unique<PixelFitterByHelixProjections>(
+          &iSetup.getData(theTopoToken), &iSetup.getData(theFieldToken), thescaleErrorsForBPix1, thescaleFactor));
 }
 
 DEFINE_FWK_MODULE(PixelFitterByHelixProjectionsProducer);

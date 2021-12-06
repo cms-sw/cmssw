@@ -19,10 +19,8 @@ GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig)
     : GsfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
                            iConfig.getParameter<bool>("useHitsSplitting")),
       theAlgo(iConfig) {
-  setConf(iConfig);
-  setSrc(consumes<edm::View<reco::GsfTrack>>(iConfig.getParameter<edm::InputTag>("src")),
-         consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot")),
-         consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent")));
+  initTrackProducerBase(
+      iConfig, consumesCollector(), consumes<edm::View<reco::GsfTrack>>(iConfig.getParameter<edm::InputTag>("src")));
   setAlias(iConfig.getParameter<std::string>("@module_label"));
   std::string constraint_str = iConfig.getParameter<std::string>("constraint");
 

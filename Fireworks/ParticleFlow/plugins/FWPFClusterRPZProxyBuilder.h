@@ -55,7 +55,7 @@ protected:
                            const FWViewContext *vc,
                            float radius);
 
-private:
+public:
   FWPFClusterRPZProxyBuilder(const FWPFClusterRPZProxyBuilder &) = delete;                   // Disable default
   const FWPFClusterRPZProxyBuilder &operator=(const FWPFClusterRPZProxyBuilder &) = delete;  // Disable default
 };
@@ -80,7 +80,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPFEcalClusterRPZProxyBuilder(const FWPFEcalClusterRPZProxyBuilder &) = delete;
   const FWPFEcalClusterRPZProxyBuilder &operator=(const FWPFEcalClusterRPZProxyBuilder &) = delete;
 };
@@ -105,7 +104,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPFHcalClusterRPZProxyBuilder(const FWPFHcalClusterRPZProxyBuilder &) = delete;
   const FWPFHcalClusterRPZProxyBuilder &operator=(const FWPFHcalClusterRPZProxyBuilder &) = delete;
 };

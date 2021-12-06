@@ -3,7 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
@@ -22,9 +21,9 @@ public:
     std::unordered_map<int, l1t::HGCalTowerMap> towerMapsTmp = newTowerMaps();
 
     for (const auto& ptr : ptrs) {
-      if (triggerTools_.isNose(ptr->detId()))
-        continue;
+      bool isNose = triggerTools_.isNose(ptr->detId());
       unsigned layer = triggerTools_.layerWithOffset(ptr->detId());
+
       if (towerMapsTmp.find(layer) == towerMapsTmp.end()) {
         throw cms::Exception("Out of range")
             << "HGCalTowerMap2dImpl: Found trigger sum in layer " << layer << " for which there is no tower map\n";
@@ -34,8 +33,8 @@ public:
       if (useLayerWeights_)
         calibPt = layerWeights_[layer] * ptr->mipPt();
 
-      double etEm = layer <= triggerTools_.lastLayerEE() ? calibPt : 0;
-      double etHad = layer > triggerTools_.lastLayerEE() ? calibPt : 0;
+      double etEm = layer <= triggerTools_.lastLayerEE(isNose) ? calibPt : 0;
+      double etHad = layer > triggerTools_.lastLayerEE(isNose) ? calibPt : 0;
 
       towerMapsTmp[layer].addEt(towerGeometryHelper_.getTriggerTower(*ptr), etEm, etHad);
     }
@@ -49,9 +48,9 @@ public:
     }
   }
 
-  void eventSetup(const edm::EventSetup& es) {
-    triggerTools_.eventSetup(es);
-    towerGeometryHelper_.eventSetup(es);
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) {
+    triggerTools_.setGeometry(geom);
+    towerGeometryHelper_.setGeometry(geom);
   }
 
 private:

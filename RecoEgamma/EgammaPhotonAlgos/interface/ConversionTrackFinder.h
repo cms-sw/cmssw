@@ -27,10 +27,14 @@
 
 class TransientInitialStateEstimator;
 class TrackerGeometry;
+class CkfComponentsRecord;
+class TrackerDigiGeometryRecord;
 
 class ConversionTrackFinder {
 public:
-  ConversionTrackFinder(const edm::ParameterSet& config, const BaseCkfTrajectoryBuilder* trajectoryBuilder);
+  ConversionTrackFinder(const edm::ParameterSet& config,
+                        const BaseCkfTrajectoryBuilder* trajectoryBuilder,
+                        edm::ConsumesCollector iC);
 
   virtual ~ConversionTrackFinder();
 
@@ -52,6 +56,10 @@ protected:
   KFUpdator* theUpdator_;
 
   edm::ESHandle<Propagator> thePropagator_;
+
+  edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> theMeasurementTrackerToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerGeomToken_;
+  edm::ESGetToken<Propagator, TrackerDigiGeometryRecord> thePropagatorToken_;
 
   bool useSplitHits_;
 

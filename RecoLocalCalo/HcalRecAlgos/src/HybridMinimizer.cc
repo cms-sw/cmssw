@@ -13,7 +13,7 @@
 // different minimizer...
 // Implementation file for class HybridMinimizer
 
-#include "RecoLocalCalo/HcalRecAlgos/src/HybridMinimizer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HybridMinimizer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Math/IFunction.h"

@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
-from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
+from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepSeedLayersA,mixedTripletStepSeedLayersB,mixedTripletStepHitDoubletsA,mixedTripletStepHitDoubletsB,mixedTripletStepPropagator,mixedTripletStepPropagatorOpposite,mixedTripletStepTracks,mixedTripletStepHitTripletsA,mixedTripletStepSeedsA,mixedTripletStepHitTripletsB,mixedTripletStepSeedsB,mixedTripletStepSeeds
 from .HIPixelTripletSeeds_cff import *
 from .HIPixel3PrimTracks_cfi import *
 
@@ -73,7 +73,8 @@ mixedTripletStepPropagator.ptMin = 0.4
 mixedTripletStepPropagatorOpposite.ptMin = 0.4
 
 # MAKING OF TRACK CANDIDATES
-mixedTripletStepTrackCandidates.clustersToSkip = cms.InputTag('hiMixedTripletStepClusters')
+from RecoTracker.IterativeTracking.MixedTripletStep_cff import _mixedTripletStepTrackCandidatesCkf
+mixedTripletStepTrackCandidates = _mixedTripletStepTrackCandidatesCkf.clone(clustersToSkip = 'hiMixedTripletStepClusters')
 
 # TRACK FITTING
 hiMixedTripletStepTracks = mixedTripletStepTracks.clone()

@@ -202,19 +202,17 @@ void UETableProducer::endJob() {
       jme_payload->push_back(JetCorrectorParametersCollection::L1Offset, parameter);
 
       if (pool->isNewTagRequest("JetCorrectionsRecord")) {
-        pool->createNewIOV<JetCorrectorParametersCollection>(
-            jme_payload.get(), pool->beginOfTime(), pool->endOfTime(), "JetCorrectionsRecord");
+        pool->createOneIOV<JetCorrectorParametersCollection>(*jme_payload, pool->beginOfTime(), "JetCorrectionsRecord");
       } else {
-        pool->appendSinceTime<JetCorrectorParametersCollection>(
-            jme_payload.get(), pool->currentTime(), "JetCorrectionsRecord");
+        pool->appendOneIOV<JetCorrectorParametersCollection>(*jme_payload, pool->currentTime(), "JetCorrectionsRecord");
       }
     } else {
       ue_predictor_pf->values = ue_vec;
 
       if (pool->isNewTagRequest("HeavyIonUERcd")) {
-        pool->createNewIOV<UETable>(ue_predictor_pf.get(), pool->beginOfTime(), pool->endOfTime(), "HeavyIonUERcd");
+        pool->createOneIOV<UETable>(*ue_predictor_pf, pool->beginOfTime(), "HeavyIonUERcd");
       } else {
-        pool->appendSinceTime<UETable>(ue_predictor_pf.get(), pool->currentTime(), "HeavyIonUERcd");
+        pool->appendOneIOV<UETable>(*ue_predictor_pf, pool->currentTime(), "HeavyIonUERcd");
       }
     }
   }

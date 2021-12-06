@@ -89,10 +89,10 @@ namespace fwlite {
 
     edm::EDProductGetter const* getter() const { return getter_.get(); }
 
-  private:
     DataGetterHelper(const DataGetterHelper&) = delete;                   // stop default
     const DataGetterHelper& operator=(const DataGetterHelper&) = delete;  // stop default
 
+  private:
     typedef std::map<internal::DataKey, std::shared_ptr<internal::Data>> KeyToDataMap;
 
     internal::Data& getBranchDataFor(std::type_info const&, char const*, char const*, char const*) const;

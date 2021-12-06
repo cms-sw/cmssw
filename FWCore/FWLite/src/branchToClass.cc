@@ -23,7 +23,6 @@ namespace {
   public:
     static TClass* doit(const TBranch* iBranch);
 
-  private:
     ///NOTE: do not call this, it is only here because ROOT demands it
     BranchToClass() = delete;
   };

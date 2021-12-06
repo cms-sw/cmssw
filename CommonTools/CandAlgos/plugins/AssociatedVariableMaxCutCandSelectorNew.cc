@@ -16,7 +16,7 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/AssociatedVariableCollectionSelector.h"
 #include "CommonTools/UtilAlgos/interface/AndSelector.h"
 #include "CommonTools/UtilAlgos/interface/RefSelector.h"

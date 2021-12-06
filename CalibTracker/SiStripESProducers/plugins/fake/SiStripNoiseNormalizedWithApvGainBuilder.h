@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -28,7 +29,7 @@ class TrackerGeometry;
  * rescale the noise (per strip).
  */
 
-class SiStripNoiseNormalizedWithApvGainBuilder : public edm::EDAnalyzer {
+class SiStripNoiseNormalizedWithApvGainBuilder : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripNoiseNormalizedWithApvGainBuilder(const edm::ParameterSet& iConfig);
 

@@ -3,13 +3,14 @@
 #include "L1Trigger/L1TMuonEndCap/interface/EMTFSetup.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.h"
 
-EMTFSetup::EMTFSetup(const edm::ParameterSet& iConfig)
-    : geometry_translator_(),
-      condition_helper_(),
+EMTFSetup::EMTFSetup(const edm::ParameterSet& iConfig, edm::ConsumesCollector iCollector)
+    : geometry_translator_(iCollector),
+      condition_helper_(iCollector),
       version_control_(iConfig),
       sector_processor_lut_(),
       pt_assign_engine_(nullptr),
@@ -42,7 +43,7 @@ void EMTFSetup::reload(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   geometry_translator_.checkAndUpdateGeometry(iSetup);
 
   // Get the conditions, primarily the firmware version and the BDT forests
-  condition_helper_.checkAndUpdateConditions(iEvent, iSetup);
+  condition_helper_.checkAndUpdateConditions(iSetup);
 
   // Set version numbers
   fw_ver_ = condition_helper_.get_fw_version();

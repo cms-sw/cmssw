@@ -37,10 +37,10 @@ public:
   static constexpr double k_ScaleToDDD = 10.0;
   static constexpr double k_ScaleFromDDDToG4 = 1.0;
   static constexpr double k_ScaleToDDDFromG4 = 1.0;
-  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
-  static constexpr double k_ScaleToDD4Hep = dd4hep::cm;
-  static constexpr double k_ScaleFromDD4HepToG4 = (1.0 / dd4hep::mm);
-  static constexpr double k_ScaleToDD4HepFromG4 = dd4hep::mm;
+  static constexpr double k_ScaleFromDD4hep = (1.0 / dd4hep::cm);
+  static constexpr double k_ScaleToDD4hep = dd4hep::cm;
+  static constexpr double k_ScaleFromDD4hepToG4 = (1.0 / dd4hep::mm);
+  static constexpr double k_ScaleToDD4hepFromG4 = dd4hep::mm;
   static constexpr uint32_t k_CornerSize = 6;
   static constexpr double tol = 1.0e-12;
 
@@ -148,6 +148,7 @@ public:
   int waferUVMax_;
   std::vector<int> waferUVMaxLayer_;
   bool defineFull_;
+  std::vector<double> waferThickness_;
   std::vector<double> cellThickness_;
   std::vector<double> radius100to200_;
   std::vector<double> radius200to300_;
@@ -172,6 +173,8 @@ public:
   int firstLayer_;
   int firstMixedLayer_;
   int layerOffset_;
+  double layerRotation_;
+  std::vector<int> layerType_;
   std::vector<int> layerCenter_;
   wafer_map wafersInLayers_;
   wafer_map typesInLayers_;
@@ -179,6 +182,7 @@ public:
   int waferMaskMode_;
   int waferZSide_;
   waferInfo_map waferInfoMap_;
+  std::vector<std::pair<double, double> > layerRotV_;
   tileInfo_map tileInfoMap_;
   std::vector<std::pair<double, double> > tileRingR_;
   std::vector<std::pair<int, int> > tileRingRange_;

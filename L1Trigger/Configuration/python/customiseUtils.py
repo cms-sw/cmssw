@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 import sys
-import commands
 ##############################################################################
 # customisations for L1T utilities
 #

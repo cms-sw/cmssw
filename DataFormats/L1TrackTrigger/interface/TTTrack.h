@@ -105,6 +105,9 @@ public:
   /// Track phi
   double phi() const;
 
+  /// Local track phi (within the sector)
+  double localPhi() const;
+
   /// Track tanL
   double tanL() const;
 
@@ -148,9 +151,14 @@ public:
   double chi2XY() const;
   double chi2XYRed() const;
 
-  /// Stub Pt consistency
+  /// Stub Pt consistency (i.e. stub bend chi2/dof)
+  /// Note: The "stubPtConsistency" names are historic and people are encouraged
+  ///       to adopt the "chi2Bend" names.
   double stubPtConsistency() const;
   void setStubPtConsistency(double aPtConsistency);
+  double chi2BendRed() { return stubPtConsistency(); }
+  void setChi2BendRed(double aChi2BendRed) { setStubPtConsistency(aChi2BendRed); }
+  double chi2Bend() { return chi2BendRed() * theStubRefs.size(); }
 
   void setFitParNo(unsigned int aFitParNo);
   int nFitPars() const { return theNumFitPars_; }
@@ -309,6 +317,11 @@ double TTTrack<T>::phi() const {
 }
 
 template <typename T>
+double TTTrack<T>::localPhi() const {
+  return TTTrack_TrackWord::localPhi(thePhi_, thePhiSector_);
+}
+
+template <typename T>
 double TTTrack<T>::d0() const {
   return theD0_;
 }
@@ -429,16 +442,36 @@ void TTTrack<T>::setTrackWordBits() {
     return;
   }
 
-  unsigned int sparebits = 0;
+  unsigned int valid = true;
+  unsigned int mvaQuality = 0;
+  unsigned int mvaOther = 0;
 
   // missing conversion of global phi to difference from sector center phi
 
   if (theChi2_Z_ < 0) {
-    setTrackWord(theMomentum_, thePOCA_, theRInv_, theChi2_, 0, theStubPtConsistency_, theHitPattern_, sparebits);
-
+    setTrackWord(valid,
+                 theMomentum_,
+                 thePOCA_,
+                 theRInv_,
+                 theChi2_,
+                 0,
+                 theStubPtConsistency_,
+                 theHitPattern_,
+                 mvaQuality,
+                 mvaOther,
+                 thePhiSector_);
   } else {
-    setTrackWord(
-        theMomentum_, thePOCA_, theRInv_, theChi2_XY_, theChi2_Z_, theStubPtConsistency_, theHitPattern_, sparebits);
+    setTrackWord(valid,
+                 theMomentum_,
+                 thePOCA_,
+                 theRInv_,
+                 chi2XYRed(),
+                 chi2ZRed(),
+                 chi2BendRed(),
+                 theHitPattern_,
+                 mvaQuality,
+                 mvaOther,
+                 thePhiSector_);
   }
   return;
 }

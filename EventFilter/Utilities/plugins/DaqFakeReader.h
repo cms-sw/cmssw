@@ -7,6 +7,7 @@
  *  \author N. Amapane - CERN
  */
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -33,6 +34,8 @@ public:
 
   void produce(edm::Event&, edm::EventSetup const&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   //
   // private member functions
@@ -48,6 +51,7 @@ private:
   edm::RunNumber_t runNum;
   edm::EventNumber_t eventNum;
   bool empty_events;
+  bool fillRandom_;
   unsigned int meansize;  // in bytes
   unsigned int width;
   unsigned int injected_errors_per_million_events;

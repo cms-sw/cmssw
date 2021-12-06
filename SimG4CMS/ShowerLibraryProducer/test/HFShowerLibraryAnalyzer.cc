@@ -50,7 +50,7 @@ private:
   std::vector<double> pmom_;
   HFShowerPhotonCollection* photo_;
   HFShowerPhotonCollection photon_;
-  std::vector<TH1F*> h_x_[2], h_y_[2], h_z_[2], h_t_[2], h_l_[2], h_n_[2];
+  std::vector<TH1F*> h_x_[2], h_y_[2], h_z_[2], h_t_[2], h_l_[2], h_nl_[2], h_ns_[2];
 };
 
 HFShowerLibraryAnalyzer::HFShowerLibraryAnalyzer(edm::ParameterSet const& ps)
@@ -65,6 +65,7 @@ HFShowerLibraryAnalyzer::HFShowerLibraryAnalyzer(edm::ParameterSet const& ps)
   std::string branchPre = ps.getParameter<std::string>("BranchPre");
   std::string branchPost = ps.getParameter<std::string>("BranchPost");
   verbose_ = ps.getParameter<bool>("Verbosity");
+  evtPerBin_ = ps.getParameter<bool>("EventPerBin");
 
   if (pTreeName.find('.') == 0)
     pTreeName.erase(0, 2);
@@ -134,13 +135,14 @@ HFShowerLibraryAnalyzer::~HFShowerLibraryAnalyzer() {
 
 void HFShowerLibraryAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("FileName", "HFShowerLibrary_npmt_noatt_eta4_16en_v4.root");
+  desc.add<std::string>("FileName", "HFShowerLibrary_10000.root");
   desc.add<std::string>("TreeEMID", "emParticles");
   desc.add<std::string>("TreeHadID", "hadParticles");
   desc.add<std::string>("BranchEvt", "");
   desc.add<std::string>("BranchPre", "");
   desc.add<std::string>("BranchPost", "");
   desc.add<bool>("Verbosity", false);
+  desc.add<int>("EventPerBin", 10000);
   descriptions.add("hfShowerLibaryAnalysis", desc);
 }
 
@@ -195,13 +197,20 @@ void HFShowerLibraryAnalyzer::bookHistos() {
       hist->GetYaxis()->SetTitleOffset(1.2);
       h_l_[i].emplace_back(hist);
       hist->Sumw2();
-      sprintf(name, "N%d%d", k, i);
-      sprintf(titlx, "Number of %s shower photons", type.c_str());
-      hist = tfile->make<TH1F>(name, title, 200, 0.0, 1000.0);
+      sprintf(name, "NL%d%d", k, i);
+      sprintf(titlx, "Number of %s shower photons in long fibers", type.c_str());
+      hist = tfile->make<TH1F>(name, title, 3000, 0.0, 3000.0);
       hist->GetXaxis()->SetTitle(titlx);
       hist->GetYaxis()->SetTitle("Shower");
       hist->GetYaxis()->SetTitleOffset(1.2);
-      h_n_[i].emplace_back(hist);
+      h_nl_[i].emplace_back(hist);
+      sprintf(name, "NS%d%d", k, i);
+      sprintf(titlx, "Number of %s shower photons in short fibes", type.c_str());
+      hist = tfile->make<TH1F>(name, title, 3000, 0.0, 3000.0);
+      hist->GetXaxis()->SetTitle(titlx);
+      hist->GetYaxis()->SetTitle("Shower");
+      hist->GetYaxis()->SetTitleOffset(1.2);
+      h_ns_[i].emplace_back(hist);
     }
   }
 
@@ -212,15 +221,25 @@ void HFShowerLibraryAnalyzer::bookHistos() {
         int irc = k * evtPerBin_ + j + 1;
         getRecord(type, irc);
         int nPhoton = (newForm_) ? photo_->size() : photon_.size();
-        h_n_[type][k]->Fill(nPhoton);
+        int nlong = 0, nshort = 0;
         for (int i = 0; i < nPhoton; i++) {
           if (newForm_) {
+            if (photo_->at(i).z() > 0) {
+              nlong++;
+            } else {
+              nshort++;
+            }
             h_x_[type][k]->Fill((photo_->at(i)).x());
             h_y_[type][k]->Fill((photo_->at(i)).y());
             h_z_[type][k]->Fill((photo_->at(i)).z());
             h_t_[type][k]->Fill((photo_->at(i)).t());
             h_l_[type][k]->Fill((photo_->at(i)).lambda());
           } else {
+            if (photon_[i].z() > 0) {
+              nlong++;
+            } else {
+              nshort++;
+            }
             h_x_[type][k]->Fill(photon_[i].x());
             h_y_[type][k]->Fill(photon_[i].y());
             h_z_[type][k]->Fill(photon_[i].z());
@@ -228,6 +247,8 @@ void HFShowerLibraryAnalyzer::bookHistos() {
             h_l_[type][k]->Fill(photon_[i].lambda());
           }
         }
+        h_nl_[type][k]->Fill(nlong);
+        h_ns_[type][k]->Fill(nshort);
       }
     }
   }
@@ -308,7 +329,6 @@ void HFShowerLibraryAnalyzer::loadEventInfo(TBranch* branch) {
   } else {
     edm::LogVerbatim("HFShower") << "HFShowerLibrary::loadEventInfo loads EventInfo from hardwired numbers";
     nMomBin_ = 16;
-    evtPerBin_ = 5000;
     totEvents_ = nMomBin_ * evtPerBin_;
     libVers_ = 1.1;
     listVersion_ = 3.6;

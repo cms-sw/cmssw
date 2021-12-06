@@ -22,13 +22,11 @@ options.parseArguments()
 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr = cms.untracked.PSet(enable = cms.untracked.bool(False))
-process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
-    reportEvery = cms.untracked.int32(1000)
-    ))
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000000
 
 # the module writing to DB
-process.load("CondTools.HLT.AlCaRecoTriggerBitsRcdRead_cfi")
+from CondTools.HLT.alCaRecoTriggerBitsRcdRead_cfi import alCaRecoTriggerBitsRcdRead as _alCaRecoTriggerBitsRcdRead
+process.AlCaRecoTriggerBitsRcdRead = _alCaRecoTriggerBitsRcdRead.clone()
 # 'twiki' is default - others are text, python (future: html?)
 #process.AlCaRecoTriggerBitsRcdRead.outputType = 'twiki'
 # If rawFileName stays empty (default), use the message logger for output.

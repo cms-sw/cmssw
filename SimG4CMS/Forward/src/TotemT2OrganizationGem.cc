@@ -24,7 +24,9 @@
 // constructors and destructor
 //
 
-TotemT2OrganizationGem ::TotemT2OrganizationGem() { edm::LogInfo("ForwardSim") << "Creating TotemT2OrganizationGem"; }
+TotemT2OrganizationGem ::TotemT2OrganizationGem() {
+  edm::LogVerbatim("ForwardSim") << "Creating TotemT2OrganizationGem";
+}
 
 TotemT2OrganizationGem ::~TotemT2OrganizationGem() {}
 

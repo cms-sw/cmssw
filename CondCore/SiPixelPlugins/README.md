@@ -15,6 +15,7 @@ The available inspectors are:
 | `SiPixelQualityFromDbRcd`             | `SiPixelQuality`                | [SiPixelQuality_PayloadInspector.cc](https://github.com/cms-sw/cmssw/blob/master/CondCore/SiPixelPlugins/plugins/SiPixelQuality_PayloadInspector.cc)                |
 | `SiPixelStatusScenarioProbabilityRcd` | `SiPixelQualityProbabilities`   | [SiPixelQualityProbabilities_PayloadInspector.cc](https://github.com/cms-sw/cmssw/blob/master/CondCore/SiPixelPlugins/plugins/SiPixelQualityProbabilities_PayloadInspector.cc)   |
 | `SiPixelStatusScenariosRcd`           | `SiPixelFEDChannelContainer`    | [SiPixelFEDChannelContainer_PayloadInspector.cc](https://github.com/cms-sw/cmssw/blob/master/CondCore/SiPixelPlugins/plugins/SiPixelFEDChannelContainer_PayloadInspector.cc)    |
+| `SiPixelDynamicInefficiencyRcd`       | `SiPixelDynamicInefficiency`    | [SiPixelDynamicInefficiency_PayloadInspector.cc](https://github.com/cms-sw/cmssw/blob/master/CondCore/SiPixelPlugins/plugins/SiPixelDynamicInefficiency_PayloadInspector.cc)  |
 
 Plots will be shown within the **cmsDbBrowser** [payload inspector](https://cms-conddb.cern.ch/cmsDbBrowser/payload_inspector/Prod) application.
 In the `CondCore/SiPixelPlugins/test` directory a few bash scripts to inspect conditions from command line are available.

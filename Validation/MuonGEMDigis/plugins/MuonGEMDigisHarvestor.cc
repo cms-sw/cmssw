@@ -14,13 +14,13 @@ MuonGEMDigisHarvestor::MuonGEMDigisHarvestor(const edm::ParameterSet& pset)
 MuonGEMDigisHarvestor::~MuonGEMDigisHarvestor() {}
 
 void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
-  TString simhit_occ_folder = "MuonGEMHitsV/GEMHitsTask/Occupancy/";
-  TString occ_folder = "MuonGEMDigisV/GEMDigisTask/Strip/Occupancy/";
-  TString eff_folder = "MuonGEMDigisV/GEMDigisTask/Strip/Efficiency/";
-  TString occ_folder_pad = "MuonGEMDigisV/GEMDigisTask/Pad/Occupancy/";
-  TString eff_folder_pad = "MuonGEMDigisV/GEMDigisTask/Pad/Efficiency/";
-  TString occ_folder_cluster = "MuonGEMDigisV/GEMDigisTask/PadCluster/Occupancy/";
-  TString eff_folder_cluster = "MuonGEMDigisV/GEMDigisTask/PadCluster/Efficiency/";
+  TString simhit_occ_folder = "GEM/SimHits/";
+  TString occ_folder = "GEM/Digis/";
+  TString eff_folder = "GEM/Digis/";
+  TString occ_folder_pad = "GEM/Pad/";
+  TString eff_folder_pad = "GEM/Pad/";
+  TString occ_folder_cluster = "GEM/PadCluster/";
+  TString eff_folder_cluster = "GEM/PadCluster/";
 
   for (Int_t region_id : region_ids_) {
     for (Int_t station_id : station_ids_) {
@@ -29,9 +29,9 @@ void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGett
 
       if (detail_plot_) {
         // NOTE Detector Component efficiency
-        TString strip_det_name = "matched_strip_occ_det" + name_suffix_re_st;
-        TString pad_det_name = "matched_pad_occ_det" + name_suffix_re_st;
-        TString simhit_det_name = "muon_simhit_occ_det" + name_suffix_re_st;
+        TString strip_det_name = "sim_matched_occ_det" + name_suffix_re_st;
+        TString pad_det_name = "sim_matched_occ_det" + name_suffix_re_st;
+        TString simhit_det_name = "sim_muon_occ_det" + name_suffix_re_st;
         TString strip_det_path = occ_folder + strip_det_name;
         TString pad_det_path = occ_folder_pad + pad_det_name;
         TString cluster_det_path = occ_folder_cluster + pad_det_name;
@@ -51,9 +51,9 @@ void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGett
         TString title_suffix_re_st_ly = GEMUtils::getSuffixTitle(region_id, station_id, layer_id);
 
         // NOTE eta efficiency
-        TString strip_eta_name = "matched_strip_occ_eta" + name_suffix_re_st_ly;
-        TString pad_eta_name = "matched_pad_occ_eta" + name_suffix_re_st_ly;
-        TString simhit_eta_name = "muon_simhit_occ_eta" + name_suffix_re_st_ly;
+        TString strip_eta_name = "sim_matched_occ_eta" + name_suffix_re_st_ly;
+        TString pad_eta_name = "sim_matched_occ_eta" + name_suffix_re_st_ly;
+        TString simhit_eta_name = "sim_muon_occ_eta" + name_suffix_re_st_ly;
         TString strip_eta_path = occ_folder + strip_eta_name;
         TString pad_eta_path = occ_folder_pad + pad_eta_name;
         TString cluster_eta_path = occ_folder_cluster + pad_eta_name;
@@ -67,9 +67,9 @@ void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGett
         bookEff1D(booker, getter, cluster_eta_path, simhit_eta_path, eff_folder_cluster, eff_eta_name, eff_eta_title);
 
         // NOTE phi efficiency
-        TString strip_phi_name = "matched_strip_occ_phi" + name_suffix_re_st_ly;
-        TString pad_phi_name = "matched_pad_occ_phi" + name_suffix_re_st_ly;
-        TString simhit_phi_name = "muon_simhit_occ_phi" + name_suffix_re_st_ly;
+        TString strip_phi_name = "sim_matched_occ_phi" + name_suffix_re_st_ly;
+        TString pad_phi_name = "sim_matched_occ_phi" + name_suffix_re_st_ly;
+        TString simhit_phi_name = "sim_muon_occ_phi" + name_suffix_re_st_ly;
         TString strip_phi_path = occ_folder + strip_phi_name;
         TString pad_phi_path = occ_folder_pad + pad_phi_name;
         TString cluster_phi_path = occ_folder_cluster + pad_phi_name;

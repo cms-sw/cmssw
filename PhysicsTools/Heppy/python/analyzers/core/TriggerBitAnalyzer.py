@@ -4,7 +4,6 @@ import ROOT
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.analyzers.core.AutoFillTreeProducer  import NTupleVariable
-import six
 import PhysicsTools.HeppyCore.framework.config as cfg
         
 class TriggerBitAnalyzer( Analyzer ):
@@ -43,7 +42,7 @@ class TriggerBitAnalyzer( Analyzer ):
             self.allPaths = set()
             self.triggerBitCheckersSingleBits = []
 
-        for T, TL in six.iteritems(self.cfg_ana.triggerBits):
+        for T, TL in self.cfg_ana.triggerBits.items():
                 trigVec = ROOT.vector(ROOT.string)()
                 for TP in TL:
                     trigVec.push_back(TP)

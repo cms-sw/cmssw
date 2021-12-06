@@ -3,6 +3,7 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -13,9 +14,10 @@
 
 class FreeTrajectoryState;
 class SeedComparitor;
-namespace edm {
-  class ConsumesCollector;
-}
+class IdealMagneticFieldRecord;
+class TransientRecHitRecord;
+class TrackerDigiGeometryRecord;
+class TrackingComponentsRecord;
 
 class SeedForPhotonConversionFromQuadruplets {
 public:
@@ -101,7 +103,10 @@ protected:
   double DeltaPhiManual(const math::XYZVector& v1, const math::XYZVector& v2);
 
 protected:
-  std::string thePropagatorLabel;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theBfieldToken;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theTTRHBuilderToken;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerToken;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
   double theBOFFMomentum;
   double kPI_;
 

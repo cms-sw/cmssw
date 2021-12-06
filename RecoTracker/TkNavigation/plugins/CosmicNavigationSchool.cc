@@ -66,7 +66,7 @@ private:
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "TrackingTools/DetLayers/src/DetLessZ.h"
+#include "TrackingTools/DetLayers/interface/DetLessZ.h"
 
 #include <functional>
 #include <algorithm>

@@ -9,11 +9,14 @@
  */
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
 namespace edm {
   class ParameterSet;
-}
+  class ConsumesCollector;
+}  // namespace edm
 class MuonServiceProxy;
 class TrajectoryFitter;
 class Trajectory;
@@ -24,7 +27,7 @@ public:
 
 public:
   /// Constructor
-  StandAloneMuonRefitter(const edm::ParameterSet& par, const MuonServiceProxy* service);
+  StandAloneMuonRefitter(const edm::ParameterSet& par, edm::ConsumesCollector col, const MuonServiceProxy* service);
 
   /// Destructor
   virtual ~StandAloneMuonRefitter();
@@ -38,8 +41,8 @@ public:
 protected:
 private:
   const MuonServiceProxy* theService;
+  const edm::ESGetToken<TrajectoryFitter, TrajectoryFitter::Record> theFitterToken;
   edm::ESHandle<TrajectoryFitter> theFitter;
-  std::string theFitterName;
   unsigned int theNumberOfIterations;
   bool isForceAllIterations;
   double theMaxFractionOfLostHits;

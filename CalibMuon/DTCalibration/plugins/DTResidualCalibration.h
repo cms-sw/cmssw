@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <string>
 #include <vector>
@@ -59,6 +60,8 @@ private:
   TFile* rootFile_;
   // Geometry
   const DTGeometry* dtGeom_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+
   // Histograms per super-layer
   std::map<DTSuperLayerId, TH1F*> histoMapTH1F_;
   std::map<DTSuperLayerId, TH2F*> histoMapTH2F_;

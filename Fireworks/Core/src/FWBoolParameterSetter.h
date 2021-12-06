@@ -43,11 +43,11 @@ public:
   void setEnabled(bool) override;
   void doUpdate();
 
-private:
   FWBoolParameterSetter(const FWBoolParameterSetter&) = delete;  // stop default
 
   const FWBoolParameterSetter& operator=(const FWBoolParameterSetter&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   FWBoolParameter* m_param;
   TGCheckButton* m_widget;

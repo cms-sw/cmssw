@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.L1Trigger import L1TTauOffline_cfi
-import six
 
 variables = {
     'tau': L1TTauOffline_cfi.tauEfficiencyThresholds,

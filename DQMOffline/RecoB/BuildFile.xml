@@ -4,7 +4,6 @@
 <use name="DataFormats/TrackReco"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="RecoBTau/JetTagComputer"/>
 <use name="rootcore"/>
 <use name="DQMServices/Core"/>
 <use name="rootgpad"/>

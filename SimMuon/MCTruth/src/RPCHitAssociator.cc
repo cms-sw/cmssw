@@ -4,12 +4,12 @@
 using namespace std;
 
 // Constructor
-RPCHitAssociator::RPCHitAssociator(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC)
+RPCHitAssociator::Config::Config(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
     : RPCdigisimlinkTag(conf.getParameter<edm::InputTag>("RPCdigisimlinkTag")),
       // CrossingFrame used or not ?
-      crossingframe(conf.getParameter<bool>("crossingframe")),
       RPCsimhitsTag(conf.getParameter<edm::InputTag>("RPCsimhitsTag")),
-      RPCsimhitsXFTag(conf.getParameter<edm::InputTag>("RPCsimhitsXFTag")) {
+      RPCsimhitsXFTag(conf.getParameter<edm::InputTag>("RPCsimhitsXFTag")),
+      crossingframe(conf.getParameter<bool>("crossingframe")) {
   if (crossingframe) {
     RPCsimhitsXFToken_ = iC.consumes<CrossingFrame<PSimHit>>(RPCsimhitsXFTag);
   } else if (!RPCsimhitsTag.label().empty()) {
@@ -19,26 +19,16 @@ RPCHitAssociator::RPCHitAssociator(const edm::ParameterSet &conf, edm::ConsumesC
   RPCdigisimlinkToken_ = iC.consumes<edm::DetSetVector<RPCDigiSimLink>>(RPCdigisimlinkTag);
 }
 
-RPCHitAssociator::RPCHitAssociator(const edm::Event &e,
-                                   const edm::EventSetup &eventSetup,
-                                   const edm::ParameterSet &conf)
-    : RPCdigisimlinkTag(conf.getParameter<edm::InputTag>("RPCdigisimlinkTag")),
-      // CrossingFrame used or not ?
-      crossingframe(conf.getParameter<bool>("crossingframe")),
-      RPCsimhitsTag(conf.getParameter<edm::InputTag>("RPCsimhitsTag")),
-      RPCsimhitsXFTag(conf.getParameter<edm::InputTag>("RPCsimhitsXFTag")) {
-  initEvent(e, eventSetup);
-}
+RPCHitAssociator::RPCHitAssociator(const edm::Event &e, const Config &conf) : theConfig(conf) { initEvent(e); }
 
-void RPCHitAssociator::initEvent(const edm::Event &e, const edm::EventSetup &eventSetup)
+void RPCHitAssociator::initEvent(const edm::Event &e)
 
 {
-  if (crossingframe) {
-    edm::Handle<CrossingFrame<PSimHit>> cf;
-    LogTrace("RPCHitAssociator") << "getting CrossingFrame<PSimHit> collection - " << RPCsimhitsXFTag;
-    e.getByLabel(RPCsimhitsXFTag, cf);
+  if (theConfig.crossingframe) {
+    LogTrace("RPCHitAssociator") << "getting CrossingFrame<PSimHit> collection - " << theConfig.RPCsimhitsXFTag;
+    CrossingFrame<PSimHit> const &cf = e.get(theConfig.RPCsimhitsXFToken_);
 
-    std::unique_ptr<MixCollection<PSimHit>> RPCsimhits(new MixCollection<PSimHit>(cf.product()));
+    std::unique_ptr<MixCollection<PSimHit>> RPCsimhits(new MixCollection<PSimHit>(&cf));
     LogTrace("RPCHitAssociator") << "... size = " << RPCsimhits->size();
 
     //   MixCollection<PSimHit> & simHits = *hits;
@@ -47,22 +37,19 @@ void RPCHitAssociator::initEvent(const edm::Event &e, const edm::EventSetup &eve
       _SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
     }
 
-  } else if (!RPCsimhitsTag.label().empty()) {
-    edm::Handle<edm::PSimHitContainer> RPCsimhits;
-    LogTrace("RPCHitAssociator") << "getting PSimHit collection - " << RPCsimhitsTag;
-    e.getByLabel(RPCsimhitsTag, RPCsimhits);
-    LogTrace("RPCHitAssociator") << "... size = " << RPCsimhits->size();
+  } else if (!theConfig.RPCsimhitsTag.label().empty()) {
+    LogTrace("RPCHitAssociator") << "getting PSimHit collection - " << theConfig.RPCsimhitsTag;
+    edm::PSimHitContainer const &RPCsimhits = e.get(theConfig.RPCsimhitsToken_);
+    LogTrace("RPCHitAssociator") << "... size = " << RPCsimhits.size();
 
     // arrange the hits by detUnit
-    for (edm::PSimHitContainer::const_iterator hitItr = RPCsimhits->begin(); hitItr != RPCsimhits->end(); ++hitItr) {
+    for (edm::PSimHitContainer::const_iterator hitItr = RPCsimhits.begin(); hitItr != RPCsimhits.end(); ++hitItr) {
       _SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
     }
   }
 
-  edm::Handle<edm::DetSetVector<RPCDigiSimLink>> thelinkDigis;
-  LogTrace("RPCHitAssociator") << "getting RPCDigiSimLink collection - " << RPCdigisimlinkTag;
-  e.getByLabel(RPCdigisimlinkTag, thelinkDigis);
-  _thelinkDigis = thelinkDigis;
+  LogTrace("RPCHitAssociator") << "getting RPCDigiSimLink collection - " << theConfig.RPCdigisimlinkTag;
+  _thelinkDigis = e.getHandle(theConfig.RPCdigisimlinkToken_);
 }
 // end of constructor
 

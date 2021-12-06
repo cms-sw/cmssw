@@ -52,9 +52,10 @@ L1ObjectKeysOnlineProdBase::L1ObjectKeysOnlineProdBase(const edm::ParameterSet& 
 
   // The subsystemLabel is used by L1TriggerKeyOnlineProd to identify the
   // L1TriggerKeys to concatenate.
-  setWhatProduced(this, iConfig.getParameter<std::string>("subsystemLabel"));
+  auto cc = setWhatProduced(this, iConfig.getParameter<std::string>("subsystemLabel"));
 
   //now do what ever other initialization is needed
+  l1TriggerKeyToken_ = cc.consumes(edm::ESInputTag("", "SubsystemKeysOnly"));
 }
 
 L1ObjectKeysOnlineProdBase::~L1ObjectKeysOnlineProdBase() {
@@ -72,7 +73,7 @@ L1ObjectKeysOnlineProdBase::ReturnType L1ObjectKeysOnlineProdBase::produce(const
   // not present.
   edm::ESHandle<L1TriggerKey> subsystemKeys;
   try {
-    iRecord.get("SubsystemKeysOnly", subsystemKeys);
+    subsystemKeys = iRecord.getHandle(l1TriggerKeyToken_);
   } catch (l1t::DataAlreadyPresentException& ex) {
     throw ex;
   }

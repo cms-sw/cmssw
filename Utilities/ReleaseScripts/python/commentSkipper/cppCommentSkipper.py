@@ -32,27 +32,27 @@ def filterFile(file): #ifstream& input)
                     j += 1
                 #comment //  why !commentStage? because, can be a variant of this example: /*....//.....*/
                 elif not commentStage and (lines[i][j+1] == '/'):
-                    lines[i] = string.replace(lines[i], lines[i][j:],'\n', 1)
+                    lines[i] = lines[i].replace(lines[i][j:],'\n', 1)
                     break
             #char "
             elif char == '"':
                 if not commentStage:
-                    next = string.find(lines[i][j+1:], '"') #next "
-                    lines[i] = string.replace(lines[i], lines[i][j:j+next+2], '', 1) # clear string in ""
+                    next = lines[i][j+1:].find('"') #next "
+                    lines[i] = lines[i].replace(lines[i][j:j+next+2], '', 1) # clear string in ""
             #char '
             elif char == '\'':
                 if not commentStage:
-                    next = string.find(lines[i][j+1:], '\'') #next '
-                    lines[i] = string.replace(lines[i], lines[i][j:j+next+2], '', 1) # clear string in ''
+                    next = lines[i][j+1:].find('\'') #next '
+                    lines[i] = lines[i].replace(lines[i][j:j+next+2], '', 1) # clear string in ''
             #char *
             elif char == '*':
                 if (commentStage and (lines[i][j+1] == '/')):
                     commentStage = False;
                     if commentStartLine != i:
-                        lines[i] = string.replace(lines[i], lines[i][:j+2],'', 1) # comment */ [..code]
+                        lines[i] = lines[i].replace(lines[i][:j+2],'', 1) # comment */ [..code]
                         j = -1 #because of j+=1 at the end
                     else:
-                        lines[i] = string.replace(lines[i], lines[i][commentStartColumn:j+2], '', 1) # [code..] /*comment*/ [.. code]
+                        lines[i] = lines[i].replace(lines[i][commentStartColumn:j+2], '', 1) # [code..] /*comment*/ [.. code]
                         j = commentStartColumn - 1 #because of j+=1 at the ends
             if j != len(lines[i]) - 1:
                 j += 1

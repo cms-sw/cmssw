@@ -29,7 +29,7 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew,
       setLeakCorrection_(false),
       puCorrMethod_(0) {
   hcalTimeSlew_delay_ = nullptr;
-  pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError, iC);
+  pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError, false, iC);
 }
 
 void HcalSimpleRecAlgo::beginRun(edm::EventSetup const& es) {

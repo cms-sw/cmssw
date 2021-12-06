@@ -22,7 +22,7 @@ AlignTrackSegments::AlignTrackSegments(L1MuDTChambPhContainer inm_phiDigis)
           //   m_phiDigis = inm_phiDigis;
       };
 
-void AlignTrackSegments::run(const edm::EventSetup& c) {
+void AlignTrackSegments::run() {
   std::vector<L1MuDTChambPhDigi> l1ttma_out;
 
   for (int bx = -3; bx <= 3; bx++) {

@@ -53,5 +53,5 @@ genFilterTable = cms.EDProducer("SimpleGenFilterFlatTableProducerLumi",
         ),
 )
 
-globalTables = cms.Sequence(rhoTable)
-globalTablesMC = cms.Sequence(puTable+genTable+genFilterTable)
+globalTablesTask = cms.Task(rhoTable)
+globalTablesMCTask = cms.Task(puTable,genTable,genFilterTable)

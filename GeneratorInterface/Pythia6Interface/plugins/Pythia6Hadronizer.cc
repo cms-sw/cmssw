@@ -21,7 +21,7 @@
 
 #include "GeneratorInterface/PartonShowerVeto/interface/JetMatching.h"
 
-HepMC::IO_HEPEVT conv;
+HepMC::IO_HEPEVT pythia6_conv;
 
 #include "HepPID/ParticleIDTranslations.hh"
 
@@ -431,7 +431,7 @@ namespace gen {
     }
 
     call_pyhepc(1);
-    event().reset(conv.read_next_event());
+    event().reset(pythia6_conv.read_next_event());
 
     // this is to deal with post-gen tools & residualDecay() that may reuse PYJETS
     //
@@ -496,7 +496,7 @@ namespace gen {
     }
 
     call_pyhepc(1);
-    event().reset(conv.read_next_event());
+    event().reset(pythia6_conv.read_next_event());
 
     // this is to deal with post-gen tools and/or residualDecay(), that may reuse PYJETS
     //

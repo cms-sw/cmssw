@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 import sys, os
 
@@ -81,19 +81,23 @@ if __name__ == '__main__':
                      1306.0, #SingleMu Pt1 UP15
                      1325.81, #test NanoAOD from existing MINI UL 106Xv1
                      136.8523, #test NanoAOD from existing reMINI UL 106Xv2
-                     1330, #Run2 MC Zmm
-                     135.4, #Run 2 Zee ttbar
+                     1330, #Run2 2015/2016 MC Zmm
+                     135.4, #Run 2 2015/2016 Zee ttbar fastsim
                      10042.0, #2017 ZMM
                      10024.0, #2017 ttbar
                      10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
-                     11634.911, #2021 DD4hep ttbar
-                     11634.0, #2021 ttbar
+                     2018.1, #2018 ttbar fastsim
+                     11634.911, #2021 DD4hep ttbar reading geometry from XML
+                     11634.914, #2021 DDD ttbar reading geometry from the DB
+                     11634.0, #2021 ttbar (switching to DD4hep by default)
+                     11634.7, #2021 ttbar mkFit
                      12434.0, #2023 ttbar
                      23234.0, #2026D49 ttbar (HLT TDR baseline w/ HGCal v11)
                      28234.0, #2026D60 (exercise HF nose)
-                     34634.0, #2026D76 ttbar (2021 new baseline)
-                     34834.999, #2026D76 ttbar premixing stage1+stage2, PU50
+                     35034.0, #2026D77 ttbar (2021 new baseline)
+                     35234.999, #2026D77 ttbar premixing stage1+stage2, PU50
+                     38634.0, #2026D86 ttbar
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],
@@ -103,211 +107,272 @@ if __name__ == '__main__':
         }
 
 
-    import optparse
+    import argparse
     usage = 'usage: runTheMatrix.py --show -s '
 
-    parser = optparse.OptionParser(usage)
+    parser = argparse.ArgumentParser(usage,formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_option('-b','--batchName',
-                      help='relval batch: suffix to be appended to Campaign name',
-                      dest='batchName',
-                      default=''
-                     )
+    parser.add_argument('-b','--batchName',
+                        help='relval batch: suffix to be appended to Campaign name',
+                        dest='batchName',
+                        default='')
 
-    parser.add_option('-m','--memoryOffset',
-                      help='memory of the wf for single core',
-                      dest='memoryOffset',
-                      default=3000
-                     )
-    parser.add_option('--addMemPerCore',
-                      help='increase of memory per each n > 1 core:  memory(n_core) = memoryOffset + (n_core-1) * memPerCore',
-                      dest='memPerCore',
-                      default=1500
-                     )
-    parser.add_option('-j','--nproc',
-                      help='number of processes. 0 Will use 4 processes, not execute anything but create the wfs',
-                      dest='nProcs',
-                      default=4
-                     )
-    parser.add_option('-t','--nThreads',
-                      help='number of threads per process to use in cmsRun.',
-                      dest='nThreads',
-                      default=1
-                     )
-    parser.add_option('--nStreams',
-                      help='number of streams to use in cmsRun.',
-                      dest='nStreams',
-                      default=0
-                     )
-    parser.add_option('--numberEventsInLuminosityBlock',
-                      help='number of events in a luminosity block',
-                      dest='numberEventsInLuminosityBlock',
-                      default=-1
-                     )
+    parser.add_argument('-m','--memoryOffset',
+                        help='memory of the wf for single core',
+                        dest='memoryOffset',
+                        type=int,
+                        default=3000)
 
-    parser.add_option('-n','--showMatrix',
-                      help='Only show the worflows. Use --ext to show more',
-                      dest='show',
-                      default=False,
-                      action='store_true'
-                      )
-    parser.add_option('-e','--extended',
-                      help='Show details of workflows, used with --show',
-                      dest='extended',
-                      default=False,
-                      action='store_true'
-                      )
-    parser.add_option('-s','--selected',
-                      help='Run a pre-defined selected matrix of wf. Deprecated, please use -l limited',
-                      dest='restricted',
-                      default=False,
-                      action='store_true'
-                      )
-    parser.add_option('-l','--list',
-                     help='Coma separated list of workflow to be shown or ran. Possible keys are also '+str(predefinedSet.keys())+'. and wild card like muon, or mc',
-                     dest='testList',
-                     default=None
-                     )
-    parser.add_option('-r','--raw',
-                      help='Temporary dump the .txt needed for prodAgent interface. To be discontinued soon. Argument must be the name of the set (standard, pileup,...)',
-                      dest='raw'
-                      )
-    parser.add_option('-i','--useInput',
-                      help='Use recyling where available. Either all, or a coma separated list of wf number.',
-                      dest='useInput',
-                      default=None
-                      )
-    parser.add_option('-w','--what',
-                      help='Specify the set to be used. Argument must be the name of a set (standard, pileup,...) or multiple sets separated by commas (--what standard,pileup )',
-                      dest='what',
-                      default='all'
-                      )
-    parser.add_option('--step1',
-                      help='Used with --raw. Limit the production to step1',
-                      dest='step1Only',
-                      default=False
-                      )
-    parser.add_option('--maxSteps',
-                      help='Only run maximum on maxSteps. Used when we are only interested in first n steps.',
-                      dest='maxSteps',
-                      default=9999,
-                      type="int"
-                      )
-    parser.add_option('--fromScratch',
-                      help='Coma separated list of wf to be run without recycling. all is not supported as default.',
-                      dest='fromScratch',
-                      default=None
-                       )
-    parser.add_option('--refRelease',
-                      help='Allow to modify the recycling dataset version',
-                      dest='refRel',
-                      default=None
-                      )
-    parser.add_option('--wmcontrol',
-                      help='Create the workflows for injection to WMAgent. In the WORKING. -wmcontrol init will create the the workflows, -wmcontrol test will dryRun a test, -wmcontrol submit will submit to wmagent',
-                      choices=['init','test','submit','force'],
-                      dest='wmcontrol',
-                      default=None,
-                      )
-    parser.add_option('--revertDqmio',
-                      help='When submitting workflows to wmcontrol, force DQM outout to use pool and not DQMIO',
-                      choices=['yes','no'],
-                      dest='revertDqmio',
-                      default='no',
-                      )
-    parser.add_option('--optionswm',
-                      help='Specify a few things for wm injection',
-                      default='',
-                      dest='wmoptions')
-    parser.add_option('--keep',
-                      help='allow to specify for which coma separated steps the output is needed',
-                      default=None)
-    parser.add_option('--label',
-                      help='allow to give a special label to the output dataset name',
-                      default='')
-    parser.add_option('--command',
-                      help='provide a way to add additional command to all of the cmsDriver commands in the matrix',
-                      dest='command',
-                      default=None
-                      )
-    parser.add_option('--apply',
-                      help='allow to use the --command only for 1 coma separeated',
-                      dest='apply',
-                      default=None)
-    parser.add_option('--workflow',
-                      help='define a workflow to be created or altered from the matrix',
-                      action='append',
-                      dest='workflow',
-                      default=None
-                      )
-    parser.add_option('--dryRun',
-                      help='do not run the wf at all',
-                      action='store_true',
-                      dest='dryRun',
-                      default=False
-                      )
-    parser.add_option('--testbed',
-                      help='workflow injection to cmswebtest (you need dedicated rqmgr account)',
-                      dest='testbed',
-                      default=False,
-                      action='store_true'
-                      )
-    parser.add_option('--noCafVeto',
-                      help='Run from any source, ignoring the CAF label',
-                      dest='cafVeto',
-                      default=True,
-                      action='store_false'
-                      )
-    parser.add_option('--overWrite',
-                      help='Change the content of a step for another. List of pairs.',
-                      dest='overWrite',
-                      default=None
-                      )
-    parser.add_option('--noRun',
-                      help='Remove all run list selection from wfs',
-                      dest='noRun',
-                      default=False,
-                      action='store_true')
+    parser.add_argument('--addMemPerCore',
+                        help='increase of memory per each n > 1 core:  memory(n_core) = memoryOffset + (n_core-1) * memPerCore',
+                        dest='memPerCore',
+                        type=int,
+                        default=1500)
+    
+    parser.add_argument('-j','--nproc',
+                        help='number of processes. 0 Will use 4 processes, not execute anything but create the wfs',
+                        dest='nProcs',
+                        type=int,
+                        default=4)
+    
+    parser.add_argument('-t','--nThreads',
+                        help='number of threads per process to use in cmsRun.',
+                        dest='nThreads',
+                        type=int,
+                        default=1)
+    
+    parser.add_argument('--nStreams',
+                        help='number of streams to use in cmsRun.',
+                        dest='nStreams',
+                        type=int,
+                        default=0)
+    
+    parser.add_argument('--numberEventsInLuminosityBlock',
+                        help='number of events in a luminosity block',
+                        dest='numberEventsInLuminosityBlock',
+                        type=int,
+                        default=-1)
 
-    parser.add_option('--das-options',
-                      help='Options to be passed to dasgoclient.',
-                      dest='dasOptions',
-                      default="--limit 0",
-                      action='store')
+    parser.add_argument('-n','--showMatrix',
+                        help='Only show the worflows. Use --ext to show more',
+                        dest='show',
+                        default=False,
+                        action='store_true')
+    
+    parser.add_argument('-e','--extended',
+                        help='Show details of workflows, used with --show',
+                        dest='extended',
+                        default=False,
+                        action='store_true')
+    
+    parser.add_argument('-s','--selected',
+                        help='Run a pre-defined selected matrix of wf. Deprecated, please use -l limited',
+                        dest='restricted',
+                        default=False,
+                        action='store_true')
+    
+    parser.add_argument('-l','--list',
+                        help='Comma separated list of workflow to be shown or ran. Possible keys are also '+str(predefinedSet.keys())+'. and wild card like muon, or mc',
+                        dest='testList',
+                        default=None)
+    
+    parser.add_argument('-r','--raw',
+                        help='Temporary dump the .txt needed for prodAgent interface. To be discontinued soon. Argument must be the name of the set (standard, pileup,...)',
+                        dest='raw')
+    
+    parser.add_argument('-i','--useInput',
+                        help='Use recyling where available. Either all, or a comma separated list of wf number.',
+                        dest='useInput',
+                        type=lambda x: x.split(','),
+                        default=None)
+    
+    parser.add_argument('-w','--what',
+                        help='Specify the set to be used. Argument must be the name of a set (standard, pileup,...) or multiple sets separated by commas (--what standard,pileup )',
+                        dest='what',
+                        default='all')
+    
+    parser.add_argument('--step1',
+                        help='Used with --raw. Limit the production to step1',
+                        dest='step1Only',
+                        default=False)
+    
+    parser.add_argument('--maxSteps',
+                        help='Only run maximum on maxSteps. Used when we are only interested in first n steps.',
+                        dest='maxSteps',
+                        default=9999,
+                        type=int)
+    
+    parser.add_argument('--fromScratch',
+                        help='Comma separated list of wf to be run without recycling. all is not supported as default.',
+                        dest='fromScratch',
+                        type=lambda x: x.split(','),
+                        default=None)
+    
+    parser.add_argument('--refRelease',
+                        help='Allow to modify the recycling dataset version',
+                        dest='refRel',
+                        default=None)
+    
+    parser.add_argument('--wmcontrol',
+                        help='Create the workflows for injection to WMAgent. In the WORKING. -wmcontrol init will create the the workflows, -wmcontrol test will dryRun a test, -wmcontrol submit will submit to wmagent',
+                        choices=['init','test','submit','force'],
+                        dest='wmcontrol',
+                        default=None)
+    
+    parser.add_argument('--revertDqmio',
+                        help='When submitting workflows to wmcontrol, force DQM outout to use pool and not DQMIO',
+                        choices=['yes','no'],
+                        dest='revertDqmio',
+                        default='no')
+    
+    parser.add_argument('--optionswm',
+                        help='Specify a few things for wm injection',
+                        default='',
+                        dest='wmoptions')
+    
+    parser.add_argument('--keep',
+                        help='allow to specify for which comma separated steps the output is needed',
+                        default=None)
+    
+    parser.add_argument('--label',
+                        help='allow to give a special label to the output dataset name',
+                        default='')
+    
+    parser.add_argument('--command',
+                        help='provide a way to add additional command to all of the cmsDriver commands in the matrix',
+                        dest='command',
+                        action='append',
+                        default=None)
+    
+    parser.add_argument('--apply',
+                        help='allow to use the --command only for 1 comma separeated',
+                        dest='apply',
+                        default=None)
+    
+    parser.add_argument('--workflow',
+                        help='define a workflow to be created or altered from the matrix',
+                        action='append',
+                        dest='workflow',
+                        default=None)
+    
+    parser.add_argument('--dryRun',
+                        help='do not run the wf at all',
+                        action='store_true',
+                        dest='dryRun',
+                        default=False)
+    
+    parser.add_argument('--testbed',
+                        help='workflow injection to cmswebtest (you need dedicated rqmgr account)',
+                        dest='testbed',
+                        default=False,
+                        action='store_true')
+    
+    parser.add_argument('--noCafVeto',
+                        help='Run from any source, ignoring the CAF label',
+                        dest='cafVeto',
+                        default=True,
+                        action='store_false')
+    
+    parser.add_argument('--overWrite',
+                        help='Change the content of a step for another. List of pairs.',
+                        dest='overWrite',
+                        default=None)
+    
+    parser.add_argument('--noRun',
+                        help='Remove all run list selection from wfs',
+                        dest='noRun',
+                        default=False,
+                        action='store_true')
 
-    parser.add_option('--job-reports',
-                      help='Dump framework job reports',
-                      dest='jobReports',
-                      default=False,
-                      action='store_true')
+    parser.add_argument('--das-options',
+                        help='Options to be passed to dasgoclient.',
+                        dest='dasOptions',
+                        default="--limit 0",
+                        action='store')
 
-    parser.add_option('--ibeos',
-                      help='Use IB EOS site configuration',
-                      dest='IBEos',
-                      default=False,
-                      action='store_true')
+    parser.add_argument('--job-reports',
+                        help='Dump framework job reports',
+                        dest='jobReports',
+                        default=False,
+                        action='store_true')
+    
+    parser.add_argument('--ibeos',
+                        help='Use IB EOS site configuration',
+                        dest='IBEos',
+                        default=False,
+                        action='store_true')
+    
+    parser.add_argument('--sites',
+                        help='Run DAS query to get data from a specific site. Set it to empty string to search all sites.',
+                        dest='dasSites',
+                        default='T2_CH_CERN',
+                        action='store')
+    
+    parser.add_argument('--interactive',
+                        help="Open the Matrix interactive shell",
+                        action='store_true',
+                        default=False)
+    
+    parser.add_argument('--dbs-url',
+                        help='Overwrite DbsUrl value in JSON submitted to ReqMgr2',
+                        dest='dbsUrl',
+                        default=None,
+                        action='store')
+    
+    gpugroup = parser.add_argument_group('GPU-related options','These options are only meaningful when --gpu is used, and is not set to forbidden.')
 
-    parser.add_option('--sites',
-                      help='Run DAS query to get data from a specific site (default is T2_CH_CERN). Set it to empty string to search all sites.',
-                      dest='dasSites',
-                      default='T2_CH_CERN',
-                      action='store')
-    parser.add_option('--interactive',
-                      help="Open the Matrix interactive shell",
-                      action='store_true',
-                      default=False)
+    gpugroup.add_argument('--gpu','--requires-gpu',
+                          help='Enable GPU workflows. Possible options are "forbidden" (default), "required" (implied if no argument is given), or "optional".',
+                          dest='gpu',
+                          choices=['forbidden', 'optional', 'required'],
+                          nargs='?',
+                          const='required',
+                          default='forbidden',
+                          action='store')
 
-    parser.add_option('--dbs-url',
-                      help='Overwrite DbsUrl value in JSON submitted to ReqMgr2',
-                      dest='dbsUrl',
-                      default=None,
-                      action='store')
-
-    opt,args = parser.parse_args()
+    gpugroup.add_argument('--gpu-memory',
+                          help='Specify the minimum amount of GPU memory required by the job, in MB.',
+                          dest='GPUMemoryMB',
+                          type=int,
+                          default=8000)
+    
+    gpugroup.add_argument('--cuda-capabilities',
+                          help='Specify a comma-separated list of CUDA "compute capabilities", or GPU hardware architectures, that the job can use.',
+                          dest='CUDACapabilities',
+                          type=lambda x: x.split(','),
+                          default='6.0,6.1,6.2,7.0,7.2,7.5,8.0,8.6')
+    
+    # read the CUDA runtime version included in CMSSW
+    cudart_version = None
+    libcudart = os.path.realpath(os.path.expandvars('$CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/lib/libcudart.so'))
+    if os.path.isfile(libcudart):
+        cudart_basename = os.path.basename(libcudart)
+        cudart_version = '.'.join(cudart_basename.split('.')[2:4])
+    gpugroup.add_argument('--cuda-runtime',
+                          help='Specify major and minor version of the CUDA runtime used to build the application.',
+                          dest='CUDARuntime',
+                          default=cudart_version)
+    
+    gpugroup.add_argument('--force-gpu-name',
+                          help='Request a specific GPU model, e.g. "Tesla T4" or "NVIDIA GeForce RTX 2080". The default behaviour is to accept any supported GPU.',
+                          dest='GPUName',
+                          default='')
+    
+    gpugroup.add_argument('--force-cuda-driver-version',
+                          help='Request a specific CUDA driver version, e.g. 470.57.02. The default behaviour is to accept any supported CUDA driver version.',
+                          dest='CUDADriverVersion',
+                          default='')
+    
+    gpugroup.add_argument('--force-cuda-runtime-version',
+                          help='Request a specific CUDA runtime version, e.g. 11.4. The default behaviour is to accept any supported CUDA runtime version.',
+                          dest='CUDARuntimeVersion',
+                          default='')
+    
+    opt = parser.parse_args()
+    if opt.command: opt.command = ' '.join(opt.command)
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
     if opt.IBEos:
-      try:from commands import getstatusoutput as run_cmd
-      except:from subprocess import getstatusoutput as run_cmd
+      from subprocess import getstatusoutput as run_cmd
 
       ibeos_cache = os.path.join(os.getenv("LOCALRT"), "ibeos_cache.txt")
       if not os.path.exists(ibeos_cache):
@@ -343,8 +408,6 @@ if __name__ == '__main__':
     if opt.keep:
         opt.keep=map(stepOrIndex,opt.keep.split(','))
 
-
-
     if opt.testList:
         testList=[]
         for entry in opt.testList.split(','):
@@ -362,17 +425,7 @@ if __name__ == '__main__':
                     print(entry,'is not a possible selected entry')
 
         opt.testList = list(set(testList))
-
-
-    if opt.useInput: opt.useInput = opt.useInput.split(',')
-    if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
-    if opt.nProcs: opt.nProcs=int(opt.nProcs)
-    if opt.nThreads: opt.nThreads=int(opt.nThreads)
-    if opt.nStreams: opt.nStreams=int(opt.nStreams)
-    if (opt.numberEventsInLuminosityBlock): opt.numberEventsInLuminosityBlock=int(opt.numberEventsInLuminosityBlock)
-    if (opt.memoryOffset): opt.memoryOffset=int(opt.memoryOffset)
-    if (opt.memPerCore): opt.memPerCore=int(opt.memPerCore)
-
+    
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
     if opt.overWrite:
@@ -390,6 +443,7 @@ if __name__ == '__main__':
                 self.matrices_ = {}
                 tmp = MatrixReader(self.opt_)
                 for what in tmp.files:
+                    what = what.replace('relval_','')
                     self.opt_.what = what
                     self.matrices_[what] = MatrixReader(self.opt_)
                     self.matrices_[what].prepare(self.opt_.useInput, self.opt_.refRel,
@@ -520,7 +574,7 @@ if __name__ == '__main__':
                 maxLen = 100
                 for wflid in wflids:
                     dump = True
-                    for key, mrd in self.matrices_.iteritems():
+                    for key, mrd in self.matrices_.items():
                         for wfl in mrd.workFlows:
                             if wfl.numId == float(wflid):
                                 wfName, stepNames = wfl.nameId.split('+',1)

@@ -8,7 +8,6 @@
  * Created:  Thu Feb 22 11:32:53 CET 2007
  */
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -18,8 +17,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-//#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 #include <fstream>
 #include <iomanip>
@@ -50,15 +52,18 @@ private:
   int SMidToTCCid(const int) const;
   void getLUT(unsigned int *lut, const int towerId, const edm::EventSetup &) const;
 
+  const edm::ESGetToken<EcalTPGLutGroup, EcalTPGLutGroupRcd> tpgLutGroupToken_;
+  const edm::ESGetToken<EcalTPGLutIdMap, EcalTPGLutIdMapRcd> tpgLutIdMapToken_;
+
   TCCInputData inputdata_[N_SM];
 
-  std::string basename_;
-  bool useIdentityLUT_;
+  const std::string basename_;
+  const bool useIdentityLUT_;
   int sm_;
   bool singlefile;
 
-  int fileEventOffset_;
-  bool debug_;
+  const int fileEventOffset_;
+  const bool debug_;
   std::ofstream outfile;
 };
 

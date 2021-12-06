@@ -1,16 +1,13 @@
-#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
 #include "SimCalorimetry/EcalElectronicsEmulation/interface/EcalFEtoDigi.h"
 
-EcalFEtoDigi::EcalFEtoDigi(const edm::ParameterSet &iConfig) {
-  basename_ = iConfig.getUntrackedParameter<std::string>("FlatBaseName", "ecal_tcc_");
-  sm_ = iConfig.getUntrackedParameter<int>("SuperModuleId", -1);
-  fileEventOffset_ = iConfig.getUntrackedParameter<int>("FileEventOffset", 0);
-  useIdentityLUT_ = iConfig.getUntrackedParameter<bool>("UseIdentityLUT", false);
-  debug_ = iConfig.getUntrackedParameter<bool>("debugPrintFlag", false);
-
+EcalFEtoDigi::EcalFEtoDigi(const edm::ParameterSet &iConfig)
+    : tpgLutGroupToken_(esConsumes()),
+      tpgLutIdMapToken_(esConsumes()),
+      basename_(iConfig.getUntrackedParameter<std::string>("FlatBaseName", "ecal_tcc_")),
+      useIdentityLUT_(iConfig.getUntrackedParameter<bool>("UseIdentityLUT", false)),
+      sm_(iConfig.getUntrackedParameter<int>("SuperModuleId", -1)),
+      fileEventOffset_(iConfig.getUntrackedParameter<int>("FileEventOffset", 0)),
+      debug_(iConfig.getUntrackedParameter<bool>("debugPrintFlag", false)) {
   singlefile = (sm_ == -1) ? false : true;
 
   produces<EcalTrigPrimDigiCollection>();
@@ -301,17 +298,13 @@ int EcalFEtoDigi::SMidToTCCid(const int smid) const { return (smid <= 18) ? smid
 
 /// return the LUT from eventSetup
 void EcalFEtoDigi::getLUT(unsigned int *lut, const int towerId, const edm::EventSetup &evtSetup) const {
-  edm::ESHandle<EcalTPGLutGroup> lutGrpHandle;
-  evtSetup.get<EcalTPGLutGroupRcd>().get(lutGrpHandle);
-  const EcalTPGGroups::EcalTPGGroupsMap &lutGrpMap = lutGrpHandle.product()->getMap();
+  const EcalTPGGroups::EcalTPGGroupsMap &lutGrpMap = evtSetup.getData(tpgLutGroupToken_).getMap();
   EcalTPGGroups::EcalTPGGroupsMapItr itgrp = lutGrpMap.find(towerId);
   uint32_t lutGrp = 999;
   if (itgrp != lutGrpMap.end())
     lutGrp = itgrp->second;
 
-  edm::ESHandle<EcalTPGLutIdMap> lutMapHandle;
-  evtSetup.get<EcalTPGLutIdMapRcd>().get(lutMapHandle);
-  const EcalTPGLutIdMap::EcalTPGLutMap &lutMap = lutMapHandle.product()->getMap();
+  const EcalTPGLutIdMap::EcalTPGLutMap &lutMap = evtSetup.getData(tpgLutIdMapToken_).getMap();
   EcalTPGLutIdMap::EcalTPGLutMapItr itLut = lutMap.find(lutGrp);
   if (itLut != lutMap.end()) {
     const unsigned int *theLut = (itLut->second).getLut();

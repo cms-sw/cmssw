@@ -86,7 +86,7 @@ void CAHitNtupletEDProducerT<T_Generator>::produce(edm::Event& iEvent, const edm
   for (auto& ntuplet : ntuplets)
     ntuplet.reserve(localRA_.upper());
 
-  generator_.hitNtuplets(regionDoublets, ntuplets, iSetup, seedingLayerHits);
+  generator_.hitNtuplets(regionDoublets, ntuplets, seedingLayerHits);
   int index = 0;
   for (const auto& regionLayerPairs : regionDoublets) {
     const TrackingRegion& region = regionLayerPairs.region();

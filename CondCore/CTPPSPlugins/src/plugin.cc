@@ -19,6 +19,18 @@
 #include "CondFormats/DataRecord/interface/PPSDirectSimulationDataRcd.h"
 #include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
 #include "CondFormats/DataRecord/interface/PPSPixelTopologyRcd.h"
+#include "CondFormats/PPSObjects/interface/PPSAlignmentConfig.h"
+#include "CondFormats/DataRecord/interface/PPSAlignmentConfigRcd.h"
+#include "CondFormats/PPSObjects/interface/PPSAlignmentConfiguration.h"
+#include "CondFormats/DataRecord/interface/PPSAlignmentConfigurationRcd.h"
+#include "CondFormats/PPSObjects/interface/PPSAssociationCuts.h"
+#include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"
+
+namespace {
+  struct InitAssociationCuts {
+    void operator()(PPSAssociationCuts &cuts) { cuts.initialize(); }
+  };
+}  // namespace
 
 REGISTER_PLUGIN(CTPPSBeamParametersRcd, CTPPSBeamParameters);
 REGISTER_PLUGIN(CTPPSPixelDAQMappingRcd, CTPPSPixelDAQMapping);
@@ -31,3 +43,7 @@ REGISTER_PLUGIN(PPSTimingCalibrationRcd, PPSTimingCalibration);
 REGISTER_PLUGIN(CTPPSOpticsRcd, LHCOpticalFunctionsSetCollection);
 REGISTER_PLUGIN(PPSDirectSimulationDataRcd, PPSDirectSimulationData);
 REGISTER_PLUGIN(PPSPixelTopologyRcd, PPSPixelTopology);
+REGISTER_PLUGIN(PPSAlignmentConfigRcd, PPSAlignmentConfig);
+REGISTER_PLUGIN(PPSAlignmentConfigurationRcd, PPSAlignmentConfiguration);
+
+REGISTER_PLUGIN_INIT(PPSAssociationCutsRcd, PPSAssociationCuts, InitAssociationCuts);

@@ -46,11 +46,8 @@ process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
      cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
      )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-process.reader = DQMEDAnalyzer("SiStripQualityStatistics",
-                               dataLabel = cms.untracked.string(""),
-                               TkMapFileName = cms.untracked.string("")
-                               )
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.reader = siStripQualityStatistics.clone()
 
 process.p1 = cms.Path(process.reader)
 

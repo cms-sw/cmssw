@@ -13,7 +13,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet &ps) {
+EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet &ps) : ecalPeds(esConsumes()) {
   // ----------------------
   EBdigiCollection_token_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBdigiCollection"));
   EBuncalibrechitCollection_token_ =
@@ -124,9 +124,6 @@ void EcalBarrelRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
     skipDigis = true;
   }
 
-  edm::ESHandle<EcalPedestals> ecalPeds;
-  c.get<EcalPedestalsRcd>().get(ecalPeds);
-
   // ----------------------
   // loop over UncalibRecHits
   for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin();
@@ -194,7 +191,7 @@ void EcalBarrelRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
         continue;
 
       // ratio uncalibratedRecHit amplitude + ped / max energy digi
-      const EcalPedestals *myped = ecalPeds.product();
+      const EcalPedestals *myped = &c.getData(ecalPeds);
       EcalPedestalsMap::const_iterator it = myped->getMap().find(EBid);
       if (it != myped->getMap().end()) {
         if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 && eMax != 0) {  // only real signal RecHit

@@ -5,5 +5,6 @@
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Alignment/TrackerAlignment"/>
 <use name="boost"/>
 <flags EDM_PLUGIN="1"/>

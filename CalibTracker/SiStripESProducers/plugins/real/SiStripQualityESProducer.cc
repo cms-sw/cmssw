@@ -99,8 +99,6 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
 
     if (recordName == "SiStripBadModuleRcd") {
       productAdders_.emplace_back(make_ProductAdder<SiStripBadStrip, SiStripBadModuleRcd>(cc, tagName));
-    } else if (recordName == "SiStripBadModuleFedErrRcd") {
-      productAdders_.emplace_back(make_ProductAdder<SiStripBadStrip, SiStripBadModuleFedErrRcd>(cc, tagName));
     } else if (recordName == "SiStripBadFiberRcd") {
       productAdders_.emplace_back(make_ProductAdder<SiStripBadStrip, SiStripBadFiberRcd>(cc, tagName));
     } else if (recordName == "SiStripBadChannelRcd") {
@@ -129,9 +127,9 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
 }
 
 std::unique_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord) {
-  edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
-  SiStripDetInfoFileReader reader(path.fullPath());
-  auto quality = std::make_unique<SiStripQuality>(reader.info());
+  const auto detInfo =
+      SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+  auto quality = std::make_unique<SiStripQuality>(detInfo);
   edm::LogInfo("SiStripQualityESProducer") << "produce called";
 
   // Set the debug output level

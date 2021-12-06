@@ -1,6 +1,13 @@
 <use name="DataFormats/HcalDetId"/>
+<use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="Geometry/HGCalCommonData"/>
+<use name="SimG4CMS/Calo"/>
+<use name="SimG4Core/Notification"/>
+<use name="geant4core"/>
+<use name="clhep"/>
+<use name="rootphysics"/>
+<use name="root"/>
+<use name="hepmc"/>
 <export>
   <lib name="1"/>
 </export>

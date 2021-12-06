@@ -5,13 +5,16 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
 #include "PhysicsTools/PatAlgos/interface/KinematicResolutionProvider.h"
+#include "PhysicsTools/PatAlgos/interface/KinematicResolutionRcd.h"
 
 namespace pat {
   namespace helper {
@@ -21,7 +24,7 @@ namespace pat {
       KinResolutionsLoader() {}
 
       /// Constructor from a PSet
-      KinResolutionsLoader(const edm::ParameterSet &iConfig);
+      KinResolutionsLoader(const edm::ParameterSet &iConfig, edm::ConsumesCollector);
 
       /// 'true' if this there is at least one efficiency configured
       bool enabled() const { return !patlabels_.empty(); }
@@ -40,15 +43,15 @@ namespace pat {
       /// Labels of the resolutions in PAT
       std::vector<std::string> patlabels_;
       /// Labels of the KinematicResolutionProvider in the EventSetup
-      std::vector<std::string> eslabels_;
+      std::vector<edm::ESGetToken<KinematicResolutionProvider, KinematicResolutionRcd>> estokens_;
       /// Handles to the EventSetup
-      std::vector<edm::ESHandle<KinematicResolutionProvider> > handles_;
+      std::vector<KinematicResolutionProvider const *> resolutions_;
     };  // class
 
     template <typename T>
     void KinResolutionsLoader::setResolutions(pat::PATObject<T> &obj) const {
       for (size_t i = 0, n = patlabels_.size(); i < n; ++i) {
-        obj.setKinResolution(handles_[i]->getResolution(obj), patlabels_[i]);
+        obj.setKinResolution(resolutions_[i]->getResolution(obj), patlabels_[i]);
       }
     }
 

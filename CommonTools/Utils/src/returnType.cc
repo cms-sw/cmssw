@@ -1,4 +1,4 @@
-#include "CommonTools/Utils/src/returnType.h"
+#include "CommonTools/Utils/interface/returnType.h"
 
 #include "FWCore/Reflection/interface/FunctionWithDict.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"

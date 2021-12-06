@@ -52,7 +52,6 @@ FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet& iConfig,
                                                const MuonServiceProxy* service,
                                                edm::ConsumesCollector& iC)
     : theCategory("FastSimulation|Muons|FastTSGFromPropagation"),
-      theTracker(),
       theNavigation(),
       theService(service),
       theUpdator(),
@@ -65,7 +64,10 @@ FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet& iConfig,
           iC.consumes<FastTrackerRecHitCombinationCollection>(theConfig.getParameter<edm::InputTag>("HitProducer"))),
       beamSpot_(iC.consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       theMeasurementTrackerEventToken_(
-          iC.consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent"))) {}
+          iC.consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
+      theGeometryToken(iC.esConsumes<edm::Transition::BeginRun>()),
+      theTTRHBuilderToken(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "WithTrackAngle"))),
+      theTrackerToken(iC.esConsumes()) {}
 
 FastTSGFromPropagation::~FastTSGFromPropagation() { LogTrace(theCategory) << " FastTSGFromPropagation dtor called "; }
 
@@ -320,8 +322,6 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theEstimator = std::make_unique<Chi2MeasurementEstimator>(theMaxChi2);
 
-  theCacheId_MT = 0;
-
   theCacheId_TG = 0;
 
   thePropagatorName = theConfig.getParameter<std::string>("Propagator");
@@ -347,14 +347,9 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
     theErrorMatrixAdjuster.reset();
   }
 
-  theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker);
-  theNavigation = std::make_unique<DirectTrackerNavigation>(theTracker);
+  theGeometry = &theService->eventSetup().getData(theGeometryToken);
 
-  edm::ESHandle<TrackerGeometry> geometry;
-  theService->eventSetup().get<TrackerDigiGeometryRecord>().get(geometry);
-  theGeometry = &(*geometry);
-
-  theService->eventSetup().get<TransientRecHitRecord>().get("WithTrackAngle", theTTRHBuilder);
+  theTTRHBuilder = theService->eventSetup().getHandle(theTTRHBuilderToken);
 }
 
 void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
@@ -364,30 +359,16 @@ void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
   iEvent.getByToken(theSimTrackCollectionToken_, theSimTracks);
   iEvent.getByToken(recHitCombinationsToken_, recHitCombinations);
 
-  unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
-
-  if (theUpdateStateFlag && newCacheId_MT != theCacheId_MT) {
-    LogTrace(theCategory) << "Measurment Tracker Geometry changed!";
-    theCacheId_MT = newCacheId_MT;
-    theService->eventSetup().get<CkfComponentsRecord>().get(theMeasTracker);
-  }
-
   if (theUpdateStateFlag) {
     iEvent.getByToken(theMeasurementTrackerEventToken_, theMeasTrackerEvent);
   }
-
-  bool trackerGeomChanged = false;
 
   unsigned long long newCacheId_TG = theService->eventSetup().get<TrackerRecoGeometryRecord>().cacheIdentifier();
 
   if (newCacheId_TG != theCacheId_TG) {
     LogTrace(theCategory) << "Tracker Reco Geometry changed!";
     theCacheId_TG = newCacheId_TG;
-    theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker);
-    trackerGeomChanged = true;
-  }
-
-  if (trackerGeomChanged && theTracker.product()) {
+    auto theTracker = theService->eventSetup().getHandle(theTrackerToken);
     theNavigation = std::make_unique<DirectTrackerNavigation>(theTracker);
   }
 }

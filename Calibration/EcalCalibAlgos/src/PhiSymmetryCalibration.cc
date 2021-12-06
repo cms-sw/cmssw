@@ -5,26 +5,19 @@
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondTools/Ecal/interface/EcalIntercalibConstantsXMLTranslator.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 // Geometry
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 //Channel status
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
 
 #include "FWCore/Framework/interface/Run.h"
@@ -47,11 +40,13 @@ const float PhiSymmetryCalibration::kMiscalRangeEE = .10;
 // Class constructor
 
 PhiSymmetryCalibration::PhiSymmetryCalibration(const edm::ParameterSet& iConfig)
-    :
-
-      ecalHitsProducer_(iConfig.getParameter<std::string>("ecalRecHitsProducer")),
+    : ecalHitsProducer_(iConfig.getParameter<std::string>("ecalRecHitsProducer")),
       barrelHits_(iConfig.getParameter<std::string>("barrelHitCollection")),
       endcapHits_(iConfig.getParameter<std::string>("endcapHitCollection")),
+      ebRecHitToken_(consumes<EBRecHitCollection>(edm::InputTag(ecalHitsProducer_, barrelHits_))),
+      eeRecHitToken_(consumes<EERecHitCollection>(edm::InputTag(ecalHitsProducer_, endcapHits_))),
+      channelStatusToken_(esConsumes()),
+      geometryToken_(esConsumes()),
       eCut_barl_(iConfig.getParameter<double>("eCut_barrel")),
       ap_(iConfig.getParameter<double>("ap")),
       b_(iConfig.getParameter<double>("b")),
@@ -71,6 +66,9 @@ PhiSymmetryCalibration::PhiSymmetryCalibration(const edm::ParameterSet& iConfig)
   nevents_ = 0;
   eventsinrun_ = 0;
   eventsinlb_ = 0;
+
+  // because ROOT draws something
+  usesResource();
 }
 
 //_____________________________________________________________________________
@@ -239,21 +237,20 @@ void PhiSymmetryCalibration::analyze(const edm::Event& event, const edm::EventSe
   Handle<EBRecHitCollection> barrelRecHitsHandle;
   Handle<EERecHitCollection> endcapRecHitsHandle;
 
-  event.getByLabel(ecalHitsProducer_, barrelHits_, barrelRecHitsHandle);
+  event.getByToken(ebRecHitToken_, barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
     LogError("") << "[PhiSymmetryCalibration] Error! Can't get product!" << std::endl;
   }
 
-  event.getByLabel(ecalHitsProducer_, endcapHits_, endcapRecHitsHandle);
+  event.getByToken(ebRecHitToken_, endcapRecHitsHandle);
   if (!endcapRecHitsHandle.isValid()) {
     LogError("") << "[PhiSymmetryCalibration] Error! Can't get product!" << std::endl;
   }
 
   // get the ecal geometry
-  edm::ESHandle<CaloGeometry> geoHandle;
-  setup.get<CaloGeometryRecord>().get(geoHandle);
-  const CaloSubdetectorGeometry* barrelGeometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  const CaloSubdetectorGeometry* endcapGeometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  const auto& geometry = setup.getData(geometryToken_);
+  const auto* barrelGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const auto* endcapGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
 
   bool pass = false;
   // select interesting EcalRecHits (barrel)
@@ -377,6 +374,8 @@ void PhiSymmetryCalibration::analyze(const edm::Event& event, const edm::EventSe
   }
 }
 
+void PhiSymmetryCalibration::beginRun(edm::Run const&, const edm::EventSetup&) {}
+
 void PhiSymmetryCalibration::endRun(edm::Run const& run, const edm::EventSetup&) {
   std::cout << "PHIREPRT : run " << run.run() << " start " << (run.beginTime().value() >> 32) << " end "
             << (run.endTime().value() >> 32) << " dur "
@@ -478,13 +477,11 @@ void PhiSymmetryCalibration::getKfactors() {
 //_____________________________________________________________________________
 
 void PhiSymmetryCalibration::setUp(const edm::EventSetup& setup) {
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  setup.get<EcalChannelStatusRcd>().get(chStatus);
+  const auto& chStatus = setup.getData(channelStatusToken_);
 
-  edm::ESHandle<CaloGeometry> geoHandle;
-  setup.get<CaloGeometryRecord>().get(geoHandle);
+  const auto& geometry = setup.getData(geometryToken_);
 
-  e_.setup(&(*geoHandle), &(*chStatus), statusThreshold_);
+  e_.setup(&geometry, &chStatus, statusThreshold_);
 
   if (reiteration_) {
     EcalCondHeader h;
@@ -498,15 +495,10 @@ void PhiSymmetryCalibration::setUp(const edm::EventSetup& setup) {
     int ret = EcalIntercalibConstantsXMLTranslator::readXML(fip.fullPath(), h, oldCalibs_);
     if (ret)
       edm::LogError("PhiSym") << "Error reading XML files" << endl;
-    ;
-
-  } else {
-    // in fact if not reiterating, oldCalibs_ will never be used
-    edm::ESHandle<EcalIntercalibConstants> pIcal;
-    setup.get<EcalIntercalibConstantsRcd>().get(pIcal);
-    oldCalibs_ = *pIcal;
   }
 }
+
+void PhiSymmetryCalibration::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 
 void PhiSymmetryCalibration::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const&) {
   if ((lb.endTime().value() >> 32) - (lb.beginTime().value() >> 32) < 60)

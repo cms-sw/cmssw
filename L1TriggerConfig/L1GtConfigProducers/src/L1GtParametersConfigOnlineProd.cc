@@ -15,9 +15,6 @@
 // this class header
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtParametersConfigOnlineProd.h"
 
-// system include files
-#include "boost/lexical_cast.hpp"
-
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -169,7 +166,7 @@ std::unique_ptr<L1GtParameters> L1GtParametersConfigOnlineProd::newObject(const 
   // fill the record
 
   // total Bx's in the event
-  int totalBxInEventVal = boost::lexical_cast<int>(totalBxInEventStr);
+  int totalBxInEventVal = std::stoi(totalBxInEventStr);
   pL1GtParameters->setGtTotalBxInEvent(totalBxInEventVal);
 
   // FIXME: need board maps in DB, with active bit number...
@@ -187,62 +184,62 @@ std::unique_ptr<L1GtParameters> L1GtParametersConfigOnlineProd::newObject(const 
   if (activeBoardsDaqFDL) {
     daqActiveBoardsVal = daqActiveBoardsVal | (1 << iActiveBit);
   }
-  daqNrBxBoard.at(iActiveBit) = boost::lexical_cast<int>(daqNrBxBoardStrFDL);
+  daqNrBxBoard.at(iActiveBit) = std::stoi(daqNrBxBoardStrFDL);
 
   iActiveBit = 1;
   if (activeBoardsDaqPSB0) {
     daqActiveBoardsVal = daqActiveBoardsVal | (1 << iActiveBit);
   }
-  daqNrBxBoard.at(iActiveBit) = boost::lexical_cast<int>(daqNrBxBoardStrPSB0);
+  daqNrBxBoard.at(iActiveBit) = std::stoi(daqNrBxBoardStrPSB0);
 
   iActiveBit = 2;
   if (activeBoardsDaqPSB1) {
     daqActiveBoardsVal = daqActiveBoardsVal | (1 << iActiveBit);
   }
-  daqNrBxBoard.at(iActiveBit) = boost::lexical_cast<int>(daqNrBxBoardStrPSB1);
+  daqNrBxBoard.at(iActiveBit) = std::stoi(daqNrBxBoardStrPSB1);
 
   iActiveBit = 3;
   if (activeBoardsDaqPSB2) {
     daqActiveBoardsVal = daqActiveBoardsVal | (1 << iActiveBit);
   }
-  daqNrBxBoard.at(iActiveBit) = boost::lexical_cast<int>(daqNrBxBoardStrPSB2);
+  daqNrBxBoard.at(iActiveBit) = std::stoi(daqNrBxBoardStrPSB2);
 
   iActiveBit = 4;
   if (activeBoardsDaqPSB3) {
     daqActiveBoardsVal = daqActiveBoardsVal | (1 << iActiveBit);
   }
-  daqNrBxBoard.at(iActiveBit) = boost::lexical_cast<int>(daqNrBxBoardStrPSB3);
+  daqNrBxBoard.at(iActiveBit) = std::stoi(daqNrBxBoardStrPSB3);
 
   iActiveBit = 5;
   if (activeBoardsDaqPSB4) {
     daqActiveBoardsVal = daqActiveBoardsVal | (1 << iActiveBit);
   }
-  daqNrBxBoard.at(iActiveBit) = boost::lexical_cast<int>(daqNrBxBoardStrPSB4);
+  daqNrBxBoard.at(iActiveBit) = std::stoi(daqNrBxBoardStrPSB4);
 
   iActiveBit = 6;
   if (activeBoardsDaqPSB5) {
     daqActiveBoardsVal = daqActiveBoardsVal | (1 << iActiveBit);
   }
-  daqNrBxBoard.at(iActiveBit) = boost::lexical_cast<int>(daqNrBxBoardStrPSB5);
+  daqNrBxBoard.at(iActiveBit) = std::stoi(daqNrBxBoardStrPSB5);
 
   iActiveBit = 7;
   if (activeBoardsDaqPSB6) {
     daqActiveBoardsVal = daqActiveBoardsVal | (1 << iActiveBit);
   }
-  daqNrBxBoard.at(iActiveBit) = boost::lexical_cast<int>(daqNrBxBoardStrPSB6);
+  daqNrBxBoard.at(iActiveBit) = std::stoi(daqNrBxBoardStrPSB6);
 
   iActiveBit = 8;
   if (activeBoardsDaqGMT) {
     daqActiveBoardsVal = daqActiveBoardsVal | (1 << iActiveBit);
   }
-  daqNrBxBoard.at(iActiveBit) = boost::lexical_cast<int>(daqNrBxBoardStrGMT);
+  daqNrBxBoard.at(iActiveBit) = std::stoi(daqNrBxBoardStrGMT);
 
   // FIXME fix TIM active bit
   //iActiveBit = 9;
   //if (activeBoardsDaqTIM) {
   //    daqActiveBoardsVal = daqActiveBoardsVal | (1 << iActiveBit);
   //}
-  //daqNrBxBoard.at(iActiveBit) = boost::lexical_cast<int>(daqNrBxBoardStrTIM);
+  //daqNrBxBoard.at(iActiveBit) = std::stoi(daqNrBxBoardStrTIM);
 
   // active boards in the L1 EVM record
   uint16_t evmActiveBoardsVal = 0;
@@ -262,7 +259,7 @@ std::unique_ptr<L1GtParameters> L1GtParametersConfigOnlineProd::newObject(const 
     evmActiveBoardsVal = evmActiveBoardsVal | (1 << iActiveBit);
   }
   // FDL must have the same length in EVM and DAQ
-  evmNrBxBoard.at(iActiveBit) = boost::lexical_cast<int>(daqNrBxBoardStrFDL);
+  evmNrBxBoard.at(iActiveBit) = std::stoi(daqNrBxBoardStrFDL);
 
   //
   pL1GtParameters->setGtDaqActiveBoards(daqActiveBoardsVal);
@@ -271,7 +268,7 @@ std::unique_ptr<L1GtParameters> L1GtParametersConfigOnlineProd::newObject(const 
   pL1GtParameters->setGtEvmNrBxBoard(evmNrBxBoard);
 
   //
-  unsigned int bstLengthBytesVal = boost::lexical_cast<unsigned int>(bstLengthBytesStr);
+  unsigned int bstLengthBytesVal = std::stoul(bstLengthBytesStr);
   pL1GtParameters->setGtBstLengthBytes(bstLengthBytesVal);
 
   if (edm::isDebugEnabled()) {

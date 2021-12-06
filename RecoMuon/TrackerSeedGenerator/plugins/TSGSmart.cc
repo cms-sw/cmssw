@@ -1,5 +1,6 @@
 #include "RecoMuon/TrackerSeedGenerator/plugins/TSGSmart.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
@@ -20,7 +21,7 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset, edm::ConsumesCollector &iC) {
   thePairGenerator = std::make_unique<SeedGeneratorFromRegionHits>(
       OrderedHitsGeneratorFactory::get()->create(pairhitsfactoryName, pairhitsfactoryPSet, iC),
       nullptr,
-      SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet));
+      SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet, edm::ConsumesCollector(iC)));
 
   edm::ParameterSet TripletPSet = pset.getParameter<edm::ParameterSet>("PixelTripletGeneratorSet");
   edm::ParameterSet triplethitsfactoryPSet = TripletPSet.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
@@ -29,7 +30,7 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset, edm::ConsumesCollector &iC) {
   theTripletGenerator = std::make_unique<SeedGeneratorFromRegionHits>(
       OrderedHitsGeneratorFactory::get()->create(triplethitsfactoryName, triplethitsfactoryPSet, iC),
       nullptr,
-      SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet));
+      SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet, edm::ConsumesCollector(iC)));
 
   edm::ParameterSet MixedPSet = pset.getParameter<edm::ParameterSet>("MixedGeneratorSet");
   edm::ParameterSet mixedhitsfactoryPSet = MixedPSet.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
@@ -38,7 +39,7 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset, edm::ConsumesCollector &iC) {
   theMixedGenerator = std::make_unique<SeedGeneratorFromRegionHits>(
       OrderedHitsGeneratorFactory::get()->create(mixedhitsfactoryName, mixedhitsfactoryPSet, iC),
       nullptr,
-      SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet));
+      SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet, edm::ConsumesCollector(iC)));
 }
 
 TSGSmart::~TSGSmart() = default;

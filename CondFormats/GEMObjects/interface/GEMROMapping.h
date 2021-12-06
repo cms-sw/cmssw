@@ -3,9 +3,25 @@
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include <map>
 #include <vector>
+#include <algorithm>
 
 class GEMROMapping {
+  // EC electronics corrdinate
+  // DC GEMDetId corrdinate
+  // geb = GEM electronics board == OptoHybrid
 public:
+  struct sectorEC {
+    unsigned int fedId;
+    uint8_t amcNum;
+    bool operator==(const sectorEC& r) const {
+      if (fedId == r.fedId) {
+        return amcNum == r.amcNum;
+      } else {
+        return false;
+      }
+    }
+  };
+
   struct chamEC {
     unsigned int fedId;
     uint8_t amcNum;
@@ -82,17 +98,21 @@ public:
 
   GEMROMapping(){};
 
-  bool isValidChipID(const vfatEC& r) const { return vMapED_.find(r) != vMapED_.end(); }
-  bool isValidChamber(const chamEC& r) const { return chamED_.find(r) != chamED_.end(); }
+  bool isValidChipID(const vfatEC& r) const { return vfatMap_.find(r) != vfatMap_.end(); }
+  bool isValidChamber(const chamEC& r) const { return chamberMap_.find(r) != chamberMap_.end(); }
 
-  const chamDC& chamberPos(const chamEC& r) const { return chamED_.at(r); }
-  void add(chamEC e, chamDC d) { chamED_[e] = d; }
+  bool isValidAMC(const sectorEC& r) const { return std::find(amcVec_.begin(), amcVec_.end(), r) != amcVec_.end(); }
+
+  void add(sectorEC e) { amcVec_.push_back(e); }
+
+  const chamDC& chamberPos(const chamEC& r) const { return chamberMap_.at(r); }
+  void add(chamEC e, chamDC d) { chamberMap_[e] = d; }
 
   const std::vector<vfatEC> getVfats(const GEMDetId& r) const { return chamVfats_.at(r); }
   void add(GEMDetId e, vfatEC d) { chamVfats_[e].push_back(d); }
 
-  const vfatDC& vfatPos(const vfatEC& r) const { return vMapED_.at(r); }
-  void add(vfatEC e, vfatDC d) { vMapED_[e] = d; }
+  const vfatDC& vfatPos(const vfatEC& r) const { return vfatMap_.at(r); }
+  void add(vfatEC e, vfatDC d) { vfatMap_[e] = d; }
 
   const channelNum& hitPos(const stripNum& s) const { return stChMap_.at(s); }
   const stripNum& hitPos(const channelNum& c) const { return chStMap_.at(c); }
@@ -101,11 +121,14 @@ public:
   void add(stripNum s, channelNum c) { stChMap_[s] = c; }
 
 private:
-  std::map<chamEC, chamDC> chamED_;
+  std::vector<sectorEC> amcVec_;
+
+  // electronics map to GEMDetId chamber
+  std::map<chamEC, chamDC> chamberMap_;
 
   std::map<GEMDetId, std::vector<vfatEC>> chamVfats_;
 
-  std::map<vfatEC, vfatDC> vMapED_;
+  std::map<vfatEC, vfatDC> vfatMap_;
 
   std::map<channelNum, stripNum> chStMap_;
   std::map<stripNum, channelNum> stChMap_;

@@ -10,6 +10,7 @@ int main(int argc, char **argv) try {
     return EXIT_FAILURE;
   }
 
+  using namespace edm::storage;
   IOOffset size = -1;
   bool exists = StorageFactory::get()->check(argv[1], &size);
 

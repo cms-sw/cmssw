@@ -53,21 +53,12 @@ CosmicLayerTriplets::~CosmicLayerTriplets() {
   }
 }
 
-void CosmicLayerTriplets::init(const SiStripRecHit2DCollection& collstereo,
-                               const SiStripRecHit2DCollection& collrphi,
-                               const SiStripMatchedRecHit2DCollection& collmatched,
+void CosmicLayerTriplets::init(const SiStripRecHit2DCollection& collrphi,
                                std::string geometry,
-                               const edm::EventSetup& iSetup) {
-  _geometry = geometry;
-  if (watchTrackerGeometry_.check(iSetup)) {
-    edm::ESHandle<GeometricSearchTracker> track;
-    iSetup.get<TrackerRecoGeometryRecord>().get(track);
-    bl = track->barrelLayers();
-  }
-  edm::ESHandle<TrackerTopology> httopo;
-  iSetup.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology& ttopo = *httopo;
-
+                               const GeometricSearchTracker& track,
+                               const TrackerTopology& ttopo) {
+  _geometry = std::move(geometry);
+  bl = track.barrelLayers();
   for (vector<LayerWithHits*>::const_iterator it = allLayersWithHits.begin(); it != allLayersWithHits.end(); it++) {
     delete *it;
   }

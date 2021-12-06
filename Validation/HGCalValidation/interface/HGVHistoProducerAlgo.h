@@ -156,6 +156,8 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_vs_phi;
   std::vector<dqm::reco::MonitorElement*> h_denom_trackster_eta;
   std::vector<dqm::reco::MonitorElement*> h_denom_trackster_phi;
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_eta;
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_phi;
   std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_eta;
   std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_phi;
   std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_eta;
@@ -227,6 +229,7 @@ public:
                                    std::vector<int> thicknesses);
 
   void bookTracksterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
+  void bookTracksterCPLinkingHistos(DQMStore::IBooker& ibook, Histograms& histograms);
 
   void layerClusters_to_CaloParticles(const Histograms& histograms,
                                       edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -251,10 +254,11 @@ public:
                                     unsigned int layers,
                                     const hgcal::RecoToSimCollectionWithSimClusters& recSimColl,
                                     const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
-  void tracksters_to_CaloParticles(const Histograms& histograms,
+  void tracksters_to_SimTracksters(const Histograms& histograms,
                                    int count,
                                    const ticl::TracksterCollection& Tracksters,
                                    const reco::CaloClusterCollection& layerClusters,
+                                   const ticl::TracksterCollection& simTSFromCP,
                                    std::vector<CaloParticle> const& cP,
                                    std::vector<size_t> const& cPIndices,
                                    std::vector<size_t> const& cPSelectedIndices,
@@ -303,6 +307,7 @@ public:
                              int count,
                              const ticl::TracksterCollection& Tracksters,
                              const reco::CaloClusterCollection& layerClusters,
+                             const ticl::TracksterCollection& simTSFromCP,
                              std::vector<CaloParticle> const& cP,
                              std::vector<size_t> const& cPIndices,
                              std::vector<size_t> const& cPSelectedIndices,
@@ -370,6 +375,7 @@ private:
   int nintScore_;
   double minSharedEneFrac_, maxSharedEneFrac_;
   int nintSharedEneFrac_;
+  double minTSTSharedEneFracEfficiency_;
   double minTSTSharedEneFrac_, maxTSTSharedEneFrac_;
   int nintTSTSharedEneFrac_;
   double minTotNsimClsperthick_, maxTotNsimClsperthick_;

@@ -99,12 +99,18 @@ private:
   /// Counters and flags for the implementation
   const std::string propagatorName_;
   const std::string theCategory_;
+  const edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estimatorToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tmpTkGeometryToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geometryToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> sHPOppositeToken_;
 
   /// Create seeds without hits on a given layer (TOB or TEC)
   void makeSeedsWithoutHits(const GeometricSearchDet& layer,
                             const TrajectoryStateOnSurface& tsos,
                             const Propagator& propagatorAlong,
-                            edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
+                            const edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
                             double errorSF,
                             unsigned int& hitlessSeedsMade,
                             unsigned int& numSeedsMade,
@@ -114,8 +120,8 @@ private:
   void makeSeedsFromHits(const GeometricSearchDet& layer,
                          const TrajectoryStateOnSurface& tsos,
                          const Propagator& propagatorAlong,
-                         edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
-                         edm::Handle<MeasurementTrackerEvent>& measurementTracker,
+                         const edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
+                         const edm::Handle<MeasurementTrackerEvent>& measurementTracker,
                          double errorSF,
                          unsigned int& hitSeedsMade,
                          unsigned int& numSeedsMade,

@@ -71,7 +71,6 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 // track associator
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 

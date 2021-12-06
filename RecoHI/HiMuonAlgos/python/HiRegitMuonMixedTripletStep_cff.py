@@ -29,7 +29,8 @@ hiRegitMuMixedTripletStepTrackingRegionsB = hiRegitMuMixedTripletStepTrackingReg
 )
 
 ###################################
-from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
+import RecoTracker.IterativeTracking.MixedTripletStep_cff
+from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepTrajectoryBuilder,mixedTripletStepClusterShapeHitFilter,mixedTripletStepTrajectoryCleanerBySharedHits,mixedTripletStepChi2Est
 
 # NEW CLUSTERS (remove previously used clusters)
 hiRegitMuMixedTripletStepClusters = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters.clone(
@@ -102,7 +103,7 @@ hiRegitMuMixedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.Mixed
     minNrOfHitsForRebuild = 6 #change from default 4
 )
 
-hiRegitMuMixedTripletStepTrackCandidates = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrackCandidates.clone(
+hiRegitMuMixedTripletStepTrackCandidates = RecoTracker.IterativeTracking.MixedTripletStep_cff._mixedTripletStepTrackCandidatesCkf.clone(
     src               = 'hiRegitMuMixedTripletStepSeeds',
     TrajectoryBuilderPSet = cms.PSet(
        refToPSet_ = cms.string('hiRegitMuMixedTripletStepTrajectoryBuilder')

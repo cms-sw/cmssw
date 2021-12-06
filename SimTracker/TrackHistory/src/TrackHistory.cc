@@ -1,5 +1,4 @@
 
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackHistory/interface/TrackHistory.h"
 
 TrackHistory::TrackHistory(const edm::ParameterSet &config, edm::ConsumesCollector &&collector) : HistoryBase() {

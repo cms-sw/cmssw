@@ -1,8 +1,9 @@
 #include "FWCore/Concurrency/interface/include_first_syncWait.h"
 #include "Mixing/Base/src/SecondaryEventProvider.h"
+#include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -67,7 +68,8 @@ namespace edm {
 
   void SecondaryEventProvider::beginJob(ProductRegistry const& iRegistry,
                                         eventsetup::ESRecordsToProxyIndices const& iIndices) {
-    workerManager_.beginJob(iRegistry, iIndices);
+    ProcessBlockHelper dummyProcessBlockHelper;
+    workerManager_.beginJob(iRegistry, iIndices, dummyProcessBlockHelper);
   }
 
   //NOTE: When the Stream interfaces are propagated to the modules, this code must be updated

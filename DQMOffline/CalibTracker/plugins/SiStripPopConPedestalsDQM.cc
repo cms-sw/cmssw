@@ -30,8 +30,8 @@ private:
 SiStripPopConPedestalsHandlerFromDQM::SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig,
                                                                            edm::ConsumesCollector&&)
     : SiStripDQMPopConSourceHandler<SiStripPedestals>(iConfig),
-      fp_{iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))},
+      fp_{iConfig.getUntrackedParameter<edm::FileInPath>("file",
+                                                         edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))},
       MEDir_{iConfig.getUntrackedParameter<std::string>("ME_DIR", "DQMData")} {
   edm::LogInfo("SiStripPedestalsDQMService") << "[SiStripPedestalsDQMService::SiStripPedestalsDQMService]";
 }
@@ -45,7 +45,7 @@ void SiStripPopConPedestalsHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQMStor
 
   m_obj = SiStripPedestals();
 
-  SiStripDetInfoFileReader reader(fp_.fullPath());
+  const auto detInfo = SiStripDetInfoFileReader::read(fp_.fullPath());
 
   // getter.cd(iConfig_.getUntrackedParameter<std::string>("ME_DIR"));
   getter.cd();
@@ -66,7 +66,7 @@ void SiStripPopConPedestalsHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQMStor
             MEs.end());
 
   // The histograms are one per DetId, loop on all the DetIds and extract the corresponding histogram
-  for (const auto& detInfo : reader.getAllData()) {
+  for (const auto& detInfo : detInfo.getAllData()) {
     SiStripPedestals::InputVector theSiStripVector;
 
     // Take the path for each DetId and build the complete path + histogram name

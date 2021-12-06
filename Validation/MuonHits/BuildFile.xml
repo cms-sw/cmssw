@@ -12,6 +12,7 @@
 <use name="SimDataFormats/Vertex"/>
 <use name="root"/>
 <use name="clhep"/>
+<use name="rootminuit"/>
 <export>
   <lib name="1"/>
 </export>

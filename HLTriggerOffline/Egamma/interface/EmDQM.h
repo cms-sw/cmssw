@@ -29,7 +29,6 @@
 #include "HepMC/GenParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 
 #include "TDirectory.h"

@@ -59,9 +59,9 @@ namespace edm::shared_memory {
       iF();
       using namespace boost::posix_time;
       //std::cout << id_ << " waiting for external process" << std::endl;
-
-      if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_))) {
+      if (not wait(lock)) {
         //std::cout << id_ << " FAILED waiting for external process" << std::endl;
+        *stop_ = true;
         throw cms::Exception("ExternalFailed")
             << "Failed waiting for external process while setting up the process. Timed out after " << maxWaitInSeconds_
             << " seconds.";
@@ -70,15 +70,69 @@ namespace edm::shared_memory {
       }
     }
 
+    /** setupWorkerWithRetry works just like setupWorker except it gives a way to continue waiting. The functor iRetry should return true if, after a timeout,
+     the code should continue to wait.
+     */
+    template <typename F, typename FRETRY>
+    void setupWorkerWithRetry(F&& iF, FRETRY&& iRetry) {
+      using namespace boost::interprocess;
+      scoped_lock<named_mutex> lock(mutex_);
+      iF();
+      using namespace boost::posix_time;
+      //std::cout << id_ << " waiting for external process" << std::endl;
+      bool shouldContinue = true;
+      long long int retryCount = 0;
+      do {
+        if (not wait(lock)) {
+          if (not iRetry()) {
+            *stop_ = true;
+            throw cms::Exception("ExternalFailed")
+                << "Failed waiting for external process while setting up the process. Timed out after "
+                << maxWaitInSeconds_ << " seconds with " << retryCount << " retries.";
+          }
+          //std::cerr<<"retrying\n";
+          ++retryCount;
+        } else {
+          shouldContinue = false;
+        }
+      } while (shouldContinue);
+    }
+
     template <typename F>
     bool doTransition(F&& iF, edm::Transition iTrans, unsigned long long iTransitionID) {
       using namespace boost::interprocess;
 
       //std::cout << id_ << " taking from lock" << std::endl;
       scoped_lock<named_mutex> lock(mutex_);
-
       if (not wait(lock, iTrans, iTransitionID)) {
         return false;
+      }
+      //std::cout <<id_<<"running doTranstion command"<<std::endl;
+      iF();
+      return true;
+    }
+
+    template <typename F, typename FRETRY>
+    bool doTransitionWithRetry(F&& iF, FRETRY&& iRetry, edm::Transition iTrans, unsigned long long iTransitionID) {
+      using namespace boost::interprocess;
+
+      //std::cout << id_ << " taking from lock" << std::endl;
+      scoped_lock<named_mutex> lock(mutex_);
+      if (not wait(lock, iTrans, iTransitionID)) {
+        if (not iRetry()) {
+          return false;
+        }
+        bool shouldContinue = true;
+        do {
+          using namespace boost::posix_time;
+          if (not continueWait(lock)) {
+            if (not iRetry()) {
+              return false;
+            }
+          } else {
+            shouldContinue = false;
+          }
+        } while (shouldContinue);
       }
       //std::cout <<id_<<"running doTranstion command"<<std::endl;
       iF();
@@ -106,9 +160,20 @@ namespace edm::shared_memory {
     //should only be called after calling `doTransition`
     bool shouldKeepEvent() const { return *keepEvent_; }
 
-    unsigned int maxWaitInSeconds() const { return maxWaitInSeconds_; }
+    unsigned int maxWaitInSeconds() const noexcept { return maxWaitInSeconds_; }
 
   private:
+    struct CheckWorkerStatus {
+      const unsigned long long initValue_;
+      const unsigned long long* ptr_;
+
+      [[nodiscard]] bool workerFinished() const noexcept { return initValue_ != *ptr_; }
+    };
+
+    [[nodiscard]] CheckWorkerStatus initCheckWorkerStatus(unsigned long long* iPtr) const noexcept {
+      return {*iPtr, iPtr};
+    }
+
     static BufferInfo* bufferInfo(const char* iWhich, boost::interprocess::managed_shared_memory& mem);
 
     std::string uniqueName(std::string iBase) const;
@@ -116,6 +181,8 @@ namespace edm::shared_memory {
     bool wait(boost::interprocess::scoped_lock<boost::interprocess::named_mutex>& lock,
               edm::Transition iTrans,
               unsigned long long iTransID);
+    bool wait(boost::interprocess::scoped_lock<boost::interprocess::named_mutex>& lock);
+    bool continueWait(boost::interprocess::scoped_lock<boost::interprocess::named_mutex>& lock);
 
     // ---------- member data --------------------------------
     int id_;

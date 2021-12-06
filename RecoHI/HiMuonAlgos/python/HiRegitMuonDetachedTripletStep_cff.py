@@ -26,7 +26,7 @@ hiRegitMuDetachedTripletStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuon
 )
 
 ###################################
-from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
+import RecoTracker.IterativeTracking.DetachedTripletStep_cff
 
 # NEW CLUSTERS (remove previously used clusters)
 from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
@@ -80,7 +80,7 @@ hiRegitMuDetachedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.De
     clustersToSkip = cms.InputTag('hiRegitMuDetachedTripletStepClusters')
 )
 
-hiRegitMuDetachedTripletStepTrackCandidates = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrackCandidates.clone(
+hiRegitMuDetachedTripletStepTrackCandidates = RecoTracker.IterativeTracking.DetachedTripletStep_cff._detachedTripletStepTrackCandidatesCkf.clone(
     src               = 'hiRegitMuDetachedTripletStepSeeds',
     TrajectoryBuilder = 'hiRegitMuDetachedTripletStepTrajectoryBuilder',
     clustersToSkip    = cms.InputTag("hiRegitMuDetachedTripletStepClusters")

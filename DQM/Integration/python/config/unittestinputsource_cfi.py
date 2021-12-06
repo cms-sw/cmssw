@@ -32,16 +32,16 @@ options.register('runUniqueKey',
     "Unique run key from RCMS for Frontier")
 
 options.register('runNumber',
-                 334393,
+                 344518,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Run number. This run number has to be present in the dataset configured with the dataset option.")
 
 options.register('dataset',
-                 '/ExpressCosmics/Commissioning2019-Express-v1/FEVT',
+                 '/ExpressCosmics/Commissioning2021-Express-v1/FEVT',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Dataset name like '/ExpressCosmics/Commissioning2019-Express-v1/FEVT'")
+                 "Dataset name like '/ExpressCosmics/Commissioning2021-Express-v1/FEVT'")
 
 options.register('maxLumi',
                  2,
@@ -66,12 +66,6 @@ options.register('eventsPerLumi',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "This number of last events in each lumisection will be processed.")
-
-options.register('transDelay',
-                 0, #default value, int limit -3
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "delay in seconds for the commit of the db transaction")
 
 # This is used only by the online clients themselves. 
 # We need to register it here because otherwise an error occurs saying that there is an unidentified option.

@@ -4,22 +4,20 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ForwardSimplifiedGeometry.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/BarrelSimplifiedGeometry.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 ///////////////////////////////////////////////
 // Author: L. Vanelderen, S. Kurz
 // Date: 29 May 2017
 //////////////////////////////////////////////////////////
 
-class GeometricSearchTracker;
-class MagneticField;
-
 #include <vector>
-
-namespace edm {
-  //class ParameterSet;
-  class EventSetup;
-}  // namespace edm
 
 namespace fastsim {
   class InteractionModel;
@@ -32,7 +30,7 @@ namespace fastsim {
   class Geometry {
   public:
     //! Constructor.
-    Geometry(const edm::ParameterSet& cfg);
+    Geometry(const edm::ParameterSet&, edm::ConsumesCollector&&);
 
     //! Default destructor.
     ~Geometry();
@@ -168,6 +166,9 @@ namespace fastsim {
     const bool forwardBoundary_;                         //!< Hack to interface "old" calo to "new" tracking
     const edm::ParameterSet trackerBarrelBoundaryCfg_;   //!< Hack to interface "old" calo to "new" tracking
     const edm::ParameterSet trackerForwardBoundaryCfg_;  //!< Hack to interface "old" calo to "new" tracking
+
+    edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geometricSearchTrackerESToken_;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldESToken_;
   };
   std::ostream& operator<<(std::ostream& os, const fastsim::Geometry& geometry);
 }  // namespace fastsim

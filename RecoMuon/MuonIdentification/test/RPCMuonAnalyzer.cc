@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -30,17 +30,18 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-class RPCMuonAnalyzer : public edm::EDAnalyzer {
+class RPCMuonAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   RPCMuonAnalyzer(const edm::ParameterSet& pset);
-  ~RPCMuonAnalyzer(){};
+  ~RPCMuonAnalyzer() override{};
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
-  void beginJob(){};
-  void endJob(){};
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void beginJob() override{};
+  void endJob() override{};
 
 private:
   edm::InputTag muonLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon>> muonToken_;
   double minPtTrk_;
   double maxEtaTrk_;
 
@@ -70,10 +71,12 @@ private:
 
 RPCMuonAnalyzer::RPCMuonAnalyzer(const edm::ParameterSet& pset) {
   muonLabel_ = pset.getUntrackedParameter<edm::InputTag>("muon");
+  muonToken_ = consumes(muonLabel_);
   minPtTrk_ = pset.getUntrackedParameter<double>("minPtTrk");
   maxEtaTrk_ = pset.getUntrackedParameter<double>("maxEtaTrk");
 
   edm::Service<TFileService> fs;
+  usesResource(TFileService::kSharedResource);
 
   hNMuon_ = fs->make<TH1F>("hNMuon", "Number of muons;Number of muons", 10, 0, 10);
   hNRPCMuon_ = fs->make<TH1F>("hNRPCMuon", "Number of RPC muons;Number of muons", 10, 0, 10);
@@ -124,8 +127,7 @@ void RPCMuonAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& ev
   runNumber = event.id().run();
   eventNumber = event.id().event();
 
-  edm::Handle<edm::View<reco::Muon> > muonHandle;
-  event.getByLabel(muonLabel_, muonHandle);
+  edm::Handle<edm::View<reco::Muon>> muonHandle = event.getHandle(muonToken_);
 
   //nMuon = muonHandle->size();
   nMuon = 0;

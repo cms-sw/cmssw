@@ -11,7 +11,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
-#include "TrackingTools/DetLayers/src/DetLessZ.h"
+#include "TrackingTools/DetLayers/interface/DetLessZ.h"
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 

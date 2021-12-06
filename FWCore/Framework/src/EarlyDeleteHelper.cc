@@ -16,7 +16,7 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
-#include "FWCore/Framework/src/EarlyDeleteHelper.h"
+#include "FWCore/Framework/interface/EarlyDeleteHelper.h"
 
 using namespace edm;
 //

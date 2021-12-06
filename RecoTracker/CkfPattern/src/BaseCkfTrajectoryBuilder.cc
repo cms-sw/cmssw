@@ -20,21 +20,22 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                                                   edm::ConsumesCollector iC,
                                                    std::unique_ptr<TrajectoryFilter> filter,
                                                    std::unique_ptr<TrajectoryFilter> inOutFilter)
     : theSeedAs5DHit(conf.getParameter<bool>("seedAs5DHit")),
       theFilter(std::move(filter)),
       theInOutFilter(std::move(inOutFilter)),
-      theUpdatorName(conf.getParameter<std::string>("updator")),
-      thePropagatorAlongName(conf.getParameter<std::string>("propagatorAlong")),
-      thePropagatorOppositeName(conf.getParameter<std::string>("propagatorOpposite")),
-      theEstimatorName(conf.getParameter<std::string>("estimator")),
-      theRecHitBuilderName(conf.getParameter<std::string>("TTRHBuilder")) {
+      theUpdatorToken(iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("updator")))),
+      thePropagatorAlongToken(iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("propagatorAlong")))),
+      thePropagatorOppositeToken(
+          iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("propagatorOpposite")))),
+      theEstimatorToken(iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("estimator")))),
+      theRecHitBuilderToken(iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("TTRHBuilder")))) {
   if (conf.exists("clustersToSkip"))
     edm::LogError("BaseCkfTrajectoryBuilder")
         << "ERROR: " << typeid(*this).name() << " has a clustersToSkip parameter set";
@@ -227,23 +228,11 @@ void BaseCkfTrajectoryBuilder::unset() const {
 void BaseCkfTrajectoryBuilder::setEvent(const edm::Event& iEvent,
                                         const edm::EventSetup& iSetup,
                                         const MeasurementTrackerEvent* data) {
-  edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
-  edm::ESHandle<Propagator> propagatorAlongHandle;
-  edm::ESHandle<Propagator> propagatorOppositeHandle;
-  edm::ESHandle<Chi2MeasurementEstimatorBase> estimatorHandle;
-  edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
-
-  iSetup.get<TrackingComponentsRecord>().get(theUpdatorName, updatorHandle);
-  iSetup.get<TrackingComponentsRecord>().get(thePropagatorAlongName, propagatorAlongHandle);
-  iSetup.get<TrackingComponentsRecord>().get(thePropagatorOppositeName, propagatorOppositeHandle);
-  iSetup.get<TrackingComponentsRecord>().get(theEstimatorName, estimatorHandle);
-  iSetup.get<TransientRecHitRecord>().get(theRecHitBuilderName, recHitBuilderHandle);
-
-  theUpdator = updatorHandle.product();
-  thePropagatorAlong = propagatorAlongHandle.product();
-  thePropagatorOpposite = propagatorOppositeHandle.product();
-  theEstimator = estimatorHandle.product();
-  theTTRHBuilder = recHitBuilderHandle.product();
+  theUpdator = &iSetup.getData(theUpdatorToken);
+  thePropagatorAlong = &iSetup.getData(thePropagatorAlongToken);
+  thePropagatorOpposite = &iSetup.getData(thePropagatorOppositeToken);
+  theEstimator = &iSetup.getData(theEstimatorToken);
+  theTTRHBuilder = &iSetup.getData(theRecHitBuilderToken);
 
   setData(data);
   if (theFilter)

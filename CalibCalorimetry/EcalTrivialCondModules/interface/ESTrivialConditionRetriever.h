@@ -40,6 +40,8 @@ namespace edm {
 class ESTrivialConditionRetriever : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   ESTrivialConditionRetriever(const edm::ParameterSet& pset);
+  ESTrivialConditionRetriever(const ESTrivialConditionRetriever&) = delete;                   // stop default
+  const ESTrivialConditionRetriever& operator=(const ESTrivialConditionRetriever&) = delete;  // stop default
   ~ESTrivialConditionRetriever() override;
 
   // ---------- member functions ---------------------------
@@ -64,9 +66,6 @@ protected:
                       edm::ValidityInterval&) override;
 
 private:
-  ESTrivialConditionRetriever(const ESTrivialConditionRetriever&) = delete;                   // stop default
-  const ESTrivialConditionRetriever& operator=(const ESTrivialConditionRetriever&) = delete;  // stop default
-
   void getWeightsFromConfiguration(const edm::ParameterSet& ps);
 
   // data members

@@ -6,8 +6,8 @@
 #include "CondFormats/CastorObjects/interface/CastorPedestalWidth.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimCalorimetry/CastorSim/src/CastorAmplifier.h"
-#include "SimCalorimetry/CastorSim/src/CastorSimParameters.h"
+#include "SimCalorimetry/CastorSim/interface/CastorAmplifier.h"
+#include "SimCalorimetry/CastorSim/interface/CastorSimParameters.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
 

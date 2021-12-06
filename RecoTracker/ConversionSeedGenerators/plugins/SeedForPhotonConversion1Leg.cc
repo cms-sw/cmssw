@@ -2,19 +2,11 @@
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 //#define mydebug_seed
 namespace {
@@ -55,11 +47,10 @@ GlobalTrajectoryParameters SeedForPhotonConversion1Leg::initialKinematic(const S
   SeedingHitSet::ConstRecHitPointer tth2 = hits[1];
 
   // FIXME optimize: move outside loop
-  edm::ESHandle<MagneticField> bfield;
-  es.get<IdealMagneticFieldRecord>().get(bfield);
-  float nomField = bfield->nominalValue();
+  const auto& bfield = es.getData(theBfieldToken);
+  float nomField = bfield.nominalValue();
 
-  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField, &*bfield, vertexPos);
+  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField, &bfield, vertexPos);
   kine = helix.stateAtVertex();
 
   //force the pz/pt equal to the measured one
@@ -93,7 +84,7 @@ GlobalTrajectoryParameters SeedForPhotonConversion1Leg::initialKinematic(const S
   ;
   if (isBOFF && (theBOFFMomentum > 0)) {
     kine =
-        GlobalTrajectoryParameters(kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), &*bfield);
+        GlobalTrajectoryParameters(kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), &bfield);
   }
   return kine;
 }
@@ -128,17 +119,12 @@ const TrajectorySeed* SeedForPhotonConversion1Leg::buildSeed(TrajectorySeedColle
   // FIXME all this stuff shoould go in an initialized...
 
   // get tracker
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  const auto* tracker = &es.getData(theTrackerToken);
 
   // get propagator
-  edm::ESHandle<Propagator> propagatorHandle;
-  es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
-  const Propagator* propagator = &(*propagatorHandle);
+  const Propagator* propagator = &es.getData(thePropagatorToken);
 
-  edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
-  es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
-  auto builder = (TkTransientTrackingRecHitBuilder const*)(builderH.product());
+  auto builder = static_cast<TkTransientTrackingRecHitBuilder const*>(&es.getData(theTTRHBuilderToken));
   auto cloner = (*builder).cloner();
 
   // get updator

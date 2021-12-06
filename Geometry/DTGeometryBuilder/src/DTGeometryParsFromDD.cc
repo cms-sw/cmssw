@@ -1,13 +1,13 @@
 /** \class DTGeometryParsFromDD
  *
- *  Build the RPCGeometry from the DDD and DD4Hep description
+ *  Build the RPCGeometry from the DDD and DD4hep description
  *  
  *  DD4hep part added to the original old file (DD version) made by Stefano Lacaprara (INFN LNL)
  *  \author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
  *  Created:  Tue, 26 Jan 2021 
  *
  */
-#include <Geometry/DTGeometryBuilder/src/DTGeometryParsFromDD.h>
+#include <Geometry/DTGeometryBuilder/interface/DTGeometryParsFromDD.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/DTGeometry/interface/DTChamber.h>
 #include <Geometry/DTGeometry/interface/DTLayer.h>
@@ -56,7 +56,7 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
   //cout << "RecoIdealGeometry " << rig.size() << endl;
 }
 
-// DD4Hep
+// DD4hep
 
 void DTGeometryParsFromDD::build(const cms::DDCompactView* cview,
                                  const MuonGeometryConstants& muonConstants,
@@ -259,12 +259,12 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const DDFilteredVie
   return pair<std::vector<double>, std::vector<double> >(gtran, grmat);
 }
 
-// DD4Hep
+// DD4hep
 
 void DTGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
                                          const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(0) DTGeometryParsFromDD - DD4HEP ";
+  edm::LogVerbatim("DTGeometryParsFromDD") << "(0) DTGeometryParsFromDD - DD4hep ";
 
   bool doChamber = fv.firstChild();
 
@@ -300,7 +300,7 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const cms::DDFilter
   gtran[1] = tr[1] / dd4hep::cm;
   gtran[2] = tr[2] / dd4hep::cm;
 
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(4) DD4HEP, Position "
+  edm::LogVerbatim("DTGeometryParsFromDD") << "(4) DD4hep, Position "
                                            << " " << gtran[0] << " " << gtran[1] << " " << gtran[2];
 
   DDRotationMatrix rotation = fv.rotation();
@@ -340,7 +340,7 @@ void DTGeometryParsFromDD::insertChamber(cms::DDFilteredView& fv,
   par[3] = par_temp[2] / dd4hep::mm;
 
   edm::LogVerbatim("DTGeometryParsFromDD")
-      << "(1) DD4HEP, Chamber DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[3];
+      << "(1) DD4hep, Chamber DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[3];
   PosRotPair posRot(plane(fv));
   rig.insert(rawid, posRot.first, posRot.second, par);
 }
@@ -361,7 +361,7 @@ void DTGeometryParsFromDD::insertSuperLayer(cms::DDFilteredView& fv,
   par[3] = par_temp[2] / dd4hep::mm;
 
   edm::LogVerbatim("DTGeometryParsFromDD")
-      << "(2) DD4HEP, Super Layer DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[3];
+      << "(2) DD4hep, Super Layer DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[3];
   PosRotPair posRot(plane(fv));
   rig.insert(slId, posRot.first, posRot.second, par);
 }
@@ -402,7 +402,7 @@ void DTGeometryParsFromDD::insertLayer(cms::DDFilteredView& fv,
   PosRotPair posRot(plane(fv));
 
   edm::LogVerbatim("DTGeometryParsFromDD")
-      << "(3) DD4HEP, Layer DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[3] << " "
+      << "(3) DD4hep, Layer DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[3] << " "
       << par[4] << " " << par[5] << " " << par[6];
   rig.insert(layId, posRot.first, posRot.second, par);
 }

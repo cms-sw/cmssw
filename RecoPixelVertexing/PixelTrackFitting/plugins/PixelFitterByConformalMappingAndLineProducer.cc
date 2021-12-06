@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -21,15 +20,16 @@
 class PixelFitterByConformalMappingAndLineProducer : public edm::global::EDProducer<> {
 public:
   explicit PixelFitterByConformalMappingAndLineProducer(const edm::ParameterSet& iConfig)
-      : theTTRHBuilderName(iConfig.getParameter<std::string>("TTRHBuilder")),
+      : theTTRHBuilderToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("TTRHBuilder")))),
+        theTrackerToken(esConsumes()),
+        theFieldToken(esConsumes()),
+        thePutToken(produces<PixelFitter>()),
         theFixImpactParameter(0),
         theUseFixImpactParameter(false) {
     if (iConfig.getParameter<bool>("useFixImpactParameter")) {
       theFixImpactParameter = iConfig.getParameter<double>("fixImpactParameter");
       theUseFixImpactParameter = true;
     }
-
-    produces<PixelFitter>();
   }
   ~PixelFitterByConformalMappingAndLineProducer() override {}
 
@@ -45,7 +45,10 @@ public:
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
-  std::string theTTRHBuilderName;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theTTRHBuilderToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerToken;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  const edm::EDPutTokenT<PixelFitter> thePutToken;
   double theFixImpactParameter;
   bool theUseFixImpactParameter;
 };
@@ -53,19 +56,12 @@ private:
 void PixelFitterByConformalMappingAndLineProducer::produce(edm::StreamID,
                                                            edm::Event& iEvent,
                                                            const edm::EventSetup& iSetup) const {
-  edm::ESHandle<TransientTrackingRecHitBuilder> ttrhBuilder;
-  iSetup.get<TransientRecHitRecord>().get(theTTRHBuilderName, ttrhBuilder);
-
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-
-  edm::ESHandle<MagneticField> field;
-  iSetup.get<IdealMagneticFieldRecord>().get(field);
-
-  auto impl = std::make_unique<PixelFitterByConformalMappingAndLine>(
-      ttrhBuilder.product(), tracker.product(), field.product(), theFixImpactParameter, theUseFixImpactParameter);
-  auto prod = std::make_unique<PixelFitter>(std::move(impl));
-  iEvent.put(std::move(prod));
+  iEvent.emplace(thePutToken,
+                 std::make_unique<PixelFitterByConformalMappingAndLine>(&iSetup.getData(theTTRHBuilderToken),
+                                                                        &iSetup.getData(theTrackerToken),
+                                                                        &iSetup.getData(theFieldToken),
+                                                                        theFixImpactParameter,
+                                                                        theUseFixImpactParameter));
 }
 
 DEFINE_FWK_MODULE(PixelFitterByConformalMappingAndLineProducer);

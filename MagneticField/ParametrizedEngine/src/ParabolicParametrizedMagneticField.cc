@@ -11,10 +11,14 @@ using namespace std;
 
 // Default parameters are the best fit of 3.8T to the OAEParametrizedMagneticField parametrization.
 ParabolicParametrizedMagneticField::ParabolicParametrizedMagneticField()
-    : c1(3.8114), b0(-3.94991e-06), b1(7.53701e-06), a(2.43878e-11) {}
+    : c1(3.8114), b0(-3.94991e-06), b1(7.53701e-06), a(2.43878e-11) {
+  setNominalValue();
+}
 
 ParabolicParametrizedMagneticField::ParabolicParametrizedMagneticField(const vector<double>& parameters)
-    : c1(parameters[0]), b0(parameters[1]), b1(parameters[2]), a(parameters[3]) {}
+    : c1(parameters[0]), b0(parameters[1]), b1(parameters[2]), a(parameters[3]) {
+  setNominalValue();
+}
 
 ParabolicParametrizedMagneticField::~ParabolicParametrizedMagneticField() {}
 

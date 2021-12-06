@@ -14,7 +14,7 @@ namespace trklet {
 
   class TrackFitMemory : public MemoryBase {
   public:
-    TrackFitMemory(std::string name, Settings const& settings, unsigned int iSector, double phimin, double phimax);
+    TrackFitMemory(std::string name, Settings const& settings, double phimin, double phimax);
 
     ~TrackFitMemory() override = default;
 
@@ -36,7 +36,7 @@ namespace trklet {
       stubidslists_.clear();
     }
 
-    void writeTF(bool first);
+    void writeTF(bool first, unsigned int iSector);
 
   private:
     double phimin_;

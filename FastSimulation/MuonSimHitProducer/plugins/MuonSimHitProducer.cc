@@ -93,6 +93,12 @@ private:
   // tokens
   edm::EDGetTokenT<std::vector<SimTrack> > simMuonToken;
   edm::EDGetTokenT<std::vector<SimVertex> > simVertexToken;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldESToken_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeometryESToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeometryESToken_;
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeometryESToken_;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleDataTableESToken_;
 };
 
 //for debug only
@@ -102,7 +108,13 @@ private:
 // constructors and destructor
 //
 MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig)
-    : theEstimator(iConfig.getParameter<double>("Chi2EstimatorCut")), propagatorWithoutMaterial(nullptr) {
+    : theEstimator(iConfig.getParameter<double>("Chi2EstimatorCut")),
+      propagatorWithoutMaterial(nullptr),
+      magneticFieldESToken_(esConsumes<edm::Transition::BeginRun>()),
+      dtGeometryESToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "MisAligned"))),
+      cscGeometryESToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "MisAligned"))),
+      rpcGeometryESToken_(esConsumes<edm::Transition::BeginRun>()),
+      particleDataTableESToken_(esConsumes()) {
   // Read relevant parameters
   readParameters(iConfig.getParameter<edm::ParameterSet>("MUONS"),
                  iConfig.getParameter<edm::ParameterSet>("TRACKS"),
@@ -126,21 +138,10 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig)
 // ---- method called once each job just before starting event loop ----
 void MuonSimHitProducer::beginRun(edm::Run const& run, const edm::EventSetup& es) {
   //services
-  edm::ESHandle<MagneticField> magField;
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  edm::ESHandle<RPCGeometry> rpcGeometry;
-  edm::ESHandle<Propagator> propagator;
-
-  es.get<IdealMagneticFieldRecord>().get(magField);
-  es.get<MuonGeometryRecord>().get("MisAligned", dtGeometry);
-  es.get<MuonGeometryRecord>().get("MisAligned", cscGeometry);
-  es.get<MuonGeometryRecord>().get(rpcGeometry);
-
-  magfield = &(*magField);
-  dtGeom = &(*dtGeometry);
-  cscGeom = &(*cscGeometry);
-  rpcGeom = &(*rpcGeometry);
+  magfield = &es.getData(magneticFieldESToken_);
+  dtGeom = &es.getData(dtGeometryESToken_);
+  cscGeom = &es.getData(cscGeometryESToken_);
+  rpcGeom = &es.getData(rpcGeometryESToken_);
 
   bool duringEvent = false;
   theService->update(es, duringEvent);
@@ -160,10 +161,7 @@ void MuonSimHitProducer::beginRun(edm::Run const& run, const edm::EventSetup& es
 // ------------ method called to produce the data  ------------
 
 void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // using namespace edm;
-  // using namespace std;
-  edm::ESHandle<HepPDT::ParticleDataTable> pdg;
-  iSetup.getData(pdg);
+  auto pdg = iSetup.getHandle(particleDataTableESToken_);
 
   RandomEngineAndDistribution random(iEvent.streamID());
 

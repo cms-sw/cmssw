@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/SortCollectionSelector.h"
 #include "RecoHI/HiTracking/interface/BestVertexComparator.h"
 
@@ -11,7 +11,7 @@ namespace reco {
   namespace modules {
 
     // define your producer name
-    typedef ObjectSelectorStream<SortCollectionSelector<reco::VertexCollection, GreaterByTracksSize<reco::Vertex> > >
+    typedef ObjectSelector<SortCollectionSelector<reco::VertexCollection, GreaterByTracksSize<reco::Vertex> > >
         HIBestVertexSelection;
 
     // declare the module as plugin

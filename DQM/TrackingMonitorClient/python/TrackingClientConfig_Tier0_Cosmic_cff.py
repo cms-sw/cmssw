@@ -62,15 +62,15 @@ TrackEffClient.AlgoName   = 'CKFTk'
 from DQM.TrackingMonitor.TrackFoldedOccupancyClient_cfi import TrackerMapFoldedClient 
 
 TrackerMapFoldedClient_CKFTk=TrackerMapFoldedClient.clone(
-    AlgoName = cms.string('CKFTk'),
-    MeasurementState = cms.string('default'),
-    TrackQuality = cms.string('')
+    AlgoName = 'CKFTk',
+    MeasurementState = 'default',
+    TrackQuality = ''
 )
 
 TrackerMapFoldedClient_CosmicTk=TrackerMapFoldedClient.clone(
-    AlgoName = cms.string('CosmicTk'),
-    MeasurementState = cms.string('default'),
-    TrackQuality = cms.string('')
+    AlgoName = 'CosmicTk',
+    MeasurementState = 'default',
+    TrackQuality = ''
 )
 
 # Sequence

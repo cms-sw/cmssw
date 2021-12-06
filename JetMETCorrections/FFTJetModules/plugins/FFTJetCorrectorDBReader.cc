@@ -45,13 +45,12 @@
 class FFTJetCorrectorDBReader : public edm::EDAnalyzer {
 public:
   explicit FFTJetCorrectorDBReader(const edm::ParameterSet&);
-  ~FFTJetCorrectorDBReader() override {}
-
-private:
   FFTJetCorrectorDBReader() = delete;
   FFTJetCorrectorDBReader(const FFTJetCorrectorDBReader&) = delete;
   FFTJetCorrectorDBReader& operator=(const FFTJetCorrectorDBReader&) = delete;
+  ~FFTJetCorrectorDBReader() override {}
 
+private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string record;

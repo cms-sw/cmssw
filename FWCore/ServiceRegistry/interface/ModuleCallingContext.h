@@ -18,6 +18,9 @@ Services as an argument to their callback functions.
 
 #include <iosfwd>
 
+namespace cms {
+  class Exception;
+}
 namespace edm {
 
   class GlobalContext;
@@ -81,6 +84,7 @@ namespace edm {
     State state_;
   };
 
+  void exceptionContext(cms::Exception&, ModuleCallingContext const&);
   std::ostream& operator<<(std::ostream&, ModuleCallingContext const&);
 }  // namespace edm
 #endif

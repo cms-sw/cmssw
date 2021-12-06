@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Utilities/interface/deprecated_macro.h"
 
 #include <string>
 
@@ -25,7 +26,7 @@ namespace edm {
     class ModuleHolderT;
   }
 
-  class EDAnalyzer : public EDConsumerBase {
+  class CMS_DEPRECATED EDAnalyzer : public EDConsumerBase {
   public:
     template <typename T>
     friend class maker::ModuleHolderT;
@@ -74,6 +75,7 @@ namespace edm {
     bool doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
+    void doRespondToCloseOutputFile() {}
     void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
     void registerProductsAndCallbacks(EDAnalyzer const*, ProductRegistry* reg);

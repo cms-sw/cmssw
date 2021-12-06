@@ -13,38 +13,47 @@
 
 ## Running instructions
 ```
-cmsRun run_distributions_reference_cfg.py
-cmsRun run_distributions_cfg.py
-cmsRun run_analysis_manual_cfg.py
+cmsRun run_distributions_reference_cfg.py && cmsRun run_distributions_cfg.py && cmsRun run_analysis_cfg.py
 ```
 
-## Expected results
-### x_alignment
- - RP 3: x = -3690.0 +- 17.9 um
- - RP 23: x = -41690.0 +- 17.2 um
- - RP 103: x = -2700.0 +- 16.9 um
- - RP 123: x = -41830.0 +- 16.0 um
+## Expected results (alignment_results.txt)
+```
+1: x_alignment:
+RP 3: shift (um) x = -3670.0 +- 19.8, y = 0.0 +- 0.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 23: shift (um) x = -41710.0 +- 20.6, y = 0.0 +- 0.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 103: shift (um) x = -2700.0 +- 18.8, y = 0.0 +- 0.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 123: shift (um) x = -41840.0 +- 19.5, y = 0.0 +- 0.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
 
-### x_alignment_relative:
- - RP 3: x = 18985.6 +- 1.0 um
- - RP 23: x = -18985.6 +- 1.0 um
- - RP 103: x = 19484.1 +- 1.2 um
- - RP 123: x = -19484.1 +- 1.2 um
 
-### x_alignment_relative_sl_fix:
- - RP 3: x = 18983.7 +- 0.2 um
- - RP 23: x = -18983.7 +- 0.2 um
- - RP 103: x = 19486.6 +- 0.3 um
- - RP 123: x = -19486.6 +- 0.3 um
+2: x_alignment_relative:
+RP 3: shift (um) x = 18984.6 +- 1.2, y = 0.0 +- 0.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 23: shift (um) x = -18984.6 +- 1.2, y = 0.0 +- 0.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 103: shift (um) x = 19485.3 +- 1.5, y = 0.0 +- 0.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 123: shift (um) x = -19485.3 +- 1.5, y = 0.0 +- 0.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
 
-### y_alignment:
- - RP 3: y = 3468.8 +- 44.1 um
- - RP 23: y = 4097.6 +- 44.8 um
- - RP 103: y = 3025.5 +- 77.8 um
- - RP 123: y = 3344.0 +- 66.1 um
+2: x_alignment_relative_sl_fix:
+RP 3: shift (um) x = 18983.8 +- 0.3, y = 0.0 +- 0.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 23: shift (um) x = -18983.8 +- 0.3, y = 0.0 +- 0.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 103: shift (um) x = 19486.8 +- 0.3, y = 0.0 +- 0.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 123: shift (um) x = -19486.8 +- 0.3, y = 0.0 +- 0.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
 
-### y_alignment_sl_fix:
- - RP 3: y = 3491.7 +- 10.7 um
- - RP 23: y = 4167.4 +- 11.6 um
- - RP 103: y = 2753.5 +- 18.2 um
- - RP 123: y = 3390.2 +- 17.3 um
+
+3: y_alignment:
+RP 3: shift (um) x = 0.0 +- 0.0, y = 3443.3 +- 101.7, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 23: shift (um) x = 0.0 +- 0.0, y = 4190.3 +- 87.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 103: shift (um) x = 0.0 +- 0.0, y = 2885.9 +- 66.2, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 123: shift (um) x = 0.0 +- 0.0, y = 3491.8 +- 129.5, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+
+3: y_alignment_sl_fix:
+RP 3: shift (um) x = 0.0 +- 0.0, y = 3490.3 +- 16.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 23: shift (um) x = 0.0 +- 0.0, y = 4209.1 +- 15.8, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 103: shift (um) x = 0.0 +- 0.0, y = 2751.2 +- 16.1, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 123: shift (um) x = 0.0 +- 0.0, y = 3417.9 +- 23.9, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+
+
+final merged results:
+RP 3: shift (um) x = -3706.2 +- 19.8, y = 3490.3 +- 16.0, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 23: shift (um) x = -41673.8 +- 20.6, y = 4209.1 +- 15.8, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 103: shift (um) x = -2783.2 +- 18.8, y = 2751.2 +- 16.1, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+RP 123: shift (um) x = -41756.8 +- 19.5, y = 3417.9 +- 23.9, z = 0.0 +- 0.0, rotation (mrad) x = 0.0 +- 0.0, y = 0.0 +- 0.0, z = 0.0 +- 0.0
+```

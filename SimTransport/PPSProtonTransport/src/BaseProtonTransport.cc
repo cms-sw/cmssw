@@ -8,11 +8,14 @@
 BaseProtonTransport::BaseProtonTransport(const edm::ParameterSet& iConfig)
     : verbosity_(iConfig.getParameter<bool>("Verbosity")),
       bApplyZShift(iConfig.getParameter<bool>("ApplyZShift")),
+      useBeamPositionFromLHCInfo_(iConfig.getParameter<bool>("useBeamPositionFromLHCInfo")),
+      produceHitsRelativeToBeam_(iConfig.getParameter<bool>("produceHitsRelativeToBeam")),
       fPPSRegionStart_45(iConfig.getParameter<double>("PPSRegionStart_45")),
       fPPSRegionStart_56(iConfig.getParameter<double>("PPSRegionStart_56")),
+      beamEnergy_(iConfig.getParameter<double>("BeamEnergy")),
       etaCut_(iConfig.getParameter<double>("EtaCut")),
       momentumCut_(iConfig.getParameter<double>("MomentumCut")) {
-  beamMomentum_ = sqrt(beamEnergy_ * beamEnergy_ - ProtonMassSQ);
+  setBeamEnergy(beamEnergy_);
 }
 void BaseProtonTransport::ApplyBeamCorrection(HepMC::GenParticle* p) {
   TLorentzVector p_out;

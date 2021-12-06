@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import os
@@ -8,14 +8,16 @@ from time import time
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
 
 from Validation.RecoTrack.plotting.validation import SeparateValidation, SimpleValidation, SimpleSample
+from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
 import Validation.HGCalValidation.hgcalPlots as hgcalPlots
 import Validation.RecoTrack.plotting.plotting as plotting
 
-simClustersIters = ["ClusterLevel","ticlSimTracksters"]
+simClustersIters = [hgcalValidator.label_SimClustersLevel._InputTag__moduleLabel, "ticlSimTracksters"]
 trackstersIters = ['ticlTracksters'+iteration for iteration in ticlIterLabelsMerge]
 trackstersIters.extend(["ticlSimTracksters"])
 
-hitLabel = 'recHits'
+hitCalLabel = 'hitCalibration'
+hitValLabel = 'hitValidation'
 layerClustersLabel = 'layerClusters'
 trackstersLabel = 'tracksters'
 trackstersWithEdgesLabel = 'trackstersWithEdges'
@@ -23,7 +25,7 @@ simLabel = 'simulation'
 allLabel = 'all'
 
 collection_choices = [allLabel]
-collection_choices.extend([hitLabel]+[layerClustersLabel]+[trackstersLabel]+[trackstersWithEdgesLabel]+[simLabel])
+collection_choices.extend([hitCalLabel]+[hitValLabel]+[layerClustersLabel]+[trackstersLabel]+[trackstersWithEdgesLabel]+[simLabel])
 
 def main(opts):
 
@@ -51,7 +53,7 @@ def main(opts):
     #layerClusters
     def plot_LC():
         hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-        hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
+        hgcalPlots.append_hgcalLayerClustersPlots(hgcalValidator.label_layerClusterPlots._InputTag__moduleLabel, "Layer Clusters", extendedFlag)
         val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
 
     #simClusters
@@ -83,7 +85,7 @@ def main(opts):
                          "kaon0L": "310", "kaon0S": "130",
                          "kaon-": "-321", "kaon+": "321"}
         hgcaloPart = [hgcalPlots.hgcalCaloParticlesPlotter]
-        for i_part, i_partID in particletypes.iteritems() :
+        for i_part, i_partID in particletypes.items() :
             hgcalPlots.append_hgcalCaloParticlesPlots(sample.files(), i_partID, i_part)
         val.doPlots(hgcaloPart, plotterDrawArgs=drawArgs)
 
@@ -101,7 +103,7 @@ def main(opts):
         val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
 
 
-    plotDict = {hitLabel:[plot_hitVal, plot_hitCal], layerClustersLabel:[plot_LC], trackstersLabel:[plot_Tst], trackstersWithEdgesLabel:[plot_TstEdges], simLabel:[plot_SC, plot_CP]}
+    plotDict = {hitCalLabel:[plot_hitCal], hitValLabel:[plot_hitVal], layerClustersLabel:[plot_LC], trackstersLabel:[plot_Tst], trackstersWithEdgesLabel:[plot_TstEdges], simLabel:[plot_SC, plot_CP]}
 
     if (opts.collection != allLabel):
         for task in plotDict[opts.collection]:

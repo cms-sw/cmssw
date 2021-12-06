@@ -15,24 +15,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/DTObjects/interface/DTMtime.h"
-#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
-#include "CondFormats/DTObjects/interface/DTTtrig.h"
-#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
-#include "CondFormats/DTObjects/interface/DTT0.h"
-#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
-#include "CondFormats/DataRecord/interface/DTDeadFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTDeadFlag.h"
-#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
-#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-#include "CondFormats/DataRecord/interface/DTRecoUncertaintiesRcd.h"
-#include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
-#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
-#include "CondFormats/DataRecord/interface/DTRecoConditionsTtrigRcd.h"
-#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
-#include "CondFormats/DataRecord/interface/DTRecoConditionsUncertRcd.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -55,6 +37,30 @@ DumpDBToFile::DumpDBToFile(const ParameterSet& pset) {
 
   if (format != "Legacy" && format != "DTRecoConditions")
     throw cms::Exception("IncorrectSetup") << "Parameter format is not valid, check the cfg file" << endl;
+
+  if (dbToDump == "VDriftDB") {
+    if (format == "Legacy") {
+      mTimeMapToken_ = esConsumes<edm::Transition::BeginRun>();
+    } else {
+      vDriftToken_ = esConsumes<edm::Transition::BeginRun>();
+    }
+  } else if (dbToDump == "TTrigDB") {
+    if (format == "Legacy") {
+      tTrigMapToken_ = esConsumes<edm::Transition::BeginRun>();
+    } else {
+      tTrigToken_ = esConsumes<edm::Transition::BeginRun>();
+    }
+  } else if (dbToDump == "TZeroDB") {
+    t0MapToken_ = esConsumes<edm::Transition::BeginRun>();
+  } else if (dbToDump == "NoiseDB") {
+    statusMapToken_ = esConsumes<edm::Transition::BeginRun>();
+  } else if (dbToDump == "DeadDB") {
+    deadMapToken_ = esConsumes<edm::Transition::BeginRun>();
+  } else if (dbToDump == "ChannelsDB") {
+    readOutMapToken_ = esConsumes<edm::Transition::BeginRun>();
+  } else if (dbToDump == "RecoUncertDB") {
+    uncertToken_ = esConsumes<edm::Transition::BeginRun>();
+  }
 }
 
 DumpDBToFile::~DumpDBToFile() {}
@@ -63,50 +69,26 @@ void DumpDBToFile::beginRun(const edm::Run&, const EventSetup& setup) {
   // Read the right DB accordingly to the parameter dbToDump
   if (dbToDump == "VDriftDB") {
     if (format == "Legacy") {
-      ESHandle<DTMtime> mTime;
-      setup.get<DTMtimeRcd>().get(mTime);
-      mTimeMap = &*mTime;
+      mTimeMap = &setup.getData(mTimeMapToken_);
     } else if (format == "DTRecoConditions") {
-      ESHandle<DTRecoConditions> h_rconds;
-      setup.get<DTRecoConditionsVdriftRcd>().get(h_rconds);
-      rconds = &*h_rconds;
+      rconds = &setup.getData(vDriftToken_);
     }
   } else if (dbToDump == "TTrigDB") {
     if (format == "Legacy") {
-      ESHandle<DTTtrig> tTrig;
-      setup.get<DTTtrigRcd>().get(dbLabel, tTrig);
-      tTrigMap = &*tTrig;
+      tTrigMap = &setup.getData(tTrigMapToken_);
     } else if (format == "DTRecoConditions") {
-      ESHandle<DTRecoConditions> h_rconds;
-      setup.get<DTRecoConditionsTtrigRcd>().get(h_rconds);
-      rconds = &*h_rconds;
+      rconds = &setup.getData(tTrigToken_);
     }
   } else if (dbToDump == "TZeroDB") {
-    ESHandle<DTT0> t0;
-    setup.get<DTT0Rcd>().get(t0);
-    tZeroMap = &*t0;
+    tZeroMap = &setup.getData(t0MapToken_);
   } else if (dbToDump == "NoiseDB") {
-    ESHandle<DTStatusFlag> status;
-    setup.get<DTStatusFlagRcd>().get(status);
-    statusMap = &*status;
+    statusMap = &setup.getData(statusMapToken_);
   } else if (dbToDump == "DeadDB") {
-    ESHandle<DTDeadFlag> dead;
-    setup.get<DTDeadFlagRcd>().get(dead);
-    deadMap = &*dead;
+    deadMap = &setup.getData(deadMapToken_);
   } else if (dbToDump == "ChannelsDB") {
-    ESHandle<DTReadOutMapping> channels;
-    setup.get<DTReadOutMappingRcd>().get(channels);
-    channelsMap = &*channels;
+    channelsMap = &setup.getData(readOutMapToken_);
   } else if (dbToDump == "RecoUncertDB") {
-    if (format == "Legacy") {
-      ESHandle<DTRecoUncertainties> uncerts;
-      setup.get<DTRecoUncertaintiesRcd>().get(uncerts);
-      uncertMap = &*uncerts;
-    } else if (format == "DTRecoConditions") {
-      ESHandle<DTRecoConditions> h_rconds;
-      setup.get<DTRecoConditionsUncertRcd>().get(h_rconds);
-      rconds = &*h_rconds;
-    }
+    rconds = &setup.getData(uncertToken_);
   }
 }
 
@@ -245,7 +227,7 @@ void DumpDBToFile::endJob() {
         float t0rms;
         // t0s and rms are TDC counts
         tZeroMap->get(wireId, t0mean, t0rms, DTTimeUnits::counts);
-        cout << wireId << " TZero mean (TDC counts): " << t0mean << " TZero RMS (TDC counts): " << t0rms << endl;
+        //        cout << wireId << " TZero mean (TDC counts): " << t0mean << " TZero RMS (TDC counts): " << t0rms << endl;
         vector<float> consts;
         consts.push_back(-1);
         consts.push_back(-1);
@@ -302,42 +284,23 @@ void DumpDBToFile::endJob() {
 
       //---------- Uncertainties
     } else if (dbToDump == "RecoUncertDB") {
-      if (format == "Legacy") {
-        int version = 1;
-        int type = 2;  // par[step]
-        cout << "RecoUncertDB version: " << uncertMap->version() << endl;
-        for (DTRecoUncertainties::const_iterator wireAndUncerts = uncertMap->begin();
-             wireAndUncerts != uncertMap->end();
-             ++wireAndUncerts) {
-          DTWireId wireId((*wireAndUncerts).first);
-          vector<float> values = (*wireAndUncerts).second;
-          // 	  cout << wireId;
-          // 	  copy(values.begin(), values.end(), ostream_iterator<float>(cout, " cm, "));
-          // 	  cout << endl;
-          int nfields = values.size();
-          vector<float> consts = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, float(version * 1000 + type * 100 + nfields)};
-          consts.insert(consts.end(), values.begin(), values.end());
-          theCalibFile->addCell(wireId, consts);
-        }
-      } else if (format == "DTRecoConditions") {
-        int version = rconds->version();
-        string expr = rconds->getFormulaExpr();
-        int type = 2;  // par[step]
-        if (version != 1 || expr != "par[step]")
-          throw cms::Exception("Configuration") << "only version 1, type 2 is presently supported for RecoUncertDB";
+      int version = rconds->version();
+      string expr = rconds->getFormulaExpr();
+      int type = 2;  // par[step]
+      if (version != 1 || expr != "par[step]")
+        throw cms::Exception("Configuration") << "only version 1, type 2 is presently supported for RecoUncertDB";
 
-        cout << "[DumpDBToFile] DTRecoConditions (uncerts) version: " << rconds->version() << " expression: " << expr
-             << endl;
+      cout << "[DumpDBToFile] DTRecoConditions (uncerts) version: " << rconds->version() << " expression: " << expr
+           << endl;
 
-        for (DTRecoConditions::const_iterator irc = rconds->begin(); irc != rconds->end(); ++irc) {
-          DTWireId wireId(irc->first);
-          const vector<double>& data = irc->second;
-          int nfields = data.size();
-          vector<float> consts(11 + nfields, -1);
-          consts[10] = float(version * 1000 + type * 100 + nfields);
-          std::copy(data.begin(), data.end(), consts.begin() + 11);
-          theCalibFile->addCell(wireId, consts);
-        }
+      for (DTRecoConditions::const_iterator irc = rconds->begin(); irc != rconds->end(); ++irc) {
+        DTWireId wireId(irc->first);
+        const vector<double>& data = irc->second;
+        int nfields = data.size();
+        vector<float> consts(11 + nfields, -1);
+        consts[10] = float(version * 1000 + type * 100 + nfields);
+        std::copy(data.begin(), data.end(), consts.begin() + 11);
+        theCalibFile->addCell(wireId, consts);
       }
     }
     //Write constants into file

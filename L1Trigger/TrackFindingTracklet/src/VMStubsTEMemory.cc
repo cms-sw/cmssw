@@ -1,4 +1,5 @@
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsTEMemory.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
 #include <filesystem>
@@ -6,10 +7,12 @@
 using namespace std;
 using namespace trklet;
 
-VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings, unsigned int iSector)
-    : MemoryBase(name, settings, iSector) {
+VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings)
+    : MemoryBase(name, settings), bendtable_(settings) {
   //set the layer or disk that the memory is in
   initLayerDisk(6, layer_, disk_);
+
+  layerdisk_ = initLayerDisk(6);
 
   //Pointer to other VMStub memory for creating stub pairs
   other_ = nullptr;
@@ -21,16 +24,6 @@ VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings, unsigned
   phibin_ = subname[0] - '0';
   if (subname[1] != 'n') {
     phibin_ = 10 * phibin_ + (subname[1] - '0');
-  }
-
-  //set the bins used in the bend tabele
-  unsigned int nbins = 8;
-  if (layer_ >= 4)
-    nbins = 16;
-  if (disk_ == 1 && extended_ && overlap_)
-    nbins = 16;
-  for (unsigned int i = 0; i < nbins; i++) {
-    vmbendtable_.push_back(true);
   }
 
   isinner_ = (layer_ % 2 == 1 or disk_ % 2 == 1);
@@ -71,17 +64,24 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
     if (negdisk)
       bin += 4;
     assert(bin < (int)stubsbinnedvm_.size());
-    stubsbinnedvm_[bin].push_back(vmstub);
-    stubsvm_.push_back(vmstub);
+    if (stubsbinnedvm_[bin].size() < N_VMSTUBSMAX) {
+      stubsbinnedvm_[bin].push_back(vmstub);
+      stubsvm_.push_back(vmstub);
+    }
     return true;
   }
 
-  bool pass = passbend(vmstub.bend().value());
+  bool pass = false;
+  if (settings_.extended() && bendtable_.size() == 0) {
+    pass = true;
+  } else {
+    pass = bendtable_.lookup(vmstub.bend().value());
+  }
 
   if (!pass) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << getName() << " Stub failed bend cut. bend = "
-                                   << benddecode(vmstub.bend().value(), vmstub.isPSmodule());
+                                   << settings_.benddecode(vmstub.bend().value(), layerdisk_, vmstub.isPSmodule());
     return false;
   }
 
@@ -103,7 +103,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
       stubsbinnedvm_[bin].push_back(vmstub);
     }
   } else {
-    if (vmstub.stub()->isBarrel()) {
+    if (vmstub.stub()->layerdisk() < N_LAYER) {
       if (!isinner_) {
         if (stubsbinnedvm_[bin].size() >= settings_.maxStubsPerBin())
           return false;
@@ -138,12 +138,18 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
 
   //If the pt of the stub is consistent with the allowed pt of tracklets
   //in that can be formed in this VM and the other VM used in the TE.
-  bool pass = passbend(vmstub.bend().value());
+
+  bool pass = false;
+  if (settings_.extended() && bendtable_.size() == 0) {
+    pass = true;
+  } else {
+    pass = bendtable_.lookup(vmstub.bend().value());
+  }
 
   if (!pass) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << getName() << " Stub failed bend cut. bend = "
-                                   << benddecode(vmstub.bend().value(), vmstub.isPSmodule());
+                                   << settings_.benddecode(vmstub.bend().value(), layerdisk_, vmstub.isPSmodule());
     return false;
   }
 
@@ -162,7 +168,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
         }
       }
     } else {
-      if (vmstub.stub()->isBarrel()) {
+      if (vmstub.stub()->layerdisk() < N_LAYER) {
         if (!isinner_) {
           stubsbinnedvm_[bin].push_back(vmstub);
         }
@@ -214,7 +220,8 @@ void VMStubsTEMemory::clean() {
   }
 }
 
-void VMStubsTEMemory::writeStubs(bool first) {
+void VMStubsTEMemory::writeStubs(bool first, unsigned int iSector) {
+  iSector_ = iSector;
   const string dirVM = settings_.memPath() + "VMStubsTE/";
   openFile(first, dirVM, "VMStubs_");
 
@@ -227,7 +234,7 @@ void VMStubsTEMemory::writeStubs(bool first) {
       out_ << " " << stub << " " << trklet::hexFormat(stub) << endl;
     }
   } else {  // outer VM for TE purpose
-    for (unsigned int i = 0; i < settings_.NLONGVMBINS(); i++) {
+    for (unsigned int i = 0; i < stubsbinnedvm_.size(); i++) {
       for (unsigned int j = 0; j < stubsbinnedvm_[i].size(); j++) {
         string stub = stubsbinnedvm_[i][j].str();
         out_ << hex << i << " " << j << dec << " " << stub << " " << trklet::hexFormat(stub) << endl;
@@ -267,37 +274,4 @@ void VMStubsTEMemory::getPhiRange(double& phimin, double& phimax, unsigned int i
   return;
 }
 
-void VMStubsTEMemory::setbendtable(std::vector<bool> vmbendtable) {
-  assert(vmbendtable_.size() == vmbendtable.size());
-  for (unsigned int i = 0; i < vmbendtable.size(); i++) {
-    vmbendtable_[i] = vmbendtable[i];
-  }
-
-  if (iSector_ == 0 && settings_.writeTable())
-    writeVMBendTable();
-}
-
-void VMStubsTEMemory::writeVMBendTable() {
-  if (not std::filesystem::exists(settings_.tablePath())) {
-    int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
-    if (fail)
-      throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
-                                     << settings_.tablePath();
-  }
-
-  const string fname = settings_.tablePath() + getName() + "_vmbendcut.tab";
-  ofstream outvmbendcut(fname);
-  if (outvmbendcut.fail())
-    throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
-
-  outvmbendcut << "{" << endl;
-  unsigned int vmbendtableSize = vmbendtable_.size();
-  assert(vmbendtableSize == 16 || vmbendtableSize == 8);
-  for (unsigned int i = 0; i < vmbendtableSize; i++) {
-    if (i != 0)
-      outvmbendcut << "," << endl;
-    outvmbendcut << vmbendtable_[i];
-  }
-  outvmbendcut << endl << "};" << endl;
-  outvmbendcut.close();
-}
+void VMStubsTEMemory::setbendtable(const TrackletLUT& bendtable) { bendtable_ = bendtable; }

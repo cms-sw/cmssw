@@ -28,8 +28,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -42,22 +40,22 @@ class L1MuDTSecProcId;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTWedgeSorter : public L1AbstractProcessor {
+class L1MuDTWedgeSorter {
 public:
   /// constructor
   L1MuDTWedgeSorter(const L1MuDTTrackFinder&, int id);
 
   /// destructor
-  ~L1MuDTWedgeSorter() override;
+  ~L1MuDTWedgeSorter();
 
   /// return Wedge Sorter identifier (0-11)
   inline int id() const { return m_wsid; }
 
   /// run Wedge Sorter
-  void run() override;
+  void run();
 
   /// reset Wedge Sorter
-  void reset() override;
+  void reset();
 
   /// print results after sorting
   void print() const;

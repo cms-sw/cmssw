@@ -29,7 +29,7 @@ class AlignmentMonitorGeneric : public AlignmentMonitorBase {
   typedef std::vector<TH1F*> Hist1Ds;
 
 public:
-  AlignmentMonitorGeneric(const edm::ParameterSet&);
+  AlignmentMonitorGeneric(const edm::ParameterSet&, edm::ConsumesCollector iC);
 
   void book() override;
 

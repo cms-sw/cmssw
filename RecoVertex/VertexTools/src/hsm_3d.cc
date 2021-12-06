@@ -1,5 +1,5 @@
 #include "RecoVertex/VertexTools/interface/hsm_3d.h"
-#include "CommonTools/Statistics/interface/hsm_1d.icc"
+#include "CommonTools/Statistics/interface/hsm_1d.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 #include <iostream>

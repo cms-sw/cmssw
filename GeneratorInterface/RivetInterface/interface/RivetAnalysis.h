@@ -33,6 +33,7 @@ namespace Rivet {
     bool _usePromptFinalStates;
     bool _excludePromptLeptonsFromJetClustering;
     bool _excludeNeutrinosFromJetClustering;
+    bool _doJetClustering;
 
     double _particleMinPt, _particleMaxEta;
     double _lepConeSize, _lepMinPt, _lepMaxEta;
@@ -51,6 +52,7 @@ namespace Rivet {
           _usePromptFinalStates(pset.getParameter<bool>("usePromptFinalStates")),
           _excludePromptLeptonsFromJetClustering(pset.getParameter<bool>("excludePromptLeptonsFromJetClustering")),
           _excludeNeutrinosFromJetClustering(pset.getParameter<bool>("excludeNeutrinosFromJetClustering")),
+          _doJetClustering(pset.getParameter<bool>("doJetClustering")),
 
           _particleMinPt(pset.getParameter<double>("particleMinPt")),
           _particleMaxEta(pset.getParameter<double>("particleMaxEta")),
@@ -194,8 +196,10 @@ namespace Rivet {
         _photons.push_back(photon);
       }
 
-      _jets = apply<FastJets>(event, "Jets").jetsByPt(jet_cut);
-      _fatjets = apply<FastJets>(event, "FatJets").jetsByPt(fatjet_cut);
+      if (_doJetClustering) {
+        _jets = apply<FastJets>(event, "Jets").jetsByPt(jet_cut);
+        _fatjets = apply<FastJets>(event, "FatJets").jetsByPt(fatjet_cut);
+      }
       _neutrinos = apply<FinalState>(event, "Neutrinos").particlesByPt();
       _met = apply<MissingMomentum>(event, "MET").missingMomentum().p3();
 

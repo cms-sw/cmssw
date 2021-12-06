@@ -4,11 +4,9 @@ from PhysicsTools.NanoAOD.globals_cff import genTable
 from PhysicsTools.NanoAOD.met_cff import metMCTable
 from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.particlelevel_cff import *
-from PhysicsTools.NanoAOD.lheInfoTable_cfi import *
 from PhysicsTools.NanoAOD.genWeightsTable_cfi import *
 from PhysicsTools.NanoAOD.genVertex_cff import *
 from PhysicsTools.NanoAOD.common_cff import Var,CandVars
-from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -18,24 +16,23 @@ nanoMetadata = cms.EDProducer("UniqueStringProducer",
 
 nanogenSequence = cms.Sequence(
     nanoMetadata+
-    particleLevel+
+    cms.Sequence(particleLevelTask)+
     genJetTable+
-    patJetPartons+
+    patJetPartonsNano+
     genJetFlavourAssociation+
     genJetFlavourTable+
     genJetAK8Table+
     genJetAK8FlavourAssociation+
     genJetAK8FlavourTable+
-    genTauSequence+
+    cms.Sequence(genTauTask)+
     genTable+
-    genParticleTables+
-    genVertexTables+
+    cms.Sequence(genParticleTablesTask)+
+    cms.Sequence(genVertexTablesTask)+
     tautagger+
     rivetProducerHTXS+
-    particleLevelTables+
+    cms.Sequence(particleLevelTablesTask)+
     metMCTable+
-    genWeightsTable+
-    lheInfoTable
+    genWeightsTable
 )
 
 def nanoGenCommonCustomize(process):
@@ -62,10 +59,6 @@ def customizeNanoGENFromMini(process):
     process.nanogenSequence.insert(0, process.genParticles2HepMC)
     process.nanogenSequence.insert(0, process.mergedGenParticles)
 
-    (run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94X2016 | \
-        run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | \
-        run2_nanoAOD_102Xv1).toReplaceWith(nanogenSequence, nanogenSequence.copyAndExclude([genVertexTable, genVertexT0Table]))
-
     process.metMCTable.src = "slimmedMETs"
     process.metMCTable.variables.pt = Var("genMET.pt", float, doc="pt")
     process.metMCTable.variables.phi = Var("genMET.phi", float, doc="phi")
@@ -73,7 +66,7 @@ def customizeNanoGENFromMini(process):
 
     process.rivetProducerHTXS.HepMCCollection = "genParticles2HepMCHiggsVtx:unsmeared"
     process.genParticleTable.src = "prunedGenParticles"
-    process.patJetPartons.particles = "prunedGenParticles"
+    process.patJetPartonsNano.particles = "prunedGenParticles"
     process.particleLevel.src = "genParticles2HepMC:unsmeared"
 
     process.genJetTable.src = "slimmedGenJets"
@@ -91,7 +84,7 @@ def customizeNanoGEN(process):
 
     process.rivetProducerHTXS.HepMCCollection = "generatorSmeared"
     process.genParticleTable.src = "genParticles"
-    process.patJetPartons.particles = "genParticles"
+    process.patJetPartonsNano.particles = "genParticles"
     process.particleLevel.src = "generatorSmeared"
 
     process.genJetTable.src = "ak4GenJets"

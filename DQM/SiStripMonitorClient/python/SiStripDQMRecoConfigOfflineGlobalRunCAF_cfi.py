@@ -8,19 +8,22 @@ from DQM.SiStripMonitorClient.RecoForDQM_Cosmic_cff import *
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
 # cosmic track finder #
 import RecoTracker.TrackProducer.TrackRefitters_cff 
-cosmictrackfinderP5Refitter                   = RecoTracker.TrackProducer.TrackRefitters_cff.TrackRefitter.clone()
-cosmictrackfinderP5Refitter.src               = 'cosmictrackfinderP5'
-cosmictrackfinderP5Refitter.TrajectoryInEvent = True
+cosmictrackfinderP5Refitter = RecoTracker.TrackProducer.TrackRefitters_cff.TrackRefitter.clone(
+    src = 'cosmictrackfinderP5',
+    TrajectoryInEvent = True
+)
 # CTF #
 import RecoTracker.TrackProducer.TrackRefitters_cff
-ctfWithMaterialTracksP5Refitter                   = RecoTracker.TrackProducer.TrackRefitters_cff.TrackRefitter.clone()
-ctfWithMaterialTracksP5Refitter.src               = 'ctfWithMaterialTracksP5'
-ctfWithMaterialTracksP5Refitter.TrajectoryInEvent = True
+ctfWithMaterialTracksP5Refitter = RecoTracker.TrackProducer.TrackRefitters_cff.TrackRefitter.clone(
+    src = 'ctfWithMaterialTracksP5',
+    TrajectoryInEvent = True
+)
 # RS #
 import RecoTracker.TrackProducer.TrackRefitters_cff
-rsWithMaterialTracksP5Refitter                   = RecoTracker.TrackProducer.TrackRefitters_cff.TrackRefitter.clone()
-rsWithMaterialTracksP5Refitter.src               = 'rsWithMaterialTracksP5'
-rsWithMaterialTracksP5Refitter.TrajectoryInEvent = True
+rsWithMaterialTracksP5Refitter = RecoTracker.TrackProducer.TrackRefitters_cff.TrackRefitter.clone(
+    src = 'rsWithMaterialTracksP5',
+    TrajectoryInEvent = True
+)
 
 ## Scheduling ##
 # additional reco needed for running from RAW #

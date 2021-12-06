@@ -42,6 +42,11 @@ namespace edm {
     template <class TObj, class TMemFunc>
     ESWatcher(TObj const& iObj, TMemFunc iFunc)
         : callback_(std::bind(iFunc, iObj, std::placeholders::_1)), cacheId_(0) {}
+
+    ESWatcher(const ESWatcher&) = delete;  // stop default
+
+    const ESWatcher& operator=(const ESWatcher&) = delete;  // stop default
+
     //virtual ~ESWatcher();
 
     // ---------- const member functions ---------------------
@@ -60,10 +65,6 @@ namespace edm {
     }
 
   private:
-    ESWatcher(const ESWatcher&) = delete;  // stop default
-
-    const ESWatcher& operator=(const ESWatcher&) = delete;  // stop default
-
     // ---------- member data --------------------------------
     std::function<void(const T&)> callback_;
     unsigned long long cacheId_;

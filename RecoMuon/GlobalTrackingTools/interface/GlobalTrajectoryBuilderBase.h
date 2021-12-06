@@ -23,6 +23,10 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
@@ -164,5 +168,9 @@ private:
   const TransientTrackingRecHitBuilder* theMuonRecHitBuilder;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTopoToken;
   const TrackerTopology* theTopo;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  const MagneticField* theField;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> theMSMakerToken;
+  const MultipleScatteringParametrisationMaker* theMSMaker;
 };
 #endif

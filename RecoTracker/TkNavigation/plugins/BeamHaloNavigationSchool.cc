@@ -22,7 +22,7 @@ protected:
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "TrackingTools/DetLayers/src/DetLessZ.h"
+#include "TrackingTools/DetLayers/interface/DetLessZ.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 

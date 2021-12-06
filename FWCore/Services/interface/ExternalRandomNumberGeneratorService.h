@@ -20,6 +20,8 @@ namespace edm {
   class ExternalRandomNumberGeneratorService : public RandomNumberGenerator {
   public:
     ExternalRandomNumberGeneratorService();
+    ExternalRandomNumberGeneratorService(ExternalRandomNumberGeneratorService const&) = delete;
+    ExternalRandomNumberGeneratorService const& operator=(ExternalRandomNumberGeneratorService const&) = delete;
 
     void setState(std::vector<unsigned long> const&, long seed);
     std::vector<unsigned long> getState() const;
@@ -50,9 +52,6 @@ namespace edm {
     void print(std::ostream& os) const final;
 
   private:
-    ExternalRandomNumberGeneratorService(ExternalRandomNumberGeneratorService const&) = delete;
-    ExternalRandomNumberGeneratorService const& operator=(ExternalRandomNumberGeneratorService const&) = delete;
-
     std::unique_ptr<CLHEP::HepRandomEngine> createFromState(std::vector<unsigned long> const&, long seed) const;
 
     std::unique_ptr<CLHEP::HepRandomEngine> engine_;

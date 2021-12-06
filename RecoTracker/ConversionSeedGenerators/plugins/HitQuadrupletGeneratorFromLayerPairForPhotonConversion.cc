@@ -9,10 +9,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
-#include "RecoTracker/TkHitPairs/src/InnerDeltaPhi.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 using namespace GeomDetEnumerators;
 using namespace std;
@@ -41,9 +37,7 @@ HitQuadrupletGeneratorFromLayerPairForPhotonConversion::HitQuadrupletGeneratorFr
 
 void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const TrackingRegion &region,
                                                                       OrderedHitPairs &result,
-                                                                      const Layers &layers,
-                                                                      const edm::Event &event,
-                                                                      const edm::EventSetup &es) {
+                                                                      const Layers &layers) {
   ss->str("");
 
   typedef OrderedHitPair::InnerRecHit InnerHit;
@@ -59,11 +53,11 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
 #endif
 
   /*get hit sorted in phi for each layer: NB: doesn't apply any region cut*/
-  const RecHitsSortedInPhi &innerHitsMap = theLayerCache(innerLayerObj, region, es);
+  const RecHitsSortedInPhi &innerHitsMap = theLayerCache(innerLayerObj, region);
   if (innerHitsMap.empty())
     return;
 
-  const RecHitsSortedInPhi &outerHitsMap = theLayerCache(outerLayerObj, region, es);
+  const RecHitsSortedInPhi &outerHitsMap = theLayerCache(outerLayerObj, region);
   if (outerHitsMap.empty())
     return;
   /*----------------*/
@@ -85,7 +79,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
     GlobalPoint oPos = ohit->globalPosition();
 
     totCountP2++;
-    std::unique_ptr<const HitRZCompatibility> checkRZ = region.checkRZ(outerLayerObj.detLayer(), ohit, es);
+    std::unique_ptr<const HitRZCompatibility> checkRZ = region.checkRZ(outerLayerObj.detLayer(), ohit);
     for (nextoh = oh + 1; nextoh != outerHits.second; ++nextoh) {
       RecHitsSortedInPhi::Hit nohit = (*nextoh).hit();
       GlobalPoint noPos = nohit->globalPosition();
@@ -127,8 +121,8 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
       (*ss) << "\tiphimin, iphimax " << innerPhimin << " " << innerPhimax << std::endl;
 #endif
 
-      std::unique_ptr<const HitRZCompatibility> checkRZb = region.checkRZ(innerLayerObj.detLayer(), ohit, es);
-      std::unique_ptr<const HitRZCompatibility> checkRZc = region.checkRZ(innerLayerObj.detLayer(), nohit, es);
+      std::unique_ptr<const HitRZCompatibility> checkRZb = region.checkRZ(innerLayerObj.detLayer(), ohit);
+      std::unique_ptr<const HitRZCompatibility> checkRZc = region.checkRZ(innerLayerObj.detLayer(), nohit);
 
       /*Loop on inner hits*/
       vector<RecHitsSortedInPhi::Hit>::const_iterator ieh = innerHits.end();

@@ -20,7 +20,8 @@
 using namespace gen;
 using namespace edm;
 
-ExternalDecayDriver::ExternalDecayDriver(const ParameterSet& pset) : fIsInitialized(false) {
+ExternalDecayDriver::ExternalDecayDriver(const ParameterSet& pset, edm::ConsumesCollector iCollector)
+    : fIsInitialized(false) {
   std::vector<std::string> extGenNames = pset.getParameter<std::vector<std::string> >("parameterSets");
 
   for (unsigned int ip = 0; ip < extGenNames.size(); ++ip) {
@@ -41,7 +42,7 @@ ExternalDecayDriver::ExternalDecayDriver(const ParameterSet& pset) : fIsInitiali
       exSharedResources.emplace_back(gen::FortranInstance::kFortranInstance);
     } else if (curSet == "Tauola" || curSet == "Tauolapp" || curSet == "Tauolapp114") {
       fTauolaInterface = std::unique_ptr<TauolaInterfaceBase>(
-          TauolaFactory::get()->create("Tauolapp114", pset.getUntrackedParameter<ParameterSet>(curSet)));
+          TauolaFactory::get()->create("Tauolapp114", pset.getUntrackedParameter<ParameterSet>(curSet), iCollector));
       fPhotosInterface = std::unique_ptr<PhotosInterfaceBase>(
           PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter<ParameterSet>(curSet)));
       fPhotosInterface->configureOnlyFor(15);

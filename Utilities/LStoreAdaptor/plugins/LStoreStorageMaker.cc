@@ -7,19 +7,20 @@
 #include <unistd.h>
 #include <iostream>
 
-class LStoreStorageMaker : public StorageMaker {
-public:
-  /** Open a storage object for the given URL (protocol + path), using the
+namespace edm::storage {
+  class LStoreStorageMaker : public StorageMaker {
+  public:
+    /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
-  std::unique_ptr<Storage> open(const std::string &proto,
-                                const std::string &path,
-                                int mode,
-                                const AuxSettings &) const override {
-    std::string fullpath = proto + ":" + path;
-    return std::make_unique<LStoreFile>(fullpath, mode);
-  }
+    std::unique_ptr<Storage> open(const std::string &proto,
+                                  const std::string &path,
+                                  int mode,
+                                  const AuxSettings &) const override {
+      std::string fullpath = proto + ":" + path;
+      return std::make_unique<LStoreFile>(fullpath, mode);
+    }
 
-  /* I don't think this is necessary - Melo
+    /* I don't think this is necessary - Melo
   virtual void stagein (const std::string &proto, const std::string &path)
   {
     std::string fullpath(proto + ":" + path);
@@ -33,18 +34,21 @@ public:
   }
 */
 
-  bool check(const std::string &proto,
-             const std::string &path,
-             const AuxSettings &,
-             IOOffset *size = nullptr) const override {
-    std::string fullpath = proto + ":" + path;
-    try {
-      LStoreFile fileObj(fullpath);  // = LStoreFile (fullpath);
-      *size = fileObj.position(0, Storage::END);
-    } catch (cms::Exception &e) {
-      return false;
+    bool check(const std::string &proto,
+               const std::string &path,
+               const AuxSettings &,
+               IOOffset *size = nullptr) const override {
+      std::string fullpath = proto + ":" + path;
+      try {
+        LStoreFile fileObj(fullpath);  // = LStoreFile (fullpath);
+        *size = fileObj.position(0, Storage::END);
+      } catch (cms::Exception &e) {
+        return false;
+      }
+      return true;
     }
-    return true;
-  }
-};
+  };
+}  // namespace edm::storage
+
+using namespace edm::storage;
 DEFINE_EDM_PLUGIN(StorageMakerFactory, LStoreStorageMaker, "lstore");

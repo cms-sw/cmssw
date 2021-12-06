@@ -36,6 +36,7 @@ namespace cms {
   private:
     edm::EDGetTokenT<JetCollection> mInput;
     std::vector<std::string> mCorrectorNames;
+    std::vector<edm::ESGetToken<JetCorrector, JetCorrectionsRecord>> mCorrectorTokens;
     // cache
     std::vector<const JetCorrector*> mCorrectors;
     unsigned long long mCacheId;
@@ -50,10 +51,14 @@ namespace cms {
   template <class T>
   JetCorrectionProducer<T>::JetCorrectionProducer(const edm::ParameterSet& fConfig)
       : mInput(consumes<JetCollection>(fConfig.getParameter<edm::InputTag>("src"))),
-        mCorrectorNames(fConfig.getParameter<std::vector<std::string> >("correctors")),
+        mCorrectorNames(fConfig.getParameter<std::vector<std::string>>("correctors")),
         mCorrectors(mCorrectorNames.size(), nullptr),
         mCacheId(0),
         mVerbose(fConfig.getUntrackedParameter<bool>("verbose", false)) {
+    mCorrectorTokens.reserve(mCorrectorNames.size());
+    for (auto const& n : mCorrectorNames) {
+      mCorrectorTokens.emplace_back(esConsumes(edm::ESInputTag("", n)));
+    }
     std::string alias = fConfig.getUntrackedParameter<std::string>("alias", "");
     if (alias.empty())
       produces<JetCollection>();
@@ -66,10 +71,8 @@ namespace cms {
     // look for correctors
     const JetCorrectionsRecord& record = fSetup.get<JetCorrectionsRecord>();
     if (record.cacheIdentifier() != mCacheId) {  // need to renew cache
-      for (unsigned i = 0; i < mCorrectorNames.size(); i++) {
-        edm::ESHandle<JetCorrector> handle;
-        record.get(mCorrectorNames[i], handle);
-        mCorrectors[i] = &*handle;
+      for (unsigned i = 0; i < mCorrectorTokens.size(); i++) {
+        mCorrectors[i] = &record.get(mCorrectorTokens[i]);
       }
       mCacheId = record.cacheIdentifier();
     }

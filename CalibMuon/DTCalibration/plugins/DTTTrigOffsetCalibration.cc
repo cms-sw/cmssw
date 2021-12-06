@@ -38,7 +38,9 @@ DTTTrigOffsetCalibration::DTTTrigOffsetCalibration(const ParameterSet& pset)
     : theRecHits4DLabel_(pset.getParameter<InputTag>("recHits4DLabel")),
       doTTrigCorrection_(pset.getUntrackedParameter<bool>("doT0SegCorrection", false)),
       theCalibChamber_(pset.getUntrackedParameter<string>("calibChamber", "All")),
-      dbLabel_(pset.getUntrackedParameter<string>("dbLabel", "")) {
+      ttrigToken_(
+          esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")))),
+      dtGeomToken_(esConsumes()) {
   LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration] Constructor called!";
 
   edm::ConsumesCollector collector(consumesCollector());
@@ -53,8 +55,8 @@ DTTTrigOffsetCalibration::DTTTrigOffsetCalibration(const ParameterSet& pset)
 void DTTTrigOffsetCalibration::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   if (doTTrigCorrection_) {
     ESHandle<DTTtrig> tTrig;
-    setup.get<DTTtrigRcd>().get(dbLabel_, tTrig);
-    tTrigMap_ = &*tTrig;
+    tTrig = setup.getHandle(ttrigToken_);
+    tTrigMap_ = &setup.getData(ttrigToken_);
     LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration]: TTrig version: " << tTrig->version() << endl;
   }
 }
@@ -79,7 +81,7 @@ void DTTTrigOffsetCalibration::analyze(const Event& event, const EventSetup& eve
 
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = eventSetup.getHandle(dtGeomToken_);
 
   // Get the rechit collection from the event
   Handle<DTRecSegment4DCollection> all4DSegments;

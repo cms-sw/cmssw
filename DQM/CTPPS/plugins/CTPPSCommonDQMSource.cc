@@ -52,6 +52,7 @@ private:
   const edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtons;
 
   bool makeProtonRecoPlots_;
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
 
   int currentLS;
   int endLS;
@@ -155,44 +156,49 @@ void CTPPSCommonDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker) {
     ya->SetBinLabel(18, "56, 220, NR-TP");
   }
 
-  h_trackCorr_hor = ibooker.book2D("track correlation hor", "ctpps_common_rp_hor", 6, -0.5, 5.5, 6, -0.5, 5.5);
+  h_trackCorr_hor = ibooker.book2D("track correlation hor", "ctpps_common_rp_hor", 8, -0.5, 7.5, 8, -0.5, 7.5);
   {
     TH2F *hist = h_trackCorr_hor->getTH2F();
     TAxis *xa = hist->GetXaxis(), *ya = hist->GetYaxis();
-    xa->SetBinLabel(1, "45, 210, far");
-    ya->SetBinLabel(1, "45, 210, far");
-    xa->SetBinLabel(2, "45, 220, far");
-    ya->SetBinLabel(2, "45, 220, far");
-    xa->SetBinLabel(3, "45, 220, cyl");
-    ya->SetBinLabel(3, "45, 220, cyl");
-    xa->SetBinLabel(4, "56, 210, far");
-    ya->SetBinLabel(4, "56, 210, far");
-    xa->SetBinLabel(5, "56, 220, far");
-    ya->SetBinLabel(5, "56, 220, far");
-    xa->SetBinLabel(6, "56, 220, cyl");
-    ya->SetBinLabel(6, "56, 220, cyl");
+    xa->SetBinLabel(1, "45, 210, FR");
+    ya->SetBinLabel(1, "45, 210, FR");
+    xa->SetBinLabel(2, "45, 220, NR");
+    ya->SetBinLabel(2, "45, 220, NR");
+    xa->SetBinLabel(3, "45, 220, C1");
+    ya->SetBinLabel(3, "45, 220, C1");
+    xa->SetBinLabel(4, "45, 220, FR");
+    ya->SetBinLabel(4, "45, 220, FR");
+
+    xa->SetBinLabel(5, "56, 210, FR");
+    ya->SetBinLabel(5, "56, 210, FR");
+    xa->SetBinLabel(6, "56, 220, NR");
+    ya->SetBinLabel(6, "56, 220, NR");
+    xa->SetBinLabel(7, "56, 220, C1");
+    ya->SetBinLabel(7, "56, 220, C1");
+    xa->SetBinLabel(8, "56, 220, FR");
+    ya->SetBinLabel(8, "56, 220, FR");
   }
 
   h_trackCorr_vert = ibooker.book2D("track correlation vert", "ctpps_common_rp_vert", 8, -0.5, 7.5, 8, -0.5, 7.5);
   {
     TH2F *hist = h_trackCorr_vert->getTH2F();
     TAxis *xa = hist->GetXaxis(), *ya = hist->GetYaxis();
-    xa->SetBinLabel(1, "45, 210, far, top");
-    ya->SetBinLabel(1, "45, 210, far, top");
-    xa->SetBinLabel(2, "45, 210, far, bot");
-    ya->SetBinLabel(2, "45, 210, far, bot");
-    xa->SetBinLabel(3, "45, 220, far, top");
-    ya->SetBinLabel(3, "45, 220, far, top");
-    xa->SetBinLabel(4, "45, 220, far, bot");
-    ya->SetBinLabel(4, "45, 220, far, bot");
-    xa->SetBinLabel(5, "56, 210, far, top");
-    ya->SetBinLabel(5, "56, 210, far, top");
-    xa->SetBinLabel(6, "56, 210, far, bot");
-    ya->SetBinLabel(6, "56, 210, far, bot");
-    xa->SetBinLabel(7, "56, 220, far, top");
-    ya->SetBinLabel(7, "56, 220, far, top");
-    xa->SetBinLabel(8, "56, 220, far, bot");
-    ya->SetBinLabel(8, "56, 220, far, bot");
+    xa->SetBinLabel(1, "45, 210, FR-TP");
+    ya->SetBinLabel(1, "45, 210, FR-TP");
+    xa->SetBinLabel(2, "45, 210, FR-BT");
+    ya->SetBinLabel(2, "45, 210, FR-BT");
+    xa->SetBinLabel(3, "45, 220, FR-TP");
+    ya->SetBinLabel(3, "45, 220, FR-TP");
+    xa->SetBinLabel(4, "45, 220, FR-BT");
+    ya->SetBinLabel(4, "45, 220, FR-BT");
+    xa->SetBinLabel(5, "56, 210, FR-TP");
+    ya->SetBinLabel(5, "56, 210, FR-TP");
+    xa->SetBinLabel(6, "56, 210, FR-BT");
+    ya->SetBinLabel(6, "56, 210, FR-BT");
+    xa->SetBinLabel(7, "56, 220, FR-TP");
+    ya->SetBinLabel(7, "56, 220, FR-TP");
+    xa->SetBinLabel(8, "56, 220, FR-BT");
+    ya->SetBinLabel(8, "56, 220, FR-BT");
   }
 }
 
@@ -213,42 +219,46 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id, bo
   h_numRPWithTrack_bot =
       ibooker.book1D("number of bot RPs with tracks", title + ";number of bot RPs with tracks", 5, -0.5, 4.5);
 
-  h_trackCorr = ibooker.book2D("track correlation", title, 7, -0.5, 6.5, 7, -0.5, 6.5);
+  h_trackCorr = ibooker.book2D("track correlation", title, 8, -0.5, 7.5, 8, -0.5, 7.5);
   TH2F *h_trackCorr_h = h_trackCorr->getTH2F();
   TAxis *xa = h_trackCorr_h->GetXaxis(), *ya = h_trackCorr_h->GetYaxis();
-  xa->SetBinLabel(1, "210, far, hor");
-  ya->SetBinLabel(1, "210, far, hor");
-  xa->SetBinLabel(2, "210, far, top");
-  ya->SetBinLabel(2, "210, far, top");
-  xa->SetBinLabel(3, "210, far, bot");
-  ya->SetBinLabel(3, "210, far, bot");
-  xa->SetBinLabel(4, "220, cyl");
-  ya->SetBinLabel(4, "220, cyl");
-  xa->SetBinLabel(5, "220, far, hor");
-  ya->SetBinLabel(5, "220, far, hor");
-  xa->SetBinLabel(6, "220, far, top");
-  ya->SetBinLabel(6, "220, far, top");
-  xa->SetBinLabel(7, "220, far, bot");
-  ya->SetBinLabel(7, "220, far, bot");
+  xa->SetBinLabel(1, "210, FR-HR");
+  ya->SetBinLabel(1, "210, FR-HR");
+  xa->SetBinLabel(2, "210, FR-TP");
+  ya->SetBinLabel(2, "210, FR-TP");
+  xa->SetBinLabel(3, "210, FR-BT");
+  ya->SetBinLabel(3, "210, FR-BT");
+  xa->SetBinLabel(4, "220, NR-HR");
+  ya->SetBinLabel(4, "220, NR-HR");
+  xa->SetBinLabel(5, "220, C1");
+  ya->SetBinLabel(5, "220, C1");
+  xa->SetBinLabel(6, "220, FR-HR");
+  ya->SetBinLabel(6, "220, FR-HR");
+  xa->SetBinLabel(7, "220, FR-TP");
+  ya->SetBinLabel(7, "220, FR-TP");
+  xa->SetBinLabel(8, "220, FR-BT");
+  ya->SetBinLabel(8, "220, FR-BT");
 
-  h_trackCorr_overlap = ibooker.book2D("track correlation hor-vert overlaps", title, 7, -0.5, 6.5, 7, -0.5, 6.5);
+  h_trackCorr_overlap = ibooker.book2D("track correlation hor-vert overlaps", title, 8, -0.5, 7.5, 8, -0.5, 7.5);
   h_trackCorr_h = h_trackCorr_overlap->getTH2F();
   xa = h_trackCorr_h->GetXaxis();
   ya = h_trackCorr_h->GetYaxis();
-  xa->SetBinLabel(1, "210, far, hor");
-  ya->SetBinLabel(1, "210, far, hor");
-  xa->SetBinLabel(2, "210, far, top");
-  ya->SetBinLabel(2, "210, far, top");
-  xa->SetBinLabel(3, "210, far, bot");
-  ya->SetBinLabel(3, "210, far, bot");
-  xa->SetBinLabel(4, "220, cyl");
-  ya->SetBinLabel(4, "220, cyl");
-  xa->SetBinLabel(5, "220, far, hor");
-  ya->SetBinLabel(5, "220, far, hor");
-  xa->SetBinLabel(6, "220, far, top");
-  ya->SetBinLabel(6, "220, far, top");
-  xa->SetBinLabel(7, "220, far, bot");
-  ya->SetBinLabel(7, "220, far, bot");
+  xa->SetBinLabel(1, "210, FR-HR");
+  ya->SetBinLabel(1, "210, FR-HR");
+  xa->SetBinLabel(2, "210, FR-TP");
+  ya->SetBinLabel(2, "210, FR-TP");
+  xa->SetBinLabel(3, "210, FR-BT");
+  ya->SetBinLabel(3, "210, FR-BT");
+  xa->SetBinLabel(4, "220, NR-HR");
+  ya->SetBinLabel(4, "220, NR-HR");
+  xa->SetBinLabel(5, "220, C1");
+  ya->SetBinLabel(5, "220, C1");
+  xa->SetBinLabel(6, "220, FR-HR");
+  ya->SetBinLabel(6, "220, FR-HR");
+  xa->SetBinLabel(7, "220, FR-TP");
+  ya->SetBinLabel(7, "220, FR-TP");
+  xa->SetBinLabel(8, "220, FR-BT");
+  ya->SetBinLabel(8, "220, FR-BT");
 
   if (makeProtonRecoPlots) {
     h_proton_xi = ibooker.book1D("proton xi", title + ";xi", 100, 0., 0.3);
@@ -258,7 +268,7 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id, bo
     h_proton_time = ibooker.book1D("proton time", title + ";time   (ns)", 100, -1., 1.);
   }
 
-  for (const unsigned int rpDecId : {2, 3, 16, 23}) {
+  for (const unsigned int rpDecId : {3, 22, 16, 23}) {
     unsigned int st = rpDecId / 10, rp = rpDecId % 10, rpFullDecId = id * 100 + rpDecId;
     CTPPSDetId rpId(CTPPSDetId::sdTrackingStrip, id, st, rp);
     string stName, rpName;
@@ -266,7 +276,9 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id, bo
     rpId.rpName(rpName, CTPPSDetId::nShort);
     rpName = stName + "_" + rpName;
 
-    if (rp == 6) {
+    const bool timingRP = (rpDecId == 22 || rpDecId == 16);
+
+    if (timingRP) {
       timingRPPlots[rpFullDecId] = {
           ibooker.book1D(rpName + " - track x histogram", title + "/" + rpName + ";track x   (mm)", 200, 0., 40.),
           ibooker.book1D(
@@ -287,7 +299,8 @@ CTPPSCommonDQMSource::CTPPSCommonDQMSource(const edm::ParameterSet &ps)
       ctppsRecordToken(consumes<CTPPSRecord>(ps.getUntrackedParameter<edm::InputTag>("ctppsmetadata"))),
       tokenLocalTrackLite(consumes<vector<CTPPSLocalTrackLite>>(ps.getParameter<edm::InputTag>("tagLocalTrackLite"))),
       tokenRecoProtons(consumes<std::vector<reco::ForwardProton>>(ps.getParameter<InputTag>("tagRecoProtons"))),
-      makeProtonRecoPlots_(ps.getParameter<bool>("makeProtonRecoPlots")) {
+      makeProtonRecoPlots_(ps.getParameter<bool>("makeProtonRecoPlots")),
+      perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)) {
   currentLS = 0;
   endLS = 0;
   rpstate.clear();
@@ -371,13 +384,15 @@ void CTPPSCommonDQMSource::analyzeTracks(edm::Event const &event, edm::EventSetu
       signed int idx = -1;
       if (stRPNum == 3)
         idx = 0;
-      if (stRPNum == 23)
+      if (stRPNum == 22)
         idx = 1;
       if (stRPNum == 16)
         idx = 2;
+      if (stRPNum == 23)
+        idx = 3;
 
       if (idx >= 0)
-        s_rp_idx_global_hor.insert(3 * arm + idx);
+        s_rp_idx_global_hor.insert(4 * arm + idx);
     }
 
     {
@@ -403,14 +418,16 @@ void CTPPSCommonDQMSource::analyzeTracks(edm::Event const &event, edm::EventSetu
         idx = 1;
       if (stRPNum == 5)
         idx = 2;
-      if (stRPNum == 16)
+      if (stRPNum == 22)
         idx = 3;
-      if (stRPNum == 23)
+      if (stRPNum == 16)
         idx = 4;
-      if (stRPNum == 24)
+      if (stRPNum == 23)
         idx = 5;
-      if (stRPNum == 25)
+      if (stRPNum == 24)
         idx = 6;
+      if (stRPNum == 25)
+        idx = 7;
 
       const signed int hor = ((rpNum == 2) || (rpNum == 3) || (rpNum == 6)) ? 1 : 0;
 
@@ -545,8 +562,10 @@ std::shared_ptr<std::vector<int>> CTPPSCommonDQMSource::globalBeginLuminosityBlo
 void CTPPSCommonDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &c) {
   auto const &rpstate = *luminosityBlockCache(iLumi.index());
   auto currentLS = iLumi.id().luminosityBlock();
-  for (std::vector<int>::size_type i = 0; i < rpstate.size(); i++)
-    globalPlots.RPState->setBinContent(currentLS, i + 1, rpstate[i]);
+  if (!perLSsaving_) {
+    for (std::vector<int>::size_type i = 0; i < rpstate.size(); i++)
+      globalPlots.RPState->setBinContent(currentLS, i + 1, rpstate[i]);
+  }
 }
 
 //----------------------------------------------------------------------------------------------------

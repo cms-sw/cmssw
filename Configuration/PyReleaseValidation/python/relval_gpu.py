@@ -20,12 +20,16 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #           (Patatrack pixel-only triplets: TTbar - on GPU, both CPU and GPU, auto)
 #           (Patatrack ECAL-only: TTbar - on GPU, both CPU and GPU, auto)
 #           (Patatrack HCAL-only: TTbar - on GPU, both CPU and GPU, auto)
+#           (Patatrack full reco with pixel quadruplets: TTbar - on GPU, both CPU and GPU, auto)
+#           (Patatrack full reco with pixel triplets: TTbar - on GPU, both CPU and GPU, auto)
 # mc 2021   (Patatrack pixel-only quadruplets: ZMM - on GPU, both CPU and GPU, auto)
 #           (Patatrack pixel-only triplets: ZMM - on GPU, both CPU and GPU, auto)
 #           (Patatrack pixel-only quadruplets: TTbar - on GPU, both CPU and GPU, auto)
 #           (Patatrack pixel-only triplets: TTbar - on GPU, both CPU and GPU, auto)
 #           (Patatrack ECAL-only: TTbar - on GPU, both CPU and GPU, auto)
 #           (Patatrack HCAL-only: TTbar - on GPU, both CPU and GPU, auto)
+#           (Patatrack full reco with pixel quadruplets: TTbar - on GPU, both CPU and GPU, auto)
+#           (Patatrack full reco with pixel triplets: TTbar - on GPU, both CPU and GPU, auto)
 numWFIB = [
            10842.502, # 10842.503,10842.504,
            10842.506, # 10842.507,10842.508,
@@ -33,12 +37,16 @@ numWFIB = [
            10824.506, # 10824.507,10824.508,
            10824.512, # 10824.513,10824.514,
            10824.522, # 10824.523,10824.524,
+           10824.592, # 10824.593,10824.594,
+           10824.596, # 10824.597,10824.598,
            11650.502, # 11650.503,11650.504,
            11650.506, # 11650.507,11650.508,
            11634.502, # 11634.503,11634.504,
            11634.506, # 11634.507,11634.508,
            11634.512, # 11634.513,11634.514,
            11634.522, # 11634.523,11634.524
+           11634.592, # 11634.593,11634.594,
+           11634.596, # 11634.597,11634.598,
         ]
 for numWF in numWFIB:
     if not numWF in _upgrade_workflows: continue

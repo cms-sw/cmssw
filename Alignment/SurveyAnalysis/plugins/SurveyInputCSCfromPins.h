@@ -12,6 +12,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
 #include "CondFormats/Alignment/interface/Definitions.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 class SurveyInputCSCfromPins : public SurveyInputBase {
 public:
@@ -43,6 +45,10 @@ private:
               double &dy_phix);
 
   void fillAllRecords(Alignable *ali);
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> DTGeoToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> CSCGeoToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> GEMGeoToken_;
 
   std::string m_pinPositions;
   std::string m_rootFile;

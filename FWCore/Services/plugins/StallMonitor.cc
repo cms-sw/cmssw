@@ -242,7 +242,7 @@ namespace edm {
 }  // namespace edm
 
 namespace {
-  constexpr char const* filename_default{""};
+  constexpr char const* const filename_default{""};
   constexpr double threshold_default{0.1};  //default threashold in seconds
   std::string const space{"  "};
 }  // namespace

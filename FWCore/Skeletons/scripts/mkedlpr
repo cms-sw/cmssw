@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 #pylint: disable-msg=
 """
@@ -52,7 +52,7 @@ def config(tmpl, pkg_help):
     args  = []
     if  len(sys.argv) >= 2: # user give us arguments
         if  sys.argv[1] in ['-h', '--help', '-help']:
-            print pkg_help
+            print(pkg_help)
             sys.exit(0)
         kwds['pname'] = sys.argv[1]
         for idx in xrange(2, len(sys.argv)):
@@ -63,7 +63,7 @@ def config(tmpl, pkg_help):
                 etags.append('@%s' % opt)
                 continue
             elif  opt in ['-h', '--help', '-help']:
-                print pkg_help
+                print(pkg_help)
                 sys.exit(0)
             elif  opt == '-debug':
                 kwds['debug'] = True
@@ -73,13 +73,13 @@ def config(tmpl, pkg_help):
     elif len(sys.argv) == 1:
         # need to walk
         msg   = 'Please enter %s name: ' % tmpl.lower()
-        kwds['pname'] = raw_input(msg)
+        kwds['pname'] = input(msg)
         msg   = 'Please enter record name: '
-        args.append(raw_input(msg))
+        args.append(input(msg))
         msg   = 'Please enter data types (separate by space): '
-        args += [t for t in raw_input(msg).split()]
+        args += [t for t in input(msg).split()]
     else:
-        print pkg_help
+        print(pkg_help)
         sys.exit(0)
     if  args:
         # first element is record name, others are data types

@@ -17,6 +17,7 @@ class MuonServiceProxy;
 class TrackerSeedGenerator;
 class MuonTrackingRegionBuilder;
 class TrackerSeedCleaner;
+class TrackerTopologyRcd;
 
 //
 // Generate tracker seeds from L2 muons
@@ -37,5 +38,6 @@ private:
   std::unique_ptr<TrackerSeedGenerator> theTkSeedGenerator;
   std::unique_ptr<TrackerSeedCleaner> theSeedCleaner;
   edm::EDGetTokenT<reco::TrackCollection> l2muonToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTTopoToken;
 };
 #endif

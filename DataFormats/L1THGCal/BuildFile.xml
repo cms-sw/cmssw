@@ -4,7 +4,6 @@
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/GeometryVector"/>
 <use name="FWCore/Utilities"/>
-<use name="DataFormats/HcalDetId"/>
 <use name="FWCore/MessageLogger"/>
 <use name="rootrflx"/>
 <use name="boost"/>

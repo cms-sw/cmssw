@@ -22,7 +22,7 @@
 //
 // class declaration
 //
-
+class BeamSpotObjectsRcd;
 class BeamConditionsMonitor : public edm::EDAnalyzer {
 public:
   BeamConditionsMonitor(const edm::ParameterSet&);
@@ -56,6 +56,7 @@ private:
   edm::ParameterSet parameters_;
   std::string monitorName_;
   edm::InputTag bsSrc_;  // beam spot
+  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamSpotToken_;
   bool debug_;
 
   DQMStore* dbe_;

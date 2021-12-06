@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
@@ -21,8 +22,8 @@ using namespace edm;
 
 namespace dtCalibration {
 
-  DTT0ChamberReferenceCorrection::DTT0ChamberReferenceCorrection(const ParameterSet& pset)
-      : calibChamber_(pset.getParameter<string>("calibChamber")) {
+  DTT0ChamberReferenceCorrection::DTT0ChamberReferenceCorrection(const ParameterSet& pset, edm::ConsumesCollector cc)
+      : calibChamber_(pset.getParameter<string>("calibChamber")), t0Token_(cc.esConsumes<edm::Transition::BeginRun>()) {
     //DTChamberId chosenChamberId;
     if (!calibChamber_.empty() && calibChamber_ != "None" && calibChamber_ != "All") {
       stringstream linestr;
@@ -40,8 +41,8 @@ namespace dtCalibration {
   void DTT0ChamberReferenceCorrection::setES(const EventSetup& setup) {
     // Get t0 record from DB
     ESHandle<DTT0> t0H;
-    setup.get<DTT0Rcd>().get(t0H);
-    t0Map_ = &*t0H;
+    t0H = setup.getHandle(t0Token_);
+    t0Map_ = &setup.getData(t0Token_);
     LogVerbatim("Calibration") << "[DTT0ChamberReferenceCorrection] T0 version: " << t0H->version();
   }
 

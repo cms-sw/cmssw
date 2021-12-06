@@ -24,6 +24,7 @@ enum class DDSolidShape {
   ddellipticaltube = 17,
   ddcuttubs = 18,
   ddextrudedpolygon = 19,
+  ddassembly = 20,
 };
 
 std::ostream& operator<<(std::ostream& os, const DDSolidShape s);
@@ -49,7 +50,8 @@ struct DDSolidShapesName {
                                          "Sphere(section)",
                                          "EllipticalTube",
                                          "CutTubs",
-                                         "ExtrudedPolygon"};
+                                         "ExtrudedPolygon",
+                                         "Assembly"};
 
     return _names[static_cast<int>(s)];
   }

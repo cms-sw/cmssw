@@ -16,26 +16,26 @@ void GEMNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   theSectorLevel = muonConstants.getValue("mg_sector") / theLevelPart;
   theRollLevel = muonConstants.getValue("mg_roll") / theLevelPart;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("GEMNumberingScheme") << "Initialize GEMNumberingScheme"
-                                         << "\ntheRegionLevel " << theRegionLevel << "\ntheStationLevel "
-                                         << theStationLevel << "\ntheRingLevel " << theRingLevel << "\ntheSectorLevel "
-                                         << theSectorLevel << "\ntheRollLevel " << theRollLevel;
+  edm::LogVerbatim("MuonGeom") << "Initialize GEMNumberingScheme"
+                               << "\ntheRegionLevel " << theRegionLevel << "\ntheStationLevel " << theStationLevel
+                               << "\ntheRingLevel " << theRingLevel << "\ntheSectorLevel " << theSectorLevel
+                               << "\ntheRollLevel " << theRollLevel;
 #endif
 }
 
 int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("GEMNumberingScheme") << "GEMNumbering " << num.getLevels();
+  edm::LogVerbatim("MuonGeom") << "GEMNumbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
-    edm::LogVerbatim("GEMNumberingScheme") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
+    edm::LogVerbatim("MuonGeom") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
   }
 #endif
 
   int levels = num.getLevels();
 #ifdef EDM_ML_DEBUG
   if (levels != theRollLevel)
-    edm::LogVerbatim("GEMNumberingScheme") << "MuonGEMNumberingScheme::BNToUN: BaseNumber has " << num.getLevels()
-                                           << " levels, need at least till " << theRollLevel;
+    edm::LogVerbatim("MuonGeom") << "MuonGEMNumberingScheme::BNToUN: BaseNumber has " << num.getLevels()
+                                 << " levels, need at least till " << theRollLevel;
 #endif
 
   int region(GEMDetId::minRegionId), ring(GEMDetId::minRingId);
@@ -64,8 +64,8 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
     if (num.getBaseNo(theRingLevel) == 0) {  // 0 => GE1/1, GE2/1
       station = num.getSuperNo(theStationLevel);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("GEMNumberingScheme")
-          << "GEMNumbering: Ring " << ring << " Station " << num.getSuperNo(theStationLevel) << ":" << station;
+      edm::LogVerbatim("MuonGeom") << "GEMNumbering: Ring " << ring << " Station " << num.getSuperNo(theStationLevel)
+                                   << ":" << station;
 #endif
       if (levels >= theRollLevel)
         roll = num.getBaseNo(theRollLevel) + 1;
@@ -110,15 +110,15 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
   // collect all info
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("GEMNumberingScheme") << "GEMNumberingScheme: Region " << region << " Ring " << ring << " Station "
-                                         << station << " Layer " << layer << " Chamber " << chamber << " Roll " << roll;
+  edm::LogVerbatim("MuonGeom") << "GEMNumberingScheme: Region " << region << " Ring " << ring << " Station " << station
+                               << " Layer " << layer << " Chamber " << chamber << " Roll " << roll;
 #endif
 
   // Build the actual numbering
   GEMDetId id(region, ring, station, layer, chamber, roll);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("GEMNumberingScheme") << id.rawId() << " DetId " << id;
+  edm::LogVerbatim("MuonGeom") << id.rawId() << " DetId " << id;
 #endif
 
   return id.rawId();

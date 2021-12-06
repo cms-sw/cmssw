@@ -25,14 +25,15 @@ class GeometryGenerator(object):
         self.deprecatedDets = deprecatedDets
         self.deprecatedSubdets = deprecatedSubdets
         self.detectorVersionType = detectorVersionType
+        self.detectorVersionNull = self.detectorVersionType(0)
 
     def generateGeom(self, detectorTuple, args):
         detectorVersion = self.detectorPrefix+str(args.detectorVersionManual)
         # reverse dict search if overall D# specified
-        if args.v_detector>0:
+        if args.v_detector!=self.detectorVersionNull:
             detectorVersion = self.detectorPrefix+str(args.v_detector)
             if detectorVersion in self.detectorVersionDict.values():
-                detectorTuple = self.detectorVersionDict.keys()[self.detectorVersionDict.values().index(detectorVersion)]
+                detectorTuple = list(self.detectorVersionDict.keys())[list(self.detectorVersionDict.values()).index(detectorVersion)]
             else:
                 print("Unknown detector "+detectorVersion)
                 sys.exit(1)
@@ -249,7 +250,7 @@ class GeometryGenerator(object):
         for aDict in self.allDicts:
             parser.add_argument("-"+aDict["abbrev"], "--"+aDict["name"], dest="v_"+aDict["name"], default=aDict["default"], type=int, help="version for "+aDict["name"])
         parser.add_argument("-V", "--version", dest="detectorVersionManual", default=self.detectorVersionDefault, type=int, help="manual detector version number")
-        parser.add_argument("-D", "--detector", dest="v_detector", default=0, type=self.detectorVersionType, help="version for whole detector, ignored if 0, overrides subdet versions otherwise")
+        parser.add_argument("-D", "--detector", dest="v_detector", default=self.detectorVersionNull, type=self.detectorVersionType, help="version for whole detector, ignored if 0, overrides subdet versions otherwise")
         parser.add_argument("-l", "--list", dest="doList", default=False, action="store_true", help="list known detector versions and exit")
         parser.add_argument("-t", "--test", dest="doTest", default=False, action="store_true", help="enable unit test mode")
         args = parser.parse_args()

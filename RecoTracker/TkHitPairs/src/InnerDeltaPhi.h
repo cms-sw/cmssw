@@ -2,9 +2,8 @@
 #define InnerDeltaPhi_H
 
 /** predict phi bending in layer for the tracks constratind by outer hit r-z */
-#include "FWCore/Framework/interface/EventSetup.h"
-
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 
 #include "FWCore/Utilities/interface/Visibility.h"
@@ -23,7 +22,8 @@ public:
   InnerDeltaPhi(const DetLayer& outlayer,
                 const DetLayer& layer,
                 const TrackingRegion& region,
-                const edm::EventSetup& iSetup,
+                const MagneticField& field,
+                const MultipleScatteringParametrisationMaker& msmaker,
                 bool precise = true,
                 float extraTolerance = 0.f);
 

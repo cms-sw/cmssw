@@ -32,11 +32,7 @@
 
 class CastorSD : public CaloSD {
 public:
-  CastorSD(const std::string &,
-           const edm::EventSetup &,
-           const SensitiveDetectorCatalog &clg,
-           edm::ParameterSet const &,
-           const SimTrackManager *);
+  CastorSD(const std::string &, const SensitiveDetectorCatalog &clg, edm::ParameterSet const &, const SimTrackManager *);
   ~CastorSD() override;
   uint32_t setDetUnitId(const G4Step *step) override;
   void setNumberingScheme(CastorNumberingScheme *scheme);

@@ -29,7 +29,7 @@ using namespace edm;
 
 namespace dtCalibration {
 
-  DTVDriftMeanTimer::DTVDriftMeanTimer(const ParameterSet& pset) {
+  DTVDriftMeanTimer::DTVDriftMeanTimer(const ParameterSet& pset, edm::ConsumesCollector cc) {
     string rootFileName = pset.getParameter<string>("rootFileName");
     rootFile_ = new TFile(rootFileName.c_str(), "READ");
     fitter_ = new DTMeanTimerFitter(rootFile_);

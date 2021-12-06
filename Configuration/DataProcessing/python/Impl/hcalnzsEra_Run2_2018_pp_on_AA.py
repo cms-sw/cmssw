@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _hcalnzsEra_Run2_2018_pp_on_AA_
 

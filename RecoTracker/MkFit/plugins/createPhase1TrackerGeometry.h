@@ -3,9 +3,8 @@
 
 namespace mkfit {
   class TrackerInfo;
-  class IterationsInfo;
 
-  void createPhase1TrackerGeometry(TrackerInfo &ti, IterationsInfo &ii, bool verbose);
+  void createPhase1TrackerGeometry(TrackerInfo &ti, bool verbose);
 }  // namespace mkfit
 
 #endif

@@ -42,6 +42,10 @@ class DigiAccumulatorMixMod {
 public:
   DigiAccumulatorMixMod();
 
+  DigiAccumulatorMixMod(DigiAccumulatorMixMod const&) = delete;  // stop default
+
+  DigiAccumulatorMixMod const& operator=(DigiAccumulatorMixMod const&) = delete;  // stop default
+
   virtual ~DigiAccumulatorMixMod();
 
   // ---------- const member functions ---------------------
@@ -90,10 +94,6 @@ public:
   }
 
 private:
-  DigiAccumulatorMixMod(DigiAccumulatorMixMod const&) = delete;  // stop default
-
-  DigiAccumulatorMixMod const& operator=(DigiAccumulatorMixMod const&) = delete;  // stop default
-
   // ---------- member data --------------------------------
 };
 

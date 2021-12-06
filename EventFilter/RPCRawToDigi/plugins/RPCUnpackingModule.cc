@@ -20,8 +20,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/RPCObjects/interface/RPCEMap.h"
-#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "DataFormats/RPCDigi/interface/DataRecord.h"
 #include "DataFormats/RPCDigi/interface/ReadoutError.h"
 #include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
@@ -41,6 +39,7 @@ RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)
     : dataLabel_(pset.getParameter<edm::InputTag>("InputLabel")),
       doSynchro_(pset.getParameter<bool>("doSynchro")),
       eventCounter_(0),
+      theReadoutMappingToken(esConsumes<edm::Transition::BeginRun>()),
       theCabling(nullptr) {
   produces<RPCDigiCollection>();
   produces<RPCRawDataCounts>();
@@ -62,8 +61,7 @@ void RPCUnpackingModule::beginRun(const edm::Run& run, const edm::EventSetup& es
   if (theRecordWatcher.check(es)) {
     LogTrace("") << "record has CHANGED!!, (re)initialise readout map!";
     delete theCabling;
-    ESTransientHandle<RPCEMap> readoutMapping;
-    es.get<RPCEMapRcd>().get(readoutMapping);
+    ESTransientHandle<RPCEMap> readoutMapping = es.getTransientHandle(theReadoutMappingToken);
     theCabling = readoutMapping->convert();
     theReadoutMappingSearch.init(theCabling);
     LogTrace("") << " READOUT MAP VERSION: " << theCabling->version() << endl;

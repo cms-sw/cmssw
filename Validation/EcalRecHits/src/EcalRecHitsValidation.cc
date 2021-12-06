@@ -20,7 +20,8 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet &ps) {
+EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet &ps)
+    : pAgc(esConsumes()), pEcsToken(esConsumes()), pttMapToken(esConsumes()) {
   // ----------------------
   HepMCLabel = ps.getParameter<std::string>("moduleLabelMC");
   hitsProducer_ = ps.getParameter<std::string>("hitsProducer");
@@ -294,9 +295,7 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
   LogInfo("EcalRecHitsTask, EventInfo: ") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
   // ADC -> GeV Scale
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  c.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant *agc = pAgc.product();
+  const EcalADCToGeVConstant *agc = &c.getData(pAgc);
   const double barrelADCtoGeV_ = agc->getEBValue();
   const double endcapADCtoGeV_ = agc->getEEValue();
 
@@ -470,11 +469,13 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
             meEBRecHitSimHitRatioGt35_->Fill(myRecHit->energy() / ebSimMap[EBid.rawId()]);
           }
           uint16_t sc = 0;
-          edm::ESHandle<EcalChannelStatus> pEcs;
-          c.get<EcalChannelStatusRcd>().get(pEcs);
+
+          c.getData(pEcsToken);
+          auto pEcs = c.getHandle(pEcsToken);
           const EcalChannelStatus *ecs = nullptr;
           if (pEcs.isValid())
-            ecs = pEcs.product();
+            ecs = &c.getData(pEcsToken);
+          ;
           if (ecs != nullptr) {
             EcalChannelStatusMap::const_iterator csmi = ecs->find(EBid.rawId());
             EcalChannelStatusCode csc = 0;
@@ -490,11 +491,10 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
             meEBRecHitSimHitRatio12_->Fill(myRecHit->energy() / ebSimMap[EBid.rawId()]);
           }
 
-          edm::ESHandle<EcalTrigTowerConstituentsMap> pttMap;
-          c.get<IdealGeometryRecord>().get(pttMap);
+          auto pttMap = c.getHandle(pttMapToken);
           const EcalTrigTowerConstituentsMap *ttMap = nullptr;
           if (pttMap.isValid())
-            ttMap = pttMap.product();
+            ttMap = &c.getData(pttMapToken);
           double ttSimEnergy = 0;
           if (ttMap != nullptr) {
             EcalTrigTowerDetId ttDetId = EBid.tower();
@@ -643,11 +643,10 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
             meEERecHitSimHitRatioGt35_->Fill(myRecHit->energy() / eeSimMap[EEid.rawId()]);
           }
 
-          edm::ESHandle<EcalChannelStatus> pEcs;
-          c.get<EcalChannelStatusRcd>().get(pEcs);
+          auto pEcs = c.getHandle(pEcsToken);
           const EcalChannelStatus *ecs = nullptr;
           if (pEcs.isValid())
-            ecs = pEcs.product();
+            ecs = &c.getData(pEcsToken);
           if (ecs != nullptr) {
             EcalChannelStatusMap::const_iterator csmi = ecs->find(EEid.rawId());
             EcalChannelStatusCode csc = 0;

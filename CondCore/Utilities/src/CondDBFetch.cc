@@ -56,6 +56,9 @@ namespace cond {
       FETCH_PAYLOAD_CASE(CTPPSPixelAnalysisMask)
       FETCH_PAYLOAD_CASE(CTPPSPixelGainCalibrations)
       FETCH_PAYLOAD_CASE(CTPPSRPAlignmentCorrectionsData)
+      FETCH_PAYLOAD_CASE(PPSAlignmentConfig)
+      FETCH_PAYLOAD_CASE(PPSAlignmentConfiguration)
+      FETCH_PAYLOAD_CASE(PPSAssociationCuts)
       FETCH_PAYLOAD_CASE(LHCOpticalFunctionsSetCollection)
       FETCH_PAYLOAD_CASE(CastorChannelQuality)
       FETCH_PAYLOAD_CASE(CastorElectronicsMap)
@@ -243,6 +246,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(HcalParameters)
       FETCH_PAYLOAD_CASE(PGeometricDet)
       FETCH_PAYLOAD_CASE(PTrackerParameters)
+      FETCH_PAYLOAD_CASE(PTrackerAdditionalParametersPerDet)
       FETCH_PAYLOAD_CASE(PHGCalParameters)
       //FETCH_PAYLOAD_CASE( PerformancePayload )
       FETCH_PAYLOAD_CASE(PerformancePayloadFromTable)
@@ -342,9 +346,7 @@ namespace cond {
       std::string payloadTypeName;
       bool found = session.fetchPayloadData(payloadId, payloadTypeName, data, streamerInfo);
       if (!found)
-        throwException(
-            "Payload with id " + boost::lexical_cast<std::string>(payloadId) + " has not been found in the database.",
-            "fetch");
+        throwException("Payload with id " + payloadId + " has not been found in the database.", "fetch");
       return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr);
     }
 

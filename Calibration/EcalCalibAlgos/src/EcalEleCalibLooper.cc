@@ -1,6 +1,5 @@
 #include <memory>
 #include <cmath>
-#include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,11 +8,8 @@
 #include "Calibration/EcalCalibAlgos/interface/EcalEleCalibLooper.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Calibration/Tools/interface/calibXMLwriter.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
@@ -33,6 +29,7 @@
 EcalEleCalibLooper::EcalEleCalibLooper(const edm::ParameterSet& iConfig)
     : m_barrelAlCa(iConfig.getParameter<edm::InputTag>("alcaBarrelHitCollection")),
       m_endcapAlCa(iConfig.getParameter<edm::InputTag>("alcaEndcapHitCollection")),
+      m_ElectronLabel(iConfig.getParameter<edm::InputTag>("electronLabel")),
       m_recoWindowSidex(iConfig.getParameter<int>("recoWindowSidex")),
       m_recoWindowSidey(iConfig.getParameter<int>("recoWindowSidey")),
       m_etaWidth(iConfig.getParameter<int>("etaWidth")),
@@ -54,7 +51,10 @@ EcalEleCalibLooper::EcalEleCalibLooper(const edm::ParameterSet& iConfig)
       m_maxCoeff(iConfig.getParameter<double>("maxCoeff")),
       m_usingBlockSolver(iConfig.getParameter<int>("usingBlockSolver")),
       m_loops(iConfig.getParameter<int>("loops")),
-      m_ElectronLabel(iConfig.getParameter<edm::InputTag>("electronLabel")) {
+      m_ebRecHitToken(consumes<EBRecHitCollection>(m_barrelAlCa)),
+      m_eeRecHitToken(consumes<EERecHitCollection>(m_endcapAlCa)),
+      m_gsfElectronToken(consumes<reco::GsfElectronCollection>(m_ElectronLabel)),
+      m_geometryToken(esConsumes()) {
   edm::LogInfo("IML") << "[EcalEleCalibLooper][ctor] asserts";
   assert(!((m_etaEnd - m_etaStart) % m_etaWidth));
 
@@ -168,9 +168,7 @@ edm::EDLooper::Status EcalEleCalibLooper::duringLoop(const edm::Event& iEvent, c
   // with the beginJob without arguments migration
 
   if (isfirstcall_) {
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
-    const CaloGeometry& geometry = *geoHandle;
+    const auto& geometry = iSetup.getData(m_geometryToken);
     m_barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
     m_endcapCells = geometry.getValidDetIds(DetId::Ecal, EcalEndcap);
     for (std::vector<DetId>::const_iterator barrelIt = m_barrelCells.begin(); barrelIt != m_barrelCells.end();
@@ -190,7 +188,7 @@ edm::EDLooper::Status EcalEleCalibLooper::duringLoop(const edm::Event& iEvent, c
   //take the collection of recHits in the barrel
   const EBRecHitCollection* barrelHitsCollection = nullptr;
   edm::Handle<EBRecHitCollection> barrelRecHitsHandle;
-  iEvent.getByLabel(m_barrelAlCa, barrelRecHitsHandle);
+  iEvent.getByToken(m_ebRecHitToken, barrelRecHitsHandle);
   barrelHitsCollection = barrelRecHitsHandle.product();
   if (!barrelRecHitsHandle.isValid()) {
     edm::LogError("reading") << "[EcalEleCalibLooper] barrel rec hits not found";
@@ -200,7 +198,7 @@ edm::EDLooper::Status EcalEleCalibLooper::duringLoop(const edm::Event& iEvent, c
   //take the collection of rechis in the endcap
   const EERecHitCollection* endcapHitsCollection = nullptr;
   edm::Handle<EERecHitCollection> endcapRecHitsHandle;
-  iEvent.getByLabel(m_endcapAlCa, endcapRecHitsHandle);
+  iEvent.getByToken(m_eeRecHitToken, endcapRecHitsHandle);
   endcapHitsCollection = endcapRecHitsHandle.product();
   if (!endcapRecHitsHandle.isValid()) {
     edm::LogError("reading") << "[EcalEleCalibLooper] endcap rec hits not found";
@@ -209,7 +207,7 @@ edm::EDLooper::Status EcalEleCalibLooper::duringLoop(const edm::Event& iEvent, c
 
   //Takes the electron collection of the pixel detector
   edm::Handle<reco::GsfElectronCollection> pElectrons;
-  iEvent.getByLabel(m_ElectronLabel, pElectrons);
+  iEvent.getByToken(m_gsfElectronToken, pElectrons);
   if (!pElectrons.isValid()) {
     edm::LogError("reading") << "[EcalEleCalibLooper] electrons not found";
     return kContinue;

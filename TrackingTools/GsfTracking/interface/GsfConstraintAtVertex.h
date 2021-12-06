@@ -3,7 +3,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
@@ -12,7 +11,10 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
+#include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
+#include <memory>
 class TrackerGeometry;
 class MagneticField;
 class GsfPropagatorAdapter;
@@ -20,8 +22,7 @@ class TransverseImpactPointExtrapolator;
 
 class GsfConstraintAtVertex {
 public:
-  explicit GsfConstraintAtVertex(const edm::EventSetup&);
-  ~GsfConstraintAtVertex();
+  explicit GsfConstraintAtVertex(const TrackerGeometry* geometry, const MagneticField* magField);
 
   /// (multi)TSOS after including the beamspot
   TrajectoryStateOnSurface constrainAtBeamSpot(const reco::GsfTrack&, const reco::BeamSpot&) const;
@@ -37,6 +38,6 @@ private:
   GsfMultiStateUpdator gsfUpdator_;
   const TrackerGeometry* geometry_;
   const MagneticField* magField_;
-  GsfPropagatorAdapter* gsfPropagator_;
-  TransverseImpactPointExtrapolator* tipExtrapolator_;
+  GsfPropagatorAdapter gsfPropagator_;
+  TransverseImpactPointExtrapolator tipExtrapolator_;
 };

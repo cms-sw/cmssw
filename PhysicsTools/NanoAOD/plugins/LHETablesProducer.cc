@@ -70,7 +70,7 @@ public:
     for (unsigned int i = 0, n = pup.size(); i < n; ++i) {
       int status = hepeup.ISTUP[i];
       int idabs = std::abs(hepeup.IDUP[i]);
-      if (status == 1 || status == -1) {
+      if (status == 1 || status == -1 || (status == 2 && (idabs >= 23 && idabs <= 25))) {
         TLorentzVector p4(pup[i][0], pup[i][1], pup[i][2], pup[i][3]);  // x,y,z,t
         vals_pid.push_back(hepeup.IDUP[i]);
         vals_spin.push_back(hepeup.SPINUP[i]);

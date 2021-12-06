@@ -42,16 +42,15 @@ public:
         chargedOnly_(iConfig.getParameter<bool>("chargedOnly")),
         primaryOnly_(iConfig.getParameter<bool>("primaryOnly")),
         tpStatusBased_(iConfig.getParameter<bool>("tpStatusBased")),
-        pdgId_(iConfig.getParameter<std::vector<int> >("pdgId")){};
+        pdgId_(iConfig.getParameter<std::vector<int> >("pdgId")),
+        tTopoToken_(iC.esConsumes()){};
 
   // select object from a collection and
   // possibly event content
   void select(const edm::Handle<collection>& TPCH, const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     selected_.clear();
     //Retrieve tracker topology from geometry
-    edm::ESHandle<TrackerTopology> tTopoHand;
-    iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-    const TrackerTopology* tTopo = tTopoHand.product();
+    const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
 
     const collection& tpc = *(TPCH.product());
 
@@ -131,6 +130,7 @@ public:
   bool primaryOnly_;
   bool tpStatusBased_;
   std::vector<int> pdgId_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 };
 
 #endif

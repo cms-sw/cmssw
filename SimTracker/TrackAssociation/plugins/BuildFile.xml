@@ -1,10 +1,10 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="SimTracker/Records"/>
 <use name="SimTracker/TrackAssociation"/>
 <use name="DataFormats/TrackReco"/>
 <use name="SimDataFormats/TrackerDigiSimLink"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
+<use name="TrackingTools/Records"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="PhysicsTools/HepMCCandAlgos"/>
 <library name="SimTrackerTrackAssociation_plugins" file="*.cc">

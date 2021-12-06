@@ -50,7 +50,9 @@ using namespace std;
 // Constructors --
 //----------------
 L1MuBMSectorReceiver::L1MuBMSectorReceiver(L1MuBMSectorProcessor& sp, edm::ConsumesCollector&& iC)
-    : m_sp(sp), m_DTDigiToken(iC.consumes<L1MuDTChambPhContainer>(L1MuBMTFConfig::getBMDigiInputTag())) {}
+    : m_sp(sp),
+      m_bmtfParamsToken(iC.esConsumes()),
+      m_DTDigiToken(iC.consumes<L1MuDTChambPhContainer>(L1MuBMTFConfig::getBMDigiInputTag())) {}
 
 //--------------
 // Destructor --
@@ -67,19 +69,14 @@ L1MuBMSectorReceiver::~L1MuBMSectorReceiver() {
 // receive track segment data from the BBMX chamber triggers
 //
 void L1MuBMSectorReceiver::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
-  //c.get< L1MuDTTFParametersRcd >().get( pars );
-  //c.get< L1MuDTTFMasksRcd >().get( msks );
-
-  const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
-  bmtfParamsRcd.get(bmtfParamsHandle);
-  const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
+  const L1TMuonBarrelParams& bmtfParams = c.getData(m_bmtfParamsToken);
   msks = bmtfParams.l1mudttfmasks;
   pars = bmtfParams.l1mudttfparams;
   //pars.print();
   //msks.print();
 
   // get track segments from BBMX chamber trigger
-  receiveBBMXData(bx, e, c);
+  receiveBBMXData(bx, e);
 }
 
 //
@@ -90,7 +87,7 @@ void L1MuBMSectorReceiver::reset() {}
 //
 // receive track segment data from the BBMX chamber trigger
 //
-void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e, const edm::EventSetup& c) {
+void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e) {
   edm::Handle<L1MuDTChambPhContainer> dttrig;
   //e.getByLabel(L1MuBMTFConfig::getBMDigiInputTag(),dttrig);
   e.getByToken(m_DTDigiToken, dttrig);

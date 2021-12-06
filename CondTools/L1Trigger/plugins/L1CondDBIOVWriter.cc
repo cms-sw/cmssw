@@ -60,6 +60,7 @@ L1CondDBIOVWriter::L1CondDBIOVWriter(const edm::ParameterSet& iConfig)
     std::string type = it->getParameter<std::string>("type");
     m_recordTypes.push_back(record + "@" + type);
   }
+  l1TriggerKeyToken_ = esConsumes();
 }
 
 L1CondDBIOVWriter::~L1CondDBIOVWriter() {
@@ -122,9 +123,7 @@ void L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
       // ORCON.
 
       // Get L1TriggerKey from EventSetup
-      ESHandle<L1TriggerKey> esKey;
-      iSetup.get<L1TriggerKeyRcd>().get(esKey);
-
+      auto esKey = iSetup.getHandle(l1TriggerKeyToken_);
       recordTypeToKeyMap = esKey->recordToKeyMap();
     }
   } else {

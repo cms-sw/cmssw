@@ -7,12 +7,10 @@
 
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalLaserCondTools.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
@@ -36,6 +34,10 @@ EcalLaserCondTools::EcalLaserCondTools(const edm::ParameterSet& ps)
       toTime_(ps.getParameter<int>("toTime")),
       minP_(ps.getParameter<double>("transparencyMin")),
       maxP_(ps.getParameter<double>("transparencyMax")) {
+  if (mode_ == "db_to_ascii_file") {
+    laserAPDPNRatiosToken_ = esConsumes();
+  }
+
   ferr_ = fopen("corr_errors.txt", "w");
   fprintf(ferr_, "#t1\tdetid\tp1\tp2\tp3");
 
@@ -162,7 +164,7 @@ void EcalLaserCondTools::from_hdf_to_db() {
     hsize_t iov_dim[1] = {nCrystals};
     memspace = H5Screate_simple(1, iov_dim, nullptr);
 
-    auto corrSet = std::make_unique<EcalLaserAPDPNRatios>();
+    EcalLaserAPDPNRatios corrSet;
     for (unsigned int iIov = skipIov_; iIov < nIovs && iIov < unsigned(nIovs_); ++iIov) {
       EcalLaserAPDPNRatios::EcalLaserTimeStamp t;
       iovStart = uint64_t(t1[iIov]) << 32;
@@ -170,7 +172,7 @@ void EcalLaserCondTools::from_hdf_to_db() {
         t.t1 = edm::Timestamp(uint64_t(t1[iIov]) << 32);
         t.t2 = edm::Timestamp(uint64_t(t2[iIov][iLme]) << 32);
         t.t3 = edm::Timestamp(uint64_t(t3[iIov]) << 32);
-        corrSet->setTime(iLme, t);
+        corrSet.setTime(iLme, t);
       }
 
       hsize_t offset[2] = {iIov, 0};      // shift rows: iIov, columns: 0
@@ -227,7 +229,7 @@ void EcalLaserCondTools::from_hdf_to_db() {
           fprintf(ferr_, "%d %d %f %f %f\n", t1[iIov], (int)detid, corr.p1, corr.p2, corr.p3);
           corr.p1 = corr.p2 = corr.p3 = 1;
         }
-        corrSet->setValue((int)detid, corr);
+        corrSet.setValue((int)detid, corr);
       }
 
       try {
@@ -242,7 +244,7 @@ void EcalLaserCondTools::from_hdf_to_db() {
         if (verb_ > 1)
           std::cout << "[" << timeToString(t.tv_sec) << "] "
                     << "Write IOV " << iIov << " starting from " << timeToString(iovStart >> 32) << "... ";
-        db_->writeOne(corrSet.get(), iovStart, "EcalLaserAPDPNRatiosRcd");
+        db_->writeOneIOV(corrSet, iovStart, "EcalLaserAPDPNRatiosRcd");
       } catch (const cms::Exception& e) {
         if (verb_ > 1)
           std::cout << "Failed. ";
@@ -370,7 +372,7 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
     return;
   }
 
-  auto corrSet = std::make_unique<EcalLaserAPDPNRatios>();
+  EcalLaserAPDPNRatios corrSet;
 
   EcalLaserAPDPNRatios::EcalLaserTimeStamp t;
   iovStart = uint64_t(t1) << 32;
@@ -378,7 +380,7 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
     t.t1 = edm::Timestamp(uint64_t(t1) << 32);
     t.t2 = edm::Timestamp(uint64_t(t2[i]) << 32);
     t.t3 = edm::Timestamp(uint64_t(t3) << 32);
-    corrSet->setTime(i, t);
+    corrSet.setTime(i, t);
   }
 
   constexpr int ncrystals = 75848;
@@ -419,7 +421,7 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
                 << "p3 = " << corr.p3 << "\n";
     }
 
-    corrSet->setValue((int)detid, corr);
+    corrSet.setValue((int)detid, corr);
   }
 
   try {
@@ -435,7 +437,7 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
     if (verb_ > 1)
       std::cout << "[" << timeToString(t.tv_sec) << "] "
                 << "Write IOV " << iIov << " starting from " << timeToString(iovStart >> 32) << "... ";
-    db_->writeOne(corrSet.get(), iovStart, "EcalLaserAPDPNRatiosRcd");
+    db_->writeOneIOV(corrSet, iovStart, "EcalLaserAPDPNRatiosRcd");
   } catch (const cms::Exception& e) {
     std::cout << "Failed.\nException cathed while writting to cond DB" << e.what() << "\n";
   }
@@ -618,13 +620,10 @@ std::string EcalLaserCondTools::timeToString(time_t t) {
 }
 
 void EcalLaserCondTools::dbToAscii(const edm::EventSetup& es) {
-  edm::ESHandle<EcalLaserAPDPNRatios> hCorr;
-  es.get<EcalLaserAPDPNRatiosRcd>().get(hCorr);
+  const auto& laserAPDPNRatios = es.getData(laserAPDPNRatiosToken_);
 
-  const EcalLaserAPDPNRatios* corr = hCorr.product();
-
-  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& p = corr->getLaserMap();
-  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& t = corr->getTimeMap();
+  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& p = laserAPDPNRatios.getLaserMap();
+  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& t = laserAPDPNRatios.getTimeMap();
 
   if (t.size() != EcalLaserCondTools::nLmes)
     throw cms::Exception("LasCor") << "Unexpected number time parameter triplets\n";

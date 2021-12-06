@@ -14,6 +14,10 @@ namespace reco {
     VertexToTrackingVertexAssociator() = default;
     VertexToTrackingVertexAssociator(VertexToTrackingVertexAssociator &&) = default;
     VertexToTrackingVertexAssociator &operator=(VertexToTrackingVertexAssociator &&) = default;
+    VertexToTrackingVertexAssociator(const VertexToTrackingVertexAssociator &) = delete;  // stop default
+    const VertexToTrackingVertexAssociator &operator=(const VertexToTrackingVertexAssociator &) =
+        delete;  // stop default
+
     ~VertexToTrackingVertexAssociator() = default;
 
     // ---------- const member functions ---------------------
@@ -32,11 +36,6 @@ namespace reco {
     }
 
   private:
-    VertexToTrackingVertexAssociator(const VertexToTrackingVertexAssociator &) = delete;  // stop default
-
-    const VertexToTrackingVertexAssociator &operator=(const VertexToTrackingVertexAssociator &) =
-        delete;  // stop default
-
     // ---------- member data --------------------------------
     std::unique_ptr<VertexToTrackingVertexAssociatorBaseImpl> m_impl;
   };

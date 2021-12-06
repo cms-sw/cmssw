@@ -53,11 +53,11 @@ public:
 
   std::future<int> CaptureAndSaveImage(const TString& file, int height = -1);
 
-private:
   FWTEveViewer(const FWTEveViewer&) = delete;  // stop default
 
   const FWTEveViewer& operator=(const FWTEveViewer&) = delete;  // stop default
 
+private:
   void spawn_image_thread();
 
   // ---------- member data --------------------------------

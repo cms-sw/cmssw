@@ -2,7 +2,7 @@
 #define CalibTracker_SiStripESProducer_DummyCondDBWriter_h
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,12 +16,12 @@
 #include <string>
 
 template <typename TObject, typename TObjectO, typename TRecord>
-class DummyCondDBWriter : public edm::EDAnalyzer {
+class DummyCondDBWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit DummyCondDBWriter(const edm::ParameterSet& iConfig);
   ~DummyCondDBWriter() override;
   void analyze(const edm::Event& e, const edm::EventSetup& es) override{};
-
+  void beginRun(const edm::Run& run, const edm::EventSetup& es) override{};
   void endRun(const edm::Run& run, const edm::EventSetup& es) override;
 
 private:
@@ -68,7 +68,7 @@ void DummyCondDBWriter<TObject, TObjectO, TRecord>::endRun(const edm::Run& run, 
     else
       Time_ = iConfig_.getUntrackedParameter<uint32_t>("OpenIovAtTime", 1);
 
-    dbservice->writeOne(obj.release(), Time_, rcdName);
+    dbservice->writeOneIOV(*obj, Time_, rcdName);
   } else {
     edm::LogError("SiStripFedCablingBuilder") << "Service is unavailable" << std::endl;
   }

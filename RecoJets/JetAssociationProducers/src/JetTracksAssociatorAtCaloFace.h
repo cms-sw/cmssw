@@ -26,13 +26,11 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  JetTracksAssociatorAtCaloFace() {}
-
   edm::EDGetTokenT<edm::View<reco::Jet>> mJets;
   edm::EDGetTokenT<std::vector<reco::TrackExtrapolation>> mExtrapolations;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> mGeometry;
+
   JetTracksAssociationXtrpCalo mAssociator;
-  edm::ESHandle<CaloGeometry> pGeo;
-  bool firstRun;
   double dR_;
 };
 

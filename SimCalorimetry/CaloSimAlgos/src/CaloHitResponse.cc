@@ -18,7 +18,10 @@
 
 #include <iostream>
 
-CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap, const CaloVShape *shape)
+CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap,
+                                 const CaloVShape *shape,
+                                 bool PreMix1,
+                                 bool HighFidelity)
     : theAnalogSignalMap(),
       theParameterMap(parametersMap),
       theShapes(nullptr),
@@ -30,10 +33,15 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap, cons
       theMinBunch(-10),
       theMaxBunch(10),
       thePhaseShift_(1.),
-      storePrecise(false),
+      storePrecise(HighFidelity),
+      preMixDigis(PreMix1),
+      highFidelityPreMix(HighFidelity),
       ignoreTime(false) {}
 
-CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap, const CaloShapes *shapes)
+CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap,
+                                 const CaloShapes *shapes,
+                                 bool PreMix1,
+                                 bool HighFidelity)
     : theAnalogSignalMap(),
       theParameterMap(parametersMap),
       theShapes(shapes),
@@ -45,7 +53,9 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap, cons
       theMinBunch(-10),
       theMaxBunch(10),
       thePhaseShift_(1.),
-      storePrecise(false),
+      storePrecise(HighFidelity),
+      preMixDigis(PreMix1),
+      highFidelityPreMix(HighFidelity),
       ignoreTime(false) {}
 
 CaloHitResponse::~CaloHitResponse() {}
@@ -53,6 +63,17 @@ CaloHitResponse::~CaloHitResponse() {}
 void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
   theMinBunch = minBunch;
   theMaxBunch = maxBunch;
+}
+
+void CaloHitResponse::finalizeHits(CLHEP::HepRandomEngine *) {
+  // Convert any remaining HighFidelityPreMix DIGIs
+  if (!(preMixDigis and highFidelityPreMix)) {
+    for (AnalogSignalMap::iterator itr = theAnalogSignalMap.begin(); itr != theAnalogSignalMap.end(); ++itr) {
+      CaloSamples result(makeBlankSignal(itr->first));
+      result += itr->second;
+      itr->second = result;
+    }
+  }
 }
 
 void CaloHitResponse::run(const MixCollection<PCaloHit> &hits, CLHEP::HepRandomEngine *engine) {
@@ -127,13 +148,13 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit &hit, CLHEP::HepRan
   if (storePrecise) {
     result.resetPrecise();
     int sampleBin(0);
-    // use 1ns binning for precise sample
-    for (int bin = 0; bin < result.size() * BUNCHSPACE; bin++) {
-      sampleBin = bin / BUNCHSPACE;
-      double pulseBit = (*shape)(binTime)*signal;
+    // use 0.5ns binning for precise sample
+    for (int bin = 0; bin < result.preciseSize(); bin++) {
+      sampleBin = (preMixDigis and highFidelityPreMix) ? bin : bin / (BUNCHSPACE * invdt);
+      double pulseBit = (*shape)(binTime)*signal * dt;
       result[sampleBin] += pulseBit;
       result.preciseAtMod(bin) += pulseBit;
-      binTime += 1.0;
+      binTime += dt;
     }
   } else {
     for (int bin = 0; bin < result.size(); bin++) {
@@ -172,13 +193,26 @@ CaloSamples *CaloHitResponse::findSignal(const DetId &detId) {
   return result;
 }
 
+int CaloHitResponse::getReadoutFrameSize(const DetId &id) const {
+  const CaloSimParameters &parameters = theParameterMap->simParameters(id);
+  int readoutFrameSize = parameters.readoutFrameSize();
+  if (preMixDigis and highFidelityPreMix) {
+    //preserve fidelity of time info
+    readoutFrameSize *= BUNCHSPACE * invdt;
+  }
+  return readoutFrameSize;
+}
+
 CaloSamples CaloHitResponse::makeBlankSignal(const DetId &detId) const {
   const CaloSimParameters &parameters = theParameterMap->simParameters(detId);
-  int preciseSize(storePrecise ? parameters.readoutFrameSize() * BUNCHSPACE : 0);
-  CaloSamples result(detId, parameters.readoutFrameSize(), preciseSize);
+  int readoutFrameSize = getReadoutFrameSize(detId);
+  int preciseSize(storePrecise ? parameters.readoutFrameSize() * BUNCHSPACE * invdt : 0);
+  CaloSamples result(detId, readoutFrameSize, preciseSize);
   result.setPresamples(parameters.binOfMaximum() - 1);
-  if (storePrecise)
-    result.setPrecise(result.presamples() * BUNCHSPACE, 1.0);
+  if (storePrecise) {
+    result.setPreciseSize(preciseSize);
+    result.setPrecise(result.presamples() * BUNCHSPACE * invdt, dt);
+  }
   return result;
 }
 

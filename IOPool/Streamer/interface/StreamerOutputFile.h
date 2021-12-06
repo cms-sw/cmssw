@@ -61,7 +61,7 @@ private:
   void writeStart(const InitMsgView& inview);
 
 private:
-  edm::propagate_const<std::shared_ptr<OutputFile>> streamerfile_;
+  edm::propagate_const<std::shared_ptr<edm::streamer::OutputFile>> streamerfile_;
 };
 
 #endif

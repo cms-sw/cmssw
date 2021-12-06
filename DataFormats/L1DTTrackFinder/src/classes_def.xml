@@ -16,12 +16,18 @@
  <class name="L1Phase2MuDTPhDigi" ClassVersion="3">
   <version ClassVersion="3" checksum="1236020577"/>
  </class>
+ <class name="L1Phase2MuDTExtPhDigi"/>
+ <class name="L1Phase2MuDTThDigi"/>
+ <class name="L1Phase2MuDTExtThDigi"/>
 
  <class name="std::vector<L1MuDTChambPhDigi>"/>
  <class name="std::vector<L1MuDTChambThDigi>"/>
  <class name="std::vector<L1MuDTTrackCand>"/>
 
  <class name="std::vector<L1Phase2MuDTPhDigi>"/>
+ <class name="std::vector<L1Phase2MuDTThDigi>"/>
+ <class name="std::vector<L1Phase2MuDTExtPhDigi>"/>
+ <class name="std::vector<L1Phase2MuDTExtThDigi>"/>
 
  <class name="L1MuDTChambPhContainer" ClassVersion="10">
   <version ClassVersion="10" checksum="407874824"/>
@@ -36,11 +42,18 @@
  <class name="L1Phase2MuDTPhContainer" ClassVersion="3">
   <version ClassVersion="3" checksum="2858706077"/>
  </class>
+ <class name="L1Phase2MuDTThContainer"/>
+ <class name="L1Phase2MuDTExtPhContainer"/>
+ <class name="L1Phase2MuDTExtThContainer"/>
+
 
  <class name="edm::Wrapper<L1MuDTChambPhContainer>" splitLevel="0"/>
  <class name="edm::Wrapper<L1MuDTChambThContainer>" splitLevel="0"/>
  <class name="edm::Wrapper<L1MuDTTrackContainer>"/>
 
  <class name="edm::Wrapper<L1Phase2MuDTPhContainer>" splitLevel="0"/>
+ <class name="edm::Wrapper<L1Phase2MuDTThContainer>" splitLevel="0"/>
+ <class name="edm::Wrapper<L1Phase2MuDTExtPhContainer>" splitLevel="0"/>
+ <class name="edm::Wrapper<L1Phase2MuDTExtThContainer>" splitLevel="0"/>
 
 </lcgdict>

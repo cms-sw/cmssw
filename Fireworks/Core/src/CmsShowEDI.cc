@@ -48,7 +48,7 @@
 #include "Fireworks/Core/interface/FWExpressionException.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/src/FWExpressionValidator.h"
-#include "Fireworks/Core/src/FWDialogBuilder.h"
+#include "Fireworks/Core/interface/FWDialogBuilder.h"
 
 //
 // constants, enums and typedefs

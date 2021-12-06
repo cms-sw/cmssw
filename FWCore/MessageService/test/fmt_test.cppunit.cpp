@@ -55,10 +55,10 @@ void test_fmt_external::test_fmt()
   CPPUNIT_ASSERT(s_check == s);
   auto args = capture("{} {}", 42, "foo");
   std::apply(print_message, args);
-  fmt::memory_buffer buf;
-  format_to(buf, "{}", 42);  // replaces itoa(42, buffer, 10)
+  auto buf = fmt::memory_buffer();
+  format_to(std::back_inserter(buf), "{}", 42);  // replaces itoa(42, buffer, 10)
   fmt::print(to_string(buf));
-  format_to(buf, "{:x}", 42);  // replaces itoa(42, buffer, 16)
+  format_to(std::back_inserter(buf), "{:x}", 42);  // replaces itoa(42, buffer, 16)
   fmt::print(to_string(buf));
 }
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

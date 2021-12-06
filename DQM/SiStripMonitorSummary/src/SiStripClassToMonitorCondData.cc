@@ -51,15 +51,17 @@
 SiStripClassToMonitorCondData::SiStripClassToMonitorCondData(edm::ParameterSet const& iConfig,
                                                              edm::ConsumesCollector iC)
     : conf_(iConfig) {
-  monitorPedestals_ = iConfig.getParameter<bool>("MonitorSiStripPedestal");
-  monitorNoises_ = iConfig.getParameter<bool>("MonitorSiStripNoise");
-  monitorQuality_ = iConfig.getParameter<bool>("MonitorSiStripQuality");
-  monitorApvGains_ = iConfig.getParameter<bool>("MonitorSiStripApvGain");
-  monitorLorentzAngle_ = iConfig.getParameter<bool>("MonitorSiStripLorentzAngle");
-  monitorBackPlaneCorrection_ = iConfig.getParameter<bool>("MonitorSiStripBackPlaneCorrection");
-  monitorLowThreshold_ = iConfig.getParameter<bool>("MonitorSiStripLowThreshold");
-  monitorHighThreshold_ = iConfig.getParameter<bool>("MonitorSiStripHighThreshold");
-  monitorCabling_ = iConfig.getParameter<bool>("MonitorSiStripCabling");
+  const auto& mPSet = iConfig.getParameter<edm::ParameterSet>("MonitorSiStrip_PSet");
+  monitorPedestals_ = mPSet.getParameter<bool>("MonitorSiStripPedestal");
+  monitorNoises_ = mPSet.getParameter<bool>("MonitorSiStripNoise");
+  monitorQuality_ = mPSet.getParameter<bool>("MonitorSiStripQuality");
+  monitorApvGains_ = mPSet.getParameter<bool>("MonitorSiStripApvGain");
+  monitorLorentzAngle_ = mPSet.getParameter<bool>("MonitorSiStripLorentzAngle");
+  monitorBackPlaneCorrection_ = mPSet.getParameter<bool>("MonitorSiStripBackPlaneCorrection");
+  monitorLowThreshold_ = mPSet.getParameter<bool>("MonitorSiStripLowThreshold");
+  monitorHighThreshold_ = mPSet.getParameter<bool>("MonitorSiStripHighThreshold");
+  monitorCabling_ = mPSet.getParameter<bool>("MonitorSiStripCabling");
+
   tkDetMapToken_ = iC.esConsumes<edm::Transition::BeginRun>();
   tTopoToken_ = iC.esConsumes<edm::Transition::BeginRun>();
   if (monitorPedestals_) {

@@ -1,15 +1,14 @@
 <flags EDM_PLUGIN="1"/>
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/RPCRecHit"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DQMServices/Core"/>
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="DataFormats/L1GlobalMuonTrigger"/>
+<use name="DataFormats/RPCDigi"/>
 <use name="DataFormats/Scalers"/>
 <use name="FWCore/MessageLogger"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="Geometry/RPCGeometry"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="boost"/>

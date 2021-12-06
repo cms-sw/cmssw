@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+<DDDefinition>
+  <debug>
+<!-- 
+    <debug_shapes/>
+    <debug_rotations/>
+    <debug_volumes/>
+    <debug_placements/>
+    <debug_algorithms/>
+    <debug_constants/>
+    <debug_includes/>
+    <debug_materials/>
+    <debug_namespaces/>
+    <debug_visattr/>
+-->
+  </debug>
+
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+   <Include ref='Geometry/CMSCommonData/data/materials/2021/v2/materials.xml'/>
+   <Include ref='SimG4CMS/CherenkovAnalysis/data/singleDREAM.xml'/>
+   <Include ref='Geometry/CMSCommonData/data/materials.xml'/>
+   <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
+   <Include ref='Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml'/>
+   <Include ref='Geometry/HGCalCommonData/data/TB181/Oct181/cms.xml'/>
+   <Include ref='Geometry/HGCalCommonData/data/TB181/Oct181/hgcal.xml'/>
+   <Include ref='Geometry/HGCalCommonData/data/TB181/Oct181/hgcalEE.xml'/>
+   <Include ref='Geometry/HGCalCommonData/data/TB181/Oct181/hgcalHE.xml'/>
+   <Include ref='Geometry/HGCalCommonData/data/TB181/ahcal.xml'/>
+   <Include ref='Geometry/HGCalCommonData/data/TB181/Oct181/hgcalBeam.xml'/>
+   <Include ref='Geometry/HGCalCommonData/data/hgcalwafer/v7/hgcalwafer.xml'/>
+   <Include ref='Geometry/HGCalCommonData/data/TB181/Oct181/hgcalsense.xml'/>
+   <Include ref='Geometry/HGCalCommonData/data/TB181/hgcProdCuts.xml'/>
+   <Include ref='Geometry/HGCalCommonData/data/TB181/Oct181/hgcalCons.xml'/>
+  </IncludeSection>
+</DDDefinition>

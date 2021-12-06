@@ -50,7 +50,7 @@ public:
 
 private:
   /// Data members
-  edm::ESHandle<TTClusterAlgorithm<T> > theClusterFindingAlgoHandle;
+  edm::ESGetToken<TTClusterAlgorithm<T>, TTClusterAlgorithmRecord> theClusterFindingAlgoToken;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken;
   std::vector<edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi> > > rawHitTokens;
@@ -58,8 +58,6 @@ private:
   bool storeLocalCoord;
 
   /// Mandatory methods
-  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
-  void endRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   /// Get hits
@@ -79,6 +77,7 @@ template <typename T>
 TTClusterBuilder<T>::TTClusterBuilder(const edm::ParameterSet& iConfig) {
   ADCThreshold = iConfig.getParameter<unsigned int>("ADCThreshold");
   storeLocalCoord = iConfig.getParameter<bool>("storeLocalCoord");
+  theClusterFindingAlgoToken = esConsumes();
   tTopoToken = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   tGeomToken = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 
@@ -93,17 +92,6 @@ TTClusterBuilder<T>::TTClusterBuilder(const edm::ParameterSet& iConfig) {
 /// Destructor
 template <typename T>
 TTClusterBuilder<T>::~TTClusterBuilder() {}
-
-/// Begin run
-template <typename T>
-void TTClusterBuilder<T>::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
-  /// Get the clustering algorithm
-  iSetup.get<TTClusterAlgorithmRecord>().get(theClusterFindingAlgoHandle);
-}
-
-/// End run
-template <typename T>
-void TTClusterBuilder<T>::endRun(const edm::Run& run, const edm::EventSetup& iSetup) {}
 
 /// Implement the producer
 template <>

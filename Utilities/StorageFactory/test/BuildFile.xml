@@ -42,6 +42,7 @@
 <bin file="mkstemp.cpp" name="test_StorageFactory_Mkstemp">
 </bin>
 
+<test name="TestStatisticsSenderService" command="test_file_statistics_sender.sh"/>
 <!--
 We do not currently run the threadsafe test, as the StorageFactoryMaker is not thread-safe
 (the underlying PluginManager can be called from multiple threads, but itself is not

@@ -255,7 +255,7 @@ G4double MonopoleTransportation::AlongStepGetPhysicalInteractionLength(const G4T
         geometryStepLength = currentMinimumStep;
       }
     } else {
-      geometryStepLength = lengthAlongCurve = 0.0;
+      geometryStepLength = 0.0;
       fGeometryLimitedStep = false;
     }
 
@@ -398,8 +398,7 @@ G4VParticleChange* MonopoleTransportation::AlongStepDoIt(const G4Track& track, c
       if ((verboseLevel > 1) || (endEnergy > fThreshold_Warning_Energy)) {
         G4cout << " MonopoleTransportation is killing track that is looping or stuck " << G4endl << "   This track has "
                << track.GetKineticEnergy() / MeV << " MeV energy." << G4endl;
-        G4cout << "   Number of trials = " << fNoLooperTrials << "   No of calls to AlongStepDoIt = " << noCalls
-               << G4endl;
+        G4cout << "   Number of trials = " << fNoLooperTrials << G4endl;
       }
 #endif
       fNoLooperTrials = 0;
@@ -408,7 +407,7 @@ G4VParticleChange* MonopoleTransportation::AlongStepDoIt(const G4Track& track, c
 #ifdef G4VERBOSE
       if ((verboseLevel > 2)) {
         G4cout << "   MonopoleTransportation::AlongStepDoIt(): Particle looping -  "
-               << "   Number of trials = " << fNoLooperTrials << "   No of calls to  = " << noCalls << G4endl;
+               << "   Number of trials = " << fNoLooperTrials << G4endl;
       }
 #endif
     }
@@ -482,7 +481,7 @@ G4VParticleChange* MonopoleTransportation::PostStepDoIt(const G4Track& track, co
 
   const G4VPhysicalVolume* pNewVol = retCurrentTouchable->GetVolume();
   const G4Material* pNewMaterial = nullptr;
-  const G4VSensitiveDetector* pNewSensitiveDetector = nullptr;
+  G4VSensitiveDetector* pNewSensitiveDetector = nullptr;
 
   if (pNewVol != nullptr) {
     pNewMaterial = pNewVol->GetLogicalVolume()->GetMaterial();

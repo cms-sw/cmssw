@@ -11,7 +11,8 @@
 #include <algorithm>
 
 HGCalTriggerTowerGeometryHelper::HGCalTriggerTowerGeometryHelper(const edm::ParameterSet& conf)
-    : minEta_(conf.getParameter<double>("minEta")),
+    : doNose_(conf.getParameter<bool>("doNose")),
+      minEta_(conf.getParameter<double>("minEta")),
       maxEta_(conf.getParameter<double>("maxEta")),
       minPhi_(conf.getParameter<double>("minPhi")),
       maxPhi_(conf.getParameter<double>("maxPhi")),
@@ -46,7 +47,7 @@ HGCalTriggerTowerGeometryHelper::HGCalTriggerTowerGeometryHelper(const edm::Para
   for (int zside = -1; zside <= 1; zside += 2) {
     for (unsigned int bin1 = 0; bin1 != nBinsEta_; bin1++) {
       for (unsigned int bin2 = 0; bin2 != nBinsPhi_; bin2++) {
-        l1t::HGCalTowerID towerId(zside, bin1, bin2);
+        l1t::HGCalTowerID towerId(doNose_, zside, bin1, bin2);
         tower_coords_.emplace_back(towerId.rawId(),
                                    zside * ((binsEta_[bin1 + 1] + binsEta_[bin1]) / 2),
                                    (binsPhi_[bin2 + 1] + binsPhi_[bin2]) / 2);
@@ -73,7 +74,7 @@ HGCalTriggerTowerGeometryHelper::HGCalTriggerTowerGeometryHelper(const edm::Para
             << " to TT iEta: " << iEta << " iPhi: " << iPhi << " when max #bins eta: " << nBinsEta_
             << " phi: " << nBinsPhi_ << std::endl;
       }
-      l1t::HGCalTowerID towerId(triggerTools_.zside(DetId(trigger_cell_id)), iEta, iPhi);
+      l1t::HGCalTowerID towerId(doNose_, triggerTools_.zside(DetId(trigger_cell_id)), iEta, iPhi);
       cells_to_trigger_towers_[trigger_cell_id] = towerId.rawId();
     }
     l1tTriggerTowerMappingStream.close();
@@ -116,7 +117,7 @@ unsigned short HGCalTriggerTowerGeometryHelper::getTriggerTowerFromEtaPhi(const 
     bin_phi = bin_phi_l - binsPhi_.begin() - 1;
   }
   int zside = eta < 0 ? -1 : 1;
-  return l1t::HGCalTowerID(zside, bin_eta, bin_phi).rawId();
+  return l1t::HGCalTowerID(doNose_, zside, bin_eta, bin_phi).rawId();
 }
 
 unsigned short HGCalTriggerTowerGeometryHelper::getTriggerTower(const l1t::HGCalTriggerCell& thecell) const {

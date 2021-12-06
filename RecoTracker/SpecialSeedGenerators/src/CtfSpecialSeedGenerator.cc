@@ -17,6 +17,14 @@ using namespace ctfseeding;
 
 CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf)
     : conf_(conf),
+      theMFToken(esConsumes<edm::Transition::BeginRun>()),
+      theBuilderToken(
+          esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", conf_.getParameter<std::string>("TTRHBuilder")))),
+      theTrackerToken(esConsumes<edm::Transition::BeginRun>()),
+      thePropAlongToken(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "PropagatorWithMaterial"))),
+      thePropOppositeToken(
+          esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "PropagatorWithMaterialOpposite"))),
+      theTopoToken(esConsumes()),
       requireBOFF(conf.getParameter<bool>("requireBOFF")),
       theMaxSeeds(conf.getParameter<int32_t>("maxSeeds")),
       check(conf, consumesCollector())
@@ -45,11 +53,9 @@ CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator() = default;
 void CtfSpecialSeedGenerator::endRun(edm::Run const&, edm::EventSetup const&) { theSeedBuilder.reset(); }
 
 void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& iSetup) {
-  std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");
-  iSetup.get<TransientRecHitRecord>().get(builderName, theBuilder);
-
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagfield);
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTracker);
+  theMagfield = iSetup.getHandle(theMFToken);
+  theBuilder = iSetup.getHandle(theBuilderToken);
+  theTracker = iSetup.getHandle(theTrackerToken);
 
   edm::LogVerbatim("CtfSpecialSeedGenerator") << "Initializing...";
   if (useScintillatorsConstraint) {
@@ -74,10 +80,8 @@ void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& i
     lowerScintillator = BoundPlane::build(lowerPosition, rot, &lowerBounds);
   }
 
-  edm::ESHandle<Propagator> propagatorAlongHandle;
-  iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorAlongHandle);
-  edm::ESHandle<Propagator> propagatorOppositeHandle;
-  iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterialOpposite", propagatorOppositeHandle);
+  edm::ESHandle<Propagator> propagatorAlongHandle = iSetup.getHandle(thePropAlongToken);
+  edm::ESHandle<Propagator> propagatorOppositeHandle = iSetup.getHandle(thePropOppositeToken);
 
   std::vector<edm::ParameterSet> pSets = conf_.getParameter<std::vector<edm::ParameterSet>>("OrderedHitsFactoryPSets");
   std::vector<edm::ParameterSet>::const_iterator iPSet;
@@ -188,8 +192,7 @@ bool CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
 }
 //checks the hits are on diffrent layers
 bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs, const edm::EventSetup& es) {
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = es.getHandle(theTopoToken);
 
   std::vector<std::pair<unsigned int, unsigned int>> vSubdetLayer;
   //std::vector<std::string> vSeedLayerNames;

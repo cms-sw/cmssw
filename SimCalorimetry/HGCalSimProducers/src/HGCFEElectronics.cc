@@ -1,3 +1,4 @@
+
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "FWCore/Utilities/interface/transform.h"
@@ -51,13 +52,9 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
   }
 
   if (ps.exists("tdcNbits")) {
-    uint32_t tdcNbits = ps.getParameter<uint32_t>("tdcNbits");
-    tdcSaturation_fC_ = ps.getParameter<double>("tdcSaturation_fC");
-    tdcLSB_fC_ = tdcSaturation_fC_ / pow(2., tdcNbits);
-    // lower tdcSaturation_fC_ by one part in a million
-    // to ensure largest charge converted in bits is 0xfff and not 0x000
-    tdcSaturation_fC_ *= (1. - 1e-6);
-    edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] " << tdcNbits << " bit TDC defined with LSB=" << tdcLSB_fC_
+    tdcNbits_ = ps.getParameter<uint32_t>("tdcNbits");
+    setTDCfsc(ps.getParameter<double>("tdcSaturation_fC"));
+    edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] " << tdcNbits_ << " bit TDC defined with LSB=" << tdcLSB_fC_
                               << " saturation to occur @ " << tdcSaturation_fC_
                               << " (NB lowered by 1 part in a million)" << std::endl;
   }
@@ -213,6 +210,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
                                              uint32_t gainIdx,
                                              float maxADC,
                                              int thickness,
+                                             float tdcOnsetAuto,
                                              const hgc_digi::FEADCPulseShape& adcPulse) {
   busyFlags.fill(false);
   totFlags.fill(false);
@@ -227,7 +225,19 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
 #endif
 
   bool debug = debug_state;
+
   float timeToA = 0.f;
+
+  //configure the ADC <-> TDC transition depending on the value passed as argument
+  double tdcOnset(maxADC);
+  if (maxADC < 0) {
+    maxADC = adcSaturation_fC_;
+    tdcOnset = tdcOnset_fC_;
+  }
+
+  //configure the ADC LSB depending on the value passed as argument
+  if (lsbADC < 0)
+    lsbADC = adcLSB_fC_;
 
   //first look at time
   //for pileup look only at intime signals
@@ -256,9 +266,12 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     if (busyFlags[it])
       continue;
 
+    if (tdcOnsetAuto < 0) {
+      tdcOnsetAuto = tdcOnset_fC_;
+    }
     //if below TDC onset will be handled by SARS ADC later
     float charge = chargeColl[it];
-    if (charge < tdcOnset_fC_) {
+    if (charge < tdcOnset) {
       debug = false;
       continue;
     }
@@ -362,7 +375,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
       if (toaMode_ == WEIGHTEDBYE)
         finalToA /= totalCharge;
     }
-    newCharge[it] = (totalCharge - tdcOnset_fC_);
+
+    newCharge[it] = (totalCharge - tdcOnset);
 
     if (debug)
       edm::LogVerbatim("HGCFE") << "\t Final busy estimate=" << integTime << " ns = " << busyBxs << " bxs" << std::endl
@@ -372,9 +386,9 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     //last fC (tdcOnset) are dissipated trough pulse
     if (it + busyBxs < (int)(newCharge.size())) {
       const float deltaT2nextBx((busyBxs * 25 - integTime));
-      const float tdcOnsetLeakage(tdcOnset_fC_ * vdt::fast_expf(-deltaT2nextBx / tdcChargeDrainParameterisation_[11]));
+      const float tdcOnsetLeakage(tdcOnset * vdt::fast_expf(-deltaT2nextBx / tdcChargeDrainParameterisation_[11]));
       if (debug)
-        edm::LogVerbatim("HGCFE") << "\t Leaking remainder of TDC onset " << tdcOnset_fC_ << " fC, to be dissipated in "
+        edm::LogVerbatim("HGCFE") << "\t Leaking remainder of TDC onset " << tdcOnset << " fC, to be dissipated in "
                                   << deltaT2nextBx << " DeltaT/tau=" << deltaT2nextBx << " / "
                                   << tdcChargeDrainParameterisation_[11] << " ns, adds " << tdcOnsetLeakage << " fC @ "
                                   << it + busyBxs << " bx (first free bx)" << std::endl;
@@ -429,10 +443,6 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
   //set new ADCs and ToA
   if (debug)
     edm::LogVerbatim("HGCFE") << "\t final result : ";
-  if (lsbADC < 0)
-    lsbADC = adcLSB_fC_;
-  if (maxADC < 0)
-    maxADC = adcSaturation_fC_;
   for (int it = 0; it < (int)(newCharge.size()); it++) {
     if (debug)
       edm::LogVerbatim("HGCFE") << chargeColl[it] << " -> " << newCharge[it] << " ";
@@ -470,6 +480,4 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
 
 // cause the compiler to generate the appropriate code
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-template class HGCFEElectronics<HGCEEDataFrame>;
-template class HGCFEElectronics<HGCBHDataFrame>;
 template class HGCFEElectronics<HGCalDataFrame>;

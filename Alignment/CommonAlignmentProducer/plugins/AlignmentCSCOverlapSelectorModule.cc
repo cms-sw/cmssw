@@ -1,7 +1,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentCSCOverlapSelector.h"
 
 // the following include is necessary to clone all track branches
@@ -35,6 +35,6 @@ private:
   AlignmentCSCOverlapSelector theSelector;
 };
 
-typedef ObjectSelectorStream<CSCOverlapConfigSelector> AlignmentCSCOverlapSelectorModule;
+typedef ObjectSelector<CSCOverlapConfigSelector> AlignmentCSCOverlapSelectorModule;
 
 DEFINE_FWK_MODULE(AlignmentCSCOverlapSelectorModule);

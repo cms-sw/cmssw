@@ -15,7 +15,7 @@
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
 
-#include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
+#include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
 
 #include "FWCore/Framework/interface/global/OutputModuleBase.h"
 #include "FWCore/Framework/interface/one/OutputModuleBase.h"
@@ -198,8 +198,9 @@ namespace edm {
 
   template <typename T>
   void OutputModuleCommunicatorT<T>::selectProducts(edm::ProductRegistry const& preg,
-                                                    ThinnedAssociationsHelper const& helper) {
-    module().selectProducts(preg, helper);
+                                                    ThinnedAssociationsHelper const& helper,
+                                                    ProcessBlockHelperBase const& processBlockHelper) {
+    module().selectProducts(preg, helper, processBlockHelper);
   }
 
   template <typename T>

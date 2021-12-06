@@ -60,7 +60,6 @@ public:
   // Boundary crossing variables
   void setCrossedBoundary(const G4Track *track) {
     crossedBoundary_ = true;
-    idAtBoundary_ = track->GetTrackID();
     positionAtBoundary_ = math::XYZTLorentzVectorF(track->GetPosition().x() / CLHEP::cm,
                                                    track->GetPosition().y() / CLHEP::cm,
                                                    track->GetPosition().z() / CLHEP::cm,
@@ -73,7 +72,12 @@ public:
   bool crossedBoundary() const { return crossedBoundary_; }
   const math::XYZTLorentzVectorF &getPositionAtBoundary() const { return positionAtBoundary_; }
   const math::XYZTLorentzVectorF &getMomentumAtBoundary() const { return momentumAtBoundary_; }
-  int getIDAtBoundary() const { return idAtBoundary_; }
+  bool startedInFineVolume() const { return startedInFineVolume_; }
+  void setStartedInFineVolume(bool flag = true) {
+    startedInFineVolume_ = flag;
+    startedInFineVolumeIsSet_ = true;
+  }
+  bool startedInFineVolumeIsSet() { return startedInFineVolumeIsSet_; }
 
   // Generator information
   int genParticlePID() const { return genParticlePID_; }
@@ -104,9 +108,10 @@ private:
   int idLastVolume_;
   bool caloIDChecked_;
   bool crossedBoundary_;
-  bool idAtBoundary_;
   math::XYZTLorentzVectorF positionAtBoundary_;
   math::XYZTLorentzVectorF momentumAtBoundary_;
+  bool startedInFineVolume_;
+  bool startedInFineVolumeIsSet_;
 
   int genParticlePID_, caloSurfaceParticlePID_;
   double genParticleP_, caloSurfaceParticleP_;
@@ -128,6 +133,8 @@ private:
         idLastVolume_(-1),
         caloIDChecked_(false),
         crossedBoundary_(false),
+        startedInFineVolume_(false),
+        startedInFineVolumeIsSet_(false),
         genParticlePID_(-1),
         caloSurfaceParticlePID_(0),
         genParticleP_(0),

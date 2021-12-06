@@ -11,6 +11,8 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class DTPerformance;
+class DTPerformanceRcd;
 class DTPerformanceValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTPerformanceValidateDBRead(edm::ParameterSet const& p);
@@ -22,4 +24,5 @@ public:
 private:
   std::string dataFileName;
   std::string elogFileName;
+  edm::ESGetToken<DTPerformance, DTPerformanceRcd> dtperfToken_;
 };

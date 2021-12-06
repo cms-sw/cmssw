@@ -38,6 +38,9 @@ namespace edm {
                          T>::Type... {
     public:
       EDFilter() = default;
+      EDFilter(const EDFilter&) = delete;
+      const EDFilter& operator=(const EDFilter&) = delete;
+
 // We do this only in the case of the intel compiler as this might
 // end up creating a lot of code bloat due to inline symbols being generated
 // in each DSO which uses this header.
@@ -71,10 +74,6 @@ namespace edm {
       // ---------- member functions ---------------------------
 
     private:
-      EDFilter(const EDFilter&) = delete;
-
-      const EDFilter& operator=(const EDFilter&) = delete;
-
       // ---------- member data --------------------------------
     };
 

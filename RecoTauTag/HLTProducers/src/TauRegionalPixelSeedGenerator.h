@@ -17,6 +17,10 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
@@ -32,10 +36,11 @@
 
 class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
 public:
-  explicit TauRegionalPixelSeedGenerator(const edm::ParameterSet& conf_, edm::ConsumesCollector&& iC) {
+  explicit TauRegionalPixelSeedGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
+      : token_bfield(iC.esConsumes()), token_msmaker(iC.esConsumes()) {
     edm::LogInfo("TauRegionalPixelSeedGenerator") << "Enter the TauRegionalPixelSeedGenerator";
 
-    edm::ParameterSet regionPSet = conf_.getParameter<edm::ParameterSet>("RegionPSet");
+    edm::ParameterSet regionPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
 
     m_ptMin = regionPSet.getParameter<double>("ptMin");
     m_originRadius = regionPSet.getParameter<double>("originRadius");
@@ -127,6 +132,9 @@ public:
       measurementTracker = hmte.product();
     }
 
+    const auto& bfield = es.getData(token_bfield);
+    const auto& msmaker = es.getData(token_msmaker);
+
     for (const reco::Candidate& myJet : *h_jets) {
       GlobalVector jetVector(myJet.momentum().x(), myJet.momentum().y(), myJet.momentum().z());
       //          GlobalPoint  vertex(0, 0, originZ);
@@ -137,8 +145,10 @@ public:
                                                                          deltaZVertex,
                                                                          m_deltaEta,
                                                                          m_deltaPhi,
-                                                                         m_howToUseMeasurementTracker,
+                                                                         bfield,
+                                                                         &msmaker,
                                                                          true,
+                                                                         m_howToUseMeasurementTracker,
                                                                          measurementTracker,
                                                                          m_searchOpt));
     }
@@ -147,8 +157,6 @@ public:
   }
 
 private:
-  edm::ParameterSet conf_;
-
   float m_ptMin;
   float m_originRadius;
   float m_halfLength;
@@ -157,6 +165,8 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> token_vertex;
   edm::EDGetTokenT<reco::CandidateView> token_jet;
   edm::EDGetTokenT<MeasurementTrackerEvent> token_measurementTracker;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_bfield;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> token_msmaker;
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_howToUseMeasurementTracker;
   bool m_searchOpt;
 };

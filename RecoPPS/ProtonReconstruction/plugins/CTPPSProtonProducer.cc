@@ -32,6 +32,9 @@
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
+#include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"
+#include "CondFormats/PPSObjects/interface/PPSAssociationCuts.h"
+
 //----------------------------------------------------------------------------------------------------
 
 class CTPPSProtonProducer : public edm::stream::EDProducer<> {
@@ -50,6 +53,7 @@ private:
 
   std::string lhcInfoLabel_;
   std::string opticsLabel_;
+  std::string ppsAssociationCutsLabel_;
 
   unsigned int verbosity_;
 
@@ -60,68 +64,6 @@ private:
   std::string multiRPReconstructionLabel_;
 
   double localAngleXMin_, localAngleXMax_, localAngleYMin_, localAngleYMax_;
-
-  struct AssociationCuts {
-    bool x_cut_apply;
-    double x_cut_mean, x_cut_value;
-    bool y_cut_apply;
-    double y_cut_mean, y_cut_value;
-    bool xi_cut_apply;
-    double xi_cut_mean, xi_cut_value;
-    bool th_y_cut_apply;
-    double th_y_cut_mean, th_y_cut_value;
-
-    double ti_tr_min;
-    double ti_tr_max;
-
-    void load(const edm::ParameterSet &ps) {
-      x_cut_apply = ps.getParameter<bool>("x_cut_apply");
-      x_cut_mean = ps.getParameter<double>("x_cut_mean");
-      x_cut_value = ps.getParameter<double>("x_cut_value");
-
-      y_cut_apply = ps.getParameter<bool>("y_cut_apply");
-      y_cut_mean = ps.getParameter<double>("y_cut_mean");
-      y_cut_value = ps.getParameter<double>("y_cut_value");
-
-      xi_cut_apply = ps.getParameter<bool>("xi_cut_apply");
-      xi_cut_mean = ps.getParameter<double>("xi_cut_mean");
-      xi_cut_value = ps.getParameter<double>("xi_cut_value");
-
-      th_y_cut_apply = ps.getParameter<bool>("th_y_cut_apply");
-      th_y_cut_mean = ps.getParameter<double>("th_y_cut_mean");
-      th_y_cut_value = ps.getParameter<double>("th_y_cut_value");
-
-      ti_tr_min = ps.getParameter<double>("ti_tr_min");
-      ti_tr_max = ps.getParameter<double>("ti_tr_max");
-    }
-
-    static edm::ParameterSetDescription getDefaultParameters() {
-      edm::ParameterSetDescription desc;
-
-      desc.add<bool>("x_cut_apply", false)->setComment("whether to apply track-association cut in x");
-      desc.add<double>("x_cut_mean", 0E-6)->setComment("mean of track-association cut in x, mm");
-      desc.add<double>("x_cut_value", 800E-6)->setComment("threshold of track-association cut in x, mm");
-
-      desc.add<bool>("y_cut_apply", false)->setComment("whether to apply track-association cut in y");
-      desc.add<double>("y_cut_mean", 0E-6)->setComment("mean of track-association cut in y, mm");
-      desc.add<double>("y_cut_value", 600E-6)->setComment("threshold of track-association cut in y, mm");
-
-      desc.add<bool>("xi_cut_apply", true)->setComment("whether to apply track-association cut in xi");
-      desc.add<double>("xi_cut_mean", 0.)->setComment("mean of track-association cut in xi");
-      desc.add<double>("xi_cut_value", 0.013)->setComment("threshold of track-association cut in xi");
-
-      desc.add<bool>("th_y_cut_apply", true)->setComment("whether to apply track-association cut in th_y");
-      desc.add<double>("th_y_cut_mean", 0E-6)->setComment("mean of track-association cut in th_y, rad");
-      desc.add<double>("th_y_cut_value", 20E-6)->setComment("threshold of track-association cut in th_y, rad");
-
-      desc.add<double>("ti_tr_min", -1.)->setComment("minimum value for timing-tracking association cut");
-      desc.add<double>("ti_tr_max", +1.)->setComment("maximum value for timing-tracking association cut");
-
-      return desc;
-    }
-  };
-
-  std::map<unsigned int, AssociationCuts> association_cuts_;  // map: arm -> AssociationCuts
 
   unsigned int max_n_timing_tracks_;
   double default_time_;
@@ -134,6 +76,7 @@ private:
   edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
   edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticalFunctionsToken_;
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
+  edm::ESGetToken<PPSAssociationCuts, PPSAssociationCutsRcd> ppsAssociationCutsToken_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -145,6 +88,7 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet &iConfig)
 
       lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
       opticsLabel_(iConfig.getParameter<std::string>("opticsLabel")),
+      ppsAssociationCutsLabel_(iConfig.getParameter<std::string>("ppsAssociationCutsLabel")),
       verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
       doSingleRPReconstruction_(iConfig.getParameter<bool>("doSingleRPReconstruction")),
       doMultiRPReconstruction_(iConfig.getParameter<bool>("doMultiRPReconstruction")),
@@ -167,12 +111,9 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet &iConfig)
       lhcInfoToken_(esConsumes<LHCInfo, LHCInfoRcd>(edm::ESInputTag("", lhcInfoLabel_))),
       opticalFunctionsToken_(esConsumes<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd>(
           edm::ESInputTag("", opticsLabel_))),
-      geometryToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()) {
-  for (const std::string &sector : {"45", "56"}) {
-    const unsigned int arm = (sector == "45") ? 0 : 1;
-    association_cuts_[arm].load(iConfig.getParameterSet("association_cuts_" + sector));
-  }
-
+      geometryToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
+      ppsAssociationCutsToken_(
+          esConsumes<PPSAssociationCuts, PPSAssociationCutsRcd>(edm::ESInputTag("", ppsAssociationCutsLabel_))) {
   if (doSingleRPReconstruction_)
     produces<reco::ForwardProtonCollection>(singleRPReconstructionLabel_);
 
@@ -193,6 +134,7 @@ void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions &descr
 
   desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
   desc.add<std::string>("opticsLabel", "")->setComment("label of the optics record");
+  desc.add<std::string>("ppsAssociationCutsLabel", "")->setComment("label of the association cuts record");
 
   desc.addUntracked<unsigned int>("verbosity", 0)->setComment("verbosity level");
 
@@ -211,11 +153,6 @@ void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions &descr
   desc.add<double>("localAngleXMax", +0.03)->setComment("maximal accepted value of local horizontal angle (rad)");
   desc.add<double>("localAngleYMin", -0.04)->setComment("minimal accepted value of local vertical angle (rad)");
   desc.add<double>("localAngleYMax", +0.04)->setComment("maximal accepted value of local vertical angle (rad)");
-
-  for (const std::string &sector : {"45", "56"}) {
-    desc.add<edm::ParameterSetDescription>("association_cuts_" + sector, AssociationCuts::getDefaultParameters())
-        ->setComment("track-association cuts for sector " + sector);
-  }
 
   std::vector<edm::ParameterSet> config;
 
@@ -257,6 +194,8 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
         iSetup.getHandle(opticalFunctionsToken_);
 
     edm::ESHandle<CTPPSGeometry> hGeometry = iSetup.getHandle(geometryToken_);
+
+    edm::ESHandle<PPSAssociationCuts> ppsAssociationCuts = iSetup.getHandle(ppsAssociationCutsToken_);
 
     // re-initialise algorithm upon crossing-angle change
     if (opticsWatcher_.check(iSetup)) {
@@ -315,11 +254,11 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       for (const auto &arm_it : trackingSelection) {
         const auto &indices = arm_it.second;
 
-        const auto &ac = association_cuts_[arm_it.first];
+        const auto &ac = ppsAssociationCuts->getAssociationCuts(arm_it.first);
 
         // do single-RP reco if needed
         std::map<unsigned int, reco::ForwardProton> singleRPResultsIndexed;
-        if (doSingleRPReconstruction_ || ac.xi_cut_apply || ac.th_y_cut_apply) {
+        if (doSingleRPReconstruction_ || ac.isApplied(ac.qXi) || ac.isApplied(ac.qThetaY)) {
           for (const auto &idx : indices) {
             if (verbosity_)
               ssLog << std::endl << "* reconstruction from track " << idx << std::endl;
@@ -360,14 +299,14 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
               bool matching = true;
 
-              if (ac.x_cut_apply && std::abs(tr_i.x() - tr_j.x() - ac.x_cut_mean) > ac.x_cut_value)
+              if (!ac.isSatisfied(ac.qX, tr_i.x(), tr_i.y(), hLHCInfo->crossingAngle(), tr_i.x() - tr_j.x()))
                 matching = false;
-              else if (ac.y_cut_apply && std::abs(tr_i.y() - tr_j.y() - ac.y_cut_mean) > ac.y_cut_value)
+              else if (!ac.isSatisfied(ac.qY, tr_i.x(), tr_i.y(), hLHCInfo->crossingAngle(), tr_i.y() - tr_j.y()))
                 matching = false;
-              else if (ac.xi_cut_apply && std::abs(pr_i.xi() - pr_j.xi() - ac.xi_cut_mean) > ac.xi_cut_value)
+              else if (!ac.isSatisfied(ac.qXi, tr_i.x(), tr_i.y(), hLHCInfo->crossingAngle(), pr_i.xi() - pr_j.xi()))
                 matching = false;
-              else if (ac.th_y_cut_apply &&
-                       std::abs(pr_i.thetaY() - pr_j.thetaY() - ac.th_y_cut_mean) > ac.th_y_cut_value)
+              else if (!ac.isSatisfied(
+                           ac.qThetaY, tr_i.x(), tr_i.y(), hLHCInfo->crossingAngle(), pr_i.thetaY() - pr_j.thetaY()))
                 matching = false;
 
               if (!matching)
@@ -421,7 +360,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
               const double de_x_unc = sqrt(tr_ti.xUnc() * tr_ti.xUnc() + x_inter_unc_sq);
               const double r = (de_x_unc > 0.) ? de_x / de_x_unc : 1E100;
 
-              const bool matching = (ac.ti_tr_min < r && r < ac.ti_tr_max);
+              const bool matching = (ac.getTiTrMin() < r && r < ac.getTiTrMax());
 
               if (verbosity_)
                 ssLog << "ti=" << ti << ", i=" << i << ", j=" << j << " | z_ti=" << z_ti << ", z_i=" << z_i

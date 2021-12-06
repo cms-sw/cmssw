@@ -4,7 +4,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TMath.h"
 
 /****************************************************************************
  *
@@ -73,18 +72,18 @@ namespace {
     float rightEta[nBinsEta] = {0.25, 0.42, 0.77, 0.91, 1.01, 1.13, etaCrackMin, 1.653, 1.8, 2.0, 2.2, 2.3, 2.4, 2.5};
 
     // eta = 0
-    if (TMath::Abs(eta) < leftEta[0]) {
+    if (std::abs(eta) < leftEta[0]) {
       eta = 0.02;
     }
 
     // outside acceptance
-    if (TMath::Abs(eta) >= rightEta[nBinsEta - 1]) {
+    if (std::abs(eta) >= rightEta[nBinsEta - 1]) {
       eta = 2.49;
-    }  //if (DBG) std::cout << " WARNING [applyScCorrections]: TMath::Abs(eta)  >=  rightEta[nBinsEta-1] " << std::endl;}
+    }  //if (DBG) std::cout << " WARNING [applyScCorrections]: std::abs(eta)  >=  rightEta[nBinsEta-1] " << std::endl;}
 
     int tmpEta = -1;
     for (int iEta = 0; iEta < nBinsEta; ++iEta) {
-      if (leftEta[iEta] <= TMath::Abs(eta) && TMath::Abs(eta) < rightEta[iEta]) {
+      if (leftEta[iEta] <= std::abs(eta) && std::abs(eta) < rightEta[iEta]) {
         tmpEta = iEta;
       }
     }
@@ -168,7 +167,7 @@ namespace {
     {
       float tmpInter = 1;
       for (int iEta = 0; iEta < nBinsEta - 1; ++iEta) {
-        if (rightEta[iEta] <= TMath::Abs(eta) && TMath::Abs(eta) < leftEta[iEta + 1]) {
+        if (rightEta[iEta] <= std::abs(eta) && std::abs(eta) < leftEta[iEta + 1]) {
           if (sigmaPhiSigmaEta >= sigmaPhiSigmaEtaFit[cl]) {
             tmpInter =
                 (par0[iEta][cl] + sigmaPhiSigmaEta * par1[iEta][cl] +
@@ -323,7 +322,7 @@ float egamma::classBasedElectronEnergy(reco::GsfElectron const& electron,
                   0,
                   elClass);
 
-  float et = energy * TMath::Sin(2 * TMath::ATan(TMath::Exp(-electron.superCluster()->eta()))) / corr;
+  float et = energy * std::sin(2 * std::atan(std::exp(-electron.superCluster()->eta()))) / corr;
 
   if (electron.isEB()) {
     corr2 = corr * fEt(et, 0, elClass);

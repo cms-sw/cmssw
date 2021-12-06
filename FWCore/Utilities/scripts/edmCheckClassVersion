@@ -1,7 +1,6 @@
-#!  /usr/bin/env python
+#!  /usr/bin/env python3
 from __future__ import print_function
 from optparse import OptionParser
-import six
 from sys import version_info
 if version_info[0] > 2:
     atol = int
@@ -188,7 +187,7 @@ ROOT.gROOT.ProcessLine("checkclass checkTheClass;")
 
 p = XmlParser(options.xmlfile)
 foundErrors = dict()
-for name,info in six.iteritems(p.classes):
+for name,info in p.classes.items():
     errorCode,rootClassVersion,classChecksum = checkClass(name,info[XmlParser.classVersionIndex],info[XmlParser.versionsToChecksumIndex])
     if errorCode != noError:
         foundErrors[name]=(errorCode,classChecksum,rootClassVersion)
@@ -197,7 +196,7 @@ for name,info in six.iteritems(p.classes):
 
 foundRootDoesNotMatchError = False
 originalToNormalizedNames = dict()
-for name,retValues in six.iteritems(foundErrors):
+for name,retValues in foundErrors.items():
     origName = p.classes[name][XmlParser.originalNameIndex]
     originalToNormalizedNames[origName]=name
     code = retValues[0]

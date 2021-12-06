@@ -13,6 +13,8 @@ int main(int argc, char* argv[]) try {
   }
   std::cout << "copying /etc/profile to " << path << "\n";
 
+  using namespace edm::storage;
+
   IOSize bytes;
   unsigned char buf[4096];
   File input("/etc/profile");

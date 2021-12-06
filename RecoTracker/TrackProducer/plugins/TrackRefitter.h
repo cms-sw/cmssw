@@ -24,6 +24,8 @@ private:
   enum Constraint { none, momentum, vertex, trackParameters };
   Constraint constraint_;
   edm::EDGetToken trkconstrcoll_;
+
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
 };
 
 #endif

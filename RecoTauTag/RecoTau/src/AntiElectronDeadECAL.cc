@@ -1,8 +1,6 @@
 #include "RecoTauTag/RecoTau/interface/AntiElectronDeadECAL.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
@@ -20,6 +18,9 @@ AntiElectronDeadECAL::AntiElectronDeadECAL(const edm::ParameterSet& cfg, edm::Co
       dR2_(std::pow(cfg.getParameter<double>("dR"), 2)),
       extrapolateToECalEntrance_(cfg.getParameter<bool>("extrapolateToECalEntrance")),
       verbosity_(cfg.getParameter<int>("verbosity")),
+      channelStatusToken_(cc.esConsumes()),
+      caloGeometryToken_(cc.esConsumes()),
+      ttMapToken_(cc.esConsumes()),
       positionAtECalEntrance_(PositionAtECalEntranceComputer(cc)),
       isFirstEvent_(true) {}
 
@@ -69,36 +70,17 @@ void AntiElectronDeadECAL::updateBadTowers(const edm::EventSetup& es) {
       !idealGeometryWatcher_.check(es))
     return;
 
-  edm::ESHandle<EcalChannelStatus> channelStatus;
-  es.get<EcalChannelStatusRcd>().get(channelStatus);
-
-  edm::ESHandle<CaloGeometry> caloGeometry;
-  es.get<CaloGeometryRecord>().get(caloGeometry);
-
-  edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap;
-  es.get<IdealGeometryRecord>().get(ttMap);
+  auto const& channelStatus = es.getData(channelStatusToken_);
+  auto const& caloGeometry = es.getData(caloGeometryToken_);
+  auto const& ttMap = es.getData(ttMapToken_);
 
   std::map<uint32_t, unsigned> nBadCrystals, maxStatus;
   std::map<uint32_t, double> sumEta, sumPhi;
 
-  loopXtals<EBDetId>(nBadCrystals,
-                     maxStatus,
-                     sumEta,
-                     sumPhi,
-                     channelStatus.product(),
-                     caloGeometry.product(),
-                     ttMap.product(),
-                     minStatus_,
-                     statusMask_);
-  loopXtals<EEDetId>(nBadCrystals,
-                     maxStatus,
-                     sumEta,
-                     sumPhi,
-                     channelStatus.product(),
-                     caloGeometry.product(),
-                     ttMap.product(),
-                     minStatus_,
-                     statusMask_);
+  loopXtals<EBDetId>(
+      nBadCrystals, maxStatus, sumEta, sumPhi, &channelStatus, &caloGeometry, &ttMap, minStatus_, statusMask_);
+  loopXtals<EEDetId>(
+      nBadCrystals, maxStatus, sumEta, sumPhi, &channelStatus, &caloGeometry, &ttMap, minStatus_, statusMask_);
 
   badTowers_.clear();
   for (auto it : nBadCrystals) {

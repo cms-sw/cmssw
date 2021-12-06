@@ -8,7 +8,6 @@ class SeedingHitSet;
 class SeedComparitor;
 
 namespace edm {
-  class Event;
   class EventSetup;
 }  // namespace edm
 

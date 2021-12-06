@@ -20,7 +20,7 @@
 class MagBSlab;
 class MagVolume;
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "MagneticField/Layers/src/MagBinFinders.h"
+#include "MagneticField/Layers/interface/MagBinFinders.h"
 
 class MagBRod {
 public:

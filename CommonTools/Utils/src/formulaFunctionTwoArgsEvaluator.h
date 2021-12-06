@@ -48,11 +48,11 @@ namespace reco {
         return ret;
       }
 
-    private:
       FunctionTwoArgsEvaluator(const FunctionTwoArgsEvaluator&) = delete;
 
       const FunctionTwoArgsEvaluator& operator=(const FunctionTwoArgsEvaluator&) = delete;
 
+    private:
       // ---------- member data --------------------------------
       std::shared_ptr<EvaluatorBase> m_arg1;
       std::shared_ptr<EvaluatorBase> m_arg2;

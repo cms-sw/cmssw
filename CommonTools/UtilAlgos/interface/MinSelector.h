@@ -5,16 +5,15 @@
 
 namespace reco {
   namespace modules {
-    
-    template<typename T>
+
+    template <typename T>
     struct ParameterAdapter<MinSelector<T> > {
-      static MinSelector<T> make( const edm::ParameterSet & cfg ) {
-	return MinSelector<T>( cfg.template getParameter<double>( "min" ) );
+      static MinSelector<T> make(const edm::ParameterSet& cfg) {
+        return MinSelector<T>(cfg.template getParameter<double>("min"));
       }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

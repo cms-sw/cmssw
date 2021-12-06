@@ -25,7 +25,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -52,9 +51,11 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<CastorDbService, CastorDbRecord> tokCond_;
+  const edm::ESGetToken<CastorChannelQuality, CastorChannelQualityRcd> tokChan_;
+  const double factor_;
+  const bool doInterCalib_;
   edm::EDGetTokenT<CastorRecHitCollection> tok_input_;
-  double factor_;
-  bool doInterCalib_;
 };
 
 //
@@ -69,7 +70,10 @@ private:
 // constructors and destructor
 //
 RecHitCorrector::RecHitCorrector(const edm::ParameterSet& iConfig)
-    : factor_(iConfig.getParameter<double>("revertFactor")), doInterCalib_(iConfig.getParameter<bool>("doInterCalib")) {
+    : tokCond_(esConsumes<CastorDbService, CastorDbRecord>()),
+      tokChan_(esConsumes<CastorChannelQuality, CastorChannelQualityRcd>()),
+      factor_(iConfig.getParameter<double>("revertFactor")),
+      doInterCalib_(iConfig.getParameter<bool>("doInterCalib")) {
   tok_input_ = consumes<CastorRecHitCollection>(iConfig.getParameter<edm::InputTag>("rechitLabel"));
   //register your products
   produces<CastorRecHitCollection>();
@@ -94,12 +98,8 @@ void RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(tok_input_, rechits);
 
   // get conditions
-  edm::ESHandle<CastorDbService> conditions;
-  iSetup.get<CastorDbRecord>().get(conditions);
-
-  edm::ESHandle<CastorChannelQuality> p;
-  iSetup.get<CastorChannelQualityRcd>().get(p);
-  CastorChannelQuality* myqual = new CastorChannelQuality(*p.product());
+  const CastorDbService* conditions = &iSetup.getData(tokCond_);
+  const CastorChannelQuality* myqual = &iSetup.getData(tokChan_);
 
   if (!rechits.isValid())
     edm::LogWarning("CastorRecHitCorrector") << "No valid CastorRecHitCollection found, please check the InputLabel...";

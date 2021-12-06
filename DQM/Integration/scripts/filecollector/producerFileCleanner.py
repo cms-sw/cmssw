@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 import os, time, sys, glob, re, smtplib, socket
 from email.MIMEText import MIMEText
@@ -84,7 +84,7 @@ while True:
       time.sleep(WAITTIME)
       continue
       
-    quota=long(diskSize*PRODUCER_DU_BOT/100)
+    quota=int(diskSize*PRODUCER_DU_BOT/100)
     delQuota=diskUsed-quota
     if delQuota > doneSize:
       now = time.time()

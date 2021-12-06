@@ -14,11 +14,14 @@ using namespace edm;
 BasicHepMCValidation::BasicHepMCValidation(const edm::ParameterSet &iPSet)
     : wmanager_(iPSet, consumesCollector()), hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")) {
   hepmcCollectionToken_ = consumes<HepMCProduct>(hepmcCollection_);
+  fPDGTableToken = esConsumes<edm::Transition::BeginRun>();
 }
 
 BasicHepMCValidation::~BasicHepMCValidation() {}
 
-void BasicHepMCValidation::dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) { c.getData(fPDGTable); }
+void BasicHepMCValidation::dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) {
+  fPDGTable = c.getHandle(fPDGTableToken);
+}
 
 namespace {
   // Set upper bound & lower bound for PDF & Scale related histograms

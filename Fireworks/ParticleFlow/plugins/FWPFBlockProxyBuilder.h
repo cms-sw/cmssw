@@ -83,7 +83,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPFBlockEcalProxyBuilder(const FWPFBlockEcalProxyBuilder&) = delete;
   const FWPFBlockEcalProxyBuilder& operator=(const FWPFBlockEcalProxyBuilder&) = delete;
 };
@@ -99,7 +98,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPFBlockHcalProxyBuilder(const FWPFBlockHcalProxyBuilder&) = delete;
   const FWPFBlockHcalProxyBuilder& operator=(const FWPFBlockHcalProxyBuilder&) = delete;
 };

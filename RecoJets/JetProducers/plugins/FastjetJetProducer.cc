@@ -306,8 +306,7 @@ void FastjetJetProducer::produceTrackJets(edm::Event& iEvent, const edm::EventSe
           jet,
           reco::Particle::LorentzVector(fjJets_[ijet].px(), fjJets_[ijet].py(), fjJets_[ijet].pz(), fjJets_[ijet].E()),
           vertex_,
-          constituents,
-          iSetup);
+          constituents);
       jet.setJetArea(0);
       jet.setPileup(0);
       jet.setPrimaryVertex(edm::Ref<reco::VertexCollection>(pvCollection, (int)(itVtx - pvCollection->begin())));

@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import primaryVertexAssociation
+from CommonTools.RecoAlgos.primaryVertexAssociation_cfi import primaryVertexAssociation
 from PhysicsTools.PatAlgos.slimming.packedPFCandidates_cfi import packedPFCandidates
 
 lostTracks = cms.EDProducer("PATLostTracks",

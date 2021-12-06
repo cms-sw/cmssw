@@ -1,23 +1,93 @@
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/View.h"
+#include "CommonTools/PileupAlgos/interface/PuppiAlgo.h"
+#include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/Common/interface/Association.h"
-//Main File
-#include "CommonTools/PileupAlgos/plugins/PuppiProducer.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/PtEtaPhiMass.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <memory>
+
+// ------------------------------------------------------------------------------------------
+class PuppiProducer : public edm::stream::EDProducer<> {
+public:
+  explicit PuppiProducer(const edm::ParameterSet&);
+  ~PuppiProducer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  typedef math::XYZTLorentzVector LorentzVector;
+  typedef std::vector<LorentzVector> LorentzVectorCollection;
+  typedef reco::VertexCollection VertexCollection;
+  typedef edm::View<reco::Candidate> CandidateView;
+  typedef std::vector<reco::PFCandidate> PFInputCollection;
+  typedef std::vector<reco::PFCandidate> PFOutputCollection;
+  typedef std::vector<pat::PackedCandidate> PackedOutputCollection;
+  typedef edm::View<reco::PFCandidate> PFView;
+  typedef edm::Association<reco::VertexCollection> CandToVertex;
+
+private:
+  virtual void beginJob();
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob();
+
+  edm::EDGetTokenT<CandidateView> tokenPFCandidates_;
+  edm::EDGetTokenT<VertexCollection> tokenVertices_;
+  edm::EDGetTokenT<CandToVertex> tokenVertexAssociation_;
+  edm::EDGetTokenT<edm::ValueMap<int>> tokenVertexAssociationQuality_;
+  edm::EDGetTokenT<PuppiContainer> tokenPuppiContainer_;
+  edm::EDGetTokenT<PFOutputCollection> tokenPuppiCandidates_;
+  edm::EDGetTokenT<PackedOutputCollection> tokenPackedPuppiCandidates_;
+  edm::EDGetTokenT<double> puProxyValueToken_;
+  edm::EDPutTokenT<edm::ValueMap<float>> ptokenPupOut_;
+  edm::EDPutTokenT<edm::ValueMap<LorentzVector>> ptokenP4PupOut_;
+  edm::EDPutTokenT<edm::ValueMap<reco::CandidatePtr>> ptokenValues_;
+  edm::EDPutTokenT<pat::PackedCandidateCollection> ptokenPackedPuppiCandidates_;
+  edm::EDPutTokenT<reco::PFCandidateCollection> ptokenPuppiCandidates_;
+  edm::EDPutTokenT<double> ptokenNalgos_;
+  edm::EDPutTokenT<std::vector<double>> ptokenRawAlphas_;
+  edm::EDPutTokenT<std::vector<double>> ptokenAlphas_;
+  edm::EDPutTokenT<std::vector<double>> ptokenAlphasMed_;
+  edm::EDPutTokenT<std::vector<double>> ptokenAlphasRms_;
+  std::string fPuppiName;
+  std::string fPFName;
+  std::string fPVName;
+  bool fUseVertexAssociation;
+  int vertexAssociationQuality_;
+  bool fPuppiDiagnostics;
+  bool fPuppiNoLep;
+  bool fUseFromPVLooseTight;
+  bool fUseDZ;
+  double fDZCut;
+  double fEtaMinUseDZ;
+  double fPtMaxCharged;
+  double fEtaMaxCharged;
+  double fPtMaxPhotons;
+  double fEtaMaxPhotons;
+  uint fNumOfPUVtxsForCharged;
+  double fDZCutForChargedFromPUVtxs;
+  bool fUseExistingWeights;
+  bool fClonePackedCands;
+  int fVtxNdofCut;
+  double fVtxZCut;
+  bool fUsePUProxyValue;
+  std::unique_ptr<PuppiContainer> fPuppiContainer;
+  std::vector<RecoObj> fRecoObjCollection;
+};
 
 // ------------------------------------------------------------------------------------------
 PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
@@ -41,6 +111,13 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
 
   tokenPFCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
   tokenVertices_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexName"));
+  fUseVertexAssociation = iConfig.getParameter<bool>("useVertexAssociation");
+  vertexAssociationQuality_ = iConfig.getParameter<int>("vertexAssociationQuality");
+  if (fUseVertexAssociation) {
+    tokenVertexAssociation_ = consumes<CandToVertex>(iConfig.getParameter<edm::InputTag>("vertexAssociation"));
+    tokenVertexAssociationQuality_ =
+        consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("vertexAssociation"));
+  }
 
   fUsePUProxyValue = iConfig.getParameter<bool>("usePUProxyValue");
 
@@ -80,6 +157,13 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(tokenVertices_, hVertexProduct);
   const reco::VertexCollection* pvCol = hVertexProduct.product();
 
+  edm::Association<reco::VertexCollection> associatedPV;
+  edm::ValueMap<int> associationQuality;
+  if ((fUseVertexAssociation) && (!fUseExistingWeights)) {
+    associatedPV = iEvent.get(tokenVertexAssociation_);
+    associationQuality = iEvent.get(tokenVertexAssociationQuality_);
+  }
+
   double puProxyValue = 0.;
   if (fUsePUProxyValue) {
     puProxyValue = iEvent.get(puProxyValueToken_);
@@ -95,6 +179,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //Fill the reco objects
     fRecoObjCollection.clear();
     fRecoObjCollection.reserve(pfCol->size());
+    int iCand = 0;
     for (auto const& aPF : *pfCol) {
       RecoObj pReco;
       pReco.pt = aPF.pt();
@@ -110,7 +195,25 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       uint pVtxId = 0;
       bool isLepton = ((std::abs(pReco.pdgId) == 11) || (std::abs(pReco.pdgId) == 13));
       const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
-      if (lPack == nullptr) {
+
+      if (fUseVertexAssociation) {
+        const reco::VertexRef& PVOrig = associatedPV[reco::CandidatePtr(hPFProduct, iCand)];
+        int quality = associationQuality[reco::CandidatePtr(hPFProduct, iCand)];
+        if (PVOrig.isNonnull() && (quality >= vertexAssociationQuality_)) {
+          closestVtx = PVOrig.get();
+          pVtxId = PVOrig.key();
+        }
+        if (std::abs(pReco.charge) == 0)
+          pReco.id = 0;
+        else if (fPuppiNoLep && isLepton)
+          pReco.id = 3;
+        else if (closestVtx != nullptr && pVtxId == 0)
+          pReco.id = 1;  // Associated to main vertex
+        else if (closestVtx != nullptr && pVtxId > 0)
+          pReco.id = 2;  // Associated to PU
+        else
+          pReco.id = 0;  // Unassociated
+      } else if (lPack == nullptr) {
         const reco::PFCandidate* pPF = dynamic_cast<const reco::PFCandidate*>(&aPF);
         double curdz = 9999;
         int closestVtxForUnassociateds = -9999;
@@ -230,6 +333,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
 
       fRecoObjCollection.push_back(pReco);
+      iCand++;
     }
 
     fPuppiContainer->initialize(fRecoObjCollection);
@@ -401,6 +505,9 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("vtxZCut", 24);
   desc.add<edm::InputTag>("candName", edm::InputTag("particleFlow"));
   desc.add<edm::InputTag>("vertexName", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("useVertexAssociation", false);
+  desc.add<int>("vertexAssociationQuality", 0);
+  desc.add<edm::InputTag>("vertexAssociation", edm::InputTag(""));
   desc.add<bool>("applyCHS", true);
   desc.add<bool>("invertPuppi", false);
   desc.add<bool>("useExp", false);

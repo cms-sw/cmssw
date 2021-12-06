@@ -21,13 +21,20 @@ namespace {
   constexpr int m_ROC_bits = 5;
   constexpr int m_DCOL_bits = 5;
   constexpr int m_PXID_bits = 8;
+  constexpr int m_COL_bits = 6;
+  constexpr int m_ROW_bits = 7;
   constexpr int m_ADC_bits = 8;
   constexpr int min_Dcol = 0;
   constexpr int max_Dcol = 25;
   constexpr int min_Pixid = 2;
   constexpr int max_Pixid = 161;
+  constexpr int min_COL = 0;
+  constexpr int max_COL = 51;
+  constexpr int min_ROW = 0;
+  constexpr int max_ROW = 79;
   constexpr int maxRocIndex = 3;
-  constexpr int maxLinkIndex = 13;
+  constexpr int maxLinkIndex = 49;
+
 }  // namespace
 
 CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const& mapping)
@@ -44,6 +51,10 @@ CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePositio
   m_ADC_shift = 0;
   m_PXID_shift = m_ADC_shift + m_ADC_bits;
   m_DCOL_shift = m_PXID_shift + m_PXID_bits;
+  //Run3 shifts
+  m_ROW_shift = m_ADC_shift + m_ADC_bits;
+  m_COL_shift = m_ROW_shift + m_ROW_bits;
+
   m_ROC_shift = m_DCOL_shift + m_DCOL_bits;
 
   m_LINK_shift = m_ROC_shift + m_ROC_bits;
@@ -52,6 +63,10 @@ CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePositio
 
   m_DCOL_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << m_DCOL_bits);
   m_PXID_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << m_PXID_bits);
+  //Run3 masks
+  m_COL_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << m_COL_bits);
+  m_ROW_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << m_ROW_bits);
+
   m_ADC_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << m_ADC_bits);
 }
 
@@ -61,7 +76,7 @@ void CTPPSPixelDataFormatter::setErrorStatus(bool errorStatus) {
 }
 
 void CTPPSPixelDataFormatter::interpretRawData(
-    bool& errorsInEvent, int fedId, const FEDRawData& rawData, Collection& digis, Errors& errors) {
+    const bool& isRun3, bool& errorsInEvent, int fedId, const FEDRawData& rawData, Collection& digis, Errors& errors) {
   int nWords = rawData.size() / sizeof(Word64);
   if (nWords == 0)
     return;
@@ -119,11 +134,11 @@ void CTPPSPixelDataFormatter::interpretRawData(
     }
     int nlink = (ww >> m_LINK_shift) & m_LINK_mask;
     int nroc = (ww >> m_ROC_shift) & m_ROC_mask;
-
     int FMC = 0;
     uint32_t iD = RPixErrorChecker::dummyDetId;  //0xFFFFFFFF; //dummyDetId
     int convroc = nroc - 1;
     CTPPSPixelFramePosition fPos(fedId, FMC, nlink, convroc);
+
     std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo>::const_iterator mit;
     mit = m_Mapping.find(fPos);
 
@@ -161,11 +176,22 @@ void CTPPSPixelDataFormatter::interpretRawData(
 
     int dcol = (ww >> m_DCOL_shift) & m_DCOL_mask;
     int pxid = (ww >> m_PXID_shift) & m_PXID_mask;
+    int col = (ww >> m_COL_shift) & m_COL_mask;
+    int row = (ww >> m_ROW_shift) & m_ROW_mask;
 
-    if (dcol < min_Dcol || dcol > max_Dcol || pxid < min_Pixid || pxid > max_Pixid) {
+    if (!isRun3 && (dcol < min_Dcol || dcol > max_Dcol || pxid < min_Pixid || pxid > max_Pixid)) {
       edm::LogError("CTPPSPixelDataFormatter")
           << " unphysical dcol and/or pxid "
           << " nllink=" << nlink << " nroc=" << nroc << " adc=" << adc << " dcol=" << dcol << " pxid=" << pxid;
+
+      m_ErrorCheck.conversionError(fedId, iD, InvalidPixelId, ww, errors);
+
+      continue;
+    }
+    if (isRun3 && (col < min_COL || col > max_COL || row < min_ROW || row > max_ROW)) {
+      edm::LogError("CTPPSPixelDataFormatter")
+          << " unphysical col and/or row "
+          << " nllink=" << nlink << " nroc=" << nroc << " adc=" << adc << " col=" << col << " row=" << row;
 
       m_ErrorCheck.conversionError(fedId, iD, InvalidPixelId, ww, errors);
 
@@ -175,9 +201,13 @@ void CTPPSPixelDataFormatter::interpretRawData(
     std::pair<int, int> rocPixel;
     std::pair<int, int> modPixel;
 
-    rocPixel = std::make_pair(dcol, pxid);
-
-    modPixel = rocp.toGlobalfromDcol(rocPixel);
+    if (isRun3) {
+      rocPixel = std::make_pair(row, col);
+      modPixel = rocp.toGlobal(rocPixel);
+    } else {
+      rocPixel = std::make_pair(dcol, pxid);
+      modPixel = rocp.toGlobalfromDcol(rocPixel);
+    }
 
     CTPPSPixelDigi testdigi(modPixel.first, modPixel.second, adc);
 
@@ -186,7 +216,8 @@ void CTPPSPixelDataFormatter::interpretRawData(
   }
 }
 
-void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID,
+void CTPPSPixelDataFormatter::formatRawData(const bool& isRun3,
+                                            unsigned int lvl1_ID,
                                             RawData& fedRawData,
                                             const Digis& digis,
                                             std::vector<PPSPixelIndex> iDdet2fed) {
@@ -219,11 +250,19 @@ void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID,
         nroc = iDdet2fed.at(i).rocch + 1;
 
         pps::pixel::ElectronicIndex cabling = {nlink, nroc, dcol, pxid};
+        if (isRun3) {
+          cms_uint32_t word = (cabling.link << m_LINK_shift) | (cabling.roc << m_ROC_shift) |
+                              (rocPixelColumn << m_COL_shift) | (rocPixelRow << m_ROW_shift) |
+                              (it.adc() << m_ADC_shift);
 
-        cms_uint32_t word = (cabling.link << m_LINK_shift) | (cabling.roc << m_ROC_shift) |
-                            (cabling.dcol << m_DCOL_shift) | (cabling.pxid << m_PXID_shift) | (it.adc() << m_ADC_shift);
+          words[iDdet2fed.at(i).fedid].push_back(word);
+        } else {
+          cms_uint32_t word = (cabling.link << m_LINK_shift) | (cabling.roc << m_ROC_shift) |
+                              (cabling.dcol << m_DCOL_shift) | (cabling.pxid << m_PXID_shift) |
+                              (it.adc() << m_ADC_shift);
 
-        words[iDdet2fed.at(i).fedid].push_back(word);
+          words[iDdet2fed.at(i).fedid].push_back(word);
+        }
         m_WordCounter++;
         m_hasDetDigis++;
 

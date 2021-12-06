@@ -3,7 +3,6 @@
 ### command line options helper
 from __future__ import print_function
 from __future__ import absolute_import
-import six
 import os
 from  .Options import Options
 options = Options()
@@ -19,6 +18,7 @@ from .Modules import _Module
 from .SequenceTypes import *
 from .SequenceTypes import _ModuleSequenceType, _Sequenceable  #extend needs it
 from .SequenceVisitors import PathValidator, EndPathValidator, ScheduleTaskValidator, NodeVisitor, CompositeVisitor, ModuleNamesFromGlobalsVisitor
+from .MessageLogger import MessageLogger
 from . import DictTypes
 
 from .ExceptionHandling import *
@@ -138,6 +138,11 @@ class Process(object):
         self.options = Process.defaultOptions_()
         self.maxEvents = Process.defaultMaxEvents_()
         self.maxLuminosityBlocks = Process.defaultMaxLuminosityBlocks_()
+        # intentionally not cloned to ensure that everyone taking
+        # MessageLogger still via
+        # FWCore.Message(Logger|Service).MessageLogger_cfi
+        # use the very same MessageLogger object.
+        self.MessageLogger = MessageLogger
         for m in self.__modifiers:
             m._setChosen()
 
@@ -215,9 +220,9 @@ class Process(object):
         return untracked.PSet(numberOfThreads = untracked.uint32(1),
                               numberOfStreams = untracked.uint32(0),
                               numberOfConcurrentRuns = untracked.uint32(1),
-                              numberOfConcurrentLuminosityBlocks = untracked.uint32(1),
+                              numberOfConcurrentLuminosityBlocks = untracked.uint32(0),
                               eventSetup = untracked.PSet(
-                                  numberOfConcurrentIOVs = untracked.uint32(1),
+                                  numberOfConcurrentIOVs = untracked.uint32(0),
                                   forceNumberOfConcurrentIOVs = untracked.PSet(
                                       allowAnyLabel_ = required.untracked.uint32
                                   )
@@ -234,6 +239,7 @@ class Process(object):
                               FailPath = untracked.vstring(),
                               IgnoreCompletely = untracked.vstring(),
                               canDeleteEarly = untracked.vstring(),
+                              dumpOptions = untracked.bool(False),
                               allowUnscheduled = obsolete.untracked.bool,
                               emptyRunLumiMode = obsolete.untracked.string,
                               makeTriggerResults = obsolete.untracked.bool
@@ -241,7 +247,7 @@ class Process(object):
     def __updateOptions(self,opt):
         newOpts = self.defaultOptions_()
         if isinstance(opt,dict):
-            for k,v in six.iteritems(opt):
+            for k,v in opt.items():
                 setattr(newOpts,k,v)
         else:
             for p in opt.parameters_():
@@ -254,7 +260,7 @@ class Process(object):
     def __updateMaxEvents(self,ps):
         newMax = self.defaultMaxEvents_()
         if isinstance(ps,dict):
-            for k,v in six.iteritems(ps):
+            for k,v in ps.items():
                 setattr(newMax,k,v)
         else:
             for p in ps.parameters_():
@@ -498,6 +504,9 @@ class Process(object):
                 if s is not None:
                     raise ValueError(msg1+"endpath "+s.label_()+msg2)
 
+            if not self.__InExtendCall and (Schedule._itemIsValid(newValue) or isinstance(newValue, Task)):
+                self._replaceInScheduleDirectly(name, newValue)
+
             self._delattrFromSetattr(name)
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
@@ -511,7 +520,7 @@ class Process(object):
         containing mod and return it. If none is found, return None"""
         from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
         l = list()
-        for seqOrTask in six.itervalues(seqsOrTasks):
+        for seqOrTask in seqsOrTasks.values():
             l[:] = []
             v = ModuleNodeVisitor(l)
             seqOrTask.visit(v)
@@ -555,6 +564,8 @@ class Process(object):
                     self._replaceInSchedule(name, None)
                 if isinstance(obj, _Sequenceable) or obj._isTaskComponent():
                     self._replaceInSequences(name, None)
+                if Schedule._itemIsValid(obj) or isinstance(obj, Task):
+                    self._replaceInScheduleDirectly(name, None)
         # now remove it from the process itself
         try:
             del self.__dict__[name]
@@ -718,7 +729,7 @@ class Process(object):
                 self.extend(item)
 
         #now create a sequence that uses the newly made items
-        for name,seq in six.iteritems(seqs):
+        for name,seq in seqs.items():
             if id(seq) not in self._cloneToObjectDict:
                 self.__setattr__(name,seq)
             else:
@@ -728,7 +739,7 @@ class Process(object):
                 #now put in proper bucket
                 newSeq._place(name,self)
 
-        for name, task in six.iteritems(tasksToAttach):
+        for name, task in tasksToAttach.items():
             self.__setattr__(name, task)
 
         #apply modifiers now that all names have been added
@@ -769,54 +780,54 @@ class Process(object):
         config+=self._dumpConfigNamedList(self.subProcesses_(),
                                   'subProcess',
                                   options)
-        config+=self._dumpConfigNamedList(six.iteritems(self.producers_()),
+        config+=self._dumpConfigNamedList(self.producers_().items(),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(six.iteritems(self.switchProducers_()),
+        config+=self._dumpConfigNamedList(self.switchProducers_().items(),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(six.iteritems(self.filters_()),
+        config+=self._dumpConfigNamedList(self.filters_().items(),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(six.iteritems(self.analyzers_()),
+        config+=self._dumpConfigNamedList(self.analyzers_().items(),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(six.iteritems(self.outputModules_()),
+        config+=self._dumpConfigNamedList(self.outputModules_().items(),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(six.iteritems(self.sequences_()),
+        config+=self._dumpConfigNamedList(self.sequences_().items(),
                                   'sequence',
                                   options)
-        config+=self._dumpConfigNamedList(six.iteritems(self.paths_()),
+        config+=self._dumpConfigNamedList(self.paths_().items(),
                                   'path',
                                   options)
-        config+=self._dumpConfigNamedList(six.iteritems(self.endpaths_()),
+        config+=self._dumpConfigNamedList(self.endpaths_().items(),
                                   'endpath',
                                   options)
-        config+=self._dumpConfigUnnamedList(six.iteritems(self.services_()),
+        config+=self._dumpConfigUnnamedList(self.services_().items(),
                                   'service',
                                   options)
-        config+=self._dumpConfigNamedList(six.iteritems(self.aliases_()),
+        config+=self._dumpConfigNamedList(self.aliases_().items(),
                                   'alias',
                                   options)
         config+=self._dumpConfigOptionallyNamedList(
-            six.iteritems(self.es_producers_()),
+            self.es_producers_().items(),
             'es_module',
             options)
         config+=self._dumpConfigOptionallyNamedList(
-            six.iteritems(self.es_sources_()),
+            self.es_sources_().items(),
             'es_source',
             options)
         config += self._dumpConfigESPrefers(options)
-        for name,item in six.iteritems(self.psets):
+        for name,item in self.psets.items():
             config +=options.indentation()+item.configTypeName()+' '+name+' = '+item.configValue(options)
-        for name,item in six.iteritems(self.vpsets):
+        for name,item in self.vpsets.items():
             config +=options.indentation()+'VPSet '+name+' = '+item.configValue(options)
         if self.schedule:
             pathNames = [p.label_() for p in self.schedule]
             config +=options.indentation()+'schedule = {'+','.join(pathNames)+'}\n'
 
-#        config+=self._dumpConfigNamedList(six.iteritems(self.vpsets),
+#        config+=self._dumpConfigNamedList(self.vpsets.items(),
 #                                  'VPSet',
 #                                  options)
         config += "}\n"
@@ -825,7 +836,7 @@ class Process(object):
 
     def _dumpConfigESPrefers(self, options):
         result = ''
-        for item in six.itervalues(self.es_prefers_()):
+        for item in self.es_prefers_().values():
             result +=options.indentation()+'es_prefer '+item.targetLabel_()+' = '+item.dumpConfig(options)
         return result
 
@@ -894,7 +905,7 @@ class Process(object):
         # For each item, see what other items it depends upon
         # For our purpose here, an item depends on the items it contains.
         dependencies = {}
-        for label,item in six.iteritems(processDictionaryOfItems):
+        for label,item in processDictionaryOfItems.items():
             containedItems = []
             if isinstance(item, Task):
                 v = TaskVisitor(containedItems)
@@ -931,25 +942,25 @@ class Process(object):
         # keep looping until we get rid of all dependencies
         while dependencies:
             oldDeps = dict(dependencies)
-            for label,deps in six.iteritems(oldDeps):
+            for label,deps in oldDeps.items():
                 if len(deps)==0:
                     returnValue[label]=processDictionaryOfItems[label]
                     #remove this as a dependency for all other tasks
                     del dependencies[label]
-                    for lb2,deps2 in six.iteritems(dependencies):
+                    for lb2,deps2 in dependencies.items():
                         while deps2.count(label):
                             deps2.remove(label)
         return returnValue
 
     def _dumpPython(self, d, options):
         result = ''
-        for name, value in sorted(six.iteritems(d)):
+        for name, value in sorted(d.items()):
             result += value.dumpPythonAs(name,options)+'\n'
         return result
 
     def _splitPython(self, subfolder, d, options):
         result = {}
-        for name, value in sorted(six.iteritems(d)):
+        for name, value in sorted(d.items()):
             result[name] = subfolder, value.dumpPythonAs(name, options) + '\n'
         return result
 
@@ -1064,17 +1075,17 @@ class Process(object):
         # process known sequences to do a non-recursive change. Then do
         # a recursive change to get cases where a sub-sequence unknown to
         # the process has the item to be replaced
-        for sequenceable in six.itervalues(self.sequences):
+        for sequenceable in self.sequences.values():
             sequenceable._replaceIfHeldDirectly(old,new)
-        for sequenceable in six.itervalues(self.sequences):
+        for sequenceable in self.sequences.values():
             sequenceable.replace(old,new)
-        for sequenceable in six.itervalues(self.paths):
+        for sequenceable in self.paths.values():
             sequenceable.replace(old,new)
-        for sequenceable in six.itervalues(self.endpaths):
+        for sequenceable in self.endpaths.values():
             sequenceable.replace(old,new)
     def _replaceInTasks(self, label, new):
         old = getattr(self,label)
-        for task in six.itervalues(self.tasks):
+        for task in self.tasks.values():
             task.replace(old, new)
     def _replaceInSchedule(self, label, new):
         if self.schedule_() == None:
@@ -1082,13 +1093,18 @@ class Process(object):
         old = getattr(self,label)
         for task in self.schedule_()._tasks:
             task.replace(old, new)
+    def _replaceInScheduleDirectly(self, label, new):
+        if self.schedule_() == None:
+            return
+        old = getattr(self,label)
+        self.schedule_()._replaceIfHeldDirectly(old, new)
     def globalReplace(self,label,new):
         """ Replace the item with label 'label' by object 'new' in the process and all sequences/paths/tasks"""
         if not hasattr(self,label):
             raise LookupError("process has no item of label "+label)
         setattr(self,label,new)
     def _insertInto(self, parameterSet, itemDict):
-        for name,value in six.iteritems(itemDict):
+        for name,value in itemDict.items():
             value.insertInto(parameterSet, name)
     def _insertOneInto(self, parameterSet, label, item, tracked):
         vitems = []
@@ -1099,7 +1115,7 @@ class Process(object):
         parameterSet.addVString(tracked, label, vitems)
     def _insertManyInto(self, parameterSet, label, itemDict, tracked):
         l = []
-        for name,value in six.iteritems(itemDict):
+        for name,value in itemDict.items():
             value.appendToProcessDescList_(l, name)
             value.insertInto(parameterSet, name)
         # alphabetical order is easier to compare with old language
@@ -1108,7 +1124,7 @@ class Process(object):
     def _insertSwitchProducersInto(self, parameterSet, labelModules, labelAliases, itemDict, tracked):
         modules = parameterSet.getVString(tracked, labelModules)
         aliases = parameterSet.getVString(tracked, labelAliases)
-        for name,value in six.iteritems(itemDict):
+        for name,value in itemDict.items():
             value.appendToProcessDescLists_(modules, aliases, name)
             value.insertInto(parameterSet, name)
         modules.sort()
@@ -1183,9 +1199,9 @@ class Process(object):
         processPSet.addVString(False, "@filters_on_endpaths", endpathValidator.filtersOnEndpaths)
 
     def resolve(self,keepUnresolvedSequencePlaceholders=False):
-        for x in six.itervalues(self.paths):
+        for x in self.paths.values():
             x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
-        for x in six.itervalues(self.endpaths):
+        for x in self.endpaths.values():
             x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
         if not self.schedule_() == None:
             for task in self.schedule_()._tasks:
@@ -1223,8 +1239,8 @@ class Process(object):
                 t.visit(tv)
                 tv.leave(t)
         else:
-            pths = list(six.itervalues(self.paths))
-            pths.extend(six.itervalues(self.endpaths))
+            pths = list(self.paths.values())
+            pths.extend(self.endpaths.values())
             temp = Schedule(*pths)
             usedModules=set(temp.moduleNames())
         unneededModules = self._pruneModules(self.producers_(), usedModules)
@@ -1234,15 +1250,15 @@ class Process(object):
         #remove sequences and tasks that do not appear in remaining paths and endpaths
         seqs = list()
         sv = SequenceVisitor(seqs)
-        for p in six.itervalues(self.paths):
+        for p in self.paths.values():
             p.visit(sv)
             p.visit(tv)
-        for p in six.itervalues(self.endpaths):
+        for p in self.endpaths.values():
             p.visit(sv)
             p.visit(tv)
         def removeUnneeded(seqOrTasks, allSequencesOrTasks):
             _keepSet = set(( s for s in seqOrTasks if s.hasLabel_()))
-            _availableSet = set(six.itervalues(allSequencesOrTasks))
+            _availableSet = set(allSequencesOrTasks.values())
             _unneededSet = _availableSet-_keepSet
             _unneededLabels = []
             for s in _unneededSet:
@@ -1315,29 +1331,29 @@ class Process(object):
         # the modules, ESSources, ESProducers, and services it visits.
         nodeVisitor = NodeVisitor()
         self._insertPaths(adaptor, nodeVisitor)
-        all_modules_onTasksOrScheduled = { key:value for key, value in six.iteritems(all_modules) if value in nodeVisitor.modules }
+        all_modules_onTasksOrScheduled = { key:value for key, value in all_modules.items() if value in nodeVisitor.modules }
         self._insertManyInto(adaptor, "@all_modules", all_modules_onTasksOrScheduled, True)
         all_switches = self.switchProducers_().copy()
-        all_switches_onTasksOrScheduled = {key:value for key, value in six.iteritems(all_switches) if value in nodeVisitor.modules }
+        all_switches_onTasksOrScheduled = {key:value for key, value in all_switches.items() if value in nodeVisitor.modules }
         self._insertSwitchProducersInto(adaptor, "@all_modules", "@all_aliases", all_switches_onTasksOrScheduled, True)
         # Same as nodeVisitor except this one visits all the Tasks attached
         # to the process.
         processNodeVisitor = NodeVisitor()
-        for pTask in six.itervalues(self.tasks):
+        for pTask in self.tasks.values():
             pTask.visit(processNodeVisitor)
         esProducersToEnable = {}
-        for esProducerName, esProducer in six.iteritems(self.es_producers_()):
+        for esProducerName, esProducer in self.es_producers_().items():
             if esProducer in nodeVisitor.esProducers or not (esProducer in processNodeVisitor.esProducers):
                 esProducersToEnable[esProducerName] = esProducer
         self._insertManyInto(adaptor, "@all_esmodules", esProducersToEnable, True)
         esSourcesToEnable = {}
-        for esSourceName, esSource in six.iteritems(self.es_sources_()):
+        for esSourceName, esSource in self.es_sources_().items():
             if esSource in nodeVisitor.esSources or not (esSource in processNodeVisitor.esSources):
                 esSourcesToEnable[esSourceName] = esSource
         self._insertManyInto(adaptor, "@all_essources", esSourcesToEnable, True)
         #handle services differently
         services = []
-        for serviceName, serviceObject in six.iteritems(self.services_()):
+        for serviceName, serviceObject in self.services_().items():
             if serviceObject in nodeVisitor.services or not (serviceObject in processNodeVisitor.services):
                 serviceObject.insertInto(ServiceInjectorAdaptor(adaptor,services))
         adaptor.addVPSet(False,"services",services)
@@ -1391,7 +1407,7 @@ class Process(object):
         else:
             # maybe it's an unnamed ESModule?
             found = False
-            for name, value in six.iteritems(d):
+            for name, value in d.items():
                 if value.type_() == esname:
                     if found:
                         raise RuntimeError("More than one ES module for "+esname)
@@ -1479,6 +1495,14 @@ class SubProcess(_Unlabelable):
         self.__process = process
         self.__SelectEvents = SelectEvents
         self.__outputCommands = outputCommands
+        # Need to remove MessageLogger from the subprocess now that MessageLogger is always present
+        if self.__process.MessageLogger is not MessageLogger:
+            print("""Warning: You have reconfigured service
+'edm::MessageLogger' in a subprocess.
+This service has already been configured.
+This particular service may not be reconfigured in a subprocess.
+The reconfiguration will be ignored.""")
+        del self.__process.MessageLogger
     def dumpPython(self, options=PrintOptions()):
         out = "parentProcess"+str(hash(self))+" = process\n"
         out += self.__process.dumpPython()
@@ -1515,11 +1539,11 @@ class _ParameterModifier(object):
         self.__args = args
     def __call__(self,obj):
         params = {}
-        for k in six.iterkeys(self.__args):
+        for k in self.__args.keys():
             if hasattr(obj,k):
                 params[k] = getattr(obj,k)
         _modifyParametersFromDict(params, self.__args, self._raiseUnknownKey)
-        for k in six.iterkeys(self.__args):
+        for k in self.__args.keys():
             if k in params:
                 setattr(obj,k,params[k])
             else:
@@ -1885,9 +1909,9 @@ if __name__=="__main__":
             p.a = EDAnalyzer("MyAnalyzer")
             self.assertTrue( 'a' in p.analyzers_() )
             self.assertTrue( 'a' in p.analyzers)
-            p.add_(Service("MessageLogger"))
-            self.assertTrue('MessageLogger' in p.services_())
-            self.assertEqual(p.MessageLogger.type_(), "MessageLogger")
+            p.add_(Service("SomeService"))
+            self.assertTrue('SomeService' in p.services_())
+            self.assertEqual(p.SomeService.type_(), "SomeService")
             p.Tracer = Service("Tracer")
             self.assertTrue('Tracer' in p.services_())
             self.assertRaises(TypeError, setattr, *(p,'b',"this should fail"))
@@ -1908,7 +1932,7 @@ if __name__=="__main__":
         def testProcessExtend(self):
             class FromArg(object):
                 def __init__(self,*arg,**args):
-                    for name in six.iterkeys(args):
+                    for name in args.keys():
                         self.__dict__[name]=args[name]
 
             a=EDAnalyzer("MyAnalyzer")
@@ -2015,17 +2039,18 @@ process.options = cms.untracked.PSet(
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
     deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
+    dumpOptions = cms.untracked.bool(False),
     emptyRunLumiMode = cms.obsolete.untracked.string,
     eventSetup = cms.untracked.PSet(
         forceNumberOfConcurrentIOVs = cms.untracked.PSet(
             allowAnyLabel_=cms.required.untracked.uint32
         ),
-        numberOfConcurrentIOVs = cms.untracked.uint32(1)
+        numberOfConcurrentIOVs = cms.untracked.uint32(0)
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
     forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
     makeTriggerResults = cms.obsolete.untracked.bool,
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfStreams = cms.untracked.uint32(0),
     numberOfThreads = cms.untracked.uint32(1),
@@ -2034,6 +2059,101 @@ process.options = cms.untracked.PSet(
     throwIfIllegalParameter = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(False)
 )
+
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        FwkReport = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000),
+            reportEvery = cms.untracked.int32(1)
+        ),
+        FwkSummary = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000),
+            reportEvery = cms.untracked.int32(1)
+        ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        Root_NoDictionary = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000)
+        ),
+        enable = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
+        lineLength = cms.optional.untracked.int32,
+        noLineBreaks = cms.optional.untracked.bool,
+        noTimeStamps = cms.untracked.bool(False),
+        resetStatistics = cms.untracked.bool(False),
+        statisticsThreshold = cms.untracked.string('WARNING'),
+        threshold = cms.untracked.string('INFO'),
+        allowAnyLabel_=cms.optional.untracked.PSetTemplate(
+            limit = cms.optional.untracked.int32,
+            reportEvery = cms.untracked.int32(1),
+            timespan = cms.optional.untracked.int32
+        )
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(False),
+        enableStatistics = cms.untracked.bool(False),
+        lineLength = cms.optional.untracked.int32,
+        noLineBreaks = cms.optional.untracked.bool,
+        noTimeStamps = cms.optional.untracked.bool,
+        resetStatistics = cms.untracked.bool(False),
+        statisticsThreshold = cms.optional.untracked.string,
+        threshold = cms.optional.untracked.string,
+        allowAnyLabel_=cms.optional.untracked.PSetTemplate(
+            limit = cms.optional.untracked.int32,
+            reportEvery = cms.untracked.int32(1),
+            timespan = cms.optional.untracked.int32
+        )
+    ),
+    debugModules = cms.untracked.vstring(),
+    default = cms.untracked.PSet(
+        limit = cms.optional.untracked.int32,
+        lineLength = cms.untracked.int32(80),
+        noLineBreaks = cms.untracked.bool(False),
+        noTimeStamps = cms.untracked.bool(False),
+        reportEvery = cms.untracked.int32(1),
+        statisticsThreshold = cms.untracked.string('INFO'),
+        threshold = cms.untracked.string('INFO'),
+        timespan = cms.optional.untracked.int32,
+        allowAnyLabel_=cms.optional.untracked.PSetTemplate(
+            limit = cms.optional.untracked.int32,
+            reportEvery = cms.untracked.int32(1),
+            timespan = cms.optional.untracked.int32
+        )
+    ),
+    files = cms.untracked.PSet(
+        allowAnyLabel_=cms.optional.untracked.PSetTemplate(
+            enableStatistics = cms.untracked.bool(False),
+            extension = cms.optional.untracked.string,
+            filename = cms.optional.untracked.string,
+            lineLength = cms.optional.untracked.int32,
+            noLineBreaks = cms.optional.untracked.bool,
+            noTimeStamps = cms.optional.untracked.bool,
+            output = cms.optional.untracked.string,
+            resetStatistics = cms.untracked.bool(False),
+            statisticsThreshold = cms.optional.untracked.string,
+            threshold = cms.optional.untracked.string,
+            allowAnyLabel_=cms.optional.untracked.PSetTemplate(
+                limit = cms.optional.untracked.int32,
+                reportEvery = cms.untracked.int32(1),
+                timespan = cms.optional.untracked.int32
+            )
+        )
+    ),
+    suppressDebug = cms.untracked.vstring(),
+    suppressFwkInfo = cms.untracked.vstring(),
+    suppressInfo = cms.untracked.vstring(),
+    suppressWarning = cms.untracked.vstring(),
+    allowAnyLabel_=cms.optional.untracked.PSetTemplate(
+        limit = cms.optional.untracked.int32,
+        reportEvery = cms.untracked.int32(1),
+        timespan = cms.optional.untracked.int32
+    )
+)
+
 
 """)
             p = Process("test")
@@ -2228,6 +2348,16 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             listOfTasks = list(p.schedule._tasks)
             listOfTasks[0].visit(visitor6)
             self.assertTrue(visitor6.modules == set([new2]))
+
+            p.d2 = EDProducer("YourProducer")
+            p.schedule = Schedule(p.p, p.p2, p.e3, tasks=[p.t1])
+            self.assertEqual(p.schedule.dumpPython()[:-1], "cms.Schedule(*[ process.p, process.p2, process.e3 ], tasks=[process.t1])")
+            p.p = Path(p.c+s)
+            self.assertEqual(p.schedule.dumpPython()[:-1], "cms.Schedule(*[ process.p, process.p2, process.e3 ], tasks=[process.t1])")
+            p.e3 = EndPath(p.c)
+            self.assertEqual(p.schedule.dumpPython()[:-1], "cms.Schedule(*[ process.p, process.p2, process.e3 ], tasks=[process.t1])")
+            p.t1 = Task(p.d2)
+            self.assertEqual(p.schedule.dumpPython()[:-1], "cms.Schedule(*[ process.p, process.p2, process.e3 ], tasks=[process.t1])")
 
         def testSequence(self):
             p = Process('test')
@@ -2429,13 +2559,13 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             # Also note that the mutating visitor replaces sequences and tasks that have
             # modified contents with their modified contents, it does not modify the sequence
             # or task itself.
-            self.assertTrue(process.path21.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer10+process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.sequence3, cms.Task(), cms.Task(process.None, process.mproducer10), cms.Task(process.d, process.mesproducer, process.messource, process.mfilter, process.mproducer10, process.mproducer2, process.myTask6), process.myTask100, process.myTask5)\n')
+            self.assertTrue(process.path21.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer10+process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.sequence3, cms.Task(), cms.Task(process.None, process.mproducer10), cms.Task(process.d, process.mesproducer, process.messource, process.mfilter, process.mproducer10, process.mproducer2, process.mproducer8, process.myTask5), process.myTask100, process.myTask5)\n')
 
             process.path22 = process.path21.copyAndExclude([process.d, process.mesproducer, process.mfilter])
-            self.assertTrue(process.path22.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer10+process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.mproducer8, cms.Task(), cms.Task(process.None, process.mproducer10), cms.Task(process.messource, process.mproducer10, process.mproducer2, process.myTask6), process.myTask100, process.myTask5)\n')
+            self.assertTrue(process.path22.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer10+process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.mproducer8, cms.Task(), cms.Task(process.None, process.mproducer10), cms.Task(process.messource, process.mproducer10, process.mproducer2, process.mproducer8, process.myTask5), process.myTask100, process.myTask5)\n')
 
             process.path23 = process.path22.copyAndExclude([process.messource, process.mproducer10])
-            self.assertTrue(process.path23.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.mproducer8, cms.Task(), cms.Task(process.None), cms.Task(process.mproducer2, process.myTask6), process.myTask100, process.myTask5)\n')
+            self.assertTrue(process.path23.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.mproducer8, cms.Task(), cms.Task(process.None), cms.Task(process.mproducer2, process.mproducer8, process.myTask5), process.myTask100, process.myTask5)\n')
 
             process.a = EDAnalyzer("MyAnalyzer")
             process.b = OutputModule("MyOutputModule")
@@ -2841,7 +2971,19 @@ process = parentProcess
 process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.untracked.PSet(
 ), outputCommands = cms.untracked.vstring()))"""
             equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcesses_()[0])))
-            self.assertEqual(_lineDiff(d,Process('Parent').dumpPython()+Process('Child').dumpPython()),equalD)
+            # SubProcesses are dumped before Services, so in order to
+            # craft the dump of the Parent and Child manually the dump
+            # of the Parent needs to be split at the MessageLogger
+            # boundary (now when it is part of Process by default),
+            # and insert the dump of the Child between the top part of
+            # the Parent (before MessageLogger) and the bottom part of
+            # the Parent (after and including MessageLogger)
+            messageLoggerSplit = 'process.MessageLogger = cms.Service'
+            parentDumpSplit = Process('Parent').dumpPython().split(messageLoggerSplit)
+            childProcess = Process('Child')
+            del childProcess.MessageLogger
+            combinedDump = parentDumpSplit[0] + childProcess.dumpPython() + messageLoggerSplit + parentDumpSplit[1]
+            self.assertEqual(_lineDiff(d, combinedDump), equalD)
             p = TestMakePSet()
             process.fillProcessDesc(p)
             self.assertEqual((True,['a']),p.values["subProcesses"][1][0].values["process"][1].values['@all_modules'])
@@ -3114,14 +3256,14 @@ process.h = cms.EDProducer("mh")
 process.i = cms.EDProducer("mi")
 process.j = cms.EDProducer("mj")
 process.b = cms.EDAnalyzer("mb")
-process.t8 = cms.Task(cms.TaskPlaceholder("j"))
-process.t6 = cms.Task(cms.TaskPlaceholder("h"))
-process.t7 = cms.Task(cms.TaskPlaceholder("i"), process.a, process.t6)
-process.t4 = cms.Task(cms.TaskPlaceholder("f"))
-process.t5 = cms.Task(cms.TaskPlaceholder("g"), cms.TaskPlaceholder("t4"), process.a)
-process.t3 = cms.Task(cms.TaskPlaceholder("e"))
 process.t1 = cms.Task(cms.TaskPlaceholder("c"))
 process.t2 = cms.Task(cms.TaskPlaceholder("d"), process.a, process.t1)
+process.t3 = cms.Task(cms.TaskPlaceholder("e"))
+process.t5 = cms.Task(cms.TaskPlaceholder("g"), cms.TaskPlaceholder("t4"), process.a)
+process.t4 = cms.Task(cms.TaskPlaceholder("f"))
+process.t6 = cms.Task(cms.TaskPlaceholder("h"))
+process.t7 = cms.Task(cms.TaskPlaceholder("i"), process.a, process.t6)
+process.t8 = cms.Task(cms.TaskPlaceholder("j"))
 process.path1 = cms.Path(process.b, process.t2, process.t3)
 process.endpath1 = cms.EndPath(process.b, process.t5)
 process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[process.t7, process.t8])""")
@@ -3137,14 +3279,14 @@ process.h = cms.EDProducer("mh")
 process.i = cms.EDProducer("mi")
 process.j = cms.EDProducer("mj")
 process.b = cms.EDAnalyzer("mb")
-process.t8 = cms.Task(process.j)
-process.t6 = cms.Task(process.h)
-process.t7 = cms.Task(process.a, process.i, process.t6)
-process.t4 = cms.Task(process.f)
-process.t5 = cms.Task(process.a, process.g, process.t4)
-process.t3 = cms.Task(process.e)
 process.t1 = cms.Task(process.c)
 process.t2 = cms.Task(process.a, process.d, process.t1)
+process.t3 = cms.Task(process.e)
+process.t4 = cms.Task(process.f)
+process.t6 = cms.Task(process.h)
+process.t7 = cms.Task(process.a, process.i, process.t6)
+process.t8 = cms.Task(process.j)
+process.t5 = cms.Task(process.a, process.g, process.t4)
 process.path1 = cms.Path(process.b, process.t2, process.t3)
 process.endpath1 = cms.EndPath(process.b, process.t5)
 process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[process.t7, process.t8])""")
@@ -3162,10 +3304,13 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p.t1 = Task(p.g, p.h)
             t2 = Task(p.g, p.h)
             t3 = Task(p.g, p.h)
+            p.t4 = Task(p.h)
             p.s = Sequence(p.d+p.e)
             p.path1 = Path(p.a+p.f+p.s,t2)
+            p.path2 = Path(p.a)
+            p.endpath2 = EndPath(p.b)
             p.endpath1 = EndPath(p.b+p.f)
-            p.schedule = Schedule(tasks=[t3])
+            p.schedule = Schedule(p.path2, p.endpath2, tasks=[t3, p.t4])
             self.assertTrue(hasattr(p, 'f'))
             self.assertTrue(hasattr(p, 'g'))
             del p.e
@@ -3173,13 +3318,19 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             del p.g
             self.assertFalse(hasattr(p, 'f'))
             self.assertFalse(hasattr(p, 'g'))
-            self.assertTrue(p.t1.dumpPython() == 'cms.Task(process.h)\n')
-            self.assertTrue(p.s.dumpPython() == 'cms.Sequence(process.d)\n')
-            self.assertTrue(p.path1.dumpPython() == 'cms.Path(process.a+process.s, cms.Task(process.h))\n')
-            self.assertTrue(p.endpath1.dumpPython() == 'cms.EndPath(process.b)\n')
+            self.assertEqual(p.t1.dumpPython(), 'cms.Task(process.h)\n')
+            self.assertEqual(p.s.dumpPython(), 'cms.Sequence(process.d)\n')
+            self.assertEqual(p.path1.dumpPython(), 'cms.Path(process.a+process.s, cms.Task(process.h))\n')
+            self.assertEqual(p.endpath1.dumpPython(), 'cms.EndPath(process.b)\n')
             del p.s
-            self.assertTrue(p.path1.dumpPython() == 'cms.Path(process.a+(process.d), cms.Task(process.h))\n')
-            self.assertTrue(p.schedule_().dumpPython() == 'cms.Schedule(tasks=[cms.Task(process.h)])\n')
+            self.assertEqual(p.path1.dumpPython(), 'cms.Path(process.a+(process.d), cms.Task(process.h))\n')
+            self.assertEqual(p.schedule_().dumpPython(), 'cms.Schedule(*[ process.path2, process.endpath2 ], tasks=[cms.Task(process.h), process.t4])\n')
+            del p.path2
+            self.assertEqual(p.schedule_().dumpPython(), 'cms.Schedule(*[ process.endpath2 ], tasks=[cms.Task(process.h), process.t4])\n')
+            del p.endpath2
+            self.assertEqual(p.schedule_().dumpPython(), 'cms.Schedule(tasks=[cms.Task(process.h), process.t4])\n')
+            del p.t4
+            self.assertEqual(p.schedule_().dumpPython(), 'cms.Schedule(tasks=[cms.Task(process.h)])\n')
         def testModifier(self):
             m1 = Modifier()
             p = Process("test",m1)

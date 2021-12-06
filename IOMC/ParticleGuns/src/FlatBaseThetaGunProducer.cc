@@ -16,7 +16,8 @@
 
 using namespace edm;
 
-FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset) : fEvt(nullptr) {
+FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset)
+    : fPDGTableToken(esConsumes<Transition::BeginRun>()), fEvt(nullptr) {
   edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
 
   fPartIDs = pgun_params.getParameter<std::vector<int> >("PartID");
@@ -41,7 +42,9 @@ FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset
 
 FlatBaseThetaGunProducer::~FlatBaseThetaGunProducer() {}
 
-void FlatBaseThetaGunProducer::beginRun(const edm::Run& r, const edm::EventSetup& es) { es.getData(fPDGTable); }
+void FlatBaseThetaGunProducer::beginRun(const edm::Run& r, const edm::EventSetup& es) {
+  fPDGTable = es.getHandle(fPDGTableToken);
+}
 void FlatBaseThetaGunProducer::endRun(const Run& run, const EventSetup& es) {}
 
 void FlatBaseThetaGunProducer::endRunProduce(Run& run, const EventSetup& es) {

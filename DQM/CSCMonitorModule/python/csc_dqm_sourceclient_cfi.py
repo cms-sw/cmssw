@@ -15,6 +15,7 @@ dqmCSCClient = DQMEDAnalyzer('CSCMonitorModule',
   MASKEDHW = CSCMaskedHW,
 
   EventProcessor = cms.untracked.PSet(
+    PREBOOK_ALL_HISTOS = cms.untracked.bool(True),
     PROCESS_DDU = cms.untracked.bool(True),
     PROCESS_CSC = cms.untracked.bool(True),
     PROCESS_EFF_HISTOS = cms.untracked.bool(True),

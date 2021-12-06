@@ -6,7 +6,7 @@
 #include "TLorentzVector.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,7 +25,7 @@
 // class declaration
 //
 
-class JetCorrectorDemo : public edm::EDAnalyzer {
+class JetCorrectorDemo : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit JetCorrectorDemo(const edm::ParameterSet &);
   ~JetCorrectorDemo() override;
@@ -38,6 +38,7 @@ private:
 
   edm::EDGetTokenT<reco::JetCorrector> mJetCorrector;
   std::string mPayloadName, mUncertaintyTag, mUncertaintyFile;
+  edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> mPayloadToken;
   bool mDebug, mUseCondDB;
   int mNHistoPoints, mNGraphPoints;
   double mEtaMin, mEtaMax, mPtMin, mPtMax;
@@ -70,6 +71,10 @@ JetCorrectorDemo::JetCorrectorDemo(const edm::ParameterSet &iConfig) {
   mVPt = iConfig.getParameter<std::vector<double> >("VPt");
   mDebug = iConfig.getUntrackedParameter<bool>("Debug", false);
   mUseCondDB = iConfig.getUntrackedParameter<bool>("UseCondDB", false);
+  if (mUseCondDB) {
+    mPayloadToken = esConsumes(edm::ESInputTag("", mPayloadName));
+  }
+  usesResource(TFileService::kSharedResource);
 }
 //---------------------------------------------------------------------------
 JetCorrectorDemo::~JetCorrectorDemo() {}
@@ -77,17 +82,16 @@ JetCorrectorDemo::~JetCorrectorDemo() {}
 void JetCorrectorDemo::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<reco::JetCorrector> corrector;
   iEvent.getByToken(mJetCorrector, corrector);
-  JetCorrectionUncertainty *jecUnc(nullptr);
+  std::unique_ptr<JetCorrectionUncertainty> jecUnc;
   if (!mUncertaintyTag.empty()) {
     if (mUseCondDB) {
-      edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-      iSetup.get<JetCorrectionsRecord>().get(mPayloadName, JetCorParColl);
-      JetCorrectorParameters const &JetCorPar = (*JetCorParColl)[mUncertaintyTag];
-      jecUnc = new JetCorrectionUncertainty(JetCorPar);
+      const JetCorrectorParametersCollection &JetCorParColl = iSetup.getData(mPayloadToken);
+      JetCorrectorParameters const &JetCorPar = JetCorParColl[mUncertaintyTag];
+      jecUnc = std::make_unique<JetCorrectionUncertainty>(JetCorPar);
       std::cout << "Configured Uncertainty from CondDB" << std::endl;
     } else {
       edm::FileInPath fip("CondFormats/JetMETObjects/data/" + mUncertaintyFile + ".txt");
-      jecUnc = new JetCorrectionUncertainty(fip.fullPath());
+      jecUnc = std::make_unique<JetCorrectionUncertainty>(fip.fullPath());
     }
   }
   double jec, rawPt, corPt, eta, unc;

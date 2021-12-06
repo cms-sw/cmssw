@@ -19,6 +19,7 @@ class L1RCTLookupTables;
 class L1RCTElectronIsolationCard {
 public:
   L1RCTElectronIsolationCard(int crateNumber, int cardNumber, const L1RCTLookupTables *rctLookupTables);
+  L1RCTElectronIsolationCard() = delete;
   ~L1RCTElectronIsolationCard();
 
   int crateNumber() { return crtNo; }
@@ -55,8 +56,6 @@ private:
   std::vector<unsigned short> isoElectrons;
   std::vector<unsigned short> nonIsoElectrons;
   std::vector<L1RCTRegion> regions;
-
-  L1RCTElectronIsolationCard() = delete;
 };
 
 #endif

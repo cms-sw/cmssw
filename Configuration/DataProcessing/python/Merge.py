@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _Merge_
 
@@ -59,6 +59,8 @@ def mergeProcess(*inputFiles, **options):
             process.source.bypassVersionCheck = CfgTypes.untracked.bool(True)
         if dropDQM:
             process.source.inputCommands = CfgTypes.untracked.vstring('keep *','drop *_EDMtoMEConverter_*_*')
+        if not mergeNANO:
+            process.source.noRunLumiSort = CfgTypes.untracked.bool(True)
     process.source.fileNames = CfgTypes.untracked(CfgTypes.vstring())
     for entry in inputFiles:
         process.source.fileNames.append(str(entry))

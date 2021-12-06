@@ -7,7 +7,7 @@
 template <
     typename Selector,
     typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<typename Selector::collection>::type,
-    typename PostProcessor = ::helper::NullPostProcessor<OutputCollection, edm::stream::EDProducer<>>,
+    typename PostProcessor = ::helper::NullPostProcessor<OutputCollection>,
     typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection, edm::stream::EDProducer<>>::type,
     typename Init = typename ::reco::modules::EventSetupInit<Selector>::type>
 using ObjectSelectorStreamProducer =

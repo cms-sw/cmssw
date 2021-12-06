@@ -9,16 +9,12 @@
 
 // CMSSW Framework
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 // CMSSW Data formats
 #include "DataFormats/Math/interface/CMSUnits.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 
@@ -50,7 +46,11 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
       digiToken_(consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("PixelDigiSource"))),
       digiSimLinkToken_(
           consumes<edm::DetSetVector<PixelDigiSimLink>>(iConfig.getParameter<edm::InputTag>("PixelDigiSimSource"))),
-      simTrackToken_(consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("SimTrackSource"))) {
+      simTrackToken_(consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("SimTrackSource"))),
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      topoBToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
+      geomBToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()) {
   LogDebug("PixelTestBeamValidation") << ">>> Construct PixelTestBeamValidation ";
 
   // The value to be used for ToT == 0 in electrons
@@ -172,13 +172,8 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
   }
 
   // Tracker geometry and topology
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* topo = tTopoHandle.product();
-
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geomHandle);
-  const TrackerGeometry* tkGeom = geomHandle.product();
+  const TrackerTopology* topo = &iSetup.getData(topoToken_);
+  const TrackerGeometry* tkGeom = &iSetup.getData(geomToken_);
 
   // Let's loop over the detectors
   for (auto const& dunit : tkGeom->detUnits()) {
@@ -350,14 +345,10 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker,
                                              edm::Run const& iRun,
                                              edm::EventSetup const& iSetup) {
   // Get Geometry to associate a folder to each Pixel subdetector
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geomHandle);
-  const TrackerGeometry* tkGeom = geomHandle.product();
+  const TrackerGeometry* tkGeom = &iSetup.getData(geomBToken_);
 
   // Tracker Topology (layers, modules, side, etc..)
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* topo = tTopoHandle.product();
+  const TrackerTopology* topo = &iSetup.getData(topoBToken_);
 
   const std::string top_folder = config_.getParameter<std::string>("TopFolderName");
 

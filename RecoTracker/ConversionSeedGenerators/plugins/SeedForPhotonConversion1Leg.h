@@ -6,9 +6,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/Utilities/interface/Visibility.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
@@ -21,10 +27,12 @@ class dso_hidden SeedForPhotonConversion1Leg {
 public:
   static const int cotTheta_Max = 99999;
 
-  SeedForPhotonConversion1Leg(const edm::ParameterSet& cfg)
-      : thePropagatorLabel(cfg.getParameter<std::string>("propagator")),
-        theBOFFMomentum(cfg.getParameter<double>("SeedMomentumForBOFF")),
-        TTRHBuilder(cfg.getParameter<std::string>("TTRHBuilder")) {}
+  SeedForPhotonConversion1Leg(const edm::ParameterSet& cfg, edm::ConsumesCollector iC)
+      : theBfieldToken(iC.esConsumes()),
+        theTrackerToken(iC.esConsumes()),
+        thePropagatorToken(iC.esConsumes(edm::ESInputTag("", cfg.getParameter<std::string>("propagator")))),
+        theTTRHBuilderToken(iC.esConsumes(edm::ESInputTag("", cfg.getParameter<std::string>("TTRHBuilder")))),
+        theBOFFMomentum(cfg.getParameter<double>("SeedMomentumForBOFF")) {}
 
   //dtor
   ~SeedForPhotonConversion1Leg() {}
@@ -62,9 +70,11 @@ protected:
                                         const TkClonerImpl& cloner) const;
 
 protected:
-  std::string thePropagatorLabel;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theBfieldToken;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerToken;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theTTRHBuilderToken;
   double theBOFFMomentum;
-  std::string TTRHBuilder;
 
   std::stringstream* pss;
   PrintRecoObjects po;

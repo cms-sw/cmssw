@@ -51,25 +51,25 @@
 class SiStripNoisesFromDBMiscalibrator : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripNoisesFromDBMiscalibrator(const edm::ParameterSet&);
-  ~SiStripNoisesFromDBMiscalibrator() override;
+  ~SiStripNoisesFromDBMiscalibrator() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  std::unique_ptr<SiStripNoises> getNewObject(const std::map<std::pair<uint32_t, int>, float>& theMap);
-  std::unique_ptr<SiStripNoises> getNewObject_withDefaults(const std::map<std::pair<uint32_t, int>, float>& theMap,
-                                                           const float theDefault);
+  SiStripNoises getNewObject(const std::map<std::pair<uint32_t, int>, float>& theMap);
+  SiStripNoises getNewObject_withDefaults(const std::map<std::pair<uint32_t, int>, float>& theMap,
+                                          const float theDefault);
   void endJob() override;
 
   // ----------member data ---------------------------
+  const uint32_t m_printdebug;
   const bool m_fillDefaults;
   const bool m_saveMaps;
   const std::vector<edm::ParameterSet> m_parameters;
-  edm::FileInPath fp_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
-  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> m_noiseToken;
+  const edm::FileInPath fp_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
+  const edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> m_noiseToken;
 
   std::unique_ptr<TrackerMap> scale_map;
   std::unique_ptr<TrackerMap> smear_map;
@@ -83,11 +83,12 @@ private:
 // constructors and destructor
 //
 SiStripNoisesFromDBMiscalibrator::SiStripNoisesFromDBMiscalibrator(const edm::ParameterSet& iConfig)
-    : m_fillDefaults{iConfig.getUntrackedParameter<bool>("fillDefaults", false)},
+    : m_printdebug{iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)},
+      m_fillDefaults{iConfig.getUntrackedParameter<bool>("fillDefaults", false)},
       m_saveMaps{iConfig.getUntrackedParameter<bool>("saveMaps", true)},
       m_parameters{iConfig.getParameter<std::vector<edm::ParameterSet> >("params")},
-      fp_{iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))},
+      fp_{iConfig.getUntrackedParameter<edm::FileInPath>("file",
+                                                         edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))},
       m_tTopoToken(esConsumes()),
       m_noiseToken(esConsumes()) {
   //now do what ever initialization is needed
@@ -118,8 +119,6 @@ SiStripNoisesFromDBMiscalibrator::SiStripNoisesFromDBMiscalibrator(const edm::Pa
     missing_map->setPalette(1);
   }
 }
-
-SiStripNoisesFromDBMiscalibrator::~SiStripNoisesFromDBMiscalibrator() {}
 
 //
 // member functions
@@ -213,7 +212,7 @@ void SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
     }  // loop over APVs
   }    // loop over DetIds
 
-  std::unique_ptr<SiStripNoises> theSiStripNoises;
+  SiStripNoises theSiStripNoises{};
   if (!m_fillDefaults) {
     theSiStripNoises = this->getNewObject(theMap);
   } else {
@@ -225,6 +224,7 @@ void SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
   SiStripMiscalibrate::Entry noise_ratio;
   SiStripMiscalibrate::Entry o_noise;
   SiStripMiscalibrate::Entry n_noise;
+  unsigned int countDetIds(0);  // count DetIds to print
   for (const auto& element : theMap) {
     uint32_t DetId = element.first.first;
     int nstrip = element.first.second;
@@ -242,6 +242,16 @@ void SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
       noise_ratio.reset();
       o_noise.reset();
       n_noise.reset();
+      countDetIds++;
+    }
+
+    // printout for debug
+    if (countDetIds < m_printdebug) {
+      edm::LogPrint("SiStripNoisesFromDBMiscalibrator")
+          << "SiStripNoisesFromDBMiscalibrator"
+          << "::" << __FUNCTION__ << " detid " << DetId << " \t"
+          << " strip " << nstrip << " \t new noise: " << std::setw(5) << std::setprecision(2) << new_noise
+          << " \t old noise: " << old_noise << " \t" << std::endl;
     }
 
     cachedId = DetId;
@@ -253,14 +263,16 @@ void SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
   // write out the SiStripNoises record
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
-  if (poolDbService.isAvailable())
-    poolDbService->writeOne(theSiStripNoises.get(), poolDbService->currentTime(), "SiStripNoisesRcd");
-  else
+  if (poolDbService.isAvailable()) {
+    if (poolDbService->isNewTagRequest("SiStripNoisesRcd")) {
+      poolDbService->createOneIOV(theSiStripNoises, poolDbService->currentTime(), "SiStripNoisesRcd");
+    } else {
+      poolDbService->appendOneIOV(theSiStripNoises, poolDbService->currentTime(), "SiStripNoisesRcd");
+    }
+  } else {
     throw std::runtime_error("PoolDBService required.");
+  }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void SiStripNoisesFromDBMiscalibrator::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void SiStripNoisesFromDBMiscalibrator::endJob() {
@@ -292,42 +304,41 @@ void SiStripNoisesFromDBMiscalibrator::endJob() {
 }
 
 //********************************************************************************//
-std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject_withDefaults(
+SiStripNoises SiStripNoisesFromDBMiscalibrator::getNewObject_withDefaults(
     const std::map<std::pair<uint32_t, int>, float>& theMap, const float theDefault) {
-  std::unique_ptr<SiStripNoises> obj = std::make_unique<SiStripNoises>();
-
-  SiStripDetInfoFileReader reader(fp_.fullPath());
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader.getAllData();
+  SiStripNoises obj{};
 
   std::vector<uint32_t> missingDetIds;
 
-  for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-       it != DetInfos.end();
-       it++) {
+  const auto& reader = SiStripDetInfoFileReader::read(fp_.fullPath());
+  const auto& DetInfos = reader.getAllData();
+
+  for (const auto& it : DetInfos) {
+    const auto& nAPVs = it.second.nApvs;
     //Generate Noise for det detid
     bool isMissing(false);
     SiStripNoises::InputVector theSiStripVector;
-    for (int t_strip = 0; t_strip < 128 * it->second.nApvs; ++t_strip) {
-      std::pair<uint32_t, int> index = std::make_pair(it->first, t_strip);
+    for (int t_strip = 0; t_strip < 128 * nAPVs; ++t_strip) {
+      std::pair<uint32_t, int> index = std::make_pair(it.first, t_strip);
 
       if (theMap.find(index) == theMap.end()) {
-        LogDebug("SiStripNoisesFromDBMiscalibrator") << "detid " << it->first << " \t"
+        LogDebug("SiStripNoisesFromDBMiscalibrator") << "detid " << it.first << " \t"
                                                      << " strip " << t_strip << " \t"
                                                      << " not found" << std::endl;
 
         isMissing = true;
-        obj->setData(theDefault, theSiStripVector);
+        obj.setData(theDefault, theSiStripVector);
 
       } else {
         float noise = theMap.at(index);
-        obj->setData(noise, theSiStripVector);
+        obj.setData(noise, theSiStripVector);
       }
     }
 
     if (isMissing)
-      missingDetIds.push_back(it->first);
+      missingDetIds.push_back(it.first);
 
-    if (!obj->put(it->first, theSiStripVector)) {
+    if (!obj.put(it.first, theSiStripVector)) {
       edm::LogError("SiStripNoisesFromDBMiscalibrator")
           << "[SiStripNoisesFromDBMiscalibrator::analyze] detid already exists" << std::endl;
     }
@@ -354,9 +365,8 @@ std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject_wi
 }
 
 //********************************************************************************//
-std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject(
-    const std::map<std::pair<uint32_t, int>, float>& theMap) {
-  std::unique_ptr<SiStripNoises> obj = std::make_unique<SiStripNoises>();
+SiStripNoises SiStripNoisesFromDBMiscalibrator::getNewObject(const std::map<std::pair<uint32_t, int>, float>& theMap) {
+  SiStripNoises obj{};
 
   uint32_t PreviousDetId = 0;
   SiStripNoises::InputVector theSiStripVector;
@@ -366,7 +376,7 @@ std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject(
 
     if (DetId != PreviousDetId) {
       if (!theSiStripVector.empty()) {
-        if (!obj->put(PreviousDetId, theSiStripVector)) {
+        if (!obj.put(PreviousDetId, theSiStripVector)) {
           edm::LogError("SiStripNoisesFromDBMiscalibrator")
               << "[SiStripNoisesFromDBMiscalibrator::analyze] detid already exists" << std::endl;
         }
@@ -375,7 +385,7 @@ std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject(
       theSiStripVector.clear();
       PreviousDetId = DetId;
     }
-    obj->setData(noise, theSiStripVector);
+    obj.setData(noise, theSiStripVector);
   }
   return obj;
 }
@@ -400,6 +410,7 @@ void SiStripNoisesFromDBMiscalibrator::fillDescriptions(edm::ConfigurationDescri
   descScaler.add<double>("smearFactor", 1.0);
   desc.addVPSet("params", descScaler, std::vector<edm::ParameterSet>(1));
 
+  desc.addUntracked<unsigned int>("printDebug", 1);
   desc.addUntracked<bool>("fillDefaults", false);
   desc.addUntracked<bool>("saveMaps", true);
 

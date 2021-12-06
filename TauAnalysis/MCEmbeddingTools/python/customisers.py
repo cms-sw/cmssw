@@ -5,8 +5,6 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-import six
-
 ################################ Customizer for skimming ###########################
 ### There are four different parts.
 ##First step is the SELECT (former SKIM) part, where we identfy the events which are good for Embedding. Need to store RAWRECO [RAW is needed for the MERG and RECO for the CLEAN step]
@@ -67,7 +65,7 @@ to_bemanipulate.append(module_manipulate(module_name = 'rpcRecHits', manipulator
 
 
 def modify_outputModules(process, keep_drop_list = [], module_veto_list = [] ):
-    outputModulesList = [key for key,value in six.iteritems(process.outputModules)]
+    outputModulesList = [key for key,value in process.outputModules.items()]
     for outputModule in outputModulesList:
         if outputModule in module_veto_list:
             continue
@@ -112,7 +110,7 @@ def customiseSelecting(process,reselect=False):
     process.selecting = cms.Path(process.makePatMuonsZmumuSelection)
     process.schedule.insert(-1, process.selecting)
 
-    outputModulesList = [key for key,value in six.iteritems(process.outputModules)]
+    outputModulesList = [key for key,value in process.outputModules.items()]
     for outputModule in outputModulesList:
         outputModule = getattr(process, outputModule)
         outputModule.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("selecting"))
@@ -444,9 +442,8 @@ def customisoptions(process):
         process.options = cms.untracked.PSet()
     process.options.emptyRunLumiMode = cms.untracked.string('doNotHandleEmptyRunsAndLumis')
     if not hasattr(process, "bunchSpacingProducer"):
-        process.bunchSpacingProducer = cms.EDProducer("BunchSpacingProducer")
-    process.bunchSpacingProducer.bunchSpacingOverride = cms.uint32(25)
-    process.bunchSpacingProducer.overrideBunchSpacing = cms.bool(True)
+        process.load('RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi')
+        process.bunchSpacingProducer = process.bunchSpacingProducer.clone(overrideBunchSpacing = True)
     process.options.numberOfThreads = cms.untracked.uint32(1)
     process.options.numberOfStreams = cms.untracked.uint32(0)
     return process
@@ -466,7 +463,7 @@ def customiseFilterTTbartoMuMu(process):
 
 def customiseMCFilter(process):
     process.schedule.insert(-1,process.MCFilter)
-    outputModulesList = [key for key,value in six.iteritems(process.outputModules)]
+    outputModulesList = [key for key,value in process.outputModules.items()]
     for outputModule in outputModulesList:
         outputModule = getattr(process, outputModule)
         outputModule.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("MCFilter"))

@@ -1,7 +1,6 @@
 #include <stdexcept>
 #include <string>
 #include "OnlineDB/Oracle/interface/Oracle.h"
-#include <boost/lexical_cast.hpp>
 
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -93,7 +92,7 @@ void RunCrystalErrorsDat::fetchData(map<EcalLogicID, RunCrystalErrorsDat>* fillM
                             rset->getInt(5),      // id3
                             rset->getString(6));  // maps_to
 
-      dat.setErrorBits(boost::lexical_cast<uint64_t>(rset->getString(7)));
+      dat.setErrorBits(std::stoul(rset->getString(7)));
 
       p.second = dat;
       fillMap->insert(p);

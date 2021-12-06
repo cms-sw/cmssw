@@ -3,10 +3,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("FedCablingReader")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    threshold = cms.untracked.string('INFO'),
     debugModules = cms.untracked.vstring(''),
-    cablingReader = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
+    #destinations = cms.untracked.vstring('cout'),
     destinations = cms.untracked.vstring('cablingReader.log')
 )
 
@@ -26,15 +25,19 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dummy2.db'),
+    connect = cms.string('sqlite_file:SiStripConditionsDBFile.db'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripFedCablingRcd'),
         tag = cms.string('SiStripFedCabling_30X')
     ))
 )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.TrackerDigiGeometryESModule.applyAlignment = False
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run2_design']
+print("taking geometry from %s" % process.GlobalTag.globaltag.value())
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+
 process.SiStripConnectivity = cms.ESProducer("SiStripConnectivity")
 process.SiStripRegionConnectivity = cms.ESProducer("SiStripRegionConnectivity",
                                                    EtaDivisions = cms.untracked.uint32(20),
@@ -42,10 +45,13 @@ process.SiStripRegionConnectivity = cms.ESProducer("SiStripRegionConnectivity",
                                                    EtaMax = cms.untracked.double(2.5)
 )
 
+process.prefer_SiStripConnectivity = cms.ESPrefer("SiStripConnectivity", "sistripconn")
+process.prefer_SiStripCabling = cms.ESPrefer("PoolDBESSource", "poolDBESSource")
+
 process.fedcablingreader = cms.EDAnalyzer("SiStripFedCablingReader",
-                                        PrintFecCabling = cms.untracked.bool(True),
-                                        PrintDetCabling = cms.untracked.bool(True),
-                                        PrintRegionCabling = cms.untracked.bool(True)
+                                          PrintFecCabling = cms.untracked.bool(True),
+                                          PrintDetCabling = cms.untracked.bool(True),
+                                          PrintRegionCabling = cms.untracked.bool(True)
 )
 
 process.p1 = cms.Path(process.fedcablingreader)

@@ -29,7 +29,7 @@ GFlashEMShowerModel::GFlashEMShowerModel(const G4String& modelName,
   theWatcherOn = parSet.getParameter<bool>("watcherOn");
 
   theProfile = new GflashEMShowerProfile(parSet);
-  theRegion = const_cast<const G4Region*>(envelope);
+  theRegion = reinterpret_cast<G4Region*>(envelope);
 
   theGflashStep = new G4Step();
   theGflashTouchableHandle = new G4TouchableHistory();
@@ -69,18 +69,6 @@ G4bool GFlashEMShowerModel::ModelTrigger(const G4FastTrack& fastTrack) {
   if (lv->GetRegion() != theRegion) {
     return false;
   }
-  //std::cout << "GFlashEMShowerModel::ModelTrigger: LV "
-  //	    << lv->GetRegion()->GetName() << std::endl;
-
-  // The parameterization starts inside crystals
-  //std::size_t pos1 = lv->GetName().find("EBRY");
-  //std::size_t pos2 = lv->GetName().find("EFRY");
-
-  //std::size_t pos3 = lv->GetName().find("HVQ");
-  //std::size_t pos4 = lv->GetName().find("HF");
-  //if(pos1 == std::string::npos && pos2 == std::string::npos &&
-  //   pos3 == std::string::npos && pos4 == std::string::npos) return false;
-
   return true;
 }
 
@@ -122,7 +110,7 @@ void GFlashEMShowerModel::makeHits(const G4FastTrack& fastTrack) {
   std::vector<GflashHit>::const_iterator spotIter = gflashHitList.begin();
   std::vector<GflashHit>::const_iterator spotIterEnd = gflashHitList.end();
 
-  for (; spotIter != spotIterEnd; spotIter++) {
+  for (; spotIter != spotIterEnd; ++spotIter) {
     // Put touchable for each hit so that touchable history
     //     keeps track of each step.
     theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(
@@ -170,16 +158,10 @@ void GFlashEMShowerModel::updateGflashStep(const G4ThreeVector& spotPosition, G4
 
 // ---------------------------------------------------------------------------
 G4bool GFlashEMShowerModel::excludeDetectorRegion(const G4FastTrack& fastTrack) {
-  G4bool isExcluded = false;
-
   //exclude regions where geometry are complicated
   //+- one supermodule around the EB/EE boundary: 1.479 +- 0.0174*5
   G4double eta = fastTrack.GetPrimaryTrack()->GetPosition().pseudoRapidity();
-  if (std::fabs(eta) > 1.392 && std::fabs(eta) < 1.566) {
-    return true;
-  }
-
-  return isExcluded;
+  return (std::fabs(eta) > 1.392 && std::fabs(eta) < 1.566);
 }
 
 // ---------------------------------------------------------------------------

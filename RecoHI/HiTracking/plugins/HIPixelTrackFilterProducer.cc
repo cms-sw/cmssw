@@ -13,6 +13,8 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 #include "RecoHI/HiTracking/interface/HIPixelTrackFilter.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 class HIPixelTrackFilterProducer : public edm::global::EDProducer<> {
 public:
@@ -26,6 +28,9 @@ private:
 
   edm::EDGetTokenT<SiPixelClusterShapeCache> theClusterShapeCacheToken;
   edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerToken;
+  edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> theShapeToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTopoToken;
   double theTIPMax, theNSigmaTipMaxTolerance;
   double theLIPMax, theNSigmaLipMaxTolerance;
   double theChi2Max, thePtMin, thePtMax;
@@ -37,6 +42,9 @@ HIPixelTrackFilterProducer::HIPixelTrackFilterProducer(const edm::ParameterSet& 
           consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("clusterShapeCacheSrc"))),
       theVertexCollectionToken(
           consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("VertexCollection"))),
+      theTrackerToken(esConsumes()),
+      theShapeToken(esConsumes(edm::ESInputTag("", "ClusterShapeHitFilter"))),
+      theTopoToken(esConsumes()),
       theTIPMax(iConfig.getParameter<double>("tipMax")),
       theNSigmaTipMaxTolerance(iConfig.getParameter<double>("nSigmaTipMaxTolerance")),
       theLIPMax(iConfig.getParameter<double>("lipMax")),
@@ -90,7 +98,9 @@ void HIPixelTrackFilterProducer::produce(edm::StreamID, edm::Event& iEvent, cons
   auto impl = std::make_unique<HIPixelTrackFilter>(cache.product(),
                                                    thePtMin,
                                                    thePtMax,
-                                                   iSetup,
+                                                   &iSetup.getData(theTrackerToken),
+                                                   &iSetup.getData(theShapeToken),
+                                                   &iSetup.getData(theTopoToken),
                                                    vertices,
                                                    theTIPMax,
                                                    theNSigmaTipMaxTolerance,

@@ -27,6 +27,12 @@ class HLLHCEvtVtxGenerator : public BaseEvtVtxGenerator {
 public:
   HLLHCEvtVtxGenerator(const edm::ParameterSet& p);
 
+  /** Copy constructor */
+  HLLHCEvtVtxGenerator(const HLLHCEvtVtxGenerator& p) = delete;
+
+  /** Copy assignment operator */
+  HLLHCEvtVtxGenerator& operator=(const HLLHCEvtVtxGenerator& rhs) = delete;
+
   ~HLLHCEvtVtxGenerator() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -37,12 +43,6 @@ public:
   TMatrixD const* GetInvLorentzBoost() const override { return nullptr; };
 
 private:
-  /** Copy constructor */
-  HLLHCEvtVtxGenerator(const HLLHCEvtVtxGenerator& p) = delete;
-
-  /** Copy assignment operator */
-  HLLHCEvtVtxGenerator& operator=(const HLLHCEvtVtxGenerator& rhs) = delete;
-
   //spatial and time offset for mean collision
   const double fMeanX, fMeanY, fMeanZ, fTimeOffset;
 

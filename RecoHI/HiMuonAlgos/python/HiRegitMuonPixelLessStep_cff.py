@@ -25,7 +25,8 @@ hiRegitMuPixelLessStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuonsEDPro
 )
 
 ###################################
-from RecoTracker.IterativeTracking.PixelLessStep_cff import *
+import RecoTracker.IterativeTracking.PixelLessStep_cff
+from RecoTracker.IterativeTracking.PixelLessStep_cff import pixelLessStepTrajectoryBuilder,pixelLessStepClusterShapeHitFilter,pixelLessStepTrajectoryCleanerBySharedHits,pixelLessStepChi2Est
 
 # remove previously used clusters
 hiRegitMuPixelLessStepClusters = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.clone(
@@ -73,7 +74,7 @@ hiRegitMuPixelLessStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelLes
     minNrOfHitsForRebuild = 6 #change from default 4
 )
 
-hiRegitMuPixelLessStepTrackCandidates =  RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrackCandidates.clone(
+hiRegitMuPixelLessStepTrackCandidates =  RecoTracker.IterativeTracking.PixelLessStep_cff._pixelLessStepTrackCandidatesCkf.clone(
     src               = 'hiRegitMuPixelLessStepSeeds',
     TrajectoryBuilderPSet = cms.PSet(
        refToPSet_ = cms.string('hiRegitMuPixelLessStepTrajectoryBuilder')

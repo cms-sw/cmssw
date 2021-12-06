@@ -57,16 +57,15 @@ SiStripGainSimESProducer::SiStripGainSimESProducer(const edm::ParameterSet& iCon
 }
 
 std::unique_ptr<SiStripGain> SiStripGainSimESProducer::produce(const SiStripGainSimRcd& iRecord) {
-  const edm::FileInPath fp(SiStripDetInfoFileReader::kDefaultFile);
-  const SiStripDetInfoFileReader reader(fp.fullPath());
+  const auto detInfo =
+      SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
 
   const auto& apvGain = iRecord.get(tokenLabels_[0].token_);
-  auto gain =
-      std::make_unique<SiStripGain>(apvGain, factor_.get(apvGain, 0), tokenLabels_[0].recordLabel_, reader.info());
+  auto gain = std::make_unique<SiStripGain>(apvGain, factor_.get(apvGain, 0), tokenLabels_[0].recordLabel_, detInfo);
 
   for (unsigned int i = 1; i < tokenLabels_.size(); ++i) {
     const auto& apvGain = iRecord.get(tokenLabels_[i].token_);
-    gain->multiply(apvGain, factor_.get(apvGain, i), tokenLabels_[i].recordLabel_, reader.info());
+    gain->multiply(apvGain, factor_.get(apvGain, i), tokenLabels_[i].recordLabel_, detInfo);
   }
   return gain;
 }

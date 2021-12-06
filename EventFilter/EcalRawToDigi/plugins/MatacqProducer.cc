@@ -1,9 +1,321 @@
+//#define USE_STORAGE_MANAGER
+
+#ifdef USE_STORAGE_MANAGER
+#include "Utilities/StorageFactory/interface/Storage.h"
+#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#else  //USE_STORAGE_MANAGER not defined
+#ifndef _LARGEFILE64_SOURCE
+#define _LARGEFILE64_SOURCE
+#endif  //_LARGEFILE64_SOURCE not defined
+#define _FILE_OFFSET_BITS 64
+#include <cstdio>
+#endif  //USE_STORAGE_MANAGER defined
+
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "EventFilter/EcalRawToDigi/interface/MatacqRawEvent.h"
+#include "EventFilter/EcalRawToDigi/src/MatacqDataFormatter.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
+#include <string>
+#include <cinttypes>
+#include <fstream>
+#include <memory>
+
+#include <sys/time.h>
+
+struct NullOut {
+  NullOut& operator<<(std::ostream& (*pf)(std::ostream&)) { return *this; }
+  template <typename T>
+  inline NullOut& operator<<(const T& a) {
+    return *this;
+  }
+};
+
+class MatacqProducer : public edm::EDProducer {
+public:
+  enum calibTrigType_t { laserType = 4, ledType = 5, tpType = 6, pedType = 7 };
+
+private:
+#ifdef USE_STORAGE_MANAGER
+  typedef IOOffset filepos_t;
+  typedef std::unique_ptr<Storage> FILE_t;
+#else
+  typedef off_t filepos_t;
+  typedef FILE* FILE_t;
+#endif
+  struct MatacqEventId {
+    MatacqEventId() : run(0), orbit(0) {}
+    MatacqEventId(uint32_t r, uint32_t o) : run(r), orbit(o) {}
+
+    /** Run number
+     */
+    uint32_t run;
+
+    /** Orbit id
+     */
+    uint32_t orbit;
+
+    bool operator<(const MatacqEventId& a) {
+      return (this->run < a.run) || ((this->run == a.run) && (this->orbit < a.orbit));
+    }
+
+    bool operator>(const MatacqEventId& a) {
+      return (this->run > a.run) || ((this->run == a.run) && (this->orbit > a.orbit));
+    }
+
+    bool operator==(const MatacqEventId& a) { return !((*this) < a || (*this) > a); }
+  };
+
+  /** Estimates matacq event position in a file from its orbit id. This
+   * estimator requires that every event in the file has the same length. A
+   * linear extrapolation of pos=f(orbit) function from first and last event
+   * is performed. It gives only a rough estimate, relevant only to initiliaze
+   * the event search.
+   */
+  class PosEstimator {
+    //Note: a better estimate could be obtained by using segment of linear
+    //functions. In such implementation, the estimator must be updated
+    //each time a point with wrong estimate has been found.
+  public:
+    PosEstimator() : eventLength_(0), orbitStepMean_(0), firstOrbit_(0), invalid_(true), verbosity_(0) {}
+    void init(MatacqProducer* mp);
+    bool invalid() const { return invalid_; }
+    int64_t pos(int orb) const;
+    int eventLength() const { return eventLength_; }
+    int firstOrbit() const { return firstOrbit_; }
+    void verbosity(int verb) { verbosity_ = verb; }
+
+  private:
+    int eventLength_;
+    int orbitStepMean_;
+    int firstOrbit_;
+    bool invalid_;
+    int verbosity_;
+  };
+
+public:
+  /** Constructor
+   * @param params seletive readout parameters
+   */
+  explicit MatacqProducer(const edm::ParameterSet& params);
+
+  /** Destructor
+   */
+  ~MatacqProducer() override;
+
+  /** Produces the EDM products
+   * @param CMS event
+   * @param eventSetup event conditions
+   */
+  void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
+
+private:
+  /** Add matacq digi to the event
+   * @param event the event
+   * @param digiInstanceName_ name to give to the matacq digi instance
+   */
+  void addMatacqData(edm::Event& event);
+
+  /** Retrieve the file containing a given matacq event
+   * @param runNumber Number of the run the matacq event is looking from
+   * @param orbitId Id of the orbit of the matacq event
+   * @param fileChange if not null pointer, set to true if the file changed.
+   * @return true if file retrieval succeeded, false otherwise.
+   * found.
+   */
+  bool getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* fileChange = nullptr);
+
+  bool getMatacqEvent(uint32_t runNumber, int32_t orbitId, bool fileChange);
+  /*,bool doWrap = false, std::streamoff maxPos = -1);*/
+
+  uint32_t getRunNumber(edm::Event& ev) const;
+  uint32_t getOrbitId(edm::Event& ev) const;
+
+  bool getOrbitRange(uint32_t& firstOrb, uint32_t& lastOrb);
+
+  int getCalibTriggerType(edm::Event& ev) const;
+
+  /** Loading orbit correction table from file. @see orbitOffsetFile_
+   */
+  void loadOrbitOffset();
+
+  /** Move input file read pointer. On failure file is rewind.
+   * @param buf buffer to store read data
+   * @param n   size of data block
+   * @param mess text to insert in the eventual error message.
+   * @return true on success, false on failure
+   */
+  bool mseek(filepos_t offset, int whence = SEEK_SET, const char* mess = nullptr);
+
+  bool mtell(filepos_t& pos);
+
+  /** Read a data block from input file. On failure file position is restored
+   * and if position restoring fails, file is rewind.
+   * @param buf buffer to store read data
+   * @param n   size of data block
+   * @param mess text to insert in the eventual error message.
+   * @param peek if true file position is restored after the data read
+   * @return true on success, false on failure
+   */
+  bool mread(char* buf, size_t n, const char* mess = nullptr, bool peek = false);
+
+  bool mcheck(const std::string& name);
+
+  bool mopen(const std::string& name);
+
+  void mclose();
+
+  bool misOpened();
+
+  bool meof();
+
+  bool mrewind();
+
+  bool msize(filepos_t& s);
+
+  void newRun(int prevRun, int newRun);
+
+  static std::string runSubDir(uint32_t runNumber);
+
+private:
+  std::vector<std::string> fileNames_;
+
+  /** Instance name to use for the produced Matacq digi collection
+   */
+  std::string digiInstanceName_;
+
+  /** Instance name to use for the produced Matacq raw data collection
+   */
+  std::string rawInstanceName_;
+
+  /** Parameter to switch module timing.
+   */
+  bool timing_;
+
+  /** Parameter to disable matacq data production. For timing purpose.
+   */
+  bool disabled_;
+
+  /** Verbosity level
+   */
+  int verbosity_;
+
+  /** Swictch for Matacq digi producion
+   */
+  bool produceDigis_;
+
+  /** Switch for Matacq FED raw data production
+   */
+  bool produceRaw_;
+
+  /** Name of the raw data collection the Matacq data must be merge to
+   * if merging is enabled.
+   */
+  edm::InputTag inputRawCollection_;
+
+  /** EDM token to access the raw data collection the Matacq data must be merge to
+   * if merging is enabled.
+   */
+  edm::EDGetTokenT<FEDRawDataCollection> inputRawCollectionToken_;
+
+  /** Switch for merging Matacq raw data with existing raw data
+   * collection.
+   */
+  bool mergeRaw_;
+
+  /** When true look for matacq data independently of trigger type.
+   */
+  bool ignoreTriggerType_;
+
+  MatacqRawEvent matacq_;
+
+  /** Stream of currently opened matacq file
+   */
+  FILE_t inFile_;
+
+  static const int bufferSize = 30000;  //must greater or equal to maximum
+  //                                      matacq event size.
+  std::vector<unsigned char> data_;
+  MatacqDataFormatter formatter_;
+  const static int orbitTolerance_;
+  uint32_t openedFileRunNumber_;
+  int32_t lastOrb_;
+  int fastRetrievalThresh_;
+
+  PosEstimator posEstim_;
+
+  timeval startTime_;
+
+  /** File name of table with orbit offset between
+   * matacq event and DCC. Used to recover data suffering from orbit
+   * miss-synchonization
+   */
+  std::string orbitOffsetFile_;
+
+  /** Orbit offset table. @see orbitOffsetFile_
+   */
+  std::map<uint32_t, uint32_t> orbitOffset_;
+
+  /** Switch for orbit ID correction. @see orbitOffsetFile_
+   */
+  bool doOrbitOffset_;
+
+  /** Name of currently opened matacq file
+   */
+  std::string inFileName_;
+
+  static const int matacqFedId_ = 655;
+
+  struct stats_t {
+    double nEvents;
+    double nLaserEventsWithMatacq;
+    double nNonLaserEventsWithMatacq;
+  } stats_;
+
+  const static stats_t stats_init;
+  /** Log file name
+   */
+  std::string logFileName_;
+
+  /** Log file
+   */
+  std::ofstream logFile_;
+
+  /** counter for event skipping
+   */
+  int eventSkipCounter_;
+
+  /** Number of events to skip in case of error
+   */
+  int onErrorDisablingEvtCnt_;
+
+  /** Name of file to log timing
+   */
+  std::string timeLogFile_;
+  /** Buffer for timing
+   */
+  timeval timer_;
+
+  /** Output stream to log code timing
+   */
+  std::ofstream timeLog_;
+
+  /** Switch for code timing.
+   */
+  bool logTiming_;
+
+  /** Number of the currently processed run
+   */
+  uint32_t runNumber_;
+};
+
 #include <csignal>
 #include <cstdio>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <memory>
 
 #include <glob.h>
 #include <sys/stat.h>
@@ -15,10 +327,8 @@
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
-#include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "EventFilter/EcalRawToDigi/interface/MatacqProducer.h"
 #include "EventFilter/EcalRawToDigi/src/Majority.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -364,7 +674,7 @@ bool MatacqProducer::getMatacqEvent(uint32_t runNumber, int32_t orbitId, bool fi
     filepos_t pos = posEstim_.pos(orbitId);
 
     //    struct stat st;
-    filepos_t fsize;
+    filepos_t fsize = -1;
     //    if(0==stat(inFileName_.c_str(), &st)){
     if (msize(fsize)) {
       //      const int64_t fsize = st.st_size;
@@ -546,7 +856,8 @@ bool MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* f
   //we make two iterations to handle the case where the event is procesed
   //before the matacq data are available. In such case we would have
   //orbitId > maxOrb (maxOrb: orbit of last written matacq event)
-  for (int itry = 0; itry < 2 && (orbitId > maxOrb); ++itry) {
+  //  for(int itry = 0; itry < 2 && (orbitId > maxOrb); ++itry){
+  for (int itry = 0; itry < 1 && (orbitId > maxOrb); ++itry) {
     if (itry > 0) {
       int n_sec = 1;
       std::cout << "[Matacq " << now() << "] Event orbit id (" << orbitId
@@ -601,6 +912,8 @@ bool MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* f
         uint32_t firstOrb;
         uint32_t lastOrb;
         bool goodRange = getOrbitRange(firstOrb, lastOrb);
+        std::cout << "Get orbit range " << (goodRange ? "succeeded" : "failed") << ". Range: " << firstOrb << "..."
+                  << lastOrb << "\n";
         if (goodRange && lastOrb > maxOrb)
           maxOrb = lastOrb;
         if (goodRange && firstOrb <= orbitId && orbitId <= lastOrb) {
@@ -623,7 +936,7 @@ bool MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* f
       cout << "[Matacq " << now()
            << "] no matacq file found "
               "for run "
-           << runNumber << "\n";
+           << runNumber << ", orbit " << orbitId << "\n";
     eventSkipCounter_ = onErrorDisablingEvtCnt_;
     openedFileRunNumber_ = 0;
     if (fileChange != nullptr)
@@ -747,18 +1060,23 @@ void MatacqProducer::PosEstimator::init(MatacqProducer* mp) {
     return;
   }
 
-  filepos_t s;
+  filepos_t s = -1;
   mp->msize(s);
 
-  //number of complete events:
-  const unsigned nEvents = s / eventLength_ / 8;
-
-  if (nEvents == 0) {
+  if (s == -1) {
+    if (verbosity_)
+      cout << "[Matacq " << now() << "] File is missing!" << endl;
+    orbitStepMean_ = 0;
+    return;
+  } else if (s == 0) {
     if (verbosity_)
       cout << "[Matacq " << now() << "] File is empty!" << endl;
     orbitStepMean_ = 0;
     return;
   }
+
+  //number of complete events:
+  const unsigned nEvents = s / eventLength_ / 8;
 
   if (verbosity_ > 1)
     cout << "[Matacq " << now() << "] File size: " << s << " Number of events: " << nEvents << endl;
@@ -1137,10 +1455,16 @@ bool MatacqProducer::getOrbitRange(uint32_t& firstOrb, uint32_t& lastOrb) {
   int len = (int)MatacqRawEvent::getDccLen(header, headerSize);
   //number of complete events. If last event is partially written,
   //it won't be included in the count.
-  unsigned nEvts = fsize / (len * 64);
+  unsigned nEvts = fsize / (len * 8);
   //Position of last complete event:
-  filepos_t lastEvtPos = (nEvts - 1) * len * 64;
+  filepos_t lastEvtPos = (filepos_t)(nEvts - 1) * len * 8;
+  //  std::cout << "Move to position : " << lastEvtPos
+  //	    << "(" << (nEvts - 1) << "*" << len << "*" << 64 << ")"
+  //<< "\n";
   mseek(lastEvtPos);
+  filepos_t tmp;
+  mtell(tmp);
+  //std::cout << "New position, sizeof(tmp): " << tmp << "," << sizeof(tmp) << "\n";
   mread((char*)header, headerSize, nullptr, false);
   lastOrb = MatacqRawEvent::getOrbitId(header, headerSize);
 
@@ -1149,3 +1473,6 @@ bool MatacqProducer::getOrbitRange(uint32_t& firstOrb, uint32_t& lastOrb) {
 
   return true;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(MatacqProducer);

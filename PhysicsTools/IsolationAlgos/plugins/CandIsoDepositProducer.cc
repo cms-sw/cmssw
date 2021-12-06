@@ -1,26 +1,44 @@
-#include "PhysicsTools/IsolationAlgos/plugins/CandIsoDepositProducer.h"
-
-// Framework
+#include "DataFormats/Common/interface/AssociationVector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefToBaseProd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-
-#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
+
+class CandIsoDepositProducer : public edm::stream::EDProducer<> {
+public:
+  CandIsoDepositProducer(const edm::ParameterSet &);
+
+  ~CandIsoDepositProducer() override;
+
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+private:
+  inline const reco::Track *extractTrack(const reco::Candidate &cand, reco::Track *dummyStorage) const;
+  enum TrackType { FakeT, BestT, StandAloneMuonT, CombinedMuonT, TrackT, GsfT, CandidateT };
+  edm::ParameterSet theConfig;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > theCandCollectionToken;
+  TrackType theTrackType;
+  std::vector<std::string> theDepositNames;
+  bool theMultipleDepositsFlag;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> theExtractor;
+};
 
 using namespace edm;
 using namespace reco;
@@ -177,4 +195,5 @@ void CandIsoDepositProducer::produce(Event &event, const EventSetup &eventSetup)
   }  //! for(iDep<nDeps)
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(CandIsoDepositProducer);

@@ -287,10 +287,8 @@ bool cond::service::PoolDBOutputService::appendSinceTime(const std::string& payl
                                                          cond::Time_t time,
                                                          Record& myrecord) {
   m_logger.logInfo() << "Updating existing tag " << myrecord.m_tag << ", adding iov with since " << time;
-  std::string payloadType("");
   try {
     cond::persistency::IOVEditor editor = m_session.editIov(myrecord.m_tag);
-    payloadType = editor.payloadType();
     editor.insert(time, payloadId);
     cond::UserLogInfo a = this->lookUpUserLogInfo(myrecord.m_idName);
     editor.flush(a.usertext);

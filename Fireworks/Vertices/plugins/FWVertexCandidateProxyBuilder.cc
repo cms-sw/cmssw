@@ -57,10 +57,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWVertexCandidateProxyBuilder(const FWVertexCandidateProxyBuilder&) = delete;                   // stop default
   const FWVertexCandidateProxyBuilder& operator=(const FWVertexCandidateProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::VertexCompositePtrCandidate>::build;
   void build(const reco::VertexCompositePtrCandidate& iData,
              unsigned int iIndex,

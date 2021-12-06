@@ -27,6 +27,8 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/HCTypeTag.h"
@@ -50,10 +52,8 @@
 // forward declarations
 
 namespace edm {
-  class ModuleDescription;
   class ModuleProcessName;
   class ProductResolverIndexHelper;
-  class ProductRegistry;
   class ConsumesCollector;
   template <Transition Tr>
   class EDConsumerBaseESAdaptor;
@@ -102,6 +102,10 @@ namespace edm {
     // ---------- member functions ---------------------------
     void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
     void updateLookup(eventsetup::ESRecordsToProxyIndices const&);
+    void selectInputProcessBlocks(ProductRegistry const& productRegistry,
+                                  ProcessBlockHelperBase const& processBlockHelperBase) {
+      doSelectInputProcessBlocks(productRegistry, processBlockHelperBase);
+    }
 
     typedef ProductLabels Labels;
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
@@ -253,6 +257,9 @@ namespace edm {
     void throwESConsumesInProcessBlock() const;
 
     edm::InputTag const& checkIfEmpty(edm::InputTag const& tag);
+
+    virtual void doSelectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&);
+
     // ---------- member data --------------------------------
 
     struct TokenLookupInfo {

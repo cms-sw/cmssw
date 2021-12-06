@@ -68,7 +68,6 @@ private:
 
   std::map<std::string, MonitorElement*> summaryMap_;
   MonitorElement* deadROCSummary;
-  std::map<std::string, MonitorElement*> residuals_;
   MonitorElement* reportSummary;  //Float value of the average of the ins in the grand summary
 
   std::map<std::string, std::string> summaryPlotName_;
@@ -79,6 +78,7 @@ private:
 
   //Error thresholds for the dead ROC plots
   std::vector<double> deadRocThresholds_;
+  std::vector<double> deadRocWarnThresholds_;
 
   //book the summary plots
   void bookSummaries(DQMStore::IBooker& iBooker);

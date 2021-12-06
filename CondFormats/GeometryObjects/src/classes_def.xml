@@ -5,6 +5,8 @@
  <class name="PGeometricDet::Item"/>
  <class name="std::vector<PGeometricDet::Item>"/>
 
+ <class name="PTrackerAdditionalParametersPerDet" class_version="0"/>
+
  <class name="PGeometricTimingDet" class_version="0">
    <field name="pgeomdets_" mapping="blob"/>
  </class>

@@ -71,6 +71,11 @@ namespace fftjetcms {
   class DiscretizedEnergyFlow;
 }
 
+class CaloGeometry;
+class CaloGeometryRecord;
+class HcalTopology;
+class HcalRecNumberingRecord;
+
 //
 // class declaration
 //
@@ -93,6 +98,11 @@ public:
   enum Resolution { FIXED = 0, MAXIMALLY_STABLE, GLOBALLY_ADAPTIVE, LOCALLY_ADAPTIVE, FROM_GENJETS };
 
   explicit FFTJetProducer(const edm::ParameterSet&);
+  // Explicitly disable other ways to construct this object
+  FFTJetProducer() = delete;
+  FFTJetProducer(const FFTJetProducer&) = delete;
+  FFTJetProducer& operator=(const FFTJetProducer&) = delete;
+
   ~FFTJetProducer() override;
 
   // Parser for the resolution enum
@@ -170,11 +180,6 @@ protected:
 private:
   typedef fftjet::AbsVectorRecombinationAlg<fftjetcms::VectorLike, fftjetcms::BgData> RecoAlg;
   typedef fftjet::AbsRecombinationAlg<fftjetcms::Real, fftjetcms::VectorLike, fftjetcms::BgData> GridAlg;
-
-  // Explicitly disable other ways to construct this object
-  FFTJetProducer() = delete;
-  FFTJetProducer(const FFTJetProducer&) = delete;
-  FFTJetProducer& operator=(const FFTJetProducer&) = delete;
 
   // Useful local utilities
   template <class Real>
@@ -398,6 +403,9 @@ private:
   edm::EDGetTokenT<std::vector<reco::FFTAnyJet<reco::GenJet> > > input_genjet_token_;
   edm::EDGetTokenT<reco::DiscretizedEnergyFlow> input_energyflow_token_;
   edm::EDGetTokenT<reco::FFTJetPileupSummary> input_pusummary_token_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topology_token_;
 };
 
 #endif  // RecoJets_FFTJetProducers_FFTJetProducer_h

@@ -46,6 +46,7 @@
 
 class MuonShowerDigiFiller {
 public:
+  MuonShowerDigiFiller() {}
   MuonShowerDigiFiller(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
 
   void getES(const edm::EventSetup& iSetup);

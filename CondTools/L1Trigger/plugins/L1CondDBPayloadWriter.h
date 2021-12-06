@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,8 +34,10 @@
 #include "CondTools/L1Trigger/interface/DataWriter.h"
 
 // forward declarations
+class L1TriggerKey;
+class L1TriggerKeyRcd;
 
-class L1CondDBPayloadWriter : public edm::EDAnalyzer {
+class L1CondDBPayloadWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit L1CondDBPayloadWriter(const edm::ParameterSet&);
   ~L1CondDBPayloadWriter() override;
@@ -62,6 +64,8 @@ private:
 
   // if true, do not retrieve L1TriggerKeyList from EventSetup
   bool m_newL1TriggerKeyList;
+
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> l1TriggerKeyToken_;
 };
 
 #endif

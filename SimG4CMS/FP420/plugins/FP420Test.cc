@@ -3,49 +3,159 @@
 
 // system include files
 #include <iostream>
-#include <iomanip>
-#include <cmath>
-#include <vector>
+#include <map>
+#include <string>
 //
-#include "SimG4Core/Notification/interface/BeginOfEvent.h"
-#include "SimG4Core/Notification/interface/EndOfEvent.h"
-#include "SimG4Core/Notification/interface/TrackWithHistory.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
-
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+//
+#include "SimG4Core/Notification/interface/TrackWithHistory.h"
+#include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "SimG4Core/Notification/interface/BeginOfRun.h"
+#include "SimG4Core/Notification/interface/EndOfRun.h"
+#include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Notification/interface/BeginOfTrack.h"
+#include "SimG4Core/Notification/interface/EndOfTrack.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 // to retreive hits
 #include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
 #include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
-#include "SimG4CMS/FP420/interface/FP420Test.h"
-
 // G4 stuff
+#include "G4HCofThisEvent.hh"
+#include "G4ProcessManager.hh"
 #include "G4SDManager.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
-#include "G4VProcess.hh"
-#include "G4HCofThisEvent.hh"
-#include "G4UserEventAction.hh"
 #include "G4TransportationManager.hh"
-#include "G4ProcessManager.hh"
+#include "G4UserEventAction.hh"
+#include "G4VProcess.hh"
+#include "G4VTouchable.hh"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Random/Randomize.h>
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 //================================================================
 // Root stuff
+#include "TROOT.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
+#include "TNtuple.h"
+#include "TRandom.h"
+#include "TLorentzVector.h"
+#include "TUnixSystem.h"
+#include "TSystem.h"
+#include "TMath.h"
+#include "TF1.h"
+#include "TObjArray.h"
+#include "TObjString.h"
+#include "TNamed.h"
 
-// Include the standard header <cassert> to effectively include
-// the standard header <assert.h> within the std namespace.
-#include <cassert>
+class Fp420AnalysisHistManager : public TNamed {
+public:
+  Fp420AnalysisHistManager(const TString& managername);
+  ~Fp420AnalysisHistManager() override;
 
-using namespace edm;
-using namespace std;
+  TH1F* getHisto(Int_t Number);
+  TH1F* getHisto(const TObjString& histname);
+
+  TH2F* getHisto2(Int_t Number);
+  TH2F* getHisto2(const TObjString& histname);
+
+  void writeToFile(const TString& fOutputFile, const TString& fRecreateFile);
+
+private:
+  void bookHistos();
+  void storeWeights();
+  void histInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup);
+  void histInit(
+      const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup, Int_t nbinsy, Axis_t ylow, Axis_t yup);
+
+  const char* fTypeTitle;
+  TObjArray* fHistArray;
+  TObjArray* fHistNamesArray;
+};
+
+class FP420Test : public SimWatcher,
+                  public Observer<const BeginOfJob*>,
+                  public Observer<const BeginOfRun*>,
+                  public Observer<const EndOfRun*>,
+                  public Observer<const BeginOfEvent*>,
+                  public Observer<const BeginOfTrack*>,
+                  public Observer<const G4Step*>,
+                  public Observer<const EndOfTrack*>,
+                  public Observer<const EndOfEvent*> {
+public:
+  FP420Test(const edm::ParameterSet& p);
+  ~FP420Test() override;
+
+private:
+  // observer classes
+  void update(const BeginOfJob* run) override;
+  void update(const BeginOfRun* run) override;
+  void update(const EndOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const BeginOfTrack* trk) override;
+  void update(const G4Step* step) override;
+  void update(const EndOfTrack* trk) override;
+  void update(const EndOfEvent* evt) override;
+
+private:
+  // Utilities to get detector levels during a step
+
+  int detLevels(const G4VTouchable*) const;
+  G4String detName(const G4VTouchable*, int, int) const;
+  void detectorLevel(const G4VTouchable*, int&, int*, G4String*) const;
+
+  //UHB_Analysis* UserNtuples;
+
+  int iev;
+  int itrk;
+  G4double entot0, tracklength0;
+
+  double rinCalo, zinCalo;
+  int lastTrackID;
+  int verbosity;
+
+  // sumEnerDeposit - all deposited energy on all steps ;  sumStepl - length in steel !!!
+  G4double sumEnerDeposit, sumStepl, sumStepc;
+  // numofpart - # particles produced along primary track
+  int numofpart;
+  // last point of the primary track
+  G4ThreeVector lastpo;
+
+  // z:
+  double z1, z2, z3, z4, zD2, zD3;
+  int sn0, dn0, pn0, rn0;
+  int rn00;
+  double zSiDet, z420;
+  double zGapLDet, zBoundDet, zSiStep, zSiPlane, zinibeg;
+  double zBlade, gapBlade;
+
+  Float_t fp420eventarray[1];
+  TNtuple* fp420eventntuple;
+  TFile fp420OutputFile;
+  int whichevent;
+
+  Fp420AnalysisHistManager* theHistManager;  //Histogram Manager of the analysis
+  std::string fDataLabel;                    // Data type label
+  std::string fOutputFile;                   // The output file name
+  std::string fRecreateFile;                 // Recreate the file flag, default="RECREATE"
+};
+
 //================================================================
-
-//UserVerbosity FP420Test::std::cout("FP420Test","info","FP420Test");
-
 enum ntfp420_elements { ntfp420_evt };
 //================================================================
 FP420Test::FP420Test(const edm::ParameterSet& p) {
@@ -59,8 +169,8 @@ FP420Test::FP420Test(const edm::ParameterSet& p) {
   fRecreateFile = m_Anal.getParameter<std::string>("FRecreateFile");
 
   if (verbosity > 0) {
-    std::cout << "============================================================================" << std::endl;
-    std::cout << "FP420Testconstructor :: Initialized as observer" << std::endl;
+    edm::LogVerbatim("FP420Test") << "============================================================================";
+    edm::LogVerbatim("FP420Test") << "FP420Testconstructor :: Initialized as observer";
   }
   // Initialization:
 
@@ -75,27 +185,27 @@ FP420Test::FP420Test(const edm::ParameterSet& p) {
   zBlade = 5.00;
   gapBlade = 1.6;
   double gapSupplane = 1.6;
-  ZSiPlane = 2 * zBlade + gapBlade + gapSupplane;
+  zSiPlane = 2 * zBlade + gapBlade + gapSupplane;
 
-  double ZKapton = 0.1;
-  ZSiStep = ZSiPlane + ZKapton;
+  double zKapton = 0.1;
+  zSiStep = zSiPlane + zKapton;
 
-  double ZBoundDet = 0.020;
-  double ZSiElectr = 0.250;
-  double ZCeramDet = 0.500;
+  double zBoundDet = 0.020;
+  double zSiElectr = 0.250;
+  double zCeramDet = 0.500;
   //
-  ZSiDet = 0.250;
-  ZGapLDet = zBlade / 2 - (ZSiDet + ZSiElectr + ZBoundDet + ZCeramDet / 2);
+  zSiDet = 0.250;
+  zGapLDet = zBlade / 2 - (zSiDet + zSiElectr + zBoundDet + zCeramDet / 2);
   //
-  //  ZSiStation = 5*(2*(5.+1.6)+0.1)+2*6.+1.0 =  79.5
-  double ZSiStation = (pn0 - 1) * (2 * (zBlade + gapBlade) + ZKapton) + 2 * 6. + 0.0;  // =  78.5
+  //  zSiStation = 5*(2*(5.+1.6)+0.1)+2*6.+1.0 =  79.5
+  double zSiStation = (pn0 - 1) * (2 * (zBlade + gapBlade) + zKapton) + 2 * 6. + 0.0;  // =  78.5
   // 11.=e1, 12.=e2 in zzzrectangle.xml
   double eee1 = 11.;
   double eee2 = 12.;
 
   zinibeg = (eee1 - eee2) / 2.;
 
-  z1 = zinibeg + (ZSiStation + 10.) / 2 + z420;  // z1 - right after 1st Station
+  z1 = zinibeg + (zSiStation + 10.) / 2 + z420;  // z1 - right after 1st Station
   z2 = z1 + zD2;                                 //z2 - right after middle Station
   z3 = z1 + zD3;                                 //z3 - right after last   Station
   z4 = z1 + 2 * zD3;
@@ -109,10 +219,10 @@ FP420Test::FP420Test(const edm::ParameterSet& p) {
   //       fOutputFile     = "TheAnlysis.root";
   //       fRecreateFile   = "RECREATE";
 
-  TheHistManager = new Fp420AnalysisHistManager(fDataLabel);
+  theHistManager = new Fp420AnalysisHistManager(fDataLabel);
 
   if (verbosity > 0) {
-    std::cout << "FP420Test constructor :: Initialized Fp420AnalysisHistManager" << std::endl;
+    edm::LogVerbatim("FP420Test") << "FP420Test constructor :: Initialized Fp420AnalysisHistManager";
   }
 }
 
@@ -120,20 +230,20 @@ FP420Test::~FP420Test() {
   //  delete UserNtuples;
 
   TFile fp420OutputFile("newntfp420.root", "RECREATE");
-  std::cout << "FP420 output root file has been created";
+  edm::LogVerbatim("FP420Test") << "FP420 output root file has been created";
   fp420eventntuple->Write();
-  std::cout << ", written";
+  edm::LogVerbatim("FP420Test") << "FP420 output root file has been  written";
   fp420OutputFile.Close();
-  std::cout << ", closed";
+  edm::LogVerbatim("FP420Test") << "FP420 output root file has been  closed";
   delete fp420eventntuple;
-  std::cout << ", and deleted" << std::endl;
+  edm::LogVerbatim("FP420Test") << "FP420 output root file pointer has been  deleted";
 
   //------->while end
 
   // Write histograms to file
-  TheHistManager->WriteToFile(fOutputFile, fRecreateFile);
+  theHistManager->writeToFile(fOutputFile, fRecreateFile);
   if (verbosity > 0) {
-    std::cout << std::endl << "FP420Test Destructor  -------->  End of FP420Test : " << std::endl;
+    edm::LogVerbatim("FP420Test") << std::endl << "FP420Test Destructor  -------->  End of FP420Test : ";
   }
 }
 
@@ -149,12 +259,12 @@ Fp420AnalysisHistManager::Fp420AnalysisHistManager(const TString& managername) {
   fHistNamesArray = new TObjArray();  // Array to store histos's names
 
   TH1::AddDirectory(kFALSE);
-  BookHistos();
+  bookHistos();
 
   fHistArray->Compress();  // Removes empty space
   fHistNamesArray->Compress();
 
-  //      StoreWeights();                    // Store the weights
+  //      storeWeights();                    // Store the weights
 }
 //-----------------------------------------------------------------------------
 
@@ -173,36 +283,36 @@ Fp420AnalysisHistManager::~Fp420AnalysisHistManager() {
 }
 //-----------------------------------------------------------------------------
 
-void Fp420AnalysisHistManager::BookHistos() {
+void Fp420AnalysisHistManager::bookHistos() {
   // at Start: (mm)
-  HistInit("PrimaryEta", "Primary Eta", 100, 9., 12.);
-  HistInit("PrimaryPhigrad", "Primary Phigrad", 100, 0., 360.);
-  HistInit("PrimaryTh", "Primary Th", 100, 0., 180.);
-  HistInit("PrimaryLastpoZ", "Primary Lastpo Z", 100, -200., 430000.);
-  HistInit("PrimaryLastpoX", "Primary Lastpo X Z<z4", 100, -30., 30.);
-  HistInit("PrimaryLastpoY", "Primary Lastpo Y Z<z4", 100, -30., 30.);
-  HistInit("XLastpoNumofpart", "Primary Lastpo X n>10", 100, -30., 30.);
-  HistInit("YLastpoNumofpart", "Primary Lastpo Y n>10", 100, -30., 30.);
-  HistInit("VtxX", "Vtx X", 100, -50., 50.);
-  HistInit("VtxY", "Vtx Y", 100, -50., 50.);
-  HistInit("VtxZ", "Vtx Z", 100, -200., 430000.);
+  histInit("PrimaryEta", "Primary Eta", 100, 9., 12.);
+  histInit("PrimaryPhigrad", "Primary Phigrad", 100, 0., 360.);
+  histInit("PrimaryTh", "Primary Th", 100, 0., 180.);
+  histInit("PrimaryLastpoZ", "Primary Lastpo Z", 100, -200., 430000.);
+  histInit("PrimaryLastpoX", "Primary Lastpo X Z<z4", 100, -30., 30.);
+  histInit("PrimaryLastpoY", "Primary Lastpo Y Z<z4", 100, -30., 30.);
+  histInit("XLastpoNumofpart", "Primary Lastpo X n>10", 100, -30., 30.);
+  histInit("YLastpoNumofpart", "Primary Lastpo Y n>10", 100, -30., 30.);
+  histInit("VtxX", "Vtx X", 100, -50., 50.);
+  histInit("VtxY", "Vtx Y", 100, -50., 50.);
+  histInit("VtxZ", "Vtx Z", 100, -200., 430000.);
   // Book the histograms and add them to the array
-  HistInit("SumEDep", "This is sum Energy deposited", 100, -1, 199.);
-  HistInit("TrackL", "This is TrackL", 100, 0., 12000.);
-  HistInit("zHits", "z Hits all events", 100, 400000., 430000.);
-  HistInit("zHitsnoMI", "z Hits no MI", 100, 400000., 430000.);
-  HistInit("zHitsTrLoLe", "z Hits TrLength bigger 8300", 100, 400000., 430000.);
-  HistInit("NumberOfHits", "NumberOfHits", 100, 0., 300.);
+  histInit("SumEDep", "This is sum Energy deposited", 100, -1, 199.);
+  histInit("TrackL", "This is TrackL", 100, 0., 12000.);
+  histInit("zHits", "z Hits all events", 100, 400000., 430000.);
+  histInit("zHitsnoMI", "z Hits no MI", 100, 400000., 430000.);
+  histInit("zHitsTrLoLe", "z Hits TrLength bigger 8300", 100, 400000., 430000.);
+  histInit("NumberOfHits", "NumberOfHits", 100, 0., 300.);
 }
 
 //-----------------------------------------------------------------------------
 
-void Fp420AnalysisHistManager::WriteToFile(const TString& fOutputFile, const TString& fRecreateFile) {
+void Fp420AnalysisHistManager::writeToFile(const TString& fOutputFile, const TString& fRecreateFile) {
   //Write to file = fOutputFile
 
-  std::cout << "================================================================" << std::endl;
-  std::cout << " Write this Analysis to File " << fOutputFile << std::endl;
-  std::cout << "================================================================" << std::endl;
+  edm::LogVerbatim("FP420Test") << "================================================================";
+  edm::LogVerbatim("FP420Test") << " Write this Analysis to File " << fOutputFile;
+  edm::LogVerbatim("FP420Test") << "================================================================";
 
   TFile* file = new TFile(fOutputFile, fRecreateFile);
 
@@ -211,7 +321,7 @@ void Fp420AnalysisHistManager::WriteToFile(const TString& fOutputFile, const TSt
 }
 //-----------------------------------------------------------------------------
 
-void Fp420AnalysisHistManager::HistInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup) {
+void Fp420AnalysisHistManager::histInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup) {
   // Add histograms and histograms names to the array
 
   char* newtitle = new char[strlen(title) + strlen(fTypeTitle) + 5];
@@ -224,7 +334,7 @@ void Fp420AnalysisHistManager::HistInit(const char* name, const char* title, Int
 }
 //-----------------------------------------------------------------------------
 
-void Fp420AnalysisHistManager::HistInit(
+void Fp420AnalysisHistManager::histInit(
     const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup, Int_t nbinsy, Axis_t ylow, Axis_t yup) {
   // Add histograms and histograms names to the array
 
@@ -238,55 +348,55 @@ void Fp420AnalysisHistManager::HistInit(
 }
 //-----------------------------------------------------------------------------
 
-TH1F* Fp420AnalysisHistManager::GetHisto(Int_t Number) {
+TH1F* Fp420AnalysisHistManager::getHisto(Int_t Number) {
   // Get a histogram from the array with index = Number
 
   if (Number <= fHistArray->GetLast() && fHistArray->At(Number) != (TObject*)nullptr) {
     return (TH1F*)(fHistArray->At(Number));
 
   } else {
-    std::cout << "!!!!!!!!!!!!!!!!!!GetHisto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-    std::cout << " WARNING ERROR - HIST ID INCORRECT (TOO HIGH) - " << Number << std::endl;
-    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+    edm::LogVerbatim("FP420Test") << "!!!!!!!!!!!!!!!!!!getHisto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+    edm::LogVerbatim("FP420Test") << " WARNING ERROR - HIST ID INCORRECT (TOO HIGH) - " << Number;
+    edm::LogVerbatim("FP420Test") << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 
     return (TH1F*)(fHistArray->At(0));
   }
 }
 //-----------------------------------------------------------------------------
 
-TH2F* Fp420AnalysisHistManager::GetHisto2(Int_t Number) {
+TH2F* Fp420AnalysisHistManager::getHisto2(Int_t Number) {
   // Get a histogram from the array with index = Number
 
   if (Number <= fHistArray->GetLast() && fHistArray->At(Number) != (TObject*)nullptr) {
     return (TH2F*)(fHistArray->At(Number));
 
   } else {
-    std::cout << "!!!!!!!!!!!!!!!!GetHisto2!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-    std::cout << " WARNING ERROR - HIST ID INCORRECT (TOO HIGH) - " << Number << std::endl;
-    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+    edm::LogVerbatim("FP420Test") << "!!!!!!!!!!!!!!!!getHisto2!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+    edm::LogVerbatim("FP420Test") << " WARNING ERROR - HIST ID INCORRECT (TOO HIGH) - " << Number;
+    edm::LogVerbatim("FP420Test") << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 
     return (TH2F*)(fHistArray->At(0));
   }
 }
 //-----------------------------------------------------------------------------
 
-TH1F* Fp420AnalysisHistManager::GetHisto(const TObjString& histname) {
+TH1F* Fp420AnalysisHistManager::getHisto(const TObjString& histname) {
   // Get a histogram from the array with name = histname
 
   Int_t index = fHistNamesArray->IndexOf(&histname);
-  return GetHisto(index);
+  return getHisto(index);
 }
 //-----------------------------------------------------------------------------
 
-TH2F* Fp420AnalysisHistManager::GetHisto2(const TObjString& histname) {
+TH2F* Fp420AnalysisHistManager::getHisto2(const TObjString& histname) {
   // Get a histogram from the array with name = histname
 
   Int_t index = fHistNamesArray->IndexOf(&histname);
-  return GetHisto2(index);
+  return getHisto2(index);
 }
 //-----------------------------------------------------------------------------
 
-void Fp420AnalysisHistManager::StoreWeights() {
+void Fp420AnalysisHistManager::storeWeights() {
   // Add structure to each histogram to store the weights
 
   for (int i = 0; i < fHistArray->GetEntries(); i++) {
@@ -303,7 +413,7 @@ void Fp420AnalysisHistManager::StoreWeights() {
 //==================================================================== per JOB
 void FP420Test::update(const BeginOfJob* job) {
   //job
-  std::cout << "FP420Test:beggining of job" << std::endl;
+  edm::LogVerbatim("FP420Test") << "FP420Test:beggining of job";
   ;
 }
 
@@ -311,7 +421,7 @@ void FP420Test::update(const BeginOfJob* job) {
 void FP420Test::update(const BeginOfRun* run) {
   //run
 
-  std::cout << std::endl << "FP420Test:: Begining of Run" << std::endl;
+  edm::LogVerbatim("FP420Test") << std::endl << "FP420Test:: Begining of Run";
 }
 
 void FP420Test::update(const EndOfRun* run) { ; }
@@ -320,7 +430,7 @@ void FP420Test::update(const EndOfRun* run) { ; }
 void FP420Test::update(const BeginOfEvent* evt) {
   iev = (*evt)()->GetEventID();
   if (verbosity > 0) {
-    std::cout << "FP420Test:update Event number = " << iev << std::endl;
+    edm::LogVerbatim("FP420Test") << "FP420Test:update Event number = " << iev;
   }
   whichevent++;
 }
@@ -329,13 +439,13 @@ void FP420Test::update(const BeginOfEvent* evt) {
 void FP420Test::update(const BeginOfTrack* trk) {
   itrk = (*trk)()->GetTrackID();
   if (verbosity > 1) {
-    std::cout << "FP420Test:update BeginOfTrack number = " << itrk << std::endl;
+    edm::LogVerbatim("FP420Test") << "FP420Test:update BeginOfTrack number = " << itrk;
   }
   if (itrk == 1) {
-    SumEnerDeposit = 0.;
+    sumEnerDeposit = 0.;
     numofpart = 0;
-    SumStepl = 0.;
-    SumStepc = 0.;
+    sumStepl = 0.;
+    sumStepc = 0.;
     tracklength0 = 0.;
   }
 }
@@ -344,13 +454,13 @@ void FP420Test::update(const BeginOfTrack* trk) {
 void FP420Test::update(const EndOfTrack* trk) {
   itrk = (*trk)()->GetTrackID();
   if (verbosity > 1) {
-    std::cout << "FP420Test:update EndOfTrack number = " << itrk << std::endl;
+    edm::LogVerbatim("FP420Test") << "FP420Test:update EndOfTrack number = " << itrk;
   }
   if (itrk == 1) {
     G4double tracklength = (*trk)()->GetTrackLength();  // Accumulated track length
 
-    TheHistManager->GetHisto("SumEDep")->Fill(SumEnerDeposit);
-    TheHistManager->GetHisto("TrackL")->Fill(tracklength);
+    theHistManager->getHisto("SumEDep")->Fill(sumEnerDeposit);
+    theHistManager->getHisto("TrackL")->Fill(tracklength);
 
     // direction !!!
     G4ThreeVector vert_mom = (*trk)()->GetVertexMomentumDirection();
@@ -364,30 +474,30 @@ void FP420Test::update(const EndOfTrack* trk) {
     //      float XV = vert_pos.x(); // mm
     //      float YV = vert_pos.y(); // mm
     //UserNtuples->fillg543(phigrad,1.);
-    //UserNtuples->fillp203(phigrad,SumStepl,1.);
+    //UserNtuples->fillp203(phigrad,sumStepl,1.);
     //UserNtuples->fillg544(XV,1.);
-    //UserNtuples->fillp201(XV,SumStepl,1.);
+    //UserNtuples->fillp201(XV,sumStepl,1.);
     //UserNtuples->fillg545(YV,1.);
-    //UserNtuples->fillp202(YV,SumStepl,1.);
+    //UserNtuples->fillp202(YV,sumStepl,1.);
 
     //UserNtuples->fillg524(eta,1.);
 
-    //UserNtuples->fillg534(SumStepl,1.);
-    //UserNtuples->fillg535(eta,SumStepl);
-    //UserNtuples->fillp207(eta,SumStepl,1.);
-    //UserNtuples->filld217(eta,SumStepl,1.);
-    //UserNtuples->filld220(phigrad,SumStepl,1.);
-    //UserNtuples->filld221(XV,SumStepl,1.);
-    //UserNtuples->filld222(YV,SumStepl,1.);
-    //UserNtuples->fillg537(SumStepc,1.);
-    //UserNtuples->fillg84(SumStepl,1.);
+    //UserNtuples->fillg534(sumStepl,1.);
+    //UserNtuples->fillg535(eta,sumStepl);
+    //UserNtuples->fillp207(eta,sumStepl,1.);
+    //UserNtuples->filld217(eta,sumStepl,1.);
+    //UserNtuples->filld220(phigrad,sumStepl,1.);
+    //UserNtuples->filld221(XV,sumStepl,1.);
+    //UserNtuples->filld222(YV,sumStepl,1.);
+    //UserNtuples->fillg537(sumStepc,1.);
+    //UserNtuples->fillg84(sumStepl,1.);
 
     // MI = (multiple interactions):
     if (tracklength < z4) {
       //        //UserNtuples->fillp208(eta,tracklength,1.);
       //UserNtuples->filld218(eta,tracklength,1.);
-      //UserNtuples->fillg538(SumStepc,1.);
-      //UserNtuples->fillg85(SumStepl,1.);
+      //UserNtuples->fillg538(sumStepc,1.);
+      //UserNtuples->fillg85(sumStepl,1.);
     }
 
     // last step information
@@ -446,13 +556,13 @@ void FP420Test::update(const G4Step* aStep) {
 
   if (verbosity > 2) {
     G4int stepnumber = aStep->GetTrack()->GetCurrentStepNumber();
-    std::cout << "FP420Test:update Step number = " << stepnumber << std::endl;
+    edm::LogVerbatim("FP420Test") << "FP420Test:update Step number = " << stepnumber;
   }
   // track on aStep:                                                                                         !
   G4Track* theTrack = aStep->GetTrack();
   TrackInformation* trkInfo = dynamic_cast<TrackInformation*>(theTrack->GetUserInformation());
   if (trkInfo == nullptr) {
-    std::cout << "FP420Test on aStep: No trk info !!!! abort " << std::endl;
+    edm::LogVerbatim("FP420Test") << "FP420Test on aStep: No trk info !!!! abort ";
   }
   G4int id = theTrack->GetTrackID();
   G4String particleType = theTrack->GetDefinition()->GetParticleName();  //   !!!
@@ -475,7 +585,7 @@ void FP420Test::update(const G4Step* aStep) {
 
   //G4double       trackvel       = theTrack->GetVelocity();
 
-  //std::cout << " trackstatus= " << trackstatus << " entot= " << entot  << std::endl;
+  //edm::LogVerbatim("FP420Test") << " trackstatus= " << trackstatus << " entot= " << entot ;
 
   // step points:                                                                                         !
   G4double stepl = aStep->GetStepLength();
@@ -506,54 +616,6 @@ void FP420Test::update(const G4Step* aStep) {
     detectorLevel(pre_touch, pre_levels, copyno1, name1);
   }
 
-  //  G4LogicalVolume*   lv            = currentPV->GetLogicalVolume();
-  //  G4Material*       mat           = lv->GetMaterial();
-  //  std::string prenameVolume;
-  //  prenameVolume.assign(prename,0,20);
-
-  //   G4double         prebeta          = preStepPoint->GetBeta();
-  //   G4double         precharge        = preStepPoint->GetCharge();
-  //  G4double          prerad           = mat->GetRadlen();
-
-  //  std::cout << " EneryDeposited = " << EnerDeposit << std::endl;
-  //  std::cout << " prevolume = "      << prename << std::endl;
-  ////  std::cout << " posvolume = "      << aStep->GetPostStepPoint()->GetPhysicalVolume()->GetName() << std::endl;
-  //  std::cout << " preposition = "    << preposition << std::endl;
-  /*
-  // postStep
-  G4StepPoint*      postStepPoint  = aStep->GetPostStepPoint();   
-  G4ThreeVector     posposition    = postStepPoint->GetPosition();	
-  G4ThreeVector     poslocalpoint  = theTrack->GetTouchable()->GetHistory()->
-                                           GetTopTransform().TransformPoint(posposition);
-  G4VPhysicalVolume* poscurrentPV      = postStepPoint->GetPhysicalVolume();
-  G4String         posname        = poscurrentPV->GetName();
-//  G4LogicalVolume*   poslv             = poscurrentPV->GetLogicalVolume();
-//  G4Material*       posmat            = poslv->GetMaterial();
-//  std::string posnameVolume;
-//  posnameVolume.assign(posname,0,20);
-
-#ifdef ddebug
-     std::cout << "============posStep: information:============" << std::endl;
-     std::cout << " posposition = "    << posposition
-          << " poslocalpoint = "  << poslocalpoint
-          << " posvolume = "      << posname
-       //          << " posnameVolume = "  << posnameVolume 
-          << std::endl;
-
-     std::cout << " ==========================================" << std::endl;
-#endif
-
-
-*/
-
-  //      //
-  //      //
-
-  // 24.01.2006:
-  // tr     :   id    parentID   trackstatus   tracklength   curstepnumber  entot  vert_pos
-  // st     :   stepl EnerDeposit
-  // prestep:   preposition   prevolume = SBSTm SIDETL SIDETR       name= SISTATION  copy= 1,2,3    name= SIPLANE  copy= 1..5..10
-
   // gen_track:
   //  id=1    parentID=1   trackstatus=0,2   tracklength(accumulated)  curstepnumber   entot  vert_pos
   if (id == 1) {
@@ -567,13 +629,13 @@ void FP420Test::update(const G4Step* aStep) {
 
     // for Copper:
     if (prename == "SBST") {
-      SumStepc += stepl;
+      sumStepc += stepl;
       // =========
     }
     // for ststeel:
     //	 if(prename == "SBSTs") {
     if (prename == "SBSTs") {
-      SumStepl += stepl;
+      sumStepl += stepl;
       // =========
     }
     // =========
@@ -691,7 +753,7 @@ void FP420Test::update(const G4Step* aStep) {
     // deposition of energy on steps along primary track
     //UserNtuples->fillg500(EnerDeposit,1.);
     // collect sum deposited energy on all steps along primary track
-    SumEnerDeposit += EnerDeposit;
+    sumEnerDeposit += EnerDeposit;
     // position of step for primary track:
     //UserNtuples->fillg501(preposition.x(),1.);
     //UserNtuples->fillg502(preposition.y(),1.);
@@ -792,7 +854,7 @@ void FP420Test::update(const EndOfEvent* evt) {
 
   if (verbosity > 1) {
     iev = (*evt)()->GetEventID();
-    std::cout << "FP420Test:update EndOfEvent = " << iev << std::endl;
+    edm::LogVerbatim("FP420Test") << "FP420Test:update EndOfEvent = " << iev;
   }
   // Fill-in ntuple
   fp420eventarray[ntfp420_evt] = (float)whichevent;
@@ -804,17 +866,17 @@ void FP420Test::update(const EndOfEvent* evt) {
   // prim.vertex:
   G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
   if (nvertex != 1)
-    std::cout << "FP420Test: My warning: NumberOfPrimaryVertex != 1  -->  = " << nvertex << std::endl;
+    edm::LogVerbatim("FP420Test") << "FP420Test: My warning: NumberOfPrimaryVertex != 1  -->  = " << nvertex;
 
   for (int i = 0; i < nvertex; i++) {
     G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
     if (avertex == nullptr)
-      std::cout << "FP420Test  End Of Event ERR: pointer to vertex = 0" << std::endl;
+      edm::LogVerbatim("FP420Test") << "FP420Test  End Of Event ERR: pointer to vertex = 0";
     G4int npart = avertex->GetNumberOfParticle();
     if (npart != 1)
-      std::cout << "FP420Test: My warning: NumberOfPrimaryPart != 1  -->  = " << npart << std::endl;
+      edm::LogVerbatim("FP420Test") << "FP420Test: My warning: NumberOfPrimaryPart != 1  -->  = " << npart;
     if (npart == 0)
-      std::cout << "FP420Test End Of Event ERR: no NumberOfParticle" << std::endl;
+      edm::LogVerbatim("FP420Test") << "FP420Test End Of Event ERR: no NumberOfParticle";
 
     // find just primary track:                                                             track pointer: thePrim
     if (thePrim == nullptr)
@@ -829,9 +891,9 @@ void FP420Test::update(const EndOfEvent* evt) {
       //UserNtuples->fillh01(vx);
       //UserNtuples->fillh02(vy);
       //UserNtuples->fillh03(vz);
-      TheHistManager->GetHisto("VtxX")->Fill(vx);
-      TheHistManager->GetHisto("VtxY")->Fill(vy);
-      TheHistManager->GetHisto("VtxZ")->Fill(vz);
+      theHistManager->getHisto("VtxX")->Fill(vx);
+      theHistManager->getHisto("VtxY")->Fill(vy);
+      theHistManager->getHisto("VtxZ")->Fill(vz);
     }
   }
   // prim.vertex loop end
@@ -880,18 +942,18 @@ void FP420Test::update(const EndOfEvent* evt) {
     //UserNtuples->fillg14(lastpo.y(),1.);
     //UserNtuples->fillg15(lastpo.z(),1.);
 
-    TheHistManager->GetHisto("PrimaryEta")->Fill(eta);
-    TheHistManager->GetHisto("PrimaryPhigrad")->Fill(phigrad);
-    TheHistManager->GetHisto("PrimaryTh")->Fill(th * 180. / pi);
+    theHistManager->getHisto("PrimaryEta")->Fill(eta);
+    theHistManager->getHisto("PrimaryPhigrad")->Fill(phigrad);
+    theHistManager->getHisto("PrimaryTh")->Fill(th * 180. / pi);
 
-    TheHistManager->GetHisto("PrimaryLastpoZ")->Fill(lastpo.z());
+    theHistManager->getHisto("PrimaryLastpoZ")->Fill(lastpo.z());
     if (lastpo.z() < z4) {
-      TheHistManager->GetHisto("PrimaryLastpoX")->Fill(lastpo.x());
-      TheHistManager->GetHisto("PrimaryLastpoY")->Fill(lastpo.y());
+      theHistManager->getHisto("PrimaryLastpoX")->Fill(lastpo.x());
+      theHistManager->getHisto("PrimaryLastpoY")->Fill(lastpo.y());
     }
     if (numofpart > 4) {
-      TheHistManager->GetHisto("XLastpoNumofpart")->Fill(lastpo.x());
-      TheHistManager->GetHisto("YLastpoNumofpart")->Fill(lastpo.y());
+      theHistManager->getHisto("XLastpoNumofpart")->Fill(lastpo.x());
+      theHistManager->getHisto("YLastpoNumofpart")->Fill(lastpo.y());
     }
 
     // ==========================================================================
@@ -899,32 +961,32 @@ void FP420Test::update(const EndOfEvent* evt) {
     // hit map for FP420
     // ==================================
 
-    map<int, float, less<int> > themap;
-    map<int, float, less<int> > themap1;
+    std::map<int, float, std::less<int> > themap;
+    std::map<int, float, std::less<int> > themap1;
 
-    map<int, float, less<int> > themapxy;
-    map<int, float, less<int> > themapz;
+    std::map<int, float, std::less<int> > themapxy;
+    std::map<int, float, std::less<int> > themapz;
     // access to the G4 hit collections:  -----> this work OK:
 
     //  edm::LogInfo("FP420Test") << "1";
     G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
     //  edm::LogInfo("FP420Test") << "2";
     if (verbosity > 0) {
-      std::cout << "FP420Test:  accessed all HC" << std::endl;
+      edm::LogVerbatim("FP420Test") << "FP420Test:  accessed all HC";
       ;
     }
     int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("FP420SI");
     // edm::LogInfo("FP420Test") << "3";
-    // std::cout << " CAFIid = " << CAFIid << std::endl;;
+    // edm::LogVerbatim("FP420Test") << " CAFIid = " << CAFIid;;
 
     FP420G4HitCollection* theCAFI = (FP420G4HitCollection*)allHC->GetHC(CAFIid);
     //  CaloG4HitCollection* theCAFI = (CaloG4HitCollection*) allHC->GetHC(CAFIid);
     if (verbosity > 0) {
-      //std::cout << "FP420Test: theCAFI = " << theCAFI << std::endl;
-      std::cout << "FP420Test: theCAFI->entries = " << theCAFI->entries() << std::endl;
+      //edm::LogVerbatim("FP420Test") << "FP420Test: theCAFI = " << theCAFI;
+      edm::LogVerbatim("FP420Test") << "FP420Test: theCAFI->entries = " << theCAFI->entries();
     }
     // edm::LogInfo("FP420Test") << "theCAFI->entries="<< theCAFI->entries();
-    TheHistManager->GetHisto("NumberOfHits")->Fill(theCAFI->entries());
+    theHistManager->getHisto("NumberOfHits")->Fill(theCAFI->entries());
 
     // access to the G4 hit collections ----> variant 2: give 0 hits
     //  FP420G4HitCollection *   theCAFI;
@@ -958,9 +1020,9 @@ void FP420Test::update(const EndOfEvent* evt) {
       FP420G4Hit* aHit = (*theCAFI)[j];
       G4ThreeVector hitPoint = aHit->getEntry();
       double zz = hitPoint.z();
-      TheHistManager->GetHisto("zHits")->Fill(zz);
+      theHistManager->getHisto("zHits")->Fill(zz);
       if (tracklength0 > 8300.)
-        TheHistManager->GetHisto("zHitsTrLoLe")->Fill(zz);
+        theHistManager->getHisto("zHitsTrLoLe")->Fill(zz);
     }
     // varia = 0;
     //     if( varia == 0) {
@@ -1015,10 +1077,10 @@ void FP420Test::update(const EndOfEvent* evt) {
         //    double   yy    = hitPoint.y();
         double zz = hitPoint.z();
 
-        TheHistManager->GetHisto("zHitsnoMI")->Fill(zz);
+        theHistManager->getHisto("zHitsnoMI")->Fill(zz);
 
         if (verbosity > 2) {
-          std::cout << "FP420Test:zHits = " << zz << std::endl;
+          edm::LogVerbatim("FP420Test") << "FP420Test:zHits = " << zz;
         }
         //	 double   rr    = hitPoint.perp();
         /*
@@ -1037,7 +1099,7 @@ void FP420Test::update(const EndOfEvent* evt) {
         FP420NumberingScheme::unpackFP420Index(unitID, det, zside, sector, zmodule);
         int justlayer = FP420NumberingScheme::unpackLayerIndex(rn00, zside);  // 1,2
         if (justlayer < 1 || justlayer > 2) {
-          std::cout << "FP420Test:WRONG  justlayer= " << justlayer << std::endl;
+          edm::LogVerbatim("FP420Test") << "FP420Test:WRONG  justlayer= " << justlayer;
         }
         // zside=1,2 ; zmodule=1,10 ; sector=1,3
         //UserNtuples->fillg44(float(sector),1.);
@@ -1055,15 +1117,16 @@ void FP420Test::update(const EndOfEvent* evt) {
         G4ThreeVector middle = (hitExitLocalPoint - hitEntryLocalPoint) / 2.;
         themapz[unitID] = hitPoint.z() + fabs(middle.z());
         if (verbosity > 2) {
-          std::cout << "1111111111111111111111111111111111111111111111111111111111111111111111111 " << std::endl;
-          std::cout << "FP420Test: det, zside, sector, zmodule = " << det << zside << sector << zmodule << std::endl;
-          std::cout << "FP420Test: justlayer = " << justlayer << std::endl;
-          std::cout << "FP420Test: hitExitLocalPoint = " << hitExitLocalPoint << std::endl;
-          std::cout << "FP420Test: hitEntryLocalPoint = " << hitEntryLocalPoint << std::endl;
-          std::cout << "FP420Test:  middle= " << middle << std::endl;
-          std::cout << "FP420Test:  hitPoint.z()-419000.= " << hitPoint.z() - 419000. << std::endl;
+          edm::LogVerbatim("FP420Test") << "1111111111111111111111111111111111111111111111111111111111111111111111111 ";
+          edm::LogVerbatim("FP420Test") << "FP420Test: det, zside, sector, zmodule = " << det << zside << sector
+                                        << zmodule;
+          edm::LogVerbatim("FP420Test") << "FP420Test: justlayer = " << justlayer;
+          edm::LogVerbatim("FP420Test") << "FP420Test: hitExitLocalPoint = " << hitExitLocalPoint;
+          edm::LogVerbatim("FP420Test") << "FP420Test: hitEntryLocalPoint = " << hitEntryLocalPoint;
+          edm::LogVerbatim("FP420Test") << "FP420Test:  middle= " << middle;
+          edm::LogVerbatim("FP420Test") << "FP420Test:  hitPoint.z()-419000.= " << hitPoint.z() - 419000.;
 
-          std::cout << "FP420Test:zHits-419000. = " << themapz[unitID] - 419000. << std::endl;
+          edm::LogVerbatim("FP420Test") << "FP420Test:zHits-419000. = " << themapz[unitID] - 419000.;
         }
         //=======================================
         // Y
@@ -1142,7 +1205,7 @@ void FP420Test::update(const EndOfEvent* evt) {
             //UserNtuples->fillg56(dx,1.);
             //UserNtuples->fillg57(dy,1.);
             //UserNtuples->fillg20(numofpart,1.);
-            //UserNtuples->fillg21(SumEnerDeposit,1.);
+            //UserNtuples->fillg21(sumEnerDeposit,1.);
             if (zside == 1) {
               //UserNtuples->fillg26(losenergy,1.);
             }
@@ -1162,7 +1225,7 @@ void FP420Test::update(const EndOfEvent* evt) {
             //UserNtuples->fillg52(dx,1.);
             //UserNtuples->fillg53(dy,1.);
             //UserNtuples->fillg22(numofpart,1.);
-            //UserNtuples->fillg23(SumEnerDeposit,1.);
+            //UserNtuples->fillg23(sumEnerDeposit,1.);
             //UserNtuples->fillg80(incidentEnergyHit,1.);
             //UserNtuples->fillg81(float(trackIDhit),1.);
             if (zside == 1) {
@@ -1184,7 +1247,7 @@ void FP420Test::update(const EndOfEvent* evt) {
             //UserNtuples->fillg69(dy,1.);
             //UserNtuples->filld210(xx,yy,1.);
             //UserNtuples->fillg22(numofpart,1.);
-            //UserNtuples->fillg23(SumEnerDeposit,1.);
+            //UserNtuples->fillg23(sumEnerDeposit,1.);
             if (zside == 1) {
               //UserNtuples->fillg28(losenergy,1.);
             }
@@ -1210,7 +1273,7 @@ void FP420Test::update(const EndOfEvent* evt) {
       //   int rn00=3;//test only with 2 sensors in superlayer, not 4
       //	  int rn00=rn0;//always
       if (verbosity > 2) {
-        std::cout << "22222222222222222222222222222222222222222222222222222222222222222222222222 " << std::endl;
+        edm::LogVerbatim("FP420Test") << "22222222222222222222222222222222222222222222222222222222222222222222222222 ";
       }
       int det = 1;
       int allplacesforsensors = 7;
@@ -1219,21 +1282,21 @@ void FP420Test::update(const EndOfEvent* evt) {
           for (int zsideinorder = 1; zsideinorder < allplacesforsensors; zsideinorder++) {
             int zside = FP420NumberingScheme::realzside(rn00, zsideinorder);  //1,3,5,2,4,6
             if (verbosity > 2) {
-              std::cout << "FP420Test:  sector= " << sector << " zmodule= " << zmodule
-                        << " zsideinorder= " << zsideinorder << " zside= " << zside << std::endl;
+              edm::LogVerbatim("FP420Test") << "FP420Test:  sector= " << sector << " zmodule= " << zmodule
+                                            << " zsideinorder= " << zsideinorder << " zside= " << zside;
             }
             if (zside != 0) {
               int justlayer = FP420NumberingScheme::unpackLayerIndex(rn00, zside);  // 1,2
               if (justlayer < 1 || justlayer > 2) {
-                std::cout << "FP420Test:WRONG  justlayer= " << justlayer << std::endl;
+                edm::LogVerbatim("FP420Test") << "FP420Test:WRONG  justlayer= " << justlayer;
               }
               int copyinlayer = FP420NumberingScheme::unpackCopyIndex(rn00, zside);  // 1,2,3
               if (copyinlayer < 1 || copyinlayer > 3) {
-                std::cout << "FP420Test:WRONG  copyinlayer= " << copyinlayer << std::endl;
+                edm::LogVerbatim("FP420Test") << "FP420Test:WRONG  copyinlayer= " << copyinlayer;
               }
               int orientation = FP420NumberingScheme::unpackOrientation(rn00, zside);  // Front: = 1; Back: = 2
               if (orientation < 1 || orientation > 2) {
-                std::cout << "FP420Test:WRONG  orientation= " << orientation << std::endl;
+                edm::LogVerbatim("FP420Test") << "FP420Test:WRONG  orientation= " << orientation;
               }
 
               // iu is a continues numbering of planes(!)  over two arm FP420 set up
@@ -1244,8 +1307,9 @@ void FP420Test::update(const EndOfEvent* evt) {
                   FP420NumberingScheme::packMYIndex(rn00, pn0, sn0, detfixed, justlayer, sector, zmodule) - 1;
               // ii = 0-19   --> 20 items
               if (verbosity > 2) {
-                std::cout << "FP420Test:  justlayer = " << justlayer << " copyinlayer = " << copyinlayer
-                          << " orientation = " << orientation << " ii= " << ii << std::endl;
+                edm::LogVerbatim("FP420Test")
+                    << "FP420Test:  justlayer = " << justlayer << " copyinlayer = " << copyinlayer
+                    << " orientation = " << orientation << " ii= " << ii;
               }
               double zdiststat = 0.;
               if (sn0 < 4) {
@@ -1258,23 +1322,23 @@ void FP420Test::update(const EndOfEvent* evt) {
                   zdiststat = zD3;
               }
               double kplane = -(pn0 - 1) / 2 - 0.5 + (zmodule - 1);  //-3.5 +0...5 = -3.5,-2.5,-1.5,+2.5,+1.5
-              double zcurrent = zinibeg + z420 + (ZSiStep - ZSiPlane) / 2 + kplane * ZSiStep + zdiststat;
-              //double zcurrent = zinibeg +(ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + (sector-1)*zUnit;
+              double zcurrent = zinibeg + z420 + (zSiStep - zSiPlane) / 2 + kplane * zSiStep + zdiststat;
+              //double zcurrent = zinibeg +(zSiStep-zSiPlane)/2  + kplane*zSiStep + (sector-1)*zUnit;
               if (verbosity > 2) {
-                std::cout << "FP420Test:  Leftzcurrent-419000. = " << zcurrent - 419000. << std::endl;
-                std::cout << "FP420Test:  ZGapLDet = " << ZGapLDet << std::endl;
+                edm::LogVerbatim("FP420Test") << "FP420Test:  Leftzcurrent-419000. = " << zcurrent - 419000.;
+                edm::LogVerbatim("FP420Test") << "FP420Test:  zGapLDet = " << zGapLDet;
               }
               if (justlayer == 1) {
                 if (orientation == 1)
-                  zcurrent += (ZGapLDet + ZSiDet / 2);
+                  zcurrent += (zGapLDet + zSiDet / 2);
                 if (orientation == 2)
-                  zcurrent += zBlade - (ZGapLDet + ZSiDet / 2);
+                  zcurrent += zBlade - (zGapLDet + zSiDet / 2);
               }
               if (justlayer == 2) {
                 if (orientation == 1)
-                  zcurrent += (ZGapLDet + ZSiDet / 2) + zBlade + gapBlade;
+                  zcurrent += (zGapLDet + zSiDet / 2) + zBlade + gapBlade;
                 if (orientation == 2)
-                  zcurrent += 2 * zBlade + gapBlade - (ZGapLDet + ZSiDet / 2);
+                  zcurrent += 2 * zBlade + gapBlade - (zGapLDet + zSiDet / 2);
               }
               //   .
               //
@@ -1282,7 +1346,7 @@ void FP420Test::update(const EndOfEvent* evt) {
                 zcurrent = -zcurrent;
               //
               if (verbosity > 2) {
-                std::cout << "FP420Test:  zcurrent-419000. = " << zcurrent - 419000. << std::endl;
+                edm::LogVerbatim("FP420Test") << "FP420Test:  zcurrent-419000. = " << zcurrent - 419000.;
               }
               //================================== end of for loops in continuius number iu:
             }  //if(zside!=0
@@ -1291,16 +1355,17 @@ void FP420Test::update(const EndOfEvent* evt) {
       }        // for sector
 
       if (verbosity > 2) {
-        std::cout << "----------------------------------------------------------------------------- " << std::endl;
+        edm::LogVerbatim("FP420Test")
+            << "----------------------------------------------------------------------------- ";
       }
 
       //======================================================================================================CHECK
       if (totallosenergy == 0.0) {
-        std::cout << "FP420Test:     number of hits = " << theCAFI->entries() << std::endl;
+        edm::LogVerbatim("FP420Test") << "FP420Test:     number of hits = " << theCAFI->entries();
         for (int j = 0; j < nhits; j++) {
           FP420G4Hit* aHit = (*theCAFI)[j];
           double losenergy = aHit->getEnergyLoss();
-          std::cout << " j hits = " << j << "losenergy = " << losenergy << std::endl;
+          edm::LogVerbatim("FP420Test") << " j hits = " << j << "losenergy = " << losenergy;
         }
       }
       //======================================================================================================CHECK
@@ -1377,8 +1442,8 @@ void FP420Test::update(const EndOfEvent* evt) {
      //=========================== thePrim != 0  end   ===
   // ==========================================================================
   if (verbosity > 0) {
-    std::cout << "FP420Test:  END OF Event " << (*evt)()->GetEventID() << std::endl;
+    edm::LogVerbatim("FP420Test") << "FP420Test:  END OF Event " << (*evt)()->GetEventID();
   }
 }
 
-// ==========================================================================
+DEFINE_SIMWATCHER(FP420Test);  //=

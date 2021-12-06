@@ -20,7 +20,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -34,7 +33,6 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -48,6 +46,9 @@
 // DQM Histograming
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <cmath>
+
+using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
+
 class TBeamTest : public DQMEDAnalyzer {
 public:
   explicit TBeamTest(const edm::ParameterSet&);
@@ -72,15 +73,17 @@ private:
   void fillClusterWidth(DigiMEs& mes, float dphi, float width);
   edm::ParameterSet config_;
   std::map<std::string, DigiMEs> detMEs;
-  edm::InputTag otDigiSrc_;
-  edm::InputTag digiSimLinkSrc_;
-  edm::InputTag simTrackSrc_;
-  std::string geomType_;
+  const edm::InputTag otDigiSrc_;
+  const edm::InputTag digiSimLinkSrc_;
+  const edm::InputTag simTrackSrc_;
+  const std::string geomType_;
 
-  std::vector<double> phiValues;
+  const std::vector<double> phiValues;
   const edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi> > otDigiToken_;
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > otDigiSimLinkToken_;
   const edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
 };
 //
 // constructors
@@ -94,7 +97,9 @@ TBeamTest::TBeamTest(const edm::ParameterSet& iConfig)
       phiValues(iConfig.getParameter<std::vector<double> >("PhiAngles")),
       otDigiToken_(consumes<edm::DetSetVector<Phase2TrackerDigi> >(otDigiSrc_)),
       otDigiSimLinkToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(digiSimLinkSrc_)),
-      simTrackToken_(consumes<edm::SimTrackContainer>(simTrackSrc_)) {
+      simTrackToken_(consumes<edm::SimTrackContainer>(simTrackSrc_)),
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag{"", geomType_})) {
   edm::LogInfo("TBeamTest") << ">>> Construct TBeamTest ";
 }
 
@@ -125,16 +130,11 @@ void TBeamTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::SimTrackContainer> simTrackHandle;
   iEvent.getByToken(simTrackToken_, simTrackHandle);
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* tTopo = tTopoHandle.product();
+  const TrackerTopology* tTopo = &iSetup.getData(topoToken_);
 
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
   if (theTkDigiGeomWatcher.check(iSetup)) {
-    edm::ESHandle<TrackerGeometry> geomHandle;
-    iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geomHandle);
-
-    const TrackerGeometry* tkGeom = geomHandle.product();
+    const TrackerGeometry* tkGeom = &iSetup.getData(geomToken_);
 
     edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSViter;
     std::string moduleType;

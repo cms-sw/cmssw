@@ -25,9 +25,9 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 
 using namespace edm::stream;
 //
@@ -52,6 +52,13 @@ EDAnalyzerAdaptorBase::~EDAnalyzerAdaptorBase() {
   for (auto m : m_streamModules) {
     delete m;
   }
+}
+
+void EDAnalyzerAdaptorBase::deleteModulesEarly() {
+  for (auto m : m_streamModules) {
+    delete m;
+  }
+  m_streamModules.clear();
 }
 
 //
@@ -226,9 +233,6 @@ void EDAnalyzerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
   mod->endLuminosityBlock(lb, c);
   streamEndLuminosityBlockSummary(mod, lb, c);
 }
-
-void EDAnalyzerAdaptorBase::doRespondToOpenInputFile(FileBlock const&) {}
-void EDAnalyzerAdaptorBase::doRespondToCloseInputFile(FileBlock const&) {}
 
 void EDAnalyzerAdaptorBase::setModuleDescriptionPtr(EDAnalyzerBase* m) {
   m->setModuleDescriptionPtr(&moduleDescription_);

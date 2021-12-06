@@ -1,8 +1,7 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterPUCleaningTools.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -11,39 +10,37 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
 
-EcalClusterPUCleaningTools::EcalClusterPUCleaningTools(const edm::Event &ev,
-                                                       const edm::EventSetup &es,
+EcalClusterPUCleaningTools::EcalClusterPUCleaningTools(edm::ConsumesCollector &cc,
                                                        const edm::InputTag &redEBRecHits,
-                                                       const edm::InputTag &redEERecHits) {
-  getGeometry(es);
-  getEBRecHits(ev, redEBRecHits);
-  getEERecHits(ev, redEERecHits);
-}
+                                                       const edm::InputTag &redEERecHits)
+    : pEBRecHitsToken_(cc.consumes<EcalRecHitCollection>(redEBRecHits)),
+      pEERecHitsToken_(cc.consumes<EcalRecHitCollection>(redEERecHits)),
+      geometryToken_(cc.esConsumes()) {}
 
 EcalClusterPUCleaningTools::~EcalClusterPUCleaningTools() {}
 
-void EcalClusterPUCleaningTools::getGeometry(const edm::EventSetup &es) {
-  edm::ESHandle<CaloGeometry> pGeometry;
-  es.get<CaloGeometryRecord>().get(pGeometry);
-  geometry_ = pGeometry.product();
-}
-
-void EcalClusterPUCleaningTools::getEBRecHits(const edm::Event &ev, const edm::InputTag &redEBRecHits) {
+void EcalClusterPUCleaningTools::getEBRecHits(const edm::Event &ev) {
   edm::Handle<EcalRecHitCollection> pEBRecHits;
-  ev.getByLabel(redEBRecHits, pEBRecHits);
+  ev.getByToken(pEBRecHitsToken_, pEBRecHits);
   ebRecHits_ = pEBRecHits.product();
 }
 
-void EcalClusterPUCleaningTools::getEERecHits(const edm::Event &ev, const edm::InputTag &redEERecHits) {
+void EcalClusterPUCleaningTools::getEERecHits(const edm::Event &ev) {
   edm::Handle<EcalRecHitCollection> pEERecHits;
-  ev.getByLabel(redEERecHits, pEERecHits);
+  ev.getByToken(pEERecHitsToken_, pEERecHits);
   eeRecHits_ = pEERecHits.product();
 }
 
 reco::SuperCluster EcalClusterPUCleaningTools::CleanedSuperCluster(float xi,
                                                                    const reco::SuperCluster &scluster,
-                                                                   const edm::Event &ev) {
-  //std::cout << "\nEcalClusterPUCleaningTools::CleanedSuperCluster called, this will give you back a cleaned supercluster" << std::endl;
+                                                                   const edm::Event &ev,
+                                                                   const edm::EventSetup &es) {
+  // get the geometry
+  const auto &geometry = es.getData(geometryToken_);
+
+  // get the RecHits
+  getEBRecHits(ev);
+  getEERecHits(ev);
 
   // seed basic cluster of initial SC: this will remain in the cleaned SC, by construction
   const reco::CaloClusterPtr &seed = scluster.seed();
@@ -97,19 +94,20 @@ reco::SuperCluster EcalClusterPUCleaningTools::CleanedSuperCluster(float xi,
   // construct cluster shape to compute ieta and iphi covariances of the SC
   const CaloSubdetectorGeometry *geometry_p = nullptr;
   if (seed->seed().det() == DetId::Ecal && seed->seed().subdetId() == EcalBarrel) {
-    geometry_p = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
     SuperClusterShapeAlgo SCShape(ebRecHits_, geometry_p);
     SCShape.Calculate_Covariances(suCltmp);
     phiWidth = SCShape.phiWidth();
     etaWidth = SCShape.etaWidth();
   } else if (seed->seed().det() == DetId::Ecal && seed->seed().subdetId() == EcalEndcap) {
-    geometry_p = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
     SuperClusterShapeAlgo SCShape(eeRecHits_, geometry_p);
     SCShape.Calculate_Covariances(suCltmp);
     phiWidth = SCShape.phiWidth();
     etaWidth = SCShape.etaWidth();
   } else {
-    std::cout << "The seed crystal of this SC is neither in EB nor in EE. This is a problem. Bailing out " << std::endl;
+    edm::LogError("SeedError")
+        << "The seed crystal of this SC is neither in EB nor in EE. This is a problem. Bailing out";
     assert(-1);
   }
 

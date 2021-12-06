@@ -11,7 +11,7 @@ public:
   HGCalTriggerNtupleGenTau(const edm::ParameterSet&);
 
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event&, const edm::EventSetup&) final;
+  void fill(const edm::Event&, const HGCalTriggerNtupleEventSetup&) final;
 
 private:
   void clear() final;
@@ -58,7 +58,9 @@ private:
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleGenTau, "HGCalTriggerNtupleGenTau");
 
-HGCalTriggerNtupleGenTau::HGCalTriggerNtupleGenTau(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {}
+HGCalTriggerNtupleGenTau::HGCalTriggerNtupleGenTau(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleGenTau::initialize(TTree& tree,
                                           const edm::ParameterSet& conf,
@@ -143,7 +145,7 @@ bool HGCalTriggerNtupleGenTau::isStableNeutralHadron(const reco::GenParticle& ca
           candidate.status() == 1);
 }
 
-void HGCalTriggerNtupleGenTau::fill(const edm::Event& e, const edm::EventSetup& es) {
+void HGCalTriggerNtupleGenTau::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
   edm::Handle<reco::GenParticleCollection> gen_particles_h;
   e.getByToken(gen_token_, gen_particles_h);
   const reco::GenParticleCollection& gen_particles = *gen_particles_h;

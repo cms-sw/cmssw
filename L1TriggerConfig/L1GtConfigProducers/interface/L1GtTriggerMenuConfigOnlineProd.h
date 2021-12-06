@@ -16,7 +16,6 @@
  */
 
 // system include files
-#include "boost/lexical_cast.hpp"
 
 #include <memory>
 #include <string>
@@ -262,7 +261,7 @@ Result L1GtTriggerMenuConfigOnlineProd::lexical_cast_from_hex(Source& value) con
 
   Result result;
   if (!(convertor >> std::hex >> result) || !convertor.eof()) {
-    throw boost::bad_lexical_cast();
+    throw std::exception();
   }
 
   return result;

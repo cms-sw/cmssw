@@ -4,13 +4,13 @@ import sys
 
 ## declare all constants here
 TARGET_LIST_OF_TAGS=['BeamSpotObject_ByLumi', 'BeamSpotObject_ByRun', 'BeamSpotObjectHP_ByLumi', 'BeamSpotObjectHP_ByRun',
-                     'SiPixelQualityFromDbRcd_other', 'SiPixelQualityFromDbRcd_prompt', 'SiPixelQualityFromDbRcd_stuckTBM',
-                     'SiStripApvGain_pcl', 'SiStripApvGainAAG_pcl',
-                     'SiStripBadStrip_pcl', 'SiPixelAli_pcl']
+                     'SiPixelLA_pcl', 'SiPixelQualityFromDbRcd_other', 'SiPixelQualityFromDbRcd_prompt', 'SiPixelQualityFromDbRcd_stuckTBM',
+                     'SiStripApvGain_pcl', 'SiStripApvGainAAG_pcl', 'SiStripBadStrip_pcl', 'SiPixelAli_pcl']
 TARGET_DQM_FILES=1
 TARGET_DQM_FILENAME='./DQM_V0001_R000325022__Express__PCLTest__ALCAPROMPT.root'
-TARGET_DB_FILES=11
-TARGET_DB_FILENAME='sqlite_file:promptCalibConditions.db'
+TARGET_DB_FILES=12
+TARGET_DB_FILENAME='sqlite_file:testPCLAlCaHarvesting.db'
+TARGET_XML_FILENAME='testPCLAlCaHarvesting.xml'
 TOTAL_TARGET_FILES=TARGET_DQM_FILES+TARGET_DB_FILES
 
 #_____________________________________________________
@@ -68,13 +68,13 @@ def parseXML(xmlfile):
 #_____________________________________________________
 def main():
     try:
-        f = open("FrameworkJobReport.xml")
+        f = open(TARGET_XML_FILENAME)
     except IOError:
-        print("FrameworkJobReport.xml is not accessible")
+        print("%s is not accessible" % TARGET_XML_FILENAME)
         sys.exit(1)
 
     # parse xml file
-    result = parseXML('FrameworkJobReport.xml')
+    result = parseXML(TARGET_XML_FILENAME)
     if(result==0):
         print("All is fine with the world!")
         sys.exit(0)
