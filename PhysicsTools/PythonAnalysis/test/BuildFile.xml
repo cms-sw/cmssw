@@ -72,7 +72,6 @@
 <test name="import-jinja2" command="python3 -c 'import jinja2'"/>
 <test name="import-jsonpickle" command="python3 -c 'import jsonpickle'"/>
 <test name="import-jsonschema" command="python3 -c 'import jsonschema'"/>
-<test name="import-jupyter" command="python3 -c 'import jupyter'"/>
 <test name="import-jupyter_client" command="python3 -c 'import jupyter_client'"/>
 <test name="import-jupyter_console" command="python3 -c 'import jupyter_console'"/>
 <test name="import-jupyter_core" command="python3 -c 'import jupyter_core'"/>
