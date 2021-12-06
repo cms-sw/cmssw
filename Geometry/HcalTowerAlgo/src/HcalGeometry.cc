@@ -26,7 +26,9 @@ void HcalGeometry::init() {
   if (!m_topology.getMergePositionFlag())
     m_mergePosition = false;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "HcalGeometry_init(): HBSize " << m_topology.getHBSize() << " HESize " << m_topology.getHESize() << " HOSize " << m_topology.getHOSize() << " HFSize " << m_topology.getHFSize();
+  edm::LogVerbatim("HCalGeom") << "HcalGeometry_init(): HBSize " << m_topology.getHBSize() << " HESize "
+                               << m_topology.getHESize() << " HOSize " << m_topology.getHOSize() << " HFSize "
+                               << m_topology.getHFSize();
 #endif
 
   m_hbCellVec = HBCellVec(m_topology.getHBSize());
@@ -453,7 +455,8 @@ unsigned int HcalGeometry::newCellImpl(
   unsigned int din = m_topology.detId2denseId(detId);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "HcalGeometry: newCell subdet " << detId.subdetId() << ", raw ID " << detId.rawId() << ", hid " << hid << ", din " << din << ", index ";
+  edm::LogVerbatim("HCalGeom") << "HcalGeometry: newCell subdet " << detId.subdetId() << ", raw ID " << detId.rawId()
+                               << ", hid " << hid << ", din " << din << ", index ";
 #endif
 
   if (hid.subdet() == HcalBarrel) {

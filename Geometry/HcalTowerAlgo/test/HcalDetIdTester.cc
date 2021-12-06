@@ -80,7 +80,7 @@ void HcalDetIdTester::analyze(const edm::Event& /*iEvent*/, const edm::EventSetu
   }
 
   edm::LogVerbatim("HCalGeom") << "\nNumber of failures:\nTopology certifies but geometry fails " << nfail0
-            << "\nGeometry certifies but Topology fails " << nfail1 << std::endl;
+                               << "\nGeometry certifies but Topology fails " << nfail1 << std::endl;
 }
 
 DEFINE_FWK_MODULE(HcalDetIdTester);

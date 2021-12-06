@@ -155,8 +155,8 @@ void HcalGeometryTester::testClosestCell(const HcalDetId& detId, CaloSubdetector
   edm::LogVerbatim("HCalGeom") << "i/p " << detId << " position " << cell->getPosition() << " closest " << closest;
 
   if (closest != detId) {
-    edm::LogVerbatim("HCalGeom") << "HcalGeometryTester::Mismatch.  Original HCAL cell is " << detId << " while nearest is " << closest
-              << " ***ERROR***";
+    edm::LogVerbatim("HCalGeom") << "HcalGeometryTester::Mismatch.  Original HCAL cell is " << detId
+                                 << " while nearest is " << closest << " ***ERROR***";
   }
 }
 

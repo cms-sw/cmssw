@@ -75,7 +75,11 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/, const edm::E
       if (ok)
         ++ngood;
       std::string cok = (ok) ? "" : " ***** ERROR *****";
-      edm::LogVerbatim("HCalGeom") << "Unmerged ID " << (*itr) << " (" << pt1.eta() << ", " << pt1.phi() << ", " << pt1.z() << ") Merged ID " << idnew << " (" << pt2.eta() << ", " << pt2.phi() << ", " << pt2.z() << ") or (" << pt0.eta() << ", " << pt0.phi() << ", " << pt0.z() << ")" << cok;;
+      edm::LogVerbatim("HCalGeom") << "Unmerged ID " << (*itr) << " (" << pt1.eta() << ", " << pt1.phi() << ", "
+                                   << pt1.z() << ") Merged ID " << idnew << " (" << pt2.eta() << ", " << pt2.phi()
+                                   << ", " << pt2.z() << ") or (" << pt0.eta() << ", " << pt0.phi() << ", " << pt0.z()
+                                   << ")" << cok;
+      ;
     }
   }
   edm::LogVerbatim("HCalGeom") << ngood << " out of " << nall << " ID's are tested OK";

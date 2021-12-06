@@ -47,13 +47,16 @@ void HcalCellParameterDump::analyze(const edm::Event& /*iEvent*/, const edm::Eve
   HcalSubdetector subdetd[detMax_] = {HcalBarrel, HcalEndcap, HcalOuter, HcalForward};
 
   edm::LogVerbatim("HCalGeom") << "\n\nStudy Detector = Hcal SubDetector = " << subdets[subdet_ - 1]
-            << "\n======================================\n";
+                               << "\n======================================\n";
   const std::vector<DetId>& ids = hcalGeom->getValidDetIds(DetId::Hcal, subdetd[subdet_ - 1]);
   int nall(0);
   for (auto id : ids) {
     ++nall;
     std::shared_ptr<const CaloCellGeometry> geom = hcalGeom->getGeometry(id);
-    edm::LogVerbatim("HCalGeom") << "[" << nall << "] " << HcalDetId(id) << " Reference " << std::setprecision(4) << geom->getPosition() << " Back " << geom->getBackPoint() << " [r,eta,phi] (" << geom->rhoPos() << ", " << geom->etaPos() << ":" << geom->etaSpan() << ", " << geom->phiPos() << ":" << geom->phiSpan() << ")";
+    edm::LogVerbatim("HCalGeom") << "[" << nall << "] " << HcalDetId(id) << " Reference " << std::setprecision(4)
+                                 << geom->getPosition() << " Back " << geom->getBackPoint() << " [r,eta,phi] ("
+                                 << geom->rhoPos() << ", " << geom->etaPos() << ":" << geom->etaSpan() << ", "
+                                 << geom->phiPos() << ":" << geom->phiSpan() << ")";
   }
   edm::LogVerbatim("HCalGeom") << "\n\nDumps " << nall << " cells of the detector\n";
 }
