@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <mutex>
 
+//#define EDM_ML_DEBUG
+
 static std::mutex s_fillLock;
 
 HcalDDDGeometry::HcalDDDGeometry(const HcalTopology& topo)
@@ -77,8 +79,10 @@ DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
   double radius = r.mag();
   double z = fabs(r.z());
 
-  LogDebug("HCalGeom") << "HcalDDDGeometry::getClosestCell for eta " << r.eta() << " phi " << phi / deg << " z "
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "HcalDDDGeometry::getClosestCell for eta " << r.eta() << " phi " << phi / deg << " z "
                        << r.z() << " radius " << radius;
+#endif
   HcalDetId bestId;
   if (abseta <= etaMax_) {
     for (const auto& hcalCell : hcalCells_) {
@@ -121,8 +125,9 @@ DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
     }
   }
 
-  LogDebug("HCalGeom") << "HcalDDDGeometry::getClosestCell " << bestId;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "HcalDDDGeometry::getClosestCell " << bestId;
+#endif
   return bestId;
 }
 
@@ -133,9 +138,10 @@ int HcalDDDGeometry::insertCell(std::vector<HcalCellType> const& cells) {
     if (cell.etaMax() > etaMax_)
       etaMax_ = cell.etaMax();
   }
-
-  LogDebug("HCalGeom") << "HcalDDDGeometry::insertCell " << cells.size() << " cells inserted == Total " << num
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "HcalDDDGeometry::insertCell " << cells.size() << " cells inserted == Total " << num
                        << " EtaMax = " << etaMax_;
+#endif
   return num;
 }
 
