@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.L1TMonitor.L1TdeStage2EMTF_cfi import *
+from DQM.L1TMonitor.L1TdeStage2Shower_cfi import *
 
 # List of bins to ignore
 ignoreBinsDeStage2Emtf = [1]
@@ -24,6 +25,7 @@ l1tdeStage2EmtfComp = DQMEDAnalyzer(
 # sequences
 l1tdeStage2EmtfOnlineDQMSeq = cms.Sequence(
     l1tdeStage2Emtf +
+    l1tdeStage2Shower +
     l1tdeStage2EmtfComp
 )
 

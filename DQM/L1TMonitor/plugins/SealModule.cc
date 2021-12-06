@@ -104,11 +104,17 @@ DEFINE_FWK_MODULE(L1TdeGEMTPG);
 #include "DQM/L1TMonitor/interface/L1TdeCSCTPG.h"
 DEFINE_FWK_MODULE(L1TdeCSCTPG);
 
+#include "DQM/L1TMonitor/interface/L1TdeCSCTPGShower.h"
+DEFINE_FWK_MODULE(L1TdeCSCTPGShower);
+
 #include "DQM/L1TMonitor/interface/L1TdeCSCTF.h"
 DEFINE_FWK_MODULE(L1TdeCSCTF);
 
 #include "DQM/L1TMonitor/interface/L1TdeStage2EMTF.h"
 DEFINE_FWK_MODULE(L1TdeStage2EMTF);
+
+#include "DQM/L1TMonitor/interface/L1TdeStage2Shower.h"
+DEFINE_FWK_MODULE(L1TdeStage2Shower);
 
 //#include "DQM/L1TMonitor/interface/L1GtHwValidation.h"
 //DEFINE_FWK_MODULE(L1GtHwValidation);

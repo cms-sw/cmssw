@@ -14,8 +14,11 @@ l1tStage2EMTFEmulatorCompRatioClient = DQMEDHarvester("L1TStage2RatioClient",
     ignoreBin = cms.untracked.vint32(ignoreBinsDeStage2Emtf)
 )
 
+from DQM.L1TMonitorClient.L1TdeStage2ShowerClient_cfi import *
+
 # sequences
 l1tStage2EMTFEmulatorClient = cms.Sequence(
-    l1tStage2EMTFEmulatorCompRatioClient
+    l1tStage2EMTFEmulatorCompRatioClient +
+    l1tdeStage2ShowerClient
 )
 
