@@ -1,4 +1,4 @@
-<use name="DQMServices/Core"/>
+B1;95;0c<use name="DQMServices/Core"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
@@ -10,4 +10,6 @@
 <use name="CUDADataFormats/Vertex"/>
 <use name="DataFormats/SiPixelDigi"/>
 <use name="DataFormats/BeamSpot"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
 <flags EDM_PLUGIN="1"/>
