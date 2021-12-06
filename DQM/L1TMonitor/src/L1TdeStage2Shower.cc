@@ -3,8 +3,10 @@
 #include "DQM/L1TMonitor/interface/L1TdeStage2Shower.h"
 
 L1TdeStage2Shower::L1TdeStage2Shower(const edm::ParameterSet& ps)
-    : data_EMTFShower_token_(consumes<l1t::RegionalMuonShowerBxCollection>(ps.getParameter<edm::InputTag>("dataSource"))),
-      emul_EMTFShower_token_(consumes<l1t::RegionalMuonShowerBxCollection>(ps.getParameter<edm::InputTag>("emulSource"))),
+    : data_EMTFShower_token_(
+          consumes<l1t::RegionalMuonShowerBxCollection>(ps.getParameter<edm::InputTag>("dataSource"))),
+      emul_EMTFShower_token_(
+          consumes<l1t::RegionalMuonShowerBxCollection>(ps.getParameter<edm::InputTag>("emulSource"))),
       monitorDir_(ps.getUntrackedParameter<std::string>("monitorDir")) {}
 
 L1TdeStage2Shower::~L1TdeStage2Shower() {}
@@ -13,10 +15,14 @@ void L1TdeStage2Shower::bookHistograms(DQMStore::IBooker& iBooker, const edm::Ru
   iBooker.setCurrentFolder(monitorDir_);
 
   // 2D summary plots
-  emtfShowerDataSummary_denom_ = iBooker.book2D("emtf_shower_data_summary_denom", "Data EMTF Shower All", 6, 1, 7, 2, 0, 2);
-  emtfShowerDataSummary_num_ = iBooker.book2D("emtf_shower_data_summary_num", "Data EMTF Shower Emul Matched", 6, 1, 7, 2, 0, 2);
-  emtfShowerEmulSummary_denom_ = iBooker.book2D("emtf_shower_emul_summary_denom", "Emul EMTF Shower All", 6, 1, 7, 2, 0, 2);
-  emtfShowerEmulSummary_num_ = iBooker.book2D("emtf_shower_emul_summary_num", "Emul EMTF Shower Not Matched to Data", 6, 1, 7, 2, 0, 2);
+  emtfShowerDataSummary_denom_ =
+      iBooker.book2D("emtf_shower_data_summary_denom", "Data EMTF Shower All", 6, 1, 7, 2, 0, 2);
+  emtfShowerDataSummary_num_ =
+      iBooker.book2D("emtf_shower_data_summary_num", "Data EMTF Shower Emul Matched", 6, 1, 7, 2, 0, 2);
+  emtfShowerEmulSummary_denom_ =
+      iBooker.book2D("emtf_shower_emul_summary_denom", "Emul EMTF Shower All", 6, 1, 7, 2, 0, 2);
+  emtfShowerEmulSummary_num_ =
+      iBooker.book2D("emtf_shower_emul_summary_num", "Emul EMTF Shower Not Matched to Data", 6, 1, 7, 2, 0, 2);
 
   // x labels
   emtfShowerDataSummary_denom_->setAxisTitle("Sector", 1);
@@ -53,7 +59,7 @@ void L1TdeStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if (dSh->isValid()) {
       emtfShowerDataSummary_denom_->Fill(dSh->sector(), (dSh->endcap() == 1) ? 1.5 : 0.5);
       for (auto eSh = emulShowers->begin(); eSh != emulShowers->end(); ++eSh) {
-        if (eSh->isValid() and dSh->sector() == eSh->sector() and dSh->endcap() == eSh->endcap() and  *dSh == *eSh)
+        if (eSh->isValid() and dSh->sector() == eSh->sector() and dSh->endcap() == eSh->endcap() and *dSh == *eSh)
           emtfShowerDataSummary_num_->Fill(dSh->sector(), (dSh->endcap() == 1) ? 1.5 : 0.5);
       }
     }
@@ -64,7 +70,7 @@ void L1TdeStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if (eSh->isValid()) {
       emtfShowerEmulSummary_denom_->Fill(eSh->sector(), (eSh->endcap() == 1) ? 1.5 : 0.5);
       for (auto dSh = dataShowers->begin(); dSh != dataShowers->end(); ++dSh) {
-        if (dSh->isValid() and eSh->sector() == dSh->sector() and eSh->endcap() == dSh->endcap() and  *dSh == *eSh)
+        if (dSh->isValid() and eSh->sector() == dSh->sector() and eSh->endcap() == dSh->endcap() and *dSh == *eSh)
           isMatched = true;
       }
       if (not isMatched) {
@@ -73,4 +79,3 @@ void L1TdeStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 }
-
