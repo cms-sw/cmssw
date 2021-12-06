@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
 
-process = cms.Process("HcalGeometryTest")
+process = cms.Process("HcalGeometryTest",Run3_DDD)
 
 process.load("Geometry.CMSCommonData.cmsExtendedGeometry2021XML_cfi")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
