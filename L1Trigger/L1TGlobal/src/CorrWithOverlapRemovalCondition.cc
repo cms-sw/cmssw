@@ -1163,8 +1163,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                               << "\n"
                               << "    deltaRSqPhy = " << deltaRSqPhy << "\n"
                               << "    et[leg0] = " << etIndex0 << " , et[leg2] = " << etIndex2 << "\n"
-                              << "    etPhys[leg0] = " << et0Phy << " , etPhy[leg2] = " << et2Phy << "\n" 
-                              << "    obj[leg0] = " << lutObj0 << " , obj[leg2] = " << lutObj2 << "\n" 
+                              << "    etPhys[leg0] = " << et0Phy << " , etPhy[leg2] = " << et2Phy << "\n"
+                              << "    obj[leg0] = " << lutObj0 << " , obj[leg2] = " << lutObj2 << "\n"
                               << std::endl;
 
         //if(preShift>0) deltaRSq /= pow(10,preShift);
@@ -1192,7 +1192,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
     // ///////////////////////////////////////////////////////
     if (overlapRemovalMatchLeg1 == 0x1) {
       LogDebug("L1TGlobal") << "   Remove Object of Leg1: Satisfied Overlap Removal Cuts " << std::endl;
-      continue; // next it0Comb
+      continue;  // next it0Comb
     } else {
       LogDebug("L1TGlobal") << "   Keep Object of Leg1: Failed Overlap Removal Cuts " << std::endl;
     }
@@ -1836,7 +1836,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       // ///////////////////////////////////////////////////////
       if (overlapRemovalMatchLeg2 == 0x1) {
         LogDebug("L1TGlobal") << "   Remove Object of Leg2: Satisfied Overlap Removal Cuts" << std::endl;
-        continue; // next it1Comb
+        continue;  // next it1Comb
       } else {
         LogDebug("L1TGlobal") << "   Keep Object of Leg2: Failed Overlap Removal Cuts " << std::endl;
       }
