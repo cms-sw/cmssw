@@ -78,6 +78,11 @@ valEmtfStage2Digis = simEmtfDigis.clone(
     RPCInput = "muonRPCDigis",
     GEMInput = 'valMuonGEMPadDigiClusters'
 )
+# EMTF shower
+from L1Trigger.L1TMuonEndCap.simEmtfShowers_cfi import *
+valEmtfStage2Showers = simEmtfShowers.clone(
+    CSCShowerInput = cms.InputTag('valCscStage2Digis')
+)
 
 # uGMT
 from L1Trigger.L1TMuon.simGmtStage2Digis_cfi import *
@@ -116,6 +121,7 @@ Stage2L1HardwareValidation = cms.Sequence(
     valBmtfAlgoSel +
     valOmtfDigis +
     valEmtfStage2Digis +
+    valEmtfStage2Showers +
     valGmtCaloSumDigis +
     valGmtStage2Digis +
     valGtStage2Digis
@@ -144,6 +150,7 @@ from DQM.L1TMonitor.L1TdeGEMTPG_cfi import *
 
 # CSC TPG
 from DQM.L1TMonitor.L1TdeCSCTPG_cfi import *
+from DQM.L1TMonitor.L1TdeCSCTPGShower_cfi import *
 
 # BMTF
 from DQM.L1TMonitor.L1TdeStage2BMTF_cfi import *
@@ -171,6 +178,7 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
     l1tdeStage2BmtfSecond +
     l1tdeStage2Omtf +
     l1tdeCSCTPG +
+    l1tdeCSCTPGShower +
     l1tdeStage2EmtfOnlineDQMSeq +
     l1tStage2uGMTEmulatorOnlineDQMSeq +
     l1tdeStage2uGT +
