@@ -68,12 +68,14 @@ void HcalGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Even
 
   std::sort(dins.begin(), dins.end());
   edm::LogVerbatim("HCalGeom") << "=== Total " << counter << " cells in HCAL."
-            << " from HcalTopology ncells " << topology.ncells();
+                               << " from HcalTopology ncells " << topology.ncells();
 
   // HB : 6911: din 16123
-  edm::LogVerbatim("HCalGeom") << "HB Size " << topology.getHBSize() << "\nHE Size " << topology.getHESize() << "\nHO Size "
-            << topology.getHOSize() << "\nHF Size " << topology.getHFSize() << "\nTotal "
-            << topology.getHBSize() + topology.getHESize() + topology.getHOSize() + topology.getHFSize();
+  edm::LogVerbatim("HCalGeom") << "HB Size " << topology.getHBSize() << "\nHE Size " << topology.getHESize()
+                               << "\nHO Size " << topology.getHOSize() << "\nHF Size " << topology.getHFSize()
+                               << "\nTotal "
+                               << topology.getHBSize() + topology.getHESize() + topology.getHOSize() +
+                                      topology.getHFSize();
 
   counter = 0;
   for (std::vector<int>::const_iterator i = dins.begin(); i != dins.end(); ++i, ++counter) {

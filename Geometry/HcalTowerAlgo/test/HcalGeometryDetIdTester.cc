@@ -57,7 +57,7 @@ void HcalGeometryDetIdTester::analyze(const edm::Event& /*iEvent*/, const edm::E
 
   for (int subd = (detMin_ - 1); subd < detMax_; ++subd) {
     edm::LogVerbatim("HCalGeom") << "\n\nStudy Detector = Hcal SubDetector = " << subdets[subd]
-              << "\n======================================\n";
+                                 << "\n======================================\n";
     int nall(0), nbad(0);
     const std::vector<DetId>& ids = hcalGeom->getValidDetIds(DetId::Hcal, subdetd[subd]);
     for (auto id : ids) {
@@ -67,8 +67,9 @@ void HcalGeometryDetIdTester::analyze(const edm::Event& /*iEvent*/, const edm::E
         edm::LogVerbatim("HCalGeom") << "Check " << HcalDetId(id) << " *****";
       }
     }
-    edm::LogVerbatim("HCalGeom") << "\n"<< nbad << " bad out of " << nall
-              << " detIds\n========================\n\nNow List All IDs\n================";
+    edm::LogVerbatim("HCalGeom") << "\n"
+                                 << nbad << " bad out of " << nall
+                                 << " detIds\n========================\n\nNow List All IDs\n================";
     int k(0);
     for (auto id : ids) {
       edm::LogVerbatim("HCalGeom") << "[ " << std::setw(4) << k << "] " << HcalDetId(id);
@@ -76,7 +77,8 @@ void HcalGeometryDetIdTester::analyze(const edm::Event& /*iEvent*/, const edm::E
     }
 
     int n(0);
-    edm::LogVerbatim("HCalGeom") << "\nNow List all IDs declared valid by Topology\n===========================================\n";
+    edm::LogVerbatim("HCalGeom")
+        << "\nNow List all IDs declared valid by Topology\n===========================================\n";
     for (int ieta = ietaMin[subd]; ieta <= ietaMax[subd]; ++ieta) {
       for (int depth = depthMin[subd]; depth <= depthMax[subd]; ++depth) {
         HcalDetId id(subdetd[subd], ieta, 1, depth);

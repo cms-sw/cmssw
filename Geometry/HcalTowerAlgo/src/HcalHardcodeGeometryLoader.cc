@@ -207,8 +207,9 @@ void HcalHardcodeGeometryLoader::fillHBHO(HcalGeometry* fGeometry,
         cellParams.emplace_back(fabs(refPoint.eta()));
         cellParams.emplace_back(fabs(refPoint.z()));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HCalGeom") << "HcalHardcodeGeometryLoader::fillHBHO-> " << hid << hid.ieta() << '/' << hid.iphi() << '/'
-                  << hid.depth() << refPoint << '/' << cellParams[0] << '/' << cellParams[1] << '/' << cellParams[2];
+        edm::LogVerbatim("HCalGeom") << "HcalHardcodeGeometryLoader::fillHBHO-> " << hid << hid.ieta() << '/'
+                                     << hid.iphi() << '/' << hid.depth() << refPoint << '/' << cellParams[0] << '/'
+                                     << cellParams[1] << '/' << cellParams[2];
 #endif
         fGeometry->newCellFast(refPoint,
                                refPoint,
@@ -363,13 +364,14 @@ std::vector<HcalHardcodeGeometryLoader::HECellParameters> HcalHardcodeGeometryLo
         if (topology.mode() != HcalTopologyMode::SLHC && iring == topology.lastHERing() - 1 && idepth == ndepth - 1) {
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HCalGeom") << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":"
-                    << etaBounds[iringm16 + 2];
+                                       << etaBounds[iringm16 + 2];
 #endif
           result.emplace_back(HcalHardcodeGeometryLoader::HECellParameters(
               iring, depthIndex, 1, stepPhi, deltaPhi, zmin, zmax, etamin, etaBounds[iringm16 + 2]));
         } else {
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HCalGeom") << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":" << etamax;
+          edm::LogVerbatim("HCalGeom") << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":"
+                                       << etamax;
 #endif
           result.emplace_back(HcalHardcodeGeometryLoader::HECellParameters(
               iring, depthIndex, 1, stepPhi, deltaPhi, zmin, zmax, etamin, etamax));
@@ -484,8 +486,8 @@ void HcalHardcodeGeometryLoader::fillHE(HcalGeometry* fGeometry,
         cellParams.emplace_back(fabs(refPoint.eta()));
         cellParams.emplace_back(fabs(refPoint.z()));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HCalGeom") << "HcalHardcodeGeometryLoader::fillHE-> " << hid << refPoint << '/' << cellParams[0] << '/'
-                  << cellParams[1] << '/' << cellParams[2];
+        edm::LogVerbatim("HCalGeom") << "HcalHardcodeGeometryLoader::fillHE-> " << hid << refPoint << '/'
+                                     << cellParams[0] << '/' << cellParams[1] << '/' << cellParams[2];
 #endif
         fGeometry->newCellFast(refPoint,
                                refPoint,
@@ -525,7 +527,8 @@ void HcalHardcodeGeometryLoader::fillHF(HcalGeometry* fGeometry,
         cellParams.emplace_back(fabs(refPoint.eta()));
         cellParams.emplace_back(fabs(refPoint.z()));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HCalGeom") << "HcalHardcodeGeometryLoader::fillHF-> " << hid << refPoint << '/' << cellParams[0] << '/' << cellParams[1] << '/' << cellParams[2];
+        edm::LogVerbatim("HCalGeom") << "HcalHardcodeGeometryLoader::fillHF-> " << hid << refPoint << '/'
+                                     << cellParams[0] << '/' << cellParams[1] << '/' << cellParams[2];
 #endif
         fGeometry->newCellFast(refPoint,
                                refPoint,

@@ -81,7 +81,7 @@ DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "HcalDDDGeometry::getClosestCell for eta " << r.eta() << " phi " << phi / deg << " z "
-                       << r.z() << " radius " << radius;
+                               << r.z() << " radius " << radius;
 #endif
   HcalDetId bestId;
   if (abseta <= etaMax_) {
@@ -140,7 +140,7 @@ int HcalDDDGeometry::insertCell(std::vector<HcalCellType> const& cells) {
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "HcalDDDGeometry::insertCell " << cells.size() << " cells inserted == Total " << num
-                       << " EtaMax = " << etaMax_;
+                               << " EtaMax = " << etaMax_;
 #endif
   return num;
 }

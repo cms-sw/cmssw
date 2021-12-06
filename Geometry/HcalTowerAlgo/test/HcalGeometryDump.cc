@@ -65,7 +65,7 @@ void HcalGeometryDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSet
       HcalDetId hid = HcalDetId(*i);
       auto cell = caloGeom->getGeometry(*i);
       edm::LogVerbatim("HCalGeom") << hid << "\tCaloCellGeometry " << cell->getPosition() << "\tHcalGeometry "
-                << caloGeom->getPosition(hid);
+                                   << caloGeom->getPosition(hid);
     }
   }
 }
