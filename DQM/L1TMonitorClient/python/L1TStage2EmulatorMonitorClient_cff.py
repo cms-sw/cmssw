@@ -59,7 +59,6 @@ l1TStage2EmulatorClients = cms.Sequence(
     + l1tStage2BMTFEmulatorSecondClient
     + l1tStage2OMTFEmulatorClient
     + l1tdeCSCTPGClient
-    + l1tdeCSCTPGShowerClient
     + l1tStage2EMTFEmulatorClient
     + l1tStage2EmulatorEventInfoClient
     + l1tStage2uGTEmulatorClient
@@ -70,6 +69,10 @@ _run3_l1TStage2EmulatorClients += l1tdeGEMTPGClient
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( l1TStage2EmulatorClients, _run3_l1TStage2EmulatorClients )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+_run3shower_l1TStage2EmulatorClients = l1TStage2EmulatorClients.copy()
+run3_common.toReplaceWith(l1TStage2EmulatorClients, cms.Sequence(_run3shower_l1TStage2EmulatorClients + l1tdeCSCTPGShowerClient))
 
 l1tStage2EmulatorMonitorClient = cms.Sequence(
     l1TStage2EmulatorQualityTests +

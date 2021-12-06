@@ -121,7 +121,6 @@ Stage2L1HardwareValidation = cms.Sequence(
     valBmtfAlgoSel +
     valOmtfDigis +
     valEmtfStage2Digis +
-    valEmtfStage2Showers +
     valGmtCaloSumDigis +
     valGmtStage2Digis +
     valGtStage2Digis
@@ -130,6 +129,10 @@ Stage2L1HardwareValidation = cms.Sequence(
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 _run3_Stage2L1HardwareValidation = Stage2L1HardwareValidation.copy()
 run3_GEM.toReplaceWith( Stage2L1HardwareValidation, cms.Sequence( valMuonGEMPadDigis + valMuonGEMPadDigiClusters + _run3_Stage2L1HardwareValidation) )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+_run3Shower_Stage2L1HardwareValidation = Stage2L1HardwareValidation.copy()
+run3_common.toReplaceWith( Stage2L1HardwareValidation, cms.Sequence(_run3Shower_Stage2L1HardwareValidation + valEmtfStage2Showers) )
 
 Stage2L1HardwareValidationForValidationEvents = cms.Sequence(
     valCaloStage2Layer2Digis
@@ -178,7 +181,6 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
     l1tdeStage2BmtfSecond +
     l1tdeStage2Omtf +
     l1tdeCSCTPG +
-    l1tdeCSCTPGShower +
     l1tdeStage2EmtfOnlineDQMSeq +
     l1tStage2uGMTEmulatorOnlineDQMSeq +
     l1tdeStage2uGT +
@@ -190,6 +192,10 @@ _run3_l1tStage2EmulatorOnlineDQM += l1tdeGEMTPG
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( l1tStage2EmulatorOnlineDQM, _run3_l1tStage2EmulatorOnlineDQM )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+_run3shower_l1tStage2EmulatorOnlineDQM = l1tStage2EmulatorOnlineDQM.copy()
+run3_common.toReplaceWith( l1tStage2EmulatorOnlineDQM, cms.Sequence(_run3shower_l1tStage2EmulatorOnlineDQM + l1tdeCSCTPGShower) )
 
 # sequence to run only for validation events
 l1tStage2EmulatorOnlineDQMValidationEvents = cms.Sequence(
