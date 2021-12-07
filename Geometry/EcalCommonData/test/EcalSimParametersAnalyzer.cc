@@ -35,19 +35,14 @@ void EcalSimParametersAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm:
   const auto& parS = iSetup.getData(simparToken_);
   const EcalSimulationParameters* parsim = &parS;
   if (parsim != nullptr) {
-    edm::LogVerbatim("EcalGeom") << "\n nxtalEta_: " << parsim->nxtalEta_
-				 << "\n nxtalPhi_: " << parsim->nxtalPhi_
-				 << "\n phiBaskets_: " << parsim->phiBaskets_
-				 << "\n etaBaskets_: ";
+    edm::LogVerbatim("EcalGeom") << "\n nxtalEta_: " << parsim->nxtalEta_ << "\n nxtalPhi_: " << parsim->nxtalPhi_
+                                 << "\n phiBaskets_: " << parsim->phiBaskets_ << "\n etaBaskets_: ";
     std::ostringstream st1;
     for (const auto& it : parsim->etaBaskets_)
       st1 << it << ", ";
-    st1 << "\n ncrys_: " << parsim->ncrys_
-	<< "\n nmods_: " << parsim->nmods_
-	<< "\n useWeight_: " << parsim->useWeight_
-	<< "\n depth1Name_: " << parsim->depth1Name_
-	<< "\n depth2Name_: " << parsim->depth2Name_
-	<< "\n lvNames_: " << parsim->lvNames_.size() << " occurences";
+    st1 << "\n ncrys_: " << parsim->ncrys_ << "\n nmods_: " << parsim->nmods_ << "\n useWeight_: " << parsim->useWeight_
+        << "\n depth1Name_: " << parsim->depth1Name_ << "\n depth2Name_: " << parsim->depth2Name_
+        << "\n lvNames_: " << parsim->lvNames_.size() << " occurences";
     edm::LogVerbatim("EcalGeom") << st1.str();
     int kount(0);
     std::ostringstream st2;
