@@ -2650,8 +2650,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
         h1_scl_E1x5_barrel_->Fill(bestGsfElectron.scE1x5());
         h1_scl_E2x5max_barrel_->Fill(bestGsfElectron.scE2x5Max());
         h1_scl_E5x5_barrel_->Fill(bestGsfElectron.scE5x5());
-      }
-      else if (isEEflag) {
+      } else if (isEEflag) {
         h1_scl_SigIEtaIEta_endcaps_->Fill(bestGsfElectron.scSigmaIEtaIEta());
         h1_scl_full5x5_sigmaIetaIeta_endcaps_->Fill(bestGsfElectron.full5x5_sigmaIetaIeta());
         h1_scl_E1x5_endcaps_->Fill(bestGsfElectron.scE1x5());
@@ -2796,8 +2795,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
         h1_ele_dPhiEleCl_propOut_barrel->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
         h1_ele_HoE_bc_barrel->Fill(bestGsfElectron.hcalOverEcalBc());
         h1_ele_HoE_barrel->Fill(bestGsfElectron.hadronicOverEm());
-      }
-      else if (isEEflag) {
+      } else if (isEEflag) {
         h1_ele_EoP_endcaps->Fill(bestGsfElectron.eSuperClusterOverP());
         h1_ele_EseedOP_endcaps->Fill(bestGsfElectron.eSeedClusterOverP());
         h1_ele_EoPout_endcaps->Fill(bestGsfElectron.eSeedClusterOverPout());
@@ -2845,8 +2843,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
         h1_ele_fbrem_barrel->Fill(fbrem_mode_barrel);
         double superclusterfbrem_mode_barrel = bestGsfElectron.superClusterFbrem();
         h1_ele_superclusterfbrem_barrel->Fill(superclusterfbrem_mode_barrel);
-      }
-      else if (isEEflag) {
+      } else if (isEEflag) {
         double fbrem_mode_endcaps = bestGsfElectron.fbrem();
         h1_ele_fbrem_endcaps->Fill(fbrem_mode_endcaps);
         double superclusterfbrem_mode_endcaps = bestGsfElectron.superClusterFbrem();
@@ -2885,14 +2882,13 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
       if (bestGsfElectron.classification() == GsfElectron::SHOWERING)
         h2_ele_PinVsPoutShowering_mode->Fill(bestGsfElectron.trackMomentumOut().R(),
                                              bestGsfElectron.trackMomentumAtVtx().R());
-      
+
       h1_ele_mva->Fill(bestGsfElectron.mva_e_pi());
       h1_ele_mva_isolated->Fill(bestGsfElectron.mva_Isolated());
       if (isEBflag) {
         h1_ele_mva_barrel->Fill(bestGsfElectron.mva_e_pi());
         h1_ele_mva_barrel_isolated->Fill(bestGsfElectron.mva_Isolated());
-      }
-      else if (isEEflag) {
+      } else if (isEEflag) {
         h1_ele_mva_endcaps->Fill(bestGsfElectron.mva_e_pi());
         h1_ele_mva_endcaps_isolated->Fill(bestGsfElectron.mva_Isolated());
       }
@@ -2936,8 +2932,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
         h1_ele_chargedHadronIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt);
         h1_ele_neutralHadronIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt);
         h1_ele_photonIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt);
-      }
-      else if (isEEflag) {
+      } else if (isEEflag) {
         h1_ele_chargedHadronIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt);
         h1_ele_neutralHadronIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt);
         h1_ele_photonIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt);
@@ -2956,8 +2951,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
                                                      bestGsfElectron.pt());
         h1_ele_photonRelativeIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt /
                                               bestGsfElectron.pt());
-      }
-      else if (isEEflag) {
+      } else if (isEEflag) {
         h1_ele_chargedHadronRelativeIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt /
                                                       bestGsfElectron.pt());
         h1_ele_neutralHadronRelativeIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
@@ -2994,8 +2988,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
         h1_ele_hcalTowerSumEtBc_dr04_depth2_barrel->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(2));
         h1_ele_hcalDepth1OverEcalBc_barrel->Fill(bestGsfElectron.hcalOverEcalBc(1));
         h1_ele_hcalDepth2OverEcalBc_barrel->Fill(bestGsfElectron.hcalOverEcalBc(2));
-      }
-      else if (isEEflag) {
+      } else if (isEEflag) {
         h1_ele_tkSumPt_dr03_endcaps->Fill(bestGsfElectron.dr03TkSumPt());
         h1_ele_ecalRecHitSumEt_dr03_endcaps->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
         h1_ele_hcalTowerSumEt_dr03_depth1_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
