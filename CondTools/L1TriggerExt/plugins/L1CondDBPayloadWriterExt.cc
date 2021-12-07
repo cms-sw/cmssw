@@ -180,4 +180,4 @@ void L1CondDBPayloadWriterExt::beginJob() {}
 void L1CondDBPayloadWriterExt::endJob() {}
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(L1CondDBPayloadWriterExt);
+DEFINE_FWK_MODULE(L1CondDBPayloadWriterExt);
