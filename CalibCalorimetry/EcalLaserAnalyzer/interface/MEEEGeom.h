@@ -1,5 +1,5 @@
-#ifndef MEEEGeom_hh
-#define MEEEGeom_hh
+#ifndef CalibCalorimetry_EcalLaserAnalyzer_MEEEGeom_h
+#define CalibCalorimetry_EcalLaserAnalyzer_MEEEGeom_h
 
 //
 // Authors  : Gautier Hamel de Monchenault and Julie Malcles, Saclay
@@ -9,8 +9,8 @@
 #include <map>
 #include <list>
 
-#include <TPolyLine.h>
-#include <TGraph.h>
+#include "TPolyLine.h"
+#include "TGraph.h"
 
 class MEEEGeom {
   // static functions
@@ -43,7 +43,7 @@ public:
   static int smFromDcc(int idcc);
   static int dccFromSm(int ism);
 
-  static bool pnTheory;  // if true: theoretical PN cabling for all dees
+  static const bool pnTheory;  // if true: theoretical PN cabling for all dees
   static std::pair<int, int> pn(int dee, int ilmod);
   static std::pair<int, int> memFromLmr(int ilmr);
   static std::vector<int> lmmodFromLmr(int ilmr);
