@@ -64,6 +64,8 @@ namespace cond {
 
     edm::IOVSyncValue limitedIOVSyncValue(edm::IOVSyncValue const& time, TimeType timetype);
 
+    std::string transactionIdForLumiTime( Time_t time, unsigned int iovSize, const std::string& secretKey);
+
   }  // namespace time
 
 }  // namespace cond
