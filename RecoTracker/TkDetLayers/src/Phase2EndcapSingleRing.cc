@@ -27,13 +27,10 @@ public:
 };
 
 Phase2EndcapSingleRing::Phase2EndcapSingleRing(vector<const GeomDet*>& allDets)
-    : GeometricSearchDet(true),
-      theDets(allDets.begin(), allDets.end()){
-
+    : GeometricSearchDet(true), theDets(allDets.begin(), allDets.end()) {
   theDisk = ForwardRingDiskBuilderFromDet()(theDets);
 
-
-  theBinFinder = BinFinderType(theDets.front()->surface().position().phi(),theDets.size());
+  theBinFinder = BinFinderType(theDets.front()->surface().position().phi(), theDets.size());
 
 #ifdef EDM_ML_DEBUG
   LogDebug("TkDetLayers") << "DEBUG INFO for Phase2EndcapSingleRing";
@@ -53,16 +50,16 @@ const vector<const GeometricSearchDet*>& Phase2EndcapSingleRing::components() co
 }
 
 pair<bool, TrajectoryStateOnSurface> Phase2EndcapSingleRing::compatible(const TrajectoryStateOnSurface&,
-                                                                  const Propagator&,
-                                                                  const MeasurementEstimator&) const {
+                                                                        const Propagator&,
+                                                                        const MeasurementEstimator&) const {
   edm::LogError("TkDetLayers") << "temporary dummy implementation of Phase2EndcapSingleRing::compatible()!!";
   return pair<bool, TrajectoryStateOnSurface>();
 }
 
 void Phase2EndcapSingleRing::groupedCompatibleDetsV(const TrajectoryStateOnSurface& tsos,
-                                              const Propagator& prop,
-                                              const MeasurementEstimator& est,
-                                              std::vector<DetGroup>& result) const {
+                                                    const Propagator& prop,
+                                                    const MeasurementEstimator& est,
+                                                    std::vector<DetGroup>& result) const {
   SubLayerCrossing crossing;
 
   crossing = computeCrossing(tsos, prop.propagationDirection());
@@ -78,18 +75,15 @@ void Phase2EndcapSingleRing::groupedCompatibleDetsV(const TrajectoryStateOnSurfa
 
   DetGroupElement closestGel(closestResult.front().front());
 
-
   float phiWindow = tkDetUtil::computeWindowSize(closestGel.det(), closestGel.trajectoryState(), est);
 
   searchNeighbors(tsos, prop, est, crossing, phiWindow, closestResult, false);
 
-
   DetGroupMerger::addSameLevel(std::move(closestResult), result);
-
 }
 
 SubLayerCrossing Phase2EndcapSingleRing::computeCrossing(const TrajectoryStateOnSurface& startingState,
-                                                     PropagationDirection propDir) const {
+                                                         PropagationDirection propDir) const {
   auto rho = startingState.transverseCurvature();
 
   HelixPlaneCrossing::PositionType startPos(startingState.globalPosition());
@@ -100,8 +94,7 @@ SubLayerCrossing Phase2EndcapSingleRing::computeCrossing(const TrajectoryStateOn
   if (!frontPath.first)
     return SubLayerCrossing();
 
-
-  GlobalPoint gFrontPoint(crossing.position(frontPath.second)); //There is only one path
+  GlobalPoint gFrontPoint(crossing.position(frontPath.second));  //There is only one path
 
   int frontIndex = theBinFinder.binIndex(gFrontPoint.barePhi());
   SubLayerCrossing frontSLC(0, frontIndex, gFrontPoint);
@@ -111,10 +104,10 @@ SubLayerCrossing Phase2EndcapSingleRing::computeCrossing(const TrajectoryStateOn
 }
 
 bool Phase2EndcapSingleRing::addClosest(const TrajectoryStateOnSurface& tsos,
-                                  const Propagator& prop,
-                                  const MeasurementEstimator& est,
-                                  const SubLayerCrossing& crossing,
-                                  vector<DetGroup>& result) const {
+                                        const Propagator& prop,
+                                        const MeasurementEstimator& est,
+                                        const SubLayerCrossing& crossing,
+                                        vector<DetGroup>& result) const {
   const vector<const GeomDet*>& sub(subLayer(crossing.subLayerIndex()));
 
   const GeomDet* det(sub[crossing.closestDetIndex()]);
@@ -125,12 +118,12 @@ bool Phase2EndcapSingleRing::addClosest(const TrajectoryStateOnSurface& tsos,
 }
 
 void Phase2EndcapSingleRing::searchNeighbors(const TrajectoryStateOnSurface& tsos,
-                                       const Propagator& prop,
-                                       const MeasurementEstimator& est,
-                                       const SubLayerCrossing& crossing,
-                                       float window,
-                                       vector<DetGroup>& result,
-                                       bool checkClosest) const {
+                                             const Propagator& prop,
+                                             const MeasurementEstimator& est,
+                                             const SubLayerCrossing& crossing,
+                                             float window,
+                                             vector<DetGroup>& result,
+                                             bool checkClosest) const {
   const GlobalPoint& gCrossingPos = crossing.position();
 
   const vector<const GeomDet*>& sLayer(subLayer(crossing.subLayerIndex()));

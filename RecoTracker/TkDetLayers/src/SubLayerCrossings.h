@@ -7,7 +7,8 @@
 class SubLayerCrossing {
 public:
   SubLayerCrossing() : isValid_(false) {}
-  SubLayerCrossing(int sli, int cdi, const GlobalPoint& pos) : pos_(pos), subLayerIndex_(sli), closestDetIndex_(cdi), isValid_(true) {}
+  SubLayerCrossing(int sli, int cdi, const GlobalPoint& pos)
+      : pos_(pos), subLayerIndex_(sli), closestDetIndex_(cdi), isValid_(true) {}
 
   bool isValid() { return isValid_; }
   int subLayerIndex() const { return subLayerIndex_; }

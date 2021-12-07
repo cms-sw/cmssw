@@ -13,8 +13,8 @@ using namespace std;
 
 template <class FilteredView>
 void CmsTrackerPixelPhase2DoubleDiskBuilder<FilteredView>::buildComponent(FilteredView& fv,
-                                                                    GeometricDet* g,
-                                                                    const std::string& s) {
+                                                                          GeometricDet* g,
+                                                                          const std::string& s) {
   CmsTrackerPixelPhase2SubDiskBuilder<FilteredView> theCmsTrackerPixelPhase2SubDiskBuilder;
   GeometricDet* subdet = new GeometricDet(&fv,
                                           CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
@@ -43,14 +43,13 @@ void CmsTrackerPixelPhase2DoubleDiskBuilder<FilteredView>::sortNS(FilteredView& 
   //    // nothing to be done because the rings (here named panels) are already sorted ??
   //    break;
   //  default:
-   //   edm::LogError("CmsTrackerPixelPhase2Builder")
-   //       << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
- // }
+  //   edm::LogError("CmsTrackerPixelPhase2Builder")
+  //       << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
+  // }
 
   for (uint32_t i = 0; i < comp.size(); i++) {
     det->component(i)->setGeographicalID(i);
   }
-
 }
 
 template class CmsTrackerPixelPhase2DoubleDiskBuilder<DDFilteredView>;

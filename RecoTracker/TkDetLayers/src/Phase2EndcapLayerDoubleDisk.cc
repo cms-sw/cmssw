@@ -39,7 +39,6 @@ void Phase2EndcapLayerDoubleDisk::fillSubDiskPars(int i) {
 
 Phase2EndcapLayerDoubleDisk::Phase2EndcapLayerDoubleDisk(vector<const Phase2EndcapSubDisk*>& subDisks)
     : RingedForwardLayer(true), theComponents{nullptr} {
-
   theSubDisksSize = subDisks.size();
   LogDebug("TkDetLayers") << "Number of subdisks in Phase2 OT EC layer is " << theSubDisksSize << std::endl;
   setSurface(computeDisk(subDisks));
@@ -89,9 +88,9 @@ Phase2EndcapLayerDoubleDisk::~Phase2EndcapLayerDoubleDisk() {
 }
 
 void Phase2EndcapLayerDoubleDisk::groupedCompatibleDetsV(const TrajectoryStateOnSurface& startingState,
-                                               const Propagator& prop,
-                                               const MeasurementEstimator& est,
-                                               std::vector<DetGroup>& result) const {
+                                                         const Propagator& prop,
+                                                         const MeasurementEstimator& est,
+                                                         std::vector<DetGroup>& result) const {
   std::array<int, 2> const& subDiskIndices = subDiskIndicesByCrossingProximity(startingState, prop);
 
   //order subdisks in z
@@ -125,8 +124,7 @@ void Phase2EndcapLayerDoubleDisk::groupedCompatibleDetsV(const TrajectoryStateOn
     return;
   }
 
-
-  // check if next subdisk is found 
+  // check if next subdisk is found
 
   bool subdisk1ok = subDiskIndices[1] != -1;
 
@@ -171,8 +169,8 @@ void Phase2EndcapLayerDoubleDisk::groupedCompatibleDetsV(const TrajectoryStateOn
   }
 }
 
-std::array<int, 2> Phase2EndcapLayerDoubleDisk::subDiskIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
-                                                                     const Propagator& prop) const {
+std::array<int, 2> Phase2EndcapLayerDoubleDisk::subDiskIndicesByCrossingProximity(
+    const TrajectoryStateOnSurface& startingState, const Propagator& prop) const {
   typedef HelixForwardPlaneCrossing Crossing;
   typedef MeasurementEstimator::Local2DVector Local2DVector;
 
@@ -233,5 +231,3 @@ std::array<int, 2> Phase2EndcapLayerDoubleDisk::findTwoClosest(std::vector<Globa
 
   return theBins;
 }
-
-

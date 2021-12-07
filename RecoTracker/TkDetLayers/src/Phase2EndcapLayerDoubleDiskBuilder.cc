@@ -5,7 +5,7 @@ using namespace edm;
 using namespace std;
 
 Phase2EndcapLayerDoubleDisk* Phase2EndcapLayerDoubleDiskBuilder::build(const GeometricDet* aPhase2EndcapLayerDoubleDisk,
-                                                   const TrackerGeometry* theGeomDetGeometry) {
+                                                                       const TrackerGeometry* theGeomDetGeometry) {
   LogTrace("TkDetLayers") << "Phase2EndcapLayerDoubleDiskBuilder::build";
   vector<const GeometricDet*> theSubDisks = aPhase2EndcapLayerDoubleDisk->components();
   LogTrace("TkDetLayers") << "theSubDisks.size(): " << theSubDisks.size();
@@ -13,8 +13,7 @@ Phase2EndcapLayerDoubleDisk* Phase2EndcapLayerDoubleDiskBuilder::build(const Geo
   Phase2EndcapSubDiskBuilder myBuilder;
   vector<const Phase2EndcapSubDisk*> thePhase2EndcapSubDisks;
 
-  for (vector<const GeometricDet*>::const_iterator it = theSubDisks.begin(); it != theSubDisks.end();
-       it++) {
+  for (vector<const GeometricDet*>::const_iterator it = theSubDisks.begin(); it != theSubDisks.end(); it++) {
     thePhase2EndcapSubDisks.push_back(myBuilder.build(*it, theGeomDetGeometry));
   }
 

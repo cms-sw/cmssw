@@ -5,7 +5,7 @@ using namespace edm;
 using namespace std;
 
 Phase2EndcapSubDisk* Phase2EndcapSubDiskBuilder::build(const GeometricDet* aPhase2EndcapSubDisk,
-                                                   const TrackerGeometry* theGeomDetGeometry) {
+                                                       const TrackerGeometry* theGeomDetGeometry) {
   LogTrace("TkDetLayers") << "Phase2EndcapSubDiskBuilder::build";
   vector<const GeometricDet*> theGeometricRings = aPhase2EndcapSubDisk->components();
   LogTrace("TkDetLayers") << "theGeometricRings.size(): " << theGeometricRings.size();
