@@ -1,18 +1,12 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
 
-process = cms.Process('HcalGeometryTest',eras.Run3)
+process = cms.Process('HcalGeometryTest',Run3_DDD)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load("Geometry.HcalCommonData.testGeometry17bXML_cfi")
-#process.load("Geometry.HcalCommonData.testPhase2GeometryFineXML_cfi")
-#process.load("Geometry.HcalCommonData.testPhase1GeometryXML_cfi")
-#process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
-#process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.StandardSequences.GeometrySimDB_cff')
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
