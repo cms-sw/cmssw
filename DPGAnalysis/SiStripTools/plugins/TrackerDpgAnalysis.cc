@@ -39,7 +39,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -105,7 +105,7 @@
 //
 typedef math::XYZPoint Point;
 
-class TrackerDpgAnalysis : public edm::EDAnalyzer {
+class TrackerDpgAnalysis : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit TrackerDpgAnalysis(const edm::ParameterSet&);
   ~TrackerDpgAnalysis() override;
@@ -137,6 +137,7 @@ protected:
 
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
@@ -236,6 +237,8 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig)
   moduleId_ = new char[256];
   PSUname_ = new char[256];
   pset_ = iConfig;
+
+  usesResource(TFileService::kSharedResource);
 
   // enable/disable functionalities
   functionality_offtrackClusters_ = iConfig.getUntrackedParameter<bool>("keepOfftrackClusters", true);
