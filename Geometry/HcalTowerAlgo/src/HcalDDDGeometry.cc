@@ -68,7 +68,6 @@ std::vector<DetId> const& HcalDDDGeometry::getValidDetIds(DetId::Detector det, i
 
 DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
   constexpr double twopi = M_PI + M_PI;
-  constexpr double deg = M_PI / 180.;
 
   // Now find the closest eta_bin, eta value of a bin i is average
   // of eta[i] and eta[i-1]
@@ -80,6 +79,7 @@ DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
   double z = fabs(r.z());
 
 #ifdef EDM_ML_DEBUG
+  constexpr double deg = M_PI / 180.;
   edm::LogVerbatim("HCalGeom") << "HcalDDDGeometry::getClosestCell for eta " << r.eta() << " phi " << phi / deg << " z "
                                << r.z() << " radius " << radius;
 #endif
