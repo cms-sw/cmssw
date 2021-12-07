@@ -26,7 +26,7 @@
 
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -56,7 +56,7 @@
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
 template <typename T>
-class JetIdSelector : public edm::EDProducer {
+class JetIdSelector : public edm::one::EDProducer<> {
 public:
   typedef std::vector<T> JetCollection;
   // construction/destruction
