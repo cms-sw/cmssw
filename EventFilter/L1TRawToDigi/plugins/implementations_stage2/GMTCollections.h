@@ -59,6 +59,8 @@ namespace l1t {
         return muonShowers_[copy].get();
       };
 
+      static constexpr size_t NUM_OUTPUT_COPIES{6};
+
     private:
       std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCandsBMTF_;
       std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCandsOMTF_;
