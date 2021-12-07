@@ -478,7 +478,7 @@ class PatatrackWorkflow(UpgradeWorkflow):
             ('2021' in key and fragment == "TTbar_14TeV"),
             ('2018' in key and fragment == "ZMM_13"),
             ('2021' in key and fragment == "ZMM_14"),
-            ('2026D87' in key and fragment == "TTbar_14TeV" and "PixelOnly" in self.suffix)
+            ('2026D88' in key and fragment == "TTbar_14TeV" and "PixelOnly" in self.suffix)
         ]
         result = any(selected) and hasHarvest
 
