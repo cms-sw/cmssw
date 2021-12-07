@@ -7,12 +7,12 @@
 #include <vector>
 #include <map>
 
-#include <FWCore/Framework/interface/one/EDAnalyzer.h>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
-#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
-#include <Geometry/EcalMapping/interface/EcalElectronicsMapping.h>
-#include <Geometry/EcalMapping/interface/EcalMappingRcd.h>
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 class TFile;
 class TTree;
