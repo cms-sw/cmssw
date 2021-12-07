@@ -37,6 +37,7 @@ private:
   bool useQualityCut_;
   pixelTrack::Quality minQuality_;
   MonitorElement* hnTracks;
+  MonitorElement* hnLooseAndAboveTracks;
   MonitorElement* hnHits;
   MonitorElement* hchi2;
   MonitorElement* hpt;
@@ -72,6 +73,8 @@ void SiPixelPhase1MonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::
   auto maxTracks = tsoa.stride();
   auto const* quality = tsoa.qualityData();
   int32_t nTracks = 0;
+  int32_t nLooseAndAboveTracks = 0;
+
   for (int32_t it = 0; it < maxTracks; ++it) {
     auto nHits = tsoa.nHits(it);
     if (nHits == 0)
@@ -79,14 +82,21 @@ void SiPixelPhase1MonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::
     float pt = tsoa.pt(it);
     if (!(pt > 0.))
       continue;
+
+    // fill the quality for all tracks
+    pixelTrack::Quality qual = tsoa.quality(it);
+    hquality->Fill(int(qual));
+    nTracks++;
+
     if (useQualityCut_ && quality[it] < minQuality_)
       continue;
+
+    // fill parameters only for quality >= loose
     float chi2 = tsoa.chi2(it);
     float phi = tsoa.phi(it);
     float zip = tsoa.zip(it);
     float eta = tsoa.eta(it);
     float tip = tsoa.tip(it);
-    pixelTrack::Quality qual = tsoa.quality(it);
     hchi2->Fill(chi2);
     hnHits->Fill(nHits);
     hpt->Fill(pt);
@@ -94,10 +104,10 @@ void SiPixelPhase1MonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::
     hphi->Fill(phi);
     hz->Fill(zip);
     htip->Fill(tip);
-    hquality->Fill(int(qual));
-    nTracks++;
+    nLooseAndAboveTracks++;
   }
   hnTracks->Fill(nTracks);
+  hnLooseAndAboveTracks->Fill(nLooseAndAboveTracks);
 }
 
 //
@@ -109,13 +119,15 @@ void SiPixelPhase1MonitorTrackSoA::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.cd();
   ibooker.setCurrentFolder(topFolderName_);
   hnTracks = ibooker.book1D("nTracks", ";Number of tracks per event;#entries", 1001, -0.5, 1000.5);
-  hnHits = ibooker.book1D("nRecHits", ";Number of all RecHits per track;#entries", 15, -0.5, 14.5);
-  hchi2 = ibooker.book1D("nChi2ndof", ";Track chi-squared over ndof;#entries", 40, 0., 20.);
-  hpt = ibooker.book1D("pt", ";Track p_T;#entries", 200, 0., 200.);
-  heta = ibooker.book1D("eta", ";Track #eta;#entries", 30, -3., 3.);
-  hphi = ibooker.book1D("phi", ";Track #phi;#entries", 30, -M_PI, M_PI);
-  hz = ibooker.book1D("z", ";Track z;#entries", 30, -30., 30.);
-  htip = ibooker.book1D("tip", ";Track TIP;#entries", 100, -0.5, 0.5);
+  hnLooseAndAboveTracks = ibooker.book1D(
+      "nLooseAndAboveTracks", ";Number of tracks (quality #geq loose) per event;#entries", 1001, -0.5, 1000.5);
+  hnHits = ibooker.book1D("nRecHits", ";Number of all RecHits per track (quality #geq loose);#entries", 15, -0.5, 14.5);
+  hchi2 = ibooker.book1D("nChi2ndof", ";Track (quality #geq loose) chi-squared over ndof;#entries", 40, 0., 20.);
+  hpt = ibooker.book1D("pt", ";Track (quality #geq loose) p_{T} [GeV];#entries", 200, 0., 200.);
+  heta = ibooker.book1D("eta", ";Track (quality #geq loose) #eta;#entries", 30, -3., 3.);
+  hphi = ibooker.book1D("phi", ";Track (quality #geq loose) #phi;#entries", 30, -M_PI, M_PI);
+  hz = ibooker.book1D("z", ";Track (quality #geq loose) z [cm];#entries", 30, -30., 30.);
+  htip = ibooker.book1D("tip", ";Track (quality #geq loose) TIP [cm];#entries", 100, -0.5, 0.5);
   hquality = ibooker.book1D("quality", ";Track Quality;#entries", 7, -0.5, 6.5);
   uint i = 1;
   for (const auto& q : pixelTrack::qualityName) {
@@ -129,7 +141,7 @@ void SiPixelPhase1MonitorTrackSoA::fillDescriptions(edm::ConfigurationDescriptio
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksSoA"));
   desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelTrackSoA");
-  desc.add<bool>("useQualityCut", false);
+  desc.add<bool>("useQualityCut", true);
   desc.add<std::string>("minQuality", "loose");
   descriptions.addWithDefaultLabel(desc);
 }
