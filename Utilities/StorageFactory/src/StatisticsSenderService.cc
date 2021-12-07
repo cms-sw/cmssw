@@ -297,10 +297,12 @@ void StatisticsSenderService::closedFile(std::string const &url, bool usedFallba
     }
 
     auto c = --found->second.m_openCount;
-    if (c == 0) {
-      edm::LogWarning("StatisticsSenderService") << "fully closed: " << *lfn << "\n";
-    } else {
-      edm::LogWarning("StatisticsSenderService") << "partially closed: " << *lfn << "\n";
+    if (m_debug) {
+      if (c == 0) {
+        edm::LogWarning("StatisticsSenderService") << "fully closed: " << *lfn << "\n";
+      } else {
+        edm::LogWarning("StatisticsSenderService") << "partially closed: " << *lfn << "\n";
+      }
     }
   } else if (m_debug) {
     edm::LogWarning("StatisticsSenderService") << "closed: unknown url name " << url << "\n";
