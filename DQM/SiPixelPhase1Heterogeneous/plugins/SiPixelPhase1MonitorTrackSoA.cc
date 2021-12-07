@@ -44,6 +44,7 @@ private:
   MonitorElement* hphi;
   MonitorElement* hz;
   MonitorElement* htip;
+  MonitorElement* hquality;
 };
 
 //
@@ -85,6 +86,7 @@ void SiPixelPhase1MonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::
     float zip = tsoa.zip(it);
     float eta = tsoa.eta(it);
     float tip = tsoa.tip(it);
+    pixelTrack::Quality qual = tsoa.quality(it);
     hchi2->Fill(chi2);
     hnHits->Fill(nHits);
     hpt->Fill(pt);
@@ -92,6 +94,7 @@ void SiPixelPhase1MonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::
     hphi->Fill(phi);
     hz->Fill(zip);
     htip->Fill(tip);
+    hquality->Fill(int(qual));
     nTracks++;
   }
   hnTracks->Fill(nTracks);
@@ -112,7 +115,13 @@ void SiPixelPhase1MonitorTrackSoA::bookHistograms(DQMStore::IBooker& ibooker,
   heta = ibooker.book1D("eta", ";Track #eta;#entries", 30, -3., 3.);
   hphi = ibooker.book1D("phi", ";Track #phi;#entries", 30, -M_PI, M_PI);
   hz = ibooker.book1D("z", ";Track z;#entries", 30, -30., 30.);
-  htip = ibooker.book1D("tip", "", 100, -0.5, 0.5);
+  htip = ibooker.book1D("tip", ";Track TIP;#entries", 100, -0.5, 0.5);
+  hquality = ibooker.book1D("quality", ";Track Quality;#entries", 7, -0.5, 6.5);
+  uint i = 1;
+  for (const auto& q : pixelTrack::qualityName) {
+    hquality->setBinLabel(i, q, 1);
+    i++;
+  }
 }
 
 void SiPixelPhase1MonitorTrackSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
