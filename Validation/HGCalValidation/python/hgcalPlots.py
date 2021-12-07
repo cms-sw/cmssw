@@ -1572,6 +1572,7 @@ _common_score = {"stat": False, "legend": False
                  ,"lineWidth": 1
                  ,"ylog": True
                  ,"xlog": True
+                 ,"xtitle": "Default"
                 }
 _common_score.update(_legend_common)
 
@@ -1582,7 +1583,7 @@ for score in score_to_trackster:
     _score_caloparticle_to_tracksters.append(Plot("Score"+score+"_caloparticle2trackster", **_common_score))
     _score_simtrackster_to_tracksters.append(Plot("Score"+score+"_simtrackster2trackster", **_common_score))
 
-score_trackster_to = ["","Merge"]
+score_trackster_to = ["","Fake","Merge"]
 _score_trackster_to_caloparticles = PlotGroup("ScoreTrackstersToCaloParticles", [], ncols=len(score_trackster_to))
 _score_trackster_to_simtracksters = PlotGroup("ScoreTrackstersToSimTracksters", [], ncols=len(score_trackster_to))
 for score in score_trackster_to:
@@ -1590,18 +1591,31 @@ for score in score_trackster_to:
     _score_trackster_to_simtracksters.append(Plot("Score"+score+"_trackster2simtrackster", **_common_score))
 
 
-_common_shared = {"stat": False, "legend": False}
+_common_shared = {"stat": False, "legend": False, "xtitle": 'Default', "ytitle": 'Default'}
 _common_shared.update(_legend_common)
+_common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d", drawStyle="COLZ", adjustMarginRight=0.1, xtitle='Default', ytitle='Default')
+_common_energy_score["ymax"] = 1.
+_common_energy_score["xmax"] = 1.0
+
 _sharedEnergy_to_trackster = []
 _sharedEnergy_trackster_to = []
-versions = {"":"energy fraction", "_assoc":"energy fraction", "_assoc_vs_eta":"#eta", "_assoc_vs_phi":"#phi"}
+versions = ["", "_assoc", "_assoc_vs_eta", "_assoc_vs_phi"]
+
+_energyscore_to_trackster = []
+_energyscore_trackster_to = []
+en_vs_score = ["","best","secBest"]
 for val in simDict:
     _sharedEnergy_to_trackster.append(PlotGroup("SharedEnergy_"+val+"ToTrackster", [], ncols=2))
     _sharedEnergy_trackster_to.append(PlotGroup("SharedEnergy_TracksterTo"+val, [], ncols=2))
     for ver in versions:
-        _sharedEnergy_to_trackster[-1].append(Plot("SharedEnergy_"+val.lower()+"2trackster"+ver, xtitle=val+" "+versions[ver], **_common_shared))
-        _sharedEnergy_trackster_to[-1].append(Plot("SharedEnergy_trackster2"+val.lower()+ver, xtitle="Trackster "+versions[ver], **_common_shared))
+        _sharedEnergy_to_trackster[-1].append(Plot("SharedEnergy_"+val.lower()+"2trackster"+ver, **_common_shared))
+        _sharedEnergy_trackster_to[-1].append(Plot("SharedEnergy_trackster2"+val.lower()+ver, **_common_shared))
 
+    _energyscore_to_trackster.append(PlotGroup("Energy_vs_Score_"+val+"ToTracksters", [], ncols=len(en_vs_score)))
+    _energyscore_trackster_to.append(PlotGroup("Energy_vs_Score_TrackstersTo"+val, [], ncols=len(en_vs_score)))
+    for ver in en_vs_score:
+        _energyscore_to_trackster[-1].append(Plot("Energy_vs_Score_"+val.lower()+"2"+ver+"Trackster", **_common_energy_score))
+        _energyscore_trackster_to[-1].append(Plot("Energy_vs_Score_trackster2"+ver+val, **_common_energy_score))
 
 _common_assoc = {#"title": "Cell Association Table",
                  "stat": False,
@@ -1649,37 +1663,27 @@ for val in simDict:
     _merges.append(PlotGroup("MergeRate"+simDict[val], _mergeplots, ncols=3))
 
 
-_common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d")
-_common_energy_score["ymax"] = 1.
-_common_energy_score["xmax"] = 1.0
-_energyscore_cp2ts = PlotOnSideGroup("Energy_vs_Score_CaloParticlesToTracksters", Plot("Energy_vs_Score_caloparticle2trackster", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_energyscore_sts2ts = PlotOnSideGroup("Energy_vs_Score_SimTrackstersToTracksters", Plot("Energy_vs_Score_simtrackster2trackster", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_common_energy_score["ymax"] = 1.
-_common_energy_score["xmax"] = 1.0
-_energyscore_ts2cp = PlotOnSideGroup("Energy_vs_Score_TrackstersToCaloParticles", Plot("Energy_vs_Score_trackster2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_energyscore_ts2sts = PlotOnSideGroup("Energy_vs_Score_TrackstersToSimTracksters", Plot("Energy_vs_Score_trackster2simtrackster", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-
 #Coming back to the usual box definition
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "xtitle": "Default"}
 
 _tottracksternum = PlotGroup("TotalNumberofTracksters", [
-  Plot("tottracksternum", xtitle="", **_common)
+  Plot("tottracksternum", **_common)
 ],ncols=1)
 
-_trackster_layernum_plots = [Plot("trackster_firstlayer", xtitle="Trackster First Layer", **_common)]
-_trackster_layernum_plots.extend([Plot("trackster_lastlayer", xtitle="Trackster Last Layer", **_common)])
-_trackster_layernum_plots.extend([Plot("trackster_layersnum", xtitle="Trackster Number of Layers", **_common)])
+_trackster_layernum_plots = [Plot("trackster_firstlayer", **_common)]
+_trackster_layernum_plots.extend([Plot("trackster_lastlayer", **_common)])
+_trackster_layernum_plots.extend([Plot("trackster_layersnum", **_common)])
 _trackster_layernum = PlotGroup("LayerNumbersOfTrackster", _trackster_layernum_plots, ncols=3)
 
 _common["xmax"] = 50
 _clusternum_in_trackster = PlotGroup("NumberofLayerClustersinTrackster",[
-  Plot("clusternum_in_trackster", xtitle="", **_common)
+  Plot("clusternum_in_trackster", **_common)
 ],ncols=1)
 
-_common = {"stat": True, "drawStyle": "pcolz", "staty": 0.65}
+_common = {"stat": True, "drawStyle": "pcolz", "staty": 0.65, "xtitle": "Default", "ytitle": "Default"}
 
 _clusternum_in_trackster_vs_layer = PlotGroup("NumberofLayerClustersinTracksterPerLayer",[
-  Plot("clusternum_in_trackster_vs_layer", xtitle="Layer number", ytitle = "<2d Layer Clusters in Trackster>",  **_common)
+  Plot("clusternum_in_trackster_vs_layer", **_common)
 ],ncols=1)
 
 _common["scale"] = 100.
@@ -1688,13 +1692,13 @@ _multiplicity_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multip
 _multiplicity_zminus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_zminus_numberOfEventsHistogram"
 _multiplicity_zplus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_zplus_numberOfEventsHistogram"
 
-_multiplicityOfLCinTST_plots = [Plot("multiplicityOfLCinTST", xtitle="Layer Cluster multiplicity in Tracksters", ytitle = "Cluster size (n_{hit})", 
+_multiplicityOfLCinTST_plots = [Plot("multiplicityOfLCinTST",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]
-_multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layerclusterenergy", xtitle="Layer Cluster multiplicity in Tracksters", ytitle = "Cluster Energy (GeV)", 
+_multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layerclusterenergy",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]) 
-_multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layercluster_zplus", xtitle="Layer Cluster multiplicity in Tracksters", ytitle = "Layer Number", 
+_multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layercluster_zplus",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)])
-_multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layercluster_zminus", xtitle="Layer Cluster multiplicity in Tracksters", ytitle = "Layer Number", 
+_multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layercluster_zminus",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)])
 _multiplicityOfLCinTST = PlotGroup("MultiplicityofLCinTST", _multiplicityOfLCinTST_plots, ncols=2)
 
@@ -1730,18 +1734,18 @@ _clusternum_in_trackster_perlayer_zplus_BH = PlotGroup("NumberofLayerClustersinT
 ], ncols=7)
 
 # Coming back to the usual box definition
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "xtitle": "Default"}
 
 # Some tracksters quantities
-_trackster_eppe_plots = [Plot("trackster_eta", xtitle="Trackster #eta", **_common)]
-_trackster_eppe_plots.extend([Plot("trackster_phi", xtitle="Trackster #phi", **_common)])
-_trackster_eppe_plots.extend([Plot("trackster_pt", xtitle="Trackster p_{T}", **_common)])
-_trackster_eppe_plots.extend([Plot("trackster_energy", xtitle="Trackster Energy", **_common)])
+_trackster_eppe_plots = [Plot("trackster_eta", **_common)]
+_trackster_eppe_plots.extend([Plot("trackster_phi", **_common)])
+_trackster_eppe_plots.extend([Plot("trackster_pt", **_common)])
+_trackster_eppe_plots.extend([Plot("trackster_energy", **_common)])
 _trackster_eppe = PlotGroup("EtaPhiPtEnergy", _trackster_eppe_plots, ncols=2)
 
-_trackster_xyz_plots = [Plot("trackster_x", xtitle="Trackster x", **_common)]
-_trackster_xyz_plots.extend([Plot("trackster_y", xtitle="Trackster y", **_common)])
-_trackster_xyz_plots.extend([Plot("trackster_z", xtitle="Trackster z", **_common)])
+_trackster_xyz_plots = [Plot("trackster_x", **_common)]
+_trackster_xyz_plots.extend([Plot("trackster_y", **_common)])
+_trackster_xyz_plots.extend([Plot("trackster_z", **_common)])
 _trackster_xyz = PlotGroup("XYZ", _trackster_xyz_plots, ncols=3)
 
 #--------------------------------------------------------------------------------------------
@@ -2442,8 +2446,8 @@ _trackstersToCPLinkPlots = [
   _score_trackster_to_caloparticles,
   _sharedEnergy_to_trackster[0],
   _sharedEnergy_trackster_to[0],
-  _energyscore_cp2ts,
-  _energyscore_ts2cp,
+  _energyscore_to_trackster[0],
+  _energyscore_trackster_to[0],
 ]
 
 _trackstersToSTSPRPlots = [
@@ -2456,8 +2460,8 @@ _trackstersToSTSPRPlots = [
   _score_trackster_to_simtracksters,
   _sharedEnergy_to_trackster[1],
   _sharedEnergy_trackster_to[1],
-  _energyscore_sts2ts,
-  _energyscore_ts2sts,
+  _energyscore_to_trackster[1],
+  _energyscore_trackster_to[1],
 ]
 hgcalTrackstersPlotter = Plotter()
 def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collection = "TrackstersMerge"):
@@ -2506,7 +2510,7 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
   #            ))
 
 #=================================================================================================
-_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False}
+_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False, "xtitle": "Default", "ytitle": "Default"}
 
 hgcalCaloParticlesPlotter = Plotter()
 def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
@@ -2530,7 +2534,6 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
     fileName.ReplaceAll(" ","_")
     pg = PlotGroup(fileName.Data(),[
                   Plot(name,
-                       xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
                        drawCommand = "",
                        normalizeToNumberOfEvents = True, **_common_Calo)
                   ],
@@ -2539,7 +2542,6 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
     if name in list_2D_histos :
         pg = PlotOnSideGroup(plotName.Data(),
                       Plot(name,
-                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
                            drawCommand = "COLZ",
                            normalizeToNumberOfEvents = True, **_common_Calo)
                       ,
@@ -2587,7 +2589,7 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
         for group in grouped:
             if group+groupingFlag in name:
                 grouped[group].append(Plot(name,
-                                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                           xtitle="Default", ytitle="Default",
                                            **_common)
                                      )
     else:
@@ -2595,14 +2597,14 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
         if obj.InheritsFrom("TH2"):
             pg = PlotOnSideGroup(plotName.Data(),
                                  Plot(name,
-                                      xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                      xtitle="Default", ytitle="Default",
                                       drawCommand = "COLZ",
                                       **_common),
                                  ncols=1)
         elif obj.InheritsFrom("TH1"):
             pg = PlotGroup(plotName.Data(),
                            [Plot(name,
-                                 xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                 xtitle="Default", ytitle="Default",
                                  drawCommand = "COLZ", # ineffective for TH1
                                  **_common)
                            ],
@@ -2631,7 +2633,7 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
   return hgcalTrackstersPlotter
 
 #=================================================================================================
-_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False}
+_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False, "xtitle": "Default", "ytitle": "Default"}
 
 hgcalCaloParticlesPlotter = Plotter()
 
@@ -2652,14 +2654,12 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
     if obj.InheritsFrom("TH2"):
         pg = PlotOnSideGroup(plotName.Data(),
                       Plot(name,
-                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
                            drawCommand = "COLZ",
                            normalizeToNumberOfEvents = True, **_common_Calo),
                       ncols=1)
     elif obj.InheritsFrom("TH1"):
         pg = PlotGroup(plotName.Data(),[
                       Plot(name,
-                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
                            drawCommand = "", # may want to customize for TH2 (colz, etc.)
                            normalizeToNumberOfEvents = True, **_common_Calo)
                       ],
