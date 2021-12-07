@@ -67,11 +67,6 @@ void DDHGCalCell::initialize(const DDNumericArguments& nArgs,
                                  << " Truncated " << truncCN_.size() << ":" << truncSensN_.size() << " Extended "
                                  << extenCN_.size() << ":" << extenSensN_.size() << " Corners " << cornrCN_.size()
                                  << ":" << cornrSensN_.size();
-  if ((truncCN_.size() != 6) || (extenCN_.size() != 6) || (cornrCN_.size() != 12))
-    edm::LogWarning("HGCalGeom") << "DDHGCalCell: The number of cells does not"
-                                 << " match with Standard: Truncated " << truncCN_.size() << ":3 Extended "
-                                 << extenCN_.size() << ":3"
-                                 << " Corners " << cornrCN_.size() << ":6";
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << waferSize_ << " T " << waferT_ << " Cell T " << cellT_
                                 << " Cells/Wafer " << nCells_ << " Material " << material_ << "Sensitive Position "
