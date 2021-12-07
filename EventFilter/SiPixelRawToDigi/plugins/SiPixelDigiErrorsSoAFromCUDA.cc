@@ -51,7 +51,7 @@ void SiPixelDigiErrorsSoAFromCUDA::acquire(const edm::Event& iEvent,
   const auto& gpuDigiErrors = ctx.get(iEvent, digiErrorGetToken_);
   formatterErrors_ = &(gpuDigiErrors.formatterErrors());
 
-  if (gpuDigiErrors.nErrors() == 0)
+  if (gpuDigiErrors.nErrorWords() == 0)
     return;
 
   auto tmp = gpuDigiErrors.dataErrorToHostAsync(ctx.stream());

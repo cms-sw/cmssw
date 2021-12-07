@@ -66,16 +66,9 @@ void SiPixelDigisSoAFromCUDA::produce(edm::Event& iEvent, const edm::EventSetup&
   // - What if a CPU algorithm would produce the same SoA? We can't
   //   use cudaMallocHost without a GPU...
 
-  auto get16 = [&](SiPixelDigisCUDASOAView::StorageLocationHost s) {
-    return store_.get() + int(s) * roundFor128ByteAlignment(nDigis_);
-  };
+  auto tmp_view = SiPixelDigisCUDASOAView(store_, nDigis_, SiPixelDigisCUDASOAView::StorageLocationHost::kMAX);
 
-  auto adc = get16(SiPixelDigisCUDASOAView::StorageLocationHost::kADC);
-  auto clus = reinterpret_cast<int32_t*>(get16(SiPixelDigisCUDASOAView::StorageLocationHost::kCLUS));
-  auto pdigi = reinterpret_cast<uint32_t*>(get16(SiPixelDigisCUDASOAView::StorageLocationHost::kPDIGI));
-  auto rawIdArr = reinterpret_cast<uint32_t*>(get16(SiPixelDigisCUDASOAView::StorageLocationHost::kRAWIDARR));
-
-  iEvent.emplace(digiPutToken_, nDigis_, pdigi, rawIdArr, adc, clus);
+  iEvent.emplace(digiPutToken_, nDigis_, tmp_view.pdigi(), tmp_view.rawIdArr(), tmp_view.adc(), tmp_view.clus());
 
   store_.reset();
 }
