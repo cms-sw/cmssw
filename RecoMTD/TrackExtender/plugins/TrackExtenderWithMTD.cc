@@ -63,80 +63,137 @@ using namespace edm;
 using namespace reco;
 
 namespace {
+  constexpr float c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
+  constexpr float c_inv = 1.0f / c_cm_ns;
+
   class MTDHitMatchingInfo {
   public:
     MTDHitMatchingInfo() {
       hit = nullptr;
-      estChi2 = std::numeric_limits<double>::max();
-      timeChi2 = std::numeric_limits<double>::max();
+      estChi2 = std::numeric_limits<float>::max();
+      timeChi2 = std::numeric_limits<float>::max();
     }
 
     //Operator used to sort the hits while performing the matching step at the MTD
     inline bool operator<(const MTDHitMatchingInfo& m2) const {
       //only for good matching in time use estChi2, otherwise use mostly time compatibility
-      constexpr double chi2_cut = 10.;
-      constexpr double low_weight = 3.;
-      constexpr double high_weight = 8.;
+      constexpr float chi2_cut = 10.f;
+      constexpr float low_weight = 3.f;
+      constexpr float high_weight = 8.f;
       if (timeChi2 < chi2_cut && m2.timeChi2 < chi2_cut)
         return chi2(low_weight) < m2.chi2(low_weight);
       else
         return chi2(high_weight) < m2.chi2(high_weight);
     }
 
-    inline double chi2(double timeWeight = 1.) const { return estChi2 + timeWeight * timeChi2; }
+    inline float chi2(float timeWeight = 1.f) const { return estChi2 + timeWeight * timeChi2; }
 
     const MTDTrackingRecHit* hit;
-    double estChi2;
-    double timeChi2;
+    float estChi2;
+    float timeChi2;
+  };
+
+  class TrackSegments {
+  public:
+    TrackSegments() = default;
+
+    inline uint32_t addSegment(float tPath, float tMom2) {
+      segmentPathOvc_.emplace_back(tPath * c_inv);
+      segmentMom2_.emplace_back(tMom2);
+      nSegment_++;
+
+      LogTrace("TrackExtenderWithMTD") << "addSegment # " << nSegment_ << " s = " << tPath
+                                       << " p = " << std::sqrt(tMom2);
+
+      return nSegment_;
+    }
+
+    inline float computeTof(float mass_inv2) const {
+      float tof(0.f);
+      for (uint32_t iSeg = 0; iSeg < nSegment_; iSeg++) {
+        float gammasq = 1.f + segmentMom2_[iSeg] * mass_inv2;
+        float beta = std::sqrt(1.f - 1.f / gammasq);
+        tof += segmentPathOvc_[iSeg] / beta;
+
+        LogTrace("TrackExtenderWithMTD") << " TOF Segment # " << iSeg + 1 << " p = " << std::sqrt(segmentMom2_[iSeg])
+                                         << " tof = " << tof;
+      }
+
+      return tof;
+    }
+
+    inline uint32_t size() const { return nSegment_; }
+
+    inline uint32_t removeFirstSegment() {
+      if (nSegment_ > 0) {
+        segmentPathOvc_.erase(segmentPathOvc_.begin());
+        segmentMom2_.erase(segmentMom2_.begin());
+        nSegment_--;
+      }
+      return nSegment_;
+    }
+
+    inline std::pair<float, float> getSegmentPathAndMom2(uint32_t iSegment) const {
+      if (iSegment >= nSegment_) {
+        throw cms::Exception("TrackExtenderWithMTD") << "Requesting non existing track segment #" << iSegment;
+      }
+      return std::make_pair(segmentPathOvc_[iSegment], segmentMom2_[iSegment]);
+    }
+
+    uint32_t nSegment_ = 0;
+    std::vector<float> segmentPathOvc_;
+    std::vector<float> segmentMom2_;
   };
 
   struct TrackTofPidInfo {
-    double tmtd;
-    double tmtderror;
-    double pathlength;
+    float tmtd;
+    float tmtderror;
+    float pathlength;
 
-    double betaerror;
+    float betaerror;
 
-    double dt;
-    double dterror;
-    double dtchi2;
+    float dt;
+    float dterror;
+    float dtchi2;
 
-    double dt_best;
-    double dterror_best;
-    double dtchi2_best;
+    float dt_best;
+    float dterror_best;
+    float dtchi2_best;
 
-    double gammasq_pi;
-    double beta_pi;
-    double dt_pi;
+    float gammasq_pi;
+    float beta_pi;
+    float dt_pi;
 
-    double gammasq_k;
-    double beta_k;
-    double dt_k;
+    float gammasq_k;
+    float beta_k;
+    float dt_k;
 
-    double gammasq_p;
-    double beta_p;
-    double dt_p;
+    float gammasq_p;
+    float beta_p;
+    float dt_p;
 
-    double prob_pi;
-    double prob_k;
-    double prob_p;
+    float prob_pi;
+    float prob_k;
+    float prob_p;
   };
 
-  const TrackTofPidInfo computeTrackTofPidInfo(double magp2,
-                                               double length,
-                                               double t_mtd,
-                                               double t_mtderr,
-                                               double t_vtx,
-                                               double t_vtx_err,
-                                               bool addPIDError = true) {
-    constexpr double m_pi = 0.13957018;
-    constexpr double m_pi_inv2 = 1.0 / m_pi / m_pi;
-    constexpr double m_k = 0.493677;
-    constexpr double m_k_inv2 = 1.0 / m_k / m_k;
-    constexpr double m_p = 0.9382720813;
-    constexpr double m_p_inv2 = 1.0 / m_p / m_p;
-    constexpr double c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
-    constexpr double c_inv = 1.0 / c_cm_ns;
+  enum class TofCalc { kCost = 1, kSegm = 2, kMixd = 3 };
+
+  const TrackTofPidInfo computeTrackTofPidInfo(float magp2,
+                                               float length,
+                                               TrackSegments trs,
+                                               float t_mtd,
+                                               float t_mtderr,
+                                               float t_vtx,
+                                               float t_vtx_err,
+                                               bool addPIDError = true,
+                                               TofCalc choice = TofCalc::kCost) {
+    constexpr float m_pi = 0.13957018f;
+    constexpr float m_pi_inv2 = 1.0f / m_pi / m_pi;
+    constexpr float m_k = 0.493677f;
+    constexpr float m_k_inv2 = 1.0f / m_k / m_k;
+    constexpr float m_p = 0.9382720813f;
+    constexpr float m_p_inv2 = 1.0f / m_p / m_p;
 
     TrackTofPidInfo tofpid;
 
@@ -144,21 +201,37 @@ namespace {
     tofpid.tmtderror = t_mtderr;
     tofpid.pathlength = length;
 
-    tofpid.gammasq_pi = 1. + magp2 * m_pi_inv2;
-    tofpid.beta_pi = std::sqrt(1. - 1. / tofpid.gammasq_pi);
-    tofpid.dt_pi = tofpid.pathlength / tofpid.beta_pi * c_inv;
+    auto deltat = [&](const float mass_inv2, const float betatmp) {
+      float res(1.f);
+      switch (choice) {
+        case TofCalc::kCost:
+          res = tofpid.pathlength / betatmp * c_inv;
+          break;
+        case TofCalc::kSegm:
+          res = trs.computeTof(mass_inv2);
+          break;
+        case TofCalc::kMixd:
+          res = trs.computeTof(mass_inv2) + tofpid.pathlength / betatmp * c_inv;
+          break;
+      }
+      return res;
+    };
 
-    tofpid.gammasq_k = 1. + magp2 * m_k_inv2;
-    tofpid.beta_k = std::sqrt(1. - 1. / tofpid.gammasq_k);
-    tofpid.dt_k = tofpid.pathlength / tofpid.beta_k * c_inv;
+    tofpid.gammasq_pi = 1.f + magp2 * m_pi_inv2;
+    tofpid.beta_pi = std::sqrt(1.f - 1.f / tofpid.gammasq_pi);
+    tofpid.dt_pi = deltat(m_pi_inv2, tofpid.beta_pi);
 
-    tofpid.gammasq_p = 1. + magp2 * m_p_inv2;
-    tofpid.beta_p = std::sqrt(1. - 1. / tofpid.gammasq_p);
-    tofpid.dt_p = tofpid.pathlength / tofpid.beta_p * c_inv;
+    tofpid.gammasq_k = 1.f + magp2 * m_k_inv2;
+    tofpid.beta_k = std::sqrt(1.f - 1.f / tofpid.gammasq_k);
+    tofpid.dt_k = deltat(m_k_inv2, tofpid.beta_k);
+
+    tofpid.gammasq_p = 1.f + magp2 * m_p_inv2;
+    tofpid.beta_p = std::sqrt(1.f - 1.f / tofpid.gammasq_p);
+    tofpid.dt_p = deltat(m_p_inv2, tofpid.beta_p);
 
     tofpid.dt = tofpid.tmtd - tofpid.dt_pi - t_vtx;  //assume by default the pi hypothesis
     tofpid.dterror = sqrt(tofpid.tmtderror * tofpid.tmtderror + t_vtx_err * t_vtx_err);
-    tofpid.betaerror = 0;
+    tofpid.betaerror = 0.f;
     if (addPIDError) {
       tofpid.dterror =
           sqrt(tofpid.dterror * tofpid.dterror + (tofpid.dt_p - tofpid.dt_pi) * (tofpid.dt_p - tofpid.dt_pi));
@@ -171,29 +244,29 @@ namespace {
     tofpid.dterror_best = tofpid.dterror;
     tofpid.dtchi2_best = tofpid.dtchi2;
 
-    tofpid.prob_pi = -1.;
-    tofpid.prob_k = -1.;
-    tofpid.prob_p = -1.;
+    tofpid.prob_pi = -1.f;
+    tofpid.prob_k = -1.f;
+    tofpid.prob_p = -1.f;
 
     if (!addPIDError) {
       //*TODO* deal with heavier nucleons and/or BSM case here?
-      double chi2_pi = tofpid.dtchi2;
-      double chi2_k =
+      float chi2_pi = tofpid.dtchi2;
+      float chi2_k =
           (tofpid.tmtd - tofpid.dt_k - t_vtx) * (tofpid.tmtd - tofpid.dt_k - t_vtx) / (tofpid.dterror * tofpid.dterror);
-      double chi2_p =
+      float chi2_p =
           (tofpid.tmtd - tofpid.dt_p - t_vtx) * (tofpid.tmtd - tofpid.dt_p - t_vtx) / (tofpid.dterror * tofpid.dterror);
 
-      double rawprob_pi = exp(-0.5 * chi2_pi);
-      double rawprob_k = exp(-0.5 * chi2_k);
-      double rawprob_p = exp(-0.5 * chi2_p);
-      double normprob = 1. / (rawprob_pi + rawprob_k + rawprob_p);
+      float rawprob_pi = exp(-0.5f * chi2_pi);
+      float rawprob_k = exp(-0.5f * chi2_k);
+      float rawprob_p = exp(-0.5f * chi2_p);
+      float normprob = 1.f / (rawprob_pi + rawprob_k + rawprob_p);
 
       tofpid.prob_pi = rawprob_pi * normprob;
       tofpid.prob_k = rawprob_k * normprob;
       tofpid.prob_p = rawprob_p * normprob;
 
-      double prob_heavy = 1. - tofpid.prob_pi;
-      constexpr double heavy_threshold = 0.75;
+      float prob_heavy = 1.f - tofpid.prob_pi;
+      constexpr float heavy_threshold = 0.75f;
 
       if (prob_heavy > heavy_threshold) {
         if (chi2_k < chi2_p) {
@@ -232,21 +305,34 @@ namespace {
   bool trackPathLength(const Trajectory& traj,
                        const TrajectoryStateClosestToBeamLine& tscbl,
                        const Propagator* thePropagator,
-                       double& pathlength) {
-    pathlength = 0.;
+                       float& pathlength,
+                       TrackSegments& trs) {
+    pathlength = 0.f;
 
     bool validpropagation = true;
-    double pathlength1 = 0.;
-    double pathlength2 = 0.;
+    float oldp = traj.measurements().begin()->updatedState().globalMomentum().mag();
+    float pathlength1 = 0.f;
+    float pathlength2 = 0.f;
 
     //add pathlength layer by layer
     for (auto it = traj.measurements().begin(); it != traj.measurements().end() - 1; ++it) {
       const auto& propresult = thePropagator->propagateWithPath(it->updatedState(), (it + 1)->updatedState().surface());
-      double layerpathlength = std::abs(propresult.second);
-      if (layerpathlength == 0.) {
+      float layerpathlength = std::abs(propresult.second);
+      if (layerpathlength == 0.f) {
         validpropagation = false;
       }
       pathlength1 += layerpathlength;
+      trs.addSegment(layerpathlength, (it + 1)->updatedState().globalMomentum().mag2());
+      LogTrace("TrackExtenderWithMTD") << "TSOS " << std::fixed << std::setw(4) << trs.size() << " R_i " << std::fixed
+                                       << std::setw(14) << it->updatedState().globalPosition().perp() << " z_i "
+                                       << std::fixed << std::setw(14) << it->updatedState().globalPosition().z()
+                                       << " R_e " << std::fixed << std::setw(14)
+                                       << (it + 1)->updatedState().globalPosition().perp() << " z_e " << std::fixed
+                                       << std::setw(14) << (it + 1)->updatedState().globalPosition().z() << " p "
+                                       << std::fixed << std::setw(14) << (it + 1)->updatedState().globalMomentum().mag()
+                                       << " dp " << std::fixed << std::setw(14)
+                                       << (it + 1)->updatedState().globalMomentum().mag() - oldp;
+      oldp = (it + 1)->updatedState().globalMomentum().mag();
     }
 
     //add distance from bs to first measurement
@@ -254,19 +340,25 @@ namespace {
     auto const& aSurface = traj.direction() == alongMomentum ? traj.firstMeasurement().updatedState().surface()
                                                              : traj.lastMeasurement().updatedState().surface();
     pathlength2 = thePropagator->propagateWithPath(tscblPCA, aSurface).second;
-    if (pathlength2 == 0.) {
+    if (pathlength2 == 0.f) {
       validpropagation = false;
     }
     pathlength = pathlength1 + pathlength2;
-
+    trs.addSegment(pathlength2, tscblPCA.momentum().mag2());
+    LogTrace("TrackExtenderWithMTD") << "TSOS " << std::fixed << std::setw(4) << trs.size() << " R_e " << std::fixed
+                                     << std::setw(14) << tscblPCA.position().perp() << " z_e " << std::fixed
+                                     << std::setw(14) << tscblPCA.position().z() << " p " << std::fixed << std::setw(14)
+                                     << tscblPCA.momentum().mag() << " dp " << std::fixed << std::setw(14)
+                                     << tscblPCA.momentum().mag() - oldp;
     return validpropagation;
   }
 
   bool trackPathLength(const Trajectory& traj,
                        const reco::BeamSpot& bs,
                        const Propagator* thePropagator,
-                       double& pathlength) {
-    pathlength = 0.;
+                       float& pathlength,
+                       TrackSegments& trs) {
+    pathlength = 0.f;
 
     TrajectoryStateClosestToBeamLine tscbl;
     bool tscbl_status = getTrajectoryStateClosestToBeamLine(traj, bs, thePropagator, tscbl);
@@ -274,7 +366,7 @@ namespace {
     if (!tscbl_status)
       return false;
 
-    return trackPathLength(traj, tscbl, thePropagator, pathlength);
+    return trackPathLength(traj, tscbl, thePropagator, pathlength, trs);
   }
 
 }  // namespace
@@ -296,39 +388,42 @@ public:
 
   TransientTrackingRecHit::ConstRecHitContainer tryBTLLayers(const TrajectoryStateOnSurface&,
                                                              const Trajectory& traj,
-                                                             const double,
-                                                             const double,
+                                                             const float,
+                                                             const float,
+                                                             const TrackSegments&,
                                                              const MTDTrackingDetSetVector&,
                                                              const MTDDetLayerGeometry*,
                                                              const MagneticField* field,
                                                              const Propagator* prop,
                                                              const reco::BeamSpot& bs,
-                                                             const double vtxTime,
+                                                             const float vtxTime,
                                                              const bool matchVertex,
                                                              MTDHitMatchingInfo& bestHit) const;
 
   TransientTrackingRecHit::ConstRecHitContainer tryETLLayers(const TrajectoryStateOnSurface&,
                                                              const Trajectory& traj,
-                                                             const double,
-                                                             const double,
+                                                             const float,
+                                                             const float,
+                                                             const TrackSegments&,
                                                              const MTDTrackingDetSetVector&,
                                                              const MTDDetLayerGeometry*,
                                                              const MagneticField* field,
                                                              const Propagator* prop,
                                                              const reco::BeamSpot& bs,
-                                                             const double vtxTime,
+                                                             const float vtxTime,
                                                              const bool matchVertex,
                                                              MTDHitMatchingInfo& bestHit) const;
 
   void fillMatchingHits(const DetLayer*,
                         const TrajectoryStateOnSurface&,
                         const Trajectory&,
-                        const double,
-                        const double,
+                        const float,
+                        const float,
+                        const TrackSegments&,
                         const MTDTrackingDetSetVector&,
                         const Propagator*,
                         const reco::BeamSpot&,
-                        const double&,
+                        const float&,
                         const bool,
                         TransientTrackingRecHit::ConstRecHitContainer&,
                         MTDHitMatchingInfo&) const;
@@ -360,26 +455,32 @@ public:
                          bool hasMTD,
                          float& pathLength,
                          float& tmtdOut,
-                         float& sigmatmtdOut) const;
+                         float& sigmatmtdOut,
+                         float& tofpi,
+                         float& tofk,
+                         float& tofp) const;
   reco::TrackExtra buildTrackExtra(const Trajectory& trajectory) const;
 
   string dumpLayer(const DetLayer* layer) const;
 
 private:
-  edm::EDPutToken btlMatchChi2Token;
-  edm::EDPutToken etlMatchChi2Token;
-  edm::EDPutToken btlMatchTimeChi2Token;
-  edm::EDPutToken etlMatchTimeChi2Token;
-  edm::EDPutToken npixBarrelToken;
-  edm::EDPutToken npixEndcapToken;
-  edm::EDPutToken pOrigTrkToken;
-  edm::EDPutToken betaOrigTrkToken;
-  edm::EDPutToken t0OrigTrkToken;
-  edm::EDPutToken sigmat0OrigTrkToken;
-  edm::EDPutToken pathLengthOrigTrkToken;
-  edm::EDPutToken tmtdOrigTrkToken;
-  edm::EDPutToken sigmatmtdOrigTrkToken;
-  edm::EDPutToken assocOrigTrkToken;
+  edm::EDPutToken btlMatchChi2Token_;
+  edm::EDPutToken etlMatchChi2Token_;
+  edm::EDPutToken btlMatchTimeChi2Token_;
+  edm::EDPutToken etlMatchTimeChi2Token_;
+  edm::EDPutToken npixBarrelToken_;
+  edm::EDPutToken npixEndcapToken_;
+  edm::EDPutToken pOrigTrkToken_;
+  edm::EDPutToken betaOrigTrkToken_;
+  edm::EDPutToken t0OrigTrkToken_;
+  edm::EDPutToken sigmat0OrigTrkToken_;
+  edm::EDPutToken pathLengthOrigTrkToken_;
+  edm::EDPutToken tmtdOrigTrkToken_;
+  edm::EDPutToken sigmatmtdOrigTrkToken_;
+  edm::EDPutToken tofpiOrigTrkToken_;
+  edm::EDPutToken tofkOrigTrkToken_;
+  edm::EDPutToken tofpOrigTrkToken_;
+  edm::EDPutToken assocOrigTrkToken_;
 
   edm::EDGetTokenT<InputCollection> tracksToken_;
   edm::EDGetTokenT<MTDTrackingDetSetVector> hitsToken_;
@@ -449,20 +550,23 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   theEstimator = std::make_unique<Chi2MeasurementEstimator>(estMaxChi2_, estMaxNSigma_);
   theTransformer = std::make_unique<TrackTransformer>(iConfig.getParameterSet("TrackTransformer"), consumesCollector());
 
-  btlMatchChi2Token = produces<edm::ValueMap<float>>("btlMatchChi2");
-  etlMatchChi2Token = produces<edm::ValueMap<float>>("etlMatchChi2");
-  btlMatchTimeChi2Token = produces<edm::ValueMap<float>>("btlMatchTimeChi2");
-  etlMatchTimeChi2Token = produces<edm::ValueMap<float>>("etlMatchTimeChi2");
-  npixBarrelToken = produces<edm::ValueMap<int>>("npixBarrel");
-  npixEndcapToken = produces<edm::ValueMap<int>>("npixEndcap");
-  pOrigTrkToken = produces<edm::ValueMap<float>>("generalTrackp");
-  betaOrigTrkToken = produces<edm::ValueMap<float>>("generalTrackBeta");
-  t0OrigTrkToken = produces<edm::ValueMap<float>>("generalTrackt0");
-  sigmat0OrigTrkToken = produces<edm::ValueMap<float>>("generalTracksigmat0");
-  pathLengthOrigTrkToken = produces<edm::ValueMap<float>>("generalTrackPathLength");
-  tmtdOrigTrkToken = produces<edm::ValueMap<float>>("generalTracktmtd");
-  sigmatmtdOrigTrkToken = produces<edm::ValueMap<float>>("generalTracksigmatmtd");
-  assocOrigTrkToken = produces<edm::ValueMap<int>>("generalTrackassoc");
+  btlMatchChi2Token_ = produces<edm::ValueMap<float>>("btlMatchChi2");
+  etlMatchChi2Token_ = produces<edm::ValueMap<float>>("etlMatchChi2");
+  btlMatchTimeChi2Token_ = produces<edm::ValueMap<float>>("btlMatchTimeChi2");
+  etlMatchTimeChi2Token_ = produces<edm::ValueMap<float>>("etlMatchTimeChi2");
+  npixBarrelToken_ = produces<edm::ValueMap<int>>("npixBarrel");
+  npixEndcapToken_ = produces<edm::ValueMap<int>>("npixEndcap");
+  pOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackp");
+  betaOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackBeta");
+  t0OrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackt0");
+  sigmat0OrigTrkToken_ = produces<edm::ValueMap<float>>("generalTracksigmat0");
+  pathLengthOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackPathLength");
+  tmtdOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTracktmtd");
+  sigmatmtdOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTracksigmatmtd");
+  tofpiOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackTofPi");
+  tofkOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackTofK");
+  tofpOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackTofP");
+  assocOrigTrkToken_ = produces<edm::ValueMap<int>>("generalTrackassoc");
 
   builderToken_ = esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", transientTrackBuilder_));
   hitbuilderToken_ =
@@ -572,6 +676,9 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   std::vector<float> pathLengthsOrigTrkRaw;
   std::vector<float> tmtdOrigTrkRaw;
   std::vector<float> sigmatmtdOrigTrkRaw;
+  std::vector<float> tofpiOrigTrkRaw;
+  std::vector<float> tofkOrigTrkRaw;
+  std::vector<float> tofpOrigTrkRaw;
   std::vector<int> assocOrigTrkRaw;
 
   auto const tracksH = ev.getHandle(tracksToken_);
@@ -598,7 +705,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         genVtxPosition.x(), genVtxPosition.y(), genVtxPosition.z(), genVtxTime);
   }
 
-  double vtxTime = 0.;
+  float vtxTime = 0.f;
   if (useVertex_) {
     if (useSimVertex_ && genPV) {
       vtxTime = genPV->t();
@@ -610,9 +717,9 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   unsigned itrack = 0;
 
   for (const auto& track : tracks) {
-    double trackVtxTime = 0.;
+    float trackVtxTime = 0.f;
     if (useVertex_) {
-      double dz;
+      float dz;
       if (useSimVertex_)
         dz = std::abs(track.dz(math::XYZPoint(*genPV)));
       else
@@ -634,21 +741,23 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
       bool tscbl_status = getTrajectoryStateClosestToBeamLine(trajs.front(), bs, prop, tscbl);
 
       if (tscbl_status) {
-        double pmag2 = tscbl.trackStateAtPCA().momentum().mag2();
-        double pathlength0;
-        trackPathLength(trajs.front(), tscbl, prop, pathlength0);
+        float pmag2 = tscbl.trackStateAtPCA().momentum().mag2();
+        float pathlength0;
+        TrackSegments trs0;
+        trackPathLength(trajs.front(), tscbl, prop, pathlength0, trs0);
 
         const auto& btlhits = tryBTLLayers(tsos,
                                            trajs.front(),
                                            pmag2,
                                            pathlength0,
+                                           trs0,
                                            hits,
                                            geo.product(),
                                            magfield.product(),
                                            prop,
                                            bs,
                                            trackVtxTime,
-                                           trackVtxTime != 0.,
+                                           trackVtxTime != 0.f,
                                            mBTL);
         mtdthits.insert(mtdthits.end(), btlhits.begin(), btlhits.end());
 
@@ -658,13 +767,14 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
                                            trajs.front(),
                                            pmag2,
                                            pathlength0,
+                                           trs0,
                                            hits,
                                            geo.product(),
                                            magfield.product(),
                                            prop,
                                            bs,
                                            trackVtxTime,
-                                           trackVtxTime != 0.,
+                                           trackVtxTime != 0.f,
                                            mETL);
         mtdthits.insert(mtdthits.end(), etlhits.begin(), etlhits.end());
       }
@@ -681,12 +791,14 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
 
     const auto& trajwithmtd = mtdthits.empty() ? trajs : theTransformer->transform(ttrack, thits);
     float pMap = 0.f, betaMap = 0.f, t0Map = 0.f, sigmat0Map = -1.f, pathLengthMap = -1.f, tmtdMap = 0.f,
-          sigmatmtdMap = -1.f;
+          sigmatmtdMap = -1.f, tofpiMap = 0.f, tofkMap = 0.f, tofpMap = 0.f;
     int iMap = -1;
 
     for (const auto& trj : trajwithmtd) {
       const auto& thetrj = (updateTraj_ ? trj : trajs.front());
-      float pathLength = 0.f, tmtd = 0.f, sigmatmtd = -1.f;
+      float pathLength = 0.f, tmtd = 0.f, sigmatmtd = -1.f, tofpi = 0.f, tofk = 0.f, tofp = 0.f;
+      LogTrace("TrackExtenderWithMTD") << "Refit track " << itrack << " p/pT = " << track.p() << " " << track.pt()
+                                       << " eta = " << track.eta();
       reco::Track result = buildTrack(track,
                                       thetrj,
                                       trj,
@@ -696,7 +808,10 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
                                       !trajwithmtd.empty() && !mtdthits.empty(),
                                       pathLength,
                                       tmtd,
-                                      sigmatmtd);
+                                      sigmatmtd,
+                                      tofpi,
+                                      tofk,
+                                      tofp);
       if (result.ndof() >= 0) {
         /// setup the track extras
         reco::TrackExtra::TrajParams trajParams;
@@ -713,10 +828,10 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         extras->back().setTrajParams(trajParams, chi2s);
         //create the track
         output->push_back(result);
-        btlMatchChi2.push_back(mBTL.hit ? mBTL.estChi2 : -1);
-        etlMatchChi2.push_back(mETL.hit ? mETL.estChi2 : -1);
-        btlMatchTimeChi2.push_back(mBTL.hit ? mBTL.timeChi2 : -1);
-        etlMatchTimeChi2.push_back(mETL.hit ? mETL.timeChi2 : -1);
+        btlMatchChi2.push_back(mBTL.hit ? mBTL.estChi2 : -1.f);
+        etlMatchChi2.push_back(mETL.hit ? mETL.estChi2 : -1.f);
+        btlMatchTimeChi2.push_back(mBTL.hit ? mBTL.timeChi2 : -1.f);
+        etlMatchTimeChi2.push_back(mETL.hit ? mETL.timeChi2 : -1.f);
         pathLengthMap = pathLength;
         tmtdMap = tmtd;
         sigmatmtdMap = sigmatmtd;
@@ -726,6 +841,9 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         betaMap = backtrack.beta();
         t0Map = backtrack.t0();
         sigmat0Map = std::copysign(std::sqrt(std::abs(backtrack.covt0t0())), backtrack.covt0t0());
+        tofpiMap = tofpi;
+        tofkMap = tofk;
+        tofpMap = tofp;
         reco::TrackExtraRef extraRef(extrasRefProd, extras->size() - 1);
         backtrack.setExtra((updateExtra_ ? extraRef : track.extra()));
         for (unsigned ihit = hitsstart; ihit < hitsend; ++ihit) {
@@ -733,6 +851,9 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         }
         npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
         npixEndcap.push_back(backtrack.hitPattern().numberOfValidPixelEndcapHits());
+        LogTrace("TrackExtenderWithMTD") << "tmtd " << tmtdMap << " +/- " << sigmatmtdMap << " t0 " << t0Map << " +/- "
+                                         << sigmat0Map << " tof pi/K/p " << tofpiMap << " " << tofkMap << " "
+                                         << tofpMap;
       } else {
         LogTrace("TrackExtenderWithMTD") << "Error in the MTD track refitting. This should not happen";
       }
@@ -745,15 +866,18 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     pathLengthsOrigTrkRaw.push_back(pathLengthMap);
     tmtdOrigTrkRaw.push_back(tmtdMap);
     sigmatmtdOrigTrkRaw.push_back(sigmatmtdMap);
+    tofpiOrigTrkRaw.push_back(tofpiMap);
+    tofkOrigTrkRaw.push_back(tofkMap);
+    tofpOrigTrkRaw.push_back(tofpMap);
     assocOrigTrkRaw.push_back(iMap);
 
     if (iMap == -1) {
-      btlMatchChi2.push_back(-1.);
-      etlMatchChi2.push_back(-1.);
-      btlMatchTimeChi2.push_back(-1.);
-      etlMatchTimeChi2.push_back(-1.);
-      npixBarrel.push_back(-1.);
-      npixEndcap.push_back(-1.);
+      btlMatchChi2.push_back(-1.f);
+      etlMatchChi2.push_back(-1.f);
+      btlMatchTimeChi2.push_back(-1.f);
+      etlMatchTimeChi2.push_back(-1.f);
+      npixBarrel.push_back(-1.f);
+      npixEndcap.push_back(-1.f);
     }
 
     ++itrack;
@@ -763,20 +887,23 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   ev.put(std::move(extras));
   ev.put(std::move(outhits));
 
-  fillValueMap(ev, tracksH, btlMatchChi2, btlMatchChi2Token);
-  fillValueMap(ev, tracksH, etlMatchChi2, etlMatchChi2Token);
-  fillValueMap(ev, tracksH, btlMatchTimeChi2, btlMatchTimeChi2Token);
-  fillValueMap(ev, tracksH, etlMatchTimeChi2, etlMatchTimeChi2Token);
-  fillValueMap(ev, tracksH, npixBarrel, npixBarrelToken);
-  fillValueMap(ev, tracksH, npixEndcap, npixEndcapToken);
-  fillValueMap(ev, tracksH, pOrigTrkRaw, pOrigTrkToken);
-  fillValueMap(ev, tracksH, betaOrigTrkRaw, betaOrigTrkToken);
-  fillValueMap(ev, tracksH, t0OrigTrkRaw, t0OrigTrkToken);
-  fillValueMap(ev, tracksH, sigmat0OrigTrkRaw, sigmat0OrigTrkToken);
-  fillValueMap(ev, tracksH, pathLengthsOrigTrkRaw, pathLengthOrigTrkToken);
-  fillValueMap(ev, tracksH, tmtdOrigTrkRaw, tmtdOrigTrkToken);
-  fillValueMap(ev, tracksH, sigmatmtdOrigTrkRaw, sigmatmtdOrigTrkToken);
-  fillValueMap(ev, tracksH, assocOrigTrkRaw, assocOrigTrkToken);
+  fillValueMap(ev, tracksH, btlMatchChi2, btlMatchChi2Token_);
+  fillValueMap(ev, tracksH, etlMatchChi2, etlMatchChi2Token_);
+  fillValueMap(ev, tracksH, btlMatchTimeChi2, btlMatchTimeChi2Token_);
+  fillValueMap(ev, tracksH, etlMatchTimeChi2, etlMatchTimeChi2Token_);
+  fillValueMap(ev, tracksH, npixBarrel, npixBarrelToken_);
+  fillValueMap(ev, tracksH, npixEndcap, npixEndcapToken_);
+  fillValueMap(ev, tracksH, pOrigTrkRaw, pOrigTrkToken_);
+  fillValueMap(ev, tracksH, betaOrigTrkRaw, betaOrigTrkToken_);
+  fillValueMap(ev, tracksH, t0OrigTrkRaw, t0OrigTrkToken_);
+  fillValueMap(ev, tracksH, sigmat0OrigTrkRaw, sigmat0OrigTrkToken_);
+  fillValueMap(ev, tracksH, pathLengthsOrigTrkRaw, pathLengthOrigTrkToken_);
+  fillValueMap(ev, tracksH, tmtdOrigTrkRaw, tmtdOrigTrkToken_);
+  fillValueMap(ev, tracksH, sigmatmtdOrigTrkRaw, sigmatmtdOrigTrkToken_);
+  fillValueMap(ev, tracksH, tofpiOrigTrkRaw, tofpiOrigTrkToken_);
+  fillValueMap(ev, tracksH, tofkOrigTrkRaw, tofkOrigTrkToken_);
+  fillValueMap(ev, tracksH, tofpOrigTrkRaw, tofpOrigTrkToken_);
+  fillValueMap(ev, tracksH, assocOrigTrkRaw, assocOrigTrkToken_);
 }
 
 namespace {
@@ -786,9 +913,10 @@ namespace {
                          const Trajectory& traj,
                          const DetLayer* layer,
                          const TrajectoryStateOnSurface& tsos,
-                         const double pmag2,
-                         const double pathlength0,
-                         const double vtxTime,
+                         const float pmag2,
+                         const float pathlength0,
+                         const TrackSegments& trs0,
+                         const float vtxTime,
                          const reco::BeamSpot& bs,
                          const float bsTimeSpread,
                          const Propagator* prop,
@@ -808,13 +936,12 @@ namespace {
           if (pl.second == 0.)
             continue;
 
-          const double tot_pl = pathlength0 + std::abs(pl.second);
-          const double t_vtx = useVtxConstraint ? vtxTime : 0.;
+          const float t_vtx = useVtxConstraint ? vtxTime : 0.f;
 
-          constexpr double vtx_res = 0.008;
-          const double t_vtx_err = useVtxConstraint ? vtx_res : bsTimeSpread;
+          constexpr float vtx_res = 0.008f;
+          const float t_vtx_err = useVtxConstraint ? vtx_res : bsTimeSpread;
 
-          constexpr double t_res_manual = 0.035;
+          float lastpmag2 = trs0.getSegmentPathAndMom2(0).second;
 
           for (auto detitr = range.first; detitr != range.second; ++detitr) {
             for (const auto& hit : *detitr) {
@@ -822,13 +949,15 @@ namespace {
               if (!est.first)
                 continue;
 
-              TrackTofPidInfo tof = computeTrackTofPidInfo(pmag2,
-                                                           tot_pl,
+              TrackTofPidInfo tof = computeTrackTofPidInfo(lastpmag2,
+                                                           std::abs(pl.second),
+                                                           trs0,
                                                            hit.time(),
-                                                           t_res_manual,  //put hit error by hand for the moment
+                                                           hit.timeError(),
                                                            t_vtx,
                                                            t_vtx_err,  //put vtx error by hand for the moment
-                                                           false);
+                                                           false,
+                                                           TofCalc::kMixd);
               MTDHitMatchingInfo mi;
               mi.hit = &hit;
               mi.estChi2 = est.second;
@@ -847,14 +976,15 @@ template <class TrackCollection>
 TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollection>::tryBTLLayers(
     const TrajectoryStateOnSurface& tsos,
     const Trajectory& traj,
-    const double pmag2,
-    const double pathlength0,
+    const float pmag2,
+    const float pathlength0,
+    const TrackSegments& trs0,
     const MTDTrackingDetSetVector& hits,
     const MTDDetLayerGeometry* geo,
     const MagneticField* field,
     const Propagator* prop,
     const reco::BeamSpot& bs,
-    const double vtxTime,
+    const float vtxTime,
     const bool matchVertex,
     MTDHitMatchingInfo& bestHit) const {
   const vector<const DetLayer*>& layers = geo->allBTLLayers();
@@ -862,7 +992,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
   TransientTrackingRecHit::ConstRecHitContainer output;
   bestHit = MTDHitMatchingInfo();
   for (const DetLayer* ilay : layers)
-    fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
+    fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
   return output;
 }
 
@@ -870,14 +1000,15 @@ template <class TrackCollection>
 TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollection>::tryETLLayers(
     const TrajectoryStateOnSurface& tsos,
     const Trajectory& traj,
-    const double pmag2,
-    const double pathlength0,
+    const float pmag2,
+    const float pathlength0,
+    const TrackSegments& trs0,
     const MTDTrackingDetSetVector& hits,
     const MTDDetLayerGeometry* geo,
     const MagneticField* field,
     const Propagator* prop,
     const reco::BeamSpot& bs,
-    const double vtxTime,
+    const float vtxTime,
     const bool matchVertex,
     MTDHitMatchingInfo& bestHit) const {
   const vector<const DetLayer*>& layers = geo->allETLLayers();
@@ -886,12 +1017,12 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
   bestHit = MTDHitMatchingInfo();
   for (const DetLayer* ilay : layers) {
     const BoundDisk& disk = static_cast<const ForwardDetLayer*>(ilay)->specificSurface();
-    const double diskZ = disk.position().z();
+    const float diskZ = disk.position().z();
 
     if (tsos.globalPosition().z() * diskZ < 0)
       continue;  // only propagate to the disk that's on the same side
 
-    fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
+    fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
   }
 
   // the ETL hits order must be from the innermost to the outermost
@@ -908,12 +1039,13 @@ template <class TrackCollection>
 void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* ilay,
                                                               const TrajectoryStateOnSurface& tsos,
                                                               const Trajectory& traj,
-                                                              const double pmag2,
-                                                              const double pathlength0,
+                                                              const float pmag2,
+                                                              const float pathlength0,
+                                                              const TrackSegments& trs0,
                                                               const MTDTrackingDetSetVector& hits,
                                                               const Propagator* prop,
                                                               const reco::BeamSpot& bs,
-                                                              const double& vtxTime,
+                                                              const float& vtxTime,
                                                               const bool matchVertex,
                                                               TransientTrackingRecHit::ConstRecHitContainer& output,
                                                               MTDHitMatchingInfo& bestHit) const {
@@ -928,6 +1060,7 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
                              std::cref(tsos),
                              pmag2,
                              pathlength0,
+                             trs0,
                              _1,
                              std::cref(bs),
                              bsTimeSpread_,
@@ -983,7 +1116,10 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
                                                                bool hasMTD,
                                                                float& pathLengthOut,
                                                                float& tmtdOut,
-                                                               float& sigmatmtdOut) const {
+                                                               float& sigmatmtdOut,
+                                                               float& tofpi,
+                                                               float& tofk,
+                                                               float& tofp) const {
   TrajectoryStateClosestToBeamLine tscbl;
   bool tsbcl_status = getTrajectoryStateClosestToBeamLine(traj, bs, thePropagator, tscbl);
 
@@ -997,13 +1133,13 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
 
   int ndof = traj.ndof();
 
-  double t0 = 0.;
-  double covt0t0 = -1.;
+  float t0 = 0.f;
+  float covt0t0 = -1.f;
   pathLengthOut = -1.f;  // if there is no MTD flag the pathlength with -1
   tmtdOut = 0.f;
   sigmatmtdOut = -1.f;
-  double betaOut = 0.;
-  double covbetabeta = -1.;
+  float betaOut = 0.f;
+  float covbetabeta = -1.f;
 
   auto routput = [&]() {
     return reco::Track(traj.chiSquared(),
@@ -1022,17 +1158,18 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
 
   //compute path length for time backpropagation, using first MTD hit for the momentum
   if (hasMTD) {
-    double pathlength;
-    bool validpropagation = trackPathLength(trajWithMtd, bs, thePropagator, pathlength);
-    double thit = 0.;
-    double thiterror = -1.;
+    float pathlength;
+    TrackSegments trs;
+    bool validpropagation = trackPathLength(trajWithMtd, bs, thePropagator, pathlength, trs);
+    float thit = 0.f;
+    float thiterror = -1.f;
     bool validmtd = false;
 
     if (!validpropagation) {
       return routput();
     }
 
-    size_t ihitcount(0), ietlcount(0);
+    uint32_t ihitcount(0), ietlcount(0);
     for (auto const& hit : trajWithMtd.measurements()) {
       if (hit.recHit()->geographicalId().det() == DetId::Forward &&
           ForwardSubdetector(hit.recHit()->geographicalId().subdetId()) == FastTime) {
@@ -1050,26 +1187,26 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       thiterror = mtdhit->timeError();
       validmtd = true;
     } else if (ihitcount == 2 && ietlcount == 2) {
-      const auto& propresult =
-          thePropagator->propagateWithPath(ihit1->updatedState(), (ihit1 + 1)->updatedState().surface());
-      double etlpathlength = std::abs(propresult.second);
+      std::pair<float, float> lastStep = trs.getSegmentPathAndMom2(0);
+      float etlpathlength = std::abs(lastStep.first * c_cm_ns);
       //
       // The information of the two ETL hits is combined and attributed to the innermost hit
       //
-      if (etlpathlength == 0.) {
+      if (etlpathlength == 0.f) {
         validpropagation = false;
       } else {
         pathlength -= etlpathlength;
+        trs.removeFirstSegment();
         const MTDTrackingRecHit* mtdhit1 = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
         const MTDTrackingRecHit* mtdhit2 = static_cast<const MTDTrackingRecHit*>((*(ihit1 + 1)).recHit()->hit());
-        TrackTofPidInfo tofInfo =
-            computeTrackTofPidInfo(p.mag2(), etlpathlength, mtdhit1->time(), mtdhit1->timeError(), 0., 0., true);
+        TrackTofPidInfo tofInfo = computeTrackTofPidInfo(
+            lastStep.second, etlpathlength, trs, mtdhit1->time(), mtdhit1->timeError(), 0.f, 0.f, true, TofCalc::kCost);
         //
         // Protect against incompatible times
         //
-        double err1 = tofInfo.dterror * tofInfo.dterror;
-        double err2 = mtdhit2->timeError() * mtdhit2->timeError();
-        if (cms_rounding::roundIfNear0(err1) == 0. || cms_rounding::roundIfNear0(err2) == 0.) {
+        float err1 = tofInfo.dterror * tofInfo.dterror;
+        float err2 = mtdhit2->timeError() * mtdhit2->timeError();
+        if (cms_rounding::roundIfNear0(err1) == 0.f || cms_rounding::roundIfNear0(err2) == 0.f) {
           edm::LogError("TrackExtenderWithMTD")
               << "MTD tracking hits with zero time uncertainty: " << err1 << " " << err2;
         } else {
@@ -1078,9 +1215,9 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
             // Subtract the ETL time of flight from the outermost measurement, and combine it in a weighted average with the innermost
             // the mass ambiguity related uncertainty on the time of flight is added as an additional uncertainty
             //
-            err1 = 1. / err1;
-            err2 = 1. / err2;
-            thiterror = 1. / (err1 + err2);
+            err1 = 1.f / err1;
+            err2 = 1.f / err2;
+            thiterror = 1.f / (err1 + err2);
             thit = (tofInfo.dt * err1 + mtdhit2->time() * err2) * thiterror;
             thiterror = std::sqrt(thiterror);
             LogDebug("TrackExtenderWithMTD") << "p trk = " << p.mag() << " ETL hits times/errors: " << mtdhit1->time()
@@ -1098,7 +1235,8 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
 
     if (validmtd && validpropagation) {
       //here add the PID uncertainty for later use in the 1st step of 4D vtx reconstruction
-      TrackTofPidInfo tofInfo = computeTrackTofPidInfo(p.mag2(), pathlength, thit, thiterror, 0., 0., true);
+      TrackTofPidInfo tofInfo =
+          computeTrackTofPidInfo(p.mag2(), pathlength, trs, thit, thiterror, 0.f, 0.f, true, TofCalc::kSegm);
       pathLengthOut = pathlength;  // set path length if we've got a timing hit
       tmtdOut = thit;
       sigmatmtdOut = thiterror;
@@ -1106,6 +1244,9 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       covt0t0 = tofInfo.dterror * tofInfo.dterror;
       betaOut = tofInfo.beta_pi;
       covbetabeta = tofInfo.betaerror * tofInfo.betaerror;
+      tofpi = tofInfo.dt_pi;
+      tofk = tofInfo.dt_k;
+      tofp = tofInfo.dt_p;
     }
   }
 
