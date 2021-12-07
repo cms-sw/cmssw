@@ -109,11 +109,11 @@ run3_common.toModify(pixelTracksSoA.cpu,
 
 # convert the pixel tracks from SoA to legacy format
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import pixelTrackProducerFromSoA as _pixelTrackProducerFromSoA
-pixelNtupletFit.toReplaceWith(pixelTracks, _pixelTrackProducerFromSoA.clone(
+(pixelNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoA.clone(
     pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
 ))
 
-pixelNtupletFit.toReplaceWith(pixelTracksTask, cms.Task(
+(pixelNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracksTask, cms.Task(
     #pixelTracksTrackingRegions,
     #pixelFitterByHelixProjections,
     #pixelTrackFilterByKinematics,
@@ -148,7 +148,9 @@ gpu.toModify(pixelTracksSoA,
     cuda = _pixelTracksSoA.clone()
 )
 
-(pixelNtupletFit & gpu).toReplaceWith(pixelTracksTask, cms.Task(
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+
+(pixelNtupletFit & gpu & ~phase2_tracker).toReplaceWith(pixelTracksTask, cms.Task(
     # build the pixel ntuplets and pixel tracks in SoA format on the GPU
     pixelTracksCUDA,
     # transfer the pixel tracks in SoA format to the CPU, and convert them to legacy format

@@ -152,7 +152,7 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         era=properties.get('Era', None)
         modifier=properties.get('ProcessModifier',None)
         if cust is not None: stepDict[stepName][k]['--customise']=cust
-        if era is not None: 
+        if era is not None:
             stepDict[stepName][k]['--era']=era
         if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
     def condition(self, fragment, stepList, key, hasHarvest):
@@ -478,6 +478,7 @@ class PatatrackWorkflow(UpgradeWorkflow):
             ('2021' in key and fragment == "TTbar_14TeV"),
             ('2018' in key and fragment == "ZMM_13"),
             ('2021' in key and fragment == "ZMM_14"),
+            ('2026D87' in key and fragment == "TTbar_14TeV" and "PixelOnly" in self.suffix)
         ]
         result = any(selected) and hasHarvest
 
@@ -543,7 +544,7 @@ upgradeWFs['PatatrackPixelOnlyGPUProfiling'] = PatatrackWorkflow(
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
         '--procModifiers': 'pixelNtupletFit,gpu',
-        '--customise' : 'RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
+            '--customise' : 'RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
     },
     harvest = None,
     suffix = 'Patatrack_PixelOnlyGPU_Profiling',
