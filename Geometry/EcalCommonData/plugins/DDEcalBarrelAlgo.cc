@@ -1640,7 +1640,7 @@ void DDEcalBarrelAlgo::execute(DDCompactView& cpv) {
           for (unsigned int iPipe(0); iPipe != vecIlyPipePhi().size(); ++iPipe) {
             const unsigned int type(static_cast<unsigned int>(round(vecIlyPipeType()[iPipe])));
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("EcalGeom") <<" iPipe, type= " << iPipe << ", " << type;
+            edm::LogVerbatim("EcalGeom") << " iPipe, type= " << iPipe << ", " << type;
 #endif
             const double zz(-ilyLength / 2 + vecIlyPipeZ()[iPipe] + (9 > type ? vecIlyPipeLength()[type] / 2. : 0));
 
@@ -2045,47 +2045,21 @@ void DDEcalBarrelAlgo::execute(DDCompactView& cpv) {
       const DDLogicalPart wallLog(wallDDName, wallMat(), wallSolid);
 
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << "Traps:\n a: " 
-				   << trapCry.a() << ", " 
-				   << trapClr.a() << ", " 
-				   << trapWrap.a() << ", " 
-				   << trapWall.a() << "\n b: " 
-				   << trapCry.b() << ", " 
-				   << trapClr.b() << ", " 
-				   << trapWrap.b() << ", " 
-				   << trapWall.b() << "\n A: " 
-				   << trapCry.A() << ", " 
-				   << trapClr.A() << ", " 
-				   << trapWrap.A() << ", " 
-				   << trapWall.A() << "\n B: " 
-				   << trapCry.B() << ", " 
-				   << trapClr.B() << ", " 
-				   << trapWrap.B() << ", " 
-				   << trapWall.B() << "\n h: " 
-				   << trapCry.h() << ", " 
-				   << trapClr.h() << ", " 
-				   << trapWrap.h() << ", " 
-				   << trapWall.h() << "\n H: " 
-				   << trapCry.H() << ", " 
-				   << trapClr.H() << ", " 
-				   << trapWrap.H() << ", " 
-				   << trapWall.H() << "\n a1: " 
-				   << trapCry.a1()/deg << ", " 
-				   << trapClr.a1()/deg << ", " 
-				   << trapWrap.a1()/deg << ", " 
-				   << trapWall.a1()/deg << "\n a4: " 
-				   << trapCry.a4()/deg << ", " 
-				   << trapClr.a4()/deg << ", " 
-				   << trapWrap.a4()/deg << ", " 
-				   << trapWall.a4()/deg << "\n x15: " 
-				   << trapCry.x15() << ", " 
-				   << trapClr.x15() << ", " 
-				   << trapWrap.x15() << ", " 
-				   << trapWall.x15() << "\n y15: " 
-				   << trapCry.y15() << ", " 
-				   << trapClr.y15() << ", " 
-				   << trapWrap.y15() << ", " 
-				   << trapWall.y15();
+      edm::LogVerbatim("EcalGeom") << "Traps:\n a: " << trapCry.a() << ", " << trapClr.a() << ", " << trapWrap.a()
+                                   << ", " << trapWall.a() << "\n b: " << trapCry.b() << ", " << trapClr.b() << ", "
+                                   << trapWrap.b() << ", " << trapWall.b() << "\n A: " << trapCry.A() << ", "
+                                   << trapClr.A() << ", " << trapWrap.A() << ", " << trapWall.A()
+                                   << "\n B: " << trapCry.B() << ", " << trapClr.B() << ", " << trapWrap.B() << ", "
+                                   << trapWall.B() << "\n h: " << trapCry.h() << ", " << trapClr.h() << ", "
+                                   << trapWrap.h() << ", " << trapWall.h() << "\n H: " << trapCry.H() << ", "
+                                   << trapClr.H() << ", " << trapWrap.H() << ", " << trapWall.H()
+                                   << "\n a1: " << trapCry.a1() / deg << ", " << trapClr.a1() / deg << ", "
+                                   << trapWrap.a1() / deg << ", " << trapWall.a1() / deg
+                                   << "\n a4: " << trapCry.a4() / deg << ", " << trapClr.a4() / deg << ", "
+                                   << trapWrap.a4() / deg << ", " << trapWall.a4() / deg << "\n x15: " << trapCry.x15()
+                                   << ", " << trapClr.x15() << ", " << trapWrap.x15() << ", " << trapWall.x15()
+                                   << "\n y15: " << trapCry.y15() << ", " << trapClr.y15() << ", " << trapWrap.y15()
+                                   << ", " << trapWall.y15();
 #endif
       // Now for placement of cry within clr
       const Vec3 cryToClr(0, 0, (rClr - fClr) / 2);
@@ -2158,8 +2132,9 @@ void DDEcalBarrelAlgo::execute(DDCompactView& cpv) {
 
       for (unsigned int etaAlv(1); etaAlv <= nCryPerAlvEta(); ++etaAlv) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << "theta=" << theta / deg << ", sidePrime=" << sidePrime << ", frontPrime=" << frontPrime
-                             << ",  zeta=" << zeta << ", delta=" << delta << ",  zee=" << zee;
+        edm::LogVerbatim("EcalGeom") << "theta=" << theta / deg << ", sidePrime=" << sidePrime
+                                     << ", frontPrime=" << frontPrime << ",  zeta=" << zeta << ", delta=" << delta
+                                     << ",  zee=" << zee;
 #endif
         zee += 0.075 * mm + (side * cos(zeta) + trapWall.h() - sidePrime) / sin(theta);
 

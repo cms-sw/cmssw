@@ -1906,7 +1906,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
           }
           for (unsigned int iPipe(0); iPipe != vecIlyPipePhi().size(); ++iPipe) {
             const unsigned int type(static_cast<unsigned int>(round(vecIlyPipeType()[iPipe])));
-//		  edm::LogVerbatim("EcalGeom") <<" iPipe, type= " << iPipe << ", " << type;
+            //		  edm::LogVerbatim("EcalGeom") <<" iPipe, type= " << iPipe << ", " << type;
             const double zz(-ilyLength / 2 + vecIlyPipeZ()[iPipe] + (9 > type ? vecIlyPipeLength()[type] / 2. : 0));
 
             for (unsigned int ly(0); ly != 2; ++ly) {
