@@ -9,11 +9,6 @@
 
 #include <cstdint>
 
-auto roundFor128ByteAlignment = [](int numFedWords) {
-  int mul = 128 / sizeof(uint16_t);
-  return ((numFedWords + mul - 1) / mul) * mul;
-};
-
 class SiPixelDigisCUDASOAView {
 public:
   friend class SiPixelDigisCUDA;
@@ -45,6 +40,27 @@ public:
   |        0: N*32        |         2: N*32        |         4: N*32         |  6: N*16  |
   ========================================================================================
   */
+
+  SiPixelDigisCUDASOAView() = default;
+
+  template <typename StoreType>
+  SiPixelDigisCUDASOAView(StoreType& store, int maxFedWords, StorageLocation s) {
+    xx_ = getColumnAddress<uint16_t>(StorageLocation::kXX, store, maxFedWords);
+    yy_ = getColumnAddress<uint16_t>(StorageLocation::kYY, store, maxFedWords);
+    adc_ = getColumnAddress<uint16_t>(StorageLocation::kADC, store, maxFedWords);
+    moduleInd_ = getColumnAddress<uint16_t>(StorageLocation::kMODULEIND, store, maxFedWords);
+    clus_ = getColumnAddress<int32_t>(StorageLocation::kCLUS, store, maxFedWords);
+    pdigi_ = getColumnAddress<uint32_t>(StorageLocation::kPDIGI, store, maxFedWords);
+    rawIdArr_ = getColumnAddress<uint32_t>(StorageLocation::kRAWIDARR, store, maxFedWords);
+  }
+
+  template <typename StoreType>
+  SiPixelDigisCUDASOAView(StoreType& store, int maxFedWords, StorageLocationHost s) {
+    adc_ = getColumnAddress<uint16_t>(StorageLocationHost::kADC, store, maxFedWords);
+    clus_ = getColumnAddress<int32_t>(StorageLocationHost::kCLUS, store, maxFedWords);
+    pdigi_ = getColumnAddress<uint32_t>(StorageLocationHost::kPDIGI, store, maxFedWords);
+    rawIdArr_ = getColumnAddress<uint32_t>(StorageLocationHost::kRAWIDARR, store, maxFedWords);
+  }
 
   __device__ __forceinline__ uint16_t xx(int i) const { return __ldg(xx_ + i); }
   __device__ __forceinline__ uint16_t yy(int i) const { return __ldg(yy_ + i); }
@@ -78,6 +94,17 @@ private:
   int32_t* clus_;        // cluster id of each pixel
   uint32_t* pdigi_;
   uint32_t* rawIdArr_;
+
+  template <typename ReturnType, typename StoreType, typename LocationType>
+  ReturnType* getColumnAddress(LocationType column, StoreType& store, int maxFedWords) {
+    return reinterpret_cast<ReturnType*>(store.get() +
+                                         static_cast<int>(column) * roundFor128ByteAlignment(maxFedWords));
+  }
+
+  static int roundFor128ByteAlignment(int numFedWords) {
+    int mul = 128 / sizeof(uint16_t);
+    return ((numFedWords + mul - 1) / mul) * mul;
+  };
 };
 
 #endif
