@@ -4,7 +4,7 @@
 #include "TH1.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -12,7 +12,7 @@
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
-class PatZjetsElectronAnalyzer : public edm::EDAnalyzer {
+class PatZjetsElectronAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit PatZjetsElectronAnalyzer(const edm::ParameterSet&);
   ~PatZjetsElectronAnalyzer() override;
@@ -33,7 +33,9 @@ private:
 
 PatZjetsElectronAnalyzer::PatZjetsElectronAnalyzer(const edm::ParameterSet& iConfig)
     : histContainer_(),
-      srcToken_(consumes<edm::View<pat::Electron> >(iConfig.getUntrackedParameter<edm::InputTag>("src"))) {}
+      srcToken_(consumes<edm::View<pat::Electron> >(iConfig.getUntrackedParameter<edm::InputTag>("src"))) {
+  usesResource(TFileService::kSharedResource);
+}
 
 PatZjetsElectronAnalyzer::~PatZjetsElectronAnalyzer() {}
 
