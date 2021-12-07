@@ -436,15 +436,7 @@ namespace edm {
                                                                               SharedResourcesAcquirer*,
                                                                               ModuleCallingContext const*) const {
     if (!skipCurrentProcess and worker_) {
-      return resolveProductImpl<true>([this]() {
-        edm::Exception ex(errors::UnimplementedFeature);
-        ex << "Attempting to run unscheduled module without doing prefetching";
-        std::ostringstream ost;
-        ost << "Calling produce method for unscheduled module " << worker_->description()->moduleName() << "/'"
-            << worker_->description()->moduleLabel() << "'";
-        ex.addContext(ost.str());
-        throw ex;
-      });
+      return resolveProductImpl<false>([] {});
     }
     return Resolution(nullptr);
   }
