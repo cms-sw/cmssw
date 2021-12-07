@@ -607,31 +607,23 @@ void Tracer::preOpenFile(std::string const& lfn, bool b) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " starting: open input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 
 void Tracer::postOpenFile(std::string const& lfn, bool b) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: open input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 
 void Tracer::preCloseFile(std::string const& lfn, bool b) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " starting: close input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 void Tracer::postCloseFile(std::string const& lfn, bool b) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: close input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 
 void Tracer::preModuleBeginStream(StreamContext const& sc, ModuleCallingContext const& mcc) {
