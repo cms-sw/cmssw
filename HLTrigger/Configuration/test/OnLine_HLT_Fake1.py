@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_2_0/Fake1 --type Fake1 --unprescale --process HLTFake1 --globaltag auto:run2_hlt_Fake1 --input file:RelVal_Raw_Fake1_DATA.root
 
-# /dev/CMSSW_12_2_0/Fake1/V4 (CMSSW_12_2_0_pre2)
+# /dev/CMSSW_12_2_0/Fake1/V5 (CMSSW_12_2_0_pre3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake1" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_2_0/Fake1/V4')
+  tableName = cms.string('/dev/CMSSW_12_2_0/Fake1/V5')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -340,7 +340,7 @@ process.DQMOutput = cms.EndPath( process.dqmOutput )
 
 
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v1, process.HLT_Random_v1, process.HLT_ZeroBias_v1, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.AOutput, process.DQMOutput, ))
+process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v1, process.HLT_Random_v1, process.HLT_ZeroBias_v1, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.AOutput, process.DQMOutput, ))
 
 
 # source module (EDM inputs)
