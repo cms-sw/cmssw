@@ -1,6 +1,8 @@
 #ifndef HeterogeneousCore_CUDAUtilities_interface_OneToManyAssoc_h
 #define HeterogeneousCore_CUDAUtilities_interface_OneToManyAssoc_h
 
+// A test. Just to make sure it recompile all files where is used
+
 #include <algorithm>
 #ifndef __CUDA_ARCH__
 #include <atomic>
