@@ -1,17 +1,17 @@
-#ifndef MELaserPrim_hh
-#define MELaserPrim_hh
+#ifndef CalibCalorimetry_EcalLaserAnalyzer_MELaserPrim_h
+#define CalibCalorimetry_EcalLaserAnalyzer_MELaserPrim_h
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <map>
 
-#include <TROOT.h>
-#include <TChain.h>
-#include <TH2I.h>
-#include <TH2F.h>
-#include <TFile.h>
-#include <TString.h>
+#include "TROOT.h"
+#include "TChain.h"
+#include "TH2I.h"
+#include "TH2F.h"
+#include "TFile.h"
+#include "TString.h"
 
 #include "ME.h"
 
@@ -73,7 +73,7 @@ public:
   Int_t getInt(const char *, int ix, int iy);
   Float_t getVal(const char *, int ix, int iy);
 
-  static TString separator;
+  static const TString separator;
 
 private:
   // monitoring region (dcc+side), wavelength, run number and timestamp
@@ -263,14 +263,14 @@ private:
   TBranch *b_tppn_gain;      //!
   TBranch *b_tppn_PN;        //!
 
-  static TString apdpn_arrayName[iSizeArray_apdpn];
-  static TString apdpn_varName[iSize_apdpn];
-  static TString apdpn_varUnit[iSizeArray_apdpn][iSize_apdpn];
-  static TString apdpn_extraVarName[iSizeExtra_apdpn];
-  static TString apdpn_extraVarUnit[iSizeExtra_apdpn];
-  static TString ab_varName[iSize_ab];
-  static TString mtq_varName[iSize_mtq];
-  static TString mtq_varUnit[iSize_mtq];
+  static const TString apdpn_arrayName[iSizeArray_apdpn];
+  static const TString apdpn_varName[iSize_apdpn];
+  static const TString apdpn_varUnit[iSizeArray_apdpn][iSize_apdpn];
+  static const TString apdpn_extraVarName[iSizeExtra_apdpn];
+  static const TString apdpn_extraVarUnit[iSizeExtra_apdpn];
+  static const TString ab_varName[iSize_ab];
+  static const TString mtq_varName[iSize_mtq];
+  static const TString mtq_varUnit[iSize_mtq];
 
   void setHistoStyle(TH1 *);
   void refresh();
