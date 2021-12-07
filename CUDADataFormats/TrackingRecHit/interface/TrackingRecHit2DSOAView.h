@@ -20,8 +20,8 @@ public:
 
   using hindex_type = uint32_t;  // if above is <=2^32
 
-  using PhiBinner =
-      cms::cuda::HistoContainer<int16_t, 256, -1, 8 * sizeof(int16_t), hindex_type, 28>;  //28 for phase2 geometry
+  using PhiBinner = cms::cuda::
+      HistoContainer<int16_t, 256, -1, 8 * sizeof(int16_t), hindex_type, pixelTopology::maxLayers>;  //28 for phase2 geometry
 
   using AverageGeometry = pixelTopology::AverageGeometry;
 
