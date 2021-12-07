@@ -60,7 +60,7 @@ namespace edm {
       void beginPre(PathsAndConsumesOfModulesBase const &, ProcessContext const &processContext);
       void beginPost();
       void endPost();
-      void filePost(std::string const &, bool);
+      void filePost(std::string const &);
 
       bool m_debug;
       std::atomic_flag m_shouldUpdate;
@@ -136,7 +136,7 @@ void CondorStatusService::runPost(GlobalContext const &) {
   update();
 }
 
-void CondorStatusService::filePost(std::string const & /*lfn*/, bool /*usedFallback*/) {
+void CondorStatusService::filePost(std::string const & /*lfn*/) {
   m_files++;
   update();
 }
