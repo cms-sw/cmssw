@@ -35,14 +35,15 @@ namespace cond {
 
       template <typename PayloadType>
       cond::Time_t writeIOVForNextLumisection(const PayloadType& payload, const std::string& recordName) {
-	auto& rec = PoolDBOutputService::lookUpRecord( recordName );
+        auto& rec = PoolDBOutputService::lookUpRecord(recordName);
         cond::Time_t lastTime = getLastLumiProcessed();
-        auto unpkLastTime = cond::time::unpack( lastTime );
-        cond::Time_t targetTime = cond::time::lumiTime( unpkLastTime.first, unpkLastTime.second+m_latencyInLumisections);
+        auto unpkLastTime = cond::time::unpack(lastTime);
+        cond::Time_t targetTime =
+            cond::time::lumiTime(unpkLastTime.first, unpkLastTime.second + m_latencyInLumisections);
         auto t0 = std::chrono::high_resolution_clock::now();
         logger().logInfo() << "Updating lumisection " << targetTime;
         cond::Hash payloadId = PoolDBOutputService::writeOneIOV<PayloadType>(payload, targetTime, recordName);
-	PoolDBOutputService::commitTransaction();
+        PoolDBOutputService::commitTransaction();
         if (payloadId.empty()) {
           return 0;
         }
@@ -65,7 +66,7 @@ namespace cond {
                                 << usedIov.since << "). A revert is required.";
           PoolDBOutputService::eraseSinceTime(payloadId, targetTime, recordName);
           PoolDBOutputService::commitTransaction();
-	  targetTime = 0;
+          targetTime = 0;
         }
         auto t4 = std::chrono::high_resolution_clock::now();
         auto t_lat = std::chrono::duration_cast<std::chrono::microseconds>(t4 - t0).count();

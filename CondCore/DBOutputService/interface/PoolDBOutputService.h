@@ -172,11 +172,11 @@ namespace cond {
         doStartTransaction();
         cond::persistency::TransactionScope scope(m_session.transaction());
         try {
-          this->initDB();     
-	  auto& myrecord = this->getRecord(recordName);
-	  if (!myrecord.m_isNewTag) {
-	    cond::throwException(myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
-	  }
+          this->initDB();
+          auto& myrecord = this->getRecord(recordName);
+          if (!myrecord.m_isNewTag) {
+            cond::throwException(myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
+          }
           Hash payloadId = m_session.storePayload(payload);
           createNewIOV(payloadId, cond::demangledName(typeid(payload)), firstSinceTime, myrecord);
           if (m_autoCommit) {
@@ -203,16 +203,16 @@ namespace cond {
         doStartTransaction();
         cond::persistency::TransactionScope scope(m_session.transaction());
         try {
-          bool dbexists = this->initDB( true );
-          if(!dbexists){
-	    cond::throwException(std::string("Target database does not exist."),
-				 "PoolDBOutputService::appendSinceTime");	    
-	  }
-	  auto& myrecord = this->lookUpRecord(recordName);
-	  if (myrecord.m_isNewTag) {
-	    cond::throwException(std::string("Cannot append to non-existing tag ") + myrecord.m_tag,
-                               "PoolDBOutputService::appendSinceTime");
-	  }
+          bool dbexists = this->initDB(true);
+          if (!dbexists) {
+            cond::throwException(std::string("Target database does not exist."),
+                                 "PoolDBOutputService::appendSinceTime");
+          }
+          auto& myrecord = this->lookUpRecord(recordName);
+          if (myrecord.m_isNewTag) {
+            cond::throwException(std::string("Cannot append to non-existing tag ") + myrecord.m_tag,
+                                 "PoolDBOutputService::appendSinceTime");
+          }
           appendSinceTime(m_session.storePayload(payload), sinceTime, myrecord);
           if (m_autoCommit) {
             doCommitTransaction();
@@ -278,14 +278,13 @@ namespace cond {
         bool m_isNewTag;
         std::string m_idName;
         cond::TimeType m_timetype;
-	unsigned int m_refreshTime = 0; 
+        unsigned int m_refreshTime = 0;
         bool m_onlyAppendUpdatePolicy;
       };
 
       const Record& lookUpRecord(const std::string& recordName);
 
     private:
-
       //
       void doStartTransaction();
       void doCommitTransaction();
@@ -314,7 +313,7 @@ namespace cond {
 
       void fillRecord(edm::ParameterSet& pset, const std::string& gTimeTypeStr);
 
-      bool initDB( bool readOnly=false );
+      bool initDB(bool readOnly = false);
 
       Record& getRecord(const std::string& recordName);
 

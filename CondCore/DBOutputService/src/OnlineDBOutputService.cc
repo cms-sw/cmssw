@@ -114,8 +114,9 @@ cond::Time_t cond::service::OnlineDBOutputService::getLastLumiProcessed() {
   return lastLumiProcessed;
 }
 
-cond::Iov_t cond::service::OnlineDBOutputService::preLoadIov(const PoolDBOutputService::Record& record, cond::Time_t targetTime) {
-  auto transId = cond::time::transactionIdForLumiTime( targetTime, record.m_refreshTime, m_frontierKey );  
+cond::Iov_t cond::service::OnlineDBOutputService::preLoadIov(const PoolDBOutputService::Record& record,
+                                                             cond::Time_t targetTime) {
+  auto transId = cond::time::transactionIdForLumiTime(targetTime, record.m_refreshTime, m_frontierKey);
   cond::persistency::Session session = PoolDBOutputService::newReadOnlySession(m_preLoadConnectionString, transId);
   cond::persistency::TransactionScope transaction(session.transaction());
   transaction.start(true);
@@ -124,4 +125,3 @@ cond::Iov_t cond::service::OnlineDBOutputService::preLoadIov(const PoolDBOutputS
   transaction.commit();
   return iov;
 }
-
