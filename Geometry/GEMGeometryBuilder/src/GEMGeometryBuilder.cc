@@ -6,6 +6,8 @@
               Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4hep migration)
               Updated by Sunanda Banerjee (Fermilab) to make it working for dd4hep
               Updated:  7 August 2020 
+              Updated by Ian J. Watson (ian.james.watson@cern.ch) to allow GE2/1 demonstrator to be built
+              Updated: 7 December 2021
 */
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilder.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
@@ -69,6 +71,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
 #endif
   // loop over superchambers
   std::vector<GEMSuperChamber*> superChambers;
+  int last_chamber_id = -999;
   while (doSuper) {
     // getting chamber id from eta partitions
     fv.firstChild();
@@ -93,7 +96,8 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     // currently there is no superchamber in the geometry
     // only 2 chambers are present separated by a gap.
     // making superchamber out of the first chamber layer including the gap between chambers
-    if (detIdCh.layer() == 1) {  // only make superChambers when doing layer 1
+    if (last_chamber_id != detIdCh.chamber()) { // only make a superchamber when the first chamber of the sc is seen
+      last_chamber_id = detIdCh.chamber();
       GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
       superChambers.push_back(gemSuperChamber);
     }
