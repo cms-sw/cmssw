@@ -9,11 +9,15 @@
 //#define EDM_ML_DEBUG
 
 EcalBarrelNumberingScheme::EcalBarrelNumberingScheme() : EcalNumberingScheme() {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalGeom") << "Creating EcalBarrelNumberingScheme";
+#endif
 }
 
 EcalBarrelNumberingScheme::~EcalBarrelNumberingScheme() {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalGeom") << "Deleting EcalBarrelNumberingScheme";
+#endif
 }
 
 uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const {
@@ -107,8 +111,8 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
   static int count ( 1 ) ;
   if( 0==count%1000 )
   {
-     std::cout<<"************************** NLEVELS="<<nLevels
-	      <<", eta="<<eta<<", phi="<<phi<<", zsign="<<zsign<<std::endl;
+     edm::LogVerbatim("EcalGeom") << "************************** NLEVELS=" << nLevels
+	      << ", eta="<<eta<<", phi=" << phi << ", zsign=" << zsign;
   }
   ++count;
 */
