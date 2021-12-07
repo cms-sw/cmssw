@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-#from Configuration.Eras.Era_Run3_cff import Run3
-#process = cms.Process('Dump',Run3)
+#from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+#process = cms.Process('Dump',Run3_DDD)
 from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
 process = cms.Process('Dump',Run3_dd4hep)
 
@@ -24,6 +24,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.EcalGeom = dict()
     process.MessageLogger.EcalSim = dict()
     process.MessageLogger.G4cout = dict()
+    process.MessageLogger.cout = dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1),
