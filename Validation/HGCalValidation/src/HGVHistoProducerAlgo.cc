@@ -1318,19 +1318,20 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
           layerId_matched_max = layerId;
           simHits_matched++;
 
-          const HGCRecHit* hit = itcheck->second;
-          energy += hit->energy() * h_and_f.second;
-          histograms.h_caloparticle_nHits_matched_energy.at(pdgid)->Fill(hit->energy() * h_and_f.second);
-          histograms.h_caloparticle_nHits_matched_energy_layer.at(pdgid)->Fill(layerId, hit->energy() * h_and_f.second);
+          const auto hitEn = itcheck->second->energy();
+          const auto hitEnFr = hitEn * h_and_f.second;
+          energy += hitEnFr;
+          histograms.h_caloparticle_nHits_matched_energy.at(pdgid)->Fill(hitEnFr);
+          histograms.h_caloparticle_nHits_matched_energy_layer.at(pdgid)->Fill(layerId, hitEnFr);
 
           if (totenergy_layer.find(layerId) != totenergy_layer.end()) {
-            totenergy_layer[layerId] = totenergy_layer.at(layerId) + hit->energy();
+            totenergy_layer[layerId] = totenergy_layer.at(layerId) + hitEn;
           } else {
-            totenergy_layer.emplace(layerId, hit->energy());
+            totenergy_layer.emplace(layerId, hitEn);
           }
           if (caloParticle.simClusters().size() == 1)
             histograms.h_caloparticle_nHits_matched_energy_layer_1SimCl.at(pdgid)->Fill(layerId,
-                                                                                        hit->energy() * h_and_f.second);
+                                                                                        hitEnFr);
         } else {
           LogDebug("HGCalValidator") << "   matched to RecHit NOT found !" << std::endl;
         }
@@ -1612,7 +1613,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       }
       detIdToLayerClusterId_Map[rh_detid].emplace_back(HGVHistoProducerAlgo::detIdInfoInCluster{lcId, rhFraction});
 
-      auto hit_find_in_CP = detIdToCaloParticleId_Map.find(rh_detid);
+      const auto& hit_find_in_CP = detIdToCaloParticleId_Map.find(rh_detid);
 
       // if the fraction is zero or the hit does not belong to any calo
       // particle, set the caloparticleId for the hit to -1 this will
@@ -2572,7 +2573,7 @@ return v.first == hitid; });
         hitsToCaloParticleId[hitId] -= 1;
       } else {
         // Since the hit is belonging to the layer cluster, it must be also in the rechits map
-        const HGCRecHit* hit = hitMap.find(rh_detid)->second;
+        const auto hitEn = hitMap.find(rh_detid)->second->energy();
         const int layerId =
           recHitTools_->getLayerWithOffset(rh_detid) + layers * ((recHitTools_->zside(rh_detid) + 1) >> 1) - 1;
 
@@ -2594,11 +2595,11 @@ return v.first == hitid; });
           if (std::find(cPIndices.begin(), cPIndices.end(), cpId) == cPIndices.end())
             continue;
 
-          CPEnergyInTS[cpId] += shared_fraction * hit->energy();
+          CPEnergyInTS[cpId] += shared_fraction * hitEn;
           //Here cPOnLayer[caloparticle][layer] describe above is set.
           //Here for Tracksters with matched rechit the CP fraction times hit energy is added and saved .
-          cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore[tstId].first += shared_fraction * hit->energy();
-          sCOnLayer[cpId][iSim][layerId].layerClusterIdToEnergyAndScore[tstId].first += shared_fraction_lc * hit->energy();
+          cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore[tstId].first += shared_fraction * hitEn;
+          sCOnLayer[cpId][iSim][layerId].layerClusterIdToEnergyAndScore[tstId].first += shared_fraction * hitEn;
           cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore[tstId].second = FLT_MAX;
           sCOnLayer[cpId][iSim][layerId].layerClusterIdToEnergyAndScore[tstId].second = FLT_MAX;
           //stsInTrackster[trackster][STSids]
@@ -2766,9 +2767,9 @@ return v.first == hitid; });
     tracksters_fakemerge[tstId] = std::count_if(std::begin(stsInTrackster[tstId]),
                                                 std::end(stsInTrackster[tstId]),
                                                 [&, i, ScoreCutTStoSTSFakeMerge](const auto& obj) {
-      if ((i == 1) && (tst.ticlIteration() == ticl::Trackster::SIM)) {
+      if ((i == 1) && (tst.ticlIteration() == ticl::Trackster::SIM))
         if (tst.vertices().size() != simTSs[obj.first].vertices().size())
-          return false; }
+          return false;
       return obj.second < ScoreCutTStoSTSFakeMerge;
     });
 
@@ -2804,8 +2805,8 @@ else return false;
         histograms.h_energy_vs_score_trackster2caloparticle[i][count]->Fill(score->second,
                                                                             sharedEneFrac);
       }
-      else if (stsPair.first == score2->first) {
-        histograms.h_scoreMerge_trackster2caloparticle[i][count]->Fill(stsPair.second);
+      else if (iSTS == score2->first) {
+        histograms.h_scoreMerge_trackster2caloparticle[i][count]->Fill(score2->second);
       }
     }
   }  //end of loop through Tracksters
@@ -2856,9 +2857,9 @@ else return false;
     float SimEnergyWeight = 0.f, hitsEnergyWeight = 0.f;
     for (unsigned int layerId = 0; layerId < layers * 2; ++layerId) {
       const auto SimNumberOfHits = simOnLayer[layerId].hits_and_fractions.size();
-      SimEnergy += simOnLayer[layerId].energy;
       if (SimNumberOfHits == 0)
         continue;
+      SimEnergy += simOnLayer[layerId].energy;
       int tstWithMaxEnergyInCP = -1;
       //This is the maximum energy related to Trackster per layer.
       float maxEnergyTSperlayerinSim = 0.f;
@@ -3292,6 +3293,7 @@ void HGVHistoProducerAlgo::fill_trackster_histos(const Histograms& histograms,
                               cPSelectedIndices,
                               hitMap,
                               layers);
+
   // Pattern recognition
   tracksters_to_SimTracksters(histograms,
                               count,
@@ -3339,10 +3341,10 @@ DetId HGVHistoProducerAlgo::findmaxhit(const reco::CaloCluster& cluster,
        it_haf != hits_and_fractions.end();
        ++it_haf) {
     const DetId rh_detid = it_haf->first;
-    const HGCRecHit* hit = hitMap.find(rh_detid)->second;
+    const auto hitEn = hitMap.find(rh_detid)->second->energy();
 
-    if (maxene < hit->energy()) {
-      maxene = hit->energy();
+    if (maxene < hitEn) {
+      maxene = hitEn;
       themaxid = rh_detid;
     }
   }
