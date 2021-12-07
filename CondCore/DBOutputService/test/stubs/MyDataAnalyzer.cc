@@ -45,9 +45,9 @@ void MyDataAnalyzer::beginJob() {
   if (!mydbservice.isAvailable()) {
     return;
   }
-  mydbservice->logger().start();;
+  mydbservice->logger().start();
+  ;
 }
-
 
 void MyDataAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   std::cout << "MyDataAnalyzer::analyze " << std::endl;
@@ -68,7 +68,7 @@ void MyDataAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& evtSe
     auto t = mydbservice->currentTime();
     mydbservice->logger().logDebug() << "Writing new payload";
     mydbservice->writeOneIOV(myped, t, m_record);
-    mydbservice->logger().logDebug() << "Written iov with since: "<<t;
+    mydbservice->logger().logDebug() << "Written iov with since: " << t;
     std::cout << "done" << std::endl;
   } catch (const cond::Exception& er) {
     throw cms::Exception("DBOutputServiceUnitTestFailure", "failed MyDataAnalyzer", er);

@@ -39,7 +39,7 @@ private:
 LumiBasedUpdateAnalyzer::LumiBasedUpdateAnalyzer(const edm::ParameterSet& iConfig)
     : m_record(iConfig.getUntrackedParameter<std::string>("record")),
       m_iovSize(iConfig.getUntrackedParameter<unsigned int>("iovSize")),
-      m_lumiFile( iConfig.getUntrackedParameter<std::string>("lastLumiFile")),
+      m_lumiFile(iConfig.getUntrackedParameter<std::string>("lastLumiFile")),
       m_nLumi(0),
       m_ret(-2) {}
 
@@ -61,11 +61,9 @@ void LumiBasedUpdateAnalyzer::endJob() {
 }
 
 void LumiBasedUpdateAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                                                   const edm::EventSetup& context) {
-}
+                                                   const edm::EventSetup& context) {}
 
-void LumiBasedUpdateAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) {
-}
+void LumiBasedUpdateAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) {}
 
 void LumiBasedUpdateAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   edm::Service<cond::service::OnlineDBOutputService> mydbservice;
@@ -74,19 +72,20 @@ void LumiBasedUpdateAnalyzer::analyze(const edm::Event& evt, const edm::EventSet
   }
   auto& lumiBlock = evt.getLuminosityBlock();
   unsigned int irun = lumiBlock.getRun().run();
-  unsigned int lumiId = lumiBlock.luminosityBlock();     
-  cond::Time_t currentLumi = cond::time::lumiTime(irun,lumiId);
-  auto& rec = mydbservice->lookUpRecord( m_record );
+  unsigned int lumiId = lumiBlock.luminosityBlock();
+  cond::Time_t currentLumi = cond::time::lumiTime(irun, lumiId);
+  auto& rec = mydbservice->lookUpRecord(m_record);
   m_ret = -1;
   mydbservice->logger().start();
-  mydbservice->logger().logDebug() << "Transaction id for time "<<currentLumi<<" : "<<cond::time::transactionIdForLumiTime(currentLumi,rec.m_refreshTime,"");
-  if(currentLumi!=m_lastLumi){
+  mydbservice->logger().logDebug() << "Transaction id for time " << currentLumi << " : "
+                                   << cond::time::transactionIdForLumiTime(currentLumi, rec.m_refreshTime, "");
+  if (currentLumi != m_lastLumi) {
     m_nLumi++;
     std::ofstream lastLumiFile(m_lumiFile, std::ofstream::trunc);
     lastLumiFile << currentLumi;
     lastLumiFile.close();
-    m_lastLumi= currentLumi; 
-    if(m_nLumi == 3){
+    m_lastLumi = currentLumi;
+    if (m_nLumi == 3) {
       std::string tag = mydbservice->tag(m_record);
       mydbservice->logger().logDebug() << "Tag: " << tag;
       BeamSpotObjects mybeamspot;
@@ -95,21 +94,21 @@ void LumiBasedUpdateAnalyzer::analyze(const edm::Event& evt, const edm::EventSet
       mybeamspot.SetType(int(lumiId));
       mydbservice->logger().logDebug() << "BeamType: " << mybeamspot.GetBeamType();
       try {
-	auto iov = mydbservice->writeIOVForNextLumisection(mybeamspot, m_record);
-	if(iov){
-	  auto utime = cond::time::unpack(iov);
-	  mydbservice->logger().logDebug() << " Run: "<<irun<<" Lumi: "<<lumiId<<" IOV lumi: "<<utime.second;
-	  m_ret = 0;
-	}
+        auto iov = mydbservice->writeIOVForNextLumisection(mybeamspot, m_record);
+        if (iov) {
+          auto utime = cond::time::unpack(iov);
+          mydbservice->logger().logDebug() << " Run: " << irun << " Lumi: " << lumiId << " IOV lumi: " << utime.second;
+          m_ret = 0;
+        }
       } catch (const std::exception& e) {
-	mydbservice->logger().logError() << e.what();
-	m_ret = 1;
+        mydbservice->logger().logError() << e.what();
+        m_ret = 1;
       }
       m_nLumi = 0;
     } else {
-      mydbservice->logger().logDebug() <<"Skipping lumisection "<<lumiId;
+      mydbservice->logger().logDebug() << "Skipping lumisection " << lumiId;
     }
-  } 
+  }
   mydbservice->logger().end(m_ret);
 }
 

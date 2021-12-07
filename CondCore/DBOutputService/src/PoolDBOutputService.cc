@@ -28,7 +28,7 @@ void cond::service::PoolDBOutputService::fillRecord(edm::ParameterSet& recordPse
 
   thisrecord.m_onlyAppendUpdatePolicy = recordPset.getUntrackedParameter<bool>("onlyAppendUpdatePolicy", false);
 
-  thisrecord.m_refreshTime = recordPset.getUntrackedParameter<unsigned int>("refreshTime",1);
+  thisrecord.m_refreshTime = recordPset.getUntrackedParameter<unsigned int>("refreshTime", 1);
 
   m_records.insert(std::make_pair(thisrecord.m_idName, thisrecord));
 
@@ -144,8 +144,10 @@ bool cond::service::PoolDBOutputService::isNewTagRequest(const std::string& reco
   } catch (const std::exception& er) {
     cond::throwException(std::string(er.what()), "PoolDBOutputService::isNewTagRequest");
   }
-  if( doCommit ) m_session.transaction().commit();
-  if(!dbexists) return true;
+  if (doCommit)
+    m_session.transaction().commit();
+  if (!dbexists)
+    return true;
   auto& myrecord = this->lookUpRecord(recordName);
   return myrecord.m_isNewTag;
 }
@@ -178,17 +180,17 @@ void cond::service::PoolDBOutputService::commitTransaction() {
   doCommitTransaction();
 }
 
-bool cond::service::PoolDBOutputService::initDB( bool readOnly ) {
+bool cond::service::PoolDBOutputService::initDB(bool readOnly) {
   if (!m_dbInitialised) {
-    if (!m_session.existsDatabase()){
-      if(readOnly) return false;
+    if (!m_session.existsDatabase()) {
+      if (readOnly)
+        return false;
       m_session.createDatabase();
-    }
-    else {
+    } else {
       for (auto& iR : m_records) {
-        if (m_session.existsIov(iR.second.m_tag)){
+        if (m_session.existsIov(iR.second.m_tag)) {
           iR.second.m_isNewTag = false;
-	}
+        }
       }
     }
     m_dbInitialised = true;
@@ -196,7 +198,8 @@ bool cond::service::PoolDBOutputService::initDB( bool readOnly ) {
   return m_dbInitialised;
 }
 
-cond::service::PoolDBOutputService::Record& cond::service::PoolDBOutputService::getRecord(const std::string& recordName){
+cond::service::PoolDBOutputService::Record& cond::service::PoolDBOutputService::getRecord(
+    const std::string& recordName) {
   std::map<std::string, Record>::iterator it = m_records.find(recordName);
   if (it == m_records.end()) {
     cond::throwException("The record \"" + recordName + "\" has not been registered.",
@@ -272,7 +275,7 @@ void cond::service::PoolDBOutputService::createNewIOV(const std::string& firstPa
       cond::throwException(myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
     }
     m_logger.logInfo() << "Creating new tag " << myrecord.m_tag << ", adding iov with since " << firstSinceTime
-		       << " pointing to payload id " << firstPayloadId;
+                       << " pointing to payload id " << firstPayloadId;
     cond::persistency::IOVEditor editor =
         m_session.createIovForPayload(firstPayloadId, myrecord.m_tag, myrecord.m_timetype, cond::SYNCH_ANY);
     editor.setDescription("New Tag");
@@ -315,14 +318,13 @@ bool cond::service::PoolDBOutputService::appendSinceTime(const std::string& payl
   cond::persistency::TransactionScope scope(m_session.transaction());
   try {
     bool dbexists = this->initDB();
-    if(!dbexists){
-      cond::throwException(std::string("Target database does not exist."),
-			   "PoolDBOutputService::appendSinceTime");	    
+    if (!dbexists) {
+      cond::throwException(std::string("Target database does not exist."), "PoolDBOutputService::appendSinceTime");
     }
     auto& myrecord = this->lookUpRecord(recordName);
     if (myrecord.m_isNewTag) {
       cond::throwException(std::string("Cannot append to non-existing tag ") + myrecord.m_tag,
-			   "PoolDBOutputService::appendSinceTime");
+                           "PoolDBOutputService::appendSinceTime");
     }
     ret = appendSinceTime(payloadId, time, myrecord);
     if (m_autoCommit) {
@@ -359,17 +361,16 @@ void cond::service::PoolDBOutputService::eraseSinceTime(const std::string& paylo
   cond::persistency::TransactionScope scope(m_session.transaction());
   try {
     bool dbexists = this->initDB();
-    if(!dbexists){
-      cond::throwException(std::string("Target database does not exist."),
-			   "PoolDBOutputService::eraseSinceTime");	    
+    if (!dbexists) {
+      cond::throwException(std::string("Target database does not exist."), "PoolDBOutputService::eraseSinceTime");
     }
     auto& myrecord = this->lookUpRecord(recordName);
     if (myrecord.m_isNewTag) {
       cond::throwException(std::string("Cannot delete from non-existing tag ") + myrecord.m_tag,
-			   "PoolDBOutputService::appendSinceTime");
+                           "PoolDBOutputService::appendSinceTime");
     }
     m_logger.logInfo() << "Updating existing tag " << myrecord.m_tag << ", removing iov with since " << sinceTime
-		       << " pointing to payload id " << payloadId;
+                       << " pointing to payload id " << payloadId;
     cond::persistency::IOVEditor editor = m_session.editIov(myrecord.m_tag);
     editor.erase(sinceTime, payloadId);
     cond::UserLogInfo a = this->lookUpUserLogInfo(recordName);
@@ -383,7 +384,8 @@ void cond::service::PoolDBOutputService::eraseSinceTime(const std::string& paylo
   scope.close();
 }
 
-const cond::service::PoolDBOutputService::Record& cond::service::PoolDBOutputService::lookUpRecord(const std::string& recordName) {
+const cond::service::PoolDBOutputService::Record& cond::service::PoolDBOutputService::lookUpRecord(
+    const std::string& recordName) {
   std::map<std::string, Record>::const_iterator it = m_records.find(recordName);
   if (it == m_records.end()) {
     cond::throwException("The record \"" + recordName + "\" has not been registered.",
@@ -404,16 +406,15 @@ void cond::service::PoolDBOutputService::closeIOV(Time_t lastTill, const std::st
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
   doStartTransaction();
   cond::persistency::TransactionScope scope(m_session.transaction());
-  try{
+  try {
     bool dbexists = this->initDB();
-    if(!dbexists){
-      cond::throwException(std::string("Target database does not exist."),
-			   "PoolDBOutputService::closeIOV");	    
-    }    
+    if (!dbexists) {
+      cond::throwException(std::string("Target database does not exist."), "PoolDBOutputService::closeIOV");
+    }
     auto& myrecord = lookUpRecord(recordName);
     if (myrecord.m_isNewTag) {
       cond::throwException(std::string("Cannot close non-existing tag ") + myrecord.m_tag,
-			   "PoolDBOutputService::closeIOV");
+                           "PoolDBOutputService::closeIOV");
     }
     m_logger.logInfo() << "Updating existing tag " << myrecord.m_tag << ", closing with end of validity " << lastTill;
     cond::persistency::IOVEditor editor = m_session.editIov(myrecord.m_tag);
@@ -464,13 +465,14 @@ bool cond::service::PoolDBOutputService::tagInfo(const std::string& recordName, 
   cond::persistency::TransactionScope scope(m_session.transaction());
   try {
     dbexists = initDB(true);
-    if(dbexists){
+    if (dbexists) {
       ret = getTagInfo(recordName, result);
     }
   } catch (const std::exception& er) {
     cond::throwException(std::string(er.what()), "PoolDBOutputService::tagInfo");
   }
-  if( doCommit ) m_session.transaction().commit();
+  if (doCommit)
+    m_session.transaction().commit();
   scope.close();
   return ret;
 }
