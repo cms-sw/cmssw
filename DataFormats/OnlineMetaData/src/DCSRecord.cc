@@ -16,6 +16,18 @@ DCSRecord::DCSRecord(const online::DCS_v1& dcs) {
   const uint32_t microseconds = (dcs.timestamp % 1000) * 1000;
   timestamp_ = edm::Timestamp((seconds << 32) | microseconds);
   highVoltageReady_ = dcs.highVoltageReady;
+  //bit always valid for V1
+  highVoltageValid_ = 0xffffffff;
+  magnetCurrent_ = dcs.magnetCurrent;
+}
+
+DCSRecord::DCSRecord(const online::DCS_v2& dcs) {
+  // DIP timestamp is in milliseconds
+  const uint64_t seconds = dcs.timestamp / 1000;
+  const uint32_t microseconds = (dcs.timestamp % 1000) * 1000;
+  timestamp_ = edm::Timestamp((seconds << 32) | microseconds);
+  highVoltageReady_ = dcs.highVoltageReady;
+  highVoltageValid_ = dcs.highVoltageValid;
   magnetCurrent_ = dcs.magnetCurrent;
 }
 
@@ -37,7 +49,7 @@ std::ostream& operator<<(std::ostream& s, const DCSRecord& dcs) {
 
   for (unsigned int i = 0; i < DCSRecord::Partition::Last; ++i) {
     s << "   " << std::setw(7) << std::left << dcs.partitionName(i) << ": "
-      << (dcs.highVoltageReady(i) ? "READY" : "OFF") << std::endl;
+      << (!dcs.highVoltageValid(i) ? "N/A" : (dcs.highVoltageReady(i) ? "READY" : "OFF")) << std::endl;
   }
 
   return s;
