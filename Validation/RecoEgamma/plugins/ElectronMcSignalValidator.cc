@@ -871,7 +871,7 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                       "Events",
                                       "ELE_LOGY E1 P");
   h1_ele_vertexPt_all = bookH1withSumw2(
-      iBooker, "vertexPt_all", "ele p_{T}, all reco electrons", pteff_nbin, 5., pt_max, "", "Events");//, "ELE_LOGY E1 P");
+      iBooker, "vertexPt_all", "ele p_{T}, all reco electrons", pteff_nbin, 5., pt_max, "", "Events");
   h1_ele_Et_all = bookH1withSumw2(iBooker,
                                   "Et_all",
                                   "ele ecal E_{T}, all reco electrons",
@@ -888,8 +888,7 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                          eta_min,
                                          eta_max,
                                          "",
-                                         "Events");//,
-                                         //"ELE_LOGY E1 P");
+                                         "Events");
   h1_ele_TIP_all = bookH1withSumw2(iBooker,
                                    "TIP_all",
                                    "ele vertex transverse radius, all reco electrons",
