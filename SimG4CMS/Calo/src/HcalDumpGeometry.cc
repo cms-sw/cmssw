@@ -73,7 +73,9 @@ void HcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
         HcalNumberingFromDDD::HcalID tmp = numberingFromDDD_->unitID(
             det, math::XYZVectorD(globalpoint.x(), globalpoint.y(), globalpoint.z()), depth, lay);
         uint32_t id = numberingScheme_->getUnitID(tmp);
-        G4cout << "Det " << det << " Layer " << lay << ":" << depth << " Volume " << fHistory_.GetVolume(theSize)->GetName() << ":" << fHistory_.GetVolume(theSize - 1)->GetName() << " ID " << std::hex << id << std::dec << G4endl;
+        G4cout << "Det " << det << " Layer " << lay << ":" << depth << " Volume "
+               << fHistory_.GetVolume(theSize)->GetName() << ":" << fHistory_.GetVolume(theSize - 1)->GetName()
+               << " ID " << std::hex << id << std::dec << G4endl;
 
         G4VSolid* solid = lv->GetSolid();
         infoVec_.emplace_back(CaloDetInfo(id, 0, 0, getNameNoNS(lvname), globalpoint, solid, flag_));

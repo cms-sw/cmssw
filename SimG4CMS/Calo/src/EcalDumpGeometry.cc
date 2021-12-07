@@ -17,13 +17,15 @@ EcalDumpGeometry::EcalDumpGeometry(const std::vector<std::string_view>& names,
   std::stringstream ss;
   for (const auto& lvname : names)
     ss << " " << lvname;
-  G4cout << " Type: " << type << " Depth Names " << name1_ << ":" << name2_ << " with " << names.size() << " LVs: " << ss.str() << G4endl;
+  G4cout << " Type: " << type << " Depth Names " << name1_ << ":" << name2_ << " with " << names.size()
+         << " LVs: " << ss.str() << G4endl;
   for (const auto& name : names) {
     std::string namex = (static_cast<std::string>(dd4hep::dd::noNamespace(name))).substr(0, 4);
     if (std::find(names_.begin(), names_.end(), namex) == names_.end())
       names_.emplace_back(namex);
   }
-  G4cout << "EcalDumpGeometry:: dump geometry information for detector of type " << type_ << " with " << names_.size() << " elements:" << G4endl;
+  G4cout << "EcalDumpGeometry:: dump geometry information for detector of type " << type_ << " with " << names_.size()
+         << " elements:" << G4endl;
   for (unsigned int k = 0; k < names_.size(); ++k)
     G4cout << "[" << k << "] : " << names_[k] << G4endl;
 }
