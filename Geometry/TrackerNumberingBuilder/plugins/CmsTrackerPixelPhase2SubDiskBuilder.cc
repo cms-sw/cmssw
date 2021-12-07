@@ -13,8 +13,8 @@ using namespace std;
 
 template <class FilteredView>
 void CmsTrackerPixelPhase2SubDiskBuilder<FilteredView>::buildComponent(FilteredView& fv,
-                                                                    GeometricDet* g,
-                                                                    const std::string& s) {
+                                                                       GeometricDet* g,
+                                                                       const std::string& s) {
   CmsTrackerPixelPhase2RingBuilder<FilteredView> theCmsTrackerPixelPhase2RingBuilder;
   GeometricDet* subdet = new GeometricDet(&fv,
                                           CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(

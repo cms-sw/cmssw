@@ -15,7 +15,7 @@ class Phase2EndcapLayerDoubleDiskBuilder {
 public:
   Phase2EndcapLayerDoubleDiskBuilder(){};
   Phase2EndcapLayerDoubleDisk* build(const GeometricDet* aPhase2EndcapLayerDoubleDisk,
-                           const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
+                                     const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 
 #pragma GCC visibility pop

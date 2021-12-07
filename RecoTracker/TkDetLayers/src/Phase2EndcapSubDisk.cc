@@ -45,7 +45,6 @@ void Phase2EndcapSubDisk::fillRingPars(int i) {
 
 Phase2EndcapSubDisk::Phase2EndcapSubDisk(vector<const Phase2EndcapSingleRing*>& rings)
     : RingedForwardLayer(true), theComponents{nullptr} {
-
   theRingSize = rings.size();
   LogDebug("TkDetLayers") << "Number of rings in Phase2EndcapSubDisk is " << theRingSize << std::endl;
   setSurface(computeDisk(rings));
@@ -95,9 +94,9 @@ Phase2EndcapSubDisk::~Phase2EndcapSubDisk() {
 }
 
 void Phase2EndcapSubDisk::groupedCompatibleDetsV(const TrajectoryStateOnSurface& startingState,
-                                               const Propagator& prop,
-                                               const MeasurementEstimator& est,
-                                               std::vector<DetGroup>& result) const {
+                                                 const Propagator& prop,
+                                                 const MeasurementEstimator& est,
+                                                 std::vector<DetGroup>& result) const {
   std::array<int, 3> const& ringIndices = ringIndicesByCrossingProximity(startingState, prop);
   if (ringIndices[0] == -1 || ringIndices[1] == -1 || ringIndices[2] == -1) {
     edm::LogError("TkDetLayers") << "TkRingedForwardLayer::groupedCompatibleDets : error in CrossingProximity";
@@ -224,7 +223,7 @@ void Phase2EndcapSubDisk::groupedCompatibleDetsV(const TrajectoryStateOnSurface&
 }
 
 std::array<int, 3> Phase2EndcapSubDisk::ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
-                                                                     const Propagator& prop) const {
+                                                                       const Propagator& prop) const {
   typedef HelixForwardPlaneCrossing Crossing;
   typedef MeasurementEstimator::Local2DVector Local2DVector;
 
@@ -260,8 +259,8 @@ std::array<int, 3> Phase2EndcapSubDisk::ringIndicesByCrossingProximity(const Tra
 }
 
 float Phase2EndcapSubDisk::computeWindowSize(const GeomDet* det,
-                                           const TrajectoryStateOnSurface& tsos,
-                                           const MeasurementEstimator& est) const {
+                                             const TrajectoryStateOnSurface& tsos,
+                                             const MeasurementEstimator& est) const {
   const Plane& startPlane = det->surface();
   MeasurementEstimator::Local2DVector maxDistance = est.maximalLocalDisplacement(tsos, startPlane);
   return maxDistance.y();

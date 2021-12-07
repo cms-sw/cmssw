@@ -33,9 +33,7 @@ public:
                               std::vector<DetGroup>& result) const override __attribute__((hot));
 
   // DetLayer interface
-  SubDetector subDetector() const override {
-    return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2PXEC];
-  }
+  SubDetector subDetector() const override { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2PXEC]; }
 
 private:
   // private methods for the implementation of groupedCompatibleDets()

@@ -33,22 +33,19 @@ public:
                               std::vector<DetGroup>& result) const override __attribute__((hot));
 
   // DetLayer interface
-  SubDetector subDetector() const override {
-      return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2PXEC];
-  }
+  SubDetector subDetector() const override { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2PXEC]; }
 
 private:
   // private methods for the implementation of groupedCompatibleDets()
   BoundDisk* computeDisk(const std::vector<const Phase2EndcapSubDisk*>& subDisks) const __attribute__((cold));
 
   std::array<int, 2> subDiskIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
-                                                    const Propagator& prop) const;
+                                                       const Propagator& prop) const;
 
   //  bool isCompatible( const TrajectoryStateOnSurface& ms,
   //	     const MeasurementEstimator& est) const;
 
   std::array<int, 2> findTwoClosest(std::vector<GlobalPoint>) const __attribute__((hot));
-
 
   void fillSubDiskPars(int i) __attribute__((cold));
 

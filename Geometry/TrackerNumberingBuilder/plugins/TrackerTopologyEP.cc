@@ -77,7 +77,7 @@ void TrackerTopologyEP::fillParameters(const PTrackerParameters& ptp,
   pxbVals.ladderMask_ = ptp.vitems[0].vpars[4];      // 0xFF
   pxbVals.moduleMask_ = ptp.vitems[0].vpars[5];      // 0x3F
 
-  if(ptp.vitems[1].vpars.size()>11){//Re-ordered tracker
+  if (ptp.vitems[1].vpars.size() > 11) {  //Re-ordered tracker
     pxfVals.sideStartBit_ = ptp.vitems[1].vpars[0];
     pxfVals.diskStartBit_ = ptp.vitems[1].vpars[1];
     pxfVals.bladeStartBit_ = ptp.vitems[1].vpars[3];
@@ -88,7 +88,7 @@ void TrackerTopologyEP::fillParameters(const PTrackerParameters& ptp,
     pxfVals.bladeMask_ = ptp.vitems[1].vpars[9];
     pxfVals.panelMask_ = ptp.vitems[1].vpars[10];
     pxfVals.moduleMask_ = ptp.vitems[1].vpars[11];
-  } else { //Original tracker
+  } else {  //Original tracker
     pxfVals.sideStartBit_ = ptp.vitems[1].vpars[0];
     pxfVals.diskStartBit_ = ptp.vitems[1].vpars[1];
     pxfVals.bladeStartBit_ = ptp.vitems[1].vpars[2];
