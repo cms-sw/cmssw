@@ -134,7 +134,7 @@ namespace phase1PixelTopology {
   __device__
 #endif
       constexpr std::array<uint8_t, layerIndexSize>
-          layer = pixelTopology::map_to_array<layerIndexSize>(findLayerFromCompact); 
+          layer = pixelTopology::map_to_array<layerIndexSize>(findLayerFromCompact);
 
   constexpr uint8_t getLayer(uint32_t detId) {
     return phase1PixelTopology::layer[detId / phase1PixelTopology::maxModuleStride];
