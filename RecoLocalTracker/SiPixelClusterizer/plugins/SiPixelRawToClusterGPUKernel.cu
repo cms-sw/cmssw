@@ -728,7 +728,7 @@ namespace pixelgpudetails {
 
     nModules_Clusters_h = cms::cuda::make_host_unique<uint32_t[]>(2, stream);
 
-    int threadsPerBlock = 256;
+    int threadsPerBlock = 512;
     int blocks = (int(numDigis) + threadsPerBlock - 1) / threadsPerBlock;
 
     gpuCalibPixel::calibDigisPhase2<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
