@@ -73,7 +73,7 @@ namespace l1t {
       prod.produces<RegionalMuonCandBxCollection>("OMTF");
       prod.produces<RegionalMuonCandBxCollection>("EMTF");
       prod.produces<MuonBxCollection>("Muon");
-      for (int i = 1; i < 6; ++i) {
+      for (size_t i = 1; i < GMTCollections::NUM_OUTPUT_COPIES; ++i) {
         prod.produces<MuonBxCollection>("MuonCopy" + std::to_string(i));
       }
       prod.produces<MuonBxCollection>("imdMuonsBMTF");
@@ -84,7 +84,7 @@ namespace l1t {
 
       prod.produces<RegionalMuonShowerBxCollection>("EMTF");
       prod.produces<MuonShowerBxCollection>("MuonShower");
-      for (int i = 1; i < 6; ++i) {
+      for (size_t i = 1; i < GMTCollections::NUM_OUTPUT_COPIES; ++i) {
         prod.produces<MuonShowerBxCollection>("MuonShowerCopy" + std::to_string(i));
       }
     }

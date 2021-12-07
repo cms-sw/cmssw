@@ -11,7 +11,7 @@ namespace l1t {
       event_.put(std::move(regionalMuonCandsOMTF_), "OMTF");
       event_.put(std::move(regionalMuonCandsEMTF_), "EMTF");
       event_.put(std::move(muons_[0]), "Muon");
-      for (int i = 1; i < 6; ++i) {
+      for (size_t i = 1; i < NUM_OUTPUT_COPIES; ++i) {
         event_.put(std::move(muons_[i]), "MuonCopy" + std::to_string(i));
       }
       event_.put(std::move(imdMuonsBMTF_), "imdMuonsBMTF");
@@ -22,7 +22,7 @@ namespace l1t {
 
       event_.put(std::move(regionalMuonShowersEMTF_), "EMTF");
       event_.put(std::move(muonShowers_[0]), "MuonShower");
-      for (int i = 1; i < 6; ++i) {
+      for (size_t i = 1; i < NUM_OUTPUT_COPIES; ++i) {
         event_.put(std::move(muonShowers_[i]), "MuonShowerCopy" + std::to_string(i));
       }
     }
