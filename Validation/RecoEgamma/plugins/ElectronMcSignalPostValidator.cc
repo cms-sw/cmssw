@@ -27,7 +27,7 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
   bookH1andDivide(iBooker, iGetter, "absetaEff", "mc_AbsEta_matched", "mc_AbsEta", "|#eta|", "Efficiency", "");
   bookH1andDivide(iBooker, iGetter, "ptEff", "mc_Pt_matched", "mc_Pt", "p_{T} (GeV/c)", "Efficiency", "");
   bookH1andDivide(iBooker, iGetter, "phiEff", "mc_Phi_matched", "mc_Phi", "#phi (rad)", "Efficiency", "");
-  bookH2andDivide(iBooker, iGetter, "ptEtaEff", "mc_PtEta_matched", "mc_PtEta", "#eta", "p_{T} (GeV/c)", "");
+  //bookH2andDivide(iBooker, iGetter, "ptEtaEff", "mc_PtEta_matched", "mc_PtEta", "#eta", "p_{T} (GeV/c)", "");
 
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "q-misid calculation";
   bookH1andDivide(iBooker, iGetter, "etaQmisid", "mc_Eta_matched_qmisid", "mc_Eta", "#eta", "q misId", "");
