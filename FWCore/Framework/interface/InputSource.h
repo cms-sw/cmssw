@@ -290,8 +290,8 @@ namespace edm {
 
     class FileOpenSentry {
     public:
-      typedef signalslot::Signal<void(std::string const&, bool)> Sig;
-      explicit FileOpenSentry(InputSource const& source, std::string const& lfn, bool usedFallback);
+      typedef signalslot::Signal<void(std::string const&)> Sig;
+      explicit FileOpenSentry(InputSource const& source, std::string const& lfn);
       ~FileOpenSentry();
 
       FileOpenSentry(FileOpenSentry const&) = delete;             // Disallow copying and moving
@@ -300,13 +300,12 @@ namespace edm {
     private:
       Sig& post_;
       std::string const& lfn_;
-      bool usedFallback_;
     };
 
     class FileCloseSentry {
     public:
-      typedef signalslot::Signal<void(std::string const&, bool)> Sig;
-      explicit FileCloseSentry(InputSource const& source, std::string const& lfn, bool usedFallback);
+      typedef signalslot::Signal<void(std::string const&)> Sig;
+      explicit FileCloseSentry(InputSource const& source, std::string const& lfn);
       ~FileCloseSentry();
 
       FileCloseSentry(FileCloseSentry const&) = delete;             // Disallow copying and moving
@@ -315,7 +314,6 @@ namespace edm {
     private:
       Sig& post_;
       std::string const& lfn_;
-      bool usedFallback_;
     };
 
     signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> preEventReadFromSourceSignal_;
