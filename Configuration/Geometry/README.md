@@ -66,6 +66,7 @@ Tracker:
 * T25: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v7.0.2): Based on (v6.1.5) (T24/T21), but with 3D sensors in TBPX L1. Compatible with DD4hep library.
 * T26: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v7.0.3): Based on (v6.1.5) (T24/T21), but with 3D sensors in TBPX L1 and 50x50 pixel aspect ratio in TFPX and TEPX. Compatible with DD4hep library.
 * T27: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v8.0.0): Based on (v7.0.2) (T25), but with bricked pixels in the central rod of TBPX L2 and in the central 3 rods of TBPX L3+4. All pixels in TFPX and TEPX are bricked. Compatible with DD4hep library.
+* T28: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v8.0.1): Based on (v7.0.2) (T25), but with bricked pixels in the central rod of TBPX L2 and in the central 3 rods of TBPX L3+4. All pixels in TFPX and TEPX are 25x100 mum planar. Compatible with DD4hep library.
 
 Calorimeters:
 * C9: HGCal (v11 post TDR HGCal Geometry w/ corner centering for HE part) + Phase2 HCAL and EB + Tracker cables (used in 2026D49)
@@ -126,3 +127,4 @@ Several detector combinations have been generated:
 * D86 = T24+C17+M10+I14+O8+F6
 * D87 = T27+C14+M9+I13+O7+F6
 * D88 = T24+C17+M10+I15+O9+F6
+* D89 = T28+C14+M9+I13+O7+F6
