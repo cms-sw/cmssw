@@ -28,7 +28,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -44,7 +44,7 @@
 // class decleration
 //
 
-class L1ABCDebugger : public edm::EDAnalyzer {
+class L1ABCDebugger : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit L1ABCDebugger(const edm::ParameterSet&);
   ~L1ABCDebugger() override;
@@ -53,6 +53,7 @@ private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
   void endJob() override;
 
   // ----------member data ---------------------------
