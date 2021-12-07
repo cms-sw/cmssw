@@ -121,7 +121,7 @@ int HcalLayerDepthMap::getDepth(
       depth = itr->second;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "getDepth::Input " << subdet << ":" << ieta << ":" << iphi << ":" << zside << ":"
+  edm::LogVerbatim("HCalGeom") << "Debug Info -- getDepth::Input " << subdet << ":" << ieta << ":" << iphi << ":" << zside << ":"
                                << layer << " Output " << depth;
 #endif
   return depth;
@@ -132,7 +132,7 @@ int HcalLayerDepthMap::getDepth16(const int subdet, const int iphi, const int zs
   if (isValid(subdet, iphi, zside))
     depth = dep16C_;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "getDepth16::Input " << subdet << ":" << iphi << ":" << zside << " Output " << depth;
+  edm::LogVerbatim("HCalGeom") << "Debug info -- getDepth16::Input " << subdet << ":" << iphi << ":" << zside << " Output " << depth;
 #endif
   return depth;
 }
@@ -140,7 +140,7 @@ int HcalLayerDepthMap::getDepth16(const int subdet, const int iphi, const int zs
 int HcalLayerDepthMap::getDepthMin(const int subdet, const int iphi, const int zside) const {
   int depth = (isValid(subdet, iphi, zside)) ? depthMin_ : -1;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "getDepthMin::Input " << subdet << ":" << iphi << ":" << zside << " Output " << depth;
+  edm::LogVerbatim("HCalGeom") << "Debug info -- getDepthMin::Input " << subdet << ":" << iphi << ":" << zside << " Output " << depth;
 #endif
   return depth;
 }
@@ -148,7 +148,7 @@ int HcalLayerDepthMap::getDepthMin(const int subdet, const int iphi, const int z
 int HcalLayerDepthMap::getDepthMax(const int subdet, const int iphi, const int zside) const {
   int depth = (isValid(subdet, iphi, zside)) ? depthMax_ : -1;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "getDepthMax::Input " << subdet << ":" << iphi << ":" << zside << " Output " << depth;
+  edm::LogVerbatim("HCalGeom") << "Debug info -- getDepthMax::Input " << subdet << ":" << iphi << ":" << zside << " Output " << depth;
 #endif
   return depth;
 }
@@ -156,7 +156,7 @@ int HcalLayerDepthMap::getDepthMax(const int subdet, const int iphi, const int z
 int HcalLayerDepthMap::getDepthMax(const int subdet, const int ieta, const int iphi, const int zside) const {
   int depth = (isValid(subdet, iphi, zside)) ? getDepth(subdet, ieta, iphi, zside, maxLayers_) : -1;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "getDepthMax::Input " << subdet << ":" << iphi << ":" << zside << " Output " << depth;
+  edm::LogVerbatim("HCalGeom") << "Debug info -- getDepthMax::Input " << subdet << ":" << iphi << ":" << zside << " Output " << depth;
 #endif
   return depth;
 }
@@ -178,7 +178,7 @@ int HcalLayerDepthMap::getLayerFront(
       layer = itr->second;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "getLayerFront::Input " << subdet << ":" << ieta << ":" << iphi << ":" << zside << ":"
+  edm::LogVerbatim("HCalGeom") << "Debug info -- getLayerFront::Input " << subdet << ":" << ieta << ":" << iphi << ":" << zside << ":"
                                << depth << " Output " << layer;
 #endif
   return layer;
@@ -193,7 +193,7 @@ int HcalLayerDepthMap::getLayerBack(
       layer = itr->second;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "getLayerBack::Input " << subdet << ":" << ieta << ":" << iphi << ":" << zside << ":"
+  edm::LogVerbatim("HCalGeom") << "Debug info -- getLayerBack::Input " << subdet << ":" << ieta << ":" << iphi << ":" << zside << ":"
                                << depth << " Output " << layer;
 #endif
   return layer;
@@ -210,7 +210,7 @@ void HcalLayerDepthMap::getLayerDepth(
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "getLayerDepth::Input " << subdet << ":" << eta << ":" << phi << ":" << zside
+  edm::LogVerbatim("HCalGeom") << "Debug info -- getLayerDepth::Input " << subdet << ":" << eta << ":" << phi << ":" << zside
                                << " Output " << layers.size() << " entries";
   std::ostringstream st1;
   for (std::map<int, int>::iterator itr = layers.begin(); itr != layers.end(); ++itr)
@@ -229,7 +229,7 @@ void HcalLayerDepthMap::getLayerDepth(const int eta, std::map<int, int>& layers)
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "getLayerDepth::Input " << eta << " Output " << layers.size() << " entries";
+  edm::LogVerbatim("HCalGeom") << "Debug info -- getLayerDepth::Input " << eta << " Output " << layers.size() << " entries";
   std::ostringstream st1;
   for (std::map<int, int>::iterator itr = layers.begin(); itr != layers.end(); ++itr)
     st1 << " [" << itr->first << "] " << itr->second;
@@ -240,7 +240,7 @@ void HcalLayerDepthMap::getLayerDepth(const int eta, std::map<int, int>& layers)
 int HcalLayerDepthMap::getMaxDepthLastHE(const int subdet, const int iphi, const int zside) const {
   int depth = isValid(subdet, iphi, zside) ? dep29C_ : -1;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "getMaxDepthLastHE::Input " << subdet << ":" << iphi << ":" << zside << " Output "
+  edm::LogVerbatim("HCalGeom") << "Debug info -- getMaxDepthLastHE::Input " << subdet << ":" << iphi << ":" << zside << " Output "
                                << depth;
 #endif
   return depth;
@@ -249,7 +249,7 @@ int HcalLayerDepthMap::getMaxDepthLastHE(const int subdet, const int iphi, const
 double HcalLayerDepthMap::getLayer0Wt(const int subdet, const int iphi, const int zside) const {
   double wt = isValid(subdet, iphi, zside) ? wtl0C_ : -1.0;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "getLayer0Wt::Input " << subdet << ":" << iphi << ":" << zside << " Output " << wt;
+  edm::LogVerbatim("HCalGeom") << "Debug info -- getLayer0Wt::Input " << subdet << ":" << iphi << ":" << zside << " Output " << wt;
 #endif
   return wt;
 }
