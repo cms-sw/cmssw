@@ -48,11 +48,11 @@ HLTMuonRecHitClusterFilter::HLTMuonRecHitClusterFilter(const edm::ParameterSet& 
       min_N_(iConfig.getParameter<int>("MinN")),
       min_Size_(iConfig.getParameter<int>("MinSize")),
       min_SizeMinusMB1_(iConfig.getParameter<int>("MinSizeMinusMB1")),
-      min_SizeRegionCutEtas_(iConfig.getParameter<std::vector<double> >("MinSizeRegionCutEtas")),
-      max_SizeRegionCutEtas_(iConfig.getParameter<std::vector<double> >("MaxSizeRegionCutEtas")),
-      min_SizeRegionCutNstations_(iConfig.getParameter<std::vector<int> >("MinSizeRegionCutNstations")),
-      max_SizeRegionCutNstations_(iConfig.getParameter<std::vector<int> >("MaxSizeRegionCutNstations")),
-      min_SizeRegionCutClusterSize_(iConfig.getParameter<std::vector<int> >("MinSizeRegionCutClusterSize")),
+      min_SizeRegionCutEtas_(iConfig.getParameter<std::vector<double>>("MinSizeRegionCutEtas")),
+      max_SizeRegionCutEtas_(iConfig.getParameter<std::vector<double>>("MaxSizeRegionCutEtas")),
+      min_SizeRegionCutNstations_(iConfig.getParameter<std::vector<int>>("MinSizeRegionCutNstations")),
+      max_SizeRegionCutNstations_(iConfig.getParameter<std::vector<int>>("MaxSizeRegionCutNstations")),
+      min_SizeRegionCutClusterSize_(iConfig.getParameter<std::vector<int>>("MinSizeRegionCutClusterSize")),
       max_nMB1_(iConfig.getParameter<int>("Max_nMB1")),
       max_nMB2_(iConfig.getParameter<int>("Max_nMB2")),
       max_nME11_(iConfig.getParameter<int>("Max_nME11")),
@@ -65,7 +65,19 @@ HLTMuonRecHitClusterFilter::HLTMuonRecHitClusterFilter(const edm::ParameterSet& 
       max_Time_(iConfig.getParameter<double>("MaxTime")),
       min_Eta_(iConfig.getParameter<double>("MinEta")),
       max_Eta_(iConfig.getParameter<double>("MaxEta")),
-      max_TimeSpread_(iConfig.getParameter<double>("MaxTimeSpread")) {}
+      max_TimeSpread_(iConfig.getParameter<double>("MaxTimeSpread")) {
+  if (!(min_SizeRegionCutEtas_.size() == max_SizeRegionCutEtas_.size() &&
+        min_SizeRegionCutEtas_.size() == min_SizeRegionCutNstations_.size() &&
+        min_SizeRegionCutEtas_.size() == max_SizeRegionCutNstations_.size() &&
+        min_SizeRegionCutEtas_.size() == min_SizeRegionCutClusterSize_.size())) {
+    throw cms::Exception("Configuration")
+        << "size of \"MinSizeRegionCutEtas\" (" << min_SizeRegionCutEtas_.size() << ") and \"MaxSizeRegionCutEtas\" ("
+        << max_SizeRegionCutEtas_.size() << ") and \"MinSizeRegionCutNstations\" ("
+        << min_SizeRegionCutNstations_.size() << ") and \"MaxSizeRegionCutNstations\" ("
+        << max_SizeRegionCutNstations_.size() << ") and \"MinSizeRegionCutClusterSize\" ("
+        << min_SizeRegionCutClusterSize_.size() << ") differ";
+  }
+}
 
 void HLTMuonRecHitClusterFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -73,16 +85,11 @@ void HLTMuonRecHitClusterFilter::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<int>("MinN", 1);
   desc.add<int>("MinSize", 50);
   desc.add<int>("MinSizeMinusMB1", 9999);
-  std::vector<double> minSizeRegionCutEtas{-1., -1., 1.9, 1.9};
-  std::vector<double> maxSizeRegionCutEtas{1.9, 1.9, -1., -1.};
-  std::vector<int> minSizeRegionCutNstations{-1, 1, -1, 1};
-  std::vector<int> maxSizeRegionCutNstations{1, -1, 1, -1};
-  std::vector<int> minSizeRegionCutClusterSize{9999, 9999, 9999, 9999};
-  desc.add<std::vector<double> >("MinSizeRegionCutEtas", minSizeRegionCutEtas);
-  desc.add<std::vector<double> >("MaxSizeRegionCutEtas", maxSizeRegionCutEtas);
-  desc.add<std::vector<int> >("MinSizeRegionCutNstations", minSizeRegionCutNstations);
-  desc.add<std::vector<int> >("MaxSizeRegionCutNstations", maxSizeRegionCutNstations);
-  desc.add<std::vector<int> >("MinSizeRegionCutClusterSize", minSizeRegionCutClusterSize);
+  desc.add<std::vector<double>>("MinSizeRegionCutEtas", {-1., -1., 1.9, 1.9});
+  desc.add<std::vector<double>>("MaxSizeRegionCutEtas", {1.9, 1.9, -1., -1.});
+  desc.add<std::vector<int>>("MinSizeRegionCutNstations", {-1, 1, -1, 1});
+  desc.add<std::vector<int>>("MaxSizeRegionCutNstations", {1, -1, 1, -1});
+  desc.add<std::vector<int>>("MinSizeRegionCutClusterSize", {9999, 9999, 9999, 9999});
   desc.add<int>("Max_nMB1", 999);
   desc.add<int>("Max_nMB2", 999);
   desc.add<int>("Max_nME11", 999);
@@ -110,25 +117,25 @@ bool HLTMuonRecHitClusterFilter::filter(edm::StreamID, edm::Event& iEvent, const
   auto const& rechitClusters = iEvent.get(cluster_token_);
 
   for (auto const& cluster : rechitClusters) {
-    bool passSizeCut = false;
-    if (cluster.size() >= min_Size_)
-      passSizeCut = true;
-    if (cluster.size() - cluster.nMB1() >= min_SizeMinusMB1_)
-      passSizeCut = true;
-    for (size_t i = 0; i < min_SizeRegionCutEtas_.size(); ++i) {
-      if (((min_SizeRegionCutEtas_[i] < 0.0) || std::abs(cluster.eta()) > min_SizeRegionCutEtas_[i]) &&
-          ((max_SizeRegionCutEtas_[i] < 0.0) || std::abs(cluster.eta()) <= max_SizeRegionCutEtas_[i]) &&
-          ((min_SizeRegionCutNstations_[i] < 0) || cluster.nStation() > min_SizeRegionCutNstations_[i]) &&
-          ((max_SizeRegionCutNstations_[i] < 0) || cluster.nStation() <= max_SizeRegionCutNstations_[i]) &&
-          cluster.size() >= min_SizeRegionCutClusterSize_[i])
-        passSizeCut = true;
+    auto passSizeCut = (cluster.size() >= min_Size_) || ((cluster.size() - cluster.nMB1()) >= min_SizeMinusMB1_);
+    if (not passSizeCut) {
+      for (size_t i = 0; i < min_SizeRegionCutEtas_.size(); ++i) {
+        if ((min_SizeRegionCutEtas_[i] < 0. || std::abs(cluster.eta()) > min_SizeRegionCutEtas_[i]) &&
+            (max_SizeRegionCutEtas_[i] < 0. || std::abs(cluster.eta()) <= max_SizeRegionCutEtas_[i]) &&
+            (min_SizeRegionCutNstations_[i] < 0 || cluster.nStation() > min_SizeRegionCutNstations_[i]) &&
+            (max_SizeRegionCutNstations_[i] < 0 || cluster.nStation() <= max_SizeRegionCutNstations_[i]) &&
+            cluster.size() >= min_SizeRegionCutClusterSize_[i]) {
+          passSizeCut = true;
+          break;
+        }
+      }
     }
-    if ((passSizeCut) && (cluster.nMB1() <= max_nMB1_) && (cluster.nMB2() <= max_nMB2_) &&
-        (cluster.nME11() <= max_nME11_) && (cluster.nME12() <= max_nME12_) && (cluster.nME41() <= max_nME41_) &&
-        (cluster.nME42() <= max_nME42_) && (cluster.nStation() >= min_Nstation_) &&
-        (cluster.avgStation() >= min_AvgStation_) && ((min_Eta_ < 0.0) || (std::abs(cluster.eta()) >= min_Eta_)) &&
-        ((max_Eta_ < 0.0) || (std::abs(cluster.eta()) <= max_Eta_)) && (cluster.time() > min_Time_) &&
-        (cluster.time() <= max_Time_) && (cluster.timeSpread() <= max_TimeSpread_)) {
+    if (passSizeCut && cluster.nMB1() <= max_nMB1_ && cluster.nMB2() <= max_nMB2_ && cluster.nME11() <= max_nME11_ &&
+        cluster.nME12() <= max_nME12_ && cluster.nME41() <= max_nME41_ && cluster.nME42() <= max_nME42_ &&
+        cluster.nStation() >= min_Nstation_ && cluster.avgStation() >= min_AvgStation_ &&
+        (min_Eta_ < 0.0 || std::abs(cluster.eta()) > min_Eta_) &&
+        (max_Eta_ < 0.0 || std::abs(cluster.eta()) <= max_Eta_) && cluster.time() > min_Time_ &&
+        cluster.time() <= max_Time_ && cluster.timeSpread() <= max_TimeSpread_) {
       nClusterPassed++;
     }
   }
