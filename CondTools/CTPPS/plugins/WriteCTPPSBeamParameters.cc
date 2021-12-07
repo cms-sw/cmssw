@@ -49,11 +49,7 @@ private:
 //---------------------------------------------------------------------------------------
 
 void WriteCTPPSBeamParameters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CTPPSBeamParameters> bp = iSetup.getHandle(tokenBeamParameters_);
-
-  // Pointer for the conditions data object
-  const CTPPSBeamParameters* p = bp.product();
-
+  const auto& beamParam = iSetup.getData(tokenBeamParameters_);
   // Using "lumiid" as IOV
   const edm::LuminosityBlock& iLBlock = iEvent.getLuminosityBlock();
   edm::LuminosityBlockID lu(iLBlock.run(), iLBlock.id().luminosityBlock());
@@ -67,8 +63,7 @@ void WriteCTPPSBeamParameters::analyze(const edm::Event& iEvent, const edm::Even
   // Write to database or sqlite file
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable())
-    poolDbService->writeOneIOV(*p, ilumi, "CTPPSBeamParametersRcd");
-  // poolDbService->writeOne( p, poolDbService->currentTime(), "CTPPSBeamParametersRcd"  );
+    poolDbService->writeOneIOV(beamParam, ilumi, "CTPPSBeamParametersRcd");
   else
     throw std::runtime_error("PoolDBService required.");
 }
