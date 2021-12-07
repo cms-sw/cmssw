@@ -88,6 +88,7 @@ namespace edm {
     void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
     void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
 
+    //used for prefetching
     std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType iType) const {
       return itemsToGetFromBranch_[iType];
     }
@@ -236,6 +237,9 @@ namespace edm {
                                recordESConsumes(Tr, iRecord, iKey.type(), ESInputTag("", iKey.name().value())),
                                iRecord.type());
     }
+
+    //used for FinalPath
+    void resetItemsToGetFrom(BranchType iType) { itemsToGetFromBranch_[iType].clear(); }
 
   private:
     virtual void registerLateConsumes(eventsetup::ESRecordsToProxyIndices const&) {}
