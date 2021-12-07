@@ -3490,7 +3490,7 @@ for ds in defaultDataSets:
     elif '2018' in ds:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     elif '2021' in ds:
-      PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
+      PUDataSets[ds]={'-n':10,'--pileup':'2022_LHC_Simulation_10h_2h','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
     elif 'postLS2' in ds:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     elif '2026' in ds:
