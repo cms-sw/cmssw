@@ -599,16 +599,10 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                                       "H/E",
                                       "Events",
                                       "ELE_LOGY E1 P");
-  h1_ele_vertexEta_all = bookH1withSumw2(iBooker,
-                                         "vertexEta_all",
-                                         "ele eta, all reco electrons",
-                                         eta_nbin,
-                                         eta_min,
-                                         eta_max,
-                                         "",
-                                         "Events");
-  h1_ele_vertexPt_all = bookH1withSumw2(
-      iBooker, "vertexPt_all", "ele p_{T}, all reco electrons", pteff_nbin, 5., pt_max, "", "Events");
+  h1_ele_vertexEta_all = bookH1withSumw2(
+      iBooker, "vertexEta_all", "ele eta, all reco electrons", eta_nbin, eta_min, eta_max, "", "Events");
+  h1_ele_vertexPt_all =
+      bookH1withSumw2(iBooker, "vertexPt_all", "ele p_{T}, all reco electrons", pteff_nbin, 5., pt_max, "", "Events");
   h1_ele_mee_all = bookH1withSumw2(iBooker,
                                    "mee_all",
                                    "ele pairs invariant mass, all reco electrons",
