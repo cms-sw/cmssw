@@ -14,8 +14,8 @@ Jet::Jet()
       embeddedCaloTowers_(false),
       embeddedPFCandidates_(false),
       jetCharge_(0.),
-      jerFactor(0.0),
-      jerFactorValid(false) {}
+      jerFactor_(0.0),
+      jerFactorValid_(false) {}
 
 /// constructor from a reco::Jet
 Jet::Jet(const reco::Jet& aJet)
@@ -23,8 +23,8 @@ Jet::Jet(const reco::Jet& aJet)
       embeddedCaloTowers_(false),
       embeddedPFCandidates_(false),
       jetCharge_(0.0),
-      jerFactor(0.0),
-      jerFactorValid(false) {
+      jerFactor_(0.0),
+      jerFactorValid_(false) {
   tryImportSpecific(aJet);
 }
 
@@ -34,8 +34,8 @@ Jet::Jet(const edm::Ptr<reco::Jet>& aJetRef)
       embeddedCaloTowers_(false),
       embeddedPFCandidates_(false),
       jetCharge_(0.0),
-      jerFactor(0.0),
-      jerFactorValid(false) {
+      jerFactor_(0.0),
+      jerFactorValid_(false) {
   tryImportSpecific(*aJetRef);
 }
 
@@ -45,8 +45,8 @@ Jet::Jet(const edm::RefToBase<reco::Jet>& aJetRef)
       embeddedCaloTowers_(false),
       embeddedPFCandidates_(false),
       jetCharge_(0.0),
-      jerFactor(0.0),
-      jerFactorValid(false) {
+      jerFactor_(0.0),
+      jerFactorValid_(false) {
   tryImportSpecific(*aJetRef);
 }
 
@@ -618,12 +618,12 @@ void Jet::addSubjets(pat::JetPtrCollection const& pieces, std::string const& lab
 }
 
 // is the JER correction factor valid, i.e. has it been written using the saveJerFactor method
-bool Jet::isJerFactorValid() const { return jerFactorValid; }
+bool Jet::isJerFactorValid() const { return jerFactorValid_; }
 
 // load the currently saved JER correction factor and check whether the factor was propely set before loading
-float Jet::loadJerFactor() const {
+float Jet::jerFactor() const {
   if (isJerFactorValid()) {
-    return jerFactor;
+    return jerFactor_;
   } else {
     throw cms::Exception(
         "Loading JER factor of a pat::Jet, but it was not set properly before. You need to save a JER factor first, "
@@ -633,13 +633,13 @@ float Jet::loadJerFactor() const {
 }
 
 // save a JER correction factor
-void Jet::saveJerFactor(float jerFactor_) {
-  jerFactor = jerFactor_;
-  jerFactorValid = true;
+void Jet::setJerFactor(float jerFactor) {
+  jerFactor_ = jerFactor;
+  jerFactorValid_ = true;
 }
 
 // reset a saved JER correction factor
 void Jet::resetJerFactor() {
-  jerFactor = 0.0;
-  jerFactorValid = false;
+  jerFactor_ = 0.0;
+  jerFactorValid_ = false;
 }

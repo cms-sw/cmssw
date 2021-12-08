@@ -183,10 +183,10 @@ namespace pat {
     bool isJerFactorValid() const;
 
     // load the currently saved JER correction factor and check whether the factor was propely set before loading
-    float loadJerFactor() const;
+    float jerFactor() const;
 
     // save a JER correction factor
-    void saveJerFactor(float jerFactor_);
+    void setJerFactor(float jerFactor);
 
     // reset a saved JER correction factor
     void resetJerFactor();
@@ -665,8 +665,8 @@ namespace pat {
     reco::JetID jetID_;
 
     // ---- JER correction factor ----
-    float jerFactor;
-    bool jerFactorValid;
+    float jerFactor_;
+    bool jerFactorValid_;
 
   private:
     // ---- helper functions ----
