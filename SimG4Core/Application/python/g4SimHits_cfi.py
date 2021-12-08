@@ -71,7 +71,7 @@ fineCalo.toModify(common_MCtruth,
 ## enable CaloBoundary information for all Phase2 workflows
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(common_MCtruth,
-        SaveCaloBoundaryInformation =True
+        SaveCaloBoundaryInformation = True
 )
 
 g4SimHits = cms.EDProducer("OscarMTProducer",
@@ -629,6 +629,7 @@ run2_HCAL_2017.toModify( g4SimHits, HCalSD = dict( TestNumberingScheme = True ) 
 ##
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( g4SimHits, CastorSD = dict( useShowerLibrary = False ) ) 
+run3_common.toModify( g4SimHits, LHCTransport = cms.bool(True) ) 
 
 ##
 ## Change ECAL time slices
