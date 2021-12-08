@@ -5,6 +5,26 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQMOffline.RecoB.bTagMiniDQMDeepFlavour import *
 from DQMOffline.RecoB.bTagMiniDQMDeepCSV import *
 
+from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff import patJets
+
+
+
+# add jets with pfSecondaryVertexTagInfos
+patJetsSVInfo = patJets.clone(
+    tagInfoSources = cms.VInputTag('pfSecondaryVertexTagInfos'),
+    addTagInfos = True
+)
+patJetsSVInfoTask = cms.Task(patJetsSVInfo)
+
+
+bTagSVDQM = DQMEDAnalyzer('MiniAODSVAnalyzer',
+                          cms.PSet(JetTag = cms.InputTag('patJetsSVInfo'),
+                                   svTagInfo = cms.string('pfSecondaryVertex'),
+                                   JetptMin = cms.double(30.),
+                                   EtaMax = cms.double(2.5),
+                                   )
+                          )
+
 
 bTagMiniDQMGlobal = cms.PSet(
     JetTag = cms.InputTag('slimmedJets'),
@@ -52,7 +72,7 @@ def addSequences(Analyzer, Harvester, discriminators, regions, globalPSet, label
 
 
 
-bTagMiniDQMSource = cms.Sequence()
+bTagMiniDQMSource = cms.Sequence(bTagSVDQM, patJetsSVInfoTask)
 bTagMiniDQMHarvesting = cms.Sequence()
 
 addSequences(bTagMiniDQMSource,
@@ -77,7 +97,7 @@ bTagMiniValidationGlobal = bTagMiniDQMGlobal.clone(
     MClevel = 1 # produce flavour plots for b, c ,light (dusg)
 )
 
-bTagMiniValidationSource = cms.Sequence()
+bTagMiniValidationSource = cms.Sequence(bTagSVDQM, patJetsSVInfoTask)
 bTagMiniValidationHarvesting = cms.Sequence()
 
 
