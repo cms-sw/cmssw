@@ -287,7 +287,7 @@ private:
 //
 HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet &iConfig) {
   //now do what ever initialization is needed
-  pdt_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>(); 
+  pdt_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
   fBFileName = iConfig.getUntrackedParameter<std::string>("output_b", "b_values.txt");
   fNFileName = iConfig.getUntrackedParameter<std::string>("output_n", "n_values.txt");
   fMFileName = iConfig.getUntrackedParameter<std::string>("output_m", "m_values.txt");
@@ -818,7 +818,7 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   }
 }
 // ------------ method called once each job just before starting event loop  ------------
-void HydjetAnalyzer::beginRun(const edm::Run &, const edm::EventSetup &iSetup) { }
+void HydjetAnalyzer::beginRun(const edm::Run &, const edm::EventSetup &iSetup) {}
 void HydjetAnalyzer::beginJob() {
   if (printLists_) {
     out_b.open(fBFileName.c_str());
