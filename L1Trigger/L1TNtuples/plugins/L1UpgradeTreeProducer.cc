@@ -8,7 +8,7 @@
 Description: Produce L1 Extra tree
 
 Implementation:
-     
+
 */
 //
 // Original Author:
@@ -33,6 +33,7 @@ Implementation:
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
 // ROOT output stuff
@@ -75,6 +76,7 @@ private:
   edm::EDGetTokenT<l1t::JetBxCollection> jetToken_;
   edm::EDGetTokenT<l1t::EtSumBxCollection> sumToken_;
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken_;
+  edm::EDGetTokenT<l1t::MuonShowerBxCollection> muonShowerToken_;
 };
 
 L1UpgradeTreeProducer::L1UpgradeTreeProducer(const edm::ParameterSet& iConfig) {
@@ -83,6 +85,8 @@ L1UpgradeTreeProducer::L1UpgradeTreeProducer(const edm::ParameterSet& iConfig) {
   jetToken_ = consumes<l1t::JetBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("jetToken"));
   sumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("sumToken"));
   muonToken_ = consumes<l1t::MuonBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("muonToken"));
+  muonShowerToken_ =
+      consumes<l1t::MuonShowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("muonShowerToken"));
 
   const auto& taus = iConfig.getUntrackedParameter<std::vector<edm::InputTag>>("tauTokens");
   for (const auto& tau : taus) {
@@ -116,11 +120,13 @@ void L1UpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::Handle<l1t::JetBxCollection> jet;
   edm::Handle<l1t::EtSumBxCollection> sums;
   edm::Handle<l1t::MuonBxCollection> muon;
+  edm::Handle<l1t::MuonShowerBxCollection> muonShower;
 
   iEvent.getByToken(egToken_, eg);
   iEvent.getByToken(jetToken_, jet);
   iEvent.getByToken(sumToken_, sums);
   iEvent.getByToken(muonToken_, muon);
+  iEvent.getByToken(muonShowerToken_, muonShower);
 
   if (eg.isValid()) {
     l1Upgrade->SetEm(eg, maxL1Upgrade_);
@@ -143,6 +149,12 @@ void L1UpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
     l1Upgrade->SetMuon(muon, maxL1Upgrade_);
   } else {
     edm::LogWarning("MissingProduct") << "L1Upgrade Muons not found. Branch will not be filled" << std::endl;
+  }
+
+  if (muonShower.isValid()) {
+    l1Upgrade->SetMuonShower(muonShower, maxL1Upgrade_);
+  } else {
+    edm::LogWarning("MissingProduct") << "L1Upgrade Muon Showers not found. Branch will not be filled" << std::endl;
   }
 
   for (auto& tautoken : tauTokens_) {

@@ -180,6 +180,12 @@ void GlobalCondition::print(std::ostream& myCout) const {
     }
 
     break;
+    case l1t::CondMuonShower: {
+      myCout << "  Condition category: "
+             << "l1t::CondMuonShower" << std::endl;
+    }
+
+    break;
     case l1t::CondCalo: {
       myCout << "  Condition category: "
              << "l1t::CondCalo" << std::endl;
@@ -429,6 +435,11 @@ void GlobalCondition::print(std::ostream& myCout) const {
     switch (m_objectType[i]) {
       case l1t::gtMu: {
         myCout << " Mu ";
+      }
+
+      break;
+      case l1t::gtMuShower: {
+        myCout << " MuShower ";
       }
 
       break;
