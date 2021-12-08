@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-//#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -160,7 +159,6 @@ private:
   edm::InputTag genParticleSrc_;
   edm::InputTag genHIsrc_;
   edm::InputTag simVerticesTag_;
-  //edm::ESHandle<ParticleDataTable> pdt;
   edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdt_;
 
   edm::Service<TFileService> f;
