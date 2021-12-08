@@ -24,7 +24,7 @@ namespace clangcms {
     void VisitStmt(clang::Stmt *S) { VisitChildren(S); }
     void VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *CE);
     void VisitCXXConstructExpr(CXXConstructExpr *CCE);
-    void Report(const std::string& mname, const std::string& pname, const Expr * CE) const;
+    void Report(const std::string &mname, const std::string &pname, const Expr *CE) const;
   };
 
   void PEFWalker::VisitChildren(clang::Stmt *S) {
@@ -43,11 +43,11 @@ namespace clangcms {
     //if (!support::isInterestingLocation(sname))
     //  return;
     std::string mname = support::getQualifiedName(*CCD);
-    const NamedDecl * PD = llvm::dyn_cast_or_null<NamedDecl>(AC->getDecl());
+    const NamedDecl *PD = llvm::dyn_cast_or_null<NamedDecl>(AC->getDecl());
     if (!PD)
       return;
     std::string pname = support::getQualifiedName(*PD);
-    Report(mname, pname, CCE); 
+    Report(mname, pname, CCE);
 
     VisitChildren(CCE);
   }
@@ -61,7 +61,7 @@ namespace clangcms {
       return;
     std::string mname = support::getQualifiedName(*MD);
     std::string pname = support::getQualifiedName(*PD);
-    Report(mname, pname, CE); 
+    Report(mname, pname, CE);
   }
 
   void PEFWalker::VisitCallExpr(CallExpr *CE) {
@@ -79,26 +79,30 @@ namespace clangcms {
       return;
     std::string mname;
     mname = support::getQualifiedName(*FD);
-    const NamedDecl * PD = llvm::dyn_cast_or_null<NamedDecl>(AC->getDecl());
+    const NamedDecl *PD = llvm::dyn_cast_or_null<NamedDecl>(AC->getDecl());
     if (!PD)
       return;
     std::string pname = support::getQualifiedName(*PD);
-    Report(mname, pname, CE); 
+    Report(mname, pname, CE);
 
     VisitChildren(CE);
   }
 
-  void PEFWalker::Report(const std::string& mname, const std::string& pname, const Expr * CE) const {
+  void PEFWalker::Report(const std::string &mname, const std::string &pname, const Expr *CE) const {
     PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
-    std::string ename= "edm::ParameterSet::exists";
-    std::string eaname= "edm::ParameterSet::existsAs";
-    std::string pdname="edm::ParameterDescription";
+    std::string ename = "edm::ParameterSet::exists";
+    std::string eaname = "edm::ParameterSet::existsAs";
+    std::string pdname = "edm::ParameterDescription";
     llvm::SmallString<100> buf;
     llvm::raw_svector_ostream os(buf);
     if (mname.find(ename) != std::string::npos || mname.find(eaname) != std::string::npos) {
-      if (pname.find(pdname) != std::string::npos) return;
+      if (pname.find(pdname) != std::string::npos)
+        return;
       os << "deprecated function " << mname << " is called in function " << pname;
-      BugType *BT = new BugType(Checker, "Deprecated function edm::ParameterSet::exists() or edm::ParameterSet::existsAs<>() called", "Deprecated API");
+      BugType *BT =
+          new BugType(Checker,
+                      "Deprecated function edm::ParameterSet::exists() or edm::ParameterSet::existsAs<>() called",
+                      "Deprecated API");
       std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
       R->setDeclWithIssue(AC->getDecl());
       R->addRange(CE->getExprLoc());
@@ -122,8 +126,8 @@ namespace clangcms {
   }
 
   void PsetExistsFCallChecker::checkASTDecl(const FunctionTemplateDecl *TD,
-                                           AnalysisManager &mgr,
-                                           BugReporter &BR) const {
+                                            AnalysisManager &mgr,
+                                            BugReporter &BR) const {
     const clang::SourceManager &SM = BR.getSourceManager();
     clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(TD, SM);
     if (SM.isInSystemHeader(DLoc.asLocation()) || SM.isInExternCSystemHeader(DLoc.asLocation()))

@@ -20,8 +20,9 @@
 
 namespace clangcms {
 
-  class PsetExistsFCallChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXMethodDecl>,
-                                                            clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > {
+  class PsetExistsFCallChecker
+      : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXMethodDecl>,
+                                    clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > {
   public:
     void checkASTDecl(const clang::CXXMethodDecl *CMD,
                       clang::ento::AnalysisManager &mgr,
