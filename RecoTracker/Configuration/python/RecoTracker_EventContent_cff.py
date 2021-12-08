@@ -22,6 +22,7 @@ RecoTrackerFEVT = cms.PSet(
         'keep *_dedxHitInfo_*_*',
         'keep *_dedxHarmonic2_*_*',
         'keep *_dedxPixelHarmonic2_*_*',
+        'keep *_siPixelTrackProbQXY_*_*',
         'keep *_trackExtrapolator_*_*',
         'keep recoTracks_cosmicDCTracks_*_*',
         'keep recoTrackExtras_cosmicDCTracks_*_*',
@@ -49,6 +50,7 @@ RecoTrackerRECO = cms.PSet(
         'keep *_dedxHitInfo_*_*',
         'keep *_dedxHarmonic2_*_*',
         'keep *_dedxPixelHarmonic2_*_*',
+        'keep *_siPixelTrackProbQXY_*_*',
         'keep *_trackExtrapolator_*_*',
         'keep recoTracks_cosmicDCTracks_*_*',
         'keep recoTrackExtras_cosmicDCTracks_*_*',
@@ -65,6 +67,7 @@ RecoTrackerAOD = cms.PSet(
         'keep *_dedxHarmonic2_*_*',
         'keep *_dedxPixelHarmonic2_*_*',
         'keep *_dedxHitInfo_*_*',
+        'keep *_siPixelTrackProbQXY_*_*',
         'keep *_trackExtrapolator_*_*',
         'keep *_generalTracks_MVAValues_*',
         'keep *_generalTracks_MVAVals_*'
