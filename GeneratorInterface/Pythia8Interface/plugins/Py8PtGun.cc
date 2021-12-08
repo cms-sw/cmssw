@@ -73,7 +73,7 @@ namespace gen {
         (fMasterGen->event).append(21, 23, 1, 0, 0, 0, 101, 102, px, py, pz, ee, mass);
       // other
       else {
-	(fMasterGen->event).append(particleID, 1, 1, 0, 0, 0, 0, 0, px, py, pz, ee, mass);
+        (fMasterGen->event).append(particleID, 1, 1, 0, 0, 0, 0, 0, px, py, pz, ee, mass);
         int eventSize = (fMasterGen->event).size() - 1;
         // -log(flat) = exponential distribution
         double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
