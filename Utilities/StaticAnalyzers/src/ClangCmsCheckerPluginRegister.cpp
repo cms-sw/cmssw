@@ -23,6 +23,7 @@
 #include "EDMPluginDumper.h"
 #include "ThrUnsafeFCallChecker.h"
 #include "ESRecordGetChecker.h"
+#include "PsetExistsFCallChecker.h"
 
 #include <clang/StaticAnalyzer/Frontend/CheckerRegistry.h>
 
@@ -76,6 +77,9 @@ extern "C" void clang_registerCheckers(clang::ento::CheckerRegistry &registry) {
       "optional.getByChecker",
       "Checks for calls to edm::getByLabel or edm::getManyByType and reports edm::Handle type passed",
       "no docs");
+  registry.addChecker<clangcms::PsetExistsFCallChecker>(
+     "deprecated.psetExistsChecker", "Checks for calls to edm::ParameterSet::exists() or edm::ParameterSet::existsAs<>()",
+     "no docs");
   registry.addChecker<clangcms::ArgSizeChecker>(
       "optional.ArgSize", "Reports args passed by value with size>4k.", "no docs");
   registry.addChecker<clangcms::FunctionChecker>(
