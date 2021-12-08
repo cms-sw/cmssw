@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -160,7 +160,9 @@ private:
   edm::InputTag genParticleSrc_;
   edm::InputTag genHIsrc_;
   edm::InputTag simVerticesTag_;
-  edm::ESHandle<ParticleDataTable> pdt;
+  //edm::ESHandle<ParticleDataTable> pdt;
+  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdt_;
+
   edm::Service<TFileService> f;
 
   //common
@@ -287,6 +289,7 @@ private:
 //
 Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
   //now do what ever initialization is needed
+  pdt_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>(); 
   fBFileName = iConfig.getUntrackedParameter<std::string>("output_b", "b_values.txt");
   fNFileName = iConfig.getUntrackedParameter<std::string>("output_n", "n_values.txt");
   fMFileName = iConfig.getUntrackedParameter<std::string>("output_m", "m_values.txt");
@@ -416,7 +419,6 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
           v2etaBins[k] = minV2eta + k * ((maxV2eta - minV2eta) / nintV2eta);
         }
       }
-
     }  //user histo
   }    //do histo
 }
@@ -430,6 +432,7 @@ Hydjet2Analyzer::~Hydjet2Analyzer() {
 //
 // ------------ method called to for each event  ------------
 void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  auto const &pdt = iSetup.getData(pdt_);
   using namespace edm;
   using namespace HepMC;
   hev_.event = iEvent.id().event();
@@ -478,7 +481,7 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
             float eta = (*it)->momentum().eta();
             float phi = (*it)->momentum().phi();
             float pt = (*it)->momentum().perp();
-            const ParticleData *part = pdt->particle(pdg_id);
+            const ParticleData *part = pdt.particle(pdg_id);
             int charge = static_cast<int>(part->charge());
             hev_.pt[hev_.mult] = pt;
             hev_.eta[hev_.mult] = eta;
@@ -541,19 +544,19 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           float e = (*it)->momentum().e();
           float pseudoRapidity = (*it)->momentum().pseudoRapidity();
           int charge = -1;
-          if ((pdt->particle(pdg_id))) {
-            part = pdt->particle(pdg_id);
+          if ((pdt.particle(pdg_id))) {
+            part = pdt.particle(pdg_id);
             charge = static_cast<int>(part->charge());
           }
 
           /*
           if(pdg_id==-130){ //there are not -130 in pdt
-	    part = pdt->particle(130);
-	  }else if(!(pdt->particle(pdg_id))){ //skip if not in PDT!!!
+	    part = pdt.particle(130);
+	  }else if(!(pdt.particle(pdg_id))){ //skip if not in PDT!!!
 	    cout<<" Out of PDT: "<< pdg_id<<endl;
 	    continue;
           }else{
-	    part = pdt->particle(pdg_id);
+	    part = pdt.particle(pdg_id);
           }
 */
           //          int charge = static_cast<int>(part->charge());
@@ -817,7 +820,7 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
   }
 }
 // ------------ method called once each job just before starting event loop  ------------
-void Hydjet2Analyzer::beginRun(const edm::Run &, const edm::EventSetup &iSetup) { iSetup.getData(pdt); }
+void Hydjet2Analyzer::beginRun(const edm::Run &, const edm::EventSetup &iSetup) { }
 void Hydjet2Analyzer::beginJob() {
   if (printLists_) {
     out_b.open(fBFileName.c_str());
