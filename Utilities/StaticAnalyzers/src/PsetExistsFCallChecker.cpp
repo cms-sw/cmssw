@@ -101,14 +101,14 @@ namespace clangcms {
       os << "deprecated function " << mname << " is called in function " << pname;
       BugType *BT =
           new BugType(Checker,
-                      "Deprecated function edm::ParameterSet::exists() or edm::ParameterSet::existsAs<>() called",
-                      "Deprecated API");
+                      "Function edm::ParameterSet::exists() or edm::ParameterSet::existsAs<>() called",
+                      "CMS Code Rules");
       std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
       R->setDeclWithIssue(AC->getDecl());
       R->addRange(CE->getExprLoc());
       BR.emitReport(std::move(R));
       std::string tname = "function-checker.txt.unsorted";
-      std::string ostring = "function '" + pname + "' calls deprecated function '" + mname + "'.\n";
+      std::string ostring = "function '" + pname + "' calls function '" + mname + "'.\n";
       support::writeLog(ostring, tname);
     }
   }
