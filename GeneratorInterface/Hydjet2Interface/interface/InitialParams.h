@@ -7,17 +7,17 @@ struct InitialParamsHydjet_t {
   double fSqrtS;  ///< cms energy per nucleon
   double fAw;     ///< atomic number of colliding nuclei
   int fIfb;       ///< \brief flag of type of centrality generation
-                    ///< \details =0 is fixed by fBfix,
-                    ///< not 0 impact parameter is generated in each event between fBfmin
-                    ///< and fBmax according with Glauber model (f-la 30)
+                  ///< \details =0 is fixed by fBfix,
+                  ///< not 0 impact parameter is generated in each event between fBfmin
+                  ///< and fBmax according with Glauber model (f-la 30)
   double fBmin;   ///< minimum impact parameter in units of nuclear radius RA
   double fBmax;   ///< maximum impact parameter in units of nuclear radius RA
   double fBfix;   ///< fix impact parameter in units of nuclear radius RA
 
   int fSeed;  ///< \brief parameter to set the random nuber seed
-                ///< \details =0 the current time is used to set the random generator seed,
-                ///< !=0 the value fSeed is used to set the random generator seed
-                ///< and then the state of random number generator in PYTHIA MRPY(1)=fSeed
+              ///< \details =0 the current time is used to set the random generator seed,
+              ///< !=0 the value fSeed is used to set the random generator seed
+              ///< and then the state of random number generator in PYTHIA MRPY(1)=fSeed
 
   double fT;          ///< chemical freeze-out temperature in GeV
   double fMuB;        ///< baryon potential
@@ -50,9 +50,9 @@ struct InitialParamsHydjet_t {
   int fPythDecay;  ///< Flag to choose how to decay resonances in high-pt part, fPythDecay: 0 by PYTHIA decayer, 1 by FASTMC decayer(mstj(21)=0)
 
   int fEtaType;  ///< \brief flag to choose rapidity distribution
-                   ///< \details if fEtaType<=0,
-                   ///< then uniform rapidity distribution in [-fYlmax,fYlmax] if fEtaType>0,
-                   ///< then Gaussian with dispertion = fYlmax
+                 ///< \details if fEtaType<=0,
+                 ///< then uniform rapidity distribution in [-fYlmax,fYlmax] if fEtaType>0,
+                 ///< then Gaussian with dispertion = fYlmax
 
   int fTMuType;  ///< flag to use calculated chemical freeze-out temperature, baryon potential and strangeness potential as a function of fSqrtS
 
@@ -61,11 +61,11 @@ struct InitialParamsHydjet_t {
   double fCorrC;   ///< flag and value to include charmness supression factor
 
   int fNhsel;  ///< \brief flag to switch on/off jet and hydro-state production
-                 ///< \details 0: jet production off and hydro on,
-                 ///< 1: jet production on and jet quenching off and hydro on,
-                 ///< 2: jet production on and jet quenching on and hydro on,
-                 ///< 3: jet production on and jet quenching off and hydro off,
-                 ///<4: jet production on and jet quenching on and hydro off
+               ///< \details 0: jet production off and hydro on,
+               ///< 1: jet production on and jet quenching off and hydro on,
+               ///< 2: jet production on and jet quenching on and hydro on,
+               ///< 3: jet production on and jet quenching off and hydro off,
+               ///<4: jet production on and jet quenching on and hydro off
   int fPyhist;  ///< Suppress PYTHIA particle history (=1 only final state particles from hard part; =0 include full particle history)
   int fIshad;  ///< \brief flag to switch on/off impact parameter dependent nuclear shadowing for gluons and light sea quarks (u,d,s)
       ///< \details 0: shadowing off,
@@ -83,10 +83,10 @@ struct InitialParamsHydjet_t {
   double fTau0;  ///< proper QGP formation time in fm/c (0.01<fTau0<10)
   int fNf;       ///< number of active quark flavours N_f in QGP fNf=0, 1,2 or 3
   int fIenglu;   ///< \brief flag to fix type of in-medium partonic energy loss
-                   ///< \details 0: radiative and collisional loss, 1: radiative loss only, 2:
-                   ///< collisional loss only (default: 0);
+                 ///< \details 0: radiative and collisional loss, 1: radiative loss only, 2:
+                 ///< collisional loss only (default: 0);
   int fIanglu;   ///< \brief flag to fix type of angular distribution of in-medium emitted gluons
-                   ///< \details 0: small-angular, 1: wide-angular, 2:collinear (default: 0).
+                 ///< \details 0: small-angular, 1: wide-angular, 2:collinear (default: 0).
 
   char partDat[256] = "";   ///< path to the particle data file
   char tabDecay[256] = "";  ///< path to the particle decay table
@@ -96,6 +96,6 @@ struct InitialParamsHydjet_t {
 
   bool doPrintInfo = true;       ///< Flag to turn ON/OFF additional info
   bool allowEmptyEvent = false;  ///< Allow or not empty events
-};                                 ///< Structure of input parameters
+};                               ///< Structure of input parameters
 
 #endif
