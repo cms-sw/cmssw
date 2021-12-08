@@ -20,8 +20,11 @@ namespace clangcms {
         : Checker(checker), BR(br), AC(ac) {}
 
     void VisitChildren(clang::Stmt *S);
+    void VisitCallExpr(CallExpr *CE);
     void VisitStmt(clang::Stmt *S) { VisitChildren(S); }
     void VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *CE);
+    void VisitCXXConstructExpr(CXXConstructExpr *CCE);
+    void Report(const std::string& mname, const std::string& pname, const Expr * CE) const;
   };
 
   void PEFWalker::VisitChildren(clang::Stmt *S) {
@@ -31,29 +34,77 @@ namespace clangcms {
       }
   }
 
+  void PEFWalker::VisitCXXConstructExpr(CXXConstructExpr *CCE) {
+    CXXConstructorDecl *CCD = CCE->getConstructor();
+    if (!CCD)
+      return;
+    const char *sfile = BR.getSourceManager().getPresumedLoc(CCE->getExprLoc()).getFilename();
+    std::string sname(sfile);
+    //if (!support::isInterestingLocation(sname))
+    //  return;
+    std::string mname = support::getQualifiedName(*CCD);
+    const NamedDecl * PD = llvm::dyn_cast_or_null<NamedDecl>(AC->getDecl());
+    if (!PD)
+      return;
+    std::string pname = support::getQualifiedName(*PD);
+    Report(mname, pname, CCE); 
+
+    VisitChildren(CCE);
+  }
+
   void PEFWalker::VisitCXXMemberCallExpr(CXXMemberCallExpr *CE) {
     CXXMethodDecl *MD = CE->getMethodDecl();
     if (!MD)
       return;
-    const CXXMethodDecl *PD = llvm::dyn_cast_or_null<CXXMethodDecl>(AC->getDecl());
+    const NamedDecl *PD = llvm::dyn_cast_or_null<NamedDecl>(AC->getDecl());
     if (!PD)
       return;
     std::string mname = support::getQualifiedName(*MD);
     std::string pname = support::getQualifiedName(*PD);
+    Report(mname, pname, CE); 
+  }
+
+  void PEFWalker::VisitCallExpr(CallExpr *CE) {
+    std::string buf;
+    llvm::raw_string_ostream os(buf);
+    LangOptions LangOpts;
+    LangOpts.CPlusPlus = true;
+    PrintingPolicy Policy(LangOpts);
+    FunctionDecl *FD = CE->getDirectCallee();
+    if (!FD)
+      return;
+    const char *sfile = BR.getSourceManager().getPresumedLoc(CE->getExprLoc()).getFilename();
+    std::string sname(sfile);
+    if (!support::isInterestingLocation(sname))
+      return;
+    std::string mname;
+    mname = support::getQualifiedName(*FD);
+    const NamedDecl * PD = llvm::dyn_cast_or_null<NamedDecl>(AC->getDecl());
+    if (!PD)
+      return;
+    std::string pname = support::getQualifiedName(*PD);
+    Report(mname, pname, CE); 
+
+    VisitChildren(CE);
+  }
+
+  void PEFWalker::Report(const std::string& mname, const std::string& pname, const Expr * CE) const {
+    PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
     std::string ename= "edm::ParameterSet::exists";
     std::string eaname= "edm::ParameterSet::existsAs";
+    std::string pdname="edm::ParameterDescription";
     llvm::SmallString<100> buf;
     llvm::raw_svector_ostream os(buf);
-    if (mname == ename || mname.substr(0, eaname.length()) == eaname) {
-      os << mname << " is called in function " << pname;
-      PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
+    if (mname.find(ename) != std::string::npos || mname.find(eaname) != std::string::npos) {
+      if (pname.find(pdname) != std::string::npos) return;
+      os << "deprecated function " << mname << " is called in function " << pname;
       BugType *BT = new BugType(Checker, "Deprecated function edm::ParameterSet::exists() or edm::ParameterSet::existsAs<>() called", "Deprecated API");
       std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
       R->setDeclWithIssue(AC->getDecl());
-      R->addRange(CE->getSourceRange());
+      R->addRange(CE->getExprLoc());
       BR.emitReport(std::move(R));
       std::string tname = "function-checker.txt.unsorted";
-      std::string ostring = "function '" + pname + "' calls '" + mname + "'.\n";
+      std::string ostring = "function '" + pname + "' calls deprecated function '" + mname + "'.\n";
       support::writeLog(ostring, tname);
     }
   }
