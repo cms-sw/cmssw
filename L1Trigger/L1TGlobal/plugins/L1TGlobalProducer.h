@@ -68,6 +68,7 @@ private:
 
   // number of objects of each type
   int m_nrL1Mu;
+  int m_nrL1MuShower;
   int m_nrL1EG;
   int m_nrL1Tau;
 
@@ -119,7 +120,9 @@ private:
 
   /// input tag for muon collection from GMT
   edm::InputTag m_muInputTag;
+  edm::InputTag m_muShowerInputTag;
   edm::EDGetTokenT<BXVector<l1t::Muon>> m_muInputToken;
+  edm::EDGetTokenT<BXVector<l1t::MuonShower>> m_muShowerInputToken;
 
   /// input tag for calorimeter collections from GCT
   edm::InputTag m_egInputTag;
@@ -185,6 +188,9 @@ private:
   edm::ESGetToken<L1TGlobalParameters, L1TGlobalParametersRcd> m_l1GtStableParToken;
   edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1GtMenuToken;
   edm::ESGetToken<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd> m_l1GtPrescaleVetosToken;
+
+  // switch to load muon showers in the global board
+  bool m_useMuonShowers;
 };
 
 #endif /*L1TGlobalProducer_h*/
