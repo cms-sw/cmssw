@@ -39,6 +39,7 @@ private:
   MonitorElement* hnTracks;
   MonitorElement* hnLooseAndAboveTracks;
   MonitorElement* hnHits;
+  MonitorElement* hnLayers;
   MonitorElement* hchi2;
   MonitorElement* hpt;
   MonitorElement* heta;
@@ -77,6 +78,7 @@ void SiPixelPhase1MonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::
 
   for (int32_t it = 0; it < maxTracks; ++it) {
     auto nHits = tsoa.nHits(it);
+    auto nLayers = tsoa.nLayers(it);
     if (nHits == 0)
       break;  // this is a guard
     float pt = tsoa.pt(it);
@@ -97,8 +99,10 @@ void SiPixelPhase1MonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::
     float zip = tsoa.zip(it);
     float eta = tsoa.eta(it);
     float tip = tsoa.tip(it);
+
     hchi2->Fill(chi2);
     hnHits->Fill(nHits);
+    hnLayers->Fill(nLayers);
     hpt->Fill(pt);
     heta->Fill(eta);
     hphi->Fill(phi);
@@ -122,6 +126,7 @@ void SiPixelPhase1MonitorTrackSoA::bookHistograms(DQMStore::IBooker& ibooker,
   hnLooseAndAboveTracks = ibooker.book1D(
       "nLooseAndAboveTracks", ";Number of tracks (quality #geq loose) per event;#entries", 1001, -0.5, 1000.5);
   hnHits = ibooker.book1D("nRecHits", ";Number of all RecHits per track (quality #geq loose);#entries", 15, -0.5, 14.5);
+  hnLayers = ibooker.book1D("nLayers", ";Number of all layers per track (quality #geq loose);#entries", 15, -0.5, 14.5);
   hchi2 = ibooker.book1D("nChi2ndof", ";Track (quality #geq loose) chi-squared over ndof;#entries", 40, 0., 20.);
   hpt = ibooker.book1D("pt", ";Track (quality #geq loose) p_{T} [GeV];#entries", 200, 0., 200.);
   heta = ibooker.book1D("eta", ";Track (quality #geq loose) #eta;#entries", 30, -3., 3.);
