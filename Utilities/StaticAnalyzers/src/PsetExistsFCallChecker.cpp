@@ -99,10 +99,8 @@ namespace clangcms {
       if (pname.find(pdname) != std::string::npos)
         return;
       os << "deprecated function " << mname << " is called in function " << pname;
-      BugType *BT =
-          new BugType(Checker,
-                      "Function edm::ParameterSet::exists() or edm::ParameterSet::existsAs<>() called",
-                      "CMS Code Rules");
+      BugType *BT = new BugType(
+          Checker, "Function edm::ParameterSet::exists() or edm::ParameterSet::existsAs<>() called", "CMS Code Rules");
       std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
       R->setDeclWithIssue(AC->getDecl());
       R->addRange(CE->getExprLoc());
