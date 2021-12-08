@@ -625,11 +625,17 @@ from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify( g4SimHits, HCalSD = dict( TestNumberingScheme = True ) )
 
 ##
-## Disable Castor from Run 3
+## Disable Castor from Run 3, enable PPS
 ##
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( g4SimHits, CastorSD = dict( useShowerLibrary = False ) ) 
-run3_common.toModify( g4SimHits, LHCTransport = cms.bool(True) ) 
+run3_common.toModify( g4SimHits, LHCTransport = cms.bool(True) )
+
+##
+## Disable PPS from Run 3 PbPb runs
+##
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify( g4SimHits, LHCTransport = cms.bool(False) )
 
 ##
 ## Change ECAL time slices
@@ -653,9 +659,10 @@ from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
 
 ##
-## Selection of SD's for Phase2
+## Selection of SD's for Phase2, exclude PPS
 ##
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(g4SimHits,
                        OnlySDs = cms.vstring('ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector') )
+phase2_common.toModify( g4SimHits, LHCTransport = cms.bool(False) ) 
