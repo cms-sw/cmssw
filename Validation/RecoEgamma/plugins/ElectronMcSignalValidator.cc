@@ -3593,13 +3593,13 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       h1_ele_PhiMnPhiTrue_barrel->Fill(bestGsfElectron.phi() - mcIter->phi());
       h1_ele_PoPtrue_barrel->Fill(bestGsfElectron.p() / mcIter->p());
       h1_ele_PtoPttrue_barrel->Fill(bestGsfElectron.pt() / mcIter->pt());
+      h1_ele_ecalEnergyError_barrel->Fill(bestGsfElectron.correctedEcalEnergyError());
       h1_ele_combinedP4Error_barrel->Fill(bestGsfElectron.p4Error(bestGsfElectron.P4_COMBINATION));
     } else if (isEEflag) {
       h1_ele_EtaMnEtaTrue_endcaps->Fill(bestGsfElectron.eta() - mcIter->eta());
       h1_ele_PhiMnPhiTrue_endcaps->Fill(bestGsfElectron.phi() - mcIter->phi());
       h1_ele_PoPtrue_endcaps->Fill(bestGsfElectron.p() / mcIter->p());
       h1_ele_PtoPttrue_endcaps->Fill(bestGsfElectron.pt() / mcIter->pt());
-      h1_ele_ecalEnergyError_barrel->Fill(bestGsfElectron.correctedEcalEnergyError());
       h1_ele_ecalEnergyError_endcaps->Fill(bestGsfElectron.correctedEcalEnergyError());
       h1_ele_combinedP4Error_endcaps->Fill(bestGsfElectron.p4Error(bestGsfElectron.P4_COMBINATION));
     }
