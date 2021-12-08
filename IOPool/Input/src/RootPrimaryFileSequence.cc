@@ -80,6 +80,8 @@ namespace edm {
       }
     } else {
       if (!nextFile()) {
+        // handle case with last file bad and
+        // skipBadFiles true
         return std::unique_ptr<FileBlock>();
       }
     }
