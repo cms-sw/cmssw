@@ -73,6 +73,8 @@ namespace edm {
 
     bool checkIfFastClonable(TTree* inputTree) const;
 
+    void setSubBranchBasketSizes(TTree* inputTree) const;
+
     bool checkEntriesInReadBranches(Long64_t expectedNumberOfEntries) const;
 
     void maybeFastCloneTree(bool canFastClone, bool canFastCloneAux, TTree* tree, std::string const& option);
