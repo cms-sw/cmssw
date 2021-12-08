@@ -92,7 +92,7 @@ extern "C" void clang_registerCheckers(clang::ento::CheckerRegistry &registry) {
   registry.addChecker<clangcms::ThrUnsafeFCallChecker>(
       "threadsafety.ThrUnsafeFCallChecker", "Reports calls of known thread unsafe functions", "no docs");
   registry.addChecker<clangcms::ESRGetChecker>(
-      "deprecated.ESRecordGetChecker", "Checks for calls to EventSetupRecord::get", "no docs");
+      "cms.CodeRules.ESRecordGetChecker", "Checks for calls to EventSetupRecord::get", "no docs");
 }
 
 extern "C" const char clang_analyzerAPIVersionString[] = CLANG_ANALYZER_API_VERSION_STRING;
