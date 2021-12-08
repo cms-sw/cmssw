@@ -634,8 +634,14 @@ float Jet::jerFactor() const {
 
 // save a JER correction factor
 void Jet::setJerFactor(float jerFactor) {
-  jerFactor_ = jerFactor;
-  jerFactorValid_ = true;
+  if (isJerFactorValid()) {
+    throw cms::Exception(
+        "Setting a JER factor although the JER factor was already set before."
+        "Please reset the JER factor before setting a new one, see methods in pat::Jet");
+  } else {
+    jerFactor_ = jerFactor;
+    jerFactorValid_ = true;
+  }
 }
 
 // reset a saved JER correction factor
