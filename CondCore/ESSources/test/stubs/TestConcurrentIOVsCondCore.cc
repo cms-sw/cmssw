@@ -159,9 +159,9 @@ namespace edmtest {
     if (lumi < nLumisToTest) {
       BeamSpotTestObject& testObject = testObjects_[lumi];
       testObject.lumi_ = lumi;
-      testObject.x_ = beamSpotObjects->GetX();
-      testObject.y_ = beamSpotObjects->GetY();
-      testObject.z_ = beamSpotObjects->GetZ();
+      testObject.x_ = beamSpotObjects->x();
+      testObject.y_ = beamSpotObjects->y();
+      testObject.z_ = beamSpotObjects->z();
       testObject.start_ = iov.first().luminosityBlockNumber();
       testObject.end_ = iov.last().luminosityBlockNumber();
     }
