@@ -177,13 +177,13 @@ void l1t::MuonRawDigiTranslator::fillIntermediateMuonQuantitiesRun3(Muon& mu,
   mu.setHwPtUnconstrained((raw_data_00_31 >> ptUnconstrainedIntermedidateShift_) & ptUnconstrainedMask_);
 }
 
-void l1t::MuonRawDigiTranslator::generatePackedDataWords(const Muon& mu,
-                                                         uint32_t& raw_data_spare,
-                                                         uint32_t& raw_data_00_31,
-                                                         uint32_t& raw_data_32_63,
-                                                         const int fedID,
-                                                         const int fwID,
-                                                         const int muInBx) {
+void l1t::MuonRawDigiTranslator::generatePackedMuonDataWords(const Muon& mu,
+                                                             uint32_t& raw_data_spare,
+                                                             uint32_t& raw_data_00_31,
+                                                             uint32_t& raw_data_32_63,
+                                                             const int fedID,
+                                                             const int fwID,
+                                                             const int muInBx) {
   int abs_eta = mu.hwEta();
   if (abs_eta < 0) {
     abs_eta += (1 << (etaSignShift_ - absEtaShift_));
@@ -212,22 +212,22 @@ void l1t::MuonRawDigiTranslator::generatePackedDataWords(const Muon& mu,
                      (mu.hwPhi() & phiMask_) << phiShift_;
   } else if ((fedID == 1402 && fwID == 0x6000001) ||
              (fedID == 1404 && fwID < 0x1130)) {  // This allows us to unpack data taken in the November 2020 MWGR.
-    generatePackedDataWordsRun3(
+    generatePackedMuonDataWordsRun3(
         mu, abs_eta, abs_eta_at_vtx, raw_data_spare, raw_data_00_31, raw_data_32_63, muInBx, true);
   } else {
-    generatePackedDataWordsRun3(
+    generatePackedMuonDataWordsRun3(
         mu, abs_eta, abs_eta_at_vtx, raw_data_spare, raw_data_00_31, raw_data_32_63, muInBx, false);
   }
 }
 
-void l1t::MuonRawDigiTranslator::generatePackedDataWordsRun3(const Muon& mu,
-                                                             const int abs_eta,
-                                                             const int abs_eta_at_vtx,
-                                                             uint32_t& raw_data_spare,
-                                                             uint32_t& raw_data_00_31,
-                                                             uint32_t& raw_data_32_63,
-                                                             const int muInBx,
-                                                             const bool wasSpecialMWGR /*= false*/) {
+void l1t::MuonRawDigiTranslator::generatePackedMuonDataWordsRun3(const Muon& mu,
+                                                                 const int abs_eta,
+                                                                 const int abs_eta_at_vtx,
+                                                                 uint32_t& raw_data_spare,
+                                                                 uint32_t& raw_data_00_31,
+                                                                 uint32_t& raw_data_32_63,
+                                                                 const int muInBx,
+                                                                 const bool wasSpecialMWGR /*= false*/) {
   int absEtaShiftRun3{0}, etaSignShiftRun3{0};
   if (muInBx == 1) {
     absEtaShiftRun3 = absEtaMu1Shift_;
@@ -259,8 +259,23 @@ void l1t::MuonRawDigiTranslator::generate64bitDataWord(
   uint32_t lsw;
   uint32_t msw;
 
-  generatePackedDataWords(mu, raw_data_spare, lsw, msw, fedId, fwId, muInBx);
+  generatePackedMuonDataWords(mu, raw_data_spare, lsw, msw, fedId, fwId, muInBx);
   dataword = (((uint64_t)msw) << 32) + lsw;
+}
+
+std::array<uint32_t, 4> l1t::MuonRawDigiTranslator::getPackedShowerDataWords(const MuonShower& shower,
+                                                                             const int fedId,
+                                                                             const unsigned int fwId) {
+  std::array<uint32_t, 4> res{};
+  if (fedId == 1402 && fwId < 0x7000000) {
+    return res;
+  } else {
+    res.at(0) = shower.isOneNominalInTime() ? (1 << showerShift_) : 0;
+    res.at(1) = shower.isOneNominalOutOfTime() ? (1 << showerShift_) : 0;
+    res.at(2) = shower.isTwoLooseInTime() ? (1 << showerShift_) : 0;
+    res.at(3) = shower.isTwoLooseOutOfTime() ? (1 << showerShift_) : 0;
+  }
+  return res;
 }
 
 int l1t::MuonRawDigiTranslator::calcHwEta(const uint32_t& raw,
