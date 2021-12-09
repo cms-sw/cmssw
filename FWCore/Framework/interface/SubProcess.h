@@ -208,20 +208,6 @@ namespace edm {
       return schedule_->totalEventsFailed();
     }
 
-    /// Turn end_paths "off" if "active" is false;
-    /// Turn end_paths "on" if "active" is true.
-    void enableEndPaths(bool active) {
-      ServiceRegistry::Operate operate(serviceToken_);
-      schedule_->enableEndPaths(active);
-      for_all(subProcesses_, [active](auto& subProcess) { subProcess.enableEndPaths(active); });
-    }
-
-    /// Return true if end_paths are active, and false if they are inactive.
-    bool endPathsEnabled() const {
-      ServiceRegistry::Operate operate(serviceToken_);
-      return schedule_->endPathsEnabled();
-    }
-
     /// Return the trigger report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
     void getTriggerReport(TriggerReport& rep) const {
