@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <sstream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -21,12 +21,12 @@ EVENTSETUP_RECORD_REG(OneIntRcd);
 
 namespace condtest {
 
-  class TestUpdater : public edm::EDAnalyzer {
+  class TestUpdater : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
   public:
     explicit TestUpdater(edm::ParameterSet const&);
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-    virtual void endRun(const edm::Run& r, const edm::EventSetup&) {}
+    virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
 
     static void update(int run);
 
@@ -40,6 +40,8 @@ namespace condtest {
 
   void TestUpdater::beginRun(const edm::Run&, const edm::EventSetup&) { evCount = 0; }
 
+  void TestUpdater::endRun(const edm::Run&, const edm::EventSetup&) {}
+
   void TestUpdater::analyze(const edm::Event& e, const edm::EventSetup& c) {
     ++evCount;
 
@@ -48,13 +50,13 @@ namespace condtest {
 
     size_t number = (c.getData(theIntToken_)).front();
     if (1 == e.id().run() % 2 && number != e.id().run())
-      std::cout << "it was not updated!" << std::endl;
+      edm::LogPrint("TestUpdater") << "it was not updated!";
   }
 
   void TestUpdater::update(int run) {
     std::ostringstream ss;
     ss << "touch cfg.py; rm cfg.py; sed 's?_CurrentRun_?" << run << "?g' writeInt_cfg.py > cfg.py; cmsRun cfg.py";
-    std::cout << ss.str() << std::endl;
+    edm::LogPrint("TestUpdater") << ss.str();
     // write run in db
     ::system(ss.str().c_str());
   }

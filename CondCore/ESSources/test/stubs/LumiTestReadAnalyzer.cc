@@ -15,7 +15,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -24,7 +24,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 using namespace std;
 
 namespace edmtest {
-  class LumiTestReadAnalyzer : public edm::EDAnalyzer {
+  class LumiTestReadAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit LumiTestReadAnalyzer(edm::ParameterSet const& p)
         : theBSToken_(esConsumes()),
@@ -35,9 +35,7 @@ namespace edmtest {
       m_pathForErrorFile = pathForErrorFolder + "/lumi_read_" + m_processId + ".txt";
     }
     explicit LumiTestReadAnalyzer(int i) {}
-    virtual ~LumiTestReadAnalyzer() {}
-    virtual void beginJob();
-    virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
+    virtual ~LumiTestReadAnalyzer() = default;
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   private:
@@ -46,8 +44,7 @@ namespace edmtest {
     std::string m_pathForLastLumiFile;
     std::string m_pathForErrorFile;
   };
-  void LumiTestReadAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& context) {}
-  void LumiTestReadAnalyzer::beginJob() {}
+
   void LumiTestReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
     static constexpr const char* const MSGSOURCE = "LumiTestReadAnalyzer:";
     edm::eventsetup::EventSetupRecordKey recordKey(
@@ -69,15 +66,15 @@ namespace edmtest {
       msg << "On time " << boost::posix_time::to_iso_extended_string(now) << " Target " << target << "; found "
           << found;
       edm::LogWarning(MSGSOURCE) << msg.str();
-      std::cout << "ERROR ( process " << m_processId << " ) : " << msg.str() << std::endl;
-      std::cout << "### dumping in file " << m_pathForErrorFile << std::endl;
+      edm::LogPrint("LumiTestReadAnalyzer") << "ERROR ( process " << m_processId << " ) : " << msg.str();
+      edm::LogPrint("LumiTestReadAnalyzer") << "### dumping in file " << m_pathForErrorFile;
       {
         std::ofstream errorFile(m_pathForErrorFile, std::ios_base::app);
         errorFile << msg.str() << std::endl;
       }
       //throw std::runtime_error( msg.str() );
     } else {
-      std::cout << "Info: read was ok." << std::endl;
+      edm::LogPrint("LumiTestReadAnalyzer") << "Info: read was ok.";
     }
   }
   DEFINE_FWK_MODULE(LumiTestReadAnalyzer);
