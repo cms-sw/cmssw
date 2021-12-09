@@ -96,14 +96,13 @@ private:
   uint32_t* rawIdArr_;
 
   template <typename ReturnType, typename StoreType, typename LocationType>
-  ReturnType* getColumnAddress(LocationType column, StoreType& store, int maxFedWords) {
-    return reinterpret_cast<ReturnType*>(store.get() +
-                                         static_cast<int>(column) * roundFor128ByteAlignment(maxFedWords));
+  ReturnType* getColumnAddress(LocationType column, StoreType& store, int size) {
+    return reinterpret_cast<ReturnType*>(store.get() + static_cast<int>(column) * roundFor128ByteAlignment(size));
   }
 
-  static int roundFor128ByteAlignment(int numFedWords) {
-    int mul = 128 / sizeof(uint16_t);
-    return ((numFedWords + mul - 1) / mul) * mul;
+  static int roundFor128ByteAlignment(int size) {
+    constexpr int mul = 128 / sizeof(uint16_t);
+    return ((size + mul - 1) / mul) * mul;
   };
 };
 
