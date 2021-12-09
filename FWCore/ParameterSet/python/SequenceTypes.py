@@ -651,6 +651,14 @@ class EndPath(_ModuleSequenceType):
     def _placeImpl(self,name,proc):
         proc._placeEndPath(name,self)
 
+class FinalPath(_ModuleSequenceType):
+    def __init__(self,*arg,**argv):
+        super(FinalPath,self).__init__(*arg,**argv)
+    def _placeImpl(self,name,proc):
+        proc._placeFinalPath(name,self)
+    def associate(self,task):
+      raise TypeError("FinalPath does not allow associations with Tasks")
+
 class Sequence(_ModuleSequenceType,_Sequenceable):
     def __init__(self,*arg,**argv):
         super(Sequence,self).__init__(*arg,**argv)
@@ -746,7 +754,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
             self._tasks.add(task)
     @staticmethod
     def _itemIsValid(item):
-        return isinstance(item,Path) or isinstance(item,EndPath)
+        return isinstance(item,Path) or isinstance(item,EndPath) or isinstance(item,FinalPath)
     def copy(self):
         import copy
         aCopy = copy.copy(self)
