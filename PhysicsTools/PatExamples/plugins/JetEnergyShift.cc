@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -31,16 +31,14 @@
   and met input collections.
 */
 
-class JetEnergyShift : public edm::EDProducer {
+class JetEnergyShift : public edm::global::EDProducer<> {
 public:
   /// default constructor
   explicit JetEnergyShift(const edm::ParameterSet&);
-  /// default destructor
-  ~JetEnergyShift() override{};
 
 private:
   /// rescale jet energy and recalculated MET
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   /// jet input collection
@@ -73,7 +71,7 @@ JetEnergyShift::JetEnergyShift(const edm::ParameterSet& cfg)
   produces<std::vector<pat::MET>>(outputMETs_);
 }
 
-void JetEnergyShift::produce(edm::Event& event, const edm::EventSetup& setup) {
+void JetEnergyShift::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
   edm::Handle<std::vector<pat::Jet>> jets;
   event.getByToken(inputJetsToken_, jets);
 

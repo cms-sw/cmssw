@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,15 +44,12 @@
 // class decleration
 //
 
-class PatJPsiProducer : public edm::EDProducer {
+class PatJPsiProducer : public edm::global::EDProducer<> {
 public:
   explicit PatJPsiProducer(const edm::ParameterSet&);
-  ~PatJPsiProducer() override;
 
 private:
-  void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
@@ -75,14 +72,12 @@ PatJPsiProducer::PatJPsiProducer(const edm::ParameterSet& iConfig)
   produces<std::vector<pat::CompositeCandidate>>();
 }
 
-PatJPsiProducer::~PatJPsiProducer() {}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void PatJPsiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void PatJPsiProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   auto jpsiCands = std::make_unique<std::vector<pat::CompositeCandidate>>();
   edm::Handle<edm::View<pat::Muon>> h_muons;
   iEvent.getByToken(muonSrcToken_, h_muons);
@@ -121,12 +116,6 @@ void PatJPsiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   iEvent.put(std::move(jpsiCands));
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void PatJPsiProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void PatJPsiProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PatJPsiProducer);
