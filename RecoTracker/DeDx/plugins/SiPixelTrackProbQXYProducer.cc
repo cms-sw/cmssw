@@ -162,7 +162,7 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
          factXY *= -logprobXYonTrackWMulti / float(iTkRh);
          probQonTrackTerm += factQ;
          probXYonTrackTerm += factXY;
-    }
+      }
     }
     probQonTrack = probQonTrackWMulti * probQonTrackTerm;
     probXYonTrack = probXYonTrackWMulti * probXYonTrackTerm;

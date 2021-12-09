@@ -59,7 +59,7 @@ void ProbQXYAna::analyze(edm::StreamID id, const edm::Event& iEvent, const edm::
       numTrackWSmallProbQ++;
     }
   }
-  LogPrint("ProbQXYAna") << "Ratio of low probQ tracks / all tracks " << numTrackWSmallProbQ/float(numTrack);
+  LogPrint("ProbQXYAna") << "In this event the ratio of low probQ tracks / all tracks " << numTrackWSmallProbQ/float(numTrack);
 }
 
 //define this as a plug-in
