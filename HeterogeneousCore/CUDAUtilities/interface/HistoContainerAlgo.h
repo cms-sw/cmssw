@@ -135,7 +135,6 @@ namespace cms {
       dim3 dimGrid(ncoopblocks, 1, 1);
       // launch
       cudaCheck(cudaLaunchCooperativeKernel((void *)kernel, dimGrid, dimBlock, kernelArgs, 0, stream));
-      cudaCheck(cudaGetLastError());
 #else
       launchZero(view, stream);
       countFromVector(h, nh, v, offsets);
