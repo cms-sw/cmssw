@@ -6,7 +6,7 @@
 #include "TGraphErrors.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -18,7 +18,7 @@
 #include "PhysicsTools/PatExamples/interface/BTagPerformance.h"
 #include "PhysicsTools/PatExamples/interface/PatBTagCommonHistos.h"
 
-class PatBTagAnalyzer : public edm::EDAnalyzer {
+class PatBTagAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit PatBTagAnalyzer(const edm::ParameterSet &);
   ~PatBTagAnalyzer() override;
@@ -74,6 +74,7 @@ PatBTagAnalyzer::PatBTagAnalyzer(const edm::ParameterSet &iConfig)
       BTagger(iConfig.getParameter<edm::ParameterSet>("BJetOperatingPoints")),
       BTagHistograms(iConfig) {
   //now do what ever initialization is needed
+  usesResource(TFileService::kSharedResource);
 }
 
 PatBTagAnalyzer::~PatBTagAnalyzer() {
