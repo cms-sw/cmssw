@@ -29,7 +29,7 @@ namespace edm {
       void closedFile(std::string const& lfn, bool usedFallback);
 
     private:
-      void filePostCloseEvent(std::string const& lfn, bool usedFallback);
+      void filePostCloseEvent(std::string const& lfn);
 
       std::string const* matchedLfn(std::string const& iURL);  //updates its internal cache
       class FileStatistics {
