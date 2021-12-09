@@ -748,6 +748,38 @@ Run3RoundOptics25ns13TeVHighSigmaZVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.035748 )
 )
 
+# From Run3 PilotBeams 2021 3.8T data
+# BS parameters extracted from run 346512, fill 7531 (from ExpressPhysics FEVT, Legacy BS):
+# X0         =  0.174282 [cm]
+# Y0         = -0.187132 [cm]
+# Z0         =  0.167616 [cm]
+# sigmaZ0    =  6.80728  [cm]
+# BeamWidthX 0.0142174
+# BeamWidthY 0.0150789
+#
+# set SigmaZ0 = 6.8 [cm]
+# set BeamWidthX = BeamWidthY = 150.0 [um]
+# set beta* = 1100 cm
+# energy = 900 GeV
+# From LHC calculator, emittance is 4.762e-8 cm
+# https://lpc.web.cern.ch/lpc/lumi2.html
+#
+# BPIX absolute position (https://twiki.cern.ch/twiki/bin/view/CMS/TkAlignmentPixelPosition?rev=40#2021):
+# X =  0.06076 cm
+# Y = -0.14702 cm
+# Z = -0.25616 cm
+Realistic25ns900GeV2021CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(1100.0),
+    Emittance = cms.double(4.169e-7),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(6.8),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.113522),
+    Y0 = cms.double(-0.040112),
+    Z0 = cms.double(0.423776)
+)
+
 # Test HF offset
 ShiftedCollision2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
