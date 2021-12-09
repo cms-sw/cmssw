@@ -13,6 +13,7 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
 
 #include "L1AnalysisL1UpgradeDataFormat.h"
 
@@ -30,6 +31,7 @@ namespace L1Analysis {
     void SetJet(const edm::Handle<l1t::JetBxCollection> jet, unsigned maxL1Upgrade);
     void SetSum(const edm::Handle<l1t::EtSumBxCollection> sums, unsigned maxL1Upgrade);
     void SetMuon(const edm::Handle<l1t::MuonBxCollection> muon, unsigned maxL1Upgrade);
+    void SetMuonShower(const edm::Handle<l1t::MuonShowerBxCollection> muonShower, unsigned maxL1Upgrade);
     L1AnalysisL1UpgradeDataFormat* getData() { return &l1upgrade_; }
 
   private:

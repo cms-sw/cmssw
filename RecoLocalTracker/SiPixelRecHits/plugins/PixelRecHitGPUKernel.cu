@@ -41,34 +41,35 @@ namespace pixelgpudetails {
     auto nHits = clusters_d.nClusters();
     TrackingRecHit2DGPU hits_d(nHits, clusters_d.offsetBPIX2(), cpeParams, clusters_d.clusModuleStart(), stream);
 
-    int threadsPerBlock = 128;
-    int blocks = digis_d.nModules();  // active modules (with digis)
+    int activeModulesWithDigis = digis_d.nModules();
+    // protect from empty events
+    if (activeModulesWithDigis) {
+      int threadsPerBlock = 128;
+      int blocks = activeModulesWithDigis;
 
 #ifdef GPU_DEBUG
-    std::cout << "launching getHits kernel for " << blocks << " blocks" << std::endl;
+      std::cout << "launching getHits kernel for " << blocks << " blocks" << std::endl;
 #endif
-    // protect from empty events
-    if (blocks) {
       gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, stream>>>(
           cpeParams, bs_d.data(), digis_d.view(), digis_d.nDigis(), clusters_d.view(), hits_d.view());
       cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
       cudaCheck(cudaDeviceSynchronize());
 #endif
-    }
 
-    // assuming full warp of threads is better than a smaller number...
-    if (nHits) {
-      setHitsLayerStart<<<1, 32, 0, stream>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
-      cudaCheck(cudaGetLastError());
+      // assuming full warp of threads is better than a smaller number...
+      if (nHits) {
+        setHitsLayerStart<<<1, 32, 0, stream>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
+        cudaCheck(cudaGetLastError());
 
       cms::cuda::fillManyFromVectorCoop(
           hits_d.phiBinner(), 10, hits_d.iphi(), hits_d.hitsLayerStart(), nHits, 256, hits_d.phiBinnerStorage(), stream);
       cudaCheck(cudaGetLastError());
 
 #ifdef GPU_DEBUG
-      cudaCheck(cudaDeviceSynchronize());
+        cudaCheck(cudaDeviceSynchronize());
 #endif
+      }
     }
 
     return hits_d;

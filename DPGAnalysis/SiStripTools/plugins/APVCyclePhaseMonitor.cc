@@ -24,7 +24,7 @@
 #include "TProfile.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,7 +47,7 @@
 // class decleration
 //
 
-class APVCyclePhaseMonitor : public edm::EDAnalyzer {
+class APVCyclePhaseMonitor : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit APVCyclePhaseMonitor(const edm::ParameterSet&);
   ~APVCyclePhaseMonitor() override;
@@ -107,6 +107,8 @@ APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig)
       _hselectedphasevectorvsorbit(),
       _nevents(0) {
   //now do what ever initialization is needed
+
+  usesResource(TFileService::kSharedResource);
 
   edm::LogInfo("UsedAPVCyclePhaseCollection")
       << " APVCyclePhaseCollection " << iConfig.getParameter<edm::InputTag>("apvCyclePhaseCollection") << " used";

@@ -33,7 +33,7 @@ process.MessageLogger.SiStripNoisesFromDBMiscalibrator=dict()
 process.MessageLogger.cout = cms.untracked.PSet(
     enable    = cms.untracked.bool(True),
     enableStatistics = cms.untracked.bool(True),
-    threshold = cms.untracked.string("INFO"),
+    threshold = cms.untracked.string("WARNING"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
                                    reportEvery = cms.untracked.int32(1000)
@@ -219,14 +219,14 @@ process.scaleAndSmearSiStripNoises.fillDefaults = False     # to fill uncabled D
 ##
 ## Database output service
 ##
-process.load("CondCore.CondDB.CondDB_cfi")
+from CondCore.CondDB.CondDB_cfi import CondDB as _CondDB
 
 ##
 ## Output database (in this case local sqlite file)
 ##
-process.CondDB.connect = 'sqlite_file:modifiedNoise_'+ process.GlobalTag.globaltag._value+'_IOV_'+str(options.runNumber)+".db"
+process.CondDBOutput = _CondDB.clone(connect = 'sqlite_file:modifiedSiStripNoise_'+ process.GlobalTag.globaltag._value+'_IOV_'+str(options.runNumber)+".db")
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          process.CondDB,
+                                          process.CondDBOutput,
                                           timetype = cms.untracked.string('runnumber'),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('SiStripNoisesRcd'),
                                                                      tag = cms.string('modifiedNoise')

@@ -4,7 +4,7 @@
 #include "TH1.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -12,7 +12,7 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-class PatZjetsJetAnalyzer : public edm::EDAnalyzer {
+class PatZjetsJetAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit PatZjetsJetAnalyzer(const edm::ParameterSet&);
   ~PatZjetsJetAnalyzer() override;
@@ -32,8 +32,9 @@ private:
 };
 
 PatZjetsJetAnalyzer::PatZjetsJetAnalyzer(const edm::ParameterSet& iConfig)
-    : histContainer_(),
-      srcToken_(consumes<edm::View<pat::Jet> >(iConfig.getUntrackedParameter<edm::InputTag>("src"))) {}
+    : histContainer_(), srcToken_(consumes<edm::View<pat::Jet> >(iConfig.getUntrackedParameter<edm::InputTag>("src"))) {
+  usesResource(TFileService::kSharedResource);
+}
 
 PatZjetsJetAnalyzer::~PatZjetsJetAnalyzer() {}
 

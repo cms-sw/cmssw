@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -49,25 +49,21 @@
 //
 
 template <class T>
-class LargeEvents : public edm::EDFilter {
+class LargeEvents : public edm::global::EDFilter<> {
 public:
   explicit LargeEvents(const edm::ParameterSet&);
   ~LargeEvents() override;
 
 private:
-  void beginJob() override;
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<T> _collectionToken;
-  int _absthr;
-  int _modthr;
-  bool _useQuality;
-  const SiStripQuality* _qualityHandle = nullptr;
-  edm::ESWatcher<SiStripQualityRcd> _qualityWatcher;
-  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> _qualityToken;
+  const edm::EDGetTokenT<T> _collectionToken;
+  const int _absthr;
+  const int _modthr;
+  const bool _useQuality;
+  const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> _qualityToken;
 };
 
 //
@@ -103,14 +99,14 @@ LargeEvents<T>::~LargeEvents() {
 
 // ------------ method called on each new Event  ------------
 template <class T>
-bool LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool LargeEvents<T>::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
+  const SiStripQuality* _qualityHandle = nullptr;
+
   if (_useQuality) {
-    if (_qualityWatcher.check(iSetup)) {
-      _qualityHandle = &iSetup.getData(_qualityToken);
-      LogDebug("SiStripQualityUpdated") << "SiStripQuality has changed and it will be updated";
-    }
+    _qualityHandle = &iSetup.getData(_qualityToken);
+    LogDebug("SiStripQualityUpdated") << "SiStripQuality has changed and it will be updated";
   }
 
   Handle<T> digis;
@@ -132,14 +128,6 @@ bool LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   return false;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-template <class T>
-void LargeEvents<T>::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-template <class T>
-void LargeEvents<T>::endJob() {}
 
 //define this as a plug-in
 typedef LargeEvents<edm::DetSetVector<SiStripDigi> > LargeSiStripDigiEvents;

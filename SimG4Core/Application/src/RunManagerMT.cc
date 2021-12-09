@@ -90,7 +90,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_check = p.getUntrackedParameter<bool>("CheckGeometry", false);
 }
 
-RunManagerMT::~RunManagerMT() {}
+RunManagerMT::~RunManagerMT() { delete m_UIsession; }
 
 void RunManagerMT::initG4(const DDCompactView* pDD,
                           const cms::DDCompactView* pDD4hep,
@@ -111,6 +111,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   G4Timer timer;
   timer.Start();
+
+  G4UImanager::GetUIpointer()->SetCoutDestination(m_UIsession);
+  G4UImanager::GetUIpointer()->SetMasterUIManager(true);
 
   m_world = std::make_unique<DDDWorld>(pDD, pDD4hep, m_catalog, verb, cuts, protonCut);
   G4VPhysicalVolume* world = m_world.get()->GetWorldVolume();

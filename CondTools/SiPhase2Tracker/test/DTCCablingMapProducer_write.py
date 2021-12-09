@@ -8,7 +8,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.CondDB.CondDB_cfi")
 
 # output database (in this case local sqlite file)
-process.CondDB.connect = 'sqlite_file:OuterTrackerDTCCablingMap.db'
+process.CondDB.connect = 'sqlite_file:OTandITDTCCablingMap.db'
 
 # A data source must always be defined. We don't need it, so here's a dummy one.
 process.source = cms.Source("EmptyIOVSource",
@@ -33,14 +33,14 @@ process.otdtccablingmap_producer = cms.EDAnalyzer("DTCCablingMapProducer",
     #dummy_fill_mode = cms.string("DUMMY_FILL_DISABLED"),
     #dummy_fill_mode = cms.string("DUMMY_FILL_ELINK_ID"),
     modulesToDTCCablingCSVFileNames = cms.vstring(
-        "CondTools/SiPhase2Tracker/data/TrackerModuleToDTCCablingMap__OT616_200_IT613__T14__OTOnly.csv"
+     "CondTools/SiPhase2Tracker/data/CMSSWCablingMap__OT800_IT700.csv"
     ),
-    dummy_fill_mode = cms.string("DUMMY_FILL_ELINK_ID_AND_GBT_ID"),
-    csvFormat_ncolumns   = cms.uint32( 2),
+    dummy_fill_mode = cms.string("DUMMY_FILL_ELINK_ID"),
+    csvFormat_ncolumns   = cms.uint32( 3),
     csvFormat_idetid     = cms.uint32( 0),
-    csvFormat_idtcid     = cms.uint32( 1),
+    csvFormat_idtcid     = cms.uint32( 2),
     csvFormat_igbtlinkid = cms.uint32( 1),
-    csvFormat_ielinkid   = cms.uint32( 1),
+    csvFormat_ielinkid   = cms.uint32( 5),
     verbosity = cms.int32(0),
     #loggingOn= cms.untracked.bool(True),
     #SinceAppendMode=cms.bool(True),

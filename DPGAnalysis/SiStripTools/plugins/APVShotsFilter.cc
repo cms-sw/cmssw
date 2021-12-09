@@ -19,12 +19,12 @@
 
 // system include files
 #include <memory>
+#include <atomic>
 
 // user include files
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -53,7 +53,7 @@
 // class declaration
 //
 
-class APVShotsFilter : public edm::EDFilter {
+class APVShotsFilter : public edm::global::EDFilter<> {
 public:
   explicit APVShotsFilter(const edm::ParameterSet&);
   ~APVShotsFilter() override;
@@ -61,26 +61,23 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   void endJob() override;
 
-  void updateDetCabling(const SiStripDetCablingRcd& iRcd);
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<EventWithHistory> heToken_;
   edm::EDGetTokenT<APVCyclePhaseCollection> apvphaseToken_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > digisToken_;
 
-  bool _selectAPVshots;
+  const bool _selectAPVshots;
 
-  bool _zs;
-  int _nevents;
+  const bool _zs;
+  mutable std::atomic<int> _nevents;
 
   // DetCabling
-  bool _useCabling;
-  edm::ESWatcher<SiStripDetCablingRcd> _detCablingWatcher;
-  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> _detCablingToken;
-  const SiStripDetCabling* _detCabling = nullptr;  //!< The cabling object.
+  const bool _useCabling;
+  const edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> _detCablingToken;
 };
 
 //
@@ -99,8 +96,6 @@ APVShotsFilter::APVShotsFilter(const edm::ParameterSet& iConfig)
       _zs(iConfig.getUntrackedParameter<bool>("zeroSuppressed", true)),
       _nevents(0),
       _useCabling(iConfig.getUntrackedParameter<bool>("useCabling", true)),
-      _detCablingWatcher(_useCabling ? decltype(_detCablingWatcher){this, &APVShotsFilter::updateDetCabling}
-                                     : decltype(_detCablingWatcher){}),
       _detCablingToken(_useCabling ? decltype(_detCablingToken){esConsumes()} : decltype(_detCablingToken){}) {
   //now do what ever initialization is needed
   edm::InputTag digicollection = iConfig.getParameter<edm::InputTag>("digiCollection");
@@ -115,8 +110,6 @@ APVShotsFilter::APVShotsFilter(const edm::ParameterSet& iConfig)
 APVShotsFilter::~APVShotsFilter() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  if (_detCabling)
-    _detCabling = nullptr;
 }
 
 //
@@ -124,12 +117,13 @@ APVShotsFilter::~APVShotsFilter() {
 //
 
 // ------------ method called on each new Event  ------------
-bool APVShotsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool APVShotsFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
+  const SiStripDetCabling* _detCabling = nullptr;  //!< The cabling object.
   if (_useCabling) {
     //retrieve cabling
-    _detCablingWatcher.check(iSetup);
+    _detCabling = &iSetup.getData(_detCablingToken);
   }
   _nevents++;
 
@@ -223,9 +217,7 @@ bool APVShotsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void APVShotsFilter::endJob() { edm::LogInfo("APVShotsFilter") << _nevents << " analyzed events"; }
-
-void APVShotsFilter::updateDetCabling(const SiStripDetCablingRcd& iRcd) { _detCabling = &iRcd.get(_detCablingToken); }
+void APVShotsFilter::endJob() { edm::LogInfo("APVShotsFilter") << _nevents.load() << " analyzed events"; }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void APVShotsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

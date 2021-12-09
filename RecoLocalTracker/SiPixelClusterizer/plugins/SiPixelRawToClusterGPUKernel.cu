@@ -519,19 +519,22 @@ namespace pixelgpudetails {
                                                        bool includeErrors,
                                                        bool debug,
                                                        cudaStream_t stream) {
+    // we're not opting for calling this function in case of early events
+    assert(wordCounter != 0);
     nDigis = wordCounter;
 
 #ifdef GPU_DEBUG
     std::cout << "decoding " << wordCounter << " digis. Max is " << maxFedWords << std::endl;
 #endif
 
-    digis_d = SiPixelDigisCUDA(maxFedWords, stream);
+    // since wordCounter != 0 we're not allocating 0 bytes,
+    digis_d = SiPixelDigisCUDA(wordCounter, stream);
     if (includeErrors) {
-      digiErrors_d = SiPixelDigiErrorsCUDA(maxFedWords, std::move(errors), stream);
+      digiErrors_d = SiPixelDigiErrorsCUDA(wordCounter, std::move(errors), stream);
     }
     clusters_d = SiPixelClustersCUDA(gpuClustering::maxNumModules, stream);
 
-    if (wordCounter)  // protect in case of empty event....
+    // Begin Raw2Digi block
     {
       const int threadsPerBlock = 512;
       const int blocks = (wordCounter + threadsPerBlock - 1) / threadsPerBlock;  // fill it all
@@ -553,12 +556,12 @@ namespace pixelgpudetails {
           wordCounter,
           word_d.get(),
           fedId_d.get(),
-          digis_d.xx(),
-          digis_d.yy(),
-          digis_d.adc(),
-          digis_d.pdigi(),
-          digis_d.rawIdArr(),
-          digis_d.moduleInd(),
+          digis_d.view().xx(),
+          digis_d.view().yy(),
+          digis_d.view().adc(),
+          digis_d.view().pdigi(),
+          digis_d.view().rawIdArr(),
+          digis_d.view().moduleInd(),
           digiErrors_d.error(),  // returns nullptr if default-constructed
           useQualityInfo,
           includeErrors,
@@ -583,20 +586,20 @@ namespace pixelgpudetails {
           (std::max(int(wordCounter), int(gpuClustering::maxNumModules)) + threadsPerBlock - 1) / threadsPerBlock;
 
       if (isRun2)
-        gpuCalibPixel::calibDigis<true><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
-                                                                                digis_d.xx(),
-                                                                                digis_d.yy(),
-                                                                                digis_d.adc(),
+        gpuCalibPixel::calibDigis<true><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
+                                                                                digis_d.view().xx(),
+                                                                                digis_d.view().yy(),
+                                                                                digis_d.view().adc(),
                                                                                 gains,
                                                                                 wordCounter,
                                                                                 clusters_d.moduleStart(),
                                                                                 clusters_d.clusInModule(),
                                                                                 clusters_d.clusModuleStart());
       else
-        gpuCalibPixel::calibDigis<false><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
-                                                                                 digis_d.xx(),
-                                                                                 digis_d.yy(),
-                                                                                 digis_d.adc(),
+        gpuCalibPixel::calibDigis<false><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
+                                                                                 digis_d.view().xx(),
+                                                                                 digis_d.view().yy(),
+                                                                                 digis_d.view().adc(),
                                                                                  gains,
                                                                                  wordCounter,
                                                                                  clusters_d.moduleStart(),
@@ -615,7 +618,7 @@ namespace pixelgpudetails {
 #endif
 
       countModules<<<blocks, threadsPerBlock, 0, stream>>>(
-          digis_d.moduleInd(), clusters_d.moduleStart(), digis_d.clus(), wordCounter);
+          digis_d.view().moduleInd(), clusters_d.moduleStart(), digis_d.view().clus(), wordCounter);
       cudaCheck(cudaGetLastError());
 
       threadsPerBlock = 256 + 128;  /// should be larger than 6000/16 aka (maxPixInModule/maxiter in the kernel)
@@ -623,13 +626,13 @@ namespace pixelgpudetails {
 #ifdef GPU_DEBUG
       std::cout << "CUDA findClus kernel launch with " << blocks << " blocks of " << threadsPerBlock << " threads\n";
 #endif
-      findClus<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
-                                                       digis_d.xx(),
-                                                       digis_d.yy(),
+      findClus<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
+                                                       digis_d.view().xx(),
+                                                       digis_d.view().yy(),
                                                        clusters_d.moduleStart(),
                                                        clusters_d.clusInModule(),
                                                        clusters_d.moduleId(),
-                                                       digis_d.clus(),
+                                                       digis_d.view().clus(),
                                                        wordCounter);
       cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
@@ -639,12 +642,12 @@ namespace pixelgpudetails {
 
       // apply charge cut
       clusterChargeCut<<<blocks, threadsPerBlock, 0, stream>>>(clusterThresholds,
-                                                               digis_d.moduleInd(),
-                                                               digis_d.adc(),
+                                                               digis_d.view().moduleInd(),
+                                                               digis_d.view().adc(),
                                                                clusters_d.moduleStart(),
                                                                clusters_d.clusInModule(),
                                                                clusters_d.moduleId(),
-                                                               digis_d.clus(),
+                                                               digis_d.view().clus(),
                                                                wordCounter);
       cudaCheck(cudaGetLastError());
 

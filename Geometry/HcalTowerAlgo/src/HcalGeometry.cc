@@ -1,4 +1,5 @@
 #include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include <algorithm>
@@ -25,10 +26,9 @@ void HcalGeometry::init() {
   if (!m_topology.getMergePositionFlag())
     m_mergePosition = false;
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalGeometry: "
-            << "HcalGeometry::init() "
-            << " HBSize " << m_topology.getHBSize() << " HESize " << m_topology.getHESize() << " HOSize "
-            << m_topology.getHOSize() << " HFSize " << m_topology.getHFSize() << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalGeometry_init(): HBSize " << m_topology.getHBSize() << " HESize "
+                               << m_topology.getHESize() << " HOSize " << m_topology.getHOSize() << " HFSize "
+                               << m_topology.getHFSize();
 #endif
 
   m_hbCellVec = HBCellVec(m_topology.getHBSize());
@@ -88,17 +88,19 @@ const std::vector<DetId>& HcalGeometry::getValidDetIds(DetId::Detector det, int 
 
 std::shared_ptr<const CaloCellGeometry> HcalGeometry::getGeometry(const DetId& id) const {
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalGeometry::getGeometry for " << HcalDetId(id) << "  " << m_mergePosition << " ";
+  std::ostringstream st1;
+  st1 << "HcalGeometry::getGeometry for " << HcalDetId(id) << "  " << m_mergePosition << " ";
 #endif
   if (!m_mergePosition) {
 #ifdef EDM_ML_DEBUG
-    std::cout << m_topology.detId2denseId(id) << " " << getGeometryBase(id) << "\n";
+    st1 << m_topology.detId2denseId(id) << " " << getGeometryBase(id) << "\n";
+    edm::LogVerbatim("HCalGeom") << st1.str();
 #endif
     return getGeometryBase(id);
   } else {
 #ifdef EDM_ML_DEBUG
-    std::cout << m_topology.detId2denseId(m_topology.idFront(id)) << " " << getGeometryBase(m_topology.idFront(id))
-              << "\n";
+    st1 << m_topology.detId2denseId(m_topology.idFront(id)) << " " << getGeometryBase(m_topology.idFront(id));
+    edm::LogVerbatim("HCalGeom") << st1.str();
 #endif
     return getGeometryBase(m_topology.idFront(id));
   }
@@ -169,7 +171,7 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r, bool ignoreCorrect) con
       }
     }
 #ifdef EDM_ML_DEBUG
-    std::cout << bestId << " Corrected to " << HcalDetId(correctId(bestId)) << std::endl;
+    edm::LogVerbatim("HCalGeom") << bestId << " Corrected to " << HcalDetId(correctId(bestId));
 #endif
 
     return (ignoreCorrect ? bestId : correctId(bestId));
@@ -453,9 +455,8 @@ unsigned int HcalGeometry::newCellImpl(
   unsigned int din = m_topology.detId2denseId(detId);
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalGeometry: "
-            << " newCell subdet " << detId.subdetId() << ", raw ID " << detId.rawId() << ", hid " << hid << ", din "
-            << din << ", index " << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalGeometry: newCell subdet " << detId.subdetId() << ", raw ID " << detId.rawId()
+                               << ", hid " << hid << ", din " << din << ", index ";
 #endif
 
   if (hid.subdet() == HcalBarrel) {

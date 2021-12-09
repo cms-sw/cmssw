@@ -121,7 +121,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   uint32_t moduleId_;
   moduleStart_[1] = 0;  // we run sequentially....
 
-  SiPixelClustersCUDA::DeviceConstView clusterView{
+  SiPixelClustersCUDA::SiPixelClustersCUDASOAView clusterView{
       moduleStart_.data(), clusInModule_.data(), &moduleId_, hitsModuleStart};
 
   // fill cluster arrays
@@ -212,10 +212,17 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
     assert(clus.size() == ndigi);
     numberOfHits += nclus;
     // filled creates view
-    SiPixelDigisCUDA::DeviceConstView digiView{xx.data(), yy.data(), adc.data(), moduleInd.data(), clus.data()};
+    SiPixelDigisCUDASOAView digiView;
+    digiView.xx_ = xx.data();
+    digiView.yy_ = yy.data();
+    digiView.adc_ = adc.data();
+    digiView.moduleInd_ = moduleInd.data();
+    digiView.clus_ = clus.data();
+    digiView.pdigi_ = nullptr;
+    digiView.rawIdArr_ = nullptr;
     assert(digiView.adc(0) != 0);
     // we run on blockId.x==0
-    gpuPixelRecHits::getHits(&cpeView, &bsHost, &digiView, ndigi, &clusterView, output->view());
+    gpuPixelRecHits::getHits(&cpeView, &bsHost, digiView, ndigi, &clusterView, output->view());
     for (auto h = fc; h < lc; ++h)
       if (h - fc < maxHitsInModule)
         assert(gind == output->view()->detectorIndex(h));

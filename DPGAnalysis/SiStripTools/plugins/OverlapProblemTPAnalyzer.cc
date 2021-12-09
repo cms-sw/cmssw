@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -55,7 +55,7 @@
 // class decleration
 //
 
-class OverlapProblemTPAnalyzer : public edm::EDAnalyzer {
+class OverlapProblemTPAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit OverlapProblemTPAnalyzer(const edm::ParameterSet&);
   ~OverlapProblemTPAnalyzer() override;
@@ -104,6 +104,8 @@ OverlapProblemTPAnalyzer::OverlapProblemTPAnalyzer(const edm::ParameterSet& iCon
       m_trkcollToken(consumes<edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("trackCollection"))),
       m_associatorToken(consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHits"))) {
   //now do what ever initialization is needed
+
+  usesResource(TFileService::kSharedResource);
 
   edm::Service<TFileService> tfserv;
 

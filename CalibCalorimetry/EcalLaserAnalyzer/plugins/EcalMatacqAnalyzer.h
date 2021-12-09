@@ -1,7 +1,7 @@
 // $Id: EcalMatacqAnalyzer.h
 
 #include <memory>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 
 class TFile;
 class TTree;
@@ -11,7 +11,7 @@ class TMTQ;
 #define N_channels 1
 #define NSIDES 2  // Number of sides
 
-class EcalMatacqAnalyzer : public edm::EDAnalyzer {
+class EcalMatacqAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalMatacqAnalyzer(const edm::ParameterSet &iConfig);
   ~EcalMatacqAnalyzer() override;

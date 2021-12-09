@@ -2,6 +2,7 @@
   <flags EDM_PLUGIN="1"/>
 
   <use name="CalibPPS/ESProducers"/>
+  <use name="CalibPPS/AlignmentGlobal"/>
 
   <use name="FWCore/Framework"/>
   <use name="FWCore/Utilities"/>

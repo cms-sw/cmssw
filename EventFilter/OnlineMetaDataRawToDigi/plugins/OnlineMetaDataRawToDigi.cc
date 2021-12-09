@@ -101,6 +101,12 @@ void OnlineMetaDataRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup&
         dcsRecord = DCSRecord(onlineMetaData->dcs);
         onlineLuminosityRecord = OnlineLuminosityRecord(onlineMetaData->luminosity);
         onlineBeamSpot = getBeamSpot(onlineMetaData->beamSpot);
+      } else if (version == 3 && onlineMetaDataRaw.size() >= FEDHeader::length + sizeof(online::Data_v3)) {
+        online::Data_v3 const* onlineMetaData = reinterpret_cast<online::Data_v3 const*>(payload);
+        ctppsRecord = CTPPSRecord(onlineMetaData->ctpps);
+        dcsRecord = DCSRecord(onlineMetaData->dcs);
+        onlineLuminosityRecord = OnlineLuminosityRecord(onlineMetaData->luminosity);
+        onlineBeamSpot = getBeamSpot(onlineMetaData->beamSpot);
       }
     }
   }
