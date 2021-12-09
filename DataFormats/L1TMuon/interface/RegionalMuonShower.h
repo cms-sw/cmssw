@@ -51,6 +51,9 @@ namespace l1t {
     /// Get track-finder which found the muon (bmtf, emtf_pos/emtf_neg or omtf_pos/omtf_neg)
     const tftype trackFinderType() const { return trackFinder_; };
 
+    int endcap() const { return trackFinderType() == l1t::tftype::emtf_pos ? 1 : -1; }
+    int sector() const { return processor() + 1; }
+
     bool operator==(const l1t::RegionalMuonShower& rhs) const;
     inline bool operator!=(const l1t::RegionalMuonShower& rhs) const { return !(operator==(rhs)); };
 
