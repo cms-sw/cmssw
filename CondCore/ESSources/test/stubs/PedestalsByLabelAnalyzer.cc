@@ -8,22 +8,22 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "CondFormats/DataRecord/interface/PedestalsRcd.h"
+
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace std;
 
 namespace edmtest {
   class PedestalsByLabelAnalyzer : public edm::EDAnalyzer {
   public:
-    explicit PedestalsByLabelAnalyzer(edm::ParameterSet const& p) {
+    explicit PedestalsByLabelAnalyzer(edm::ParameterSet const& p)
+        : thePedestalToken_(esConsumes(edm::ESInputTag("", "lab3d"))) {
       std::cout << "PedestalsByLabelAnalyzer" << std::endl;
     }
     explicit PedestalsByLabelAnalyzer(int i) { std::cout << "PedestalsByLabelAnalyzer " << i << std::endl; }
@@ -31,6 +31,7 @@ namespace edmtest {
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   private:
+    const edm::ESGetToken<Pedestals, PedestalsRcd> thePedestalToken_;
   };
 
   void PedestalsByLabelAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
@@ -45,11 +46,8 @@ namespace edmtest {
       std::cout << "Record \"PedestalsRcd"
                 << "\" does not exist " << std::endl;
     }
-    edm::ESHandle<Pedestals> pPeds;
-    std::cout << "got eshandle" << std::endl;
-    context.get<PedestalsRcd>().get("lab3d", pPeds);
     std::cout << "got context" << std::endl;
-    const Pedestals* myped = pPeds.product();
+    auto const& myped = &context.getData(thePedestalToken_);
     std::cout << "Pedestals* " << myped << std::endl;
     for (std::vector<Pedestals::Item>::const_iterator it = myped->m_pedestals.begin(); it != myped->m_pedestals.end();
          ++it)

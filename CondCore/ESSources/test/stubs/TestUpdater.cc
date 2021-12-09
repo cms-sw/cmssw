@@ -1,13 +1,13 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include <vector>
 #include <cstdlib>
 #include <sstream>
+
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 typedef std::vector<int> Payload;
 
@@ -31,9 +31,12 @@ namespace condtest {
     static void update(int run);
 
     int evCount;
+
+  private:
+    const edm::ESGetToken<std::vector<int>, OneIntRcd> theIntToken_;
   };
 
-  TestUpdater::TestUpdater(edm::ParameterSet const&) : evCount(0) {}
+  TestUpdater::TestUpdater(edm::ParameterSet const&) : evCount(0), theIntToken_(esConsumes()) {}
 
   void TestUpdater::beginRun(const edm::Run&, const edm::EventSetup&) { evCount = 0; }
 
@@ -43,9 +46,7 @@ namespace condtest {
     if (0 == e.id().run() % 2 && evCount == 3)
       update(e.id().run() + 1);
 
-    edm::ESHandle<std::vector<int> > h;
-    c.get<OneIntRcd>().get(h);
-    size_t number = (*h.product()).front();
+    size_t number = (c.getData(theIntToken_)).front();
     if (1 == e.id().run() % 2 && number != e.id().run())
       std::cout << "it was not updated!" << std::endl;
   }
