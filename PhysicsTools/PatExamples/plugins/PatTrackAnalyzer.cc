@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -22,7 +22,7 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
-class PatTrackAnalyzer : public edm::EDAnalyzer {
+class PatTrackAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// constructor and destructor
   PatTrackAnalyzer(const edm::ParameterSet &params);
@@ -61,7 +61,9 @@ PatTrackAnalyzer::PatTrackAnalyzer(const edm::ParameterSet &params)
     : srcTracksToken_(mayConsume<edm::View<reco::Track> >(params.getParameter<edm::InputTag>("src"))),
       srcMuonsToken_(mayConsume<pat::MuonCollection>(params.getParameter<edm::InputTag>("src"))),
       beamSpotToken_(consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpot"))),
-      qualities_(params.getParameter<std::vector<std::string> >("qualities")) {}
+      qualities_(params.getParameter<std::vector<std::string> >("qualities")) {
+  usesResource(TFileService::kSharedResource);
+}
 
 PatTrackAnalyzer::~PatTrackAnalyzer() {}
 
