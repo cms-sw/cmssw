@@ -9,22 +9,22 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <iostream>
 #include <map>
 #include <typeinfo>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CondFormats/Calibration/interface/Efficiency.h"
 #include "CondFormats/DataRecord/interface/ExEfficiency.h"
+
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace std;
 
 namespace edmtest {
   class EfficiencyByLabelAnalyzer : public edm::EDAnalyzer {
   public:
-    explicit EfficiencyByLabelAnalyzer(edm::ParameterSet const& p) {
+    explicit EfficiencyByLabelAnalyzer(edm::ParameterSet const& p)
+        : theEffToken1_(esConsumes()), theEffToken2_(esConsumes()) {
       std::cout << "EfficiencyByLabelAnalyzer" << std::endl;
     }
     explicit EfficiencyByLabelAnalyzer(int i) { std::cout << "EfficiencyByLabelAnalyzer " << i << std::endl; }
@@ -32,6 +32,7 @@ namespace edmtest {
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   private:
+    const edm::ESGetToken<condex::Efficiency, ExEfficiencyRcd> theEffToken1_, theEffToken2_;
   };
 
   void EfficiencyByLabelAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
@@ -46,17 +47,12 @@ namespace edmtest {
       std::cout << "Record \"ExEfficiencyRcd"
                 << "\" does not exist " << std::endl;
     }
-    edm::ESHandle<condex::Efficiency> hEff1;
-    edm::ESHandle<condex::Efficiency> hEff2;
-    std::cout << "got eshandle" << std::endl;
-    context.get<ExEfficiencyRcd>().get("vinEff1", hEff1);
-    context.get<ExEfficiencyRcd>().get("vinEff2", hEff2);
     std::cout << "got context" << std::endl;
     {
-      condex::Efficiency const& eff = *hEff2.product();
+      condex::Efficiency const& eff = context.getData(theEffToken2_);
       std::cout << "Efficiency*, type (2) " << (void*)(&eff) << " " << typeid(eff).name() << std::endl;
     }
-    condex::Efficiency const& eff = *hEff1.product();
+    condex::Efficiency const& eff = context.getData(theEffToken1_);
     std::cout << "Efficiency*, type " << (void*)(&eff) << " " << typeid(eff).name() << std::endl;
     for (float pt = 0; pt < 10; pt += 2) {
       std::cout << "\npt=" << pt << "    :";

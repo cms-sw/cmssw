@@ -8,20 +8,18 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <stdexcept>
 #include <string>
 #include <iostream>
-//#include <map>
+#include <fstream>
+
+#include "CondCore/CondDB/interface/Time.h"
+
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
-//#include "CondFormats/DataRecord/interface/LumiTestPayloadRcd.h"
-//#include "CondFormats/Common/interface/LumiTestPayload.h"
-#include "CondCore/CondDB/interface/Time.h"
-#include <fstream>
 
 using namespace std;
 
@@ -29,7 +27,8 @@ namespace edmtest {
   class LumiTestReadAnalyzer : public edm::EDAnalyzer {
   public:
     explicit LumiTestReadAnalyzer(edm::ParameterSet const& p)
-        : m_processId(p.getUntrackedParameter<std::string>("processId")),
+        : theBSToken_(esConsumes()),
+          m_processId(p.getUntrackedParameter<std::string>("processId")),
           m_pathForLastLumiFile(p.getUntrackedParameter<std::string>("lastLumiFile", "")),
           m_pathForErrorFile("") {
       std::string pathForErrorFolder = p.getUntrackedParameter<std::string>("pathForErrorFile");
@@ -42,6 +41,7 @@ namespace edmtest {
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   private:
+    const edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> theBSToken_;
     std::string m_processId;
     std::string m_pathForLastLumiFile;
     std::string m_pathForErrorFile;
@@ -56,9 +56,7 @@ namespace edmtest {
       //record not found
       edm::LogError(MSGSOURCE) << "Record \"BeamSpotObjectsRcd\" does not exist ";
     }
-    edm::ESHandle<BeamSpotObjects> ps;
-    context.get<BeamSpotObjectsRcd>().get(ps);
-    const BeamSpotObjects* payload = ps.product();
+    auto const& payload = &context.getData(theBSToken_);
     edm::LogInfo(MSGSOURCE) << "Event " << e.id().event() << " Run " << e.id().run() << " Lumi "
                             << e.id().luminosityBlock() << " Time " << e.time().value() << " LumiTestPayload id "
                             << payload->GetBeamType() << std::endl;

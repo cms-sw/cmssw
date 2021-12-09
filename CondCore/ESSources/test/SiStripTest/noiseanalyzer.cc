@@ -2,26 +2,29 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
 #include "CondFormats/DataRecord/interface/mySiStripNoisesRcd.h"
+
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace std;
 
 namespace edmtest {
   class NoisesAnalyzer : public edm::EDAnalyzer {
   public:
-    explicit NoisesAnalyzer(edm::ParameterSet const& p) { std::cout << "NoisesAnalyzer" << std::endl; }
+    explicit NoisesAnalyzer(edm::ParameterSet const& p) : theNoisesToken_(esConsumes()) {
+      std::cout << "NoisesAnalyzer" << std::endl;
+    }
     explicit NoisesAnalyzer(int i) { std::cout << "NoisesAnalyzer " << i << std::endl; }
     virtual ~NoisesAnalyzer() { std::cout << "~NoisesAnalyzer " << std::endl; }
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   private:
+    const edm::ESGetToken<mySiStripNoises, mySiStripNoisesRcd> theNoisesToken_;
   };
 
   void NoisesAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
@@ -36,11 +39,8 @@ namespace edmtest {
       std::cout << "Record \"mySiStripNoisesRcd"
                 << "\" does not exist " << std::endl;
     }
-    edm::ESHandle<mySiStripNoises> pNoises;
-    std::cout << "got eshandle" << std::endl;
-    context.get<mySiStripNoisesRcd>().get(pNoises);
     std::cout << "got context" << std::endl;
-    const mySiStripNoises* mynoise = pNoises.product();
+    auto const& mynoise = &context.getData(theNoisesToken_);
     std::cout << "Noises* " << mynoise << std::endl;
     unsigned int a = mynoise->v_noises.size();
     std::cout << "size a " << a << std::endl;
