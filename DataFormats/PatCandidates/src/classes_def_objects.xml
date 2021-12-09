@@ -122,7 +122,7 @@
   </class>
 
   <class name="pat::IsolatedTrack" ClassVersion="6">
-   <version ClassVersion="6" checksum="949138470"/>
+   <version ClassVersion="6" checksum="701085142"/>
    <version ClassVersion="5" checksum="139818330"/>
    <version ClassVersion="4" checksum="71166093"/>
    <version ClassVersion="3" checksum="550880582"/>
