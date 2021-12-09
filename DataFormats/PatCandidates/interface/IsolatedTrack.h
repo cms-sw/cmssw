@@ -93,10 +93,10 @@ namespace pat {
           trackQuality_(tkQual),
           dEdxStrip_(dEdxS),
           dEdxPixel_(dEdxP),
-          probQonTrack_(255.f * probQonTrack + 0.5f),
-          probXYonTrack_(255.f * probXYonTrack + 0.5f),
-          probQonTrackNoLayer1_(255.f * probQonTrackNoLayer1 + 0.5f),
-          probXYonTrackNoLayer1_(255.f * probXYonTrackNoLayer1 + 0.5f),
+          probQonTrack_(probQonTrack),
+          probXYonTrack_(probXYonTrack),
+          probQonTrackNoLayer1_(probQonTrackNoLayer1),
+          probXYonTrackNoLayer1_(probXYonTrackNoLayer1),
           hitPattern_(hp),
           crossedEcalStatus_(ecalst),
           crossedHcalStatus_(hcalst),
@@ -135,10 +135,10 @@ namespace pat {
 
     float dEdxStrip() const { return dEdxStrip_; }
     float dEdxPixel() const { return dEdxPixel_; }
-    float probQonTrack() const { return probQonTrack_ / 255.f; }
-    float probXYonTrack() const { return probXYonTrack_ / 255.f; }
-    float probQonTrackNoLayer1() const { return probQonTrackNoLayer1_ / 255.f; }
-    float probXYonTrackNoLayer1() const { return probXYonTrackNoLayer1_ / 255.f; }
+    float probQonTrack() const { return probQonTrack_; }
+    float probXYonTrack() const { return probXYonTrack_; }
+    float probQonTrackNoLayer1() const { return probQonTrackNoLayer1_; }
+    float probXYonTrackNoLayer1() const { return probXYonTrackNoLayer1_; }
 
     //! just the status code part of an EcalChannelStatusCode for all crossed Ecal cells
     const std::vector<uint16_t>& crossedEcalStatus() const { return crossedEcalStatus_; }
@@ -165,7 +165,7 @@ namespace pat {
     int fromPV_;  //only stored for packedPFCandidates
     int trackQuality_;
     float dEdxStrip_, dEdxPixel_;  //in MeV/mm
-    uint8_t probQonTrack_, probXYonTrack_, probQonTrackNoLayer1_, probXYonTrackNoLayer1_;
+    float probQonTrack_, probXYonTrack_, probQonTrackNoLayer1_, probXYonTrackNoLayer1_;
 
     reco::HitPattern hitPattern_;
 
