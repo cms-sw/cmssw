@@ -783,10 +783,6 @@ namespace edm {
 
   int EventProcessor::totalEventsFailed() const { return schedule_->totalEventsFailed(); }
 
-  void EventProcessor::enableEndPaths(bool active) { schedule_->enableEndPaths(active); }
-
-  bool EventProcessor::endPathsEnabled() const { return schedule_->endPathsEnabled(); }
-
   void EventProcessor::clearCounters() { schedule_->clearCounters(); }
 
   namespace {
