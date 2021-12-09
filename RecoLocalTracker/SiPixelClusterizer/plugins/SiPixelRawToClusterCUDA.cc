@@ -79,6 +79,7 @@ private:
   const bool includeErrors_;
   const bool useQuality_;
   const uint32_t maxFedWords_;
+  uint32_t nDigis_;
   const SiPixelClusterThresholds clusterThresholds_;
 };
 
@@ -239,6 +240,11 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
 
   }  // end of for loop
 
+  nDigis_ = wordCounterGPU;
+
+  if (nDigis_ == 0)
+    return;
+
   gpuAlgo_.makeClustersAsync(isRun2_,
                              clusterThresholds_,
                              gpuMap,
@@ -257,6 +263,17 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
 
 void SiPixelRawToClusterCUDA::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   cms::cuda::ScopedContextProduce ctx{ctxState_};
+
+  if (nDigis_ == 0) {
+    // default construct collections and place them in event
+    auto tmp = std::make_pair(SiPixelDigisCUDA{}, SiPixelClustersCUDA{});
+    ctx.emplace(iEvent, digiPutToken_, std::move(tmp.first));
+    ctx.emplace(iEvent, clusterPutToken_, std::move(tmp.second));
+    if (includeErrors_) {
+      ctx.emplace(iEvent, digiErrorPutToken_, SiPixelDigiErrorsCUDA{});
+    }
+    return;
+  }
 
   auto tmp = gpuAlgo_.getResults();
   ctx.emplace(iEvent, digiPutToken_, std::move(tmp.first));
