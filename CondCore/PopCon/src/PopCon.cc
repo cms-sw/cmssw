@@ -37,26 +37,26 @@ namespace popcon {
     if (!m_dbService.isAvailable())
       throw Exception("DBService not available");
     const std::string& connectionStr = m_dbService->session().connectionString();
-
+    m_dbService->forceInit();
     m_tag = m_dbService->tag(m_record);
     m_tagInfo.name = m_tag;
-    if (m_targetConnectionString.empty())
+    if (m_targetConnectionString.empty()) {
       m_targetSession = m_dbService->session();
-    else {
+      m_dbService->startTransaction();
+    } else {
       cond::persistency::ConnectionPool connPool;
       connPool.setAuthenticationPath(m_authPath);
       connPool.setAuthenticationSystem(m_authSys);
       connPool.configure();
       m_targetSession = connPool.createSession(m_targetConnectionString);
+      m_targetSession.transaction().start();
     }
-    m_targetSession.transaction().start();
     if (m_targetSession.existsDatabase() && m_targetSession.existsIov(m_tag)) {
       cond::persistency::IOVProxy iov = m_targetSession.readIov(m_tag);
       m_tagInfo.size = iov.sequenceSize();
       if (m_tagInfo.size > 0) {
         m_tagInfo.lastInterval = iov.getLast();
       }
-
       edm::LogInfo("PopCon") << "destination DB: " << connectionStr << ", target DB: "
                              << (m_targetConnectionString.empty() ? connectionStr : m_targetConnectionString) << "\n"
                              << "TAG: " << m_tag << ", last since/till: " << m_tagInfo.lastInterval.since << "/"
@@ -77,7 +77,11 @@ namespace popcon {
         lastTill = m_lastTill;
       m_dbService->closeIOV(lastTill, m_record);
     }
-    m_targetSession.transaction().commit();
+    if (m_targetConnectionString.empty()) {
+      m_dbService->commitTransaction();
+    } else {
+      m_targetSession.transaction().commit();
+    }
   }
 
 }  // namespace popcon
