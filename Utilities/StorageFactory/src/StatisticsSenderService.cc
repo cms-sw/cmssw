@@ -349,7 +349,7 @@ void StatisticsSenderService::setSize(const std::string &url, size_t size) {
   }
 }
 
-void StatisticsSenderService::filePostCloseEvent(std::string const &lfn, bool usedFallback) {
+void StatisticsSenderService::filePostCloseEvent(std::string const &lfn) {
   //we are at a sync point in the framwework so no new files are being opened
   cleanupOldFiles();
   m_filestats.update();
