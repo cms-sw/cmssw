@@ -748,9 +748,9 @@ namespace edm {
     void MessageLogger::preSourceRunLumi() { establish("source"); }
     void MessageLogger::postSourceRunLumi() { unEstablish("AfterSource"); }
 
-    void MessageLogger::preFile(std::string const&, bool) { establish("file_open"); }
-    void MessageLogger::preFileClose(std::string const&, bool) { establish("file_close"); }
-    void MessageLogger::postFile(std::string const&, bool) { unEstablish("AfterFile"); }
+    void MessageLogger::preFile(std::string const&) { establish("file_open"); }
+    void MessageLogger::preFileClose(std::string const&) { establish("file_close"); }
+    void MessageLogger::postFile(std::string const&) { unEstablish("AfterFile"); }
 
     void MessageLogger::preEvent(StreamContext const& iContext) {
       assert(iContext.streamID().value() < transitionInfoCache_.size());
