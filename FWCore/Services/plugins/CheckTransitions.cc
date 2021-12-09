@@ -53,9 +53,9 @@ namespace edm {
       void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
       void postEndJob();
 
-      void preOpenFile(std::string const&, bool);
+      void preOpenFile(std::string const&);
 
-      void preCloseFile(std::string const& lfn, bool primary);
+      void preCloseFile(std::string const& lfn);
 
       void preGlobalBeginRun(GlobalContext const&);
 
@@ -283,9 +283,9 @@ void CheckTransitions::postEndJob() {
   }
 }
 
-void CheckTransitions::preOpenFile(std::string const& lfn, bool b) {}
+void CheckTransitions::preOpenFile(std::string const& lfn) {}
 
-void CheckTransitions::preCloseFile(std::string const& lfn, bool b) {}
+void CheckTransitions::preCloseFile(std::string const& lfn) {}
 
 void CheckTransitions::preGlobalBeginRun(GlobalContext const& gc) {
   auto id = gc.luminosityBlockID();
