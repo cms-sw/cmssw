@@ -161,7 +161,6 @@ process.HLT_IsoTrackHB_v15 = cms.Path(process.HLTBeginSequence +
                                       process.HLTEndSequence 
                                       )
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath,process.HLT_IsoTrackHE_v16,process.HLT_IsoTrackHB_v15,process.HLTriggerFinalPath))
 
 
 ## remove any instance of the FastTimerService
@@ -223,8 +222,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 # Schedule definition
 #process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.eventinterpretaion_step,process.prevalidation_step,process.validation_step,process.dqmoffline_step,process.endjob_step,process.FEVTDEBUGHLToutput_step,process.DQMoutput_step)
 #process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step)
-process.schedule = cms.Schedule(process.HLTSchedule)
-#process.schedule.extend(process.HLTSchedule)
+process.schedule = cms.Schedule( *(process.HLTriggerFirstPath,process.HLT_IsoTrackHE_v16,process.HLT_IsoTrackHB_v15,process.HLTriggerFinalPath))
 process.schedule.extend([process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.eventinterpretaion_step])
 process.schedule.extend([process.analyze])
 #process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])
