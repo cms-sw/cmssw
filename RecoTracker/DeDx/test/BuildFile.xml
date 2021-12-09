@@ -17,8 +17,3 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<environment>
-  <bin file="testDeDxScripts.cpp">
-    <flags TEST_RUNNER_ARGS="/bin/bash RecoTracker/DeDx/test testProbQXY.sh"/>
-  </bin>
-</environment>

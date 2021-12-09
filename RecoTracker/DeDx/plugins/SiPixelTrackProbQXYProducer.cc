@@ -65,8 +65,6 @@ SiPixelTrackProbQXYProducer::SiPixelTrackProbQXYProducer(const edm::ParameterSet
       putProbQXYNoLayer1VMToken_(produces<edm::ValueMap<reco::SiPixelTrackProbQXY>>("NoLayer1")) {}
 
 void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  bool debug = debugFlag_;
-
   // Retrieve track collection from the event
   auto trackCollectionHandle = iEvent.getHandle(trackToken_);
   const TrackCollection& trackCollection(*trackCollectionHandle.product());
@@ -95,7 +93,7 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
     float probQonTrackWMultiNoLayer1 = 1;
     float probXYonTrackWMultiNoLayer1 = 1;
     // Loop through the rechits on the given track
-    if(debug) {
+    if(debugFlag_) {
        LogPrint("SiPixelTrackProbQXYProducer") << "  -----------------------------------------------";
        LogPrint("SiPixelTrackProbQXYProducer") << "  For track " << numTrack;
     }
@@ -119,7 +117,7 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
           // Calculate alpha term needed for the combination
           probQonTrackWMultiNoLayer1 *= probQNoLayer1;
           probXYonTrackWMultiNoLayer1 *= probXYNoLayer1;
-          if(debug) {
+          if(debugFlag_) {
             LogDebug("SiPixelTrackProbQXYProducer") << "    >>>> For rechit excluding Layer 1: " << numRecHitsNoLayer1 << " ProbQ = " << probQNoLayer1;
       }
 
@@ -135,7 +133,7 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
       }
       numRecHits++;
 
-      if(debug) {
+      if(debugFlag_) {
         LogDebug("SiPixelTrackProbQXYProducer") << "    >>>> For rechit: " << numRecHits << " ProbQ = " << probQ;
       }
 
@@ -174,7 +172,7 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
        numTrackWSmallProbQ++;
     }
 
-    if(debug) {
+    if(debugFlag_) {
        LogPrint("SiPixelTrackProbQXYProducer") << "  >> probQonTrack = " << probQonTrack
         << " = " << probQonTrackWMulti << " * " << probQonTrackTerm;
     }
@@ -205,7 +203,7 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
     probQonTrackNoLayer1 = probQonTrackWMultiNoLayer1 * probQonTrackTermNoLayer1;
     probXYonTrackNoLayer1 = probXYonTrackWMultiNoLayer1 * probXYonTrackTermNoLayer1;
 
-    if(debug) {
+    if(debugFlag_) {
        LogPrint("SiPixelTrackProbQXYProducer") << "  >> probQonTrackNoLayer1 = " << probQonTrackNoLayer1
        << " = " << probQonTrackWMultiNoLayer1 << " * " << probQonTrackTermNoLayer1;
     }
@@ -215,7 +213,7 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
     resultSiPixelTrackProbQXYNoLayer1Coll->emplace_back(probQonTrackNoLayer1, probXYonTrackNoLayer1);
   }  // end loop on track collection
 
-  if(debug) {
+  if(debugFlag_) {
      LogPrint("SiPixelTrackProbQXYProducer") << "In this event the ratio of low probQ tracks / all tracks " << numTrackWSmallProbQ/float(numTrack);
   }
 
