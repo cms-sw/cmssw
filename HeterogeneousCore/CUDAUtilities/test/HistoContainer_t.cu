@@ -72,7 +72,7 @@ void go() {
 
     cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
 
-#ifdef COOP
+#ifdef USE_COOPERATIVE_GROUPS
     fillManyFromVectorCoop(h_d.get(), nParts, v_d.get(), off_d.get(), offsets[10], 256, nullptr, 0);
 #else
     fillManyFromVector(h_d.get(), nParts, v_d.get(), off_d.get(), offsets[10], 256, nullptr, 0);
