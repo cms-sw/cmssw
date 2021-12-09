@@ -201,7 +201,10 @@ void CalibrationSkeleton::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   //***********************************************************************************
   //mandatory for ip significance reco
-  auto const m_transientTrackBuilder_producer = &iSetup.getData(transientTrackBuilderToken_);
+  const TransientTrackBuilder* m_transientTrackBuilder_producer;
+  edm::ESHandle<TransientTrackBuilder> builder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  m_transientTrackBuilder_producer = builder.product();
   //***********************************************************************************
 
   int i = 0;

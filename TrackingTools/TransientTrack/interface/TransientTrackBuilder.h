@@ -6,8 +6,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "FWCore/Utilities/interface/ESGetToken.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
 /**
    * Helper class to build TransientTrack from the persistent Track.
    * This is obtained from the eventSetup, as given in the example in the test
@@ -74,7 +73,6 @@ public:
 private:
   const MagneticField* theField;
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
 };
 
 #endif
