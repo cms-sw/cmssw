@@ -234,6 +234,7 @@ namespace edm {
 
     lfn_ = logicalFileName().empty() ? fileNames()[0] : logicalFileName();
     lfnHash_ = std::hash<std::string>()(lfn_);
+    usedFallback_ = false;
 
     std::shared_ptr<InputFile> filePtr;
     std::list<std::string> originalInfo;
@@ -253,6 +254,7 @@ namespace edm {
         try {
           std::unique_ptr<char[]> name(gSystem->ExpandPathName(it->c_str()));
           filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
+          usedFallback_ = (it != fNames.begin());
           break;
         } catch (cms::Exception const& e) {
           if (!skipBadFiles && std::next(it) == fNames.end()) {
