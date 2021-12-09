@@ -55,10 +55,22 @@ namespace pat {
 	  pfLepOverlap_(pfLepOverlap), pfNeutralSum_(pfNeutralSum),
 	  dz_(dz), dxy_(dxy), dzError_(dzError), dxyError_(dxyError),
           fromPV_(fromPV), trackQuality_(tkQual), dEdxStrip_(dEdxS), dEdxPixel_(dEdxP), 
-          probQonTrack_(probQonTrack),
-          probXYonTrack_(probXYonTrack),
-          probQonTrackNoLayer1_(probQonTrackNoLayer1),
-          probXYonTrackNoLayer1_(probXYonTrackNoLayer1),
+          probQonTrack_(probQonTrack == 0.f        ? 0
+                        : probQonTrack < 1 / 255.f ? 1
+                        : probQonTrack == 1.f      ? 255
+                                                   : 255.f * probQonTrack + 0.5f),
+          probXYonTrack_(probXYonTrack == 0.f        ? 0
+                         : probXYonTrack < 1 / 255.f ? 1
+                         : probXYonTrack == 1.f      ? 255
+                                                     : 255.f * probXYonTrack + 0.5f),
+          probQonTrackNoLayer1_(probQonTrackNoLayer1 == 0.f        ? 0
+                                : probQonTrackNoLayer1 < 1 / 255.f ? 1
+                                : probQonTrackNoLayer1 == 1.f      ? 255
+                                                                   : 255.f * probQonTrackNoLayer1 + 0.5f),
+          probXYonTrackNoLayer1_(probXYonTrackNoLayer1 == 0.f        ? 0
+                                 : probXYonTrackNoLayer1 < 1 / 255.f ? 1
+                                 : probXYonTrackNoLayer1 == 1.f      ? 255
+                                                                     : 255.f * probXYonTrackNoLayer1 + 0.5f),
           hitPattern_(hp), 
           crossedEcalStatus_(ecalst), crossedHcalStatus_(hcalst),
           deltaEta_(dEta), deltaPhi_(dPhi),
@@ -96,11 +108,10 @@ namespace pat {
         
         float dEdxStrip() const { return dEdxStrip_; }
         float dEdxPixel() const { return dEdxPixel_; }
-        float probQonTrack() const { return probQonTrack_; }
-        float probXYonTrack() const { return probXYonTrack_; }
-        float probQonTrackNoLayer1() const { return probQonTrackNoLayer1_; }
-        float probXYonTrackNoLayer1() const { return probXYonTrackNoLayer1_; }
-
+        float probQonTrack() const { return probQonTrack_ / 255.f; }
+        float probXYonTrack() const { return probXYonTrack_ / 255.f; }
+        float probQonTrackNoLayer1() const { return probQonTrackNoLayer1_ / 255.f; }
+        float probXYonTrackNoLayer1() const { return probXYonTrackNoLayer1_ / 255.f; }
 
         //! just the status code part of an EcalChannelStatusCode for all crossed Ecal cells
         const std::vector<uint16_t>& crossedEcalStatus() const { return crossedEcalStatus_; }
@@ -127,7 +138,7 @@ namespace pat {
         int fromPV_;  //only stored for packedPFCandidates
         int trackQuality_;
         float dEdxStrip_, dEdxPixel_; //in MeV/mm
-        float probQonTrack_, probXYonTrack_, probQonTrackNoLayer1_, probXYonTrackNoLayer1_;
+        uint8_t probQonTrack_, probXYonTrack_, probQonTrackNoLayer1_, probXYonTrackNoLayer1_;
         reco::HitPattern hitPattern_;
 
         std::vector<uint16_t> crossedEcalStatus_;
