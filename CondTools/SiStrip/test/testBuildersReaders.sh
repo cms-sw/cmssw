@@ -28,8 +28,17 @@ done
 
 echo -e " Done with the readers \n\n"
 
+sleep 5
+
 ## do the miscalibrators
-(cmsRun ${LOCAL_TEST_DIR}/SiStripChannelGainFromDBMiscalibrator_cfg.py) || die "Failure using cmsRun SiStripChannelGainFromDBMiscalibrator_cfg.py)" $?
-(cmsRun ${LOCAL_TEST_DIR}/SiStripNoiseFromDBMiscalibrator_cfg.py) || die "Failure using cmsRun SiStripNoiseFromDBMiscalibrator_cfg.py" $?
+for entry in "${LOCAL_TEST_DIR}/"SiStrip*Miscalibrator_cfg.py
+do
+  echo "===== Test \"cmsRun $entry \" ===="
+  (cmsRun $entry) || die "Failure using cmsRun $entry" $?
+done
 
 echo -e " Done with the miscalibrators \n\n"
+
+## do the scaler (commented for now)
+#(cmsRun ${LOCAL_TEST_DIR}/SiStripApvGainRescaler_cfg.py) || die "Failure using cmsRun SiStripApvGainRescaler_cfg.py)" $?
+#echo -e " Done with the gain rescaler \n\n"
