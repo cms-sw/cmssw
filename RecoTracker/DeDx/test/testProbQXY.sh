@@ -15,3 +15,11 @@ cmsDriver.py ReRECO --conditions auto:run2_data --customise Configuration/DataPr
 
 cmsRun ${LOCAL_TEST_DIR}/ProbQXYFromMiniAOD_cfg.py maxEvents=10 inputFiles=file:MiniAOD.root || die "Failure getting probQ and probXY from MINIAOD" $?
 rm MiniAOD.root
+
+# test MINIAOD signal MC
+echo -e "TESTING  Getting probQ and probXY from signal MC MINIAOD ...\n\n"
+cmsDriver.py ReRECOonMC --conditions 106X_upgrade2018_realistic_v11_L1v1 --datatier MINIAOD --era Run2_2018,pf_badHcalMitigation --eventcontent MINIAOD --number 10 --python_filename 4HLT2MiniAODonMC.py --scenario pp --step RAW2DIGI,L1Reco,RECO,EI,PAT --runUnscheduled --mc  --filein  /store/user/tvami/HSCP/HSCPgluino_M_1800/crab_PrivateHSCP_2018_Gluino_Mass1800_HLT_NoPU_v1/210612_042006/0000/HSCP_Gluino_Mass1800_HLT_1.root  --fileout file:MiniAODonMC.root
+
+cmsRun ${LOCAL_TEST_DIR}/ProbQXYFromMiniAOD_cfg.py maxEvents=10 inputFiles=file:MiniAODonMC.root || die "Failure getting probQ and probXY from Signal MC MINIAOD" $?
+rm MiniAODonMC.root
+

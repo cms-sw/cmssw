@@ -41,6 +41,7 @@ void ProbQXYAna::analyze(edm::StreamID id, const edm::Event& iEvent, const edm::
   iEvent.getByToken(trackToken_, trackCollectionHandle);
   const auto trackCollection(*trackCollectionHandle.product());
   int numTrack = 0;
+  int numTrackWSmallProbQ = 0;
   LogPrint("ProbQXYAna") << "Analyzing run " << iEvent.id().run() << " / event " << iEvent.id().event();
   for (const auto& track : trackCollection) {
     numTrack++;
@@ -48,12 +49,17 @@ void ProbQXYAna::analyze(edm::StreamID id, const edm::Event& iEvent, const edm::
     float probXYonTrack = track.probXYonTrack();
     float probQonTrackNoLayer1 = track.probQonTrackNoLayer1();
     float probXYonTrackNoLayer1 = track.probXYonTrackNoLayer1();
-    LogPrint("ProbQXYAna") << "--------------------------------------------------";
-    LogPrint("ProbQXYAna") << "For track " << numTrack;
-    LogPrint("ProbQXYAna") << "probQonTrack: " << probQonTrack << " and probXYonTrack: " << probXYonTrack;
-    LogPrint("ProbQXYAna") << "probQonTrackNoLayer1: " << probQonTrackNoLayer1
+    LogPrint("ProbQXYAna") << "  --------------------------------------------------";
+    LogPrint("ProbQXYAna") << "  For track " << numTrack;
+    LogPrint("ProbQXYAna") << "  >> probQonTrack: " << probQonTrack << " and probXYonTrack: " << probXYonTrack;
+    LogPrint("ProbQXYAna") << "  >> probQonTrackNoLayer1: " << probQonTrackNoLayer1
                            << " and probXYonTrackNoLayer1: " << probXYonTrackNoLayer1;
+
+    if (probQonTrack<0.1) {
+      numTrackWSmallProbQ++;
+    }
   }
+  LogPrint("ProbQXYAna") << "Ratio of low probQ tracks / all tracks " << numTrackWSmallProbQ/float(numTrack);
 }
 
 //define this as a plug-in
