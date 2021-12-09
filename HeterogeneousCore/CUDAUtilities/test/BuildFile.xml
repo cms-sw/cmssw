@@ -53,11 +53,11 @@
   </bin>
 
  <bin file="HistoContainer_t.cu" name="gpuHistoContainerCoop_t">
-    <flags CUDA_FLAGS="-g -DCOOP"/>
+    <flags CUDA_FLAGS="-g -DUSE_COOPERATIVE_GROUPS"/>
   </bin>
 
   <bin file="HistoContainer_t.cu" name="gpuHistoContainerCoop_debug">
-    <flags CUDA_FLAGS="-g -DCOOP -DGPU_DEBUG"/>
+    <flags CUDA_FLAGS="-g -DUSE_COOPERATIVE_GROUPS -DGPU_DEBUG"/>
   </bin>
 
  <bin file="HistoContainerRT_t.cu" name="gpuHistoContainerRT_t">
