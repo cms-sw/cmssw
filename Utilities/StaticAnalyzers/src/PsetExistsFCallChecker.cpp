@@ -40,8 +40,8 @@ namespace clangcms {
       return;
     const char *sfile = BR.getSourceManager().getPresumedLoc(CCE->getExprLoc()).getFilename();
     std::string sname(sfile);
-    //if (!support::isInterestingLocation(sname))
-    //  return;
+    if (!support::isInterestingLocation(sname))
+      return;
     std::string mname = support::getQualifiedName(*CCD);
     const NamedDecl *PD = llvm::dyn_cast_or_null<NamedDecl>(AC->getDecl());
     if (!PD)
@@ -98,7 +98,7 @@ namespace clangcms {
     if (mname.find(ename) != std::string::npos || mname.find(eaname) != std::string::npos) {
       if (pname.find(pdname) != std::string::npos)
         return;
-      os << "deprecated function " << mname << " is called in function " << pname;
+      os << "function " << mname << " is called in function " << pname;
       BugType *BT = new BugType(
           Checker, "Function edm::ParameterSet::exists() or edm::ParameterSet::existsAs<>() called", "CMS Code Rules");
       std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
