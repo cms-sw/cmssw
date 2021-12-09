@@ -11,7 +11,6 @@
  *  \author S. Bolognesi - INFN Torino
  */
 
-//#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"

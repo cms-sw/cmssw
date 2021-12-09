@@ -12,7 +12,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -23,7 +23,7 @@ class DTGeometry;
 class DTSuperLayer;
 class DTTtrig;
 
-class FakeTTrig : public edm::EDAnalyzer {
+class FakeTTrig : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   FakeTTrig(const edm::ParameterSet& pset);

@@ -8,13 +8,13 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include <string>
 #include <set>
 
-class DTMapGenerator : public edm::EDAnalyzer {
+class DTMapGenerator : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTMapGenerator(const edm::ParameterSet& pset);

@@ -26,7 +26,7 @@
 #include "CalibMuon/DTCalibration/interface/DTTTrigCorrectionFactory.h"
 #include "CalibMuon/DTCalibration/interface/DTTTrigBaseCorrection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include <iostream>
 #include <fstream>
