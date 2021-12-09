@@ -26,6 +26,12 @@ namespace l1t {
       imdMuonTokenEMTFPos_ = cc.consumes<MuonBxCollection>(imdEmtfPosTag);
       imdMuonTokenOMTFNeg_ = cc.consumes<MuonBxCollection>(imdOmtfNegTag);
       imdMuonTokenOMTFPos_ = cc.consumes<MuonBxCollection>(imdOmtfPosTag);
+
+      auto emtfShowerTag = cfg.getParameter<edm::InputTag>("EMTFShowerInputLabel");
+      auto showerTag = cfg.getParameter<edm::InputTag>("ShowerInputLabel");
+
+      regionalMuonShowerTokenEMTF_ = cc.consumes<RegionalMuonShowerBxCollection>(emtfShowerTag);
+      muonShowerToken_ = cc.consumes<MuonShowerBxCollection>(showerTag);
     }
   }  // namespace stage2
 }  // namespace l1t
