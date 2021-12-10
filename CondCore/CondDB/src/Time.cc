@@ -135,6 +135,24 @@ namespace cond {
       }
     }
 
+    std::string transactionIdForLumiTime(Time_t time, unsigned int iovSize, const std::string& secretKey) {
+      auto unpackedTime = cond::time::unpack(time);
+      unsigned int offset = 1 + iovSize;
+      cond::Time_t id = 0;
+      if (unpackedTime.second < offset) {
+        id = lumiTime(unpackedTime.first, 1);
+      } else {
+        unsigned int res = (unpackedTime.second - offset) % iovSize;
+        id = lumiTime(unpackedTime.first, unpackedTime.second - res);
+      }
+      std::stringstream transId;
+      transId << id;
+      if (!secretKey.empty()) {
+        transId << "_" << secretKey;
+      }
+      return transId.str();
+    }
+
   }  // namespace time
 
 }  // namespace cond
