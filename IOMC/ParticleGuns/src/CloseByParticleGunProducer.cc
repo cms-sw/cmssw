@@ -27,6 +27,7 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
 
   fEnMax = pgun_params.getParameter<double>("EnMax");
   fEnMin = pgun_params.getParameter<double>("EnMin");
+  fMaxSpread = pgun_params.getParameter<bool>("MaxSpread");
   fRMax = pgun_params.getParameter<double>("RMax");
   fRMin = pgun_params.getParameter<double>("RMin");
   fZMax = pgun_params.getParameter<double>("ZMax");
@@ -81,7 +82,12 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     } else
       phi += fDelta / fR;
 
-    double fEn = CLHEP::RandFlat::shoot(engine, fEnMin, fEnMax);
+    double fEn = 0;
+    if (!fMaxSpread) {
+      fEn = CLHEP::RandFlat::shoot(engine, fEnMin, fEnMax);
+    } else {
+      fEn = (ip % 2) ? fEnMin : fEnMax;
+    }
     int PartID = particles[ip];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
     double mass = PData->mass().value();
