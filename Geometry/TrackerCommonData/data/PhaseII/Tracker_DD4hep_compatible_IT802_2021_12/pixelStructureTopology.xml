@@ -3,9 +3,9 @@
 ============= XML GENERATION METADATA HEADER =============
 tkLayout revision: bricked-barrelonly-3505-991ec8d
 tkLayout developed by https://github.com/tkLayout/tkLayout/graphs/contributors .
-Adinda De Wit (adewit on lxplus766.cern.ch) responsible for cross-check of the automatically-generated description below.
-generation date: 2021-12-07.17:50:26
-note: see OT800_IT801_2021_12_07.cfg for full config files
+Adinda De Wit (adewit on lxplus713.cern.ch) responsible for cross-check of the automatically-generated description below.
+generation date: 2021-12-10.18:28:31
+note: see OT800_IT802_2021_12_10.cfg for full config files
 =========== END XML GENERATION METADATA HEADER ===========
 -->
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
@@ -203,7 +203,6 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITLayer3R2BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer3R2BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -406,6 +405,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc5R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc5R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
@@ -414,6 +414,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc5R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc5R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
@@ -422,6 +423,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc5R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc5R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -430,6 +432,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc5R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc5R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -438,6 +441,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc6R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc6R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
@@ -446,6 +450,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc6R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc6R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
@@ -454,6 +459,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc6R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc6R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -462,6 +468,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc6R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc6R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -470,6 +477,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc7R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc7R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
@@ -478,6 +486,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc7R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc7R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
@@ -486,6 +495,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc7R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc7R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -494,6 +504,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc7R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc7R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -502,6 +513,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc8R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc8R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
@@ -510,6 +522,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc8R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc8R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
@@ -518,6 +531,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc8R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc8R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -526,6 +540,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc8R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc8R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -534,6 +549,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc9R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -542,6 +558,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc9R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -550,6 +567,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc9R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -558,6 +576,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc9R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -566,6 +585,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc9R5EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9R5EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -574,6 +594,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc10R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -582,6 +603,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc10R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -590,6 +612,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc10R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -598,6 +621,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc10R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -606,6 +630,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc10R5EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10R5EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -614,6 +639,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc11R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -622,6 +648,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc11R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -630,6 +657,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc11R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -638,6 +666,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc11R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -646,6 +675,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc11R5EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11R5EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -654,6 +684,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc12R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -662,6 +693,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc12R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -670,6 +702,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc12R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -678,6 +711,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc12R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
@@ -686,6 +720,7 @@ note: see OT800_IT801_2021_12_07.cfg for full config files
 <SpecPar name="ITDisc12R5EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12R5EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="677"/>
 <Parameter name="PixelROCCols" eval="true" value="217"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
