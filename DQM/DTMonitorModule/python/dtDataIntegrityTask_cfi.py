@@ -15,8 +15,10 @@ dtDataIntegrityTaskOffline = DQMEDAnalyzer('DTDataIntegrityROSOffline',
                                      dtROS25Label       = cms.InputTag('dtDataIntegrityUnpacker'),
 )
 
-dtDataIntegrityUrosOffline = DQMEDAnalyzer('DTDataIntegrityUrosOffline',
+dtDataIntegrityUrosOffline = DQMEDAnalyzer('DTDataIntegrityTask',
                                      fedIntegrityFolder = cms.untracked.string('DT/FEDIntegrity'),
+                                     nLinksForFatal     = cms.untracked.int32(15),
+                                     processingMode     = cms.untracked.string('Offline'),
                                      dtFEDlabel         =  cms.InputTag('dtDataIntegrityUnpacker')
 )
 

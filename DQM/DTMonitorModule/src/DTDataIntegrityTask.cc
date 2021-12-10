@@ -51,9 +51,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
   } else if (processingMode == "SM") {
     mode = 1;
   } else if (processingMode == "Offline") {
-    throw cms::Exception("WrongParameter") << "[DTDataIntegrityTask]: processingMode :" << processingMode
-                                           << " invalid! Must be Online, SM or HLT !" << endl
-                                           << " Offline mode is covered on DTDataIntegrityuROSOffline" << endl;
+    mode = 2;
   } else if (processingMode == "HLT") {
     mode = 3;
   } else {
@@ -96,7 +94,7 @@ void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker& ibooker,
 
   // static booking of the histograms
 
-  if (mode == 0) {
+  if (mode == 0 || mode == 2) {
     for (int fed = FEDIDmin; fed <= FEDIDmax; ++fed) {  // loop over the FEDs in the readout
 
       bookHistos(ibooker, string("FED"), fed);
@@ -231,16 +229,15 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker& ibooker, string folder, 
     histo->setBinLabel(11, "uROS 11", 2);
     histo->setBinLabel(12, "uROS 12", 2);
 
-    if (mode > 0)
-      return;  //Info for Online only
+    if (mode == 0) {  //Info for Online only
 
-    histoType = "FEDAvgEvLengthvsLumi";
-    histoName = "FED" + fed_s + "_" + histoType;
-    histoTitle = "Avg Event Length (Bytes) vs LumiSec FED " + fed_s;
-    (fedTimeHistos[histoType])[fed] = new DTTimeEvolutionHisto(ibooker, histoName, histoTitle, 200, 10, true, 0);
+      histoType = "FEDAvgEvLengthvsLumi";
+      histoName = "FED" + fed_s + "_" + histoType;
+      histoTitle = "Avg Event Length (Bytes) vs LumiSec FED " + fed_s;
+      (fedTimeHistos[histoType])[fed] = new DTTimeEvolutionHisto(ibooker, histoName, histoTitle, 200, 10, true, 0);
 
-    //Not used for the moment due to wrong coding from AMC13
-    /*
+      //Not used for the moment due to wrong coding from AMC13
+      /*
     histoType = "TTSValues";
     histoName = "FED" + fed_s + "_" + histoType;
     (fedHistos[histoType])[fed] = ibooker.book1D(histoName, histoName, 6, 0, 6);
@@ -251,16 +248,17 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker& ibooker, string folder, 
     histo->setBinLabel(4, "Sync lost", 1);
     histo->setBinLabel(5, "Error", 1);
     histo->setBinLabel(6, "Unknown", 1);
-*/
-    histoType = "uROSList";
-    histoName = "FED" + fed_s + "_" + histoType;
-    histoTitle = "# of uROS in the FED payload (FED" + fed_s + ")";
-    (fedHistos[histoType])[fed] = ibooker.book1D(histoName, histoTitle, 13, 0, 13);
+    */
+      histoType = "uROSList";
+      histoName = "FED" + fed_s + "_" + histoType;
+      histoTitle = "# of uROS in the FED payload (FED" + fed_s + ")";
+      (fedHistos[histoType])[fed] = ibooker.book1D(histoName, histoTitle, 13, 0, 13);
 
-    histoType = "BXID";
-    histoName = "FED" + fed_s + "_BXID";
-    histoTitle = "Distrib. BX ID (FED" + fed_s + ")";
-    (fedHistos[histoType])[fed] = ibooker.book1D(histoName, histoTitle, 3600, 0, 3600);
+      histoType = "BXID";
+      histoName = "FED" + fed_s + "_BXID";
+      histoTitle = "Distrib. BX ID (FED" + fed_s + ")";
+      (fedHistos[histoType])[fed] = ibooker.book1D(histoName, histoTitle, 3600, 0, 3600);
+    }  // mode == 0 for Online only
   }
 
   // uROS Histograms
@@ -797,30 +795,30 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
   }        //loop on errors
 
   // 1D histograms for TTS values per uROS
-  int ttsCodeValue = -1;
-
-  int value = (data.getuserWord() & 0xF);
-  switch (value) {
-    case 1: {  //warning overflow
-      ttsCodeValue = 1;
-      break;
-    }
-    case 4: {  //busy
-      ttsCodeValue = 2;
-      break;
-    }
-    case 8: {  //ready
-      ttsCodeValue = 3;
-      break;
-    }
-    default: {
-      LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
-          << "[DTDataIntegrityTask] FED User control: wrong TTS value " << value << " in FED " << fed << " uROS "
-          << uRos << endl;
-      ttsCodeValue = 4;
-    }
-  }
   if (mode < 1) {
+    int ttsCodeValue = -1;
+    int value = (data.getuserWord() & 0xF);
+    switch (value) {
+      case 1: {  //warning overflow
+        ttsCodeValue = 1;
+        break;
+      }
+      case 4: {  //busy
+        ttsCodeValue = 2;
+        break;
+      }
+      case 8: {  //ready
+        ttsCodeValue = 3;
+        break;
+      }
+      default: {
+        LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
+            << "[DTDataIntegrityTask] FED User control: wrong TTS value " << value << " in FED " << fed << " uROS "
+            << uRos << endl;
+        ttsCodeValue = 4;
+      }
+    }
+
     urosHistos[TTSValues * 1000 + (fed - FEDIDmin) * 100 + (uRos - 1)]->Fill(ttsCodeValue);
 
     // Plot the event length //NOHLT
@@ -853,16 +851,15 @@ void DTDataIntegrityTask::processFED(DTuROSFEDData& data, int fed) {
     //   if(fedEvtLength > 16000) fedEvtLength = 16000; // overflow bin
     fedHistos["EventLength"][fed]->Fill(fedEvtLength);
 
-    if (mode > 1)
-      return;
+    if (mode == 0) {
+      fedTimeHistos["FEDAvgEvLengthvsLumi"][fed]->accumulateValueTimeSlot(fedEvtLength);
 
-    fedTimeHistos["FEDAvgEvLengthvsLumi"][fed]->accumulateValueTimeSlot(fedEvtLength);
+      // fill the distribution of the BX ids
+      fedHistos["BXID"][fed]->Fill(data.getBXId());
 
-    // fill the distribution of the BX ids
-    fedHistos["BXID"][fed]->Fill(data.getBXId());
-
-    // size of the list of ROS in the Read-Out
-    fedHistos["uROSList"][fed]->Fill(data.getnslots());
+      // size of the list of ROS in the Read-Out
+      fedHistos["uROSList"][fed]->Fill(data.getnslots());
+    }
 
   }  //mode != 1
 
@@ -902,7 +899,7 @@ void DTDataIntegrityTask::processFED(DTuROSFEDData& data, int fed) {
   }
   if (mode < 1)
     fedHistos["TTSValues"][fed]->Fill(ttsCodeValue);
-*/
+  */
 
   //FEDFatal definition per wheel: 5*TDCFatal/6000 + 5*NotOKFlag/1500
   int wheel = 0;
@@ -942,12 +939,14 @@ std::string DTDataIntegrityTask::topFolder(bool isFEDIntegrity) const {
   return folder;
 }
 
-void DTDataIntegrityTask::beginLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) {
+std::shared_ptr<dtdi::Void> DTDataIntegrityTask::globalBeginLuminosityBlock(const edm::LuminosityBlock& ls,
+                                                                            const edm::EventSetup& es) const {
   nEventsLS = 0;
+  return std::shared_ptr<dtdi::Void>();
 }
 
-void DTDataIntegrityTask::endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) {
-  int lumiBlock = ls.luminosityBlock();
+void DTDataIntegrityTask::globalEndLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) {
+  int lumiBlock = ls.id().luminosityBlock();
 
   map<string, map<int, DTTimeEvolutionHisto*> >::iterator fedIt = fedTimeHistos.begin();
   map<string, map<int, DTTimeEvolutionHisto*> >::iterator fedEnd = fedTimeHistos.end();
