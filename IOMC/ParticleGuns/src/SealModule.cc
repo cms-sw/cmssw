@@ -25,7 +25,6 @@
 // particle gun prototypes
 //
 
-
 using edm::BeamMomentumGunProducer;
 DEFINE_FWK_MODULE(BeamMomentumGunProducer);
 using edm::CloseByParticleGunProducer;
