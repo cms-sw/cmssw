@@ -173,26 +173,21 @@ void DQMFEDIntegrityClient::fillHistograms() {
 
   for (auto ent = entries.begin(); ent != entries.end(); ++ent) {
     if (!(dbe_->get(*ent))) {
-      //      cout << ">> Endluminosity No histogram! <<" << endl;
       continue;
     }
 
     MonitorElement* me = dbe_->get(*ent);
-    //std::cout<<"ME: "<<(*ent)<<std::endl;
     if (TH1F* rootHisto = me->getTH1F()) {
       int Nbins = me->getNbinsX();
-      //std::cout<<"Nbins: "<<Nbins<<std::endl;
       float entry = 0.;
       int xmin = (int)rootHisto->GetXaxis()->GetXmin();
       if (*ent == "L1T/" + fedFolderName + "/FEDEntries")
         xmin = xmin + 800;
       if (*ent == "DT/" + fedFolderName + "/FEDEntries")
         xmin = 770;  //Real DT FEDIDs are 1369-1371
-                     //std::cout<<"xmin: "<<xmin<<std::endl;
 
       for (int bin = 1; bin <= Nbins; ++bin) {
         int id = xmin + bin;
-        //std::cout<<"Id: "<<id<<std::endl;
         entry = rootHisto->GetBinContent(bin);
         if (entry > 0.)
           FedEntries->setBinContent(id, entry);
@@ -223,7 +218,6 @@ void DQMFEDIntegrityClient::fillHistograms() {
   auto ent = entries.begin();
   for (auto fat = fatal.begin(); fat != fatal.end(); ++fat) {
     if (!(dbe_->get(*fat))) {
-      //      cout << ">> No histogram! <<" << endl;
       reportSummaryContent[k]->Fill(-1);
       reportSummaryMap->setBinContent(1, nSubsystems - k, -1);
       k++;
@@ -233,7 +227,6 @@ void DQMFEDIntegrityClient::fillHistograms() {
 
     MonitorElement* me = dbe_->get(*fat);
     MonitorElement* meNorm = dbe_->get(*ent);
-    //      cout << "Path : " << me->getFullname() << endl;
 
     float entry = 0.;
     float norm = 0.;
@@ -246,7 +239,6 @@ void DQMFEDIntegrityClient::fillHistograms() {
           xmin = xmin + 800;
         if (*fat == "DT/" + fedFolderName + "/FEDFatal")
           xmin = 770;  //Real DT FED IDs are 1369-1371
-        //        cout << "FED ID range : " << xmin << " - " << xmax << endl;
 
         float binentry = 0.;
         for (int bin = 1; bin <= Nbins; ++bin) {
@@ -254,8 +246,6 @@ void DQMFEDIntegrityClient::fillHistograms() {
           binentry = rootHisto->GetBinContent(bin);
           entry += binentry;
           norm += rootHistoNorm->GetBinContent(bin);
-          //      cout << *fat << "errors = " << entry << "\tnorm = " << norm << endl;
-          //      cout << "Bin content : " << entry << endl;
           FedFatal->setBinContent(id, binentry);
         }
       }
@@ -263,7 +253,6 @@ void DQMFEDIntegrityClient::fillHistograms() {
 
     if (norm > 0)
       SummaryContent[k] = 1.0 - entry / norm;
-    //      cout << "Summary Content : " << SummaryContent[k] << endl;
     reportSummaryContent[k]->Fill(SummaryContent[k]);
     if ((k == 2 || k == 3)  // for EE and EB only show yellow when more than 1% errors.
         && SummaryContent[k] >= 0.95 && SummaryContent[k] < 0.99)
@@ -295,7 +284,6 @@ void DQMFEDIntegrityClient::fillHistograms() {
 
   for (auto non = nonfatal.begin(); non != nonfatal.end(); ++non) {
     if (!(dbe_->get(*non))) {
-      //      cout << ">> No histogram! <<" << endl;
       continue;
     }
 
