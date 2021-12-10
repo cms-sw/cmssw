@@ -551,7 +551,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
   unsigned int slotMap = (data.getboardId()) & 0xF;
   if (slotMap == 0)
     return;                      //prevention for Simulation empty uROS data
-  int ros = theROS(slotMap, 0);  //first sector correspondign to link 0
+  unsigned int ros = theROS(slotMap, 0);  //first sector correspondign to link 0
   int ddu = theDDU(fed, slotMap, 0, false);
   int wheel = (ddu - 770) % 5 - 2;
   int sector4 = 3;  //Asymmetry  in mapping
@@ -653,7 +653,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
 
   if (mode != 1) {
     // Fill the ROSSummary (1 per wheel) histo
-    for (unsigned int iros = ros - 1; iros < abs(ros + 2); ++iros) {
+    for (unsigned int iros = ros - 1; iros < (ros + 2); ++iros) {
       for (unsigned int bin = 0; bin < 5; ++bin) {
         if (errorX[bin][iros][wheel + 2] != 0) {
           ROSSummary->Fill(bin, iros + 1, errorX[bin][iros][wheel + 2]);  //bins start at 1
