@@ -36,7 +36,7 @@ __inline__ void populateHitInTracks(HitContainer const *__restrict__ tuples_d,
   cudaCheck(cudaGetLastError());
   cms::cuda::launchFinalize(hitToTupleView, cudaStream);
   cudaCheck(cudaGetLastError());
-  kernel__countOrFillHitInTracks<CountOrFill::fill>
+  kernel_countOrFillHitInTracks<CountOrFill::fill>
       <<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, hitToTuple_d);
 }
 
