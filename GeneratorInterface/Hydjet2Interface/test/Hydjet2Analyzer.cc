@@ -51,9 +51,6 @@ using namespace edm;
 using namespace std;
 static const int MAXPARTICLES = 5000000;
 static const int ETABINS = 3;  // Fix also in branch string
-//
-// class decleration
-//
 
 struct Hydjet2Event {
   int event;
@@ -155,7 +152,6 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> srcT_;
   edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> srcTmix_;
 
-  // edm::InputTag src_;
   edm::InputTag genParticleSrc_;
   edm::InputTag genHIsrc_;
   edm::InputTag simVerticesTag_;
@@ -274,19 +270,8 @@ private:
   TH1D *uhv0etah_db;
   TH1D *uhv0etaj_db;
 };
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
-  //now do what ever initialization is needed
   pdt_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
   fBFileName = iConfig.getUntrackedParameter<std::string>("output_b", "b_values.txt");
   fNFileName = iConfig.getUntrackedParameter<std::string>("output_n", "n_values.txt");
@@ -306,7 +291,6 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
   srcTmix_ = consumes<CrossingFrame<edm::HepMCProduct>>(
       iConfig.getUntrackedParameter<edm::InputTag>("srcMix", edm::InputTag("mix", "generatorSmeared")));
 
-  // src_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("VtxSmeared"));
   genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("hiGenParticles"));
   genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("heavyIon"));
   doParticles_ = iConfig.getUntrackedParameter<bool>("doParticles", false);
@@ -420,14 +404,8 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
     }  //user histo
   }    //do histo
 }
-Hydjet2Analyzer::~Hydjet2Analyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+Hydjet2Analyzer::~Hydjet2Analyzer() {}
 
-//
-// member functions
-//
 // ------------ method called to for each event  ------------
 void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   auto const &pdt = iSetup.getData(pdt_);
@@ -505,7 +483,6 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     } else {  //not mixing
       Handle<HepMCProduct> mc;
       iEvent.getByToken(srcT_, mc);
-      // iEvent.getByLabel(src_, mc);
       evt = mc->GetEvent();
       scale = evt->event_scale();
       const HeavyIon *hi = evt->heavy_ion();

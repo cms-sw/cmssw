@@ -17,11 +17,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 
-//#include "CLHEP/Random/RandomEngine.h"
-//#include "CLHEP/Random/RandFlat.h"
-//#include "CLHEP/Random/RandPoisson.h"
-//#include "CLHEP/Random/RandGauss.h"
-
 #include <cmath>
 #include <iostream>
 #include <map>
@@ -96,9 +91,9 @@ namespace gen {
     edm::ParameterSet pset;
     double Sigin, Sigjet;
 
-    HepMC::FourVector *fVertex_;  ///< Event signal vertex
+    HepMC::FourVector *fVertex_;  // Event signal vertex
 
-    std::vector<double> signalVtx_;  ///< Pset double vector to set event signal vertex
+    std::vector<double> signalVtx_;  // Pset double vector to set event signal vertex
 
     Pythia6Service *pythia6Service_;
     edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> src_;

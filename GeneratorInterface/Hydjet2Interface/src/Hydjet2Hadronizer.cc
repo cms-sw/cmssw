@@ -73,8 +73,7 @@ namespace {
   }
 }  // namespace
 
-const std::vector<std::string> Hydjet2Hadronizer::theSharedResources = {
-    edm::SharedResourceNames::kPythia6};  //, gen::FortranInstance::kFortranInstance};
+const std::vector<std::string> Hydjet2Hadronizer::theSharedResources = {edm::SharedResourceNames::kPythia6};
 
 //____________________________________________________________________________________________
 Hydjet2Hadronizer::Hydjet2Hadronizer(const edm::ParameterSet &pset, edm::ConsumesCollector &&iC)
@@ -91,7 +90,6 @@ Hydjet2Hadronizer::Hydjet2Hadronizer(const edm::ParameterSet &pset, edm::Consume
       pythia6Service_(new Pythia6Service(pset))
 
 {
-  // constructor
   fParams.doPrintInfo = false;
   fParams.allowEmptyEvent = false;
   fParams.fNevnt = 0;                                      //not used in CMSSW
@@ -201,7 +199,6 @@ Hydjet2Hadronizer::Hydjet2Hadronizer(const edm::ParameterSet &pset, edm::Consume
 }
 //__________________________________________________________________________________________
 Hydjet2Hadronizer::~Hydjet2Hadronizer() {
-  // destructor
   call_pystat(1);
   delete pythia6Service_;
 }
@@ -463,22 +460,18 @@ bool Hydjet2Hadronizer::get_particles(HepMC::GenEvent *evt) {
       if (prods)
         delete prods;
     }
-
     ihy++;
   }
-
   LogDebug("Hydjet_array") << " MULTin ev.:" << hj2->GetNtot() << ", last index: " << ihy - 1
                            << ", stable particles: " << stab << std::endl;
-
   return kTRUE;
 }
 
 //___________________________________________________________________
 HepMC::GenParticle *Hydjet2Hadronizer::build_hyjet2(int index, int barcode) {
   // Build particle object corresponding to index in hyjets (soft+hard)
-
-  double px0 = (hj2->GetPx()).at(index);  //vPx[index];//(hj2->GetPx()).at(index);
-  double py0 = (hj2->GetPy()).at(index);  //vPy[index];//(hj2->GetPy()).at(index);
+  double px0 = (hj2->GetPx()).at(index);
+  double py0 = (hj2->GetPy()).at(index);
 
   double px = px0 * cosphi0_ - py0 * sinphi0_;
   double py = py0 * cosphi0_ + px0 * sinphi0_;
