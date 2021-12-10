@@ -69,7 +69,7 @@ namespace edm {
 
   RootPrimaryFileSequence::~RootPrimaryFileSequence() {}
 
-  void RootPrimaryFileSequence::endJob() { closeFile_(); }
+  void RootPrimaryFileSequence::endJob() { closeFile(); }
 
   std::unique_ptr<FileBlock> RootPrimaryFileSequence::readFile_() {
     if (firstFile_) {
@@ -221,7 +221,7 @@ namespace edm {
   // Rewind to before the first event that was read.
   void RootPrimaryFileSequence::rewind_() {
     if (!atFirstFile()) {
-      closeFile_();
+      closeFile();
       setAtFirstFile();
     }
     if (!rootFile()) {
