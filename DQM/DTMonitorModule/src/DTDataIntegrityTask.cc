@@ -550,7 +550,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
 
   unsigned int slotMap = (data.getboardId()) & 0xF;
   if (slotMap == 0)
-    return;                      //prevention for Simulation empty uROS data
+    return;                               //prevention for Simulation empty uROS data
   unsigned int ros = theROS(slotMap, 0);  //first sector correspondign to link 0
   int ddu = theDDU(fed, slotMap, 0, false);
   int wheel = (ddu - 770) % 5 - 2;
