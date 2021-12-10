@@ -1,6 +1,7 @@
 #ifndef MaxLostHitsTrajectoryFilter_H
 #define MaxLostHitsTrajectoryFilter_H
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 class MaxLostHitsTrajectoryFilter final : public TrajectoryFilter {
@@ -9,6 +10,8 @@ public:
 
   explicit MaxLostHitsTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
       : theMaxLostHits(pset.getParameter<int>("maxLostHits")) {}
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) { iDesc.add<int>("maxLostHits", 999); }
 
   bool qualityFilter(const Trajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
   bool qualityFilter(const TempTrajectory& traj) const override {

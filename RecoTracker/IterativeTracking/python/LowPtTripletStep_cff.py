@@ -210,8 +210,7 @@ _tracker_apv_vfp30_2016.toModify(lowPtTripletStepChi2Est,
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('lowPtTripletStepTrajectoryFilter')),
+    trajectoryFilter       = dict(refToPSet_ = 'lowPtTripletStepTrajectoryFilter'),
     maxCand                = 4,
     estimator              = 'lowPtTripletStepChi2Est',
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -234,10 +233,10 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 _lowPtTripletStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'lowPtTripletStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner       = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner       = 50,
+    onlyPixelHitsForSeedCleaner = True,
     TrajectoryBuilderPSet       = cms.PSet(refToPSet_ = cms.string('lowPtTripletStepTrajectoryBuilder')),
-    clustersToSkip              = cms.InputTag('lowPtTripletStepClusters'),
+    clustersToSkip              = 'lowPtTripletStepClusters',
     doSeedingRegionRebuilding   = True,
     useHitsSplitting            = True,
     TrajectoryCleaner           = 'lowPtTripletStepTrajectoryCleanerBySharedHits'
@@ -245,8 +244,8 @@ _lowPtTripletStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_
 lowPtTripletStepTrackCandidates = _lowPtTripletStepTrackCandidatesCkf.clone()
 
 trackingPhase2PU140.toModify(lowPtTripletStepTrackCandidates,
-    clustersToSkip = None,
-    phase2clustersToSkip = cms.InputTag('lowPtTripletStepClusters')
+    clustersToSkip = '',
+    phase2clustersToSkip = 'lowPtTripletStepClusters'
 )
 
 from Configuration.ProcessModifiers.trackingMkFitLowPtTripletStep_cff import trackingMkFitLowPtTripletStep

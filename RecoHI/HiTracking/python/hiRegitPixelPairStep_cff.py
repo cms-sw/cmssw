@@ -50,8 +50,8 @@ hiRegitPixelPairStepSeeds     = RecoTracker.IterativeTracking.PixelPairStep_cff.
 hiRegitPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilterBase.clone()
 
 hiRegitPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryBuilder.clone(
-    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitPixelPairStepTrajectoryFilter')),
-    clustersToSkip       = cms.InputTag('hiRegitPixelPairStepClusters'),
+    trajectoryFilter     = dict(refToPSet_ = 'hiRegitPixelPairStepTrajectoryFilter'),
+    clustersToSkip       = 'hiRegitPixelPairStepClusters',
 )
 
 # trackign candidate

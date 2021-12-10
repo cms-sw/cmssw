@@ -1,8 +1,8 @@
 #ifndef LostHitsFractionTrajectoryFilter_H
 #define LostHitsFractionTrajectoryFilter_H
 
-#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 class LostHitsFractionTrajectoryFilter final : public TrajectoryFilter {
 public:
@@ -12,6 +12,11 @@ public:
   explicit LostHitsFractionTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
     theMaxLostHitsFraction = pset.getParameter<double>("maxLostHitsFraction");
     theConstantValue = pset.getParameter<double>("constantValueForLostHitsFractionFilter");
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+    iDesc.add<double>("maxLostHitsFraction", .1);
+    iDesc.add<double>("constantValueForLostHitsFractionFilter", 2.);
   }
 
   bool qualityFilter(const Trajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }

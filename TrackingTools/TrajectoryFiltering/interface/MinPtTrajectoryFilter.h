@@ -1,10 +1,10 @@
 #ifndef MinPtTrajectoryFilter_H
 #define MinPtTrajectoryFilter_H
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
-
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateAccessor.h"
@@ -26,6 +26,12 @@ public:
         theNSigma(pset.getParameter<double>("nSigmaMinPt")),
         theMinHits(pset.getParameter<int>("minHitsMinPt")) {
     thePtMin2 *= thePtMin2;
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+    iDesc.add<double>("minPt", 0.9);
+    iDesc.add<double>("nSigmaMinPt", 5.0);
+    iDesc.add<int>("minHitsMinPt", 3);
   }
 
   bool qualityFilter(const Trajectory& traj) const override { return test(traj.lastMeasurement(), traj.foundHits()); }
