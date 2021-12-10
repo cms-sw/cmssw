@@ -107,36 +107,35 @@ void FWModelChangeManager::endChanges() {
                              << iE.what() << std::endl;
       }
     }
-  m_itemChanges.clear();
+    m_itemChanges.clear();
 
-  for (size_t ci = 0, ce = m_changes.size(), si = 0; ci != ce; ++ci, ++si) {
-    FWModelIds& changes = m_changes[ci];
-    if (not changes.empty()) {
-      if (!guard) {
-        // std::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
-        guard = true;
-        changeSignalsAreComing_();
-        try {
-          const FWEventItem* item = changes.begin()->item();
-          item->changed_.emit(changes);
-        } catch (const cms::Exception& iE) {
-          fwLog(fwlog::kError) << changes.begin()->item()->name()
-                               << " had the failure in process FWModelChangeSignals\n"
-                               << iE.what() << "\n";
-        } catch (const std::bad_alloc& iE) {
-          // GE: if we run out of memory why do we assume that we will be able to print?
-          fwLog(fwlog::kError) << "Ran out of memory while processing " << changes.begin()->item()->name() << "\n";
-          exit(1);
-        } catch (const std::exception& iE) {
-          fwLog(fwlog::kError) << changes.begin()->item()->name()
-                               << " had the failure in process FWModelChangeSignals (2)\n"
-                               << iE.what() << "\n";
+    for (size_t ci = 0, ce = m_changes.size(), si = 0; ci != ce; ++ci, ++si) {
+      FWModelIds& changes = m_changes[ci];
+      if (not changes.empty()) {
+        if (!guard) {
+          // std::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
+          guard = true;
+          changeSignalsAreComing_();
+          try {
+            const FWEventItem* item = changes.begin()->item();
+            item->changed_.emit(changes);
+          } catch (const cms::Exception& iE) {
+            fwLog(fwlog::kError) << changes.begin()->item()->name()
+                                 << " had the failure in process FWModelChangeSignals\n"
+                                 << iE.what() << "\n";
+          } catch (const std::bad_alloc& iE) {
+            // GE: if we run out of memory why do we assume that we will be able to print?
+            fwLog(fwlog::kError) << "Ran out of memory while processing " << changes.begin()->item()->name() << "\n";
+            exit(1);
+          } catch (const std::exception& iE) {
+            fwLog(fwlog::kError) << changes.begin()->item()->name()
+                                 << " had the failure in process FWModelChangeSignals (2)\n"
+                                 << iE.what() << "\n";
+          }
         }
       }
+      changes.clear();
     }
-    changes.clear();
-
-  }
   }
 
   if (guard)

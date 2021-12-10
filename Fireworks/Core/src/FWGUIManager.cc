@@ -162,7 +162,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx, const FWViewManagerManager* 
     getAction(cmsshow::sLoadPartialConfig)
         ->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForPartialLoadConfigurationFile));
     getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
-    
+
     getAction(cmsshow::sSavePartialConfig)
         ->activated.connect(sigc::mem_fun(*this, &FWGUIManager::savePartialToConfigurationFile));
     getAction(cmsshow::sSaveConfigAs)
