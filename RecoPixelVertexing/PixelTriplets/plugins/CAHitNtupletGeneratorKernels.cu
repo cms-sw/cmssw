@@ -6,7 +6,7 @@ inline uint32_t nQuadrupletBlocks(uint32_t blockSize) {
   return (3 * caConstants::maxNumberOfQuadruplets / 4 + blockSize - 1) / blockSize;
 }
 
-#define CMS_CA_USE_COOPERATIVE_GROUPS
+// #define CMS_CA_USE_COOPERATIVE_GROUPS
 
 #ifndef CMS_CA_USE_COOPERATIVE_GROUPS
 __inline__ void populateMultiplicity(HitContainer const *__restrict__ tuples_d,
