@@ -82,11 +82,11 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     } else
       phi += fDelta / fR;
 
-    double fEn = 0;
+    double fEn;
     if (!fMaxSpread) {
       fEn = CLHEP::RandFlat::shoot(engine, fEnMin, fEnMax);
     } else {
-      fEn = (ip % 2) ? fEnMin : fEnMax;
+      fEn = (numParticles < 2) ? fEnMin : fEnMin + ip * (fEnMax - fEnMin) / (numParticles - 1);
     }
     int PartID = particles[ip];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
