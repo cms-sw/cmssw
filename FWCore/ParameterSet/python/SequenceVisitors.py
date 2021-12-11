@@ -67,6 +67,36 @@ class EndPathValidator(object):
             if isinstance(visitee, Task):
                 self._levelInTasks -= 1
 
+# Use this on EndPaths
+class FinalPathValidator(object):
+    def __init__(self):
+        self.__label = ''
+        self._levelInTasks = 0
+        self.filtersOnFinalpaths = []
+        self.producersOnFinalpaths = []
+    def setLabel(self,label):
+        self.__label = "'"+label+"' "
+    def enter(self,visitee):
+        if visitee.isLeaf():
+            if isinstance(visitee, _Labelable):
+                if not visitee.hasLabel_():
+                    raise ValueError("FinalPath "+self.__label+"contains a module of type '"+visitee.type_()+"' which has\nno assigned label.")
+            elif isinstance(visitee, Service):
+                if not visitee._inProcess:
+                    raise ValueError("FinalPath "+self.__label+"contains a service of type '"+visitee.type_()+"' which is not attached to the process.\n")
+        if isinstance(visitee, Task):
+            self._levelInTasks += 1
+        if self._levelInTasks > 0:
+            return
+        if isinstance(visitee,EDFilter):
+            self.filtersOnFinalpaths.append(visitee.type_())
+        if isinstance(visitee,EDProducer):
+            self.producersOnFinalpaths.append(visitee.type_())
+    def leave(self,visitee):
+        if self._levelInTasks > 0:
+            if isinstance(visitee, Task):
+                self._levelInTasks -= 1
+
 class NodeVisitor(object):
     """Form sets of all modules, ESProducers, ESSources and Services in visited objects. Can be used
     to visit Paths, EndPaths, Sequences or Tasks. Includes in sets objects on sub-Sequences and sub-Tasks"""
