@@ -465,7 +465,7 @@ trackerDict = {
             'Geometry/TrackerCommonData/data/trackermaterial.xml',
             'Geometry/TrackerCommonData/data/PhaseII/OuterTracker616_2020_04/otst.xml',
             'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_2021_02/tracker.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_IT802_2021_12/pixel.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_IT800_2021_06/pixel.xml',
             'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerbar.xml',
             'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerfwd.xml',
             'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_2021_02/trackerStructureTopology.xml',
