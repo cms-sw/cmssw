@@ -17,7 +17,7 @@ namespace edm {
     // data members
     double fEnMin, fEnMax, fRMin, fRMax, fZMin, fZMax, fDelta, fPhiMin, fPhiMax;
     int fNParticles;
-    bool fMaxSpread = false;
+    bool fMaxEnSpread = false;
     bool fPointing = false;
     bool fOverlapping = false;
     bool fRandomShoot = false;
