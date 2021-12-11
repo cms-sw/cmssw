@@ -13,8 +13,7 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDRawChannelUnpacker.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDZSChannelUnpacker.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,18 +22,18 @@
 
 namespace Phase2Tracker {
 
-  class Phase2TrackerDigiProducer : public edm::EDProducer {
+  class Phase2TrackerDigiProducer : public edm::stream::EDProducer<> {
   public:
     /// constructor
     Phase2TrackerDigiProducer(const edm::ParameterSet& pset);
     /// default constructor
-    ~Phase2TrackerDigiProducer() override;
-    void beginJob() override;
+    ~Phase2TrackerDigiProducer() override = default;
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
     void produce(edm::Event&, const edm::EventSetup&) override;
-    void endJob() override;
 
   private:
+    const edm::ESGetToken<Phase2TrackerCabling, Phase2TrackerCablingRcd> ph2CablingESToken_;
+
     unsigned int runNumber_;
     edm::EDGetTokenT<FEDRawDataCollection> token_;
     const Phase2TrackerCabling* cabling_;
@@ -69,24 +68,16 @@ using namespace std;
 namespace Phase2Tracker {
 
   Phase2TrackerDigiProducer::Phase2TrackerDigiProducer(const edm::ParameterSet& pset)
-      : runNumber_(0), cabling_(nullptr), cacheId_(0) {
+      : ph2CablingESToken_(esConsumes<edm::Transition::BeginRun>()), runNumber_(0), cabling_(nullptr), cacheId_(0) {
     // define product
     produces<edm::DetSetVector<Phase2TrackerDigi>>("ProcessedRaw");
     token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
   }
 
-  Phase2TrackerDigiProducer::~Phase2TrackerDigiProducer() {}
-
-  void Phase2TrackerDigiProducer::beginJob() {}
-
   void Phase2TrackerDigiProducer::beginRun(edm::Run const& run, edm::EventSetup const& es) {
     // fetch cabling from event setup
-    edm::ESHandle<Phase2TrackerCabling> c;
-    es.get<Phase2TrackerCablingRcd>().get(c);
-    cabling_ = c.product();
+    cabling_ = &es.getData(ph2CablingESToken_);
   }
-
-  void Phase2TrackerDigiProducer::endJob() {}
 
   void Phase2TrackerDigiProducer::produce(edm::Event& event, const edm::EventSetup& es) {
     // empty vectors for the next event
