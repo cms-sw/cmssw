@@ -69,7 +69,7 @@ namespace pixelgpudetails {
                                       nHits,
                                       256,
                                       hits_d.phiBinnerStorage(),
-                                     stream);
+                                      stream);
         cudaCheck(cudaGetLastError());
 
 #ifdef GPU_DEBUG
