@@ -8,9 +8,9 @@
  * \version 1
  *
  */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-class SimpleJetDump : public edm::EDAnalyzer {
+class SimpleJetDump : public edm::one::EDAnalyzer<> {
 public:
   SimpleJetDump(const edm::ParameterSet&);
 

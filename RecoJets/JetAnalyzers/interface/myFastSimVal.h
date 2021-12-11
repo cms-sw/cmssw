@@ -9,11 +9,11 @@
  * \version 1
  *
  */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 class TFile;
 
-class myFastSimVal : public edm::EDAnalyzer {
+class myFastSimVal : public edm::one::EDAnalyzer<> {
 public:
   myFastSimVal(const edm::ParameterSet&);
 
