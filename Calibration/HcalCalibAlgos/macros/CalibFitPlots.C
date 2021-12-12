@@ -2266,10 +2266,10 @@ void PlotHistCorrFactors(char* infile1,
           htype.push_back(ih);
           depths.push_back(j + 1);
         }
-	if (ih == 1)
-	  nline += hists.size();
-	else
-	  ++nline;
+        if (ih == 1)
+          nline += hists.size();
+        else
+          ++nline;
       }
     } else {
       for (int k1 = 0; k1 < nfile; ++k1) {
@@ -2313,10 +2313,10 @@ void PlotHistCorrFactors(char* infile1,
           htype.push_back(k1);
           depths.push_back(j + 1);
         }
-	if (k1 == 0)
-	  nline += hists.size();
-	else
-	  ++nline;
+        if (k1 == 0)
+          nline += hists.size();
+        else
+          ++nline;
       }
     }
     if (ratio)
@@ -2354,7 +2354,7 @@ void PlotHistCorrFactors(char* infile1,
         sprintf(name, "Depth %d (%s Mean = %5.3f)", depths[k], texts[k1].c_str(), fitr[k]);
       }
       if ((depths[k] == 1) || (k1 == 0))
-	legend->AddEntry(hists[k], name, "lp");
+        legend->AddEntry(hists[k], name, "lp");
     }
     legend->Draw("same");
     TPaveText* txt0 = new TPaveText(0.12, 0.84, 0.49, 0.89, "blNDC");
