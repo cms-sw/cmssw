@@ -15,10 +15,11 @@
 //#define EDM_ML_DEBUG
 
 HcalTestHistoManager::HcalTestHistoManager(const std::string& file) : tree_(nullptr), kount_(0) {
-  if (fs_.isAvailable()) {
+  edm::Service<TFileService> fs;
+  if (fs.isAvailable()) {
     h_ = std::make_unique<HcalTestHistoClass>();
 
-    tree_ = fs_->make<TTree>("HcalTest", "HcalTest");
+    tree_ = fs->make<TTree>("HcalTest", "HcalTest");
     tree_->SetAutoSave(10000);
     tree_->Branch("HcalTestHisto", "HcalTestHistoClass", &h_);
     edm::LogVerbatim("HcalSim") << "HcalTestHistoManager:===>>>  Book the Tree";
