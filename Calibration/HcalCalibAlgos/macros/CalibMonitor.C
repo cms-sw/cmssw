@@ -716,13 +716,13 @@ void CalibMonitor::Init(TChain *tree, const char *dupFileName, const char *comFi
       }
       for (unsigned int j = 1; j <= ietasL_.size(); ++j) {
         sprintf(name, "%setaB%d%d", prefix_.c_str(), k, j);
-	sprintf(title,
-		"E/p for %s (p = %d:%d GeV |#eta| %d:%d)",
-		titl[4].c_str(),
-		ipbin[k],
-		ipbin[k + 1],
-		(ietasL_[j - 1] + 1),
-		ietasH_[j - 1]);
+        sprintf(title,
+                "E/p for %s (p = %d:%d GeV |#eta| %d:%d)",
+                titl[4].c_str(),
+                ipbin[k],
+                ipbin[k + 1],
+                (ietasL_[j - 1] + 1),
+                ietasH_[j - 1]);
         h_etaB[k].push_back(new TH1D(name, title, nxbin, xlow, xhigh));
         unsigned int kk = h_etaB[k].size() - 1;
         h_etaB[k][kk]->Sumw2();
@@ -821,13 +821,13 @@ void CalibMonitor::Init(TChain *tree, const char *dupFileName, const char *comFi
       }
       for (unsigned int j = 1; j <= ietasL_.size(); ++j) {
         sprintf(name, "%setaB%d%d", prefix_.c_str(), k, j);
-	sprintf(title,
-		"E/p for %s (p = %d:%d GeV |#eta| %d:%d)",
-		titl[4].c_str(),
-		ipbin[k],
-		ipbin[k + 1],
-		(ietasL_[j - 1] + 1),
-		ietasH_[j - 1]);
+        sprintf(title,
+                "E/p for %s (p = %d:%d GeV |#eta| %d:%d)",
+                titl[4].c_str(),
+                ipbin[k],
+                ipbin[k + 1],
+                (ietasL_[j - 1] + 1),
+                ietasH_[j - 1]);
         h_etaB[k].push_back(new TH1D(name, title, nxbin, xlow, xhigh));
         unsigned int kk = h_etaB[k].size() - 1;
         h_etaB[k][kk]->Sumw2();
@@ -1008,16 +1008,17 @@ void CalibMonitor::Loop() {
     }
     for (unsigned int j = 0; j < (ietasL_.size() - 1); ++j) {
       if (std::abs(t_ieta) > ietasL_[j] && std::abs(t_ieta) <= ietasH_[j]) {
-	if (jp1 >= 0)
-	  jp2 = j;
-	if (jp1 < 0)
-	  jp1 = j;
+        if (jp1 >= 0)
+          jp2 = j;
+        if (jp1 < 0)
+          jp1 = j;
       }
     }
     int jp3 = (jp1 >= 0) ? (int)(ietasL_.size() - 1) : jp1;
     if (debug)
       std::cout << "Bin " << kp << ":" << kp1 << ":" << kv << ":" << kv1 << ":" << kd << ":" << kd1 << ":" << jp << ":"
-                << jp1 << ":" << jp2 << ":" << jp3 << " pmom:ieta:pv:mindR " << pmom << ":" << std::abs(t_ieta) << ":" << t_goodPV << ":" << t_mindR1 << std::endl;
+                << jp1 << ":" << jp2 << ":" << jp3 << " pmom:ieta:pv:mindR " << pmom << ":" << std::abs(t_ieta) << ":"
+                << t_goodPV << ":" << t_mindR1 << std::endl;
     double cut = (pmom > 20) ? ((flexibleSelect_ == 0) ? 2.0 : 10.0) : 0.0;
     //  double rcut= (pmom > 20) ? 0.25: 0.1;
     double rcut(-1000.0);
@@ -1168,7 +1169,7 @@ void CalibMonitor::Loop() {
               h_etaB[kp][jp1]->Fill(rat, t_EventWeight);
               h_etaB[kp][jp3]->Fill(rat, t_EventWeight);
             }
-            if (jp2 >= 0) 
+            if (jp2 >= 0)
               h_etaB[kp][jp2]->Fill(rat, t_EventWeight);
           }
           if (selRBX_ && (kp == (int)(kp50)) && ((t_ieta * zside_) > 0)) {
