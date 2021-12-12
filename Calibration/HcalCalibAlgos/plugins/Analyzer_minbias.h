@@ -79,8 +79,6 @@ namespace cms {
     edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
 
     // names of modules, producing object collections
-    edm::Service<TFileService> fs;
-
     TFile* hOutputFile;
     TTree* myTree;
     TH1F* hCalo1[73][43];
