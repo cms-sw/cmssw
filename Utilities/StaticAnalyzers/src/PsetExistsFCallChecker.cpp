@@ -100,7 +100,7 @@ namespace clangcms {
         return;
       os << "function " << mname << " is called in function " << pname;
       BugType *BT = new BugType(
-          Checker, "Function edm::ParameterSet::exists() or edm::ParameterSet::existsAs<>() called", "CMS Code Rules");
+          Checker, "Function edm::ParameterSet::exists() or edm::ParameterSet::existsAs<>() called", "CMS code rules");
       std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
       R->setDeclWithIssue(AC->getDecl());
       R->addRange(CE->getExprLoc());
