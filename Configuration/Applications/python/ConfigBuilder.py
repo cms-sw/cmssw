@@ -1735,18 +1735,6 @@ class ConfigBuilder(object):
         else:
             self._options.customisation_file.insert(0, '.'.join([self.NANOGENDefaultCFF, custom]))
 
-    def prepare_EI(self, sequence = None):
-        ''' Enrich the schedule with event interpretation '''
-        from Configuration.StandardSequences.EventInterpretation import EventInterpretation
-        if sequence in EventInterpretation:
-            self.EIDefaultCFF = EventInterpretation[sequence]
-            sequence = 'EIsequence'
-        else:
-            raise Exception('Cannot set %s event interpretation'%( sequence) )
-        self.loadDefaultOrSpecifiedCFF(sequence,self.EIDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'eventinterpretaion_step')
-        return
-
     def prepare_SKIM(self, sequence = "all"):
         ''' Enrich the schedule with skimming fragments'''
         skimConfig = self.loadDefaultOrSpecifiedCFF(sequence,self.SKIMDefaultCFF)
