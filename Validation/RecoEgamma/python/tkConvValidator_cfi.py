@@ -11,27 +11,27 @@ trackAssociatorByHitsForConversionValidation.Cut_RecoToSim = 0.5
 
 from CommonTools.RecoAlgos.trackingParticleRefSelector_cfi import trackingParticleRefSelector as _trackingParticleRefSelector
 tpSelecForEfficiency = _trackingParticleRefSelector.clone(
-    chargedOnly = True,
-    # trackingParticleSelector.pdgId = cms.vint32()
-    tip = 120,
-    lip = 280,
-    signalOnly = False,
-    minRapidity = -2.5,
-    ptMin = 0.3,
-    maxRapidity = 2.5,
-    minHit = 0
+chargedOnly = True,
+# trackingParticleSelector.pdgId = cms.vint32()
+tip = 120,
+lip = 280,
+signalOnly = False,
+minRapidity = -2.5,
+ptMin = 0.3,
+maxRapidity = 2.5,
+minHit = 0
 )
 
 tpSelecForFakeRate = _trackingParticleRefSelector.clone(
-    chargedOnly = True,
-    # trackingParticleSelector.pdgId = cms.vint32()
-    tip = 120,
-    lip = 280,
-    signalOnly = False,
-    minRapidity = -2.5,
-    ptMin = 0.0,
-    maxRapidity = 2.5,
-    minHit = 0
+chargedOnly = True,
+# trackingParticleSelector.pdgId = cms.vint32()
+tip = 120,
+lip = 280,
+signalOnly = False,
+minRapidity = -2.5,
+ptMin = 0.0,
+maxRapidity = 2.5,
+minHit = 0
 )
 
 
