@@ -83,9 +83,7 @@ namespace edm {
           : "a"(op));
 
 #else
-      const char* unknown_str = "Unknown";
-      // int unknown_sz = strlen(unknown_str);
-      strcpy((char*)&ans[0], unknown_str);
+      return UNKNOWN_CPU;
 #endif
 
       const char* amd_str = "AuthenticAMD";
@@ -96,7 +94,9 @@ namespace edm {
       char* str = (char*)&ans[0];
       ans[3] = 0;
 
-      return strncmp(str, amd_str, 2) == 0 ? AMD_CPU : strncmp(str, intel_str, 2) == 0 ? INTEL_CPU : UNKNOWN_CPU;
+      return strncmp(str, amd_str, amd_sz) == 0       ? AMD_CPU
+             : strncmp(str, intel_str, intel_sz) == 0 ? INTEL_CPU
+                                                      : UNKNOWN_CPU;
     }
 
     // values determined experimentally for each architecture
