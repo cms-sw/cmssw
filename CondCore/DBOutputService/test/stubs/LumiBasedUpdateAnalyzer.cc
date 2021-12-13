@@ -89,10 +89,10 @@ void LumiBasedUpdateAnalyzer::analyze(const edm::Event& evt, const edm::EventSet
       std::string tag = mydbservice->tag(m_record);
       mydbservice->logger().logDebug() << "Tag: " << tag;
       BeamSpotObjects mybeamspot;
-      mybeamspot.SetPosition(0.053, 0.1, 0.13);
-      mybeamspot.SetSigmaZ(3.8);
-      mybeamspot.SetType(int(lumiId));
-      mydbservice->logger().logDebug() << "BeamType: " << mybeamspot.GetBeamType();
+      mybeamspot.setPosition(0.053, 0.1, 0.13);
+      mybeamspot.setSigmaZ(3.8);
+      mybeamspot.setType(int(lumiId));
+      mydbservice->logger().logDebug() << "BeamType: " << mybeamspot.beamType();
       try {
         auto iov = mydbservice->writeIOVForNextLumisection(mybeamspot, m_record);
         if (iov) {

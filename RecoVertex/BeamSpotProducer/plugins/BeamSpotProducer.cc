@@ -49,22 +49,21 @@ void BeamSpotProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   const BeamSpotObjects* spotDB = beamhandle.product();
 
   // translate from BeamSpotObjects to reco::BeamSpot
-  reco::BeamSpot::Point apoint(spotDB->GetX(), spotDB->GetY(), spotDB->GetZ());
+  reco::BeamSpot::Point apoint(spotDB->x(), spotDB->y(), spotDB->z());
 
   reco::BeamSpot::CovarianceMatrix matrix;
   for (int i = 0; i < 7; ++i) {
     for (int j = 0; j < 7; ++j) {
-      matrix(i, j) = spotDB->GetCovariance(i, j);
+      matrix(i, j) = spotDB->covariance(i, j);
     }
   }
 
   // this assume beam width same in x and y
-  aSpot = reco::BeamSpot(
-      apoint, spotDB->GetSigmaZ(), spotDB->Getdxdz(), spotDB->Getdydz(), spotDB->GetBeamWidthX(), matrix);
-  aSpot.setBeamWidthY(spotDB->GetBeamWidthY());
-  aSpot.setEmittanceX(spotDB->GetEmittanceX());
-  aSpot.setEmittanceY(spotDB->GetEmittanceY());
-  aSpot.setbetaStar(spotDB->GetBetaStar());
+  aSpot = reco::BeamSpot(apoint, spotDB->sigmaZ(), spotDB->dxdz(), spotDB->dydz(), spotDB->beamWidthX(), matrix);
+  aSpot.setBeamWidthY(spotDB->beamWidthY());
+  aSpot.setEmittanceX(spotDB->emittanceX());
+  aSpot.setEmittanceY(spotDB->emittanceY());
+  aSpot.setbetaStar(spotDB->betaStar());
 
   //}
   //

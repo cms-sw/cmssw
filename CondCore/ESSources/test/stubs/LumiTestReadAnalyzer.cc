@@ -56,10 +56,10 @@ namespace edmtest {
     auto const& payload = &context.getData(theBSToken_);
     edm::LogInfo(MSGSOURCE) << "Event " << e.id().event() << " Run " << e.id().run() << " Lumi "
                             << e.id().luminosityBlock() << " Time " << e.time().value() << " LumiTestPayload id "
-                            << payload->GetBeamType() << std::endl;
+                            << payload->beamType() << std::endl;
     //cond::Time_t target = cond::time::lumiTime( e.id().run(), e.id().luminosityBlock());
     unsigned int target = e.id().luminosityBlock();
-    unsigned int found = payload->GetBeamType();
+    unsigned int found = payload->beamType();
     if (target != found) {
       boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
       std::stringstream msg;
