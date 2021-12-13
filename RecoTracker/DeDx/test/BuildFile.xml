@@ -1,0 +1,19 @@
+<use name="TrackingTools/Records"/>
+<use name="RecoTracker/Record"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/TrackReco"/>
+<use name="RecoTracker/TrackProducer"/>
+<use name="TrackingTools/TransientTrack"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/Records"/>
+<use name="MagneticField/Records"/>
+<use name="MagneticField/Engine"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="root"/>
+
+<library file="ProbQXYAna.cc" name="ProbQXYAna">
+  <flags EDM_PLUGIN="1"/>
+</library>
+

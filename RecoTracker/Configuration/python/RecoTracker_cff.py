@@ -10,6 +10,7 @@ import copy
 
 #dEdX reconstruction
 from RecoTracker.DeDx.dedxEstimators_cff import *
+from RecoTracker.DeDx.siPixelTrackProbQXYProducer_cff import *
 
 #BeamHalo tracking
 from RecoTracker.Configuration.RecoTrackerBHM_cff import *
@@ -20,7 +21,9 @@ from RecoTracker.Configuration.RecoTrackerNotStandard_cff import *
 
 ckftracks_woBHTask = cms.Task(iterTrackingTask,
                               electronSeedsSeqTask,
-                              doAlldEdXEstimatorsTask)
+                              doAlldEdXEstimatorsTask,
+                              siPixelTrackProbQXY
+                             )
 ckftracks_woBH = cms.Sequence(ckftracks_woBHTask)
 ckftracksTask = ckftracks_woBHTask.copy() #+ beamhaloTracksSeq) # temporarily out, takes too much resources
 ckftracks = cms.Sequence(ckftracksTask) 

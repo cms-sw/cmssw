@@ -36,6 +36,10 @@ namespace pat {
           trackQuality_(0),
           dEdxStrip_(0),
           dEdxPixel_(0),
+          probQonTrack_(0),
+          probXYonTrack_(0),
+          probQonTrackNoLayer1_(0),
+          probXYonTrackNoLayer1_(0),
           hitPattern_(reco::HitPattern()),
           crossedEcalStatus_(std::vector<uint16_t>()),
           crossedHcalStatus_(std::vector<uint32_t>()),
@@ -61,6 +65,10 @@ namespace pat {
                            const reco::HitPattern& hp,
                            float dEdxS,
                            float dEdxP,
+                           float probQonTrack,
+                           float probXYonTrack,
+                           float probQonTrackNoLayer1,
+                           float probXYonTrackNoLayer1,
                            int fromPV,
                            int tkQual,
                            const std::vector<uint16_t>& ecalst,
@@ -85,6 +93,10 @@ namespace pat {
           trackQuality_(tkQual),
           dEdxStrip_(dEdxS),
           dEdxPixel_(dEdxP),
+          probQonTrack_(probEncapsulation(probQonTrack)),
+          probXYonTrack_(probEncapsulation(probXYonTrack)),
+          probQonTrackNoLayer1_(probEncapsulation(probQonTrackNoLayer1)),
+          probXYonTrackNoLayer1_(probEncapsulation(probXYonTrackNoLayer1)),
           hitPattern_(hp),
           crossedEcalStatus_(ecalst),
           crossedHcalStatus_(hcalst),
@@ -123,6 +135,10 @@ namespace pat {
 
     float dEdxStrip() const { return dEdxStrip_; }
     float dEdxPixel() const { return dEdxPixel_; }
+    float probQonTrack() const { return probQonTrack_ / 255.f; }
+    float probXYonTrack() const { return probXYonTrack_ / 255.f; }
+    float probQonTrackNoLayer1() const { return probQonTrackNoLayer1_ / 255.f; }
+    float probXYonTrackNoLayer1() const { return probXYonTrackNoLayer1_ / 255.f; }
 
     //! just the status code part of an EcalChannelStatusCode for all crossed Ecal cells
     const std::vector<uint16_t>& crossedEcalStatus() const { return crossedEcalStatus_; }
@@ -149,6 +165,7 @@ namespace pat {
     int fromPV_;  //only stored for packedPFCandidates
     int trackQuality_;
     float dEdxStrip_, dEdxPixel_;  //in MeV/mm
+    uint8_t probQonTrack_, probXYonTrack_, probQonTrackNoLayer1_, probXYonTrackNoLayer1_;
 
     reco::HitPattern hitPattern_;
 
@@ -159,6 +176,19 @@ namespace pat {
     PackedCandidateRef packedCandRef_;  // stored only for packedPFCands/lostTracks. NULL for generalTracks
     PackedCandidateRef nearestPFPackedCandRef_;
     PackedCandidateRef nearestLostTrackPackedCandRef_;
+
+  private:
+    static uint8_t probEncapsulation(float prob) {
+       if(prob == 0.f) {
+         return 0;
+       } else if (prob < 1 / 255.f) {
+         return  1;
+       } else if (prob == 1.f) {
+         return 255;
+      } else {
+         return 255.f * prob + 0.5f;
+      }
+    }
   };
 
   typedef std::vector<IsolatedTrack> IsolatedTrackCollection;

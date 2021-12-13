@@ -12,6 +12,7 @@ RecoTrackerAOD = cms.PSet(
         'keep *_dedxHarmonic2_*_*',
         'keep *_dedxPixelHarmonic2_*_*',
         'keep *_dedxHitInfo_*_*',
+        'keep *_siPixelTrackProbQXY_*_*',
         'keep *_trackExtrapolator_*_*',
         'keep *_generalTracks_MVAValues_*',
         'keep *_generalTracks_MVAVals_*'

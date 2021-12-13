@@ -1,6 +1,9 @@
 <use name="TrackingTools/Records"/>
+<use name="RecoTracker/Record"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/TrackReco"/>
+<use name="RecoTracker/TrackProducer"/>
+<use name="TrackingTools/TransientTrack"/>
 <use name="clhep"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
@@ -16,7 +19,6 @@
 </library>
 
 <library file="TrackValidator.cc" name="TrackValidator">
-  <use name="TrackingTools/TransientTrack"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
@@ -26,7 +28,6 @@
 
 <library file="FakeCPEFiller.cc" name="FakeCPEFiller">
   <use name="SimTracker/TrackerHitAssociation"/>
-  <use name="RecoTracker/TransientTrackingRecHit"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
