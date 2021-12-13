@@ -491,7 +491,6 @@ FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-FEVTEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
 ctpps.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)
