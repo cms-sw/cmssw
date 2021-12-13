@@ -19,7 +19,6 @@ class Reco(Scenario):
     def __init__(self):
         Scenario.__init__(self)
         self.recoSeq=''
-        self.addEI=False
         self.cbSc=self.__class__.__name__
         self.promptModifiers = cms.ModifierChain()
         self.expressModifiers = cms.ModifierChain()
@@ -74,8 +73,6 @@ class Reco(Scenario):
             options.customisation_file=args['customs']
 
         eiStep=''
-        if self.addEI:
-            eiStep=',EI'
 
         options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+PhysicsSkimStep+miniAODStep+',DQM'+dqmStep+',ENDJOB'
 
@@ -118,8 +115,6 @@ class Reco(Scenario):
             options.nThreads=args['nThreads']
 
         eiStep=''
-        if self.addEI:
-            eiStep=',EI'
 
         options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+',DQM'+dqmStep+',ENDJOB'
 
@@ -161,8 +156,6 @@ class Reco(Scenario):
             options.step +='FILTER:'+args['preFilter']+','
 
         eiStep=''
-        if self.addEI:
-            eiStep=',EI'
 
         options.step += 'RAW2DIGI,L1Reco,RECO'+eiStep+',ENDJOB'
 

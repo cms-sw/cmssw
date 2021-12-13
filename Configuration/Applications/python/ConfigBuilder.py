@@ -966,7 +966,6 @@ class ConfigBuilder(object):
         self.PATDefaultCFF="Configuration/StandardSequences/PAT_cff"
         self.NANODefaultCFF="PhysicsTools/NanoAOD/nano_cff"
         self.NANOGENDefaultCFF="PhysicsTools/NanoAOD/nanogen_cff"
-        self.EIDefaultCFF=None
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
         self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
@@ -1006,7 +1005,6 @@ class ConfigBuilder(object):
         else:
             self.RECODefaultSeq='reconstruction_fromRECO'
         self.RECOSIMDefaultSeq='recosim'
-        self.EIDefaultSeq='top'
         self.POSTRECODefaultSeq=None
         self.L1HwValDefaultSeq='L1HwVal'
         self.DQMDefaultSeq='DQMOffline'
