@@ -1,7 +1,6 @@
 #ifndef DataFormats_SiPixelRecHitQuality_h
 #define DataFormats_SiPixelRecHitQuality_h 1
 
-//--- pow():
 #include <cmath>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -121,8 +120,10 @@ class SiPixelRecHitQuality {
     //------------------------------------------------------
     //
     inline void setProbabilityXY( float prob, QualWordType & qualWord ) const {
-      if(prob<0 || prob>1) {
-        edm::LogWarning("OutOfBounds") << "Prob XY outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
+      if (prob > 1.0f && prob <= 1.0f + std::numeric_limits<float>::epsilon()) {
+        prob = 1;
+      } else if (prob < 0.0f || prob > 1.0f + std::numeric_limits<float>::epsilon()) {
+        edm::LogWarning("OutOfBounds") << "Prob XY outside the bounds of the quality word. ProbXY = 1+" << prob-1 << " and QualityWord = " << qualWord << " --> Now defaulting to ProbXY = 0.0";
         prob=0;
       }
       double draw = (prob<=1.6E-13) ? 16383 : - log( (double) prob ) * probX_1_over_log_units;
@@ -131,8 +132,10 @@ class SiPixelRecHitQuality {
       qualWord |= ((raw & probX_mask) << probX_shift);
     }
     inline void setProbabilityQ( float prob, QualWordType & qualWord ) const {
-      if(prob<0 || prob>1) {
-        edm::LogWarning("OutOfBounds") << "Prob Q outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
+      if (prob > 1.0f && prob <= 1.0f + std::numeric_limits<float>::epsilon()) {
+        prob = 1;
+      } else if (prob < 0.0f || prob > 1.0f + std::numeric_limits<float>::epsilon()) {
+        edm::LogWarning("OutOfBounds") << "Prob Q outside the bounds of the quality word. ProbQ = 1+" << prob-1 << " and QualityWord = " << qualWord << " --> Now defaulting to ProbQ = 0.0";
         prob=0;
       }
       double draw = (prob<=1E-5) ? 255 : - log( (double) prob ) * probY_1_over_log_units;
