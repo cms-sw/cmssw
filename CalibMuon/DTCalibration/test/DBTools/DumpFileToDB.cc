@@ -72,7 +72,7 @@ void DumpFileToDB::endJob() {
   //---------- VDrift
   if (dbToDump == "VDriftDB") {
     if (format == "Legacy") {
-      DTMtime* mtime = new DTMtime();
+      DTMtime mtime;
       for (DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
            keyAndCalibs != theCalibFile->keyAndConsts_end();
            ++keyAndCalibs) {
@@ -80,18 +80,18 @@ void DumpFileToDB::endJob() {
         // 	     << " vdrift (cm/ns): " << theCalibFile->meanVDrift((*keyAndCalibs).first)
         // 	     << " hit reso (cm): " << theCalibFile->sigma_meanVDrift((*keyAndCalibs).first) << endl;
         // vdrift is cm/ns , resolution is cm
-        mtime->set((*keyAndCalibs).first.superlayerId(),
-                   theCalibFile->meanVDrift((*keyAndCalibs).first),
-                   theCalibFile->sigma_meanVDrift((*keyAndCalibs).first),
-                   DTVelocityUnits::cm_per_ns);
+        mtime.set((*keyAndCalibs).first.superlayerId(),
+                  theCalibFile->meanVDrift((*keyAndCalibs).first),
+                  theCalibFile->sigma_meanVDrift((*keyAndCalibs).first),
+                  DTVelocityUnits::cm_per_ns);
       }
       DTCalibDBUtils::writeToDB<DTMtime>("DTMtimeRcd", mtime);
     } else if (format == "DTRecoConditions") {
-      DTRecoConditions* conds = new DTRecoConditions();
-      conds->setFormulaExpr("[0]");
-      //      conds->setFormulaExpr("[0]*(1-[1]*x)");
+      DTRecoConditions conds;
+      conds.setFormulaExpr("[0]");
+      //      conds.setFormulaExpr("[0]*(1-[1]*x)");
       int version = 1;
-      conds->setVersion(version);
+      conds.setVersion(version);
       for (DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
            keyAndCalibs != theCalibFile->keyAndConsts_end();
            ++keyAndCalibs) {
@@ -107,7 +107,7 @@ void DumpFileToDB::endJob() {
           throw cms::Exception("IncorrectSetup") << "Inconsistent version of file";
 
         vector<double> params(values.begin() + 11, values.begin() + 11 + nfields);
-        conds->set((*keyAndCalibs).first, params);
+        conds.set((*keyAndCalibs).first, params);
       }
       DTCalibDBUtils::writeToDB<DTRecoConditions>("DTRecoConditionsVdriftRcd", conds);
     }
@@ -115,7 +115,7 @@ void DumpFileToDB::endJob() {
     //---------- TTrig
   } else if (dbToDump == "TTrigDB") {
     if (format == "Legacy") {
-      DTTtrig* tTrig = new DTTtrig();
+      DTTtrig tTrig;
       for (DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
            keyAndCalibs != theCalibFile->keyAndConsts_end();
            ++keyAndCalibs) {
@@ -131,11 +131,11 @@ void DumpFileToDB::endJob() {
                 << "The differentialMode can only be used with kFactor = 0, old: " << kFactor
                 << " new: " << theCalibFile->kFactor((*keyAndCalibs).first);
           }
-          tTrig->set((*keyAndCalibs).first.superlayerId(),
-                     theCalibFile->tTrig((*keyAndCalibs).first) + tmean,
-                     theCalibFile->sigma_tTrig((*keyAndCalibs).first),
-                     theCalibFile->kFactor((*keyAndCalibs).first),
-                     DTTimeUnits::ns);
+          tTrig.set((*keyAndCalibs).first.superlayerId(),
+                    theCalibFile->tTrig((*keyAndCalibs).first) + tmean,
+                    theCalibFile->sigma_tTrig((*keyAndCalibs).first),
+                    theCalibFile->kFactor((*keyAndCalibs).first),
+                    DTTimeUnits::ns);
           // 	  cout << "key: " << (*keyAndCalibs).first
           // 	       << " ttrig_mean (ns): " << theCalibFile->tTrig((*keyAndCalibs).first) + tmean
           // 	       << " ttrig_sigma(ns): " << theCalibFile->sigma_tTrig((*keyAndCalibs).first)
@@ -146,20 +146,20 @@ void DumpFileToDB::endJob() {
                   // 	       << " ttrig_mean (ns): " << theCalibFile->tTrig((*keyAndCalibs).first)
                   // 	       << " ttrig_sigma(ns): " << theCalibFile->sigma_tTrig((*keyAndCalibs).first)
                   // 	       << " kFactor: " << theCalibFile->kFactor((*keyAndCalibs).first) << endl;
-          tTrig->set((*keyAndCalibs).first.superlayerId(),
-                     theCalibFile->tTrig((*keyAndCalibs).first),
-                     theCalibFile->sigma_tTrig((*keyAndCalibs).first),
-                     theCalibFile->kFactor((*keyAndCalibs).first),
-                     DTTimeUnits::ns);
+          tTrig.set((*keyAndCalibs).first.superlayerId(),
+                    theCalibFile->tTrig((*keyAndCalibs).first),
+                    theCalibFile->sigma_tTrig((*keyAndCalibs).first),
+                    theCalibFile->kFactor((*keyAndCalibs).first),
+                    DTTimeUnits::ns);
         }
       }
       DTCalibDBUtils::writeToDB<DTTtrig>("DTTtrigRcd", tTrig);
 
     } else if (format == "DTRecoConditions") {
-      DTRecoConditions* conds = new DTRecoConditions();
-      conds->setFormulaExpr("[0]");
+      DTRecoConditions conds;
+      conds.setFormulaExpr("[0]");
       int version = 1;
-      conds->setVersion(version);
+      conds.setVersion(version);
 
       for (DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
            keyAndCalibs != theCalibFile->keyAndConsts_end();
@@ -177,7 +177,7 @@ void DumpFileToDB::endJob() {
           throw cms::Exception("IncorrectSetup") << "Inconsistent version of file";
 
         vector<double> params(values.begin() + 11, values.begin() + 11 + nfields);
-        conds->set((*keyAndCalibs).first, params);
+        conds.set((*keyAndCalibs).first, params);
       }
       DTCalibDBUtils::writeToDB<DTRecoConditions>("DTRecoConditionsTtrigRcd", conds);
     }
@@ -185,7 +185,7 @@ void DumpFileToDB::endJob() {
   } else if (dbToDump == "TZeroDB") {  // Write the T0
 
     // Create the object to be written to DB
-    DTT0* tZeroMap = new DTT0();
+    DTT0 tZeroMap;
 
     // Loop over file entries
     for (DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
@@ -195,40 +195,40 @@ void DumpFileToDB::endJob() {
       float t0rms = (*keyAndCalibs).second[6];
       cout << "key: " << (*keyAndCalibs).first << " T0 mean (TDC counts): " << t0mean
            << " T0_rms (TDC counts): " << t0rms << endl;
-      tZeroMap->set((*keyAndCalibs).first, t0mean, t0rms, DTTimeUnits::counts);
+      tZeroMap.set((*keyAndCalibs).first, t0mean, t0rms, DTTimeUnits::counts);
     }
 
     DTCalibDBUtils::writeToDB<DTT0>("DTT0Rcd", tZeroMap);
 
   } else if (dbToDump == "NoiseDB") {  // Write the Noise
-    DTStatusFlag* statusMap = new DTStatusFlag();
+    DTStatusFlag statusMap;
 
     // Loop over file entries
     for (DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
          keyAndCalibs != theCalibFile->keyAndConsts_end();
          ++keyAndCalibs) {
       cout << "key: " << (*keyAndCalibs).first << " Noisy flag: " << (*keyAndCalibs).second[7] << endl;
-      statusMap->setCellNoise((*keyAndCalibs).first, (*keyAndCalibs).second[7]);
+      statusMap.setCellNoise((*keyAndCalibs).first, (*keyAndCalibs).second[7]);
     }
 
     DTCalibDBUtils::writeToDB<DTStatusFlag>("DTStatusFlagRcd", statusMap);
 
   } else if (dbToDump == "DeadDB") {  // Write the tp-dead
-    DTDeadFlag* deadMap = new DTDeadFlag();
+    DTDeadFlag deadMap;
 
     // Loop over file entries
     for (DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
          keyAndCalibs != theCalibFile->keyAndConsts_end();
          ++keyAndCalibs) {
       cout << "key: " << (*keyAndCalibs).first << " dead flag: " << (*keyAndCalibs).second[7] << endl;
-      deadMap->setCellDead_TP((*keyAndCalibs).first, (*keyAndCalibs).second[7]);
+      deadMap.setCellDead_TP((*keyAndCalibs).first, (*keyAndCalibs).second[7]);
     }
 
     DTCalibDBUtils::writeToDB<DTDeadFlag>("DTDeadFlagRcd", deadMap);
 
   } else if (dbToDump == "ChannelsDB") {  //Write channels map
 
-    DTReadOutMapping* ro_map = new DTReadOutMapping("cmssw_ROB", "cmssw_ROS");
+    DTReadOutMapping ro_map("cmssw_ROB", "cmssw_ROS");
     //Loop over file entries
     string line;
     ifstream file(mapFileName.c_str());
@@ -238,17 +238,17 @@ void DumpFileToDB::endJob() {
       stringstream linestr;
       linestr << line;
       vector<int> channelMap = readChannelsMap(linestr);
-      int status = ro_map->insertReadOutGeometryLink(channelMap[0],
-                                                     channelMap[1],
-                                                     channelMap[2],
-                                                     channelMap[3],
-                                                     channelMap[4],
-                                                     channelMap[5],
-                                                     channelMap[6],
-                                                     channelMap[7],
-                                                     channelMap[8],
-                                                     channelMap[9],
-                                                     channelMap[10]);
+      int status = ro_map.insertReadOutGeometryLink(channelMap[0],
+                                                    channelMap[1],
+                                                    channelMap[2],
+                                                    channelMap[3],
+                                                    channelMap[4],
+                                                    channelMap[5],
+                                                    channelMap[6],
+                                                    channelMap[7],
+                                                    channelMap[8],
+                                                    channelMap[9],
+                                                    channelMap[10]);
       cout << "ddu " << channelMap[0] << " "
            << "ros " << channelMap[1] << " "
            << "rob " << channelMap[2] << " "
@@ -268,10 +268,10 @@ void DumpFileToDB::endJob() {
     //---------- Uncertainties
   } else if (dbToDump == "RecoUncertDB") {  // Write the Uncertainties
 
-    DTRecoConditions* conds = new DTRecoConditions();
-    conds->setFormulaExpr("par[step]");
+    DTRecoConditions conds;
+    conds.setFormulaExpr("par[step]");
     int version = 1;  // Uniform uncertainties per SL and step; parameters 0-3 are for steps 1-4.
-    conds->setVersion(version);
+    conds.setVersion(version);
 
     for (DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
          keyAndCalibs != theCalibFile->keyAndConsts_end();
@@ -288,7 +288,7 @@ void DumpFileToDB::endJob() {
         throw cms::Exception("IncorrectSetup") << "Inconsistent version of file";
 
       vector<double> params(values.begin() + 11, values.begin() + 11 + nfields);
-      conds->set((*keyAndCalibs).first, params);
+      conds.set((*keyAndCalibs).first, params);
       DTCalibDBUtils::writeToDB<DTRecoConditions>("DTRecoConditionsUncertRcd", conds);
     }
   }

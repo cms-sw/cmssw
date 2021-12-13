@@ -97,20 +97,20 @@ void GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   printf("load forest\n");
 
   //GBRForestD *p4comb = (GBRForest*)infile->Get("CombinationWeight");
-  GBRForestD* gbreb = (GBRForestD*)infile->Get("EBCorrection");
-  GBRForestD* gbrebvar = (GBRForestD*)infile->Get("EBUncertainty");
-  GBRForestD* gbree = (GBRForestD*)infile->Get("EECorrection");
-  GBRForestD* gbreevar = (GBRForestD*)infile->Get("EEUncertainty");
+  std::unique_ptr<GBRForestD> gbreb((GBRForestD*)infile->Get("EBCorrection"));
+  std::unique_ptr<GBRForestD> gbrebvar((GBRForestD*)infile->Get("EBUncertainty"));
+  std::unique_ptr<GBRForestD> gbree((GBRForestD*)infile->Get("EECorrection"));
+  std::unique_ptr<GBRForestD> gbreevar((GBRForestD*)infile->Get("EEUncertainty"));
 
   printf("made objects\n");
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
     //poolDbService->writeOne( p4comb, poolDbService->beginOfTime(),
     //		     "gedelectron_p4combination"  );
-    poolDbService->writeOne(gbreb, poolDbService->beginOfTime(), "mustacheSC_online_EBCorrection");
-    poolDbService->writeOne(gbrebvar, poolDbService->beginOfTime(), "mustacheSC_online_EBUncertainty");
-    poolDbService->writeOne(gbree, poolDbService->beginOfTime(), "mustacheSC_online_EECorrection");
-    poolDbService->writeOne(gbreevar, poolDbService->beginOfTime(), "mustacheSC_online_EEUncertainty");
+    poolDbService->writeOneIOV(*gbreb, poolDbService->beginOfTime(), "mustacheSC_online_EBCorrection");
+    poolDbService->writeOneIOV(*gbrebvar, poolDbService->beginOfTime(), "mustacheSC_online_EBUncertainty");
+    poolDbService->writeOneIOV(*gbree, poolDbService->beginOfTime(), "mustacheSC_online_EECorrection");
+    poolDbService->writeOneIOV(*gbreevar, poolDbService->beginOfTime(), "mustacheSC_online_EEUncertainty");
   }
 }
 
