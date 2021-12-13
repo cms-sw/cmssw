@@ -16,7 +16,7 @@ hltSoftdropmonitoring.histoPSet.htPSet = cms.PSet(
   xmin  = cms.double(   -0.5),
   xmax  = cms.double(19999.5),
 )
-hltSoftdropmonitoring.met       = cms.InputTag("pfMetEI")
+hltSoftdropmonitoring.met       = cms.InputTag("pfMet")
 hltSoftdropmonitoring.jets      = cms.InputTag("ak8PFJetsPuppiSoftDrop") # dont set this to non-SoftdropJets
 hltSoftdropmonitoring.electrons = cms.InputTag("gedGsfElectrons")
 hltSoftdropmonitoring.muons     = cms.InputTag("muons")
