@@ -134,7 +134,9 @@ namespace edm {
     void EventSetupRecord::throwCalledGetWithoutToken(const char* iTypeName, const char* iLabel) {
       throw cms::Exception("MustUseESGetToken")
           << "Called EventSetupRecord::get without using a ESGetToken.\n While requesting data type:" << iTypeName
-          << " label:'" << iLabel << "'";
+          << " label:'" << iLabel << "'\n"
+          << "See https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToGetDataFromES\n"
+          << "for instructions how to migrate the calling code";
     }
 
   }  // namespace eventsetup

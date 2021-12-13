@@ -32,7 +32,7 @@ namespace edm {
     EventSignalsSentry sentry(act, mcc);
     ESParentContext parentC(mcc);
     const EventSetup c{
-        info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false};
+        info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
     this->produce(e, c);
     commit_(e, &previousParentageId_);
     return true;
@@ -52,7 +52,7 @@ namespace edm {
     Run const& cnstR = r;
     ESParentContext parentC(mcc);
     const EventSetup c{
-        info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC, false};
+        info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC};
     this->beginRun(cnstR, c);
     commit_(r);
   }
@@ -63,7 +63,7 @@ namespace edm {
     Run const& cnstR = r;
     ESParentContext parentC(mcc);
     const EventSetup c{
-        info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
+        info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC};
     this->endRun(cnstR, c);
     commit_(r);
   }
@@ -76,8 +76,7 @@ namespace edm {
     const EventSetup c{info,
                        static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                        esGetTokenIndices(Transition::BeginLuminosityBlock),
-                       parentC,
-                       false};
+                       parentC};
     this->beginLuminosityBlock(cnstLb, c);
     commit_(lb);
   }
@@ -89,8 +88,7 @@ namespace edm {
     const EventSetup c{info,
                        static_cast<unsigned int>(Transition::EndLuminosityBlock),
                        esGetTokenIndices(Transition::EndLuminosityBlock),
-                       parentC,
-                       false};
+                       parentC};
     LuminosityBlock const& cnstLb = lb;
     this->endLuminosityBlock(cnstLb, c);
     commit_(lb);
