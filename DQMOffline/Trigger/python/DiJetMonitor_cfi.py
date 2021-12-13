@@ -13,7 +13,7 @@ DiPFjetAve40_Prommonitoring.histoPSet.dijetPtThrPSet = cms.PSet(
   xmin  = cms.double(   0.),
   xmax  = cms.double(100.),
 )
-DiPFjetAve40_Prommonitoring.met       = cms.InputTag("pfMetEI") # pfMet
+DiPFjetAve40_Prommonitoring.met       = cms.InputTag("pfMet") # pfMet
 #DiPFjetAve40_Prommonitoring.pfjets    = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 DiPFjetAve40_Prommonitoring.dijetSrc  = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 DiPFjetAve40_Prommonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
