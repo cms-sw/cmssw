@@ -1,15 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
 import PhysicsTools.RecoAlgos.trackingParticleSelector_cfi
-tpSelection = PhysicsTools.RecoAlgos.trackingParticleSelector_cfi.trackingParticleSelector.clone()
-tpSelection.chargedOnly = True
-# trackingParticleSelector.pdgId = cms.vint32()
-tpSelection.tip = 120
-tpSelection.lip = 280
-tpSelection.signalOnly = False
-tpSelection.minRapidity = -2.5
-tpSelection.ptMin = 1.
-tpSelection.maxRapidity = 2.5
-tpSelection.minHit = 0
+tpSelection = PhysicsTools.RecoAlgos.trackingParticleSelector_cfi.trackingParticleSelector.clone(
+    chargedOnly = True,
+    # trackingParticleSelector.pdgId = cms.vint32()
+    tip = 120,
+    lip = 280,
+    signalOnly = False,
+    minRapidity = -2.5,
+    ptMin = 1.0,
+    maxRapidity = 2.5,
+    minHit = 0
 
+)
 
