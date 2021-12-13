@@ -746,11 +746,11 @@ void BeamFitter::dumpTxtFile(std::string &fileName, bool append) {
 void BeamFitter::write2DB() {
   BeamSpotObjects pBSObjects;
 
-  pBSObjects.SetPosition(fbeamspot.position().X(), fbeamspot.position().Y(), fbeamspot.position().Z());
+  pBSObjects.setPosition(fbeamspot.position().X(), fbeamspot.position().Y(), fbeamspot.position().Z());
   //std::cout << " wrote: x= " << fbeamspot.position().X() << " y= "<< fbeamspot.position().Y() << " z= " << fbeamspot.position().Z() << std::endl;
-  pBSObjects.SetSigmaZ(fbeamspot.sigmaZ());
-  pBSObjects.Setdxdz(fbeamspot.dxdz());
-  pBSObjects.Setdydz(fbeamspot.dydz());
+  pBSObjects.setSigmaZ(fbeamspot.sigmaZ());
+  pBSObjects.setdxdz(fbeamspot.dxdz());
+  pBSObjects.setdydz(fbeamspot.dydz());
   //if (inputBeamWidth_ > 0 ) {
   //  std::cout << " beam width value forced to be " << inputBeamWidth_ << std::endl;
   //  pBSObjects->SetBeamWidthX(inputBeamWidth_);
@@ -758,13 +758,13 @@ void BeamFitter::write2DB() {
   //} else {
   // need to fix this
   //std::cout << " using default value, 15e-4, for beam width!!!"<<std::endl;
-  pBSObjects.SetBeamWidthX(fbeamspot.BeamWidthX());
-  pBSObjects.SetBeamWidthY(fbeamspot.BeamWidthY());
+  pBSObjects.setBeamWidthX(fbeamspot.BeamWidthX());
+  pBSObjects.setBeamWidthY(fbeamspot.BeamWidthY());
   //}
 
   for (int i = 0; i < 7; ++i) {
     for (int j = 0; j < 7; ++j) {
-      pBSObjects.SetCovariance(i, j, fbeamspot.covariance(i, j));
+      pBSObjects.setCovariance(i, j, fbeamspot.covariance(i, j));
     }
   }
   edm::Service<cond::service::PoolDBOutputService> poolDbService;

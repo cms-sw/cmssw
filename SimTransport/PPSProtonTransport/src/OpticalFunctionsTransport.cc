@@ -94,9 +94,9 @@ bool OpticalFunctionsTransport::transportProton(const HepMC::GenParticle* in_trk
     vtxYoffset_ = beamParameters_->getVtxOffsetY45() * cm_to_mm;
     vtxZoffset_ = -beamParameters_->getVtxOffsetZ45() * cm_to_mm;
   } else {
-    vtxXoffset_ = -beamspot_->GetX() * cm_to_mm;
-    vtxYoffset_ = beamspot_->GetY() * cm_to_mm;
-    vtxZoffset_ = -beamspot_->GetZ() * cm_to_mm;
+    vtxXoffset_ = -beamspot_->x() * cm_to_mm;
+    vtxYoffset_ = beamspot_->y() * cm_to_mm;
+    vtxZoffset_ = -beamspot_->z() * cm_to_mm;
   }
   vtxZoffset_ *= 1.0;   // just to avoid compilation error, should be used in the future
                         //

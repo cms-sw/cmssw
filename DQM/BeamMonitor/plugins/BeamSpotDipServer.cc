@@ -394,7 +394,7 @@ bool BeamSpotDipServer::readRcd(const BeamSpotOnlineObjects& bs)
 
   currentLS = bs.lastAnalyzedLumi();
 
-  type = bs.GetBeamType();
+  type = bs.beamType();
 
   if (verbose)
     edm::LogInfo("BeamSpotDipServer") << "run: " << runnum << ", LS: " << currentLS << ", time: " << startTime << " "
@@ -407,24 +407,24 @@ bool BeamSpotDipServer::readRcd(const BeamSpotOnlineObjects& bs)
   else
     quality = qualities[1];  // Bad
 
-  x = bs.GetX();
-  y = bs.GetY();
-  z = bs.GetZ();
+  x = bs.x();
+  y = bs.y();
+  z = bs.z();
 
-  sigma_z = bs.GetSigmaZ();
-  dxdz = bs.Getdxdz();
-  dydz = bs.Getdydz();
-  width_x = bs.GetBeamWidthX();
-  width_y = bs.GetBeamWidthX();
+  sigma_z = bs.sigmaZ();
+  dxdz = bs.dxdz();
+  dydz = bs.dydz();
+  width_x = bs.beamWidthX();
+  width_y = bs.beamWidthX();
 
-  err_x = bs.GetXError();
-  err_y = bs.GetYError();
-  err_z = bs.GetZError();
-  err_sigma_z = bs.GetSigmaZError();
-  err_dxdz = bs.GetdxdzError();
-  err_dydz = bs.GetdydzError();
-  err_width_x = bs.GetBeamWidthXError();
-  err_width_y = bs.GetBeamWidthYError();
+  err_x = bs.xError();
+  err_y = bs.yError();
+  err_z = bs.zError();
+  err_sigma_z = bs.sigmaZError();
+  err_dxdz = bs.dxdzError();
+  err_dydz = bs.dydzError();
+  err_width_x = bs.beamWidthXError();
+  err_width_y = bs.beamWidthYError();
 
   try {
     events = bs.usedEvents();
