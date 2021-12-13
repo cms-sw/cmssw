@@ -49,6 +49,7 @@ private:
 
   // ----------member data ---------------------------
   const bool debugFlag_;
+  const double trackPtCut_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
   const edm::EDPutTokenT<edm::ValueMap<reco::SiPixelTrackProbQXY>> putProbQXYVMToken_;
@@ -61,6 +62,7 @@ using namespace edm;
 
 SiPixelTrackProbQXYProducer::SiPixelTrackProbQXYProducer(const edm::ParameterSet& iConfig)
     : debugFlag_(iConfig.getUntrackedParameter<bool>("debug", false)),
+      trackPtCut_(iConfig.getParameter<double>("trackPtCut")),
       tTopoToken_(esConsumes()),
       trackToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
       putProbQXYVMToken_(produces<edm::ValueMap<reco::SiPixelTrackProbQXY>>()),
@@ -207,6 +209,14 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
                                               << probQonTrackWMultiNoLayer1 << " * " << probQonTrackTermNoLayer1;
     }
 
+    // To save space let's zero out the low pt tracks
+    if (track.pt() < trackPtCut_) {
+      probQonTrack = 0;
+      probXYonTrack = 0;
+      probQonTrackNoLayer1 = 0;
+      probXYonTrackNoLayer1 = 0;
+    }
+
     // Store the values in the collection
     resultSiPixelTrackProbQXYColl->emplace_back(probQonTrack, probXYonTrack);
     resultSiPixelTrackProbQXYNoLayer1Coll->emplace_back(probQonTrackNoLayer1, probXYonTrackNoLayer1);
@@ -233,10 +243,44 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
   iEvent.put(putProbQXYNoLayer1VMToken_, std::move(trackProbQXYMatchNoLayer1));
 }
 
+float SiPixelTrackProbQXYProducer::combineProbs( ) {
+    float logprobQonTrackWMultiNoLayer1 = probQonTrackWMultiNoLayer1 > 0 ? log(probQonTrackWMultiNoLayer1) : 0;
+    float logprobXYonTrackWMultiNoLayer1 = probXYonTrackWMultiNoLayer1 > 0 ? log(probXYonTrackWMultiNoLayer1) : 0;
+
+    float factQNoLayer1 = -logprobQonTrackWMultiNoLayer1;
+    float factXYNoLayer1 = -logprobXYonTrackWMultiNoLayer1;
+
+    float probQonTrackTermNoLayer1 = 0.f;
+    float probXYonTrackTermNoLayer1 = 0.f;
+
+    if (numRecHitsNoLayer1 == 1) {
+      probQonTrackTermNoLayer1 = 1.f;
+      probXYonTrackTermNoLayer1 = 1.f;
+    } else if (numRecHitsNoLayer1 > 1) {
+      probQonTrackTermNoLayer1 = 1.f + factQNoLayer1;
+      probXYonTrackTermNoLayer1 = 1.f + factXYNoLayer1;
+      for (int iTkRh = 2; iTkRh < numRecHitsNoLayer1; ++iTkRh) {
+        factQNoLayer1 *= -logprobQonTrackWMultiNoLayer1 / float(iTkRh);
+        factXYNoLayer1 *= -logprobXYonTrackWMultiNoLayer1 / float(iTkRh);
+        probQonTrackTermNoLayer1 += factQNoLayer1;
+        probXYonTrackTermNoLayer1 += factXYNoLayer1;
+      }
+    }
+    probQonTrackNoLayer1 = probQonTrackWMultiNoLayer1 * probQonTrackTermNoLayer1;
+    probXYonTrackNoLayer1 = probXYonTrackWMultiNoLayer1 * probXYonTrackTermNoLayer1;
+
+    if (debugFlag_) {
+      LogPrint("SiPixelTrackProbQXYProducer") << "  >> probQonTrackNoLayer1 = " << probQonTrackNoLayer1 << " = "
+                                              << probQonTrackWMultiNoLayer1 << " * " << probQonTrackTermNoLayer1;
+    }
+}
+
 void SiPixelTrackProbQXYProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("Producer that creates SiPixel Charge and shape probabilities combined for tracks");
   desc.addUntracked<bool>("debug", false);
+  desc.add<double>("trackPtCut", 5.0)
+      ->setComment("Cut on the pt of the track above which we store the probs");
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"))
       ->setComment("Input track collection for the producer");
   descriptions.addWithDefaultLabel(desc);

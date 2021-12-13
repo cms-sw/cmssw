@@ -93,22 +93,10 @@ namespace pat {
           trackQuality_(tkQual),
           dEdxStrip_(dEdxS),
           dEdxPixel_(dEdxP),
-          probQonTrack_(probQonTrack == 0.f        ? 0
-                        : probQonTrack < 1 / 255.f ? 1
-                        : probQonTrack == 1.f      ? 255
-                                                   : 255.f * probQonTrack + 0.5f),
-          probXYonTrack_(probXYonTrack == 0.f        ? 0
-                         : probXYonTrack < 1 / 255.f ? 1
-                         : probXYonTrack == 1.f      ? 255
-                                                     : 255.f * probXYonTrack + 0.5f),
-          probQonTrackNoLayer1_(probQonTrackNoLayer1 == 0.f        ? 0
-                                : probQonTrackNoLayer1 < 1 / 255.f ? 1
-                                : probQonTrackNoLayer1 == 1.f      ? 255
-                                                                   : 255.f * probQonTrackNoLayer1 + 0.5f),
-          probXYonTrackNoLayer1_(probXYonTrackNoLayer1 == 0.f        ? 0
-                                 : probXYonTrackNoLayer1 < 1 / 255.f ? 1
-                                 : probXYonTrackNoLayer1 == 1.f      ? 255
-                                                                     : 255.f * probXYonTrackNoLayer1 + 0.5f),
+          probQonTrack_(probEncapsulation(probQonTrack)),
+          probXYonTrack_(probEncapsulation(probXYonTrack)),
+          probQonTrackNoLayer1_(probEncapsulation(probQonTrackNoLayer1)),
+          probXYonTrackNoLayer1_(probEncapsulation(probXYonTrackNoLayer1)),
           hitPattern_(hp),
           crossedEcalStatus_(ecalst),
           crossedHcalStatus_(hcalst),
@@ -188,6 +176,19 @@ namespace pat {
     PackedCandidateRef packedCandRef_;  // stored only for packedPFCands/lostTracks. NULL for generalTracks
     PackedCandidateRef nearestPFPackedCandRef_;
     PackedCandidateRef nearestLostTrackPackedCandRef_;
+
+  private:
+    static uint8_t probEncapsulation(float prob) {
+       if(prob == 0.f) {
+         return 0;
+       } else if (prob < 1 / 255.f) {
+         return  1;
+       } else if (prob == 1.f) {
+         return 255;
+      } else {
+         return 255.f * prob + 0.5f;
+      }
+    }
   };
 
   typedef std::vector<IsolatedTrack> IsolatedTrackCollection;
