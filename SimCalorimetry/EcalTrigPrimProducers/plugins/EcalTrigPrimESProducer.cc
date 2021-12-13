@@ -399,7 +399,7 @@ void EcalTrigPrimESProducer::parseTextFile() {
       gis >> std::dec >> id;
 
       if (flagPrint_) {
-        std::cout << dataCard << " " << std::dec << id << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << dataCard << " " << std::dec << id;
       }
 
       paramF.clear();
@@ -411,7 +411,7 @@ void EcalTrigPrimESProducer::parseTextFile() {
         gis >> std::dec >> dataF;
         paramF.push_back(dataF);
 
-        // std::cout<<", "<<std::dec<<dataF ;
+        // edm::LogVerbatim("EcalTrigPrimESProducer")<<", "<<std::dec<<dataF ;
         if (flagPrint_) {
           //---------------------------------
           if (i < 3) {
@@ -438,18 +438,18 @@ void EcalTrigPrimESProducer::parseTextFile() {
       }
 
       if (flagPrint_) {
-        std::cout << "" << st1 << std::endl;
-        std::cout << "" << st2 << std::endl;
-        std::cout << "" << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << "" << st1;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << "" << st2;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << "";
       }
 
-      // std::cout<<std::endl ;
+      // edm::LogVerbatim("EcalTrigPrimESProducer")<<std::endl ;
       mapPhys_[id] = paramF;
     }
 
     if (dataCard == "CRYSTAL") {
       gis >> std::dec >> id;
-      // std::cout<<dataCard<<" "<<std::dec<<id;
+      // edm::LogVerbatim("EcalTrigPrimESProducer")<<dataCard<<" "<<std::dec<<id;
       std::string st3;
       std::string st4;
       std::string st5;
@@ -457,20 +457,20 @@ void EcalTrigPrimESProducer::parseTextFile() {
       if (flagPrint_) {
         // Print this comment only one time
         if (k == 0)
-          std::cout << "COMMENT ====== barrel crystals ====== " << std::endl;
+          edm::LogVerbatim("EcalTrigPrimESProducer") << "COMMENT ====== barrel crystals ====== ";
 
         if (k == 61200)
-          std::cout << "COMMENT ====== endcap crystals ====== " << std::endl;
+          edm::LogVerbatim("EcalTrigPrimESProducer") << "COMMENT ====== endcap crystals ====== ";
 
         k = k + 1;
 
-        std::cout << dataCard << " " << std::dec << id << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << dataCard << " " << std::dec << id;
       }
 
       param.clear();
       for (int i = 0; i < 9; i++) {
         gis >> std::hex >> data;
-        // std::cout<<", "<<std::hex<<data ;
+        // edm::LogVerbatim("EcalTrigPrimESProducer")<<", "<<std::hex<<data ;
         param.push_back(data);
 
         if (flagPrint_) {
@@ -508,12 +508,12 @@ void EcalTrigPrimESProducer::parseTextFile() {
       }  // end for
 
       if (flagPrint_) {
-        std::cout << " " << st3 << std::endl;
-        std::cout << " " << st4 << std::endl;
-        std::cout << " " << st5 << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << " " << st3;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << " " << st4;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << " " << st5;
       }
 
-      // std::cout<<std::endl ;
+      // edm::LogVerbatim("EcalTrigPrimESProducer")<<std::endl ;
       mapXtal_[id] = param;
     }
 
@@ -523,19 +523,19 @@ void EcalTrigPrimESProducer::parseTextFile() {
       std::string st1;
 
       if (flagPrint_)
-        std::cout << dataCard << " " << std::dec << id << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << dataCard << " " << std::dec << id;
 
       param.clear();
       for (int i = 0; i < NBstripparams[0]; i++) {
         gis >> std::hex >> data;
-        // std::cout << " data = " << data << std::endl;
+        // edm::LogVerbatim("EcalTrigPrimESProducer") << " data = " << data;
         param.push_back(data);
 
         if (flagPrint_) {
           if (i == 0) {
-            std::cout << "0x" << std::hex << data << std::endl;
+            edm::LogVerbatim("EcalTrigPrimESProducer") << "0x" << std::hex << data;
           } else if (i >= 1 && i < 3) {
-            std::cout << "" << std::dec << data << std::endl;
+            edm::LogVerbatim("EcalTrigPrimESProducer") << "" << std::dec << data;
           } else if (i > 2) {
             std::ostringstream oss;
             if (i == 3) {
@@ -547,13 +547,13 @@ void EcalTrigPrimESProducer::parseTextFile() {
               oss << " 0x" << std::hex << data;
               std::string result5 = oss.str();
               st1.append(result5);
-              std::cout << "" << st1 << std::endl;
+              edm::LogVerbatim("EcalTrigPrimESProducer") << "" << st1;
             }
           }
         }
       }
 
-      // std::cout<<std::endl ;
+      // edm::LogVerbatim("EcalTrigPrimESProducer")<<std::endl ;
       mapStrip_[0][id] = param;
     }
 
@@ -563,7 +563,7 @@ void EcalTrigPrimESProducer::parseTextFile() {
       std::string st6;
 
       if (flagPrint_) {
-        std::cout << dataCard << " " << std::dec << id << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << dataCard << " " << std::dec << id;
       }
 
       param.clear();
@@ -573,9 +573,9 @@ void EcalTrigPrimESProducer::parseTextFile() {
 
         if (flagPrint_) {
           if (i == 0) {
-            std::cout << "0x" << std::hex << data << std::endl;
+            edm::LogVerbatim("EcalTrigPrimESProducer") << "0x" << std::hex << data;
           } else if (i >= 1 && i < 3) {
-            std::cout << " " << std::hex << data << std::endl;
+            edm::LogVerbatim("EcalTrigPrimESProducer") << " " << std::hex << data;
           } else if (i > 2) {
             std::ostringstream oss;
             if (i == 3) {
@@ -588,13 +588,13 @@ void EcalTrigPrimESProducer::parseTextFile() {
               std::string result5 = oss.str();
 
               st6.append(result5);
-              std::cout << "" << st6 << std::endl;
+              edm::LogVerbatim("EcalTrigPrimESProducer") << "" << st6;
             }
           }
         }
       }
 
-      // std::cout<<std::endl ;
+      // edm::LogVerbatim("EcalTrigPrimESProducer")<<std::endl ;
       mapStrip_[1][id] = param;
     }
 
@@ -602,7 +602,7 @@ void EcalTrigPrimESProducer::parseTextFile() {
       gis >> std::dec >> id;
 
       if (flagPrint_)
-        std::cout << dataCard << " " << std::dec << id << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << dataCard << " " << std::dec << id;
 
       param.clear();
       for (int i = 0; i < 2; i++) {
@@ -611,14 +611,14 @@ void EcalTrigPrimESProducer::parseTextFile() {
 
         if (flagPrint_) {
           if (i == 1) {
-            std::cout << "0x" << std::dec << data << std::endl;
+            edm::LogVerbatim("EcalTrigPrimESProducer") << "0x" << std::dec << data;
           } else {
-            std::cout << " " << std::dec << data << std::endl;
+            edm::LogVerbatim("EcalTrigPrimESProducer") << " " << std::dec << data;
           }
         }
       }
 
-      // std::cout<<std::endl ;
+      // edm::LogVerbatim("EcalTrigPrimESProducer")<<std::endl ;
       mapTower_[1][id] = param;
     }
 
@@ -626,30 +626,27 @@ void EcalTrigPrimESProducer::parseTextFile() {
       gis >> std::dec >> id;
 
       if (flagPrint_)
-        std::cout << dataCard << " " << std::dec << id << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << dataCard << " " << std::dec << id;
 
       param.clear();
       for (int i = 0; i < 3; i++) {
         gis >> std::dec >> data;
 
         if (flagPrint_) {
-          std::cout << " " << std::dec << data << std::endl;
+          edm::LogVerbatim("EcalTrigPrimESProducer") << " " << std::dec << data;
         }
 
         param.push_back(data);
       }
 
-      // std::cout<<std::endl ;
+      // edm::LogVerbatim("EcalTrigPrimESProducer")<<std::endl ;
       mapTower_[0][id] = param;
     }
 
     if (dataCard == "WEIGHT") {
-      if (flagPrint_)
-        std::cout << std::endl;
-
       gis >> std::hex >> id;
       if (flagPrint_) {
-        std::cout << dataCard << " " << std::dec << id << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << dataCard << " " << std::dec << id;
       }
 
       param.clear();
@@ -671,21 +668,17 @@ void EcalTrigPrimESProducer::parseTextFile() {
       }
 
       if (flagPrint_) {
-        std::cout << st6 << std::endl;
-        std::cout << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << st6;
       }
 
-      // std::cout<<std::endl ;
+      // edm::LogVerbatim("EcalTrigPrimESProducer")<<std::endl ;
       mapWeight_[id] = param;
     }
 
     if (dataCard == "WEIGHT_ODD") {
-      if (flagPrint_)
-        std::cout << std::endl;
-
       gis >> std::hex >> id;
       if (flagPrint_) {
-        std::cout << dataCard << " " << std::dec << id << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << dataCard << " " << std::dec << id;
       }
 
       param.clear();
@@ -707,21 +700,17 @@ void EcalTrigPrimESProducer::parseTextFile() {
       }
 
       if (flagPrint_) {
-        std::cout << st6 << std::endl;
-        std::cout << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << st6;
       }
 
-      // std::cout<<std::endl ;
+      // edm::LogVerbatim("EcalTrigPrimESProducer")<<std::endl ;
       mapWeight_odd_[id] = param;
     }
 
     if (dataCard == "FG") {
-      if (flagPrint_)
-        std::cout << std::endl;
-
       gis >> std::hex >> id;
       if (flagPrint_)
-        std::cout << dataCard << " " << std::dec << id << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << dataCard << " " << std::dec << id;
 
       param.clear();
       std::string st7;
@@ -743,8 +732,7 @@ void EcalTrigPrimESProducer::parseTextFile() {
       }
 
       if (flagPrint_) {
-        std::cout << st7 << std::endl;
-        std::cout << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << st7;
       }
 
       mapFg_[id] = param;
@@ -754,7 +742,7 @@ void EcalTrigPrimESProducer::parseTextFile() {
       gis >> std::hex >> id;
 
       if (flagPrint_)
-        std::cout << dataCard << " " << std::dec << id << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << dataCard << " " << std::dec << id;
 
       param.clear();
       for (int i = 0; i < 1024; i++) {
@@ -762,22 +750,14 @@ void EcalTrigPrimESProducer::parseTextFile() {
         param.push_back(data);
 
         if (flagPrint_) {
-          std::cout << "0x" << std::hex << data << std::endl;
+          edm::LogVerbatim("EcalTrigPrimESProducer") << "0x" << std::hex << data;
         }
-      }
-
-      if (flagPrint_) {
-        std::cout << std::endl;
-        std::cout << std::endl;
       }
 
       mapLut_[id] = param;
     }
 
     if (dataCard == "TP_MODE") {
-      if (flagPrint_)
-        std::cout << std::endl;
-
       param.clear();
 
       std::string st8;
@@ -796,11 +776,10 @@ void EcalTrigPrimESProducer::parseTextFile() {
       }
 
       if (flagPrint_) {
-        std::cout << dataCard << " " << st8 << std::endl;
-        std::cout << std::endl;
+        edm::LogVerbatim("EcalTrigPrimESProducer") << dataCard << " " << st8;
       }
 
-      // std::cout<<std::endl ;
+      // edm::LogVerbatim("EcalTrigPrimESProducer")<<std::endl ;
       tpMode_ = param;
     }
   }

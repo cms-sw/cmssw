@@ -1,16 +1,32 @@
 import FWCore.ParameterSet.Config as cms
 import CondTools.Ecal.db_credentials as auth
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("ProdTPGParam")
+options = VarParsing.VarParsing('tpg')
+
+options.register ('writeToDB',
+                  0, # default value
+                  VarParsing.VarParsing.multiplicity.singleton, 
+                  VarParsing.VarParsing.varType.int,         
+                  "Write conditions to DB")
+options.register ('outFile',
+                  'TPG_beamv7_trans_rrrrrr_spikekill_2021.txt', 
+                  VarParsing.VarParsing.multiplicity.singleton, 
+                  VarParsing.VarParsing.varType.string,         
+                  "Output file")
+options.register ('transparency',
+                  'TRANSPARENCY_2018/hourly_rrrrrr', 
+                  VarParsing.VarParsing.multiplicity.singleton, 
+                  VarParsing.VarParsing.varType.string,         
+                  "Transparency conditions file")
+
+options.parseArguments()
 
 # Calo geometry service model
-process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 # ecal mapping
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
 process.eegeom = cms.ESSource("EmptyESSource",
     recordName = cms.string('EcalMappingRcd'),
     iovIsRunNotTime = cms.bool(True),
@@ -85,7 +101,7 @@ db_service,db_user,db_pwd = auth.get_db_credentials( db_reader_account )
 process.TPGParamProducer = cms.EDAnalyzer("EcalTPGParamBuilder",
 
     #### inputs/ouputs control ####
-    writeToDB  = cms.bool(yyyyyy),
+    writeToDB  = cms.bool(options.writeToDB),
     allowDBEE  = cms.bool(True),
 
 #    DBsid   = cms.string('cms_omds_lb'), ## real DB on P5
@@ -108,7 +124,7 @@ process.TPGParamProducer = cms.EDAnalyzer("EcalTPGParamBuilder",
     TPGWriteBst = cms.uint32(0),
 
     writeToFiles = cms.bool(True),
-    outFile = cms.string('TPG_beamv7_trans_rrrrrr_spikekill_2021.txt'),
+    outFile = cms.string(options.outFile),
 
    #### TPG config tag and version (if not given it will be automatically given ) ####
     TPGtag = cms.string('BEAMV7_TEST'),
@@ -161,7 +177,7 @@ process.TPGParamProducer = cms.EDAnalyzer("EcalTPGParamBuilder",
     timing_phases_EE = cms.string('Phases_EE.txt'), # TCC phase setting for EE / strip
 
     useTransparencyCorr = cms.bool(True),   ## true if you want to correct TPG for transparency change in EE
-    transparency_corrections = cms.string('TRANSPARENCY_2018/hourly_rrrrrr'), # transparency corr to be used to compute linearizer parameters 1/crystal
+    transparency_corrections = cms.string(options.transparency), # transparency corr to be used to compute linearizer parameters 1/crystal
 
     SFGVB_Threshold = cms.uint32(16),             ## (adc) SFGVB threshold in FE
     SFGVB_lut = cms.uint32(0xfffefee8),           ## SFGVB LUT in FE
