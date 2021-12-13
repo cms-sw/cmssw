@@ -91,14 +91,13 @@ void FWConvTrackHitsDetailView::build(const FWModelId& id, const reco::Conversio
   {
     TGHorizontalFrame* f = new TGHorizontalFrame(m_guiFrame);
     m_guiFrame->AddFrame(f, new TGLayoutHints(kLHintsExpandX, 2, 0, 0, 0));
-
     {
       CSGAction* action = new CSGAction(this, "Top");
       TGTextButton* b = new TGTextButton(f, action->getName().c_str());
       f->AddFrame(b, new TGLayoutHints(kLHintsExpandX));
       TQObject::Connect(b, "Clicked()", "CSGAction", action, "activate()");
       b->SetToolTipText("plane normal: track0 x track1");
-      action->activated.connect(sigc::mem_fun(this, &FWConvTrackHitsDetailView::camera1Callback));
+      action->activated.connect(sigc::mem_fun(*this, &FWConvTrackHitsDetailView::camera1Callback));
     }
 
     {
@@ -107,14 +106,14 @@ void FWConvTrackHitsDetailView::build(const FWModelId& id, const reco::Conversio
       f->AddFrame(b, new TGLayoutHints(kLHintsExpandX));
       TQObject::Connect(b, "Clicked()", "CSGAction", action, "activate()");
       b->SetToolTipText("left fir: track1");
-      action->activated.connect(sigc::mem_fun(this, &FWConvTrackHitsDetailView::camera2Callback));
+      action->activated.connect(sigc::mem_fun(*this, &FWConvTrackHitsDetailView::camera2Callback));
     }
     {
       CSGAction* action = new CSGAction(this, "Front");
       TGTextButton* b = new TGTextButton(f, action->getName().c_str());
       f->AddFrame(b, new TGLayoutHints(kLHintsExpandX));
       TQObject::Connect(b, "Clicked()", "CSGAction", action, "activate()");
-      action->activated.connect(sigc::mem_fun(this, &FWConvTrackHitsDetailView::camera3Callback));
+      action->activated.connect(sigc::mem_fun(*this, &FWConvTrackHitsDetailView::camera3Callback));
       b->SetToolTipText("plane normal: track1 ");
     }
   }
@@ -122,16 +121,15 @@ void FWConvTrackHitsDetailView::build(const FWModelId& id, const reco::Conversio
   {
     m_camTypeAction = new CSGAction(this, " Set Ortographic Projection ");
     m_camTypeAction->createTextButton(m_guiFrame, new TGLayoutHints(kLHintsExpandX, 2, 0, 1, 4));
-    m_camTypeAction->activated.connect(sigc::mem_fun(this, &FWConvTrackHitsDetailView::switchProjection));
+    m_camTypeAction->activated.connect(sigc::mem_fun(*this, &FWConvTrackHitsDetailView::switchProjection));
   }
-
   {
     CSGAction* action = new CSGAction(this, "Draw Module");
     TGCheckButton* b = new TGCheckButton(m_guiFrame, action->getName().c_str());
     b->SetState(kButtonDown, false);
     m_guiFrame->AddFrame(b, new TGLayoutHints(kLHintsNormal, 2, 3, 1, 4));
     TQObject::Connect(b, "Clicked()", "CSGAction", action, "activate()");
-    action->activated.connect(sigc::mem_fun(this, &FWConvTrackHitsDetailView::rnrModules));
+    action->activated.connect(sigc::mem_fun(*this, &FWConvTrackHitsDetailView::rnrModules));
   }
   {
     CSGAction* action = new CSGAction(this, "Draw Hits");
@@ -139,7 +137,7 @@ void FWConvTrackHitsDetailView::build(const FWModelId& id, const reco::Conversio
     b->SetState(kButtonDown, false);
     m_guiFrame->AddFrame(b, new TGLayoutHints(kLHintsNormal, 2, 3, 1, 4));
     TQObject::Connect(b, "Clicked()", "CSGAction", action, "activate()");
-    action->activated.connect(sigc::mem_fun(this, &FWConvTrackHitsDetailView::rnrHits));
+    action->activated.connect(sigc::mem_fun(*this, &FWConvTrackHitsDetailView::rnrHits));
   }
 
   TGCompositeFrame* p = (TGCompositeFrame*)m_guiFrame->GetParent();
