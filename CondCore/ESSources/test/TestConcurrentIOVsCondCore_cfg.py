@@ -38,8 +38,12 @@ process.options = dict(
 )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-#process.MessageLogger.cerr.threshold = 'INFO'
-#process.MessageLogger.cerr.INFO.limit = 1000000
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations   = cms.untracked.vstring('TestConcurrentIOVsCondCoreCout','cout'),
+    TestConcurrentIOVsCondCoreCout = cms.untracked.PSet(
+        threshold = cms.untracked.string('WARNING')
+    )
+)
 
 process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(132598),
