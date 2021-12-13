@@ -93,43 +93,32 @@ void FWModelChangeManager::endChanges() {
         guard = true;
         changeSignalsAreComing_();
       }
-      FWItemChangeSignal& signal = m_itemChangeSignals[(*itChanges)->id()];
-      //loop over the slots ourself so we can control the behavior in case of a failure
-      FWItemChangeSignal::slot_list_type slots = signal.slots();
-      for (FWItemChangeSignal::slot_list_type::iterator itSlot = slots.begin(), itEnd = slots.end(); itSlot != itEnd;
-           ++itSlot) {
-        try {
-          (*itSlot)(*itChanges);
-        } catch (const cms::Exception& iE) {
-          fwLog(fwlog::kError) << (*itChanges)->name() << " had the failure in process FWItemChanged signals\n"
-                               << iE.what() << std::endl;
-        } catch (const std::bad_alloc& iE) {
-          std::cerr << "Ran out of memory while processing " << (*itChanges)->name() << std::endl;
-          exit(1);
-        } catch (const std::exception& iE) {
-          fwLog(fwlog::kError) << (*itChanges)->name() << " had the failure in process FWItemChanged signals (2) \n"
-                               << iE.what() << std::endl;
-        }
+      try {
+        const FWEventItem* item = (*itChanges);
+        item->itemChanged_.emit(item);
+      } catch (const cms::Exception& iE) {
+        fwLog(fwlog::kError) << (*itChanges)->name() << " had the failure in process FWItemChanged signals\n"
+                             << iE.what() << std::endl;
+      } catch (const std::bad_alloc& iE) {
+        std::cerr << "Ran out of memory while processing " << (*itChanges)->name() << std::endl;
+        exit(1);
+      } catch (const std::exception& iE) {
+        fwLog(fwlog::kError) << (*itChanges)->name() << " had the failure in process FWItemChanged signals (2) \n"
+                             << iE.what() << std::endl;
       }
     }
     m_itemChanges.clear();
 
     for (size_t ci = 0, ce = m_changes.size(), si = 0; ci != ce; ++ci, ++si) {
       FWModelIds& changes = m_changes[ci];
-      FWModelChangeSignal& signal = m_changeSignals[si];
-
       if (not changes.empty()) {
         if (!guard) {
           // std::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
           guard = true;
           changeSignalsAreComing_();
-        }
-        //loop over the slots ourself so we can control the behavior in case of a failure
-        FWModelChangeSignal::slot_list_type slots = signal.slots();
-        for (FWModelChangeSignal::slot_list_type::iterator itSlot = slots.begin(), itEnd = slots.end(); itSlot != itEnd;
-             ++itSlot) {
           try {
-            (*itSlot)(changes);
+            const FWEventItem* item = changes.begin()->item();
+            item->changed_.emit(changes);
           } catch (const cms::Exception& iE) {
             fwLog(fwlog::kError) << changes.begin()->item()->name()
                                  << " had the failure in process FWModelChangeSignals\n"
@@ -144,10 +133,11 @@ void FWModelChangeManager::endChanges() {
                                  << iE.what() << "\n";
           }
         }
-        changes.clear();
       }
+      changes.clear();
     }
   }
+
   if (guard)
     sendChangeSignalsAreDone(this);
 }
