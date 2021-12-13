@@ -174,8 +174,9 @@ namespace edmtest {
     // The original reference file was created using a version
     // of the code before concurrent IOVs were implemented.
     for (auto const& object : testObjects_) {
-      std::cout << "TestConcurrentIOVsCondCore: lumi = " << object.lumi_ << " position: (" << object.x_ << ", "
-                << object.y_ << ", " << object.z_ << ")  iov = " << object.start_ << ":" << object.end_ << std::endl;
+      edm::LogPrint("TestConcurrentIOVsCondCore")
+          << "TestConcurrentIOVsCondCore: lumi = " << object.lumi_ << " position: (" << object.x_ << ", " << object.y_
+          << ", " << object.z_ << ")  iov = " << object.start_ << ":" << object.end_;
     }
   }
 
