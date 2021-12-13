@@ -99,20 +99,20 @@ void BeamSpotWrite2DB::endJob() {
 
   BeamSpotObjects abeam;
 
-  abeam.SetType(type);
-  abeam.SetPosition(x, y, z);
-  abeam.SetSigmaZ(sigmaZ);
-  abeam.Setdxdz(dxdz);
-  abeam.Setdydz(dydz);
-  abeam.SetBeamWidthX(beamWidthX);
-  abeam.SetBeamWidthY(beamWidthY);
-  abeam.SetEmittanceX(emittanceX);
-  abeam.SetEmittanceY(emittanceY);
-  abeam.SetBetaStar(betastar);
+  abeam.setType(type);
+  abeam.setPosition(x, y, z);
+  abeam.setSigmaZ(sigmaZ);
+  abeam.setdxdz(dxdz);
+  abeam.setdydz(dydz);
+  abeam.setBeamWidthX(beamWidthX);
+  abeam.setBeamWidthY(beamWidthY);
+  abeam.setEmittanceX(emittanceX);
+  abeam.setEmittanceY(emittanceY);
+  abeam.setBetaStar(betastar);
 
   for (int i = 0; i < 7; ++i) {
     for (int j = 0; j < 7; ++j) {
-      abeam.SetCovariance(i, j, cov[i][j]);
+      abeam.setCovariance(i, j, cov[i][j]);
     }
   }
 
