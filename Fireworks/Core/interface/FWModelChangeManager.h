@@ -46,8 +46,8 @@ public:
   void changed(const FWEventItem*);
   void endChanges();
 
-  sigc::signal<void> changeSignalsAreComing_;
-  sigc::signal<void> changeSignalsAreDone_;
+  sigc::signal<void()> changeSignalsAreComing_;
+  sigc::signal<void()> changeSignalsAreDone_;
 
   void newItemSlot(FWEventItem*);
   void itemsGoingToBeClearedSlot(void);

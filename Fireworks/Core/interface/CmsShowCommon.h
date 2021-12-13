@@ -81,7 +81,7 @@ public:
   void setEventCenter(float, float, float);
   void resetEventCenter();
 
-  mutable sigc::signal<void, const CmsShowCommon*> eventCenterChanged_;
+  mutable sigc::signal<void(const CmsShowCommon*)> eventCenterChanged_;
 
 protected:
   const FWColorManager* colorManager() const;
