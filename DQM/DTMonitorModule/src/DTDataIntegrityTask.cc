@@ -535,18 +535,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
     return;       //Avoid duplication of Info in FEDIntegrity_EvF
 
   MonitorElement* uROSSummary = nullptr;
-  if (mode != 1)
-    uROSSummary = summaryHistos["uROSSummary"][fed];
-
   MonitorElement* uROSStatus = nullptr;
-  if (mode != 1)
-    uROSStatus = fedHistos["uROSStatus"][fed];
-
-  if (mode != 1 && !uROSSummary) {
-    LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
-        << "Trying to access non existing ME at FED " << fed << std::endl;
-    return;
-  }
 
   unsigned int slotMap = (data.getboardId()) & 0xF;
   if (slotMap == 0)
@@ -568,6 +557,14 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
   if (mode <= 2) {
     if (uRos > 2) {  //sectors 1-12
       if (mode != 1) {
+        uROSSummary = summaryHistos["uROSSummary"][fed];
+        uROSStatus = fedHistos["uROSStatus"][fed];
+        if (!uROSSummary) {
+          LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
+              << "Trying to access non existing ME at FED " << fed << std::endl;
+          return;
+        }
+
         uROSError0 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (ros - 1)];  //links 0-23
         uROSError1 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (ros)];      //links 24-47
         uROSError2 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (ros + 1)];  //links 48-71
@@ -742,13 +739,13 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
         int ch25 = 24;
         if (mode <= 2) {
           urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (sector - 1)]->Fill(tdcError_ROSError, ch25);
-          if (mode <= 1)
+          if (mode < 1)
             urosHistos[(TDCError)*1000 + (wheel + 2) * 100 + (sector - 1)]->Fill(tdcError_TDCHisto + 6 * tdc,
                                                                                  ch25);  // ros-1=link in this case
-        }
-      }     //mode<=2
-    }       //uRos<3
-    else {  //uRos>2
+        }                                                                                //mode <= 2
+      }                                                                                  //mode!=1
+    }                                                                                    //uRos<3
+    else {                                                                               //uRos>2
       if (link < 24) {
         errorX[5][ros - 1][wheel + 2] += 1;
         if (mode != 1)
@@ -781,7 +778,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
         else if (link < 72)
           uROSError2->Fill(tdcError_ROSError, link - 48);
 
-        if (mode <= 1) {
+        if (mode < 1) {
           if (link < 24)
             urosHistos[(TDCError)*1000 + (wheel + 2) * 100 + (ros - 1)]->Fill(tdcError_TDCHisto + 6 * tdc, link);
           else if (link < 48)
@@ -789,8 +786,8 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
           else if (link < 72)
             urosHistos[(TDCError)*1000 + (wheel + 2) * 100 + (ros + 1)]->Fill(tdcError_TDCHisto + 6 * tdc, link - 48);
 
-        }  //mode<=1
-      }    //mode<=2
+        }  //mode<1
+      }    //mode<=2 && mode != 1
     }      //uROS>2
   }        //loop on errors
 
