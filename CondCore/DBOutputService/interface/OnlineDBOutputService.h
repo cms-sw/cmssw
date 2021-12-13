@@ -74,15 +74,6 @@ namespace cond {
         return targetTime;
       }
 
-      //
-      template <typename PayloadType>
-      bool writeForNextLumisection(const PayloadType* payloadPtr, const std::string& recordName) {
-        if (!payloadPtr)
-          throwException("Provided payload pointer is invalid.", "OnlineDBOutputService::writeForNextLumisection");
-        std::unique_ptr<const PayloadType> payload(payloadPtr);
-        return writeForNextLumisection<PayloadType>(*payload, recordName);
-      }
-
     private:
       cond::Iov_t preLoadIov(const PoolDBOutputService::Record& record, cond::Time_t targetTime);
 
