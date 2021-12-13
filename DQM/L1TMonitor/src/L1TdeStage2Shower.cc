@@ -57,10 +57,13 @@ void L1TdeStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   for (auto dSh = dataShowers->begin(); dSh != dataShowers->end(); ++dSh) {
     if (dSh->isValid()) {
-      emtfShowerDataSummary_denom_->Fill(dSh->sector(), (dSh->endcap() == 1) ? 1.5 : 0.5);
+      emtfShowerDataSummary_denom_->Fill(dSh->processor() + 1,
+                                         (dSh->trackFinderType() == l1t::tftype::emtf_pos) ? 1.5 : 0.5);
       for (auto eSh = emulShowers->begin(); eSh != emulShowers->end(); ++eSh) {
-        if (eSh->isValid() and dSh->sector() == eSh->sector() and dSh->endcap() == eSh->endcap() and *dSh == *eSh)
-          emtfShowerDataSummary_num_->Fill(dSh->sector(), (dSh->endcap() == 1) ? 1.5 : 0.5);
+        if (eSh->isValid() and dSh->processor() == eSh->processor() and
+            dSh->trackFinderType() == eSh->trackFinderType() and *dSh == *eSh)
+          emtfShowerDataSummary_num_->Fill(dSh->processor() + 1,
+                                           (dSh->trackFinderType() == l1t::tftype::emtf_pos) ? 1.5 : 0.5);
       }
     }
   }
@@ -68,13 +71,16 @@ void L1TdeStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
   for (auto eSh = emulShowers->begin(); eSh != emulShowers->end(); ++eSh) {
     bool isMatched = false;
     if (eSh->isValid()) {
-      emtfShowerEmulSummary_denom_->Fill(eSh->sector(), (eSh->endcap() == 1) ? 1.5 : 0.5);
+      emtfShowerEmulSummary_denom_->Fill(eSh->processor() + 1,
+                                         (eSh->trackFinderType() == l1t::tftype::emtf_pos) ? 1.5 : 0.5);
       for (auto dSh = dataShowers->begin(); dSh != dataShowers->end(); ++dSh) {
-        if (dSh->isValid() and eSh->sector() == dSh->sector() and eSh->endcap() == dSh->endcap() and *dSh == *eSh)
+        if (dSh->isValid() and eSh->processor() == dSh->processor() and
+            eSh->trackFinderType() == dSh->trackFinderType() and *dSh == *eSh)
           isMatched = true;
       }
       if (not isMatched) {
-        emtfShowerEmulSummary_num_->Fill(eSh->sector(), (eSh->endcap() == 1) ? 1.5 : 0.5);
+        emtfShowerEmulSummary_num_->Fill(eSh->processor() + 1,
+                                         (eSh->trackFinderType() == l1t::tftype::emtf_pos) ? 1.5 : 0.5);
       }
     }
   }
