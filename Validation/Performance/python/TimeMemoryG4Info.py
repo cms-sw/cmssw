@@ -11,27 +11,27 @@ def customise(process):
     #Tweak Message logger to dump G4cout and G4cerr messages in G4msg.log
     #print process.MessageLogger.__dict__
     #Configuring the G4msg.log output
-    process.MessageLogger.files = dict(G4msg =  cms.untracked.PSet(
-        noTimeStamps = cms.untracked.bool(True)
+    process.MessageLogger.files = dict(G4msg =  dict(
+        noTimeStamps = True
         #First eliminate unneeded output
-        ,threshold = cms.untracked.string('INFO')
-        ,INFO = cms.untracked.PSet(limit = cms.untracked.int32(0))
-        ,FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(0))
-        ,FwkSummary = cms.untracked.PSet(limit = cms.untracked.int32(0))
-        ,Root_NoDictionary = cms.untracked.PSet(limit = cms.untracked.int32(0))
-        ,FwkJob = cms.untracked.PSet(limit = cms.untracked.int32(0))
-        ,TimeReport = cms.untracked.PSet(limit = cms.untracked.int32(0))
-        ,TimeModule = cms.untracked.PSet(limit = cms.untracked.int32(0))
-        ,TimeEvent = cms.untracked.PSet(limit = cms.untracked.int32(0))
-        ,MemoryCheck = cms.untracked.PSet(limit = cms.untracked.int32(0))
+        ,threshold = 'INFO'
+        ,INFO = dict(limit = 0)
+        ,FwkReport = dict(limit = 0)
+        ,FwkSummary = dict(limit = 0)
+        ,Root_NoDictionary = dict(limit = 0)
+        ,FwkJob = dict(limit = 0)
+        ,TimeReport = dict(limit = 0)
+        ,TimeModule = dict(limit = 0)
+        ,TimeEvent = dict(limit = 0)
+        ,MemoryCheck = dict(limit = 0)
         #TimeModule, TimeEvent, TimeReport are written to LogAsbolute instead of LogInfo with a category
         #so they cannot be eliminated from any destination (!) unless one uses the summaryOnly option
         #in the Timing Service... at the price of silencing the output needed for the TimingReport profiling
         #
         #Then add the wanted ones:
-        ,PhysicsList = cms.untracked.PSet(limit = cms.untracked.int32(-1))
-        ,G4cout = cms.untracked.PSet(limit = cms.untracked.int32(-1))
-        ,G4cerr = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+        ,PhysicsList = dict(limit = -1)
+        ,G4cout = dict(limit = -1)
+        ,G4cerr = dict(limit = -1)
         )
     )
     #Add these 3 lines to put back the summary for timing information at the end of the logfile
@@ -39,8 +39,8 @@ def customise(process):
     if hasattr(process,'options'):
         process.options.wantSummary = cms.untracked.bool(True)
     else:
-        process.options = cms.untracked.PSet(
-            wantSummary = cms.untracked.bool(True)
+        process.options = dict(
+            wantSummary = True
         )
 
     return(process)

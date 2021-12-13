@@ -13,8 +13,8 @@ def customise(process):
     if hasattr(process,'options'):
         process.options.wantSummary = cms.untracked.bool(True)
     else:
-        process.options = cms.untracked.PSet(
-            wantSummary = cms.untracked.bool(True)
+        process.options = dict(
+            wantSummary = True
         )
 
     return(process)
