@@ -154,8 +154,9 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                                         CSCCLCTPreTriggerCollection& oc_pretrig,
                                         CSCCorrelatedLCTDigiCollection& oc_lct,
                                         CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
-                                        CSCShowerDigiCollection& oc_shower,
                                         CSCShowerDigiCollection& oc_shower_anode,
+                                        CSCShowerDigiCollection& oc_shower_cathode,
+                                        CSCShowerDigiCollection& oc_shower,
                                         GEMCoPadDigiCollection& oc_gemcopad) {
   // CSC geometry.
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
@@ -228,6 +229,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             // showers
             const CSCShowerDigi& shower = tmb->readoutShower();
             const CSCShowerDigi& anodeShower = tmb->alctProc->readoutShower();
+            const CSCShowerDigi& cathodeShower = tmb->clctProc->readoutShower();
 
             put(alctV, oc_alct, detid, tmb->getCSCName() + " ALCT digi");
             put(clctV, oc_clct, detid, tmb->getCSCName() + " CLCT digi");
@@ -241,6 +243,8 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               oc_shower.insertDigi(detid, shower);
             if (anodeShower.isValid())
               oc_shower_anode.insertDigi(detid, anodeShower);
+            if (cathodeShower.isValid())
+              oc_shower_cathode.insertDigi(detid, cathodeShower);
 
             if (!(alctV.empty() && clctV.empty() && lctV.empty()) and infoV > 1) {
               LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder got results in " << detid;

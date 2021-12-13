@@ -6,7 +6,7 @@ ecalPreshowerSimHitsValidation = DQMEDAnalyzer("EcalPreshowerSimHitsValidation",
     ESHitsCollection = cms.string('EcalHitsES'),
     moduleLabelG4 = cms.string('g4SimHits'),
     verbose = cms.untracked.bool(False),
-    moduleLabelMC = cms.string('generatorSmeared')
+    moduleLabelMC = cms.InputTag('generatorSmeared')
 )
 
 

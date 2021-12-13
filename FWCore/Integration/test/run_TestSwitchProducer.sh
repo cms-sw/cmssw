@@ -77,7 +77,8 @@ pushd ${LOCAL_TMP_DIR}
 
   echo "*************************************************"
   echo "Alias to non-existent product should fail only when a corresponding product is accessed"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}AliasToNonExistent_cfg.py && die "cmsRun ${test}AliasToNonExistent_cfg.py did not throw an exception" 1
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}AliasToNonExistent_cfg.py || die "cmsRun ${test}AliasToNonExistent_cfg.py" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}AliasToNonExistent_cfg.py includeFilter && die "cmsRun ${test}AliasToNonExistent_cfg.py includeFilter did not throw an exception" 1
 
   echo "*************************************************"
   echo "SwitchProducer-with-EDAlias being before the aliased-for producer in a Path should fail"

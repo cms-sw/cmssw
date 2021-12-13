@@ -15,6 +15,8 @@
 #include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+
 #include <vector>
 
 class SectorProcessorShower {

@@ -1,18 +1,17 @@
 # https://indico.cern.ch/event/947686/contributions/3981867/attachments/2090510/3512658/TrackingDNN_24_8_2020.pdf
 import FWCore.ParameterSet.Config as cms
 qualityCutDictionary = cms.PSet(
-   InitialStep         =        cms.vdouble(-0.48, 0.03, 0.25),
-   LowPtQuadStep       =        cms.vdouble(-0.33, 0.18, 0.41),
-   HighPtTripletStep   =        cms.vdouble(0.48, 0.55, 0.62),
-   LowPtTripletStep    =        cms.vdouble(-0.21, 0.17, 0.41),
-   DetachedQuadStep    =        cms.vdouble(-0.62, -0.09 ,0.50),
-   DetachedTripletStep =        cms.vdouble(-0.52, 0.04, 0.76),
-   PixelPairStep       =        cms.vdouble(-0.47, -0.33, -0.05),
-   MixedTripletStep    =        cms.vdouble(-0.87, -0.61 ,-0.13),
-   PixelLessStep       =        cms.vdouble(-0.20, -0.10, 0.40),
-   TobTecStep          =        cms.vdouble(-0.44, -0.26, -0.14), 
-   JetCoreRegionalStep =        cms.vdouble(-0.14, 0.13, 0.61)
-
+   InitialStep         =        cms.vdouble(-0.56, -0.08, 0.17),
+   LowPtQuadStep       =        cms.vdouble(-0.35, 0.13, 0.36),
+   HighPtTripletStep   =        cms.vdouble(0.41, 0.49, 0.57),
+   LowPtTripletStep    =        cms.vdouble(-0.29, 0.09, 0.36),
+   DetachedQuadStep    =        cms.vdouble(-0.63, -0.14, 0.49),
+   DetachedTripletStep =        cms.vdouble(-0.32, 0.24, 0.81),
+   PixelPairStep       =        cms.vdouble(-0.38, -0.23, 0.04),
+   MixedTripletStep    =        cms.vdouble(-0.83, -0.63, -0.38),
+   PixelLessStep       =        cms.vdouble(-0.60, -0.40, 0.02),
+   TobTecStep          =        cms.vdouble(-0.71, -0.58, -0.46), 
+   JetCoreRegionalStep =        cms.vdouble(-0.53, -0.33, 0.18)
 )
 
 from Configuration.ProcessModifiers.trackdnn_CKF_cff import trackdnn_CKF

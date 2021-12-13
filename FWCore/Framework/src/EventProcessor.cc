@@ -684,9 +684,23 @@ namespace edm {
     for_all(subProcesses_, [](auto& subProcess) { subProcess.doBeginJob(); });
     actReg_->postBeginJobSignal_();
 
-    for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
-      schedule_->beginStream(i);
-      for_all(subProcesses_, [i](auto& subProcess) { subProcess.doBeginStream(i); });
+    FinalWaitingTask last;
+    tbb::task_group group;
+    using namespace edm::waiting_task::chain;
+    first([this](auto nextTask) {
+      for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+        first([i, this](auto nextTask) {
+          ServiceRegistry::Operate operate(serviceToken_);
+          schedule_->beginStream(i);
+        }) | ifThen(not subProcesses_.empty(), [this, i](auto nextTask) {
+          ServiceRegistry::Operate operate(serviceToken_);
+          for_all(subProcesses_, [i](auto& subProcess) { subProcess.doBeginStream(i); });
+        }) | lastTask(nextTask);
+      }
+    }) | runLast(WaitingTaskHolder(group, &last));
+    group.wait();
+    if (last.exceptionPtr()) {
+      std::rethrow_exception(*last.exceptionPtr());
     }
   }
 
@@ -768,10 +782,6 @@ namespace edm {
   int EventProcessor::totalEventsPassed() const { return schedule_->totalEventsPassed(); }
 
   int EventProcessor::totalEventsFailed() const { return schedule_->totalEventsFailed(); }
-
-  void EventProcessor::enableEndPaths(bool active) { schedule_->enableEndPaths(active); }
-
-  bool EventProcessor::endPathsEnabled() const { return schedule_->endPathsEnabled(); }
 
   void EventProcessor::clearCounters() { schedule_->clearCounters(); }
 

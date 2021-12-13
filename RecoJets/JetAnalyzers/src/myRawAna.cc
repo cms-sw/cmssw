@@ -28,7 +28,7 @@ using namespace std;
 // Nothing passed from .cfg yet, but I leave the syntax here for
 // future reference.
 
-myRawAna::myRawAna(const ParameterSet& cfg) {}
+myRawAna::myRawAna(const ParameterSet& cfg) { usesResource(TFileService::kSharedResource); }
 
 // ************************
 // ************************

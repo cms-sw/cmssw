@@ -14,8 +14,13 @@ l1tStage2EMTFEmulatorCompRatioClient = DQMEDHarvester("L1TStage2RatioClient",
     ignoreBin = cms.untracked.vint32(ignoreBinsDeStage2Emtf)
 )
 
+from DQM.L1TMonitorClient.L1TdeStage2ShowerClient_cfi import *
+
 # sequences
 l1tStage2EMTFEmulatorClient = cms.Sequence(
     l1tStage2EMTFEmulatorCompRatioClient
 )
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+_run3shower_l1tStage2EMTFEmulatorClient = l1tStage2EMTFEmulatorClient.copy()
+run3_common.toReplaceWith(l1tStage2EMTFEmulatorClient, cms.Sequence(_run3shower_l1tStage2EMTFEmulatorClient + l1tdeStage2ShowerClient))

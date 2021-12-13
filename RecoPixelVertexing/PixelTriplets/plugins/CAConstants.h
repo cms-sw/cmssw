@@ -44,6 +44,7 @@ namespace caConstants {
   constexpr uint32_t maxNumberOfLayerPairs = 20;
   constexpr uint32_t maxNumberOfLayers = 10;
   constexpr uint32_t maxTuples = maxNumberOfTuples;
+  constexpr int32_t maxHitsOnTrack = 10;
 
   // Modules constants
   constexpr uint32_t max_ladder_bpx0 = 12;
@@ -76,7 +77,7 @@ namespace caConstants {
   using OuterHitOfCellContainer = cms::cuda::VecArray<uint32_t, maxCellsPerHit>;
   using TuplesContainer = cms::cuda::OneToManyAssoc<hindex_type, maxTuples, 5 * maxTuples>;
   using HitToTuple = cms::cuda::OneToManyAssoc<tindex_type, -1, 4 * maxTuples>;  // 3.5 should be enough
-  using TupleMultiplicity = cms::cuda::OneToManyAssoc<tindex_type, 8, maxTuples>;
+  using TupleMultiplicity = cms::cuda::OneToManyAssoc<tindex_type, maxHitsOnTrack + 1, maxTuples>;
 
   struct OuterHitOfCell {
     OuterHitOfCellContainer* container;

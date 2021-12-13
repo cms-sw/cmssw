@@ -529,5 +529,6 @@
     <flags PRE_TEST="TestIntegrationProcessBlock23"/>
     <flags PRE_TEST="TestIntegrationProcessBlock24"/>
   </test>
+  <test name="TestIntegrationFinalPath" command="test_finalpath.sh"/>
 
 </environment>

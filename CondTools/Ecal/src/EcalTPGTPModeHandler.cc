@@ -90,7 +90,7 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
 
     readFromFile("last_tpg_TPMode_settings.txt");
 
-    unsigned int min_run = m_i_run_number + 1;
+    unsigned int min_run;
 
     if (m_firstRun < m_i_run_number) {
       min_run = m_i_run_number + 1;

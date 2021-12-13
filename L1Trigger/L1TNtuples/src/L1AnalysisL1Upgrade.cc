@@ -121,6 +121,23 @@ void L1Analysis::L1AnalysisL1Upgrade::SetMuon(const edm::Handle<l1t::MuonBxColle
   }
 }
 
+void L1Analysis::L1AnalysisL1Upgrade::SetMuonShower(const edm::Handle<l1t::MuonShowerBxCollection> muonShower,
+                                                    unsigned maxL1Upgrade) {
+  for (int ibx = muonShower->getFirstBX(); ibx <= muonShower->getLastBX(); ++ibx) {
+    for (l1t::MuonShowerBxCollection::const_iterator it = muonShower->begin(ibx);
+         it != muonShower->end(ibx) && l1upgrade_.nMuonShowers < maxL1Upgrade;
+         it++) {
+      if (it->isValid()) {
+        l1upgrade_.muonShowerBx.push_back(ibx);
+        l1upgrade_.muonShowerOneNominal.push_back(it->isOneNominalInTime());
+        l1upgrade_.muonShowerOneTight.push_back(it->isOneTightInTime());
+        l1upgrade_.muonShowerTwoLoose.push_back(it->isTwoLooseInTime());
+        l1upgrade_.nMuonShowers++;
+      }
+    }
+  }
+}
+
 void L1Analysis::L1AnalysisL1Upgrade::SetSum(const edm::Handle<l1t::EtSumBxCollection> sums, unsigned maxL1Upgrade) {
   for (int ibx = sums->getFirstBX(); ibx <= sums->getLastBX(); ++ibx) {
     for (l1t::EtSumBxCollection::const_iterator it = sums->begin(ibx);

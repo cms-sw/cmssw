@@ -142,6 +142,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
   if (runILT_)
     gem_pad_cluster_token_ = consumes<GEMPadDigiClusterCollection>(gemPadDigiClusterProducer_);
+
   cscToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
   gemToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
   pBadChambersToken_ = esConsumes<CSCBadChambers, CSCBadChambersRcd>();
@@ -169,6 +170,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   if (keepShowers_) {
     produces<CSCShowerDigiCollection>();
     produces<CSCShowerDigiCollection>("Anode");
+    produces<CSCShowerDigiCollection>("Cathode");
   }
   if (runILT_) {
     produces<GEMCoPadDigiCollection>();
@@ -248,14 +250,8 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   ev.getByToken(wire_token_, wireDigis);
 
   // input GEM pad cluster collection for upgrade scenarios
+  edm::Handle<GEMPadDigiClusterCollection> gemPadDigiClusters;
   const GEMPadDigiClusterCollection* gemPadClusters = nullptr;
-  if (runILT_) {
-    if (!gemPadDigiClusterProducer_.label().empty()) {
-      edm::Handle<GEMPadDigiClusterCollection> gemPadDigiClusters;
-      ev.getByToken(gem_pad_cluster_token_, gemPadDigiClusters);
-      gemPadClusters = gemPadDigiClusters.product();
-    }
-  }
 
   // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
   // and downstream of MPC.
@@ -268,6 +264,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
   std::unique_ptr<CSCShowerDigiCollection> oc_shower(new CSCShowerDigiCollection);
   std::unique_ptr<CSCShowerDigiCollection> oc_shower_anode(new CSCShowerDigiCollection);
+  std::unique_ptr<CSCShowerDigiCollection> oc_shower_cathode(new CSCShowerDigiCollection);
   std::unique_ptr<GEMCoPadDigiCollection> oc_gemcopad(new GEMCoPadDigiCollection);
 
   if (!wireDigis.isValid()) {
@@ -282,6 +279,23 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
         << " requested in configuration, but not found in the event..."
         << " Skipping production of CSC TP digis +++\n";
   }
+  // the GEM-CSC trigger flag is set, so GEM clusters are expected in the event data
+  if (runILT_) {
+    // no valid label, let the user know that GEM clusters are missing
+    // the algorithm should not crash. instead it should just produce the regular CSC LCTs
+    // in ME1/1 and/or ME2/1
+    ev.getByToken(gem_pad_cluster_token_, gemPadDigiClusters);
+    if (!gemPadDigiClusters.isValid()) {
+      edm::LogWarning("CSCTriggerPrimitivesProducer|NoInputCollection")
+          << "+++ Warning: Collection of GEM clusters with label " << gemPadDigiClusterProducer_.label()
+          << " requested in configuration, but not found in the event..."
+          << " Running CSC-only trigger algorithm +++\n";
+    } else {
+      // when the GEM-CSC trigger should be run and the label is not empty, set a valid pointer
+      gemPadClusters = gemPadDigiClusters.product();
+    }
+  }
+
   // Fill output collections if valid input collections are available.
   if (wireDigis.isValid() && compDigis.isValid()) {
     const CSCBadChambers* temp = checkBadChambers_ ? pBadChambers.product() : new CSCBadChambers;
@@ -296,8 +310,9 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
                     *oc_pretrig,
                     *oc_lct,
                     *oc_sorted_lct,
-                    *oc_shower,
                     *oc_shower_anode,
+                    *oc_shower_cathode,
+                    *oc_shower,
                     *oc_gemcopad);
     if (!checkBadChambers_)
       delete temp;
@@ -318,6 +333,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   if (keepShowers_) {
     ev.put(std::move(oc_shower));
     ev.put(std::move(oc_shower_anode), "Anode");
+    ev.put(std::move(oc_shower_cathode), "Cathode");
   }
   // only put GEM copad collections in the event when the
   // integrated local triggers are running

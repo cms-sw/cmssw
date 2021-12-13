@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -59,7 +59,7 @@
 // class decleration
 //
 
-class DuplicateRecHits : public edm::EDAnalyzer {
+class DuplicateRecHits : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   explicit DuplicateRecHits(const edm::ParameterSet&);
   ~DuplicateRecHits() override;
@@ -99,6 +99,7 @@ DuplicateRecHits::DuplicateRecHits(const edm::ParameterSet& iConfig)
   //now do what ever initialization is needed
 
   // histogram parameters
+  usesResource(TFileService::kSharedResource);
 
   edm::LogInfo("TrackCollection") << "Using collection "
                                   << iConfig.getParameter<edm::InputTag>("trackCollection").label().c_str();

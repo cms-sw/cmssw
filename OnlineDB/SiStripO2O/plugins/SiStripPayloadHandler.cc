@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,7 +26,7 @@
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
 
 template <typename SiStripPayload>
-class SiStripPayloadHandler : public edm::EDAnalyzer {
+class SiStripPayloadHandler : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripPayloadHandler(const edm::ParameterSet& iConfig);
   ~SiStripPayloadHandler() override;
@@ -74,7 +74,7 @@ SiStripPayloadHandler<SiStripPayload>::SiStripPayloadHandler(const edm::Paramete
 }
 
 template <typename SiStripPayload>
-SiStripPayloadHandler<SiStripPayload>::~SiStripPayloadHandler() {}
+SiStripPayloadHandler<SiStripPayload>::~SiStripPayloadHandler() = default;
 
 template <typename SiStripPayload>
 void SiStripPayloadHandler<SiStripPayload>::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {

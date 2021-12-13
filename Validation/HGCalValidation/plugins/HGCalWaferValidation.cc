@@ -21,8 +21,13 @@
 // Original Author:  Imran Yusuff
 //         Created:  Thu, 27 May 2021 19:47:08 GMT
 //
-//
-
+// Modified by: Yulun Miao
+// Modified at: Wed, 17 Nov 2021 21:04:10 UTC
+/*
+ Details of Modification:
+     * Use the l or h preceding the thickness to determine the type of flat file
+     * Unified partial wafer information to HGCalTypes.h to allow cross-compare
+*/
 // system include files
 #include <memory>
 
@@ -87,7 +92,7 @@ private:
     int thickClass;
     double x;
     double y;
-    std::string shapeCode;
+    int shapeCode;
     int rotCode;
   };
 
@@ -206,7 +211,30 @@ void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker& walker)
         rotStr = "0";
       const int rotCode(std::stoi(rotStr));
       //edm::LogVerbatim(logcat) << "rotStr " << rotStr << " rotCode " << rotCode;
-      waferInfo.shapeCode = shapeStr;
+
+      // convert shape code to wafer types defined in HGCalTypes.h
+      waferInfo.shapeCode = HGCalTypes::WaferPartialType::WaferOut;
+      if (shapeStr == "F")
+        waferInfo.shapeCode = HGCalTypes::WaferPartialType::WaferFull;
+      else if (shapeStr == "a")
+        waferInfo.shapeCode = HGCalTypes::WaferPartialType::WaferHalf;
+      else if (shapeStr == "am")
+        waferInfo.shapeCode = HGCalTypes::WaferPartialType::WaferHalf2;
+      else if (shapeStr == "b")
+        waferInfo.shapeCode = HGCalTypes::WaferPartialType::WaferFive;
+      else if (shapeStr == "bm")
+        waferInfo.shapeCode = HGCalTypes::WaferPartialType::WaferFive2;
+      else if (shapeStr == "c")
+        waferInfo.shapeCode = HGCalTypes::WaferPartialType::WaferThree;
+      else if (shapeStr == "d")
+        waferInfo.shapeCode = HGCalTypes::WaferPartialType::WaferSemi;
+      else if (shapeStr == "dm")
+        waferInfo.shapeCode = HGCalTypes::WaferPartialType::WaferSemi2;
+      else if (shapeStr == "g")
+        waferInfo.shapeCode = HGCalTypes::WaferPartialType::WaferChopTwo;
+      else if (shapeStr == "gm")
+        waferInfo.shapeCode = HGCalTypes::WaferPartialType::WaferChopTwoM;
+
       waferInfo.rotCode = rotCode;
       // populate the map
       waferData[waferCoord] = waferInfo;
@@ -323,15 +351,84 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
     nTotalProcessed++;
 
+    int waferLayer;
+    std::string waferShapeStr;
+    std::string waferDensityStr;
+    int waferThickness;
+    double waferX;
+    double waferY;
+    int waferRotCode;
+    int waferU;
+    int waferV;
+    int waferShapeCode;
     // extract wafer info from a textfile line
-    const int waferLayer(std::stoi(tokens[0]));
-    const std::string waferShapeCode(tokens[1]);
-    const int waferThickness(std::stoi(tokens[2]));
-    const double waferX(std::stod(tokens[3]));
-    const double waferY(std::stod(tokens[4]));
-    const int waferRotCode(std::stoi(tokens[5]));
-    const int waferU(std::stoi(tokens[6]));
-    const int waferV(std::stoi(tokens[7]));
+    if (tokens[2].substr(0, 1) == "l" || tokens[2].substr(0, 1) == "h") {
+      //if using new format flat file
+      waferLayer = std::stoi(tokens[0]);
+      waferShapeStr = tokens[1];
+      waferDensityStr = tokens[2].substr(0, 1);
+      waferThickness = std::stoi(tokens[2].substr(1));
+      waferX = std::stod(tokens[3]);
+      waferY = std::stod(tokens[4]);
+      waferRotCode = std::stoi(tokens[5]);
+      waferU = std::stoi(tokens[6]);
+      waferV = std::stoi(tokens[7]);
+      waferShapeCode = HGCalTypes::WaferPartialType::WaferOut;
+      if (waferDensityStr == "l") {
+        if (waferShapeStr == "0")
+          waferShapeCode = HGCalTypes::WaferPartialType::WaferFull;
+        else if (waferShapeStr == "1" || waferShapeStr == "2")
+          waferShapeCode = HGCalTypes::WaferPartialType::WaferHalf;
+        else if (waferShapeStr == "3" || waferShapeStr == "4")
+          waferShapeCode = HGCalTypes::WaferPartialType::WaferSemi;
+        else if (waferShapeStr == "5")
+          waferShapeCode = HGCalTypes::WaferPartialType::WaferFive;
+        else if (waferShapeStr == "6")
+          waferShapeCode = HGCalTypes::WaferPartialType::WaferThree;
+      } else if (waferDensityStr == "h") {
+        if (waferShapeStr == "0")
+          waferShapeCode = HGCalTypes::WaferPartialType::WaferFull;
+        else if (waferShapeStr == "1")
+          waferShapeCode = HGCalTypes::WaferPartialType::WaferHalf2;
+        else if (waferShapeStr == "2")
+          waferShapeCode = HGCalTypes::WaferPartialType::WaferChopTwoM;
+        else if (waferShapeStr == "3" || waferShapeStr == "4")
+          waferShapeCode = HGCalTypes::WaferPartialType::WaferSemi2;
+        else if (waferShapeStr == "5")
+          waferShapeCode = HGCalTypes::WaferPartialType::WaferFive2;
+      }
+    } else {
+      //if using old format flat file
+      waferLayer = std::stoi(tokens[0]);
+      waferShapeStr = tokens[1];
+      waferThickness = std::stoi(tokens[2]);
+      waferX = std::stod(tokens[3]);
+      waferY = std::stod(tokens[4]);
+      waferRotCode = (std::stoi(tokens[5]));
+      waferU = std::stoi(tokens[6]);
+      waferV = std::stoi(tokens[7]);
+      waferShapeCode = HGCalTypes::WaferPartialType::WaferOut;
+      if (waferShapeStr == "F")
+        waferShapeCode = HGCalTypes::WaferPartialType::WaferFull;
+      else if (waferShapeStr == "a")
+        waferShapeCode = HGCalTypes::WaferPartialType::WaferHalf;
+      else if (waferShapeStr == "am")
+        waferShapeCode = HGCalTypes::WaferPartialType::WaferHalf2;
+      else if (waferShapeStr == "b")
+        waferShapeCode = HGCalTypes::WaferPartialType::WaferFive;
+      else if (waferShapeStr == "bm")
+        waferShapeCode = HGCalTypes::WaferPartialType::WaferFive2;
+      else if (waferShapeStr == "c")
+        waferShapeCode = HGCalTypes::WaferPartialType::WaferThree;
+      else if (waferShapeStr == "d")
+        waferShapeCode = HGCalTypes::WaferPartialType::WaferSemi;
+      else if (waferShapeStr == "dm")
+        waferShapeCode = HGCalTypes::WaferPartialType::WaferSemi2;
+      else if (waferShapeStr == "g")
+        waferShapeCode = HGCalTypes::WaferPartialType::WaferChopTwo;
+      else if (waferShapeStr == "gm")
+        waferShapeCode = HGCalTypes::WaferPartialType::WaferChopTwoM;
+    }
 
     // map index for crosschecking with DD
     const WaferCoord waferCoord(waferLayer, waferU, waferV);
@@ -364,13 +461,13 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       edm::LogVerbatim(logcat) << "POSITION y ERROR: " << strWaferCoord(waferCoord);
     }
 
-    if (waferInfo.shapeCode != waferShapeCode) {
+    if (waferInfo.shapeCode != waferShapeCode || waferShapeCode == HGCalTypes::WaferPartialType::WaferOut) {
       nShapeError++;
       edm::LogVerbatim(logcat) << "SHAPE ERROR: " << strWaferCoord(waferCoord);
     }
 
-    if ((waferShapeCode != 'F' && waferInfo.rotCode != waferRotCode) ||
-        (waferShapeCode == 'F' && (waferInfo.rotCode % 2 != waferRotCode % 2))) {
+    if ((waferShapeCode != HGCalTypes::WaferPartialType::WaferFull && waferInfo.rotCode != waferRotCode) ||
+        (waferShapeCode == HGCalTypes::WaferPartialType::WaferFull && (waferInfo.rotCode % 2 != waferRotCode % 2))) {
       nRotError++;
       edm::LogVerbatim(logcat) << "ROTATION ERROR: " << strWaferCoord(waferCoord) << "  ( " << waferInfo.rotCode
                                << " != " << waferRotCode << " )";

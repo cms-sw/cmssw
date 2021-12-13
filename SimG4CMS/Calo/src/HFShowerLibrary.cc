@@ -116,7 +116,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
                                << " Flag for equalizing Time Shift for different eta " << equalizeTimeShift_;
 
   fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
-  photo = new HFShowerPhotonCollection;
+  photo = std::make_unique<HFShowerPhotonCollection>();
 
   //Radius (minimum and maximum)
   std::vector<double> rTable = hcalConstant_->getRTableHF();
@@ -137,7 +137,6 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
 HFShowerLibrary::~HFShowerLibrary() {
   if (hf)
     hf->Close();
-  delete photo;
 }
 
 std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step* aStep,

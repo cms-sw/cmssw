@@ -1,17 +1,10 @@
 #include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
-CustomUIsession::CustomUIsession() : fout(nullptr) {
-  G4UImanager* UI = G4UImanager::GetUIpointer();
-  UI->SetCoutDestination(this);
-}
+CustomUIsession::CustomUIsession() : fout(nullptr) {}
 
-CustomUIsession::~CustomUIsession() {
-  G4UImanager* UI = G4UImanager::GetUIpointer();
-  UI->SetCoutDestination(nullptr);
-}
+CustomUIsession::~CustomUIsession() {}
 
 G4int CustomUIsession::ReceiveG4cout(const G4String& coutString) {
-  //std::cout << coutString << std::flush;
   if (fout) {
     (*fout) << trim(coutString) << "\n";
   } else {
@@ -21,7 +14,6 @@ G4int CustomUIsession::ReceiveG4cout(const G4String& coutString) {
 }
 
 G4int CustomUIsession::ReceiveG4cerr(const G4String& cerrString) {
-  //std::cerr << cerrString << std::flush;
   edm::LogWarning("G4cerr") << trim(cerrString);
   return 0;
 }

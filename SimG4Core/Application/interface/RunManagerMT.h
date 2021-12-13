@@ -64,8 +64,8 @@ public:
   void Connect(RunAction*);
 
   // Keep this to keep ExceptionHandler to compile, probably removed
-  // later (or functionality moved to RunManagerMTWorker)
-  inline void abortRun(bool softAbort = false) {}
+  // later (or functionality moved to RunManagerMTWorker).
+  //  inline void abortRun(bool softAbort = false) {}
 
   inline const DDDWorld& world() const { return *m_world; }
 
@@ -74,8 +74,7 @@ public:
   inline const std::vector<std::string>& G4Commands() const { return m_G4Commands; }
 
   // In order to share the physics list with the worker threads, we
-  // need a non-const pointer. Thread-safety is handled inside Geant4
-  // with TLS.
+  // need a non-const pointer. Thread-safety is handled inside Geant4.
   inline PhysicsList* physicsListForWorker() const { return m_physicsList.get(); }
 
 private:

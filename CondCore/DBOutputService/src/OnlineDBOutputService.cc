@@ -114,21 +114,14 @@ cond::Time_t cond::service::OnlineDBOutputService::getLastLumiProcessed() {
   return lastLumiProcessed;
 }
 
-cond::Iov_t cond::service::OnlineDBOutputService::preLoadIov(const std::string& recordName, cond::Time_t targetTime) {
-  cond::persistency::Session session = getReadOnlyCache(targetTime);
+cond::Iov_t cond::service::OnlineDBOutputService::preLoadIov(const PoolDBOutputService::Record& record,
+                                                             cond::Time_t targetTime) {
+  auto transId = cond::time::transactionIdForLumiTime(targetTime, record.m_refreshTime, m_frontierKey);
+  cond::persistency::Session session = PoolDBOutputService::newReadOnlySession(m_preLoadConnectionString, transId);
   cond::persistency::TransactionScope transaction(session.transaction());
   transaction.start(true);
-  cond::persistency::IOVProxy proxy = session.readIov(PoolDBOutputService::tag(recordName));
+  cond::persistency::IOVProxy proxy = session.readIov(record.m_tag);
   auto iov = proxy.getInterval(targetTime);
   transaction.commit();
   return iov;
-}
-
-cond::persistency::Session cond::service::OnlineDBOutputService::getReadOnlyCache(cond::Time_t targetTime) {
-  std::stringstream transId;
-  transId << targetTime;
-  if (!m_frontierKey.empty()) {
-    transId << "_" << m_frontierKey;
-  }
-  return PoolDBOutputService::newReadOnlySession(m_preLoadConnectionString, transId.str());
 }
