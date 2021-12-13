@@ -162,10 +162,10 @@ Hydjet2Hadronizer::Hydjet2Hadronizer(const edm::ParameterSet &pset, edm::Consume
   fParams.fIanglu = pset.getParameter<int>(
       "fIanglu");  // Flag to fix type of angular distribution of in-medium emitted gluons, fIanglu (0 small-angular, 1 wide-angular, 2 collinear).
 
-  edm::FileInPath f1("GeneratorInterface/Hydjet2Interface/data/particles.data");
+  edm::FileInPath f1("externals/hydjet2/particles.data");
   strcpy(fParams.partDat, (f1.fullPath()).c_str());
 
-  edm::FileInPath f2("GeneratorInterface/Hydjet2Interface/data/tabledecay.txt");
+  edm::FileInPath f2("externals/hydjet2/tabledecay.txt");
   strcpy(fParams.tabDecay, (f2.fullPath()).c_str());
 
   fParams.fPythiaTune = false;
