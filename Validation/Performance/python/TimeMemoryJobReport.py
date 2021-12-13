@@ -16,9 +16,8 @@ def customiseWithTimeMemoryJobReport(process):
     if hasattr(process,"options"):
         process.options.wantSummary = cms.untracked.bool(False)
     else:
-        process.options = dict(
-            wantSummary = False
-            )
+        process.options.wantSummary = False
+
 
     #Silence the final Timing service report
     process.MessageLogger.cerr.TimeReport = dict(limit = 0)

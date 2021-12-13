@@ -39,8 +39,7 @@ def customise(process):
     if hasattr(process,'options'):
         process.options.wantSummary = cms.untracked.bool(True)
     else:
-        process.options = dict(
-            wantSummary = True
-        )
+        process.options.wantSummary = True
+        
 
     return(process)
