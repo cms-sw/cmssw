@@ -137,7 +137,6 @@
 <test name="import-werkzeug" command="python3 -c 'import werkzeug'"/>
 <test name="import-widgetsnbextension" command="python3 -c 'import widgetsnbextension'"/>
 <test name="import-xgboost" command="python3 -c 'import xgboost'"/>
-<test name="import-h5py_cache" command="python3 -c 'import h5py_cache'"/>
 <test name="import-google" command="python3 -c 'import google'"/>
 <test name="import-lxml" command="python3 -c 'import lxml'"/>
 <test name="import-bs4" command="python3 -c 'import bs4'"/>
