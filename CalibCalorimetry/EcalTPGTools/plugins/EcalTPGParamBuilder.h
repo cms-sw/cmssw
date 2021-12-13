@@ -134,6 +134,7 @@ private:
   std::string weight_even_weightGroupFile_;
   std::string weight_odd_idMapFile_;
   std::string weight_odd_weightGroupFile_;
+  static constexpr uint NWEIGHTS = 5;  // It can be up to 6, but in Run 1,2,3 only 5 weights have been used
 
   bool weight_useDoubleWeights_;
   bool TPmode_EnableEBOddFilter_;
