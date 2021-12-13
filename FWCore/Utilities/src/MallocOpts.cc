@@ -96,9 +96,7 @@ namespace edm {
       char* str = (char*)&ans[0];
       ans[3] = 0;
 
-      return strncmp(str, amd_str, 2) == 0     ? AMD_CPU
-             : strncmp(str, intel_str, 2) == 0 ? INTEL_CPU
-                                               : UNKNOWN_CPU;
+      return strncmp(str, amd_str, 2) == 0 ? AMD_CPU : strncmp(str, intel_str, 2) == 0 ? INTEL_CPU : UNKNOWN_CPU;
     }
 
     // values determined experimentally for each architecture
