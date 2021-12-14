@@ -1,66 +1,79 @@
-#include "TrackingTools/TrackRefitter/test/TrackReader.h"
+/** \class TrackReader
+ *  No description available.
+ *
+ *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ */
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+// Base Class Headers
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 #include "TFile.h"
 #include "TH1F.h"
 
-using namespace std;
-using namespace edm;
+#include <vector>
 
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+class TrackReader : public edm::one::EDAnalyzer<> {
+public:
+  typedef std::vector<Trajectory> Trajectories;
 
-DEFINE_FWK_MODULE(TrackReader);
+public:
+  /// Constructor
+  TrackReader(const edm::ParameterSet& pset);
+
+  /// Destructor
+  virtual ~TrackReader();
+
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+
+protected:
+  //  void printTrackRecHits(const reco::Track &, edm::ESHandle<GlobalTrackingGeometry>) const;
+
+private:
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> trackerBuilderToken_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> muonBuilderToken_;
+  edm::InputTag theInputLabel;
+};
 
 /// Constructor
-TrackReader::TrackReader(const ParameterSet& parameterSet) {
-  theInputLabel = parameterSet.getParameter<InputTag>("InputLabel");
-
-  theTrackerRecHitBuilderName = parameterSet.getParameter<string>("TrackerRecHitBuilder");
-  theMuonRecHitBuilderName = parameterSet.getParameter<string>("MuonRecHitBuilder");
+TrackReader::TrackReader(const edm::ParameterSet& parameterSet)
+    : trackerBuilderToken_(
+          esConsumes(edm::ESInputTag("", parameterSet.getParameter<std::string>("TrackerRecHitBuilder")))),
+      muonBuilderToken_(esConsumes(edm::ESInputTag("", parameterSet.getParameter<std::string>("MuonRecHitBuilder")))) {
+  theInputLabel = parameterSet.getParameter<edm::InputTag>("InputLabel");
 }
 
 /// Destructor
-TrackReader::~TrackReader() {}
+TrackReader::~TrackReader() = default;
 
-// Operations
-void TrackReader::beginJob() {}
-
-void TrackReader::endJob() {}
-
-void TrackReader::analyze(const Event& event, const EventSetup& setup) {
-  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-  edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
-
-  setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, theTrackerRecHitBuilder);
-  setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
+void TrackReader::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  const TransientTrackingRecHitBuilder* theTrackerRecHitBuilder = &setup.getData(trackerBuilderToken_);
+  const TransientTrackingRecHitBuilder* theMuonRecHitBuilder = &setup.getData(muonBuilderToken_);
 
   const std::string metname = "Reco|TrackingTools|TrackReader";
 
   // Get the RecTrack collection from the event
-  Handle<reco::TrackCollection> tracks;
+  edm::Handle<reco::TrackCollection> tracks;
   event.getByLabel(theInputLabel, tracks);
 
   for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
@@ -80,3 +93,8 @@ void TrackReader::analyze(const Event& event, const EventSetup& setup) {
     }
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(TrackReader);
