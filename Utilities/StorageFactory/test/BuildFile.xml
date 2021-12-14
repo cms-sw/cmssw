@@ -37,3 +37,4 @@
 # to wait until the framework decides on a threading model to implement a fix.
 # file="threadsafe.cpp" name="test_StorageFactory_threadsafe"
 
+<test name="TestStatisticsSenderService" command="test_file_statistics_sender.sh"/>
