@@ -23,8 +23,8 @@
 #include <string>
 #include <vector>
 
-#include "Hydjet2.h"
-#include "InitialParams.h"
+#include <Hydjet2.h>
+#include <InitialParams.h>
 
 namespace CLHEP {
   class HepRandomEngine;
