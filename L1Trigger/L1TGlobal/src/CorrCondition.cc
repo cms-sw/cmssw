@@ -8,7 +8,7 @@
  *    <TODO: enter implementation details>
  *
  *\new features: Dragana Pilipovic
- *                - updated for invariant mass over delta R condition
+ *                - updated for invariant mass over delta R condition*
  */
 
 // this class header
@@ -955,15 +955,6 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                               << "     chrg        = [" << chrg0 << ", " << chrg1 << "]\n"
                               << std::endl;
       }
-      //std::cout  << "    Correlation pair [" << l1TGtObjectEnumToString(cndObjTypeVec[0]) << ", "
-      //                              << l1TGtObjectEnumToString(cndObjTypeVec[1]) << "] with collection indices [" << obj0Index
-      //                              << ", " << obj1Index << "] "
-      //                              << " has: \n"
-      //                              << "     Et  value   = [" << dec << etIndex0 << ", " << dec << etIndex1 << "]\n"
-      //                              << "     phi indices = [" << dec << phiIndex0 << ", " << dec << phiIndex1 << "]\n"
-      //                              << "     eta indices = [" << dec << etaIndex0 << ", " << dec << etaIndex1 << "]\n"
-      //                              << "     chrg        = [" << chrg0 << ", " << chrg1 << "]\n"
-      //                              << std::endl;
 
       // Now perform the desired correlation on these two objects. Assume true until we find a contradition
       bool reqResult = true;
@@ -1289,15 +1280,14 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                               << "    deltaEtaPhy  = " << deltaEtaPhy << "  cosh()= " << coshDeltaEtaPhy << "\n"
                               << "    massSqPhy/2  = " << massSqPhy
                               << "  sqrt(|massSq|) = " << sqrt(fabs(2. * massSqPhy)) << std::endl;
+
         //if(preShift>0) massSq /= pow(10,preShift);
         if (corrPar.corrCutType & 0x80) {  //deal with the Invariant Mass Over Delta R cut
-                                           //
           // The following is the most precise indexing for 1/dr2 LUT iEta and jPhi - it is based on the physical VALUES for deta and dphi:
           //             unsigned int inverseDeltaRIndexEta = int(round(abs(deltaEtaPhy / tempdiffeta)));
           //             unsigned int inverseDeltaRIndexPhi = int(round(abs(deltaPhiPhy/ tempdiffphi)));
           // To match the FW we instead must use these INDIVIDUAL indecies for eta and phi:
-          //(NOTE: The following treatment of delta eta and delta phi indecies matches the most precise case above):
-          //
+          // (NOTE: The following treatment of delta eta and delta phi indecies matches the most precise case above):
           int iEta0 = int(trunc(etaIndex0 * resolution));
           int iEta1 = int(trunc(etaIndex1 * resolution));
           unsigned int inverseDeltaRIndexEta = abs(iEta0 - iEta1);
