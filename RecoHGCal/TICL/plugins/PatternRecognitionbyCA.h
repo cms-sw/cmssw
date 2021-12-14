@@ -62,6 +62,7 @@ namespace ticl {
 
     hgcal::RecHitTools rhtools_;
     tensorflow::Session* eidSession_;
+    const std::vector<double> siblings_maxRSquared_;
 
     static const int eidNFeatures_ = 3;
   };
