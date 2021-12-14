@@ -78,7 +78,7 @@ void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Even
     // Get the superlayers and layers list
     vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
     // Create the object to be written to DB
-    DTTtrig* tTrigMap = new DTTtrig();
+    DTTtrig tTrigMap;
 
     for (auto sl = dtSupLylist.begin(); sl != dtSupLylist.end(); sl++) {
       // get the time of fly
@@ -101,7 +101,7 @@ void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Even
       double fakeTTrig = pedestral + timeOfFly + timeOfWirePropagation + gaussianSmearing;
       // if the FakeTtrig is scaled of a number of bunch crossing
       //  double fakeTTrig = pedestral - 75.;
-      tTrigMap->set(slId, fakeTTrig, 0, 0, DTTimeUnits::ns);
+      tTrigMap.set(slId, fakeTTrig, 0, 0, DTTimeUnits::ns);
     }
 
     // Write the object in the DB
