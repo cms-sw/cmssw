@@ -123,5 +123,26 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
 
   }
 
-
 }
+
+//
+// -- Book Histograms
+//
+void SiPixelPhase1MonitorClusters::bookHistograms(DQMStore::IBooker& ibooker,
+                                                  edm::Run const& iRun,
+                                                  edm::EventSetup const& iSetup) {
+  ibooker.cd();
+  ibooker.setCurrentFolder(topFolderName_);
+  hnClusters = ibooker.book1D("nClusters", ";Number of Clusters per event;#entries", 1001, -0.5, 10000.5);
+  hnClusters2 = ibooker.book1D("nClusters2", ";Number of Clusters per event;#entries", 1001, -0.5, 10000.5);
+}
+
+void SiPixelPhase1MonitorClusters::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // monitorpixelTrackSoA
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("pixelClusters", edm::InputTag("siPixelClustersPreSplitting"));
+  desc.add<edm::InputTag>("pixelClusters2", edm::InputTag("siPixelDigisClustersPreSplitting"));
+  desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelClusters");
+  descriptions.addWithDefaultLabel(desc);
+}
+DEFINE_FWK_MODULE(SiPixelPhase1MonitorClusters);
