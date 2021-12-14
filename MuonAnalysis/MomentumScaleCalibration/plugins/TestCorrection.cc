@@ -26,7 +26,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -57,7 +57,7 @@
 // class decleration
 //
 
-class TestCorrection : public edm::EDAnalyzer, MuScleFitBase {
+class TestCorrection : public edm::one::EDAnalyzer<>, MuScleFitBase {
 public:
   explicit TestCorrection(const edm::ParameterSet&);
   ~TestCorrection() override;
@@ -93,8 +93,9 @@ private:
       MuScleFitMuon muon(mu, track->charge(), ptError, hitsTk, hitsMuon);
 
       if (debug_ > 0) {
-        std::cout << "[TestCorrection::fillMuonCollection] after MuScleFitMuon initialization" << std::endl;
-        std::cout << "  muon = " << muon << std::endl;
+        edm::LogPrint("TestCorrection") << "[TestCorrection::fillMuonCollection] after MuScleFitMuon initialization"
+                                        << std::endl;
+        edm::LogPrint("TestCorrection") << "  muon = " << muon << std::endl;
       }
 
       muons.push_back(muon);
@@ -125,13 +126,6 @@ private:
 };
 
 #endif  // TESTCORRECTION_HH
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -157,10 +151,10 @@ TestCorrection::TestCorrection(const edm::ParameterSet& iConfig)
   // Create the corrector and set the parameters
   corrector_ =
       std::make_unique<MomentumScaleCorrector>(iConfig.getUntrackedParameter<std::string>("CorrectionsIdentifier"));
-  std::cout << "corrector_ = " << &*corrector_ << std::endl;
+  edm::LogPrint("TestCorrection") << "corrector_ = " << &*corrector_ << std::endl;
   resolution_ =
       std::make_unique<ResolutionFunction>(iConfig.getUntrackedParameter<std::string>("ResolutionsIdentifier"));
-  std::cout << "resolution_ = " << &*resolution_ << std::endl;
+  edm::LogPrint("TestCorrection") << "resolution_ = " << &*resolution_ << std::endl;
   background_ =
       std::make_unique<BackgroundFunction>(iConfig.getUntrackedParameter<std::string>("BackgroundIdentifier"));
 
@@ -196,7 +190,7 @@ TestCorrection::~TestCorrection() {
   writeHistoMap(0);
   theFiles_[0]->Close();
 
-  std::cout << "Total analyzed events = " << eventCounter_ << std::endl;
+  edm::LogPrint("TestCorrection") << "Total analyzed events = " << eventCounter_ << std::endl;
 }
 
 //
@@ -211,7 +205,7 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   ++eventCounter_;
   if (eventCounter_ % 100 == 0) {
-    std::cout << "Event number " << eventCounter_ << std::endl;
+    edm::LogPrint("TestCorrection") << "Event number " << eventCounter_ << std::endl;
   }
 
   // Take the reco-muons, depending on the type selected in the cfg
@@ -289,9 +283,9 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     uncorrectedPtVsEta_->Fill(recMuon->pt(), recMuon->eta());
 
     // Fill the histogram with corrected pt values
-    std::cout << "correcting muon[" << muonCount << "] with pt = " << recMuon->pt() << std::endl;
+    edm::LogPrint("TestCorrection") << "correcting muon[" << muonCount << "] with pt = " << recMuon->pt() << std::endl;
     double corrPt = (*corrector_)(*recMuon);
-    std::cout << "to pt = " << corrPt << std::endl;
+    edm::LogPrint("TestCorrection") << "to pt = " << corrPt << std::endl;
     correctedPt_->Fill(corrPt);
     correctedPtVsEta_->Fill(corrPt, recMuon->eta());
     // correctedPt_->Fill(recMuon->pt());
