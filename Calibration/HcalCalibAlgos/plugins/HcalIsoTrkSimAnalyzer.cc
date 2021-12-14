@@ -121,7 +121,6 @@ private:
   bool notaMuon(const reco::GenParticle* pTrack);
 
   l1t::L1TGlobalUtil* l1GtUtils_;
-  edm::Service<TFileService> fs_;
   HLTConfigProvider hltConfig_;
   const std::vector<std::string> trigNames_;
   const std::string processName_, l1Filter_;
@@ -660,7 +659,8 @@ void HcalIsoTrkSimAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup co
 }
 
 void HcalIsoTrkSimAnalyzer::beginJob() {
-  tree = fs_->make<TTree>("CalibTree", "CalibTree");
+  edm::Service<TFileService> fs;
+  tree = fs->make<TTree>("CalibTree", "CalibTree");
 
   tree->Branch("t_Run", &t_Run, "t_Run/I");
   tree->Branch("t_Event", &t_Event, "t_Event/I");
@@ -716,7 +716,7 @@ void HcalIsoTrkSimAnalyzer::beginJob() {
   tree->Branch("t_HitEnergies1", "std::vector<double>", &t_HitEnergies1);
   tree->Branch("t_HitEnergies3", "std::vector<double>", &t_HitEnergies3);
 
-  tree2 = fs_->make<TTree>("EventInfo", "Event Information");
+  tree2 = fs->make<TTree>("EventInfo", "Event Information");
 
   tree2->Branch("t_RunNo", &t_RunNo, "t_RunNo/i");
   tree2->Branch("t_EventNo", &t_EventNo, "t_EventNo/i");

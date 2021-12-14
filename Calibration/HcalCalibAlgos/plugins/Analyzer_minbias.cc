@@ -82,6 +82,7 @@ namespace cms {
   }
 
   void Analyzer_minbias::beginJob() {
+    edm::Service<TFileService> fs;
     myTree = fs->make<TTree>("RecJet", "RecJet Tree");
     myTree->Branch("mydet", &mydet, "mydet/I");
     myTree->Branch("mysubd", &mysubd, "mysubd/I");
