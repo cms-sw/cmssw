@@ -16,7 +16,8 @@
  *
  * \new features: Elisa Fontanesi                                                      
  *                - extended for three-body correlation conditions                                         
- *                                                                
+ * \new features: Dragana Pilipovic
+ *                - updated for invariant mass over delta R condition                                                               
  * $Date$
  * $Revision$
  *

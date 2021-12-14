@@ -7,7 +7,8 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *
- *
+ *\new features: Dragana Pilipovic
+ *                - updated for invariant mass over delta R condition
  */
 
 // this class header
