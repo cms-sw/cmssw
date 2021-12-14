@@ -25,28 +25,28 @@ hiMABH.PurityCut_muon = 0.75
 ################################################
 
 # sim to tracker tracks, 
-tpToTkMuonAssociationHI = hiMABH.clone()
-tpToTkMuonAssociationHI.tracksTag = 'cutsRecoTrkMuons'
-tpToTkMuonAssociationHI.UseTracker = True
-tpToTkMuonAssociationHI.UseMuon = False
-
+tpToTkMuonAssociationHI = hiMABH.clone(
+tracksTag = 'cutsRecoTrkMuons',
+UseTracker = True,
+UseMuon = False
+)
 # sim to sta, and sta:updatedAtVtx
-tpToStaMuonAssociationHI = hiMABH.clone()
-tpToStaMuonAssociationHI.tracksTag = 'standAloneMuons'
-tpToStaMuonAssociationHI.UseTracker = False
-tpToStaMuonAssociationHI.UseMuon = True
-
-tpToStaUpdMuonAssociationHI = hiMABH.clone()
-tpToStaUpdMuonAssociationHI.tracksTag = 'standAloneMuons:UpdatedAtVtx'
-tpToStaUpdMuonAssociationHI.UseTracker = False
-tpToStaUpdMuonAssociationHI.UseMuon = True
-
+tpToStaMuonAssociationHI = hiMABH.clone(
+tracksTag = 'standAloneMuons',
+UseTracker = False,
+UseMuon = True
+)
+tpToStaUpdMuonAssociationHI = hiMABH.clone(
+tracksTag = 'standAloneMuons:UpdatedAtVtx',
+UseTracker = False,
+UseMuon = True
+)
 # sim to glb track 
-tpToGlbMuonAssociationHI = hiMABH.clone()
-tpToGlbMuonAssociationHI.tracksTag = 'globalMuons'
-tpToGlbMuonAssociationHI.UseTracker = True
-tpToGlbMuonAssociationHI.UseMuon = True
-
+tpToGlbMuonAssociationHI = hiMABH.clone(
+tracksTag = 'globalMuons',
+UseTracker = True,
+UseMuon = True
+)
 
 # Muon association sequences
 # (some are commented out until timing is addressed)
@@ -68,26 +68,26 @@ MTVhi.label_tp_fake = cms.InputTag("cutsTpMuons")
 MTVhi.maxPt = cms.double(100)
 
 # MuonTrackValidator parameters
-trkMuonTrackVMuonAssocHI = MTVhi.clone()
-trkMuonTrackVMuonAssocHI.associatormap  = 'tpToTkMuonAssociationHI'
-trkMuonTrackVMuonAssocHI.label          = ['cutsRecoTrkMuons']
-trkMuonTrackVMuonAssocHI.muonHistoParameters = trkMuonHistoParameters
-
-glbMuonTrackVMuonAssocHI = MTVhi.clone()
-glbMuonTrackVMuonAssocHI.associatormap = 'tpToGlbMuonAssociationHI'
-glbMuonTrackVMuonAssocHI.label           = ['globalMuons']
-glbMuonTrackVMuonAssocHI.muonHistoParameters = glbMuonHistoParameters
-
-staMuonTrackVMuonAssocHI = MTVhi.clone()
-staMuonTrackVMuonAssocHI.associatormap = 'tpToStaMuonAssociationHI'
-staMuonTrackVMuonAssocHI.label = ('standAloneMuons',)
-staMuonTrackVMuonAssocHI.muonHistoParameters = staMuonHistoParameters
-
-staUpdMuonTrackVMuonAssocHI = MTVhi.clone()
-staUpdMuonTrackVMuonAssocHI.associatormap = 'tpToStaUpdMuonAssociationHI'
-staUpdMuonTrackVMuonAssocHI.label = ('standAloneMuons:UpdatedAtVtx',)
-staUpdMuonTrackVMuonAssocHI.muonHistoParameters = staUpdMuonHistoParameters
-
+trkMuonTrackVMuonAssocHI = MTVhi.clone(
+associatormap  = 'tpToTkMuonAssociationHI',
+label          = ['cutsRecoTrkMuons'],
+muonHistoParameters = trkMuonHistoParameters
+)
+glbMuonTrackVMuonAssocHI = MTVhi.clone(
+associatormap = 'tpToGlbMuonAssociationHI',
+label           = ['globalMuons'],
+muonHistoParameters = glbMuonHistoParameters
+)
+staMuonTrackVMuonAssocHI = MTVhi.clone(
+associatormap = 'tpToStaMuonAssociationHI',
+label = ('standAloneMuons',),
+muonHistoParameters = staMuonHistoParameters
+)
+staUpdMuonTrackVMuonAssocHI = MTVhi.clone(
+associatormap = 'tpToStaUpdMuonAssociationHI',
+label = ('standAloneMuons:UpdatedAtVtx',),
+muonHistoParameters = staUpdMuonHistoParameters
+)
 
 # Muon validation sequences
 hiMuonValidation_seq = cms.Sequence(
