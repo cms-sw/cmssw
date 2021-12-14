@@ -27,7 +27,6 @@ public:
   void fillTree(HcalTestHistoClass* histos);
 
 private:
-  edm::Service<TFileService> fs_;
   TTree* tree_;
   std::unique_ptr<HcalTestHistoClass> h_;
   int kount_;
