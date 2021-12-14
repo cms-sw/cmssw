@@ -10,10 +10,11 @@ from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequencePAT_cff import *
 eleIsoDepositEcalFromHitsFull = eleIsoDepositEcalFromHits.clone()
 eleIsoDepositEcalFromHitsReduced = eleIsoDepositEcalFromHits.clone()
 
-eleIsoDepositEcalFromHitsFull.ExtractorPSet.barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB")
-eleIsoDepositEcalFromHitsFull.ExtractorPSet.endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE")
-eleIsoDepositEcalFromHitsReduced.ExtractorPSet.barrelEcalHits = cms.InputTag("reducedEcalRecHitsEB")
-eleIsoDepositEcalFromHitsReduced.ExtractorPSet.endcapEcalHits = cms.InputTag("reducedEcalRecHitsEE")
+eleIsoDepositEcalFromHitsFull.ExtractorPSet.barrelEcalHits = "ecalRecHit : EcalRecHitsEB"
+eleIsoDepositEcalFromHitsFull.ExtractorPSet.endcapEcalHits = "ecalRecHit : EcalRecHitsEE"
+eleIsoDepositEcalFromHitsReduced.ExtractorPSet.barrelEcalHits = "reducedEcalRecHitsEB"
+eleIsoDepositEcalFromHitsReduced.ExtractorPSet.endcapEcalHits = "reducedEcalRecHitsEE"
+
 
 # clone the value map producers for each DR
 
