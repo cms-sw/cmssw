@@ -14,9 +14,9 @@
  *                - correlations with overlap object removal
  *                - displaced muons by R.Cavanaugh
  *
- * \new features: Elisa Fontanesi
- *                - extended for three-body correlation conditions
- *
+ * \new features: Elisa Fontanesi                                                      
+ *                - extended for three-body correlation conditions                                         
+ *                                                                
  * $Date$
  * $Revision$
  *
@@ -111,11 +111,6 @@ void l1t::TriggerMenuParser::setVecMuonTemplate(const std::vector<std::vector<Mu
   m_vecMuonTemplate = vecMuonTempl;
 }
 
-void l1t::TriggerMenuParser::setVecMuonShowerTemplate(
-    const std::vector<std::vector<MuonShowerTemplate> >& vecMuonShowerTempl) {
-  m_vecMuonShowerTemplate = vecMuonShowerTempl;
-}
-
 void l1t::TriggerMenuParser::setVecCaloTemplate(const std::vector<std::vector<CaloTemplate> >& vecCaloTempl) {
   m_vecCaloTemplate = vecCaloTempl;
 }
@@ -207,7 +202,6 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
   m_conditionMap.resize(m_numberConditionChips);
 
   m_vecMuonTemplate.resize(m_numberConditionChips);
-  m_vecMuonShowerTemplate.resize(m_numberConditionChips);
   m_vecCaloTemplate.resize(m_numberConditionChips);
   m_vecEnergySumTemplate.resize(m_numberConditionChips);
   m_vecExternalTemplate.resize(m_numberConditionChips);
@@ -306,12 +300,6 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
                    condition.getType() == esConditionType::QuadMuon) {
           parseMuon(condition, chipNr, false);
 
-        } else if (condition.getType() == esConditionType::MuonShower0 ||
-                   condition.getType() == esConditionType::MuonShower1 ||
-                   condition.getType() == esConditionType::MuonShowerOutOfTime0 ||
-                   condition.getType() == esConditionType::MuonShowerOutOfTime1) {
-          parseMuonShower(condition, chipNr, false);
-
           //parse Correlation Conditions
         } else if (condition.getType() == esConditionType::MuonMuonCorrelation ||
                    condition.getType() == esConditionType::MuonEsumCorrelation ||
@@ -319,6 +307,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
                    condition.getType() == esConditionType::CaloCaloCorrelation ||
                    condition.getType() == esConditionType::CaloEsumCorrelation ||
                    condition.getType() == esConditionType::InvariantMass ||
+                   condition.getType() == esConditionType::InvariantMassDeltaR ||
                    condition.getType() == esConditionType::TransverseMass ||
                    condition.getType() == esConditionType::InvariantMassUpt) {  // Added for displaced muons
           parseCorrelation(condition, chipNr);
@@ -1532,84 +1521,6 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
 }
 
 /**
- * parseMuonShower Parse a muonShower condition and insert an entry to the conditions map
- *
- * @param node The corresponding node.
- * @param name The name of the condition.
- * @param chipNr The number of the chip this condition is located.
- *
- * @return "true" if succeeded, "false" if an error occurred.
- *
- */
-
-bool l1t::TriggerMenuParser::parseMuonShower(tmeventsetup::esCondition condMu,
-                                             unsigned int chipNr,
-                                             const bool corrFlag) {
-  using namespace tmeventsetup;
-
-  // get condition, particle name (must be muon) and type name
-  std::string condition = "muonShower";
-  std::string particle = "muonShower";  //l1t2string( condMu.objectType() );
-  std::string type = l1t2string(condMu.getType());
-  std::string name = l1t2string(condMu.getName());
-  // the number of muon shower objects is always 1
-  int nrObj = 1;
-
-  // condition type is always 1 particle, thus Type1s
-  GtConditionType cType = l1t::Type1s;
-
-  // temporary storage of the parameters
-  std::vector<MuonShowerTemplate::ObjectParameter> objParameter(nrObj);
-
-  if (int(condMu.getObjects().size()) != nrObj) {
-    edm::LogError("TriggerMenuParser") << " condMu objects: nrObj = " << nrObj
-                                       << "condMu.getObjects().size() = " << condMu.getObjects().size() << std::endl;
-    return false;
-  }
-
-  // Get the muon shower object
-  esObject object = condMu.getObjects().at(0);
-  int relativeBx = object.getBxOffset();
-
-  if (condMu.getType() == esConditionType::MuonShower0) {
-    objParameter[0].MuonShower0 = true;
-  } else if (condMu.getType() == esConditionType::MuonShower1) {
-    objParameter[0].MuonShower1 = true;
-  } else if (condMu.getType() == esConditionType::MuonShowerOutOfTime0) {
-    objParameter[0].MuonShowerOutOfTime0 = true;
-  } else if (condMu.getType() == esConditionType::MuonShowerOutOfTime1) {
-    objParameter[0].MuonShowerOutOfTime1 = true;
-  }
-
-  // object types - all muons
-  std::vector<GlobalObject> objType(nrObj, gtMuShower);
-
-  // now create a new CondMuonition
-  MuonShowerTemplate muonShowerCond(name);
-  muonShowerCond.setCondType(cType);
-  muonShowerCond.setObjectType(objType);
-  muonShowerCond.setCondChipNr(chipNr);
-  muonShowerCond.setCondRelativeBx(relativeBx);
-
-  muonShowerCond.setConditionParameter(objParameter);
-
-  if (edm::isDebugEnabled()) {
-    std::ostringstream myCoutStream;
-    muonShowerCond.print(myCoutStream);
-  }
-
-  // insert condition into the map and into muon template vector
-  if (!insertConditionIntoMap(muonShowerCond, chipNr)) {
-    edm::LogError("TriggerMenuParser") << "    Error: duplicate condition (" << name << ")" << std::endl;
-    return false;
-  } else {
-    (m_vecMuonShowerTemplate[chipNr]).push_back(muonShowerCond);
-  }
-
-  return true;
-}
-
-/**
  * parseCalo Parse a calo condition and insert an entry to the conditions map
  *
  * @param node The corresponding node.
@@ -2729,7 +2640,8 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
                                       << " Max = " << maxV << " precMin = " << cut.getMinimum().index
                                       << " precMax = " << cut.getMaximum().index << std::endl;
         cutType = cutType | 0x20;
-      } else if (cut.getCutType() == esCutType::Mass) {
+      } else if ((cut.getCutType() == esCutType::Mass) ||
+                 (cut.getCutType() == esCutType::MassDeltaR)) {  //Invariant Mass, MassOverDeltaR
         LogDebug("TriggerMenuParser") << "CutType: " << cut.getCutType() << "\tMass Cut minV = " << minV
                                       << " Max = " << maxV << " precMin = " << cut.getMinimum().index
                                       << " precMax = " << cut.getMaximum().index << std::endl;
@@ -2739,6 +2651,8 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
         // cutType = cutType | 0x8;
         if (corrCond.getType() == esConditionType::TransverseMass) {
           cutType = cutType | 0x10;
+        } else if (corrCond.getType() == esConditionType::InvariantMassDeltaR) {
+          cutType = cutType | 0x80;
         } else {
           cutType = cutType | 0x8;
         }
@@ -2990,6 +2904,11 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
       corrThreeBodyParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
       corrThreeBodyParameter.precMassCut = cut.getMinimum().index;
       cutType = cutType | 0x8;
+    } else if (cut.getCutType() == esCutType::MassDeltaR) {
+      corrThreeBodyParameter.minMassCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
+      corrThreeBodyParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
+      corrThreeBodyParameter.precMassCut = cut.getMinimum().index;
+      cutType = cutType | 0x80;
     }
   }
   corrThreeBodyParameter.corrCutType = cutType;
@@ -3141,44 +3060,42 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(const tmeventset
         maxV = 1.0e8;
 
       if (cut.getCutType() == esCutType::DeltaEta) {
-        //std::cout << "DeltaEta Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
         corrParameter.minEtaCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
         corrParameter.maxEtaCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
         corrParameter.precEtaCut = cut.getMinimum().index;
         cutType = cutType | 0x1;
       } else if (cut.getCutType() == esCutType::DeltaPhi) {
-        //std::cout << "DeltaPhi Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
         corrParameter.minPhiCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
         corrParameter.maxPhiCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
         corrParameter.precPhiCut = cut.getMinimum().index;
         cutType = cutType | 0x2;
       } else if (cut.getCutType() == esCutType::DeltaR) {
-        //std::cout << "DeltaR Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
         corrParameter.minDRCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
         corrParameter.maxDRCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
         corrParameter.precDRCut = cut.getMinimum().index;
         cutType = cutType | 0x4;
       } else if (cut.getCutType() == esCutType::Mass) {
-        //std::cout << "Mass Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
         corrParameter.minMassCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
         corrParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
         corrParameter.precMassCut = cut.getMinimum().index;
         cutType = cutType | 0x8;
+      } else if (cut.getCutType() == esCutType::MassDeltaR) {
+        corrParameter.minMassCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
+        corrParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
+        corrParameter.precMassCut = cut.getMinimum().index;
+        cutType = cutType | 0x80;
       }
       if (cut.getCutType() == esCutType::OvRmDeltaEta) {
-        //std::cout << "OverlapRemovalDeltaEta Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
         corrParameter.minOverlapRemovalEtaCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
         corrParameter.maxOverlapRemovalEtaCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
         corrParameter.precOverlapRemovalEtaCut = cut.getMinimum().index;
         cutType = cutType | 0x10;
       } else if (cut.getCutType() == esCutType::OvRmDeltaPhi) {
-        //std::cout << "OverlapRemovalDeltaPhi Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
         corrParameter.minOverlapRemovalPhiCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
         corrParameter.maxOverlapRemovalPhiCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
         corrParameter.precOverlapRemovalPhiCut = cut.getMinimum().index;
         cutType = cutType | 0x20;
       } else if (cut.getCutType() == esCutType::OvRmDeltaR) {
-        //std::cout << "DeltaR Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
         corrParameter.minOverlapRemovalDRCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
         corrParameter.maxOverlapRemovalDRCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
         corrParameter.precOverlapRemovalDRCut = cut.getMinimum().index;
