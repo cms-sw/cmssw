@@ -33,7 +33,6 @@ private:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
-  edm::Service<TFileService> fs;
   const edm::InputTag labelHBHEMuonVar_;
   const int useRaw_;
   int maxDepth_, kount_;
@@ -217,6 +216,7 @@ void HcalHBHENewMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
 // ------------ method called once each job just before starting event loop  ------------
 void HcalHBHENewMuonAnalyzer::beginJob() {
+  edm::Service<TFileService> fs;
   tree_ = fs->make<TTree>("TREE", "TREE");
   tree_->Branch("Event_No", &eventNumber_);
   tree_->Branch("Run_No", &runNumber_);
