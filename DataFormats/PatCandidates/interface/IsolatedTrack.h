@@ -179,14 +179,14 @@ namespace pat {
 
   private:
     static uint8_t probEncapsulation(float prob) {
-       if(prob == 0.f) {
-         return 0;
-       } else if (prob < 1 / 255.f) {
-         return  1;
-       } else if (prob == 1.f) {
-         return 255;
+      if (prob == 0.f) {
+        return 0;
+      } else if (prob < 1 / 255.f) {
+        return 1;
+      } else if (prob == 1.f) {
+        return 255;
       } else {
-         return 255.f * prob + 0.5f;
+        return 255.f * prob + 0.5f;
       }
     }
   };

@@ -41,7 +41,7 @@ class SiPixelTrackProbQXYProducer : public edm::global::EDProducer<> {
 public:
   explicit SiPixelTrackProbQXYProducer(const edm::ParameterSet&);
   ~SiPixelTrackProbQXYProducer() override = default;
-
+  float combineProbs(float probOnTrackWMulti, int numRecHits) const;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -114,7 +114,9 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
            tTopo->pxbLayer(pixhit->geographicalId()) != 1)) {
         float probQNoLayer1 = pixhit->probabilityQ();
         float probXYNoLayer1 = pixhit->probabilityXY();
-        if (probQNoLayer1 > 0.f) {  // only save the non-zero rechits
+        // only save the non-zero probQ rechits
+        // but keep the zero probXY rechits
+        if (probQNoLayer1 > 0.f) {
           numRecHitsNoLayer1++;
           // Calculate alpha term needed for the combination
           probQonTrackWMultiNoLayer1 *= probQNoLayer1;
@@ -145,87 +147,29 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
 
     }  // end looping on the rechits
 
-    // Combine the probabilities into a track level quantity
-    float logprobQonTrackWMulti = probQonTrackWMulti > 0.f ? log(probQonTrackWMulti) : 0.f;
-    float logprobXYonTrackWMulti = probXYonTrackWMulti > 0.f ? log(probXYonTrackWMulti) : 0.f;
-    float factQ = -logprobQonTrackWMulti;
-    float factXY = -logprobXYonTrackWMulti;
-    float probQonTrackTerm = 0.f;
-    float probXYonTrackTerm = 0.f;
-
-    if (numRecHits == 1) {
-      probQonTrackTerm = 1.f;
-      probXYonTrackTerm = 1.f;
-    } else if (numRecHits > 1) {
-      probQonTrackTerm = 1.f + factQ;
-      probXYonTrackTerm = 1.f + factXY;
-      for (int iTkRh = 2; iTkRh < numRecHits; ++iTkRh) {
-        factQ *= -logprobQonTrackWMulti / float(iTkRh);
-        factXY *= -logprobXYonTrackWMulti / float(iTkRh);
-        probQonTrackTerm += factQ;
-        probXYonTrackTerm += factXY;
-      }
+    // To save space let's zero out the low pt tracks
+    // otherwise combine into track level quantity
+    if (track.pt() < trackPtCut_) {
+      probQonTrack = 0;
+      probXYonTrack = 0;
+      probQonTrackNoLayer1 = 0;
+      probXYonTrackNoLayer1 = 0;
+    } else {
+      probQonTrack = combineProbs(probQonTrackWMulti, numRecHits);
+      probXYonTrack = combineProbs(probXYonTrackWMulti, numRecHits);
+      probQonTrackNoLayer1 = combineProbs(probQonTrackWMultiNoLayer1, numRecHitsNoLayer1);
+      probXYonTrackNoLayer1 = combineProbs(probXYonTrackWMultiNoLayer1, numRecHitsNoLayer1);
     }
-    probQonTrack = probQonTrackWMulti * probQonTrackTerm;
-    probXYonTrack = probXYonTrackWMulti * probXYonTrackTerm;
 
     // Count the number of tracks with small probQonTrack
     if (probQonTrack < 0.1) {
       numTrackWSmallProbQ++;
     }
 
-    if (debugFlag_) {
-      LogPrint("SiPixelTrackProbQXYProducer")
-          << "  >> probQonTrack = " << probQonTrack << " = " << probQonTrackWMulti << " * " << probQonTrackTerm;
-    }
-    // Repeat the above excluding Layer 1
-    float logprobQonTrackWMultiNoLayer1 = probQonTrackWMultiNoLayer1 > 0 ? log(probQonTrackWMultiNoLayer1) : 0;
-    float logprobXYonTrackWMultiNoLayer1 = probXYonTrackWMultiNoLayer1 > 0 ? log(probXYonTrackWMultiNoLayer1) : 0;
-
-    float factQNoLayer1 = -logprobQonTrackWMultiNoLayer1;
-    float factXYNoLayer1 = -logprobXYonTrackWMultiNoLayer1;
-
-    float probQonTrackTermNoLayer1 = 0.f;
-    float probXYonTrackTermNoLayer1 = 0.f;
-
-    if (numRecHitsNoLayer1 == 1) {
-      probQonTrackTermNoLayer1 = 1.f;
-      probXYonTrackTermNoLayer1 = 1.f;
-    } else if (numRecHitsNoLayer1 > 1) {
-      probQonTrackTermNoLayer1 = 1.f + factQNoLayer1;
-      probXYonTrackTermNoLayer1 = 1.f + factXYNoLayer1;
-      for (int iTkRh = 2; iTkRh < numRecHitsNoLayer1; ++iTkRh) {
-        factQNoLayer1 *= -logprobQonTrackWMultiNoLayer1 / float(iTkRh);
-        factXYNoLayer1 *= -logprobXYonTrackWMultiNoLayer1 / float(iTkRh);
-        probQonTrackTermNoLayer1 += factQNoLayer1;
-        probXYonTrackTermNoLayer1 += factXYNoLayer1;
-      }
-    }
-    probQonTrackNoLayer1 = probQonTrackWMultiNoLayer1 * probQonTrackTermNoLayer1;
-    probXYonTrackNoLayer1 = probXYonTrackWMultiNoLayer1 * probXYonTrackTermNoLayer1;
-
-    if (debugFlag_) {
-      LogPrint("SiPixelTrackProbQXYProducer") << "  >> probQonTrackNoLayer1 = " << probQonTrackNoLayer1 << " = "
-                                              << probQonTrackWMultiNoLayer1 << " * " << probQonTrackTermNoLayer1;
-    }
-
-    // To save space let's zero out the low pt tracks
-    if (track.pt() < trackPtCut_) {
-      probQonTrack = 0;
-      probXYonTrack = 0;
-      probQonTrackNoLayer1 = 0;
-      probXYonTrackNoLayer1 = 0;
-    }
-
     // Store the values in the collection
     resultSiPixelTrackProbQXYColl->emplace_back(probQonTrack, probXYonTrack);
     resultSiPixelTrackProbQXYNoLayer1Coll->emplace_back(probQonTrackNoLayer1, probXYonTrackNoLayer1);
   }  // end loop on track collection
-
-  if (debugFlag_) {
-    LogPrint("SiPixelTrackProbQXYProducer")
-        << "In this event the ratio of low probQ tracks / all tracks " << numTrackWSmallProbQ / float(numTrack);
-  }
 
   // Populate the event with the value map
   auto trackProbQXYMatch = std::make_unique<edm::ValueMap<reco::SiPixelTrackProbQXY>>();
@@ -243,44 +187,34 @@ void SiPixelTrackProbQXYProducer::produce(edm::StreamID id, edm::Event& iEvent, 
   iEvent.put(putProbQXYNoLayer1VMToken_, std::move(trackProbQXYMatchNoLayer1));
 }
 
-float SiPixelTrackProbQXYProducer::combineProbs( ) {
-    float logprobQonTrackWMultiNoLayer1 = probQonTrackWMultiNoLayer1 > 0 ? log(probQonTrackWMultiNoLayer1) : 0;
-    float logprobXYonTrackWMultiNoLayer1 = probXYonTrackWMultiNoLayer1 > 0 ? log(probXYonTrackWMultiNoLayer1) : 0;
+float SiPixelTrackProbQXYProducer::combineProbs(float probOnTrackWMulti, int numRecHits) const {
+  float logprobOnTrackWMulti = probOnTrackWMulti > 0 ? log(probOnTrackWMulti) : 0;
+  float factQ = -logprobOnTrackWMulti;
+  float probOnTrackTerm = 0.f;
 
-    float factQNoLayer1 = -logprobQonTrackWMultiNoLayer1;
-    float factXYNoLayer1 = -logprobXYonTrackWMultiNoLayer1;
-
-    float probQonTrackTermNoLayer1 = 0.f;
-    float probXYonTrackTermNoLayer1 = 0.f;
-
-    if (numRecHitsNoLayer1 == 1) {
-      probQonTrackTermNoLayer1 = 1.f;
-      probXYonTrackTermNoLayer1 = 1.f;
-    } else if (numRecHitsNoLayer1 > 1) {
-      probQonTrackTermNoLayer1 = 1.f + factQNoLayer1;
-      probXYonTrackTermNoLayer1 = 1.f + factXYNoLayer1;
-      for (int iTkRh = 2; iTkRh < numRecHitsNoLayer1; ++iTkRh) {
-        factQNoLayer1 *= -logprobQonTrackWMultiNoLayer1 / float(iTkRh);
-        factXYNoLayer1 *= -logprobXYonTrackWMultiNoLayer1 / float(iTkRh);
-        probQonTrackTermNoLayer1 += factQNoLayer1;
-        probXYonTrackTermNoLayer1 += factXYNoLayer1;
-      }
+  if (numRecHits == 1) {
+    probOnTrackTerm = 1.f;
+  } else if (numRecHits > 1) {
+    probOnTrackTerm = 1.f + factQ;
+    for (int iTkRh = 2; iTkRh < numRecHits; ++iTkRh) {
+      factQ *= -logprobOnTrackWMulti / float(iTkRh);
+      probOnTrackTerm += factQ;
     }
-    probQonTrackNoLayer1 = probQonTrackWMultiNoLayer1 * probQonTrackTermNoLayer1;
-    probXYonTrackNoLayer1 = probXYonTrackWMultiNoLayer1 * probXYonTrackTermNoLayer1;
+  }
+  float probOnTrack = probOnTrackWMulti * probOnTrackTerm;
 
-    if (debugFlag_) {
-      LogPrint("SiPixelTrackProbQXYProducer") << "  >> probQonTrackNoLayer1 = " << probQonTrackNoLayer1 << " = "
-                                              << probQonTrackWMultiNoLayer1 << " * " << probQonTrackTermNoLayer1;
-    }
+  if (debugFlag_) {
+    LogPrint("SiPixelTrackProbQXYProducer")
+        << "  >> probOnTrack = " << probOnTrack << " = " << probOnTrackWMulti << " * " << probOnTrackTerm;
+  }
+  return probOnTrack;
 }
 
 void SiPixelTrackProbQXYProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("Producer that creates SiPixel Charge and shape probabilities combined for tracks");
   desc.addUntracked<bool>("debug", false);
-  desc.add<double>("trackPtCut", 5.0)
-      ->setComment("Cut on the pt of the track above which we store the probs");
+  desc.add<double>("trackPtCut", 5.0)->setComment("Cut on the pt of the track above which we store the probs");
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"))
       ->setComment("Input track collection for the producer");
   descriptions.addWithDefaultLabel(desc);

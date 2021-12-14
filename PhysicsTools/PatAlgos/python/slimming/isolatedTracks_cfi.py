@@ -74,10 +74,9 @@ pp_on_AA.toModify(isolatedTracks, useHighPurity = True)
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 from Configuration.ProcessModifiers.run2_miniAOD_UL_preSummer20_cff import run2_miniAOD_UL_preSummer20
-from Configuration.ProcessModifiers.run2_miniAOD_UL_preWinter22_cff import run2_miniAOD_UL_preWinter22
 from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
 
-(run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL_preSummer20 | run2_miniAOD_UL_preWinter22 
+(run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL_preSummer20  
 | run2_miniAOD_pp_on_AA_103X).toModify(isolatedTracks, useSiPixelTrackProbQXY = False)
 
 def miniAOD_customizeIsolatedTracksFastSim(process):
