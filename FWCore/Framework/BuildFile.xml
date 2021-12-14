@@ -11,6 +11,7 @@
 <use name="FWCore/Version"/>
 <use name="boost"/>
 <use name="rootcore"/>
+<flags REM_CXXFLAGS="-fsanitize=pointer-compare" file="PathsAndConsumesOfModules.cc"/>
 <flags ADD_SUBDIR="1"/>
 <export>
   <lib name="1"/>
