@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -28,11 +29,15 @@
 #include <vector>
 #include <list>
 
+namespace dtdi {
+  struct Void {};
+}  // namespace dtdi
+
 class DTuROSROSData;
 class DTuROSFEDData;
 class DTTimeEvolutionHisto;
 
-class DTDataIntegrityTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTDataIntegrityTask : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<dtdi::Void>> {
 public:
   DTDataIntegrityTask(const edm::ParameterSet& ps);
 
@@ -43,8 +48,9 @@ public:
   void processuROS(DTuROSROSData& data, int fed, int uRos);
   void processFED(DTuROSFEDData& data, int fed);
 
-  void beginLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
+  std::shared_ptr<dtdi::Void> globalBeginLuminosityBlock(const edm::LuminosityBlock& ls,
+                                                         const edm::EventSetup& es) const override;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
 
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
@@ -71,9 +77,9 @@ private:
   // Monitor Elements
   MonitorElement* nEventMonitor;
   // <histoType, <index , histo> >
-  std::map<std::string, std::map<int, MonitorElement*> > fedHistos;
+  std::map<std::string, std::map<int, MonitorElement*>> fedHistos;
   // <histoType, histo> >
-  std::map<std::string, std::map<int, MonitorElement*> > summaryHistos;
+  std::map<std::string, std::map<int, MonitorElement*>> summaryHistos;
   // <key , histo> >
   std::map<unsigned int, MonitorElement*> urosHistos;
 
@@ -83,20 +89,24 @@ private:
 
   // standard ME for monitoring of FED integrity
   MonitorElement* hFEDEntry;
+  MonitorElement* hFEDFatal;
 
   //time histos for FEDs/uROS
-  std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > fedTimeHistos;
+  std::map<std::string, std::map<int, DTTimeEvolutionHisto*>> fedTimeHistos;
   // <key, histo> >
   std::map<unsigned int, DTTimeEvolutionHisto*> urosTimeHistos;
   //key =  (fed-minFED)#*100 + (uROS-minuROS)#
 
-  int nEventsLS;
+  mutable int nEventsLS;
 
   int neventsFED;
   int neventsuROS;
 
   int FEDIDmin;
   int FEDIDmax;
+
+  int errorX[6][12][5] = {{{0}}};  //5th is notOK flag and 6th is TDC Fatal; Second index is ROS. Last index is wheel
+  int nLinksForFatal;  //Minumum number of Links/wheel with notOKFlag or TDC fatal errors to consider a FEDfatal event
 
   // Number of uROS per FED
   const int NuROS = 12;
