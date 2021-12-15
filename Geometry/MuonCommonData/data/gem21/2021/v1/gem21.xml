@@ -1650,13 +1650,13 @@
     <String name="ChildName" value="GEMBox21B"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="1"/>
-    <Numeric name="startCopyNo" value="([gemf:Layer1Offset]+16)"/>
+    <Numeric name="startCopyNo" value="([gemf:Layer2Offset]+17)"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="285*deg"/>
+    <Numeric name="startAngle"  value="305*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value="[zposl1]"/>
+    <Numeric name="zoffset"     value="[zposl3]"/>
   </Algorithm>
       
 </DDDefinition>
