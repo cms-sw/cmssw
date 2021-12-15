@@ -119,13 +119,10 @@ bool l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonShower(
   if (useEmtfShowers && (tf == emtf_pos || tf == emtf_neg)) {
     muShower.setTFIdentifiers(proc, tf);
 
-    muShower.setOneNominalInTime(((bxPayload[emtfShowerOneNominalFrame_] >> emtfShowerOneNominalInTimeShift_) & 1) ==
-                                 1);
-    muShower.setOneNominalOutOfTime(
-        ((bxPayload[emtfShowerOneNominalFrame_] >> emtfShowerOneNominalOutOfTimeShift_) & 1) == 1);
-    muShower.setTwoLooseInTime(((bxPayload[emtfShowerTwoLooseFrame_] >> emtfShowerTwoLooseInTimeShift_) & 1) == 1);
-    muShower.setTwoLooseOutOfTime(((bxPayload[emtfShowerTwoLooseFrame_] >> emtfShowerTwoLooseOutOfTimeShift_) & 1) ==
-                                  1);
+    muShower.setOneNominalInTime(((bxPayload[emtfShowerInTimeFrame_] >> emtfShowerOneNominalShift_) & 1) == 1);
+    muShower.setOneNominalOutOfTime(((bxPayload[emtfShowerOOTFrame_] >> emtfShowerOneNominalShift_) & 1) == 1);
+    muShower.setOneTightInTime(((bxPayload[emtfShowerInTimeFrame_] >> emtfShowerOneTightShift_) & 1) == 1);
+    muShower.setOneTightOutOfTime(((bxPayload[emtfShowerOOTFrame_] >> emtfShowerOneTightShift_) & 1) == 1);
 
     return true;
   } else {
@@ -140,16 +137,16 @@ void l1t::RegionalMuonRawDigiTranslator::generatePackedShowerPayload(const Regio
     return;
   }
   // First we check whether we're going to overwrite something in the payload.
-  if (((payload.at(emtfShowerOneNominalFrame_) & emtfShowerOneNominalMask_) != 0) ||
-      ((payload.at(emtfShowerTwoLooseFrame_) & emtfShowerTwoLooseMask_) != 0)) {
+  if (((payload.at(emtfShowerInTimeFrame_) & emtfShowerMask_) != 0) ||
+      ((payload.at(emtfShowerOOTFrame_) & emtfShowerMask_) != 0)) {
     edm::LogError("L1T") << "Check constants for RegionalMuonShower fields! It looks like we're in danger of "
                             "overwriting muon data in the packer!";
     return;
   }
-  payload.at(emtfShowerOneNominalFrame_) |= (shower.isOneNominalInTime() & 1) << emtfShowerOneNominalInTimeShift_ |
-                                            (shower.isOneNominalOutOfTime() & 1) << emtfShowerOneNominalOutOfTimeShift_;
-  payload.at(emtfShowerTwoLooseFrame_) |= (shower.isTwoLooseInTime() & 1) << emtfShowerTwoLooseInTimeShift_ |
-                                          (shower.isTwoLooseOutOfTime() & 1) << emtfShowerTwoLooseOutOfTimeShift_;
+  payload.at(emtfShowerInTimeFrame_) |= (shower.isOneNominalInTime() & 1) << emtfShowerOneNominalShift_ |
+                                        (shower.isOneTightInTime() & 1) << emtfShowerOneTightShift_;
+  payload.at(emtfShowerOOTFrame_) |= (shower.isOneNominalOutOfTime() & 1) << emtfShowerOneNominalShift_ |
+                                     (shower.isOneTightOutOfTime() & 1) << emtfShowerOneTightShift_;
 }
 
 void l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalMuonCand& mu,
