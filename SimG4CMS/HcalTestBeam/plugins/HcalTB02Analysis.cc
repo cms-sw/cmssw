@@ -297,8 +297,8 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
         edm::LogWarning("HcalTBSim") << "HcalTB02Analysis:: End Of Event "
                                      << "ERROR: pointer to vertex = 0";
       } else {
-        int npart = avertex->GetNumberOfParticle();
 #ifdef EDM_ML_DEBUG
+        int npart = avertex->GetNumberOfParticle();
         edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis::Vertex number :" << i << " with " << npart << " particles";
 #endif
         if (thePrim == nullptr)
