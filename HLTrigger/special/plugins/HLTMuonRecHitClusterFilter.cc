@@ -84,25 +84,25 @@ void HLTMuonRecHitClusterFilter::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("ClusterTag", edm::InputTag("hltCSCrechitClusters"));
   desc.add<int>("MinN", 1);
   desc.add<int>("MinSize", 50);
-  desc.add<int>("MinSizeMinusMB1", 9999);
+  desc.add<int>("MinSizeMinusMB1", -1);
   desc.add<std::vector<double>>("MinSizeRegionCutEtas", {-1., -1., 1.9, 1.9});
   desc.add<std::vector<double>>("MaxSizeRegionCutEtas", {1.9, 1.9, -1., -1.});
   desc.add<std::vector<int>>("MinSizeRegionCutNstations", {-1, 1, -1, 1});
   desc.add<std::vector<int>>("MaxSizeRegionCutNstations", {1, -1, 1, -1});
-  desc.add<std::vector<int>>("MinSizeRegionCutClusterSize", {9999, 9999, 9999, 9999});
-  desc.add<int>("Max_nMB1", 999);
-  desc.add<int>("Max_nMB2", 999);
-  desc.add<int>("Max_nME11", 999);
-  desc.add<int>("Max_nME12", 999);
-  desc.add<int>("Max_nME41", 999);
-  desc.add<int>("Max_nME42", 999);
+  desc.add<std::vector<int>>("MinSizeRegionCutClusterSize", {-1, -1, -1, -1});
+  desc.add<int>("Max_nMB1", -1);
+  desc.add<int>("Max_nMB2", -1);
+  desc.add<int>("Max_nME11", -1);
+  desc.add<int>("Max_nME12", -1);
+  desc.add<int>("Max_nME41", -1);
+  desc.add<int>("Max_nME42", -1);
   desc.add<int>("MinNstation", 0);
   desc.add<double>("MinAvgStation", 0.0);
   desc.add<double>("MinTime", -999);
   desc.add<double>("MaxTime", 999);
   desc.add<double>("MinEta", -1.0);
   desc.add<double>("MaxEta", -1.0);
-  desc.add<double>("MaxTimeSpread", 999);
+  desc.add<double>("MaxTimeSpread", -1.0);
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -117,25 +117,27 @@ bool HLTMuonRecHitClusterFilter::filter(edm::StreamID, edm::Event& iEvent, const
   auto const& rechitClusters = iEvent.get(cluster_token_);
 
   for (auto const& cluster : rechitClusters) {
-    auto passSizeCut = (cluster.size() >= min_Size_) || ((cluster.size() - cluster.nMB1()) >= min_SizeMinusMB1_);
+    auto passSizeCut = (cluster.size() >= min_Size_ && min_Size_ > 0) ||
+                       ((cluster.size() - cluster.nMB1()) >= min_SizeMinusMB1_ && min_SizeMinusMB1_ > 0);
     if (not passSizeCut) {
       for (size_t i = 0; i < min_SizeRegionCutEtas_.size(); ++i) {
         if ((min_SizeRegionCutEtas_[i] < 0. || std::abs(cluster.eta()) > min_SizeRegionCutEtas_[i]) &&
             (max_SizeRegionCutEtas_[i] < 0. || std::abs(cluster.eta()) <= max_SizeRegionCutEtas_[i]) &&
             (min_SizeRegionCutNstations_[i] < 0 || cluster.nStation() > min_SizeRegionCutNstations_[i]) &&
             (max_SizeRegionCutNstations_[i] < 0 || cluster.nStation() <= max_SizeRegionCutNstations_[i]) &&
-            cluster.size() >= min_SizeRegionCutClusterSize_[i]) {
+            (min_SizeRegionCutClusterSize_[i] > 0 && cluster.size() >= min_SizeRegionCutClusterSize_[i])) {
           passSizeCut = true;
           break;
         }
       }
     }
-    if (passSizeCut && cluster.nMB1() <= max_nMB1_ && cluster.nMB2() <= max_nMB2_ && cluster.nME11() <= max_nME11_ &&
-        cluster.nME12() <= max_nME12_ && cluster.nME41() <= max_nME41_ && cluster.nME42() <= max_nME42_ &&
-        cluster.nStation() >= min_Nstation_ && cluster.avgStation() >= min_AvgStation_ &&
-        (min_Eta_ < 0.0 || std::abs(cluster.eta()) > min_Eta_) &&
+    if (passSizeCut && (max_nMB1_ < 0 || cluster.nMB1() <= max_nMB1_) &&
+        (max_nMB2_ < 0 || cluster.nMB2() <= max_nMB2_) && (max_nME11_ < 0 || cluster.nME11() <= max_nME11_) &&
+        (max_nME12_ < 0 || cluster.nME12() <= max_nME12_) && (max_nME41_ < 0 || cluster.nME41() <= max_nME41_) &&
+        (max_nME42_ < 0 || cluster.nME42() <= max_nME42_) && cluster.nStation() >= min_Nstation_ &&
+        cluster.avgStation() >= min_AvgStation_ && (min_Eta_ < 0.0 || std::abs(cluster.eta()) > min_Eta_) &&
         (max_Eta_ < 0.0 || std::abs(cluster.eta()) <= max_Eta_) && cluster.time() > min_Time_ &&
-        cluster.time() <= max_Time_ && cluster.timeSpread() <= max_TimeSpread_) {
+        cluster.time() <= max_Time_ && (max_TimeSpread_ < 0.0 || cluster.timeSpread() <= max_TimeSpread_)) {
       nClusterPassed++;
     }
   }
