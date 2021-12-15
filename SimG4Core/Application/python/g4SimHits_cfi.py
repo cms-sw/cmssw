@@ -635,7 +635,7 @@ run3_common.toModify( g4SimHits, LHCTransport = cms.bool(True) )
 ## Disable PPS from Run 3 PbPb runs
 ##
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-pp_on_PbPb_run3.toModify( g4SimHits, LHCTransport = false )
+pp_on_PbPb_run3.toModify( g4SimHits, LHCTransport = False )
 
 ##
 ## Change ECAL time slices
