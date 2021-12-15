@@ -163,9 +163,16 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
 vector<DetGroup> MTDTrayBarrelLayer::groupedCompatibleDets(const TrajectoryStateOnSurface& startingState,
                                                            const Propagator& prop,
                                                            const MeasurementEstimator& est) const {
-  // FIXME should return only 1 group
-  edm::LogError("MTDDetLayers") << "dummy implementation of MTDTrayBarrelLayer::groupedCompatibleDets()";
-  return vector<DetGroup>();
+  vector<GeometricSearchDet::DetWithState> detWithStates;
+
+  detWithStates = compatibleDets(startingState, prop, est);
+
+  vector<DetGroup> result;
+  if (!detWithStates.empty()) {
+    result.push_back(DetGroup(detWithStates));
+  }
+  LogTrace("MTDDetLayers") << "MTDTrayBarrelLayer Compatible rods: " << result.size();
+  return result;
 }
 
 GeomDetEnumerators::SubDetector MTDTrayBarrelLayer::subDetector() const { return theBasicComps.front()->subDetector(); }
