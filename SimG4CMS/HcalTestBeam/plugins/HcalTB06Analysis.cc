@@ -115,8 +115,8 @@ HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet& p) : count(0) {
   m_idxetaEcal = 13;
   m_idxphiEcal = 13;
 
-  m_idxetaHcal = (int)(beamEta / 0.087) + 1;
-  m_idxphiHcal = (int)(beamPhi / 0.087) + 6;
+  m_idxetaHcal = static_cast<int>(beamEta / 0.087) + 1;
+  m_idxphiHcal = static_cast<int>(beamPhi / 0.087) + 6;
   if (m_idxphiHcal > 72) {
     m_idxphiHcal -= 73;
   }
