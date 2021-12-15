@@ -153,7 +153,7 @@ private:
   std::unique_ptr<PTFilterHook> fPTFilterHook;
 
   //Generic customized hooks vector
-  std::shared_ptr<UserHooksVector> fCustomHooksVector;
+  std::unique_ptr<MultiUserHook> fCustomHooksVector;
 
   int EV1_nFinal;
   bool EV1_vetoOn;
@@ -318,12 +318,11 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
   }
 
   if (params.exists("UserCustomization")) {
-    fCustomHooksVector = std::make_shared<UserHooksVector>();
+    fCustomHooksVector.reset(new MultiUserHook);
     const std::vector<edm::ParameterSet> userParams =
         params.getParameter<std::vector<edm::ParameterSet>>("UserCustomization");
     for (const auto &pluginParams : userParams) {
-      (fCustomHooksVector->hooks)
-          .push_back(
+      fCustomHooksVector->addHook(
               CustomHookFactory::get()->create(pluginParams.getParameter<std::string>("pluginName"), pluginParams));
     }
   }
@@ -461,15 +460,15 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     fMultiUserHook->addHook(fPTFilterHook.get());
   }
 
-  if (fMultiUserHook->nHooks() > 0) {
-    fMasterGen->setUserHooksPtr(fMultiUserHook.get());
+  if (fCustomHooksVector->nHooks() > 0) {
+    edm::LogInfo("Pythia8Interface") << "Adding customized user hooks";
+    for (const auto &fUserHook : fCustomHooksVector.get()->hooks()) {
+      fMultiUserHook->addHook(fUserHook);
+    }
   }
 
-  if (fCustomHooksVector.get()) {
-    edm::LogInfo("Pythia8Interface") << "Adding customized user hooks";
-    for (const auto &fUserHook : fCustomHooksVector->hooks) {
-      fMasterGen->addUserHooksPtr(fUserHook);
-    }
+  if (fMultiUserHook->nHooks() > 0) {
+    fMasterGen->setUserHooksPtr(fMultiUserHook.get());
   }
 
   edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
@@ -536,10 +535,10 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
     fMultiUserHook->addHook(fEmissionVetoHook1.get());
   }
 
-  if (fCustomHooksVector.get()) {
-    edm::LogInfo("Pythia8Interface") << "Adding customized user hook";
-    for (const auto &fUserHook : fCustomHooksVector->hooks) {
-      (fUserHooksVector->hooks).push_back(fUserHook);
+  if (fCustomHooksVector->nHooks() > 0) {
+    edm::LogInfo("Pythia8Interface") << "Adding customized user hooks";
+    for (const auto &fUserHook : fCustomHooksVector.get()->hooks()) {
+      fMultiUserHook->addHook(fUserHook);
     }
   }
 
