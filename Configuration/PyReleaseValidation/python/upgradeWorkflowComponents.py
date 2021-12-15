@@ -335,7 +335,6 @@ upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
         'RecoGlobal',
         'RecoNano',
         'RecoFakeHLT',
-        'HARVESTFakeHLT',
     ],
     suffix = '_trackingMkFit',
     offset = 0.7,
