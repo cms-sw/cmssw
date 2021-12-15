@@ -14,7 +14,9 @@
 //
 //
 
+// system includes
 #include <string>
+#include <fmt/printf.h>
 
 // user include files
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
@@ -51,9 +53,12 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+// ROOT includes
 #include <TTree.h>
 #include <TFile.h>
 #include <fstream>
+
 //
 // class declaration
 //
@@ -352,6 +357,12 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
 
       if (pt_ < ptmin_)
         continue;
+
+      iHists.h_trackEta_->Fill(eta_);
+      iHists.h_trackPhi_->Fill(phi_);
+      iHists.h_trackPt_->Fill(pt_);
+      iHists.h_trackChi2_->Fill(chi2_ / ndof_);
+
       // iterate over trajectory measurements
       iHists.h_tracks_->Fill(0);
       bool pixeltrack = false;
@@ -670,62 +681,104 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
                                                   edm::Run const& run,
                                                   edm::EventSetup const& iSetup) {
   iBooker.setCurrentFolder(folder_);
-  iHists.h_tracks_ = iBooker.book1D("h_tracks", "h_tracks", 2, 0., 2.);
+  static constexpr double min_depth_ = -100.;
+  static constexpr double max_depth_ = 400.;
+  static constexpr double min_drift_ = -1000.;
+  static constexpr double max_drift_ = 1000.;
 
-  double min_depth_ = -100.;
-  double max_depth_ = 400.;
-  double min_drift_ = -1000.;
-  double max_drift_ = 1000.;
-
-  //book histograms
+  // book the mean values projections
   char name[128];
+  char title[256];
   for (int i_layer = 1; i_layer <= iHists.nlay; i_layer++) {
+    for (int i_module = 1; i_module <= iHists.nModules_[i_layer - 1]; i_module++) {
+      unsigned int i_index = i_module + (i_layer - 1) * iHists.nModules_[i_layer - 1];
+      sprintf(name, "h_mean_layer%i_module%i", i_layer, i_module);
+      sprintf(title,
+              "average drift vs depth layer%i module%i; production depth [#mum]; #LTdrift#GT [#mum]",
+              i_layer,
+              i_module);
+      iHists.h_mean_[i_index] = iBooker.book1D(name, title, hist_depth_, min_depth_, max_depth_);
+    }
+  }
+  for (int i = 0; i < (int)iHists.BPixnewDetIds_.size(); i++) {
+    sprintf(name, "h_BPixnew_mean_%s", iHists.BPixnewmodulename_[i].c_str());
+    sprintf(title,
+            "average drift vs depth %s; production depth [#mum]; #LTdrift#GT [#mum]",
+            iHists.BPixnewmodulename_[i].c_str());
+    int new_index = iHists.nModules_[iHists.nlay - 1] + (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + i;
+    iHists.h_mean_[new_index] = iBooker.book1D(name, title, hist_depth_, min_depth_, max_depth_);
+  }
+
+  //book the 2D histograms
+  for (int i_layer = 1; i_layer <= iHists.nlay; i_layer++) {
+    iBooker.setCurrentFolder(fmt::sprintf("%s/BPixLayer%i", folder_.data(), i_layer));
     for (int i_module = 1; i_module <= iHists.nModules_[i_layer - 1]; i_module++) {
       unsigned int i_index = i_module + (i_layer - 1) * iHists.nModules_[i_layer - 1];
 
       sprintf(name, "h_drift_depth_adc_layer%i_module%i", i_layer, i_module);
+      sprintf(title, "depth vs drift (ADC) layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
       iHists.h_drift_depth_adc_[i_index] =
-          iBooker.book2D(name, name, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+          iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
       sprintf(name, "h_drift_depth_adc2_layer%i_module%i", i_layer, i_module);
+      sprintf(
+          title, "depth vs drift (ADC^{2}) layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
       iHists.h_drift_depth_adc2_[i_index] =
-          iBooker.book2D(name, name, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+          iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
       sprintf(name, "h_drift_depth_noadc_layer%i_module%i", i_layer, i_module);
+      sprintf(
+          title, "depth vs drift (no ADC) layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
       iHists.h_drift_depth_noadc_[i_index] =
-          iBooker.book2D(name, name, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+          iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
       sprintf(name, "h_drift_depth_layer%i_module%i", i_layer, i_module);
+      sprintf(title, "depth vs drift layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
       iHists.h_drift_depth_[i_index] =
-          iBooker.book2D(name, name, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
-
-      sprintf(name, "h_mean_layer%i_module%i", i_layer, i_module);
-      iHists.h_mean_[i_index] = iBooker.book1D(name, name, hist_depth_, min_depth_, max_depth_);
+          iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
     }
   }
 
+  // book the "new" modules
+  iBooker.setCurrentFolder(fmt::sprintf("%s/NewModules", folder_.data()));
   for (int i = 0; i < (int)iHists.BPixnewDetIds_.size(); i++) {
     int new_index = iHists.nModules_[iHists.nlay - 1] + (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + i;
 
     sprintf(name, "h_BPixnew_drift_depth_adc_%s", iHists.BPixnewmodulename_[i].c_str());
+    sprintf(
+        title, "depth vs drift (ADC) %s; drift [#mum]; production depth [#mum]", iHists.BPixnewmodulename_[i].c_str());
     iHists.h_drift_depth_adc_[new_index] =
-        iBooker.book2D(name, name, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+        iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
     sprintf(name, "h_BPixnew_drift_depth_adc2_%s", iHists.BPixnewmodulename_[i].c_str());
+    sprintf(title,
+            "depth vs drift (ADC^{2}) %s; drift [#mum]; production depth [#mum]",
+            iHists.BPixnewmodulename_[i].c_str());
     iHists.h_drift_depth_adc2_[new_index] =
-        iBooker.book2D(name, name, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+        iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
     sprintf(name, "h_BPixnew_drift_depth_noadc_%s", iHists.BPixnewmodulename_[i].c_str());
+    sprintf(title,
+            "depth vs drift (no ADC)%s; drift [#mum]; production depth [#mum]",
+            iHists.BPixnewmodulename_[i].c_str());
     iHists.h_drift_depth_noadc_[new_index] =
-        iBooker.book2D(name, name, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+        iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
     sprintf(name, "h_BPixnew_drift_depth_%s", iHists.BPixnewmodulename_[i].c_str());
+    sprintf(title, "depth vs drift %s; drift [#mum]; production depth [#mum]", iHists.BPixnewmodulename_[i].c_str());
     iHists.h_drift_depth_[new_index] =
-        iBooker.book2D(name, name, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
-
-    sprintf(name, "h_BPixnew_mean_%s", iHists.BPixnewmodulename_[i].c_str());
-    iHists.h_mean_[new_index] = iBooker.book1D(name, name, hist_depth_, min_depth_, max_depth_);
+        iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
   }
+
+  // book the track monitoring plots
+  iBooker.setCurrentFolder(fmt::sprintf("%s/TrackMonitoring", folder_.data()));
+  iHists.h_tracks_ = iBooker.book1D("h_tracks", ";tracker volume;tracks", 2, -0.5, 1.5);
+  iHists.h_tracks_->setBinLabel(1, "all tracks", 1);
+  iHists.h_tracks_->setBinLabel(2, "has pixel hits", 1);
+  iHists.h_trackEta_ = iBooker.book1D("h_trackEta", ";track #eta; #tracks", 30, -3., 3.);
+  iHists.h_trackPhi_ = iBooker.book1D("h_trackPhi", ";track #phi; #tracks", 48, -M_PI, M_PI);
+  iHists.h_trackPt_ = iBooker.book1D("h_trackPt", ";track p_{T} [GeV]; #tracks", 100, 0., 100.);
+  iHists.h_trackChi2_ = iBooker.book1D("h_trackChi2ndof", ";track #chi^{2}/ndof; #tracks", 100, 0., 10.);
 }
 
 void SiPixelLorentzAnglePCLWorker::dqmEndRun(edm::Run const& run, edm::EventSetup const& iSetup) {

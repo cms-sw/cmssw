@@ -129,12 +129,14 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   iGetter.cd();
   iGetter.setCurrentFolder(dqmDir_);
 
+  // fetch the 2D histograms
   for (int i_layer = 1; i_layer <= hists.nlay; i_layer++) {
+    const auto& prefix_ = fmt::sprintf("%s/BPixLayer%i", dqmDir_, i_layer);
     for (int i_module = 1; i_module <= hists.nModules_[i_layer - 1]; i_module++) {
       int i_index = i_module + (i_layer - 1) * hists.nModules_[i_layer - 1];
 
       hists.h_drift_depth_[i_index] =
-          iGetter.get(fmt::format("{}/h_drift_depth_layer{}_module{}", dqmDir_, i_layer, i_module));
+          iGetter.get(fmt::format("{}/h_drift_depth_layer{}_module{}", prefix_, i_layer, i_module));
 
       if (hists.h_drift_depth_[i_index] == nullptr) {
         edm::LogError("SiPixelLorentzAnglePCLHarvester::dqmEndJob")
@@ -143,13 +145,13 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
       }
 
       hists.h_drift_depth_adc_[i_index] =
-          iGetter.get(fmt::format("{}/h_drift_depth_adc_layer{}_module{}", dqmDir_, i_layer, i_module));
+          iGetter.get(fmt::format("{}/h_drift_depth_adc_layer{}_module{}", prefix_, i_layer, i_module));
 
       hists.h_drift_depth_adc2_[i_index] =
-          iGetter.get(fmt::format("{}/h_drift_depth_adc2_layer{}_module{}", dqmDir_, i_layer, i_module));
+          iGetter.get(fmt::format("{}/h_drift_depth_adc2_layer{}_module{}", prefix_, i_layer, i_module));
 
       hists.h_drift_depth_noadc_[i_index] =
-          iGetter.get(fmt::format("{}/h_drift_depth_noadc_layer{}_module{}", dqmDir_, i_layer, i_module));
+          iGetter.get(fmt::format("{}/h_drift_depth_noadc_layer{}_module{}", prefix_, i_layer, i_module));
 
       hists.h_mean_[i_index] = iGetter.get(fmt::format("{}/h_mean_layer{}_module{}", dqmDir_, i_layer, i_module));
 
@@ -158,11 +160,12 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     }
   }
 
+  // fetch the new modules 2D histograms
   for (int i = 0; i < (int)hists.BPixnewDetIds_.size(); i++) {
     int new_index = i + 1 + hists.nModules_[hists.nlay - 1] + (hists.nlay - 1) * hists.nModules_[hists.nlay - 1];
 
     hists.h_drift_depth_adc_[new_index] =
-        iGetter.get(fmt::format("{}/h_BPixnew_drift_depth_{}", dqmDir_, hists.BPixnewmodulename_[i]));
+        iGetter.get(fmt::format("{}/h_BPixnew_drift_depth_{}", dqmDir_ + "/NewModules", hists.BPixnewmodulename_[i]));
 
     if (hists.h_drift_depth_adc_[new_index] == nullptr) {
       edm::LogError("SiPixelLorentzAnglePCLHarvester::dqmEndJob")
@@ -170,14 +173,14 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
       continue;
     }
 
-    hists.h_drift_depth_adc2_[new_index] =
-        iGetter.get(fmt::format("{}/h_BPixnew_drift_depth_adc_{}", dqmDir_, hists.BPixnewmodulename_[i]));
+    hists.h_drift_depth_adc2_[new_index] = iGetter.get(
+        fmt::format("{}/h_BPixnew_drift_depth_adc_{}", dqmDir_ + "/NewModules", hists.BPixnewmodulename_[i]));
 
-    hists.h_drift_depth_noadc_[new_index] =
-        iGetter.get(fmt::format("{}/h_BPixnew_drift_depth_adc2_{}", dqmDir_, hists.BPixnewmodulename_[i]));
+    hists.h_drift_depth_noadc_[new_index] = iGetter.get(
+        fmt::format("{}/h_BPixnew_drift_depth_adc2_{}", dqmDir_ + "/NewModules", hists.BPixnewmodulename_[i]));
 
-    hists.h_drift_depth_[new_index] =
-        iGetter.get(fmt::format("{}/h_BPixnew_drift_depth_noadc_{}", dqmDir_, hists.BPixnewmodulename_[i]));
+    hists.h_drift_depth_[new_index] = iGetter.get(
+        fmt::format("{}/h_BPixnew_drift_depth_noadc_{}", dqmDir_ + "/NewModules", hists.BPixnewmodulename_[i]));
 
     hists.h_mean_[new_index] = iGetter.get(fmt::format("{}/h_BPixnew_mean_{}", dqmDir_, hists.BPixnewmodulename_[i]));
 
@@ -496,7 +499,7 @@ void SiPixelLorentzAnglePCLHarvester::fillDescriptions(edm::ConfigurationDescrip
   desc.setComment("Harvester module of the SiPixel Lorentz Angle PCL monitoring workflow");
   desc.add<std::vector<std::string>>("newmodulelist", {})->setComment("the list of DetIds for new sensors");
   desc.add<std::string>("dqmDir", "AlCaReco/SiPixelLorentzAngle")->setComment("the directory of PCL Worker output");
-  desc.add<double>("fitProbCut", 0.5)->setComment("cut on fit chi2 probabiblity to accept measurement");
+  desc.add<double>("fitProbCut", 0.1)->setComment("cut on fit chi2 probabiblity to accept measurement");
   desc.add<std::string>("record", "SiPixelLorentzAngleRcd")->setComment("target DB record");
   descriptions.addWithDefaultLabel(desc);
 }
