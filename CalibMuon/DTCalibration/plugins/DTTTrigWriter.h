@@ -7,7 +7,7 @@
  *  \author S. Bolognesi
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 // #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -26,7 +26,7 @@ class DTTimeBoxFitter;
 class DTSuperLayerId;
 class DTTtrig;
 
-class DTTTrigWriter : public edm::EDAnalyzer {
+class DTTTrigWriter : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTTTrigWriter(const edm::ParameterSet& pset);

@@ -9,7 +9,7 @@
  *
 */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -30,7 +30,7 @@ class TFile;
 class TH2F;
 class TH1F;
 
-class DTNoiseCalibration : public edm::EDAnalyzer {
+class DTNoiseCalibration : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   /// Constructor
   DTNoiseCalibration(const edm::ParameterSet& ps);
@@ -40,6 +40,7 @@ public:
   void beginJob() override;
   void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endRun(const edm::Run& run, const edm::EventSetup& setup) override{};
   void endJob() override;
 
 private:
