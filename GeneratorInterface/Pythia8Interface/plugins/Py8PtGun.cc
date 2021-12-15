@@ -39,6 +39,13 @@ namespace gen {
   bool Py8PtGun::generatePartonsAndHadronize() {
     fMasterGen->event.reset();
 
+    int NTotParticles = fPartIDs.size();
+    if (fAddAntiParticle)
+      NTotParticles *= 2;
+
+    // energy below is dummy, it is not used
+    (fMasterGen->event).append(990, -11, 0, 0, 2, 1 + NTotParticles, 0, 0, 0., 0., 0., 15000., 15000.);
+
     for (size_t i = 0; i < fPartIDs.size(); i++) {
       int particleID = fPartIDs[i];  // this is PDG - need to convert to Py8 ???
 
@@ -61,12 +68,12 @@ namespace gen {
         particleID = std::abs(particleID);
       }
       if (1 <= std::abs(particleID) && std::abs(particleID) <= 6)  // quarks
-        (fMasterGen->event).append(particleID, 23, 101, 0, px, py, pz, ee, mass);
+        (fMasterGen->event).append(particleID, 23, 1, 0, 0, 0, 101, 0, px, py, pz, ee, mass);
       else if (std::abs(particleID) == 21)  // gluons
-        (fMasterGen->event).append(21, 23, 101, 102, px, py, pz, ee, mass);
+        (fMasterGen->event).append(21, 23, 1, 0, 0, 0, 101, 102, px, py, pz, ee, mass);
       // other
       else {
-        (fMasterGen->event).append(particleID, 1, 0, 0, px, py, pz, ee, mass);
+        (fMasterGen->event).append(particleID, 1, 1, 0, 0, 0, 0, 0, px, py, pz, ee, mass);
         int eventSize = (fMasterGen->event).size() - 1;
         // -log(flat) = exponential distribution
         double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
@@ -79,14 +86,14 @@ namespace gen {
       //
       if (fAddAntiParticle) {
         if (1 <= std::abs(particleID) && std::abs(particleID) <= 6) {  // quarks
-          (fMasterGen->event).append(-particleID, 23, 0, 101, -px, -py, -pz, ee, mass);
+          (fMasterGen->event).append(-particleID, 23, 1, 0, 0, 0, 0, 101, -px, -py, -pz, ee, mass);
         } else if (std::abs(particleID) == 21) {  // gluons
-          (fMasterGen->event).append(21, 23, 102, 101, -px, -py, -pz, ee, mass);
+          (fMasterGen->event).append(21, 23, 1, 0, 0, 0, 102, 101, -px, -py, -pz, ee, mass);
         } else {
           if ((fMasterGen->particleData).isParticle(-particleID)) {
-            (fMasterGen->event).append(-particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
+            (fMasterGen->event).append(-particleID, 1, 1, 0, 0, 0, 0, 0, -px, -py, -pz, ee, mass);
           } else {
-            (fMasterGen->event).append(particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
+            (fMasterGen->event).append(particleID, 1, 1, 0, 0, 0, 0, 0, -px, -py, -pz, ee, mass);
           }
           int eventSize = (fMasterGen->event).size() - 1;
           // -log(flat) = exponential distribution
