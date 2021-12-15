@@ -5,7 +5,7 @@
  * \author Luca Lista, INFN
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/DeltaR.h"
@@ -18,7 +18,7 @@
 namespace reco {
   namespace modules {
     template <typename C1, typename C2, typename M = edm::AssociationMap<edm::OneToOne<C1, C2> > >
-    class MatcherBase : public edm::EDProducer {
+    class MatcherBase : public edm::global::EDProducer<> {
     public:
       MatcherBase(const edm::ParameterSet&);
       ~MatcherBase() override;
@@ -29,7 +29,7 @@ namespace reco {
       typedef M MatchMap;
 
     private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       edm::EDGetTokenT<C1> srcToken_;
       edm::EDGetTokenT<C2> matchedToken_;
       double distMin_;
@@ -79,7 +79,7 @@ namespace reco {
     MatcherBase<C1, C2, M>::~MatcherBase() {}
 
     template <typename C1, typename C2, typename M>
-    void MatcherBase<C1, C2, M>::produce(edm::Event& evt, const edm::EventSetup&) {
+    void MatcherBase<C1, C2, M>::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const {
       using namespace edm;
       using namespace std;
       Handle<C2> matched;
