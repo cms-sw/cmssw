@@ -27,6 +27,7 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
 
   fEnMax = pgun_params.getParameter<double>("EnMax");
   fEnMin = pgun_params.getParameter<double>("EnMin");
+  fMaxEnSpread = pgun_params.getParameter<bool>("MaxEnSpread");
   fRMax = pgun_params.getParameter<double>("RMax");
   fRMin = pgun_params.getParameter<double>("RMin");
   fZMax = pgun_params.getParameter<double>("ZMax");
@@ -57,16 +58,8 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
   }
   fEvt = new HepMC::GenEvent();
 
-  // loop over particles
-  //
   int barcode = 1;
-  int numParticles = fRandomShoot ? CLHEP::RandFlat::shoot(engine, 1, fNParticles) : fNParticles;
-  std::vector<int> particles;
-
-  for (int i = 0; i < numParticles; i++) {
-    int partIdx = CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size());
-    particles.push_back(fPartIDs[partIdx]);
-  }
+  unsigned int numParticles = fRandomShoot ? CLHEP::RandFlat::shoot(engine, 1, fNParticles) : fNParticles;
 
   double phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
   double fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
@@ -74,15 +67,21 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
   double tmpPhi = phi;
   double tmpR = fR;
 
-  for (unsigned int ip = 0; ip < particles.size(); ++ip) {
+  // Loop over particles
+  for (unsigned int ip = 0; ip < numParticles; ++ip) {
     if (fOverlapping) {
       fR = CLHEP::RandFlat::shoot(engine, tmpR - fDelta, tmpR + fDelta);
       phi = CLHEP::RandFlat::shoot(engine, tmpPhi - fDelta / fR, tmpPhi + fDelta / fR);
     } else
       phi += fDelta / fR;
 
-    double fEn = CLHEP::RandFlat::shoot(engine, fEnMin, fEnMax);
-    int PartID = particles[ip];
+    double fEn;
+    if (numParticles > 1 && fMaxEnSpread)
+      fEn = fEnMin + ip * (fEnMax - fEnMin) / (numParticles - 1);
+    else
+      fEn = CLHEP::RandFlat::shoot(engine, fEnMin, fEnMax);
+
+    int PartID = CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size());
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
     double mass = PData->mass().value();
     double mom2 = fEn * fEn - mass * mass;
@@ -141,6 +140,4 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
   if (fVerbosity > 0) {
     LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Event Generation Done " << endl;
   }
-
-  particles.clear();
 }
