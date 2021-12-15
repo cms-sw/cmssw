@@ -83,9 +83,7 @@ namespace edm {
           : "a"(op));
 
 #else
-      const char* unknown_str = "Unknown";
-      // int unknown_sz = strlen(unknown_str);
-      strcpy((char*)&ans[0], unknown_str);
+      return UNKNOWN_CPU;
 #endif
 
       const char* amd_str = "AuthenticAMD";
