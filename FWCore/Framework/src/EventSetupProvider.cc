@@ -38,11 +38,9 @@ namespace edm {
   namespace eventsetup {
 
     EventSetupProvider::EventSetupProvider(ActivityRegistry const* activityRegistry,
-                                           tbb::task_arena* taskArena,
                                            unsigned subProcessIndex,
                                            const PreferredProviderInfo* iInfo)
         : activityRegistry_(activityRegistry),
-          taskArena_(taskArena),
           mustFinishConfiguration_(true),
           subProcessIndex_(subProcessIndex),
           preferredProviderInfo_((nullptr != iInfo) ? (new PreferredProviderInfo(*iInfo)) : nullptr),
@@ -698,7 +696,7 @@ namespace edm {
 
       if (needNewEventSetupImpl) {
         //cannot use make_shared because constructor is private
-        eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl(taskArena_));
+        eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl());
         newEventSetupImpl = true;
         eventSetupImpl_->setKeyIters(recordKeys_.begin(), recordKeys_.end());
 
