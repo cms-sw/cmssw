@@ -9,7 +9,6 @@
  *  \author Marina Giunta
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
