@@ -7,7 +7,7 @@
  *  \author A. Vilela Pereira
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -27,7 +27,7 @@ class DTTtrig;
 class TFile;
 class TH1F;
 
-class DTTTrigOffsetCalibration : public edm::EDAnalyzer {
+class DTTTrigOffsetCalibration : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   // Constructor
   DTTTrigOffsetCalibration(const edm::ParameterSet& pset);
@@ -36,6 +36,7 @@ public:
 
   void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void endRun(const edm::Run& run, const edm::EventSetup& setup) override{};
   void endJob() override;
 
 private:

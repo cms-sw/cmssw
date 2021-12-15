@@ -8,7 +8,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
@@ -24,7 +24,7 @@ class DTRecoConditions;
 class TFile;
 class TH1D;
 
-class DTVDriftAnalyzer : public edm::EDAnalyzer {
+class DTVDriftAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTVDriftAnalyzer(const edm::ParameterSet& pset);
