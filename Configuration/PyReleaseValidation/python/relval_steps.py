@@ -3694,6 +3694,11 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                 else:
                     upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
 
+                ## special case to limit tracking time in 0T relvals
+                if "0T" in stepName:
+                    #print("customizing n. events for",stepName)
+                    upgradeStepDict[stepNamePU][k]=merge([{'-n':1},upgradeStepDict[stepName][k]])
+
             # in case special WF has PU-specific changes: apply *after* basic PU step is created
             specialWF.setupPU(upgradeStepDict, k, upgradeProperties[year][k])
 
