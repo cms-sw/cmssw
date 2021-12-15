@@ -627,8 +627,8 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
         continue;
       }
 
-      throw cms::Exception("DD4CMS") << "Composite material \"" + fracname + "\" or \"" +
-                               ns.prepend(fracname) + "\" not yet defined.";
+      throw cms::Exception("DD4CMS") << "Composite material \"" + fracname + "\" or \"" + ns.prepend(fracname) +
+                                            "\" not yet defined.";
     }
     mix->SetTemperature(ns.context()->description.stdConditions().temperature);
     mix->SetPressure(ns.context()->description.stdConditions().pressure);
