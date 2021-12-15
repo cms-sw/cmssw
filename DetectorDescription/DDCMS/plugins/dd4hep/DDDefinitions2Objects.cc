@@ -11,6 +11,7 @@
 
 #include "XML/Utilities.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
@@ -626,8 +627,8 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
         continue;
       }
 
-      throw std::runtime_error("DD4CMS Exception -- Composite material \"" + fracname + "\" or \"" +
-                               ns.prepend(fracname) + "\" not yet defined.");
+      throw cms::Exception("DD4CMS") << "Composite material \"" + fracname + "\" or \"" +
+                               ns.prepend(fracname) + "\" not yet defined.";
     }
     mix->SetTemperature(ns.context()->description.stdConditions().temperature);
     mix->SetPressure(ns.context()->description.stdConditions().pressure);
