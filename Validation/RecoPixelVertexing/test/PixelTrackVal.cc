@@ -1,5 +1,5 @@
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -33,7 +33,7 @@ T sqr(T t) {
   return t * t;
 }
 
-class PixelTrackVal : public edm::EDAnalyzer {
+class PixelTrackVal : public edm::one::EDAnalyzer<> {
 public:
   explicit PixelTrackVal(const edm::ParameterSet &conf);
   ~PixelTrackVal() override;
@@ -76,7 +76,7 @@ void PixelTrackVal::beginJob() {
 }
 
 void PixelTrackVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
-  std::cout << "*** PixelTrackVal, analyze event: " << ev.id() << std::endl;
+  LogTrace("PixelTrackVal") << "*** PixelTrackVal, analyze event: " << ev.id() << std::endl;
 
   //------------------------ simulated tracks
   edm::Handle<reco::TrackCollection> trackCollection;
@@ -87,7 +87,7 @@ void PixelTrackVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
 
   if (verbose_ > 0) {
     //    std::cout << *(trackCollection.provenance()) << std::endl;
-    std::cout << "Reconstructed " << tracks.size() << " tracks" << std::endl;
+    edm::LogInfo("PixelTrackVal") << "Reconstructed " << tracks.size() << " tracks" << std::endl;
   }
 
   for (unsigned int idx = 0; idx < tracks.size(); idx++) {
@@ -113,14 +113,15 @@ void PixelTrackVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
       }
     }
     if (problem)
-      std::cout << " *** PROBLEM **" << std::endl;
+      edm::LogInfo("PixelTrackVal") << " *** PROBLEM **" << std::endl;
 
     if (verbose_ > 0) {
-      std::cout << "\tmomentum: " << tracks[idx].momentum() << "\tPT: " << tracks[idx].pt() << std::endl;
-      std::cout << "\tvertex: " << tracks[idx].vertex() << "\tTIP: " << tracks[idx].d0() << " +- "
-                << tracks[idx].d0Error() << "\tZ0: " << tracks[idx].dz() << " +- " << tracks[idx].dzError()
-                << std::endl;
-      std::cout << "\tcharge: " << tracks[idx].charge() << std::endl;
+      edm::LogInfo("PixelTrackVal") << "\tmomentum: " << tracks[idx].momentum() << "\tPT: " << tracks[idx].pt()
+                                    << std::endl;
+      edm::LogInfo("PixelTrackVal") << "\tvertex: " << tracks[idx].vertex() << "\tTIP: " << tracks[idx].d0() << " +- "
+                                    << tracks[idx].d0Error() << "\tZ0: " << tracks[idx].dz() << " +- "
+                                    << tracks[idx].dzError() << std::endl;
+      edm::LogInfo("PixelTrackVal") << "\tcharge: " << tracks[idx].charge() << std::endl;
     }
   }
 
@@ -129,17 +130,17 @@ void PixelTrackVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
   edm::Handle<edm::SimVertexContainer> simVtcs;
   ev.getByToken(simVertexContainerToken_, simVtcs);
 
-  //   std::cout << "SimVertex " << simVtcs->size() << std::endl;
+  //   edm::LogInfo("PixelTrackVal") << "SimVertex " << simVtcs->size() << std::endl;
   //   for(edm::SimVertexContainer::const_iterator v=simVtcs->begin();
   //       v!=simVtcs->end(); ++v){
-  //     std::cout << "simvtx " << std::setw(10) << std::setprecision(3)
+  //     edm::LogInfo("PixelTrackVal") << "simvtx " << std::setw(10) << std::setprecision(3)
   //         << v->position().x() << " " << v->position().y() << " " <<
   //         v->position().z() << " "
   //         << v->parentIndex() << " " << v->noParent() << " " << std::endl; }
 
   edm::Handle<edm::SimTrackContainer> simTrks;
   ev.getByToken(simTrackContainerToken_, simTrks);
-  std::cout << "simtrks " << simTrks->size() << std::endl;
+  edm::LogInfo("PixelTrackVal") << "simtrks " << simTrks->size() << std::endl;
 
   //-------------- association
   // matching cuts from Marcin
