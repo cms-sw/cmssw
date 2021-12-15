@@ -28,8 +28,9 @@ uint32_t HcalTBNumberingScheme::getUnitID(const uint32_t idHit, const int mode) 
   int subdet, zside, group, ieta, iphi, lay;
   HcalTestNumbering::unpackHcalIndex(idHit, subdet, zside, group, ieta, iphi, lay);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTBNumberingScheme: i/p ID 0x" << std::hex << idHit << std::dec << " det " << zside
-                        << " group " << group << " layer " << lay << " eta " << ieta << " phi " << iphi;
+  edm::LogVerbatim("HcalTBSim") << "HcalTBNumberingScheme: i/p ID 0x" << std::hex << idHit << std::dec << " det "
+                                << zside << " group " << group << " layer " << lay << " eta " << ieta << " phi "
+                                << iphi;
 #endif
   uint32_t idunit;
   if (subdet == static_cast<int>(HcalBarrel)) {
@@ -61,10 +62,11 @@ uint32_t HcalTBNumberingScheme::getUnitID(const uint32_t idHit, const int mode) 
 
   HcalTestNumbering::unpackHcalIndex(idunit, subdet, zside, group, ieta, iphi, lay);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTBNumberingScheme: idHit 0x" << std::hex << idHit << " idunit 0x" << idunit << std::dec
-                        << "\n"
-                        << "HcalTBNumberingScheme: o/p ID 0x" << std::hex << idunit << std::dec << " det " << zside
-                        << " group " << group << " layer " << lay << " eta " << ieta << " phi " << iphi;
+  edm::LogVerbatim("HcalTBSim") << "HcalTBNumberingScheme: idHit 0x" << std::hex << idHit << " idunit 0x" << idunit
+                                << std::dec << "\n"
+                                << "HcalTBNumberingScheme: o/p ID 0x" << std::hex << idunit << std::dec << " det "
+                                << zside << " group " << group << " layer " << lay << " eta " << ieta << " phi "
+                                << iphi;
 #endif
   return idunit;
 }

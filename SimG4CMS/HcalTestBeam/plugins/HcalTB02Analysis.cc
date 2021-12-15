@@ -153,8 +153,8 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
   int HCHCid = G4SDManager::GetSDMpointer()->GetCollectionID(sd);
   CaloG4HitCollection* theHCHC = (CaloG4HitCollection*)allHC->GetHC(HCHCid);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis :: Hit Collection for " << sd << " of ID " << HCHCid << " is obtained at "
-                        << theHCHC;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis :: Hit Collection for " << sd << " of ID " << HCHCid
+                                << " is obtained at " << theHCHC;
 #endif
   int nentries = 0;
   nentries = theHCHC->entries();
@@ -172,7 +172,7 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
     theXTHC = (CaloG4HitCollection*)allHC->GetHC(XTALSid);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis :: Hit Collection for " << sd << " of ID " << XTALSid
-                          << " is obtained at " << theXTHC;
+                                  << " is obtained at " << theXTHC;
 #endif
     xentries = theXTHC->entries();
     if (xentries == 0)
@@ -181,7 +181,7 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis :: There are " << nentries << " HCal hits, and" << xentries
-                        << " xtal hits";
+                                << " xtal hits";
 #endif
   float ETot = 0., xETot = 0.;
   int scintID = 0, xtalID = 0;
@@ -237,8 +237,8 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
         float phi = org->getphiID((*is).first);
 
         SEnergy += ETot;
-	int iphi = static_cast<int>(phi);
-	int ieta = static_cast<int>(eta);
+        int iphi = static_cast<int>(phi);
+        int ieta = static_cast<int>(eta);
         TowerEne[iphi][ieta] += ETot;
 
         TowerEneCF[iphi][ieta] += ETot * (1. + 0.1 * randGauss.fire());
