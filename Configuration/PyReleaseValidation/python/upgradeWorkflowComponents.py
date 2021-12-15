@@ -886,6 +886,9 @@ class UpgradeWorkflow_0T(UpgradeWorkflow):
         myGT=stepDict[step][k]['--conditions']
         myGT+="_0T"
         stepDict[stepName][k] = merge([{'-n':'1','--magField':'0T','--conditions':myGT}, stepDict[step][k]])
+    def setupPU_(self, step, stepName, stepDict, k, properties):
+        # override '-n' setting from PUDataSets in relval_steps.py
+        stepDict[stepName][k] = merge([{'-n':'1'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and ('2017' in key or '2018' in key or '2021' in key)
 upgradeWFs['0T'] = UpgradeWorkflow_0T(
