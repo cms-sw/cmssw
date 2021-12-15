@@ -1,5 +1,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
@@ -27,6 +29,8 @@ public:
 
   ~JPTJetSlimmer() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
     auto jptJets = std::make_unique<reco::JPTJetCollection>();
     auto caloJets = std::make_unique<reco::CaloJetCollection>();
@@ -34,11 +38,8 @@ public:
     edm::RefProd<reco::CaloJetCollection> pOut1RefProd = iEvent.getRefBeforePut<reco::CaloJetCollection>();
     edm::Ref<reco::CaloJetCollection>::key_type idxCaloJet = 0;
 
-    edm::Handle<edm::View<reco::CaloJet> > h_calojets;
-    iEvent.getByToken(srcCaloToken_, h_calojets);
-
-    edm::Handle<edm::View<reco::JPTJet> > h_jets;
-    iEvent.getByToken(srcToken_, h_jets);
+    edm::Handle<edm::View<reco::CaloJet> > h_calojets = iEvent.getHandle(srcCaloToken_);
+    edm::Handle<edm::View<reco::JPTJet> > h_jets = iEvent.getHandle(srcToken_);
 
     for (auto const& ijet : *h_jets) {
       if (selector_(ijet)) {
@@ -64,7 +65,6 @@ public:
         } else {
           //  Add reference to existing slimmedCaloJet Collection to JPTJet
           tmp_specific.theCaloJetRef = edm::RefToBase<reco::Jet>(h_calojets->refAt(icalo));
-          ;
         }
         const reco::Candidate::Point& orivtx = ijet.vertex();
         reco::JPTJet newJPTJet(ijet.p4(), orivtx, tmp_specific, ijet.getJetConstituents());
@@ -83,6 +83,14 @@ protected:
   const std::string cut_;
   const StringCutObjectSelector<reco::Jet> selector_;
 };
+void JPTJetSlimmer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // slimmedJPTJets
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("JetPlusTrackZSPCorJetAntiKt4"));
+  desc.add<edm::InputTag>("srcCalo", edm::InputTag("slimmedCaloJets"));
+  desc.add<std::string>("cut", "pt>20");
+  descriptions.add("slimmedJPTJets", desc);
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(JPTJetSlimmer);
