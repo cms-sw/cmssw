@@ -78,7 +78,7 @@ void HcalTB02Histo::fillAllTime(float v) {
 void HcalTB02Histo::fillTransProf(float u, float v) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02Histo:::Fill Shower Transv. Profile histo"
-                        << " with " << u << " and " << v;
+                                << " with " << u << " and " << v;
 #endif
   if (rt_TransProf) {
     rt_TransProf->Fill(u, v);

@@ -88,8 +88,9 @@ void HcalTB04Histo::fillPrimary(double energy, double eta, double phi) {
 
 void HcalTB04Histo::fillEdep(double etots, double eecals, double ehcals, double etotq, double eecalq, double ehcalq) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB04Histo:::fillEdep: Simulated Total " << etots << " ECal " << eecals << " HCal "
-                        << ehcals << " Digitised Total " << etotq << " ECal " << eecalq << " HCal " << ehcalq;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04Histo:::fillEdep: Simulated Total " << etots << " ECal " << eecals
+                                << " HCal " << ehcals << " Digitised Total " << etotq << " ECal " << eecalq << " HCal "
+                                << ehcalq;
 #endif
   edepS->Fill(etots);
   edecS->Fill(eecals);
@@ -110,8 +111,8 @@ void HcalTB04Histo::fillTrnsProf(const std::vector<double>& es1,
   unsigned int n2 = std::min(es2.size(), eq2.size());
   unsigned int n = std::min(n1, n2);
   for (unsigned int i = 0; i < n; i++)
-    edm::LogVerbatim("HcalTBSim") << "HcalTB04Histo::fillTrnsProf [" << i << "] SimEta " << es1[i] << " DigEta " << eq1[i]
-                          << " SimPhi " << es2[i] << " DigPhi " << eq2[i];
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Histo::fillTrnsProf [" << i << "] SimEta " << es1[i] << " DigEta "
+                                  << eq1[i] << " SimPhi " << es2[i] << " DigPhi " << eq2[i];
 #endif
   for (unsigned int i = 0; i < (es1.size()); i++) {
     double tow = i + 0.5;
