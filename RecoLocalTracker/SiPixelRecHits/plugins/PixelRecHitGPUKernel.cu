@@ -54,7 +54,7 @@ namespace pixelgpudetails {
       int blocks = activeModulesWithDigis;
 
 #ifdef GPU_DEBUG
-    std::cout << "launching getHits kernel for " << blocks << " blocks" << std::endl;
+      std::cout << "launching getHits kernel for " << blocks << " blocks" << std::endl;
 #endif
       gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, stream>>>(
           cpeParams, bs_d.data(), digis_d.view(), digis_d.nDigis(), clusters_d.view(), hits_d.view());
@@ -63,20 +63,20 @@ namespace pixelgpudetails {
       cudaCheck(cudaDeviceSynchronize());
 #endif
 
-    // assuming full warp of threads is better than a smaller number...
-    if (nHits) {
-      setHitsLayerStart<<<1, 32, 0, stream>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
-      cudaCheck(cudaGetLastError());
-      auto nLayers = isPhase2 ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
-      cms::cuda::fillManyFromVector(hits_d.phiBinner(),
-                                    nLayers,
-                                    hits_d.iphi(),
-                                    hits_d.hitsLayerStart(),
-                                    nHits,
-                                    256,
-                                    hits_d.phiBinnerStorage(),
-                                    stream);
-      cudaCheck(cudaGetLastError());
+      // assuming full warp of threads is better than a smaller number...
+      if (nHits) {
+        setHitsLayerStart<<<1, 32, 0, stream>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
+        cudaCheck(cudaGetLastError());
+        auto nLayers = isPhase2 ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
+        cms::cuda::fillManyFromVector(hits_d.phiBinner(),
+                                      nLayers,
+                                      hits_d.iphi(),
+                                      hits_d.hitsLayerStart(),
+                                      nHits,
+                                      256,
+                                      hits_d.phiBinnerStorage(),
+                                      stream);
+        cudaCheck(cudaGetLastError());
 
 #ifdef GPU_DEBUG
         cudaCheck(cudaDeviceSynchronize());

@@ -13,12 +13,14 @@ namespace gpuCalibPixel {
 
   using gpuClustering::invalidModuleId;
 
+  // calibrationConstants
   // valid for run2
   constexpr float VCaltoElectronGain = 47;         // L2-4: 47 +- 4.7
   constexpr float VCaltoElectronGain_L1 = 50;      // L1:   49.6 +- 2.6
   constexpr float VCaltoElectronOffset = -60;      // L2-4: -60 +- 130
   constexpr float VCaltoElectronOffset_L1 = -670;  // L1:   -670 +- 220
-
+  constexpr int VCalChargeThreshold = 100;
+  //for phase2
   constexpr float ElectronPerADCGain = 600;
   constexpr int8_t Phase2ReadoutMode = 3;
   constexpr uint16_t Phase2DigiBaseline = 1500;
@@ -73,8 +75,6 @@ namespace gpuCalibPixel {
   }
 
   __global__ void calibDigisPhase2(uint16_t* id,
-                                   uint16_t const* __restrict__ x,
-                                   uint16_t const* __restrict__ y,
                                    uint16_t* adc,
                                    int numElements,
                                    uint32_t* __restrict__ moduleStart,        // just to zero first
@@ -83,6 +83,7 @@ namespace gpuCalibPixel {
   ) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
     // zero for next kernels...
+
     if (0 == first)
       clusModuleStart[0] = moduleStart[0] = 0;
     for (int i = first; i < phase2PixelTopology::numberOfModules; i += gridDim.x * blockDim.x) {
@@ -93,6 +94,7 @@ namespace gpuCalibPixel {
       if (invalidModuleId == id[i])
         continue;
 
+      printf("%d %d %d \n", id[i], adc[i]);
       constexpr int mode = (Phase2ReadoutMode < -1 ? -1 : Phase2ReadoutMode);
 
       if constexpr (mode < 0)

@@ -327,7 +327,7 @@ void PixelCPEFast::fillParamsForGpu() {
   const int numberOfLaddersInBarrel = commonParamsGPU_.numberOfLaddersInBarrel;
 
   const int firstEndcapPos = 4, firstEndcapNeg = isPhase2_ ? 16 : 7;
-  float ladderFactor = 1.f / float(numberOfModulesInLadder);
+  const float ladderFactor = 1.f / float(numberOfModulesInLadder);
 
   // compute ladder baricenter (only in global z) for the barrel
   //
@@ -347,7 +347,7 @@ void PixelCPEFast::fillParamsForGpu() {
   }
   assert(il + 1 == int(numberOfLaddersInBarrel));
   // add half_module and tollerance
-  float module_length = isPhase2_ ? 4.345f : 6.7f;
+  const float module_length = isPhase2_ ? 4.345f : 6.7f;
   constexpr float module_tolerance = 0.2f;
   for (int il = 0, nl = numberOfLaddersInBarrel; il < nl; ++il) {
     aveGeom.ladderMinZ[il] -= (0.5f * module_length - module_tolerance);

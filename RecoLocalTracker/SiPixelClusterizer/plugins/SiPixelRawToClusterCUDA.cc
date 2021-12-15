@@ -240,6 +240,11 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
 
   }  // end of for loop
 
+  nDigis_ = wordCounterGPU;
+
+  if (nDigis_ == 0)
+    return;
+
   gpuAlgo_.makeClustersAsync(isRun2_,
                              clusterThresholds_,
                              gpuMap,
