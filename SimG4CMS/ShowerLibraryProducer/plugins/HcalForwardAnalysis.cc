@@ -77,7 +77,6 @@ private:
   void parseDetId(int id, int& tower, int& cell, int& fiber);
   void clear();
 
-  edm::Service<TFileService> theFile;
   TTree* theTree;
   int theEventCounter;
   int count;
@@ -124,6 +123,7 @@ void HcalForwardAnalysis::produce(edm::Event& iEvent, const edm::EventSetup&) {
 }
 
 void HcalForwardAnalysis::init() {
+  edm::Service<TFileService> theFile;
   theTree = theFile->make<TTree>("CherenkovPhotons", "Cherenkov Photons");
   theTree->Branch("nphot", &nphot, "nphot/I");
   theTree->Branch("x", &x, "x[nphot]/F");
