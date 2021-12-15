@@ -646,7 +646,7 @@ namespace pixelgpudetails {
                 << " threads\n";
 #endif
 
-      countModules<<<blocks, threadsPerBlock, 0, stream>>>(
+      countModules<false><<<blocks, threadsPerBlock, 0, stream>>>(
           digis_d.view().moduleInd(), clusters_d.moduleStart(), digis_d.view().clus(), wordCounter);
       cudaCheck(cudaGetLastError());
 
@@ -656,28 +656,29 @@ namespace pixelgpudetails {
       std::cout << "CUDA findClus kernel launch with " << blocks << " blocks of " << threadsPerBlock << " threads\n";
 #endif
 
-      findClus<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
-                                                       digis_d.view().xx(),
-                                                       digis_d.view().yy(),
-                                                       clusters_d.moduleStart(),
-                                                       clusters_d.clusInModule(),
-                                                       clusters_d.moduleId(),
-                                                       digis_d.view().clus(),
-                                                       wordCounter);
+      findClus<false><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
+                                                              digis_d.view().xx(),
+                                                              digis_d.view().yy(),
+                                                              clusters_d.moduleStart(),
+                                                              clusters_d.clusInModule(),
+                                                              clusters_d.moduleId(),
+                                                              digis_d.view().clus(),
+                                                              wordCounter);
+      cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
       cudaDeviceSynchronize();
       cudaCheck(cudaGetLastError());
 #endif
 
       // apply charge cut
-      clusterChargeCut<<<blocks, threadsPerBlock, 0, stream>>>(clusterThresholds,
-                                                               digis_d.view().moduleInd(),
-                                                               digis_d.view().adc(),
-                                                               clusters_d.moduleStart(),
-                                                               clusters_d.clusInModule(),
-                                                               clusters_d.moduleId(),
-                                                               digis_d.view().clus(),
-                                                               wordCounter);
+      clusterChargeCut<false><<<blocks, threadsPerBlock, 0, stream>>>(clusterThresholds,
+                                                                      digis_d.view().moduleInd(),
+                                                                      digis_d.view().adc(),
+                                                                      clusters_d.moduleStart(),
+                                                                      clusters_d.clusInModule(),
+                                                                      clusters_d.moduleId(),
+                                                                      digis_d.view().clus(),
+                                                                      wordCounter);
 
       cudaCheck(cudaGetLastError());
 
@@ -712,17 +713,19 @@ namespace pixelgpudetails {
                                                              const uint32_t *rawIds,
                                                              const uint32_t numDigis,
                                                              cudaStream_t stream) {
-    nDigis = numDigis;
     using namespace gpuClustering;
 
     digis_d = SiPixelDigisCUDA(numDigis, stream);
 
-    cudaCheck(cudaMemcpyAsync(digis_d.moduleInd(), moduleIds, sizeof(uint16_t) * numDigis, cudaMemcpyDefault, stream));
-    cudaCheck(cudaMemcpyAsync(digis_d.xx(), xDigis, sizeof(uint16_t) * numDigis, cudaMemcpyDefault, stream));
-    cudaCheck(cudaMemcpyAsync(digis_d.yy(), yDigis, sizeof(uint16_t) * numDigis, cudaMemcpyDefault, stream));
-    cudaCheck(cudaMemcpyAsync(digis_d.adc(), adcDigis, sizeof(uint16_t) * numDigis, cudaMemcpyDefault, stream));
-    cudaCheck(cudaMemcpyAsync(digis_d.pdigi(), packedData, sizeof(uint32_t) * numDigis, cudaMemcpyDefault, stream));
-    cudaCheck(cudaMemcpyAsync(digis_d.rawIdArr(), rawIds, sizeof(uint32_t) * numDigis, cudaMemcpyDefault, stream));
+    cudaCheck(
+        cudaMemcpyAsync(digis_d.view().moduleInd(), moduleIds, sizeof(uint16_t) * numDigis, cudaMemcpyDefault, stream));
+    cudaCheck(cudaMemcpyAsync(digis_d.view().xx(), xDigis, sizeof(uint16_t) * numDigis, cudaMemcpyDefault, stream));
+    cudaCheck(cudaMemcpyAsync(digis_d.view().yy(), yDigis, sizeof(uint16_t) * numDigis, cudaMemcpyDefault, stream));
+    cudaCheck(cudaMemcpyAsync(digis_d.view().adc(), adcDigis, sizeof(uint16_t) * numDigis, cudaMemcpyDefault, stream));
+    cudaCheck(
+        cudaMemcpyAsync(digis_d.view().pdigi(), packedData, sizeof(uint32_t) * numDigis, cudaMemcpyDefault, stream));
+    cudaCheck(
+        cudaMemcpyAsync(digis_d.view().rawIdArr(), rawIds, sizeof(uint32_t) * numDigis, cudaMemcpyDefault, stream));
 
     clusters_d = SiPixelClustersCUDA(phase2PixelTopology::numberOfModules, stream);
 
@@ -731,10 +734,8 @@ namespace pixelgpudetails {
     int threadsPerBlock = 512;
     int blocks = (int(numDigis) + threadsPerBlock - 1) / threadsPerBlock;
 
-    gpuCalibPixel::calibDigisPhase2<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
-                                                                            digis_d.xx(),
-                                                                            digis_d.yy(),
-                                                                            digis_d.adc(),
+    gpuCalibPixel::calibDigisPhase2<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
+                                                                            digis_d.view().adc(),
                                                                             numDigis,
                                                                             clusters_d.moduleStart(),
                                                                             clusters_d.clusInModule(),
@@ -742,8 +743,17 @@ namespace pixelgpudetails {
 
     cudaCheck(cudaGetLastError());
 
+#ifdef GPU_DEBUG
+    cudaDeviceSynchronize();
+    cudaCheck(cudaGetLastError());
+#endif
+
+#ifdef GPU_DEBUG
+    std::cout << "CUDA countModules kernel launch with " << blocks << " blocks of " << threadsPerBlock << " threads\n";
+#endif
+
     countModules<true><<<blocks, threadsPerBlock, 0, stream>>>(
-        digis_d.moduleInd(), clusters_d.moduleStart(), digis_d.clus(), numDigis);
+        digis_d.view().moduleInd(), clusters_d.moduleStart(), digis_d.view().clus(), numDigis);
     cudaCheck(cudaGetLastError());
 
     // read the number of modules into a data member, used by getProduct())
@@ -753,13 +763,13 @@ namespace pixelgpudetails {
     threadsPerBlock = 256;
     blocks = phase2PixelTopology::numberOfModules;
 
-    findClus<true><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
-                                                           digis_d.xx(),
-                                                           digis_d.yy(),
+    findClus<true><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
+                                                           digis_d.view().xx(),
+                                                           digis_d.view().yy(),
                                                            clusters_d.moduleStart(),
                                                            clusters_d.clusInModule(),
                                                            clusters_d.moduleId(),
-                                                           digis_d.clus(),
+                                                           digis_d.view().clus(),
                                                            numDigis);
 
     cudaCheck(cudaGetLastError());
@@ -769,14 +779,14 @@ namespace pixelgpudetails {
 #endif
 
     // apply charge cut
-    clusterChargeCut<false><<<blocks, threadsPerBlock, 0, stream>>>(clusterThresholds,
-                                                                    digis_d.moduleInd(),
-                                                                    digis_d.adc(),
-                                                                    clusters_d.moduleStart(),
-                                                                    clusters_d.clusInModule(),
-                                                                    clusters_d.moduleId(),
-                                                                    digis_d.clus(),
-                                                                    numDigis);
+    clusterChargeCut<true><<<blocks, threadsPerBlock, 0, stream>>>(clusterThresholds,
+                                                                   digis_d.view().moduleInd(),
+                                                                   digis_d.view().adc(),
+                                                                   clusters_d.moduleStart(),
+                                                                   clusters_d.clusInModule(),
+                                                                   clusters_d.moduleId(),
+                                                                   digis_d.view().clus(),
+                                                                   numDigis);
     cudaCheck(cudaGetLastError());
 
     auto nModules_Clusters_d = cms::cuda::make_device_unique<uint32_t[]>(3, stream);

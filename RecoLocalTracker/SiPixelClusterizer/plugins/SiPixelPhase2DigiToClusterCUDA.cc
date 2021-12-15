@@ -99,10 +99,7 @@ void SiPixelPhase2DigiToClusterCUDA::acquire(const edm::Event& iEvent,
 
   auto const& input = iEvent.get(pixelDigiToken_);
 
-  const TrackerGeometry* geom_ = nullptr;
-  edm::ESHandle<TrackerGeometry> geom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geom);
-  geom_ = geom.product();
+  const TrackerGeometry* geom_ = &iSetup.getData(geomToken_);
 
   uint32_t nDigis = 0;
 
