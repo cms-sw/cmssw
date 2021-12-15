@@ -5,7 +5,7 @@
  * \author Luca Lista, INFN
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/DeltaR.h"
@@ -20,7 +20,7 @@ namespace reco {
   namespace modulesNew {
 
     template <typename C1, typename C2, typename S, typename D = DeltaR<typename C1::value_type, typename C2::value_type> >
-    class Matcher : public edm::EDProducer {
+    class Matcher : public edm::global::EDProducer<> {
     public:
       Matcher(const edm::ParameterSet& cfg);
       ~Matcher() override;
@@ -29,7 +29,7 @@ namespace reco {
       typedef typename C1::value_type T1;
       typedef typename C2::value_type T2;
       typedef edm::Association<C2> MatchMap;
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       edm::EDGetTokenT<C1> srcToken_;
       edm::EDGetTokenT<C2> matchedToken_;
       double distMin_;
@@ -61,7 +61,7 @@ namespace reco {
     Matcher<C1, C2, S, D>::~Matcher() {}
 
     template <typename C1, typename C2, typename S, typename D>
-    void Matcher<C1, C2, S, D>::produce(edm::Event& evt, const edm::EventSetup&) {
+    void Matcher<C1, C2, S, D>::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const {
       using namespace edm;
       using namespace std;
       Handle<C2> matched;

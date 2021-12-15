@@ -4,7 +4,7 @@
 #include <sstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -39,7 +39,7 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
-class ParticleListDrawer : public edm::EDAnalyzer {
+class ParticleListDrawer : public edm::one::EDAnalyzer<> {
 public:
   explicit ParticleListDrawer(const edm::ParameterSet&);
   ~ParticleListDrawer() override{};
