@@ -24,6 +24,14 @@ _exoHighPtTrackCut = (
     " abs(dxy) < 0.5 && abs(dz) < 0.5 && "+
     " (miniPFIsolation().chargedHadronIso()/pt < 1.0 || pt > 100)"
 )
+_exoDisappearingTrackCut = (
+    "pt > 30 && "+
+    "abs(dxy) < 0.05 && abs(dz) < 1.0 &&"+
+    "lostInnerLayers == 0 &&"+
+    "lostLayers == 0 &&"+
+    "lostOuterLayers >= 1 &&"+
+    "(pfIsolationDR03().chargedHadronIso)/pt < 0.1"
+)
 isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     tkAssocParamBlock,
     packedPFCandidates = cms.InputTag("packedPFCandidates"),
@@ -61,7 +69,8 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     useHighPurity = cms.bool(False),
 
     saveDeDxHitInfo = cms.bool(True),
-    saveDeDxHitInfoCut = cms.string("(%s) || (%s)" % (_susySoftDisappearingTrackCut,_exoHighPtTrackCut)), 
+    saveDeDxHitInfoCut = cms.string("(%s) || (%s) || (%s)" 
+      % (_susySoftDisappearingTrackCut,_exoHighPtTrackCut,_exoDisappearingTrackCut)), 
 )
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
