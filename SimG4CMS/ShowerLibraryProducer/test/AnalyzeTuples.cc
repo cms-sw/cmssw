@@ -60,7 +60,6 @@ private:
   std::vector<double> pmom;
   std::vector<HFShowerPhoton> photon;
 
-  edm::Service<TFileService> fs;
   TH1I* hNPELongElec[12];
   TH1I* hNPEShortElec[12];
   TH1I* hNPELongPion[12];
@@ -177,6 +176,7 @@ void AnalyzeTuples::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 void AnalyzeTuples::beginJob() {
+  edm::Service<TFileService> fs;
   TFileDirectory HFDir = fs->mkdir("HF");
   char title[128];
   for (int i = 0; i < int(pmom.size()); ++i) {
