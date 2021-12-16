@@ -12,8 +12,8 @@ process = cms.Process("L1TrackNtuple")
 ############################################################
 
 GEOMETRY = "D76"
-# Set L1 tracking algorithm: 
-# 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit). 
+# Set L1 tracking algorithm:
+# 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit).
 # 'HYBRID_NEWKF' (baseline, 4par fit, with bit-accurate KF emulation),
 # 'HYBRID_REDUCED' to use the "Summer Chain" configuration with reduced inputs.
 # (Or legacy algos 'TMTT' or 'TRACKLET').
@@ -64,7 +64,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 #from MCsamples.Scripts.getCMSlocaldata_cfi import *
 
 if GEOMETRY == "D49":
-  inputMC = ["/store/relval/CMSSW_11_3_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/00000/00260a30-734a-4a3a-a4b0-f836ce5502c6.root"] 
+  inputMC = ["/store/relval/CMSSW_11_3_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/00000/00260a30-734a-4a3a-a4b0-f836ce5502c6.root"]
 
 elif GEOMETRY == "D76":
   # Read data from card files (defines getCMSdataFromCards()):
@@ -173,7 +173,7 @@ elif (L1TRKALGO == 'HYBRID_REDUCED'):
     L1TRK_LABEL = "Level1TTTracks"
     L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigisReduced"
 
-# LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET  
+# LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET
 elif (L1TRKALGO == 'TRACKLET'):
     print("\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED!")
     print("\n To run the Tracklet-only algorithm, ensure you have commented out 'CXXFLAGS=-DUSEHYBRID' in BuildFile.xml & recompiled! \n")
@@ -224,7 +224,7 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
                                        L1Tk_minNStub = cms.int32(4),     # L1 tracks with >= 4 stubs
                                        TP_minNStub = cms.int32(4),       # require TP to have >= X number of stubs associated with it
                                        TP_minNStubLayer = cms.int32(4),  # require TP to have stubs in >= X layers/disks
-                                       TP_minPt = cms.double(2.0),       # only save TPs with pt > X GeV
+                                       TP_minPt = cms.double(1.9),       # only save TPs with pt > X GeV
                                        TP_maxEta = cms.double(2.5),      # only save TPs with |eta| < X
                                        TP_maxZ0 = cms.double(30.0),      # only save TPs with |z0| < X cm
                                        L1TrackInputTag = cms.InputTag(L1TRK_NAME, L1TRK_LABEL),         # TTTrack input
@@ -277,4 +277,3 @@ if (WRITE_DATA):
 
   process.pd = cms.EndPath(process.writeDataset)
   process.schedule.append(process.pd)
-
