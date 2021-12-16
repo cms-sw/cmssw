@@ -147,7 +147,7 @@ namespace fastsim {
     };
 }
 
-inline bool isExotic(int pdgid_, bool fixLongLivedBug) {
+inline bool isExotic(bool fixLongLivedBug, int pdgid_) {
   unsigned int pdgid = std::abs(pdgid_);
   return ((pdgid >= 1000000 && pdgid < 4000000 && pdgid != 3000022) ||  // SUSY, R-hadron, and technicolor particles
           pdgid == 17 ||                                                // 4th generation lepton
