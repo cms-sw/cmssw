@@ -544,7 +544,7 @@ upgradeWFs['PatatrackPixelOnlyGPUProfiling'] = PatatrackWorkflow(
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
         '--procModifiers': 'pixelNtupletFit,gpu',
-            '--customise' : 'RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
+        '--customise' : 'RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
     },
     harvest = None,
     suffix = 'Patatrack_PixelOnlyGPU_Profiling',
