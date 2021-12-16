@@ -254,7 +254,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle()
         if (!producedWithinBeamPipe)  //
         {
             exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
-            if (!isExotic(exoticRelativeId, fixLongLivedBug_)) {
+            if (!isExotic(fixLongLivedBug_, exoticRelativeId)) {
                 continue;
             }
         }	
@@ -266,7 +266,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle()
         }
 
         // SM particles that descend from exotics and cross the beam pipe radius should make hits but not be decayed, by default it will duplicate FastSim hits for long lived particles and so anything produced without activating fixLongLivedBug_ is physically wrong
-        if (producedWithinBeamPipe && !decayedWithinBeamPipe && fixLongLivedBug_){
+        if (fixLongLivedBug_ && producedWithinBeamPipe && !decayedWithinBeamPipe){
           exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
         }    
 
@@ -283,7 +283,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle()
                              particle.momentum().z()*momentumUnitConversionFactor_,
                              particle.momentum().e()*momentumUnitConversionFactor_)));
         newParticle->setGenParticleIndex(genParticleIndex_);
-        if (isExotic(exoticRelativeId, fixLongLivedBug_)) {
+        if (isExotic(fixLongLivedBug_, exoticRelativeId)) {
                 newParticle->setMotherPdgId(exoticRelativeId);
         }
         // try to get the life time of the particle from the genEvent
@@ -317,14 +317,14 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle()
 void fastsim::ParticleManager::exoticRelativesChecker(const HepMC::GenVertex* originVertex,
                                                       int& exoticRelativeId_,
                                                       int ngendepth = 0) {
-  if (ngendepth > 99 || exoticRelativeId_ == -1 || isExotic(std::abs(exoticRelativeId_), fixLongLivedBug_))
+  if (ngendepth > 99 || exoticRelativeId_ == -1 || isExotic(fixLongLivedBug_, std::abs(exoticRelativeId_)))
     return;
   ngendepth += 1;
   std::vector<HepMC::GenParticle*>::const_iterator relativesIterator_ = originVertex->particles_in_const_begin();
   std::vector<HepMC::GenParticle*>::const_iterator relativesIteratorEnd_ = originVertex->particles_in_const_end();
   for (; relativesIterator_ != relativesIteratorEnd_; ++relativesIterator_) {
     const HepMC::GenParticle& genRelative = **relativesIterator_;
-    if (isExotic(std::abs(genRelative.pdg_id()),fixLongLivedBug_)) {
+    if (isExotic(fixLongLivedBug_, std::abs(genRelative.pdg_id()))) {
       exoticRelativeId_ = genRelative.pdg_id();
       if (ngendepth == 100)
         exoticRelativeId_ = -1;

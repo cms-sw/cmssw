@@ -41,7 +41,7 @@ fastsim::Decayer::decay(const Particle & particle,std::vector<std::unique_ptr<fa
 
     // snip decay products of exotic particles or their children. These decay products are preserved from the event record.
     // limitation: if exotic incurs heavy energy loss during propagation, the saved decay products could be too hard.    
-    if (isExotic(pid, fixLongLivedBug_) || isExotic(particle.getMotherPdgId(), fixLongLivedBug_)) {
+    if (isExotic(fixLongLivedBug_, pid) || isExotic(fixLongLivedBug_, particle.getMotherPdgId())) {
         return;
     }
     pythia_->event.reset();
