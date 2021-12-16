@@ -25,8 +25,9 @@
 // constructors and destructor
 HcalTB02Histo::HcalTB02Histo(const edm::ParameterSet& ps) : rt_tbTimes(nullptr), rt_TransProf(nullptr) {
   verbose = ps.getUntrackedParameter<bool>("Verbose", false);
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02Histo:: initialised with o/p file " << fileName << " verbosity " << verbose;
-
+#endif
   // Book histograms
   edm::Service<TFileService> tfile;
 
@@ -66,15 +67,19 @@ HcalTB02Histo::~HcalTB02Histo() {
 //
 
 void HcalTB02Histo::fillAllTime(float v) {
-  LogDebug("HcalTBSim") << "HcalTB02Histo::Fill Time histo with " << v;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Histo::Fill Time histo with " << v;
+#endif
   if (rt_tbTimes) {
     rt_tbTimes->Fill(v);
   }
 }
 
 void HcalTB02Histo::fillTransProf(float u, float v) {
-  LogDebug("HcalTBSim") << "HcalTB02Histo:::Fill Shower Transv. Profile histo"
-                        << " with " << u << " and " << v;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Histo:::Fill Shower Transv. Profile histo"
+                                << " with " << u << " and " << v;
+#endif
   if (rt_TransProf) {
     rt_TransProf->Fill(u, v);
   }
@@ -83,7 +88,9 @@ void HcalTB02Histo::fillTransProf(float u, float v) {
 void HcalTB02Histo::fillProfile(int ilayer, float value) {
   if (ilayer < (int)(rt_histoProf.size())) {
     rt_histoProf[ilayer]->Fill(value);
-    LogDebug("HcalTBSim") << "HcalTB02Histo::Fill profile " << ilayer << " with " << value;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalTBSim") << "HcalTB02Histo::Fill profile " << ilayer << " with " << value;
+#endif
   }
 }
 

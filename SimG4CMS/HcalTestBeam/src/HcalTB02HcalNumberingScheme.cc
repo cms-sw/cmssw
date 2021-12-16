@@ -60,7 +60,7 @@ int HcalTB02HcalNumberingScheme::getUnitID(const G4Step* aStep) const {
   float htheta = (hR == 0. ? 0. : acos(std::max(std::min(hz / hR, float(1.)), float(-1.))));
   float hsintheta = sin(htheta);
   float hphi = (hR * hsintheta == 0. ? 0. : acos(std::max(std::min(hx / (hR * hsintheta), float(1.)), float(-1.))));
-  float heta = (fabs(hsintheta) == 1. ? 0. : -log(fabs(tan(htheta / 2.))));
+  float heta = (std::fabs(hsintheta) == 1. ? 0. : -std::log(std::fabs(tan(htheta / 2.))));
   int eta = int(heta / 0.087);
   int phi = int(hphi / (5. * degree));
 
@@ -79,7 +79,7 @@ int HcalTB02HcalNumberingScheme::getUnitID(const G4Step* aStep) const {
 }
 
 int HcalTB02HcalNumberingScheme::getlayerID(int sID) const {
-  sID = abs(sID);
+  sID = std::abs(sID);
   int layerID = sID;
   if ((layerID != 17) && (layerID != 18))
     layerID = sID - int(float(sID) / float(etaScale)) * etaScale;
@@ -94,7 +94,7 @@ int HcalTB02HcalNumberingScheme::getphiID(int sID) const {
   float IDsign = 1.;
   if (sID < 0)
     IDsign = -1;
-  sID = abs(sID);
+  sID = std::abs(sID);
   int phiID = int(float(sID) / float(phiScale));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02HcalNumberingScheme:: scintID " << sID << " phi = " << phiID;
@@ -102,13 +102,13 @@ int HcalTB02HcalNumberingScheme::getphiID(int sID) const {
   if (IDsign > 0) {
     phiID += 4;
   } else {
-    phiID = abs(phiID - 3);
+    phiID = std::abs(phiID - 3);
   }
   return phiID;
 }
 
 int HcalTB02HcalNumberingScheme::getetaID(int sID) const {
-  sID = abs(sID);
+  sID = std::abs(sID);
   int aux = sID - int(float(sID) / float(phiScale)) * phiScale;
   int etaID = int(float(aux) / float(etaScale));
 
