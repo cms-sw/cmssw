@@ -96,7 +96,8 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     // currently there is no superchamber in the geometry
     // only 2 chambers are present separated by a gap.
     // making superchamber out of the first chamber layer including the gap between chambers
-    if (seen.find(detIdCh.superChamberId()) == seen.end()) {  // only make a superchamber when the first chamber of the sc is seen
+    if (seen.find(detIdCh.superChamberId()) ==
+        seen.end()) {  // only make a superchamber when the first chamber of the sc is seen
       seen.insert(detIdCh.superChamberId());
       GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
       superChambers.push_back(gemSuperChamber);
