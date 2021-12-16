@@ -28,7 +28,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/SiPixelDigi/interface/SiPixelClustersSoA.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelDigisSoA.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
