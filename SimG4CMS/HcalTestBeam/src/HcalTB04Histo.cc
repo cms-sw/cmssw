@@ -20,6 +20,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB04Histo.h"
 
+//#define EDM_ML_DEBUG
+
 //
 // constructors and destructor
 HcalTB04Histo::HcalTB04Histo(const edm::ParameterSet& ps)
@@ -76,15 +78,20 @@ HcalTB04Histo::~HcalTB04Histo() {}
 //
 
 void HcalTB04Histo::fillPrimary(double energy, double eta, double phi) {
-  LogDebug("HcalTBSim") << "HcalTB04Histo::fillPrimary: Energy " << energy << " Eta " << eta << " Phi " << phi;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04Histo::fillPrimary: Energy " << energy << " Eta " << eta << " Phi " << phi;
+#endif
   iniE->Fill(energy);
   iEta->Fill(eta);
   iPhi->Fill(phi);
 }
 
 void HcalTB04Histo::fillEdep(double etots, double eecals, double ehcals, double etotq, double eecalq, double ehcalq) {
-  LogDebug("HcalTBSim") << "HcalTB04Histo:::fillEdep: Simulated Total " << etots << " ECal " << eecals << " HCal "
-                        << ehcals << " Digitised Total " << etotq << " ECal " << eecalq << " HCal " << ehcalq;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04Histo:::fillEdep: Simulated Total " << etots << " ECal " << eecals
+                                << " HCal " << ehcals << " Digitised Total " << etotq << " ECal " << eecalq << " HCal "
+                                << ehcalq;
+#endif
   edepS->Fill(etots);
   edecS->Fill(eecals);
   edhcS->Fill(ehcals);
@@ -99,12 +106,14 @@ void HcalTB04Histo::fillTrnsProf(const std::vector<double>& es1,
                                  const std::vector<double>& eq1,
                                  const std::vector<double>& es2,
                                  const std::vector<double>& eq2) {
+#ifdef EDM_ML_DEBUG
   unsigned int n1 = std::min(es1.size(), eq1.size());
   unsigned int n2 = std::min(es2.size(), eq2.size());
   unsigned int n = std::min(n1, n2);
   for (unsigned int i = 0; i < n; i++)
-    LogDebug("HcalTBSim") << "HcalTB04Histo::fillTrnsProf [" << i << "] SimEta " << es1[i] << " DigEta " << eq1[i]
-                          << " SimPhi " << es2[i] << " DigPhi " << eq2[i];
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Histo::fillTrnsProf [" << i << "] SimEta " << es1[i] << " DigEta "
+                                  << eq1[i] << " SimPhi " << es2[i] << " DigPhi " << eq2[i];
+#endif
   for (unsigned int i = 0; i < (es1.size()); i++) {
     double tow = i + 0.5;
     latse->Fill(tow, es1[i]);
@@ -124,9 +133,11 @@ void HcalTB04Histo::fillTrnsProf(const std::vector<double>& es1,
 }
 
 void HcalTB04Histo::fillLongProf(const std::vector<double>& es, const std::vector<double>& eq) {
+#ifdef EDM_ML_DEBUG
   unsigned int n = std::min(es.size(), eq.size());
   for (unsigned int i = 0; i < n; i++)
-    LogDebug("HcalTBSim") << "HcalTB04Histo::fillLongProf [" << i << "] Sim " << es[i] << " Dig " << eq[i];
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Histo::fillLongProf [" << i << "] Sim " << es[i] << " Dig " << eq[i];
+#endif
   for (unsigned int i = 0; i < (es.size()); i++) {
     double lay = i + 0.5;
     lngs->Fill(lay, es[i]);
