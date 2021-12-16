@@ -11,6 +11,7 @@
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
  * \author: Vladimir Rekovic     - add correlation with overlap removal cases
  *                               - fractional prescales
+ *                               - add three-body by two-body correlation conditions
  * \author: Elisa Fontanesi      - extended for three-body correlation conditions
  *
  * $Date$
@@ -34,9 +35,11 @@
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationThreeBodyTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationWithOverlapRemovalTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/CorrelationThreeBodyByTwoBodyTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrWithOverlapRemovalCondition.h"
+#include "L1Trigger/L1TGlobal/interface/CorrThreeBodyByTwoBodyCondition.h"
 
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
@@ -50,6 +53,7 @@
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrThreeBodyCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrWithOverlapRemovalCondition.h"
+#include "L1Trigger/L1TGlobal/interface/CorrThreeBodyByTwoBodyCondition.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -841,6 +845,94 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
           //  		delete correlationCondWOR;
 
         } break;
+
+        case CondCorrelationThreeBodyByTwoBody: {
+          // get first the sub-conditions
+          const CorrelationThreeBodyByTwoBodyTemplate* corrTemplate =
+              static_cast<const CorrelationThreeBodyByTwoBodyTemplate*>(itCond->second);
+          const GtConditionCategory cond0Categ = corrTemplate->cond0Category();
+          const GtConditionCategory cond1Categ = corrTemplate->cond1Category();
+          const GtConditionCategory cond2Categ = corrTemplate->cond2Category();
+          const int cond0Ind = corrTemplate->cond0Index();
+          const int cond1Ind = corrTemplate->cond1Index();
+          const int cond2Ind = corrTemplate->cond2Index();
+
+          const GlobalCondition* cond0Condition = nullptr;
+          const GlobalCondition* cond1Condition = nullptr;
+          const GlobalCondition* cond2Condition = nullptr;
+
+          // maximum number of objects received for evaluation of l1t::Type1s condition
+          int cond0NrL1Objects = 0;
+          int cond1NrL1Objects = 0;
+          int cond2NrL1Objects = 0;
+          LogDebug("L1TGlobal") << " cond0NrL1Objects" << cond0NrL1Objects << "  cond1NrL1Objects  " << cond1NrL1Objects
+                                << "  cond2NrL1Objects  " << cond2NrL1Objects << std::endl;
+
+          switch (cond0Categ) {
+            case CondMuon: {
+              cond0Condition = &((corrMuon[iChip])[cond0Ind]);
+            } break;
+            case CondCalo: {
+              cond0Condition = &((corrCalo[iChip])[cond0Ind]);
+            } break;
+            case CondEnergySum: {
+              cond0Condition = &((corrEnergySum[iChip])[cond0Ind]);
+            } break;
+            default: {
+              // do nothing, should not arrive here
+            } break;
+          }
+
+          switch (cond1Categ) {
+            case CondMuon: {
+              cond1Condition = &((corrMuon[iChip])[cond1Ind]);
+            } break;
+            case CondCalo: {
+              cond1Condition = &((corrCalo[iChip])[cond1Ind]);
+            } break;
+            case CondEnergySum: {
+              cond1Condition = &((corrEnergySum[iChip])[cond1Ind]);
+            } break;
+            default: {
+              // do nothing, should not arrive here
+            } break;
+          }
+
+          switch (cond2Categ) {
+            case CondMuon: {
+              cond2Condition = &((corrMuon[iChip])[cond2Ind]);
+            } break;
+            case CondCalo: {
+              cond2Condition = &((corrCalo[iChip])[cond2Ind]);
+            } break;
+            case CondEnergySum: {
+              cond2Condition = &((corrEnergySum[iChip])[cond2Ind]);
+            } break;
+            default: {
+              // do nothing, should not arrive here
+            } break;
+          }
+
+          CorrThreeBodyByTwoBodyCondition* correlationCondWOR =
+              new CorrThreeBodyByTwoBodyCondition(itCond->second, cond0Condition, cond1Condition, cond2Condition, this);
+
+          correlationCondWOR->setVerbosity(m_verbosity);
+          correlationCondWOR->setScales(&gtScales);
+          correlationCondWOR->evaluateConditionStoreResult(iBxInEvent);
+
+          cMapResults[itCond->first] = correlationCondWOR;
+
+          if (m_verbosity && m_isDebugEnabled) {
+            std::ostringstream myCout;
+            correlationCondWOR->print(myCout);
+
+            LogTrace("L1TGlobal") << myCout.str() << std::endl;
+          }
+
+          //  		delete correlationCondWOR;
+
+        } break;
+
         case CondNull: {
           // do nothing
 
