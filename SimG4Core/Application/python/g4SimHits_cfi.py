@@ -641,16 +641,19 @@ pp_on_PbPb_run3.toModify( g4SimHits, LHCTransport = False )
 ## Change ECAL time slices
 ##
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify( g4SimHits.ECalSD,
-                             StoreLayerTimeSim = cms.untracked.bool(True),
-                             TimeSliceUnit = cms.double(0.001) )
+phase2_timing.toModify( g4SimHits, ECalSD = dict(
+                             StoreLayerTimeSim = True,
+                             TimeSliceUnit = 0.001 )
+)
+
 ##
 ## Change CALO Thresholds
 ##
 from Configuration.Eras.Modifier_h2tb_cff import h2tb
-h2tb.toModify(g4SimHits.CaloSD,
-              EminHits  = cms.vdouble(0.0,0.0,0.0,0.0,0.0),
-              TmaxHits  = cms.vdouble(1000.0,1000.0,1000.0,1000.0,2000.0) )
+h2tb.toModify(g4SimHits, CaloSD = dict(
+              EminHits  = [0.0, 0.0, 0.0, 0.0, 0.0],
+              TmaxHits  = [1000.0, 1000.0, 1000.0, 1000.0, 2000.0] )
+)
 
 ##
 ## DD4hep migration
@@ -664,5 +667,5 @@ dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(g4SimHits,
-                       OnlySDs = ['ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'] )
-phase2_common.toModify( g4SimHits, LHCTransport = False ) 
+                       OnlySDs = ['ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'],
+                       LHCTransport = False ) 
