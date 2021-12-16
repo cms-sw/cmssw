@@ -42,13 +42,59 @@ public:
 
 private:
   edm::EDGetTokenT<SiPixelClusterCollectionNew> tokenCluster_;
-  edm::EDGetTokenT<SiPixelClusterCollectionNew> tokenCluster2_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   std::string topFolderName_;
   MonitorElement* hnClusters;
-  MonitorElement* hnClusters2;
   const TrackerTopology* trackerTopology_;
+	
+  MonitorElement* hnClusters;
+  MonitorElement* hClustersCharge;
+  MonitorElement* hClustersSize;
+  
+  MonitorElement* hnClustersBarrel;
+  MonitorElement* hClustersBarrelCharge;
+  MonitorElement* hClustersBarrelSize;
+  
+  MonitorElement* hnClustersEndcap;
+  MonitorElement* hClustersEndcapCharge;
+  MonitorElement* hClustersEndcapSize;
+
+  MonitorElement* hnClustersBarrelLayer1;
+  MonitorElement* hnClustersBarrelLayer2;
+  MonitorElement* hnClustersBarrelLayer3;
+  MonitorElement* hnClustersBarrelLayer4;
+
+  MonitorElement* hnClustersBarrelLayer1Charge;
+  MonitorElement* hnClustersBarrelLayer2Charge;
+  MonitorElement* hnClustersBarrelLayer3Charge;
+  MonitorElement* hnClustersBarrelLayer4Charge;
+	
+  MonitorElement* hnClustersBarrelLayer1Charge;
+  MonitorElement* hnClustersBarrelLayer2Charge;
+  MonitorElement* hnClustersBarrelLayer3Charge;
+  MonitorElement* hnClustersBarrelLayer4Charge;
+
+  MonitorElement* hnClustersEndcapDiskm1;
+  MonitorElement* hnClustersEndcapDiskm2;
+  MonitorElement* hnClustersEndcapDiskm3;
+  MonitorElement* hnClustersEndcapDiskp1;
+  MonitorElement* hnClustersEndcapDiskp2;
+  MonitorElement* hnClustersEndcapDiskp3;
+
+  MonitorElement* hDigisEndcapDiskm1Charge;
+  MonitorElement* hDigisEndcapDiskm2Charge;
+  MonitorElement* hDigisEndcapDiskm3Charge;
+  MonitorElement* hDigisEndcapDiskp1Charge;
+  MonitorElement* hDigisEndcapDiskp2Charge;
+  MonitorElement* hDigisEndcapDiskp3Charge;
+	
+  MonitorElement* hClustersEndcapDiskm1Size;
+  MonitorElement* hClustersEndcapDiskm2Size;
+  MonitorElement* hClustersEndcapDiskm3Size;
+  MonitorElement* hClustersEndcapDiskp1Size;
+  MonitorElement* hClustersEndcapDiskp2Size;
+  MonitorElement* hClustersEndcapDiskp3Size;
 };
 
 //
@@ -57,7 +103,6 @@ private:
 
 SiPixelPhase1MonitorClusters::SiPixelPhase1MonitorClusters(const edm::ParameterSet& iConfig) {
   tokenCluster_ = consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("pixelClusters"));
-  tokenCluster2_ = consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("pixelClusters2"));
   topFolderName_ = iConfig.getParameter<std::string>("TopFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
   trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
@@ -73,8 +118,6 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
   // TrackerTopology for module informations
   edm::ESHandle<TrackerTopology> trackerTopologyHandle = iSetup.getHandle(trackerTopoToken_);
   trackerTopology_ = trackerTopologyHandle.product();
-
-
 
   edm::Handle<SiPixelClusterCollectionNew> input;
   iEvent.getByToken(tokenCluster_, input);
@@ -98,31 +141,6 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
     edm::LogWarning("SiPixelPhase1MonitorClusters") << "Found "<<nClus<<" Clusters!" << std::endl;
     hnClusters->Fill(nClus);
   }
-
-  edm::Handle<SiPixelClusterCollectionNew> input2;
-  iEvent.getByToken(tokenCluster2_, input2);
-  if (!input2.isValid()){
-    edm::LogWarning("SiPixelPhase1MonitorClusters") << "No Valid siPixelDigisClustersPreSplitting found returning!" << std::endl;
-  }
-  else{
-    SiPixelClusterCollectionNew::const_iterator it;
-    uint32_t nClus2 = 0;
-    for (it = input->begin(); it != input->end(); ++it) {
-      nClus2 += it->size();
-      /* DetId id = it->detId();
-      uint32_t subdetid = (id.subdetId());
-      if (subdetid == PixelSubdetector::PixelBarrel) {
-	edm::LogWarning("SiPixelPhase1MonitorClusters") << "PX Barrel:  DetId " <<id.rawId()<<" Layer "<<trackerTopology_->pxbLayer(id)<<std::endl;
-      }
-      if (subdetid == PixelSubdetector::PixelEndcap) {
-	edm::LogWarning("SiPixelPhase1MonitorClusters") << "PX Endcaps:  DetId " <<id.rawId()<<" Side "<<trackerTopology_->pxfSide(id)<<" Disk "<<trackerTopology_->pxfDisk(id)<<std::endl;
-	}*/
-    }
-    edm::LogWarning("SiPixelPhase1MonitorClusters") << "Found "<<nClus2<<" Clusters (2)!" << std::endl;
-    hnClusters2->Fill(nClus2);
-
-  }
-
 }
 
 //
@@ -141,7 +159,6 @@ void SiPixelPhase1MonitorClusters::fillDescriptions(edm::ConfigurationDescriptio
   // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelClusters", edm::InputTag("siPixelClustersPreSplitting"));
-  desc.add<edm::InputTag>("pixelClusters2", edm::InputTag("siPixelDigisClustersPreSplitting"));
   desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelClusters");
   descriptions.addWithDefaultLabel(desc);
 }
