@@ -28,7 +28,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/SiPixelDigi/interface/SiPixelDigisSoA.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelClustersSoA.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
@@ -82,12 +82,12 @@ private:
   MonitorElement* hnClustersEndcapDiskp2;
   MonitorElement* hnClustersEndcapDiskp3;
 
-  MonitorElement* hDigisEndcapDiskm1Charge;
-  MonitorElement* hDigisEndcapDiskm2Charge;
-  MonitorElement* hDigisEndcapDiskm3Charge;
-  MonitorElement* hDigisEndcapDiskp1Charge;
-  MonitorElement* hDigisEndcapDiskp2Charge;
-  MonitorElement* hDigisEndcapDiskp3Charge;
+  MonitorElement* hClustersEndcapDiskm1Charge;
+  MonitorElement* hClustersEndcapDiskm2Charge;
+  MonitorElement* hClustersEndcapDiskm3Charge;
+  MonitorElement* hClustersEndcapDiskp1Charge;
+  MonitorElement* hClustersEndcapDiskp2Charge;
+  MonitorElement* hClustersEndcapDiskp3Charge;
 	
   MonitorElement* hClustersEndcapDiskm1Size;
   MonitorElement* hClustersEndcapDiskm2Size;
@@ -129,19 +129,181 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
     uint32_t nClus = 0;
     for (it = input->begin(); it != input->end(); ++it) {
       nClus += it->size();
-      /* DetId id = it->detId();
+      DetId id = it->detId();
       uint32_t subdetid = (id.subdetId());
-      if (subdetid == PixelSubdetector::PixelBarrel) {
-	edm::LogWarning("SiPixelPhase1MonitorClusters") << "PX Barrel:  DetId " <<id.rawId()<<" Layer "<<trackerTopology_->pxbLayer(id)<<std::endl;
-      }
-      if (subdetid == PixelSubdetector::PixelEndcap) {
-	edm::LogWarning("SiPixelPhase1MonitorClusters") << "PX Endcaps:  DetId " <<id.rawId()<<" Side "<<trackerTopology_->pxfSide(id)<<" Disk "<<trackerTopology_->pxfDisk(id)<<std::endl;
-	}*/
-    }
-    edm::LogWarning("SiPixelPhase1MonitorClusters") << "Found "<<nClus<<" Clusters!" << std::endl;
+        if (subdetid == PixelSubdetector::PixelBarrel) {
+            //edm::LogWarning("SiPixelPhase1MonitorDigi") << " PX Barrel:  DetId " <<id.rawId()<<" Layer "<<trackerTopology_->pxbLayer(id)<<std::endl;
+            nClustersBarrel += nClustersEv;
+            const uint32_t nLayer = trackerTopology_->pxbLayer(id);
+            if(nLayer == 1){
+                nClustersBarrelLayer1 += nClustersEv;
+                for (Pixelcluster const& cluster : *it){
+                    double clustersize = cluster.size();
+                    hClustersSize->Fill(clustersize); 
+                    hClustersBarrelSize->Fill(clustersize); 
+                    hClustersBarrelLayer1Size->Fill(clustersize);
+                    double clustercharge = cluster.charge();
+                    hClustersCharge->Fill(clustercharge); 
+                    hClustersBarrelCharge->Fill(clustercharge); 
+                    hClustersBarrelLayer1Charge->Fill(clustercharge); 
+                }
+            }
+            else if(nLayer == 2){
+                nClustersBarrelLayer2 += nClustersEv;
+                for (Pixelcluster const& cluster : *it){
+                    double clustersize = cluster.size();
+                    hClustersSize->Fill(clustersize); 
+                    hClustersBarrelSize->Fill(clustersize); 
+                    hClustersBarrelLayer2Size->Fill(clustersize); 
+                    double clustercharge = cluster.charge();
+                    hClustersCharge->Fill(clustercharge); 
+                    hClustersBarrelCharge->Fill(clustercharge); 
+                    hClustersBarrelLayer2Charge->Fill(clustercharge); 
+                    
+                }
+            }
+            
+            else if(nLayer == 3){
+                nClustersBarrelLayer3 += nClustersEv;
+                for (Pixelcluster const& cluster : *it){
+                    double clustersize = cluster.size();
+                    hClustersSize->Fill(clustersize); 
+                    hClustersBarrelSize->Fill(clustersize); 
+                    hClustersBarrelLayer3Size->Fill(clustersize); 
+                    double clustercharge = cluster.charge();
+                    hClustersCharge->Fill(clustercharge); 
+                    hClustersBarrelCharge->Fill(clustercharge); 
+                    hClustersBarrelLayer3Charge->Fill(clustercharge); 
+                }
+            }
+            
+            else if(nLayer == 4){
+                nClustersBarrelLayer4 += nClustersEv;
+                for (Pixelcluster const& cluster : *it){
+                    double clustersize = cluster.size();
+                    hClustersSize->Fill(clustersize); 
+                    hClustersBarrelSize->Fill(clustersize); 
+                    hClustersBarrelLayer4Size->Fill(clustersize); 
+                    double clustercharge = cluster.charge();
+                    hClustersCharge->Fill(clustercharge); 
+                    hClustersBarrelCharge->Fill(clustercharge); 
+                    hClustersBarrelLayer4Charge->Fill(clustercharge); 
+                }
+            }
+            
+        }	  
+
+        else if (subdetid == PixelSubdetector::PixelEndcap) {            
+            nClustersEndcap += nClustersEv;
+            uint32_t ECside = trackerTopology_->pxfSide(id);
+            uint32_t nDisk = trackerTopology_->pxfDisk(id);
+
+            if (ECside == 1){
+                if(nDisk == 1){
+                    nClustersEndcapDiskm1 += nClustersEv;
+                    for (Pixelcluster const& cluster : *it){
+                        double clustersize = cluster.size();
+                        hClustersSize->Fill(clustersize); 
+                        hClustersEndcapSize->Fill(clustersize); 
+                        hClustersEndcapDiskm1Size->Fill(clustersize); 
+                        double clustercharge = cluster.charge();
+                        hClustersCharge->Fill(clustercharge); 
+                        hClustersEndcapCharge->Fill(clustercharge); 
+                        hClustersEndcapDiskm1Charge->Fill(clustercharge);
+                    }
+                }
+            
+                else if(nDisk == 2){
+                    nClustersEndcapDiskm2 += nClustersEv;
+                    for (Pixelcluster const& cluster : *it){
+                        double clustersize = cluster.size();
+                        hClustersSize->Fill(clustersize); 
+                        hClustersEndcapSize->Fill(clustersize); 
+                        hClustersEndcapDiskm2Size->Fill(clustersize); 
+                        double clustercharge = cluster.charge();
+                        hClustersCharge->Fill(clustercharge); 
+                        hClustersEndcapCharge->Fill(clustercharge); 
+                        hClustersEndcapDiskm2Charge->Fill(clustercharge); 
+                    }
+                }
+
+                else if(nDisk == 3){
+                    nClustersEndcapDiskm3 += nClustersEv;
+                    for (Pixelcluster const& cluster : *it){
+                        double clustersize = cluster.size();
+                        hClustersSize->Fill(clustersize); 
+                        hClustersEndcapSize->Fill(clustersize); 
+                        hClustersEndcapDiskm3Size->Fill(clustersize); 
+                        double clustercharge = cluster.charge();
+                        hClustersCharge->Fill(clustercharge); 
+                        hClustersEndcapCharge->Fill(clustercharge); 
+                        hClustersEndcapDiskm3Charge->Fill(clustercharge); 
+                    }
+                }
+
+            }
+            
+            else if (ECside == 2){
+                if(nDisk == 1){
+                    nClustersEndcapDiskp1 += nClustersEv;
+                    for (Pixelcluster const& cluster : *it){
+                        double clustersize = cluster.size();
+                        hClustersSize->Fill(clustersize); 
+                        hClustersEndcapSize->Fill(clustersize); 
+                        hClustersEndcapDiskp1Size->Fill(clustersize);
+                        double clustercharge = cluster.charge();
+                        hClustersCharge->Fill(clustercharge); 
+                        hClustersEndcapCharge->Fill(clustercharge); 
+                        hClustersEndcapDiskp1Charge->Fill(clustercharge); 
+                    }
+                }
+                else if(nDisk == 2){
+                    nClustersEndcapDiskp2 += nClustersEv;
+                    for (Pixelcluster const& cluster : *it){
+                        double clustersize = cluster.size();
+                        hClustersSize->Fill(clustersize); 
+                        hClustersEndcapSize->Fill(clustersize); 
+                        hClustersEndcapDiskp2Size->Fill(clustersize); 
+                        double clustercharge = cluster.charge();
+                        hClustersCharge->Fill(clustercharge); 
+                        hClustersEndcapCharge->Fill(clustercharge); 
+                        hClustersEndcapDiskp2Charge->Fill(clustercharge); 
+                    }
+                }
+
+                else if(nDisk == 3){
+                    nClustersEndcapDiskp3 += nClustersEv;
+                    for (Pixelcluster const& cluster : *it){
+                        double clustersize = cluster.size();
+                        hClustersSize->Fill(clustersize); 
+                        hClustersEndcapSize->Fill(clustersize); 
+                        hClustersEndcapDiskp3Size->Fill(clustersize); 
+                        double clustercharge = cluster.charge();
+                        hClustersCharge->Fill(clustercharge); 
+                        hClustersEndcapCharge->Fill(clustercharge); 
+                        hClustersEndcapDiskp3Charge->Fill(clustercharge); 
+                    }
+                }
+
+            }   
+        }
+    } 
     hnClusters->Fill(nClus);
+    hnClustersBarrel->Fill(nClustersBarrel);
+    hnClustersEndcap->Fill(nClustersEndcap);
+    hnClustersBarrelLayer1->Fill(nClustersBarrelLayer1);
+    hnClustersBarrelLayer2->Fill(nClustersBarrelLayer2);
+    hnClustersBarrelLayer3->Fill(nClustersBarrelLayer3);
+    hnClustersBarrelLayer4->Fill(nClustersBarrelLayer4);
+    hnClustersEndcapDiskm1->Fill(nClustersEndcapDiskm1);
+    hnClustersEndcapDiskm2->Fill(nClustersEndcapDiskm2);
+    hnClustersEndcapDiskm3->Fill(nClustersEndcapDiskm3);
+    hnClustersEndcapDiskp1->Fill(nClustersEndcapDiskp1);
+    hnClustersEndcapDiskp2->Fill(nClustersEndcapDiskp2);
+    hnClustersEndcapDiskp3->Fill(nClustersEndcapDiskp3);
   }
 }
+
 
 //
 // -- Book Histograms
@@ -151,8 +313,57 @@ void SiPixelPhase1MonitorClusters::bookHistograms(DQMStore::IBooker& ibooker,
                                                   edm::EventSetup const& iSetup) {
   ibooker.cd();
   ibooker.setCurrentFolder(topFolderName_);
-  hnClusters = ibooker.book1D("nClusters", ";Number of Clusters per event;#entries", 1001, -0.5, 10000.5);
-  hnClusters2 = ibooker.book1D("nClusters2", ";Number of Clusters per event;#entries", 1001, -0.5, 10000.5);
+
+  hnClusters = ibooker.book1D("nClusters", ";Number of clusters per event;#entries", 1001, -0.5, 10000.5);
+  hnClustersBarrel = ibooker.book1D("nClustersBarrel", ";Number of clusters per event;#entries", 1001, -0.5, 10000.5);
+  hnClustersEndcap = ibooker.book1D("nClustersEndcap", ";Number of clusters per event;#entries", 1001, -0.5, 10000.5);
+
+  hnClustersBarrelLayer1 = ibooker.book1D("nClustersBarrelLayer1", ";Number of clusters per event;#entries", 151, -0.5, 150.5);
+  hnClustersBarrelLayer2 = ibooker.book1D("nClustersBarrelLayer2", ";Number of clusters per event;#entries", 151, -0.5, 150.5);
+  hnClustersBarrelLayer3 = ibooker.book1D("nClustersBarrelLayer3", ";Number of clusters per event;#entries", 151, -0.5, 150.5);
+  hnClustersBarrelLayer4 = ibooker.book1D("nClustersBarrelLayer4", ";Number of clusters per event;#entries", 151, -0.5, 150.5);
+
+  hnClustersEndcapDiskm1 = ibooker.book1D("nClustersEndcapDiskm1", ";Number of clusters per event;#entries", 16, -0.5, 15.5);
+  hnClustersEndcapDiskm2 = ibooker.book1D("nClustersEndcapDiskm2", ";Number of clusters per event;#entries", 16, -0.5, 15.5);
+  hnClustersEndcapDiskm3 = ibooker.book1D("nClustersEndcapDiskm3", ";Number of clusters per event;#entries", 16, -0.5, 15.5);
+
+  hnClustersEndcapDiskp1 = ibooker.book1D("nClustersEndcapDiskp1", ";Number of clusters per event;#entries", 16, -0.5, 15.5);
+  hnClustersEndcapDiskp2 = ibooker.book1D("nClustersEndcapDiskp2", ";Number of clusters per event;#entries", 16, -0.5, 15.5);
+  hnClustersEndcapDiskp3 = ibooker.book1D("nClustersEndcapDiskp3", ";Number of clusters per event;#entries", 16, -0.5, 15.5);
+  
+  hClustersSize = ibooker.book1D("ClustersSize", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersBarrelSize = ibooker.book1D("ClustersBarrelSize", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapSize = ibooker.book1D("ClustersEndcapSize", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+
+  hClustersBarrelLayer1Size = ibooker.book1D("ClustersBarrelLayer1Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersBarrelLayer2Size = ibooker.book1D("ClustersBarrelLayer2Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersBarrelLayer3Size = ibooker.book1D("ClustersBarrelLayer3Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersBarrelLayer4Size = ibooker.book1D("ClustersBarrelLayer4Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+
+  hClustersEndcapDiskm1Size = ibooker.book1D("ClustersEndcapDiskm1Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapDiskm2Size = ibooker.book1D("ClustersEndcapDiskm2Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapDiskm3Size = ibooker.book1D("ClustersEndcapDiskm3Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+
+  hClustersEndcapDiskp1Size = ibooker.book1D("ClustersEndcapDiskp1Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapDiskp2Size = ibooker.book1D("ClustersEndcapDiskp2Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapDiskp3Size = ibooker.book1D("ClustersEndcapDiskp3Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+
+  hClustersSize = ibooker.book1D("ClustersCharge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersBarrelCharge = ibooker.book1D("ClustersBarrelCharge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapCharge = ibooker.book1D("ClustersEndcapCharge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+
+  hClustersBarrelLayer1Charge = ibooker.book1D("ClustersBarrelLayer1Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersBarrelLayer2Charge = ibooker.book1D("ClustersBarrelLayer2Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersBarrelLayer3Charge = ibooker.book1D("ClustersBarrelLayer3Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersBarrelLayer4Charge = ibooker.book1D("ClustersBarrelLayer4Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+
+  hClustersEndcapDiskm1Charge = ibooker.book1D("ClustersEndcapDiskm1Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapDiskm2Charge = ibooker.book1D("ClustersEndcapDiskm2Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapDiskm3Charge = ibooker.book1D("ClustersEndcapDiskm3Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+
+  hClustersEndcapDiskp1Charge = ibooker.book1D("ClustersEndcapDiskp1Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapDiskp2Charge = ibooker.book1D("ClustersEndcapDiskp2Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapDiskp3Charge = ibooker.book1D("ClustersEndcapDiskp3Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
 }
 
 void SiPixelPhase1MonitorClusters::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
