@@ -71,7 +71,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
 #endif
   // loop over superchambers
   std::vector<GEMSuperChamber*> superChambers;
-  int last_chamber_id = -999;
+  std::set<GEMDetId> seen;
   while (doSuper) {
     // getting chamber id from eta partitions
     fv.firstChild();
@@ -96,8 +96,8 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     // currently there is no superchamber in the geometry
     // only 2 chambers are present separated by a gap.
     // making superchamber out of the first chamber layer including the gap between chambers
-    if (last_chamber_id != detIdCh.chamber()) {  // only make a superchamber when the first chamber of the sc is seen
-      last_chamber_id = detIdCh.chamber();
+    if (seen.find(detIdCh.superChamberId()) == seen.end()) {  // only make a superchamber when the first chamber of the sc is seen
+      seen.insert(detIdCh.superChamberId());
       GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
       superChambers.push_back(gemSuperChamber);
     }
