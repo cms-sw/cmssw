@@ -243,7 +243,7 @@ namespace edmtest {
   };
 
   void ESTestAnalyzerIncorrectConsumes::analyze(edm::Event const& ev, edm::EventSetup const& es) {
-    esToken_ = esConsumes();
+    esToken_ = esConsumes<ESTestDataJ, ESTestRecordJ>();
     edm::LogAbsolute("ESTestAnalyzerIncorrectConsumes")
         << "Succeeded to call esConsumes() in analyze(), should not happen!";
   }
