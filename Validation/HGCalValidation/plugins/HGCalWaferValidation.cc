@@ -85,6 +85,35 @@ private:
 
   std::string strWaferCoord(const WaferCoord& coord);
 
+  // mapping of wafer shape codes: DD / old format -> new format (LD/HD)
+  using WaferShapeMap = std::map<std::string, int>;
+
+  const WaferShapeMap waferShapeMapDD = {{"F", HGCalTypes::WaferPartialType::WaferFull},
+                                         {"a", HGCalTypes::WaferPartialType::WaferHalf},
+                                         {"am", HGCalTypes::WaferPartialType::WaferHalf2},
+                                         {"b", HGCalTypes::WaferPartialType::WaferFive},
+                                         {"bm", HGCalTypes::WaferPartialType::WaferFive2},
+                                         {"c", HGCalTypes::WaferPartialType::WaferThree},
+                                         {"d", HGCalTypes::WaferPartialType::WaferSemi},
+                                         {"dm", HGCalTypes::WaferPartialType::WaferSemi2},
+                                         {"g", HGCalTypes::WaferPartialType::WaferChopTwo},
+                                         {"gm", HGCalTypes::WaferPartialType::WaferChopTwoM}};
+
+  const WaferShapeMap waferShapeMapLD = {{"0", HGCalTypes::WaferPartialType::WaferFull},
+                                         {"1", HGCalTypes::WaferPartialType::WaferHalf},
+                                         {"2", HGCalTypes::WaferPartialType::WaferHalf},
+                                         {"3", HGCalTypes::WaferPartialType::WaferSemi},
+                                         {"4", HGCalTypes::WaferPartialType::WaferSemi},
+                                         {"5", HGCalTypes::WaferPartialType::WaferFive},
+                                         {"6", HGCalTypes::WaferPartialType::WaferThree}};
+
+  const WaferShapeMap waferShapeMapHD = {{"0", HGCalTypes::WaferPartialType::WaferFull},
+                                         {"1", HGCalTypes::WaferPartialType::WaferHalf2},
+                                         {"2", HGCalTypes::WaferPartialType::WaferChopTwoM},
+                                         {"3", HGCalTypes::WaferPartialType::WaferSemi2},
+                                         {"4", HGCalTypes::WaferPartialType::WaferSemi2},
+                                         {"5", HGCalTypes::WaferPartialType::WaferFive2}};
+
   bool DDFindHGCal(DDCompactView::GraphWalker& walker, std::string targetName);
   void DDFindWafers(DDCompactView::GraphWalker& walker);
   void ProcessWaferLayer(DDCompactView::GraphWalker& walker);
@@ -233,17 +262,7 @@ void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker& walker)
       //edm::LogVerbatim(logcat) << "rotStr " << rotStr << " rotCode " << rotCode;
 
       // convert shape code to wafer types defined in HGCalTypes.h
-      waferInfo.shapeCode = shapeStr == "F"    ? HGCalTypes::WaferPartialType::WaferFull
-                            : shapeStr == "a"  ? HGCalTypes::WaferPartialType::WaferHalf
-                            : shapeStr == "am" ? HGCalTypes::WaferPartialType::WaferHalf2
-                            : shapeStr == "b"  ? HGCalTypes::WaferPartialType::WaferFive
-                            : shapeStr == "bm" ? HGCalTypes::WaferPartialType::WaferFive2
-                            : shapeStr == "c"  ? HGCalTypes::WaferPartialType::WaferThree
-                            : shapeStr == "d"  ? HGCalTypes::WaferPartialType::WaferSemi
-                            : shapeStr == "dm" ? HGCalTypes::WaferPartialType::WaferSemi2
-                            : shapeStr == "g"  ? HGCalTypes::WaferPartialType::WaferChopTwo
-                            : shapeStr == "gm" ? HGCalTypes::WaferPartialType::WaferChopTwoM
-                                               : HGCalTypes::WaferPartialType::WaferOut;
+      waferInfo.shapeCode = waferShapeMapDD.at(shapeStr);
 
       waferInfo.rotCode = rotCode;
       // populate the map
@@ -432,38 +451,10 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     const int waferRotCode(std::stoi(tokens[5]));
     const int waferU(std::stoi(tokens[6]));
     const int waferV(std::stoi(tokens[7]));
-    const int waferShapeCode(
-        isNewFile ? (
-                        // if using new format flat file
-                        waferDensityStr == "l"   ? (waferShapeStr == "0"   ? HGCalTypes::WaferPartialType::WaferFull
-                                                    : waferShapeStr == "1" ? HGCalTypes::WaferPartialType::WaferHalf
-                                                    : waferShapeStr == "2" ? HGCalTypes::WaferPartialType::WaferHalf
-                                                    : waferShapeStr == "3" ? HGCalTypes::WaferPartialType::WaferSemi
-                                                    : waferShapeStr == "4" ? HGCalTypes::WaferPartialType::WaferSemi
-                                                    : waferShapeStr == "5" ? HGCalTypes::WaferPartialType::WaferFive
-                                                    : waferShapeStr == "6" ? HGCalTypes::WaferPartialType::WaferThree
-                                                                           : HGCalTypes::WaferPartialType::WaferOut)
-                        : waferDensityStr == "h" ? (waferShapeStr == "0"   ? HGCalTypes::WaferPartialType::WaferFull
-                                                    : waferShapeStr == "1" ? HGCalTypes::WaferPartialType::WaferHalf2
-                                                    : waferShapeStr == "2" ? HGCalTypes::WaferPartialType::WaferChopTwoM
-                                                    : waferShapeStr == "3" ? HGCalTypes::WaferPartialType::WaferSemi2
-                                                    : waferShapeStr == "4" ? HGCalTypes::WaferPartialType::WaferSemi2
-                                                    : waferShapeStr == "5" ? HGCalTypes::WaferPartialType::WaferFive2
-                                                                           : HGCalTypes::WaferPartialType::WaferOut)
-                                                 : HGCalTypes::WaferPartialType::WaferOut)
-                  : (
-                        // if using old format flat file
-                        waferShapeStr == "F"    ? HGCalTypes::WaferPartialType::WaferFull
-                        : waferShapeStr == "a"  ? HGCalTypes::WaferPartialType::WaferHalf
-                        : waferShapeStr == "am" ? HGCalTypes::WaferPartialType::WaferHalf2
-                        : waferShapeStr == "b"  ? HGCalTypes::WaferPartialType::WaferFive
-                        : waferShapeStr == "bm" ? HGCalTypes::WaferPartialType::WaferFive2
-                        : waferShapeStr == "c"  ? HGCalTypes::WaferPartialType::WaferThree
-                        : waferShapeStr == "d"  ? HGCalTypes::WaferPartialType::WaferSemi
-                        : waferShapeStr == "dm" ? HGCalTypes::WaferPartialType::WaferSemi2
-                        : waferShapeStr == "g"  ? HGCalTypes::WaferPartialType::WaferChopTwo
-                        : waferShapeStr == "gm" ? HGCalTypes::WaferPartialType::WaferChopTwoM
-                                                : HGCalTypes::WaferPartialType::WaferOut));
+    const int waferShapeCode(isNewFile ? (waferDensityStr == "l"   ? waferShapeMapLD.at(waferShapeStr)
+                                          : waferDensityStr == "h" ? waferShapeMapHD.at(waferShapeStr)
+                                                                   : HGCalTypes::WaferPartialType::WaferOut)
+                                       : waferShapeMapDD.at(waferShapeStr));
 
     // map index for crosschecking with DD
     const WaferCoord waferCoord(waferLayer, waferU, waferV);
