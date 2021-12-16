@@ -103,6 +103,10 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
     }
   }
 
+  // list of modules already filled
+  if (!hists.detIdsList.empty())
+    return;
+
   std::vector<uint32_t> treatedIndices;
 
   for (auto det : geom->detsPXB()) {
@@ -121,6 +125,14 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
       treatedIndices.push_back(i_index);
     }
   }
+
+  uint count = 0;
+  for (const auto& i : treatedIndices) {
+    for (const auto& id : hists.detIdsList.at(i)) {
+      count++;
+    };
+  }
+  std::cout << "Stored a total of " << count << " detIds." << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -376,6 +388,12 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
                                     << "\t" << tan_LA << "\t" << error_LA << std::endl;
 
       const auto& detIdsToFill = hists.detIdsList.at(i_index);
+
+      std::cout << "index: " << i_index << " i_module: " << i_module << " i_layer: " << i_layer << std::endl;
+      for (const auto& id : detIdsToFill) {
+        std::cout << id << ",";
+      }
+      std::cout << std::endl;
 
       GlobalPoint center(0.0, 0.0, 0.0);
       float theMagField = magField->inTesla(center).mag();
