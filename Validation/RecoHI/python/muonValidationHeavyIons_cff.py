@@ -71,12 +71,12 @@ MTVhi.maxPt = cms.double(100)
 # MuonTrackValidator parameters
 trkMuonTrackVMuonAssocHI = MTVhi.clone(
 associatormap  = 'tpToTkMuonAssociationHI',
-label          = ['cutsRecoTrkMuons'],
+label          = ('cutsRecoTrkMuons'),
 muonHistoParameters = trkMuonHistoParameters
 )
 glbMuonTrackVMuonAssocHI = MTVhi.clone(
 associatormap = 'tpToGlbMuonAssociationHI',
-label           = ['globalMuons'],
+label           = ('globalMuons'),
 muonHistoParameters = glbMuonHistoParameters
 )
 staMuonTrackVMuonAssocHI = MTVhi.clone(
