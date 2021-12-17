@@ -84,19 +84,9 @@ private:
   bool defineGeometry(const DDCompactView* ddViewH);
   bool defineGeometry(const cms::DDCompactView* ddViewH);
 
-  TH1F* createHisto(std::string histname, const int nbins, float minIndexX, float maxIndexX, bool isLogX = true);
-  void histoSetting(TH1F*& histo,
-                    const char* xTitle,
-                    const char* yTitle = "",
-                    Color_t lineColor = kBlack,
-                    Color_t markerColor = kBlack,
-                    int linewidth = 1);
-  void histoSetting(TH2F*& histo,
-                    const char* xTitle,
-                    const char* yTitle = "",
-                    Color_t lineColor = kBlack,
-                    Color_t markerColor = kBlack,
-                    int linewidth = 1);
+  TH1F *createHisto(std::string histname, const int nbins, float minIndexX, float maxIndexX, bool isLogX = true);
+  void histoSetting(TH1F*& histo, const char *xTitle, const char *yTitle = "", Color_t lineColor = kBlack, Color_t markerColor = kBlack, int linewidth = 1);
+  void histoSetting(TH2F*& histo, const char *xTitle, const char *yTitle = "", Color_t lineColor = kBlack, Color_t markerColor = kBlack, int linewidth = 1);
   void fillMuonTomoHistos(int partialType, std::pair<hitsinfo, energysum> hit_);
 
   // ----------member data ---------------------------
@@ -120,10 +110,9 @@ private:
   MonitorElement *MeanHitOccupancy_Plus_, *MeanHitOccupancy_Minus_;
   static const unsigned int maxTime_ = 6;
   std::vector<MonitorElement*> energy_[maxTime_];
-  std::vector<MonitorElement*> energyFWF_, energyFWCN_, energyFWCK_;
-  std::vector<MonitorElement*> energyPWF_, energyPWCN_, energyPWCK_;
-  std::vector<MonitorElement*> hitXYFWF_, hitXYFWCN_, hitXYFWCK_, hitXYB_;
-  std::vector<MonitorElement*> hitXYPWF_, hitXYPWCN_, hitXYPWCK_;
+  std::vector<MonitorElement*> energyFWF_ , energyFWCN_ , energyFWCK_ ;
+  std::vector<MonitorElement*> energyPWF_ , energyPWCN_ , energyPWCK_ ;
+  std::vector<MonitorElement*> hitXYFWF_ , hitXYFWCN_ , hitXYFWCK_ , hitXYB_ ;
   unsigned int nTimes_;
 };
 
@@ -285,7 +274,7 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
   if (verbosity_ > 0)
     edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << map_hits.size()
                                         << " detector elements being hit";
-
+  
   std::map<uint32_t, std::pair<hitsinfo, energysum> >::iterator itr;
   for (itr = map_hits.begin(); itr != map_hits.end(); ++itr) {
     hitsinfo hinfo = (*itr).second.first;
@@ -294,22 +283,23 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
     double eta = hinfo.eta;
     int type, part, orient;
     int partialType = -1;
-    if (nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive") {
+    if(nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive"){
       HGCSiliconDetId detId = HGCSiliconDetId((*itr).first);
-      std::tie(type, part, orient) = hgcons_->waferType(detId);
-      partialType = part;
+      std::tie(type, part, orient) = hgcons_->waferType(detId) ;
+      partialType = part ;
     }
-
+    
     for (unsigned int itimeslice = 0; itimeslice < nTimes_; itimeslice++) {
       fillHitsInfo((*itr).second, itimeslice, esum.eTime[itimeslice]);
     }
-
+    
     if (eta > 0.0)
       fillOccupancyMap(OccupancyMap_plus, layer);
     else
       fillOccupancyMap(OccupancyMap_minus, layer);
-
+    
     fillMuonTomoHistos(partialType, (*itr).second);
+
   }
   if (verbosity_ > 0)
     edm::LogVerbatim("HGCalValidation") << "With map:used:total " << hits.size() << "|" << nused << "|"
@@ -353,64 +343,48 @@ void HGCalSimHitValidation::fillHitsInfo(std::pair<hitsinfo, energysum> hits, un
 }
 
 void HGCalSimHitValidation::fillMuonTomoHistos(int partialType, std::pair<hitsinfo, energysum> hits) {
+  
   hitsinfo hinfo = hits.first;
   energysum esum = hits.second;
-  double edep =
-      esum.eTime[0] * CLHEP::GeV /
-      CLHEP::keV;  //index 0 and 1 corresponds to 25 ns and 1000 ns, respectively. In addititon, chaging energy loss unit to keV.
-
+  double edep = esum.eTime[0] * CLHEP::GeV / CLHEP::keV; //index 0 and 1 corresponds to 25 ns and 1000 ns, respectively. In addititon, chaging energy loss unit to keV.
+  
   unsigned int ilayer = hinfo.layer;
-  double x = hinfo.x * CLHEP::mm / CLHEP::cm;  // chaging length unit to cm.
+  double x = hinfo.x * CLHEP::mm / CLHEP::cm; // chaging length unit to cm.
   double y = hinfo.y * CLHEP::mm / CLHEP::cm;
   if (ilayer < layers_) {
-    if (nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive") {
+    if(nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive"){
+      
       // Fill the energy loss histograms for MIP
-      if (!TMath::AreEqualAbs(edep, 0.0, 1.e-5)) {  //to avoid peak at zero due Eloss less than 10 mili eV.
-        if (hinfo.type == HGCSiliconDetId::HGCalFine) {
-          if (partialType == 0)
-            energyFWF_.at(ilayer)->Fill(edep);
-          if (partialType > 0)
-            energyPWF_.at(ilayer)->Fill(edep);
-        }
-        if (hinfo.type == HGCSiliconDetId::HGCalCoarseThin) {
-          if (partialType == 0)
-            energyFWCN_.at(ilayer)->Fill(edep);
-          if (partialType > 0)
-            energyPWCN_.at(ilayer)->Fill(edep);
-        }
-        if (hinfo.type == HGCSiliconDetId::HGCalCoarseThick) {
-          if (partialType == 0)
-            energyFWCK_.at(ilayer)->Fill(edep);
-          if (partialType > 0)
-            energyPWCK_.at(ilayer)->Fill(edep);
-        }
+      if(!TMath::AreEqualAbs(edep, 0.0, 1.e-5)) { //to avoid peak at zero due Eloss less than 10 mili eV.
+      	if(hinfo.type==HGCSiliconDetId::HGCalFine){
+      	  if(partialType==0) energyFWF_.at(ilayer)->Fill(edep);
+      	  if(partialType > 0) energyPWF_.at(ilayer)->Fill(edep);
+      	}
+      	if(hinfo.type==HGCSiliconDetId::HGCalCoarseThin){
+      	  if(partialType==0) energyFWCN_.at(ilayer)->Fill(edep); 
+      	  if(partialType > 0) energyPWCN_.at(ilayer)->Fill(edep);
+      	}
+	if(hinfo.type==HGCSiliconDetId::HGCalCoarseThick){
+      	  if(partialType==0) energyFWCK_.at(ilayer)->Fill(edep);
+      	  if(partialType > 0) energyPWCK_.at(ilayer)->Fill(edep);
+      	}
       }
-
+      
       // Fill the XY distribution of detector hits
-      if (hinfo.type == HGCSiliconDetId::HGCalFine) {
-        if (partialType == 0)
-          hitXYFWF_.at(ilayer)->Fill(x, y);
-        if (partialType > 0)
-          hitXYPWF_.at(ilayer)->Fill(x, y);
-      }
-      if (hinfo.type == HGCSiliconDetId::HGCalCoarseThin) {
-        if (partialType == 0)
-          hitXYFWCN_.at(ilayer)->Fill(x, y);
-        if (partialType > 0)
-          hitXYPWCN_.at(ilayer)->Fill(x, y);
-      }
-      if (hinfo.type == HGCSiliconDetId::HGCalCoarseThick) {
-        if (partialType == 0)
-          hitXYFWCK_.at(ilayer)->Fill(x, y);
-        if (partialType > 0)
-          hitXYPWCK_.at(ilayer)->Fill(x, y);
-      }
+      if(hinfo.type==HGCSiliconDetId::HGCalFine)
+      	hitXYFWF_.at(ilayer)->Fill(x,y);
+      
+      if(hinfo.type==HGCSiliconDetId::HGCalCoarseThin)
+      	hitXYFWCN_.at(ilayer)->Fill(x,y);
 
-    }  //is Silicon
-    if (nameDetector_ == "HGCalHEScintillatorSensitive") {
-      hitXYB_.at(ilayer)->Fill(x, y);
-    }  //is Scintillator
-  }    //layer condition
+      if(hinfo.type==HGCSiliconDetId::HGCalCoarseThick)
+      	hitXYFWCK_.at(ilayer)->Fill(x,y);
+
+    }//is Silicon
+    if(nameDetector_ == "HGCalHEScintillatorSensitive"){
+      hitXYB_.at(ilayer)->Fill(x,y);
+    }//is Scintillator
+  }//layer condition
 }
 
 bool HGCalSimHitValidation::defineGeometry(const DDCompactView* ddViewH) {
@@ -545,172 +519,141 @@ void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker& iB, edm::Run const
     histoname << "EtaPhi_Minus_"
               << "layer_" << istr1;
     EtaPhi_Minus_.push_back(
-        iB.book2D(histoname.str().c_str(), "Occupancy", 31, -3.0, -1.45, 72, -CLHEP::pi, CLHEP::pi));
-
+	iB.book2D(histoname.str().c_str(), "Occupancy", 31, -3.0, -1.45, 72, -CLHEP::pi, CLHEP::pi));
+ 
     for (unsigned int itimeslice = 0; itimeslice < nTimes_; itimeslice++) {
       histoname.str("");
       histoname << "energy_time_" << itimeslice << "_layer_" << istr1;
       energy_[itimeslice].push_back(iB.book1D(histoname.str().c_str(), "energy_", 100, 0, 0.1));
-      // TH1F *hEdep = createHisto(histoname.str(), 1000, -3, 6, true);
-      // histoSetting(hEdep, "Eloss (keV)");
-      // energy_[itimeslice].push_back(iB.book1D(histoname.str().c_str(), hEdep));
-      // hEdep->Delete();
     }
-
+    
     ///////////// Histograms for Energy loss in full wafers////////////
-    if (nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive") {
+    if(nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive"){
       histoname.str("");
       histoname << "energy_FullWafer_Fine_layer_" << istr1;
-      TH1F* hEdepFWF = createHisto(histoname.str(), 1000, -3, 6);
-      histoSetting(hEdepFWF, "Eloss (keV)", "", kRed, kRed, 2);
-      energyFWF_.push_back(iB.book1D(histoname.str().c_str(), hEdepFWF));
+      TH1F *hEdepFWF = createHisto(histoname.str(), 100, 0., 400., false); 
+      histoSetting(hEdepFWF, "Eloss (keV)","",kRed,kRed,2);
+      energyFWF_.push_back(iB.book1D(histoname.str().c_str(), hEdepFWF ));
       hEdepFWF->Delete();
-
+    
       histoname.str("");
       histoname << "energy_FullWafer_CoarseThin_layer_" << istr1;
-      TH1F* hEdepFWCN = createHisto(histoname.str(), 1000, -3, 6);
-      histoSetting(hEdepFWCN, "Eloss (keV)", "", kGreen + 1, kGreen + 1, 2);
-      energyFWCN_.push_back(iB.book1D(histoname.str().c_str(), hEdepFWCN));
+      TH1F *hEdepFWCN = createHisto(histoname.str(), 100, 0., 400., false);
+      histoSetting(hEdepFWCN, "Eloss (keV)","",kGreen+1,kGreen+1,2);
+      energyFWCN_.push_back(iB.book1D(histoname.str().c_str(), hEdepFWCN ));
       hEdepFWCN->Delete();
 
       histoname.str("");
       histoname << "energy_FullWafer_CoarseThick_layer_" << istr1;
-      TH1F* hEdepFWCK = createHisto(histoname.str(), 1000, -3, 6);
-      histoSetting(hEdepFWCK, "Eloss (keV)", "", kMagenta, kMagenta, 2);
-      energyFWCK_.push_back(iB.book1D(histoname.str().c_str(), hEdepFWCK));
+      TH1F *hEdepFWCK = createHisto(histoname.str(), 100, 0., 400., false); 
+      histoSetting(hEdepFWCK, "Eloss (keV)","",kMagenta,kMagenta,2);
+      energyFWCK_.push_back(iB.book1D(histoname.str().c_str(), hEdepFWCK ));
       hEdepFWCK->Delete();
     }
-
+    
     ///////////////////////////////////////////////////////////////////
-
+    
     ///////////// Histograms for Energy loss in partial wafers////////////
-    if (nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive") {
+    if(nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive"){
       histoname.str("");
       histoname << "energy_PartialWafer_Fine_layer_" << istr1;
-      TH1F* hEdepPWF = createHisto(histoname.str(), 1000, -3, 6);
-      histoSetting(hEdepPWF, "Eloss (keV)", "", kRed, kRed, 2);
-      energyPWF_.push_back(iB.book1D(histoname.str().c_str(), hEdepPWF));
+      TH1F *hEdepPWF = createHisto(histoname.str(), 100, 0., 400., false); 
+      histoSetting(hEdepPWF, "Eloss (keV)","",kRed,kRed,2);
+      energyPWF_.push_back(iB.book1D(histoname.str().c_str(), hEdepPWF ));
       hEdepPWF->Delete();
 
       histoname.str("");
       histoname << "energy_PartialWafer_CoarseThin_layer_" << istr1;
-      TH1F* hEdepPWCN = createHisto(histoname.str(), 1000, -3, 6);
-      histoSetting(hEdepPWCN, "Eloss (keV)", "", kGreen + 1, kGreen + 1, 2);
-      energyPWCN_.push_back(iB.book1D(histoname.str().c_str(), hEdepPWCN));
+      TH1F *hEdepPWCN = createHisto(histoname.str(), 100, 0., 400., false); 
+      histoSetting(hEdepPWCN, "Eloss (keV)","",kGreen+1,kGreen+1,2);
+      energyPWCN_.push_back(iB.book1D(histoname.str().c_str(), hEdepPWCN ));
       hEdepPWCN->Delete();
-
+    
       histoname.str("");
       histoname << "energy_PartialWafer_CoarseThick_layer_" << istr1;
-      TH1F* hEdepPWCK = createHisto(histoname.str(), 1000, -3, 6);
-      histoSetting(hEdepPWCK, "Eloss (keV)", "", kMagenta, kMagenta, 2);
-      energyPWCK_.push_back(iB.book1D(histoname.str().c_str(), hEdepPWCK));
+      TH1F *hEdepPWCK = createHisto(histoname.str(), 100, 0., 400., false); 
+      histoSetting(hEdepPWCK, "Eloss (keV)","",kMagenta,kMagenta,2);
+      energyPWCK_.push_back(iB.book1D(histoname.str().c_str(), hEdepPWCK ));
       hEdepPWCK->Delete();
     }
     ///////////////////////////////////////////////////////////////////
 
-    ///////////// Histograms for the XY distribution of fired cells/scintillator tiles ///////////////
-    //Please note that TH2F is placeholder till TGraph Option available in DQMStore.h"
-    if (nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive") {
+    // ///////////// Histograms for the XY distribution of fired cells/scintillator tiles ///////////////
+    if(nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive"){
       histoname.str("");
       histoname << "hitXY_FullWafer_Fine_layer_" << istr1;
-      TH2F* hitXYFWF = new TH2F(
-          Form("hitXYFWF_%s", histoname.str().c_str()), histoname.str().c_str(), 600, -300., 300., 600, -300., 300.);
-      histoSetting(hitXYFWF, "x (cm)", "y (cm)", kRed, kRed);
+      TH2F *hitXYFWF = new TH2F(Form("hitXYFWF_%s",histoname.str().c_str()), histoname.str().c_str(), 100, -300., 300.,  100, -300., 300.); 
+      histoSetting(hitXYFWF, "x (cm)","y (cm)",kRed,kRed);
       hitXYFWF_.push_back(iB.book2D(histoname.str().c_str(), hitXYFWF));
       hitXYFWF->Delete();
-
+      
       histoname.str("");
       histoname << "hitXY_FullWafer_CoarseThin_layer_" << istr1;
-      TH2F* hitXYFWCN = new TH2F(
-          Form("hitXYFWCN_%s", histoname.str().c_str()), histoname.str().c_str(), 600, -300., 300., 600, -300., 300.);
-      histoSetting(hitXYFWCN, "x (cm)", "y (cm)", kGreen + 1, kGreen + 1);
+      TH2F *hitXYFWCN = new TH2F(Form("hitXYFWCN_%s",histoname.str().c_str()), histoname.str().c_str(), 100, -300., 300.,  100, -300., 300.); 
+      histoSetting(hitXYFWCN, "x (cm)","y (cm)",kGreen+1,kGreen+1);
       hitXYFWCN_.push_back(iB.book2D(histoname.str().c_str(), hitXYFWCN));
       hitXYFWCN->Delete();
-
+      
       histoname.str("");
       histoname << "hitXY_FullWafer_CoarseThick_layer_" << istr1;
-      TH2F* hitXYFWCK = new TH2F(
-          Form("hitXYFWCK_%s", histoname.str().c_str()), histoname.str().c_str(), 600, -300., 300., 600, -300., 300.);
-      histoSetting(hitXYFWCK, "x (cm)", "y (cm)", kMagenta, kMagenta);
+      TH2F *hitXYFWCK = new TH2F(Form("hitXYFWCK_%s",histoname.str().c_str()), histoname.str().c_str(), 100, -300., 300.,  100, -300., 300.); 
+      histoSetting(hitXYFWCK, "x (cm)","y (cm)",kMagenta,kMagenta);
       hitXYFWCK_.push_back(iB.book2D(histoname.str().c_str(), hitXYFWCK));
       hitXYFWCK->Delete();
-
-      histoname.str("");
-      histoname << "hitXY_PartialWafer_Fine_layer_" << istr1;
-      TH2F* hitXYPWF = new TH2F(
-          Form("hitXYPWF_%s", histoname.str().c_str()), histoname.str().c_str(), 600, -300., 300., 600, -300., 300.);
-      histoSetting(hitXYPWF, "x (cm)", "y (cm)", kRed, kRed);
-      hitXYPWF_.push_back(iB.book2D(histoname.str().c_str(), hitXYPWF));
-      hitXYPWF->Delete();
-
-      histoname.str("");
-      histoname << "hitXY_PartialWafer_CoarseThin_layer_" << istr1;
-      TH2F* hitXYPWCN = new TH2F(
-          Form("hitXYPWCN_%s", histoname.str().c_str()), histoname.str().c_str(), 600, -300., 300., 600, -300., 300.);
-      histoSetting(hitXYPWCN, "x (cm)", "y (cm)", kGreen + 1, kGreen + 1);
-      hitXYPWCN_.push_back(iB.book2D(histoname.str().c_str(), hitXYPWCN));
-      hitXYPWCN->Delete();
-
-      histoname.str("");
-      histoname << "hitXY_PartialWafer_CoarseThick_layer_" << istr1;
-      TH2F* hitXYPWCK = new TH2F(
-          Form("hitXYPWCK_%s", histoname.str().c_str()), histoname.str().c_str(), 600, -300., 300., 600, -300., 300.);
-      histoSetting(hitXYPWCK, "x (cm)", "y (cm)", kMagenta, kMagenta);
-      hitXYPWCK_.push_back(iB.book2D(histoname.str().c_str(), hitXYPWCK));
-      hitXYPWCK->Delete();
+      
     }
-
-    if (nameDetector_ == "HGCalHEScintillatorSensitive") {
+    
+    if(nameDetector_ == "HGCalHEScintillatorSensitive"){
       histoname.str("");
       histoname << "hitXY_Scintillator_layer_" << istr1;
-      TH2F* hitXYB = new TH2F(
-          Form("hitXYB_%s", histoname.str().c_str()), histoname.str().c_str(), 600, -300., 300., 600, -300., 300.);
-      histoSetting(hitXYB, "x (cm)", "y (cm)", kBlue, kBlue);
+      TH2F *hitXYB = new TH2F(Form("hitXYB_%s",histoname.str().c_str()), histoname.str().c_str(), 100, -300., 300.,  100, -300., 300.); 
+      histoSetting(hitXYB, "x (cm)","y (cm)",kBlue,kBlue);
       hitXYB_.push_back(iB.book2D(histoname.str().c_str(), hitXYB));
       hitXYB->Delete();
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////
+
   }
   MeanHitOccupancy_Plus_ = iB.book1D("MeanHitOccupancy_Plus", "MeanHitOccupancy_Plus", layers_, 0.5, layers_ + 0.5);
   MeanHitOccupancy_Minus_ = iB.book1D("MeanHitOccupancy_Minus", "MeanHitOccupancy_Minus", layers_, 0.5, layers_ + 0.5);
 }
 
-TH1F* HGCalSimHitValidation::createHisto(
-    std::string histname, const int nbins, float minIndexX, float maxIndexX, bool isLogX) {
-  TH1F* hist = nullptr;
-  if (isLogX) {
-    Double_t xbins[nbins + 1];
-    double dx = (maxIndexX - minIndexX) / nbins;
-    for (int i = 0; i <= nbins; i++) {
-      xbins[i] = TMath::Power(10, (minIndexX + i * dx));
+TH1F * HGCalSimHitValidation::createHisto(std::string histname, const int nbins, float minIndexX, float maxIndexX, bool isLogX)
+{
+  TH1F *hist = 0x0;
+  if(isLogX){
+    Double_t xbins[nbins+1];
+    double dx = (maxIndexX - minIndexX)/nbins;
+    for (int i=0;i<=nbins;i++) {
+      xbins[i] = TMath::Power(10, (minIndexX + i*dx));
     }
-    hist = new TH1F(Form("hEdep_%s", histname.c_str()), histname.c_str(), nbins, xbins);
-  } else {
-    hist = new TH1F(Form("hEdep_%s", histname.c_str()), histname.c_str(), nbins, minIndexX, maxIndexX);
+    hist = new TH1F(Form("hEdep_%s",histname.c_str()), histname.c_str(),nbins,xbins);
+  }else{
+    hist = new TH1F(Form("hEdep_%s",histname.c_str()), histname.c_str(),nbins, minIndexX, maxIndexX);
   }
   return hist;
+} 
+
+void HGCalSimHitValidation::histoSetting(TH1F*& histo, const char *xTitle, const char *yTitle, Color_t lineColor, Color_t markerColor, int lineWidth)
+{
+  histo->SetStats(); 
+  histo->SetLineColor(lineColor) ; 
+  histo->SetLineWidth(lineWidth); 
+  histo->SetMarkerColor(markerColor) ; 
+  histo->GetXaxis()->SetTitle(xTitle); 
+  histo->GetYaxis()->SetTitle(yTitle); 
 }
 
-void HGCalSimHitValidation::histoSetting(
-    TH1F*& histo, const char* xTitle, const char* yTitle, Color_t lineColor, Color_t markerColor, int lineWidth) {
-  histo->SetStats();
-  histo->SetLineColor(lineColor);
-  histo->SetLineWidth(lineWidth);
-  histo->SetMarkerColor(markerColor);
-  histo->GetXaxis()->SetTitle(xTitle);
-  histo->GetYaxis()->SetTitle(yTitle);
-}
-
-void HGCalSimHitValidation::histoSetting(
-    TH2F*& histo, const char* xTitle, const char* yTitle, Color_t lineColor, Color_t markerColor, int lineWidth) {
-  histo->SetStats();
-  histo->SetLineColor(lineColor);
-  histo->SetLineWidth(lineWidth);
-  histo->SetMarkerColor(markerColor);
-  histo->SetMarkerStyle(kFullCircle);
-  histo->SetMarkerSize(0.6);
-  histo->GetXaxis()->SetTitle(xTitle);
-  histo->GetYaxis()->SetTitle(yTitle);
+void HGCalSimHitValidation::histoSetting(TH2F*& histo, const char *xTitle, const char *yTitle, Color_t lineColor, Color_t markerColor, int lineWidth)
+{
+  histo->SetStats(); 
+  histo->SetLineColor(lineColor) ; 
+  histo->SetLineWidth(lineWidth); 
+  histo->SetMarkerColor(markerColor) ; 
+  histo->SetMarkerStyle(kFullCircle) ; 
+  histo->SetMarkerSize(0.6) ; 
+  histo->GetXaxis()->SetTitle(xTitle); 
+  histo->GetYaxis()->SetTitle(yTitle); 
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 //define this as a plug-in
