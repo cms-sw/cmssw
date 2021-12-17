@@ -119,6 +119,10 @@ private:
   // ------------ member data ------------
   SiPixelLorentzAngleCalibrationHistograms iHists;
 
+  // template stuff
+  const SiPixelTemplateDBObject* templateDBobject_;
+  std::vector<SiPixelTemplateStore> thePixelTemp_;
+
   std::string folder_;
   bool notInPCL_;
   std::string filename_;
@@ -210,7 +214,7 @@ SiPixelLorentzAnglePCLWorker::SiPixelLorentzAnglePCLWorker(const edm::ParameterS
       hist_drift_(iConfig.getParameter<int>("binsDrift")),
       geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
       topoEsToken_(esConsumes<edm::Transition::BeginRun>()),
-      siPixelTemplateEsToken_(esConsumes()),
+      siPixelTemplateEsToken_(esConsumes<edm::Transition::BeginRun>()),
       topoPerEventEsToken_(esConsumes()),
       geomPerEventEsToken_(esConsumes()) {
   t_trajTrack = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("src"));
@@ -305,15 +309,8 @@ SiPixelLorentzAnglePCLWorker::SiPixelLorentzAnglePCLWorker(const edm::ParameterS
 // ------------ method called for each event  ------------
 
 void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-  // Retrieve template stuff
-  const SiPixelTemplateDBObject* templateDBobject_ = &iSetup.getData(siPixelTemplateEsToken_);
-  std::vector<SiPixelTemplateStore> thePixelTemp_;
+  // Retrieve template stuff (comes from dqmBeginRun)
   SiPixelTemplate templ(thePixelTemp_);
-  if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_)) {
-    edm::LogError("SiPixelLorentzAnglePCLWorker")
-        << "\nERROR: Templates not filled correctly. Check the sqlite file."
-        << "Using SiPixelTemplateDBObject version " << (*templateDBobject_).version() << "\n\n";
-  }
 
   // Retrieve tracker topology from geometry
   const TrackerTopology* const tTopo = &iSetup.getData(topoPerEventEsToken_);
@@ -461,12 +458,12 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
             locBz = -locBx;
 
           auto detId = detIdObj.rawId();
-          bool Isnew = false;
           int DetId_index = -1;
-          for (int i = 0; i < (int)iHists.BPixnewDetIds_.size(); i++) {
-            if (detId == (unsigned int)iHists.BPixnewDetIds_[i])
-              Isnew = true;
-            DetId_index = i;
+
+          const auto& newModIt = (std::find(iHists.BPixnewDetIds_.begin(), iHists.BPixnewDetIds_.end(), detId));
+          bool Isnew = (newModIt != iHists.BPixnewDetIds_.end());
+          if (Isnew) {
+            DetId_index = std::distance(iHists.BPixnewDetIds_.begin(), newModIt);
           }
 
           int TemplID = templateDBobject_->getTemplateID(detId);
@@ -545,6 +542,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
               } else {
                 int new_index = iHists.nModules_[iHists.nlay - 1] +
                                 (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + DetId_index;
+
                 iHists.h_drift_depth_adc_.at(new_index)->Fill(drift, depth, pixinfo_.adc[j]);
                 iHists.h_drift_depth_adc2_.at(new_index)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
                 iHists.h_drift_depth_noadc_.at(new_index)->Fill(drift, depth);
@@ -648,6 +646,14 @@ void SiPixelLorentzAnglePCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSe
   // geometry
   const TrackerGeometry* geom = &iSetup.getData(geomEsToken_);
   const TrackerTopology* tTopo = &iSetup.getData(topoEsToken_);
+
+  // Initialize 1D templates
+  templateDBobject_ = &iSetup.getData(siPixelTemplateEsToken_);
+  if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_)) {
+    edm::LogError("SiPixelLorentzAnglePCLWorker")
+        << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
+        << (*templateDBobject_).version() << std::endl;
+  }
 
   PixelTopologyMap map = PixelTopologyMap(geom, tTopo);
   iHists.nlay = geom->numberOfLayers(PixelSubdetector::PixelBarrel);
