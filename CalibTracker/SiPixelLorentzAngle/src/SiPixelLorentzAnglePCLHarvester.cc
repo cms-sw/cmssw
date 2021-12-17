@@ -83,6 +83,10 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
     hists.nModules_[i] = map.getPXBModules(i + 1);
   }
 
+  // list of modules already filled, then return (we already entered here)
+  if (!hists.BPixnewDetIds_.empty() || !hists.FPixnewDetIds_.empty())
+    return;
+
   if (!newmodulelist_.empty()) {
     for (auto const& modulename : newmodulelist_) {
       if (modulename.find("BPix_") != std::string::npos) {
@@ -103,7 +107,14 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
     }
   }
 
-  // list of modules already filled
+  uint count = 0;
+  for (const auto& id : hists.BPixnewDetIds_) {
+    LogDebug("SiPixelLorentzAnglePCLHarvester") << id << std::endl;
+    count++;
+  }
+  LogDebug("SiPixelLorentzAnglePCLHarvester") << "Stored a total of " << count << " new detIds." << std::endl;
+
+  // list of modules already filled, return (we already entered here)
   if (!hists.detIdsList.empty())
     return;
 
@@ -118,6 +129,10 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
 
     uint32_t rawId = pixelDet->geographicalId().rawId();
 
+    // if the detId is already accounted for in the special class, do not attach it
+    if (std::find(hists.BPixnewDetIds_.begin(), hists.BPixnewDetIds_.end(), rawId) != hists.BPixnewDetIds_.end())
+      continue;
+
     if (std::find(treatedIndices.begin(), treatedIndices.end(), i_index) != treatedIndices.end()) {
       hists.detIdsList.at(i_index).push_back(rawId);
     } else {
@@ -126,13 +141,14 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
     }
   }
 
-  uint count = 0;
+  count = 0;
   for (const auto& i : treatedIndices) {
     for (const auto& id : hists.detIdsList.at(i)) {
+      LogDebug("SiPixelLorentzAnglePCLHarvester") << id << std::endl;
       count++;
     };
   }
-  std::cout << "Stored a total of " << count << " detIds." << std::endl;
+  LogDebug("SiPixelLorentzAnglePCLHarvester") << "Stored a total of " << count << " detIds." << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -141,9 +157,13 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   iGetter.cd();
   iGetter.setCurrentFolder(dqmDir_);
 
+  // B-field value
+  GlobalPoint center(0.0, 0.0, 0.0);
+  float theMagField = magField->inTesla(center).mag();
+
   // fetch the 2D histograms
   for (int i_layer = 1; i_layer <= hists.nlay; i_layer++) {
-    const auto& prefix_ = fmt::sprintf("%s/BPixLayer%i", dqmDir_, i_layer);
+    const auto& prefix_ = fmt::sprintf("%s/BPix/BPixLayer%i", dqmDir_, i_layer);
     for (int i_module = 1; i_module <= hists.nModules_[i_layer - 1]; i_module++) {
       int i_index = i_module + (i_layer - 1) * hists.nModules_[i_layer - 1];
 
@@ -176,8 +196,8 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   for (int i = 0; i < (int)hists.BPixnewDetIds_.size(); i++) {
     int new_index = i + 1 + hists.nModules_[hists.nlay - 1] + (hists.nlay - 1) * hists.nModules_[hists.nlay - 1];
 
-    hists.h_drift_depth_adc_[new_index] =
-        iGetter.get(fmt::format("{}/h_BPixnew_drift_depth_{}", dqmDir_ + "/NewModules", hists.BPixnewmodulename_[i]));
+    hists.h_drift_depth_adc_[new_index] = iGetter.get(
+        fmt::format("{}/h_BPixnew_drift_depth_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
 
     if (hists.h_drift_depth_adc_[new_index] == nullptr) {
       edm::LogError("SiPixelLorentzAnglePCLHarvester::dqmEndJob")
@@ -186,13 +206,13 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     }
 
     hists.h_drift_depth_adc2_[new_index] = iGetter.get(
-        fmt::format("{}/h_BPixnew_drift_depth_adc_{}", dqmDir_ + "/NewModules", hists.BPixnewmodulename_[i]));
+        fmt::format("{}/h_BPixnew_drift_depth_adc_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
 
     hists.h_drift_depth_noadc_[new_index] = iGetter.get(
-        fmt::format("{}/h_BPixnew_drift_depth_adc2_{}", dqmDir_ + "/NewModules", hists.BPixnewmodulename_[i]));
+        fmt::format("{}/h_BPixnew_drift_depth_adc2_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
 
     hists.h_drift_depth_[new_index] = iGetter.get(
-        fmt::format("{}/h_BPixnew_drift_depth_noadc_{}", dqmDir_ + "/NewModules", hists.BPixnewmodulename_[i]));
+        fmt::format("{}/h_BPixnew_drift_depth_noadc_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
 
     hists.h_mean_[new_index] = iGetter.get(fmt::format("{}/h_BPixnew_mean_{}", dqmDir_, hists.BPixnewmodulename_[i]));
 
@@ -249,6 +269,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   double half_width = width_ * 10000 / 2;  // pixel half thickness in units of micro meter
 
   for (int j = 0; j < (int)hists.BPixnewDetIds_.size(); j++) {
+    uint32_t rawId = hists.BPixnewDetIds_[j];
     int new_index = j + 1 + hists.nModules_[hists.nlay - 1] + (hists.nlay - 1) * hists.nModules_[hists.nlay - 1];
     if (hists.h_drift_depth_adc_[new_index] == nullptr)
       continue;
@@ -305,7 +326,25 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
                                   << "\t" << e2 << "\t" << p3 << "\t" << e3 << "\t" << p4 << "\t" << e4 << "\t" << p5
                                   << "\t" << e5 << "\t" << chi2 << "\t" << prob << "\t" << hists.BPixnewDetIds_[j]
                                   << "\t" << tan_LA << "\t" << error_LA << std::endl;
-  }
+
+    float bPixLorentzAnglePerTesla_;
+    // if the fit quality is OK
+    if (prob > fitProbCut_) {
+      bPixLorentzAnglePerTesla_ = tan_LA / theMagField;
+      if (!LorentzAngle->putLorentzAngle(rawId, bPixLorentzAnglePerTesla_)) {
+        edm::LogError("SiPixelLorentzAnglePCLHarvester")
+            << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling new modules: detid already exists" << std::endl;
+      }
+    } else {
+      // just copy the values from the existing payload
+      bPixLorentzAnglePerTesla_ = currentLorentzAngle->getLorentzAngle(rawId);
+      if (!LorentzAngle->putLorentzAngle(rawId, bPixLorentzAnglePerTesla_)) {
+        edm::LogError("SiPixelLorentzAnglePCLHarvester")
+            << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling new modules (from current): detid already exists"
+            << std::endl;
+      }
+    }
+  }  // loop on BPix new modules
 
   double p1_simul[hists.nlay][hists.nModules_[hists.nlay - 1]];
   for (int i_layer = 1; i_layer <= hists.nlay; i_layer++) {
@@ -389,14 +428,12 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
 
       const auto& detIdsToFill = hists.detIdsList.at(i_index);
 
-      std::cout << "index: " << i_index << " i_module: " << i_module << " i_layer: " << i_layer << std::endl;
+      LogDebug("SiPixelLorentzAnglePCLHarvester")
+          << "index: " << i_index << " i_module: " << i_module << " i_layer: " << i_layer << std::endl;
       for (const auto& id : detIdsToFill) {
-        std::cout << id << ",";
+        LogDebug("SiPixelLorentzAnglePCLHarvester") << id << ",";
       }
-      std::cout << std::endl;
-
-      GlobalPoint center(0.0, 0.0, 0.0);
-      float theMagField = magField->inTesla(center).mag();
+      LogDebug("SiPixelLorentzAnglePCLHarvester") << std::endl;
 
       float bPixLorentzAnglePerTesla_;
       // if the fit quality is OK
@@ -405,7 +442,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
           bPixLorentzAnglePerTesla_ = tan_LA / theMagField;
           if (!LorentzAngle->putLorentzAngle(id, bPixLorentzAnglePerTesla_)) {
             edm::LogError("SiPixelLorentzAnglePCLHarvester")
-                << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] detid already exists" << std::endl;
+                << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling BPix: detid already exists" << std::endl;
           }
         }
       } else {
@@ -414,7 +451,8 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
           bPixLorentzAnglePerTesla_ = currentLorentzAngle->getLorentzAngle(id);
           if (!LorentzAngle->putLorentzAngle(id, bPixLorentzAnglePerTesla_)) {
             edm::LogError("SiPixelLorentzAnglePCLHarvester")
-                << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] detid already exists" << std::endl;
+                << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling BPix (from current): detid already exists"
+                << std::endl;
           }
         }
       }
@@ -445,7 +483,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     float fPixLorentzAnglePerTesla_ = currentLorentzAngle->getLorentzAngle(id);
     if (!LorentzAngle->putLorentzAngle(id, fPixLorentzAnglePerTesla_)) {
       edm::LogError("SiPixelLorentzAnglePCLHarvester")
-          << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] detid already exists" << std::endl;
+          << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling rest of payload: detid already exists" << std::endl;
     }
   }
 
