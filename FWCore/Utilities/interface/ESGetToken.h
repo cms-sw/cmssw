@@ -52,7 +52,7 @@ namespace edm {
     constexpr explicit ESGetToken(ADAPTER&& iAdapter) : ESGetToken(iAdapter.template consumes<ESProduct, ESRecord>()) {}
 
     template <typename ADAPTER>
-    constexpr ESGetToken<ESProduct, ESRecord>& operator=(ADAPTER&& iAdapter) noexcept {
+    constexpr ESGetToken<ESProduct, ESRecord>& operator=(ADAPTER&& iAdapter) {
       ESGetToken<ESProduct, ESRecord> temp(std::forward<ADAPTER>(iAdapter));
       return (*this = std::move(temp));
     }
