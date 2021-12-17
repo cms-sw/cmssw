@@ -1,21 +1,59 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondTools/L1TriggerExt/plugins/L1CondDBPayloadWriterExt.h"
-
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyListExt.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListExtRcd.h"
+
+#include <memory>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondTools/L1TriggerExt/interface/DataWriterExt.h"
+
+class L1CondDBPayloadWriterExt : public edm::one::EDAnalyzer<> {
+public:
+  explicit L1CondDBPayloadWriterExt(const edm::ParameterSet&);
+  ~L1CondDBPayloadWriterExt() override;
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  // ----------member data ---------------------------
+  l1t::DataWriterExt m_writer;
+  // std::string m_tag ; // tag is known by PoolDBOutputService
+
+  // set to false to write config data without valid TSC key
+  bool m_writeL1TriggerKeyExt;
+
+  // set to false to write config data only
+  bool m_writeConfigData;
+
+  // substitute new payload tokens for existing keys in L1TriggerKeyListExt
+  bool m_overwriteKeys;
+
+  bool m_logTransactions;
+
+  // if true, do not retrieve L1TriggerKeyListExt from EventSetup
+  bool m_newL1TriggerKeyListExt;
+
+  // Token to access L1TriggerKeyExt data in the event setup
+  edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> theL1TriggerKeyExtToken_;
+};
 
 L1CondDBPayloadWriterExt::L1CondDBPayloadWriterExt(const edm::ParameterSet& iConfig)
     : m_writeL1TriggerKeyExt(iConfig.getParameter<bool>("writeL1TriggerKeyExt")),
       m_writeConfigData(iConfig.getParameter<bool>("writeConfigData")),
       m_overwriteKeys(iConfig.getParameter<bool>("overwriteKeys")),
       m_logTransactions(iConfig.getParameter<bool>("logTransactions")),
-      m_newL1TriggerKeyListExt(iConfig.getParameter<bool>("newL1TriggerKeyListExt")) {
-  //now do what ever initialization is needed
-  key_token = esConsumes<L1TriggerKeyExt, L1TriggerKeyExtRcd>();
-}
+      m_newL1TriggerKeyListExt(iConfig.getParameter<bool>("newL1TriggerKeyListExt")),
+      theL1TriggerKeyExtToken_(esConsumes()) {}
 
 L1CondDBPayloadWriterExt::~L1CondDBPayloadWriterExt() {
   // do anything here that needs to be done at desctruction time
@@ -46,7 +84,7 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
   bool triggerKeyOK = true;
   try {
     // Get L1TriggerKeyExt
-    key = iSetup.get<L1TriggerKeyExtRcd>().get(key_token);
+    key = iSetup.getData(theL1TriggerKeyExtToken_);
     if (!m_overwriteKeys) {
       triggerKeyOK = oldKeyList.token(key.tscKey()).empty();
     }
@@ -142,4 +180,4 @@ void L1CondDBPayloadWriterExt::beginJob() {}
 void L1CondDBPayloadWriterExt::endJob() {}
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(L1CondDBPayloadWriterExt);
+DEFINE_FWK_MODULE(L1CondDBPayloadWriterExt);
