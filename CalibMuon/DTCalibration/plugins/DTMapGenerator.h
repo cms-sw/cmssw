@@ -20,7 +20,7 @@ public:
   DTMapGenerator(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTMapGenerator() override;
+  ~DTMapGenerator() override = default;
 
   // Operations
 
