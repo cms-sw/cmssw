@@ -136,6 +136,7 @@ class Process(object):
         self.__dict__['_Process__partialschedules'] = {}
         self.__isStrict = False
         self.__dict__['_Process__modifiers'] = Mods
+        self.__dict__['_Process__accelerators'] = {}
         self.options = Process.defaultOptions_()
         self.maxEvents = Process.defaultMaxEvents_()
         self.maxLuminosityBlocks = Process.defaultMaxLuminosityBlocks_()
@@ -228,6 +229,7 @@ class Process(object):
                                       allowAnyLabel_ = required.untracked.uint32
                                   )
                               ),
+                              accelerators = untracked.vstring('auto'),
                               wantSummary = untracked.bool(False),
                               fileMode = untracked.string('FULLMERGE'),
                               forceEventSetupCacheClearOnNewRun = untracked.bool(False),
@@ -325,6 +327,10 @@ class Process(object):
         """returns a dict of the services that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__services)
     services = property(services_,doc="dictionary containing the services for the process")
+    def processAccelerators_(self):
+        """returns a dict of the ProcessAccelerators that have been added to the Process"""
+        return DictTypes.FixedKeysDict(self.__accelerators)
+    processAccelerators = property(processAccelerators_,doc="dictionary containing the ProcessAccelerators for the process")
     def es_producers_(self):
         """returns a dict of the esproducers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__esproducers)
@@ -708,6 +714,9 @@ class Process(object):
         if typeName in self.__dict__:
             self.__dict__[typeName]._inProcess = False
         self.__dict__[typeName]=mod
+    def _placeAccelerator(self,typeName,mod):
+        self._place(typeName, mod, self.__accelerators)
+        self.__dict__[typeName]=mod
     def load(self, moduleName):
         moduleName = moduleName.replace("/",".")
         module = __import__(moduleName)
@@ -1003,6 +1012,7 @@ class Process(object):
         result+=self._dumpPythonList(self.analyzers_(), options)
         result+=self._dumpPythonList(self.outputModules_(), options)
         result+=self._dumpPythonList(self.services_(), options)
+        result+=self._dumpPythonList(self.processAccelerators_(), options)
         result+=self._dumpPythonList(self.es_producers_(), options)
         result+=self._dumpPythonList(self.es_sources_(), options)
         result+=self._dumpPython(self.es_prefers_(), options)
@@ -1151,7 +1161,7 @@ class Process(object):
         aliases = parameterSet.getVString(tracked, labelAliases)
         for name,value in itemDict.items():
             value.appendToProcessDescLists_(modules, aliases, name)
-            value.insertInto(parameterSet, name)
+            value.insertInto(parameterSet, name, self.options.accelerators)
         modules.sort()
         aliases.sort()
         parameterSet.addVString(tracked, labelModules, modules)
@@ -1378,6 +1388,7 @@ class Process(object):
                 return pset
 
         self.validate()
+        self.handleProcessAccelerators()
         processPSet.addString(True, "@process_name", self.name_())
         all_modules = self.producers_().copy()
         all_modules.update(self.filters_())
@@ -1430,6 +1441,33 @@ class Process(object):
         #if self.source_() == None and self.looper_() == None:
         #    raise RuntimeError("No input source was found for this process")
         pass
+
+    def handleProcessAccelerators(self):
+        # Sanity check
+        useSet = set(self.options.accelerators.value())
+        accSet = set([label for acc in self.__dict__['_Process__accelerators'].values() for label in acc.labels()])
+        accSet.add("auto")
+        diff = useSet.difference(accSet)
+        if len(diff) > 0:
+            invalid = ",".join(diff)
+            valid = ",".join(sorted(list(accSet)))
+            raise ValueError("Invalid value{} of {} in process.options.accelerators, valid values are {}".format("s" if len(diff) > 2 else "",
+                                                                                                                 invalid,
+                                                                                                                 valid))
+
+        # Resolve 'auto'
+        if "auto" in self.options.accelerators:
+            if len(self.options.accelerators) >= 2:
+                raise ValueError("process.options.accelerators may contain 'auto' only as the only element, now it has {} elements".format(len(self.options.accelerators)))
+            newValue = set()
+            for acc in self.__dict__['_Process__accelerators'].values():
+                for l in acc.enabledLabels():
+                    newValue.add(l)
+            self.options.accelerators = list(newValue)
+
+        # Customize
+        for acc in self.__dict__['_Process__accelerators'].values():
+            acc.apply(self)
 
     def prefer(self, esmodule,*args,**kargs):
         """Prefer this ES source or producer.  The argument can
@@ -1824,6 +1862,61 @@ class ProcessModifier(object):
                 self.__func(process)
                 self.__seenProcesses.add(process)
 
+class ProcessAccelerator(_ConfigureComponent,_Unlabelable):
+    """A class used to specify possible compute accelerators in a Process
+    instance. It is intended to be derived for any
+    accelerator/portability technology, and provides hooks such that a
+    specific customization can be applied to the Process on a worker
+    node at the point where the python configuration is serialized for C++.
+
+    The customizations must touch only untracked parameters. Each
+    deriving class should have a specific unit test enabling all
+    combinations of accelerators and assert that the configuration
+    hash does not change."""
+    def __init__(self):
+        pass
+    def _place(self, name, proc):
+        proc._placeAccelerator(self.type_(), self)
+    def type_(self):
+        return type(self).__name__
+    def dumpPython(self, options=PrintOptions()):
+        specialImportRegistry.registerUse(self)
+        result = self.__class__.__name__+"(" # not including cms. since the deriving classes are not in cms "namespace"
+        options.indent()
+        res = self.dumpPythonImpl(options)
+        options.unindent()
+        if len(res) > 0:
+            result += "\n"+res+"\n"
+        result += ")\n"
+        return result
+
+    # The following methods are hooks to be overridden (if needed) in the deriving class
+    def dumpPythonImpl(self, options):
+        """Override if need to add any 'body' content to dumpPython(). Returns a string."""
+        return ""
+    def labels(self):
+        """Override to return a list of strings for the accelerator labels."""
+        return []
+    def enabledLabels(self):
+        """Override to return a list of strings for the accelerator labels
+        that are enabled in the system the job is being run on."""
+        return []
+    def apply(self, process):
+        """Override if need to customize the Process at worker node. The
+        available accelerator labels are available via
+        'process.options.accelerators' (the 'auto' has been expanded
+        to concrete labels at this point).
+
+        This function may touch only untracked parameters."""
+        pass
+
+# Need to be a module-level function for the configuration with a
+# SwitchProducer to be pickleable.
+def _switchproducer_test2_case1(accelerators):
+    return ("test1" in accelerators, -10)
+def _switchproducer_test2_case2(accelerators):
+    return ("test2" in accelerators, -9)
+
 if __name__=="__main__":
     import unittest
     import copy
@@ -1918,12 +2011,44 @@ if __name__=="__main__":
         def __init__(self, **kargs):
             super(SwitchProducerTest,self).__init__(
                 dict(
-                    test1 = lambda: (True, -10),
-                    test2 = lambda: (True, -9),
-                    test3 = lambda: (True, -8),
-                    test4 = lambda: (True, -7)
+                    test1 = lambda accelerators: (True, -10),
+                    test2 = lambda accelerators: (True, -9),
+                    test3 = lambda accelerators: (True, -8),
+                    test4 = lambda accelerators: (True, -7)
                 ), **kargs)
     specialImportRegistry.registerSpecialImportForType(SwitchProducerTest, "from test import SwitchProducerTest")
+
+    class SwitchProducerTest2(SwitchProducer):
+        def __init__(self, **kargs):
+            super(SwitchProducerTest2,self).__init__(
+                dict(
+                    test1 = _switchproducer_test2_case1,
+                    test2 = _switchproducer_test2_case2,
+                ), **kargs)
+    specialImportRegistry.registerSpecialImportForType(SwitchProducerTest2, "from test import SwitchProducerTest2")
+
+    class ProcessAcceleratorTest(ProcessAccelerator):
+        def __init__(self, enabled=["test1", "test2"]):
+            super(ProcessAcceleratorTest,self).__init__()
+            self._labels = ["test1", "test2"]
+            self.setEnabled(enabled)
+        def setEnabled(self, enabled):
+            invalid = set(enabled).difference(set(self._labels))
+            if len(invalid) > 0:
+                raise Exception("Tried to enabled nonexistent test accelerators {}".format(",".join(invalid)))
+            self._enabled = enabled[:]
+        def dumpPythonImpl(self,options):
+            result = "{}enabled = [{}]".format(options.indentation(),
+                                               ", ".join(["'{}'".format(e) for e in self._enabled]))
+            return result
+        def labels(self):
+            return self._labels
+        def enabledLabels(self):
+            return self._enabled
+        def apply(self, process):
+            process.acceleratorTestProducer = EDProducer("AcceleratorTestProducer")
+            process.acceleratorTestPath = Path(process.acceleratorTestProducer)
+    specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorTest, "from test import ProcessAcceleratorTest")
 
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
@@ -2101,6 +2226,7 @@ process.options = cms.untracked.PSet(
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
     SkipEvent = cms.untracked.vstring(),
+    accelerators = cms.untracked.vstring('auto'),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
     deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
@@ -3781,5 +3907,127 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p = Process('PROCESS')
             p.extend(f)
             self.assertTrue(hasattr(p,'fltr'))
+        def testProcessAccelerator(self):
+            proc = Process("TEST")
+            self.assertRaises(TypeError, setattr, proc, "processAcceleratorTest", ProcessAcceleratorTest())
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
+            del proc.MessageLogger # remove boilerplate unnecessary for this test case
+            self.assertEqual(proc.dumpPython(),
+"""import FWCore.ParameterSet.Config as cms
+from test import ProcessAcceleratorTest
+
+process = cms.Process("TEST")
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.optional.untracked.int32,
+    output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
+)
+
+process.maxLuminosityBlocks = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+
+process.options = cms.untracked.PSet(
+    FailPath = cms.untracked.vstring(),
+    IgnoreCompletely = cms.untracked.vstring(),
+    Rethrow = cms.untracked.vstring(),
+    SkipEvent = cms.untracked.vstring(),
+    accelerators = cms.untracked.vstring('auto'),
+    allowUnscheduled = cms.obsolete.untracked.bool,
+    canDeleteEarly = cms.untracked.vstring(),
+    deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
+    dumpOptions = cms.untracked.bool(False),
+    emptyRunLumiMode = cms.obsolete.untracked.string,
+    eventSetup = cms.untracked.PSet(
+        forceNumberOfConcurrentIOVs = cms.untracked.PSet(
+            allowAnyLabel_=cms.required.untracked.uint32
+        ),
+        numberOfConcurrentIOVs = cms.untracked.uint32(0)
+    ),
+    fileMode = cms.untracked.string('FULLMERGE'),
+    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+    makeTriggerResults = cms.obsolete.untracked.bool,
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
+    numberOfConcurrentRuns = cms.untracked.uint32(1),
+    numberOfStreams = cms.untracked.uint32(0),
+    numberOfThreads = cms.untracked.uint32(1),
+    printDependencies = cms.untracked.bool(False),
+    sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
+    throwIfIllegalParameter = cms.untracked.bool(True),
+    wantSummary = cms.untracked.bool(False)
+)
+
+process.ProcessAcceleratorTest = ProcessAcceleratorTest(
+    enabled = ['test1', 'test2']
+)
+
+
+""")
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertFalse(p.values["options"][1].values["accelerators"][0])
+            accelerators = p.values["options"][1].values["accelerators"][1]
+            self.assertTrue("test1" in accelerators)
+            self.assertTrue("test2" in accelerators)
+            self.assertEqual((True, "AcceleratorTestProducer"), p.values["acceleratorTestProducer"][1].values["@module_type"])
+
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest(enabled=["test1"])
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual(["test1"], p.values["options"][1].values["accelerators"][1])
+
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
+            proc.options.accelerators = ["test2"]
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual(["test2"], p.values["options"][1].values["accelerators"][1])
+
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
+            proc.options.accelerators = ["test3"]
+            p = TestMakePSet()
+            self.assertRaises(ValueError, proc.fillProcessDesc, p)
+
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
+            proc.options.accelerators = ["auto", "test1"]
+            p = TestMakePSet()
+            self.assertRaises(ValueError, proc.fillProcessDesc, p)
+
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest(enabled=["test1"])
+            proc.sp = SwitchProducerTest2(test2 = EDProducer("Foo",
+                                                             a = int32(1),
+                                                             b = PSet(c = int32(2))),
+                                          test1 = EDProducer("Bar",
+                                                             aa = int32(11),
+                                                             bb = PSet(cc = int32(12))))
+            proc.p = Path(proc.sp)
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual((False, "sp@test1"), p.values["sp"][1].values["@chosen_case"])
+
+            import pickle
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
+            proc.sp = SwitchProducerTest2(test2 = EDProducer("Foo",
+                                                             a = int32(1),
+                                                             b = PSet(c = int32(2))),
+                                          test1 = EDProducer("Bar",
+                                                             aa = int32(11),
+                                                             bb = PSet(cc = int32(12))))
+            proc.p = Path(proc.sp)
+            pkl = pickle.dumps(proc)
+            unpkl = pickle.loads(pkl)
+            p = TestMakePSet()
+            unpkl.fillProcessDesc(p)
+            self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
+            unpkl = pickle.loads(pkl)
+            unpkl.ProcessAcceleratorTest.setEnabled(["test1"])
+            p = TestMakePSet()
+            unpkl.fillProcessDesc(p)
+            self.assertEqual((False, "sp@test1"), p.values["sp"][1].values["@chosen_case"])
 
     unittest.main()
