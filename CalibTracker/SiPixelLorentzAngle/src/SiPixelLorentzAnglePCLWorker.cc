@@ -711,7 +711,7 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
 
   //book the 2D histograms
   for (int i_layer = 1; i_layer <= iHists.nlay; i_layer++) {
-    iBooker.setCurrentFolder(fmt::sprintf("%s/BPixLayer%i", folder_.data(), i_layer));
+    iBooker.setCurrentFolder(fmt::sprintf("%s/BPix/BPixLayer%i", folder_.data(), i_layer));
     for (int i_module = 1; i_module <= iHists.nModules_[i_layer - 1]; i_module++) {
       unsigned int i_index = i_module + (i_layer - 1) * iHists.nModules_[i_layer - 1];
 
@@ -740,7 +740,7 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
   }
 
   // book the "new" modules
-  iBooker.setCurrentFolder(fmt::sprintf("%s/NewModules", folder_.data()));
+  iBooker.setCurrentFolder(fmt::sprintf("%s/BPix/NewModules", folder_.data()));
   for (int i = 0; i < (int)iHists.BPixnewDetIds_.size(); i++) {
     int new_index = iHists.nModules_[iHists.nlay - 1] + (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + i;
 
