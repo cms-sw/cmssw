@@ -75,7 +75,6 @@ void SiStripPedestalsBuilder::analyze(const edm::Event& evt, const edm::EventSet
     if (mydbservice->isNewTagRequest("SiStripPedestalsRcd")) {
       mydbservice->createOneIOV<SiStripPedestals>(obj, mydbservice->beginOfTime(), "SiStripPedestalsRcd");
     } else {
-      //mydbservice->createNewIOV<SiStripPedestals>(obj,mydbservice->currentTime(),"SiStripPedestalsRcd");
       mydbservice->appendOneIOV<SiStripPedestals>(obj, mydbservice->currentTime(), "SiStripPedestalsRcd");
     }
   } else {

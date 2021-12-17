@@ -3431,9 +3431,9 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector& paramVec) {
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
   //    if (poolDbService->isNewTagRequest("GlobalPositionRcd")) {
-  //       poolDbService->createNewIOV<Alignments>(&(*globalPositions), poolDbService->endOfTime(), "GlobalPositionRcd");
+  //       poolDbService->createOneIOV<Alignments>(globalPositions, poolDbService->endOfTime(), "GlobalPositionRcd");
   //    } else {
-  //       poolDbService->appendSinceTime<Alignments>(&(*globalPositions), poolDbService->currentTime(), "GlobalPositionRcd");
+  //       poolDbService->appendOneIOV<Alignments>(globalPositions, poolDbService->currentTime(), "GlobalPositionRcd");
   //    }
   poolDbService->writeOneIOV<Alignments>(globalPositions, poolDbService->currentTime(), "GlobalPositionRcd");
   std::cout << "done!" << std::endl;
