@@ -33,8 +33,7 @@ public:
   using BinMap = std::map<Key, std::vector<double> >;
 
   PPSTimingCalibrationLUT() = default;
-  PPSTimingCalibrationLUT(const BinMap& binMap)
-      : binMap_(binMap){}
+  PPSTimingCalibrationLUT(const BinMap& binMap) : binMap_(binMap) {}
   ~PPSTimingCalibrationLUT() = default;
 
   std::vector<double> bins(int key1, int key2, int key3, int key4) const;
