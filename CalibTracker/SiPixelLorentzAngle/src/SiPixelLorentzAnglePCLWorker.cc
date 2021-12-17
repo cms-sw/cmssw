@@ -656,6 +656,10 @@ void SiPixelLorentzAnglePCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSe
     iHists.nModules_[i] = map.getPXBModules(i + 1);
   }
 
+  // list of modules already filled, then return (we already entered here)
+  if (!iHists.BPixnewDetIds_.empty() || !iHists.FPixnewDetIds_.empty())
+    return;
+
   if (!newmodulelist_.empty()) {
     for (auto const& modulename : newmodulelist_) {
       if (modulename.find("BPix_") != std::string::npos) {
