@@ -12,7 +12,7 @@ process.source = cms.Source('EmptyIOVSource',
 
 # load calibrations from JSON file
 process.load('CalibPPS.ESProducers.ppsTimingCalibrationLUTESSource_cfi')
-process.ppsTimingCalibrationLUTESSource.calibrationFile = cms.FileInPath('CalibPPS/TimingCalibration/test/test.json')
+process.ppsTimingCalibrationLUTESSource.calibrationFile = cms.FileInPath('CalibPPS/TimingCalibration/data/LUT_test.json')
 
 
 # output service for database

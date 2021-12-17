@@ -81,7 +81,6 @@ std::unique_ptr<PPSTimingCalibrationLUT> PPSTimingCalibrationLUTESSource::parseP
 
   PPSTimingCalibrationLUT::BinMap binMap;
   for (pt::ptree::value_type& node : mother_node.get_child("calib")) {
-    //edm::LogWarning("WRITER ")<<" "<<"node";
     PPSTimingCalibrationLUT::Key key;
 
     key.sector = node.second.get<int>("sector");
@@ -90,7 +89,6 @@ std::unique_ptr<PPSTimingCalibrationLUT> PPSTimingCalibrationLUTESSource::parseP
     key.channel = node.second.get<int>("channel");
     std::vector<double> values;
     for (pt::ptree::value_type& sample : node.second.get_child("samples")) {
-      //edm::LogWarning("WRITER ")<<samples.second.data();
       values.emplace_back(std::stod(sample.second.data(), nullptr));
       binMap[key] = values;
     }
