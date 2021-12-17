@@ -47,7 +47,7 @@ void DTTTrigCorrectionFirst::beginRun(const edm::Run& run, const edm::EventSetup
 
 void DTTTrigCorrectionFirst::endJob() {
   // Create the object to be written to DB
-  DTTtrig* tTrigNewMap = new DTTtrig();
+  DTTtrig tTrigNewMap;
   //Get the superlayers list
   vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
 
@@ -225,7 +225,7 @@ void DTTTrigCorrectionFirst::endJob() {
     }
 
     //Store new ttrig in the new map
-    tTrigNewMap->set((*sl)->id(), newTTrigMean, newTTrigSigma, newkfactor, DTTimeUnits::ns);
+    tTrigNewMap.set((*sl)->id(), newTTrigMean, newTTrigSigma, newkfactor, DTTimeUnits::ns);
     if (debug) {
       cout << "New tTrig: " << (*sl)->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
       cout << "New tTrigSigma: " << (*sl)->id() << " from " << ttrigSigma << " to " << newTTrigSigma << endl;
