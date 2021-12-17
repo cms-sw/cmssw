@@ -20,6 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class PPSTimingCalibrationLUTRcd : public edm::eventsetup::EventSetupRecordImplementation<PPSTimingCalibrationLUTRcd> {};
+class PPSTimingCalibrationLUTRcd : public edm::eventsetup::EventSetupRecordImplementation<PPSTimingCalibrationLUTRcd> {
+};
 
 #endif

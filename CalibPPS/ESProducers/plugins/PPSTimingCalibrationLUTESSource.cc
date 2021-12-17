@@ -40,7 +40,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                       const edm::IOVSyncValue&,
                       edm::ValidityInterval&) override;
@@ -54,7 +53,7 @@ private:
 //------------------------------------------------------------------------------
 
 PPSTimingCalibrationLUTESSource::PPSTimingCalibrationLUTESSource(const edm::ParameterSet& iConfig)
-    : filename_(iConfig.getParameter<edm::FileInPath>("calibrationFile").fullPath()){
+    : filename_(iConfig.getParameter<edm::FileInPath>("calibrationFile").fullPath()) {
   setWhatProduced(this);
   findingRecord<PPSTimingCalibrationLUTRcd>();
 }
@@ -64,14 +63,13 @@ PPSTimingCalibrationLUTESSource::PPSTimingCalibrationLUTESSource(const edm::Para
 edm::ESProducts<std::unique_ptr<PPSTimingCalibrationLUT> > PPSTimingCalibrationLUTESSource::produce(
     const PPSTimingCalibrationLUTRcd&) {
   return edm::es::products(parsePPSDiamondLUTJsonFile());
-
 }
 
 //------------------------------------------------------------------------------
 
 void PPSTimingCalibrationLUTESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                  const edm::IOVSyncValue&,
-                                                  edm::ValidityInterval& oValidity) {
+                                                     const edm::IOVSyncValue&,
+                                                     edm::ValidityInterval& oValidity) {
   oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }
 
@@ -82,31 +80,27 @@ std::unique_ptr<PPSTimingCalibrationLUT> PPSTimingCalibrationLUTESSource::parseP
   pt::read_json(filename_, mother_node);
 
   PPSTimingCalibrationLUT::BinMap binMap;
-  for(pt::ptree::value_type& node:mother_node.get_child("calib")){
+  for (pt::ptree::value_type& node : mother_node.get_child("calib")) {
     //edm::LogWarning("WRITER ")<<" "<<"node";
-      PPSTimingCalibrationLUT::Key key;
-      
-      key.sector = node.second.get<int>("sector");
-      key.station = node.second.get<int>("station");
-      key.plane = node.second.get<int>("plane");
-      key.channel = node.second.get<int>("channel");
-      std::vector<double> values;
-        for(pt::ptree::value_type& sample:node.second.get_child("samples")){
-          //edm::LogWarning("WRITER ")<<samples.second.data();
-          values.emplace_back(std::stod(sample.second.data(), nullptr));
-          binMap[key] = values;
-        }
+    PPSTimingCalibrationLUT::Key key;
 
-        
-    
-  }  
+    key.sector = node.second.get<int>("sector");
+    key.station = node.second.get<int>("station");
+    key.plane = node.second.get<int>("plane");
+    key.channel = node.second.get<int>("channel");
+    std::vector<double> values;
+    for (pt::ptree::value_type& sample : node.second.get_child("samples")) {
+      //edm::LogWarning("WRITER ")<<samples.second.data();
+      values.emplace_back(std::stod(sample.second.data(), nullptr));
+      binMap[key] = values;
+    }
+  }
   return std::make_unique<PPSTimingCalibrationLUT>(binMap);
 }
 
 void PPSTimingCalibrationLUTESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::FileInPath>("calibrationFile", edm::FileInPath())
-      ->setComment("file with calibrations");
+  desc.add<edm::FileInPath>("calibrationFile", edm::FileInPath())->setComment("file with calibrations");
 
   descriptions.add("ppsTimingCalibrationLUTESSource", desc);
 }
