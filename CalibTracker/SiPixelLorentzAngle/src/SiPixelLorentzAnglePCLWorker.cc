@@ -450,12 +450,8 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           double drdz = sqrt(1. + cotalpha * cotalpha + cotbeta * cotbeta);
           double clusterCharge_cut = clustChargeMaxPerLength_ * drdz;
 
-          float locBx = 1.;
-          if (cotbeta < 0.)
-            locBx = -1.;
-          float locBz = locBx;
-          if (cotalpha < 0.)
-            locBz = -locBx;
+          float locBx = (cotbeta < 0.) ? -1 : 1.;
+          float locBz = (cotalpha < 0.) ? -locBx : locBx;
 
           auto detId = detIdObj.rawId();
           int DetId_index = -1;
