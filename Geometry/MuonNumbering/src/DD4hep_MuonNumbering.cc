@@ -18,7 +18,11 @@ const MuonBaseNumber MuonNumbering::geoHistoryToBaseNumber(const cms::ExpandedNo
     edm::LogError("Geometry") << "MuonNumbering finds unusual base constant:" << basePart;
   }
   if (superPart < 100) {
-    edm::LogError("Geometry") << "MuonNumbering finds unusual super constant:" << superPart;
+    edm::LogError("Geometry") << "MuonNumbering finds unusual super part:" << superPart;
+    if (superPart <= 0) {
+      edm::LogError("Geometry") << "MuonNumbering -- resetting super part to 100";
+      superPart = 100;  // Protect against division by 0
+    }
   }
   if (levelPart < 10 * superPart) {
     edm::LogError("Geometry") << "MuonNumbering finds unusual level constant:" << levelPart;
