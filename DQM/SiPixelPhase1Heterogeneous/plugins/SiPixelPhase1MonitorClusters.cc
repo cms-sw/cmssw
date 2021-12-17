@@ -165,6 +165,7 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                     //edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge 3" <<std::endl;
                     hClustersBarrelLayer1Charge->Fill(clustercharge);
                     edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
+                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                 }
             }
             else if(nLayer == 2){
@@ -181,6 +182,7 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                     hClustersBarrelCharge->Fill(clustercharge);
                     hClustersBarrelLayer2Charge->Fill(clustercharge);
                     edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
+                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
 
                 }
             }
@@ -199,6 +201,7 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                     hClustersBarrelCharge->Fill(clustercharge);
                     hClustersBarrelLayer3Charge->Fill(clustercharge);
                     edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
+                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                 }
             }
 
@@ -216,6 +219,7 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                     hClustersBarrelCharge->Fill(clustercharge);
                     hClustersBarrelLayer4Charge->Fill(clustercharge);
                     edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
+                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                 }
             }
 
@@ -239,6 +243,7 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                         hClustersEndcapCharge->Fill(clustercharge);
                         hClustersEndcapDiskm1Charge->Fill(clustercharge);
                         edm::LogWarning("SiPixelPhase1MonitorClusters") << " Disk " <<nDisk<<std::endl;
+                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                     }
                 }
 
@@ -254,6 +259,7 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                         hClustersEndcapCharge->Fill(clustercharge);
                         hClustersEndcapDiskm2Charge->Fill(clustercharge);
                         edm::LogWarning("SiPixelPhase1MonitorClusters") << " Disk " <<nDisk<<std::endl;
+                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                     }
                 }
 
@@ -269,6 +275,7 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                         hClustersEndcapCharge->Fill(clustercharge);
                         hClustersEndcapDiskm3Charge->Fill(clustercharge);
                         edm::LogWarning("SiPixelPhase1MonitorClusters") << " Disk " <<nDisk<<std::endl;
+                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                     }
                 }
 
@@ -287,6 +294,7 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                         hClustersEndcapCharge->Fill(clustercharge);
                         hClustersEndcapDiskp1Charge->Fill(clustercharge);
                         edm::LogWarning("SiPixelPhase1MonitorClusters") << " Disk " <<nDisk<<std::endl;
+                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                     }
                 }
                 else if(nDisk == 2){
@@ -301,6 +309,7 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                         hClustersEndcapCharge->Fill(clustercharge);
                         hClustersEndcapDiskp2Charge->Fill(clustercharge);
                         edm::LogWarning("SiPixelPhase1MonitorClusters") << " Disk " <<nDisk<<std::endl;
+                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                     }
                 }
 
@@ -316,6 +325,7 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                         hClustersEndcapCharge->Fill(clustercharge);
                         hClustersEndcapDiskp3Charge->Fill(clustercharge);
                         edm::LogWarning("SiPixelPhase1MonitorClusters") << " Disk " <<nDisk<<std::endl;
+                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                     }
                 }
 
@@ -348,56 +358,56 @@ void SiPixelPhase1MonitorClusters::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.cd();
   ibooker.setCurrentFolder(topFolderName_);
 
-  hnClusters = ibooker.book1D("nClusters", ";Number of clusters per event;#entries", 1001, -0.5, 10000.5);
-  hnClustersBarrel = ibooker.book1D("nClustersBarrel", ";Number of clusters per event;#entries", 1001, -0.5, 10000.5);
-  hnClustersEndcap = ibooker.book1D("nClustersEndcap", ";Number of clusters per event;#entries", 1001, -0.5, 10000.5);
+  hnClusters = ibooker.book1D("nClusters", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
+  hnClustersBarrel = ibooker.book1D("nClustersBarrel", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
+  hnClustersEndcap = ibooker.book1D("nClustersEndcap", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
 
-  hnClustersBarrelLayer1 = ibooker.book1D("nClustersBarrelLayer1", ";Number of clusters per event;#entries", 151, -0.5, 150.5);
-  hnClustersBarrelLayer2 = ibooker.book1D("nClustersBarrelLayer2", ";Number of clusters per event;#entries", 151, -0.5, 150.5);
-  hnClustersBarrelLayer3 = ibooker.book1D("nClustersBarrelLayer3", ";Number of clusters per event;#entries", 151, -0.5, 150.5);
-  hnClustersBarrelLayer4 = ibooker.book1D("nClustersBarrelLayer4", ";Number of clusters per event;#entries", 151, -0.5, 150.5);
+  hnClustersBarrelLayer1 = ibooker.book1D("nClustersBarrelLayer1", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
+  hnClustersBarrelLayer2 = ibooker.book1D("nClustersBarrelLayer2", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
+  hnClustersBarrelLayer3 = ibooker.book1D("nClustersBarrelLayer3", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
+  hnClustersBarrelLayer4 = ibooker.book1D("nClustersBarrelLayer4", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
 
-  hnClustersEndcapDiskm1 = ibooker.book1D("nClustersEndcapDiskm1", ";Number of clusters per event;#entries", 16, -0.5, 15.5);
-  hnClustersEndcapDiskm2 = ibooker.book1D("nClustersEndcapDiskm2", ";Number of clusters per event;#entries", 16, -0.5, 15.5);
-  hnClustersEndcapDiskm3 = ibooker.book1D("nClustersEndcapDiskm3", ";Number of clusters per event;#entries", 16, -0.5, 15.5);
+  hnClustersEndcapDiskm1 = ibooker.book1D("nClustersEndcapDiskm1", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
+  hnClustersEndcapDiskm2 = ibooker.book1D("nClustersEndcapDiskm2", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
+  hnClustersEndcapDiskm3 = ibooker.book1D("nClustersEndcapDiskm3", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
 
-  hnClustersEndcapDiskp1 = ibooker.book1D("nClustersEndcapDiskp1", ";Number of clusters per event;#entries", 16, -0.5, 15.5);
-  hnClustersEndcapDiskp2 = ibooker.book1D("nClustersEndcapDiskp2", ";Number of clusters per event;#entries", 16, -0.5, 15.5);
-  hnClustersEndcapDiskp3 = ibooker.book1D("nClustersEndcapDiskp3", ";Number of clusters per event;#entries", 16, -0.5, 15.5);
+  hnClustersEndcapDiskp1 = ibooker.book1D("nClustersEndcapDiskp1", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
+  hnClustersEndcapDiskp2 = ibooker.book1D("nClustersEndcapDiskp2", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
+  hnClustersEndcapDiskp3 = ibooker.book1D("nClustersEndcapDiskp3", ";Number of clusters per event;#entries", 50, -0.5, 1000.5);
 
-  hClustersSize = ibooker.book1D("ClustersSize", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
-  hClustersBarrelSize = ibooker.book1D("ClustersBarrelSize", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
-  hClustersEndcapSize = ibooker.book1D("ClustersEndcapSize", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersSize = ibooker.book1D("ClustersSize", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
+  hClustersBarrelSize = ibooker.book1D("ClustersBarrelSize", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
+  hClustersEndcapSize = ibooker.book1D("ClustersEndcapSize", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
 
-  hClustersBarrelLayer1Size = ibooker.book1D("ClustersBarrelLayer1Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
-  hClustersBarrelLayer2Size = ibooker.book1D("ClustersBarrelLayer2Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
-  hClustersBarrelLayer3Size = ibooker.book1D("ClustersBarrelLayer3Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
-  hClustersBarrelLayer4Size = ibooker.book1D("ClustersBarrelLayer4Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersBarrelLayer1Size = ibooker.book1D("ClustersBarrelLayer1Size", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
+  hClustersBarrelLayer2Size = ibooker.book1D("ClustersBarrelLayer2Size", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
+  hClustersBarrelLayer3Size = ibooker.book1D("ClustersBarrelLayer3Size", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
+  hClustersBarrelLayer4Size = ibooker.book1D("ClustersBarrelLayer4Size", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
 
-  hClustersEndcapDiskm1Size = ibooker.book1D("ClustersEndcapDiskm1Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
-  hClustersEndcapDiskm2Size = ibooker.book1D("ClustersEndcapDiskm2Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
-  hClustersEndcapDiskm3Size = ibooker.book1D("ClustersEndcapDiskm3Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapDiskm1Size = ibooker.book1D("ClustersEndcapDiskm1Size", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
+  hClustersEndcapDiskm2Size = ibooker.book1D("ClustersEndcapDiskm2Size", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
+  hClustersEndcapDiskm3Size = ibooker.book1D("ClustersEndcapDiskm3Size", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
 
-  hClustersEndcapDiskp1Size = ibooker.book1D("ClustersEndcapDiskp1Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
-  hClustersEndcapDiskp2Size = ibooker.book1D("ClustersEndcapDiskp2Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
-  hClustersEndcapDiskp3Size = ibooker.book1D("ClustersEndcapDiskp3Size", ";Clusters Size per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapDiskp1Size = ibooker.book1D("ClustersEndcapDiskp1Size", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
+  hClustersEndcapDiskp2Size = ibooker.book1D("ClustersEndcapDiskp2Size", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
+  hClustersEndcapDiskp3Size = ibooker.book1D("ClustersEndcapDiskp3Size", ";Clusters Size per event;#entries", 50, -0.5, 50.5);
 
-  hClustersCharge = ibooker.book1D("ClustersCharge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
-  hClustersBarrelCharge = ibooker.book1D("ClustersBarrelCharge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
-  hClustersEndcapCharge = ibooker.book1D("ClustersEndcapCharge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersCharge = ibooker.book1D("ClustersCharge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
+  hClustersBarrelCharge = ibooker.book1D("ClustersBarrelCharge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
+  hClustersEndcapCharge = ibooker.book1D("ClustersEndcapCharge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
 
-  hClustersBarrelLayer1Charge = ibooker.book1D("ClustersBarrelLayer1Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
-  hClustersBarrelLayer2Charge = ibooker.book1D("ClustersBarrelLayer2Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
-  hClustersBarrelLayer3Charge = ibooker.book1D("ClustersBarrelLayer3Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
-  hClustersBarrelLayer4Charge = ibooker.book1D("ClustersBarrelLayer4Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersBarrelLayer1Charge = ibooker.book1D("ClustersBarrelLayer1Charge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
+  hClustersBarrelLayer2Charge = ibooker.book1D("ClustersBarrelLayer2Charge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
+  hClustersBarrelLayer3Charge = ibooker.book1D("ClustersBarrelLayer3Charge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
+  hClustersBarrelLayer4Charge = ibooker.book1D("ClustersBarrelLayer4Charge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
 
-  hClustersEndcapDiskm1Charge = ibooker.book1D("ClustersEndcapDiskm1Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
-  hClustersEndcapDiskm2Charge = ibooker.book1D("ClustersEndcapDiskm2Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
-  hClustersEndcapDiskm3Charge = ibooker.book1D("ClustersEndcapDiskm3Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapDiskm1Charge = ibooker.book1D("ClustersEndcapDiskm1Charge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
+  hClustersEndcapDiskm2Charge = ibooker.book1D("ClustersEndcapDiskm2Charge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
+  hClustersEndcapDiskm3Charge = ibooker.book1D("ClustersEndcapDiskm3Charge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
 
-  hClustersEndcapDiskp1Charge = ibooker.book1D("ClustersEndcapDiskp1Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
-  hClustersEndcapDiskp2Charge = ibooker.book1D("ClustersEndcapDiskp2Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
-  hClustersEndcapDiskp3Charge = ibooker.book1D("ClustersEndcapDiskp3Charge", ";Clusters Charge per event;#entries", 501, -0.5, 500.5);
+  hClustersEndcapDiskp1Charge = ibooker.book1D("ClustersEndcapDiskp1Charge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
+  hClustersEndcapDiskp2Charge = ibooker.book1D("ClustersEndcapDiskp2Charge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
+  hClustersEndcapDiskp3Charge = ibooker.book1D("ClustersEndcapDiskp3Charge", ";Clusters Charge per event;#entries", 50, -0.5, 300000.5);
 }
 
 void SiPixelPhase1MonitorClusters::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
