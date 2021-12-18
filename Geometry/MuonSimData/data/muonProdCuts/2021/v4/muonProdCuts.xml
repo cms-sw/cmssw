@@ -60,8 +60,8 @@
    <PartSelector path="//REC.*"/>
    <PartSelector path="//REE.*"/>
    <PartSelector path="//REF.*"/>
-   <!--    <PartSelector path="//REG.*"/>  -->
-   <!--    <PartSelector path="//REH.*"/>  -->
+   <PartSelector path="//REG.*"/>
+   <PartSelector path="//REH.*"/>
    <Parameter name="CMSCutsRegion" value="MuonSensitive_RPC" eval="false"/>
    <Parameter name="ProdCutsForGamma" value="1.0*cm"/>
    <Parameter name="ProdCutsForElectrons" value="8.0*mm"/>
