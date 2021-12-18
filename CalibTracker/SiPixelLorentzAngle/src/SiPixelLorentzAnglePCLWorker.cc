@@ -38,6 +38,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -120,6 +121,7 @@ private:
   SiPixelLorentzAngleCalibrationHistograms iHists;
 
   // template stuff
+  edm::ESWatcher<SiPixelTemplateDBObjectESProducerRcd> watchSiPixelTemplateRcd_;
   const SiPixelTemplateDBObject* templateDBobject_;
   std::vector<SiPixelTemplateStore> thePixelTemp_;
 
@@ -309,9 +311,6 @@ SiPixelLorentzAnglePCLWorker::SiPixelLorentzAnglePCLWorker(const edm::ParameterS
 // ------------ method called for each event  ------------
 
 void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-  // Retrieve template stuff (comes from dqmBeginRun)
-  SiPixelTemplate templ(thePixelTemp_);
-
   // Retrieve tracker topology from geometry
   const TrackerTopology* const tTopo = &iSetup.getData(topoPerEventEsToken_);
 
@@ -337,6 +336,9 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
   bx_ = iEvent.bunchCrossing();
   orbit_ = iEvent.orbitNumber();
 
+  // fill the template from the store (from dqmBeginRun)
+  SiPixelTemplate theTemplate(thePixelTemp_);
+
   if (!trajTrackCollectionHandle->empty()) {
     for (TrajTrackAssociationCollection::const_iterator it = trajTrackCollectionHandle->begin();
          it != trajTrackCollectionHandle->end();
@@ -359,15 +361,14 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
       iHists.h_trackPhi_->Fill(phi_);
       iHists.h_trackPt_->Fill(pt_);
       iHists.h_trackChi2_->Fill(chi2_ / ndof_);
-
-      // iterate over trajectory measurements
       iHists.h_tracks_->Fill(0);
       bool pixeltrack = false;
-      for (std::vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj != tmColl.end();
-           itTraj++) {
-        if (!itTraj->updatedState().isValid())
+
+      // iterate over trajectory measurements
+      for (const auto& itTraj : tmColl) {
+        if (!itTraj.updatedState().isValid())
           continue;
-        TransientTrackingRecHit::ConstRecHitPointer recHit = itTraj->recHit();
+        const TransientTrackingRecHit::ConstRecHitPointer& recHit = itTraj.recHit();
         if (!recHit->isValid() || recHit->geographicalId().det() != DetId::Tracker)
           continue;
         unsigned int subDetID = (recHit->geographicalId().subdetId());
@@ -423,7 +424,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           clust_.minPixelRow = cluster->minPixelRow();
 
           // fill the trackhit info
-          TrajectoryStateOnSurface tsos = itTraj->updatedState();
+          TrajectoryStateOnSurface tsos = itTraj.updatedState();
           if (!tsos.isValid()) {
             edm::LogWarning("SiPixelLorentzAnglePCLWorker") << "tsos not valid" << std::endl;
             continue;
@@ -441,7 +442,6 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           trackhit_.y = trackposition.y();
 
           // get qScale_ = templ.qscale() and  templ.r_qMeas_qTrue();
-
           float cotalpha = trackdirection.x() / trackdirection.z();
           float cotbeta = trackdirection.y() / trackdirection.z();
           float cotbeta_min = clustSizeYMin_ * ypitch_ / width_;
@@ -457,18 +457,17 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           int DetId_index = -1;
 
           const auto& newModIt = (std::find(iHists.BPixnewDetIds_.begin(), iHists.BPixnewDetIds_.end(), detId));
-          bool Isnew = (newModIt != iHists.BPixnewDetIds_.end());
-          if (Isnew) {
+          bool isNewMod = (newModIt != iHists.BPixnewDetIds_.end());
+          if (isNewMod) {
             DetId_index = std::distance(iHists.BPixnewDetIds_.begin(), newModIt);
           }
 
           int TemplID = templateDBobject_->getTemplateID(detId);
-          templ.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
-          qScale_ = templ.qscale();
-          rQmQt_ = templ.r_qMeas_qTrue();
+          theTemplate.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
+          qScale_ = theTemplate.qscale();
+          rQmQt_ = theTemplate.r_qMeas_qTrue();
 
           // Surface deformation
-
           const auto& lp_pair = surface_deformation(topol, tsos, recHitPix);
 
           LocalPoint lp_track = lp_pair.first;
@@ -530,7 +529,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
               float depth = dy * tan(trackhit_.beta);
               float drift = dx - dy * tan(trackhit_.gamma);
 
-              if (Isnew == false) {
+              if (isNewMod == false) {
                 int i_index = module_ + (layer_ - 1) * iHists.nModules_[layer_ - 1];
                 iHists.h_drift_depth_adc_.at(i_index)->Fill(drift, depth, pixinfo_.adc[j]);
                 iHists.h_drift_depth_adc2_.at(i_index)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
@@ -584,7 +583,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           clustF_.minPixelRow = cluster->minPixelRow();
 
           // fill the trackhit info
-          TrajectoryStateOnSurface tsos = itTraj->updatedState();
+          TrajectoryStateOnSurface tsos = itTraj.updatedState();
           if (!tsos.isValid()) {
             edm::LogWarning("SiPixelLorentzAnglePCLWorker") << "tsos not valid" << std::endl;
             continue;
@@ -604,22 +603,17 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           float cotalpha = trackdirection.x() / trackdirection.z();
           float cotbeta = trackdirection.y() / trackdirection.z();
 
-          float locBx = 1.;
-          if (cotbeta < 0.)
-            locBx = -1.;
-          float locBz = locBx;
-          if (cotalpha < 0.)
-            locBz = -locBx;
+          float locBx = cotbeta < 0. ? -1 : 1.;
+          float locBz = cotalpha < 0. ? -locBx : locBx;
 
           auto detId = detIdObj.rawId();
 
           int TemplID = templateDBobject_->getTemplateID(detId);
-          templ.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
-          qScaleF_ = templ.qscale();
-          rQmQtF_ = templ.r_qMeas_qTrue();
+          theTemplate.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
+          qScaleF_ = theTemplate.qscale();
+          rQmQtF_ = theTemplate.r_qMeas_qTrue();
 
           // Surface deformation
-
           const auto& lp_pair = surface_deformation(topol, tsos, recHitPix);
 
           LocalPoint lp_track = lp_pair.first;
@@ -644,11 +638,13 @@ void SiPixelLorentzAnglePCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSe
   const TrackerTopology* tTopo = &iSetup.getData(topoEsToken_);
 
   // Initialize 1D templates
-  templateDBobject_ = &iSetup.getData(siPixelTemplateEsToken_);
-  if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_)) {
-    edm::LogError("SiPixelLorentzAnglePCLWorker")
-        << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-        << (*templateDBobject_).version() << std::endl;
+  if (watchSiPixelTemplateRcd_.check(iSetup)) {
+    templateDBobject_ = &iSetup.getData(siPixelTemplateEsToken_);
+    if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_)) {
+      edm::LogError("SiPixelLorentzAnglePCLWorker")
+          << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
+          << (*templateDBobject_).version() << std::endl;
+    }
   }
 
   PixelTopologyMap map = PixelTopologyMap(geom, tTopo);
