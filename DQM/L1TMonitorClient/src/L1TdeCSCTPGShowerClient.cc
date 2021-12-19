@@ -32,45 +32,105 @@ void L1TdeCSCTPGShowerClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
 void L1TdeCSCTPGShowerClient::book(DQMStore::IBooker &iBooker) {
   iBooker.setCurrentFolder(monitorDir_);
 
-  lctShowerDataNomSummary_eff_ = iBooker.book2D(
-      "lct_cscshower_data_nom_summary_eff", "Efficiency of data LCT Nominal shower being correctly emulated", 
-      36, 1, 37, 18, 0, 18);
-  alctShowerDataNomSummary_eff_ = iBooker.book2D(
-      "alct_cscshower_data_nom_summary_eff", "Efficiency of data ALCT Nominal shower being correctly emulated", 
-      36, 1, 37, 18, 0, 18);
-  clctShowerDataNomSummary_eff_ = iBooker.book2D(
-      "clct_cscshower_data_nom_summary_eff", "Efficiency of data CLCT Nominal shower being correctly emulated",
-      36, 1, 37, 18, 0, 18);
+  lctShowerDataNomSummary_eff_ = iBooker.book2D("lct_cscshower_data_nom_summary_eff",
+                                                "Efficiency of data LCT Nominal shower being correctly emulated",
+                                                36,
+                                                1,
+                                                37,
+                                                18,
+                                                0,
+                                                18);
+  alctShowerDataNomSummary_eff_ = iBooker.book2D("alct_cscshower_data_nom_summary_eff",
+                                                 "Efficiency of data ALCT Nominal shower being correctly emulated",
+                                                 36,
+                                                 1,
+                                                 37,
+                                                 18,
+                                                 0,
+                                                 18);
+  clctShowerDataNomSummary_eff_ = iBooker.book2D("clct_cscshower_data_nom_summary_eff",
+                                                 "Efficiency of data CLCT Nominal shower being correctly emulated",
+                                                 36,
+                                                 1,
+                                                 37,
+                                                 18,
+                                                 0,
+                                                 18);
 
-  lctShowerEmulNomSummary_eff_ = iBooker.book2D(
-      "lct_cscshower_emul_nom_summary_eff", "Fraction of emulated LCT Nominal shower without matching data LCT",
-      36, 1, 37, 18, 0, 18);
-  alctShowerEmulNomSummary_eff_ = iBooker.book2D(
-      "alct_cscshower_emul_nom_summary_eff", "Fraction of emulated ALCT Nominal shower without matching data ALCT",
-      36, 1, 37, 18, 0, 18);
-  clctShowerEmulNomSummary_eff_ = iBooker.book2D(
-      "clct_cscshower_emul_nom_summary_eff", "Fraction of emulated CLCT Nominal shower without matching data CLCT",
-      36, 1, 37, 18, 0, 18);
+  lctShowerEmulNomSummary_eff_ = iBooker.book2D("lct_cscshower_emul_nom_summary_eff",
+                                                "Fraction of emulated LCT Nominal shower without matching data LCT",
+                                                36,
+                                                1,
+                                                37,
+                                                18,
+                                                0,
+                                                18);
+  alctShowerEmulNomSummary_eff_ = iBooker.book2D("alct_cscshower_emul_nom_summary_eff",
+                                                 "Fraction of emulated ALCT Nominal shower without matching data ALCT",
+                                                 36,
+                                                 1,
+                                                 37,
+                                                 18,
+                                                 0,
+                                                 18);
+  clctShowerEmulNomSummary_eff_ = iBooker.book2D("clct_cscshower_emul_nom_summary_eff",
+                                                 "Fraction of emulated CLCT Nominal shower without matching data CLCT",
+                                                 36,
+                                                 1,
+                                                 37,
+                                                 18,
+                                                 0,
+                                                 18);
 
-  lctShowerDataTightSummary_eff_ = iBooker.book2D(
-      "lct_cscshower_data_tight_summary_eff", "Efficiency of data LCT Tight shower being correctly emulated", 
-      36, 1, 37, 18, 0, 18);
-  alctShowerDataTightSummary_eff_ = iBooker.book2D(
-      "alct_cscshower_data_tight_summary_eff", "Efficiency of data ALCT Tight shower being correctly emulated", 
-      36, 1, 37, 18, 0, 18);
-  clctShowerDataTightSummary_eff_ = iBooker.book2D(
-      "clct_cscshower_data_tight_summary_eff", "Efficiency of data CLCT Tight shower being correctly emulated",
-      36, 1, 37, 18, 0, 18);
+  lctShowerDataTightSummary_eff_ = iBooker.book2D("lct_cscshower_data_tight_summary_eff",
+                                                  "Efficiency of data LCT Tight shower being correctly emulated",
+                                                  36,
+                                                  1,
+                                                  37,
+                                                  18,
+                                                  0,
+                                                  18);
+  alctShowerDataTightSummary_eff_ = iBooker.book2D("alct_cscshower_data_tight_summary_eff",
+                                                   "Efficiency of data ALCT Tight shower being correctly emulated",
+                                                   36,
+                                                   1,
+                                                   37,
+                                                   18,
+                                                   0,
+                                                   18);
+  clctShowerDataTightSummary_eff_ = iBooker.book2D("clct_cscshower_data_tight_summary_eff",
+                                                   "Efficiency of data CLCT Tight shower being correctly emulated",
+                                                   36,
+                                                   1,
+                                                   37,
+                                                   18,
+                                                   0,
+                                                   18);
 
-  lctShowerEmulTightSummary_eff_ = iBooker.book2D(
-      "lct_cscshower_emul_tight_summary_eff", "Fraction of emulated LCT Tight shower without matching data LCT",
-      36, 1, 37, 18, 0, 18);
-  alctShowerEmulTightSummary_eff_ = iBooker.book2D(
-      "alct_cscshower_emul_tight_summary_eff", "Fraction of emulated ALCT Tight shower without matching data ALCT",
-      36, 1, 37, 18, 0, 18);
-  clctShowerEmulTightSummary_eff_ = iBooker.book2D(
-      "clct_cscshower_emul_tight_summary_eff", "Fraction of emulated CLCT Tight shower without matching data CLCT",
-      36, 1, 37, 18, 0, 18);
+  lctShowerEmulTightSummary_eff_ = iBooker.book2D("lct_cscshower_emul_tight_summary_eff",
+                                                  "Fraction of emulated LCT Tight shower without matching data LCT",
+                                                  36,
+                                                  1,
+                                                  37,
+                                                  18,
+                                                  0,
+                                                  18);
+  alctShowerEmulTightSummary_eff_ = iBooker.book2D("alct_cscshower_emul_tight_summary_eff",
+                                                   "Fraction of emulated ALCT Tight shower without matching data ALCT",
+                                                   36,
+                                                   1,
+                                                   37,
+                                                   18,
+                                                   0,
+                                                   18);
+  clctShowerEmulTightSummary_eff_ = iBooker.book2D("clct_cscshower_emul_tight_summary_eff",
+                                                   "Fraction of emulated CLCT Tight shower without matching data CLCT",
+                                                   36,
+                                                   1,
+                                                   37,
+                                                   18,
+                                                   0,
+                                                   18);
 
   // x labels
   lctShowerDataNomSummary_eff_->setAxisTitle("Chamber", 1);
@@ -160,18 +220,24 @@ void L1TdeCSCTPGShowerClient::processHistograms(DQMStore::IGetter &igetter) {
   MonitorElement *clctShowerEmulNomSummary_denom_ = igetter.get(monitorDir_ + "/clct_cscshower_emul_nom_summary_denom");
   MonitorElement *clctShowerEmulNomSummary_num_ = igetter.get(monitorDir_ + "/clct_cscshower_emul_nom_summary_num");
 
-  MonitorElement *lctShowerDataTightSummary_denom_ = igetter.get(monitorDir_ + "/lct_cscshower_data_tight_summary_denom");
+  MonitorElement *lctShowerDataTightSummary_denom_ =
+      igetter.get(monitorDir_ + "/lct_cscshower_data_tight_summary_denom");
   MonitorElement *lctShowerDataTightSummary_num_ = igetter.get(monitorDir_ + "/lct_cscshower_data_tight_summary_num");
-  MonitorElement *alctShowerDataTightSummary_denom_ = igetter.get(monitorDir_ + "/alct_cscshower_data_tight_summary_denom");
+  MonitorElement *alctShowerDataTightSummary_denom_ =
+      igetter.get(monitorDir_ + "/alct_cscshower_data_tight_summary_denom");
   MonitorElement *alctShowerDataTightSummary_num_ = igetter.get(monitorDir_ + "/alct_cscshower_data_tight_summary_num");
-  MonitorElement *clctShowerDataTightSummary_denom_ = igetter.get(monitorDir_ + "/clct_cscshower_data_tight_summary_denom");
+  MonitorElement *clctShowerDataTightSummary_denom_ =
+      igetter.get(monitorDir_ + "/clct_cscshower_data_tight_summary_denom");
   MonitorElement *clctShowerDataTightSummary_num_ = igetter.get(monitorDir_ + "/clct_cscshower_data_tight_summary_num");
 
-  MonitorElement *lctShowerEmulTightSummary_denom_ = igetter.get(monitorDir_ + "/lct_cscshower_emul_tight_summary_denom");
+  MonitorElement *lctShowerEmulTightSummary_denom_ =
+      igetter.get(monitorDir_ + "/lct_cscshower_emul_tight_summary_denom");
   MonitorElement *lctShowerEmulTightSummary_num_ = igetter.get(monitorDir_ + "/lct_cscshower_emul_tight_summary_num");
-  MonitorElement *alctShowerEmulTightSummary_denom_ = igetter.get(monitorDir_ + "/alct_cscshower_emul_tight_summary_denom");
+  MonitorElement *alctShowerEmulTightSummary_denom_ =
+      igetter.get(monitorDir_ + "/alct_cscshower_emul_tight_summary_denom");
   MonitorElement *alctShowerEmulTightSummary_num_ = igetter.get(monitorDir_ + "/alct_cscshower_emul_tight_summary_num");
-  MonitorElement *clctShowerEmulTightSummary_denom_ = igetter.get(monitorDir_ + "/clct_cscshower_emul_tight_summary_denom");
+  MonitorElement *clctShowerEmulTightSummary_denom_ =
+      igetter.get(monitorDir_ + "/clct_cscshower_emul_tight_summary_denom");
   MonitorElement *clctShowerEmulTightSummary_num_ = igetter.get(monitorDir_ + "/clct_cscshower_emul_tight_summary_num");
 
   lctShowerDataNomSummary_eff_->getTH2F()->Divide(
