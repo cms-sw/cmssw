@@ -21,6 +21,6 @@ l1tStage2EMTFEmulatorClient = cms.Sequence(
     l1tStage2EMTFEmulatorCompRatioClient
 )
 
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 _run3shower_l1tStage2EMTFEmulatorClient = l1tStage2EMTFEmulatorClient.copy()
-run3_common.toReplaceWith(l1tStage2EMTFEmulatorClient, cms.Sequence(_run3shower_l1tStage2EMTFEmulatorClient + l1tdeStage2ShowerClient))
+run3_GEM.toReplaceWith(l1tStage2EMTFEmulatorClient, cms.Sequence(_run3shower_l1tStage2EMTFEmulatorClient + l1tdeStage2ShowerClient))
