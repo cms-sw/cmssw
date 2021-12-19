@@ -336,9 +336,6 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
   bx_ = iEvent.bunchCrossing();
   orbit_ = iEvent.orbitNumber();
 
-  // fill the template from the store (from dqmBeginRun)
-  SiPixelTemplate theTemplate(thePixelTemp_);
-
   if (!trajTrackCollectionHandle->empty()) {
     for (TrajTrackAssociationCollection::const_iterator it = trajTrackCollectionHandle->begin();
          it != trajTrackCollectionHandle->end();
@@ -450,9 +447,6 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           double drdz = sqrt(1. + cotalpha * cotalpha + cotbeta * cotbeta);
           double clusterCharge_cut = clustChargeMaxPerLength_ * drdz;
 
-          float locBx = (cotbeta < 0.) ? -1 : 1.;
-          float locBz = (cotalpha < 0.) ? -locBx : locBx;
-
           auto detId = detIdObj.rawId();
           int DetId_index = -1;
 
@@ -462,10 +456,18 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
             DetId_index = std::distance(iHists.BPixnewDetIds_.begin(), newModIt);
           }
 
-          int TemplID = templateDBobject_->getTemplateID(detId);
-          theTemplate.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
-          qScale_ = theTemplate.qscale();
-          rQmQt_ = theTemplate.r_qMeas_qTrue();
+	  if(notInPCL_){
+	    // fill the template from the store (from dqmBeginRun)
+	    SiPixelTemplate theTemplate(thePixelTemp_);
+
+	    float locBx = (cotbeta < 0.) ? -1 : 1.;
+	    float locBz = (cotalpha < 0.) ? -locBx : locBx;
+
+	    int TemplID = templateDBobject_->getTemplateID(detId);
+	    theTemplate.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
+	    qScale_ = theTemplate.qscale();
+	    rQmQt_ = theTemplate.r_qMeas_qTrue();
+	  }
 
           // Surface deformation
           const auto& lp_pair = surface_deformation(topol, tsos, recHitPix);
@@ -603,15 +605,20 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           float cotalpha = trackdirection.x() / trackdirection.z();
           float cotbeta = trackdirection.y() / trackdirection.z();
 
-          float locBx = cotbeta < 0. ? -1 : 1.;
-          float locBz = cotalpha < 0. ? -locBx : locBx;
-
           auto detId = detIdObj.rawId();
 
-          int TemplID = templateDBobject_->getTemplateID(detId);
-          theTemplate.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
-          qScaleF_ = theTemplate.qscale();
-          rQmQtF_ = theTemplate.r_qMeas_qTrue();
+	  if(notInPCL_){
+	    // fill the template from the store (from dqmBeginRun)
+	    SiPixelTemplate theTemplate(thePixelTemp_);
+
+	    float locBx = (cotbeta < 0.) ? -1 : 1.;
+	    float locBz = (cotalpha < 0.) ? -locBx : locBx;
+
+	    int TemplID = templateDBobject_->getTemplateID(detId);
+	    theTemplate.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
+	    qScaleF_ = theTemplate.qscale();
+	    rQmQtF_ = theTemplate.r_qMeas_qTrue();
+	  }
 
           // Surface deformation
           const auto& lp_pair = surface_deformation(topol, tsos, recHitPix);
@@ -637,13 +644,16 @@ void SiPixelLorentzAnglePCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSe
   const TrackerGeometry* geom = &iSetup.getData(geomEsToken_);
   const TrackerTopology* tTopo = &iSetup.getData(topoEsToken_);
 
-  // Initialize 1D templates
-  if (watchSiPixelTemplateRcd_.check(iSetup)) {
-    templateDBobject_ = &iSetup.getData(siPixelTemplateEsToken_);
-    if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_)) {
-      edm::LogError("SiPixelLorentzAnglePCLWorker")
+
+  if(notInPCL_){
+    // Initialize 1D templates
+    if (watchSiPixelTemplateRcd_.check(iSetup)) {
+      templateDBobject_ = &iSetup.getData(siPixelTemplateEsToken_);
+      if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_)) {
+	edm::LogError("SiPixelLorentzAnglePCLWorker")
           << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
           << (*templateDBobject_).version() << std::endl;
+      }
     }
   }
 
@@ -685,8 +695,8 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
   iBooker.setCurrentFolder(folder_);
   static constexpr double min_depth_ = -100.;
   static constexpr double max_depth_ = 400.;
-  static constexpr double min_drift_ = -1000.;
-  static constexpr double max_drift_ = 1000.;
+  static constexpr double min_drift_ = -500.;
+  static constexpr double max_drift_ = 500.;
 
   // book the mean values projections
   char name[128];
@@ -720,24 +730,24 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
       sprintf(name, "h_drift_depth_adc_layer%i_module%i", i_layer, i_module);
       sprintf(title, "depth vs drift (ADC) layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
       iHists.h_drift_depth_adc_[i_index] =
-          iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+          iBooker.book2S(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
       sprintf(name, "h_drift_depth_adc2_layer%i_module%i", i_layer, i_module);
       sprintf(
           title, "depth vs drift (ADC^{2}) layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
       iHists.h_drift_depth_adc2_[i_index] =
-          iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+          iBooker.book2S(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
       sprintf(name, "h_drift_depth_noadc_layer%i_module%i", i_layer, i_module);
       sprintf(
           title, "depth vs drift (no ADC) layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
       iHists.h_drift_depth_noadc_[i_index] =
-          iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+          iBooker.book2S(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
       sprintf(name, "h_drift_depth_layer%i_module%i", i_layer, i_module);
       sprintf(title, "depth vs drift layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
       iHists.h_drift_depth_[i_index] =
-          iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+          iBooker.book2S(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
     }
   }
 
@@ -750,26 +760,26 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
     sprintf(
         title, "depth vs drift (ADC) %s; drift [#mum]; production depth [#mum]", iHists.BPixnewmodulename_[i].c_str());
     iHists.h_drift_depth_adc_[new_index] =
-        iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+        iBooker.book2S(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
     sprintf(name, "h_BPixnew_drift_depth_adc2_%s", iHists.BPixnewmodulename_[i].c_str());
     sprintf(title,
             "depth vs drift (ADC^{2}) %s; drift [#mum]; production depth [#mum]",
             iHists.BPixnewmodulename_[i].c_str());
     iHists.h_drift_depth_adc2_[new_index] =
-        iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+        iBooker.book2S(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
     sprintf(name, "h_BPixnew_drift_depth_noadc_%s", iHists.BPixnewmodulename_[i].c_str());
     sprintf(title,
             "depth vs drift (no ADC)%s; drift [#mum]; production depth [#mum]",
             iHists.BPixnewmodulename_[i].c_str());
     iHists.h_drift_depth_noadc_[new_index] =
-        iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+        iBooker.book2S(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
     sprintf(name, "h_BPixnew_drift_depth_%s", iHists.BPixnewmodulename_[i].c_str());
     sprintf(title, "depth vs drift %s; drift [#mum]; production depth [#mum]", iHists.BPixnewmodulename_[i].c_str());
     iHists.h_drift_depth_[new_index] =
-        iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
+        iBooker.book2S(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
   }
 
   // book the track monitoring plots
@@ -845,7 +855,7 @@ void SiPixelLorentzAnglePCLWorker::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("clustChargeMaxPerLength", 50000)
       ->setComment("maximum cluster charge per unit length of pixel depth (z)");
   desc.add<int>("binsDepth", 50)->setComment("# bins for electron production depth axis");
-  desc.add<int>("binsDrift", 200)->setComment("# bins for electron drift axis");
+  desc.add<int>("binsDrift", 100)->setComment("# bins for electron drift axis");
   descriptions.addWithDefaultLabel(desc);
 }
 
