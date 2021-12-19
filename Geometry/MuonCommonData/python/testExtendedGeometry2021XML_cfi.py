@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# This config was generated automatically using generate2021Geometry.py
-# If you notice a mistake, please update the generating script, not just this config
-
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
         'Geometry/CMSCommonData/data/materials/2021/v3/materials.xml',
@@ -244,7 +241,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
         'Geometry/MuonCommonData/data/muonYoke/2021/v5/muonYoke.xml',
         'Geometry/MuonCommonData/data/mf/2021/v3/mf.xml',
-        'Geometry/MuonCommonData/data/rpcf/2015/v1/rpcf.xml',
+        'Geometry/MuonCommonData/data/rpcf/2021/v1/rpcf.xml',
         'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
         'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
         'Geometry/MuonCommonData/data/gem21/2021/v1/gem21.xml',
@@ -252,7 +249,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MuonCommonData/data/mfshield/2017/v2/mfshield.xml',
     )+
     cms.vstring(
-        'Geometry/MuonCommonData/data/muonNumbering/2021/v4/muonNumbering.xml',
+        'Geometry/MuonCommonData/data/muonNumbering/2021/v5/muonNumbering.xml',
         'Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml',
         'Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml',
         'Geometry/ForwardCommonData/data/forwardshield/2021/v1/forwardshield.xml',
@@ -360,11 +357,11 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HcalSimData/data/hfpmt.xml',
         'Geometry/HcalSimData/data/hffibrebundle.xml',
         'Geometry/HcalSimData/data/CaloUtil/2021/v1/CaloUtil.xml',
-        'Geometry/MuonSimData/data/v3/muonSens.xml',
+        'Geometry/MuonSimData/data/muonSens/2021/v4/muonSens.xml',
         'Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml',
         'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
         'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
-        'Geometry/RPCGeometryBuilder/data/RPCSpecs.xml',
+        'Geometry/RPCGeometryBuilder/data/2021/v1/RPCSpecs.xml',
         'Geometry/GEMGeometryBuilder/data/GEMSpecsFilter/2021/v2/GEMSpecsFilter.xml',
         'Geometry/GEMGeometryBuilder/data/GEMSpecs/2021/v2/GEMSpecs.xml',
         'Geometry/ForwardCommonData/data/brmsens.xml',
