@@ -20,55 +20,55 @@ void L1TdeCSCTPGShower::bookHistograms(DQMStore::IBooker& iBooker, const edm::Ru
   // 2D summary plots
   lctShowerDataNomSummary_denom_ =
       iBooker.book2D("lct_cscshower_data_nom_summary_denom", "Data LCT Nominal Only Shower All", 36, 1, 37, 18, 0, 18);
-  lctShowerDataNomSummary_num_ =
-      iBooker.book2D("lct_cscshower_data_nom_summary_num", "Data LCT Nominal Only Shower Emul Matched", 36, 1, 37, 18, 0, 18);
-  alctShowerDataNomSummary_denom_ =
-      iBooker.book2D("alct_cscshower_data_nom_summary_denom", "Data ALCT Nominal Only Shower All", 36, 1, 37, 18, 0, 18);
-  alctShowerDataNomSummary_num_ =
-      iBooker.book2D("alct_cscshower_data_nom_summary_num", "Data ALCT Nominal Only Shower Emul Matched", 36, 1, 37, 18, 0, 18);
-  clctShowerDataNomSummary_denom_ =
-      iBooker.book2D("clct_cscshower_data_nom_summary_denom", "Data CLCT Nominal Only Shower All", 36, 1, 37, 18, 0, 18);
-  clctShowerDataNomSummary_num_ =
-      iBooker.book2D("clct_cscshower_data_nom_summary_num", "Data CLCT Nominal Only Shower Emul Matched", 36, 1, 37, 18, 0, 18);
+  lctShowerDataNomSummary_num_ = iBooker.book2D(
+      "lct_cscshower_data_nom_summary_num", "Data LCT Nominal Only Shower Emul Matched", 36, 1, 37, 18, 0, 18);
+  alctShowerDataNomSummary_denom_ = iBooker.book2D(
+      "alct_cscshower_data_nom_summary_denom", "Data ALCT Nominal Only Shower All", 36, 1, 37, 18, 0, 18);
+  alctShowerDataNomSummary_num_ = iBooker.book2D(
+      "alct_cscshower_data_nom_summary_num", "Data ALCT Nominal Only Shower Emul Matched", 36, 1, 37, 18, 0, 18);
+  clctShowerDataNomSummary_denom_ = iBooker.book2D(
+      "clct_cscshower_data_nom_summary_denom", "Data CLCT Nominal Only Shower All", 36, 1, 37, 18, 0, 18);
+  clctShowerDataNomSummary_num_ = iBooker.book2D(
+      "clct_cscshower_data_nom_summary_num", "Data CLCT Nominal Only Shower Emul Matched", 36, 1, 37, 18, 0, 18);
 
   lctShowerEmulNomSummary_denom_ =
       iBooker.book2D("lct_cscshower_emul_nom_summary_denom", "Emul LCT Nominal Only Shower All", 36, 1, 37, 18, 0, 18);
-  lctShowerEmulNomSummary_num_ =
-      iBooker.book2D("lct_cscshower_emul_nom_summary_num", "Emul LCT Nominal Only Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
-  alctShowerEmulNomSummary_denom_ =
-      iBooker.book2D("alct_cscshower_emul_nom_summary_denom", "Emul ALCT Nominal Only Shower All", 36, 1, 37, 18, 0, 18);
-  alctShowerEmulNomSummary_num_ =
-      iBooker.book2D("alct_cscshower_emul_nom_summary_num", "Emul ALCT Nominal Only Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
-  clctShowerEmulNomSummary_denom_ =
-      iBooker.book2D("clct_cscshower_emul_nom_summary_denom", "Emul CLCT Nominal Only Shower All", 36, 1, 37, 18, 0, 18);
-  clctShowerEmulNomSummary_num_ =
-      iBooker.book2D("clct_cscshower_emul_nom_summary_num", "Emul CLCT Nominal Only Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
+  lctShowerEmulNomSummary_num_ = iBooker.book2D(
+      "lct_cscshower_emul_nom_summary_num", "Emul LCT Nominal Only Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
+  alctShowerEmulNomSummary_denom_ = iBooker.book2D(
+      "alct_cscshower_emul_nom_summary_denom", "Emul ALCT Nominal Only Shower All", 36, 1, 37, 18, 0, 18);
+  alctShowerEmulNomSummary_num_ = iBooker.book2D(
+      "alct_cscshower_emul_nom_summary_num", "Emul ALCT Nominal Only Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
+  clctShowerEmulNomSummary_denom_ = iBooker.book2D(
+      "clct_cscshower_emul_nom_summary_denom", "Emul CLCT Nominal Only Shower All", 36, 1, 37, 18, 0, 18);
+  clctShowerEmulNomSummary_num_ = iBooker.book2D(
+      "clct_cscshower_emul_nom_summary_num", "Emul CLCT Nominal Only Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
 
   lctShowerDataTightSummary_denom_ =
       iBooker.book2D("lct_cscshower_data_tight_summary_denom", "Data LCT Tight Shower All", 36, 1, 37, 18, 0, 18);
-  lctShowerDataTightSummary_num_ =
-      iBooker.book2D("lct_cscshower_data_tight_summary_num", "Data LCT Tight Shower Emul Matched", 36, 1, 37, 18, 0, 18);
+  lctShowerDataTightSummary_num_ = iBooker.book2D(
+      "lct_cscshower_data_tight_summary_num", "Data LCT Tight Shower Emul Matched", 36, 1, 37, 18, 0, 18);
   alctShowerDataTightSummary_denom_ =
       iBooker.book2D("alct_cscshower_data_tight_summary_denom", "Data ALCT Tight Shower All", 36, 1, 37, 18, 0, 18);
-  alctShowerDataTightSummary_num_ =
-      iBooker.book2D("alct_cscshower_data_tight_summary_num", "Data ALCT Tight Shower Emul Matched", 36, 1, 37, 18, 0, 18);
+  alctShowerDataTightSummary_num_ = iBooker.book2D(
+      "alct_cscshower_data_tight_summary_num", "Data ALCT Tight Shower Emul Matched", 36, 1, 37, 18, 0, 18);
   clctShowerDataTightSummary_denom_ =
       iBooker.book2D("clct_cscshower_data_tight_summary_denom", "Data CLCT Tight Shower All", 36, 1, 37, 18, 0, 18);
-  clctShowerDataTightSummary_num_ =
-      iBooker.book2D("clct_cscshower_data_tight_summary_num", "Data CLCT Tight Shower Emul Matched", 36, 1, 37, 18, 0, 18);
+  clctShowerDataTightSummary_num_ = iBooker.book2D(
+      "clct_cscshower_data_tight_summary_num", "Data CLCT Tight Shower Emul Matched", 36, 1, 37, 18, 0, 18);
 
   lctShowerEmulTightSummary_denom_ =
       iBooker.book2D("lct_cscshower_emul_tight_summary_denom", "Emul LCT Tight Shower All", 36, 1, 37, 18, 0, 18);
-  lctShowerEmulTightSummary_num_ =
-      iBooker.book2D("lct_cscshower_emul_tight_summary_num", "Emul LCT Tight Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
+  lctShowerEmulTightSummary_num_ = iBooker.book2D(
+      "lct_cscshower_emul_tight_summary_num", "Emul LCT Tight Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
   alctShowerEmulTightSummary_denom_ =
       iBooker.book2D("alct_cscshower_emul_tight_summary_denom", "Emul ALCT Tight Shower All", 36, 1, 37, 18, 0, 18);
-  alctShowerEmulTightSummary_num_ =
-      iBooker.book2D("alct_cscshower_emul_tight_summary_num", "Emul ALCT Tight Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
+  alctShowerEmulTightSummary_num_ = iBooker.book2D(
+      "alct_cscshower_emul_tight_summary_num", "Emul ALCT Tight Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
   clctShowerEmulTightSummary_denom_ =
       iBooker.book2D("clct_cscshower_emul_tight_summary_denom", "Emul CLCT Tight Shower All", 36, 1, 37, 18, 0, 18);
-  clctShowerEmulTightSummary_num_ =
-      iBooker.book2D("clct_cscshower_emul_tight_summary_num", "Emul CLCT Tight Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
+  clctShowerEmulTightSummary_num_ = iBooker.book2D(
+      "clct_cscshower_emul_tight_summary_num", "Emul CLCT Tight Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
 
   // x labels
   lctShowerDataNomSummary_denom_->setAxisTitle("Chamber", 1);
@@ -264,8 +264,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                     alctShowerDataTightSummary_denom_->Fill(chamber * 2, sr, 0.5);
                   } else
                     alctShowerDataTightSummary_denom_->Fill(chamber, sr);
-                }
-                else {
+                } else {
                   if (chamber20) {
                     alctShowerDataNomSummary_denom_->Fill(chamber * 2 - 1, sr, 0.5);
                     alctShowerDataNomSummary_denom_->Fill(chamber * 2, sr, 0.5);
@@ -281,8 +280,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                         alctShowerDataTightSummary_num_->Fill(chamber * 2, sr, 0.5);
                       } else
                         alctShowerDataTightSummary_num_->Fill(chamber, sr);
-                    }
-                    else {
+                    } else {
                       if (chamber20) {
                         alctShowerDataNomSummary_num_->Fill(chamber * 2 - 1, sr, 0.5);
                         alctShowerDataNomSummary_num_->Fill(chamber * 2, sr, 0.5);
@@ -292,7 +290,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                   }
                 }
               }
-            } // End of for (auto dalct = range_dataALCT.first; dalct != range_dataALCT.second; dalct++)
+            }  // End of for (auto dalct = range_dataALCT.first; dalct != range_dataALCT.second; dalct++)
 
             for (auto ealct = range_emulALCT.first; ealct != range_emulALCT.second; ealct++) {
               bool isMatched = false;
@@ -303,8 +301,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                     alctShowerEmulTightSummary_denom_->Fill(chamber * 2, sr, 0.5);
                   } else
                     alctShowerEmulTightSummary_denom_->Fill(chamber, sr);
-                }
-                else {
+                } else {
                   if (chamber20) {
                     alctShowerEmulNomSummary_denom_->Fill(chamber * 2 - 1, sr, 0.5);
                     alctShowerEmulNomSummary_denom_->Fill(chamber * 2, sr, 0.5);
@@ -325,8 +322,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                       alctShowerEmulTightSummary_num_->Fill(chamber * 2, sr, 0.5);
                     } else
                       alctShowerEmulTightSummary_num_->Fill(chamber, sr);
-                  }
-                  else {
+                  } else {
                     if (chamber20) {
                       alctShowerEmulNomSummary_num_->Fill(chamber * 2 - 1, sr, 0.5);
                       alctShowerEmulNomSummary_num_->Fill(chamber * 2, sr, 0.5);
@@ -335,7 +331,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                   }
                 }
               }
-            } // End of for (auto ealct = range_emulALCT.first; ealct != range_emulALCT.second; ealct++)
+            }  // End of for (auto ealct = range_emulALCT.first; ealct != range_emulALCT.second; ealct++)
 
             // CLCT analysis
             auto range_dataCLCT = dataCLCTshs->get(detid);
@@ -349,8 +345,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                     clctShowerDataTightSummary_denom_->Fill(chamber * 2, sr, 0.5);
                   } else
                     clctShowerDataTightSummary_denom_->Fill(chamber, sr);
-                }
-                else {
+                } else {
                   if (chamber20) {
                     clctShowerDataNomSummary_denom_->Fill(chamber * 2 - 1, sr, 0.5);
                     clctShowerDataNomSummary_denom_->Fill(chamber * 2, sr, 0.5);
@@ -360,14 +355,13 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                 // check for least one matching CLCT
                 for (auto eclct = range_emulCLCT.first; eclct != range_emulCLCT.second; eclct++) {
                   if (eclct->isValid() and areSameShowers(*dclct, *eclct)) {
-                    if (dclct->isTightInTime()) { 
+                    if (dclct->isTightInTime()) {
                       if (chamber20) {
                         clctShowerDataTightSummary_num_->Fill(chamber * 2 - 1, sr, 0.5);
                         clctShowerDataTightSummary_num_->Fill(chamber * 2, sr, 0.5);
                       } else
                         clctShowerDataTightSummary_num_->Fill(chamber, sr);
-                    }
-                    else {
+                    } else {
                       if (chamber20) {
                         clctShowerDataNomSummary_num_->Fill(chamber * 2 - 1, sr, 0.5);
                         clctShowerDataNomSummary_num_->Fill(chamber * 2, sr, 0.5);
@@ -377,7 +371,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                   }
                 }
               }
-            } // End of for (auto dclct = range_dataCLCT.first; dclct != range_dataCLCT.second; dclct++)
+            }  // End of for (auto dclct = range_dataCLCT.first; dclct != range_dataCLCT.second; dclct++)
 
             for (auto eclct = range_emulCLCT.first; eclct != range_emulCLCT.second; eclct++) {
               bool isMatched = false;
@@ -388,8 +382,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                     clctShowerEmulTightSummary_denom_->Fill(chamber * 2, sr, 0.5);
                   } else
                     clctShowerEmulTightSummary_denom_->Fill(chamber, sr);
-                }
-                else {
+                } else {
                   if (chamber20) {
                     clctShowerEmulNomSummary_denom_->Fill(chamber * 2 - 1, sr, 0.5);
                     clctShowerEmulNomSummary_denom_->Fill(chamber * 2, sr, 0.5);
@@ -410,8 +403,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                       clctShowerEmulTightSummary_num_->Fill(chamber * 2, sr, 0.5);
                     } else
                       clctShowerEmulTightSummary_num_->Fill(chamber, sr);
-                  }
-                  else {
+                  } else {
                     if (chamber20) {
                       clctShowerEmulNomSummary_num_->Fill(chamber * 2 - 1, sr, 0.5);
                       clctShowerEmulNomSummary_num_->Fill(chamber * 2, sr, 0.5);
@@ -420,7 +412,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                   }
                 }
               }
-            } // End of for (auto eclct = range_emulCLCT.first; eclct != range_emulCLCT.second; eclct++)
+            }  // End of for (auto eclct = range_emulCLCT.first; eclct != range_emulCLCT.second; eclct++)
 
             // LCT analysis
             auto range_dataLCT = dataLCTshs->get(detid);
@@ -434,8 +426,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                     lctShowerDataTightSummary_denom_->Fill(chamber * 2, sr, 0.5);
                   } else
                     lctShowerDataTightSummary_denom_->Fill(chamber, sr);
-                }
-                else {
+                } else {
                   if (chamber20) {
                     lctShowerDataNomSummary_denom_->Fill(chamber * 2 - 1, sr, 0.5);
                     lctShowerDataNomSummary_denom_->Fill(chamber * 2, sr, 0.5);
@@ -451,8 +442,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                         lctShowerDataTightSummary_num_->Fill(chamber * 2, sr, 0.5);
                       } else
                         lctShowerDataTightSummary_num_->Fill(chamber, sr);
-                    }
-                    else {
+                    } else {
                       if (chamber20) {
                         lctShowerDataNomSummary_num_->Fill(chamber * 2 - 1, sr, 0.5);
                         lctShowerDataNomSummary_num_->Fill(chamber * 2, sr, 0.5);
@@ -462,7 +452,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                   }
                 }
               }
-            } // End of for (auto dlct = range_dataLCT.first; dlct != range_dataLCT.second; dlct++)
+            }  // End of for (auto dlct = range_dataLCT.first; dlct != range_dataLCT.second; dlct++)
 
             for (auto elct = range_emulLCT.first; elct != range_emulLCT.second; elct++) {
               bool isMatched = false;
@@ -473,8 +463,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                     lctShowerEmulTightSummary_denom_->Fill(chamber * 2, sr, 0.5);
                   } else
                     lctShowerEmulTightSummary_denom_->Fill(chamber, sr);
-                }
-                else {
+                } else {
                   if (chamber20) {
                     lctShowerEmulNomSummary_denom_->Fill(chamber * 2 - 1, sr, 0.5);
                     lctShowerEmulNomSummary_denom_->Fill(chamber * 2, sr, 0.5);
@@ -495,8 +484,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                       lctShowerEmulTightSummary_num_->Fill(chamber * 2, sr, 0.5);
                     } else
                       lctShowerEmulTightSummary_num_->Fill(chamber, sr);
-                  }
-                  else {
+                  } else {
                     if (chamber20) {
                       lctShowerEmulNomSummary_num_->Fill(chamber * 2 - 1, sr, 0.5);
                       lctShowerEmulNomSummary_num_->Fill(chamber * 2, sr, 0.5);
@@ -505,7 +493,7 @@ void L1TdeCSCTPGShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
                   }
                 }
               }
-            } // End of for (auto elct = range_emulLCT.first; elct != range_emulLCT.second; elct++) {
+            }  // End of for (auto elct = range_emulLCT.first; elct != range_emulLCT.second; elct++) {
           }
         }
       }
