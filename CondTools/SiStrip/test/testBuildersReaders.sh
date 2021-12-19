@@ -2,12 +2,16 @@
 
 function die { echo $1: status $2 ; exit $2; }
 
+if [ "${SCRAM_TEST_NAME}" != "" ] ; then
+  mkdir ${SCRAM_TEST_NAME}
+  cd ${SCRAM_TEST_NAME}
+fi
 if test -f "SiStripConditionsDBFile.db"; then
     echo "cleaning the local test area"
     rm -fr SiStripConditionsDBFile.db  # builders test
     rm -fr modifiedSiStrip*.db         # miscalibrator tests
 fi
-
+pwd
 echo " testing CondTools/SiStrip"
 
 ## do the builders first (need the input db file)

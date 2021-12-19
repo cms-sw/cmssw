@@ -20,8 +20,10 @@
    <PartSelector path="//YE1.*"/>
    <PartSelector path="//YE2.*"/>
    <PartSelector path="//YE3.*"/>
-   <!-- if you want to re-stage YE4, then remove the comments around this element   <PartSelector path="//YE4.*"/>   -->
+   <PartSelector path="//YE4.*"/>
+   <PartSelector path="//MB4Shield.*"/>
    <PartSelector path="//ShieldingME4.*"/>
+   <PartSelector path="//ShieldingAnti.*"/>
    <PartSelector path="//ShieldingBoronPoly.*"/>
    <PartSelector path="//ME11SupportDisk"/>
    <Parameter name="CMSCutsRegion" value="MuonIron" eval="false"/>
@@ -54,10 +56,8 @@
   <SpecPar name="MuonSensitive_RPC">
    <!-- 10 keV for gamma/e-, 1 MeV for e+ -->
    <PartSelector path="//MB.*RPC_.*Gas.*"/>
-   <!--    <PartSelector path="//REA.*"/>  -->
    <PartSelector path="//REB.*"/>
    <PartSelector path="//REC.*"/>
-   <!--    <PartSelector path="//RED.*"/>  -->
    <PartSelector path="//REE.*"/>
    <PartSelector path="//REF.*"/>
    <!--    <PartSelector path="//REG.*"/>  -->

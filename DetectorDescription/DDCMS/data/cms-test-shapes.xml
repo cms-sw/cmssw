@@ -34,7 +34,7 @@
     <Include ref="DetectorDescription/DDCMS/data/testSolids.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/testPosParts.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/testAlgorithm.xml"/>
-    <Include ref="Geometry/CMSCommonData/data/materials/2015/v1/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v3/materials.xml"/>
   </IncludeSection>
   <PosPartSection label="">
     <PosPart copyNumber="2">
