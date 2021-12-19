@@ -31,12 +31,19 @@ private:
 
   std::string monitorDir_;
 
-  MonitorElement *lctShowerDataSummary_eff_;
-  MonitorElement *alctShowerDataSummary_eff_;
-  MonitorElement *clctShowerDataSummary_eff_;
-  MonitorElement *lctShowerEmulSummary_eff_;
-  MonitorElement *alctShowerEmulSummary_eff_;
-  MonitorElement *clctShowerEmulSummary_eff_;
+  MonitorElement *lctShowerDataNomSummary_eff_;
+  MonitorElement *alctShowerDataNomSummary_eff_;
+  MonitorElement *clctShowerDataNomSummary_eff_;
+  MonitorElement *lctShowerEmulNomSummary_eff_;
+  MonitorElement *alctShowerEmulNomSummary_eff_;
+  MonitorElement *clctShowerEmulNomSummary_eff_;
+
+  MonitorElement *lctShowerDataTightSummary_eff_;
+  MonitorElement *alctShowerDataTightSummary_eff_;
+  MonitorElement *clctShowerDataTightSummary_eff_;
+  MonitorElement *lctShowerEmulTightSummary_eff_;
+  MonitorElement *alctShowerEmulTightSummary_eff_;
+  MonitorElement *clctShowerEmulTightSummary_eff_;
 };
 
 #endif

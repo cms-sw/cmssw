@@ -28,6 +28,6 @@ l1tdeStage2EmtfOnlineDQMSeq = cms.Sequence(
     l1tdeStage2EmtfComp
 )
 
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 _run3shower_l1tdeStage2EmtfOnlineDQMSeq = l1tdeStage2EmtfOnlineDQMSeq.copy()
-run3_common.toReplaceWith(l1tdeStage2EmtfOnlineDQMSeq, cms.Sequence(_run3shower_l1tdeStage2EmtfOnlineDQMSeq + l1tdeStage2Shower))
+run3_GEM.toReplaceWith(l1tdeStage2EmtfOnlineDQMSeq, cms.Sequence(_run3shower_l1tdeStage2EmtfOnlineDQMSeq + l1tdeStage2Shower))

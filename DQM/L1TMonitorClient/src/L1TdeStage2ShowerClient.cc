@@ -33,9 +33,9 @@ void L1TdeStage2ShowerClient::book(DQMStore::IBooker &iBooker) {
   iBooker.setCurrentFolder(monitorDir_);
 
   emtfShowerDataSummary_eff_ = iBooker.book2D(
-      "emtf_shower_data_summary_eff", "Efficiency of data EMTF shower being correctly emulated", 6, 1, 7, 2, 0, 2);
+      "emtf_shower_data_summary_eff", "Efficiency of data EMTF shower being correctly emulated", 6, 1, 7, 4, 0, 4);
   emtfShowerEmulSummary_eff_ = iBooker.book2D(
-      "emtf_shower_emul_summary_eff", "Fraction of emulated EMTF shower without matching data shower", 6, 1, 7, 2, 0, 2);
+      "emtf_shower_emul_summary_eff", "Fraction of emulated EMTF shower without matching data shower", 6, 1, 7, 4, 0, 4);
 
   // x labels
   emtfShowerDataSummary_eff_->setAxisTitle("Chamber", 1);
@@ -46,10 +46,14 @@ void L1TdeStage2ShowerClient::book(DQMStore::IBooker &iBooker) {
   emtfShowerEmulSummary_eff_->setOption("colz");
 
   // y labels
-  emtfShowerDataSummary_eff_->setBinLabel(1, "ME-", 2);
-  emtfShowerEmulSummary_eff_->setBinLabel(1, "ME-", 2);
-  emtfShowerDataSummary_eff_->setBinLabel(2, "ME+", 2);
-  emtfShowerEmulSummary_eff_->setBinLabel(2, "ME+", 2);
+  emtfShowerDataSummary_eff_->setBinLabel(1, "ME- Tight", 2);
+  emtfShowerEmulSummary_eff_->setBinLabel(1, "ME- Tight", 2);
+  emtfShowerDataSummary_eff_->setBinLabel(2, "ME- Nom", 2);
+  emtfShowerEmulSummary_eff_->setBinLabel(2, "ME- Nom", 2);
+  emtfShowerDataSummary_eff_->setBinLabel(3, "ME+ Nom", 2);
+  emtfShowerEmulSummary_eff_->setBinLabel(3, "ME+ Nom", 2);
+  emtfShowerDataSummary_eff_->setBinLabel(4, "ME+ Tight", 2);
+  emtfShowerEmulSummary_eff_->setBinLabel(4, "ME+ Tight", 2);
 }
 
 void L1TdeStage2ShowerClient::processHistograms(DQMStore::IGetter &igetter) {
