@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/OffsetToBase.h"
 #include <memory>
 #include <typeinfo>
+#include <string>
 
 namespace edm {
   namespace reftobase {
