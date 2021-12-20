@@ -10,6 +10,7 @@ public:
   // Constructor and destructor.
   MultiUserHook() {}
   
+  std::vector<Pythia8::UserHooks*> hooks() const { return hooks_; }
   unsigned int nHooks() const { return hooks_.size(); }
   void addHook(Pythia8::UserHooks *hook) { hooks_.push_back(hook); }
                     

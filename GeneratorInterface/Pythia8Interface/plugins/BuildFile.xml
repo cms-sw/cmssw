@@ -10,6 +10,8 @@
 </library>
 
 <library file="SLHA*.cc" name="GeneratorInterfacePythia8SLHAReader">
-  <use name="GeneratorInterface/Pythia8Interface"/>
   <use name="root"/>
+</library>
+
+<library file="Suep*.cc" name="GeneratorInterfacePythia8SUEPHook">
 </library>
