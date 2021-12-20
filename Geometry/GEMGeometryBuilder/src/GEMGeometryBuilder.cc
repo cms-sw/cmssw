@@ -163,7 +163,8 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     }
   }
 
-  std::vector<GEMSuperChamber*> vsuperChambers(superChambers.size());
+  std::vector<GEMSuperChamber*> vsuperChambers;
+  vsuperChambers.reserve(superChambers.size());
   for (auto [k, v] : superChambers)
     vsuperChambers.push_back(v);
 
