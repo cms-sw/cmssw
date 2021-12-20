@@ -262,9 +262,6 @@
    <version ClassVersion="11" checksum="4153489469"/>
    <version ClassVersion="10" checksum="3393361159"/>
   </class>
-  <ioread sourceClass = "pat::Jet" version="[1-17]" targetClass="pat::Jet" source="" target="jerFactorValid_">
-    <![CDATA[jerFactorValid_ = false;]]>
-  </ioread>
   <ioread sourceClass = "pat::Jet" version="[1-11]" targetClass="pat::Jet" source="int partonFlavour_" target="jetFlavourInfo_">
     <![CDATA[jetFlavourInfo_ = reco::JetFlavourInfo(0,onfile.partonFlavour_);]]>
   </ioread>
