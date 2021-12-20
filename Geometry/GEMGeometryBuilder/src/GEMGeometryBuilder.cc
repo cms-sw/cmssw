@@ -70,8 +70,8 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   ;
 #endif
   // loop over superchambers
-  std::vector<GEMSuperChamber*> superChambers;
-  std::set<GEMDetId> seen;
+  std::map<GEMDetId,GEMSuperChamber*> superChambers;
+  std::map<GEMDetId,GEMDetId> seen;
   while (doSuper) {
     // getting chamber id from eta partitions
     fv.firstChild();
@@ -96,11 +96,18 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     // currently there is no superchamber in the geometry
     // only 2 chambers are present separated by a gap.
     // making superchamber out of the first chamber layer including the gap between chambers
-    if (seen.find(detIdCh.superChamberId()) ==
-        seen.end()) {  // only make a superchamber when the first chamber of the sc is seen
-      seen.insert(detIdCh.superChamberId());
+
+    // In Run 3 we also have a GE2/1 station at layer 2. We make sure
+    // the superchamber gets built but also we build on the first
+    // layer for the other stations so the superchamber is in the
+    // right position there.
+    if ((seen.find(detIdCh.superChamberId()) == seen.end()) ||
+        detIdCh.layer() < seen[detIdCh.superChamberId()].layer()) {
+      seen[detIdCh.superChamberId()] = detIdCh.chamberId();
+      if (superChambers.find(detIdCh.superChamberId()) != superChambers.end())
+        delete superChambers[detIdCh.superChamberId()];
       GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
-      superChambers.push_back(gemSuperChamber);
+      superChambers[detIdCh.superChamberId()] = gemSuperChamber;
     }
     GEMChamber* gemChamber = ((detIdCh.station() == GEMDetId::minStationId0) ? nullptr : buildChamber(fv, detIdCh));
 
@@ -156,7 +163,11 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     }
   }
 
-  buildRegions(theGeometry, superChambers);
+  std::vector<GEMSuperChamber*> vsuperChambers;
+  for (auto [k,v] : superChambers)
+    vsuperChambers.push_back(v);
+
+  buildRegions(theGeometry, vsuperChambers);
 }
 
 GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const {
