@@ -308,7 +308,7 @@ void PatternRecognitionbyCA<TILES>::mergeTrackstersTRK(
       tracksters.resize(1);
 
       // Find duplicate LCs
-      auto& orig_vtx = outTrackster.vertices();
+      auto &orig_vtx = outTrackster.vertices();
       auto vtx_sorted{orig_vtx};
       std::sort(std::begin(vtx_sorted), std::end(vtx_sorted));
       for (unsigned int iLC = 1; iLC < vtx_sorted.size(); ++iLC) {
@@ -320,7 +320,8 @@ void PatternRecognitionbyCA<TILES>::mergeTrackstersTRK(
           auto iDup = std::find(std::next(firstEl), orig_vtx.end(), lcIdx);
           while (iDup != orig_vtx.end()) {
             orig_vtx.erase(iDup);
-            outTrackster.vertex_multiplicity().erase(outTrackster.vertex_multiplicity().begin() + std::distance(std::begin(orig_vtx), iDup));
+            outTrackster.vertex_multiplicity().erase(outTrackster.vertex_multiplicity().begin() +
+                                                     std::distance(std::begin(orig_vtx), iDup));
             outTrackster.vertex_multiplicity()[firstPos] -= 1;
             iDup = std::find(std::next(firstEl), orig_vtx.end(), lcIdx);
           };

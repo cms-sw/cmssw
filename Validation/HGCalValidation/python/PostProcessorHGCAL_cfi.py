@@ -50,6 +50,7 @@ postProcessorHGCALsimclusters = DQMEDHarvester('DQMGenericClient',
 
 
 eff_tracksters = []
+# Must be in sync with labels in HGVHistoProducerAlgo.cc
 simDict = {"CaloParticle":"_Link", "SimTrackster":"_PR"}
 metrics = {"purity":["Purity","_"], "effic":["Efficiency","Eff_"], "fake":["Fake Rate","_"], "duplicate":["Duplicate(Split)","Dup_"], "merge":["Merge Rate","Merge_"]}
 variables = {"eta":["#eta",""], "phi":["#phi",""], "energy":["energy"," [GeV]"], "pt":["p_{T}"," [GeV]"]}

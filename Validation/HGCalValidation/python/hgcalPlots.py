@@ -1567,7 +1567,7 @@ _common_score = {"stat": False, "legend": False
                  ,"ymin": 0.1
                  ,"ymax": 100000
                  ,"xmin": 0
-                 ,"xmax": 1.0
+                 #,"xmax": 1.0
                  ,"drawStyle": "hist"
                  ,"lineWidth": 1
                  ,"ylog": True
@@ -1593,9 +1593,9 @@ for score in score_trackster_to:
 
 _common_shared = {"stat": False, "legend": False, "xtitle": 'Default', "ytitle": 'Default'}
 _common_shared.update(_legend_common)
-_common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d", drawStyle="COLZ", adjustMarginRight=0.1, xtitle='Default', ytitle='Default')
-_common_energy_score["ymax"] = 1.
-_common_energy_score["xmax"] = 1.0
+_common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d", drawStyle="COLZ", adjustMarginRight=0.1, legend=False, xtitle='Default', ytitle='Default')
+#_common_energy_score["ymax"] = 1.
+#_common_energy_score["xmax"] = 1.0
 
 _sharedEnergy_to_trackster = []
 _sharedEnergy_trackster_to = []
@@ -2479,7 +2479,11 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
               ], PlotFolder(
               *_trackstersToCPLinkPlots,
               loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page=tsToCP_linking.replace('TSToCP_','TICL-'), section=name_collection))
+              purpose=PlotPurpose.Timing
+              #,page=tsToCP_linking.replace('TSToCP_','TICL-')
+              ,page=tsToCP_linking.replace('TSToCP_','Test-TICL').replace('linking','')
+              ,section=name_collection)
+              )
 
   # Appending plots for Tracksters Pattern Recognition
   hgcalTrackstersPlotter.append(collection, [
