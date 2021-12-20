@@ -27,18 +27,17 @@ namespace edmtest {
   class LumiTestWriteReadAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit LumiTestWriteReadAnalyzer(edm::ParameterSet const& p);
-    explicit LumiTestWriteReadAnalyzer(int i){}
+    explicit LumiTestWriteReadAnalyzer(int i) {}
     virtual ~LumiTestWriteReadAnalyzer() {}
 
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
-    const edm::ESGetToken<BeamSpotObjects,BeamSpotObjectsRcd> m_token;
+    const edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> m_token;
   };
 
-  LumiTestWriteReadAnalyzer::LumiTestWriteReadAnalyzer(edm::ParameterSet const&):
-    m_token(esConsumes<BeamSpotObjects,BeamSpotObjectsRcd>()){
-  }
+  LumiTestWriteReadAnalyzer::LumiTestWriteReadAnalyzer(edm::ParameterSet const&)
+      : m_token(esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>()) {}
 
   void LumiTestWriteReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
     static constexpr const char* const MSGSOURCE = "LumiTestWriteReadAnalyzer:";

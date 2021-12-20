@@ -123,7 +123,6 @@ namespace cond {
       // throws if the target time cannot be found.
       cond::Iov_t getInterval(cond::Time_t time);
 
-      //
       std::tuple<std::string, boost::posix_time::ptime, boost::posix_time::ptime> getMetadata() const;
 
       // loads in memory the tag information and the iov groups

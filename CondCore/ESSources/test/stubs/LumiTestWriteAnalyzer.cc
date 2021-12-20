@@ -27,13 +27,12 @@ using namespace std;
 namespace edmtest {
   class LumiTestWriteAnalyzer : public edm::one::EDAnalyzer<> {
   public:
-    explicit LumiTestWriteAnalyzer(edm::ParameterSet const& p):
-      m_connectionString(p.getUntrackedParameter<std::string>("connectionString")),
-      m_tagName(p.getUntrackedParameter<std::string>("tagName")),
-      m_run(p.getUntrackedParameter<unsigned int>("runNumber")),
-      m_NLumi(p.getUntrackedParameter<unsigned int>("numberOfLumis")),
-      m_iovSize(p.getUntrackedParameter<unsigned int>("iovSize")){
-    }
+    explicit LumiTestWriteAnalyzer(edm::ParameterSet const& p)
+        : m_connectionString(p.getUntrackedParameter<std::string>("connectionString")),
+          m_tagName(p.getUntrackedParameter<std::string>("tagName")),
+          m_run(p.getUntrackedParameter<unsigned int>("runNumber")),
+          m_NLumi(p.getUntrackedParameter<unsigned int>("numberOfLumis")),
+          m_iovSize(p.getUntrackedParameter<unsigned int>("iovSize")) {}
     explicit LumiTestWriteAnalyzer(int i) {}
     virtual ~LumiTestWriteAnalyzer() {}
     virtual void beginJob() override;
@@ -47,7 +46,7 @@ namespace edmtest {
     unsigned int m_iovSize;
   };
 
-  void LumiTestWriteAnalyzer::beginJob() { 
+  void LumiTestWriteAnalyzer::beginJob() {
     cond::persistency::ConnectionPool pool;
     pool.setMessageVerbosity(coral::Debug);
     auto session = pool.createSession(m_connectionString, true);
@@ -59,15 +58,15 @@ namespace edmtest {
     } else {
       editor = session.editIov(m_tagName);
     }
-    size_t i=0;
-    for(size_t lumiId=1; lumiId<m_NLumi; lumiId+=m_iovSize){
+    size_t i = 0;
+    for (size_t lumiId = 1; lumiId < m_NLumi; lumiId += m_iovSize) {
       BeamSpotObjects mybeamspot;
       mybeamspot.setPosition(0.053, 0.1, 0.13);
-      mybeamspot.setSigmaZ(3.8+i);
+      mybeamspot.setSigmaZ(3.8 + i);
       mybeamspot.setType(int(lumiId));
       auto payloadId = session.storePayload(mybeamspot);
-      auto since = cond::time::lumiTime(m_run,lumiId);
-      editor.insert(since,payloadId);
+      auto since = cond::time::lumiTime(m_run, lumiId);
+      editor.insert(since, payloadId);
       i++;
     }
     editor.flush();
