@@ -2,16 +2,10 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -36,17 +30,23 @@ MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p) {
   }
 }
 
-void MaterialBudgetHcal::update(const BeginOfJob* job) {
+void MaterialBudgetHcal::registerConsumes(edm::ConsumesCollector cc) {
+  if (fromdd4hep_)
+    cpvTokenDD4hep_ = cc.esConsumes<edm::Transition::BeginRun>();
+  else
+    cpvTokenDDD_ = cc.esConsumes<edm::Transition::BeginRun>();
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcal: Initialize the token for CompactView";
+}
+
+void MaterialBudgetHcal::beginRun(edm::EventSetup const& es) {
   //----- Check that selected volumes are indeed part of the geometry
   // Numbering From DDD
   if (fromdd4hep_) {
-    edm::ESTransientHandle<cms::DDCompactView> pDD;
-    (*job)()->get<IdealGeometryRecord>().get(pDD);
+    const auto& pDD = es.getHandle(cpvTokenDD4hep_);
     if (theHistoHcal_)
       theHistoHcal_->fillBeginJob((*pDD));
   } else {
-    edm::ESTransientHandle<DDCompactView> pDD;
-    (*job)()->get<IdealGeometryRecord>().get(pDD);
+    const auto& pDD = es.getHandle(cpvTokenDDD_);
     if (theHistoHcal_)
       theHistoHcal_->fillBeginJob((*pDD));
   }
