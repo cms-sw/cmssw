@@ -93,7 +93,8 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     else
       fEn = CLHEP::RandFlat::shoot(engine, fEnMin, fEnMax);
 
-    int PartID = CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size());
+    int partIdx = CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size());
+    int PartID = fPartIDs[partIdx];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
     double mass = PData->mass().value();
     double mom2 = fEn * fEn - mass * mass;
