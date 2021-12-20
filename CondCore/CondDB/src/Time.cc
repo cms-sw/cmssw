@@ -37,7 +37,7 @@ namespace cond {
       if (timeType != (TimeType)TIMESTAMP) {
         return nextSince - 1;
       } else {
-        UnpackedTime unpackedTime = unpack(nextSince);
+        auto unpackedTime = unpack(nextSince);
         //number of seconds in nanoseconds (avoid multiply and divide by 1e09)
         Time_t totalSecondsInNanoseconds = ((Time_t)unpackedTime.first) * 1000000000;
         //total number of nanoseconds
@@ -48,6 +48,18 @@ namespace cond {
         unpackedTime.first = (unsigned int)(totalNanoseconds / 1000000000);
         unpackedTime.second = (unsigned int)(totalNanoseconds - (Time_t)unpackedTime.first * 1000000000);
         return pack(unpackedTime);
+      }
+    }
+
+    Time_t tillTimeForIOV(Time_t since, unsigned int iovSize, TimeType timeType) {
+      if (since == time::MAX_VAL)
+        return time::MAX_VAL;
+      if (timeType != (TimeType)TIMESTAMP) {
+        return since + iovSize - 1;
+      } else {
+        auto unpackedTime = unpack(since);
+        unpackedTime.first = unpackedTime.first + iovSize;
+        return tillTimeFromNextSince(pack(unpackedTime), timeType);
       }
     }
 
