@@ -249,6 +249,7 @@ void Jet::scaleEnergy(double fScale, const std::string& level) {
   if (jecSetsAvailable()) {
     std::vector<float> factors = {float(jec_[0].correction(0, JetCorrFactors::NONE) / fScale)};
     jec_[0].insertFactor(0, std::make_pair(level, factors));
+    ++currentJECLevel_;
   }
   setP4(p4() * fScale);
 }
