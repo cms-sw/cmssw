@@ -196,22 +196,22 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   for (int i = 0; i < (int)hists.BPixnewDetIds_.size(); i++) {
     int new_index = i + 1 + hists.nModules_[hists.nlay - 1] + (hists.nlay - 1) * hists.nModules_[hists.nlay - 1];
 
-    hists.h_drift_depth_adc_[new_index] = iGetter.get(
+    hists.h_drift_depth_[new_index] = iGetter.get(
         fmt::format("{}/h_BPixnew_drift_depth_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
 
-    if (hists.h_drift_depth_adc_[new_index] == nullptr) {
+    if (hists.h_drift_depth_[new_index] == nullptr) {
       edm::LogError("SiPixelLorentzAnglePCLHarvester::dqmEndJob")
           << "Failed to retrieve electron drift over depth for new module " << hists.BPixnewmodulename_[i] << ".";
       continue;
     }
 
-    hists.h_drift_depth_adc2_[new_index] = iGetter.get(
+    hists.h_drift_depth_adc_[new_index] = iGetter.get(
         fmt::format("{}/h_BPixnew_drift_depth_adc_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
 
-    hists.h_drift_depth_noadc_[new_index] = iGetter.get(
+    hists.h_drift_depth_adc2_[new_index] = iGetter.get(
         fmt::format("{}/h_BPixnew_drift_depth_adc2_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
 
-    hists.h_drift_depth_[new_index] = iGetter.get(
+    hists.h_drift_depth_noadc_[new_index] = iGetter.get(
         fmt::format("{}/h_BPixnew_drift_depth_noadc_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
 
     hists.h_mean_[new_index] = iGetter.get(fmt::format("{}/h_BPixnew_mean_{}", dqmDir_, hists.BPixnewmodulename_[i]));
@@ -231,10 +231,10 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     min_drift_ = hists.h_drift_depth_adc_[1]->getAxisMin(1);
     max_drift_ = hists.h_drift_depth_adc_[1]->getAxisMax(1);
   } else {
-    hist_drift_ = 200;
+    hist_drift_ = 100;
     hist_depth_ = 50;
-    min_drift_ = -1000.;
-    max_drift_ = 1000.;
+    min_drift_ = -500.;
+    max_drift_ = 500.;
   }
 
   iBooker.setCurrentFolder("AlCaReco/SiPixelLorentzAngleHarvesting/");
