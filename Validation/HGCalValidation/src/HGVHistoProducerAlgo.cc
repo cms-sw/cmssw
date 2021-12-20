@@ -2422,25 +2422,20 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(const Histograms& histogr
   //1. the sum of all rechits energy times fraction of the relevant simhit in layer j related to that calo particle i.
   //2. the hits and fractions of that calo particle i in layer j.
   //3. the layer clusters with matched rechit id.
-  std::unordered_map<int, std::vector<caloParticleOnLayer>> cPOnLayer;
-  std::unordered_map<int, std::vector<std::vector<caloParticleOnLayer>>> sCOnLayer;
+  std::unordered_map<int, caloParticleOnLayer> cPOnLayer;
+  std::unordered_map<int, std::vector<caloParticleOnLayer>> sCOnLayer;
   //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
   for (const auto cpIndex : cPIndices) {
-    cPOnLayer[cpIndex].resize(layers * 2);
-    const auto nSC_inCP = cP[cpIndex].simClusters().size();
+    cPOnLayer[cpIndex].caloParticleId = cpIndex;
+    cPOnLayer[cpIndex].energy = 0.f;
+    cPOnLayer[cpIndex].hits_and_fractions.clear();
+    //const auto nSC_inCP = cP[cpIndex].simClusters().size();
+    const auto nSC_inCP = sC.size();
     sCOnLayer[cpIndex].resize(nSC_inCP);
     for (unsigned int iSC=0; iSC<nSC_inCP; iSC++) {
-      sCOnLayer[cpIndex][iSC].resize(layers * 2);
-      for (unsigned int j = 0; j < layers * 2; ++j) {
-        if (iSC == 0) {
-          cPOnLayer[cpIndex][j].caloParticleId = cpIndex;
-          cPOnLayer[cpIndex][j].energy = 0.f;
-          cPOnLayer[cpIndex][j].hits_and_fractions.clear();
-        }
-        sCOnLayer[cpIndex][iSC][j].caloParticleId = cpIndex;
-        sCOnLayer[cpIndex][iSC][j].energy = 0.f;
-        sCOnLayer[cpIndex][iSC][j].hits_and_fractions.clear();
-      }
+      sCOnLayer[cpIndex][iSC].caloParticleId = cpIndex;
+      sCOnLayer[cpIndex][iSC].energy = 0.f;
+      sCOnLayer[cpIndex][iSC].hits_and_fractions.clear();
     }
   }
 
@@ -2475,7 +2470,6 @@ return v.first == hitid; });
     return lcId;
   };
 
-
   for (unsigned int iSTS = 0; iSTS < nSimTracksters; ++iSTS) {
     const auto cpId = getCPId(simTSs[iSTS], iSTS, cPHandle_id, cpToSc_SimTrackstersMap, simTSs_fromCP);
     if (std::find(cPIndices.begin(), cPIndices.end(), cpId) == cPIndices.end())
@@ -2495,9 +2489,9 @@ return v.first == hitid; });
         const auto lcId = getLCId(simTSs[iSTS].vertices(), layerClusters, hitid);
         //V9:maps the layers in -z: 0->51 and in +z: 52->103
         //V10:maps the layers in -z: 0->49 and in +z: 50->99
-        const auto hitLayerId =
+        //const auto hitLayerId =
             //recHitTools_->getLayerWithOffset(hitid) + layers * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
-            0;
+            //0;
         const auto itcheck = hitMap.find(hitid);
         //Checks whether the current hit belonging to sim cluster has a reconstructed hit.
         if ((i == 0  &&  itcheck != hitMap.end())  ||  (i == 1  &&  int(lcId) >= 0)) {
@@ -2529,15 +2523,15 @@ return v.first == hitid; });
           //Since the current hit from sim cluster has a reconstructed hit with the same detid,
           //fill the cPOnLayer[caloparticle][layer] object with energy (sum of all rechits energy times fraction
           //of the relevant simhit) and keep the hit (detid and fraction) that contributed.
-          cPOnLayer[cpId][hitLayerId].energy += it_haf.second * hitEn;
-          sCOnLayer[cpId][iSim][hitLayerId].energy += lcFraction * hitEn;
+          cPOnLayer[cpId].energy += it_haf.second * hitEn;
+          sCOnLayer[cpId][iSim].energy += lcFraction * hitEn;
           // Need to compress the hits and fractions in order to have a
           // reasonable score between CP and LC. Imagine, for example, that a
           // CP has detID X used by 2 SimClusters with different fractions. If
           // a single LC uses X with fraction 1 and is compared to the 2
           // contributions separately, it will be assigned a score != 0, which
           // is wrong.
-          auto& haf = cPOnLayer[cpId][hitLayerId].hits_and_fractions;
+          auto& haf = cPOnLayer[cpId].hits_and_fractions;
           auto found = std::find_if(
               std::begin(haf), std::end(haf), [&hitid](const std::pair<DetId, float>& v) { return v.first == hitid; });
           if (found != haf.end())
@@ -2545,7 +2539,7 @@ return v.first == hitid; });
           else
             haf.emplace_back(hitid, it_haf.second);
           // Same for sCOnLayer
-          auto& haf_sc = sCOnLayer[cpId][iSim][hitLayerId].hits_and_fractions;
+          auto& haf_sc = sCOnLayer[cpId][iSim].hits_and_fractions;
           auto found_sc = std::find_if(
               std::begin(haf_sc), std::end(haf_sc), [&hitid](const std::pair<DetId, float>& v) { return v.first == hitid; });
           if (found_sc != haf_sc.end())
@@ -2672,9 +2666,9 @@ return v.first == hitid; });
       } else {
         // Since the hit is belonging to the layer cluster, it must be also in the rechits map
         const auto hitEn = hitMap.find(rh_detid)->second->energy();
-        const auto layerId =
+        //const auto layerId =
             //recHitTools_->getLayerWithOffset(rh_detid) + layers * ((recHitTools_->zside(rh_detid) + 1) >> 1) - 1;
-            0;
+            //0;
 
         auto maxCPEnergyInTS = 0.f;
         auto maxCPId = -1;
@@ -2697,10 +2691,10 @@ return v.first == hitid; });
           CPEnergyInTS[cpId] += shared_fraction * hitEn;
           //Here cPOnLayer[caloparticle][layer] describe above is set.
           //Here for Tracksters with matched rechit the CP fraction times hit energy is added and saved .
-          cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore[tstId].first += shared_fraction * hitEn;
-          sCOnLayer[cpId][iSim][layerId].layerClusterIdToEnergyAndScore[tstId].first += shared_fraction * hitEn;
-          cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore[tstId].second = FLT_MAX;
-          sCOnLayer[cpId][iSim][layerId].layerClusterIdToEnergyAndScore[tstId].second = FLT_MAX;
+          cPOnLayer[cpId].layerClusterIdToEnergyAndScore[tstId].first += shared_fraction * hitEn;
+          sCOnLayer[cpId][iSim].layerClusterIdToEnergyAndScore[tstId].first += shared_fraction * hitEn;
+          cPOnLayer[cpId].layerClusterIdToEnergyAndScore[tstId].second = FLT_MAX;
+          sCOnLayer[cpId][iSim].layerClusterIdToEnergyAndScore[tstId].second = FLT_MAX;
           //stsInTrackster[trackster][STSids]
           //Connects a Trackster with all related SimTracksters.
           stsInTrackster[tstId].emplace_back(iSTS, FLT_MAX);
@@ -2747,9 +2741,9 @@ return v.first == hitid; });
     float totalCPEnergyFromLayerCP = 0.f;
     if (maxCPId_byEnergy >= 0) {
       //Loop through all layers
-      for (unsigned int j = 0; j < layers * 2; ++j) {
-        totalCPEnergyFromLayerCP = totalCPEnergyFromLayerCP + cPOnLayer[maxCPId_byEnergy][j].energy;
-      }
+      //for (unsigned int j = 0; j < layers * 2; ++j) {
+        totalCPEnergyFromLayerCP += cPOnLayer[maxCPId_byEnergy].energy;
+      //}
       energyFractionOfCPinTS = maxEnergySharedTSandCP / totalCPEnergyFromLayerCP;
       if (tst.raw_energy() > 0.f) {
         energyFractionOfTSinCP = maxEnergySharedTSandCP / tst.raw_energy();
@@ -2888,8 +2882,8 @@ return v.first == hitid; });
       const auto& simOnLayer = (i == 0) ? cPOnLayer[cpId] : sCOnLayer[cpId][iSim];
 
       float sharedeneCPallLayers = 0.;
-      for (unsigned int j = 0; j < layers * 2; ++j)
-        sharedeneCPallLayers += simOnLayer[j].layerClusterIdToEnergyAndScore.count(tstId) ? simOnLayer[j].layerClusterIdToEnergyAndScore.at(tstId).first : 0;
+      //for (unsigned int j = 0; j < layers * 2; ++j)
+        sharedeneCPallLayers += simOnLayer.layerClusterIdToEnergyAndScore.count(tstId) ? simOnLayer.layerClusterIdToEnergyAndScore.at(tstId).first : 0;
       if (tracksterEnergy == 0) continue;
       const auto sharedEneFrac = sharedeneCPallLayers / tracksterEnergy;
       LogDebug("HGCalValidator") << "\nTrackster id: " << tstId << " (" << tst.vertices().size() << " vertices)" << "\tSimTrackster Id: " << iSTS << " (" << simTSs[iSTS].vertices().size() << " vertices)" << " (CP id: " << cpId << ")\tscore: " << iScore << "\tsharedeneCPallLayers: " << sharedeneCPallLayers << std::endl;
@@ -2963,17 +2957,17 @@ return v.first == hitid; });
 
     float SimEnergy = 0.f;
     float SimEnergyWeight = 0.f, hitsEnergyWeight = 0.f;
-    for (unsigned int layerId = 0; layerId < 1/*layers * 2*/; ++layerId) {
-      const auto SimNumberOfHits = simOnLayer[layerId].hits_and_fractions.size();
+    //for (unsigned int layerId = 0; layerId < 1/*layers * 2*/; ++layerId) {
+      const auto SimNumberOfHits = simOnLayer.hits_and_fractions.size();
       if (SimNumberOfHits == 0)
         continue;
-      SimEnergy += simOnLayer[layerId].energy;
+      SimEnergy += simOnLayer.energy;
       int tstWithMaxEnergyInCP = -1;
       //This is the maximum energy related to Trackster per layer.
       float maxEnergyTSperlayerinSim = 0.f;
       float SimEnergyFractionInTSperlayer = 0.f;
       //Remember and not confused by name. layerClusterIdToEnergyAndScore contains the Trackster id.
-      for (const auto& tst : simOnLayer[layerId].layerClusterIdToEnergyAndScore) {
+      for (const auto& tst : simOnLayer.layerClusterIdToEnergyAndScore) {
         if (tst.second.first > maxEnergyTSperlayerinSim) {
           maxEnergyTSperlayerinSim = tst.second.first;
           tstWithMaxEnergyInCP = tst.first;
@@ -2982,24 +2976,24 @@ return v.first == hitid; });
       if (SimEnergy > 0.f)
         SimEnergyFractionInTSperlayer = maxEnergyTSperlayerinSim / SimEnergy;
 
-      LogDebug("HGCalValidator") << std::setw(8) << "LayerId:\t" << std::setw(12) << "caloparticle\t" << std::setw(15)
+      LogDebug("HGCalValidator") << std::setw(12) << "caloparticle\t" << std::setw(15)
                                  << "cp total energy\t" << std::setw(15) << "cpEnergyOnLayer\t" << std::setw(14)
                                  << "CPNhitsOnLayer\t" << std::setw(18) << "tstWithMaxEnergyInCP\t" << std::setw(15)
                                  << "maxEnergyTSinCP\t" << std::setw(20) << "CPEnergyFractionInTS"
                                  << "\n";
-      LogDebug("HGCalValidator") << std::setw(8) << layerId << "\t" << std::setw(12) << cpId << "\t" << std::setw(15)
+      LogDebug("HGCalValidator") << std::setw(12) << cpId << "\t" << std::setw(15)
                                  << sts.raw_energy() << "\t" << std::setw(15) << SimEnergy << "\t"
                                  << std::setw(14) << SimNumberOfHits << "\t" << std::setw(18) << tstWithMaxEnergyInCP
                                  << "\t" << std::setw(15) << maxEnergyTSperlayerinSim << "\t" << std::setw(20)
                                  << SimEnergyFractionInTSperlayer << "\n";
 
-      for (const auto& haf : ((i==0) ? simOnLayer[layerId].hits_and_fractions : hafLC)) {
+      for (const auto& haf : ((i==0) ? simOnLayer.hits_and_fractions : hafLC)) {
         const auto& hitDetId = haf.first;
-        const auto hitLayerId =
+        //const auto hitLayerId =
             //recHitTools_->getLayerWithOffset(hitDetId) + layers * ((recHitTools_->zside(hitDetId) + 1) >> 1) - 1;
-            0;
-        if (i == 1  &&  layerId != hitLayerId)
-          continue;
+            //0;
+        //if (i > 0  &&  layerId != hitLayerId)
+          //continue;
         // Compute the correct normalization
         // Need to loop on the simOnLayer data structure since this is the
         // only one that has the compressed information for multiple usage
@@ -3024,7 +3018,7 @@ return v.first == hitid; });
         const auto hitEnergyWeight = pow(hit->energy(), 2);
         hitsEnergyWeight += pow(cpFraction, 2) * hitEnergyWeight;
 
-        for (auto& tsPair : simOnLayer[layerId].layerClusterIdToEnergyAndScore) {
+        for (auto& tsPair : simOnLayer.layerClusterIdToEnergyAndScore) {
           const auto tstId = tsPair.first;
           stsId_tstId_related.insert(tstId);
 
@@ -3054,7 +3048,7 @@ return v.first == hitid; });
           LogDebug("HGCalValidator") << "\nTracksterId:\t" << tstId
                                      << "\tSimTracksterId:\t" << iSTS
                                      << "\tcpId:\t" << cpId
-                                     << "\tLayer: " << layerId << '\t' << "tstfraction, cpfraction:\t" << tstFraction
+                                     << "\ttstfraction, cpfraction:\t" << tstFraction
                                      << ", " << cpFraction
                                      << "\thitEnergyWeight:\t" << hitEnergyWeight
                                      << "\tadded delta:\t"
@@ -3064,11 +3058,11 @@ return v.first == hitid; });
         }
       } // end of loop through SimCluster SimHits on current layer
 
-      if (simOnLayer[layerId].layerClusterIdToEnergyAndScore.empty())
-        LogDebug("HGCalValidator") << "CP Id:\t" << cpId << "\tTS id:\t-1 "
-                                   << "\tlayer\t" << layerId << " Sub score in \t -1\n";
+      if (simOnLayer.layerClusterIdToEnergyAndScore.empty())
+        LogDebug("HGCalValidator") << "CP Id:\t" << cpId << "\tTS id:\t-1"
+                                   << " Sub score in \t -1\n";
 
-      for (const auto& tsPair : simOnLayer[layerId].layerClusterIdToEnergyAndScore) {
+      for (const auto& tsPair : simOnLayer.layerClusterIdToEnergyAndScore) {
         const auto tstId = tsPair.first;
         // 3D score here without the denominator at this point
         if (score3d_iSTS[tstId] == FLT_MAX) {
@@ -3077,7 +3071,8 @@ return v.first == hitid; });
         score3d_iSTS[tstId] += tsPair.second.second;
         tstSharedEnergy[iSTS][tstId] += tsPair.second.first;
       }
-    } // end of loop through layers
+    //} // end of loop through layers
+
     const auto scoreDenom = (i==0) ? SimEnergyWeight : hitsEnergyWeight;
     const auto energyDenom = (i==0) ? SimEnergy : SimEnergy_LC;
 
