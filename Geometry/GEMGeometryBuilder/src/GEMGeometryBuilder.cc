@@ -70,8 +70,8 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   ;
 #endif
   // loop over superchambers
-  std::map<GEMDetId,GEMSuperChamber*> superChambers;
-  std::map<GEMDetId,GEMDetId> seen;
+  std::map<GEMDetId, GEMSuperChamber*> superChambers;
+  std::map<GEMDetId, GEMDetId> seen;
   while (doSuper) {
     // getting chamber id from eta partitions
     fv.firstChild();
@@ -163,8 +163,8 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     }
   }
 
-  std::vector<GEMSuperChamber*> vsuperChambers;
-  for (auto [k,v] : superChambers)
+  std::vector<GEMSuperChamber*> vsuperChambers(superChambers.size());
+  for (auto [k, v] : superChambers)
     vsuperChambers.push_back(v);
 
   buildRegions(theGeometry, vsuperChambers);

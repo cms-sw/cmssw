@@ -65,14 +65,16 @@ void GEMGeometryDump::analyze(const edm::Event& event, const edm::EventSetup& ev
 
         for (unsigned int k4 = 0; k4 < superChambers.size(); ++k4) {
           auto pos = superChambers[k4]->position();
-          edm::LogVerbatim("GEMGeometry") << "\nSuperChamber " << k4 << ":" << superChambers[k4]->id() << " with "
-                                          << superChambers[k4]->nChambers() << " chambers. Position: " << pos.x() << " " << pos.y() << " " << pos.z();
+          edm::LogVerbatim("GEMGeometry")
+              << "\nSuperChamber " << k4 << ":" << superChambers[k4]->id() << " with " << superChambers[k4]->nChambers()
+              << " chambers. Position: " << pos.x() << " " << pos.y() << " " << pos.z();
           auto const& chambers = superChambers[k4]->chambers();
 
           for (unsigned int k5 = 0; k5 < chambers.size(); ++k5) {
             auto pos = chambers[k5]->position();
-            edm::LogVerbatim("GEMGeometry") << "\nChamber " << k5 << ":" << chambers[k5]->id() << " with "
-                                            << chambers[k5]->nEtaPartitions() << " etaPartitions. Position: " << pos.x() << " " << pos.y() << " " << pos.z();
+            edm::LogVerbatim("GEMGeometry")
+                << "\nChamber " << k5 << ":" << chambers[k5]->id() << " with " << chambers[k5]->nEtaPartitions()
+                << " etaPartitions. Position: " << pos.x() << " " << pos.y() << " " << pos.z();
             auto const& etaPartitions = chambers[k5]->etaPartitions();
 
             for (unsigned int k6 = 0; k6 < etaPartitions.size(); ++k6) {
@@ -80,7 +82,9 @@ void GEMGeometryDump::analyze(const edm::Event& event, const edm::EventSetup& ev
               edm::LogVerbatim("GEMGeometry")
                   << "\nEtaPartition " << k6 << ":" << etaPartitions[k6]->id() << etaPartitions[k6]->type().name()
                   << " with " << etaPartitions[k6]->nstrips() << " strips of pitch " << etaPartitions[k6]->pitch()
-                  << " and " << etaPartitions[k6]->npads() << " pads of pitch " << etaPartitions[k6]->padPitch() << ". Position: " << pos.x() << " " << pos.y() << " " << pos.z();;
+                  << " and " << etaPartitions[k6]->npads() << " pads of pitch " << etaPartitions[k6]->padPitch()
+                  << ". Position: " << pos.x() << " " << pos.y() << " " << pos.z();
+              ;
               if (verbose_) {
                 for (int k = 0; k < etaPartitions[k6]->nstrips(); ++k)
                   edm::LogVerbatim("GEMGeometry") << "Strip[" << k << "] " << etaPartitions[k6]->centreOfStrip(k);
