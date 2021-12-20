@@ -39,7 +39,6 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/MallocOpts.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <cstring>
@@ -380,36 +379,6 @@ namespace edm {
       //       &SimpleMemoryCheck::preEventProcessing);
       //  iReg.watchPreModule(this,
       //       &SimpleMemoryCheck::preModule);
-
-#ifndef __SANITIZE_ADDRESS__
-      typedef MallocOpts::opt_type opt_type;
-      MallocOptionSetter& mopts = getGlobalOptionSetter();
-
-      opt_type p_mmap_max = iPS.getUntrackedParameter<int>("M_MMAP_MAX"),
-               p_trim_thr = iPS.getUntrackedParameter<int>("M_TRIM_THRESHOLD"),
-               p_top_pad = iPS.getUntrackedParameter<int>("M_TOP_PAD"),
-               p_mmap_thr = iPS.getUntrackedParameter<int>("M_MMAP_THRESHOLD");
-
-      if (p_mmap_max >= 0)
-        mopts.set_mmap_max(p_mmap_max);
-      if (p_trim_thr >= 0)
-        mopts.set_trim_thr(p_trim_thr);
-      if (p_top_pad >= 0)
-        mopts.set_top_pad(p_top_pad);
-      if (p_mmap_thr >= 0)
-        mopts.set_mmap_thr(p_mmap_thr);
-
-      mopts.adjustMallocParams();
-
-      if (mopts.hasErrors()) {
-        LogWarning("MemoryCheck") << "ERROR: Problem with setting malloc options\n" << mopts.error_message();
-      }
-
-      if (iPS.getUntrackedParameter<bool>("dump") == true) {
-        MallocOpts mo = mopts.get();
-        LogWarning("MemoryCheck") << "Malloc options: " << mo << "\n";
-      }
-#endif
     }
 
     SimpleMemoryCheck::~SimpleMemoryCheck() {
@@ -432,10 +401,6 @@ namespace edm {
       desc.addUntracked<bool>("jobReportOutputOnly", false);
       desc.addUntracked<bool>("monitorPssAndPrivate", false);
       desc.addUntracked<bool>("moduleMemorySummary", false);
-      desc.addUntracked<int>("M_MMAP_MAX", -1);
-      desc.addUntracked<int>("M_TRIM_THRESHOLD", -1);
-      desc.addUntracked<int>("M_TOP_PAD", -1);
-      desc.addUntracked<int>("M_MMAP_THRESHOLD", -1);
       desc.addUntracked<bool>("dump", false);
       descriptions.add("SimpleMemoryCheck", desc);
     }
