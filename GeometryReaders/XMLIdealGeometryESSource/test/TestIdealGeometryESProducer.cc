@@ -48,11 +48,13 @@ public:
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
+
 private:
   const edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
 };
 
-TestIdealGeometryESProducer::TestIdealGeometryESProducer(const edm::ParameterSet& iConfig) : ddToken_(esConsumes<DDCompactView, IdealGeometryRecord>()) {}
+TestIdealGeometryESProducer::TestIdealGeometryESProducer(const edm::ParameterSet& iConfig)
+    : ddToken_(esConsumes<DDCompactView, IdealGeometryRecord>()) {}
 
 TestIdealGeometryESProducer::~TestIdealGeometryESProducer() {}
 
