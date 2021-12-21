@@ -1,6 +1,3 @@
-#ifndef TtEvtBuilder_h
-#define TtEvtBuilder_h
-
 #include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
@@ -9,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
@@ -285,4 +283,14 @@ inline void TtEvtBuilder<TtSemiLeptonicEvent>::fillSpecific(TtSemiLeptonicEvent&
   }
 }
 
-#endif
+#include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+typedef TtEvtBuilder<TtFullHadronicEvent> TtFullHadEvtBuilder;
+typedef TtEvtBuilder<TtFullLeptonicEvent> TtFullLepEvtBuilder;
+typedef TtEvtBuilder<TtSemiLeptonicEvent> TtSemiLepEvtBuilder;
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtFullHadEvtBuilder);
+DEFINE_FWK_MODULE(TtFullLepEvtBuilder);
+DEFINE_FWK_MODULE(TtSemiLepEvtBuilder);

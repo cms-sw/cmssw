@@ -1,6 +1,3 @@
-#ifndef StringCutObjectEvtFilter_h
-#define StringCutObjectEvtFilter_h
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,4 +44,18 @@ bool StringCutObjectEvtFilter<T>::filter(edm::Event& evt, const edm::EventSetup&
   return cut_(*src);
 }
 
-#endif
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
+
+typedef StringCutObjectEvtFilter<TtGenEvent> TtGenEvtFilter;
+typedef StringCutObjectEvtFilter<TtFullHadronicEvent> TtFullHadEvtFilter;
+typedef StringCutObjectEvtFilter<TtFullLeptonicEvent> TtFullLepEvtFilter;
+typedef StringCutObjectEvtFilter<TtSemiLeptonicEvent> TtSemiLepEvtFilter;
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtGenEvtFilter);
+DEFINE_FWK_MODULE(TtFullHadEvtFilter);
+DEFINE_FWK_MODULE(TtFullLepEvtFilter);
+DEFINE_FWK_MODULE(TtSemiLepEvtFilter);
