@@ -20,8 +20,8 @@
 #include <memory>
 #include <atomic>
 #include <unistd.h>
-#include "tbb/task_group.h"
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
+#include "oneapi/tbb/task_arena.h"
 
 // user include files
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"

@@ -4,7 +4,7 @@
 //
 //  Created by Chris Jones on 7/24/20.
 //
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 #include "FWCore/Concurrency/interface/setNThreads.h"
 
 namespace edm {

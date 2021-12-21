@@ -12,7 +12,7 @@
 
 // system include files
 #include <cstring>
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 // user include files
 #include "FWCore/Utilities/interface/typelookup.h"

@@ -15,7 +15,7 @@ Test of the EventProcessor class.
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 
-#include "tbb/global_control.h"
+#include "oneapi/tbb/global_control.h"
 
 // to be called also by the other cppunit...
 void doInit() {

@@ -39,7 +39,7 @@ and does not do managing mergeable run products.
 #include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-#include "tbb/concurrent_vector.h"
+#include "oneapi/tbb/concurrent_vector.h"
 
 #include <string>
 #include <vector>

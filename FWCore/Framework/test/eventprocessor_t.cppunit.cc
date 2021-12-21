@@ -23,7 +23,7 @@ Test of the EventProcessor class.
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "tbb/global_control.h"
+#include "oneapi/tbb/global_control.h"
 
 #include <regex>
 

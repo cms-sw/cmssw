@@ -12,7 +12,7 @@
 //
 
 // system include files
-#include "tbb/task.h"
+#include "oneapi/tbb/task.h"
 
 // user include files
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"

@@ -10,7 +10,7 @@
 #include <vector>
 #include <map>
 #include <functional>
-#include "tbb/global_control.h"
+#include "oneapi/tbb/global_control.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"

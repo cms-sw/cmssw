@@ -12,7 +12,7 @@
 #include <memory>
 #include <atomic>
 #include <thread>
-#include "tbb/task.h"
+#include "oneapi/tbb/task.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
 class WaitingTaskList_test : public CppUnit::TestFixture {

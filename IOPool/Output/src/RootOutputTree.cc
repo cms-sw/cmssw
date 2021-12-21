@@ -22,7 +22,7 @@
 
 #include <limits>
 
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 
 namespace edm {
 

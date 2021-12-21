@@ -24,8 +24,8 @@
 #include <vector>
 #include <map>
 #include <atomic>
-#include "tbb/concurrent_unordered_map.h"
-#include "tbb/concurrent_vector.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_vector.h"
 #include "FWCore/Utilities/interface/zero_allocator.h"
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
