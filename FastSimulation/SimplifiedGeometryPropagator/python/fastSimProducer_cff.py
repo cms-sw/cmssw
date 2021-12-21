@@ -80,6 +80,6 @@ fastSimProducer = cms.EDProducer(
     fixLongLivedBug = cms.bool(False),
 )
 
-from Configuration.ProcessModifiers.fastSimDisableLongLivedBug_cff import fastSimDisableLongLivedBug
+from Configuration.ProcessModifiers.fastSimFixLongLivedBug_cff import fastSimFixLongLivedBug
 
-fastSimDisableLongLivedBug.toModify(fastSimProducer, fixLongLivedBug = cms.bool(True))
+fastSimFixLongLivedBug.toModify(fastSimProducer, fixLongLivedBug = cms.bool(True))
