@@ -8,28 +8,24 @@
 #include <fstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitter.h"
-//#include "TopQuarkAnalysis/TopJetCombination/interface/TtJetCombinationProbability.h"
 
-class StEvtSolutionMaker : public edm::EDProducer {
+class StEvtSolutionMaker : public edm::stream::EDProducer<> {
 public:
   explicit StEvtSolutionMaker(const edm::ParameterSet&);
-  ~StEvtSolutionMaker() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  StKinFitter* myKinFitter;
-  //std::vector<TtJetCombinationProbability> jetCombProbs;
-  edm::EDGetTokenT<std::vector<pat::Electron> > electronSrcToken_;
-  edm::EDGetTokenT<std::vector<pat::Muon> > muonSrcToken_;
-  edm::EDGetTokenT<std::vector<pat::MET> > metSrcToken_;
-  edm::EDGetTokenT<std::vector<pat::Jet> > jetSrcToken_;
+  std::unique_ptr<StKinFitter> myKinFitter;
+  edm::EDGetTokenT<std::vector<pat::Electron>> electronSrcToken_;
+  edm::EDGetTokenT<std::vector<pat::Muon>> muonSrcToken_;
+  edm::EDGetTokenT<std::vector<pat::MET>> metSrcToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet>> jetSrcToken_;
   edm::EDGetTokenT<StGenEvent> genEvtSrcToken_;
   std::string leptonFlavour_;
   int jetCorrScheme_;
@@ -44,12 +40,15 @@ private:
 
 StEvtSolutionMaker::StEvtSolutionMaker(const edm::ParameterSet& iConfig) {
   // configurables
-  electronSrcToken_ = mayConsume<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electronSource"));
-  muonSrcToken_ = mayConsume<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muonSource"));
-  metSrcToken_ = consumes<std::vector<pat::MET> >(iConfig.getParameter<edm::InputTag>("metSource"));
-  jetSrcToken_ = consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jetSource"));
-  genEvtSrcToken_ = mayConsume<StGenEvent>(edm::InputTag("genEvt"));
   leptonFlavour_ = iConfig.getParameter<std::string>("leptonFlavour");
+  if (leptonFlavour_ == "electron") {
+    electronSrcToken_ = consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electronSource"));
+  } else if (leptonFlavour_ == "muon") {
+    muonSrcToken_ = consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muonSource"));
+  }
+  metSrcToken_ = consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("metSource"));
+  jetSrcToken_ = consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetSource"));
+  genEvtSrcToken_ = mayConsume<StGenEvent>(edm::InputTag("genEvt"));
   jetCorrScheme_ = iConfig.getParameter<int>("jetCorrectionScheme");
   //jetInput_        = iConfig.getParameter< std::string > 	  ("jetInput");
   doKinFit_ = iConfig.getParameter<bool>("doKinFit");
@@ -60,20 +59,16 @@ StEvtSolutionMaker::StEvtSolutionMaker(const edm::ParameterSet& iConfig) {
   jetParam_ = iConfig.getParameter<int>("jetParametrisation");
   lepParam_ = iConfig.getParameter<int>("lepParametrisation");
   metParam_ = iConfig.getParameter<int>("metParametrisation");
-  constraints_ = iConfig.getParameter<std::vector<int> >("constraints");
+  constraints_ = iConfig.getParameter<std::vector<int>>("constraints");
   matchToGenEvt_ = iConfig.getParameter<bool>("matchToGenEvt");
 
   // define kinfitter
   if (doKinFit_) {
-    myKinFitter = new StKinFitter(jetParam_, lepParam_, metParam_, maxNrIter_, maxDeltaS_, maxF_, constraints_);
+    myKinFitter =
+        std::make_unique<StKinFitter>(jetParam_, lepParam_, metParam_, maxNrIter_, maxDeltaS_, maxF_, constraints_);
   }
   // define what will be produced
-  produces<std::vector<StEvtSolution> >();
-}
-
-StEvtSolutionMaker::~StEvtSolutionMaker() {
-  if (doKinFit_)
-    delete myKinFitter;
+  produces<std::vector<StEvtSolution>>();
 }
 
 void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -83,13 +78,13 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // select lepton (the TtLepton vectors are, for the moment, sorted on pT)
   bool leptonFound = false;
-  edm::Handle<std::vector<pat::Muon> > muons;
+  edm::Handle<std::vector<pat::Muon>> muons;
   if (leptonFlavour_ == "muon") {
     iEvent.getByToken(muonSrcToken_, muons);
     if (!muons->empty())
       leptonFound = true;
   }
-  edm::Handle<std::vector<pat::Electron> > electrons;
+  edm::Handle<std::vector<pat::Electron>> electrons;
   if (leptonFlavour_ == "electron") {
     iEvent.getByToken(electronSrcToken_, electrons);
     if (!electrons->empty())
@@ -98,20 +93,20 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // select MET (TopMET vector is sorted on ET)
   bool metFound = false;
-  edm::Handle<std::vector<pat::MET> > mets;
+  edm::Handle<std::vector<pat::MET>> mets;
   iEvent.getByToken(metSrcToken_, mets);
   if (!mets->empty())
     metFound = true;
 
   // select Jets
   bool jetsFound = false;
-  edm::Handle<std::vector<pat::Jet> > jets;
+  edm::Handle<std::vector<pat::Jet>> jets;
   iEvent.getByToken(jetSrcToken_, jets);
   unsigned int maxJets = 2;  //this has to become a custom-defined parameter (we may want 2 or 3 jets)
   if (jets->size() >= 2)
     jetsFound = true;
 
-  std::vector<StEvtSolution>* evtsols = new std::vector<StEvtSolution>();
+  auto evtsols = std::make_unique<std::vector<StEvtSolution>>();
   if (leptonFound && metFound && jetsFound) {
     std::cout << "constructing solutions" << std::endl;
     for (unsigned int b = 0; b < maxJets; b++) {
@@ -164,8 +159,7 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
     //store the vector of solutions to the event
-    std::unique_ptr<std::vector<StEvtSolution> > pOut(evtsols);
-    iEvent.put(std::move(pOut));
+    iEvent.put(std::move(evtsols));
   } else {
     std::cout << "@@@ No calibrated solutions built, because:  " << std::endl;
     ;
@@ -180,9 +174,8 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     StEvtSolution asol;
     evtsols->push_back(asol);
-    std::unique_ptr<std::vector<StEvtSolution> > pOut(evtsols);
-    iEvent.put(std::move(pOut));
   }
+  iEvent.put(std::move(evtsols));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
