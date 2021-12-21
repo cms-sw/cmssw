@@ -28,7 +28,7 @@ namespace {
   struct key_hash {
     std::size_t operator()(edm::ParameterSetID const& iKey) const { return iKey.smallHash(); }
   };
-  typedef tbb::concurrent_unordered_map<edm::ParameterSetID, edm::TriggerNames, key_hash> TriggerNamesMap;
+  typedef oneapi::tbb::concurrent_unordered_map<edm::ParameterSetID, edm::TriggerNames, key_hash> TriggerNamesMap;
   CMS_THREAD_SAFE TriggerNamesMap triggerNamesMap;
 }  // namespace
 

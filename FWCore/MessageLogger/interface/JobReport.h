@@ -159,7 +159,7 @@ namespace edm {
       std::size_t numEventsWritten;
       StringVector branchNames;
       std::vector<Token> contributingInputs;
-      tbb::concurrent_vector<Token> contributingInputsSecSource;
+      oneapi::tbb::concurrent_vector<Token> contributingInputsSecSource;
       std::map<std::string, bool> fastCopyingInputs;
       std::map<RunNumber, RunReport> runReports;
       bool fileHasBeenClosed;
@@ -250,11 +250,11 @@ namespace edm {
       std::ostream*& ost() { return get_underlying_safe(ost_); }
 
       std::vector<InputFile> inputFiles_;
-      tbb::concurrent_vector<InputFile> inputFilesSecSource_;
-      tbb::concurrent_vector<OutputFile> outputFiles_;
+      oneapi::tbb::concurrent_vector<InputFile> inputFilesSecSource_;
+      oneapi::tbb::concurrent_vector<OutputFile> outputFiles_;
       std::map<std::string, long long> readBranches_;
       std::map<std::string, long long> readBranchesSecFile_;
-      tbb::concurrent_unordered_map<std::string, AtomicLongLong> readBranchesSecSource_;
+      oneapi::tbb::concurrent_unordered_map<std::string, AtomicLongLong> readBranchesSecSource_;
       bool printedReadBranches_;
       std::vector<InputFile>::size_type lastOpenedPrimaryInputFile_;
       edm::propagate_const<std::ostream*> ost_;

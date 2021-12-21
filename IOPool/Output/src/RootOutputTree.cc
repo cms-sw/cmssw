@@ -366,7 +366,7 @@ namespace edm {
     } else {
       // Isolate the fill operation so that IMT doesn't grab other large tasks
       // that could lead to PoolOutputModule stalling
-      tbb::this_task_arena::isolate([&] { tree_->Fill(); });
+      oneapi::tbb::this_task_arena::isolate([&] { tree_->Fill(); });
     }
   }
 

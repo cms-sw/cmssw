@@ -57,7 +57,7 @@ namespace edm {
       struct key_hash {
         std::size_t operator()(key_type const& iKey) const { return iKey.smallHash(); }
       };
-      typedef tbb::concurrent_unordered_map<key_type, value_type, key_hash> map_type;
+      typedef oneapi::tbb::concurrent_unordered_map<key_type, value_type, key_hash> map_type;
       typedef map_type::const_iterator const_iterator;
 
       const_iterator begin() const { return m_map.begin(); }

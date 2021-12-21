@@ -55,7 +55,7 @@ namespace edm::storage {
                                               int mode) const;
 
   private:
-    typedef tbb::concurrent_unordered_map<std::string, std::shared_ptr<StorageMaker>> MakerTable;
+    typedef oneapi::tbb::concurrent_unordered_map<std::string, std::shared_ptr<StorageMaker>> MakerTable;
 
     StorageFactory(void);
     StorageMaker *getMaker(const std::string &proto) const;

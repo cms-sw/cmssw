@@ -19,8 +19,9 @@ namespace {
 namespace test_average {
   namespace running_average {
     int test() {
-      tbb::global_control control(tbb::global_control::max_allowed_parallelism,
-                                  tbb::this_task_arena::max_concurrency());  // Explicit number of threads
+      oneapi::tbb::global_control control(
+          oneapi::tbb::global_control::max_allowed_parallelism,
+          oneapi::tbb::this_task_arena::max_concurrency());  // Explicit number of threads
 
       // std::random_device rd;
       std::mt19937 e2;  // (rd());
@@ -46,10 +47,11 @@ namespace test_average {
         swap(v, t);
       };
 
-      tbb::parallel_for(tbb::blocked_range<size_t>(0, n), [&](const tbb::blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i < r.end(); ++i)
-          theLoop(i);
-      });
+      oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, n),
+                                [&](const oneapi::tbb::blocked_range<size_t>& r) {
+                                  for (size_t i = r.begin(); i < r.end(); ++i)
+                                    theLoop(i);
+                                });
 
       auto mm = std::max_element(res, res + n);
       std::cout << kk << ' ' << localRA.m_curr << ' ' << localRA.mean() << std::endl;

@@ -410,7 +410,7 @@ namespace edm {
     }
 
     void synchronousEventSetupForInstance(IOVSyncValue const& syncValue,
-                                          tbb::task_group& iGroup,
+                                          oneapi::tbb::task_group& iGroup,
                                           eventsetup::EventSetupsController& espController) {
       FinalWaitingTask waitUntilIOVInitializationCompletes;
 

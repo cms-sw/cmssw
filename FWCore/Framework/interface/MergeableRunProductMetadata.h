@@ -126,7 +126,7 @@ namespace edm {
 
     bool gotLumisFromIndexIntoFile() const { return gotLumisFromIndexIntoFile_; }
 
-    tbb::concurrent_vector<LuminosityBlockNumber_t> const& lumisProcessed() const { return lumisProcessed_; }
+    oneapi::tbb::concurrent_vector<LuminosityBlockNumber_t> const& lumisProcessed() const { return lumisProcessed_; }
 
   private:
     void mergeLumisFromIndexIntoFile();
@@ -148,7 +148,7 @@ namespace edm {
     std::vector<LuminosityBlockNumber_t> lumisFromIndexIntoFile_;
     bool gotLumisFromIndexIntoFile_ = false;
 
-    tbb::concurrent_vector<LuminosityBlockNumber_t> lumisProcessed_;
+    oneapi::tbb::concurrent_vector<LuminosityBlockNumber_t> lumisProcessed_;
   };
 }  // namespace edm
 #endif

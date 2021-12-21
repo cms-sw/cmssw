@@ -293,7 +293,7 @@ int main(int argc, char* argv[]) {
         edm::MessageDrop::instance()->jobMode = jobMode;
       }
 
-      tbb::task_arena arena(nThreads);
+      oneapi::tbb::task_arena arena(nThreads);
       arena.execute([&]() {
         context = "Constructing the EventProcessor";
         EventProcessorWithSentry procTmp(

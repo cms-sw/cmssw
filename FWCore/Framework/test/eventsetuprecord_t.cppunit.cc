@@ -94,7 +94,7 @@ public:
   void doGetExepTest();
 
   EventSetupRecordKey dummyRecordKey_;
-  tbb::task_arena taskArena_;
+  oneapi::tbb::task_arena taskArena_;
   EventSetupImpl eventSetupImpl_;
 };
 
@@ -189,7 +189,7 @@ namespace {
       auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
       for (size_t i = 0; i != proxies.size(); ++i) {
         edm::FinalWaitingTask waitTask;
-        tbb::task_group group;
+        oneapi::tbb::task_group group;
         edm::ServiceToken token;
         iRec.prefetchAsync(WaitingTaskHolder(group, &waitTask), proxies[i], nullptr, token, edm::ESParentContext{});
         do {
@@ -212,7 +212,7 @@ namespace {
       auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
       for (size_t i = 0; i != proxies.size(); ++i) {
         edm::FinalWaitingTask waitTask;
-        tbb::task_group group;
+        oneapi::tbb::task_group group;
         edm::ServiceToken token;
         iRec.prefetchAsync(WaitingTaskHolder(group, &waitTask), proxies[i], nullptr, token, edm::ESParentContext{});
         do {

@@ -39,7 +39,7 @@ void SerialTaskQueue_test::testPush() {
   edm::SerialTaskQueue queue;
   {
     std::atomic<unsigned int> waitingTasks{3};
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
 
     queue.push(group, [&count, &waitingTasks] {
       CPPUNIT_ASSERT(count++ == 0);
@@ -74,7 +74,7 @@ void SerialTaskQueue_test::testPause() {
     queue.pause();
     {
       std::atomic<unsigned int> waitingTasks{1};
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
 
       queue.push(group, [&count, &waitingTasks] {
         CPPUNIT_ASSERT(count++ == 0);
@@ -91,7 +91,7 @@ void SerialTaskQueue_test::testPause() {
 
     {
       std::atomic<unsigned int> waitingTasks{3};
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
 
       queue.push(group, [&count, &queue, &waitingTasks] {
         queue.pause();
@@ -120,7 +120,7 @@ void SerialTaskQueue_test::testPause() {
 
 void SerialTaskQueue_test::stressTest() {
   //note group needs to live longer than queue
-  tbb::task_group group;
+  oneapi::tbb::task_group group;
   edm::SerialTaskQueue queue;
 
   unsigned int index = 100;
