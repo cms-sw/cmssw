@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -66,7 +66,7 @@
 // class decleration
 //
 
-class ModuleInfo_Phase2 : public edm::EDAnalyzer {
+class ModuleInfo_Phase2 : public edm::one::EDAnalyzer<> {
 public:
   explicit ModuleInfo_Phase2(const edm::ParameterSet&);
   ~ModuleInfo_Phase2();
@@ -95,11 +95,7 @@ ModuleInfo_Phase2::ModuleInfo_Phase2(const edm::ParameterSet& ps) {
   //now do what ever initialization is needed
 }
 
-ModuleInfo_Phase2::~ModuleInfo_Phase2() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
+ModuleInfo_Phase2::~ModuleInfo_Phase2() = default;
 //
 // member functions
 //
