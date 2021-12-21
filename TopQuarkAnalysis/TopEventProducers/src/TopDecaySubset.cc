@@ -4,7 +4,7 @@
 #include <map>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Common/interface/Provenance.h"
@@ -29,7 +29,7 @@
    the creation of the subset or not.
 */
 
-class TopDecaySubset : public edm::EDProducer {
+class TopDecaySubset : public edm::stream::EDProducer<> {
 public:
   /// supported modes to fill the new vectors
   /// of gen particles
@@ -41,8 +41,6 @@ public:
 
   /// default constructor
   explicit TopDecaySubset(const edm::ParameterSet& cfg);
-  /// default destructor
-  ~TopDecaySubset() override;
   /// write output into the event
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
@@ -118,7 +116,6 @@ private:
   std::map<int, std::vector<int> > refs_;
 };
 
-
 /// default constructor
 TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg)
     : srcToken_(consumes<reco::GenParticleCollection>(cfg.getParameter<edm::InputTag>("src"))),
@@ -149,9 +146,6 @@ TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg)
   // stable decay products
   produces<reco::GenParticleCollection>();
 }
-
-/// default destructor
-TopDecaySubset::~TopDecaySubset() {}
 
 /// write output into the event
 void TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup) {
