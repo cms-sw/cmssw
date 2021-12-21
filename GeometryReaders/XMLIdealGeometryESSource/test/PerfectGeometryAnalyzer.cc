@@ -59,7 +59,7 @@ private:
   int nNodes_;
   bool fromDB_;
   std::string ddRootNodeName_;
-  edm::ESGetToken<DDCompactView, IdealGeometryRecord>  geomToken1_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> geomToken1_;
   edm::ESGetToken<DDCompactView, IdealMagneticFieldRecord> geomToken2_;
 };
 
@@ -78,7 +78,7 @@ PerfectGeometryAnalyzer::PerfectGeometryAnalyzer(const edm::ParameterSet& iConfi
   }
   if (!isMagField_)
     geomToken1_ = esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag("", label_));
-  else 
+  else
     geomToken2_ = esConsumes<DDCompactView, IdealMagneticFieldRecord>(edm::ESInputTag("", label_));
 }
 
@@ -89,7 +89,8 @@ void PerfectGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   std::cout << "Here I am " << std::endl;
 
-  edm::ESTransientHandle<DDCompactView> pDD = (!isMagField_) ? iSetup.getTransientHandle(geomToken1_) : iSetup.getTransientHandle(geomToken2_);
+  edm::ESTransientHandle<DDCompactView> pDD =
+      (!isMagField_) ? iSetup.getTransientHandle(geomToken1_) : iSetup.getTransientHandle(geomToken2_);
   if (pDD.description()) {
     edm::LogInfo("PerfectGeometryAnalyzer") << pDD.description()->type_ << " label: " << pDD.description()->label_;
   } else {

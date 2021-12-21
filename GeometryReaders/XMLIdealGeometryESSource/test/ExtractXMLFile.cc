@@ -60,7 +60,7 @@ private:
 ExtractXMLFile::ExtractXMLFile(const edm::ParameterSet& iConfig)
     : label_(iConfig.getUntrackedParameter<std::string>("label", "")),
       fname_(iConfig.getUntrackedParameter<std::string>("fname", "")),
-      geomToken_(esConsumes<FileBlob, GeometryFileRcd>(edm::ESInputTag("",label_))) {}
+      geomToken_(esConsumes<FileBlob, GeometryFileRcd>(edm::ESInputTag("", label_))) {}
 
 ExtractXMLFile::~ExtractXMLFile() {}
 

@@ -50,8 +50,7 @@ XMLIdealMagneticFieldGeometryESProducer::XMLIdealMagneticFieldGeometryESProducer
   usesResources({{edm::ESSharedResourceNames::kDDGeometry}});
 
   auto cc = setWhatProduced(this);
-  geomToken_ = cc.consumesFrom<FileBlob, MFGeometryFileRcd>(edm::ESInputTag("",label_));
-
+  geomToken_ = cc.consumesFrom<FileBlob, MFGeometryFileRcd>(edm::ESInputTag("", label_));
 }
 
 XMLIdealMagneticFieldGeometryESProducer::~XMLIdealMagneticFieldGeometryESProducer(void) {}
