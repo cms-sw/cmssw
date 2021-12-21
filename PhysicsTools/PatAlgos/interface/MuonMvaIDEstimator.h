@@ -24,7 +24,6 @@ namespace pat {
     ~MuonMvaIDEstimator() = default;
 
     static void fillDescriptions(edm::ConfigurationDescriptions &);
-    static std::unique_ptr<cms::Ort::ONNXRuntime> initializeGlobalCache(const edm::ParameterSet &);
     static void globalEndJob(const cms::Ort::ONNXRuntime *);
     std::vector<float> computeMVAID(const pat::Muon &imuon) const;
 
