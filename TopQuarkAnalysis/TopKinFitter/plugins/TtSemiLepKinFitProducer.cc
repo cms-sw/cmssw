@@ -1,6 +1,3 @@
-#ifndef TtSemiLepKinFitProducer_h
-#define TtSemiLepKinFitProducer_h
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -469,4 +466,11 @@ std::vector<TtSemiLepKinFitter::Constraint> TtSemiLepKinFitProducer<LeptonCollec
   return result;
 }
 
-#endif
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+typedef TtSemiLepKinFitProducer<std::vector<pat::Muon> > TtSemiLepKinFitProducerMuon;
+typedef TtSemiLepKinFitProducer<std::vector<pat::Electron> > TtSemiLepKinFitProducerElectron;
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtSemiLepKinFitProducerMuon);
+DEFINE_FWK_MODULE(TtSemiLepKinFitProducerElectron);
