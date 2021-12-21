@@ -20,6 +20,7 @@
 //         Created:  August 13, 2019
 
 #include "Validation/RecoTau/interface/TauValidationMiniAOD.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
 using namespace std;
@@ -448,13 +449,13 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
 void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   // temp
-  std::cout << "******** Entering the Analyze Function ********\n";
+  edm::LogInfo("TauValidationMiniAOD") << "******** Entering the Analyze Function ********\n";
 
   // create a handle to the tau collection
   edm::Handle<pat::TauCollection> taus;
   bool isTau = iEvent.getByToken(tauCollection_, taus);
   if (!isTau) {
-    std::cerr << "ERROR: Tau collection not found while running TauValidationMiniAOD.cc " << std::endl;
+    edm::LogError("TauValidationMiniAOD") << "ERROR: Tau collection not found while running TauValidationMiniAOD.cc " << std::endl;
     return;
   }
 
@@ -469,8 +470,7 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<refCandidateCollection> ReferenceCollection;
   bool isRef = iEvent.getByToken(refCollectionInputTagToken_, ReferenceCollection);
   if (!isRef) {
-  //std::cerr << ReferenceCollection << std::endl;
-    std::cerr << "ERROR: Reference collection not found while running TauValidationMiniAOD.cc \n " << std::endl;
+    edm::LogError << "ERROR: Reference collection not found while running TauValidationMiniAOD.cc \n ";
     return;
   }
 
@@ -481,7 +481,7 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
   Handle<std::vector<reco::Vertex>> pvHandle;
   bool isPV = iEvent.getByToken(primaryVertexCollectionToken_, pvHandle);
   if (!isPV) {
-    std::cerr << "ERROR: PV collection not found while running TauValidationMiniAOD.cc" << std::endl;
+    edm::LogError << "ERROR: PV collection not found while running TauValidationMiniAOD.cc" ;
   }
   std::vector<const reco::GenParticle*> GenTaus;
   
