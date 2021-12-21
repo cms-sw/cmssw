@@ -77,4 +77,9 @@ fastSimProducer = cms.EDProducer(
     MaterialEffectsForMuonsInECAL = MaterialEffectsForMuonsInECALBlock.MaterialEffectsForMuonsInECAL,
     MaterialEffectsForMuonsInHCAL = MaterialEffectsForMuonsInHCALBlock.MaterialEffectsForMuonsInHCAL,
     GFlash = FamosCalorimetryBlock.GFlash,
+    fixLongLivedBug = cms.bool(False),
 )
+
+from Configuration.ProcessModifiers.fastSimFixLongLivedBug_cff import fastSimFixLongLivedBug
+
+fastSimFixLongLivedBug.toModify(fastSimProducer, fixLongLivedBug = cms.bool(True))
