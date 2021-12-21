@@ -425,7 +425,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           // fill the trackhit info
           TrajectoryStateOnSurface tsos = itTraj.updatedState();
           if (!tsos.isValid()) {
-            edm::LogWarning("SiPixelLorentzAnglePCLWorker") << "tsos not valid" << std::endl;
+            edm::LogWarning("SiPixelLorentzAnglePCLWorker") << "tsos not valid";
             continue;
           }
           LocalVector trackdirection = tsos.localDirection();
@@ -590,7 +590,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           // fill the trackhit info
           TrajectoryStateOnSurface tsos = itTraj.updatedState();
           if (!tsos.isValid()) {
-            edm::LogWarning("SiPixelLorentzAnglePCLWorker") << "tsos not valid" << std::endl;
+            edm::LogWarning("SiPixelLorentzAnglePCLWorker") << "tsos not valid";
             continue;
           }
           LocalVector trackdirection = tsos.localDirection();
@@ -654,7 +654,7 @@ void SiPixelLorentzAnglePCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSe
       if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_)) {
         edm::LogError("SiPixelLorentzAnglePCLWorker")
             << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-            << (*templateDBobject_).version() << std::endl;
+            << (*templateDBobject_).version();
       }
     }
   }
@@ -811,9 +811,8 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
       unsigned int i_index = i_module + (i_layer - 1) * iHists.nModules_[i_layer - 1];
       std::string binName = fmt::sprintf("BPix Layer%i Module %i", i_layer, i_module);
 
-      LogDebug("SiPixelLorentzAnglePCLWorker")
-          << " i_index: " << i_index << " bin name: " << binName << " (i_layer: " << i_layer << " i_module:" << i_module
-          << ")" << std::endl;
+      LogDebug("SiPixelLorentzAnglePCLWorker") << " i_index: " << i_index << " bin name: " << binName
+                                               << " (i_layer: " << i_layer << " i_module:" << i_module << ")";
 
       iHists.h_bySectOccupancy_->setBinLabel(i_index, binName);
       iHists.h_bySectLA_->setBinLabel(i_index, binName);
@@ -824,8 +823,7 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
   for (int i = 0; i < (int)iHists.BPixnewDetIds_.size(); i++) {
     int new_index = iHists.nModules_[iHists.nlay - 1] + (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + i;
 
-    LogDebug("SiPixelLorentzAnglePCLWorker")
-        << "i_index" << new_index << " bin name: " << iHists.BPixnewmodulename_[i] << std::endl;
+    LogDebug("SiPixelLorentzAnglePCLWorker") << "i_index" << new_index << " bin name: " << iHists.BPixnewmodulename_[i];
 
     iHists.h_bySectOccupancy_->setBinLabel(new_index, iHists.BPixnewmodulename_[i]);
     iHists.h_bySectLA_->setBinLabel(new_index, iHists.BPixnewmodulename_[i]);
