@@ -30,6 +30,10 @@ public:
   MonitorMap h_mean_;
 
   dqm::reco::MonitorElement* h_tracks_;
+  dqm::reco::MonitorElement* h_trackEta_;
+  dqm::reco::MonitorElement* h_trackPhi_;
+  dqm::reco::MonitorElement* h_trackPt_;
+  dqm::reco::MonitorElement* h_trackChi2_;
 };
 
 #endif
