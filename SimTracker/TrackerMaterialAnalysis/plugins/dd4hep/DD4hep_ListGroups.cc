@@ -64,9 +64,9 @@ private:
 #include "DD4hep_ListGroupsMaterialDifference.h"
 
 DD4hep_ListGroups::DD4hep_ListGroups(const edm::ParameterSet &iConfig)
-  : m_tag(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
-    m_saveSummaryPlot(iConfig.getUntrackedParameter<bool>("SaveSummaryPlot")),
-    ddToken_(esConsumes<cms::DDCompactView, IdealGeometryRecord>(m_tag)) {
+    : m_tag(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
+      m_saveSummaryPlot(iConfig.getUntrackedParameter<bool>("SaveSummaryPlot")),
+      ddToken_(esConsumes<cms::DDCompactView, IdealGeometryRecord>(m_tag)) {
   m_plots.clear();
   m_groups.clear();
   TColor::InitializeColors();
