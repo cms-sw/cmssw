@@ -14,6 +14,7 @@
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/XrdAdaptor/interface/XrdStatistics.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/processGUID.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -224,6 +225,7 @@ void CondorStatusService::firstUpdate() {
   updateChirp("MaxEvents", "-1");
   updateChirp("MaxLumis", "-1");
   updateChirp("Done", "false");
+  updateChirpQuoted("Guid", edm::processGUID().toString());
 
   edm::Service<edm::CPUServiceBase> cpusvc;
   std::string models;
