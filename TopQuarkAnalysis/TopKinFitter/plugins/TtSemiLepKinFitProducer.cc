@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
@@ -7,10 +7,9 @@
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
 
 template <typename LeptonCollection>
-class TtSemiLepKinFitProducer : public edm::EDProducer {
+class TtSemiLepKinFitProducer : public edm::stream::EDProducer<> {
 public:
   explicit TtSemiLepKinFitProducer(const edm::ParameterSet&);
-  ~TtSemiLepKinFitProducer() override;
 
 private:
   // produce
@@ -72,7 +71,7 @@ private:
   std::vector<edm::ParameterSet> lepResolutions_;
   std::vector<edm::ParameterSet> metResolutions_;
 
-  TtSemiLepKinFitter* fitter;
+  std::unique_ptr<TtSemiLepKinFitter> fitter;
 
   struct KinFitResult {
     int Status;
@@ -129,21 +128,21 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
                                              "'metResolutions' should be used together.\n";
   }
 
-  fitter = new TtSemiLepKinFitter(param(jetParam_),
-                                  param(lepParam_),
-                                  param(metParam_),
-                                  maxNrIter_,
-                                  maxDeltaS_,
-                                  maxF_,
-                                  constraints(constraints_),
-                                  mW_,
-                                  mTop_,
-                                  &udscResolutions_,
-                                  &bResolutions_,
-                                  &lepResolutions_,
-                                  &metResolutions_,
-                                  &jetEnergyResolutionScaleFactors_,
-                                  &jetEnergyResolutionEtaBinning_);
+  fitter = std::make_unique<TtSemiLepKinFitter>(param(jetParam_),
+                                                param(lepParam_),
+                                                param(metParam_),
+                                                maxNrIter_,
+                                                maxDeltaS_,
+                                                maxF_,
+                                                constraints(constraints_),
+                                                mW_,
+                                                mTop_,
+                                                &udscResolutions_,
+                                                &bResolutions_,
+                                                &lepResolutions_,
+                                                &metResolutions_,
+                                                &jetEnergyResolutionScaleFactors_,
+                                                &jetEnergyResolutionEtaBinning_);
 
   produces<std::vector<pat::Particle>>("PartonsHadP");
   produces<std::vector<pat::Particle>>("PartonsHadQ");
@@ -158,11 +157,6 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
   produces<std::vector<int>>("Status");
 
   produces<int>("NumberOfConsideredJets");
-}
-
-template <typename LeptonCollection>
-TtSemiLepKinFitProducer<LeptonCollection>::~TtSemiLepKinFitProducer() {
-  delete fitter;
 }
 
 template <typename LeptonCollection>
@@ -468,8 +462,8 @@ std::vector<TtSemiLepKinFitter::Constraint> TtSemiLepKinFitProducer<LeptonCollec
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-typedef TtSemiLepKinFitProducer<std::vector<pat::Muon> > TtSemiLepKinFitProducerMuon;
-typedef TtSemiLepKinFitProducer<std::vector<pat::Electron> > TtSemiLepKinFitProducerElectron;
+using TtSemiLepKinFitProducerMuon = TtSemiLepKinFitProducer<std::vector<pat::Muon>>;
+using TtSemiLepKinFitProducerElectron = TtSemiLepKinFitProducer<std::vector<pat::Electron>>;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(TtSemiLepKinFitProducerMuon);

@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtFullHadKinFitter.h"
@@ -16,12 +16,10 @@
 
 **/
 
-class TtFullHadKinFitProducer : public edm::EDProducer {
+class TtFullHadKinFitProducer : public edm::stream::EDProducer<> {
 public:
   /// default constructor
   explicit TtFullHadKinFitProducer(const edm::ParameterSet& cfg);
-  /// default destructor
-  ~TtFullHadKinFitProducer() override;
 
 private:
   /// produce fitted object collections and meta data describing fit quality
@@ -73,7 +71,7 @@ private:
 
 public:
   /// kinematic fit interface
-  TtFullHadKinFitter::KinFit* kinFitter;
+  std::unique_ptr<TtFullHadKinFitter::KinFit> kinFitter;
 };
 
 static const unsigned int nPartons = 6;
@@ -113,25 +111,25 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg)
   }
 
   // define kinematic fit interface
-  kinFitter = new TtFullHadKinFitter::KinFit(useBTagging_,
-                                             bTags_,
-                                             bTagAlgo_,
-                                             minBTagValueBJet_,
-                                             maxBTagValueNonBJet_,
-                                             udscResolutions_,
-                                             bResolutions_,
-                                             jetEnergyResolutionScaleFactors_,
-                                             jetEnergyResolutionEtaBinning_,
-                                             jetCorrectionLevel_,
-                                             maxNJets_,
-                                             maxNComb_,
-                                             maxNrIter_,
-                                             maxDeltaS_,
-                                             maxF_,
-                                             jetParam_,
-                                             constraints_,
-                                             mW_,
-                                             mTop_);
+  kinFitter = std::make_unique<TtFullHadKinFitter::KinFit>(useBTagging_,
+                                                           bTags_,
+                                                           bTagAlgo_,
+                                                           minBTagValueBJet_,
+                                                           maxBTagValueNonBJet_,
+                                                           udscResolutions_,
+                                                           bResolutions_,
+                                                           jetEnergyResolutionScaleFactors_,
+                                                           jetEnergyResolutionEtaBinning_,
+                                                           jetCorrectionLevel_,
+                                                           maxNJets_,
+                                                           maxNComb_,
+                                                           maxNrIter_,
+                                                           maxDeltaS_,
+                                                           maxF_,
+                                                           jetParam_,
+                                                           constraints_,
+                                                           mW_,
+                                                           mTop_);
 
   // produces the following collections
   produces<std::vector<pat::Particle> >("PartonsB");
@@ -146,9 +144,6 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg)
   produces<std::vector<double> >("Prob");
   produces<std::vector<int> >("Status");
 }
-
-/// default destructor
-TtFullHadKinFitProducer::~TtFullHadKinFitProducer() { delete kinFitter; }
 
 /// produce fitted object collections and meta data describing fit quality
 void TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
