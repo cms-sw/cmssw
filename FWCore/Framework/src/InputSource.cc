@@ -15,10 +15,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/Utilities/interface/ProcessGUID.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include <cassert>
@@ -42,6 +44,14 @@ namespace edm {
         return th;
       return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
     }
+
+    std::string guid() {
+      Service<ProcessGUID> svc;
+      if (svc.isAvailable()) {
+        return svc->binary();
+      }
+      return createGlobalIdentifier(true);
+    }
   }  // namespace
 
   InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc)
@@ -59,7 +69,7 @@ namespace edm {
         branchIDListHelper_(desc.branchIDListHelper_),
         processBlockHelper_(desc.processBlockHelper_),
         thinnedAssociationsHelper_(desc.thinnedAssociationsHelper_),
-        processGUID_(createGlobalIdentifier(true)),
+        processGUID_(guid()),
         time_(),
         newRun_(true),
         newLumi_(true),

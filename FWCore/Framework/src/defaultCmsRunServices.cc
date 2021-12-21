@@ -22,6 +22,7 @@ namespace edm {
                                             "UnixSignalService",
                                             "AdaptorConfig",
                                             "SiteLocalConfigService",
+                                            "ProcessGUIDService",
                                             "StatisticsSenderService",
                                             "CondorStatusService",
                                             "XrdStatisticsService"};
