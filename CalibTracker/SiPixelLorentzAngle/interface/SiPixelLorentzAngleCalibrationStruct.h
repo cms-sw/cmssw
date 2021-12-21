@@ -34,6 +34,11 @@ public:
   dqm::reco::MonitorElement* h_trackPhi_;
   dqm::reco::MonitorElement* h_trackPt_;
   dqm::reco::MonitorElement* h_trackChi2_;
+
+  // per-sector measurements
+  dqm::reco::MonitorElement* h_bySectOccupancy_;
+  dqm::reco::MonitorElement* h_bySectLA_;
+  dqm::reco::MonitorElement* h_bySectChi2_;
 };
 
 #endif

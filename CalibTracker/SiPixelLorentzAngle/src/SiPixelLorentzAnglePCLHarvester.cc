@@ -220,6 +220,9 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
         hists.h_drift_depth_adc_[new_index], hists.h_drift_depth_noadc_[new_index], 1., 1., "");
   }
 
+  hists.h_bySectLA_ = iGetter.get(fmt::format("{}/h_bySectorLA", dqmDir_ + "/SectorMonitoring"));
+  hists.h_bySectChi2_ = iGetter.get(fmt::format("{}/h_bySectorChi2", dqmDir_ + "/SectorMonitoring"));
+
   int hist_drift_;
   int hist_depth_;
   double min_drift_;
@@ -306,7 +309,9 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     double p5 = f1->GetParameter(5);
     double e5 = f1->GetParError(5);
     double chi2 = f1->GetChisquare();
+    int ndf = f1->GetNDF();
     double prob = f1->GetProb();
+    double redChi2 = ndf > 0. ? chi2 / ndf : 0.;
 
     double f1_halfwidth = p0 + p1 * half_width + p2 * pow(half_width, 2) + p3 * pow(half_width, 3) +
                           p4 * pow(half_width, 4) + p5 * pow(half_width, 5);
@@ -319,6 +324,10 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
                        pow((half_width * half_width * half_width * e4), 2) +
                        pow((half_width * half_width * half_width * half_width * e5), 2));  // Propagation of uncertainty
     double error_LA = sqrt(errsq_LA);
+
+    hists.h_bySectLA_->setBinContent(new_index, (tan_LA / theMagField));
+    hists.h_bySectLA_->setBinError(new_index, (error_LA / theMagField));
+    hists.h_bySectChi2_->setBinContent(new_index, redChi2);
 
     edm::LogPrint("LorentzAngle") << std::setprecision(4) << hists.BPixnewModule_[j] << "\t" << hists.BPixnewLayer_[j]
                                   << "\t" << p0 << "\t" << e0 << "\t" << p1 << std::setprecision(3) << "\t" << e1
@@ -404,6 +413,8 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
       double e5 = f1->GetParError(5);
       double chi2 = f1->GetChisquare();
       double prob = f1->GetProb();
+      int ndf = f1->GetNDF();
+      double redChi2 = ndf > 0. ? chi2 / ndf : 0.;
 
       double f1_halfwidth = p0 + p1 * half_width + p2 * pow(half_width, 2) + p3 * pow(half_width, 3) +
                             p4 * pow(half_width, 4) + p5 * pow(half_width, 5);
@@ -417,6 +428,10 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
            pow((half_width * half_width * half_width * e4), 2) +
            pow((half_width * half_width * half_width * half_width * e5), 2));  // Propagation of uncertainty
       double error_LA = sqrt(errsq_LA);
+
+      hists.h_bySectLA_->setBinContent(i_index, (tan_LA / theMagField));
+      hists.h_bySectLA_->setBinError(i_index, (error_LA / theMagField));
+      hists.h_bySectChi2_->setBinContent(i_index, redChi2);
 
       edm::LogPrint("LorentzAngle") << std::setprecision(4) << i_module << "\t" << i_layer << "\t" << p0 << "\t" << e0
                                     << "\t" << p1 << std::setprecision(3) << "\t" << e1 << "\t" << e1 / p1 * 100.

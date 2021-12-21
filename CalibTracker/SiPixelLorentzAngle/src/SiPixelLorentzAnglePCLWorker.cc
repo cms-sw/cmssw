@@ -311,6 +311,8 @@ SiPixelLorentzAnglePCLWorker::SiPixelLorentzAnglePCLWorker(const edm::ParameterS
 // ------------ method called for each event  ------------
 
 void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  static constexpr float cmToum = 10000.;
+
   // Retrieve tracker topology from geometry
   const TrackerTopology* const tTopo = &iSetup.getData(topoPerEventEsToken_);
 
@@ -525,9 +527,8 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
               }
               float ypixavg = 0.5 * (ypixlow + ypixhigh);
 
-              float changeUnit = 10000.;
-              float dx = (pixinfo_.x[j] - xlim1) * changeUnit;  // dx: in the unit of micrometer
-              float dy = (ypixavg - ylim1) * changeUnit;        // dy: in the unit of micrometer
+              float dx = (pixinfo_.x[j] - xlim1) * cmToum;  // dx: in the unit of micrometer
+              float dy = (ypixavg - ylim1) * cmToum;        // dy: in the unit of micrometer
               float depth = dy * tan(trackhit_.beta);
               float drift = dx - dy * tan(trackhit_.gamma);
 
@@ -536,6 +537,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
                 iHists.h_drift_depth_adc_.at(i_index)->Fill(drift, depth, pixinfo_.adc[j]);
                 iHists.h_drift_depth_adc2_.at(i_index)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
                 iHists.h_drift_depth_noadc_.at(i_index)->Fill(drift, depth, 1.);
+                iHists.h_bySectOccupancy_->Fill(i_index - 1);  // histogram starts at 0
               } else {
                 int new_index = iHists.nModules_[iHists.nlay - 1] +
                                 (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + DetId_index;
@@ -543,6 +545,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
                 iHists.h_drift_depth_adc_.at(new_index)->Fill(drift, depth, pixinfo_.adc[j]);
                 iHists.h_drift_depth_adc2_.at(new_index)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
                 iHists.h_drift_depth_noadc_.at(new_index)->Fill(drift, depth, 1.);
+                iHists.h_bySectOccupancy_->Fill(new_index - 1);  // histogram starts at 0
               }
             }
           }
@@ -790,6 +793,44 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
   iHists.h_trackPhi_ = iBooker.book1D("h_trackPhi", ";track #phi; #tracks", 48, -M_PI, M_PI);
   iHists.h_trackPt_ = iBooker.book1D("h_trackPt", ";track p_{T} [GeV]; #tracks", 100, 0., 100.);
   iHists.h_trackChi2_ = iBooker.book1D("h_trackChi2ndof", ";track #chi^{2}/ndof; #tracks", 100, 0., 10.);
+
+  // book the by partition monitoring
+  const auto maxSectors = iHists.nlay * iHists.nModules_[iHists.nlay - 1] + (int)iHists.BPixnewDetIds_.size();
+
+  iBooker.setCurrentFolder(fmt::sprintf("%s/SectorMonitoring", folder_.data()));
+  iHists.h_bySectOccupancy_ =
+      iBooker.book1D("h_bySectorOccupancy", ";pixel sector;hits on track", maxSectors, -0.5, maxSectors + 0.5);
+  iHists.h_bySectLA_ =
+      iBooker.book1D("h_bySectorLA", ";pixel sector;measured LA [1/T]", maxSectors, -0.5, maxSectors + 0.5);
+  iHists.h_bySectChi2_ =
+      iBooker.book1D("h_bySectorChi2", ";pixel sector; fit #chi^{2}/ndf", maxSectors, -0.5, maxSectors + 0.5);
+
+  // set the bin labels
+  for (int i_layer = 1; i_layer <= iHists.nlay; i_layer++) {
+    for (int i_module = 1; i_module <= iHists.nModules_[i_layer - 1]; i_module++) {
+      unsigned int i_index = i_module + (i_layer - 1) * iHists.nModules_[i_layer - 1];
+      std::string binName = fmt::sprintf("BPix Layer%i Module %i", i_layer, i_module);
+
+      LogDebug("SiPixelLorentzAnglePCLWorker")
+          << " i_index: " << i_index << " bin name: " << binName << " (i_layer: " << i_layer << " i_module:" << i_module
+          << ")" << std::endl;
+
+      iHists.h_bySectOccupancy_->setBinLabel(i_index, binName);
+      iHists.h_bySectLA_->setBinLabel(i_index, binName);
+      iHists.h_bySectChi2_->setBinLabel(i_index, binName);
+    }
+  }
+
+  for (int i = 0; i < (int)iHists.BPixnewDetIds_.size(); i++) {
+    int new_index = iHists.nModules_[iHists.nlay - 1] + (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + i;
+
+    LogDebug("SiPixelLorentzAnglePCLWorker")
+        << "i_index" << new_index << " bin name: " << iHists.BPixnewmodulename_[i] << std::endl;
+
+    iHists.h_bySectOccupancy_->setBinLabel(new_index, iHists.BPixnewmodulename_[i]);
+    iHists.h_bySectLA_->setBinLabel(new_index, iHists.BPixnewmodulename_[i]);
+    iHists.h_bySectChi2_->setBinLabel(new_index, iHists.BPixnewmodulename_[i]);
+  }
 }
 
 void SiPixelLorentzAnglePCLWorker::dqmEndRun(edm::Run const& run, edm::EventSetup const& iSetup) {
