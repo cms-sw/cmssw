@@ -57,7 +57,7 @@ namespace {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
           edm::FinalWaitingTask waitTask;
-          tbb::task_group group;
+          oneapi::tbb::task_group group;
           rec->prefetchAsync(
               edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
           do {

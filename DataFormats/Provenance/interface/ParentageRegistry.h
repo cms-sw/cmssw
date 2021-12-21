@@ -46,7 +46,7 @@ namespace edm {
     };
 
   private:
-    tbb::concurrent_unordered_map<key_type, value_type, key_hash> m_map;
+    oneapi::tbb::concurrent_unordered_map<key_type, value_type, key_hash> m_map;
   };
 
 }  // namespace edm

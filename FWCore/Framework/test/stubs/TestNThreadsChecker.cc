@@ -58,7 +58,7 @@ TestNThreadsChecker::TestNThreadsChecker(const edm::ParameterSet& iConfig, edm::
     : m_nExpectedThreads(iConfig.getUntrackedParameter<unsigned int>("nExpectedThreads")) {
   unsigned int expectedThreads = m_nExpectedThreads;
   if (expectedThreads == 0) {
-    expectedThreads = tbb::this_task_arena::max_concurrency();
+    expectedThreads = oneapi::tbb::this_task_arena::max_concurrency();
   }
 
   //now do what ever initialization is needed

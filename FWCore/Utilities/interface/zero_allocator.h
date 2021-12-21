@@ -26,7 +26,7 @@
  */
 
 namespace edm {
-  template <typename T, template <typename X> class Allocator = tbb::tbb_allocator>
+  template <typename T, template <typename X> class Allocator = oneapi::tbb::tbb_allocator>
   class zero_allocator : public Allocator<T> {
   public:
     using value_type = T;

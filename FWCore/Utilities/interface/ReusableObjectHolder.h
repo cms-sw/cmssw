@@ -161,7 +161,7 @@ namespace edm {
       --m_outstandingObjects;
     }
 
-    tbb::concurrent_queue<std::unique_ptr<T, Deleter>> m_availableQueue;
+    oneapi::tbb::concurrent_queue<std::unique_ptr<T, Deleter>> m_availableQueue;
     std::atomic<size_t> m_outstandingObjects;
   };
 

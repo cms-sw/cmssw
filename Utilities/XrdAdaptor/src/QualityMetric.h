@@ -72,7 +72,7 @@ namespace XrdAdaptor {
 
     CMS_THREAD_SAFE static QualityMetricFactory m_instance;
 
-    typedef tbb::concurrent_unordered_map<std::string, QualityMetricUniqueSource *> MetricMap;
+    typedef oneapi::tbb::concurrent_unordered_map<std::string, QualityMetricUniqueSource *> MetricMap;
     MetricMap m_sources;
   };
 

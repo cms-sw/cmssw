@@ -417,7 +417,8 @@ namespace edm {
         r.contributingInputs.push_back(i);
       }
     }
-    for (tbb::concurrent_vector<Token>::size_type i = 0, iEnd = impl_->inputFilesSecSource_.size(); i < iEnd; ++i) {
+    for (oneapi::tbb::concurrent_vector<Token>::size_type i = 0, iEnd = impl_->inputFilesSecSource_.size(); i < iEnd;
+         ++i) {
       if (!impl_->inputFilesSecSource_[i].fileHasBeenClosed) {
         r.contributingInputsSecSource.push_back(i);
       }

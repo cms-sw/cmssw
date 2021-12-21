@@ -61,8 +61,8 @@ namespace edmplugin {
       std::atomic<void*> m_ptr;
     };
 
-    typedef tbb::concurrent_vector<PluginMakerInfo, edm::zero_allocator<PluginMakerInfo>> PMakers;
-    typedef tbb::concurrent_unordered_map<std::string, PMakers> Plugins;
+    typedef oneapi::tbb::concurrent_vector<PluginMakerInfo, edm::zero_allocator<PluginMakerInfo>> PMakers;
+    typedef oneapi::tbb::concurrent_unordered_map<std::string, PMakers> Plugins;
 
     // ---------- const member functions ---------------------
 

@@ -12,7 +12,7 @@
 
 namespace edm {
   namespace {
-    typedef tbb::concurrent_unordered_map<TMethod const*, TypeWithDict> Map;
+    typedef oneapi::tbb::concurrent_unordered_map<TMethod const*, TypeWithDict> Map;
     Map returnTypeMap;
   }  // namespace
 

@@ -16,17 +16,17 @@ namespace edm {
   template <typename F>
   [[nodiscard]] std::exception_ptr syncWait(F&& iFunc) {
     std::exception_ptr exceptPtr{};
-    //tbb::task::suspend can only be run from within a task running in this arena. For 1 thread,
+    //oneapi::tbb::task::suspend can only be run from within a task running in this arena. For 1 thread,
     // it is often (always?) the case where not such task is being run here. Therefore we need
     // to use a temp task_group to start up such a task.
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
     group.run([&]() {
-      tbb::task::suspend([&](tbb::task::suspend_point tag) {
+      oneapi::tbb::task::suspend([&](oneapi::tbb::task::suspend_point tag) {
         auto waitTask = make_waiting_task([tag, &exceptPtr](std::exception_ptr const* iExcept) {
           if (iExcept) {
             exceptPtr = *iExcept;
           }
-          tbb::task::resume(tag);
+          oneapi::tbb::task::resume(tag);
         });
         iFunc(WaitingTaskHolder(group, waitTask));
       });  //suspend

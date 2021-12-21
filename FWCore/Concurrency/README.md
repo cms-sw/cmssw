@@ -15,7 +15,7 @@ A raw pointer to a  `edm::WaitingTask` is not supposed to be handled directly. I
 
 The easiest way to create an `edm::WaitingTask` is to call `edm::make_waiting_task` and pass in a lambda of the form `void(std::exception_ptr const*)`.
 ```C++
-  tbb::task_group group;
+  oneapi::tbb::task_group group;
   auto task = edm::make_waiting_task([](std::exception_ptr const* iPtr) { if(not iPtr) { runCalculation(); }});
   edm::WaitingTaskHolder taskHolder{ group, task };
 ```
@@ -26,7 +26,7 @@ In the case where one is doing a synchronous wait on a series of asynchronous ta
 ```C++
    edm::FinalWaitingTask finalTask;
    
-   tbb::task_group group;
+   oneapi::tbb::task_group group;
    doLotsOfWorkAsynchronously( edm::WaitingTaskHolder(group, &finalTask) );
    
    group.wait();
@@ -76,7 +76,7 @@ A chain can end in one of two ways. One is a call to `chain::lastTask` which tak
            | chain::lastTask(std::move(nextTask));
   }
 ```
-The other way is to call `chain::runLast` which will cause the first task to be run via `tbb::task_group::run()`.
+The other way is to call `chain::runLast` which will cause the first task to be run via `oneapi::tbb::task_group::run()`.
 ```C++
   void doFirstAsync(edm::WaitingTaskHolder nextTask) {
     chain::first([](auto nextTask) { doFirst(std::move(nextTask)); } )
@@ -153,12 +153,12 @@ Calling `doneWaiting(std::exception_ptr)` will cause the class to decrement the 
 An `edm::WaitingTaskList` can be used multiple times by calling the `reset()` method. This method must only be called after `doneWaiting()` has been called AND when no further `add()` will be called which are supposed to be associated with the previous `doneWaiting()` call.
 
 ## `edm::WaitingTaskWithArenaHolder`
-This class behaves just like `edm::WaitingTaskHolder` except it will use the `tbb::task_arena` is is given when calling `tbb::task_group::run` rather than using the default `tbb::task_arena` associated with the local thread. This is useful for the case where one wants to potentially enqueue a task from a non-TBB thread.
+This class behaves just like `edm::WaitingTaskHolder` except it will use the `oneapi::tbb::task_arena` is is given when calling `oneapi::tbb::task_group::run` rather than using the default `oneapi::tbb::task_arena` associated with the local thread. This is useful for the case where one wants to potentially enqueue a task from a non-TBB thread.
 
 ## `edm::SerialTaskQueue`
 One needs to serialize access to non-thread-safe shared resources. Rather than using a thread blocking primative, like a mutex, one can use the `edm::SerialTaskQueue`. The class guarantees that one and only one task from the queue will be executing at any given time. The tasks are run asynchronously.
 
-A task is added to the queue via the call to `push(tbb::task_group&, F&&)` where the second argument is a lambda of the form `void()`. If no other task from the queue is running during the call to `push()` then the task will immediately be passed to `tbb::task_group::run`. If a task is already running, the new task will be placed at the end of the list of presently waiting tasks. Once the running task completes, it will automatically all `tbb::task_group::run` on the longest waiting task. Concurrent calls to `push()` are safe.
+A task is added to the queue via the call to `push(oneapi::tbb::task_group&, F&&)` where the second argument is a lambda of the form `void()`. If no other task from the queue is running during the call to `push()` then the task will immediately be passed to `oneapi::tbb::task_group::run`. If a task is already running, the new task will be placed at the end of the list of presently waiting tasks. Once the running task completes, it will automatically all `oneapi::tbb::task_group::run` on the longest waiting task. Concurrent calls to `push()` are safe.
 
 The action of pulling a waiting task off the queue and running it can be paused by calling `pause()`. The queue can be restarted by calling `resume()`. Multiple `pause()` calls can be made just as long as an equal number of `resume()` calls.
 
@@ -167,7 +167,7 @@ Example: protecting `std::cout` so printouts do not intertwine.
 ```C++
   edm::SerialTaskQueue queue;
   
-  tbb::task_group group;
+  oneapi::tbb::task_group group;
   for(int i=0; i<3; ++i) {
     group.run([&queue, &group] {
       usleep(1000);
@@ -201,7 +201,7 @@ This class allows N tasks from the queue to be run at any given time where N in 
   //limit the amount of memory used to 8GB by having at most 8 task running each with 1GB
   edm::LimitedTaskQueue queue(8);
   
-  tbb::task_group group;
+  oneapi::tbb::task_group group;
   for(int i=0; i< 100; ++i) {
     group.run([&group, &queue] () {
       auto result = doWork();

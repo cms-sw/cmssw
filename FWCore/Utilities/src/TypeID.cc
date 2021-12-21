@@ -38,7 +38,7 @@ namespace edm {
   };
 
   std::string const& TypeID::className() const {
-    typedef tbb::concurrent_unordered_map<edm::TypeID, std::string, TypeIDHasher> Map;
+    typedef oneapi::tbb::concurrent_unordered_map<edm::TypeID, std::string, TypeIDHasher> Map;
     static Map s_typeToName;
 
     auto itFound = s_typeToName.find(*this);

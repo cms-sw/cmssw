@@ -280,7 +280,7 @@ namespace edm {
         std::cout << "\nfriendlyName for " << iFullName << std::endl;
         prefix = " ";
       }
-      typedef tbb::concurrent_unordered_map<std::string, std::string> Map;
+      typedef oneapi::tbb::concurrent_unordered_map<std::string, std::string> Map;
       static Map s_fillToFriendlyName;
       auto itFound = s_fillToFriendlyName.find(iFullName);
       if (s_fillToFriendlyName.end() == itFound) {

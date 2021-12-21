@@ -29,11 +29,12 @@ SerialTaskQueue::~SerialTaskQueue() {
   bool isEmpty = m_tasks.empty();
   bool isTaskChosen = m_taskChosen;
   if ((not isEmpty and not isPaused()) or isTaskChosen) {
-    tbb::task_group g;
+    oneapi::tbb::task_group g;
     g.run([&g, this]() {
-      tbb::task::suspend(
-          [&g, this](tbb::task::suspend_point tag) { push(g, [tag]() { tbb::task::resume(tag); }); });  //suspend
-    });                                                                                                 //group run
+      oneapi::tbb::task::suspend([&g, this](oneapi::tbb::task::suspend_point tag) {
+        push(g, [tag]() { oneapi::tbb::task::resume(tag); });
+      });  //suspend
+    });    //group run
     g.wait();
   }
 }
