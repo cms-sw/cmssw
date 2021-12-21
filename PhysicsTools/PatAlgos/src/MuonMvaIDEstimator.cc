@@ -27,9 +27,6 @@ void MuonMvaIDEstimator::fillDescriptions(edm::ConfigurationDescriptions &descri
   descriptions.addWithDefaultLabel(desc);
 }
 
-std::unique_ptr<cms::Ort::ONNXRuntime> MuonMvaIDEstimator::initializeGlobalCache(const edm::ParameterSet &iConfig) {
-  return std::make_unique<cms::Ort::ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("mvaIDTrainingFile").fullPath());
-}
 void MuonMvaIDEstimator::globalEndJob(const cms::Ort::ONNXRuntime *cache) {}
 const reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration;
 std::vector<float> MuonMvaIDEstimator::computeMVAID(const pat::Muon &muon) const {
