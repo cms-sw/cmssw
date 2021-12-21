@@ -206,8 +206,6 @@ void TauTagValidation::bookHistograms(DQMStore::IBooker& ibooker,
   int j = 0;
   for (const auto& it : discriminators_) {
     string DiscriminatorLabel = it.getParameter<string>("discriminator");
-    std::cout << "Current discriminator: \n";
-    std::cout << DiscriminatorLabel;
     std::string histogramName;
     stripDiscriminatorLabel(DiscriminatorLabel, histogramName);
 
@@ -485,8 +483,7 @@ void TauTagValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& 
 void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (genericTriggerEventFlag_) {
     if (!genericTriggerEventFlag_->on())
-      std::cout << "TauTagValidation::analyze: No working genericTriggerEventFlag. Did you specify a valid globaltag?"
-                << std::endl;  //move to LogDebug?
+      LogInfo("TauTagValidation") << " TauTagValidation::analyze: No working genericTriggerEventFlag. Did you specify a valid globaltag?";
   }
 
   numEvents_++;
