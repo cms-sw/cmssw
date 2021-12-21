@@ -109,10 +109,10 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
 
   uint count = 0;
   for (const auto& id : hists.BPixnewDetIds_) {
-    LogDebug("SiPixelLorentzAnglePCLHarvester") << id << std::endl;
+    LogDebug("SiPixelLorentzAnglePCLHarvester") << id;
     count++;
   }
-  LogDebug("SiPixelLorentzAnglePCLHarvester") << "Stored a total of " << count << " new detIds." << std::endl;
+  LogDebug("SiPixelLorentzAnglePCLHarvester") << "Stored a total of " << count << " new detIds.";
 
   // list of modules already filled, return (we already entered here)
   if (!hists.detIdsList.empty())
@@ -144,11 +144,11 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
   count = 0;
   for (const auto& i : treatedIndices) {
     for (const auto& id : hists.detIdsList.at(i)) {
-      LogDebug("SiPixelLorentzAnglePCLHarvester") << id << std::endl;
+      LogDebug("SiPixelLorentzAnglePCLHarvester") << id;
       count++;
     };
   }
-  LogDebug("SiPixelLorentzAnglePCLHarvester") << "Stored a total of " << count << " detIds." << std::endl;
+  LogDebug("SiPixelLorentzAnglePCLHarvester") << "Stored a total of " << count << " detIds.";
 }
 
 //------------------------------------------------------------------------------
@@ -255,7 +255,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
                                 << "p5" << "\t" << "e5" << "\t"
                                 << "chi2" << "\t" << "prob" << "\t"
                                 << "newDetId" << "\t" << "tan(LA)" << "\t"
-                                << "Error(LA)" << std::endl;
+                                << "Error(LA)" ;
   // clang-format on
 
   std::unique_ptr<SiPixelLorentzAngle> LorentzAngle = std::make_unique<SiPixelLorentzAngle>();
@@ -334,7 +334,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
                                   << "\t" << e1 / p1 * 100. << "\t" << (p1 - p1_simul_newmodule) / e1 << "\t" << p2
                                   << "\t" << e2 << "\t" << p3 << "\t" << e3 << "\t" << p4 << "\t" << e4 << "\t" << p5
                                   << "\t" << e5 << "\t" << chi2 << "\t" << prob << "\t" << hists.BPixnewDetIds_[j]
-                                  << "\t" << tan_LA << "\t" << error_LA << std::endl;
+                                  << "\t" << tan_LA << "\t" << error_LA;
 
     float bPixLorentzAnglePerTesla_;
     // if the fit quality is OK
@@ -342,15 +342,14 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
       bPixLorentzAnglePerTesla_ = tan_LA / theMagField;
       if (!LorentzAngle->putLorentzAngle(rawId, bPixLorentzAnglePerTesla_)) {
         edm::LogError("SiPixelLorentzAnglePCLHarvester")
-            << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling new modules: detid already exists" << std::endl;
+            << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling new modules: detid already exists";
       }
     } else {
       // just copy the values from the existing payload
       bPixLorentzAnglePerTesla_ = currentLorentzAngle->getLorentzAngle(rawId);
       if (!LorentzAngle->putLorentzAngle(rawId, bPixLorentzAnglePerTesla_)) {
         edm::LogError("SiPixelLorentzAnglePCLHarvester")
-            << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling new modules (from current): detid already exists"
-            << std::endl;
+            << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling new modules (from current): detid already exists";
       }
     }
   }  // loop on BPix new modules
@@ -439,16 +438,16 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
                                     << e2 << "\t" << p3 << "\t" << e3 << "\t" << p4 << "\t" << e4 << "\t" << p5 << "\t"
                                     << e5 << "\t" << chi2 << "\t" << prob << "\t"
                                     << "null"
-                                    << "\t" << tan_LA << "\t" << error_LA << std::endl;
+                                    << "\t" << tan_LA << "\t" << error_LA;
 
       const auto& detIdsToFill = hists.detIdsList.at(i_index);
 
       LogDebug("SiPixelLorentzAnglePCLHarvester")
-          << "index: " << i_index << " i_module: " << i_module << " i_layer: " << i_layer << std::endl;
+          << "index: " << i_index << " i_module: " << i_module << " i_layer: " << i_layer;
       for (const auto& id : detIdsToFill) {
         LogDebug("SiPixelLorentzAnglePCLHarvester") << id << ",";
       }
-      LogDebug("SiPixelLorentzAnglePCLHarvester") << std::endl;
+      LogDebug("SiPixelLorentzAnglePCLHarvester");
 
       float bPixLorentzAnglePerTesla_;
       // if the fit quality is OK
@@ -457,7 +456,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
           bPixLorentzAnglePerTesla_ = tan_LA / theMagField;
           if (!LorentzAngle->putLorentzAngle(id, bPixLorentzAnglePerTesla_)) {
             edm::LogError("SiPixelLorentzAnglePCLHarvester")
-                << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling BPix: detid already exists" << std::endl;
+                << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling BPix: detid already exists";
           }
         }
       } else {
@@ -466,8 +465,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
           bPixLorentzAnglePerTesla_ = currentLorentzAngle->getLorentzAngle(id);
           if (!LorentzAngle->putLorentzAngle(id, bPixLorentzAnglePerTesla_)) {
             edm::LogError("SiPixelLorentzAnglePCLHarvester")
-                << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling BPix (from current): detid already exists"
-                << std::endl;
+                << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling BPix (from current): detid already exists";
           }
         }
       }
@@ -498,7 +496,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     float fPixLorentzAnglePerTesla_ = currentLorentzAngle->getLorentzAngle(id);
     if (!LorentzAngle->putLorentzAngle(id, fPixLorentzAnglePerTesla_)) {
       edm::LogError("SiPixelLorentzAnglePCLHarvester")
-          << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling rest of payload: detid already exists" << std::endl;
+          << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling rest of payload: detid already exists";
     }
   }
 
@@ -518,12 +516,12 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     try {
       mydbservice->writeOneIOV(*LorentzAngle, mydbservice->currentTime(), recordName_);
     } catch (const cond::Exception& er) {
-      edm::LogError("SiPixelLorentzAngleDB") << er.what() << std::endl;
+      edm::LogError("SiPixelLorentzAngleDB") << er.what();
     } catch (const std::exception& er) {
-      edm::LogError("SiPixelLorentzAngleDB") << "caught std::exception " << er.what() << std::endl;
+      edm::LogError("SiPixelLorentzAngleDB") << "caught std::exception " << er.what();
     }
   } else {
-    edm::LogError("SiPixelLorentzAngleDB") << "Service is unavailable" << std::endl;
+    edm::LogError("SiPixelLorentzAngleDB") << "Service is unavailable";
   }
 }
 
