@@ -63,4 +63,4 @@ process.testETL = cms.EDAnalyzer("TestMTDIdealGeometry",
 
 process.Timing = cms.Service("Timing")
 
-process.p1 = cms.Path(process.testBTL+process.testETL)
+process.p1 = cms.Path(cms.wait(process.testBTL)+process.testETL)
