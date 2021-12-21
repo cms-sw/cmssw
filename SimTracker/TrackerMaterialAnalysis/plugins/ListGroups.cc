@@ -89,7 +89,7 @@ private:
   void produceAndSaveSummaryPlot(const edm::EventSetup &);
 
   const bool m_saveSummaryPlot;
-  const edm::ESGetToken<DDCompactView, IdealGeometryRecord>  ddToken_;
+  const edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
   std::vector<TH2F *> m_plots;
   std::set<std::string> m_group_names;
   std::vector<MaterialAccountingGroup *> m_groups;
@@ -109,9 +109,9 @@ private:
   std::map<std::string, std::pair<float, float> > m_values;
 };
 
-ListGroups::ListGroups(const edm::ParameterSet &iPSet) :
-  m_saveSummaryPlot(iPSet.getUntrackedParameter<bool>("SaveSummaryPlot")),
-  ddToken_(esConsumes<DDCompactView, IdealGeometryRecord>()) {
+ListGroups::ListGroups(const edm::ParameterSet &iPSet)
+    : m_saveSummaryPlot(iPSet.getUntrackedParameter<bool>("SaveSummaryPlot")),
+      ddToken_(esConsumes<DDCompactView, IdealGeometryRecord>()) {
   m_plots.clear();
   m_groups.clear();
   TColor::InitializeColors();
