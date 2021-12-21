@@ -3,10 +3,10 @@
 // Package:    CalibTracker/SiPixelLorentzAnglePCLWorker
 // Class:      SiPixelLorentzAnglePCLWorker
 //
-/**\class SiPixelLorentzAnglePCLWorker SiPixelLorentzAnglePCLWorker.cc CalibTracker/SiPixelLorentzAnglePCLWorker/plugins/SiPixelLorentzAnglePCLWorker.cc
- Description: [one line class summary]
+/**\class SiPixelLorentzAnglePCLWorker SiPixelLorentzAnglePCLWorker.cc CalibTracker/SiPixelLorentzAnglePCLWorker/src/SiPixelLorentzAnglePCLWorker.cc
+ Description: generates the intermediate ALCAPROMPT dataset for the measurement of the SiPixel Lorentz Angle in the Prompt Calibration Loop
  Implementation:
-     [Notes on implementation]
+     Books and fills 2D histograms of the drift vs depth in bins of pixel module rings to be fed into the SiPixelLorentzAnglePCLHarvester
 */
 //
 // Original Author:  mmusich

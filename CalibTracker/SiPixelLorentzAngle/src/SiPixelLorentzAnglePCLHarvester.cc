@@ -1,7 +1,26 @@
+// -*- C++ -*-
+//
+// Package:    CalibTracker/SiPixelLorentzAnglePCLHarvester
+// Class:      SiPixelLorentzAnglePCLHarvester
+//
+/**\class SiPixelLorentzAnglePCLHarvester SiPixelLorentzAnglePCLHarvester.cc CalibTracker/SiPixelLorentzAngle/src/SiPixelLorentzAnglePCLHarvester.cc
+ Description: reads the intermediate ALCAPROMPT DQMIO-like dataset and performs the fitting of the SiPixel Lorentz Angle in the Prompt Calibration Loop
+ Implementation:
+     Reads the 2D histograms of the drift vs depth created by SiPixelLorentzAnglePCLWorker modules and generates 1D profiles which are then fit
+     with a 5th order polinomial. The extracted value of the tan(theta_L)/B are stored in an output sqlite file which is then uploaded to the conditions database
+*/
+//
+// Original Author:  mmusich
+//         Created:  Sat, 29 May 2021 14:46:19 GMT
+//
+//
+
+// system includes
 #include <fmt/format.h>
 #include <fmt/printf.h>
 #include <fstream>
 
+// user includes
 #include "CalibTracker/SiPixelLorentzAngle/interface/SiPixelLorentzAngleCalibrationStruct.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
