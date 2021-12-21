@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <memory>
 #include <atomic>
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"

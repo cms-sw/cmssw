@@ -12,7 +12,7 @@
 
 // system include files
 #include <mutex>
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 
 // user include files
 #include "FWCore/PythonFramework/interface/PythonEventProcessor.h"

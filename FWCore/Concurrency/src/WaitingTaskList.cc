@@ -14,7 +14,7 @@
 // system include files
 
 // user include files
-#include "tbb/task.h"
+#include "oneapi/tbb/task.h"
 #include <cassert>
 #include <memory>
 

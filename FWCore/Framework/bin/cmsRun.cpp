@@ -31,7 +31,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "TError.h"
 
 #include "boost/program_options.hpp"
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 
 #include <cstring>
 #include <exception>

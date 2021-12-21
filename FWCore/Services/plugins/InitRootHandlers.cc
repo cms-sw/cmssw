@@ -18,10 +18,10 @@
 #include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
-#include "tbb/concurrent_unordered_set.h"
-#include "tbb/task.h"
-#include "tbb/task_scheduler_observer.h"
-#include "tbb/global_control.h"
+#include "oneapi/tbb/concurrent_unordered_set.h"
+#include "oneapi/tbb/task.h"
+#include "oneapi/tbb/task_scheduler_observer.h"
+#include "oneapi/tbb/global_control.h"
 #include <memory>
 
 #include <thread>

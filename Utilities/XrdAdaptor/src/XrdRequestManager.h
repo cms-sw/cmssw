@@ -8,7 +8,7 @@
 #include <random>
 #include <sys/stat.h>
 
-#include "tbb/concurrent_unordered_set.h"
+#include "oneapi/tbb/concurrent_unordered_set.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 

@@ -20,7 +20,7 @@
 
 // system include files
 #include <cassert>
-#include "tbb/task_group.h"
+#include "oneapi/tbb/task_group.h"
 
 // user include files
 #include "FWCore/Concurrency/interface/WaitingTask.h"

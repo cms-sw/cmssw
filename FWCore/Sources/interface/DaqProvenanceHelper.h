@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"

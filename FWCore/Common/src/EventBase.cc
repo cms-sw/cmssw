@@ -12,7 +12,7 @@
 
 // system include files
 #include <vector>
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 // user include files
 #include "FWCore/Common/interface/EventBase.h"

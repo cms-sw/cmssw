@@ -3,7 +3,7 @@
 ----------------------------------------------------------------------*/
 #include <cassert>
 #include <ostream>
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/Exception.h"

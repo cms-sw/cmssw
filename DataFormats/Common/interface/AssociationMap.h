@@ -38,7 +38,7 @@
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
 
 #include <utility>
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 namespace edm {
 

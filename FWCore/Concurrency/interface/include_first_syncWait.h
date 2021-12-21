@@ -8,8 +8,8 @@
 //  Created by Chris Jones on 2/24/21.
 //
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
-#include "tbb/task_group.h"
-#include "tbb/task.h"
+#include "oneapi/tbb/task_group.h"
+#include "oneapi/tbb/task.h"
 #include <exception>
 
 namespace edm {

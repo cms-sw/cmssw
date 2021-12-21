@@ -10,7 +10,7 @@
 #include <vector>
 #include <map>
 #include <functional>
-#include "tbb/global_control.h"
+#include "oneapi/tbb/global_control.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"

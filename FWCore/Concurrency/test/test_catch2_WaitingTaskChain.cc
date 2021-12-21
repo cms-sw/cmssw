@@ -8,7 +8,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-#include "tbb/global_control.h"
+#include "oneapi/tbb/global_control.h"
 
 #include "FWCore/Concurrency/interface/chain_first.h"
 

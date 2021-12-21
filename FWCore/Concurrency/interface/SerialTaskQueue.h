@@ -56,8 +56,8 @@
 #include <atomic>
 #include <cassert>
 
-#include "tbb/task_group.h"
-#include "tbb/concurrent_queue.h"
+#include "oneapi/tbb/task_group.h"
+#include "oneapi/tbb/concurrent_queue.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // user include files

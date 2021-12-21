@@ -6,7 +6,7 @@
 #include <sstream>
 #include <atomic>
 #include <mutex>
-#include <tbb/concurrent_unordered_map.h>
+#include <oneapi/tbb/concurrent_unordered_map.h>
 #include "FWCore/Utilities/interface/InputType.h"
 
 namespace edm {

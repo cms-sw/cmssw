@@ -31,7 +31,7 @@
 
 #include <vector>
 #include <string>
-#include "tbb/concurrent_vector.h"
+#include "oneapi/tbb/concurrent_vector.h"
 #include <iostream>
 
 namespace edm {

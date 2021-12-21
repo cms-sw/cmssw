@@ -19,7 +19,7 @@
 
 #include <iostream>
 #include <atomic>
-#include "tbb/concurrent_queue.h"
+#include "oneapi/tbb/concurrent_queue.h"
 
 namespace edm {
   namespace service {

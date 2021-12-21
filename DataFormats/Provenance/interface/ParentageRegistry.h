@@ -1,7 +1,7 @@
 #ifndef DataFormats_Provenance_ParentageRegistry_h
 #define DataFormats_Provenance_ParentageRegistry_h
 
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"

@@ -6,9 +6,9 @@ namespace {
 
 }
 
-#include "tbb/parallel_for.h"
-#include "tbb/task_arena.h"
-#include "tbb/global_control.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/global_control.h"
 #include <iostream>
 #include <vector>
 #include <atomic>

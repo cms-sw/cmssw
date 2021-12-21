@@ -34,7 +34,7 @@
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 #include <memory>
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 
 namespace {
   edm::ActivityRegistry activityRegistry;

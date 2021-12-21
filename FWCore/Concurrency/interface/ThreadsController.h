@@ -19,8 +19,8 @@
 //
 
 // system include files
-#include "tbb/global_control.h"
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/global_control.h"
+#include "oneapi/tbb/task_arena.h"
 #include <memory>
 
 // user include files

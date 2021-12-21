@@ -8,7 +8,7 @@
 #include "TMethodArg.h"
 #include "TMethodCall.h"
 
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 namespace edm {
   namespace {

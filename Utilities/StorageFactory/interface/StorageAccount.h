@@ -7,7 +7,7 @@
 #include <atomic>
 #include <map>
 #include <memory>
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 namespace edm::storage {
   class StorageAccount {

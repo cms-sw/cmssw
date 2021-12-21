@@ -2,8 +2,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
-#include "tbb/parallel_for.h"
-#include "tbb/blocked_range.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/blocked_range.h"
 
 #include <cstdlib>
 #include <iostream>

@@ -18,7 +18,7 @@
 #include "TRealData.h"
 #include "TROOT.h"
 
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 #include <cassert>
 #include <cstdio>

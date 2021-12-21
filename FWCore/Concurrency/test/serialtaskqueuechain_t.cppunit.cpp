@@ -13,7 +13,7 @@
 #include <atomic>
 #include <thread>
 #include <iostream>
-#include "tbb/task.h"
+#include "oneapi/tbb/task.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
 
 class SerialTaskQueueChain_test : public CppUnit::TestFixture {

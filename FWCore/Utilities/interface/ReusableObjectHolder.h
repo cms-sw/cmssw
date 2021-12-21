@@ -75,7 +75,7 @@
 #include <cassert>
 #include <memory>
 
-#include <tbb/concurrent_queue.h>
+#include <oneapi/tbb/concurrent_queue.h>
 
 namespace edm {
   template <class T, class Deleter = std::default_delete<T>>
