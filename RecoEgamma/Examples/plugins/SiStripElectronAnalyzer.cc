@@ -76,6 +76,9 @@ private:
   }
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
+
   std::string fileName_;
 
   TFile* file_;
@@ -203,7 +206,8 @@ private:
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripElectronAnalyzer);
 
-SiStripElectronAnalyzer::SiStripElectronAnalyzer(const edm::ParameterSet& iConfig) {
+SiStripElectronAnalyzer::SiStripElectronAnalyzer(const edm::ParameterSet& iConfig)
+    : topoToken_(esConsumes()), trackerToken_(esConsumes()) {
   //now do what ever initialization is needed
   fileName_ = iConfig.getParameter<std::string>("fileName");
 
@@ -434,8 +438,7 @@ void SiStripElectronAnalyzer::initNtuple() {
 // ------------ method called to produce the data  ------------
 void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = iSetup.getHandle(topoToken_);
 
   using namespace std;  // so you can say "cout" and "endl"
 
@@ -924,8 +927,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   ///////////////////// Now for tracker hits: ///////////////////////////////////////
   LogDebug("") << " About to dump tracker info ";
 
-  edm::ESHandle<TrackerGeometry> trackerHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
+  edm::ESHandle<TrackerGeometry> trackerHandle = iSetup.getHandle(trackerToken_);
 
   edm::Handle<SiStripRecHit2DCollection> rphiHitsHandle;
   iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, rphiHitsHandle);
