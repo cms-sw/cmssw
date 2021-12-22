@@ -1,10 +1,12 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include <iostream>
+#include <sstream>
 
 class HcalSimParametersAnalyzer : public edm::one::EDAnalyzer<> {
 public:
@@ -24,56 +26,59 @@ void HcalSimParametersAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm:
   const auto& parS = iSetup.getData(simparToken_);
   const HcalSimulationParameters* parsim = &parS;
   if (parsim != nullptr) {
-    std::cout << "\nattenuationLength_: ";
+    std::ostringstream st1;
+    st1 << "\nattenuationLength_: ";
     for (const auto& it : parsim->attenuationLength_)
-      std::cout << it << ", ";
-    std::cout << "\nlambdaLimits_: ";
+      st1 << it << ", ";
+    st1 << "\nlambdaLimits_: ";
     for (const auto& it : parsim->lambdaLimits_)
-      std::cout << it << ", ";
-    std::cout << "\nshortFiberLength_: ";
+      st1 << it << ", ";
+    st1 << "\nshortFiberLength_: ";
     for (const auto& it : parsim->shortFiberLength_)
-      std::cout << it << ", ";
-    std::cout << "\nlongFiberLength_: ";
+      st1 << it << ", ";
+    st1 << "\nlongFiberLength_: ";
     for (const auto& it : parsim->longFiberLength_)
-      std::cout << it << ", ";
-    std::cout << std::endl;
+      st1 << it << ", ";
+    edm::LogVerbatim("HCalGeom") << st1.str();
 
-    std::cout << "\npmtRight_: ";
+    std::ostringstream st2;
+    st2 << "\npmtRight_: ";
     for (const auto& it : parsim->pmtRight_)
-      std::cout << it << ", ";
-    std::cout << "\npmtFiberRight_: ";
+      st2 << it << ", ";
+    st2 << "\npmtFiberRight_: ";
     for (const auto& it : parsim->pmtFiberRight_)
-      std::cout << it << ", ";
-    std::cout << "\npmtLeft_: ";
+      st2 << it << ", ";
+    st2 << "\npmtLeft_: ";
     for (const auto& it : parsim->pmtLeft_)
-      std::cout << it << ", ";
-    std::cout << "\npmtFiberLeft_: ";
+      st2 << it << ", ";
+    st2 << "\npmtFiberLeft_: ";
     for (const auto& it : parsim->pmtFiberLeft_)
-      std::cout << it << ", ";
-    std::cout << std::endl;
+      st2 << it << ", ";
+    edm::LogVerbatim("HCalGeom") << st2.str();
 
-    std::cout << "\nhfLevels_: ";
+    std::ostringstream st3;
+    st3 << "\nhfLevels_: ";
     for (const auto& it : parsim->hfLevels_)
-      std::cout << it << ", ";
-    std::cout << "\nhfNames_: ";
+      st3 << it << ", ";
+    st3 << "\nhfNames_: ";
     for (const auto& it : parsim->hfNames_)
-      std::cout << it << ", ";
-    std::cout << "\nhfFibreNames_: ";
+      st3 << it << ", ";
+    st3 << "\nhfFibreNames_: ";
     for (const auto& it : parsim->hfFibreNames_)
-      std::cout << it << ", ";
-    std::cout << "\nhfPMTNames_: ";
+      st3 << it << ", ";
+    st3 << "\nhfPMTNames_: ";
     for (const auto& it : parsim->hfPMTNames_)
-      std::cout << it << ", ";
-    std::cout << "\nhfFibreStraightNames_: ";
+      st3 << it << ", ";
+    st3 << "\nhfFibreStraightNames_: ";
     for (const auto& it : parsim->hfFibreStraightNames_)
-      std::cout << it << ", ";
-    std::cout << "\nhfFibreConicalNames_: ";
+      st3 << it << ", ";
+    st3 << "\nhfFibreConicalNames_: ";
     for (const auto& it : parsim->hfFibreConicalNames_)
-      std::cout << it << ", ";
-    std::cout << "\nhcalMaterialNames_: ";
+      st3 << it << ", ";
+    st3 << "\nhcalMaterialNames_: ";
     for (const auto& it : parsim->hcalMaterialNames_)
-      std::cout << it << ", ";
-    std::cout << std::endl;
+      st3 << it << ", ";
+    edm::LogVerbatim("HCalGeom") << st3.str();
   }
 }
 

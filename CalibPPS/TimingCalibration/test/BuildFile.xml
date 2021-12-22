@@ -1,0 +1,1 @@
+<test name="testDiamondLUTCalibration" command="test_timing_LUT_cal.sh"/>

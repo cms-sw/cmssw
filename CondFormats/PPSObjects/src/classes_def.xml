@@ -67,6 +67,12 @@
       <field name="parameters_"/>
       <field name="timeInfo_"/>
     </class>
+    
+    <class name="PPSTimingCalibrationLUT::Key"/>
+    <class name="std::map<PPSTimingCalibrationLUT::Key,std::vector<double> >"/>
+    <class name="PPSTimingCalibrationLUT" class_version="0">
+      <field name="binMap_"/>
+    </class>
 
     <class name="LHCOpticalFunctionsSet"/>
     <class name="LHCOpticalFunctionsSetCollection"/>
