@@ -110,6 +110,7 @@ The script also handles the common and forward elements of the geometry:
 * F5: same as F4 but changes due to HFNose
 * F6: same as F4 with modifications needed for BRM and forward shield
 * F7: same as F6 with modifications needed for HFNose
+* F8: same as F6 or F7 without BRM
 
 Several detector combinations have been generated:
 * D49 = T15+C9+M4+I10+O4+F2 (HLT TDR baseline)
@@ -129,5 +130,5 @@ Several detector combinations have been generated:
 * D86 = T24+C17+M10+I14+O8+F6
 * D87 = T27+C14+M9+I13+O7+F6
 * D88 = T24+C17+M10+I15+O9+F6
-* D89 = T28+C14+M9+I13+O7+F6
-* D90 = T29+C14+M9+I13+O7+F6
+* D89 = T28+C14+M9+I13+O7+F8
+* D90 = T29+C14+M9+I13+O7+F8
