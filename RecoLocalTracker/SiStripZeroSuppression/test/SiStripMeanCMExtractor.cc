@@ -56,7 +56,6 @@ public:
 private:
   void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   void init(const edm::EventSetup&);
 
@@ -203,7 +202,5 @@ void SiStripMeanCMExtractor::beginJob() {
 
   _cmMap.clear();
 }
-
-void SiStripMeanCMExtractor::endJob() {}
 
 DEFINE_FWK_MODULE(SiStripMeanCMExtractor);
