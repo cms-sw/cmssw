@@ -1,9 +1,9 @@
 // -*- C++ -*-
 ///bookLayer
-// Package:    SiPixelPhase1MonitorDigiSoA
-// Class:      SiPixelPhase1MonitorDigiSoA
+// Package:    SiPixelPhase1MonitorDigi
+// Class:      SiPixelPhase1MonitorDigi
 //
-/**\class SiPixelPhase1MonitorDigiSoA SiPixelPhase1MonitorDigiSoA.cc 
+/**\class SiPixelPhase1MonitorDigi SiPixelPhase1MonitorDigi.cc 
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -28,36 +28,28 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/SiPixelDigi/interface/SiPixelDigisSoA.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
-class SiPixelPhase1MonitorDigiSoA : public DQMEDAnalyzer {
+class SiPixelPhase1MonitorDigi : public DQMEDAnalyzer {
 public:
-  explicit SiPixelPhase1MonitorDigiSoA(const edm::ParameterSet&);
-  ~SiPixelPhase1MonitorDigiSoA() override = default;
+  explicit SiPixelPhase1MonitorDigi(const edm::ParameterSet&);
+  ~SiPixelPhase1MonitorDigi() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::EDGetTokenT<SiPixelDigisSoA> tokenSoADigi_;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tokenDigi_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   std::string topFolderName_;
-  MonitorElement* hnDigisSoA;
   MonitorElement* hnDigis;
-  MonitorElement* hnDigisSoABarrel;
   MonitorElement* hnDigisBarrel;
-  MonitorElement* hnDigisSoAEndcap;
   MonitorElement* hnDigisEndcap;
 
-  MonitorElement* hDigisSoAADC;
   MonitorElement* hDigisADC;
-  MonitorElement* hDigisSoABarrelADC;
   MonitorElement* hDigisBarrelADC;
-  MonitorElement* hDigisSoAEndcapADC;
   MonitorElement* hDigisEndcapADC;
 
   MonitorElement* hnDigisBarrelLayer1;
@@ -96,43 +88,6 @@ private:
   //MonitorElement* hDigisEndcapDiskp5ADC;
   //MonitorElement* hDigisEndcapDiskp6ADC;
 
-  MonitorElement* hnDigisSoABarrelLayer1;
-  MonitorElement* hnDigisSoABarrelLayer2;
-  MonitorElement* hnDigisSoABarrelLayer3;
-  MonitorElement* hnDigisSoABarrelLayer4;
-
-  MonitorElement* hDigisSoABarrelLayer1ADC;
-  MonitorElement* hDigisSoABarrelLayer2ADC;
-  MonitorElement* hDigisSoABarrelLayer3ADC;
-  MonitorElement* hDigisSoABarrelLayer4ADC;
-
-  MonitorElement* hnDigisSoAEndcapDiskm1;
-  MonitorElement* hnDigisSoAEndcapDiskm2;
-  MonitorElement* hnDigisSoAEndcapDiskm3;
-  //MonitorElement* hnDigisSoAEndcapDiskm4;
-  //MonitorElement* hnDigisSoAEndcapDiskm5;
-  //MonitorElement* hnDigisSoAEndcapDiskm6;
-
-  MonitorElement* hnDigisSoAEndcapDiskp1;
-  MonitorElement* hnDigisSoAEndcapDiskp2;
-  MonitorElement* hnDigisSoAEndcapDiskp3;
-  //MonitorElement* hnDigisSoAEndcapDiskp4;
-  //MonitorElement* hnDigisSoAEndcapDiskp5;
-  //MonitorElement* hnDigisSoAEndcapDiskp6;
-
-  MonitorElement* hDigisSoAEndcapDiskm1ADC;
-  MonitorElement* hDigisSoAEndcapDiskm2ADC;
-  MonitorElement* hDigisSoAEndcapDiskm3ADC;
-  //MonitorElement* hDigisSoAEndcapDiskm4ADC;
-  //MonitorElement* hDigisSoAEndcapDiskm5ADC;
-  //MonitorElement* hDigisSoAEndcapDiskm6ADC;
-  MonitorElement* hDigisSoAEndcapDiskp1ADC;
-  MonitorElement* hDigisSoAEndcapDiskp2ADC;
-  MonitorElement* hDigisSoAEndcapDiskp3ADC;
-  //MonitorElement* hDigisSoAEndcapDiskp4ADC;
-  //MonitorElement* hDigisSoAEndcapDiskp5ADC;
-  //MonitorElement* hDigisSoAEndcapDiskp6ADC;
-
   //vector<MonitorElement*> hnDigisBarrelLayers;
   //hnDigisBarrelLayers->push_back(hnDigisBarrelLayer1);
   //hnDigisBarrelLayers->push_back(hnDigisBarrelLayer2);
@@ -146,9 +101,8 @@ private:
 // constructors
 //
 
-SiPixelPhase1MonitorDigiSoA::SiPixelPhase1MonitorDigiSoA(const edm::ParameterSet& iConfig) {
-  tokenSoADigi_ = consumes<SiPixelDigisSoA>(iConfig.getParameter<edm::InputTag>("pixelDigiSrc"));
-  tokenDigi_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("pixelDigiSrc2"));
+SiPixelPhase1MonitorDigi::SiPixelPhase1MonitorDigi(const edm::ParameterSet& iConfig) {
+  tokenDigi_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("pixelDigiSrc"));
   topFolderName_ = iConfig.getParameter<std::string>("TopFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
   trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
@@ -157,7 +111,7 @@ SiPixelPhase1MonitorDigiSoA::SiPixelPhase1MonitorDigiSoA(const edm::ParameterSet
 //
 // -- Analyze
 //
-void SiPixelPhase1MonitorDigiSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelPhase1MonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get geometry
   edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
   assert(tracker.isValid());
@@ -165,158 +119,10 @@ void SiPixelPhase1MonitorDigiSoA::analyze(const edm::Event& iEvent, const edm::E
   edm::ESHandle<TrackerTopology> trackerTopologyHandle = iSetup.getHandle(trackerTopoToken_);
   trackerTopology_ = trackerTopologyHandle.product();
 
-
-  const auto& dsoaHandle = iEvent.getHandle(tokenSoADigi_);
-  if (!dsoaHandle.isValid()) {
-    edm::LogWarning("SiPixelPhase1MonitorDigiSoA") << "No Digi SoA found!" << std::endl;
-  }
-  else{
-    auto const& dsoa = iEvent.get(tokenSoADigi_);//*((dsoaHandle.product())->get());
-    const uint32_t nDigisSoA = dsoa.size();
-    edm::LogWarning("SiPixelPhase1MonitorDigiSoA") << "Found "<<nDigisSoA<<" DigisSoA SoA!" << std::endl;
-    hnDigisSoA->Fill(nDigisSoA);
-    uint32_t nDigisSoABarrel = 0;
-    uint32_t nDigisSoAEndcap = 0;
-    uint32_t nDigisSoABarrelLayer1 = 0;
-    uint32_t nDigisSoABarrelLayer2 = 0;
-    uint32_t nDigisSoABarrelLayer3 = 0;
-    uint32_t nDigisSoABarrelLayer4 = 0;
-
-    uint32_t nDigisSoAEndcapDiskm1 = 0;
-    uint32_t nDigisSoAEndcapDiskm2 = 0;
-    uint32_t nDigisSoAEndcapDiskm3 = 0;
-    //uint32_t nDigisSoAEndcapDiskm4 = 0;
-    //uint32_t nDigisSoAEndcapDiskm5 = 0;
-    //uint32_t nDigisSoAEndcapDiskm6 = 0;
-    uint32_t nDigisSoAEndcapDiskp1 = 0;
-    uint32_t nDigisSoAEndcapDiskp2 = 0;
-    uint32_t nDigisSoAEndcapDiskp3 = 0;
-    //uint32_t nDigisSoAEndcapDiskp4 = 0;
-    //uint32_t nDigisSoAEndcapDiskp5 = 0;
-    //uint32_t nDigisSoAEndcapDiskp6 = 0;
-
-    for(uint32_t i=0;i<nDigisSoA;i++){
-      DetId id = DetId(dsoa.rawIdArr(i));
-      uint32_t subdetid = (id.subdetId());
-      //edm::LogWarning("SiPixelPhase1MonitorDigiSoA") << "DigiSoA adc: " << 
-      if (subdetid == PixelSubdetector::PixelBarrel) {
-	//edm::LogWarning("SiPixelPhase1MonitorDigiSoA") << "SoA PX Barrel:  DetId " <<id.rawId()<<" Layer "<<trackerTopology_->pxbLayer(id)<<std::endl;
-	nDigisSoABarrel += 1;
-
-	uint32_t nLayer = trackerTopology_->pxbLayer(id);
-	if(nLayer == 1){
-	  nDigisSoABarrelLayer1 += 1;
-	  hDigisSoAADC->Fill(dsoa.adc(i));
-	  hDigisSoABarrelADC->Fill(dsoa.adc(i));
-	  hDigisSoABarrelLayer1ADC->Fill(dsoa.adc(i));
-	}
-	else if(nLayer == 2){
-	  nDigisSoABarrelLayer2 += 1;
-	  hDigisSoAADC->Fill(dsoa.adc(i));
-	  hDigisSoABarrelADC->Fill(dsoa.adc(i));
-	  hDigisSoABarrelLayer2ADC->Fill(dsoa.adc(i));
-	}
-	else if(nLayer == 3){
-	  nDigisSoABarrelLayer3 += 1;
-	  hDigisSoAADC->Fill(dsoa.adc(i));
-	  hDigisSoABarrelADC->Fill(dsoa.adc(i));
-	  hDigisSoABarrelLayer3ADC->Fill(dsoa.adc(i));
-	}
-	else if(nLayer == 4){
-	  nDigisSoABarrelLayer4 += 1;
-	  hDigisSoAADC->Fill(dsoa.adc(i));
-	  hDigisSoABarrelADC->Fill(dsoa.adc(i));
-	  hDigisSoABarrelLayer4ADC->Fill(dsoa.adc(i));
-	}
-      }
-      else if (subdetid == PixelSubdetector::PixelEndcap) {
-	//edm::LogWarning("SiPixelPhase1MonitorDigiSoA") << "SoA PX Endcaps:  DetId " <<id.rawId()<<" Side "<<trackerTopology_->pxfSide(id)<<" Disk "<<trackerTopology_->pxfDisk(id)<<std::endl;
-	uint32_t ECside = trackerTopology_->pxfSide(id);
-	uint32_t nDisk = trackerTopology_->pxfDisk(id);
-	nDigisSoAEndcap += 1;
-
-	if(ECside == 1){
-	  if(nDisk == 1){
-	    nDigisSoAEndcapDiskm1 += 1;
-	    hDigisSoAADC->Fill(dsoa.adc(i));
-	    hDigisSoAEndcapADC->Fill(dsoa.adc(i));
-	    hDigisSoAEndcapDiskm1ADC->Fill(dsoa.adc(i));
-	  }
-	  else if(nDisk == 2){
-	    nDigisSoAEndcapDiskm2 += 1;
-	    hDigisSoAADC->Fill(dsoa.adc(i));
-	    hDigisSoAEndcapADC->Fill(dsoa.adc(i));
-	    hDigisSoAEndcapDiskm2ADC->Fill(dsoa.adc(i));
-	  }
-	  else if(nDisk == 3){
-	    nDigisSoAEndcapDiskm3 += 1;
-	    hDigisSoAADC->Fill(dsoa.adc(i));
-	    hDigisSoAEndcapADC->Fill(dsoa.adc(i));
-	    hDigisSoAEndcapDiskm3ADC->Fill(dsoa.adc(i));
-	  }
-	  //else if(nDisk == 4) nDigisSoAEndcapDiskm4 += 1;
-	  //else if(nDisk == 5) nDigisSoAEndcapDiskm5 += 1;
-	  //else if(nDisk == 6) nDigisSoAEndcapDiskm6 += 1;
-	}
-
-	else if(ECside == 2){
-	  if(nDisk == 1){
-	    nDigisSoAEndcapDiskp1 += 1;
-	    hDigisSoAADC->Fill(dsoa.adc(i));
-	    hDigisSoAEndcapADC->Fill(dsoa.adc(i));
-	    hDigisSoAEndcapDiskp1ADC->Fill(dsoa.adc(i));
-	  }
-	  else if(nDisk == 2){
-	    nDigisSoAEndcapDiskp2 += 1;
-	    hDigisSoAADC->Fill(dsoa.adc(i));
-	    hDigisSoAEndcapADC->Fill(dsoa.adc(i));
-	    hDigisSoAEndcapDiskp2ADC->Fill(dsoa.adc(i));
-	  }
-	  else if(nDisk == 3){
-	    nDigisSoAEndcapDiskp3 += 1;
-	    hDigisSoAADC->Fill(dsoa.adc(i));
-	    hDigisSoAEndcapADC->Fill(dsoa.adc(i));
-	    hDigisSoAEndcapDiskp3ADC->Fill(dsoa.adc(i));
-	  }
-	  //else if(nDisk == 4) nDigisSoAEndcapDiskp4 += 1;
-	  //else if(nDisk == 5) nDigisSoAEndcapDiskp5 += 1;
-	  //else if(nDisk == 6) nDigisSoAEndcapDiskp6 += 1;
-	}
-      }
-    }
-
-    edm::LogWarning("SiPixelPhase1MonitorDigiSoA") << "nDigisSoA Endcap" << nDigisSoAEndcap << std::endl;
-
-    hnDigisSoABarrel->Fill(nDigisSoABarrel);
-    hnDigisSoAEndcap->Fill(nDigisSoAEndcap);
-
-    hnDigisSoABarrelLayer1->Fill(nDigisSoABarrelLayer1);
-
-    hnDigisSoABarrelLayer2->Fill(nDigisSoABarrelLayer2);
-    hnDigisSoABarrelLayer3->Fill(nDigisSoABarrelLayer3);
-    hnDigisSoABarrelLayer4->Fill(nDigisSoABarrelLayer4);
-
-    hnDigisSoAEndcapDiskm1->Fill(nDigisSoAEndcapDiskm1);
-    hnDigisSoAEndcapDiskm2->Fill(nDigisSoAEndcapDiskm2);
-    hnDigisSoAEndcapDiskm3->Fill(nDigisSoAEndcapDiskm3);
-
-    //hnDigisSoAEndcapDiskm4->Fill(nDigisSoAEndcapDiskm4);
-    //hnDigisSoAEndcapDiskm5->Fill(nDigisSoAEndcapDiskm5);
-    //hnDigisSoAEndcapDiskm6->Fill(nDigisSoAEndcapDiskm6);
-    hnDigisSoAEndcapDiskp1->Fill(nDigisSoAEndcapDiskp1);
-    hnDigisSoAEndcapDiskp2->Fill(nDigisSoAEndcapDiskp2);
-    hnDigisSoAEndcapDiskp3->Fill(nDigisSoAEndcapDiskp3);
-    
-    //hnDigisSoAEndcapDiskp4->Fill(nDigisSoAEndcapDiskp4);
-    //hnDigisSoAEndcapDiskp5->Fill(nDigisSoAEndcapDiskp5);
-    //hnDigisSoAEndcapDiskp6->Fill(nDigisSoAEndcapDiskp6);
-
-  }
-
   edm::Handle<edm::DetSetVector<PixelDigi>> input;
   iEvent.getByToken(tokenDigi_, input);
   if (!input.isValid()){
-    edm::LogWarning("SiPixelPhase1MonitorDigiSoA") << "No Digi found \n returning!" << std::endl;
+    edm::LogWarning("SiPixelPhase1MonitorDigi") << "No Digi found \n returning!" << std::endl;
   }
   else{
     edm::DetSetVector<PixelDigi>::const_iterator it;
@@ -471,10 +277,10 @@ void SiPixelPhase1MonitorDigiSoA::analyze(const edm::Event& iEvent, const edm::E
       }
 
       //looping over digis to take adcs
-      //edm::LogWarning("SiPixelPhase1MonitorDigiSoA") << "nDigis: " << nDigis << "\tnDigisEndcap: " << nDigisEndcap << "\tnDigisBarrel: " << nDigisBarrel << std::endl;
+      //edm::LogWarning("SiPixelPhase1MonitorDigi") << "nDigis: " << nDigis << "\tnDigisEndcap: " << nDigisEndcap << "\tnDigisBarrel: " << nDigisBarrel << std::endl;
     }
     
-    //edm::LogWarning("SiPixelPhase1MonitorDigiSoA") << "End" << std::endl << "nDigis: " << nDigis << "\tnDigisEndcap: " << nDigisEndcap << "\tnDigisBarrel: " << nDigisBarrel << std::endl;
+    //edm::LogWarning("SiPixelPhase1MonitorDigi") << "End" << std::endl << "nDigis: " << nDigis << "\tnDigisEndcap: " << nDigisEndcap << "\tnDigisBarrel: " << nDigisBarrel << std::endl;
 
     hnDigis->Fill(nDigis);
     hnDigisBarrel->Fill(nDigisBarrel);
@@ -506,18 +312,15 @@ void SiPixelPhase1MonitorDigiSoA::analyze(const edm::Event& iEvent, const edm::E
 //
 // -- Book Histograms
 //
-void SiPixelPhase1MonitorDigiSoA::bookHistograms(DQMStore::IBooker& ibooker,
+void SiPixelPhase1MonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
                                                   edm::Run const& iRun,
                                                   edm::EventSetup const& iSetup) {
   ibooker.cd();
   ibooker.setCurrentFolder(topFolderName_);
   
   hnDigis = ibooker.book1D("nDigis", ";Number of digis per event;#entries", 1001, -0.5, 10000.5);
-  hnDigisSoA = ibooker.book1D("nDigisSoA", ";Number of digis per event;#entries", 1001, -0.5, 10000.5);
   hnDigisBarrel = ibooker.book1D("nDigisBarrel", ";Number of digis per event;#entries", 1001, -0.5, 10000.5);
-  hnDigisSoABarrel = ibooker.book1D("nDigisSoABarrel", ";Number of digis per event;#entries", 1001, -0.5, 10000.5);
   hnDigisEndcap = ibooker.book1D("nDigisEndcap", ";Number of digis per event;#entries", 1001, -0.5, 10000.5);
-  hnDigisSoAEndcap = ibooker.book1D("nDigisSoAEndcap", ";Number of digis per event;#entries", 1001, -0.5, 10000.5);
 
   hnDigisBarrelLayer1 = ibooker.book1D("nDigisBarrelLayer1", ";Number of digis per event;#entries", 151, -0.5, 150.5);
   hnDigisBarrelLayer2 = ibooker.book1D("nDigisBarrelLayer2", ";Number of digis per event;#entries", 151, -0.5, 150.5);
@@ -536,32 +339,10 @@ void SiPixelPhase1MonitorDigiSoA::bookHistograms(DQMStore::IBooker& ibooker,
   //hnDigisEndcapDiskp4 = ibooker.book1D("nDigisEndcapDiskp4", ";Number of digis per event;#entries", 16, -0.5, 15.5);
   //hnDigisEndcapDiskp5 = ibooker.book1D("nDigisEndcapDiskp5", ";Number of digis per event;#entries", 16, -0.5, 15.5);
   //hnDigisEndcapDiskp6 = ibooker.book1D("nDigisEndcapDiskp6", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-
-  hnDigisSoABarrelLayer1 = ibooker.book1D("nDigisSoABarrelLayer1", ";Number of digis per event;#entries", 151, -0.5, 150.5);
-  hnDigisSoABarrelLayer2 = ibooker.book1D("nDigisSoABarrelLayer2", ";Number of digis per event;#entries", 151, -0.5, 150.5);
-  hnDigisSoABarrelLayer3 = ibooker.book1D("nDigisSoABarrelLayer3", ";Number of digis per event;#entries", 151, -0.5, 150.5);
-  hnDigisSoABarrelLayer4 = ibooker.book1D("nDigisSoABarrelLayer4", ";Number of digis per event;#entries", 151, -0.5, 150.5);
-
-  hnDigisSoAEndcapDiskm1 = ibooker.book1D("nDigisSoAEndcapDiskm1", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  hnDigisSoAEndcapDiskm2 = ibooker.book1D("nDigisSoAEndcapDiskm2", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  hnDigisSoAEndcapDiskm3 = ibooker.book1D("nDigisSoAEndcapDiskm3", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  //hnDigisSoAEndcapDiskm4 = ibooker.book1D("nDigisSoAEndcapDiskm4", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  //hnDigisSoAEndcapDiskm5 = ibooker.book1D("nDigisSoAEndcapDiskm5", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  //hnDigisSoAEndcapDiskm6 = ibooker.book1D("nDigisSoAEndcapDiskm6", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-
-  hnDigisSoAEndcapDiskp1 = ibooker.book1D("nDigisSoAEndcapDiskp1", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  hnDigisSoAEndcapDiskp2 = ibooker.book1D("nDigisSoAEndcapDiskp2", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  hnDigisSoAEndcapDiskp3 = ibooker.book1D("nDigisSoAEndcapDiskp3", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  //hnDigisSoAEndcapDiskp4 = ibooker.book1D("nDigisSoAEndcapDiskp4", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  //hnDigisSoAEndcapDiskp5 = ibooker.book1D("nDigisSoAEndcapDiskp5", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  //hnDigisSoAEndcapDiskp6 = ibooker.book1D("nDigisSoAEndcapDiskp6", ";Number of digis per event;#entries", 16, -0.5, 15.5);
   
   hDigisADC = ibooker.book1D("DigisADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
   hDigisBarrelADC = ibooker.book1D("DigisBarrelADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
   hDigisEndcapADC = ibooker.book1D("DigisEndcapADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
-  hDigisSoAADC = ibooker.book1D("DigisSoAADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  hDigisSoABarrelADC = ibooker.book1D("DigisSoABarrelADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  hDigisSoAEndcapADC = ibooker.book1D("DigisSoAEndcapADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
 
   hDigisBarrelLayer1ADC = ibooker.book1D("DigisBarrelLayer1ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
   hDigisBarrelLayer2ADC = ibooker.book1D("DigisBarrelLayer2ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
@@ -580,32 +361,12 @@ void SiPixelPhase1MonitorDigiSoA::bookHistograms(DQMStore::IBooker& ibooker,
   //hDigisEndcapDiskp4ADC = ibooker.book1D("DigisEndcapDiskp4ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
   //hDigisEndcapDiskp5ADC = ibooker.book1D("DigisEndcapDiskp5ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
   //hDigisEndcapDiskp6ADC = ibooker.book1D("DigisEndcapDiskp6ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
-
-  hDigisSoABarrelLayer1ADC = ibooker.book1D("DigisSoABarrelLayer1ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  hDigisSoABarrelLayer2ADC = ibooker.book1D("DigisSoABarrelLayer2ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  hDigisSoABarrelLayer3ADC = ibooker.book1D("DigisSoABarrelLayer3ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  hDigisSoABarrelLayer4ADC = ibooker.book1D("DigisSoABarrelLayer4ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-
-  hDigisSoAEndcapDiskm1ADC = ibooker.book1D("DigisSoAEndcapDiskm1ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  hDigisSoAEndcapDiskm2ADC = ibooker.book1D("DigisSoAEndcapDiskm2ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  hDigisSoAEndcapDiskm3ADC = ibooker.book1D("DigisSoAEndcapDiskm3ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  //hDigisSoAEndcapDiskm4ADC = ibooker.book1D("DigisSoAEndcapDiskm4ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  //hDigisSoAEndcapDiskm5ADC = ibooker.book1D("DigisSoAEndcapDiskm5ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  //hDigisSoAEndcapDiskm6ADC = ibooker.book1D("DigisSoAEndcapDiskm6ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  hDigisSoAEndcapDiskp1ADC = ibooker.book1D("DigisSoAEndcapDiskp1ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  hDigisSoAEndcapDiskp2ADC = ibooker.book1D("DigisSoAEndcapDiskp2ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  hDigisSoAEndcapDiskp3ADC = ibooker.book1D("DigisSoAEndcapDiskp3ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  //hDigisSoAEndcapDiskp4ADC = ibooker.book1D("DigisSoAEndcapDiskp4ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  //hDigisSoAEndcapDiskp5ADC = ibooker.book1D("DigisSoAEndcapDiskp5ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
-  //hDigisSoAEndcapDiskp6ADC = ibooker.book1D("DigisSoAEndcapDiskp6ADC", ";DigisSoA ADC per event;#entries", 50001, -0.5, 50000.5);
 }
 
-void SiPixelPhase1MonitorDigiSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // monitorpixelTrackSoA
+void SiPixelPhase1MonitorDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("pixelDigiSrc", edm::InputTag("siPixelDigisSoA"));
-  desc.add<edm::InputTag>("pixelDigiSrc2", edm::InputTag("siPixelDigis"));
-  desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelDigiSoA");
+  desc.add<edm::InputTag>("pixelDigiSrc", edm::InputTag("siPixelDigis"));
+  desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelDigis");
   descriptions.addWithDefaultLabel(desc);
 }
-DEFINE_FWK_MODULE(SiPixelPhase1MonitorDigiSoA);
+DEFINE_FWK_MODULE(SiPixelPhase1MonitorDigi);
