@@ -136,15 +136,9 @@ void SiPixelPhase1MonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
     uint32_t nDigisEndcapDiskm1 = 0;
     uint32_t nDigisEndcapDiskm2 = 0;
     uint32_t nDigisEndcapDiskm3 = 0;
-    //uint32_t nDigisEndcapDiskm4 = 0;
-    //uint32_t nDigisEndcapDiskm5 = 0;
-    //uint32_t nDigisEndcapDiskm6 = 0;
     uint32_t nDigisEndcapDiskp1 = 0;
     uint32_t nDigisEndcapDiskp2 = 0;
     uint32_t nDigisEndcapDiskp3 = 0;
-    //uint32_t nDigisEndcapDiskp4 = 0;
-    //uint32_t nDigisEndcapDiskp5 = 0;
-    //uint32_t nDigisEndcapDiskp6 = 0;
     
     for (it = input->begin(); it != input->end(); ++it) {
       const uint32_t nDigisEv = it->size();
@@ -153,7 +147,6 @@ void SiPixelPhase1MonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
       uint32_t subdetid = (id.subdetId());
 
       if (subdetid == PixelSubdetector::PixelBarrel) {
-	//edm::LogWarning("SiPixelPhase1MonitorDigi") << " PX Barrel:  DetId " <<id.rawId()<<" Layer "<<trackerTopology_->pxbLayer(id)<<std::endl;
 	nDigisBarrel += nDigisEv;
 	const uint32_t nLayer = trackerTopology_->pxbLayer(id);
 	if(nLayer == 1){
@@ -198,7 +191,6 @@ void SiPixelPhase1MonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
       }	  
 
       else if (subdetid == PixelSubdetector::PixelEndcap) {
-	//edm::LogWarning("SiPixelPhase1MonitorDigi") << " PX Endcaps:  DetId " <<id.rawId()<<" Side "<<trackerTopology_->pxfSide(id)<<" Disk "<<trackerTopology_->pxfDisk(id)<<std::endl;
      
 	nDigisEndcap += nDigisEv;
 	uint32_t ECside = trackerTopology_->pxfSide(id);
@@ -214,7 +206,6 @@ void SiPixelPhase1MonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
 	      hDigisEndcapDiskm1ADC->Fill(digiadc); 
 	    }
 	  }
-	
 	  else if(nDisk == 2){
 	    nDigisEndcapDiskm2 += nDigisEv;
 	    for (PixelDigi const& digi : *it){
@@ -224,7 +215,6 @@ void SiPixelPhase1MonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
 	      hDigisEndcapDiskm2ADC->Fill(digiadc); 
 	    }
 	  }
-
 	  else if(nDisk == 3){
 	    nDigisEndcapDiskm3 += nDigisEv;
 	    for (PixelDigi const& digi : *it){
@@ -234,10 +224,6 @@ void SiPixelPhase1MonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
 	      hDigisEndcapDiskm3ADC->Fill(digiadc); 
 	    }
 	  }
-
-	  //else if(nDisk == 4) nDigisEndcapDiskm4 += nDigisEv;
-	  //else if(nDisk == 5) nDigisEndcapDiskm5 += nDigisEv;
-	  //else if(nDisk == 6) nDigisEndcapDiskm6 += nDigisEv;
 	}
 	else if (ECside == 2){
 	  if(nDisk == 1){
@@ -269,18 +255,11 @@ void SiPixelPhase1MonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
 	      hDigisEndcapDiskp3ADC->Fill(digiadc); 
 	    }
 	  }
-
-	  //else if(nDisk == 4) nDigisEndcapDiskp4 += nDigisEv;
-	  //else if(nDisk == 5) nDigisEndcapDiskp5 += nDigisEv;
-	  //else if(nDisk == 6) nDigisEndcapDiskp6 += nDigisEv;
 	}
       }
 
-      //looping over digis to take adcs
-      //edm::LogWarning("SiPixelPhase1MonitorDigi") << "nDigis: " << nDigis << "\tnDigisEndcap: " << nDigisEndcap << "\tnDigisBarrel: " << nDigisBarrel << std::endl;
     }
     
-    //edm::LogWarning("SiPixelPhase1MonitorDigi") << "End" << std::endl << "nDigis: " << nDigis << "\tnDigisEndcap: " << nDigisEndcap << "\tnDigisBarrel: " << nDigisBarrel << std::endl;
 
     hnDigis->Fill(nDigis);
     hnDigisBarrel->Fill(nDigisBarrel);
@@ -292,20 +271,9 @@ void SiPixelPhase1MonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
     hnDigisEndcapDiskm1->Fill(nDigisEndcapDiskm1);
     hnDigisEndcapDiskm2->Fill(nDigisEndcapDiskm2);
     hnDigisEndcapDiskm3->Fill(nDigisEndcapDiskm3);
-    //hnDigisEndcapDiskm4->Fill(nDigisEndcapDiskm4);
-    //hnDigisEndcapDiskm5->Fill(nDigisEndcapDiskm5);
-    //hnDigisEndcapDiskm6->Fill(nDigisEndcapDiskm6);
     hnDigisEndcapDiskp1->Fill(nDigisEndcapDiskp1);
     hnDigisEndcapDiskp2->Fill(nDigisEndcapDiskp2);
     hnDigisEndcapDiskp3->Fill(nDigisEndcapDiskp3);
-    //hnDigisEndcapDiskp4->Fill(nDigisEndcapDiskp4);
-    //hnDigisEndcapDiskp5->Fill(nDigisEndcapDiskp5);
-    //hnDigisEndcapDiskp6->Fill(nDigisEndcapDiskp6);
-
-    //edm::LogWarning("SiPixelPhase1MonitorDigi") << "Found "<<nDigis<<" Digis!" << std::endl;
-    //edm::LogWarning("SiPixelPhase1MonitorDigi") << "Found "<<nDigisBarrel<<" DigisBarrel!" << std::endl;
-    //edm::LogWarning("SiPixelPhase1MonitorDigi") << "Found "<<nDigisEndcap<<" DigisEndcap!" << std::endl;
-
   }
 }
 
@@ -330,15 +298,9 @@ void SiPixelPhase1MonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
   hnDigisEndcapDiskm1 = ibooker.book1D("nDigisEndcapDiskm1", ";Number of digis per event;#entries", 16, -0.5, 15.5);
   hnDigisEndcapDiskm2 = ibooker.book1D("nDigisEndcapDiskm2", ";Number of digis per event;#entries", 16, -0.5, 15.5);
   hnDigisEndcapDiskm3 = ibooker.book1D("nDigisEndcapDiskm3", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  //hnDigisEndcapDiskm4 = ibooker.book1D("nDigisEndcapDiskm4", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  //hnDigisEndcapDiskm5 = ibooker.book1D("nDigisEndcapDiskm5", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  //hnDigisEndcapDiskm6 = ibooker.book1D("nDigisEndcapDiskm6", ";Number of digis per event;#entries", 16, -0.5, 15.5);
   hnDigisEndcapDiskp1 = ibooker.book1D("nDigisEndcapDiskp1", ";Number of digis per event;#entries", 16, -0.5, 15.5);
   hnDigisEndcapDiskp2 = ibooker.book1D("nDigisEndcapDiskp2", ";Number of digis per event;#entries", 16, -0.5, 15.5);
   hnDigisEndcapDiskp3 = ibooker.book1D("nDigisEndcapDiskp3", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  //hnDigisEndcapDiskp4 = ibooker.book1D("nDigisEndcapDiskp4", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  //hnDigisEndcapDiskp5 = ibooker.book1D("nDigisEndcapDiskp5", ";Number of digis per event;#entries", 16, -0.5, 15.5);
-  //hnDigisEndcapDiskp6 = ibooker.book1D("nDigisEndcapDiskp6", ";Number of digis per event;#entries", 16, -0.5, 15.5);
   
   hDigisADC = ibooker.book1D("DigisADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
   hDigisBarrelADC = ibooker.book1D("DigisBarrelADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
@@ -352,15 +314,9 @@ void SiPixelPhase1MonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
   hDigisEndcapDiskm1ADC = ibooker.book1D("DigisEndcapDiskm1ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
   hDigisEndcapDiskm2ADC = ibooker.book1D("DigisEndcapDiskm2ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
   hDigisEndcapDiskm3ADC = ibooker.book1D("DigisEndcapDiskm3ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
-  //hDigisEndcapDiskm4ADC = ibooker.book1D("DigisEndcapDiskm4ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
-  //hDigisEndcapDiskm5ADC = ibooker.book1D("DigisEndcapDiskm5ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
-  //hDigisEndcapDiskm6ADC = ibooker.book1D("DigisEndcapDiskm6ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
   hDigisEndcapDiskp1ADC = ibooker.book1D("DigisEndcapDiskp1ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
   hDigisEndcapDiskp2ADC = ibooker.book1D("DigisEndcapDiskp2ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
   hDigisEndcapDiskp3ADC = ibooker.book1D("DigisEndcapDiskp3ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
-  //hDigisEndcapDiskp4ADC = ibooker.book1D("DigisEndcapDiskp4ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
-  //hDigisEndcapDiskp5ADC = ibooker.book1D("DigisEndcapDiskp5ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
-  //hDigisEndcapDiskp6ADC = ibooker.book1D("DigisEndcapDiskp6ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
 }
 
 void SiPixelPhase1MonitorDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
