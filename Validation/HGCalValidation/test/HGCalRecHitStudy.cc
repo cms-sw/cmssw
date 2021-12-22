@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -247,8 +246,7 @@ void HGCalRecHitStudy::fillHitsInfo(HitsInfo& hits) {
 }
 
 void HGCalRecHitStudy::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HGCalDDDConstants> pHGDC = iSetup.getHandle(tok_hgcaldd_);
-  const HGCalDDDConstants& hgcons_ = (*pHGDC);
+  const HGCalDDDConstants& hgcons_ = iSetup.getData(tok_hgcaldd_);
   layers_ = hgcons_.layers(true);
   firstLayer_ = hgcons_.firstLayer();
 
