@@ -18,60 +18,51 @@
 #include <string>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "CondFormats/DataRecord/interface/MuScleFitDBobjectRcd.h"
+#include "CondFormats/RecoMuonObjects/interface/MuScleFitDBobject.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
-
-#include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
-
-#include "CondFormats/RecoMuonObjects/interface/MuScleFitDBobject.h"
-#include "CondFormats/DataRecord/interface/MuScleFitDBobjectRcd.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MomentumScaleCorrector.h"
 
-class MuScleFitMuonProducer : public edm::EDProducer {
+class MuScleFitMuonProducer : public edm::stream::EDProducer<> {
 public:
   explicit MuScleFitMuonProducer(const edm::ParameterSet&);
   ~MuScleFitMuonProducer() override;
 
 private:
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
   template <class T>
   std::unique_ptr<T> applyCorrection(const edm::Handle<T>& allMuons);
+  const edm::ESGetToken<MuScleFitDBobject, MuScleFitDBobjectRcd> muToken_;
+  const edm::InputTag theMuonLabel_;
+  const edm::EDGetTokenT<pat::MuonCollection> thePatMuonToken_;
+  const edm::EDGetTokenT<reco::MuonCollection> theRecoMuonToken_;
+  const bool patMuons_;
 
-  edm::InputTag theMuonLabel_;
-  edm::EDGetTokenT<pat::MuonCollection> thePatMuonToken_;
-  edm::EDGetTokenT<reco::MuonCollection> theRecoMuonToken_;
-  bool patMuons_;
   edm::ESHandle<MuScleFitDBobject> dbObject_;
-  std::string dbObjectLabel_;
   unsigned long long dbObjectCacheId_;
   std::shared_ptr<MomentumScaleCorrector> corrector_;
 };
 
 MuScleFitMuonProducer::MuScleFitMuonProducer(const edm::ParameterSet& iConfig)
-    : theMuonLabel_(iConfig.getParameter<edm::InputTag>("MuonLabel")),
+    : muToken_(esConsumes(edm::ESInputTag("", iConfig.getUntrackedParameter<std::string>("DbObjectLabel", "")))),
+      theMuonLabel_(iConfig.getParameter<edm::InputTag>("MuonLabel")),
       thePatMuonToken_(mayConsume<pat::MuonCollection>(theMuonLabel_)),
       theRecoMuonToken_(mayConsume<reco::MuonCollection>(theMuonLabel_)),
       patMuons_(iConfig.getParameter<bool>("PatMuons")),
-      dbObjectLabel_(iConfig.getUntrackedParameter<std::string>("DbObjectLabel", "")),
       dbObjectCacheId_(0) {
   if (patMuons_ == true) {
     produces<pat::MuonCollection>();
@@ -80,7 +71,7 @@ MuScleFitMuonProducer::MuScleFitMuonProducer(const edm::ParameterSet& iConfig)
   }
 }
 
-MuScleFitMuonProducer::~MuScleFitMuonProducer() {}
+MuScleFitMuonProducer::~MuScleFitMuonProducer() = default;
 
 template <class T>
 std::unique_ptr<T> MuScleFitMuonProducer::applyCorrection(const edm::Handle<T>& allMuons) {
@@ -106,11 +97,7 @@ std::unique_ptr<T> MuScleFitMuonProducer::applyCorrection(const edm::Handle<T>& 
 void MuScleFitMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   unsigned long long dbObjectCacheId = iSetup.get<MuScleFitDBobjectRcd>().cacheIdentifier();
   if (dbObjectCacheId != dbObjectCacheId_) {
-    if (!dbObjectLabel_.empty()) {
-      iSetup.get<MuScleFitDBobjectRcd>().get(dbObjectLabel_, dbObject_);
-    } else {
-      iSetup.get<MuScleFitDBobjectRcd>().get(dbObject_);
-    }
+    dbObject_ = iSetup.getHandle(muToken_);
   }
 
   //std::cout << "identifiers size from dbObject = " << dbObject_->identifiers.size() << std::endl;
@@ -149,12 +136,6 @@ void MuScleFitMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 */
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void MuScleFitMuonProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void MuScleFitMuonProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(MuScleFitMuonProducer);

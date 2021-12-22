@@ -39,8 +39,9 @@ numWFIB.extend([37834.0]) #2026D84
 numWFIB.extend([38234.0]) #2026D85
 numWFIB.extend([38634.0]) #2026D86
 numWFIB.extend([39034.0]) #2026D87
-numWFIB.extend([39434.0]) #2026D88
 numWFIB.extend([39434.0,39434.5,39434.501,39434.502]) #2026D88, pixelTrackingOnly, Patatrack local reconstruction on CPU, Patatrack local reconstruction on GPU
+numWFIB.extend([39834.0]) #2026D89
+numWFIB.extend([40234.0]) #2026D90
 
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]

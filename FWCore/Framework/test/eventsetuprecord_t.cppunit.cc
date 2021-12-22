@@ -143,7 +143,7 @@ private:
   bool invalidateTransientCalled_;
 };
 
-testEventsetupRecord::testEventsetupRecord() : taskArena_(1), eventSetupImpl_(&taskArena_) {}
+testEventsetupRecord::testEventsetupRecord() : taskArena_(1), eventSetupImpl_() {}
 void testEventsetupRecord::setUp() { dummyRecordKey_ = EventSetupRecordKey::makeKey<DummyRecord>(); }
 
 class WorkingDummyProvider : public edm::eventsetup::DataProxyProvider {

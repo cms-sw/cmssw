@@ -101,15 +101,6 @@ namespace cond {
         return thePayloadHash;
       }
 
-      // warning: takes over the ownership of pointer "payload". Deprecated. Please move to the above referece-based function
-      template <typename T>
-      Hash writeOne(const T* payloadPtr, Time_t time, const std::string& recordName) {
-        if (!payloadPtr)
-          throwException("Provided payload pointer is invalid.", "PoolDBOutputService::writeOne");
-        std::unique_ptr<const T> payload(payloadPtr);
-        return writeOneIOV<T>(*payload, time, recordName);
-      }
-
       template <typename T>
       void writeMany(const std::map<Time_t, std::shared_ptr<T> >& iovAndPayloads, const std::string& recordName) {
         if (iovAndPayloads.empty())
@@ -188,15 +179,6 @@ namespace cond {
         scope.close();
       }
 
-      // warning: takes over the ownership of pointer "payload" - deprecated. Please move to the above reference-based function
-      template <typename T>
-      void createNewIOV(const T* payloadPtr, cond::Time_t firstSinceTime, cond::Time_t, const std::string& recordName) {
-        if (!payloadPtr)
-          throwException("Provided payload pointer is invalid.", "PoolDBOutputService::createNewIOV");
-        std::unique_ptr<const T> payload(payloadPtr);
-        this->createOneIOV<T>(*payload, firstSinceTime, recordName);
-      }
-
       template <typename T>
       void appendOneIOV(const T& payload, cond::Time_t sinceTime, const std::string& recordName) {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
@@ -221,15 +203,6 @@ namespace cond {
           cond::throwException(std::string(er.what()), "PoolDBOutputService::appendSinceTime");
         }
         scope.close();
-      }
-
-      // warning: takes over the ownership of pointer "payload" - deprecated. Please move to the above reference-based function
-      template <typename T>
-      void appendSinceTime(const T* payloadPtr, cond::Time_t sinceTime, const std::string& recordName) {
-        if (!payloadPtr)
-          throwException("Provided payload pointer is invalid.", "PoolDBOutputService::appendSinceTime");
-        std::unique_ptr<const T> payload(payloadPtr);
-        this->appendOneIOV<T>(*payload, sinceTime, recordName);
       }
 
       void createNewIOV(const std::string& firstPayloadId, cond::Time_t firstSinceTime, const std::string& recordName);

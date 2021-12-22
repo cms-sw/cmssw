@@ -213,32 +213,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       if (!(*outputSelector_)(*nextChargedHadron))
         continue;
 
-      const reco::Track* track = nullptr;
-      if (nextChargedHadron->getChargedPFCandidate().isNonnull()) {
-        const reco::PFCandidate* chargedPFCand =
-            dynamic_cast<const reco::PFCandidate*>(&*nextChargedHadron->getChargedPFCandidate());
-        if (chargedPFCand) {
-          if (chargedPFCand->trackRef().isNonnull())
-            track = chargedPFCand->trackRef().get();
-          else if (chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->innerTrack().isNonnull())
-            track = chargedPFCand->muonRef()->innerTrack().get();
-          else if (chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->globalTrack().isNonnull())
-            track = chargedPFCand->muonRef()->globalTrack().get();
-          else if (chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->outerTrack().isNonnull())
-            track = chargedPFCand->muonRef()->outerTrack().get();
-          else if (chargedPFCand->gsfTrackRef().isNonnull())
-            track = chargedPFCand->gsfTrackRef().get();
-        } else {
-          track = nextChargedHadron->getChargedPFCandidate()->bestTrack();
-        }
-      }
-      if (track == nullptr) {
-        if (nextChargedHadron->getTrack().isNonnull()) {
-          track = nextChargedHadron->getTrack().get();
-        } else if (nextChargedHadron->getLostTrackCandidate().isNonnull()) {
-          track = nextChargedHadron->getLostTrackCandidate()->bestTrack();
-        }
-      }
+      const reco::Track* track = reco::tau::getTrackFromChargedHadron(*nextChargedHadron);
 
       // discard candidate in case its track is "used" by any ChargedHadron in the clean collection
       bool isTrack_overlap = false;
