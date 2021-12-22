@@ -29,7 +29,6 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "SiPixelLorentzAngle.h"
-int lower_bin_;
 
 using namespace std;
 using namespace edm;
