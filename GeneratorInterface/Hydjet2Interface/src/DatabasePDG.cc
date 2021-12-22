@@ -19,6 +19,8 @@
 #include <string>
 #include <fstream>
 
+#include "FWCore/Utilities/interface/FileInPath.h"
+
 using namespace std;
 using namespace edm;
 

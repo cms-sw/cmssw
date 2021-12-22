@@ -19,20 +19,9 @@
 #include "ParticlePDG.h"
 #endif
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
-const int kMaxParticles = 1000;
-
 class DatabasePDG {
 private:
+  constexpr static int kMaxParticles = 1000;
   int fNParticles;                         // no. of particles in database
   ParticlePDG *fParticles[kMaxParticles];  // array of particle pointers
   bool fStatus[kMaxParticles];             // status of each particle

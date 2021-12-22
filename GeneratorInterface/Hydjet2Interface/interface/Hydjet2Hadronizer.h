@@ -212,7 +212,6 @@ namespace gen {
     double fNccth;
 
     edm::ParameterSet pset;
-    edm::Service<TFileService> fs;
 
     int ev, sseed, Njet, Nbcol, Npart, Ntot, Npyt, Nhyd;
     double psiforv3;

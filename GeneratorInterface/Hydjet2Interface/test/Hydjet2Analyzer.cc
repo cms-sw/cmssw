@@ -21,7 +21,7 @@
 #include <fstream>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -42,9 +42,12 @@
 // root include file
 #include "TFile.h"
 #include "TNtuple.h"
+#include "TH1.h"
 using namespace std;
-static const int MAXPARTICLES = 5000000;
-static const int ETABINS = 3;  // Fix also in branch string
+namespace {
+  static constexpr int MAXPARTICLES = 5000000;
+  static constexpr int ETABINS = 3;  // Fix also in branch string
+}  // namespace
 //
 // class decleration
 //
@@ -74,16 +77,15 @@ struct Hydjet2Event {
   float vz;
   float vr;
 };
-class Hydjet2Analyzer : public edm::EDAnalyzer {
+class Hydjet2Analyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit Hydjet2Analyzer(const edm::ParameterSet &);
   ~Hydjet2Analyzer();
 
 private:
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
-  virtual void beginJob();
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
-  virtual void endJob();
+  void beginJob() final;
+  void analyze(const edm::Event &, const edm::EventSetup &) final;
+  void endJob() final;
   // ----------member data ---------------------------
   std::ofstream out_b;
   std::string fBFileName;
@@ -105,6 +107,8 @@ private:
   double etaMax_;
   double ptMin_;
   bool doHistos_, userHistos_;
+
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> pdtToken_;
 
   float *ptBins;
   float *etaBins;
@@ -148,8 +152,6 @@ private:
   edm::InputTag genParticleSrc_;
   edm::InputTag genHIsrc_;
   edm::InputTag simVerticesTag_;
-  edm::ESHandle<ParticleDataTable> pdt;
-  edm::Service<TFileService> f;
 
   //common
   TH1D *dhpt;
@@ -293,6 +295,10 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
 
   doHistos_ = iConfig.getUntrackedParameter<bool>("doHistos", false);
 
+  if (useHepMCProduct_) {
+    pdtToken_ = esConsumes();
+  }
+
   if (doHistos_) {
     userHistos_ = iConfig.getUntrackedParameter<bool>("userHistos", false);
     if (userHistos_) {
@@ -412,6 +418,7 @@ Hydjet2Analyzer::~Hydjet2Analyzer() {
 void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace HepMC;
+
   hev_.event = iEvent.id().event();
   for (int ieta = 0; ieta < ETABINS; ++ieta) {
     hev_.n[ieta] = 0;
@@ -436,6 +443,8 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
   int sig = -1;
   int src = -1;
   if (useHepMCProduct_) {
+    edm::ESHandle<ParticleDataTable> pdt = iSetup.getHandle(pdtToken_);
+
     //_______________________________________________________________________________________
     if (doCF_) {
       Handle<CrossingFrame<HepMCProduct> > cf;
@@ -784,7 +793,6 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
   }
 }
 // ------------ method called once each job just before starting event loop ------------
-void Hydjet2Analyzer::beginRun(const edm::Run &, const edm::EventSetup &iSetup) { iSetup.getData(pdt); }
 void Hydjet2Analyzer::beginJob() {
   if (printLists_) {
     out_b.open(fBFileName.c_str());
@@ -938,6 +946,8 @@ void Hydjet2Analyzer::beginJob() {
   }
 
   if (doAnalysis_) {
+    usesResource(TFileService::kSharedResource);
+    edm::Service<TFileService> f;
     nt = f->make<TNtuple>("nt", "Mixing Analysis", "mix:np:src:sig");
     hydjetTree_ = f->make<TTree>("hi", "Tree of Hydjet Events");
     hydjetTree_->Branch("event", &hev_.event, "event/I");
