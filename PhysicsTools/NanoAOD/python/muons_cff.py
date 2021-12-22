@@ -87,18 +87,6 @@ run2_muon_2016.toModify(muonMVATTH,
         weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
     )
 
-from MuonAnalysis.MuonAssociators.muonFSRProducer_cfi import muonFSRProducer
-muonFSRphotons = muonFSRProducer.clone(
-  packedPFCandidates = cms.InputTag("packedPFCandidates"),
-  slimmedElectrons = cms.InputTag("slimmedElectrons"),
-  muons = cms.InputTag("linkedObjects","muons"),
-)
-from MuonAnalysis.MuonAssociators.muonFSRAssociator_cfi import muonFSRAssociator
-muonFSRassociation = muonFSRAssociator.clone(
-    photons = cms.InputTag("muonFSRphotons"),
-    muons = cms.InputTag("linkedObjects","muons"),
-)
-
 muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("linkedObjects","muons"),
     cut = cms.string(""), #we should not filter on cross linked collections
@@ -190,4 +178,4 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 muonTask = cms.Task(slimmedMuonsUpdated,isoForMu,ptRatioRelForMu,slimmedMuonsWithUserData,finalMuons,finalLooseMuons )
 muonMCTask = cms.Task(muonsMCMatchForTable,muonMCTable)
-muonTablesTask = cms.Task(muonFSRphotons,muonFSRassociation,muonMVATTH,muonMVALowPt,muonTable)
+muonTablesTask = cms.Task(muonMVATTH,muonMVALowPt,muonTable)
