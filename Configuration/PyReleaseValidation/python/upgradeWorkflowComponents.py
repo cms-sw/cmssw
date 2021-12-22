@@ -156,7 +156,7 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         era=properties.get('Era', None)
         modifier=properties.get('ProcessModifier',None)
         if cust is not None: stepDict[stepName][k]['--customise']=cust
-        if era is not None: 
+        if era is not None:
             stepDict[stepName][k]['--era']=era
         if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
     def condition(self, fragment, stepList, key, hasHarvest):
@@ -304,7 +304,7 @@ class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2017' in key or '2018' in key or '2021' in key
+        return '2017' in key or '2018' in key or '2021' in key or '2026' in key
 upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
     steps = [
         'Reco',
@@ -482,6 +482,7 @@ class PatatrackWorkflow(UpgradeWorkflow):
             ('2021' in key and fragment == "TTbar_14TeV"),
             ('2018' in key and fragment == "ZMM_13"),
             ('2021' in key and fragment == "ZMM_14"),
+            ('2026D88' in key and fragment == "TTbar_14TeV" and "PixelOnly" in self.suffix)
         ]
         result = any(selected) and hasHarvest
 

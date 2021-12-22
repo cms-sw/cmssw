@@ -112,6 +112,16 @@ namespace pixelgpudetails {
                            bool debug,
                            cudaStream_t stream);
 
+    void makePhase2ClustersAsync(const SiPixelClusterThresholds clusterThresholds,
+                                 const uint16_t* moduleIds,
+                                 const uint16_t* xDigis,
+                                 const uint16_t* yDigis,
+                                 const uint16_t* adcDigis,
+                                 const uint32_t* packedData,
+                                 const uint32_t* rawIds,
+                                 const uint32_t numDigis,
+                                 cudaStream_t stream);
+
     std::pair<SiPixelDigisCUDA, SiPixelClustersCUDA> getResults() {
       digis_d.setNModulesDigis(nModules_Clusters_h[0], nDigis);
       assert(nModules_Clusters_h[2] <= nModules_Clusters_h[1]);
@@ -129,7 +139,7 @@ namespace pixelgpudetails {
     SiPixelDigiErrorsCUDA&& getErrors() { return std::move(digiErrors_d); }
 
   private:
-    uint32_t nDigis = 0;
+    uint32_t nDigis;
 
     // Data to be put in the event
     cms::cuda::host::unique_ptr<uint32_t[]> nModules_Clusters_h;
