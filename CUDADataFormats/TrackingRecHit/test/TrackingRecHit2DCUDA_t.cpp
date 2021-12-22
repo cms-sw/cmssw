@@ -16,16 +16,18 @@ int main() {
   cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
 
   auto nHits = 200;
+  auto nModules = 2000;
   // inner scope to deallocate memory before destroying the stream
   {
-    TrackingRecHit2DGPU tkhit(nHits, 0, nullptr, nullptr, stream);
+    TrackingRecHit2DGPU tkhit(nHits, nModules, 0, nullptr, nullptr, stream);
 
     testTrackingRecHit2D::runKernels(tkhit.view());
 
-    TrackingRecHit2DHost tkhitH(nHits, 0, nullptr, nullptr, stream, &tkhit);
+    TrackingRecHit2DHost tkhitH(nHits, nModules, 0, nullptr, nullptr, stream, &tkhit);
     cudaStreamSynchronize(stream);
     assert(tkhitH.view());
     assert(tkhitH.view()->nHits() == unsigned(nHits));
+    assert(tkhitH.view()->nMaxModules() == unsigned(nModules));
   }
 
   cudaCheck(cudaStreamDestroy(stream));
