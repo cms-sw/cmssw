@@ -10,5 +10,6 @@ struct SiPixelClusterThresholds {
 };
 
 constexpr SiPixelClusterThresholds kSiPixelClusterThresholdsDefaultPhase1{.layer1 = 2000, .otherLayers = 4000};
+constexpr SiPixelClusterThresholds kSiPixelClusterThresholdsDefaultPhase2{.layer1 = 4000, .otherLayers = 4000};
 
 #endif  // RecoLocalTracker_SiPixelClusterizer_plugins_SiPixelClusterThresholds_h
