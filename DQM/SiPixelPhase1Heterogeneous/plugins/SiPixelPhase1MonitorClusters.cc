@@ -6,7 +6,7 @@
 /**\class SiPixelPhase1MonitorClusters SiPixelPhase1MonitorClusters.cc
 */
 //
-// Author: Suvankar Roy Chowdhury
+// Author: Tommaso Tedeschi
 //
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
