@@ -8,15 +8,17 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 #include <CLHEP/Vector/LorentzVector.h>
 
-class BeginOfJob;
 class BeginOfTrack;
 class G4Step;
 class EndOfTrack;
 
 class MaterialBudgetHcal : public SimWatcher,
-                           public Observer<const BeginOfJob*>,
                            public Observer<const BeginOfTrack*>,
                            public Observer<const G4Step*>,
                            public Observer<const EndOfTrack*> {
@@ -26,8 +28,10 @@ public:
 
   const MaterialBudgetHcal& operator=(const MaterialBudgetHcal&) = delete;  // stop default
 
+  void registerConsumes(edm::ConsumesCollector) override;
+  void beginRun(edm::EventSetup const&) override;
+
 private:
-  void update(const BeginOfJob*) override;
   void update(const BeginOfTrack*) override;
   void update(const G4Step*) override;
   void update(const EndOfTrack*) override;
@@ -36,6 +40,8 @@ private:
 
   std::unique_ptr<MaterialBudgetHcalHistos> theHistoHcal_;
   std::unique_ptr<MaterialBudgetCastorHistos> theHistoCastor_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4hep_;
   double rMax_, zMax_;
   bool fromdd4hep_;
 };
