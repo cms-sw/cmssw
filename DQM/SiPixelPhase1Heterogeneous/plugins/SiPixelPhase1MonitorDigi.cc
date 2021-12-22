@@ -1,9 +1,9 @@
 // -*- C++ -*-
 ///bookLayer
-// Package:    SiPixelPhase1MonitorDigi
-// Class:      SiPixelPhase1MonitorDigi
+// Package:    SiPixelPhase1MonitorDigis
+// Class:      SiPixelPhase1MonitorDigis
 //
-/**\class SiPixelPhase1MonitorDigi SiPixelPhase1MonitorDigi.cc 
+/**\class SiPixelPhase1MonitorDigis SiPixelPhase1MonitorDigis.cc 
 */
 //
 // Author: Andrea Piccinelli
@@ -31,10 +31,10 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
-class SiPixelPhase1MonitorDigi : public DQMEDAnalyzer {
+class SiPixelPhase1MonitorDigis : public DQMEDAnalyzer {
 public:
-  explicit SiPixelPhase1MonitorDigi(const edm::ParameterSet&);
-  ~SiPixelPhase1MonitorDigi() override = default;
+  explicit SiPixelPhase1MonitorDigis(const edm::ParameterSet&);
+  ~SiPixelPhase1MonitorDigis() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -101,7 +101,7 @@ private:
 // constructors
 //
 
-SiPixelPhase1MonitorDigi::SiPixelPhase1MonitorDigi(const edm::ParameterSet& iConfig) {
+SiPixelPhase1MonitorDigis::SiPixelPhase1MonitorDigi(const edm::ParameterSet& iConfig) {
   tokenDigi_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("pixelDigiSrc"));
   topFolderName_ = iConfig.getParameter<std::string>("TopFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
   trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
@@ -111,7 +111,7 @@ SiPixelPhase1MonitorDigi::SiPixelPhase1MonitorDigi(const edm::ParameterSet& iCon
 //
 // -- Analyze
 //
-void SiPixelPhase1MonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelPhase1MonitorDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get geometry
   edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
   assert(tracker.isValid());
@@ -122,7 +122,7 @@ void SiPixelPhase1MonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
   edm::Handle<edm::DetSetVector<PixelDigi>> input;
   iEvent.getByToken(tokenDigi_, input);
   if (!input.isValid()){
-    edm::LogWarning("SiPixelPhase1MonitorDigi") << "No Digi found \n returning!" << std::endl;
+    edm::LogWarning("SiPixelPhase1MonitorDigis") << "No Digi found \n returning!" << std::endl;
   }
   else{
     edm::DetSetVector<PixelDigi>::const_iterator it;
@@ -280,7 +280,7 @@ void SiPixelPhase1MonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
 //
 // -- Book Histograms
 //
-void SiPixelPhase1MonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
+void SiPixelPhase1MonitorDigis::bookHistograms(DQMStore::IBooker& ibooker,
                                                   edm::Run const& iRun,
                                                   edm::EventSetup const& iSetup) {
   ibooker.cd();
@@ -319,10 +319,10 @@ void SiPixelPhase1MonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
   hDigisEndcapDiskp3ADC = ibooker.book1D("DigisEndcapDiskp3ADC", ";Digis ADC per event;#entries", 501, -0.5, 500.5);
 }
 
-void SiPixelPhase1MonitorDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelPhase1MonitorDigis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelDigiSrc", edm::InputTag("siPixelDigis"));
   desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelDigis");
   descriptions.addWithDefaultLabel(desc);
 }
-DEFINE_FWK_MODULE(SiPixelPhase1MonitorDigi);
+DEFINE_FWK_MODULE(SiPixelPhase1MonitorDigis);
