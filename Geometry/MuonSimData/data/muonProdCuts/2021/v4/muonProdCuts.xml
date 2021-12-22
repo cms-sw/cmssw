@@ -7,6 +7,7 @@
    <Parameter name="ProdCutsForGamma" value="1.0*cm"/>
    <Parameter name="ProdCutsForElectrons" value="1.0*cm"/>
    <Parameter name="ProdCutsForPositrons" value="1.0*cm"/>
+   <Parameter name="ProdCutsForProtons" value="10.*mm"/>
   </SpecPar>
   <SpecPar name="MuonIron">
    <PartSelector path="//MGNT"/>
@@ -30,6 +31,7 @@
    <Parameter name="ProdCutsForGamma" value="1.0*cm"/>
    <Parameter name="ProdCutsForElectrons" value="1.0*mm"/>
    <Parameter name="ProdCutsForPositrons" value="1.0*mm"/>
+   <Parameter name="ProdCutsForProtons" value="1.*mm"/>
   </SpecPar>
   <SpecPar name="MuonChamber">
    <PartSelector path="//MB.*N"/>
@@ -41,6 +43,7 @@
    <Parameter name="ProdCutsForGamma" value="1.0*mm"/>
    <Parameter name="ProdCutsForElectrons" value="0.002*mm"/>
    <Parameter name="ProdCutsForPositrons" value="0.002*mm"/>
+   <Parameter name="ProdCutsForProtons" value="1.*mm"/>
   </SpecPar>
   <SpecPar name="MuonSensitive_DT-CSC">
    <!-- 1 keV for gamma/e-, 1 MeV for e+ -->
@@ -52,6 +55,7 @@
    <Parameter name="ProdCutsForGamma" value="1.0*cm"/>
    <Parameter name="ProdCutsForElectrons" value="1.0*mm"/>
    <Parameter name="ProdCutsForPositrons" value="1.0*cm"/>
+   <Parameter name="ProdCutsForProtons" value="1.*mm"/>
   </SpecPar>
   <SpecPar name="MuonSensitive_RPC">
    <!-- 10 keV for gamma/e-, 1 MeV for e+ -->
@@ -66,6 +70,7 @@
    <Parameter name="ProdCutsForGamma" value="1.0*cm"/>
    <Parameter name="ProdCutsForElectrons" value="8.0*mm"/>
    <Parameter name="ProdCutsForPositrons" value="1.0*cm"/>
+   <Parameter name="ProdCutsForProtons" value="1.*mm"/>
   </SpecPar>
  </SpecParSection>
 </DDDefinition>
