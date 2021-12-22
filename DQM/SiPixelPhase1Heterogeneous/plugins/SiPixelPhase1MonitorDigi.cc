@@ -6,7 +6,7 @@
 /**\class SiPixelPhase1MonitorDigi SiPixelPhase1MonitorDigi.cc 
 */
 //
-// Author: Suvankar Roy Chowdhury
+// Author: Andrea Piccinelli
 //
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
