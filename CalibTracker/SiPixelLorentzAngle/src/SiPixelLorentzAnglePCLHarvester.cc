@@ -60,7 +60,8 @@ private:
 
   std::vector<std::string> newmodulelist_;
   const std::string dqmDir_;
-  const double fitProbCut_;
+  const double fitChi2Cut_;
+  const int minHitsCut_;
   const std::string recordName_;
   std::unique_ptr<TF1> f1;
   float width_;
@@ -78,7 +79,8 @@ SiPixelLorentzAnglePCLHarvester::SiPixelLorentzAnglePCLHarvester(const edm::Para
       magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()),
       newmodulelist_(iConfig.getParameter<std::vector<std::string>>("newmodulelist")),
       dqmDir_(iConfig.getParameter<std::string>("dqmDir")),
-      fitProbCut_(iConfig.getParameter<double>("fitProbCut")),
+      fitChi2Cut_(iConfig.getParameter<double>("fitChi2Cut")),
+      minHitsCut_(iConfig.getParameter<int>("minHitsCut")),
       recordName_(iConfig.getParameter<std::string>("record")) {
   // first ensure DB output service is available
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -219,7 +221,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
         fmt::format("{}/h_BPixnew_drift_depth_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
 
     if (hists.h_drift_depth_[new_index] == nullptr) {
-      edm::LogError("SiPixelLorentzAnglePCLHarvester::dqmEndJob")
+      edm::LogError("SiPixelLorentzAnglePCLHarvester")
           << "Failed to retrieve electron drift over depth for new module " << hists.BPixnewmodulename_[i] << ".";
       continue;
     }
@@ -239,8 +241,11 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
         hists.h_drift_depth_adc_[new_index], hists.h_drift_depth_noadc_[new_index], 1., 1., "");
   }
 
-  hists.h_bySectLA_ = iGetter.get(fmt::format("{}/h_bySectorLA", dqmDir_ + "/SectorMonitoring"));
-  hists.h_bySectChi2_ = iGetter.get(fmt::format("{}/h_bySectorChi2", dqmDir_ + "/SectorMonitoring"));
+  hists.h_bySectOccupancy_ = iGetter.get(fmt::format("{}/h_bySectorOccupancy", dqmDir_ + "/SectorMonitoring"));
+  if (hists.h_bySectOccupancy_ == nullptr) {
+    edm::LogError("SiPixelLorentzAnglePCLHarvester") << "Failed to retrieve the hit on track occupancy.";
+    return;
+  }
 
   int hist_drift_;
   int hist_depth_;
@@ -259,9 +264,30 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     max_drift_ = 500.;
   }
 
-  iBooker.setCurrentFolder("AlCaReco/SiPixelLorentzAngleHarvesting/");
+  iBooker.setCurrentFolder(fmt::format("{}Harvesting", dqmDir_));
   MonitorElement* h_drift_depth_adc_slice_ =
       iBooker.book1D("h_drift_depth_adc_slice", "slice of adc histogram", hist_drift_, min_drift_, max_drift_);
+
+  // retrieve the number of bins from the other monitoring histogram
+  const auto& maxSect = hists.h_bySectOccupancy_->getNbinsX();
+
+  // this will be booked in the Harvesting folder
+  iBooker.setCurrentFolder(fmt::format("{}Harvesting/SectorMonitoring", dqmDir_));
+  MonitorElement* h_bySectLA_ =
+      iBooker.book1D("h_bySectorLA",
+                     "tan#theta_{LA}/B by sector ;pixel sector;measured tan(#theta_{LA})/B [1/T]",
+                     maxSect,
+                     -0.5,
+                     maxSect + 0.5);
+  MonitorElement* h_bySectChi2_ = iBooker.book1D(
+      "h_bySectorChi2", "#chi^{2}/ndf by sector;pixel sector; fit #chi^{2}/ndf", maxSect, -0.5, maxSect + 0.5);
+
+  // copy the bin labels from the occupancy histogram
+  for (int bin = 1; bin < maxSect; bin++) {
+    const auto& binName = hists.h_bySectOccupancy_->getTH1()->GetXaxis()->GetBinLabel(bin);
+    h_bySectLA_->setBinLabel(bin, binName);
+    h_bySectChi2_->setBinLabel(bin, binName);
+  }
 
   // clang-format off
   edm::LogPrint("LorentzAngle") << "module" << "\t" << "layer" << "\t"
@@ -344,9 +370,11 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
                        pow((half_width * half_width * half_width * half_width * e5), 2));  // Propagation of uncertainty
     double error_LA = sqrt(errsq_LA);
 
-    hists.h_bySectLA_->setBinContent(new_index, (tan_LA / theMagField));
-    hists.h_bySectLA_->setBinError(new_index, (error_LA / theMagField));
-    hists.h_bySectChi2_->setBinContent(new_index, redChi2);
+    h_bySectLA_->setBinContent(new_index, (tan_LA / theMagField));
+    h_bySectLA_->setBinError(new_index, (error_LA / theMagField));
+    h_bySectChi2_->setBinContent(new_index, redChi2);
+
+    int nentries = hists.h_bySectOccupancy_->getBinContent(new_index);  // number of on track hits in that sector
 
     edm::LogPrint("LorentzAngle") << std::setprecision(4) << hists.BPixnewModule_[j] << "\t" << hists.BPixnewLayer_[j]
                                   << "\t" << p0 << "\t" << e0 << "\t" << p1 << std::setprecision(3) << "\t" << e1
@@ -357,7 +385,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
 
     float bPixLorentzAnglePerTesla_;
     // if the fit quality is OK
-    if (prob > fitProbCut_) {
+    if ((redChi2 != 0.) && (redChi2 < fitChi2Cut_) && (nentries > minHitsCut_)) {
       bPixLorentzAnglePerTesla_ = tan_LA / theMagField;
       if (!LorentzAngle->putLorentzAngle(rawId, bPixLorentzAnglePerTesla_)) {
         edm::LogError("SiPixelLorentzAnglePCLHarvester")
@@ -447,9 +475,11 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
            pow((half_width * half_width * half_width * half_width * e5), 2));  // Propagation of uncertainty
       double error_LA = sqrt(errsq_LA);
 
-      hists.h_bySectLA_->setBinContent(i_index, (tan_LA / theMagField));
-      hists.h_bySectLA_->setBinError(i_index, (error_LA / theMagField));
-      hists.h_bySectChi2_->setBinContent(i_index, redChi2);
+      h_bySectLA_->setBinContent(i_index, (tan_LA / theMagField));
+      h_bySectLA_->setBinError(i_index, (error_LA / theMagField));
+      h_bySectChi2_->setBinContent(i_index, redChi2);
+
+      int nentries = hists.h_bySectOccupancy_->getBinContent(i_index);  // number of on track hits
 
       edm::LogPrint("LorentzAngle") << std::setprecision(4) << i_module << "\t" << i_layer << "\t" << p0 << "\t" << e0
                                     << "\t" << p1 << std::setprecision(3) << "\t" << e1 << "\t" << e1 / p1 * 100.
@@ -470,7 +500,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
 
       float bPixLorentzAnglePerTesla_;
       // if the fit quality is OK
-      if (prob > fitProbCut_) {
+      if ((redChi2 != 0.) && (redChi2 < fitChi2Cut_) && (nentries > minHitsCut_)) {
         for (const auto& id : detIdsToFill) {
           bPixLorentzAnglePerTesla_ = tan_LA / theMagField;
           if (!LorentzAngle->putLorentzAngle(id, bPixLorentzAnglePerTesla_)) {
@@ -587,7 +617,8 @@ void SiPixelLorentzAnglePCLHarvester::fillDescriptions(edm::ConfigurationDescrip
   desc.setComment("Harvester module of the SiPixel Lorentz Angle PCL monitoring workflow");
   desc.add<std::vector<std::string>>("newmodulelist", {})->setComment("the list of DetIds for new sensors");
   desc.add<std::string>("dqmDir", "AlCaReco/SiPixelLorentzAngle")->setComment("the directory of PCL Worker output");
-  desc.add<double>("fitProbCut", 0.1)->setComment("cut on fit chi2 probabiblity to accept measurement");
+  desc.add<double>("fitChi2Cut", 20.)->setComment("cut on fit chi2/ndof to accept measurement");
+  desc.add<int>("minHitsCut", 10000)->setComment("cut on minimum number of on-track hits to accept measurement");
   desc.add<std::string>("record", "SiPixelLorentzAngleRcd")->setComment("target DB record");
   descriptions.addWithDefaultLabel(desc);
 }

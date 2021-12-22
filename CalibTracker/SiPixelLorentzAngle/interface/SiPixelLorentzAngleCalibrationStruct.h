@@ -37,8 +37,6 @@ public:
 
   // per-sector measurements
   dqm::reco::MonitorElement* h_bySectOccupancy_;
-  dqm::reco::MonitorElement* h_bySectLA_;
-  dqm::reco::MonitorElement* h_bySectChi2_;
 };
 
 #endif

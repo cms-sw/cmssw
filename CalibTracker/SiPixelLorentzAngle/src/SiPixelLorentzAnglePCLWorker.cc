@@ -698,11 +698,8 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
   const auto maxSect = iHists.nlay * iHists.nModules_[iHists.nlay - 1] + (int)iHists.BPixnewDetIds_.size();
 
   iBooker.setCurrentFolder(fmt::sprintf("%s/SectorMonitoring", folder_.data()));
-  iHists.h_bySectOccupancy_ =
-      iBooker.book1D("h_bySectorOccupancy", ";pixel sector;hits on track", maxSect, -0.5, maxSect + 0.5);
-  iHists.h_bySectLA_ = iBooker.book1D("h_bySectorLA", ";pixel sector;measured LA [1/T]", maxSect, -0.5, maxSect + 0.5);
-  iHists.h_bySectChi2_ =
-      iBooker.book1D("h_bySectorChi2", ";pixel sector; fit #chi^{2}/ndf", maxSect, -0.5, maxSect + 0.5);
+  iHists.h_bySectOccupancy_ = iBooker.book1D(
+      "h_bySectorOccupancy", "hit occupancy by sector;pixel sector;hits on track", maxSect, -0.5, maxSect + 0.5);
 
   iBooker.setCurrentFolder(folder_);
   static constexpr double min_depth_ = -100.;
@@ -721,8 +718,6 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
                                                << " (i_layer: " << i_layer << " i_module:" << i_module << ")";
 
       iHists.h_bySectOccupancy_->setBinLabel(i_index, binName);
-      iHists.h_bySectLA_->setBinLabel(i_index, binName);
-      iHists.h_bySectChi2_->setBinLabel(i_index, binName);
 
       sprintf(name, "h_mean_layer%i_module%i", i_layer, i_module);
       sprintf(title,
@@ -743,8 +738,6 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
     LogDebug("SiPixelLorentzAnglePCLWorker") << "i_index" << new_index << " bin name: " << iHists.BPixnewmodulename_[i];
 
     iHists.h_bySectOccupancy_->setBinLabel(new_index, iHists.BPixnewmodulename_[i]);
-    iHists.h_bySectLA_->setBinLabel(new_index, iHists.BPixnewmodulename_[i]);
-    iHists.h_bySectChi2_->setBinLabel(new_index, iHists.BPixnewmodulename_[i]);
   }
 
   //book the 2D histograms
