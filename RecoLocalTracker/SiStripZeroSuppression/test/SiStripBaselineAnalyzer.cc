@@ -78,7 +78,6 @@ public:
 private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   std::unique_ptr<SiStripPedestalsSubtractor> subtractorPed_;
   edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
@@ -158,7 +157,7 @@ SiStripBaselineAnalyzer::SiStripBaselineAnalyzer(const edm::ParameterSet& conf) 
   h1Pedestals_->SetLineStyle(2);
 }
 
-SiStripBaselineAnalyzer::~SiStripBaselineAnalyzer() {}
+SiStripBaselineAnalyzer::~SiStripBaselineAnalyzer() = default;
 
 void SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   using namespace edm;
@@ -364,9 +363,6 @@ void SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripBaselineAnalyzer::beginJob() { actualModule_ = 0; }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void SiStripBaselineAnalyzer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiStripBaselineAnalyzer);
