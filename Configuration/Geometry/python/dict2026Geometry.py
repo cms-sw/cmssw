@@ -1392,7 +1392,7 @@ muonDict = {
 forwardDict = {
     "abbrev" : "F",
     "name" : "forward",
-    "default" : 6,
+    "default" : 8,
     "F2" : {
         1 : [
             'Geometry/ForwardCommonData/data/forwardshield/2017/v1/forwardshield.xml',
@@ -1518,6 +1518,28 @@ forwardDict = {
         ],
         "reco" :[
             'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
+        ]
+    },
+    "F8" : {
+        1 : [
+            'Geometry/ForwardCommonData/data/forwardshield/2026/v4/forwardshield.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/lumimaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcrotations.xml',
+            'Geometry/ForwardCommonData/data/lumirotations.xml',
+            'Geometry/ForwardCommonData/data/zdc.xml',
+            'Geometry/ForwardCommonData/data/zdclumi.xml',
+            'Geometry/ForwardCommonData/data/cmszdc.xml',
+        ],
+        3 : [
+            'Geometry/ForwardSimData/data/zdcsens.xml',
+        ],
+        4 : [
+            'Geometry/ForwardSimData/data/zdcProdCuts.xml',
+            'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
+        ],
+        "reco" :[
+            'from Geometry.ForwardGeometry.ZdcGeometry_cfi import *',
         ]
     },
 }
@@ -1688,8 +1710,8 @@ detectorVersionDict = {
     ("O8","T24","C17","M10","F6","I14") : "D86",
     ("O7","T27","C14","M9","F6","I13") : "D87",
     ("O9","T24","C17","M10","F6","I15") : "D88",
-    ("O7","T28","C14","M9","F6","I13") : "D89",
-    ("O7","T29","C14","M9","F6","I13") : "D90",
+    ("O7","T28","C14","M9","F8","I13") : "D89",
+    ("O7","T29","C14","M9","F8","I13") : "D90",
  }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D50", "D51", "D52", "D53", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62", "D63", "D64", "D65", "D66", "D67", "D69", "D71", "D72", "D73", "D74", "D75"])
