@@ -759,7 +759,7 @@ namespace {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
           edm::FinalWaitingTask waitTask;
-          tbb::task_group group;
+          oneapi::tbb::task_group group;
           edm::ServiceToken token;
           rec->prefetchAsync(
               edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, token, edm::ESParentContext{});
@@ -788,7 +788,7 @@ namespace {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
           edm::FinalWaitingTask waitTask;
-          tbb::task_group group;
+          oneapi::tbb::task_group group;
           edm::ServiceToken token;
           rec->prefetchAsync(
               edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, token, edm::ESParentContext{});
