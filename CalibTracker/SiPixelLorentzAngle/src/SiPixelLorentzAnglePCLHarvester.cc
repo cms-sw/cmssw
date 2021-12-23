@@ -300,23 +300,38 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   MonitorElement* h_drift_depth_adc_slice_ =
       iBooker.book1D("h_drift_depth_adc_slice", "slice of adc histogram", hist_drift_, min_drift_, max_drift_);
 
+  // book histogram of differences
+  MonitorElement* h_diffLA = iBooker.book1D(
+      "h_diffLA", "difference in #mu_{H}; #Delta #mu_{H}/#mu_{H} (old-new)/old [%];n. modules", 100, -3., 3.);
+
   // retrieve the number of bins from the other monitoring histogram
   const auto& maxSect = hists.h_bySectOccupancy_->getNbinsX();
+  const double lo = -0.5;
+  const double hi = maxSect + 0.5;
 
   // this will be booked in the Harvesting folder
   iBooker.setCurrentFolder(fmt::format("{}Harvesting/SectorMonitoring", dqmDir_));
-  hists.h_bySectLA_ = iBooker.book1D("h_bySectorLA",
-                                     "tan#theta_{LA}/B by sector;pixel sector;measured tan(#theta_{LA})/B [1/T]",
-                                     maxSect,
-                                     -0.5,
-                                     maxSect + 0.5);
-  hists.h_bySectChi2_ = iBooker.book1D(
-      "h_bySectorChi2", "#chi^{2}/ndf by sector;pixel sector; fit #chi^{2}/ndf", maxSect, -0.5, maxSect + 0.5);
+  std::string repText = "%s tan#theta_{LA}/B by sector;pixel sector;%s tan(#theta_{LA})/B [1/T]";
+  hists.h_bySectMeasLA_ =
+      iBooker.book1D("h_LAbySector_Measured", fmt::sprintf(repText, "measured", "measured"), maxSect, lo, hi);
+  hists.h_bySectSetLA_ =
+      iBooker.book1D("h_LAbySector_Accepted", fmt::sprintf(repText, "accepted", "accepted"), maxSect, lo, hi);
+  hists.h_bySectRejectLA_ =
+      iBooker.book1D("h_LAbySector_Rejected", fmt::sprintf(repText, "rejected", "rejected"), maxSect, lo, hi);
+  hists.h_bySectLA_ = iBooker.book1D("h_LAbySector", fmt::sprintf(repText, "payload", "payload"), maxSect, lo, hi);
+  hists.h_bySectDeltaLA_ =
+      iBooker.book1D("h_deltaLAbySector", fmt::sprintf(repText, "#Delta", "#Delta"), maxSect, lo, hi);
+  hists.h_bySectChi2_ =
+      iBooker.book1D("h_bySectorChi2", "Fit #chi^{2}/ndf by sector;pixel sector; fit #chi^{2}/ndf", maxSect, lo, hi);
 
   // copy the bin labels from the occupancy histogram
   for (int bin = 1; bin < maxSect; bin++) {
     const auto& binName = hists.h_bySectOccupancy_->getTH1()->GetXaxis()->GetBinLabel(bin);
+    hists.h_bySectMeasLA_->setBinLabel(bin, binName);
+    hists.h_bySectSetLA_->setBinLabel(bin, binName);
+    hists.h_bySectRejectLA_->setBinLabel(bin, binName);
     hists.h_bySectLA_->setBinLabel(bin, binName);
+    hists.h_bySectDeltaLA_->setBinLabel(bin, binName);
     hists.h_bySectChi2_->setBinLabel(bin, binName);
   }
 
@@ -436,10 +451,6 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
           << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling rest of payload: detid already exists";
     }
   }
-
-  // book histogram of differences
-  MonitorElement* h_diffLA = iBooker.book1D(
-      "h_diffLA", "difference in #mu_{H}; #Delta #mu_{H}/#mu_{H} (old-new)/old [%];n. modules", 100, -10, 10);
 
   for (const auto& id : newLADets) {
     float deltaMuHoverMuH = (currentLorentzAngle->getLorentzAngle(id) - LorentzAngle->getLorentzAngle(id)) /
@@ -565,8 +576,8 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
        pow((half_width * half_width * half_width * half_width * res.e5), 2));  // Propagation of uncertainty
   res.error_LA = sqrt(errsq_LA);
 
-  hists.h_bySectLA_->setBinContent(i_index, (res.tan_LA / theMagField));
-  hists.h_bySectLA_->setBinError(i_index, (res.error_LA / theMagField));
+  hists.h_bySectMeasLA_->setBinContent(i_index, (res.tan_LA / theMagField));
+  hists.h_bySectMeasLA_->setBinError(i_index, (res.error_LA / theMagField));
   hists.h_bySectChi2_->setBinContent(i_index, res.redChi2);
 
   int nentries = hists.h_bySectOccupancy_->getBinContent(i_index);  // number of on track hits in that sector
@@ -575,22 +586,31 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   int shiftIdx = i_index - hists.nlay * hists.nModules_[hists.nlay - 1] - 1;
 
   LogDebug("SiPixelLorentzAnglePCLHarvester")
-      << " isNew: " << isNew << " i_index: " << i_index << " shift index: " << shiftIdx << std::endl;
+      << " isNew: " << isNew << " i_index: " << i_index << " shift index: " << shiftIdx;
 
   const auto& detIdsToFill =
       isNew ? std::vector<unsigned int>({hists.BPixnewDetIds_[shiftIdx]}) : hists.detIdsList.at(i_index);
 
   LogDebug("SiPixelLorentzAnglePCLHarvester")
-      << "index: " << i_index << " i_module: " << i_module << " i_layer: " << i_layer << std::endl;
+      << "index: " << i_index << " i_module: " << i_module << " i_layer: " << i_layer;
   for (const auto& id : detIdsToFill) {
     LogDebug("SiPixelLorentzAnglePCLHarvester") << id << ",";
   }
 
   float LorentzAnglePerTesla_;
+  float currentLA = currentLorentzAngle->getLorentzAngle(detIdsToFill.front());
   // if the fit quality is OK
   if ((res.redChi2 != 0.) && (res.redChi2 < fitChi2Cut_) && (nentries > minHitsCut_)) {
+    LorentzAnglePerTesla_ = res.tan_LA / theMagField;
+    // fill the LA actually written to payload
+    hists.h_bySectSetLA_->setBinContent(i_index, LorentzAnglePerTesla_);
+    hists.h_bySectRejectLA_->setBinContent(i_index, 0.);
+    hists.h_bySectLA_->setBinContent(i_index, LorentzAnglePerTesla_);
+
+    const auto& deltaLA = (LorentzAnglePerTesla_ - currentLA);
+    hists.h_bySectDeltaLA_->setBinContent(i_index, deltaLA);
+
     for (const auto& id : detIdsToFill) {
-      LorentzAnglePerTesla_ = res.tan_LA / theMagField;
       if (!theLAPayload->putLorentzAngle(id, LorentzAnglePerTesla_)) {
         edm::LogError("SiPixelLorentzAnglePCLHarvester") << "[SiPixelLorentzAnglePCLHarvester::fitAndStore]: detid ("
                                                          << i_layer << "," << i_module << ") already exists";
@@ -598,6 +618,12 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
     }
   } else {
     // just copy the values from the existing payload
+    hists.h_bySectSetLA_->setBinContent(i_index, 0.);
+    hists.h_bySectRejectLA_->setBinContent(i_index, (res.tan_LA / theMagField));
+    hists.h_bySectLA_->setBinContent(i_index, currentLA);
+
+    hists.h_bySectDeltaLA_->setBinContent(i_index, 0.);
+
     for (const auto& id : detIdsToFill) {
       LorentzAnglePerTesla_ = currentLorentzAngle->getLorentzAngle(id);
       if (!theLAPayload->putLorentzAngle(id, LorentzAnglePerTesla_)) {
