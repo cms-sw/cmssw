@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoRomanPot/RecoFP420/interface/FP420TrackMain.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
 #include "DataFormats/FP420Cluster/interface/TrackFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/TrackProducerFP420.h"
@@ -148,7 +149,7 @@ FP420TrackMain::~FP420TrackMain() {
   }
 }
 
-void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, TrackCollectionFP420 *toutput) {
+void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, TrackCollectionFP420 *toutput) const {
   if (validTrackerizer_) {
     int number_detunits = 0;
     int number_localelectroderechits = 0;

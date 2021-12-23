@@ -3,14 +3,7 @@
 
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
 #include "DataFormats/FP420Cluster/interface/TrackCollectionFP420.h"
@@ -24,7 +17,7 @@ public:
   ~FP420TrackMain();
 
   /// Runs the algorithm
-  void run(edm::Handle<ClusterCollectionFP420> &input, TrackCollectionFP420 *toutput);
+  void run(edm::Handle<ClusterCollectionFP420> &input, TrackCollectionFP420 *toutput) const;
 
 private:
   edm::ParameterSet conf_;
