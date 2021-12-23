@@ -147,7 +147,7 @@ namespace edm {
     return true;
   }
 
-  void Worker::prePrefetchSelectionAsync(tbb::task_group& group,
+  void Worker::prePrefetchSelectionAsync(oneapi::tbb::task_group& group,
                                          WaitingTask* successTask,
                                          ServiceToken const& token,
                                          StreamID id,
@@ -404,7 +404,7 @@ namespace edm {
   }
 
   Worker::HandleExternalWorkExceptionTask::HandleExternalWorkExceptionTask(Worker* worker,
-                                                                           tbb::task_group* group,
+                                                                           oneapi::tbb::task_group* group,
                                                                            WaitingTask* runModuleTask,
                                                                            ParentContext const& parentContext)
       : m_worker(worker), m_runModuleTask(runModuleTask), m_group(group), m_parentContext(parentContext) {}

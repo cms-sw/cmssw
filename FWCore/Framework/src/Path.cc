@@ -247,7 +247,7 @@ namespace edm {
                             ServiceToken const& iToken,
                             StreamID const& iID,
                             StreamContext const* iContext,
-                            tbb::task_group& iGroup) {
+                            oneapi::tbb::task_group& iGroup) {
     EventPrincipal const& iEP = iInfo.principal();
     ServiceRegistry::Operate guard(iToken);
 
@@ -350,7 +350,7 @@ namespace edm {
                                 ServiceToken const& iToken,
                                 StreamID const& iID,
                                 StreamContext const* iContext,
-                                tbb::task_group& iGroup) {
+                                oneapi::tbb::task_group& iGroup) {
     //Figure out which next modules can run concurrently
     const int firstModuleIndex = iNextModuleIndex;
     int lastModuleIndex = firstModuleIndex;

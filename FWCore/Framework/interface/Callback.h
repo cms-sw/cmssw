@@ -171,7 +171,7 @@ namespace edm {
         return static_cast<bool>(postMayGetProxies_);
       }
 
-      void runProducerAsync(tbb::task_group* iGroup,
+      void runProducerAsync(oneapi::tbb::task_group* iGroup,
                             std::exception_ptr const* iExcept,
                             EventSetupRecordImpl const* iRecord,
                             EventSetupImpl const* iEventSetupImpl,
