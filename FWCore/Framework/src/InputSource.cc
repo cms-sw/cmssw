@@ -18,7 +18,7 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/Utilities/interface/processGUID.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include <cassert>
@@ -59,7 +59,7 @@ namespace edm {
         branchIDListHelper_(desc.branchIDListHelper_),
         processBlockHelper_(desc.processBlockHelper_),
         thinnedAssociationsHelper_(desc.thinnedAssociationsHelper_),
-        processGUID_(createGlobalIdentifier(true)),
+        processGUID_(edm::processGUID().toBinary()),
         time_(),
         newRun_(true),
         newLumi_(true),
