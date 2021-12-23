@@ -1,7 +1,7 @@
 #ifndef TrackerizerFP420_h
 #define TrackerizerFP420_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 //#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,24 +23,19 @@
 #include <iostream>
 
 namespace cms {
-  class TrackerizerFP420 : public edm::EDProducer {
+  class TrackerizerFP420 : public edm::global::EDProducer<> {
   public:
     explicit TrackerizerFP420(const edm::ParameterSet& conf);
     //TrackerizerFP420();
 
-    ~TrackerizerFP420() override;
-
-    void beginJob() override;
-
     //  virtual void produce(ClusterCollectionFP420 &, TrackCollectionFP420 &);
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+    void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
 
   private:
     typedef std::vector<std::string> vstring;
-    edm::ParameterSet conf_;
     vstring trackerContainers;
 
-    FP420TrackMain* sFP420TrackMain_;
+    const FP420TrackMain sFP420TrackMain_;
     //  FP420TrackMain startFP420TrackMain_;
     //bool UseNoiseBadElectrodeFlagFromDB_;
     int verbosity;

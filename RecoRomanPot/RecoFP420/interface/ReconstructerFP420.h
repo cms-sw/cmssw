@@ -1,7 +1,7 @@
 #ifndef ReconstructerFP420_h
 #define ReconstructerFP420_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 //#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,14 +20,12 @@
 #include <iostream>
 
 namespace cms {
-  class ReconstructerFP420 : public edm::EDProducer {
+  class ReconstructerFP420 : public edm::stream::EDProducer<> {
   public:
     explicit ReconstructerFP420(const edm::ParameterSet& conf);
     //ReconstructerFP420();
 
     ~ReconstructerFP420() override;
-
-    void beginJob() override;
 
     //  virtual void produce(ClusterCollectionFP420 &, RecoCollectionFP420 &);
     void produce(edm::Event& e, const edm::EventSetup& c) override;
