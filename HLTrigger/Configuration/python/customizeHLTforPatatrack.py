@@ -473,7 +473,7 @@ def customiseEcalLocalReconstruction(process):
     process.hltEcalDigis.cuda = _ecalCPUDigisProducer.clone(
         digisInLabelEB = ("hltEcalDigisGPU", "ebDigis"),
         digisInLabelEE = ("hltEcalDigisGPU", "eeDigis"),
-        produceDummyIntegrityCollections = cms.bool(True)
+        produceDummyIntegrityCollections = True
     )
 
     # ECAL multifit running on gpu
