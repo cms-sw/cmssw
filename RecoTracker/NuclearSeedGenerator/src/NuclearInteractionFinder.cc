@@ -8,60 +8,34 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
-#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
-NuclearInteractionFinder::NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig)
-    : maxHits(iConfig.getParameter<int>("maxHits")),
-      rescaleErrorFactor(iConfig.getParameter<double>("rescaleErrorFactor")),
-      checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack")),
-      navigationSchoolName(iConfig.getParameter<std::string>("NavigationSchool")) {
-  std::string measurementTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
-
-  edm::ESHandle<Propagator> prop;
-  edm::ESHandle<TrajectoryStateUpdator> upd;
-  edm::ESHandle<Chi2MeasurementEstimatorBase> est;
-  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-  edm::ESHandle<GeometricSearchTracker> theGeomSearchTrackerHandle;
-  edm::ESHandle<TrackerGeometry> theTrackerGeom;
-
-  es.get<TrackerDigiGeometryRecord>().get(theTrackerGeom);
-  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", prop);
-  es.get<TrackingComponentsRecord>().get("Chi2", est);
-  es.get<CkfComponentsRecord>().get(measurementTrackerName, measurementTrackerHandle);
-  es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTrackerHandle);
-  es.get<IdealMagneticFieldRecord>().get(theMagField);
-
-  edm::ESHandle<NavigationSchool> nav;
-  es.get<NavigationSchoolRecord>().get(navigationSchoolName, nav);
-  theNavigationSchool = nav.product();
-
-  thePropagator = prop.product();
-  theEstimator = est.product();
-  theMeasurementTracker = measurementTrackerHandle.product();
-  theGeomSearchTracker = theGeomSearchTrackerHandle.product();
+NuclearInteractionFinder::NuclearInteractionFinder(const Config& iConfig,
+                                                   const TrackerGeometry* iTrackerGeom,
+                                                   const Propagator* iPropagator,
+                                                   const MeasurementEstimator* iEstimator,
+                                                   const MeasurementTracker* iMeasurementTracker,
+                                                   const GeometricSearchTracker* iGeomSearchTracker,
+                                                   const NavigationSchool* iNavigationSchool)
+    : maxHits(iConfig.maxHits),
+      rescaleErrorFactor(iConfig.rescaleErrorFactor),
+      checkCompletedTrack(iConfig.checkCompletedTrack) {
+  thePropagator = iPropagator;
+  theEstimator = iEstimator;
+  theMeasurementTracker = iMeasurementTracker;
+  theGeomSearchTracker = iGeomSearchTracker;
+  theNavigationSchool = iNavigationSchool;
 
   LogDebug("NuclearSeedGenerator") << "New NuclearInteractionFinder instance with parameters : \n"
                                    << "maxHits : " << maxHits << "\n"
                                    << "rescaleErrorFactor : " << rescaleErrorFactor << "\n"
                                    << "checkCompletedTrack : " << checkCompletedTrack << "\n";
 
-  nuclTester = new NuclearTester(maxHits, theEstimator, theTrackerGeom.product());
+  nuclTester = std::make_unique<NuclearTester>(maxHits, theEstimator, iTrackerGeom);
 
-  currentSeed = new SeedFromNuclearInteraction(thePropagator, theTrackerGeom.product(), iConfig);
+  currentSeed = std::make_unique<SeedFromNuclearInteraction>(thePropagator, iTrackerGeom, iConfig.ptMin);
 
-  thePrimaryHelix = new TangentHelix();
-}
-//----------------------------------------------------------------------
-NuclearInteractionFinder::~NuclearInteractionFinder() {
-  delete nuclTester;
-  delete currentSeed;
-  delete thePrimaryHelix;
+  thePrimaryHelix = std::make_unique<TangentHelix>();
 }
 
 //----------------------------------------------------------------------
@@ -135,8 +109,7 @@ void NuclearInteractionFinder::definePrimaryHelix(std::vector<TrajectoryMeasurem
     pt[i] = (it_meas->updatedState()).globalParameters().position();
     it_meas++;
   }
-  delete thePrimaryHelix;
-  thePrimaryHelix = new TangentHelix(pt[0], pt[1], pt[2]);
+  thePrimaryHelix = std::make_unique<TangentHelix>(pt[0], pt[1], pt[2]);
 }
 //----------------------------------------------------------------------
 std::vector<TrajectoryMeasurement> NuclearInteractionFinder::findCompatibleMeasurements(
