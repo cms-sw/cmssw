@@ -87,7 +87,7 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
-#include "tbb/task.h"
+#include "oneapi/tbb/task.h"
 
 //Used for CPU affinity
 #ifndef __APPLE__
@@ -685,7 +685,7 @@ namespace edm {
     actReg_->postBeginJobSignal_();
 
     FinalWaitingTask last;
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
     using namespace edm::waiting_task::chain;
     first([this](auto nextTask) {
       for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
@@ -715,7 +715,7 @@ namespace edm {
     using namespace edm::waiting_task::chain;
 
     edm::FinalWaitingTask waitTask;
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
 
     {
       //handle endStream transitions
@@ -1494,7 +1494,7 @@ namespace edm {
     }
 
     unsigned int streamIndex = 0;
-    tbb::task_arena arena{tbb::task_arena::attach()};
+    oneapi::tbb::task_arena arena{oneapi::tbb::task_arena::attach()};
     for (; streamIndex < preallocations_.numberOfStreams() - 1; ++streamIndex) {
       arena.enqueue([this, streamIndex, h = iHolder]() { handleNextEventForStreamAsync(h, streamIndex); });
     }
