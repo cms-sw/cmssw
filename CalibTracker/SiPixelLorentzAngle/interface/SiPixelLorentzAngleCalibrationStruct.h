@@ -13,7 +13,7 @@ public:
   int nlay;
   std::vector<int> nModules_;
   std::vector<std::string> BPixnewmodulename_;
-  std::vector<int> BPixnewDetIds_;
+  std::vector<unsigned int> BPixnewDetIds_;
   std::vector<int> BPixnewModule_;
   std::vector<int> BPixnewLayer_;
 
@@ -37,6 +37,8 @@ public:
 
   // per-sector measurements
   dqm::reco::MonitorElement* h_bySectOccupancy_;
+  dqm::reco::MonitorElement* h_bySectLA_;
+  dqm::reco::MonitorElement* h_bySectChi2_;
 };
 
 #endif
