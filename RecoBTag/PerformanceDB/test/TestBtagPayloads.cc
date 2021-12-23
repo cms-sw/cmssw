@@ -19,6 +19,7 @@
 // system include files
 #include <iostream>
 #include <memory>
+#include <map>
 #include <stdio.h>
 
 // user include files
@@ -85,6 +86,9 @@ TestBtagPayloads::TestBtagPayloads(const edm::ParameterSet& iConfig)
     : ttToken_(esConsumes(edm::ESInputTag("", ttName))),
       muToken_(esConsumes(edm::ESInputTag("", muName))),
       mistagToken_(esConsumes(edm::ESInputTag("", mistagName))),
+      //Possible algorithms: TTBARWPBTAGCSVL,  TTBARWPBTAGCSVM,   TTBARWPBTAGCSVT
+      //                     TTBARWPBTAGJPL,   TTBARWPBTAGJPM,    TTBARWPBTAGJPT
+      //                                                          TTBARWPBTAGTCHPT
       measureName_({"TTBARWPBTAGCSVL",
                     "TTBARWPBTAGCSVL",
                     "TTBARWPBTAGCSVL",
@@ -114,14 +118,13 @@ TestBtagPayloads::TestBtagPayloads(const edm::ParameterSet& iConfig)
   measureTokens_.reserve(measureName_.size());
 
   //only call esConsumes if the name changes, else reuse the token
-  std::string lastName;
-  edm::ESGetToken<BtagPerformance, BTagPerformanceRecord> lastToken;
+  std::map<std::string, edm::ESGetToken<BtagPerformance, BTagPerformanceRecord>> tokens;
   for (auto const& n : measureName_) {
-    if (lastName != n) {
-      lastName = n;
-      lastToken = esConsumes(edm::ESInputTag("", n));
+    auto insert = tokens.insert({n, {}});
+    if (insert.second) {
+      insert.first->second = esConsumes(edm::ESInputTag("", n));
     }
-    measureTokens_.push_back(lastToken);
+    measureTokens_.push_back(insert.first->second);
   }
 }
 
