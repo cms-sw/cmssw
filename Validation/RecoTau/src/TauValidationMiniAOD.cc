@@ -470,7 +470,7 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<refCandidateCollection> ReferenceCollection;
   bool isRef = iEvent.getByToken(refCollectionInputTagToken_, ReferenceCollection);
   if (!isRef) {
-    edm::LogError << "ERROR: Reference collection not found while running TauValidationMiniAOD.cc \n ";
+    edm::LogError("TauValidationMiniAOD") << "ERROR: Reference collection not found while running TauValidationMiniAOD.cc \n ";
     return;
   }
 
@@ -481,7 +481,7 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
   Handle<std::vector<reco::Vertex>> pvHandle;
   bool isPV = iEvent.getByToken(primaryVertexCollectionToken_, pvHandle);
   if (!isPV) {
-    edm::LogError << "ERROR: PV collection not found while running TauValidationMiniAOD.cc" ;
+    edm::LogError("TauValidationMiniAOD") << "ERROR: PV collection not found while running TauValidationMiniAOD.cc" ;
   }
   std::vector<const reco::GenParticle*> GenTaus;
   
