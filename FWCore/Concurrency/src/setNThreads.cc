@@ -4,7 +4,7 @@
 //
 //  Created by Chris Jones on 7/24/20.
 //
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 #include "FWCore/Concurrency/interface/setNThreads.h"
 
 namespace edm {
@@ -15,7 +15,7 @@ namespace edm {
     oPtr.reset();
     if (0 == iNThreads) {
       //Allow TBB to decide how many threads. This is normally the number of CPUs in the machine.
-      iNThreads = tbb::this_task_arena::max_concurrency();
+      iNThreads = oneapi::tbb::this_task_arena::max_concurrency();
     }
     oPtr = std::make_unique<ThreadsController>(static_cast<int>(iNThreads), iStackSize);
 

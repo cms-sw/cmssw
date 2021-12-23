@@ -31,7 +31,7 @@
 
 #include <vector>
 #include <string>
-#include "tbb/concurrent_vector.h"
+#include "oneapi/tbb/concurrent_vector.h"
 #include <iostream>
 
 namespace edm {
@@ -76,7 +76,7 @@ namespace edm {
       void preEvent(StreamContext const&);
 
     private:
-      tbb::concurrent_vector<std::tuple<Phase, edm::EventID, int>> m_seenTransitions;
+      oneapi::tbb::concurrent_vector<std::tuple<Phase, edm::EventID, int>> m_seenTransitions;
       std::vector<std::pair<Transition, edm::EventID>> m_expectedTransitions;
       int m_nstreams = 0;
       bool m_failed = false;

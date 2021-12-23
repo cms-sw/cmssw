@@ -8,11 +8,11 @@
 #include "TMethodArg.h"
 #include "TMethodCall.h"
 
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 namespace edm {
   namespace {
-    typedef tbb::concurrent_unordered_map<TMethod const*, TypeWithDict> Map;
+    typedef oneapi::tbb::concurrent_unordered_map<TMethod const*, TypeWithDict> Map;
     Map returnTypeMap;
   }  // namespace
 

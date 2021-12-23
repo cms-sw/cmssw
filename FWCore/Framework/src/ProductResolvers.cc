@@ -952,7 +952,7 @@ namespace edm {
                                  ModuleCallingContext const* iMCC,
                                  bool iSkipCurrentProcess,
                                  ServiceToken iToken,
-                                 tbb::task_group* iGroup)
+                                 oneapi::tbb::task_group* iGroup)
           : resolver_(iResolver),
             principal_(iPrincipal),
             sra_(iSRA),
@@ -979,7 +979,7 @@ namespace edm {
       Principal const* principal_;
       SharedResourcesAcquirer* sra_;
       ModuleCallingContext const* mcc_;
-      tbb::task_group* group_;
+      oneapi::tbb::task_group* group_;
       ServiceWeakToken serviceToken_;
       unsigned int index_;
       bool skipCurrentProcess_;
@@ -1016,7 +1016,7 @@ namespace edm {
                                                           SharedResourcesAcquirer* sra,
                                                           ModuleCallingContext const* mcc,
                                                           ServiceToken token,
-                                                          tbb::task_group* group) const {
+                                                          oneapi::tbb::task_group* group) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto index = iProcessingIndex;
 

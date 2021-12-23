@@ -80,7 +80,7 @@ namespace edm {
     // constructors and destructor
     //
     TestProcessor::TestProcessor(Config const& iConfig, ServiceToken iToken)
-        : globalControl_(tbb::global_control::max_allowed_parallelism, 1),
+        : globalControl_(oneapi::tbb::global_control::max_allowed_parallelism, 1),
           arena_(1),
           espController_(std::make_unique<eventsetup::EventSetupsController>()),
           historyAppender_(std::make_unique<HistoryAppender>()),

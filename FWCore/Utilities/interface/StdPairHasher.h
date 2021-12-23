@@ -1,7 +1,7 @@
 #ifndef FWCore_Utilities_std_pair_hasher_h
 #define FWCore_Utilities_std_pair_hasher_h
 /*
- tbb::hash was changed to used std::hash which does not have an implementation for std::pair.
+ oneapi::tbb::hash was changed to used std::hash which does not have an implementation for std::pair.
 */
 
 #include <string>

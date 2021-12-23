@@ -446,7 +446,7 @@ namespace edm {
         task->execute();
       });
     } else {
-      tbb::task_arena arena{tbb::task_arena::attach()};
+      oneapi::tbb::task_arena arena{oneapi::tbb::task_arena::attach()};
       arena.enqueue([task]() {
         TaskSentry s{task};
         task->execute();
