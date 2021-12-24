@@ -23,7 +23,7 @@ tauValidationMiniAODRealData = tauValidationMiniAODZTT.clone(
 )
 tauValidationMiniAODRealElectronsData = tauValidationMiniAODZTT.clone(
   RefCollection = "ElZLegs:theProbeLeg",
-  ExtensionName = cms.string("RealElectronsData")
+  ExtensionName = "RealElectronsData"
 )
 tauValidationMiniAODRealMuonsData = tauValidationMiniAODZTT.clone(
   RefCollection = "MuZLegs:theProbeLeg",
