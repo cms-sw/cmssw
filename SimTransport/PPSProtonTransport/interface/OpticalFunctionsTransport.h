@@ -35,20 +35,20 @@ private:
   edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticsToken_;
   edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamspotToken_;
 
-  const LHCInfo* lhcInfo_;
-  const CTPPSBeamParameters* beamParameters_;
-  const LHCInterpolatedOpticalFunctionsSetCollection* opticalFunctions_;
-  const BeamSpotObjects* beamspot_;
+  const LHCInfo* lhcInfo_{nullptr};
+  const CTPPSBeamParameters* beamParameters_{nullptr};
+  const LHCInterpolatedOpticalFunctionsSetCollection* opticalFunctions_{nullptr};
+  const BeamSpotObjects* beamspot_{nullptr};
 
-  unsigned int optFunctionId45_;
-  unsigned int optFunctionId56_;
+  unsigned int optFunctionId45_{0};
+  unsigned int optFunctionId56_{0};
 
-  bool useEmpiricalApertures_;
-  double empiricalAperture45_xi0_int_, empiricalAperture45_xi0_slp_, empiricalAperture45_a_int_,
-      empiricalAperture45_a_slp_;
-  double empiricalAperture56_xi0_int_, empiricalAperture56_xi0_slp_, empiricalAperture56_a_int_,
-      empiricalAperture56_a_slp_;
+  bool useEmpiricalApertures_{false};
+  double empiricalAperture45_xi0_int_{0.0}, empiricalAperture45_xi0_slp_{0.0}, empiricalAperture45_a_int_{0.0},
+      empiricalAperture45_a_slp_{0.0};
+  double empiricalAperture56_xi0_int_{0.0}, empiricalAperture56_xi0_slp_{0.0}, empiricalAperture56_a_int_{0.0},
+      empiricalAperture56_a_slp_{0.0};
 
-  bool produceHitsRelativeToBeam_;
+  bool produceHitsRelativeToBeam_{false};
 };
 #endif

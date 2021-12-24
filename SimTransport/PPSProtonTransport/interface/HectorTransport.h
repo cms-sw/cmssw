@@ -44,15 +44,13 @@ public:
   void process(const HepMC::GenEvent* ev, const edm::EventSetup& es, CLHEP::HepRandomEngine* engine) override;
 
 private:
-  bool m_verbosity;
 
   static constexpr double fPPSBeamLineLength_ = 250.;  // default beam line length
 
   //!propagate the particles through a beamline to PPS
   bool transportProton(const HepMC::GenParticle*);
 
-  // New function to calculate the LorentzBoost
-
+  // function to calculate the LorentzBoost
   bool setBeamLine();
   // Defaults
 
@@ -66,7 +64,7 @@ private:
   edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> beamParametersToken_;
   edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamspotToken_;
 
-  const CTPPSBeamParameters* beamParameters_;
-  const BeamSpotObjects* beamspot_;
+  const CTPPSBeamParameters* beamParameters_{nullptr};
+  const BeamSpotObjects* beamspot_{nullptr};
 };
 #endif
