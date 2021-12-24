@@ -30,8 +30,6 @@ public:
   }
 
   SeedingHitSet(const std::vector<ConstRecHitPointer> &hits) : theRecHits(hits) { setSize(); }
-  SeedingHitSet(std::vector<ConstRecHitPointer> &hits) : theRecHits(std::move(hits)) { setSize(); }
-  SeedingHitSet(const std::initializer_list<ConstRecHitPointer> &hits) : theRecHits(hits) { setSize(); }
 
   ConstRecHitPointer const *data() const { return theRecHits.data(); }
 
