@@ -33,9 +33,10 @@ HectorTransport::HectorTransport(const edm::ParameterSet& iConfig, edm::Consumes
   m_sig_E = iConfig.getParameter<double>("BeamEnergyDispersion");
 
   //PPS
-  edm::LogVerbatim("ProtonTransport") << "=============================================================================\n"
-                                      << "             Bulding LHC Proton transporter based on HECTOR model\n"
-                                      << "=============================================================================\n";
+  edm::LogVerbatim("ProtonTransport")
+      << "=============================================================================\n"
+      << "             Bulding LHC Proton transporter based on HECTOR model\n"
+      << "=============================================================================\n";
   setBeamLine();
 }
 //
@@ -233,7 +234,7 @@ bool HectorTransport::setBeamLine() {
                                              << "                  Forward beam line elements \n";
     m_beamline45->showElements();
     edm::LogVerbatim("HectorTransportSetup") << "===================================================================\n"
-					     << "                 Backward beam line elements \n";
+                                             << "                 Backward beam line elements \n";
     m_beamline56->showElements();
   }
   return true;
