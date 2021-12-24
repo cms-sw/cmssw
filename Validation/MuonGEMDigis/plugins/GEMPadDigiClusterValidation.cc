@@ -21,7 +21,7 @@ GEMPadDigiClusterValidation::GEMPadDigiClusterValidation(const edm::ParameterSet
 void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
                                                  edm::Run const& Run,
                                                  edm::EventSetup const& setup) {
-  const auto & gemH = setup.getHandle(geomTokenBeginRun_);
+  const auto& gemH = setup.getHandle(geomTokenBeginRun_);
   if (!gemH.isValid()) {
     edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
     return;
@@ -158,7 +158,7 @@ Bool_t GEMPadDigiClusterValidation::matchClusterAgainstSimHit(GEMPadDigiClusterC
 }
 
 void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  const auto & gemH = setup.getHandle(geomToken_);
+  const auto& gemH = setup.getHandle(geomToken_);
   if (!gemH.isValid()) {
     edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
     return;
