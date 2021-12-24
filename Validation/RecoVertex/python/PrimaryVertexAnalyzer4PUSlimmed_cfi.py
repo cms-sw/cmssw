@@ -7,10 +7,10 @@ selectedOfflinePrimaryVertices = cms.EDFilter("VertexSelector",
 )
 
 selectedOfflinePrimaryVerticesWithBS = selectedOfflinePrimaryVertices.clone(
-src = 'offlinePrimaryVerticesWithBS'
+  src = 'offlinePrimaryVerticesWithBS'
 )
 selectedPixelVertices = selectedOfflinePrimaryVertices.clone(
-src = 'pixelVertices'
+  src = 'pixelVertices'
 )
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 vertexAnalysis = DQMEDAnalyzer('PrimaryVertexAnalyzer4PUSlimmed',
