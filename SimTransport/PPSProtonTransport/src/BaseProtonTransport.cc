@@ -43,7 +43,7 @@ void BaseProtonTransport::ApplyBeamCorrection(TLorentzVector& p_out) {
 
   double dtheta_x = CLHEP::RandGauss::shoot(engine_, 0., m_sigmaSTX);
   double dtheta_y = CLHEP::RandGauss::shoot(engine_, 0., m_sigmaSTY);
-  double denergy  = CLHEP::RandGauss::shoot(engine_, 0., m_sig_E);
+  double denergy = CLHEP::RandGauss::shoot(engine_, 0., m_sig_E);
 
   double s_theta = std::sqrt(pow(thetax + dtheta_x * urad, 2) + std::pow(thetay + dtheta_y * urad, 2));
   double s_phi = std::atan2(thetay + dtheta_y * urad, thetax + dtheta_x * urad);

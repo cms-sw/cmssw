@@ -44,7 +44,6 @@ public:
   void process(const HepMC::GenEvent* ev, const edm::EventSetup& es, CLHEP::HepRandomEngine* engine) override;
 
 private:
-
   static constexpr double fPPSBeamLineLength_ = 250.;  // default beam line length
 
   //!propagate the particles through a beamline to PPS
