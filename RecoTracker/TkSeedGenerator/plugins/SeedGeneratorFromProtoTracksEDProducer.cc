@@ -141,9 +141,9 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         seedCreator_.init(region, es, nullptr);
 
         if (hits.size() == 4 and not includeFourthHit_)
-          seedCreator_.makeSeed(*result, SeedingHitSet({hits[0], hits[1], hits[2]}));
+          seedCreator_.makeSeed(*result, {hits[0], hits[1], hits[2]});
         else
-          seedCreator_.makeSeed(*result, SeedingHitSet(hits));
+          seedCreator_.makeSeed(*result, hits);
       }
     }
   }
