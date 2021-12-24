@@ -6,7 +6,7 @@ hltMultiPVanalysis = vertexAnalysis.clone(
 do_generic_sim_plots  = False,
 verbose               = False,
 root_folder           = "HLT/Vertexing/ValidationWRTsim",
-vertexRecoCollections = ("",),
+vertexRecoCollections = [""],
 trackAssociatorMap    = "trackingParticleRecoTrackAsssociation",
 vertexAssociator      = "VertexAssociatorByPositionAndTracks"
 )
