@@ -3,23 +3,23 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoVertex.PrimaryVertexAnalyzer4PUSlimmed_cfi import *
 
 hltMultiPVanalysis = vertexAnalysis.clone(
-do_generic_sim_plots  = False,
-verbose               = False,
-root_folder           = "HLT/Vertexing/ValidationWRTsim",
-vertexRecoCollections = [""],
-trackAssociatorMap    = "trackingParticleRecoTrackAsssociation",
-vertexAssociator      = "VertexAssociatorByPositionAndTracks"
+    do_generic_sim_plots  = False,
+    verbose               = False,
+    root_folder           = "HLT/Vertexing/ValidationWRTsim",
+    vertexRecoCollections = [""],
+    trackAssociatorMap    = "trackingParticleRecoTrackAsssociation",
+    vertexAssociator      = "VertexAssociatorByPositionAndTracks"
 )
 from Validation.RecoTrack.associators_cff import hltTrackAssociatorByHits, tpToHLTpixelTrackAssociation
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import VertexAssociatorByPositionAndTracks as _VertexAssociatorByPositionAndTracks
 vertexAssociatorByPositionAndTracks4pixelTracks = _VertexAssociatorByPositionAndTracks.clone(
-trackAssociation = "tpToHLTpixelTrackAssociation"
+    trackAssociation = "tpToHLTpixelTrackAssociation"
 )
 tpToHLTpfMuonMergingTrackAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = "hltPFMuonMerging"
 )
 vertexAssociatorByPositionAndTracks4pfMuonMergingTracks = _VertexAssociatorByPositionAndTracks.clone(
-trackAssociation = "tpToHLTpfMuonMergingTrackAssociation"
+    trackAssociation = "tpToHLTpfMuonMergingTrackAssociation"
 )
 
 
@@ -35,12 +35,12 @@ hltPixelPVanalysis = hltMultiPVanalysis.clone(
 
 
 hltPVanalysis = hltMultiPVanalysis.clone(
-trackAssociatorMap = "tpToHLTpfMuonMergingTrackAssociation",
-vertexAssociator   = "vertexAssociatorByPositionAndTracks4pfMuonMergingTracks",
-vertexRecoCollections   = (
+    trackAssociatorMap = "tpToHLTpfMuonMergingTrackAssociation",
+    vertexAssociator   = "vertexAssociatorByPositionAndTracks4pfMuonMergingTracks",
+    vertexRecoCollections   = (
     "hltVerticesPFFilter",
-#    "hltFastPVPixelVertices"
-)
+    #"hltFastPVPixelVertices"
+    )
 )
 hltMultiPVAssociations = cms.Task(
     hltTrackAssociatorByHits,
