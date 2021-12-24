@@ -41,15 +41,15 @@ from DQM.L1TMonitor.L1TdeRCT_cfi import *
 from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
 dqmPerLSsaving.toModify(l1TdeRCT, perLSsaving=True)
 
-l1TdeRCTRun1 = l1TdeRCT.clone()
-l1TdeRCT.rctSourceData = 'caloStage1Digis'
-#l1TdeRCT.gctSourceData = 'caloStage1Digis'
-l1TdeRCT.rctSourceEmul = 'valRctDigis'
-
-l1TdeRCTfromRCT = l1TdeRCT.clone()
-l1TdeRCTfromRCT.rctSourceData = 'rctDigis'
-l1TdeRCTfromRCT.HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT_FromRCT')
-
+l1TdeRCTRun1 = l1TdeRCT.clone(
+rctSourceData = 'caloStage1Digis',
+#gctSourceData = 'caloStage1Digis',
+rctSourceEmul = 'valRctDigis'
+)
+l1TdeRCTfromRCT = l1TdeRCT.clone(
+rctSourceData = 'rctDigis',
+HistFolder = 'L1TEMU/L1TdeRCT_FromRCT'
+)
 from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
 
 from DQM.L1TMonitor.L1GtHwValidation_cff import *
