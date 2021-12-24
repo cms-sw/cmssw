@@ -28,10 +28,10 @@ from DQM.L1TMonitor.BxTiming_cfi import *
 
 # RCT DQM module 
 from DQM.L1TMonitor.L1TRCT_cfi import *
-l1tRctRun1 = l1tRct.clone(
-rctSource = 'caloStage1Digis',
-#gctSource = 'caloStage1Digis'
-)
+l1tRctRun1 = l1tRct.clone()
+l1tRct.rctSource = 'caloStage1Digis'
+#l1tRct.gctSource = 'caloStage1Digis'
+
 l1tRctfromRCT = l1tRct.clone(
 rctSource = 'rctDigis',
 HistFolder = 'L1T/L1TRCT_FromRCT'
