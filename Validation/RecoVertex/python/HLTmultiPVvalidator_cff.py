@@ -24,13 +24,13 @@ trackAssociation = "tpToHLTpfMuonMergingTrackAssociation"
 
 
 hltPixelPVanalysis = hltMultiPVanalysis.clone(
-do_generic_sim_plots  = True,
-trackAssociatorMap    = "tpToHLTpixelTrackAssociation",
-vertexAssociator      = "vertexAssociatorByPositionAndTracks4pixelTracks",
-vertexRecoCollections = (
-    "hltPixelVertices",
-    "hltTrimmedPixelVertices",
-)
+    do_generic_sim_plots  = True,
+    trackAssociatorMap    = "tpToHLTpixelTrackAssociation",
+    vertexAssociator      = "vertexAssociatorByPositionAndTracks4pixelTracks",
+    vertexRecoCollections = (
+        "hltPixelVertices",
+        "hltTrimmedPixelVertices",
+    )
 )
 
 
