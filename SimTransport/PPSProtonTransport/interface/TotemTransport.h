@@ -28,17 +28,17 @@ public:
   void process(const HepMC::GenEvent* ev, const edm::EventSetup& es, CLHEP::HepRandomEngine* engine) override;
 
 private:
-  bool transportProton(const HepMC::GenParticle*);
+  bool transportProton(HepMC::GenParticle*);
   LHCOpticsApproximator* ReadParameterization(const std::string&, const std::string&);
 
-  LHCOpticsApproximator* m_aprox_ip_150_r = nullptr;
-  LHCOpticsApproximator* m_aprox_ip_150_l = nullptr;
+  LHCOpticsApproximator* m_aprox_ip_150_r{nullptr};
+  LHCOpticsApproximator* m_aprox_ip_150_l{nullptr};
 
-  std::string m_model_ip_150_r_name;
-  std::string m_model_ip_150_l_name;
+  std::string m_model_ip_150_r_name{""};
+  std::string m_model_ip_150_l_name{""};
 
-  double m_beampipe_aperture_radius;
-  double m_fEtacut;
-  double m_fMomentumMin;
+  double m_beampipe_aperture_radius{0.0};
+  double m_fEtacut{0.0};
+  double m_fMomentumMin{0.0};
 };
 #endif

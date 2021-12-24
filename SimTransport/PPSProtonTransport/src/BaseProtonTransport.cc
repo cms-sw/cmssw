@@ -41,18 +41,19 @@ void BaseProtonTransport::ApplyBeamCorrection(TLorentzVector& p_out) {
   if (MODE == TransportMode::TOTEM)
     thetax += (p_out.Pz() > 0) ? fCrossingAngleX_45 * urad : fCrossingAngleX_56 * urad;
 
-  double dtheta_x = (double)CLHEP::RandGauss::shoot(engine_, 0., m_sigmaSTX);
-  double dtheta_y = (double)CLHEP::RandGauss::shoot(engine_, 0., m_sigmaSTY);
-  double denergy = (double)CLHEP::RandGauss::shoot(engine_, 0., m_sig_E);
+  double dtheta_x = CLHEP::RandGauss::shoot(engine_, 0., m_sigmaSTX);
+  double dtheta_y = CLHEP::RandGauss::shoot(engine_, 0., m_sigmaSTY);
+  double denergy  = CLHEP::RandGauss::shoot(engine_, 0., m_sig_E);
 
-  double s_theta = sqrt(pow(thetax + dtheta_x * urad, 2) + pow(thetay + dtheta_y * urad, 2));
-  double s_phi = atan2(thetay + dtheta_y * urad, thetax + dtheta_x * urad);
+  double s_theta = std::sqrt(pow(thetax + dtheta_x * urad, 2) + std::pow(thetay + dtheta_y * urad, 2));
+  double s_phi = std::atan2(thetay + dtheta_y * urad, thetax + dtheta_x * urad);
   energy += denergy;
-  double p = sqrt(pow(energy, 2) - ProtonMassSQ);
+  double p = std::sqrt(std::pow(energy, 2) - ProtonMassSQ);
+  double sint = std::sin(s_theta);
 
-  p_out.SetPx((double)p * sin(s_theta) * cos(s_phi));
-  p_out.SetPy((double)p * sin(s_theta) * sin(s_phi));
-  p_out.SetPz((double)p * (cos(s_theta)) * direction);
+  p_out.SetPx(p * sint * std::cos(s_phi));
+  p_out.SetPy(p * sint * std::sin(s_phi));
+  p_out.SetPz(p * std::cos(s_theta) * direction);
   p_out.SetE(energy);
 }
 void BaseProtonTransport::addPartToHepMC(const HepMC::GenEvent* in_evt, HepMC::GenEvent* evt) {

@@ -33,9 +33,9 @@ HectorTransport::HectorTransport(const edm::ParameterSet& iConfig, edm::Consumes
   m_sig_E = iConfig.getParameter<double>("BeamEnergyDispersion");
 
   //PPS
-  edm::LogInfo("ProtonTransport") << "=============================================================================\n"
-                                  << "             Bulding LHC Proton transporter based on HECTOR model\n"
-                                  << "=============================================================================\n";
+  edm::LogVerbatim("ProtonTransport") << "=============================================================================\n"
+                                      << "             Bulding LHC Proton transporter based on HECTOR model\n"
+                                      << "=============================================================================\n";
   setBeamLine();
 }
 //
@@ -229,13 +229,11 @@ bool HectorTransport::setBeamLine() {
                                          << " PPS Region Start 44   =  " << fPPSRegionStart_45 << "\n"
                                          << " PPS Region Start 56   =  " << fPPSRegionStart_56 << "\n"
                                          << "===================================================================\n";
-  }
-  if (verbosity_) {
-    edm::LogInfo("HectorTransportSetup") << "====================================================================\n"
-                                         << "                  Forward beam line elements \n";
+    edm::LogVerbatim("HectorTransportSetup") << "===================================================================\n"
+                                             << "                  Forward beam line elements \n";
     m_beamline45->showElements();
-    edm::LogInfo("HectorTransportSetup") << "====================================================================\n"
-                                         << "                 Backward beam line elements \n";
+    edm::LogVerbatim("HectorTransportSetup") << "===================================================================\n"
+					     << "                 Backward beam line elements \n";
     m_beamline56->showElements();
   }
   return true;

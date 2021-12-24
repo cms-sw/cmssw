@@ -27,9 +27,9 @@ TotemTransport::TotemTransport(const edm::ParameterSet& iConfig)
   if (fPPSRegionStart_56 > 0)
     fPPSRegionStart_56 *= -1;  // make sure sector 56 has negative position, as TOTEM convention
 
-  edm::LogInfo("TotemTransport") << "=============================================================================\n"
-                                 << "             Bulding LHC Proton transporter based on TOTEM model\n"
-                                 << "=============================================================================\n";
+  edm::LogVerbatim("TotemTransport") << "=============================================================================\n"
+                                     << "             Bulding LHC Proton transporter based on TOTEM model\n"
+                                     << "=============================================================================\n";
 
   m_aprox_ip_150_r = ReadParameterization(m_model_ip_150_r_name, beam1Filename_);
   m_aprox_ip_150_l = ReadParameterization(m_model_ip_150_l_name, beam2Filename_);
@@ -37,21 +37,23 @@ TotemTransport::TotemTransport(const edm::ParameterSet& iConfig)
   if (m_aprox_ip_150_r == nullptr || m_aprox_ip_150_l == nullptr) {
     edm::LogError("TotemTransport") << "Parameterisation " << m_model_ip_150_r_name << " or " << m_model_ip_150_l_name
                                     << " missing in file. Cannot proceed. ";
-    exit(1);
+    throw edm::Exception(edm::errors::Configuration) << "TotemTransport is not properly initialized";
   }
-  edm::LogInfo("TotemTransport") << "Parameterizations read from file, pointers:" << m_aprox_ip_150_r << " "
-                                 << m_aprox_ip_150_l << " ";
+  edm::LogVerbatim("TotemTransport") << "Parameterizations read from file, pointers:" << m_aprox_ip_150_r << " "
+				     << m_aprox_ip_150_l << " ";
 }
 //
 // this method is the same for all propagator, but since transportProton is different for each derived class
 // it needes to be overriden
 //
-void TotemTransport::process(const HepMC::GenEvent* evt,
+void TotemTransport::process(const HepMC::GenEvent* ievt,
                              const edm::EventSetup& iSetup,
                              CLHEP::HepRandomEngine* _engine) {
   this->clear();
 
   engine_ = _engine;  // the engine needs to be updated for each event
+
+  HepMC::GenEvent *evt = new HepMC::GenEvent(*ievt);
 
   for (HepMC::GenEvent::particle_const_iterator eventParticle = evt->particles_begin();
        eventParticle != evt->particles_end();
@@ -79,12 +81,11 @@ void TotemTransport::process(const HepMC::GenEvent* evt,
 // here comes the real thing
 //
 //
-bool TotemTransport::transportProton(const HepMC::GenParticle* in_trk) {
+bool TotemTransport::transportProton(HepMC::GenParticle* in_trk) {
   //
+  edm::LogVerbatim("TotemTransport") << "Starting proton transport using TOTEM method\n";
   //
-  edm::LogInfo("TotemTransport") << "Starting proton transport using TOTEM method\n";
-  //
-  ApplyBeamCorrection(const_cast<HepMC::GenParticle*>(in_trk));
+  ApplyBeamCorrection(in_trk);
 
   const HepMC::GenVertex* in_pos = in_trk->production_vertex();
   const HepMC::FourVector in_mom = in_trk->momentum();
@@ -103,9 +104,9 @@ bool TotemTransport::transportProton(const HepMC::GenParticle* in_trk) {
   double in_momentum[3] = {in_mom.x(), in_mom.y(), in_mom.z()};
   double out_position[3];
   double out_momentum[3];
-  edm::LogInfo("TotemTransport") << "before transport ->"
-                                 << " position: " << in_position[0] << ", " << in_position[1] << ", " << in_position[2]
-                                 << " momentum: " << in_momentum[0] << ", " << in_momentum[1] << ", " << in_momentum[2];
+  edm::LogVerbatim("TotemTransport") << "before transport ->"
+                                     << " position: " << in_position[0] << ", " << in_position[1] << ", " << in_position[2]
+                                     << " momentum: " << in_momentum[0] << ", " << in_momentum[1] << ", " << in_momentum[2];
 
   LHCOpticsApproximator* approximator_ = nullptr;
   double m_Zin_;
@@ -129,16 +130,14 @@ bool TotemTransport::transportProton(const HepMC::GenParticle* in_trk) {
   if (!tracked)
     return false;
 
-  edm::LogInfo("TotemTransport") << "after transport -> "
-                                 << "position: " << out_position[0] << ", " << out_position[1] << ", "
-                                 << out_position[2] << "momentum: " << out_momentum[0] << ", " << out_momentum[1]
-                                 << ", " << out_momentum[2];
+  edm::LogVerbatim("TotemTransport") << "after transport -> "
+                                     << "position: " << out_position[0] << ", " << out_position[1] << ", "
+                                     << out_position[2] << "momentum: " << out_momentum[0] << ", " << out_momentum[1]
+                                     << ", " << out_momentum[2];
 
   if (out_position[0] * out_position[0] + out_position[1] * out_position[1] >
       m_beampipe_aperture_radius * m_beampipe_aperture_radius) {
-    edm::LogInfo("TotemTransport") << "Proton ouside beampipe";
-    edm::LogInfo("TotemTransport") << "===== END Transport "
-                                   << "====================";
+    edm::LogVerbatim("TotemTransport") << "Proton ouside beampipe\n" << "===== END Transport " << "====================";
     return false;
   }
 
@@ -181,7 +180,7 @@ LHCOpticsApproximator* TotemTransport::ReadParameterization(const std::string& m
     edm::LogError("TotemTransport") << "File " << fileName << " not found. Exiting.";
     return nullptr;
   }
-  edm::LogInfo("TotemTransport") << "Root file opened, pointer:" << f;
+  edm::LogVerbatim("TotemTransport") << "Root file opened, pointer:" << f;
 
   // read parametrization
   LHCOpticsApproximator* aprox = (LHCOpticsApproximator*)f->Get(m_model_name.c_str());
