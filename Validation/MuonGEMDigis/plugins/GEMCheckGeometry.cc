@@ -24,7 +24,7 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
     edm::LogError("GEMCheckGeometry") << "Failed to initialize GEM geometry.";
     return;
   }
-  const GEMGeometry* geometry = gemH.product();
+  const GEMGeometry *geometry = gemH.product();
 
   ibooker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask");
   LogDebug("GEMCheckGeometry") << "ibooker set current folder\n";
