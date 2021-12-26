@@ -21,11 +21,12 @@ GEMStripDigiValidation::GEMStripDigiValidation(const edm::ParameterSet& pset)
 void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
                                             edm::Run const& run,
                                             edm::EventSetup const& setup) {
-  const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
-  if (gem == nullptr) {
+  const auto gemH = setup.getHandle(geomTokenBeginRun_);
+  if (!gemH.isValid()) {
     edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
     return;
   }
+  const GEMGeometry* gem = gemH.product();
 
   // NOTE Bunch Crossing
   booker.setCurrentFolder("GEM/Digis");
@@ -158,11 +159,12 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 GEMStripDigiValidation::~GEMStripDigiValidation() {}
 
 void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  const GEMGeometry* gem = &setup.getData(geomToken_);
-  if (gem == nullptr) {
+  const auto& gemH = setup.getHandle(geomToken_);
+  if (!gemH.isValid()) {
     edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
     return;
   }
+  const GEMGeometry* gem = gemH.product();
 
   edm::Handle<edm::DetSetVector<GEMDigiSimLink>> digiSimLink;
   event.getByToken(digisimlink_token_, digiSimLink);
