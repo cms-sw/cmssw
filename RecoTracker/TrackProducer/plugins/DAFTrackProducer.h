@@ -14,6 +14,8 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajAnnealing.h"
 
+class MultiRecHitRecord;
+
 class DAFTrackProducer : public KfTrackProducerBase, public edm::stream::EDProducer<> {
 public:
   typedef std::vector<Trajectory> TrajectoryCollection;
@@ -32,7 +34,10 @@ private:
                        std::unique_ptr<TrajAnnealingCollection>& selTrajAnn);
 
   bool TrajAnnSaving_;
-  edm::EDGetToken srcTT_;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> srcTT_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
+  edm::ESGetToken<MultiRecHitCollector, MultiRecHitRecord> measurementCollectorToken_;
+  edm::ESGetToken<SiTrackerMultiRecHitUpdator, MultiRecHitRecord> updatorToken_;
 };
 
 #endif
