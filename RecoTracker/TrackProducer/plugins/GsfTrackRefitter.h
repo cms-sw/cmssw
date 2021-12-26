@@ -28,6 +28,7 @@ private:
   };
   Constraint constraint_;
   edm::EDGetTokenT<GsfTrackVtxConstraintAssociationCollection> gsfTrackVtxConstraintTag_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
 };
 
 #endif

@@ -45,6 +45,8 @@ GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig)
   produces<TrackingRecHitCollection>().setBranchAlias(alias_ + "RecHits");
   produces<std::vector<Trajectory>>();
   produces<TrajGsfTrackAssociationCollection>();
+
+  ttopoToken_ = esConsumes();
 }
 
 void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup) {
@@ -70,8 +72,7 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup, theG, theMF, theFitter, thePropagator, theMeasTk, theBuilder);
 
-  edm::ESHandle<TrackerTopology> httopo;
-  setup.get<TrackerTopologyRcd>().get(httopo);
+  edm::ESHandle<TrackerTopology> httopo = setup.getHandle(ttopoToken_);
 
   //
   //declare and get TrackCollection to be retrieved from the event
