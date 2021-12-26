@@ -27,7 +27,6 @@ void BaseProtonTransport::ApplyBeamCorrection(HepMC::GenParticle* p) {
   p->set_momentum(HepMC::FourVector(p_out.Px(), p_out.Py(), p_out.Pz(), p_out.E()));
 }
 void BaseProtonTransport::ApplyBeamCorrection(TLorentzVector& p_out) {
-  double theta = p_out.Theta();
   double thetax = atan(p_out.Px() / fabs(p_out.Pz()));
   double thetay = atan(p_out.Py() / fabs(p_out.Pz()));
   double energy = p_out.E();
@@ -35,15 +34,12 @@ void BaseProtonTransport::ApplyBeamCorrection(TLorentzVector& p_out) {
 
   int direction = (p_out.Pz() > 0) ? 1 : -1;
 
-  if (p_out.Pz() < 0)
-    theta = TMath::Pi() - theta;
-
   if (MODE == TransportMode::TOTEM)
     thetax += (p_out.Pz() > 0) ? fCrossingAngleX_45 * urad : fCrossingAngleX_56 * urad;
 
-  double dtheta_x = CLHEP::RandGauss::shoot(engine_, 0., m_sigmaSTX);
-  double dtheta_y = CLHEP::RandGauss::shoot(engine_, 0., m_sigmaSTY);
-  double denergy = CLHEP::RandGauss::shoot(engine_, 0., m_sig_E);
+  double dtheta_x = (m_sigmaSTX <= 0.0) ? 0.0 : CLHEP::RandGauss::shoot(engine_, 0., m_sigmaSTX);
+  double dtheta_y = (m_sigmaSTY <= 0.0) ? 0.0 : CLHEP::RandGauss::shoot(engine_, 0., m_sigmaSTY);
+  double denergy = (m_sig_E <= 0.0) ? 0.0 : CLHEP::RandGauss::shoot(engine_, 0., m_sig_E);
 
   double s_theta = std::sqrt(pow(thetax + dtheta_x * urad, 2) + std::pow(thetay + dtheta_y * urad, 2));
   double s_phi = std::atan2(thetay + dtheta_y * urad, thetax + dtheta_x * urad);

@@ -76,7 +76,7 @@ void HectorTransport::process(const HepMC::GenEvent* evt,
   }
 }
 bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
-  edm::LogInfo("ProtonTransport") << "Starting proton transport using HECTOR method\n";
+  edm::LogVerbatim("ProtonTransport") << "Starting proton transport using HECTOR method\n";
 
   double px, py, pz, e;
   unsigned int line = (gpart)->barcode();
@@ -120,7 +120,6 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
   YforPosition = YforPosition - ZforPosition * (py / pz + fCrossingAngleY * urad);
   XforPosition -= (-vtxXoffset_);  // X was already in the LHC ref. frame
   YforPosition -= vtxYoffset_;
-  ZforPosition = 0.;
 
   // set position, but do not invert the coordinate for the angles (TX,TY) because it is done by set4Momentum
   h_p.setPosition(XforPosition * mm_to_um, YforPosition * mm_to_um, h_p.getTX(), h_p.getTY(), 0.);
@@ -169,7 +168,7 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
     thy -= p_beam.getTY();
     x1_ctpps -= p_beam.getX();
     y1_ctpps -= p_beam.getY();
-    edm::LogInfo("HectorTransportEventProcessing")
+    edm::LogVerbatim("HectorTransportEventProcessing")
         << "Shifting the hit relative to beam :  X = " << p_beam.getX() << "(mm)      Y = " << p_beam.getY() << "(mm)";
   }
 
