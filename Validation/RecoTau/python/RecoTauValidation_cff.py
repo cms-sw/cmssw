@@ -6,28 +6,28 @@ discs_to_retain = ['decayModeFinding', 'CombinedIsolationDeltaBetaCorr3HitsdR03'
 tauValidationMiniAODZTT.discriminators = cms.VPSet([p for p in tauValidationMiniAODZTT.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
 
 tauValidationMiniAODZEE = tauValidationMiniAODZTT.clone(
-  RefCollection = cms.InputTag("kinematicSelectedTauValDenominatorZEE"),
-  ExtensionName = cms.string('ZEE')
+  RefCollection = "kinematicSelectedTauValDenominatorZEE",
+  ExtensionName = 'ZEE'
 )
 tauValidationMiniAODZMM = tauValidationMiniAODZTT.clone(
-  RefCollection = cms.InputTag("kinematicSelectedTauValDenominatorZMM"),
-  ExtensionName = cms.string('ZMM')
+  RefCollection = "kinematicSelectedTauValDenominatorZMM",
+  ExtensionName = 'ZMM'
 )
 tauValidationMiniAODQCD = tauValidationMiniAODZTT.clone(
-  RefCollection = cms.InputTag("kinematicSelectedTauValDenominatorQCD"),
-  ExtensionName = cms.string('QCD')
+  RefCollection = "kinematicSelectedTauValDenominatorQCD",
+  ExtensionName = 'QCD'
 )
 tauValidationMiniAODRealData = tauValidationMiniAODZTT.clone(
-  RefCollection = cms.InputTag("CleanedPFJets"),
-  ExtensionName = cms.string('RealData')
+  RefCollection = "CleanedPFJets",
+  ExtensionName = 'RealData'
 )
 tauValidationMiniAODRealElectronsData = tauValidationMiniAODZTT.clone(
-  RefCollection = cms.InputTag("ElZLegs","theProbeLeg"),
-  ExtensionName = cms.string("RealElectronsData")
+  RefCollection = "ElZLegs:theProbeLeg",
+  ExtensionName = "RealElectronsData"
 )
 tauValidationMiniAODRealMuonsData = tauValidationMiniAODZTT.clone(
-  RefCollection = cms.InputTag("MuZLegs","theProbeLeg"),
-  ExtensionName = cms.string('RealMuonsData')
+  RefCollection = "MuZLegs:theProbeLeg",
+  ExtensionName = 'RealMuonsData'
 )
 
 
