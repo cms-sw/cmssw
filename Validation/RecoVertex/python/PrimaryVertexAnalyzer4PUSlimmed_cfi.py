@@ -6,12 +6,12 @@ selectedOfflinePrimaryVertices = cms.EDFilter("VertexSelector",
                                                filter = cms.bool(False)
 )
 
-selectedOfflinePrimaryVerticesWithBS = selectedOfflinePrimaryVertices.clone()
-selectedOfflinePrimaryVerticesWithBS.src = cms.InputTag('offlinePrimaryVerticesWithBS')
-
-selectedPixelVertices = selectedOfflinePrimaryVertices.clone()
-selectedPixelVertices.src = cms.InputTag('pixelVertices')
-
+selectedOfflinePrimaryVerticesWithBS = selectedOfflinePrimaryVertices.clone(
+  src = 'offlinePrimaryVerticesWithBS'
+)
+selectedPixelVertices = selectedOfflinePrimaryVertices.clone(
+  src = 'pixelVertices'
+)
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 vertexAnalysis = DQMEDAnalyzer('PrimaryVertexAnalyzer4PUSlimmed',
                                 use_only_charged_tracks = cms.untracked.bool(True),
