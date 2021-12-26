@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,16 +38,14 @@
 #include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"
 #include "RecoBTag/PerformanceDB/interface/BtagPerformance.h"
 
-class TestPerformanceFW_ES_TFormula : public edm::EDAnalyzer {
+class TestPerformanceFW_ES_TFormula : public edm::one::EDAnalyzer<> {
 public:
   explicit TestPerformanceFW_ES_TFormula(const edm::ParameterSet&);
-  ~TestPerformanceFW_ES_TFormula();
 
 private:
-  std::string name;
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  std::string name_;
+  edm::ESGetToken<BtagPerformance, BTagPerformanceRecord> token_;
+  void analyze(const edm::Event&, const edm::EventSetup&) final;
 
   // ----------member data ---------------------------
 };
@@ -70,12 +68,9 @@ TestPerformanceFW_ES_TFormula::TestPerformanceFW_ES_TFormula(const edm::Paramete
   //now do what ever initialization is needed
   std::cout << " In the constructor" << std::endl;
 
-  name = iConfig.getParameter<std::string>("AlgoName");
-}
+  name_ = iConfig.getParameter<std::string>("AlgoName");
 
-TestPerformanceFW_ES_TFormula::~TestPerformanceFW_ES_TFormula() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
+  token_ = esConsumes(edm::ESInputTag("", name_));
 }
 
 //
@@ -84,11 +79,9 @@ TestPerformanceFW_ES_TFormula::~TestPerformanceFW_ES_TFormula() {
 
 // ------------ method called to for each event  ------------
 void TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<BtagPerformance> perfH;
-  std::cout << " Studying performance with label " << name << std::endl;
-  iSetup.get<BTagPerformanceRecord>().get(name, perfH);
+  std::cout << " Studying performance with label " << name_ << std::endl;
 
-  const BtagPerformance& perf = *(perfH.product());
+  const BtagPerformance& perf = iSetup.getData(token_);
 
   //std::cout << "Values: "<<
   //  PerformanceResult::BTAGNBEFF<<" " <<
@@ -98,7 +91,7 @@ void TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm:
   // check beff, berr for eta=.6, et=55;
   BinningPointByMap p;
 
-  std::cout << " My Performance Object is indeed a " << typeid(perfH.product()).name() << std::endl;
+  std::cout << " My Performance Object is indeed a " << typeid(&perf).name() << std::endl;
 
   //++++++++++++------  TESTING FOR CONTINIOUS DISCRIMINATORS      --------+++++++++++++
 
@@ -201,12 +194,6 @@ void TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm:
   //  edm::ESHandle<BtagPerformance> perfH2;
   //  iSetup.get<BTagPerformanceRecord>().get("TrackCountingHighEff_tight",perfH2);
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void TestPerformanceFW_ES_TFormula::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void TestPerformanceFW_ES_TFormula::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TestPerformanceFW_ES_TFormula);
