@@ -25,7 +25,6 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -65,8 +64,6 @@ private:
   std::string outputFile_;
 
   TrajectoryStateTransform transformer_;
-  edm::ESHandle<TrackerGeometry> pDD;
-  edm::ESHandle<MagneticField> theMagField;
 
   float mcEnergy[10], mcEta[10], mcPhi[10], mcPt[10], mcQ[10];
   float superclusterEnergy[10], superclusterEta[10], superclusterPhi[10], superclusterEt[10];

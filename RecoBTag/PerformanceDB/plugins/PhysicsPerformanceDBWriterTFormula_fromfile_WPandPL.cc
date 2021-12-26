@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -12,11 +12,11 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 
-class PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL : public edm::EDAnalyzer {
+class PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL : public edm::global::EDAnalyzer<> {
 public:
   PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL(const edm::ParameterSet&);
   void beginJob() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {}
   void endJob() override {}
   ~PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL() override {}
 
