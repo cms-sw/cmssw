@@ -12,23 +12,24 @@ GEMCheckGeometry::GEMCheckGeometry(const edm::ParameterSet &gc) {
   minPhi_ = gc.getUntrackedParameter<double>("minPhi", -180.);
   maxPhi_ = gc.getUntrackedParameter<double>("maxPhi", +180.);
   detailPlot_ = gc.getParameter<bool>("detailPlot");
-  geomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
+  geomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &Run, edm::EventSetup const &iSetup) {
   if (!detailPlot_)
     return;
 
-  const GEMGeometry *GEMGeometry_ = &iSetup.getData(geomToken_);
-  if (!GEMGeometry_) {
-    edm::LogError("MuonGEMGeometry") << "+++ Error : GEM geometry  is unavailable on event loop. +++\n";
+  const auto gemH = iSetup.getHandle(geomToken_);
+  if (!gemH.isValid()) {
+    edm::LogError("GEMCheckGeometry") << "Failed to initialize GEM geometry.";
     return;
   }
+  const GEMGeometry *geometry = gemH.product();
 
   ibooker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask");
   LogDebug("GEMCheckGeometry") << "ibooker set current folder\n";
 
-  for (auto region : GEMGeometry_->regions()) {
+  for (auto region : geometry->regions()) {
     TString title = TString::Format("Geometry's phi distribution on Region %d ; #phi(degree); ;", region->region());
     TString name = TString::Format("geo_phi_r%d", region->region());
     auto temp_me = ibooker.book2D(name.Data(), title.Data(), 360000, -180., 180, 12, 1, 13);
@@ -43,7 +44,7 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
     theStdPlots.insert(std::map<UInt_t, MonitorElement *>::value_type(name.Hash(), temp_me));
   }
 
-  for (auto region : GEMGeometry_->regions()) {
+  for (auto region : geometry->regions()) {
     for (auto station : region->stations()) {
       for (auto ring : station->rings()) {
         for (auto sch : ring->superChambers()) {
