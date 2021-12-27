@@ -1,7 +1,7 @@
 #ifndef ESDigisReferenceDistrib_H
 #define ESDigisReferenceDistrib_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -22,7 +22,7 @@
 #include "TH1F.h"
 #include "TH3F.h"
 
-class ESDigisReferenceDistrib : public edm::EDAnalyzer {
+class ESDigisReferenceDistrib : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   ESDigisReferenceDistrib(const edm::ParameterSet &ps);
