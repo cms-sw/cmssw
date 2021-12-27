@@ -1,6 +1,7 @@
 #ifndef MCTruth_CSCTruthTest_h
 #define MCTruth_CSCTruthTest_h
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "SimMuon/MCTruth/interface/MuonTruth.h"
@@ -13,6 +14,7 @@ public:
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   const edm::ParameterSet &conf_;
+  edm::ConsumesCollector consumeCollector_;
 };
 
 #endif
