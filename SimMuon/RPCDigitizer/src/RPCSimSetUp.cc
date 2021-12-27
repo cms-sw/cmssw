@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigiProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
