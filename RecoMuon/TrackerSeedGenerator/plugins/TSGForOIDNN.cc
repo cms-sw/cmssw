@@ -33,6 +33,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 #include <memory>
 namespace pt = boost::property_tree;
 
@@ -391,7 +392,7 @@ void TSGForOIDNN::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup
     hitDoubletSeedsMade = 0;
 
     auto createSeeds = [&](auto const& layers) {
-      for (auto const& layer : layers) {
+      for (auto const& layer : boost::adaptors::reverse(layers)) {
         if (hitlessSeedsMadeIP < maxHitlessSeedsIP && numSeedsMade < maxSeeds_)
           makeSeedsWithoutHits(*layer,
                                tsosAtIP,
