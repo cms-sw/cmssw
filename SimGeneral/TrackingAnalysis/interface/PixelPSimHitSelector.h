@@ -14,7 +14,8 @@ public:
 
      /param[in] pset with the configuration values
   */
- PixelPSimHitSelector(edm::ParameterSet const &config, edm::ConsumesCollector & iC) : PSimHitSelector(config, iC), badModuleToken_(iC.esConsumes()) {}
+  PixelPSimHitSelector(edm::ParameterSet const &config, edm::ConsumesCollector &iC)
+      : PSimHitSelector(config, iC), badModuleToken_(iC.esConsumes()) {}
 
   //! Pre-process event information
   void select(PSimHitCollection &, edm::Event const &, edm::EventSetup const &) const override;
