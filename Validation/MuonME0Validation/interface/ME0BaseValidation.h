@@ -9,7 +9,6 @@
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
