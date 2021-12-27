@@ -29,8 +29,8 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
   fEnMax = pgun_params.getParameter<double>("EnMax");
   fEnMin = pgun_params.getParameter<double>("EnMin");
   fMaxEnSpread = pgun_params.getParameter<bool>("MaxEnSpread");
-  fEtaMax = pgun_params.getParameter<double>("MinEta");
-  fEtaMin = pgun_params.getParameter<double>("MaxEta");
+  fEtaMax = pgun_params.getParameter<double>("MaxEta");
+  fEtaMin = pgun_params.getParameter<double>("MinEta");
   fRMax = pgun_params.getParameter<double>("RMax");
   fRMin = pgun_params.getParameter<double>("RMin");
   fZMax = pgun_params.getParameter<double>("ZMax");
