@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -103,7 +103,7 @@ using namespace std;
 // class decleration
 //
 
-class PixelDigisTest : public edm::EDAnalyzer {
+class PixelDigisTest : public edm::one::EDAnalyzer<> {
 public:
   explicit PixelDigisTest(const edm::ParameterSet &);
   ~PixelDigisTest() override;
