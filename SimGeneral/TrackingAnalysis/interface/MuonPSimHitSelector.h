@@ -14,7 +14,8 @@ public:
 
      /param[in] pset with the configuration values
   */
- MuonPSimHitSelector(edm::ParameterSet const &config, edm::ConsumesCollector & iC) : PSimHitSelector(config, iC), cscBadToken_(iC.esConsumes()) {}
+  MuonPSimHitSelector(edm::ParameterSet const &config, edm::ConsumesCollector &iC)
+      : PSimHitSelector(config, iC), cscBadToken_(iC.esConsumes()) {}
 
   //! Pre-process event information
   void select(PSimHitCollection &, edm::Event const &, edm::EventSetup const &) const override;
