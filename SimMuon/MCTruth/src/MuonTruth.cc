@@ -4,7 +4,10 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimMuon/MCTruth/interface/MuonTruth.h"
 
-MuonTruth::MuonTruth(const edm::Event &event, const edm::EventSetup &setup, const edm::ParameterSet &conf, edm::ConsumesCollector &iC)
+MuonTruth::MuonTruth(const edm::Event &event,
+                     const edm::EventSetup &setup,
+                     const edm::ParameterSet &conf,
+                     edm::ConsumesCollector &iC)
     : theDigiSimLinks(nullptr),
       theWireDigiSimLinks(nullptr),
       linksTag(conf.getParameter<edm::InputTag>("CSClinksTag")),
