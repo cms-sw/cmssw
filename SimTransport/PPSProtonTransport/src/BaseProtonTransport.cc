@@ -17,9 +17,7 @@ BaseProtonTransport::BaseProtonTransport(const edm::ParameterSet& iConfig)
       momentumCut_(iConfig.getParameter<double>("MomentumCut")) {
   setBeamEnergy(beamEnergy_);
 }
-BaseProtonTransport::~BaseProtonTransport() {
-  clear();
-}
+BaseProtonTransport::~BaseProtonTransport() { clear(); }
 void BaseProtonTransport::ApplyBeamCorrection(HepMC::GenParticle* p) {
   TLorentzVector p_out;
   p_out.SetPx(p->momentum().px());
