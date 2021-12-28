@@ -94,7 +94,6 @@ namespace gpuCalibPixel {
       if (invalidModuleId == id[i])
         continue;
 
-      printf("%d %d %d \n", id[i], adc[i]);
       constexpr int mode = (Phase2ReadoutMode < -1 ? -1 : Phase2ReadoutMode);
 
       if constexpr (mode < 0)
