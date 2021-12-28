@@ -22,22 +22,27 @@ using namespace edm;
 using namespace std;
 
 CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset) : BaseFlatGunProducer(pset) {
-  ParameterSet defpset;
   ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters");
-
   fControlledByEta = pgun_params.getParameter<bool>("ControlledByEta");
   fEnMax = pgun_params.getParameter<double>("EnMax");
   fEnMin = pgun_params.getParameter<double>("EnMin");
   fMaxEnSpread = pgun_params.getParameter<bool>("MaxEnSpread");
-  fEtaMax = pgun_params.getParameter<double>("MaxEta");
-  fEtaMin = pgun_params.getParameter<double>("MinEta");
-  fRMax = pgun_params.getParameter<double>("RMax");
-  fRMin = pgun_params.getParameter<double>("RMin");
+  if (fControlledByEta) {
+    fEtaMax = pgun_params.getParameter<double>("EtaMax");
+    fEtaMin = pgun_params.getParameter<double>("EtaMin");
+    if (fEtaMax <= fEtaMin)
+      LogError("CloseByParticleGunProducer") << " Please fix EtaMin and EtaMax values in the configuration";
+  } else {
+    fRMax = pgun_params.getParameter<double>("RMax");
+    fRMin = pgun_params.getParameter<double>("RMin");
+    if (fRMax <= fRMin)
+      LogError("CloseByParticleGunProducer") << " Please fix RMin and RMax values in the configuration";
+  }
   fZMax = pgun_params.getParameter<double>("ZMax");
   fZMin = pgun_params.getParameter<double>("ZMin");
   fDelta = pgun_params.getParameter<double>("Delta");
-  fPhiMin = pgun_params.getParameter<double>("MinPhi");
-  fPhiMax = pgun_params.getParameter<double>("MaxPhi");
+  fPhiMin = pgun_params.getParameter<double>("PhiMin");
+  fPhiMax = pgun_params.getParameter<double>("PhiMax");
   fPointing = pgun_params.getParameter<bool>("Pointing");
   fOverlapping = pgun_params.getParameter<bool>("Overlapping");
   fRandomShoot = pgun_params.getParameter<bool>("RandomShoot");
@@ -67,12 +72,11 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
   double phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
   double fZ = CLHEP::RandFlat::shoot(engine, fZMin, fZMax);
   double fR;
-  double fEta;
 
   if (!fControlledByEta) {
     fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
   } else {
-    fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
+    double fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
     fR = (fZ / sinh(fEta));
   }
 
