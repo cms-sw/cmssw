@@ -155,9 +155,10 @@ bool TotemTransport::transportProton(HepMC::GenParticle* in_trk) {
     out_mom.Print();
   }
 
-  double px = -out_momentum[0]; // calculates px by means of TH_X, which is in the LHC ref. frame.
-  double py = out_momentum[1];  // this need to be checked again, since it seems an invertion is occuring in the prop.
-  double pz = out_momentum[2];  // totem calculates output pz already in the CMS ref. frame, it doesn't need to be converted
+  double px = -out_momentum[0];  // calculates px by means of TH_X, which is in the LHC ref. frame.
+  double py = out_momentum[1];   // this need to be checked again, since it seems an invertion is occuring in the prop.
+  double pz =
+      out_momentum[2];  // totem calculates output pz already in the CMS ref. frame, it doesn't need to be converted
   double e = sqrt(px * px + py * py + pz * pz + ProtonMassSQ);
   TLorentzVector p_out(px, py, pz, e);
   double x1_ctpps = -out_position[0] * meter;  // Totem parameterization uses meter, one need it in millimeter
