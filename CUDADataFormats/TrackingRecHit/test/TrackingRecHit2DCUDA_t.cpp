@@ -2,6 +2,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "Geometry/TrackerGeometryBuilder/interface/pixelTopology.h"
 
 namespace testTrackingRecHit2D {
 
@@ -16,18 +17,25 @@ int main() {
   cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
 
   auto nHits = 200;
-  auto nModules = 2000;
   // inner scope to deallocate memory before destroying the stream
   {
-    TrackingRecHit2DGPU tkhit(nHits, nModules, 0, nullptr, nullptr, stream);
-
+    TrackingRecHit2DGPU tkhit(nHits, false, 0, nullptr, nullptr, stream);
     testTrackingRecHit2D::runKernels(tkhit.view());
 
-    TrackingRecHit2DHost tkhitH(nHits, nModules, 0, nullptr, nullptr, stream, &tkhit);
+    TrackingRecHit2DGPU tkhitPhase2(nHits, true, 0, nullptr, nullptr, stream);
+    testTrackingRecHit2D::runKernels(tkhitPhase2.view());
+
+    TrackingRecHit2DHost tkhitH(nHits, false, 0, nullptr, nullptr, stream, &tkhit);
     cudaStreamSynchronize(stream);
     assert(tkhitH.view());
     assert(tkhitH.view()->nHits() == unsigned(nHits));
-    assert(tkhitH.view()->nMaxModules() == unsigned(nModules));
+    assert(tkhitH.view()->nMaxModules() == phase1PixelTopology::numberOfModules);
+
+    TrackingRecHit2DHost tkhitHPhase2(nHits, true, 0, nullptr, nullptr, stream, &tkhit);
+    cudaStreamSynchronize(stream);
+    assert(tkhitHPhase2.view());
+    assert(tkhitHPhase2.view()->nHits() == unsigned(nHits));
+    assert(tkhitHPhase2.view()->nMaxModules() == phase2PixelTopology::numberOfModules);
   }
 
   cudaCheck(cudaStreamDestroy(stream));
