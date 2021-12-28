@@ -9,14 +9,14 @@
 
 TotemTransport::TotemTransport(const edm::ParameterSet& iConfig)
     : BaseProtonTransport(iConfig),
-      m_model_ip_150_r_name(iConfig.getParameter<std::string>("Model_IP_150_R_Name")),
-      m_model_ip_150_l_name(iConfig.getParameter<std::string>("Model_IP_150_L_Name")),
-      m_beampipe_aperture_radius(iConfig.getParameter<double>("BeampipeApertureRadius")) {
+      m_model_ip_150_r_name_(iConfig.getParameter<std::string>("Model_IP_150_R_Name")),
+      m_model_ip_150_l_name_(iConfig.getParameter<std::string>("Model_IP_150_L_Name")),
+      m_beampipe_aperture_radius_(iConfig.getParameter<double>("BeampipeApertureRadius")) {
   MODE = TransportMode::TOTEM;
   beam1Filename_ = iConfig.getParameter<std::string>("Beam1Filename");
   beam2Filename_ = iConfig.getParameter<std::string>("Beam2Filename");
-  fCrossingAngleX_45 = iConfig.getParameter<double>("halfCrossingAngleSector45");
-  fCrossingAngleX_56 = iConfig.getParameter<double>("halfCrossingAngleSector56");
+  fCrossingAngleX_45_ = iConfig.getParameter<double>("halfCrossingAngleSector45");
+  fCrossingAngleX_56_ = iConfig.getParameter<double>("halfCrossingAngleSector56");
   beamEnergy_ = iConfig.getParameter<double>("BeamEnergy");
   m_sigmaSTX = iConfig.getParameter<double>("BeamDivergenceX");
   m_sigmaSTY = iConfig.getParameter<double>("BeamDivergenceY");
@@ -24,40 +24,40 @@ TotemTransport::TotemTransport(const edm::ParameterSet& iConfig)
   m_sigmaSY = iConfig.getParameter<double>("BeamSigmaY");
   m_sig_E = iConfig.getParameter<double>("BeamEnergyDispersion");
 
-  if (fPPSRegionStart_56 > 0)
-    fPPSRegionStart_56 *= -1;  // make sure sector 56 has negative position, as TOTEM convention
+  if (fPPSRegionStart_56_ > 0)
+    fPPSRegionStart_56_ *= -1;  // make sure sector 56 has negative position, as TOTEM convention
 
   edm::LogVerbatim("TotemTransport")
       << "=============================================================================\n"
       << "             Bulding LHC Proton transporter based on TOTEM model\n"
       << "=============================================================================\n";
 
-  m_aprox_ip_150_r = ReadParameterization(m_model_ip_150_r_name, beam1Filename_);
-  m_aprox_ip_150_l = ReadParameterization(m_model_ip_150_l_name, beam2Filename_);
+  m_aprox_ip_150_r_ = ReadParameterization(m_model_ip_150_r_name_, beam1Filename_);
+  m_aprox_ip_150_l_ = ReadParameterization(m_model_ip_150_l_name_, beam2Filename_);
 
-  if (m_aprox_ip_150_r == nullptr || m_aprox_ip_150_l == nullptr) {
-    edm::LogError("TotemTransport") << "Parameterisation " << m_model_ip_150_r_name << " or " << m_model_ip_150_l_name
+  if (m_aprox_ip_150_r_ == nullptr || m_aprox_ip_150_l_ == nullptr) {
+    edm::LogError("TotemTransport") << "Parameterisation " << m_model_ip_150_r_name_ << " or " << m_model_ip_150_l_name_
                                     << " missing in file. Cannot proceed. ";
     throw edm::Exception(edm::errors::Configuration) << "TotemTransport is not properly initialized";
   }
-  edm::LogVerbatim("TotemTransport") << "Parameterizations read from file, pointers:" << m_aprox_ip_150_r << " "
-                                     << m_aprox_ip_150_l << " ";
+  edm::LogVerbatim("TotemTransport") << "Parameterizations read from file, pointers:" << m_aprox_ip_150_r_ << " "
+                                     << m_aprox_ip_150_l_ << " ";
 }
+TotemTransport::~TotemTransport() {}
 //
 // this method is the same for all propagator, but since transportProton is different for each derived class
 // it needes to be overriden
 //
 void TotemTransport::process(const HepMC::GenEvent* ievt,
                              const edm::EventSetup& iSetup,
-                             CLHEP::HepRandomEngine* _engine) {
-  this->clear();
+                             CLHEP::HepRandomEngine* engine) {
+  clear();
+  engine_ = engine;  // the engine needs to be updated for each event
 
-  engine_ = _engine;  // the engine needs to be updated for each event
+  HepMC::GenEvent evt(*ievt);
 
-  HepMC::GenEvent* evt = new HepMC::GenEvent(*ievt);
-
-  for (HepMC::GenEvent::particle_const_iterator eventParticle = evt->particles_begin();
-       eventParticle != evt->particles_end();
+  for (HepMC::GenEvent::particle_const_iterator eventParticle = evt.particles_begin();
+       eventParticle != evt.particles_end();
        ++eventParticle) {
     if (!((*eventParticle)->status() == 1 && (*eventParticle)->pdg_id() == 2212))
       continue;
@@ -95,11 +95,11 @@ bool TotemTransport::transportProton(HepMC::GenParticle* in_trk) {
   //
   double in_position[3] = {in_pos->position().x(), in_pos->position().y(), in_pos->position().z()};  //in LHC ref. frame
 
-  double fCrossingAngleX = (in_mom.z() > 0) ? fCrossingAngleX_45 : fCrossingAngleX_56;
+  double crossingAngleX = (in_mom.z() > 0) ? fCrossingAngleX_45_ : fCrossingAngleX_56_;
 
   // Move the position to z=0. Do it in the CMS ref frame. Totem parameterization does the rotation internatlly
   in_position[0] =
-      in_position[0] - in_position[2] * (in_mom.x() / in_mom.z() - fCrossingAngleX * urad);  // in CMS ref. frame
+      in_position[0] - in_position[2] * (in_mom.x() / in_mom.z() - crossingAngleX * urad);  // in CMS ref. frame
   in_position[1] = in_position[1] - in_position[2] * (in_mom.y() / (in_mom.z()));
   in_position[2] = 0.;
   double in_momentum[3] = {in_mom.x(), in_mom.y(), in_mom.z()};
@@ -110,24 +110,24 @@ bool TotemTransport::transportProton(HepMC::GenParticle* in_trk) {
                                      << in_position[2] << " momentum: " << in_momentum[0] << ", " << in_momentum[1]
                                      << ", " << in_momentum[2];
 
-  LHCOpticsApproximator* approximator_ = nullptr;
-  double m_Zin_;
-  double m_Zout_;
+  LHCOpticsApproximator* approximator = nullptr;
+  double zin;
+  double zout;
   if (in_mom.z() > 0) {
-    approximator_ = m_aprox_ip_150_l;
-    m_Zin_ = 0.0;  // Totem propagations assumes the starting point at 0 (zero)
-    m_Zout_ = fPPSRegionStart_45;
+    approximator = m_aprox_ip_150_l_;
+    zin = 0.0;  // Totem propagations assumes the starting point at 0 (zero)
+    zout = fPPSRegionStart_45_;
   } else {
-    approximator_ = m_aprox_ip_150_r;
-    m_Zin_ = 0.0;  // Totem propagations assumes the starting point at 0 (zero)
-    m_Zout_ = fPPSRegionStart_56;
+    approximator = m_aprox_ip_150_r_;
+    zin = 0.0;  // Totem propagations assumes the starting point at 0 (zero)
+    zout = fPPSRegionStart_56_;
   }
 
   bool invert_beam_coord_system =
       true;  // it doesn't matter the option here, it is hard coded as TRUE inside LHCOpticsApproximator!
 
-  bool tracked = approximator_->Transport_m_GeV(
-      in_position, in_momentum, out_position, out_momentum, invert_beam_coord_system, m_Zout_ - m_Zin_);
+  bool tracked = approximator->Transport_m_GeV(
+      in_position, in_momentum, out_position, out_momentum, invert_beam_coord_system, zout - zin);
 
   if (!tracked)
     return false;
@@ -138,7 +138,7 @@ bool TotemTransport::transportProton(HepMC::GenParticle* in_trk) {
                                      << ", " << out_momentum[2];
 
   if (out_position[0] * out_position[0] + out_position[1] * out_position[1] >
-      m_beampipe_aperture_radius * m_beampipe_aperture_radius) {
+      m_beampipe_aperture_radius_ * m_beampipe_aperture_radius_) {
     edm::LogVerbatim("TotemTransport") << "Proton ouside beampipe\n"
                                        << "===== END Transport "
                                        << "====================";
@@ -155,10 +155,9 @@ bool TotemTransport::transportProton(HepMC::GenParticle* in_trk) {
     out_mom.Print();
   }
 
-  double px = -out_momentum[0];  // tote calculates px by means of TH_X, which is in the LHC ref. frame.
-  double py = out_momentum[1];   // this need to be checked again, since it seems an invertion is occuring in  the prop.
-  double pz =
-      out_momentum[2];  // totem calculates output pz already in the CMS ref. frame, it doesn't need to be converted
+  double px = -out_momentum[0]; // calculates px by means of TH_X, which is in the LHC ref. frame.
+  double py = out_momentum[1];  // this need to be checked again, since it seems an invertion is occuring in the prop.
+  double pz = out_momentum[2];  // totem calculates output pz already in the CMS ref. frame, it doesn't need to be converted
   double e = sqrt(px * px + py * py + pz * pz + ProtonMassSQ);
   TLorentzVector p_out(px, py, pz, e);
   double x1_ctpps = -out_position[0] * meter;  // Totem parameterization uses meter, one need it in millimeter

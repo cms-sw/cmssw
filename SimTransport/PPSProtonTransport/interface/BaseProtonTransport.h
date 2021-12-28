@@ -17,7 +17,7 @@ namespace CLHEP {
 class BaseProtonTransport {
 public:
   BaseProtonTransport(const edm::ParameterSet& iConfig);
-  virtual ~BaseProtonTransport() { this->clear(); };
+  virtual ~BaseProtonTransport();
 
   std::vector<LHCTransportLink>& getCorrespondenceMap() { return m_CorrespondenceMap; }
   virtual void process(const HepMC::GenEvent* ev, const edm::EventSetup& es, CLHEP::HepRandomEngine* engine) = 0;
@@ -41,32 +41,31 @@ protected:
   enum class TransportMode { HECTOR, TOTEM, OPTICALFUNCTIONS };
   TransportMode MODE;
 
-  int NEvent{0};
   CLHEP::HepRandomEngine* engine_{nullptr};
   std::vector<LHCTransportLink> m_CorrespondenceMap;
   std::map<unsigned int, TLorentzVector> m_beamPart;
   std::map<unsigned int, double> m_xAtTrPoint;
   std::map<unsigned int, double> m_yAtTrPoint;
 
-  bool verbosity_{false};
-  bool bApplyZShift{false};
-  bool useBeamPositionFromLHCInfo_{false};
-  bool produceHitsRelativeToBeam_{false};
+  bool verbosity_;
+  bool bApplyZShift_;
+  bool useBeamPositionFromLHCInfo_;
+  bool produceHitsRelativeToBeam_;
 
   std::string beam1Filename_{""};
   std::string beam2Filename_{""};
 
-  double fPPSRegionStart_45{0.0};
-  double fPPSRegionStart_56{0.0};
-  double fCrossingAngleX_45{0.0};
-  double fCrossingAngleX_56{0.0};
-  double fCrossingAngleY_45{0.0};
-  double fCrossingAngleY_56{0.0};
+  double fPPSRegionStart_45_;
+  double fPPSRegionStart_56_;
+  double fCrossingAngleX_45_{0.0};
+  double fCrossingAngleX_56_{0.0};
+  double fCrossingAngleY_45_{0.0};
+  double fCrossingAngleY_56_{0.0};
 
-  double beamMomentum_{0.0};
-  double beamEnergy_{0.0};
-  double etaCut_{0.0};
-  double momentumCut_{0.0};
+  double beamMomentum_;
+  double beamEnergy_;
+  double etaCut_;
+  double momentumCut_;
 
   double m_sigmaSTX{0.0};
   double m_sigmaSTY{0.0};

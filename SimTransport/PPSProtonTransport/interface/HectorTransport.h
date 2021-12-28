@@ -7,7 +7,8 @@
 #include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -51,10 +52,6 @@ private:
 
   // function to calculate the LorentzBoost
   bool setBeamLine();
-  // Defaults
-
-  double m_fEtacut;
-  double m_fMomentumMin;
 
   // PPSHector
   std::unique_ptr<H_BeamLine> m_beamline45;
