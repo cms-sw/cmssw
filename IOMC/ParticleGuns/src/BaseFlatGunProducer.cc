@@ -46,10 +46,10 @@ BaseFlatGunProducer::BaseFlatGunProducer(const ParameterSet& pset)
   // before trying to extract parameters - if it is empty,
   // the default values seem to be taken
   fPartIDs = pgun_params.getParameter<vector<int> >("PartID");
-  fMinEta = pgun_params.getParameter<double>("MinEta");
-  fMaxEta = pgun_params.getParameter<double>("MaxEta");
-  fMinPhi = pgun_params.getParameter<double>("MinPhi");
-  fMaxPhi = pgun_params.getParameter<double>("MaxPhi");
+  fMinEta = pgun_params.getParameter<double>("EtaMin");
+  fMaxEta = pgun_params.getParameter<double>("EtaMax");
+  fMinPhi = pgun_params.getParameter<double>("PhiMin");
+  fMaxPhi = pgun_params.getParameter<double>("PhiMax");
 
   //
   //fPDGTablePath = "/afs/cern.ch/sw/lcg/external/clhep/1.9.2.1/slc3_ia32_gcc323/data/HepPDT/" ;
