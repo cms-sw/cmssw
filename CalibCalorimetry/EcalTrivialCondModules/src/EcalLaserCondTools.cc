@@ -225,8 +225,8 @@ void EcalLaserCondTools::from_hdf_to_db() {
         corr.p2 = p2[iXtal];
         corr.p3 = p3[iXtal];
 
-        if (!std::isfinite(corr.p1) || !std::isfinite(corr.p2) || !std::isfinite(corr.p3) || corr.p1 < minP_ || corr.p1 > maxP_ ||
-            corr.p2 < minP_ || corr.p2 > maxP_ || corr.p3 < minP_ || corr.p3 > maxP_) {
+        if (!std::isfinite(corr.p1) || !std::isfinite(corr.p2) || !std::isfinite(corr.p3) || corr.p1 < minP_ ||
+            corr.p1 > maxP_ || corr.p2 < minP_ || corr.p2 > maxP_ || corr.p3 < minP_ || corr.p3 > maxP_) {
           fprintf(ferr_, "%d %d %f %f %f\n", t1[iIov], (int)detid, corr.p1, corr.p2, corr.p3);
           corr.p1 = corr.p2 = corr.p3 = 1;
         }
@@ -402,8 +402,8 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
       std::cout << "Duplicate det id, for IOV " << iIov << " t1 = " << t1 << " detid = " << int(detid) << "\n";
     }
 
-    if (!std::isfinite(corr.p1) || !std::isfinite(corr.p2) || !std::isfinite(corr.p3) || corr.p1 < minP_ || corr.p1 > maxP_ ||
-        corr.p2 < minP_ || corr.p2 > maxP_ || corr.p3 < minP_ || corr.p3 > maxP_) {
+    if (!std::isfinite(corr.p1) || !std::isfinite(corr.p2) || !std::isfinite(corr.p3) || corr.p1 < minP_ ||
+        corr.p1 > maxP_ || corr.p2 < minP_ || corr.p2 > maxP_ || corr.p3 < minP_ || corr.p3 > maxP_) {
       fprintf(ferr_, "%d %d %f %f %f\n", t1, (int)detid, corr.p1, corr.p2, corr.p3);
       corr.p1 = corr.p2 = corr.p3 = 1;
     }
