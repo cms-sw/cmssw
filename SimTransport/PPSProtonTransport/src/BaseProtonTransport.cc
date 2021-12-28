@@ -3,7 +3,6 @@
 #include "Utilities/PPS/interface/PPSUnitConversion.h"
 #include <CLHEP/Random/RandGauss.h>
 #include <CLHEP/Units/GlobalSystemOfUnits.h>
-//#include <cctype>
 
 BaseProtonTransport::BaseProtonTransport(const edm::ParameterSet& iConfig)
     : verbosity_(iConfig.getParameter<bool>("Verbosity")),
