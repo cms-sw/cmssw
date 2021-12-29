@@ -29,11 +29,6 @@ public:
   void ApplyBeamCorrection(HepMC::GenParticle* p);
   void ApplyBeamCorrection(TLorentzVector& p);
 
-  void setBeamEnergy(double e) {
-    beamEnergy_ = e;
-    beamMomentum_ = sqrt(beamEnergy_ * beamEnergy_ - ProtonMassSQ);
-  }
-
   double beamEnergy() { return beamEnergy_; };
   double beamMomentum() { return beamMomentum_; };
 
@@ -52,25 +47,25 @@ protected:
   bool useBeamPositionFromLHCInfo_;
   bool produceHitsRelativeToBeam_;
 
-  std::string beam1Filename_{""};
-  std::string beam2Filename_{""};
+  std::string beam1Filename_;
+  std::string beam2Filename_;
 
   double fPPSRegionStart_45_;
   double fPPSRegionStart_56_;
-  double fCrossingAngleX_45_{0.0};
-  double fCrossingAngleX_56_{0.0};
-  double fCrossingAngleY_45_{0.0};
-  double fCrossingAngleY_56_{0.0};
+  double fCrossingAngleX_45_;
+  double fCrossingAngleX_56_;
+  double fCrossingAngleY_45_;
+  double fCrossingAngleY_56_;
 
   double beamMomentum_;
   double beamEnergy_;
   double etaCut_;
   double momentumCut_;
 
-  double m_sigmaSTX{0.0};
-  double m_sigmaSTY{0.0};
-  double m_sigmaSX{0.0};
-  double m_sigmaSY{0.0};
-  double m_sig_E{0.0};
+  double m_sigmaSTX;
+  double m_sigmaSTY;
+  double m_sigmaSX;
+  double m_sigmaSY;
+  double m_sig_E;
 };
 #endif
