@@ -9,12 +9,23 @@ BaseProtonTransport::BaseProtonTransport(const edm::ParameterSet& iConfig)
       bApplyZShift_(iConfig.getParameter<bool>("ApplyZShift")),
       useBeamPositionFromLHCInfo_(iConfig.getParameter<bool>("useBeamPositionFromLHCInfo")),
       produceHitsRelativeToBeam_(iConfig.getParameter<bool>("produceHitsRelativeToBeam")),
+      beam1Filename_(iConfig.getParameter<std::string>("Beam1Filename")),
+      beam2Filename_(iConfig.getParameter<std::string>("Beam2Filename")),
       fPPSRegionStart_45_(iConfig.getParameter<double>("PPSRegionStart_45")),
       fPPSRegionStart_56_(iConfig.getParameter<double>("PPSRegionStart_56")),
+      fCrossingAngleX_45_(iConfig.getParameter<double>("halfCrossingAngleXSector45")),
+      fCrossingAngleX_56_(iConfig.getParameter<double>("halfCrossingAngleXSector56")),
+      fCrossingAngleY_45_(iConfig.getParameter<double>("halfCrossingAngleYSector45")),
+      fCrossingAngleY_56_(iConfig.getParameter<double>("halfCrossingAngleYSector56")),
       beamEnergy_(iConfig.getParameter<double>("BeamEnergy")),
       etaCut_(iConfig.getParameter<double>("EtaCut")),
-      momentumCut_(iConfig.getParameter<double>("MomentumCut")) {
-  setBeamEnergy(beamEnergy_);
+      momentumCut_(iConfig.getParameter<double>("MomentumCut")),
+      m_sigmaSTX(iConfig.getParameter<double>("BeamDivergenceX")),
+      m_sigmaSTY(iConfig.getParameter<double>("BeamDivergenceY")),
+      m_sigmaSX(iConfig.getParameter<double>("BeamSigmaX")),
+      m_sigmaSY(iConfig.getParameter<double>("BeamSigmaY")),
+      m_sig_E(iConfig.getParameter<double>("BeamEnergyDispersion")) {
+  beamMomentum_ = std::sqrt(beamEnergy_ * beamEnergy_ - ProtonMassSQ);
 }
 BaseProtonTransport::~BaseProtonTransport() { clear(); }
 void BaseProtonTransport::ApplyBeamCorrection(HepMC::GenParticle* p) {

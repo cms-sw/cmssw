@@ -14,21 +14,7 @@ HectorTransport::HectorTransport(const edm::ParameterSet& iConfig, edm::Consumes
       m_beamline56(nullptr),
       beamParametersToken_(iC.esConsumes()),
       beamspotToken_(iC.esConsumes()) {
-  // Create LHC beam line
-
-  MODE = TransportMode::HECTOR;  // defines the MODE for the transport
-  beam1Filename_ = iConfig.getParameter<std::string>("Beam1Filename");
-  beam2Filename_ = iConfig.getParameter<std::string>("Beam2Filename");
-  fCrossingAngleX_45_ = iConfig.getParameter<double>("halfCrossingAngleXSector45");
-  fCrossingAngleX_56_ = iConfig.getParameter<double>("halfCrossingAngleXSector56");
-  fCrossingAngleY_45_ = iConfig.getParameter<double>("halfCrossingAngleYSector45");
-  fCrossingAngleY_56_ = iConfig.getParameter<double>("halfCrossingAngleYSector56");
-  m_sigmaSTX = iConfig.getParameter<double>("BeamDivergenceX");
-  m_sigmaSTY = iConfig.getParameter<double>("BeamDivergenceY");
-  m_sigmaSX = iConfig.getParameter<double>("BeamSigmaX");
-  m_sigmaSY = iConfig.getParameter<double>("BeamSigmaY");
-  m_sig_E = iConfig.getParameter<double>("BeamEnergyDispersion");
-
+  MODE = TransportMode::HECTOR;
   //PPS
   edm::LogVerbatim("ProtonTransport")
       << "=============================================================================\n"
