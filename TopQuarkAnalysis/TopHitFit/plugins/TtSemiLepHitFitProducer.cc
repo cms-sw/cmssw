@@ -1,8 +1,6 @@
-#ifndef TtSemiLepHitFitProducer_h
-#define TtSemiLepHitFitProducer_h
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
@@ -484,4 +482,11 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
 }
 
-#endif
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+typedef TtSemiLepHitFitProducer<std::vector<pat::Muon> > TtSemiLepHitFitProducerMuon;
+typedef TtSemiLepHitFitProducer<std::vector<pat::Electron> > TtSemiLepHitFitProducerElectron;
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtSemiLepHitFitProducerMuon);
+DEFINE_FWK_MODULE(TtSemiLepHitFitProducerElectron);
