@@ -90,6 +90,8 @@ private:
   bool debug;
   std::string rootFileName;
 
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> kCSCGeometryToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> kGEMGeometryToken_;
   edm::EDGetTokenT<edm::SimTrackContainer> SimTrack_Token;
   edm::EDGetTokenT<CSCSegmentCollection> CSCSegment_Token;
   edm::EDGetTokenT<GEMCSCSegmentCollection> GEMCSCSegment_Token;
@@ -346,7 +348,8 @@ private:
 // constructors and destructor
 //
 TestGEMCSCSegmentAnalyzer::TestGEMCSCSegmentAnalyzer(const edm::ParameterSet& iConfig)
-
+    : kCSCGeometryToken_(esConsumes<CSCGeometry, MuonGeometryRecord>()),
+      kGEMGeometryToken_(esConsumes<GEMGeometry, MuonGeometryRecord>())
 {
   //now do what ever initialization is needed
   debug = iConfig.getUntrackedParameter<bool>("Debug");
@@ -973,8 +976,17 @@ TestGEMCSCSegmentAnalyzer::~TestGEMCSCSegmentAnalyzer() {
 
 // ------------ method called for each event  ------------
 void TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(gemGeom);
-  iSetup.get<MuonGeometryRecord>().get(cscGeom);
+  const edm::ESHandle<GEMGeometry>&& gemGeom = iSetup.getHandle(kGEMGeometryToken_);
+  if (not gemGeom.isValid()) {
+    edm::LogError("GEMCSCSegment") << "invalid GEMGeometry";
+    return;
+  }
+
+  const edm::ESHandle<CSCGeometry>&& cscGeom = iSetup.getHandle(kCSCGeometryToken_);
+  if (not cscGeom.isValid()) {
+    edm::LogError("GEMCSCSegment") << "invalid CSCGeometry";
+    return;
+  }
   const CSCGeometry* cscGeom_ = &*cscGeom;
 
   // ================
