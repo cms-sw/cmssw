@@ -46,7 +46,7 @@ namespace sistrip {
                                 const std::vector<uint32_t>& ids,
                                 Counters* pTotalEventCounts,
                                 Counters* pL1ACounts,
-                                uint32_t* aRunRef) {
+                                uint32_t* aRunRef) const {
     //create DSV filler to fill output
 
     //As of Feb 2010, bug in DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h:
