@@ -10,8 +10,6 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "RecoTracker/NuclearSeedGenerator/interface/TangentHelix.h"
 
 class FreeTrajectoryState;
@@ -25,7 +23,7 @@ private:
   typedef std::vector<ConstRecHitPointer> ConstRecHitContainer;
 
 public:
-  SeedFromNuclearInteraction(const Propagator* prop, const TrackerGeometry* geom, const edm::ParameterSet& iConfig);
+  SeedFromNuclearInteraction(const Propagator* prop, const TrackerGeometry* geom, double ptMin);
 
   virtual ~SeedFromNuclearInteraction() {}
 
