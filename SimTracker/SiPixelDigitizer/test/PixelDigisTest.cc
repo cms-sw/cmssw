@@ -103,7 +103,7 @@ using namespace std;
 // class decleration
 //
 
-class PixelDigisTest : public edm::one::EDAnalyzer<> {
+class PixelDigisTest : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit PixelDigisTest(const edm::ParameterSet &);
   ~PixelDigisTest() override;
@@ -169,6 +169,8 @@ private:
 // constructors and destructor
 //
 PixelDigisTest::PixelDigisTest(const edm::ParameterSet &iConfig) {
+  usesResource(TFileService::kSharedResource);
+
   //We put this here for the moment since there is no better place
   //edm::Service<MonitorDaemon> daemon;
   //daemon.operator->();
