@@ -20,8 +20,7 @@ public:
   void run(edm::Handle<ClusterCollectionFP420> &input, TrackCollectionFP420 *toutput) const;
 
 private:
-  edm::ParameterSet conf_;
-  TrackProducerFP420 *finderParameters_;
+  TrackProducerFP420 const *finderParameters_;
   std::string trackMode_;
 
   bool validTrackerizer_;

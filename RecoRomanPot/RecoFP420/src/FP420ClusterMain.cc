@@ -20,14 +20,14 @@
 using namespace std;
 
 FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn, int pn, int rn)
-    : conf_(conf), dn0(dn), sn0(sn), pn0(pn), rn0(rn) {
-  verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
-  ElectronPerADC_ = conf_.getParameter<double>("ElectronFP420PerAdc");
-  clusterMode_ = conf_.getParameter<std::string>("ClusterModeFP420");
-  ChannelThreshold = conf_.getParameter<double>("ChannelFP420Threshold");  //6
-  SeedThreshold = conf_.getParameter<double>("SeedFP420Threshold");        //7
-  ClusterThreshold = conf_.getParameter<double>("ClusterFP420Threshold");  //7
-  MaxVoidsInCluster = conf_.getParameter<int>("MaxVoidsFP420InCluster");   //1
+    : dn0(dn), sn0(sn), pn0(pn), rn0(rn) {
+  verbosity = conf.getUntrackedParameter<int>("VerbosityLevel");
+  ElectronPerADC_ = conf.getParameter<double>("ElectronFP420PerAdc");
+  clusterMode_ = conf.getParameter<std::string>("ClusterModeFP420");
+  ChannelThreshold = conf.getParameter<double>("ChannelFP420Threshold");  //6
+  SeedThreshold = conf.getParameter<double>("SeedFP420Threshold");        //7
+  ClusterThreshold = conf.getParameter<double>("ClusterFP420Threshold");  //7
+  MaxVoidsInCluster = conf.getParameter<int>("MaxVoidsFP420InCluster");   //1
 
   if (verbosity > 0) {
     std::cout << "FP420ClusterMain constructor: ElectronPerADC = " << ElectronPerADC_ << std::endl;

@@ -35,7 +35,6 @@ private:
   std::string clusterMode_;
 
   //std::vector<HDigiFP420> collector;
-  edm::ParameterSet conf_;
 
   bool validClusterizer_;
   double ElectronPerADC_;
