@@ -42,6 +42,9 @@ namespace reco {
 }
 
 class Trajectory;
+class Chi2MeasurementEstimatorBase;
+class CkfComponentsRecord;
+class NavigationSchoolRecord;
 
 /** \class NuclearSeedsEDProducer
  *
@@ -57,11 +60,18 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
-  edm::ParameterSet conf_;
+  NuclearInteractionFinder::Config config_;
   std::unique_ptr<NuclearInteractionFinder> theNuclearInteractionFinder;
 
   bool improveSeeds;
   edm::EDGetTokenT<TrajectoryCollection> producer_;
   edm::EDGetTokenT<MeasurementTrackerEvent> mteToken_;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estimatorToken_;
+  edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measurementTrackerToken_;
+  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geomSearchTrackerToken_;
+  edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navigationToken_;
 };
 #endif
