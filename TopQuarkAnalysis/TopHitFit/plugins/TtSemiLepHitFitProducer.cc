@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -15,10 +15,9 @@
 #include "TopQuarkAnalysis/TopHitFit/interface/METTranslatorBase.h"
 
 template <typename LeptonCollection>
-class TtSemiLepHitFitProducer : public edm::EDProducer {
+class TtSemiLepHitFitProducer : public edm::stream::EDProducer<> {
 public:
   explicit TtSemiLepHitFitProducer(const edm::ParameterSet&);
-  ~TtSemiLepHitFitProducer() override;
 
 private:
   // produce
@@ -90,7 +89,7 @@ private:
   hitfit::JetTranslatorBase<pat::Jet> jetTranslator_;
   hitfit::METTranslatorBase<pat::MET> metTranslator_;
 
-  PatHitFit* HitFit;
+  std::unique_ptr<PatHitFit> HitFit;
 };
 
 template <typename LeptonCollection>
@@ -141,7 +140,7 @@ TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::Pa
 
 {
   // Create an instance of RunHitFit and initialize it.
-  HitFit = new PatHitFit(
+  HitFit = std::make_unique<PatHitFit>(
       electronTranslator_, muonTranslator_, jetTranslator_, metTranslator_, hitfitDefault_.fullPath(), mW_, mW_, mTop_);
 
   maxEtaMu_ = 2.4;
@@ -174,11 +173,6 @@ TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::Pa
   produces<std::vector<double> >("SigMT");
   produces<std::vector<int> >("Status");
   produces<int>("NumberOfConsideredJets");
-}
-
-template <typename LeptonCollection>
-TtSemiLepHitFitProducer<LeptonCollection>::~TtSemiLepHitFitProducer() {
-  delete HitFit;
 }
 
 template <typename LeptonCollection>
