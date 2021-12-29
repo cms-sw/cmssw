@@ -349,8 +349,7 @@ private:
 //
 TestGEMCSCSegmentAnalyzer::TestGEMCSCSegmentAnalyzer(const edm::ParameterSet& iConfig)
     : kCSCGeometryToken_(esConsumes<CSCGeometry, MuonGeometryRecord>()),
-      kGEMGeometryToken_(esConsumes<GEMGeometry, MuonGeometryRecord>())
-{
+      kGEMGeometryToken_(esConsumes<GEMGeometry, MuonGeometryRecord>()) {
   //now do what ever initialization is needed
   debug = iConfig.getUntrackedParameter<bool>("Debug");
   rootFileName = iConfig.getUntrackedParameter<std::string>("RootFileName");
