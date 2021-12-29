@@ -10,7 +10,7 @@ using edm::LogWarning;
 
 namespace sistrip {
 
-  const char* FEDEmulator::messageLabel_ = "SiStripFEDEmulator";
+  const char* const FEDEmulator::messageLabel_ = "SiStripFEDEmulator";
 
   FEDEmulator::FEDEmulator() {
     byModule_ = false;
