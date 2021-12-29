@@ -98,7 +98,6 @@ namespace l1t {
     CondCorrelation,
     CondExternal,
     CondCorrelationWithOverlapRemoval,
-    CondCorrelationThreeBodyByTwoBody,
     CondCorrelationThreeBody,
     CondMuonShower,
   };

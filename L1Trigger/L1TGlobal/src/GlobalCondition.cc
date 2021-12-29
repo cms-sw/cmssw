@@ -216,12 +216,6 @@ void GlobalCondition::print(std::ostream& myCout) const {
     }
 
     break;
-    case l1t::CondCorrelationThreeBodyByTwoBody: {
-      myCout << "  Condition category: "
-             << "CondCorrelationThreeBodyByTwoBody" << std::endl;
-    }
-
-    break;
     case l1t::CondExternal: {
       myCout << "  Condition category: "
              << "CondExternal" << std::endl;
