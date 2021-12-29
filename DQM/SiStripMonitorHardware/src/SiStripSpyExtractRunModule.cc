@@ -12,7 +12,7 @@
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,7 +32,7 @@
 //
 namespace sistrip {
 
-  class SpyExtractRunModule : public edm::EDAnalyzer {
+  class SpyExtractRunModule : public edm::one::EDAnalyzer<> {
   public:
     explicit SpyExtractRunModule(const edm::ParameterSet&);
     ~SpyExtractRunModule() override;

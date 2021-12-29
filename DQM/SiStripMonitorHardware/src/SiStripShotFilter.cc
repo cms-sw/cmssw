@@ -19,7 +19,7 @@
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -50,7 +50,7 @@
 // Class declaration
 //
 
-class SiStripShotFilter : public edm::EDFilter {
+class SiStripShotFilter : public edm::one::EDFilter<> {
 public:
   explicit SiStripShotFilter(const edm::ParameterSet&);
   ~SiStripShotFilter() override;
