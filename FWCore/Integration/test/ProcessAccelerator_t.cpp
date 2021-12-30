@@ -117,4 +117,39 @@ TEST_CASE("Configuration", s_tag) {
     edm::test::TestProcessor tester(config_auto);
     REQUIRE_NOTHROW(tester.testLuminosityBlockWithNoEvents());
   }
+
+  SECTION("Test2 enabled, acclerators=auto") {
+    edm::test::TestProcessor tester(config_auto);
+    auto event = tester.test();
+    REQUIRE(event.get<edmtest::IntProduct>()->value == 2);
+  }
+
+  SECTION("Test2 enabled, acclerators=test1") {
+    edm::test::TestProcessor tester(config_test1);
+    auto event = tester.test();
+    REQUIRE(event.get<edmtest::IntProduct>()->value == 1);
+  }
+
+  SECTION("Test2 enabled, acclerators=test2") {
+    edm::test::TestProcessor tester(config_test2);
+    auto event = tester.test();
+    REQUIRE(event.get<edmtest::IntProduct>()->value == 2);
+  }
+
+  SECTION("Test2 disabled, accelerators=auto") {
+    edm::test::TestProcessor tester(configTest2Disabled_auto);
+    auto event = tester.test();
+    REQUIRE(event.get<edmtest::IntProduct>()->value == 1);
+  }
+
+  SECTION("Test2 disabled, accelerators=test1") {
+    edm::test::TestProcessor tester(configTest2Disabled_test1);
+    auto event = tester.test();
+    REQUIRE(event.get<edmtest::IntProduct>()->value == 1);
+  }
+
+  SECTION("Test2 disabled, accelerators=test2") {
+    REQUIRE_THROWS_WITH(edm::test::TestProcessor(configTest2Disabled_test2),
+                        Catch::Contains("Compute accelerators test2 were requested but are not available"));
+  }
 }
