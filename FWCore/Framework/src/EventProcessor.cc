@@ -37,6 +37,7 @@
 #include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 #include "FWCore/Framework/interface/streamTransitionAsync.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/ensureAvailableAccelerators.h"
 #include "FWCore/Framework/interface/globalTransitionAsync.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -372,6 +373,7 @@ namespace edm {
       fileModeNoMerge_ = (fileMode == "NOMERGE");
     }
     forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun");
+    ensureAvailableAccelerators(*parameterSet);
 
     //threading
     unsigned int nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfThreads");
