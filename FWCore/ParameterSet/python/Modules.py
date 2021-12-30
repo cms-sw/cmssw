@@ -423,23 +423,9 @@ if __name__ == "__main__":
         def __init__(self, **kargs):
             super(SwitchProducerTest,self).__init__(
                 dict(
-                    test1 = lambda accelerators: (True, -10),
-                    test2 = lambda accelerators: (True, -9),
-                    test3 = lambda accelerators: (True, -8)
-                ), **kargs)
-    class SwitchProducerTest1Dis(SwitchProducer):
-        def __init__(self, **kargs):
-            super(SwitchProducerTest1Dis,self).__init__(
-                dict(
-                    test1 = lambda accelerators: (False, -10),
-                    test2 = lambda accelerators: (True, -9)
-                ), **kargs)
-    class SwitchProducerTest2Dis(SwitchProducer):
-        def __init__(self, **kargs):
-            super(SwitchProducerTest2Dis,self).__init__(
-                dict(
-                    test1 = lambda accelerators: (True, -10),
-                    test2 = lambda accelerators: (False, -9)
+                    test1 = lambda accelerators: ("test1" in accelerators, -10),
+                    test2 = lambda accelerators: ("test2" in accelerators, -9),
+                    test3 = lambda accelerators: ("test3" in accelerators, -8)
                 ), **kargs)
     class SwitchProducerPickleable(SwitchProducer):
         def __init__(self, **kargs):
@@ -566,17 +552,14 @@ if __name__ == "__main__":
             self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = SwitchProducerTest(test1 = EDProducer("Foo"))))
 
             # Case decision
-            accelerators = []
+            accelerators = ["test1", "test2", "test3"]
             sp = SwitchProducerTest(test1 = EDProducer("Foo"), test2 = EDProducer("Bar"))
-            self.assertEqual(sp._getProducer(accelerators).type_(), "Bar")
-            sp = SwitchProducerTest1Dis(test1 = EDProducer("Foo"), test2 = EDProducer("Bar"))
-            self.assertEqual(sp._getProducer(accelerators).type_(), "Bar")
-            sp = SwitchProducerTest2Dis(test1 = EDProducer("Foo"), test2 = EDProducer("Bar"))
-            self.assertEqual(sp._getProducer(accelerators).type_(), "Foo")
+            self.assertEqual(sp._getProducer(["test1", "test2", "test3"]).type_(), "Bar")
+            self.assertEqual(sp._getProducer(["test2", "test3"]).type_(), "Bar")
+            self.assertEqual(sp._getProducer(["test1", "test3"]).type_(), "Foo")
             sp = SwitchProducerTest(test1 = EDProducer("Bar"))
-            self.assertEqual(sp._getProducer(accelerators).type_(), "Bar")
-            sp = SwitchProducerTest1Dis(test1 = EDProducer("Bar"))
-            self.assertRaises(RuntimeError, sp._getProducer, accelerators)
+            self.assertEqual(sp._getProducer(["test1", "test2", "test3"]).type_(), "Bar")
+            self.assertRaises(RuntimeError, sp._getProducer, ["test2", "test3"])
 
             # Mofications
             from .Types import int32, string, PSet
