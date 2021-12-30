@@ -1,6 +1,3 @@
-#ifndef TtSemiLepHypWMassDeltaTopMass_h
-#define TtSemiLepHypWMassDeltaTopMass_h
-
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
 class TtSemiLepHypWMassDeltaTopMass : public TtSemiLepHypothesis {
@@ -22,4 +19,5 @@ private:
   };
 };
 
-#endif
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtSemiLepHypWMassDeltaTopMass);

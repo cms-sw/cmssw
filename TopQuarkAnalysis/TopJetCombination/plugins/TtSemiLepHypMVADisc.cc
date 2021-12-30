@@ -1,6 +1,3 @@
-#ifndef TtSemiLepHypMVADisc_h
-#define TtSemiLepHypMVADisc_h
-
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
 class TtSemiLepHypMVADisc : public TtSemiLepHypothesis {
@@ -22,4 +19,5 @@ private:
   };
 };
 
-#endif
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtSemiLepHypMVADisc);

@@ -1,10 +1,38 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombGeom.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "Math/VectorUtil.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+class TtSemiLepJetCombGeom : public edm::EDProducer {
+public:
+  explicit TtSemiLepJetCombGeom(const edm::ParameterSet&);
+  ~TtSemiLepJetCombGeom() override;
+
+private:
+  void beginJob() override{};
+  void produce(edm::Event& evt, const edm::EventSetup& setup) override;
+  void endJob() override{};
+
+  bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets) {
+    return (0 <= idx && idx < (int)jets->size());
+  };
+  double distance(const math::XYZTLorentzVector&, const math::XYZTLorentzVector&);
+
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<edm::View<reco::RecoCandidate> > lepsToken_;
+  int maxNJets_;
+  bool useDeltaR_;
+  bool useBTagging_;
+  std::string bTagAlgorithm_;
+  double minBDiscBJets_;
+  double maxBDiscLightJets_;
+};
 
 TtSemiLepJetCombGeom::TtSemiLepJetCombGeom(const edm::ParameterSet& cfg)
     : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
@@ -151,3 +179,6 @@ double TtSemiLepJetCombGeom::distance(const math::XYZTLorentzVector& v1, const m
     return ROOT::Math::VectorUtil::DeltaR(v1, v2);
   return fabs(v1.theta() - v2.theta());
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtSemiLepJetCombGeom);
