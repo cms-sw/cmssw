@@ -7,7 +7,6 @@
 #include <memory>
 #include <string>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -53,13 +52,6 @@ namespace cms {
       std::cout << "ReconstructerFP420:delete FP420RecoMain" << std::endl;
     }
     delete sFP420RecoMain_;
-  }
-
-  //Get at the beginning
-  void ReconstructerFP420::beginJob() {
-    if (verbosity > 0) {
-      std::cout << "ReconstructerFP420:BeginJob method " << std::endl;
-    }
   }
 
   void ReconstructerFP420::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

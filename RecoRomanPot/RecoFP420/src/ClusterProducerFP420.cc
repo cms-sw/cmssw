@@ -38,7 +38,7 @@ bool ClusterProducerFP420::badChannel(int channel, const std::vector<short>& bad
 std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnit(HDigiFP420Iter begin,
                                                                   HDigiFP420Iter end,
                                                                   unsigned int detid,
-                                                                  const ElectrodNoiseVector& vnoise) {
+                                                                  const ElectrodNoiseVector& vnoise) const {
   //                                                 const std::vector<short>& badChannels)
 
   //reminder:	  int zScale=2;  unsigned int detID = sScale*(sector - 1)+zScale*(zmodule - 1)+xytype;
@@ -149,7 +149,7 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnit(HDigiFP420Iter
   return rhits;
 }
 
-int ClusterProducerFP420::difNarr(unsigned int xytype, HDigiFP420Iter ichannel, HDigiFP420Iter jchannel) {
+int ClusterProducerFP420::difNarr(unsigned int xytype, HDigiFP420Iter ichannel, HDigiFP420Iter jchannel) const {
   int d = 9999;
   if (xytype == 2) {
     d = ichannel->stripV() - jchannel->stripV();
@@ -162,7 +162,7 @@ int ClusterProducerFP420::difNarr(unsigned int xytype, HDigiFP420Iter ichannel, 
   }
   return d;
 }
-int ClusterProducerFP420::difWide(unsigned int xytype, HDigiFP420Iter ichannel, HDigiFP420Iter jchannel) {
+int ClusterProducerFP420::difWide(unsigned int xytype, HDigiFP420Iter ichannel, HDigiFP420Iter jchannel) const {
   int d = 9999;
   if (xytype == 2) {
     d = ichannel->stripVW() - jchannel->stripVW();
@@ -181,7 +181,7 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnitPixels(HDigiFP4
                                                                         unsigned int detid,
                                                                         const ElectrodNoiseVector& vnoise,
                                                                         unsigned int xytype,
-                                                                        int verb) {
+                                                                        int verb) const {
   //                                                 const std::vector<short>& badChannels)
 
   //reminder:	  int zScale=2;  unsigned int detID = sScale*(sector - 1)+zScale*(zmodule - 1)+xytype;

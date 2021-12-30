@@ -5,6 +5,7 @@
 // Modifications:
 ///////////////////////////////////////////////////////////////////////////////
 #include "RecoRomanPot/RecoFP420/interface/TrackProducerFP420.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include <cstdio>
 #include <gsl/gsl_fit.h>
 #include <vector>
@@ -104,7 +105,7 @@ TrackProducerFP420::TrackProducerFP420(int asn0,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle<ClusterCollectionFP420> input,
-                                                                     int det) {
+                                                                     int det) const {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   std::vector<TrackFP420> rhits;
