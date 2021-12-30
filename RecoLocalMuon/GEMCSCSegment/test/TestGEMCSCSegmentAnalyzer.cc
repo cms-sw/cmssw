@@ -30,7 +30,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -64,7 +64,7 @@
 using namespace std;
 using namespace edm;
 
-class TestGEMCSCSegmentAnalyzer : public edm::EDAnalyzer {
+class TestGEMCSCSegmentAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TestGEMCSCSegmentAnalyzer(const edm::ParameterSet&);
   ~TestGEMCSCSegmentAnalyzer();
@@ -355,7 +355,8 @@ TestGEMCSCSegmentAnalyzer::TestGEMCSCSegmentAnalyzer(const edm::ParameterSet& iC
   rootFileName = iConfig.getUntrackedParameter<std::string>("RootFileName");
 
   // outputfile = new TFile(rootFileName.c_str(), "RECREATE" );
-  outputfile.reset(TFile::Open(rootFileName.c_str()));
+  outputfile.reset(TFile::Open(rootFileName.c_str(), "CREATE"));
+  outputfile->cd();
 
   SimTrack_Token = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
   CSCSegment_Token = consumes<CSCSegmentCollection>(edm::InputTag("cscSegments"));
