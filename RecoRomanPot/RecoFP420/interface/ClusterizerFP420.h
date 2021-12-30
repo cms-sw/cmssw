@@ -1,7 +1,7 @@
 #ifndef ClusterizerFP420_h
 #define ClusterizerFP420_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,37 +19,27 @@
 #include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
 
-#include <CLHEP/Vector/ThreeVector.h>
 #include <string>
 #include <vector>
 #include <map>
 #include <iostream>
 
 namespace cms {
-  class ClusterizerFP420 : public edm::EDProducer {
+  class ClusterizerFP420 : public edm::global::EDProducer<> {
   public:
     explicit ClusterizerFP420(const edm::ParameterSet& conf);
 
-    ~ClusterizerFP420() override;
-
     void beginJob() override;
 
-    //  virtual void produce(DigiCollectionFP420*, ClusterCollectionFP420 &);
-    // virtual void produce(DigiCollectionFP420 &, ClusterCollectionFP420 &);
-
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+    void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
 
   private:
     typedef std::vector<std::string> vstring;
 
-    edm::ParameterSet conf_;
     vstring trackerContainers;
 
-    FP420ClusterMain* sClusterizerFP420_;
+    std::unique_ptr<const FP420ClusterMain> sClusterizerFP420_;
 
-    ClusterCollectionFP420* soutput;
-
-    std::vector<ClusterNoiseFP420> noise;
     bool UseNoiseBadElectrodeFlagFromDB_;
     int sn0, pn0, dn0, rn0;
     int verbosity;
