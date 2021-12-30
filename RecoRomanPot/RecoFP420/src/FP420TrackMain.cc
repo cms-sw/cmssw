@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoRomanPot/RecoFP420/interface/FP420TrackMain.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
 #include "DataFormats/FP420Cluster/interface/TrackFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/TrackProducerFP420.h"
@@ -20,21 +21,21 @@ using namespace std;
 //#define mytrackdebug0
 
 //FP420TrackMain::FP420TrackMain(){
-FP420TrackMain::FP420TrackMain(const edm::ParameterSet &conf) : conf_(conf) {
-  verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
-  trackMode_ = conf_.getParameter<std::string>("TrackModeFP420");
-  dn0 = conf_.getParameter<int>("NumberFP420Detectors");
-  sn0_ = conf_.getParameter<int>("NumberFP420Stations");
-  pn0_ = conf_.getParameter<int>("NumberFP420SPlanes");
+FP420TrackMain::FP420TrackMain(const edm::ParameterSet &conf) {
+  verbosity = conf.getUntrackedParameter<int>("VerbosityLevel");
+  trackMode_ = conf.getParameter<std::string>("TrackModeFP420");
+  dn0 = conf.getParameter<int>("NumberFP420Detectors");
+  sn0_ = conf.getParameter<int>("NumberFP420Stations");
+  pn0_ = conf.getParameter<int>("NumberFP420SPlanes");
   rn0_ = 7;
-  xytype_ = conf_.getParameter<int>("NumberFP420SPTypes");
-  z420_ = conf_.getParameter<double>("z420");
-  zD2_ = conf_.getParameter<double>("zD2");
-  zD3_ = conf_.getParameter<double>("zD3");
-  dXX_ = conf_.getParameter<double>("dXXFP420");
-  dYY_ = conf_.getParameter<double>("dYYFP420");
-  chiCutX_ = conf_.getParameter<double>("chiCutX420");
-  chiCutY_ = conf_.getParameter<double>("chiCutY420");
+  xytype_ = conf.getParameter<int>("NumberFP420SPTypes");
+  z420_ = conf.getParameter<double>("z420");
+  zD2_ = conf.getParameter<double>("zD2");
+  zD3_ = conf.getParameter<double>("zD3");
+  dXX_ = conf.getParameter<double>("dXXFP420");
+  dYY_ = conf.getParameter<double>("dYYFP420");
+  chiCutX_ = conf.getParameter<double>("chiCutX420");
+  chiCutY_ = conf.getParameter<double>("chiCutY420");
 
   if (verbosity > 0) {
     std::cout << "FP420TrackMain constructor::" << std::endl;
@@ -148,7 +149,7 @@ FP420TrackMain::~FP420TrackMain() {
   }
 }
 
-void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, TrackCollectionFP420 *toutput) {
+void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, TrackCollectionFP420 *toutput) const {
   if (validTrackerizer_) {
     int number_detunits = 0;
     int number_localelectroderechits = 0;

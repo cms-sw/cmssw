@@ -3,31 +3,24 @@
 
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
 #include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
+#include "RecoRomanPot/RecoFP420/interface/ClusterProducerFP420.h"
 #include <iostream>
 #include <vector>
+#include <memory>
 
 class ClusterNoiseFP420;
-class ClusterProducerFP420;
 
 class FP420ClusterMain {
 public:
   FP420ClusterMain(const edm::ParameterSet &conf, int dn, int sn, int pn, int rn);
   //  FP420ClusterMain();
-
-  ~FP420ClusterMain();
 
   /// Runs the algorithm
 
@@ -35,16 +28,13 @@ public:
   //       	   ClusterCollectionFP420 &soutput,
   //       	   const std::vector<ClusterNoiseFP420>& noise
   //     	   );
-  void run(edm::Handle<DigiCollectionFP420> &input,
-           ClusterCollectionFP420 *soutput,
-           std::vector<ClusterNoiseFP420> &noise);
+  void run(edm::Handle<DigiCollectionFP420> &input, ClusterCollectionFP420 *soutput) const;
 
 private:
-  ClusterProducerFP420 *threeThreshold_;
+  std::unique_ptr<const ClusterProducerFP420> threeThreshold_;
   std::string clusterMode_;
 
   //std::vector<HDigiFP420> collector;
-  edm::ParameterSet conf_;
 
   bool validClusterizer_;
   double ElectronPerADC_;
@@ -59,16 +49,12 @@ private:
 
   double ldriftX;
   double ldriftY;
-  double ldrift;
   double pitchX;                // pitchX
   double pitchY;                // pitchY
-  double pitch;                 // pitch automatic
   float moduleThicknessX;       // plate thicknessX
   float moduleThicknessY;       // plate thicknessY
-  float moduleThickness;        // plate thickness
   int numStripsX, numStripsXW;  // number of strips in the moduleX
   int numStripsY, numStripsYW;  // number of strips in the moduleY
-  int numStrips;                // number of strips in the module
 
   float Thick300;
 

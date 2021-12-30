@@ -7,7 +7,6 @@
 #include <memory>
 #include <string>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,7 +22,7 @@ using namespace std;
 
 //
 namespace cms {
-  TrackerizerFP420::TrackerizerFP420(const edm::ParameterSet& conf) : conf_(conf) {
+  TrackerizerFP420::TrackerizerFP420(const edm::ParameterSet& conf) : sFP420TrackMain_(conf) {
     std::string alias(conf.getParameter<std::string>("@module_label"));
 
     produces<TrackCollectionFP420>().setBranchAlias(alias);
@@ -31,26 +30,13 @@ namespace cms {
     trackerContainers.clear();
     trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
 
-    verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
+    verbosity = conf.getUntrackedParameter<int>("VerbosityLevel");
     if (verbosity > 0) {
       std::cout << "Creating a TrackerizerFP420" << std::endl;
     }
-
-    // Initialization:
-    sFP420TrackMain_ = new FP420TrackMain(conf_);
   }
 
-  // Virtual destructor needed.
-  TrackerizerFP420::~TrackerizerFP420() { delete sFP420TrackMain_; }
-
-  //Get at the beginning
-  void TrackerizerFP420::beginJob() {
-    if (verbosity > 0) {
-      std::cout << "BeginJob method " << std::endl;
-    }
-  }
-
-  void TrackerizerFP420::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  void TrackerizerFP420::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
     //  beginJob;
     // be lazy and include the appropriate namespaces
     using namespace edm;
@@ -99,7 +85,7 @@ namespace cms {
 
     //                                RUN now:                                                                                 !!!!!!
     //   startFP420TrackMain_.run(input, toutput);
-    sFP420TrackMain_->run(input, toutput.get());
+    sFP420TrackMain_.run(input, toutput.get());
     // std::cout <<"=======           TrackerizerFP420:                    end of produce     " << std::endl;
 
     // Step D: write output to file
