@@ -3,7 +3,6 @@
 class TtSemiLepHypMVADisc : public TtSemiLepHypothesis {
 public:
   explicit TtSemiLepHypMVADisc(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg){};
-  ~TtSemiLepHypMVADisc() override{};
 
 private:
   /// build the event hypothesis key

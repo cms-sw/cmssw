@@ -3,7 +3,6 @@
 class TtSemiLepHypGeom : public TtSemiLepHypothesis {
 public:
   explicit TtSemiLepHypGeom(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg){};
-  ~TtSemiLepHypGeom() override{};
 
 private:
   /// build the event hypothesis key

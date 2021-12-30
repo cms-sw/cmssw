@@ -3,7 +3,6 @@
 class TtSemiLepHypWMassDeltaTopMass : public TtSemiLepHypothesis {
 public:
   explicit TtSemiLepHypWMassDeltaTopMass(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg){};
-  ~TtSemiLepHypWMassDeltaTopMass() override{};
 
 private:
   /// build the event hypothesis key
