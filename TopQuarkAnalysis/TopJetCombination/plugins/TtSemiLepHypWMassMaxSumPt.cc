@@ -3,7 +3,6 @@
 class TtSemiLepHypWMassMaxSumPt : public TtSemiLepHypothesis {
 public:
   explicit TtSemiLepHypWMassMaxSumPt(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg){};
-  ~TtSemiLepHypWMassMaxSumPt() override{};
 
 private:
   /// build the event hypothesis key

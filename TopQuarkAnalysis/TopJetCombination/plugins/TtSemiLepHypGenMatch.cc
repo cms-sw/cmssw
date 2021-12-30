@@ -6,7 +6,6 @@
 class TtSemiLepHypGenMatch : public TtSemiLepHypothesis {
 public:
   explicit TtSemiLepHypGenMatch(const edm::ParameterSet&);
-  ~TtSemiLepHypGenMatch() override;
 
 private:
   /// build the event hypothesis key
@@ -27,8 +26,6 @@ protected:
 
 TtSemiLepHypGenMatch::TtSemiLepHypGenMatch(const edm::ParameterSet& cfg)
     : TtSemiLepHypothesis(cfg), genEvtToken_(consumes<TtGenEvent>(edm::InputTag("genEvt"))) {}
-
-TtSemiLepHypGenMatch::~TtSemiLepHypGenMatch() {}
 
 void TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
                                      const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
@@ -51,21 +48,21 @@ void TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
       switch (idx) {
         case TtSemiLepEvtPartons::LightQ:
           if (std::abs(genEvt->hadronicDecayQuark()->pdgId()) == 4)
-            setCandidate(jets, match[idx], lightQ_, jetCorrectionLevel("cQuark"));
+            lightQ_ = makeCandidate(jets, match[idx], jetCorrectionLevel("cQuark"));
           else
-            setCandidate(jets, match[idx], lightQ_, jetCorrectionLevel("udsQuark"));
+            lightQ_ = makeCandidate(jets, match[idx], jetCorrectionLevel("udsQuark"));
           break;
         case TtSemiLepEvtPartons::LightQBar:
           if (std::abs(genEvt->hadronicDecayQuarkBar()->pdgId()) == 4)
-            setCandidate(jets, match[idx], lightQBar_, jetCorrectionLevel("cQuark"));
+            lightQBar_ = makeCandidate(jets, match[idx], jetCorrectionLevel("cQuark"));
           else
-            setCandidate(jets, match[idx], lightQBar_, jetCorrectionLevel("udsQuark"));
+            lightQBar_ = makeCandidate(jets, match[idx], jetCorrectionLevel("udsQuark"));
           break;
         case TtSemiLepEvtPartons::HadB:
-          setCandidate(jets, match[idx], hadronicB_, jetCorrectionLevel("bQuark"));
+          hadronicB_ = makeCandidate(jets, match[idx], jetCorrectionLevel("bQuark"));
           break;
         case TtSemiLepEvtPartons::LepB:
-          setCandidate(jets, match[idx], leptonicB_, jetCorrectionLevel("bQuark"));
+          leptonicB_ = makeCandidate(jets, match[idx], jetCorrectionLevel("bQuark"));
           break;
       }
     }
@@ -77,7 +74,7 @@ void TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
   int iLepton = findMatchingLepton(genEvt, leps);
   if (iLepton < 0)
     return;
-  setCandidate(leps, iLepton, lepton_);
+  lepton_ = makeCandidate(leps, iLepton);
   match.push_back(iLepton);
 
   // -----------------------------------------------------
@@ -86,7 +83,7 @@ void TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
   if (mets->empty())
     return;
   if (neutrinoSolutionType_ == -1)
-    setCandidate(mets, 0, neutrino_);
+    neutrino_ = makeCandidate(mets, 0);
   else
     setNeutrino(mets, leps, iLepton, neutrinoSolutionType_);
 }

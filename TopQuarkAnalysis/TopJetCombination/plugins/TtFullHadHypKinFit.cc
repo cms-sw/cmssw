@@ -5,7 +5,6 @@
 class TtFullHadHypKinFit : public TtFullHadHypothesis {
 public:
   explicit TtFullHadHypKinFit(const edm::ParameterSet&);
-  ~TtFullHadHypKinFit() override;
 
 private:
   /// build the event hypothesis key
@@ -34,8 +33,6 @@ TtFullHadHypKinFit::TtFullHadHypKinFit(const edm::ParameterSet& cfg)
       bBarToken_(consumes<std::vector<pat::Particle> >(cfg.getParameter<edm::InputTag>("bBarTag"))),
       lightPToken_(consumes<std::vector<pat::Particle> >(cfg.getParameter<edm::InputTag>("lightPTag"))),
       lightPBarToken_(consumes<std::vector<pat::Particle> >(cfg.getParameter<edm::InputTag>("lightPBarTag"))) {}
-
-TtFullHadHypKinFit::~TtFullHadHypKinFit() {}
 
 void TtFullHadHypKinFit::buildHypo(edm::Event& evt,
                                    const edm::Handle<std::vector<pat::Jet> >& jets,
@@ -67,12 +64,12 @@ void TtFullHadHypKinFit::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   if (!(lightQ->empty() || lightQBar->empty() || b->empty() || bBar->empty() || lightP->empty() ||
         lightPBar->empty())) {
-    setCandidate(lightQ, iComb, lightQ_);
-    setCandidate(lightQBar, iComb, lightQBar_);
-    setCandidate(b, iComb, b_);
-    setCandidate(bBar, iComb, bBar_);
-    setCandidate(lightP, iComb, lightP_);
-    setCandidate(lightPBar, iComb, lightPBar_);
+    lightQ_ = makeCandidate(lightQ, iComb);
+    lightQBar_ = makeCandidate(lightQBar, iComb);
+    b_ = makeCandidate(b, iComb);
+    bBar_ = makeCandidate(bBar, iComb);
+    lightP_ = makeCandidate(lightP, iComb);
+    lightPBar_ = makeCandidate(lightPBar, iComb);
   }
 }
 
