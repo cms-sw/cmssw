@@ -1,6 +1,33 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtFullLepHypGenMatch.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtFullLepHypothesis.h"
+
 #include "AnalysisDataFormats/TopObjects/interface/TtFullLepEvtPartons.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
+
+class TtFullLepHypGenMatch : public TtFullLepHypothesis {
+public:
+  explicit TtFullLepHypGenMatch(const edm::ParameterSet&);
+  ~TtFullLepHypGenMatch() override;
+
+private:
+  /// build the event hypothesis key
+  void buildKey() override { key_ = TtFullLeptonicEvent::kGenMatch; };
+  /// build event hypothesis from the reco objects of a semi-leptonic event
+  void buildHypo(edm::Event& evt,
+                 const edm::Handle<std::vector<pat::Electron> >& elecs,
+                 const edm::Handle<std::vector<pat::Muon> >& mus,
+                 const edm::Handle<std::vector<pat::Jet> >& jets,
+                 const edm::Handle<std::vector<pat::MET> >& mets,
+                 std::vector<int>& match,
+                 const unsigned int iComb) override;
+
+  template <typename O>
+  int findMatchingLepton(const reco::GenParticle*, const edm::Handle<std::vector<O> >&);
+  void buildMatchingNeutrinos(edm::Event&, const edm::Handle<std::vector<pat::MET> >&);
+
+protected:
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
+};
 
 TtFullLepHypGenMatch::TtFullLepHypGenMatch(const edm::ParameterSet& cfg)
     : TtFullLepHypothesis(cfg), genEvtToken_(consumes<TtGenEvent>(edm::InputTag("genEvt"))) {}
@@ -155,3 +182,6 @@ void TtFullLepHypGenMatch::buildMatchingNeutrinos(edm::Event& evt, const edm::Ha
     recNuBar = new reco::LeafCandidate(0, recNuBarFM);
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtFullLepHypGenMatch);

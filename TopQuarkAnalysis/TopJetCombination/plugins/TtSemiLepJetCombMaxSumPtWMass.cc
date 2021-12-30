@@ -1,8 +1,33 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMaxSumPtWMass.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+class TtSemiLepJetCombMaxSumPtWMass : public edm::EDProducer {
+public:
+  explicit TtSemiLepJetCombMaxSumPtWMass(const edm::ParameterSet&);
+  ~TtSemiLepJetCombMaxSumPtWMass() override;
+
+private:
+  void beginJob() override{};
+  void produce(edm::Event& evt, const edm::EventSetup& setup) override;
+  void endJob() override{};
+
+  bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets) {
+    return (0 <= idx && idx < (int)jets->size());
+  };
+
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<edm::View<reco::RecoCandidate> > lepsToken_;
+  int maxNJets_;
+  double wMass_;
+  bool useBTagging_;
+  std::string bTagAlgorithm_;
+  double minBDiscBJets_;
+  double maxBDiscLightJets_;
+};
 
 TtSemiLepJetCombMaxSumPtWMass::TtSemiLepJetCombMaxSumPtWMass(const edm::ParameterSet& cfg)
     : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
@@ -162,3 +187,6 @@ void TtSemiLepJetCombMaxSumPtWMass::produce(edm::Event& evt, const edm::EventSet
   pOut->push_back(match);
   evt.put(std::move(pOut));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtSemiLepJetCombMaxSumPtWMass);

@@ -1,8 +1,40 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombWMassDeltaTopMass.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+
 #include "TopQuarkAnalysis/TopTools/interface/MEzCalculator.h"
+
+class TtSemiLepJetCombWMassDeltaTopMass : public edm::EDProducer {
+public:
+  explicit TtSemiLepJetCombWMassDeltaTopMass(const edm::ParameterSet&);
+  ~TtSemiLepJetCombWMassDeltaTopMass() override;
+
+private:
+  void beginJob() override{};
+  void produce(edm::Event& evt, const edm::EventSetup& setup) override;
+  void endJob() override{};
+
+  bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets) {
+    return (0 <= idx && idx < (int)jets->size());
+  };
+
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<edm::View<reco::RecoCandidate> > lepsToken_;
+  edm::EDGetTokenT<std::vector<pat::MET> > metsToken_;
+  int maxNJets_;
+  double wMass_;
+  bool useBTagging_;
+  std::string bTagAlgorithm_;
+  double minBDiscBJets_;
+  double maxBDiscLightJets_;
+  int neutrinoSolutionType_;
+};
 
 TtSemiLepJetCombWMassDeltaTopMass::TtSemiLepJetCombWMassDeltaTopMass(const edm::ParameterSet& cfg)
     : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
@@ -164,3 +196,6 @@ void TtSemiLepJetCombWMassDeltaTopMass::produce(edm::Event& evt, const edm::Even
   pOut->push_back(match);
   evt.put(std::move(pOut));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtSemiLepJetCombWMassDeltaTopMass);

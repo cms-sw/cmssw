@@ -1,6 +1,3 @@
-#ifndef TtSemiLepHypWMassMaxSumPt_h
-#define TtSemiLepHypWMassMaxSumPt_h
-
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
 class TtSemiLepHypWMassMaxSumPt : public TtSemiLepHypothesis {
@@ -22,4 +19,5 @@ private:
   };
 };
 
-#endif
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtSemiLepHypWMassMaxSumPt);
