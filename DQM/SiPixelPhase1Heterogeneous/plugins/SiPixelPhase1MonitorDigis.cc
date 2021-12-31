@@ -65,34 +65,16 @@ private:
   MonitorElement* hnDigisEndcapDiskm1;
   MonitorElement* hnDigisEndcapDiskm2;
   MonitorElement* hnDigisEndcapDiskm3;
-  //MonitorElement* hnDigisEndcapDiskm4;
-  //MonitorElement* hnDigisEndcapDiskm5;
-  //MonitorElement* hnDigisEndcapDiskm6;
   MonitorElement* hnDigisEndcapDiskp1;
   MonitorElement* hnDigisEndcapDiskp2;
   MonitorElement* hnDigisEndcapDiskp3;
-  //MonitorElement* hnDigisEndcapDiskp4;
-  //MonitorElement* hnDigisEndcapDiskp5;
-  //MonitorElement* hnDigisEndcapDiskp6;
 
   MonitorElement* hDigisEndcapDiskm1ADC;
   MonitorElement* hDigisEndcapDiskm2ADC;
   MonitorElement* hDigisEndcapDiskm3ADC;
-  //MonitorElement* hDigisEndcapDiskm4ADC;
-  //MonitorElement* hDigisEndcapDiskm5ADC;
-  //MonitorElement* hDigisEndcapDiskm6ADC;
   MonitorElement* hDigisEndcapDiskp1ADC;
   MonitorElement* hDigisEndcapDiskp2ADC;
   MonitorElement* hDigisEndcapDiskp3ADC;
-  //MonitorElement* hDigisEndcapDiskp4ADC;
-  //MonitorElement* hDigisEndcapDiskp5ADC;
-  //MonitorElement* hDigisEndcapDiskp6ADC;
-
-  //vector<MonitorElement*> hnDigisBarrelLayers;
-  //hnDigisBarrelLayers->push_back(hnDigisBarrelLayer1);
-  //hnDigisBarrelLayers->push_back(hnDigisBarrelLayer2);
-  //hnDigisBarrelLayers->push_back(hnDigisBarrelLayer3);
-  //hnDigisBarrelLayers->push_back(hnDigisBarrelLayer4);
 
   const TrackerTopology* trackerTopology_;
 };
