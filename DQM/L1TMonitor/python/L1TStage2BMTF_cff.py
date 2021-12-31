@@ -31,15 +31,15 @@ l1tStage2BmtfZeroSupp = DQMEDAnalyzer(
 
 # ZS of validation events (to be used after fat event filter)
 l1tStage2BmtfZeroSuppFatEvts = l1tStage2BmtfZeroSupp.clone(
-monitorDir = "L1T/L1TStage2BMTF/zeroSuppression/FatEvts",
-maxFEDReadoutSize = 25000
+    monitorDir = "L1T/L1TStage2BMTF/zeroSuppression/FatEvts",
+    maxFEDReadoutSize = 25000
 )
 # Plots for BMTF's Secondary Algo
 l1tStage2BmtfSecond = l1tStage2Bmtf.clone(
-bmtfSource = "bmtfDigis:BMTF2",
-monitorDir = "L1T/L1TStage2BMTF/L1TStage2BMTF-Secondary",
-verbose = False,
-hasDisplacementInfo = cms.untracked.bool(True)
+    bmtfSource = "bmtfDigis:BMTF2",
+    monitorDir = "L1T/L1TStage2BMTF/L1TStage2BMTF-Secondary",
+    verbose = False,
+    hasDisplacementInfo = cms.untracked.bool(True)
 )
 # sequences
 l1tStage2BmtfOnlineDQMSeq = cms.Sequence(
