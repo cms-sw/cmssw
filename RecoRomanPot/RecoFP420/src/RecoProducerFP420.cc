@@ -2,10 +2,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "RecoRomanPot/RecoFP420/interface/RecoProducerFP420.h"
-#include "DataFormats/FP420Cluster/interface/RecoFP420.h"
 #include "DataFormats/FP420Cluster/interface/RecoCollectionFP420.h"
-
-#include "CLHEP/Vector/LorentzVector.h"
 
 #include <cmath>
 
