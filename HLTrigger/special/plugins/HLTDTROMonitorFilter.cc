@@ -17,7 +17,7 @@
 using namespace edm;
 
 HLTDTROMonitorFilter::HLTDTROMonitorFilter(const edm::ParameterSet& pset) {
-  inputLabel = pset.getParameter<InputTag>("inputLabel");
+  auto inputLabel = pset.getParameter<InputTag>("inputLabel");
   inputToken = consumes<FEDRawDataCollection>(inputLabel);
 }
 
@@ -29,7 +29,7 @@ void HLTDTROMonitorFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
   descriptions.add("hltDTROMonitorFilter", desc);
 }
 
-bool HLTDTROMonitorFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
+bool HLTDTROMonitorFilter::filter(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
   // get the raw data
   edm::Handle<FEDRawDataCollection> rawdata;
   event.getByToken(inputToken, rawdata);
