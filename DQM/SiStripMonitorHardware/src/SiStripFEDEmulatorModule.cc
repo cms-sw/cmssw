@@ -11,7 +11,7 @@
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -54,7 +54,7 @@ namespace sistrip {
   // Class declaration
   //
 
-  class FEDEmulatorModule : public edm::EDProducer {
+  class FEDEmulatorModule : public edm::stream::EDProducer<> {
   public:
     explicit FEDEmulatorModule(const edm::ParameterSet&);
     ~FEDEmulatorModule() override;
@@ -74,7 +74,7 @@ namespace sistrip {
 
     sistrip::FEDEmulator fedEmulator_;
 
-    static const char* messageLabel_;
+    static const char* const messageLabel_;
 
     std::unique_ptr<SiStripRawProcessingAlgorithms> algorithms_;  //!< object for zero-suppression
 
@@ -100,7 +100,7 @@ namespace sistrip {
   //
   // Constructors and destructor
   //
-  const char* FEDEmulatorModule::messageLabel_ = "SiStripFEDEmulatorModule";
+  const char* const FEDEmulatorModule::messageLabel_ = "SiStripFEDEmulatorModule";
 
   FEDEmulatorModule::FEDEmulatorModule(const edm::ParameterSet& iConfig)
       : spyReorderedDigisTag_(iConfig.getParameter<edm::InputTag>("SpyReorderedDigisTag")),
