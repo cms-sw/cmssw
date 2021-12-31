@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FP420Cluster/interface/TrackFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
