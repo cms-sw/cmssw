@@ -83,7 +83,7 @@ private:
 // constructors
 //
 
-SiPixelPhase1MonitorDigis::SiPixelPhase1MonitorDigi(const edm::ParameterSet& iConfig) {
+SiPixelPhase1MonitorDigis::SiPixelPhase1MonitorDigis(const edm::ParameterSet& iConfig) {
   tokenDigi_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("pixelDigiSrc"));
   topFolderName_ = iConfig.getParameter<std::string>("TopFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
   trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
