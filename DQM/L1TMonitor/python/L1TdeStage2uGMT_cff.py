@@ -83,7 +83,7 @@ l1tdeStage2uGMT = DQMEDAnalyzer(
     verbose = cms.untracked.bool(False),
     enable2DComp = cms.untracked.bool(True), # When true eta-phi comparison plots are also produced
     displacedQuantities = cms.untracked.bool(False),
-    ignoreBin = cms.untracked.vint32(ignoreBins),
+    ignoreBin = cms.untracked.vint32(),
 )
 
 ## Era: Run3_2021; Displaced muons from BMTF used in uGMT from Run-3
@@ -93,43 +93,43 @@ stage2L1Trigger_2021.toModify(l1tdeStage2uGMT, displacedQuantities = cms.untrack
 # compares the unpacked uGMT intermediate muon collection to the emulated uGMT intermediate muon collection
 # only muons that do not match are filled in the histograms
 l1tdeStage2uGMTIntermediateBMTF = l1tdeStage2uGMT.clone(
-    muonCollection1 = (unpackerModule, "imdMuonsBMTF")
-    muonCollection2 = (emulatorModule, "imdMuonsBMTF")
-    monitorDir = ugmtEmuImdMuDqmDir+"/BMTF/data_vs_emulator_comparison"
-    summaryTitle = "Summary of uGMT intermediate muon from BMTF comparison between unpacked and emulated"
-    ignoreBin = (ignoreBins)
+    muonCollection1 = (unpackerModule, "imdMuonsBMTF"),
+    muonCollection2 = (emulatorModule, "imdMuonsBMTF"),
+    monitorDir = ugmtEmuImdMuDqmDir+"/BMTF/data_vs_emulator_comparison",
+    summaryTitle = "Summary of uGMT intermediate muon from BMTF comparison between unpacked and emulated",
+    ignoreBin = ignoreBins
 )
 l1tdeStage2uGMTIntermediateOMTFNeg = l1tdeStage2uGMTIntermediateBMTF.clone(
-    displacedQuantities = False
-    muonCollection1 = (unpackerModule, "imdMuonsOMTFNeg")
-    muonCollection2 = (emulatorModule, "imdMuonsOMTFNeg")
-    monitorDir = (ugmtEmuImdMuDqmDir+"/OMTF_neg/data_vs_emulator_comparison")
-    summaryTitle = ("Summary of uGMT intermediate muon from OMTF- comparison between unpacked and emulated")
-    ignoreBin = (ignoreBins)
+    displacedQuantities = False,
+    muonCollection1 = (unpackerModule, "imdMuonsOMTFNeg"),
+    muonCollection2 = (emulatorModule, "imdMuonsOMTFNeg"),
+    monitorDir = (ugmtEmuImdMuDqmDir+"/OMTF_neg/data_vs_emulator_comparison"),
+    summaryTitle = ("Summary of uGMT intermediate muon from OMTF- comparison between unpacked and emulated"),
+    ignoreBin = ignoreBins
 )
 l1tdeStage2uGMTIntermediateOMTFPos = l1tdeStage2uGMTIntermediateBMTF.clone(
-    displacedQuantities = False
-    muonCollection1 = (unpackerModule, "imdMuonsOMTFPos")
-    muonCollection2 = (emulatorModule, "imdMuonsOMTFPos")
-    monitorDir = (ugmtEmuImdMuDqmDir+"/OMTF_pos/data_vs_emulator_comparison")
-    summaryTitle = "Summary of uGMT intermediate muon from OMTF+ comparison between unpacked and emulated"
-    ignoreBin = (ignoreBins)
+    displacedQuantities = False,
+    muonCollection1 = (unpackerModule, "imdMuonsOMTFPos"),
+    muonCollection2 = (emulatorModule, "imdMuonsOMTFPos"),
+    monitorDir = (ugmtEmuImdMuDqmDir+"/OMTF_pos/data_vs_emulator_comparison"),
+    summaryTitle = "Summary of uGMT intermediate muon from OMTF+ comparison between unpacked and emulated",
+    ignoreBin = ignoreBins
 )
 l1tdeStage2uGMTIntermediateEMTFNeg = l1tdeStage2uGMTIntermediateBMTF.clone(
-    displacedQuantities = False
-    muonCollection1 = (unpackerModule, "imdMuonsEMTFNeg")
-    muonCollection2 = (emulatorModule, "imdMuonsEMTFNeg")
-    monitorDir = (ugmtEmuImdMuDqmDir+"/EMTF_neg/data_vs_emulator_comparison")
-    summaryTitle = "Summary of uGMT intermediate muon from EMTF- comparison between unpacked and emulated"
-    ignoreBin = (ignoreBins)
+    displacedQuantities = False,
+    muonCollection1 = (unpackerModule, "imdMuonsEMTFNeg"),
+    muonCollection2 = (emulatorModule, "imdMuonsEMTFNeg"),
+    monitorDir = (ugmtEmuImdMuDqmDir+"/EMTF_neg/data_vs_emulator_comparison"),
+    summaryTitle = "Summary of uGMT intermediate muon from EMTF- comparison between unpacked and emulated",
+    ignoreBin = ignoreBins
 )
 l1tdeStage2uGMTIntermediateEMTFPos = l1tdeStage2uGMTIntermediateBMTF.clone(
-    displacedQuantities = False
-    muonCollection1 = (unpackerModule, "imdMuonsEMTFPos")
-    muonCollection2 = (emulatorModule, "imdMuonsEMTFPos")
-    monitorDir = (ugmtEmuImdMuDqmDir+"/EMTF_pos/data_vs_emulator_comparison")
-    summaryTitle = "Summary of uGMT intermediate muon from EMTF+ comparison between unpacked and emulated"
-    ignoreBin = (ignoreBins)
+    displacedQuantities = False,
+    muonCollection1 = (unpackerModule, "imdMuonsEMTFPos"),
+    muonCollection2 = (emulatorModule, "imdMuonsEMTFPos"),
+    monitorDir = (ugmtEmuImdMuDqmDir+"/EMTF_pos/data_vs_emulator_comparison"),
+    summaryTitle = "Summary of uGMT intermediate muon from EMTF+ comparison between unpacked and emulated",
+    ignoreBin = ignoreBins
 )
 # sequences
 l1tStage2uGMTEmulatorOnlineDQMSeq = cms.Sequence(
