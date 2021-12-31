@@ -46,28 +46,28 @@ l1tStage2uGTMuon1vsMuon2RatioClient = DQMEDHarvester("L1TStage2RatioClient",
 )
 
 l1tStage2uGTMuon1vsMuon3RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
-monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard3/Muons',
-inputNum = ugtBoardCompDqmDir+'/Board1vsBoard3/Muons/'+errHistNumStr,
-inputDen = ugtBoardCompDqmDir+'/Board1vsBoard3/Muons/'+errHistDenStr,
-ratioTitle = 'Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 3'
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard3/Muons',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard3/Muons/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard3/Muons/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 3'
 )
 l1tStage2uGTMuon1vsMuon4RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
-monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard4/Muons',
-inputNum = ugtBoardCompDqmDir+'/Board1vsBoard4/Muons/'+errHistNumStr,
-inputDen = ugtBoardCompDqmDir+'/Board1vsBoard4/Muons/'+errHistDenStr,
-ratioTitle = 'Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 4'
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard4/Muons',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard4/Muons/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard4/Muons/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 4'
 )
 l1tStage2uGTMuon1vsMuon5RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
-monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard5/Muons',
-inputNum = ugtBoardCompDqmDir+'/Board1vsBoard5/Muons/'+errHistNumStr,
-inputDen = ugtBoardCompDqmDir+'/Board1vsBoard5/Muons/'+errHistDenStr,
-ratioTitle = 'Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 5'
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard5/Muons',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard5/Muons/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard5/Muons/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 5'
 )
 l1tStage2uGTMuon1vsMuon6RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
-monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard6/Muons',
-inputNum = ugtBoardCompDqmDir+'/Board1vsBoard6/Muons/'+errHistNumStr,
-inputDen = ugtBoardCompDqmDir+'/Board1vsBoard6/Muons/'+errHistDenStr,
-ratioTitle = 'Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 6'
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard6/Muons',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard6/Muons/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard6/Muons/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 6'
 )
 l1tStage2uGTBoardCompMuonsRatioClientSeq = cms.Sequence(
     l1tStage2uGTMuon1vsMuon2RatioClient +
@@ -78,34 +78,34 @@ l1tStage2uGTBoardCompMuonsRatioClientSeq = cms.Sequence(
 )
 
 l1tStage2uGTCalo1vsCalo2RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
-monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard2/CaloLayer2',
-inputNum = ugtBoardCompDqmDir+'/Board1vsBoard2/CaloLayer2/'+errHistNumStr,
-inputDen = ugtBoardCompDqmDir+'/Board1vsBoard2/CaloLayer2/'+errHistDenStr,
-ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 2'
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard2/CaloLayer2',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard2/CaloLayer2/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard2/CaloLayer2/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 2'
 )
 l1tStage2uGTCalo1vsCalo3RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
-monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard3/CaloLayer2',
-inputNum = ugtBoardCompDqmDir+'/Board1vsBoard3/CaloLayer2/'+errHistNumStr,
-inputDen = ugtBoardCompDqmDir+'/Board1vsBoard3/CaloLayer2/'+errHistDenStr,
-ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 3'
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard3/CaloLayer2',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard3/CaloLayer2/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard3/CaloLayer2/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 3'
 )
 l1tStage2uGTCalo1vsCalo4RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
-monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard4/CaloLayer2',
-inputNum = ugtBoardCompDqmDir+'/Board1vsBoard4/CaloLayer2/'+errHistNumStr,
-inputDen = ugtBoardCompDqmDir+'/Board1vsBoard4/CaloLayer2/'+errHistDenStr,
-ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 4'
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard4/CaloLayer2',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard4/CaloLayer2/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard4/CaloLayer2/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 4'
 )
 l1tStage2uGTCalo1vsCalo5RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
-monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard5/CaloLayer2',
-inputNum = ugtBoardCompDqmDir+'/Board1vsBoard5/CaloLayer2/'+errHistNumStr,
-inputDen = ugtBoardCompDqmDir+'/Board1vsBoard5/CaloLayer2/'+errHistDenStr,
-ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 5'
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard5/CaloLayer2',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard5/CaloLayer2/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard5/CaloLayer2/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 5'
 )
 l1tStage2uGTCalo1vsCalo6RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
-monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard6/CaloLayer2',
-inputNum = ugtBoardCompDqmDir+'/Board1vsBoard6/CaloLayer2/'+errHistNumStr,
-inputDen = ugtBoardCompDqmDir+'/Board1vsBoard6/CaloLayer2/'+errHistDenStr,
-ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 6'
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard6/CaloLayer2',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard6/CaloLayer2/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard6/CaloLayer2/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 6'
 )
 l1tStage2uGTBoardCompCaloLayer2RatioClientSeq = cms.Sequence(
     l1tStage2uGTCalo1vsCalo2RatioClient +
