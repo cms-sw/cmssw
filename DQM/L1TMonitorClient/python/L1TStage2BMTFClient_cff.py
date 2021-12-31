@@ -19,10 +19,10 @@ l1tStage2BmtfZeroSuppRatioClient = DQMEDHarvester("L1TStage2RatioClient",
 )
 
 l1tStage2BmtfZeroSuppFatEvtsRatioClient = l1tStage2BmtfZeroSuppRatioClient.clone(
-monitorDir = bmtfZSDqmDir+'/FatEvts',
-inputNum = bmtfZSDqmDir+'/FatEvts/'+errHistNumStr,
-inputDen = bmtfZSDqmDir+'/FatEvts/'+errHistDenStr,
-ratioTitle = 'Summary of bad zero suppression rates'
+    monitorDir = bmtfZSDqmDir+'/FatEvts',
+    inputNum = bmtfZSDqmDir+'/FatEvts/'+errHistNumStr,
+    inputDen = bmtfZSDqmDir+'/FatEvts/'+errHistDenStr,
+    ratioTitle = 'Summary of bad zero suppression rates'
 )
 # sequences
 l1tStage2BmtfZeroSuppCompClient = cms.Sequence(
