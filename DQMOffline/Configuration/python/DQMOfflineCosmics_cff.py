@@ -11,7 +11,7 @@ from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_Cosmics_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
-from DQMOffline.Muon.gem_dqm_offline_source_cosmics_cff import *
+from DQM.GEM.gem_dqm_offline_source_cosmics_cff import *
 from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cosmic_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 
@@ -46,9 +46,9 @@ DQMOfflineCosmicsPreDPG = cms.Sequence( DQMOfflineCosmicsDCS *
                                         DQMOfflineCosmicsEcal *
                                         DQMOfflineCosmicsHcal *
                                         DQMOfflineCosmicsTrackerStrip *
-                                        DQMOfflineCosmicsTrackerPixel * 
+                                        DQMOfflineCosmicsTrackerPixel *
 					DQMOfflineCosmicsMuonDPG *
-                                        DQMOfflineCosmicsCASTOR 
+                                        DQMOfflineCosmicsCASTOR
 					)
 
 DQMOfflineCosmicsDPG = cms.Sequence( DQMOfflineCosmicsPreDPG *
@@ -77,11 +77,11 @@ DQMOfflineCosmicsPhysics = cms.Sequence( dqmPhysicsCosmics )
 
 DQMOfflineCosmicsPrePOG = cms.Sequence( DQMOfflineCosmicsTracking *
                                         DQMOfflineCosmicsMUO *
-# Following modules removed since they produce empty histograms 
+# Following modules removed since they produce empty histograms
 # and are not used in DC
 #                                        DQMOfflineCosmicsJetMET *
 #                                        DQMOfflineCosmicsEGamma *
-                                        DQMOfflineCosmicsTrigger 
+                                        DQMOfflineCosmicsTrigger
 #					DQMOfflineCosmicsPhysics
                                         )
 

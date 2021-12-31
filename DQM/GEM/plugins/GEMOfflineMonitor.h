@@ -1,7 +1,7 @@
-#ifndef DQMOffline_Muon_GEMOfflineMonitor_h
-#define DQMOffline_Muon_GEMOfflineMonitor_h
+#ifndef DQM_GEM_GEMOfflineMonitor_h
+#define DQM_GEM_GEMOfflineMonitor_h
 
-#include "DQMOffline/Muon/interface/GEMOfflineDQMBase.h"
+#include "DQM/GEM/interface/GEMOfflineDQMBase.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -39,4 +39,4 @@ private:
   MEMap me_hit_det_;   // TH2F, region-station
 };
 
-#endif  // DQMOffline_Muon_GEMOfflineMonitor_h
+#endif  // DQM_GEM_GEMOfflineMonitor_h
