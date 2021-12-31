@@ -8,7 +8,6 @@
  *  \author G. Cerminara - University and INFN Torino
  *   
  */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
