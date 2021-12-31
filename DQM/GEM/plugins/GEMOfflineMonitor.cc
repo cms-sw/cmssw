@@ -1,4 +1,4 @@
-#include "DQMOffline/Muon/interface/GEMOfflineMonitor.h"
+#include "DQM/GEM/plugins/GEMOfflineMonitor.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"

@@ -1,4 +1,4 @@
-#include "DQMOffline/Muon/interface/GEMEfficiencyHarvester.h"
+#include "DQM/GEM/plugins/GEMEfficiencyHarvester.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
