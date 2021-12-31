@@ -186,28 +186,28 @@ from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger
 stage2L1Trigger_2021.toModify(l1tStage2uGMTMuonVsuGMTMuonCopy1, displacedQuantities = cms.untracked.bool(True))
 
 l1tStage2uGMTMuonVsuGMTMuonCopy2 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone(
-muonCollection2 = "gmtStage2Digis:MuonCopy2",
-monitorDir = "L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy2",
-muonCollection2Title = "uGMT muons copy 2",
-summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 2"
+    muonCollection2 = "gmtStage2Digis:MuonCopy2",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy2",
+    muonCollection2Title = "uGMT muons copy 2",
+    summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 2"
 )
 l1tStage2uGMTMuonVsuGMTMuonCopy3 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone(
-muonCollection2 = "gmtStage2Digis:MuonCopy3",
-monitorDir = "L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy3",
-muonCollection2Title = "uGMT muons copy 3",
-summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 3"
+    muonCollection2 = "gmtStage2Digis:MuonCopy3",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy3",
+    muonCollection2Title = "uGMT muons copy 3",
+    summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 3"
 )
 l1tStage2uGMTMuonVsuGMTMuonCopy4 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone(
-muonCollection2 = "gmtStage2Digis:MuonCopy4",
-monitorDir = "L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy4",
-muonCollection2Title = "uGMT muons copy 4",
-summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 4"
+    muonCollection2 = "gmtStage2Digis:MuonCopy4",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy4",
+    muonCollection2Title = "uGMT muons copy 4",
+    summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 4"
 )
 l1tStage2uGMTMuonVsuGMTMuonCopy5 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone(
-muonCollection2 = "gmtStage2Digis:MuonCopy5",
-monitorDir = "L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy5",
-muonCollection2Title = "uGMT muons copy 5",
-summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 5"
+    muonCollection2 = "gmtStage2Digis:MuonCopy5",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy5",
+    muonCollection2Title = "uGMT muons copy 5",
+    summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 5"
 )
 # sequences
 l1tStage2uGMTOnlineDQMSeq = cms.Sequence(
