@@ -9,7 +9,7 @@ ugmtZSDqmDir = ugmtDqmDir+'/zeroSuppression'
 # input histograms
 errHistNumStr = 'errorSummaryNum'
 errHistDenStr = 'errorSummaryDen'
-ignoreBins = []
+
 # Muons
 l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient = DQMEDHarvester("L1TStage2RatioClient",
     monitorDir = cms.untracked.string(ugmtMuCpyDqmDir+'/uGMTMuonCopy1'),
@@ -19,7 +19,7 @@ l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient = DQMEDHarvester("L1TStage2RatioClie
     ratioTitle = cms.untracked.string('Summary of mismatch rates between uGMT muons and uGMT muon copy 1'),
     yAxisTitle = cms.untracked.string('# mismatch / # total'),
     binomialErr = cms.untracked.bool(True),
-    ignoreBin = cms.untracked.vint32(ignoreBins)                                                         
+    ignoreBin = cms.untracked.vint32()                                                         
 )
 
 l1tStage2uGMTMuonVsuGMTMuonCopy2RatioClient = l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient.clone(
@@ -52,21 +52,21 @@ l1tStage2BmtfOutVsuGMTInRatioClient = l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClien
     inputNum = ugmtDqmDir+'/BMTFoutput_vs_uGMTinput/'+errHistNumStr,
     inputDen = ugmtDqmDir+'/BMTFoutput_vs_uGMTinput/'+errHistDenStr,
     ratioTitle = 'Summary of mismatch rates between BMTF output muons and uGMT input muons from BMTF',
-    ignoreBin =  (ignoreBins)
+    ignoreBin =  ignoreBins['Bmtf']
 )
 l1tStage2OmtfOutVsuGMTInRatioClient = l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient.clone(
     monitorDir = ugmtDqmDir+'/OMTFoutput_vs_uGMTinput',
     inputNum = ugmtDqmDir+'/OMTFoutput_vs_uGMTinput/'+errHistNumStr,
     inputDen = ugmtDqmDir+'/OMTFoutput_vs_uGMTinput/'+errHistDenStr,
     ratioTitle = 'Summary of mismatch rates between OMTF output muons and uGMT input muons from OMTF',
-    ignoreBin = (ignoreBins)
+    ignoreBin = ignoreBins['Omtf']
 )
 l1tStage2EmtfOutVsuGMTInRatioClient = l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient.clone(
     monitorDir = ugmtDqmDir+'/EMTFoutput_vs_uGMTinput',
     inputNum = ugmtDqmDir+'/EMTFoutput_vs_uGMTinput/'+errHistNumStr,
     inputDen = ugmtDqmDir+'/EMTFoutput_vs_uGMTinput/'+errHistDenStr,
     ratioTitle = 'Summary of mismatch rates between EMTF output muons and uGMT input muons from EMTF',
-    ignoreBin = (ignoreBins)
+    ignoreBin = ignoreBins['Emtf']
 )
 # zero suppression
 l1tStage2uGMTZeroSuppRatioClient = l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient.clone(
