@@ -8,7 +8,7 @@ from DQM.L1TMonitor.l1ExtraDQMStage1_cfi import *
 
 import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
 dqmGctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone(
-inputLabel = 'rawDataCollector'
+  inputLabel = 'rawDataCollector'
 )
 #
 # unpack all five samples
@@ -17,7 +17,7 @@ dqmGctDigis.numberOfGctSamplesToUnpack = 5
 
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 dqmGtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone(
-DaqGtInputTag = 'rawDataCollector'
+  DaqGtInputTag = 'rawDataCollector'
 )
 #
 # unpack all available BxInEvent, UnpackBxInEvent read from event setup
@@ -28,39 +28,39 @@ dqmGtDigis.UnpackBxInEvent = -1
 # use a clone dqmL1ExtraParticles, to not interfere with L1Reco from standard sequences
 import L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi
 dqmL1ExtraParticles = L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi.l1extraParticles.clone(
-#
-muonSource = 'dqmGtDigis',
-etTotalSource = 'dqmGctDigis',
-nonIsolatedEmSource = 'dqmGctDigis:nonIsoEm',
-etMissSource = 'dqmGctDigis',
-htMissSource = 'dqmGctDigis',
-forwardJetSource = 'dqmGctDigis:forJets',
-centralJetSource = 'dqmGctDigis:cenJets',
-tauJetSource = 'dqmGctDigis:tauJets',
-isolatedEmSource = 'dqmGctDigis:isoEm',
-etHadSource = 'dqmGctDigis',
-hfRingEtSumsSource = 'dqmGctDigis',
-hfRingBitCountsSource = 'dqmGctDigis',
-centralBxOnly = False
+  #
+  muonSource = 'dqmGtDigis',
+  etTotalSource = 'dqmGctDigis',
+  nonIsolatedEmSource = 'dqmGctDigis:nonIsoEm',
+  etMissSource = 'dqmGctDigis',
+  htMissSource = 'dqmGctDigis',
+  forwardJetSource = 'dqmGctDigis:forJets',
+  centralJetSource = 'dqmGctDigis:cenJets',
+  tauJetSource = 'dqmGctDigis:tauJets',
+  isolatedEmSource = 'dqmGctDigis:isoEm',
+  etHadSource = 'dqmGctDigis',
+  hfRingEtSumsSource = 'dqmGctDigis',
+  hfRingBitCountsSource = 'dqmGctDigis',
+  centralBxOnly = False
 )
 # get stage1 digis
 import L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi
 dqmL1ExtraParticlesStage1 = L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi.l1extraParticles.clone(
-#
-muonSource = 'dqmGtDigis',
-etTotalSource = 'caloStage1LegacyFormatDigis',
-nonIsolatedEmSource = 'caloStage1LegacyFormatDigis:nonIsoEm',
-etMissSource = 'caloStage1LegacyFormatDigis',
-htMissSource = 'caloStage1LegacyFormatDigis',
-forwardJetSource = 'caloStage1LegacyFormatDigis:forJets',
-centralJetSource = 'caloStage1LegacyFormatDigis:cenJets',
-tauJetSource = 'caloStage1LegacyFormatDigis:tauJets',
-isoTauJetSource = 'caloStage1LegacyFormatDigis:isoTauJets',
-isolatedEmSource = 'caloStage1LegacyFormatDigis:isoEm',
-etHadSource = 'caloStage1LegacyFormatDigis',
-hfRingEtSumsSource = 'caloStage1LegacyFormatDigis',
-hfRingBitCountsSource = 'caloStage1LegacyFormatDigis',
-centralBxOnly = False
+  #
+  muonSource = 'dqmGtDigis',
+  etTotalSource = 'caloStage1LegacyFormatDigis',
+  nonIsolatedEmSource = 'caloStage1LegacyFormatDigis:nonIsoEm',
+  etMissSource = 'caloStage1LegacyFormatDigis',
+  htMissSource = 'caloStage1LegacyFormatDigis',
+  forwardJetSource = 'caloStage1LegacyFormatDigis:forJets',
+  centralJetSource = 'caloStage1LegacyFormatDigis:cenJets',
+  tauJetSource = 'caloStage1LegacyFormatDigis:tauJets',
+  isoTauJetSource = 'caloStage1LegacyFormatDigis:isoTauJets',
+  isolatedEmSource = 'caloStage1LegacyFormatDigis:isoEm',
+  etHadSource = 'caloStage1LegacyFormatDigis',
+  hfRingEtSumsSource = 'caloStage1LegacyFormatDigis',
+  hfRingBitCountsSource = 'caloStage1LegacyFormatDigis',
+  centralBxOnly = False
 )
 #
 # Modify for running with the Stage 1 trigger. Note that these changes are already
