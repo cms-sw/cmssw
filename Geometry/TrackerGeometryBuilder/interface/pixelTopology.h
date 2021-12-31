@@ -1,18 +1,19 @@
 #ifndef Geometry_TrackerGeometryBuilder_pixelTopology_h
 #define Geometry_TrackerGeometryBuilder_pixelTopology_h
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
+#include <type_traits>
 
 namespace pixelTopology {
   template <class Function, std::size_t... Indices>
   constexpr auto map_to_array_helper(Function f, std::index_sequence<Indices...>)
-      -> std::array<typename std::result_of<Function(std::size_t)>::type, sizeof...(Indices)> {
+      -> std::array<std::invoke_result_t<Function, std::size_t>, sizeof...(Indices)> {
     return {{f(Indices)...}};
   }
 
   template <int N, class Function>
-  constexpr auto map_to_array(Function f) -> std::array<typename std::result_of<Function(std::size_t)>::type, N> {
+  constexpr auto map_to_array(Function f) -> std::array<std::invoke_result_t<Function, std::size_t>, N> {
     return map_to_array_helper(f, std::make_index_sequence<N>{});
   }
 
