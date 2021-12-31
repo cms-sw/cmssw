@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -40,7 +40,7 @@
 // class declaration
 //
 
-class L1GctValidation : public edm::EDAnalyzer {
+class L1GctValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1GctValidation(const edm::ParameterSet&);
   ~L1GctValidation() override;
