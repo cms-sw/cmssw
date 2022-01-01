@@ -42,6 +42,7 @@ private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void endRun(edm::Run const&, edm::EventSetup const&) override;
 
+  edm::Service<TFileService> fs;
   const double pTrackLow_, pTrackHigh_;
   const int useRaw_, dataType_;
   const edm::InputTag labelIsoTkVar_, labelIsoTkEvt_;
@@ -121,9 +122,9 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
     if (debug)
       edm::LogVerbatim("HcalIsoTrack") << "Finds HcalIsoTrkCalibVariablesCollection with " << isotrkCalib->size()
                                        << " entries";
-    int k(0);
 #endif
-    for (auto itr = isotrkCalib->begin(); itr != isotrkCalib->end(); ++itr) {
+    int k(0);
+    for (auto itr = isotrkCalib->begin(); itr != isotrkCalib->end(); ++itr, ++k) {
       t_ieta = itr->ieta_;
       t_iphi = itr->iphi_;
       t_goodPV = itr->goodPV_;
@@ -134,7 +135,6 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
       t_pt = itr->pt_;
       t_phi = itr->phi_;
 #ifdef EDM_ML_DEBUG
-      ++k;
       if (debug)
         edm::LogVerbatim("HcalIsoTrack") << "Track " << k << " p:pt:phi " << t_p << ":" << t_pt << ":" << t_phi
                                          << " nvtx:ntrk:goodPV:wt " << t_nVtx << ":" << t_nTrk << ":" << t_goodPV << ":"
@@ -216,7 +216,6 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
         edm::LogVerbatim("HcalIsoTrack") << "eHcal:eHcal10:eHCal30 " << t_eHcal << ":" << t_eHcal10 << t_eHcal30;
 #endif
       tree->Fill();
-      edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_Run << " Event " << t_Event;
 
       if (t_p < pTrackLow_) {
         ++nLow_;
@@ -264,7 +263,6 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
 }
 
 void HcalIsoTrackAnalyzer::beginJob() {
-  edm::Service<TFileService> fs;
   tree = fs->make<TTree>("CalibTree", "CalibTree");
 
   tree->Branch("t_Run", &t_Run, "t_Run/I");

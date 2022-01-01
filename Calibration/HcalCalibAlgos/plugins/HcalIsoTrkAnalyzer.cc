@@ -133,6 +133,7 @@ private:
   bool notaMuon(const reco::Track* pTrack0, const edm::Handle<reco::MuonCollection>& muonh);
 
   l1t::L1TGlobalUtil* l1GtUtils_;
+  edm::Service<TFileService> fs;
   HLTConfigProvider hltConfig_;
   const std::vector<std::string> trigNames_;
   spr::trackSelectionParameters selectionParameter_;
@@ -727,7 +728,6 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 }
 
 void HcalIsoTrkAnalyzer::beginJob() {
-  edm::Service<TFileService> fs;
   tree = fs->make<TTree>("CalibTree", "CalibTree");
 
   tree->Branch("t_Run", &t_Run, "t_Run/I");
@@ -1255,15 +1255,15 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
               << " Quality " << t_qltyMissFlag << ":" << t_qltyPVFlag << ":" << t_selectTk;
           for (unsigned int ll = 0; ll < t_DetIds->size(); ll++) {
             edm::LogVerbatim("HcalIsoTrack")
-                << "det id is = " << t_DetIds->at(ll) << "   hit enery is  = " << t_HitEnergies->at(ll);
+	      << "det id is = " << HcalDetId(t_DetIds->at(ll)) << "   hit enery is  = " << t_HitEnergies->at(ll);
           }
           for (unsigned int ll = 0; ll < t_DetIds1->size(); ll++) {
             edm::LogVerbatim("HcalIsoTrack")
-                << "det id is = " << t_DetIds1->at(ll) << "   hit enery is  = " << t_HitEnergies1->at(ll);
+	      << "det id is = " << HcalDetId(t_DetIds1->at(ll)) << "   hit enery is  = " << t_HitEnergies1->at(ll);
           }
           for (unsigned int ll = 0; ll < t_DetIds3->size(); ll++) {
             edm::LogVerbatim("HcalIsoTrack")
-                << "det id is = " << t_DetIds3->at(ll) << "   hit enery is  = " << t_HitEnergies3->at(ll);
+	      << "det id is = " << HcalDetId(t_DetIds3->at(ll)) << "   hit enery is  = " << t_HitEnergies3->at(ll);
           }
         }
 #endif
@@ -1287,7 +1287,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
         }
         if (accept) {
           tree->Fill();
-          edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_RunNo << " Event " << t_EventNo;
+          edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_RunNo << " Event " << t_EventNo << " Track " << nTracks << " p " << t_p;
           nSave++;
           int type(0);
           if (t_eMipDR < 1.0) {
