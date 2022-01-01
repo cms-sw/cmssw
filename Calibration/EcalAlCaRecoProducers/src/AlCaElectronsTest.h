@@ -6,11 +6,14 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 //#include "Calibration/EcalAlCaRecoProducers/interface/AlCaElectronsProducer.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
@@ -30,48 +33,44 @@
 
 #include <Math/VectorUtil.h>
 
-class AlCaElectronsTest : public edm::EDAnalyzer {
-  public:
-    explicit AlCaElectronsTest (const edm::ParameterSet&) ;
-    ~AlCaElectronsTest () {}
-     virtual void analyze (const edm::Event& iEvent, 
-                           const edm::EventSetup& iSetup) ;
-     virtual void beginJob() ;
-     virtual void endJob () ;
+class AlCaElectronsTest : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit AlCaElectronsTest (const edm::ParameterSet&) ;
+  ~AlCaElectronsTest () = default;
+  void analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void beginJob() override;
+  void endJob () override;
 
-  private:
+private:
 
-     EcalRecHit getMaximum (const EcalRecHitCollection * recHits) ;
-     void fillAroundBarrel (const EcalRecHitCollection * recHits, int eta, int phi) ;
-     void fillAroundEndcap (const EcalRecHitCollection * recHits, int ics, int ips) ;
+  EcalRecHit getMaximum (const EcalRecHitCollection * recHits) ;
+  void fillAroundBarrel (const EcalRecHitCollection * recHits, int eta, int phi) ;
+  void fillAroundEndcap (const EcalRecHitCollection * recHits, int ics, int ips) ;
 
+  edm::EDGetTokenT<EBRecHitCollection> m_barrelAlCa ;
+  edm::EDGetTokenT<EERecHitCollection> m_endcapAlCa ;
+  std::string   m_outputFileName ;            
 
-  private:
-
-    edm::EDGetTokenT<EBRecHitCollection> m_barrelAlCa ;
-    edm::EDGetTokenT<EERecHitCollection> m_endcapAlCa ;
-    std::string   m_outputFileName ;            
-
-    //! ECAL map
-    TH2F * m_barrelGlobalCrystalsMap ;
-    //! local map
-    TH2F * m_barrelLocalCrystalsMap ;
-    //! ECAL map
-    TH2F * m_endcapGlobalCrystalsMap ;
-    //! local map
-    TH2F * m_endcapLocalCrystalsMap ;
-    //! ECAL Energy
-    TH2F * m_barrelGlobalCrystalsEnergy ;
-    //! local Energy
-    TH2F * m_barrelLocalCrystalsEnergy ;
-    //! ECAL Energy
-    TH2F * m_endcapGlobalCrystalsEnergy ;
-    //! local Energy
-    TH2F * m_endcapLocalCrystalsEnergy ;
-    //! ECAL EnergyMap
-    TH2F * m_barrelGlobalCrystalsEnergyMap ;
-    //! ECAL EnergyMap
-    TH2F * m_endcapGlobalCrystalsEnergyMap ;
+  //! ECAL map
+  TH2F * m_barrelGlobalCrystalsMap ;
+  //! local map
+  TH2F * m_barrelLocalCrystalsMap ;
+  //! ECAL map
+  TH2F * m_endcapGlobalCrystalsMap ;
+  //! local map
+  TH2F * m_endcapLocalCrystalsMap ;
+  //! ECAL Energy
+  TH2F * m_barrelGlobalCrystalsEnergy ;
+  //! local Energy
+  TH2F * m_barrelLocalCrystalsEnergy ;
+  //! ECAL Energy
+  TH2F * m_endcapGlobalCrystalsEnergy ;
+  //! local Energy
+  TH2F * m_endcapLocalCrystalsEnergy ;
+  //! ECAL EnergyMap
+  TH2F * m_barrelGlobalCrystalsEnergyMap ;
+  //! ECAL EnergyMap
+  TH2F * m_endcapGlobalCrystalsEnergyMap ;
 } ;
 
 
@@ -83,62 +82,42 @@ AlCaElectronsTest::AlCaElectronsTest (const edm::ParameterSet& iConfig) :
   m_endcapAlCa (consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag> ("alcaEndcapHitCollection"))) ,
   m_outputFileName (iConfig.getUntrackedParameter<std::string>
                       ("HistOutFile",std::string ("AlCaElectronsTest.root"))) 
-{}
-
-
-// ----------------------------------------------------------------
-
-
-void 
-AlCaElectronsTest::beginJob()
 {
-  m_barrelGlobalCrystalsMap = new TH2F ("m_barrelGlobalCrystalsMap","m_barrelGlobalCrystalsMap",171,-85,86,360,0,360) ;
-  m_barrelLocalCrystalsMap = new TH2F ("m_barrelLocalCrystalsMap","m_barrelLocalCrystalsMap",20,-10,10,20,-10,10) ;
-  m_endcapGlobalCrystalsMap = new TH2F ("m_endcapGlobalCrystalsMap","m_endcapGlobalCrystalsMap",100,0,100,100,0,100) ;
-  m_endcapLocalCrystalsMap = new TH2F ("m_endcapLocalCrystalsMap","m_endcapLocalCrystalsMap",20,-10,10,20,-10,10) ;
-  m_barrelGlobalCrystalsEnergy = new TH2F ("m_barrelGlobalCrystalsEnergy","m_barrelGlobalCrystalsEnergy",171,-85,86,360,0,360) ;
-  m_barrelLocalCrystalsEnergy = new TH2F ("m_barrelLocalCrystalsEnergy","m_barrelLocalCrystalsEnergy",20,-10,10,20,-10,10) ;
-  m_endcapGlobalCrystalsEnergy = new TH2F ("m_endcapGlobalCrystalsEnergy","m_endcapGlobalCrystalsEnergy",100,0,100,100,0,100) ;
-  m_endcapLocalCrystalsEnergy = new TH2F ("m_endcapLocalCrystalsEnergy","m_endcapLocalCrystalsEnergy",20,-10,10,20,-10,10) ;
-  m_barrelGlobalCrystalsEnergyMap = new TH2F ("m_barrelGlobalCrystalsEnergyMap","m_barrelGlobalCrystalsEnergyMap",171,-85,86,360,0,360) ;
-  m_endcapGlobalCrystalsEnergyMap = new TH2F ("m_endcapGlobalCrystalsEnergyMap","m_endcapGlobalCrystalsEnergyMap",100,0,100,100,0,100) ;
-   return ;
+  usesResource(TFileService::kSharedResource);
 }
 
 
 // ----------------------------------------------------------------
 
 
-void 
-AlCaElectronsTest::endJob ()
-{      
-   TFile output (m_outputFileName.c_str (),"recreate") ;
-   m_barrelGlobalCrystalsMap->Write () ;
-   m_barrelLocalCrystalsMap->Write () ;
-   m_endcapGlobalCrystalsMap->Write () ;
-   m_endcapLocalCrystalsMap->Write () ;   
-   m_barrelGlobalCrystalsEnergy->Write () ;
-   m_barrelLocalCrystalsEnergy->Write () ;
-   m_endcapGlobalCrystalsEnergy->Write () ;
-   m_endcapLocalCrystalsEnergy->Write () ;   
-   m_barrelGlobalCrystalsEnergyMap->Write () ;
-   m_endcapGlobalCrystalsEnergyMap->Write () ;
-   output.Close () ;
-   //PG save root things
-   return ;
+void AlCaElectronsTest::beginJob() {
+  edm::Service<TFileService> fs;
+  m_barrelGlobalCrystalsMap = fs->make<TH2F> ("m_barrelGlobalCrystalsMap","m_barrelGlobalCrystalsMap",171,-85,86,360,0,360) ;
+  m_barrelLocalCrystalsMap = fs->make<TH2F> ("m_barrelLocalCrystalsMap","m_barrelLocalCrystalsMap",20,-10,10,20,-10,10) ;
+  m_endcapGlobalCrystalsMap = fs->make<TH2F> ("m_endcapGlobalCrystalsMap","m_endcapGlobalCrystalsMap",100,0,100,100,0,100) ;
+  m_endcapLocalCrystalsMap = fs->make<TH2F> ("m_endcapLocalCrystalsMap","m_endcapLocalCrystalsMap",20,-10,10,20,-10,10) ;
+  m_barrelGlobalCrystalsEnergy = fs->make<TH2F> ("m_barrelGlobalCrystalsEnergy","m_barrelGlobalCrystalsEnergy",171,-85,86,360,0,360) ;
+  m_barrelLocalCrystalsEnergy = fs->make<TH2F> ("m_barrelLocalCrystalsEnergy","m_barrelLocalCrystalsEnergy",20,-10,10,20,-10,10) ;
+  m_endcapGlobalCrystalsEnergy = fs->make<TH2F> ("m_endcapGlobalCrystalsEnergy","m_endcapGlobalCrystalsEnergy",100,0,100,100,0,100) ;
+  m_endcapLocalCrystalsEnergy = fs->make<TH2F> ("m_endcapLocalCrystalsEnergy","m_endcapLocalCrystalsEnergy",20,-10,10,20,-10,10) ;
+  m_barrelGlobalCrystalsEnergyMap = fs->make<TH2F> ("m_barrelGlobalCrystalsEnergyMap","m_barrelGlobalCrystalsEnergyMap",171,-85,86,360,0,360) ;
+  m_endcapGlobalCrystalsEnergyMap = fs->make<TH2F> ("m_endcapGlobalCrystalsEnergyMap","m_endcapGlobalCrystalsEnergyMap",100,0,100,100,0,100) ;
 }
 
 
 // ----------------------------------------------------------------
 
 
-void 
-AlCaElectronsTest::analyze (const edm::Event& iEvent, 
-                            const edm::EventSetup& iSetup)
-{
+void AlCaElectronsTest::endJob () {}
+
+
+// ----------------------------------------------------------------
+
+
+void AlCaElectronsTest::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //FIXME replace with msg logger
-  std::cout << "[AlCaElectronsTest] analysing event " 
-            << iEvent.id () << std::endl ;
+  edm::LogVerbatim("ElectronsTest") << "[AlCaElectronsTest] analysing event " 
+				    << iEvent.id ()
 
   //PG get the collections  
   // get Barrel RecHits
@@ -147,9 +126,7 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
   if (!barrelRecHitsHandle.isValid()) {
       edm::EDConsumerBase::Labels labels;
       labelsForToken(m_barrelAlCa, labels);
-      std::cerr << "[AlCaElectronsTest] caught std::exception "
-                << " in rertieving " << labels.module
-                << std::endl ;
+      std::edm::LogError("ElectronsTest") << "[AlCaElectronsTest] caught std::exception in rertieving " << labels.module;
       return ;
   } else {
       const EBRecHitCollection* barrelHitsCollection = barrelRecHitsHandle.product () ;
@@ -178,9 +155,7 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
   if (!endcapRecHitsHandle.isValid()) {
       edm::EDConsumerBase::Labels labels;
       labelsForToken(m_endcapAlCa, labels);
-      std::cerr << "[AlCaElectronsTest] caught std::exception " 
-                << " in rertieving " << labels.module
-                << std::endl ;
+      std::edm::LogError("ElectronsTest") << "[AlCaElectronsTest] caught std::exception in rertieving " << labels.module;
       return ;
   } else {
       const EERecHitCollection* endcapHitsCollection = endcapRecHitsHandle.product () ;
@@ -208,9 +183,7 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
 // ----------------------------------------------------------------
 
 
-EcalRecHit
-AlCaElectronsTest::getMaximum (const EcalRecHitCollection * recHits) 
-{
+EcalRecHit AlCaElectronsTest::getMaximum (const EcalRecHitCollection * recHits) {
   double energy = 0. ;
   EcalRecHit max ;
   for (EcalRecHitCollection::const_iterator elem = recHits->begin () ;
@@ -230,9 +203,7 @@ AlCaElectronsTest::getMaximum (const EcalRecHitCollection * recHits)
 // ----------------------------------------------------------------
 
 
-void
-AlCaElectronsTest::fillAroundBarrel (const EcalRecHitCollection * recHits, int eta, int phi)
-{
+void AlCaElectronsTest::fillAroundBarrel (const EcalRecHitCollection * recHits, int eta, int phi) {
   for (EcalRecHitCollection::const_iterator elem = recHits->begin () ;
        elem != recHits->end () ;
        ++elem)
@@ -261,9 +232,7 @@ AlCaElectronsTest::fillAroundBarrel (const EcalRecHitCollection * recHits, int e
 // ----------------------------------------------------------------
 
 
-void
-AlCaElectronsTest::fillAroundEndcap (const EcalRecHitCollection * recHits, int ics, int ips)
-{
+void AlCaElectronsTest::fillAroundEndcap (const EcalRecHitCollection * recHits, int ics, int ips) {
   for (EcalRecHitCollection::const_iterator elem = recHits->begin () ;
        elem != recHits->end () ;
        ++elem)
