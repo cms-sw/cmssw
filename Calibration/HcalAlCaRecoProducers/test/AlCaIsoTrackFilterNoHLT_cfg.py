@@ -72,13 +72,8 @@ process.reconstruction_step = cms.Path(process.reconstruction)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.ALCARECOStreamHcalCalIsoTrkFilterOutPath = cms.EndPath(process.ALCARECOStreamHcalCalIsoTrkFilter)
 
-process.alcaIsoTracksFilter.debugEvents = [640818633, 640797426, 641251898]
-#process.alcaIsoTracksFilter.debugEvents = [641031809, 641092744, 640862532,
-#                                           640874735, 641845581, 641144982,
-#                                           641124886, 641240201, 640856725,
-#                                           641709599, 641406943, 640794164,
-#                                           641820644, 641053143, 641458751,
-#                                           641554667, 641621481]
+process.alcaIsoTracksFilter.debugEvents = [640818633, 640797426, 641251898,
+                                           641261804, 641172007, 641031809]
 
 # Schedule definition
 process.schedule = cms.Schedule(process.pathALCARECOHcalCalIsoTrkFilterNoHLT,process.endjob_step,process.ALCARECOStreamHcalCalIsoTrkFilterOutPath)
