@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimMuon/MCTruth/interface/CSCTruthTest.h"
 
-CSCTruthTest::CSCTruthTest(const edm::ParameterSet &iConfig) : conf_(iConfig) {}
+CSCTruthTest::CSCTruthTest(const edm::ParameterSet &iConfig) : conf_(iConfig), consumeCollector_(consumesCollector()) {}
 
 CSCTruthTest::~CSCTruthTest() {}
 
@@ -14,7 +14,7 @@ void CSCTruthTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
   Handle<CSCRecHit2DCollection> cscRecHits;
   iEvent.getByLabel("csc2DRecHits", cscRecHits);
 
-  MuonTruth theTruth(iEvent, iSetup, conf_);
+  MuonTruth theTruth(iEvent, iSetup, conf_, consumeCollector_);
 
   for (CSCRecHit2DCollection::const_iterator recHitItr = cscRecHits->begin(); recHitItr != cscRecHits->end();
        recHitItr++) {
