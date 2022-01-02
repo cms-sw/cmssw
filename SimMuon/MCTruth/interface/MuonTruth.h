@@ -15,6 +15,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -28,7 +29,7 @@ public:
   typedef edm::DetSet<StripDigiSimLink> LayerLinks;
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 
-  MuonTruth(const edm::Event &, const edm::EventSetup &, const edm::ParameterSet &);
+  MuonTruth(const edm::Event &, const edm::EventSetup &, const edm::ParameterSet &, edm::ConsumesCollector &);
   MuonTruth(const edm::ParameterSet &, edm::ConsumesCollector &&iC);
 
   void initEvent(const edm::Event &, const edm::EventSetup &);
@@ -67,6 +68,9 @@ private:
   bool crossingframe;
   edm::InputTag CSCsimHitsTag;
   edm::InputTag CSCsimHitsXFTag;
+
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<CSCBadChambers, CSCBadChambersRcd> badToken_;
 
   std::map<unsigned int, edm::PSimHitContainer> theSimHitMap;
 
