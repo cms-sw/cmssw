@@ -14,7 +14,7 @@
 //
 
 // system include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -42,7 +42,7 @@ class TFile;
 // class declaration
 //
 
-class TestSuite : public edm::EDAnalyzer {
+class TestSuite : public edm::one::EDAnalyzer<> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
