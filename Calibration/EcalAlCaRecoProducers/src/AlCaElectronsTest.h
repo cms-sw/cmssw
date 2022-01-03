@@ -110,8 +110,7 @@ void AlCaElectronsTest::beginJob() {
 
 void AlCaElectronsTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //FIXME replace with msg logger
-  edm::LogVerbatim("ElectronsTest") << "[AlCaElectronsTest] analysing event "
-                                    << iEvent.id();
+  edm::LogVerbatim("ElectronsTest") << "[AlCaElectronsTest] analysing event " << iEvent.id();
 
   //PG get the collections
   // get Barrel RecHits
