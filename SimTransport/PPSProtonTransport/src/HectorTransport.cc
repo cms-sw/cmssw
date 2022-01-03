@@ -15,6 +15,20 @@ HectorTransport::HectorTransport(const edm::ParameterSet& iConfig, edm::Consumes
       beamParametersToken_(iC.esConsumes()),
       beamspotToken_(iC.esConsumes()) {
   MODE = TransportMode::HECTOR;
+  std::string s1 = iConfig.getParameter<std::string>("Beam1Filename");
+  std::string s2 = iConfig.getParameter<std::string>("Beam2Filename");
+  setBeamFileNames(s1, s2);
+  double cax45 = iConfig.getParameter<double>("halfCrossingAngleXSector45");
+  double cax56 = iConfig.getParameter<double>("halfCrossingAngleXSector56");
+  double cay45 = iConfig.getParameter<double>("halfCrossingAngleYSector45");
+  double cay56 = iConfig.getParameter<double>("halfCrossingAngleYSector56");
+  setCrossingAngles(cax45, cax56, cay45, cay56);
+  double stx = iConfig.getParameter<double>("BeamDivergenceX");
+  double sty = iConfig.getParameter<double>("BeamDivergenceY");
+  double sx = iConfig.getParameter<double>("BeamSigmaX");
+  double sy = iConfig.getParameter<double>("BeamSigmaY");
+  double se = iConfig.getParameter<double>("BeamEnergyDispersion");
+  setBeamParameters(stx, sty, sx, sy, se);
   //PPS
   edm::LogVerbatim("ProtonTransport")
       << "=============================================================================\n"
@@ -141,7 +155,7 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
 
   if (produceHitsRelativeToBeam_) {
     H_BeamParticle p_beam(mass, charge);
-    p_beam.set4Momentum(0., 0., beamMomentum_, beamEnergy_);
+    p_beam.set4Momentum(0., 0., beamMomentum(), beamEnergy());
     p_beam.setPosition(0., 0., fCrossingAngleX * urad, fCrossingAngleY * urad, 0.);
     p_beam.computePath(&*beamline);
     thx -= p_beam.getTX();

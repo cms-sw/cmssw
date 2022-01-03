@@ -33,6 +33,26 @@ public:
   double beamMomentum() { return beamMomentum_; };
 
 protected:
+  setBeamFileNames(const std::string& nam1, const std::string& nam2) {
+    beam1Filename_ = nam1;
+    beam2Filename_ = nam2;
+  };
+
+  setBeamParameters(double stx, double sty, double sx, double sy, double se) {
+    m_sigmaSTX = stx;
+    m_sigmaSTY = sty;
+    m_sigmaSX = sx;
+    m_sigmaSY = sy;
+    m_sig_E = se;
+  };
+
+  setCrossingAngles(double cx45, double cx56, double cy45, double cy56) {
+    fCrossingAngleX_45_ = cx45;
+    fCrossingAngleX_56_ = cx56;
+    fCrossingAngleY_45_ = cy45;
+    fCrossingAngleY_56_ = cy56;
+  };
+
   enum class TransportMode { HECTOR, TOTEM, OPTICALFUNCTIONS };
   TransportMode MODE;
 
@@ -47,25 +67,28 @@ protected:
   bool useBeamPositionFromLHCInfo_;
   bool produceHitsRelativeToBeam_;
 
-  std::string beam1Filename_;
-  std::string beam2Filename_;
+  std::string beam1Filename_{""};
+  std::string beam2Filename_{""};
 
-  double fPPSRegionStart_45_;
-  double fPPSRegionStart_56_;
-  double fCrossingAngleX_45_;
-  double fCrossingAngleX_56_;
-  double fCrossingAngleY_45_;
-  double fCrossingAngleY_56_;
+  double fCrossingAngleX_45_{0.0};
+  double fCrossingAngleX_56_{0.0};
+  double fCrossingAngleY_45_{0.0};
+  double fCrossingAngleY_56_{0.0};
 
-  double beamMomentum_;
-  double beamEnergy_;
   double etaCut_;
   double momentumCut_;
 
-  double m_sigmaSTX;
-  double m_sigmaSTY;
-  double m_sigmaSX;
-  double m_sigmaSY;
-  double m_sig_E;
+private:
+  double fPPSRegionStart_45_;
+  double fPPSRegionStart_56_;
+
+  double beamMomentum_;
+  double beamEnergy_;
+
+  double m_sigmaSTX{0.0};
+  double m_sigmaSTY{0.0};
+  double m_sigmaSX{0.0};
+  double m_sigmaSY{0.0};
+  double m_sig_E{0.0};
 };
 #endif
