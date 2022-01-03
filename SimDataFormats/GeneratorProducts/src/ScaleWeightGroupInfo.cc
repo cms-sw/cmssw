@@ -47,7 +47,7 @@ namespace gen {
   }
 
   void ScaleWeightGroupInfo::setDyn(
-      int globalIndex, std::string id, float muR, float muF, size_t dynNum, std::string dynName) {
+      int globalIndex, std::string id, float muR, float muF, size_t dynNum, std::string_view dynName) {
     auto info = weightMetaInfoByGlobalIndex(id, globalIndex);
     int index = indexFromMus(muR, muF);
     // resize if too small
@@ -62,7 +62,7 @@ namespace gen {
     dynVec_[index][dynNum] = info.localIndex;
   }
 
-  size_t ScaleWeightGroupInfo::scaleIndex(float muR, float muF, std::string& dynName) const {
+  size_t ScaleWeightGroupInfo::scaleIndex(float muR, float muF, std::string_view dynName) const {
     auto it = std::find(dynNames_.begin(), dynNames_.end(), dynName);
     if (it == dynNames_.end())
       return -1;
@@ -70,7 +70,7 @@ namespace gen {
       return scaleIndex(muR, muF, it - dynNames_.begin());
   }
 
-  size_t ScaleWeightGroupInfo::scaleIndex(int index, std::string& dynName) const {
+  size_t ScaleWeightGroupInfo::scaleIndex(int index, std::string_view dynName) const {
     auto it = std::find(dynNames_.begin(), dynNames_.end(), dynName);
     if (it == dynNames_.end())
       return -1;

@@ -1,7 +1,6 @@
 #ifndef GeneratorInterface_LHEInterface_WeightHelper_h
 #define GeneratorInterface_LHEInterface_WeightHelper_h
 
-#include "DataFormats/Common/interface/OwnVector.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenWeightProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/WeightGroupInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/PdfWeightGroupInfo.h"
@@ -15,6 +14,7 @@
 #include <boost/algorithm/string.hpp>
 #include <bits/stdc++.h>
 #include <fstream>
+#include <memory>
 
 namespace gen {
   struct ParsedWeight {
@@ -29,7 +29,7 @@ namespace gen {
   class WeightHelper {
   public:
     WeightHelper();
-    edm::OwnVector<gen::WeightGroupInfo> weightGroups() { return weightGroups_; }
+    std::vector<std::unique_ptr<gen::WeightGroupInfo>>& weightGroups() { return weightGroups_; }
 
     template <typename T>
     std::unique_ptr<GenWeightProduct> weightProduct(std::vector<T> weights, float w0);
@@ -41,7 +41,7 @@ namespace gen {
     }
     void addUnassociatedGroup() {
       weightGroups_.push_back(std::make_unique<UnknownWeightGroupInfo>("unassociated"));
-      weightGroups_.back().setDescription("Weights with missing or invalid header meta data");
+      weightGroups_.back()->setDescription("Weights with missing or invalid header meta data");
       unassociatedIndex_ = weightGroups_.size()-1;
     }
     int addWeightToProduct(
@@ -63,7 +63,7 @@ namespace gen {
     std::vector<ParsedWeight> parsedWeights_;
     std::map<std::string, std::string> currWeightAttributeMap_;
     std::map<std::string, std::string> currGroupAttributeMap_;
-    edm::OwnVector<gen::WeightGroupInfo> weightGroups_;
+    std::vector<std::unique_ptr<gen::WeightGroupInfo>> weightGroups_;
     bool isScaleWeightGroup(const ParsedWeight& weight);
     bool isMEParamWeightGroup(const ParsedWeight& weight);
     bool isPdfWeightGroup(const ParsedWeight& weight);
@@ -73,7 +73,7 @@ namespace gen {
     void updateMEParamInfo(const ParsedWeight& weight, int index);
     void updatePdfInfo(gen::PdfWeightGroupInfo& pdfGroup, const ParsedWeight& weight);
     void updatePartonShowerInfo(gen::PartonShowerWeightGroupInfo& psGroup, const ParsedWeight& weight);
-    void cleanupOrphanCentralWeight();
+    //void cleanupOrphanCentralWeight();
     bool splitPdfWeight(ParsedWeight& weight);
 
     int lhapdfId(const ParsedWeight& weight, gen::PdfWeightGroupInfo& pdfGroup);
