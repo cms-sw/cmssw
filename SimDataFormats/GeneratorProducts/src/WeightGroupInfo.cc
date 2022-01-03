@@ -22,11 +22,20 @@ namespace gen {
         << "WeightGroupInfo is abstract, so it's clone() method can't be implemented.";
   }
 
-  WeightMetaInfo WeightGroupInfo::weightMetaInfo(int weightEntry) const { return idsContained_.at(weightEntry); }
+  WeightMetaInfo WeightGroupInfo::weightMetaInfo(int weightEntry) const { 
+    if (weightEntry < 0 || weightEntry >= static_cast<int>(idsContained_.size()))
+      throw cms::Exception("WeightGroupInfo")
+          << "Local index " << std::to_string(weightEntry) << " is not within the range of group " << name_
+          << " which has " << idsContained_.size() << " entries\n";
+    return idsContained_.at(weightEntry); 
+  }
 
-  WeightMetaInfo WeightGroupInfo::weightMetaInfoByGlobalIndex(std::string wgtId, int weightEntry) const {
-    if (wgtId.empty())
-      wgtId = std::to_string(weightEntry);
+  WeightMetaInfo WeightGroupInfo::weightMetaInfoByGlobalIndex(int weightEntry) const {
+      std::string emptyLabel = "";
+      return weightMetaInfoByGlobalIndex(emptyLabel, weightEntry);
+  }
+
+  WeightMetaInfo WeightGroupInfo::weightMetaInfoByGlobalIndex(std::string& wgtId, int weightEntry) const {
     int entry = weightVectorEntry(wgtId, weightEntry);
     if (entry < 0 || entry >= static_cast<int>(idsContained_.size()))
       throw cms::Exception("WeightGroupInfo")
@@ -41,23 +50,26 @@ namespace gen {
     return weightVectorEntry(wgtId, weightEntry) != -1;
   }
 
+  bool WeightGroupInfo::containsWeight(int weightEntry) const {
+    std::string id = std::to_string(weightEntry);
+    return weightVectorEntry(id, weightEntry) != -1;
+  }
+
   int WeightGroupInfo::weightVectorEntry(std::string& wgtId, int weightEntry) const {
-    if (wgtId.empty())
-      wgtId = std::to_string(weightEntry);
-    // First try ordered search
+    // First try direct comparison assuming ordered indices
     int orderedEntry = weightEntry - firstId_;
     if (indexInRange(weightEntry) && orderedEntry < static_cast<int>(idsContained_.size())) {
-      if (wgtId.empty() || idsContained_.at(orderedEntry).id == wgtId) {
+      if (!wgtId.empty() && idsContained_.at(orderedEntry).id == wgtId) {
+        return orderedEntry;
+      } else if (static_cast<int>(idsContained_.at(orderedEntry).globalIndex) == weightEntry) {
         return orderedEntry;
       }
     }
-    // Fall back to search on ID
-    else if (!wgtId.empty()) {
-      auto it = std::find_if(
-          idsContained_.begin(), idsContained_.end(), [wgtId](const WeightMetaInfo& w) { return w.id == wgtId; });
-      if (it != idsContained_.end())
-        return std::distance(idsContained_.begin(), it);
-    }
+    // Fall back to global search on ID or global index
+    auto it = std::find_if(idsContained_.begin(), idsContained_.end(), [wgtId, weightEntry](const WeightMetaInfo& w) 
+                { return wgtId.empty() ? static_cast<int>(w.globalIndex) == weightEntry : w.id == wgtId; });
+    if (it != idsContained_.end())
+      return std::distance(idsContained_.begin(), it);
     return -1;
   }
 
@@ -81,8 +93,6 @@ namespace gen {
     else
       idsContained_.insert(idsContained_.begin() + localIndex, info);
   }
-
-  std::vector<WeightMetaInfo> WeightGroupInfo::containedIds() const { return idsContained_; }
 
   bool WeightGroupInfo::indexInRange(int index) const { return (index <= lastId_ && index >= firstId_); }
 

@@ -6,8 +6,7 @@
 #include <vector>
 #include <string>
 #include <optional>
-
-//#include <hepml.hpp>
+#include <numeric>
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
@@ -36,6 +35,7 @@ public:
   GenWeightInfoProduct& operator=(GenWeightInfoProduct&& other);
 
   const edm::OwnVector<gen::WeightGroupInfo>& allWeightGroupsInfo() const;
+  const std::vector<gen::WeightGroupData> allWeightGroupsInfoWithIndices() const;
   std::unique_ptr<const gen::WeightGroupInfo> containingWeightGroupInfo(int index) const;
   std::unique_ptr<const gen::WeightGroupInfo> orderedWeightGroupInfo(int index) const;
   std::vector<gen::WeightGroupData> weightGroupsByType(gen::WeightType type) const;
@@ -45,6 +45,18 @@ public:
   std::vector<gen::WeightGroupData> pdfGroupsWithIndicesByLHAIDs(const std::vector<int>& lhaids) const;
   void addWeightGroupInfo(gen::WeightGroupInfo& info);
   const int numberOfGroups() const { return weightGroupsInfo_.size(); }
+  // If there are unassociated weights, the number of filled groups will be less than the number 
+  // of groups, because the unassociated group can't be filled. Likewise the number of weights
+  // in the GenWeightInfoProduct product will be less than the number of weights in the event
+  const int numberOfFilledGroups() const { 
+      return std::accumulate(weightGroupsInfo_.begin(), weightGroupsInfo_.end(), 0,
+                [](auto sum, auto& entry) { return sum + (entry.nIdsContained() > 0 ? 1 : 0); }); 
+  }
+  const int numberOfWeights() const { 
+      return std::accumulate(weightGroupsInfo_.begin(), weightGroupsInfo_.end(), 0,
+                [](auto sum, auto& entry) { return sum + entry.nIdsContained(); }); 
+  }
+
 
 private:
   edm::OwnVector<gen::WeightGroupInfo> weightGroupsInfo_;

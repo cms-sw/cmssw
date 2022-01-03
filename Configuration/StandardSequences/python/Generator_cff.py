@@ -55,7 +55,6 @@ genJetMETTask = cms.Task(genJetParticlesTask, recoGenJetsTask, genMETParticlesTa
 VertexSmearing = cms.Sequence(cms.SequencePlaceholder("VtxSmeared"))
 GenSmeared = cms.Sequence(generatorSmeared)
 GeneInfo = cms.Sequence(GeneInfoTask)
-lheWeights.failIfInvalidXML = False
 genWeightsSeq = cms.Sequence(genWeights*lheWeights)
 genJetMET = cms.Sequence(genJetMETTask)
 

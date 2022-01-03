@@ -36,7 +36,7 @@ public:
       addWeightSet();
     if (static_cast<int>(weightsVector_.size()) <= setEntry)
       throw cms::Exception("GenWeightProduct") << "Trying to add weight index outside the range of weights expected";
-    auto& weights = weightsVector_.at(setEntry);
+    auto& weights = weightsVector_[setEntry];
     if (static_cast<int>(weights.size()) <= weightNum) {
       weights.resize(weightNum + 1);
     }
