@@ -167,7 +167,7 @@ namespace gen {
   }
 
   void WeightHelper::updatePartonShowerInfo(gen::PartonShowerWeightGroupInfo& psGroup, const ParsedWeight& weight) {
-    if (psGroup.containedIds().size() == DEFAULT_PSWEIGHT_LENGTH)
+    if (psGroup.nIdsContained() == DEFAULT_PSWEIGHT_LENGTH)
       psGroup.setIsWellFormed(true);
     if (weight.content.find(':') != std::string::npos && weight.content.find('=') != std::string::npos)
       psGroup.setNameIsPythiaSyntax(true);
@@ -212,42 +212,34 @@ namespace gen {
   }
 
   int WeightHelper::addWeightToProduct(
-      std::unique_ptr<GenWeightProduct>& product, double weight, std::string name, int weightNum, int groupIndex) {
-    bool isUnassociated = false;
+      GenWeightProduct& product, double weight, std::string name, int weightNum, int groupIndex) {
     try {
       groupIndex = findContainingWeightGroup(name, weightNum, groupIndex);
     } catch (const cms::Exception& e) {
-      std::cerr << "WARNING: " << e.what() << std::endl;
-      isUnassociated = true;
-
-      bool foundUnassocGroup = false;
-      for (; static_cast<size_t>(groupIndex) < weightGroups_.size(); ++groupIndex) {
-        auto& g = weightGroups_[groupIndex];
-        if (g.weightType() == gen::WeightType::kUnknownWeights && g.name() == "unassociated") {
-          foundUnassocGroup = true;
-          break;
-        }
+      if (!allowUnassociatedWeights_ || unassociatedIndex_ == -1)
+          throw e;
+      if (debug_) {
+        std::cout << "WARNING: " << e.what() << std::endl;
       }
-      if (!foundUnassocGroup) {
-        addUnassociatedGroup();
-        product->addWeightSet();  // Unaccounted for weights need a place
-      }
+      groupIndex = unassociatedIndex_;
     }
     // This should be impossible, but in case the try/catch doesn't work, come here
     if (groupIndex < 0 || groupIndex >= static_cast<int>(weightGroups_.size()))
-      throw cms::Exception("Unmatched Generator weight! ID was " + name + " index was " + std::to_string(weightNum) +
-                           "\nNot found in any of " + std::to_string(weightGroups_.size()) + " weightGroups.");
+      throw cms::Exception("WeightHelper") << "Unmatched Generator weight! ID was " << name << " index was " << std::to_string(weightNum) <<
+                           "\nNot found in any of " << std::to_string(weightGroups_.size()) << " weightGroups.";
 
     auto& group = weightGroups_[groupIndex];
+    bool isUnassociated = groupIndex == unassociatedIndex_;
+    // NOTE: Adding the weight explicitly to the group is necessary for this code to work properly, 
+    // but it WON'T be propagated to the group info in the GenWeightInfoProduct, which is
+    // already written to the lumi before the event processing. The Unknown group there will appear empty.
+    if (isUnassociated)
+        group.addContainedId(weightNum, name, name);
 
-    if (isUnassociated) {
-      group.addContainedId(weightNum, name, name);
-    }
-
-    int entry = !isUnassociated ? group.weightVectorEntry(name, weightNum) : group.nIdsContained() - 1;
+    int entry =  group.weightVectorEntry(name, weightNum);//: group.nIdsContained() - 1;
     if (debug_)
-      std::cout << "Adding weight " << entry << " to group " << groupIndex << std::endl;
-    product->addWeight(weight, groupIndex, entry);
+      std::cout << "Adding weight num " << weightNum << " EntryNum " << entry << " to group " << groupIndex << std::endl;
+    product.addWeight(weight, groupIndex, entry);
     return groupIndex;
   }
 

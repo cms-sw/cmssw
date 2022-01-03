@@ -23,9 +23,20 @@ const edm::OwnVector<gen::WeightGroupInfo>& GenWeightInfoProduct::allWeightGroup
   return weightGroupsInfo_;
 }
 
+const std::vector<gen::WeightGroupData> GenWeightInfoProduct::allWeightGroupsInfoWithIndices() const {
+  std::vector<gen::WeightGroupData> groupInfo;
+  for (size_t i = 0; i < weightGroupsInfo_.size(); i++)
+      groupInfo.push_back({i, std::make_unique<gen::WeightGroupInfo>(weightGroupsInfo_[i])});
+  return groupInfo;
+}
+
 std::unique_ptr<const gen::WeightGroupInfo> GenWeightInfoProduct::containingWeightGroupInfo(int index) const {
+  // The weight values in the product are arranged to match the order of the groups in the GenWeightInfoProduct
+  int maxIdx = 0;
   for (const auto& weightGroup : weightGroupsInfo_) {
-    if (weightGroup.indexInRange(index))
+    int minIdx = maxIdx;
+    maxIdx = maxIdx+weightGroup.nIdsContained();
+    if (index >= minIdx && index < maxIdx)
       return std::unique_ptr<const gen::WeightGroupInfo>(weightGroup.clone());
   }
   throw cms::Exception("GenWeightInfoProduct") << "No weight group found containing the weight index requested";

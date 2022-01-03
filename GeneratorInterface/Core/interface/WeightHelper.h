@@ -42,18 +42,21 @@ namespace gen {
     void addUnassociatedGroup() {
       weightGroups_.push_back(std::make_unique<UnknownWeightGroupInfo>("unassociated"));
       weightGroups_.back().setDescription("Weights with missing or invalid header meta data");
+      unassociatedIndex_ = weightGroups_.size()-1;
     }
     int addWeightToProduct(
-        std::unique_ptr<GenWeightProduct>& product, double weight, std::string name, int weightNum, int groupIndex);
+        GenWeightProduct& product, double weight, std::string name, int weightNum, int groupIndex);
     int findContainingWeightGroup(std::string wgtId, int weightIndex, int previousGroupIndex);
     void setDebug(bool value) { debug_ = value; }
     bool fillEmptyIfWeightFails() { return fillEmptyIfWeightFails_; }
 
   protected:
     // TODO: Make this only print from one thread a la
-    // https://github.com/kdlong/cmssw/blob/master/PhysicsTools/NanoAOD/plugins/GenWeightsTableProducer.cc#L1069
+    // https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/NanoAOD/plugins/GenWeightsTableProducer.cc#L1069
     bool debug_ = false;
+    bool allowUnassociatedWeights_ = true;
     bool fillEmptyIfWeightFails_ = false;
+    int unassociatedIndex_ = -1;
     const unsigned int FIRST_PSWEIGHT_ENTRY = 2;
     const unsigned int DEFAULT_PSWEIGHT_LENGTH = 46;
     std::string model_;
@@ -108,9 +111,9 @@ namespace gen {
       for (const auto& weight : weights) {
         try {
           if constexpr (std::is_same<T, gen::WeightsInfo>::value) {
-            weightGroupIndex = addWeightToProduct(weightProduct, weight.wgt, weight.id, i, weightGroupIndex);
+            weightGroupIndex = addWeightToProduct(*weightProduct, weight.wgt, weight.id, i, weightGroupIndex);
           } else if (std::is_same<T, double>::value)
-            weightGroupIndex = addWeightToProduct(weightProduct, weight, std::to_string(i), i, weightGroupIndex);
+            weightGroupIndex = addWeightToProduct(*weightProduct, weight, std::to_string(i), i, weightGroupIndex);
 
         } catch (cms::Exception& e) {
           if (fillEmptyIfWeightFails_) {

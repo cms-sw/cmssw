@@ -101,7 +101,7 @@ namespace gen {
       auto wgtIter = std::find(expectedOrder_.begin(), expectedOrder_.end(), varName);
       wgtIdx = wgtIter - expectedOrder_.begin() + 2;
     }
-    if (wgtIdx >= (int)containedIds().size())
+    if (wgtIdx >= static_cast<int>(nIdsContained()))
       wgtIdx = -1;
     return wgtIdx;
   }

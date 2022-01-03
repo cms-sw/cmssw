@@ -95,8 +95,8 @@ void GenWeightProductProducer::beginLuminosityBlockProduce(edm::LuminosityBlock&
     boost::replace_all(label, "-", "_");
     weightHelper_.setModel(label);
     weightHelper_.parseWeightGroupsFromNames(genLumiInfoHandle->weightNames());
-    if (weightHelper_.weightGroups().empty())
-      weightHelper_.addUnassociatedGroup();
+    // Always add an unassociated group, which generally will not be filled
+    weightHelper_.addUnassociatedGroup();
 
     for (auto& weightGroup : weightHelper_.weightGroups()) {
       weightInfoProduct->addWeightGroupInfo(weightGroup);

@@ -31,7 +31,6 @@ namespace gen {
     kUnknownWeights = 'u',
   };
 
-  //const std::array<WeightType, 5> allWeightTypes = {{
   const std::array<WeightType, 5> allWeightTypes = {{
       WeightType::kPdfWeights,
       WeightType::kScaleWeights,
@@ -56,12 +55,13 @@ namespace gen {
     void copy(const WeightGroupInfo& other);
     virtual WeightGroupInfo* clone() const;
     WeightMetaInfo weightMetaInfo(int weightEntry) const;
-    WeightMetaInfo weightMetaInfoByGlobalIndex(std::string wgtId, int weightEntry) const;
+    WeightMetaInfo weightMetaInfoByGlobalIndex(std::string& wgtId, int weightEntry) const;
+    WeightMetaInfo weightMetaInfoByGlobalIndex(int weightEntry) const;
     int weightVectorEntry(std::string& wgtId) const;
     bool containsWeight(std::string& wgtId, int weightEntry) const;
+    bool containsWeight(int weightEntry) const;
     int weightVectorEntry(std::string& wgtId, int weightEntry) const;
     void addContainedId(int weightEntry, std::string id, std::string label);
-    std::vector<WeightMetaInfo> containedIds() const;
     bool indexInRange(int index) const;
 
     void setName(std::string name) { name_ = name; }
