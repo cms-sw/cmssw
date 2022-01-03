@@ -12,6 +12,19 @@ TotemTransport::TotemTransport(const edm::ParameterSet& iConfig)
       m_model_ip_150_l_name_(iConfig.getParameter<std::string>("Model_IP_150_L_Name")),
       m_beampipe_aperture_radius_(iConfig.getParameter<double>("BeampipeApertureRadius")) {
   MODE = TransportMode::TOTEM;
+  std::string s1 = iConfig.getParameter<std::string>("Beam1Filename");
+  std::string s2 = iConfig.getParameter<std::string>("Beam2Filename");
+  setBeamFileNames(s1, s2);
+  double cax45 = iConfig.getParameter<double>("halfCrossingAngleXSector45");
+  double cax56 = iConfig.getParameter<double>("halfCrossingAngleXSector56");
+  setCrossingAngles(cax45, cax56, 0.0, 0.0);
+  double stx = iConfig.getParameter<double>("BeamDivergenceX");
+  double sty = iConfig.getParameter<double>("BeamDivergenceY");
+  double sx = iConfig.getParameter<double>("BeamSigmaX");
+  double sy = iConfig.getParameter<double>("BeamSigmaY");
+  double se = iConfig.getParameter<double>("BeamEnergyDispersion");
+  setBeamParameters(stx, sty, sx, sy, se);
+
   if (fPPSRegionStart_56_ > 0)
     fPPSRegionStart_56_ *= -1;  // make sure sector 56 has negative position, as TOTEM convention
 
