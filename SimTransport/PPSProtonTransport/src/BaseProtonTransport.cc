@@ -9,10 +9,10 @@ BaseProtonTransport::BaseProtonTransport(const edm::ParameterSet& iConfig)
       bApplyZShift_(iConfig.getParameter<bool>("ApplyZShift")),
       useBeamPositionFromLHCInfo_(iConfig.getParameter<bool>("useBeamPositionFromLHCInfo")),
       produceHitsRelativeToBeam_(iConfig.getParameter<bool>("produceHitsRelativeToBeam")),
-      etaCut_(iConfig.getParameter<double>("EtaCut")),
-      momentumCut_(iConfig.getParameter<double>("MomentumCut")),
       fPPSRegionStart_45_(iConfig.getParameter<double>("PPSRegionStart_45")),
       fPPSRegionStart_56_(iConfig.getParameter<double>("PPSRegionStart_56")),
+      etaCut_(iConfig.getParameter<double>("EtaCut")),
+      momentumCut_(iConfig.getParameter<double>("MomentumCut")),
       beamEnergy_(iConfig.getParameter<double>("BeamEnergy")) {
   beamMomentum_ = std::sqrt(beamEnergy_ * beamEnergy_ - ProtonMassSQ);
 }
