@@ -53,7 +53,7 @@ namespace gen {
     }
 
     void setMuRMuFIndex(int globalIndex, std::string id, float muR, float muF);
-    void setDyn(int globalIndex, std::string id, float muR, float muF, size_t dynNum, std::string dynName);
+    void setDyn(int globalIndex, std::string id, float muR, float muF, size_t dynNum, std::string_view dynName);
     int lhaid() { return lhaid_; }
     void setLhaid(int lhaid) { lhaid_ = lhaid; }
     // Is a variation of the functional form of the dynamic scale
@@ -70,19 +70,19 @@ namespace gen {
     int muR05muF2Index() const { return muIndices_.at(muR0p5_muF2_idx); }
 
     // dynweight version
-    size_t centralIndex(std::string& dynName) const { return scaleIndex(Central_idx, dynName); }
-    size_t muR1muF2Index(std::string& dynName) const { return scaleIndex(muR1_muF2_idx, dynName); }
-    size_t muR1muF05Index(std::string& dynName) const { return scaleIndex(muR1_muF0p5_idx, dynName); }
-    size_t muR2muF05Index(std::string& dynName) const { return scaleIndex(muR2_muF0p5_idx, dynName); }
-    size_t muR2muF1Index(std::string& dynName) const { return scaleIndex(muR2_muF1_idx, dynName); }
-    size_t muR2muF2Index(std::string& dynName) const { return scaleIndex(muR2_muF2_idx, dynName); }
-    size_t muR05muF05Index(std::string& dynName) const { return scaleIndex(muR0p5_muF0p5_idx, dynName); }
-    size_t muR05muF1Index(std::string& dynName) const { return scaleIndex(muR0p5_muF1_idx, dynName); }
-    size_t muR05muF2Index(std::string& dynName) const { return scaleIndex(muR0p5_muF2_idx, dynName); }
+    size_t centralIndex(std::string_view dynName) const { return scaleIndex(Central_idx, dynName); }
+    size_t muR1muF2Index(std::string_view dynName) const { return scaleIndex(muR1_muF2_idx, dynName); }
+    size_t muR1muF05Index(std::string_view dynName) const { return scaleIndex(muR1_muF0p5_idx, dynName); }
+    size_t muR2muF05Index(std::string_view dynName) const { return scaleIndex(muR2_muF0p5_idx, dynName); }
+    size_t muR2muF1Index(std::string_view dynName) const { return scaleIndex(muR2_muF1_idx, dynName); }
+    size_t muR2muF2Index(std::string_view dynName) const { return scaleIndex(muR2_muF2_idx, dynName); }
+    size_t muR05muF05Index(std::string_view dynName) const { return scaleIndex(muR0p5_muF0p5_idx, dynName); }
+    size_t muR05muF1Index(std::string_view dynName) const { return scaleIndex(muR0p5_muF1_idx, dynName); }
+    size_t muR05muF2Index(std::string_view dynName) const { return scaleIndex(muR0p5_muF2_idx, dynName); }
 
     size_t scaleIndex(float muR, float muF, size_t dynNum) const;
-    size_t scaleIndex(float muR, float muF, std::string& dynName) const;
-    size_t scaleIndex(int index, std::string& dynName) const;
+    size_t scaleIndex(float muR, float muF, std::string_view dynName) const;
+    size_t scaleIndex(int index, std::string_view dynName) const;
     size_t scaleIndex(float muR, float muF) const;
 
     size_t scaleIndex(int index, size_t dynNum) const { return dynVec_.at(index).at(dynNum); }

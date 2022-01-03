@@ -44,6 +44,7 @@ private:
   std::vector<edm::EDGetTokenT<GenWeightInfoProduct>> weightInfoTokens_;
   bool foundWeightProduct_ = false;
   bool hasLhe_ = false;
+  edm::EDPutTokenT<GenWeightInfoProduct> groupToken_;
 };
 
 // TODO: Accept a vector of strings (source, externalLHEProducer) exit if neither are found
@@ -54,9 +55,9 @@ LHEWeightProductProducer::LHEWeightProductProducer(const edm::ParameterSet& iCon
       lheRunInfoTokens_(edm::vector_transform(
           lheLabels_, [this](const std::string& tag) { return mayConsume<LHERunInfoProduct, edm::InRun>(tag); })),
       weightInfoTokens_(edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("weightProductLabels"), 
-          [this](const edm::InputTag& tag) { return mayConsume<GenWeightInfoProduct, edm::InLumi>(tag); })) {
+          [this](const edm::InputTag& tag) { return mayConsume<GenWeightInfoProduct, edm::InLumi>(tag); })),
+      groupToken_(produces<GenWeightInfoProduct, edm::Transition::BeginLuminosityBlock>()) {
   produces<GenWeightProduct>();
-  produces<GenWeightInfoProduct, edm::Transition::BeginLuminosityBlock>();
   weightHelper_.setFailIfInvalidXML(iConfig.getUntrackedParameter<bool>("failIfInvalidXML", false));
   weightHelper_.setfillEmptyIfWeightFails(iConfig.getUntrackedParameter<bool>("fillEmptyIfWeightFails", false));
   weightHelper_.setDebug(iConfig.getUntrackedParameter<bool>("debug", false));
@@ -138,9 +139,9 @@ void LHEWeightProductProducer::beginLuminosityBlockProduce(edm::LuminosityBlock&
 
   auto weightInfoProduct = std::make_unique<GenWeightInfoProduct>();
   for (auto& weightGroup : weightHelper_.weightGroups()) {
-    weightInfoProduct->addWeightGroupInfo(weightGroup);
+    weightInfoProduct->addWeightGroupInfo(std::unique_ptr<gen::WeightGroupInfo>(weightGroup->clone()));
   }
-  lumi.put(std::move(weightInfoProduct));
+  lumi.emplace(groupToken_, std::move(weightInfoProduct));
 }
 
 void LHEWeightProductProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
