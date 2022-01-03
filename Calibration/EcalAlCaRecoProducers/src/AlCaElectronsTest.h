@@ -38,7 +38,6 @@ public:
   ~AlCaElectronsTest() = default;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   void beginJob() override;
-  void endJob() override;
 
 private:
   EcalRecHit getMaximum(const EcalRecHitCollection* recHits);
@@ -109,24 +108,19 @@ void AlCaElectronsTest::beginJob() {
 
 // ----------------------------------------------------------------
 
-void AlCaElectronsTest::endJob() {}
-
-// ----------------------------------------------------------------
-
 void AlCaElectronsTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //FIXME replace with msg logger
   edm::LogVerbatim("ElectronsTest") << "[AlCaElectronsTest] analysing event "
-                                    << iEvent.id()
+                                    << iEvent.id();
 
-                                       //PG get the collections
-                                       // get Barrel RecHits
-                                       edm::Handle<EBRecHitCollection>
-                                           barrelRecHitsHandle;
+  //PG get the collections
+  // get Barrel RecHits
+  edm::Handle<EBRecHitCollection> barrelRecHitsHandle;
   iEvent.getByToken(m_barrelAlCa, barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
     edm::EDConsumerBase::Labels labels;
     labelsForToken(m_barrelAlCa, labels);
-    std::edm::LogError("ElectronsTest") << "[AlCaElectronsTest] caught std::exception in rertieving " << labels.module;
+    edm::LogError("ElectronsTest") << "[AlCaElectronsTest] caught std::exception in rertieving " << labels.module;
     return;
   } else {
     const EBRecHitCollection* barrelHitsCollection = barrelRecHitsHandle.product();
@@ -144,7 +138,7 @@ void AlCaElectronsTest::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if (!endcapRecHitsHandle.isValid()) {
     edm::EDConsumerBase::Labels labels;
     labelsForToken(m_endcapAlCa, labels);
-    std::edm::LogError("ElectronsTest") << "[AlCaElectronsTest] caught std::exception in rertieving " << labels.module;
+    edm::LogError("ElectronsTest") << "[AlCaElectronsTest] caught std::exception in rertieving " << labels.module;
     return;
   } else {
     const EERecHitCollection* endcapHitsCollection = endcapRecHitsHandle.product();
