@@ -2,13 +2,11 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-HLTHFAsymmetryFilter::HLTHFAsymmetryFilter(const edm::ParameterSet& iConfig) {
-  HFHits_ = iConfig.getParameter<edm::InputTag>("HFHitCollection");
-  eCut_HF_ = iConfig.getParameter<double>("ECut_HF");
-  os_asym_ = iConfig.getParameter<double>("OS_Asym_max");
-  ss_asym_ = iConfig.getParameter<double>("SS_Asym_min");
-  HFHitsToken_ = consumes<HFRecHitCollection>(HFHits_);
-}
+HLTHFAsymmetryFilter::HLTHFAsymmetryFilter(const edm::ParameterSet& iConfig)
+    : HFHitsToken_(consumes(iConfig.getParameter<edm::InputTag>("HFHitCollection"))),
+      eCut_HF_(iConfig.getParameter<double>("ECut_HF")),
+      os_asym_(iConfig.getParameter<double>("OS_Asym_max")),
+      ss_asym_(iConfig.getParameter<double>("SS_Asym_min")) {}
 
 HLTHFAsymmetryFilter::~HLTHFAsymmetryFilter() = default;
 
@@ -22,7 +20,7 @@ void HLTHFAsymmetryFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
 }
 
 // ------------ method called to produce the data  ------------
-bool HLTHFAsymmetryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HLTHFAsymmetryFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<HFRecHitCollection> HFRecHitsH;
   iEvent.getByToken(HFHitsToken_, HFRecHitsH);
 
