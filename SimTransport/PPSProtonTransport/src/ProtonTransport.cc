@@ -4,8 +4,6 @@
 #include "SimTransport/PPSProtonTransport/interface/OpticalFunctionsTransport.h"
 #include "SimTransport/PPSProtonTransport/interface/TotemTransport.h"
 #include "Utilities/PPS/interface/PPSUnitConversion.h"
-#include <CLHEP/Random/RandGauss.h>
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
 #include <cctype>
 
 ProtonTransport::ProtonTransport(const edm::ParameterSet &iConfig, edm::ConsumesCollector iC) {
