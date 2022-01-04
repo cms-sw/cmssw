@@ -42,7 +42,6 @@ private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void endRun(edm::Run const&, edm::EventSetup const&) override;
 
-  edm::Service<TFileService> fs;
   const double pTrackLow_, pTrackHigh_;
   const int useRaw_, dataType_;
   const edm::InputTag labelIsoTkVar_, labelIsoTkEvt_;
@@ -263,6 +262,7 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
 }
 
 void HcalIsoTrackAnalyzer::beginJob() {
+  edm::Service<TFileService> fs;
   tree = fs->make<TTree>("CalibTree", "CalibTree");
 
   tree->Branch("t_Run", &t_Run, "t_Run/I");
