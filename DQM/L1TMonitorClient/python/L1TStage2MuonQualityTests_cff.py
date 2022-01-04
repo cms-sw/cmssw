@@ -15,5 +15,6 @@ l1TStage2MuonQualityTests = DQMQualityTester(
     verboseQT = cms.untracked.bool(True)
 )
 
-l1TStage2MuonQualityTestsCollisions = l1TStage2MuonQualityTests.clone()
-l1TStage2MuonQualityTestsCollisions.qtList = cms.untracked.FileInPath('DQM/L1TMonitorClient/data/L1TStage2MuonQualityTestsCollisions.xml')
+l1TStage2MuonQualityTestsCollisions = l1TStage2MuonQualityTests.clone(
+    qtList = 'DQM/L1TMonitorClient/data/L1TStage2MuonQualityTestsCollisions.xml'
+)
