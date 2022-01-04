@@ -4,3 +4,5 @@
   <use name="FWCore/ParameterSet"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<test name="testHLTriggerspecialLogMonitorFilter" command="testLogMonitorFilter.sh"/>
