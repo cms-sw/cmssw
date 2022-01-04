@@ -21,53 +21,45 @@ l1tStage2uGTEmulatorCompRatioClientBX0 = DQMEDHarvester("L1TStage2RatioClient",
     binomialErr = cms.untracked.bool(True)
 )
 
-l1tStage2uGTEmulatorCompRatioClientBXP1 = l1tStage2uGTEmulatorCompRatioClientBX0.clone(
-inputNum  = ugmtEmuDqmDir+'/'+errHistNumStr,
-inputDen  = ugmtEmuDqmDir+'/'+errHistDenStr,
-ratioName = ratioHistStr
-)
-
-l1tStage2uGTEmulatorCompRatioClientBXP2 = l1tStage2uGTEmulatorCompRatioClientBX0.clone(
-inputNum  = ugmtEmuDqmDir+'/'+errHistNumStr,
-inputDen  = ugmtEmuDqmDir+'/'+errHistDenStr,
-ratioName = ratioHistStr
-)
-
-l1tStage2uGTEmulatorCompRatioClientBXM1 = l1tStage2uGTEmulatorCompRatioClientBX0.clone(
-inputNum  = ugmtEmuDqmDir+'/'+errHistNumStr,
-inputDen  = ugmtEmuDqmDir+'/'+errHistDenStr,
-ratioName = ratioHistStr
-)
-
-l1tStage2uGTEmulatorCompRatioClientBXM2 = l1tStage2uGTEmulatorCompRatioClientBX0.clone(
-inputNum  = ugmtEmuDqmDir+'/'+errHistNumStr,
-inputDen  = ugmtEmuDqmDir+'/'+errHistDenStr,
-ratioName = ratioHistStr
-)
-
 BX            = 'BX1'
 errHistNumStr = 'dataEmulSummary_' + BX
 errHistDenStr = 'normalizationHisto'
 ratioHistStr  = 'dataEmulMismatchRatio_' + BX
-
+l1tStage2uGTEmulatorCompRatioClientBXP1 = l1tStage2uGTEmulatorCompRatioClientBX0.clone(
+    inputNum  = ugmtEmuDqmDir+'/'+errHistNumStr,
+    inputDen  = ugmtEmuDqmDir+'/'+errHistDenStr,
+    ratioName = ratioHistStr
+)
 
 BX            = 'BX2'
 errHistNumStr = 'dataEmulSummary_' + BX
 errHistDenStr = 'normalizationHisto'
 ratioHistStr  = 'dataEmulMismatchRatio_' + BX
-
+l1tStage2uGTEmulatorCompRatioClientBXP2 = l1tStage2uGTEmulatorCompRatioClientBX0.clone(
+    inputNum  = ugmtEmuDqmDir+'/'+errHistNumStr,
+    inputDen  = ugmtEmuDqmDir+'/'+errHistDenStr,
+    ratioName = ratioHistStr
+)
 
 BX            = 'BX-1'
 errHistNumStr = 'dataEmulSummary_' + BX
 errHistDenStr = 'normalizationHisto'
 ratioHistStr  = 'dataEmulMismatchRatio_' + BX
-
+l1tStage2uGTEmulatorCompRatioClientBXM1 = l1tStage2uGTEmulatorCompRatioClientBX0.clone(
+    inputNum  = ugmtEmuDqmDir+'/'+errHistNumStr,
+    inputDen  = ugmtEmuDqmDir+'/'+errHistDenStr,
+    ratioName = ratioHistStr
+)
 
 BX            = 'BX-2'
 errHistNumStr = 'dataEmulSummary_' + BX
 errHistDenStr = 'normalizationHisto'
 ratioHistStr  = 'dataEmulMismatchRatio_' + BX
-
+l1tStage2uGTEmulatorCompRatioClientBXM2 = l1tStage2uGTEmulatorCompRatioClientBX0.clone(
+    inputNum  = ugmtEmuDqmDir+'/'+errHistNumStr,
+    inputDen  = ugmtEmuDqmDir+'/'+errHistDenStr,
+    ratioName = ratioHistStr
+)
 
 # uGT
 
