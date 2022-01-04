@@ -1,7 +1,7 @@
 from DQM.L1TMonitor.L1TFED_cfi import *
 
-l1tStage2Fed = l1tfed.clone()
-l1tStage2Fed.L1FEDS = cms.vint32(
+l1tStage2Fed = l1tfed.clone(
+L1FEDS = (
     1354, 1356, 1358, # CALOL1
     1360,             # CALOL2
     1376, 1377,       # BMTF
@@ -11,4 +11,4 @@ l1tStage2Fed.L1FEDS = cms.vint32(
     1402,             # GMT
     1404,             # UGT
     1405)             # UGTSPARE
-
+)
