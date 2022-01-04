@@ -3,10 +3,10 @@
 // Package:    CalibTracker/SiPixelLorentzAnglePCLWorker
 // Class:      SiPixelLorentzAnglePCLWorker
 //
-/**\class SiPixelLorentzAnglePCLWorker SiPixelLorentzAnglePCLWorker.cc CalibTracker/SiPixelLorentzAnglePCLWorker/plugins/SiPixelLorentzAnglePCLWorker.cc
- Description: [one line class summary]
+/**\class SiPixelLorentzAnglePCLWorker SiPixelLorentzAnglePCLWorker.cc CalibTracker/SiPixelLorentzAnglePCLWorker/src/SiPixelLorentzAnglePCLWorker.cc
+ Description: generates the intermediate ALCAPROMPT dataset for the measurement of the SiPixel Lorentz Angle in the Prompt Calibration Loop
  Implementation:
-     [Notes on implementation]
+     Books and fills 2D histograms of the drift vs depth in bins of pixel module rings to be fed into the SiPixelLorentzAnglePCLHarvester
 */
 //
 // Original Author:  mmusich
@@ -311,6 +311,8 @@ SiPixelLorentzAnglePCLWorker::SiPixelLorentzAnglePCLWorker(const edm::ParameterS
 // ------------ method called for each event  ------------
 
 void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  static constexpr float cmToum = 10000.;
+
   // Retrieve tracker topology from geometry
   const TrackerTopology* const tTopo = &iSetup.getData(topoPerEventEsToken_);
 
@@ -335,9 +337,6 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
   lumiblock_ = iEvent.luminosityBlock();
   bx_ = iEvent.bunchCrossing();
   orbit_ = iEvent.orbitNumber();
-
-  // fill the template from the store (from dqmBeginRun)
-  SiPixelTemplate theTemplate(thePixelTemp_);
 
   if (!trajTrackCollectionHandle->empty()) {
     for (TrajTrackAssociationCollection::const_iterator it = trajTrackCollectionHandle->begin();
@@ -426,7 +425,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           // fill the trackhit info
           TrajectoryStateOnSurface tsos = itTraj.updatedState();
           if (!tsos.isValid()) {
-            edm::LogWarning("SiPixelLorentzAnglePCLWorker") << "tsos not valid" << std::endl;
+            edm::LogWarning("SiPixelLorentzAnglePCLWorker") << "tsos not valid";
             continue;
           }
           LocalVector trackdirection = tsos.localDirection();
@@ -450,9 +449,6 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           double drdz = sqrt(1. + cotalpha * cotalpha + cotbeta * cotbeta);
           double clusterCharge_cut = clustChargeMaxPerLength_ * drdz;
 
-          float locBx = (cotbeta < 0.) ? -1 : 1.;
-          float locBz = (cotalpha < 0.) ? -locBx : locBx;
-
           auto detId = detIdObj.rawId();
           int DetId_index = -1;
 
@@ -462,10 +458,18 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
             DetId_index = std::distance(iHists.BPixnewDetIds_.begin(), newModIt);
           }
 
-          int TemplID = templateDBobject_->getTemplateID(detId);
-          theTemplate.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
-          qScale_ = theTemplate.qscale();
-          rQmQt_ = theTemplate.r_qMeas_qTrue();
+          if (notInPCL_) {
+            // fill the template from the store (from dqmBeginRun)
+            SiPixelTemplate theTemplate(thePixelTemp_);
+
+            float locBx = (cotbeta < 0.) ? -1 : 1.;
+            float locBz = (cotalpha < 0.) ? -locBx : locBx;
+
+            int TemplID = templateDBobject_->getTemplateID(detId);
+            theTemplate.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
+            qScale_ = theTemplate.qscale();
+            rQmQt_ = theTemplate.r_qMeas_qTrue();
+          }
 
           // Surface deformation
           const auto& lp_pair = surface_deformation(topol, tsos, recHitPix);
@@ -523,9 +527,8 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
               }
               float ypixavg = 0.5 * (ypixlow + ypixhigh);
 
-              float changeUnit = 10000.;
-              float dx = (pixinfo_.x[j] - xlim1) * changeUnit;  // dx: in the unit of micrometer
-              float dy = (ypixavg - ylim1) * changeUnit;        // dy: in the unit of micrometer
+              float dx = (pixinfo_.x[j] - xlim1) * cmToum;  // dx: in the unit of micrometer
+              float dy = (ypixavg - ylim1) * cmToum;        // dy: in the unit of micrometer
               float depth = dy * tan(trackhit_.beta);
               float drift = dx - dy * tan(trackhit_.gamma);
 
@@ -533,14 +536,16 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
                 int i_index = module_ + (layer_ - 1) * iHists.nModules_[layer_ - 1];
                 iHists.h_drift_depth_adc_.at(i_index)->Fill(drift, depth, pixinfo_.adc[j]);
                 iHists.h_drift_depth_adc2_.at(i_index)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
-                iHists.h_drift_depth_noadc_.at(i_index)->Fill(drift, depth);
+                iHists.h_drift_depth_noadc_.at(i_index)->Fill(drift, depth, 1.);
+                iHists.h_bySectOccupancy_->Fill(i_index - 1);  // histogram starts at 0
               } else {
                 int new_index = iHists.nModules_[iHists.nlay - 1] +
                                 (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + DetId_index;
 
                 iHists.h_drift_depth_adc_.at(new_index)->Fill(drift, depth, pixinfo_.adc[j]);
                 iHists.h_drift_depth_adc2_.at(new_index)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
-                iHists.h_drift_depth_noadc_.at(new_index)->Fill(drift, depth);
+                iHists.h_drift_depth_noadc_.at(new_index)->Fill(drift, depth, 1.);
+                iHists.h_bySectOccupancy_->Fill(new_index - 1);  // histogram starts at 0
               }
             }
           }
@@ -585,7 +590,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           // fill the trackhit info
           TrajectoryStateOnSurface tsos = itTraj.updatedState();
           if (!tsos.isValid()) {
-            edm::LogWarning("SiPixelLorentzAnglePCLWorker") << "tsos not valid" << std::endl;
+            edm::LogWarning("SiPixelLorentzAnglePCLWorker") << "tsos not valid";
             continue;
           }
           LocalVector trackdirection = tsos.localDirection();
@@ -603,15 +608,20 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           float cotalpha = trackdirection.x() / trackdirection.z();
           float cotbeta = trackdirection.y() / trackdirection.z();
 
-          float locBx = cotbeta < 0. ? -1 : 1.;
-          float locBz = cotalpha < 0. ? -locBx : locBx;
-
           auto detId = detIdObj.rawId();
 
-          int TemplID = templateDBobject_->getTemplateID(detId);
-          theTemplate.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
-          qScaleF_ = theTemplate.qscale();
-          rQmQtF_ = theTemplate.r_qMeas_qTrue();
+          if (notInPCL_) {
+            // fill the template from the store (from dqmBeginRun)
+            SiPixelTemplate theTemplate(thePixelTemp_);
+
+            float locBx = (cotbeta < 0.) ? -1 : 1.;
+            float locBz = (cotalpha < 0.) ? -locBx : locBx;
+
+            int TemplID = templateDBobject_->getTemplateID(detId);
+            theTemplate.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
+            qScaleF_ = theTemplate.qscale();
+            rQmQtF_ = theTemplate.r_qMeas_qTrue();
+          }
 
           // Surface deformation
           const auto& lp_pair = surface_deformation(topol, tsos, recHitPix);
@@ -637,13 +647,15 @@ void SiPixelLorentzAnglePCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSe
   const TrackerGeometry* geom = &iSetup.getData(geomEsToken_);
   const TrackerTopology* tTopo = &iSetup.getData(topoEsToken_);
 
-  // Initialize 1D templates
-  if (watchSiPixelTemplateRcd_.check(iSetup)) {
-    templateDBobject_ = &iSetup.getData(siPixelTemplateEsToken_);
-    if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_)) {
-      edm::LogError("SiPixelLorentzAnglePCLWorker")
-          << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-          << (*templateDBobject_).version() << std::endl;
+  if (notInPCL_) {
+    // Initialize 1D templates
+    if (watchSiPixelTemplateRcd_.check(iSetup)) {
+      templateDBobject_ = &iSetup.getData(siPixelTemplateEsToken_);
+      if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_)) {
+        edm::LogError("SiPixelLorentzAnglePCLWorker")
+            << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
+            << (*templateDBobject_).version();
+      }
     }
   }
 
@@ -682,18 +694,31 @@ void SiPixelLorentzAnglePCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSe
 void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
                                                   edm::Run const& run,
                                                   edm::EventSetup const& iSetup) {
+  // book the by partition monitoring
+  const auto maxSect = iHists.nlay * iHists.nModules_[iHists.nlay - 1] + (int)iHists.BPixnewDetIds_.size();
+
+  iBooker.setCurrentFolder(fmt::sprintf("%s/SectorMonitoring", folder_.data()));
+  iHists.h_bySectOccupancy_ = iBooker.book1D(
+      "h_bySectorOccupancy", "hit occupancy by sector;pixel sector;hits on track", maxSect, -0.5, maxSect + 0.5);
+
   iBooker.setCurrentFolder(folder_);
   static constexpr double min_depth_ = -100.;
   static constexpr double max_depth_ = 400.;
-  static constexpr double min_drift_ = -1000.;
-  static constexpr double max_drift_ = 1000.;
+  static constexpr double min_drift_ = -500.;
+  static constexpr double max_drift_ = 500.;
 
-  // book the mean values projections
+  // book the mean values projections and set the bin names of the by sector monitoring
   char name[128];
   char title[256];
   for (int i_layer = 1; i_layer <= iHists.nlay; i_layer++) {
     for (int i_module = 1; i_module <= iHists.nModules_[i_layer - 1]; i_module++) {
       unsigned int i_index = i_module + (i_layer - 1) * iHists.nModules_[i_layer - 1];
+      std::string binName = fmt::sprintf("BPix Layer%i Module %i", i_layer, i_module);
+      LogDebug("SiPixelLorentzAnglePCLWorker") << " i_index: " << i_index << " bin name: " << binName
+                                               << " (i_layer: " << i_layer << " i_module:" << i_module << ")";
+
+      iHists.h_bySectOccupancy_->setBinLabel(i_index, binName);
+
       sprintf(name, "h_mean_layer%i_module%i", i_layer, i_module);
       sprintf(title,
               "average drift vs depth layer%i module%i; production depth [#mum]; #LTdrift#GT [#mum]",
@@ -709,6 +734,10 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
             iHists.BPixnewmodulename_[i].c_str());
     int new_index = iHists.nModules_[iHists.nlay - 1] + (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + i;
     iHists.h_mean_[new_index] = iBooker.book1D(name, title, hist_depth_, min_depth_, max_depth_);
+
+    LogDebug("SiPixelLorentzAnglePCLWorker") << "i_index" << new_index << " bin name: " << iHists.BPixnewmodulename_[i];
+
+    iHists.h_bySectOccupancy_->setBinLabel(new_index, iHists.BPixnewmodulename_[i]);
   }
 
   //book the 2D histograms
@@ -845,7 +874,7 @@ void SiPixelLorentzAnglePCLWorker::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("clustChargeMaxPerLength", 50000)
       ->setComment("maximum cluster charge per unit length of pixel depth (z)");
   desc.add<int>("binsDepth", 50)->setComment("# bins for electron production depth axis");
-  desc.add<int>("binsDrift", 200)->setComment("# bins for electron drift axis");
+  desc.add<int>("binsDrift", 100)->setComment("# bins for electron drift axis");
   descriptions.addWithDefaultLabel(desc);
 }
 
