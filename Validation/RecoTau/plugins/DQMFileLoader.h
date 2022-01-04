@@ -9,7 +9,7 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -21,7 +21,7 @@
 #include <vector>
 #include <string>
 
-class TauDQMFileLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+class TauDQMFileLoader : public edm::EDAnalyzer {
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
@@ -42,7 +42,6 @@ public:
   ~TauDQMFileLoader() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override {}
-  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
