@@ -82,7 +82,6 @@ private:
   void analyzeHcal(const HBHERecHitCollection&, const HFRecHitCollection&, int, bool, double);
 
   // ----------member data ---------------------------
-  edm::Service<TFileService> fs_;
   bool theRecalib_, ignoreL1_, runNZS_, Noise_;
   bool fillHist_, extraHist_, init_;
   double eLowHB_, eHighHB_, eLowHE_, eHighHE_;
@@ -243,25 +242,26 @@ void RecAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descri
 }
 
 void RecAnalyzerMinbias::beginJob() {
+  edm::Service<TFileService> fs;
   std::string hc[5] = {"Empty", "HB", "HE", "HO", "HF"};
   char name[700], title[700];
-  hbhe_ = fs_->make<TH2D>("hbhe", "Noise in HB/HE", 61, -30.5, 30.5, 72, 0.5, 72.5);
-  hb_ = fs_->make<TH2D>("hb", "Noise in HB", 61, -16.5, 16.5, 72, 0.5, 72.5);
-  he_ = fs_->make<TH2D>("he", "Noise in HE", 61, -30.5, 30.5, 72, 0.5, 72.5);
-  hf_ = fs_->make<TH2D>("hf", "Noise in HF", 82, -41.5, 41.5, 72, 0.5, 72.5);
+  hbhe_ = fs->make<TH2D>("hbhe", "Noise in HB/HE", 61, -30.5, 30.5, 72, 0.5, 72.5);
+  hb_ = fs->make<TH2D>("hb", "Noise in HB", 61, -16.5, 16.5, 72, 0.5, 72.5);
+  he_ = fs->make<TH2D>("he", "Noise in HE", 61, -30.5, 30.5, 72, 0.5, 72.5);
+  hf_ = fs->make<TH2D>("hf", "Noise in HF", 82, -41.5, 41.5, 72, 0.5, 72.5);
   int nbin = (runMax_ - runMin_ + 1);
   sprintf(title, "Fraction of channels in HB/HE with E > %4.1f GeV vs Run number", eMin_);
-  hbherun_ = fs_->make<TProfile>("hbherun", title, nbin, runMin_ - 0.5, runMax_ + 0.5, 0.0, 1.0);
+  hbherun_ = fs->make<TProfile>("hbherun", title, nbin, runMin_ - 0.5, runMax_ + 0.5, 0.0, 1.0);
   sprintf(title, "Fraction of channels in HB with E > %4.1f GeV vs Run number", eMin_);
-  hbrun_ = fs_->make<TProfile>("hbrun", title, nbin, runMin_ - 0.5, runMax_ + 0.5, 0.0, 1.0);
+  hbrun_ = fs->make<TProfile>("hbrun", title, nbin, runMin_ - 0.5, runMax_ + 0.5, 0.0, 1.0);
   sprintf(title, "Fraction of channels in HE with E > %4.1f GeV vs Run number", eMin_);
-  herun_ = fs_->make<TProfile>("herun", title, nbin, runMin_ - 0.5, runMax_ + 0.5, 0.0, 1.0);
+  herun_ = fs->make<TProfile>("herun", title, nbin, runMin_ - 0.5, runMax_ + 0.5, 0.0, 1.0);
   sprintf(title, "Fraction of channels in HF with E > %4.1f GeV vs Run number", eMin_);
-  hfrun_ = fs_->make<TProfile>("hfrun", title, nbin, runMin_ - 0.5, runMax_ + 0.5, 0.0, 1.0);
+  hfrun_ = fs->make<TProfile>("hfrun", title, nbin, runMin_ - 0.5, runMax_ + 0.5, 0.0, 1.0);
   for (int idet = 1; idet <= 4; idet++) {
     sprintf(name, "%s", hc[idet].c_str());
     sprintf(title, "Noise distribution for %s", hc[idet].c_str());
-    h_[idet - 1] = fs_->make<TH1D>(name, title, 48, -6., 6.);
+    h_[idet - 1] = fs->make<TH1D>(name, title, 48, -6., 6.);
   }
 
   for (const auto& hcalid : hcalID_) {
@@ -276,21 +276,21 @@ void RecAnalyzerMinbias::beginJob() {
             id.depth());
     double xmin = (subdet == 4) ? -10 : -1;
     double xmax = (subdet == 4) ? 90 : 9;
-    TH1D* hh = fs_->make<TH1D>(name, title, 50, xmin, xmax);
+    TH1D* hh = fs->make<TH1D>(name, title, 50, xmin, xmax);
     histo_.push_back(hh);
   };
 
   if (extraHist_) {
-    h_AmplitudeHBtest_ = fs_->make<TH1D>("h_AmplitudeHBtest", "", 5000, 0., 5000.);
-    h_AmplitudeHEtest_ = fs_->make<TH1D>("h_AmplitudeHEtest", "", 3000, 0., 3000.);
-    h_AmplitudeHFtest_ = fs_->make<TH1D>("h_AmplitudeHFtest", "", 10000, 0., 10000.);
-    h_AmplitudeHB_ = fs_->make<TH1D>("h_AmplitudeHB", "", 100000, 0., 100000.);
-    h_AmplitudeHE_ = fs_->make<TH1D>("h_AmplitudeHE", "", 300000, 0., 300000.);
-    h_AmplitudeHF_ = fs_->make<TH1D>("h_AmplitudeHF", "", 100000, 0., 1000000.);
+    h_AmplitudeHBtest_ = fs->make<TH1D>("h_AmplitudeHBtest", "", 5000, 0., 5000.);
+    h_AmplitudeHEtest_ = fs->make<TH1D>("h_AmplitudeHEtest", "", 3000, 0., 3000.);
+    h_AmplitudeHFtest_ = fs->make<TH1D>("h_AmplitudeHFtest", "", 10000, 0., 10000.);
+    h_AmplitudeHB_ = fs->make<TH1D>("h_AmplitudeHB", "", 100000, 0., 100000.);
+    h_AmplitudeHE_ = fs->make<TH1D>("h_AmplitudeHE", "", 300000, 0., 300000.);
+    h_AmplitudeHF_ = fs->make<TH1D>("h_AmplitudeHF", "", 100000, 0., 1000000.);
   }
 
   if (!fillHist_) {
-    myTree_ = fs_->make<TTree>("RecJet", "RecJet Tree");
+    myTree_ = fs->make<TTree>("RecJet", "RecJet Tree");
     myTree_->Branch("cells", &cells, "cells/I");
     myTree_->Branch("mysubd", &mysubd, "mysubd/I");
     myTree_->Branch("depth", &depth, "depth/I");
@@ -304,7 +304,7 @@ void RecAnalyzerMinbias::beginJob() {
     myTree_->Branch("trigbit", &trigbit, "trigbit/I");
     myTree_->Branch("rnnumber", &rnnumber, "rnnumber/D");
   }
-  myTree1_ = fs_->make<TTree>("RecJet1", "RecJet1 Tree");
+  myTree1_ = fs->make<TTree>("RecJet1", "RecJet1 Tree");
   myTree1_->Branch("rnnum_", &rnnum_, "rnnum_/D");
   myTree1_->Branch("HBHEsize", &HBHEsize, "HBHEsize/I");
   myTree1_->Branch("HFsize", &HFsize, "HFsize/I");
@@ -351,6 +351,7 @@ void RecAnalyzerMinbias::beginRun(edm::Run const&, edm::EventSetup const& iS) {
   if (!init_) {
     init_ = true;
     if (fillHist_) {
+      edm::Service<TFileService> fs;
       const HcalTopology* hcaltopology = &iS.getData(tok_htopo_);
 
       char name[700], title[700];
@@ -366,7 +367,7 @@ void RecAnalyzerMinbias::beginRun(edm::Run const&, edm::EventSetup const& iS) {
             if (hcaltopology->valid(cell)) {
               sprintf(name, "HBeta%dphi%ddep%d", eta, phi, depth);
               sprintf(title, "HB #eta %d #phi %d depth %d", eta, phi, depth);
-              TH1D* h = fs_->make<TH1D>(name, title, nbinHB, x_min, x_max);
+              TH1D* h = fs->make<TH1D>(name, title, nbinHB, x_min, x_max);
               histHC_[cell] = h;
             }
           }
@@ -384,7 +385,7 @@ void RecAnalyzerMinbias::beginRun(edm::Run const&, edm::EventSetup const& iS) {
             if (hcaltopology->valid(cell)) {
               sprintf(name, "HEeta%dphi%ddep%d", eta, phi, depth);
               sprintf(title, "HE #eta %d #phi %d depth %d", eta, phi, depth);
-              TH1D* h = fs_->make<TH1D>(name, title, nbinHE, x_min, x_max);
+              TH1D* h = fs->make<TH1D>(name, title, nbinHE, x_min, x_max);
               histHC_[cell] = h;
             }
           }
@@ -402,7 +403,7 @@ void RecAnalyzerMinbias::beginRun(edm::Run const&, edm::EventSetup const& iS) {
             if (hcaltopology->valid(cell)) {
               sprintf(name, "HFeta%dphi%ddep%d", eta, phi, depth);
               sprintf(title, "Energy (HF #eta %d #phi %d depth %d)", eta, phi, depth);
-              TH1D* h = fs_->make<TH1D>(name, title, nbinHF, x_min, x_max);
+              TH1D* h = fs->make<TH1D>(name, title, nbinHF, x_min, x_max);
               histHC_[cell] = h;
             }
           }

@@ -65,7 +65,6 @@ private:
   std::vector<HcalDDDRecConstants::HcalActiveLength> actHB_, actHE_;
 
   double tMinE_, tMaxE_, tMinH_, tMaxH_;
-  edm::Service<TFileService> fs_;
   edm::EDGetTokenT<edm::SimTrackContainer> tok_SimTk_;
   edm::EDGetTokenT<edm::SimVertexContainer> tok_SimVtx_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEB_, tok_caloEE_;
@@ -370,7 +369,8 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 }
 
 void HcalHBHEMuonSimAnalyzer::beginJob() {
-  tree_ = fs_->make<TTree>("TREE", "TREE");
+  edm::Service<TFileService> fs;
+  tree_ = fs->make<TTree>("TREE", "TREE");
   tree_->Branch("Run_No", &runNumber_);
   tree_->Branch("Event_No", &eventNumber_);
   tree_->Branch("LumiNumber", &lumiNumber_);
