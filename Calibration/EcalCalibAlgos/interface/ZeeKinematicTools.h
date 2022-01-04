@@ -5,7 +5,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
