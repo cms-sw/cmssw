@@ -21,9 +21,6 @@
 
 #include "DQMOffline/Muon/interface/TriggerMatchMonitor.h"
 #include "DQMOffline/Muon/interface/TriggerMatchEfficiencyPlotter.h"
-#include "DQMOffline/Muon/interface/GEMOfflineMonitor.h"
-#include "DQMOffline/Muon/interface/GEMEfficiencyAnalyzer.h"
-#include "DQMOffline/Muon/interface/GEMEfficiencyHarvester.h"
 
 DEFINE_FWK_MODULE(MuonTrackResidualsTest);
 DEFINE_FWK_MODULE(MuonRecoTest);
