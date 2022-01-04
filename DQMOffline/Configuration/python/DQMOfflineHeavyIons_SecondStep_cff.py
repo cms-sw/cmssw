@@ -11,7 +11,7 @@ from DQM.HcalTasks.OfflineHarvestingSequence_hi import *
 from DQM.DTMonitorClient.dtDQMOfflineClients_cff import *
 from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQM.CSCMonitorModule.csc_dqm_offlineclient_collisions_cff import *
-from DQMOffline.Muon.gem_dqm_offline_client_cff import *
+from DQM.GEM.gem_dqm_offline_client_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
 DQMNone = cms.Sequence()
@@ -36,13 +36,13 @@ run3_GEM.toReplaceWith(DQMOfflineHeavyIons_SecondStepMuonDPG, _run3_GEM_DQMOffli
 
 DQMOfflineHeavyIons_SecondStepFED = cms.Sequence( dqmFEDIntegrityClient )
 
-DQMOfflineHeavyIons_SecondStep_PreDPG = cms.Sequence( 
+DQMOfflineHeavyIons_SecondStep_PreDPG = cms.Sequence(
 						      DQMOfflineHeavyIons_SecondStepEcal *
                                                       DQMOfflineHeavyIons_SecondStepTrackerStrip *
                                                       DQMOfflineHeavyIons_SecondStepTrackerPixel *
                                                       DQMOfflineHeavyIons_SecondStepHcal *
                                                       DQMOfflineHeavyIons_SecondStepMuonDPG *
-                                                      DQMOfflineHeavyIons_SecondStepFED 
+                                                      DQMOfflineHeavyIons_SecondStepFED
 							)
 
 DQMOfflineHeavyIons_SecondStepDPG = cms.Sequence(
@@ -67,7 +67,7 @@ DQMOfflineHeavyIons_SecondStepBeam = cms.Sequence( alcaBeamMonitorClient )
 
 DQMOfflineHeavyIons_SecondStepTracking = cms.Sequence( hiTrackingDqmClientHeavyIons )
 
-DQMOfflineHeavyIons_SecondStep_PrePOG = cms.Sequence( DQMOfflineHeavyIons_SecondStepMUO * 
+DQMOfflineHeavyIons_SecondStep_PrePOG = cms.Sequence( DQMOfflineHeavyIons_SecondStepMUO *
                                                       DQMOfflineHeavyIons_SecondStepEGamma *
                                                       DQMOfflineHeavyIons_SecondStepTrigger *
                                                       DQMOfflineHeavyIons_SecondStepBeam *
