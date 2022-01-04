@@ -552,15 +552,12 @@ process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.hcalDigis.FilterDataQuality = cms.bool(False)
 process.hcalDigis.InputLabel = cms.InputTag("source")
 ############################################################################
-process.hcalDigis= cms.EDProducer("HcalRawToDigi",
-#    FilterDataQuality = cms.bool(True),
-    FilterDataQuality = cms.bool(False),
-    HcalFirstFED = cms.untracked.int32(700),
-    InputLabel = cms.InputTag("source"),
-    #InputLabel = cms.InputTag("rawDataCollector"),
+process.load('EventFilter.HcalRawToDigi.hcalRawToDigi_cfi')
+process.hcalDigis= process.hcalRawToDigi.clone(
+    FilterDataQuality = False,
+    InputLabel = "source",
+    #InputLabel = "rawDataCollector",
 )
-#process.hcalDigis.FilterDataQuality = cms.bool(False)
-#process.hcalDigis.InputLabel = cms.InputTag("source")
 ############################################################################
 ##process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestal_cff")
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestalLocal_cff")

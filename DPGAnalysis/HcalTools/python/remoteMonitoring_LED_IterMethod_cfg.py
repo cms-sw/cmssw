@@ -407,15 +407,12 @@ from Configuration.AlCa.autoCond import autoCond
 # 2019:
 process.GlobalTag.globaltag = '106X_dataRun3_HLT_v3'
 
-
-process.hcalDigis= cms.EDProducer("HcalRawToDigi",
-#    FilterDataQuality = cms.bool(True),
-    FilterDataQuality = cms.bool(False),
-    HcalFirstFED = cms.untracked.int32(700),
-    InputLabel = cms.InputTag("source"),
+process.load('EventFilter.HcalRawToDigi.hcalRawToDigi_cfi')
+process.hcalDigis= process.hcalRawToDigi.clone(
+    FilterDataQuality = False,
+    InputLabel = "source",
     #InputLabel = cms.InputTag("rawDataCollector"),
 )
-
 process.p = cms.Path(process.hcalDigis*process.Analyzer)
 
 process.MessageLogger = cms.Service("MessageLogger",
