@@ -9,7 +9,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -21,14 +21,14 @@
 // class declaration
 //
 
-class HLTPhysicsDeclared : public edm::EDFilter {
+class HLTPhysicsDeclared : public edm::global::EDFilter<> {
 public:
   explicit HLTPhysicsDeclared(const edm::ParameterSet&);
   ~HLTPhysicsDeclared() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   bool m_invert;
   edm::InputTag m_gtDigis;
@@ -58,7 +58,7 @@ void HLTPhysicsDeclared::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.add("hltPhysicsDeclared", desc);
 }
 
-bool HLTPhysicsDeclared::filter(edm::Event& event, const edm::EventSetup& setup) {
+bool HLTPhysicsDeclared::filter(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
   bool accept = false;
 
   if (event.isRealData()) {
