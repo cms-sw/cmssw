@@ -21,7 +21,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -66,18 +66,17 @@ Implementation:
 // class decleration
 //
 
-class HLTDummyCollections : public edm::EDProducer {
+class HLTDummyCollections : public edm::global::EDProducer<> {
 public:
   explicit HLTDummyCollections(const edm::ParameterSet&);
   ~HLTDummyCollections() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
-  std::string action_;
   //bool doEcal_ ;
   bool doHcal_;
   bool unpackZDC_;
@@ -103,19 +102,19 @@ private:
 // constructors and destructor
 //
 HLTDummyCollections::HLTDummyCollections(const edm::ParameterSet& iConfig) {
-  action_ = iConfig.getParameter<std::string>("action");
+  auto action = iConfig.getParameter<std::string>("action");
   unpackZDC_ = iConfig.getParameter<bool>("UnpackZDC");
   ESdigiCollection_ = iConfig.getParameter<std::string>("ESdigiCollection");
 
-  //  doEcal_           = ( action_ == "doEcal");
-  doHcal_ = (action_ == "doHcal");
-  doEcalPreshower_ = (action_ == "doEcalPreshower");
-  doMuonDTDigis_ = (action_ == "doMuonDT");
-  doMuonCSCDigis_ = (action_ == "doMuonCSC");
-  doSiPixelDigis_ = (action_ == "doSiPixel");
-  doSiStrip_ = (action_ == "doSiStrip");
-  doObjectMap_ = (action_ == "doObjectMap");
-  doGCT_ = (action_ == "doGCT");
+  //  doEcal_           = ( action == "doEcal");
+  doHcal_ = (action == "doHcal");
+  doEcalPreshower_ = (action == "doEcalPreshower");
+  doMuonDTDigis_ = (action == "doMuonDT");
+  doMuonCSCDigis_ = (action == "doMuonCSC");
+  doSiPixelDigis_ = (action == "doSiPixel");
+  doSiStrip_ = (action == "doSiStrip");
+  doObjectMap_ = (action == "doObjectMap");
+  doGCT_ = (action == "doGCT");
 
   /* This interface is out of data and I do not know what is the proper replacement
   if (doEcal_) {
@@ -201,7 +200,7 @@ void HLTDummyCollections::fillDescriptions(edm::ConfigurationDescriptions& descr
 //
 
 // ------------ method called to produce the data  ------------
-void HLTDummyCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void HLTDummyCollections::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   /*
