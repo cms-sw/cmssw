@@ -70,7 +70,9 @@ void HGCalWaferCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   const HGCalDDDConstants& hgdc = iSetup.getData(dddToken_);
   const auto& geomR = iSetup.getData(geomToken_);
   const HGCalGeometry* geom = &geomR;
-  std::cout << nameDetector_ << " Layers = " << hgdc.layers(reco_) << " Sectors = " << hgdc.sectors() << std::endl;
+  std::cout << nameDetector_ << " Layers = " << hgdc.layers(reco_) << " Sectors = " << hgdc.sectors() << " Valid Cells "
+            << geomR.getValidDetIds().size() << " Valid Geometry Cells " << geomR.getValidGeomDetIds().size()
+            << std::endl;
   if (hgdc.waferHexagon8()) {
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
     for (int layer = 1; layer <= 2; ++layer) {
