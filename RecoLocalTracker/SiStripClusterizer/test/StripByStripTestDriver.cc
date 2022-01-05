@@ -24,13 +24,16 @@ private:
   void produce(edm::Event&, const edm::EventSetup&);
 
   const edm::InputTag inputTag;
+  const edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>> siStripDigisToken;
   const bool hlt;
 
   std::unique_ptr<StripClusterizerAlgorithm> algorithm;
 };
 
 StripByStripTestDriver::StripByStripTestDriver(const edm::ParameterSet& conf)
-    : inputTag(conf.getParameter<edm::InputTag>("DigiProducer")), hlt(conf.getParameter<bool>("HLT")) {
+    : inputTag(conf.getParameter<edm::InputTag>("DigiProducer")),
+      siStripDigisToken(consumes<edm::DetSetVector<SiStripDigi>>(inputTag)),
+      hlt(conf.getParameter<bool>("HLT")) {
   algorithm = StripClusterizerAlgorithmFactory::create(consumesCollector(), conf);
 
   produces<output_t>("");
@@ -42,8 +45,8 @@ void StripByStripTestDriver::produce(edm::Event& event, const edm::EventSetup& e
   auto output = std::make_unique<output_t>();
   output->reserve(10000, 4 * 10000);
 
-  edm::Handle<edm::DetSetVector<SiStripDigi> > input;
-  event.getByLabel(inputTag, input);
+  edm::Handle<edm::DetSetVector<SiStripDigi>> input;
+  event.getByToken(siStripDigisToken, input);
 
   algorithm->initialize(es);
 

@@ -121,7 +121,7 @@ private:
 
   TH1D *h000, *h001, *h002, *h003, *h004, *h005, *h006, *h007, *h008, *h009;
   TH1D *h010, *h011, *h012, *h013, *h014, *h015, *h016, *h017, *h018, *h019;
-  TH1D *h020, *h021, *h022, *h023, *h024, *h025, *h026, *h027, *h028, *h029;
+  TH1D *h020, *h021, *h022, *h023, *h024, *h025, *h028, *h029;
   TH1D *h030, *h031, *h032, *h033, *h034, *h035, *h036, *h037, *h038, *h039;
   TH1D *h040, *h041, *h042, *h043, *h044, *h045, *h046, *h047, *h048, *h049;
   TH1D *h050, *h051, *h052, *h053, *h054, *h055, *h056, *h057, *h058, *h059;
@@ -230,9 +230,6 @@ void Triplet::beginJob() {
   h023 = fs->make<TH1D>("h023", "best vertex x;x [cm]", 100, -0.25, 0.25);
   h024 = fs->make<TH1D>("h024", "best vertex y;y [cm]", 100, -0.25, 0.25);
   h025 = fs->make<TH1D>("h025", "best vertex z;z [cm]", 100, -25, 25);
-
-  //h026 = fs->make<TH1D>("h026", "Sum Et; Sum Et [GeV]", 100, 0, 1000 );
-  //h027 = fs->make<TH1D>("h027", "MET; MET [GeV]", 100, 0, 200 );
 
   h028 = fs->make<TH1D>("h028", "sum track pt; sum track Pt [GeV]", 100, 0, 500);
   h029 = fs->make<TH1D>("h029", "sum primary track charge; sum track charge", 41, -20.5, 20.5);
@@ -543,19 +540,6 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //xbs = vtxP.x();
   //ybs = vtxP.y();
   //}
-  //
-  //--------------------------------------------------------------------
-  // MET:
-  //
-  //   edm::Handle< edm::View<reco::PFMET> > pfMEThandle;
-  //   iEvent.getByLabel("pfMet", pfMEThandle);
-
-  //   if( !pfMEThandle.failedToGet() && pfMEThandle.isValid()){
-
-  //     h026->Fill( pfMEThandle->front().sumEt() );
-  //     h027->Fill( pfMEThandle->front().et() );
-
-  //   }
   //
   //--------------------------------------------------------------------
   // tracks:

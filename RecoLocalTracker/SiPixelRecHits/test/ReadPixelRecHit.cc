@@ -61,6 +61,7 @@ public:
 private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> esTokenGeom_;
   edm::InputTag src_;
+  const edm::EDGetTokenT<SiPixelRecHitCollection> siPixelRecHitsToken_;
   bool print;
 
 #ifdef DO_HISTO
@@ -105,6 +106,7 @@ using namespace std;
 ReadPixelRecHit::ReadPixelRecHit(edm::ParameterSet const &conf)
     : esTokenGeom_(esConsumes()),
       src_(conf.getParameter<edm::InputTag>("src")),
+      siPixelRecHitsToken_(consumes<SiPixelRecHitCollection>(src_)),
       print(conf.getUntrackedParameter<bool>("Verbosity", false)) {
   usesResource(TFileService::kSharedResource);
   edm::LogPrint("ReadPixelRecHit") << " Verbosity " << print;
@@ -269,7 +271,7 @@ void ReadPixelRecHit::analyze(const edm::Event &e, const edm::EventSetup &es) {
   const TrackerGeometry &theTracker = es.getData(esTokenGeom_);
 
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  e.getByLabel(src_, recHitColl);
+  e.getByToken(siPixelRecHitsToken_, recHitColl);
 
   if (print)
     edm::LogPrint("ReadPixelRecHit") << " FOUND " << (recHitColl.product())->dataSize() << " Pixel Hits";
