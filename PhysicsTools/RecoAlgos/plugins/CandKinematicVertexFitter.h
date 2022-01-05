@@ -10,14 +10,16 @@
 namespace reco {
   namespace modules {
     struct CandKinematicVertexFitterEventSetupInit {
-      static void init(CandKinematicVertexFitter& fitter, const edm::Event& evt, const edm::EventSetup& es) {
-        edm::ESHandle<MagneticField> h;
-        es.get<IdealMagneticFieldRecord>().get(h);
-        fitter.set(h.product());
-        edm::ESHandle<ParticleDataTable> pdt;
-        es.getData(pdt);
-        fitter.set(pdt.product());
+      explicit CandKinematicVertexFitterEventSetupInit(edm::ConsumesCollector iC)
+          : magToken_(iC.esConsumes()), pdtToken_(iC.esConsumes()) {}
+
+      void init(CandKinematicVertexFitter& fitter, const edm::Event& evt, const edm::EventSetup& es) {
+        fitter.set(&es.getData(magToken_));
+        fitter.set(&es.getData(pdtToken_));
       }
+
+      edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
+      edm::ESGetToken<ParticleDataTable, edm::DefaultRecord> pdtToken_;
     };
 
     template <>
