@@ -36,11 +36,6 @@ public:
         mdc_{nullptr},
         offsetToken_{cc.esConsumes<edm::Transition::BeginRun>()},
         geomConstantsToken_{cc.esConsumes<edm::Transition::BeginRun>()} {
-    edm::ParameterSet muonSD = p.getParameter<edm::ParameterSet>("MuonSD");
-    ePersistentCutGeV_ = muonSD.getParameter<double>("EnergyThresholdForPersistency") / CLHEP::GeV;  //Default 1. GeV
-    allMuonsPersistent_ = muonSD.getParameter<bool>("AllMuonsPersistent");
-    printHits_ = muonSD.getParameter<bool>("PrintHits");
-    dd4hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
   }
 
   void beginRun(const edm::EventSetup& es) final {
@@ -55,8 +50,7 @@ public:
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
                                           SimActivityRegistry& reg) const final {
-    auto sd = std::make_unique<MuonSensitiveDetector>(
-        iname, offmap_, *mdc_, clg, ePersistentCutGeV_, allMuonsPersistent_, printHits_, dd4hep_, man);
+    auto sd = std::make_unique<MuonSensitiveDetector>(iname, offmap_, *mdc_, clg, p, man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());
     return sd;
   }
