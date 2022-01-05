@@ -19,7 +19,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -41,7 +41,7 @@ using namespace std;
 // class declaration
 //
 
-class TPGCheck : public edm::EDAnalyzer {
+class TPGCheck : public edm::one::EDAnalyzer<> {
 public:
   explicit TPGCheck(const edm::ParameterSet &);
   ~TPGCheck() override;
