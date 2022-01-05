@@ -219,7 +219,7 @@ TestWithTracks::~TestWithTracks() = default;
 
 // ------------ method called at the begining   ------------
 void TestWithTracks::beginJob() {
-  edm::LogPrint("TestWithTracks") << "BeginJob, Verbosity " << PRINT << endl;
+  edm::LogPrint("TestWithTracks") << "BeginJob, Verbosity " << PRINT;
 
   countTracks = 0.;
   countGoodTracks = 0.;
@@ -458,7 +458,7 @@ void TestWithTracks::beginJob() {
 }
 // ------------ method called to at the end of the job  ------------
 void TestWithTracks::endJob() {
-  edm::LogPrint("TestWithTracks") << " End PixelTracksTest, events =  " << countEvents << endl;
+  edm::LogPrint("TestWithTracks") << " End PixelTracksTest, events =  " << countEvents;
 
   if (countEvents > 0.) {
     countTracks /= countEvents;
@@ -468,7 +468,7 @@ void TestWithTracks::endJob() {
     countLumi /= 1000.;
     edm::LogPrint("TestWithTracks") << " Average tracks/event " << countTracks << " good " << countGoodTracks
                                     << " in pix " << countTracksInPix << " PVs " << countPVs << " events "
-                                    << countEvents << " lumi pb-1 " << countLumi << "/10, bug!" << endl;
+                                    << countEvents << " lumi pb-1 " << countLumi << "/10, bug!";
   }
 }
 //////////////////////////////////////////////////////////////////
@@ -520,7 +520,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
   //int orbit     = e.orbitNumber(); // unused
 
   if (PRINT)
-    edm::LogPrint("TestWithTracks") << "Run " << run << " Event " << event << " LS " << lumiBlock << endl;
+    edm::LogPrint("TestWithTracks") << "Run " << run << " Event " << event << " LS " << lumiBlock;
 
   hbx0->Fill(float(bx));
   hlumi0->Fill(float(lumiBlock));
@@ -612,7 +612,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
   e.getByToken(vtxToken_, vertices);
 
   if (PRINT)
-    edm::LogPrint("TestWithTracks") << " PV list " << vertices->size() << endl;
+    edm::LogPrint("TestWithTracks") << " PV list " << vertices->size();
   int pvNotFake = 0, pvsTrue = 0;
   vector<float> pvzVector;
   for (reco::VertexCollection::const_iterator iv = vertices->begin(); iv != vertices->end(); ++iv) {
@@ -633,7 +633,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
     if (PRINT)
       edm::LogPrint("TestWithTracks") << " PV " << pvNotFake << " pos = " << pvx << "/" << pvy << "/" << pvz
-                                      << ", Num of tracks " << numTracksPerPV << endl;
+                                      << ", Num of tracks " << numTracksPerPV;
 
     hpvz->Fill(pvz);
     if (pvz > -22. && pvz < 22.) {
@@ -654,7 +654,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
   hNumPvClean->Fill(float(pvsTrue));
 
   if (PRINT)
-    edm::LogPrint("TestWithTracks") << " Not fake PVs = " << pvNotFake << " good position " << pvsTrue << endl;
+    edm::LogPrint("TestWithTracks") << " Not fake PVs = " << pvNotFake << " good position " << pvsTrue;
 
   // -- Tracks
   // ----------------------------------------------------------------------
@@ -666,7 +666,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
   e.getByToken(srcToken_, recTracks);
 
   if (PRINT)
-    edm::LogPrint("TestWithTracks") << " Tracks " << recTracks->size() << endl;
+    edm::LogPrint("TestWithTracks") << " Tracks " << recTracks->size();
   for (reco::TrackCollection::const_iterator t = recTracks->begin(); t != recTracks->end(); ++t) {
     trackNumber++;
     numOfClusPerTrk1 = 0;  // this is confusing, it is used as clus per track
@@ -689,7 +689,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
     if (PRINT)
       edm::LogPrint("TestWithTracks") << "Track " << trackNumber << " Pt " << pt << " Eta " << eta << " d0/dz " << d0
-                                      << " " << dz << " Hits " << size << endl;
+                                      << " " << dz << " Hits " << size;
 
     hEta->Fill(eta);
     hDz->Fill(dz);
@@ -771,8 +771,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
           ladderOn = -ladderOn;
 
         if (PRINT)
-          edm::LogPrint("TestWithTracks")
-              << "barrel layer/ladder/module: " << layer << "/" << ladder << "/" << zindex << endl;
+          edm::LogPrint("TestWithTracks") << "barrel layer/ladder/module: " << layer << "/" << ladder << "/" << zindex;
 
       } else if (IntSubDetID == PixelSubdetector::PixelEndcap) {  // fpix
 
@@ -785,7 +784,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
         if (PRINT)
           edm::LogPrint("TestWithTracks") << " forward det, disk " << disk << ", blade " << blade << ", module "
-                                          << zindexF << ", side " << side << ", panel " << panel << endl;
+                                          << zindexF << ", side " << side << ", panel " << panel;
 
       } else {     // nothings
         continue;  // skip
@@ -905,14 +904,13 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
             //edm::LogPrint("TestWithTracks")<<tTopo->pxbLayer(detId)<<" "<<tTopo->pxbModule(detId)<<" "<<rows<<" "<<tmp14<<" "
             if (PRINT)
-              edm::LogPrint("TestWithTracks") << " align error " << layer << tmp11 << " " << tmp13 << endl;
+              edm::LogPrint("TestWithTracks") << " align error " << layer << tmp11 << " " << tmp13;
           } else {
-            edm::LogPrint("TestWithTracks") << " lape = 0" << endl;
+            edm::LogPrint("TestWithTracks") << " lape = 0";
           }  // if lape
 
           if (PRINT)
-            edm::LogPrint("TestWithTracks")
-                << " rechit loc " << xloc << " " << yloc << " " << lerr_x << " " << lerr_y << endl;
+            edm::LogPrint("TestWithTracks") << " rechit loc " << xloc << " " << yloc << " " << lerr_x << " " << lerr_y;
         }  // limit pt
 
         edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const &clust = hit->cluster();
@@ -934,7 +932,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
         if (PRINT)
           edm::LogPrint("TestWithTracks")
-              << " cluster " << numberOfClusters << " charge = " << charge << " size = " << size << endl;
+              << " cluster " << numberOfClusters << " charge = " << charge << " size = " << size;
 
         LocalPoint lp = topol->localPosition(MeasurementPoint(clust->x(), clust->y()));
         //float x = lp.x();
@@ -1124,7 +1122,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
             numOfClustersPerDisk4++;  // +z
 
         } else {
-          edm::LogPrint("TestWithTracks") << " which layer is this? " << layer << " " << disk << endl;
+          edm::LogPrint("TestWithTracks") << " which layer is this? " << layer << " " << disk;
         }  // if layer
 
       }  // if valid
@@ -1136,20 +1134,20 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
     if (PRINT)
       edm::LogPrint("TestWithTracks") << " Clusters for track " << trackNumber << " num of clusters "
-                                      << numberOfClusters << " num of pixels " << pixelHits << endl;
+                                      << numberOfClusters << " num of pixels " << pixelHits;
 
 #ifdef HISTOS
     // per track histos
     if (numberOfClusters > 0) {
       hclusPerTrk1->Fill(float(numOfClusPerTrk1));
       if (PRINT)
-        edm::LogPrint("TestWithTracks") << "Lay1: number of clusters per track = " << numOfClusPerTrk1 << endl;
+        edm::LogPrint("TestWithTracks") << "Lay1: number of clusters per track = " << numOfClusPerTrk1;
       hclusPerTrk2->Fill(float(numOfClusPerTrk2));
       if (PRINT)
-        edm::LogPrint("TestWithTracks") << "Lay2: number of clusters per track = " << numOfClusPerTrk1 << endl;
+        edm::LogPrint("TestWithTracks") << "Lay2: number of clusters per track = " << numOfClusPerTrk1;
       hclusPerTrk3->Fill(float(numOfClusPerTrk3));
       if (PRINT)
-        edm::LogPrint("TestWithTracks") << "Lay3: number of clusters per track = " << numOfClusPerTrk1 << endl;
+        edm::LogPrint("TestWithTracks") << "Lay3: number of clusters per track = " << numOfClusPerTrk1;
       hclusPerTrk4->Fill(float(numOfClusPerTrk4));  // fpix  disk1
       hclusPerTrk5->Fill(float(numOfClusPerTrk5));  // fpix disk2
 
@@ -1242,7 +1240,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
   }
 
   if (PRINT)
-    edm::LogPrint("TestWithTracks") << " event with tracks = " << trackNumber << " " << countNiceTracks << endl;
+    edm::LogPrint("TestWithTracks") << " event with tracks = " << trackNumber << " " << countNiceTracks;
 
   return;
 
@@ -1377,13 +1375,13 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
     if (PRINT)
       edm::LogPrint("TestWithTracks") << " Cluster for track " << trackNumber << " cluaters " << numberOfClusters << " "
-                                      << pixelHits << endl;
+                                      << pixelHits;
 
   }  // loop over tracks
 
 #endif  // USE_TRAJ
 
-  edm::LogPrint("TestWithTracks") << " event with tracks = " << trackNumber << " " << countGoodTracks << endl;
+  edm::LogPrint("TestWithTracks") << " event with tracks = " << trackNumber << " " << countGoodTracks;
 
 }  // end
 

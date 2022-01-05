@@ -437,7 +437,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
       edm::LogPrint("Triplet") << "beam spot x " << rbs->x0();
       edm::LogPrint("Triplet") << ", y " << rbs->y0();
       edm::LogPrint("Triplet") << ", z " << rbs->z0();
-      edm::LogPrint("Triplet") << endl;
+      edm::LogPrint("Triplet");
     }
 
   }  // bs valid
@@ -489,7 +489,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
           edm::LogPrint("Triplet") << ", z " << iVertex->z();
           edm::LogPrint("Triplet") << ", ndof " << iVertex->ndof();
           edm::LogPrint("Triplet") << ", sumpt " << iVertex->p4().pt();
-          edm::LogPrint("Triplet") << endl;
+          edm::LogPrint("Triplet");
         }
 
         if (iVertex->hasRefittedTracks())
@@ -597,22 +597,22 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
         edm::LogPrint("Triplet") << ", at R " << (*idet)->position().perp();
         edm::LogPrint("Triplet") << ", F " << (*idet)->position().barePhi() * wt;
         edm::LogPrint("Triplet") << ", z " << (*idet)->position().z();
-        edm::LogPrint("Triplet") << endl;
+        edm::LogPrint("Triplet");
         edm::LogPrint("Triplet") << "rot x";
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().xx();
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().xy();
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().xz();
-        edm::LogPrint("Triplet") << endl;
+        edm::LogPrint("Triplet");
         edm::LogPrint("Triplet") << "rot y";
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().yx();
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().yy();
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().yz();
-        edm::LogPrint("Triplet") << endl;
+        edm::LogPrint("Triplet");
         edm::LogPrint("Triplet") << "rot z";
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().zx();
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().zy();
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().zz();
-        edm::LogPrint("Triplet") << endl;
+        edm::LogPrint("Triplet");
         //
         // normal vector: includes alignment (varies from module to module along z on one ladder)
         // neighbouring ladders alternate with inward/outward orientation
@@ -634,22 +634,22 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
         edm::LogPrint("Triplet") << ", at R " << (*idet)->position().perp();
         edm::LogPrint("Triplet") << ", F " << (*idet)->position().barePhi() * wt;
         edm::LogPrint("Triplet") << ", z " << (*idet)->position().z();
-        edm::LogPrint("Triplet") << endl;
+        edm::LogPrint("Triplet");
         edm::LogPrint("Triplet") << "rot x";
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().xx();
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().xy();
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().xz();
-        edm::LogPrint("Triplet") << endl;
+        edm::LogPrint("Triplet");
         edm::LogPrint("Triplet") << "rot y";
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().yx();
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().yy();
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().yz();
-        edm::LogPrint("Triplet") << endl;
+        edm::LogPrint("Triplet");
         edm::LogPrint("Triplet") << "rot z";
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().zx();
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().zy();
         edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().zz();
-        edm::LogPrint("Triplet") << endl;
+        edm::LogPrint("Triplet");
         edm::LogPrint("Triplet") << "normal";
         edm::LogPrint("Triplet") << ": x " << (*idet)->surface().normalVector().x();
         edm::LogPrint("Triplet") << ", y " << (*idet)->surface().normalVector().y();
@@ -658,7 +658,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
 
       }  //PXD
 
-      edm::LogPrint("Triplet") << endl;
+      edm::LogPrint("Triplet");
 
     }  //idbg
 
@@ -712,7 +712,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
       edm::LogPrint("Triplet") << ", phi " << iTrack->phi() * wt;
       edm::LogPrint("Triplet") << ", dxyv " << iTrack->dxy(vtxP);
       edm::LogPrint("Triplet") << ", dzv " << iTrack->dz(vtxP);
-      edm::LogPrint("Triplet") << endl;
+      edm::LogPrint("Triplet");
     }
 
     const reco::HitPattern &hp = iTrack->hitPattern();
@@ -855,7 +855,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
 	edm::LogPrint("Triplet") << ", at R1 " << (*idet)->position().perp();
 	edm::LogPrint("Triplet") << ", F " << (*idet)->position().barePhi()*wt;
 	edm::LogPrint("Triplet") << ", z " << (*idet)->position().z();
-	edm::LogPrint("Triplet") << endl;
+	edm::LogPrint("Triplet") ;
       */
 
       if (tTopo->pxbLayer(mydetId) == 1) {
@@ -883,7 +883,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
 	  edm::LogPrint("Triplet") << ", y " << (*idet)->surface().normalVector().y();
 	  edm::LogPrint("Triplet") << ", z " << (*idet)->surface().normalVector().z();
 	  edm::LogPrint("Triplet") << ", f " << (*idet)->surface().normalVector().barePhi()*wt;
-	  edm::LogPrint("Triplet") << endl;
+	  edm::LogPrint("Triplet") ;
 	*/
 
         double phiN = (*idet)->surface().normalVector().barePhi();  //normal vector
@@ -1285,7 +1285,7 @@ void Triplet::triplets(double x1,
   double r3 = sqrt(x3 * x3 + y3 * y3);
 
   if (r3 - r1 < 2.0)
-    edm::LogPrint("Triplet") << "warn r1 = " << r1 << ", r3 = " << r3 << endl;
+    edm::LogPrint("Triplet") << "warn r1 = " << r1 << ", r3 = " << r3;
   //
   // Calculate the centre of the helix in xy-projection that
   // transverses the two spacepoints. The points with the same

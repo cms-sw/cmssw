@@ -334,7 +334,7 @@ void ReadPixelRecHit::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
     float alignErrorX = 0., alignErrorY = 0.;
     LocalError lape = theGeomDet->localAlignmentError();
-    //edm::LogPrint("ReadPixelRecHit")<<lape.valid()<<endl;
+    //edm::LogPrint("ReadPixelRecHit")<<lape.valid();
     if (lape.valid()) {
       if (lape.xx() > 0.)
         alignErrorX = sqrt(lape.xx()) * 1E4;
@@ -343,7 +343,7 @@ void ReadPixelRecHit::analyze(const edm::Event &e, const edm::EventSetup &es) {
         alignErrorY = sqrt(lape.yy()) * 1E4;
       if (print)
         edm::LogPrint("ReadPixelRecHit") << " Alignment errors " << alignErrorX << " " << alignErrorY;
-      //edm::LogPrint("ReadPixelRecHit")<<" Alignment errors "<<alignErrorX<<" "<<alignErrorY<<endl;
+      //edm::LogPrint("ReadPixelRecHit")<<" Alignment errors "<<alignErrorX<<" "<<alignErrorY;
     }
 
     unsigned int layer = 0, disk = 0, ladder = 0, zindex = 0, blade = 0, panel = 0, side = 0;
@@ -366,7 +366,7 @@ void ReadPixelRecHit::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
       if (localPrint)
         edm::LogPrint("ReadPixelRecHit") << " Layer " << layer << " ladder " << ladder << " z " << zindex;
-        //<<pdetId.rawId()<<" "<<pdetId.null()<<detTypeP<<" "<<subidP<<" "<<endl;
+        //<<pdetId.rawId()<<" "<<pdetId.null()<<detTypeP<<" "<<subidP<<" ";
 
 #ifdef DO_HISTO
       hdetr->Fill(detR);
@@ -380,7 +380,7 @@ void ReadPixelRecHit::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
       // test cols & rows
       //edm::LogPrint("ReadPixelRecHit")<<" det z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
-      //  <<cols<<" "<<rows<<endl;
+      //  <<cols<<" "<<rows;
 
       PXFDetId pdetId = PXFDetId(detId.rawId());
       disk = pdetId.disk();                   //1,2,3
@@ -520,7 +520,7 @@ void ReadPixelRecHit::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
       // Get the pixels in the Cluster
       const vector<SiPixelCluster::Pixel> &pixelsVec = clust->pixels();
-      //if(localPrint) edm::LogPrint("ReadPixelRecHit")<<" Pixels in this cluster "<<endl;
+      //if(localPrint) edm::LogPrint("ReadPixelRecHit")<<" Pixels in this cluster ";
       map<unsigned int, float, less<unsigned int> > chanMap;  // Channel map
       // Look at pixels in this cluster. ADC is calibrated, in electrons
       for (unsigned int i = 0; i < pixelsVec.size(); ++i) {
@@ -541,9 +541,9 @@ void ReadPixelRecHit::analyze(const edm::Event &e, const edm::EventSetup &es) {
                                            << edgeInX << " " << edgeInY << " big " << bigInX << " " << bigInY;
 
           //if(print && sizeX==1 && bigInX)
-          //edm::LogPrint("ReadPixelRecHit")<<" single big x "<<xClu<<" "<<pixx<<" "<<endl;
+          //edm::LogPrint("ReadPixelRecHit")<<" single big x "<<xClu<<" "<<pixx<<" ";
           //if(print && sizeY==1 && bigInY)
-          //edm::LogPrint("ReadPixelRecHit")<<" single big y "<<yClu<<" "<<pixy<<" "<<endl;
+          //edm::LogPrint("ReadPixelRecHit")<<" single big y "<<yClu<<" "<<pixy<<" ";
 #ifdef DO_HISTO
         if (layer == 1) {
           hadcCharge1->Fill(adc);
