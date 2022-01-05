@@ -61,7 +61,6 @@ PixelVertexVal::PixelVertexVal(const edm::ParameterSet &conf)
       vertexCollectionToken_(
           consumes<reco::VertexCollection>(edm::InputTag(conf.getParameter<std::string>("VertexCollection")))),
       simVertexContainerToken_(consumes<edm::SimVertexContainer>(conf.getParameter<edm::InputTag>("simG4"))) {
-
   usesResource(TFileService::kSharedResource);
   edm::LogInfo("PixelVertexVal") << " CTOR";
 }
