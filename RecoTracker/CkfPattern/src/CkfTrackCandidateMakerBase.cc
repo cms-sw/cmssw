@@ -76,7 +76,11 @@ namespace cms {
             iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("NavigationSchool")))),
         theNavigationSchool(nullptr),
         thePropagatorToken(iC.esConsumes(edm::ESInputTag("", "AnyDirectionAnalyticalPropagator"))),
+#ifdef VI_REPRODUCIBLE
+        maxSeedsBeforeCleaning_(0),
+#else
         maxSeedsBeforeCleaning_(conf.getParameter<unsigned int>("maxSeedsBeforeCleaning")),
+#endif
         theMTELabel(iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
         clustersToSkipTag_(conf.getParameter<edm::InputTag>("clustersToSkip")),
         skipClusters_(!clustersToSkipTag_.label().empty()),
