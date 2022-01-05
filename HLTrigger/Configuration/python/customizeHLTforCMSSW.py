@@ -151,9 +151,6 @@ def customiseFor36459(process):
         for aPar in ['SimpleMagneticField', 'TrajectoryBuilder']:
             if hasattr(iMod, aPar): delattr(iMod, aPar)
 
-        if not hasattr(iMod, 'maxSeedsBeforeCleaning'):
-            iMod.maxSeedsBeforeCleaning = cms.uint32(0)
-
         # convert onlyPixelHitsForSeedCleaner to tracked bool
         if hasattr(iMod, 'onlyPixelHitsForSeedCleaner'):
             theMod = getattr(iMod, 'onlyPixelHitsForSeedCleaner')
