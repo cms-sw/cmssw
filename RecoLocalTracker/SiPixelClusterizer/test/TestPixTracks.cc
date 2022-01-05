@@ -557,10 +557,6 @@ void TestPixTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
     cout << " Not fake PVs = " << pvNotFake << " good position " << pvsTrue << endl;
 
   Handle<reco::TrackCollection> recTracks;
-  // e.getByLabel("generalTracks", recTracks);
-  // e.getByLabel("ctfWithMaterialTracksP5", recTracks);
-  // e.getByLabel("splittedTracksP5", recTracks);
-  //e.getByLabel("cosmictrackfinderP5", recTracks);
   e.getByToken(srcToken_, recTracks);
 
   if (PRINT)

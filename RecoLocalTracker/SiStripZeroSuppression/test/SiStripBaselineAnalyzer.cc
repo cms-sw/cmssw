@@ -98,6 +98,14 @@ private:
   edm::InputTag srcAPVCM_;
   edm::InputTag srcProcessedRawDigi_;
   edm::InputTag srcDigis_;
+
+  edm::EDGetTokenT<edm::DetSetVector<SiStripProcessedRawDigi>> APVCMToken;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>> processedRawToken;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripProcessedRawDigi>> baselineToken;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>> baselinePointsToken;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>> digisToken;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> clustersToken;
+
   edm::Service<TFileService> fs_;
 
   TH1F* h1BadAPVperEvent_;
@@ -127,6 +135,15 @@ SiStripBaselineAnalyzer::SiStripBaselineAnalyzer(const edm::ParameterSet& conf) 
   srcProcessedRawDigi_ = conf.getParameter<edm::InputTag>("srcProcessedRawDigi");
   srcDigis_ = conf.getParameter<edm::InputTag>("srcDigis");
   srcAPVCM_ = conf.getParameter<edm::InputTag>("srcAPVCM");
+
+  APVCMToken = consumes<edm::DetSetVector<SiStripProcessedRawDigi>>(srcAPVCM_);
+  processedRawToken = consumes<edm::DetSetVector<SiStripRawDigi>>(srcProcessedRawDigi_);
+  baselineToken = consumes<edm::DetSetVector<SiStripProcessedRawDigi>>(srcBaseline_);
+  baselinePointsToken = consumes<edm::DetSetVector<SiStripDigi>>(srcBaselinePoints_);
+  digisToken = consumes<edm::DetSetVector<SiStripDigi>>(srcDigis_);
+  edm::InputTag clusLabel("siStripClusters");
+  clustersToken = consumes<edmNew::DetSetVector<SiStripCluster>>(clusLabel);
+
   subtractorPed_ = SiStripRawProcessingFactory::create_SubtractorPed(conf.getParameter<edm::ParameterSet>("Algorithms"),
                                                                      consumesCollector());
   nModuletoDisplay_ = conf.getParameter<uint32_t>("nModuletoDisplay");
@@ -180,9 +197,9 @@ void SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
   }
 
   if (plotAPVCM_) {
-    edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi> > moduleCM;
+    edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi>> moduleCM;
     edm::InputTag CMLabel("siStripZeroSuppression:APVCM");
-    e.getByLabel(srcAPVCM_, moduleCM);
+    e.getByToken(APVCMToken, moduleCM);
 
     edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator itCMDetSetV = moduleCM->begin();
     for (; itCMDetSetV != moduleCM->end(); ++itCMDetSetV) {
@@ -194,26 +211,25 @@ void SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
 
   subtractorPed_->init(es);
 
-  edm::Handle<edm::DetSetVector<SiStripRawDigi> > moduleRawDigi;
+  edm::Handle<edm::DetSetVector<SiStripRawDigi>> moduleRawDigi;
   if (plotRawDigi_)
-    e.getByLabel(srcProcessedRawDigi_, moduleRawDigi);
+    e.getByToken(processedRawToken, moduleRawDigi);
 
-  edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi> > moduleBaseline;
+  edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi>> moduleBaseline;
   if (plotBaseline_)
-    e.getByLabel(srcBaseline_, moduleBaseline);
+    e.getByToken(baselineToken, moduleBaseline);
 
-  edm::Handle<edm::DetSetVector<SiStripDigi> > moduleBaselinePoints;
+  edm::Handle<edm::DetSetVector<SiStripDigi>> moduleBaselinePoints;
   if (plotBaselinePoints_)
-    e.getByLabel(srcBaseline_, moduleBaselinePoints);
+    e.getByToken(baselinePointsToken, moduleBaselinePoints);
 
-  edm::Handle<edm::DetSetVector<SiStripDigi> > moduleDigis;
+  edm::Handle<edm::DetSetVector<SiStripDigi>> moduleDigis;
   if (plotDigis_)
-    e.getByLabel(srcDigis_, moduleDigis);
+    e.getByToken(digisToken, moduleDigis);
 
-  edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
+  edm::Handle<edmNew::DetSetVector<SiStripCluster>> clusters;
   if (plotClusters_) {
-    edm::InputTag clusLabel("siStripClusters");
-    e.getByLabel(clusLabel, clusters);
+    e.getByToken(clustersToken, clusters);
   }
 
   char detIds[20];

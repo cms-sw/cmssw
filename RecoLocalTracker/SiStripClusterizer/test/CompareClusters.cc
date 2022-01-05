@@ -45,10 +45,13 @@ private:
   const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualESToken;
 
   std::stringstream message;
+
   const edm::InputTag clusters1, clusters2, digis;
+  const edm::EDGetTokenT<input_t> clustersToken1, clustersToken2;
+  const edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>> digisToken;
   edm::Handle<input_t> clusterHandle1, clusterHandle2;
 
-  edm::Handle<edm::DetSetVector<SiStripDigi> > digiHandle;
+  edm::Handle<edm::DetSetVector<SiStripDigi>> digiHandle;
   edm::ESHandle<SiStripGain> gainHandle;
   edm::ESHandle<SiStripNoises> noiseHandle;
   edm::ESHandle<SiStripQuality> qualityHandle;
@@ -60,20 +63,23 @@ CompareClusters::CompareClusters(const edm::ParameterSet& conf)
       qualESToken(esConsumes()),
       clusters1(conf.getParameter<edm::InputTag>("Clusters1")),
       clusters2(conf.getParameter<edm::InputTag>("Clusters2")),
-      digis(conf.getParameter<edm::InputTag>("Digis")) {}
+      digis(conf.getParameter<edm::InputTag>("Digis")),
+      clustersToken1(consumes<input_t>(clusters1)),
+      clustersToken2(consumes<input_t>(clusters2)),
+      digisToken(consumes<edm::DetSetVector<SiStripDigi>>(digis)) {}
 
 void CompareClusters::analyze(const edm::Event& event, const edm::EventSetup& es) {
-  event.getByLabel(clusters1, clusterHandle1);
+  event.getByToken(clustersToken1, clusterHandle1);
   if (!clusterHandle1.isValid())
     throw cms::Exception("Input Not found") << clusters1;
-  event.getByLabel(clusters2, clusterHandle2);
+  event.getByToken(clustersToken2, clusterHandle2);
   if (!clusterHandle2.isValid())
     throw cms::Exception("Input Not found") << clusters2;
   if (identicalDSV(*clusterHandle1, *clusterHandle2))
     return;
 
   {  //digi access
-    event.getByLabel(digis, digiHandle);
+    event.getByToken(digisToken, digiHandle);
     if (!digiHandle.isValid())
       throw cms::Exception("Input Not found") << digis;
     gainHandle = es.getHandle(gainESToken);
