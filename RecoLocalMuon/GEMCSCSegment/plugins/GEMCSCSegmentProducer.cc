@@ -38,14 +38,14 @@ void GEMCSCSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup
   LogDebug("GEMCSCSegment") << "start producing segments for " << ++iev << "th event w/ gem and csc data";
 
   // find the geometry (& conditions?) for this event & cache it in the builder
-  const edm::ESHandle<CSCGeometry>&& cscg = setup.getHandle(kCSCGeometryToken_);
+  const auto cscg = setup.getHandle(kCSCGeometryToken_);
   if (not cscg.isValid()) {
     edm::LogError("GEMCSCSegment") << "invalid CSCGeometry";
     return;
   }
   const CSCGeometry* cgeom = &*cscg;
 
-  const edm::ESHandle<GEMGeometry>&& gemg = setup.getHandle(kGEMGeometryToken_);
+  const auto gemg = setup.getHandle(kGEMGeometryToken_);
   if (not gemg.isValid()) {
     edm::LogError("GEMCSCSegment") << "invalid GEMGeometry";
     return;
@@ -59,13 +59,13 @@ void GEMCSCSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup
   segmentBuilder_->LinkGEMRollsToCSCChamberIndex(ggeom, cgeom);
 
   // get the collection of CSCSegment and GEMRecHits
-  const edm::Handle<CSCSegmentCollection>&& cscSegment = ev.getHandle(kCSCSegmentCollectionToken_);
+  const auto cscSegment = ev.getHandle(kCSCSegmentCollectionToken_);
   if (not cscSegment.isValid()) {
     edm::LogError("GEMCSCSegment") << "invalid CSCSegmentCollection";
     return;
   }
 
-  const edm::Handle<GEMRecHitCollection>&& gemRecHits = ev.getHandle(kGEMRecHitCollectionToken_);
+  const auto gemRecHits = ev.getHandle(kGEMRecHitCollectionToken_);
   if (not gemRecHits.isValid()) {
     edm::LogError("GEMCSCSegment") << "invalid GEMRecHitCollection";
     return;

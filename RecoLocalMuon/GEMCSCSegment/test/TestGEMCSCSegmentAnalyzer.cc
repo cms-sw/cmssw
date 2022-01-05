@@ -976,13 +976,13 @@ TestGEMCSCSegmentAnalyzer::~TestGEMCSCSegmentAnalyzer() {
 
 // ------------ method called for each event  ------------
 void TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const edm::ESHandle<GEMGeometry>&& gemGeom = iSetup.getHandle(kGEMGeometryToken_);
+  const auto gemGeom = iSetup.getHandle(kGEMGeometryToken_);
   if (not gemGeom.isValid()) {
     edm::LogError("GEMCSCSegment") << "invalid GEMGeometry";
     return;
   }
 
-  const edm::ESHandle<CSCGeometry>&& cscGeom = iSetup.getHandle(kCSCGeometryToken_);
+  const auto cscGeom = iSetup.getHandle(kCSCGeometryToken_);
   if (not cscGeom.isValid()) {
     edm::LogError("GEMCSCSegment") << "invalid CSCGeometry";
     return;
