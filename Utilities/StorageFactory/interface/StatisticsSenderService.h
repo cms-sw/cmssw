@@ -53,6 +53,15 @@ namespace edm {
       struct FileInfo {
         explicit FileInfo(std::string const& iLFN, edm::InputType);
 
+        FileInfo(FileInfo const& iInfo)
+            : m_filelfn(iInfo.m_filelfn),
+              m_serverhost(iInfo.m_serverhost),
+              m_serverdomain(iInfo.m_serverdomain),
+              m_type(iInfo.m_type),
+              m_size(iInfo.m_size.load()),
+              m_id(iInfo.m_id),
+              m_openCount(iInfo.m_openCount.load()) {}
+
         FileInfo(FileInfo&& iInfo)
             : m_filelfn(std::move(iInfo.m_filelfn)),
               m_serverhost(std::move(iInfo.m_serverhost)),
