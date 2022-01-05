@@ -40,7 +40,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
                                              const MuonOffsetMap* offmap,
                                              const MuonGeometryConstants& constants,
                                              const SensitiveDetectorCatalog& clg,
-					     edm::ParameterSet const& p,
+                                             edm::ParameterSet const& p,
                                              const SimTrackManager* manager)
     : SensitiveTkDetector(name, clg),
       thePV(nullptr),
@@ -62,7 +62,9 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
   demoRPC_ = muonSD.getParameter<bool>("UseDemoHitRPC");
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MuonSim") << "create MuonSubDetector " << name << " with dd4hep flag " << dd4hep << " Flags for Demonstration chambers " << haveDemo_ << " for GEM " << demoGEM_ << " for RPC " << demoRPC_;
+  edm::LogVerbatim("MuonSim") << "create MuonSubDetector " << name << " with dd4hep flag " << dd4hep
+                              << " Flags for Demonstration chambers " << haveDemo_ << " for GEM " << demoGEM_
+                              << " for RPC " << demoRPC_;
 #endif
   detector = new MuonSubDetector(name);
 
@@ -133,7 +135,8 @@ bool MuonSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* ROhis
     G4VPhysicalVolume* vol = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0);
     std::string namx = static_cast<std::string>(vol->GetName());
     std::string name = namx.substr(0, 2);
-    if (name == "RE") edm::LogVerbatim("MuonSim") << "DETID " << namx << " " << RPCDetId(newDetUnitId);
+    if (name == "RE")
+      edm::LogVerbatim("MuonSim") << "DETID " << namx << " " << RPCDetId(newDetUnitId);
 #endif
     if (newHit(aStep)) {
       saveHit();
@@ -304,9 +307,9 @@ void MuonSensitiveDetector::saveHit() {
   if (theHit) {
     if (acceptHit(theHit->detUnitId())) {
       if (printHits_) {
-	thePrinter->startNewSimHit(detector->name());
-	thePrinter->printId(theHit->detUnitId());
-	thePrinter->printLocal(theHit->entryPoint(), theHit->exitPoint());
+        thePrinter->startNewSimHit(detector->name());
+        thePrinter->printId(theHit->detUnitId());
+        thePrinter->printLocal(theHit->entryPoint(), theHit->exitPoint());
       }
       // hit is included into hit collection
       slaveMuon->processHits(*theHit);
@@ -316,9 +319,7 @@ void MuonSensitiveDetector::saveHit() {
   }
 }
 
-void MuonSensitiveDetector::EndOfEvent(G4HCofThisEvent*) { 
-  saveHit(); 
-}
+void MuonSensitiveDetector::EndOfEvent(G4HCofThisEvent*) { saveHit(); }
 
 void MuonSensitiveDetector::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
   if (slaveMuon->name() == hname) {
@@ -359,10 +360,10 @@ bool MuonSensitiveDetector::acceptHit(uint32_t id) {
     int subdet = DetId(id).subdetId();
     if (subdet == MuonSubdetId::GEM) {
       if (GEMDetId(id).station() == 2)
-	flag = demoGEM_;
+        flag = demoGEM_;
     } else if (subdet == MuonSubdetId::RPC) {
       if ((RPCDetId(id).region() != 0) && (RPCDetId(id).ring() == 1) && (RPCDetId(id).station() > 2))
-	flag = demoRPC_;
+        flag = demoRPC_;
     }
   }
   if (id == 0)
@@ -377,9 +378,9 @@ bool MuonSensitiveDetector::acceptHit(uint32_t id) {
     edm::LogVerbatim("MuonSim") << "DetId " << std::hex << id << std::dec << " " << ME0DetId(id) << " Flag " << flag;
   else if (subdet == MuonSubdetId::CSC)
     edm::LogVerbatim("MuonSim") << "DetId " << std::hex << id << std::dec << " CSC Flag " << flag;
-  else  if (subdet == MuonSubdetId::DT)
+  else if (subdet == MuonSubdetId::DT)
     edm::LogVerbatim("MuonSim") << "DetId " << std::hex << id << std::dec << " DT Flag " << flag;
-  else 
+  else
     edm::LogVerbatim("MuonSim") << "DetId " << std::hex << id << std::dec << " Unknown Flag " << flag;
 #endif
   return flag;

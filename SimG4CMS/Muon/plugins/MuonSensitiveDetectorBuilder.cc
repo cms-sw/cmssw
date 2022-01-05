@@ -35,8 +35,7 @@ public:
       : offmap_{nullptr},
         mdc_{nullptr},
         offsetToken_{cc.esConsumes<edm::Transition::BeginRun>()},
-        geomConstantsToken_{cc.esConsumes<edm::Transition::BeginRun>()} {
-  }
+        geomConstantsToken_{cc.esConsumes<edm::Transition::BeginRun>()} {}
 
   void beginRun(const edm::EventSetup& es) final {
     edm::ESHandle<MuonOffsetMap> mom = es.getHandle(offsetToken_);

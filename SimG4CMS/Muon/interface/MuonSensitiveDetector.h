@@ -42,7 +42,7 @@ public:
                                  const MuonOffsetMap*,
                                  const MuonGeometryConstants&,
                                  const SensitiveDetectorCatalog&,
-				 edm::ParameterSet const& p,
+                                 edm::ParameterSet const& p,
                                  const SimTrackManager*);
   ~MuonSensitiveDetector() override;
   G4bool ProcessHits(G4Step*, G4TouchableHistory*) override;
