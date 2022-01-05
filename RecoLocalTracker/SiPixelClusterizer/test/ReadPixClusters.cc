@@ -140,7 +140,7 @@ ReadPixClusters::ReadPixClusters(edm::ParameterSet const &conf) : src_(conf.getP
   usesResource(TFileService::kSharedResource);
   printLocal = conf.getUntrackedParameter<bool>("Verbosity", false);
   //src_ =  conf.getParameter<edm::InputTag>( "src" );
-  edm::LogPrint("ReadPixClusters") << " Construct " << printLocal << endl;
+  edm::LogPrint("ReadPixClusters") << " Construct " << printLocal;
   tPixelCluster = consumes<edmNew::DetSetVector<SiPixelCluster>>(src_);
   trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
@@ -150,7 +150,7 @@ ReadPixClusters::~ReadPixClusters() = default;
 
 // ------------ method called at the begining   ------------
 void ReadPixClusters::beginJob() {
-  edm::LogPrint("ReadPixClusters") << "Initialize PixelClusterTest " << printLocal << endl;
+  edm::LogPrint("ReadPixClusters") << "Initialize PixelClusterTest " << printLocal;
 
 #ifdef HISTOS
 
@@ -316,7 +316,7 @@ void ReadPixClusters::beginJob() {
 void ReadPixClusters::endJob() {
   sumClusters = sumClusters / float(countEvents);
   edm::LogPrint("ReadPixClusters") << " End PixelClusTest, events all/with hits=  " << countAllEvents << "/"
-                                   << countEvents << " " << sumClusters << " " << printLocal << endl;
+                                   << countEvents << " " << sumClusters << " " << printLocal;
 }
 //////////////////////////////////////////////////////////////////
 // Functions that gets called by framework every event
@@ -352,7 +352,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
   if (printLocal)
     edm::LogPrint("ReadPixClusters") << "run " << run << " event " << event << " bx " << bx << " lumi " << lumiBlock
-                                     << " orbit " << orbit << " " << numOf << endl;
+                                     << " orbit " << orbit << " " << numOf;
 
   hdets->Fill(float(numOf));  // number of modules with pix
 
@@ -425,7 +425,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
     if (printLocal)
       edm::LogPrint("ReadPixClusters") << "Det: " << detId.rawId() << " " << detId.null() << " " << detType << " "
-                                       << subid << endl;
+                                       << subid;
 
 #ifdef HISTOS
       //hdetunit->Fill(float(detid));
@@ -495,7 +495,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
       if (printLocal)
         edm::LogPrint("ReadPixClusters") << " forward det, disk " << disk << ", blade " << blade << ", module "
                                          << moduleF << ", side " << side << ", panel " << panel << " pos = " << detZ
-                                         << " " << detR << endl;
+                                         << " " << detR;
 
       bool fpixInner = (((panel == 1) && (moduleF <= 2)) || ((panel == 2) && (moduleF <= 1)));  // make split at 10cm
       if (fpixInner)
@@ -548,19 +548,19 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
       if (printLocal) {
         edm::LogPrint("ReadPixClusters") << " Barrel layer, ladder, module " << layerC << " " << ladderC << " "
                                          << zindex << " " << sh << "(" << shell << ") " << sector << " " << layer << " "
-                                         << ladder << " " << module << " " << half << endl;
+                                         << ladder << " " << module << " " << half;
         //edm::LogPrint("ReadPixClusters")<<" Barrel det, thick "<<detThick<<" "
         //  <<" layer, ladder, module "
-        //  <<layer<<" "<<ladder<<" "<<zindex<<endl;
+        //  <<layer<<" "<<ladder<<" "<<zindex;
         //edm::LogPrint("ReadPixClusters")<<" col/row, pitch "<<cols<<" "<<rows<<" "
-        //  <<pitchX<<" "<<pitchY<<endl;
+        //  <<pitchX<<" "<<pitchY;
       }
 
     }  // if subid
 
     if (printLocal) {
-      edm::LogPrint("ReadPixClusters") << "List clusters : " << endl;
-      edm::LogPrint("ReadPixClusters") << "Num Charge Size SizeX SizeY X Y Xmin Xmax Ymin Ymax Edge" << endl;
+      edm::LogPrint("ReadPixClusters") << "List clusters : ";
+      edm::LogPrint("ReadPixClusters") << "Num Charge Size SizeX SizeY X Y Xmin Xmax Ymin Ymax Edge";
     }
 
     // Loop over clusters
@@ -590,13 +590,12 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
       if (printLocal)
         edm::LogPrint("ReadPixClusters") << numberOfClusters << " " << ch << " " << size << " " << sizeX << " " << sizeY
                                          << " " << x << " " << y << " " << minPixelRow << " " << maxPixelRow << " "
-                                         << minPixelCol << " " << maxPixelCol << " " << edgeHitX << " " << edgeHitY
-                                         << endl;
+                                         << minPixelCol << " " << maxPixelCol << " " << edgeHitX << " " << edgeHitY;
 
       // Get the pixels in the Cluster
       const vector<SiPixelCluster::Pixel> &pixelsVec = clustIt->pixels();
       if (printLocal)
-        edm::LogPrint("ReadPixClusters") << " Pixels in this cluster " << endl;
+        edm::LogPrint("ReadPixClusters") << " Pixels in this cluster ";
 
       bool bigInX = false, bigInY = false;
       bool edgeHitX2 = false;  // edge method moved
@@ -682,7 +681,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
             else if (side == 2)
               numOfPixPerDisk3++;  // d1, +z
             else
-              edm::LogPrint("ReadPixClusters") << " unknown side " << side << endl;
+              edm::LogPrint("ReadPixClusters") << " unknown side " << side;
 
             hpixcharge4->Fill(adc);
 
@@ -693,12 +692,12 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
             else if (side == 2)
               numOfPixPerDisk4++;  // d2, +z
             else
-              edm::LogPrint("ReadPixClusters") << " unknown side " << side << endl;
+              edm::LogPrint("ReadPixClusters") << " unknown side " << side;
 
             hpixcharge5->Fill(adc);
 
           } else
-            edm::LogPrint("ReadPixClusters") << " unknown disk " << disk << endl;
+            edm::LogPrint("ReadPixClusters") << " unknown disk " << disk;
 
         }  // end if subdet (pixel loop)
 
@@ -714,7 +713,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
         if (printLocal)
           edm::LogPrint("ReadPixClusters") << i << " " << pixx << " " << pixy << " " << adc << " " << bigInX << " "
-                                           << bigInY << " " << edgeInX << " " << edgeInY << endl;
+                                           << bigInY << " " << edgeInX << " " << edgeInY;
 
         //SK:unused	if(bigInX) cluBigInX=true;
         //SK:unused	if(bigInY) cluBigInY=true;
@@ -725,7 +724,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
       // 	edm::LogPrint("ReadPixClusters")<<" egde "<<edgeHitX<<" "<<edgeHitX2<<" "<<edgeHitY<<" "<<edgeHitY2<<" "
       // 	    <<size<<" "<<sizeX<<" "<<sizeY<<" "
       // 	    <<x<<" "<<y<<" "<<minPixelRow<<" "<<maxPixelRow<<" "<<minPixelCol<<" "
-      // 	    <<maxPixelCol<<" "<<edgeHitX<<" "<<edgeHitY<<endl;
+      // 	    <<maxPixelCol<<" "<<edgeHitX<<" "<<edgeHitY;
 
       // This will happen  for clusters wider than 64
       if ((edgeHitX != edgeHitX2) && sizeX < 64)
@@ -734,7 +733,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
                                          //<<" "<<event<<" "<<detid<<" "<<numberOfClusters
                                          << " size = " << size << " " << sizeX << " " << sizeY << " " << x << " " << y
                                          << " " << minPixelRow << " " << maxPixelRow << " " << minPixelCol << " "
-                                         << maxPixelCol << " " << edgeHitX << " " << edgeHitY << endl;
+                                         << maxPixelCol << " " << edgeHitX << " " << edgeHitY;
 
       if ((edgeHitY != edgeHitY2) && sizeY < 64)
         edm::LogPrint("ReadPixClusters") << " wrong egdeY " << edgeHitY << " "
@@ -742,7 +741,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
                                          //<<" "<<event<<" "<<detid<<" "<<numberOfClusters
                                          << " size = " << size << " " << sizeX << " " << sizeY << " " << x << " " << y
                                          << " " << minPixelRow << " " << maxPixelRow << " " << minPixelCol << " "
-                                         << maxPixelCol << " " << edgeHitX << " " << edgeHitY << endl;
+                                         << maxPixelCol << " " << edgeHitX << " " << edgeHitY;
 
 #ifdef HISTOS
 
@@ -796,14 +795,14 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
       } else if (subid == 2) {  // endcap
 
-        //edm::LogPrint("ReadPixClusters")<<disk<<" "<<side<<endl;
+        //edm::LogPrint("ReadPixClusters")<<disk<<" "<<side;
         if (disk == 1) {  // disk1 -+z
           if (side == 1)
             numOfClustersPerDisk2++;  // d1,-z
           else if (side == 2)
             numOfClustersPerDisk3++;  // d1, +z
           else
-            edm::LogPrint("ReadPixClusters") << " unknown side " << side << endl;
+            edm::LogPrint("ReadPixClusters") << " unknown side " << side;
 
           hcharge4->Fill(ch);
           aveCharge4 += ch;
@@ -818,7 +817,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
           else if (side == 2)
             numOfClustersPerDisk4++;  // d2, +z
           else
-            edm::LogPrint("ReadPixClusters") << " unknown side " << side << endl;
+            edm::LogPrint("ReadPixClusters") << " unknown side " << side;
 
           hcharge5->Fill(ch);
           aveCharge5 += ch;
@@ -827,7 +826,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
           hsizey5->Fill(float(sizeY));
 
         } else
-          edm::LogPrint("ReadPixClusters") << " unknown disk " << disk << endl;  // end fpix disk
+          edm::LogPrint("ReadPixClusters") << " unknown disk " << disk;  // end fpix disk
 
       }  // end if barrel/forward
 
@@ -844,11 +843,11 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
     if (printLocal) {
       if (layer == 1)
-        edm::LogPrint("ReadPixClusters") << "Lay1: number of clusters per det = " << numOfClustersPerDet1 << endl;
+        edm::LogPrint("ReadPixClusters") << "Lay1: number of clusters per det = " << numOfClustersPerDet1;
       else if (layer == 2)
-        edm::LogPrint("ReadPixClusters") << "Lay2: number of clusters per det = " << numOfClustersPerDet1 << endl;
+        edm::LogPrint("ReadPixClusters") << "Lay2: number of clusters per det = " << numOfClustersPerDet1;
       else if (layer == 3)
-        edm::LogPrint("ReadPixClusters") << "Lay3: number of clusters per det = " << numOfClustersPerDet1 << endl;
+        edm::LogPrint("ReadPixClusters") << "Lay3: number of clusters per det = " << numOfClustersPerDet1;
     }  // end if printLocal
 
 #ifdef HISTOS
@@ -908,26 +907,26 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
   if (0) {
     edm::LogPrint("ReadPixClusters") << "run " << run << " event " << event << " bx " << bx << " lumi " << lumiBlock
-                                     << " orbit " << orbit << " num " << countEvents << endl;
+                                     << " orbit " << orbit << " num " << countEvents;
     edm::LogPrint("ReadPixClusters") << "Num of pix " << numberOfPixels << " num of clus " << numberOfClusters
                                      << " num of dets " << numOf << " max clus per det " << maxClusPerDet
-                                     << " max pix per clu " << maxPixPerClu << " count " << countEvents << endl;
+                                     << " max pix per clu " << maxPixPerClu << " count " << countEvents;
     edm::LogPrint("ReadPixClusters") << "Number of clusters per      Lay1,2,3: " << numOfClustersPerLay1 << " "
-                                     << numOfClustersPerLay2 << " " << numOfClustersPerLay3 << endl;
+                                     << numOfClustersPerLay2 << " " << numOfClustersPerLay3;
     edm::LogPrint("ReadPixClusters") << "Number of pixels per        Lay1,2,3: " << numOfPixPerLay1 << " "
-                                     << numOfPixPerLay2 << " " << numOfPixPerLay3 << endl;
+                                     << numOfPixPerLay2 << " " << numOfPixPerLay3;
     edm::LogPrint("ReadPixClusters") << "Number of dets with clus in Lay1,2,3: " << numberOfDetUnits1 << " "
-                                     << numberOfDetUnits2 << " " << numberOfDetUnits3 << endl;
+                                     << numberOfDetUnits2 << " " << numberOfDetUnits3;
     edm::LogPrint("ReadPixClusters") << "Number of clus in disks 1,2,3,4     : " << numOfClustersPerDisk1 << " "
                                      << numOfClustersPerDisk2 << " " << numOfClustersPerDisk3 << " "
-                                     << numOfClustersPerDisk4 << endl;
+                                     << numOfClustersPerDisk4;
     aveCharge1 /= float(numOfClustersPerLay1);
     aveCharge2 /= float(numOfClustersPerLay2);
     aveCharge3 /= float(numOfClustersPerLay3);
     aveCharge4 /= float(numOfClustersPerDisk2 + numOfClustersPerDisk3);
     aveCharge5 /= float(numOfClustersPerDisk1 + numOfClustersPerDisk4);
     edm::LogPrint("ReadPixClusters") << " Average charge " << aveCharge1 << " " << aveCharge2 << " " << aveCharge3
-                                     << " " << aveCharge4 << " " << aveCharge5 << endl;
+                                     << " " << aveCharge4 << " " << aveCharge5;
   }
 
 #ifdef HISTOS

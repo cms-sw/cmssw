@@ -122,7 +122,7 @@ public:
 private:
 };
 
-getBX::getBX(void) { edm::LogPrint("TestClusters") << " bx ctor " << endl; }
+getBX::getBX(void) { edm::LogPrint("TestClusters") << " bx ctor "; }
 
 getBX::~getBX(void) {}
 
@@ -487,7 +487,7 @@ getBX::getBX(void) {
   beam2_start[count] = 1739;
   beam2_stop[count] = 1745;
 
-  edm::LogPrint("TestClusters") << " number of trains " << trains << " " << limit << endl;
+  edm::LogPrint("TestClusters") << " number of trains " << trains << " " << limit;
 }
 
 getBX::~getBX(void) {}
@@ -612,7 +612,7 @@ private:
 };
 
 rocEfficiency::rocEfficiency(void) {
-  edm::LogPrint("TestClusters") << " clear" << endl;
+  edm::LogPrint("TestClusters") << " clear";
   for (int lad1 = 0; lad1 < 20; ++lad1)
     for (int mod1 = 0; mod1 < 8; ++mod1)
       for (int roc1 = 0; roc1 < 16; ++roc1)
@@ -642,13 +642,13 @@ rocEfficiency::~rocEfficiency(void) {
 
 void rocEfficiency::addPixel(int layer, int ladder, int module, int roc) {
   if (roc < 0 || roc >= 16) {
-    edm::LogPrint("TestClusters") << " wrong roc number " << roc << endl;
+    edm::LogPrint("TestClusters") << " wrong roc number " << roc;
     return;
   }
 
   int module0 = transformModule(module);
   if (module0 < 0 || module0 >= 8) {
-    edm::LogPrint("TestClusters") << " wrong module index " << module0 << " " << module << endl;
+    edm::LogPrint("TestClusters") << " wrong module index " << module0 << " " << module;
     return;
   }
 
@@ -658,21 +658,21 @@ void rocEfficiency::addPixel(int layer, int ladder, int module, int roc) {
       ladder0 = transformLadder1(ladder);
       //edm::LogPrint("TestClusters")<<layer<<" "<<ladder0<<" "<<module0<<" "<<col<<" "<<row<<endl;
       if (ladder0 < 0 || ladder0 >= 20)
-        edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder << endl;
+        edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder;
       else
         pixelsLayer1[ladder0][module0][roc]++;
       break;
     case 2:
       ladder0 = transformLadder2(ladder);
       if (ladder0 < 0 || ladder0 >= 32)
-        edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder << endl;
+        edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder;
       else
         pixelsLayer2[ladder0][module0][roc]++;
       break;
     case 3:
       ladder0 = transformLadder3(ladder);
       if (ladder0 < 0 || ladder0 >= 44)
-        edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder << endl;
+        edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder;
       else
         pixelsLayer3[ladder0][module0][roc]++;
       break;
@@ -683,12 +683,12 @@ void rocEfficiency::addPixel(int layer, int ladder, int module, int roc) {
 
 float rocEfficiency::getRoc(int layer, int ladder, int module, int roc) {
   if (roc < 0 || roc >= 16) {
-    edm::LogPrint("TestClusters") << " wrong roc number " << roc << endl;
+    edm::LogPrint("TestClusters") << " wrong roc number " << roc;
     return -1.;
   }
   int module0 = transformModule(module);
   if (module0 < 0 || module0 >= 8) {
-    edm::LogPrint("TestClusters") << " wrong module index " << module0 << " " << module << endl;
+    edm::LogPrint("TestClusters") << " wrong module index " << module0 << " " << module;
     return -1.;
   }
 
@@ -702,7 +702,7 @@ float rocEfficiency::getRoc(int layer, int ladder, int module, int roc) {
       } else {
         ladder0 = transformLadder1(ladder);
         if (ladder0 < 0 || ladder0 >= 20) {
-          edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder << endl;
+          edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder;
           count = -1.;
         } else
           count = float(pixelsLayer1[ladder0][module0][roc]);
@@ -715,7 +715,7 @@ float rocEfficiency::getRoc(int layer, int ladder, int module, int roc) {
       } else {
         ladder0 = transformLadder2(ladder);
         if (ladder0 < 0 || ladder0 >= 32) {
-          edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder << endl;
+          edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder;
           count = -1.;
         } else
           count = float(pixelsLayer2[ladder0][module0][roc]);
@@ -727,7 +727,7 @@ float rocEfficiency::getRoc(int layer, int ladder, int module, int roc) {
       } else {
         ladder0 = transformLadder3(ladder);
         if (ladder0 < 0 || ladder0 >= 44) {
-          edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder << endl;
+          edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder;
           count = -1.;
         } else
           count = float(pixelsLayer3[ladder0][module0][roc]);
@@ -745,7 +745,7 @@ float rocEfficiency::getModule(int layer, int ladder, int module, float &half1, 
   half2 = 0;
   int module0 = transformModule(module);
   if (module0 < 0 || module0 >= 8) {
-    edm::LogPrint("TestClusters") << " wrong module index " << module0 << " " << module << endl;
+    edm::LogPrint("TestClusters") << " wrong module index " << module0 << " " << module;
     return -1.;
   }
 
@@ -757,7 +757,7 @@ float rocEfficiency::getModule(int layer, int ladder, int module, float &half1, 
     case 1:
       ladder0 = transformLadder1(ladder);
       if (ladder0 < 0 || ladder0 >= 20) {
-        edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder << endl;
+        edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder;
         return -1.;
       }
       for (int roc = 0; roc < 16; ++roc) {
@@ -776,7 +776,7 @@ float rocEfficiency::getModule(int layer, int ladder, int module, float &half1, 
     case 2:
       ladder0 = transformLadder2(ladder);
       if (ladder0 < 0 || ladder0 >= 32) {
-        edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder << endl;
+        edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder;
         return -1.;
       }
       for (int roc = 0; roc < 16; ++roc) {
@@ -795,7 +795,7 @@ float rocEfficiency::getModule(int layer, int ladder, int module, float &half1, 
     case 3:
       ladder0 = transformLadder3(ladder);
       if (ladder0 < 0 || ladder0 >= 44) {
-        edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder << endl;
+        edm::LogPrint("TestClusters") << " wrong ladder index " << ladder0 << " " << ladder;
         return -1.;
       }
       for (int roc = 0; roc < 16; ++roc) {
@@ -818,7 +818,7 @@ float rocEfficiency::getModule(int layer, int ladder, int module, float &half1, 
   if (rocs > 0)
     count = count / float(rocs);  // return counts per ROC (full rocs only)
   if (count < 0)
-    edm::LogPrint("TestClusters") << " VERY VERY WRONG " << count << endl;
+    edm::LogPrint("TestClusters") << " VERY VERY WRONG " << count;
   return count;
 }
 
@@ -999,7 +999,7 @@ TestClusters::TestClusters(edm::ParameterSet const &conf) {
   select1 = conf.getUntrackedParameter<int>("Select1", 0);
   select2 = conf.getUntrackedParameter<int>("Select2", 0);
   if (PRINT)
-    edm::LogPrint("TestClusters") << " Construct " << endl;
+    edm::LogPrint("TestClusters") << " Construct ";
 
   // For the ByToken method
   myClus = consumes<edmNew::DetSetVector<SiPixelCluster> >(conf.getParameter<edm::InputTag>("src"));
@@ -1018,7 +1018,7 @@ TestClusters::~TestClusters() = default;
 
 // ------------ method called at the begining   ------------
 void TestClusters::beginJob() {
-  edm::LogPrint("TestClusters") << "Initialize PixelClusterTest " << endl;
+  edm::LogPrint("TestClusters") << "Initialize PixelClusterTest ";
 
   edm::Service<TFileService> fs;
 
@@ -1684,9 +1684,9 @@ void TestClusters::endJob() {
   }
 
   edm::LogPrint("TestClusters") << " End PixelClusTest, events all/with hits=  " << countAllEvents << "/" << countEvents
-                                << " clus/pix per full event " << sumClusters << "/" << sumPixels << endl;
+                                << " clus/pix per full event " << sumClusters << "/" << sumPixels;
   edm::LogPrint("TestClusters") << " Lumi = " << countLumi << " still the /10 bug? "
-                                << "clu and pix per lumi unit" << c1 << " " << c2 << endl;
+                                << "clu and pix per lumi unit" << c1 << " " << c2;
 
   //Divide the size histos
   hsizeDetMap1->Divide(hsizeDetMap1, hDetMap1, 1., 1.);
@@ -1715,8 +1715,7 @@ void TestClusters::endJob() {
   double clusPerROC = totClusters / 15000.;
   if (clusPerROC < 1000.) {
     edm::LogPrint("TestClusters")
-        << " The average number of clusters per ROC is too low to do teh ROF efficiency analysis " << clusPerROC
-        << endl;
+        << " The average number of clusters per ROC is too low to do teh ROF efficiency analysis " << clusPerROC;
 
   } else {  // do it
 
@@ -1753,12 +1752,12 @@ void TestClusters::endJob() {
               continue;
             } else {
               edm::LogPrint("TestClusters")
-                  << " Layer1, wrong number of hits, roc " << tmp << " " << lad << " " << mod << " " << roc << endl;
+                  << " Layer1, wrong number of hits, roc " << tmp << " " << lad << " " << mod << " " << roc;
             }
           } else if (tmp == 0.) {
             deadRocs1++;
             edm::LogPrint("TestClusters") << " layer1, dead  roc " << lad << " " << mod << " " << roc << " - " << count
-                                          << " " << half1 << " " << half2 << endl;
+                                          << " " << half1 << " " << half2;
           } else {
             hcountInRoc1->Fill(tmp);
             float tmp1 = tmp / count;
@@ -1767,7 +1766,7 @@ void TestClusters::endJob() {
             if (abs(1. - tmp1) > effCut) {
               ineffRocs1++;
               edm::LogPrint("TestClusters") << "LOW-EFF/NOISY ROC, Layer 1: " << tmp1 << "/" << tmp << " ladder " << lad
-                                            << " module " << mod << " roc(false #) " << roc << endl;
+                                            << " module " << mod << " roc(false #) " << roc;
               hbadMap1->Fill(float(mod), float(lad));
             }
           }  //if
@@ -1796,12 +1795,12 @@ void TestClusters::endJob() {
               continue;
             } else {
               edm::LogPrint("TestClusters")
-                  << " Layer 2, wrong number of hits, roc " << tmp << " " << lad << " " << mod << " " << roc << endl;
+                  << " Layer 2, wrong number of hits, roc " << tmp << " " << lad << " " << mod << " " << roc;
             }
           } else if (tmp == 0.) {
             deadRocs2++;
             edm::LogPrint("TestClusters") << " layer2, dead  roc " << lad << " " << mod << " " << roc << " - " << count
-                                          << " " << half1 << " " << half2 << endl;
+                                          << " " << half1 << " " << half2;
           } else {
             hcountInRoc2->Fill(tmp);
             float tmp1 = tmp / count;
@@ -1810,7 +1809,7 @@ void TestClusters::endJob() {
             if (abs(1. - tmp1) > effCut) {
               ineffRocs2++;
               edm::LogPrint("TestClusters") << "LOW-EFF/NOISY ROC, Layer 2: " << tmp1 << "/" << tmp << " ladder " << lad
-                                            << " module " << mod << " roc(false) " << roc << endl;
+                                            << " module " << mod << " roc(false) " << roc;
               hbadMap2->Fill(float(mod), float(lad));
             }
           }  //if
@@ -1835,12 +1834,12 @@ void TestClusters::endJob() {
               continue;
             } else {
               edm::LogPrint("TestClusters")
-                  << " Layer 3: wrong number of hits, roc " << tmp << " " << lad << " " << mod << " " << roc << endl;
+                  << " Layer 3: wrong number of hits, roc " << tmp << " " << lad << " " << mod << " " << roc;
             }
           } else if (tmp == 0.) {
             deadRocs3++;
             edm::LogPrint("TestClusters") << " layer3, dead  roc " << lad << " " << mod << " " << roc << " - " << count
-                                          << " " << half1 << " " << half2 << endl;
+                                          << " " << half1 << " " << half2;
           } else {
             hcountInRoc3->Fill(tmp);
             float tmp1 = tmp / count;
@@ -1849,7 +1848,7 @@ void TestClusters::endJob() {
             if (abs(1. - tmp1) > effCut) {
               ineffRocs3++;
               edm::LogPrint("TestClusters") << "LOW-EFF/NOISY ROC, Layer 3: " << tmp1 << "/" << tmp << " ladder " << lad
-                                            << " module " << mod << " roc(false) " << roc << endl;
+                                            << " module " << mod << " roc(false) " << roc;
               hbadMap3->Fill(float(mod), float(lad));
             }
           }  //if
@@ -1858,8 +1857,7 @@ void TestClusters::endJob() {
     }        // lad
 
     edm::LogPrint("TestClusters") << " Bad Rocs " << deadRocs1 << " " << deadRocs2 << " " << deadRocs3
-                                  << ", Inefficient Rocs " << ineffRocs1 << " " << ineffRocs2 << " " << ineffRocs3
-                                  << endl;
+                                  << ", Inefficient Rocs " << ineffRocs1 << " " << ineffRocs2 << " " << ineffRocs3;
   }  // if DO IT
 
 #endif  // ROC_EFF
@@ -1974,7 +1972,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
           edm::LogPrint("TestClusters") << ", z " << iVertex->z();
           edm::LogPrint("TestClusters") << ", ndof " << iVertex->ndof();
           edm::LogPrint("TestClusters") << ", sumpt " << iVertex->p4().pt();
-          edm::LogPrint("TestClusters") << endl;
+          edm::LogPrint("TestClusters");
         }  // print
       }    // for loop
     }      // if vertex
@@ -2032,7 +2030,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
   if (PRINT)
     edm::LogPrint("TestClusters") << "run " << run << " event " << event << " bx " << bx << " lumi " << lumiBlock
-                                  << " orbit " << orbit << " " << numOf << " lumi " << instlumi << endl;
+                                  << " orbit " << orbit << " " << numOf << " lumi " << instlumi;
 
     // For L1
     //bool bit0=false; // , bit126=false, bit121=false,bit122=false;
@@ -2125,7 +2123,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
     for (unsigned int i = 0; i < TrigNames.triggerNames().size(); i++) {  // loop over trigger
       if (countAllEvents == 1)
-        edm::LogPrint("TestClusters") << i << " " << TrigNames.triggerName(i) << endl;
+        edm::LogPrint("TestClusters") << i << " " << TrigNames.triggerName(i);
 
       if ((HLTResults->wasrun(TrigNames.triggerIndex(TrigNames.triggerName(i))) == true) &&
           (HLTResults->accept(TrigNames.triggerIndex(TrigNames.triggerName(i))) == true) &&
@@ -2254,7 +2252,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
     //case 9: {hlumi18->Fill(float(lumiBlock)); break;}
     //case 10: {hlumi19->Fill(float(lumiBlock)); break;}
     default:
-      edm::LogPrint("TestClusters") << " too many runs " << countRuns << endl;
+      edm::LogPrint("TestClusters") << " too many runs " << countRuns;
   }
 
 #ifdef NEW_ID
@@ -2324,8 +2322,8 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
     unsigned int subid = detId.subdetId();  //subdetector type, barrel=1
 
     if (PRINT)
-      edm::LogPrint("TestClusters") << "Det: " << detId.rawId() << " " << detId.null() << " " << detType << " " << subid
-                                    << endl;
+      edm::LogPrint("TestClusters") << "Det: " << detId.rawId() << " " << detId.null() << " " << detType << " "
+                                    << subid;
 
 #ifdef HISTOS
       //hdetunit->Fill(float(detid));
@@ -2394,8 +2392,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
       if (PRINT)
         edm::LogPrint("TestClusters") << " forward det, disk " << disk << ", blade " << blade << ", module " << zindexF
-                                      << ", side " << side << ", panel " << panel << " pos = " << detZ << " " << detR
-                                      << endl;
+                                      << ", side " << side << ", panel " << panel << " pos = " << detZ << " " << detR;
 
     } else if (subid == 1) {  // barrel
 
@@ -2436,7 +2433,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
       if (PRINT) {
         edm::LogPrint("TestClusters") << " Barrel layer, ladder, module " << layerC << " " << ladderC << " " << zindex
                                       << " " << sh << "(" << shell << ") " << sector << " " << layer << " " << ladder
-                                      << " " << module << " " << half << endl;
+                                      << " " << module << " " << half;
         //edm::LogPrint("TestClusters")<<" Barrel det, thick "<<detThick<<" "
         //  <<" layer, ladder, module "
         //  <<layer<<" "<<ladder<<" "<<zindex<<endl;
@@ -2447,8 +2444,8 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
     }  // if subid
 
     if (PRINT) {
-      edm::LogPrint("TestClusters") << "List clusters : " << endl;
-      edm::LogPrint("TestClusters") << "Num Charge Size SizeX SizeY X Y Xmin Xmax Ymin Ymax Edge" << endl;
+      edm::LogPrint("TestClusters") << "List clusters : ";
+      edm::LogPrint("TestClusters") << "Num Charge Size SizeX SizeY X Y Xmin Xmax Ymin Ymax Edge";
     }
 
     // Loop over clusters
@@ -2478,8 +2475,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
       if (PRINT)
         edm::LogPrint("TestClusters") << numberOfClusters << " " << ch << " " << size << " " << sizeX << " " << sizeY
                                       << " " << x << " " << y << " " << minPixelRow << " " << maxPixelRow << " "
-                                      << minPixelCol << " " << maxPixelCol << " " << edgeHitX << " " << edgeHitY
-                                      << endl;
+                                      << minPixelCol << " " << maxPixelCol << " " << edgeHitX << " " << edgeHitY;
 
       // get global z position of teh cluster
       LocalPoint lp = topol->localPosition(MeasurementPoint(x, y));
@@ -2492,7 +2488,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
       // Get the pixels in the Cluster
       const vector<SiPixelCluster::Pixel> &pixelsVec = clustIt->pixels();
       if (PRINT)
-        edm::LogPrint("TestClusters") << " Pixels in this cluster " << endl;
+        edm::LogPrint("TestClusters") << " Pixels in this cluster ";
       //bool bigInX=false, bigInY=false;
       // Look at pixels in this cluster. ADC is calibrated, in electrons
       bool edgeInX = false;  // edge method moved
@@ -2592,7 +2588,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
               else if (bxId == 5 || bxId == 6)
                 hpixChargebx5->Fill(adc);  // beam1/2+1
               else
-                edm::LogPrint("TestClusters") << " wrong bx id " << bxId << endl;
+                edm::LogPrint("TestClusters") << " wrong bx id " << bxId;
             }
 #endif
 
@@ -2683,7 +2679,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
               else if (bxId == 5 || bxId == 6)
                 hpixChargebx5->Fill(adc);  // beam1/2+1
               else
-                edm::LogPrint("TestClusters") << " wrong bx id " << bxId << endl;
+                edm::LogPrint("TestClusters") << " wrong bx id " << bxId;
             }
 #endif
 
@@ -2817,7 +2813,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
               else if (bxId == 5 || bxId == 6)
                 hpixChargebx5->Fill(adc);  // beam1/2+1
               else
-                edm::LogPrint("TestClusters") << " wrong bx id " << bxId << endl;
+                edm::LogPrint("TestClusters") << " wrong bx id " << bxId;
             }
 #endif
 
@@ -2867,7 +2863,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
             else if (side == 2)
               numOfPixPerDisk3++;  // d1, +z
             else
-              edm::LogPrint("TestClusters") << " unknown side " << side << endl;
+              edm::LogPrint("TestClusters") << " unknown side " << side;
 
             hpixcharge4->Fill(adc);
             hpixDiskR1->Fill(rPos);
@@ -2879,13 +2875,13 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
             else if (side == 2)
               numOfPixPerDisk4++;  // d2, +z
             else
-              edm::LogPrint("TestClusters") << " unknown side " << side << endl;
+              edm::LogPrint("TestClusters") << " unknown side " << side;
 
             hpixcharge5->Fill(adc);
             hpixDiskR2->Fill(rPos);
 
           } else
-            edm::LogPrint("TestClusters") << " unknown disk " << disk << endl;
+            edm::LogPrint("TestClusters") << " unknown disk " << disk;
 
         }  // end if subdet (pixel loop)
 
@@ -2897,7 +2893,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
         if (PRINT)
           edm::LogPrint("TestClusters") << i << " " << pixx << " " << pixy << " " << adc << " " << bigInX << " "
-                                        << bigInY << " " << edgeInX << " " << edgeInY << endl;
+                                        << bigInY << " " << edgeInX << " " << edgeInY;
 
         if (edgeInX)
           edgeHitX2 = true;
@@ -2970,7 +2966,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
               hsizebx5->Fill(size);
             }  // beam1/2+1
             else
-              edm::LogPrint("TestClusters") << " wrong bx id " << bxId << endl;
+              edm::LogPrint("TestClusters") << " wrong bx id " << bxId;
           }
           //if(bxId==0) htestbx->Fill(bx,ch);
 #endif
@@ -3064,7 +3060,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
               hsizebx5->Fill(size);
             }  // beam1/2+1
             else
-              edm::LogPrint("TestClusters") << " wrong bx id " << bxId << endl;
+              edm::LogPrint("TestClusters") << " wrong bx id " << bxId;
           }
 #endif
 
@@ -3138,7 +3134,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
               hsizebx5->Fill(size);
             }  // beam1/2+1
             else
-              edm::LogPrint("TestClusters") << " wrong bx id " << bxId << endl;
+              edm::LogPrint("TestClusters") << " wrong bx id " << bxId;
           }
 #endif
 
@@ -3176,7 +3172,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
             numOfClustersPerDisk3++;  // d1, +z
             avCharge5 += ch;
           } else
-            edm::LogPrint("TestClusters") << " unknown side " << side << endl;
+            edm::LogPrint("TestClusters") << " unknown side " << side;
 
           hcharge4->Fill(ch);
 
@@ -3189,21 +3185,21 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
             numOfClustersPerDisk4++;  // d2, +z
             avCharge5 += ch;
           } else
-            edm::LogPrint("TestClusters") << " unknown side " << side << endl;
+            edm::LogPrint("TestClusters") << " unknown side " << side;
 
           hcharge5->Fill(ch);
 
         } else
-          edm::LogPrint("TestClusters") << " unknown disk " << disk << endl;
+          edm::LogPrint("TestClusters") << " unknown disk " << disk;
 
       }  // end barrel/forward cluster loop
 
 #endif  // HISTOS
 
       if ((edgeHitX != edgeHitX2) && sizeX < 64)
-        edm::LogPrint("TestClusters") << " wrong egdeX " << edgeHitX << " " << edgeHitX2 << endl;
+        edm::LogPrint("TestClusters") << " wrong egdeX " << edgeHitX << " " << edgeHitX2;
       if ((edgeHitY != edgeHitY2) && sizeY < 64)
-        edm::LogPrint("TestClusters") << " wrong egdeY " << edgeHitY << " " << edgeHitY2 << endl;
+        edm::LogPrint("TestClusters") << " wrong egdeY " << edgeHitY << " " << edgeHitY2;
 
     }  // clusters
 
@@ -3216,11 +3212,11 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
     if (PRINT) {
       if (layer == 1)
-        edm::LogPrint("TestClusters") << "Lay1: number of clusters per det = " << numOfClustersPerDet1 << endl;
+        edm::LogPrint("TestClusters") << "Lay1: number of clusters per det = " << numOfClustersPerDet1;
       else if (layer == 2)
-        edm::LogPrint("TestClusters") << "Lay2: number of clusters per det = " << numOfClustersPerDet1 << endl;
+        edm::LogPrint("TestClusters") << "Lay2: number of clusters per det = " << numOfClustersPerDet1;
       else if (layer == 3)
-        edm::LogPrint("TestClusters") << "Lay3: number of clusters per det = " << numOfClustersPerDet1 << endl;
+        edm::LogPrint("TestClusters") << "Lay3: number of clusters per det = " << numOfClustersPerDet1;
     }  // end if PRINT
 
 #ifdef HISTOS
@@ -3328,16 +3324,16 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
   if (PRINT || countEvents == selectEvent) {  //
     edm::LogPrint("TestClusters") << "run " << run << " event " << event << " bx " << bx << " lumi " << lumiBlock
-                                  << " orbit " << orbit << " " << countEvents << endl;
+                                  << " orbit " << orbit << " " << countEvents;
     edm::LogPrint("TestClusters") << "Num of pix " << numberOfPixels << " num of clus " << numberOfClusters
                                   << " max clus per det " << maxClusPerDet << " max pix per clu " << maxPixPerClu
-                                  << " count " << countEvents << endl;
+                                  << " count " << countEvents;
     edm::LogPrint("TestClusters") << "Number of clusters per Lay1,2,3: " << numOfClustersPerLay1 << " "
-                                  << numOfClustersPerLay2 << " " << numOfClustersPerLay3 << endl;
+                                  << numOfClustersPerLay2 << " " << numOfClustersPerLay3;
     edm::LogPrint("TestClusters") << "Number of pixels per Lay1,2,3: " << numOfPixPerLay1 << " " << numOfPixPerLay2
-                                  << " " << numOfPixPerLay3 << endl;
+                                  << " " << numOfPixPerLay3;
     edm::LogPrint("TestClusters") << "Number of dets with clus in Lay1,2,3: " << numberOfDetUnits1 << " "
-                                  << numberOfDetUnits2 << " " << numberOfDetUnits3 << endl;
+                                  << numberOfDetUnits2 << " " << numberOfDetUnits3;
   }  // if PRINT
 
 #ifdef HISTOS
