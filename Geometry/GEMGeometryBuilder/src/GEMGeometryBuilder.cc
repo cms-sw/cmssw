@@ -70,7 +70,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   ;
 #endif
   // loop over superchambers
-  std::map<GEMDetId, GEMSuperChamber*> superChambers;
+  std::map<GEMDetId, DDFilteredView::nav_type> superChambers;
   std::map<GEMDetId, GEMDetId> seen;
   while (doSuper) {
     // getting chamber id from eta partitions
@@ -104,10 +104,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     if ((seen.find(detIdCh.superChamberId()) == seen.end()) ||
         detIdCh.layer() < seen[detIdCh.superChamberId()].layer()) {
       seen[detIdCh.superChamberId()] = detIdCh.chamberId();
-      if (superChambers.find(detIdCh.superChamberId()) != superChambers.end())
-        delete superChambers[detIdCh.superChamberId()];
-      GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
-      superChambers[detIdCh.superChamberId()] = gemSuperChamber;
+      superChambers[detIdCh.superChamberId()] = fv.navPos();
     }
     GEMChamber* gemChamber = ((detIdCh.station() == GEMDetId::minStationId0) ? nullptr : buildChamber(fv, detIdCh));
 
@@ -165,8 +162,11 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
 
   std::vector<GEMSuperChamber*> vsuperChambers;
   vsuperChambers.reserve(superChambers.size());
-  for (auto [k, v] : superChambers)
-    vsuperChambers.push_back(v);
+  for (auto [k, v] : superChambers) {
+    fv.goTo(v);
+    GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, k);
+    vsuperChambers.push_back(gemSuperChamber);
+  }
 
   buildRegions(theGeometry, vsuperChambers);
 }
