@@ -76,6 +76,8 @@ private:
   edm::EDGetTokenT<edm::ValueMap<int>> tokenVertexAssociationQuality_;
   bool fUseVertexAssociation;
   int vertexAssociationQuality_;
+  unsigned int fNumOfPUVtxsForCharged_;
+  double fDzCutForChargedFromPUVtxs_;
 };
 
 PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
@@ -91,6 +93,8 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
     tokenVertexAssociationQuality_ =
         consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("vertexAssociation"));
   }
+  fNumOfPUVtxsForCharged_ = iConfig.getParameter<unsigned int>("NumOfPUVtxsForCharged");
+  fDzCutForChargedFromPUVtxs_ = iConfig.getParameter<double>("DzCutForChargedFromPUVtxs");
 
   enable_ = iConfig.getParameter<bool>("Enable");
 
@@ -172,7 +176,9 @@ void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
       for (auto& p : (*pfCandidatesRef)) {
         const reco::VertexRef& PVOrig = associatedPV[p];
         int quality = associationQuality[p];
-        if (PVOrig.isNonnull() && (PVOrig.key() > 0) && (quality >= vertexAssociationQuality_))
+        if ((PVOrig.isNonnull() && PVOrig.key() > 0 && PVOrig->ndof() > 4.0 && quality >= vertexAssociationQuality_) &&
+            (!(fNumOfPUVtxsForCharged_ > 0 && !vertices->empty() && PVOrig.key() <= fNumOfPUVtxsForCharged_ &&
+               std::abs(p->vertex().z() - vertices->at(0).z()) < fDzCutForChargedFromPUVtxs_)))
           pfCandidatesFromPU.push_back(p);
       }
       pOutput->insert(pOutput->end(), pfCandidatesFromPU.begin(), pfCandidatesFromPU.end());

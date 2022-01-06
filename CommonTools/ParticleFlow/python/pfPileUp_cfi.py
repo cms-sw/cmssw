@@ -12,4 +12,6 @@ pfPileUp = cms.EDProducer(
     useVertexAssociation = cms.bool(False),
     vertexAssociationQuality = cms.int32(0),
     vertexAssociation = cms.InputTag(''),
+    NumOfPUVtxsForCharged = cms.uint32(0),
+    DzCutForChargedFromPUVtxs = cms.double(0.2),
     )
