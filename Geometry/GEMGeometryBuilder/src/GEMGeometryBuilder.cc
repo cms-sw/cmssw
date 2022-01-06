@@ -373,8 +373,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
         // For Run3 we have a demonstrator GE2/1 superchamber with
         // only the 2nd layer, so we make sure all superchambers are
         // built on the lowest layer present in the geometry
-        if ((seen.find(detId.superChamberId()) == seen.end()) ||
-            detId.layer() < seen[detId.superChamberId()].layer()) {
+        if ((seen.find(detId.superChamberId()) == seen.end()) || detId.layer() < seen[detId.superChamberId()].layer()) {
           seen[detId.superChamberId()] = detId.chamberId();
           superChambers[detId.superChamberId()] = fv.navPos();
         }
