@@ -46,23 +46,26 @@ private:
 };
 
 HcalTestThreshold::HcalTestThreshold(const edm::ParameterSet& iConfig)
-  : etaMin_(iConfig.getParameter<int>("etaMin")),
-    etaMax_(iConfig.getParameter<int>("etaMax")),
-    phiValue_(iConfig.getParameter<int>("phiValue")),
-    ixNumbers_(iConfig.getParameter<std::vector<int> >("ixEENumbers")),
-    iyNumbers_(iConfig.getParameter<std::vector<int> >("iyEENumbers")),
-    hitEthrEB_(iConfig.getParameter<double>("EBHitEnergyThreshold")),
-    hitEthrEE0_(iConfig.getParameter<double>("EEHitEnergyThreshold0")),
-    hitEthrEE1_(iConfig.getParameter<double>("EEHitEnergyThreshold1")),
-    hitEthrEE2_(iConfig.getParameter<double>("EEHitEnergyThreshold2")),
-    hitEthrEE3_(iConfig.getParameter<double>("EEHitEnergyThreshold3")),
-    hitEthrEELo_(iConfig.getParameter<double>("EEHitEnergyThresholdLow")),
-    hitEthrEEHi_(iConfig.getParameter<double>("EEHitEnergyThresholdHigh")),
-    ecalPFRecHitThresholdsToken_(esConsumes()),
-    caloGeometryToken_(esConsumes()) {
-
-  edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n" << "\tThreshold for EB " << hitEthrEB_ << "\t for EE "<< hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_;
-  edm::LogVerbatim("HcalIsoTrack") << "\tRange in eta for EB " << etaMin_ << ":" << etaMax_ << "\tPhi value " << phiValue_;
+    : etaMin_(iConfig.getParameter<int>("etaMin")),
+      etaMax_(iConfig.getParameter<int>("etaMax")),
+      phiValue_(iConfig.getParameter<int>("phiValue")),
+      ixNumbers_(iConfig.getParameter<std::vector<int>>("ixEENumbers")),
+      iyNumbers_(iConfig.getParameter<std::vector<int>>("iyEENumbers")),
+      hitEthrEB_(iConfig.getParameter<double>("EBHitEnergyThreshold")),
+      hitEthrEE0_(iConfig.getParameter<double>("EEHitEnergyThreshold0")),
+      hitEthrEE1_(iConfig.getParameter<double>("EEHitEnergyThreshold1")),
+      hitEthrEE2_(iConfig.getParameter<double>("EEHitEnergyThreshold2")),
+      hitEthrEE3_(iConfig.getParameter<double>("EEHitEnergyThreshold3")),
+      hitEthrEELo_(iConfig.getParameter<double>("EEHitEnergyThresholdLow")),
+      hitEthrEEHi_(iConfig.getParameter<double>("EEHitEnergyThresholdHigh")),
+      ecalPFRecHitThresholdsToken_(esConsumes()),
+      caloGeometryToken_(esConsumes()) {
+  edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n"
+                                   << "\tThreshold for EB " << hitEthrEB_ << "\t for EE " << hitEthrEE0_ << ":"
+                                   << hitEthrEE1_ << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_
+                                   << ":" << hitEthrEEHi_;
+  edm::LogVerbatim("HcalIsoTrack") << "\tRange in eta for EB " << etaMin_ << ":" << etaMax_ << "\tPhi value "
+                                   << phiValue_;
   std::ostringstream st1, st2;
   st1 << "\t" << ixNumbers_.size() << " EE ix Numbers";
   for (const auto& ix : ixNumbers_)
@@ -78,15 +81,16 @@ HcalTestThreshold::HcalTestThreshold(const edm::ParameterSet& iConfig)
 void HcalTestThreshold::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   edm::LogVerbatim("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event();
 
-  auto const &thresholds = iSetup.getData(ecalPFRecHitThresholdsToken_);
-  auto const &geo = &iSetup.getData(caloGeometryToken_);
-  
+  auto const& thresholds = iSetup.getData(ecalPFRecHitThresholdsToken_);
+  auto const& geo = &iSetup.getData(caloGeometryToken_);
+
   // First EB
   edm::LogVerbatim("HcalIsoTrack") << "\n\nThresholds for EB Towers";
-  for (int eta = etaMin_; eta < etaMax_; ++ eta) {
+  for (int eta = etaMin_; eta < etaMax_; ++eta) {
     if (eta != 0) {
       EBDetId id(eta, phiValue_, EBDetId::ETAPHIMODE);
-      edm::LogVerbatim("HcalIsoTrack") << id << " Eta " << (geo->getPosition(id)).eta() << " Thresholds:: old " << eThreshold(id, geo) << " new " << thresholds[id];
+      edm::LogVerbatim("HcalIsoTrack") << id << " Eta " << (geo->getPosition(id)).eta() << " Thresholds:: old "
+                                       << eThreshold(id, geo) << " new " << thresholds[id];
     }
   }
 
@@ -95,15 +99,17 @@ void HcalTestThreshold::analyze(edm::Event const& iEvent, edm::EventSetup const&
   edm::LogVerbatim("HcalIsoTrack") << "\n\nList of " << validId.size() << " valid DetId's of EE";
   auto const& validId = geo->getValidDetIds(DetId::Ecal, 2);
   for (const auto& id : validId)
-    edm::LogVerbatim("HcalIsoTrack") << EEDetId(id) << " SC " << EEDetId(id).isc() << " CR " << EEDetId(id).ic() << " Eta " << (geo->getPosition(id)).eta();
+    edm::LogVerbatim("HcalIsoTrack") << EEDetId(id) << " SC " << EEDetId(id).isc() << " CR " << EEDetId(id).ic()
+                                     << " Eta " << (geo->getPosition(id)).eta();
 #endif
   edm::LogVerbatim("HcalIsoTrack") << "\n\nThresholds for EE Towers";
   for (int zside = 0; zside < 2; ++zside) {
     int iz = 2 * zside - 1;
     for (const auto& ix : ixNumbers_) {
       for (const auto& iy : iyNumbers_) {
-	EEDetId id(ix, iy, iz, EEDetId::XYMODE);
-	edm::LogVerbatim("HcalIsoTrack") << id << " Eta " << (geo->getPosition(id)).eta() << " Thresholds:: old " << eThreshold(id, geo) << " new " << thresholds[id];
+        EEDetId id(ix, iy, iz, EEDetId::XYMODE);
+        edm::LogVerbatim("HcalIsoTrack") << id << " Eta " << (geo->getPosition(id)).eta() << " Thresholds:: old "
+                                         << eThreshold(id, geo) << " new " << thresholds[id];
       }
     }
   }
