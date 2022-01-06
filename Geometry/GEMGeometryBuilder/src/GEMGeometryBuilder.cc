@@ -334,7 +334,8 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   int theLevelPart = muonConstants.getValue("level");
   int theRingLevel = muonConstants.getValue("mg_ring") / theLevelPart;
   int theSectorLevel = muonConstants.getValue("mg_sector") / theLevelPart;
-  std::vector<GEMSuperChamber*> superChambers;
+  std::map<GEMDetId, cms::DDFilteredView::nav_type> superChambers;
+  std::map<GEMDetId, GEMDetId> seen;
   std::vector<GEMChamber*> chambers;
 
   while (fv.firstChild()) {
@@ -359,8 +360,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
         }
         ++chamb;
         detId = GEMDetId(detId.region(), detId.ring(), detId.station(), detId.layer(), chamb, 0);
-        GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detId);
-        superChambers.emplace_back(gemSuperChamber);
+        superChambers[detId.superChamberId()] = fv.navPos();
       } else if (num.getLevels() == theSectorLevel) {
         GEMChamber* gemChamber = buildChamber(fv, detId);
         chambers.emplace_back(gemChamber);
@@ -370,9 +370,13 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
       }
     } else {
       if (fv.level() == levelChamb) {
-        if (detId.layer() == 1) {
-          GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detId);
-          superChambers.emplace_back(gemSuperChamber);
+        // For Run3 we have a demonstrator GE2/1 superchamber with
+        // only the 2nd layer, so we make sure all superchambers are
+        // built on the lowest layer present in the geometry
+        if ((seen.find(detId.superChamberId()) == seen.end()) ||
+            detId.layer() < seen[detId.superChamberId()].layer()) {
+          seen[detId.superChamberId()] = detId.chamberId();
+          superChambers[detId.superChamberId()] = fv.navPos();
         }
         GEMChamber* gemChamber = buildChamber(fv, detId);
         chambers.emplace_back(gemChamber);
@@ -381,6 +385,14 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
         theGeometry.add(etaPart);
       }
     }
+  }
+
+  std::vector<GEMSuperChamber*> vsuperChambers;
+  vsuperChambers.reserve(superChambers.size());
+  for (auto& [k, v] : superChambers) {
+    fv.goTo(v);
+    GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, k);
+    vsuperChambers.push_back(gemSuperChamber);
   }
 
   auto& partitions = theGeometry.etaPartitions();
@@ -394,7 +406,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     theGeometry.add(gemChamber);
   }
 
-  buildRegions(theGeometry, superChambers);
+  buildRegions(theGeometry, vsuperChambers);
 }
 
 GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(cms::DDFilteredView& fv, GEMDetId detId) const {
