@@ -22,7 +22,7 @@ sortedPFPrimaryVertices = cms.EDProducer("PFCandidatePrimaryVertexSorter",
     preferHighRanked = cms.bool(False),
 
     #options used in PUPPI
-    NumOfPUVtxsForCharged = cms.int32(-1),
+    NumOfPUVtxsForCharged = cms.uint32(0),
     DzCutForChargedFromPUVtxs = cms.double(0.2),
     PtMaxCharged = cms.double(-1),
     EtaMinUseDz = cms.double(-1),

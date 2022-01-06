@@ -1601,13 +1601,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                     cms.EDProducer("PFCandidateFwdPtrProducer",
                                                    src = pfCandCollection ),
                                     process, task)
+                addToProcessAndTask('primaryVertexAssociation'+postfix,
+		                    process.primaryVertexAssociation.clone(particles = pfCandCollection), process, task)
                 process.load("CommonTools.ParticleFlow.pfNoPileUpJME_cff")
                 task.add(process.pfNoPileUpJMETask)
                 configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix, addToTask = True )
-                getattr(process, "primaryVertexAssociationJME"+postfix).particles = pfCandCollection
                 getattr(process, "pfPileUpJME"+postfix).PFCandidates = "tmpPFCandCollPtr"+postfix
                 getattr(process, "pfNoPileUpJME"+postfix).bottomCollection = "tmpPFCandCollPtr"+postfix
-                getattr(process, "pfPileUpJME"+postfix).vertexAssociation = 'primaryVertexAssociationJME'+postfix+':original'
+                getattr(process, "pfPileUpJME"+postfix).vertexAssociation = 'primaryVertexAssociation'+postfix+':original'
                 pfCandColl = "pfNoPileUpJME"+postfix
                 patMetModuleSequence += getattr(process, "tmpPFCandCollPtr"+postfix)
                 patMetModuleSequence += getattr(process, "pfNoPileUpJME"+postfix)
@@ -1697,9 +1698,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         ##adding the necessary chs and track met configuration
         task = getPatAlgosToolsTask(process)
 
-        from CommonTools.ParticleFlow.pfCHS_cff import pfCHS, packedPrimaryVertexAssociationJME
-        addToProcessAndTask("packedPrimaryVertexAssociationJME",packedPrimaryVertexAssociationJME.clone(), process, task)
-        patMetModuleSequence += getattr(process, "packedPrimaryVertexAssociationJME")
+        from CommonTools.ParticleFlow.pfCHS_cff import pfCHS
         addToProcessAndTask("pfCHS", pfCHS.clone(), process, task)
         from RecoMET.METProducers.pfMet_cfi import pfMet
         pfMetCHS = pfMet.clone(src = "pfCHS")
