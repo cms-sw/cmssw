@@ -8,6 +8,7 @@
     <use name="HeterogeneousCore/CUDACore"/>
     <use name="catch2"/>
     <use name="cuda"/>
+    <use name="fmt"/>
   </bin>
 
   <bin file="testStreamEvent.cu" name="testHeterogeneousCoreCUDACoreStreamEvent">
