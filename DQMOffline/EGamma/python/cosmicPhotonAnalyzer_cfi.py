@@ -12,7 +12,5 @@ cosmicPhotonAnalysis =  DQMOffline.EGamma.photonAnalyzer_cfi.photonAnalysis.clon
     r9Max = 1.5,    
     
     barrelRecHitProducer = 'ecalRecHit',
-    barrelRecHitCollection = 'EcalRecHitsEB',
-    endcapRecHitProducer = 'ecalRecHit',
-    endcapRecHitCollection = 'EcalRecHitsEE'
+    endcapRecHitProducer = 'ecalRecHit'
 )
