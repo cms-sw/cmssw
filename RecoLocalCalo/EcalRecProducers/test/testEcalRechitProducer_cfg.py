@@ -7,7 +7,7 @@ process = cms.Process('RECO', eras.Run2_2018)
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('HeterogeneousCore.CUDAServices.CUDAService_cfi')
+process.load('HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
