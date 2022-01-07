@@ -362,10 +362,9 @@ bool UCTSummaryCard::processRegion(UCTRegionIndex center) {
   // Jet - a 3x3 object with center greater than a seed and all neighbors
   uint32_t jetET = et3x3;
 
-  if(centralET >= northET && centralET >= nwET && centralET >= westET && centralET >= swET &&
-     centralET >  southET && centralET >  seET && centralET >  eastET && centralET >  neET &&
-     centralET > jetSeed) {
-    if(centralRegion) 
+  if (centralET >= northET && centralET >= nwET && centralET >= westET && centralET >= swET && centralET > southET &&
+      centralET > seET && centralET > eastET && centralET > neET && centralET > jetSeed) {
+    if (centralRegion)
       centralJetObjs.push_back(new UCTObject(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3));
     else
       forwardJetObjs.push_back(new UCTObject(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3));
