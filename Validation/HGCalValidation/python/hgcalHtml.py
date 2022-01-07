@@ -205,7 +205,7 @@ _geoPageNameMap = {
  "fromvertex": "From vertex up to in front of muon stations"    
 }
 
-_individualmaterials =['Air','Aluminium','Cables','Copper','Epoxy','HGC_G10-FR4','Kapton','Lead','Other','Scintillator','Silicon','Stainless_Steel','WCu']
+_individualmaterials =['Air','Aluminium','Cables','Copper','Epoxy','HGC_G10-FR4','Kapton','Lead','Other','Scintillator','Silicon','Stainless_Steel','WCu','Polystyrene','HGC_EEConnector','HGC_HEConnector']
 
 _matPageNameMap = {
  'Air': 'Air',
@@ -220,7 +220,10 @@ _matPageNameMap = {
  'Scintillator': 'Scintillator',
  'Silicon': 'Silicon',
  'Stainless_Steel': 'Stainless Steel',
- 'WCu': 'WCu'
+ 'WCu': 'WCu',
+ 'Polystyrene' : 'Polystyrene',
+ 'HGC_EEConnector': 'CE-E Connector',   
+ 'HGC_HEConnector': 'CE-H Connector'      
 }
 
 _individualmatplots = {"HGCal_x_vs_z_vs_Rsum","HGCal_l_vs_z_vs_Rsum","HGCal_x_vs_z_vs_Rsumcos","HGCal_l_vs_z_vs_Rsumcos","HGCal_x_vs_z_vs_Rloc","HGCal_l_vs_z_vs_Rloc"}
