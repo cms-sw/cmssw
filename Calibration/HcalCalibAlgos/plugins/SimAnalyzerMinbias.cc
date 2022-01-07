@@ -48,7 +48,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  edm::Service<TFileService> fs_;
   double timeCut_;
   TTree* myTree_;
 
@@ -84,7 +83,8 @@ void SimAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descri
 }
 
 void SimAnalyzerMinbias::beginJob() {
-  myTree_ = fs_->make<TTree>("SimJet", "SimJet Tree");
+  edm::Service<TFileService> fs;
+  myTree_ = fs->make<TTree>("SimJet", "SimJet Tree");
   myTree_->Branch("mydet", &mydet, "mydet/I");
   myTree_->Branch("mysubd", &mysubd, "mysubd/I");
   myTree_->Branch("cells", &cells, "cells");
