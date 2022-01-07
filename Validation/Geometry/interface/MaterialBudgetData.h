@@ -96,7 +96,7 @@ public:
   float getPolystyreneFractionIL() const { return thePolystyreneFractionIL; }
   float getHGC_EEConnectorFractionIL() const { return theHGC_EEConnectorFractionIL; }
   float getHGC_HEConnectorFractionIL() const { return theHGC_HEConnectorFractionIL; }
-  
+
   float getTotalIL() const { return theTotalIL; }
   float getSupportIL() const { return theSupportIL; }
   float getSensitiveIL() const { return theSensitiveIL; }
@@ -178,7 +178,6 @@ public:
   float getPolystyreneDil(int is) const { return thePolystyreneDil[is]; }
   float getHGC_EEConnectorDil(int is) const { return theHGC_EEConnectorDil[is]; }
   float getHGC_HEConnectorDil(int is) const { return theHGC_HEConnectorDil[is]; }
-
 
   double getStepInitialX(int is) { return theInitialX[is]; }
   double getStepInitialY(int is) { return theInitialY[is]; }

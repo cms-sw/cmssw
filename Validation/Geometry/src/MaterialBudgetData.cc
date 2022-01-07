@@ -174,7 +174,9 @@ void MaterialBudgetData::dataEndTrack(const G4Track* aTrack) {
                                << " theKaptonMB " << theKaptonMB << " theAluminiumMB " << theAluminiumMB
                                << " theHGC_G10_FR4MB " << theHGC_G10_FR4MB << " theSiliconMB " << theSiliconMB
                                << " theAirMB " << theAirMB << " theStainlessSteelMB " << theStainlessSteelMB
-                               << " theWCuMB " << theWCuMB << " thePolystyreneMB " << thePolystyreneMB << " theHGC_EEConnectorMB " << theHGC_EEConnectorMB << " theHGC_HEConnectorMB " << theHGC_HEConnectorMB;
+                               << " theWCuMB " << theWCuMB << " thePolystyreneMB " << thePolystyreneMB
+                               << " theHGC_EEConnectorMB " << theHGC_EEConnectorMB << " theHGC_HEConnectorMB "
+                               << theHGC_HEConnectorMB;
 
     LogDebug("MaterialBudget") << "MaterialBudgetData: HGCal Material Budget: Interaction Length "
                                << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " Eta "
@@ -184,7 +186,8 @@ void MaterialBudgetData::dataEndTrack(const G4Track* aTrack) {
                                << " theKaptonIL " << theKaptonIL << " theAluminiumIL " << theAluminiumIL
                                << " theHGC_G10_FR4IL " << theHGC_G10_FR4IL << " theSiliconIL " << theSiliconIL
                                << " Air " << theAirIL << " theStainlessSteelIL " << theStainlessSteelIL << " theWCuIL "
-                               << theWCuIL << " thePolystyreneIL " << thePolystyreneIL << " theHGC_EEConnectorIL " << theHGC_EEConnectorIL << " theHGC_HEConnectorIL " << theHGC_HEConnectorIL << std::endl;
+                               << theWCuIL << " thePolystyreneIL " << thePolystyreneIL << " theHGC_EEConnectorIL "
+                               << theHGC_EEConnectorIL << " theHGC_HEConnectorIL " << theHGC_HEConnectorIL << std::endl;
   }
 }
 
