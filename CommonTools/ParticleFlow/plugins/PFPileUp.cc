@@ -109,6 +109,8 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   // Configure the algo
   pileUpAlgo_.setVerbose(verbose_);
   pileUpAlgo_.setCheckClosestZVertex(checkClosestZVertex_);
+  pileUpAlgo_.setNumOfPUVtxsForCharged(fNumOfPUVtxsForCharged_);
+  pileUpAlgo_.setDzCutForChargedFromPUVtxs(fDzCutForChargedFromPUVtxs_);
 
   //produces<reco::PFCandidateCollection>();
   produces<PFCollection>();
@@ -176,9 +178,7 @@ void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
       for (auto& p : (*pfCandidatesRef)) {
         const reco::VertexRef& PVOrig = associatedPV[p];
         int quality = associationQuality[p];
-        if ((PVOrig.isNonnull() && PVOrig.key() > 0 && PVOrig->ndof() > 4.0 && quality >= vertexAssociationQuality_) &&
-            (!(fNumOfPUVtxsForCharged_ > 0 && !vertices->empty() && PVOrig.key() <= fNumOfPUVtxsForCharged_ &&
-               std::abs(p->vertex().z() - vertices->at(0).z()) < fDzCutForChargedFromPUVtxs_)))
+        if (PVOrig.isNonnull() && (PVOrig.key() > 0) && (quality >= vertexAssociationQuality_))
           pfCandidatesFromPU.push_back(p);
       }
       pOutput->insert(pOutput->end(), pfCandidatesFromPU.begin(), pfCandidatesFromPU.end());

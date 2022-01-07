@@ -1601,14 +1601,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                     cms.EDProducer("PFCandidateFwdPtrProducer",
                                                    src = pfCandCollection ),
                                     process, task)
-                addToProcessAndTask('primaryVertexAssociation'+postfix,
-		                    process.primaryVertexAssociation.clone(particles = pfCandCollection), process, task)
                 process.load("CommonTools.ParticleFlow.pfNoPileUpJME_cff")
                 task.add(process.pfNoPileUpJMETask)
                 configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix, addToTask = True )
                 getattr(process, "pfPileUpJME"+postfix).PFCandidates = "tmpPFCandCollPtr"+postfix
                 getattr(process, "pfNoPileUpJME"+postfix).bottomCollection = "tmpPFCandCollPtr"+postfix
-                getattr(process, "pfPileUpJME"+postfix).vertexAssociation = 'primaryVertexAssociation'+postfix+':original'
                 pfCandColl = "pfNoPileUpJME"+postfix
                 patMetModuleSequence += getattr(process, "tmpPFCandCollPtr"+postfix)
                 patMetModuleSequence += getattr(process, "pfNoPileUpJME"+postfix)
