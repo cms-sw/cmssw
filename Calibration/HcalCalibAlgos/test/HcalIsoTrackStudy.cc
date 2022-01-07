@@ -144,7 +144,6 @@ private:
   double eThreshold(const DetId& id, double eta) const;
 
   l1t::L1TGlobalUtil* l1GtUtils_;
-  edm::Service<TFileService> fs;
   HLTConfigProvider hltConfig_;
   const std::vector<std::string> trigNames_;
   spr::trackSelectionParameters selectionParameter_;
@@ -696,6 +695,7 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
 }
 
 void HcalIsoTrackStudy::beginJob() {
+  edm::Service<TFileService> fs;
   tree = fs->make<TTree>("CalibTree", "CalibTree");
 
   tree->Branch("t_Run", &t_Run, "t_Run/I");
