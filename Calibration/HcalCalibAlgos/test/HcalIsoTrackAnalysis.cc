@@ -55,7 +55,6 @@ private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
-  edm::Service<TFileService> fs_;
   spr::trackSelectionParameters selectionParameter_;
   const std::string theTrackQuality_;
   const std::vector<double> maxDxyPV_, maxDzPV_, maxChi2_, maxDpOverP_;
@@ -372,12 +371,13 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
 }
 
 void HcalIsoTrackAnalysis::beginJob() {
+  edm::Service<TFileService> fs;
   char name[100], title[200];
-  h_eta_.emplace_back(fs_->make<TH1D>("eta", "Track i#eta (All)", 60, -30, 30));
-  h_eta0_.emplace_back(fs_->make<TH1D>("eta", "Track i#eta (All Loose Isolation)", 60, -30, 30));
-  h_eta1_.emplace_back(fs_->make<TH1D>("eta", "Track i#eta (All Tight Isolation)", 60, -30, 30));
-  h_rat0_.emplace_back(fs_->make<TH1D>("rat0", "Response 0", 100, 0.0, 5.0));
-  h_rat1_.emplace_back(fs_->make<TH1D>("rat1", "Response 1", 100, 0.0, 5.0));
+  h_eta_.emplace_back(fs->make<TH1D>("eta", "Track i#eta (All)", 60, -30, 30));
+  h_eta0_.emplace_back(fs->make<TH1D>("eta", "Track i#eta (All Loose Isolation)", 60, -30, 30));
+  h_eta1_.emplace_back(fs->make<TH1D>("eta", "Track i#eta (All Tight Isolation)", 60, -30, 30));
+  h_rat0_.emplace_back(fs->make<TH1D>("rat0", "Response 0", 100, 0.0, 5.0));
+  h_rat1_.emplace_back(fs->make<TH1D>("rat1", "Response 1", 100, 0.0, 5.0));
   for (unsigned int k1 = 0; k1 < maxDxyPV_.size(); ++k1) {
     for (unsigned int k2 = 0; k2 < maxDzPV_.size(); ++k2) {
       for (unsigned int k3 = 0; k3 < maxChi2_.size(); ++k3) {
@@ -398,7 +398,7 @@ void HcalIsoTrackAnalysis::beginJob() {
                           minLayerCrossed_[k6],
                           maxInMiss_[k7],
                           maxOutMiss_[k8]);
-                  h_eta_.emplace_back(fs_->make<TH1D>(name, title, 60, -30, 30));
+                  h_eta_.emplace_back(fs->make<TH1D>(name, title, 60, -30, 30));
                   sprintf(name, "eta0%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
                   sprintf(title,
                           "i#eta (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
@@ -411,7 +411,7 @@ void HcalIsoTrackAnalysis::beginJob() {
                           minLayerCrossed_[k6],
                           maxInMiss_[k7],
                           maxOutMiss_[k8]);
-                  h_eta0_.emplace_back(fs_->make<TH1D>(name, title, 60, -30, 30));
+                  h_eta0_.emplace_back(fs->make<TH1D>(name, title, 60, -30, 30));
                   sprintf(name, "eta1%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
                   sprintf(title,
                           "i#eta (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
@@ -424,7 +424,7 @@ void HcalIsoTrackAnalysis::beginJob() {
                           minLayerCrossed_[k6],
                           maxInMiss_[k7],
                           maxOutMiss_[k8]);
-                  h_eta1_.emplace_back(fs_->make<TH1D>(name, title, 60, -30, 30));
+                  h_eta1_.emplace_back(fs->make<TH1D>(name, title, 60, -30, 30));
                   sprintf(name, "rat0%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
                   sprintf(title,
                           "Response 0 (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
@@ -437,7 +437,7 @@ void HcalIsoTrackAnalysis::beginJob() {
                           minLayerCrossed_[k6],
                           maxInMiss_[k7],
                           maxOutMiss_[k8]);
-                  h_rat0_.emplace_back(fs_->make<TH1D>(name, title, 100, 0.0, 5.0));
+                  h_rat0_.emplace_back(fs->make<TH1D>(name, title, 100, 0.0, 5.0));
                   sprintf(name, "rat1%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
                   sprintf(title,
                           "Response 1 (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
@@ -450,7 +450,7 @@ void HcalIsoTrackAnalysis::beginJob() {
                           minLayerCrossed_[k6],
                           maxInMiss_[k7],
                           maxOutMiss_[k8]);
-                  h_rat1_.emplace_back(fs_->make<TH1D>(name, title, 100, 0.0, 5.0));
+                  h_rat1_.emplace_back(fs->make<TH1D>(name, title, 100, 0.0, 5.0));
                 }
               }
             }
@@ -459,14 +459,14 @@ void HcalIsoTrackAnalysis::beginJob() {
       }
     }
   }
-  h_Dxy_ = fs_->make<TH1D>("Dxy", "d_{xy}", 100, 0.0, 1.0);
-  h_Dz_ = fs_->make<TH1D>("Dz", "d_{z}", 100, 0.0, 1.0);
-  h_Chi2_ = fs_->make<TH1D>("Chi2", "#chi^{2}", 100, 0.0, 20.0);
-  h_DpOverP_ = fs_->make<TH1D>("DpOverP", "#frac{#Delta p}{p}", 100, 0.0, 1.0);
-  h_Layer_ = fs_->make<TH1D>("Layer", "Layers Crossed", 50, 0.0, 50.0);
-  h_OutHit_ = fs_->make<TH1D>("OutHit", "Outer Layers Hit", 20, 0.0, 20.0);
-  h_InMiss_ = fs_->make<TH1D>("InMiss", "Missed Inner Hits", 20, 0.0, 20.0);
-  h_OutMiss_ = fs_->make<TH1D>("OutMiss", "Missed Outer Hits", 20, 0.0, 20.0);
+  h_Dxy_ = fs->make<TH1D>("Dxy", "d_{xy}", 100, 0.0, 1.0);
+  h_Dz_ = fs->make<TH1D>("Dz", "d_{z}", 100, 0.0, 1.0);
+  h_Chi2_ = fs->make<TH1D>("Chi2", "#chi^{2}", 100, 0.0, 20.0);
+  h_DpOverP_ = fs->make<TH1D>("DpOverP", "#frac{#Delta p}{p}", 100, 0.0, 1.0);
+  h_Layer_ = fs->make<TH1D>("Layer", "Layers Crossed", 50, 0.0, 50.0);
+  h_OutHit_ = fs->make<TH1D>("OutHit", "Outer Layers Hit", 20, 0.0, 20.0);
+  h_InMiss_ = fs->make<TH1D>("InMiss", "Missed Inner Hits", 20, 0.0, 20.0);
+  h_OutMiss_ = fs->make<TH1D>("OutMiss", "Missed Outer Hits", 20, 0.0, 20.0);
 }
 
 void HcalIsoTrackAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
