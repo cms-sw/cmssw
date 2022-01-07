@@ -4,7 +4,7 @@
  *  \author Khotilovich Vadim
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
@@ -17,7 +17,7 @@
 
 using namespace std;
 
-class GEMFakeEvent : public edm::EDProducer {
+class GEMFakeEvent : public edm::one::EDProducer<> {
 public:
   GEMFakeEvent(const edm::ParameterSet& config);
 

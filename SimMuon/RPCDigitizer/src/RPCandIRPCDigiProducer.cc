@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "SimMuon/RPCDigitizer/src/RPCandIRPCDigiProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
