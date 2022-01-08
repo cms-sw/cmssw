@@ -302,13 +302,13 @@ trackingPhase2PU140.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBu
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'photonConvTrajSeedFromSingleLeg:convSeedCandidates',
-    clustersToSkip =  cms.InputTag('convClusters'),
+    clustersToSkip = 'convClusters',
     TrajectoryBuilderPSet = dict(refToPSet_ = 'convCkfTrajectoryBuilder')
 )
 
 trackingPhase2PU140.toModify(convTrackCandidates,
-    clustersToSkip = None,
-    phase2clustersToSkip = cms.InputTag('convClusters')
+    clustersToSkip = '',
+    phase2clustersToSkip = 'convClusters'
 )
 
 import TrackingTools.TrackFitters.RungeKuttaFitters_cff

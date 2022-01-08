@@ -79,7 +79,6 @@ hiRegitMuPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPai
 # trackign candidate
 hiRegitMuPixelPairStepTrackCandidates = RecoTracker.IterativeTracking.PixelPairStep_cff._pixelPairStepTrackCandidatesCkf.clone(
     src               = 'hiRegitMuPixelPairStepSeeds',
-    TrajectoryBuilder = 'hiRegitMuPixelPairStepTrajectoryBuilder',
     clustersToSkip    = "hiRegitMuPixelPairStepClusters",
     maxNSeeds         = 1000000
 )

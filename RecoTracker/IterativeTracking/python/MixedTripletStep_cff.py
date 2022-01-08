@@ -270,8 +270,7 @@ trackingLowPU.toModify(mixedTripletStepChi2Est,
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 mixedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('mixedTripletStepTrajectoryFilter')),
+    trajectoryFilter       = dict(refToPSet_ = 'mixedTripletStepTrajectoryFilter'),
     propagatorAlong        = 'mixedTripletStepPropagator',
     propagatorOpposite     = 'mixedTripletStepPropagatorOpposite',
     maxCand                = 2,
