@@ -218,7 +218,7 @@ _pixelPairStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.Trajector
 pixelPairStepTrajectoryFilterBase = _pixelPairStepTrajectoryFilterBase.clone(
     seedPairPenalty = 0,
     maxCCCLostHits  = 0,
-    minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
+    minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
 )
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
 _tracker_apv_vfp30_2016.toModify(pixelPairStepTrajectoryFilterBase, maxCCCLostHits = 2)
@@ -261,7 +261,7 @@ pixelPairStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     ComponentName    = 'pixelPairStepChi2Est',
     nSigma           = 3.0,
     MaxChi2          = 9.0,
-    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutLoose'),
     pTChargeCutThreshold = 15.
 )
 _tracker_apv_vfp30_2016.toModify(pixelPairStepChi2Est,
@@ -270,7 +270,7 @@ _tracker_apv_vfp30_2016.toModify(pixelPairStepChi2Est,
 trackingLowPU.toModify(pixelPairStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny'),
 )
-highBetaStar_2018.toModify(pixelPairStepChi2Est,MaxChi2 = 30)
+highBetaStar_2018.toModify(pixelPairStepChi2Est, MaxChi2 = 30)
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
@@ -278,8 +278,8 @@ pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     trajectoryFilter       = dict(refToPSet_ = 'pixelPairStepTrajectoryFilter'),
     maxCand                = 3,
     estimator              = 'pixelPairStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    maxDPhiForLooperReconstruction = 2.0,
+    maxPtForLooperReconstruction = 0.7,
 )
 trackingNoLoopers.toModify(pixelPairStepTrajectoryBuilder,
                            maxPtForLooperReconstruction = 0.0)
@@ -300,10 +300,10 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 _pixelPairStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'pixelPairStepSeeds',
     clustersToSkip = 'pixelPairStepClusters',
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'pixelPairStepTrajectoryBuilder'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = 50,
-    onlyPixelHitsForSeedCleaner = True
+    onlyPixelHitsForSeedCleaner = True,
 )
 pixelPairStepTrackCandidates = _pixelPairStepTrackCandidatesCkf.clone()
 
