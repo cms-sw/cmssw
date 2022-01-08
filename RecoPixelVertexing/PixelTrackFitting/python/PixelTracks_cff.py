@@ -93,14 +93,17 @@ from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 
 from RecoPixelVertexing.PixelTriplets.pixelTracksCUDA_cfi import pixelTracksCUDA as _pixelTracksCUDA
 
+#Pixel tracks in SoA format on the CPU
+pixelTracksCPU = _pixelTracksCUDA.clone(
+    pixelRecHitSrc = "siPixelRecHitsPreSplitting",
+    idealConditions = False,
+    onGPU = False
+)
+
 # SwitchProducer providing the pixel tracks in SoA format on the CPU
 pixelTracksSoA = SwitchProducerCUDA(
     # build pixel ntuplets and pixel tracks in SoA format on the CPU
-    cpu = _pixelTracksCUDA.clone(
-        pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
-        idealConditions = False,
-        onGPU = False
-    )
+    cpu = pixelTracksCPU
 )
 # use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
 run3_common.toModify(pixelTracksSoA.cpu,
@@ -127,8 +130,11 @@ from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import p
 ))
 
 
-# "Patatrack" sequence running on GPU
+# "Patatrack" sequence running on GPU (or CPU if not available)
 from Configuration.ProcessModifiers.gpu_cff import gpu
+(pixelNtupletFit & gpu).toModify(pixelTracksCPU,
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
+)
 
 # build the pixel ntuplets and pixel tracks in SoA format on the GPU
 pixelTracksCUDA = _pixelTracksCUDA.clone(
