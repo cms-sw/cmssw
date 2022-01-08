@@ -1,8 +1,9 @@
 #ifndef _ClusterShapeTrajectoryFilter_h_
 #define _ClusterShapeTrajectoryFilter_h_
 
-#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 namespace edm {
   class ParameterSet;
@@ -21,8 +22,9 @@ class SiPixelClusterShapeCache;
 class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
 public:
   ClusterShapeTrajectoryFilter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
-
   ~ClusterShapeTrajectoryFilter() override;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 

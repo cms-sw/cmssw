@@ -143,15 +143,72 @@ def customiseFor2018Input(process):
 
     return process
 
+def customiseFor36459(process):
+    """Update the HLT configuration for the changes in #36459:
+    add fillDescriptions to CkfTrackCandidateMaker (and its dependencies)
+    """
+    for iMod in producers_by_type(process, 'CkfTrackCandidateMaker'):
+        for aPar in ['SimpleMagneticField', 'TrajectoryBuilder']:
+            if hasattr(iMod, aPar): delattr(iMod, aPar)
+
+        # convert onlyPixelHitsForSeedCleaner to tracked bool
+        if hasattr(iMod, 'onlyPixelHitsForSeedCleaner'):
+            theMod = getattr(iMod, 'onlyPixelHitsForSeedCleaner')
+            if not theMod.isTracked():
+                setattr(iMod, 'onlyPixelHitsForSeedCleaner', cms.bool(theMod.value()))
+
+        # convert numHitsForSeedCleaner to tracked int32
+        if hasattr(iMod, 'numHitsForSeedCleaner'):
+            theMod = getattr(iMod, 'numHitsForSeedCleaner')
+            if not theMod.isTracked():
+                setattr(iMod, 'numHitsForSeedCleaner', cms.int32(theMod.value()))
+
+        # convert clustersToSkip to tracked InputTag
+        if hasattr(iMod, 'clustersToSkip'):
+            theMod = getattr(iMod, 'clustersToSkip')
+            if not theMod.isTracked():
+                setattr(iMod, 'clustersToSkip', cms.InputTag(theMod.value()))
+
+    for iMod in producers_by_type(process, 'CkfTrajectoryMaker'):
+        for aPar in ['TrajectoryBuilder']:
+            if hasattr(iMod, aPar):
+                delattr(iMod, aPar)
+
+    for aPSet in process._Process__psets.values():
+        if hasattr(aPSet, 'ComponentType') and aPSet.ComponentType in ['CkfTrajectoryBuilder', 'GroupedCkfTrajectoryBuilder', 'MuonCkfTrajectoryBuilder']:
+            for aPar in ['MeasurementTrackerName', 'cleanTrajectoryAfterInOut', 'doSeedingRegionRebuilding', 'useHitsSplitting']:
+               if hasattr(aPSet, aPar):
+                   delattr(aPSet, aPar)
+
+            if aPSet.ComponentType == 'GroupedCkfTrajectoryBuilder' and aPSet.useSameTrajFilter:
+                if not hasattr(aPSet, 'inOutTrajectoryFilter'):
+                    aPSet.inOutTrajectoryFilter = aPSet.trajectoryFilter.clone()
+
+            if aPSet.ComponentType == 'CkfTrajectoryBuilder' and hasattr(aPSet, 'minNrOfHitsForRebuild'):
+                delattr(aPSet, 'minNrOfHitsForRebuild')
+
+            if aPSet.ComponentType != 'GroupedCkfTrajectoryBuilder' and hasattr(aPSet, 'useSameTrajFilter'):
+                delattr(aPSet, 'useSameTrajFilter')
+
+    for iProdName in ['SeedCreatorFromRegionConsecutiveHitsEDProducer', 'SeedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer']:
+        for iMod in producers_by_type(process, iProdName):
+            if hasattr(iMod, 'SeedComparitorPSet') and hasattr(iMod.SeedComparitorPSet, 'comparitors'):
+                for pSetIdx in range(len(iMod.SeedComparitorPSet.comparitors)):
+                    if iMod.SeedComparitorPSet.comparitors[pSetIdx].ComponentName == 'StripSubClusterShapeSeedFilter':
+                        if not hasattr(iMod.SeedComparitorPSet.comparitors[pSetIdx], 'layerMask'):
+                            iMod.SeedComparitorPSet.comparitors[pSetIdx].layerMask = cms.PSet()
+
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
-    
+
     # if the gpu modifier is enabled, make the Pixel, ECAL and HCAL reconstruction offloadable to a GPU
     from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack
     gpu.makeProcessModifier(customizeHLTforPatatrack).apply(process)
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+    process = customiseFor36459(process)
 
     return process

@@ -138,7 +138,6 @@ trackingPhase2PU140.toModify(lowPtQuadStepChi2Est,
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter       = dict(refToPSet_ = 'lowPtQuadStepTrajectoryFilter'),
     maxCand                = 4,
     estimator              = 'lowPtQuadStepChi2Est',
@@ -168,17 +167,17 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 lowPtQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'lowPtQuadStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner       = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner       = 50,
+    onlyPixelHitsForSeedCleaner = True,
     TrajectoryBuilderPSet       = dict(refToPSet_ = 'lowPtQuadStepTrajectoryBuilder'),
     TrajectoryCleaner           = 'lowPtQuadStepTrajectoryCleanerBySharedHits',
-    clustersToSkip              = cms.InputTag('lowPtQuadStepClusters'),
+    clustersToSkip              = 'lowPtQuadStepClusters',
     doSeedingRegionRebuilding   = True,
     useHitsSplitting            = True
 )
 trackingPhase2PU140.toModify(lowPtQuadStepTrackCandidates,
-    clustersToSkip       = None,
-    phase2clustersToSkip = cms.InputTag('lowPtQuadStepClusters')
+    clustersToSkip       = '',
+    phase2clustersToSkip = 'lowPtQuadStepClusters'
 )
 
 from Configuration.ProcessModifiers.trackingMkFitLowPtQuadStep_cff import trackingMkFitLowPtQuadStep

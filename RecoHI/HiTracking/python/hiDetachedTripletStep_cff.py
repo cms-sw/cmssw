@@ -144,7 +144,6 @@ hiDetachedTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstim
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiDetachedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter = dict(refToPSet_ = 'hiDetachedTripletStepTrajectoryFilter'),
     maxCand = 2,
     estimator = 'hiDetachedTripletStepChi2Est',
@@ -161,8 +160,7 @@ hiDetachedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
     TrajectoryBuilderPSet = dict(refToPSet_ = 'hiDetachedTripletStepTrajectoryBuilder'),
-    TrajectoryBuilder = 'hiDetachedTripletStepTrajectoryBuilder',
-    clustersToSkip = cms.InputTag('hiDetachedTripletStepClusters'),
+    clustersToSkip = 'hiDetachedTripletStepClusters',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )
