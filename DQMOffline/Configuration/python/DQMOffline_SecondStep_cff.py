@@ -10,7 +10,7 @@ from DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff import *
 from DQM.DTMonitorClient.dtDQMOfflineClients_cff import *
 from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQM.CSCMonitorModule.csc_dqm_offlineclient_collisions_cff import *
-from DQMOffline.Muon.gem_dqm_offline_client_cff import *
+from DQM.GEM.gem_dqm_offline_client_cff import *
 from DQMOffline.Hcal.HcalDQMOfflinePostProcessor_cff import *
 from DQM.HcalTasks.OfflineHarvestingSequence_pp import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
@@ -46,7 +46,7 @@ DQMOffline_SecondStepL1T = cms.Sequence( l1TriggerDqmOfflineClient )
 
 DQMOffline_SecondStepL1TPhase2 = cms.Sequence( Phase2l1TriggerDqmOfflineClient )
 
-DQMOffline_SecondStep_PreDPG = cms.Sequence( 
+DQMOffline_SecondStep_PreDPG = cms.Sequence(
                                              DQMOffline_SecondStepEcal *
                                              DQMOffline_SecondStepTrackerStrip *
 					     DQMOffline_SecondStepTrackerPixel *
