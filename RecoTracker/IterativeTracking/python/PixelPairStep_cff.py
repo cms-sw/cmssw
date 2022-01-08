@@ -275,8 +275,7 @@ highBetaStar_2018.toModify(pixelPairStepChi2Est,MaxChi2 = 30)
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryFilter')),
+    trajectoryFilter       = dict(refToPSet_ = 'pixelPairStepTrajectoryFilter'),
     maxCand                = 3,
     estimator              = 'pixelPairStepChi2Est',
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -300,12 +299,11 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 # Give handle for CKF for HI
 _pixelPairStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'pixelPairStepSeeds',
-    clustersToSkip        = cms.InputTag('pixelPairStepClusters'),
+    clustersToSkip = 'pixelPairStepClusters',
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryBuilder')),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True
 )
 pixelPairStepTrackCandidates = _pixelPairStepTrackCandidatesCkf.clone()
 
@@ -333,9 +331,9 @@ trackingMkFitPixelPairStep.toReplaceWith(pixelPairStepTrackCandidates, _mkFitOut
 ))
 
 trackingPhase2PU140.toModify(pixelPairStepTrackCandidates,
-    clustersToSkip       = None,
-    phase2clustersToSkip = cms.InputTag('pixelPairStepClusters'),
-    TrajectoryCleaner    = 'pixelPairStepTrajectoryCleanerBySharedHits'
+    clustersToSkip = '',
+    phase2clustersToSkip = 'pixelPairStepClusters',
+    TrajectoryCleaner = 'pixelPairStepTrajectoryCleanerBySharedHits'
 )
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(pixelPairStepTrackCandidates,

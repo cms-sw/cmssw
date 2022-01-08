@@ -122,7 +122,6 @@ hiJetCoreRegionalStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstim
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiJetCoreRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter = dict(refToPSet_ = 'hiJetCoreRegionalStepTrajectoryFilter'),
     maxCand = 50,
     estimator = 'hiJetCoreRegionalStepChi2Est',

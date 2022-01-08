@@ -44,7 +44,6 @@ TrajectoryBuilderForElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.
     propagatorAlong = 'fwdGsfElectronPropagator',
     propagatorOpposite = 'bwdGsfElectronPropagator',
     estimator = 'ElectronChi2',
-    MeasurementTrackerName = '',
     lostHitPenalty = 90.,
     alwaysUseInvalidHits = True,
     TTRHBuilder = 'WithTrackAngle',
@@ -72,7 +71,6 @@ electronTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
     ValidHitBonus = 1000.0,
     MissingHitPenalty = 0.0
 )
-            
 
 # "backward" propagator for electrons
 from TrackingTools.GsfTracking.bwdGsfElectronPropagator_cff import *

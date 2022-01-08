@@ -1,8 +1,8 @@
 #ifndef CkfBaseTrajectoryFilter_H
 #define CkfBaseTrajectoryFilter_H
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
-
 #include "TrackingTools/TrajectoryFiltering/interface/ChargeSignificanceTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/MaxConsecLostHitsTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/MaxHitsTrajectoryFilter.h"
@@ -13,7 +13,6 @@
 #include "TrackingTools/TrajectoryFiltering/interface/LooperTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/SeedExtensionTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/MaxCCCLostHitsTrajectoryFilter.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class CkfBaseTrajectoryFilter : public TrajectoryFilter {
 public:
@@ -29,6 +28,19 @@ public:
         theLooperTrajectoryFilter(new LooperTrajectoryFilter(pset, iC)),
         theSeedExtensionTrajectoryFilter(new SeedExtensionTrajectoryFilter(pset, iC)),
         theMaxCCCLostHitsTrajectoryFilter(new MaxCCCLostHitsTrajectoryFilter(pset, iC)) {}
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+    ChargeSignificanceTrajectoryFilter::fillPSetDescription(iDesc);
+    MaxConsecLostHitsTrajectoryFilter::fillPSetDescription(iDesc);
+    MaxHitsTrajectoryFilter::fillPSetDescription(iDesc);
+    MaxLostHitsTrajectoryFilter::fillPSetDescription(iDesc);
+    LostHitsFractionTrajectoryFilter::fillPSetDescription(iDesc);
+    MinHitsTrajectoryFilter::fillPSetDescription(iDesc);
+    MinPtTrajectoryFilter::fillPSetDescription(iDesc);
+    LooperTrajectoryFilter::fillPSetDescription(iDesc);
+    SeedExtensionTrajectoryFilter::fillPSetDescription(iDesc);
+    MaxCCCLostHitsTrajectoryFilter::fillPSetDescription(iDesc);
+  }
 
   void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
     theChargeSignificanceTrajectoryFilter->setEvent(iEvent, iSetup);
@@ -49,19 +61,6 @@ public:
   bool toBeContinued(TempTrajectory& traj) const override { return TBC<TempTrajectory>(traj); }
 
   std::string name() const override { return "CkfBaseTrajectoryFilter"; }
-
-  inline edm::ParameterSetDescription getFilledConfigurationDescription() {
-    edm::ParameterSetDescription descLooper = theLooperTrajectoryFilter->getFilledConfigurationDescription();
-    edm::ParameterSetDescription descLostHitsFraction =
-        theLostHitsFractionTrajectoryFilter->getFilledConfigurationDescription();
-    edm::ParameterSetDescription descMinHits = theMinHitsTrajectoryFilter->getFilledConfigurationDescription();
-
-    edm::ParameterSetDescription desc;
-    desc.add<edm::ParameterSetDescription>("looperTrajectoryFilter", descLooper);
-    desc.add<edm::ParameterSetDescription>("lostHitsFractionTrajectoryFilter", descLostHitsFraction);
-    desc.add<edm::ParameterSetDescription>("minHitsTrajectoryFilter", descMinHits);
-    return desc;
-  }
 
 protected:
   template <class T>

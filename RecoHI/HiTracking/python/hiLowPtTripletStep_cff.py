@@ -136,7 +136,6 @@ hiLowPtTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimato
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiLowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter = dict(refToPSet_ = 'hiLowPtTripletStepTrajectoryFilter'),
     maxCand = 3,
     estimator = 'hiLowPtTripletStepChi2Est',
@@ -151,10 +150,10 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiLowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'hiLowPtTripletStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
     TrajectoryBuilderPSet = dict(refToPSet_ = 'hiLowPtTripletStepTrajectoryBuilder'),
-    clustersToSkip = cms.InputTag('hiLowPtTripletStepClusters'),
+    clustersToSkip = 'hiLowPtTripletStepClusters',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )

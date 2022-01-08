@@ -242,9 +242,8 @@ trackingLowPU.toModify(tobTecStepChi2Est,
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('tobTecStepTrajectoryFilter')),
-    inOutTrajectoryFilter  = cms.PSet(refToPSet_ = cms.string('tobTecStepInOutTrajectoryFilter')),
+    trajectoryFilter       = dict(refToPSet_ = 'tobTecStepTrajectoryFilter'),
+    inOutTrajectoryFilter  = dict(refToPSet_ = 'tobTecStepInOutTrajectoryFilter'),
     useSameTrajFilter      = False,
     minNrOfHitsForRebuild  = 4,
     alwaysUseInvalidHits   = False,
