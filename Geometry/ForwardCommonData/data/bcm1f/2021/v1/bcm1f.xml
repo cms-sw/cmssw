@@ -57,15 +57,15 @@
     <!-- Planes --> 
      <PosPart copyNumber="1">
        <rParent name="pltbcm:PLTBCM"/>
-       <rChild name="BCM1F"/>
+       <rChild name="bcm1f:BCM1F"/>
        <rRotation name="rotations:000D"/>
        <Translation x="0*fm" y="0*fm" z="[Bcm1fZ]-[pltbcm:PltBcmZ]"/>
     </PosPart>
     
     <!-- Diamonds -->  
     <Algorithm name="global:DDAngular">
-       <rParent name="BCM1F"/>
-       <String name="ChildName" value="BCM1FDiamond"/>
+       <rParent name="bcm1f:BCM1F"/>
+       <String name="ChildName" value="bcm1f:BCM1FDiamond"/>
        <Numeric name="StartCopyNo" value="1"/>
        <Numeric name="IncrCopyNo" value="1"/>
        <Numeric name="N" value="12"/>
@@ -82,14 +82,14 @@
     
     <!-- Sensors --> 
      <PosPart copyNumber="1">
-       <rParent name="BCM1FDiamond"/>
-       <rChild name="BCM1FSensor"/>
+       <rParent name="bcm1f:BCM1FDiamond"/>
+       <rChild name="bcm1f:BCM1FSensor"/>
        <rRotation name="rotations:000D"/>
        <Translation x="0*fm" y="-[SensorShift]" z="0*fm"/>
     </PosPart>
      <PosPart copyNumber="2">
-       <rParent name="BCM1FDiamond"/>
-       <rChild name="BCM1FSensor"/>
+       <rParent name="bcm1f:BCM1FDiamond"/>
+       <rChild name="bcm1f:BCM1FSensor"/>
        <rRotation name="rotations:000D"/>
        <Translation x="0*fm" y="[SensorShift]" z="0*fm"/>
     </PosPart>
