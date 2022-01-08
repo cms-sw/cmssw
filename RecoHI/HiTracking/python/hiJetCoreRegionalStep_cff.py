@@ -125,8 +125,8 @@ hiJetCoreRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajec
     trajectoryFilter = dict(refToPSet_ = 'hiJetCoreRegionalStepTrajectoryFilter'),
     maxCand = 50,
     estimator = 'hiJetCoreRegionalStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7)
+    maxDPhiForLooperReconstruction = 2.0,
+    maxPtForLooperReconstruction = 0.7,
 )
 
 # MAKING OF TRACK CANDIDATES
@@ -134,7 +134,7 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiJetCoreRegionalStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'hiJetCoreRegionalStepSeeds',
     maxSeedsBeforeCleaning = 10000,
-    TrajectoryBuilderPSet = dict( refToPSet_ = 'hiJetCoreRegionalStepTrajectoryBuilder'),
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'hiJetCoreRegionalStepTrajectoryBuilder'),
     NavigationSchool = 'SimpleNavigationSchool',
 )
 
