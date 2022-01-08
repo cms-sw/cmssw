@@ -123,7 +123,6 @@ hiDetachedQuadStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimato
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiDetachedQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter = dict(refToPSet_ = 'hiDetachedQuadStepTrajectoryFilter'),
     maxCand = 4,#4 for pp
     estimator = 'hiDetachedQuadStepChi2Est',
@@ -142,11 +141,10 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiDetachedQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'hiDetachedQuadStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
     TrajectoryBuilderPSet = dict(refToPSet_ = 'hiDetachedQuadStepTrajectoryBuilder'),
-    TrajectoryBuilder = 'hiDetachedQuadStepTrajectoryBuilder',
-    clustersToSkip = cms.InputTag('hiDetachedQuadStepClusters'),
+    clustersToSkip = 'hiDetachedQuadStepClusters',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )
