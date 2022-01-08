@@ -1,4 +1,4 @@
-#include "DQMOffline/Muon/interface/GEMOfflineDQMBase.h"
+#include "DQM/GEM/interface/GEMOfflineDQMBase.h"
 #include "FWCore/Utilities/interface/Likely.h"
 
 GEMOfflineDQMBase::GEMOfflineDQMBase(const edm::ParameterSet& pset) {}
