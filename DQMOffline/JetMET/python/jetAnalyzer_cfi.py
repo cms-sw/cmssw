@@ -252,7 +252,7 @@ jetDQMAnalyzerAkCs3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
 )
 
 jetDQMAnalyzerAkCs4PF=jetDQMAnalyzerAkCs3PF.clone(src = "akCs4PFJets",
-						  CScands = "akCs4PFJets : pfParticlesCs"
+						  CScands = "akCs4PFJets:pfParticlesCs"
 )
 
 
