@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.JetMET.jptDQMConfig_cff import *      # parameters for jpt analyzer
+#from DQMOffline.JetMET.jptDQMConfig_cff import *      # parameters for jpt analyzer #commented as the config file does not exist!
 from DQMOffline.JetMET.jetDQMConfig_cff import *      # parameters for all jet analyzers
 from DQMOffline.JetMET.metDQMConfig_cff import *      # parameters for all met analyzers
 from DQMOffline.JetMET.jetMETDQMCleanup_cff import *  # parameters for event cleanup
@@ -82,88 +82,88 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     #
     # For caloMETAnalysis "met"
-    #
-     caloMETAnalysis = metDQMParameters.clone(
-         allHist = cms.bool(True)
-     ),
+    # All the metQMParameters clones are commented as it doesn't exist.
+    # caloMETAnalysis = metDQMParameters.clone(
+    #     allHist = True
+    # ),
 
      #
      # For caloMETAnalysis "metNoHF"
      #
-     caloMETNoHFAnalysis = metDQMParameters.clone(
-         METCollectionLabel = cms.InputTag("metNoHF"),
-         Source             = cms.string("CaloMETNoHF")
-     ),
+     #caloMETNoHFAnalysis = metDQMParameters.clone(
+     #    METCollectionLabel = "metNoHF",
+     #    Source             = "CaloMETNoHF"
+    #),
 
      #
      # For caloMETAnalysis "metHO"
      #
-     caloMETHOAnalysis = metDQMParameters.clone(
-         METCollectionLabel = cms.InputTag("metHO"),
-         Source             = cms.string("CaloMETHO"),
-         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:ho"),
-         #DebugOn = cms.untracked.bool(True),
-         Filter = cms.untracked.bool(True)
-     ),
+     #caloMETHOAnalysis = metDQMParameters.clone(
+     #    METCollectionLabel = "metHO",
+     #    Source             = "CaloMETHO",
+     #    DetectorTypes = "ecal:hbhe:hf:ho",
+         #DebugOn = True,
+     #    Filter = True
+    #),
 
      #
      # For caloMETAnalysis
      #
-     caloMETNoHFHOAnalysis = metDQMParameters.clone(
-         METCollectionLabel = cms.InputTag("metNoHFHO"),
-         Source             = cms.string("CaloMETNoHFHO"),
-         DCSFilter = cms.PSet(
-           DetectorTypes = cms.untracked.string("ecal:hbhe:hf:ho"),
+     #caloMETNoHFHOAnalysis = metDQMParameters.clone(
+     #    METCollectionLabel = "metNoHFHO",
+     #    Source             = "CaloMETNoHFHO",
+     #    DCSFilter = cms.PSet(
+     #      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:ho"),
            #DebugOn = cms.untracked.bool(True),
-           Filter = cms.untracked.bool(True)
-         )
-     ),
+     #      Filter = cms.untracked.bool(True)
+      #   )
+      #),
 
      #
      # For pfMETAnalysis
      #
-     pfMETAnalysis = metDQMParameters.clone(
-         METCollectionLabel   = cms.InputTag("pfMet"),
-         Source               = cms.string("PfMET"),
-         PfJetCollectionLabel = cms.InputTag("iterativeCone5PFJets"),
-         PFCandidates         = cms.InputTag("particleFlow"),
-         DCSFilter = cms.PSet(
-           DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+     #pfMETAnalysis = metDQMParameters.clone(
+     #    METCollectionLabel   = "pfMet",
+     #    Source               = "PfMET",
+     #    PfJetCollectionLabel = "iterativeCone5PFJets",
+     #    PFCandidates         = "particleFlow",
+     #    DCSFilter = cms.PSet(
+     #      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
            #DebugOn = cms.untracked.bool(True),
-           Filter = cms.untracked.bool(True)
-         )
-     ),
+     #      Filter = cms.untracked.bool(True)
+     #  )
+     #),
 
      #
      # For tcMETAnalysis
      #
-     tcMETAnalysis = metDQMParameters.clone(
-         METCollectionLabel = cms.InputTag("tcMet"),
-         Source             = cms.string("TcMET"),
-         InputTrackLabel    = cms.InputTag("generalTracks"),
-         InputMuonLabel     = cms.InputTag("muons"),
-         InputElectronLabel = cms.InputTag("gedGsfElectrons"),
-         InputBeamSpotLabel = cms.InputTag("offlineBeamSpot"),
-         DCSFilter = cms.PSet(
-           DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+     #tcMETAnalysis = metDQMParameters.clone(
+     #    METCollectionLabel = "tcMet",
+     #    Source             = "TcMET",
+     #    InputTrackLabel    = "generalTracks",
+     #    InputMuonLabel     = "muons",
+     #    InputElectronLabel = "gedGsfElectrons",
+     #    InputBeamSpotLabel = "offlineBeamSpot",
+     #    DCSFilter = cms.PSet(
+     #      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
            #DebugOn = cms.untracked.bool(True),
-           Filter = cms.untracked.bool(True)
-         )
-     ),
+     #      Filter = cms.untracked.bool(True)
+      #   )
+    #),
 
      #
      # For mucorrMET
      #
-     mucorrMETAnalysis = metDQMParameters.clone(
-         METCollectionLabel = cms.InputTag("caloMetM"),
-         Source             = cms.string("MuCorrMET"),
-         InputBeamSpotLabel = cms.InputTag("offlineBeamSpot"),
-         DCSFilter = cms.PSet(
-           DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:muon"),
+     #mucorrMETAnalysis = metDQMParameters.clone(
+     #    METCollectionLabel = "caloMetM",
+     #    Source             = "MuCorrMET",
+      #   InputBeamSpotLabel = "offlineBeamSpot",
+      #   DCSFilter = cms.PSet(
+      #     DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:muon"),
            #DebugOn = cms.untracked.bool(True),
-           Filter = cms.untracked.bool(True)
-         )
-     ),
+      #     Filter = cms.untracked.bool(True)
+      #   )
+      #),
 
     #
     # For HTMHTAnalysis
@@ -185,23 +185,23 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     #
     # For jetcleaning Analysis
-    #
-    CleanedjetAnalysis = cleanedJetDQMParameters.clone(),
+    # All cleanedJetDQMParameters clones are commented as it doesn't exist.
+    #CleanedjetAnalysis = cleanedJetDQMParameters.clone(),
 
     #
     # For dijet Analysis
     #
-    DijetAnalysis = cleanedJetDQMParameters.clone(
-        makedijetselection = cms.int32(1),
-        ptThreshold = cms.double(20.),
-        fillJIDPassFrac   = cms.int32(1)
-    ),
+    #DijetAnalysis = cleanedJetDQMParameters.clone(
+    #    makedijetselection = 1,
+    #    ptThreshold = 20.,
+    #    fillJIDPassFrac   = 1
+    #),
 
-    PFDijetAnalysis = cleanedJetDQMParameters.clone(
-        makedijetselection = cms.int32(1),
-        ptThreshold = cms.double(20.),
-        fillJIDPassFrac   = cms.int32(1)
-    ),
+    #PFDijetAnalysis = cleanedJetDQMParameters.clone(
+    #    makedijetselection = 1,
+    #    ptThreshold = 20.,
+    #    fillJIDPassFrac   = 1
+    #),
 
     #
     # For Pt jet Analysis
@@ -211,7 +211,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     # For Cleaned Pt jet Analysis
     #
-    CleanedPtAnalysis = cleanedJetDQMParameters.clone(),
+    #CleanedPtAnalysis = cleanedJetDQMParameters.clone(),
 
     #
     # For PF jetAnalysis
@@ -235,21 +235,19 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     # For Cleaned PF jetAnalysis
     #
-    CleanedpfJetAnalysis = cleanedJetDQMParameters.clone(
-    ptThreshold = cms.double(20.)
-    ),
+    #CleanedpfJetAnalysis = cleanedJetDQMParameters.clone(
+    #ptThreshold = cms.double(20.)
+    #),
 
     #
     # For JPT jetAnalysis
     #
-    JPTJetAnalysis = jptDQMParameters.clone(
-    ),
+    #JPTJetAnalysis = jptDQMParameters.clone(),
 
     #
     # For CleanedJPT jetAnalysis
     #
-    CleanedJPTJetAnalysis = cleanedjptDQMParameters.clone(
-    ),
+    #CleanedJPTJetAnalysis = cleanedjptDQMParameters.clone(),
 
     #
     # DCS
