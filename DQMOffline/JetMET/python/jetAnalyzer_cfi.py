@@ -137,11 +137,11 @@ jetDQMAnalyzerAk4PFCHSCleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     JetCorrections = "dqmAk4PFCHSL1FastL2L3ResidualCorrector",
     jetsrc = "ak4PFJetsCHS",
     METCollectionLabel     = "pfMETT1",
-    InputMVAPUIDDiscriminant = "pileupJetIdEvaluatorCHSDQM : fullDiscriminant",
-    InputCutPUIDDiscriminant = "pileupJetIdEvaluatorCHSDQM : cutbasedDiscriminant",
-    InputMVAPUIDValue = "pileupJetIdEvaluatorCHSDQM : fullId",
-    InputCutPUIDValue = "pileupJetIdEvaluatorCHSDQM : cutbasedId",
-    fillCHShistos = True,
+    InputMVAPUIDDiscriminant = "pileupJetIdEvaluatorCHSDQM:fullDiscriminant",
+    InputCutPUIDDiscriminant = "pileupJetIdEvaluatorCHSDQM:cutbasedDiscriminant",
+    InputMVAPUIDValue = "pileupJetIdEvaluatorCHSDQM:fullId",
+    InputCutPUIDValue = "pileupJetIdEvaluatorCHSDQM:cutbasedId",
+    fillCHShistos = True
 )
 
 jetDQMAnalyzerAk4PFCHSUncleanedMiniAOD=jetDQMAnalyzerAk4PFUncleaned.clone(
