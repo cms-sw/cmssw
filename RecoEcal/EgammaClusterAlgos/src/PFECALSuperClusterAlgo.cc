@@ -418,7 +418,8 @@ void PFECALSuperClusterAlgo::buildSuperCluster(CalibClusterPtr& seed, CalibClust
         edm::Ptr<reco::PFCluster> psclus(i_ps->second);
 #ifdef EDM_ML_DEBUG
 
-	auto found_pscluster = std::find(new_sc.preshowerClustersBegin(), new_sc.preshowerClustersEnd(), reco::CaloClusterPtr(psclus));
+        auto found_pscluster =
+            std::find(new_sc.preshowerClustersBegin(), new_sc.preshowerClustersEnd(), reco::CaloClusterPtr(psclus));
 
         if (found_pscluster == new_sc.preshowerClustersEnd()) {
 #endif
