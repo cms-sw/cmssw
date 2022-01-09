@@ -51,7 +51,7 @@ electronAnalyzerSequence = cms.Sequence(
 mergedSuperClustersHGC = mergedSuperClusters.clone(
     src = (
         ("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
-        ("particleFlowSuperClusterHGCal: ")
+        ("particleFlowSuperClusterHGCal")
     )
  )
 dqmElectronAnalysisAllElectronsHGC = dqmElectronAnalysisAllElectrons.clone(
