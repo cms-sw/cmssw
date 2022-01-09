@@ -1,6 +1,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -14,7 +14,7 @@
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
 
-class printEvent : public edm::EDAnalyzer {
+class printEvent : public edm::one::EDAnalyzer<> {
 public:
   explicit printEvent(const edm::ParameterSet&);
   ~printEvent(){};
@@ -23,6 +23,7 @@ public:
 private:
   edm::EDGetTokenT<edm::View<reco::Jet> > sourceToken_;
   edm::Handle<edm::View<reco::Jet> > genJets;
+  edm::ESGetToken<ParticleDataTable, edm::DefaultRecord> pdtToken_;
   edm::ESHandle<ParticleDataTable> pdt_;
 };
 
@@ -40,6 +41,7 @@ using namespace CandMCTagUtils;
 
 printEvent::printEvent(const edm::ParameterSet& iConfig) {
   sourceToken_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<InputTag>("src"));
+  pdtToken_ = esConsumes();
 }
 
 void printEvent::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -49,7 +51,7 @@ void printEvent::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   try {
     iEvent.getByToken(sourceToken_, genJets);
-    iSetup.getData(pdt_);
+    pdt_ = iSetup.getHandle(pdtToken_);
   } catch (std::exception& ce) {
     cerr << "[printGenJet] caught std::exception " << ce.what() << endl;
     return;
