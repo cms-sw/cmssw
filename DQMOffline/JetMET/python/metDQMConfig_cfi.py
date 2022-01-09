@@ -29,7 +29,7 @@ caloMetDQMAnalyzer = DQMEDAnalyzer('METAnalyzer',
     fillCandidateMaps = cms.bool(False),
 
     CleaningParameters = cleaningParameters.clone(       
-        bypassAllPVChecks = cms.bool(True),#needed for 0T running
+        bypassAllPVChecks = True, #needed for 0T running
         ),
     METDiagonisticsParameters = multPhiCorr_METDiagnostics,
 
@@ -133,19 +133,19 @@ caloMetDQMAnalyzer = DQMEDAnalyzer('METAnalyzer',
 )
 
 pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
-    METType=cms.untracked.string('pf'),
-    METCollectionLabel     = cms.InputTag("pfMet"),
-    srcPFlow = cms.InputTag('particleFlow', ''),
-    JetCollectionLabel  = cms.InputTag("ak4PFJets"),
-    JetCorrections = cms.InputTag("dqmAk4PFL1FastL2L3ResidualCorrector"),
+    METType = 'pf',
+    METCollectionLabel     = "pfMet",
+    srcPFlow = 'particleFlow',
+    JetCollectionLabel  = "ak4PFJets",
+    JetCorrections = "dqmAk4PFL1FastL2L3ResidualCorrector",
     CleaningParameters = cleaningParameters.clone(       
-        bypassAllPVChecks = cms.bool(False),
+        bypassAllPVChecks = False,
         ),
-    fillMetHighLevel = cms.bool(False),
-    fillCandidateMaps = cms.bool(True),
+    fillMetHighLevel = False,
+    fillCandidateMaps = True,
     # if this flag is changed, the METTypeRECOUncleaned flag in dataCertificationJetMET_cfi.py
     #has to be updated (by a string not pointing to an existing directory)
-    onlyCleaned                = cms.untracked.bool(False),
+    onlyCleaned       = False,
     DCSFilter = cms.PSet(
         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
         #DebugOn = cms.untracked.bool(True),
@@ -153,48 +153,48 @@ pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
         ),
 )
 pfChMetDQMAnalyzer = pfMetDQMAnalyzer.clone(
-     METCollectionLabel     = cms.InputTag("pfChMet"),
-     fillCandidateMaps = cms.bool(False),
-     onlyCleaned                = cms.untracked.bool(True),
+     METCollectionLabel     = "pfChMet",
+     fillCandidateMaps = False,
+     onlyCleaned   = True
  )
 
 
 
 #both CaloMET and type1 MET only cleaned plots are filled
 pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
-    METType=cms.untracked.string('pf'),
-    METCollectionLabel     = cms.InputTag("pfMETT1"),
-    srcPFlow = cms.InputTag('particleFlow', ''),
-    JetCollectionLabel  = cms.InputTag("ak4PFJetsCHS"),
-    JetCorrections = cms.InputTag("dqmAk4PFCHSL1FastL2L3ResidualCorrector"),
+    METType = 'pf',
+    METCollectionLabel     = "pfMETT1",
+    srcPFlow = 'particleFlow',
+    JetCollectionLabel  = "ak4PFJetsCHS",
+    JetCorrections = "dqmAk4PFCHSL1FastL2L3ResidualCorrector",
     CleaningParameters = cleaningParameters.clone(       
-        bypassAllPVChecks = cms.bool(False),
+        bypassAllPVChecks = False,
         ),
-    fillMetHighLevel = cms.bool(False),
-    fillCandidateMaps = cms.bool(False),
-    DCSFilter = cms.PSet(
-        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
-        Filter = cms.untracked.bool(True)
+    fillMetHighLevel = False,
+    fillCandidateMaps = False,
+    DCSFilter = dict(
+        DetectorTypes = "ecal:hbhe:hf:pixel:sistrip:es:muon",
+        Filter = True
         ),
 )
 pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
-    fillMetHighLevel = cms.bool(True),#fills only lumisec plots
-    fillCandidateMaps = cms.bool(False),
-    srcPFlow = cms.InputTag('packedPFCandidates', ''),
+    fillMetHighLevel = True,#fills only lumisec plots
+    fillCandidateMaps = False,
+    srcPFlow = 'packedPFCandidates',
     METDiagonisticsParameters = multPhiCorr_METDiagnosticsMiniAOD,
     CleaningParameters = cleaningParameters.clone(
-        vertexCollection    = cms.InputTag( "goodOfflinePrimaryVerticesDQMforMiniAOD" ),
+        vertexCollection    =  "goodOfflinePrimaryVerticesDQMforMiniAOD",
         ),
-    METType=cms.untracked.string('miniaod'),
-    METCollectionLabel     = cms.InputTag("slimmedMETs"),
-    JetCollectionLabel  = cms.InputTag("slimmedJets"),
-    JetCorrections = cms.InputTag(""),#not called, since corrected by default
+    METType = 'miniaod',
+    METCollectionLabel  = "slimmedMETs",
+    JetCollectionLabel  = "slimmedJets",
+    JetCorrections = "" #not called, since corrected by default
 )
 pfPuppiMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzerMiniAOD.clone(
-    fillMetHighLevel = cms.bool(False),#fills only lumisec plots
-    fillCandidateMaps = cms.bool(True),
-    METType=cms.untracked.string('miniaod'),
-    METCollectionLabel     = cms.InputTag("slimmedMETsPuppi"),
-    JetCollectionLabel  = cms.InputTag("slimmedJetsPuppi"),
-    JetCorrections = cms.InputTag(""),#not called, since corrected by default
+    fillMetHighLevel = False,#fills only lumisec plots
+    fillCandidateMaps = True,
+    METType = 'miniaod',
+    METCollectionLabel  = "slimmedMETsPuppi",
+    JetCollectionLabel  = "slimmedJetsPuppi",
+    JetCorrections = "" #not called, since corrected by default
 )
