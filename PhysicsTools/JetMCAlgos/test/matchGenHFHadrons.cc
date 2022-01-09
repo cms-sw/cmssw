@@ -5,7 +5,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -21,14 +21,13 @@
 #include <TTree.h>
 #include <Math/VectorUtil.h>
 
-class matchGenHFHadrons : public edm::EDAnalyzer {
+class matchGenHFHadrons : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit matchGenHFHadrons(const edm::ParameterSet&);
-  ~matchGenHFHadrons(){};
 
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual void beginJob();
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void beginJob() override;
   void bookHadronBranches(TTree* tree, const int flavour);
   void clearEventVariables();
   void clearHadronVariables();
@@ -150,7 +149,9 @@ matchGenHFHadrons::matchGenHFHadrons(const edm::ParameterSet& config)
       genCHadLeptonHadronIndexToken_(
           consumes<std::vector<int> >(config.getParameter<edm::InputTag>("genCHadLeptonHadronIndex"))),
       genCHadLeptonViaTauToken_(
-          consumes<std::vector<int> >(config.getParameter<edm::InputTag>("genCHadLeptonViaTau"))) {}
+          consumes<std::vector<int> >(config.getParameter<edm::InputTag>("genCHadLeptonViaTau"))) {
+  usesResource(TFileService::kSharedResource);
+}
 
 void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   this->clearEventVariables();
