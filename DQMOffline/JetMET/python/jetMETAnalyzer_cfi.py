@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-#from DQMOffline.JetMET.jptDQMConfig_cff import *      # parameters for jpt analyzer
+#from DQMOffline.JetMET.jptDQMConfig_cff import *      # parameters for jpt analyzer #commented as the config file does not exist!
 from DQMOffline.JetMET.jetDQMConfig_cff import *      # parameters for all jet analyzers
 from DQMOffline.JetMET.metDQMConfig_cff import *      # parameters for all met analyzers
 from DQMOffline.JetMET.jetMETDQMCleanup_cff import *  # parameters for event cleanup
@@ -82,7 +82,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     #
     # For caloMETAnalysis "met"
-    #
+    # All the metQMParameters clones are commented as it doesn't exist.
     # caloMETAnalysis = metDQMParameters.clone(
     #     allHist = True
     # ),
@@ -185,7 +185,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     #
     # For jetcleaning Analysis
-    #
+    # All cleanedJetDQMParameters clones are commented as it doesn't exist.
     #CleanedjetAnalysis = cleanedJetDQMParameters.clone(),
 
     #
