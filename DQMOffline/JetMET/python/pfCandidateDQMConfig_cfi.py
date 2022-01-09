@@ -41,7 +41,7 @@ pfCandidateDQMAnalyzer = DQMEDAnalyzer('DQMPFCandidateAnalyzer',
 
 packedCandidateDQMAnalyzerMiniAOD = pfCandidateDQMAnalyzer.clone(
     CandType = 'Packed',
-    PFCandidateLabel = 'packedPFCandidates: ',
+    PFCandidateLabel = 'packedPFCandidates',
     METDiagonisticsParameters = multPhiCorr_METDiagnosticsMiniAOD,
     CleaningParameters = cleaningParameters.clone(
         vertexCollection    =  "goodOfflinePrimaryVerticesDQMforMiniAOD" ,
