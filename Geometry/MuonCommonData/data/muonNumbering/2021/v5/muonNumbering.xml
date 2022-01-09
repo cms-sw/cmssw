@@ -281,6 +281,8 @@
    <PartSelector path="//RT1C"/>
    <PartSelector path="//RTXU"/>
    <PartSelector path="//RTXUR"/>
+   <PartSelector path="//RT3G"/>
+   <PartSelector path="//RT4H"/>
    <Parameter name="CopyNoTag" value="[mr_esector]"/>
   </SpecPar>
   <SpecPar name="MuonRpcEndcapChamberB1">

@@ -82,8 +82,8 @@
     <PosPartSection label="plt">
         <!-- Copy the pixels into a row to form the columns -->
         <Algorithm name="global:DDLinear">
-            <rParent name="PLTSensorRow"/>
-            <String name="ChildName" value="PLTPixel"/>
+            <rParent name="plt:PLTSensorRow"/>
+            <String name="ChildName" value="plt:PLTPixel"/>
             <Numeric name="StartCopyNo" value="0"/>
             <Numeric name="IncrCopyNo" value="1"/>
             <Numeric name="N" value="[NumberOfColumns]"/>
@@ -94,8 +94,8 @@
         </Algorithm>
         <!-- Copy the rows to form the sensor plane! -->
         <Algorithm name="global:DDLinear">
-            <rParent name="PLTSensorPlane"/>
-            <String name="ChildName" value="PLTSensorRow"/>
+            <rParent name="plt:PLTSensorPlane"/>
+            <String name="ChildName" value="plt:PLTSensorRow"/>
             <Numeric name="StartCopyNo" value="0"/>
             <Numeric name="IncrCopyNo" value="1"/>
             <Numeric name="N" value="[NumberOfRows]"/>
@@ -106,22 +106,22 @@
         </Algorithm>
         <!-- Copy the three sensor planes into the telescope-->
         <PosPart copyNumber="0">
-            <rParent name="Telescope"/>
-            <rChild name="PLTSensorPlane"/>
+            <rParent name="plt:Telescope"/>
+            <rChild name="plt:PLTSensorPlane"/>
             <Translation x="0.*mm" y="-[TelWidthY]/2.+[ROCWidthY]/2." z="-[TelWidthZ]/2.+[SiThkZ]/2." />
             <rRotation  name="rotations:000D" />
         </PosPart>
         
         <PosPart copyNumber="1">
-            <rParent name="Telescope"/>
-            <rChild name="PLTSensorPlane"/>
+            <rParent name="plt:Telescope"/>
+            <rChild name="plt:PLTSensorPlane"/>
             <Translation x="0.*mm" y="-[TelWidthY]/2.+[ROCWidthY]/2.+1.1*mm" z="0.*mm" />
             <rRotation  name="rotations:000D" />
         </PosPart>
         
         <PosPart copyNumber="2">
-            <rParent name="Telescope"/>
-            <rChild name="PLTSensorPlane"/>
+            <rParent name="plt:Telescope"/>
+            <rChild name="plt:PLTSensorPlane"/>
             <Translation x="0.*mm" y="-[TelWidthY]/2.+[ROCWidthY]/2.+2.2*mm" z="[TelWidthZ]/2.-[SiThkZ]/2" />
             <rRotation  name="rotations:000D" />
         </PosPart>
@@ -129,7 +129,7 @@
         <!-- NOTE: The 2mm shift is due to the new tracker volume to make the plt planes positioned in |z| correctly.-->
         <PosPart copyNumber="1">
             <rParent name="pltbcm:PLTBCM"/>
-            <rChild name="PLT"/>
+            <rChild name="plt:PLT"/>
             <Translation x="0.*mm" y="0.*mm" z="[SiPlane1ZtoCenter]-[pltbcm:PltBcmZ]-2.*mm" />
             <rRotation name="rotations:000D"/>
         </PosPart>
@@ -151,8 +151,8 @@
         </PosPart> -->
         <!-- Copy the telescopes into the PLT volume starting with phi=112.5 degrees.  RotateSolid vector gives correct orientation of the planes-->
         <Algorithm name="global:DDAngular">
-            <rParent name="PLT"/>
-            <String name="ChildName" value="Telescope"/>
+            <rParent name="plt:PLT"/>
+            <String name="ChildName" value="plt:Telescope"/>
             <Numeric name="StartCopyNo" value="0"/>
             <Numeric name="IncrCopyNo" value="1"/>
             <Numeric name="N" value="8"/>
