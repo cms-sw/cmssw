@@ -265,7 +265,9 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle()
             continue;
         }
 
-        // SM particles that descend from exotics and cross the beam pipe radius should make hits but not be decayed, by default it will duplicate FastSim hits for long lived particles and so anything produced without activating fixLongLivedBug_ is physically wrong
+        // SM particles that descend from exotics and cross the beam pipe radius should make hits but not be decayed,
+        // by default it will duplicate FastSim hits for long lived particles 
+        // and so anything produced without activating fixLongLivedBug_ is physically wrong
         if (fixLongLivedBug_ && producedWithinBeamPipe && !decayedWithinBeamPipe){
           exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
         } 
