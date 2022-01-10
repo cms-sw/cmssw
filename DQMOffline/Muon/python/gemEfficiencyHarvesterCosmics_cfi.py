@@ -6,9 +6,9 @@ from DQMOffline.Muon.gemEfficiencyAnalyzerCosmics_cfi import gemEfficiencyAnalyz
 from DQMOffline.Muon.gemEfficiencyAnalyzerCosmics_cfi import gemEfficiencyAnalyzerCosmicsOneLeg as _gemEfficiencyAnalyzerCosmicsOneLeg
 
 gemEfficiencyHarvesterCosmics = _gemEfficiencyHarvesterDefault.clone(
-    folder = cms.untracked.string(_gemEfficiencyAnalyzerCosmics.folder.value()),
+    folder = _gemEfficiencyAnalyzerCosmics.folder.value()
 )
 
 gemEfficiencyHarvesterCosmicsOneLeg = _gemEfficiencyHarvesterDefault.clone(
-    folder = cms.untracked.string(_gemEfficiencyAnalyzerCosmicsOneLeg.folder.value()),
+    folder = _gemEfficiencyAnalyzerCosmicsOneLeg.folder.value()
 )
