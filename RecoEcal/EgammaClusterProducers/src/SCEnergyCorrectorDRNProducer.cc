@@ -81,7 +81,7 @@ void SCEnergyCorrectorDRNProducer::acquire(edm::Event const& iEvent, edm::EventS
 }
 
 void SCEnergyCorrectorDRNProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup, Output const& iOutput) {
-  auto inputSCs = iEvent.get(inputSCToken_);
+  const auto& inputSCs = iEvent.get(inputSCToken_);
   if (inputSCs.empty())
     return;
 
