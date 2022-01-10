@@ -76,8 +76,8 @@ private:
 
   double computeRelativeIsolation(const pat::PackedCandidate& photon,
                                   const pat::PackedCandidateCollection& pfcands,
-                                  const double& isoConeMax,
-                                  const double& isoConeMin) const;
+                                  const double& isoConeMax2,
+                                  const double& isoConeMin2) const;
 
   bool electronFootprintVeto(pat::PackedCandidateRef& pfcandRef,
                              edm::Handle<pat::ElectronCollection> electronsForVeto) const;
@@ -144,7 +144,7 @@ void LeptonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, cons
       double dR = deltaR(muon->eta(), muon->phi(), pc->eta(), pc->phi());
       if (dR < dRMin && dR > drSafe && dR < drEtCut * pc->pt() * pc->pt()) {
         // Check if photon is isolated
-        photon_relIso03 = computeRelativeIsolation(*pc, *pfcands, 0.3, drSafe);
+        photon_relIso03 = computeRelativeIsolation(*pc, *pfcands, 0.3 * 0.3, drSafe * drSafe);
         if (photon_relIso03 > isoCut) {
           skipPhoton = true;
           break;  // break loop on muons -> photon will be skipped
@@ -173,7 +173,7 @@ void LeptonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, cons
       if (dR < dRMin && dR > drSafe && dR < drEtCut * pc->pt() * pc->pt()) {
         // Check if photon is isolated (no need to recompute iso if already done for muons above)
         if (photon_relIso03 > 1e8) {
-          photon_relIso03 = computeRelativeIsolation(*pc, *pfcands, 0.3, drSafe);
+          photon_relIso03 = computeRelativeIsolation(*pc, *pfcands, 0.3 * 0.3, drSafe * drSafe);
         }
         if (photon_relIso03 > isoCut) {
           break;  // break loop on electrons -> photon will be skipped
@@ -238,22 +238,22 @@ void LeptonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, cons
 
 double LeptonFSRProducer::computeRelativeIsolation(const pat::PackedCandidate& photon,
                                                    const pat::PackedCandidateCollection& pfcands,
-                                                   const double& isoConeMax,
-                                                   const double& isoConeMin) const {
+                                                   const double& isoConeMax2,
+                                                   const double& isoConeMin2) const {
   double ptsum = 0;
 
   for (const auto& pfcand : pfcands) {
     // Isolation cone
-    double dRIsoCone = deltaR(photon.eta(), photon.phi(), pfcand.eta(), pfcand.phi());
-    if (dRIsoCone > isoConeMax || dRIsoCone < isoConeMin)
+    double dRIsoCone2 = deltaR2(photon.eta(), photon.phi(), pfcand.eta(), pfcand.phi());
+    if (dRIsoCone2 > isoConeMax2 || dRIsoCone2 < isoConeMin2)
       continue;
 
     // Charged hadrons
-    if (pfcand.charge() != 0 && abs(pfcand.pdgId()) == 211 && pfcand.pt() > 0.2 && dRIsoCone > drSafe) {
+    if (pfcand.charge() != 0 && abs(pfcand.pdgId()) == 211 && pfcand.pt() > 0.2 && dRIsoCone2 > drSafe * drSafe) {
       ptsum += pfcand.pt();
       // Neutral hadrons + photons
     } else if (pfcand.charge() == 0 && (abs(pfcand.pdgId()) == 22 || abs(pfcand.pdgId()) == 130) && pfcand.pt() > 0.5 &&
-               dRIsoCone > 0.01) {
+               dRIsoCone2 > 0.01 * 0.01) {
       ptsum += pfcand.pt();
     }
   }
