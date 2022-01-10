@@ -38,6 +38,7 @@ private:
   const StringCutObjectSelector<reco::Candidate> protonsCut_;
   const std::string table_name_;
   const double tolerance_;
+  bool use_alt_coll_{false};  ///< Are we using premix/mix collection name for PU protons?
 };
 
 GenProtonTableProducer::GenProtonTableProducer(const edm::ParameterSet& iConfig)
@@ -66,8 +67,8 @@ void GenProtonTableProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
   }
   // then loop over pruned candidates ; if already in signal protons, discard
   edm::Handle<reco::GenParticleCollection> hPUCands;
-  if (!iEvent.getByToken(puCandsToken_, hPUCands))
-    iEvent.getByToken(puAltCandsToken_, hPUCands);
+  if (use_alt_coll_ || !iEvent.getByToken(puCandsToken_, hPUCands))
+    use_alt_coll_ = iEvent.getByToken(puAltCandsToken_, hPUCands);
   for (const auto& pu_cand : *hPUCands) {
     if (!protonsCut_(pu_cand))
       continue;
