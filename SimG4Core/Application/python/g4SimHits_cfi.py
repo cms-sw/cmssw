@@ -330,7 +330,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         AllMuonsPersistent = cms.bool(True),
         UseDemoHitRPC = cms.bool(False),
         UseDemoHitGEM = cms.bool(False),
-        HaveDemoChambers = cms.bool(False)
+        HaveDemoChambers = cms.bool(True)
     ),
     CaloSD = cms.PSet(
         common_heavy_suppression,
@@ -633,9 +633,6 @@ run2_HCAL_2017.toModify( g4SimHits, HCalSD = dict( TestNumberingScheme = True ) 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( g4SimHits, CastorSD = dict( useShowerLibrary = False ) ) 
 run3_common.toModify( g4SimHits, LHCTransport = False )
-run3_common.toModify( g4SimHits,  MuonSD = dict(
-                             HaveDemoChambers = True ) 
-)
 
 ##
 ## Disable PPS from Run 3 PbPb runs
@@ -675,3 +672,6 @@ from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(g4SimHits,
                        OnlySDs = ['ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'],
                        LHCTransport = False ) 
+phase2_common.toModify( g4SimHits,  MuonSD = dict(
+                             HaveDemoChambers = False ) 
+)
