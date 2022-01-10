@@ -20,7 +20,7 @@ TrackerSimLARecord        =   "SiPhase2OuterTrackerLorentzAngleSimRcd"
 ## T25: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v7.0.2): Based on (v6.1.5) (T24/T21), but with 3D sensors in TBPX L1.
 ## T26: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v7.0.3): Based on (v6.1.5) (T24/T21), but with 3D sensors in TBPX L1 and 50x50 pixel aspect ratio in TFPX and TEPX.
 ## T27: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker: with bricked pixels
-## TX1: Phase2 tilted tracker, exploratory geometry. Outer Tracker (v8.0.1): based on v8.0.0 with updated TB2S spacing. Inner Tracker (v8.0.0): based on v6.1.5 but TFPX with more realistic module positions
+## TX1: Phase2 tilted tracker, exploratory geometry. Outer Tracker (v8.0.1): based on v8.0.0 with updated TB2S spacing. Inner Tracker (v6.4.0): based on v6.1.5 but TFPX with more realistic module positions
 
 #combines in a single dict of dict the tags defined below
 allTags={}
