@@ -82,8 +82,8 @@ namespace ticl {
         c.shrink_to_fit();
       }
     }
-    void calculateLocalDensity(const TILES&, const unsigned int layerId, const std::vector<std::pair<int, int>>&);
-    void calculateDistanceToHigher(const TILES&, const unsigned int layerId, const std::vector<std::pair<int, int>>&);
+    void calculateLocalDensity(const TILES&, const int layerId, const std::vector<std::pair<int, int>>&);
+    void calculateDistanceToHigher(const TILES&, const int layerId, const std::vector<std::pair<int, int>>&);
     int findAndAssignTracksters(const TILES&, const std::vector<std::pair<int, int>>&);
     void dumpClusters(const std::vector<std::pair<int, int>>& layerIdx2layerandSoa, const int) const;
     void dumpTracksters(const std::vector<std::pair<int, int>>& layerIdx2layerandSoa,
