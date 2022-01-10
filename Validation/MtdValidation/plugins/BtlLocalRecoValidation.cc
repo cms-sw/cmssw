@@ -129,9 +129,13 @@ private:
   MonitorElement* meCluEta_;
   MonitorElement* meCluHits_;
   MonitorElement* meCluZvsPhi_;
+  MonitorElement* meCluEnergyvsEta_;
+  MonitorElement* meCluHitsvsEta_;
 
   MonitorElement* meCluTimeRes_;
   MonitorElement* meCluEnergyRes_;
+  MonitorElement* meCluTResvsE_;
+  MonitorElement* meCluTResvsEta_;
   MonitorElement* meCluTPullvsE_;
   MonitorElement* meCluTPullvsEta_;
   MonitorElement* meCluRhoRes_;
@@ -447,6 +451,12 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           meCluYXLocalSim_->Fill(cluLocalPosSIM.x(), cluLocalPosSIM.y());
         }
 
+        meCluEnergyvsEta_->Fill(std::abs(cluGlobalPosSIM.eta()), cluster.energy());
+        meCluHitsvsEta_->Fill(std::abs(cluGlobalPosSIM.eta()), cluster.size());
+
+        meCluTResvsEta_->Fill(std::abs(cluGlobalPosSIM.eta()), time_res);
+        meCluTResvsE_->Fill(cluEneSIM, time_res);
+
         meCluTPullvsEta_->Fill(std::abs(cluGlobalPosSIM.eta()), time_res / cluster.timeError());
         meCluTPullvsE_->Fill(cluEneSIM, time_res / cluster.timeError());
 
@@ -634,10 +644,30 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meCluHits_ = ibook.book1D("BtlCluHitNumber", "BTL hits per cluster; Cluster size", 10, 0, 10);
   meCluZvsPhi_ = ibook.book2D(
       "BtlOccupancy", "BTL cluster Z vs #phi;Z_{RECO} [cm]; #phi_{RECO} [rad]", 144, -260., 260., 50, -3.2, 3.2);
+  meCluEnergyvsEta_ = ibook.bookProfile(
+      "BtlCluEnergyVsEta", "BTL cluster energy vs #eta; |#eta_{RECO}|; E_{RECO} [cm]", 30, 0., 1.55, 0., 20., "S");
+  meCluHitsvsEta_ = ibook.bookProfile(
+      "BtlCluHitsVsEta", "BTL hits per cluster vs #eta; |#eta_{RECO}|;Cluster size", 30, 0., 1.55, 0., 10., "S");
 
   meCluTimeRes_ = ibook.book1D("BtlCluTimeRes", "BTL cluster time resolution;T_{RECO}-T_{SIM} [ns]", 100, -0.5, 0.5);
   meCluEnergyRes_ =
       ibook.book1D("BtlCluEnergyRes", "BTL cluster energy resolution;E_{RECO}-E_{SIM} [MeV]", 100, -0.5, 0.5);
+  meCluTResvsE_ = ibook.bookProfile("BtlCluTResvsE",
+                                    "BTL cluster time resolution vs E;E_{SIM} [MeV];(T_{RECO}-T_{SIM}) [ns]",
+                                    20,
+                                    0.,
+                                    20.,
+                                    -0.5,
+                                    0.5,
+                                    "S");
+  meCluTResvsEta_ = ibook.bookProfile("BtlCluTResvsEta",
+                                      "BTL cluster time resolution vs #eta;|#eta_{RECO}|;(T_{RECO}-T_{SIM}) [ns]",
+                                      30,
+                                      0,
+                                      1.55,
+                                      -0.5,
+                                      0.5,
+                                      "S");
   meCluTPullvsE_ = ibook.bookProfile("BtlCluTPullvsE",
                                      "BTL cluster time pull vs E;E_{SIM} [MeV];(T_{RECO}-T_{SIM})/#sigma_{T_{RECO}}",
                                      20,
