@@ -3,10 +3,10 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 from CommonTools.RecoUtils.leptonFSRProducer_cfi import leptonFSRProducer
 leptonFSRphotons = leptonFSRProducer.clone(
-  packedPFCandidates = cms.InputTag("packedPFCandidates"),
-  slimmedElectrons = cms.InputTag("slimmedElectrons"), #for footrprint veto
-  muons = cms.InputTag("linkedObjects","muons"),
-  electrons = cms.InputTag("linkedObjects","electrons"),
+  packedPFCandidates = "packedPFCandidates",
+  slimmedElectrons = "slimmedElectrons", #for footrprint veto
+  muons = "linkedObjects:muons",
+  electrons = "linkedObjects:electrons",
 )
 
 fsrTable = cms.EDProducer("SimpleCandidateFlatTableProducer",

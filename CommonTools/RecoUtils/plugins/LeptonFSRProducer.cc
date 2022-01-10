@@ -41,7 +41,8 @@ public:
         etaCutE(iConfig.getParameter<double>("eleEtaMax")),
         photonPtCut(iConfig.getParameter<double>("photonPtMin")),
         drEtCut(iConfig.getParameter<double>("deltaROverEt2Max")),
-        isoCut(iConfig.getParameter<double>("isolation")) {
+        isoCut(iConfig.getParameter<double>("isolation")),
+        drSafe(0.0001) {
     produces<std::vector<pat::GenericParticle>>();
     produces<edm::ValueMap<int>>("muFsrIndex");
     produces<edm::ValueMap<int>>("eleFsrIndex");
@@ -68,7 +69,7 @@ public:
 
     descriptions.addWithDefaultLabel(desc);
   }
-  ~LeptonFSRProducer() override {}
+  ~LeptonFSRProducer() override = default;
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
@@ -86,13 +87,14 @@ private:
   const edm::EDGetTokenT<pat::ElectronCollection> electronsForVeto_;
   const edm::EDGetTokenT<edm::View<reco::Muon>> muons_;
   const edm::EDGetTokenT<edm::View<reco::GsfElectron>> electrons_;
-  float ptCutMu;
-  float etaCutMu;
-  float ptCutE;
-  float etaCutE;
-  float photonPtCut;
-  float drEtCut;
-  float isoCut;
+  const double ptCutMu;
+  const double etaCutMu;
+  const double ptCutE;
+  const double etaCutE;
+  const double photonPtCut;
+  const double drEtCut;
+  const double isoCut;
+  const double drSafe;
 };
 
 void LeptonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
@@ -131,7 +133,7 @@ void LeptonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, cons
     double dRMin(0.5);
     int closestMu = -1;
     int closestEle = -1;
-    float photon_relIso03 = 1e9;  // computed only if necessary
+    double photon_relIso03 = 1e9;  // computed only if necessary
     bool skipPhoton = false;
 
     for (auto muon = muons->begin(); muon != muons->end(); ++muon) {
@@ -140,9 +142,9 @@ void LeptonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, cons
 
       int muonIdx = muon - muons->begin();
       double dR = deltaR(muon->eta(), muon->phi(), pc->eta(), pc->phi());
-      if (dR < dRMin && dR > 0.0001 && dR / pc->pt() / pc->pt() < drEtCut) {
+      if (dR < dRMin && dR > drSafe && dR < drEtCut * pc->pt() * pc->pt()) {
         // Check if photon is isolated
-        photon_relIso03 = computeRelativeIsolation(*pc, *pfcands, 0.3, 0.0001);
+        photon_relIso03 = computeRelativeIsolation(*pc, *pfcands, 0.3, drSafe);
         if (photon_relIso03 > isoCut) {
           skipPhoton = true;
           break;  // break loop on muons -> photon will be skipped
@@ -168,10 +170,10 @@ void LeptonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, cons
 
       int eleIdx = ele - electrons->begin();
       double dR = deltaR(ele->eta(), ele->phi(), pc->eta(), pc->phi());
-      if (dR < dRMin && dR > 0.0001 && dR / pc->pt() / pc->pt() < drEtCut) {
+      if (dR < dRMin && dR > drSafe && dR < drEtCut * pc->pt() * pc->pt()) {
         // Check if photon is isolated (no need to recompute iso if already done for muons above)
         if (photon_relIso03 > 1e8) {
-          photon_relIso03 = computeRelativeIsolation(*pc, *pfcands, 0.3, 0.0001);
+          photon_relIso03 = computeRelativeIsolation(*pc, *pfcands, 0.3, drSafe);
         }
         if (photon_relIso03 > isoCut) {
           break;  // break loop on electrons -> photon will be skipped
@@ -247,7 +249,7 @@ double LeptonFSRProducer::computeRelativeIsolation(const pat::PackedCandidate& p
       continue;
 
     // Charged hadrons
-    if (pfcand.charge() != 0 && abs(pfcand.pdgId()) == 211 && pfcand.pt() > 0.2 && dRIsoCone > 0.0001) {
+    if (pfcand.charge() != 0 && abs(pfcand.pdgId()) == 211 && pfcand.pt() > 0.2 && dRIsoCone > drSafe) {
       ptsum += pfcand.pt();
       // Neutral hadrons + photons
     } else if (pfcand.charge() == 0 && (abs(pfcand.pdgId()) == 22 || abs(pfcand.pdgId()) == 130) && pfcand.pt() > 0.5 &&
