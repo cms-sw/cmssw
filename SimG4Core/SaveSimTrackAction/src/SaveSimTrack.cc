@@ -24,7 +24,7 @@ SaveSimTrack::~SaveSimTrack() {}
 
 void SaveSimTrack::update(const BeginOfTrack *trk) {
   const G4Track *theTrack = (*trk)();
-  TrackInformation *trkInfo = reinterpret_cast<TrackInformation*>(theTrack->GetUserInformation());
+  TrackInformation *trkInfo = reinterpret_cast<TrackInformation *>(theTrack->GetUserInformation());
   if (nullptr != trkInfo) {
     int pdg = theTrack->GetDefinition()->GetPDGEncoding();
     if (std::find(pdgs_.begin(), pdgs_.end(), pdg) != pdgs_.end()) {
