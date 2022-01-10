@@ -65,7 +65,10 @@ void GenProtonTableProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
     isPUs.emplace_back(false);
   }
   // then loop over pruned candidates ; if already in signal protons, discard
-  for (const auto& pu_cand : iEvent.get(puCandsToken_)) {
+  edm::Handle<reco::GenParticleCollection> hPUCands;
+  if (!iEvent.getByToken(puCandsToken_, hPUCands))
+    iEvent.getByToken(puAltCandsToken_, hPUCands);
+  for (const auto& pu_cand : *hPUCands) {
     if (!protonsCut_(pu_cand))
       continue;
     bool associated{false};
