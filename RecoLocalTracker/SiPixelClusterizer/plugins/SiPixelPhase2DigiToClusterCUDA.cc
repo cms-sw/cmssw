@@ -54,8 +54,8 @@ private:
                edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  const edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> pixelDigiToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> pixelDigiToken_;
 
   edm::EDPutTokenT<cms::cuda::Product<SiPixelDigisCUDA>> digiPutToken_;
   edm::EDPutTokenT<cms::cuda::Product<SiPixelDigiErrorsCUDA>> digiErrorPutToken_;
@@ -71,7 +71,8 @@ private:
 };
 
 SiPixelPhase2DigiToClusterCUDA::SiPixelPhase2DigiToClusterCUDA(const edm::ParameterSet& iConfig)
-    : pixelDigiToken_(consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("InputDigis"))),
+    : geomToken_(esConsumes()),
+      pixelDigiToken_(consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("InputDigis"))),
       digiPutToken_(produces<cms::cuda::Product<SiPixelDigisCUDA>>()),
       clusterPutToken_(produces<cms::cuda::Product<SiPixelClustersCUDA>>()),
       includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
