@@ -19,10 +19,9 @@ FTFPCMS_INCLXX_EMM::FTFPCMS_INCLXX_EMM(const edm::ParameterSet& p) : PhysicsList
   bool tracking = p.getParameter<bool>("TrackingCut");
   double timeLimit = p.getParameter<double>("MaxTrackTime") * CLHEP::ns;
   edm::LogVerbatim("PhysicsList") << "You are using the simulation engine: "
-                                  << "FTFP_INCLXX_EMM \n Flags for EM Physics " << emPhys 
-                                  << ", for Hadronic Physics " << hadPhys 
-                                  << " and tracking cut " 
-                                  << tracking << "   t(ns)= " << timeLimit / CLHEP::ns;
+                                  << "FTFP_INCLXX_EMM \n Flags for EM Physics " << emPhys << ", for Hadronic Physics "
+                                  << hadPhys << " and tracking cut " << tracking
+                                  << "   t(ns)= " << timeLimit / CLHEP::ns;
 
   if (emPhys) {
     // EM Physics
