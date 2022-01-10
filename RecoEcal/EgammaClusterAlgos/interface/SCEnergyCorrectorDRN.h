@@ -10,8 +10,8 @@
 //
 //--------------------------------------------------------------------------------------------------
 
-#ifndef Progression_EGM_DRN_SCEnergyCorrectorDRN_h
-#define Progression_EGM_DRN_SCEnergyCorrectorDRN_h
+#ifndef RecoEcal_EgammaClusterAlgos_SCEnergyCorrectorDRN_h
+#define RecoEcal_EgammaClusterAlgos_SCEnergyCorrectorDRN_h
 
 #include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
 
