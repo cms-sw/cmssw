@@ -31,7 +31,8 @@ process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cff')
 process.HcalIsoTrkAnalyzer.triggers = []
 process.HcalIsoTrkAnalyzer.useRaw = 0   # 1 for Raw
 process.HcalIsoTrkAnalyzer.ignoreTriggers = True
-process.HcalIsoTrkAnalyzer.debugEvents = [640818633, 640797426, 641251898]
+process.HcalIsoTrkAnalyzer.debugEvents = [640818633, 640797426, 641251898,
+                                          641261804, 641172007, 641031809]
 
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring('file:oldPoolOutput.root')
