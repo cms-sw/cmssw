@@ -34,7 +34,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   const edm::EDGetTokenT<reco::GenParticleCollection> prunedCandsToken_;
-  const edm::EDGetTokenT<reco::GenParticleCollection> puCandsToken_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> puCandsToken_, puAltCandsToken_;
   const StringCutObjectSelector<reco::Candidate> protonsCut_;
   const std::string table_name_;
   const double tolerance_;
@@ -42,7 +42,8 @@ private:
 
 GenProtonTableProducer::GenProtonTableProducer(const edm::ParameterSet& iConfig)
     : prunedCandsToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("srcPruned"))),
-      puCandsToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("srcPUProtons"))),
+      puCandsToken_(mayConsume<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("srcPUProtons"))),
+      puAltCandsToken_(mayConsume<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("srcAltPUProtons"))),
       protonsCut_(iConfig.getParameter<std::string>("cut")),
       table_name_(iConfig.getParameter<std::string>("name")),
       tolerance_(iConfig.getParameter<double>("tolerance")) {
@@ -99,6 +100,8 @@ void GenProtonTableProducer::fillDescriptions(edm::ConfigurationDescriptions& de
       ->setComment("input source for pruned gen-level particle candidates");
   desc.add<edm::InputTag>("srcPUProtons", edm::InputTag("genPUProtons"))
       ->setComment("input source for pileup protons collection");
+  desc.add<edm::InputTag>("srcAltPUProtons", edm::InputTag("genPUProtons", "genPUProtons"))
+      ->setComment("alternative input source for pileup protons collection (for premix-mix backward compatibility)");
   desc.add<std::string>("cut", "")->setComment("proton kinematic selection");
   desc.add<std::string>("name", "GenProton")->setComment("flat table name");
   desc.add<std::string>("doc", "generator level information on (signal+PU) protons")
