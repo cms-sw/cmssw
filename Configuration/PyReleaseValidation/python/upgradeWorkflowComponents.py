@@ -852,7 +852,13 @@ class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
         # temporarily remove trigger & downstream steps
         mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}
         if 'Digi' in step:
-            mods['-s'] = 'DIGI:pdigi_valid'
+            mods['-s'] = 'DIGI:pdigi_valid,DIGI2RAW'
+        elif 'Reco' in step:
+            mods['-s'] = 'RAW2DIGI,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly'
+            mods['--datatier'] = 'GEN-SIM-RECO,DQMIO'
+            mods['--eventcontent'] = 'FEVTDEBUGHLT,DQM'
+        elif 'HARVEST' in step:
+            mods['-s'] = 'HARVESTING:@ecalOnlyValidation+@ecal'
         stepDict[stepName][k] = merge([mods, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and '2026' in key
