@@ -6,9 +6,9 @@ from DQM.GEM.gemEfficiencyAnalyzer_cfi import gemEfficiencyAnalyzerTightGlb as _
 from DQM.GEM.gemEfficiencyAnalyzer_cfi import gemEfficiencyAnalyzerSta as _gemEfficiencyAnalyzerSta
 
 gemEfficiencyHarvesterTightGlb = _gemEfficiencyHarvesterDefault.clone(
-    folder = cms.untracked.string(_gemEfficiencyAnalyzerTightGlb.folder.value())
+    folder = _gemEfficiencyAnalyzerTightGlb.folder.value()
 )
 
 gemEfficiencyHarvesterSta = _gemEfficiencyHarvesterDefault.clone(
-    folder = cms.untracked.string(_gemEfficiencyAnalyzerSta.folder.value())
+    folder = _gemEfficiencyAnalyzerSta.folder.value()
 )
