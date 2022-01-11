@@ -236,14 +236,12 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
     spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDets, false);
 
     //Loop over all tracks
-    std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
     unsigned int nTracks(0);
-    for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
-         trkDetItr++, nTracks++) {
-      const reco::Track* pTrack = &(*(trkDetItr->trkItr));
+    for (const auto& trkDetItr : trkCaloDirections) {
+      const reco::Track* pTrack = &(*(trkDetItr.trkItr));
       double p = pTrack->p();
-      if (p >= pTrackLow_ && p <= pTrackHigh_ && (trkDetItr->okHCAL)) {
-        int ieta = (static_cast<HcalDetId>(trkDetItr->detIdHCAL)).ieta();
+      if (p >= pTrackLow_ && p <= pTrackHigh_ && (trkDetItr.okHCAL)) {
+        int ieta = (static_cast<HcalDetId>(trkDetItr.detIdHCAL)).ieta();
 
         ////////////////////////////////-Energy in ECAL-//////////////////////////
         std::vector<DetId> eIds;
@@ -251,10 +249,10 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
         double eMipDR = spr::eCone_ecal(geo,
                                         barrelRecHitsHandle,
                                         endcapRecHitsHandle,
-                                        trkDetItr->pointHCAL,
-                                        trkDetItr->pointECAL,
+                                        trkDetItr.pointHCAL,
+                                        trkDetItr.pointECAL,
                                         a_mipR_,
-                                        trkDetItr->directionECAL,
+                                        trkDetItr.directionECAL,
                                         eIds,
                                         eHit);
         double eEcal(0);
@@ -282,10 +280,10 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
         std::vector<double> edet0;
         double eHcal = spr::eCone_hcal(geo,
                                        hbhe,
-                                       trkDetItr->pointHCAL,
-                                       trkDetItr->pointECAL,
+                                       trkDetItr.pointHCAL,
+                                       trkDetItr.pointECAL,
                                        a_coneR_,
-                                       trkDetItr->directionHCAL,
+                                       trkDetItr.directionHCAL,
                                        nRecHits,
                                        ids,
                                        edet0,
@@ -366,6 +364,7 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
           }
         }
       }
+      ++nTracks;
     }
   }
 }
