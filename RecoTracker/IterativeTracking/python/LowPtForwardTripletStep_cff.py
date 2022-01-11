@@ -70,9 +70,9 @@ lowPtForwardTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTraj
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 lowPtForwardTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src                       = 'lowPtForwardTripletStepSeeds',
-    TrajectoryBuilderPSet     = cms.PSet(refToPSet_ = cms.string('lowPtForwardTripletStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet     = dict(refToPSet_ = 'lowPtForwardTripletStepTrajectoryBuilder'),
     doSeedingRegionRebuilding = True,
-    useHitsSplitting          = True
+    useHitsSplitting          = True,
 )
 
 # TRACK FITTING

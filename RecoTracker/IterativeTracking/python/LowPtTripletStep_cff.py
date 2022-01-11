@@ -213,10 +213,10 @@ lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     trajectoryFilter       = dict(refToPSet_ = 'lowPtTripletStepTrajectoryFilter'),
     maxCand                = 4,
     estimator              = 'lowPtTripletStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),
+    maxDPhiForLooperReconstruction = 2.0,
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
     # of the outermost Tracker barrel layer (with B=3.8T)
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    maxPtForLooperReconstruction = 0.7,
 )
 trackingNoLoopers.toModify(lowPtTripletStepTrajectoryBuilder,
                            maxPtForLooperReconstruction = 0.0)
@@ -235,11 +235,11 @@ _lowPtTripletStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner       = 50,
     onlyPixelHitsForSeedCleaner = True,
-    TrajectoryBuilderPSet       = cms.PSet(refToPSet_ = cms.string('lowPtTripletStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet       = dict(refToPSet_ = 'lowPtTripletStepTrajectoryBuilder'),
     clustersToSkip              = 'lowPtTripletStepClusters',
     doSeedingRegionRebuilding   = True,
     useHitsSplitting            = True,
-    TrajectoryCleaner           = 'lowPtTripletStepTrajectoryCleanerBySharedHits'
+    TrajectoryCleaner           = 'lowPtTripletStepTrajectoryCleanerBySharedHits',
 )
 lowPtTripletStepTrackCandidates = _lowPtTripletStepTrackCandidatesCkf.clone()
 

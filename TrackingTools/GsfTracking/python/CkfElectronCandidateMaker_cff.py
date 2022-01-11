@@ -50,9 +50,6 @@ TrajectoryBuilderForElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.
     updator = 'KFUpdator'
 )
 
-from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
-seedingDeepCore.toModify(TrajectoryBuilderForElectrons, maxPtForLooperReconstruction = cms.double(0.0) )
-
 # CKFTrackCandidateMaker
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
