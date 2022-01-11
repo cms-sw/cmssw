@@ -868,7 +868,6 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
                                                    const HcalRespCorrs* respCorrs) {
   int nSave(0), nLoose(0), nTight(0);
   //Loop over tracks
-  std::vector<spr::propagatedGenParticleID>::const_iterator trkDetItr;
   unsigned int nTracks(0), nselTracks(0);
   t_nTrk = trackIDs.size();
   t_rhoh = (tower.isValid()) ? rhoh(tower) : 0;
