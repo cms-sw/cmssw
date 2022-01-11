@@ -80,15 +80,20 @@ class SendMonitoringInfoHandler : public XrdCl::ResponseHandler {
     // Send Info has a response object; we must delete it.
     delete response;
     delete status;
+    delete this;
   }
+
+  XrdCl::FileSystem m_fs;
 
 public:
   SendMonitoringInfoHandler(const SendMonitoringInfoHandler &) = delete;
   SendMonitoringInfoHandler &operator=(const SendMonitoringInfoHandler &) = delete;
-  SendMonitoringInfoHandler() = default;
-};
+  SendMonitoringInfoHandler() = delete;
 
-CMS_THREAD_SAFE SendMonitoringInfoHandler nullHandler;
+  SendMonitoringInfoHandler(const std::string &url) : m_fs(url) {}
+
+  XrdCl::FileSystem &fs() { return m_fs; }
+};
 
 static void SendMonitoringInfo(XrdCl::File &file) {
   // Do not send this to a dCache data server as they return an error.
@@ -103,11 +108,11 @@ static void SendMonitoringInfo(XrdCl::File &file) {
   std::string lastUrl;
   file.GetProperty("LastURL", lastUrl);
   if (jobId && !lastUrl.empty()) {
-    XrdCl::URL url(lastUrl);
-    XrdCl::FileSystem fs(url);
-    if (!(fs.SendInfo(jobId, &nullHandler, 30).IsOK())) {
+    auto sm_handler = new SendMonitoringInfoHandler(lastUrl);
+    if (!(sm_handler->fs().SendInfo(jobId, sm_handler, 30).IsOK())) {
       edm::LogWarning("XrdAdaptorInternal")
           << "Failed to send the monitoring information, monitoring ID is " << jobId << ".";
+      delete sm_handler;
     }
     edm::LogInfo("XrdAdaptorInternal") << "Set monitoring ID to " << jobId << ".";
   }
