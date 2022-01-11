@@ -84,6 +84,7 @@ namespace edm {
         }
         preferInfo[ComponentDescription(preferPSet.getParameter<std::string>("@module_type"),
                                         preferPSet.getParameter<std::string>("@module_label"),
+                                        ComponentDescription::unknownID(),
                                         false)] = recordToData;
       }
       return std::make_unique<EventSetupProvider>(activityRegistry, subProcessIndex, &preferInfo);
