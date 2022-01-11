@@ -29,14 +29,16 @@
  *
  */
 
-static float sigmoid(float x) { return 1.0f / (1.0f + exp(-x)); }
+namespace {
+    float sigmoid(float x) { return 1.0f / (1.0f + exp(-x)); }
 
-static float logcorrection(float x) {
-  static float ln2 = log(2);
-  return ln2 * 2 * (sigmoid(x) - 0.5);
+    float logcorrection(float x) {
+        static float ln2 = log(2);
+        return ln2 * 2 * (sigmoid(x) - 0.5);
+    }
+
+    float correction(float x) { return exp(-logcorrection(x)); }
 }
-
-static float correction(float x) { return exp(-logcorrection(x)); }
 
 class SCEnergyCorrectorDRNProducer : public TritonEDProducer<> {
 public:
