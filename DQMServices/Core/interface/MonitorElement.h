@@ -34,7 +34,7 @@
 #include <cassert>
 #include <cstdint>
 #include <sys/time.h>
-#include <tbb/spin_mutex.h>
+#include <oneapi/tbb/spin_mutex.h>
 
 // TODO: cleaup the usages and remove.
 using QReport = MonitorElementData::QReport;
