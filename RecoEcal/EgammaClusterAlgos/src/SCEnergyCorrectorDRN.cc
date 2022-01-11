@@ -30,7 +30,7 @@ SCEnergyCorrectorDRN::SCEnergyCorrectorDRN(const edm::ParameterSet& iConfig, edm
 void SCEnergyCorrectorDRN::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<edm::InputTag>("ecalRecHitsEE", edm::InputTag("ecalRecHit", "reducedEcalRecHitsEE"));
   desc.add<edm::InputTag>("ecalRecHitsEB", edm::InputTag("ecalRecHit", "reducedEcalRecHitsEB"));
-  desc.add<edm::InputTag>("fixedGridRhoAll");
+  desc.add<edm::InputTag>("rhoFastJet", edm::InputTag("fixedGridRhoAll"));
 }
 
 edm::ParameterSetDescription SCEnergyCorrectorDRN::makePSetDescription() {
