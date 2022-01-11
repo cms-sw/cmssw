@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-#to resolve the refToPSet_
+# to resolve the refToPSet_
 from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import CkfBaseTrajectoryFilter_block
 
 GroupedCkfTrajectoryBuilder = cms.PSet(
@@ -37,7 +37,7 @@ GroupedCkfTrajectoryBuilder = cms.PSet(
     # Out-in tracking will not be attempted unless this many hits
     # are on track after in-out tracking phase.
     minNrOfHitsForRebuild = cms.int32(5),
-    seedAs5DHit  = cms.bool(False)
+    seedAs5DHit = cms.bool(False),
+    maxPtForLooperReconstruction = cms.double(0.),
+    maxDPhiForLooperReconstruction = cms.double(2.),
 )
-
-
