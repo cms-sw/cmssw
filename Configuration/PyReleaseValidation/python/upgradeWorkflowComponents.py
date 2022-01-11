@@ -394,6 +394,52 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     offset = 0.9,
 )
 
+# Special TICL Pattern recognition Workflows
+class UpgradeWorkflow_ticl_clue3D(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=="TTbar_14TeV" or 'CloseByPGun_CE' in fragment) and '2026' in key
+upgradeWFs['ticl_clue3D'] = UpgradeWorkflow_ticl_clue3D(
+    steps = [
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_ticl_clue3D',
+    offset = 0.201,
+)
+upgradeWFs['ticl_clue3D'].step3 = {'--procModifiers': 'clue3D'}
+upgradeWFs['ticl_clue3D'].step4 = {'--procModifiers': 'clue3D'}
+
+class UpgradeWorkflow_ticl_FastJet(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=="TTbar_14TeV" or 'CloseByPGun_CE' in fragment) and '2026' in key
+upgradeWFs['ticl_FastJet'] = UpgradeWorkflow_ticl_FastJet(
+    steps = [
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_ticl_FastJet',
+    offset = 0.202,
+)
+upgradeWFs['ticl_FastJet'].step3 = {'--procModifiers': 'fastJetTICL'}
+upgradeWFs['ticl_FastJet'].step4 = {'--procModifiers': 'fastJetTICL'}
 
 # Track DNN workflows
 class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
