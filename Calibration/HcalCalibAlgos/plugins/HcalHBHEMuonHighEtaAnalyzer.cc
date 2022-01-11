@@ -520,8 +520,7 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeMuon(const edm::Event& iEvent, math::XY
             bool mediumMuon = (((RecMuon.isPFMuon()) && (RecMuon.isGlobalMuon() || RecMuon.isTrackerMuon())) &&
                                (RecMuon.innerTrack()->validFraction() > 0.49));
             if (mediumMuon) {
-              double chiGlobal =
-                  ((RecMuon.globalTrack().isNonnull()) ? RecMuon.globalTrack()->normalizedChi2() : 999);
+              double chiGlobal = ((RecMuon.globalTrack().isNonnull()) ? RecMuon.globalTrack()->normalizedChi2() : 999);
               bool goodGlob =
                   (RecMuon.isGlobalMuon() && chiGlobal < 3 && RecMuon.combinedQuality().chi2LocalPosition < 12 &&
                    RecMuon.combinedQuality().trkKink < 20);
