@@ -47,7 +47,7 @@ uint32_t TotemT2OrganizationGem ::getUnitID(const G4Step* aStep) const {
 
   physVol = touch->GetVolume(0);
 
-    std::string dName = ForwardName::getName(physVol->GetName());
+  std::string dName = ForwardName::getName(physVol->GetName());
   if (dName == "TotemT2gem")
     UNITA = 10 + physVol->GetCopyNo();
   else if (dName == "TotemT2gem_supporto")
