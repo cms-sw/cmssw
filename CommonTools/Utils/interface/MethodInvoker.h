@@ -11,7 +11,7 @@
 #include <map>
 #include <vector>
 
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 namespace edm {
   struct TypeIDHasher {

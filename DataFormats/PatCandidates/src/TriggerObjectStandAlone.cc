@@ -1,4 +1,4 @@
-#include <tbb/concurrent_unordered_map.h>
+#include <oneapi/tbb/concurrent_unordered_map.h>
 #include <boost/algorithm/string.hpp>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
