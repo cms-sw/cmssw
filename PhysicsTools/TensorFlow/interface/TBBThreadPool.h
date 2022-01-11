@@ -13,9 +13,9 @@
 
 #include "tensorflow/core/lib/core/threadpool.h"
 
-#include "tbb/task_arena.h"
-#include "tbb/task_group.h"
-#include "tbb/global_control.h"
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
+#include "oneapi/tbb/global_control.h"
 
 namespace tensorflow {
 
