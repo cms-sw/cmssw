@@ -355,6 +355,12 @@ Local3DPoint MuonSensitiveDetector::FinalStepPositionVsParent(const G4Step* curr
 }
 
 bool MuonSensitiveDetector::acceptHit(uint32_t id) {
+  if (id == 0) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("MuonSim") << "DetId " << id << " Flag " << false;
+#endif
+    return false;
+  }
   bool flag(true);
   if (haveDemo_) {
     int subdet = DetId(id).subdetId();
@@ -366,8 +372,6 @@ bool MuonSensitiveDetector::acceptHit(uint32_t id) {
         flag = demoRPC_;
     }
   }
-  if (id == 0)
-    flag = false;
 #ifdef EDM_ML_DEBUG
   int subdet = DetId(id).subdetId();
   if (subdet == MuonSubdetId::RPC)
