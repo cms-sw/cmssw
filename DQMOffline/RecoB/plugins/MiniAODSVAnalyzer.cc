@@ -16,7 +16,7 @@ void MiniAODSVAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&
   ibook.setCurrentFolder("Btag/SV");
 
   n_sv_ = ibook.book1D("n_sv", "number of SV in jet", 5, 0, 5);
-  n_sv_->setAxisTitle("number of SV");
+  n_sv_->setAxisTitle("number of SV in jet");
 
   sv_mass_ = ibook.book1D("sv_mass", "SV mass", 30, 0., 6.);
   sv_mass_->setAxisTitle("SV mass");
@@ -25,15 +25,15 @@ void MiniAODSVAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&
   sv_pt_->setAxisTitle("SV pt");
 
   sv_ntracks_ = ibook.book1D("sv_ntracks", "SV number of daugthers", 10, 0, 10);
-  sv_ntracks_->setAxisTitle("SV tracks");
+  sv_ntracks_->setAxisTitle("number of tracks at SV");
 
   sv_chi2norm_ = ibook.book1D("sv_chi2norm", "normalized Chi2 of vertex", 30, 0, 15);
-  sv_chi2norm_->setAxisTitle("normalized Chi2");
+  sv_chi2norm_->setAxisTitle("normalized Chi2 of SV");
 
   sv_chi2prob_ = ibook.book1D("sv_chi2prob", "Chi2 probability of vertex", 20, 0., 1.);
-  sv_chi2prob_->setAxisTitle("Chi2 probability");
+  sv_chi2prob_->setAxisTitle("Chi2 probability of SV");
 
-  sv_ptrel_ = ibook.book1D("sv_ptrel_", "SV jet transverse momentum ratio", 25, 0., 1.);
+  sv_ptrel_ = ibook.book1D("sv_ptrel", "SV jet transverse momentum ratio", 25, 0., 1.);
   sv_ptrel_->setAxisTitle("pt(SV)/pt(jet)");
 
   sv_energyratio_ = ibook.book1D("sv_energyratio", "SV jet energy ratio", 25, 0., 1.);
@@ -69,7 +69,7 @@ void MiniAODSVAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
       // loop secondary vertices
       for (unsigned int i = 0; i < taginfo->nVertices(); i++) {
-        const reco::VertexCompositePtrCandidate sv = taginfo->secondaryVertex(i);
+        const reco::VertexCompositePtrCandidate& sv = taginfo->secondaryVertex(i);
 
         sv_mass_->Fill(sv.mass());
         sv_pt_->Fill(sv.pt());
