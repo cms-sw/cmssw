@@ -671,7 +671,7 @@ dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(g4SimHits,
                        OnlySDs = ['ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'],
-                       LHCTransport = False ) 
-phase2_common.toModify( g4SimHits,  MuonSD = dict(
-                             HaveDemoChambers = False ) 
+                       LHCTransport = False, 
+                       MuonSD = dict( 
+                       HaveDemoChambers = False ) 
 )
