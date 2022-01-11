@@ -118,7 +118,6 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     src = cms.InputTag("slimmedPhotons"),
     userFloats = cms.PSet(
         mvaID = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v2Values"),
-        mvaID_Fall17V1p1 = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1p1Values"),
         PFIsoChg = cms.InputTag("isoForPho:PFIsoChg"),
         PFIsoAll = cms.InputTag("isoForPho:PFIsoAll"),
     ),
@@ -203,7 +202,6 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         electronVeto = Var("passElectronVeto()",bool,doc="pass electron veto"),
         pixelSeed = Var("hasPixelSeed()",bool,doc="has pixel seed"),
         mvaID = Var("userFloat('mvaID')",float,doc="MVA ID score, Fall17V2",precision=10),
-        mvaID_Fall17V1p1 = Var("userFloat('mvaID_Fall17V1p1')",float,doc="MVA ID score, Fall17V1p1",precision=10),
         mvaID_WP90 = Var("userInt('mvaID_WP90')",bool,doc="MVA ID WP90, Fall17V2"),
         mvaID_WP80 = Var("userInt('mvaID_WP80')",bool,doc="MVA ID WP80, Fall17V2"),
         pfPhoIso03 = Var("photonIso()",float,doc="PF absolute isolation dR=0.3, photon component (uncorrected)"),
@@ -346,14 +344,12 @@ photonMCTask = cms.Task(photonsMCMatchForTable, photonMCTable)
 (run3_nanoAOD_devel).toModify(slimmedPhotonsWithUserData.userInts,
                               VIDNestedWPBitmap = None,)
 (run3_nanoAOD_devel).toModify(slimmedPhotonsWithUserData.userFloats,
-                              mvaID = None,
-                              mvaID_Fall17V1p1 = None)
+                              mvaID = None)
 (run3_nanoAOD_devel).toModify(photonTable.variables,
                               cutBased = None,
                               cutBased_Fall17V1Bitmap = None,
                               vidNestedWPBitmap = None,
                               mvaID = None,
-                              mvaID_Fall17V1p1 = None,
                               mvaID_WP90 = None,
                               mvaID_WP80 = None,
 )
