@@ -74,7 +74,7 @@ addSequences(bTagMiniDQMSource,
 # Validation addSequences
 
 bTagMiniValidationGlobal = bTagMiniDQMGlobal.clone(
-    MClevel = cms.int32(1) # produce flavour plots for b, c ,light (dusg)
+    MClevel = 1 # produce flavour plots for b, c ,light (dusg)
 )
 
 bTagMiniValidationSource = cms.Sequence()
