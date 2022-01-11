@@ -69,7 +69,7 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
 
   double firstVertexDz = std::numeric_limits<double>::max();
   if (!vertices.empty())
-    firstVertexDz = std::abs(track->dz(vertices.at(0).position()));
+    firstVertexDz = std::abs(track->dz(vertices[0].position()));
   // recover cases where the primary vertex is split
   if (useVertexFit_ && (iVertex > 0) && (iVertex <= int(fNumOfPUVtxsForCharged_)) &&
       firstVertexDz < fDzCutForChargedFromPUVtxs_)
@@ -122,10 +122,10 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
         iVertex = vtxIdMinSignif;
     } else {
       // consider only distances to first vertex for association (originally used in PUPPI)
-      if ((vtxIdMinSignif >= 0) && (std::abs(track->eta()) > fEtaMinUseDz_) and
-          ((firstVertexDz < maxDzForPrimaryAssignment_ and firstVertexDz / dzE < maxDzSigForPrimaryAssignment_ and
-            track->dzError() < maxDzErrorForPrimaryAssignment_) and
-           (!useTime or std::abs(time - vertices.at(0).t()) / timeReso < maxDtSigForPrimaryAssignment_)))
+      if ((vtxIdMinSignif >= 0) && (std::abs(track->eta()) > fEtaMinUseDz_) &&
+          ((firstVertexDz < maxDzForPrimaryAssignment_ && firstVertexDz / dzE < maxDzSigForPrimaryAssignment_ &&
+            track->dzError() < maxDzErrorForPrimaryAssignment_) &&
+           (!useTime || std::abs(time - vertices[0].t()) / timeReso < maxDtSigForPrimaryAssignment_)))
         iVertex = 0;
     }
   }

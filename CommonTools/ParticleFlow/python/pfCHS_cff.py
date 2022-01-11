@@ -3,8 +3,7 @@ from CommonTools.ParticleFlow.pfNoPileUpJME_cff import primaryVertexAssociationJ
 
 pfCHS = cms.EDFilter("CandPtrSelector",
               src = cms.InputTag("packedPFCandidates"),
-              cut = cms.string("fromPV(0)>0"+\
-	       " || (vertexRef().key<="+str(primaryVertexAssociationJME.assignment.NumOfPUVtxsForCharged.value())+" && "+\
-		    "abs(dz(0))<"+str(primaryVertexAssociationJME.assignment.DzCutForChargedFromPUVtxs.value())+")"
-                    )
+              cut = cms.string("fromPV(0)>0 || (vertexRef().key<={} && abs(dz(0))<{})".format(
+                  primaryVertexAssociationJME.assignment.NumOfPUVtxsForCharged.value(),
+                  primaryVertexAssociationJME.assignment.DzCutForChargedFromPUVtxs.value()))
 )
