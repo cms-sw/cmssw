@@ -1,11 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 DRNProducerEB = cms.EDProducer('SCEnergyCorrectorDRNProducer',
-   correctorCfg = cms.PSet(
-     #ecalRecHitsEE = cms.InputTag('reducedEcalRecHitsEE'),
-     #ecalRecHitsEB = cms.InputTag('reducedEcalRecHitsEB'),
-     #rhoFastJet = cms.InputTag("fixedGridRhoAll"),
-   ),
    inputSCs = cms.InputTag('particleFlowSuperClusterECAL','particleFlowSuperClusterECALBarrel'),
    Client = cms.PSet(
         mode = cms.string("Async"),
@@ -23,11 +18,6 @@ DRNProducerEB = cms.EDProducer('SCEnergyCorrectorDRNProducer',
 
 
 DRNProducerEE = cms.EDProducer('SCEnergyCorrectorDRNProducer',
-   correctorCfg = cms.PSet(
-     #ecalRecHitsEE = cms.InputTag('reducedEcalRecHitsEE'),
-     #ecalRecHitsEB = cms.InputTag('reducedEcalRecHitsEB'),
-     #rhoFastJet = cms.InputTag("fixedGridRhoAll"),
-   ),
    inputSCs = cms.InputTag('particleFlowSuperClusterECAL','particleFlowSuperClusterECALEndcapWithPreshower'),
    Client = cms.PSet(
         mode = cms.string("Async"),
