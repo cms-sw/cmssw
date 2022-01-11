@@ -62,9 +62,9 @@ uint32_t TotemT1Organization ::getUnitID(const G4Step* aStep) {
     std::string dName = ForwardName::getName(physVol->GetName());
     if (dName == "TotemT1") {
       if (physVol->GetCopyNo() == 1)
-	_currentDetectorPosition = 1;
+        _currentDetectorPosition = 1;
       else if (physVol->GetCopyNo() == 2)
-	_currentDetectorPosition = 2;
+        _currentDetectorPosition = 2;
     }
   }
 

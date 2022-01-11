@@ -7,6 +7,6 @@
 
 namespace ForwardName {
   std::string getName(const G4String &);
-}; // namespace ForwardName
+};  // namespace ForwardName
 
 #endif
