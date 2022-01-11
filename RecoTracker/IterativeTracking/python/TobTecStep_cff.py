@@ -249,9 +249,9 @@ tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder
     alwaysUseInvalidHits   = False,
     maxCand                = 2,
     estimator              = 'tobTecStepChi2Est',
-    #startSeedHitsInRebuild = True
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction   = cms.double(0.7)
+    #startSeedHitsInRebuild = True,
+    maxDPhiForLooperReconstruction = 2.0,
+    maxPtForLooperReconstruction   = 0.7,
 )
 trackingNoLoopers.toModify(tobTecStepTrajectoryBuilder,
                            maxPtForLooperReconstruction = 0.0)
@@ -271,16 +271,15 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 # Give handle for CKF for HI
 _tobTecStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'tobTecStepSeeds',
-    clustersToSkip              = cms.InputTag('tobTecStepClusters'),
+    clustersToSkip              = 'tobTecStepClusters',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner       = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(False),
-
-    TrajectoryBuilderPSet       = cms.PSet(refToPSet_ = cms.string('tobTecStepTrajectoryBuilder')),
+    numHitsForSeedCleaner       = 50,
+    onlyPixelHitsForSeedCleaner = False,
+    TrajectoryBuilderPSet       = dict(refToPSet_ = 'tobTecStepTrajectoryBuilder'),
     doSeedingRegionRebuilding   = True,
     useHitsSplitting            = True,
     cleanTrajectoryAfterInOut   = True,
-    TrajectoryCleaner = 'tobTecStepTrajectoryCleanerBySharedHits'
+    TrajectoryCleaner = 'tobTecStepTrajectoryCleanerBySharedHits',
 )
 tobTecStepTrackCandidates = _tobTecStepTrackCandidatesCkf.clone()
 
