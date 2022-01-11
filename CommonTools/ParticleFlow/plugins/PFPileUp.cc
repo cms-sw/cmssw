@@ -52,6 +52,8 @@ public:
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   PFPileUpAlgo pileUpAlgo_;
 
@@ -198,4 +200,20 @@ void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.put(std::move(pOutput));
   // iEvent.put(std::move(pOutputByValue));
 }
+
+void PFPileUp::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("PFCandidates", edm::InputTag("particleFlowTmpPtrs"));
+  desc.add<edm::InputTag>("Vertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("Enable", true);
+  desc.addUntracked<bool>("verbose", false);
+  desc.add<bool>("checkClosestZVertex", true);
+  desc.add<bool>("useVertexAssociation", false);
+  desc.add<int>("vertexAssociationQuality", 0);
+  desc.add<edm::InputTag>("vertexAssociation", edm::InputTag(""));
+  desc.add<unsigned int>("NumOfPUVtxsForCharged", 0);
+  desc.add<double>("DzCutForChargedFromPUVtxs", .2);
+  descriptions.add("pfPileUp", desc);
+}
+
 DEFINE_FWK_MODULE(PFPileUp);

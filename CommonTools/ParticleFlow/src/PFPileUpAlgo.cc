@@ -24,7 +24,7 @@ void PFPileUpAlgo::process(const PFCollection& pfCandidates, const reco::VertexC
     // not pile-up
     if ((ivertex == -1 || ivertex == 0 ||
          (fNumOfPUVtxsForCharged_ > 0 && !vertices.empty() && ivertex <= int(fNumOfPUVtxsForCharged_) &&
-          std::abs(cand.vertex().z() - vertices.at(0).z()) < fDzCutForChargedFromPUVtxs_))) {
+          std::abs(cand.vertex().z() - vertices[0].z()) < fDzCutForChargedFromPUVtxs_))) {
       if (verbose_)
         std::cout << "VTX " << i << " " << *(pfCandidates[i]) << std::endl;
       pfCandidatesFromVtx_.push_back(pfCandidates[i]);
