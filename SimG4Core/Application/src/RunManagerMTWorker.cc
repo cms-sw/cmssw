@@ -61,7 +61,6 @@
 #include <thread>
 #include <sstream>
 #include <vector>
-#include "tbb/task_arena.h"
 
 static std::once_flag applyOnce;
 

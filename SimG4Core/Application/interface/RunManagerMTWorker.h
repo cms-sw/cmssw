@@ -11,7 +11,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <memory>
-#include <tbb/concurrent_vector.h>
 #include <unordered_map>
 #include <string>
 
