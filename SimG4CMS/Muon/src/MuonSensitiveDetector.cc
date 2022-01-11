@@ -375,9 +375,11 @@ bool MuonSensitiveDetector::acceptHit(uint32_t id) {
 #ifdef EDM_ML_DEBUG
   int subdet = DetId(id).subdetId();
   if (subdet == MuonSubdetId::RPC)
-    edm::LogVerbatim("MuonSim") << "DetId " << std::hex << id << std::dec << " RPC " << RPCDetId(id) << " Flag " << flag;
+    edm::LogVerbatim("MuonSim") << "DetId " << std::hex << id << std::dec << " RPC " << RPCDetId(id) << " Flag "
+                                << flag;
   else if (subdet == MuonSubdetId::GEM)
-    edm::LogVerbatim("MuonSim") << "DetId " << std::hex << id << std::dec << " GEM " << GEMDetId(id) << " Flag " << flag;
+    edm::LogVerbatim("MuonSim") << "DetId " << std::hex << id << std::dec << " GEM " << GEMDetId(id) << " Flag "
+                                << flag;
   else if (subdet == MuonSubdetId::ME0)
     edm::LogVerbatim("MuonSim") << "DetId " << std::hex << id << std::dec << " " << ME0DetId(id) << " Flag " << flag;
   else if (subdet == MuonSubdetId::CSC)
