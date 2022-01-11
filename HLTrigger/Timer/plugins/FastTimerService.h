@@ -17,9 +17,9 @@
 #include <boost/chrono.hpp>
 
 // tbb headers
-#include <tbb/concurrent_unordered_set.h>
-#include <tbb/enumerable_thread_specific.h>
-#include <tbb/task_scheduler_observer.h>
+#include <oneapi/tbb/concurrent_unordered_set.h>
+#include <oneapi/tbb/enumerable_thread_specific.h>
+#include <oneapi/tbb/task_scheduler_observer.h>
 
 // JSON headers
 #include <nlohmann/json_fwd.hpp>
