@@ -327,7 +327,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     MuonSD = cms.PSet(
         EnergyThresholdForPersistency = cms.double(1.0),
         PrintHits = cms.bool(False),
-        AllMuonsPersistent = cms.bool(True)
+        AllMuonsPersistent = cms.bool(True),
+        UseDemoHitRPC = cms.bool(False),
+        UseDemoHitGEM = cms.bool(False),
+        HaveDemoChambers = cms.bool(True)
     ),
     CaloSD = cms.PSet(
         common_heavy_suppression,
@@ -668,4 +671,7 @@ dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(g4SimHits,
                        OnlySDs = ['ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'],
-                       LHCTransport = False ) 
+                       LHCTransport = False, 
+                       MuonSD = dict( 
+                       HaveDemoChambers = False ) 
+)
