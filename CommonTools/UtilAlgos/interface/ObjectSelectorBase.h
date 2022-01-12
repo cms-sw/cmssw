@@ -38,6 +38,7 @@ public:
         srcToken_(
             this->template consumes<typename Selector::collection>(cfg.template getParameter<edm::InputTag>("src"))),
         filter_(false),
+        selectorInit_(this->consumesCollector()),
         selector_(cfg, this->consumesCollector()),
         sizeSelector_(reco::modules::make<SizeSelector>(cfg)),
         postProcessor_(cfg, this->consumesCollector()) {
@@ -54,8 +55,7 @@ public:
 private:
   /// process one event
   bool filter(edm::Event& evt, const edm::EventSetup& es) override {
-    Init::init(selector_, evt, es);
-    using namespace std;
+    selectorInit_.init(selector_, evt, es);
     edm::Handle<typename Selector::collection> source;
     evt.getByToken(srcToken_, source);
     StoreManager manager(source);
@@ -71,6 +71,7 @@ private:
   /// filter event
   bool filter_;
   /// Object collection selector
+  Init selectorInit_;
   Selector selector_;
   /// selected object collection size selector
   SizeSelector sizeSelector_;
