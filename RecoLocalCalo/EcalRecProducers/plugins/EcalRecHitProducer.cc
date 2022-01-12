@@ -24,36 +24,51 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps) {
-  ebRechitCollection_ = ps.getParameter<std::string>("EBrechitCollection");
-  eeRechitCollection_ = ps.getParameter<std::string>("EErechitCollection");
-
-  recoverEBIsolatedChannels_ = ps.getParameter<bool>("recoverEBIsolatedChannels");
-  recoverEEIsolatedChannels_ = ps.getParameter<bool>("recoverEEIsolatedChannels");
-  recoverEBVFE_ = ps.getParameter<bool>("recoverEBVFE");
-  recoverEEVFE_ = ps.getParameter<bool>("recoverEEVFE");
-  recoverEBFE_ = ps.getParameter<bool>("recoverEBFE");
-  recoverEEFE_ = ps.getParameter<bool>("recoverEEFE");
-  killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
-
+EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps) :
+  ebRechitCollection_(ps.getParameter<std::string>("EBrechitCollection")),
+  eeRechitCollection_(ps.getParameter<std::string>("EErechitCollection")),
+  doEB_(ps.getParameter<edm::InputTag>("EBuncalibRecHitCollection").label() != "none"),
+  doEE_(ps.getParameter<edm::InputTag>("EEuncalibRecHitCollection").label() != "none"),
+  recoverEBIsolatedChannels_(ps.getParameter<bool>("recoverEBIsolatedChannels")),
+  recoverEEIsolatedChannels_(ps.getParameter<bool>("recoverEEIsolatedChannels")),
+  recoverEBVFE_(ps.getParameter<bool>("recoverEBVFE")),
+  recoverEEVFE_(ps.getParameter<bool>("recoverEEVFE")),
+  recoverEBFE_(ps.getParameter<bool>("recoverEBFE")),
+  recoverEEFE_(ps.getParameter<bool>("recoverEEFE")),
+  killDeadChannels_(ps.getParameter<bool>("killDeadChannels"))
+{
   produces<EBRecHitCollection>(ebRechitCollection_);
   produces<EERecHitCollection>(eeRechitCollection_);
 
-  ebUncalibRecHitToken_ =
-      consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EBuncalibRecHitCollection"));
+  if (doEB_) {
+    ebUncalibRecHitToken_ =
+        consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EBuncalibRecHitCollection"));
 
-  eeUncalibRecHitToken_ =
-      consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibRecHitCollection"));
+    if (recoverEBIsolatedChannels_ || recoverEBFE_ || killDeadChannels_) {
+      ebDetIdToBeRecoveredToken_ = consumes<std::set<EBDetId>>(ps.getParameter<edm::InputTag>("ebDetIdToBeRecovered"));
+    }
 
-  ebDetIdToBeRecoveredToken_ = consumes<std::set<EBDetId>>(ps.getParameter<edm::InputTag>("ebDetIdToBeRecovered"));
+    if (recoverEBFE_ || killDeadChannels_) {
+      ebFEToBeRecoveredToken_ = consumes<std::set<EcalTrigTowerDetId>>(ps.getParameter<edm::InputTag>("ebFEToBeRecovered"));
+    }
+  }
 
-  eeDetIdToBeRecoveredToken_ = consumes<std::set<EEDetId>>(ps.getParameter<edm::InputTag>("eeDetIdToBeRecovered"));
+  if (doEE_) {
+    eeUncalibRecHitToken_ =
+        consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibRecHitCollection"));
 
-  ebFEToBeRecoveredToken_ = consumes<std::set<EcalTrigTowerDetId>>(ps.getParameter<edm::InputTag>("ebFEToBeRecovered"));
+    if (recoverEEIsolatedChannels_ || recoverEEFE_ || killDeadChannels_) {
+      eeDetIdToBeRecoveredToken_ = consumes<std::set<EEDetId>>(ps.getParameter<edm::InputTag>("eeDetIdToBeRecovered"));
+    }
 
-  eeFEToBeRecoveredToken_ = consumes<std::set<EcalScDetId>>(ps.getParameter<edm::InputTag>("eeFEToBeRecovered"));
+    if (recoverEEFE_ || killDeadChannels_) {
+      eeFEToBeRecoveredToken_ = consumes<std::set<EcalScDetId>>(ps.getParameter<edm::InputTag>("eeFEToBeRecovered"));
+    }
+  }
 
-  ecalChannelStatusToken_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  if (recoverEBIsolatedChannels_ || recoverEBFE_ || recoverEEIsolatedChannels_ || recoverEEFE_ || killDeadChannels_) {
+    ecalChannelStatusToken_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  }
 
   std::string componentType = ps.getParameter<std::string>("algo");
   edm::ConsumesCollector c{consumesCollector()};
@@ -80,13 +95,17 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   // get the barrel uncalib rechit collection
 
-  evt.getByToken(ebUncalibRecHitToken_, pEBUncalibRecHits);
-  ebUncalibRecHits = pEBUncalibRecHits.product();
-  LogDebug("EcalRecHitDebug") << "total # EB uncalibrated rechits: " << ebUncalibRecHits->size();
+  if (doEB_) {
+    evt.getByToken(ebUncalibRecHitToken_, pEBUncalibRecHits);
+    ebUncalibRecHits = pEBUncalibRecHits.product();
+    LogDebug("EcalRecHitDebug") << "total # EB uncalibrated rechits: " << ebUncalibRecHits->size();
+  }
 
-  evt.getByToken(eeUncalibRecHitToken_, pEEUncalibRecHits);
-  eeUncalibRecHits = pEEUncalibRecHits.product();  // get a ptr to the product
-  LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits: " << eeUncalibRecHits->size();
+  if (doEE_) {
+    evt.getByToken(eeUncalibRecHitToken_, pEEUncalibRecHits);
+    eeUncalibRecHits = pEEUncalibRecHits.product();  // get a ptr to the product
+    LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits: " << eeUncalibRecHits->size();
+  }
 
   // collection of rechits to put in the event
   auto ebRecHits = std::make_unique<EBRecHitCollection>();
