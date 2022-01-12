@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-OutALCARECOPPSAlignment_noDrop = cms.PSet(
+OutALCARECOPromptCalibProdPPSAlignment_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOPPSAlignment')
     ),
@@ -9,5 +9,5 @@ OutALCARECOPPSAlignment_noDrop = cms.PSet(
     )
 )
 
-OutALCARECOPPSAlignment = OutALCARECOPPSAlignment_noDrop.clone()
-OutALCARECOPPSAlignment.outputCommands.insert(0, 'drop *')
+OutALCARECOPromptCalibProdPPSAlignment = OutALCARECOPromptCalibProdPPSAlignment_noDrop.clone()
+OutALCARECOPromptCalibProdPPSAlignment.outputCommands.insert(0, 'drop *')

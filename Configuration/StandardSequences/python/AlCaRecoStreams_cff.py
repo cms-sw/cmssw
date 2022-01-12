@@ -910,8 +910,8 @@ ALCARECOStreamPromptCalibProdPPSAlignment = cms.FilteredStream(
 	responsible = 'Mateusz Kocot',
 	name = 'PromptCalibProdPPSAlignment',
 	paths = (pathALCARECOPPSAlignment),
-	content = OutALCARECOPPSAlignment.outputCommands,
-	selectEvents = OutALCARECOPPSAlignment.SelectEvents,
+	content = OutALCARECOPromptCalibProdPPSAlignment.outputCommands,
+	selectEvents = OutALCARECOPromptCalibProdPPSAlignment.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 )
 
