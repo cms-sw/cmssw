@@ -9,8 +9,7 @@
 #include <string>
 #include <vector>
 
-#include <tbb/concurrent_vector.h>
-#include <tbb/enumerable_thread_specific.h>
+#include <oneapi/tbb/concurrent_vector.h>
 
 #include <fmt/printf.h>
 
