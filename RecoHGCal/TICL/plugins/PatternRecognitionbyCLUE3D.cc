@@ -4,9 +4,6 @@
 #include <set>
 #include <vector>
 
-#include "tbb/task_arena.h"
-#include "tbb/tbb.h"
-
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

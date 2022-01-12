@@ -70,7 +70,7 @@ void testEventsetupplugin::finderTest()
   dummyFinderPSet.registerIt();
   SourceFactory::get()->addTo(esController, provider, dummyFinderPSet);
 
-  ComponentDescription descFinder("LoadableDummyFinder", "", true);
+  ComponentDescription descFinder("LoadableDummyFinder", "", ComponentDescription::unknownID(), true);
   std::set<ComponentDescription> descriptions(provider.proxyProviderDescriptions());
   //should not be found since not a provider
   CPPUNIT_ASSERT(descriptions.find(descFinder) == descriptions.end());
@@ -81,7 +81,7 @@ void testEventsetupplugin::finderTest()
   dummyProviderPSet.registerIt();
   ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet);
 
-  ComponentDescription desc("LoadableDummyProvider", "", false);
+  ComponentDescription desc("LoadableDummyProvider", "", ComponentDescription::unknownID(), false);
   descriptions = provider.proxyProviderDescriptions();
   CPPUNIT_ASSERT(descriptions.find(desc) != descriptions.end());
   CPPUNIT_ASSERT(*(descriptions.find(desc)) == desc);
@@ -92,7 +92,7 @@ void testEventsetupplugin::finderTest()
   dummySourcePSet.registerIt();
   SourceFactory::get()->addTo(esController, provider, dummySourcePSet);
 
-  ComponentDescription descSource("LoadableDummyESSource", "", true);
+  ComponentDescription descSource("LoadableDummyESSource", "", ComponentDescription::unknownID(), true);
   descriptions = provider.proxyProviderDescriptions();
   CPPUNIT_ASSERT(descriptions.find(descSource) != descriptions.end());
   CPPUNIT_ASSERT(*(descriptions.find(descSource)) == descSource);
