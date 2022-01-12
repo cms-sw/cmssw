@@ -344,7 +344,7 @@ void testEventsetup::producerConflictTest() {
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-  edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", false);
+  edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", 0, false);
 
   {
     auto dummyProv = std::make_shared<DummyProxyProvider>();
@@ -365,7 +365,7 @@ void testEventsetup::sourceConflictTest() {
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-  edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", true);
+  edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", 0, true);
 
   {
     auto dummyProv = std::make_shared<DummyProxyProvider>();
@@ -386,7 +386,7 @@ void testEventsetup::twoSourceTest() {
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-  edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", true);
+  edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", 0, true);
   {
     auto dummyProv = std::make_shared<DummyProxyProvider>();
     dummyProv->setDescription(description);
@@ -396,7 +396,7 @@ void testEventsetup::twoSourceTest() {
     auto dummyProv = std::make_shared<edm::DummyEventSetupRecordRetriever>();
     std::shared_ptr<eventsetup::DataProxyProvider> providerPtr(dummyProv);
     std::shared_ptr<edm::EventSetupRecordIntervalFinder> finderPtr(dummyProv);
-    edm::eventsetup::ComponentDescription description2("DummyEventSetupRecordRetriever", "", true);
+    edm::eventsetup::ComponentDescription description2("DummyEventSetupRecordRetriever", "", 0, true);
     dummyProv->setDescription(description2);
     provider.add(providerPtr);
     provider.add(finderPtr);
@@ -454,7 +454,7 @@ void testEventsetup::provenanceTest() {
 
   try {
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", true);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", 0, true);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test11");
       ps.registerIt();
@@ -464,7 +464,7 @@ void testEventsetup::provenanceTest() {
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testLabel", false);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testLabel", 1, false);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test22");
       ps.registerIt();
@@ -635,7 +635,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
 
   try {
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testOne", true);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testOne", 0, true);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test11");
       ps.registerIt();
@@ -645,7 +645,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testTwo", false);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testTwo", 1, false);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test22");
       ps.addParameter<std::string>("appendToDataLabel", "blah");
@@ -657,7 +657,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("ConsumesProducer", "consumes", false);
+      edm::eventsetup::ComponentDescription description("ConsumesProducer", "consumes", 2, false);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "consumes");
       ps.registerIt();
@@ -668,7 +668,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("ConsumesFromProducer", "consumesFrom", false);
+      edm::eventsetup::ComponentDescription description("ConsumesFromProducer", "consumesFrom", 3, false);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "consumesFrom");
       ps.registerIt();
@@ -679,7 +679,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("SetMayConsumeProducer", "setMayConsumeSuceed", false);
+      edm::eventsetup::ComponentDescription description("SetMayConsumeProducer", "setMayConsumeSuceed", 4, false);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "setMayConsumeSuceed");
       ps.registerIt();
@@ -690,7 +690,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("SetMayConsumeProducer", "setMayConsumeFail", false);
+      edm::eventsetup::ComponentDescription description("SetMayConsumeProducer", "setMayConsumeFail", 5, false);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "setMayConsumeFail");
       ps.registerIt();
@@ -820,7 +820,7 @@ void testEventsetup::getHandleWithESGetTokenTest() {
   edm::ESParentContext pc;
   try {
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testOne", true);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testOne", 0, true);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test11");
       ps.registerIt();
@@ -830,7 +830,7 @@ void testEventsetup::getHandleWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testTwo", false);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testTwo", 1, false);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test22");
       ps.addParameter<std::string>("appendToDataLabel", "blah");
@@ -916,7 +916,7 @@ void testEventsetup::getTransientHandleWithESGetTokenTest() {
   edm::ESParentContext pc;
   try {
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testOne", true);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testOne", 0, true);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test11");
       ps.registerIt();
@@ -926,7 +926,7 @@ void testEventsetup::getTransientHandleWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testTwo", false);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testTwo", 1, false);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test22");
       ps.addParameter<std::string>("appendToDataLabel", "blah");
@@ -1016,13 +1016,13 @@ void testEventsetup::sourceProducerResolutionTest() {
 
     edm::ESParentContext pc;
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", true);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", 0, true);
       auto dummyProv = std::make_shared<DummyProxyProvider>(kBad);
       dummyProv->setDescription(description);
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", false);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", 1, false);
       auto dummyProv = std::make_shared<DummyProxyProvider>(kGood);
       dummyProv->setDescription(description);
       provider.add(dummyProv);
@@ -1049,13 +1049,13 @@ void testEventsetup::sourceProducerResolutionTest() {
     dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(2)), IOVSyncValue(Timestamp(3))));
     provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", false);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", 0, false);
       auto dummyProv = std::make_shared<DummyProxyProvider>(kGood);
       dummyProv->setDescription(description);
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", true);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", 1, true);
       auto dummyProv = std::make_shared<DummyProxyProvider>(kBad);
       dummyProv->setDescription(description);
       provider.add(dummyProv);
@@ -1090,16 +1090,17 @@ void testEventsetup::preferTest() {
       EventSetupProvider::PreferredProviderInfo preferInfo;
       EventSetupProvider::RecordToDataMap recordToData;
       //default means use all proxies
-      preferInfo[ComponentDescription("DummyProxyProvider", "", false)] = recordToData;
+      preferInfo[ComponentDescription("DummyProxyProvider", "", ComponentDescription::unknownID(), false)] =
+          recordToData;
       provider.setPreferredProviderInfo(preferInfo);
       {
-        edm::eventsetup::ComponentDescription description("DummyProxyProvider", "bad", false);
+        edm::eventsetup::ComponentDescription description("DummyProxyProvider", "bad", 0, false);
         auto dummyProv = std::make_shared<DummyProxyProvider>(kBad);
         dummyProv->setDescription(description);
         provider.add(dummyProv);
       }
       {
-        edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", false);
+        edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", 1, false);
         auto dummyProv = std::make_shared<DummyProxyProvider>(kGood);
         dummyProv->setDescription(description);
         provider.add(dummyProv);
@@ -1125,16 +1126,17 @@ void testEventsetup::preferTest() {
       EventSetupProvider::PreferredProviderInfo preferInfo;
       EventSetupProvider::RecordToDataMap recordToData;
       //default means use all proxies
-      preferInfo[ComponentDescription("DummyProxyProvider", "", false)] = recordToData;
+      preferInfo[ComponentDescription("DummyProxyProvider", "", ComponentDescription::unknownID(), false)] =
+          recordToData;
       provider.setPreferredProviderInfo(preferInfo);
       {
-        edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", true);
+        edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", 0, true);
         auto dummyProv = std::make_shared<DummyProxyProvider>(kGood);
         dummyProv->setDescription(description);
         provider.add(dummyProv);
       }
       {
-        edm::eventsetup::ComponentDescription description("DummyProxyProvider", "bad", true);
+        edm::eventsetup::ComponentDescription description("DummyProxyProvider", "bad", 1, true);
         auto dummyProv = std::make_shared<DummyProxyProvider>(kBad);
         dummyProv->setDescription(description);
         provider.add(dummyProv);
@@ -1161,16 +1163,17 @@ void testEventsetup::preferTest() {
       EventSetupProvider::RecordToDataMap recordToData;
       recordToData.insert(
           std::make_pair(std::string("DummyRecord"), std::make_pair(std::string("DummyData"), std::string())));
-      preferInfo[ComponentDescription("DummyProxyProvider", "", false)] = recordToData;
+      preferInfo[ComponentDescription("DummyProxyProvider", "", ComponentDescription::unknownID(), false)] =
+          recordToData;
       provider.setPreferredProviderInfo(preferInfo);
       {
-        edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", true);
+        edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", 0, true);
         auto dummyProv = std::make_shared<DummyProxyProvider>(kGood);
         dummyProv->setDescription(description);
         provider.add(dummyProv);
       }
       {
-        edm::eventsetup::ComponentDescription description("DummyProxyProvider", "bad", true);
+        edm::eventsetup::ComponentDescription description("DummyProxyProvider", "bad", 1, true);
         auto dummyProv = std::make_shared<DummyProxyProvider>(kBad);
         dummyProv->setDescription(description);
         provider.add(dummyProv);
@@ -1205,7 +1208,7 @@ void testEventsetup::introspectionTest() {
   edm::ESParentContext pc;
   try {
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", true);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", 0, true);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test11");
       ps.registerIt();
@@ -1300,7 +1303,7 @@ void testEventsetup::resetProxiesTest() {
   finder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(2)), IOVSyncValue(Timestamp(3))));
   provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(finder));
 
-  ComponentDescription description("DummyProxyProvider", "", true);
+  ComponentDescription description("DummyProxyProvider", "", 0, true);
   ParameterSet ps;
   ps.addParameter<std::string>("name", "test11");
   ps.registerIt();
