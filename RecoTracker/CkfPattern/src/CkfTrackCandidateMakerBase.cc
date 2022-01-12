@@ -41,7 +41,7 @@
 
 #include <thread>
 #ifdef VI_TBB
-#include "tbb/parallel_for.h"
+#include "oneapi/tbb/parallel_for.h"
 #endif
 
 #include "RecoTracker/CkfPattern/interface/PrintoutHelper.h"
