@@ -10,7 +10,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
