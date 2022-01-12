@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 
 namespace {
   template <typename T, typename U>
