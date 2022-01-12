@@ -64,6 +64,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   fillGlobalTrackQuality_ = iConfig.getParameter<bool>("fillGlobalTrackQuality");
   fillGlobalTrackRefits_ = iConfig.getParameter<bool>("fillGlobalTrackRefits");
   arbitrateTrackerMuons_ = iConfig.getParameter<bool>("arbitrateTrackerMuons");
+  selectHighPurity_ = iConfig.getParameter<bool>("selectHighPurity");
   //SK: (maybe temporary) run it only if the global is also run
   fillTrackerKink_ = false;
   if (fillGlobalTrackQuality_)
