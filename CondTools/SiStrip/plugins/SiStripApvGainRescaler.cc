@@ -50,12 +50,11 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   std::unique_ptr<SiStripApvGain> getNewObject(const std::map<std::pair<uint32_t, int>, float>& theMap);
-  void endJob() override;
 
   // ----------member data ---------------------------
+  const uint32_t m_printdebug;
   const std::string m_Record;
 
   // take G2_old and G1_old from the regular gain handle
@@ -68,9 +67,10 @@ private:
 // constructors and destructor
 //
 SiStripApvGainRescaler::SiStripApvGainRescaler(const edm::ParameterSet& iConfig)
-    : m_Record(iConfig.getParameter<std::string>("Record")), g1g2Token_(esConsumes()), g3Token_(esConsumes()) {
-  //now do what ever initialization is needed
-}
+    : m_printdebug{iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)},
+      m_Record(iConfig.getParameter<std::string>("Record")),
+      g1g2Token_(esConsumes()),
+      g3Token_(esConsumes()) {}
 
 SiStripApvGainRescaler::~SiStripApvGainRescaler() = default;
 //
@@ -129,12 +129,6 @@ void SiStripApvGainRescaler::analyze(const edm::Event& iEvent, const edm::EventS
     throw std::runtime_error("PoolDBService required.");
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void SiStripApvGainRescaler::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void SiStripApvGainRescaler::endJob() {}
-
 //********************************************************************************//
 std::unique_ptr<SiStripApvGain> SiStripApvGainRescaler::getNewObject(
     const std::map<std::pair<uint32_t, int>, float>& theMap) {
@@ -142,27 +136,31 @@ std::unique_ptr<SiStripApvGain> SiStripApvGainRescaler::getNewObject(
 
   std::vector<float> theSiStripVector;
   uint32_t PreviousDetId = 0;
+  unsigned int countDetIds(0);  // count DetIds to print
   for (const auto& element : theMap) {
     uint32_t DetId = element.first.first;
     if (DetId != PreviousDetId) {
       if (!theSiStripVector.empty()) {
         SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
         if (!obj->put(PreviousDetId, range))
-          printf("Bug to put detId = %i\n", PreviousDetId);
+          edm::LogError("SiStripApvGainRescaler") << "Bug to put detId = " << PreviousDetId << "\n";
       }
       theSiStripVector.clear();
       PreviousDetId = DetId;
+      countDetIds++;
     }
     theSiStripVector.push_back(element.second);
 
-    edm::LogInfo("SiStripApvGainRescaler")
-        << " DetId: " << DetId << " APV:   " << element.first.second << " Gain:  " << element.second << std::endl;
+    if (countDetIds <= m_printdebug) {
+      edm::LogInfo("SiStripApvGainRescaler")
+          << __FUNCTION__ << " DetId: " << DetId << " APV:   " << element.first.second << " Gain:  " << element.second;
+    }
   }
 
   if (!theSiStripVector.empty()) {
     SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
     if (!obj->put(PreviousDetId, range))
-      printf("Bug to put detId = %i\n", PreviousDetId);
+      edm::LogError("SiStripApvGainRescaler") << "Bug to put detId = " << PreviousDetId << "\n";
   }
 
   return obj;
@@ -178,6 +176,7 @@ void SiStripApvGainRescaler::fillDescriptions(edm::ConfigurationDescriptions& de
       "PoolDBOutputService must be set up for 'SiStripApvGainRcd'.");
 
   desc.add<std::string>("Record", "SiStripApvGainRcd");
+  desc.addUntracked<unsigned int>("printDebug", 1);
   descriptions.add("rescaleGain2byGain1", desc);
 }
 
