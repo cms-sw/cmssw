@@ -46,7 +46,7 @@
 
 #include <iostream>
 
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 
 class NanoAODOutputModule : public edm::one::OutputModule<> {
 public:
