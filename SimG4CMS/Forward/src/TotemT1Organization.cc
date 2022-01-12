@@ -15,6 +15,7 @@
 // user include files
 #include "SimG4CMS/Forward/interface/TotemT1Organization.h"
 #include "SimG4CMS/Forward/interface/TotemNumberMerger.h"
+#include "SimG4CMS/Forward/interface/ForwardName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4VPhysicalVolume.hh"
@@ -58,10 +59,13 @@ uint32_t TotemT1Organization ::getUnitID(const G4Step* aStep) {
                            << ", physVol->GetCopyNo()=" << physVol->GetCopyNo();
 #endif
 
-    if (physVol->GetName() == "TotemT1" && physVol->GetCopyNo() == 1)
-      _currentDetectorPosition = 1;
-    if (physVol->GetName() == "TotemT1" && physVol->GetCopyNo() == 2)
-      _currentDetectorPosition = 2;
+    std::string dName = ForwardName::getName(physVol->GetName());
+    if (dName == "TotemT1") {
+      if (physVol->GetCopyNo() == 1)
+        _currentDetectorPosition = 1;
+      else if (physVol->GetCopyNo() == 2)
+        _currentDetectorPosition = 2;
+    }
   }
 
   touch = aStep->GetPreStepPoint()->GetTouchable();
