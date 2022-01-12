@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 OutALCARECOPromptCalibProdPPSAlignment_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOPPSAlignment')
+        SelectEvents = cms.vstring('pathALCARECOPromptCalibProdPPSAlignment')
     ),
     outputCommands = cms.untracked.vstring(
         'keep *_MEtoEDMConvertPPSAlignment_*_*',
