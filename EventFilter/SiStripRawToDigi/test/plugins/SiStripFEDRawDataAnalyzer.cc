@@ -1,9 +1,6 @@
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripFEDRawDataAnalyzer.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
@@ -19,7 +16,7 @@ using namespace std;
 // -----------------------------------------------------------------------------
 //
 SiStripFEDRawDataAnalyzer::SiStripFEDRawDataAnalyzer(const edm::ParameterSet& pset)
-    : label_(pset.getParameter<edm::InputTag>("InputLabel")) {
+    : esTokenCabling_(esConsumes()), label_(pset.getParameter<edm::InputTag>("InputLabel")) {
   LogDebug("SiStripFEDRawDataAnalyzer") << "[SiStripFEDRawDataAnalyzer::" << __func__ << "]"
                                         << "Constructing object...";
   consumes<FEDRawDataCollection>(label_);
@@ -48,8 +45,7 @@ void SiStripFEDRawDataAnalyzer::endJob() {
 //
 void SiStripFEDRawDataAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   // Retrieve FED cabling object
-  edm::ESHandle<SiStripFedCabling> cabling;
-  setup.get<SiStripFedCablingRcd>().get(cabling);
+  edm::ESHandle<SiStripFedCabling> cabling = setup.getHandle(esTokenCabling_);
 
   // Retrieve FEDRawData collection
   edm::Handle<FEDRawDataCollection> buffers;
