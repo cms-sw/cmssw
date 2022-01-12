@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_2_0/HIon --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_12_2_0/HIon/V7 (CMSSW_12_2_0_pre3)
+# /dev/CMSSW_12_2_0/HIon/V8 (CMSSW_12_2_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_2_0/HIon/V7')
+  tableName = cms.string('/dev/CMSSW_12_2_0/HIon/V8')
 )
 
 process.transferSystem = cms.PSet( 
@@ -34667,6 +34667,7 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
 )
 
 process.DQMOutput = cms.EndPath( process.dqmOutput )
+process.schedule.append( process.DQMOutput )
 
 # add specific customizations
 _customInfo = {}
