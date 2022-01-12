@@ -61,6 +61,9 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 {
   theTkTrackLabel = par.getParameter<edm::InputTag>("TrackerCollectionLabel");
   allTrackerTracksToken = iC.consumes<reco::TrackCollection>(theTkTrackLabel);
+  thePrimaryVtxLabel = par.getParameter<edm::InputTag>("VertexCollectionLabel");
+  primaryVertexToken = iC.mayConsume<reco::VertexCollection>(thePrimaryVtxLabel);
+  selectHighPurity_ = par.getParameter<bool>("selectHighPurity");
 }
 
 //--------------
@@ -80,6 +83,10 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   // get tracker TrackCollection from Event
   event.getByToken(allTrackerTracksToken, allTrackerTracks);
   LogDebug(category) << " Found " << allTrackerTracks->size() << " tracker Tracks with label " << theTkTrackLabel;
+
+  // get primary vertex from Event
+  event.getByToken(primaryVertexToken, vertexCollection);
+  LogDebug(category) << " Found " << vertexCollection->size() << " tracker Tracks with label " << thePrimaryVtxLabel;
 }
 
 //
