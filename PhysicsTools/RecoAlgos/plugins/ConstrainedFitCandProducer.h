@@ -5,7 +5,7 @@
  * \author Luca Lista, INFN
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"
@@ -17,7 +17,7 @@ template <typename Fitter,
           typename InputCollection = reco::CandidateCollection,
           typename OutputCollection = InputCollection,
           typename Init = typename ::reco::modules::EventSetupInit<Fitter>::type>
-class ConstrainedFitCandProducer : public edm::EDProducer {
+class ConstrainedFitCandProducer : public edm::stream::EDProducer<> {
 public:
   explicit ConstrainedFitCandProducer(const edm::ParameterSet&);
 
@@ -27,6 +27,7 @@ private:
   bool setMassConstraint_;
   bool setPdgId_;
   int pdgId_;
+  Init fitterInit_;
   Fitter fitter_;
   void produce(edm::Event&, const edm::EventSetup&) override;
 };
@@ -47,6 +48,7 @@ ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::Con
       setLongLived_(false),
       setMassConstraint_(false),
       setPdgId_(false),
+      fitterInit_(consumesCollector()),
       fitter_(reco::modules::make<Fitter>(cfg)) {
   produces<OutputCollection>();
   std::string alias(cfg.getParameter<std::string>("@module_label"));
@@ -92,7 +94,7 @@ namespace reco {
 template <typename Fitter, typename InputCollection, typename OutputCollection, typename Init>
 void ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::produce(edm::Event& evt,
                                                                                           const edm::EventSetup& es) {
-  Init::init(fitter_, evt, es);
+  fitterInit_.init(fitter_, evt, es);
   edm::Handle<InputCollection> cands;
   evt.getByToken(srcToken_, cands);
   auto fitted = std::make_unique<OutputCollection>();
