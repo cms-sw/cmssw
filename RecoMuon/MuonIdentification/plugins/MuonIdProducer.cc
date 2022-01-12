@@ -1409,6 +1409,7 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<bool>("arbitrateTrackerMuons", false);
   desc.add<bool>("storeCrossedHcalRecHits", false);
   desc.add<bool>("fillShowerDigis", false);
+  desc.add<bool>("selectHighPurity", false);
 
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel", edm::InputTag("gemSegments"));
