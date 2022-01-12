@@ -906,9 +906,9 @@ ALCARECOStreamPPSDiamondSampicTimingCalib = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOStreamPPSAlignment = cms.FilteredStream(
+ALCARECOStreamPromptCalibProdPPSAlignment = cms.FilteredStream(
 	responsible = 'Mateusz Kocot',
-	name = 'PPSAlignment',
+	name = 'PromptCalibProdPPSAlignment',
 	paths = (pathALCARECOPPSAlignment),
 	content = OutALCARECOPPSAlignment.outputCommands,
 	selectEvents = OutALCARECOPPSAlignment.SelectEvents,
