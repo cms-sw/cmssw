@@ -819,7 +819,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
 
   try {
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testOne", true);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testOne", 0, true);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test11");
       ps.registerIt();
@@ -829,7 +829,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("DepRecordProxyProviderWithData", "testTwo", true);
+      edm::eventsetup::ComponentDescription description("DepRecordProxyProviderWithData", "testTwo", 1, true);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test22");
       ps.addParameter<std::string>("appendToDataLabel", "blah");
@@ -966,7 +966,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
 
   try {
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testOne", true);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testOne", 0, true);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test11");
       ps.registerIt();
@@ -976,7 +976,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("DepRecordProxyProviderWithData", "testTwo", true);
+      edm::eventsetup::ComponentDescription description("DepRecordProxyProviderWithData", "testTwo", 1, true);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test22");
       ps.addParameter<std::string>("appendToDataLabel", "blah");
@@ -1130,7 +1130,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
 
   try {
     {
-      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testOne", true);
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider", "testOne", 0, true);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test11");
       ps.registerIt();
@@ -1140,7 +1140,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("DepRecordProxyProviderWithData", "testTwo", true);
+      edm::eventsetup::ComponentDescription description("DepRecordProxyProviderWithData", "testTwo", 1, true);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test22");
       ps.addParameter<std::string>("appendToDataLabel", "blah");
