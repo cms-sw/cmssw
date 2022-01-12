@@ -1,4 +1,5 @@
 #include "SimG4CMS/Forward/interface/BHMNumberingScheme.h"
+#include "SimG4CMS/Forward/interface/ForwardName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "globals.hh"
@@ -17,7 +18,7 @@ void BHMNumberingScheme::detectorLevel(const G4Step* aStep, int& level, int* cop
     const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
     for (int ii = 0; ii < level; ++ii) {
       int i = level - ii - 1;
-      name[ii] = touch->GetVolume(i)->GetName();
+      name[ii] = ForwardName::getName(touch->GetVolume(i)->GetName());
       copyno[ii] = touch->GetReplicaNumber(i);
     }
   }
