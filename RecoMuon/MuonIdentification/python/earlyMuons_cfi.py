@@ -17,7 +17,8 @@ earlyMuons = muons1stStep.clone(
     TrackAssociatorParameters = dict(
 	useHO   = False,
 	useEcal = False,
-	useHcal = False)
+	useHcal = False),
+    pvInputTag = "firstStepPrimaryVertices" #Not used, but needed to avoid circular dependency in schedule
 )
 earlyDisplacedMuons = earlyMuons.clone(
     inputCollectionLabels = ['earlyGeneralTracks','displacedStandAloneMuons:']
