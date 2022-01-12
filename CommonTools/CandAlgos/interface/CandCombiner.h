@@ -131,6 +131,7 @@ namespace reco {
       /// constructor from parameter settypedef
       explicit CandCombiner(const edm::ParameterSet& cfg)
           : CandCombinerBase(cfg),
+            combinerInit_(consumesCollector()),
             combiner_(reco::modules::make<Selector>(cfg, consumesCollector()),
                       reco::modules::make<PairSelector>(cfg),
                       Setup(cfg),
@@ -146,7 +147,7 @@ namespace reco {
     private:
       /// process an event
       void produce(edm::Event& evt, const edm::EventSetup& es) override {
-        Init::init(combiner_.setup(), evt, es);
+        combinerInit_.init(combiner_.setup(), evt, es);
         int n = labels_.size();
         std::vector<edm::Handle<CandidateView> > colls(n);
         for (int i = 0; i < n; ++i)
@@ -168,6 +169,7 @@ namespace reco {
         evt.put(std::move(out));
       }
       /// combiner utility
+      Init combinerInit_;
       ::CandCombiner<Selector, PairSelector, Cloner, OutputCollection, Setup> combiner_;
 
       RoleNames names_;
