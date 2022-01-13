@@ -12,6 +12,7 @@ TrackAlgoCompareUtil::TrackAlgoCompareUtil(const edm::ParameterSet& iConfig)
       trackingParticleLabel_effic(
           consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticleLabel_effic"))),
       beamSpotLabel(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotLabel"))),
+      magField(esConsumes()),
       UseAssociators(iConfig.getParameter<bool>("UseAssociators")),
       UseVertex(iConfig.getParameter<bool>("UseVertex")) {
   //now do what ever other initialization is needed
@@ -117,9 +118,7 @@ void TrackAlgoCompareUtil::produce(edm::StreamID, edm::Event& iEvent, const edm:
   std::vector<std::pair<reco::TrackBaseRef, double>> associatedRecoTracks;
 
   // Get the magnetic field data from the event (used to calculate the point of closest TrackingParticle)
-  edm::ESHandle<MagneticField> theMagneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagneticField);
-  const MagneticField* magneticField = theMagneticField.product();
+  const MagneticField* magneticField = &iSetup.getData(magField);
 
   // fill collection algoA
   for (View<reco::Track>::size_type i = 0; i < trackCollAlgoA->size(); ++i) {

@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -51,7 +51,7 @@
 // class decleration
 //
 
-class TestOutliers : public edm::EDAnalyzer {
+class TestOutliers : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit TestOutliers(const edm::ParameterSet &);
   ~TestOutliers() override;
@@ -59,6 +59,7 @@ public:
 private:
   void beginRun(edm::Run const &run, const edm::EventSetup &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endRun(edm::Run const &run, const edm::EventSetup &) override {}
   void endJob() override;
 
   // ----------member data ---------------------------
@@ -68,7 +69,10 @@ private:
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> theAssociatorOldToken;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> theAssociatorOutToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theGToken;
   edm::ESHandle<TrackerGeometry> theG;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTopoToken;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMFToken;
   std::string out;
   TFile *file;
   TH1F *histoPtOut, *histoPtOld;
@@ -128,6 +132,9 @@ TestOutliers::TestOutliers(const edm::ParameterSet &iConfig)
           iConfig.getUntrackedParameter<edm::InputTag>("TrackAssociatorByHitsOld"))),
       theAssociatorOutToken(consumes<reco::TrackToTrackingParticleAssociator>(
           iConfig.getUntrackedParameter<edm::InputTag>("TrackAssociatorByHitsOut"))),
+      theGToken(esConsumes<edm::Transition::BeginRun>()),
+      theTopoToken(esConsumes()),
+      theMFToken(esConsumes()),
       out(iConfig.getParameter<std::string>("out")) {
   LogTrace("TestOutliers") << "constructor";
   //   ParameterSet cuts = iConfig.getParameter<ParameterSet>("RecoTracksCuts");
@@ -154,8 +161,10 @@ TestOutliers::~TestOutliers() {
 // ------------ method called to for each event  ------------
 void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = iSetup.getHandle(theTopoToken);
+
+  theG = iSetup.getHandle(theGToken);
+  edm::ESHandle<MagneticField> theMF = iSetup.getHandle(theMFToken);
 
   using namespace edm;
   using namespace std;
@@ -400,8 +409,6 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
         histoPtOld->Fill(PtPullOld);
 
         //LogTrace("TestOutliers") << "MagneticField";
-        edm::ESHandle<MagneticField> theMF;
-        iSetup.get<IdealMagneticFieldRecord>().get(theMF);
         FreeTrajectoryState ftsAtProduction(
             GlobalPoint(tpr->vertex().x(), tpr->vertex().y(), tpr->vertex().z()),
             GlobalVector(assocTrack->momentum().x(), assocTrack->momentum().y(), assocTrack->momentum().z()),
@@ -932,7 +939,6 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void TestOutliers::beginRun(edm::Run const &run, const edm::EventSetup &es) {
-  es.get<TrackerDigiGeometryRecord>().get(theG);
   const bool oldAddDir = TH1::AddDirectoryStatus();
   TH1::AddDirectory(true);
   file = new TFile(out.c_str(), "recreate");
