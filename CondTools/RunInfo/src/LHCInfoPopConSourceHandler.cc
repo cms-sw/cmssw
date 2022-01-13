@@ -748,7 +748,7 @@ bool LHCInfoPopConSourceHandler::getEcalData(cond::persistency::Session& session
         dipVal = dipValAttribute.data<std::string>();
         elementNr = elementNrAttribute.data<unsigned int>();
         value = valueNumberAttribute.data<float>();
-        if (isnan(value))
+        if (std::isnan(value))
           value = 0.;
         if (filter.process(iovTime)) {
           iovMap.insert(std::make_pair(changeTime, filter.current()->first));
