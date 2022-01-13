@@ -30,15 +30,15 @@
  */
 
 namespace {
-    float sigmoid(float x) { return 1.0f / (1.0f + exp(-x)); }
+  float sigmoid(float x) { return 1.0f / (1.0f + exp(-x)); }
 
-    float logcorrection(float x) {
-        static float ln2 = log(2);
-        return ln2 * 2 * (sigmoid(x) - 0.5);
-    }
+  float logcorrection(float x) {
+    static float ln2 = log(2);
+    return ln2 * 2 * (sigmoid(x) - 0.5);
+  }
 
-    float correction(float x) { return exp(-logcorrection(x)); }
-}
+  float correction(float x) { return exp(-logcorrection(x)); }
+}  // namespace
 
 class SCEnergyCorrectorDRNProducer : public TritonEDProducer<> {
 public:
