@@ -23,6 +23,12 @@ TestTrackHits::TestTrackHits(const edm::ParameterSet& iConfig) : trackerHitAssoc
   tpName = iConfig.getParameter<std::string>("tpname");
   updatorName = iConfig.getParameter<std::string>("updator");
   out = iConfig.getParameter<std::string>("out");
+  theGToken = esConsumes<edm::Transition::BeginRun>();
+  theMFToken = esConsumes<edm::Transition::BeginRun>();
+  thePropagatorToken = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", propagatorName));
+  theBuilderToken = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", builderName));
+  theUpdatorToken = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", updatorName));
+  theTopoToken = esConsumes();
   //   ParameterSet cuts = iConfig.getParameter<ParameterSet>("RecoTracksCuts");
   //   selectRecoTracks = RecoTrackSelector(cuts.getParameter<double>("ptMin"),
   // 				       cuts.getParameter<double>("minRapidity"),
@@ -36,11 +42,11 @@ TestTrackHits::TestTrackHits(const edm::ParameterSet& iConfig) : trackerHitAssoc
 TestTrackHits::~TestTrackHits() {}
 
 void TestTrackHits::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
-  iSetup.get<TrackerDigiGeometryRecord>().get(theG);
-  iSetup.get<IdealMagneticFieldRecord>().get(theMF);
-  iSetup.get<TrackingComponentsRecord>().get(propagatorName, thePropagator);
-  iSetup.get<TransientRecHitRecord>().get(builderName, theBuilder);
-  iSetup.get<TrackingComponentsRecord>().get(updatorName, theUpdator);
+  theG = iSetup.getHandle(theGToken);
+  theMF = iSetup.getHandle(theMFToken);
+  thePropagator = iSetup.getHandle(thePropagatorToken);
+  theBuilder = iSetup.getHandle(theBuilderToken);
+  theUpdator = iSetup.getHandle(theUpdatorToken);
 
   file = new TFile(out.c_str(), "recreate");
   for (int i = 0; i != 6; i++)
@@ -253,8 +259,7 @@ void TestTrackHits::beginRun(edm::Run const& run, const edm::EventSetup& iSetup)
 
 void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = iSetup.getHandle(theTopoToken);
 
   LogDebug("TestTrackHits") << "new event";
   iEvent.getByLabel(srcName, trajCollectionHandle);
