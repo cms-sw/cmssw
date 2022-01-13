@@ -2150,7 +2150,7 @@ steps['ALCASPLITSIPIXELCAL']={'-s':'ALCAOUTPUT:SiPixelCalZeroBias,ALCA:PromptCal
                         #'--filein':'file:step2.root'
                         }
 
-steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSTimingCalib',
+steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalibProdPPSTimingCalib',
                         '--scenario':'pp',
                         '--data':'',
                         '--era':'Run2_2017',
@@ -2215,7 +2215,7 @@ steps['ALCAHARVDPPSCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPS']),
                         '--scenario':'pp',
                         '--data':'',
                         '--era':'Run2_2017',
-                        '--filein':'file:PPSTimingCalib.root'}
+                        '--filein':'file:ALCARECOStreamPromptCalibProdPPSTimingCalib.root'}
 
 steps['ALCAHARVDPPSALIG']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSAlig']),
                            '--conditions':'auto:run3_data_express',
