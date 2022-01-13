@@ -21,7 +21,7 @@
 #include <memory>
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -51,7 +51,7 @@
 //#include "PhysicsTools/RecoAlgos/interface/RecoTrackSelector.h"
 #include <sstream>
 
-class TestTrackHits : public edm::EDAnalyzer {
+class TestTrackHits : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit TestTrackHits(const edm::ParameterSet &);
   ~TestTrackHits() override;
@@ -59,6 +59,7 @@ public:
 private:
   void beginRun(edm::Run const &run, const edm::EventSetup &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endRun(edm::Run const &run, const edm::EventSetup &) override {}
   void endJob() override;
 
   std::pair<LocalPoint, LocalVector> projectHit(const PSimHit &, const StripGeomDetUnit *, const BoundPlane &);
@@ -94,6 +95,12 @@ private:
   edm::ESHandle<Propagator> thePropagator;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   edm::ESHandle<TrajectoryStateUpdator> theUpdator;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theGToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMFToken;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theBuilderToken;
+  edm::ESGetToken<TrajectoryStateUpdator, TrackingComponentsRecord> theUpdatorToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTopoToken;
   edm::Handle<reco::TrackToTrackingParticleAssociator> trackAssociator;
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
   edm::Handle<edm::View<reco::Track> > trackCollectionHandle;
