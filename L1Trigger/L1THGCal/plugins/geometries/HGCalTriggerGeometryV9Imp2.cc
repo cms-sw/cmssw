@@ -8,7 +8,7 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetIdToModule.h"
 
-#include "tbb/concurrent_unordered_set.h"
+#include "oneapi/tbb/concurrent_unordered_set.h"
 #include <fstream>
 #include <iostream>
 #include <regex>
