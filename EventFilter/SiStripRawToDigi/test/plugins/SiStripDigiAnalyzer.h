@@ -1,7 +1,9 @@
 #ifndef EventFilter_SiStripRawToDigi_test_AnalyzeSiStripDigis_H
 #define EventFilter_SiStripRawToDigi_test_AnalyzeSiStripDigis_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include <string>
 #include <sstream>
 #include <vector>
@@ -43,7 +45,7 @@ private:
   std::vector<uint16_t> adc_;
 };
 
-class SiStripDigiAnalyzer : public edm::EDAnalyzer {
+class SiStripDigiAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   SiStripDigiAnalyzer(const edm::ParameterSet&);
   ~SiStripDigiAnalyzer();
@@ -53,6 +55,7 @@ public:
   void endJob();
 
 private:
+  const edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> esTokenCabling_;
   std::string inputModuleLabel_;
 
   SiStripTrivialDigiAnalysis anal_;

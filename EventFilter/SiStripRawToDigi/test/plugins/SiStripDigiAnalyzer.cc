@@ -5,8 +5,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
@@ -64,7 +62,7 @@ void SiStripTrivialDigiAnalysis::print(stringstream& ss) {
 // -----------------------------------------------------------------------------
 //
 SiStripDigiAnalyzer::SiStripDigiAnalyzer(const edm::ParameterSet& pset)
-    : inputModuleLabel_(pset.getParameter<string>("InputModuleLabel")) {
+    : esTokenCabling_(esConsumes()), inputModuleLabel_(pset.getParameter<string>("InputModuleLabel")) {
   consumes<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "VirginRaw"));
   consumes<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "ProcessedRaw"));
   consumes<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "ScopeMode"));
@@ -119,8 +117,7 @@ void SiStripDigiAnalyzer::analyze(const edm::Event& event, const edm::EventSetup
                                   << " Analyzing run " << event.id().run() << " and event " << event.id().event();
 
   // Retrieve FED (reatout) and FEC (control) cabling
-  edm::ESHandle<SiStripFedCabling> fed_cabling;
-  setup.get<SiStripFedCablingRcd>().get(fed_cabling);
+  edm::ESHandle<SiStripFedCabling> fed_cabling = setup.getHandle(esTokenCabling_);
 
   // Retrieve "real" digis
   edm::Handle<edm::DetSetVector<SiStripRawDigi> > vr;

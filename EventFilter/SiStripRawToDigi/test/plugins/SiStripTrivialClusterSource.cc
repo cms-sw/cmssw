@@ -1,9 +1,7 @@
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialClusterSource.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 
 SiStripTrivialClusterSource::SiStripTrivialClusterSource(const edm::ParameterSet& pset)
-    :
-
+    : esTokenCabling_(esConsumes<edm::Transition::BeginRun>()),
       minocc_(pset.getUntrackedParameter<double>("MinOccupancy", 0.001)),
       maxocc_(pset.getUntrackedParameter<double>("MaxOccupancy", 0.03)),
       mincluster_(pset.getUntrackedParameter<unsigned int>("MinCluster", 4)),
@@ -16,10 +14,10 @@ SiStripTrivialClusterSource::SiStripTrivialClusterSource(const edm::ParameterSet
   produces<edm::DetSetVector<SiStripDigi>>();
 }
 
-SiStripTrivialClusterSource::~SiStripTrivialClusterSource() {}
+SiStripTrivialClusterSource::~SiStripTrivialClusterSource() = default;
 
 void SiStripTrivialClusterSource::beginRun(const edm::Run&, const edm::EventSetup& setup) {
-  setup.get<SiStripDetCablingRcd>().get(cabling_);
+  cabling_ = setup.getHandle(esTokenCabling_);
   cabling_->addAllDetectorsRawIds(detids_);
   for (unsigned int i = 0; i < detids_.size(); i++) {
     nstrips_ += cabling_->getConnections(detids_[i]).size() * 256;
