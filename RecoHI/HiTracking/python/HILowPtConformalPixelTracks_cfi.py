@@ -52,7 +52,7 @@ hiConformalPixelTracksPhase1TrackingRegions = globalTrackingRegionWithVertices.c
 	sigmaZVertex     = 3.0,
 	fixedError       = 0.2,
 	VertexCollection = "offlinePrimaryVertices",
-	ptMin            = 0.2,
+	ptMin            = 0.3,
 	useFoundVertices = True,
 	originRadius     = 0.2 
     )
@@ -107,7 +107,7 @@ hiConformalPixelTracksPhase1Filter = hiConformalPixelFilter.clone(
     nSigmaLipMaxTolerance = 3.0,
     nSigmaTipMaxTolerance = 3.0,
     ptMax  = 999999,
-    ptMin  = 0.20,
+    ptMin  = 0.30,
     tipMax = 999.0
 )
 
