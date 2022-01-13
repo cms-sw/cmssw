@@ -134,7 +134,7 @@ from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPPSTimingCalib_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPPSDiamondSampicTimingCalib_cff import *
 # Alignment
-from CalibPPS.AlignmentGlobal.ALCARECOPPSAlignment_cff import *
+from CalibPPS.AlignmentGlobal.ALCARECOPromptCalibProdPPSAlignment_cff import *
 
 ###############################################################
 # nonbeam alcas
