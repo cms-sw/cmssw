@@ -1,7 +1,7 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripTrivialClusterSource_H
 #define EventFilter_SiStripRawToDigi_SiStripTrivialClusterSource_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -11,6 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "TRandom.h"
 #include <vector>
 
@@ -22,7 +23,7 @@
     to test the final DigiToRaw and RawToDigi/RawToCluster converters.  
  */
 
-class SiStripTrivialClusterSource : public edm::EDProducer {
+class SiStripTrivialClusterSource : public edm::stream::EDProducer<> {
 public:
   SiStripTrivialClusterSource(const edm::ParameterSet&);
   ~SiStripTrivialClusterSource() override;
@@ -36,6 +37,9 @@ private:
 
   /** Add cluster to module */
   void addcluster(edm::DetSet<SiStripDigi>&, const uint16_t, const uint16_t);
+
+  /** token */
+  const edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> esTokenCabling_;
 
   /** Configurables */
   double minocc_;

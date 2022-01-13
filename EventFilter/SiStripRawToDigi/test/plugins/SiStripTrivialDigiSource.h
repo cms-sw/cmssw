@@ -1,8 +1,9 @@
-
 #ifndef EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H
 #define EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
 /**
     @file EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h
@@ -12,26 +13,20 @@
     number generators and attaches the collection to the Event. Allows
     to test the final DigiToRaw and RawToDigi converters.  
 */
-class SiStripTrivialDigiSource : public edm::EDProducer {
+class SiStripTrivialDigiSource : public edm::global::EDProducer<> {
 public:
   SiStripTrivialDigiSource(const edm::ParameterSet&);
   ~SiStripTrivialDigiSource();
 
-  virtual void beginJob() { ; }
-  virtual void endJob() { ; }
-
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  float meanOcc_;
-
-  float rmsOcc_;
-
-  int ped_;
-
-  bool raw_;
-
-  bool useFedKey_;
+  const edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> esTokenCabling_;
+  const float meanOcc_;
+  const float rmsOcc_;
+  const int ped_;
+  const bool raw_;
+  const bool useFedKey_;
 };
 
 #endif  // EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H
