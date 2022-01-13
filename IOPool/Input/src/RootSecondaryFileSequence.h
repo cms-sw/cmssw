@@ -35,10 +35,10 @@ namespace edm {
     RootSecondaryFileSequence(RootSecondaryFileSequence const&) = delete; // Disallow copying and moving
     RootSecondaryFileSequence& operator=(RootSecondaryFileSequence const&) = delete; // Disallow copying and moving
 
-    virtual void closeFile_() override;
     void endJob();
     void initAssociationsFromSecondary(std::set<BranchID> const&);
   private:
+    void closeFile_() override;
     virtual void initFile_(bool skipBadFiles) override;
     virtual RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override; 
 
