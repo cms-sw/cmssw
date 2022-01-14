@@ -139,8 +139,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         GlobalTrackingRegion region(mom_perp, vtx, 0.2, 0.2);
 
         seedCreator_.init(region, es, nullptr);
-
-        if (hits.size() == 4 and not includeFourthHit_)
+        if (hits.size() > 3 and not includeFourthHit_)
           seedCreator_.makeSeed(*result, {hits[0], hits[1], hits[2]});
         else
           seedCreator_.makeSeed(*result, hits);
