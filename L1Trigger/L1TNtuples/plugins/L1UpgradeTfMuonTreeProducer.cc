@@ -160,9 +160,10 @@ void L1UpgradeTfMuonTreeProducer::analyze(const edm::Event& iEvent, const edm::E
 
   l1UpgradeBmtf.Reset();
   l1UpgradeKBmtf.Reset();
-  l1UpgradeKBmtf.SetKalmanMuon();
+  l1UpgradeKBmtf.SetRun3Muons();
   l1UpgradeOmtf.Reset();
   l1UpgradeEmtf.Reset();
+  l1UpgradeEmtf.SetRun3Muons();
   l1UpgradeBmtfInputs.Reset();
 
   edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfMuon;
