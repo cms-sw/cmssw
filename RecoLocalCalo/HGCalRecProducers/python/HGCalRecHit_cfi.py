@@ -196,13 +196,8 @@ phase2_hgcalV10.toModify( HGCalRecHit , thicknessCorrection = [0.77, 0.77, 0.77,
 
 phase2_hfnose.toModify( HGCalRecHit , thicknessNoseCorrection = [0.58,0.58,0.58])
 
-#phase2_hgcalV12.toModify(HGCalRecHit, 
-#                         thicknessCorrection = [0.747, 0.755, 0.743, 0.853, 0.859, 0.847] , 
-#                         sciThicknessCorrection =  0.919, 
-#                         layerWeights = dEdX_v16.weights) 
-
 phase2_hgcalV12.toModify(HGCalRecHit, 
-                         thicknessCorrection = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0] , 
-                         sciThicknessCorrection =  1.0, 
+                         thicknessCorrection = [0.75, 0.76, 0.75, 0.85, 0.85, 0.84] , 
+                         sciThicknessCorrection =  0.69, 
                          layerWeights = dEdX_v16.weights) 
 
