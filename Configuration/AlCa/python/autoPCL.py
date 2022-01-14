@@ -10,6 +10,6 @@ autoPCL = {'PromptCalibProd' : 'BeamSpotByRun+BeamSpotByLumi',
            'PromptCalibProdEcalPedestals': 'EcalPedestals',
            'PromptCalibProdLumiPCC': 'LumiPCC',
            'PromptCalibProdPPS' : 'PPSTimingCalibration',
-           'PromptCalibProdPPSDiamondSampic' : 'PPSDiamondSampicTimingCalibration',
+           'PromptCalibProdPPSDiamondSampicTimingCalib' : 'PPSDiamondSampicTimingCalibration',
            'PromptCalibProdPPSAlig' : 'PPSAlignment'
            }
