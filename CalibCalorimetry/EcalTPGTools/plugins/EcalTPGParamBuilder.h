@@ -100,7 +100,7 @@ private:
   void computeFineGrainEBParameters(uint& lowRatio, uint& highRatio, uint& lowThreshold, uint& highThreshold, uint& lut);
   void computeFineGrainEEParameters(uint& threshold, uint& lut_strip, uint& lut_tower);
   int getEtaSlice(int tccId, int towerInTCC);
-  bool realignBaseline(linStruc& lin, float forceBase12);
+  bool realignBaseline(linStruc& lin, float forceBase12, int cmsswid);
   int getGCTRegionPhi(int ttphi);
   int getGCTRegionEta(int tteta);
   std::string getDet(int tcc);
@@ -129,6 +129,29 @@ private:
   unsigned int sampleMax_;
   double weight_timeShift_;
   bool weight_unbias_recovery_;
+  bool weight_even_computeFromShape_;
+  std::string weight_even_idMapFile_;
+  std::string weight_even_weightGroupFile_;
+  std::string weight_odd_idMapFile_;
+  std::string weight_odd_weightGroupFile_;
+  static constexpr uint NWEIGHTS = 5;  // It can be up to 6, but in Run 1,2,3 only 5 weights have been used
+
+  bool weight_useDoubleWeights_;
+  bool TPmode_EnableEBOddFilter_;
+  bool TPmode_EnableEEOddFilter_;
+  bool TPmode_EnableEBOddPeakFinder_;
+  bool TPmode_EnableEEOddPeakFinder_;
+  bool TPmode_DisableEBEvenPeakFinder_;
+  bool TPmode_DisableEEEvenPeakFinder_;
+  unsigned int TPmode_FenixEBStripOutput_;
+  unsigned int TPmode_FenixEEStripOutput_;
+  unsigned int TPmode_FenixEBStripInfobit2_;
+  unsigned int TPmode_FenixEEStripInfobit2_;
+  unsigned int TPmode_FenixEBTcpOutput_;
+  unsigned int TPmode_FenixEBTcpInfobit1_;
+  unsigned int TPmode_FenixEETcpOutput_;
+  unsigned int TPmode_FenixEETcpInfobit1_;
+
   unsigned int nSample_;
   unsigned int complement2_;
   std::string LUT_option_;
@@ -181,17 +204,20 @@ private:
   int fgr_conf_id_;
   int sli_conf_id_;
   int wei_conf_id_;
+  int wei2_conf_id_;
   int spi_conf_id_;  //modif-alex 21/01.11
   int del_conf_id_;  //modif-alex 21/01.11
   int bxt_conf_id_;
   int btt_conf_id_;
   int bst_conf_id_;
+  int coke_conf_id_;
   std::string tag_;
   int version_;
   int m_write_ped;
   int m_write_lin;
   int m_write_lut;
   int m_write_wei;
+  int m_write_wei2;
   int m_write_fgr;
   int m_write_sli;
   int m_write_spi;  //modif-alex 21/01/11
