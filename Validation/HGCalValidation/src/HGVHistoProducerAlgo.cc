@@ -1751,9 +1751,9 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     // This will store the fraction of the CaloParticle energy shared with the LayerCluster: e_shared/cp_energy
     std::unordered_map<unsigned, float> CPEnergyInLC;
 
-    for (unsigned int hitId = 0; hitId < numberOfHitsInLC; hitId++) {
-      const DetId rh_detid = hits_and_fractions[hitId].first;
-      const auto rhFraction = hits_and_fractions[hitId].second;
+    for (unsigned int iHit = 0; iHit < numberOfHitsInLC; iHit++) {
+      const DetId rh_detid = hits_and_fractions[iHit].first;
+      const auto rhFraction = hits_and_fractions[iHit].second;
 
       std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(rh_detid);
       const HGCRecHit* hit = itcheck->second;
@@ -1772,10 +1772,10 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       // MR Remove the case in which the fraction is 0, since this could be a
       // real hit that has been marked as halo.
       if (rhFraction == 0.) {
-        hitsToCaloParticleId[hitId] = -2;
+        hitsToCaloParticleId[iHit] = -2;
       }
       if (hit_find_in_CP == detIdToCaloParticleId_Map.end()) {
-        hitsToCaloParticleId[hitId] -= 1;
+        hitsToCaloParticleId[iHit] -= 1;
       } else {
         auto maxCPEnergyInLC = 0.f;
         auto maxCPId = -1;
@@ -1789,10 +1789,10 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
             maxCPId = iCP;
           }
         }
-        hitsToCaloParticleId[hitId] = maxCPId;
+        hitsToCaloParticleId[iHit] = maxCPId;
       }
       histograms.h_cellAssociation_perlayer.at(lcLayerId)->Fill(
-          hitsToCaloParticleId[hitId] > 0. ? 0. : hitsToCaloParticleId[hitId]);
+          hitsToCaloParticleId[iHit] > 0. ? 0. : hitsToCaloParticleId[iHit]);
     }  // End loop over hits on a LayerCluster
 
   }  // End of loop over LayerClusters
@@ -2676,24 +2676,24 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
     //layer cluster under study. If negative, there is no simhit from any CaloParticle related.
     //If positive, at least one CaloParticle has been found with matched simhit.
     //In more detail:
-    // 1. hitsToCaloParticleId[hitId] = -3
+    // 1. hitsToCaloParticleId[iHit] = -3
     //    TN:  These represent Halo Cells(N) that have not been
     //    assigned to any CaloParticle (hence the T).
-    // 2. hitsToCaloParticleId[hitId] = -2
+    // 2. hitsToCaloParticleId[iHit] = -2
     //    FN: There represent Halo Cells(N) that have been assigned
     //    to a CaloParticle (hence the F, since those should have not been marked as halo)
-    // 3. hitsToCaloParticleId[hitId] = -1
+    // 3. hitsToCaloParticleId[iHit] = -1
     //    FP: These represent Real Cells(P) that have not been
     //    assigned to any CaloParticle (hence the F, since these are fakes)
-    // 4. hitsToCaloParticleId[hitId] >= 0
+    // 4. hitsToCaloParticleId[iHit] >= 0
     //    TP There represent Real Cells(P) that have been assigned
     //    to a CaloParticle (hence the T)
     std::vector<int> hitsToCaloParticleId(numberOfHitsInTS);
 
     //Loop through the hits of the trackster under study
-    for (unsigned int hitId = 0; hitId < numberOfHitsInTS; hitId++) {
-      const auto rh_detid = tst_hitsAndFractions[hitId].first;
-      const auto rhFraction = tst_hitsAndFractions[hitId].second;
+    for (unsigned int iHit = 0; iHit < numberOfHitsInTS; iHit++) {
+      const auto rh_detid = tst_hitsAndFractions[iHit].first;
+      const auto rhFraction = tst_hitsAndFractions[iHit].second;
 
       const auto lcId_r = getLCId(tst.vertices(), layerClusters, rh_detid);
       const auto iLC_r = std::find(tst.vertices().begin(), tst.vertices().end(), lcId_r);
@@ -2731,7 +2731,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
       // MR Remove the case in which the fraction is 0, since this could be a
       // real hit that has been marked as halo.
       if (rhFraction == 0.) {
-        hitsToCaloParticleId[hitId] = -2;
+        hitsToCaloParticleId[iHit] = -2;
         numberOfHaloHitsInTS++;
       }
 
@@ -2740,7 +2740,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
       const auto recoFr = (i == 0) ? rhFraction : lcFraction_r;
       const auto& hit_find_in_STS = detIdSimTSId_Map.find(elemId);
       if (hit_find_in_STS == detIdSimTSId_Map.end()) {
-        hitsToCaloParticleId[hitId] -= 1;
+        hitsToCaloParticleId[iHit] -= 1;
       } else {
         // Since the hit is belonging to the layer cluster, it must be also in the rechits map
         const auto hitEn = hitMap.find(rh_detid)->second->energy();
@@ -2785,7 +2785,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
           }
         }
         //Keep in mind here maxCPId could be zero. So, below ask for negative not including zero to count noise.
-        hitsToCaloParticleId[hitId] = maxCPId;
+        hitsToCaloParticleId[iHit] = maxCPId;
       }
 
     }  //end of loop through rechits of the layer cluster.

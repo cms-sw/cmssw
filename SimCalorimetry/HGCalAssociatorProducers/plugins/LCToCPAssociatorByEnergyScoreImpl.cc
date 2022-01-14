@@ -374,8 +374,8 @@ hgcal::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
           if (findHitIt != detIdToCaloParticleId_Map[rh_detid].end())
             cpFraction = findHitIt->fraction;
         }
-        cpPair.second +=
-            std::pow(std::min(rhFraction - cpFraction, rhFraction), 2) * hitEnergyWeight * invLayerClusterEnergyWeight;
+        cpPair.second += std::min(std::pow(rhFraction - cpFraction, 2), std::pow(rhFraction, 2)) * hitEnergyWeight *
+                         invLayerClusterEnergyWeight;
       }  //End of loop over CaloParticles related the this LayerCluster.
     }    // End of loop over Hits within a LayerCluster
 #ifdef EDM_ML_DEBUG
@@ -446,8 +446,8 @@ hgcal::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
             if (findHitIt != detIdToLayerClusterId_Map[cp_hitDetId].end())
               lcFraction = findHitIt->fraction;
           }
-          lcPair.second.second +=
-              std::pow(std::min(lcFraction - cpFraction, cpFraction), 2) * hitEnergyWeight * invCPEnergyWeight;
+          lcPair.second.second += std::min(std::pow(lcFraction - cpFraction, 2), std::pow(cpFraction, 2)) *
+                                  hitEnergyWeight * invCPEnergyWeight;
 #ifdef EDM_ML_DEBUG
           LogDebug("LCToCPAssociatorByEnergyScoreImpl")
               << "cpDetId:\t" << (uint32_t)cp_hitDetId << "\tlayerClusterId:\t" << layerClusterId << "\t"
