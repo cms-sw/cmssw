@@ -381,8 +381,8 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
           if (findHitIt != detIdToSimClusterId_Map[rh_detid].end())
             scFraction = findHitIt->fraction;
         }
-        scPair.second +=
-            std::pow(std::min(rhFraction - scFraction, rhFraction), 2) * hitEnergyWeight * invLayerClusterEnergyWeight;
+        scPair.second += std::min(std::pow(rhFraction - scFraction, 2), std::pow(rhFraction, 2)) * hitEnergyWeight *
+                         invLayerClusterEnergyWeight;
 #ifdef EDM_ML_DEBUG
         LogDebug("LCToSCAssociatorByEnergyScoreImpl")
             << "rh_detid:\t" << (uint32_t)rh_detid << "\tlayerClusterId:\t" << lcId << "\t"
@@ -465,8 +465,8 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
             if (findHitIt != detIdToLayerClusterId_Map[sc_hitDetId].end())
               lcFraction = findHitIt->fraction;
           }
-          lcPair.second.second +=
-              std::pow(std::min(lcFraction - scFraction, scFraction), 2) * hitEnergyWeight * invSCEnergyWeight;
+          lcPair.second.second += std::min(std::pow(lcFraction - scFraction, 2), std::pow(scFraction, 2)) *
+                                  hitEnergyWeight * invSCEnergyWeight;
 #ifdef EDM_ML_DEBUG
           LogDebug("LCToSCAssociatorByEnergyScoreImpl")
               << "scDetId:\t" << (uint32_t)sc_hitDetId << "\tlayerClusterId:\t" << layerClusterId << "\t"
