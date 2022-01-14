@@ -132,7 +132,7 @@ from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
 # Timing calibration
 from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPromptCalibProdPPSTimingCalib_cff import *
-from CalibPPS.TimingCalibration.ALCARECOPPSDiamondSampicTimingCalib_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPromptCalibProdPPSDiamondSampicTimingCalib_cff import *
 # Alignment
 from CalibPPS.AlignmentGlobal.ALCARECOPromptCalibProdPPSAlignment_cff import *
 
@@ -244,7 +244,7 @@ pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps)
 pathALCARECOMuAlOverlapsGeneralTracks = cms.Path(seqALCARECOMuAlOverlapsGeneralTracks)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
 pathALCARECOPromptCalibProdPPSTimingCalib = cms.Path(taskALCARECOPromptCalibProdPPSTimingCalib)
-pathALCARECOPPSDiamondSampicTimingCalib = cms.Path(taskALCARECOPPSDiamondSampicTimingCalib)
+pathALCARECOPromptCalibProdPPSDiamondSampicTimingCalib = cms.Path(taskALCARECOPromptCalibProdPPSDiamondSampicTimingCalib)
 pathALCARECOPromptCalibProdPPSAlignment = cms.Path(taskALCARECOPromptCalibProdPPSAlignment)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHaloDQM)
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps)
@@ -897,12 +897,12 @@ ALCARECOStreamPromptCalibProdPPSTimingCalib = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 	
-ALCARECOStreamPPSDiamondSampicTimingCalib = cms.FilteredStream(
+ALCARECOStreamPromptCalibProdPPSDiamondSampicTimingCalib = cms.FilteredStream(
 	responsible = 'Christopher Misan',
-	name = 'PPSDiamondSampicTimingCalib',
-	paths  = (pathALCARECOPPSDiamondSampicTimingCalib),
-	content = OutALCARECOPPSDiamondSampicTimingCalib.outputCommands,
-	selectEvents = OutALCARECOPPSDiamondSampicTimingCalib.SelectEvents,
+	name = 'ALCARECOStreamPromptCalibProdPPSDiamondSampicTimingCalib',
+	paths  = (pathALCARECOPromptCalibProdPPSDiamondSampicTimingCalib),
+	content = OutALCARECOPromptCalibProdPPSDiamondSampicTimingCalib.outputCommands,
+	selectEvents = OutALCARECOPromptCalibProdPPSDiamondSampicTimingCalib.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
