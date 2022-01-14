@@ -38,6 +38,11 @@ public:
                               const std::map<EcalLogicID, FEConfigWeightDat>& lutdat,
                               int iovId,
                               std::string tag);
+  int writeToConfDB_TPGWeight_doubleWeights(const std::map<EcalLogicID, FEConfigOddWeightGroupDat>& lutgroupset,
+                                            const std::map<EcalLogicID, FEConfigOddWeightDat>& lutset,
+                                            const std::map<EcalLogicID, FEConfigOddWeightModeDat>& tpmode,
+                                            int ngr,
+                                            std::string tag);
   int writeToConfDB_TPGFgr(const std::map<EcalLogicID, FEConfigFgrGroupDat>& lutgroup,
                            const std::map<EcalLogicID, FEConfigFgrDat>& lutdat,
                            const std::map<EcalLogicID, FEConfigFgrParamDat>& fgrparamset,
@@ -59,11 +64,13 @@ public:
                             int fgr,
                             int sli,
                             int wei,
+                            int wei2,
                             int spi,
                             int tim,
                             int bxt,
                             int btt,
                             int bst,
+                            int cok,
                             std::string tag,
                             int ver);
 
