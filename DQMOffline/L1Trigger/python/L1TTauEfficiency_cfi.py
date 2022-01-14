@@ -33,5 +33,5 @@ l1tTauEfficiency = DQMEDHarvester(
 )
 
 l1tTauEmuEfficiency = l1tTauEfficiency.clone(
-    subDirs= ('L1TEMU/L1TObjects/L1TTau/L1TriggerVsReco',)
+    subDirs= ['L1TEMU/L1TObjects/L1TTau/L1TriggerVsReco']
 )
