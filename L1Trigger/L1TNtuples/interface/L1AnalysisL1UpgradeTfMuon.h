@@ -13,15 +13,15 @@ namespace L1Analysis {
     ~L1AnalysisL1UpgradeTfMuon();
     void Reset() {
       l1upgradetfmuon_.Reset();
-      isKalman_ = false;
+      isRun3_ = false;
     }
-    void SetKalmanMuon() { isKalman_ = true; }
+    void SetRun3Muons() { isRun3_ = true; }
     void SetTfMuon(const l1t::RegionalMuonCandBxCollection& muon, unsigned maxL1UpgradeTfMuon);
     L1AnalysisL1UpgradeTfMuonDataFormat* getData() { return &l1upgradetfmuon_; }
 
   private:
     L1AnalysisL1UpgradeTfMuonDataFormat l1upgradetfmuon_;
-    bool isKalman_{false};
+    bool isRun3_{false};
   };
 }  // namespace L1Analysis
 #endif
