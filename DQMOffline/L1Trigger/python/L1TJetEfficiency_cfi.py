@@ -26,7 +26,7 @@ l1tJetEfficiency = DQMEDHarvester(
 )
 
 l1tJetEmuEfficiency = l1tJetEfficiency.clone(
-    subDirs= ('L1TEMU/L1TObjects/L1TJet/L1TriggerVsReco',)
+    subDirs= ['L1TEMU/L1TObjects/L1TJet/L1TriggerVsReco']
 )
 
 # modifications for the pp reference run
