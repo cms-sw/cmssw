@@ -7,7 +7,7 @@
 ****************************************************************************/
 
 #include <memory>
-
+#include <numeric>
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "RecoPPS/Local/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
 
@@ -17,8 +17,10 @@ CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm(const e
     : ts_to_ns_(iConfig.getParameter<double>("timeSliceNs")),
       apply_calib_(iConfig.getParameter<bool>("applyCalibration")) {}
 
-void CTPPSDiamondRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibration& calib) {
+void CTPPSDiamondRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibration& calib,
+                                                         const PPSTimingCalibrationLUT& calibLUT) {
   calib_ = calib;
+  calibLUT_ = calibLUT;
   calib_fct_ = std::make_unique<reco::FormulaEvaluator>(calib_.formula());
 }
 
@@ -44,13 +46,23 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
     const float y_width = 2.0 * diamondDimensions.yHalfWidth;
     const float z_width = 2.0 * diamondDimensions.zHalfWidth;
 
-    // retrieve the timing calibration part for this channel
     const int sector = detid.arm(), station = detid.station(), plane = detid.plane(), channel = detid.channel();
+    //LUT calibration
+    std::vector<double> LUT;
+    if (apply_calib_) {
+      LUT = calibLUT_.bins(sector, station, plane, channel);
+      if (LUT.size() != 1024)
+        LUT = std::vector<double>(1024, 0.0);
+    } else
+      LUT = std::vector<double>(1024, 0.0);
+
+    // retrieve the timing calibration part for this channel
     const auto& ch_params = (apply_calib_) ? calib_.parameters(sector, station, plane, channel) : std::vector<double>{};
     // default values for offset + time precision if calibration object not found
     const double ch_t_offset = (apply_calib_) ? calib_.timeOffset(sector, station, plane, channel) : 0.;
     const double ch_t_precis = (apply_calib_) ? calib_.timePrecision(sector, station, plane, channel) : 0.;
 
+    //edm::LogWarning("RECO ")<< sector<<" "<<station<<" "<<plane<<" "<<channel;
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert(detid);
 
     for (const auto& digi : vec) {
@@ -74,8 +86,8 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
           (t_lead != 0) ? (t_lead - ch_t_offset / ts_to_ns_) / 1024 : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
 
       // calibrated time of arrival
-      const double t0 = (t_lead % 1024) * ts_to_ns_ - ch_t_twc;
-
+      const double t0 = (t_lead % 1024) * ts_to_ns_ + LUT[t_lead % 1024] - ch_t_twc;
+      //edm::LogWarning("t0 ")<<"t0 "<<LUT[t_lead % 1024];
       rec_hits.emplace_back(
           // spatial information
           x_pos,
