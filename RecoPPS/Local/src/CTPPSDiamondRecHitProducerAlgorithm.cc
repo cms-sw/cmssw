@@ -7,7 +7,6 @@
 ****************************************************************************/
 
 #include <memory>
-#include <numeric>
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "RecoPPS/Local/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
 
@@ -62,7 +61,6 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
     const double ch_t_offset = (apply_calib_) ? calib_.timeOffset(sector, station, plane, channel) : 0.;
     const double ch_t_precis = (apply_calib_) ? calib_.timePrecision(sector, station, plane, channel) : 0.;
 
-    //edm::LogWarning("RECO ")<< sector<<" "<<station<<" "<<plane<<" "<<channel;
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert(detid);
 
     for (const auto& digi : vec) {
@@ -87,7 +85,6 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
 
       // calibrated time of arrival
       const double t0 = (t_lead % 1024) * ts_to_ns_ + LUT[t_lead % 1024] - ch_t_twc;
-      //edm::LogWarning("t0 ")<<"t0 "<<LUT[t_lead % 1024];
       rec_hits.emplace_back(
           // spatial information
           x_pos,
