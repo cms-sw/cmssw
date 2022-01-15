@@ -7,13 +7,8 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 from Configuration.AlCa.autoCond import autoCond
 
 options = VarParsing.VarParsing()
-options.register('processId',
-                 '0',
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "Process Id")
 options.register('connectionString',
-                 'frontier://FrontierPrep/CMS_CONDITIONS',
+                 'sqlite:cms_conditions.db', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "CondDB Connection string")
@@ -22,18 +17,8 @@ options.register('tag',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "tag for record BeamSpotObjectsRcd")
-options.register('snapshotTime',
-                 '', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "GlobalTag snapshot time")
-options.register('refresh',
-                 0, #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "Refresh type: default no refresh")
 options.register('runNumber',
-                 120013, #default value, int limit -3
+                 250000, #default value, int limit -3
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Run number; default gives latest IOV")
@@ -57,11 +42,6 @@ options.register('messageLevel',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Message level; default to 0")
-options.register('security',
-                 '', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "FroNTier connection security: activate it with 'sig'")
 
 options.parseArguments()
 
@@ -72,61 +52,39 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     destinations = cms.untracked.vstring('cout')
                                     )
 
-CondDBParameters = cms.PSet( authenticationPath = cms.untracked.string( '' ),
+CondDBParameters = cms.PSet( authenticationPath = cms.untracked.string( '/build/gg/' ),
                              authenticationSystem = cms.untracked.int32( 0 ),
-                             messageLevel = cms.untracked.int32( 3 ),
-                             security = cms.untracked.string( options.security ),
+                             messageLevel = cms.untracked.int32( 1 ),
                              )
 
-refreshAlways, refreshOpenIOVs, refreshEachRun, reconnectEachRun = False, False, False, False
-if options.refresh == 0:
-    refreshAlways, refreshOpenIOVs, refreshEachRun, reconnectEachRun = False, False, False, False
-elif options.refresh == 1:
-    refreshAlways = True
-    refreshOpenIOVs, refreshEachRun, reconnectEachRun = False, False, False
-elif options.refresh == 2:
-    refreshAlways = False
-    refreshOpenIOVs = True
-    refreshEachRun, reconnectEachRun = False, False
-elif options.refresh == 3:
-    refreshAlways, refreshOpenIOVs = False, False
-    refreshEachRun = True
-    reconnectEachRun = False
-elif options.refresh == 4:
-    refreshAlways, refreshOpenIOVs, refreshEachRun = False, False, False
-    reconnectEachRun = True
 
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
                                   DBParameters = CondDBParameters,
                                   connect = cms.string( options.connectionString ),
-                                  snapshotTime = cms.string( options.snapshotTime ),
                                   frontierKey = cms.untracked.string('abcdefghijklmnopqrstuvwxyz0123456789'),
                                   toGet = cms.VPSet(cms.PSet(
                                       record = cms.string('BeamSpotObjectsRcd'),
                                       tag = cms.string( options.tag ),
                                       refreshTime = cms.uint64( 2 )
                                   )),
-                                  RefreshAlways = cms.untracked.bool( refreshAlways ),
-                                  RefreshOpenIOVs = cms.untracked.bool( refreshOpenIOVs ),
-                                  RefreshEachRun = cms.untracked.bool( refreshEachRun ),
-                                  ReconnectEachRun = cms.untracked.bool( reconnectEachRun ),
                                   DumpStat = cms.untracked.bool( True ),
                                   )
+
 
 process.source = cms.Source( "EmptySource",
                              firstRun = cms.untracked.uint32( options.runNumber ),
                              firstLuminosityBlock = cms.untracked.uint32( 1 ),
-                             numberEventsInRun = cms.untracked.uint32( options.eventsPerLumi *  options.numberOfLumis ), # options.numberOfLumis lumi sections per run
-                             numberEventsInLuminosityBlock = cms.untracked.uint32( options.eventsPerLumi )
+                             #firstTime = cms.untracked.uint64( 5401426372679696384 ), 
+                             #firstTime = cms.untracked.uint64( 5771327162577584128 ), 
+                             #timeBetweenEvents = cms.untracked.uint64( 429496729600 ),
+                             numberEventsInRun = cms.untracked.uint32( 240 ), # options.numberOfLumis lumi sections per run
+#                             numberEventsInRun = cms.untracked.uint32( options.eventsPerLumi *  options.numberOfLumis ), # options.numberOfLumis lumi sections per run
+                             numberEventsInLuminosityBlock = cms.untracked.uint32( 10 )
                              )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( options.eventsPerLumi *  options.numberOfLumis * options.numberOfRuns ) ) #options.numberOfRuns runs per job
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
 
-process.prod = cms.EDAnalyzer("LumiTestReadAnalyzer",
-                              processId = cms.untracked.string( options.processId ),
-                              pathForLastLumiFile = cms.untracked.string("last_lumi.txt"),
-                              pathForAllLumiFile = cms.untracked.string("./all_time.txt" ),
-                              pathForErrorFile = cms.untracked.string("./lumi_read_errors")
+process.prod = cms.EDAnalyzer("LumiTestWriteReadAnalyzer",
 )
 
 process.p = cms.Path( process.prod )
