@@ -16,9 +16,9 @@ L1TdeStage2RegionalShowerClient::L1TdeStage2RegionalShowerClient(const edm::Para
 L1TdeStage2RegionalShowerClient::~L1TdeStage2RegionalShowerClient() {}
 
 void L1TdeStage2RegionalShowerClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,
-                                                    DQMStore::IGetter &igetter,
-                                                    const edm::LuminosityBlock &lumiSeg,
-                                                    const edm::EventSetup &c) {
+                                                            DQMStore::IGetter &igetter,
+                                                            const edm::LuminosityBlock &lumiSeg,
+                                                            const edm::EventSetup &c) {
   book(ibooker);
   processHistograms(igetter);
 }
