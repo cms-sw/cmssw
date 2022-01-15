@@ -200,6 +200,8 @@
 	<class name="LHERunInfoProduct::Header" ClassVersion="10">
   <version ClassVersion="10" checksum="1310911082"/>
  </class>
+ <class name="LHEWeightInfoProduct"/>
+ <class name="LHEWeightProduct"/>
  <class name="LHEXMLStringProduct" ClassVersion="11">
   <version ClassVersion="10" checksum="4158740350"/>
   <version ClassVersion="11" checksum="3778311764"/>
@@ -228,8 +230,17 @@
  <class name="gen::WeightsInfo" ClassVersion="10">
   <version ClassVersion="10" checksum="2663143460"/>
  </class>
+ <class name="gen::WeightGroupInfo"/>
+ <class name="gen::PdfWeightGroupInfo"/>
+ <class name="gen::WeightMetaInfo"/>
  <class name="std::vector<gen::WeightsInfo>"/>
+ <class name="std::vector<gen::WeightGroupInfo>"/>
+ <class name="std::vector<gen::WeightGroupInfo*>"/>
+ <class name="edm::OwnVector<gen::WeightGroupInfo>"/>
+ <class name="edm::Wrapper<gen::WeightGroupInfo>"/>
 	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
+	<class name="edm::Wrapper&lt;LHEWeightInfoProduct&gt;"/>
+	<class name="edm::Wrapper&lt;LHEWeightProduct&gt;"/>
 	<class name="edm::Wrapper&lt;LHEEventProduct&gt;"/>
 
  <!--needed for backward compatibility between HepMC 2.06.xx and 2.05.yy-->
