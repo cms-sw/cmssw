@@ -26,7 +26,6 @@ phase2_common.toModify(
 
 pfPileUpJME = _pfPileUp.clone(PFCandidates='particleFlowPtrs',
                               Vertices = 'goodOfflinePrimaryVertices',
-                              checkClosestZVertex = False,
                               NumOfPUVtxsForCharged = primaryVertexAssociationJME.assignment.NumOfPUVtxsForCharged,
                               DzCutForChargedFromPUVtxs = primaryVertexAssociationJME.assignment.DzCutForChargedFromPUVtxs,
                               )

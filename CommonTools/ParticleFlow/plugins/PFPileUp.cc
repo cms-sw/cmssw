@@ -98,15 +98,11 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   fNumOfPUVtxsForCharged_ = iConfig.getParameter<unsigned int>("NumOfPUVtxsForCharged");
   fDzCutForChargedFromPUVtxs_ = iConfig.getParameter<double>("DzCutForChargedFromPUVtxs");
 
-  enable_ = iConfig.getParameter<bool>("Enable");
+  enable_ = iConfig.getParameter<bool>("enable");
 
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
 
-  if (iConfig.exists("checkClosestZVertex")) {
-    checkClosestZVertex_ = iConfig.getParameter<bool>("checkClosestZVertex");
-  } else {
-    checkClosestZVertex_ = false;
-  }
+  checkClosestZVertex_ = iConfig.getParameter<bool>("checkClosestZVertex");
 
   // Configure the algo
   pileUpAlgo_.setVerbose(verbose_);
@@ -205,9 +201,9 @@ void PFPileUp::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("PFCandidates", edm::InputTag("particleFlowTmpPtrs"));
   desc.add<edm::InputTag>("Vertices", edm::InputTag("offlinePrimaryVertices"));
-  desc.add<bool>("Enable", true);
+  desc.add<bool>("enable", true);
   desc.addUntracked<bool>("verbose", false);
-  desc.add<bool>("checkClosestZVertex", true);
+  desc.add<bool>("checkClosestZVertex", false);
   desc.add<bool>("useVertexAssociation", false);
   desc.add<int>("vertexAssociationQuality", 0);
   desc.add<edm::InputTag>("vertexAssociation", edm::InputTag(""));
