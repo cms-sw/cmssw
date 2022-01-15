@@ -10,6 +10,7 @@
 <use name="lhapdf"/>
 <use name="f77compiler"/>
 <use name="root"/>
+<use name="tinyxml2"/>
 <export>
   <lib name="1"/>
 </export>

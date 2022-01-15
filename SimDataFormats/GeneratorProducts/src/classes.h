@@ -9,8 +9,13 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/WeightGroupInfo.h"
-#include "SimDataFormats/GeneratorProducts/interface/LHEWeightInfoProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/LHEWeightProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/ScaleWeightGroupInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/UnknownWeightGroupInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/MEParamWeightGroupInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/PdfWeightGroupInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/PartonShowerWeightGroupInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenWeightInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenWeightProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEXMLStringProduct.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -30,14 +35,13 @@ namespace hepmc_rootio {
   void add_to_particles_in(HepMC::GenVertex*, HepMC::GenParticle*);
   void clear_particles_in(HepMC::GenVertex*);
 
-  inline void weightcontainer_set_default_names(unsigned int n, std::map<std::string,HepMC::WeightContainer::size_type>& names) {
-      std::ostringstream name;
-      for ( HepMC::WeightContainer::size_type count = 0; count<n; ++count ) 
-      { 
+  inline void weightcontainer_set_default_names(unsigned int n,
+                                                std::map<std::string, HepMC::WeightContainer::size_type>& names) {
+    std::ostringstream name;
+    for (HepMC::WeightContainer::size_type count = 0; count < n; ++count) {
       name.str(std::string());
       name << count;
       names[name.str()] = count;
-      }
+    }
   }
-}
-
+}  // namespace hepmc_rootio

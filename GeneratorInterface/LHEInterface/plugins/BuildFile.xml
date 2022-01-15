@@ -16,6 +16,7 @@
 	<flags EDM_PLUGIN="1"/>
 
 </library>
+<<<<<<< HEAD
 
 <library name="GeneratorInterfaceLHECOMWeightProducer" file="LHECOMWeightProducer.cc">
   <use name="FWCore/Framework"/>
@@ -23,3 +24,5 @@
   <use name="lhapdf"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+=======
+>>>>>>> bad6d6546e0... New WeightGroups, improved parsing with helper class
