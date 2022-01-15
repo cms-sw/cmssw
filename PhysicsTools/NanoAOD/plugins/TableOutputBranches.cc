@@ -13,10 +13,10 @@ void TableOutputBranches::defineBranchesFromFirstEvent(const nanoaod::FlatTable 
   for (size_t i = 0; i < tab.nColumns(); i++) {
     const std::string &var = tab.columnName(i);
     switch (tab.columnType(i)) {
-      case nanoaod::FlatTable::ColumnType::Float:
+      case (nanoaod::FlatTable::FloatColumn):
         m_floatBranches.emplace_back(var, tab.columnDoc(i), "F");
         break;
-      case nanoaod::FlatTable::ColumnType::Int:
+      case (nanoaod::FlatTable::IntColumn):
         m_intBranches.emplace_back(var, tab.columnDoc(i), "I");
         break;
       case nanoaod::FlatTable::ColumnType::Int8:
@@ -25,17 +25,9 @@ void TableOutputBranches::defineBranchesFromFirstEvent(const nanoaod::FlatTable 
       case nanoaod::FlatTable::ColumnType::UInt8:
         m_uint8Branches.emplace_back(var, tab.columnDoc(i), "b");
         break;
-      case nanoaod::FlatTable::ColumnType::Bool:
+      case (nanoaod::FlatTable::BoolColumn):
         m_uint8Branches.emplace_back(var, tab.columnDoc(i), "O");
         break;
-      case nanoaod::FlatTable::ColumnType::UInt32:
-        m_uint32Branches.emplace_back(var, tab.columnDoc(i), "i");
-        break;
-      case nanoaod::FlatTable::ColumnType::Double:
-        m_doubleBranches.emplace_back(var, tab.columnDoc(i), "D");
-        break;
-      default:
-        throw cms::Exception("LogicError", "Unsupported type");
     }
   }
 }
@@ -69,15 +61,12 @@ void TableOutputBranches::branch(TTree &tree) {
   }
 }
 
-void TableOutputBranches::fill(const edm::OccurrenceForOutput &iWhatever, TTree &tree, bool extensions) {
+void TableOutputBranches::fill(const nanoaod::FlatTable &tab, TTree &tree, bool extensions) {
   if (m_extension != DontKnowYetIfMainOrExtension) {
     if (extensions != m_extension)
       return;  // do nothing, wait to be called with the proper flag
   }
 
-  edm::Handle<nanoaod::FlatTable> handle;
-  iWhatever.getByToken(m_token, handle);
-  const nanoaod::FlatTable &tab = *handle;
   m_counter = tab.size();
   m_singleton = tab.singleton();
   if (!m_branchesBooked) {
@@ -103,8 +92,4 @@ void TableOutputBranches::fill(const edm::OccurrenceForOutput &iWhatever, TTree 
     fillColumn<int8_t>(pair, tab);
   for (auto &pair : m_uint8Branches)
     fillColumn<uint8_t>(pair, tab);
-  for (auto &pair : m_uint32Branches)
-    fillColumn<uint32_t>(pair, tab);
-  for (auto &pair : m_doubleBranches)
-    fillColumn<double>(pair, tab);
 }

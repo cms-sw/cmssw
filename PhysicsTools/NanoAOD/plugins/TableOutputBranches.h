@@ -4,31 +4,23 @@
 #include <string>
 #include <vector>
 #include <TTree.h>
-#include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 class TableOutputBranches {
 public:
-  TableOutputBranches(const edm::BranchDescription *desc, const edm::EDGetToken &token)
-      : m_token(token), m_extension(DontKnowYetIfMainOrExtension), m_branchesBooked(false) {
-    if (desc->className() != "nanoaod::FlatTable")
-      throw cms::Exception("Configuration", "NanoAODOutputModule can only write out nanoaod::FlatTable objects");
-  }
-
   void defineBranchesFromFirstEvent(const nanoaod::FlatTable &tab);
   void branch(TTree &tree);
 
   /// Fill the current table, if extensions == table.extension().
   /// This parameter is used so that the fill is called first for non-extensions and then for extensions
-  void fill(const edm::OccurrenceForOutput &iWhatever, TTree &tree, bool extensions);
+  void fill(const nanoaod::FlatTable &tab, TTree &tree, bool extensions);
 
 private:
-  edm::EDGetToken m_token;
   std::string m_baseName;
   bool m_singleton = false;
-  enum { IsMain = 0, IsExtension = 1, DontKnowYetIfMainOrExtension = 2 } m_extension;
+  enum { IsMain = 0, IsExtension = 1, DontKnowYetIfMainOrExtension = 2 } m_extension = DontKnowYetIfMainOrExtension;
   std::string m_doc;
   UInt_t m_counter;
   struct NamedBranchPtr {
@@ -45,9 +37,7 @@ private:
   std::vector<NamedBranchPtr> m_intBranches;
   std::vector<NamedBranchPtr> m_int8Branches;
   std::vector<NamedBranchPtr> m_uint8Branches;
-  std::vector<NamedBranchPtr> m_uint32Branches;
-  std::vector<NamedBranchPtr> m_doubleBranches;
-  bool m_branchesBooked;
+  bool m_branchesBooked = false;
 
   template <typename T>
   void fillColumn(NamedBranchPtr &pair, const nanoaod::FlatTable &tab) {

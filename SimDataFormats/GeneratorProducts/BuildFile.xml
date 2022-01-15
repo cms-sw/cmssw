@@ -5,6 +5,7 @@
 <use name="hepmc3"/>
 <use name="xz"/>
 <use name="roothistmatrix"/>
+<use name="lhapdf"/>
 <export>
   <lib name="1"/>
 </export>
