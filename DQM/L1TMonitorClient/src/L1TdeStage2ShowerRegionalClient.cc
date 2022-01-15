@@ -1,4 +1,4 @@
-#include "DQM/L1TMonitorClient/interface/L1TdeStage2ShowerClient.h"
+#include "DQM/L1TMonitorClient/interface/L1TdeStage2RegionalShowerClient.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -10,12 +10,12 @@
 using namespace edm;
 using namespace std;
 
-L1TdeStage2ShowerClient::L1TdeStage2ShowerClient(const edm::ParameterSet &ps)
+L1TdeStage2RegionalShowerClient::L1TdeStage2RegionalShowerClient(const edm::ParameterSet &ps)
     : monitorDir_(ps.getUntrackedParameter<string>("monitorDir")) {}
 
-L1TdeStage2ShowerClient::~L1TdeStage2ShowerClient() {}
+L1TdeStage2RegionalShowerClient::~L1TdeStage2RegionalShowerClient() {}
 
-void L1TdeStage2ShowerClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,
+void L1TdeStage2RegionalShowerClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,
                                                     DQMStore::IGetter &igetter,
                                                     const edm::LuminosityBlock &lumiSeg,
                                                     const edm::EventSetup &c) {
@@ -24,12 +24,12 @@ void L1TdeStage2ShowerClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,
 }
 
 //--------------------------------------------------------
-void L1TdeStage2ShowerClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
+void L1TdeStage2RegionalShowerClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
   book(ibooker);
   processHistograms(igetter);
 }
 
-void L1TdeStage2ShowerClient::book(DQMStore::IBooker &iBooker) {
+void L1TdeStage2RegionalShowerClient::book(DQMStore::IBooker &iBooker) {
   iBooker.setCurrentFolder(monitorDir_);
 
   emtfShowerDataSummary_eff_ = iBooker.book2D(
@@ -56,7 +56,7 @@ void L1TdeStage2ShowerClient::book(DQMStore::IBooker &iBooker) {
   emtfShowerEmulSummary_eff_->setBinLabel(4, "ME+ Tight", 2);
 }
 
-void L1TdeStage2ShowerClient::processHistograms(DQMStore::IGetter &igetter) {
+void L1TdeStage2RegionalShowerClient::processHistograms(DQMStore::IGetter &igetter) {
   MonitorElement *emtfShowerDataSummary_denom_ = igetter.get(monitorDir_ + "/emtf_shower_data_summary_denom");
   MonitorElement *emtfShowerDataSummary_num_ = igetter.get(monitorDir_ + "/emtf_shower_data_summary_num");
 
