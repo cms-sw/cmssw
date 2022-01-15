@@ -34,6 +34,13 @@ DQMOfflineHeavyIonsTrackerStrip = cms.Sequence( SiStripDQMTier0_hi )
 
 DQMOfflineHeavyIonsTrackerPixel = cms.Sequence( siPixelOfflineDQM_heavyions_source )
 
+#tnp modules are meant for pp collisions only (DT has separate cff for cosmics)
+if cscSources.contains(cscTnPEfficiencyMonitor):
+    cscSources.remove(cscTnPEfficiencyMonitor)
+
+if rpcTier0Source.contains(rpcTnPEfficiencyMonitor):
+    rpcTier0Source.remove(rpcTnPEfficiencyMonitor)
+
 DQMOfflineHeavyIonsMuonDPG = cms.Sequence( dtSources *
                                   rpcTier0Source *
                                   cscSources )

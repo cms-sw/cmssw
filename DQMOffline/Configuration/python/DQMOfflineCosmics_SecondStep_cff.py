@@ -25,6 +25,10 @@ DQMOfflineCosmics_SecondStepTrackerStrip = cms.Sequence( SiStripCosmicDQMClient 
 
 DQMOfflineCosmics_SecondStepTrackerPixel = cms.Sequence( PixelOfflineDQMClientNoDataCertification_cosmics )
 
+#tnp modules are meant for collisions only (DT and CSC have separate cff)
+if rpcTier0Client.contains(rpcTnPEfficiencyClient):
+    rpcTier0Client.remove(rpcTnPEfficiencyClient)
+
 DQMOfflineCosmics_SecondStepMuonDPG = cms.Sequence( dtClientsCosmics *
                                                     rpcTier0Client *
                                                     cscOfflineCosmicsClients )
