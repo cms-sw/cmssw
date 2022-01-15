@@ -52,6 +52,8 @@ namespace cond {
 
     Time_t tillTimeFromNextSince(Time_t nextSince, TimeType timeType);
 
+    Time_t tillTimeForIOV(Time_t since, unsigned int iovSize, TimeType timeType);
+
     Time_t lumiTime(unsigned int run, unsigned int lumiId);
 
     // conversion from framework types
