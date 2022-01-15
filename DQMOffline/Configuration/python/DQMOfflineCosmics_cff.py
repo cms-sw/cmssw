@@ -30,6 +30,13 @@ DQMOfflineCosmicsTrackerStrip = cms.Sequence( SiStripDQMTier0 )
 
 DQMOfflineCosmicsTrackerPixel = cms.Sequence( siPixelOfflineDQM_cosmics_source )
 
+#tnp modules are meant for collisions only (DT has separate cff for cosmics)
+if cscSources.contains(cscTnPEfficiencyMonitor):
+    cscSources.remove(cscTnPEfficiencyMonitor)
+
+if rpcTier0Source.contains(rpcTnPEfficiencyMonitor):
+    rpcTier0Source.remove(rpcTnPEfficiencyMonitor)
+
 DQMOfflineCosmicsMuonDPG = cms.Sequence( dtSourcesCosmics *
                                   rpcTier0Source *
                                   cscSources )
