@@ -868,12 +868,11 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
                                                    const HcalRespCorrs* respCorrs) {
   int nSave(0), nLoose(0), nTight(0);
   //Loop over tracks
-  std::vector<spr::propagatedGenParticleID>::const_iterator trkDetItr;
   unsigned int nTracks(0), nselTracks(0);
   t_nTrk = trackIDs.size();
   t_rhoh = (tower.isValid()) ? rhoh(tower) : 0;
-  for (trkDetItr = trackIDs.begin(), nTracks = 0; trkDetItr != trackIDs.end(); trkDetItr++, nTracks++) {
-    const reco::GenParticle* pTrack = &(*(trkDetItr->trkItr));
+  for (auto const& trkDetItr : trackIDs) {
+    const reco::GenParticle* pTrack = &(*(trkDetItr.trkItr));
     math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), pTrack->pz(), pTrack->p());
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << pTrack->pt() << "|"
@@ -891,8 +890,8 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
     edm::LogVerbatim("HcalIsoTrack") << "Closest L3 object at dr :" << t_mindR2 << " and from L1 " << t_mindR1;
 #endif
     t_ieta = t_iphi = 0;
-    if (trkDetItr->okHCAL) {
-      HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
+    if (trkDetItr.okHCAL) {
+      HcalDetId detId = (HcalDetId)(trkDetItr.detIdHCAL);
       t_ieta = detId.ieta();
       t_iphi = detId.iphi();
       if (t_p > 40.0 && t_p <= 60.0)
@@ -906,10 +905,10 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
     if (eIsolation < eIsolate2_)
       eIsolation = eIsolate2_;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << t_qltyFlag << "|" << trkDetItr->okECAL << "|"
-                                     << trkDetItr->okHCAL << " eIsolation " << eIsolation;
+    edm::LogVerbatim("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << t_qltyFlag << "|" << trkDetItr.okECAL << "|"
+                                     << trkDetItr.okHCAL << " eIsolation " << eIsolation;
 #endif
-    t_qltyFlag = (t_selectTk && trkDetItr->okECAL && trkDetItr->okHCAL);
+    t_qltyFlag = (t_selectTk && trkDetItr.okECAL && trkDetItr.okHCAL);
     bool notMuon = notaMuon(pTrack);
     if (t_qltyFlag && notMuon) {
       nselTracks++;
@@ -920,10 +919,10 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
       t_eMipDR = spr::eCone_ecal(geo,
                                  barrelRecHitsHandle,
                                  endcapRecHitsHandle,
-                                 trkDetItr->pointHCAL,
-                                 trkDetItr->pointECAL,
+                                 trkDetItr.pointHCAL,
+                                 trkDetItr.pointECAL,
                                  a_mipR_,
-                                 trkDetItr->directionECAL,
+                                 trkDetItr.directionECAL,
                                  eIds,
                                  eHit);
       double eEcal(0);
@@ -942,10 +941,10 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
       t_eMipDR2 = spr::eCone_ecal(geo,
                                   barrelRecHitsHandle,
                                   endcapRecHitsHandle,
-                                  trkDetItr->pointHCAL,
-                                  trkDetItr->pointECAL,
+                                  trkDetItr.pointHCAL,
+                                  trkDetItr.pointECAL,
                                   a_mipR2_,
-                                  trkDetItr->directionECAL,
+                                  trkDetItr.directionECAL,
                                   eIds2,
                                   eHit2);
       double eEcal2(0);
@@ -964,10 +963,10 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
       t_eMipDR3 = spr::eCone_ecal(geo,
                                   barrelRecHitsHandle,
                                   endcapRecHitsHandle,
-                                  trkDetItr->pointHCAL,
-                                  trkDetItr->pointECAL,
+                                  trkDetItr.pointHCAL,
+                                  trkDetItr.pointECAL,
                                   a_mipR3_,
-                                  trkDetItr->directionECAL,
+                                  trkDetItr.directionECAL,
                                   eIds3,
                                   eHit3);
       double eEcal3(0);
@@ -986,10 +985,10 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
       t_eMipDR4 = spr::eCone_ecal(geo,
                                   barrelRecHitsHandle,
                                   endcapRecHitsHandle,
-                                  trkDetItr->pointHCAL,
-                                  trkDetItr->pointECAL,
+                                  trkDetItr.pointHCAL,
+                                  trkDetItr.pointECAL,
                                   a_mipR4_,
-                                  trkDetItr->directionECAL,
+                                  trkDetItr.directionECAL,
                                   eIds4,
                                   eHit4);
       double eEcal4(0);
@@ -1008,10 +1007,10 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
       t_eMipDR5 = spr::eCone_ecal(geo,
                                   barrelRecHitsHandle,
                                   endcapRecHitsHandle,
-                                  trkDetItr->pointHCAL,
-                                  trkDetItr->pointECAL,
+                                  trkDetItr.pointHCAL,
+                                  trkDetItr.pointECAL,
                                   a_mipR5_,
-                                  trkDetItr->directionECAL,
+                                  trkDetItr.directionECAL,
                                   eIds5,
                                   eHit5);
       double eEcal5(0);
@@ -1026,7 +1025,7 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
       ////////////////////////////////-MIP STUFF-5/////////////////////////////
 
       t_emaxNearP = spr::chargeIsolationGenEcal(nTracks, trackIDs, geo, caloTopology, 15, 15);
-      const DetId cellE(trkDetItr->detIdECAL);
+      const DetId cellE(trkDetItr.detIdECAL);
       std::pair<double, bool> e11x11P = spr::eECALmatrix(cellE,
                                                          barrelRecHitsHandle,
                                                          endcapRecHitsHandle,
@@ -1059,7 +1058,7 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
         t_eAnnular = -(e15x15P.first - e11x11P.first);
       }
       t_hmaxNearP = spr::chargeIsolationGenCone(nTracks, trackIDs, a_charIsoR_, nNearTRKs, false);
-      const DetId cellH(trkDetItr->detIdHCAL);
+      const DetId cellH(trkDetItr.detIdHCAL);
       double h5x5 = spr::eHCALmatrix(
           theHBHETopology, cellH, hbhe, 2, 2, false, true, -100.0, -100.0, -100.0, -100.0, -100.0, 100.0);
       double h7x7 = spr::eHCALmatrix(
@@ -1083,10 +1082,10 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
         std::vector<double> edet0, edet1, edet3;
         t_eHcal = spr::eCone_hcal(geo,
                                   hbhe,
-                                  trkDetItr->pointHCAL,
-                                  trkDetItr->pointECAL,
+                                  trkDetItr.pointHCAL,
+                                  trkDetItr.pointECAL,
                                   a_coneR_,
-                                  trkDetItr->directionHCAL,
+                                  trkDetItr.directionHCAL,
                                   nRecHits,
                                   ids,
                                   edet0,
@@ -1100,10 +1099,10 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
         //----- hcal energy in the extended cone 1 (a_coneR+10) --------------
         t_eHcal10 = spr::eCone_hcal(geo,
                                     hbhe,
-                                    trkDetItr->pointHCAL,
-                                    trkDetItr->pointECAL,
+                                    trkDetItr.pointHCAL,
+                                    trkDetItr.pointECAL,
                                     a_coneR1_,
-                                    trkDetItr->directionHCAL,
+                                    trkDetItr.directionHCAL,
                                     nRecHits1,
                                     ids1,
                                     edet1,
@@ -1117,10 +1116,10 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
         //----- hcal energy in the extended cone 3 (a_coneR+30) --------------
         t_eHcal30 = spr::eCone_hcal(geo,
                                     hbhe,
-                                    trkDetItr->pointHCAL,
-                                    trkDetItr->pointECAL,
+                                    trkDetItr.pointHCAL,
+                                    trkDetItr.pointECAL,
                                     a_coneR2_,
-                                    trkDetItr->directionHCAL,
+                                    trkDetItr.directionHCAL,
                                     nRecHits3,
                                     ids3,
                                     edet3,
@@ -1199,6 +1198,7 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
         }
       }
     }
+    ++nTracks;
   }
   std::array<int, 3> i3{{nSave, nLoose, nTight}};
   return i3;
