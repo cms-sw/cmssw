@@ -19,7 +19,7 @@ from DQM.L1TMonitor.L1TStage2OMTF_cfi import *
 from DQM.L1TMonitor.L1TStage2EMTF_cfi import *
 
 # Shower
-from DQM.L1TMonitor.L1TStage2Shower_cfi import *
+from DQM.L1TMonitor.L1TStage2RegionalShower_cfi import *
 
 # uGMT
 from DQM.L1TMonitor.L1TStage2uGMT_cff import *
@@ -42,7 +42,7 @@ l1tStage2OnlineDQM = cms.Sequence(
     l1tStage2Emtf +
 # Do not include shower DQM module in the sequence because there is no EMTF shower unpacker (as of CMSSW_12_2_0_pre2).
 # It will be enabled once the EMTF shower unpacker is ready.
-#    l1tStage2Shower +  
+#    l1tStage2RegionalShower +  
     l1tStage2uGMTOnlineDQMSeq +
     l1tObjectsTiming +
     l1tStage2uGTOnlineDQMSeq

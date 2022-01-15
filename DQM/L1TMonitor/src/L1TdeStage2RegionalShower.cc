@@ -1,17 +1,17 @@
 #include <string>
 
-#include "DQM/L1TMonitor/interface/L1TdeStage2Shower.h"
+#include "DQM/L1TMonitor/interface/L1TdeStage2RegionalShower.h"
 
-L1TdeStage2Shower::L1TdeStage2Shower(const edm::ParameterSet& ps)
+L1TdeStage2RegionalShower::L1TdeStage2RegionalShower(const edm::ParameterSet& ps)
     : data_EMTFShower_token_(
           consumes<l1t::RegionalMuonShowerBxCollection>(ps.getParameter<edm::InputTag>("dataSource"))),
       emul_EMTFShower_token_(
           consumes<l1t::RegionalMuonShowerBxCollection>(ps.getParameter<edm::InputTag>("emulSource"))),
       monitorDir_(ps.getUntrackedParameter<std::string>("monitorDir")) {}
 
-L1TdeStage2Shower::~L1TdeStage2Shower() {}
+L1TdeStage2RegionalShower::~L1TdeStage2RegionalShower() {}
 
-void L1TdeStage2Shower::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run&, const edm::EventSetup&) {
+void L1TdeStage2RegionalShower::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run&, const edm::EventSetup&) {
   iBooker.setCurrentFolder(monitorDir_);
 
   // 2D summary plots
@@ -56,7 +56,7 @@ void L1TdeStage2Shower::bookHistograms(DQMStore::IBooker& iBooker, const edm::Ru
   emtfShowerEmulSummary_num_->setBinLabel(4, "ME+ Tight", 2);
 }
 
-void L1TdeStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
+void L1TdeStage2RegionalShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<l1t::RegionalMuonShowerBxCollection> dataShowers;
   edm::Handle<l1t::RegionalMuonShowerBxCollection> emulShowers;
 
