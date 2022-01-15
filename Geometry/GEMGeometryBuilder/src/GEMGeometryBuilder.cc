@@ -76,9 +76,10 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   }
   bool demonstratorGeometry = (nGE21 == 1) ? true : false;
 
-  #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? " << demonstratorGeometry;
-  #endif
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
+                               << demonstratorGeometry;
+#endif
 
   // Asking only for the MuonGEM's
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
@@ -127,8 +128,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     // the superchamber gets built but also we build on the first
     // layer for the other stations so the superchamber is in the
     // right position there.
-    if ((detIdCh.layer() == 1) ||
-        (detIdCh.layer() == 2 and detIdCh.station() == 2 and demonstratorGeometry)) {
+    if ((detIdCh.layer() == 1) || (detIdCh.layer() == 2 and detIdCh.station() == 2 and demonstratorGeometry)) {
       GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
       superChambers.push_back(gemSuperChamber);
     }
@@ -370,9 +370,10 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   }
 
   bool demonstratorGeometry = (nGE21 == 1) ? true : false;
-  #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? " << demonstratorGeometry;
-  #endif
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
+                               << demonstratorGeometry;
+#endif
 
   const cms::DDFilter filter(attribute, value);
   cms::DDFilteredView fv(*cview, filter);
@@ -412,8 +413,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
       }
     } else {
       if (fv.level() == levelChamb) {
-        if ((detId.layer() == 1) ||
-            (detId.layer() == 2 and detId.station() == 2 and demonstratorGeometry)) {
+        if ((detId.layer() == 1) || (detId.layer() == 2 and detId.station() == 2 and demonstratorGeometry)) {
           GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detId);
           superChambers.emplace_back(gemSuperChamber);
         }
