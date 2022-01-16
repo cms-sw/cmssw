@@ -33,7 +33,7 @@ namespace gen {
       weightType_ = WeightType::kPdfWeights;
     }
     PdfWeightGroupInfo(std::string header) : WeightGroupInfo(header) { weightType_ = WeightType::kPdfWeights; }
-    PdfWeightGroupInfo(const PdfWeightGroupInfo& other) { copy(other); }
+    PdfWeightGroupInfo(const PdfWeightGroupInfo& other) : WeightGroupInfo(other) { copy(other); }
     ~PdfWeightGroupInfo() override {}
     void copy(const PdfWeightGroupInfo& other);
     PdfWeightGroupInfo* clone() const override;

@@ -58,6 +58,7 @@ LHEWeightProductProducer::LHEWeightProductProducer(const edm::ParameterSet& iCon
   produces<GenWeightProduct>();
   produces<GenWeightInfoProduct, edm::Transition::BeginLuminosityBlock>();
   weightHelper_.setFailIfInvalidXML(iConfig.getUntrackedParameter<bool>("failIfInvalidXML", false));
+  weightHelper_.setfillEmptyIfWeightFails(iConfig.getUntrackedParameter<bool>("fillEmptyIfWeightFails", false));
   weightHelper_.setDebug(iConfig.getUntrackedParameter<bool>("debug", false));
   weightHelper_.setGuessPSWeightIdx(iConfig.getUntrackedParameter<bool>("guessPSWeightIdx", false));
 }
@@ -137,7 +138,7 @@ void LHEWeightProductProducer::beginLuminosityBlockProduce(edm::LuminosityBlock&
 
   auto weightInfoProduct = std::make_unique<GenWeightInfoProduct>();
   for (auto& weightGroup : weightHelper_.weightGroups()) {
-    weightInfoProduct->addWeightGroupInfo(std::unique_ptr<gen::WeightGroupInfo>(weightGroup.clone()));
+    weightInfoProduct->addWeightGroupInfo(weightGroup);
   }
   lumi.put(std::move(weightInfoProduct));
 }

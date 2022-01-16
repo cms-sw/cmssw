@@ -5,8 +5,10 @@ from PhysicsTools.NanoAOD.met_cff import metMCTable
 from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.particlelevel_cff import *
 from PhysicsTools.NanoAOD.lheInfoTable_cfi import *
+from PhysicsTools.NanoAOD.genWeights_cff import *
 from PhysicsTools.NanoAOD.genVertex_cff import *
 from PhysicsTools.NanoAOD.common_cff import Var,CandVars
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.genWeights_cff import *
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
@@ -64,13 +66,6 @@ def customizeNanoGENFromMini(process):
     process.nanogenSequence.insert(0, process.genParticles2HepMC)
     process.nanogenSequence.insert(0, process.mergedGenParticles)
 
-    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-    from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
-    from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-    from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
-    from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
-    from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
-
     (run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94X2016 | \
         run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | \
         run2_nanoAOD_102Xv1).toReplaceWith(nanogenSequence, nanogenSequence.copyAndExclude([genVertexTable, genVertexT0Table]))
@@ -117,9 +112,8 @@ def customizeNanoGEN(process):
 
 # Prune gen particles with tight conditions applied in usual NanoAOD
 def pruneGenParticlesNano(process):
-    process.finalGenParticles = finalGenParticles.clone()
-    process.genParticleTable.src = "prunedGenParticles"
-    process.patJetPartons.particles = "prunedGenParticles"
+    process.finalGenParticles.src = process.genParticleTable.src.getModuleLabel()
+    process.genParticleTable.src = "finalGenParticles"
     process.nanogenSequence.insert(0, process.finalGenParticles)
     return process
 
@@ -130,8 +124,9 @@ def pruneGenParticlesMini(process):
             "Use a different customization.")
     from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import prunedGenParticles
     process.prunedGenParticles = prunedGenParticles.clone()
+    process.prunedGenParticles.src = "genParticles"
     process.genParticleTable.src = "prunedGenParticles"
-    process.patJetPartons.particles = "prunedGenParticles"
+
     process.nanogenSequence.insert(0, process.prunedGenParticles)
     return process
 

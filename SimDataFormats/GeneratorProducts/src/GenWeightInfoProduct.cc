@@ -100,6 +100,6 @@ std::vector<int> GenWeightInfoProduct::weightGroupIndicesByType(gen::WeightType 
   return matchingGroupIndices;
 }
 
-void GenWeightInfoProduct::addWeightGroupInfo(std::unique_ptr<gen::WeightGroupInfo> info) {
-  weightGroupsInfo_.push_back(std::move(info));
+void GenWeightInfoProduct::addWeightGroupInfo(gen::WeightGroupInfo& info) {
+  weightGroupsInfo_.push_back(info.clone());
 }

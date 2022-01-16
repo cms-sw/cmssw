@@ -51,6 +51,7 @@ namespace gen {
       index++;
     }
     buildGroups();
-    printWeights();
+    if (debug_)
+      printWeights();
   }
 }  // namespace gen
