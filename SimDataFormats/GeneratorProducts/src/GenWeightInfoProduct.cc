@@ -11,8 +11,12 @@ GenWeightInfoProduct::GenWeightInfoProduct(std::vector<std::unique_ptr<gen::Weig
     std::unique_ptr<gen::WeightGroupInfo> cloneptr(ptr->clone());
     weightGroupsInfo_.emplace_back(std::move(cloneptr));
   }
-  auto it = std::find_if(std::begin(weightGroups), std::end(weightGroups), [](auto& entry) { return entry->name() == "unassociated"; });
-  unassociatedIdx_ = std::distance(std::begin(weightGroups), it);
+  auto it = std::find_if(std::begin(weightGroupsInfo_), std::end(weightGroupsInfo_), [](auto& entry) { return entry->name() == "unassociated"; });
+  if (it != std::end(weightGroupsInfo_)) {
+  	unassociatedIdx_ = std::distance(std::begin(weightGroupsInfo_), it);
+  }
+  else
+	unassociatedIdx_ = -1;
 }
 
 const std::vector<std::unique_ptr<gen::WeightGroupInfo>>& GenWeightInfoProduct::allWeightGroupsInfo() const {
@@ -50,10 +54,13 @@ const gen::WeightGroupInfo* GenWeightInfoProduct::orderedWeightGroupInfo(int wei
 std::vector<gen::WeightGroupData> GenWeightInfoProduct::weightGroupsAndIndicesByType(gen::WeightType type, int maxStore) const {
   std::vector<gen::WeightGroupData> matchingGroups;
   size_t toStore = maxStore <= 0 ? weightGroupsInfo_.size() : std::min<size_t>(maxStore, weightGroupsInfo_.size());
-  for (size_t i = 0; i < toStore; i++) {
+  for (size_t i = 0; i < weightGroupsInfo_.size(); i++) {
     const gen::WeightGroupInfo* group = weightGroupsInfo_[i].get();
-    if (group->weightType() == type)
+    if (group->weightType() == type) {
       matchingGroups.push_back({i, group});
+	  if (matchingGroups.size() == toStore)
+		break;
+	}
   }
   return matchingGroups;
 }

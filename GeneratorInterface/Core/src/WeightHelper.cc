@@ -4,13 +4,7 @@
 #include <regex>
 
 namespace gen {
-  WeightHelper::WeightHelper() { 
-      model_ = ""; 
-      gen::UnknownWeightGroupInfo unassoc("unassociated");
-      unassoc.setDescription("Weights with missing or invalid header meta data");
-      // Keep track separately so it can be modified within the event
-      unassociatedGroup_ = std::make_unique<gen::UnknownWeightGroupInfo>(unassoc);
-  }
+  WeightHelper::WeightHelper() {}
 
   bool WeightHelper::isScaleWeightGroup(const ParsedWeight& weight) const {
     return (weight.groupname.find("scale_variation") != std::string::npos ||

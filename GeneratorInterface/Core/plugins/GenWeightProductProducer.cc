@@ -5,7 +5,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/Framework/interface/Run.h"
@@ -27,12 +27,20 @@
 #include "FWCore/Utilities/interface/transform.h"
 #include <boost/algorithm/string.hpp>
 
-class GenWeightProductProducer : public edm::one::EDProducer<edm::BeginLuminosityBlockProducer> {
+struct GenWeightInfoProdData {
+	bool makeNewProduct;
+	GenWeightInfoProduct product;	
+};
+
+class GenWeightProductProducer : public edm::global::EDProducer<edm::BeginLuminosityBlockProducer,
+											edm::LuminosityBlockCache<GenWeightInfoProdData>> {
 public:
   explicit GenWeightProductProducer(const edm::ParameterSet& iConfig);
   ~GenWeightProductProducer() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void beginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const& c) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void globalBeginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const& c) const override;
+  std::shared_ptr<GenWeightInfoProdData> globalBeginLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const& c) const override;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const& c) const override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 private:
   gen::GenWeightHelper weightHelper_;
@@ -40,77 +48,72 @@ private:
   const edm::EDGetTokenT<GenEventInfoProduct> genEventToken_;
   std::vector<edm::EDGetTokenT<GenWeightInfoProduct>> weightInfoTokens_;
   const bool debug_;
-  bool foundWeightProduct_ = false;
   edm::EDPutTokenT<GenWeightInfoProduct> groupPutToken_;
   GenWeightInfoProduct weightsInfo_;
+  bool allowUnassociated_;
 };
 
-//
-// constructors and destructor
-//
 GenWeightProductProducer::GenWeightProductProducer(const edm::ParameterSet& iConfig)
     : genLumiInfoToken_(consumes<GenLumiInfoHeader, edm::InLumi>(iConfig.getParameter<edm::InputTag>("genInfo"))),
       genEventToken_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("genInfo"))),
       weightInfoTokens_(edm::vector_transform(iConfig.getParameter<std::vector<std::string>>("weightProductLabels"), 
           [this](const std::string& tag) { return mayConsume<GenWeightInfoProduct, edm::InLumi>(tag); })),
       debug_(iConfig.getUntrackedParameter<bool>("debug", false)),
-      groupPutToken_(produces<GenWeightInfoProduct, edm::Transition::BeginLuminosityBlock>()) {
+      groupPutToken_(produces<GenWeightInfoProduct, edm::Transition::BeginLuminosityBlock>()),
+	  allowUnassociated_(iConfig.getUntrackedParameter<bool>("allowUnassociatedWeights", false)) {
   weightHelper_.setDebug(debug_);
   produces<GenWeightProduct>();
   produces<GenWeightInfoProduct, edm::Transition::BeginLuminosityBlock>();
   weightHelper_.setGuessPSWeightIdx(iConfig.getUntrackedParameter<bool>("guessPSWeightIdx", false));
-  weightHelper_.setfillEmptyIfWeightFails(iConfig.getUntrackedParameter<bool>("fillEmptyIfWeightFails", false));
 }
 
 GenWeightProductProducer::~GenWeightProductProducer() {}
 
-// ------------ method called to produce the data  ------------
-void GenWeightProductProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void GenWeightProductProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // In case there is already a product in the file when this is scheduled
   // (leave the list of weightproducts empty if you always want to produce a new product)
-  if (foundWeightProduct_)
+  const auto& productInfo = *luminosityBlockCache(iEvent.getLuminosityBlock().index());
+  if (!productInfo.makeNewProduct)
     return;
 
   edm::Handle<GenEventInfoProduct> genEventInfo;
   iEvent.getByToken(genEventToken_, genEventInfo);
 
   float centralWeight = !genEventInfo->weights().empty() ? genEventInfo->weights().at(0) : 1.;
-  auto weightProduct = weightHelper_.weightProduct(weightsInfo_, genEventInfo->weights(), centralWeight);
+  auto weightProduct = weightHelper_.weightProduct(productInfo.product, genEventInfo->weights(), centralWeight);
   iEvent.put(std::move(weightProduct));
 }
 
-void GenWeightProductProducer::beginLuminosityBlockProduce(edm::LuminosityBlock& iLumi, edm::EventSetup const& iSetup) {
-  edm::Handle<GenWeightInfoProduct> weightInfoHandle;
+std::shared_ptr<GenWeightInfoProdData> GenWeightProductProducer::globalBeginLuminosityBlock(const edm::LuminosityBlock& iLumi, edm::EventSetup const& iSetup) const {
+  GenWeightInfoProdData productInfo;
 
+  edm::Handle<GenWeightInfoProduct> weightInfoHandle;
   for (auto& token : weightInfoTokens_) {
     iLumi.getByToken(token, weightInfoHandle);
     if (weightInfoHandle.isValid()) {
-      foundWeightProduct_ = true;
-      return;
+      productInfo.makeNewProduct = false;
+	  break;
     }
   }
 
   edm::Handle<GenLumiInfoHeader> genLumiInfoHandle;
   iLumi.getByToken(genLumiInfoToken_, genLumiInfoHandle);
 
-  //std::unique_ptr<GenWeightInfoProduct> weightInfoProduct = std::make_unique<GenWeightInfoProduct>();
-  std::unique_ptr<GenWeightInfoProduct> weightInfoProduct;
   if (genLumiInfoHandle.isValid()) {
-    std::string label = genLumiInfoHandle->configDescription();
-    boost::replace_all(label, "-", "_");
-    weightHelper_.setModel(label);
-    // Always add an unassociated group, which generally will not be filled
-    // TODO: control this with an argument?
-    auto weightGroups = weightHelper_.parseWeightGroupsFromNames(genLumiInfoHandle->weightNames(), true);
-    weightInfoProduct = std::make_unique<GenWeightInfoProduct>(weightGroups);
-    weightsInfo_ = *weightInfoProduct;
-  } else if (weightHelper_.fillEmptyIfWeightFails() && debug_) {
-    weightInfoProduct = std::make_unique<GenWeightInfoProduct>();
-  } else {
-    throw cms::Exception("GenWeightProductProducer")
-        << "genLumiInfoHeader not found, code is exiting." << std::endl
-        << "If this is expect and want to continue, set fillEmptyIfWeightFails to True";
-  }
+    auto weightGroups = weightHelper_.parseWeightGroupsFromNames(genLumiInfoHandle->weightNames(), allowUnassociated_);
+    productInfo.product = GenWeightInfoProduct(weightGroups);
+  } 
+  return std::make_shared<GenWeightInfoProdData>(productInfo);
+}
+
+void GenWeightProductProducer::globalBeginLuminosityBlockProduce(edm::LuminosityBlock& iLumi, edm::EventSetup const& iSetup) const {
+  edm::Handle<GenWeightInfoProduct> weightInfoHandle;
+
+  const auto& productInfo = *luminosityBlockCache(iLumi.index());
+  if (!productInfo.makeNewProduct)
+	return;
+
+  auto weightInfoProduct = std::make_unique<GenWeightInfoProduct>(productInfo.product);
   iLumi.emplace(groupPutToken_, std::move(weightInfoProduct));
 }
 
@@ -123,7 +126,7 @@ void GenWeightProductProducer::fillDescriptions(edm::ConfigurationDescriptions& 
         "If they are found, a new one won't be created. Leave this argument empty if you want to recreate new products regardless.");
   desc.addUntracked<bool>("debug", false)->setComment("Output debug info");
   desc.addUntracked<bool>("guessPSWeightIdx", false)->setComment("If not possible to parse text, guess the parton shower weight indices");
-  desc.addUntracked<bool>("fillEmptyIfWeightFails", false)->setComment("Produce an empty product if parsing of header fails");
+  desc.addUntracked<bool>("allowUnassociatedWeights", false)->setComment("Handle weights found in the event that aren't advertised in the weight header (otherwise throw exception)");
   descriptions.add("genWeights", desc);
 }
 

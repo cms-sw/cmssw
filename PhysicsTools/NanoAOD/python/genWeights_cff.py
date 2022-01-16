@@ -18,9 +18,10 @@ genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
     # must be lower case and 'PDF' must be capital                                                                        
     weightgroups = cms.vstring(['scale', 'PDF', 'matrix element', 'unknown', 'parton shower']),
     # Max number of groups to store for each type above, -1 ==> store all found                                           
-    maxGroupsPerType = cms.vint32([1, 1, -1, 2, -1]),
+    #maxGroupsPerType = cms.vint32([-1, -1, -1, -1, -1]),
+    maxGroupsPerType = cms.vint32([1, 1, -1, 1, 1]),
     # If empty or not specified, no criteria are applied to filter on LHAPDF IDs                                          
-    # pdfIds = cms.untracked.vint32([91400, 306000, 260000]),                                                              
+    #pdfIds = cms.untracked.vint32([91400, 306000, 260000]),                                                              
     unknownOnlyIfEmpty = cms.vstring(['scale', 'PDF']),
     keepAllPSWeights = cms.bool(False),
     # ignoreGenGroups = cms.untracked.bool(True),
