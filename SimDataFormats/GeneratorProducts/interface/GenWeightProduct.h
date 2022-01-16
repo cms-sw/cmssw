@@ -31,10 +31,10 @@ public:
   void setNumWeightSets(int num) { weightsVector_.resize(num); }
   void addWeightSet() { weightsVector_.push_back({}); }
   void addWeight(double weight, int setEntry, int weightNum) {
-    if (weightsVector_.size() == 0 && setEntry == 0)
+    if (weightsVector_.empty() && setEntry == 0)
       addWeightSet();
     if (static_cast<int>(weightsVector_.size()) <= setEntry)
-      throw std::domain_error("Out of range weight");
+      throw cms::Exception("GenWeightProduct") << "Trying to add weight index outside the range of weights expected";
     auto& weights = weightsVector_.at(setEntry);
     if (static_cast<int>(weights.size()) <= weightNum) {
       weights.resize(weightNum + 1);

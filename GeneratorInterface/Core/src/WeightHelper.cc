@@ -1,4 +1,5 @@
 #include "GeneratorInterface/Core/interface/WeightHelper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <regex>
 
 namespace gen {
@@ -19,7 +20,7 @@ namespace gen {
   bool WeightHelper::isPartonShowerWeightGroup(const ParsedWeight& weight) {
     const std::string& groupname = boost::to_lower_copy(weight.groupname);
     std::vector<std::string> psNames = {"isr", "fsr", "nominal", "baseline", "emission"};
-    for (auto name : psNames) {
+    for (const auto& name : psNames) {
       if (groupname.find(name) != std::string::npos)
         return true;
     }
@@ -86,10 +87,10 @@ namespace gen {
     try {
       muR = std::stof(muRText);
       muF = std::stof(muFText);
-    } catch (...) {
+    } catch (std::invalid_argument& e) {
       if (debug_)
         std::cout << "Tried to convert (" << muR << ", " << muF << ") to a int" << std::endl;
-      scaleGroup.setIsWellFormed(false);
+      scaleGroup.setWeightIsCorrupt();
       return;
       /// do something
     }
@@ -101,9 +102,9 @@ namespace gen {
       try {
         int dynNum = std::stoi(dynNumText);
         scaleGroup.setDyn(weight.index, weight.id, muR, muF, dynNum, dynType);
-      } catch (...) {
+      } catch (std::invalid_argument& e) {
         std::cout << "Tried to convert (" << dynNumText << ")  a int" << std::endl;
-        scaleGroup.setIsWellFormed(false);
+        scaleGroup.setWeightIsCorrupt();
         /// do something here
       }
     }
@@ -112,8 +113,8 @@ namespace gen {
       std::string lhaidText = searchAttributes("pdf", weight);
       try {
         scaleGroup.setLhaid(std::stoi(lhaidText));
-      } catch (...) {
-        scaleGroup.setLhaid(-2);
+      } catch (std::invalid_argument& e) {
+        scaleGroup.setLhaid(-1);
         // do something here
       }
     }
@@ -127,7 +128,7 @@ namespace gen {
       } catch (std::invalid_argument& e) {
         pdfGroup.setIsWellFormed(false);
       }
-    } else if (pdfGroup.lhaIds().size() > 0) {
+    } else if (!pdfGroup.lhaIds().empty()) {
       return pdfGroup.lhaIds().back() + 1;
     } else {
       return LHAPDF::lookupLHAPDFID(weight.groupname);
@@ -155,6 +156,13 @@ namespace gen {
     }
     // after setup parent info, add lhaid
     pdfGroup.addLhaid(lhaid);
+  }
+
+  void WeightHelper::updatePartonShowerInfo(gen::PartonShowerWeightGroupInfo& psGroup, const ParsedWeight& weight) {
+    if (psGroup.containedIds().size() == DEFAULT_PSWEIGHT_LENGTH)
+      psGroup.setIsWellFormed(true);
+    if (weight.content.find(':') != std::string::npos && weight.content.find('=') != std::string::npos)
+      psGroup.setNameIsPythiaSyntax(true);
   }
 
   bool WeightHelper::splitPdfWeight(ParsedWeight& weight) {
@@ -222,7 +230,7 @@ namespace gen {
     }
     int entry = !isUnassociated ? group.weightVectorEntry(name, weightNum) : group.nIdsContained();
     if (debug_)
-      std::cout << "Adding weight " << entry << " to group " << groupIndex << std::endl;
+      std::cout << "Adding weight " << entry << " to group " << groupIndex;
     product->addWeight(weight, groupIndex, entry);
     return groupIndex;
   }
@@ -239,7 +247,7 @@ namespace gen {
 
     // Fall back to unordered search
     int counter = 0;
-    for (auto weightGroup : weightGroups_) {
+    for (const auto& weightGroup : weightGroups_) {
       if (weightGroup.containsWeight(wgtId, weightIndex))
         return counter;
       counter++;
@@ -252,8 +260,6 @@ namespace gen {
   void WeightHelper::printWeights() {
     // checks
     for (auto& wgt : weightGroups_) {
-      if (!wgt.isWellFormed())
-        std::cout << "\033[1;31m";
       std::cout << std::boolalpha << wgt.name() << " (" << wgt.firstId() << "-" << wgt.lastId()
                 << "): " << wgt.isWellFormed() << std::endl;
       if (wgt.weightType() == gen::WeightType::kScaleWeights) {
@@ -284,18 +290,10 @@ namespace gen {
         std::cout << wgt.description() << "\n";
       } else if (wgt.weightType() == gen::WeightType::kPartonShowerWeights) {
         auto& wgtPS = dynamic_cast<gen::PartonShowerWeightGroupInfo&>(wgt);
-        if (wgtPS.containedIds().size() == DEFAULT_PSWEIGHT_LENGTH)
-          wgtPS.setIsWellFormed(true);
-
-        wgtPS.cacheWeightIndicesByLabel();
         std::vector<std::string> labels = wgtPS.weightLabels();
-        if (labels.size() > FIRST_PSWEIGHT_ENTRY && labels.at(FIRST_PSWEIGHT_ENTRY).find(":") != std::string::npos &&
-            labels.at(FIRST_PSWEIGHT_ENTRY).find("=") != std::string::npos) {
-          wgtPS.setNameIsPythiaSyntax(true);
-        }
+        wgtPS.cacheWeightIndicesByLabel();
+        wgtPS.printVariables();
       }
-      if (!wgt.isWellFormed())
-        std::cout << "\033[0m";
     }
   }
 
@@ -341,9 +339,10 @@ namespace gen {
       group.addContainedId(weight.index, weight.id, weight.content);
       if (group.weightType() == gen::WeightType::kScaleWeights)
         updateScaleInfo(dynamic_cast<gen::ScaleWeightGroupInfo&>(group), weight);
-      else if (group.weightType() == gen::WeightType::kPdfWeights) {
+      else if (group.weightType() == gen::WeightType::kPdfWeights)
         updatePdfInfo(dynamic_cast<gen::PdfWeightGroupInfo&>(group), weight);
-      }
+      else if (group.weightType() == gen::WeightType::kPartonShowerWeights)
+        updatePartonShowerInfo(dynamic_cast<gen::PartonShowerWeightGroupInfo&>(group), weight);
     }
     cleanupOrphanCentralWeight();
   }

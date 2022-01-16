@@ -12,9 +12,9 @@ namespace gen {
       weightType_ = WeightType::kMEParamWeights;
     }
     MEParamWeightGroupInfo(std::string header) : MEParamWeightGroupInfo(header, header) {}
-    virtual ~MEParamWeightGroupInfo() override {}
+    ~MEParamWeightGroupInfo() override {}
     void copy(const MEParamWeightGroupInfo& other);
-    virtual MEParamWeightGroupInfo* clone() const override;
+    MEParamWeightGroupInfo* clone() const override;
     int getCentralIndex() { return centralIdx; }
     int getVariationIndex(int sig) { return massValue.at(numSigma + sig).second; }
     double getVariationValue(int sig) { return massValue.at(numSigma + sig).first; }

@@ -16,12 +16,12 @@
 namespace gen {
   struct WeightGroupData {
     size_t index;
-    std::unique_ptr<gen::WeightGroupInfo> group;
+    std::unique_ptr<const gen::WeightGroupInfo> group;
   };
 
   struct SharedWeightGroupData {
     size_t index;
-    std::shared_ptr<gen::WeightGroupInfo> group;
+    std::shared_ptr<const gen::WeightGroupInfo> group;
   };
 }  // namespace gen
 
@@ -36,9 +36,9 @@ public:
   GenWeightInfoProduct& operator=(GenWeightInfoProduct&& other);
 
   const edm::OwnVector<gen::WeightGroupInfo>& allWeightGroupsInfo() const;
-  const std::unique_ptr<gen::WeightGroupInfo> containingWeightGroupInfo(int index) const;
-  const std::unique_ptr<gen::WeightGroupInfo> orderedWeightGroupInfo(int index) const;
-  std::vector<std::unique_ptr<gen::WeightGroupInfo>> weightGroupsByType(gen::WeightType type) const;
+  std::unique_ptr<const gen::WeightGroupInfo> containingWeightGroupInfo(int index) const;
+  std::unique_ptr<const gen::WeightGroupInfo> orderedWeightGroupInfo(int index) const;
+  std::vector<gen::WeightGroupData> weightGroupsByType(gen::WeightType type) const;
   std::vector<int> weightGroupIndicesByType(gen::WeightType type) const;
   std::vector<gen::WeightGroupData> weightGroupsAndIndicesByType(gen::WeightType type) const;
   std::optional<gen::WeightGroupData> pdfGroupWithIndexByLHAID(int lhaid) const;

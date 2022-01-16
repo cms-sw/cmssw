@@ -88,7 +88,7 @@ namespace gen {
     std::vector<std::string> weightLabels() const;
 
   protected:
-    bool isWellFormed_;
+    bool isWellFormed_ = false;
     std::string headerEntry_;
     std::string name_;
     std::string description_;

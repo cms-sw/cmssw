@@ -18,18 +18,20 @@ namespace gen {
   }
 
   WeightGroupInfo* WeightGroupInfo::clone() const {
-    throw cms::Exception("LogicError", "WeightGroupInfo is abstract, so it's clone() method can't be implemented.\n");
+    throw cms::Exception("WeightGroupInfo")
+        << "WeightGroupInfo is abstract, so it's clone() method can't be implemented.";
   }
 
   WeightMetaInfo WeightGroupInfo::weightMetaInfo(int weightEntry) const { return idsContained_.at(weightEntry); }
 
   WeightMetaInfo WeightGroupInfo::weightMetaInfoByGlobalIndex(std::string wgtId, int weightEntry) const {
-   if (wgtId.empty())
-       wgtId = std::to_string(weightEntry);
+    if (wgtId.empty())
+      wgtId = std::to_string(weightEntry);
     int entry = weightVectorEntry(wgtId, weightEntry);
     if (entry < 0 || entry >= static_cast<int>(idsContained_.size()))
-      throw std::range_error("Weight entry " + std::to_string(weightEntry) + " is not a member of group " + name_ +
-                             ". \n    firstID = " + std::to_string(firstId_) + " lastId = " + std::to_string(lastId_));
+      throw cms::Exception("WeightGroupInfo")
+          << "Weight entry " << std::to_string(weightEntry) << " is not a member of group " << name_
+          << ". \n    firstID = " << std::to_string(firstId_) << " lastId = " << std::to_string(lastId_);
     return idsContained_.at(entry);
   }
 
@@ -60,8 +62,8 @@ namespace gen {
   }
 
   void WeightGroupInfo::addContainedId(int weightEntry, std::string id, std::string label = "") {
-   if (id.empty())
-       id = std::to_string(weightEntry);
+    if (id.empty())
+      id = std::to_string(weightEntry);
 
     if (firstId_ == -1 || weightEntry < firstId_) {
       firstId_ = weightEntry;
@@ -75,9 +77,9 @@ namespace gen {
     WeightMetaInfo info = {static_cast<size_t>(weightEntry), localIndex, id, label};
     // logic to insert for all cases e.g. inserting in the middle of the vector
     if (localIndex == idsContained_.size())
-        idsContained_.emplace_back(info);
+      idsContained_.emplace_back(info);
     else
-        idsContained_.insert(idsContained_.begin() + localIndex, info);
+      idsContained_.insert(idsContained_.begin() + localIndex, info);
   }
 
   std::vector<WeightMetaInfo> WeightGroupInfo::containedIds() const { return idsContained_; }
@@ -85,8 +87,8 @@ namespace gen {
   bool WeightGroupInfo::indexInRange(int index) const { return (index <= lastId_ && index >= firstId_); }
 
   void WeightGroupInfo::cacheWeightIndicesByLabel() {
-      for (const auto& weight : idsContained_)
-        weightLabelsToIndices_[weight.label] = weight.localIndex;
+    for (const auto& weight : idsContained_)
+      weightLabelsToIndices_[weight.label] = weight.localIndex;
   }
 
   std::vector<std::string> WeightGroupInfo::weightLabels() const {
@@ -98,17 +100,17 @@ namespace gen {
   }
 
   int WeightGroupInfo::weightIndexFromLabel(std::string weightLabel) const {
-      if (!weightLabelsToIndices_.empty()) {
-        if (weightLabelsToIndices_.find(weightLabel) != weightLabelsToIndices_.end())
-            return static_cast<int>(weightLabelsToIndices_.at(weightLabel));
-        return -1;
-      }
-    
-      auto it = std::find_if(idsContained_.begin(), idsContained_.end(), 
-              [weightLabel](const auto& w) { return weightLabel == w.label; });
-      if (it == idsContained_.end())
-          return -1;
-      return std::distance(idsContained_.begin(), it);
+    if (!weightLabelsToIndices_.empty()) {
+      if (weightLabelsToIndices_.find(weightLabel) != weightLabelsToIndices_.end())
+        return static_cast<int>(weightLabelsToIndices_.at(weightLabel));
+      return -1;
+    }
+
+    auto it = std::find_if(
+        idsContained_.begin(), idsContained_.end(), [weightLabel](const auto& w) { return weightLabel == w.label; });
+    if (it == idsContained_.end())
+      return -1;
+    return std::distance(idsContained_.begin(), it);
   }
 
 }  // namespace gen

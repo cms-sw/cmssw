@@ -6,7 +6,9 @@
 <use name="stdcxx-fs"/>
 <library name="GeneratorInterfaceLHEProducer" file="LHEFilter.cc LHE2HepMCConverter.cc ExternalLHEProducer.cc ExternalLHEAsciiDumper.cc">
   <use name="FWCore/Framework"/>
+  <use name="FWCore/Concurrency"/>
   <use name="SimDataFormats/GeneratorProducts"/>
+  <use name="GeneratorInterface/Core"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 <library name="GeneratorInterfaceLHEIO" file="LH5Source.cc LHESource.cc LHEProvenanceHelper.cc LHEWriter.cc">
@@ -14,9 +16,7 @@
 	<use name="FWCore/Sources"/>
         <use name="SimDataFormats/GeneratorProducts"/>
 	<flags EDM_PLUGIN="1"/>
-
 </library>
-<<<<<<< HEAD
 
 <library name="GeneratorInterfaceLHECOMWeightProducer" file="LHECOMWeightProducer.cc">
   <use name="FWCore/Framework"/>
@@ -24,5 +24,3 @@
   <use name="lhapdf"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-=======
->>>>>>> bad6d6546e0... New WeightGroups, improved parsing with helper class
