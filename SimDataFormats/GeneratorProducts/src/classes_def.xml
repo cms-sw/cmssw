@@ -275,5 +275,6 @@
   <version ClassVersion="3" checksum="2860722409"/>
 </class>
 <class name="std::unordered_map<string,unsigned long>"/>
+<class name="std::unordered_map<unsigned long,vector<string> >"/>
 
 </lcgdict>

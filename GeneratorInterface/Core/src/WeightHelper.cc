@@ -359,9 +359,7 @@ namespace gen {
 
       int numGroups = static_cast<int>(weightGroups_.size());
       if (weight.wgtGroup_idx == numGroups) {
-        std::cout << "Building a group";
         weightGroups_.push_back(*buildGroup(weight));
-        std::cout << "The name is now " << weightGroups_[weightGroups_.size() - 1].name() << std::endl;
       } else if (weight.wgtGroup_idx >= numGroups)
         throw cms::Exception("Invalid group index " + std::to_string(weight.wgtGroup_idx));
 
