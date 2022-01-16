@@ -22,17 +22,17 @@ namespace gen {
         << "In group " << name_ << ": WeightGroupInfo is abstract, so it's clone() method can't be implemented.";
   }
 
-  const WeightMetaInfo& WeightGroupInfo::weightMetaInfo(int weightEntry) const { 
+  const WeightMetaInfo& WeightGroupInfo::weightMetaInfo(int weightEntry) const {
     if (weightEntry < 0 || weightEntry >= static_cast<int>(idsContained_.size()))
       throw cms::Exception("WeightGroupInfo")
           << "Local index " << std::to_string(weightEntry) << " is not within the range of group " << name_
           << " which has " << idsContained_.size() << " entries\n";
-    return idsContained_.at(weightEntry); 
+    return idsContained_.at(weightEntry);
   }
 
   const WeightMetaInfo& WeightGroupInfo::weightMetaInfoByGlobalIndex(int weightEntry) const {
-      std::string emptyLabel = "";
-      return weightMetaInfoByGlobalIndex(emptyLabel, weightEntry);
+    std::string emptyLabel = "";
+    return weightMetaInfoByGlobalIndex(emptyLabel, weightEntry);
   }
 
   const WeightMetaInfo& WeightGroupInfo::weightMetaInfoByGlobalIndex(std::string& wgtId, int weightEntry) const {
@@ -66,8 +66,9 @@ namespace gen {
       }
     }
     // Fall back to global search on ID or global index
-    auto it = std::find_if(idsContained_.begin(), idsContained_.end(), [wgtId, weightEntry](const WeightMetaInfo& w) 
-                { return wgtId.empty() ? static_cast<int>(w.globalIndex) == weightEntry : w.id == wgtId; });
+    auto it = std::find_if(idsContained_.begin(), idsContained_.end(), [wgtId, weightEntry](const WeightMetaInfo& w) {
+      return wgtId.empty() ? static_cast<int>(w.globalIndex) == weightEntry : w.id == wgtId;
+    });
     if (it != idsContained_.end())
       return std::distance(idsContained_.begin(), it);
     return -1;

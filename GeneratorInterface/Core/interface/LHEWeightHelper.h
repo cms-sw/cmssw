@@ -22,13 +22,16 @@ namespace gen {
     LHEWeightHelper() : WeightHelper(){};
 
     enum class ErrorType { Empty, SwapHeader, HTMLStyle, NoWeightGroup, TrailingStr, Unknown, NoError };
-	const std::unordered_map<ErrorType, std::string> errorTypeAsString_ = {
-		{ErrorType::Empty, "Empty header"}, {ErrorType::SwapHeader, "Header info out of order" }, 
-		{ErrorType::HTMLStyle, "Header is invalid HTML"}, {ErrorType::TrailingStr, "Header has extraneous info"}, 
-		{ErrorType::Unknown, "Unregonized error"}, {ErrorType::NoError, "No error here!"}
-	};
+    const std::unordered_map<ErrorType, std::string> errorTypeAsString_ = {
+        {ErrorType::Empty, "Empty header"},
+        {ErrorType::SwapHeader, "Header info out of order"},
+        {ErrorType::HTMLStyle, "Header is invalid HTML"},
+        {ErrorType::TrailingStr, "Header has extraneous info"},
+        {ErrorType::Unknown, "Unregonized error"},
+        {ErrorType::NoError, "No error here!"}};
 
-    std::vector<std::unique_ptr<gen::WeightGroupInfo>> parseWeights(std::vector<std::string> headerLines, bool addUnassociated) const;
+    std::vector<std::unique_ptr<gen::WeightGroupInfo>> parseWeights(std::vector<std::string> headerLines,
+                                                                    bool addUnassociated) const;
     bool isConsistent(const std::string& fullHeader) const;
     void swapHeaders(std::vector<std::string>& headerLines) const;
     void setFailIfInvalidXML(bool value) { failIfInvalidXML_ = value; }

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-from  PhysicsTools.NanoAOD.common_cff import *
-
+from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.lheInfoTable_cfi import lheInfoTable
 
 
 ##################### User floats producers, selectors ##########################
@@ -170,11 +170,7 @@ HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
    )
 )
 
-lheInfoTable = cms.EDProducer("LHETablesProducer",
-     lheInfo = cms.VInputTag(cms.InputTag("externalLHEProducer"), cms.InputTag("source")),
-     precision = cms.int32(14),
-     storeLHEParticles = cms.bool(True)
- )
+lheInfoTable.storeLHEParticles = True
 
 particleLevelTask = cms.Task(mergedGenParticles,genParticles2HepMC,particleLevel,tautagger,genParticles2HepMCHiggsVtx,rivetProducerHTXS)
 particleLevelTablesTask = cms.Task(rivetLeptonTable,rivetPhotonTable,rivetMetTable,HTXSCategoryTable,lheInfoTable)

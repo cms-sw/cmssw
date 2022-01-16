@@ -1,7 +1,5 @@
 from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.NanoAOD.jets_cff import *
-from PhysicsTools.NanoAOD.globals_cff import genTable
-from PhysicsTools.NanoAOD.jetMC_cff import *
 from PhysicsTools.NanoAOD.globals_cff import genTable,genFilterTable
 from PhysicsTools.NanoAOD.met_cff import metMCTable
 from PhysicsTools.NanoAOD.genparticles_cff import *
@@ -17,35 +15,6 @@ nanoMetadata = cms.EDProducer("UniqueStringProducer",
 )
 
 nanogenSequence = cms.Sequence(
-<<<<<<< HEAD
-    nanoMetadata+
-    particleLevel+
-    genJetTable+
-    patJetPartons+
-    genJetFlavourAssociation+
-    genJetFlavourTable+
-    genJetAK8Table+
-    genJetAK8FlavourAssociation+
-    genJetAK8FlavourTable+
-    tauGenJets+
-    tauGenJetsSelectorAllHadrons+
-    genVisTaus+
-    genVisTauTable+
-    genTable+
-    genFilterTable+
-    cms.Sequence(genParticleTablesTask)+
-    cms.Sequence(genVertexTablesTask)+
-    genWeightsTable+
-    lheWeightsTable+
-    genParticleTables+
-    genVertexTables+
-    tautagger+
-    rivetProducerHTXS+
-    particleLevelTables+
-    metMCTable+
-    genWeightsTables+
-    lheInfoTable
-=======
     nanoMetadata
     +cms.Sequence(particleLevelTask)
     +genJetTable
@@ -57,6 +26,7 @@ nanogenSequence = cms.Sequence(
     +genJetAK8FlavourTable
     +cms.Sequence(genTauTask)
     +genTable
+    +genFilterTable
     +cms.Sequence(genParticleTablesTask)
     +cms.Sequence(genVertexTablesTask)
     +tautagger
@@ -64,7 +34,6 @@ nanogenSequence = cms.Sequence(
     +cms.Sequence(particleLevelTablesTask)
     +metMCTable
     +cms.Sequence(genWeightsTableTask)
->>>>>>> Allow gen products to run at GEN step or Nano
 )
 
 def nanoGenCommonCustomize(process):
