@@ -56,6 +56,7 @@ VertexSmearing = cms.Sequence(cms.SequencePlaceholder("VtxSmeared"))
 GenSmeared = cms.Sequence(generatorSmeared)
 GeneInfo = cms.Sequence(GeneInfoTask)
 genWeightsSeq = cms.Sequence(genWeights*lheWeights)
+genWeights.allowUnassociatedWeights = True # This should be off, but needed until Pythia bug is fixed
 genJetMET = cms.Sequence(genJetMETTask)
 
 from SimPPS.Configuration.GenPPS_cff import *

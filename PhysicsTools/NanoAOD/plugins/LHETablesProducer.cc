@@ -187,7 +187,8 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::vector<edm::InputTag>>("lheInfo", std::vector<edm::InputTag>{{"externalLHEProducer"}, {"source"}})
+    desc.add<std::vector<edm::InputTag>>(
+            "lheInfo", std::vector<edm::InputTag>{{"lheWeights"}, {"externalLHEProducer"}, {"source"}})
         ->setComment("tag(s) for the LHE information (LHEEventProduct)");
     desc.add<int>("precision", -1)->setComment("precision on the 4-momenta of the LHE particles");
     desc.add<bool>("storeLHEParticles", false)

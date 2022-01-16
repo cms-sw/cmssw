@@ -32,7 +32,9 @@ namespace gen {
     WeightHelper();
 
     template <typename T>
-    std::unique_ptr<GenWeightProduct> weightProduct(const GenWeightInfoProduct& weightsInfo, std::vector<T> weights, float w0) const;
+    std::unique_ptr<GenWeightProduct> weightProduct(const GenWeightInfoProduct& weightsInfo,
+                                                    std::vector<T> weights,
+                                                    float w0) const;
 
     void setGuessPSWeightIdx(bool guessPSWeightIdx) {
       PartonShowerWeightGroupInfo::setGuessPSWeightIdx(guessPSWeightIdx);
@@ -42,8 +44,7 @@ namespace gen {
       unassoc.setDescription("Weights with missing or invalid header meta data");
       weightGroups.push_back(std::make_unique<gen::UnknownWeightGroupInfo>(unassoc));
     }
-    int addWeightToProduct(
-        GenWeightProduct& product, double weight, std::string name, int weightNum, int groupIndex);
+    int addWeightToProduct(GenWeightProduct& product, double weight, std::string name, int weightNum, int groupIndex);
     void setDebug(bool value) { debug_ = value; }
 
   protected:
@@ -87,20 +88,21 @@ namespace gen {
   };
 
   template <typename T>
-  std::unique_ptr<GenWeightProduct> WeightHelper::weightProduct(
-        const GenWeightInfoProduct& weightsInfo, std::vector<T> weights, float w0) const {
+  std::unique_ptr<GenWeightProduct> WeightHelper::weightProduct(const GenWeightInfoProduct& weightsInfo,
+                                                                std::vector<T> weights,
+                                                                float w0) const {
     auto weightProduct = std::make_unique<GenWeightProduct>(w0);
     weightProduct->setNumWeightSets(weightsInfo.numberOfGroups());
     gen::WeightGroupData groupData = {0, nullptr};
     int i = 0;
     // size=1 happens if there are no PS weights, so the weights vector contains only the central GEN weight.
     if (weights.size() > 1) {
-	  // This gets remade every event to avoid having state-dependence in the helper class
-	  // could think about doing caching instead
+      // This gets remade every event to avoid having state-dependence in the helper class
+      // could think about doing caching instead
       int unassociatedIdx = weightsInfo.unassociatedIdx();
-	  std::unique_ptr<gen::UnknownWeightGroupInfo> unassociatedGroup; 
+      std::unique_ptr<gen::UnknownWeightGroupInfo> unassociatedGroup;
       if (unassociatedIdx != -1)
-	  	unassociatedGroup = std::make_unique<gen::UnknownWeightGroupInfo>("unassociated");
+        unassociatedGroup = std::make_unique<gen::UnknownWeightGroupInfo>("unassociated");
       for (const auto& weight : weights) {
         double wgtval;
         std::string wgtid;
@@ -115,7 +117,7 @@ namespace gen {
           groupData = weightsInfo.containingWeightGroupInfo(i, groupData.index);
         } catch (const cms::Exception& e) {
           if (unassociatedIdx == -1)
-              throw e;
+            throw e;
           if (debug_) {
             std::cout << "WARNING: " << e.what() << std::endl;
           }
@@ -127,12 +129,13 @@ namespace gen {
 
         // TODO: is this too slow?
         if (debug_)
-          std::cout << "Adding weight num " << i << " EntryNum " << entry << " to group " << groupData.index << std::endl;
+          std::cout << "Adding weight num " << i << " EntryNum " << entry << " to group " << groupData.index
+                    << std::endl;
         weightProduct->addWeight(wgtval, groupData.index, entry);
         i++;
       }
     }
-  return weightProduct;
+    return weightProduct;
   }
 }  // namespace gen
 

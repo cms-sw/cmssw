@@ -5,7 +5,7 @@
 #include <string>
 namespace genCounter {
 
-  void mergeSumVectors(std::vector<long double>& v1, std::vector<long double> const& v2) {
+  inline void mergeSumVectors(std::vector<long double>& v1, std::vector<long double> const& v2) {
     if (v1.empty() && !v2.empty())
       v1.resize(v2.size(), 0);
     if (!v2.empty())

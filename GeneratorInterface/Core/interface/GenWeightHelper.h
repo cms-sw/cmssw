@@ -19,7 +19,8 @@ namespace gen {
   class GenWeightHelper : public WeightHelper {
   public:
     GenWeightHelper();
-    std::vector<std::unique_ptr<gen::WeightGroupInfo>> parseWeightGroupsFromNames(std::vector<std::string> weightNames, bool addUnassociatedGroup) const;
+    std::vector<std::unique_ptr<gen::WeightGroupInfo>> parseWeightGroupsFromNames(std::vector<std::string> weightNames,
+                                                                                  bool addUnassociatedGroup) const;
   };
 }  // namespace gen
 

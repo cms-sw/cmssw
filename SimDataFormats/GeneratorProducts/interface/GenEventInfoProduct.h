@@ -31,6 +31,7 @@ public:
 
   std::vector<double> &weights() { return weights_; }
   const std::vector<double> &weights() const { return weights_; }
+  void clearWeights() { weights_.clear(); }
 
   double weight() const { return weights_.empty() ? 1.0 : weights_[0]; }
 

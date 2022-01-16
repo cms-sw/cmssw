@@ -7,8 +7,8 @@
 using namespace tinyxml2;
 
 namespace gen {
-  bool LHEWeightHelper::validateAndFixHeader(
-        std::vector<std::string>& headerLines, tinyxml2::XMLDocument& xmlDoc) const {
+  bool LHEWeightHelper::validateAndFixHeader(std::vector<std::string>& headerLines,
+                                             tinyxml2::XMLDocument& xmlDoc) const {
     std::string fullHeader = boost::algorithm::join(headerLines, "");
 
     if (debug_)
@@ -19,10 +19,10 @@ namespace gen {
     while (errorType = findErrorType(xmlError, fullHeader), errorType != ErrorType::NoError) {
       if (failIfInvalidXML_) {
         std::cout << "XML error: ";
-		xmlDoc.PrintError();
+        xmlDoc.PrintError();
         throw cms::Exception("LHEWeightHelper")
             << "The LHE header is not valid! Weight information was not properly parsed."
-			<< " The error type is '" << errorTypeAsString_.at(errorType) << "'";
+            << " The error type is '" << errorTypeAsString_.at(errorType) << "'";
       } else if (errorType == ErrorType::HTMLStyle) {
         if (debug_)
           std::cout << "  >>> This file uses &gt; instead of >\n";
@@ -30,8 +30,8 @@ namespace gen {
       } else if (errorType == ErrorType::SwapHeader) {
         if (debug_)
           std::cout << "  >>> Some headers in the file are swapped\n";
-   		std::vector<std::string> fixedHeaderLines;
-    	boost::split(fixedHeaderLines, fullHeader, boost::is_any_of("\n"));
+        std::vector<std::string> fixedHeaderLines;
+        boost::split(fixedHeaderLines, fullHeader, boost::is_any_of("\n"));
         swapHeaders(fixedHeaderLines);
         fullHeader = boost::algorithm::join(fixedHeaderLines, "\n");
         xmlError = xmlDoc.Parse(fullHeader.c_str());
@@ -56,7 +56,10 @@ namespace gen {
     return true;
   }
 
-  ParsedWeight LHEWeightHelper::parseWeight(tinyxml2::XMLElement* inner, std::string groupName, int groupIndex, int& weightIndex) const {
+  ParsedWeight LHEWeightHelper::parseWeight(tinyxml2::XMLElement* inner,
+                                            std::string groupName,
+                                            int groupIndex,
+                                            int& weightIndex) const {
     if (debug_)
       std::cout << "  >> Found a weight inside the group. " << std::endl;
     std::string text = "";
@@ -71,8 +74,8 @@ namespace gen {
     return {inner->Attribute("id"), weightIndex++, groupName, text, attributes, groupIndex};
   }
 
-  std::vector<std::unique_ptr<gen::WeightGroupInfo>> LHEWeightHelper::parseWeights(
-        std::vector<std::string> headerLines, bool addUnassociatedGroup) const {
+  std::vector<std::unique_ptr<gen::WeightGroupInfo>> LHEWeightHelper::parseWeights(std::vector<std::string> headerLines,
+                                                                                   bool addUnassociatedGroup) const {
     tinyxml2::XMLDocument xmlDoc;
     if (!validateAndFixHeader(headerLines, xmlDoc)) {
       return {};
@@ -146,7 +149,8 @@ namespace gen {
     int close = -1;
     for (size_t idx = 0; idx < headerLines.size(); idx++) {
       std::string& line = headerLines[idx];
-	  std::cout << "Line is " << line << std::endl;;
+      std::cout << "Line is " << line << std::endl;
+      ;
       if (line.find("/weightgroup") != std::string::npos) {
         curLevel--;
         if (curLevel != 0) {
@@ -166,7 +170,8 @@ namespace gen {
     }
   }
 
-  tinyxml2::XMLError LHEWeightHelper::tryReplaceHtmlStyle(tinyxml2::XMLDocument& xmlDoc, std::string& fullHeader) const {
+  tinyxml2::XMLError LHEWeightHelper::tryReplaceHtmlStyle(tinyxml2::XMLDocument& xmlDoc,
+                                                          std::string& fullHeader) const {
     // in case of &gt; instead of <
     boost::replace_all(fullHeader, "&lt;", "<");
     boost::replace_all(fullHeader, "&gt;", ">");
@@ -184,7 +189,7 @@ namespace gen {
   }
 
   LHEWeightHelper::ErrorType LHEWeightHelper::findErrorType(int xmlError, const std::string& fullHeader) const {
-    if (fullHeader.size() == 0)
+    if (fullHeader.empty())
       return ErrorType::Empty;
     else if (!isConsistent(fullHeader))
       return ErrorType::SwapHeader;

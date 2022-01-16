@@ -1,6 +1,6 @@
 from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.NanoAOD.jets_cff import *
-from PhysicsTools.NanoAOD.globals_cff import genTable
+from PhysicsTools.NanoAOD.globals_cff import genTable,genFilterTable
 from PhysicsTools.NanoAOD.met_cff import metMCTable
 from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.particlelevel_cff import *
@@ -26,6 +26,7 @@ nanogenSequence = cms.Sequence(
     +genJetAK8FlavourTable
     +cms.Sequence(genTauTask)
     +genTable
+    +genFilterTable
     +cms.Sequence(genParticleTablesTask)
     +cms.Sequence(genVertexTablesTask)
     +tautagger
