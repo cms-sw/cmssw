@@ -22,12 +22,12 @@ TrackInformation &TrackInformationExtractor::operator()(G4Track &gtk) const {
   return *tkInfo;
 }
 
-void TrackInformationExtractor::missing(const G4Track&) const {
-  G4Exception("SimG4Core/Notification", "mc001", FatalException,
-              "TrackInformationExtractor: G4Track has no TrackInformation");
+void TrackInformationExtractor::missing(const G4Track &) const {
+  G4Exception(
+      "SimG4Core/Notification", "mc001", FatalException, "TrackInformationExtractor: G4Track has no TrackInformation");
 }
 
-void TrackInformationExtractor::wrongType() const { 
-  G4Exception("SimG4Core/Notification", "mc001", FatalException,
-	      "User information in G4Track is not of TrackInformation type");
+void TrackInformationExtractor::wrongType() const {
+  G4Exception(
+      "SimG4Core/Notification", "mc001", FatalException, "User information in G4Track is not of TrackInformation type");
 }

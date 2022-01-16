@@ -91,11 +91,11 @@ Local3DPoint SensitiveDetector::LocalPostStepPosition(const G4Step* step) const 
 TrackInformation* SensitiveDetector::cmsTrackInformation(const G4Track* aTrack) {
   TrackInformation* info = (TrackInformation*)(aTrack->GetUserInformation());
   if (nullptr == info) {
-    edm::LogWarning("SensitiveDetector") 
-        << " no TrackInformation available for trackID= " << aTrack->GetTrackID() << " inside SD " << GetName();
-    G4Exception("SensitiveDetector::cmsTrackInformation()", "sd01",
-                  FatalException, "cannot handle hits without trackinfo");
-  } 
+    edm::LogWarning("SensitiveDetector") << " no TrackInformation available for trackID= " << aTrack->GetTrackID()
+                                         << " inside SD " << GetName();
+    G4Exception(
+        "SensitiveDetector::cmsTrackInformation()", "sd01", FatalException, "cannot handle hits without trackinfo");
+  }
   return info;
 }
 
@@ -113,8 +113,8 @@ void SensitiveDetector::NaNTrap(const G4Step* aStep) const {
 
   if (edm::isNotFinite(xyz)) {
     const G4VPhysicalVolume* pCurrentVol = aStep->GetPreStepPoint()->GetPhysicalVolume();
-    edm::LogWarning("SensitiveDetector") 
-      << "NaN detected for trackID= " << currentTrk->GetTrackID() << " inside " << pCurrentVol->GetName();
+    edm::LogWarning("SensitiveDetector") << "NaN detected for trackID= " << currentTrk->GetTrackID() << " inside "
+                                         << pCurrentVol->GetName();
     G4Exception("SensitiveDetector::NaNTrap()", "sd01", FatalException, "corrupted event or step");
   }
 }

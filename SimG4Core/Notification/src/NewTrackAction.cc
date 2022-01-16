@@ -20,7 +20,9 @@ void NewTrackAction::secondary(const G4Track *aSecondary, const G4Track &mother,
 
 void NewTrackAction::secondary(G4Track *aSecondary, const G4Track &mother, int flag) const {
   if (aSecondary->GetParentID() != mother.GetTrackID())
-    G4Exception("SimG4Core/Notification", "mc001", FatalException,
+    G4Exception("SimG4Core/Notification",
+                "mc001",
+                FatalException,
                 "NewTrackAction: secondary parent ID does not match mother id");
   TrackInformationExtractor extractor;
   const TrackInformation &motherInfo(extractor(mother));

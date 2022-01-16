@@ -42,8 +42,8 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
     if (nullptr != vol) {
       message << "\n   PhysicalVolume: " << vol->GetName() << ";";
       const G4LogicalVolume* lv = vol->GetLogicalVolume();
-      if(nullptr != lv) {
-	message << " material: " << lv->GetMaterial()->GetName();
+      if (nullptr != lv) {
+        message << " material: " << lv->GetMaterial()->GetName();
       }
     }
     message << "\n   stepNumber=" << track->GetCurrentStepNumber()
@@ -71,8 +71,7 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
     case FatalErrorInArgument:
     case RunMustBeAborted:
     case EventMustBeAborted:
-      edm::LogWarning("SimG4CoreApplication")
-          << es_banner << message.str() << ee_banner;
+      edm::LogWarning("SimG4CoreApplication") << es_banner << message.str() << ee_banner;
       throw cms::Exception("Geant4 fatal exception");
       res = m_trace;
       break;
