@@ -122,9 +122,10 @@ MicroEventContentGEN = cms.PSet(
         'keep *_slimmedGenJetsAK8__*',
         'keep *_slimmedGenJetsAK8SoftDropSubJets__*',
         'keep *_genMetTrue_*_*',
-        # RUN
         'keep LHERunInfoProduct_*_*_*',
         'keep GenRunInfoProduct_*_*_*',
+        'keep GenWeightProduct_*_*_*',
+        'keep GenWeightInfoProduct_*_*_*',
         'keep *_genParticles_xyz0_*',
         'keep *_genParticles_t0_*',
     )

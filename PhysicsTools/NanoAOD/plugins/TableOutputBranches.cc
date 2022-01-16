@@ -28,6 +28,12 @@ void TableOutputBranches::defineBranchesFromFirstEvent(const nanoaod::FlatTable 
       case nanoaod::FlatTable::ColumnType::Bool:
         m_uint8Branches.emplace_back(var, tab.columnDoc(i), "O");
         break;
+      case nanoaod::FlatTable::ColumnType::UInt32:
+        m_uint32Branches.emplace_back(var, tab.columnDoc(i), "i");
+        break;
+      case nanoaod::FlatTable::ColumnType::Double:
+        m_doubleBranches.emplace_back(var, tab.columnDoc(i), "D");
+        break;
       default:
         throw cms::Exception("LogicError", "Unsupported type");
     }
@@ -94,4 +100,8 @@ void TableOutputBranches::fill(const nanoaod::FlatTable &tab, TTree &tree, bool 
     fillColumn<int8_t>(pair, tab);
   for (auto &pair : m_uint8Branches)
     fillColumn<uint8_t>(pair, tab);
+  for (auto &pair : m_uint32Branches)
+    fillColumn<uint32_t>(pair, tab);
+  for (auto &pair : m_doubleBranches)
+    fillColumn<double>(pair, tab);
 }

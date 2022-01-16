@@ -37,6 +37,8 @@ private:
   std::vector<NamedBranchPtr> m_intBranches;
   std::vector<NamedBranchPtr> m_int8Branches;
   std::vector<NamedBranchPtr> m_uint8Branches;
+  std::vector<NamedBranchPtr> m_uint32Branches;
+  std::vector<NamedBranchPtr> m_doubleBranches;
   bool m_branchesBooked = false;
 
   template <typename T>

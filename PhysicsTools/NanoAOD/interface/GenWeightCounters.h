@@ -46,24 +46,24 @@ namespace genCounter {
       //incPSOnly(w0, wPS);
     }
 
-      void mergeSumMap(const Counter& other) {
-        num_ += other.num_;
-        sumw_ += other.sumw_;
-        sumw2_ += other.sumw2_;
-        //if weightMap_ for "this" is empty, create map elements with empty
-        //vectors before merging
-        if(weightSumMap_.empty() && !other.weightSumMap_.empty()) {
-          for(auto& wmap : other.weightSumMap_) {
-            std::vector<long double> temp;
-            weightSumMap_.insert({wmap.first, temp});
-          }
-        }
-
-        for(auto& wmap : weightSumMap_) {
-          if (other.weightSumMap_.find(wmap.first) != other.weightSumMap_.end())
-            mergeSumVectors(wmap.second, other.weightSumMap_.at(wmap.first));
+    void mergeSumMap(const Counter& other) {
+      num_ += other.num_;
+      sumw_ += other.sumw_;
+      sumw2_ += other.sumw2_;
+      //if weightMap_ for "this" is empty, create map elements with empty
+      //vectors before merging
+      if (weightSumMap_.empty() && !other.weightSumMap_.empty()) {
+        for (auto& wmap : other.weightSumMap_) {
+          std::vector<long double> temp;
+          weightSumMap_.insert({wmap.first, temp});
         }
       }
+
+      for (auto& wmap : weightSumMap_) {
+        if (other.weightSumMap_.find(wmap.first) != other.weightSumMap_.end())
+          mergeSumVectors(wmap.second, other.weightSumMap_.at(wmap.first));
+      }
+    }
 
     //private:
     // the counters

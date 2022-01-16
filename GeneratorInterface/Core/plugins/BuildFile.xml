@@ -3,9 +3,9 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="SimDataFormats/GeneratorProducts"/>
+<use name="GeneratorInterface/Core"/>
 <use name="FWCore/SharedMemory"/>
 <use name="clhep"/>
-<use name="lhapdf"/>
 <library name="GeneratorInterfaceCore_plugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>

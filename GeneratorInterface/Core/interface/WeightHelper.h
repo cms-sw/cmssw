@@ -47,6 +47,7 @@ namespace gen {
         std::unique_ptr<GenWeightProduct>& product, double weight, std::string name, int weightNum, int groupIndex);
     int findContainingWeightGroup(std::string wgtId, int weightIndex, int previousGroupIndex);
     void setDebug(bool value) { debug_ = value; }
+    bool fillEmptyIfWeightFails() { return fillEmptyIfWeightFails_; }
 
   protected:
     // TODO: Make this only print from one thread a la

@@ -108,7 +108,7 @@ namespace gen {
 
   void PartonShowerWeightGroupInfo::printVariables() const {
     const auto& variations = (nameIsPythiaSyntax_) ? expectedOrderPythiaSyntax_ : expectedOrder_;
-    for (auto varName: variations) {
+    for (const auto& varName : variations) {
       int wgtIdx = weightIndexFromLabel(varName);
       // Guess PS idx if not in label list
       if (wgtIdx == -1 && guessPSWeightIdx_)

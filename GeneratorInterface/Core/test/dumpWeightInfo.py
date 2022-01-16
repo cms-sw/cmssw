@@ -5,18 +5,18 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("infile", type=str, help="Input EDM file")
-parser.add_argument("--source", type=str, help="product ID of weight product", default="externalLHEProducer")
+parser.add_argument("--source", type=str, help="product ID of weight product", default="genWeights")
 args = parser.parse_args()
 
 lumis = Lumis(args.infile)
-lumi = lumis.__iter__().next()
+lumi = next(lumis.__iter__())
 weightInfoHandle = Handle("GenWeightInfoProduct")
 print("Trying to get weightInfo from lumi")
 lumi.getByLabel(args.source, weightInfoHandle)
 weightInfoProd = weightInfoHandle.product()
 
 events = Events(args.infile)
-event = events.__iter__().next()
+event = next(events.__iter__())
 weightHandle = Handle("GenWeightProduct")
 print("Trying to get weightProduct from event")
 event.getByLabel(args.source, weightHandle)

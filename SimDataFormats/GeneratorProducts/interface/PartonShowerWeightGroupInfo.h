@@ -21,6 +21,18 @@ namespace gen {
     int variationIndex(bool isISR, bool isUp, PSVarType variationType, PSSplittingType splittingType) const;
     std::string variationName(bool isISR, bool isUp, PSVarType variationType, PSSplittingType splittingType) const;
     int variationIndex(bool isISR, bool isUp, PSVarType variationType) const;
+    int isrCombinedUpIndex(PSVarType variationType) const {
+        return variationIndex(true, true, variationType);
+    }
+    int isrCombinedDownIndex(PSVarType variationType) const {
+        return variationIndex(true, false, variationType);
+    }
+    int fsrCombinedUpIndex(PSVarType variationType) const {
+        return variationIndex(false, true, variationType);
+    }
+    int fsrCombinedDownIndex(PSVarType variationType) const {
+        return variationIndex(false, false, variationType);
+    }
     static void setGuessPSWeightIdx(bool guessPSWeightIdx) { guessPSWeightIdx_ = guessPSWeightIdx; }
     int psWeightIdxGuess(const std::string &varName) const;
     void printVariables() const;

@@ -31,6 +31,7 @@ namespace gen {
     kUnknownWeights = 'u',
   };
 
+  //const std::array<WeightType, 5> allWeightTypes = {{
   const std::array<WeightType, 5> allWeightTypes = {{
       WeightType::kPdfWeights,
       WeightType::kScaleWeights,
