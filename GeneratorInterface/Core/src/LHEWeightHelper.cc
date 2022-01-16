@@ -13,10 +13,8 @@ namespace gen {
     parsedWeights_.clear();
 
     if (!isConsistent() && failIfInvalidXML_) {
-      throw std::runtime_error(
-          "XML in LHE is not consistent: Most likely, tags were swapped.\n"
-          "To turn on fault fixing, use 'setFailIfInvalidXML(false)'\n"
-          "WARNING: the tag swapping may lead to weights associated with the incorrect group");
+      throw cms::Exception("LHEWeightHelper")
+          << "XML in LHE is not consistent: Most likely, XML tags are out of order.";
     } else if (!isConsistent()) {
       swapHeaders();
     }
@@ -29,7 +27,8 @@ namespace gen {
     // in case of &gt; instead of <
     if (xmlError != 0 && failIfInvalidXML_) {
       xmlDoc.PrintError();
-      throw std::runtime_error("XML is unreadable because of above error.");
+      throw cms::Exception("LHEWeightHelper")
+          << "The LHE header is not valid XML! Weight information was not properly parsed.";
     } else if (xmlError != 0 && !failIfInvalidXML_) {
       boost::replace_all(fullHeader, "&lt;", "<");
       boost::replace_all(fullHeader, "&gt;", ">");
@@ -38,9 +37,9 @@ namespace gen {
 
     // error persists (how to handle error?)
     if (xmlError != 0) {
-      std::cerr << "WARNING: Error in parsing XML of LHE weight header!" << std::endl;
-      xmlDoc.PrintError();
-      return false;
+      std::string error = "Fatal error when parsing the LHE header. The header is not valid XML! Parsing error was ";
+      error += xmlDoc.ErrorStr();
+      throw cms::Exception("LHEWeightHelper") << error;
     }
 
     return true;
@@ -94,11 +93,11 @@ namespace gen {
 
   std::string LHEWeightHelper::parseGroupName(tinyxml2::XMLElement* el) {
     std::vector<std::string> nameAlts_ = {"name", "type"};
-    for (auto nameAtt : nameAlts_) {
+    for (const auto& nameAtt : nameAlts_) {
       if (el->Attribute(nameAtt.c_str())) {
         std::string groupName = el->Attribute(nameAtt.c_str());
-        if (groupName.find(".") != std::string::npos)
-          groupName.erase(groupName.find("."), groupName.size());
+        if (groupName.find('.') != std::string::npos)
+          groupName.erase(groupName.find('.'), groupName.size());
         return groupName;
       }
     }
@@ -112,7 +111,7 @@ namespace gen {
   bool LHEWeightHelper::isConsistent() {
     int curLevel = 0;
 
-    for (auto line : headerLines_) {
+    for (const auto& line : headerLines_) {
       if (line.find("<weightgroup") != std::string::npos) {
         curLevel++;
         if (curLevel != 1) {

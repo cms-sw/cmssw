@@ -15,9 +15,9 @@ namespace gen {
       weightType_ = WeightType::kUnknownWeights;
       isWellFormed_ = false;
     }
-    virtual ~UnknownWeightGroupInfo() override {}
+    ~UnknownWeightGroupInfo() override {}
     void copy(const UnknownWeightGroupInfo& other);
-    virtual UnknownWeightGroupInfo* clone() const override;
+    UnknownWeightGroupInfo* clone() const override;
   };
 }  // namespace gen
 

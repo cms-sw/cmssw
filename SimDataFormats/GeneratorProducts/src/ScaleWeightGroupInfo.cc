@@ -26,18 +26,13 @@ namespace gen {
     }
     WeightGroupInfo::addContainedId(globalIndex, id, label);
     setMuRMuFIndex(globalIndex, id, muR, muF);
-    std::cout << hasAllWeights << " " << isWellFormed_ << std::endl;
-    for (int muidx : muIndices_) {
-      std::cout << muidx << " ";
-    }
-    std::cout << std::endl;
   }
 
   void ScaleWeightGroupInfo::setMuRMuFIndex(int globalIndex, std::string id, float muR, float muF) {
     auto info = weightMetaInfoByGlobalIndex(id, globalIndex);
     int index = indexFromMus(muR, muF);
     if (!(isValidValue(muR) && isValidValue(muF))) {
-      isWellFormed_ = false;
+      setWeightIsCorrupt();
       return;
     }
     if (index == Central_idx)
@@ -48,7 +43,7 @@ namespace gen {
       if (muidx == -1)
         return;
     }
-    hasAllWeights = true;
+    isWellFormed_ = !weightIsCorrupt_;
   }
 
   void ScaleWeightGroupInfo::setDyn(
@@ -99,7 +94,7 @@ namespace gen {
 
   std::vector<std::string> ScaleWeightGroupInfo::dynNames() const {
     std::vector<std::string> returnVec;
-    for (auto item : dynNames_) {
+    for (const auto& item : dynNames_) {
       if (!item.empty())
         returnVec.push_back(item);
     }

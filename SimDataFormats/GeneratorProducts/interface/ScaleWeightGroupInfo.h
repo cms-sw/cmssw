@@ -12,7 +12,7 @@ namespace gen {
     std::vector<size_t> muIndices_;
     bool containsCentral_ = false;
     int lhaid_ = -1;
-    bool hasAllWeights = false;
+    bool weightIsCorrupt_ = false;
     // Dyn_scale
     std::vector<std::string> dynNames_;
     std::vector<std::vector<size_t>> dynVec_;
@@ -39,16 +39,18 @@ namespace gen {
         : WeightGroupInfo(header, name), muIndices_(MIN_SCALE_VARIATIONS, -1), dynVec_(MIN_SCALE_VARIATIONS) {
       weightType_ = WeightType::kScaleWeights;
       isFunctionalFormVar_ = false;
-      isWellFormed_ = true;
     }
     ScaleWeightGroupInfo(std::string header) : ScaleWeightGroupInfo(header, header) {}
     ScaleWeightGroupInfo(const ScaleWeightGroupInfo& other) { copy(other); }
-    virtual ~ScaleWeightGroupInfo() override {}
+    ~ScaleWeightGroupInfo() override {}
     void copy(const ScaleWeightGroupInfo& other);
-    virtual ScaleWeightGroupInfo* clone() const override;
+    ScaleWeightGroupInfo* clone() const override;
     bool containsCentralWeight() const { return containsCentral_; }
     void addContainedId(int globalIndex, std::string id, std::string label, float muR, float muF);
-    bool isWellFormed() { return isWellFormed_ && hasAllWeights; }
+    void setWeightIsCorrupt() {
+      isWellFormed_ = false;
+      weightIsCorrupt_ = true;
+    }
 
     void setMuRMuFIndex(int globalIndex, std::string id, float muR, float muF);
     void setDyn(int globalIndex, std::string id, float muR, float muF, size_t dynNum, std::string dynName);

@@ -49,15 +49,17 @@ private:
 // TODO: Accept a vector of strings (source, externalLHEProducer) exit if neither are found
 LHEWeightProductProducer::LHEWeightProductProducer(const edm::ParameterSet& iConfig)
     : lheLabels_(iConfig.getParameter<std::vector<std::string>>("lheSourceLabels")),
-      lheEventTokens_(edm::vector_transform(lheLabels_,
-            [this](const std::string& tag) { return mayConsume<LHEEventProduct>(tag); })),
-      lheRunInfoTokens_(edm::vector_transform(lheLabels_,
-            [this](const std::string& tag) { return mayConsume<LHERunInfoProduct, edm::InRun>(tag); })),
-      lheWeightInfoTokens_(edm::vector_transform(lheLabels_,
-            [this](const std::string& tag) { return mayConsume<GenWeightInfoProduct, edm::InLumi>(tag); })) {
+      lheEventTokens_(edm::vector_transform(
+          lheLabels_, [this](const std::string& tag) { return mayConsume<LHEEventProduct>(tag); })),
+      lheRunInfoTokens_(edm::vector_transform(
+          lheLabels_, [this](const std::string& tag) { return mayConsume<LHERunInfoProduct, edm::InRun>(tag); })),
+      lheWeightInfoTokens_(edm::vector_transform(
+          lheLabels_, [this](const std::string& tag) { return mayConsume<GenWeightInfoProduct, edm::InLumi>(tag); })) {
   produces<GenWeightProduct>();
   produces<GenWeightInfoProduct, edm::Transition::BeginLuminosityBlock>();
   weightHelper_.setFailIfInvalidXML(iConfig.getUntrackedParameter<bool>("failIfInvalidXML", false));
+  weightHelper_.setDebug(iConfig.getUntrackedParameter<bool>("debug", false));
+  weightHelper_.setGuessPSWeightIdx(iConfig.getUntrackedParameter<bool>("guessPSWeightIdx", false));
 }
 
 LHEWeightProductProducer::~LHEWeightProductProducer() {}
@@ -71,7 +73,7 @@ void LHEWeightProductProducer::produce(edm::Event& iEvent, const edm::EventSetup
   for (auto& token : lheEventTokens_) {
     iEvent.getByToken(token, lheEventInfo);
     if (lheEventInfo.isValid()) {
-        break;
+      break;
     }
   }
 
@@ -84,13 +86,12 @@ void LHEWeightProductProducer::beginRun(edm::Run const& run, edm::EventSetup con
   for (auto& label : lheLabels_) {
     run.getByLabel(label, lheRunInfoHandle);
     if (lheRunInfoHandle.isValid()) {
-        hasLhe_ = true;
-        break;
+      hasLhe_ = true;
+      break;
     }
   }
   if (!hasLhe_)
-      return;
-
+    return;
 
   typedef std::vector<LHERunInfoProduct::Header>::const_iterator header_cit;
   LHERunInfoProduct::Header headerWeightInfo;
@@ -118,15 +119,25 @@ void LHEWeightProductProducer::beginLuminosityBlockProduce(edm::LuminosityBlock&
   }
 
   if (!hasLhe_)
-      return;
+    return;
 
-  weightHelper_.parseWeights();
-  if (weightHelper_.weightGroups().size() == 0)
-      weightHelper_.addUnassociatedGroup();
+  try {
+    weightHelper_.parseWeights();
+  } catch (cms::Exception& e) {
+    std::string error = e.what();
+    error +=
+        "\n   NOTE: if you want to attempt to process this sample anyway, set failIfInvalidXML = False "
+        "in the configuration file\n. If you set this flag and the error persists, the issue "
+        " is fatal and must be solved at the LHE/gridpack level.";
+    throw cms::Exception("LHEWeightProductProducer") << error;
+  }
+
+  if (weightHelper_.weightGroups().empty())
+    weightHelper_.addUnassociatedGroup();
 
   auto weightInfoProduct = std::make_unique<GenWeightInfoProduct>();
   for (auto& weightGroup : weightHelper_.weightGroups()) {
-    weightInfoProduct->addWeightGroupInfo(std::make_unique<gen::WeightGroupInfo>(*weightGroup.clone()));
+    weightInfoProduct->addWeightGroupInfo(std::unique_ptr<gen::WeightGroupInfo>(weightGroup.clone()));
   }
   lumi.put(std::move(weightInfoProduct));
 }

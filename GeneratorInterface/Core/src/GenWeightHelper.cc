@@ -43,7 +43,7 @@ namespace gen {
             {"", index, weightName, weightName, std::unordered_map<std::string, std::string>(), groupIndex});
         if (isPartonShowerWeightGroup(parsedWeights_.back())) {
           if (showerGroupIndex < 0) {
-              showerGroupIndex = ++groupIndex;
+            showerGroupIndex = ++groupIndex;
           }
           parsedWeights_.back().wgtGroup_idx = showerGroupIndex;  // all parton showers are grouped together
         }
