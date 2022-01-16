@@ -34,6 +34,7 @@ namespace gen {
     template <typename T>
     std::unique_ptr<GenWeightProduct> weightProduct(std::vector<T> weights, float w0);
 
+    void setfillEmptyIfWeightFails(bool value) { fillEmptyIfWeightFails_ = value; }
     void setModel(std::string model) { model_ = model; }
     void setGuessPSWeightIdx(bool guessPSWeightIdx) {
       PartonShowerWeightGroupInfo::setGuessPSWeightIdx(guessPSWeightIdx);
@@ -51,6 +52,7 @@ namespace gen {
     // TODO: Make this only print from one thread a la
     // https://github.com/kdlong/cmssw/blob/master/PhysicsTools/NanoAOD/plugins/GenWeightsTableProducer.cc#L1069
     bool debug_ = false;
+    bool fillEmptyIfWeightFails_ = false;
     const unsigned int FIRST_PSWEIGHT_ENTRY = 2;
     const unsigned int DEFAULT_PSWEIGHT_LENGTH = 46;
     std::string model_;
@@ -103,14 +105,27 @@ namespace gen {
     // Just add an empty product (need for all cases or...?)
     if (weights.size() > 1) {
       for (const auto& weight : weights) {
-        if constexpr (std::is_same<T, gen::WeightsInfo>::value)
-          weightGroupIndex = addWeightToProduct(weightProduct, weight.wgt, weight.id, i, weightGroupIndex);
-        else if (std::is_same<T, double>::value)
-          weightGroupIndex = addWeightToProduct(weightProduct, weight, std::to_string(i), i, weightGroupIndex);
+        try {
+          if constexpr (std::is_same<T, gen::WeightsInfo>::value) {
+            weightGroupIndex = addWeightToProduct(weightProduct, weight.wgt, weight.id, i, weightGroupIndex);
+          } else if (std::is_same<T, double>::value)
+            weightGroupIndex = addWeightToProduct(weightProduct, weight, std::to_string(i), i, weightGroupIndex);
+
+        } catch (cms::Exception& e) {
+          if (fillEmptyIfWeightFails_) {
+            std::cerr << "WARNING: " << e.what() << std::endl;
+            std::cerr << "fillEmptyIfWeightFails_ is set to True, so variations will be empty!!" << std::endl;
+            weightProduct->setNumWeightSets(1);  // Only central weight
+            return weightProduct;
+          } else {
+            throw cms::Exception("ERROR: " + std::string(e.what()) +
+                                 "\nfillEmptyIfWeightFails_ is set to False, so exiting code");
+          }
+        }
         i++;
       }
     }
-    return std::move(weightProduct);
+    return weightProduct;
   }
 }  // namespace gen
 

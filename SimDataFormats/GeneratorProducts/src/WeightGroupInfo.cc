@@ -45,8 +45,8 @@ namespace gen {
     if (wgtId.empty())
       wgtId = std::to_string(weightEntry);
     // First try ordered search
-    size_t orderedEntry = weightEntry - firstId_;
-    if (indexInRange(weightEntry) && orderedEntry < idsContained_.size()) {
+    int orderedEntry = weightEntry - firstId_;
+    if (indexInRange(weightEntry) && orderedEntry < static_cast<int>(idsContained_.size())) {
       if (wgtId.empty() || idsContained_.at(orderedEntry).id == wgtId) {
         return orderedEntry;
       }
@@ -65,7 +65,7 @@ namespace gen {
     if (id.empty())
       id = std::to_string(weightEntry);
 
-    if (firstId_ == -1 || weightEntry < firstId_) {
+    if (firstId_ < 0 || weightEntry < firstId_) {
       firstId_ = weightEntry;
       for (auto& entry : idsContained_)  // Reset if indices need to be shifted
         entry.localIndex++;

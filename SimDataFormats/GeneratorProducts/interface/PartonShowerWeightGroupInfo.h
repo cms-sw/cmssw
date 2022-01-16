@@ -12,7 +12,7 @@ namespace gen {
     PartonShowerWeightGroupInfo() : PartonShowerWeightGroupInfo("") {}
     PartonShowerWeightGroupInfo(std::string header, std::string name);
     PartonShowerWeightGroupInfo(std::string header) : PartonShowerWeightGroupInfo(header, header) {}
-    PartonShowerWeightGroupInfo(const PartonShowerWeightGroupInfo &other) { copy(other); }
+    PartonShowerWeightGroupInfo(const PartonShowerWeightGroupInfo &other) : WeightGroupInfo(other) { copy(other); }
     ~PartonShowerWeightGroupInfo() override {}
     void copy(const PartonShowerWeightGroupInfo &other);
     PartonShowerWeightGroupInfo *clone() const override;

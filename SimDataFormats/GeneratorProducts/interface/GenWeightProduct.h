@@ -8,6 +8,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/GeneratorProducts/interface/WeightsInfo.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 typedef std::vector<std::vector<double>> WeightsContainer;
 

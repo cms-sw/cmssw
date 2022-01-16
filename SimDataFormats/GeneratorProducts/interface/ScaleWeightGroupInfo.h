@@ -41,7 +41,7 @@ namespace gen {
       isFunctionalFormVar_ = false;
     }
     ScaleWeightGroupInfo(std::string header) : ScaleWeightGroupInfo(header, header) {}
-    ScaleWeightGroupInfo(const ScaleWeightGroupInfo& other) { copy(other); }
+    ScaleWeightGroupInfo(const ScaleWeightGroupInfo& other) : WeightGroupInfo(other) { copy(other); }
     ~ScaleWeightGroupInfo() override {}
     void copy(const ScaleWeightGroupInfo& other);
     ScaleWeightGroupInfo* clone() const override;
