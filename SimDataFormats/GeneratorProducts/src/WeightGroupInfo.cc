@@ -19,10 +19,10 @@ namespace gen {
 
   WeightGroupInfo* WeightGroupInfo::clone() const {
     throw cms::Exception("WeightGroupInfo")
-        << "WeightGroupInfo is abstract, so it's clone() method can't be implemented.";
+        << "In group " << name_ << ": WeightGroupInfo is abstract, so it's clone() method can't be implemented.";
   }
 
-  WeightMetaInfo WeightGroupInfo::weightMetaInfo(int weightEntry) const { 
+  const WeightMetaInfo& WeightGroupInfo::weightMetaInfo(int weightEntry) const { 
     if (weightEntry < 0 || weightEntry >= static_cast<int>(idsContained_.size()))
       throw cms::Exception("WeightGroupInfo")
           << "Local index " << std::to_string(weightEntry) << " is not within the range of group " << name_
@@ -30,12 +30,12 @@ namespace gen {
     return idsContained_.at(weightEntry); 
   }
 
-  WeightMetaInfo WeightGroupInfo::weightMetaInfoByGlobalIndex(int weightEntry) const {
+  const WeightMetaInfo& WeightGroupInfo::weightMetaInfoByGlobalIndex(int weightEntry) const {
       std::string emptyLabel = "";
       return weightMetaInfoByGlobalIndex(emptyLabel, weightEntry);
   }
 
-  WeightMetaInfo WeightGroupInfo::weightMetaInfoByGlobalIndex(std::string& wgtId, int weightEntry) const {
+  const WeightMetaInfo& WeightGroupInfo::weightMetaInfoByGlobalIndex(std::string& wgtId, int weightEntry) const {
     int entry = weightVectorEntry(wgtId, weightEntry);
     if (entry < 0 || entry >= static_cast<int>(idsContained_.size()))
       throw cms::Exception("WeightGroupInfo")

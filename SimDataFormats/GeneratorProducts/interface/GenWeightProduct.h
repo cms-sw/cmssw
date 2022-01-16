@@ -34,8 +34,10 @@ public:
   void addWeight(double weight, int setEntry, int weightNum) {
     if (weightsVector_.empty() && setEntry == 0)
       addWeightSet();
-    if (static_cast<int>(weightsVector_.size()) <= setEntry)
-      throw cms::Exception("GenWeightProduct") << "Trying to add weight index outside the range of weights expected";
+    int maxSets = static_cast<int>(weightsVector_.size());
+    if (maxSets <= setEntry)
+      throw cms::Exception("GenWeightProduct") << "WeightGroup index " << setEntry 
+          << " is exceeds the number of WeightGroups expected (max " << maxSets << " )";
     auto& weights = weightsVector_[setEntry];
     if (static_cast<int>(weights.size()) <= weightNum) {
       weights.resize(weightNum + 1);

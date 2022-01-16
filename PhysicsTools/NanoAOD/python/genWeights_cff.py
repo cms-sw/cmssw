@@ -4,11 +4,9 @@ from GeneratorInterface.Core.lheWeights_cfi import lheWeights
 
 genWeightsNano = genWeights.clone()
 genWeightsNano.weightProductLabels = ["genWeights"]
-genWeightsNano.debug = True
 
 lheWeightsNano = lheWeights.clone()
 lheWeightsNano.weightProductLabels = ["lheWeights"]
-lheWeightsNano.debug = True
 
 genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
     lheWeightPrecision = cms.int32(14),
@@ -31,6 +29,4 @@ genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
     # nStoreUngroupedLhe = cms.untracked.int32(100),
 )
 
-#genWeightsTableTask = cms.Task(lheWeights, genWeights, genWeightsTable)
-#genWeightsTableTask = cms.Task(lheWeightsNano, genWeightsNano, genWeightsTable)
-genWeightsTableTask = cms.Task(lheWeightsNano, genWeightsNano)
+genWeightsTableTask = cms.Task(lheWeightsNano, genWeightsNano, genWeightsTable)

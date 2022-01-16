@@ -19,6 +19,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenWeightInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
+#include "SimDataFormats/GeneratorProducts/interface/UnknownWeightGroupInfo.h"
 
 #include "GeneratorInterface/Core/interface/GenWeightHelper.h"
 
@@ -40,7 +41,8 @@ private:
   std::vector<edm::EDGetTokenT<GenWeightInfoProduct>> weightInfoTokens_;
   const bool debug_;
   bool foundWeightProduct_ = false;
-  edm::EDPutTokenT<GenWeightInfoProduct> groupToken_;
+  edm::EDPutTokenT<GenWeightInfoProduct> groupPutToken_;
+  GenWeightInfoProduct weightsInfo_;
 };
 
 //
@@ -52,7 +54,7 @@ GenWeightProductProducer::GenWeightProductProducer(const edm::ParameterSet& iCon
       weightInfoTokens_(edm::vector_transform(iConfig.getParameter<std::vector<std::string>>("weightProductLabels"), 
           [this](const std::string& tag) { return mayConsume<GenWeightInfoProduct, edm::InLumi>(tag); })),
       debug_(iConfig.getUntrackedParameter<bool>("debug", false)),
-      groupToken_(produces<GenWeightInfoProduct, edm::Transition::BeginLuminosityBlock>()) {
+      groupPutToken_(produces<GenWeightInfoProduct, edm::Transition::BeginLuminosityBlock>()) {
   weightHelper_.setDebug(debug_);
   produces<GenWeightProduct>();
   produces<GenWeightInfoProduct, edm::Transition::BeginLuminosityBlock>();
@@ -73,7 +75,7 @@ void GenWeightProductProducer::produce(edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(genEventToken_, genEventInfo);
 
   float centralWeight = !genEventInfo->weights().empty() ? genEventInfo->weights().at(0) : 1.;
-  auto weightProduct = weightHelper_.weightProduct(genEventInfo->weights(), centralWeight);
+  auto weightProduct = weightHelper_.weightProduct(weightsInfo_, genEventInfo->weights(), centralWeight);
   iEvent.put(std::move(weightProduct));
 }
 
@@ -91,28 +93,25 @@ void GenWeightProductProducer::beginLuminosityBlockProduce(edm::LuminosityBlock&
   edm::Handle<GenLumiInfoHeader> genLumiInfoHandle;
   iLumi.getByToken(genLumiInfoToken_, genLumiInfoHandle);
 
-  auto weightInfoProduct = std::make_unique<GenWeightInfoProduct>();
+  //std::unique_ptr<GenWeightInfoProduct> weightInfoProduct = std::make_unique<GenWeightInfoProduct>();
+  std::unique_ptr<GenWeightInfoProduct> weightInfoProduct;
   if (genLumiInfoHandle.isValid()) {
     std::string label = genLumiInfoHandle->configDescription();
     boost::replace_all(label, "-", "_");
     weightHelper_.setModel(label);
-    weightHelper_.parseWeightGroupsFromNames(genLumiInfoHandle->weightNames());
     // Always add an unassociated group, which generally will not be filled
-    weightHelper_.addUnassociatedGroup();
-
-    // Need to have separate copies of the groups in the helper class and in the product,
-    // because the helper can still modify the data
-    for (auto& weightGroup : weightHelper_.weightGroups()) {
-      weightInfoProduct->addWeightGroupInfo(std::unique_ptr<gen::WeightGroupInfo>(weightGroup->clone()));
-    }
+    // TODO: control this with an argument?
+    auto weightGroups = weightHelper_.parseWeightGroupsFromNames(genLumiInfoHandle->weightNames(), true);
+    weightInfoProduct = std::make_unique<GenWeightInfoProduct>(weightGroups);
+    weightsInfo_ = *weightInfoProduct;
   } else if (weightHelper_.fillEmptyIfWeightFails() && debug_) {
-    std::cerr << "genLumiInfoHeader not found, but fillEmptyIfWeightFails is True. Will produce empty product!" << std::endl;
+    weightInfoProduct = std::make_unique<GenWeightInfoProduct>();
   } else {
     throw cms::Exception("GenWeightProductProducer")
         << "genLumiInfoHeader not found, code is exiting." << std::endl
         << "If this is expect and want to continue, set fillEmptyIfWeightFails to True";
   }
-  iLumi.emplace(groupToken_, std::move(weightInfoProduct));
+  iLumi.emplace(groupPutToken_, std::move(weightInfoProduct));
 }
 
 void GenWeightProductProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
