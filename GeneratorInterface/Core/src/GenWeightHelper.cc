@@ -6,7 +6,7 @@ using namespace tinyxml2;
 namespace gen {
   GenWeightHelper::GenWeightHelper() {}
 
-  std::vector<std::unique_ptr<gen::WeightGroupInfo>> GenWeightHelper::parseWeightGroupsFromNames(std::vector<std::string> weightNames, bool addUnassociated) {
+  std::vector<std::unique_ptr<gen::WeightGroupInfo>> GenWeightHelper::parseWeightGroupsFromNames(std::vector<std::string> weightNames, bool addUnassociated) const {
     std::vector<ParsedWeight> parsedWeights;
     int index = 0;
     int groupIndex = -1;

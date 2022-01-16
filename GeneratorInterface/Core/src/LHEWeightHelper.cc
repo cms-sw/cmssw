@@ -16,11 +16,13 @@ namespace gen {
     int xmlError = xmlDoc.Parse(fullHeader.c_str());
     ErrorType errorType;
 
-    while (errorType = findErrorType(xmlError, headerLines), errorType != ErrorType::NoError) {
+    while (errorType = findErrorType(xmlError, fullHeader), errorType != ErrorType::NoError) {
       if (failIfInvalidXML_) {
-        xmlDoc.PrintError();
+        std::cout << "XML error: ";
+		xmlDoc.PrintError();
         throw cms::Exception("LHEWeightHelper")
-            << "The LHE header is not valid XML! Weight information was not properly parsed.";
+            << "The LHE header is not valid! Weight information was not properly parsed."
+			<< " The error type is '" << errorTypeAsString_.at(errorType) << "'";
       } else if (errorType == ErrorType::HTMLStyle) {
         if (debug_)
           std::cout << "  >>> This file uses &gt; instead of >\n";
@@ -28,8 +30,10 @@ namespace gen {
       } else if (errorType == ErrorType::SwapHeader) {
         if (debug_)
           std::cout << "  >>> Some headers in the file are swapped\n";
-        swapHeaders(headerLines);
-        fullHeader = boost::algorithm::join(headerLines, "");
+   		std::vector<std::string> fixedHeaderLines;
+    	boost::split(fixedHeaderLines, fullHeader, boost::is_any_of("\n"));
+        swapHeaders(fixedHeaderLines);
+        fullHeader = boost::algorithm::join(fixedHeaderLines, "\n");
         xmlError = xmlDoc.Parse(fullHeader.c_str());
       } else if (errorType == ErrorType::TrailingStr) {
         if (debug_)
@@ -111,13 +115,13 @@ namespace gen {
       }
     }
 
-    if (!fillEmptyIfWeightFails_) {
-      throw std::runtime_error("couldn't find groupname");
-    }
+    throw cms::Exception("LHEWeightHelper") << "Could not parse a name for weight group";
     return "";
   }
 
-  bool LHEWeightHelper::isConsistent(const std::vector<std::string>& headerLines) const {
+  bool LHEWeightHelper::isConsistent(const std::string& fullHeader) const {
+    std::vector<std::string> headerLines;
+    boost::split(headerLines, fullHeader, boost::is_any_of("\n"));
     int curLevel = 0;
 
     for (const auto& line : headerLines) {
@@ -141,7 +145,8 @@ namespace gen {
     int open = -1;
     int close = -1;
     for (size_t idx = 0; idx < headerLines.size(); idx++) {
-      std::string line = headerLines[idx];
+      std::string& line = headerLines[idx];
+	  std::cout << "Line is " << line << std::endl;;
       if (line.find("/weightgroup") != std::string::npos) {
         curLevel--;
         if (curLevel != 0) {
@@ -178,11 +183,10 @@ namespace gen {
     return xmlDoc.Parse(fullHeader.c_str());
   }
 
-  LHEWeightHelper::ErrorType LHEWeightHelper::findErrorType(int xmlError, const std::vector<std::string>& headerLines) const {
-    std::string fullHeader = boost::algorithm::join(headerLines, "");
+  LHEWeightHelper::ErrorType LHEWeightHelper::findErrorType(int xmlError, const std::string& fullHeader) const {
     if (fullHeader.size() == 0)
       return ErrorType::Empty;
-    else if (!isConsistent(headerLines))
+    else if (!isConsistent(fullHeader))
       return ErrorType::SwapHeader;
     else if (fullHeader.find("&lt;") != std::string::npos || fullHeader.find("&gt;") != std::string::npos)
       return ErrorType::HTMLStyle;
@@ -195,7 +199,7 @@ namespace gen {
         return ErrorType::TrailingStr;
       else
         return ErrorType::Unknown;
-    } else
-      return ErrorType::NoError;
+    }
+    return ErrorType::NoError;
   }
 }  // namespace gen
