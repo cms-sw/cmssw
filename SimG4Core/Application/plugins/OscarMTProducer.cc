@@ -248,10 +248,10 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   std::unique_ptr<G4SimEvent> evt;
   auto token = edm::ServiceRegistry::instance().presentToken();
   m_handoff.runAndWait([this, &e, &es, &evt, token, engine]() {
-      edm::ServiceRegistry::Operate guard{token};
-      StaticRandomEngineSetUnset random(engine);
-      evt = m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
-    });
+    edm::ServiceRegistry::Operate guard{token};
+    StaticRandomEngineSetUnset random(engine);
+    evt = m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
+  });
 
   std::unique_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
   std::unique_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);

@@ -73,7 +73,8 @@ void TrackWithHistory::checkAtEnd(const G4Track* gt) {
     ok = false;
   }
 
-  if (!ok) G4Exception("TrackWithHistory::checkAtEnd()", "mc001", FatalException, "check at track end failed");
+  if (!ok)
+    G4Exception("TrackWithHistory::checkAtEnd()", "mc001", FatalException, "check at track end failed");
 }
 
 int TrackWithHistory::extractGenID(const G4Track* gt) const {
