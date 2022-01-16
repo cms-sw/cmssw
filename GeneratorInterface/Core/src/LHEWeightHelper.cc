@@ -7,19 +7,16 @@
 using namespace tinyxml2;
 
 namespace gen {
-  void LHEWeightHelper::setHeaderLines(std::vector<std::string> headerLines) { headerLines_ = headerLines; }
-
-  bool LHEWeightHelper::parseLHE(tinyxml2::XMLDocument& xmlDoc) {
-    parsedWeights_.clear();
-
-    std::string fullHeader = boost::algorithm::join(headerLines_, "");
+  bool LHEWeightHelper::validateAndFixHeader(
+        std::vector<std::string>& headerLines, tinyxml2::XMLDocument& xmlDoc) const {
+    std::string fullHeader = boost::algorithm::join(headerLines, "");
 
     if (debug_)
       std::cout << "Full header is \n" << fullHeader << std::endl;
     int xmlError = xmlDoc.Parse(fullHeader.c_str());
     ErrorType errorType;
 
-    while (errorType = findErrorType(xmlError, fullHeader), errorType != ErrorType::NoError) {
+    while (errorType = findErrorType(xmlError, headerLines), errorType != ErrorType::NoError) {
       if (failIfInvalidXML_) {
         xmlDoc.PrintError();
         throw cms::Exception("LHEWeightHelper")
@@ -31,8 +28,8 @@ namespace gen {
       } else if (errorType == ErrorType::SwapHeader) {
         if (debug_)
           std::cout << "  >>> Some headers in the file are swapped\n";
-        swapHeaders();
-        fullHeader = boost::algorithm::join(headerLines_, "");
+        swapHeaders(headerLines);
+        fullHeader = boost::algorithm::join(headerLines, "");
         xmlError = xmlDoc.Parse(fullHeader.c_str());
       } else if (errorType == ErrorType::TrailingStr) {
         if (debug_)
@@ -55,7 +52,7 @@ namespace gen {
     return true;
   }
 
-  void LHEWeightHelper::addGroup(tinyxml2::XMLElement* inner, std::string groupName, int groupIndex, int& weightIndex) {
+  ParsedWeight LHEWeightHelper::parseWeight(tinyxml2::XMLElement* inner, std::string groupName, int groupIndex, int& weightIndex) const {
     if (debug_)
       std::cout << "  >> Found a weight inside the group. " << std::endl;
     std::string text = "";
@@ -67,15 +64,17 @@ namespace gen {
       attributes[att->Name()] = att->Value();
     if (debug_)
       std::cout << "     " << weightIndex << ": \"" << text << "\"" << std::endl;
-    parsedWeights_.push_back({inner->Attribute("id"), weightIndex++, groupName, text, attributes, groupIndex});
+    return {inner->Attribute("id"), weightIndex++, groupName, text, attributes, groupIndex};
   }
 
-  void LHEWeightHelper::parseWeights() {
+  std::vector<std::unique_ptr<gen::WeightGroupInfo>> LHEWeightHelper::parseWeights(
+        std::vector<std::string> headerLines, bool addUnassociatedGroup) const {
     tinyxml2::XMLDocument xmlDoc;
-    if (!parseLHE(xmlDoc)) {
-      return;
+    if (!validateAndFixHeader(headerLines, xmlDoc)) {
+      return {};
     }
 
+    std::vector<ParsedWeight> parsedWeights;
     int weightIndex = 0;
     int groupIndex = 0;
     for (auto* e = xmlDoc.RootElement(); e != nullptr; e = e->NextSiblingElement()) {
@@ -85,24 +84,25 @@ namespace gen {
       if (strcmp(e->Name(), "weight") == 0) {
         if (debug_)
           std::cout << "Found weight unmatched to group\n";
-        addGroup(e, groupName, groupIndex, weightIndex);
+        parsedWeights.push_back(parseWeight(e, groupName, groupIndex, weightIndex));
       } else if (strcmp(e->Name(), "weightgroup") == 0) {
         groupName = parseGroupName(e);
         if (debug_)
           std::cout << ">>>> Found a weight group: " << groupName << std::endl;
         for (auto inner = e->FirstChildElement("weight"); inner != nullptr; inner = inner->NextSiblingElement("weight"))
-          addGroup(inner, groupName, groupIndex, weightIndex);
+          parsedWeights.push_back(parseWeight(inner, groupName, groupIndex, weightIndex));
       }
       groupIndex++;
     }
-    buildGroups();
+    auto groups = buildGroups(parsedWeights, addUnassociatedGroup);
     if (debug_)
-      printWeights();
+      printWeights(groups);
+    return groups;
   }
 
-  std::string LHEWeightHelper::parseGroupName(tinyxml2::XMLElement* el) {
-    std::vector<std::string> nameAlts_ = {"name", "type"};
-    for (const auto& nameAtt : nameAlts_) {
+  std::string LHEWeightHelper::parseGroupName(tinyxml2::XMLElement* el) const {
+    std::vector<std::string> nameAlts = {"name", "type"};
+    for (const auto& nameAtt : nameAlts) {
       if (el->Attribute(nameAtt.c_str())) {
         std::string groupName = el->Attribute(nameAtt.c_str());
         if (groupName.find('.') != std::string::npos)
@@ -117,10 +117,10 @@ namespace gen {
     return "";
   }
 
-  bool LHEWeightHelper::isConsistent() {
+  bool LHEWeightHelper::isConsistent(const std::vector<std::string>& headerLines) const {
     int curLevel = 0;
 
-    for (const auto& line : headerLines_) {
+    for (const auto& line : headerLines) {
       if (line.find("/weightgroup") != std::string::npos) {
         curLevel--;
         if (curLevel != 0) {
@@ -136,12 +136,12 @@ namespace gen {
     return curLevel == 0;
   }
 
-  void LHEWeightHelper::swapHeaders() {
+  void LHEWeightHelper::swapHeaders(std::vector<std::string>& headerLines) const {
     int curLevel = 0;
     int open = -1;
     int close = -1;
-    for (size_t idx = 0; idx < headerLines_.size(); idx++) {
-      std::string line = headerLines_[idx];
+    for (size_t idx = 0; idx < headerLines.size(); idx++) {
+      std::string line = headerLines[idx];
       if (line.find("/weightgroup") != std::string::npos) {
         curLevel--;
         if (curLevel != 0) {
@@ -154,14 +154,14 @@ namespace gen {
         }
       }
       if (open > -1 && close > -1) {
-        std::swap(headerLines_[open], headerLines_[close]);
+        std::swap(headerLines[open], headerLines[close]);
         open = -1;
         close = -1;
       }
     }
   }
 
-  tinyxml2::XMLError LHEWeightHelper::tryReplaceHtmlStyle(tinyxml2::XMLDocument& xmlDoc, std::string& fullHeader) {
+  tinyxml2::XMLError LHEWeightHelper::tryReplaceHtmlStyle(tinyxml2::XMLDocument& xmlDoc, std::string& fullHeader) const {
     // in case of &gt; instead of <
     boost::replace_all(fullHeader, "&lt;", "<");
     boost::replace_all(fullHeader, "&gt;", ">");
@@ -169,7 +169,7 @@ namespace gen {
     return xmlDoc.Parse(fullHeader.c_str());
   }
 
-  tinyxml2::XMLError LHEWeightHelper::tryRemoveTrailings(tinyxml2::XMLDocument& xmlDoc, std::string& fullHeader) {
+  tinyxml2::XMLError LHEWeightHelper::tryRemoveTrailings(tinyxml2::XMLDocument& xmlDoc, std::string& fullHeader) const {
     // delete extra strings after the last </weightgroup> (occasionally contain '<' or '>')
     std::size_t theLastKet = fullHeader.rfind(weightgroupKet_) + weightgroupKet_.length();
     std::size_t thelastWeight = fullHeader.rfind(weightTag_) + weightTag_.length();
@@ -178,10 +178,11 @@ namespace gen {
     return xmlDoc.Parse(fullHeader.c_str());
   }
 
-  LHEWeightHelper::ErrorType LHEWeightHelper::findErrorType(int xmlError, std::string& fullHeader) {
+  LHEWeightHelper::ErrorType LHEWeightHelper::findErrorType(int xmlError, const std::vector<std::string>& headerLines) const {
+    std::string fullHeader = boost::algorithm::join(headerLines, "");
     if (fullHeader.size() == 0)
       return ErrorType::Empty;
-    else if (!isConsistent())
+    else if (!isConsistent(headerLines))
       return ErrorType::SwapHeader;
     else if (fullHeader.find("&lt;") != std::string::npos || fullHeader.find("&gt;") != std::string::npos)
       return ErrorType::HTMLStyle;
