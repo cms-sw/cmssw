@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-l1tStage2Shower = DQMEDAnalyzer(
-    "L1TStage2Shower",
+l1tStage2RegionalShower = DQMEDAnalyzer(
+    "L1TStage2RegionalShower",
     emtfSource = cms.InputTag("emtfStage2Digis"),                   ## EMTF unpacker tag
     cscSource = cms.InputTag("muonCSCDigis", "MuonCSCShowerDigi"),  ## CSC  unpacker tag
 #    emtfSource = cms.InputTag("simEmtfShowers", "EMTF"),           ## EMTF emulator tag
