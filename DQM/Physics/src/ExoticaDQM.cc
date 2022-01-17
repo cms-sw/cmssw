@@ -531,7 +531,7 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     if (muon_->pt() > dimuon_Muon1_pt_cut_)
       dimuon_countMuon_++;
-    if (muon_->pt() > dimuon_Muon1_pt_cut_)
+    if (muon_->pt() > monomuon_Muon_pt_cut_)
       monomuon_countMuon_++;
   }
 
@@ -593,7 +593,7 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     if (electron_->pt() > dielectron_Electron1_pt_cut_)
       dielectron_countElectron_++;
-    if (electron_->pt() > dielectron_Electron1_pt_cut_)
+    if (electron_->pt() > monoelectron_Electron_pt_cut_)
       monoelectron_countElectron_++;
   }
 
@@ -635,10 +635,9 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       PhotonTrkSumPtSolidConeDR03[1] = photon_->trkSumPtSolidConeDR03();
       PhotonE1x5E5x5[1] = photon_->e1x5() / photon_->e5x5();
       PhotonE2x5E5x5[1] = photon_->e2x5() / photon_->e5x5();
-
-      if (photon_->pt() > dielectron_Electron1_pt_cut_)
-        diphoton_countPhoton_++;
     }
+    if (photon_->pt() > diphoton_Photon1_pt_cut_)
+      diphoton_countPhoton_++;
   }
 
   //
