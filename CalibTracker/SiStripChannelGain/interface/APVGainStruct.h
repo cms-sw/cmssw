@@ -4,7 +4,7 @@
 class TH1F;
 #include <string>
 
-enum fitgrade { NONE=-1, A=1 , B =2 };
+enum fitgrade { NONE = -1, A = 1, B = 2 };
 
 struct stAPVGain {
   unsigned int Index;

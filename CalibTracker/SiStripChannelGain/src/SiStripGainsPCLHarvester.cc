@@ -25,26 +25,23 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <iostream>
 #include <sstream>
+
+// ROOT includes
+#include <TROOT.h>
 #include <TTree.h>
 
 //********************************************************************************//
-SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps):
-  doStoreOnDB(false),
-  GOOD(0),
-  BAD(0),
-  MASKED(0),
-  NStripAPVs(0),
-  NPixelDets(0),
-{
-  m_Record                = ps.getUntrackedParameter<std::string> ("Record"             , "SiStripApvGainRcd");
-  CalibrationLevel        = ps.getUntrackedParameter<int>         ("CalibrationLevel"   ,   0);
-  MinNrEntries            = ps.getUntrackedParameter<double>      ("minNrEntries"       ,  20);
-  m_DQMdir                = ps.getUntrackedParameter<std::string> ("DQMdir"             , "AlCaReco/SiStripGains");
-  m_calibrationMode       = ps.getUntrackedParameter<std::string> ("calibrationMode"    , "StdBunch");
-  tagCondition_NClusters  = ps.getUntrackedParameter<double>      ("NClustersForTagProd", 2E8);
-  tagCondition_GoodFrac   = ps.getUntrackedParameter<double>      ("GoodFracForTagProd" , 0.95);
-  doChargeMonitorPerPlane = ps.getUntrackedParameter<bool>        ("doChargeMonitorPerPlane" ,  false);
-  VChargeHisto            = ps.getUntrackedParameter<std::vector<std::string> >  ("ChargeHisto");
+SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps)
+    : doStoreOnDB(false), GOOD(0), BAD(0), MASKED(0), NStripAPVs(0), NPixelDets(0) {
+  m_Record = ps.getUntrackedParameter<std::string>("Record", "SiStripApvGainRcd");
+  CalibrationLevel = ps.getUntrackedParameter<int>("CalibrationLevel", 0);
+  MinNrEntries = ps.getUntrackedParameter<double>("minNrEntries", 20);
+  m_DQMdir = ps.getUntrackedParameter<std::string>("DQMdir", "AlCaReco/SiStripGains");
+  m_calibrationMode = ps.getUntrackedParameter<std::string>("calibrationMode", "StdBunch");
+  tagCondition_NClusters = ps.getUntrackedParameter<double>("NClustersForTagProd", 2E8);
+  tagCondition_GoodFrac = ps.getUntrackedParameter<double>("GoodFracForTagProd", 0.95);
+  doChargeMonitorPerPlane = ps.getUntrackedParameter<bool>("doChargeMonitorPerPlane", false);
+  VChargeHisto = ps.getUntrackedParameter<std::vector<std::string>>("ChargeHisto");
   fit_gaussianConvolution_ = ps.getUntrackedParameter<bool>("FitGaussianConvolution", false);
   fit_gaussianConvolutionTOBL56_ = ps.getUntrackedParameter<bool>("FitGaussianConvolutionTOBL5L6", false);
   fit_dataDrivenRange_ = ps.getUntrackedParameter<bool>("FitDataDrivenRange", false);
@@ -580,21 +577,17 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
     APV->FitNorm = FitResults[5];
     APV->NEntries = Proj->GetEntries();
 
-    // fall back to legacy fit in case of  very low chi2 probability 
-    if(APV->FitChi2 <= 0.1){ 
-      
-      edm::LogInfo("SiStripGainsPCLHarvester")<<"fit failed on this APV:" << APV->DetId <<":"<<APV->APVId << " !" << std::endl;
-      
-      std::fill(FitResults, FitResults+6, 0);
+    // fall back to legacy fit in case of  very low chi2 probability
+    if (APV->FitChi2 <= 0.1) {
+      edm::LogInfo("SiStripGainsPCLHarvester")
+          << "fit failed on this APV:" << APV->DetId << ":" << APV->APVId << " !" << std::endl;
+
+      std::fill(FitResults, FitResults + 6, 0);
       fitRange = std::make_pair(50., 5400.);
-      
+
       APV->FitGrade = fitgrade::B;
 
-      getPeakOfLandau(Proj,
-		      FitResults,
-		      fitRange.first,
-		      fitRange.second,
-		      false);
+      getPeakOfLandau(Proj, FitResults, fitRange.first, fitRange.second, false);
 
       APV->FitMPV = FitResults[0];
       APV->FitMPVErr = FitResults[1];
@@ -606,7 +599,7 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
     } else {
       APV->FitGrade = fitgrade::A;
     }
-    
+
     if (IsGoodLandauFit(FitResults)) {
       APV->Gain = APV->FitMPV / MPVmean;
       if (APV->SubDet > 2)
@@ -713,7 +706,7 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
           APV->FitWidthErr = -1;
           APV->FitChi2 = -1;
           APV->FitNorm = -1;
-	  APV->FitGrade = fitgrade::NONE;
+          APV->FitGrade = fitgrade::NONE;
           APV->Gain = -1;
           APV->PreviousGain = 1;
           APV->PreviousGainTick = 1;
@@ -761,7 +754,7 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
             APV->FitWidth = -1;
             APV->FitWidthErr = -1;
             APV->FitChi2 = -1;
-	    APV->FitGrade = fitgrade::NONE;
+            APV->FitGrade = fitgrade::NONE;
             APV->Gain = -1;
             APV->PreviousGain = 1;
             APV->PreviousGainTick = 1;
@@ -888,14 +881,14 @@ void SiStripGainsPCLHarvester::storeGainsTree(const TAxis* chVsIdxXaxis) const {
   tree->Branch("FitWidthErr", &t_FitWidthErr, "FitWidthErr/F");
   tree->Branch("FitChi2NDF", &t_FitChi2NDF, "FitChi2NDF/F");
   tree->Branch("FitNorm", &t_FitNorm, "FitNorm/F");
-  tree->Branch("FitGrade",&t_FitGrade, "FitGrade/F");
+  tree->Branch("FitGrade", &t_FitGrade, "FitGrade/F");
   tree->Branch("Gain", &t_Gain, "Gain/D");
   tree->Branch("PrevGain", &t_PrevGain, "PrevGain/D");
   tree->Branch("PrevGainTick", &t_PrevGainTick, "PrevGainTick/D");
   tree->Branch("NEntries", &t_NEntries, "NEntries/D");
   tree->Branch("isMasked", &t_isMasked, "isMasked/O");
 
-  for (const auto iAPV : APVsCollOrdered) {
+  for (const auto& iAPV : APVsCollOrdered) {
     if (iAPV) {
       t_Index = iAPV->Index;
       t_Bin = chVsIdxXaxis->FindBin(iAPV->Index);
