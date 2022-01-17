@@ -92,7 +92,6 @@ ppRef_2017.toModify(
 
 # emulator module
 l1tEGammaOfflineDQMEmu = l1tEGammaOfflineDQM.clone(
-    stage2CaloLayer2EGammaSource=cms.InputTag("simCaloStage2Digis"),
-
-    histFolder=cms.string('L1TEMU/L1TObjects/L1TEGamma/L1TriggerVsReco'),
+    stage2CaloLayer2EGammaSource = "simCaloStage2Digis",
+    histFolder = 'L1TEMU/L1TObjects/L1TEGamma/L1TriggerVsReco'
 )
