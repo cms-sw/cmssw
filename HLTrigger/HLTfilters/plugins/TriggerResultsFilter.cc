@@ -7,21 +7,23 @@
  *
  */
 
-#include <vector>
-#include <string>
-#include <sstream>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <regex>
+#include <vector>
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/RegexMatch.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
+
 #include "TriggerResultsFilter.h"
 
 //
@@ -29,15 +31,32 @@
 //
 TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet& config)
     : m_expression(nullptr), m_eventCache(config, consumesCollector()) {
-  const std::vector<std::string>& expressions = config.getParameter<std::vector<std::string>>("triggerConditions");
+  std::vector<std::string> const& expressions = config.getParameter<std::vector<std::string>>("triggerConditions");
   parse(expressions);
-  if (m_eventCache.usePathStatus())
-    callWhenNewProductsRegistered([this](const edm::BranchDescription& branch) {
-      this->m_eventCache.setPathStatusToken(branch, consumesCollector());
-    });
-}
+  if (m_expression and m_eventCache.usePathStatus()) {
+    // if the expression was succesfully parsed, join all the patterns corresponding
+    // to the CMSSW paths in the logical expression into a single regex
+    std::vector<std::string> patterns = m_expression->patterns();
+    if (patterns.empty()) {
+      return;
+    }
+    std::string str;
+    for (auto const& pattern : patterns) {
+      str += edm::glob2reg(pattern);
+      str += '|';
+    }
+    str.pop_back();
+    std::regex regex(str, std::regex::extended);
 
-TriggerResultsFilter::~TriggerResultsFilter() { delete m_expression; }
+    // consume all matching paths
+    callWhenNewProductsRegistered([this, regex](edm::BranchDescription const& branch) {
+      if (branch.branchType() == edm::InEvent and branch.className() == "edm::HLTPathStatus" and
+          std::regex_match(branch.moduleLabel(), regex)) {
+        m_eventCache.setPathStatusToken(branch, consumesCollector());
+      }
+    });
+  }
+}
 
 void TriggerResultsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -85,7 +104,7 @@ void TriggerResultsFilter::parse(const std::vector<std::string>& expressions) {
 
 void TriggerResultsFilter::parse(const std::string& expression) {
   // parse the logical expressions into functionals
-  m_expression = triggerExpression::parse(expression);
+  m_expression.reset(triggerExpression::parse(expression));
 
   // check if the expressions were parsed correctly
   if (not m_expression)

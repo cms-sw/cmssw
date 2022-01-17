@@ -50,7 +50,7 @@ namespace triggerExpression {
           m_eventNumber() {}
 
     // explicit c'tor from a ParameterSet
-    explicit Data(const edm::ParameterSet& config, edm::ConsumesCollector&& iC)
+    explicit Data(const edm::ParameterSet& config, edm::ConsumesCollector&& cc)
         :  // configuration
           m_usePathStatus(config.getParameter<bool>("usePathStatus")),
           m_pathStatusTokens(),
@@ -58,7 +58,7 @@ namespace triggerExpression {
           m_hltResultsToken(),
           m_l1tResultsTag(config.getParameter<edm::InputTag>("l1tResults")),
           m_l1tResultsToken(),
-          m_l1tUtmTriggerMenuToken(iC.esConsumes()),
+          m_l1tUtmTriggerMenuToken(cc.esConsumes()),
           m_l1tIgnoreMaskAndPrescale(config.getParameter<bool>("l1tIgnoreMaskAndPrescale")),
           m_throw(config.getParameter<bool>("throw")),
           // l1 values and status
@@ -75,10 +75,10 @@ namespace triggerExpression {
           m_hltUpdated(false),
           // event values
           m_eventNumber() {
-      if (not m_hltResultsTag.label().empty() && not m_usePathStatus)
-        m_hltResultsToken = iC.consumes<edm::TriggerResults>(m_hltResultsTag);
+      if (not m_hltResultsTag.label().empty() and not m_usePathStatus)
+        m_hltResultsToken = cc.consumes<edm::TriggerResults>(m_hltResultsTag);
       if (not m_l1tResultsTag.label().empty())
-        m_l1tResultsToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tResultsTag);
+        m_l1tResultsToken = cc.consumes<GlobalAlgBlkBxCollection>(m_l1tResultsTag);
     }
 
     // explicit c'tor from single arguments
@@ -87,7 +87,7 @@ namespace triggerExpression {
          edm::InputTag const& l1tResultsTag,
          bool l1tIgnoreMaskAndPrescale,
          bool doThrow,
-         edm::ConsumesCollector&& iC)
+         edm::ConsumesCollector&& cc)
         :  // configuration
           m_usePathStatus(usePathStatus),
           m_pathStatusTokens(),
@@ -95,7 +95,7 @@ namespace triggerExpression {
           m_hltResultsToken(),
           m_l1tResultsTag(l1tResultsTag),
           m_l1tResultsToken(),
-          m_l1tUtmTriggerMenuToken(iC.esConsumes()),
+          m_l1tUtmTriggerMenuToken(cc.esConsumes()),
           m_l1tIgnoreMaskAndPrescale(l1tIgnoreMaskAndPrescale),
           m_throw(doThrow),
           // l1 values and status
@@ -112,14 +112,14 @@ namespace triggerExpression {
           m_hltUpdated(false),
           // event values
           m_eventNumber() {
-      if (not m_hltResultsTag.label().empty() && not m_usePathStatus)
-        m_hltResultsToken = iC.consumes<edm::TriggerResults>(m_hltResultsTag);
+      if (not m_hltResultsTag.label().empty() and not m_usePathStatus)
+        m_hltResultsToken = cc.consumes<edm::TriggerResults>(m_hltResultsTag);
       if (not m_l1tResultsTag.label().empty())
-        m_l1tResultsToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tResultsTag);
+        m_l1tResultsToken = cc.consumes<GlobalAlgBlkBxCollection>(m_l1tResultsTag);
     }
 
     // set path status token
-    void setPathStatusToken(edm::BranchDescription const& branch, edm::ConsumesCollector&& iC);
+    void setPathStatusToken(edm::BranchDescription const& branch, edm::ConsumesCollector&& cc);
 
     // set the new event
     bool setEvent(const edm::Event& event, const edm::EventSetup& setup);
