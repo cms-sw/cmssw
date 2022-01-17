@@ -24,7 +24,10 @@ siPixelRecHitsPreSplitting = SwitchProducerCUDA(
 # convert the pixel rechits from legacy to SoA format
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi import siPixelRecHitSoAFromLegacy as _siPixelRecHitsPreSplittingSoA
 siPixelRecHitsPreSplittingSoA = _siPixelRecHitsPreSplittingSoA.clone(convertToLegacy=True)
-
+# phase 2 tracker modifier
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(siPixelRecHitsPreSplittingSoA,
+    isPhase2 = True)
 # modifier used to prompt patatrack pixel tracks reconstruction on cpu
 from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 pixelNtupletFit.toModify(siPixelRecHitsPreSplitting,
