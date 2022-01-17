@@ -1074,11 +1074,14 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
   else
     find_hits(0, false);
 
+  float spaceChi2Cut = ilay->isBarrel() ? btlChi2Cut_ : etlChi2Cut_;
+  float timeChi2Cut = ilay->isBarrel() ? btlTimeChi2Cut_ : etlTimeChi2Cut_;
+
   //just take the first hit because the hits are sorted on their matching quality
   if (!hitsInLayer.empty()) {
     //check hits to pass minimum quality matching requirements
     auto const& firstHit = *hitsInLayer.begin();
-    if (firstHit.estChi2 < etlChi2Cut_ && firstHit.timeChi2 < etlTimeChi2Cut_) {
+    if (firstHit.estChi2 < spaceChi2Cut && firstHit.timeChi2 < timeChi2Cut) {
       hitMatched = true;
       output.push_back(hitbuilder_->build(firstHit.hit));
       if (firstHit < bestHit)
@@ -1092,8 +1095,8 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
     find_hits(0, false);
     if (!hitsInLayer.empty()) {
       auto const& firstHit = *hitsInLayer.begin();
-      if (firstHit.timeChi2 < etlTimeChi2Cut_) {
-        if (firstHit.estChi2 < etlChi2Cut_) {
+      if (firstHit.timeChi2 < timeChi2Cut) {
+        if (firstHit.estChi2 < spaceChi2Cut) {
           hitMatched = true;
           output.push_back(hitbuilder_->build(firstHit.hit));
           if (firstHit < bestHit)
