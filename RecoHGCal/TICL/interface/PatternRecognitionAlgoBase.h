@@ -14,6 +14,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoHGCal/TICL/interface/GlobalCache.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
 namespace edm {
   class Event;
@@ -24,7 +25,7 @@ namespace ticl {
   template <typename TILES>
   class PatternRecognitionAlgoBaseT {
   public:
-    PatternRecognitionAlgoBaseT(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector)
+    PatternRecognitionAlgoBaseT(const edm::ParameterSet& conf, edm::ConsumesCollector)
         : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
     virtual ~PatternRecognitionAlgoBaseT(){};
 
@@ -36,15 +37,17 @@ namespace ticl {
       const edm::ValueMap<std::pair<float, float>>& layerClustersTime;
       const TILES& tiles;
       const std::vector<TICLSeedingRegion>& regions;
-
-      Inputs(const edm::Event& eV,
+      const tensorflow::Session* tfSession;
+      
+     Inputs(const edm::Event& eV,
              const edm::EventSetup& eS,
              const std::vector<reco::CaloCluster>& lC,
              const std::vector<float>& mS,
              const edm::ValueMap<std::pair<float, float>>& lT,
              const TILES& tL,
-             const std::vector<TICLSeedingRegion>& rG)
-          : ev(eV), es(eS), layerClusters(lC), mask(mS), layerClustersTime(lT), tiles(tL), regions(rG) {}
+             const std::vector<TICLSeedingRegion>& rG,
+	     const tensorflow::Session* tS)
+      : ev(eV), es(eS), layerClusters(lC), mask(mS), layerClustersTime(lT), tiles(tL), regions(rG), tfSession(tS){}
     };
 
     virtual void makeTracksters(const Inputs& input,
