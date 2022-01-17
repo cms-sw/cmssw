@@ -8,7 +8,10 @@
 #include <algorithm>
 
 SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
-    : qualityToken_(iC.esConsumes<SiStripQuality, SiStripQualityRcd>()),
+    : siStripRawDigiToken_(iC.consumes<edm::DetSetVector<SiStripRawDigi>>(edm::InputTag("siStripDigis", "VirginRaw"))),
+      siStripProcessedRawDigiToken_(
+          iC.consumes<edm::DetSetVector<SiStripProcessedRawDigi>>(edm::InputTag("MEANAPVCM"))),
+      qualityToken_(iC.esConsumes<SiStripQuality, SiStripQualityRcd>()),
       noiseToken_(iC.esConsumes<SiStripNoises, SiStripNoisesRcd>()),
       pedestalToken_(iC.esConsumes<SiStripPedestals, SiStripPedestalsRcd>()),
       forceNoRestore_(conf.getParameter<bool>("ForceNoRestore")),
@@ -969,11 +972,11 @@ bool SiStripAPVRestorer::checkBaseline(const digivector_t& baseline) const {
 void SiStripAPVRestorer::loadMeanCMMap(const edm::Event& iEvent) {
   if (useRealMeanCM_) {
     edm::Handle<edm::DetSetVector<SiStripRawDigi>> input;
-    iEvent.getByLabel("siStripDigis", "VirginRaw", input);
+    iEvent.getByToken(siStripRawDigiToken_, input);
     createCMMapRealPed(*input);
   } else {
     edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi>> inputCM;
-    iEvent.getByLabel("MEANAPVCM", inputCM);
+    iEvent.getByToken(siStripProcessedRawDigiToken_, inputCM);
     createCMMapCMstored(*inputCM);
   }
 }
