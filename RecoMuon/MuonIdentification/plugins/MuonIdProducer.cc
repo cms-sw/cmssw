@@ -550,7 +550,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         continue;
       if (selectHighPurity_ && !track.quality(reco::TrackBase::highPurity)) {
         const reco::VertexCollection* recoVertices = pvHandle_.product();
-        if (!recoVertices->at(0).isFake())
+        if (!(*recoVertices)[0].isFake())
           continue;
       }
       const auto& trackRef = reco::TrackRef(innerTrackCollectionHandle_, i);
@@ -1409,7 +1409,10 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<bool>("arbitrateTrackerMuons", false);
   desc.add<bool>("storeCrossedHcalRecHits", false);
   desc.add<bool>("fillShowerDigis", false);
-  desc.add<bool>("selectHighPurity", false);
+  desc.ifValue(
+      edm::ParameterDescription<bool>("selectHighPurity", false, true),
+      true >> (edm::ParameterDescription<edm::InputTag>("pvInputTag", edm::InputTag("offlinePrimaryVertices"), true)) or
+          false >> (edm::ParameterDescription<edm::InputTag>("pvInputTag", edm::InputTag(""), true)));
 
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel", edm::InputTag("gemSegments"));
