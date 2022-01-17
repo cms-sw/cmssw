@@ -6,6 +6,9 @@
 // Root objects
 #include "TH1D.h"
 
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
@@ -68,6 +71,7 @@ private:
   const double hitEthrEELo_, hitEthrEEHi_;
   const std::string labelGenTrack_, labelRecVtx_, labelEB_;
   const std::string labelEE_, labelHBHE_;
+  const bool usePFThresh_;
   double a_charIsoR_;
 
   edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
@@ -80,6 +84,9 @@ private:
 
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> tok_ecalPFRecHitThresholds_;
+
+  const EcalPFRecHitThresholds* eThresholds_;
 
   std::vector<TH1D*> h_eta_, h_eta0_, h_eta1_, h_rat0_, h_rat1_;
   TH1D *h_Dxy_, *h_Dz_, *h_Chi2_, *h_DpOverP_;
@@ -115,7 +122,8 @@ HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
       labelRecVtx_(iConfig.getParameter<std::string>("labelVertex")),
       labelEB_(iConfig.getParameter<std::string>("labelEBRecHit")),
       labelEE_(iConfig.getParameter<std::string>("labelEERecHit")),
-      labelHBHE_(iConfig.getParameter<std::string>("labelHBHERecHit")) {
+      labelHBHE_(iConfig.getParameter<std::string>("labelHBHERecHit")),
+      usePFThresh_(iConfig.getParameter<bool>("usePFThreshold")) {
   usesResource(TFileService::kSharedResource);
 
   //now do whatever initialization is needed
@@ -149,12 +157,13 @@ HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
                                    << "\t a_mipR " << a_mipR_ << "\n\t momentumLow_ " << pTrackLow_
                                    << "\t momentumHigh_ " << pTrackHigh_ << "\t useRaw_ " << useRaw_
                                    << "\t dataType_      " << dataType_ << "\t etaLimit " << etaMin_ << ":" << etaMax_
-                                   << "\nThreshold for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
+                                   << "\nThreshold flag used " << usePFThresh_ << " value for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
                                    << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
                                    << hitEthrEEHi_;
 
   tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
   tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_ecalPFRecHitThresholds_ = esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>();
 }
 
 void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
@@ -166,8 +175,11 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
   //Get magnetic field
   const MagneticField* bField = &iSetup.getData(tok_bFieldH_);
 
-  // get handles to calogeometry
+  // get calogeometry
   const CaloGeometry* geo = &iSetup.getData(tok_geom_);
+
+  // get ECAL thresholds
+  eThresholds_ = &iSetup.getData(tok_ecalPFRecHitThresholds_);
 
   bool okC(true);
   //Get track collection
@@ -257,16 +269,20 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
                                         eHit);
         double eEcal(0);
         for (unsigned int k = 0; k < eIds.size(); ++k) {
-          const GlobalPoint& pos = geo->getPosition(eIds[k]);
-          double eta = std::abs(pos.eta());
-          double eThr(hitEthrEB_);
-          if (eIds[k].subdetId() != EcalBarrel) {
-            eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-            if (eThr < hitEthrEELo_)
-              eThr = hitEthrEELo_;
-            else if (eThr > hitEthrEEHi_)
-              eThr = hitEthrEEHi_;
-          }
+	  double eThr(hitEthrEB_);
+	  if (usePFThresh_) {
+	    eThr = static_cast<double>((*eThresholds_)[eIds[k]]);
+	  } else {
+	    const GlobalPoint& pos = geo->getPosition(eIds[k]);
+	    double eta = std::abs(pos.eta());
+	    if (eIds[k].subdetId() != EcalBarrel) {
+	      eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+	      if (eThr < hitEthrEELo_)
+		eThr = hitEthrEELo_;
+	      else if (eThr > hitEthrEEHi_)
+		eThr = hitEthrEEHi_;
+	    }
+	  }
           if (eHit[k] > eThr)
             eEcal += eHit[k];
         }
@@ -516,7 +532,8 @@ void HcalIsoTrackAnalysis::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.addUntracked<int>("dataType", 0);
   desc.addUntracked<int>("etaMin", -1);
   desc.addUntracked<int>("etaMax", 10);
-  descriptions.add("HcalIsoTrackAnalysis", desc);
+  desc.add<bool>("usePFThreshold", true);
+  descriptions.add("hcalIsoTrackAnalysis", desc);
 }
 
 //define this as a plug-in
