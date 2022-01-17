@@ -151,75 +151,55 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
             if(nLayer == 1){
                 nClustersBarrelLayer1 += nClustersEv;
                 for (SiPixelCluster const& cluster : *it){
-                    //edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
                     int clustersize = cluster.size();
                     hClustersSize->Fill(clustersize);
                     hClustersBarrelSize->Fill(clustersize);
                     hClustersBarrelLayer1Size->Fill(clustersize);
-                    //edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
                     int clustercharge = cluster.charge();
-                    //edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge 1" <<std::endl;
                     hClustersCharge->Fill(clustercharge);
-                    //edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge 2" <<std::endl;
                     hClustersBarrelCharge->Fill(clustercharge);
-                    //edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge 3" <<std::endl;
                     hClustersBarrelLayer1Charge->Fill(clustercharge);
-                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
-                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                 }
             }
             else if(nLayer == 2){
                 nClustersBarrelLayer2 += nClustersEv;
                 for (SiPixelCluster const& cluster : *it){
-                    //edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
                     int clustersize = cluster.size();
                     hClustersSize->Fill(clustersize);
                     hClustersBarrelSize->Fill(clustersize);
                     hClustersBarrelLayer2Size->Fill(clustersize);
-                    //edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
                     int clustercharge = cluster.charge();
                     hClustersCharge->Fill(clustercharge);
                     hClustersBarrelCharge->Fill(clustercharge);
                     hClustersBarrelLayer2Charge->Fill(clustercharge);
-                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
-                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
-
                 }
             }
 
             else if(nLayer == 3){
                 nClustersBarrelLayer3 += nClustersEv;
                 for (SiPixelCluster const& cluster : *it){
-                    //edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
                     int clustersize = cluster.size();
                     hClustersSize->Fill(clustersize);
                     hClustersBarrelSize->Fill(clustersize);
                     hClustersBarrelLayer3Size->Fill(clustersize);
-                    //edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
                     int clustercharge = cluster.charge();
                     hClustersCharge->Fill(clustercharge);
                     hClustersBarrelCharge->Fill(clustercharge);
                     hClustersBarrelLayer3Charge->Fill(clustercharge);
-                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
-                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                 }
             }
 
             else if(nLayer == 4){
                 nClustersBarrelLayer4 += nClustersEv;
                 for (SiPixelCluster const& cluster : *it){
-                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
                     int clustersize = cluster.size();
                     hClustersSize->Fill(clustersize);
                     hClustersBarrelSize->Fill(clustersize);
                     hClustersBarrelLayer4Size->Fill(clustersize);
-                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
                     int clustercharge = cluster.charge();
                     hClustersCharge->Fill(clustercharge);
                     hClustersBarrelCharge->Fill(clustercharge);
                     hClustersBarrelLayer4Charge->Fill(clustercharge);
-                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Layer " <<nLayer<<std::endl;
-                    edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                 }
             }
 
@@ -242,8 +222,6 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                         hClustersCharge->Fill(clustercharge);
                         hClustersEndcapCharge->Fill(clustercharge);
                         hClustersEndcapDiskm1Charge->Fill(clustercharge);
-                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Disk " <<nDisk<<std::endl;
-                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                     }
                 }
 
@@ -258,8 +236,6 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                         hClustersCharge->Fill(clustercharge);
                         hClustersEndcapCharge->Fill(clustercharge);
                         hClustersEndcapDiskm2Charge->Fill(clustercharge);
-                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Disk " <<nDisk<<std::endl;
-                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                     }
                 }
 
@@ -274,8 +250,6 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                         hClustersCharge->Fill(clustercharge);
                         hClustersEndcapCharge->Fill(clustercharge);
                         hClustersEndcapDiskm3Charge->Fill(clustercharge);
-                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Disk " <<nDisk<<std::endl;
-                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                     }
                 }
 
@@ -293,8 +267,6 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                         hClustersCharge->Fill(clustercharge);
                         hClustersEndcapCharge->Fill(clustercharge);
                         hClustersEndcapDiskp1Charge->Fill(clustercharge);
-                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Disk " <<nDisk<<std::endl;
-                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                     }
                 }
                 else if(nDisk == 2){
@@ -308,8 +280,6 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                         hClustersCharge->Fill(clustercharge);
                         hClustersEndcapCharge->Fill(clustercharge);
                         hClustersEndcapDiskp2Charge->Fill(clustercharge);
-                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Disk " <<nDisk<<std::endl;
-                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                     }
                 }
 
@@ -324,8 +294,6 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
                         hClustersCharge->Fill(clustercharge);
                         hClustersEndcapCharge->Fill(clustercharge);
                         hClustersEndcapDiskp3Charge->Fill(clustercharge);
-                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Disk " <<nDisk<<std::endl;
-                        edm::LogWarning("SiPixelPhase1MonitorClusters") << " Charge " <<clustercharge<<std::endl;
                     }
                 }
 
@@ -411,7 +379,6 @@ void SiPixelPhase1MonitorClusters::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void SiPixelPhase1MonitorClusters::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelClusters", edm::InputTag("siPixelClustersPreSplitting"));
   desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelClusters");
