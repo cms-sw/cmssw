@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -82,17 +82,15 @@ using namespace std;
 
 //=============================================================================
 
-class ReadPixClusters : public edm::EDAnalyzer {
+class ReadPixClusters : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit ReadPixClusters(const edm::ParameterSet &conf);
   virtual ~ReadPixClusters();
   virtual void analyze(const edm::Event &e, const edm::EventSetup &c) override;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &) override;
   virtual void beginJob() override;
   virtual void endJob() override;
 
 private:
-  edm::ParameterSet conf_;
   edm::InputTag src_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> tPixelCluster;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
@@ -138,27 +136,21 @@ private:
 
 /////////////////////////////////////////////////////////////////
 // Contructor, empty.
-ReadPixClusters::ReadPixClusters(edm::ParameterSet const &conf)
-    : conf_(conf), src_(conf.getParameter<edm::InputTag>("src")) {
+ReadPixClusters::ReadPixClusters(edm::ParameterSet const &conf) : src_(conf.getParameter<edm::InputTag>("src")) {
+  usesResource(TFileService::kSharedResource);
   printLocal = conf.getUntrackedParameter<bool>("Verbosity", false);
   //src_ =  conf.getParameter<edm::InputTag>( "src" );
-
-  cout << " Construct " << printLocal << endl;
+  edm::LogPrint("ReadPixClusters") << " Construct " << printLocal;
   tPixelCluster = consumes<edmNew::DetSetVector<SiPixelCluster>>(src_);
   trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 }
 // Virtual destructor needed.
-ReadPixClusters::~ReadPixClusters() {}
-
-// ------------ method called at the begining   ------------
-void ReadPixClusters::beginRun(edm::Run const &, const edm::EventSetup &iSetup) {
-  cout << "beginRun -  PixelClusterTest " << printLocal << endl;
-}
+ReadPixClusters::~ReadPixClusters() = default;
 
 // ------------ method called at the begining   ------------
 void ReadPixClusters::beginJob() {
-  cout << "Initialize PixelClusterTest " << printLocal << endl;
+  edm::LogPrint("ReadPixClusters") << "Initialize PixelClusterTest " << printLocal;
 
 #ifdef HISTOS
 
@@ -323,8 +315,8 @@ void ReadPixClusters::beginJob() {
 // ------------ method called to at the end of the job  ------------
 void ReadPixClusters::endJob() {
   sumClusters = sumClusters / float(countEvents);
-  cout << " End PixelClusTest, events all/with hits=  " << countAllEvents << "/" << countEvents << " " << sumClusters
-       << " " << printLocal << endl;
+  edm::LogPrint("ReadPixClusters") << " End PixelClusTest, events all/with hits=  " << countAllEvents << "/"
+                                   << countEvents << " " << sumClusters << " " << printLocal;
 }
 //////////////////////////////////////////////////////////////////
 // Functions that gets called by framework every event
@@ -359,8 +351,8 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
   hlumi0->Fill(float(lumiBlock));
 
   if (printLocal)
-    cout << "run " << run << " event " << event << " bx " << bx << " lumi " << lumiBlock << " orbit " << orbit << " "
-         << numOf << endl;
+    edm::LogPrint("ReadPixClusters") << "run " << run << " event " << event << " bx " << bx << " lumi " << lumiBlock
+                                     << " orbit " << orbit << " " << numOf;
 
   hdets->Fill(float(numOf));  // number of modules with pix
 
@@ -432,7 +424,8 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
     unsigned int subid = detId.subdetId();  //subdetector type, barrel=1
 
     if (printLocal)
-      cout << "Det: " << detId.rawId() << " " << detId.null() << " " << detType << " " << subid << endl;
+      edm::LogPrint("ReadPixClusters") << "Det: " << detId.rawId() << " " << detId.null() << " " << detType << " "
+                                       << subid;
 
 #ifdef HISTOS
       //hdetunit->Fill(float(detid));
@@ -500,8 +493,9 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 #endif
 
       if (printLocal)
-        cout << " forward det, disk " << disk << ", blade " << blade << ", module " << moduleF << ", side " << side
-             << ", panel " << panel << " pos = " << detZ << " " << detR << endl;
+        edm::LogPrint("ReadPixClusters") << " forward det, disk " << disk << ", blade " << blade << ", module "
+                                         << moduleF << ", side " << side << ", panel " << panel << " pos = " << detZ
+                                         << " " << detR;
 
       bool fpixInner = (((panel == 1) && (moduleF <= 2)) || ((panel == 2) && (moduleF <= 1)));  // make split at 10cm
       if (fpixInner)
@@ -552,20 +546,21 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
         ladder = -ladder;
 
       if (printLocal) {
-        cout << " Barrel layer, ladder, module " << layerC << " " << ladderC << " " << zindex << " " << sh << "("
-             << shell << ") " << sector << " " << layer << " " << ladder << " " << module << " " << half << endl;
-        //cout<<" Barrel det, thick "<<detThick<<" "
+        edm::LogPrint("ReadPixClusters") << " Barrel layer, ladder, module " << layerC << " " << ladderC << " "
+                                         << zindex << " " << sh << "(" << shell << ") " << sector << " " << layer << " "
+                                         << ladder << " " << module << " " << half;
+        //edm::LogPrint("ReadPixClusters")<<" Barrel det, thick "<<detThick<<" "
         //  <<" layer, ladder, module "
-        //  <<layer<<" "<<ladder<<" "<<zindex<<endl;
-        //cout<<" col/row, pitch "<<cols<<" "<<rows<<" "
-        //  <<pitchX<<" "<<pitchY<<endl;
+        //  <<layer<<" "<<ladder<<" "<<zindex;
+        //edm::LogPrint("ReadPixClusters")<<" col/row, pitch "<<cols<<" "<<rows<<" "
+        //  <<pitchX<<" "<<pitchY;
       }
 
     }  // if subid
 
     if (printLocal) {
-      cout << "List clusters : " << endl;
-      cout << "Num Charge Size SizeX SizeY X Y Xmin Xmax Ymin Ymax Edge" << endl;
+      edm::LogPrint("ReadPixClusters") << "List clusters : ";
+      edm::LogPrint("ReadPixClusters") << "Num Charge Size SizeX SizeY X Y Xmin Xmax Ymin Ymax Edge";
     }
 
     // Loop over clusters
@@ -593,14 +588,14 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
       bool edgeHitY = (topol->isItEdgePixelInY(minPixelCol)) || (topol->isItEdgePixelInY(maxPixelCol));
 
       if (printLocal)
-        cout << numberOfClusters << " " << ch << " " << size << " " << sizeX << " " << sizeY << " " << x << " " << y
-             << " " << minPixelRow << " " << maxPixelRow << " " << minPixelCol << " " << maxPixelCol << " " << edgeHitX
-             << " " << edgeHitY << endl;
+        edm::LogPrint("ReadPixClusters") << numberOfClusters << " " << ch << " " << size << " " << sizeX << " " << sizeY
+                                         << " " << x << " " << y << " " << minPixelRow << " " << maxPixelRow << " "
+                                         << minPixelCol << " " << maxPixelCol << " " << edgeHitX << " " << edgeHitY;
 
       // Get the pixels in the Cluster
       const vector<SiPixelCluster::Pixel> &pixelsVec = clustIt->pixels();
       if (printLocal)
-        cout << " Pixels in this cluster " << endl;
+        edm::LogPrint("ReadPixClusters") << " Pixels in this cluster ";
 
       bool bigInX = false, bigInY = false;
       bool edgeHitX2 = false;  // edge method moved
@@ -686,7 +681,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
             else if (side == 2)
               numOfPixPerDisk3++;  // d1, +z
             else
-              cout << " unknown side " << side << endl;
+              edm::LogPrint("ReadPixClusters") << " unknown side " << side;
 
             hpixcharge4->Fill(adc);
 
@@ -697,12 +692,12 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
             else if (side == 2)
               numOfPixPerDisk4++;  // d2, +z
             else
-              cout << " unknown side " << side << endl;
+              edm::LogPrint("ReadPixClusters") << " unknown side " << side;
 
             hpixcharge5->Fill(adc);
 
           } else
-            cout << " unknown disk " << disk << endl;
+            edm::LogPrint("ReadPixClusters") << " unknown disk " << disk;
 
         }  // end if subdet (pixel loop)
 
@@ -717,8 +712,8 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
           edgeHitY2 = true;
 
         if (printLocal)
-          cout << i << " " << pixx << " " << pixy << " " << adc << " " << bigInX << " " << bigInY << " " << edgeInX
-               << " " << edgeInY << endl;
+          edm::LogPrint("ReadPixClusters") << i << " " << pixx << " " << pixy << " " << adc << " " << bigInX << " "
+                                           << bigInY << " " << edgeInX << " " << edgeInY;
 
         //SK:unused	if(bigInX) cluBigInX=true;
         //SK:unused	if(bigInY) cluBigInY=true;
@@ -726,25 +721,27 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
       }  // pixel loop
 
       // if(edgeHitX ||  edgeHitX2 || edgeHitY ||  edgeHitY2)
-      // 	cout<<" egde "<<edgeHitX<<" "<<edgeHitX2<<" "<<edgeHitY<<" "<<edgeHitY2<<" "
+      // 	edm::LogPrint("ReadPixClusters")<<" egde "<<edgeHitX<<" "<<edgeHitX2<<" "<<edgeHitY<<" "<<edgeHitY2<<" "
       // 	    <<size<<" "<<sizeX<<" "<<sizeY<<" "
       // 	    <<x<<" "<<y<<" "<<minPixelRow<<" "<<maxPixelRow<<" "<<minPixelCol<<" "
-      // 	    <<maxPixelCol<<" "<<edgeHitX<<" "<<edgeHitY<<endl;
+      // 	    <<maxPixelCol<<" "<<edgeHitX<<" "<<edgeHitY;
 
       // This will happen  for clusters wider than 64
       if ((edgeHitX != edgeHitX2) && sizeX < 64)
-        cout << " wrong egdeX " << edgeHitX << " "
-             << edgeHitX2
-             //<<" "<<event<<" "<<detid<<" "<<numberOfClusters
-             << " size = " << size << " " << sizeX << " " << sizeY << " " << x << " " << y << " " << minPixelRow << " "
-             << maxPixelRow << " " << minPixelCol << " " << maxPixelCol << " " << edgeHitX << " " << edgeHitY << endl;
+        edm::LogPrint("ReadPixClusters") << " wrong egdeX " << edgeHitX << " "
+                                         << edgeHitX2
+                                         //<<" "<<event<<" "<<detid<<" "<<numberOfClusters
+                                         << " size = " << size << " " << sizeX << " " << sizeY << " " << x << " " << y
+                                         << " " << minPixelRow << " " << maxPixelRow << " " << minPixelCol << " "
+                                         << maxPixelCol << " " << edgeHitX << " " << edgeHitY;
 
       if ((edgeHitY != edgeHitY2) && sizeY < 64)
-        cout << " wrong egdeY " << edgeHitY << " "
-             << edgeHitY2
-             //<<" "<<event<<" "<<detid<<" "<<numberOfClusters
-             << " size = " << size << " " << sizeX << " " << sizeY << " " << x << " " << y << " " << minPixelRow << " "
-             << maxPixelRow << " " << minPixelCol << " " << maxPixelCol << " " << edgeHitX << " " << edgeHitY << endl;
+        edm::LogPrint("ReadPixClusters") << " wrong egdeY " << edgeHitY << " "
+                                         << edgeHitY2
+                                         //<<" "<<event<<" "<<detid<<" "<<numberOfClusters
+                                         << " size = " << size << " " << sizeX << " " << sizeY << " " << x << " " << y
+                                         << " " << minPixelRow << " " << maxPixelRow << " " << minPixelCol << " "
+                                         << maxPixelCol << " " << edgeHitX << " " << edgeHitY;
 
 #ifdef HISTOS
 
@@ -798,14 +795,14 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
       } else if (subid == 2) {  // endcap
 
-        //cout<<disk<<" "<<side<<endl;
+        //edm::LogPrint("ReadPixClusters")<<disk<<" "<<side;
         if (disk == 1) {  // disk1 -+z
           if (side == 1)
             numOfClustersPerDisk2++;  // d1,-z
           else if (side == 2)
             numOfClustersPerDisk3++;  // d1, +z
           else
-            cout << " unknown side " << side << endl;
+            edm::LogPrint("ReadPixClusters") << " unknown side " << side;
 
           hcharge4->Fill(ch);
           aveCharge4 += ch;
@@ -820,7 +817,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
           else if (side == 2)
             numOfClustersPerDisk4++;  // d2, +z
           else
-            cout << " unknown side " << side << endl;
+            edm::LogPrint("ReadPixClusters") << " unknown side " << side;
 
           hcharge5->Fill(ch);
           aveCharge5 += ch;
@@ -829,7 +826,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
           hsizey5->Fill(float(sizeY));
 
         } else
-          cout << " unknown disk " << disk << endl;  // end fpix disk
+          edm::LogPrint("ReadPixClusters") << " unknown disk " << disk;  // end fpix disk
 
       }  // end if barrel/forward
 
@@ -846,11 +843,11 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
     if (printLocal) {
       if (layer == 1)
-        cout << "Lay1: number of clusters per det = " << numOfClustersPerDet1 << endl;
+        edm::LogPrint("ReadPixClusters") << "Lay1: number of clusters per det = " << numOfClustersPerDet1;
       else if (layer == 2)
-        cout << "Lay2: number of clusters per det = " << numOfClustersPerDet1 << endl;
+        edm::LogPrint("ReadPixClusters") << "Lay2: number of clusters per det = " << numOfClustersPerDet1;
       else if (layer == 3)
-        cout << "Lay3: number of clusters per det = " << numOfClustersPerDet1 << endl;
+        edm::LogPrint("ReadPixClusters") << "Lay3: number of clusters per det = " << numOfClustersPerDet1;
     }  // end if printLocal
 
 #ifdef HISTOS
@@ -909,26 +906,27 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
   }  // detunits loop
 
   if (0) {
-    cout << "run " << run << " event " << event << " bx " << bx << " lumi " << lumiBlock << " orbit " << orbit
-         << " num " << countEvents << endl;
-    cout << "Num of pix " << numberOfPixels << " num of clus " << numberOfClusters << " num of dets " << numOf
-         << " max clus per det " << maxClusPerDet << " max pix per clu " << maxPixPerClu << " count " << countEvents
-         << endl;
-    cout << "Number of clusters per      Lay1,2,3: " << numOfClustersPerLay1 << " " << numOfClustersPerLay2 << " "
-         << numOfClustersPerLay3 << endl;
-    cout << "Number of pixels per        Lay1,2,3: " << numOfPixPerLay1 << " " << numOfPixPerLay2 << " "
-         << numOfPixPerLay3 << endl;
-    cout << "Number of dets with clus in Lay1,2,3: " << numberOfDetUnits1 << " " << numberOfDetUnits2 << " "
-         << numberOfDetUnits3 << endl;
-    cout << "Number of clus in disks 1,2,3,4     : " << numOfClustersPerDisk1 << " " << numOfClustersPerDisk2 << " "
-         << numOfClustersPerDisk3 << " " << numOfClustersPerDisk4 << endl;
+    edm::LogPrint("ReadPixClusters") << "run " << run << " event " << event << " bx " << bx << " lumi " << lumiBlock
+                                     << " orbit " << orbit << " num " << countEvents;
+    edm::LogPrint("ReadPixClusters") << "Num of pix " << numberOfPixels << " num of clus " << numberOfClusters
+                                     << " num of dets " << numOf << " max clus per det " << maxClusPerDet
+                                     << " max pix per clu " << maxPixPerClu << " count " << countEvents;
+    edm::LogPrint("ReadPixClusters") << "Number of clusters per      Lay1,2,3: " << numOfClustersPerLay1 << " "
+                                     << numOfClustersPerLay2 << " " << numOfClustersPerLay3;
+    edm::LogPrint("ReadPixClusters") << "Number of pixels per        Lay1,2,3: " << numOfPixPerLay1 << " "
+                                     << numOfPixPerLay2 << " " << numOfPixPerLay3;
+    edm::LogPrint("ReadPixClusters") << "Number of dets with clus in Lay1,2,3: " << numberOfDetUnits1 << " "
+                                     << numberOfDetUnits2 << " " << numberOfDetUnits3;
+    edm::LogPrint("ReadPixClusters") << "Number of clus in disks 1,2,3,4     : " << numOfClustersPerDisk1 << " "
+                                     << numOfClustersPerDisk2 << " " << numOfClustersPerDisk3 << " "
+                                     << numOfClustersPerDisk4;
     aveCharge1 /= float(numOfClustersPerLay1);
     aveCharge2 /= float(numOfClustersPerLay2);
     aveCharge3 /= float(numOfClustersPerLay3);
     aveCharge4 /= float(numOfClustersPerDisk2 + numOfClustersPerDisk3);
     aveCharge5 /= float(numOfClustersPerDisk1 + numOfClustersPerDisk4);
-    cout << " Average charge " << aveCharge1 << " " << aveCharge2 << " " << aveCharge3 << " " << aveCharge4 << " "
-         << aveCharge5 << endl;
+    edm::LogPrint("ReadPixClusters") << " Average charge " << aveCharge1 << " " << aveCharge2 << " " << aveCharge3
+                                     << " " << aveCharge4 << " " << aveCharge5;
   }
 
 #ifdef HISTOS
