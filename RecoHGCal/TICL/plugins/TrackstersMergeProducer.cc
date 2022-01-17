@@ -51,7 +51,6 @@ private:
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
   const edm::EDGetTokenT<std::vector<reco::Track>> tracks_token_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
-  // Tf stuff
   const std::string tfDnnLabel_;
   const edm::ESGetToken<TfGraphDefWrapper, TfGraphRecord> tfDnnToken_;
   const tensorflow::Session* tfSession_;
