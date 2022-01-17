@@ -18,8 +18,7 @@
 using namespace ticl;
 
 template <typename TILES>
-PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::ParameterSet &conf,
-                                                              edm::ConsumesCollector iC)
+PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
       caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       criticalDensity_(conf.getParameter<double>("criticalDensity")),
@@ -34,7 +33,7 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
       eidOutputNameId_(conf.getParameter<std::string>("eid_output_name_id")),
       eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
       eidNLayers_(conf.getParameter<int>("eid_n_layers")),
-  eidNClusters_(conf.getParameter<int>("eid_n_clusters")) {};
+      eidNClusters_(conf.getParameter<int>("eid_n_clusters")){};
 
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
@@ -288,7 +287,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
 
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
-							      const tensorflow::Session* eidSession,
+                                                              const tensorflow::Session *eidSession,
                                                               std::vector<Trackster> &tracksters) {
   // Energy regression and particle identification strategy:
   //
@@ -401,7 +400,7 @@ void PatternRecognitionbyCLUE3D<TILES>::energyRegressionAndID(const std::vector<
   }
 
   // run the inference (7)
-  tensorflow::run(const_cast<tensorflow::Session*>(eidSession), inputList, outputNames, &outputs);
+  tensorflow::run(const_cast<tensorflow::Session *>(eidSession), inputList, outputNames, &outputs);
 
   // store regressed energy per trackster (8)
   if (!eidOutputNameEnergy_.empty()) {

@@ -37,7 +37,7 @@ PatternRecognitionbyFastJet<TILES>::PatternRecognitionbyFastJet(const edm::Param
       eidOutputNameId_(conf.getParameter<std::string>("eid_output_name_id")),
       eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
       eidNLayers_(conf.getParameter<int>("eid_n_layers")),
-  eidNClusters_(conf.getParameter<int>("eid_n_clusters")) {};
+      eidNClusters_(conf.getParameter<int>("eid_n_clusters")){};
 
 template <typename TILES>
 void PatternRecognitionbyFastJet<TILES>::buildJetAndTracksters(std::vector<PseudoJet> &fjInputs,
@@ -156,7 +156,7 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
 
 template <typename TILES>
 void PatternRecognitionbyFastJet<TILES>::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
-							       const tensorflow::Session* eidSession,
+                                                               const tensorflow::Session *eidSession,
                                                                std::vector<Trackster> &tracksters) {
   // Energy regression and particle identification strategy:
   //
@@ -269,7 +269,7 @@ void PatternRecognitionbyFastJet<TILES>::energyRegressionAndID(const std::vector
   }
 
   // run the inference (7)
-  tensorflow::run(const_cast<tensorflow::Session*>(eidSession), inputList, outputNames, &outputs);
+  tensorflow::run(const_cast<tensorflow::Session *>(eidSession), inputList, outputNames, &outputs);
 
   // store regressed energy per trackster (8)
   if (!eidOutputNameEnergy_.empty()) {

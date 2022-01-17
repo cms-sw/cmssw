@@ -16,8 +16,7 @@
 using namespace ticl;
 
 template <typename TILES>
-PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf,
-                                                      edm::ConsumesCollector iC)
+PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
       caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       theGraph_(std::make_unique<HGCGraphT<TILES>>()),
@@ -47,7 +46,7 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
       eidNLayers_(conf.getParameter<int>("eid_n_layers")),
       eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
-  siblings_maxRSquared_(conf.getParameter<std::vector<double>>("siblings_maxRSquared")) {};
+      siblings_maxRSquared_(conf.getParameter<std::vector<double>>("siblings_maxRSquared")){};
 
 template <typename TILES>
 PatternRecognitionbyCA<TILES>::~PatternRecognitionbyCA(){};
@@ -324,7 +323,7 @@ void PatternRecognitionbyCA<TILES>::emptyTrackstersFromSeedsTRK(
 
 template <typename TILES>
 void PatternRecognitionbyCA<TILES>::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
-							  const tensorflow::Session* eidSession,
+                                                          const tensorflow::Session *eidSession,
                                                           std::vector<Trackster> &tracksters) {
   // Energy regression and particle identification strategy:
   //
@@ -437,7 +436,7 @@ void PatternRecognitionbyCA<TILES>::energyRegressionAndID(const std::vector<reco
   }
 
   // run the inference (7)
-  tensorflow::run(const_cast<tensorflow::Session*>(eidSession), inputList, outputNames, &outputs);
+  tensorflow::run(const_cast<tensorflow::Session *>(eidSession), inputList, outputNames, &outputs);
 
   // store regressed energy per trackster (8)
   if (!eidOutputNameEnergy_.empty()) {

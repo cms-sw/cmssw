@@ -162,15 +162,21 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   if (doNose_) {
     const auto& layer_clusters_hfnose_tiles = evt.get(layer_clusters_tiles_hfnose_token_);
-    const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(
-	evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_hfnose_tiles, seeding_regions, tfSession_);
+    const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(evt,
+                                                                                         es,
+                                                                                         layerClusters,
+                                                                                         inputClusterMask,
+                                                                                         layerClustersTimes,
+                                                                                         layer_clusters_hfnose_tiles,
+                                                                                         seeding_regions,
+                                                                                         tfSession_);
 
     myAlgoHFNose_->makeTracksters(inputHFNose, *result, seedToTrackstersAssociation);
 
   } else {
     const auto& layer_clusters_tiles = evt.get(layer_clusters_tiles_token_);
     const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
-	evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions, tfSession_);
+        evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions, tfSession_);
 
     myAlgo_->makeTracksters(input, *result, seedToTrackstersAssociation);
   }
