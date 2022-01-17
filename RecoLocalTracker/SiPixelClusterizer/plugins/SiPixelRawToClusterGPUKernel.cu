@@ -714,7 +714,7 @@ namespace pixelgpudetails {
                                                              const uint32_t numDigis,
                                                              cudaStream_t stream) {
     using namespace gpuClustering;
-
+    nDigis = numDigis;
     digis_d = SiPixelDigisCUDA(numDigis, stream);
 
     cudaCheck(
