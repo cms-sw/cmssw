@@ -1,5 +1,5 @@
-#ifndef DQM_L1TMONITORCLIENT_L1TdeStage2ShowerCLIENT_H
-#define DQM_L1TMONITORCLIENT_L1TdeStage2ShowerCLIENT_H
+#ifndef DQM_L1TMONITORCLIENT_L1TdeStage2RegionalShowerCLIENT_H
+#define DQM_L1TMONITORCLIENT_L1TdeStage2RegionalShowerCLIENT_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -10,13 +10,13 @@
 
 #include <string>
 
-class L1TdeStage2ShowerClient : public DQMEDHarvester {
+class L1TdeStage2RegionalShowerClient : public DQMEDHarvester {
 public:
   /// Constructor
-  L1TdeStage2ShowerClient(const edm::ParameterSet &ps);
+  L1TdeStage2RegionalShowerClient(const edm::ParameterSet &ps);
 
   /// Destructor
-  ~L1TdeStage2ShowerClient() override;
+  ~L1TdeStage2RegionalShowerClient() override;
 
 protected:
   void dqmEndLuminosityBlock(DQMStore::IBooker &,

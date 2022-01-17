@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-l1tdeStage2Shower = DQMEDAnalyzer(
-    "L1TdeStage2Shower",
+l1tdeStage2RegionalShower = DQMEDAnalyzer(
+    "L1TdeStage2RegionalShower",
     # EMTF Showers not in data yet. Use Emul for both
     # Once Run 3 firmware are implemented, should change data tags to 
     # cms.InputTag("emtfStage2Digis")

@@ -3,17 +3,17 @@
 #include <iostream>
 #include <map>
 
-#include "DQM/L1TMonitor/interface/L1TStage2Shower.h"
+#include "DQM/L1TMonitor/interface/L1TStage2RegionalShower.h"
 
-L1TStage2Shower::L1TStage2Shower(const edm::ParameterSet& ps)
+L1TStage2RegionalShower::L1TStage2RegionalShower(const edm::ParameterSet& ps)
     : EMTFShowerToken(consumes<l1t::RegionalMuonShowerBxCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
       CSCShowerToken(consumes<CSCShowerDigiCollection>(ps.getParameter<edm::InputTag>("cscSource"))),
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       verbose(ps.getUntrackedParameter<bool>("verbose", false)) {}
 
-L1TStage2Shower::~L1TStage2Shower() {}
+L1TStage2RegionalShower::~L1TStage2RegionalShower() {}
 
-void L1TStage2Shower::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
+void L1TStage2RegionalShower::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
   ibooker.setCurrentFolder(monitorDir);
 
   const std::array<std::string, 9> suffix_label{{"4/2", "4/1", "3/2", "3/1", " 2/2", "2/1", "1/3", "1/2", "1/1"}};
@@ -75,7 +75,7 @@ void L1TStage2Shower::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&
   emtfShowerTypeOccupancy->setBinLabel(1, "ME- Tight", 2);
 }
 
-void L1TStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
+void L1TStage2RegionalShower::analyze(const edm::Event& e, const edm::EventSetup& c) {
   l1t::RegionalMuonShowerBxCollection const& EmtfShowers = e.get(EMTFShowerToken);
   CSCShowerDigiCollection const& CscShowers = e.get(CSCShowerToken);
 
