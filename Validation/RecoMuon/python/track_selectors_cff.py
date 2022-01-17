@@ -8,8 +8,8 @@ probeTracks = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clo
     tip = 3.5,
     lip = 30.,
     ptMin = 3.0,
-    minRapidity = cms.double(-2.4),
-    maxRapidity = cms.double(2.4)
+    minRapidity = -2.4,
+    maxRapidity = 2.4
 )
 probeTracks_seq = cms.Sequence( probeTracks )
 
