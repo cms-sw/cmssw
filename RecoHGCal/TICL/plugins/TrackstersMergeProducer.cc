@@ -659,7 +659,6 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
 
   // run the inference (7)
   tensorflow::run(const_cast<tensorflow::Session*>(eidSession), inputList, outputNames, &outputs);
-  //tensorflow::run(eidSession_, inputList, outputNames, &outputs);
 
   // store regressed energy per trackster (8)
   if (!eidOutputNameEnergy_.empty()) {
