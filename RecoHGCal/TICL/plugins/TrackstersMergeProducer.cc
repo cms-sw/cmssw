@@ -37,7 +37,7 @@ private:
 
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 
-  void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters, std::vector<Trackster> &result, const tensorflow::Session*) const;
+  void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters, const tensorflow::Session*, std::vector<Trackster> &result) const;
   void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
   void assignTimeToCandidates(std::vector<TICLCandidate> &resultCandidates) const;
   void dumpTrackster(const Trackster &) const;
@@ -265,7 +265,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
                         layerClusters,
                         layerClustersTimes,
                         rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
-  energyRegressionAndID(layerClusters, *resultTrackstersMerged, tfSession_);
+  energyRegressionAndID(layerClusters, tfSession_, *resultTrackstersMerged);
 
   printTrackstersDebug(*resultTrackstersMerged, "TrackstersMergeProducer");
 
@@ -543,7 +543,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 }
 
 void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
-                                                    std::vector<Trackster> &tracksters, const tensorflow::Session* eidSession) const {
+						    const tensorflow::Session* eidSession,
+                                                    std::vector<Trackster> &tracksters) const {
   // Energy regression and particle identification strategy:
   //
   // 1. Set default values for regressed energy and particle id for each trackster.
