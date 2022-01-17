@@ -203,7 +203,7 @@ void PFPileUp::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<edm::InputTag>("Vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<bool>("enable", true);
   desc.addUntracked<bool>("verbose", false);
-  desc.add<bool>("checkClosestZVertex", false);
+  desc.add<bool>("checkClosestZVertex", true);
   desc.add<bool>("useVertexAssociation", false);
   desc.add<int>("vertexAssociationQuality", 0);
   desc.add<edm::InputTag>("vertexAssociation", edm::InputTag(""));
