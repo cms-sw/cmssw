@@ -157,9 +157,9 @@ HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
                                    << "\t a_mipR " << a_mipR_ << "\n\t momentumLow_ " << pTrackLow_
                                    << "\t momentumHigh_ " << pTrackHigh_ << "\t useRaw_ " << useRaw_
                                    << "\t dataType_      " << dataType_ << "\t etaLimit " << etaMin_ << ":" << etaMax_
-                                   << "\nThreshold flag used " << usePFThresh_ << " value for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
-                                   << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
-                                   << hitEthrEEHi_;
+                                   << "\nThreshold flag used " << usePFThresh_ << " value for EB " << hitEthrEB_
+                                   << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
+                                   << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_;
 
   tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
   tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
@@ -269,20 +269,20 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
                                         eHit);
         double eEcal(0);
         for (unsigned int k = 0; k < eIds.size(); ++k) {
-	  double eThr(hitEthrEB_);
-	  if (usePFThresh_) {
-	    eThr = static_cast<double>((*eThresholds_)[eIds[k]]);
-	  } else {
-	    const GlobalPoint& pos = geo->getPosition(eIds[k]);
-	    double eta = std::abs(pos.eta());
-	    if (eIds[k].subdetId() != EcalBarrel) {
-	      eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-	      if (eThr < hitEthrEELo_)
-		eThr = hitEthrEELo_;
-	      else if (eThr > hitEthrEEHi_)
-		eThr = hitEthrEEHi_;
-	    }
-	  }
+          double eThr(hitEthrEB_);
+          if (usePFThresh_) {
+            eThr = static_cast<double>((*eThresholds_)[eIds[k]]);
+          } else {
+            const GlobalPoint& pos = geo->getPosition(eIds[k]);
+            double eta = std::abs(pos.eta());
+            if (eIds[k].subdetId() != EcalBarrel) {
+              eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+              if (eThr < hitEthrEELo_)
+                eThr = hitEthrEELo_;
+              else if (eThr > hitEthrEEHi_)
+                eThr = hitEthrEEHi_;
+            }
+          }
           if (eHit[k] > eThr)
             eEcal += eHit[k];
         }

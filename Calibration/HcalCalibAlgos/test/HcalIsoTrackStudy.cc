@@ -1474,9 +1474,9 @@ double HcalIsoTrackStudy::eThreshold(const DetId& id, double eta) const {
     if (id.subdetId() != EcalBarrel) {
       eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
       if (eThr < hitEthrEELo_)
-	eThr = hitEthrEELo_;
+        eThr = hitEthrEELo_;
       else if (eThr > hitEthrEEHi_)
-	eThr = hitEthrEEHi_;
+        eThr = hitEthrEEHi_;
     }
   }
   return eThr;
