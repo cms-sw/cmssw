@@ -31,8 +31,7 @@ l1tEtSumEfficiency = DQMEDHarvester(
 )
 
 l1tEtSumEmuEfficiency = l1tEtSumEfficiency.clone(
-    subDirs=cms.untracked.vstring(
-        'L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco'),
+    subDirs = ['L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco']
 )
 
 # modifications for the pp reference run
