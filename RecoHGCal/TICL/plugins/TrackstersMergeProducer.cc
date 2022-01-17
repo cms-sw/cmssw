@@ -31,13 +31,14 @@ public:
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-
 private:
   typedef ticl::Trackster::IterationIndex TracksterIterIndex;
 
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 
-  void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters, const tensorflow::Session*, std::vector<Trackster> &result) const;
+  void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
+                             const tensorflow::Session *,
+                             std::vector<Trackster> &result) const;
   void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
   void assignTimeToCandidates(std::vector<TICLCandidate> &resultCandidates) const;
   void dumpTrackster(const Trackster &) const;
@@ -53,7 +54,7 @@ private:
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   const std::string tfDnnLabel_;
   const edm::ESGetToken<TfGraphDefWrapper, TfGraphRecord> tfDnnToken_;
-  const tensorflow::Session* tfSession_;
+  const tensorflow::Session *tfSession_;
 
   const bool optimiseAcrossTracksters_;
   const int eta_bin_window_;
@@ -125,7 +126,6 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
       eidNLayers_(ps.getParameter<int>("eid_n_layers")),
       eidNClusters_(ps.getParameter<int>("eid_n_clusters")),
       eidSession_(nullptr) {
-
   produces<std::vector<Trackster>>();
   produces<std::vector<TICLCandidate>>();
 }
@@ -543,7 +543,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 }
 
 void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
-						    const tensorflow::Session* eidSession,
+                                                    const tensorflow::Session *eidSession,
                                                     std::vector<Trackster> &tracksters) const {
   // Energy regression and particle identification strategy:
   //
@@ -659,7 +659,7 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
   }
 
   // run the inference (7)
-  tensorflow::run(const_cast<tensorflow::Session*>(eidSession), inputList, outputNames, &outputs);
+  tensorflow::run(const_cast<tensorflow::Session *>(eidSession), inputList, outputNames, &outputs);
 
   // store regressed energy per trackster (8)
   if (!eidOutputNameEnergy_.empty()) {
@@ -705,7 +705,6 @@ void TrackstersMergeProducer::assignTimeToCandidates(std::vector<TICLCandidate> 
     }
   }
 }
-
 
 void TrackstersMergeProducer::printTrackstersDebug(const std::vector<Trackster> &tracksters, const char *label) const {
   if (!debug_)

@@ -24,8 +24,9 @@ namespace ticl {
                         std::vector<Trackster>& result,
                         std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
-    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters, 
-			       const tensorflow::Session*, std::vector<Trackster>& result);
+    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters,
+                               const tensorflow::Session*,
+                               std::vector<Trackster>& result);
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
