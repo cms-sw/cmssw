@@ -60,9 +60,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&, APVGain::APVGainHistograms&) const override;
-  void endJob() override;
   void checkBookAPVColls(const TrackerGeometry* bareTkGeomPtr, APVGain::APVGainHistograms& histograms) const;
 
   std::vector<std::string> dqm_tag_;
@@ -101,6 +99,11 @@ private:
   std::string CalibSuffix_;  //("");
   std::string calibTreeName_;
   std::vector<std::string> calibTreeFileNames_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomTokenBR_, tkGeomToken_;
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
 };
 
 inline int SiStripGainsCalibTreeWorker::statCollectionFromMode(const char* tag) const {
@@ -147,9 +150,10 @@ SiStripGainsCalibTreeWorker::SiStripGainsCalibTreeWorker(const edm::ParameterSet
     int id = APVGain::subdetectorId((hnames[i]).first);
     int side = APVGain::subdetectorSide((hnames[i]).first);
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
+    int thick = APVGain::thickness((hnames[i]).first);
     std::string s = hnames[i].first;
 
-    auto loc = APVloc(id, side, plane, s);
+    auto loc = APVloc(thick, id, side, plane, s);
     theTopologyMap.insert(std::make_pair(i, loc));
   }
 
@@ -178,6 +182,11 @@ SiStripGainsCalibTreeWorker::SiStripGainsCalibTreeWorker(const edm::ParameterSet
 
   calibTreeName_ = iConfig.getUntrackedParameter<std::string>("CalibTreeName");
   calibTreeFileNames_ = iConfig.getUntrackedParameter<std::vector<std::string>>("CalibTreeFiles");
+
+  tTopoToken_ = esConsumes();
+  tkGeomTokenBR_ = esConsumes<edm::Transition::BeginRun>();
+  gainToken_ = esConsumes<edm::Transition::BeginRun>();
+  qualityToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 //********************************************************************************//
@@ -187,20 +196,16 @@ void SiStripGainsCalibTreeWorker::dqmBeginRun(edm::Run const& run,
   using namespace edm;
 
   // fills the APV collections at each begin run
-  edm::ESHandle<TrackerGeometry> tkGeom_;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom_);
-  const TrackerGeometry* bareTkGeomPtr = &(*tkGeom_);
+  const TrackerGeometry* bareTkGeomPtr = &iSetup.getData(tkGeomTokenBR_);
   checkBookAPVColls(bareTkGeomPtr, histograms);
 
-  edm::ESHandle<SiStripGain> gainHandle;
-  iSetup.get<SiStripGainRcd>().get(gainHandle);
+  const auto gainHandle = iSetup.getHandle(gainToken_);
   if (!gainHandle.isValid()) {
     edm::LogError("SiStripGainPCLWorker") << "gainHandle is not valid\n";
     exit(0);
   }
 
-  edm::ESHandle<SiStripQuality> SiStripQuality_;
-  iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
+  const auto& SiStripQuality_ = &iSetup.getData(qualityToken_);
 
   for (unsigned int a = 0; a < histograms.APVsCollOrdered.size(); a++) {
     std::shared_ptr<stAPVGain> APV = histograms.APVsCollOrdered[a];
@@ -239,9 +244,7 @@ void SiStripGainsCalibTreeWorker::dqmAnalyze(edm::Event const& iEvent,
                                              edm::EventSetup const& iSetup,
                                              APVGain::APVGainHistograms const& histograms) const {
   if (!hasProcessed_) {
-    edm::ESHandle<TrackerTopology> TopoHandle;
-    iSetup.get<TrackerTopologyRcd>().get(TopoHandle);
-    const TrackerTopology* topo = TopoHandle.product();
+    const TrackerTopology* topo = &iSetup.getData(tTopoToken_);
 
     for (const auto& elem : theTopologyMap) {
       LogDebug("SiStripGainsCalibTreeWorker")
@@ -496,9 +499,6 @@ void SiStripGainsCalibTreeWorker::dqmAnalyze(edm::Event const& iEvent,
 }
 
 //********************************************************************************//
-void SiStripGainsCalibTreeWorker::beginJob() {}
-
-//********************************************************************************//
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripGainsCalibTreeWorker::checkBookAPVColls(const TrackerGeometry* bareTkGeomPtr,
                                                     APVGain::APVGainHistograms& histograms) const {
@@ -606,9 +606,6 @@ void SiStripGainsCalibTreeWorker::checkBookAPVColls(const TrackerGeometry* bareT
     }        // loop on Dets
   }          //if (!bareTkGeomPtr_) ...
 }
-
-//********************************************************************************//
-void SiStripGainsCalibTreeWorker::endJob() {}
 
 //********************************************************************************//
 void SiStripGainsCalibTreeWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
