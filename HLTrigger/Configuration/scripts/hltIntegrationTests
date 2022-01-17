@@ -332,7 +332,7 @@ if [ "$SETUP" ]; then
   #we use $MENU not $SETUP here as we force the same DB / converter as the main menu
   #this is the hltGetConfiguration behaviour and would be confusing if you had to 
   #specify converter/db on the setup menu on hltIntegration tests but not on hltGetConfiguration
-  read SETUP_Vx SETUP_DB SETUP <<< $(parse_HLT_menu "$MENU")
+  read SETUP_Vx SETUP_DB CFG <<< $(parse_HLT_menu "$MENU")
 
   hltConfigFromDB --$SETUP_Vx --$SETUP_DB $HLTLISTPATHPROXY --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService,-EvFDaqDirector,-FastMonitoringService > setup_cff.py
   sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
