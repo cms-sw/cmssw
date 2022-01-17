@@ -84,3 +84,6 @@ phase2_tracker.toModify(muonReducedTrackExtras, outputClusters = False)
 
 muonshighlevelrecoTask = cms.Task(muonPFIsolationTask,muons,muonReducedTrackExtras)
 muonshighlevelreco = cms.Sequence(muonshighlevelrecoTask)
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(muons1stStep, minPt = 0.8, selectHighPurity = True)
