@@ -18,8 +18,8 @@ DEFINE_FWK_MODULE(L1TdeCSCTPGClient);
 #include "DQM/L1TMonitorClient/interface/L1TdeCSCTPGShowerClient.h"
 DEFINE_FWK_MODULE(L1TdeCSCTPGShowerClient);
 
-#include "DQM/L1TMonitorClient/interface/L1TdeStage2ShowerClient.h"
-DEFINE_FWK_MODULE(L1TdeStage2ShowerClient);
+#include "DQM/L1TMonitorClient/interface/L1TdeStage2RegionalShowerClient.h"
+DEFINE_FWK_MODULE(L1TdeStage2RegionalShowerClient);
 
 #include "DQM/L1TMonitorClient/interface/L1TCSCTFClient.h"
 DEFINE_FWK_MODULE(L1TCSCTFClient);
