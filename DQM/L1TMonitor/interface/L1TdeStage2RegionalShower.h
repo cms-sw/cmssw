@@ -1,5 +1,5 @@
-#ifndef DQM_L1TMonitor_L1TdeStage2Shower_h
-#define DQM_L1TMonitor_L1TdeStage2Shower_h
+#ifndef DQM_L1TMonitor_L1TdeStage2RegionalShower_h
+#define DQM_L1TMonitor_L1TdeStage2RegionalShower_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,10 +10,10 @@
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonShower.h"
 
-class L1TdeStage2Shower : public DQMEDAnalyzer {
+class L1TdeStage2RegionalShower : public DQMEDAnalyzer {
 public:
-  L1TdeStage2Shower(const edm::ParameterSet& ps);
-  ~L1TdeStage2Shower() override;
+  L1TdeStage2RegionalShower(const edm::ParameterSet& ps);
+  ~L1TdeStage2RegionalShower() override;
 
 protected:
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
