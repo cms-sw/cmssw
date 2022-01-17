@@ -26,7 +26,7 @@ process.towerMakerAll.hfInput = cms.InputTag("none")
 process.towerMakerAll.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE"))
 process.towerMakerAll.AllowMissingInputs = True
 
-process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cff')
+process.load('Calibration.HcalCalibAlgos.hcalIsoTrkAnalyzer_cff')
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
        'file:/eos/cms/store/group/dpg_hcal/comm_hcal/ISOTRACK/MinBias_AlcaReco_2017D_IsotrkFilter.root',
@@ -39,19 +39,18 @@ process.TFileService = cms.Service("TFileService",
    fileName = cms.string('output.root')
 )
 
-process.HcalIsoTrkAnalyzer.triggers = []
-process.HcalIsoTrkAnalyzer.oldID = [21701, 21603]
-process.HcalIsoTrkAnalyzer.newDepth = [2, 4]
-process.HcalIsoTrkAnalyzer.hep17 = True
-process.HcalIsoTrkAnalyzer.dataType = 0 # 0 for jetHT else 1
-process.HcalIsoTrkAnalyzer.maximumEcalEnergy = 2.0 # set MIP cut  
-process.HcalIsoTrkAnalyzer.useRaw = 0   # 1 for Raw
-process.HcalIsoTrkAnalyzer.unCorrect = True
+process.hcalIsoTrkAnalyzer.triggers = []
+process.hcalIsoTrkAnalyzer.oldID = [21701, 21603]
+process.hcalIsoTrkAnalyzer.newDepth = [2, 4]
+process.hcalIsoTrkAnalyzer.hep17 = True
+process.hcalIsoTrkAnalyzer.dataType = 0 # 0 for jetHT else 1
+process.hcalIsoTrkAnalyzer.maximumEcalEnergy = 2.0 # set MIP cut  
+process.hcalIsoTrkAnalyzer.useRaw = 0   # 1 for Raw
+process.hcalIsoTrkAnalyzer.unCorrect = True
+process.hcalIsoTrkAnalyzer.EEHitEnergyThreshold1 = 0.00 # default 0.30
+process.hcalIsoTrkAnalyzer.EEHitEnergyThreshold2 = 0.00 # coeff. of linear term
+process.hcalIsoTrkAnalyzer.EEHitEnergyThreshold3 = 0.00 # coeff. of quad term
+process.hcalIsoTrkAnalyzer.EEHitEnergyThresholdLow = 0.00 # minimum def 0.30
 
-process.HcalIsoTrkAnalyzer.EEHitEnergyThreshold1 = 0.00 # default 0.30
-process.HcalIsoTrkAnalyzer.EEHitEnergyThreshold2 = 0.00 # coeff. of linear term
-process.HcalIsoTrkAnalyzer.EEHitEnergyThreshold3 = 0.00 # coeff. of quad term
-process.HcalIsoTrkAnalyzer.EEHitEnergyThresholdLow = 0.00 # minimum def 0.30
-
-process.p = cms.Path(process.HcalIsoTrkAnalyzer)
+process.p = cms.Path(process.hcalIsoTrkAnalyzer)
 
