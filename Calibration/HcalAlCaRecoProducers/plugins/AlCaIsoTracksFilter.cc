@@ -222,9 +222,10 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
                                    << slopeRestrictionP_ << "\t eIsolate_ " << eIsolate_ << "\n"
                                    << "\t Precale factor " << preScale_ << "\t in momentum range " << pTrackLow_ << ":"
                                    << pTrackHigh_ << " and prescale factor " << preScaleH_ << " for p > " << pTrackH_
-                                   << " Threshold flag used " << usePFThresh_ << " value for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
-                                   << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
-                                   << hitEthrEEHi_ << " and " << debEvents_.size() << " events to be debugged";
+                                   << " Threshold flag used " << usePFThresh_ << " value for EB " << hitEthrEB_
+                                   << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
+                                   << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_ << " and "
+                                   << debEvents_.size() << " events to be debugged";
 
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
     edm::LogVerbatim("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
@@ -247,7 +248,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
                                      << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
                                      << iEvent.bunchCrossing();
 #endif
-  
+
   // get Ecal Thresholds
   eThresholds_ = &iSetup.getData(tok_ecalPFRecHitThresholds_);
 
@@ -400,19 +401,19 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
           double eMipDR(0);
           for (unsigned int k = 0; k < eIds.size(); ++k) {
             double eThr(hitEthrEB_);
-	    if (usePFThresh_) {
-	      eThr = static_cast<double>((*eThresholds_)[eIds[k]]);
-	    } else {
-	      const GlobalPoint& pos = geo->getPosition(eIds[k]);
-	      double eta = std::abs(pos.eta());
-	      if (eIds[k].subdetId() != EcalBarrel) {
-		eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-		if (eThr < hitEthrEELo_)
-		  eThr = hitEthrEELo_;
-		else if (eThr > hitEthrEEHi_)
-		  eThr = hitEthrEEHi_;
-	      }
-	    }
+            if (usePFThresh_) {
+              eThr = static_cast<double>((*eThresholds_)[eIds[k]]);
+            } else {
+              const GlobalPoint& pos = geo->getPosition(eIds[k]);
+              double eta = std::abs(pos.eta());
+              if (eIds[k].subdetId() != EcalBarrel) {
+                eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+                if (eThr < hitEthrEELo_)
+                  eThr = hitEthrEELo_;
+                else if (eThr > hitEthrEEHi_)
+                  eThr = hitEthrEEHi_;
+              }
+            }
             if (eHit[k] > eThr)
               eMipDR += eHit[k];
           }
