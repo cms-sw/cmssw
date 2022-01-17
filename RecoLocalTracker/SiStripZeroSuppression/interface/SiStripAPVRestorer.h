@@ -83,6 +83,9 @@ private:
   void createCMMapCMstored(const edm::DetSetVector<SiStripProcessedRawDigi>& input);
 
 private:  // members
+  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>> siStripRawDigiToken_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripProcessedRawDigi>> siStripProcessedRawDigiToken_;
+
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
   edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
   edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalToken_;
