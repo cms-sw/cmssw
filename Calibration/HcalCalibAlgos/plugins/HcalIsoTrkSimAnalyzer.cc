@@ -15,6 +15,9 @@
 #include "TLorentzVector.h"
 #include "TInterpreter.h"
 
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -143,9 +146,12 @@ private:
   const std::string labelEE_, labelHBHE_, labelTower_, l1TrigName_;
   const std::vector<int> oldID_, newDepth_;
   const bool hep17_;
+  const bool usePFThresh_;
   unsigned int nRun_, nLow_, nHigh_;
   double a_charIsoR_, a_coneR1_, a_coneR2_;
   const HcalDDDRecConstants* hdc_;
+  const EcalPFRecHitThresholds* eThresholds_;
+
   std::vector<double> etabins_, phibins_;
   std::vector<int> oldDet_, oldEta_, oldDepth_;
   double etadist_, phidist_, etahalfdist_, phihalfdist_;
@@ -170,6 +176,7 @@ private:
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
   edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
   edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
+  edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> tok_ecalPFRecHitThresholds_;
 
   TTree *tree, *tree2;
   unsigned int t_RunNo, t_EventNo;
@@ -245,6 +252,7 @@ HcalIsoTrkSimAnalyzer::HcalIsoTrkSimAnalyzer(const edm::ParameterSet& iConfig)
       oldID_(iConfig.getUntrackedParameter<std::vector<int> >("oldID")),
       newDepth_(iConfig.getUntrackedParameter<std::vector<int> >("newDepth")),
       hep17_(iConfig.getUntrackedParameter<bool>("hep17")),
+      usePFThresh_(iConfig.getParameter<bool>("usePFThreshold")),
       nRun_(0),
       nLow_(0),
       nHigh_(0),
@@ -314,6 +322,7 @@ HcalIsoTrkSimAnalyzer::HcalIsoTrkSimAnalyzer(const edm::ParameterSet& iConfig)
   tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
   tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
   tok_pdt_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
+  tok_ecalPFRecHitThresholds_ = esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>();
 
   edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n"
                                    << "\t minPt " << ptMin_ << "\t etaMax " << etaMax_ << "\t a_coneR " << a_coneR_
@@ -329,9 +338,10 @@ HcalIsoTrkSimAnalyzer::HcalIsoTrkSimAnalyzer(const edm::ParameterSet& iConfig)
                                    << "\t ignoreTrigger_ " << ignoreTrigger_ << "\n\t useL1Trigegr_ " << useL1Trigger_
                                    << "\t dataType_      " << dataType_ << "\t mode_          " << mode_
                                    << "\t unCorrect_     " << unCorrect_ << "\t collapseDepth_ " << collapseDepth_
-                                   << "\t L1TrigName_    " << l1TrigName_ << "\nThreshold for EB " << hitEthrEB_
-                                   << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
-                                   << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_;
+                                   << "\t L1TrigName_    " << l1TrigName_ << "\nThreshold flag used " << usePFThresh_
+                                   << " value for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
+                                   << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
+                                   << hitEthrEEHi_;
   edm::LogVerbatim("HcalIsoTrack") << "Process " << processName_ << " L1Filter:" << l1Filter_
                                    << " L2Filter:" << l2Filter_ << " L3Filter:" << l3Filter_;
   for (unsigned int k = 0; k < trigNames_.size(); ++k) {
@@ -376,13 +386,18 @@ void HcalIsoTrkSimAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup co
   const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
   const EcalSeverityLevelAlgo* theEcalSevlv = &iSetup.getData(tok_sevlv_);
 
-  // get handles to calogeometry and calotopology
+  // get calogeometry and calotopology
   const CaloGeometry* geo = &iSetup.getData(tok_geom_);
   const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
   const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo_);
+
+  // get response correction
   const HcalRespCorrs* resp = &iSetup.getData(tok_resp_);
   HcalRespCorrs* respCorrs = new HcalRespCorrs(*resp);
   respCorrs->setTopo(theHBHETopology);
+
+  // get ECAL thresholds
+  eThresholds_ = &iSetup.getData(tok_ecalPFRecHitThresholds_);
 
   // get particle data table
   const HepPDT::ParticleDataTable* pdt = &iSetup.getData(tok_pdt_);
@@ -848,6 +863,7 @@ void HcalIsoTrkSimAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.addUntracked<std::vector<int> >("oldID", dummy);
   desc.addUntracked<std::vector<int> >("newDepth", dummy);
   desc.addUntracked<bool>("hep17", false);
+  desc.add<bool>("usePFThreshold", true);
   descriptions.add("hcalIsoTrkSimAnalyzer", desc);
 }
 
@@ -1240,15 +1256,19 @@ double HcalIsoTrkSimAnalyzer::rhoh(const edm::Handle<CaloTowerCollection>& tower
 }
 
 double HcalIsoTrkSimAnalyzer::eThreshold(const DetId& id, const CaloGeometry* geo) const {
-  const GlobalPoint& pos = geo->getPosition(id);
-  double eta = std::abs(pos.eta());
   double eThr(hitEthrEB_);
-  if (id.subdetId() != EcalBarrel) {
-    eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-    if (eThr < hitEthrEELo_)
-      eThr = hitEthrEELo_;
-    else if (eThr > hitEthrEEHi_)
-      eThr = hitEthrEEHi_;
+  if (usePFThresh_) {
+    eThr = static_cast<double>((*eThresholds_)[id]);
+  } else {
+    const GlobalPoint& pos = geo->getPosition(id);
+    double eta = std::abs(pos.eta());
+    if (id.subdetId() != EcalBarrel) {
+      eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+      if (eThr < hitEthrEELo_)
+        eThr = hitEthrEELo_;
+      else if (eThr > hitEthrEEHi_)
+        eThr = hitEthrEEHi_;
+    }
   }
   return eThr;
 }
