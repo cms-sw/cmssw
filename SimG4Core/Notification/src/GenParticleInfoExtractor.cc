@@ -13,9 +13,9 @@ const GenParticleInfo &GenParticleInfoExtractor::operator()(const G4PrimaryParti
     GenParticleInfo *gpi = dynamic_cast<GenParticleInfo *>(up);
     if (gpi == nullptr)
       G4Exception("SimG4Core/Notification",
-		  "mc001",
-		  FatalException,
-		  "GenParticleInfoExtractor: user information in G4PrimaryParticle is not of GenParticleInfo type");
+                  "mc001",
+                  FatalException,
+                  "GenParticleInfoExtractor: user information in G4PrimaryParticle is not of GenParticleInfo type");
   }
   return *gpi;
 }
