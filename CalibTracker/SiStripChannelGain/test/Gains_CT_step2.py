@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
 options = VarParsing("analysis")
-options.register("globalTag", "92X_dataRun2_Express_v2", VarParsing.multiplicity.singleton, VarParsing.varType.string, "Global tag (express, to check the homogeneity of the calibration range")
+options.register("globalTag", "auto:run3_data_express", VarParsing.multiplicity.singleton, VarParsing.varType.string, "Global tag (express, to check the homogeneity of the calibration range)")
 options.register("outputDbFile", "sqlite_file:promptCalibConditions.db", VarParsing.multiplicity.singleton, VarParsing.varType.string, "Connection string of output database")
 options.register("fitMethod", "Legacy", VarParsing.multiplicity.singleton, VarParsing.varType.string, "Fit strategy (Legacy, DDRng, DDRngAllConv, or DDRngConvExceptTOBL5L6")
 options.register("DQMOutput", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "Produce DQM output")
@@ -23,7 +23,6 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.AlCaHarvesting_cff')
 process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
-#process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
@@ -51,7 +50,6 @@ process.configurationMetadata = cms.untracked.PSet(
 )
 
 # Output definition
-
 process.load("Configuration.StandardSequences.DQMSaverAtJobEnd_cff") ## multi-run
 
 ## temporary workaround
@@ -69,11 +67,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 process.PoolDBOutputService.connect = cms.string(options.outputDbFile)
 
 # Path and EndPath definitions
-process.BeamSpotByRun = cms.Path(process.ALCAHARVESTBeamSpotByRun)
 process.ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(process.dqmSaver+process.pclMetadataWriter)
 process.SiStripGains = cms.Path(process.ALCAHARVESTSiStripGains)
-process.BeamSpotByLumi = cms.Path(process.ALCAHARVESTBeamSpotByLumi)
-process.SiStripQuality = cms.Path(process.ALCAHARVESTSiStripQuality)
 
 process.dqmSaver.saveAtJobEnd = cms.untracked.bool(options.DQMOutput)
 
