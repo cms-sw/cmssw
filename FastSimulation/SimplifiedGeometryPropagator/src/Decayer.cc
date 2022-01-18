@@ -18,7 +18,7 @@ fastsim::Decayer::Decayer()
     pythia_->settings.flag("PartonLevel:FSRinResonances",false);
     pythia_->settings.flag("ProcessLevel:resonanceDecays",false);
     pythia_->init();
-
+    fixLongLivedBug_ = false;
     // forbid all decays
     // (decays are allowed selectively in the decay function)
     Pythia8::ParticleData & pdt = pythia_->particleData;
@@ -40,8 +40,8 @@ fastsim::Decayer::decay(const Particle & particle,std::vector<std::unique_ptr<fa
     int pid = particle.pdgId();
 
     // snip decay products of exotic particles or their children. These decay products are preserved from the event record.
-    // limitation: if exotic incurs heavy energy loss during propagation, the saved decay products could be too hard.
-    if (isExotic(pid) || isExotic(particle.getMotherPdgId())) {
+    // limitation: if exotic incurs heavy energy loss during propagation, the saved decay products could be too hard.    
+    if (isExotic(fixLongLivedBug_, pid) || isExotic(fixLongLivedBug_, particle.getMotherPdgId())) {
         return;
     }
     pythia_->event.reset();
