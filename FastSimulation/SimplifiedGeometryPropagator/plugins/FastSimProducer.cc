@@ -93,6 +93,8 @@ class FastSimProducer : public edm::stream::EDProducer<> {
     std::vector<std::unique_ptr<fastsim::InteractionModel> > interactionModels_;  //!< All defined interaction models
     std::map<std::string, fastsim::InteractionModel *> interactionModelMap_;  //!< Each interaction model has a unique name
     static const std::string MESSAGECATEGORY;  //!< Category of debugging messages ("FastSimulation")
+    
+    bool fixLongLivedBug_;
 };
 
 const std::string FastSimProducer::MESSAGECATEGORY = "FastSimulation";
@@ -107,8 +109,10 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
     , _randomEngine(nullptr)
     , simulateCalorimetry(iConfig.getParameter<bool>("simulateCalorimetry"))
     , simulateMuons(iConfig.getParameter<bool>("simulateMuons"))
+    , fixLongLivedBug_(iConfig.getParameter<bool>("fixLongLivedBug"))
 {
-
+    // Fix the decayer for the long lived stuff
+    decayer_.setfixLongLivedBug(fixLongLivedBug_);
     //----------------
     // define interaction models
     //---------------
@@ -195,7 +199,8 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                             ,deltaRchargedMother_
                                             ,particleFilter_
                                             ,*simTracks_
-                                            ,*simVertices_);
+                                            ,*simVertices_
+                                            ,fixLongLivedBug_);
 
     //  Initialize the calorimeter geometry
     if(simulateCalorimetry)
