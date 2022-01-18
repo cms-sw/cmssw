@@ -446,6 +446,8 @@
 
   <test name="TestFWCoreIntegrationEDLooperESProcuer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testEDLooperESProducer_cfg.py"/>
 
+  <test name="TestFWCoreIntegrationDelayedReaderTest" command="delayedreader_throw_test.sh"/>
+
   <test name="TestIntegrationProcessBlock1" command="run_TestProcessBlock.sh 1"/>
   <test name="TestIntegrationProcessBlock2" command="run_TestProcessBlock.sh 2"/>
   <test name="TestIntegrationProcessBlock3" command="run_TestProcessBlock.sh 3"/>
