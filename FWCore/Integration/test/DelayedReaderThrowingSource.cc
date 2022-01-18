@@ -50,7 +50,6 @@ namespace edm {
   class DelayedReaderThrowingSource : public IDGeneratorSourceBase<InputSource> {
   public:
     explicit DelayedReaderThrowingSource(ParameterSet const&, InputSourceDescription const&);
-    ~DelayedReaderThrowingSource() override;
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
@@ -108,8 +107,6 @@ namespace edm {
     }
     branchIDListHelper()->updateFromInput(bilists);
   }
-
-  DelayedReaderThrowingSource::~DelayedReaderThrowingSource() {}
 
   bool DelayedReaderThrowingSource::setRunAndEventInfo(EventID&, TimeValue_t&, edm::EventAuxiliary::ExperimentType&) {
     return true;
