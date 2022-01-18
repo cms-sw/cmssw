@@ -6,8 +6,6 @@
 
 #include "G4Track.hh"
 
-//#define DebugLog
-
 NewTrackAction::NewTrackAction() {}
 
 void NewTrackAction::primary(const G4Track *aTrack) const { primary(const_cast<G4Track *>(aTrack)); }
@@ -19,18 +17,18 @@ void NewTrackAction::secondary(const G4Track *aSecondary, const G4Track &mother,
 }
 
 void NewTrackAction::secondary(G4Track *aSecondary, const G4Track &mother, int flag) const {
-  if (aSecondary->GetParentID() != mother.GetTrackID())
+  if (aSecondary->GetParentID() != mother.GetTrackID()) {
     G4Exception("SimG4Core/Notification",
                 "mc001",
                 FatalException,
                 "NewTrackAction: secondary parent ID does not match mother id");
-  TrackInformationExtractor extractor;
-  const TrackInformation &motherInfo(extractor(mother));
-  addUserInfoToSecondary(aSecondary, motherInfo, flag);
-#ifdef DebugLog
-  LogDebug("SimTrackManager") << "NewTrackAction: Add track " << aSecondary->GetTrackID() << " from mother "
-                              << mother.GetTrackID();
-#endif
+  } else {
+    TrackInformationExtractor extractor;
+    const TrackInformation &motherInfo(extractor(mother));
+    addUserInfoToSecondary(aSecondary, motherInfo, flag);
+    LogDebug("SimTrackManager") << "NewTrackAction: Add track " << aSecondary->GetTrackID() << " from mother "
+                                << mother.GetTrackID();
+  }
 }
 
 void NewTrackAction::addUserInfoToPrimary(G4Track *aTrack) const {
@@ -44,13 +42,11 @@ void NewTrackAction::addUserInfoToPrimary(G4Track *aTrack) const {
 }
 
 void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformation &motherInfo, int flag) const {
-  // ralf.ulrich@kit.edu: it is more efficient to use the constructor to copy all data and modify later only when needed
-
   TrackInformation *trkInfo = new TrackInformation();
-  //  LogDebug("SimG4CoreApplication") << "NewTrackAction called for "
-  //				   << aTrack->GetTrackID()
-  //				   << " mother " << motherInfo.isPrimary()
-  //				   << " flag " << flag;
+  LogDebug("SimG4CoreApplication") << "NewTrackAction called for "
+  				   << aTrack->GetTrackID()
+  				   << " mother " << motherInfo.isPrimary()
+  				   << " flag " << flag;
 
   // Take care of cascade decays
   if (flag == 1) {
