@@ -257,7 +257,10 @@ void SiStripGainsCalibTreeWorker::dqmAnalyze(edm::Event const& iEvent,
     // data members
     unsigned int eventnumber = 0;
     unsigned int runnumber = 0;
+#ifdef ExtendedCALIBTree
     const std::vector<bool>* TrigTech = nullptr;
+    const std::vector<double>* chargeoverpath = nullptr;
+#endif
     // Track data
     const std::vector<double>* trackchi2ndof = nullptr;
     const std::vector<float>* trackp = nullptr;
@@ -279,7 +282,6 @@ void SiStripGainsCalibTreeWorker::dqmAnalyze(edm::Event const& iEvent,
     const std::vector<bool>* farfromedge = nullptr;
     const std::vector<unsigned int>* charge = nullptr;
     const std::vector<double>* path = nullptr;
-    const std::vector<double>* chargeoverpath = nullptr;
     const std::vector<unsigned char>* amplitude = nullptr;
     const std::vector<double>* gainused = nullptr;
     const std::vector<double>* gainusedTick = nullptr;
@@ -291,8 +293,10 @@ void SiStripGainsCalibTreeWorker::dqmAnalyze(edm::Event const& iEvent,
 
     tree.SetBranchAddress((EventPrefix_ + "event" + EventSuffix_).c_str(), &eventnumber, nullptr);
     tree.SetBranchAddress((EventPrefix_ + "run" + EventSuffix_).c_str(), &runnumber, nullptr);
+#ifdef ExtendedCALIBTree
     tree.SetBranchAddress((EventPrefix_ + "TrigTech" + EventSuffix_).c_str(), &TrigTech, nullptr);
-
+    tree.SetBranchAddress((CalibPrefix_ + "chargeoverpath" + CalibSuffix_).c_str(), &chargeoverpath, nullptr);
+#endif
     tree.SetBranchAddress((TrackPrefix_ + "chi2ndof" + TrackSuffix_).c_str(), &trackchi2ndof, nullptr);
     tree.SetBranchAddress((TrackPrefix_ + "momentum" + TrackSuffix_).c_str(), &trackp, nullptr);
     tree.SetBranchAddress((TrackPrefix_ + "pt" + TrackSuffix_).c_str(), &trackpt, nullptr);
@@ -313,7 +317,7 @@ void SiStripGainsCalibTreeWorker::dqmAnalyze(edm::Event const& iEvent,
     tree.SetBranchAddress((CalibPrefix_ + "farfromedge" + CalibSuffix_).c_str(), &farfromedge, nullptr);
     tree.SetBranchAddress((CalibPrefix_ + "charge" + CalibSuffix_).c_str(), &charge, nullptr);
     tree.SetBranchAddress((CalibPrefix_ + "path" + CalibSuffix_).c_str(), &path, nullptr);
-    tree.SetBranchAddress((CalibPrefix_ + "chargeoverpath" + CalibSuffix_).c_str(), &chargeoverpath, nullptr);
+
     tree.SetBranchAddress((CalibPrefix_ + "amplitude" + CalibSuffix_).c_str(), &amplitude, nullptr);
     tree.SetBranchAddress((CalibPrefix_ + "gainused" + CalibSuffix_).c_str(), &gainused, nullptr);
     tree.SetBranchAddress((CalibPrefix_ + "gainusedTick" + CalibSuffix_).c_str(), &gainusedTick, nullptr);
