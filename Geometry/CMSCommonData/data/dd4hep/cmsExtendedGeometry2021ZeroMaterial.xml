@@ -366,7 +366,7 @@
     <Include ref='Geometry/GEMGeometryBuilder/data/GEMSpecsFilter/2021/v2/GEMSpecsFilter.xml'/>
     <Include ref='Geometry/GEMGeometryBuilder/data/GEMSpecs/2021/v2/GEMSpecs.xml'/>
     <Include ref='Geometry/ForwardSimData/data/totemsensT2/2021/totemsensT2.xml'/>
-    <Include ref='Geometry/ForwardSimData/data/bcm1fsens.xml'/>
+    <Include ref='Geometry/ForwardCommonData/data/bhmsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/pltsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/bcm1fsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/zdcsens.xml'/>
