@@ -62,8 +62,7 @@ CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer(const edm::ParameterSet& 
   if (applyCalib_) {
     timingCalibrationToken_ = esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>(
         edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationTag")));
-    timingCalibrationLUTToken_ = esConsumes<PPSTimingCalibrationLUT, PPSTimingCalibrationLUTRcd>(
-        edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationLUTTag")));
+    timingCalibrationLUTToken_ = esConsumes<PPSTimingCalibrationLUT, PPSTimingCalibrationLUTRcd>();
   }
   produces<edm::DetSetVector<CTPPSDiamondRecHit> >();
 }
@@ -98,8 +97,6 @@ void CTPPSDiamondRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions
       ->setComment("input digis collection to retrieve");
   desc.add<std::string>("timingCalibrationTag", "GlobalTag:PPSDiamondTimingCalibration")
       ->setComment("input tag for timing calibrations retrieval");
-  desc.add<std::string>("timingCalibrationLUTTag", "GlobalTag:PPSDiamondTimingCalibrationLUT")
-      ->setComment("input tag for LUT timing calibrations retrieval");
   desc.add<double>("timeSliceNs", 25.0 / 1024.0)
       ->setComment("conversion constant between HPTDC timing bin size and nanoseconds");
   desc.add<bool>("applyCalibration", true)->setComment("switch on/off the timing calibration");
