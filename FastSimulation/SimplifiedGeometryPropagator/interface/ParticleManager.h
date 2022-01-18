@@ -56,7 +56,8 @@ namespace fastsim {
             double deltaRchargedMother,
             const ParticleFilter & particleFilter,
             std::vector<SimTrack> & simTracks,
-            std::vector<SimVertex> & simVertices);
+            std::vector<SimVertex> & simVertices,
+            bool fixLongLivedBug);
         
         //! Default destructor.
         ~ParticleManager();
@@ -142,15 +143,18 @@ namespace fastsim {
         double lengthUnitConversionFactor2_;  //!< Convert pythia unis to cm^2 (FastSim standard)
         double timeUnitConversionFactor_;  //!< Convert pythia unis to ns (FastSim standard)
         std::vector<std::unique_ptr<Particle> > particleBuffer_;  //!< The vector of all secondaries that are not yet propagated in the event.
+        bool fixLongLivedBug_;
     };
 }
 
-inline bool isExotic(int pdgid_) {
+inline bool isExotic(bool fixLongLivedBug, int pdgid_) {
   unsigned int pdgid = std::abs(pdgid_);
   return ((pdgid >= 1000000 && pdgid < 4000000 && pdgid != 3000022) ||  // SUSY, R-hadron, and technicolor particles
           pdgid == 17 ||                                                // 4th generation lepton
           pdgid == 34 ||                                                // W-prime
-          pdgid == 37);                                                 // charged Higgs
+          pdgid == 37 ||                                                // charged Higgs  
+          (pdgid == 39 && fixLongLivedBug));                           // bulk graviton
+ 
 }
 
 #endif
