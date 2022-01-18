@@ -2,8 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('DUMP')
 
+process.load('Geometry.MuonCommonData.testExtendedGeometry2021XML_cfi')
 #process.load('Configuration.Geometry.GeometryExtended2021_cff')
-process.load('Geometry.MuonCommonData.testGE0XML_cfi')
+#process.load('Geometry.MuonCommonData.testGE0XML_cfi')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load("Geometry.GEMGeometryBuilder.gemGeometry_cff")
