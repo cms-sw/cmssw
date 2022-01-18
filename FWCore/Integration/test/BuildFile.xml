@@ -221,7 +221,7 @@
     <use name="FWCore/ParameterSet"/>
   </library>
 
-  <library file="ThrowingSource.cc" name="ThrowingSource">
+  <library file="ThrowingSource.cc, DelayedReaderThrowingSource.cc" name="ThrowingSource">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
