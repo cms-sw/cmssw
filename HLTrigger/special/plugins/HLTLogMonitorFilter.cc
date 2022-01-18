@@ -193,7 +193,7 @@ bool HLTLogMonitorFilter::filter(edm::StreamID, edm::Event& event, const edm::Ev
       auto& cat = getCategory(category);
       if (cat.id >= doneCache.size()) {
         //new categories were added so need to grow
-        doneCache.resize(cat.id);
+        doneCache.resize(cat.id + 1);
       }
       if (not doneCache[cat.id].done) {
         doneCache[cat.id].cachedValue = cat.accept();
