@@ -393,7 +393,7 @@ namespace edmtest {
   private:
     const edm::EDGetTokenT<edmtest::IntProduct> token_;
     edm::EDPutTokenT<edmtest::IntProduct> putToken_;
-    int threshold_;
+    const int threshold_;
     const bool shouldProduce_;
   };
 
