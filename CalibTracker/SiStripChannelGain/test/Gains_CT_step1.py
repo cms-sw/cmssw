@@ -10,7 +10,7 @@ options = VarParsing("analysis")
 options.register("calibTreeName", "gainCalibrationTreeStdBunch/tree", VarParsing.multiplicity.singleton, VarParsing.varType.string, "Name of the TTree in the calibtree files")
 options.register("firstRun", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "First run of the calibration range")
 options.register("lastRun", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Last run of the calibration range")
-options.register("globalTag", "92X_dataRun2_Express_v2", VarParsing.multiplicity.singleton, VarParsing.varType.string, "Global tag (express, to check the homogeneity of the calibration range")
+options.register("globalTag", "auto:run3_data_express", VarParsing.multiplicity.singleton, VarParsing.varType.string, "Global tag (express, to check the homogeneity of the calibration range")
 options.parseArguments()
 
 process = cms.Process('ALCA')
@@ -20,7 +20,8 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 
-process.SiStripCalib = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.SiStripCalib = DQMEDAnalyzer(
     "SiStripGainsCalibTreeWorker",
     minTrackMomentum    = cms.untracked.double(2),
     maxNrStrips         = cms.untracked.uint32(8),
@@ -82,10 +83,10 @@ process.source = cms.Source("EmptyIOVSource",
 
 # Uncomment to turn on verbosity output
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.threshold = cms.untracked.string('INFO')
+#process.MessageLogger.threshold = cms.untracked.string('INFO')
 process.MessageLogger.cout.threshold = cms.untracked.string('INFO')
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring('cout')
+#process.MessageLogger.destinations = cms.untracked.vstring('cout')
 process.MessageLogger.cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
 
 #process.Tracer = cms.Service("Tracer")
