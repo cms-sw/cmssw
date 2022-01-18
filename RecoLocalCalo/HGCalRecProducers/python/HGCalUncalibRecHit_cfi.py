@@ -2,9 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigitizer
 
-fCPerMIP_v10 = cms.vdouble(2.06,3.43,5.15) #120um, 200um, 300um
-
-fCPerMIP_v16 = fCPerMIP_v10
+fCPerMIP_mpv = cms.vdouble(1.25,2.57,3.88) #120um, 200um, 300um
+fCPerMIP_mean = cms.vdouble(2.06,3.43,5.15) #120um, 200um, 300um
 
 # HGCAL producer of rechits starting from digis
 HGCalUncalibRecHit = cms.EDProducer(
@@ -28,7 +27,7 @@ HGCalUncalibRecHit = cms.EDProducer(
         tdcSaturation = hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
         tdcOnset      = hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC,
         toaLSB_ns     = hgceeDigitizer.digiCfg.feCfg.toaLSB_ns,
-        fCPerMIP      = cms.vdouble(1.25,2.57,3.88) #100um, 200um, 300um
+        fCPerMIP      = fCPerMIP_mpv
         ),
     
     HGCHEFConfig = cms.PSet(
@@ -41,7 +40,7 @@ HGCalUncalibRecHit = cms.EDProducer(
         tdcSaturation = hgchefrontDigitizer.digiCfg.feCfg.tdcSaturation_fC,
         tdcOnset      = hgchefrontDigitizer.digiCfg.feCfg.tdcOnset_fC,
         toaLSB_ns     = hgchefrontDigitizer.digiCfg.feCfg.toaLSB_ns,
-        fCPerMIP      = cms.vdouble(1.25,2.57,3.88) #100um, 200um, 300um
+        fCPerMIP      = fCPerMIP_mpv
         ),
 
     HGCHEBConfig = cms.PSet(
@@ -67,22 +66,22 @@ HGCalUncalibRecHit = cms.EDProducer(
         tdcSaturation = hfnoseDigitizer.digiCfg.feCfg.tdcSaturation_fC,
         tdcOnset      = hfnoseDigitizer.digiCfg.feCfg.tdcOnset_fC,
         toaLSB_ns     = hfnoseDigitizer.digiCfg.feCfg.toaLSB_ns,
-        fCPerMIP      = cms.vdouble(1.25,2.57,3.88) #100um, 200um, 300um
+        fCPerMIP      = fCPerMIP_mpv
         ),
 
     algo = cms.string("HGCalUncalibRecHitWorkerWeights")
 )
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
-phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_v10 ) 
-phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_v10 )
+phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_mean ) 
+phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_mean )
 
 from Configuration.Eras.Modifier_phase2_hgcalV12_cff import phase2_hgcalV12
-phase2_hgcalV12.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_v16 ) 
-phase2_hgcalV12.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_v16 )
+phase2_hgcalV12.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_mean ) 
+phase2_hgcalV12.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_mean )
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toModify( HGCalUncalibRecHit.HGCHFNoseConfig ,
           isSiFE = True ,
-          fCPerMIP = fCPerMIP_v10
+          fCPerMIP = fCPerMIP_mean
 )
