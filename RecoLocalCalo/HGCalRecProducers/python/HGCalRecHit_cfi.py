@@ -4,9 +4,11 @@ from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import *
 
 from Configuration.Eras.Modifier_phase2_hgcalV12_cff import phase2_hgcalV12
 
-def calcWeights(weightsPerLayer): res =  [sum(wei)/2. for wei in zip(weightsPerLayer[:], weightsPerLayer[1:] + [weightsPerLayer[0]])]; res[0] = 0.0; res[-1] = res[-2]; return res;   
+# There is no layer zero, while no average is taken for the last layer
+dummy_weight = 0.0
+def calcWeights(weightsPerLayer): res = [sum(wei)/2. for wei in zip(weightsPerLayer[:], weightsPerLayer[1:] + [dummy_weight])]; res[0] = dummy_weight; res[-1] = 2. * res[-1]; return res;
 
-weightsPerLayer_V16 = cms.vdouble(0.0,  # there is no layer zero
+weightsPerLayer_V16 = cms.vdouble(dummy_weight,
                                   5.55, # MeV
                                   12.86,
                                   9.4,
