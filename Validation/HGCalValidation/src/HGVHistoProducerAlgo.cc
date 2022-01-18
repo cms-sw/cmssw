@@ -2932,17 +2932,17 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
       LogDebug("HGCalValidator") << "Trackster Id: " << tstId << "\tSimTrackster id: -1"
                                  << "\tscore: -1\n";
 
-    tracksters_FakeMerge[tstId] = std::count_if(
-        std::begin(stsInTrackster[tstId]),
-        std::end(stsInTrackster[tstId]),
-        [&, i, ScoreCutTStoSTSFakeMerge](const auto& obj) { return obj.second < ScoreCutTStoSTSFakeMerge; });
+    tracksters_FakeMerge[tstId] =
+        std::count_if(std::begin(stsInTrackster[tstId]),
+                      std::end(stsInTrackster[tstId]),
+                      [ScoreCutTStoSTSFakeMerge](const auto& obj) { return obj.second < ScoreCutTStoSTSFakeMerge; });
 
     const auto score = std::min_element(std::begin(stsInTrackster[tstId]),
                                         std::end(stsInTrackster[tstId]),
                                         [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
     float score2 = -1;
     float sharedEneFrac2 = 0;
-    for (const auto stsPair : stsInTrackster[tstId]) {
+    for (const auto& stsPair : stsInTrackster[tstId]) {
       const auto iSTS = stsPair.first;
       const auto iScore = stsPair.second;
       const auto cpId = getCPId(simTSs[iSTS], iSTS, cPHandle_id, cpToSc_SimTrackstersMap, simTSs_fromCP);
