@@ -47,7 +47,7 @@ private:
 
   // EDM input tokens
   const edm::EDGetTokenT<GlobalAlgBlkBxCollection> ugt_token_;
-  edm::ESGetToken<L1TUtmTriggerMenu,L1TUtmTriggerMenuRcd> menuToken_; 
+  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1GtMenuToken_;
 
   // L1 uGT menu
   unsigned long long cache_id_;
@@ -62,7 +62,7 @@ L1uGTTreeProducer::L1uGTTreeProducer(edm::ParameterSet const &config)
   // set up the TTree and its branches
   tree_ = fs_->make<TTree>("L1uGTTree", "L1uGTTree");
   tree_->Branch("L1uGT", "GlobalAlgBlk", &results_, 32000, 3);
-  menuToken_ = esConsumes<L1TUtmTriggerMenu,L1TUtmTriggerMenuRcd>();
+  l1GtMenuToken_ = esConsumes<L1TUtmTriggerMenu,L1TUtmTriggerMenuRcd>();
 }
 
 L1uGTTreeProducer::~L1uGTTreeProducer() {
@@ -80,7 +80,7 @@ void L1uGTTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &
   if (id != cache_id_) {
     cache_id_ = id;
     edm::ESHandle<L1TUtmTriggerMenu> menu; 
-    menu = setup.getHandle(menuToken_);
+    menu = setup.getHandle(l1GtMenuToken_);
 
     for (auto const &keyval : menu->getAlgorithmMap()) {
       std::string const &name = keyval.second.getName();
