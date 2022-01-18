@@ -1465,7 +1465,7 @@ forwardDict = {
         ],
         3 : [
             'Geometry/ForwardSimData/data/totemsensT2/2021/totemsensT2.xml',
-            'Geometry/ForwardSimData/data/bcm1fsens.xml',
+            'Geometry/ForwardCommonData/data/bhmsens.xml',
             'Geometry/ForwardSimData/data/pltsens.xml',
             'Geometry/ForwardSimData/data/bcm1fsens.xml',
             'Geometry/ForwardSimData/data/zdcsens.xml',
