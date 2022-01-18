@@ -14,9 +14,9 @@ run2_ECAL_2017.toModify(alcaHcalIsotrkProducer,
   EEHitEnergyThresholdHigh= 10.0
 )
 
-from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
+from Configuration.Eras.Modifier_run2_ECAL_2018_cff import run2_ECAL_2018
 
-run2_HCAL_2018.toModify(alcaHcalIsotrkProducer,
+run2_ECAL_2018.toModify(alcaHcalIsotrkProducer,
   EBHitEnergyThreshold    = 0.10,
   EEHitEnergyThreshold0   = -41.0664,
   EEHitEnergyThreshold1   = 68.795,
