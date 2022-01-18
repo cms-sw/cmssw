@@ -769,7 +769,7 @@ namespace trklet {
                                                                          //input links running at 25 Gbits/s
                                                                          //Set to 108 to match firmware project 240 MHz clock
 
-                                                           {"VMR", 108},
+                                                           {"VMR", 107},
                                                            {"TE", 107},
                                                            {"TC", 108},
                                                            {"PR", 108},
