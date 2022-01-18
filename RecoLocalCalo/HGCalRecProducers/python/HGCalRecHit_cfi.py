@@ -6,7 +6,8 @@ from Configuration.Eras.Modifier_phase2_hgcalV12_cff import phase2_hgcalV12
 
 # There is no layer zero, while no average is taken for the last layer
 dummy_weight = 0.0
-def calcWeights(weightsPerLayer): res = [sum(wei)/2. for wei in zip(weightsPerLayer[:], weightsPerLayer[1:] + [dummy_weight])]; res[0] = dummy_weight; res[-1] = 2. * res[-1]; return res;
+def calcWeights(weightsPerLayer): res = [sum(wei)/2. for wei in zip(weightsPerLayer[:], weightsPerLayer[1:] + [weightsPerLayer[-1]])]; res[0] = dummy_weight; return res;   
+
 
 weightsPerLayer_V16 = cms.vdouble(dummy_weight,
                                   5.55, # MeV
