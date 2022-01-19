@@ -24,19 +24,18 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps) :
-  ebRechitCollection_(ps.getParameter<std::string>("EBrechitCollection")),
-  eeRechitCollection_(ps.getParameter<std::string>("EErechitCollection")),
-  doEB_(ps.getParameter<edm::InputTag>("EBuncalibRecHitCollection").label() != "none"),
-  doEE_(ps.getParameter<edm::InputTag>("EEuncalibRecHitCollection").label() != "none"),
-  recoverEBIsolatedChannels_(ps.getParameter<bool>("recoverEBIsolatedChannels")),
-  recoverEEIsolatedChannels_(ps.getParameter<bool>("recoverEEIsolatedChannels")),
-  recoverEBVFE_(ps.getParameter<bool>("recoverEBVFE")),
-  recoverEEVFE_(ps.getParameter<bool>("recoverEEVFE")),
-  recoverEBFE_(ps.getParameter<bool>("recoverEBFE")),
-  recoverEEFE_(ps.getParameter<bool>("recoverEEFE")),
-  killDeadChannels_(ps.getParameter<bool>("killDeadChannels"))
-{
+EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps)
+    : ebRechitCollection_(ps.getParameter<std::string>("EBrechitCollection")),
+      eeRechitCollection_(ps.getParameter<std::string>("EErechitCollection")),
+      doEB_(ps.getParameter<edm::InputTag>("EBuncalibRecHitCollection").label() != "none"),
+      doEE_(ps.getParameter<edm::InputTag>("EEuncalibRecHitCollection").label() != "none"),
+      recoverEBIsolatedChannels_(ps.getParameter<bool>("recoverEBIsolatedChannels")),
+      recoverEEIsolatedChannels_(ps.getParameter<bool>("recoverEEIsolatedChannels")),
+      recoverEBVFE_(ps.getParameter<bool>("recoverEBVFE")),
+      recoverEEVFE_(ps.getParameter<bool>("recoverEEVFE")),
+      recoverEBFE_(ps.getParameter<bool>("recoverEBFE")),
+      recoverEEFE_(ps.getParameter<bool>("recoverEEFE")),
+      killDeadChannels_(ps.getParameter<bool>("killDeadChannels")) {
   produces<EBRecHitCollection>(ebRechitCollection_);
   produces<EERecHitCollection>(eeRechitCollection_);
 
@@ -49,7 +48,8 @@ EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps) :
     }
 
     if (recoverEBFE_ || killDeadChannels_) {
-      ebFEToBeRecoveredToken_ = consumes<std::set<EcalTrigTowerDetId>>(ps.getParameter<edm::InputTag>("ebFEToBeRecovered"));
+      ebFEToBeRecoveredToken_ =
+          consumes<std::set<EcalTrigTowerDetId>>(ps.getParameter<edm::InputTag>("ebFEToBeRecovered"));
     }
   }
 
