@@ -57,7 +57,8 @@ HGCalCellPositionTester::HGCalCellPositionTester(const edm::ParameterSet& iC)
     : waferSize_(iC.getParameter<double>("WaferSize")),
       waferType_(iC.getParameter<int>("WaferType")),
       placeIndex_(iC.getParameter<int>("WaferPlacementIndex")) {
-  edm::LogVerbatim("HGCalGeom") << "Test positions for wafer of size " << waferSize_ << " Type " << waferType_ << " Placement Index " << placeIndex_;
+  edm::LogVerbatim("HGCalGeom") << "Test positions for wafer of size " << waferSize_ << " Type " << waferType_
+                                << " Placement Index " << placeIndex_;
 }
 
 void HGCalCellPositionTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -76,23 +77,27 @@ void HGCalCellPositionTester::analyze(const edm::Event&, const edm::EventSetup&)
   int nCells = (waferType_ == 0) ? nFine : nCoarse;
   int indexMin = (placeIndex_ >= 0) ? placeIndex_ : 0;
   int indexMax = (placeIndex_ >= 0) ? placeIndex_ : 11;
-  edm::LogVerbatim("HGCalGeom") << "\nHGCalCellPositionTester:: nCells " << nCells << " and placement index between " << indexMin << " and " << indexMax << "\n\n";
+  edm::LogVerbatim("HGCalGeom") << "\nHGCalCellPositionTester:: nCells " << nCells << " and placement index between "
+                                << indexMin << " and " << indexMax << "\n\n";
   for (int placeIndex = indexMin; placeIndex <= indexMax; ++placeIndex) {
     for (int iu = 0; iu < 2 * nCells; ++iu) {
       for (int iv = 0; iv < 2 * nCells; ++iv) {
-	int u(iu), v(iv);
-	if (placeIndex < HGCalWafer::WaferPlacementExtra) {
-	  u = iv;
-	  v = iu;
-	}
-	if (((v - u) < nCells) && ((u - v) <= nCells)) {
-	  std::pair<double, double> xy1 = wafer.HGCalWaferUV2XY1(u, v, placeIndex, waferType_);
-	  std::pair<double, double> xy2 = wafer.HGCalWaferUV2XY2(u, v, placeIndex, waferType_);
-	  double dx = xy1.first - xy2.first;
-	  double dy = xy1.second - xy2.second;
-	  std::string comment = ((std::abs(dx) > tol) || (std::abs(dy) > tol)) ? " ***** ERROR *****" : "";
-	  edm::LogVerbatim("HGCalGeom") << "u = " << u << " v = " << v << " type = " << waferType_ << " placement index " << placeIndex << " x "<< xy1.first << ":" << xy2.first << ":" << dx << " y " << xy1.second << ":" << xy2.second << ":" << dy << comment;
-	}
+        int u(iu), v(iv);
+        if (placeIndex < HGCalWafer::WaferPlacementExtra) {
+          u = iv;
+          v = iu;
+        }
+        if (((v - u) < nCells) && ((u - v) <= nCells)) {
+          std::pair<double, double> xy1 = wafer.HGCalWaferUV2XY1(u, v, placeIndex, waferType_);
+          std::pair<double, double> xy2 = wafer.HGCalWaferUV2XY2(u, v, placeIndex, waferType_);
+          double dx = xy1.first - xy2.first;
+          double dy = xy1.second - xy2.second;
+          std::string comment = ((std::abs(dx) > tol) || (std::abs(dy) > tol)) ? " ***** ERROR *****" : "";
+          edm::LogVerbatim("HGCalGeom") << "u = " << u << " v = " << v << " type = " << waferType_
+                                        << " placement index " << placeIndex << " x " << xy1.first << ":" << xy2.first
+                                        << ":" << dx << " y " << xy1.second << ":" << xy2.second << ":" << dy
+                                        << comment;
+        }
       }
     }
   }

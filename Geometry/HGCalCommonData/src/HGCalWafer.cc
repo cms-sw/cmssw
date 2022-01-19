@@ -83,8 +83,10 @@ std::pair<double, double> HGCalWafer::HGCalWaferUV2XY2(int32_t u, int32_t v, int
     double y0 = (2 * u - v - N_[type]) * r_[type];
     const std::vector<double> fac1 = {0.5, 1.0, 0.5, -0.5, -1.0, -0.5};
     const std::vector<double> fac2 = {sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_, 0.0, sqrt3By2_};
-    x = x0 * fac1[placementIndex - HGCalWafer::WaferPlacementExtra] - y0 * fac2[placementIndex - HGCalWafer::WaferPlacementExtra];
-    y = x0 * fac2[placementIndex - HGCalWafer::WaferPlacementExtra] + y0 * fac1[placementIndex - HGCalWafer::WaferPlacementExtra];
+    x = x0 * fac1[placementIndex - HGCalWafer::WaferPlacementExtra] -
+        y0 * fac2[placementIndex - HGCalWafer::WaferPlacementExtra];
+    y = x0 * fac2[placementIndex - HGCalWafer::WaferPlacementExtra] +
+        y0 * fac1[placementIndex - HGCalWafer::WaferPlacementExtra];
   }
   return std::make_pair(x, y);
 }
