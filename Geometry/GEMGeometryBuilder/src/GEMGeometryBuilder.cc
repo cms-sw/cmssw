@@ -74,7 +74,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     fvGE2.parent();
     doSuper = fvGE2.nextSibling();
   }
-  bool demonstratorGeometry = (nGE21 == 1) ? true : false;
+  bool demonstratorGeometry = nGE21 == 1;
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
@@ -369,7 +369,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     }
   }
 
-  bool demonstratorGeometry = (nGE21 == 1) ? true : false;
+  bool demonstratorGeometry = nGE21 == 1;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
                                << demonstratorGeometry;
