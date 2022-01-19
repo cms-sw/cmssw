@@ -37,7 +37,7 @@ public:
   static int32_t HGCalWaferPlacementIndex(int32_t iz, int32_t fwdBack, int32_t orient);
 
 private:
-  static constexpr double sqrt3By2_ = (0.5 * std::sqrt(3.0));
+  const double sqrt3By2_ = (0.5 * std::sqrt(3.0));
   int32_t N_[2];
   double R_[2], r_[2];
 };
