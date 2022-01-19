@@ -4,7 +4,7 @@
 //
 // Package:    LHEGenericMassFilter
 // Class:      LHEGenericMassFilter
-// 
+//
 /* 
 
  Description: Filter to select events within a given mass range for an arbitrary number of given particle(s).

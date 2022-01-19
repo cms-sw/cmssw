@@ -3,7 +3,6 @@
 using namespace edm;
 using namespace std;
 
-
 LHEGenericMassFilter::LHEGenericMassFilter(const edm::ParameterSet& iConfig)
     : src_(consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"))),
       numRequired_(iConfig.getParameter<int>("NumRequired")),
