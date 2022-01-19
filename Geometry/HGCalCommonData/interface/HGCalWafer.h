@@ -31,12 +31,13 @@ public:
   static constexpr int32_t WaferPlacementExtra = 6;
   static constexpr int32_t WaferPlacementOld = 7;
 
-  std::pair<double, double> HGCalWaferUV2XY(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
+  std::pair<double, double> HGCalWaferUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
+  std::pair<double, double> HGCalWaferUV2XY2(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
   int32_t HGCalWaferUV2Cell(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
   static int32_t HGCalWaferPlacementIndex(int32_t iz, int32_t fwdBack, int32_t orient);
 
 private:
-  const double factor_;
+  static constexpr double sqrt3By2_ = (0.5 * std::sqrt(3.0));
   int32_t N_[2];
   double R_[2], r_[2];
 };

@@ -1,16 +1,16 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWafer.h"
 #include <vector>
 
-HGCalWafer::HGCalWafer(double waferSize, int32_t nFine, int32_t nCoarse) : factor_(0.5 * std::sqrt(3.0)) {
+HGCalWafer::HGCalWafer(double waferSize, int32_t nFine, int32_t nCoarse) {
   N_[0] = nFine;
   N_[1] = nCoarse;
   for (int k = 0; k < 2; ++k) {
     R_[k] = waferSize / (3 * N_[k]);
-    r_[k] = factor_ * R_[k];
+    r_[k] = sqrt3By2_ * R_[k];
   }
 }
 
-std::pair<double, double> HGCalWafer::HGCalWaferUV2XY(int32_t u, int32_t v, int32_t placementIndex, int32_t type) {
+std::pair<double, double> HGCalWafer::HGCalWaferUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type) {
   if (type != 0)
     type = 1;
   double x(0), y(0);
@@ -63,6 +63,28 @@ std::pair<double, double> HGCalWafer::HGCalWaferUV2XY(int32_t u, int32_t v, int3
       x = (1.5 * (u - N_[type]) + 1) * R_[type];
       y = (2 * v - u - N_[type]) * r_[type];
       break;
+  }
+  return std::make_pair(x, y);
+}
+
+std::pair<double, double> HGCalWafer::HGCalWaferUV2XY2(int32_t u, int32_t v, int32_t placementIndex, int32_t type) {
+  if (type != 0)
+    type = 1;
+  double x(0), y(0);
+  if (placementIndex < HGCalWafer::WaferPlacementExtra) {
+    double x0 = (1.5 * (u - v) - 0.5) * R_[type];
+    double y0 = (u + v - 2 * N_[type] + 1) * r_[type];
+    const std::vector<double> fac1 = {1.0, 0.5, -0.5, -1.0, -0.5, 0.5};
+    const std::vector<double> fac2 = {0.0, sqrt3By2_, sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_};
+    x = x0 * fac1[placementIndex] - y0 * fac2[placementIndex];
+    y = x0 * fac2[placementIndex] + y0 * fac1[placementIndex];
+  } else {
+    double x0 = (1.5 * (v - N_[type]) + 1.0) * R_[type];
+    double y0 = (2 * u - v - N_[type]) * r_[type];
+    const std::vector<double> fac1 = {0.5, 1.0, 0.5, -0.5, -1.0, -0.5};
+    const std::vector<double> fac2 = {sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_, 0.0, sqrt3By2_};
+    x = x0 * fac1[placementIndex - HGCalWafer::WaferPlacementExtra] - y0 * fac2[placementIndex - HGCalWafer::WaferPlacementExtra];
+    y = x0 * fac2[placementIndex - HGCalWafer::WaferPlacementExtra] + y0 * fac1[placementIndex - HGCalWafer::WaferPlacementExtra];
   }
   return std::make_pair(x, y);
 }
