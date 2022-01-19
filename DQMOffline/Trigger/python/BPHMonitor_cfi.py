@@ -2,24 +2,25 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.bphMonitoring_cfi import bphMonitoring as _bphMonitoring
 
-hltBPHmonitoring = _bphMonitoring.clone()
 
+hltBPHmonitoring = _bphMonitoring.clone(
+    FolderName = 'HLT/BPH/Dimuon_10_Jpsi_Barrel/',
+    tnp = True,
+    max_dR = 1.4,
+    minmass = 2.596,
+    maxmass = 3.596,
+    Upsilon = 0,
+    Jpsi = 0,
+    seagull = 0,
+    ptCut = 0,
+    displaced = 0
+)
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 stage2L1Trigger.toModify(hltBPHmonitoring, stageL1Trigger = 2)
 
 #hltBPHmonitoring.options = cms.untracked.PSet(
 #    SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
-hltBPHmonitoring.FolderName = cms.string('HLT/BPH/Dimuon_10_Jpsi_Barrel/')
-hltBPHmonitoring.tnp = cms.bool(True)
-hltBPHmonitoring.max_dR = cms.double(1.4)
-hltBPHmonitoring.minmass = cms.double(2.596)
-hltBPHmonitoring.maxmass = cms.double(3.596)
-hltBPHmonitoring.Upsilon = cms.int32(0)
-hltBPHmonitoring.Jpsi = cms.int32(0)
-hltBPHmonitoring.seagull = cms.int32(0)
-hltBPHmonitoring.ptCut = cms.int32(0)
-hltBPHmonitoring.displaced = cms.int32(0)
 
 hltBPHmonitoring.histoPSet.ptBinning = [-0.5, 0, 2, 4, 8, 10, 12, 16, 20, 25, 30, 35, 40, 50]
 

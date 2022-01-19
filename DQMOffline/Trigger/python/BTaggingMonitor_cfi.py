@@ -2,8 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 
-hltBTVmonitoring = topMonitoring.clone()
-hltBTVmonitoring.FolderName = cms.string('HLT/BTV/default/')
+hltBTVmonitoring = topMonitoring.clone(
+    FolderName = 'HLT/BTV/default/'
+)
 hltBTVmonitoring.histoPSet.lsPSet = cms.PSet(
   nbins = cms.uint32 ( 250 ),
   xmin  = cms.double(    0.),

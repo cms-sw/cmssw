@@ -7,9 +7,10 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.HLTEvF.lumiMonitor_cfi import lumiMonitor
 
-hltLumiMonitor = lumiMonitor.clone()
-hltLumiMonitor.useBPixLayer1 = cms.bool( False )
-hltLumiMonitor.minPixelClusterCharge = cms.double( 15000.0 )
+hltLumiMonitor = lumiMonitor.clone(
+    useBPixLayer1 =  False ,
+    minPixelClusterCharge = 15000.0 
+)
 hltLumiMonitor.histoPSet = cms.PSet(
     lsPSet = cms.PSet(  
       nbins = cms.int32( 2500 ) 
