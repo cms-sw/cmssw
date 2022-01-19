@@ -41,9 +41,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::EDGetTokenT<SiPixelClusterCollectionNew> tokenCluster_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+  const edm::EDGetTokenT<SiPixelClusterCollectionNew> tokenCluster_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   std::string topFolderName_;
   const TrackerTopology* trackerTopology_;
 
