@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import *
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import *
 
-from Configuration.Eras.Modifier_phase2_hgcalV12_cff import phase2_hgcalV12
+from Configuration.Eras.Modifier_phase2_hgcalV16_cff import phase2_hgcalV16
 
 # There is no layer zero, while no average is taken for the last layer
 dummy_weight = 0.0
@@ -199,7 +199,7 @@ phase2_hgcalV10.toModify( HGCalRecHit , thicknessCorrection = [0.77, 0.77, 0.77,
 
 phase2_hfnose.toModify( HGCalRecHit , thicknessNoseCorrection = [0.58,0.58,0.58])
 
-phase2_hgcalV12.toModify(HGCalRecHit, 
+phase2_hgcalV16.toModify(HGCalRecHit, 
                          thicknessCorrection = [0.75, 0.76, 0.75, 0.85, 0.85, 0.84] , 
                          sciThicknessCorrection =  0.69, 
                          layerWeights = dEdX_v16.weights) 
