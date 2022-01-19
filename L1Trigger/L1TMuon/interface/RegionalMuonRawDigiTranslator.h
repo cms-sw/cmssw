@@ -51,7 +51,7 @@ namespace l1t {
     static constexpr unsigned emtfPtUnconstrainedShift_ = 20;
     static constexpr unsigned trackAddressMask_ = 0x1FFFFFFF;
     static constexpr unsigned trackAddressShift_ = 2;
-    static constexpr unsigned emtfShowerMask_ = 0x3;
+    static constexpr unsigned emtfShowerMask_ = 0x1;
     static constexpr unsigned emtfShowerInTimeFrame_ = 0;
     static constexpr unsigned emtfShowerOOTFrame_ = 2;
     static constexpr unsigned emtfShowerOneNominalShift_ = 18;

@@ -137,8 +137,10 @@ void l1t::RegionalMuonRawDigiTranslator::generatePackedShowerPayload(const Regio
     return;
   }
   // First we check whether we're going to overwrite something in the payload.
-  if (((payload.at(emtfShowerInTimeFrame_) & emtfShowerMask_) != 0) ||
-      ((payload.at(emtfShowerOOTFrame_) & emtfShowerMask_) != 0)) {
+  if ((((payload.at(emtfShowerInTimeFrame_) >> emtfShowerOneNominalShift_) & emtfShowerMask_) != 0) ||
+      (((payload.at(emtfShowerInTimeFrame_) >> emtfShowerOneTightShift_) & emtfShowerMask_) != 0) ||
+      (((payload.at(emtfShowerOOTFrame_) >> emtfShowerOneNominalShift_) & emtfShowerMask_) != 0) ||
+      (((payload.at(emtfShowerOOTFrame_) >> emtfShowerOneTightShift_) & emtfShowerMask_) != 0)) {
     edm::LogError("L1T") << "Check constants for RegionalMuonShower fields! It looks like we're in danger of "
                             "overwriting muon data in the packer!";
     return;
