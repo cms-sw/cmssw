@@ -52,15 +52,15 @@ int GEMDQMBase::loadChambers() {
     int n_lay = sch->nChambers();
     for (int l = 0; l < n_lay; l++) {
       Bool_t bExist = false;
+      if (not sch->chamber(l + 1))
+        continue;
       for (const auto& ch : gemChambers_) {
-        if (sch->chamber(l + 1) and ch.id() == sch->chamber(l + 1)->id()) {
+        if (ch.id() == sch->chamber(l + 1)->id()) {
           bExist = true;
           break;
         }
       }
       if (bExist)
-        continue;
-      if (not sch->chamber(l + 1))
         continue;
       gemChambers_.push_back(*sch->chamber(l + 1));
     }
