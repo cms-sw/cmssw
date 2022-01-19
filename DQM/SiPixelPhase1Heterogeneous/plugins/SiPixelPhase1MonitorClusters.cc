@@ -121,7 +121,7 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
   edm::Handle<SiPixelClusterCollectionNew> input;
   iEvent.getByToken(tokenCluster_, input);
   if (!input.isValid()){
-    edm::LogWarning("SiPixelPhase1MonitorClusters") << "No Valid siPixelClustersPreSplitting found returning!" << std::endl;
+    edm::LogWarning("SiPixelPhase1MonitorClusters") << "No Valid siPixelClustersPreSplitting found returning!";
   }
   else{
     SiPixelClusterCollectionNew::const_iterator it;
@@ -144,7 +144,6 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
       DetId id = it->detId();
       uint32_t subdetid = (id.subdetId());
         if (subdetid == PixelSubdetector::PixelBarrel) {
-            edm::LogWarning("SiPixelPhase1MonitorClusters") << " PX Barrel:  DetId " <<id.rawId()<<" Layer "<<trackerTopology_->pxbLayer(id)<<std::endl;
             nClustersBarrel += nClustersEv;
             const uint32_t nLayer = trackerTopology_->pxbLayer(id);
             if(nLayer == 1){
