@@ -47,7 +47,7 @@ TrackSplittingMonitor::TrackSplittingMonitor(const edm::ParameterSet& iConfig)
   norchiCut_ = conf_.getParameter<double>("norchiCut");
 }
 
-TrackSplittingMonitor::~TrackSplittingMonitor() {}
+TrackSplittingMonitor::~TrackSplittingMonitor() = default;
 
 void TrackSplittingMonitor::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::Run const& /* iRun */,
