@@ -36,8 +36,8 @@ private:
   const std::string ebRechitCollection_;  // secondary name to be given to EB collection of hits
   const std::string eeRechitCollection_;  // secondary name to be given to EE collection of hits
 
-  const bool doEB_; // consume and use the EB uncalibrated RecHits. An EB collection is produced even if this is false
-  const bool doEE_; // consume and use the EE uncalibrated RecHits. An EE collection is produced even if this is false
+  const bool doEB_;  // consume and use the EB uncalibrated RecHits. An EB collection is produced even if this is false
+  const bool doEE_;  // consume and use the EE uncalibrated RecHits. An EE collection is produced even if this is false
   const bool recoverEBIsolatedChannels_;
   const bool recoverEEIsolatedChannels_;
   const bool recoverEBVFE_;
