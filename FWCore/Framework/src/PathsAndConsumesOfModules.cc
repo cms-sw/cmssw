@@ -363,6 +363,18 @@ namespace edm {
     std::vector<ModuleStatus> statusOfModules(largestIndex + 1);
     for (auto const& nameID : pathStatusInserterModuleLabelToModuleID) {
       statusOfModules[nameID.second].onPath_ = true;
+      unsigned int pathIndex;
+      auto const& paths = iPnC.paths();
+      auto itFound = std::find(paths.begin(), paths.end(), nameID.first);
+      if (itFound != paths.end()) {
+        pathIndex = itFound - paths.begin();
+      } else {
+        auto const& endPaths = iPnC.endPaths();
+        itFound = std::find(endPaths.begin(), endPaths.end(), nameID.first);
+        assert(itFound != endPaths.end());
+        pathIndex = itFound - endPaths.begin() + iPnC.paths().size();
+      }
+      statusOfModules[nameID.second].pathsOn_.push_back(pathIndex);
     }
     if (kTriggerResultsIndex != kInvalidIndex) {
       statusOfModules[kTriggerResultsIndex] = std::move(triggerResultsStatus);
