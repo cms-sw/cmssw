@@ -124,7 +124,6 @@ void SiPixelPhase1MonitorClusters::analyze(const edm::Event& iEvent, const edm::
     edm::LogWarning("SiPixelPhase1MonitorClusters") << "No Valid siPixelClustersPreSplitting found returning!" << std::endl;
   }
   else{
-    edm::LogWarning("SiPixelPhase1MonitorClusters") << "Ciao" << std::endl;
     SiPixelClusterCollectionNew::const_iterator it;
     uint32_t nClusters = 0;
     uint32_t nClustersBarrel = 0;
