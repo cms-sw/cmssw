@@ -85,7 +85,9 @@ void L1uGTTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &
   }
 
   edm::Handle<GlobalAlgBlkBxCollection> ugt;
+
   event.getByToken(ugtToken_, ugt);
+
   if (ugt.isValid()) {
     results_ = &ugt->at(0, 0);
   }
