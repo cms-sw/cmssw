@@ -6,6 +6,8 @@
               Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4hep migration)
               Updated by Sunanda Banerjee (Fermilab) to make it working for dd4hep
               Updated:  7 August 2020 
+              Updated by Ian J. Watson (ian.james.watson@cern.ch) to allow GE2/1 demonstrator to be built
+              Updated: 7 December 2021
 */
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilder.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
@@ -49,6 +51,37 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   std::string value = "MuonEndCapGEM";
 
   // Asking only for the MuonGEM's
+  DDSpecificsMatchesValueFilter filterGE2{DDValue(attribute, value, 0.0)};
+  DDFilteredView fvGE2(*cview, filterGE2);
+
+  MuonGeometryNumbering mdddnum(muonConstants);
+  GEMNumberingScheme gemNum(muonConstants);
+
+  // Check for the demonstrator geometry (only 1 chamber of GE2/1)
+  int nGE21 = 0;
+  bool doSuper = fvGE2.firstChild();
+  while (doSuper) {
+    // getting chamber id from eta partitions
+    fvGE2.firstChild();
+    fvGE2.firstChild();
+    int rawidCh = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fvGE2.geoHistory()));
+    GEMDetId detIdCh = GEMDetId(rawidCh);
+    if (detIdCh.station() == 2)
+      nGE21++;
+
+    // back to chambers
+    fvGE2.parent();
+    fvGE2.parent();
+    doSuper = fvGE2.nextSibling();
+  }
+  bool demonstratorGeometry = nGE21 == 1;
+
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
+                               << demonstratorGeometry;
+#endif
+
+  // Asking only for the MuonGEM's
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
   DDFilteredView fv(*cview, filter);
 
@@ -57,10 +90,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   edm::LogVerbatim("Geometry") << "About to run through the GEM structure\n"
                                << " First logical part " << fv.logicalPart().name().name();
 #endif
-  bool doSuper = fv.firstChild();
-
-  MuonGeometryNumbering mdddnum(muonConstants);
-  GEMNumberingScheme gemNum(muonConstants);
+  doSuper = fv.firstChild();
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "doSuperChamber = " << doSuper << " with " << fv.geoHistory() << " Levels "
@@ -93,7 +123,12 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     // currently there is no superchamber in the geometry
     // only 2 chambers are present separated by a gap.
     // making superchamber out of the first chamber layer including the gap between chambers
-    if (detIdCh.layer() == 1) {  // only make superChambers when doing layer 1
+
+    // In Run 3 we also have a GE2/1 station at layer 2. We make sure
+    // the superchamber gets built but also we build on the first
+    // layer for the other stations so the superchamber is in the
+    // right position there.
+    if ((detIdCh.layer() == 1) || (detIdCh.layer() == 2 and detIdCh.station() == 2 and demonstratorGeometry)) {
       GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
       superChambers.push_back(gemSuperChamber);
     }
@@ -308,8 +343,8 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
                                const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
-  const cms::DDFilter filter(attribute, value);
-  cms::DDFilteredView fv(*cview, filter);
+  const cms::DDFilter filterGE2(attribute, value);
+  cms::DDFilteredView fvGE2(*cview, filterGE2);
 
   MuonGeometryNumbering mdddnum(muonConstants);
   GEMNumberingScheme gemNum(muonConstants);
@@ -318,6 +353,30 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   int theLevelPart = muonConstants.getValue("level");
   int theRingLevel = muonConstants.getValue("mg_ring") / theLevelPart;
   int theSectorLevel = muonConstants.getValue("mg_sector") / theLevelPart;
+
+  // Check for the demonstrator geometry (only 1 chamber of GE2/1)
+  int nGE21 = 0;
+  while (fvGE2.firstChild()) {
+    const auto& history = fvGE2.history();
+    MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
+    GEMDetId detId(gemNum.baseNumberToUnitNumber(num));
+    if (detId.station() == GEMDetId::minStationId0) {
+    } else {
+      if (fvGE2.level() == levelChamb) {
+        if (detId.station() == 2)
+          nGE21++;
+      }
+    }
+  }
+
+  bool demonstratorGeometry = nGE21 == 1;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
+                               << demonstratorGeometry;
+#endif
+
+  const cms::DDFilter filter(attribute, value);
+  cms::DDFilteredView fv(*cview, filter);
   std::vector<GEMSuperChamber*> superChambers;
   std::vector<GEMChamber*> chambers;
 
@@ -354,7 +413,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
       }
     } else {
       if (fv.level() == levelChamb) {
-        if (detId.layer() == 1) {
+        if ((detId.layer() == 1) || (detId.layer() == 2 and detId.station() == 2 and demonstratorGeometry)) {
           GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detId);
           superChambers.emplace_back(gemSuperChamber);
         }
