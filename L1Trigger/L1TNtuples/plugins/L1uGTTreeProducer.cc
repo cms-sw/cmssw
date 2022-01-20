@@ -12,7 +12,7 @@
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -25,10 +25,10 @@
 // class declaration
 //
 
-class L1uGTTreeProducer : public edm::EDAnalyzer {
+class L1uGTTreeProducer : public edm::one::EDAnalyzer<> {
 public:
   explicit L1uGTTreeProducer(edm::ParameterSet const &);
-  ~L1uGTTreeProducer() override;
+  ~L1uGTTreeProducer() override = default;
 
 private:
   void beginJob() override;
@@ -46,8 +46,8 @@ private:
   TTree *tree_;
 
   // EDM input tokens
-  const edm::EDGetTokenT<GlobalAlgBlkBxCollection> ugt_token_;
-  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1GtMenuToken_;
+  const edm::EDGetTokenT<GlobalAlgBlkBxCollection> ugtToken_;
+  const edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1GtMenuToken_;
 
   // L1 uGT menu
   unsigned long long cache_id_;
@@ -56,17 +56,12 @@ private:
 L1uGTTreeProducer::L1uGTTreeProducer(edm::ParameterSet const &config)
     : results_(nullptr),
       tree_(nullptr),
-      ugt_token_(consumes<GlobalAlgBlkBxCollection>(config.getParameter<edm::InputTag>("ugtToken"))),
+      ugtToken_(consumes<GlobalAlgBlkBxCollection>(config.getParameter<edm::InputTag>("ugtToken"))),
+      l1GtMenuToken_(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>()),
       cache_id_(0) {
   // set up the TTree and its branches
   tree_ = fs_->make<TTree>("L1uGTTree", "L1uGTTree");
   tree_->Branch("L1uGT", "GlobalAlgBlk", &results_, 32000, 3);
-  l1GtMenuToken_ = esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
-}
-
-L1uGTTreeProducer::~L1uGTTreeProducer() {
-  //if (tree_) { delete tree_; tree_ = NULL; }
-  //if (results_) { delete results_; results_ = NULL; }  // It seems TTree owns this pointer...
 }
 
 //
@@ -90,9 +85,7 @@ void L1uGTTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &
   }
 
   edm::Handle<GlobalAlgBlkBxCollection> ugt;
-
-  event.getByToken(ugt_token_, ugt);
-
+  event.getByToken(ugtToken_, ugt);
   if (ugt.isValid()) {
     results_ = &ugt->at(0, 0);
   }
