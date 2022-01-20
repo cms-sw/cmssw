@@ -53,17 +53,17 @@ private:
   std::string g4Label, hitLab[4];
   edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
   edm::EDGetTokenT<edm::PCaloHitContainer> toks_calo_[4];
-  edm::EDGetTokenT<edm::PSimHitContainer> toks_track_[3];
+  edm::EDGetTokenT<edm::PSimHitContainer> toks_track_[4];
   edm::EDGetTokenT<edm::PSimHitContainer> toks_tkHigh_[6];
   edm::EDGetTokenT<edm::PSimHitContainer> toks_tkLow_[6];
-  std::string muonLab[3], tkHighLab[6], tkLowLab[6];
+  std::string muonLab[4], tkHighLab[6], tkLowLab[6];
   double tmax_, eMIP_;
   bool storeRL_, testNumber_;
 
   TH1F *hit_[9], *time_[9], *edepEM_[9], *edepHad_[9], *edep_[9];
   TH1F *etot_[9], *etotg_[9], *timeAll_[9], *hitMu, *hitHigh;
   TH1F *hitLow, *eneInc_, *etaInc_, *phiInc_, *ptInc_;
-  TH1F *hitTk_[15], *edepTk_[15], *tofTk_[15], *edepC_[9], *edepT_[9];
+  TH1F *hitTk_[16], *edepTk_[16], *tofTk_[16], *edepC_[9], *edepT_[9];
 };
 
 CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
@@ -81,11 +81,12 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   tmax_ = ps.getUntrackedParameter<double>("TimeCut", 100.0);
   eMIP_ = ps.getUntrackedParameter<double>("MIPCut", 0.70);
   storeRL_ = ps.getUntrackedParameter<bool>("StoreRL", false);
-  testNumber_ = ps.getUntrackedParameter<bool>("TestNumbering", false);
+  testNumber_ = ps.getUntrackedParameter<bool>("TestNumbering", true);
 
   muonLab[0] = "MuonRPCHits";
   muonLab[1] = "MuonCSCHits";
   muonLab[2] = "MuonDTHits";
+  muonLab[3] = "MuonGEMHits";
   tkHighLab[0] = "TrackerHitsPixelBarrelHighTof";
   tkHighLab[1] = "TrackerHitsPixelEndcapHighTof";
   tkHighLab[2] = "TrackerHitsTECHighTof";
@@ -103,7 +104,7 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   for (unsigned i = 0; i != 4; i++)
     toks_calo_[i] = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hitLab[i]));
 
-  for (unsigned i = 0; i != 3; i++)
+  for (unsigned i = 0; i != 4; i++)
     toks_track_[i] = consumes<edm::PSimHitContainer>(edm::InputTag(g4Label, muonLab[i]));
 
   for (unsigned i = 0; i != 6; i++) {
@@ -137,6 +138,7 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   phiInc_ = tfile->make<TH1F>("PhiInc", title, 200, -3.1415926, 3.1415926);
   phiInc_->GetXaxis()->SetTitle(title);
   phiInc_->GetYaxis()->SetTitle("Events");
+  edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for incident particle";
   std::string dets[9] = {"EB", "EB(APD)", "EB(ATJ)", "EE", "ES", "HB", "HE", "HO", "HF"};
   for (int i = 0; i < 9; i++) {
     sprintf(name, "Hit%d", i);
@@ -185,6 +187,7 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
     etotg_[i]->GetXaxis()->SetTitle(title);
     etotg_[i]->GetYaxis()->SetTitle("Events");
   }
+  edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for first level of Calorimeter";
   std::string detx[9] = {"EB/EE (MIP)",
                          "HB/HE (MIP)",
                          "HB/HE/HO (MIP)",
@@ -209,6 +212,7 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
     edepT_[i]->GetXaxis()->SetTitle(title);
     edepT_[i]->GetYaxis()->SetTitle("Events");
   }
+  edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for second level of Calorimeter";
   hitLow = tfile->make<TH1F>("HitLow", "Number of hits in Track (Low)", 1000, 0, 10000.);
   hitLow->GetXaxis()->SetTitle("Number of hits in Track (Low)");
   hitLow->GetYaxis()->SetTitle("Events");
@@ -218,7 +222,8 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   hitMu = tfile->make<TH1F>("HitMu", "Number of hits in Track (Muon)", 1000, 0, 5000.);
   hitMu->GetXaxis()->SetTitle("Number of hits in Muon");
   hitMu->GetYaxis()->SetTitle("Events");
-  std::string dett[15] = {"Pixel Barrel (High)",
+  edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for general tracking hits";
+  std::string dett[16] = {"Pixel Barrel (High)",
                           "Pixel Endcap (High)",
                           "TEC (High)",
                           "TIB (High)",
@@ -232,8 +237,9 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
                           "TOB (Low)",
                           "RPC",
                           "CSC",
-                          "DT"};
-  for (int i = 0; i < 15; i++) {
+                          "DT",
+			  "GEM"};
+  for (int i = 0; i < 16; i++) {
     sprintf(name, "HitTk%d", i);
     sprintf(title, "Number of hits in %s", dett[i].c_str());
     hitTk_[i] = tfile->make<TH1F>(name, title, 1000, 0., 1000.);
@@ -246,10 +252,11 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
     tofTk_[i]->GetYaxis()->SetTitle("Hits");
     sprintf(name, "EdepTk%d", i);
     sprintf(title, "Energy deposit (GeV) in %s", dett[i].c_str());
-    edepTk_[i] = tfile->make<TH1F>(name, title, 5000, 0., 10.);
+    edepTk_[i] = tfile->make<TH1F>(name, title, 250, 0., 0.25);
     edepTk_[i]->GetXaxis()->SetTitle(title);
     edepTk_[i]->GetYaxis()->SetTitle("Hits");
   }
+  edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for SimHit objects";
 }
 
 void CaloSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -264,7 +271,7 @@ void CaloSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.addUntracked<double>("TimeCut", 100.0);
   desc.addUntracked<double>("MIPCut", 0.70);
   desc.addUntracked<bool>("StoreRL", false);
-  desc.addUntracked<bool>("TestNumbering", false);
+  desc.addUntracked<bool>("TestNumbering", true);
   descriptions.add("CaloSimHitStudy", desc);
 }
 
@@ -314,7 +321,7 @@ void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const&) {
 
   std::vector<PSimHit> muonHits;
   edm::Handle<edm::PSimHitContainer> hitsTrack;
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 4; i++) {
     e.getByToken(toks_track_[i], hitsTrack);
     if (hitsTrack.isValid()) {
       muonHits.insert(muonHits.end(), hitsTrack->begin(), hitsTrack->end());
@@ -511,7 +518,7 @@ void CaloSimHitStudy::analyzeHits(edm::Handle<edm::PSimHitContainer>& hits, int 
     label = tkHighLab[indx];
   else if (indx >= 6 && indx < 12)
     label = tkLowLab[indx - 6];
-  else if (indx >= 12 && indx < 15)
+  else if (indx >= 12 && indx < 16)
     label = muonLab[indx - 12];
   for (ihit = hits->begin(); ihit != hits->end(); ihit++) {
     edepTk_[indx]->Fill(ihit->energyLoss());
