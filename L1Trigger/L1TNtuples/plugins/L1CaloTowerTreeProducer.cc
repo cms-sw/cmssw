@@ -91,7 +91,7 @@ private:
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalToken_;
   edm::EDGetTokenT<l1t::CaloTowerBxCollection> l1TowerToken_;
   edm::EDGetTokenT<l1t::CaloClusterBxCollection> l1ClusterToken_;
-  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderToken_; 
+  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderToken_;
 
   bool storeCaloClusters_;
 };
@@ -100,7 +100,7 @@ L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfi
   ecalToken_ = consumes<EcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("ecalToken"));
   hcalToken_ = consumes<HcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("hcalToken"));
   l1TowerToken_ = consumes<l1t::CaloTowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("l1TowerToken"));
-  decoderToken_ = esConsumes<CaloTPGTranscoder, CaloTPGRecord>(); 
+  decoderToken_ = esConsumes<CaloTPGTranscoder, CaloTPGRecord>();
 
   edm::InputTag clusterTag = iConfig.getUntrackedParameter<edm::InputTag>("l1ClusterToken");
   storeCaloClusters_ = true;
@@ -142,8 +142,8 @@ void L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
   // do calo towers
   caloTPData_->Reset();
 
-  edm::ESHandle<CaloTPGTranscoder> decoder;  
-  decoder = iSetup.getHandle(decoderToken_); 
+  edm::ESHandle<CaloTPGTranscoder> decoder;
+  decoder = iSetup.getHandle(decoderToken_);
 
   edm::Handle<EcalTrigPrimDigiCollection> ecalTPs;
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPs;
