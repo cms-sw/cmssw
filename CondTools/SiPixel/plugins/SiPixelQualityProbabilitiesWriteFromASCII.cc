@@ -42,7 +42,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
@@ -112,9 +111,6 @@ void SiPixelQualityProbabilitiesWriteFromASCII::analyze(const edm::Event& iEvent
     myProbabilities->printAll();
   }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void SiPixelQualityProbabilitiesWriteFromASCII::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void SiPixelQualityProbabilitiesWriteFromASCII::endJob() {

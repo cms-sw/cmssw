@@ -139,6 +139,8 @@ SiPixelFEDChannelContainerFromQualityConverter::createFromSiPixelQuality(const S
       const sipixelobjects::PixelFEDCabling* aFed = cabling_->fed(path.at(0).fed);
       const sipixelobjects::PixelFEDLink* link = aFed->link(path.at(0).link);
       nrocs_inLink = link->numberOfROCs();
+    } else {
+      throw cms::Exception("Inconsistent data") << "could not find CablingPathToDetUnit for detId:" << mod.DetID;
     }
 
     std::bitset<16> bad_rocs(coded_badRocs);
