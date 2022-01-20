@@ -44,7 +44,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
@@ -132,9 +131,6 @@ void SiPixelFEDChannelContainerWriteFromASCII::analyze(const edm::Event& iEvent,
     myQualities->printAll();
   }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void SiPixelFEDChannelContainerWriteFromASCII::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void SiPixelFEDChannelContainerWriteFromASCII::endJob() {
