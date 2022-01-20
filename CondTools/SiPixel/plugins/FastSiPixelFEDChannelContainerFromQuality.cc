@@ -232,14 +232,14 @@ void FastSiPixelFEDChannelContainerFromQuality::analyze(const edm::Event& evt, c
   printf(
       "Progressing Bar                               :0%%       20%%       40%%       60%%       80%%       100%%\n");
   printf("Translating into SiPixelFEDChannelCollection  :");
-  int step = m_iovs.size() / 50;
-
+  int step = (m_iovs.size() >= 50) ? m_iovs.size() / 50 : 1;
   int niov = 0;
   for (const auto& myIOV : m_iovs) {
     if (niov % step == 0) {
       printf(".");
       fflush(stdout);
     }
+
     auto payload = condDbSession.fetchPayload<SiPixelQuality>(std::get<1>(myIOV));
     auto runLS = SiPixelFEDChannelUtils::unpack(std::get<0>(myIOV));
 
@@ -264,6 +264,8 @@ void FastSiPixelFEDChannelContainerFromQuality::analyze(const edm::Event& evt, c
 
     ++niov;
   }
+  //carriage return for tests
+  printf("\n\n");
 
   edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")
       << "[FastSiPixelFEDChannelContainerFromQuality::" << __func__ << "] "
@@ -304,7 +306,7 @@ FastSiPixelFEDChannelContainerFromQuality::createFromSiPixelQuality(const SiPixe
     std::vector<PixelFEDChannel> disabledChannelsDetSet;
     std::vector<sipixelobjects::CablingPathToDetUnit> path = theFedCabling.pathToDetUnit(mod.DetID);
     unsigned int nrocs_inLink(0);
-    if (path.size() != 0) {
+    if (!path.empty()) {
       const sipixelobjects::PixelFEDCabling* aFed = theCablingTree.fed(path.at(0).fed);
       const sipixelobjects::PixelFEDLink* link = aFed->link(path.at(0).link);
       nrocs_inLink = link->numberOfROCs();
