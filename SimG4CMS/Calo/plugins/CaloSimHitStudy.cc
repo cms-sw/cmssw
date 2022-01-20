@@ -238,7 +238,7 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
                           "RPC",
                           "CSC",
                           "DT",
-			  "GEM"};
+                          "GEM"};
   for (int i = 0; i < 16; i++) {
     sprintf(name, "HitTk%d", i);
     sprintf(title, "Number of hits in %s", dett[i].c_str());
