@@ -213,7 +213,6 @@ RECOEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
 from Configuration.Eras.Modifier_ctpps_cff import ctpps
-from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
@@ -623,10 +622,6 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
         'keep *_*_GEMStripDigiSimLink_*',
         'keep *_*_ME0DigiSimLink_*',
         'keep *_*_ME0StripDigiSimLink_*'])
-
-phase2_ecal_devel.toModify(FEVTDEBUGHLTEventContent,
-    outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
-        'keep *_ecal*_*_*'])
 #
 #
 # RECOSIMDEBUG Data Tier definition
