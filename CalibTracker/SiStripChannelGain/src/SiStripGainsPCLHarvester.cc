@@ -153,7 +153,12 @@ void SiStripGainsPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
   gainQualityMonitor(ibooker_, Charge_Vs_Index);
 
   if (storeGainsTree_) {
-    storeGainsTree(Charge_Vs_Index->getTH2S()->GetXaxis());
+    if (Charge_Vs_Index != nullptr) {
+      storeGainsTree(Charge_Vs_Index->getTH2S()->GetXaxis());
+    } else {
+      edm::LogError("SiStripGainsPCLHarvester")
+          << "Harvesting: could not retrieve " << cvi.c_str() << "Tree won't be stored" << std::endl;
+    }
   }
 }
 
@@ -484,7 +489,8 @@ namespace {
 void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charge_Vs_Index) {
   unsigned int I = 0;
   TH1F* Proj = nullptr;
-  double FitResults[6];
+  static constexpr double DEF_F = -9999.;
+  double FitResults[6] = {DEF_F, DEF_F, DEF_F, DEF_F, DEF_F, DEF_F};
   double MPVmean = 300;
 
   if (Charge_Vs_Index == nullptr) {
@@ -562,6 +568,7 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
     if (fit_dataDrivenRange_) {
       fitRange = findFitRange(Proj);
     }
+
     const bool isTOBL5L6 =
         (DetId{APV->DetId}.subdetId() == StripSubdetector::TOB) && (tTopo_->tobLayer(APV->DetId) > 4);
     getPeakOfLandau(Proj,
@@ -569,6 +576,10 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
                     fitRange.first,
                     fitRange.second,
                     (isTOBL5L6 ? fit_gaussianConvolutionTOBL56_ : fit_gaussianConvolution_));
+
+    // throw if the fit results are not set
+    assert(FitResults[0] != DEF_F);
+
     APV->FitMPV = FitResults[0];
     APV->FitMPVErr = FitResults[1];
     APV->FitWidth = FitResults[2];
@@ -620,10 +631,19 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
 //********************************************************************************//
 void SiStripGainsPCLHarvester::getPeakOfLandau(
     TH1* InputHisto, double* FitResults, double LowRange, double HighRange, bool gaussianConvolution) {
+  // undo defaults (checked for assertion)
+  FitResults[0] = -0.5;  //MPV
+  FitResults[1] = 0;     //MPV error
+  FitResults[2] = -0.5;  //Width
+  FitResults[3] = 0;     //Width error
+  FitResults[4] = -0.5;  //Fit Chi2/NDF
+  FitResults[5] = 0;     //Normalization
+
   if (InputHisto->GetEntries() < MinNrEntries)
     return;
 
   if (gaussianConvolution) {
+    // perform fit with landau convoluted with a gaussian
     Double_t fr[2] = {LowRange, HighRange};
     Double_t sv[4] = {25., 300., InputHisto->Integral(), 40.};
     Double_t pllo[4] = {0.5, 100., 1.0, 0.4};
@@ -640,12 +660,6 @@ void SiStripGainsPCLHarvester::getPeakOfLandau(
     FitResults[5] = fp[2];
   } else {
     // perform fit with standard landau
-    FitResults[0] = -0.5;  //MPV
-    FitResults[1] = 0;     //MPV error
-    FitResults[2] = -0.5;  //Width
-    FitResults[3] = 0;     //Width error
-    FitResults[4] = -0.5;  //Fit Chi2/NDF
-    FitResults[5] = 0;     //Normalization
     TF1 MyLandau("MyLandau", "landau", LowRange, HighRange);
     MyLandau.SetParameter(1, 300);
     InputHisto->Fit(&MyLandau, "0QR WW");
