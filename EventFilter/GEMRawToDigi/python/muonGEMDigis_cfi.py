@@ -7,5 +7,8 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 from Configuration.Eras.Modifier_phase2_GEM_cff import phase2_GEM
 
 run2_GEM_2017.toModify(muonGEMDigis, useDBEMap = True)
-run3_GEM.toModify(muonGEMDigis, useDBEMap = True)
-phase2_GEM.toModify(muonGEMDigis, useDBEMap = False, readMultiBX = True)
+# from DataFormats/FEDRawData/interface/FEDNumbering.h
+MINGE21FEDID = 1469
+MAXGEMFEDID = 1478
+run3_GEM.toModify(muonGEMDigis, useDBEMap = True, fedIdEnd=MINGE21FEDID-1)
+phase2_GEM.toModify(muonGEMDigis, useDBEMap = False, readMultiBX = True, fedIdEnd=MAXGEMFEDID)
