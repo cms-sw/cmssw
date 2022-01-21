@@ -48,7 +48,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/pixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
