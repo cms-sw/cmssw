@@ -45,10 +45,10 @@ process.options = cms.untracked.PSet(
 #process.DQMStore.collateHistograms        = True
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun  = True
-process.dqmSaver.saveByRun      = cms.untracked.int32( -1)
-process.dqmSaver.saveAtJobEnd   = cms.untracked.bool(True)
-process.dqmSaver.forceRunNumber = cms.untracked.int32(  1)
-process.dqmSaver.workflow       = cms.untracked.string('/Physics/Exotica/' + options.name) ## adapt appropriately
+process.dqmSaver.saveByRun      = -1
+process.dqmSaver.saveAtJobEnd   = True
+process.dqmSaver.forceRunNumber = 1
+process.dqmSaver.workflow       = '/Physics/Exotica/' + options.name ## adapt appropriately
 
 
 ## path definitions
