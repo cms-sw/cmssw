@@ -1,22 +1,25 @@
-# cmsRun g4OverlapCheckDD4Hep_cfg.py tol=0.01
+###############################################################################
+# Way to use this:  
+#   cmsRun g4OverlapCheckDD4jep_cfg.py tol=0.1
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
-
 from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
-
-process = cms.Process("G4PrintGeometry",Run3_dd4hep)
-
-process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
 
 options = VarParsing.VarParsing('standard')
 options.register('tol',
                  0.1,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.float,
-                 "Tolerance for checking overlaps: 0.01, 0.1, 1.0"
+                 "Tolerance for checking overlaps: 0.0, 0.01, 0.1, 1.0"
 )
 options.parseArguments()
 print(options)
+
+process = cms.Process("G4PrintGeometry",Run3_dd4hep)
+
+process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
