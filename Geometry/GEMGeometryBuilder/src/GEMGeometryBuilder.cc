@@ -186,7 +186,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     }
   }
 
-  buildRegions(theGeometry, superChambers);
+  buildRegions(theGeometry, superChambers, demonstratorGeometry);
 }
 
 GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const {
@@ -437,7 +437,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     theGeometry.add(gemChamber);
   }
 
-  buildRegions(theGeometry, superChambers);
+  buildRegions(theGeometry, superChambers, demonstratorGeometry);
 }
 
 GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(cms::DDFilteredView& fv, GEMDetId detId) const {
@@ -555,7 +555,9 @@ GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const cms::DDFi
   return RCPBoundPlane(new BoundPlane(posResult, rotResult, bounds));
 }
 
-void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry, const std::vector<GEMSuperChamber*>& superChambers) {
+void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry,
+                                      const std::vector<GEMSuperChamber*>& superChambers,
+                                      bool demonstratorGeometry) {
   // construct the regions, stations and rings.
   for (int re = -1; re <= 1; re = re + 2) {
     GEMRegion* region = new GEMRegion(re);
@@ -582,7 +584,11 @@ void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry, const std::vecto
             GEMDetId chId(detId.region(), detId.ring(), detId.station(), la, detId.chamber(), 0);
             auto chamber = theGeometry.chamber(chId);
             if (!chamber) {
-              edm::LogWarning("GEMGeometryBuilder") << "Missing chamber " << chId;
+              // this particular layer 1 chamber *should* be missing in the demonstrator geometry (we only have layer 2)
+              if (!demonstratorGeometry or
+                  not(chId.region() == 1 and chId.station() == 2 and chId.chamber() == 16 and chId.layer() == 1)) {
+                edm::LogWarning("GEMGeometryBuilder") << "Missing chamber " << chId;
+              }
             } else {
               superChamber->add(chamber);
             }
