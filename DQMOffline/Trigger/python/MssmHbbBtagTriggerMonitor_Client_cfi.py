@@ -15,32 +15,32 @@ mssmHbbBtag = DQMEDHarvester("DQMGenericClient",
 )
 
 mssmHbbBtagSL40noMu = mssmHbbBtag.clone()
-mssmHbbBtagSL40noMu.subDirs = cms.untracked.vstring("HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt40_noMuon")
+mssmHbbBtagSL40noMu.subDirs = ["HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt40_noMuon"]
 
 mssmHbbBtagSL40 = mssmHbbBtag.clone()
-#mssmHbbBtagSL40.subDirs = cms.untracked.vstring("HLT/Higgs/MssmHbb/semileptonic/BtagTrigger/pt40/")
-mssmHbbBtagSL40.subDirs = cms.untracked.vstring("HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt40/")
+#mssmHbbBtagSL40.subDirs = ["HLT/Higgs/MssmHbb/semileptonic/BtagTrigger/pt40/"]
+mssmHbbBtagSL40.subDirs = ["HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt40/"]
 
 mssmHbbBtagSL100 = mssmHbbBtag.clone()
-#mssmHbbBtagSL100.subDirs = cms.untracked.vstring("HLT/Higgs/MssmHbb/semileptonic/BtagTrigger/pt100/")
-mssmHbbBtagSL100.subDirs = cms.untracked.vstring("HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt100/")
+#mssmHbbBtagSL100.subDirs = ["HLT/Higgs/MssmHbb/semileptonic/BtagTrigger/pt100/"]
+mssmHbbBtagSL100.subDirs = ["HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt100/"]
 
 mssmHbbBtagSL200 = mssmHbbBtag.clone()
-#mssmHbbBtagSL200.subDirs = cms.untracked.vstring("HLT/Higgs/MssmHbb/semileptonic/BtagTrigger/pt200/")
-mssmHbbBtagSL200.subDirs = cms.untracked.vstring("HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt200/")
+#mssmHbbBtagSL200.subDirs = ["HLT/Higgs/MssmHbb/semileptonic/BtagTrigger/pt200/"]
+mssmHbbBtagSL200.subDirs = ["HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt200/"]
 
 mssmHbbBtagSL350 = mssmHbbBtag.clone()
-#mssmHbbBtagSL350.subDirs = cms.untracked.vstring("HLT/Higgs/MssmHbb/semileptonic/BtagTrigger/pt350/")
-mssmHbbBtagSL350.subDirs = cms.untracked.vstring("HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt350/")
+#mssmHbbBtagSL350.subDirs = ["HLT/Higgs/MssmHbb/semileptonic/BtagTrigger/pt350/"]
+mssmHbbBtagSL350.subDirs = ["HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt350/"]
 
 mssmHbbBtagAH100 = mssmHbbBtag.clone()
-mssmHbbBtagAH100.subDirs = cms.untracked.vstring("HLT/HIG/MssmHbb/fullhadronic/BtagTrigger/pt100/")
+mssmHbbBtagAH100.subDirs = ["HLT/HIG/MssmHbb/fullhadronic/BtagTrigger/pt100/"]
 
 mssmHbbBtagAH200 = mssmHbbBtag.clone()
-mssmHbbBtagAH200.subDirs = cms.untracked.vstring("HLT/HIG/MssmHbb/fullhadronic/BtagTrigger/pt200/")
+mssmHbbBtagAH200.subDirs = ["HLT/HIG/MssmHbb/fullhadronic/BtagTrigger/pt200/"]
 
 mssmHbbBtagAH350 = mssmHbbBtag.clone()
-mssmHbbBtagAH350.subDirs = cms.untracked.vstring("HLT/HIG/MssmHbb/fullhadronic/BtagTrigger/pt350/")
+mssmHbbBtagAH350.subDirs = ["HLT/HIG/MssmHbb/fullhadronic/BtagTrigger/pt350/"]
 
 
 

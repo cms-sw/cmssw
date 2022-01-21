@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 
 mssmHbbMonitoring = topMonitoring.clone()
-mssmHbbMonitoring.FolderName = cms.string('HLT/HIG/default/')
+mssmHbbMonitoring.FolderName = 'HLT/HIG/default/'
 mssmHbbMonitoring.histoPSet.lsPSet = cms.PSet(
   nbins = cms.uint32 ( 250 ),
   xmin  = cms.double(    0.),

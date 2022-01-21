@@ -2,9 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 
-hltHIGmonitoring = topMonitoring.clone()
-#hltHIGmonitoring.FolderName = cms.string('HLT/Higgs/default/')
-hltHIGmonitoring.FolderName = cms.string('HLT/HIG/default/')
+hltHIGmonitoring = topMonitoring.clone(
+    #FolderName = 'HLT/Higgs/default/',
+    FolderName = 'HLT/HIG/default/'
+)
 hltHIGmonitoring.histoPSet.lsPSet = cms.PSet(
   nbins = cms.uint32 ( 250 ),
   xmin  = cms.double(    0.),

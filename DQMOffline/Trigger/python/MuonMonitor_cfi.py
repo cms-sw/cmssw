@@ -2,8 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.muonMonitoring_cfi import muonMonitoring
 
-hltMuonmonitoring = muonMonitoring.clone()
-hltMuonmonitoring.FolderName = cms.string('HLT/Muon/TrkMu16_DoubleTrkMu6NoFiltersNoVtx/')
+hltMuonmonitoring = muonMonitoring.clone(
+    FolderName = 'HLT/Muon/TrkMu16_DoubleTrkMu6NoFiltersNoVtx/',
+    met       = "pfMetEI", # pfMet
+    muons = "muons", # while pfIsolatedElectronsEI are reco::PFCandidate !
+    nmuons = 0
+)
 hltMuonmonitoring.histoPSet.lsPSet = cms.PSet(
   nbins = cms.uint32 ( 250 ),
   xmin  = cms.double(    0.),
@@ -14,10 +18,6 @@ hltMuonmonitoring.histoPSet.muonPSet = cms.PSet(
   xmin  = cms.double(  0.0),
   xmax  = cms.double(500),
 )
-hltMuonmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltMuonmonitoring.muons = cms.InputTag("muons") # while pfIsolatedElectronsEI are reco::PFCandidate !
-hltMuonmonitoring.nmuons = cms.uint32(0)
-
 
 hltMuonmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltMuonmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !

@@ -2,8 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.htMonitoring_cfi import htMonitoring
 
-hltHTmonitoring = htMonitoring.clone()
-hltHTmonitoring.FolderName = cms.string('HLT/HT/PFMETNoMu120/')
+hltHTmonitoring = htMonitoring.clone(
+    FolderName = 'HLT/HT/PFMETNoMu120/',
+    met       = "pfMetEI", # pfMet
+    jets      = "pfJetsEI", # ak4PFJets, ak4PFJetsCHS
+    electrons = "gedGsfElectrons", # while pfIsolatedElectronsEI are reco::PFCandidate !
+    muons     = "muons" # while pfIsolatedMuonsEI are reco::PFCandidate !
+)
 hltHTmonitoring.histoPSet.lsPSet = cms.PSet(
   nbins = cms.uint32(  250 ),
   xmin  = cms.double(    0.),
@@ -14,10 +19,6 @@ hltHTmonitoring.histoPSet.htPSet = cms.PSet(
   xmin  = cms.double(   -0.5),
   xmax  = cms.double(19999.5),
 )
-hltHTmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltHTmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
-hltHTmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
-hltHTmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
 hltHTmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltHTmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !

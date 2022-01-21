@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.metPlusTrackMonitoring_cfi import metPlusTrackMonitoring
 
 hltMETplusTrackMonitoring = metPlusTrackMonitoring.clone()
-hltMETplusTrackMonitoring.FolderName = cms.string('HLT/MET/MET105_IsoTrk50/')
+hltMETplusTrackMonitoring.FolderName = 'HLT/MET/MET105_IsoTrk50/'
 hltMETplusTrackMonitoring.histoPSet.lsPSet = cms.PSet(
   nbins = cms.uint32(  250 ),
   xmin  = cms.double(    0.),
