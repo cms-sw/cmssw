@@ -7,6 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 namespace ecaldqm {
   GpuTask::GpuTask()
@@ -20,25 +21,25 @@ namespace ecaldqm {
         EBCpuRecHits_(nullptr),
         EECpuRecHits_(nullptr) {}
 
-  void GpuTask::addDependencies(DependencySet& _dependencies) {
+  void GpuTask::addDependencies(DependencySet& dependencies) {
     // Ensure we run on CPU objects before GPU objects
     if (runGpuTask_) {
-      _dependencies.push_back(Dependency(kEBGpuDigi, kEBCpuDigi));
-      _dependencies.push_back(Dependency(kEEGpuDigi, kEECpuDigi));
+      dependencies.push_back(Dependency(kEBGpuDigi, kEBCpuDigi));
+      dependencies.push_back(Dependency(kEEGpuDigi, kEECpuDigi));
 
-      _dependencies.push_back(Dependency(kEBGpuUncalibRecHit, kEBCpuUncalibRecHit));
-      _dependencies.push_back(Dependency(kEEGpuUncalibRecHit, kEECpuUncalibRecHit));
+      dependencies.push_back(Dependency(kEBGpuUncalibRecHit, kEBCpuUncalibRecHit));
+      dependencies.push_back(Dependency(kEEGpuUncalibRecHit, kEECpuUncalibRecHit));
 
-      _dependencies.push_back(Dependency(kEBGpuRecHit, kEBCpuRecHit));
-      _dependencies.push_back(Dependency(kEEGpuRecHit, kEECpuRecHit));
+      dependencies.push_back(Dependency(kEBGpuRecHit, kEBCpuRecHit));
+      dependencies.push_back(Dependency(kEEGpuRecHit, kEECpuRecHit));
     }
   }
 
-  void GpuTask::setParams(edm::ParameterSet const& _params) {
-    runGpuTask_ = _params.getUntrackedParameter<bool>("runGpuTask");
+  void GpuTask::setParams(edm::ParameterSet const& params) {
+    runGpuTask_ = params.getUntrackedParameter<bool>("runGpuTask");
     // Only makes sense to run GPU-only plots if we're running at all...
-    gpuOnlyPlots_ = runGpuTask_ && _params.getUntrackedParameter<bool>("gpuOnlyPlots");
-    uncalibOOTAmps_ = _params.getUntrackedParameter<std::vector<int> >("uncalibOOTAmps");
+    gpuOnlyPlots_ = runGpuTask_ && params.getUntrackedParameter<bool>("gpuOnlyPlots");
+    uncalibOOTAmps_ = params.getUntrackedParameter<std::vector<int> >("uncalibOOTAmps");
 
     if (!runGpuTask_) {
       MEs_.erase(std::string("DigiCpuAmplitude"));
@@ -88,12 +89,11 @@ namespace ecaldqm {
     }
   }
 
-  bool GpuTask::filterRunType(short const* _runType) {
+  bool GpuTask::filterRunType(short const* runType) {
     for (unsigned iFED(0); iFED != ecaldqm::nDCC; iFED++) {
-      if (_runType[iFED] == EcalDCCHeaderBlock::COSMIC || _runType[iFED] == EcalDCCHeaderBlock::MTCC ||
-          _runType[iFED] == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-          _runType[iFED] == EcalDCCHeaderBlock::PHYSICS_GLOBAL || _runType[iFED] == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-          _runType[iFED] == EcalDCCHeaderBlock::PHYSICS_LOCAL)
+      if (runType[iFED] == EcalDCCHeaderBlock::COSMIC || runType[iFED] == EcalDCCHeaderBlock::MTCC ||
+          runType[iFED] == EcalDCCHeaderBlock::COSMICS_GLOBAL || runType[iFED] == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+          runType[iFED] == EcalDCCHeaderBlock::COSMICS_LOCAL || runType[iFED] == EcalDCCHeaderBlock::PHYSICS_LOCAL)
         return true;
     }
 
@@ -110,28 +110,30 @@ namespace ecaldqm {
   }
 
   template <typename DigiCollection>
-  void GpuTask::runOnCpuDigis(DigiCollection const& _cpuDigis, Collections _collection) {
+  void GpuTask::runOnCpuDigis(DigiCollection const& cpuDigis, Collections collection) {
     MESet& meDigiCpu(MEs_.at("DigiCpu"));
     MESet& meDigiCpuAmplitude(MEs_.at("DigiCpuAmplitude"));
 
-    int iSubdet(_collection == kEBCpuDigi ? EcalBarrel : EcalEndcap);
+    int iSubdet(collection == kEBCpuDigi ? EcalBarrel : EcalEndcap);
 
     // Save CpuDigis for comparison with GpuDigis
-    // Static cast to EB/EEDigiCollection during use
-    // Stored as void pointers to make compiler happy
-    if (iSubdet == EcalBarrel)
-      EBCpuDigis_ = &_cpuDigis;
-    else
-      EECpuDigis_ = &_cpuDigis;
+    // "if constexpr" ensures cpuDigis is the correct type at compile time
+    if constexpr (std::is_same_v<DigiCollection, EBDigiCollection>) {
+      assert(iSubdet == EcalBarrel);
+      EBCpuDigis_ = &cpuDigis;
+    } else {
+      assert(iSubdet == EcalEndcap);
+      EECpuDigis_ = &cpuDigis;
+    }
 
-    unsigned nCpuDigis(_cpuDigis.size());
+    unsigned nCpuDigis(cpuDigis.size());
     meDigiCpu.fill(getEcalDQMSetupObjects(), iSubdet, nCpuDigis);
 
-    for (typename DigiCollection::const_iterator cpuItr(_cpuDigis.begin()); cpuItr != _cpuDigis.end(); ++cpuItr) {
+    for (auto const& cpuDigi : cpuDigis) {
       // EcalDataFrame is not a derived class of edm::DataFrame, but can take edm::DataFrame (digis) in the constructor
-      EcalDataFrame cpuDataFrame(*cpuItr);
+      EcalDataFrame cpuDataFrame(cpuDigi);
 
-      for (int iSample = 0; iSample < 10; iSample++) {
+      for (unsigned iSample = 0; iSample < ecalPh1::sampleSize; iSample++) {
         static_cast<MESetMulti&>(meDigiCpuAmplitude).use(iSample);
 
         int cpuAmp(cpuDataFrame.sample(iSample).adc());
@@ -141,17 +143,23 @@ namespace ecaldqm {
   }
 
   template <typename DigiCollection>
-  void GpuTask::runOnGpuDigis(DigiCollection const& _gpuDigis, Collections _collection) {
+  void GpuTask::runOnGpuDigis(DigiCollection const& gpuDigis, Collections collection) {
     MESet& meDigiGpuCpu(MEs_.at("DigiGpuCpu"));
     MESet& meDigiGpuCpuAmplitude(MEs_.at("DigiGpuCpuAmplitude"));
 
-    int iSubdet(_collection == kEBGpuDigi ? EcalBarrel : EcalEndcap);
+    int iSubdet(collection == kEBGpuDigi ? EcalBarrel : EcalEndcap);
 
     // Get CpuDigis saved from GpuTask::runOnCpuDigis() for this event
-    // Note: _gpuDigis is a collection and cpuDigis is a pointer to a collection (for historical reasons)
-    // Note 2: EB/EECpuDigis_ are void pointers to make compiler happy
-    DigiCollection const* cpuDigis = (iSubdet == EcalBarrel) ? static_cast<DigiCollection const*>(EBCpuDigis_)
-                                                             : static_cast<DigiCollection const*>(EECpuDigis_);
+    // "if constexpr" ensures cpuDigis is the correct type at compile time
+    // Note: gpuDigis is a collection and cpuDigis is a pointer to a collection (for historical reasons)
+    DigiCollection const* cpuDigis;
+    if constexpr (std::is_same_v<DigiCollection, EBDigiCollection>) {
+      assert(iSubdet == EcalBarrel);
+      cpuDigis = EBCpuDigis_;
+    } else {
+      assert(iSubdet == EcalEndcap);
+      cpuDigis = EECpuDigis_;
+    }
 
     if (!cpuDigis) {
       edm::LogWarning("EcalDQM") << "GpuTask: Did not find " << ((iSubdet == EcalBarrel) ? "EB" : "EE")
@@ -159,7 +167,7 @@ namespace ecaldqm {
       return;
     }
 
-    unsigned nGpuDigis(_gpuDigis.size());
+    unsigned nGpuDigis(gpuDigis.size());
     unsigned nCpuDigis(cpuDigis->size());
 
     meDigiGpuCpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuDigis - nCpuDigis);
@@ -169,9 +177,9 @@ namespace ecaldqm {
       meDigiGpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuDigis);
     }
 
-    for (typename DigiCollection::const_iterator gpuItr(_gpuDigis.begin()); gpuItr != _gpuDigis.end(); ++gpuItr) {
+    for (auto const& gpuDigi : gpuDigis) {
       // Find CpuDigi with matching DetId
-      DetId gpuId(gpuItr->id());
+      DetId gpuId(gpuDigi.id());
       typename DigiCollection::const_iterator cpuItr(cpuDigis->find(gpuId));
       if (cpuItr == cpuDigis->end()) {
         edm::LogWarning("EcalDQM") << "GpuTask: Did not find CpuDigi DetId " << gpuId.rawId() << " in CPU collection\n";
@@ -179,10 +187,10 @@ namespace ecaldqm {
       }
 
       // EcalDataFrame is not a derived class of edm::DataFrame, but can take edm::DataFrame (digis) in the constructor
-      EcalDataFrame gpuDataFrame(*gpuItr);
+      EcalDataFrame gpuDataFrame(gpuDigi);
       EcalDataFrame cpuDataFrame(*cpuItr);
 
-      for (int iSample = 0; iSample < 10; iSample++) {
+      for (unsigned iSample = 0; iSample < ecalPh1::sampleSize; iSample++) {
         static_cast<MESetMulti&>(meDigiGpuCpuAmplitude).use(iSample);
 
         int gpuAmp(gpuDataFrame.sample(iSample).adc());
@@ -199,7 +207,7 @@ namespace ecaldqm {
     }
   }
 
-  void GpuTask::runOnCpuUncalibRecHits(EcalUncalibratedRecHitCollection const& _cpuHits, Collections _collection) {
+  void GpuTask::runOnCpuUncalibRecHits(EcalUncalibratedRecHitCollection const& cpuHits, Collections collection) {
     MESet& meUncalibCpu(MEs_.at("UncalibCpu"));
     MESet& meUncalibCpuAmp(MEs_.at("UncalibCpuAmp"));
     MESet& meUncalibCpuAmpError(MEs_.at("UncalibCpuAmpError"));
@@ -210,26 +218,25 @@ namespace ecaldqm {
     MESet& meUncalibCpuOOTAmp(MEs_.at("UncalibCpuOOTAmp"));
     MESet& meUncalibCpuFlags(MEs_.at("UncalibCpuFlags"));
 
-    int iSubdet(_collection == kEBCpuUncalibRecHit ? EcalBarrel : EcalEndcap);
+    int iSubdet(collection == kEBCpuUncalibRecHit ? EcalBarrel : EcalEndcap);
 
     // Save CpuUncalibRecHits for comparison with GpuUncalibRecHits
     if (iSubdet == EcalBarrel)
-      EBCpuUncalibRecHits_ = &_cpuHits;
+      EBCpuUncalibRecHits_ = &cpuHits;
     else
-      EECpuUncalibRecHits_ = &_cpuHits;
+      EECpuUncalibRecHits_ = &cpuHits;
 
-    unsigned nCpuHits(_cpuHits.size());
+    unsigned nCpuHits(cpuHits.size());
     meUncalibCpu.fill(getEcalDQMSetupObjects(), iSubdet, nCpuHits);
 
-    for (EcalUncalibratedRecHitCollection::const_iterator cpuItr(_cpuHits.begin()); cpuItr != _cpuHits.end();
-         ++cpuItr) {
-      float cpuAmp(cpuItr->amplitude());
-      float cpuAmpError(cpuItr->amplitudeError());
-      float cpuPedestal(cpuItr->pedestal());
-      float cpuJitter(cpuItr->jitter());
-      float cpuJitterError(cpuItr->jitterError());
-      float cpuChi2(cpuItr->chi2());
-      uint32_t cpuFlags(cpuItr->flags());
+    for (auto const& cpuHit : cpuHits) {
+      float cpuAmp(cpuHit.amplitude());
+      float cpuAmpError(cpuHit.amplitudeError());
+      float cpuPedestal(cpuHit.pedestal());
+      float cpuJitter(cpuHit.jitter());
+      float cpuJitterError(cpuHit.jitterError());
+      float cpuChi2(cpuHit.chi2());
+      uint32_t cpuFlags(cpuHit.flags());
 
       if (cpuJitterError == 10000)  // Set this so 10000 (special value) shows up in last bin
         cpuJitterError = 0.249999;
@@ -246,13 +253,13 @@ namespace ecaldqm {
         static_cast<MESetMulti&>(meUncalibCpuOOTAmp).use(iAmp);
 
         // Get corresponding OOT Amplitude
-        int cpuOOTAmp(cpuItr->outOfTimeAmplitude(uncalibOOTAmps_[iAmp]));
+        int cpuOOTAmp(cpuHit.outOfTimeAmplitude(uncalibOOTAmps_[iAmp]));
         meUncalibCpuOOTAmp.fill(getEcalDQMSetupObjects(), iSubdet, cpuOOTAmp);
       }
     }
   }
 
-  void GpuTask::runOnGpuUncalibRecHits(EcalUncalibratedRecHitCollection const& _gpuHits, Collections _collection) {
+  void GpuTask::runOnGpuUncalibRecHits(EcalUncalibratedRecHitCollection const& gpuHits, Collections collection) {
     MESet& meUncalibGpuCpu(MEs_.at("UncalibGpuCpu"));
     MESet& meUncalibGpuCpuAmp(MEs_.at("UncalibGpuCpuAmp"));
     MESet& meUncalibGpuCpuAmpError(MEs_.at("UncalibGpuCpuAmpError"));
@@ -263,7 +270,7 @@ namespace ecaldqm {
     MESet& meUncalibGpuCpuOOTAmp(MEs_.at("UncalibGpuCpuOOTAmp"));
     MESet& meUncalibGpuCpuFlags(MEs_.at("UncalibGpuCpuFlags"));
 
-    int iSubdet(_collection == kEBGpuUncalibRecHit ? EcalBarrel : EcalEndcap);
+    int iSubdet(collection == kEBGpuUncalibRecHit ? EcalBarrel : EcalEndcap);
 
     // Get CpuUncalibRecHits saved from GpuTask::runOnCpuUncalibRecHits() for this event
     // Note: _gpuHits is a collection and cpuHits is a pointer to a collection (for historical reasons)
@@ -275,7 +282,7 @@ namespace ecaldqm {
       return;
     }
 
-    unsigned nGpuHits(_gpuHits.size());
+    unsigned nGpuHits(gpuHits.size());
     unsigned nCpuHits(cpuHits->size());
 
     meUncalibGpuCpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuHits - nCpuHits);
@@ -285,10 +292,9 @@ namespace ecaldqm {
       meUncalibGpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuHits);
     }
 
-    for (EcalUncalibratedRecHitCollection::const_iterator gpuItr(_gpuHits.begin()); gpuItr != _gpuHits.end();
-         ++gpuItr) {
+    for (auto const& gpuHit : gpuHits) {
       // Find CpuUncalibRecHit with matching DetId
-      DetId gpuId(gpuItr->id());
+      DetId gpuId(gpuHit.id());
       EcalUncalibratedRecHitCollection::const_iterator cpuItr(cpuHits->find(gpuId));
       if (cpuItr == cpuHits->end()) {
         edm::LogWarning("EcalDQM") << "GpuTask: Did not find GpuUncalibRecHit DetId " << gpuId.rawId()
@@ -296,13 +302,13 @@ namespace ecaldqm {
         continue;
       }
 
-      float gpuAmp(gpuItr->amplitude());
-      float gpuAmpError(gpuItr->amplitudeError());
-      float gpuPedestal(gpuItr->pedestal());
-      float gpuJitter(gpuItr->jitter());
-      float gpuJitterError(gpuItr->jitterError());
-      float gpuChi2(gpuItr->chi2());
-      uint32_t gpuFlags(gpuItr->flags());
+      float gpuAmp(gpuHit.amplitude());
+      float gpuAmpError(gpuHit.amplitudeError());
+      float gpuPedestal(gpuHit.pedestal());
+      float gpuJitter(gpuHit.jitter());
+      float gpuJitterError(gpuHit.jitterError());
+      float gpuChi2(gpuHit.chi2());
+      uint32_t gpuFlags(gpuHit.flags());
 
       if (gpuJitterError == 10000)  // Set this so 10000 (special value) shows up in last bin
         gpuJitterError = 0.249999;
@@ -348,7 +354,7 @@ namespace ecaldqm {
         static_cast<MESetMulti&>(meUncalibGpuCpuOOTAmp).use(iAmp);
 
         // Get corresponding OOT Amplitude
-        int gpuOOTAmp(gpuItr->outOfTimeAmplitude(uncalibOOTAmps_[iAmp]));
+        int gpuOOTAmp(gpuHit.outOfTimeAmplitude(uncalibOOTAmps_[iAmp]));
         int cpuOOTAmp(cpuItr->outOfTimeAmplitude(uncalibOOTAmps_[iAmp]));
 
         meUncalibGpuCpuOOTAmp.fill(getEcalDQMSetupObjects(), iSubdet, gpuOOTAmp - cpuOOTAmp);
@@ -362,27 +368,27 @@ namespace ecaldqm {
     }
   }
 
-  void GpuTask::runOnCpuRecHits(EcalRecHitCollection const& _cpuHits, Collections _collection) {
+  void GpuTask::runOnCpuRecHits(EcalRecHitCollection const& cpuHits, Collections collection) {
     MESet& meRecHitCpu(MEs_.at("RecHitCpu"));
     MESet& meRecHitCpuEnergy(MEs_.at("RecHitCpuEnergy"));
     MESet& meRecHitCpuTime(MEs_.at("RecHitCpuTime"));
     MESet& meRecHitCpuFlags(MEs_.at("RecHitCpuFlags"));
 
-    int iSubdet(_collection == kEBCpuRecHit ? EcalBarrel : EcalEndcap);
+    int iSubdet(collection == kEBCpuRecHit ? EcalBarrel : EcalEndcap);
 
     // Save CpuRecHits for comparison with GpuRecHits
     if (iSubdet == EcalBarrel)
-      EBCpuRecHits_ = &_cpuHits;
+      EBCpuRecHits_ = &cpuHits;
     else
-      EECpuRecHits_ = &_cpuHits;
+      EECpuRecHits_ = &cpuHits;
 
-    unsigned nCpuHits(_cpuHits.size());
+    unsigned nCpuHits(cpuHits.size());
     meRecHitCpu.fill(getEcalDQMSetupObjects(), iSubdet, nCpuHits);
 
-    for (EcalRecHitCollection::const_iterator cpuItr(_cpuHits.begin()); cpuItr != _cpuHits.end(); ++cpuItr) {
-      float cpuEnergy(cpuItr->energy());
-      float cpuTime(cpuItr->time());
-      uint32_t cpuFlags(cpuItr->flagsBits());
+    for (auto const& cpuHit : cpuHits) {
+      float cpuEnergy(cpuHit.energy());
+      float cpuTime(cpuHit.time());
+      uint32_t cpuFlags(cpuHit.flagsBits());
 
       meRecHitCpuEnergy.fill(getEcalDQMSetupObjects(), iSubdet, cpuEnergy);
       meRecHitCpuTime.fill(getEcalDQMSetupObjects(), iSubdet, cpuTime);
@@ -390,13 +396,13 @@ namespace ecaldqm {
     }
   }
 
-  void GpuTask::runOnGpuRecHits(EcalRecHitCollection const& _gpuHits, Collections _collection) {
+  void GpuTask::runOnGpuRecHits(EcalRecHitCollection const& gpuHits, Collections collection) {
     MESet& meRecHitGpuCpu(MEs_.at("RecHitGpuCpu"));
     MESet& meRecHitGpuCpuEnergy(MEs_.at("RecHitGpuCpuEnergy"));
     MESet& meRecHitGpuCpuTime(MEs_.at("RecHitGpuCpuTime"));
     MESet& meRecHitGpuCpuFlags(MEs_.at("RecHitGpuCpuFlags"));
 
-    int iSubdet(_collection == kEBGpuRecHit ? EcalBarrel : EcalEndcap);
+    int iSubdet(collection == kEBGpuRecHit ? EcalBarrel : EcalEndcap);
 
     // Get CpuRecHits saved from GpuTask::runOnCpuRecHits() for this event
     // Note: _gpuHits is a collection and cpuHits is a pointer to a collection (for historical reasons)
@@ -407,7 +413,7 @@ namespace ecaldqm {
       return;
     }
 
-    unsigned nGpuHits(_gpuHits.size());
+    unsigned nGpuHits(gpuHits.size());
     unsigned nCpuHits(cpuHits->size());
 
     meRecHitGpuCpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuHits - nCpuHits);
@@ -417,9 +423,9 @@ namespace ecaldqm {
       meRecHitGpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuHits);
     }
 
-    for (EcalRecHitCollection::const_iterator gpuItr(_gpuHits.begin()); gpuItr != _gpuHits.end(); ++gpuItr) {
+    for (auto const& gpuHit : gpuHits) {
       // Find CpuRecHit with matching DetId
-      DetId gpuId(gpuItr->detid());
+      DetId gpuId(gpuHit.detid());
       EcalRecHitCollection::const_iterator cpuItr(cpuHits->find(gpuId));
       if (cpuItr == cpuHits->end()) {
         edm::LogWarning("EcalDQM") << "GpuTask: Did not find GpuRecHit DetId " << gpuId.rawId()
@@ -427,9 +433,9 @@ namespace ecaldqm {
         continue;
       }
 
-      float gpuEnergy(gpuItr->energy());
-      float gpuTime(gpuItr->time());
-      uint32_t gpuFlags(gpuItr->flagsBits());
+      float gpuEnergy(gpuHit.energy());
+      float gpuTime(gpuHit.time());
+      uint32_t gpuFlags(gpuHit.flagsBits());
 
       float cpuEnergy(cpuItr->energy());
       float cpuTime(cpuItr->time());
