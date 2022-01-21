@@ -96,17 +96,15 @@ private:
   bool storeCaloClusters_;
 };
 
-L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfig) :
-  ecalLSB_(iConfig.getUntrackedParameter<double>("ecalLSB", 0.5)),
-  maxCaloTP_(iConfig.getUntrackedParameter<unsigned int>("maxCaloTP", 5760)),
-  maxL1Tower_(iConfig.getUntrackedParameter<unsigned int>("maxL1Tower", 5760)),
-  maxL1Cluster_(iConfig.getUntrackedParameter<unsigned int>("maxL1Cluster", 5760)),
-  ecalToken_(consumes<EcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("ecalToken"))),
-  hcalToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("hcalToken"))),
-  l1TowerToken_(consumes<l1t::CaloTowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("l1TowerToken"))),
-  decoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>())
-{
-
+L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfig)
+    : ecalLSB_(iConfig.getUntrackedParameter<double>("ecalLSB", 0.5)),
+      maxCaloTP_(iConfig.getUntrackedParameter<unsigned int>("maxCaloTP", 5760)),
+      maxL1Tower_(iConfig.getUntrackedParameter<unsigned int>("maxL1Tower", 5760)),
+      maxL1Cluster_(iConfig.getUntrackedParameter<unsigned int>("maxL1Cluster", 5760)),
+      ecalToken_(consumes<EcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("ecalToken"))),
+      hcalToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("hcalToken"))),
+      l1TowerToken_(consumes<l1t::CaloTowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("l1TowerToken"))),
+      decoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>()) {
   edm::InputTag clusterTag = iConfig.getUntrackedParameter<edm::InputTag>("l1ClusterToken");
   storeCaloClusters_ = true;
   if (clusterTag.label() == std::string("") or clusterTag.label() == std::string("none"))
@@ -114,7 +112,6 @@ L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfi
 
   if (clusterTag.instance() != std::string(""))
     l1ClusterToken_ = consumes<l1t::CaloClusterBxCollection>(clusterTag);
-
 
   // set up output
   tree_ = fs_->make<TTree>("L1CaloTowerTree", "L1CaloTowerTree");
