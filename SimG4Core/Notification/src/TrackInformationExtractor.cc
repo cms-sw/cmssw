@@ -7,9 +7,8 @@ const TrackInformation &TrackInformationExtractor::operator()(const G4Track &gtk
   const TrackInformation *tkInfo = dynamic_cast<const TrackInformation *>(gui);
   if (gui == nullptr) {
     missing(gtk);
-  } else {
-    if (tkInfo == nullptr)
-      wrongType();
+  } else if (tkInfo == nullptr) {
+    wrongType();
   }
   return *tkInfo;
 }
@@ -19,9 +18,8 @@ TrackInformation &TrackInformationExtractor::operator()(G4Track &gtk) const {
   TrackInformation *tkInfo = dynamic_cast<TrackInformation *>(gui);
   if (gui == nullptr) {
     missing(gtk);
-  } else {
-    if (tkInfo == nullptr)
-      wrongType();
+  } else if (tkInfo == nullptr) {
+    wrongType();
   }
   return *tkInfo;
 }
