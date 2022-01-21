@@ -326,7 +326,7 @@ void EcalLaserCondTools::fillDb(CorrReader& r) {
       if (iIov <= skipIov_) {
         std::cout << "Skipping IOV " << iIov << "\n";
         continue;
-      } else if (processedIovs >= nIovs_) {
+      } else if (processedIovs >= nIovs_ && nIovs_ >= 0) {
         std::cout << "Requested number of IOVs, " << nIovs_ << ", processed.\n";
         return;
       } else {
