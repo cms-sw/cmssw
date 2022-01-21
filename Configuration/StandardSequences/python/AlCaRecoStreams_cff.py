@@ -134,7 +134,7 @@ from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPromptCalibProdPPSTimingCalib_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPPSDiamondSampicTimingCalib_cff import *
 # Alignment
-from CalibPPS.AlignmentGlobal.ALCARECOPPSAlignment_cff import *
+from CalibPPS.AlignmentGlobal.ALCARECOPromptCalibProdPPSAlignment_cff import *
 
 ###############################################################
 # nonbeam alcas
@@ -245,7 +245,7 @@ pathALCARECOMuAlOverlapsGeneralTracks = cms.Path(seqALCARECOMuAlOverlapsGeneralT
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
 pathALCARECOPromptCalibProdPPSTimingCalib = cms.Path(taskALCARECOPromptCalibProdPPSTimingCalib)
 pathALCARECOPPSDiamondSampicTimingCalib = cms.Path(taskALCARECOPPSDiamondSampicTimingCalib)
-pathALCARECOPPSAlignment = cms.Path(taskALCARECOPPSAlignment)
+pathALCARECOPromptCalibProdPPSAlignment = cms.Path(taskALCARECOPromptCalibProdPPSAlignment)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHaloDQM)
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps)
 pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo)
@@ -906,12 +906,12 @@ ALCARECOStreamPPSDiamondSampicTimingCalib = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOStreamPPSAlignment = cms.FilteredStream(
+ALCARECOStreamPromptCalibProdPPSAlignment = cms.FilteredStream(
 	responsible = 'Mateusz Kocot',
-	name = 'PPSAlignment',
-	paths = (pathALCARECOPPSAlignment),
-	content = OutALCARECOPPSAlignment.outputCommands,
-	selectEvents = OutALCARECOPPSAlignment.SelectEvents,
+	name = 'PromptCalibProdPPSAlignment',
+	paths = (pathALCARECOPromptCalibProdPPSAlignment),
+	content = OutALCARECOPromptCalibProdPPSAlignment.outputCommands,
+	selectEvents = OutALCARECOPromptCalibProdPPSAlignment.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 )
 
