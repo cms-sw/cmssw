@@ -10,7 +10,7 @@ MEtoEDMConvertPPSAlignment = cms.EDProducer('MEtoEDMConverter',
     deleteAfterCopy=cms.untracked.bool(True)
 )
 
-taskALCARECOPPSAlignment = cms.Task(
+taskALCARECOPromptCalibProdPPSAlignment = cms.Task(
     ppsAlignmentWorker,
     MEtoEDMConvertPPSAlignment
 )
