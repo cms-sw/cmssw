@@ -96,8 +96,8 @@ void HcalTestThreshold::analyze(edm::Event const& iEvent, edm::EventSetup const&
 
   // Next EE
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "\n\nList of " << validId.size() << " valid DetId's of EE";
   auto const& validId = geo->getValidDetIds(DetId::Ecal, 2);
+  edm::LogVerbatim("HcalIsoTrack") << "\n\nList of " << validId.size() << " valid DetId's of EE";
   for (const auto& id : validId)
     edm::LogVerbatim("HcalIsoTrack") << EEDetId(id) << " SC " << EEDetId(id).isc() << " CR " << EEDetId(id).ic()
                                      << " Eta " << (geo->getPosition(id)).eta();
