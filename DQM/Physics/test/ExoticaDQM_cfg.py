@@ -28,9 +28,8 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load('DQMOffline.Configuration.DQMOffline_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
-process.DQMStore.verbose = cms.untracked.int32(2)
-process.dqmSaver.workflow = cms.untracked.string('/Physics/Exotica/WprimeENu')
-process.dqmSaver.convention = cms.untracked.string('RelVal')
+process.dqmSaver.workflow   = '/Physics/Exotica/WprimeENu'
+process.dqmSaver.convention = 'RelVal'
 
 
 ## output
