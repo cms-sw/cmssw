@@ -329,8 +329,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         EnergyThresholdForPersistency = cms.double(1.0),
         PrintHits = cms.bool(False),
         AllMuonsPersistent = cms.bool(True),
-        UseDemoHitRPC = cms.bool(False),
-        UseDemoHitGEM = cms.bool(False),
+        UseDemoHitRPC = cms.bool(True),
+        UseDemoHitGEM = cms.bool(True),
         HaveDemoChambers = cms.bool(True)
     ),
     CaloSD = cms.PSet(
