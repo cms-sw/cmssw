@@ -2,9 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.objMonitoring_cfi import objMonitoring
 
-hltobjmonitoring = objMonitoring.clone()
-hltobjmonitoring.FolderName = cms.string('HLT/GENERIC/')
-hltobjmonitoring.doMETHistos = cms.bool(True)
+hltobjmonitoring = objMonitoring.clone(
+    FolderName = 'HLT/GENERIC/',
+    doMETHistos = True,
+    met       = "pfMet",
+    jets      = "ak4PFJetsCHS",
+    electrons = "gedGsfElectrons",
+    muons     = "muons",
+    photons   = "gedPhotons",
+    tracks    = "generalTracks"
+)
 hltobjmonitoring.histoPSet.metPSet = cms.PSet(
   nbins = cms.uint32 (  200  ),
   xmin  = cms.double(   -0.5),
@@ -49,12 +56,6 @@ hltobjmonitoring.histoPSet.hmgetaPSet = cms.PSet(
   xmax  = cms.double(2.6),
 )
 
-hltobjmonitoring.met       = cms.InputTag("pfMet")
-hltobjmonitoring.jets      = cms.InputTag("ak4PFJetsCHS")
-hltobjmonitoring.electrons = cms.InputTag("gedGsfElectrons")
-hltobjmonitoring.muons     = cms.InputTag("muons")
-hltobjmonitoring.photons   = cms.InputTag("gedPhotons")
-hltobjmonitoring.tracks    = cms.InputTag("generalTracks")
 
 hltobjmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltobjmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !

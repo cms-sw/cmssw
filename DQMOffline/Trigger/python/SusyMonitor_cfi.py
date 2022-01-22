@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 
 hltSUSYmonitoring = topMonitoring.clone()
-hltSUSYmonitoring.FolderName = cms.string('HLT/SUSY/default/')
+hltSUSYmonitoring.FolderName = 'HLT/SUSY/default/'
 hltSUSYmonitoring.histoPSet.lsPSet = cms.PSet(
   nbins = cms.uint32 ( 250 ),
   xmin  = cms.double(    0.),
@@ -93,19 +93,19 @@ hltSUSYmonitoring.histoPSet.HTBinning2D  = cms.vdouble(0,20,40,70,100,150,200,40
 hltSUSYmonitoring.histoPSet.phiBinning2D = cms.vdouble(-3.1416,-1.8849,-0.6283,0.6283,1.8849,3.1416)
 
 
-hltSUSYmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltSUSYmonitoring.jets      = cms.InputTag("ak4PFJetsCHS") # ak4PFJets, ak4PFJetsCHS, pfJetsEI
-hltSUSYmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
-hltSUSYmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
+hltSUSYmonitoring.met       = "pfMetEI" # pfMet
+hltSUSYmonitoring.jets      = "ak4PFJetsCHS" # ak4PFJets, ak4PFJetsCHS, pfJetsEI
+hltSUSYmonitoring.electrons = "gedGsfElectrons" # while pfIsolatedElectronsEI are reco::PFCandidate !
+hltSUSYmonitoring.muons     = "muons" # while pfIsolatedMuonsEI are reco::PFCandidate !
 #Suvankar
-hltSUSYmonitoring.vertices  = cms.InputTag("offlinePrimaryVertices")
+hltSUSYmonitoring.vertices  = "offlinePrimaryVertices"
 
 # Marina
 hltSUSYmonitoring.btagAlgos = ["pfCombinedSecondaryVertexV2BJetTags"]
-hltSUSYmonitoring.workingpoint = cms.double(0.8484) # Medium
+hltSUSYmonitoring.workingpoint = 0.8484 # Medium
 
-hltSUSYmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
-hltSUSYmonitoring.leptJetDeltaRmin = cms.double(0.4)
+hltSUSYmonitoring.HTdefinition = 'pt>30 & abs(eta)<2.5'
+hltSUSYmonitoring.leptJetDeltaRmin = 0.4
 
 hltSUSYmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltSUSYmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND

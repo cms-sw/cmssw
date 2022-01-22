@@ -2,8 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.NoBPTXMonitoring_cfi import NoBPTXMonitoring
 
-hltNoBPTXmonitoring = NoBPTXMonitoring.clone()
-hltNoBPTXmonitoring.FolderName = cms.string('HLT/EXO/NoBPTX/JetE60/')
+hltNoBPTXmonitoring = NoBPTXMonitoring.clone(
+    FolderName = 'HLT/EXO/NoBPTX/JetE60/',
+    jets = "ak4CaloJets",
+    muons = "displacedStandAloneMuons",
+    muonSelection = "hitPattern.dtStationsWithValidHits > 3 & hitPattern.numberOfValidMuonRPCHits > 1 & hitPattern.numberOfValidMuonCSCHits < 1",
+    jetSelection = "abs(eta) < 1."
+)
 hltNoBPTXmonitoring.histoPSet.lsPSet = cms.PSet(
   nbins = cms.uint32(250),
   xmin  = cms.double(0.),
@@ -42,8 +47,6 @@ hltNoBPTXmonitoring.histoPSet.muonPhiPSet = cms.PSet(
 hltNoBPTXmonitoring.histoPSet.bxPSet = cms.PSet(
     nbins = cms.uint32(1800),
 )
-hltNoBPTXmonitoring.jets = cms.InputTag("ak4CaloJets")
-hltNoBPTXmonitoring.muons = cms.InputTag("displacedStandAloneMuons")
 
 hltNoBPTXmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltNoBPTXmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !                                                                                                           
@@ -61,5 +64,4 @@ hltNoBPTXmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltNoBPTXmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltNoBPTXmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
 
-hltNoBPTXmonitoring.muonSelection = cms.string("hitPattern.dtStationsWithValidHits > 3 & hitPattern.numberOfValidMuonRPCHits > 1 & hitPattern.numberOfValidMuonCSCHits < 1")
-hltNoBPTXmonitoring.jetSelection = cms.string("abs(eta) < 1.")
+

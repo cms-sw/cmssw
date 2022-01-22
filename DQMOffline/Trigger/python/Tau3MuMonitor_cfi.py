@@ -7,7 +7,7 @@ from DQMOffline.Trigger.tau3muMonitoring_cfi import tau3muMonitoring
 hltTau3Mumonitoring = tau3muMonitoring.clone()
 
 # DQM directory
-hltTau3Mumonitoring.FolderName = cms.string('HLT/BPH/Tau3Mu/')
+hltTau3Mumonitoring.FolderName = 'HLT/BPH/Tau3Mu/'
 
 # histogram binning
 hltTau3Mumonitoring.histoPSet.ptPSet = cms.PSet(
@@ -31,7 +31,7 @@ hltTau3Mumonitoring.histoPSet.massPSet = cms.PSet(
   xmax  = cms.double(  3. ),
 )
 
-hltTau3Mumonitoring.taus = cms.InputTag("hltTauPt15MuPts711Mass1p3to2p1Iso", "Taus") # 3-muon candidates
+hltTau3Mumonitoring.taus = "hltTauPt15MuPts711Mass1p3to2p1Iso:Taus" # 3-muon candidates
 
 hltTau3Mumonitoring.GenericTriggerEventPSet.andOr          = cms.bool( False ) # https://github.com/cms-sw/cmssw/blob/76d343005c33105be1e01b7b7278c07d753398db/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L249
 hltTau3Mumonitoring.GenericTriggerEventPSet.andOrHlt       = cms.bool( True  ) # https://github.com/cms-sw/cmssw/blob/76d343005c33105be1e01b7b7278c07d753398db/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L114

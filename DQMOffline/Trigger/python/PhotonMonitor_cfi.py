@@ -2,8 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.photonMonitoring_cfi import photonMonitoring
 
-hltPhotonmonitoring = photonMonitoring.clone()
-hltPhotonmonitoring.FolderName = cms.string('HLT/Photon/Photon200/')
+hltPhotonmonitoring = photonMonitoring.clone(
+    FolderName = 'HLT/Photon/Photon200/',
+    met       = "pfMetEI", # pfMet
+    jets      = "pfJetsEI", # ak4PFJets, ak4PFJetsCHS
+    electrons = "gedGsfElectrons", # while pfIsolatedElectronsEI are reco::PFCandidate !
+    photons = "gedPhotons" # while pfIsolatedElectronsEI are reco::PFCandidate !
+)
 hltPhotonmonitoring.histoPSet.lsPSet = cms.PSet(
   nbins = cms.uint32 ( 250 ),
   xmin  = cms.double(    0.),
@@ -14,10 +19,6 @@ hltPhotonmonitoring.histoPSet.photonPSet = cms.PSet(
   xmin  = cms.double(  0.0),
   xmax  = cms.double(5000),
 )
-hltPhotonmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltPhotonmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
-hltPhotonmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
-hltPhotonmonitoring.photons = cms.InputTag("gedPhotons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 
 hltPhotonmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltPhotonmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !

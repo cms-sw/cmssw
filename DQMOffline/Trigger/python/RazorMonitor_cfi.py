@@ -2,12 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.razorMonitoring_cfi import razorMonitoring
 
-hltRazorMonitoring = razorMonitoring.clone()
-hltRazorMonitoring.FolderName = cms.string('HLT/SUSY/RsqMR270_Rsq0p09_MR200')
-
-hltRazorMonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltRazorMonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
-
+hltRazorMonitoring = razorMonitoring.clone(
+    FolderName = 'HLT/SUSY/RsqMR270_Rsq0p09_MR200',
+    met       = "pfMetEI", # pfMet
+    jets      = "pfJetsEI" # ak4PFJets, ak4PFJetsCHS
+)
 hltRazorMonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltRazorMonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True) # True:=OR; False:=AND
 hltRazorMonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
