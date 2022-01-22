@@ -262,6 +262,10 @@ namespace edm {
         std::rethrow_exception(*iException);
       } catch (cms::Exception& oldEx) {
         pEx = std::unique_ptr<cms::Exception>(oldEx.clone());
+      } catch (std::exception const& oldEx) {
+        pEx = std::make_unique<edm::Exception>(errors::StdException);
+      } catch (...) {
+        pEx = std::make_unique<edm::Exception>(errors::Unknown);
       }
       // Caught exception is propagated via WaitingTaskList
       CMS_SA_ALLOW try {
