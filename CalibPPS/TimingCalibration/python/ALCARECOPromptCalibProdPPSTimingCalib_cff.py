@@ -21,7 +21,7 @@ recoDiamondUncalibLocalReconstructionTask = cms.Task(
     ctppsDiamondUncalibRecHits,
 )
 
-taskALCARECOPPSTimingCalib = cms.Task(
+taskALCARECOPromptCalibProdPPSTimingCalib = cms.Task(
     recoDiamondUncalibLocalReconstructionTask,
     ppsTimingCalibrationPCLWorker,
     MEtoEDMConvertPPSTimingCalib
