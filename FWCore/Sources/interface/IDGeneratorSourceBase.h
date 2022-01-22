@@ -51,6 +51,20 @@ namespace edm {
       BASE::resetEventCached();
     }
 
+    void doReadEventWithDelayedReader(EventPrincipal& eventPrincipal,
+                                      ProcessHistoryID const& historyID,
+                                      EventSelectionIDVector eventSelectionIDs,
+                                      BranchListIndexes branchListIndexes,
+                                      DelayedReader* reader) {
+      assert(BASE::eventCached() || BASE::processingMode() != BASE::RunsLumisAndEvents);
+      EventAuxiliary aux(eventID_, BASE::processGUID(), Timestamp(presentTime_), isRealData_, eType_);
+      aux.setProcessHistoryID(historyID);
+      auto history = BASE::processHistoryRegistry().getMapped(aux.processHistoryID());
+      eventPrincipal.fillEventPrincipal(
+          aux, history, std::move(eventSelectionIDs), std::move(branchListIndexes), reader);
+      BASE::resetEventCached();
+    }
+
   private:
     typename BASE::ItemType getNextItemType() final;
     virtual void initialize(EventID& id, TimeValue_t& time, TimeValue_t& interval);

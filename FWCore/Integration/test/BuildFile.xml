@@ -221,7 +221,7 @@
     <use name="FWCore/ParameterSet"/>
   </library>
 
-  <library file="ThrowingSource.cc" name="ThrowingSource">
+  <library file="ThrowingSource.cc, DelayedReaderThrowingSource.cc" name="ThrowingSource">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
@@ -445,6 +445,8 @@
   <test name="TestFWCoreIntegrationInputSourceAlias" command="cmsRun ${LOCALTOP}//src/FWCore/Integration/test/inputSource_alias_Test_cfg.py"/>
 
   <test name="TestFWCoreIntegrationEDLooperESProcuer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testEDLooperESProducer_cfg.py"/>
+
+  <test name="TestFWCoreIntegrationDelayedReaderTest" command="delayedreader_throw_test.sh"/>
 
   <test name="TestIntegrationProcessBlock1" command="run_TestProcessBlock.sh 1"/>
   <test name="TestIntegrationProcessBlock2" command="run_TestProcessBlock.sh 2"/>
