@@ -34,21 +34,19 @@
 // class declaration
 //
 
-class SiPixelQualityProbabilitiesTestWriter : public edm::one::EDAnalyzer<> {
+class SiPixelQualityProbabilitiesWriteFromASCII : public edm::one::EDAnalyzer<> {
 public:
-  explicit SiPixelQualityProbabilitiesTestWriter(const edm::ParameterSet&);
-  ~SiPixelQualityProbabilitiesTestWriter();
+  explicit SiPixelQualityProbabilitiesWriteFromASCII(const edm::ParameterSet&);
+  ~SiPixelQualityProbabilitiesWriteFromASCII() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
   const std::string m_ProbInputs;
-  const std::string m_SnapshotInputs;
   const std::string m_record;
   const bool printdebug_;
   std::unique_ptr<SiPixelQualityProbabilities> myProbabilities;
@@ -57,77 +55,66 @@ private:
 //
 // constructors and destructor
 //
-SiPixelQualityProbabilitiesTestWriter::SiPixelQualityProbabilitiesTestWriter(const edm::ParameterSet& iConfig)
+SiPixelQualityProbabilitiesWriteFromASCII::SiPixelQualityProbabilitiesWriteFromASCII(const edm::ParameterSet& iConfig)
     : m_ProbInputs(iConfig.getParameter<std::string>("probabilities")),
-      m_SnapshotInputs(iConfig.getParameter<std::string>("snapshots")),
       m_record(iConfig.getParameter<std::string>("record")),
       printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)) {
   //now do what ever initialization is needed
   myProbabilities = std::make_unique<SiPixelQualityProbabilities>();
 }
 
-SiPixelQualityProbabilitiesTestWriter::~SiPixelQualityProbabilitiesTestWriter() = default;
+SiPixelQualityProbabilitiesWriteFromASCII::~SiPixelQualityProbabilitiesWriteFromASCII() = default;
 
 //
 // member functions
 //
 
 // ------------ method called for each event  ------------
-void SiPixelQualityProbabilitiesTestWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelQualityProbabilitiesWriteFromASCII::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   std::ifstream myfile(m_ProbInputs);
-  std::ifstream mysnapshots(m_SnapshotInputs);
-  std::string line1, line2;
-  std::map<int, std::string> snapshotIdToString;
-
-  if (mysnapshots.is_open()) {
-    while (getline(mysnapshots, line1)) {
-      //edm::LogInfo("SiPixelQualityProbabilitiesTestWriter") << line1 << std::endl;
-      std::istringstream iss(line1);
-      int id, run, ls;
-      iss >> id >> run >> ls;
-      snapshotIdToString[id] = std::to_string(run) + "_" + std::to_string(ls);
-    }
-  }
+  std::string line;
 
   SiPixelQualityProbabilities::probabilityVec myProbVector;
 
   if (myfile.is_open()) {
-    while (getline(myfile, line2)) {
-      edm::LogInfo("SiPixelQualityProbabilitiesTestWriter") << line2 << std::endl;
-      std::istringstream iss(line2);
+    while (getline(myfile, line)) {
+      if (printdebug_) {
+        edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII") << line << std::endl;
+      }
+      std::istringstream iss(line);
       int pileupBinId, nEntries;
       iss >> pileupBinId >> nEntries;
-      edm::LogInfo("SiPixelQualityProbabilitiesTestWriter")
+      edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII")
           << "PILEUP BIN/ENTRIES:  " << pileupBinId << " " << nEntries << std::endl;
-      std::vector<int> ids(nEntries, 0);
+      std::vector<std::string> ids(nEntries, "");
       std::vector<float> probs(nEntries, 0.0);
       for (int i = 0; i < nEntries; ++i) {
         iss >> ids.at(i) >> probs.at(i);
-        //edm::LogInfo("SiPixelQualityProbabilitiesTestWriter") << ids.at(i) << " " << probs.at(i)<< std::endl;
-        auto idAndProb = std::make_pair(snapshotIdToString.at(ids.at(i)), probs.at(i));
+        if (printdebug_) {
+          edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII") << ids.at(i) << " " << probs.at(i) << std::endl;
+        }
+        auto idAndProb = std::make_pair(ids.at(i), probs.at(i));
         myProbVector.push_back(idAndProb);
       }
-      if (nEntries > 0)
+      if (nEntries > 0) {
         myProbabilities->setProbabilities(pileupBinId, myProbVector);
+      }
       myProbVector.clear();
     }
     myfile.close();
   }
 
   if (printdebug_) {
-    edm::LogInfo("SiPixelQualityProbabilitiesTestWriter") << "Content of SiPixelQualityProbabilities " << std::endl;
+    edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII") << "Content of SiPixelQualityProbabilities " << std::endl;
     // use buil-in method in the CondFormat
     myProbabilities->printAll();
   }
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void SiPixelQualityProbabilitiesTestWriter::beginJob() {}
-
 // ------------ method called once each job just after ending the event loop  ------------
-void SiPixelQualityProbabilitiesTestWriter::endJob() {
-  edm::LogInfo("SiPixelQualityProbabilitiesTestWriter")
+void SiPixelQualityProbabilitiesWriteFromASCII::endJob() {
+  edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII")
       << "Size of SiPixelQualityProbabilities object " << myProbabilities->size() << std::endl
       << std::endl;
 
@@ -141,15 +128,14 @@ void SiPixelQualityProbabilitiesTestWriter::endJob() {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void SiPixelQualityProbabilitiesTestWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelQualityProbabilitiesWriteFromASCII::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("Writes payloads of type SiPixelQualityProbabilities");
   desc.addUntracked<bool>("printDebug", true);
   desc.add<std::string>("record", "SiPixelStatusScenarioProbabilityRcd");
-  desc.add<std::string>("snapshots", "");
   desc.add<std::string>("probabilities", "");
-  descriptions.add("SiPixelQualityProbabilitiesTestWriter", desc);
+  descriptions.add("SiPixelQualityProbabilitiesWriteFromASCII", desc);
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelQualityProbabilitiesTestWriter);
+DEFINE_FWK_MODULE(SiPixelQualityProbabilitiesWriteFromASCII);
