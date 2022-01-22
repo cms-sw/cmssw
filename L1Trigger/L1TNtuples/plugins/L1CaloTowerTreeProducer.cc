@@ -59,7 +59,7 @@ Implementation:
 // class declaration
 //
 
-class L1CaloTowerTreeProducer : public edm::one::EDAnalyzer<> {
+class L1CaloTowerTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1CaloTowerTreeProducer(const edm::ParameterSet&);
   ~L1CaloTowerTreeProducer() override = default;
@@ -112,6 +112,8 @@ L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfi
 
   if (clusterTag.instance() != std::string(""))
     l1ClusterToken_ = consumes<l1t::CaloClusterBxCollection>(clusterTag);
+
+  usesResource(TFileService::kSharedResource);
 
   // set up output
   tree_ = fs_->make<TTree>("L1CaloTowerTree", "L1CaloTowerTree");
