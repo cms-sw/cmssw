@@ -33,6 +33,8 @@
 #include <map>
 #include <string>
 
+//#define EDM_ML_DEBUG
+
 class CaloSimHitStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   CaloSimHitStudy(const edm::ParameterSet& ps);
@@ -138,12 +140,15 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   phiInc_ = tfile->make<TH1F>("PhiInc", title, 200, -3.1415926, 3.1415926);
   phiInc_->GetXaxis()->SetTitle(title);
   phiInc_->GetYaxis()->SetTitle("Events");
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for incident particle";
+#endif
   std::string dets[9] = {"EB", "EB(APD)", "EB(ATJ)", "EE", "ES", "HB", "HE", "HO", "HF"};
+  double nhcMax[9] = {40000., 2000., 2000., 40000., 10000., 10000., 10000., 2000., 10000.};
   for (int i = 0; i < 9; i++) {
     sprintf(name, "Hit%d", i);
     sprintf(title, "Number of hits in %s", dets[i].c_str());
-    hit_[i] = tfile->make<TH1F>(name, title, 1000, 0., 20000.);
+    hit_[i] = tfile->make<TH1F>(name, title, 1000, 0., nhcMax[i]);
     hit_[i]->GetXaxis()->SetTitle(title);
     hit_[i]->GetYaxis()->SetTitle("Events");
     sprintf(name, "Time%d", i);
@@ -187,7 +192,9 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
     etotg_[i]->GetXaxis()->SetTitle(title);
     etotg_[i]->GetYaxis()->SetTitle("Events");
   }
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for first level of Calorimeter";
+#endif
   std::string detx[9] = {"EB/EE (MIP)",
                          "HB/HE (MIP)",
                          "HB/HE/HO (MIP)",
@@ -212,17 +219,21 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
     edepT_[i]->GetXaxis()->SetTitle(title);
     edepT_[i]->GetYaxis()->SetTitle("Events");
   }
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for second level of Calorimeter";
-  hitLow = tfile->make<TH1F>("HitLow", "Number of hits in Track (Low)", 1000, 0, 10000.);
+#endif
+  hitLow = tfile->make<TH1F>("HitLow", "Number of hits in Track (Low)", 1000, 0, 20000.);
   hitLow->GetXaxis()->SetTitle("Number of hits in Track (Low)");
   hitLow->GetYaxis()->SetTitle("Events");
-  hitHigh = tfile->make<TH1F>("HitHigh", "Number of hits in Track (High)", 1000, 0, 10000.);
+  hitHigh = tfile->make<TH1F>("HitHigh", "Number of hits in Track (High)", 1000, 0, 5000.);
   hitHigh->GetXaxis()->SetTitle("Number of hits in Track (High)");
   hitHigh->GetYaxis()->SetTitle("Events");
-  hitMu = tfile->make<TH1F>("HitMu", "Number of hits in Track (Muon)", 1000, 0, 5000.);
+  hitMu = tfile->make<TH1F>("HitMu", "Number of hits in Track (Muon)", 1000, 0, 2000.);
   hitMu->GetXaxis()->SetTitle("Number of hits in Muon");
   hitMu->GetYaxis()->SetTitle("Events");
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for general tracking hits";
+#endif
   std::string dett[16] = {"Pixel Barrel (High)",
                           "Pixel Endcap (High)",
                           "TEC (High)",
@@ -239,10 +250,11 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
                           "CSC",
                           "DT",
                           "GEM"};
+  double nhtMax[16] = {500., 500., 1000., 1000., 500., 1000., 5000., 2000., 10000., 5000., 2000., 5000., 500., 1000., 1000., 500.};
   for (int i = 0; i < 16; i++) {
     sprintf(name, "HitTk%d", i);
     sprintf(title, "Number of hits in %s", dett[i].c_str());
-    hitTk_[i] = tfile->make<TH1F>(name, title, 1000, 0., 1000.);
+    hitTk_[i] = tfile->make<TH1F>(name, title, 1000, 0., nhtMax[i]);
     hitTk_[i]->GetXaxis()->SetTitle(title);
     hitTk_[i]->GetYaxis()->SetTitle("Events");
     sprintf(name, "TimeTk%d", i);
@@ -252,11 +264,14 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
     tofTk_[i]->GetYaxis()->SetTitle("Hits");
     sprintf(name, "EdepTk%d", i);
     sprintf(title, "Energy deposit (GeV) in %s", dett[i].c_str());
-    edepTk_[i] = tfile->make<TH1F>(name, title, 250, 0., 0.25);
+    double ymax = (i < 12) ? 0.25 : 0.005;
+    edepTk_[i] = tfile->make<TH1F>(name, title, 250, 0., ymax);
     edepTk_[i]->GetXaxis()->SetTitle(title);
     edepTk_[i]->GetYaxis()->SetTitle("Hits");
   }
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Completed defining histos for SimHit objects";
+#endif
 }
 
 void CaloSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -302,8 +317,9 @@ void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const&) {
     e.getByToken(toks_calo_[i], hitsCalo);
     if (hitsCalo.isValid())
       getHits = true;
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Input flags Hits " << getHits;
-
+#endif
     if (getHits) {
       std::vector<PCaloHit> caloHits;
       caloHits.insert(caloHits.end(), hitsCalo->begin(), hitsCalo->end());
@@ -313,7 +329,9 @@ void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const&) {
         eeHits.insert(eeHits.end(), hitsCalo->begin(), hitsCalo->end());
       else if (i == 3)
         hcHits.insert(hcHits.end(), hitsCalo->begin(), hitsCalo->end());
+#ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HitStudy") << "CaloSimHitStudy: Hit buffer " << caloHits.size();
+#endif
       analyzeHits(caloHits, i);
     }
   }
@@ -354,7 +372,10 @@ void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const&) {
 
 void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
   int nHit = hits.size();
-  int nHB = 0, nHE = 0, nHO = 0, nHF = 0, nEB = 0, nEBAPD = 0, nEBATJ = 0, nEE = 0, nES = 0, nBad = 0;
+  int nHB(0), nHE(0), nHO(0), nHF(0), nEB(0), nEBAPD(0), nEBATJ(0), nEE(0), nES(0);
+#ifdef EDM_ML_DEBUG
+  int nBad(0);
+#endif
   std::map<unsigned int, double> hitMap;
   std::vector<double> etot(9, 0), etotG(9, 0);
   for (int i = 0; i < nHit; i++) {
@@ -397,8 +418,10 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
         nEE++;
       else if (idx == 4)
         nES++;
+#ifdef EDM_ML_DEBUG
       else
         nBad++;
+#endif
       if (indx >= 0 && indx < 3) {
         etot[idx] += edep;
         if (time < 100)
@@ -435,7 +458,9 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
         if (time < 100)
           etotG[idx] += edep;
       } else {
+#ifdef EDM_ML_DEBUG
         nBad++;
+#endif
       }
     }
   }
@@ -464,9 +489,11 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
     }
   }
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy::analyzeHits: EB " << nEB << ", " << nEBAPD << ", " << nEBATJ
                                << " EE " << nEE << " ES " << nES << " HB " << nHB << " HE " << nHE << " HO " << nHO
                                << " HF " << nHF << " Bad " << nBad << " All " << nHit << " Reduced " << hitMap.size();
+#endif
   std::map<unsigned int, double>::const_iterator it = hitMap.begin();
   for (; it != hitMap.end(); it++) {
     double time = it->second;
@@ -526,8 +553,10 @@ void CaloSimHitStudy::analyzeHits(edm::Handle<edm::PSimHitContainer>& hits, int 
     nHit++;
   }
   hitTk_[indx]->Fill(float(nHit));
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy::analyzeHits: for " << label << " Index " << indx << " # of Hits "
                                << nHit;
+#endif
 }
 
 void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& ebHits,
@@ -577,12 +606,13 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& ebHits,
   double edepET = edepEBT + edepEET;
   double edepHC = edepH + edepHO;
   double edepHCT = edepHT + edepHOT;
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy::energy in EB " << edepEB << " (" << edepEBT << ") from "
                                << ebHits.size() << " hits; "
                                << " energy in EE " << edepEE << " (" << edepEET << ") from " << eeHits.size()
                                << " hits; energy in HC " << edepH << ", " << edepHO << " (" << edepHT << ", " << edepHOT
                                << ") from " << hcHits.size() << " hits";
-
+#endif
   edepC_[6]->Fill(edepE);
   edepT_[6]->Fill(edepET);
   edepC_[7]->Fill(edepH);
