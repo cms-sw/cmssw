@@ -23,66 +23,66 @@ process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring('file:trigger.root')
 )
 
-import HLTrigger.HLTfilters.triggerResultsFilter_cfi as hlt
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
 
 # accept if 'Path_1' succeeds
-process.filter_1 = hlt.triggerResultsFilter.clone(
+process.filter_1 = triggerResultsFilter.clone(
     triggerConditions =  ( 'Path_1', ),
     l1tResults = '',
     throw = False
     )
 
 # accept if 'Path_2' succeeds
-process.filter_2 = hlt.triggerResultsFilter.clone(
+process.filter_2 = triggerResultsFilter.clone(
     triggerConditions = ( 'Path_2', ),
     l1tResults = '',
     throw = False
     )
 
 # accept if 'Path_3' succeeds
-process.filter_3 = hlt.triggerResultsFilter.clone(
+process.filter_3 = triggerResultsFilter.clone(
     triggerConditions = ( 'Path_3', ),
     l1tResults = '',
     throw = False
     )
 
 # accept if any path succeeds (explicit OR)
-process.filter_any_or = hlt.triggerResultsFilter.clone(
+process.filter_any_or = triggerResultsFilter.clone(
     triggerConditions = ( 'Path_1', 'Path_2', 'Path_3' ),
     l1tResults = '',
     throw = False
     )
 
 # accept if 'Path_1' succeeds, prescaled by 2
-process.filter_1_pre = hlt.triggerResultsFilter.clone(
+process.filter_1_pre = triggerResultsFilter.clone(
     triggerConditions =  ( '(Path_1) / 15', ),
     l1tResults = '',
     throw = False
     )
 
 # accept if 'Path_2' succeeds, prescaled by 10
-process.filter_2_pre = hlt.triggerResultsFilter.clone(
+process.filter_2_pre = triggerResultsFilter.clone(
     triggerConditions = ( '(Path_2 / 10)', ),
     l1tResults = '',
     throw = False
     )
 
 # accept if any path succeeds, with different prescales (explicit OR, prescaled)
-process.filter_any_pre = hlt.triggerResultsFilter.clone(
+process.filter_any_pre = triggerResultsFilter.clone(
     triggerConditions = ( 'Path_1 / 15', 'Path_2 / 10', 'Path_3 / 6', ),
     l1tResults = '',
     throw = False
     )
 
 # accept if any path succeeds (wildcard, '*')
-process.filter_any_star = hlt.triggerResultsFilter.clone(
+process.filter_any_star = triggerResultsFilter.clone(
     triggerConditions = ( '*', ),
     l1tResults = '',
     throw = False
     )
 
 # accept if any path succeeds (wildcard, twice '*')
-process.filter_any_doublestar = hlt.triggerResultsFilter.clone(
+process.filter_any_doublestar = triggerResultsFilter.clone(
     triggerConditions = ( '*_*', ),
     l1tResults = '',
     throw = False
@@ -90,63 +90,63 @@ process.filter_any_doublestar = hlt.triggerResultsFilter.clone(
 
 
 # accept if any path succeeds (wildcard, '?')
-process.filter_any_question = hlt.triggerResultsFilter.clone(
+process.filter_any_question = triggerResultsFilter.clone(
     triggerConditions = ( 'Path_?', ),
     l1tResults = '',
     throw = False
     )
 
 # accept if all path succeed (explicit AND)
-process.filter_all_explicit = hlt.triggerResultsFilter.clone(
+process.filter_all_explicit = triggerResultsFilter.clone(
     triggerConditions = ( 'Path_1 AND Path_2 AND Path_3', ),
     l1tResults = '',
     throw = False
 )
 
 # wrong path name (explicit)
-process.filter_wrong_name = hlt.triggerResultsFilter.clone(
+process.filter_wrong_name = triggerResultsFilter.clone(
     triggerConditions = ( 'Wrong', ),
     l1tResults = '',
     throw = False
 )
 
 # wrong path name (wildcard)
-process.filter_wrong_pattern = hlt.triggerResultsFilter.clone(
+process.filter_wrong_pattern = triggerResultsFilter.clone(
     triggerConditions = ( '*_Wrong', ),
     l1tResults = '',
     throw = False
 )
 
 # empty path list
-process.filter_empty_pattern = hlt.triggerResultsFilter.clone(
+process.filter_empty_pattern = triggerResultsFilter.clone(
     triggerConditions = ( ),
     l1tResults = '',
     throw = False
 )
 
 # L1-like path name
-process.filter_l1path_pattern = hlt.triggerResultsFilter.clone(
+process.filter_l1path_pattern = triggerResultsFilter.clone(
     triggerConditions = ( 'L1_Path', ),
     l1tResults = '',
     throw = False
 )
 
 # real L1 trigger
-process.filter_l1singlemuopen_pattern = hlt.triggerResultsFilter.clone(
+process.filter_l1singlemuopen_pattern = triggerResultsFilter.clone(
     triggerConditions = ( 'L1_SingleMuOpen', ),
     l1tResults = '',
     throw = False
 )
 
 # TRUE
-process.filter_true_pattern = hlt.triggerResultsFilter.clone(
+process.filter_true_pattern = triggerResultsFilter.clone(
     triggerConditions = ( 'TRUE', ),
     l1tResults = '',
     throw = False
 )
 
 # FALSE
-process.filter_false_pattern = hlt.triggerResultsFilter.clone(
+process.filter_false_pattern = triggerResultsFilter.clone(
     triggerConditions = ( 'FALSE', ),
     l1tResults = '',
     throw = False
