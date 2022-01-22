@@ -2,6 +2,20 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ProcessOne")
 
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register('conditionsDB',
+                 'sqlite_file:SiPixelStatusScenarios_2017StuckTBM.db', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "input conditions DB")
+options.register('inputTag',
+                 'SiPixelFEDChannelContainer_StuckTBM_2017_v1_mc', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "input conditions tag")
+options.parseArguments()
+
 ##
 ## MessageLogger
 ##
@@ -34,12 +48,12 @@ process.source = cms.Source("EmptyIOVSource",
 ## Get the payload
 ##
 from CondCore.CondDB.CondDB_cfi import *
-CondDBQualityCollection = CondDB.clone(connect = cms.string("sqlite_file:SiPixelStatusScenarios_v1.db"))
+CondDBQualityCollection = CondDB.clone(connect = cms.string(options.conditionsDB))
 
 process.dbInput = cms.ESSource("PoolDBESSource",
                                CondDBQualityCollection,
                                toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenariosRcd'),
-                                                          tag = cms.string('SiPixelFEDChannelContainer_StuckTBM_2018_v1_mc') # choose tag you want
+                                                          tag = cms.string(options.inputTag) # choose tag you want
                                                           )
                                                  )
                                )
