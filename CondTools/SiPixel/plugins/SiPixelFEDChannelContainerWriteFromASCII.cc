@@ -39,14 +39,13 @@
 class SiPixelFEDChannelContainerWriteFromASCII : public edm::one::EDAnalyzer<> {
 public:
   explicit SiPixelFEDChannelContainerWriteFromASCII(const edm::ParameterSet&);
-  ~SiPixelFEDChannelContainerWriteFromASCII();
+  ~SiPixelFEDChannelContainerWriteFromASCII() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
   const std::string m_record;
@@ -102,7 +101,7 @@ void SiPixelFEDChannelContainerWriteFromASCII::analyze(const edm::Event& iEvent,
         edm::LogVerbatim("SiPixelFEDChannelContainerWriteFromASCII") << "================================" << std::endl;
         edm::LogVerbatim("SiPixelFEDChannelContainerWriteFromASCII")
             << "found a new scenario: " << newscenario << std::endl;
-        if (scenario != "") {
+        if (!scenario.empty()) {
           edm::LogVerbatim("SiPixelFEDChannelContainerWriteFromASCII")
               << "size of the fed channel vector: " << theBadFEDChannels.size() << std::endl;
           edm::LogVerbatim("SiPixelFEDChannelContainerWriteFromASCII")
@@ -132,9 +131,6 @@ void SiPixelFEDChannelContainerWriteFromASCII::analyze(const edm::Event& iEvent,
     myQualities->printAll();
   }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void SiPixelFEDChannelContainerWriteFromASCII::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void SiPixelFEDChannelContainerWriteFromASCII::endJob() {

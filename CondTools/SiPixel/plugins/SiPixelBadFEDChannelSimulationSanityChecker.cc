@@ -18,12 +18,12 @@
 class SiPixelBadFEDChannelSimulationSanityChecker : public edm::one::EDAnalyzer<> {
 public:
   explicit SiPixelBadFEDChannelSimulationSanityChecker(edm::ParameterSet const& p);
-  ~SiPixelBadFEDChannelSimulationSanityChecker();
+  ~SiPixelBadFEDChannelSimulationSanityChecker() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // ----------member data ---------------------------
   const edm::ESGetToken<SiPixelFEDChannelContainer, SiPixelStatusScenariosRcd> siPixelBadFEDChToken_;
@@ -107,7 +107,7 @@ void SiPixelBadFEDChannelSimulationSanityChecker::analyze(const edm::Event& e, c
                  return (std::find(allScenarios.begin(), allScenarios.end(), arg) == allScenarios.end());
                });
 
-  if (notFound.size() != 0) {
+  if (!notFound.empty()) {
     for (const auto& entry : notFound) {
       edm::LogWarning("SiPixelBadFEDChannelSimulationSanityChecker")
           << "Pretty worrying! the scenario: " << entry << "  is not found in the map!!" << std::endl;
