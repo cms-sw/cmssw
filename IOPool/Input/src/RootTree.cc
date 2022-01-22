@@ -392,6 +392,18 @@ namespace edm {
       Exception t(errors::FileReadError, "", e);
       t.addContext(std::string("Reading branch ") + branch->GetName());
       throw t;
+    } catch (std::exception const& e) {
+      filePtr_->SetCacheRead(nullptr);
+      Exception t(errors::FileReadError);
+      t << e.what();
+      t.addContext(std::string("Reading branch ") + branch->GetName());
+      throw t;
+    } catch (...) {
+      filePtr_->SetCacheRead(nullptr);
+      Exception t(errors::FileReadError);
+      t << "An exception of unknown type was thrown.";
+      t.addContext(std::string("Reading branch ") + branch->GetName());
+      throw t;
     }
   }
 
