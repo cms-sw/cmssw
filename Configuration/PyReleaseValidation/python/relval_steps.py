@@ -2150,7 +2150,7 @@ steps['ALCASPLITSIPIXELCAL']={'-s':'ALCAOUTPUT:SiPixelCalZeroBias,ALCA:PromptCal
                         #'--filein':'file:step2.root'
                         }
 
-steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSTimingCalib',
+steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalibProdPPSTimingCalib',
                         '--scenario':'pp',
                         '--data':'',
                         '--era':'Run2_2017',
@@ -2160,7 +2160,7 @@ steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSTimingCal
                         '--triggerResultsProcess':'RECO',
                         }
 
-steps['ALCASPLITPPSALIG']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSAlignment',
+steps['ALCASPLITPPSALIG']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PromptCalibProdPPSAlignment',
                            '-n':1000,
                            '--scenario':'pp',
                            '--data':'',
@@ -2210,19 +2210,19 @@ steps['ALCAHARVDSIPIXELCALLA']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdS
                         '--era':'Run2_2017',
                         '--filein':'file:PromptCalibProdSiPixelLorentzAngle.root'}
 
-steps['ALCAHARVDPPSCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPS']),
+steps['ALCAHARVDPPSCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSTimingCalib']),
                         '--conditions':'auto:run3_data_express',
                         '--scenario':'pp',
                         '--data':'',
                         '--era':'Run2_2017',
-                        '--filein':'file:PPSTimingCalib.root'}
+                        '--filein':'file:ALCARECOStreamPromptCalibProdPPSTimingCalib.root'}
 
-steps['ALCAHARVDPPSALIG']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSAlig']),
+steps['ALCAHARVDPPSALIG']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSAlignment']),
                            '--conditions':'auto:run3_data_express',
                            '--scenario':'pp',
                            '--data':'',
                            '--era':'Run2_2017',
-                           '--filein':'file:PPSAlignment.root'}
+                           '--filein':'file:PromptCalibProdPPSAlignment.root'}
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '-s':'RAW2DIGI,L1Reco,RECO,DQM',
