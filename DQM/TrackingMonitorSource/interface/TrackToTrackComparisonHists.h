@@ -4,27 +4,20 @@
 //
 //
 
-// system include files
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-#include <memory>
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/Utilities/interface/EDGetToken.h"
-
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+// system include files
+#include <memory>
 #include <iostream>
 #include <sstream>
 #include <string>
