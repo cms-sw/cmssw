@@ -250,7 +250,8 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
                           "CSC",
                           "DT",
                           "GEM"};
-  double nhtMax[16] = {500., 500., 1000., 1000., 500., 1000., 5000., 2000., 10000., 5000., 2000., 5000., 500., 1000., 1000., 500.};
+  double nhtMax[16] = {
+      500., 500., 1000., 1000., 500., 1000., 5000., 2000., 10000., 5000., 2000., 5000., 500., 1000., 1000., 500.};
   for (int i = 0; i < 16; i++) {
     sprintf(name, "HitTk%d", i);
     sprintf(title, "Number of hits in %s", dett[i].c_str());
