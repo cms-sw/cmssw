@@ -123,7 +123,7 @@ void makeHitStudyPlots(std::string file1 = "analRun3Old.root",
         leg->Draw("same");
         pad->Update();
         if (save) {
-          sprintf(name, "c_%s.jpg", pad->GetName());
+          sprintf(name, "c_%s.pdf", pad->GetName());
           pad->Print(name);
         }
       }
