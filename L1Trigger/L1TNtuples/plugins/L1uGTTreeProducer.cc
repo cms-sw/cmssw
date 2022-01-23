@@ -25,7 +25,7 @@
 // class declaration
 //
 
-class L1uGTTreeProducer : public edm::one::EDAnalyzer<> {
+class L1uGTTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1uGTTreeProducer(edm::ParameterSet const &);
   ~L1uGTTreeProducer() override = default;
@@ -59,6 +59,7 @@ L1uGTTreeProducer::L1uGTTreeProducer(edm::ParameterSet const &config)
       ugtToken_(consumes<GlobalAlgBlkBxCollection>(config.getParameter<edm::InputTag>("ugtToken"))),
       l1GtMenuToken_(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>()),
       cache_id_(0) {
+  usesResource(TFileService::kSharedResource);
   // set up the TTree and its branches
   tree_ = fs_->make<TTree>("L1uGTTree", "L1uGTTree");
   tree_->Branch("L1uGT", "GlobalAlgBlk", &results_, 32000, 3);
