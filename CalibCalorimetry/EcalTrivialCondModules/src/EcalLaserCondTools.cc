@@ -57,12 +57,6 @@ EcalLaserCondTools::~EcalLaserCondTools() {
 }
 
 void EcalLaserCondTools::analyze(const edm::Event& event, const edm::EventSetup& es) {
-  static bool done = false;
-
-  if (done && (mode_ == "ascii_file_to_db" || mode_ == "hdf_file_to_db")) {
-    return;
-  }
-
   if (mode_ == "ascii_file_to_db") {
     if (verb_ > 2)
       edm::LogPrint("EcalLaserCondTools") << "ascii_file_to_db mode\n";
@@ -338,7 +332,7 @@ void EcalLaserCondTools::fillDb(CorrReader& r) {
 }
 
 void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondTools::nLmes], int t3) {
-  static int iIov = 0;
+  int iIov = 0;
   ++iIov;
 
   //   FILE* fdebug = 0;
