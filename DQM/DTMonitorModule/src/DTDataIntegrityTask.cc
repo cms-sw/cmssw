@@ -373,7 +373,7 @@ void DTDataIntegrityTask::bookHistosROS(DQMStore::IBooker& ibooker, const int wh
       if (link > 18 && link < 22)
         sector = 14;
       else if (link == 22 || link == 23)
-        rob = rob - 1;
+        rob = rob - 3;
     }
 
     //Sector 11 exceptions
@@ -474,7 +474,7 @@ void DTDataIntegrityTask::bookHistosROS(DQMStore::IBooker& ibooker, const int wh
       if (link > 18 && link < 22)
         sector = 14;
       else if (link == 22 || link == 23)
-        rob = rob - 1;
+        rob = rob - 3;
     }
 
     //Sector 11 exceptions
