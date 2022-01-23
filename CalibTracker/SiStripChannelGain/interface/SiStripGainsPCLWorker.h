@@ -85,7 +85,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void beginJob() override;
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &, APVGain::APVGainHistograms &) const override;
   void checkBookAPVColls(const TrackerGeometry *bareTkGeomPtr, APVGain::APVGainHistograms &histograms) const;
 

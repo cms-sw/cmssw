@@ -1788,7 +1788,9 @@ std::unique_ptr<SiStripApvGain> SiStripGainFromCalibTree::getNewObject() {
       theSiStripVector = new std::vector<float>;
       PreviousDetId = APV->DetId;
     }
-    theSiStripVector->push_back(APV->Gain);
+    if (theSiStripVector != nullptr) {
+      theSiStripVector->push_back(APV->Gain);
+    }
   }
   if (theSiStripVector != nullptr) {
     SiStripApvGain::Range range(theSiStripVector->begin(), theSiStripVector->end());
