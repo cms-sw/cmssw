@@ -1,39 +1,97 @@
-#include "RecoVertex/KinematicFit/plugins/KineExample.h"
+// -*- C++ -*-
+//
+// Package:    KineExample
+// Class:      KineExample
+//
+/**\class KineExample KineExample.cc RecoVertex/KineExample/src/KineExample.cc
 
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+ Description: steers tracker primary vertex reconstruction and storage
+
+ Implementation:
+     <Notes on implementation>
+*/
+
+// system include files
+#include <memory>
+#include <iostream>
+
+// user include files
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexFitter.h"
+#include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
+#include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
+#include "RecoVertex/KinematicFit/interface/MassKinematicConstraint.h"
+#include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicTree.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include <RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h>
 //#include "MagneticField/Engine/interface/MagneticField.h"
 //#include "MagneticField/Records/interface/IdealMagneticField.h"
 
-#include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
-#include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
-#include <RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h>
-// #include "RecoVertex/KinematicFitPrimitives/interface/"
-#include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexFitter.h"
-#include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
-#include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
-#include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
-#include "RecoVertex/KinematicFit/interface/MassKinematicConstraint.h"
+#include <TFile.h>
 
-#include <iostream>
+/**
+   * This is a very simple test analyzer mean to test the KalmanVertexFitter
+   */
+
+class KineExample : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+public:
+  explicit KineExample(const edm::ParameterSet&);
+  ~KineExample() override;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override{};
+
+private:
+  void printout(const RefCountedKinematicVertex& myVertex) const;
+  void printout(const RefCountedKinematicParticle& myParticle) const;
+  void printout(const RefCountedKinematicTree& myTree) const;
+
+  TrackingVertex getSimVertex(const edm::Event& iEvent) const;
+
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> estoken_ttk;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> estoken_mf;
+
+  edm::ParameterSet theConfig;
+  edm::ParameterSet kvfPSet;
+  //   TFile*  rootFile_;
+
+  std::string outputFile_;  // output file
+  edm::EDGetTokenT<reco::TrackCollection> token_tracks;
+  //   edm::EDGetTokenT<TrackingParticleCollection> token_TrackTruth;
+  edm::EDGetTokenT<TrackingVertexCollection> token_VertexTruth;
+};
 
 using namespace reco;
 using namespace edm;
 using namespace std;
 
-KineExample::KineExample(const edm::ParameterSet& iConfig) : theConfig(iConfig) {
+KineExample::KineExample(const edm::ParameterSet& iConfig)
+    : estoken_ttk(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      estoken_mf(esConsumes<edm::Transition::BeginRun>()) {
   token_tracks = consumes<TrackCollection>(iConfig.getParameter<string>("TrackLabel"));
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
   kvfPSet = iConfig.getParameter<edm::ParameterSet>("KVFParameters");
@@ -43,17 +101,12 @@ KineExample::KineExample(const edm::ParameterSet& iConfig) : theConfig(iConfig) 
   token_VertexTruth = consumes<TrackingVertexCollection>(edm::InputTag("trackingtruth", "VertexTruth"));
 }
 
-KineExample::~KineExample() {
-  //   delete rootFile_;
-}
+KineExample::~KineExample() = default;
 
 void KineExample::beginRun(Run const& run, EventSetup const& setup) {
-  //   edm::ESHandle<MagneticField> magField;
-  //   setup.get<IdealMagneticFieldRecord>().get(magField);
-  //   tree.reset(new SimpleVertexTree("VertexFitter", magField.product()));
+  //const MagneticField* magField = &setup.getData(estoken_mf);
+  //tree.reset(new SimpleVertexTree("VertexFitter", magField.product()));
 }
-
-void KineExample::endJob() {}
 
 //
 // member functions
@@ -61,28 +114,27 @@ void KineExample::endJob() {}
 
 void KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   try {
-    cout << "Reconstructing event number: " << iEvent.id() << "\n";
+    edm::LogPrint("KineExample") << "Reconstructing event number: " << iEvent.id() << "\n";
 
     // get RECO tracks from the event
     // `tks` can be used as a ptr to a reco::TrackCollection
     edm::Handle<reco::TrackCollection> tks;
     iEvent.getByToken(token_tracks, tks);
     if (!tks.isValid()) {
-      cout << "Couln't find track collection: " << iEvent.id() << "\n";
+      edm::LogPrint("KineExample") << "Couln't find track collection: " << iEvent.id() << "\n";
     } else {
       edm::LogInfo("RecoVertex/KineExample") << "Found: " << (*tks).size() << " reconstructed tracks"
                                              << "\n";
-      cout << "got " << (*tks).size() << " tracks " << endl;
+      edm::LogPrint("KineExample") << "got " << (*tks).size() << " tracks " << endl;
 
       // Transform Track to TransientTrack
       //get the builder:
-      edm::ESHandle<TransientTrackBuilder> theB;
-      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+      edm::ESHandle<TransientTrackBuilder> theB = iSetup.getHandle(estoken_ttk);
       //do the conversion:
       vector<TransientTrack> t_tks = (*theB).build(tks);
 
-      cout << "Found: " << t_tks.size() << " reconstructed tracks"
-           << "\n";
+      edm::LogPrint("KineExample") << "Found: " << t_tks.size() << " reconstructed tracks"
+                                   << "\n";
 
       // Do a KindFit, if >= 4 tracks.
       if (t_tks.size() > 3) {
@@ -101,9 +153,9 @@ void KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         KalmanVertexFitter kvf(false);
         TransientVertex tv = kvf.vertex(ttv);
         if (!tv.isValid())
-          cout << "KVF failed\n";
+          edm::LogPrint("KineExample") << "KVF failed\n";
         else
-          std::cout << "KVF fit Position: " << Vertex::Point(tv.position()) << "\n";
+          edm::LogPrint("KineExample") << "KVF fit Position: " << Vertex::Point(tv.position()) << "\n";
 
         TransientTrack ttMuPlus = t_tks[0];
         TransientTrack ttMuMinus = t_tks[1];
@@ -144,7 +196,7 @@ void KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        * reconstructs the decayed state
        */
         KinematicParticleVertexFitter fitter;
-        cout << "Simple vertex fit with KinematicParticleVertexFitter:\n";
+        edm::LogPrint("KineExample") << "Simple vertex fit with KinematicParticleVertexFitter:\n";
         RefCountedKinematicTree vertexFitTree = fitter.fit(allParticles);
 
         printout(vertexFitTree);
@@ -163,7 +215,7 @@ void KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         //obtaining the resulting tree
         RefCountedKinematicTree myTree = kcvFitter.fit(allParticles, j_psi_c);
 
-        cout << "\nGlobal fit done:\n";
+        edm::LogPrint("KineExample") << "\nGlobal fit done:\n";
         printout(myTree);
 
         //creating the vertex fitter
@@ -192,7 +244,7 @@ void KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         // the resulting tree includes all the final state tracks, the J/Psi meson,
         // its decay vertex, the Bs meson and its decay vertex.
         RefCountedKinematicTree bsTree = kpvFitter.fit(phiParticles);
-        cout << "Sequential fit done:\n";
+        edm::LogPrint("KineExample") << "Sequential fit done:\n";
         printout(bsTree);
 
         //       // For the analysis: compare to your SimVertex
@@ -209,34 +261,34 @@ void KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         //     }
       }
     }
-
-  } catch (std::exception& err) {
-    cout << "Exception during event number: " << iEvent.id() << "\n" << err.what() << "\n";
+  } catch (cms::Exception& err) {
+    edm::LogError("KineExample") << "Exception during event number: " << iEvent.id() << "\n" << err.what() << "\n";
   }
 }
 
 void KineExample::printout(const RefCountedKinematicVertex& myVertex) const {
   if (myVertex->vertexIsValid()) {
-    cout << "Decay vertex: " << myVertex->position() << myVertex->chiSquared() << " " << myVertex->degreesOfFreedom()
-         << endl;
+    edm::LogPrint("KineExample") << "Decay vertex: " << myVertex->position() << myVertex->chiSquared() << " "
+                                 << myVertex->degreesOfFreedom() << endl;
   } else
-    cout << "Decay vertex Not valid\n";
+    edm::LogPrint("KineExample") << "Decay vertex Not valid\n";
 }
 
 void KineExample::printout(const RefCountedKinematicParticle& myParticle) const {
-  cout << "Particle: \n";
+  edm::LogPrint("KineExample") << "Particle: \n";
   //accessing the reconstructed Bs meson parameters:
   //SK: uncomment if needed  AlgebraicVector7 bs_par = myParticle->currentState().kinematicParameters().vector();
 
   //and their joint covariance matrix:
   //SK:uncomment if needed  AlgebraicSymMatrix77 bs_er = myParticle->currentState().kinematicParametersError().matrix();
-  cout << "Momentum at vertex: " << myParticle->currentState().globalMomentum() << endl;
-  cout << "Parameters at vertex: " << myParticle->currentState().kinematicParameters().vector() << endl;
+  edm::LogPrint("KineExample") << "Momentum at vertex: " << myParticle->currentState().globalMomentum() << endl;
+  edm::LogPrint("KineExample") << "Parameters at vertex: " << myParticle->currentState().kinematicParameters().vector()
+                               << endl;
 }
 
 void KineExample::printout(const RefCountedKinematicTree& myTree) const {
   if (!myTree->isValid()) {
-    cout << "Tree is invalid. Fit failed.\n";
+    edm::LogPrint("KineExample") << "Tree is invalid. Fit failed.\n";
     return;
   }
 
@@ -279,10 +331,10 @@ TrackingVertex KineExample::getSimVertex(const edm::Event& iEvent) const {
 
   //    Handle<edm::SimVertexContainer> simVtcs;
   //    iEvent.getByLabel("g4SimHits", simVtcs);
-  //    std::cout << "SimVertex " << simVtcs->size() << std::endl;
+  //    edm::LogPrint("KineExample") << "SimVertex " << simVtcs->size() << std::endl;
   //    for(edm::SimVertexContainer::const_iterator v=simVtcs->begin();
   //        v!=simVtcs->end(); ++v){
-  //      std::cout << "simvtx "
+  //      edm::LogPrint("KineExample") << "simvtx "
   // 	       << v->position().x() << " "
   // 	       << v->position().y() << " "
   // 	       << v->position().z() << " "
