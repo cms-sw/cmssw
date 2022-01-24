@@ -1,15 +1,14 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 template <typename S>
-class TopDecayChannelFilter : public edm::EDFilter {
+class TopDecayChannelFilter : public edm::stream::EDFilter<> {
 public:
   TopDecayChannelFilter(const edm::ParameterSet&);
-  ~TopDecayChannelFilter() override;
 
 private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
@@ -31,25 +30,21 @@ TopDecayChannelFilter<S>::TopDecayChannelFilter(const edm::ParameterSet& cfg)
       useTtGenEvent_(false) {}
 
 template <typename S>
-TopDecayChannelFilter<S>::~TopDecayChannelFilter() {}
-
-template <typename S>
 bool TopDecayChannelFilter<S>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<reco::GenParticleCollection> parts;
   edm::Handle<TtGenEvent> genEvt;
 
   if (!checkedSrcType_) {
     checkedSrcType_ = true;
-    if (iEvent.getByToken(genEvt_, genEvt)) {
+    if (genEvt = iEvent.getHandle(genEvt_); genEvt.isValid()) {
       useTtGenEvent_ = true;
       return sel_(genEvt->particles(), src_.label());
     }
   } else {
     if (useTtGenEvent_) {
-      iEvent.getByToken(genEvt_, genEvt);
+      genEvt = iEvent.getHandle(genEvt_);
       return sel_(genEvt->particles(), src_.label());
     }
   }
-  iEvent.getByToken(parts_, parts);
-  return sel_(*parts, src_.label());
+  const auto& parts = iEvent.get(parts_);
+  return sel_(parts, src_.label());
 }

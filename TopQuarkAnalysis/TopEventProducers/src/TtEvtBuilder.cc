@@ -1,14 +1,12 @@
-#ifndef TtEvtBuilder_h
-#define TtEvtBuilder_h
-
 #include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
@@ -30,19 +28,17 @@
 */
 
 template <typename C>
-class TtEvtBuilder : public edm::EDProducer {
+class TtEvtBuilder : public edm::global::EDProducer<> {
 public:
   /// default constructor
   explicit TtEvtBuilder(const edm::ParameterSet&);
-  /// default destructor
-  ~TtEvtBuilder() override{};
 
 private:
   /// produce function (this one is not even accessible for
   /// derived classes)
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   /// fill data members that are decay-channel specific
-  virtual void fillSpecific(C&, const edm::Event&);
+  void fillSpecific(C&, const edm::Event&) const;
 
 private:
   /// vebosity level
@@ -89,6 +85,8 @@ private:
   edm::ParameterSet mvaDisc_;
   edm::EDGetTokenT<std::string> methToken_;
   edm::EDGetTokenT<std::vector<double> > discToken_;
+
+  edm::EDPutTokenT<C> putToken_;
 };
 
 template <typename C>
@@ -150,11 +148,11 @@ TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg)
   //  * TtFullLeptonicEvent
   //  * TtFullHadronicEvent
   // from hypotheses and associated extra information
-  produces<C>();
+  putToken_ = produces<C>();
 }
 
 template <typename C>
-void TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup) {
+void TtEvtBuilder<C>::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& setup) const {
   C ttEvent;
 
   // set leptonic decay channels
@@ -171,68 +169,39 @@ void TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup) {
   EventHypoIntToken hKey = hypKeyTokens_.begin();
   EventHypoToken h = hypTokens_.begin();
   for (; hKey != hypKeyTokens_.end(); ++hKey, ++h) {
-    edm::Handle<int> key;
-    evt.getByToken(*hKey, key);
+    const int key = evt.get(*hKey);
 
-    edm::Handle<std::vector<TtEvent::HypoCombPair> > hypMatchVec;
-    evt.getByToken(*h, hypMatchVec);
+    const std::vector<TtEvent::HypoCombPair>& hypMatchVec = evt.get(*h);
 
-    typedef std::vector<TtEvent::HypoCombPair>::const_iterator HypMatch;
-    for (HypMatch hm = hypMatchVec->begin(); hm != hypMatchVec->end(); ++hm) {
-      ttEvent.addEventHypo((TtEvent::HypoClassKey&)*key, *hm);
+    for (const auto& hm : hypMatchVec) {
+      ttEvent.addEventHypo(static_cast<TtEvent::HypoClassKey>(key), hm);
     }
   }
 
   // set kKinFit extras
   if (ttEvent.isHypoAvailable(TtEvent::kKinFit)) {
-    edm::Handle<std::vector<double> > fitChi2;
-    evt.getByToken(fitChi2Token_, fitChi2);
-    ttEvent.setFitChi2(*fitChi2);
-
-    edm::Handle<std::vector<double> > fitProb;
-    evt.getByToken(fitProbToken_, fitProb);
-    ttEvent.setFitProb(*fitProb);
+    ttEvent.setFitChi2(evt.get(fitChi2Token_));
+    ttEvent.setFitProb(evt.get(fitProbToken_));
   }
 
   // set kHitFit extras
   if (ttEvent.isHypoAvailable(TtEvent::kHitFit)) {
-    edm::Handle<std::vector<double> > hitFitChi2;
-    evt.getByToken(hitFitChi2Token_, hitFitChi2);
-    ttEvent.setHitFitChi2(*hitFitChi2);
-
-    edm::Handle<std::vector<double> > hitFitProb;
-    evt.getByToken(hitFitProbToken_, hitFitProb);
-    ttEvent.setHitFitProb(*hitFitProb);
-
-    edm::Handle<std::vector<double> > hitFitMT;
-    evt.getByToken(hitFitMTToken_, hitFitMT);
-    ttEvent.setHitFitMT(*hitFitMT);
-
-    edm::Handle<std::vector<double> > hitFitSigMT;
-    evt.getByToken(hitFitSigMTToken_, hitFitSigMT);
-    ttEvent.setHitFitSigMT(*hitFitSigMT);
+    ttEvent.setHitFitChi2(evt.get(hitFitChi2Token_));
+    ttEvent.setHitFitProb(evt.get(hitFitProbToken_));
+    ttEvent.setHitFitMT(evt.get(hitFitMTToken_));
+    ttEvent.setHitFitSigMT(evt.get(hitFitSigMTToken_));
   }
 
   // set kGenMatch extras
   if (ttEvent.isHypoAvailable(TtEvent::kGenMatch)) {
-    edm::Handle<std::vector<double> > sumPt;
-    evt.getByToken(sumPtToken_, sumPt);
-    ttEvent.setGenMatchSumPt(*sumPt);
-
-    edm::Handle<std::vector<double> > sumDR;
-    evt.getByToken(sumDRToken_, sumDR);
-    ttEvent.setGenMatchSumDR(*sumDR);
+    ttEvent.setGenMatchSumPt(evt.get(sumPtToken_));
+    ttEvent.setGenMatchSumDR(evt.get(sumDRToken_));
   }
 
   // set kMvaDisc extras
   if (ttEvent.isHypoAvailable(TtEvent::kMVADisc)) {
-    edm::Handle<std::string> meth;
-    evt.getByToken(methToken_, meth);
-    ttEvent.setMvaMethod(*meth);
-
-    edm::Handle<std::vector<double> > disc;
-    evt.getByToken(discToken_, disc);
-    ttEvent.setMvaDiscriminators(*disc);
+    ttEvent.setMvaMethod(evt.get(methToken_));
+    ttEvent.setMvaDiscriminators(evt.get(discToken_));
   }
 
   // fill data members that are decay-channel specific
@@ -242,47 +211,48 @@ void TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup) {
   ttEvent.print(verbosity_);
 
   // write object into the edm::Event
-  std::unique_ptr<C> pOut(new C);
-  *pOut = ttEvent;
-  evt.put(std::move(pOut));
+  evt.emplace(putToken_, std::move(ttEvent));
 }
 
 template <>
-inline void TtEvtBuilder<TtFullHadronicEvent>::fillSpecific(TtFullHadronicEvent& ttEvent, const edm::Event& evt) {}
+inline void TtEvtBuilder<TtFullHadronicEvent>::fillSpecific(TtFullHadronicEvent& ttEvent, const edm::Event& evt) const {
+}
 
 template <>
-inline void TtEvtBuilder<TtFullLeptonicEvent>::fillSpecific(TtFullLeptonicEvent& ttEvent, const edm::Event& evt) {
+inline void TtEvtBuilder<TtFullLeptonicEvent>::fillSpecific(TtFullLeptonicEvent& ttEvent, const edm::Event& evt) const {
   // set kKinSolution extras
   if (ttEvent.isHypoAvailable(TtEvent::kKinSolution)) {
-    edm::Handle<std::vector<double> > solWeight;
-    evt.getByToken(solWeightToken_, solWeight);
-    ttEvent.setSolWeight(*solWeight);
-
-    edm::Handle<bool> wrongCharge;
-    evt.getByToken(wrongChargeToken_, wrongCharge);
-    ttEvent.setWrongCharge(*wrongCharge);
+    ttEvent.setSolWeight(evt.get(solWeightToken_));
+    ttEvent.setWrongCharge(evt.get(wrongChargeToken_));
   }
 }
 
 template <>
-inline void TtEvtBuilder<TtSemiLeptonicEvent>::fillSpecific(TtSemiLeptonicEvent& ttEvent, const edm::Event& evt) {
+inline void TtEvtBuilder<TtSemiLeptonicEvent>::fillSpecific(TtSemiLeptonicEvent& ttEvent, const edm::Event& evt) const {
   EventHypoIntToken hKey = hypKeyTokens_.begin();
   EventHypoIntToken hNeutr = hypNeutrTokens_.begin();
   EventHypoIntToken hJet = hypJetTokens_.begin();
   for (; hKey != hypKeyTokens_.end(); ++hKey, ++hNeutr, ++hJet) {
-    edm::Handle<int> key;
-    evt.getByToken(*hKey, key);
+    const int key = evt.get(*hKey);
 
     // set number of real neutrino solutions for all hypotheses
-    edm::Handle<int> numberOfRealNeutrinoSolutions;
-    evt.getByToken(*hNeutr, numberOfRealNeutrinoSolutions);
-    ttEvent.setNumberOfRealNeutrinoSolutions((TtEvent::HypoClassKey&)*key, *numberOfRealNeutrinoSolutions);
+    const int numberOfRealNeutrinoSolutions = evt.get(*hNeutr);
+    ttEvent.setNumberOfRealNeutrinoSolutions(static_cast<TtEvent::HypoClassKey>(key), numberOfRealNeutrinoSolutions);
 
     // set number of considered jets for all hypotheses
-    edm::Handle<int> numberOfConsideredJets;
-    evt.getByToken(*hJet, numberOfConsideredJets);
-    ttEvent.setNumberOfConsideredJets((TtEvent::HypoClassKey&)*key, *numberOfConsideredJets);
+    const int numberOfConsideredJets = evt.get(*hJet);
+    ttEvent.setNumberOfConsideredJets(static_cast<TtEvent::HypoClassKey>(key), numberOfConsideredJets);
   }
 }
 
-#endif
+#include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+using TtFullHadEvtBuilder = TtEvtBuilder<TtFullHadronicEvent>;
+using TtFullLepEvtBuilder = TtEvtBuilder<TtFullLeptonicEvent>;
+using TtSemiLepEvtBuilder = TtEvtBuilder<TtSemiLeptonicEvent>;
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtFullHadEvtBuilder);
+DEFINE_FWK_MODULE(TtFullLepEvtBuilder);
+DEFINE_FWK_MODULE(TtSemiLepEvtBuilder);

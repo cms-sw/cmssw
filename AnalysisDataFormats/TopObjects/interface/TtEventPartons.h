@@ -19,16 +19,16 @@ class TtGenEvent;
 class TtEventPartons {
 public:
   /// default constructor
-  TtEventPartons(){};
+  TtEventPartons() = default;
   /// default destructor
-  virtual ~TtEventPartons(){};
+  virtual ~TtEventPartons() = default;
 
   /// return vector of partons in the order defined in the corresponding enum
   /// (method implemented in the derived classes)
-  virtual std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt) = 0;
+  virtual std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt) const = 0;
 
   /// insert dummy index -3 for all partons that were chosen to be ignored
-  void expand(std::vector<int>& vec);
+  void expand(std::vector<int>& vec) const;
 
 protected:
   /// return pointer to an empty reco::Candidate
@@ -37,7 +37,7 @@ protected:
   };
 
   /// erase partons from vector if they where chosen to be ignored
-  void prune(std::vector<const reco::Candidate*>& vec);
+  void prune(std::vector<const reco::Candidate*>& vec) const;
 
   /// flag partons that were chosen not to be used
   std::vector<bool> ignorePartons_;

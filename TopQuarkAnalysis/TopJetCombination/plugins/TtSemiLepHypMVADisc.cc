@@ -1,16 +1,12 @@
-#ifndef TtSemiLepHypMaxSumPtWMass_h
-#define TtSemiLepHypMaxSumPtWMass_h
-
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
-class TtSemiLepHypMaxSumPtWMass : public TtSemiLepHypothesis {
+class TtSemiLepHypMVADisc : public TtSemiLepHypothesis {
 public:
-  explicit TtSemiLepHypMaxSumPtWMass(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg){};
-  ~TtSemiLepHypMaxSumPtWMass() override{};
+  explicit TtSemiLepHypMVADisc(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg){};
 
 private:
   /// build the event hypothesis key
-  void buildKey() override { key_ = TtSemiLeptonicEvent::kMaxSumPtWMass; };
+  void buildKey() override { key_ = TtSemiLeptonicEvent::kMVADisc; };
   /// build event hypothesis from the reco objects of a semi-leptonic event
   void buildHypo(edm::Event& evt,
                  const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
@@ -22,4 +18,5 @@ private:
   };
 };
 
-#endif
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtSemiLepHypMVADisc);

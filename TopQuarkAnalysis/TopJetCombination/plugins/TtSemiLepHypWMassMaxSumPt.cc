@@ -1,12 +1,8 @@
-#ifndef TtSemiLepHypWMassMaxSumPt_h
-#define TtSemiLepHypWMassMaxSumPt_h
-
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
 class TtSemiLepHypWMassMaxSumPt : public TtSemiLepHypothesis {
 public:
   explicit TtSemiLepHypWMassMaxSumPt(const edm::ParameterSet& cfg) : TtSemiLepHypothesis(cfg){};
-  ~TtSemiLepHypWMassMaxSumPt() override{};
 
 private:
   /// build the event hypothesis key
@@ -22,4 +18,5 @@ private:
   };
 };
 
-#endif
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtSemiLepHypWMassMaxSumPt);
