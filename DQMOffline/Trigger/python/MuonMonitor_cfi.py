@@ -14,7 +14,7 @@ hltMuonmonitoring.histoPSet.muonPSet = cms.PSet(
   xmin  = cms.double(  0.0),
   xmax  = cms.double(500),
 )
-hltMuonmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
+hltMuonmonitoring.met       = cms.InputTag("pfMet") # pfMet
 hltMuonmonitoring.muons = cms.InputTag("muons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltMuonmonitoring.nmuons = cms.uint32(0)
 

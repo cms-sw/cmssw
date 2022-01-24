@@ -81,8 +81,8 @@ hltBTVmonitoring.histoPSet.muPtBinning2D  = cms.vdouble(0,15,20,30,40,60,80,100,
 hltBTVmonitoring.histoPSet.HTBinning2D  = cms.vdouble(0,20,40,70,100,150,200,400,700)
 hltBTVmonitoring.histoPSet.phiBinning2D = cms.vdouble(-3.1416,-1.8849,-0.6283,0.6283,1.8849,3.1416)
 
-hltBTVmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltBTVmonitoring.jets      = cms.InputTag("ak4PFJetsCHS") # ak4PFJets, ak4PFJetsCHS, pfJetsEI
+hltBTVmonitoring.met       = cms.InputTag("pfMet") # pfMet
+hltBTVmonitoring.jets      = cms.InputTag("ak4PFJetsCHS") # ak4PFJets, ak4PFJetsCHS, ak4PFJets
 hltBTVmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltBTVmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
