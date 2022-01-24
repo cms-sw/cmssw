@@ -40,28 +40,28 @@ std::pair<double, double> HGCalWafer::HGCalWaferUV2XY1(int32_t u, int32_t v, int
       y = (2 * v - u - N_[type] + 1) * r_[type];
       break;
     case (HGCalWafer::WaferPlacementIndex0):
-      x = (1.5 * (u - v) + 0.5) * R_[type];
+      x = (1.5 * (u - v) - 0.5) * R_[type];
       y = (v + u - 2 * N_[type] + 1) * r_[type];
       break;
     case (HGCalWafer::WaferPlacementIndex1):
-      x = (1.5 * (v - N_[type]) + 0.5) * R_[type];
-      y = -(2 * v - u - N_[type] + 1) * r_[type];
+      x = -(1.5 * (v - N_[type]) + 1.0) * R_[type];
+      y = (2 * u - v - N_[type]) * r_[type];
       break;
     case (HGCalWafer::WaferPlacementIndex2):
-      x = -(1.5 * (u - N_[type]) + 1) * R_[type];
-      y = -(2 * v - u - N_[type]) * r_[type];
+      x = -(1.5 * (u - N_[type]) + 0.5) * R_[type];
+      y = -(2 * v - u - N_[type] + 1) * r_[type];
       break;
     case (HGCalWafer::WaferPlacementIndex3):
-      x = -(1.5 * (u - v) + 0.5) * R_[type];
+      x = -(1.5 * (u - v) - 0.5) * R_[type];
       y = -(v + u - 2 * N_[type] + 1) * r_[type];
       break;
     case (HGCalWafer::WaferPlacementIndex4):
-      x = (1.5 * (u - N_[type]) + 0.5) * R_[type];
-      y = -(2 * u - v - N_[type] + 1) * r_[type];
+      x = (1.5 * (v - N_[type]) + 1) * R_[type];
+      y = -(2 * u - v - N_[type]) * r_[type];
       break;
     default:
-      x = (1.5 * (u - N_[type]) + 1) * R_[type];
-      y = (2 * v - u - N_[type]) * r_[type];
+      x = (1.5 * (u - N_[type]) + 0.5) * R_[type];
+      y = (2 * v - u - N_[type] + 1) * r_[type];
       break;
   }
   return std::make_pair(x, y);
@@ -91,41 +91,48 @@ std::pair<double, double> HGCalWafer::HGCalWaferUV2XY2(int32_t u, int32_t v, int
   return std::make_pair(x, y);
 }
 
-int HGCalWafer::HGCalWaferUV2Cell(int32_t u, int32_t v, int32_t placementIndex, int32_t type) {
+std::pair<int, int> HGCalWafer::HGCalWaferUV2Cell(int32_t u, int32_t v, int32_t placementIndex, int32_t type) {
   if (type != 0)
     type = 1;
-  int cell(0), cellx(0);
-  if (placementIndex < HGCalWafer::WaferPlacementExtra) {
+  int cell(0), cellx(0), cellt(HGCalWafer::CornerCell);
+  if (placementIndex >= HGCalWafer::WaferPlacementExtra) {
     const std::vector<int> itype0 = {0, 6, 7, 8, 9, 10, 11, 3, 4, 5, 3, 4, 5};
     const std::vector<int> itype1 = {0, 0, 1, 2, 3, 4, 5, 0, 1, 2, 0, 1, 2};
     const std::vector<int> itype2 = {0, 10, 11, 6, 7, 8, 9, 5, 3, 4, 5, 3, 4};
     const std::vector<int> itype3 = {0, 4, 5, 0, 1, 2, 3, 2, 0, 1, 2, 0, 1};
     const std::vector<int> itype4 = {0, 8, 9, 10, 11, 6, 7, 4, 5, 3, 4, 5, 3};
     const std::vector<int> itype5 = {0, 2, 3, 4, 5, 0, 1, 1, 2, 0, 1, 2, 0};
-    if (u == 0 && v == 0)
+    if (u == 0 && v == 0) {
+      cellx = 0;
+    } else if (u == 0 && (v - u) == (N_[type] - 1)) {
       cellx = 1;
-    else if (u == 0 && (v - u) == (2 * N_[type] - 1))
+    } else if ((v - u) == (N_[type] - 1) && v == (2 * N_[type] - 1)) {
       cellx = 2;
-    else if ((v - u) == (N_[type] - 1) && v == (2 * N_[type] - 1))
-      cellx = 2;
-    else if (u == (2 * N_[type] - 1) && v == (2 * N_[type] - 1))
+    } else if (u == (2 * N_[type] - 1) && v == (2 * N_[type] - 1)) {
       cellx = 3;
-    else if (u == (2 * N_[type] - 1) && (u - v) == N_[type])
+    } else if (u == (2 * N_[type] - 1) && (u - v) == N_[type]) {
       cellx = 4;
-    else if ((u - v) == N_[type] && v == 0)
+    } else if ((u - v) == N_[type] && v == 0) {
       cellx = 5;
-    else if (u == 0)
+    } else if (u == 0) {
       cellx = 6;
-    else if ((v - u) == (N_[type] - 1))
-      cellx = 7;
-    else if (v == (2 * N_[type] - 1))
-      cellx = 8;
-    else if (u == (2 * N_[type] - 1))
+      cellt = HGCalWafer::TruncatedCell;
+    } else if ((v - u) == (N_[type] - 1)) {
       cellx = 9;
-    else if ((u - v) == N_[type])
+      cellt = HGCalWafer::ExtendedCell;
+    } else if (v == (2 * N_[type] - 1)) {
+      cellx = 7;
+      cellt = HGCalWafer::TruncatedCell;
+    } else if (u == (2 * N_[type] - 1)) {
       cellx = 10;
-    else if (v == 0)
+      cellt = HGCalWafer::ExtendedCell;
+    } else if ((u - v) == N_[type]) {
+      cellx = 8;
+      cellt = HGCalWafer::TruncatedCell;
+    } else if (v == 0) {
       cellx = 11;
+      cellt = HGCalWafer::ExtendedCell;
+    }
     switch (placementIndex) {
       case (HGCalWafer::WaferPlacementIndex6):
         cell = itype0[cellx];
@@ -153,30 +160,37 @@ int HGCalWafer::HGCalWaferUV2Cell(int32_t u, int32_t v, int32_t placementIndex, 
     const std::vector<int> itype3 = {0, 9, 10, 11, 6, 7, 8, 5, 3, 4, 4, 5, 3};
     const std::vector<int> itype4 = {0, 5, 0, 1, 2, 3, 4, 0, 1, 2, 2, 0, 1};
     const std::vector<int> itype5 = {0, 11, 6, 7, 8, 9, 10, 3, 4, 5, 3, 4, 5};
-    if (u == 0 && v == 0)
+    if (u == 0 && v == 0) {
+      cellx = 0;
+    } else if (v == 0 && (u - v) == (N_[type])) {
       cellx = 1;
-    else if (v == 0 && (u - v) == (N_[type] - 1))
+    } else if ((u - v) == (N_[type]) && u == (2 * N_[type] - 1)) {
       cellx = 2;
-    else if ((u - v) == (N_[type] - 1) && u == (2 * N_[type] - 1))
-      cellx = 2;
-    else if (u == (2 * N_[type] - 1) && v == (2 * N_[type] - 1))
+    } else if (u == (2 * N_[type] - 1) && v == (2 * N_[type] - 1)) {
       cellx = 3;
-    else if (v == (2 * N_[type] - 1) && (v - u) == N_[type])
+    } else if (v == (2 * N_[type] - 1) && (v - u) == (N_[type]-1)) {
       cellx = 4;
-    else if ((v - u) == N_[type] && u == 0)
+    } else if ((v - u) == (N_[type]-1) && u == 0) {
       cellx = 5;
-    else if (v == 0)
-      cellx = 6;
-    else if ((u - v) == (N_[type] - 1))
-      cellx = 7;
-    else if (u == (2 * N_[type] - 1))
-      cellx = 8;
-    else if (v == (2 * N_[type] - 1))
+    } else if (v == 0) {
       cellx = 9;
-    else if ((v - u) == N_[type])
+      cellt = HGCalWafer::ExtendedCell;
+    } else if ((u - v) == N_[type]) {
+      cellx = 6;
+      cellt = HGCalWafer::TruncatedCell;
+    } else if (u == (2 * N_[type] - 1)) {
       cellx = 10;
-    else if (u == 0)
+      cellt = HGCalWafer::ExtendedCell;
+    } else if (v == (2 * N_[type] - 1)) {
+      cellx = 7;
+      cellt = HGCalWafer::TruncatedCell;
+    } else if ((v - u) == (N_[type]-1)) {
       cellx = 11;
+      cellt = HGCalWafer::ExtendedCell;
+    } else if (u == 0) {
+      cellx = 8;
+      cellt = HGCalWafer::TruncatedCell;
+    }
     switch (placementIndex) {
       case (HGCalWafer::WaferPlacementIndex0):
         cell = itype0[cellx];
@@ -198,7 +212,7 @@ int HGCalWafer::HGCalWaferUV2Cell(int32_t u, int32_t v, int32_t placementIndex, 
         break;
     }
   }
-  return cell;
+  return std::make_pair(cell, cellt);
 }
 
 int HGCalWafer::HGCalWaferPlacementIndex(int32_t iz, int32_t fwdBack, int32_t orient) {
