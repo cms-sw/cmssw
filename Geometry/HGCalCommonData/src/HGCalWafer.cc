@@ -168,9 +168,9 @@ std::pair<int, int> HGCalWafer::HGCalWaferUV2Cell(int32_t u, int32_t v, int32_t 
       cellx = 2;
     } else if (u == (2 * N_[type] - 1) && v == (2 * N_[type] - 1)) {
       cellx = 3;
-    } else if (v == (2 * N_[type] - 1) && (v - u) == (N_[type]-1)) {
+    } else if (v == (2 * N_[type] - 1) && (v - u) == (N_[type] - 1)) {
       cellx = 4;
-    } else if ((v - u) == (N_[type]-1) && u == 0) {
+    } else if ((v - u) == (N_[type] - 1) && u == 0) {
       cellx = 5;
     } else if (v == 0) {
       cellx = 9;
@@ -184,7 +184,7 @@ std::pair<int, int> HGCalWafer::HGCalWaferUV2Cell(int32_t u, int32_t v, int32_t 
     } else if (v == (2 * N_[type] - 1)) {
       cellx = 7;
       cellt = HGCalWafer::TruncatedCell;
-    } else if ((v - u) == (N_[type]-1)) {
+    } else if ((v - u) == (N_[type] - 1)) {
       cellx = 11;
       cellt = HGCalWafer::ExtendedCell;
     } else if (u == 0) {
