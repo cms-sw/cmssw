@@ -117,19 +117,20 @@ class InputInfo(object):
         self.dataSetParent = dataSetParent
         
     def das(self, das_options, dataset):
+        pref = "RUCIO_URL=http://cms-rucio.cern.ch "
         if len(self.run) != 0 or self.ls:
             queries = self.queries(dataset)[:3]
             if len(self.run) != 0:
-              command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
+              command = ";".join([pref+"dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
             else:
               lumis = self.lumis()
               commands = []
               while queries:
-                commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
+                commands.append(pref+"dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
               command = ";".join(commands)
             command = "({0})".format(command)
         else:
-            command = "dasgoclient %s --query '%s'" % (das_options, self.queries(dataset)[0])
+            command = pref+"dasgoclient %s --query '%s'" % (das_options, self.queries(dataset)[0])
        
         # Run filter on DAS output 
         if self.ib_blacklist:
