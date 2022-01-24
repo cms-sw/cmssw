@@ -60,7 +60,6 @@ from RecoPixelVertexing.Configuration.RecoPixelVertexing_EventContent_cff import
 from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_EventContent_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
-from CommonTools.ParticleFlow.EITopPAG_EventContent_cff import EITopPAGEventContent
 from RecoPPS.Configuration.RecoCTPPS_EventContent_cff import *
 from RecoHGCal.Configuration.RecoHGCal_EventContent_cff import *
 
@@ -210,7 +209,6 @@ RECOEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 RECOEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 RECOEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-RECOEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
 from Configuration.Eras.Modifier_ctpps_cff import ctpps
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
@@ -493,7 +491,6 @@ FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-FEVTEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
 ctpps.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)

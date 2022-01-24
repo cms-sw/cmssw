@@ -5,8 +5,8 @@ from DQMOffline.Trigger.razorMonitoring_cfi import razorMonitoring
 hltRazorMonitoring = razorMonitoring.clone()
 hltRazorMonitoring.FolderName = cms.string('HLT/SUSY/RsqMR270_Rsq0p09_MR200')
 
-hltRazorMonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltRazorMonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
+hltRazorMonitoring.met       = cms.InputTag("pfMet") # pfMet
+hltRazorMonitoring.jets      = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 
 hltRazorMonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltRazorMonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True) # True:=OR; False:=AND
