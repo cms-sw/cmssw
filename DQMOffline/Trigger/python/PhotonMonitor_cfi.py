@@ -14,8 +14,8 @@ hltPhotonmonitoring.histoPSet.photonPSet = cms.PSet(
   xmin  = cms.double(  0.0),
   xmax  = cms.double(5000),
 )
-hltPhotonmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltPhotonmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
+hltPhotonmonitoring.met       = cms.InputTag("pfMet") # pfMet
+hltPhotonmonitoring.jets      = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 hltPhotonmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltPhotonmonitoring.photons = cms.InputTag("gedPhotons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 

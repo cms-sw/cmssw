@@ -15,8 +15,8 @@ hltMETmonitoring.histoPSet.metPSet = cms.PSet(
   xmax  = cms.double(19999.5),
 )
 
-hltMETmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltMETmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
+hltMETmonitoring.met       = cms.InputTag("pfMet") # pfMet
+hltMETmonitoring.jets      = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 hltMETmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltMETmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
