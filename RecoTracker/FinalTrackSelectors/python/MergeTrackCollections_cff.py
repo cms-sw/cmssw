@@ -74,3 +74,7 @@ conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.track
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False),
 )
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(mergedDuplicateTracks, TrajectoryInEvent = True)
+phase2_timing_layer.toModify(generalTracks, copyTrajectories = True)
