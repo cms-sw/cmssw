@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -82,14 +82,13 @@
 // class decleration
 //
 
-class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
+class SteppingHelixPropagatorAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit SteppingHelixPropagatorAnalyzer(const edm::ParameterSet&);
   ~SteppingHelixPropagatorAnalyzer();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
-  void beginJob();
 
 protected:
   struct GlobalSimHit {
@@ -129,6 +128,10 @@ protected:
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propToken;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globTrkGeomToken;
+
   TFile* ntFile_;
   TTree* tr_;
 
@@ -165,18 +168,13 @@ private:
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::ParameterSet& iConfig)
-    : simTracksTag_(iConfig.getParameter<edm::InputTag>("simTracksTag")),
+    : magFieldToken(esConsumes()),
+      propToken(esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
+      globTrkGeomToken(esConsumes()),
+      simTracksTag_(iConfig.getParameter<edm::InputTag>("simTracksTag")),
       simVertexesTag_(iConfig.getParameter<edm::InputTag>("simVertexesTag")) {
   //now do what ever initialization is needed
 
@@ -226,9 +224,7 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
   }
 }
 
-void SteppingHelixPropagatorAnalyzer::beginJob() {}
-
-SteppingHelixPropagatorAnalyzer::~SteppingHelixPropagatorAnalyzer() {}
+SteppingHelixPropagatorAnalyzer::~SteppingHelixPropagatorAnalyzer() = default;
 
 //
 // member functions
@@ -239,31 +235,13 @@ void SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const ed
   constexpr char const* metname = "SteppingHelixPropagatorAnalyzer";
   (void)metname;
   using namespace edm;
-  ESHandle<MagneticField> bField;
-  iSetup.get<IdealMagneticFieldRecord>().get(bField);
-
-  ESHandle<Propagator> shProp;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", shProp);
-  ESHandle<Propagator> shPropAny;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", shPropAny);
-
-  ESHandle<GlobalTrackingGeometry> geomESH;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geomESH);
+  const ESHandle<MagneticField> bField = iSetup.getHandle(magFieldToken);
+  const ESHandle<Propagator> shProp = iSetup.getHandle(propToken);
+  const ESHandle<Propagator> shPropAny = iSetup.getHandle(propToken);
+  const ESHandle<GlobalTrackingGeometry> geomESH = iSetup.getHandle(globTrkGeomToken);
   if (debug_) {
     LogTrace(metname) << "Got GlobalTrackingGeometry " << std::endl;
   }
-
-  //   ESHandle<CSCGeometry> cscGeomESH;
-  //   iSetup.get<MuonGeometryRecord>().get(cscGeomESH);
-  //   if (debug_){
-  //     std::cout<<"Got CSCGeometry "<<std::endl;
-  //   }
-
-  //   ESHandle<RPCGeometry> rpcGeomESH;
-  //   iSetup.get<MuonGeometryRecord>().get(rpcGeomESH);
-  //   if (debug_){
-  //     std::cout<<"Got RPCGeometry "<<std::endl;
-  //   }
 
   run_ = (int)iEvent.id().run();
   event_ = (int)iEvent.id().event();
