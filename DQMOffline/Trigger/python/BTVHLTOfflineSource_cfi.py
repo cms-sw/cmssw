@@ -68,28 +68,31 @@ bTagHLTTrackMonitoring_EmuCalo = trackToTrackComparisonHists.clone(
     referenceBeamSpot        = "offlineBeamSpot",
     topDirName               = "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5Calo",
     referencePrimaryVertices = "offlinePrimaryVertices",
-    monitoredPrimaryVertices = "hltVerticesL3"
+    monitoredPrimaryVertices = "hltVerticesL3",
+    genericTriggerEventPSet = dict(hltPaths = ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5*"])
+
 )
-bTagHLTTrackMonitoring_EmuCalo.genericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5*")
 
 bTagHLTTrackMonitoring_SixJetCalo = bTagHLTTrackMonitoring_EmuCalo.clone(
-    topDirName               = "HLT/BTV/HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94PF"
+    topDirName               = "HLT/BTV/HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94PF",
+    genericTriggerEventPSet = dict(hltPaths = ["HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v*"])
+
 )
-bTagHLTTrackMonitoring_SixJetCalo.genericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v*")
 
 bTagHLTTrackMonitoring_EmuPF = bTagHLTTrackMonitoring_EmuCalo.clone(
     monitoredTrack           = "hltMergedTracks",
     monitoredPrimaryVertices = "hltVerticesPFSelector",
-    topDirName               = "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5PF"
+    topDirName               = "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5PF",
+    genericTriggerEventPSet = dict(hltPaths = ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*"])
+
 )
-bTagHLTTrackMonitoring_EmuPF.genericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*")
 
 bTagHLTTrackMonitoring_SixJetPF = bTagHLTTrackMonitoring_EmuPF.clone(
     monitoredTrack           = "hltMergedTracks",
     monitoredPrimaryVertices = "hltVerticesPFSelector",
-    topDirName               = "HLT/BTV/HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94PF"
+    topDirName               = "HLT/BTV/HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94PF",
+    genericTriggerEventPSet = dict(hltPaths = ["HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v*"])
 )
-bTagHLTTrackMonitoring_SixJetPF.genericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v*")
 
 
 
