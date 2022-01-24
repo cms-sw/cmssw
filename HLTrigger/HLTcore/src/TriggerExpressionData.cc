@@ -12,10 +12,8 @@
 namespace triggerExpression {
 
   void Data::setPathStatusToken(edm::BranchDescription const& branch, edm::ConsumesCollector&& iC) {
-    if (branch.branchType() == edm::InEvent && branch.className() == "edm::HLTPathStatus" &&
-        branch.moduleLabel().rfind("HLT_", 0) == 0)
-      m_pathStatusTokens[branch.moduleLabel()] = iC.consumes<edm::HLTPathStatus>(
-          edm::InputTag(branch.moduleLabel(), branch.productInstanceName(), branch.processName()));
+    m_pathStatusTokens[branch.moduleLabel()] = iC.consumes<edm::HLTPathStatus>(
+        edm::InputTag(branch.moduleLabel(), branch.productInstanceName(), branch.processName()));
   }
 
   bool Data::setEvent(const edm::Event& event, const edm::EventSetup& setup) {
