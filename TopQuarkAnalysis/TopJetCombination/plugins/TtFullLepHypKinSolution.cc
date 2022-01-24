@@ -1,13 +1,33 @@
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtFullLepHypothesis.h"
 #include "DataFormats/PatCandidates/interface/Particle.h"
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtFullLepHypKinSolution.h"
+
+class TtFullLepHypKinSolution : public TtFullLepHypothesis {
+public:
+  explicit TtFullLepHypKinSolution(const edm::ParameterSet&);
+
+private:
+  /// build the event hypothesis key
+  void buildKey() override { key_ = TtEvent::kKinSolution; };
+  /// build event hypothesis from the reco objects of a full-leptonic event
+  void buildHypo(edm::Event& evt,
+                 const edm::Handle<std::vector<pat::Electron> >& elecs,
+                 const edm::Handle<std::vector<pat::Muon> >& mus,
+                 const edm::Handle<std::vector<pat::Jet> >& jets,
+                 const edm::Handle<std::vector<pat::MET> >& mets,
+                 std::vector<int>& match,
+                 const unsigned int iComb) override;
+
+  //   edm::EDGetTokenT<std::vector<std::vector<int> > > particleIdcsToken_;
+  edm::EDGetTokenT<std::vector<reco::LeafCandidate> > nusToken_;
+  edm::EDGetTokenT<std::vector<reco::LeafCandidate> > nuBarsToken_;
+  edm::EDGetTokenT<std::vector<double> > solWeightToken_;
+};
 
 TtFullLepHypKinSolution::TtFullLepHypKinSolution(const edm::ParameterSet& cfg)
     : TtFullLepHypothesis(cfg),
       nusToken_(consumes<std::vector<reco::LeafCandidate> >(cfg.getParameter<edm::InputTag>("Neutrinos"))),
       nuBarsToken_(consumes<std::vector<reco::LeafCandidate> >(cfg.getParameter<edm::InputTag>("NeutrinoBars"))),
       solWeightToken_(consumes<std::vector<double> >(cfg.getParameter<edm::InputTag>("solutionWeight"))) {}
-
-TtFullLepHypKinSolution::~TtFullLepHypKinSolution() {}
 
 void TtFullLepHypKinSolution::buildHypo(edm::Event& evt,
                                         const edm::Handle<std::vector<pat::Electron> >& elecs,
@@ -35,42 +55,45 @@ void TtFullLepHypKinSolution::buildHypo(edm::Event& evt,
   // add jets
   // -----------------------------------------------------
   if (!jets->empty()) {
-    setCandidate(jets, match[0], b_, jetCorrectionLevel_);
-    setCandidate(jets, match[1], bBar_, jetCorrectionLevel_);
+    b_ = makeCandidate(jets, match[0], jetCorrectionLevel_);
+    bBar_ = makeCandidate(jets, match[1], jetCorrectionLevel_);
   }
   // -----------------------------------------------------
   // add leptons
   // -----------------------------------------------------
   if (!elecs->empty() && match[2] >= 0)
-    setCandidate(elecs, match[2], leptonBar_);
+    leptonBar_ = makeCandidate(elecs, match[2]);
 
   if (!elecs->empty() && match[3] >= 0)
-    setCandidate(elecs, match[3], lepton_);
+    lepton_ = makeCandidate(elecs, match[3]);
 
   if (!mus->empty() && match[4] >= 0 && match[2] < 0)
-    setCandidate(mus, match[4], leptonBar_);
+    leptonBar_ = makeCandidate(mus, match[4]);
 
   // this 'else' happens if you have a wrong charge electron-muon-
   // solution so the indices are (b-idx, bbar-idx, 0, -1, 0, -1)
   // so the mu^+ is stored as l^-
   else if (!mus->empty() && match[4] >= 0)
-    setCandidate(mus, match[4], lepton_);
+    lepton_ = makeCandidate(mus, match[4]);
 
   if (!mus->empty() && match[5] >= 0 && match[3] < 0)
-    setCandidate(mus, match[5], lepton_);
+    lepton_ = makeCandidate(mus, match[5]);
 
   // this 'else' happens if you have a wrong charge electron-muon-
   // solution so the indices are (b-idx, bbar-idx, -1, 0, -1, 0)
   // so the mu^- is stored as l^+
   else if (!mus->empty() && match[5] >= 0)
-    setCandidate(mus, match[5], leptonBar_);
+    leptonBar_ = makeCandidate(mus, match[5]);
 
   // -----------------------------------------------------
   // add neutrinos
   // -----------------------------------------------------
   if (!nus->empty())
-    setCandidate(nus, iComb, neutrino_);
+    neutrino_ = makeCandidate(nus, iComb);
 
   if (!nuBars->empty())
-    setCandidate(nuBars, iComb, neutrinoBar_);
+    neutrinoBar_ = makeCandidate(nuBars, iComb);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtFullLepHypKinSolution);
