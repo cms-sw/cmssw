@@ -47,13 +47,13 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
 
     const int sector = detid.arm(), station = detid.station(), plane = detid.plane(), channel = detid.channel();
     //LUT calibration
-    std::vector<double> LUT;
+    std::vector<double> lut;
     if (apply_calib_) {
-      LUT = calibLUT_.bins(sector, station, plane, channel);
-      if (LUT.size() != 1024)
-        LUT = std::vector<double>(1024, 0.0);
+      lut = calibLUT_.bins(sector, station, plane, channel);
+      if (lut.size() != 1024)
+        lut = std::vector<double>(1024, 0.0);
     } else
-      LUT = std::vector<double>(1024, 0.0);
+      lut = std::vector<double>(1024, 0.0);
 
     // retrieve the timing calibration part for this channel
     const auto& ch_params = (apply_calib_) ? calib_.parameters(sector, station, plane, channel) : std::vector<double>{};
@@ -84,7 +84,7 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
           (t_lead != 0) ? (t_lead - ch_t_offset / ts_to_ns_) / 1024 : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
 
       // calibrated time of arrival
-      const double t0 = (t_lead % 1024) * ts_to_ns_ + LUT[t_lead % 1024] - ch_t_twc;
+      const double t0 = (t_lead % 1024) * ts_to_ns_ + lut[t_lead % 1024] - ch_t_twc;
       rec_hits.emplace_back(
           // spatial information
           x_pos,
