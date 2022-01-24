@@ -1,3 +1,9 @@
+///////////////////////////////////////////////////////////////////////////////
+// File: DDHGCalWaferF.cc
+// Description: Geometry factory class for a full silicon Wafer
+// Created by Sunanda Banerjee
+// Extended for rotated wafer by Pruthvi Suryadevara
+///////////////////////////////////////////////////////////////////////////////
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -173,39 +179,46 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
     zi += layerThick_[i];
     thickTot += layerThick_[i];
     if (layerType_[i] > 0) {
+      int n2 = nCells_ / 2;
+      double y0 = (cellType_ >= 3) ? 0.5 : 0.0;
+      double x0 = (cellType_ >= 3) ? 0.5 : 1.0;
+      int voff = (cellType_ >= 3) ? 0 : 1;
+      int uoff = 1 - voff;
+      int cellType = (cellType_ >= 3) ? (cellType_ - 3) : cellType_;
       for (int u = 0; u < 2 * nCells_; ++u) {
         for (int v = 0; v < 2 * nCells_; ++v) {
-          if (((v - u) < nCells_) && (u - v) <= nCells_) {
-            int n2 = nCells_ / 2;
-            double yp = (u - 0.5 * v - n2) * 2 * r;
-            double xp = (1.5 * (v - nCells_) + 1.0) * R;
+          if (((v - u) < (nCells_ + uoff)) && (u - v) < (nCells_ + voff)) {
+            double yp = (u - 0.5 * v - n2 + y0) * 2 * r;
+            double xp = (1.5 * (v - nCells_) + x0) * R;
             int cell(0);
             if ((u == 0) && (v == 0))
               cell = 7;
-            else if ((u == 0) && (v == nCells_ - 1))
+            else if ((u == 0) && (v == nCells_ - voff))
               cell = 8;
-            else if ((u == nCells_) && (v == 2 * nCells_ - 1))
+            else if ((u == nCells_ - uoff) && (v == 2 * nCells_ - 1))
               cell = 9;
-            else if ((u == 2 * nCells_ - 1) && (v == 2 * nCells_ - 1))
+            else if ((u == (2 * nCells_ - 1)) && (v == 2 * nCells_ - 1))
               cell = 10;
-            else if ((u == 2 * nCells_ - 1) && (v == nCells_ - 1))
+            else if ((u == 2 * nCells_ - 1) && (v == (nCells_ - voff)))
               cell = 11;
-            else if ((u == nCells_) && (v == 0))
+            else if ((u == (nCells_ - uoff)) && (v == 0))
               cell = 12;
             else if (u == 0)
               cell = 1;
-            else if ((v - u) == (nCells_ - 1))
+            else if ((v - u) == (nCells_ - voff))
               cell = 4;
             else if (v == (2 * nCells_ - 1))
               cell = 2;
             else if (u == (2 * nCells_ - 1))
               cell = 5;
-            else if ((u - v) == nCells_)
+            else if ((u - v) == (nCells_ - uoff))
               cell = 3;
             else if (v == 0)
               cell = 6;
+            if ((cellType_ >= 3) && (cell != 0))
+              cell += 12;
             DDTranslation tran(xp, yp, 0);
-            int copy = HGCalTypes::packCellTypeUV(cellType_, u, v);
+            int copy = HGCalTypes::packCellTypeUV(cellType, u, v);
             cpv.position(DDName(cellNames_[cell]), glogs[i], copy, tran, rot);
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom")

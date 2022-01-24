@@ -14,6 +14,9 @@ namespace triggerExpression {
     // initialize the depending modules
     void init(const Data& data) override { m_arg->init(data); }
 
+    // return the patterns from the depending modules
+    std::vector<std::string> patterns() const override { return m_arg->patterns(); }
+
   protected:
     std::unique_ptr<Evaluator> m_arg;
   };
@@ -27,6 +30,15 @@ namespace triggerExpression {
     void init(const Data& data) override {
       m_arg1->init(data);
       m_arg2->init(data);
+    }
+
+    // return the patterns from the depending modules
+    std::vector<std::string> patterns() const override {
+      std::vector<std::string> patterns = m_arg1->patterns();
+      auto patterns2 = m_arg2->patterns();
+      patterns.insert(
+          patterns.end(), std::make_move_iterator(patterns2.begin()), std::make_move_iterator(patterns2.end()));
+      return patterns;
     }
 
   protected:

@@ -72,14 +72,18 @@ L1GctTest::L1GctTest(const edm::ParameterSet& iConfig)
         << "no reference filename provided for firmware tests.\n"
         << "Specify non-blank parameter referenceFile in cmsRun configuration\n";
   }
+
+  m_jfParsToken = esConsumes();
+  m_chanMaskToken = esConsumes();
+  m_etScaleToken = esConsumes();
+  m_htMissScaleToken = esConsumes();
+  m_hfRingEtScaleToken = esConsumes();
 }
 
 L1GctTest::~L1GctTest() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-
   delete m_gct;
-  delete m_tester;
 }
 
 //
@@ -93,7 +97,12 @@ void L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool endOfFile = false;
 
   configureGct(iSetup);
-  m_tester->configure(iSetup);
+  L1GctJetFinderParams const& jfPars = iSetup.getData(m_jfParsToken);
+  L1GctChannelMask const& chanMask = iSetup.getData(m_chanMaskToken);
+  L1CaloEtScale const& etScale = iSetup.getData(m_etScaleToken);
+  L1CaloEtScale const& htMissScale = iSetup.getData(m_htMissScaleToken);
+  L1CaloEtScale const& hfRingEtScale = iSetup.getData(m_hfRingEtScaleToken);
+  m_tester->configure(jfPars, chanMask, etScale, htMissScale, hfRingEtScale);
 
   m_gct->setupTauAlgo(theUseNewTauAlgoFlag, false);
   if (theConfigParamsPrintFlag)
@@ -177,7 +186,7 @@ void L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void L1GctTest::beginJob() {
   // instantiate the GCT
   m_gct = new L1GlobalCaloTrigger(L1GctJetLeafCard::hardwareJetFinder);
-  m_tester = new gctTestFunctions();
+  m_tester = std::make_unique<gctTestFunctions>();
 
   // Fill the jetEtCalibLuts vector
   lutPtr nextLut(new L1GctJetEtCalibrationLut());
@@ -201,31 +210,27 @@ void L1GctTest::endJob() {
 
 void L1GctTest::configureGct(const edm::EventSetup& c) {
   // get data from EventSetup
-  edm::ESHandle<L1GctJetFinderParams> jfPars;
-  c.get<L1GctJetFinderParamsRcd>().get(jfPars);  // which record?
-  edm::ESHandle<L1GctChannelMask> chanMask;
-  c.get<L1GctChannelMaskRcd>().get(chanMask);  // which record?
-  edm::ESHandle<L1CaloEtScale> etScale;
-  c.get<L1JetEtScaleRcd>().get(etScale);  // which record?
-  edm::ESHandle<L1CaloEtScale> htMissScale;
-  c.get<L1HtMissScaleRcd>().get(htMissScale);  // which record?
-  edm::ESHandle<L1CaloEtScale> hfRingEtScale;
-  c.get<L1HfRingEtScaleRcd>().get(hfRingEtScale);  // which record?
 
-  m_gct->setJetFinderParams(jfPars.product());
+  L1GctJetFinderParams const& jfPars = c.getData(m_jfParsToken);
+  L1GctChannelMask const& chanMask = c.getData(m_chanMaskToken);
+  L1CaloEtScale const& etScale = c.getData(m_etScaleToken);
+  L1CaloEtScale const& htMissScale = c.getData(m_htMissScaleToken);
+  L1CaloEtScale const& hfRingEtScale = c.getData(m_hfRingEtScaleToken);
+
+  m_gct->setJetFinderParams(&jfPars);
 
   // tell the jet Et Luts about the scales
   for (unsigned ieta = 0; ieta < m_jetEtCalibLuts.size(); ieta++) {
-    m_jetEtCalibLuts.at(ieta)->setFunction(jfPars.product());
-    m_jetEtCalibLuts.at(ieta)->setOutputEtScale(etScale.product());
+    m_jetEtCalibLuts.at(ieta)->setFunction(&jfPars);
+    m_jetEtCalibLuts.at(ieta)->setOutputEtScale(&etScale);
   }
 
   // pass all the setup info to the gct
   m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
-  m_gct->setJetFinderParams(jfPars.product());
-  m_gct->setHtMissScale(htMissScale.product());
-  m_gct->setupHfSumLuts(hfRingEtScale.product());
-  m_gct->setChannelMask(chanMask.product());
+  m_gct->setJetFinderParams(&jfPars);
+  m_gct->setHtMissScale(&htMissScale);
+  m_gct->setupHfSumLuts(&hfRingEtScale);
+  m_gct->setChannelMask(&chanMask);
 }
 
 void L1GctTest::configParamsPrint(std::ostream& out) {

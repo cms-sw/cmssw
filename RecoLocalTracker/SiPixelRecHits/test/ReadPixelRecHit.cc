@@ -6,55 +6,118 @@
 // Creation Date:  OGU Aug. 1 2005 Initial version.
 // Add occupancy histograms. D.Kotlinski. 10/06
 //--------------------------------------------
+
+// system includes
 #include <memory>
 #include <string>
 #include <iostream>
 
+// user includes
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-//#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-
-#include "RecoLocalTracker/SiPixelRecHits/test/ReadPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-
-// To use root histos
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#define DO_HISTO
+#ifdef DO_HISTO
+// For ROOT
+#include <TROOT.h>
+#include <TChain.h>
+#include <TFile.h>
+#include <TF1.h>
+#include <TH2F.h>
+#include <TH1F.h>
+#include <TProfile.h>
+#endif
+
+class ReadPixelRecHit : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit ReadPixelRecHit(const edm::ParameterSet &conf);
+  virtual ~ReadPixelRecHit();
+
+  virtual void analyze(const edm::Event &e, const edm::EventSetup &c);
+  virtual void beginJob();
+  virtual void endJob();
+
+private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> esTokenGeom_;
+  edm::InputTag src_;
+  const edm::EDGetTokenT<SiPixelRecHitCollection> siPixelRecHitsToken_;
+  bool print;
+
+#ifdef DO_HISTO
+  TFile *hFile;
+  TH1F *hpixid, *hpixsubid, *hlayerid, *hladder1id, *hladder2id, *hladder3id, *hz1id, *hz2id, *hz3id;
+  TH1F *hcharge1, *hcharge2, *hcharge3;
+  TH1F *hadcCharge1, *hadcCharge2, *hadcCharge3, *hadcCharge1big;
+  TH1F *hxpos1, *hxpos2, *hxpos3, *hypos1, *hypos2, *hypos3;
+  TH1F *hsize1, *hsize2, *hsize3, *hsizex1, *hsizex2, *hsizex3, *hsizey1, *hsizey2, *hsizey3;
+
+  TH1F *hrecHitsPerDet1, *hrecHitsPerDet2, *hrecHitsPerDet3;
+  TH1F *hrecHitsPerLay1, *hrecHitsPerLay2, *hrecHitsPerLay3;
+  TH1F *hdetsPerLay1, *hdetsPerLay2, *hdetsPerLay3;
+
+  TH1F *hdetr, *hdetz;
+
+  // Forward endcaps
+  TH1F *hdetrF, *hdetzF;
+  TH1F *hdisk, *hblade, *hmodule, *hpanel, *hside;
+  TH1F *hcharge1F, *hcharge2F;
+  TH1F *hadcCharge1F, *hadcCharge2F;
+  TH1F *hxpos1F, *hxpos2F, *hypos1F, *hypos2F;
+  TH1F *hsize1F, *hsize2F, *hsizex1F, *hsizex2F, *hsizey1F, *hsizey2F;
+  TH1F *hrecHitsPerDet1F, *hrecHitsPerDet2F;
+  TH1F *hrecHitsPerLay1F, *hrecHitsPerLay2F;
+  TH1F *hdetsPerLay1F, *hdetsPerLay2F;
+
+  TH1F *hAlignErrorX1, *hAlignErrorX2, *hAlignErrorX3;
+  TH1F *hAlignErrorX4, *hAlignErrorX5, *hAlignErrorX6, *hAlignErrorX7;
+  TH1F *hAlignErrorY1, *hAlignErrorY2, *hAlignErrorY3;
+  TH1F *hAlignErrorY4, *hAlignErrorY5, *hAlignErrorY6, *hAlignErrorY7;
+  TH1F *hErrorX1, *hErrorX2, *hErrorX3, *hErrorX4, *hErrorX5, *hErrorX6, *hErrorX7;
+  TH1F *hErrorY1, *hErrorY2, *hErrorY3, *hErrorY4, *hErrorY5, *hErrorY6, *hErrorY7;
+  TProfile *hErrorXB, *hErrorXF, *hErrorYB, *hErrorYF;
+  TProfile *hAErrorXB, *hAErrorXF, *hAErrorYB, *hAErrorYF;
+#endif
+};
 
 using namespace std;
 
-//#define DO_HISTO Defined in *.h
-
 //----------------------------------------------------------------------
-ReadPixelRecHit::ReadPixelRecHit(edm::ParameterSet const& conf)
-    : conf_(conf), src_(conf.getParameter<edm::InputTag>("src")) {
-  print = conf.getUntrackedParameter<bool>("Verbosity", false);
-
-  cout << " Verbosity " << print << endl;
+ReadPixelRecHit::ReadPixelRecHit(edm::ParameterSet const &conf)
+    : esTokenGeom_(esConsumes()),
+      src_(conf.getParameter<edm::InputTag>("src")),
+      siPixelRecHitsToken_(consumes<SiPixelRecHitCollection>(src_)),
+      print(conf.getUntrackedParameter<bool>("Verbosity", false)) {
+  usesResource(TFileService::kSharedResource);
+  edm::LogPrint("ReadPixelRecHit") << " Verbosity " << print;
 }
 //----------------------------------------------------------------------
 // Virtual destructor needed.
-ReadPixelRecHit::~ReadPixelRecHit() {}
+ReadPixelRecHit::~ReadPixelRecHit() = default;
 //---------------------------------------------------------------------
 // ------------ method called at the begining   ------------
 void ReadPixelRecHit::beginJob() {
-  cout << "Initialize PixelRecHitTest " << endl;
+  edm::LogPrint("ReadPixelRecHit") << "Initialize PixelRecHitTest ";
 
 #ifdef DO_HISTO
   // put here whatever you want to do at the beginning of the job
@@ -191,29 +254,27 @@ void ReadPixelRecHit::beginJob() {
   hAErrorYB = fs->make<TProfile>("hAErrorYB", "bpix y errors per ladder", 220, 0., 220., 0.0, 1000.);
   hAErrorYF = fs->make<TProfile>("hAErrorYF", "fpix y errors per ladder", 100, 0., 100., 0.0, 1000.);
 
-  cout << " book histos " << endl;
+  edm::LogPrint("ReadPixelRecHit") << " book histos ";
 
 #endif
 }
 //-----------------------------------------------------------------------
-void ReadPixelRecHit::endJob() { cout << " End PixelRecHitTest " << endl; }
+void ReadPixelRecHit::endJob() { edm::LogPrint("ReadPixelRecHit") << " End PixelRecHitTest "; }
 //---------------------------------------------------------------------
 // Functions that gets called by framework every event
-void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es) {
+void ReadPixelRecHit::analyze(const edm::Event &e, const edm::EventSetup &es) {
   using namespace edm;
   const bool localPrint = false;
   //const bool localPrint = true;
 
   // Get event setup (to get global transformation)
-  edm::ESHandle<TrackerGeometry> geom;
-  es.get<TrackerDigiGeometryRecord>().get(geom);
-  const TrackerGeometry& theTracker(*geom);
+  const TrackerGeometry &theTracker = es.getData(esTokenGeom_);
 
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  e.getByLabel(src_, recHitColl);
+  e.getByToken(siPixelRecHitsToken_, recHitColl);
 
   if (print)
-    cout << " FOUND " << (recHitColl.product())->dataSize() << " Pixel Hits" << endl;
+    edm::LogPrint("ReadPixelRecHit") << " FOUND " << (recHitColl.product())->dataSize() << " Pixel Hits";
 
   SiPixelRecHitCollection::const_iterator recHitIdIterator = (recHitColl.product())->begin();
   SiPixelRecHitCollection::const_iterator recHitIdIteratorEnd = (recHitColl.product())->end();
@@ -246,20 +307,19 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es) {
     unsigned int subid = detId.subdetId();  //subdetector type, barrel=1, fpix=2
 
     if (detType != 1)
-      cout << " wrong det id " << detType << endl;
-    ;  //look only at tracker
+      edm::LogPrint("ReadPixelRecHit") << " wrong det id " << detType;  //look only at tracker
     if (!((subid == 1) || (subid == 2)))
-      cout << " wrong sub det id " << subid << endl;  // look only at bpix&fpix
+      edm::LogPrint("ReadPixelRecHit") << " wrong sub det id " << subid;  // look only at bpix&fpix
 
     if (print)
-      cout << "     Det ID " << detId.rawId() << endl;
+      edm::LogPrint("ReadPixelRecHit") << "     Det ID " << detId.rawId();
 
     //  Get rechits
     if (detset.empty())
       continue;
 
     // Get the geometrical information for this det
-    const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
+    const PixelGeomDetUnit *theGeomDet = dynamic_cast<const PixelGeomDetUnit *>(theTracker.idToDet(detId));
     double detZ = theGeomDet->surface().position().z();
     double detR = theGeomDet->surface().position().perp();
 
@@ -269,14 +329,14 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es) {
     //const RectangularPixelTopology * topol =
     //dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
 
-    const PixelTopology* topol = &(theGeomDet->specificTopology());
+    const PixelTopology *topol = &(theGeomDet->specificTopology());
 
     //int cols = theGeomDet->specificTopology().ncolumns(); UNUSED
     //int rows = theGeomDet->specificTopology().nrows();
 
     float alignErrorX = 0., alignErrorY = 0.;
     LocalError lape = theGeomDet->localAlignmentError();
-    //cout<<lape.valid()<<endl;
+    //edm::LogPrint("ReadPixelRecHit")<<lape.valid();
     if (lape.valid()) {
       if (lape.xx() > 0.)
         alignErrorX = sqrt(lape.xx()) * 1E4;
@@ -284,8 +344,8 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es) {
       if (lape.yy() > 0.)
         alignErrorY = sqrt(lape.yy()) * 1E4;
       if (print)
-        cout << " Alignment errors " << alignErrorX << " " << alignErrorY << endl;
-      //cout<<" Alignment errors "<<alignErrorX<<" "<<alignErrorY<<endl;
+        edm::LogPrint("ReadPixelRecHit") << " Alignment errors " << alignErrorX << " " << alignErrorY;
+      //edm::LogPrint("ReadPixelRecHit")<<" Alignment errors "<<alignErrorX<<" "<<alignErrorY;
     }
 
     unsigned int layer = 0, disk = 0, ladder = 0, zindex = 0, blade = 0, panel = 0, side = 0;
@@ -307,8 +367,8 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es) {
         side = 2;
 
       if (localPrint)
-        cout << " Layer " << layer << " ladder " << ladder << " z " << zindex << endl;
-        //<<pdetId.rawId()<<" "<<pdetId.null()<<detTypeP<<" "<<subidP<<" "<<endl;
+        edm::LogPrint("ReadPixelRecHit") << " Layer " << layer << " ladder " << ladder << " z " << zindex;
+        //<<pdetId.rawId()<<" "<<pdetId.null()<<detTypeP<<" "<<subidP<<" ";
 
 #ifdef DO_HISTO
       hdetr->Fill(detR);
@@ -321,8 +381,8 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es) {
     } else {  // FPIX -------------------------------------
 
       // test cols & rows
-      //cout<<" det z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
-      //  <<cols<<" "<<rows<<endl;
+      //edm::LogPrint("ReadPixelRecHit")<<" det z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
+      //  <<cols<<" "<<rows;
 
       PXFDetId pdetId = PXFDetId(detId.rawId());
       disk = pdetId.disk();                   //1,2,3
@@ -332,7 +392,8 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es) {
       unsigned int module = pdetId.module();  // plaquette
 
       if (print)
-        cout << " forward hit " << side << " " << disk << " " << blade << " " << panel << " " << module << endl;
+        edm::LogPrint("ReadPixelRecHit") << " forward hit " << side << " " << disk << " " << blade << " " << panel
+                                         << " " << module;
 
 #ifdef DO_HISTO
       hdetrF->Fill(detR);
@@ -425,14 +486,14 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es) {
       float xerror = sqrt(le.xx()) * 1E4;
       float yerror = sqrt(le.yy()) * 1E4;
       if (print)
-        cout << " RecHit: " << numOfRecHits << " x/y " << xRecHit << " " << yRecHit << " errors x/y " << xerror << " "
-             << yerror << endl;
+        edm::LogPrint("ReadPixelRecHit") << " RecHit: " << numOfRecHits << " x/y " << xRecHit << " " << yRecHit
+                                         << " errors x/y " << xerror << " " << yerror;
 
       //MeasurementPoint mp = topol->measurementPosition(xRecHit,yRecHit);
       //GlobalPoint GP = PixGeom->surface().toGlobal(Local3DPoint(lp));
 
       // Get cluster
-      edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = pixeliter->cluster();
+      edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const &clust = pixeliter->cluster();
 
       float ch = (clust->charge()) / 1000.;  // convert ke to electrons
       int size = clust->size();
@@ -452,15 +513,16 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es) {
       bool edgeHitY = (topol->isItEdgePixelInY(minPixelCol)) || (topol->isItEdgePixelInY(maxPixelCol));
 
       if (print)
-        cout << "Clu: charge " << ch << " size " << size << " size x/y " << sizeX << " " << sizeY << " meas. " << xClu
-             << " " << yClu << " edge " << edgeHitX << " " << edgeHitY << endl;
+        edm::LogPrint("ReadPixelRecHit") << "Clu: charge " << ch << " size " << size << " size x/y " << sizeX << " "
+                                         << sizeY << " meas. " << xClu << " " << yClu << " edge " << edgeHitX << " "
+                                         << edgeHitY;
 
       if (print)
-        cout << " pixels:" << endl;
+        edm::LogPrint("ReadPixelRecHit") << " pixels:";
 
       // Get the pixels in the Cluster
-      const vector<SiPixelCluster::Pixel>& pixelsVec = clust->pixels();
-      //if(localPrint) cout<<" Pixels in this cluster "<<endl;
+      const vector<SiPixelCluster::Pixel> &pixelsVec = clust->pixels();
+      //if(localPrint) edm::LogPrint("ReadPixelRecHit")<<" Pixels in this cluster ";
       map<unsigned int, float, less<unsigned int> > chanMap;  // Channel map
       // Look at pixels in this cluster. ADC is calibrated, in electrons
       for (unsigned int i = 0; i < pixelsVec.size(); ++i) {
@@ -477,13 +539,13 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es) {
         bool edgeInY = topol->isItEdgePixelInY(int(pixy));
 
         if (print)
-          cout << i << " index " << pixx << " " << pixy << " adc " << adc << " edge " << edgeInX << " " << edgeInY
-               << " big " << bigInX << " " << bigInY << endl;
+          edm::LogPrint("ReadPixelRecHit") << i << " index " << pixx << " " << pixy << " adc " << adc << " edge "
+                                           << edgeInX << " " << edgeInY << " big " << bigInX << " " << bigInY;
 
           //if(print && sizeX==1 && bigInX)
-          //cout<<" single big x "<<xClu<<" "<<pixx<<" "<<endl;
+          //edm::LogPrint("ReadPixelRecHit")<<" single big x "<<xClu<<" "<<pixx<<" ";
           //if(print && sizeY==1 && bigInY)
-          //cout<<" single big y "<<yClu<<" "<<pixy<<" "<<endl;
+          //edm::LogPrint("ReadPixelRecHit")<<" single big y "<<yClu<<" "<<pixy<<" ";
 #ifdef DO_HISTO
         if (layer == 1) {
           hadcCharge1->Fill(adc);
@@ -608,8 +670,9 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
 #ifdef DO_HISTO
   if (print)
-    cout << " Rechits per layer " << numOfRecHitsPerLay1 << " " << numOfRecHitsPerLay2 << " " << numOfRecHitsPerLay3
-         << " " << numOfRecHitsPerLay1F << " " << numOfRecHitsPerLay2F << endl;
+    edm::LogPrint("ReadPixelRecHit") << " Rechits per layer " << numOfRecHitsPerLay1 << " " << numOfRecHitsPerLay2
+                                     << " " << numOfRecHitsPerLay3 << " " << numOfRecHitsPerLay1F << " "
+                                     << numOfRecHitsPerLay2F;
   hrecHitsPerLay1->Fill(float(numOfRecHitsPerLay1));
   hrecHitsPerLay2->Fill(float(numOfRecHitsPerLay2));
   hrecHitsPerLay3->Fill(float(numOfRecHitsPerLay3));

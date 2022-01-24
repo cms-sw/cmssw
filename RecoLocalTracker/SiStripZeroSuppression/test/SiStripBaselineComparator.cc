@@ -22,7 +22,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -113,7 +112,7 @@ SiStripBaselineComparator::SiStripBaselineComparator(const edm::ParameterSet& co
                                            max_clusterSize_);
 }
 
-SiStripBaselineComparator::~SiStripBaselineComparator() {}
+SiStripBaselineComparator::~SiStripBaselineComparator() = default;
 
 void SiStripBaselineComparator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

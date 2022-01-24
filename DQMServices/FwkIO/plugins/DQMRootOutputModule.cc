@@ -27,7 +27,7 @@
 #include "TH2.h"
 #include "TProfile.h"
 
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 
 // user include files
 #include "FWCore/Framework/interface/one/OutputModule.h"

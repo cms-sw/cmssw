@@ -52,8 +52,8 @@ hiRegitDetachedTripletStepSeeds     = RecoTracker.IterativeTracking.DetachedTrip
 # building: feed the new-named seeds
 hiRegitDetachedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryFilterBase.clone()
 hiRegitDetachedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryBuilder.clone(
-    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitDetachedTripletStepTrajectoryFilter')),
-    clustersToSkip       = cms.InputTag('hiRegitDetachedTripletStepClusters')
+    trajectoryFilter     = dict(refToPSet_ = 'hiRegitDetachedTripletStepTrajectoryFilter'),
+    clustersToSkip       = 'hiRegitDetachedTripletStepClusters'
 )
 
 hiRegitDetachedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.DetachedTripletStep_cff._detachedTripletStepTrackCandidatesCkf.clone(

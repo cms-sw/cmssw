@@ -5,7 +5,7 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDHeader.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,13 +14,13 @@
 
 namespace Phase2Tracker {
 
-  class Phase2TrackerCommissioningDigiProducer : public edm::EDProducer {
+  class Phase2TrackerCommissioningDigiProducer : public edm::global::EDProducer<> {
   public:
     /// constructor
     Phase2TrackerCommissioningDigiProducer(const edm::ParameterSet& pset);
     /// default constructor
-    ~Phase2TrackerCommissioningDigiProducer() override;
-    void produce(edm::Event& event, const edm::EventSetup& es) override;
+    ~Phase2TrackerCommissioningDigiProducer() override = default;
+    void produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const override;
 
   private:
     edm::EDGetTokenT<FEDRawDataCollection> token_;
@@ -39,9 +39,9 @@ Phase2Tracker::Phase2TrackerCommissioningDigiProducer::Phase2TrackerCommissionin
   token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
 }
 
-Phase2Tracker::Phase2TrackerCommissioningDigiProducer::~Phase2TrackerCommissioningDigiProducer() {}
-
-void Phase2Tracker::Phase2TrackerCommissioningDigiProducer::produce(edm::Event& event, const edm::EventSetup& es) {
+void Phase2Tracker::Phase2TrackerCommissioningDigiProducer::produce(edm::StreamID,
+                                                                    edm::Event& event,
+                                                                    const edm::EventSetup& es) const {
   // Retrieve FEDRawData collection
   edm::Handle<FEDRawDataCollection> buffers;
   event.getByToken(token_, buffers);

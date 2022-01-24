@@ -6,7 +6,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
@@ -42,7 +41,6 @@
 using namespace geant_units::operators;
 
 class MaterialBudgetHcalProducer : public SimProducer,
-                                   public Observer<const BeginOfJob*>,
                                    public Observer<const BeginOfEvent*>,
                                    public Observer<const BeginOfTrack*>,
                                    public Observer<const G4Step*>,
@@ -54,10 +52,11 @@ public:
   MaterialBudgetHcalProducer(const MaterialBudgetHcalProducer&) = delete;                   // stop default
   const MaterialBudgetHcalProducer& operator=(const MaterialBudgetHcalProducer&) = delete;  // stop default
 
+  void registerConsumes(edm::ConsumesCollector) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::EventSetup const&) override;
 
 private:
-  void update(const BeginOfJob*) override;
   void update(const BeginOfEvent*) override;
   void update(const BeginOfTrack*) override;
   void update(const G4Step*) override;
@@ -75,6 +74,10 @@ private:
   double rMax_, zMax_, etaMinP_, etaMaxP_;
   bool printSum_, fromdd4hep_;
   std::string name_;
+
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4hep_;
+
   std::vector<std::string> sensitives_, hfNames_, sensitiveEC_;
   std::vector<int> hfLevels_;
   MaterialAccountingCaloCollection matcoll_;
@@ -103,6 +106,14 @@ MaterialBudgetHcalProducer::MaterialBudgetHcalProducer(const edm::ParameterSet& 
   produces<MaterialAccountingCaloCollection>(Form("%sMatBCalo", name_.c_str()));
 }
 
+void MaterialBudgetHcalProducer::registerConsumes(edm::ConsumesCollector cc) {
+  if (fromdd4hep_)
+    cpvTokenDD4hep_ = cc.esConsumes<edm::Transition::BeginRun>();
+  else
+    cpvTokenDDD_ = cc.esConsumes<edm::Transition::BeginRun>();
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalProducer: Initialize the token for CompactView";
+}
+
 void MaterialBudgetHcalProducer::produce(edm::Event& e, const edm::EventSetup&) {
   std::unique_ptr<MaterialAccountingCaloCollection> hgc(new MaterialAccountingCaloCollection);
   for (auto const& mbc : matcoll_) {
@@ -111,13 +122,11 @@ void MaterialBudgetHcalProducer::produce(edm::Event& e, const edm::EventSetup&) 
   e.put(std::move(hgc), Form("%sMatBCalo", name_.c_str()));
 }
 
-void MaterialBudgetHcalProducer::update(const BeginOfJob* job) {
+void MaterialBudgetHcalProducer::beginRun(edm::EventSetup const& es) {
   //----- Check that selected volumes are indeed part of the geometry
   // Numbering From DDD
   if (fromdd4hep_) {
-    edm::ESTransientHandle<cms::DDCompactView> pDD;
-    (*job)()->get<IdealGeometryRecord>().get(pDD);
-    const cms::DDCompactView cpv = *pDD;
+    const cms::DDCompactView cpv = es.getData(cpvTokenDD4hep_);
     constexpr int32_t addLevel = 1;
     std::string attribute = "ReadOutName";
     std::string value = "HcalHits";
@@ -167,9 +176,7 @@ void MaterialBudgetHcalProducer::update(const BeginOfJob* job) {
       edm::LogVerbatim("MaterialBudgetFull")
           << "MaterialBudgetHcalProducer:sensitiveEC[" << i << "] = " << sensitiveEC_[i];
   } else {  // if not from dd4hep --> ddd
-    edm::ESTransientHandle<DDCompactView> pDD;
-    (*job)()->get<IdealGeometryRecord>().get(pDD);
-    const DDCompactView& cpv = *pDD;
+    const DDCompactView& cpv = es.getData(cpvTokenDDD_);
     constexpr int32_t addLevel = 0;
     std::string attribute = "ReadOutName";
     std::string value = "HcalHits";

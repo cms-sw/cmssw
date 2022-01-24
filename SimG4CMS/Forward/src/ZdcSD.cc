@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "SimG4CMS/Forward/interface/ZdcSD.h"
+#include "SimG4CMS/Forward/interface/ForwardName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -122,7 +123,7 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   // preStepPoint information
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
   G4VPhysicalVolume* currentPV = preStepPoint->GetPhysicalVolume();
-  const G4String& nameVolume = currentPV->GetName();
+  std::string nameVolume = ForwardName::getName(currentPV->GetName());
 
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();
   const G4ThreeVector& hit_mom = preStepPoint->GetMomentumDirection();
@@ -155,7 +156,7 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   // postStepPoint information
   G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
   G4VPhysicalVolume* postPV = postStepPoint->GetPhysicalVolume();
-  const G4String& postnameVolume = postPV->GetName();
+  std::string postnameVolume = ForwardName::getName(postPV->GetName());
   edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: \n"
                                  << "  preStepPoint: " << nameVolume << "," << stepL << "," << stepE << "," << beta
                                  << "," << charge << "\n"

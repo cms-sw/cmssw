@@ -6,13 +6,13 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 
-class PatTriggerAnalyzer : public edm::EDAnalyzer {
+class PatTriggerAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// default constructor
   explicit PatTriggerAnalyzer(const edm::ParameterSet& iConfig);
@@ -71,7 +71,9 @@ PatTriggerAnalyzer::PatTriggerAnalyzer(const edm::ParameterSet& iConfig)
       // maximal id for of all trigger objects
       maxID_(iConfig.getParameter<unsigned>("maxID")),
       histos1D_(),
-      histos2D_() {}
+      histos2D_() {
+  usesResource(TFileService::kSharedResource);
+}
 
 PatTriggerAnalyzer::~PatTriggerAnalyzer() {}
 

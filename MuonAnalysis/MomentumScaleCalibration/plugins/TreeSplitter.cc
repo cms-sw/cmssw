@@ -1,7 +1,42 @@
-#ifndef TREESPLITTER_CC
-#define TREESPLITTER_CC
+// -*- C++ -*-
+//
+// Package:    TreeSplitter
+// Class:      TreeSplitter
+//
+/**\class TreeSplitter TreeSplitter.cc MuonAnalysis/MomentumScaleCalibration/plugins/TreeSplitter.cc
 
-#include "TreeSplitter.h"
+ Description: <one line class summary>
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Marco De Mattia
+//         Created:  Thu Sep 11 12:16:00 CEST 2008
+//
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <MuonAnalysis/MomentumScaleCalibration/interface/RootTreeHandler.h>
+
+class TreeSplitter : public edm::one::EDAnalyzer<> {
+public:
+  explicit TreeSplitter(const edm::ParameterSet&);
+  ~TreeSplitter() override;
+
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override{};
+  void endJob() override;
+
+  TString treeFileName_;
+  TString outputFileName_;
+  int32_t maxEvents_;
+  uint32_t subSampleFirstEvent_;
+  uint32_t subSampleMaxEvents_;
+};
 
 TreeSplitter::TreeSplitter(const edm::ParameterSet& iConfig)
     : treeFileName_(iConfig.getParameter<std::string>("InputFileName")),
@@ -41,5 +76,3 @@ void TreeSplitter::endJob() {
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TreeSplitter);
-
-#endif

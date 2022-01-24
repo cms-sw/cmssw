@@ -13,8 +13,6 @@ namespace triggerExpression {
 
     bool operator()(const Data& data) const override { return m_value; }
 
-    void init(const Data& data) override {}
-
     void dump(std::ostream& out) const override { out << (m_value ? "TRUE" : "FALSE"); }
 
   private:

@@ -5,30 +5,30 @@
  *  primary author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */
-#include <TFile.h>
-#include <TTree.h>
+#include "TFile.h"
+#include "TTree.h"
 
 #include "EcalTestPulseAnalyzer.h"
 
 #include <sstream>
 #include <iomanip>
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
-#include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
-#include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
+#include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/TPNFit.h>
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/TSFit.h>
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMom.h>
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/TPNFit.h"
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/TSFit.h"
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/TMom.h"
 
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/ME.h>
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/MEGeom.h>
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/ME.h"
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEGeom.h"
 
 using namespace std;
 
@@ -446,7 +446,6 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
         yrange[k] = adc[k] - bl;
         if (yrange[k] > val_max) {
           val_max = yrange[k];
-          samplemax = k;
         }
       }
 
@@ -573,7 +572,6 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
         yrange[k] = adc[k] - bl;
         if (yrange[k] > val_max) {
           val_max = yrange[k];
-          samplemax = k;
         }
       }
       apdGain = adcgain;

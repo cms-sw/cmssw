@@ -96,21 +96,21 @@ namespace BeamSpotPI {
 
       switch (my_param) {
         case X:
-          return std::make_pair<double, double>(payload.GetX(), payload.GetXError());
+          return std::make_pair<double, double>(payload.x(), payload.xError());
         case Y:
-          return std::make_pair<double, double>(payload.GetY(), payload.GetYError());
+          return std::make_pair<double, double>(payload.y(), payload.yError());
         case Z:
-          return std::make_pair<double, double>(payload.GetZ(), payload.GetZError());
+          return std::make_pair<double, double>(payload.z(), payload.zError());
         case sigmaX:
-          return std::make_pair<double, double>(payload.GetBeamWidthX(), payload.GetBeamWidthXError());
+          return std::make_pair<double, double>(payload.beamWidthX(), payload.beamWidthXError());
         case sigmaY:
-          return std::make_pair<double, double>(payload.GetBeamWidthY(), payload.GetBeamWidthYError());
+          return std::make_pair<double, double>(payload.beamWidthY(), payload.beamWidthYError());
         case sigmaZ:
-          return std::make_pair<double, double>(payload.GetSigmaZ(), payload.GetSigmaZError());
+          return std::make_pair<double, double>(payload.sigmaZ(), payload.sigmaZError());
         case dxdz:
-          return std::make_pair<double, double>(payload.Getdxdz(), payload.GetdxdzError());
+          return std::make_pair<double, double>(payload.dxdz(), payload.dxdzError());
         case dydz:
-          return std::make_pair<double, double>(payload.Getdydz(), payload.GetdydzError());
+          return std::make_pair<double, double>(payload.dydz(), payload.dydzError());
         case END_OF_TYPES:
           return ret;
         default:
@@ -135,21 +135,21 @@ namespace BeamSpotPI {
 
       switch (my_param) {
         case X:
-          return std::make_pair<double, double>(payload.GetX(), payload.GetXError());
+          return std::make_pair<double, double>(payload.x(), payload.xError());
         case Y:
-          return std::make_pair<double, double>(payload.GetY(), payload.GetYError());
+          return std::make_pair<double, double>(payload.y(), payload.yError());
         case Z:
-          return std::make_pair<double, double>(payload.GetZ(), payload.GetZError());
+          return std::make_pair<double, double>(payload.z(), payload.zError());
         case sigmaX:
-          return std::make_pair<double, double>(payload.GetBeamWidthX(), payload.GetBeamWidthXError());
+          return std::make_pair<double, double>(payload.beamWidthX(), payload.beamWidthXError());
         case sigmaY:
-          return std::make_pair<double, double>(payload.GetBeamWidthY(), payload.GetBeamWidthYError());
+          return std::make_pair<double, double>(payload.beamWidthY(), payload.beamWidthYError());
         case sigmaZ:
-          return std::make_pair<double, double>(payload.GetSigmaZ(), payload.GetSigmaZError());
+          return std::make_pair<double, double>(payload.sigmaZ(), payload.sigmaZError());
         case dxdz:
-          return std::make_pair<double, double>(payload.Getdxdz(), payload.GetdxdzError());
+          return std::make_pair<double, double>(payload.dxdz(), payload.dxdzError());
         case dydz:
-          return std::make_pair<double, double>(payload.Getdydz(), payload.GetdydzError());
+          return std::make_pair<double, double>(payload.dydz(), payload.dydzError());
         case END_OF_TYPES:
           return ret;
         default:
@@ -174,21 +174,21 @@ namespace BeamSpotPI {
 
       switch (my_param) {
         case X:
-          return std::make_pair<double, double>(payload.GetX(), payload.GetXError());
+          return std::make_pair<double, double>(payload.x(), payload.xError());
         case Y:
-          return std::make_pair<double, double>(payload.GetY(), payload.GetYError());
+          return std::make_pair<double, double>(payload.y(), payload.yError());
         case Z:
-          return std::make_pair<double, double>(payload.GetZ(), payload.GetZError());
+          return std::make_pair<double, double>(payload.z(), payload.zError());
         case sigmaX:
-          return std::make_pair<double, double>(payload.GetBeamWidthX(), payload.GetBeamWidthXError());
+          return std::make_pair<double, double>(payload.beamWidthX(), payload.beamWidthXError());
         case sigmaY:
-          return std::make_pair<double, double>(payload.GetBeamWidthY(), payload.GetBeamWidthYError());
+          return std::make_pair<double, double>(payload.beamWidthY(), payload.beamWidthYError());
         case sigmaZ:
-          return std::make_pair<double, double>(payload.GetSigmaZ(), payload.GetSigmaZError());
+          return std::make_pair<double, double>(payload.sigmaZ(), payload.sigmaZError());
         case dxdz:
-          return std::make_pair<double, double>(payload.Getdxdz(), payload.GetdxdzError());
+          return std::make_pair<double, double>(payload.dxdz(), payload.dxdzError());
         case dydz:
-          return std::make_pair<double, double>(payload.Getdydz(), payload.GetdydzError());
+          return std::make_pair<double, double>(payload.dydz(), payload.dydzError());
         case END_OF_TYPES:
           return ret;
         default:
@@ -206,7 +206,7 @@ namespace BeamSpotPI {
     xyCorrelation() : cond::payloadInspector::ScatterPlot<PayloadType, double, double>("BeamSpot x vs y", "x", "y") {}
 
     std::tuple<double, double> getFromPayload(PayloadType& payload) override {
-      return std::make_tuple(payload.GetX(), payload.GetY());
+      return std::make_tuple(payload.x(), payload.y());
     }
   };
 
@@ -256,21 +256,21 @@ namespace BeamSpotPI {
         if (!isError) {
           switch (my_param) {
             case X:
-              return m_payload->GetX();
+              return m_payload->x();
             case Y:
-              return m_payload->GetY();
+              return m_payload->y();
             case Z:
-              return m_payload->GetZ();
+              return m_payload->z();
             case sigmaX:
-              return m_payload->GetBeamWidthX();
+              return m_payload->beamWidthX();
             case sigmaY:
-              return m_payload->GetBeamWidthY();
+              return m_payload->beamWidthY();
             case sigmaZ:
-              return m_payload->GetSigmaZ();
+              return m_payload->sigmaZ();
             case dxdz:
-              return m_payload->Getdxdz();
+              return m_payload->dxdz();
             case dydz:
-              return m_payload->Getdydz();
+              return m_payload->dydz();
             case END_OF_TYPES:
               return ret;
             default:
@@ -279,21 +279,21 @@ namespace BeamSpotPI {
         } else {
           switch (my_param) {
             case X:
-              return m_payload->GetXError();
+              return m_payload->xError();
             case Y:
-              return m_payload->GetYError();
+              return m_payload->yError();
             case Z:
-              return m_payload->GetZError();
+              return m_payload->zError();
             case sigmaX:
-              return m_payload->GetBeamWidthXError();
+              return m_payload->beamWidthXError();
             case sigmaY:
-              return m_payload->GetBeamWidthYError();
+              return m_payload->beamWidthYError();
             case sigmaZ:
-              return m_payload->GetSigmaZError();
+              return m_payload->sigmaZError();
             case dxdz:
-              return m_payload->GetdxdzError();
+              return m_payload->dxdzError();
             case dydz:
-              return m_payload->GetdydzError();
+              return m_payload->dydzError();
             case END_OF_TYPES:
               return ret;
             default:

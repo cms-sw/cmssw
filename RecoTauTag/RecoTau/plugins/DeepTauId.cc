@@ -13,7 +13,7 @@
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
 
 #include <fstream>
-#include "tbb/concurrent_unordered_set.h"
+#include "oneapi/tbb/concurrent_unordered_set.h"
 
 namespace deep_tau {
   constexpr int NumberOfOutputs = 4;

@@ -16,6 +16,8 @@ namespace triggerExpression {
 
     void init(const Data& data) override;
 
+    std::vector<std::string> patterns() const override { return std::vector<std::string>{m_pattern}; }
+
     void dump(std::ostream& out) const override;
 
   private:

@@ -233,14 +233,6 @@ namespace edm {
     /// (N.B. totalEventsFailed() + totalEventsPassed() == totalEvents()
     int totalEventsFailed() const { return totalEvents() - totalEventsPassed(); }
 
-    /// Turn end_paths "off" if "active" is false;
-    /// turn end_paths "on" if "active" is true.
-    void enableEndPaths(bool active);
-
-    /// Return true if end_paths are active, and false if they are
-    /// inactive.
-    bool endPathsEnabled() const;
-
     /// Return the trigger report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
     void getTriggerReport(TriggerReport& rep) const;
@@ -368,7 +360,6 @@ namespace edm {
 
     StreamID streamID_;
     StreamContext streamContext_;
-    volatile bool endpathsAreActive_;
     std::atomic<bool> skippingEvent_;
   };
 
@@ -455,7 +446,7 @@ namespace edm {
         task->execute();
       });
     } else {
-      tbb::task_arena arena{tbb::task_arena::attach()};
+      oneapi::tbb::task_arena arena{oneapi::tbb::task_arena::attach()};
       arena.enqueue([task]() {
         TaskSentry s{task};
         task->execute();

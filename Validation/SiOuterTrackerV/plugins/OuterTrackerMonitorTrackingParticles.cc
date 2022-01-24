@@ -58,10 +58,7 @@ OuterTrackerMonitorTrackingParticles::OuterTrackerMonitorTrackingParticles(const
   TP_maxVtxZ = conf_.getParameter<double>("TP_maxVtxZ");  // max vertZ (or z0) to consider matching
 }
 
-OuterTrackerMonitorTrackingParticles::~OuterTrackerMonitorTrackingParticles() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+OuterTrackerMonitorTrackingParticles::~OuterTrackerMonitorTrackingParticles() = default;
 
 // member functions
 

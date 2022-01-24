@@ -36,7 +36,6 @@ public:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  edm::Service<TFileService> fs_;
   TTree* tree_;
   HcalTestHistoClass h_;
   edm::EDGetTokenT<HcalTestHistoClass> tokHist_;
@@ -46,8 +45,9 @@ private:
 HcalTestAnalyzer::HcalTestAnalyzer(const edm::ParameterSet&) : tree_(nullptr), kount_(0) {
   usesResource(TFileService::kSharedResource);
   tokHist_ = consumes<HcalTestHistoClass>(edm::InputTag("g4SimHits"));
-  if (fs_.isAvailable()) {
-    tree_ = fs_->make<TTree>("HcalTest", "HcalTest");
+  edm::Service<TFileService> fs;
+  if (fs.isAvailable()) {
+    tree_ = fs->make<TTree>("HcalTest", "HcalTest");
     tree_->SetAutoSave(10000);
     tree_->Branch("HcalTestHistoClass", &h_);
     edm::LogVerbatim("HcalSim") << "HcalTestAnalyzer:===>>>  Book the Tree";

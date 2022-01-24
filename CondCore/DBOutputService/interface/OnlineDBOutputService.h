@@ -33,18 +33,19 @@ namespace cond {
 
       ~OnlineDBOutputService() override;
 
-      cond::Iov_t preLoadIov(const std::string& recordName, cond::Time_t targetTime);
-
-      //
       template <typename PayloadType>
-      bool writeIOVForNextLumisection(const PayloadType& payload, const std::string& recordName) {
-        cond::Time_t targetTime = getLastLumiProcessed() + m_latencyInLumisections;
+      cond::Time_t writeIOVForNextLumisection(const PayloadType& payload, const std::string& recordName) {
+        auto& rec = PoolDBOutputService::lookUpRecord(recordName);
+        cond::Time_t lastTime = getLastLumiProcessed();
+        auto unpkLastTime = cond::time::unpack(lastTime);
+        cond::Time_t targetTime =
+            cond::time::lumiTime(unpkLastTime.first, unpkLastTime.second + m_latencyInLumisections);
         auto t0 = std::chrono::high_resolution_clock::now();
         logger().logInfo() << "Updating lumisection " << targetTime;
         cond::Hash payloadId = PoolDBOutputService::writeOneIOV<PayloadType>(payload, targetTime, recordName);
-        bool ret = true;
+        PoolDBOutputService::commitTransaction();
         if (payloadId.empty()) {
-          return false;
+          return 0;
         }
         auto t1 = std::chrono::high_resolution_clock::now();
         auto w_lat = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
@@ -55,7 +56,7 @@ namespace cond {
         // check the pre-loaded iov
         logger().logInfo() << "Preloading lumisection " << targetTime;
         auto t2 = std::chrono::high_resolution_clock::now();
-        cond::Iov_t usedIov = preLoadIov(recordName, targetTime);
+        cond::Iov_t usedIov = preLoadIov(rec, targetTime);
         auto t3 = std::chrono::high_resolution_clock::now();
         logger().logInfo() << "Iov for preloaded lumisection " << targetTime << " is " << usedIov.since;
         auto p_lat = std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
@@ -65,27 +66,18 @@ namespace cond {
                                 << usedIov.since << "). A revert is required.";
           PoolDBOutputService::eraseSinceTime(payloadId, targetTime, recordName);
           PoolDBOutputService::commitTransaction();
-          ret = false;
+          targetTime = 0;
         }
         auto t4 = std::chrono::high_resolution_clock::now();
         auto t_lat = std::chrono::duration_cast<std::chrono::microseconds>(t4 - t0).count();
         logger().logInfo() << "Total update time: " << t_lat << " microsecs.";
-        return ret;
-      }
-
-      //
-      template <typename PayloadType>
-      bool writeForNextLumisection(const PayloadType* payloadPtr, const std::string& recordName) {
-        if (!payloadPtr)
-          throwException("Provided payload pointer is invalid.", "OnlineDBOutputService::writeForNextLumisection");
-        std::unique_ptr<const PayloadType> payload(payloadPtr);
-        return writeForNextLumisection<PayloadType>(*payload, recordName);
+        return targetTime;
       }
 
     private:
-      cond::Time_t getLastLumiProcessed();
+      cond::Iov_t preLoadIov(const PoolDBOutputService::Record& record, cond::Time_t targetTime);
 
-      cond::persistency::Session getReadOnlyCache(cond::Time_t targetTime);
+      cond::Time_t getLastLumiProcessed();
 
     private:
       cond::Time_t m_runNumber;

@@ -50,8 +50,8 @@ public:
   void clearItemSelection();
   void clearModelSelectionLeaveItem();
 
-  sigc::signal<void, const FWSelectionManager&> selectionChanged_;
-  sigc::signal<void, const FWSelectionManager&> itemSelectionChanged_;
+  sigc::signal<void(const FWSelectionManager&)> selectionChanged_;
+  sigc::signal<void(const FWSelectionManager&)> itemSelectionChanged_;
 
   FWSelectionManager(const FWSelectionManager&) = delete;  // stop default
 

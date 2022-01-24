@@ -118,11 +118,20 @@ def customisePixelLocalReconstruction(process):
 
     # reconstruct the pixel digis and clusters on the gpu
     from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDA_cfi import siPixelRawToClusterCUDA as _siPixelRawToClusterCUDA
-    process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone(
-        # use the same thresholds as the legacy module
-        clusterThreshold_layer1 = process.hltSiPixelClusters.ClusterThreshold_L1,
-        clusterThreshold_otherLayers = process.hltSiPixelClusters.ClusterThreshold
-    )
+    if 'hltSiPixelClustersLegacy' in process.__dict__:
+        process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone(
+            # use the same thresholds as the legacy module
+            clusterThreshold_layer1 = process.hltSiPixelClustersLegacy.ClusterThreshold_L1,
+            clusterThreshold_otherLayers = process.hltSiPixelClustersLegacy.ClusterThreshold
+        )
+
+    else:
+        process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone(
+            # use the same thresholds as the legacy module
+            clusterThreshold_layer1 = process.hltSiPixelClusters.ClusterThreshold_L1,
+            clusterThreshold_otherLayers = process.hltSiPixelClusters.ClusterThreshold
+        )
+
     # use the pixel channel calibrations scheme for Run 3
     run3_common.toModify(process.hltSiPixelClustersCUDA, isRun2 = False)
 
@@ -138,50 +147,61 @@ def customisePixelLocalReconstruction(process):
         src = "hltSiPixelClustersCUDA"
     )
 
-    # reconstruct the pixel digis on the cpu
-    process.hltSiPixelDigisLegacy = process.hltSiPixelDigis.clone()
-
     # SwitchProducer wrapping a subset of the legacy pixel digis producer, or the conversion of the pixel digis errors to the legacy format
-    from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoA_cfi import siPixelDigiErrorsFromSoA as _siPixelDigiErrorsFromSoA
-    process.hltSiPixelDigis = SwitchProducerCUDA(
-        # legacy producer
-        cpu = cms.EDAlias(
-            hltSiPixelDigisLegacy = cms.VPSet(
-                cms.PSet(type = cms.string("DetIdedmEDCollection")),
-                cms.PSet(type = cms.string("SiPixelRawDataErroredmDetSetVector")),
-                cms.PSet(type = cms.string("PixelFEDChanneledmNewDetSetVector"))
-            )
-        ),
-        # conversion from SoA to legacy format
-        cuda = _siPixelDigiErrorsFromSoA.clone(
-            digiErrorSoASrc = "hltSiPixelDigiErrorsSoA",
-            UsePhase1 = True
-        )
-    )
+    if not isinstance(process.hltSiPixelDigis, SwitchProducerCUDA):
 
-    # reconstruct the pixel clusters on the cpu
-    process.hltSiPixelClustersLegacy = process.hltSiPixelClusters.clone(
-        src = "hltSiPixelDigisLegacy"
+        if 'hltSiPixelDigisLegacy' in process.__dict__:
+            raise Exception('unsupported configuration: "process.hltSiPixelDigis" is not a SwitchProducerCUDA, but "process.hltSiPixelDigisLegacy" already exists')
+
+        # reconstruct the pixel digis on the cpu
+        process.hltSiPixelDigisLegacy = process.hltSiPixelDigis.clone()
+
+        # SwitchProducer wrapping a subset of the legacy pixel digis producer, or the conversion of the pixel digis errors to the legacy format
+        process.hltSiPixelDigis = SwitchProducerCUDA(
+            # legacy producer
+            cpu = cms.EDAlias(
+                hltSiPixelDigisLegacy = cms.VPSet(
+                    cms.PSet(type = cms.string("DetIdedmEDCollection")),
+                    cms.PSet(type = cms.string("SiPixelRawDataErroredmDetSetVector")),
+                    cms.PSet(type = cms.string("PixelFEDChanneledmNewDetSetVector"))
+                )
+            )
+        )
+    # conversion from SoA to legacy format
+    from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoA_cfi import siPixelDigiErrorsFromSoA as _siPixelDigiErrorsFromSoA
+    process.hltSiPixelDigis.cuda = _siPixelDigiErrorsFromSoA.clone(
+        digiErrorSoASrc = "hltSiPixelDigiErrorsSoA",
+        UsePhase1 = True
     )
 
     # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters to the legacy format
-    from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
-    process.hltSiPixelClusters = SwitchProducerCUDA(
-        # legacy producer
-        cpu = cms.EDAlias(
-            hltSiPixelClustersLegacy = cms.VPSet(
-                cms.PSet(type = cms.string("SiPixelClusteredmNewDetSetVector"))
-            )
-        ),
-        # conversion from SoA to legacy format
-        cuda = _siPixelDigisClustersFromSoA.clone(
-            src = "hltSiPixelDigisSoA",
-            produceDigis = False,
-            storeDigis = False,
-            # use the same thresholds as the legacy module
-            clusterThreshold_layer1 = process.hltSiPixelClusters.ClusterThreshold_L1,
-            clusterThreshold_otherLayers = process.hltSiPixelClusters.ClusterThreshold
+    if not isinstance(process.hltSiPixelClusters, SwitchProducerCUDA):
+
+        if 'hltSiPixelClustersLegacy' in process.__dict__:
+            raise Exception('unsupported configuration: "process.hltSiPixelClusters" is not a SwitchProducerCUDA, but "process.hltSiPixelClustersLegacy" already exists')
+
+        # reconstruct the pixel clusters on the cpu
+        process.hltSiPixelClustersLegacy = process.hltSiPixelClusters.clone(
+            src = "hltSiPixelDigisLegacy"
         )
+
+        process.hltSiPixelClusters = SwitchProducerCUDA(
+            # legacy producer
+            cpu = cms.EDAlias(
+                hltSiPixelClustersLegacy = cms.VPSet(
+                    cms.PSet(type = cms.string("SiPixelClusteredmNewDetSetVector"))
+                )
+            )
+        )
+    # conversion from SoA to legacy format
+    from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
+    process.hltSiPixelClusters.cuda = _siPixelDigisClustersFromSoA.clone(
+        src = "hltSiPixelDigisSoA",
+        produceDigis = False,
+        storeDigis = False,
+        # use the same thresholds as the legacy module
+        clusterThreshold_layer1 = process.hltSiPixelClustersLegacy.ClusterThreshold_L1,
+        clusterThreshold_otherLayers = process.hltSiPixelClustersLegacy.ClusterThreshold
     )
 
     # reconstruct the pixel rechits on the gpu
@@ -204,7 +224,7 @@ def customisePixelLocalReconstruction(process):
     process.hltSiPixelRecHits = SwitchProducerCUDA(
         # legacy producer
         cpu = cms.EDAlias(
-           hltSiPixelRecHitSoA = cms.VPSet(
+            hltSiPixelRecHitSoA = cms.VPSet(
                 cms.PSet(type = cms.string("SiPixelRecHitedmNewDetSetVector")),
                 cms.PSet(type = cms.string("uintAsHostProduct"))
             )
@@ -218,25 +238,27 @@ def customisePixelLocalReconstruction(process):
 
 
     # Tasks and Sequences
+    if 'HLTDoLocalPixelTask' in process.__dict__ and not isinstance(process.HLTDoLocalPixelTask, cms.Task):
+        raise Exception('unsupported configuration: "process.HLTDoLocalPixelTask" already exists, but it is not a Task')
 
     process.HLTDoLocalPixelTask = cms.Task(
-          process.hltOnlineBeamSpotToCUDA,                  # transfer the beamspot to the gpu
-          process.hltSiPixelClustersCUDA,                   # reconstruct the pixel digis and clusters on the gpu
-          process.hltSiPixelRecHitsCUDA,                    # reconstruct the pixel rechits on the gpu
-          process.hltSiPixelDigisSoA,                       # copy the pixel digis (except errors) and clusters to the host
-          process.hltSiPixelDigiErrorsSoA,                  # copy the pixel digis errors to the host
-          process.hltSiPixelDigisLegacy,                    # legacy pixel digis producer
-          process.hltSiPixelDigis,                          # SwitchProducer wrapping a subset of the legacy pixel digis producer, or the conversion of the pixel digis errors from SoA
-          process.hltSiPixelClustersLegacy,                 # legacy pixel cluster producer
-          process.hltSiPixelClusters,                       # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters from SoA
-          process.hltSiPixelClustersCache,                  # legacy module, used by the legacy pixel quadruplet producer
-          process.hltSiPixelRecHitSoA,                      # pixel rechits on cpu, in SoA & legacy format
-          process.hltSiPixelRecHits)                        # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
+          process.hltOnlineBeamSpotToCUDA,   # transfer the beamspot to the gpu
+          process.hltSiPixelClustersCUDA,    # reconstruct the pixel digis and clusters on the gpu
+          process.hltSiPixelRecHitsCUDA,     # reconstruct the pixel rechits on the gpu
+          process.hltSiPixelDigisSoA,        # copy the pixel digis (except errors) and clusters to the host
+          process.hltSiPixelDigiErrorsSoA,   # copy the pixel digis errors to the host
+          process.hltSiPixelDigisLegacy,     # legacy pixel digis producer
+          process.hltSiPixelDigis,           # SwitchProducer wrapping a subset of the legacy pixel digis producer, or the conversion of the pixel digis errors from SoA
+          process.hltSiPixelClustersLegacy,  # legacy pixel cluster producer
+          process.hltSiPixelClusters,        # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters from SoA
+          process.hltSiPixelClustersCache,   # legacy module, used by the legacy pixel quadruplet producer
+          process.hltSiPixelRecHitSoA,       # pixel rechits on cpu, in SoA & legacy format
+          process.hltSiPixelRecHits)         # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
 
     process.HLTDoLocalPixelSequence = cms.Sequence(process.HLTDoLocalPixelTask)
 
 
-    # workaround for AlCa paths
+    # workaround for old version of AlCa_LumiPixelsCounts paths
     for AlCaPathName in ['AlCa_LumiPixelsCounts_Random_v1', 'AlCa_LumiPixelsCounts_ZeroBias_v1']:
         if AlCaPathName in process.__dict__:
             AlCaPath = getattr(process, AlCaPathName)
@@ -344,6 +366,8 @@ def customisePixelTrackReconstruction(process):
 
 
     # Tasks and Sequences
+    if 'HLTRecoPixelTracksTask' in process.__dict__ and not isinstance(process.HLTRecoPixelTracksTask, cms.Task):
+        raise Exception('unsupported configuration: "process.HLTRecoPixelTracksTask" already exists, but it is not a Task')
 
     process.HLTRecoPixelTracksTask = cms.Task(
           process.hltPixelTracksTrackingRegions,            # from the original sequence
@@ -351,10 +375,12 @@ def customisePixelTrackReconstruction(process):
           process.hltPixelTracksSoA,                        # pixel ntuplets on cpu, in SoA format
           process.hltPixelTracks)                           # pixel tracks on cpu, in legacy format
 
-
     process.HLTRecoPixelTracksSequence = cms.Sequence(process.HLTRecoPixelTracksTask)
 
     if hasHLTPixelVertexReco:
+        if 'HLTRecopixelvertexingTask' in process.__dict__ and not isinstance(process.HLTRecopixelvertexingTask, cms.Task):
+            raise Exception('unsupported configuration: "process.HLTRecopixelvertexingTask" already exists, but it is not a Task')
+
         process.HLTRecopixelvertexingTask = cms.Task(
               process.HLTRecoPixelTracksTask,
               process.hltPixelVerticesCUDA,                 # pixel vertices on gpu, in SoA format
@@ -416,33 +442,38 @@ def customiseEcalLocalReconstruction(process):
     process.hltEcalDigisGPU = _ecalRawToDigiGPU.clone()
 
     # SwitchProducer wrapping the legacy ECAL unpacker or the ECAL digi converter from SoA format on gpu to legacy format on cpu
-    process.hltEcalDigisLegacy = process.hltEcalDigis.clone()
-    from EventFilter.EcalRawToDigi.ecalCPUDigisProducer_cfi import ecalCPUDigisProducer as _ecalCPUDigisProducer
+    if not isinstance(process.hltEcalDigis, SwitchProducerCUDA):
 
-    process.hltEcalDigis = SwitchProducerCUDA(
-        # legacy producer
-        cpu = cms.EDAlias(
-            hltEcalDigisLegacy = cms.VPSet(
-                cms.PSet(type = cms.string("EBDigiCollection")),
-                cms.PSet(type = cms.string("EEDigiCollection")),
-                cms.PSet(type = cms.string("EBDetIdedmEDCollection")),
-                cms.PSet(type = cms.string("EEDetIdedmEDCollection")),
-                cms.PSet(type = cms.string("EBSrFlagsSorted")),
-                cms.PSet(type = cms.string("EESrFlagsSorted")),
-                cms.PSet(type = cms.string("EcalElectronicsIdedmEDCollection"), fromProductInstance = cms.string("EcalIntegrityBlockSizeErrors")),
-                cms.PSet(type = cms.string("EcalElectronicsIdedmEDCollection"), fromProductInstance = cms.string("EcalIntegrityTTIdErrors")),
-                cms.PSet(type = cms.string("EcalElectronicsIdedmEDCollection"), fromProductInstance = cms.string("EcalIntegrityZSXtalIdErrors")),
-                cms.PSet(type = cms.string("EcalPnDiodeDigisSorted")),
-                cms.PSet(type = cms.string("EcalPseudoStripInputDigisSorted"), fromProductInstance = cms.string("EcalPseudoStripInputs")),
-                cms.PSet(type = cms.string("EcalTriggerPrimitiveDigisSorted"), fromProductInstance = cms.string("EcalTriggerPrimitives")),
+        if 'hltEcalDigisLegacy' in process.__dict__:
+            raise Exception('unsupported configuration: "process.hltEcalDigis" is not SwitchProducerCUDA, but "process.hltEcalDigisLegacy" already exists')
+
+        process.hltEcalDigisLegacy = process.hltEcalDigis.clone()
+
+        process.hltEcalDigis = SwitchProducerCUDA(
+            # legacy producer
+            cpu = cms.EDAlias(
+                hltEcalDigisLegacy = cms.VPSet(
+                    cms.PSet(type = cms.string("EBDigiCollection")),
+                    cms.PSet(type = cms.string("EEDigiCollection")),
+                    cms.PSet(type = cms.string("EBDetIdedmEDCollection")),
+                    cms.PSet(type = cms.string("EEDetIdedmEDCollection")),
+                    cms.PSet(type = cms.string("EBSrFlagsSorted")),
+                    cms.PSet(type = cms.string("EESrFlagsSorted")),
+                    cms.PSet(type = cms.string("EcalElectronicsIdedmEDCollection"), fromProductInstance = cms.string("EcalIntegrityBlockSizeErrors")),
+                    cms.PSet(type = cms.string("EcalElectronicsIdedmEDCollection"), fromProductInstance = cms.string("EcalIntegrityTTIdErrors")),
+                    cms.PSet(type = cms.string("EcalElectronicsIdedmEDCollection"), fromProductInstance = cms.string("EcalIntegrityZSXtalIdErrors")),
+                    cms.PSet(type = cms.string("EcalPnDiodeDigisSorted")),
+                    cms.PSet(type = cms.string("EcalPseudoStripInputDigisSorted"), fromProductInstance = cms.string("EcalPseudoStripInputs")),
+                    cms.PSet(type = cms.string("EcalTriggerPrimitiveDigisSorted"), fromProductInstance = cms.string("EcalTriggerPrimitives")),
+                )
             )
-        ),
-        # convert ECAL digis from SoA format on gpu to legacy format on cpu
-        cuda = _ecalCPUDigisProducer.clone(
-            digisInLabelEB = ("hltEcalDigisGPU", "ebDigis"),
-            digisInLabelEE = ("hltEcalDigisGPU", "eeDigis"),
-            produceDummyIntegrityCollections = cms.bool(True)
         )
+    # convert ECAL digis from SoA format on gpu to legacy format on cpu
+    from EventFilter.EcalRawToDigi.ecalCPUDigisProducer_cfi import ecalCPUDigisProducer as _ecalCPUDigisProducer
+    process.hltEcalDigis.cuda = _ecalCPUDigisProducer.clone(
+        digisInLabelEB = ("hltEcalDigisGPU", "ebDigis"),
+        digisInLabelEE = ("hltEcalDigisGPU", "eeDigis"),
+        produceDummyIntegrityCollections = True
     )
 
     # ECAL multifit running on gpu
@@ -461,15 +492,16 @@ def customiseEcalLocalReconstruction(process):
     )
 
     # SwitchProducer wrapping the legacy ECAL uncalibrated rechits producer or a converter from SoA to legacy format
-    from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitConvertGPU2CPUFormat_cfi import ecalUncalibRecHitConvertGPU2CPUFormat as _ecalUncalibRecHitConvertGPU2CPUFormat
-    process.hltEcalUncalibRecHit = SwitchProducerCUDA(
-        # legacy producer
-        cpu = process.hltEcalUncalibRecHit,
-        # convert the ECAL uncalibrated rechits from SoA to legacy format
-        cuda = _ecalUncalibRecHitConvertGPU2CPUFormat.clone(
-            recHitsLabelGPUEB = ("hltEcalUncalibRecHitSoA", "EcalUncalibRecHitsEB"),
-            recHitsLabelGPUEE = ("hltEcalUncalibRecHitSoA", "EcalUncalibRecHitsEE"),
+    if not isinstance(process.hltEcalUncalibRecHit, SwitchProducerCUDA):
+        process.hltEcalUncalibRecHit = SwitchProducerCUDA(
+            # legacy producer
+            cpu = process.hltEcalUncalibRecHit
         )
+    # convert the ECAL uncalibrated rechits from SoA to legacy format
+    from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitConvertGPU2CPUFormat_cfi import ecalUncalibRecHitConvertGPU2CPUFormat as _ecalUncalibRecHitConvertGPU2CPUFormat
+    process.hltEcalUncalibRecHit.cuda = _ecalUncalibRecHitConvertGPU2CPUFormat.clone(
+        recHitsLabelGPUEB = ("hltEcalUncalibRecHitSoA", "EcalUncalibRecHitsEB"),
+        recHitsLabelGPUEE = ("hltEcalUncalibRecHitSoA", "EcalUncalibRecHitsEE"),
     )
 
     # Reconstructing the ECAL calibrated rechits on gpu works, but is extremely slow.
@@ -504,36 +536,38 @@ def customiseEcalLocalReconstruction(process):
     # the gpu unpacker does not produce the TPs used for the recovery, so the SwitchProducer alias does not provide them:
     #   - the cpu uncalibrated rechit producer may mark them for recovery, read the TPs explicitly from the legacy unpacker
     #   - the gpu uncalibrated rechit producer does not flag them for recovery, so the TPs are not necessary
-    process.hltEcalRecHit = SwitchProducerCUDA(
-        cpu = process.hltEcalRecHit.clone(
-            triggerPrimitiveDigiCollection = ('hltEcalDigisLegacy', 'EcalTriggerPrimitives')
-        ),
-        cuda = process.hltEcalRecHit.clone(
-            triggerPrimitiveDigiCollection = 'unused'
+    if not isinstance(process.hltEcalRecHit, SwitchProducerCUDA):
+        process.hltEcalRecHit = SwitchProducerCUDA(
+            cpu = process.hltEcalRecHit.clone(
+                triggerPrimitiveDigiCollection = ('hltEcalDigisLegacy', 'EcalTriggerPrimitives')
+            ),
+            cuda = process.hltEcalRecHit.clone(
+                triggerPrimitiveDigiCollection = 'unused'
+            )
         )
-    )
+
 
     # Tasks and Sequences
 
     process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask = cms.Task(
-        process.hltEcalDigisGPU,                            # unpack ECAL digis on gpu
-        process.hltEcalDigisLegacy,                         # legacy producer, referenced in the SwitchProducer
-        process.hltEcalDigis,                               # SwitchProducer
-        process.hltEcalUncalibRecHitGPU,                    # run ECAL local reconstruction and multifit on gpu
-        process.hltEcalUncalibRecHitSoA,                    # needed by hltEcalPhiSymFilter - copy to host
-        process.hltEcalUncalibRecHit,                       # needed by hltEcalPhiSymFilter - convert to legacy format
-      # process.hltEcalRecHitGPU,                           # make ECAL calibrated rechits on gpu
-      # process.hltEcalRecHitSoA,                           # copy to host
-        process.hltEcalDetIdToBeRecovered,                  # legacy producer
-        process.hltEcalRecHit)                              # legacy producer
+        process.hltEcalDigisGPU,             # unpack ECAL digis on gpu
+        process.hltEcalDigisLegacy,          # legacy producer, referenced in the SwitchProducer
+        process.hltEcalDigis,                # SwitchProducer
+        process.hltEcalUncalibRecHitGPU,     # run ECAL local reconstruction and multifit on gpu
+        process.hltEcalUncalibRecHitSoA,     # needed by hltEcalPhiSymFilter - copy to host
+        process.hltEcalUncalibRecHit,        # needed by hltEcalPhiSymFilter - convert to legacy format
+#       process.hltEcalRecHitGPU,            # make ECAL calibrated rechits on gpu
+#       process.hltEcalRecHitSoA,            # copy to host
+        process.hltEcalDetIdToBeRecovered,   # legacy producer
+        process.hltEcalRecHit)               # legacy producer
 
     process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence(
         process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask)
 
     if hasHLTEcalPreshowerSeq:
         process.HLTPreshowerTask = cms.Task(
-            process.hltEcalPreshowerDigis,                  # unpack ECAL preshower digis on the host
-            process.hltEcalPreshowerRecHit)                 # build ECAL preshower rechits on the host
+            process.hltEcalPreshowerDigis,   # unpack ECAL preshower digis on the host
+            process.hltEcalPreshowerRecHit)  # build ECAL preshower rechits on the host
 
         process.HLTPreshowerSequence = cms.Sequence(process.HLTPreshowerTask)
 
@@ -621,42 +655,40 @@ def customiseHcalLocalReconstruction(process):
     )
 
     # SwitchProducer between the legacy producer and the copy from gpu with conversion
-    process.hltHbhereco = SwitchProducerCUDA(
-        # legacy producer
-        cpu = process.hltHbhereco.clone(),
-        # alias to the rechits converted to legacy format
-        cuda = cms.EDAlias(
-            hltHbherecoFromGPU = cms.VPSet(
-                cms.PSet(type = cms.string("HBHERecHitsSorted"))
-            )
+    if not isinstance(process.hltHbhereco, SwitchProducerCUDA):
+        process.hltHbhereco = SwitchProducerCUDA(
+            # legacy producer
+            cpu = process.hltHbhereco.clone()
+        )
+    # alias to the rechits converted to legacy format
+    process.hltHbhereco.cuda = cms.EDAlias(
+        hltHbherecoFromGPU = cms.VPSet(
+            cms.PSet(type = cms.string("HBHERecHitsSorted"))
         )
     )
-
 
     # Tasks and Sequences
     if hasHLTDoLocalHcalSeq:
         process.HLTDoLocalHcalTask = cms.Task(
-            process.hltHcalDigis,                           # legacy producer, unpack HCAL digis on cpu
-            process.hltHcalDigisGPU,                        # copy to gpu and convert to SoA format
-            process.hltHbherecoGPU,                         # run the HCAL local reconstruction (including Method 0 and MAHI) on gpu
-            process.hltHbherecoFromGPU,                     # transfer the HCAL rechits to the cpu, and convert them to the legacy format
-            process.hltHbhereco,                            # SwitchProducer between the legacy producer and the copy from gpu with conversion
-            process.hltHfprereco,                           # legacy producer
-            process.hltHfreco,                              # legacy producer
-            process.hltHoreco)                              # legacy producer
+            process.hltHcalDigis,       # legacy producer, unpack HCAL digis on cpu
+            process.hltHcalDigisGPU,    # copy to gpu and convert to SoA format
+            process.hltHbherecoGPU,     # run the HCAL local reconstruction (including Method 0 and MAHI) on gpu
+            process.hltHbherecoFromGPU, # transfer the HCAL rechits to the cpu, and convert them to the legacy format
+            process.hltHbhereco,        # SwitchProducer between the legacy producer and the copy from gpu with conversion
+            process.hltHfprereco,       # legacy producer
+            process.hltHfreco,          # legacy producer
+            process.hltHoreco)          # legacy producer
 
-        process.HLTDoLocalHcalSequence = cms.Sequence(
-            process.HLTDoLocalHcalTask)
+        process.HLTDoLocalHcalSequence = cms.Sequence(process.HLTDoLocalHcalTask)
 
     process.HLTStoppedHSCPLocalHcalRecoTask = cms.Task(
-        process.hltHcalDigis,                               # legacy producer, unpack HCAL digis on cpu
-        process.hltHcalDigisGPU,                            # copy to gpu and convert to SoA format
-        process.hltHbherecoGPU,                             # run the HCAL local reconstruction (including Method 0 and MAHI) on gpu
-        process.hltHbherecoFromGPU,                         # transfer the HCAL rechits to the cpu, and convert them to the legacy format
-        process.hltHbhereco)                                # SwitchProducer between the legacy producer and the copy from gpu with conversion
+        process.hltHcalDigis,           # legacy producer, unpack HCAL digis on cpu
+        process.hltHcalDigisGPU,        # copy to gpu and convert to SoA format
+        process.hltHbherecoGPU,         # run the HCAL local reconstruction (including Method 0 and MAHI) on gpu
+        process.hltHbherecoFromGPU,     # transfer the HCAL rechits to the cpu, and convert them to the legacy format
+        process.hltHbhereco)            # SwitchProducer between the legacy producer and the copy from gpu with conversion
 
-    process.HLTStoppedHSCPLocalHcalReco = cms.Sequence(
-        process.HLTStoppedHSCPLocalHcalRecoTask)
+    process.HLTStoppedHSCPLocalHcalReco = cms.Sequence(process.HLTStoppedHSCPLocalHcalRecoTask)
 
 
     # done

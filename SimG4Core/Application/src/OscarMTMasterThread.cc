@@ -1,7 +1,7 @@
 #include <memory>
 
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "SimG4Core/Application/interface/RunManagerMT.h"
@@ -66,11 +66,11 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
       } else if (m_masterThreadState == ThreadState::Destruct) {
         edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Breaking out of state loop";
         if (isG4Alive)
-          throw edm::Exception(edm::errors::LogicError) << "OscarMTMasterThread: Geant4 is still alive, master thread "
-                                                           "state must be set to EndRun before Destruct";
+          throw cms::Exception("LogicError") << "OscarMTMasterThread: Geant4 is still alive, master thread "
+                                             << "state must be set to EndRun before Destruct";
         break;
       } else {
-        throw edm::Exception(edm::errors::LogicError)
+        throw cms::Exception("LogicError")
             << "OscarMTMasterThread: Illegal master thread state " << static_cast<int>(m_masterThreadState);
       }
     }

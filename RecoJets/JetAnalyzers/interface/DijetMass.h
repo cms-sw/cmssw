@@ -17,10 +17,10 @@ class TFile;
      Modified and cleaned up to work in 3.3.X
  *
  */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 template <class Jet>
-class DijetMass : public edm::EDAnalyzer {
+class DijetMass : public edm::one::EDAnalyzer<> {
 public:
   DijetMass(const edm::ParameterSet&);
 

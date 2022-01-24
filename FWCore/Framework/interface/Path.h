@@ -149,13 +149,13 @@ namespace edm {
                         ServiceToken const&,
                         StreamID const&,
                         StreamContext const*,
-                        tbb::task_group& iGroup);
+                        oneapi::tbb::task_group& iGroup);
     void runNextWorkerAsync(unsigned int iNextModuleIndex,
                             EventTransitionInfo const&,
                             ServiceToken const&,
                             StreamID const&,
                             StreamContext const*,
-                            tbb::task_group& iGroup);
+                            oneapi::tbb::task_group& iGroup);
   };
 
   namespace {

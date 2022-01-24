@@ -5,10 +5,10 @@
 #include <cassert>
 #include <cstdlib>
 
-TString MELaserPrim::apdpn_arrayName[MELaserPrim::iSizeArray_apdpn] = {
+const TString MELaserPrim::apdpn_arrayName[MELaserPrim::iSizeArray_apdpn] = {
     "APD", "APDoPN", "APDoPNA", "APDoPNB", "APDoAPD", "APDoAPDA", "APDoAPDB", "Time"};
-TString MELaserPrim::apdpn_varName[MELaserPrim::iSize_apdpn] = {"Mean", "RMS", "M3", "Nevt", "Min", "Max"};
-TString MELaserPrim::apdpn_varUnit[MELaserPrim::iSizeArray_apdpn][MELaserPrim::iSize_apdpn] =
+const TString MELaserPrim::apdpn_varName[MELaserPrim::iSize_apdpn] = {"Mean", "RMS", "M3", "Nevt", "Min", "Max"};
+const TString MELaserPrim::apdpn_varUnit[MELaserPrim::iSizeArray_apdpn][MELaserPrim::iSize_apdpn] =
 
     {{" (ADC Counts)", " (ADC Counts)", " (ADC Counts)", "", " (ADC Counts)", " (ADC Counts)"},
      {"", "", "", "", "", ""},
@@ -17,22 +17,22 @@ TString MELaserPrim::apdpn_varUnit[MELaserPrim::iSizeArray_apdpn][MELaserPrim::i
      {"", "", "", "", "", ""},
      {"", "", "", "", "", ""},
      {" (25 ns)", " (25 ns)", " (25 ns)", "", " (25 ns)", " (25 ns)"}};
-TString MELaserPrim::apdpn_extraVarName[MELaserPrim::iSizeExtra_apdpn] = {"ShapeCor"};
-TString MELaserPrim::apdpn_extraVarUnit[MELaserPrim::iSizeExtra_apdpn] = {""};
-TString MELaserPrim::ab_varName[MELaserPrim::iSize_ab] = {"alpha", "beta", "width", "chi2"};
-TString MELaserPrim::mtq_varName[MELaserPrim::iSize_mtq] = {
+const TString MELaserPrim::apdpn_extraVarName[MELaserPrim::iSizeExtra_apdpn] = {"ShapeCor"};
+const TString MELaserPrim::apdpn_extraVarUnit[MELaserPrim::iSizeExtra_apdpn] = {""};
+const TString MELaserPrim::ab_varName[MELaserPrim::iSize_ab] = {"alpha", "beta", "width", "chi2"};
+const TString MELaserPrim::mtq_varName[MELaserPrim::iSize_mtq] = {
     "peak", "sigma", "fit", "ampl", "trise", "fwhm", "fw20", "fw80", "sliding"};
-TString MELaserPrim::mtq_varUnit[MELaserPrim::iSize_mtq] = {"(nanoseconds)",
-                                                            "(nanoseconds)",
-                                                            "(nanoseconds)",
-                                                            "(ADC counts)",
-                                                            "(nanoseconds)",
-                                                            "(nanoseconds)",
-                                                            "(nanoseconds)",
-                                                            "(nanoseconds)",
-                                                            "(ADC counts)"};
+const TString MELaserPrim::mtq_varUnit[MELaserPrim::iSize_mtq] = {"(nanoseconds)",
+                                                                  "(nanoseconds)",
+                                                                  "(nanoseconds)",
+                                                                  "(ADC counts)",
+                                                                  "(nanoseconds)",
+                                                                  "(nanoseconds)",
+                                                                  "(nanoseconds)",
+                                                                  "(nanoseconds)",
+                                                                  "(ADC counts)"};
 
-TString MELaserPrim::separator = "__";
+const TString MELaserPrim::separator = "__";
 
 //ClassImp( MELaserPrim )
 

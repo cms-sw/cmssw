@@ -13,8 +13,6 @@
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
-#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
-#include "tbb/global_control.h"
 
 namespace edm {
   namespace {
@@ -149,7 +147,7 @@ namespace edm {
     return true;
   }
 
-  void Worker::prePrefetchSelectionAsync(tbb::task_group& group,
+  void Worker::prePrefetchSelectionAsync(oneapi::tbb::task_group& group,
                                          WaitingTask* successTask,
                                          ServiceToken const& token,
                                          StreamID id,
@@ -213,59 +211,13 @@ namespace edm {
       return;
     }
 
-    //Thread case of 1 thread special. The master thread is doing a wait_for_all on the
-    // default tbb arena. It will not process any tasks on the es arena. We need to add a
-    // task that will synchronously do a wait_for_all in the es arena to be sure prefetching
-    // will work.
-
-    if UNLIKELY (tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism) == 1) {
-      auto taskGroup = iTask.group();
-      ServiceWeakToken weakToken = iToken;
-      taskGroup->run([this, task = std::move(iTask), iTrans, &iImpl, weakToken]() {
-        std::exception_ptr exceptPtr{};
-        iImpl.taskArena()->execute([this, iTrans, &iImpl, weakToken, &exceptPtr]() {
-          exceptPtr = syncWait([&](WaitingTaskHolder&& iHolder) {
-            auto const& recs = esRecordsToGetFrom(iTrans);
-            auto const& items = esItemsToGetFrom(iTrans);
-            auto hWaitTask = std::move(iHolder);
-            auto token = weakToken.lock();
-            for (size_t i = 0; i != items.size(); ++i) {
-              if (recs[i] != ESRecordIndex{}) {
-                auto rec = iImpl.findImpl(recs[i]);
-                if (rec) {
-                  rec->prefetchAsync(hWaitTask, items[i], &iImpl, token, ESParentContext(&moduleCallingContext_));
-                }
-              }
-            }
-          });  //syncWait
-        });    //esTaskArena().execute
-        //note use of a copy gets around declaring the lambda as mutable
-        auto tempTask = task;
-        tempTask.doneWaiting(exceptPtr);
-      });  //group.run
-    } else {
-      auto group = iTask.group();
-      //We need iTask to run in the default arena since it is not an ES task
-      auto task = make_waiting_task(
-          [holder = WaitingTaskWithArenaHolder(std::move(iTask))](std::exception_ptr const* iExcept) mutable {
-            if (iExcept) {
-              holder.doneWaiting(*iExcept);
-            } else {
-              holder.doneWaiting(std::exception_ptr{});
-            }
-          });
-
-      WaitingTaskHolder tempH(*group, task);
-      iImpl.taskArena()->execute([&]() {
-        for (size_t i = 0; i != items.size(); ++i) {
-          if (recs[i] != ESRecordIndex{}) {
-            auto rec = iImpl.findImpl(recs[i]);
-            if (rec) {
-              rec->prefetchAsync(tempH, items[i], &iImpl, iToken, ESParentContext(&moduleCallingContext_));
-            }
-          }
+    for (size_t i = 0; i != items.size(); ++i) {
+      if (recs[i] != ESRecordIndex{}) {
+        auto rec = iImpl.findImpl(recs[i]);
+        if (rec) {
+          rec->prefetchAsync(iTask, items[i], &iImpl, iToken, ESParentContext(&moduleCallingContext_));
         }
-      });
+      }
     }
   }
 
@@ -452,7 +404,7 @@ namespace edm {
   }
 
   Worker::HandleExternalWorkExceptionTask::HandleExternalWorkExceptionTask(Worker* worker,
-                                                                           tbb::task_group* group,
+                                                                           oneapi::tbb::task_group* group,
                                                                            WaitingTask* runModuleTask,
                                                                            ParentContext const& parentContext)
       : m_worker(worker), m_runModuleTask(runModuleTask), m_group(group), m_parentContext(parentContext) {}

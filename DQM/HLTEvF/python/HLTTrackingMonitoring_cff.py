@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 # tracking monitor
 from DQMOffline.Trigger.TrackingMonitoring_cff import *
-iterHLTTracksMonitoringHLT.doProfilesVsLS   = cms.bool(True)
-iterHLTTracksMonitoringHLT.beamSpot = cms.InputTag("hltOnlineBeamSpot")
-pixelTracksMonitoringHLT.beamSpot = cms.InputTag("hltOnlineBeamSpot")
+iterHLTTracksMonitoringHLT.doProfilesVsLS = True
+iterHLTTracksMonitoringHLT.beamSpot = "hltOnlineBeamSpot"
+pixelTracksMonitoringHLT.beamSpot = "hltOnlineBeamSpot"
 
 from TrackingTools.TrackFitters.KFTrajectoryFitter_cfi import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *

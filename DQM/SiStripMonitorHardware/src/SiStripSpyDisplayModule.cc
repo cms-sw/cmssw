@@ -16,7 +16,7 @@
 // Framework include files
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -93,13 +93,12 @@ enum FEDSpyHistogramType {
  * for more information about the spy channel monitoring project.
  *
  */
-class SiStripSpyDisplayModule : public edm::EDAnalyzer {
+class SiStripSpyDisplayModule : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit SiStripSpyDisplayModule(const edm::ParameterSet&);
   ~SiStripSpyDisplayModule() override;
 
 private:
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
@@ -213,6 +212,8 @@ SiStripSpyDisplayModule::SiStripSpyDisplayModule(const edm::ParameterSet& iConfi
   inputZeroSuppressedDigiToken_ = consumes<edm::DetSetVector<SiStripDigi> >(inputZeroSuppressedDigiLabel_);
   inputCompVirginRawDigiToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(inputCompVirginRawDigiLabel_);
   inputCompZeroSuppressedDigiToken_ = consumes<edm::DetSetVector<SiStripDigi> >(inputCompZeroSuppressedDigiLabel_);
+
+  usesResource(TFileService::kSharedResource);
 }
 
 SiStripSpyDisplayModule::~SiStripSpyDisplayModule() {
@@ -228,15 +229,6 @@ SiStripSpyDisplayModule::~SiStripSpyDisplayModule() {
 void SiStripSpyDisplayModule::updateDetCabling(const SiStripDetCablingRcd& rcd) {
   detCabling_ = &rcd.get(detCablingToken_);
 }
-
-void SiStripSpyDisplayModule::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  // Retrieve FED cabling object
-  //iSetup.get<SiStripDetCablingRcd>().get( cabling_ );
-  //std::stringstream ss;
-  //cabling_->print(ss);
-  //std::cout << ss.str() << std::endl;
-
-}  // end of beginRun method.
 
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripSpyDisplayModule::beginJob() {

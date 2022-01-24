@@ -4,7 +4,7 @@
 #ifdef SiStripMonitorHardware_BuildEventMatchingCode
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -28,11 +28,11 @@ using edm::LogInfo;
 
 namespace sistrip {
 
-  class SpyEventMatcherModule : public edm::EDFilter {
+  class SpyEventMatcherModule : public edm::stream::EDFilter<> {
   public:
     SpyEventMatcherModule(const edm::ParameterSet& config);
     ~SpyEventMatcherModule() override;
-    void beginJob() override;
+    void beginStream(edm::StreamID) override;
     bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   private:
@@ -46,7 +46,7 @@ namespace sistrip {
                   edm::Event& event,
                   const SiStripFedCabling& cabling) const;
 
-    static const char* messageLabel_;
+    static const char* const messageLabel_;
     const bool filterNonMatchingEvents_;
     const bool doMerge_;
     const edm::InputTag primaryStreamRawDataTag_;
@@ -62,7 +62,7 @@ namespace sistrip {
 
 namespace sistrip {
 
-  const char* SpyEventMatcherModule::messageLabel_ = "SiStripSpyDataMergeModule";
+  const char* const SpyEventMatcherModule::messageLabel_ = "SiStripSpyDataMergeModule";
 
   SpyEventMatcherModule::SpyEventMatcherModule(const edm::ParameterSet& config)
       : filterNonMatchingEvents_(config.getParameter<bool>("FilterNonMatchingEvents")),
@@ -90,7 +90,7 @@ namespace sistrip {
     fedCabling_ = &rcd.get(fedCablingToken_);
   }
 
-  void SpyEventMatcherModule::beginJob() { spyEventMatcher_->initialize(); }
+  void SpyEventMatcherModule::beginStream(edm::StreamID) { spyEventMatcher_->initialize(); }
 
   bool SpyEventMatcherModule::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
     cablingWatcher_.check(eventSetup);

@@ -185,30 +185,30 @@ l1tStage2uGMTMuonVsuGMTMuonCopy1 = DQMEDAnalyzer(
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
 stage2L1Trigger_2021.toModify(l1tStage2uGMTMuonVsuGMTMuonCopy1, displacedQuantities = cms.untracked.bool(True))
 
-l1tStage2uGMTMuonVsuGMTMuonCopy2 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone()
-l1tStage2uGMTMuonVsuGMTMuonCopy2.muonCollection2 = cms.InputTag("gmtStage2Digis", "MuonCopy2")
-l1tStage2uGMTMuonVsuGMTMuonCopy2.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy2")
-l1tStage2uGMTMuonVsuGMTMuonCopy2.muonCollection2Title = cms.untracked.string("uGMT muons copy 2")
-l1tStage2uGMTMuonVsuGMTMuonCopy2.summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT muon copy 2")
-
-l1tStage2uGMTMuonVsuGMTMuonCopy3 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone()
-l1tStage2uGMTMuonVsuGMTMuonCopy3.muonCollection2 = cms.InputTag("gmtStage2Digis", "MuonCopy3")
-l1tStage2uGMTMuonVsuGMTMuonCopy3.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy3")
-l1tStage2uGMTMuonVsuGMTMuonCopy3.muonCollection2Title = cms.untracked.string("uGMT muons copy 3")
-l1tStage2uGMTMuonVsuGMTMuonCopy3.summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT muon copy 3")
-
-l1tStage2uGMTMuonVsuGMTMuonCopy4 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone()
-l1tStage2uGMTMuonVsuGMTMuonCopy4.muonCollection2 = cms.InputTag("gmtStage2Digis", "MuonCopy4")
-l1tStage2uGMTMuonVsuGMTMuonCopy4.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy4")
-l1tStage2uGMTMuonVsuGMTMuonCopy4.muonCollection2Title = cms.untracked.string("uGMT muons copy 4")
-l1tStage2uGMTMuonVsuGMTMuonCopy4.summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT muon copy 4")
-
-l1tStage2uGMTMuonVsuGMTMuonCopy5 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone()
-l1tStage2uGMTMuonVsuGMTMuonCopy5.muonCollection2 = cms.InputTag("gmtStage2Digis", "MuonCopy5")
-l1tStage2uGMTMuonVsuGMTMuonCopy5.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy5")
-l1tStage2uGMTMuonVsuGMTMuonCopy5.muonCollection2Title = cms.untracked.string("uGMT muons copy 5")
-l1tStage2uGMTMuonVsuGMTMuonCopy5.summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT muon copy 5")
-
+l1tStage2uGMTMuonVsuGMTMuonCopy2 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone(
+    muonCollection2 = "gmtStage2Digis:MuonCopy2",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy2",
+    muonCollection2Title = "uGMT muons copy 2",
+    summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 2"
+)
+l1tStage2uGMTMuonVsuGMTMuonCopy3 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone(
+    muonCollection2 = "gmtStage2Digis:MuonCopy3",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy3",
+    muonCollection2Title = "uGMT muons copy 3",
+    summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 3"
+)
+l1tStage2uGMTMuonVsuGMTMuonCopy4 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone(
+    muonCollection2 = "gmtStage2Digis:MuonCopy4",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy4",
+    muonCollection2Title = "uGMT muons copy 4",
+    summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 4"
+)
+l1tStage2uGMTMuonVsuGMTMuonCopy5 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone(
+    muonCollection2 = "gmtStage2Digis:MuonCopy5",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy5",
+    muonCollection2Title = "uGMT muons copy 5",
+    summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 5"
+)
 # sequences
 l1tStage2uGMTOnlineDQMSeq = cms.Sequence(
     l1tStage2uGMT +

@@ -36,6 +36,14 @@ namespace cms {
 
     ~CkfTrajectoryMaker() override { ; }
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.setComment("Make CKF trajectories");
+      desc.add<bool>("trackCandidateAlso", false);
+      CkfTrackCandidateMakerBase::fillPSetDescription(desc);
+      descriptions.addWithDefaultLabel(desc);
+    }
+
     void beginRun(edm::Run const& run, edm::EventSetup const& es) override { beginRunBase(run, es); }
 
     void produce(edm::Event& e, const edm::EventSetup& es) override { produceBase(e, es); }

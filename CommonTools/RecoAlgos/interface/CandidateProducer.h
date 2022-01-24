@@ -73,6 +73,7 @@ public:
   CandidateProducer(const edm::ParameterSet& cfg)
       : srcToken_(consumes<TColl>(cfg.template getParameter<edm::InputTag>("src"))),
         converter_(cfg, consumesCollector()),
+        selectorInit_(consumesCollector()),
         selector_(reco::modules::make<Selector>(cfg, consumesCollector())),
         initialized_(false) {
     produces<CColl>();
@@ -92,7 +93,7 @@ private:
   void produce(edm::Event& evt, const edm::EventSetup& es) override {
     edm::Handle<TColl> src;
     evt.getByToken(srcToken_, src);
-    Init::init(selector_, evt, es);
+    selectorInit_.init(selector_, evt, es);
     ::helper::MasterCollection<TColl> master(src, evt);
     std::unique_ptr<CColl> cands(new CColl);
     if (!src->empty()) {
@@ -110,6 +111,7 @@ private:
   /// converter helper
   Conv converter_;
   /// selector
+  Init selectorInit_;
   Selector selector_;
   /// particles initialized?
   bool initialized_;

@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
@@ -42,6 +44,8 @@ namespace cms {
 
     virtual void produceBase(edm::Event& e, const edm::EventSetup& es);
 
+    static void fillPSetDescription(edm::ParameterSetDescription& desc);
+
   protected:
     bool theTrackCandidateOutput;
     bool theTrajectoryOutput;
@@ -73,8 +77,12 @@ namespace cms {
     edm::EDGetTokenT<edm::View<TrajectorySeed> > theSeedLabel;
     edm::EDGetTokenT<MeasurementTrackerEvent> theMTELabel;
 
-    bool skipClusters_;
-    bool phase2skipClusters_;
+    edm::InputTag const clustersToSkipTag_;
+    bool const skipClusters_;
+
+    edm::InputTag const phase2ClustersToSkipTag_;
+    bool const skipPhase2Clusters_;
+
     typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelClusterMask;
     typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripClusterMask;
     typedef edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > Phase2OTClusterMask;

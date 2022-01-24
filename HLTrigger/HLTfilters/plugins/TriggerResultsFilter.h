@@ -14,11 +14,12 @@
  *
  */
 
-#include <vector>
+#include <memory>
 #include <string>
+#include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -39,7 +40,7 @@ namespace triggerExpression {
 class TriggerResultsFilter : public edm::stream::EDFilter<> {
 public:
   explicit TriggerResultsFilter(const edm::ParameterSet &);
-  ~TriggerResultsFilter() override;
+  ~TriggerResultsFilter() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   bool filter(edm::Event &, const edm::EventSetup &) override;
 
@@ -49,7 +50,7 @@ private:
   void parse(const std::vector<std::string> &expressions);
 
   /// evaluator for the trigger condition
-  triggerExpression::Evaluator *m_expression;
+  std::unique_ptr<triggerExpression::Evaluator> m_expression;
 
   /// cache some data from the Event for faster access by the m_expression
   triggerExpression::Data m_eventCache;

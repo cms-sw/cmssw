@@ -4,7 +4,7 @@
 #include "TH1.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -15,7 +15,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
-class PatTopSelectionAnalyzer : public edm::EDAnalyzer {
+class PatTopSelectionAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// default constructor
   explicit PatTopSelectionAnalyzer(const edm::ParameterSet&);
@@ -55,7 +55,9 @@ PatTopSelectionAnalyzer::PatTopSelectionAnalyzer(const edm::ParameterSet& iConfi
       elecsToken_(consumes<edm::View<pat::Electron> >(iConfig.getUntrackedParameter<edm::InputTag>("elecs"))),
       muonsToken_(consumes<edm::View<pat::Muon> >(iConfig.getUntrackedParameter<edm::InputTag>("muons"))),
       jetsToken_(consumes<edm::View<pat::Jet> >(iConfig.getUntrackedParameter<edm::InputTag>("jets"))),
-      metToken_(consumes<edm::View<pat::MET> >(iConfig.getUntrackedParameter<edm::InputTag>("met"))) {}
+      metToken_(consumes<edm::View<pat::MET> >(iConfig.getUntrackedParameter<edm::InputTag>("met"))) {
+  usesResource(TFileService::kSharedResource);
+}
 
 PatTopSelectionAnalyzer::~PatTopSelectionAnalyzer() {}
 

@@ -8,7 +8,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
@@ -22,7 +22,7 @@ class DTTtrig;
 class TFile;
 class TH1D;
 
-class DTTTrigAnalyzer : public edm::EDAnalyzer {
+class DTTTrigAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTTTrigAnalyzer(const edm::ParameterSet& pset);

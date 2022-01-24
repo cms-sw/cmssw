@@ -35,11 +35,11 @@ conddb listGTsForTag SiPixelQuality_phase1_2021_v1  || die 'failed conddb listGT
 echo -ne '\n\n'
 
 echo "===========> testing conddb diff"
-conddb diff 120X_mcRun3_2021_realistic_v1 120X_mcRun3_2021_realistic_Candidate_2021_06_09_14_33_50  || die 'conddb diff' $?
+conddb diff 120X_mcRun3_2021_realistic_v1 120X_mcRun3_2021_realistic_conddb_unitTest  || die 'conddb diff' $?
 echo -ne '\n\n'
 
 echo "===========> testing conddb diffGlobalTagsAtRun"
-conddb diffGlobalTagsAtRun -R 120X_mcRun3_2021_realistic_v1 -T 120X_mcRun3_2021_realistic_Candidate_2021_06_09_14_33_50 --run 1 || die 'conddb diffGlobalTagsAtRun' $?
+conddb diffGlobalTagsAtRun -R 120X_mcRun3_2021_realistic_v1 -T 120X_mcRun3_2021_realistic_conddb_unitTest --run 1 || die 'conddb diffGlobalTagsAtRun' $?
 echo -ne '\n\n'
 
 echo "===========> testing conddb dump"

@@ -7,8 +7,8 @@
 #include <vector>
 #include <iostream>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "RecoRomanPot/RecoFP420/interface/FP420ClusterMain.h"
 #include "DataFormats/FP420Digi/interface/HDigiFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
@@ -20,14 +20,14 @@
 using namespace std;
 
 FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn, int pn, int rn)
-    : conf_(conf), dn0(dn), sn0(sn), pn0(pn), rn0(rn) {
-  verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
-  ElectronPerADC_ = conf_.getParameter<double>("ElectronFP420PerAdc");
-  clusterMode_ = conf_.getParameter<std::string>("ClusterModeFP420");
-  ChannelThreshold = conf_.getParameter<double>("ChannelFP420Threshold");  //6
-  SeedThreshold = conf_.getParameter<double>("SeedFP420Threshold");        //7
-  ClusterThreshold = conf_.getParameter<double>("ClusterFP420Threshold");  //7
-  MaxVoidsInCluster = conf_.getParameter<int>("MaxVoidsFP420InCluster");   //1
+    : dn0(dn), sn0(sn), pn0(pn), rn0(rn) {
+  verbosity = conf.getUntrackedParameter<int>("VerbosityLevel");
+  ElectronPerADC_ = conf.getParameter<double>("ElectronFP420PerAdc");
+  clusterMode_ = conf.getParameter<std::string>("ClusterModeFP420");
+  ChannelThreshold = conf.getParameter<double>("ChannelFP420Threshold");  //6
+  SeedThreshold = conf.getParameter<double>("SeedFP420Threshold");        //7
+  ClusterThreshold = conf.getParameter<double>("ClusterFP420Threshold");  //7
+  MaxVoidsInCluster = conf.getParameter<int>("MaxVoidsFP420InCluster");   //1
 
   if (verbosity > 0) {
     std::cout << "FP420ClusterMain constructor: ElectronPerADC = " << ElectronPerADC_ << std::endl;
@@ -93,7 +93,8 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn
     //   SeedThreshold       = 7.0;//was 3.7.0  8 20
     // ClusterThreshold    = 7.0;// was 2. 7.0 8 20
     // MaxVoidsInCluster   = 1;
-    threeThreshold_ = new ClusterProducerFP420(ChannelThreshold, SeedThreshold, ClusterThreshold, MaxVoidsInCluster);
+    threeThreshold_ =
+        std::make_unique<ClusterProducerFP420>(ChannelThreshold, SeedThreshold, ClusterThreshold, MaxVoidsInCluster);
     validClusterizer_ = true;
   } else {
     std::cout << "ERROR:FP420ClusterMain: No valid clusterizer selected" << std::endl;
@@ -101,17 +102,9 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn
   }
 }
 
-FP420ClusterMain::~FP420ClusterMain() {
-  if (threeThreshold_ != nullptr) {
-    delete threeThreshold_;
-  }
-}
-
 //void FP420ClusterMain::run(const DigiCollectionFP420 *input, ClusterCollectionFP420 *soutput,
 //			   const std::vector<ClusterNoiseFP420>& electrodnoise)
-void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420>& input,
-                           ClusterCollectionFP420* soutput,
-                           std::vector<ClusterNoiseFP420>& electrodnoise)
+void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420>& input, ClusterCollectionFP420* soutput) const
 
 {
   // unpack from iu:
@@ -144,19 +137,17 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420>& input,
             if (verbosity > 0) {
               std::cout << " FP420ClusterMain:1 run loop   index no  iu = " << detID << std::endl;
             }
+            float moduleThickness = 0;  // plate thickness
+            int numStrips = 0;          // number of strips in the module
             // Y:
             if (xytype == 1) {
               numStrips = numStripsY * numStripsYW;
               moduleThickness = moduleThicknessY;
-              pitch = pitchY;
-              ldrift = ldriftX;
             }
             // X:
             if (xytype == 2) {
               numStrips = numStripsX * numStripsXW;
               moduleThickness = moduleThicknessX;
-              pitch = pitchX;
-              ldrift = ldriftY;
             }
 
             //    for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); ++detunit_iterator ) {

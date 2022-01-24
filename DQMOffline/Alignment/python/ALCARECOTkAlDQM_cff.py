@@ -67,8 +67,8 @@ ALCARECOTkAlZMuMuHITrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
-    allTrackProducer = cms.InputTag( "hiGeneralTracks" ),
-    primaryVertex = cms.InputTag('hiSelectedVertex'),
+    allTrackProducer = "hiGeneralTracks" ,
+    primaryVertex = 'hiSelectedVertex'
 )
 
 ALCARECOTkAlZMuMuHITkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
@@ -76,8 +76,8 @@ ALCARECOTkAlZMuMuHITkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
-    ReferenceTrackProducer= cms.InputTag( "hiGeneralTracks" ),
-    CaloJetCollection= cms.InputTag( "iterativeConePu5CaloJets" ),
+    ReferenceTrackProducer= "hiGeneralTracks",
+    CaloJetCollection= "iterativeConePu5CaloJets"
 )
 
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMuHI_cff import ALCARECOTkAlZMuMuHIHLT
@@ -96,7 +96,7 @@ ALCARECOTkAlZMuMuHIDQM = cms.Sequence( ALCARECOTkAlZMuMuHITrackingDQM + ALCARECO
 #########################################################
 __selectionName = 'TkAlZMuMuPA'
 ALCARECOTkAlZMuMuPATrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
@@ -104,7 +104,7 @@ ALCARECOTkAlZMuMuPATrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
 )
 
 ALCARECOTkAlZMuMuPATkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName
@@ -126,20 +126,20 @@ ALCARECOTkAlZMuMuPADQM = cms.Sequence( ALCARECOTkAlZMuMuPATrackingDQM + ALCARECO
 #########################################################
 __selectionName = 'TkAlJpsiMuMu'
 ALCARECOTkAlJpsiMuMuTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
-# margins and settings
+    # margins and settings
     TrackPtMax = 50
 )
 ALCARECOTkAlJpsiMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
-# margins and settings
+    # margins and settings
     MassMin = 2.5,
     MassMax = 4.0,
     TrackPtMax = 50
@@ -161,14 +161,14 @@ ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARE
 #########################################################
 __selectionName = 'TkAlJpsiMuMuHI'
 ALCARECOTkAlJpsiMuMuHITrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
-    allTrackProducer = cms.InputTag( "hiGeneralTracks" ),
-    primaryVertex = cms.InputTag('hiSelectedVertex'),
-# margins and settings
+    allTrackProducer = "hiGeneralTracks",
+    primaryVertex = 'hiSelectedVertex',
+    # margins and settings
     TrackPtMax = 50
 )
 
@@ -177,8 +177,8 @@ ALCARECOTkAlJpsiMuMuHITkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
-    ReferenceTrackProducer= cms.InputTag( "hiGeneralTracks" ),
-    CaloJetCollection= cms.InputTag( "iterativeConePu5CaloJets" ),
+    ReferenceTrackProducer= "hiGeneralTracks",
+    CaloJetCollection= "iterativeConePu5CaloJets",
 # margins and settings
     MassMin = 2.5,
     MassMax = 4.0,
@@ -235,25 +235,25 @@ ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + 
 ############################################################
 __selectionName = 'TkAlUpsilonMuMuHI'
 ALCARECOTkAlUpsilonMuMuHITrackingDQM = ALCARECOTkAlJpsiMuMuHITrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
-    allTrackProducer = cms.InputTag( "hiGeneralTracks" ),
-    primaryVertex = cms.InputTag('hiSelectedVertex'),
-# margins and settings
+    allTrackProducer = "hiGeneralTracks",
+    primaryVertex = 'hiSelectedVertex',
+    # margins and settings
     TrackPtMax = 50
 )
 
 ALCARECOTkAlUpsilonMuMuHITkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
-    ReferenceTrackProducer= cms.InputTag( "hiGeneralTracks" ),
-    CaloJetCollection= cms.InputTag( "iterativeConePu5CaloJets" ),
-# margins and settings
+    ReferenceTrackProducer= "hiGeneralTracks",
+    CaloJetCollection= "iterativeConePu5CaloJets",
+    # margins and settings
     MassMin = 8.,
     MassMax = 10,
     TrackPtMax = 50
@@ -275,21 +275,21 @@ ALCARECOTkAlUpsilonMuMuHIDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuHITrackingDQ
 ############################################################
 __selectionName = 'TkAlUpsilonMuMuPA'
 ALCARECOTkAlUpsilonMuMuPATrackingDQM = ALCARECOTkAlUpsilonMuMuTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
-# margins and settings
+    # margins and settings
     TrackPtMax = 50
 )
 
 ALCARECOTkAlUpsilonMuMuPATkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
-# margins and settings
+    # margins and settings
     MassMin = 8.,
     MassMax = 10,
     TrackPtMax = 50
@@ -311,7 +311,7 @@ ALCARECOTkAlUpsilonMuMuPADQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuPATrackingDQ
 #########################################################
 __selectionName = 'TkAlBeamHalo'
 ALCARECOTkAlBeamHaloTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
@@ -336,12 +336,12 @@ ALCARECOTkAlBeamHaloDQM = cms.Sequence( ALCARECOTkAlBeamHaloTrackingDQM
 ########################################################
 __selectionName = 'TkAlMinBias'
 ALCARECOTkAlMinBiasTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
-# margins and settings
+    # margins and settings
     TkSizeBin = 71,
     TkSizeMin = -0.5,
     TkSizeMax = 70.5,
@@ -349,11 +349,11 @@ ALCARECOTkAlMinBiasTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
 )
 
 ALCARECOTkAlMinBiasTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
-# margins and settings
+    # margins and settings
     fillInvariantMass = False,
     TrackPtMax = 30,
     SumChargeBin = 101,
@@ -386,14 +386,14 @@ ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECO
 ########################################################
 __selectionName = 'TkAlMinBiasHI'
 ALCARECOTkAlMinBiasHITrackingDQM = ALCARECOTkAlMinBiasTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
     primaryVertex = "hiSelectedVertex",
     allTrackProducer = "hiGeneralTracks",
-# margins and settings
+    # margins and settings
     TkSizeBin = 71,
     TkSizeMin = -0.5,
     TkSizeMax = 70.5,
@@ -401,13 +401,13 @@ ALCARECOTkAlMinBiasHITrackingDQM = ALCARECOTkAlMinBiasTrackingDQM.clone(
 )
 
 ALCARECOTkAlMinBiasHITkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     ReferenceTrackProducer = 'hiGeneralTracks',
     CaloJetCollection = 'iterativeConePu5CaloJets',
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
-# margins and settings
+    # margins and settings
     fillInvariantMass = False,
     TrackPtMax = 30,
     SumChargeBin = 101,
@@ -432,12 +432,12 @@ ALCARECOTkAlMinBiasHIDQM = cms.Sequence( ALCARECOTkAlMinBiasHITrackingDQM + ALCA
 #############################################################
 __selectionName = 'TkAlMuonIsolated'
 ALCARECOTkAlMuonIsolatedTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
-# margins and settings
+    # margins and settings
     TkSizeBin = 16,
     TkSizeMin = -0.5,
     TkSizeMax = 15.5
@@ -464,14 +464,14 @@ ALCARECOTkAlMuonIsolatedDQM = cms.Sequence( ALCARECOTkAlMuonIsolatedTrackingDQM 
 #############################################################
 __selectionName = 'TkAlMuonIsolatedHI'
 ALCARECOTkAlMuonIsolatedHITrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
-    allTrackProducer = cms.InputTag( "hiGeneralTracks" ),
-    primaryVertex = cms.InputTag('hiSelectedVertex'),
-# margins and settings
+    allTrackProducer = "hiGeneralTracks",
+    primaryVertex = 'hiSelectedVertex',
+    # margins and settings
     TkSizeBin = 16,
     TkSizeMin = -0.5,
     TkSizeMax = 15.5
@@ -480,8 +480,8 @@ ALCARECOTkAlMuonIsolatedHITkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
-    ReferenceTrackProducer= cms.InputTag( "hiGeneralTracks" ),
-    CaloJetCollection= cms.InputTag( "iterativeConePu5CaloJets" )
+    ReferenceTrackProducer= "hiGeneralTracks",
+    CaloJetCollection= "iterativeConePu5CaloJets" 
 )
 
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolatedHI_cff import ALCARECOTkAlMuonIsolatedHIHLT
@@ -500,12 +500,12 @@ ALCARECOTkAlMuonIsolatedHIDQM = cms.Sequence( ALCARECOTkAlMuonIsolatedHITracking
 #############################################################
 __selectionName = 'TkAlMuonIsolatedPA'
 ALCARECOTkAlMuonIsolatedPATrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
-# margins and settings
+    # margins and settings
     TkSizeBin = 16,
     TkSizeMin = -0.5,
     TkSizeMax = 15.5
@@ -556,12 +556,12 @@ ALCARECOTkAlLASDQM = cms.Sequence( ALCARECOTkAlLASDigiDQM )
 ###############################
 __selectionName = 'TkAlCosmicsInCollisions'
 ALCARECOTkAlCosmicsInCollisionsTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = 'AlCaReco/TkAlCosmicsInCollisions',
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
-# margins and settings
+    # margins and settings
     TrackPtBin = 500,
     TrackPtMin = 0,
     TrackPtMax = 500
@@ -592,23 +592,23 @@ ALCARECOTkAlCosmicsInCollisionsDQM = cms.Sequence( ALCARECOTkAlCosmicsInCollisio
 ########################
 __selectionName = 'TkAlCosmicsCTF0T'
 ALCARECOTkAlCosmicsCTF0TTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = 'AlCaReco/TkAlCosmics0T',
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
-# margins and settings
+    # margins and settings
     TrackPtBin = 500,
     TrackPtMin = 0,
     TrackPtMax = 500
 )
 ALCARECOTkAlCosmicsCTF0TTkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     ReferenceTrackProducer = 'ctfWithMaterialTracksP5',
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = 'AlCaReco/TkAlCosmics0T',
-# margins and settings
+    # margins and settings
     useSignedR = True
 )
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_cff import ALCARECOTkAlCosmics0THLT
@@ -709,14 +709,14 @@ ALCARECOTkAlCosmicsInCollisions0TDQM = cms.Sequence( ALCARECOTkAlCosmicsInCollis
 ######################
 __selectionName = 'TkAlCosmicsCTF'
 ALCARECOTkAlCosmicsCTFTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     FolderName = 'AlCaReco/TkAlCosmics',
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName
 )
 ALCARECOTkAlCosmicsCTFTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
-#names and desigantions
+    #names and desigantions
     FolderName = 'AlCaReco/TkAlCosmics',
     TrackProducer = 'ALCARECO'+__selectionName,
     ReferenceTrackProducer = ALCARECOTkAlCosmicsCTF0TTkAlDQM.ReferenceTrackProducer,
@@ -738,13 +738,13 @@ ALCARECOTkAlCosmicsCTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCTFTrackingDQM + AL
 ###########################
 __selectionName = 'TkAlCosmicsCosmicTF'
 ALCARECOTkAlCosmicsCosmicTFTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot"
 )
 ALCARECOTkAlCosmicsCosmicTFTkAlDQM = ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     ReferenceTrackProducer = ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM.ReferenceTrackProducer,
     AlgoName = 'ALCARECO'+__selectionName
@@ -765,13 +765,13 @@ ALCARECOTkAlCosmicsCosmicTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTFTracki
 ###########################
 __selectionName = 'TkAlCosmicsRegional'
 ALCARECOTkAlCosmicsRegionalTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot"
 )
 ALCARECOTkAlCosmicsRegionalTkAlDQM = ALCARECOTkAlCosmicsRegional0TTkAlDQM.clone(
-#names and desigantions
+    #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     ReferenceTrackProducer = ALCARECOTkAlCosmicsRegional0TTkAlDQM.ReferenceTrackProducer,
     AlgoName = 'ALCARECO'+__selectionName

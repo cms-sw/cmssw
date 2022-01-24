@@ -47,7 +47,6 @@ protected:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
 private:
-  edm::Service<TFileService> fs_;
   const std::string g4Label_, nameDetector_, hgcalHits_;
   const edm::InputTag hgcalDigis_;
   const int iSample_;
@@ -90,17 +89,18 @@ void HGCalSiliconValidation::beginRun(edm::Run const&, edm::EventSetup const& es
   edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation::Booking the Histograms";
 
   //Histograms for Sim Hits
-  hsimE1_ = fs_->make<TH1D>("SimHitEn1", "Sim Hit Energy", 1000, 0.0, 1.0);
-  hsimE2_ = fs_->make<TH1D>("SimHitEn2", "Sim Hit Energy", 1000, 0.0, 1.0);
-  hsimTm_ = fs_->make<TH1D>("SimHitTime", "Sim Hit Time", 1000, 0.0, 500.0);
-  hsimLn_ = fs_->make<TH1D>("SimHitLong", "Sim Hit Long. Profile", 60, 0.0, 30.0);
-  hsimOc_ = fs_->make<TH2D>("SimHitOccup", "Sim Hit Occupnacy", 300, 0.0, 300.0, 60, 0.0, 30.0);
-  hsi2Oc_ = fs_->make<TH2D>("SimHitOccu2", "Sim Hit Occupnacy", 300, 300.0, 600.0, 300, 0.0, 300.0);
+  edm::Service<TFileService> fs;
+  hsimE1_ = fs->make<TH1D>("SimHitEn1", "Sim Hit Energy", 1000, 0.0, 1.0);
+  hsimE2_ = fs->make<TH1D>("SimHitEn2", "Sim Hit Energy", 1000, 0.0, 1.0);
+  hsimTm_ = fs->make<TH1D>("SimHitTime", "Sim Hit Time", 1000, 0.0, 500.0);
+  hsimLn_ = fs->make<TH1D>("SimHitLong", "Sim Hit Long. Profile", 60, 0.0, 30.0);
+  hsimOc_ = fs->make<TH2D>("SimHitOccup", "Sim Hit Occupnacy", 300, 0.0, 300.0, 60, 0.0, 30.0);
+  hsi2Oc_ = fs->make<TH2D>("SimHitOccu2", "Sim Hit Occupnacy", 300, 300.0, 600.0, 300, 0.0, 300.0);
   //Histograms for Digis
-  hdigEn_ = fs_->make<TH1D>("DigiEnergy", "Digi ADC Sample", 1000, 0.0, 1000.0);
-  hdigLn_ = fs_->make<TH1D>("DigiLong", "Digi Long. Profile", 60, 0.0, 30.0);
-  hdigOc_ = fs_->make<TH2D>("DigiOccup", "Digi Occupnacy", 300, 0.0, 300.0, 60, 0.0, 30.0);
-  hdi2Oc_ = fs_->make<TH2D>("DigiOccu2", "Digi Occupnacy", 300, 300.0, 600.0, 300, 0.0, 300.0);
+  hdigEn_ = fs->make<TH1D>("DigiEnergy", "Digi ADC Sample", 1000, 0.0, 1000.0);
+  hdigLn_ = fs->make<TH1D>("DigiLong", "Digi Long. Profile", 60, 0.0, 30.0);
+  hdigOc_ = fs->make<TH2D>("DigiOccup", "Digi Occupnacy", 300, 0.0, 300.0, 60, 0.0, 30.0);
+  hdi2Oc_ = fs->make<TH2D>("DigiOccu2", "Digi Occupnacy", 300, 300.0, 600.0, 300, 0.0, 300.0);
 }
 
 void HGCalSiliconValidation::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {

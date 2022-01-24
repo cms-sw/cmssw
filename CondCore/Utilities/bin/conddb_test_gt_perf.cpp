@@ -11,8 +11,8 @@
 #include <memory>
 
 #include <boost/thread/mutex.hpp>
-#include "tbb/parallel_for_each.h"
-#include "tbb/global_control.h"
+#include "oneapi/tbb/parallel_for_each.h"
+#include "oneapi/tbb/global_control.h"
 
 namespace cond {
 

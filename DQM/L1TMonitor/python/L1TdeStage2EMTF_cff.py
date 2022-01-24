@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.L1TMonitor.L1TdeStage2EMTF_cfi import *
+from DQM.L1TMonitor.L1TdeStage2RegionalShower_cfi import *
 
 # List of bins to ignore
 ignoreBinsDeStage2Emtf = [1]
@@ -27,3 +28,6 @@ l1tdeStage2EmtfOnlineDQMSeq = cms.Sequence(
     l1tdeStage2EmtfComp
 )
 
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+_run3shower_l1tdeStage2EmtfOnlineDQMSeq = l1tdeStage2EmtfOnlineDQMSeq.copy()
+run3_GEM.toReplaceWith(l1tdeStage2EmtfOnlineDQMSeq, cms.Sequence(_run3shower_l1tdeStage2EmtfOnlineDQMSeq + l1tdeStage2RegionalShower))

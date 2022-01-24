@@ -7,7 +7,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -18,7 +18,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-class ExampleMuonAnalyzer : public edm::EDAnalyzer {
+class ExampleMuonAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// Constructor
   ExampleMuonAnalyzer(const edm::ParameterSet &pset);
@@ -65,6 +65,7 @@ using namespace edm;
 /// Constructor
 ExampleMuonAnalyzer::ExampleMuonAnalyzer(const ParameterSet &pset) {
   theMuonToken = consumes<pat::MuonCollection>(pset.getParameter<InputTag>("MuonCollection"));
+  usesResource(TFileService::kSharedResource);
 }
 
 /// Destructor

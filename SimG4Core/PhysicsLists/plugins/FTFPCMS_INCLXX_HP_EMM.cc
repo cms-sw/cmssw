@@ -21,10 +21,10 @@ FTFPCMS_INCLXX_HP_EMM::FTFPCMS_INCLXX_HP_EMM(const edm::ParameterSet& p) : Physi
   bool tracking = p.getParameter<bool>("TrackingCut");
   bool thermal = p.getUntrackedParameter<bool>("ThermalNeutrons");
   double timeLimit = p.getParameter<double>("MaxTrackTime") * CLHEP::ns;
-  edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-                              << "FTFP_INCLXX_HP_EMM \n Flags for EM Physics " << emPhys << ", for Hadronic Physics "
-                              << hadPhys << " and tracking cut " << tracking << "   t(ns)= " << timeLimit / CLHEP::ns
-                              << " ThermalNeutrons: " << thermal;
+  edm::LogVerbatim("PhysicsList") << "You are using the simulation engine: "
+                                  << "FTFP_INCLXX_HP_EMM \n Flags for EM Physics " << emPhys
+                                  << ", for Hadronic Physics " << hadPhys << " and tracking cut " << tracking
+                                  << "   t(ns)= " << timeLimit / CLHEP::ns << " ThermalNeutrons: " << thermal;
 
   if (emPhys) {
     // EM Physics
@@ -45,7 +45,7 @@ FTFPCMS_INCLXX_HP_EMM::FTFPCMS_INCLXX_HP_EMM(const edm::ParameterSet& p) : Physi
     RegisterPhysics(new G4HadronElasticPhysicsHP(ver));
 
     // Hadron Physics
-    RegisterPhysics(new G4HadronPhysicsINCLXX(ver, true, true, true));
+    RegisterPhysics(new G4HadronPhysicsINCLXX("hInelastic INCLXX_HP", true, true, true));
 
     // Stopping Physics
     RegisterPhysics(new G4StoppingPhysics(ver));

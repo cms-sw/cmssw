@@ -247,7 +247,7 @@ namespace edm {
                             ServiceToken const& iToken,
                             StreamID const& iID,
                             StreamContext const* iContext,
-                            tbb::task_group& iGroup) {
+                            oneapi::tbb::task_group& iGroup) {
     EventPrincipal const& iEP = iInfo.principal();
     ServiceRegistry::Operate guard(iToken);
 
@@ -262,6 +262,10 @@ namespace edm {
         std::rethrow_exception(*iException);
       } catch (cms::Exception& oldEx) {
         pEx = std::unique_ptr<cms::Exception>(oldEx.clone());
+      } catch (std::exception const& oldEx) {
+        pEx = std::make_unique<edm::Exception>(errors::StdException);
+      } catch (...) {
+        pEx = std::make_unique<edm::Exception>(errors::Unknown);
       }
       // Caught exception is propagated via WaitingTaskList
       CMS_SA_ALLOW try {
@@ -350,7 +354,7 @@ namespace edm {
                                 ServiceToken const& iToken,
                                 StreamID const& iID,
                                 StreamContext const* iContext,
-                                tbb::task_group& iGroup) {
+                                oneapi::tbb::task_group& iGroup) {
     //Figure out which next modules can run concurrently
     const int firstModuleIndex = iNextModuleIndex;
     int lastModuleIndex = firstModuleIndex;

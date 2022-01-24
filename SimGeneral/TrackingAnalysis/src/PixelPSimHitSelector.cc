@@ -1,7 +1,4 @@
 
-#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -33,8 +30,7 @@ void PixelPSimHitSelector::select(PSimHitCollection &selection,
   std::unique_ptr<MixCollection<PSimHit>> pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
 
   // Accessing dead pixel modules from DB:
-  edm::ESHandle<SiPixelQuality> siPixelBadModule;
-  setup.get<SiPixelQualityRcd>().get(siPixelBadModule);
+  edm::ESHandle<SiPixelQuality> siPixelBadModule = setup.getHandle(badModuleToken_);
 
   // Reading the DB information
   std::vector<SiPixelQuality::disabledModuleType> badModules(siPixelBadModule->getBadComponentList());

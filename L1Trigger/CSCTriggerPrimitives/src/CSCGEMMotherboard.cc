@@ -38,6 +38,11 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
     edm::LogError("CSCGEMMotherboard") << "TMB constructed while runME21ILT_ is not set!";
   };
 
+  // These LogErrors are sanity checks and should not be printed
+  if (!isME11_ and !isME21_) {
+    edm::LogError("CSCGEMMotherboard") << "GEM-CSC OTMB constructed for a non-ME1/1 or a non-ME2/1 chamber!";
+  };
+
   // super chamber has layer=0!
   gemId = GEMDetId(theRegion, 1, theStation, 0, theChamber, 0).rawId();
 
@@ -59,18 +64,13 @@ void CSCGEMMotherboard::run(const CSCWireDigiCollection* wiredc,
   // Step 1: Setup
   clear();
 
-  // check for GEM geometry
-  if (gem_g == nullptr) {
-    edm::LogError("CSCGEMMotherboard") << "run() called for GEM-CSC integrated trigger without valid GEM geometry! \n";
-    return;
-  }
-
   // Check that the processors can deliver data
   if (!(alctProc and clctProc)) {
-    edm::LogError("CSCGEMMotherboard") << "run() called for non-existing ALCT/CLCT processor! \n";
+    edm::LogError("CSCGEMMotherboard") << "run() called for non-existing ALCT/CLCT processor in " << theCSCName_;
     return;
   }
 
+  // set geometry
   alctProc->setCSCGeometry(cscGeometry_);
   clctProc->setCSCGeometry(cscGeometry_);
 
@@ -90,19 +90,39 @@ void CSCGEMMotherboard::run(const CSCWireDigiCollection* wiredc,
   if (alctV.empty() and clctV.empty())
     return;
 
-  // set the lookup tables for coordinate conversion and matching
-  if (isME11_) {
-    clusterProc_->setESLookupTables(lookupTableME11ILT_);
-    cscGEMMatcher_->setESLookupTables(lookupTableME11ILT_);
-  }
-  if (isME21_) {
-    clusterProc_->setESLookupTables(lookupTableME21ILT_);
-    cscGEMMatcher_->setESLookupTables(lookupTableME21ILT_);
+  bool validClustersAndGeometry = true;
+
+  // Step 3a: check for GEM geometry
+  if (gem_g == nullptr) {
+    edm::LogWarning("CSCGEMMotherboard") << "run() called for GEM-CSC integrated trigger"
+                                         << " without valid GEM geometry! Running CSC-only"
+                                         << " trigger algorithm in " << theCSCName_;
+    validClustersAndGeometry = false;
   }
 
-  // Step 3: run the GEM cluster processor to get the internal clusters
-  clusterProc_->run(gemClusters);
-  hasGE21Geometry16Partitions_ = clusterProc_->hasGE21Geometry16Partitions();
+  // Step 3b: check that the GEM cluster collection is a valid pointer
+  if (gemClusters == nullptr) {
+    edm::LogWarning("CSCGEMMotherboard") << "run() called for GEM-CSC integrated trigger"
+                                         << " without valid GEM clusters! Running CSC-only"
+                                         << " trigger algorithm in " << theCSCName_;
+    validClustersAndGeometry = false;
+  }
+
+  if (validClustersAndGeometry) {
+    // Step 3c: set the lookup tables for coordinate conversion and matching
+    if (isME11_) {
+      clusterProc_->setESLookupTables(lookupTableME11ILT_);
+      cscGEMMatcher_->setESLookupTables(lookupTableME11ILT_);
+    }
+    if (isME21_) {
+      clusterProc_->setESLookupTables(lookupTableME21ILT_);
+      cscGEMMatcher_->setESLookupTables(lookupTableME21ILT_);
+    }
+
+    // Step 3d: run the GEM cluster processor to get the internal clusters
+    clusterProc_->run(gemClusters);
+    hasGE21Geometry16Partitions_ = clusterProc_->hasGE21Geometry16Partitions();
+  }
 
   /*
     Mask for bunch crossings were LCTs were previously found
@@ -122,12 +142,12 @@ void CSCGEMMotherboard::run(const CSCWireDigiCollection* wiredc,
   CSCMotherboard::matchALCTCLCT(bunch_crossing_mask);
 
   // Step 6: CLCT-2GEM matching for BX's that were not previously masked
-  if (build_lct_from_clct_gem_) {
+  if (build_lct_from_clct_gem_ and validClustersAndGeometry) {
     matchCLCT2GEM(bunch_crossing_mask);
   }
 
   // Step 7: ALCT-2GEM matching for BX's that were not previously masked
-  if (build_lct_from_alct_gem_) {
+  if (build_lct_from_alct_gem_ and validClustersAndGeometry) {
     matchALCT2GEM(bunch_crossing_mask);
   }
 

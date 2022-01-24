@@ -13,13 +13,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "Validation/MuonCSCDigis/interface/CSCDigiMatcher.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <vector>
 #include <map>
@@ -88,7 +89,7 @@ private:
   edm::Handle<CSCRecHit2DCollection> cscRecHit2DH_;
   edm::Handle<CSCSegmentCollection> cscSegmentH_;
 
-  edm::ESHandle<CSCGeometry> csc_geom_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
   const CSCGeometry* cscGeometry_;
 
   void matchCSCRecHit2DsToSimTrack(const CSCRecHit2DCollection&);

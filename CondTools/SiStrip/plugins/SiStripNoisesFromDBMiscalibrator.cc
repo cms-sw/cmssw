@@ -64,6 +64,7 @@ private:
 
   // ----------member data ---------------------------
   const uint32_t m_printdebug;
+  const bool m_perDetIDdebug;
   const bool m_fillDefaults;
   const bool m_saveMaps;
   const std::vector<edm::ParameterSet> m_parameters;
@@ -83,7 +84,8 @@ private:
 // constructors and destructor
 //
 SiStripNoisesFromDBMiscalibrator::SiStripNoisesFromDBMiscalibrator(const edm::ParameterSet& iConfig)
-    : m_printdebug{iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)},
+    : m_printdebug{iConfig.getUntrackedParameter<uint32_t>("printDebug", 10)},
+      m_perDetIDdebug{iConfig.getUntrackedParameter<bool>("perDetIDdebug", false)},
       m_fillDefaults{iConfig.getUntrackedParameter<bool>("fillDefaults", false)},
       m_saveMaps{iConfig.getUntrackedParameter<bool>("saveMaps", true)},
       m_parameters{iConfig.getParameter<std::vector<edm::ParameterSet> >("params")},
@@ -224,8 +226,10 @@ void SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
   SiStripMiscalibrate::Entry noise_ratio;
   SiStripMiscalibrate::Entry o_noise;
   SiStripMiscalibrate::Entry n_noise;
-  unsigned int countDetIds(0);  // count DetIds to print
+  uint countDetIds(0);  // count DetIds to print
+  uint countStrips(0);
   for (const auto& element : theMap) {
+    countStrips++;
     uint32_t DetId = element.first.first;
     int nstrip = element.first.second;
     float new_noise = element.second;
@@ -243,10 +247,18 @@ void SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
       o_noise.reset();
       n_noise.reset();
       countDetIds++;
+
+      if (m_perDetIDdebug && (countDetIds < m_printdebug)) {
+        edm::LogPrint("SiStripNoisesFromDBMiscalibrator")
+            << "SiStripNoisesFromDBMiscalibrator"
+            << "::" << __FUNCTION__ << " detid " << DetId << " \t"
+            << " strip " << nstrip << " \t new <noise>: " << std::setw(5) << std::setprecision(2) << n_noise.mean()
+            << " \t old <noise>: " << o_noise.mean() << " \t" << std::endl;
+      }
     }
 
     // printout for debug
-    if (countDetIds < m_printdebug) {
+    if ((countStrips < m_printdebug) && !m_perDetIDdebug) {
       edm::LogPrint("SiStripNoisesFromDBMiscalibrator")
           << "SiStripNoisesFromDBMiscalibrator"
           << "::" << __FUNCTION__ << " detid " << DetId << " \t"
@@ -410,7 +422,8 @@ void SiStripNoisesFromDBMiscalibrator::fillDescriptions(edm::ConfigurationDescri
   descScaler.add<double>("smearFactor", 1.0);
   desc.addVPSet("params", descScaler, std::vector<edm::ParameterSet>(1));
 
-  desc.addUntracked<unsigned int>("printDebug", 1);
+  desc.addUntracked<unsigned int>("printDebug", 10);
+  desc.addUntracked<bool>("perDetIDdebug", false);
   desc.addUntracked<bool>("fillDefaults", false);
   desc.addUntracked<bool>("saveMaps", true);
 

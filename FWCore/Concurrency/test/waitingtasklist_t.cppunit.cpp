@@ -12,7 +12,7 @@
 #include <memory>
 #include <atomic>
 #include <thread>
-#include "tbb/task.h"
+#include "oneapi/tbb/task.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
 class WaitingTaskList_test : public CppUnit::TestFixture {
@@ -75,7 +75,7 @@ void WaitingTaskList_test::addThenDone() {
 
     auto t = new TestCalledTask{called, excPtr};
 
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
     waitList.add(edm::WaitingTaskHolder(group, t));
 
     usleep(10);
@@ -95,7 +95,7 @@ void WaitingTaskList_test::addThenDone() {
 
     auto t = new TestCalledTask{called, excPtr};
 
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
 
     waitList.add(edm::WaitingTaskHolder(group, t));
 
@@ -115,7 +115,7 @@ void WaitingTaskList_test::doneThenAdd() {
 
   edm::WaitingTaskList waitList;
   {
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
 
     auto t = new TestCalledTask{called, excPtr};
 
@@ -137,7 +137,7 @@ void WaitingTaskList_test::addThenDoneFailed() {
 
     auto t = new TestCalledTask{called, excPtr};
 
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
 
     waitList.add(edm::WaitingTaskHolder(group, t));
 
@@ -161,7 +161,7 @@ void WaitingTaskList_test::doneThenAddFailed() {
 
     waitList.doneWaiting(std::make_exception_ptr(std::string("failed")));
 
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
 
     waitList.add(edm::WaitingTaskHolder(group, t));
     group.wait();
@@ -180,7 +180,7 @@ namespace {
 
 void WaitingTaskList_test::stressTest() {
   edm::WaitingTaskList waitList;
-  tbb::task_group group;
+  oneapi::tbb::task_group group;
 
   unsigned int index = 1000;
   const unsigned int nTasks = 10000;

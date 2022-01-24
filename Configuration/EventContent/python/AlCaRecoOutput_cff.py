@@ -147,9 +147,9 @@ from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_Output_cff import *
 # PPS calibration
 ###############################################################
 from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_Output_cff import *
-from CalibPPS.TimingCalibration.ALCARECOPPSTimingCalib_Output_cff import *
-from CalibPPS.TimingCalibration.ALCARECOPPSDiamondSampicTimingCalib_Output_cff import *
-from CalibPPS.AlignmentGlobal.ALCARECOPPSAlignment_Output_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPromptCalibProdPPSTimingCalib_Output_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPromptCalibProdPPSDiamondSampicTimingCalib_Output_cff import *
+from CalibPPS.AlignmentGlobal.ALCARECOPromptCalibProdPPSAlignment_Output_cff import *
 
 ###############################################################
 # stream for prompt-calibration @ Tier0

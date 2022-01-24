@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
@@ -58,27 +59,29 @@ void HcalGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Even
   int counter = 0;
   for (std::vector<DetId>::const_iterator i = ids.begin(), iEnd = ids.end(); i != iEnd; ++i, ++counter) {
     HcalDetId hid = (*i);
-    std::cout << counter << ": din " << topology.detId2denseId(*i) << ":" << hid;
+    edm::LogVerbatim("HCalGeom") << counter << ": din " << topology.detId2denseId(*i) << ":" << hid;
     dins.emplace_back(topology.detId2denseId(*i));
 
     auto cell = caloGeom->getGeometry(*i);
-    std::cout << *cell << std::endl;
+    edm::LogVerbatim("HCalGeom") << *cell;
   }
 
   std::sort(dins.begin(), dins.end());
-  std::cout << "=== Total " << counter << " cells in HCAL."
-            << " from HcalTopology ncells " << topology.ncells() << std::endl;
+  edm::LogVerbatim("HCalGeom") << "=== Total " << counter << " cells in HCAL."
+                               << " from HcalTopology ncells " << topology.ncells();
 
   // HB : 6911: din 16123
-  std::cout << "HB Size " << topology.getHBSize() << "\nHE Size " << topology.getHESize() << "\nHO Size "
-            << topology.getHOSize() << "\nHF Size " << topology.getHFSize() << "\nTotal "
-            << topology.getHBSize() + topology.getHESize() + topology.getHOSize() + topology.getHFSize() << "\n";
+  edm::LogVerbatim("HCalGeom") << "HB Size " << topology.getHBSize() << "\nHE Size " << topology.getHESize()
+                               << "\nHO Size " << topology.getHOSize() << "\nHF Size " << topology.getHFSize()
+                               << "\nTotal "
+                               << topology.getHBSize() + topology.getHESize() + topology.getHOSize() +
+                                      topology.getHFSize();
 
   counter = 0;
   for (std::vector<int>::const_iterator i = dins.begin(); i != dins.end(); ++i, ++counter) {
     HcalDetId hid = (topology.denseId2detId(*i));
     HcalDetId ihid = (topology.denseId2detId(dins[counter]));
-    std::cout << counter << ": din " << (*i) << " :" << hid << " == " << ihid << std::endl;
+    edm::LogVerbatim("HCalGeom") << counter << ": din " << (*i) << " :" << hid << " == " << ihid;
   }
 }
 

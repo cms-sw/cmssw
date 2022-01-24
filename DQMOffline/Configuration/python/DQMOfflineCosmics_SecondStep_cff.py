@@ -11,7 +11,7 @@ from DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff import *
 from DQM.DTMonitorClient.dtDQMOfflineClients_Cosmics_cff import *
 from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQM.CSCMonitorModule.csc_dqm_offlineclient_cosmics_cff import *
-from DQMOffline.Muon.gem_dqm_offline_client_cosmics_cff import *
+from DQM.GEM.gem_dqm_offline_client_cosmics_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
 DQMNone = cms.Sequence()
@@ -25,6 +25,10 @@ DQMOfflineCosmics_SecondStepTrackerStrip = cms.Sequence( SiStripCosmicDQMClient 
 
 DQMOfflineCosmics_SecondStepTrackerPixel = cms.Sequence( PixelOfflineDQMClientNoDataCertification_cosmics )
 
+#tnp modules are meant for collisions only (DT and CSC have separate cff)
+if rpcTier0Client.contains(rpcTnPEfficiencyClient):
+    rpcTier0Client.remove(rpcTnPEfficiencyClient)
+
 DQMOfflineCosmics_SecondStepMuonDPG = cms.Sequence( dtClientsCosmics *
                                                     rpcTier0Client *
                                                     cscOfflineCosmicsClients )
@@ -36,7 +40,7 @@ run3_GEM.toReplaceWith(DQMOfflineCosmics_SecondStepMuonDPG, _run3_GEM_DQMOffline
 
 DQMOfflineCosmics_SecondStepFED = cms.Sequence( dqmFEDIntegrityClient )
 
-DQMOfflineCosmics_SecondStep_PreDPG = cms.Sequence( 
+DQMOfflineCosmics_SecondStep_PreDPG = cms.Sequence(
                                                     DQMOfflineCosmics_SecondStepEcal *
                                                     DQMOfflineCosmics_SecondStepHcal *
                                                     DQMOfflineCosmics_SecondStepTrackerStrip *
@@ -73,7 +77,7 @@ DQMOfflineCosmics_SecondStep_PrePOG = cms.Sequence( DQMOfflineCosmics_SecondStep
                                                     DQMOfflineCosmics_SecondStepMUO *
                                                     DQMOfflineCosmics_SecondStepEGamma *
                                                     DQMOfflineCosmics_SecondStepL1T *
-                                                    DQMOfflineCosmics_SecondStepJetMET 
+                                                    DQMOfflineCosmics_SecondStepJetMET
                                                     )
 
 DQMOfflineCosmics_SecondStep_PrePOG.remove(fsqClient)
@@ -82,12 +86,12 @@ DQMOfflineCosmics_SecondStepPOG = cms.Sequence(
                                                 DQMMessageLoggerClientSeq *
                                                 dqmFastTimerServiceClient)
 
-DQMOfflineCosmics_SecondStep = cms.Sequence( 
+DQMOfflineCosmics_SecondStep = cms.Sequence(
                                              DQMOfflineCosmics_SecondStep_PreDPG *
                                              DQMOfflineCosmics_SecondStep_PrePOG *
 					     DQMOfflineCosmics_SecondStepTrigger *
                                              DQMMessageLoggerClientSeq )
 
-DQMOfflineCosmics_SecondStep_FakeHLT = cms.Sequence(DQMOfflineCosmics_SecondStep ) 
+DQMOfflineCosmics_SecondStep_FakeHLT = cms.Sequence(DQMOfflineCosmics_SecondStep )
 DQMOfflineCosmics_SecondStep_FakeHLT.remove( DQMOfflineCosmics_SecondStepTrigger )
 

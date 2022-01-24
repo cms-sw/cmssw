@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -42,18 +42,16 @@
 
 using namespace std;
 
-class DumpBtagTable : public edm::EDAnalyzer {
+class DumpBtagTable : public edm::one::EDAnalyzer<> {
 public:
   explicit DumpBtagTable(const edm::ParameterSet&);
-  ~DumpBtagTable();
 
 private:
   string name;
   vector<string> measureName;
   vector<string> measureType;
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  vector<edm::ESGetToken<BtagPerformance, BTagPerformanceRecord>> measureToken;
+  void analyze(const edm::Event&, const edm::EventSetup&) final;
 
   // ----------member data ---------------------------
 };
@@ -61,13 +59,14 @@ private:
 DumpBtagTable::DumpBtagTable(const edm::ParameterSet& iConfig)
 
 {
-  measureName = iConfig.getParameter<vector<string> >("measureName");
-  measureType = iConfig.getParameter<vector<string> >("measureType");
-}
+  measureName = iConfig.getParameter<vector<string>>("measureName");
+  measureType = iConfig.getParameter<vector<string>>("measureType");
 
-DumpBtagTable::~DumpBtagTable() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
+  measureToken.reserve(measureName.size());
+
+  for (auto const& n : measureName) {
+    measureToken.push_back(esConsumes<BtagPerformance, BTagPerformanceRecord>(edm::ESInputTag("", n)));
+  }
 }
 
 //
@@ -99,7 +98,6 @@ void DumpBtagTable::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   measureMap["MUFAKE"] = PerformanceResult::MUFAKE;
   measureMap["MUEFAKE"] = PerformanceResult::MUEFAKE;
 
-  edm::ESHandle<BtagPerformance> perfH;
   if (measureName.size() != measureType.size()) {
     std::cout << "measureName, measureType size mismatch!" << std::endl;
     exit(-1);
@@ -109,8 +107,7 @@ void DumpBtagTable::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     std::cout << "# Dump table: " << measureName[iMeasure] << " of type " << measureType[iMeasure] << std::endl;
 
     //Setup our measurement
-    iSetup.get<BTagPerformanceRecord>().get(measureName[iMeasure], perfH);
-    const BtagPerformance& perf = *(perfH.product());
+    const BtagPerformance& perf = iSetup.getData(measureToken[iMeasure]);
 
     //Working point
     std::cout << "# Working point: " << perf.workingPoint().cut() << std::endl;
@@ -172,12 +169,6 @@ void DumpBtagTable::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       */
   }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void DumpBtagTable::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void DumpBtagTable::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DumpBtagTable);

@@ -114,6 +114,41 @@ void l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& 
                        useEmtfDisplacementInfo);
 }
 
+bool l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonShower(
+    RegionalMuonShower& muShower, std::vector<uint32_t> bxPayload, int proc, tftype tf, bool useEmtfShowers) {
+  if (useEmtfShowers && (tf == emtf_pos || tf == emtf_neg)) {
+    muShower.setTFIdentifiers(proc, tf);
+
+    muShower.setOneNominalInTime(((bxPayload[emtfShowerInTimeFrame_] >> emtfShowerOneNominalShift_) & 1) == 1);
+    muShower.setOneNominalOutOfTime(((bxPayload[emtfShowerOOTFrame_] >> emtfShowerOneNominalShift_) & 1) == 1);
+    muShower.setOneTightInTime(((bxPayload[emtfShowerInTimeFrame_] >> emtfShowerOneTightShift_) & 1) == 1);
+    muShower.setOneTightOutOfTime(((bxPayload[emtfShowerOOTFrame_] >> emtfShowerOneTightShift_) & 1) == 1);
+
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void l1t::RegionalMuonRawDigiTranslator::generatePackedShowerPayload(const RegionalMuonShower& shower,
+                                                                     std::array<uint32_t, 6>& payload,
+                                                                     const bool useEmtfShowers) {
+  if (!useEmtfShowers) {
+    return;
+  }
+  // First we check whether we're going to overwrite something in the payload.
+  if (((payload.at(emtfShowerInTimeFrame_) & emtfShowerMask_) != 0) ||
+      ((payload.at(emtfShowerOOTFrame_) & emtfShowerMask_) != 0)) {
+    edm::LogError("L1T") << "Check constants for RegionalMuonShower fields! It looks like we're in danger of "
+                            "overwriting muon data in the packer!";
+    return;
+  }
+  payload.at(emtfShowerInTimeFrame_) |= (shower.isOneNominalInTime() & 1) << emtfShowerOneNominalShift_ |
+                                        (shower.isOneTightInTime() & 1) << emtfShowerOneTightShift_;
+  payload.at(emtfShowerOOTFrame_) |= (shower.isOneNominalOutOfTime() & 1) << emtfShowerOneNominalShift_ |
+                                     (shower.isOneTightOutOfTime() & 1) << emtfShowerOneTightShift_;
+}
+
 void l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalMuonCand& mu,
                                                                  uint32_t& raw_data_00_31,
                                                                  uint32_t& raw_data_32_63,

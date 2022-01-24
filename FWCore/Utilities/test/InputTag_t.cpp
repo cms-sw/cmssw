@@ -2,8 +2,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
-#include "tbb/parallel_for.h"
-#include "tbb/blocked_range.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/blocked_range.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -32,7 +32,7 @@ class InputTagModifier {
 public:
   InputTagModifier(edm::InputTag* i) : inputTag(i) {}
 
-  void operator()(tbb::blocked_range<int> const& r) const {
+  void operator()(oneapi::tbb::blocked_range<int> const& r) const {
     for (int i = r.begin(); i != r.end(); i++) {
       for (unsigned int j = 0; j < 10000; ++j) {
         unsigned int index = inputTag->indexFor(testTypeID1, edm::InRun, reg1);
@@ -192,7 +192,7 @@ int main() {
   for (unsigned int k = 0; k < 500; ++k) {
     edm::InputTag tag21("a:b:c");
     InputTagModifier inputTagModifier(&tag21);
-    tbb::parallel_for(tbb::blocked_range<int>(0, 20, 1), inputTagModifier);
+    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<int>(0, 20, 1), inputTagModifier);
   }
   return 0;
 }

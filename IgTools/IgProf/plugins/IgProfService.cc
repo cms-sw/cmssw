@@ -112,12 +112,12 @@ void IgProfService::postEndRun(GlobalContext const &) { makeDump(atPostEndRun_);
 
 void IgProfService::postEndJob() { makeDump(atPostEndJob_); }
 
-void IgProfService::postOpenFile(std::string const &, bool) {
+void IgProfService::postOpenFile(std::string const &) {
   ++nfileopened_;
   makeDump(atPostOpenFile_);
 }
 
-void IgProfService::postCloseFile(std::string const &, bool) {
+void IgProfService::postCloseFile(std::string const &) {
   ++nfileclosed_;
   makeDump(atPostCloseFile_);
 }

@@ -73,8 +73,8 @@ l1tMuonDQMOffline = DQMEDAnalyzer('L1TMuonDQMOffline',
 
 # emulator module
 l1tMuonDQMOfflineEmu = l1tMuonDQMOffline.clone(
-    gmtInputTag  = cms.untracked.InputTag("simGmtStage2Digis"),
-    histFolder = cms.untracked.string('L1TEMU/L1TObjects/L1TMuon/L1TriggerVsReco')
+    gmtInputTag  = "simGmtStage2Digis",
+    histFolder = 'L1TEMU/L1TObjects/L1TMuon/L1TriggerVsReco'
 )
 
 # modifications for the pp reference run

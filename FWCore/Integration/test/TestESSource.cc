@@ -13,7 +13,7 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/DataKey.h"
-#include "FWCore/Framework/interface/ESSourceDataProxyBase.h"
+#include "FWCore/Framework/interface/ESSourceDataProxyNonConcurrentBase.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
@@ -40,7 +40,7 @@ namespace edmtest {
 
   class TestESSource;
 
-  class TestESSourceTestProxy : public edm::eventsetup::ESSourceDataProxyBase {
+  class TestESSourceTestProxy : public edm::eventsetup::ESSourceDataProxyNonConcurrentBase {
   public:
     TestESSourceTestProxy(TestESSource* testESSource);
 
@@ -84,7 +84,7 @@ namespace edmtest {
   };
 
   TestESSourceTestProxy::TestESSourceTestProxy(TestESSource* testESSource)
-      : edm::eventsetup::ESSourceDataProxyBase(&testESSource->queue_, &testESSource->mutex_),
+      : edm::eventsetup::ESSourceDataProxyNonConcurrentBase(&testESSource->queue_, &testESSource->mutex_),
         testESSource_(testESSource) {}
 
   void TestESSourceTestProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails iRecord) {

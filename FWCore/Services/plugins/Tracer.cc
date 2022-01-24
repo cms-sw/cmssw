@@ -88,11 +88,11 @@ namespace edm {
       void preSourceProcessBlock();
       void postSourceProcessBlock(std::string const&);
 
-      void preOpenFile(std::string const&, bool);
-      void postOpenFile(std::string const&, bool);
+      void preOpenFile(std::string const&);
+      void postOpenFile(std::string const&);
 
-      void preCloseFile(std::string const& lfn, bool primary);
-      void postCloseFile(std::string const&, bool);
+      void preCloseFile(std::string const& lfn);
+      void postCloseFile(std::string const&);
 
       void preModuleBeginStream(StreamContext const&, ModuleCallingContext const&);
       void postModuleBeginStream(StreamContext const&, ModuleCallingContext const&);
@@ -603,35 +603,27 @@ void Tracer::postSourceProcessBlock(std::string const& processName) {
                         << " finished: source process block " << processName;
 }
 
-void Tracer::preOpenFile(std::string const& lfn, bool b) {
+void Tracer::preOpenFile(std::string const& lfn) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " starting: open input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 
-void Tracer::postOpenFile(std::string const& lfn, bool b) {
+void Tracer::postOpenFile(std::string const& lfn) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: open input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 
-void Tracer::preCloseFile(std::string const& lfn, bool b) {
+void Tracer::preCloseFile(std::string const& lfn) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " starting: close input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
-void Tracer::postCloseFile(std::string const& lfn, bool b) {
+void Tracer::postCloseFile(std::string const& lfn) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: close input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 
 void Tracer::preModuleBeginStream(StreamContext const& sc, ModuleCallingContext const& mcc) {

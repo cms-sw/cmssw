@@ -287,6 +287,12 @@ namespace l1t {
       int rank = 0;
       int hwEtaAtVtx = eta;
       int hwPhiAtVtx = phi;
+      double etaAtVtx = 0.0;
+      double phiAtVtx = 0.0;
+      int hwPtUnconstrained =
+          convertPtToHW(mcParticle.pt(), MaxLepPt_, PtStep_) / 2;  // word is 8 bits wide so divide 9 bit word by 2
+      double ptUnconstrained = 0.0;
+      int dXY = gRandom->Integer(4);  // should be [0,3] = 2 bits
 
       // Eta outside of acceptance
       if (eta >= 9999)
@@ -311,7 +317,12 @@ namespace l1t {
                    dEta,
                    rank,
                    hwEtaAtVtx,
-                   hwPhiAtVtx);
+                   hwPhiAtVtx,
+                   etaAtVtx,
+                   phiAtVtx,
+                   hwPtUnconstrained,
+                   ptUnconstrained,
+                   dXY);  // modified to conform to latest Muon.h interface
       muonVec.push_back(mu);
     }
 

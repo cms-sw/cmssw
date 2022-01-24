@@ -39,7 +39,7 @@ public:
 
   void scaleChanged();
 
-  mutable sigc::signal<void, const FWViewContext*> scaleChanged_;
+  mutable sigc::signal<void(const FWViewContext*)> scaleChanged_;
 
   FWViewContext(const FWViewContext&) = delete;  // stop default
 

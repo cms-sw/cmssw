@@ -165,7 +165,7 @@ void FWPFCandidateDetailView::build(const FWModelId& id, const reco::PFCandidate
       b->SetState(kButtonDown, true);
       m_guiFrame->AddFrame(b, new TGLayoutHints(kLHintsNormal, 2, 3, 1, 4));
       TQObject::Connect(b, "Clicked()", "CSGAction", action, "activate()");
-      action->activated.connect(sigc::mem_fun(this, &FWPFCandidateDetailView::plotEtChanged));
+      action->activated.connect(sigc::mem_fun(*this, &FWPFCandidateDetailView::plotEtChanged));
     }
     {
       CSGAction* action = new CSGAction(this, "RnrHcal");
@@ -173,7 +173,7 @@ void FWPFCandidateDetailView::build(const FWModelId& id, const reco::PFCandidate
       b->SetState(kButtonDown, true);
       m_guiFrame->AddFrame(b, new TGLayoutHints(kLHintsNormal, 2, 3, 1, 4));
       TQObject::Connect(b, "Clicked()", "CSGAction", action, "activate()");
-      action->activated.connect(sigc::mem_fun(this, &FWPFCandidateDetailView::rnrHcalChanged));
+      action->activated.connect(sigc::mem_fun(*this, &FWPFCandidateDetailView::rnrHcalChanged));
     }
   }
   makeLegend();

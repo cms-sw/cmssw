@@ -39,14 +39,13 @@ namespace callbacktest {
                  unsigned int transitionID,
                  void const* getTokenIndices,
                  void const* iEventSetupImpl,
-                 void const* ESParentContext,
-                 bool requireTokens) {}
+                 void const* ESParentContext) {}
     constexpr static bool allowConcurrentIOVs_ = false;
   };
 
   struct Queue {
     template <typename T>
-    void push(tbb::task_group&, T&& iT) {
+    void push(oneapi::tbb::task_group&, T&& iT) {
       iT();
     }
   };
@@ -110,7 +109,7 @@ namespace {
     edm::eventsetup::EventSetupRecordImpl rec(edm::eventsetup::EventSetupRecordKey::makeKey<callbacktest::Record>(),
                                               &ar);
     edm::FinalWaitingTask task;
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
     edm::ServiceToken token;
     iCallback.prefetchAsync(edm::WaitingTaskHolder(group, &task), &rec, nullptr, token, edm::ESParentContext{});
     do {

@@ -55,12 +55,24 @@ void IOVPayloadAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
   std::cout << myped.m_pedestals[1].m_mean << std::endl;
 
   std::cout << "currentTime " << mydbservice->currentTime() << std::endl;
-  //if(mydbservice->currentTime()%5==0){
-  mydbservice->writeOneIOV(myped, mydbservice->currentTime(), m_record);
-  //cond::TagInfo tinfo;
-  //mydbservice->tagInfo( m_record, tinfo );
-  //std::cout <<" tinfo name="<<tinfo.name<<" token="<<tinfo.lastPayloadToken<<std::endl;
-  //}
+  if (mydbservice->isNewTagRequest(m_record)) {
+    mydbservice->createOneIOV(myped, mydbservice->currentTime(), m_record);
+  } else {
+    mydbservice->appendOneIOV(myped, mydbservice->currentTime(), m_record);
+  }
+  mydbservice->startTransaction();
+  auto iov = mydbservice->currentTime() + 100;
+  auto hash = mydbservice->writeOneIOV(myped, iov, m_record);
+  mydbservice->commitTransaction();
+  cond::TagInfo_t tinfo;
+  mydbservice->tagInfo(m_record, tinfo);
+  if (tinfo.lastInterval.payloadId == hash && tinfo.lastInterval.since == iov) {
+    std::cout << "Last IOV stored is the expected one..." << std::endl;
+  } else {
+    std::cout << "Last IOV hash = " << tinfo.lastInterval.payloadId << " (expected: " << hash
+              << ") since = " << tinfo.lastInterval.since << " (expected: " << iov << ")" << std::endl;
+  }
+  mydbservice->eraseSinceTime(hash, iov, m_record);
 }
 
 void IOVPayloadAnalyzer::endJob() { std::cout << "End of job..." << std::endl; }

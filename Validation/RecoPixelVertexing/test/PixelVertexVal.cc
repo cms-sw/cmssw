@@ -1,5 +1,5 @@
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -32,13 +33,12 @@
 
 using namespace std;
 
-class PixelVertexVal : public edm::EDAnalyzer {
+class PixelVertexVal : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit PixelVertexVal(const edm::ParameterSet &conf);
   ~PixelVertexVal() override;
   void beginJob() override;
   void analyze(const edm::Event &ev, const edm::EventSetup &es) override;
-  void endJob() override;
 
 private:
   edm::ParameterSet conf_;
@@ -61,6 +61,7 @@ PixelVertexVal::PixelVertexVal(const edm::ParameterSet &conf)
       vertexCollectionToken_(
           consumes<reco::VertexCollection>(edm::InputTag(conf.getParameter<std::string>("VertexCollection")))),
       simVertexContainerToken_(consumes<edm::SimVertexContainer>(conf.getParameter<edm::InputTag>("simG4"))) {
+  usesResource(TFileService::kSharedResource);
   edm::LogInfo("PixelVertexVal") << " CTOR";
 }
 
@@ -68,12 +69,13 @@ PixelVertexVal::~PixelVertexVal() { edm::LogInfo("PixelVertexVal") << " DTOR"; }
 
 void PixelVertexVal::beginJob() {
   // validation histos
-  h["h_Nbvtx"] = new TH1F("h_nbvtx", "nb vertices in event", 16, 0., 16.);
-  h["h_Nbtrks"] = new TH1F("h_Nbtrks", "nb tracks in PV", 100, 0., 100.);
-  h["h_ResZ"] = new TH1F("resz", "residual z", 100, -0.1, 0.1);
-  h["h_PullZ"] = new TH1F("pullz", "pull z", 100, -25., 25.);
-  h["h_TrkRes"] = new TH1F("h_TrkRes", "h_TrkRes", 100, -0.2, 0.2);
-  h["h_Eff"] = new TH1F("h_Etff", "h_Etff", 10, -1., 9.);
+  edm::Service<TFileService> fs;
+  h["h_Nbvtx"] = fs->make<TH1F>("h_nbvtx", "nb vertices in event", 16, 0., 16.);
+  h["h_Nbtrks"] = fs->make<TH1F>("h_Nbtrks", "nb tracks in PV", 100, 0., 100.);
+  h["h_ResZ"] = fs->make<TH1F>("resz", "residual z", 100, -0.1, 0.1);
+  h["h_PullZ"] = fs->make<TH1F>("pullz", "pull z", 100, -25., 25.);
+  h["h_TrkRes"] = fs->make<TH1F>("h_TrkRes", "h_TrkRes", 100, -0.2, 0.2);
+  h["h_Eff"] = fs->make<TH1F>("h_Etff", "h_Etff", 10, -1., 9.);
 }
 
 void PixelVertexVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
@@ -140,17 +142,6 @@ void PixelVertexVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
       h["h_TrkRes"]->Fill((*it)->vertex().z() - pv.position().z());
     }
   }
-}
-
-void PixelVertexVal::endJob() {
-  TFile rootFile(file_.c_str(), "RECREATE");
-  for (std::map<std::string, TH1 *>::const_iterator ih = h.begin(); ih != h.end(); ++ih) {
-    TH1 *histo = (*ih).second;
-    histo->Write();
-    delete histo;
-  }
-  rootFile.Close();
-  h.clear();
 }
 
 DEFINE_FWK_MODULE(PixelVertexVal);

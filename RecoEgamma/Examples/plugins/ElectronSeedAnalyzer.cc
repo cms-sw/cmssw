@@ -19,7 +19,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -59,6 +58,10 @@ public:
 
 private:
   TrajectoryStateTransform transformer_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
 
   TFile *histfile_;
   TTree *tree_;
@@ -109,7 +112,10 @@ using namespace std;
 using namespace reco;
 
 ElectronSeedAnalyzer::ElectronSeedAnalyzer(const edm::ParameterSet &conf)
-    : beamSpot_(conf.getParameter<edm::InputTag>("beamSpot")) {
+    : topoToken_(esConsumes()),
+      trackerToken_(esConsumes()),
+      magFieldToken_(esConsumes()),
+      beamSpot_(conf.getParameter<edm::InputTag>("beamSpot")) {
   inputCollection_ = conf.getParameter<edm::InputTag>("inputCollection");
   histfile_ = new TFile("electronpixelseeds.root", "RECREATE");
 }
@@ -236,13 +242,10 @@ ElectronSeedAnalyzer::~ElectronSeedAnalyzer() {
 
 void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = iSetup.getHandle(topoToken_);
 
-  edm::ESHandle<TrackerGeometry> pDD;
-  edm::ESHandle<MagneticField> theMagField;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerToken_);
+  edm::ESHandle<MagneticField> theMagField = iSetup.getHandle(magFieldToken_);
 
   // get beam spot
   edm::Handle<reco::BeamSpot> theBeamSpot;

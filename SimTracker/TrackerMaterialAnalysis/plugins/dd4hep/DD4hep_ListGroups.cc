@@ -42,9 +42,11 @@ private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void beginJob() override {}
   void endJob() override;
-  const edm::ESInputTag m_tag;
 
-  bool m_saveSummaryPlot;
+  const edm::ESInputTag m_tag;
+  const bool m_saveSummaryPlot;
+  const edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> ddToken_;
+
   std::vector<TH2F *> m_plots;
   std::set<std::string_view> m_group_names;
   std::vector<unsigned int> m_color;
@@ -62,8 +64,9 @@ private:
 #include "DD4hep_ListGroupsMaterialDifference.h"
 
 DD4hep_ListGroups::DD4hep_ListGroups(const edm::ParameterSet &iConfig)
-    : m_tag(iConfig.getParameter<edm::ESInputTag>("DDDetector")) {
-  m_saveSummaryPlot = iConfig.getUntrackedParameter<bool>("SaveSummaryPlot");
+    : m_tag(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
+      m_saveSummaryPlot(iConfig.getUntrackedParameter<bool>("SaveSummaryPlot")),
+      ddToken_(esConsumes<cms::DDCompactView, IdealGeometryRecord>(m_tag)) {
   m_plots.clear();
   m_groups.clear();
   TColor::InitializeColors();
@@ -361,8 +364,7 @@ std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> DD4hep_Li
 }
 
 void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
-  edm::ESTransientHandle<cms::DDCompactView> cpv;
-  setup.get<IdealGeometryRecord>().get(m_tag, cpv);
+  edm::ESTransientHandle<cms::DDCompactView> cpv = setup.getTransientHandle(ddToken_);
   cms::DDFilter filter("TrackingMaterialGroup", "");
   cms::DDFilteredView fv(*cpv, filter);
 

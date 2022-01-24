@@ -36,9 +36,9 @@ namespace edm {
 
       void postEndJob();
 
-      void postOpenFile(std::string const &, bool);
+      void postOpenFile(std::string const &);
 
-      void postCloseFile(std::string const &, bool);
+      void postCloseFile(std::string const &);
 
       inline bool isProcessWideService(IgProfService const *) { return true; }
 

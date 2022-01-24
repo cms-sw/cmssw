@@ -82,8 +82,7 @@ hiRegitMuDetachedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.De
 
 hiRegitMuDetachedTripletStepTrackCandidates = RecoTracker.IterativeTracking.DetachedTripletStep_cff._detachedTripletStepTrackCandidatesCkf.clone(
     src               = 'hiRegitMuDetachedTripletStepSeeds',
-    TrajectoryBuilder = 'hiRegitMuDetachedTripletStepTrajectoryBuilder',
-    clustersToSkip    = cms.InputTag("hiRegitMuDetachedTripletStepClusters")
+    clustersToSkip    = 'hiRegitMuDetachedTripletStepClusters'
 )
 
 # fitting: feed new-names

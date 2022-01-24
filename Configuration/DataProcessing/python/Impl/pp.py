@@ -18,7 +18,6 @@ class pp(Reco):
         Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
-        self.addEI=True
         self.isRepacked=False
         self.promptCustoms= [ 'Configuration/DataProcessing/RecoTLR.customisePrompt' ]
         self.expressCustoms=[ ]
