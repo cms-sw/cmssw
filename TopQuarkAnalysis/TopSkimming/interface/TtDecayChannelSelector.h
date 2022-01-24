@@ -1,6 +1,7 @@
 #include <vector>
 #include <cstring>
 #include <iostream>
+#include <string_view>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -14,10 +15,8 @@ public:
 
   /// std contructor
   TtDecayChannelSelector(const edm::ParameterSet&);
-  /// default destructor
-  ~TtDecayChannelSelector();
   /// operator for decay channel selection
-  bool operator()(const reco::GenParticleCollection& parts, std::string inputType) const;
+  bool operator()(const reco::GenParticleCollection& parts, std::string_view inputType) const;
 
 private:
   /// return decay channel to select for from configuration
@@ -25,9 +24,9 @@ private:
   // return the check sum of all entries
   unsigned int checkSum(const Decay& vec) const;
   /// search for particle with pdgId in given listing (for top)
-  bool search(reco::GenParticleCollection::const_iterator& part, int pdgId, std::string& inputType) const;
+  bool search(reco::GenParticleCollection::const_iterator& part, int pdgId, std::string_view inputType) const;
   /// search for particle with pdgId in given listing (for top daughters)
-  bool search(reco::GenParticle::const_iterator& part, int pdgId, std::string& inputType) const;
+  bool search(reco::GenParticle::const_iterator& part, int pdgId, std::string_view inputType) const;
   /// check tau decay to be leptonic, 1-prong or 3-prong
   bool tauDecay(const reco::Candidate&) const;
   /// count the number of charged particles for tau decays

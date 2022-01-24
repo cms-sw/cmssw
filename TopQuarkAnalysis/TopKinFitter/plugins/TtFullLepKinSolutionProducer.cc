@@ -1,8 +1,3 @@
-#ifndef TtFullLepKinSolutionProducer_h
-#define TtFullLepKinSolutionProducer_h
-
-//
-//
 #include <memory>
 #include <string>
 #include <vector>
@@ -457,4 +452,5 @@ inline void TtFullLepKinSolutionProducer::produce(edm::Event& evt, const edm::Ev
   evt.put(std::move(pWrongCharge), "isWrongCharge");
 }
 
-#endif
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtFullLepKinSolutionProducer);

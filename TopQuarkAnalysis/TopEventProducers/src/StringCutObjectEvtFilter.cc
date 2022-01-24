@@ -1,8 +1,5 @@
-#ifndef StringCutObjectEvtFilter_h
-#define StringCutObjectEvtFilter_h
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -18,12 +15,10 @@
 */
 
 template <typename T>
-class StringCutObjectEvtFilter : public edm::EDFilter {
+class StringCutObjectEvtFilter : public edm::stream::EDFilter<> {
 public:
   /// default constructor
   explicit StringCutObjectEvtFilter(const edm::ParameterSet&);
-  /// default destructor
-  ~StringCutObjectEvtFilter() override{};
 
 private:
   /// filter function
@@ -42,9 +37,21 @@ StringCutObjectEvtFilter<T>::StringCutObjectEvtFilter(const edm::ParameterSet& c
 
 template <typename T>
 bool StringCutObjectEvtFilter<T>::filter(edm::Event& evt, const edm::EventSetup& setup) {
-  edm::Handle<T> src;
-  evt.getByToken(srcToken_, src);
-  return cut_(*src);
+  return cut_(evt.get(srcToken_));
 }
 
-#endif
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
+
+using TtGenEvtFilter = StringCutObjectEvtFilter<TtGenEvent>;
+using TtFullHadEvtFilter = StringCutObjectEvtFilter<TtFullHadronicEvent>;
+using TtFullLepEvtFilter = StringCutObjectEvtFilter<TtFullLeptonicEvent>;
+using TtSemiLepEvtFilter = StringCutObjectEvtFilter<TtSemiLeptonicEvent>;
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtGenEvtFilter);
+DEFINE_FWK_MODULE(TtFullHadEvtFilter);
+DEFINE_FWK_MODULE(TtFullLepEvtFilter);
+DEFINE_FWK_MODULE(TtSemiLepEvtFilter);

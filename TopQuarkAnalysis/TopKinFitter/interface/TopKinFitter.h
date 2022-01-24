@@ -1,5 +1,7 @@
-#ifndef TopKinFitter_h
-#define TopKinFitter_h
+#ifndef TopQuarkAnalysis_TopKinFitter_TopKinFitter_h
+#define TopQuarkAnalysis_TopKinFitter_TopKinFitter_h
+
+#include <memory>
 
 #include "TMath.h"
 
@@ -44,7 +46,7 @@ protected:
 
 protected:
   /// kinematic fitter
-  TKinFitter* fitter_;
+  std::unique_ptr<TKinFitter> fitter_;
   /// maximal allowed number of iterations to be used for the fit
   int maxNrIter_;
   /// maximal allowed chi2 (not normalized to degrees of freedom)
