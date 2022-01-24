@@ -20,7 +20,7 @@ import pandas as pd
 from collections import OrderedDict
 
 from Validation.RecoTrack.plotting.validation import Sample, Validation
-from Validation.HGCalValidation.html import _sampleName,_pageNameMap,_summary,_summobj,_MatBudSections,_geoPageNameMap,_individualmaterials,_matPageNameMap,_individualmatplots,_individualMatPlotsDesc,_hideShowFun,_allmaterialsplots,_allmaterialsPlotsDesc, _fromvertexplots, _fromVertexPlotsDesc
+from Validation.HGCalValidation.hgcalHtml import _sampleName,_pageNameMap,_summary,_summobj,_MatBudSections,_geoPageNameMap,_individualmaterials,_matPageNameMap,_individualmatplots,_individualMatPlotsDesc,_hideShowFun,_allmaterialsplots,_allmaterialsPlotsDesc, _fromvertexplots, _fromVertexPlotsDesc
 
 #------------------------------------------------------------------------------------------
 #Parsing input options
@@ -83,11 +83,22 @@ def putype(t):
 #------------------------------------------------------------------------------------------
 #thereleases = { "CMSSW 11_1_X" : ["CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre3","CMSSW_11_1_0_pre2"] }
 thereleases = OrderedDict()
-thereleases = { "CMSSW 12_1_X" : [
+thereleases = { "CMSSW 12_2_X" : [
+    "CMSSW_12_2_0_pre3_D88_vs_CMSSW_12_2_0_pre3_D77",
+    "CMSSW_12_2_0_pre3_vs_CMSSW_12_2_0_pre2",
+    "CMSSW_12_2_0_pre2_vs_CMSSW_12_1_0_pre5"
+                 ],
+                "CMSSW 12_1_X" : [
+    "CMSSW_12_1_0_pre5_vs_CMSSW_12_1_0_pre4",
+    "CMSSW_12_1_0_pre5_D77_vs_CMSSW_12_1_0_pre4_D76",
+    "CMSSW_12_1_0_pre4_ROOT624_vs_CMSSW_12_1_0_pre4",
+    "CMSSW_12_1_0_pre4_vs_CMSSW_12_1_0_pre3",
+    "CMSSW_12_1_0_pre3_vs_CMSSW_12_1_0_pre2",
     "CMSSW_12_1_0_pre2_vs_CMSSW_12_0_0_pre6",
     "CMSSW_12_1_0_pre2_D77_vs_CMSSW_12_1_0_pre2_D76"
                  ],
                 "CMSSW 12_0_X" : [
+    "CMSSW_12_0_1_vs_CMSSW_12_0_0_pre4",
     "CMSSW_12_0_0_pre6_vs_CMSSW_12_0_0_pre4",
     "CMSSW_12_0_0_pre4_vs_CMSSW_12_0_0_pre3",
     "CMSSW_12_0_0_pre3_vs_CMSSW_12_0_0_pre2",
@@ -142,15 +153,16 @@ geometryTests = { "Material budget" : [
                 #"Extended2026D49_vs_Extended2026D71",
                 "Extended2026D49_vs_Extended2026D76",
                 "Extended2026D76_vs_Extended2026D83",
-                "Extended2026D83_vs_Extended2026D86"
+                "Extended2026D83_vs_Extended2026D86",
+                "Extended2026D77_vs_Extended2026D88"
                 ]
 }
 
-GeoScenario = "Extended2026D83_vs_Extended2026D86"
+GeoScenario = "Extended2026D77_vs_Extended2026D88"
 
-RefRelease='CMSSW_12_0_0_pre6'
+RefRelease='CMSSW_12_2_0_pre3'
 
-NewRelease='CMSSW_12_1_0_pre2'
+NewRelease='CMSSW_12_2_0_pre3'
 
 NotNormalRelease = "normal"
 NotNormalRefRelease = "normal"
@@ -165,11 +177,13 @@ if "raw" in NotNormalRelease:
     #   appendglobaltag = "_2026D49noPU_raw1100_rsb"
     #   appendglobaltag = "_2026D49noPU_raw1100"
     #   appendglobaltag = "_2026D49noPU_gcc900"
-    appendglobaltag = "_2026D76noPU"
+    #appendglobaltag = "_2026D77noPU"
+    appendglobaltag = "_2026D88noPU"
 else: 
     #   appendglobaltag = "_2026D49noPU"
-    appendglobaltag = "_2026D76noPU"
-    #   appendglobaltag = "_2026D77noPU"
+    #appendglobaltag = "_2026D76noPU"
+    #appendglobaltag = "_2026D77noPU"
+    appendglobaltag = "_2026D88noPU"
 
 #Until the final list of RelVals settles down the following sample list is under constant review
 '''
@@ -278,6 +292,20 @@ phase2samples_noPU_extend = [
 phase2samples_noPU_extend_more = [
 
     #------------------------------
+    #version v3 campaign
+    #Sample("RelValCloseByPGun_CE_H_Fine_300um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_H_Fine_200um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_H_Fine_120um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_H_Coarse_Scint", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_H_Coarse_300um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_E_Front_300um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_E_Front_200um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_E_Front_120um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValSingleGammaFlatPt8To150", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValSingleEFlatPt2To100", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValSinglePiFlatPt0p7To10", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" )
+
+    #------------------------------
     #version v2 campaign
     #Sample("RelValCloseByPGun_CE_H_Fine_300um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
     #Sample("RelValCloseByPGun_CE_H_Fine_200um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
@@ -339,6 +367,7 @@ phase2samples_noPU_extend_more = [
 
 phase2samples_noPU.extend(phase2samples_noPU_extend)
 phase2samples_noPU.extend(phase2samples_noPU_extend_more)
+#phase2samples_noPU = phase2samples_noPU_extend_more
 #phase2samples_noPU.extend(phase2samples_noPU_oldnaming)
 
 #phase2samples_noPU = [
@@ -389,8 +418,10 @@ if(opt.DOWNLOAD):
 #------------------------------------------------------------------------------------------
 #Objects processing section: The objects defined in --Obj are analyzed here. 
 #------------------------------------------------------------------------------------------
-if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hitValidation' or opt.OBJ == 'tracksters'):
+if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hitValidation' or opt.OBJ == 'tracksters' or opt.OBJ == 'simulation'):
     fragments = []
+    #In the case of simulation we want to split the plots in specific folder
+    if opt.OBJ == 'simulation': processCmd('mkdir HGCValid_SimClusters_Plots HGCValid_CaloParticles_Plots')
     #Now  that we have them in eos lets produce plots
     #Let's loop through RelVals
     for infi in phase2samples_noPU:
@@ -422,8 +453,8 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
             #cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
             cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_raw1100","_raw1100_rsb") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "normal" in NotNormalRelease and "normal" in NotNormalRefRelease:
-            cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
-            #cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("2026D49noPU-v2","2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("2026D88noPU-v1","2026D77noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         else: 
             #print inputpathRef, infi.filename(RefRelease).replace("D49","D41")
             #YOU SHOULD INSPECT EACH TIME THIS COMMAND AND THE REPLACE
@@ -461,34 +492,59 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
                 processCmd('echo "  <br/>" >> HGCValid_%s_Plots/index_%s.html '%(opt.HTMLVALNAME, samplename) )
                 processCmd('echo "  <hr>" >> HGCValid_%s_Plots/index_%s.html '%(opt.HTMLVALNAME, samplename) )
 
-
-        fragments.append( 'HGCValid_%s_Plots/index_%s.html'% (opt.HTMLVALNAME, samplename) )
-
-
-    #Let's also create the final index xml file. 
-    processCmd('mv HGCValid_%s_Plots/index.html HGCValid_%s_Plots/test.html' %(opt.HTMLVALNAME,opt.HTMLVALNAME) )
-    index_file = open('HGCValid_%s_Plots/index.html'%(opt.HTMLVALNAME),'w')            
-    #Write preamble
-    index_file.write('<html>\n')
-    index_file.write(' <head>\n')
-    index_file.write('  <title>HGCal validation %s </title>\n' %(opt.HTMLVALNAME) )
-    index_file.write(' </head>\n')
-    index_file.write(' <body>\n')
-
-    for frag in fragments:   
-        with open(frag,'r') as f:
-            lines = f.read().splitlines()
-            for line in lines:
-                print(line)
-                index_file.write(line + '\n')
-                #processCmd( 'cat ' + frag + ' >> HGCalValidationPlots/index.html '   )
-                #index_file.write(frag)
+            if opt.OBJ == 'simulation':              
+                processCmd('mv HGCValid_%s_Plots/plots_%s_SimClusters.html HGCValid_SimClusters_Plots/index.html'%(opt.HTMLVALNAME,samplename))
+                processCmd('mv HGCValid_%s_Plots/plots_%s_CaloParticles.html HGCValid_CaloParticles_Plots/index.html'%(opt.HTMLVALNAME,samplename))
+                processCmd('awk \'NR>=6&&NR<=158\' HGCValid_SimClusters_Plots/index.html > HGCValid_SimClusters_Plots/index_%s.html '% (samplename))
+                processCmd('awk \'NR>=6&&NR<=304\' HGCValid_CaloParticles_Plots/index.html > HGCValid_CaloParticles_Plots/index_%s.html '% (samplename))
+                processCmd('echo "  <br/>" >> HGCValid_SimClusters_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <br/>" >> HGCValid_CaloParticles_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <hr>" >> HGCValid_SimClusters_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <hr>" >> HGCValid_CaloParticles_Plots/index_%s.html '%(samplename) )
+                #Now move the plots also to the relevant folders
+                processCmd('mv HGCValid_%s_Plots/plots_%s_ClusterLevel HGCValid_SimClusters_Plots/.'%(opt.HTMLVALNAME,samplename))
+                processCmd('mv HGCValid_%s_Plots/plots_%s_ticlSimTracksters HGCValid_SimClusters_Plots/.'%(opt.HTMLVALNAME,samplename))
+                processCmd('mv HGCValid_%s_Plots/plots_%s_CaloParticles_* HGCValid_CaloParticles_Plots/.'%(opt.HTMLVALNAME,samplename))
 
 
-    #Writing postamble"
-    index_file.write(' </body>\n')
-    index_file.write('</html>\n')
-    index_file.close()
+        if opt.OBJ == 'simulation': 
+            fragments.append( 'HGCValid_SimClusters_Plots/index_%s.html'% (samplename) )
+            fragments.append( 'HGCValid_CaloParticles_Plots/index_%s.html'% (samplename) )
+        else:
+            fragments.append( 'HGCValid_%s_Plots/index_%s.html'% (opt.HTMLVALNAME, samplename) )
+
+
+    #Let's also create the final index xml file(s). 
+    indexfiles = []
+    if opt.OBJ == 'simulation': 
+        indexfiles = ["SimClusters","CaloParticles"]
+    else: 
+        indexfiles = [opt.HTMLVALNAME]
+
+    for ind in indexfiles:        
+        processCmd('mv HGCValid_%s_Plots/index.html HGCValid_%s_Plots/test.html' %(ind,ind) )
+        index_file = open('HGCValid_%s_Plots/index.html'%(ind),'w')            
+        #Write preamble
+        index_file.write('<html>\n')
+        index_file.write(' <head>\n')
+        index_file.write('  <title>HGCal validation %s </title>\n' %(ind) )
+        index_file.write(' </head>\n')
+        index_file.write(' <body>\n')
+
+        for frag in fragments:   
+            if ind not in frag: continue
+            with open(frag,'r') as f:
+                lines = f.read().splitlines()
+                for line in lines:
+                    print(line)
+                    index_file.write(line + '\n')
+                    #processCmd( 'cat ' + frag + ' >> HGCalValidationPlots/index.html '   )
+                    #index_file.write(frag)
+
+        #Writing postamble"
+        index_file.write(' </body>\n')
+        index_file.write('</html>\n')
+        index_file.close()
 
 #------------------------------------------------------------------------------------------
 #This is the SimHits part

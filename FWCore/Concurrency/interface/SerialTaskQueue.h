@@ -56,8 +56,8 @@
 #include <atomic>
 #include <cassert>
 
-#include "tbb/task_group.h"
-#include "tbb/concurrent_queue.h"
+#include "oneapi/tbb/task_group.h"
+#include "oneapi/tbb/concurrent_queue.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // user include files
@@ -116,30 +116,30 @@ namespace edm {
        * \param[in] iAction Must be a functor that takes no arguments and return no values.
        */
     template <typename T>
-    void push(tbb::task_group&, const T& iAction);
+    void push(oneapi::tbb::task_group&, const T& iAction);
 
   private:
     /** Base class for all tasks held by the SerialTaskQueue */
     class TaskBase {
       friend class SerialTaskQueue;
 
-      tbb::task_group* group() { return m_group; }
+      oneapi::tbb::task_group* group() { return m_group; }
       virtual void execute() = 0;
 
     public:
       virtual ~TaskBase() = default;
 
     protected:
-      explicit TaskBase(tbb::task_group* iGroup) : m_group(iGroup) {}
+      explicit TaskBase(oneapi::tbb::task_group* iGroup) : m_group(iGroup) {}
 
     private:
-      tbb::task_group* m_group;
+      oneapi::tbb::task_group* m_group;
     };
 
     template <typename T>
     class QueuedTask : public TaskBase {
     public:
-      QueuedTask(tbb::task_group& iGroup, const T& iAction) : TaskBase(&iGroup), m_action(iAction) {}
+      QueuedTask(oneapi::tbb::task_group& iGroup, const T& iAction) : TaskBase(&iGroup), m_action(iAction) {}
 
     private:
       void execute() final;
@@ -158,13 +158,13 @@ namespace edm {
     void spawn(TaskBase&);
 
     // ---------- member data --------------------------------
-    tbb::concurrent_queue<TaskBase*> m_tasks;
+    oneapi::tbb::concurrent_queue<TaskBase*> m_tasks;
     std::atomic<bool> m_taskChosen;
     std::atomic<unsigned long> m_pauseCount;
   };
 
   template <typename T>
-  void SerialTaskQueue::push(tbb::task_group& iGroup, const T& iAction) {
+  void SerialTaskQueue::push(oneapi::tbb::task_group& iGroup, const T& iAction) {
     QueuedTask<T>* pTask{new QueuedTask<T>{iGroup, iAction}};
     pushTask(pTask);
   }

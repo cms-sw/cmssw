@@ -13,6 +13,11 @@ CSCGEMMatcher::CSCGEMMatcher(
     : endcap_(endcap), station_(station), chamber_(chamber) {
   isEven_ = (chamber_ % 2 == 0);
 
+  // These LogErrors are sanity checks and should not be printed
+  if (station_ == 3 or station_ == 4) {
+    edm::LogError("CSCGEMMatcher") << "Class constructed for a chamber in ME3 or ME4!";
+  };
+
   maxDeltaBXALCTGEM_ = tmbParams.getParameter<unsigned>("maxDeltaBXALCTGEM");
   maxDeltaBXCLCTGEM_ = tmbParams.getParameter<unsigned>("maxDeltaBXCLCTGEM");
 

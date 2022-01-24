@@ -6,6 +6,7 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
@@ -19,6 +20,7 @@ namespace l1t {
       ~L1TObjectCollections() override;
 
       virtual MuonBxCollection* getMuons(const unsigned int copy) { return nullptr; }
+      virtual MuonShowerBxCollection* getMuonShowers(const unsigned int copy) { return nullptr; }
       virtual EGammaBxCollection* getEGammas(const unsigned int copy) { return nullptr; }  //= 0;
       virtual EtSumBxCollection* getEtSums(const unsigned int copy) { return nullptr; }
       virtual JetBxCollection* getJets(const unsigned int copy) { return nullptr; }

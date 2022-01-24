@@ -67,11 +67,6 @@ void DDHGCalCell::initialize(const DDNumericArguments& nArgs,
                                  << " Truncated " << truncCN_.size() << ":" << truncSensN_.size() << " Extended "
                                  << extenCN_.size() << ":" << extenSensN_.size() << " Corners " << cornrCN_.size()
                                  << ":" << cornrSensN_.size();
-  if ((truncCN_.size() != 3) || (extenCN_.size() != 3) || (cornrCN_.size() != 6))
-    edm::LogWarning("HGCalGeom") << "DDHGCalCell: The number of cells does not"
-                                 << " match with Standard: Truncated " << truncCN_.size() << ":3 Extended "
-                                 << extenCN_.size() << ":3"
-                                 << " Corners " << cornrCN_.size() << ":6";
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << waferSize_ << " T " << waferT_ << " Cell T " << cellT_
                                 << " Cells/Wafer " << nCells_ << " Material " << material_ << "Sensitive Position "
@@ -180,11 +175,11 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
 #endif
   }
 
-  static constexpr int ie0[] = {1, 5, 0, 2, 4, 0};
-  static constexpr int ie1[] = {2, 6, 1, 3, 5, 1};
-  static constexpr int ie2[] = {3, 9, 10, 4, 0, 2};
-  static constexpr int ie3[] = {14, 3, 13, 16, 8, 12};
-  static constexpr int ie4[] = {17, 4, 5, 7, 11, 15};
+  static constexpr int ie0[] = {1, 5, 0, 0, 2, 4};
+  static constexpr int ie1[] = {2, 6, 1, 1, 3, 5};
+  static constexpr int ie2[] = {3, 9, 10, 2, 4, 0};
+  static constexpr int ie3[] = {14, 3, 13, 12, 16, 8};
+  static constexpr int ie4[] = {17, 4, 5, 15, 7, 11};
   for (unsigned int i = 0; i < extenCN_.size(); ++i) {
     std::vector<double> xw = {xx[ie0[i]], xx[ie1[i]], xx[ie2[i]], xx[ie3[i]], xx[ie4[i]]};
     std::vector<double> yw = {yy[ie0[i]], yy[ie1[i]], yy[ie2[i]], yy[ie3[i]], yy[ie4[i]]};
@@ -215,11 +210,11 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
 #endif
   }
 
-  static constexpr int ic0[] = {0, 1, 1, 1, 1, 0, 1, 2, 3, 4, 5, 0};
-  static constexpr int ic1[] = {1, 2, 2, 9, 3, 1, 2, 3, 4, 5, 0, 1};
-  static constexpr int ic2[] = {10, 3, 3, 3, 4, 3, 12, 5, 16, 0, 8, 2};
-  static constexpr int ic3[] = {3, 5, 14, 4, 5, 13, 4, 0, 0, 2, 2, 4};
-  static constexpr int ic4[] = {5, 17, 5, 5, 6, 5, 0, 7, 2, 11, 4, 15};
+  static constexpr int ic0[] = {0, 1, 1, 1, 1, 0, 0, 1, 2, 3, 4, 5};
+  static constexpr int ic1[] = {1, 2, 2, 9, 3, 1, 1, 2, 3, 4, 5, 0};
+  static constexpr int ic2[] = {10, 3, 3, 3, 4, 3, 2, 12, 4, 16, 0, 8};
+  static constexpr int ic3[] = {3, 5, 14, 4, 5, 13, 4, 4, 0, 0, 2, 2};
+  static constexpr int ic4[] = {5, 17, 5, 5, 6, 5, 15, 0, 7, 2, 11, 4};
   for (unsigned int i = 0; i < cornrCN_.size(); ++i) {
     std::vector<double> xw = {xx[ic0[i]], xx[ic1[i]], xx[ic2[i]], xx[ic3[i]], xx[ic4[i]]};
     std::vector<double> yw = {yy[ic0[i]], yy[ic1[i]], yy[ic2[i]], yy[ic3[i]], yy[ic4[i]]};

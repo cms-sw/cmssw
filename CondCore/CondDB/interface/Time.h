@@ -52,6 +52,8 @@ namespace cond {
 
     Time_t tillTimeFromNextSince(Time_t nextSince, TimeType timeType);
 
+    Time_t tillTimeForIOV(Time_t since, unsigned int iovSize, TimeType timeType);
+
     Time_t lumiTime(unsigned int run, unsigned int lumiId);
 
     // conversion from framework types
@@ -63,6 +65,8 @@ namespace cond {
     edm::IOVSyncValue limitedIOVSyncValue(Time_t time, TimeType timetype);
 
     edm::IOVSyncValue limitedIOVSyncValue(edm::IOVSyncValue const& time, TimeType timetype);
+
+    std::string transactionIdForLumiTime(Time_t time, unsigned int iovSize, const std::string& secretKey);
 
   }  // namespace time
 

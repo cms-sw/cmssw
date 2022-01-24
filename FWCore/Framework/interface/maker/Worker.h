@@ -104,7 +104,7 @@ namespace edm {
       operator bool() { return serial_ != nullptr or limited_ != nullptr; }
 
       template <class F>
-      void push(tbb::task_group& iG, F&& iF) {
+      void push(oneapi::tbb::task_group& iG, F&& iF) {
         if (serial_) {
           serial_->push(iG, iF);
         } else {
@@ -135,10 +135,10 @@ namespace edm {
     virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
 
     void prePrefetchSelectionAsync(
-        tbb::task_group&, WaitingTask* task, ServiceToken const&, StreamID stream, EventPrincipal const*);
+        oneapi::tbb::task_group&, WaitingTask* task, ServiceToken const&, StreamID stream, EventPrincipal const*);
 
     void prePrefetchSelectionAsync(
-        tbb::task_group&, WaitingTask* task, ServiceToken const&, StreamID stream, void const*) {
+        oneapi::tbb::task_group&, WaitingTask* task, ServiceToken const&, StreamID stream, void const*) {
       assert(false);
     }
 
@@ -377,7 +377,7 @@ namespace edm {
                     StreamID streamID,
                     ParentContext const& parentContext,
                     typename T::Context const* context,
-                    tbb::task_group* iGroup)
+                    oneapi::tbb::task_group* iGroup)
           : m_worker(worker),
             m_transitionInfo(transitionInfo),
             m_streamID(streamID),
@@ -465,7 +465,7 @@ namespace edm {
       ParentContext const m_parentContext;
       typename T::Context const* m_context;
       ServiceWeakToken m_serviceToken;
-      tbb::task_group* m_group;
+      oneapi::tbb::task_group* m_group;
     };
 
     // AcquireTask is only used for the Event case, but we define
@@ -551,7 +551,7 @@ namespace edm {
     class HandleExternalWorkExceptionTask : public WaitingTask {
     public:
       HandleExternalWorkExceptionTask(Worker* worker,
-                                      tbb::task_group* group,
+                                      oneapi::tbb::task_group* group,
                                       WaitingTask* runModuleTask,
                                       ParentContext const& parentContext);
 
@@ -560,7 +560,7 @@ namespace edm {
     private:
       Worker* m_worker;
       WaitingTask* m_runModuleTask;
-      tbb::task_group* m_group;
+      oneapi::tbb::task_group* m_group;
       ParentContext const m_parentContext;
     };
 

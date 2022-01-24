@@ -126,11 +126,11 @@ public:
 
   std::vector<std::string>& getProcessList() const;
 
-  sigc::signal<void, const TFile*> fileChanged_;
-  sigc::signal<void> preFiltering_;
-  sigc::signal<void, bool> postFiltering_;
-  sigc::signal<void, bool> editFiltersExternally_;
-  sigc::signal<void, int> filterStateChanged_;
+  sigc::signal<void(const TFile*)> fileChanged_;
+  sigc::signal<void()> preFiltering_;
+  sigc::signal<void(bool)> postFiltering_;
+  sigc::signal<void(bool)> editFiltersExternally_;
+  sigc::signal<void(int)> filterStateChanged_;
 
 private:
   CmsShowNavigator(const CmsShowNavigator&);                   // stop default

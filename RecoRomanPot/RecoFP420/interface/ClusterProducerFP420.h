@@ -23,16 +23,16 @@ public:
   std::vector<ClusterFP420> clusterizeDetUnit(HDigiFP420Iter begin,
                                               HDigiFP420Iter end,
                                               unsigned int detid,
-                                              const ElectrodNoiseVector& vnoise);
+                                              const ElectrodNoiseVector& vnoise) const;
   std::vector<ClusterFP420> clusterizeDetUnitPixels(HDigiFP420Iter begin,
                                                     HDigiFP420Iter end,
                                                     unsigned int detid,
                                                     const ElectrodNoiseVector& vnoise,
                                                     unsigned int xytype,
-                                                    int verb);
+                                                    int verb) const;
 
-  int difNarr(unsigned int xytype, HDigiFP420Iter ichannel, HDigiFP420Iter jchannel);
-  int difWide(unsigned int xytype, HDigiFP420Iter ichannel, HDigiFP420Iter jchannel);
+  int difNarr(unsigned int xytype, HDigiFP420Iter ichannel, HDigiFP420Iter jchannel) const;
+  int difWide(unsigned int xytype, HDigiFP420Iter ichannel, HDigiFP420Iter jchannel) const;
 
   float channelThresholdInNoiseSigma() const { return theChannelThreshold; }
   float seedThresholdInNoiseSigma() const { return theSeedThreshold; }
@@ -51,7 +51,7 @@ class AboveSeed {
 public:
   AboveSeed(float aseed, const ElectrodNoiseVector& vnoise) : verb(0), seed(aseed), vnoise_(vnoise){};
 
-  bool operator()(const HDigiFP420& digi) {
+  bool operator()(const HDigiFP420& digi) const {
     return (!vnoise_[digi.channel()].getDisable() && digi.adc() >= seed * vnoise_[digi.channel()].getNoise());
   }
 

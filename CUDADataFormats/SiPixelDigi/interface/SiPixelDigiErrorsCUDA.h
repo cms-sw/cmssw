@@ -31,12 +31,14 @@ public:
   HostDataError dataErrorToHostAsync(cudaStream_t stream) const;
 
   void copyErrorToHostAsync(cudaStream_t stream);
+  int nErrorWords() const { return nErrorWords_; }
 
 private:
   cms::cuda::device::unique_ptr<SiPixelErrorCompact[]> data_d;
   cms::cuda::device::unique_ptr<SiPixelErrorCompactVector> error_d;
   cms::cuda::host::unique_ptr<SiPixelErrorCompactVector> error_h;
   SiPixelFormatterErrors formatterErrors_h;
+  int nErrorWords_ = 0;
 };
 
 #endif  // CUDADataFormats_SiPixelDigi_interface_SiPixelDigiErrorsCUDA_h

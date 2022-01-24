@@ -8,7 +8,7 @@
 #include <vector>
 #include <map>
 #include <functional>
-#include "tbb/global_control.h"
+#include "oneapi/tbb/global_control.h"
 #include "FWCore/Framework/interface/global/OutputModule.h"
 #include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
@@ -97,7 +97,7 @@ private:
   template <typename Traits, typename Info>
   void doWork(edm::Worker* iBase, Info const& info, edm::StreamID id, edm::ParentContext const& iContext) {
     edm::FinalWaitingTask task;
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
     edm::ServiceToken token;
     iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, id, iContext, nullptr);
     do {
@@ -221,7 +221,7 @@ testGlobalOutputModule::testGlobalOutputModule()
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
     edm::FinalWaitingTask task;
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
     iComm->writeLumiAsync(edm::WaitingTaskHolder(group, &task), *m_lbp, nullptr, &activityRegistry);
     do {
       group.wait();
@@ -237,7 +237,7 @@ testGlobalOutputModule::testGlobalOutputModule()
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
     edm::FinalWaitingTask task;
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
     iComm->writeRunAsync(edm::WaitingTaskHolder(group, &task), *m_rp, nullptr, &activityRegistry, nullptr);
     do {
       group.wait();
@@ -298,7 +298,7 @@ namespace {
 
 template <typename T>
 void testGlobalOutputModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
-  tbb::global_control control(tbb::global_control::max_allowed_parallelism, 1);
+  oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
 
   iMod->doPreallocate(m_preallocConfig);
   edm::WorkerT<edm::global::OutputModuleBase> w{iMod, m_desc, m_params.actions_};

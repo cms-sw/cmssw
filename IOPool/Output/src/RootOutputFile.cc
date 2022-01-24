@@ -351,7 +351,7 @@ namespace edm {
           assert(om_->inputFileCount() > 1);
           throw Exception(errors::MismatchedInputFiles, "RootOutputFile::beginInputFile()")
               << "Merge failure because input file " << file_ << " has different ROOT split levels or basket sizes\n"
-              << "than previous files.  To allow merging in splite of this, use the configuration parameter\n"
+              << "than previous files.  To allow merging in spite of this, use the configuration parameter\n"
               << "overrideInputFileSplitLevels=cms.untracked.bool(True)\n"
               << "in every PoolOutputModule.\n";
         }
@@ -363,6 +363,32 @@ namespace edm {
           whyNotFastClonable_ |= FileBlock::BranchMismatch;
         }
       }
+
+      // reasons for whyNotFastClonable that are also inconsistent with a merge job
+      constexpr auto setSubBranchBasketConditions =
+          FileBlock::EventsOrLumisSelectedByID | FileBlock::InitialEventsSkipped | FileBlock::MaxEventsTooSmall |
+          FileBlock::MaxLumisTooSmall | FileBlock::EventSelectionUsed | FileBlock::OutputMaxEventsTooSmall |
+          FileBlock::SplitLevelMismatch | FileBlock::BranchMismatch;
+
+      if (om_->inputFileCount() == 1) {
+        if (om_->mergeJob()) {
+          // for merge jobs always forward the compression mode
+          auto infile = fb.tree()->GetCurrentFile();
+          if (infile != nullptr) {
+            filePtr_->SetCompressionSettings(infile->GetCompressionSettings());
+          }
+        }
+
+        // if we aren't fast cloning, and the reason why is consistent with a
+        // merge job or is only because of parallel processes, then forward all
+        // the sub-branch basket sizes
+        if (whyNotFastClonable_ != FileBlock::CanFastClone &&
+            ((om_->mergeJob() && (whyNotFastClonable_ & setSubBranchBasketConditions) == 0) ||
+             (whyNotFastClonable_ == FileBlock::ParallelProcesses))) {
+          eventTree_.setSubBranchBasketSizes(fb.tree());
+        }
+      }
+
       // We now check if we can fast copy the auxiliary branches.
       // We can do so only if we can otherwise fast copy,
       // the input file has the current format (these branches are in the Events Tree),
@@ -387,7 +413,7 @@ namespace edm {
                           !reg->anyProductProduced() &&
                           !fb.modifiedIDs() &&
                           fb.branchListIndexesUnchanged();
-*/
+      */
 
       // Report the fast copying status.
       Service<JobReport> reportSvc;

@@ -18,8 +18,6 @@ class trackingOnly(pp):
         # some dedicated customization are required, though: see specific era implementations
         self.recoSeq=':reconstruction_trackingOnly'
         self.cbSc='pp'
-        # don't run EI, because only tracking is done
-        self.addEI=False
     """
     _trackingOnly_
 

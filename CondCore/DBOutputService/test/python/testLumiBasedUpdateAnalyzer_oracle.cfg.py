@@ -15,12 +15,14 @@ options.register('transDelay',
 options.parseArguments()
 
 process = cms.Process("TEST")
-process.source = cms.Source("EmptyIOVSource",
-                            lastValue = cms.uint64(100),
-    timetype = cms.string('Lumi'),
-    firstValue = cms.uint64(11),
-    interval = cms.uint64(11)
+
+process.source = cms.Source("EmptySource",
+                            firstRun = cms.untracked.uint32( options.runNumber ),
+                            firstLuminosityBlock = cms.untracked.uint32( 1 ),
+                            numberEventsInRun = cms.untracked.uint32( 30 ),
+                            numberEventsInLuminosityBlock = cms.untracked.uint32(3),
 )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(30))
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
@@ -36,21 +38,24 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
     connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS'),
     preLoadConnectionString = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS'),
     runNumber = cms.untracked.uint64(options.runNumber),
-    #lastLumiFile = cms.untracked.string('last_lumi.txt'),
-    #frontierKey = cms.untracked.string('test'),
+    lastLumiFile = cms.untracked.string('last_lumi.txt'),
+    frontierKey = cms.untracked.string('test'),
     writeTransactionDelay = cms.untracked.uint32(options.transDelay),
     autoCommit = cms.untracked.bool(True),
     saveLogsOnDB = cms.untracked.bool(True),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('PedestalsRcd'),
-        tag = cms.string('BeamSpot_test_updateByLumi_00'),
+        tag = cms.string('BeamSpot_test_updateByLumi_01'),
         timetype = cms.untracked.string('Lumi'),
+        refreshTime = cms.untracked.uint32( 2 ),
         onlyAppendUpdatePolicy = cms.untracked.bool(True)
     ))
 )
 
 process.mytest = cms.EDAnalyzer("LumiBasedUpdateAnalyzer",
-    record = cms.string('PedestalsRcd')
+    record = cms.untracked.string('PedestalsRcd'),
+    iovSize = cms.untracked.uint32(4),
+    lastLumiFile = cms.untracked.string('last_lumi.txt'),
 )
 
 process.p = cms.Path(process.mytest)

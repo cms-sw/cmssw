@@ -99,7 +99,7 @@ public:
   void backgroundColorWasChanged();
   TEveWindow* getEveWindow() const { return m_eveWindow; }
 #ifndef __CINT__
-  sigc::signal<void> closed_;
+  sigc::signal<void()> closed_;
 #endif
 
   ClassDefOverride(CmsShowViewPopup, 0);

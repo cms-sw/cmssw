@@ -22,7 +22,7 @@ Implementation:
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include <string>
 
@@ -34,14 +34,13 @@ namespace edm {
 // class declaration
 //
 
-class HLTEventNumberFilter : public edm::EDFilter {
+class HLTEventNumberFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTEventNumberFilter(const edm::ParameterSet&);
-  ~HLTEventNumberFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 

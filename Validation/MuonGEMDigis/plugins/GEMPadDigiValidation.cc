@@ -20,7 +20,12 @@ GEMPadDigiValidation::GEMPadDigiValidation(const edm::ParameterSet& pset)
 void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
                                           edm::Run const& Run,
                                           edm::EventSetup const& setup) {
-  const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
+  const auto gemH = setup.getHandle(geomTokenBeginRun_);
+  if (!gemH.isValid()) {
+    edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
+    return;
+  }
+  const GEMGeometry* gem = gemH.product();
 
   // NOTE Occupancy
   booker.setCurrentFolder("GEM/Pad");
@@ -136,7 +141,12 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 GEMPadDigiValidation::~GEMPadDigiValidation() {}
 
 void GEMPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  const GEMGeometry* gem = &setup.getData(geomToken_);
+  const auto& gemH = setup.getHandle(geomToken_);
+  if (!gemH.isValid()) {
+    edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
+    return;
+  }
+  const GEMGeometry* gem = gemH.product();
 
   edm::Handle<GEMPadDigiCollection> collection;
   event.getByToken(pad_token_, collection);

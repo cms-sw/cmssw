@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
@@ -74,6 +75,8 @@ public:
   BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder&) = delete;
   BaseCkfTrajectoryBuilder& operator=(const BaseCkfTrajectoryBuilder&) = delete;
   ~BaseCkfTrajectoryBuilder() override;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   // new interface returning the start Trajectory...
   virtual TempTrajectory buildTrajectories(const TrajectorySeed& seed,

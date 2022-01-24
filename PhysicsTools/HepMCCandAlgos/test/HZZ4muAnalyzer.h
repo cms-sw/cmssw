@@ -1,7 +1,7 @@
 #ifndef HZZ4muAnalyzer_H
 #define HZZ4muAnalyzer_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -9,7 +9,7 @@
 class TFile;
 class TH1D;
 
-class HZZ4muAnalyzer : public edm::EDAnalyzer {
+class HZZ4muAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   //
   explicit HZZ4muAnalyzer(const edm::ParameterSet&);

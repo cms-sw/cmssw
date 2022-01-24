@@ -7,9 +7,9 @@
  *  \author Marcello Maggi -- INFN Bari
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
-class RPCEventDump : public edm::EDProducer {
+class RPCEventDump : public edm::one::EDProducer<> {
 public:
   RPCEventDump(const edm::ParameterSet& config);
   ~RPCEventDump() override {}

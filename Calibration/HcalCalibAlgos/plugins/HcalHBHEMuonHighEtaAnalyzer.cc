@@ -506,46 +506,45 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeMuon(const edm::Event& iEvent, math::XY
   if (_Muon.isValid()) {
     int nTrack(0);
     std::vector<spr::propagatedTrackID> trkCaloDets;
-    for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
-      if (RecMuon->innerTrack().isNonnull()) {
-        const reco::Track* pTrack = (RecMuon->innerTrack()).get();
+    for (const auto& RecMuon : (*(_Muon.product()))) {
+      if (RecMuon.innerTrack().isNonnull()) {
+        const reco::Track* pTrack = (RecMuon.innerTrack()).get();
         if (std::abs(pTrack->eta()) > etaMin_) {
           if (analyzeTracks(pTrack, leadPV, nTrack, trkCaloDets, false)) {
             accept = true;
-            ptGlob_.emplace_back((RecMuon)->pt());
-            etaGlob_.emplace_back(RecMuon->eta());
-            phiGlob_.emplace_back(RecMuon->phi());
-            energyMuon_.push_back(RecMuon->energy());
-            pMuon_.emplace_back(RecMuon->p());
-            bool mediumMuon = (((RecMuon->isPFMuon()) && (RecMuon->isGlobalMuon() || RecMuon->isTrackerMuon())) &&
-                               (RecMuon->innerTrack()->validFraction() > 0.49));
+            ptGlob_.emplace_back(RecMuon.pt());
+            etaGlob_.emplace_back(RecMuon.eta());
+            phiGlob_.emplace_back(RecMuon.phi());
+            energyMuon_.push_back(RecMuon.energy());
+            pMuon_.emplace_back(RecMuon.p());
+            bool mediumMuon = (((RecMuon.isPFMuon()) && (RecMuon.isGlobalMuon() || RecMuon.isTrackerMuon())) &&
+                               (RecMuon.innerTrack()->validFraction() > 0.49));
             if (mediumMuon) {
-              double chiGlobal =
-                  ((RecMuon->globalTrack().isNonnull()) ? RecMuon->globalTrack()->normalizedChi2() : 999);
+              double chiGlobal = ((RecMuon.globalTrack().isNonnull()) ? RecMuon.globalTrack()->normalizedChi2() : 999);
               bool goodGlob =
-                  (RecMuon->isGlobalMuon() && chiGlobal < 3 && RecMuon->combinedQuality().chi2LocalPosition < 12 &&
-                   RecMuon->combinedQuality().trkKink < 20);
-              mediumMuon = muon::segmentCompatibility(*RecMuon) > (goodGlob ? 0.303 : 0.451);
+                  (RecMuon.isGlobalMuon() && chiGlobal < 3 && RecMuon.combinedQuality().chi2LocalPosition < 12 &&
+                   RecMuon.combinedQuality().trkKink < 20);
+              mediumMuon = muon::segmentCompatibility(RecMuon) > (goodGlob ? 0.303 : 0.451);
             }
             mediumMuon_.emplace_back(mediumMuon);
             bool isoR03 =
-                ((RecMuon->pfIsolationR03().sumChargedHadronPt +
+                ((RecMuon.pfIsolationR03().sumChargedHadronPt +
                   std::max(0.,
-                           RecMuon->pfIsolationR03().sumNeutralHadronEt + RecMuon->pfIsolationR03().sumPhotonEt -
-                               (0.5 * RecMuon->pfIsolationR03().sumPUPt))) /
-                 RecMuon->pt());
+                           RecMuon.pfIsolationR03().sumNeutralHadronEt + RecMuon.pfIsolationR03().sumPhotonEt -
+                               (0.5 * RecMuon.pfIsolationR03().sumPUPt))) /
+                 RecMuon.pt());
             bool isoR04 =
-                ((RecMuon->pfIsolationR04().sumChargedHadronPt +
+                ((RecMuon.pfIsolationR04().sumChargedHadronPt +
                   std::max(0.,
-                           RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt -
-                               (0.5 * RecMuon->pfIsolationR04().sumPUPt))) /
-                 RecMuon->pt());
+                           RecMuon.pfIsolationR04().sumNeutralHadronEt + RecMuon.pfIsolationR04().sumPhotonEt -
+                               (0.5 * RecMuon.pfIsolationR04().sumPUPt))) /
+                 RecMuon.pt());
             isolationR03_.emplace_back(isoR03);
             isolationR04_.emplace_back(isoR04);
 
-            ecalEnergy_.emplace_back(RecMuon->calEnergy().emS9);
-            hcalEnergy_.emplace_back(RecMuon->calEnergy().hadS9);
-            hoEnergy_.emplace_back(RecMuon->calEnergy().hoS9);
+            ecalEnergy_.emplace_back(RecMuon.calEnergy().emS9);
+            hcalEnergy_.emplace_back(RecMuon.calEnergy().hadS9);
+            hoEnergy_.emplace_back(RecMuon.calEnergy().hoS9);
 #ifdef EDM_ML_DEBUG
             if ((verbosity_ / 100) % 10 > 0)
               edm::LogVerbatim("HBHEMuon")

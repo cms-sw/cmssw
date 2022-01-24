@@ -1,5 +1,6 @@
 <use name="Calibration/HcalCalibAlgos"/>
 <use name="SimDataFormats/Track"/>
+<use name="CondFormats/EcalObjects"/>
 <use name="CondFormats/HcalObjects"/>
 <use name="CondFormats/L1TObjects"/>
 <use name="DQMServices/Core"/>

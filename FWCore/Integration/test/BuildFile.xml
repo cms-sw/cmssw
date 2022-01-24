@@ -221,7 +221,7 @@
     <use name="FWCore/ParameterSet"/>
   </library>
 
-  <library file="ThrowingSource.cc" name="ThrowingSource">
+  <library file="ThrowingSource.cc, DelayedReaderThrowingSource.cc" name="ThrowingSource">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
@@ -333,7 +333,7 @@
     <use name="FWCore/Framework"/>
   </library>
 
-  <library file="ConcurrentIOVESSource.cc,ConcurrentIOVESProducer.cc,ConcurrentIOVAnalyzer.cc,GadgetRcd.cc,IOVTestInfo.cc,RunLumiESAnalyzer.cc,RunLumiESSource.cc,TestESSource.cc" name="ConcurrentIOVESSource">
+  <library file="ConcurrentIOVESSource.cc,ConcurrentIOVESProducer.cc,ConcurrentIOVAnalyzer.cc,GadgetRcd.cc,IOVTestInfo.cc,RunLumiESAnalyzer.cc,RunLumiESSource.cc,TestESSource.cc,TestESConcurrentSource.cc" name="ConcurrentIOVESSource">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Integration"/>
     <use name="FWCore/Framework"/>
@@ -446,6 +446,8 @@
 
   <test name="TestFWCoreIntegrationEDLooperESProcuer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testEDLooperESProducer_cfg.py"/>
 
+  <test name="TestFWCoreIntegrationDelayedReaderTest" command="delayedreader_throw_test.sh"/>
+
   <test name="TestIntegrationProcessBlock1" command="run_TestProcessBlock.sh 1"/>
   <test name="TestIntegrationProcessBlock2" command="run_TestProcessBlock.sh 2"/>
   <test name="TestIntegrationProcessBlock3" command="run_TestProcessBlock.sh 3"/>
@@ -529,5 +531,6 @@
     <flags PRE_TEST="TestIntegrationProcessBlock23"/>
     <flags PRE_TEST="TestIntegrationProcessBlock24"/>
   </test>
+  <test name="TestIntegrationFinalPath" command="test_finalpath.sh"/>
 
 </environment>

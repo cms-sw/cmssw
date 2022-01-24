@@ -67,8 +67,8 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector subdet, HcalDDDGeometry* geom) 
   std::vector<HcalCellType> hcalCells = hcalConstants_->HcalCellTypes(subdet);
   geom->insertCell(hcalCells);
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalDDDGeometryLoader::fill gets " << hcalCells.size() << " cells for subdetector " << subdet
-            << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalDDDGeometryLoader::fill gets " << hcalCells.size() << " cells for subdetector "
+                               << subdet;
 #endif
   // Make the new HcalDetIds and the cells
 
@@ -80,15 +80,16 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector subdet, HcalDDDGeometry* geom) 
     double dphi = hcalCell.phiBinWidth();
     std::vector<std::pair<int, double> > phis = hcalCell.phis();
 #ifdef EDM_ML_DEBUG
-    std::cout << "HcalDDDGeometryLoader: Subdet " << subdet << " side " << iside << " eta " << etaRing << " depth "
-              << depthBin << " with " << phis.size() << "modules:" << std::endl;
+    edm::LogVerbatim("HCalGeom") << "HcalDDDGeometryLoader: Subdet " << subdet << " side " << iside << " eta "
+                                 << etaRing << " depth " << depthBin << " with " << phis.size() << "modules:";
     size_t i(0);
 #endif
     geom->increaseReserve(phis.size());
     for (auto& phi : phis) {
 #ifdef EDM_ML_DEBUG
-      std::cout << "HcalDDDGeometryLoader::fill Cell " << i << " eta " << iside * etaRing << " phi " << phi.first << "("
-                << phi.second / CLHEP::deg << ", " << dphi / CLHEP::deg << ") depth " << depthBin << std::endl;
+      edm::LogVerbatim("HCalGeom") << "HcalDDDGeometryLoader::fill Cell " << i << " eta " << iside * etaRing << " phi "
+                                   << phi.first << "(" << phi.second / CLHEP::deg << ", " << dphi / CLHEP::deg
+                                   << ") depth " << depthBin;
       i++;
 #endif
       HcalDetId id(subdet, iside * etaRing, phi.first, depthBin);
@@ -139,9 +140,9 @@ void HcalDDDGeometryLoader::makeCell(
 #endif
     }
 #ifdef EDM_ML_DEBUG
-    std::cout << "HcalDDDGeometryLoader::makeCell SubDet " << subdet << " eta = " << eta << " theta = " << theta
-              << " r = " << r << " thickness = " << thickness << " r0-r2 (" << r0 << ":" << r1 << ":" << r2 << ")"
-              << std::endl;
+    edm::LogVerbatim("HCalGeom") << "HcalDDDGeometryLoader::makeCell SubDet " << subdet << " eta = " << eta
+                                 << " theta = " << theta << " r = " << r << " thickness = " << thickness << " r0-r2 ("
+                                 << r0 << ":" << r1 << ":" << r2 << ")";
 #endif
   } else {
     z = hcalCell.depthMin();
@@ -155,9 +156,9 @@ void HcalDDDGeometryLoader::makeCell(
     r0 = z / sinh(std::abs(eta));
     r1 = z / sinh(std::abs(eta) + 0.5 * deta);
     r2 = z / sinh(std::abs(eta) - 0.5 * deta);
-    std::cout << "HcalDDDGeometryLoader::makeCell SubDet " << subdet << " eta = " << eta << " theta = " << theta
-              << " z = " << z << " r = " << r << " thickness = " << thickness << " r0-r2 (" << r0 << ":" << r1 << ":"
-              << r2 << ")" << std::endl;
+    edm::LogVerbatim("HCalGeom") << "HcalDDDGeometryLoader::makeCell SubDet " << subdet << " eta = " << eta
+                                 << " theta = " << theta << " z = " << z << " r = " << r << " thickness = " << thickness
+                                 << " r0-r2 (" << r0 << ":" << r1 << ":" << r2 << ")";
 #endif
   }
 
@@ -166,9 +167,9 @@ void HcalDDDGeometryLoader::makeCell(
   GlobalPoint point(x, y, z);
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalDDDGeometryLoader::makeCell for " << detId << " Point " << point << " deta = " << deta
-            << " dphi = " << dphi << " thickness = " << thickness << " isBarrel = " << isBarrel << " " << rzType
-            << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalDDDGeometryLoader::makeCell for " << detId << " Point " << point
+                               << " deta = " << deta << " dphi = " << dphi << " thickness = " << thickness
+                               << " isBarrel = " << isBarrel << " " << rzType;
 #endif
 
   std::vector<CCGFloat> hp;

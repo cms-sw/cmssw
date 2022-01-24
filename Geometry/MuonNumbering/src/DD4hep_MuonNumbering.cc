@@ -15,16 +15,18 @@ const MuonBaseNumber MuonNumbering::geoHistoryToBaseNumber(const cms::ExpandedNo
 
   // some consistency checks
   if (basePart != 1) {
-    edm::LogError("Geometry") << "MuonNumbering finds unusual base constant:" << basePart;
+    edm::LogError("Geometry") << "MuonNumbering finds unusual base constant: " << basePart;
   }
   if (superPart < 100) {
-    edm::LogError("Geometry") << "MuonNumbering finds unusual super constant:" << superPart;
+    edm::LogError("Geometry") << "MuonNumbering finds unusual super part: " << superPart
+                              << " -- resetting super part to 100";
+    superPart = 100;  // Reset to sensible value so calculations below don't go out of range
   }
   if (levelPart < 10 * superPart) {
-    edm::LogError("Geometry") << "MuonNumbering finds unusual level constant:" << levelPart;
+    edm::LogError("Geometry") << "MuonNumbering finds unusual level constant: " << levelPart;
   }
   if ((startCopyNo != 0) && (startCopyNo != 1)) {
-    edm::LogError("Geometry") << "MuonNumbering finds unusual start value for copy numbers:" << startCopyNo;
+    edm::LogError("Geometry") << "MuonNumbering finds unusual start value for copy numbers: " << startCopyNo;
   }
   int ctr(0);
   for (auto const& it : nodes.tags) {

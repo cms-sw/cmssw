@@ -8,7 +8,7 @@
 // User include files
 // ------------------
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,14 +29,13 @@
 // Class declaration
 // -----------------
 
-class MuScleFitGenFilter : public edm::EDFilter {
+class MuScleFitGenFilter : public edm::stream::EDFilter<> {
 public:
   explicit MuScleFitGenFilter(const edm::ParameterSet&);
   ~MuScleFitGenFilter() override;
 
 private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override{};
 
   std::string genParticlesName_;
   edm::EDGetTokenT<edm::HepMCProduct> evtMCToken_;
@@ -59,8 +58,8 @@ MuScleFitGenFilter::MuScleFitGenFilter(const edm::ParameterSet& iConfig)
 // Destructor
 // ----------
 MuScleFitGenFilter::~MuScleFitGenFilter() {
-  std::cout << "Total number of events = " << totalEvents_ << std::endl;
-  std::cout << "Events passing the filter = " << eventsPassingTheFilter_ << std::endl;
+  edm::LogPrint("MuScleFitGenFilter") << "Total number of events = " << totalEvents_ << std::endl;
+  edm::LogPrint("MuScleFitGenFilter") << "Events passing the filter = " << eventsPassingTheFilter_ << std::endl;
 }
 
 // Method called for each event
@@ -81,7 +80,7 @@ bool MuScleFitGenFilter::filter(edm::Event& event, const edm::EventSetup& iSetup
     if (genParticles.isValid()) {
       genPair = MuScleFitUtils::findGenMuFromRes(genParticles.product());
     } else {
-      std::cout << "ERROR: no generator info found" << std::endl;
+      edm::LogPrint("MuScleFitGenFilter") << "ERROR: no generator info found" << std::endl;
       return false;
     }
   }

@@ -18,7 +18,7 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/Utilities/interface/processGUID.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include <cassert>
@@ -59,7 +59,7 @@ namespace edm {
         branchIDListHelper_(desc.branchIDListHelper_),
         processBlockHelper_(desc.processBlockHelper_),
         thinnedAssociationsHelper_(desc.thinnedAssociationsHelper_),
-        processGUID_(createGlobalIdentifier(true)),
+        processGUID_(edm::processGUID().toBinary()),
         time_(),
         newRun_(true),
         newLumi_(true),
@@ -495,17 +495,17 @@ namespace edm {
     source_.actReg()->postSourceProcessBlockSignal_(processName_);
   }
 
-  InputSource::FileOpenSentry::FileOpenSentry(InputSource const& source, std::string const& lfn, bool usedFallback)
-      : post_(source.actReg()->postOpenFileSignal_), lfn_(lfn), usedFallback_(usedFallback) {
-    source.actReg()->preOpenFileSignal_(lfn, usedFallback);
+  InputSource::FileOpenSentry::FileOpenSentry(InputSource const& source, std::string const& lfn)
+      : post_(source.actReg()->postOpenFileSignal_), lfn_(lfn) {
+    source.actReg()->preOpenFileSignal_(lfn);
   }
 
-  InputSource::FileOpenSentry::~FileOpenSentry() { post_(lfn_, usedFallback_); }
+  InputSource::FileOpenSentry::~FileOpenSentry() { post_(lfn_); }
 
-  InputSource::FileCloseSentry::FileCloseSentry(InputSource const& source, std::string const& lfn, bool usedFallback)
-      : post_(source.actReg()->postCloseFileSignal_), lfn_(lfn), usedFallback_(usedFallback) {
-    source.actReg()->preCloseFileSignal_(lfn, usedFallback);
+  InputSource::FileCloseSentry::FileCloseSentry(InputSource const& source, std::string const& lfn)
+      : post_(source.actReg()->postCloseFileSignal_), lfn_(lfn) {
+    source.actReg()->preCloseFileSignal_(lfn);
   }
 
-  InputSource::FileCloseSentry::~FileCloseSentry() { post_(lfn_, usedFallback_); }
+  InputSource::FileCloseSentry::~FileCloseSentry() { post_(lfn_); }
 }  // namespace edm

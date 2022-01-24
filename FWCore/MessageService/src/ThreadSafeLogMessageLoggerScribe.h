@@ -19,7 +19,7 @@
 
 #include <iostream>
 #include <atomic>
-#include "tbb/concurrent_queue.h"
+#include "oneapi/tbb/concurrent_queue.h"
 
 namespace edm {
   namespace service {
@@ -137,7 +137,7 @@ namespace edm {
       std::atomic<bool> m_purge_mode;
       std::atomic<int> m_count;
       std::atomic<bool> m_messageBeingSent;
-      tbb::concurrent_queue<ErrorObj*> m_waitingMessages;
+      oneapi::tbb::concurrent_queue<ErrorObj*> m_waitingMessages;
       size_t m_waitingThreshold;
       std::atomic<unsigned long> m_tooManyWaitingMessagesCount;
 

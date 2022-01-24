@@ -22,7 +22,6 @@
 #include <map>
 #include <optional>
 #include <vector>
-#include "tbb/task_arena.h"
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
@@ -49,7 +48,6 @@ namespace edm {
   class EventSetupImpl {
   public:
     ~EventSetupImpl();
-    EventSetupImpl() = delete;
     EventSetupImpl(EventSetupImpl const&) = delete;
     EventSetupImpl& operator=(EventSetupImpl const&) = delete;
 
@@ -71,7 +69,6 @@ namespace edm {
 
     bool validRecord(eventsetup::EventSetupRecordKey const& iKey) const;
 
-    tbb::task_arena* taskArena CMS_THREAD_SAFE() const { return taskArena_; }
     ///Only EventSetupProvider allowed to create an EventSetupImpl
     friend class eventsetup::EventSetupProvider;
     friend class eventsetup::EventSetupRecordProvider;
@@ -83,7 +80,7 @@ namespace edm {
     void addRecordImpl(const eventsetup::EventSetupRecordImpl& iRecord);
 
   private:
-    explicit EventSetupImpl(tbb::task_arena*);
+    explicit EventSetupImpl();
 
     void insertRecordImpl(const eventsetup::EventSetupRecordKey&, const eventsetup::EventSetupRecordImpl*);
 
@@ -95,7 +92,6 @@ namespace edm {
     std::vector<eventsetup::EventSetupRecordKey>::const_iterator keysBegin_;
     std::vector<eventsetup::EventSetupRecordKey>::const_iterator keysEnd_;
     std::vector<eventsetup::EventSetupRecordImpl const*> recordImpls_;
-    tbb::task_arena* taskArena_ = nullptr;
   };
 }  // namespace edm
 #endif

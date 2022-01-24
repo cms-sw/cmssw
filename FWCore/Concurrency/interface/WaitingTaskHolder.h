@@ -20,7 +20,7 @@
 
 // system include files
 #include <cassert>
-#include "tbb/task_group.h"
+#include "oneapi/tbb/task_group.h"
 
 // user include files
 #include "FWCore/Concurrency/interface/WaitingTask.h"
@@ -36,7 +36,8 @@ namespace edm {
 
     WaitingTaskHolder() : m_task(nullptr), m_group(nullptr) {}
 
-    explicit WaitingTaskHolder(tbb::task_group& iGroup, edm::WaitingTask* iTask) : m_task(iTask), m_group(&iGroup) {
+    explicit WaitingTaskHolder(oneapi::tbb::task_group& iGroup, edm::WaitingTask* iTask)
+        : m_task(iTask), m_group(&iGroup) {
       m_task->increment_ref_count();
     }
     ~WaitingTaskHolder() {
@@ -71,10 +72,10 @@ namespace edm {
     bool taskHasFailed() const noexcept { return m_task->exceptionPtr() != nullptr; }
 
     bool hasTask() const noexcept { return m_task != nullptr; }
-    /** since tbb::task_group is thread safe, we can return it non-const from here since
+    /** since oneapi::tbb::task_group is thread safe, we can return it non-const from here since
         the object is not really part of the state of the holder
      */
-    CMS_SA_ALLOW tbb::task_group* group() const noexcept { return m_group; }
+    CMS_SA_ALLOW oneapi::tbb::task_group* group() const noexcept { return m_group; }
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
@@ -116,7 +117,7 @@ namespace edm {
     }
     // ---------- member data --------------------------------
     WaitingTask* m_task;
-    tbb::task_group* m_group;
+    oneapi::tbb::task_group* m_group;
   };
 }  // namespace edm
 

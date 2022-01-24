@@ -1,11 +1,13 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimMuon/MCTruth/interface/MuonTruth.h"
 
-MuonTruth::MuonTruth(const edm::Event &event, const edm::EventSetup &setup, const edm::ParameterSet &conf)
+MuonTruth::MuonTruth(const edm::Event &event,
+                     const edm::EventSetup &setup,
+                     const edm::ParameterSet &conf,
+                     edm::ConsumesCollector &iC)
     : theDigiSimLinks(nullptr),
       theWireDigiSimLinks(nullptr),
       linksTag(conf.getParameter<edm::InputTag>("CSClinksTag")),
@@ -13,9 +15,9 @@ MuonTruth::MuonTruth(const edm::Event &event, const edm::EventSetup &setup, cons
       // CrossingFrame used or not ?
       crossingframe(conf.getParameter<bool>("crossingframe")),
       CSCsimHitsTag(conf.getParameter<edm::InputTag>("CSCsimHitsTag")),
-      CSCsimHitsXFTag(conf.getParameter<edm::InputTag>("CSCsimHitsXFTag"))
-
-{
+      CSCsimHitsXFTag(conf.getParameter<edm::InputTag>("CSCsimHitsXFTag")),
+      geomToken_(iC.esConsumes<CSCGeometry, MuonGeometryRecord>()),
+      badToken_(iC.esConsumes<CSCBadChambers, CSCBadChambersRcd>()) {
   initEvent(event, setup);
 }
 
@@ -51,13 +53,11 @@ void MuonTruth::initEvent(const edm::Event &event, const edm::EventSetup &setup)
   theWireDigiSimLinks = wireDigiSimLinks.product();
 
   // get CSC Geometry to use CSCLayer methods
-  edm::ESHandle<CSCGeometry> mugeom;
-  setup.get<MuonGeometryRecord>().get(mugeom);
-  cscgeom = &*mugeom;
+  edm::ESHandle<CSCGeometry> mugeom = setup.getHandle(geomToken_);
+  cscgeom = mugeom.product();
 
   // get CSC Bad Chambers (ME4/2)
-  edm::ESHandle<CSCBadChambers> badChambers;
-  setup.get<CSCBadChambersRcd>().get(badChambers);
+  edm::ESHandle<CSCBadChambers> badChambers = setup.getHandle(badToken_);
   cscBadChambers = badChambers.product();
 
   theSimHitMap.clear();

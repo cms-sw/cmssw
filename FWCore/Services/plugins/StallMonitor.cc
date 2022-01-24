@@ -25,7 +25,7 @@
 #include "FWCore/Utilities/interface/OStreamColumn.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StdPairHasher.h"
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 #include <atomic>
 #include <chrono>
@@ -223,13 +223,13 @@ namespace edm {
 
       // There can be multiple modules per stream.  Therefore, we need
       // the combination of StreamID and ModuleID to correctly track
-      // stalling information.  We use tbb::concurrent_unordered_map
+      // stalling information.  We use oneapi::tbb::concurrent_unordered_map
       // for this purpose.
       using StreamID_value = decltype(std::declval<StreamID>().value());
       using ModuleID = decltype(std::declval<ModuleDescription>().id());
-      tbb::concurrent_unordered_map<std::pair<StreamID_value, ModuleID>,
-                                    std::pair<decltype(beginTime_), bool>,
-                                    edm::StdPairHasher>
+      oneapi::tbb::concurrent_unordered_map<std::pair<StreamID_value, ModuleID>,
+                                            std::pair<decltype(beginTime_), bool>,
+                                            edm::StdPairHasher>
           stallStart_{};
 
       std::vector<std::string> moduleLabels_{};

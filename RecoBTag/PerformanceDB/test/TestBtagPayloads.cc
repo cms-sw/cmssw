@@ -19,11 +19,12 @@
 // system include files
 #include <iostream>
 #include <memory>
+#include <map>
 #include <stdio.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,19 +37,96 @@
 #include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"
 #include "RecoBTag/PerformanceDB/interface/BtagPerformance.h"
 
-class TestBtagPayloads : public edm::EDAnalyzer {
+class TestBtagPayloads : public edm::one::EDAnalyzer<> {
 public:
   explicit TestBtagPayloads(const edm::ParameterSet&);
-  ~TestBtagPayloads();
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) final;
+
+  const edm::ESGetToken<BtagPerformance, BTagPerformanceRecord> ttToken_;
+  const edm::ESGetToken<BtagPerformance, BTagPerformanceRecord> muToken_;
+  const edm::ESGetToken<BtagPerformance, BTagPerformanceRecord> mistagToken_;
+
+  std::map<std::string, PerformanceResult::ResultType> measureMap_;
+
+  const std::vector<std::string> measureName_;
+  const std::vector<std::string> measureType_;
+
+  std::vector<edm::ESGetToken<BtagPerformance, BTagPerformanceRecord>> measureTokens_;
 };
 
-TestBtagPayloads::TestBtagPayloads(const edm::ParameterSet& iConfig) {}
-TestBtagPayloads::~TestBtagPayloads() {}
+namespace {
+  //Possible algorithms: TTBARDISCRIMBTAGCSV, TTBARDISCRIMBTAGJP, TTBARDISCRIMBTAGTCHP
+  constexpr char const* const ttName = "TTBARDISCRIMBTAGCSV";
+
+  //Possible algorithms: MUJETSWPBTAGCSVL,  MUJETSWPBTAGCSVM,   MUJETSWPBTAGCSVT
+  //                     MUJETSWPBTAGJPL,   MUJETSWPBTAGJPM,    MUJETSWPBTAGJPT
+  //                                                            MUJETSWPBTAGTCHPT
+  constexpr char const* const muName = "MUJETSWPBTAGCSVL";
+
+  //Possible algorithms: MISTAGCSVLAB,  MISTAGCSVMAB,   MISTAGCSVTAB
+  //                     MISTAGJPLAB,   MISTAGJPMAB,    MISTAGJPTAB                // Data period 2012 AB
+  //                                                    MISTAGTCHPTAB
+  //
+  //                     MISTAGCSVLABCD,  MISTAGCSVMABCD,   MISTAGCSVTABCD
+  //                     MISTAGJPLABCD,   MISTAGJPMABCD,    MISTAGJPTABCD          // Data period 2012 ABCD
+  //                                                        MISTAGTCHPTABCD
+  //
+  //                     MISTAGCSVLC,  MISTAGCSVMC,   MISTAGCSVTC
+  //                     MISTAGJPLC,   MISTAGJPMC,    MISTAGJPTC                   // Data period 2012 C
+  //                                                  MISTAGTCHPTC
+  //
+  //                     MISTAGCSVLD,  MISTAGCSVMD,   MISTAGCSVTD
+  //                     MISTAGJPLD,   MISTAGJPMD,    MISTAGJPTD                   // Data period 2012 D
+  //                                                  MISTAGTCHPTD
+  constexpr char const* const mistagName = "MISTAGTCHPTD";
+}  // namespace
+TestBtagPayloads::TestBtagPayloads(const edm::ParameterSet& iConfig)
+    : ttToken_(esConsumes(edm::ESInputTag("", ttName))),
+      muToken_(esConsumes(edm::ESInputTag("", muName))),
+      mistagToken_(esConsumes(edm::ESInputTag("", mistagName))),
+      //Possible algorithms: TTBARWPBTAGCSVL,  TTBARWPBTAGCSVM,   TTBARWPBTAGCSVT
+      //                     TTBARWPBTAGJPL,   TTBARWPBTAGJPM,    TTBARWPBTAGJPT
+      //                                                          TTBARWPBTAGTCHPT
+      measureName_({"TTBARWPBTAGCSVL",
+                    "TTBARWPBTAGCSVL",
+                    "TTBARWPBTAGCSVL",
+                    "TTBARWPBTAGCSVL",
+                    "TTBARWPBTAGJPT",
+                    "TTBARWPBTAGJPT",
+                    "TTBARWPBTAGJPT",
+                    "TTBARWPBTAGJPT"}),
+      measureType_({"BTAGBEFFCORR",
+                    "BTAGBERRCORR",
+                    "BTAGCEFFCORR",
+                    "BTAGCERRCORR",
+                    "BTAGBEFFCORR",
+                    "BTAGBERRCORR",
+                    "BTAGCEFFCORR",
+                    "BTAGCERRCORR"}) {
+  if (measureName_.size() != measureType_.size()) {
+    std::cout << "measureName_, measureType_ size mismatch!" << std::endl;
+    exit(-1);
+  }
+
+  measureMap_["BTAGBEFFCORR"] = PerformanceResult::BTAGBEFFCORR;
+  measureMap_["BTAGBERRCORR"] = PerformanceResult::BTAGBERRCORR;
+  measureMap_["BTAGCEFFCORR"] = PerformanceResult::BTAGCEFFCORR;
+  measureMap_["BTAGCERRCORR"] = PerformanceResult::BTAGCERRCORR;
+
+  measureTokens_.reserve(measureName_.size());
+
+  //only call esConsumes if the name changes, else reuse the token
+  std::map<std::string, edm::ESGetToken<BtagPerformance, BTagPerformanceRecord>> tokens;
+  for (auto const& n : measureName_) {
+    auto insert = tokens.insert({n, {}});
+    if (insert.second) {
+      insert.first->second = esConsumes(edm::ESInputTag("", n));
+    }
+    measureTokens_.push_back(insert.first->second);
+  }
+}
 
 //
 // member functions
@@ -58,7 +136,6 @@ TestBtagPayloads::~TestBtagPayloads() {}
 void TestBtagPayloads::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   edm::ESHandle<BtagPerformance> perfH;
-  std::string name = "";
   BinningPointByMap p;
 
   //
@@ -67,14 +144,10 @@ void TestBtagPayloads::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   printf("\033[22;31m \n TESTING FOR TTBAR SF's and efficiencies using CONTINIOUS DISCRIMINATORS \n\033[0m");
 
-  //Possible algorithms: TTBARDISCRIMBTAGCSV, TTBARDISCRIMBTAGJP, TTBARDISCRIMBTAGTCHP
-  name = "TTBARDISCRIMBTAGCSV";
+  std::cout << " Studying performance with label " << ttName << std::endl;
+  const BtagPerformance& perf = iSetup.getData(ttToken_);
 
-  std::cout << " Studying performance with label " << name << std::endl;
-  iSetup.get<BTagPerformanceRecord>().get(name, perfH);
-  const BtagPerformance& perf = *(perfH.product());
-
-  std::cout << " My Performance Object is indeed a " << typeid(perfH.product()).name() << std::endl;
+  std::cout << " My Performance Object is indeed a " << typeid(&perf).name() << std::endl;
 
   std::cout << " The WP is defined by a cut at " << perf.workingPoint().cut() << std::endl;
   std::cout << " Discriminant is " << perf.workingPoint().discriminantName() << std::endl;
@@ -98,48 +171,11 @@ void TestBtagPayloads::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   printf("\033[22;31m TESTING FOR TTBAR WP's \n\033[0m");
 
-  //Possible algorithms: TTBARWPBTAGCSVL,  TTBARWPBTAGCSVM,   TTBARWPBTAGCSVT
-  //                     TTBARWPBTAGJPL,   TTBARWPBTAGJPM,    TTBARWPBTAGJPT
-  //                                                          TTBARWPBTAGTCHPT
-
-  std::map<std::string, PerformanceResult::ResultType> measureMap;
-  measureMap["BTAGBEFFCORR"] = PerformanceResult::BTAGBEFFCORR;
-  measureMap["BTAGBERRCORR"] = PerformanceResult::BTAGBERRCORR;
-  measureMap["BTAGCEFFCORR"] = PerformanceResult::BTAGCEFFCORR;
-  measureMap["BTAGCERRCORR"] = PerformanceResult::BTAGCERRCORR;
-
-  std::vector<std::string> measureName;
-  std::vector<std::string> measureType;
-
-  measureName.push_back("TTBARWPBTAGCSVL");
-  measureName.push_back("TTBARWPBTAGCSVL");
-  measureName.push_back("TTBARWPBTAGCSVL");
-  measureName.push_back("TTBARWPBTAGCSVL");
-  measureName.push_back("TTBARWPBTAGJPT");
-  measureName.push_back("TTBARWPBTAGJPT");
-  measureName.push_back("TTBARWPBTAGJPT");
-  measureName.push_back("TTBARWPBTAGJPT");
-
-  measureType.push_back("BTAGBEFFCORR");
-  measureType.push_back("BTAGBERRCORR");
-  measureType.push_back("BTAGCEFFCORR");
-  measureType.push_back("BTAGCERRCORR");
-  measureType.push_back("BTAGBEFFCORR");
-  measureType.push_back("BTAGBERRCORR");
-  measureType.push_back("BTAGCEFFCORR");
-  measureType.push_back("BTAGCERRCORR");
-
-  if (measureName.size() != measureType.size()) {
-    std::cout << "measureName, measureType size mismatch!" << std::endl;
-    exit(-1);
-  }
-
-  for (size_t iMeasure = 0; iMeasure < measureName.size(); iMeasure++) {
-    std::cout << "Testing: " << measureName[iMeasure] << " of type " << measureType[iMeasure] << std::endl;
+  for (size_t iMeasure = 0; iMeasure < measureName_.size(); iMeasure++) {
+    std::cout << "Testing: " << measureName_[iMeasure] << " of type " << measureType_[iMeasure] << std::endl;
 
     //Setup our measurement
-    iSetup.get<BTagPerformanceRecord>().get(measureName[iMeasure], perfH);
-    const BtagPerformance& perf2 = *(perfH.product());
+    const BtagPerformance& perf2 = iSetup.getData(measureTokens_[iMeasure]);
 
     //Working point
     std::cout << "Working point: " << perf2.workingPoint().cut() << std::endl;
@@ -148,8 +184,8 @@ void TestBtagPayloads::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     measurePoint.insert(BinningVariables::JetEt, 50);
     measurePoint.insert(BinningVariables::JetEta, 0.6);
 
-    std::cout << "Is it OK? " << perf2.isResultOk(measureMap[measureType[iMeasure]], measurePoint)
-              << " result at 50 GeV, 0,6 |eta| = " << perf2.getResult(measureMap[measureType[iMeasure]], measurePoint)
+    std::cout << "Is it OK? " << perf2.isResultOk(measureMap_[measureType_[iMeasure]], measurePoint)
+              << " result at 50 GeV, 0,6 |eta| = " << perf2.getResult(measureMap_[measureType_[iMeasure]], measurePoint)
               << std::endl;
   }
 
@@ -162,17 +198,10 @@ void TestBtagPayloads::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   printf("\033[22;31m TESTING FOR Mu+Jets WP's \n\033[0m");
 
-  //Possible algorithms: MUJETSWPBTAGCSVL,  MUJETSWPBTAGCSVM,   MUJETSWPBTAGCSVT
-  //                     MUJETSWPBTAGJPL,   MUJETSWPBTAGJPM,    MUJETSWPBTAGJPT
-  //                                                            MUJETSWPBTAGTCHPT
+  std::cout << " Studying performance with label " << muName << std::endl;
+  const BtagPerformance& perf3 = iSetup.getData(muToken_);
 
-  name = "MUJETSWPBTAGCSVL";
-
-  std::cout << " Studying performance with label " << name << std::endl;
-  iSetup.get<BTagPerformanceRecord>().get(name, perfH);
-  const BtagPerformance& perf3 = *(perfH.product());
-
-  std::cout << " My Performance Object is indeed a " << typeid(perfH.product()).name() << std::endl;
+  std::cout << " My Performance Object is indeed a " << typeid(&perf3).name() << std::endl;
 
   std::cout << " The WP is defined by a cut at " << perf3.workingPoint().cut() << std::endl;
   std::cout << " Discriminant is " << perf3.workingPoint().discriminantName() << std::endl;
@@ -196,29 +225,10 @@ void TestBtagPayloads::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   printf("\033[22;31m TESTING FOR Mu+Jets Mistags \n\033[0m");
 
-  //Possible algorithms: MISTAGCSVLAB,  MISTAGCSVMAB,   MISTAGCSVTAB
-  //                     MISTAGJPLAB,   MISTAGJPMAB,    MISTAGJPTAB                // Data period 2012 AB
-  //                                                    MISTAGTCHPTAB
-  //
-  //                     MISTAGCSVLABCD,  MISTAGCSVMABCD,   MISTAGCSVTABCD
-  //                     MISTAGJPLABCD,   MISTAGJPMABCD,    MISTAGJPTABCD          // Data period 2012 ABCD
-  //                                                        MISTAGTCHPTABCD
-  //
-  //                     MISTAGCSVLC,  MISTAGCSVMC,   MISTAGCSVTC
-  //                     MISTAGJPLC,   MISTAGJPMC,    MISTAGJPTC                   // Data period 2012 C
-  //                                                  MISTAGTCHPTC
-  //
-  //                     MISTAGCSVLD,  MISTAGCSVMD,   MISTAGCSVTD
-  //                     MISTAGJPLD,   MISTAGJPMD,    MISTAGJPTD                   // Data period 2012 D
-  //                                                  MISTAGTCHPTD
+  std::cout << " Studying performance with label " << mistagName << std::endl;
+  const BtagPerformance& perf4 = iSetup.getData(mistagToken_);
 
-  name = "MISTAGTCHPTD";
-
-  std::cout << " Studying performance with label " << name << std::endl;
-  iSetup.get<BTagPerformanceRecord>().get(name, perfH);
-  const BtagPerformance& perf4 = *(perfH.product());
-
-  std::cout << " My Performance Object is indeed a " << typeid(perfH.product()).name() << std::endl;
+  std::cout << " My Performance Object is indeed a " << typeid(&perf4).name() << std::endl;
 
   std::cout << " The WP is defined by a cut at " << perf4.workingPoint().cut() << std::endl;
   std::cout << " Discriminant is " << perf4.workingPoint().discriminantName() << std::endl;
@@ -235,12 +245,6 @@ void TestBtagPayloads::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   std::cout << " bSF/bSFerr =" << perf4.getResult(PerformanceResult::BTAGLEFFCORR, p) << "/"
             << perf4.getResult(PerformanceResult::BTAGLERRCORR, p) << std::endl;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void TestBtagPayloads::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void TestBtagPayloads::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TestBtagPayloads);

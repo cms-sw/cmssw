@@ -690,8 +690,7 @@ namespace edm {
         preallocConfig_(prealloc),
         pathNames_(&tns.getTrigPaths()),
         endPathNames_(&tns.getEndPaths()),
-        wantSummary_(tns.wantSummary()),
-        endpathsAreActive_(true) {
+        wantSummary_(tns.wantSummary()) {
     makePathStatusInserters(pathStatusInserters_,
                             *pathNames_,
                             prealloc,
@@ -1525,15 +1524,6 @@ namespace edm {
       ++i;
     }
   }
-
-  void Schedule::enableEndPaths(bool active) {
-    endpathsAreActive_ = active;
-    for (auto& s : streamSchedules_) {
-      s->enableEndPaths(active);
-    }
-  }
-
-  bool Schedule::endPathsEnabled() const { return endpathsAreActive_; }
 
   void Schedule::getTriggerReport(TriggerReport& rep) const {
     rep.eventSummary.totalEvents = 0;

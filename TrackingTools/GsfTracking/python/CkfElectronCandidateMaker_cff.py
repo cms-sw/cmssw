@@ -44,15 +44,11 @@ TrajectoryBuilderForElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.
     propagatorAlong = 'fwdGsfElectronPropagator',
     propagatorOpposite = 'bwdGsfElectronPropagator',
     estimator = 'ElectronChi2',
-    MeasurementTrackerName = '',
     lostHitPenalty = 90.,
     alwaysUseInvalidHits = True,
     TTRHBuilder = 'WithTrackAngle',
     updator = 'KFUpdator'
 )
-
-from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
-seedingDeepCore.toModify(TrajectoryBuilderForElectrons, maxPtForLooperReconstruction = cms.double(0.0) )
 
 # CKFTrackCandidateMaker
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
@@ -72,7 +68,6 @@ electronTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
     ValidHitBonus = 1000.0,
     MissingHitPenalty = 0.0
 )
-            
 
 # "backward" propagator for electrons
 from TrackingTools.GsfTracking.bwdGsfElectronPropagator_cff import *

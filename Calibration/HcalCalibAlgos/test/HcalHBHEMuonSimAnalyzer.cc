@@ -65,7 +65,6 @@ private:
   std::vector<HcalDDDRecConstants::HcalActiveLength> actHB_, actHE_;
 
   double tMinE_, tMaxE_, tMinH_, tMaxH_;
-  edm::Service<TFileService> fs_;
   edm::EDGetTokenT<edm::SimTrackContainer> tok_SimTk_;
   edm::EDGetTokenT<edm::SimVertexContainer> tok_SimVtx_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEB_, tok_caloEE_;
@@ -169,8 +168,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     }
   }
   if (testN) {
-    for (edm::PCaloHitContainer::const_iterator itr = pcalohh->begin(); itr != pcalohh->end(); ++itr) {
-      PCaloHit hit(*itr);
+    for (auto hit : (*(pcalohh.product()))) {
       DetId newid = HcalHitRelabeller::relabel(hit.id(), hcons_);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HBHEMuon") << "Old ID " << std::hex << hit.id() << std::dec << " New " << HcalDetId(newid);
@@ -199,10 +197,10 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   std::vector<double> hcalActiveLength, hcalActiveLengthHot;
 
   // Loop over all SimTracks
-  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
-    if ((std::abs(simTrkItr->type()) == idMuon_) && (simTrkItr->vertIndex() == 0) &&
-        (std::abs(simTrkItr->momentum().eta()) < etaMax_)) {
-      unsigned int thisTrk = simTrkItr->trackId();
+  for (const auto& simTrkItr : (*(SimTk.product()))) {
+    if ((std::abs(simTrkItr.type()) == idMuon_) && (simTrkItr.vertIndex() == 0) &&
+        (std::abs(simTrkItr.momentum().eta()) < etaMax_)) {
+      unsigned int thisTrk = simTrkItr.trackId();
       spr::propagatedTrackDirection trkD = spr::propagateCALO(thisTrk, SimTk, SimVtx, geo, bField, debug);
 
       double eEcal(0), eHcal(0), activeLengthTot(0), activeLengthHotTot(0);
@@ -215,9 +213,9 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
 #ifdef EDM_ML_DEBUG
       if ((verbosity_ % 10) > 0)
-        edm::LogVerbatim("HBHEMuon") << "Track Type " << simTrkItr->type() << " Vertex " << simTrkItr->vertIndex()
-                                     << " Charge " << simTrkItr->charge() << " Momentum " << simTrkItr->momentum().P()
-                                     << ":" << simTrkItr->momentum().eta() << ":" << simTrkItr->momentum().phi()
+        edm::LogVerbatim("HBHEMuon") << "Track Type " << simTrkItr.type() << " Vertex " << simTrkItr.vertIndex()
+                                     << " Charge " << simTrkItr.charge() << " Momentum " << simTrkItr.momentum().P()
+                                     << ":" << simTrkItr.momentum().eta() << ":" << simTrkItr.momentum().phi()
                                      << " ECAL|HCAL " << trkD.okECAL << ":" << trkD.okHCAL << " Point "
                                      << trkD.pointECAL << ":" << trkD.pointHCAL << " Direction "
                                      << trkD.directionECAL.eta() << ":" << trkD.directionECAL.phi() << " | "
@@ -370,7 +368,8 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 }
 
 void HcalHBHEMuonSimAnalyzer::beginJob() {
-  tree_ = fs_->make<TTree>("TREE", "TREE");
+  edm::Service<TFileService> fs;
+  tree_ = fs->make<TTree>("TREE", "TREE");
   tree_->Branch("Run_No", &runNumber_);
   tree_->Branch("Event_No", &eventNumber_);
   tree_->Branch("LumiNumber", &lumiNumber_);

@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -43,14 +44,14 @@ void HcalCellSizeCheck::analyze(const edm::Event& /*iEvent*/, const edm::EventSe
   for (auto id : idsb) {
     HcalDetId hid(id.rawId());
     std::pair<double, double> rz = hcons.getRZ(hid);
-    std::cout << hid << " Front " << rz.first << " Back " << rz.second << "\n";
+    edm::LogVerbatim("HCalGeom") << hid << " Front " << rz.first << " Back " << rz.second;
   }
 
   const std::vector<DetId>& idse = geom->getValidDetIds(DetId::Hcal, HcalEndcap);
   for (auto id : idse) {
     HcalDetId hid(id.rawId());
     std::pair<double, double> rz = hcons.getRZ(hid);
-    std::cout << hid << " Front " << rz.first << " Back " << rz.second << "\n";
+    edm::LogVerbatim("HCalGeom") << hid << " Front " << rz.first << " Back " << rz.second;
   }
 }
 

@@ -8,7 +8,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
@@ -17,7 +17,7 @@
 class TH1D;
 class TH2D;
 
-class CMSDAS11DijetTestAnalyzer : public edm::EDAnalyzer {
+class CMSDAS11DijetTestAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   CMSDAS11DijetTestAnalyzer(const edm::ParameterSet&);
   void analyze(const edm::Event&, const edm::EventSetup&) override;

@@ -61,10 +61,10 @@ public:
   void selectButtonToggle();
 
 #ifndef __CINT__
-  sigc::signal<void, FWGUISubviewArea*> swap_;
-  sigc::signal<void, FWGUISubviewArea*> goingToBeDestroyed_;
-  sigc::signal<void, FWGUISubviewArea*> selected_;
-  sigc::signal<void, FWGUISubviewArea*> unselected_;
+  sigc::signal<void(FWGUISubviewArea*)> swap_;
+  sigc::signal<void(FWGUISubviewArea*)> goingToBeDestroyed_;
+  sigc::signal<void(FWGUISubviewArea*)> selected_;
+  sigc::signal<void(FWGUISubviewArea*)> unselected_;
 #endif
   void setInfoButton(bool downp);
 

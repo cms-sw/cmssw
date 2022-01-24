@@ -9,7 +9,7 @@
  *  odd and even layers
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -24,7 +24,7 @@ class TH1I;
 class TH1D;
 class DTT0;
 
-class DTT0CalibrationRMS : public edm::EDAnalyzer {
+class DTT0CalibrationRMS : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTT0CalibrationRMS(const edm::ParameterSet& pset);

@@ -10,6 +10,7 @@
 
 #include "TLorentzVector.h"
 
+#include <memory>
 #include <vector>
 
 class TKinFitter;
@@ -42,14 +43,14 @@ private:
 
 private:
   // the particles that enter the kinematic fit
-  TAbsFitParticle* fitBottom_;
-  TAbsFitParticle* fitLight_;
-  TAbsFitParticle* fitLepton_;
-  TAbsFitParticle* fitNeutrino_;
+  std::unique_ptr<TAbsFitParticle> fitBottom_;
+  std::unique_ptr<TAbsFitParticle> fitLight_;
+  std::unique_ptr<TAbsFitParticle> fitLepton_;
+  std::unique_ptr<TAbsFitParticle> fitNeutrino_;
   // the constraints on the fit
-  TFitConstraintM* cons1_;
-  TFitConstraintM* cons2_;
-  TFitConstraintM* cons3_;
+  std::unique_ptr<TFitConstraintM> cons1_;
+  std::unique_ptr<TFitConstraintM> cons2_;
+  std::unique_ptr<TFitConstraintM> cons3_;
   // other parameters
   Param jetParam_, lepParam_, metParam_;
   std::vector<int> constraints_;

@@ -1,7 +1,7 @@
 ++ starting: constructing source: PoolSource
 Module type=PoolSource, Module label=source, Parameter Set ID=079a79e873959edf4ff4f335f14507fa
-++++ starting: open input file: lfn = file:testGetBy1.root usedFallBack = 0
-++++ finished: open input file: lfn = file:testGetBy1.root usedFallBack = 0
+++++ starting: open input file: lfn = file:testGetBy1.root
+++++ finished: open input file: lfn = file:testGetBy1.root
 ++ finished: constructing source: PoolSource
 Module type=PoolSource, Module label=source, Parameter Set ID=079a79e873959edf4ff4f335f14507fa
 ++++ starting: constructing module with label 'TriggerResults' id = 1
@@ -791,8 +791,8 @@ GlobalContext: transition = WriteRun
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
-++++ starting: close input file: lfn = file:testGetBy1.root usedFallBack = 0
-++++ finished: close input file: lfn = file:testGetBy1.root usedFallBack = 0
+++++ starting: close input file: lfn = file:testGetBy1.root
+++++ finished: close input file: lfn = file:testGetBy1.root
 ++++ starting: end process block
 GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0

@@ -43,7 +43,6 @@ namespace edm {
       size_t key() const override;
       bool isEqualTo(BaseHolder<T> const& rhs) const override;
 
-      bool fillRefIfMyTypeMatches(RefHolderBase& fillme, std::string& msg) const override;
       std::unique_ptr<RefHolderBase> holder() const override;
       std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() const override;
       EDProductGetter const* productGetter() const override;
@@ -119,11 +118,6 @@ namespace edm {
     bool IndirectHolder<T>::isEqualTo(BaseHolder<T> const& rhs) const {
       IndirectHolder const* h = dynamic_cast<IndirectHolder const*>(&rhs);
       return h && helper_->isEqualTo(*h->helper_);
-    }
-
-    template <typename T>
-    bool IndirectHolder<T>::fillRefIfMyTypeMatches(RefHolderBase& fillme, std::string& msg) const {
-      return helper_->fillRefIfMyTypeMatches(fillme, msg);
     }
 
     template <typename T>

@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -49,7 +48,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  edm::Service<TFileService> fs_;
   double timeCut_;
   TTree* myTree_;
 
@@ -85,7 +83,8 @@ void SimAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descri
 }
 
 void SimAnalyzerMinbias::beginJob() {
-  myTree_ = fs_->make<TTree>("SimJet", "SimJet Tree");
+  edm::Service<TFileService> fs;
+  myTree_ = fs->make<TTree>("SimJet", "SimJet Tree");
   myTree_->Branch("mydet", &mydet, "mydet/I");
   myTree_->Branch("mysubd", &mysubd, "mysubd/I");
   myTree_->Branch("cells", &cells, "cells");

@@ -2,50 +2,49 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
 #include "CondFormats/DataRecord/interface/mySiStripNoisesRcd.h"
 
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 using namespace std;
 
 namespace edmtest {
-  class NoisesAnalyzer : public edm::EDAnalyzer {
+  class NoisesAnalyzer : public edm::global::EDAnalyzer<> {
   public:
-    explicit NoisesAnalyzer(edm::ParameterSet const& p) { std::cout << "NoisesAnalyzer" << std::endl; }
-    explicit NoisesAnalyzer(int i) { std::cout << "NoisesAnalyzer " << i << std::endl; }
-    virtual ~NoisesAnalyzer() { std::cout << "~NoisesAnalyzer " << std::endl; }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    explicit NoisesAnalyzer(edm::ParameterSet const& p) : theNoisesToken_(esConsumes()) {
+      edm::LogPrint("NoisesAnalyzer") << "NoisesAnalyzer";
+    }
+    explicit NoisesAnalyzer(int i) { edm::LogPrint("NoisesAnalyzer") << "NoisesAnalyzer " << i; }
+    virtual ~NoisesAnalyzer() { edm::LogPrint("NoisesAnalyzer") << "~NoisesAnalyzer "; }
+    void analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& c) const override;
 
   private:
+    const edm::ESGetToken<mySiStripNoises, mySiStripNoisesRcd> theNoisesToken_;
   };
 
-  void NoisesAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
+  void NoisesAnalyzer::analyze(edm::StreamID, const edm::Event& e, const edm::EventSetup& context) const {
     using namespace edm::eventsetup;
     // Context is not used.
-    std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
-    std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
+    edm::LogPrint("NoisesAnalyzer") << " I AM IN RUN NUMBER " << e.id().run();
+    edm::LogPrint("NoisesAnalyzer") << " ---EVENT NUMBER " << e.id().event();
     edm::eventsetup::EventSetupRecordKey recordKey(
         edm::eventsetup::EventSetupRecordKey::TypeTag::findType("mySiStripNoisesRcd"));
     if (recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
       //record not found
-      std::cout << "Record \"mySiStripNoisesRcd"
-                << "\" does not exist " << std::endl;
+      edm::LogPrint("NoisesAnalyzer") << "Record \"mySiStripNoisesRcd\" does not exist";
     }
-    edm::ESHandle<mySiStripNoises> pNoises;
-    std::cout << "got eshandle" << std::endl;
-    context.get<mySiStripNoisesRcd>().get(pNoises);
-    std::cout << "got context" << std::endl;
-    const mySiStripNoises* mynoise = pNoises.product();
-    std::cout << "Noises* " << mynoise << std::endl;
+    edm::LogPrint("NoisesAnalyzer") << "got context";
+    auto const& mynoise = &context.getData(theNoisesToken_);
+    edm::LogPrint("NoisesAnalyzer") << "Noises* " << mynoise;
     unsigned int a = mynoise->v_noises.size();
-    std::cout << "size a " << a << std::endl;
+    edm::LogPrint("NoisesAnalyzer") << "size a " << a;
     unsigned int b = mynoise->indexes.size();
-    std::cout << "size b " << b << std::endl;
+    edm::LogPrint("NoisesAnalyzer") << "size b " << b;
     /*for(std::vector<mySiStripNoises::DetRegistry>::const_iterator it=mynoise->indexes.begin(); it!=mynoise->indexes.end(); ++it){
       std::cout << "  detid  " <<it->detid<< std::endl;
       }*/

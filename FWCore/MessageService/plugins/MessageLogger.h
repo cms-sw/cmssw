@@ -63,9 +63,9 @@ namespace edm {
       void preSourceRunLumi();
       void postSourceRunLumi();
 
-      void preFile(std::string const&, bool);
-      void preFileClose(std::string const&, bool);
-      void postFile(std::string const&, bool);
+      void preFile(std::string const&);
+      void preFileClose(std::string const&);
+      void postFile(std::string const&);
 
       void preModuleConstruction(ModuleDescription const&);
       void postModuleConstruction(ModuleDescription const&);

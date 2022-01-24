@@ -14,6 +14,7 @@
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/XrdAdaptor/interface/XrdStatistics.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/processGUID.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -60,7 +61,7 @@ namespace edm {
       void beginPre(PathsAndConsumesOfModulesBase const &, ProcessContext const &processContext);
       void beginPost();
       void endPost();
-      void filePost(std::string const &, bool);
+      void filePost(std::string const &);
 
       bool m_debug;
       std::atomic_flag m_shouldUpdate;
@@ -136,7 +137,7 @@ void CondorStatusService::runPost(GlobalContext const &) {
   update();
 }
 
-void CondorStatusService::filePost(std::string const & /*lfn*/, bool /*usedFallback*/) {
+void CondorStatusService::filePost(std::string const & /*lfn*/) {
   m_files++;
   update();
 }
@@ -224,6 +225,7 @@ void CondorStatusService::firstUpdate() {
   updateChirp("MaxEvents", "-1");
   updateChirp("MaxLumis", "-1");
   updateChirp("Done", "false");
+  updateChirpQuoted("Guid", edm::processGUID().toString());
 
   edm::Service<edm::CPUServiceBase> cpusvc;
   std::string models;

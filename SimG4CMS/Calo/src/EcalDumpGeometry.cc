@@ -9,8 +9,6 @@
 
 #include <iostream>
 
-//#define EDM_ML_DEBUG
-
 EcalDumpGeometry::EcalDumpGeometry(const std::vector<std::string_view>& names,
                                    const std::string& name1,
                                    const std::string& name2,
@@ -19,31 +17,31 @@ EcalDumpGeometry::EcalDumpGeometry(const std::vector<std::string_view>& names,
   std::stringstream ss;
   for (const auto& lvname : names)
     ss << " " << lvname;
-  edm::LogVerbatim("EcalGeom") << " Type: " << type << " Depth Names " << name1_ << ":" << name2_ << " with "
-                               << names.size() << " LVs: " << ss.str();
+  G4cout << " Type: " << type << " Depth Names " << name1_ << ":" << name2_ << " with " << names.size()
+         << " LVs: " << ss.str() << G4endl;
   for (const auto& name : names) {
     std::string namex = (static_cast<std::string>(dd4hep::dd::noNamespace(name))).substr(0, 4);
     if (std::find(names_.begin(), names_.end(), namex) == names_.end())
       names_.emplace_back(namex);
   }
-  edm::LogVerbatim("EcalGeom") << "EcalDumpGeometry:: dump geometry information for detector of type " << type_
-                               << " with " << names_.size() << " elements:";
+  G4cout << "EcalDumpGeometry:: dump geometry information for detector of type " << type_ << " with " << names_.size()
+         << " elements:" << G4endl;
   for (unsigned int k = 0; k < names_.size(); ++k)
-    edm::LogVerbatim("EcalGeom") << "[" << k << "] : " << names_[k];
+    G4cout << "[" << k << "] : " << names_[k] << G4endl;
 }
 
 void EcalDumpGeometry::update() {
   G4VPhysicalVolume* theTopPV =
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
-  edm::LogVerbatim("EcalGeom") << "EcalDumpGeometry entered with entry of top PV at " << theTopPV;
+  G4cout << "EcalDumpGeometry entered with entry of top PV at " << theTopPV << G4endl;
 
   dumpTouch(theTopPV, 0);
   fHistory_.SetFirstEntry(theTopPV);
-  edm::LogVerbatim("EcalGeom") << "EcalDumpGeometry finds " << infoVec_.size() << " touchables";
+  G4cout << "EcalDumpGeometry finds " << infoVec_.size() << " touchables" << G4endl;
   sort(infoVec_.begin(), infoVec_.end(), CaloDetInfoLess());
   unsigned int k(0);
   for (const auto& info : infoVec_) {
-    edm::LogVerbatim("EcalGeom") << "[" << k << "] " << info;
+    G4cout << "[" << k << "] " << info << G4endl;
     if (info.flag() && (info.solid() != nullptr)) {
       info.solid()->DumpInfo();
       G4cout << G4endl;
@@ -73,15 +71,11 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
         theBaseNumber.reset();
         if (theBaseNumber.getCapacity() < theSize + 1)
           theBaseNumber.setSize(theSize + 1);
-#ifdef EDM_ML_DEBUG
         std::stringstream ss;
-#endif
         for (int ii = theSize; ii >= 0; --ii) {
           std::string_view name = dd4hep::dd::noNamespace(fHistory_.GetVolume(ii)->GetName());
           theBaseNumber.addLevel(static_cast<std::string>(name), fHistory_.GetVolume(ii)->GetCopyNo());
-#ifdef EDM_ML_DEBUG
           ss << " " << ii << " " << name << ":" << fHistory_.GetVolume(ii)->GetCopyNo();
-#endif
         }
         uint32_t id = (((type_ % 10) == 0) ? ebNumbering_.getUnitID(theBaseNumber)
                                            : (((type_ % 10) == 1) ? eeNumbering_.getUnitID(theBaseNumber)
@@ -92,10 +86,7 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
         if ((!name2_.empty()) && (namex == name2_))
           depth = 2;
         double r = globalpoint.rho();
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << " Field: " << ss.str() << " ID " << std::hex << id << std::dec << ":" << depth
-                                     << ":" << r;
-#endif
+        G4cout << " Field: " << ss.str() << " ID " << std::hex << id << std::dec << ":" << depth << ":" << r << G4endl;
         G4VSolid* solid = (lv->GetSolid());
         if (((type_ / 100) % 10) != 0)
           infoVec_.emplace_back(CaloDetInfo(id, depth, r, noRefl(lvname), globalpoint, solid, flag));

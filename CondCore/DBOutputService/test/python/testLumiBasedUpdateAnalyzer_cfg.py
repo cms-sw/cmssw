@@ -1,12 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(100),
-    timetype = cms.string('Lumi'),
-    firstValue = cms.uint64(11),
-    interval = cms.uint64(11)
+
+process.source = cms.Source("EmptySource",
+                            firstRun = cms.untracked.uint32( 260000 ),
+                            firstLuminosityBlock = cms.untracked.uint32( 1 ),
+                            numberEventsInRun = cms.untracked.uint32( 30 ),
+                            numberEventsInLuminosityBlock = cms.untracked.uint32(3),
 )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(30))
 
 process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(
@@ -27,8 +29,7 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
     autoCommit = cms.untracked.bool(True),
     connect = cms.string('sqlite_file:test_lumi.db'),
     preLoadConnectionString = cms.untracked.string('sqlite_file:test_lumi.db'),
-    #omsServiceUrl = cms.untracked.string('http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'),
-    #lastLumiFile = cms.untracked.string('lastLumi.txt'),
+    lastLumiFile = cms.untracked.string('lastLumi.txt'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('PedestalsRcd'),
         tag = cms.string('mytest'),
@@ -38,9 +39,9 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 )
 
 process.mytest = cms.EDAnalyzer("LumiBasedUpdateAnalyzer",
-    record = cms.string('PedestalsRcd'),
+    record = cms.untracked.string('PedestalsRcd'),
+    iovSize = cms.untracked.uint32(4),
     lastLumiFile = cms.untracked.string('lastLumi.txt')
-    #omsServiceUrl = cms.untracked.string('http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection')
 )
 
 process.p = cms.Path(process.mytest)

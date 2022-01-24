@@ -45,30 +45,30 @@ l1tStage2uGTMuon1vsMuon2RatioClient = DQMEDHarvester("L1TStage2RatioClient",
     binomialErr = cms.untracked.bool(True)
 )
 
-l1tStage2uGTMuon1vsMuon3RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone() 
-l1tStage2uGTMuon1vsMuon3RatioClient.monitorDir = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard3/Muons')
-l1tStage2uGTMuon1vsMuon3RatioClient.inputNum = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard3/Muons/'+errHistNumStr)
-l1tStage2uGTMuon1vsMuon3RatioClient.inputDen = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard3/Muons/'+errHistDenStr)
-l1tStage2uGTMuon1vsMuon3RatioClient.ratioTitle = cms.untracked.string('Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 3')
-
-l1tStage2uGTMuon1vsMuon4RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone() 
-l1tStage2uGTMuon1vsMuon4RatioClient.monitorDir = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard4/Muons')
-l1tStage2uGTMuon1vsMuon4RatioClient.inputNum = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard4/Muons/'+errHistNumStr)
-l1tStage2uGTMuon1vsMuon4RatioClient.inputDen = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard4/Muons/'+errHistDenStr)
-l1tStage2uGTMuon1vsMuon4RatioClient.ratioTitle = cms.untracked.string('Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 4')
-
-l1tStage2uGTMuon1vsMuon5RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone() 
-l1tStage2uGTMuon1vsMuon5RatioClient.monitorDir = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard5/Muons')
-l1tStage2uGTMuon1vsMuon5RatioClient.inputNum = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard5/Muons/'+errHistNumStr)
-l1tStage2uGTMuon1vsMuon5RatioClient.inputDen = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard5/Muons/'+errHistDenStr)
-l1tStage2uGTMuon1vsMuon5RatioClient.ratioTitle = cms.untracked.string('Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 5')
-
-l1tStage2uGTMuon1vsMuon6RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone() 
-l1tStage2uGTMuon1vsMuon6RatioClient.monitorDir = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard6/Muons')
-l1tStage2uGTMuon1vsMuon6RatioClient.inputNum = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard6/Muons/'+errHistNumStr)
-l1tStage2uGTMuon1vsMuon6RatioClient.inputDen = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard6/Muons/'+errHistDenStr)
-l1tStage2uGTMuon1vsMuon6RatioClient.ratioTitle = cms.untracked.string('Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 6')
-
+l1tStage2uGTMuon1vsMuon3RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard3/Muons',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard3/Muons/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard3/Muons/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 3'
+)
+l1tStage2uGTMuon1vsMuon4RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard4/Muons',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard4/Muons/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard4/Muons/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 4'
+)
+l1tStage2uGTMuon1vsMuon5RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard5/Muons',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard5/Muons/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard5/Muons/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 5'
+)
+l1tStage2uGTMuon1vsMuon6RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard6/Muons',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard6/Muons/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard6/Muons/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between Muons from uGT Board 1 and uGT Board 6'
+)
 l1tStage2uGTBoardCompMuonsRatioClientSeq = cms.Sequence(
     l1tStage2uGTMuon1vsMuon2RatioClient +
     l1tStage2uGTMuon1vsMuon3RatioClient +
@@ -77,36 +77,36 @@ l1tStage2uGTBoardCompMuonsRatioClientSeq = cms.Sequence(
     l1tStage2uGTMuon1vsMuon6RatioClient
 )
 
-l1tStage2uGTCalo1vsCalo2RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone() 
-l1tStage2uGTCalo1vsCalo2RatioClient.monitorDir = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard2/CaloLayer2')
-l1tStage2uGTCalo1vsCalo2RatioClient.inputNum = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard2/CaloLayer2/'+errHistNumStr)
-l1tStage2uGTCalo1vsCalo2RatioClient.inputDen = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard2/CaloLayer2/'+errHistDenStr)
-l1tStage2uGTCalo1vsCalo2RatioClient.ratioTitle = cms.untracked.string('Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 2')
-
-l1tStage2uGTCalo1vsCalo3RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone() 
-l1tStage2uGTCalo1vsCalo3RatioClient.monitorDir = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard3/CaloLayer2')
-l1tStage2uGTCalo1vsCalo3RatioClient.inputNum = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard3/CaloLayer2/'+errHistNumStr)
-l1tStage2uGTCalo1vsCalo3RatioClient.inputDen = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard3/CaloLayer2/'+errHistDenStr)
-l1tStage2uGTCalo1vsCalo3RatioClient.ratioTitle = cms.untracked.string('Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 3')
-
-l1tStage2uGTCalo1vsCalo4RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone() 
-l1tStage2uGTCalo1vsCalo4RatioClient.monitorDir = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard4/CaloLayer2')
-l1tStage2uGTCalo1vsCalo4RatioClient.inputNum = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard4/CaloLayer2/'+errHistNumStr)
-l1tStage2uGTCalo1vsCalo4RatioClient.inputDen = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard4/CaloLayer2/'+errHistDenStr)
-l1tStage2uGTCalo1vsCalo4RatioClient.ratioTitle = cms.untracked.string('Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 4')
-
-l1tStage2uGTCalo1vsCalo5RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone() 
-l1tStage2uGTCalo1vsCalo5RatioClient.monitorDir = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard5/CaloLayer2')
-l1tStage2uGTCalo1vsCalo5RatioClient.inputNum = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard5/CaloLayer2/'+errHistNumStr)
-l1tStage2uGTCalo1vsCalo5RatioClient.inputDen = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard5/CaloLayer2/'+errHistDenStr)
-l1tStage2uGTCalo1vsCalo5RatioClient.ratioTitle = cms.untracked.string('Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 5')
-
-l1tStage2uGTCalo1vsCalo6RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone() 
-l1tStage2uGTCalo1vsCalo6RatioClient.monitorDir = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard6/CaloLayer2')
-l1tStage2uGTCalo1vsCalo6RatioClient.inputNum = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard6/CaloLayer2/'+errHistNumStr)
-l1tStage2uGTCalo1vsCalo6RatioClient.inputDen = cms.untracked.string(ugtBoardCompDqmDir+'/Board1vsBoard6/CaloLayer2/'+errHistDenStr)
-l1tStage2uGTCalo1vsCalo6RatioClient.ratioTitle = cms.untracked.string('Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 6')
-
+l1tStage2uGTCalo1vsCalo2RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard2/CaloLayer2',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard2/CaloLayer2/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard2/CaloLayer2/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 2'
+)
+l1tStage2uGTCalo1vsCalo3RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard3/CaloLayer2',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard3/CaloLayer2/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard3/CaloLayer2/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 3'
+)
+l1tStage2uGTCalo1vsCalo4RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard4/CaloLayer2',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard4/CaloLayer2/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard4/CaloLayer2/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 4'
+)
+l1tStage2uGTCalo1vsCalo5RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard5/CaloLayer2',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard5/CaloLayer2/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard5/CaloLayer2/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 5'
+)
+l1tStage2uGTCalo1vsCalo6RatioClient = l1tStage2uGTMuon1vsMuon2RatioClient.clone(
+    monitorDir = ugtBoardCompDqmDir+'/Board1vsBoard6/CaloLayer2',
+    inputNum = ugtBoardCompDqmDir+'/Board1vsBoard6/CaloLayer2/'+errHistNumStr,
+    inputDen = ugtBoardCompDqmDir+'/Board1vsBoard6/CaloLayer2/'+errHistDenStr,
+    ratioTitle = 'Summary of Mismatch Rates between CaloLayer2 Inputs from uGT Board 1 and uGT Board 6'
+)
 l1tStage2uGTBoardCompCaloLayer2RatioClientSeq = cms.Sequence(
     l1tStage2uGTCalo1vsCalo2RatioClient +
     l1tStage2uGTCalo1vsCalo3RatioClient +

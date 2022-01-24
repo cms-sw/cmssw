@@ -1,4 +1,3 @@
-
 //////////////////////////////////////////////////////////////////////////////
 // File: DDEcalBarrelAlgo.cc
 // Description: Geometry factory class for Ecal Barrel
@@ -28,6 +27,8 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
 #include "CLHEP/Geometry/Transform3D.h"
+
+//#define EDM_ML_DEBUG
 
 class DDEcalBarrelAlgo : public DDAlgorithm {
 public:
@@ -1037,7 +1038,9 @@ DDEcalBarrelAlgo::DDEcalBarrelAlgo()
       m_PincerCutHeight(0)
 
 {
-  LogDebug("EcalGeom") << "DDEcalBarrelAlgo info: Creating an instance";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "DDEcalBarrelAlgo info: Creating an instance";
+#endif
 }
 
 DDEcalBarrelAlgo::~DDEcalBarrelAlgo() {}
@@ -1047,7 +1050,9 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments& nArgs,
                                   const DDMapArguments& /*mArgs*/,
                                   const DDStringArguments& sArgs,
                                   const DDStringVectorArguments& vsArgs) {
-  LogDebug("EcalGeom") << "DDEcalBarrelAlgo info: Initialize";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "DDEcalBarrelAlgo info: Initialize";
+#endif
   m_idNameSpace = DDCurrentNamespace::ns();
   // TRICK!
   m_idNameSpace = parent().name().ns();
@@ -1371,7 +1376,9 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments& nArgs,
   m_PincerCutWidth = nArgs["PincerCutWidth"];
   m_PincerCutHeight = nArgs["PincerCutHeight"];
 
-  LogDebug("EcalGeom") << "DDEcalBarrelAlgo info: end initialize";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "DDEcalBarrelAlgo info: end initialize";
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -1379,8 +1386,9 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments& nArgs,
 ////////////////////////////////////////////////////////////////////
 
 void DDEcalBarrelAlgo::execute(DDCompactView& cpv) {
-  LogDebug("EcalGeom") << "******** DDEcalBarrelAlgo execute!" << std::endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "******** DDEcalBarrelAlgo execute!" << std::endl;
+#endif
   if (barHere() != 0) {
     const unsigned int copyOne(1);
     const unsigned int copyTwo(2);
@@ -1631,7 +1639,9 @@ void DDEcalBarrelAlgo::execute(DDCompactView& cpv) {
           }
           for (unsigned int iPipe(0); iPipe != vecIlyPipePhi().size(); ++iPipe) {
             const unsigned int type(static_cast<unsigned int>(round(vecIlyPipeType()[iPipe])));
-            //		  std::cout<<" iPipe, type= " << iPipe << ", " << type << std::endl ;
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("EcalGeom") << " iPipe, type= " << iPipe << ", " << type;
+#endif
             const double zz(-ilyLength / 2 + vecIlyPipeZ()[iPipe] + (9 > type ? vecIlyPipeLength()[type] / 2. : 0));
 
             for (unsigned int ly(0); ly != 2; ++ly) {
@@ -1915,7 +1925,9 @@ void DDEcalBarrelAlgo::execute(DDCompactView& cpv) {
     for (unsigned int cryType(1); cryType <= nCryTypes(); ++cryType) {
       const std::string sType("_" + std::string(10 > cryType ? "0" : "") + std::to_string(cryType));
 
-      LogDebug("EcalGeom") << "Crytype=" << cryType;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EcalGeom") << "Crytype=" << cryType;
+#endif
       const double ANom(vecNomCryDimAR()[cryType - 1]);
       const double BNom(vecNomCryDimCR()[cryType - 1]);
       const double bNom(vecNomCryDimCF()[cryType - 1]);
@@ -2032,49 +2044,23 @@ void DDEcalBarrelAlgo::execute(DDCompactView& cpv) {
       const DDSolid wallSolid(mytrap(wallDDName.name(), trapWall));
       const DDLogicalPart wallLog(wallDDName, wallMat(), wallSolid);
 
-      /*	 std::cout << "Traps:\n a: " 
-		<< trapCry.a() << ", " 
-		<< trapClr.a() << ", " 
-		<< trapWrap.a() << ", " 
-		<< trapWall.a() << "\n b: " 
-		<< trapCry.b() << ", " 
-		<< trapClr.b() << ", " 
-		<< trapWrap.b() << ", " 
-		<< trapWall.b() << "\n A: " 
-		<< trapCry.A() << ", " 
-		<< trapClr.A() << ", " 
-		<< trapWrap.A() << ", " 
-		<< trapWall.A() << "\n B: " 
-		<< trapCry.B() << ", " 
-		<< trapClr.B() << ", " 
-		<< trapWrap.B() << ", " 
-		<< trapWall.B() << "\n h: " 
-		<< trapCry.h() << ", " 
-		<< trapClr.h() << ", " 
-		<< trapWrap.h() << ", " 
-		<< trapWall.h() << "\n H: " 
-		<< trapCry.H() << ", " 
-		<< trapClr.H() << ", " 
-		<< trapWrap.H() << ", " 
-		<< trapWall.H() << "\n a1: " 
-		<< trapCry.a1()/deg << ", " 
-		<< trapClr.a1()/deg << ", " 
-		<< trapWrap.a1()/deg << ", " 
-		<< trapWall.a1()/deg << "\n a4: " 
-		<< trapCry.a4()/deg << ", " 
-		<< trapClr.a4()/deg << ", " 
-		<< trapWrap.a4()/deg << ", " 
-		<< trapWall.a4()/deg << "\n x15: " 
-		<< trapCry.x15() << ", " 
-		<< trapClr.x15() << ", " 
-		<< trapWrap.x15() << ", " 
-		<< trapWall.x15() << "\n y15: " 
-		<< trapCry.y15() << ", " 
-		<< trapClr.y15() << ", " 
-		<< trapWrap.y15() << ", " 
-		<< trapWall.y15()
-		<< std::endl ;
-*/
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EcalGeom") << "Traps:\n a: " << trapCry.a() << ", " << trapClr.a() << ", " << trapWrap.a()
+                                   << ", " << trapWall.a() << "\n b: " << trapCry.b() << ", " << trapClr.b() << ", "
+                                   << trapWrap.b() << ", " << trapWall.b() << "\n A: " << trapCry.A() << ", "
+                                   << trapClr.A() << ", " << trapWrap.A() << ", " << trapWall.A()
+                                   << "\n B: " << trapCry.B() << ", " << trapClr.B() << ", " << trapWrap.B() << ", "
+                                   << trapWall.B() << "\n h: " << trapCry.h() << ", " << trapClr.h() << ", "
+                                   << trapWrap.h() << ", " << trapWall.h() << "\n H: " << trapCry.H() << ", "
+                                   << trapClr.H() << ", " << trapWrap.H() << ", " << trapWall.H()
+                                   << "\n a1: " << trapCry.a1() / deg << ", " << trapClr.a1() / deg << ", "
+                                   << trapWrap.a1() / deg << ", " << trapWall.a1() / deg
+                                   << "\n a4: " << trapCry.a4() / deg << ", " << trapClr.a4() / deg << ", "
+                                   << trapWrap.a4() / deg << ", " << trapWall.a4() / deg << "\n x15: " << trapCry.x15()
+                                   << ", " << trapClr.x15() << ", " << trapWrap.x15() << ", " << trapWall.x15()
+                                   << "\n y15: " << trapCry.y15() << ", " << trapClr.y15() << ", " << trapWrap.y15()
+                                   << ", " << trapWall.y15();
+#endif
       // Now for placement of cry within clr
       const Vec3 cryToClr(0, 0, (rClr - fClr) / 2);
 
@@ -2145,12 +2131,16 @@ void DDEcalBarrelAlgo::execute(DDCompactView& cpv) {
       }
 
       for (unsigned int etaAlv(1); etaAlv <= nCryPerAlvEta(); ++etaAlv) {
-        LogDebug("EcalGeom") << "theta=" << theta / deg << ", sidePrime=" << sidePrime << ", frontPrime=" << frontPrime
-                             << ",  zeta=" << zeta << ", delta=" << delta << ",  zee=" << zee;
-
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("EcalGeom") << "theta=" << theta / deg << ", sidePrime=" << sidePrime
+                                     << ", frontPrime=" << frontPrime << ",  zeta=" << zeta << ", delta=" << delta
+                                     << ",  zee=" << zee;
+#endif
         zee += 0.075 * mm + (side * cos(zeta) + trapWall.h() - sidePrime) / sin(theta);
 
-        LogDebug("EcalGeom") << "New zee=" << zee;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("EcalGeom") << "New zee=" << zee;
+#endif
 
         // make transform for placing enclosed crystal
 
@@ -2897,7 +2887,9 @@ void DDEcalBarrelAlgo::execute(DDCompactView& cpv) {
     }
   }
 
-  LogDebug("EcalGeom") << "******** DDEcalBarrelAlgo test: end it...";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "******** DDEcalBarrelAlgo test: end it...";
+#endif
 }
 
 ///Create a DDRotation from a string converted to DDName and CLHEP::HepRotation converted to DDRotationMatrix. -- Michael Case
@@ -2989,10 +2981,11 @@ void DDEcalBarrelAlgo::web(unsigned int iWeb,
   const Pt3D wedge2(wedge3 + Pt3D(0, trapWebClr.h() * cos(theta), -trapWebClr.h() * sin(theta)));
   const Pt3D wedge1(wedge3 + Pt3D(trapWebClr.a(), 0, 0));
 
-  LogDebug("EcalGeom") << "trap1=" << vWeb[0] << ", trap2=" << vWeb[2] << ", trap3=" << vWeb[3];
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "trap1=" << vWeb[0] << ", trap2=" << vWeb[2] << ", trap3=" << vWeb[3];
 
-  LogDebug("EcalGeom") << "wedge1=" << wedge1 << ", wedge2=" << wedge2 << ", wedge3=" << wedge3;
-
+  edm::LogVerbatim("EcalGeom") << "wedge1=" << wedge1 << ", wedge2=" << wedge2 << ", wedge3=" << wedge3;
+#endif
   const Tf3D tForm(vWeb[0], vWeb[2], vWeb[3], wedge1, wedge2, wedge3);
 
   if (0 != webHere())

@@ -14,30 +14,30 @@ using namespace std;
 
 const ME::TimeStamp ME::kLowMask = 0xFFFFFFFF;
 
-TString ME::granularity[ME::iSizeG] = {"R", "SM", "LMR", "LMM", "SC", "C"};
+const TString ME::granularity[ME::iSizeG] = {"R", "SM", "LMR", "LMM", "SC", "C"};
 
-TString ME::APDPrimVar[ME::iSizeAPD] = {"FLAG",
-                                        "MEAN",
-                                        "RMS",
-                                        "M3",
-                                        "APD_OVER_PNA_MEAN",
-                                        "APD_OVER_PNA_RMS",
-                                        "APD_OVER_PNA_M3",
-                                        "APD_OVER_PNB_MEAN",
-                                        "APD_OVER_PNB_RMS",
-                                        "APD_OVER_PNB_M3",
-                                        "APD_OVER_PN_MEAN",
-                                        "APD_OVER_PN_RMS",
-                                        "APD_OVER_PN_M3",
-                                        "SHAPE_COR",
-                                        "ALPHA",
-                                        "BETA",
-                                        "TIME_MEAN",
-                                        "TIME_RMS",
-                                        "TIME_M3",
-                                        "TIME_NEVT"};
+const TString ME::APDPrimVar[ME::iSizeAPD] = {"FLAG",
+                                              "MEAN",
+                                              "RMS",
+                                              "M3",
+                                              "APD_OVER_PNA_MEAN",
+                                              "APD_OVER_PNA_RMS",
+                                              "APD_OVER_PNA_M3",
+                                              "APD_OVER_PNB_MEAN",
+                                              "APD_OVER_PNB_RMS",
+                                              "APD_OVER_PNB_M3",
+                                              "APD_OVER_PN_MEAN",
+                                              "APD_OVER_PN_RMS",
+                                              "APD_OVER_PN_M3",
+                                              "SHAPE_COR",
+                                              "ALPHA",
+                                              "BETA",
+                                              "TIME_MEAN",
+                                              "TIME_RMS",
+                                              "TIME_M3",
+                                              "TIME_NEVT"};
 
-TString ME::PNPrimVar[ME::iSizePN] = {
+const TString ME::PNPrimVar[ME::iSizePN] = {
     "FLAG",
     "MEAN",
     "RMS",
@@ -47,20 +47,20 @@ TString ME::PNPrimVar[ME::iSizePN] = {
     "PNA_OVER_PNB_M3",
 };
 
-TString ME::MTQPrimVar[ME::iSizeMTQ] = {
+const TString ME::MTQPrimVar[ME::iSizeMTQ] = {
     "FIT_METHOD", "MTQ_AMPL", "MTQ_TIME", "MTQ_RISE", "MTQ_FWHM", "MTQ_FW20", "MTQ_FW80", "MTQ_SLIDING"};
 
-TString ME::TPAPDPrimVar[ME::iSizeTPAPD] = {"FLAG", "MEAN", "RMS", "M3", "NEVT"};
+const TString ME::TPAPDPrimVar[ME::iSizeTPAPD] = {"FLAG", "MEAN", "RMS", "M3", "NEVT"};
 
-TString ME::TPPNPrimVar[ME::iSizeTPPN] = {"GAIN", "MEAN", "RMS", "M3"};
+const TString ME::TPPNPrimVar[ME::iSizeTPPN] = {"GAIN", "MEAN", "RMS", "M3"};
 
-TString ME::type[ME::iSizeT] = {"Laser", "TestPulse"};
+const TString ME::type[ME::iSizeT] = {"Laser", "TestPulse"};
 
-TString ME::color[ME::iSizeC] = {"Blue", "Green", "Red", "IRed", "LED1", "LED2"};
+const TString ME::color[ME::iSizeC] = {"Blue", "Green", "Red", "IRed", "LED1", "LED2"};
 
 std::vector<MEChannel*> ME::_trees = std::vector<MEChannel*>(4, (MEChannel*)nullptr);
 
-bool ME::useElectronicNumbering = false;
+const bool ME::useElectronicNumbering = false;
 
 TString ME::lmdataPath(int lmr) {
   TString out_(std::getenv("MELMDAT"));
@@ -225,7 +225,7 @@ ME::Time ME::time_low(TimeStamp t) { return static_cast<Time>(kLowMask & t); }
 
 ME::Time ME::time_high(TimeStamp t) { return static_cast<Time>(t >> 32); }
 
-TString ME::region[ME::iSizeE] = {"EE-", "EB-", "EB+", "EE+"};
+const TString ME::region[ME::iSizeE] = {"EE-", "EB-", "EB+", "EE+"};
 
 int ME::ecalRegion(int ilmr) {
   assert(ilmr > 0 && ilmr <= 92);
@@ -453,7 +453,7 @@ MEChannel* ME::regTree(int ireg) {
               leaf_ = leaf_->getDaughter(ieta, iphi, iLMRegion_);
               leaf_ = leaf_->getDaughter(ieta, iphi, iLMModule_);
               leaf_ = leaf_->getDaughter(ieta, iphi, iSuperCrystal_);
-              leaf_ = leaf_->getDaughter(ieta, iphi, iCrystal_);
+              leaf_->getDaughter(ieta, iphi, iCrystal_);
             }
           }
         }
@@ -511,7 +511,7 @@ MEChannel* ME::regTree(int ireg) {
                   leaf_ = leaf_->getDaughter(ix, iy, iLMRegion_);
                   leaf_ = leaf_->getDaughter(ix, iy, iLMModule_);
                   leaf_ = leaf_->getDaughter(ix, iy, iSuperCrystal_);
-                  leaf_ = leaf_->getDaughter(ix, iy, iCrystal_);
+                  leaf_->getDaughter(ix, iy, iCrystal_);
                 }
               }
             }

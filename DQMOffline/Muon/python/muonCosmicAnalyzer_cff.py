@@ -7,13 +7,15 @@ from DQMOffline.Muon.segmentTrackAnalyzer_cfi import *
 from DQMOffline.Muon.muonSeedsAnalyzer_cfi import * 
 
 # Cloning the modules that need some changes...
-muonCosmicSeedAnalyzer          = muonSeedsAnalyzer.clone()
-muonCosmicGlbSegmentAnalyzer    = glbMuonSegmentAnalyzer.clone()
-muonCosmicStaSegmentAnalyzer    = staMuonSegmentAnalyzer.clone()
-
-muonCosmicSeedAnalyzer.SeedCollection          = cms.InputTag('CosmicMuonSeed')
-muonCosmicGlbSegmentAnalyzer.MuTrackCollection = cms.InputTag('globalCosmicMuons')
-muonCosmicStaSegmentAnalyzer.MuTrackCollection = cms.InputTag('cosmicMuons')
+muonCosmicSeedAnalyzer = muonSeedsAnalyzer.clone(
+    SeedCollection  = 'CosmicMuonSeed'
+)
+muonCosmicGlbSegmentAnalyzer    = glbMuonSegmentAnalyzer.clone(
+    MuTrackCollection = 'globalCosmicMuons'
+)
+muonCosmicStaSegmentAnalyzer    = staMuonSegmentAnalyzer.clone(
+    MuTrackCollection = 'cosmicMuons'
+)
 
 muonCosmicAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
                                   muonCosmicSeedAnalyzer*

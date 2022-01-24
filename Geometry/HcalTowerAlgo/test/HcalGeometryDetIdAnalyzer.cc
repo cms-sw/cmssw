@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
@@ -52,10 +53,10 @@ void HcalGeometryDetIdAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm:
     unsigned int did = topology.detId2denseId(*i);
     HcalDetId rhid = topology.denseId2detId(did);
 
-    std::cout << counter << ": din " << std::hex << did << std::dec << ": " << hid << " == " << rhid << std::endl;
+    edm::LogVerbatim("HCalGeom") << counter << ": din " << std::hex << did << std::dec << ": " << hid << " == " << rhid;
     assert(hid == rhid);
   }
-  std::cout << "No error found among " << counter << " HCAL valid ID's\n";
+  edm::LogVerbatim("HCalGeom") << "No error found among " << counter << " HCAL valid ID's";
 }
 
 DEFINE_FWK_MODULE(HcalGeometryDetIdAnalyzer);

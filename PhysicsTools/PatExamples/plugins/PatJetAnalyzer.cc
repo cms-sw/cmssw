@@ -7,7 +7,7 @@
 #include "TH1.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -39,7 +39,7 @@ static const float BINS[] = {30., 40., 50., 60., 70., 80., 100., 125., 150.};
     - corrLevel --> string for the pat jet correction level.
 */
 
-class PatJetAnalyzer : public edm::EDAnalyzer {
+class PatJetAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// default contructor
   explicit PatJetAnalyzer(const edm::ParameterSet& cfg);
@@ -72,6 +72,7 @@ private:
 PatJetAnalyzer::PatJetAnalyzer(const edm::ParameterSet& cfg)
     : corrLevel_(cfg.getParameter<std::string>("corrLevel")),
       jetsToken_(consumes<edm::View<pat::Jet> >(cfg.getParameter<edm::InputTag>("src"))) {
+  usesResource(TFileService::kSharedResource);
   // register TFileService
   edm::Service<TFileService> fs;
 

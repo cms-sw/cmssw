@@ -10,9 +10,9 @@
  * \version 1
  *
  */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-class JetToDigiDump : public edm::EDAnalyzer {
+class JetToDigiDump : public edm::one::EDAnalyzer<> {
 public:
   JetToDigiDump(const edm::ParameterSet&);
 

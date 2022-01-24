@@ -94,8 +94,8 @@ mssmHbbMonitoring.histoPSet.HTBinning2D  = cms.vdouble(0,20,40,70,100,150,200,40
 mssmHbbMonitoring.histoPSet.phiBinning2D = cms.vdouble(-3.1416,-1.8849,-0.6283,0.6283,1.8849,3.1416)
 
 
-mssmHbbMonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-mssmHbbMonitoring.jets      = cms.InputTag("ak4PFJetsCHS") # ak4PFJets, ak4PFJetsCHS, pfJetsEI
+mssmHbbMonitoring.met       = cms.InputTag("pfMet") # pfMet
+mssmHbbMonitoring.jets      = cms.InputTag("ak4PFJetsCHS") # ak4PFJets, ak4PFJetsCHS, ak4PFJets
 mssmHbbMonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 mssmHbbMonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 #Suvankar

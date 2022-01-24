@@ -166,8 +166,8 @@ HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet& p) : myQie(nullptr),
   double beamThet = 2 * atan(exp(-beamEta));
   if (beamPhi < 0)
     beamPhi += twopi;
-  iceta = (int)(beamEta / 0.087) + 1;
-  icphi = (int)(fabs(beamPhi) / 0.087) + 5;
+  iceta = static_cast<int>(beamEta / 0.087) + 1;
+  icphi = static_cast<int>(std::fabs(beamPhi) / 0.087) + 5;
   if (icphi > 72)
     icphi -= 73;
 
@@ -354,12 +354,12 @@ void HcalTB04Analysis::update(const G4Step* aStep) {
       double kinEnergy = aTrack->GetKineticEnergy();
 
       // look for DeltaE > 10% kinEnergy of particle, or particle death - Ek=0
-      if (trackID == 1 && parentID == 0 && ((kinEnergy == 0.) || (fabs(stepDeltaEnergy / kinEnergy) > 0.1))) {
+      if (trackID == 1 && parentID == 0 && ((kinEnergy == 0.) || (std::fabs(stepDeltaEnergy / kinEnergy) > 0.1))) {
         pvType = -1;
         if (kinEnergy == 0.) {
           pvType = 0;
         } else {
-          if (fabs(stepDeltaEnergy / kinEnergy) > 0.1)
+          if (std::fabs(stepDeltaEnergy / kinEnergy) > 0.1)
             pvType = 1;
         }
         pvFound = true;
@@ -501,7 +501,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
       math::XYZPoint pos = aHit->getEntry();
       unsigned int id = aHit->getUnitID();
       double theta = pos.theta();
-      double eta = -log(tan(theta * 0.5));
+      double eta = -std::log(std::tan(theta * 0.5));
       double phi = pos.phi();
       int det, z, group, ieta, iphi, layer;
       HcalTestNumbering::unpackHcalIndex(id, det, z, group, ieta, iphi, layer);
@@ -547,7 +547,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
     double jitter = (**k1).t();
     uint32_t unitID = (**k1).id();
     int jump = 0;
-    for (k2 = k1 + 1; k2 != hits.end() && fabs(jitter - (**k2).t()) < 1 && unitID == (**k2).id(); k2++) {
+    for (k2 = k1 + 1; k2 != hits.end() && std::fabs(jitter - (**k2).t()) < 1 && unitID == (**k2).id(); k2++) {
       ehit += (**k2).e();
       jump++;
     }
@@ -582,7 +582,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
     double jitter = (**k1).t();
     uint32_t unitID = (**k1).id();
     int jump = 0;
-    for (k2 = k1 + 1; k2 != hits.end() && fabs(jitter - (**k2).t()) < 1 && unitID == (**k2).id(); k2++) {
+    for (k2 = k1 + 1; k2 != hits.end() && std::fabs(jitter - (**k2).t()) < 1 && unitID == (**k2).id(); k2++) {
       ehit += (**k2).e();
       jump++;
     }
@@ -624,7 +624,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
         math::XYZPoint pos = aHit->getEntry();
         unsigned int id = aHit->getUnitID();
         double theta = pos.theta();
-        double eta = -log(tan(theta * 0.5));
+        double eta = -std::log(std::tan(theta * 0.5));
         double phi = pos.phi();
         int det, z, group, ieta, iphi, layer;
         HcalTestNumbering::unpackHcalIndex(id, det, z, group, ieta, iphi, layer);
@@ -659,7 +659,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
     double jitter = (**k1).t();
     uint32_t unitID = (**k1).id();
     int jump = 0;
-    for (k2 = k1 + 1; k2 != hite.end() && fabs(jitter - (**k2).t()) < 1 && unitID == (**k2).id(); k2++) {
+    for (k2 = k1 + 1; k2 != hite.end() && std::fabs(jitter - (**k2).t()) < 1 && unitID == (**k2).id(); k2++) {
       ehit += (**k2).e();
       jump++;
     }
@@ -679,7 +679,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
                                 << " input hits E(Ecal) " << etot1 << " " << etot2;
 #endif
   // Find Primary info:
-  nPrimary = (int)(primaries.size());
+  nPrimary = static_cast<int>(primaries.size());
   int trackID = 0;
   G4PrimaryParticle* thePrim = nullptr;
   int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
@@ -713,9 +713,9 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
     else {
       double costheta = pz / p;
       double theta = acos(std::min(std::max(costheta, -1.), 1.));
-      etaInit = -log(tan(theta / 2));
+      etaInit = -std::log(std::tan(theta / 2));
       if (px != 0 || py != 0)
-        phiInit = atan2(py, px);
+        phiInit = std::atan2(py, px);
     }
     particleType = thePrim->GetPDGcode();
   } else
@@ -1080,7 +1080,7 @@ double HcalTB04Analysis::scale(int det, int layer) {
 }
 
 double HcalTB04Analysis::timeOfFlight(int det, int layer, double eta) {
-  double theta = 2.0 * atan(exp(-eta));
+  double theta = 2.0 * std::atan(std::exp(-eta));
   double dist = beamOffset;
   if (det == static_cast<int>(HcalBarrel)) {
     const double rLay[19] = {1836.0,

@@ -22,7 +22,7 @@ namespace edm {
   namespace eventsetup {
 
     SynchronousEventSetupsController::SynchronousEventSetupsController()
-        : globalControl_(tbb::global_control::max_allowed_parallelism, 1) {}
+        : globalControl_(oneapi::tbb::global_control::max_allowed_parallelism, 1) {}
 
     SynchronousEventSetupsController::~SynchronousEventSetupsController() {
       FinalWaitingTask finalTask;

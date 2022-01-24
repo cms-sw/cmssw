@@ -45,7 +45,8 @@
 class HcalTestNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalTestNumberingTester(const edm::ParameterSet&);
-  ~HcalTestNumberingTester() override;
+  ~HcalTestNumberingTester() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -60,7 +61,10 @@ HcalTestNumberingTester::HcalTestNumberingTester(const edm::ParameterSet&)
     : tokSim_(esConsumes<HcalDDDSimConstants, HcalSimNumberingRecord>()),
       tokReco_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>()) {}
 
-HcalTestNumberingTester::~HcalTestNumberingTester() {}
+void HcalTestNumberingTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.add("hcalTestNumberingTest", desc);
+}
 
 // ------------ method called to produce the data  ------------
 void HcalTestNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

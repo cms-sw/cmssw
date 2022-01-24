@@ -26,6 +26,8 @@
 
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -144,7 +146,6 @@ private:
   double eThreshold(const DetId& id, double eta) const;
 
   l1t::L1TGlobalUtil* l1GtUtils_;
-  edm::Service<TFileService> fs;
   HLTConfigProvider hltConfig_;
   const std::vector<std::string> trigNames_;
   spr::trackSelectionParameters selectionParameter_;
@@ -168,9 +169,11 @@ private:
   const int matrixECAL_, matrixHCAL_;
   const double mapR_;
   const bool get2Ddist_;
+  const bool usePFThresh_;
   unsigned int nRun_, nLow_, nHigh_;
   double a_charIsoR_, a_coneR1_, a_coneR2_;
   const HcalDDDRecConstants* hdc_;
+  const EcalPFRecHitThresholds* eThresholds_;
   std::vector<double> etabins_, phibins_;
   double etadist_, phidist_, etahalfdist_, phihalfdist_;
   edm::EDGetTokenT<trigger::TriggerEvent> tok_trigEvt_;
@@ -194,6 +197,7 @@ private:
   edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
   edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
+  edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> tok_ecalPFRecHitThresholds_;
 
   TTree *tree, *tree2;
   unsigned int t_RunNo, t_EventNo;
@@ -268,6 +272,7 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
       matrixHCAL_(iConfig.getUntrackedParameter<int>("matrixHCAL", 3)),
       mapR_(iConfig.getUntrackedParameter<double>("mapRadius", 34.98)),
       get2Ddist_(iConfig.getUntrackedParameter<bool>("get2Ddist", false)),
+      usePFThresh_(iConfig.getParameter<bool>("usePFThreshold")),
       nRun_(0),
       nLow_(0),
       nHigh_(0),
@@ -369,6 +374,7 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
   tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
   tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
   tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
+  tok_ecalPFRecHitThresholds_ = esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>();
 
   for (int i = 0; i < 10; i++)
     phibins_.push_back(-M_PI + 0.1 * (2 * i + 1) * M_PI);
@@ -409,6 +415,9 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
   const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
   const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo_);
   const HcalRespCorrs* respCorrs = &iSetup.getData(tok_resp_);
+
+  // get ECAL thresholds
+  eThresholds_ = &iSetup.getData(tok_ecalPFRecHitThresholds_);
 
   //=== genParticle information
   edm::Handle<reco::GenParticleCollection> genParticles;
@@ -696,6 +705,7 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
 }
 
 void HcalIsoTrackStudy::beginJob() {
+  edm::Service<TFileService> fs;
   tree = fs->make<TTree>("CalibTree", "CalibTree");
 
   tree->Branch("t_Run", &t_Run, "t_Run/I");
@@ -915,6 +925,7 @@ void HcalIsoTrackStudy::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<int>("matrixHCAL", 3);
   desc.addUntracked<double>("mapRadius", 34.98);
   desc.addUntracked<bool>("get2Ddist", false);
+  desc.add<bool>("usePFThreshold", true);
   descriptions.add("hcalIsoTrackStudy", desc);
 }
 
@@ -1457,12 +1468,16 @@ void HcalIsoTrackStudy::TrackMap(unsigned int trkIndex,
 
 double HcalIsoTrackStudy::eThreshold(const DetId& id, double eta) const {
   double eThr(hitEthrEB_);
-  if (id.subdetId() != EcalBarrel) {
-    eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-    if (eThr < hitEthrEELo_)
-      eThr = hitEthrEELo_;
-    else if (eThr > hitEthrEEHi_)
-      eThr = hitEthrEEHi_;
+  if (usePFThresh_) {
+    eThr = static_cast<double>((*eThresholds_)[id]);
+  } else {
+    if (id.subdetId() != EcalBarrel) {
+      eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+      if (eThr < hitEthrEELo_)
+        eThr = hitEthrEELo_;
+      else if (eThr > hitEthrEEHi_)
+        eThr = hitEthrEEHi_;
+    }
   }
   return eThr;
 }

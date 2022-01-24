@@ -12,7 +12,7 @@
 
 // system include files
 #include <vector>
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 // user include files
 #include "FWCore/Common/interface/EventBase.h"
@@ -28,7 +28,7 @@ namespace {
   struct key_hash {
     std::size_t operator()(edm::ParameterSetID const& iKey) const { return iKey.smallHash(); }
   };
-  typedef tbb::concurrent_unordered_map<edm::ParameterSetID, edm::TriggerNames, key_hash> TriggerNamesMap;
+  typedef oneapi::tbb::concurrent_unordered_map<edm::ParameterSetID, edm::TriggerNames, key_hash> TriggerNamesMap;
   CMS_THREAD_SAFE TriggerNamesMap triggerNamesMap;
 }  // namespace
 

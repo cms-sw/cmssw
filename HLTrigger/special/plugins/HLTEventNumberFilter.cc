@@ -36,11 +36,6 @@ HLTEventNumberFilter::HLTEventNumberFilter(const edm::ParameterSet& iConfig) {
   invert_ = iConfig.getParameter<bool>("invert");
 }
 
-HLTEventNumberFilter::~HLTEventNumberFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 void HLTEventNumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<int>("period", 4096);
@@ -53,7 +48,7 @@ void HLTEventNumberFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
 //
 
 // ------------ method called on each new Event  ------------
-bool HLTEventNumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HLTEventNumberFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   if (iEvent.isRealData()) {

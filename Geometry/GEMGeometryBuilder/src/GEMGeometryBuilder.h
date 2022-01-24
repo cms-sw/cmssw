@@ -66,7 +66,7 @@ private:
   GEMEtaPartition* buildEtaPartition(cms::DDFilteredView& fv, GEMDetId detId) const;
 
   // Common
-  void buildRegions(GEMGeometry&, const std::vector<GEMSuperChamber*>&);
+  void buildRegions(GEMGeometry&, const std::vector<GEMSuperChamber*>&, bool demonstratorGeometry);
 
   static constexpr double k_ScaleFromDD4hep = (1.0 / dd4hep::cm);
 };

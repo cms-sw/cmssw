@@ -40,9 +40,10 @@ namespace popcon {
     m_dbService->forceInit();
     m_tag = m_dbService->tag(m_record);
     m_tagInfo.name = m_tag;
-    if (m_targetConnectionString.empty())
+    if (m_targetConnectionString.empty()) {
       m_targetSession = m_dbService->session();
-    else {
+      m_dbService->startTransaction();
+    } else {
       cond::persistency::ConnectionPool connPool;
       connPool.setAuthenticationPath(m_authPath);
       connPool.setAuthenticationSystem(m_authSys);
@@ -56,7 +57,6 @@ namespace popcon {
       if (m_tagInfo.size > 0) {
         m_tagInfo.lastInterval = iov.getLast();
       }
-
       edm::LogInfo("PopCon") << "destination DB: " << connectionStr << ", target DB: "
                              << (m_targetConnectionString.empty() ? connectionStr : m_targetConnectionString) << "\n"
                              << "TAG: " << m_tag << ", last since/till: " << m_tagInfo.lastInterval.since << "/"
@@ -77,7 +77,9 @@ namespace popcon {
         lastTill = m_lastTill;
       m_dbService->closeIOV(lastTill, m_record);
     }
-    if (!m_targetConnectionString.empty()) {
+    if (m_targetConnectionString.empty()) {
+      m_dbService->commitTransaction();
+    } else {
       m_targetSession.transaction().commit();
     }
   }

@@ -53,7 +53,6 @@ private:
   void analyzeHcal(const HFPreRecHitCollection&, int, bool);
 
   // ----------member data ---------------------------
-  edm::Service<TFileService> fs_;
   bool ignoreL1_, nzs_, noise_, ratio_, fillTree_;
   double eLowHF_, eHighHF_;
   std::vector<unsigned int> hcalID_;
@@ -136,6 +135,7 @@ void RecAnalyzerHF::fillDescriptions(edm::ConfigurationDescriptions& description
 }
 
 void RecAnalyzerHF::beginJob() {
+  edm::Service<TFileService> fs;
   char name[700], title[700];
   double xmin(-10.0), xmax(90.0);
   if (ratio_) {
@@ -145,7 +145,7 @@ void RecAnalyzerHF::beginJob() {
   for (int i = 0; i < 2; ++i) {
     sprintf(name, "HF%d", i);
     sprintf(title, "The metric F%d for HF", i + 1);
-    hist_[i] = fs_->make<TH1D>(name, title, 50, xmin, xmax);
+    hist_[i] = fs->make<TH1D>(name, title, 50, xmin, xmax);
   }
 
   for (const auto& id : hcalID_) {
@@ -155,15 +155,15 @@ void RecAnalyzerHF::beginJob() {
       sprintf(name, "HF%d%d_%d_%d", i, hid.ieta(), hid.iphi(), hid.depth());
       sprintf(title, "The metric F%d for HF i#eta %d i#phi %d depth %d", i + 1, hid.ieta(), hid.iphi(), hid.depth());
       if (i == 0)
-        h1 = fs_->make<TH1D>(name, title, 50, xmin, xmax);
+        h1 = fs->make<TH1D>(name, title, 50, xmin, xmax);
       else
-        h2 = fs_->make<TH1D>(name, title, 50, xmin, xmax);
+        h2 = fs->make<TH1D>(name, title, 50, xmin, xmax);
     }
     histo_.push_back(std::pair<TH1D*, TH1D*>(h1, h2));
   };
 
   if (fillTree_) {
-    myTree_ = fs_->make<TTree>("RecJet", "RecJet Tree");
+    myTree_ = fs->make<TTree>("RecJet", "RecJet Tree");
     myTree_->Branch("cells", &cells, "cells/I");
     myTree_->Branch("mysubd", &mysubd, "mysubd/I");
     myTree_->Branch("depth", &depth, "depth/I");

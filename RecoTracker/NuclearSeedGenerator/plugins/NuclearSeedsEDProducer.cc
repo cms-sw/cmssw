@@ -4,6 +4,10 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
@@ -15,12 +19,28 @@ using namespace reco;
 // constructors and destructor
 //
 NuclearSeedsEDProducer::NuclearSeedsEDProducer(const edm::ParameterSet& iConfig)
-    : conf_(iConfig),
+    : config_(),
       improveSeeds(iConfig.getParameter<bool>("improveSeeds")),
       producer_(consumes<TrajectoryCollection>(iConfig.getParameter<std::string>("producer"))),
       mteToken_(consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvents"))) {
   produces<TrajectorySeedCollection>();
   produces<TrajectoryToSeedsMap>();
+
+  trackerGeomToken_ = esConsumes<edm::Transition::BeginRun>();
+  propagatorToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "PropagatorWithMaterial"));
+  estimatorToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "Chi2"));
+
+  std::string measurementTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
+  measurementTrackerToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", measurementTrackerName));
+  geomSearchTrackerToken_ = esConsumes<edm::Transition::BeginRun>();
+
+  auto navigationSchoolName = iConfig.getParameter<std::string>("NavigationSchool");
+  navigationToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", navigationSchoolName));
+
+  config_.maxHits = iConfig.getParameter<int>("maxHits");
+  config_.rescaleErrorFactor = iConfig.getParameter<double>("rescaleErrorFactor");
+  config_.checkCompletedTrack = iConfig.getParameter<bool>("checkCompletedTrack");
+  config_.ptMin = iConfig.getParameter<double>("ptMin");
 }
 
 NuclearSeedsEDProducer::~NuclearSeedsEDProducer() {}
@@ -80,7 +100,13 @@ void NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
 // ------------ method called once each job just before starting event loop  ------------
 void NuclearSeedsEDProducer::beginRun(edm::Run const& run, const edm::EventSetup& es) {
-  theNuclearInteractionFinder = std::make_unique<NuclearInteractionFinder>(es, conf_);
+  theNuclearInteractionFinder = std::make_unique<NuclearInteractionFinder>(config_,
+                                                                           &es.getData(trackerGeomToken_),
+                                                                           &es.getData(propagatorToken_),
+                                                                           &es.getData(estimatorToken_),
+                                                                           &es.getData(measurementTrackerToken_),
+                                                                           &es.getData(geomSearchTrackerToken_),
+                                                                           &es.getData(navigationToken_));
 }
 
 DEFINE_FWK_MODULE(NuclearSeedsEDProducer);

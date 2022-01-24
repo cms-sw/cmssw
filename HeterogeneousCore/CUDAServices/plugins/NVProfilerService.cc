@@ -9,8 +9,7 @@
 #include <string>
 #include <vector>
 
-#include <tbb/concurrent_vector.h>
-#include <tbb/enumerable_thread_specific.h>
+#include <oneapi/tbb/concurrent_vector.h>
 
 #include <fmt/printf.h>
 
@@ -182,12 +181,12 @@ public:
   void postModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
   // these signal pair are guaranteed to be called by the same thread
-  void preOpenFile(std::string const&, bool);
-  void postOpenFile(std::string const&, bool);
+  void preOpenFile(std::string const&);
+  void postOpenFile(std::string const&);
 
   // these signal pair are guaranteed to be called by the same thread
-  void preCloseFile(std::string const&, bool);
-  void postCloseFile(std::string const&, bool);
+  void preCloseFile(std::string const&);
+  void postCloseFile(std::string const&);
 
   // these signal pair are guaranteed to be called by the same thread
   void preSourceConstruction(edm::ModuleDescription const&);
@@ -585,25 +584,25 @@ void NVProfilerService::postSourceRun(edm::RunIndex index) {
   }
 }
 
-void NVProfilerService::preOpenFile(std::string const& lfn, bool) {
+void NVProfilerService::preOpenFile(std::string const& lfn) {
   if (not skipFirstEvent_ or globalFirstEventDone_) {
     nvtxDomainRangePush(global_domain_, ("open file "s + lfn).c_str());
   }
 }
 
-void NVProfilerService::postOpenFile(std::string const& lfn, bool) {
+void NVProfilerService::postOpenFile(std::string const& lfn) {
   if (not skipFirstEvent_ or globalFirstEventDone_) {
     nvtxDomainRangePop(global_domain_);
   }
 }
 
-void NVProfilerService::preCloseFile(std::string const& lfn, bool) {
+void NVProfilerService::preCloseFile(std::string const& lfn) {
   if (not skipFirstEvent_ or globalFirstEventDone_) {
     nvtxDomainRangePush(global_domain_, ("close file "s + lfn).c_str());
   }
 }
 
-void NVProfilerService::postCloseFile(std::string const& lfn, bool) {
+void NVProfilerService::postCloseFile(std::string const& lfn) {
   if (not skipFirstEvent_ or globalFirstEventDone_) {
     nvtxDomainRangePop(global_domain_);
   }

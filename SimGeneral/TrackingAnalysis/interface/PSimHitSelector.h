@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -21,11 +22,11 @@ public:
 
      /param[in] pset with the configuration values
   */
-  PSimHitSelector(edm::ParameterSet const &);
+  PSimHitSelector(edm::ParameterSet const &, edm::ConsumesCollector &);
   std::string mixLabel_;
 
   //! Virtual destructor.
-  virtual ~PSimHitSelector() {}
+  virtual ~PSimHitSelector() = default;
 
   //! Select the psimhit add them to a PSimHitCollection
   virtual void select(PSimHitCollection &, edm::Event const &, edm::EventSetup const &) const;

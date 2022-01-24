@@ -180,7 +180,11 @@ bool EleTkIsolFromCands::passQual(const reco::TrackBase& trk, const std::vector<
 
 bool EleTkIsolFromCands::passAlgo(const reco::TrackBase& trk,
                                   const std::vector<reco::TrackBase::TrackAlgorithm>& algosToRej) {
-  return algosToRej.empty() || !std::binary_search(algosToRej.begin(), algosToRej.end(), trk.algo());
+  return algosToRej.empty() ||
+         //check also the originalAlgo in case the track is reconstructed by more than one
+         //reject only if both algo and originalAlgo are not acceptable
+         !(std::binary_search(algosToRej.begin(), algosToRej.end(), trk.algo()) &&
+           std::binary_search(algosToRej.begin(), algosToRej.end(), trk.originalAlgo()));
 }
 
 EleTkIsolFromCands::TrackTable const& EleTkIsolFromCands::getPreselectedTracks(bool isBarrel) {

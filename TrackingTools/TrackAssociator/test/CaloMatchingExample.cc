@@ -19,7 +19,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -79,7 +79,7 @@
 
 #include "CLHEP/Random/Random.h"
 
-class CaloMatchingExample : public edm::EDAnalyzer {
+class CaloMatchingExample : public edm::one::EDAnalyzer<> {
 public:
   explicit CaloMatchingExample(const edm::ParameterSet&);
   virtual ~CaloMatchingExample() {
@@ -91,6 +91,8 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+
   TrackDetectorAssociator trackAssociator_;
   bool useEcal_;
   bool useHcal_;
@@ -140,7 +142,7 @@ private:
   TrackAssociatorParameters parameters_;
 };
 
-CaloMatchingExample::CaloMatchingExample(const edm::ParameterSet& iConfig) {
+CaloMatchingExample::CaloMatchingExample(const edm::ParameterSet& iConfig) : caloGeomToken_(esConsumes()) {
   CLHEP::HepRandom::createInstance();
   file_ = new TFile(iConfig.getParameter<std::string>("outputfile").c_str(), "recreate");
   tree_ = new TTree("calomatch", "calomatch");
@@ -197,8 +199,7 @@ void CaloMatchingExample::analyze(const edm::Event& iEvent, const edm::EventSetu
   using namespace edm;
 
   // calo geometry
-  edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<CaloGeometryRecord>().get(geometry);
+  const auto& geometry = iSetup.getHandle(caloGeomToken_);
   if (!geometry.isValid())
     throw cms::Exception("FatalError") << "Unable to find CaloGeometryRecord in event!\n";
 

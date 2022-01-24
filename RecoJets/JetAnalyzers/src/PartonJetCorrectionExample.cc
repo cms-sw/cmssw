@@ -5,10 +5,10 @@
 
 #include <string>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class PartonJetCorrectionExample : public edm::EDAnalyzer {
+class PartonJetCorrectionExample : public edm::one::EDAnalyzer<> {
 public:
   explicit PartonJetCorrectionExample(const edm::ParameterSet& fParameters);
   ~PartonJetCorrectionExample() override {}

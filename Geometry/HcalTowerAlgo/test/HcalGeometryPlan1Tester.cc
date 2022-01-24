@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -50,7 +51,7 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/, const edm::E
 
   std::vector<HcalDetId> idsp;
   bool ok = hcons.specialRBXHBHE(true, idsp);
-  std::cout << "Special RBX Flag " << ok << " with " << idsp.size() << " ID's" << std::endl;
+  edm::LogVerbatim("HCalGeom") << "Special RBX Flag " << ok << " with " << idsp.size() << " ID's" << std::endl;
   int nall(0), ngood(0);
   for (std::vector<HcalDetId>::const_iterator itr = idsp.begin(); itr != idsp.end(); ++itr) {
     if (topology.valid(*itr)) {
@@ -71,17 +72,17 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/, const edm::E
         dphi -= (2 * M_PI);
       if ((deta > 0.00001) || (dphi > 0.00001))
         ok = false;
-      std::cout << "Unmerged ID " << (*itr) << " (" << pt1.eta() << ", " << pt1.phi() << ", " << pt1.z()
-                << ") Merged ID " << idnew << " (" << pt2.eta() << ", " << pt2.phi() << ", " << pt2.z() << ") or ("
-                << pt0.eta() << ", " << pt0.phi() << ", " << pt0.z() << ")";
       if (ok)
         ++ngood;
-      else
-        std::cout << " ***** ERROR *****";
-      std::cout << std::endl;
+      std::string cok = (ok) ? "" : " ***** ERROR *****";
+      edm::LogVerbatim("HCalGeom") << "Unmerged ID " << (*itr) << " (" << pt1.eta() << ", " << pt1.phi() << ", "
+                                   << pt1.z() << ") Merged ID " << idnew << " (" << pt2.eta() << ", " << pt2.phi()
+                                   << ", " << pt2.z() << ") or (" << pt0.eta() << ", " << pt0.phi() << ", " << pt0.z()
+                                   << ")" << cok;
+      ;
     }
   }
-  std::cout << ngood << " out of " << nall << " ID's are tested OK\n";
+  edm::LogVerbatim("HCalGeom") << ngood << " out of " << nall << " ID's are tested OK";
 }
 
 DEFINE_FWK_MODULE(HcalGeometryPlan1Tester);

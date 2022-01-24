@@ -108,7 +108,7 @@ _run3_Shower_SimL1TMuonTask.add(simGmtShowerDigis)
 from L1Trigger.L1TMuonBarrel.simKBmtfStubs_cfi import *
 from L1Trigger.L1TMuonBarrel.simKBmtfDigis_cfi import *
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
-phase2_trigger.toReplaceWith(SimL1TMuonTask, cms.Task(SimL1TMuonCommonTask, simTwinMuxDigis, simBmtfDigis, simKBmtfStubs, simKBmtfDigis, simEmtfDigis, simOmtfDigis, simGmtCaloSumDigis, simGmtStage2Digis))
+phase2_trigger.toReplaceWith(SimL1TMuonTask, cms.Task(SimL1TMuonCommonTask, simTwinMuxDigis, simBmtfDigis, simKBmtfStubs, simKBmtfDigis, simEmtfDigis, simOmtfDigis, simGmtCaloSumDigis, simGmtStage2Digis, simEmtfShowers, simGmtShowerDigis))
 
 ## GEM TPs
 from L1Trigger.L1TGEM.simGEMDigis_cff import *

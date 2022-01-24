@@ -31,6 +31,7 @@
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
@@ -84,6 +85,7 @@ namespace l1t {
     int bxLast_;
 
     unsigned int maxNumMuCands_;
+    unsigned int maxNumMuShowerCands_;
     unsigned int maxNumJetCands_;
     unsigned int maxNumEGCands_;
     unsigned int maxNumTauCands_;
@@ -101,6 +103,7 @@ namespace l1t {
     // Tokens for inputs from other parts of the L1 system
     edm::EDGetToken egToken;
     edm::EDGetToken muToken;
+    edm::EDGetToken muShowerToken;
     edm::EDGetToken tauToken;
     edm::EDGetToken jetToken;
     edm::EDGetToken etsumToken;
@@ -111,6 +114,11 @@ namespace l1t {
     std::vector<l1t::Muon> muonVec_bxm1;
     std::vector<l1t::Muon> muonVec_bx0;
     std::vector<l1t::Muon> muonVec_bxp1;
+
+    std::vector<l1t::MuonShower> muonShowerVec_bxm2;
+    std::vector<l1t::MuonShower> muonShowerVec_bxm1;
+    std::vector<l1t::MuonShower> muonShowerVec_bx0;
+    std::vector<l1t::MuonShower> muonShowerVec_bxp1;
 
     std::vector<l1t::EGamma> egammaVec_bxm2;
     std::vector<l1t::EGamma> egammaVec_bxm1;
@@ -139,6 +147,7 @@ namespace l1t {
   BXVectorInputProducer::BXVectorInputProducer(const ParameterSet& iConfig) {
     egToken = consumes<BXVector<l1t::EGamma>>(iConfig.getParameter<InputTag>("egInputTag"));
     muToken = consumes<BXVector<l1t::Muon>>(iConfig.getParameter<InputTag>("muInputTag"));
+    muShowerToken = consumes<BXVector<l1t::MuonShower>>(iConfig.getParameter<InputTag>("muShowerInputTag"));
     tauToken = consumes<BXVector<l1t::Tau>>(iConfig.getParameter<InputTag>("tauInputTag"));
     jetToken = consumes<BXVector<l1t::Jet>>(iConfig.getParameter<InputTag>("jetInputTag"));
     etsumToken = consumes<BXVector<l1t::EtSum>>(iConfig.getParameter<InputTag>("etsumInputTag"));
@@ -146,6 +155,7 @@ namespace l1t {
     // register what you produce
     produces<BXVector<l1t::EGamma>>();
     produces<BXVector<l1t::Muon>>();
+    produces<BXVector<l1t::MuonShower>>();
     produces<BXVector<l1t::Tau>>();
     produces<BXVector<l1t::Jet>>();
     produces<BXVector<l1t::EtSum>>();
@@ -155,6 +165,7 @@ namespace l1t {
     bxLast_ = iConfig.getParameter<int>("bxLast");
 
     maxNumMuCands_ = iConfig.getParameter<unsigned int>("maxMuCand");
+    maxNumMuShowerCands_ = iConfig.getParameter<unsigned int>("maxMuShowerCand");
     maxNumJetCands_ = iConfig.getParameter<unsigned int>("maxJetCand");
     maxNumEGCands_ = iConfig.getParameter<unsigned int>("maxEGCand");
     maxNumTauCands_ = iConfig.getParameter<unsigned int>("maxTauCand");
@@ -186,6 +197,7 @@ namespace l1t {
 
     // Setup vectors
     std::vector<l1t::Muon> muonVec;
+    std::vector<l1t::MuonShower> muonShowerVec;
     std::vector<l1t::EGamma> egammaVec;
     std::vector<l1t::Tau> tauVec;
     std::vector<l1t::Jet> jetVec;
@@ -198,6 +210,7 @@ namespace l1t {
     //outputs
     std::unique_ptr<l1t::EGammaBxCollection> egammas(new l1t::EGammaBxCollection(0, bxFirst, bxLast));
     std::unique_ptr<l1t::MuonBxCollection> muons(new l1t::MuonBxCollection(0, bxFirst, bxLast));
+    std::unique_ptr<l1t::MuonShowerBxCollection> muonShowers(new l1t::MuonShowerBxCollection(0, bxFirst, bxLast));
     std::unique_ptr<l1t::TauBxCollection> taus(new l1t::TauBxCollection(0, bxFirst, bxLast));
     std::unique_ptr<l1t::JetBxCollection> jets(new l1t::JetBxCollection(0, bxFirst, bxLast));
     std::unique_ptr<l1t::EtSumBxCollection> etsums(new l1t::EtSumBxCollection(0, bxFirst, bxLast));
@@ -227,6 +240,20 @@ namespace l1t {
       for (std::vector<l1t::Muon>::const_iterator mu = inputMuons->begin(bx); mu != inputMuons->end(bx); ++mu) {
         if (mu->hwPt() > muEtThreshold_ && muonVec.size() < maxNumMuCands_) {
           muonVec.push_back((*mu));
+        }
+      }
+    } else {
+      LogTrace("l1t|Global") << ">>> input Mu collection not found!" << std::endl;
+    }
+
+    // Make sure that you can get input Muon Showers
+    Handle<BXVector<l1t::MuonShower>> inputMuonShowers;
+    if (iEvent.getByToken(muToken, inputMuonShowers)) {
+      for (std::vector<l1t::MuonShower>::const_iterator mu = inputMuonShowers->begin(bx);
+           mu != inputMuonShowers->end(bx);
+           ++mu) {
+        if (mu->isValid() && muonShowerVec.size() < maxNumMuCands_) {
+          muonShowerVec.push_back((*mu));
         }
       }
     } else {
@@ -292,6 +319,28 @@ namespace l1t {
     } else {
       // this event is part of empty trailer...clear out data
       muonVec.clear();
+    }
+
+    // Fill MuonShowers
+    for (int iMuShower = 0; iMuShower < int(muonShowerVec_bxm2.size()); iMuShower++) {
+      muonShowers->push_back(-2, muonShowerVec_bxm2[iMuShower]);
+    }
+    for (int iMuShower = 0; iMuShower < int(muonShowerVec_bxm1.size()); iMuShower++) {
+      muonShowers->push_back(-1, muonShowerVec_bxm1[iMuShower]);
+    }
+    for (int iMuShower = 0; iMuShower < int(muonShowerVec_bx0.size()); iMuShower++) {
+      muonShowers->push_back(0, muonShowerVec_bx0[iMuShower]);
+    }
+    for (int iMuShower = 0; iMuShower < int(muonShowerVec_bxp1.size()); iMuShower++) {
+      muonShowers->push_back(1, muonShowerVec_bxp1[iMuShower]);
+    }
+    if (emptyBxTrailer_ <= (emptyBxEvt_ - eventCnt_)) {
+      for (int iMuShower = 0; iMuShower < int(muonShowerVec.size()); iMuShower++) {
+        muonShowers->push_back(2, muonShowerVec[iMuShower]);
+      }
+    } else {
+      // this event is part of empty trailer...clear out data
+      muonShowerVec.clear();
     }
 
     // Fill Egammas
@@ -384,30 +433,35 @@ namespace l1t {
 
     iEvent.put(std::move(egammas));
     iEvent.put(std::move(muons));
+    iEvent.put(std::move(muonShowers));
     iEvent.put(std::move(taus));
     iEvent.put(std::move(jets));
     iEvent.put(std::move(etsums));
 
     // Now shift the bx data by one to prepare for next event.
     muonVec_bxm2 = muonVec_bxm1;
+    muonShowerVec_bxm2 = muonShowerVec_bxm1;
     egammaVec_bxm2 = egammaVec_bxm1;
     tauVec_bxm2 = tauVec_bxm1;
     jetVec_bxm2 = jetVec_bxm1;
     etsumVec_bxm2 = etsumVec_bxm1;
 
     muonVec_bxm1 = muonVec_bx0;
+    muonShowerVec_bxm1 = muonShowerVec_bx0;
     egammaVec_bxm1 = egammaVec_bx0;
     tauVec_bxm1 = tauVec_bx0;
     jetVec_bxm1 = jetVec_bx0;
     etsumVec_bxm1 = etsumVec_bx0;
 
     muonVec_bx0 = muonVec_bxp1;
+    muonShowerVec_bx0 = muonShowerVec_bxp1;
     egammaVec_bx0 = egammaVec_bxp1;
     tauVec_bx0 = tauVec_bxp1;
     jetVec_bx0 = jetVec_bxp1;
     etsumVec_bx0 = etsumVec_bxp1;
 
     muonVec_bxp1 = muonVec;
+    muonShowerVec_bxp1 = muonShowerVec;
     egammaVec_bxp1 = egammaVec;
     tauVec_bxp1 = tauVec;
     jetVec_bxp1 = jetVec;

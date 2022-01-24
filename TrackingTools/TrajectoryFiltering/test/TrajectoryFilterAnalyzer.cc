@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,16 +32,13 @@
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 
-class TrajectoryFilterAnalyzer : public edm::EDAnalyzer {
+class TrajectoryFilterAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TrajectoryFilterAnalyzer(const edm::ParameterSet&);
   ~TrajectoryFilterAnalyzer();
 
 private:
-  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-
   std::vector<std::unique_ptr<TrajectoryFilter>> filters;
 };
 
@@ -59,15 +56,9 @@ TrajectoryFilterAnalyzer::TrajectoryFilterAnalyzer(const edm::ParameterSet& iCon
   }
 }
 
-TrajectoryFilterAnalyzer::~TrajectoryFilterAnalyzer() {}
+TrajectoryFilterAnalyzer::~TrajectoryFilterAnalyzer() = default;
 
 void TrajectoryFilterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
-
-// ------------ method called once each job just before starting event loop  ------------
-void TrajectoryFilterAnalyzer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void TrajectoryFilterAnalyzer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrajectoryFilterAnalyzer);

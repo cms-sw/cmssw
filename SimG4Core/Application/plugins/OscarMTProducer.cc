@@ -21,8 +21,6 @@
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
-
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
 
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
@@ -248,20 +246,12 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   auto& sCalo = m_runManagerWorker->sensCaloDetectors();
 
   std::unique_ptr<G4SimEvent> evt;
-  try {
-    auto token = edm::ServiceRegistry::instance().presentToken();
-    m_handoff.runAndWait([this, &e, &es, &evt, token, engine]() {
-      edm::ServiceRegistry::Operate guard{token};
-      StaticRandomEngineSetUnset random(engine);
-      evt = m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
-    });
-  } catch (const SimG4Exception& simg4ex) {
-    edm::LogWarning("SimG4CoreApplication") << "SimG4Exception caght! " << simg4ex.what();
-
-    throw edm::Exception(edm::errors::EventCorruption)
-        << "SimG4CoreApplication exception in generation of event " << e.id() << " in stream " << e.streamID() << " \n"
-        << simg4ex.what();
-  }
+  auto token = edm::ServiceRegistry::instance().presentToken();
+  m_handoff.runAndWait([this, &e, &es, &evt, token, engine]() {
+    edm::ServiceRegistry::Operate guard{token};
+    StaticRandomEngineSetUnset random(engine);
+    evt = m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
+  });
 
   std::unique_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
   std::unique_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
@@ -283,7 +273,6 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
   for (auto& calo : sCalo) {
     const std::vector<std::string>& v = calo->getNames();
-
     for (auto& name : v) {
       std::unique_ptr<edm::PCaloHitContainer> product(new edm::PCaloHitContainer);
       calo->fillHits(*product, name);

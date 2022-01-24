@@ -2,6 +2,8 @@
 
 HLTriggerFirstPath	#	menu structure
 HLTriggerFinalPath	#	menu structure
+Status_OnCPU		#	CMSHLT-2206
+Status_OnGPU		#	CMSHLT-2206
 HLT_ZeroBias_v*	#	trigger studies
 HLT_Physics_v*	#	CMSHLT-892
 DST_Physics_v*	#	trigger studies

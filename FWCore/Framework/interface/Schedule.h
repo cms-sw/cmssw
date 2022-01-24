@@ -253,14 +253,6 @@ namespace edm {
     /// (N.B. totalEventsFailed() + totalEventsPassed() == totalEvents()
     int totalEventsFailed() const;
 
-    /// Turn end_paths "off" if "active" is false;
-    /// turn end_paths "on" if "active" is true.
-    void enableEndPaths(bool active);
-
-    /// Return true if end_paths are active, and false if they are
-    /// inactive.
-    bool endPathsEnabled() const;
-
     /// Return the trigger report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
     void getTriggerReport(TriggerReport& rep) const;
@@ -319,8 +311,6 @@ namespace edm {
     std::vector<std::string> const* pathNames_;
     std::vector<std::string> const* endPathNames_;
     bool wantSummary_;
-
-    volatile bool endpathsAreActive_;
   };
 
   template <typename T>

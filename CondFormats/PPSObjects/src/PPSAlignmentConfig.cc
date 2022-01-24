@@ -1,8 +1,6 @@
 /****************************************************************************
  *
- *  CondFormats/PPSObjects/interface/PPSAlignmentConfig.cc
- *
- *  Description : Class with alignment parameters
+ *  This class is obsolete! Use PPSAlignmentConfiguration instead.
  *
  *  Authors:
  *  - Jan Kašpar

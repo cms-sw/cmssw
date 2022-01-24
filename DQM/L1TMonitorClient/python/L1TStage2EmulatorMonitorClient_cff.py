@@ -36,6 +36,7 @@ from DQM.L1TMonitorClient.L1TdeGEMTPGClient_cfi import *
 
 # CSC TPG emulator client
 from DQM.L1TMonitorClient.L1TdeCSCTPGClient_cfi import *
+from DQM.L1TMonitorClient.L1TdeCSCTPGShowerClient_cfi import *
 
 # EMTF emulator client
 from DQM.L1TMonitorClient.L1TStage2EMTFEmulatorClient_cff import *
@@ -68,6 +69,9 @@ _run3_l1TStage2EmulatorClients += l1tdeGEMTPGClient
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( l1TStage2EmulatorClients, _run3_l1TStage2EmulatorClients )
+
+_run3shower_l1TStage2EmulatorClients = l1TStage2EmulatorClients.copy()
+run3_GEM.toReplaceWith(l1TStage2EmulatorClients, cms.Sequence(_run3shower_l1TStage2EmulatorClients + l1tdeCSCTPGShowerClient))
 
 l1tStage2EmulatorMonitorClient = cms.Sequence(
     l1TStage2EmulatorQualityTests +

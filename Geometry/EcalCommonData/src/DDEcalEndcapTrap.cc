@@ -82,14 +82,14 @@ DDEcalEndcapTrap::DDEcalEndcapTrap(const int hand, const double front, const dou
 //  //
 //  //  Rotate supercrystal to standard position
 //  //
-//  std::cout << "DDEcalEndcapTrap::rotate() - not yet implemented" << std::endl;
+//  edm::LogaVerbatim("EcalGeom") << "DDEcalEndcapTrap::rotate() - not yet implemented";
 //}
 
 void DDEcalEndcapTrap::rotate(const DDTranslation& frontCentre, const DDTranslation& rearCentre) {
   //
   //  Rotate supercrystal to bring front and rear face centres to specified points
   //
-  edm::LogVerbatim("EcalGeom") << "DDEcalEndcapTrap::rotate(DDTranslation,DDTranslation) - not yet implemented";
+  edm::LogWarning("EcalGeom") << "DDEcalEndcapTrap::rotate(DDTranslation,DDTranslation) - not yet implemented";
 }
 
 void DDEcalEndcapTrap::rotate(const DDRotationMatrix& rot) {

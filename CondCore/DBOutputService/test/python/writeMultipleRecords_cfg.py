@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.load("CondCore.CondDB.CondDB_cfi")
-process.CondDB.connect = cms.string("sqlite_file:test.db")
+process.CondDB.connect = cms.string("sqlite_file:test_multiple_records.db")
 
 process.source = cms.Source("EmptyIOVSource",
     lastValue = cms.uint64(1),

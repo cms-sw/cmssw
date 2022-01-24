@@ -26,7 +26,7 @@
 #include "TPaveStats.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -51,7 +51,7 @@
 // Class declaration
 //
 
-class BuildTrackerMapPlugin : public edm::EDAnalyzer {
+class BuildTrackerMapPlugin : public edm::one::EDAnalyzer<> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;

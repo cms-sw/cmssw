@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 //
 // Package:    GBRWrapperMaker
@@ -22,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -41,10 +40,10 @@
 // class declaration
 //
 
-class GBRWrapperMaker : public edm::EDAnalyzer {
+class GBRWrapperMaker : public edm::one::EDAnalyzer<> {
 public:
   explicit GBRWrapperMaker(const edm::ParameterSet&);
-  ~GBRWrapperMaker();
+  ~GBRWrapperMaker() = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -52,36 +51,9 @@ private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
-
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
-  // ----------member data ---------------------------
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-GBRWrapperMaker::GBRWrapperMaker(const edm::ParameterSet& iConfig)
-
-{
-  //now do what ever initialization is needed
-}
-
-GBRWrapperMaker::~GBRWrapperMaker() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+GBRWrapperMaker::GBRWrapperMaker(const edm::ParameterSet& iConfig) {}
 
 //
 // member functions
@@ -91,26 +63,20 @@ GBRWrapperMaker::~GBRWrapperMaker() {
 void GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  //from Josh:
-  //TFile *infile = new TFile("../data/GBRLikelihood_Clustering_746_bx25_Electrons_NoPosition_standardShapes_NoPS_PFMustache_results_PROD.root","READ");
   TFile* infile = new TFile("../data/GBRLikelihood_Clustering_746_bx25_HLT.root", "READ");
-  printf("load forest\n");
-
-  //GBRForestD *p4comb = (GBRForest*)infile->Get("CombinationWeight");
+  edm::LogPrint("GBRWrapperMaker") << "Load forest";
   GBRForestD* gbreb = (GBRForestD*)infile->Get("EBCorrection");
   GBRForestD* gbrebvar = (GBRForestD*)infile->Get("EBUncertainty");
   GBRForestD* gbree = (GBRForestD*)infile->Get("EECorrection");
   GBRForestD* gbreevar = (GBRForestD*)infile->Get("EEUncertainty");
 
-  printf("made objects\n");
+  edm::LogPrint("GBRWrapperMaker") << "Make objects";
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    //poolDbService->writeOne( p4comb, poolDbService->beginOfTime(),
-    //		     "gedelectron_p4combination"  );
-    poolDbService->writeOne(gbreb, poolDbService->beginOfTime(), "mustacheSC_online_EBCorrection");
-    poolDbService->writeOne(gbrebvar, poolDbService->beginOfTime(), "mustacheSC_online_EBUncertainty");
-    poolDbService->writeOne(gbree, poolDbService->beginOfTime(), "mustacheSC_online_EECorrection");
-    poolDbService->writeOne(gbreevar, poolDbService->beginOfTime(), "mustacheSC_online_EEUncertainty");
+    poolDbService->writeOneIOV(*gbreb, poolDbService->beginOfTime(), "mustacheSC_online_EBCorrection");
+    poolDbService->writeOneIOV(*gbrebvar, poolDbService->beginOfTime(), "mustacheSC_online_EBUncertainty");
+    poolDbService->writeOneIOV(*gbree, poolDbService->beginOfTime(), "mustacheSC_online_EECorrection");
+    poolDbService->writeOneIOV(*gbreevar, poolDbService->beginOfTime(), "mustacheSC_online_EEUncertainty");
   }
 }
 
@@ -119,18 +85,6 @@ void GBRWrapperMaker::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void GBRWrapperMaker::endJob() {}
-
-// ------------ method called when starting to processes a run  ------------
-void GBRWrapperMaker::beginRun(edm::Run const&, edm::EventSetup const&) {}
-
-// ------------ method called when ending the processing of a run  ------------
-void GBRWrapperMaker::endRun(edm::Run const&, edm::EventSetup const&) {}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void GBRWrapperMaker::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void GBRWrapperMaker::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void GBRWrapperMaker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

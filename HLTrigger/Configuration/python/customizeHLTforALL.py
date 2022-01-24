@@ -2,15 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 def customizeHLTforAll(process, menuType = "GRun", _customInfo = None):
 
-    # rename "HLTSchedule" to "schedule":
-    # CMSSW policy is to have at most 1 schedule
-    # in the cms.Process, named "schedule"
-    if hasattr(process, 'HLTSchedule'):
-        if process.schedule_() != None:
-            raise Exception('process.schedule already exists')
-        process.setSchedule_(process.HLTSchedule)
-        del process.HLTSchedule
-
     if (_customInfo is not None):
 
         _maxEvents = _customInfo['maxEvents']

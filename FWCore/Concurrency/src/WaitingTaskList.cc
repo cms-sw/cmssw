@@ -14,7 +14,7 @@
 // system include files
 
 // user include files
-#include "tbb/task.h"
+#include "oneapi/tbb/task.h"
 #include <cassert>
 #include <memory>
 
@@ -69,7 +69,7 @@ void WaitingTaskList::reset() {
   m_waiting = true;
 }
 
-WaitingTaskList::WaitNode* WaitingTaskList::createNode(tbb::task_group* iGroup, WaitingTask* iTask) {
+WaitingTaskList::WaitNode* WaitingTaskList::createNode(oneapi::tbb::task_group* iGroup, WaitingTask* iTask) {
   unsigned int index = m_lastAssignedCacheIndex++;
 
   WaitNode* returnValue;
@@ -122,7 +122,7 @@ void WaitingTaskList::add(WaitingTaskHolder iTask) {
   }
 }
 
-void WaitingTaskList::add(tbb::task_group* iGroup, WaitingTask* iTask) {
+void WaitingTaskList::add(oneapi::tbb::task_group* iGroup, WaitingTask* iTask) {
   iTask->increment_ref_count();
   if (!m_waiting) {
     if (UNLIKELY(bool(m_exceptionPtr))) {

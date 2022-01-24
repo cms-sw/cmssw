@@ -20,8 +20,8 @@
 #include <memory>
 #include <atomic>
 #include <unistd.h>
-#include "tbb/task_group.h"
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
+#include "oneapi/tbb/task_arena.h"
 
 // user include files
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -93,7 +93,7 @@ void TestTBBTasksAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSe
 unsigned int TestTBBTasksAnalyzer::startTasks(unsigned int iNTasks, unsigned int iSleepTime) const {
   std::atomic<unsigned int> count{0};
   std::atomic<unsigned int> maxCount{0};
-  tbb::task_group grp;
+  oneapi::tbb::task_group grp;
 
   for (unsigned int i = 0; i < iNTasks; ++i) {
     grp.run([&]() {

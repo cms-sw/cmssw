@@ -5,10 +5,10 @@
 
 #include <string>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class FlavorJetCorrectionExample : public edm::EDAnalyzer {
+class FlavorJetCorrectionExample : public edm::one::EDAnalyzer<> {
 public:
   explicit FlavorJetCorrectionExample(const edm::ParameterSet& fParameters);
   ~FlavorJetCorrectionExample() override {}

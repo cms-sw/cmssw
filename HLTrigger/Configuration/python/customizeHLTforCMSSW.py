@@ -146,7 +146,7 @@ def customiseFor2018Input(process):
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
-    
+
     # if the gpu modifier is enabled, make the Pixel, ECAL and HCAL reconstruction offloadable to a GPU
     from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack
     gpu.makeProcessModifier(customizeHLTforPatatrack).apply(process)

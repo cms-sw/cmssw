@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -63,7 +63,7 @@ using namespace edm;
 
 //#define CHECK_GEOM
 
-class PixelMixedSimHitsTest : public edm::EDAnalyzer {
+class PixelMixedSimHitsTest : public edm::one::EDAnalyzer {
 public:
   explicit PixelMixedSimHitsTest(const edm::ParameterSet &);
   ~PixelMixedSimHitsTest();

@@ -2,7 +2,6 @@
 #define SimG4Core_TrackInformationExtractor_H
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 class G4Track;
 
@@ -31,10 +30,8 @@ public:
   TrackInformation& operator()(G4Track* gtk) const { return operator()(*gtk); }
 
 private:
-  void missing(const G4Track& gtk) const {
-    throw SimG4Exception("TrackInformationExtractor: G4Track has no TrackInformation");
-  }
-  void wrongType() const { throw SimG4Exception("User information in G4Track is not of TrackInformation type"); }
+  void missing(const G4Track& gtk) const;
+  void wrongType() const;
 };
 
 #endif

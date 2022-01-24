@@ -20,7 +20,7 @@ process.genParticlePlusGEANT = cms.EDProducer("GenPlusSimParticleProducer",
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,14 +39,12 @@ process.genParticlePlusGEANT = cms.EDProducer("GenPlusSimParticleProducer",
 #include <memory>
 
 namespace pat {
-  class GenPlusSimParticleProducer : public edm::EDProducer {
+  class GenPlusSimParticleProducer : public edm::stream::EDProducer<> {
   public:
     explicit GenPlusSimParticleProducer(const edm::ParameterSet &);
-    ~GenPlusSimParticleProducer() override {}
 
   private:
     void produce(edm::Event &, const edm::EventSetup &) override;
-    void endJob() override {}
 
     bool firstEvent_;
     edm::EDGetTokenT<edm::SimTrackContainer> simtracksToken_;

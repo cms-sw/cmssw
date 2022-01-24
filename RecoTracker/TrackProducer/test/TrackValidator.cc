@@ -1,7 +1,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -29,7 +29,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-class TrackValidator : public edm::EDAnalyzer {
+class TrackValidator : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   TrackValidator(const edm::ParameterSet& pset)
       : sim(pset.getParameter<string>("sim")),
@@ -39,7 +39,9 @@ public:
         min(pset.getParameter<double>("min")),
         max(pset.getParameter<double>("max")),
         nint(pset.getParameter<int>("nint")),
-        partId(pset.getParameter<int>("partId")) {
+        partId(pset.getParameter<int>("partId")),
+        theMFToken_(esConsumes()),
+        theBToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))) {
     hFile = new TFile(out.c_str(), open.c_str());
   }
 
@@ -110,14 +112,12 @@ public:
       ptres_vs_eta.push_back(new TH2F("ptres_vs_eta", "ptresidue vs eta", nint, min, max, 200, -2, 2));
       etares_vs_eta.push_back(new TH2F("etares_vs_eta", "etaresidue vs eta", nint, min, max, 200, -0.1, 0.1));
     }
-
-    setup.get<IdealMagneticFieldRecord>().get(theMF);
   }
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     std::cout << "In TrackValidator\n";
-    edm::ESHandle<TransientTrackBuilder> theB;
-    setup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+    edm::ESHandle<MagneticField> theMF = setup.getHandle(theMFToken_);
+    edm::ESHandle<TransientTrackBuilder> theB = setup.getHandle(theBToken_);
     for (unsigned int w = 0; w < label.size(); w++) {
       //
       //get collections from the event
@@ -365,6 +365,8 @@ public:
     hFile->Close();
   }
 
+  void endRun(edm::Run const& run, const edm::EventSetup& setup) override {}
+
 private:
   string sim;
   vector<string> label;
@@ -384,7 +386,8 @@ private:
   vector<vector<TH1F*> > etadistrib;
   TFile* hFile;
 
-  edm::ESHandle<MagneticField> theMF;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMFToken_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> theBToken_;
 };
 
 DEFINE_FWK_MODULE(TrackValidator);

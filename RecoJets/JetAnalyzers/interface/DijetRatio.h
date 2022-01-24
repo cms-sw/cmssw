@@ -30,7 +30,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -118,7 +118,7 @@ void histoFill(TH1F* jetHisto[], edm::Handle<R> jetsRec, double eta1, double eta
 // class decleration
 //
 template <class Jet>
-class DijetRatio : public edm::EDAnalyzer {
+class DijetRatio : public edm::one::EDAnalyzer<> {
 public:
   explicit DijetRatio(const edm::ParameterSet&);
   ~DijetRatio() override;
