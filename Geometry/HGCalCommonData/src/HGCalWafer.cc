@@ -74,19 +74,19 @@ std::pair<double, double> HGCalWafer::HGCalWaferUV2XY2(int32_t u, int32_t v, int
   if (placementIndex < HGCalWafer::WaferPlacementExtra) {
     double x0 = (1.5 * (u - v) - 0.5) * R_[type];
     double y0 = (u + v - 2 * N_[type] + 1) * r_[type];
-    const std::vector<double> fac1 = {1.0, 0.5, -0.5, -1.0, -0.5, 0.5};
-    const std::vector<double> fac2 = {0.0, sqrt3By2_, sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_};
-    x = x0 * fac1[placementIndex] - y0 * fac2[placementIndex];
-    y = x0 * fac2[placementIndex] + y0 * fac1[placementIndex];
+    const std::vector<double> fcos = {1.0, 0.5, -0.5, -1.0, -0.5, 0.5};
+    const std::vector<double> fsin = {0.0, sqrt3By2_, sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_};
+    x = x0 * fcos[placementIndex] - y0 * fsin[placementIndex];
+    y = x0 * fsin[placementIndex] + y0 * fcos[placementIndex];
   } else {
     double x0 = (1.5 * (v - N_[type]) + 1.0) * R_[type];
     double y0 = (2 * u - v - N_[type]) * r_[type];
-    const std::vector<double> fac1 = {0.5, 1.0, 0.5, -0.5, -1.0, -0.5};
-    const std::vector<double> fac2 = {sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_, 0.0, sqrt3By2_};
-    x = x0 * fac1[placementIndex - HGCalWafer::WaferPlacementExtra] -
-        y0 * fac2[placementIndex - HGCalWafer::WaferPlacementExtra];
-    y = x0 * fac2[placementIndex - HGCalWafer::WaferPlacementExtra] +
-        y0 * fac1[placementIndex - HGCalWafer::WaferPlacementExtra];
+    const std::vector<double> fcos = {0.5, 1.0, 0.5, -0.5, -1.0, -0.5};
+    const std::vector<double> fsin = {sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_, 0.0, sqrt3By2_};
+    x = x0 * fcos[placementIndex - HGCalWafer::WaferPlacementExtra] -
+        y0 * fsin[placementIndex - HGCalWafer::WaferPlacementExtra];
+    y = x0 * fsin[placementIndex - HGCalWafer::WaferPlacementExtra] +
+        y0 * fcos[placementIndex - HGCalWafer::WaferPlacementExtra];
   }
   return std::make_pair(x, y);
 }
