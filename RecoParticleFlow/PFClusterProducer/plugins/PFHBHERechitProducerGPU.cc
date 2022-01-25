@@ -53,7 +53,7 @@ private:
   // Input Product Type
   using RecHitSoAProductType = cms::cuda::Product<hcal::reconstruction::OutputDataGPU>;
   //Output Product Type
-  using PFRecHitSoAProductType = cms::cuda::Product<pf::rechit::OutputPFRecHitDataGPU>;
+  using PFRecHitSoAProductType = cms::cuda::Product<PFRecHit::HCAL::OutputPFRecHitDataGPU>;
   //Input Token
   //edm::EDGetTokenT<RecHitSoAProductType> InputRecHitSoA_Token_;
   //Output Token
@@ -64,7 +64,7 @@ private:
   edm::EDPutTokenT<OProductType> OutputPFRecHitSoA_Token_;
   //edm::EDPutTokenT<PFRecHitSoAProductType> OutputPFRecHitSoA_Token_;
 
-  pf::rechit::OutputPFRecHitDataGPU outputGPU;
+  PFRecHit::HCAL::OutputPFRecHitDataGPU outputGPU;
   cms::cuda::ContextState cudaState_;
 
   hcal::RecHitCollection<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>> tmpRecHits;
@@ -79,9 +79,9 @@ private:
   edm::ESWatcher<HcalRecNumberingRecord> theRecNumberWatcher_; 
   std::unique_ptr<const HcalTopology> topology_;
 
-  pf::rechit::PersistentDataCPU persistentDataCPU;
-  pf::rechit::PersistentDataGPU persistentDataGPU;
-  pf::rechit::ScratchDataGPU    scratchDataGPU;
+  PFRecHit::HCAL::PersistentDataCPU persistentDataCPU;
+  PFRecHit::HCAL::PersistentDataGPU persistentDataGPU;
+  PFRecHit::HCAL::ScratchDataGPU    scratchDataGPU;
 
   uint32_t nValidBarrelIds = 0, nValidEndcapIds = 0, nValidDetIds = 0;
   float qTestThresh = 0.;
@@ -465,7 +465,7 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
         cudaCheck(cudaMemcpyAsync(persistentDataGPU.rh_neighbours.get(), persistentDataCPU.rh_neighbours.get(), 8 * nRHTotal * sizeof(int), cudaMemcpyHostToDevice, ctx.stream()));
 
         // Initialize Cuda constants
-        pf::rechit::initializeCudaConstants(nValidBarrelIds, nValidEndcapIds, qTestThresh);
+        PFRecHit::HCAL::initializeCudaConstants(nValidBarrelIds, nValidEndcapIds, qTestThresh);
 
         initCuda = false;
     }
@@ -501,7 +501,7 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
 //  }
   
   // Entry point for GPU calls 
-  pf::rechit::entryPoint(HBHERecHitSoA, outputGPU, persistentDataGPU, scratchDataGPU, ctx.stream());
+  PFRecHit::HCAL::entryPoint(HBHERecHitSoA, outputGPU, persistentDataGPU, scratchDataGPU, ctx.stream());
 
   if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
   // For testing, copy back PFRecHit SoA data to CPU

@@ -685,7 +685,6 @@ __device__ void dev_hcalFastCluster_optimizedSimple(int topoId,
                                                     const float* __restrict__ pfrh_energy,
                                                     const int* __restrict__ pfrh_layer,
                                                     const int* __restrict__ pfrh_depth,
-                                                    const int* __restrict__ neigh4_Ind,
                                                     float* pcrhfrac,
                                                     int* pcrhfracind,
                                                     int* topoSeedOffsets,
@@ -827,7 +826,7 @@ __device__ void dev_hcalFastCluster_optimizedComplex(int topoId,
                                 const float* __restrict__ pfrh_energy,
                                 const int* __restrict__ pfrh_layer,
                                 const int* __restrict__ pfrh_depth,
-                                const int* __restrict__ neigh4_Ind,
+                                const int* __restrict__ pfrh_neighbours,
                                 float* pcrhfrac,
                                 int* pcrhfracind,
                                 int* seedFracOffsets,
@@ -954,7 +953,7 @@ __device__ void dev_hcalFastCluster_optimizedComplex(int topoId,
     float4 seedInitClusterPos = make_float4(0., 0., 0., 0.);
     if (tid < nSeeds) {
         seedThreadIdx = getSeedRhIdx(tid);
-        seedNeighbors = make_int4(neigh4_Ind[nNeigh*seedThreadIdx], neigh4_Ind[nNeigh*seedThreadIdx+1], neigh4_Ind[nNeigh*seedThreadIdx+2], neigh4_Ind[nNeigh*seedThreadIdx+3]);
+        seedNeighbors = make_int4(pfrh_neighbours[8*seedThreadIdx], pfrh_neighbours[8*seedThreadIdx+1], pfrh_neighbours[8*seedThreadIdx+2], pfrh_neighbours[8*seedThreadIdx+3]);
         seedEnergy = pfrh_energy[seedThreadIdx];
         
         // Compute initial cluster position shift for seed 
@@ -1085,6 +1084,248 @@ __device__ void dev_hcalFastCluster_optimizedComplex(int topoId,
 }
 
 
+// For clustering largest topos 
+__device__ void dev_hcalFastCluster_original(int topoId,
+                                int nSeeds,
+                                int nRHTopo,
+                                const float* __restrict__ pfrh_x,
+                                const float* __restrict__ pfrh_y,
+                                const float* __restrict__ pfrh_z,
+                                const float* __restrict__ pfrh_energy,
+                                const int* __restrict__ pfrh_layer,
+                                const int* __restrict__ pfrh_depth,
+                                const int* __restrict__ pfrh_neighbours,
+                                float* pcrhfrac,
+                                int* pcrhfracind,
+                                int* seedFracOffsets,
+                                int* topoSeedOffsets,
+                                int* topoSeedList,
+                                int* pfcIter
+                                ) {
+
+    __shared__ int nRHNotSeed, topoSeedBegin, gridStride, iter;
+    __shared__ float tol, diff2, rhENormInv;
+    __shared__ bool notDone, debug;
+    __shared__ float4 clusterPos[400], prevClusterPos[400];
+    __shared__ float clusterEnergy[400], rhFracSum[1500];
+    __shared__ int seeds[400], rechits[1500];
+    
+    if (threadIdx.x == 0) {
+        nRHNotSeed = nRHTopo - nSeeds + 1;  // 1 + (# rechits per topoId that are NOT seeds)
+        topoSeedBegin = topoSeedOffsets[topoId];
+        tol = stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);     // stopping tolerance * tolerance scaling
+        gridStride = blockDim.x;
+        iter = 0;
+        notDone = true;
+        debug = false;
+        
+        int i = topoSeedList[topoSeedBegin]; 
+        if(pfrh_layer[i] == PFLayer::HCAL_BARREL1)       rhENormInv = recHitEnergyNormInvEB_vec[pfrh_depth[i] - 1]; 
+        else if (pfrh_layer[i] == PFLayer::HCAL_ENDCAP)  rhENormInv = recHitEnergyNormInvEE_vec[pfrh_depth[i] - 1]; 
+        else  printf("Rechit %d has invalid layer %d!\n", i, pfrh_layer[i]);
+    }
+    __syncthreads();
+
+    for (int n = threadIdx.x; n < nRHTopo; n += gridStride) {
+        if (n < nSeeds)       seeds[n] = topoSeedList[topoSeedBegin + n];
+        if (n < nRHNotSeed-1) rechits[n] = pcrhfracind[seedFracOffsets[topoSeedList[topoSeedBegin]] + n + 1];
+    }
+    __syncthreads();
+    
+    auto getSeedRhIdx = [&] (int seedNum) {
+        return seeds[seedNum];
+    };
+
+    auto getRhFracIdx = [&] (int seedNum, int rhNum) {
+        if (rhNum <= 0) printf("Invalid rhNum (%d) for getRhFracIdx!\n", rhNum);
+        return rechits[rhNum-1];
+    };
+    
+    auto getRhFrac = [&] (int seedNum, int rhNum) {
+        int seedIdx = topoSeedList[topoSeedBegin + seedNum];
+        return pcrhfrac[seedFracOffsets[seedIdx] + rhNum];
+    };
+
+
+    if (debug) {
+        if (threadIdx.x == 0) {
+            printf("\n===========================================================================================\n");
+            printf("Processing topo cluster %d with nSeeds = %d nRHTopo = %d and seeds (", topoId, nSeeds, nRHTopo);
+            for (int s = 0; s < nSeeds; s++) {
+                if (s != 0) printf(", ");
+                printf("%d", getSeedRhIdx(s));
+            }
+            if (nRHTopo == nSeeds) {
+                printf(")\n\n");
+            }
+            else {
+                printf(") and other rechits (");
+                for (int r = 1; r < nRHNotSeed; r++) {
+                    if (r != 1) printf(", ");
+                    printf("%d", getRhFracIdx(0, r));
+                }
+                printf(")\n\n");
+            }
+        }
+        __syncthreads();
+    }
+    
+
+    auto computeClusterPos = [&] (float4& pos4, float frac, int rhInd, bool isDebug) {
+        float4 rechitPos = make_float4(pfrh_x[rhInd], pfrh_y[rhInd], pfrh_z[rhInd], 1.0);
+        const auto rh_energy = pfrh_energy[rhInd] * frac;
+        const auto norm =
+            (frac < minFractionInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
+        if (isDebug)
+            printf("\t\t\trechit %d: norm = %f\tfrac = %f\trh_energy = %f\tpos = (%f, %f, %f)\n", rhInd, norm, frac, rh_energy, rechitPos.x, rechitPos.y, rechitPos.z);
+        
+        pos4.x += rechitPos.x * norm;
+        pos4.y += rechitPos.y * norm;
+        pos4.z += rechitPos.z * norm;
+        pos4.w += norm;     //  position_norm
+    };
+    
+    // Set initial cluster position (energy) to seed rechit position (energy)
+    for (int s = threadIdx.x; s < nSeeds; s += gridStride) {
+        int i = seeds[s];
+        clusterPos[s] = make_float4(pfrh_x[i], pfrh_y[i], pfrh_z[i], 1.0);
+        prevClusterPos[s] = clusterPos[s];
+        clusterEnergy[s] = pfrh_energy[i];
+        for (int r = 0; r < (nRHNotSeed-1); r++) {
+            pcrhfracind[seedFracOffsets[i] + r + 1] = rechits[r];
+            pcrhfrac[seedFracOffsets[i] + r + 1] = -1.;
+        }
+    }
+    __syncthreads();
+    
+
+    do {
+        if (debug && threadIdx.x == 0) {
+            printf("\n--- Now on iter %d for topoId %d ---\n", iter, topoId);
+        }
+
+        if (threadIdx.x == 0) diff2 = -1;
+        // Reset rhFracSum
+        for (int tid = threadIdx.x; tid < nRHNotSeed-1; tid += gridStride) {
+            rhFracSum[tid] = 0.;
+            int rhThreadIdx = rechits[tid];
+            float4 rhThreadPos = make_float4(pfrh_x[rhThreadIdx], pfrh_y[rhThreadIdx], pfrh_z[rhThreadIdx], 1.);   
+            for (int s = 0; s < nSeeds; s++) {
+                float dist2 =
+                       (clusterPos[s].x - rhThreadPos.x)*(clusterPos[s].x - rhThreadPos.x)
+                      +(clusterPos[s].y - rhThreadPos.y)*(clusterPos[s].y - rhThreadPos.y)
+                      +(clusterPos[s].z - rhThreadPos.z)*(clusterPos[s].z - rhThreadPos.z);
+
+                float d2 = dist2 / showerSigma2;
+                float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+
+                rhFracSum[tid] += fraction;
+            }
+        } __syncthreads();
+        
+        
+        for (int tid = threadIdx.x; tid < nRHNotSeed-1; tid += gridStride) {
+            int rhThreadIdx = rechits[tid];
+            float4 rhThreadPos = make_float4(pfrh_x[rhThreadIdx], pfrh_y[rhThreadIdx], pfrh_z[rhThreadIdx], 1.);
+            for (int s = 0; s < nSeeds; s++) {
+                int i = seeds[s];
+                float dist2 =
+                       (clusterPos[s].x - rhThreadPos.x)*(clusterPos[s].x - rhThreadPos.x)
+                      +(clusterPos[s].y - rhThreadPos.y)*(clusterPos[s].y - rhThreadPos.y)
+                      +(clusterPos[s].z - rhThreadPos.z)*(clusterPos[s].z - rhThreadPos.z);
+
+                float d2 = dist2 / showerSigma2;
+                float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+                                
+                if (rhFracSum[tid] > minFracTot) {
+                        float fracpct = fraction / rhFracSum[tid];
+                        //float fracpct = pcrhfrac[seedFracOffsets[i]+tid+1] / rhFracSum[tid];
+                        if(fracpct > 0.9999 || (d2 < 100. && fracpct > minFracToKeep)) {
+                            pcrhfrac[seedFracOffsets[i]+tid+1] = fracpct;
+                        }
+                        else {
+                            pcrhfrac[seedFracOffsets[i]+tid+1] = -1;
+                        }
+                }
+                else {
+                    pcrhfrac[seedFracOffsets[i]+tid+1] = -1;
+                }
+            }
+        } __syncthreads();
+        
+        if (debug && threadIdx.x == 0)
+            printf("Computing cluster position for topoId %d\n", topoId);
+         
+        // Reset cluster position and energy
+        for (int s = threadIdx.x; s < nSeeds; s += gridStride) {
+            int seedRhIdx = getSeedRhIdx(s);
+            float norm = logf(pfrh_energy[seedRhIdx] * rhENormInv);
+            clusterPos[s] = make_float4(pfrh_x[seedRhIdx]*norm, pfrh_y[seedRhIdx]*norm, pfrh_z[seedRhIdx]*norm, norm);
+            clusterEnergy[s] = pfrh_energy[seedRhIdx];
+            if (debug) {
+                printf("Cluster %d (seed %d) has energy %f\tpos = (%f, %f, %f, %f)\n", s, seeds[s], clusterEnergy[s], clusterPos[s].x, clusterPos[s].y, clusterPos[s].z, clusterPos[s].w);
+            }
+        } __syncthreads();
+        
+        // Recalculate position
+        for (int s = threadIdx.x; s < nSeeds; s += gridStride) {
+            int seedRhIdx = getSeedRhIdx(s);
+            for (int r = 0; r < nRHNotSeed-1; r++) {
+                int j = rechits[r];
+                float frac = getRhFrac(s,r+1);
+
+                if (frac > -0.5) {
+                    clusterEnergy[s] += frac * pfrh_energy[j];
+
+                    if (nSeeds == 1 || j == pfrh_neighbours[8*seedRhIdx] || j == pfrh_neighbours[8*seedRhIdx+1] || j == pfrh_neighbours[8*seedRhIdx+2] || j == pfrh_neighbours[8*seedRhIdx+3]) 
+                        computeClusterPos(clusterPos[s], frac, j, debug);
+                }
+            }
+        } __syncthreads();
+
+        // Position normalization
+        for (int s = threadIdx.x; s < nSeeds; s += gridStride) {
+            if (clusterPos[s].w >= minAllowedNormalization)
+            {
+                // Divide by position norm
+                clusterPos[s].x /= clusterPos[s].w;
+                clusterPos[s].y /= clusterPos[s].w;
+                clusterPos[s].z /= clusterPos[s].w;
+
+                if (debug)
+                    printf("\tCluster %d (seed %d) energy = %f\tposition = (%f, %f, %f)\n", s, seeds[s], clusterEnergy[s], clusterPos[s].x, clusterPos[s].y, clusterPos[s].z);
+            }
+            else {
+                if (debug)
+                    printf("\tCluster %d (seed %d) position norm (%f) less than minimum (%f)\n", s, seeds[s], clusterPos[s].w, minAllowedNormalization);
+                clusterPos[s].x = 0.0;
+                clusterPos[s].y = 0.0;
+                clusterPos[s].z = 0.0;
+            }
+        } __syncthreads();
+        
+        for (int s = threadIdx.x; s < nSeeds; s += gridStride) {
+            float delta2 = dR2(prevClusterPos[s], clusterPos[s]);
+            if (debug) printf("\tCluster %d (seed %d) has delta2 = %f\n", s, seeds[s], delta2);
+            atomicMaxF(&diff2, delta2); 
+            prevClusterPos[s] = clusterPos[s];  // Save clusterPos 
+        } __syncthreads();
+
+        if (threadIdx.x == 0) {
+            float diff = sqrtf(diff2);
+            iter++;
+            notDone = (diff > tol) && (iter < maxIterations);
+            if (debug) {
+                if (diff > tol)
+                    printf("\tTopoId %d has diff = %f greater than tolerance %f (continuing)\n", topoId, diff, tol);
+                else
+                    if (debug) printf("\tTopoId %d has diff = %f LESS than tolerance %f (terminating!)\n", topoId, diff, tol);
+            }
+        } __syncthreads();
+    } while (notDone); 
+    if (threadIdx.x == 0) pfcIter[topoId] = iter;
+}
+
 __global__ void hcalFastCluster_optimizedSimple(size_t nRH,
                                 const float* __restrict__ pfrh_x,
                                 const float* __restrict__ pfrh_y,
@@ -1108,9 +1349,7 @@ __global__ void hcalFastCluster_optimizedSimple(size_t nRH,
   int r = threadIdx.x;  // thread index is rechit number
   // Only cluster single seed topos 
   if (topoId < nRH && topoRHCount[topoId] > 1 && topoRHCount[topoId] < 33 && topoSeedCount[topoId] == 1 && topoRHCount[topoId] != topoSeedCount[topoId]) {
-    //printf("Now on topoId %d\tthreadIdx.x = %d\n", topoId, threadIdx.x);
     __shared__ int i, iter;
-    //__shared__ int rhIdx[32];
     __shared__ float tol, diff, diff2, clusterEnergy;
     __shared__ float4 clusterPos, prevClusterPos;
     __shared__ bool notDone, debug;
@@ -1128,9 +1367,6 @@ __global__ void hcalFastCluster_optimizedSimple(size_t nRH,
     __syncthreads();
     int j = -1;
     // Populate rechit index array
-    //if (r < topoRHCount[topoId]) rhIdx[r] = pcrhfracind[seedFracOffsets[i] + r];
-    //if (r < topoRHCount[topoId]) rhIdx[r] = pcrhfracind[seedFracOffsets[i] + r];
-    //int j = rhIdx[r];   // rechit index for this thread
     if (r < topoRHCount[topoId]) j = pcrhfracind[seedFracOffsets[i] + r]; // rechit index for this thread
     int rhFracOffset = seedFracOffsets[i]+r;    // Offset for this rechit in pcrhfrac, pcrhfracidx arrays 
     float4 rhPos;
@@ -1356,7 +1592,7 @@ __global__ void hcalFastCluster_optimizedComplex(size_t nRH,
         pos4.z += rechitPos.z * norm;
         pos4.w += norm;     //  position_norm
     };
-    
+/*    
     auto computeClusterPosAtomic = [&] (float4& pos4, float _frac, int rhInd, bool isDebug) {
         float4 rechitPos = make_float4(pfrh_x[rhInd], pfrh_y[rhInd], pfrh_z[rhInd], 1.0);
 
@@ -1371,7 +1607,7 @@ __global__ void hcalFastCluster_optimizedComplex(size_t nRH,
         atomicAdd(&pos4.z, rechitPos.z * norm);
         atomicAdd(&pos4.w, norm);   // position_norm
     };
-    
+*/  
 
     // Set initial cluster position (energy) to seed rechit position (energy)
     for (int s = threadIdx.x; s < nSeeds; s += gridStride) {
@@ -1675,7 +1911,7 @@ __global__ void hcalFastCluster_sharedRHList(size_t nRH,
         pos4.z += rechitPos.z * norm;
         pos4.w += norm;     //  position_norm
     };
-    
+/*    
     auto computeClusterPosAtomic = [&] (float4& pos4, float _frac, int rhInd, bool isDebug) {
         float4 rechitPos = make_float4(pfrh_x[rhInd], pfrh_y[rhInd], pfrh_z[rhInd], 1.0);
 
@@ -1690,7 +1926,7 @@ __global__ void hcalFastCluster_sharedRHList(size_t nRH,
         atomicAdd(&pos4.z, rechitPos.z * norm);
         atomicAdd(&pos4.w, norm);   // position_norm
     };
-    
+*/    
 
     // Set initial cluster position (energy) to seed rechit position (energy)
     for (int s = threadIdx.x; s < nSeeds; s += gridStride) {
@@ -2282,7 +2518,7 @@ __global__ void hcalFastCluster_selection(size_t nRH,
                                 int* pfrh_isSeed,
                                 const int* __restrict__ pfrh_layer,
                                 const int* __restrict__ pfrh_depth,
-                                const int* __restrict__ neigh4_Ind,
+                                const int* __restrict__ pfrh_neighbours,
                                 float* pcrhfrac,
                                 int* pcrhfracind,
                                 float* fracSum,
@@ -2313,13 +2549,17 @@ __global__ void hcalFastCluster_selection(size_t nRH,
         }
         else if (nSeeds == 1) {
             // Single seed cluster
-            dev_hcalFastCluster_optimizedSimple(topoId, nRHTopo, pfrh_x, pfrh_y, pfrh_z, pfrh_energy, pfrh_layer, pfrh_depth, neigh4_Ind, pcrhfrac, pcrhfracind, topoSeedOffsets, topoSeedList, seedFracOffsets, pfcIter);
+            dev_hcalFastCluster_optimizedSimple(topoId, nRHTopo, pfrh_x, pfrh_y, pfrh_z, pfrh_energy, pfrh_layer, pfrh_depth, pcrhfrac, pcrhfracind, topoSeedOffsets, topoSeedList, seedFracOffsets, pfcIter);
         }
-        else if (nRHTopo - nSeeds < 256) {
-            dev_hcalFastCluster_optimizedComplex(topoId, nSeeds, nRHTopo, pfrh_x, pfrh_y, pfrh_z, pfrh_energy, pfrh_layer, pfrh_depth, neigh4_Ind, pcrhfrac, pcrhfracind, seedFracOffsets, topoSeedOffsets, topoSeedList, pfcIter);
+        else if (nSeeds <= 100 && nRHTopo - nSeeds < 256) {
+            dev_hcalFastCluster_optimizedComplex(topoId, nSeeds, nRHTopo, pfrh_x, pfrh_y, pfrh_z, pfrh_energy, pfrh_layer, pfrh_depth, pfrh_neighbours, pcrhfrac, pcrhfracind, seedFracOffsets, topoSeedOffsets, topoSeedList, pfcIter);
+        }
+        else if (nSeeds <= 400 && (nRHTopo - nSeeds <= 1500)) {
+            if (threadIdx.x == 0) printf("WARNING: Topo cluster %d has %d seeds and %d rechits. This will not be clustered efficiently\n", topoId, nSeeds, nRHTopo);
+            dev_hcalFastCluster_original(topoId, nSeeds, nRHTopo, pfrh_x, pfrh_y, pfrh_z, pfrh_energy, pfrh_layer, pfrh_depth, pfrh_neighbours, pcrhfrac, pcrhfracind, seedFracOffsets, topoSeedOffsets, topoSeedList, pfcIter);
         }
         else {
-            if (threadIdx.x == 0) printf("WARNING: Topo cluster %d has %d seeds and %d rechits. This will not be clustered efficiently\n", topoId, nRHTopo, nSeeds);
+            if (threadIdx.x == 0) printf("ERROR: Topo cluster %d has %d seeds and %d rechits. SKIPPING!!\n", topoId, nSeeds, nRHTopo);
         }
     }
 }
@@ -3063,6 +3303,7 @@ __global__ void topoClusterContraction(size_t size,
     }
 }
 
+// Prefill the rechit index for all PFCluster fractions
 __global__ void fillRhfIndex(size_t nRH,
                              int* pfrh_parent,
                              int* pfrh_isSeed,
@@ -3302,6 +3543,534 @@ __global__ void topoClusterLinking(int nRH,
     *topoIter = iter;
 }
 
+__device__ __forceinline__ void sortSwap(int* toSort, int a, int b) {
+    const int tmp = min(toSort[a], toSort[b]);
+    toSort[b] = max(toSort[a], toSort[b]);
+    toSort[a] = tmp;
+}
+
+__device__ __forceinline__ void sortEight(int* toSort, int* nEdges) {
+    // toSort is a pointer to shared mem neighbor list. 8 elements should be accessed
+    // nEdges is the number of valid neighbors for this rechit
+    // Sorting network optimized for 8 elements
+    sortSwap(toSort, 0, 4);
+    sortSwap(toSort, 1, 5);
+    sortSwap(toSort, 2, 6);
+    sortSwap(toSort, 3, 7);
+
+    sortSwap(toSort, 0, 2);
+    sortSwap(toSort, 1, 3);
+    sortSwap(toSort, 4, 6);
+    sortSwap(toSort, 5, 7);
+
+    sortSwap(toSort, 2, 4);
+    sortSwap(toSort, 3, 5);
+
+    sortSwap(toSort, 0, 1);
+    sortSwap(toSort, 2, 3);
+    sortSwap(toSort, 4, 5);
+    sortSwap(toSort, 6, 7);
+
+    sortSwap(toSort, 1, 4);
+    sortSwap(toSort, 3, 6);
+
+    sortSwap(toSort, 1, 2);
+    sortSwap(toSort, 3, 4);
+    sortSwap(toSort, 5, 6);
+
+    // Add total number of edges
+    // min/max eliminates warp divergences in ternary operation
+    *nEdges += max(min(toSort[0]+1, 1), 0);
+    *nEdges += max(min(toSort[1]+1, 1), 0);
+    *nEdges += max(min(toSort[2]+1, 1), 0);
+    *nEdges += max(min(toSort[3]+1, 1), 0);
+    *nEdges += max(min(toSort[4]+1, 1), 0);
+    *nEdges += max(min(toSort[5]+1, 1), 0);
+    *nEdges += max(min(toSort[6]+1, 1), 0);
+    *nEdges += max(min(toSort[7]+1, 1), 0);
+
+//    *nEdges += (toSort[0] > -1 ? 1 : 0);
+//    *nEdges += (toSort[1] > -1 ? 1 : 0);
+//    *nEdges += (toSort[2] > -1 ? 1 : 0);
+//    *nEdges += (toSort[3] > -1 ? 1 : 0);
+//    *nEdges += (toSort[4] > -1 ? 1 : 0);
+//    *nEdges += (toSort[5] > -1 ? 1 : 0);
+//    *nEdges += (toSort[6] > -1 ? 1 : 0);
+//    *nEdges += (toSort[7] > -1 ? 1 : 0);
+    
+}
+
+__device__ __forceinline__ int scan1Inclusive(int idata, volatile int* s_Data, int size)
+{
+    int pos = 2 * threadIdx.x - (threadIdx.x & (size - 1));
+    s_Data[pos] = 0;
+    pos += size;
+    s_Data[pos] = idata;
+
+    for (int offset = 1; offset < size; offset <<= 1)
+    {
+        int t = s_Data[pos] + s_Data[pos - offset];
+        s_Data[pos] = t;
+    }
+
+    return s_Data[pos];
+}
+
+__device__ __forceinline__ int scan1Exclusive(int idata, volatile int* s_Data, int size)
+{
+    return scan1Inclusive(idata, s_Data, size) - idata;
+}
+
+__device__ __forceinline__ int4 scan4Inclusive(int4 idata4, volatile int* s_Data, int size)
+{
+    //Level-0 inclusive scan
+    idata4.y += idata4.x;
+    idata4.z += idata4.y;
+    idata4.w += idata4.z;
+
+    //Level-1 exclusive scan
+    int oval = scan1Exclusive(idata4.w, s_Data, size / 4);
+
+    idata4.x += oval;
+    idata4.y += oval;
+    idata4.z += oval;
+    idata4.w += oval;
+
+    return idata4;
+}
+
+//Exclusive vector scan: the array to be scanned is stored
+//in local thread memory scope as uint4
+__device__ __forceinline__ int4 scan4Exclusive(int4 idata4, volatile int* s_Data, int size)
+{
+    int4 odata4 = scan4Inclusive(idata4, s_Data, size);
+    odata4.x -= idata4.x;
+    odata4.y -= idata4.y;
+    odata4.z -= idata4.z;
+    odata4.w -= idata4.w;
+    return odata4;
+}
+
+
+__global__ void prepareTopoInputsSerial(int nRH,
+                                  int* nEdges,
+                                  const int* pfrh_passTopoThresh,
+                                  const int* pfrh_neighbours,
+                                  int* pfrh_edgeId,
+                                  int* pfrh_edgeList) {
+
+    extern __shared__ int smem[];
+    int* sortingArray = smem;
+    int* nEdgeArray = (int*)&sortingArray[blockDim.x * 8];  // Number of edges after sorting
+    //int* nEdgeArraySummed = (int*)&nEdgeArray[blockDim.x];  // Cumulative sum of number of edges after sorting
+    //int* s_Data = (int*)&nEdgeArraySummed[blockDim.x];  // temp buffer of length 2*THREADBLOCK_SIZE
+    __shared__ int total;
+    
+    if (threadIdx.x == 0)
+    {
+        total = 0;
+        *nEdges = 0;
+    }
+    __syncthreads();
+
+    for (int pos = 0; pos < nRH; pos++) {
+        nEdgeArray[0] = 0;
+        for (int i = 0; i < 8; i++) {
+            sortingArray[i] = pfrh_neighbours[pos*8+i];
+        }
+        sortEight(sortingArray, nEdgeArray);
+        
+        for (unsigned p = 0; p < nEdgeArray[0]; p++) {
+            pfrh_edgeId[total + p] = pos;
+            pfrh_edgeList[total + p] = sortingArray[8 - nEdgeArray[0] + p];
+        }
+        total += nEdgeArray[0];
+    }
+    
+    *nEdges = total;
+    return;
+}
+
+
+// Kernel to fill pfrh_edgeId, pfrh_edgeList arrays used in topo clustering
+__global__ void prepareTopoInputs(int nRH,
+                                  int* nEdges,
+                                  const int* pfrh_passTopoThresh,
+                                  const int* pfrh_neighbours,
+                                  int* pfrh_edgeId,
+                                  int* pfrh_edgeList) {
+
+    extern __shared__ int smem[];
+    int* sortingArray = smem;   // Buffer to store neighbor lists
+    int* nEdgeArray = (int*)&sortingArray[blockDim.x * 8];  // Number of edges after sorting
+    int* nEdgeArraySummed = (int*)&nEdgeArray[blockDim.x];  // Cumulative sum of number of edges after sorting
+    int* s_Data = (int*)&nEdgeArraySummed[blockDim.x];  // Temp buffer of length 2*THREADBLOCK_SIZE
+    __shared__ int total, maxIter;
+    
+    if (threadIdx.x == 0)
+    {
+        total = 0;
+        maxIter = (nRH + blockDim.x - 1)/blockDim.x;    // Fast ceiling of nRH/blockDim.x
+    }
+    __syncthreads();
+
+    int pos = 0;
+    for (int iter = 0; iter < maxIter-1; iter++)
+    {
+        nEdgeArray[threadIdx.x] = 0;
+        nEdgeArraySummed[threadIdx.x] = 0;
+        if (threadIdx.x == 0) printf("\n--- Now on iter % d ---", iter);
+        __syncthreads();
+
+        pos = iter * blockDim.x * 8;
+        // Load values into shared mem using coalesced reads
+        sortingArray[                 threadIdx.x]      = pfrh_neighbours[pos +                  threadIdx.x];
+        sortingArray[    blockDim.x + threadIdx.x]      = pfrh_neighbours[pos +     blockDim.x + threadIdx.x];
+        sortingArray[2 * blockDim.x + threadIdx.x]      = pfrh_neighbours[pos + 2 * blockDim.x + threadIdx.x];
+        sortingArray[3 * blockDim.x + threadIdx.x]      = pfrh_neighbours[pos + 3 * blockDim.x + threadIdx.x];
+        sortingArray[4 * blockDim.x + threadIdx.x]      = pfrh_neighbours[pos + 4 * blockDim.x + threadIdx.x];
+        sortingArray[5 * blockDim.x + threadIdx.x]      = pfrh_neighbours[pos + 5 * blockDim.x + threadIdx.x];
+        sortingArray[6 * blockDim.x + threadIdx.x]      = pfrh_neighbours[pos + 6 * blockDim.x + threadIdx.x];
+        sortingArray[7 * blockDim.x + threadIdx.x]      = pfrh_neighbours[pos + 7 * blockDim.x + threadIdx.x];
+       
+        __syncthreads();
+//        if (threadIdx.x == 0) {
+//            printf("\nsortingArray:\n");
+//            for (int i = 0; i < blockDim.x; i++) {
+//                for (int j = 0; j < 8; j++)
+//                    printf("%d ", sortingArray[i * 8 + j]);
+//                printf("\n");
+//            }
+//            printf("\n");
+//        }
+
+        // Sort rechit neighbors 
+        sortEight(sortingArray+8*threadIdx.x, nEdgeArray+threadIdx.x);
+        
+//        if (threadIdx.x == 0) {
+//            printf("\nnEdgeArray:\n");
+//            for (int i = 0; i < blockDim.x; i++)
+//                printf("%d ", nEdgeArray[i]);
+//            printf("\n");
+//           
+//            printf("\nnEdgeArraySummed:\n");
+//            for (int i = 0; i < blockDim.x; i++)
+//                printf("%d ", nEdgeArraySummed[i]);
+//            printf("\n");
+//
+//            printf("\ns_Data:\n");
+//            for (int i = 0; i < 2 * blockDim.x; i++)
+//                printf("%d ", s_Data[i]);
+//            printf("\n\n");
+//        }
+        __syncthreads();
+
+        // Exclusive parallel scan to cumulatively sum number of neighbors for each rechit
+        // Used as offsets for filling edgeId, edgeList arrays
+        if (threadIdx.x < blockDim.x / 4)
+        {
+            int edgePos = threadIdx.x * 4;
+            //Load data
+            int4 idata4 = make_int4(nEdgeArray[edgePos], nEdgeArray[edgePos+1], nEdgeArray[edgePos+2], nEdgeArray[edgePos+3]);
+
+            //Calculate exclusive scan
+            int4 odata4 = scan4Exclusive(idata4, s_Data, blockDim.x);
+
+            //Write back
+            nEdgeArraySummed[edgePos  ] = odata4.x;
+            nEdgeArraySummed[edgePos+1] = odata4.y;
+            nEdgeArraySummed[edgePos+2] = odata4.z;
+            nEdgeArraySummed[edgePos+3] = odata4.w;
+        }
+        __syncthreads();     
+
+//        if (threadIdx.x == 0) {
+//            printf("\nsortingArray:\n");
+//            for (int i = 0; i < blockDim.x; i++) {
+//                for (int j = 0; j < 8; j++)
+//                    printf("%d ", sortingArray[i * 8 + j]);
+//                printf("\n");
+//            }
+//
+//            printf("\nnEdgeArray:\n");
+//            for (int i = 0; i < blockDim.x; i++)
+//                printf("%d ", nEdgeArray[i]);
+//            printf("\n");
+//
+//            printf("\nnEdgeArraySummed:\n");
+//            for (int i = 0; i < blockDim.x; i++)
+//                printf("%d ", nEdgeArraySummed[i]);
+//            printf("\n");
+//
+//            printf("\ns_Data:\n");
+//            for (int i = 0; i < 2 * blockDim.x; i++)
+//                printf("%d ", s_Data[i]);
+//            printf("\n\n");
+//        }
+//        __syncthreads();
+
+        // Fill edgeId, edgeList arrays
+        for (unsigned p = 0; p < nEdgeArray[threadIdx.x]; p++) {
+            pfrh_edgeId[total + nEdgeArraySummed[threadIdx.x] + p] = blockDim.x * iter + threadIdx.x;
+            pfrh_edgeList[total + nEdgeArraySummed[threadIdx.x] + p] = sortingArray[8 * threadIdx.x + 8 - nEdgeArray[threadIdx.x] + p];
+        }
+        __syncthreads();
+
+        // Add sum of edges to the total
+        if (threadIdx.x == 0) {
+            atomicAdd(&total, nEdgeArraySummed[blockDim.x - 1] + nEdgeArray[blockDim.x - 1]);
+//            printf("\nTotal: %d\n", total);
+//
+//            printf("\nedgeId:\n");
+//            for (int i = 0; i < total; i++)
+//                printf("%d ", edgeId[i]);
+//            printf("\n");
+//
+//            printf("\nedgeList:\n");
+//            for (int i = 0; i < total; i++)
+//                printf("%d ", edgeList[i]);
+//            printf("\n");
+
+            //printf("Total sum: %d\n", nEdgeArraySummed[blockDim.x - 1] + nEdgeArray[blockDim.x - 1]);
+        }
+        __syncthreads();
+    }
+    // Final iteration. Remaining rechits <= blockDim.x
+    int rhIdx = blockDim.x * (maxIter-1) + threadIdx.x;
+
+    nEdgeArray[threadIdx.x] = 0;
+    nEdgeArraySummed[threadIdx.x] = 0;
+    if (threadIdx.x == 0) printf("\n--- Now on iter %d (final) ---\n", maxIter-1);
+    __syncthreads();
+
+    pos = (maxIter - 1) * blockDim.x * 8;
+    if (rhIdx < nRH) {
+        //printf("Thread %d on rhIdx = %d\n", threadIdx.x, rhIdx);
+        // Load values into shared mem
+        sortingArray[8 * threadIdx.x]     = pfrh_neighbours[pos + 8 * threadIdx.x];
+        sortingArray[8 * threadIdx.x + 1] = pfrh_neighbours[pos + 8 * threadIdx.x + 1];
+        sortingArray[8 * threadIdx.x + 2] = pfrh_neighbours[pos + 8 * threadIdx.x + 2];
+        sortingArray[8 * threadIdx.x + 3] = pfrh_neighbours[pos + 8 * threadIdx.x + 3];
+        sortingArray[8 * threadIdx.x + 4] = pfrh_neighbours[pos + 8 * threadIdx.x + 4];
+        sortingArray[8 * threadIdx.x + 5] = pfrh_neighbours[pos + 8 * threadIdx.x + 5];
+        sortingArray[8 * threadIdx.x + 6] = pfrh_neighbours[pos + 8 * threadIdx.x + 6];
+        sortingArray[8 * threadIdx.x + 7] = pfrh_neighbours[pos + 8 * threadIdx.x + 7];
+    }
+    else {
+        //printf("Skipping thread %d (rhIdx = %d: out of bounds)\n", threadIdx.x, rhIdx);
+        // These threads exceed length of rechits
+        sortingArray[8 * threadIdx.x] = -1;
+        sortingArray[8 * threadIdx.x + 1] = -1;
+        sortingArray[8 * threadIdx.x + 2] = -1;
+        sortingArray[8 * threadIdx.x + 3] = -1;
+        sortingArray[8 * threadIdx.x + 4] = -1;
+        sortingArray[8 * threadIdx.x + 5] = -1;
+        sortingArray[8 * threadIdx.x + 6] = -1;
+        sortingArray[8 * threadIdx.x + 7] = -1;
+    }
+    __syncthreads();
+
+//    if (threadIdx.x == 0) {
+//        printf("\nsortingArray:\n");
+//        for (int i = 0; i < blockDim.x; i++) {
+//            for (int j = 0; j < 8; j++)
+//                printf("%d ", sortingArray[i * 8 + j]);
+//            printf("\n");
+//        }
+//        printf("\n");
+//    }
+
+    sortEight(sortingArray + 8 * threadIdx.x, nEdgeArray + threadIdx.x);
+
+//    if (threadIdx.x == 0) {
+//        printf("\nAfter sortEight, sortingArray:\n\n");
+//        for (int i = 0; i < (nRH - blockDim.x * (maxIter-1)); i++) {
+//            printf("rh %d:\t", i + blockDim.x * (maxIter-1));
+//            for (int j = 0; j < 8; j++) {
+//                if (j > 0) printf(", ");
+//                printf("%d", sortingArray[8*i + j]);
+//            }
+//            printf("\n");
+//        }
+//    }
+    __syncthreads();
+
+//    if (threadIdx.x == 0) {
+//        printf("\nnEdgeArray:\n");
+//        for (int i = 0; i < blockDim.x; i++)
+//            printf("%d ", nEdgeArray[i]);
+//        printf("\n");
+//
+//        printf("\nnEdgeArraySummed:\n");
+//        for (int i = 0; i < blockDim.x; i++)
+//            printf("%d ", nEdgeArraySummed[i]);
+//        printf("\n");
+//
+//        printf("\ns_Data:\n");
+//        for (int i = 0; i < 2 * blockDim.x; i++)
+//            printf("%d ", s_Data[i]);
+//        printf("\n\n");
+//    }
+//    __syncthreads();
+
+    if (threadIdx.x < blockDim.x / 4)
+    {
+        int edgePos = threadIdx.x * 4;
+        //Load data
+        int4 idata4 = make_int4(nEdgeArray[edgePos], nEdgeArray[edgePos + 1], nEdgeArray[edgePos + 2], nEdgeArray[edgePos + 3]);
+
+        //Calculate exclusive scan
+        int4 odata4 = scan4Exclusive(idata4, s_Data, blockDim.x);
+
+        //Write back
+        nEdgeArraySummed[edgePos] = odata4.x;
+        nEdgeArraySummed[edgePos + 1] = odata4.y;
+        nEdgeArraySummed[edgePos + 2] = odata4.z;
+        nEdgeArraySummed[edgePos + 3] = odata4.w;
+    }
+    __syncthreads();
+
+//    if (threadIdx.x == 0) {
+//        printf("\nsortingArray:\n");
+//        for (int i = 0; i < blockDim.x; i++) {
+//            for (int j = 0; j < 8; j++)
+//                printf("%d ", sortingArray[i * 8 + j]);
+//            printf("\n");
+//        }
+//
+//        printf("\nnEdgeArray:\n[");
+//        for (int i = 0; i < blockDim.x; i++) {
+//          if (i > 0) printf(", ");  
+//          printf("%d", nEdgeArray[i]);
+//        }
+//        printf("]\n\n");
+//
+//        printf("\nnEdgeArraySummed:\n");
+//        for (int i = 0; i < blockDim.x; i++)
+//            printf("%d ", nEdgeArraySummed[i]);
+//        printf("\n");
+//
+//        printf("\ns_Data:\n");
+//        for (int i = 0; i < 2 * blockDim.x; i++)
+//            printf("%d ", s_Data[i]);
+//        printf("\n\n");
+//    }
+//    __syncthreads();
+
+    // Fill edgeId, edgeList arrays
+    for (unsigned p = 0; p < nEdgeArray[threadIdx.x]; p++) {
+        pfrh_edgeId[total + nEdgeArraySummed[threadIdx.x] + p] = blockDim.x * (maxIter - 1) + threadIdx.x;
+        pfrh_edgeList[total + nEdgeArraySummed[threadIdx.x] + p] = sortingArray[8 * threadIdx.x + 8 - nEdgeArray[threadIdx.x] + p];
+    }
+    __syncthreads();
+
+    if (threadIdx.x == 0) {
+        atomicAdd(&total, nEdgeArraySummed[blockDim.x - 1] + nEdgeArray[blockDim.x - 1]);
+
+//        printf("\nnEdgeArray:\n[");
+//        for (int i = 0; i < blockDim.x; i++) {
+//          if (i > 0) printf(", ");  
+//          printf("%d", nEdgeArray[i]);
+//        }
+//        printf("]\n\n");
+//        
+//        printf("\nnEdgeArraySummed:\n[");
+//        for (int i = 0; i < blockDim.x; i++) {
+//          if (i > 0) printf(", ");  
+//          printf("%d", nEdgeArraySummed[i]);
+//        }
+//        printf("]\n\n");
+
+//        printf("\nTotal: %d\n", total);
+//
+//        printf("\nedgeId:\n");
+//        for (int i = 0; i < total; i++)
+//            printf("%d ", edgeId[i]);
+//        printf("\n");
+//
+//        printf("\nedgeList:\n");
+//        for (int i = 0; i < total; i++)
+//            printf("%d ", edgeList[i]);
+//        printf("\n");
+
+        //printf("Total sum: %d\n", nEdgeArraySummed[blockDim.x - 1] + nEdgeArray[blockDim.x - 1]);
+    }
+    __syncthreads();
+    
+    if (threadIdx.x == 0) *nEdges = total;
+}
+
+// Debugging kernel to compare CPU & GPU edge arrays
+__global__ void compareEdgeArrays(int* gpu_nEdges,
+                                  int* gpu_edgeId,
+                                  int* gpu_edgeList,
+                                  int  cpu_nEdges,
+                                  int* cpu_edgeId,
+                                  int* cpu_edgeList,
+                                  int  nRH,
+                                  int* pfrh_neighbours) {
+
+    printf("Now in compareEdgeArrays\n");
+
+//    printf("\n--- gpu_edgeId ---\n[");
+//    for (int i = 0; i < *gpu_nEdges; i++) {
+//        if (i > 0) printf(", ");
+//        printf("%d", gpu_edgeId[i]);
+//    }
+//    printf("]\n");
+//    
+//    printf("\n--- gpu_edgeList ---\n[");
+//    for (int i = 0; i < *gpu_nEdges; i++) {
+//        if (i > 0) printf(", ");
+//        printf("%d", gpu_edgeList[i]);
+//    }
+//    printf("]\n");
+//    
+//    printf("\n\n--- cpu_edgeId ---\n[");
+//    for (int i = 0; i < cpu_nEdges; i++) {
+//        if (i > 0) printf(", ");
+//        printf("%d", cpu_edgeId[i]);
+//    }
+//    printf("]\n");
+//    
+//    printf("\n--- cpu_edgeList ---\n[");
+//    for (int i = 0; i < cpu_nEdges; i++) {
+//        if (i > 0) printf(", ");
+//        printf("%d", cpu_edgeList[i]);
+//    }
+//    printf("]\n\n");
+//    
+//    printf("\n--- pfrh_neighbours ---\n[");
+//    for (int i = 0; i < nRH*8; i++) {
+//        if (i > 0) printf(", ");
+//        printf("%d", pfrh_neighbours[i]);
+//    }
+//    printf("]\n\n");
+    
+    
+    if (*gpu_nEdges != cpu_nEdges) {
+        printf("Different values of nEdges!\nGPU: %d\t\tCPU: %d\n", *gpu_nEdges, cpu_nEdges);
+    }
+    else {
+        int mismatches_edgeId = 0, mismatches_edgeList = 0;
+        for (int i = 0; i < cpu_nEdges; i++) {
+            if (cpu_edgeId[i] != gpu_edgeId[i]) {
+                printf("\tDifference in edgeId position %d:\tGPU: %d\t\tCPU: %d\n", i, gpu_edgeId[i], cpu_edgeId[i]);
+                mismatches_edgeId++;
+            }
+            if (cpu_edgeList[i] != gpu_edgeList[i]) {
+                printf("\tDifference in edgeList position %d:\tGPU: %d\t\tCPU: %d\n", i, gpu_edgeList[i], cpu_edgeList[i]);
+                mismatches_edgeList++;
+            }
+        }
+
+        if (mismatches_edgeId > 0) printf("Mismatches in edgeId: %d\n", mismatches_edgeId);
+            else printf("All values in edgeId match for GPU & CPU\n");
+        if (mismatches_edgeList > 0) printf("Mismatches in edgeList: %d\n", mismatches_edgeList);
+            else printf("All values in edgeList match for GPU & CPU\n");
+    }
+}
+
 
 __global__ void printRhfIndex(int* pfrh_topoId, int* topoRHCount, int* seedFracOffsets, int* pcrhfracind) {
     int seedIdx = 500;
@@ -3329,6 +4098,7 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
                 float (&timer)[8] ) {
    
     int nRH = inputPFRecHits.size;
+    //int nRH = 10;
     printf("Now in PFRechitToPFCluster_HCAL_entryPoint with nRH = %d\tnEdges = %d\n", nRH, nEdges);
     if (nRH < 1) return;
     cudaProfilerStart();
@@ -3339,6 +4109,9 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
     cudaEventCreate(&stop);
     cudaEventRecord(start, cudaStream);
 #endif
+
+    //cudaMemset(scratchGPU.pfrh_edgeId.get(), 0, sizeof(int)*16000);
+    //cudaMemset(scratchGPU.pfrh_edgeList.get(), 0, sizeof(int)*16000);
     
     // Combined seeding & topo clustering thresholds, array initialization
     
@@ -3362,30 +4135,56 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
         outputGPU.topoSeedList.get(),
         outputGPU.pfc_iter.get());
     
-    /*
-    seedingTopoThreshKernel_HCAL<<<(nRH+63)/64, 128, 0, cudaStream>>>(
-        nRH,
-        inputPFRecHits.pfrh_energy.get(),
-        inputPFRecHits.pfrh_pt2.get(),
-        outputGPU.pfrh_isSeed.get(),
-        outputGPU.pfrh_topoId.get(),
-        outputGPU.pfrh_passTopoThresh.get(),
-        inputPFRecHits.pfrh_layer.get(),
-        inputPFRecHits.pfrh_depth.get(),
-        inputGPU.pfNeighFourInd.get(),
-        scratchGPU.rhcount.get(),
-        outputGPU.topoSeedCount.get(),
-        outputGPU.topoRHCount.get(),
-        outputGPU.seedFracOffsets.get(),
-        outputGPU.topoSeedOffsets.get(),
-        outputGPU.topoSeedList.get(),
-        outputGPU.pfc_iter.get());
-    */
-
 #ifdef DEBUG_GPU_HCAL
     cudaEventRecord(stop, cudaStream);
     cudaEventSynchronize(stop);   
     cudaEventElapsedTime(&timer[0], start, stop);
+    cudaEventRecord(start, cudaStream);
+#endif
+
+//    prepareTopoInputsSerial<<<1, 1, 4 * (8+4) * sizeof(int), cudaStream>>>(
+//        nRH,
+//        outputGPU.nEdges.get(),
+//        outputGPU.pfrh_passTopoThresh.get(),
+//        inputPFRecHits.pfrh_neighbours.get(),
+//        scratchGPU.pfrh_edgeId.get(),
+//        scratchGPU.pfrh_edgeList.get());
+    
+    // Topo clustering
+    // Fill edgeId, edgeList arrays with rechit neighbors
+    // Has a bug when using more than 128 threads..
+    prepareTopoInputs<<<1, 128, 128 * (8+4) * sizeof(int), cudaStream>>>(
+        nRH,
+        outputGPU.nEdges.get(),
+        outputGPU.pfrh_passTopoThresh.get(),
+        inputPFRecHits.pfrh_neighbours.get(),
+        scratchGPU.pfrh_edgeId.get(),
+        scratchGPU.pfrh_edgeList.get());
+
+//    prepareTopoInputs<<<1, 256, 256 * (8+4) * sizeof(int), cudaStream>>>(
+//        nRH,
+//        outputGPU.nEdges.get(),
+//        outputGPU.pfrh_passTopoThresh.get(),
+//        inputPFRecHits.pfrh_neighbours.get(),
+//        scratchGPU.pfrh_edgeId.get(),
+//        scratchGPU.pfrh_edgeList.get());
+
+#ifdef DEBUG_GPU_HCAL
+    cudaEventRecord(stop, cudaStream);
+    cudaEventSynchronize(stop);   
+    cudaEventElapsedTime(&timer[4], start, stop);
+    printf("\nprepareTopoInputs took %f ms\n", timer[4]);
+
+    compareEdgeArrays<<<1,1,0,cudaStream>>>(
+        outputGPU.nEdges.get(),
+        scratchGPU.pfrh_edgeId.get(),
+        scratchGPU.pfrh_edgeList.get(),
+        nEdges,
+        inputGPU.pfrh_edgeId.get(),
+        inputGPU.pfrh_edgeList.get(),
+        nRH,
+        inputPFRecHits.pfrh_neighbours.get());
+    
     cudaEventRecord(start, cudaStream);
 #endif
 
@@ -3394,10 +4193,9 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
         nRH,
         nEdges,
         outputGPU.pfrh_topoId.get(),
-        inputGPU.pfrh_edgeId.get(),
-        inputGPU.pfrh_edgeList.get(),
+        scratchGPU.pfrh_edgeId.get(),
+        scratchGPU.pfrh_edgeList.get(),
         inputGPU.pfrh_edgeMask.get(),
-        //scratchGPU.pfrh_edgeMask.get(),
         outputGPU.pfrh_passTopoThresh.get(),
         outputGPU.topoIter.get());
 
@@ -3442,7 +4240,6 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
     cudaEventRecord(start, cudaStream);
 #endif
    
-    //hcalFastCluster_optimizedComplex<<<nRH, 256>>>( nRH, pfrh_x,  pfrh_y,  pfrh_z,  pfrh_energy, pfrh_topoId,  pfrh_isSeed,  pfrh_layer, pfrh_depth, neigh4_Ind, pcrhfrac, pcrhfracind, fracSum, rhCount, topoSeedCount, topoRHCount, seedFracOffsets, topoSeedOffsets, topoSeedList, pfc_pos, pfc_prevPos, pfc_energy, pfcIter);
     
     hcalFastCluster_selection<<<nRH, 256, 0, cudaStream>>>(
         nRH,
@@ -3454,7 +4251,7 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
         outputGPU.pfrh_isSeed.get(),
         inputPFRecHits.pfrh_layer.get(),
         inputPFRecHits.pfrh_depth.get(),
-        inputGPU.pfNeighFourInd.get(),
+        inputPFRecHits.pfrh_neighbours.get(),
         outputGPU.pcrh_frac.get(),
         outputGPU.pcrh_fracInd.get(),
         inputGPU.pcrh_fracSum.get(),
@@ -3469,32 +4266,6 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
         inputGPU.pfc_energy.get(),
         outputGPU.pfc_iter.get());
 
-    /*
-    hcalFastCluster_selection<<<nRH, 256, 0, cudaStream>>>(
-        nRH,
-        inputPFRecHits.pfrh_x.get(),
-        inputPFRecHits.pfrh_y.get(),
-        inputPFRecHits.pfrh_z.get(),
-        inputPFRecHits.pfrh_energy.get(),
-        outputGPU.pfrh_topoId.get(),
-        outputGPU.pfrh_isSeed.get(),
-        inputPFRecHits.pfrh_layer.get(),
-        inputPFRecHits.pfrh_depth.get(),
-        inputGPU.pfNeighFourInd.get(),
-        outputGPU.pcrh_frac.get(),
-        outputGPU.pcrh_fracInd.get(),
-        inputGPU.pcrh_fracSum.get(),
-        scratchGPU.rhcount.get(),
-        outputGPU.topoSeedCount.get(),
-        outputGPU.topoRHCount.get(),
-        outputGPU.seedFracOffsets.get(),
-        outputGPU.topoSeedOffsets.get(),
-        outputGPU.topoSeedList.get(),
-        inputGPU.pfc_pos4.get(),
-        inputGPU.pfc_prevPos4.get(),
-        inputGPU.pfc_energy.get(),
-        outputGPU.pfc_iter.get());
-     */
 
 #ifdef DEBUG_GPU_HCAL
     cudaEventRecord(stop, cudaStream);
@@ -3522,7 +4293,6 @@ void PFRechitToPFCluster_HCAL_CCLClustering(cudaStream_t cudaStream,
                 int* pfrh_edgeId,
                 int* pfrh_edgeList,
                 int* pfrh_edgeMask,
-                //bool* pfrh_passTopoThresh,
                 int* pfrh_passTopoThresh,
                 int* pcrhfracind,
 				float* pcrhfrac,

@@ -12,8 +12,8 @@
 #define DEBUG_ENABLE
 
 
-namespace pf {
-  namespace rechit {
+namespace PFRecHit {
+  namespace HCAL {
     
     __constant__ uint32_t nValidRHBarrel;
     __constant__ uint32_t nValidRHEndcap;

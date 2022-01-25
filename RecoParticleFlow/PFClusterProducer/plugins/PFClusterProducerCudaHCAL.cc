@@ -458,6 +458,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   
   int totalNeighbours = 0;     // Running count of 8 neighbour edges for edgeId, edgeList
   for (auto rh: *rechits){
+//    if (p >= 10) break;
     inputCPU.pfrh_x[p]=rh.position().x();
     inputCPU.pfrh_y[p]=rh.position().y();
     inputCPU.pfrh_z[p]=rh.position().z();
@@ -637,10 +638,10 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_isSeed.get()    , outputGPU.pfrh_isSeed.get()  , numbytes_int , cudaMemcpyDeviceToHost, cudaStream));
   cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_topoId.get()    , outputGPU.pfrh_topoId.get()  , numbytes_int , cudaMemcpyDeviceToHost, cudaStream));
 
-  std::cout<<"Now copying pfrh_passTopoThresh"<<std::endl;
+  //std::cout<<"Now copying pfrh_passTopoThresh"<<std::endl;
   //cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_passTopoThresh.get(), outputGPU.pfrh_passTopoThresh.get(), sizeof(bool)*rh_size, cudaMemcpyDeviceToHost, cudaStream));
   cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_passTopoThresh.get(), outputGPU.pfrh_passTopoThresh.get(), sizeof(int)*rh_size, cudaMemcpyDeviceToHost, cudaStream));
-  std::cout<<"Done copying pfrh_passTopoThresh"<<std::endl;
+  //std::cout<<"Done copying pfrh_passTopoThresh"<<std::endl;
 
 #ifdef DEBUG_GPU_HCAL
   cudaEventRecord(stop, cudaStream);

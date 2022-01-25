@@ -71,6 +71,6 @@ namespace pf {
     using CUDAHostAllocatorAlias = cms::cuda::HostAllocator<T>;
 
   }  // namespace common
-}  // namespace calo
+}  // namespace pf
 
 #endif  // CUDADataFormats_PFCommon_interface_Common_h
