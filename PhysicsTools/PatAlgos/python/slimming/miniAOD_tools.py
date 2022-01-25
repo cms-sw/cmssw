@@ -199,7 +199,6 @@ def miniAOD_customizeCommon(process):
 
     #  ==================  CHSMET 
     process.load("CommonTools.ParticleFlow.pfCHS_cff")
-    task.add(process.packedPrimaryVertexAssociationJME)
     task.add(process.pfCHS)
 
     from RecoMET.METProducers.pfMet_cfi import pfMet
