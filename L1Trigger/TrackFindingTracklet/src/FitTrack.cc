@@ -124,13 +124,15 @@ void FitTrack::trackFitKF(Tracklet* tracklet,
         stubidslist.push_back(std::make_pair(layer, it->phiregionaddress()));
       }
 
-      // And that's all we need! The rest is just for fitting (in PurgeDuplicate)
-      return;
-    }
+      // And that's all we need! The rest is just for track fit (done in PurgeDuplicate)
 
-    HybridFit hybridFitter(iSector_, settings_, globals_);
-    hybridFitter.Fit(tracklet, trackstublist);
-    return;
+    } else {
+
+      // Track fit only called here if not running duplicate removal 
+      // before fit. (e.g. If skipping duplicate removal).
+      HybridFit hybridFitter(iSector_, settings_, globals_);
+      hybridFitter.Fit(tracklet, trackstublist);
+    }
   }
 }
 #endif
@@ -889,8 +891,8 @@ void FitTrack::execute(unsigned int iSector) {
     indexArray[i] = 0;
   }
 
-  int countAll = 0;
-  int countFit = 0;
+  unsigned int countAll = 0;
+  unsigned int countFit = 0;
 
   Tracklet* bestTracklet = nullptr;
   do {
@@ -989,6 +991,7 @@ void FitTrack::execute(unsigned int iSector) {
 
     std::vector<const Stub*> trackstublist;
     std::vector<std::pair<int, int>> stubidslist;
+    // Track Builder cut of >= 4 layers with stubs.
     if ((bestTracklet->getISeed() >= (int)N_SEED_PROMPT && nMatchesUniq >= 1) ||
         nMatchesUniq >= 2) {  //For seeds index >=8 (triplet seeds), there are three stubs associated from start.
       countFit++;
@@ -1021,7 +1024,7 @@ void FitTrack::execute(unsigned int iSector) {
       }
     }
 
-  } while (bestTracklet != nullptr);
+  } while (bestTracklet != nullptr && countAll < settings_.maxStep("TB"));
 
   if (settings_.writeMonitorData("FT")) {
     globals_->ofstream("fittrack.txt") << getName() << " " << countAll << " " << countFit << endl;

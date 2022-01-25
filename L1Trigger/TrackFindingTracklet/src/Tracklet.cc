@@ -735,9 +735,12 @@ std::string Tracklet::trackfitstr() const {
   return oss;
 }
 
+// Create a Track object from stubs & digitized track helix params
+
 Track Tracklet::makeTrack(const vector<const L1TStub*>& l1stubs) {
   assert(fit());
 
+  // Digitized track helix params
   TrackPars<int> ipars(fpgafitpars_.rinv().value(),
                        fpgafitpars_.phi0().value(),
                        fpgafitpars_.d0().value(),

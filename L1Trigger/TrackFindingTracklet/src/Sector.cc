@@ -410,12 +410,17 @@ void Sector::executeMP() {
   }
 }
 
+// Order here reflects Tracklet algo that calls FitTrack before PurgeDuplicates.
+// If using Hybrid, then PurgeDuplicates runs both duplicate removal & KF steps.
+// (unless duplicate removal disabled, in which case FitTrack runs KF).
+
 void Sector::executeFT() {
   for (auto& i : FT_) {
     i->execute(isector_);
   }
 }
 
+// Returns tracks reconstructed by L1 track chain.
 void Sector::executePD(std::vector<Track>& tracks) {
   for (auto& i : PD_) {
     i->execute(tracks, isector_);
