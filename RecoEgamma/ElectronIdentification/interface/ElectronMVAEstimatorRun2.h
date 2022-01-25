@@ -1,22 +1,38 @@
 #ifndef RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2_H
 #define RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2_H
 
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
-#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
-#include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/ThreadSafeFunctor.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
+#include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
+#include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "CommonTools/Egamma/interface/ConversionTools.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
+// Note on Python/FWLite support:
+//
+// The ElectronMVAEstimatorRun2 is not only used in the full CMSSW framework
+// via the AnyMVAEstimatorRun2Factory, but it is intended to also be used
+// standalone in Python/FWLite. However, we want to avoid building dictionaries
+// for the ElectronMVAEstimatorRun2 in this ElectronIdentification package,
+// becase algorithms and data formats should not mix in CMSSW.
+// That's why it has to be possible to create the dictionaries on the fly, for
+// example by running this line in a Python script:
+//
+// ```Python
+// ROOT.gInterpreter.Declare('#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2.h"')
+// ```
+//
+// To speed up the dictionary generation and avoid errors caused by conflicting
+// C++ modules, we try to forwar declare as much as possible in
+// ElectronMVAEstimatorRun2.h and AnyMVAEstimatorRun2Base.h.
+
+namespace reco {
+  class GsfElectron;
+}
 
 class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
 public:
-  // Constructor and destructor
+  // Constructor
   ElectronMVAEstimatorRun2(const edm::ParameterSet& conf);
-  ~ElectronMVAEstimatorRun2() override{};
   // For use with FWLite/Python
   ElectronMVAEstimatorRun2(const std::string& mvaTag,
                            const std::string& mvaName,
