@@ -87,9 +87,9 @@ particleFlowTmp.muons = "hiMuons1stStep"
 particleFlowTmp.usePFConversions = False
 
 pfNoPileUpIso.enable = False
-pfPileUpIso.Enable = False
+pfPileUpIso.enable = False
 pfNoPileUp.enable = False
-pfPileUp.Enable = False
+pfPileUp.enable = False
 particleFlow.Muons = "muons:hiMuons1stStep2muonsMap"
 
 

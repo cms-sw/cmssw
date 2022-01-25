@@ -282,10 +282,8 @@ class RecoJetAdder(object):
         # CHS
         #
         elif recoJetInfo.jetPUMethod == "chs":
-          from CommonTools.ParticleFlow.pfCHS_cff import pfCHS, packedPrimaryVertexAssociationJME
-          self.addProcessAndTask(proc, "packedPrimaryVertexAssociationJME", packedPrimaryVertexAssociationJME.clone())
-          self.prerequisites.append("packedPrimaryVertexAssociationJME")
-          self.addProcessAndTask(proc, pfCand, pfCHS.clone())
+          self.addProcessAndTask(proc, pfCand, pfCHS.clone(
+	      src = self.pfLabel))
           self.prerequisites.append(pfCand)
         #
         # PUPPI
