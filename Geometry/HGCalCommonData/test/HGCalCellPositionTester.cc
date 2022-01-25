@@ -35,7 +35,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "Geometry/HGCalCommonData/interface/HGCalWafer.h"
+#include "Geometry/HGCalCommonData/interface/HGCalCell.h"
 
 class HGCalCellPositionTester : public edm::one::EDAnalyzer<> {
 public:
@@ -56,7 +56,7 @@ private:
 HGCalCellPositionTester::HGCalCellPositionTester(const edm::ParameterSet& iC)
     : waferSize_(iC.getParameter<double>("waferSize")),
       waferType_(iC.getParameter<int>("waferType")),
-      placeIndex_(iC.getParameter<int>("waferPlacementIndex")) {
+      placeIndex_(iC.getParameter<int>("cellPlacementIndex")) {
   edm::LogVerbatim("HGCalGeom") << "Test positions for wafer of size " << waferSize_ << " Type " << waferType_
                                 << " Placement Index " << placeIndex_;
 }
@@ -65,7 +65,7 @@ void HGCalCellPositionTester::fillDescriptions(edm::ConfigurationDescriptions& d
   edm::ParameterSetDescription desc;
   desc.add<double>("waferSize", 166.4408);
   desc.add<int>("waferType", 0);
-  desc.add<int>("waferPlacementIndex", 7);
+  desc.add<int>("cellPlacementIndex", 7);
   descriptions.add("hgcalCellPositionTester", desc);
 }
 
@@ -73,7 +73,7 @@ void HGCalCellPositionTester::fillDescriptions(edm::ConfigurationDescriptions& d
 void HGCalCellPositionTester::analyze(const edm::Event&, const edm::EventSetup&) {
   const int nFine(12), nCoarse(8);
   const double tol(0.00001);
-  HGCalWafer wafer(waferSize_, nFine, nCoarse);
+  HGCalCell wafer(waferSize_, nFine, nCoarse);
   int nCells = (waferType_ == 0) ? nFine : nCoarse;
   int indexMin = (placeIndex_ >= 0) ? placeIndex_ : 0;
   int indexMax = (placeIndex_ >= 0) ? placeIndex_ : 11;
@@ -83,13 +83,13 @@ void HGCalCellPositionTester::analyze(const edm::Event&, const edm::EventSetup&)
     for (int iu = 0; iu < 2 * nCells; ++iu) {
       for (int iv = 0; iv < 2 * nCells; ++iv) {
         int u(iu), v(iv);
-        if (placeIndex < HGCalWafer::waferPlacementExtra) {
+        if (placeIndex < HGCalCell::cellPlacementExtra) {
           u = iv;
           v = iu;
         }
         if (((v - u) < nCells) && ((u - v) <= nCells)) {
-          std::pair<double, double> xy1 = wafer.HGCalWaferUV2XY1(u, v, placeIndex, waferType_);
-          std::pair<double, double> xy2 = wafer.HGCalWaferUV2XY2(u, v, placeIndex, waferType_);
+          std::pair<double, double> xy1 = wafer.HGCalCellUV2XY1(u, v, placeIndex, waferType_);
+          std::pair<double, double> xy2 = wafer.HGCalCellUV2XY2(u, v, placeIndex, waferType_);
           double dx = xy1.first - xy2.first;
           double dy = xy1.second - xy2.second;
           std::string comment = ((std::abs(dx) > tol) || (std::abs(dy) > tol)) ? " ***** ERROR *****" : "";
