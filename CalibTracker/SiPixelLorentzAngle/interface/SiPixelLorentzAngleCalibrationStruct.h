@@ -12,6 +12,7 @@ public:
 
   int nlay;
   std::vector<int> nModules_;
+  std::vector<int> nLadders_;
   std::vector<std::string> BPixnewmodulename_;
   std::vector<unsigned int> BPixnewDetIds_;
   std::vector<int> BPixnewModule_;
@@ -43,6 +44,9 @@ public:
   dqm::reco::MonitorElement* h_bySectLA_;
   dqm::reco::MonitorElement* h_bySectDeltaLA_;
   dqm::reco::MonitorElement* h_bySectChi2_;
+
+  // ouput LA maps
+  std::vector<dqm::reco::MonitorElement*> h2_byLayerLA_;
 };
 
 #endif
