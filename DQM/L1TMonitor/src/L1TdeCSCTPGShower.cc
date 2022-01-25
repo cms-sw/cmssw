@@ -22,12 +22,12 @@ void L1TdeCSCTPGShower::bookHistograms(DQMStore::IBooker& iBooker, const edm::Ru
       iBooker.book2D("lct_cscshower_data_nom_summary_denom", "Data LCT Nominal Shower All", 36, 1, 37, 18, 0, 18);
   lctShowerDataNomSummary_num_ = iBooker.book2D(
       "lct_cscshower_data_nom_summary_num", "Data LCT Nominal Shower Emul Matched", 36, 1, 37, 18, 0, 18);
-  alctShowerDataNomSummary_denom_ = iBooker.book2D(
-      "alct_cscshower_data_nom_summary_denom", "Data ALCT Nominal Shower All", 36, 1, 37, 18, 0, 18);
+  alctShowerDataNomSummary_denom_ =
+      iBooker.book2D("alct_cscshower_data_nom_summary_denom", "Data ALCT Nominal Shower All", 36, 1, 37, 18, 0, 18);
   alctShowerDataNomSummary_num_ = iBooker.book2D(
       "alct_cscshower_data_nom_summary_num", "Data ALCT Nominal Shower Emul Matched", 36, 1, 37, 18, 0, 18);
-  clctShowerDataNomSummary_denom_ = iBooker.book2D(
-      "clct_cscshower_data_nom_summary_denom", "Data CLCT Nominal Shower All", 36, 1, 37, 18, 0, 18);
+  clctShowerDataNomSummary_denom_ =
+      iBooker.book2D("clct_cscshower_data_nom_summary_denom", "Data CLCT Nominal Shower All", 36, 1, 37, 18, 0, 18);
   clctShowerDataNomSummary_num_ = iBooker.book2D(
       "clct_cscshower_data_nom_summary_num", "Data CLCT Nominal Shower Emul Matched", 36, 1, 37, 18, 0, 18);
 
@@ -35,12 +35,12 @@ void L1TdeCSCTPGShower::bookHistograms(DQMStore::IBooker& iBooker, const edm::Ru
       iBooker.book2D("lct_cscshower_emul_nom_summary_denom", "Emul LCT Nominal Shower All", 36, 1, 37, 18, 0, 18);
   lctShowerEmulNomSummary_num_ = iBooker.book2D(
       "lct_cscshower_emul_nom_summary_num", "Emul LCT Nominal Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
-  alctShowerEmulNomSummary_denom_ = iBooker.book2D(
-      "alct_cscshower_emul_nom_summary_denom", "Emul ALCT Nominal Shower All", 36, 1, 37, 18, 0, 18);
+  alctShowerEmulNomSummary_denom_ =
+      iBooker.book2D("alct_cscshower_emul_nom_summary_denom", "Emul ALCT Nominal Shower All", 36, 1, 37, 18, 0, 18);
   alctShowerEmulNomSummary_num_ = iBooker.book2D(
       "alct_cscshower_emul_nom_summary_num", "Emul ALCT Nominal Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
-  clctShowerEmulNomSummary_denom_ = iBooker.book2D(
-      "clct_cscshower_emul_nom_summary_denom", "Emul CLCT Nominal Shower All", 36, 1, 37, 18, 0, 18);
+  clctShowerEmulNomSummary_denom_ =
+      iBooker.book2D("clct_cscshower_emul_nom_summary_denom", "Emul CLCT Nominal Shower All", 36, 1, 37, 18, 0, 18);
   clctShowerEmulNomSummary_num_ = iBooker.book2D(
       "clct_cscshower_emul_nom_summary_num", "Emul CLCT Nominal Shower Not Matched to Data", 36, 1, 37, 18, 0, 18);
 
