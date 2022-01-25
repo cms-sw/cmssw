@@ -298,6 +298,7 @@ namespace trklet {
     double phicritminmc() const { return phicritmin() - dphicritmc_; }
     double phicritmaxmc() const { return phicritmax() + dphicritmc_; }
 
+    // Stub digitization granularities
     double kphi() const { return dphisectorHG() / (1 << nphibitsstub(0)); }
     double kphi1() const { return dphisectorHG() / (1 << nphibitsstub(N_LAYER - 1)); }
     double kphi(unsigned int layerdisk) const { return dphisectorHG() / (1 << nphibitsstub(layerdisk)); }
@@ -383,6 +384,7 @@ namespace trklet {
     int chisqphifactbits() const { return chisqphifactbits_; }
     int chisqzfactbits() const { return chisqzfactbits_; }
 
+    // Helix param digisation granularities
     //0.02 here is the maximum range in rinv values that can be represented
     double krinvpars() const {
       int shift = ceil(-log2(0.02 * rmaxdisk_ / ((1 << nbitsrinv_) * dphisectorHG())));
@@ -775,6 +777,7 @@ namespace trklet {
                                                            {"PR", 108},
                                                            {"ME", 108},
                                                            {"MC", 105},
+                                                           {"TB", 108},
                                                            {"MP", 108},
                                                            {"TP", 108},
                                                            {"TRE", 108}};

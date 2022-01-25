@@ -17,8 +17,9 @@ namespace trklet {
 
   class Track {
   public:
-    Track(TrackPars<int> ipars,
-          int ichisqrphi,
+    // Create track from digitized helix params & stubs
+    Track(TrackPars<int> ipars, // digi helix
+          int ichisqrphi, // digi chi2
           int ichisqrz,
           double chisqrphi,
           double chisqrz,
@@ -54,6 +55,7 @@ namespace trklet {
       return (settings.c() * settings.bfield() * 0.01) / (ipars_.rinv() * settings.krinvpars());
     }
 
+    // Get floating point helix params by undigitized digi helix params
     double phi0(Settings const& settings) const;
 
     double eta(Settings const& settings) const { return asinh(ipars_.t() * settings.ktpars()); }
