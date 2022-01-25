@@ -113,9 +113,11 @@ def filesFromList(fileName,s=None):
         elif (line.find(".root")!=-1):
             entry=line.replace("\n","")
             prim.append(entry)
-    # remove any duplicates
-    prim = sorted(list(set(prim)))
-    sec = sorted(list(set(sec)))
+    # remove any duplicates but keep the order
+    file_seen = set()
+    prim = [f for f in prim if not (f in file_seen or file_seen.add(f))]
+    file_seen = set()
+    sec = [f for f in sec if not (f in file_seen or file_seen.add(f))]
     if s:
         if not hasattr(s,"fileNames"):
             s.fileNames=cms.untracked.vstring(prim)
