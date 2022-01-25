@@ -54,18 +54,18 @@ private:
 };
 
 HGCalCellPositionTester::HGCalCellPositionTester(const edm::ParameterSet& iC)
-    : waferSize_(iC.getParameter<double>("WaferSize")),
-      waferType_(iC.getParameter<int>("WaferType")),
-      placeIndex_(iC.getParameter<int>("WaferPlacementIndex")) {
+    : waferSize_(iC.getParameter<double>("waferSize")),
+      waferType_(iC.getParameter<int>("waferType")),
+      placeIndex_(iC.getParameter<int>("waferPlacementIndex")) {
   edm::LogVerbatim("HGCalGeom") << "Test positions for wafer of size " << waferSize_ << " Type " << waferType_
                                 << " Placement Index " << placeIndex_;
 }
 
 void HGCalCellPositionTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<double>("WaferSize", 166.4408);
-  desc.add<int>("WaferType", 0);
-  desc.add<int>("WaferPlacementIndex", 7);
+  desc.add<double>("waferSize", 166.4408);
+  desc.add<int>("waferType", 0);
+  desc.add<int>("waferPlacementIndex", 7);
   descriptions.add("hgcalCellPositionTester", desc);
 }
 
@@ -83,7 +83,7 @@ void HGCalCellPositionTester::analyze(const edm::Event&, const edm::EventSetup&)
     for (int iu = 0; iu < 2 * nCells; ++iu) {
       for (int iv = 0; iv < 2 * nCells; ++iv) {
         int u(iu), v(iv);
-        if (placeIndex < HGCalWafer::WaferPlacementExtra) {
+        if (placeIndex < HGCalWafer::waferPlacementExtra) {
           u = iv;
           v = iu;
         }
