@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
+#include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Factory.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
 #include "DataFormats/Common/interface/Handle.h"
