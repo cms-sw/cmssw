@@ -25,7 +25,9 @@ muonsFromCosmics = RecoMuon.MuonIdentification.muons1stStep_cfi.muons1stStep.clo
     TimingFillerParameters = dict(
 	MatchParameters = dict(DTsegments = 'dt4DCosmicSegments'),
 	DTTimingParameters = dict(PruneCut = 9999),
-	CSCTimingParameters = dict(PruneCut = 9999))
+	CSCTimingParameters = dict(PruneCut = 9999)),
+    selectHighPurity = False,
+    minPt = 0.5
 )
 
 #add regional cosmic tracks here
@@ -56,7 +58,9 @@ muonsFromCosmics1Leg = muons1stStep.clone(
     TimingFillerParameters = dict(
         MatchParameters = dict(DTsegments = 'dt4DCosmicSegments'),
         DTTimingParameters = dict(PruneCut = 9999),
-        CSCTimingParameters = dict(PruneCut = 9999))
+        CSCTimingParameters = dict(PruneCut = 9999)),
+    selectHighPurity = False,
+    minPt = 0.5
 )
 
 muoncosmicreco1legSTATask = cms.Task(CosmicMuonSeed,cosmicMuons1Leg)
@@ -84,6 +88,3 @@ phase2_tracker.toModify(muonReducedTrackExtras, outputClusters = False)
 
 muonshighlevelrecoTask = cms.Task(muonPFIsolationTask,muons,muonReducedTrackExtras)
 muonshighlevelreco = cms.Sequence(muonshighlevelrecoTask)
-
-from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toModify(muons1stStep, minPt = 0.8, selectHighPurity = True)
