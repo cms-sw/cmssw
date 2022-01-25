@@ -121,7 +121,7 @@ void RPCConeBuilder::buildCones(RPCGeometry const* rpcGeom,
     it.second.fillWithVirtualStrips();
   }
 
-  // Xcheck, if rings are symettrical
+  // Xcheck, if rings are symmetrical
   for (auto& it : ringsMap) {
     int key = it.first;
     int sign = key / 100 - (key / 1000) * 10;
@@ -132,11 +132,17 @@ void RPCConeBuilder::buildCones(RPCGeometry const* rpcGeom,
       key -= 100;
     }
 
+    // Check if the geometry has a complete ring:
+    // in the case of demo chambers, the ring is not filled because only 2 sectors are added,
+    // so this check fails.
+    // Below part commented as a temporary solution as agreed with the L1 RPC team.
+    /*
     if (key != 2000) {  // Hey 2100 has no counterring
       if (it.second.size() != ringsMap[key].size()) {
         throw cms::Exception("RPCInternal") << " Size differs for ring " << key << " +- 100 \n";
       }
     }
+    */
   }
   buildConnections(l1RPCConeDefinition, ringsMap);
 }
