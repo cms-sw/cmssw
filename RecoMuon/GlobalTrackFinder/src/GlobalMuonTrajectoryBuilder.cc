@@ -158,6 +158,10 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
   for (unsigned int position = 0; position != allTrackerTracks->size(); ++position) {
     reco::TrackRef tkTrackRef(allTrackerTracks, position);
     TrackCand tkCand = TrackCand((Trajectory*)nullptr, tkTrackRef);
+    if(selectHighPurity_ && !tkTrackRef->quality(reco::TrackBase::highPurity)) {
+      const reco::VertexCollection *recoVertices = vertexCollection.product();
+      if(!(*recoVertices)[0].isFake()) continue;
+    }
     tkTrackCands.push_back(tkCand);
   }
 
