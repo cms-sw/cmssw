@@ -473,8 +473,8 @@ void StallMonitor::postBeginJob() {
   }
   // Don't need the labels anymore--info. is now part of the
   // module-statistics objects.
-  moduleLabels_.clear();
-  esModuleLabels_.clear();
+  decltype(moduleLabels_)().swap(moduleLabels_);
+  decltype(esModuleLabels_)().swap(esModuleLabels_);
 
   beginTime_ = now();
 }
