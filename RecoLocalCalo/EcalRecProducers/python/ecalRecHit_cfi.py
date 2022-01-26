@@ -98,12 +98,12 @@ fastSim.toModify(ecalRecHit,
 # Phase 2 modifications
 from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 phase2_ecal_devel.toModify(ecalRecHit,
-    EBuncalibRecHitCollection = cms.InputTag("ecalUncalibRecHitPhase2", "EcalUncalibRecHitsEB"),
-    EEuncalibRecHitCollection = cms.InputTag(""),  # No EE input since there is no ECAL endcap in Phase 2
-    killDeadChannels = cms.bool(False),
-    recoverEBFE = cms.bool(False),
-    recoverEEFE = cms.bool(False),
-    recoverEBIsolatedChannels = cms.bool(False),
-    recoverEEIsolatedChannels = cms.bool(False)
+    EBuncalibRecHitCollection = "ecalUncalibRecHitPhase2:EcalUncalibRecHitsEB",
+    EEuncalibRecHitCollection = "",  # No EE input since there is no ECAL endcap in Phase 2
+    killDeadChannels = False,
+    recoverEBFE = False,
+    recoverEEFE = False,
+    recoverEBIsolatedChannels = False,
+    recoverEEIsolatedChannels = False
 )
 
