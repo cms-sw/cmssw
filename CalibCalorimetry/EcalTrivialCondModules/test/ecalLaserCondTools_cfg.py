@@ -112,7 +112,8 @@ if options.mode in [ 'hdf_file_to_db', 'ascii_file_to_db']:
                                               toPut = cms.VPSet(cms.PSet(
                                                 record = cms.string('EcalLaserAPDPNRatiosRcd'),
                                                 tag = cms.string(options.tag),
-                                                timetype = cms.untracked.string('timestamp')
+                                                timetype = cms.untracked.string('runnumber')
+                                                # timetype = cms.untracked.string('timestamp')
                                               )))
 
 if options.mode in ['db_to_ascii_file']:
