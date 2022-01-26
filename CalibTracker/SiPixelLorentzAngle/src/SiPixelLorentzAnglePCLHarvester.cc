@@ -314,7 +314,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
 
   // book histogram of differences
   MonitorElement* h_diffLA = iBooker.book1D(
-      "h_diffLA", "difference in #mu_{H}; #Delta #mu_{H}/#mu_{H} (old-new)/old [%];n. modules", 100, -3., 3.);
+      "h_diffLA", "difference in #mu_{H}; #Delta #mu_{H}/#mu_{H} (old-new)/old [%];n. modules", 100, -150, 150);
 
   // retrieve the number of bins from the other monitoring histogram
   const auto& maxSect = hists.h_bySectOccupancy_->getNbinsX();
@@ -483,7 +483,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   for (const auto& id : newLADets) {
     float deltaMuHoverMuH = (currentLorentzAngle->getLorentzAngle(id) - LorentzAngle->getLorentzAngle(id)) /
                             currentLorentzAngle->getLorentzAngle(id);
-    h_diffLA->Fill(deltaMuHoverMuH);
+    h_diffLA->Fill(deltaMuHoverMuH * 100.f);
   }
 
   // fill the 2D output Lorentz Angle maps
