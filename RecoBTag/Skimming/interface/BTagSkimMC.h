@@ -1,7 +1,7 @@
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class BTagSkimMC : public edm::EDFilter {
+class BTagSkimMC : public edm::one::EDFilter<> {
 public:
   /// constructor
   BTagSkimMC(const edm::ParameterSet&);
