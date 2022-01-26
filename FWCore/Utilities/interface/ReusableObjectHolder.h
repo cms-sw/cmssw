@@ -113,7 +113,12 @@ namespace edm {
       if (m_availableQueue.try_pop(item)) {
         return wrapCustomDeleter(std::move(item));
       } else {
-        return std::shared_ptr<T>{};
+        //try a second time as try_pop can have a false failure
+        if (m_availableQueue.try_pop(item)) {
+          return wrapCustomDeleter(std::move(item));
+        } else {
+          return std::shared_ptr<T>{};
+        }
       }
     }
 
@@ -124,7 +129,12 @@ namespace edm {
       if (m_availableQueue.try_pop(item)) {
         return wrapCustomDeleter(std::move(item));
       } else {
-        return wrapCustomDeleter(makeUnique(iMakeFunc()));
+        //try a second time as try_pop can have a false failure
+        if (m_availableQueue.try_pop(item)) {
+          return wrapCustomDeleter(std::move(item));
+        } else {
+          return wrapCustomDeleter(makeUnique(iMakeFunc()));
+        }
       }
     }
 
