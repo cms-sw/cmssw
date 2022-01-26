@@ -134,7 +134,7 @@ bool l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonShower(
 void l1t::RegionalMuonRawDigiTranslator::generatePackedShowerPayload(const RegionalMuonShower& shower,
                                                                      std::array<uint32_t, 6>& payload,
                                                                      const bool useEmtfShowers) {
-  if (!useEmtfShowers) {
+  if (!useEmtfShowers || !shower.isValid()) {
     return;
   }
   // First we check whether we're going to overwrite something in the payload.
