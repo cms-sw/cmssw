@@ -76,12 +76,13 @@ void l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& 
     mu.setTrackSubAddress(RegionalMuonCand::kME3Ch, (rawTrackAddress >> emtfTrAddrMe3ChShift_) & emtfTrAddrMe3ChMask_);
     mu.setTrackSubAddress(RegionalMuonCand::kME4Seg, (rawTrackAddress >> emtfTrAddrMe4SegShift_) & 0x1);
     mu.setTrackSubAddress(RegionalMuonCand::kME4Ch, (rawTrackAddress >> emtfTrAddrMe4ChShift_) & emtfTrAddrMe4ChMask_);
-    mu.setTrackSubAddress(RegionalMuonCand::kTrkNum,
-                          (rawTrackAddress >> emtfTrAddrTrkNumShift_) & emtfTrAddrTrkNumMask_);
-    mu.setTrackSubAddress(RegionalMuonCand::kBX, (rawTrackAddress >> emtfTrAddrBxShift_) & emtfTrAddrBxMask_);
     if (useEmtfDisplacementInfo) {  // In Run-3 we receive displaced muon information from EMTF
       mu.setHwPtUnconstrained((raw_data_32_63 >> emtfPtUnconstrainedShift_) & ptUnconstrainedMask_);
       mu.setHwDXY((raw_data_32_63 >> emtfDxyShift_) & dxyMask_);
+    } else {
+      mu.setTrackSubAddress(RegionalMuonCand::kTrkNum,
+                            (rawTrackAddress >> emtfTrAddrTrkNumShift_) & emtfTrAddrTrkNumMask_);
+      mu.setTrackSubAddress(RegionalMuonCand::kBX, (rawTrackAddress >> emtfTrAddrBxShift_) & emtfTrAddrBxMask_);
     }
   } else if (tf == omtf_neg || tf == omtf_pos) {
     mu.setTrackSubAddress(RegionalMuonCand::kLayers,
@@ -142,7 +143,8 @@ void l1t::RegionalMuonRawDigiTranslator::generatePackedShowerPayload(const Regio
       (((payload.at(emtfShowerOOTFrame_) >> emtfShowerOneNominalShift_) & emtfShowerMask_) != 0) ||
       (((payload.at(emtfShowerOOTFrame_) >> emtfShowerOneTightShift_) & emtfShowerMask_) != 0)) {
     edm::LogError("L1T") << "Check constants for RegionalMuonShower fields! It looks like we're in danger of "
-                            "overwriting muon data in the packer!";
+                            "overwriting muon data in the packer! InTimeFrame is "
+                         << payload.at(emtfShowerInTimeFrame_) << ", OOTFrame is " << payload.at(emtfShowerOOTFrame_);
     return;
   }
   payload.at(emtfShowerInTimeFrame_) |= (shower.isOneNominalInTime() & 1) << emtfShowerOneNominalShift_ |
@@ -234,9 +236,7 @@ int l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(const RegionalMuon
                    (mu.trackSubAddress(RegionalMuonCand::kME3Seg) & 0x1) << emtfTrAddrMe3SegShift_ |
                    (mu.trackSubAddress(RegionalMuonCand::kME3Ch) & emtfTrAddrMe3ChMask_) << emtfTrAddrMe3ChShift_ |
                    (mu.trackSubAddress(RegionalMuonCand::kME4Seg) & 0x1) << emtfTrAddrMe4SegShift_ |
-                   (mu.trackSubAddress(RegionalMuonCand::kME4Ch) & emtfTrAddrMe4ChMask_) << emtfTrAddrMe4ChShift_ |
-                   (mu.trackSubAddress(RegionalMuonCand::kTrkNum) & emtfTrAddrTrkNumMask_) << emtfTrAddrTrkNumShift_ |
-                   (mu.trackSubAddress(RegionalMuonCand::kBX) & emtfTrAddrBxMask_) << emtfTrAddrBxShift_;
+                   (mu.trackSubAddress(RegionalMuonCand::kME4Ch) & emtfTrAddrMe4ChMask_) << emtfTrAddrMe4ChShift_;
 
     } else {
       edm::LogWarning("L1T") << "EMTF muon track address map contains " << mu.trackAddress().size()
