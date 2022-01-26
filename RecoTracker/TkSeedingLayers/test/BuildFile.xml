@@ -2,6 +2,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="TrackingTools/TransientTrackingRecHit"/>
+<bin file="SeedingHitSet_t.cpp"/>
 <library file="*.cc" name="RecoTrackerTkSeedingLayersTests">
   <flags EDM_PLUGIN="1"/>
 </library>

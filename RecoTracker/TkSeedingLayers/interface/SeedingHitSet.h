@@ -17,19 +17,27 @@ public:
 
   SeedingHitSet() = default;
 
-  SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two) : theRecHits({one, two}) { setSize(); }
+  SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two) : SeedingHitSet({one, two}) {}
 
   SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two, ConstRecHitPointer three)
-      : theRecHits({one, two, three}) {
-    setSize();
-  }
+      : SeedingHitSet({one, two, three}) {}
 
   SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two, ConstRecHitPointer three, ConstRecHitPointer four)
-      : theRecHits({one, two, three, four}) {
-    setSize();
+      : SeedingHitSet({one, two, three, four}) {}
+
+  SeedingHitSet(const std::vector<ConstRecHitPointer> &hits) {
+    theRecHits.reserve(hits.size());
+    std::copy_n(
+        hits.begin(), std::find(hits.begin(), hits.end(), nullPtr()) - hits.begin(), std::back_inserter(theRecHits));
+    theSize = theRecHits.size() > 1 ? theRecHits.size() : 0;
   }
 
-  SeedingHitSet(const std::vector<ConstRecHitPointer> &hits) : theRecHits(hits) { setSize(); }
+  SeedingHitSet(const std::initializer_list<ConstRecHitPointer> &hits) : SeedingHitSet() {
+    theRecHits.reserve(hits.size());
+    std::copy_n(
+        hits.begin(), std::find(hits.begin(), hits.end(), nullPtr()) - hits.begin(), std::back_inserter(theRecHits));
+    theSize = theRecHits.size() > 1 ? theRecHits.size() : 0;
+  }
 
   ConstRecHitPointer const *data() const { return theRecHits.data(); }
 
@@ -41,13 +49,6 @@ public:
 protected:
   std::vector<ConstRecHitPointer> theRecHits;
   unsigned int theSize = 0;
-
-  void setSize() {
-    theSize = 0;
-    while (theRecHits[++theSize] and theSize < theRecHits.size())
-      ;
-    theSize = theSize > 1 ? theSize : 0;
-  }
 };
 
 #endif
