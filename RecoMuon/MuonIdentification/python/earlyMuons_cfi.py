@@ -17,7 +17,8 @@ earlyMuons = muons1stStep.clone(
     TrackAssociatorParameters = dict(
 	useHO   = False,
 	useEcal = False,
-	useHcal = False)
+	useHcal = False),
+    selectHighPurity = False
 )
 earlyDisplacedMuons = earlyMuons.clone(
     inputCollectionLabels = ['earlyGeneralTracks','displacedStandAloneMuons:']
