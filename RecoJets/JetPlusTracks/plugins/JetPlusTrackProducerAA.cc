@@ -113,11 +113,11 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
   using namespace edm;
 
   // get stuff from Event
-  edm::Handle<edm::View<reco::CaloJet> > jets_h;
-  iEvent.getByToken(input_jets_token_, jets_h);
 
   edm::Handle<reco::TrackCollection> tracks_h;
   iEvent.getByToken(input_tracks_token_, tracks_h);
+
+  auto const& jets_h = iEvent.get(input_jets_token_);
 
   std::vector<reco::TrackRef> fTracks;
   fTracks.reserve(tracks_h->size());
@@ -132,10 +132,9 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   reco::JPTJetCollection tmpColl;
 
-  for (unsigned i = 0; i < jets_h->size(); ++i) {
-    const reco::CaloJet* oldjet = &(*(jets_h->refAt(i)));
-
-    reco::CaloJet corrected = *oldjet;
+  int iJet = 0;
+  for (auto const& oldjet : jets_h) {
+    reco::CaloJet corrected = oldjet;
 
     // ZSP corrections
 
@@ -158,13 +157,13 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     bool ok = false;
 
     if (!vectorial_) {
-      scaleJPT = mJPTalgo->correction(corrected, *oldjet, iEvent, iSetup, pions, muons, elecs, ok);
+      scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, pions, muons, elecs, ok);
       p4 = math::XYZTLorentzVector(corrected.px() * scaleJPT,
                                    corrected.py() * scaleJPT,
                                    corrected.pz() * scaleJPT,
                                    corrected.energy() * scaleJPT);
     } else {
-      scaleJPT = mJPTalgo->correction(corrected, *oldjet, iEvent, iSetup, p4, pions, muons, elecs, ok);
+      scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, p4, pions, muons, elecs, ok);
     }
 
     reco::JPTJet::Specific specific;
@@ -182,72 +181,27 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // Fill JPT Specific
-    edm::RefToBase<reco::Jet> myjet = (edm::RefToBase<reco::Jet>)jets_h->refAt(i);
-    specific.theCaloJetRef = myjet;
-    specific.mZSPCor = factorZSP;
-    specific.mResponseOfChargedWithEff = (float)mJPTalgo->getResponseOfChargedWithEff();
-    specific.mResponseOfChargedWithoutEff = (float)mJPTalgo->getResponseOfChargedWithoutEff();
-    specific.mSumPtOfChargedWithEff = (float)mJPTalgo->getSumPtWithEff();
-    specific.mSumPtOfChargedWithoutEff = (float)mJPTalgo->getSumPtWithoutEff();
-    specific.mSumEnergyOfChargedWithEff = (float)mJPTalgo->getSumEnergyWithEff();
-    specific.mSumEnergyOfChargedWithoutEff = (float)mJPTalgo->getSumEnergyWithoutEff();
-    specific.mChargedHadronEnergy = (float)mJPTalgo->getSumEnergyWithoutEff();
+    specific.theCaloJetRef = jets_h.ptrAt(iJet);
+
     // Fill Charged Jet shape parameters
-    double deR2Tr = 0.;
-    double deEta2Tr = 0.;
-    double dePhi2Tr = 0.;
     double Zch = 0.;
-    double Pout2 = 0.;
-    double Pout = 0.;
-    double denominator_tracks = 0.;
-    int ntracks = 0;
 
     for (reco::TrackRefVector::const_iterator it = pions.inVertexInCalo_.begin(); it != pions.inVertexInCalo_.end();
          it++) {
-      double deR = deltaR((*it)->eta(), (*it)->phi(), p4.eta(), p4.phi());
-      double deEta = (*it)->eta() - p4.eta();
-      double dePhi = deltaPhi((*it)->phi(), p4.phi());
       if ((**it).ptError() / (**it).pt() < 0.1) {
-        deR2Tr = deR2Tr + deR * deR * (*it)->pt();
-        deEta2Tr = deEta2Tr + deEta * deEta * (*it)->pt();
-        dePhi2Tr = dePhi2Tr + dePhi * dePhi * (*it)->pt();
-        denominator_tracks = denominator_tracks + (*it)->pt();
         Zch = Zch + (*it)->pt();
-
-        Pout2 = Pout2 + (**it).p() * (**it).p() - (Zch * p4.P()) * (Zch * p4.P());
-        ntracks++;
       }
     }
     for (reco::TrackRefVector::const_iterator it = muons.inVertexInCalo_.begin(); it != muons.inVertexInCalo_.end();
          it++) {
-      double deR = deltaR((*it)->eta(), (*it)->phi(), p4.eta(), p4.phi());
-      double deEta = (*it)->eta() - p4.eta();
-      double dePhi = deltaPhi((*it)->phi(), p4.phi());
       if ((**it).ptError() / (**it).pt() < 0.1) {
-        deR2Tr = deR2Tr + deR * deR * (*it)->pt();
-        deEta2Tr = deEta2Tr + deEta * deEta * (*it)->pt();
-        dePhi2Tr = dePhi2Tr + dePhi * dePhi * (*it)->pt();
-        denominator_tracks = denominator_tracks + (*it)->pt();
         Zch = Zch + (*it)->pt();
-
-        Pout2 = Pout2 + (**it).p() * (**it).p() - (Zch * p4.P()) * (Zch * p4.P());
-        ntracks++;
       }
     }
     for (reco::TrackRefVector::const_iterator it = elecs.inVertexInCalo_.begin(); it != elecs.inVertexInCalo_.end();
          it++) {
-      double deR = deltaR((*it)->eta(), (*it)->phi(), p4.eta(), p4.phi());
-      double deEta = (*it)->eta() - p4.eta();
-      double dePhi = deltaPhi((*it)->phi(), p4.phi());
       if ((**it).ptError() / (**it).pt() < 0.1) {
-        deR2Tr = deR2Tr + deR * deR * (*it)->pt();
-        deEta2Tr = deEta2Tr + deEta * deEta * (*it)->pt();
-        dePhi2Tr = dePhi2Tr + dePhi * dePhi * (*it)->pt();
-        denominator_tracks = denominator_tracks + (*it)->pt();
         Zch = Zch + (*it)->pt();
-
-        Pout2 = Pout2 + (**it).p() * (**it).p() - (Zch * p4.P()) * (Zch * p4.P());
-        ntracks++;
       }
     }
     for (reco::TrackRefVector::const_iterator it = pions.inVertexOutOfCalo_.begin();
@@ -269,24 +223,9 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     if (mJPTalgo->getSumPtForBeta() > 0.)
       Zch = Zch / mJPTalgo->getSumPtForBeta();
 
-    if (ntracks > 0) {
-      Pout = sqrt(fabs(Pout2)) / ntracks;
-    }
-
-    if (denominator_tracks != 0) {
-      deR2Tr = deR2Tr / denominator_tracks;
-      deEta2Tr = deEta2Tr / denominator_tracks;
-      dePhi2Tr = dePhi2Tr / denominator_tracks;
-    }
-
-    specific.R2momtr = deR2Tr;
-    specific.Eta2momtr = deEta2Tr;
-    specific.Phi2momtr = dePhi2Tr;
-    specific.Pout = Pout;
     specific.Zch = Zch;
 
     // Create JPT jet
-
     reco::Particle::Point vertex_ = reco::Jet::Point(0, 0, 0);
 
     // If we add primary vertex
@@ -296,10 +235,10 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
       vertex_ = pvCollection->begin()->position();
 
     reco::JPTJet fJet(p4, vertex_, specific, corrected.getJetConstituents());
-    // fJet.printJet();
 
     // Temporarily collection before correction for background
 
+    iJet++;
     tmpColl.push_back(fJet);
   }
 
