@@ -137,7 +137,7 @@ void RPCConeBuilder::buildCones(RPCGeometry const* rpcGeom,
     // Check if the geometry has a complete ring:
     // note that in the case of demo chambers, the ring is not filled because only 2 sectors are added.
     // (3014 and 4014 lack counter-rings)
-    if (key != 2000 && key != 3014 && key != 4014) {  // Hey 2100 has no countering
+    if (key != 2000 && key != 3014 && key != 4014) {  // Key 2100 has no counter-ring
       if (it.second.size() != ringsMap[key].size()) {
         throw cms::Exception("RPCInternal") << " Size differs for ring " << key << " +- 100 \n";
       }
