@@ -5,7 +5,9 @@
 //
 /**\class RPCConeBuilder RPCConeBuilder.h L1Trigger/RPCTriggerConfig/src/RPCConeBuilder.cc
 
- Description: <one line class summary>
+ Description: The RPCConeBuilder class is the emulator of the Run 1 RPC PAC Trigger. 
+              It is not used in the L1 Trigger decision since 2016.
+	      It might be needed just for the re-emulation of the Run 1 data.
 
  Implementation:
      <Notes on implementation>
@@ -133,16 +135,13 @@ void RPCConeBuilder::buildCones(RPCGeometry const* rpcGeom,
     }
 
     // Check if the geometry has a complete ring:
-    // in the case of demo chambers, the ring is not filled because only 2 sectors are added,
-    // so this check fails.
-    // Below part commented as a temporary solution as agreed with the L1 RPC team.
-    /*
-    if (key != 2000) {  // Hey 2100 has no counterring
+    // note that in the case of demo chambers, the ring is not filled because only 2 sectors are added.
+    // (3014 and 4014 lack counter-rings)
+    if (key != 2000 && key != 3014 && key != 4014) {  // Hey 2100 has no countering
       if (it.second.size() != ringsMap[key].size()) {
         throw cms::Exception("RPCInternal") << " Size differs for ring " << key << " +- 100 \n";
       }
     }
-    */
   }
   buildConnections(l1RPCConeDefinition, ringsMap);
 }
