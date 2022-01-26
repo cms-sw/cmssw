@@ -267,6 +267,14 @@ void test_checkForModuleDependencyCorrectness::onePathHasCycleTest() {
       CPPUNIT_ASSERT_THROW(testCase(md, paths), cms::Exception);
     }
   }
+  {
+    ModuleDependsOnMap md = {{"A", {"p"}}};
+    {
+      PathToModules paths = {{"p", {"A"}}};
+
+      CPPUNIT_ASSERT_THROW(testCase(md, paths), cms::Exception);
+    }
+  }
 }
 
 void test_checkForModuleDependencyCorrectness::twoPathsNoCycleTest() {
