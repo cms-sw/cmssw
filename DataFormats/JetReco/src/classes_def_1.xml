@@ -47,9 +47,24 @@
    <version ClassVersion="11" checksum="2945806860"/>
    <version ClassVersion="10" checksum="456342263"/>
   </class>
-  <class name="reco::JPTJet::Specific" ClassVersion="10">
+  <class name="reco::JPTJet::Specific" ClassVersion="12">
+   <version ClassVersion="12" checksum="541642602"/>
+   <version ClassVersion="11" checksum="3019484102"/>
    <version ClassVersion="10" checksum="3095396018"/>
   </class>
+
+<!-- Adding ioread rules for backwards compatibility -->
+
+  <ioread sourceClass="reco::JPTJet::Specific" version="[-10]"
+    source="edm::RefToBase<reco::Jet> theCaloJetRef;"
+    targetClass="reco::JPTJet::Specific"
+    target="theCaloJetRef"
+    include="DataFormats/Common/interface/RefToPtr.h,DataFormats/Common/interface/RefToBase.h,DataFormats/JetReco/interface/CaloJetCollection.h">
+    <![CDATA[
+     theCaloJetRef = edm::refToPtr(onfile.theCaloJetRef.castTo<reco::CaloJetRef>());
+    ]]>
+     </ioread>
+
   <class name="std::vector<reco::JPTJet>"/>
   <class name="edm::RefProd<std::vector<reco::JPTJet> >"/>
   <class name="edm::RefVector<std::vector<reco::JPTJet>,reco::JPTJet,edm::refhelper::FindUsingAdvance<std::vector<reco::JPTJet>,reco::JPTJet> >"/>
