@@ -79,6 +79,8 @@ void l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& 
     if (useEmtfDisplacementInfo) {  // In Run-3 we receive displaced muon information from EMTF
       mu.setHwPtUnconstrained((raw_data_32_63 >> emtfPtUnconstrainedShift_) & ptUnconstrainedMask_);
       mu.setHwDXY((raw_data_32_63 >> emtfDxyShift_) & dxyMask_);
+      mu.setTrackSubAddress(RegionalMuonCand::kTrkNum, 0);
+      mu.setTrackSubAddress(RegionalMuonCand::kBX, 0);
     } else {
       mu.setTrackSubAddress(RegionalMuonCand::kTrkNum,
                             (rawTrackAddress >> emtfTrAddrTrkNumShift_) & emtfTrAddrTrkNumMask_);
