@@ -8,6 +8,8 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
@@ -15,20 +17,22 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/CondDB/interface/Session.h"
 
-#include <iostream>
 using namespace std;
 
 class L1MenuViewer : public edm::EDAnalyzer {
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1GtMenuToken_;
 
-  explicit L1MenuViewer(const edm::ParameterSet&) : edm::EDAnalyzer() {}
+  explicit L1MenuViewer(const edm::ParameterSet&) : edm::EDAnalyzer() {
+    l1GtMenuToken_ = esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
+  }
   ~L1MenuViewer(void) override {}
 };
 
 void L1MenuViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   edm::ESHandle<L1TUtmTriggerMenu> handle1;
-  evSetup.get<L1TUtmTriggerMenuRcd>().get(handle1);
+  handle1 = evSetup.getHandle(l1GtMenuToken_);
   std::shared_ptr<L1TUtmTriggerMenu> ptr1(new L1TUtmTriggerMenu(*(handle1.product())));
 
   cout << "L1TUtmTriggerMenu: " << endl;
