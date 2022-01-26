@@ -332,7 +332,7 @@ void EcalLaserCondTools::fillDb(CorrReader& r) {
 }
 
 void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondTools::nLmes], int t3) {
-  int iIov = 0;
+  static int iIov = 0;
   ++iIov;
 
   //   FILE* fdebug = 0;
