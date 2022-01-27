@@ -77,13 +77,12 @@ bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::Ev
   // event accept/reject logic
   if (nFound == numRequired_) {
     double sqrdMass = E * E - (Px * Px + Py * Py + Pz * Pz);
-    if (sqrdMass > minMass_*minMass_ && sqrdMass < maxMass_*maxMass_) {
+    if (sqrdMass > minMass_ * minMass_ && sqrdMass < maxMass_ * maxMass_) {
       return true;
     }
   }
   return false;
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(LHEGenericMassFilter);
