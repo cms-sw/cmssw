@@ -25,7 +25,6 @@
     <Constant name="PatchPanel_Cables_FrontModcenter" value="3048.5*mm"/>
     <Constant name="PatchPanel_Cables_thickness" value="21*mm"/>
     <Constant name="FrontModerator_thickness" value="20*mm"/>
-    <Constant name="Active_Disc_thickness" value="8*mm"/>
     <Constant name="BackSupportPlate_thickness" value="5*mm"/>
     <!-- <Constant name="Disc_Rmin" value="315*mm"/> --> <!-- correct value, but not compatible with current modules placement -->
     <Constant name="Disc_Rmin" value="300*mm"/>
@@ -126,7 +125,6 @@
     <Constant name="LGAD_Substrate_translation_z" value="0.025*mm"/>
     <Constant name="PowerBoard_translation_z" value="1*mm"/>
     <Constant name="servicesServiceHybrid_translation_z" value="-2*mm"/>
-    <Constant name="SensorModule_translation_z" value="0.21*mm"/>
     <Constant name="ServiceHybrid_translation_z" value="1.*mm"/>
     <Constant name="xoffset_servicehybrid" value="1*mm"/>
 
