@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.Configuration.customiseEarlyDeleteForSeeding import customiseEarlyDeleteForSeeding
 from RecoTracker.Configuration.customiseEarlyDeleteForMkFit import customiseEarlyDeleteForMkFit
+from RecoTracker.Configuration.customiseEarlyDeleteForCKF import customiseEarlyDeleteForCKF
 from CommonTools.ParticleFlow.Isolation.customiseEarlyDeleteForCandIsoDeposits import customiseEarlyDeleteForCandIsoDeposits
 
 def _hasInputTagModuleLabel(process, pset, psetModLabel, moduleLabels, result):
@@ -45,6 +46,7 @@ def customiseEarlyDelete(process):
 
     products = customiseEarlyDeleteForSeeding(process, products)
     products = customiseEarlyDeleteForMkFit(process, products)
+    products = customiseEarlyDeleteForCKF(process, products)
 
     products = customiseEarlyDeleteForCandIsoDeposits(process, products)
 
