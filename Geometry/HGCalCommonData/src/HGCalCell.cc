@@ -94,43 +94,49 @@ std::pair<double, double> HGCalCell::HGCalCellUV2XY2(int32_t u, int32_t v, int32
 std::pair<int, int> HGCalCell::HGCalCellUV2Cell(int32_t u, int32_t v, int32_t placementIndex, int32_t type) {
   if (type != 0)
     type = 1;
-  int cell(0), cellx(0), cellt(HGCalCell::cornerCell);
+  int cell(0), cellx(0), cellt(HGCalCell::fullCell);
   if (placementIndex >= HGCalCell::cellPlacementExtra) {
-    const std::vector<int> itype0 = {0, 6, 7, 8, 9, 10, 11, 3, 4, 5, 3, 4, 5};
+    const std::vector<int> itype0 = {0, 7, 8, 9, 10, 11, 6, 3, 4, 5, 4, 5, 3};
     const std::vector<int> itype1 = {0, 0, 1, 2, 3, 4, 5, 0, 1, 2, 0, 1, 2};
-    const std::vector<int> itype2 = {0, 10, 11, 6, 7, 8, 9, 5, 3, 4, 5, 3, 4};
+    const std::vector<int> itype2 = {0, 11, 6, 7, 8, 9, 10, 5, 3, 4, 3, 4, 5};
     const std::vector<int> itype3 = {0, 4, 5, 0, 1, 2, 3, 2, 0, 1, 2, 0, 1};
-    const std::vector<int> itype4 = {0, 8, 9, 10, 11, 6, 7, 4, 5, 3, 4, 5, 3};
+    const std::vector<int> itype4 = {0, 9, 10, 11, 6, 7, 8, 4, 5, 3, 5, 3, 4};
     const std::vector<int> itype5 = {0, 2, 3, 4, 5, 0, 1, 1, 2, 0, 1, 2, 0};
     if (u == 0 && v == 0) {
-      cellx = 0;
-    } else if (u == 0 && (v - u) == (ncell_[type] - 1)) {
       cellx = 1;
-    } else if ((v - u) == (ncell_[type] - 1) && v == (2 * ncell_[type] - 1)) {
+      cellt = HGCalCell::cornerCell;
+    } else if (u == 0 && (v - u) == (ncell_[type] - 1)) {
       cellx = 2;
-    } else if (u == (2 * ncell_[type] - 1) && v == (2 * ncell_[type] - 1)) {
+      cellt = HGCalCell::cornerCell;
+    } else if ((v - u) == (ncell_[type] - 1) && v == (2 * ncell_[type] - 1)) {
       cellx = 3;
-    } else if (u == (2 * ncell_[type] - 1) && (u - v) == ncell_[type]) {
+      cellt = HGCalCell::cornerCell;
+    } else if (u == (2 * ncell_[type] - 1) && v == (2 * ncell_[type] - 1)) {
       cellx = 4;
-    } else if ((u - v) == ncell_[type] && v == 0) {
+      cellt = HGCalCell::cornerCell;
+    } else if (u == (2 * ncell_[type] - 1) && (u - v) == ncell_[type]) {
       cellx = 5;
-    } else if (u == 0) {
+      cellt = HGCalCell::cornerCell;
+    } else if ((u - v) == ncell_[type] && v == 0) {
       cellx = 6;
-      cellt = HGCalCell::truncatedCell;
-    } else if ((v - u) == (ncell_[type] - 1)) {
-      cellx = 9;
-      cellt = HGCalCell::extendedCell;
-    } else if (v == (2 * ncell_[type] - 1)) {
+      cellt = HGCalCell::cornerCell;
+    } else if (u == 0) {
       cellx = 7;
       cellt = HGCalCell::truncatedCell;
-    } else if (u == (2 * ncell_[type] - 1)) {
+    } else if ((v - u) == (ncell_[type] - 1)) {
       cellx = 10;
       cellt = HGCalCell::extendedCell;
-    } else if ((u - v) == ncell_[type]) {
+    } else if (v == (2 * ncell_[type] - 1)) {
       cellx = 8;
       cellt = HGCalCell::truncatedCell;
-    } else if (v == 0) {
+    } else if (u == (2 * ncell_[type] - 1)) {
       cellx = 11;
+      cellt = HGCalCell::extendedCell;
+    } else if ((u - v) == ncell_[type]) {
+      cellx = 9;
+      cellt = HGCalCell::truncatedCell;
+    } else if (v == 0) {
+      cellx = 12;
       cellt = HGCalCell::extendedCell;
     }
     switch (placementIndex) {
@@ -155,40 +161,46 @@ std::pair<int, int> HGCalCell::HGCalCellUV2Cell(int32_t u, int32_t v, int32_t pl
     }
   } else {
     const std::vector<int> itype0 = {0, 1, 2, 3, 4, 5, 0, 1, 2, 0, 0, 1, 2};
-    const std::vector<int> itype1 = {0, 7, 8, 9, 10, 11, 6, 4, 5, 3, 3, 4, 5};
+    const std::vector<int> itype1 = {0, 8, 9, 10, 11, 6, 7, 4, 5, 3, 4, 5, 3};
     const std::vector<int> itype2 = {0, 3, 4, 5, 0, 1, 2, 2, 0, 1, 1, 2, 0};
-    const std::vector<int> itype3 = {0, 9, 10, 11, 6, 7, 8, 5, 3, 4, 4, 5, 3};
+    const std::vector<int> itype3 = {0, 10, 11, 6, 7, 8, 9, 5, 3, 4, 5, 3, 4};
     const std::vector<int> itype4 = {0, 5, 0, 1, 2, 3, 4, 0, 1, 2, 2, 0, 1};
-    const std::vector<int> itype5 = {0, 11, 6, 7, 8, 9, 10, 3, 4, 5, 3, 4, 5};
+    const std::vector<int> itype5 = {0, 6, 7, 8, 9, 10, 11, 3, 4, 5, 3, 4, 5};
     if (u == 0 && v == 0) {
-      cellx = 0;
-    } else if (v == 0 && (u - v) == (ncell_[type])) {
       cellx = 1;
-    } else if ((u - v) == (ncell_[type]) && u == (2 * ncell_[type] - 1)) {
+      cellt = HGCalCell::cornerCell;
+    } else if (v == 0 && (u - v) == (ncell_[type])) {
       cellx = 2;
-    } else if (u == (2 * ncell_[type] - 1) && v == (2 * ncell_[type] - 1)) {
+      cellt = HGCalCell::cornerCell;
+    } else if ((u - v) == (ncell_[type]) && u == (2 * ncell_[type] - 1)) {
       cellx = 3;
-    } else if (v == (2 * ncell_[type] - 1) && (v - u) == (ncell_[type] - 1)) {
+      cellt = HGCalCell::cornerCell;
+    } else if (u == (2 * ncell_[type] - 1) && v == (2 * ncell_[type] - 1)) {
       cellx = 4;
-    } else if ((v - u) == (ncell_[type] - 1) && u == 0) {
+      cellt = HGCalCell::cornerCell;
+    } else if (v == (2 * ncell_[type] - 1) && (v - u) == (ncell_[type] - 1)) {
       cellx = 5;
-    } else if (v == 0) {
-      cellx = 9;
-      cellt = HGCalCell::extendedCell;
-    } else if ((u - v) == ncell_[type]) {
+      cellt = HGCalCell::cornerCell;
+    } else if ((v - u) == (ncell_[type] - 1) && u == 0) {
       cellx = 6;
-      cellt = HGCalCell::truncatedCell;
-    } else if (u == (2 * ncell_[type] - 1)) {
+      cellt = HGCalCell::cornerCell;
+    } else if (v == 0) {
       cellx = 10;
       cellt = HGCalCell::extendedCell;
-    } else if (v == (2 * ncell_[type] - 1)) {
+    } else if ((u - v) == ncell_[type]) {
       cellx = 7;
       cellt = HGCalCell::truncatedCell;
-    } else if ((v - u) == (ncell_[type] - 1)) {
+    } else if (u == (2 * ncell_[type] - 1)) {
       cellx = 11;
       cellt = HGCalCell::extendedCell;
-    } else if (u == 0) {
+    } else if (v == (2 * ncell_[type] - 1)) {
       cellx = 8;
+      cellt = HGCalCell::truncatedCell;
+    } else if ((v - u) == (ncell_[type] - 1)) {
+      cellx = 12;
+      cellt = HGCalCell::extendedCell;
+    } else if (u == 0) {
+      cellx = 9;
       cellt = HGCalCell::truncatedCell;
     }
     switch (placementIndex) {
