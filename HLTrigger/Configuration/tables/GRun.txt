@@ -667,6 +667,20 @@ HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS180_eta2p1_v*				#	CMSHLT-2209
 HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS50_eta2p1_v*				#	CMSHLT-2209
 HLT_LooseDeepTauPFTauHPS180_L2NN_eta2p1_v*					#	CMSHLT-2209
 HLT_LooseDeepTauPFTauHPS50_eta2p1_MET100_v*					#	CMSHLT-2209
+HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepJet_4p5_v*			# CMSHLT-2184
+HLT_PFHT400_FivePFJet_100_100_60_30_30_DoublePFBTagDeepJet_4p5_v*			# CMSHLT-2184
+HLT_PFHT400_FivePFJet_120_120_60_30_30_DoublePFBTagDeepJet_4p5_v*			# CMSHLT-2184
+HLT_PFHT400_SixPFJet32_DoublePFBTagDeepJet_2p94_v*					# CMSHLT-2184
+HLT_PFHT450_SixPFJet36_PFBTagDeepJet_1p59_v*						# CMSHLT-2184
+HLT_QuadPFJet103_88_75_15_DoublePFBTagDeepJet_1p3_7p7_VBF1_v*				# CMSHLT-2184
+HLT_QuadPFJet103_88_75_15_PFBTagDeepJet_1p3_VBF2_v*					# CMSHLT-2184
+HLT_QuadPFJet105_88_76_15_DoublePFBTagDeepJet_1p3_7p7_VBF1_v*				# CMSHLT-2184
+HLT_QuadPFJet105_88_76_15_PFBTagDeepJet_1p3_VBF2_v*					# CMSHLT-2184
+HLT_QuadPFJet111_90_80_15_DoublePFBTagDeepJet_1p3_7p7_VBF1_v*				# CMSHLT-2184
+HLT_QuadPFJet111_90_80_15_PFBTagDeepJet_1p3_VBF2_v*					# CMSHLT-2184
+HLT_QuadPFJet98_83_71_15_DoublePFBTagDeepJet_1p3_7p7_VBF1_v*				# CMSHLT-2184
+HLT_QuadPFJet98_83_71_15_PFBTagDeepJet_1p3_VBF2_v*					# CMSHLT-2184
+HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepJet_1p5_v*	# CMSHLT-2184
 
 HLT_L1SingleMuCosmics_v*							#	CMSHLT-2097
 
@@ -739,9 +753,10 @@ MC_Diphoton10_10_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass10_v* # CMSHLT-325, mod CMSHL
 MC_IsoMu_v*                                              # CMSHLT-322, CMSHLT-335
 MC_DoubleMu_TrkIsoVVL_DZ_v*                              # CMSHLT-322
 MC_DoubleMuNoFiltersNoVtx_v*                             # CMSHLT-322
-MC_PFBTagDeepCSV_v*                                          # CMSHLT-1241
-MC_CaloBTagDeepCSV_v*                                        # CMSHLT-1241
+MC_PFBTagDeepCSV_v*                                      # CMSHLT-1241
+MC_CaloBTagDeepCSV_v*                                    # CMSHLT-1241
 MC_AK4CaloJetsFromPV_v*                                  # CMSHLT-1241
+MC_PFBTagDeepJet_v*                                      # CMSHLT-2184
 
 ######## paths that are different between GRun and online_grun ################################
 
