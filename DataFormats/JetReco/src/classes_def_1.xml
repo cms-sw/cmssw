@@ -61,7 +61,8 @@
     target="theCaloJetRef"
     include="DataFormats/Common/interface/RefToPtr.h,DataFormats/Common/interface/RefToBase.h,DataFormats/JetReco/interface/CaloJetCollection.h">
     <![CDATA[
-     theCaloJetRef = edm::refToPtr(onfile.theCaloJetRef.castTo<reco::CaloJetRef>());
+     if(onfile.theCaloJetRef.isNonnull()) 
+           theCaloJetRef = edm::refToPtr(onfile.theCaloJetRef.castTo<reco::CaloJetRef>());
     ]]>
      </ioread>
 
