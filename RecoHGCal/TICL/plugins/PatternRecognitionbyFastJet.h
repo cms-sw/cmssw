@@ -17,14 +17,16 @@ namespace ticl {
   template <typename TILES>
   class PatternRecognitionbyFastJet final : public PatternRecognitionAlgoBaseT<TILES> {
   public:
-    PatternRecognitionbyFastJet(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector);
+    PatternRecognitionbyFastJet(const edm::ParameterSet& conf, edm::ConsumesCollector);
     ~PatternRecognitionbyFastJet() override = default;
 
     void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                         std::vector<Trackster>& result,
                         std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
-    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& result);
+    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters,
+                               const tensorflow::Session*,
+                               std::vector<Trackster>& result);
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
