@@ -162,7 +162,7 @@ void MLPFProducer::globalEndJob(const ONNXRuntime* cache) {}
 void MLPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("particleFlowBlock"));
-  desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoParticleFlow/PFProducer/data/mlpf/mlpf_2021_10_27__all_data_cms-best-of-asha-scikit_20211026_042043_178263.workergpu010.onnx"));
+  desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoParticleFlow/PFProducer/data/mlpf/mlpf_2021_11_16__no_einsum__all_data_cms-best-of-asha-scikit_20211026_042043_178263.workergpu010.onnx"));
   descriptions.addWithDefaultLabel(desc);
 }
 
