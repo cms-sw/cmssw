@@ -49,12 +49,14 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
     num_elements_total += 1;
     selected_elements.push_back(pelem);
   }
-  assert(num_elements_total < NUM_MAX_ELEMENTS_BATCH);
-
-  //tensor size must be a multiple of the bin size and larger than the number of elements
   const auto tensor_size = LSH_BIN_SIZE * std::max(2u, (num_elements_total / LSH_BIN_SIZE + 1));
+
+#ifdef MLPF_DEBUG
+  assert(num_elements_total < NUM_MAX_ELEMENTS_BATCH);
+  //tensor size must be a multiple of the bin size and larger than the number of elements
   assert(tensor_size <= NUM_MAX_ELEMENTS_BATCH);
   assert(tensor_size % LSH_BIN_SIZE == 0);
+#endif
 
 #ifdef MLPF_DEBUG
   std::cout << "tensor_size=" << tensor_size << std::endl;
@@ -83,7 +85,9 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   //run the GNN inference, given the inputs and the output.
   const auto& outputs = globalCache()->run({"x:0"}, inputs, {{1, tensor_size, NUM_ELEMENT_FEATURES}});
   const auto& output = outputs[0];
+#ifdef MLPF_DEBUG
   assert(output.size() == tensor_size * NUM_OUTPUT_FEATURES);
+#endif
 
   std::vector<reco::PFCandidate> pOutputCandidateCollection;
   for (size_t ielem = 0; ielem < num_elements_total; ielem++) {
@@ -92,7 +96,9 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 
     for (unsigned int idx_id = 0; idx_id <= IDX_CLASS; idx_id++) {
       auto pred_proba = output[ielem * NUM_OUTPUT_FEATURES + idx_id];
+#ifdef MLPF_DEBUG
       assert(!std::isnan(pred_proba));
+#endif
       pred_id_probas[idx_id] = pred_proba;
     }
 

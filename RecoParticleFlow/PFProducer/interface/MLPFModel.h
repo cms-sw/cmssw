@@ -17,8 +17,8 @@ namespace reco::mlpf {
   //In CPU mode, we want to evaluate each event separately
   static constexpr int BATCH_SIZE = 1;
 
-  //The model has 12 outputs for each particle:
-  // out[0-7]: particle classification logits
+  //The model has 14 outputs for each particle:
+  // out[0-7]: particle classification logits for each pdgId
   // out[8]: regressed charge
   // out[9]: regressed pt
   // out[10]: regressed eta
