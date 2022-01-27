@@ -55,8 +55,9 @@ private:
   const edm::EDGetTokenT<edm::SortedCollection<HODataFrame>> hoDataFrameToken_;
 };
 
-L1HOTreeProducer::L1HOTreeProducer(const edm::ParameterSet& iConfig): 
-  hoDataFrameToken_(consumes<edm::SortedCollection<HODataFrame>>(iConfig.getUntrackedParameter<edm::InputTag>("hoDataFrameToken"))) {
+L1HOTreeProducer::L1HOTreeProducer(const edm::ParameterSet& iConfig)
+    : hoDataFrameToken_(consumes<edm::SortedCollection<HODataFrame>>(
+          iConfig.getUntrackedParameter<edm::InputTag>("hoDataFrameToken"))) {
   //hoDataFrameToken_ =
   //    consumes<edm::SortedCollection<HODataFrame>>(iConfig.getUntrackedParameter<edm::InputTag>("hoDataFrameToken"));
 

@@ -137,7 +137,7 @@ void L1TExtCondProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   }
 
   bool TriggerRulePrefireVetoBit(false);
-  if (makeTriggerRulePrefireVetoBit_) {
+  if (iEvent.isRealData() && makeTriggerRulePrefireVetoBit_) {
     // code taken from Nick Smith's EventFilter/L1TRawToDigi/plugins/TriggerRulePrefireVetoFilter.cc
 
     edm::Handle<TCDSRecord> tcdsRecordH;
