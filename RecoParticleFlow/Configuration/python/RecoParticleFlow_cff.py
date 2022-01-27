@@ -42,11 +42,6 @@ particleFlowReco = cms.Sequence(particleFlowRecoTask)
 particleFlowLinksTask = cms.Task( particleFlow, particleFlowPtrs, chargedHadronPFTrackIsolation, particleBasedIsolationTask)
 particleFlowLinks = cms.Sequence(particleFlowLinksTask)
 
-# for MLPF
-from Configuration.ProcessModifiers.mlpf_cff import mlpf
-from RecoParticleFlow.PFProducer.mlpfProducer_cfi import mlpfProducer
-mlpf.toReplaceWith(particleFlowTmp, mlpfProducer)
-
 #
 # for phase 2
 particleFlowTmpBarrel = particleFlowTmp.clone()
@@ -56,6 +51,7 @@ _phase2_hgcal_particleFlowTmp = cms.EDProducer(
                         "pfTICL")
 
 )
+
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
@@ -106,6 +102,12 @@ for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(pfPileUpIso, enable = cms.bool(False))
     e.toModify(pfNoPileUp, enable = cms.bool(False))
     e.toModify(pfPileUp, enable = cms.bool(False))
+
+
+# for MLPF, replace standard PFAlgo with the ONNX-based MLPF producer 
+from Configuration.ProcessModifiers.mlpf_cff import mlpf
+from RecoParticleFlow.PFProducer.mlpfProducer_cfi import mlpfProducer
+mlpf.toReplaceWith(particleFlowTmp, mlpfProducer)
 
 #
 # switch from pfTICL to simPF
