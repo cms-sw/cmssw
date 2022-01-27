@@ -32,9 +32,10 @@ public:
   static constexpr int32_t cellPlacementOld = 7;
   static constexpr int32_t cellPlacementTotal = 12;
 
-  static constexpr int32_t cornerCell = 0;
-  static constexpr int32_t truncatedCell = 1;
-  static constexpr int32_t extendedCell = 2;
+  static constexpr int32_t fullCell = 0;
+  static constexpr int32_t cornerCell = 1;
+  static constexpr int32_t truncatedCell = 2;
+  static constexpr int32_t extendedCell = 3;
 
   std::pair<double, double> HGCalCellUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
   std::pair<double, double> HGCalCellUV2XY2(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
