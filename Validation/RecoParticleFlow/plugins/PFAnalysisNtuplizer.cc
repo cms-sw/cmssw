@@ -87,6 +87,20 @@ vector<int> find_element_ref(const vector<ElementWithIndex>& vec, const edm::Ref
           ret.push_back(i);
         }
       }
+    } else if (elem.orig.type() == reco::PFBlockElement::GSF) {
+      const auto& ref = ((const reco::PFBlockElementGsfTrack*)&elem.orig)->clusterRef();
+      if (ref.isNonnull()) {
+        if (ref.key() == r.key()) {
+          ret.push_back(i);
+        }
+      }
+    } else if (elem.orig.type() == reco::PFBlockElement::BREM) {
+      const auto& ref = ((const reco::PFBlockElementBrem*)&elem.orig)->clusterRef();
+      if (ref.isNonnull()) {
+        if (ref.key() == r.key()) {
+          ret.push_back(i);
+        }
+      }
     }
   }
   return ret;
