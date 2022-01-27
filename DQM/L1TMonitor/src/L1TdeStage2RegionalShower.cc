@@ -68,18 +68,16 @@ void L1TdeStage2RegionalShower::analyze(const edm::Event& e, const edm::EventSet
       if (dSh->isOneTightInTime())
         emtfShowerDataSummary_denom_->Fill(dSh->processor() + 1,
                                            (dSh->trackFinderType() == l1t::tftype::emtf_pos) ? 3.5 : 0.5);
-      else
-        emtfShowerDataSummary_denom_->Fill(dSh->processor() + 1,
-                                           (dSh->trackFinderType() == l1t::tftype::emtf_pos) ? 2.5 : 1.5);
+      emtfShowerDataSummary_denom_->Fill(dSh->processor() + 1,
+                                         (dSh->trackFinderType() == l1t::tftype::emtf_pos) ? 2.5 : 1.5);
       for (auto eSh = emulShowers->begin(); eSh != emulShowers->end(); ++eSh) {
         if (eSh->isValid() and eSh->isOneNominalInTime() and dSh->processor() == eSh->processor() and
             dSh->trackFinderType() == eSh->trackFinderType() and *dSh == *eSh) {
           if (dSh->isOneTightInTime())
             emtfShowerDataSummary_num_->Fill(dSh->processor() + 1,
                                              (dSh->trackFinderType() == l1t::tftype::emtf_pos) ? 3.5 : 0.5);
-          else
-            emtfShowerDataSummary_num_->Fill(dSh->processor() + 1,
-                                             (dSh->trackFinderType() == l1t::tftype::emtf_pos) ? 2.5 : 1.5);
+          emtfShowerDataSummary_num_->Fill(dSh->processor() + 1,
+                                           (dSh->trackFinderType() == l1t::tftype::emtf_pos) ? 2.5 : 1.5);
         }
       }
     }
@@ -91,9 +89,8 @@ void L1TdeStage2RegionalShower::analyze(const edm::Event& e, const edm::EventSet
       if (eSh->isOneTightInTime())
         emtfShowerEmulSummary_denom_->Fill(eSh->processor() + 1,
                                            (eSh->trackFinderType() == l1t::tftype::emtf_pos) ? 3.5 : 0.5);
-      else
-        emtfShowerEmulSummary_denom_->Fill(eSh->processor() + 1,
-                                           (eSh->trackFinderType() == l1t::tftype::emtf_pos) ? 2.5 : 1.5);
+      emtfShowerEmulSummary_denom_->Fill(eSh->processor() + 1,
+                                         (eSh->trackFinderType() == l1t::tftype::emtf_pos) ? 2.5 : 1.5);
       for (auto dSh = dataShowers->begin(); dSh != dataShowers->end(); ++dSh) {
         if (dSh->isValid() and dSh->isOneNominalInTime() and eSh->processor() == dSh->processor() and
             eSh->trackFinderType() == dSh->trackFinderType() and *dSh == *eSh)
@@ -103,9 +100,8 @@ void L1TdeStage2RegionalShower::analyze(const edm::Event& e, const edm::EventSet
         if (eSh->isOneTightInTime())
           emtfShowerEmulSummary_num_->Fill(eSh->processor() + 1,
                                            (eSh->trackFinderType() == l1t::tftype::emtf_pos) ? 3.5 : 0.5);
-        else
-          emtfShowerEmulSummary_num_->Fill(eSh->processor() + 1,
-                                           (eSh->trackFinderType() == l1t::tftype::emtf_pos) ? 2.5 : 1.5);
+        emtfShowerEmulSummary_num_->Fill(eSh->processor() + 1,
+                                         (eSh->trackFinderType() == l1t::tftype::emtf_pos) ? 2.5 : 1.5);
       }
     }
   }
