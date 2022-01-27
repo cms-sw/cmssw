@@ -18,10 +18,8 @@
 using namespace ticl;
 
 template <typename TILES>
-PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::ParameterSet &conf,
-                                                              const CacheBase *cache,
-                                                              edm::ConsumesCollector iC)
-    : PatternRecognitionAlgoBaseT<TILES>(conf, cache, iC),
+PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
+    : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
       caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       criticalDensity_(conf.getParameter<double>("criticalDensity")),
       densitySiblingLayers_(conf.getParameter<int>("densitySiblingLayers")),
@@ -35,16 +33,7 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
       eidOutputNameId_(conf.getParameter<std::string>("eid_output_name_id")),
       eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
       eidNLayers_(conf.getParameter<int>("eid_n_layers")),
-      eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
-      eidSession_(nullptr) {
-  // mount the tensorflow graph onto the session when set
-  const TrackstersCache *trackstersCache = dynamic_cast<const TrackstersCache *>(cache);
-  if (trackstersCache == nullptr || trackstersCache->eidGraphDef == nullptr) {
-    throw cms::Exception("MissingGraphDef")
-        << "PatternRecognitionbyCLUE3D received an empty graph definition from the global cache";
-  }
-  eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
-}
+      eidNClusters_(conf.getParameter<int>("eid_n_clusters")){};
 
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
@@ -274,7 +263,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(false), false).z());
 
   // run energy regression and ID
-  energyRegressionAndID(input.layerClusters, result);
+  energyRegressionAndID(input.layerClusters, input.tfSession, result);
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
     for (auto const &t : result) {
       edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Barycenter: " << t.barycenter();
@@ -298,6 +287,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
 
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
+                                                              const tensorflow::Session *eidSession,
                                                               std::vector<Trackster> &tracksters) {
   // Energy regression and particle identification strategy:
   //
@@ -410,7 +400,7 @@ void PatternRecognitionbyCLUE3D<TILES>::energyRegressionAndID(const std::vector<
   }
 
   // run the inference (7)
-  tensorflow::run(eidSession_, inputList, outputNames, &outputs);
+  tensorflow::run(const_cast<tensorflow::Session *>(eidSession), inputList, outputNames, &outputs);
 
   // store regressed energy per trackster (8)
   if (!eidOutputNameEnergy_.empty()) {
