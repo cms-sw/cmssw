@@ -95,14 +95,20 @@ private:
   unsigned getAlgoFwVersion();
 };
 
-L1UpgradeTfMuonTreeProducer::L1UpgradeTfMuonTreeProducer(const edm::ParameterSet& iConfig) :
-  fedToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("feds"))),
-  bmtfMuonToken_(consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfMuonToken"))),
-  bmtf2MuonToken_(consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("bmtf2MuonToken"))),
-  omtfMuonToken_(consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("omtfMuonToken"))),
-  emtfMuonToken_(consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("emtfMuonToken"))),
-  bmtfPhInputToken_(consumes<L1MuDTChambPhContainer>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfInputPhMuonToken"))),
-  bmtfThInputToken_(consumes<L1MuDTChambThContainer>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfInputThMuonToken"))) {
+L1UpgradeTfMuonTreeProducer::L1UpgradeTfMuonTreeProducer(const edm::ParameterSet& iConfig)
+    : fedToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("feds"))),
+      bmtfMuonToken_(
+          consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfMuonToken"))),
+      bmtf2MuonToken_(
+          consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("bmtf2MuonToken"))),
+      omtfMuonToken_(
+          consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("omtfMuonToken"))),
+      emtfMuonToken_(
+          consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("emtfMuonToken"))),
+      bmtfPhInputToken_(
+          consumes<L1MuDTChambPhContainer>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfInputPhMuonToken"))),
+      bmtfThInputToken_(
+          consumes<L1MuDTChambThContainer>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfInputThMuonToken"))) {
   isEMU_ = iConfig.getParameter<bool>("isEMU");
   /*
   fedToken_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("feds"));

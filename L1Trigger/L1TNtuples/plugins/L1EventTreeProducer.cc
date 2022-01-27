@@ -49,7 +49,7 @@ Implementation:
 class L1EventTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1EventTreeProducer(const edm::ParameterSet&);
-  ~L1EventTreeProducer() override = default; 
+  ~L1EventTreeProducer() override = default;
 
 private:
   void beginJob(void) override;
@@ -71,9 +71,8 @@ private:
   const edm::EDGetTokenT<edm::TriggerResults> hltSource_;
 };
 
-L1EventTreeProducer::L1EventTreeProducer(const edm::ParameterSet& iConfig) :
-  hltSource_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("hltSource"))){
-
+L1EventTreeProducer::L1EventTreeProducer(const edm::ParameterSet& iConfig)
+    : hltSource_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("hltSource"))) {
   std::string puMCFile = iConfig.getUntrackedParameter<std::string>("puMCFile", "");
   std::string puMCHist = iConfig.getUntrackedParameter<std::string>("puMCHist", "pileup");
   std::string puDataFile = iConfig.getUntrackedParameter<std::string>("puDataFile", "");
@@ -84,7 +83,8 @@ L1EventTreeProducer::L1EventTreeProducer(const edm::ParameterSet& iConfig) :
   bool useAvgVtx = iConfig.getUntrackedParameter<bool>("useAvgVtx", true);
   double maxAllowedWeight = iConfig.getUntrackedParameter<double>("maxAllowedWeight", -1);
 
-  std::make_unique<L1Analysis::L1AnalysisEvent>(puMCFile, puMCHist, puDataFile, puDataHist, useAvgVtx, maxAllowedWeight, consumesCollector());
+  std::make_unique<L1Analysis::L1AnalysisEvent>(
+      puMCFile, puMCHist, puDataFile, puDataHist, useAvgVtx, maxAllowedWeight, consumesCollector());
   l1EventData = l1Event->getData();
 
   // set up output
