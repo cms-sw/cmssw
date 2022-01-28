@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,7 +9,7 @@
 #include <memory>
 
 namespace trackwordtest {
-  class TTTrackTrackWordDummyOneAnalyzer : public edm::EDAnalyzer {
+  class TTTrackTrackWordDummyOneAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit TTTrackTrackWordDummyOneAnalyzer(const edm::ParameterSet&) {}
     ~TTTrackTrackWordDummyOneAnalyzer() {}
