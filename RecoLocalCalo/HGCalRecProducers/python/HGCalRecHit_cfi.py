@@ -60,6 +60,11 @@ weightsPerLayer_V16 = cms.vdouble(dummy_weight,
 
 
 dEdX = cms.PSet(
+        weights = cms.vdouble(0.0),
+        weightsNose = cms.vdouble(0.0)
+) 
+
+dEdX_v10 = cms.PSet(
 	# for v10 geometry
     weights = cms.vdouble(0.0,      # there is no layer zero
                           8.894541,  # MeV
@@ -195,12 +200,13 @@ HGCalRecHit = cms.EDProducer(
     )
 
 # For silicon the order is: CE_E_120um, CE_E_200um, CE_E_300um, CE_H_120um, CE_H_200um, CE_H_300um
+phase2_hgcalV10.toModify( dEdX , weights = dEdX_v10.weights , weightsNose = dEdX_v10.weightsNose)
 phase2_hgcalV10.toModify( HGCalRecHit , thicknessCorrection = [0.77, 0.77, 0.77, 0.84, 0.84, 0.84] , sciThicknessCorrection =  0.90 ) 
 
 phase2_hfnose.toModify( HGCalRecHit , thicknessNoseCorrection = [0.58,0.58,0.58])
 
+phase2_hgcalV16.toModify(dEdX , weights = dEdX_v16.weights)
 phase2_hgcalV16.toModify(HGCalRecHit, 
                          thicknessCorrection = [0.75, 0.76, 0.75, 0.85, 0.85, 0.84] , 
-                         sciThicknessCorrection =  0.69, 
-                         layerWeights = dEdX_v16.weights) 
+                         sciThicknessCorrection =  0.69) 
 
