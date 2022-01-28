@@ -127,7 +127,17 @@ dEdX = cms.PSet(
 
 # for v16 geometry
 dEdX_v16 = cms.PSet(
-    weights = cms.vdouble(calcWeights(weightsPerLayer_V16))
+    weights = cms.vdouble(calcWeights(weightsPerLayer_V16)),
+
+    weightsNose = cms.vdouble(0.0,   # there is no layer zero
+                              39.500245, # MeV
+                              39.756638,
+                              39.756638,
+                              39.756638,
+                              39.756638,
+                              66.020266,
+                              92.283895,
+                              92.283895)
 )
 
 # HGCAL rechit producer
@@ -197,8 +207,8 @@ phase2_hgcalV10.toModify( HGCalRecHit , thicknessCorrection = [0.77, 0.77, 0.77,
 
 phase2_hfnose.toModify( HGCalRecHit , thicknessNoseCorrection = [0.58,0.58,0.58])
 
-phase2_hgcalV16.toModify(dEdX , weights = dEdX_v16.weights)
 phase2_hgcalV16.toModify(HGCalRecHit, 
                          thicknessCorrection = [0.75, 0.76, 0.75, 0.85, 0.85, 0.84] , 
-                         sciThicknessCorrection =  0.69) 
+                         sciThicknessCorrection =  0.69,
+                         layerWeights = dEdX_v16.weights) 
 
