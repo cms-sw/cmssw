@@ -26,29 +26,36 @@ public:
       : SeedingHitSet({one, two, three, four}) {}
 
   SeedingHitSet(const std::vector<ConstRecHitPointer> &hits) {
-    theRecHits.reserve(hits.size());
-    std::copy_n(
-        hits.begin(), std::find(hits.begin(), hits.end(), nullPtr()) - hits.begin(), std::back_inserter(theRecHits));
-    theSize = theRecHits.size() > 1 ? theRecHits.size() : 0;
+    if (hits.size() >= 2) {
+      auto end = std::find(hits.begin(), hits.end(), nullPtr());
+      auto size = std::distance(hits.begin(), end);
+      if (size >= 2) {
+        theRecHits.reserve(size);
+        std::copy(hits.begin(), end, std::back_inserter(theRecHits));
+      }
+    }
   }
 
-  SeedingHitSet(const std::initializer_list<ConstRecHitPointer> &hits) : SeedingHitSet() {
-    theRecHits.reserve(hits.size());
-    std::copy_n(
-        hits.begin(), std::find(hits.begin(), hits.end(), nullPtr()) - hits.begin(), std::back_inserter(theRecHits));
-    theSize = theRecHits.size() > 1 ? theRecHits.size() : 0;
+  SeedingHitSet(const std::initializer_list<ConstRecHitPointer> &hits) {
+    if (hits.size() >= 2) {
+      auto end = std::find(hits.begin(), hits.end(), nullPtr());
+      auto size = std::distance(hits.begin(), end);
+      if (size >= 2) {
+        theRecHits.reserve(size);
+        std::copy(hits.begin(), end, std::back_inserter(theRecHits));
+      }
+    }
   }
 
   ConstRecHitPointer const *data() const { return theRecHits.data(); }
 
-  unsigned int size() const { return theSize; }
+  unsigned int size() const { return theRecHits.size(); }
 
   ConstRecHitPointer get(unsigned int i) const { return theRecHits[i]; }
   ConstRecHitPointer operator[](unsigned int i) const { return theRecHits[i]; }
 
 protected:
   std::vector<ConstRecHitPointer> theRecHits;
-  unsigned int theSize = 0;
 };
 
 #endif
