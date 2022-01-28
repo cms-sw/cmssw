@@ -59,11 +59,6 @@ weightsPerLayer_V16 = cms.vdouble(dummy_weight,
                                   83.61)
 
 
-dEdX = cms.PSet(
-        weights = cms.vdouble(0.0),
-        weightsNose = cms.vdouble(0.0)
-) 
-
 dEdX_v10 = cms.PSet(
 	# for v10 geometry
     weights = cms.vdouble(0.0,      # there is no layer zero
@@ -135,7 +130,7 @@ dEdX_v16 = cms.PSet(
     weights = cms.vdouble(calcWeights(weightsPerLayer_V16))
 )
 
-
+dEdX = dEdX_v10
 
 # HGCAL rechit producer
 HGCalRecHit = cms.EDProducer(
