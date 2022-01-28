@@ -1,6 +1,6 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_3_0/PRef --type PRef
 
-# /dev/CMSSW_12_3_0/PRef/V17 (CMSSW_12_3_0_pre3)
+# /dev/CMSSW_12_3_0/PRef/V23 (CMSSW_12_3_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/PRef/V17')
+  tableName = cms.string('/dev/CMSSW_12_3_0/PRef/V23')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -6616,6 +6616,7 @@ fragment.hltSiStripExcludedFEDListProducer = cms.EDProducer( "SiStripExcludedFED
 fragment.hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripClusterizerFromRaw",
     onDemand = cms.bool( True ),
     Clusterizer = cms.PSet( 
+      ConditionsLabel = cms.string( "" ),
       ClusterThreshold = cms.double( 5.0 ),
       SeedThreshold = cms.double( 3.0 ),
       Algorithm = cms.string( "ThreeThresholdAlgorithm" ),
@@ -6625,17 +6626,16 @@ fragment.hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripClusterizerFr
       MaxSequentialHoles = cms.uint32( 0 ),
       RemoveApvShots = cms.bool( True ),
       clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
-      MaxSequentialBad = cms.uint32( 1 ),
-      ConditionsLabel = cms.string( "" )
+      MaxSequentialBad = cms.uint32( 1 )
     ),
     Algorithms = cms.PSet( 
+      Use10bitsTruncation = cms.bool( False ),
       CommonModeNoiseSubtractionMode = cms.string( "Median" ),
       useCMMeanMap = cms.bool( False ),
       TruncateInSuppressor = cms.bool( True ),
       doAPVRestore = cms.bool( False ),
       SiStripFedZeroSuppressionMode = cms.uint32( 4 ),
-      PedestalSubtractionFedMode = cms.bool( True ),
-      Use10bitsTruncation = cms.bool( False )
+      PedestalSubtractionFedMode = cms.bool( True )
     ),
     DoAPVEmulatorCheck = cms.bool( False ),
     HybridZeroSuppressed = cms.bool( False ),

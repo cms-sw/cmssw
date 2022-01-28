@@ -97,10 +97,10 @@ for e in [pp_on_XeXe_2017, pp_on_AA]:
 
     e.toModify(particleFlowBlock, useNuclear = cms.bool(False))
 
-    e.toModify(pfNoPileUpIso, enable = cms.bool(False))
-    e.toModify(pfPileUpIso, enable = cms.bool(False))
-    e.toModify(pfNoPileUp, enable = cms.bool(False))
-    e.toModify(pfPileUp, enable = cms.bool(False))
+    e.toModify(pfNoPileUpIso, enable = False)
+    e.toModify(pfPileUpIso, enable = False)
+    e.toModify(pfNoPileUp, enable = False)
+    e.toModify(pfPileUp, enable = False)
 
 #
 # for MLPF

@@ -20,6 +20,7 @@ hltMjjmonitoring.histoPSet.htPSet = cms.PSet(
   xmin  = cms.double(   -0.5),
   xmax  = cms.double(19999.5),
 )
+
 hltMjjmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 
 hltMjjmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND

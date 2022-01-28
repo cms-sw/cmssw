@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/Framework/interface/NumberOfConcurrentIOVs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -89,6 +90,9 @@ namespace edm {
     void EventSetupProvider::add(std::shared_ptr<DataProxyProvider> iProvider) {
       assert(iProvider.get() != nullptr);
       dataProviders_->push_back(iProvider);
+      if (activityRegistry_) {
+        activityRegistry_->postESModuleRegistrationSignal_(iProvider->description());
+      }
     }
 
     void EventSetupProvider::replaceExisting(std::shared_ptr<DataProxyProvider> dataProxyProvider) {

@@ -1024,24 +1024,21 @@ void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const&
   if (hltConfig_.init(iRun, iSetup, "HLT", changed)) {
     // if init returns TRUE, initialisation has succeeded!
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HBHEMuon") << "HLT config with process name "
-                                 << "HLT"
-                                 << " successfully extracted" << std::endl;
+    edm::LogVerbatim("HBHEMuon") << "HLT config with process name HLT successfully extracted";
 #endif
     unsigned int ntriggers = hltConfig_.size();
     for (unsigned int t = 0; t < ntriggers; ++t) {
       std::string hltname(hltConfig_.triggerName(t));
-      for (unsigned int ik = 0; ik < 6; ++ik) {
+      for (unsigned int ik = 0; ik < triggers_.size(); ++ik) {
         if (hltname.find(triggers_[ik]) != std::string::npos) {
           all_triggers_.push_back(hltname);
           break;
         }
       }
     }  //loop over ntriggers
-    edm::LogVerbatim("HBHEMuon") << "All triggers size in begin run " << all_triggers_.size() << std::endl;
+    edm::LogVerbatim("HBHEMuon") << "All triggers size in begin run " << all_triggers_.size();
   } else {
-    edm::LogError("HBHEMuon") << "Error! HLT config extraction with process "
-                              << "name HLT failed";
+    edm::LogError("HBHEMuon") << "Error! HLT config extraction with process name HLT failed";
   }
 
   theHBHETopology_ = &iSetup.getData(tok_htopo_);

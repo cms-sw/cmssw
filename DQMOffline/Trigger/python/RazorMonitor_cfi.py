@@ -7,6 +7,7 @@ hltRazorMonitoring = razorMonitoring.clone(
     met       = "pfMetEI", # pfMet
     jets      = "pfJetsEI" # ak4PFJets, ak4PFJetsCHS
 )
+
 hltRazorMonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltRazorMonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True) # True:=OR; False:=AND
 hltRazorMonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )

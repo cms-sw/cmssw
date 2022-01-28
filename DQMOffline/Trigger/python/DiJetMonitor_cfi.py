@@ -20,6 +20,7 @@ DiPFjetAve40_Prommonitoring.histoPSet.dijetPtThrPSet = dict(
   xmin  =  0.,
   xmax  = 100.,
 )
+
 DiPFjetAve40_Prommonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 DiPFjetAve40_Prommonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("JetMETDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
 DiPFjetAve40_Prommonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND

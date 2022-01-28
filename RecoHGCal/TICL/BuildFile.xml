@@ -3,6 +3,7 @@
 <use name="DataFormats/VertexReco"/>
 <use name="FWCore/PluginManager"/>
 <use name="PhysicsTools/TensorFlow"/>
+<use name="RecoTracker/FinalTrackSelectors"/>
 <export>
   <lib name="1"/>
 </export>

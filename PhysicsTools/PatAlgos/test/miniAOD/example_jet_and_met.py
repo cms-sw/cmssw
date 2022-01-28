@@ -20,7 +20,6 @@ from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
 from RecoMET.METProducers.pfMet_cfi import pfMet
 
 process.load("CommonTools.ParticleFlow.pfCHS_cff")
-task.add(process.packedPrimaryVertexAssociationJME)
 task.add(process.pfCHS)
 
 process.ak5PFJets = ak5PFJets.clone(src = 'packedPFCandidates', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it

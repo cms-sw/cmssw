@@ -1,6 +1,6 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_3_0/HIon --type HIon
 
-# /dev/CMSSW_12_3_0/HIon/V17 (CMSSW_12_3_0_pre3)
+# /dev/CMSSW_12_3_0/HIon/V23 (CMSSW_12_3_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V17')
+  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V23')
 )
 
 fragment.transferSystem = cms.PSet( 

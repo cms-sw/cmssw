@@ -43,7 +43,7 @@ hltMETplusTrackMonitoring.histoPSet.metBinning = cms.vdouble(binsLogX_METplusTra
 hltMETplusTrackMonitoring.histoPSet.ptBinning = cms.vdouble(binsLogX_METplusTrack)
 
 hltMETplusTrackMonitoring.met       = cms.InputTag("caloMet") # caloMet
-hltMETplusTrackMonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
+hltMETplusTrackMonitoring.jets      = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 hltMETplusTrackMonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
 hltMETplusTrackMonitoring.muonSelection = cms.string('pt>26 && abs(eta)<2.1 && (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt-0.5*pfIsolationR04.sumPUPt)/pt<0.12')

@@ -97,6 +97,7 @@ hltSUSYmonitoring.met       = "pfMetEI" # pfMet
 hltSUSYmonitoring.jets      = "ak4PFJetsCHS" # ak4PFJets, ak4PFJetsCHS, pfJetsEI
 hltSUSYmonitoring.electrons = "gedGsfElectrons" # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltSUSYmonitoring.muons     = "muons" # while pfIsolatedMuonsEI are reco::PFCandidate !
+
 #Suvankar
 hltSUSYmonitoring.vertices  = "offlinePrimaryVertices"
 

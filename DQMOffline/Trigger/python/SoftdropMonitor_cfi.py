@@ -21,6 +21,7 @@ hltSoftdropmonitoring.histoPSet.htPSet = cms.PSet(
   xmin  = cms.double(   -0.5),
   xmax  = cms.double(19999.5),
 )
+
 hltSoftdropmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 
 hltSoftdropmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND

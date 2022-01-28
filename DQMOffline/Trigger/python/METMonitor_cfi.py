@@ -20,7 +20,6 @@ hltMETmonitoring.histoPSet.metPSet = cms.PSet(
   xmax  = cms.double(19999.5),
 )
 
-
 hltMETmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltMETmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
 hltMETmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
