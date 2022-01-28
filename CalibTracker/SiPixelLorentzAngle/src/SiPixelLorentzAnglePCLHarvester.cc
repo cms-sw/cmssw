@@ -361,6 +361,17 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
                                                     hists.nLadders_[i],
                                                     0.5,
                                                     hists.nLadders_[i] + 0.5));
+
+    repName = "h2_byLayerDiff_%i";
+    repText = "BPix Layer %i #Delta#mu_{H}/#mu_{H};module number;ladder number;#Delta#mu_{H}/#mu_{H} [%%]";
+    hists.h2_byLayerDiff_.emplace_back(iBooker.book2D(fmt::sprintf(repName, i + 1),
+                                                      fmt::sprintf(repText, i + 1),
+                                                      hists.nModules_[i],
+                                                      0.5,
+                                                      hists.nModules_[i] + 0.5,
+                                                      hists.nLadders_[i],
+                                                      0.5,
+                                                      hists.nLadders_[i] + 0.5));
   }
 
   // clang-format off
@@ -494,6 +505,10 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
       const auto& ladder = theTrackerTopology->pxbLadder(id);
       const auto& module = theTrackerTopology->pxbModule(id);
       hists.h2_byLayerLA_[layer - 1]->setBinContent(module, ladder, value);
+
+      float deltaMuHoverMuH =
+          (currentLorentzAngle->getLorentzAngle(id) - value) / currentLorentzAngle->getLorentzAngle(id);
+      hists.h2_byLayerDiff_[layer - 1]->setBinContent(module, ladder, deltaMuHoverMuH * 100.f);
     }
   }
 
