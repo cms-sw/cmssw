@@ -44,36 +44,39 @@ void MiniAODTaggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 
   // Loop over the pat::Jets
   for (std::vector<pat::Jet>::const_iterator jet = jetCollection->begin(); jet != jetCollection->end(); ++jet) {
-    // fill numerator
-    float numerator = 0;
-    for (const auto& discrLabel : discrNumerator_) {
-      numerator += jet->bDiscriminator(discrLabel);
-    }
-
-    // fill denominator
-    float denominator;
-    if (discrDenominator_.empty()) {
-      denominator = 1;  // no division performed
-    } else {
-      denominator = 0;
-
-      for (const auto& discrLabel : discrDenominator_) {
-        denominator += jet->bDiscriminator(discrLabel);
+    // apply basic jet cuts
+    if (jet->pt() > ptMin_ && std::abs(jet->eta()) < etaMax_) {
+      // fill numerator
+      float numerator = 0;
+      for (const auto& discrLabel : discrNumerator_) {
+        numerator += jet->bDiscriminator(discrLabel);
       }
-    }
 
-    const float jec = 1.;  // JEC not implemented!
+      // fill denominator
+      float denominator;
+      if (discrDenominator_.empty()) {
+        denominator = 1;  // no division performed
+      } else {
+        denominator = 0;
 
-    // only add to histograms when discriminator values are valid
-    if (numerator >= 0 && denominator > 0) {
-      reco::Jet recoJet = *jet;
-      if (jetTagPlotter_->etaPtBin().inBin(recoJet, jec)) {
-        jetTagPlotter_->analyzeTag(recoJet, jec, numerator / denominator, jet->partonFlavour());
+        for (const auto& discrLabel : discrDenominator_) {
+          denominator += jet->bDiscriminator(discrLabel);
+        }
+      }
+
+      const float jec = 1.;  // JEC not implemented!
+
+      // only add to histograms when discriminator values are valid
+      if (numerator >= 0 && denominator > 0) {
+        reco::Jet recoJet = *jet;
+        if (jetTagPlotter_->etaPtBin().inBin(recoJet, jec)) {
+          jetTagPlotter_->analyzeTag(recoJet, jec, numerator / denominator, jet->partonFlavour());
+        }
       }
     }
   }
 
-  // fill JetMultiplicity
+  // fill JetMultiplicity (once per event)
   if (mclevel_ > 0) {
     jetTagPlotter_->analyzeTag(1.);
   } else {

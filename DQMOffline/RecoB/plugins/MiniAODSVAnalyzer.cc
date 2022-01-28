@@ -5,8 +5,8 @@
 MiniAODSVAnalyzer::MiniAODSVAnalyzer(const edm::ParameterSet& pSet)
     : jetToken_(consumes<std::vector<pat::Jet>>(pSet.getParameter<edm::InputTag>("JetTag"))),
       svTagInfo_(pSet.getParameter<std::string>("svTagInfo")),
-      jetPtMin_(pSet.getParameter<double>("JetptMin")),
-      etaMax_(pSet.getParameter<double>("EtaMax"))
+      ptMin_(pSet.getParameter<double>("ptMin")),
+      etaMax_(pSet.getParameter<double>("etaMax"))
 
 {}
 
@@ -62,7 +62,7 @@ void MiniAODSVAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // Loop over the pat::Jets
   for (std::vector<pat::Jet>::const_iterator jet = jetCollection->begin(); jet != jetCollection->end(); ++jet) {
     // jet selection
-    if (jet->hasTagInfo(svTagInfo_) && jet->pt() > jetPtMin_ && std::abs(jet->eta()) < etaMax_) {
+    if (jet->hasTagInfo(svTagInfo_) && jet->pt() > ptMin_ && std::abs(jet->eta()) < etaMax_) {
       const reco::CandSecondaryVertexTagInfo* taginfo =
           static_cast<const reco::CandSecondaryVertexTagInfo*>(jet->tagInfo(svTagInfo_));
       n_sv_->Fill(taginfo->nVertices());

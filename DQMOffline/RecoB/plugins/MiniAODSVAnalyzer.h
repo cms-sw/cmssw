@@ -25,7 +25,7 @@ private:
 
   const edm::EDGetTokenT<std::vector<pat::Jet> > jetToken_;
   const std::string svTagInfo_;
-  const double jetPtMin_;
+  const double ptMin_;
   const double etaMax_;
 
   MonitorElement* n_sv_;
