@@ -127,9 +127,9 @@ typedef HLTDoublet<RecoChargedCandidate, PFMET> HLT2MuonPFMET;
 typedef HLTDoublet<RecoEcalCandidate, MET> HLT2PhotonMET;
 typedef HLTDoublet<RecoEcalCandidate, PFMET> HLT2PhotonPFMET;
 
-#include "HLTDoubleSinglet.h"
-#include "HLTDoubleSinglet.cc"
-typedef HLTDoubleSinglet<PFTau, PFTau, PFJet> HLT3DoublePFTauPFJet;
+#include "HLTDoubletSinglet.h"
+#include "HLTDoubletSinglet.cc"
+typedef HLTDoubletSinglet<PFTau, PFTau, PFJet> HLT3DoublePFTauPFJet;
 
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
