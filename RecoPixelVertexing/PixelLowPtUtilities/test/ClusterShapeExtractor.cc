@@ -1,6 +1,6 @@
 // VI January 2012: needs to be migrated to use cluster directly
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -46,12 +46,13 @@ using namespace std;
 #define ewMax 40
 
 /*****************************************************************************/
-class ClusterShapeExtractor : public edm::EDAnalyzer {
+class ClusterShapeExtractor : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit ClusterShapeExtractor(const edm::ParameterSet& pset);
   ~ClusterShapeExtractor();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+  virtual void endRun(const edm::Run& run, const edm::EventSetup& es) override{};
   virtual void endJob() override;
 
 private:
@@ -81,6 +82,10 @@ private:
   void analyzeSimHits(const edm::Event& ev, const edm::EventSetup& es);
   void analyzeRecTracks(const edm::Event& ev, const edm::EventSetup& es);
 
+  // member data
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken;
+  edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> clusterShapeToken;
+
   TFile* file;
 
   string trackProducer;
@@ -105,15 +110,10 @@ private:
 /*****************************************************************************/
 void ClusterShapeExtractor::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   // Get tracker geometry
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
-  theTracker = tracker.product();
+  theTracker = &es.getData(geomToken);
 
-  //
-  //  theClusterShape = new ClusterShapeHitFilter(es);
-  edm::ESHandle<ClusterShapeHitFilter> shape;
-  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", shape);
-  theClusterShape = shape.product();
+  // Get the cluster shape
+  theClusterShape = &es.getData(clusterShapeToken);
 
   // Declare histograms
   char histName[256];
@@ -156,7 +156,9 @@ void ClusterShapeExtractor::beginRun(const edm::Run& run, const edm::EventSetup&
 
 /*****************************************************************************/
 ClusterShapeExtractor::ClusterShapeExtractor(const edm::ParameterSet& pset)
-    : pixelRecHits_token(consumes<edmNew::DetSetVector<SiPixelRecHit>>(edm::InputTag("siPixelRecHits"))),
+    : geomToken(esConsumes<edm::Transition::BeginRun>()),
+      clusterShapeToken(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "ClusterShapeHitFilter"))),
+      pixelRecHits_token(consumes<edmNew::DetSetVector<SiPixelRecHit>>(edm::InputTag("siPixelRecHits"))),
       clusterShapeCache_token(
           consumes<SiPixelClusterShapeCache>(pset.getParameter<edm::InputTag>("clusterShapeCacheSrc"))),
       trackerHitAssociatorConfig_(pset, consumesCollector()) {
