@@ -20,8 +20,8 @@ patJetsSVInfoTask = cms.Task(patJetsSVInfo)
 bTagSVDQM = DQMEDAnalyzer('MiniAODSVAnalyzer',
                           cms.PSet(JetTag = cms.InputTag('patJetsSVInfo'),
                                    svTagInfo = cms.string('pfSecondaryVertex'),
-                                   JetptMin = cms.double(30.),
-                                   EtaMax = cms.double(2.5),
+                                   ptMin = cms.double(30.),
+                                   etaMax = cms.double(2.5),
                                    )
                           )
 
