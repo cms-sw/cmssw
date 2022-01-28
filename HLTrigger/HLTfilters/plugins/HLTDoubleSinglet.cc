@@ -3,7 +3,7 @@
  * See header file for documentation
  *
  *
- *  \author Martin Grunewald
+ *  \author Jaime Leon Holgado
  *
  */
 

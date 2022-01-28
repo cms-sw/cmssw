@@ -5,15 +5,18 @@
  *
  *
  *  This class is an HLTFilter (-> EDFilter) implementing a basic HLT
- *  trigger for pairs of object, evaluating all pairs with the first
- *  object from collection 1, and the second object from collection 2,
+ *  trigger for triplets of objects, evaluating all triplets with the first
+ *  object from collection 1, the second object from collection 2,
+ *  and the third object from collection 3, 
  *  cutting on variables relating to their 4-momentum representations.
+ *  The filter itself compares only objects from collection 3
+ *  with objects from collections 1 and 2.
  *  The object collections are assumed to be outputs of HLTSinglet
  *  single-object-type filters so that the access is thorugh
  *  RefToBases and polymorphic.
  *
  *
- *  \author Martin Grunewald
+ *  \author Jaime Leon Holgado 
  *
  */
 
