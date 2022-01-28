@@ -30,6 +30,7 @@ public:
   MonitorMap h_drift_depth_;
   MonitorMap h_mean_;
 
+  // track monitoring
   dqm::reco::MonitorElement* h_tracks_;
   dqm::reco::MonitorElement* h_trackEta_;
   dqm::reco::MonitorElement* h_trackPhi_;
@@ -47,6 +48,7 @@ public:
 
   // ouput LA maps
   std::vector<dqm::reco::MonitorElement*> h2_byLayerLA_;
+  std::vector<dqm::reco::MonitorElement*> h2_byLayerDiff_;
 };
 
 #endif
