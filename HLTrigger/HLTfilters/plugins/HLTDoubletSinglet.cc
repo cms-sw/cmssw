@@ -16,6 +16,7 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -54,24 +55,23 @@ HLTDoubletSinglet<T1, T2, T3>::HLTDoubletSinglet(const edm::ParameterSet& iConfi
       same12_(inputTag1_.encode() == inputTag2_.encode()),  // same collections to be compared?
       same13_(inputTag1_.encode() == inputTag3_.encode()),  // same collections to be compared?
       same23_(inputTag2_.encode() == inputTag3_.encode()),  // same collections to be compared?
-      min_DelR2_(min_DelR_ * min_DelR_),                   // avoid computing sqrt(R2)
-      max_DelR2_(max_DelR_ * max_DelR_),                   // avoid computing sqrt(R2)
-      cutdphi_(min_Dphi_ <= max_Dphi_),                   // cut active?
-      cutdeta_(min_Deta_ <= max_Deta_),                   // cut active?
-      cutminv_(min_Minv_ <= max_Minv_),                   // cut active?
-      cutdelr_(min_DelR_ <= max_DelR_),                   // cut active?
-      cutpt_(min_Pt_ <= max_Pt_)                          // cut active?
+      min_DelR2_(min_DelR_ * min_DelR_),                    // avoid computing sqrt(R2)
+      max_DelR2_(max_DelR_ * max_DelR_),                    // avoid computing sqrt(R2)
+      cutdphi_(min_Dphi_ <= max_Dphi_),                     // cut active?
+      cutdeta_(min_Deta_ <= max_Deta_),                     // cut active?
+      cutminv_(min_Minv_ <= max_Minv_),                     // cut active?
+      cutdelr_(min_DelR_ <= max_DelR_),                     // cut active?
+      cutpt_(min_Pt_ <= max_Pt_)                            // cut active?
 {
-  LogDebug("") << "InputTags and cuts : " << inputTag1_.encode() << " " << inputTag2_.encode() << " " << inputTag3_.encode()
-               << triggerType1_ << " " << triggerType2_ << " " << triggerType3_ 
-               << " Dphi [" << min_Dphi_ << " " << max_Dphi_ << "]"
+  LogDebug("") << "InputTags and cuts : " << inputTag1_.encode() << " " << inputTag2_.encode() << " "
+               << inputTag3_.encode() << triggerType1_ << " " << triggerType2_ << " " << triggerType3_ << " Dphi ["
+               << min_Dphi_ << " " << max_Dphi_ << "]"
                << " Deta [" << min_Deta_ << " " << max_Deta_ << "]"
                << " Minv [" << min_Minv_ << " " << max_Minv_ << "]"
                << " DelR [" << min_DelR_ << " " << max_DelR_ << "]"
                << " Pt   [" << min_Pt_ << " " << max_Pt_ << "]"
-               << " MinN =" << min_N_ << " same12/same13/same23/dphi/deta/minv/delr/pt " 
-               << same12_ << same13_ << same23_ << cutdphi_ << cutdeta_ << cutminv_
-               << cutdelr_ << cutpt_;
+               << " MinN =" << min_N_ << " same12/same13/same23/dphi/deta/minv/delr/pt " << same12_ << same13_
+               << same23_ << cutdphi_ << cutdeta_ << cutminv_ << cutdelr_ << cutpt_;
 }
 
 template <typename T1, typename T2, typename T3>
@@ -113,8 +113,8 @@ void HLTDoubletSinglet<T1, T2, T3>::fillDescriptions(edm::ConfigurationDescripti
 // ------------ method called to produce the data  ------------
 template <typename T1, typename T2, typename T3>
 bool HLTDoubletSinglet<T1, T2, T3>::hltFilter(edm::Event& iEvent,
-                                   const edm::EventSetup& iSetup,
-                                   trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+                                              const edm::EventSetup& iSetup,
+                                              trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -134,8 +134,8 @@ bool HLTDoubletSinglet<T1, T2, T3>::hltFilter(edm::Event& iEvent,
 
   // get hold of pre-filtered object collections
   Handle<TriggerFilterObjectWithRefs> handle1, handle2, handle3;
-  if (iEvent.getByToken(inputToken1_, handle1) && iEvent.getByToken(inputToken2_, handle2) 
-      && iEvent.getByToken(inputToken3_, handle3)) {
+  if (iEvent.getByToken(inputToken1_, handle1) && iEvent.getByToken(inputToken2_, handle2) &&
+      iEvent.getByToken(inputToken3_, handle3)) {
     handle1->getObjects(triggerType1_, coll1);
     handle2->getObjects(triggerType2_, coll2);
     handle3->getObjects(triggerType3_, coll3);
@@ -148,7 +148,7 @@ bool HLTDoubletSinglet<T1, T2, T3>::hltFilter(edm::Event& iEvent,
       for (size_t i = 0; i < originTag1_.size(); ++i) {
         filterproduct.addCollectionTag(originTag1_[i]);
         LogVerbatim("HLTDoubletSinglet") << " XXX " << moduleLabel() << " 1a/" << i << " " << originTag1_[i].encode()
-                                  << std::endl;
+                                         << std::endl;
       }
       tagOld = InputTag();
       for (size_type i1 = 0; i1 != n1; ++i1) {
@@ -167,7 +167,7 @@ bool HLTDoubletSinglet<T1, T2, T3>::hltFilter(edm::Event& iEvent,
       for (size_t i = 0; i < originTag2_.size(); ++i) {
         filterproduct.addCollectionTag(originTag2_[i]);
         LogVerbatim("HLTDoubletSinglet") << " XXX " << moduleLabel() << " 2a/" << i << " " << originTag2_[i].encode()
-                                  << std::endl;
+                                         << std::endl;
       }
       tagOld = InputTag();
       for (size_type i2 = 0; i2 != n2; ++i2) {
@@ -186,7 +186,7 @@ bool HLTDoubletSinglet<T1, T2, T3>::hltFilter(edm::Event& iEvent,
       for (size_t i = 0; i < originTag3_.size(); ++i) {
         filterproduct.addCollectionTag(originTag3_[i]);
         LogVerbatim("HLTDoubletSinglet") << " XXX " << moduleLabel() << " 3a/" << i << " " << originTag3_[i].encode()
-                                  << std::endl;
+                                         << std::endl;
       }
       tagOld = InputTag();
       for (size_type i3 = 0; i3 != n3; ++i3) {
@@ -212,31 +212,27 @@ bool HLTDoubletSinglet<T1, T2, T3>::hltFilter(edm::Event& iEvent,
     for (size_t i1 = 0; i1 != n1; i1++) {
       r1 = coll1[i1];
       p1 = r1->p4();
-      size_t i(0);
+      size_t i2_min(0);
       if (same12_) {
-        i = i1 + 1;
+        i2_min = i1 + 1;
       }
-      for (size_t i2 = i; i2 != n2; i2++) {
+      for (size_t i2 = i2_min; i2 != n2; i2++) {
         r2 = coll2[i2];
         p2 = r2->p4();
-        
-        size_t ip(0);
+
+        size_t i3_min(0);
         if (same23_) {
-          ip = i + 1;
+          i3_min = i2_min + 1;
         } else if (same13_) {
-          ip = i1 + 1;
+          i3_min = i1 + 1;
         }
 
-        for (size_t i3 = ip; i3 != n3; i3++) {
+        for (size_t i3 = i3_min; i3 != n3; i3++) {
           r3 = coll3[i3];
           p3 = r3->p4();
-          
-          double Dphi13(deltaPhi(p1.phi(), p3.phi()));
-          double Dphi23(deltaPhi(p2.phi(), p3.phi()));
-          if (Dphi13 > M_PI)
-            Dphi13 = 2.0 * M_PI - Dphi13;
-          if (Dphi23 > M_PI)
-            Dphi23 = 2.0 * M_PI - Dphi23;
+
+          double Dphi13(std::abs(deltaPhi(p1.phi(), p3.phi())));
+          double Dphi23(std::abs(deltaPhi(p2.phi(), p3.phi())));
 
           double Deta13(std::abs(p1.eta() - p3.eta()));
           double Deta23(std::abs(p2.eta() - p3.eta()));
@@ -248,8 +244,8 @@ bool HLTDoubletSinglet<T1, T2, T3>::hltFilter(edm::Event& iEvent,
           double Pt13(p13.pt());
           double Pt23(p23.pt());
 
-          double DelR2_13(deltaR2(p1.eta(), p1.phi(), p3.eta(), p3.phi()));
-          double DelR2_23(deltaR2(p2.eta(), p2.phi(), p3.eta(), p3.phi()));
+          double DelR2_13(Dphi13 * Dphi13 + Deta13 * Deta13);
+          double DelR2_23(Dphi23 * Dphi23 + Deta23 * Deta23);
 
           if (((!cutdphi_) || ((min_Dphi_ <= Dphi13) && (Dphi13 <= max_Dphi_))) &&
               ((!cutdphi_) || ((min_Dphi_ <= Dphi23) && (Dphi23 <= max_Dphi_))) &&

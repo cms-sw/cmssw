@@ -21,8 +21,6 @@
  */
 
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/Math/interface/deltaR.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include <string>
@@ -59,16 +57,16 @@ private:
   const int triggerType1_;
   const int triggerType2_;
   const int triggerType3_;
-  const double min_Dphi_, max_Dphi_;  // Delta phi (1,3) and (2,3) window
-  const double min_Deta_, max_Deta_;  // Delta eta (1,3) and (2,3) window
+  const double min_Dphi_, max_Dphi_;  // DeltaPhi (1,3) and (2,3) window
+  const double min_Deta_, max_Deta_;  // DeltaEta (1,3) and (2,3) window
   const double min_Minv_, max_Minv_;  // Minv(1,2) and Minv(2,3) window
-  const double min_DelR_, max_DelR_;  // Delta R (1,3) and (2,3) window
+  const double min_DelR_, max_DelR_;  // DeltaR (1,3) and (2,3) window
   const double min_Pt_, max_Pt_;      // Pt(1,3) and (2,3) window
   const int min_N_;                   // number of triplets passing cuts required
 
   // calculated from configuration in c'tor
-  const bool same12_, same13_, same23_;  // 1st and 2nd product are one and the same
-  const double min_DelR2_, max_DelR2_;  // Delta R (1,3) and (2,3) window
+  const bool same12_, same13_, same23_;                       // 1st and 2nd product are one and the same
+  const double min_DelR2_, max_DelR2_;                        // DeltaR (1,3) and (2,3) window
   const bool cutdphi_, cutdeta_, cutminv_, cutdelr_, cutpt_;  // cuts are on=true or off=false
 
   //
