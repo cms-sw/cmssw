@@ -22,14 +22,22 @@ using namespace edm;
 using namespace std;
 
 CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset) : BaseFlatGunProducer(pset) {
-  ParameterSet defpset;
   ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters");
-
+  fControlledByEta = pgun_params.getParameter<bool>("ControlledByEta");
   fEnMax = pgun_params.getParameter<double>("EnMax");
   fEnMin = pgun_params.getParameter<double>("EnMin");
   fMaxEnSpread = pgun_params.getParameter<bool>("MaxEnSpread");
-  fRMax = pgun_params.getParameter<double>("RMax");
-  fRMin = pgun_params.getParameter<double>("RMin");
+  if (fControlledByEta) {
+    fEtaMax = pgun_params.getParameter<double>("MaxEta");
+    fEtaMin = pgun_params.getParameter<double>("MinEta");
+    if (fEtaMax <= fEtaMin)
+      LogError("CloseByParticleGunProducer") << " Please fix MinEta and MaxEta values in the configuration";
+  } else {
+    fRMax = pgun_params.getParameter<double>("RMax");
+    fRMin = pgun_params.getParameter<double>("RMin");
+    if (fRMax <= fRMin)
+      LogError("CloseByParticleGunProducer") << " Please fix RMin and RMax values in the configuration";
+  }
   fZMax = pgun_params.getParameter<double>("ZMax");
   fZMin = pgun_params.getParameter<double>("ZMin");
   fDelta = pgun_params.getParameter<double>("Delta");
@@ -62,8 +70,16 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
   unsigned int numParticles = fRandomShoot ? CLHEP::RandFlat::shoot(engine, 1, fNParticles) : fNParticles;
 
   double phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
-  double fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
   double fZ = CLHEP::RandFlat::shoot(engine, fZMin, fZMax);
+  double fR;
+
+  if (!fControlledByEta) {
+    fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
+  } else {
+    double fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
+    fR = (fZ / sinh(fEta));
+  }
+
   double tmpPhi = phi;
   double tmpR = fR;
 
@@ -81,7 +97,8 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     else
       fEn = CLHEP::RandFlat::shoot(engine, fEnMin, fEnMax);
 
-    int PartID = CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size());
+    int partIdx = CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size());
+    int PartID = fPartIDs[partIdx];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
     double mass = PData->mass().value();
     double mom2 = fEn * fEn - mass * mass;
