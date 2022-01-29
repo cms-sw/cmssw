@@ -97,7 +97,7 @@ if __name__ == '__main__':
                      28234.0, #2026D60 (exercise HF nose)
                      35034.0, #2026D77 ttbar (2021 new baseline)
                      35234.999, #2026D77 ttbar premixing stage1+stage2, PU50
-                     #38634.0, #2026D86 ttbar
+                     38634.0, #2026D86 ttbar
                      39434.0, #2026D88 ttbar
                      39634.0, #2026D88 ttbar premixing stage1+stage2, PU50
                      25202.0, #2016 ttbar UP15 PU
