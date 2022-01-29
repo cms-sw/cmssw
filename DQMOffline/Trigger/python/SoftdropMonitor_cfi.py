@@ -13,27 +13,29 @@ hltSoftdropmonitoring = htMonitoring.clone(
     met       = "pfMetEI",
     jets      = "ak8PFJetsPuppiSoftDrop", # dont set this to non-SoftdropJets
     electrons = "gedGsfElectrons",
-    muons     = "muons"
+    muons     = "muons",
+    histoPSet = dict(htBinning = [0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 105., 110., 115., 120., 125., 130., 135., 140., 145., 150., 155., 160., 165., 170., 175., 180., 185., 190., 195., 200.],
+                     htPSet = dict(
+                            nbins =  200,
+                            xmin  = -0.5,
+                            xmax  = 19999.5)),
+    
+numGenericTriggerEventPSet = dict(
+    andOr  = False,
+    andOrHlt      = True, # True:=OR; False:=AND
+    hltInputTag   = "TriggerResults::HLT",
+    hltPaths      = ["HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v*"],
+    errorReplyHlt = False,
+    verbosityLevel = 0),
+
+denGenericTriggerEventPSet = dict(
+    andOr  = False,
+    dcsInputTag   = "scalersRawToDigi",
+    dcsPartitions = [24, 25, 26, 27, 28, 29], # 24-27: strip, 28-29
+    andOrDcs      = False,
+    errorReplyDcs = True,
+    verbosityLevel = 0,
+    hltPaths      = ["HLT_IsoMu27_v*"])
 )
-hltSoftdropmonitoring.histoPSet.htBinning = cms.vdouble (0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 105., 110., 115., 120., 125., 130., 135., 140., 145., 150., 155., 160., 165., 170., 175., 180., 185., 190., 195., 200.)
-hltSoftdropmonitoring.histoPSet.htPSet = cms.PSet(
-  nbins = cms.uint32 (  200  ),
-  xmin  = cms.double(   -0.5),
-  xmax  = cms.double(19999.5),
-)
 
-hltSoftdropmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 
-hltSoftdropmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
-hltSoftdropmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
-hltSoftdropmonitoring.numGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
-hltSoftdropmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
-hltSoftdropmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
-
-hltSoftdropmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
-hltSoftdropmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
-hltSoftdropmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29
-hltSoftdropmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
-hltSoftdropmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
-hltSoftdropmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
-hltSoftdropmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_IsoMu27_v*")
