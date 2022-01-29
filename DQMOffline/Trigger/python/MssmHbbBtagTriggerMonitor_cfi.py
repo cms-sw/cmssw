@@ -41,63 +41,71 @@ mssmHbbBtagTriggerMonitor = DQMEDAnalyzer("TagAndProbeBtagTriggerMonitor",
 mssmHbbBtagTriggerMonitorSL40noMu = mssmHbbBtagTriggerMonitor.clone(
     dirname = "HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt40_noMuon",
     jetPtMin = 40,
-    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single8Jets30"
+    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single8Jets30",
+    histoPSet = dict(jetPt = [40,45,50,55,60,65,70,75,80,85,90,95,100]),
+    genericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets40_CaloBTagDeepCSV_p71_v*'])
 )
-mssmHbbBtagTriggerMonitorSL40noMu.histoPSet.jetPt = cms.vdouble(40,45,50,55,60,65,70,75,80,85,90,95,100)
-mssmHbbBtagTriggerMonitorSL40noMu.genericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoublePFJets40_CaloBTagDeepCSV_p71_v*')
+
 
 mssmHbbBtagTriggerMonitorSL40 = mssmHbbBtagTriggerMonitor.clone(
     dirname = "HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt40",
     jetPtMin = 40,
-    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single8Jets30"
+    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single8Jets30",
+    histoPSet = dict(jetPt = [40,45,50,55,60,65,70,75,80,85,90,95,100]),
+    genericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71_v*'])
 )
-mssmHbbBtagTriggerMonitorSL40.histoPSet.jetPt = cms.vdouble(40,45,50,55,60,65,70,75,80,85,90,95,100)
-mssmHbbBtagTriggerMonitorSL40.genericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71_v*')
+
 
 mssmHbbBtagTriggerMonitorSL100 = mssmHbbBtagTriggerMonitor.clone(
     dirname = "HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt100",
     jetPtMin = 100,
-    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single8Jets30"
+    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single8Jets30",
+    histoPSet = dict(jetPt = [100,110,120,130,140,150,160,170,180,190,200]),
+    genericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets100_CaloBTagDeepCSV_p71_v*'])
 )
-mssmHbbBtagTriggerMonitorSL100.histoPSet.jetPt = cms.vdouble(100,110,120,130,140,150,160,170,180,190,200)
-mssmHbbBtagTriggerMonitorSL100.genericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu12_DoublePFJets100_CaloBTagDeepCSV_p71_v*')
+
 
 mssmHbbBtagTriggerMonitorSL200 = mssmHbbBtagTriggerMonitor.clone(
     dirname = "HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt200",
     jetPtMin = 200,
-    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single8Jets30"
+    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single8Jets30",
+    histoPSet = dict(jetPt = [200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350]),
+    genericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets200_CaloBTagDeepCSV_p71_v*'])
 )
-mssmHbbBtagTriggerMonitorSL200.histoPSet.jetPt = cms.vdouble(200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350)
-mssmHbbBtagTriggerMonitorSL200.genericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu12_DoublePFJets200_CaloBTagDeepCSV_p71_v*')
+
 
 mssmHbbBtagTriggerMonitorSL350 = mssmHbbBtagTriggerMonitor.clone(
     dirname = "HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt350",
     jetPtMin = 350,
-    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single8Jets30"
+    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single8Jets30",
+    histoPSet = dict(jetPt = [350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600]),
+    genericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets350_CaloBTagDeepCSV_p71_v*'])
 )
-mssmHbbBtagTriggerMonitorSL350.histoPSet.jetPt = cms.vdouble(350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600)
-mssmHbbBtagTriggerMonitorSL350.genericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu12_DoublePFJets350_CaloBTagDeepCSV_p71_v*')
+
 
 mssmHbbBtagTriggerMonitorAH100 = mssmHbbBtagTriggerMonitor.clone(
     dirname = "HLT/HIG/MssmHbb/fullhadronic/BtagTrigger/pt100",
     jetPtMin = 100,
-    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single6Jets80"
+    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single6Jets80",
+    histoPSet = dict(jetPt = [100,110,120,130,140,150,160,170,180,190,200]),
+    genericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets100_CaloBTagDeepCSV_p71_v*'])
 )
-mssmHbbBtagTriggerMonitorAH100.histoPSet.jetPt = cms.vdouble(100,110,120,130,140,150,160,170,180,190,200)
-mssmHbbBtagTriggerMonitorAH100.genericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoublePFJets100_CaloBTagDeepCSV_p71_v*')
+
 
 mssmHbbBtagTriggerMonitorAH200 = mssmHbbBtagTriggerMonitor.clone(
     dirname = "HLT/HIG/MssmHbb/fullhadronic/BtagTrigger/pt200",
     jetPtMin = 200,
-    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single6Jets80"
+    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single6Jets80",
+    histoPSet = dict(jetPt = [200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350]),
+    genericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets200_CaloBTagDeepCSV_p71_v*'])
 )
-mssmHbbBtagTriggerMonitorAH200.histoPSet.jetPt = cms.vdouble(200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350)
-mssmHbbBtagTriggerMonitorAH200.genericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoublePFJets200_CaloBTagDeepCSV_p71_v*')
+
 
 mssmHbbBtagTriggerMonitorAH350 = mssmHbbBtagTriggerMonitor.clone(
     dirname = "HLT/HIG/MssmHbb/fullhadronic/BtagTrigger/pt350",
     jetPtMin = 350,
-    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single6Jets80"
+    triggerobjbtag = "hltBTagCaloDeepCSV0p71Single6Jets80",
+    histoPSet = dict(jetPt = [350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600]),
+    genericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets350_CaloBTagDeepCSV_p71_v*'])
 )
-mssmHbbBtagTriggerMonitorAH350.histoPSet.jetPt = cms.vdouble(350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600)
-mssmHbbBtagTriggerMonitorAH350.genericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoublePFJets350_CaloBTagDeepCSV_p71_v*')
+
