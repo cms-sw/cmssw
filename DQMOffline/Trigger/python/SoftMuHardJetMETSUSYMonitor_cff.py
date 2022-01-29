@@ -12,14 +12,13 @@ SoftMuHardJetMETSUSYmonitoring = hltSUSYmonitoring.clone(
     muons = "muons",
     HTdefinition     = 'pt>30 & abs(eta)<2.5',
     leptJetDeltaRmin = 0.4,
-    MHTdefinition    = 'pt>30 & abs(eta)<2.4'
+    MHTdefinition    = 'pt>30 & abs(eta)<2.4',
+    numGenericTriggerEventPSet = dict(hltInputTag = ["TriggerResults","","HLT"],
+                                      hltPaths = ["HLT_Mu3er1p5_PFJet100er2p5_PFMET70_PFMHT70_IDTight_v*",
+                                                  "HLT_Mu3er1p5_PFJet100er2p5_PFMET80_PFMHT80_IDTight_v*",
+                                                  "HLT_Mu3er1p5_PFJet100er2p5_PFMET90_PFMHT90_IDTight_v*" ])
 )
-SoftMuHardJetMETSUSYmonitoring.numGenericTriggerEventPSet.hltInputTag = cms.InputTag("TriggerResults","","HLT")
-SoftMuHardJetMETSUSYmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring(
-    "HLT_Mu3er1p5_PFJet100er2p5_PFMET70_PFMHT70_IDTight_v*",
-    "HLT_Mu3er1p5_PFJet100er2p5_PFMET80_PFMHT80_IDTight_v*",
-    "HLT_Mu3er1p5_PFJet100er2p5_PFMET90_PFMHT90_IDTight_v*" 
-)
+
 
 ###############
 ### Muon pt ###
@@ -35,12 +34,13 @@ SoftMuHardJetMETSUSYmonitoring_muPt            = SoftMuHardJetMETSUSYmonitoring.
     # MET selection
     enableMETPlot = True,
     metSelection = 'pt>150',
-    MHTcut       = 150
+    MHTcut       = 150,
+    ## Selection ##
+    denGenericTriggerEventPSet = dict(hltPaths = ['HLT_PFMET120_PFMHT120_IDTight_v*', 'HLT_PFMET130_PFMHT130_IDTight_v*', 'HLT_PFMET140_PFMHT140_IDTight_v*']),
+    ## Binning ##
+    histoPSet = dict(muPtBinning = [0,2,5,7,10,12,15,17,20,25,30,50])
 )
-## Selection ##
-SoftMuHardJetMETSUSYmonitoring_muPt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFMET120_PFMHT120_IDTight_v*', 'HLT_PFMET130_PFMHT130_IDTight_v*', 'HLT_PFMET140_PFMHT140_IDTight_v*')
-## Binning ##
-SoftMuHardJetMETSUSYmonitoring_muPt.histoPSet.muPtBinning = cms.vdouble(0,2,5,7,10,12,15,17,20,25,30,50)
+
 
 ##############
 ### Jet pt ###
@@ -56,12 +56,13 @@ SoftMuHardJetMETSUSYmonitoring_jetPt = SoftMuHardJetMETSUSYmonitoring.clone(
     # MET selection
     enableMETPlot = True,
     metSelection  = 'pt>150',
-    MHTcut        = 150
+    MHTcut        = 150,
+    ## Selection ##
+    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_IsoMu27_v*"]),
+    # Binning
+    histoPSet = dict(jetPtBinning = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400]) 
 )
-## Selection ##
-SoftMuHardJetMETSUSYmonitoring_jetPt.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_IsoMu27_v*")
-# Binning
-SoftMuHardJetMETSUSYmonitoring_jetPt.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400) 
+
 
 ##############
 ### MET pt ###
@@ -75,12 +76,13 @@ SoftMuHardJetMETSUSYmonitoring_metPt = SoftMuHardJetMETSUSYmonitoring.clone(
     njets        = 1,
     jetSelection = "pt>130 & abs(eta)<2.5",
     # MET selection
-    enableMETPlot = True
+    enableMETPlot = True,
+    ## Selection ##
+    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_IsoMu27_v*"]),
+    # Binning
+    histoPSet = dict(metPSet = dict(nbins= 50,xmin= 50,xmax= 300))
 )
-## Selection ##
-SoftMuHardJetMETSUSYmonitoring_metPt.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_IsoMu27_v*")
-# Binning
-SoftMuHardJetMETSUSYmonitoring_metPt.histoPSet.metPSet = cms.PSet(nbins=cms.uint32(50),xmin=cms.double(50),xmax=cms.double(300))
+
 
 susyHLTSoftMuHardJetMETMonitoring = cms.Sequence(
     SoftMuHardJetMETSUSYmonitoring_muPt
