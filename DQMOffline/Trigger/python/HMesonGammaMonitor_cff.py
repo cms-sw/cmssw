@@ -15,9 +15,10 @@ HMesonGammamonitoring = hltobjmonitoring.clone(
     doHMesonGammaHistos = True
     #enableMETPlot = True,
     #metSelection = "pt>150",
+    numGenericTriggerEventPSet = dict(hltInputTag   = ["TriggerResults","","HLT" ],
+                                      hltPaths = ["HLT_Photon35_TwoProngs35_v*"])
 )
-HMesonGammamonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults","","HLT" )
-HMesonGammamonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon35_TwoProngs35_v*")
+
 
 hmesongammamonitoring = cms.Sequence(
     HMesonGammamonitoring
