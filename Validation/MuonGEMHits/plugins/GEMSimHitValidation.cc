@@ -82,18 +82,18 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       Int_t station_id = station->station();
       if (me_eloss_mu_.find(station_id) != me_eloss_mu_.end())
         continue;
-      
+
       auto eloss_mu_name = TString::Format("sim_eloss_muon_GE%d1", station_id);
       auto eloss_mu_title = TString::Format("SimHit Energy Loss (Muon only) : GE%d1", station_id);
-      
+
       me_eloss_mu_[station_id] =
-        booker.book1D(eloss_mu_name, eloss_mu_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
-      
+          booker.book1D(eloss_mu_name, eloss_mu_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
+
       auto eloss_others_name = TString::Format("sim_eloss_others_GE%d1", station_id);
       auto eloss_others_title = TString::Format("SimHit Energy Loss (Other Particles) : GE%d1", station_id);
-      
+
       me_eloss_others_[station_id] =
-        booker.book1D(eloss_others_name, eloss_others_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
+          booker.book1D(eloss_others_name, eloss_others_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
     }  // station loop
   }    // region loop
 
