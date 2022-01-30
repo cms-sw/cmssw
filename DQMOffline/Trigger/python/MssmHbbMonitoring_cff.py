@@ -15,30 +15,33 @@ hltMssmHbbmonitoringAL100 = hltMssmHbbmonitoring.clone(
     FolderName = 'HLT/HIG/MssmHbb/fullhadronic/pt100',
     nmuons = 0,
     nbjets = 2,
-    bjetSelection = 'pt>110 & abs(eta)<2.2'
+    bjetSelection = 'pt>110 & abs(eta)<2.2',
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets100MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v*']),
+    histoPSet = dict(jetPtBinning = [0,250,280,300,320,360,400,700,1000,1500])
 )
-hltMssmHbbmonitoringAL100.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoublePFJets100MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v*')
-hltMssmHbbmonitoringAL100.histoPSet.jetPtBinning = cms.vdouble(0,250,280,300,320,360,400,700,1000,1500)
+
 
 hltMssmHbbmonitoringAL116 = hltMssmHbbmonitoring.clone(
     #FolderName = 'HLT/Higgs/MssmHbb/fullhadronic/pt116',
     FolderName = 'HLT/HIG/MssmHbb/fullhadronic/pt116',
     nmuons = 0,
     nbjets = 2,
-    bjetSelection = 'pt>116 & abs(eta)<2.2'
+    bjetSelection = 'pt>116 & abs(eta)<2.2',
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets116MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v*']),
+    histoPSet = dict(jetPtBinning = [0,250,280,300,320,360,400,700,1000,1500])
 )
-hltMssmHbbmonitoringAL116.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoublePFJets116MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v*')
-hltMssmHbbmonitoringAL116.histoPSet.jetPtBinning = cms.vdouble(0,250,280,300,320,360,400,700,1000,1500)
+
 
 hltMssmHbbmonitoringAL128 = hltMssmHbbmonitoring.clone(
     #FolderName = 'HLT/Higgs/MssmHbb/fullhadronic/pt128',
     FolderName = 'HLT/HIG/MssmHbb/fullhadronic/pt128',
     nmuons = 0,
     nbjets = 2,
-    bjetSelection = 'pt>128 & abs(eta)<2.2'
+    bjetSelection = 'pt>128 & abs(eta)<2.2',
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets128MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v*']),
+    histoPSet = dict(jetPtBinning = [0,250,280,300,320,360,400,700,1000,1500])
 )
-hltMssmHbbmonitoringAL128.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoublePFJets128MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v*')
-hltMssmHbbmonitoringAL128.histoPSet.jetPtBinning = cms.vdouble(0,250,280,300,320,360,400,700,1000,1500)
+
 
 # Semi-leptonic MssmHbb(mu)
 hltMssmHbbmonitoringSL40 = hltMssmHbbmonitoring.clone(
@@ -47,10 +50,10 @@ hltMssmHbbmonitoringSL40 = hltMssmHbbmonitoring.clone(
     nmuons = 1,
     nbjets = 2,
     muoSelection = 'pt>12 & abs(eta)<2.2 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
-    bjetSelection = 'pt>40 & abs(eta)<2.2'
+    bjetSelection = 'pt>40 & abs(eta)<2.2',
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets40MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v*']),
+    histoPSet = dict(jetPtBinning = [0,250,280,300,320,360,400,700,1000,1500])
 )
-hltMssmHbbmonitoringSL40.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoublePFJets40MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v*')
-hltMssmHbbmonitoringSL40.histoPSet.jetPtBinning = cms.vdouble(0,250,280,300,320,360,400,700,1000,1500)
 
 hltMssmHbbmonitoringSL54 = hltMssmHbbmonitoring.clone(
     #FolderName = 'HLT/Higgs/MssmHbb/semileptonic/pt54',
@@ -58,10 +61,11 @@ hltMssmHbbmonitoringSL54 = hltMssmHbbmonitoring.clone(
     nmuons = 1,
     nbjets = 2,
     muoSelection = 'pt>12 & abs(eta)<2.2 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
-    bjetSelection = 'pt>54 & abs(eta)<2.2'
+    bjetSelection = 'pt>54 & abs(eta)<2.2',
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets54MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v*']),
+    histoPSet = dict(jetPtBinning = [0,250,280,300,320,360,400,700,1000,1500])
 )
-hltMssmHbbmonitoringSL54.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoublePFJets54MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v*')
-hltMssmHbbmonitoringSL54.histoPSet.jetPtBinning = cms.vdouble(0,250,280,300,320,360,400,700,1000,1500)
+
 
 hltMssmHbbmonitoringSL62 = hltMssmHbbmonitoring.clone(
     #FolderName = 'HLT/Higgs/MssmHbb/semileptonic/pt62'
@@ -69,10 +73,11 @@ hltMssmHbbmonitoringSL62 = hltMssmHbbmonitoring.clone(
     nmuons = 1,
     nbjets = 2,
     muoSelection = 'pt>12 & abs(eta)<2.2 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
-    bjetSelection = 'pt>62 & abs(eta)<2.2'
+    bjetSelection = 'pt>62 & abs(eta)<2.2',
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets62MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v*']),
+    histoPSet = dict(jetPtBinning = [0,250,280,300,320,360,400,700,1000,1500])
 )
-hltMssmHbbmonitoringSL62.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoublePFJets62MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v*')
-hltMssmHbbmonitoringSL62.histoPSet.jetPtBinning = cms.vdouble(0,250,280,300,320,360,400,700,1000,1500)
+
 
 #control b-tagging 
 hltMssmHbbmonitoringControl = hltMssmHbbmonitoring.clone(
@@ -82,10 +87,11 @@ hltMssmHbbmonitoringControl = hltMssmHbbmonitoring.clone(
     nbjets = 0,
     njets = 1,
     muoSelection = 'pt>12 & abs(eta)<2.2 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
-    jetSelection = 'pt>40 & abs(eta)<2.2'
+    jetSelection = 'pt>40 & abs(eta)<2.2',
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_SingleJet30_Mu12_SinglePFJet40_v*']),
+    histoPSet = dict(jetPtBinning = [0,250,280,300,320,360,400,700,1000,1500])
 )
-hltMssmHbbmonitoringControl.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_SingleJet30_Mu12_SinglePFJet40_v*')
-hltMssmHbbmonitoringControl.histoPSet.jetPtBinning = cms.vdouble(0,250,280,300,320,360,400,700,1000,1500)
+
 
 
 mssmHbbMonitorHLT = cms.Sequence(
