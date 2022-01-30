@@ -34,6 +34,24 @@ void GEMGeometryBuilderFromCondDB::build(GEMGeometry& theGeometry, const RecoIde
       } else {
         GEMChamber* gch = buildChamber(rgeo, id, gemid);
         chambers.emplace(gemid.rawId(), gch);
+
+        // workaround for demonstrator geometry with no superchamber
+        const GEMDetId demoChId(1, 1, 2, 2, 16, 0);
+        if (gemid.region() == 1 && gemid.station() == 2 && gemid.chamber() == 16) {
+          const GEMDetId demoSuChId(1, 1, 2, 0, 16, 0);
+          bool found = false;
+          for (auto & id : detids) {
+            if (id.rawId() == demoSuChId.rawId()) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            GEMSuperChamber* gsc = buildSuperChamber(rgeo, id, demoSuChId);
+            superChambers.emplace(demoSuChId.rawId(), gsc);
+            edm::LogWarning("Geometry") << "GE2/1 Demonstrator superchamber missing, adding by hand";
+          }
+        }
       }
     } else {
       GEMEtaPartition* gep = buildEtaPartition(rgeo, id, gemid);
