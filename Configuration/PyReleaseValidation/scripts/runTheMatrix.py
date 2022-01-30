@@ -99,7 +99,7 @@ if __name__ == '__main__':
                      35234.999, #2026D77 ttbar premixing stage1+stage2, PU50
                      38634.0, #2026D86 ttbar
                      39434.0, #2026D88 ttbar
-                     39634.0, #2026D88 ttbar premixing stage1+stage2, PU50
+                     39634.999, #2026D88 ttbar premixing stage1+stage2, PU50
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],
