@@ -38,11 +38,11 @@ void FPGAWord::set(int value, int nbits, bool positive, int line, const char* fi
     }
     assert(value < (1 << nbits));
   } else {
-    if (value > (1 << (nbits - 1))) {
-      edm::LogProblem("Tracklet") << "value too large:" << value << " " << (1 << (nbits - 1)) << " (" << file << ":"
+    if (value >= (1 << (nbits - 1))) {
+      edm::LogProblem("Tracklet") << "value too large:" << value << " " << (1 << (nbits - 1)) - 1 << " (" << file << ":"
                                   << line << ")";
     }
-    assert(value <= (1 << (nbits - 1)));
+    assert(value < (1 << (nbits - 1)));
     if (value < -(1 << (nbits - 1))) {
       edm::LogProblem("Tracklet") << "value too negative:" << value << " " << -(1 << (nbits - 1)) << " (" << file << ":"
                                   << line << ")";

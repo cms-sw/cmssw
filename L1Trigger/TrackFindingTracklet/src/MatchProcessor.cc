@@ -507,7 +507,8 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
     }
 
     bool imatch = (std::abs(ideltaphi) <= phimatchcuttable_.lookup(seedindex)) &&
-                  (std::abs(ideltaz << dzshift_) <= zmatchcuttable_.lookup(seedindex));
+                  (ideltaz << dzshift_ < zmatchcuttable_.lookup(seedindex)) &&
+                  (ideltaz << dzshift_ >= -zmatchcuttable_.lookup(seedindex));
 
     if (settings_.debugTracklet()) {
       edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " ideltaphi cut " << ideltaphi << " "
