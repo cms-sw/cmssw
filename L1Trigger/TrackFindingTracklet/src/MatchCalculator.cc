@@ -221,7 +221,8 @@ void MatchCalculator::execute(double phioffset) {
       }
 
       bool imatch = (std::abs(ideltaphi) <= (int)phimatchcuttable_.lookup(seedindex)) &&
-                    (std::abs(ideltaz * fact_) <= (int)zmatchcuttable_.lookup(seedindex));
+                    (ideltaz * fact_ < (int)zmatchcuttable_.lookup(seedindex)) &&
+                    (ideltaz * fact_ >= - (int)zmatchcuttable_.lookup(seedindex));
 
       if (settings_.debugTracklet()) {
         edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " ideltaphi cut " << ideltaphi << " "
