@@ -40,7 +40,7 @@ void GEMGeometryBuilderFromCondDB::build(GEMGeometry& theGeometry, const RecoIde
         if (gemid.region() == 1 && gemid.station() == 2 && gemid.chamber() == 16) {
           const GEMDetId demoSuChId(1, 1, 2, 0, 16, 0);
           bool found = false;
-          for (auto & id : detids) {
+          for (auto& id : detids) {
             if (id.rawId() == demoSuChId.rawId()) {
               found = true;
               break;
