@@ -52,7 +52,6 @@ _phase2_hgcal_particleFlowTmp = cms.EDProducer(
 
 )
 
-
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
 phase2_hgcal.toModify(
