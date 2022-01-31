@@ -6,12 +6,9 @@
  **/
 #include "RecoLocalCalo/EcalRecProducers/plugins/EcalRecHitProducer.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalCleaningAlgo.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -24,36 +21,48 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps) {
-  ebRechitCollection_ = ps.getParameter<std::string>("EBrechitCollection");
-  eeRechitCollection_ = ps.getParameter<std::string>("EErechitCollection");
+EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps)
+    : doEB_(!ps.getParameter<edm::InputTag>("EBuncalibRecHitCollection").label().empty()),
+      doEE_(!ps.getParameter<edm::InputTag>("EEuncalibRecHitCollection").label().empty()),
+      recoverEBIsolatedChannels_(ps.getParameter<bool>("recoverEBIsolatedChannels")),
+      recoverEEIsolatedChannels_(ps.getParameter<bool>("recoverEEIsolatedChannels")),
+      recoverEBVFE_(ps.getParameter<bool>("recoverEBVFE")),
+      recoverEEVFE_(ps.getParameter<bool>("recoverEEVFE")),
+      recoverEBFE_(ps.getParameter<bool>("recoverEBFE")),
+      recoverEEFE_(ps.getParameter<bool>("recoverEEFE")),
+      killDeadChannels_(ps.getParameter<bool>("killDeadChannels")),
+      ebRecHitToken_(produces<EBRecHitCollection>(ps.getParameter<std::string>("EBrechitCollection"))),
+      eeRecHitToken_(produces<EERecHitCollection>(ps.getParameter<std::string>("EErechitCollection"))) {
+  if (doEB_) {
+    ebUncalibRecHitToken_ =
+        consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EBuncalibRecHitCollection"));
 
-  recoverEBIsolatedChannels_ = ps.getParameter<bool>("recoverEBIsolatedChannels");
-  recoverEEIsolatedChannels_ = ps.getParameter<bool>("recoverEEIsolatedChannels");
-  recoverEBVFE_ = ps.getParameter<bool>("recoverEBVFE");
-  recoverEEVFE_ = ps.getParameter<bool>("recoverEEVFE");
-  recoverEBFE_ = ps.getParameter<bool>("recoverEBFE");
-  recoverEEFE_ = ps.getParameter<bool>("recoverEEFE");
-  killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
+    if (recoverEBIsolatedChannels_ || recoverEBFE_ || killDeadChannels_) {
+      ebDetIdToBeRecoveredToken_ = consumes<std::set<EBDetId>>(ps.getParameter<edm::InputTag>("ebDetIdToBeRecovered"));
+    }
 
-  produces<EBRecHitCollection>(ebRechitCollection_);
-  produces<EERecHitCollection>(eeRechitCollection_);
+    if (recoverEBFE_ || killDeadChannels_) {
+      ebFEToBeRecoveredToken_ =
+          consumes<std::set<EcalTrigTowerDetId>>(ps.getParameter<edm::InputTag>("ebFEToBeRecovered"));
+    }
+  }
 
-  ebUncalibRecHitToken_ =
-      consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EBuncalibRecHitCollection"));
+  if (doEE_) {
+    eeUncalibRecHitToken_ =
+        consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibRecHitCollection"));
 
-  eeUncalibRecHitToken_ =
-      consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibRecHitCollection"));
+    if (recoverEEIsolatedChannels_ || recoverEEFE_ || killDeadChannels_) {
+      eeDetIdToBeRecoveredToken_ = consumes<std::set<EEDetId>>(ps.getParameter<edm::InputTag>("eeDetIdToBeRecovered"));
+    }
 
-  ebDetIdToBeRecoveredToken_ = consumes<std::set<EBDetId>>(ps.getParameter<edm::InputTag>("ebDetIdToBeRecovered"));
+    if (recoverEEFE_ || killDeadChannels_) {
+      eeFEToBeRecoveredToken_ = consumes<std::set<EcalScDetId>>(ps.getParameter<edm::InputTag>("eeFEToBeRecovered"));
+    }
+  }
 
-  eeDetIdToBeRecoveredToken_ = consumes<std::set<EEDetId>>(ps.getParameter<edm::InputTag>("eeDetIdToBeRecovered"));
-
-  ebFEToBeRecoveredToken_ = consumes<std::set<EcalTrigTowerDetId>>(ps.getParameter<edm::InputTag>("ebFEToBeRecovered"));
-
-  eeFEToBeRecoveredToken_ = consumes<std::set<EcalScDetId>>(ps.getParameter<edm::InputTag>("eeFEToBeRecovered"));
-
-  ecalChannelStatusToken_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  if (recoverEBIsolatedChannels_ || recoverEBFE_ || recoverEEIsolatedChannels_ || recoverEEFE_ || killDeadChannels_) {
+    ecalChannelStatusToken_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  }
 
   std::string componentType = ps.getParameter<std::string>("algo");
   edm::ConsumesCollector c{consumesCollector()};
@@ -72,22 +81,6 @@ EcalRecHitProducer::~EcalRecHitProducer() = default;
 void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   using namespace edm;
 
-  Handle<EBUncalibratedRecHitCollection> pEBUncalibRecHits;
-  Handle<EEUncalibratedRecHitCollection> pEEUncalibRecHits;
-
-  const EBUncalibratedRecHitCollection* ebUncalibRecHits = nullptr;
-  const EEUncalibratedRecHitCollection* eeUncalibRecHits = nullptr;
-
-  // get the barrel uncalib rechit collection
-
-  evt.getByToken(ebUncalibRecHitToken_, pEBUncalibRecHits);
-  ebUncalibRecHits = pEBUncalibRecHits.product();
-  LogDebug("EcalRecHitDebug") << "total # EB uncalibrated rechits: " << ebUncalibRecHits->size();
-
-  evt.getByToken(eeUncalibRecHitToken_, pEEUncalibRecHits);
-  eeUncalibRecHits = pEEUncalibRecHits.product();  // get a ptr to the product
-  LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits: " << eeUncalibRecHits->size();
-
   // collection of rechits to put in the event
   auto ebRecHits = std::make_unique<EBRecHitCollection>();
   auto eeRecHits = std::make_unique<EERecHitCollection>();
@@ -99,19 +92,25 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     workerRecover_->set(es);
   }
 
-  if (ebUncalibRecHits) {
+  // Make EB rechits
+  if (doEB_) {
+    const auto& ebUncalibRecHits = evt.get(ebUncalibRecHitToken_);
+    LogDebug("EcalRecHitDebug") << "total # EB uncalibrated rechits: " << ebUncalibRecHits.size();
+
     // loop over uncalibrated rechits to make calibrated ones
-    for (EBUncalibratedRecHitCollection::const_iterator it = ebUncalibRecHits->begin(); it != ebUncalibRecHits->end();
-         ++it) {
-      worker_->run(evt, *it, *ebRecHits);
+    for (const auto& uncalibRecHit : ebUncalibRecHits) {
+      worker_->run(evt, uncalibRecHit, *ebRecHits);
     }
   }
 
-  if (eeUncalibRecHits) {
+  // Make EE rechits
+  if (doEE_) {
+    const auto& eeUncalibRecHits = evt.get(eeUncalibRecHitToken_);
+    LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits: " << eeUncalibRecHits.size();
+
     // loop over uncalibrated rechits to make calibrated ones
-    for (EEUncalibratedRecHitCollection::const_iterator it = eeUncalibRecHits->begin(); it != eeUncalibRecHits->end();
-         ++it) {
-      worker_->run(evt, *it, *eeRecHits);
+    for (const auto& uncalibRecHit : eeUncalibRecHits) {
+      worker_->run(evt, uncalibRecHit, *eeRecHits);
     }
   }
 
@@ -120,114 +119,91 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   eeRecHits->sort();
 
   if (recoverEBIsolatedChannels_ || recoverEBFE_ || killDeadChannels_) {
-    edm::Handle<std::set<EBDetId>> pEBDetId;
-    const std::set<EBDetId>* detIds = nullptr;
-    evt.getByToken(ebDetIdToBeRecoveredToken_, pEBDetId);
-    detIds = pEBDetId.product();
+    const auto& detIds = evt.get(ebDetIdToBeRecoveredToken_);
+    const auto& chStatus = es.getData(ecalChannelStatusToken_);
 
-    if (detIds) {
-      edm::ESHandle<EcalChannelStatus> chStatus = es.getHandle(ecalChannelStatusToken_);
-      for (std::set<EBDetId>::const_iterator it = detIds->begin(); it != detIds->end(); ++it) {
-        // get channel status map to treat dead VFE separately
-        EcalChannelStatusMap::const_iterator chit = chStatus->find(*it);
-        EcalChannelStatusCode chStatusCode;
-        if (chit != chStatus->end()) {
-          chStatusCode = *chit;
-        } else {
-          edm::LogError("EcalRecHitProducerError") << "No channel status found for xtal " << (*it).rawId()
-                                                   << "! something wrong with EcalChannelStatus in your DB? ";
-        }
-        EcalUncalibratedRecHit urh;
-        if (chStatusCode.getStatusCode() == EcalChannelStatusCode::kDeadVFE) {  // dead VFE (from DB info)
-          // uses the EcalUncalibratedRecHit to pass the DetId info
-          urh = EcalUncalibratedRecHit(*it, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EB_VFE);
-          if (recoverEBVFE_ || killDeadChannels_)
-            workerRecover_->run(evt, urh, *ebRecHits);
-        } else {
-          // uses the EcalUncalibratedRecHit to pass the DetId info
-          urh = EcalUncalibratedRecHit(*it, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EB_single);
-          if (recoverEBIsolatedChannels_ || killDeadChannels_)
-            workerRecover_->run(evt, urh, *ebRecHits);
-        }
+    for (const auto& detId : detIds) {
+      // get channel status map to treat dead VFE separately
+      EcalChannelStatusMap::const_iterator chit = chStatus.find(detId);
+      EcalChannelStatusCode chStatusCode;
+      if (chit != chStatus.end()) {
+        chStatusCode = *chit;
+      } else {
+        edm::LogError("EcalRecHitProducerError") << "No channel status found for xtal " << detId.rawId()
+                                                 << "! something wrong with EcalChannelStatus in your DB? ";
+      }
+      EcalUncalibratedRecHit urh;
+      if (chStatusCode.getStatusCode() == EcalChannelStatusCode::kDeadVFE) {  // dead VFE (from DB info)
+        // uses the EcalUncalibratedRecHit to pass the DetId info
+        urh = EcalUncalibratedRecHit(detId, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EB_VFE);
+        if (recoverEBVFE_ || killDeadChannels_)
+          workerRecover_->run(evt, urh, *ebRecHits);
+      } else {
+        // uses the EcalUncalibratedRecHit to pass the DetId info
+        urh = EcalUncalibratedRecHit(detId, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EB_single);
+        if (recoverEBIsolatedChannels_ || killDeadChannels_)
+          workerRecover_->run(evt, urh, *ebRecHits);
       }
     }
   }
 
   if (recoverEEIsolatedChannels_ || recoverEEVFE_ || killDeadChannels_) {
-    edm::Handle<std::set<EEDetId>> pEEDetId;
-    const std::set<EEDetId>* detIds = nullptr;
+    const auto& detIds = evt.get(eeDetIdToBeRecoveredToken_);
+    const auto& chStatus = es.getData(ecalChannelStatusToken_);
 
-    evt.getByToken(eeDetIdToBeRecoveredToken_, pEEDetId);
-    detIds = pEEDetId.product();
-
-    if (detIds) {
-      edm::ESHandle<EcalChannelStatus> chStatus = es.getHandle(ecalChannelStatusToken_);
-      for (std::set<EEDetId>::const_iterator it = detIds->begin(); it != detIds->end(); ++it) {
-        // get channel status map to treat dead VFE separately
-        EcalChannelStatusMap::const_iterator chit = chStatus->find(*it);
-        EcalChannelStatusCode chStatusCode;
-        if (chit != chStatus->end()) {
-          chStatusCode = *chit;
-        } else {
-          edm::LogError("EcalRecHitProducerError") << "No channel status found for xtal " << (*it).rawId()
-                                                   << "! something wrong with EcalChannelStatus in your DB? ";
-        }
-        EcalUncalibratedRecHit urh;
-        if (chStatusCode.getStatusCode() == EcalChannelStatusCode::kDeadVFE) {  // dead VFE (from DB info)
-          // uses the EcalUncalibratedRecHit to pass the DetId info
-          urh = EcalUncalibratedRecHit(*it, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EE_VFE);
-          if (recoverEEVFE_ || killDeadChannels_)
-            workerRecover_->run(evt, urh, *eeRecHits);
-        } else {
-          // uses the EcalUncalibratedRecHit to pass the DetId info
-          urh = EcalUncalibratedRecHit(*it, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EE_single);
-          if (recoverEEIsolatedChannels_ || killDeadChannels_)
-            workerRecover_->run(evt, urh, *eeRecHits);
-        }
+    for (const auto& detId : detIds) {
+      // get channel status map to treat dead VFE separately
+      EcalChannelStatusMap::const_iterator chit = chStatus.find(detId);
+      EcalChannelStatusCode chStatusCode;
+      if (chit != chStatus.end()) {
+        chStatusCode = *chit;
+      } else {
+        edm::LogError("EcalRecHitProducerError") << "No channel status found for xtal " << detId.rawId()
+                                                 << "! something wrong with EcalChannelStatus in your DB? ";
+      }
+      EcalUncalibratedRecHit urh;
+      if (chStatusCode.getStatusCode() == EcalChannelStatusCode::kDeadVFE) {  // dead VFE (from DB info)
+        // uses the EcalUncalibratedRecHit to pass the DetId info
+        urh = EcalUncalibratedRecHit(detId, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EE_VFE);
+        if (recoverEEVFE_ || killDeadChannels_)
+          workerRecover_->run(evt, urh, *eeRecHits);
+      } else {
+        // uses the EcalUncalibratedRecHit to pass the DetId info
+        urh = EcalUncalibratedRecHit(detId, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EE_single);
+        if (recoverEEIsolatedChannels_ || killDeadChannels_)
+          workerRecover_->run(evt, urh, *eeRecHits);
       }
     }
   }
 
   if (recoverEBFE_ || killDeadChannels_) {
-    edm::Handle<std::set<EcalTrigTowerDetId>> pEBFEId;
-    const std::set<EcalTrigTowerDetId>* ttIds = nullptr;
+    const auto& ttIds = evt.get(ebFEToBeRecoveredToken_);
 
-    evt.getByToken(ebFEToBeRecoveredToken_, pEBFEId);
-    ttIds = pEBFEId.product();
-
-    if (ttIds) {
-      for (std::set<EcalTrigTowerDetId>::const_iterator it = ttIds->begin(); it != ttIds->end(); ++it) {
-        // uses the EcalUncalibratedRecHit to pass the DetId info
-        int ieta = (((*it).ietaAbs() - 1) * 5 + 1) * (*it).zside();  // from EcalTrigTowerConstituentsMap
-        int iphi = (((*it).iphi() - 1) * 5 + 11) % 360;              // from EcalTrigTowerConstituentsMap
-        if (iphi <= 0)
-          iphi += 360;  // from EcalTrigTowerConstituentsMap
-        EcalUncalibratedRecHit urh(
-            EBDetId(ieta, iphi, EBDetId::ETAPHIMODE), 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EB_FE);
-        workerRecover_->run(evt, urh, *ebRecHits);
-      }
+    for (const auto& ttId : ttIds) {
+      // uses the EcalUncalibratedRecHit to pass the DetId info
+      int ieta = ((ttId.ietaAbs() - 1) * 5 + 1) * ttId.zside();  // from EcalTrigTowerConstituentsMap
+      int iphi = ((ttId.iphi() - 1) * 5 + 11) % 360;             // from EcalTrigTowerConstituentsMap
+      if (iphi <= 0)
+        iphi += 360;  // from EcalTrigTowerConstituentsMap
+      EcalUncalibratedRecHit urh(
+          EBDetId(ieta, iphi, EBDetId::ETAPHIMODE), 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EB_FE);
+      workerRecover_->run(evt, urh, *ebRecHits);
     }
   }
 
   if (recoverEEFE_ || killDeadChannels_) {
-    edm::Handle<std::set<EcalScDetId>> pEEFEId;
-    const std::set<EcalScDetId>* scIds = nullptr;
+    const auto& scIds = evt.get(eeFEToBeRecoveredToken_);
 
-    evt.getByToken(eeFEToBeRecoveredToken_, pEEFEId);
-    scIds = pEEFEId.product();
-
-    if (scIds) {
-      for (std::set<EcalScDetId>::const_iterator it = scIds->begin(); it != scIds->end(); ++it) {
-        // uses the EcalUncalibratedRecHit to pass the DetId info
-        if (EEDetId::validDetId(((*it).ix() - 1) * 5 + 1, ((*it).iy() - 1) * 5 + 1, (*it).zside())) {
-          EcalUncalibratedRecHit urh(EEDetId(((*it).ix() - 1) * 5 + 1, ((*it).iy() - 1) * 5 + 1, (*it).zside()),
-                                     0,
-                                     0,
-                                     0,
-                                     0,
-                                     EcalRecHitWorkerBaseClass::EE_FE);
-          workerRecover_->run(evt, urh, *eeRecHits);
-        }
+    for (const auto& scId : scIds) {
+      // uses the EcalUncalibratedRecHit to pass the DetId info
+      if (EEDetId::validDetId((scId.ix() - 1) * 5 + 1, (scId.iy() - 1) * 5 + 1, scId.zside())) {
+        EcalUncalibratedRecHit urh(EEDetId((scId.ix() - 1) * 5 + 1, (scId.iy() - 1) * 5 + 1, scId.zside()),
+                                   0,
+                                   0,
+                                   0,
+                                   0,
+                                   EcalRecHitWorkerBaseClass::EE_FE);
+        workerRecover_->run(evt, urh, *eeRecHits);
       }
     }
   }
@@ -243,12 +219,12 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     cleaningAlgo_->setFlags(*eeRecHits);
   }
 
-  // put the collection of recunstructed hits in the event
+  // put the collection of reconstructed hits in the event
   LogInfo("EcalRecHitInfo") << "total # EB calibrated rechits: " << ebRecHits->size();
   LogInfo("EcalRecHitInfo") << "total # EE calibrated rechits: " << eeRecHits->size();
 
-  evt.put(std::move(ebRecHits), ebRechitCollection_);
-  evt.put(std::move(eeRecHits), eeRechitCollection_);
+  evt.put(ebRecHitToken_, std::move(ebRecHits));
+  evt.put(eeRecHitToken_, std::move(eeRecHits));
 }
 
 void EcalRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
