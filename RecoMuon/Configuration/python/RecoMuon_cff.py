@@ -71,8 +71,10 @@ muoncosmichighlevelreco = cms.Sequence(muoncosmichighlevelrecoTask)
 
 #### High level sequence (i.e., post PF reconstruction) ###
 from RecoMuon.MuonIdentification.muons_cfi import *
+from RecoMuon.MuonIdentification.displacedMuons_cfi import *
 from RecoMuon.MuonIsolation.muonPFIsolation_cff import *
 from RecoMuon.MuonIdentification.muonReducedTrackExtras_cfi import *
+from RecoMuon.MuonIdentification.displacedMuonReducedTrackExtras_cfi import *
 
 # clusters are not present in fastsim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
@@ -82,5 +84,5 @@ fastSim.toModify(muonReducedTrackExtras, outputClusters = False)
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(muonReducedTrackExtras, outputClusters = False)
 
-muonshighlevelrecoTask = cms.Task(muonPFIsolationTask,muons,muonReducedTrackExtras)
+muonshighlevelrecoTask = cms.Task(muonPFIsolationTask,displacedMuonPFIsolationTask,muons,displacedMuons,muonReducedTrackExtras, displacedMuonReducedTrackExtras)
 muonshighlevelreco = cms.Sequence(muonshighlevelrecoTask)
