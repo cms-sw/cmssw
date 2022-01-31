@@ -99,8 +99,7 @@ namespace reco::mlpf {
         if (seedref.isAvailable()) {
           if (seedref->isEcalDriven()) {
             gsf_electronseed_trkorecal = 1.0;
-          }
-          else if (seedref->isTrackerDriven()) {
+          } else if (seedref->isTrackerDriven()) {
             gsf_electronseed_trkorecal = 2.0;
           }
         }
@@ -135,8 +134,7 @@ namespace reco::mlpf {
         if (seedref.isAvailable()) {
           if (seedref->isEcalDriven()) {
             gsf_electronseed_trkorecal = 1.0;
-          }
-          else if (seedref->isTrackerDriven()) {
+          } else if (seedref->isTrackerDriven()) {
             gsf_electronseed_trkorecal = 2.0;
           }
         }
@@ -178,12 +176,31 @@ namespace reco::mlpf {
     float typ_idx = static_cast<float>(elem_type_encoding.at(orig.type()));
 
     //Must be the same order as in tf_model.py
-    return {{
-      typ_idx, pt, eta, phi, energy,
-      layer, depth, charge, trajpoint,
-      eta_ecal, phi_ecal, eta_hcal, phi_hcal, muon_dt_hits, muon_csc_hits, muon_type,
-      px, py, pz, deltap, sigmadeltap, gsf_electronseed_trkorecal, num_hits, cluster_flags, corr_energy
-    }};
+    return {{typ_idx,
+             pt,
+             eta,
+             phi,
+             energy,
+             layer,
+             depth,
+             charge,
+             trajpoint,
+             eta_ecal,
+             phi_ecal,
+             eta_hcal,
+             phi_hcal,
+             muon_dt_hits,
+             muon_csc_hits,
+             muon_type,
+             px,
+             py,
+             pz,
+             deltap,
+             sigmadeltap,
+             gsf_electronseed_trkorecal,
+             num_hits,
+             cluster_flags,
+             corr_energy}};
   }
 
   //to make sure DNN inputs are within numerical bounds, use the same in training

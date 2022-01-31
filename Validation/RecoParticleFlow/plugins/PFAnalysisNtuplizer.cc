@@ -849,8 +849,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         if (seedref.isAvailable()) {
           if (seedref->isEcalDriven()) {
             gsf_electronseed_trkorecal = 1.0;
-          }
-          else if (seedref->isTrackerDriven()) {
+          } else if (seedref->isTrackerDriven()) {
             gsf_electronseed_trkorecal = 2.0;
           }
         }
@@ -885,8 +884,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         if (seedref.isAvailable()) {
           if (seedref->isEcalDriven()) {
             gsf_electronseed_trkorecal = 1.0;
-          }
-          else if (seedref->isTrackerDriven()) {
+          } else if (seedref->isTrackerDriven()) {
             gsf_electronseed_trkorecal = 2.0;
           }
         }
