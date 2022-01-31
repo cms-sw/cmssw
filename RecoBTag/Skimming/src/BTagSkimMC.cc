@@ -84,7 +84,8 @@ void BTagSkimMC::endStream() {
 
 void BTagSkimMC::globalEndJob(const BTagSkimMCCount::Counters* count) {
   edm::LogVerbatim("BTagSkimMC") << "=============================================================================\n"
-                                 << " Events read: " << count->nEvents_ << "\n Events accepted by BTagSkimMC: " << count->nAccepted_
+                                 << " Events read: " << count->nEvents_
+                                 << "\n Events accepted by BTagSkimMC: " << count->nAccepted_
                                  << "\n Efficiency: " << (double)(count->nAccepted_) / (double)(count->nEvents_)
                                  << "\n==========================================================================="
                                  << std::endl;

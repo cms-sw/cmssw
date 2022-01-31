@@ -4,7 +4,7 @@
 namespace BTagSkimMCCount {
   struct Counters {
     Counters() : nEvents_(0), nAccepted_(0) {}
-    mutable std::atomic<unsigned int>  nEvents_,  nAccepted_;
+    mutable std::atomic<unsigned int> nEvents_, nAccepted_;
   };
 }  // namespace BTagSkimMCCount
 
