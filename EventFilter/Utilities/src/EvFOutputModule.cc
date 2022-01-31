@@ -16,6 +16,7 @@
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include <sys/stat.h>
 #include <filesystem>
@@ -225,6 +226,16 @@ namespace evf {
   }
 
   void EvFOutputModule::write(edm::EventForOutput const& e) {
+    unsigned int counter = 0;
+    while (edm::Service<evf::EvFDaqDirector>()->inputThrottled()) {
+      if (edm::shutdown_flag.load(std::memory_order_relaxed))
+        break;
+      if (!(counter % 100))
+        edm::LogWarning("FedRawDataInputSource") << "Input throttled detected, writing is paused...";
+      usleep(100000);
+      counter++;
+    }
+
     edm::Handle<edm::TriggerResults> const& triggerResults = getTriggerResults(trToken_, e);
 
     //auto lumiWriter = const_cast<EvFOutputEventWriter*>(luminosityBlockCache(e.getLuminosityBlock().index() ));
