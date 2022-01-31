@@ -40,6 +40,16 @@ from RecoMuon.Configuration.SETRecoMuon_cff import *
 from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
 muons1stStep.fillGlobalTrackQuality = True
 
+displacedMuons1stStep = muons1stStep.clone(
+    inputCollectionLabels = ['displacedTracks',
+                             'displacedGlobalMuons',
+                             'displacedStandAloneMuons'],
+    inputCollectionTypes = ['inner tracks',
+                            'links',
+                            'outer tracks'],
+    fillGlobalTrackQuality = False
+)
+
 #Muon Id isGood flag ValueMap producer sequence
 from RecoMuon.MuonIdentification.muonSelectionTypeValueMapProducer_cff import *
 
@@ -70,7 +80,8 @@ fastSim.toReplaceWith(globalmuontrackingTask,globalmuontrackingTask.copyAndExclu
 muontrackingTask = cms.Task(standalonemuontrackingTask,globalmuontrackingTask)
 muontracking = cms.Sequence(muontrackingTask)
 # Muon Reconstruction
-muonrecoTask = cms.Task(muontrackingTask,muonIdProducerTask)
+displacedMuonIdProducerTask = cms.Task(displacedMuons1stStep)
+muonrecoTask = cms.Task(muontrackingTask,muonIdProducerTask, displacedMuonIdProducerTask)
 muonreco = cms.Sequence(muonrecoTask)
 # Muon Reconstruction plus Isolation
 muonreco_plus_isolationTask = cms.Task(muonrecoTask,muIsolationTask)
@@ -90,8 +101,10 @@ muonrecoComplete = cms.Sequence(muonreco_plus_isolationTask,muonSelectionTypeTas
 
 muonGlobalRecoTask = cms.Task(globalmuontrackingTask,
                               muonIdProducerTask,
+                              displacedMuonIdProducerTask,
                               muonSelectionTypeTask,
-                              muIsolationTask)
+                              muIsolationTask,
+                              muIsolationDisplacedTask)
 muonGlobalReco = cms.Sequence(muonGlobalRecoTask)
 
 # ... instead, the sequences will be run in the following order:
