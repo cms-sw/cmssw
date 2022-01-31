@@ -279,16 +279,12 @@ void GEMGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
   // Check for the demonstrator geometry (only 1 chamber of GE2/1)
   auto start = fv.copyNos();
   int nGE21 = 0;
-  while (fv.firstChild()) {
+  while (nGE21 < 2 && fv.firstChild()) {
     const auto& history = fv.history();
     MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
     GEMDetId detId(gemNum.baseNumberToUnitNumber(num));
-    if (detId.station() == GEMDetId::minStationId0) {
-    } else {
-      if (fv.level() == levelChamb) {
-        if (detId.station() == 2)
-          nGE21++;
-      }
+    if (fv.level() == levelChamb && detId.station() == 2) {
+      nGE21++;
     }
   }
   bool demonstratorGeometry = nGE21 == 1;
