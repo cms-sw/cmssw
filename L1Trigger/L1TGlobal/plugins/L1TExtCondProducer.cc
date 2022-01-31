@@ -32,6 +32,8 @@
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 #include "DataFormats/TCDS/interface/TCDSRecord.h"
 
+#include <vector>
+
 using namespace std;
 using namespace edm;
 using namespace l1t;

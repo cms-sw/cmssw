@@ -58,9 +58,6 @@ private:
 L1HOTreeProducer::L1HOTreeProducer(const edm::ParameterSet& iConfig)
     : hoDataFrameToken_(consumes<edm::SortedCollection<HODataFrame>>(
           iConfig.getUntrackedParameter<edm::InputTag>("hoDataFrameToken"))) {
-  //hoDataFrameToken_ =
-  //    consumes<edm::SortedCollection<HODataFrame>>(iConfig.getUntrackedParameter<edm::InputTag>("hoDataFrameToken"));
-
   l1HOData = l1HO.getData();
   usesResource(TFileService::kSharedResource);
 
