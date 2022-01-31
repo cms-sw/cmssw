@@ -334,42 +334,39 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
         } else if (condition.getType() == esConditionType::Externals) {
           parseExternal(condition, chipNr);
 
+          //parse CorrelationWithOverlapRemoval
+        } else if (condition.getType() == esConditionType::CaloCaloCorrelationOvRm ||
+                   condition.getType() == esConditionType::InvariantMassOvRm ||
+                   condition.getType() == esConditionType::TransverseMassOvRm ||
+                   condition.getType() == esConditionType::DoubleJetOvRm ||
+                   condition.getType() == esConditionType::DoubleTauOvRm) {
+          parseCorrelationWithOverlapRemoval(condition, chipNr);
+
         } else if (condition.getType() == esConditionType::SingleEgammaOvRm ||
                    condition.getType() == esConditionType::DoubleEgammaOvRm ||
                    condition.getType() == esConditionType::TripleEgammaOvRm ||
                    condition.getType() == esConditionType::QuadEgammaOvRm ||
                    condition.getType() == esConditionType::SingleTauOvRm ||
-                   condition.getType() == esConditionType::DoubleTauOvRm ||
                    condition.getType() == esConditionType::TripleTauOvRm ||
                    condition.getType() == esConditionType::QuadTauOvRm ||
                    condition.getType() == esConditionType::SingleJetOvRm ||
-                   condition.getType() == esConditionType::DoubleJetOvRm ||
                    condition.getType() == esConditionType::TripleJetOvRm ||
                    condition.getType() == esConditionType::QuadJetOvRm) {
-          edm::LogError("TriggerMenuParser")
-              << std::endl
-              << "SingleEgammaOvRm" << std::endl
-              << "DoubleEgammaOvRm" << std::endl
-              << "TripleEgammaOvRm" << std::endl
-              << "QuadEgammaOvRm" << std::endl
-              << "SingleTauOvRm" << std::endl
-              << "DoubleTauOvRm" << std::endl
-              << "TripleTauOvRm" << std::endl
-              << "QuadTauOvRm" << std::endl
-              << "SingleJetOvRm" << std::endl
-              << "DoubleJetOvRm" << std::endl
-              << "TripleJetOvRm" << std::endl
-              << "QuadJetOvRm" << std::endl
-              << "The above conditions types OvRm are not implemented yet in the parser. Please remove alogrithms that "
-                 "use this type of condtion from L1T Menu!"
-              << std::endl;
-
-        }
-        //parse CorrelationWithOverlapRemoval
-        else if (condition.getType() == esConditionType::CaloCaloCorrelationOvRm ||
-                 condition.getType() == esConditionType::InvariantMassOvRm ||
-                 condition.getType() == esConditionType::TransverseMassOvRm) {
-          parseCorrelationWithOverlapRemoval(condition, chipNr);
+          edm::LogError("TriggerMenuParser") << std::endl
+                                             << "\n SingleEgammaOvRm"
+                                             << "\n DoubleEgammaOvRm"
+                                             << "\n TripleEgammaOvRm"
+                                             << "\n QuadEgammaOvRm"
+                                             << "\n SingleTauOvRm"
+                                             << "\n TripleTauOvRm"
+                                             << "\n QuadTauOvRm"
+                                             << "\n SingleJetOvRm"
+                                             << "\n TripleJetOvRm"
+                                             << "\n QuadJetOvRm"
+                                             << "\n The above conditions types OvRm are not implemented yet in the "
+                                                "parser. Please remove alogrithms that "
+                                                "use this type of condtion from L1T Menu!"
+                                             << std::endl;
         }
 
       }  //if condition is a new one
