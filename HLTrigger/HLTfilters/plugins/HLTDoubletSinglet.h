@@ -1,5 +1,5 @@
-#ifndef HLTDoubletSinglet_h
-#define HLTDoubletSinglet_h
+#ifndef HLTrigger_HLTfilters_plugins_HLTDoubletSinglet_h
+#define HLTrigger_HLTfilters_plugins_HLTDoubletSinglet_h
 
 /** \class HLTDoubletSinglet
  *
@@ -69,7 +69,7 @@ private:
   const double min_DelR2_, max_DelR2_;                        // DeltaR (1,3) and (2,3) window
   const bool cutdphi_, cutdeta_, cutminv_, cutdelr_, cutpt_;  // cuts are on=true or off=false
 
-  //
+  // typedefs
   typedef std::vector<T1> T1Collection;
   typedef edm::Ref<T1Collection> T1Ref;
   typedef std::vector<T2> T2Collection;
@@ -78,4 +78,4 @@ private:
   typedef edm::Ref<T3Collection> T3Ref;
 };
 
-#endif  //HLTDoubletSinglet_h
+#endif  //HLTrigger_HLTfilters_plugins_HLTDoubletSinglet_h
