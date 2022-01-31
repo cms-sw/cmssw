@@ -687,8 +687,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
 
   auto const tracksH = ev.getHandle(tracksToken_);
 
-  auto const trjtrkH = ev.getHandle(trajTrackAToken_);
-  const auto& trjtrks = *trjtrkH;
+  const auto& trjtrks = ev.get(trajTrackAToken_);
 
   //MTD hits DetSet
   const auto& hits = ev.get(hitsToken_);
