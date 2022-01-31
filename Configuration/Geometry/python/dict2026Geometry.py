@@ -1144,7 +1144,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, phase2_hfnose",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV16, phase2_hfnose",
     },
 
 }
