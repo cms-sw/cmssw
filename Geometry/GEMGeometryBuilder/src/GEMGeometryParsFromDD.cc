@@ -74,7 +74,7 @@ void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
     // back to chambers
     fvGE2.parent();
     fvGE2.parent();
-    doSuper = fvGE2.nextSibling();
+    doSuper = (nGE21 < 2 && fvGE2.nextSibling());
   }
   bool demonstratorGeometry = nGE21 == 1;
 
