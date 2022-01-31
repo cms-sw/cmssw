@@ -12,8 +12,7 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/angle_units.h" 
 
 #include <string>
 #include <vector>
@@ -50,6 +49,7 @@
 */
 
 using namespace std;
+using namespace angle_units::operators;
 
 class DDTrackerIrregularRingAlgo : public DDAlgorithm {
 public:
@@ -79,7 +79,6 @@ private:
   bool isZPlus;      //Is Z positive ?
   double tiltAngle;  //Module's tilt angle (absolute value)
   bool isFlipped;    //Is the module flipped ?
-  double delta;      //Increment in Phi
 
   string idNameSpace;  //Namespace of this and ALL sub-parts
   string childName;    //Child name
@@ -110,19 +109,10 @@ void DDTrackerIrregularRingAlgo::initialize(const DDNumericArguments& nArgs,
   tiltAngle = nArgs["TiltAngle"];
   isFlipped = bool(nArgs["IsFlipped"]);
 
-  if (fabs(rangeAngle - 360.0 * CLHEP::deg) < 0.001 * CLHEP::deg) {
-    delta = rangeAngle / double(n);
-  } else {
-    if (n > 1) {
-      delta = rangeAngle / double(n - 1);
-    } else {
-      delta = 0.;
-    }
-  }
 
   LogDebug("TrackerGeom") << "DDTrackerIrregularRingAlgo debug: Parameters for position"
-                          << "ing:: n " << n << " Start, Range, Delta " << startAngle / CLHEP::deg << " "
-                          << rangeAngle / CLHEP::deg << " " << delta / CLHEP::deg << " Radius " << radius << " Centre "
+                          << "ing:: n " << n << " Start, Range " << convertRadToDeg(startAngle) << " "
+                          << convertRadToDeg(rangeAngle) << " Radius " << radius << " Centre "
                           << center[0] << ", " << center[1] << ", " << center[2];
 
   idNameSpace = DDCurrentNamespace::ns();
@@ -148,29 +138,29 @@ void DDTrackerIrregularRingAlgo::execute(DDCompactView& cpv) {
                               << "90., 90., "
                               << "180., 0.";
       flipRot = DDrot(DDName(flipRotstr, idNameSpace),
-                      90. * CLHEP::deg,
-                      180. * CLHEP::deg,
-                      90. * CLHEP::deg,
-                      90. * CLHEP::deg,
-                      180. * CLHEP::deg,
+                      90._deg,
+                      180._deg,
+                      90._deg,
+                      90._deg,
+                      180._deg,
                       0.);
     }
     flipMatrix = flipRot.matrix();
   }
   // tiltMatrix calculus
   if (isZPlus) {
-    string tiltRotstr = rotstr + "Tilt" + to_string(tiltAngle / CLHEP::deg) + "ZPlus";
+    string tiltRotstr = rotstr + "Tilt" + to_string(convertRadToDeg(tiltAngle)) + "ZPlus";
     tiltRot = DDRotation(DDName(tiltRotstr, idNameSpace));
     if (!tiltRot) {
       LogDebug("TrackerGeom") << "DDTrackerIrregularRingAlgo test: Creating a new rotation: " << tiltRotstr
-                              << "\t90., 90., " << tiltAngle / CLHEP::deg << ", 180., " << 90. - tiltAngle / CLHEP::deg
+                              << "\t90., 90., " << convertRadToDeg(tiltAngle) << ", 180., " << 90. - convertRadToDeg(tiltAngle)
                               << ", 0.";
       tiltRot = DDrot(DDName(tiltRotstr, idNameSpace),
-                      90. * CLHEP::deg,
-                      90. * CLHEP::deg,
+                      90._deg,
+                      90._deg,
                       tiltAngle,
-                      180. * CLHEP::deg,
-                      90. * CLHEP::deg - tiltAngle,
+                      180._deg,
+                      90._deg - tiltAngle,
                       0.);
     }
     tiltMatrix = tiltRot.matrix();
@@ -178,18 +168,18 @@ void DDTrackerIrregularRingAlgo::execute(DDCompactView& cpv) {
       tiltMatrix *= flipMatrix;
     }
   } else {
-    string tiltRotstr = rotstr + "Tilt" + to_string(tiltAngle / CLHEP::deg) + "ZMinus";
+    string tiltRotstr = rotstr + "Tilt" + to_string(convertRadToDeg(tiltAngle)) + "ZMinus";
     tiltRot = DDRotation(DDName(tiltRotstr, idNameSpace));
     if (!tiltRot) {
       LogDebug("TrackerGeom") << "DDTrackerIrregularRingAlgo test: Creating a new rotation: " << tiltRotstr
-                              << "\t90., 90., " << tiltAngle / CLHEP::deg << ", 0., " << 90. + tiltAngle / CLHEP::deg
+                              << "\t90., 90., " << convertRadToDeg(tiltAngle) << ", 0., " << 90. + convertRadToDeg(tiltAngle)
                               << ", 0.";
       tiltRot = DDrot(DDName(tiltRotstr, idNameSpace),
-                      90. * CLHEP::deg,
-                      90. * CLHEP::deg,
+                      90._deg,
+                      90._deg,
                       tiltAngle,
                       0.,
-                      90. * CLHEP::deg + tiltAngle,
+                      90._deg + tiltAngle,
                       0.);
     }
     tiltMatrix = tiltRot.matrix();
@@ -201,28 +191,27 @@ void DDTrackerIrregularRingAlgo::execute(DDCompactView& cpv) {
   // Loops for all phi values
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
-  double theta = 90. * CLHEP::deg;
+  double theta = 90._deg;
   int copy = startCopyNo;
-  double phi = startAngle;
+  //double phi = startAngle;
 
   for (int i = 0; i < n; i++) {
     // phiRotMatrix calculus
-    double phix = phi;
-    double phix_ownaxis = 0 * CLHEP::deg;
-    phix = phiAngles.at(i) * CLHEP::deg;
-    phix_ownaxis = yawAngles.at(i) * CLHEP::deg;
+    //double phix = phi;
+    //double phix_ownaxis = 0._deg;
+    double phix = convertDegToRad(phiAngles.at(i));
+    double phix_ownaxis = convertDegToRad(yawAngles.at(i));
     radius = radiusValues.at(i);
-    // std::cout<<" phi "<<phix/CLHEP::deg << " yawAngle "<< phix_ownaxis/CLHEP::deg << " radius "<<radius<< " z "<<center[2]<<std::endl;;
-    double phiy = phix + 90. * CLHEP::deg;
-    double phiy_ownaxis = phix_ownaxis + 90. * CLHEP::deg;
-    double phideg = phix / CLHEP::deg;
-    double phideg_ownaxis = phix_ownaxis / CLHEP::deg;
+    double phiy = phix + 90._deg;
+    double phiy_ownaxis = phix_ownaxis + 90._deg;
+    double phideg = convertRadToDeg(phix);
+    double phideg_ownaxis = convertRadToDeg(phix_ownaxis);
     if (phideg_ownaxis != 0) {
       string phiOwnAxisRotstr = rotstr + "PhiOwnAxis" + to_string(phideg_ownaxis * 10.);
       phiOwnAxisRot = DDRotation(DDName(phiOwnAxisRotstr, idNameSpace));
       if (!phiOwnAxisRot) {
         LogDebug("TrackerGeom") << "DDTrackerIrregularRingAlgo test: Creating a new rotation: " << phiOwnAxisRotstr
-                                << "\t90., " << phix_ownaxis / CLHEP::deg << ", 90.," << phiy_ownaxis / CLHEP::deg
+                                << "\t90., " << convertRadToDeg(phix_ownaxis) << ", 90.," << convertRadToDeg(phiy_ownaxis)
                                 << ", 0., 0.";
         phiOwnAxisRot = DDrot(DDName(phiOwnAxisRotstr, idNameSpace), theta, phix_ownaxis, theta, phiy_ownaxis, 0., 0.);
       }
@@ -233,14 +222,14 @@ void DDTrackerIrregularRingAlgo::execute(DDCompactView& cpv) {
       phiRot = DDRotation(DDName(phiRotstr, idNameSpace));
       if (!phiRot) {
         LogDebug("TrackerGeom") << "DDTrackerIrregularRingAlgo test: Creating a new rotation: " << phiRotstr
-                                << "\t90., " << phix / CLHEP::deg << ", 90.," << phiy / CLHEP::deg << ", 0., 0.";
+                                << "\t90., " << convertRadToDeg(phix) << ", 90.," << convertRadToDeg(phiy) << ", 0., 0.";
         phiRot = DDrot(DDName(phiRotstr, idNameSpace), theta, phix, theta, phiy, 0., 0.);
       }
       phiRotMatrix = phiRot.matrix();
     }
 
     // globalRot def
-    string globalRotstr = rotstr + "Phi" + to_string(phideg * 10.) + "Tilt" + to_string(tiltAngle / CLHEP::deg);
+    string globalRotstr = rotstr + "Phi" + to_string(phideg * 10.) + "Tilt" + to_string(convertRadToDeg(tiltAngle));
     if (isZPlus) {
       globalRotstr += "ZPlus";
       if (isFlipped) {
@@ -256,7 +245,6 @@ void DDTrackerIrregularRingAlgo::execute(DDCompactView& cpv) {
     if (!globalRot) {
       LogDebug("TrackerGeom") << "DDTrackerIrregularRingAlgo test: Creating a new "
                               << "rotation: " << globalRotstr;
-      //globalRotMatrix = phiRotMatrix * tiltMatrix;
       globalRotMatrix = phiOwnAxisRotMatrix * phiRotMatrix * tiltMatrix;
       globalRot = DDrot(DDName(globalRotstr, idNameSpace), make_unique<DDRotationMatrix>(globalRotMatrix));
     }
@@ -273,7 +261,6 @@ void DDTrackerIrregularRingAlgo::execute(DDCompactView& cpv) {
                             << mother << " at " << tran << " with " << globalRot;
 
     copy += incrCopyNo;
-    phi += delta;
   }
 }
 
