@@ -71,7 +71,7 @@ namespace l1t {
         // Output links are odd and input links are even.
         int link_offset{0};  // This is correct for the uGT unpacker
         if (fed_ == 1402) {  // For uGMT we have to adjust the block/link ID
-          --link_offset;
+          link_offset = 1;
         }
         unsigned linkID{(blockID - link_offset) / 2};
 
@@ -82,6 +82,7 @@ namespace l1t {
         MuonShower shower;
         if (!muonShowerCollection_->isEmpty(bx)) {
           shower = muonShowerCollection_->at(bx, 0);
+          muonShowerCollection_->erase(bx, 0);
         }
         if (linkID == 0) {  // OneNominal shower
           shower.setOneNominalInTime(l1t::MuonRawDigiTranslator::showerFired(payload[i + 1], fed_, getAlgoVersion()));
