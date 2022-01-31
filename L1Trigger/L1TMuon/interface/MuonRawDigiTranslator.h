@@ -18,6 +18,7 @@ namespace l1t {
                          int muInBx);
     static void fillMuon(Muon& mu, uint32_t raw_data_spare, uint64_t dataword, int fed, unsigned int fw, int muInBx);
     static void fillIntermediateMuon(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63, unsigned int fw);
+    static bool showerFired(uint32_t shower_word, int fedId, unsigned int fwId);
     static void generatePackedMuonDataWords(const Muon& mu,
                                             uint32_t& raw_data_spare,
                                             uint32_t& raw_data_00_31,
