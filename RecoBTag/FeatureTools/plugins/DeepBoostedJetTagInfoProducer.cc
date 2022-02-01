@@ -123,7 +123,7 @@ const std::vector<std::string> DeepBoostedJetTagInfoProducer::particle_features_
     "jet_pfcand_dxy",             "jet_pfcand_dxysig",       "jet_pfcand_etarel",          "jet_pfcand_pperp_ratio",
     "jet_pfcand_ppara_ratio",     "jet_pfcand_trackjet_d3d", "jet_pfcand_trackjet_d3dsig", "jet_pfcand_trackjet_dist",
     "jet_pfcand_trackjet_decayL", "jet_pfcand_nhits",        "jet_pfcand_npixhits",        "jet_pfcand_nstriphits",
-    "jet_pfcand_puppiw",      "pfcand_mask"
+    "jet_pfcand_puppiw",          "pfcand_mask"
 };
 
 const std::vector<std::string> DeepBoostedJetTagInfoProducer::sv_features_{
@@ -281,8 +281,8 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event &iEvent, const edm::Event
       reco::VertexRefProd PVRefProd (vtxs_);
       fillParticleFeaturesHLT(features,jet,PVRefProd);
       fillSVFeaturesHLT(features, jet);
-      features.check_consistency(particle_features_);
-      features.check_consistency(sv_features_); 
+      features.check_consistency(particle_features_hlt_);
+      features.check_consistency(sv_features_hlt_); 
     }
 
     // this should always be done even if features are not filled
