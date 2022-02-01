@@ -1,6 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.metPlusTrackMonitoring_cfi import metPlusTrackMonitoring
+# Define 100 logarithmic bins from 10^0 to 10^3 GeV
+binsLogX_METplusTrack = []
+nBinsLogX_METplusTrack = 100
+powerLo_METplusTrack = 0.0
+powerHi_METplusTrack = 3.0
+binPowerWidth_METplusTrack = (powerHi_METplusTrack - powerLo_METplusTrack) / nBinsLogX_METplusTrack
+ for ibin in range(nBinsLogX_METplusTrack + 1):
+   binsLogX_METplusTrack.append( pow(10, powerLo_METplusTrack + ibin * binPowerWidth_METplusTrack) )
 
 hltMETplusTrackMonitoring = metPlusTrackMonitoring.clone(
   FolderName = 'HLT/MET/MET105_IsoTrk50/',
@@ -28,21 +36,11 @@ hltMETplusTrackMonitoring = metPlusTrackMonitoring.clone(
           phiPSet = dict(
                     nbins = 32,
                     xmin  = -3.2,
-                    xmax  = 3.2)
-  ),
-
-  # Define 100 logarithmic bins from 10^0 to 10^3 GeV
-  binsLogX_METplusTrack = [],
-  nBinsLogX_METplusTrack = 100,
-  powerLo_METplusTrack = 0.0,
-  powerHi_METplusTrack = 3.0,
-  binPowerWidth_METplusTrack = (powerHi_METplusTrack - powerLo_METplusTrack) / nBinsLogX_METplusTrack,
-  for ibin in range(nBinsLogX_METplusTrack + 1):
-    binsLogX_METplusTrack.append( pow(10, powerLo_METplusTrack + ibin * binPowerWidth_METplusTrack) ),
-
-  histoPSet = dict(metBinning = [binsLogX_METplusTrack)],
-                 ptBinning = [binsLogX_METplusTrack]
-                ),
+                    xmax  = 3.2),
+    
+          metBinning = binsLogX_METplusTrack,
+          ptBinning = binsLogX_METplusTrack
+      ),
   met       = "caloMet", # caloMet
   jets      = "ak4PFJets", # ak4PFJets, ak4PFJetsCHS
   muons     = "muons", # while pfIsolatedMuonsEI are reco::PFCandidate !
