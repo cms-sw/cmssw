@@ -15,20 +15,6 @@ MIsoDepositViewIOBlock = cms.PSet(
     InputType = cms.string('MuonCollection'),
     MuonTrackRefType = cms.string('bestTrkSta')
 )
-MIsoDepositDisplacedViewMultiIOBlock = cms.PSet(
-    ExtractForCandidate = cms.bool(False),
-    inputMuonCollection = cms.InputTag("displacedMuons1stStep"),
-    MultipleDepositsFlag = cms.bool(True),
-    InputType = cms.string('MuonCollection'),
-    MuonTrackRefType = cms.string('bestTrkSta')
-)
-MIsoDepositDisplacedViewIOBlock = cms.PSet(
-    ExtractForCandidate = cms.bool(False),
-    inputMuonCollection = cms.InputTag("displacedMuons1stStep"),
-    MultipleDepositsFlag = cms.bool(False),
-    InputType = cms.string('MuonCollection'),
-    MuonTrackRefType = cms.string('bestTrkSta')
-)
 MIsoDepositParamGlobalViewMultiIOBlock = cms.PSet(
     ExtractForCandidate = cms.bool(False),
     inputMuonCollection = cms.InputTag("paramMuons","ParamGlobalMuons"),

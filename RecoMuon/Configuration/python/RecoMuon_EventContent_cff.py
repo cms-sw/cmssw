@@ -44,7 +44,7 @@ RecoMuonAOD = cms.PSet(
                                            'keep recoMuonTimeExtraedmValueMap_displacedMuons_*_*',
                                            'keep uintedmValueMap_displacedMuons_*_*',
                                            'keep *_particleFlow_displacedMuons_*',
-                                           'keep recoIsoDepositedmValueMap_*Displaced_*_*',
+                                           #'keep recoIsoDepositedmValueMap_*Displaced_*_*', # saved in RECO
                                            # Tracks known by the Muon obj
                                            'keep recoTracks_standAloneMuons_*_*',
                                            'keep recoTrackExtras_standAloneMuons_*_*',
