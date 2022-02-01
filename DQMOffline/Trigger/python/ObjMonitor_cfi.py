@@ -12,7 +12,7 @@ hltobjmonitoring = objMonitoring.clone(
     photons   = "gedPhotons",
     tracks    = "generalTracks",
     doJetHistos = True,
-    doHTHistos = True
+    doHTHistos = True,
     doHMesonGammaHistos = False,
 
     histoPSet = dict(
