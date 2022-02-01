@@ -12,13 +12,14 @@
  * \new features: Vladimir Rekovic
  *                - indexing
  *                - correlations with overlap object removal
- *
+ *                - displaced muons by R.Cavanaugh
  * \new features: R. Cavanaugh
  *                - displaced muons
  *                - LLP displaced jets
- *
  * \new features: Elisa Fontanesi
  *                - extended for three-body correlation conditions
+ * \new features: Dragana Pilipovic
+ *                - updated for invariant mass over delta R condition
  *
  * $Date$
  * $Revision$
@@ -322,6 +323,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
                    condition.getType() == esConditionType::CaloCaloCorrelation ||
                    condition.getType() == esConditionType::CaloEsumCorrelation ||
                    condition.getType() == esConditionType::InvariantMass ||
+                   condition.getType() == esConditionType::InvariantMassDeltaR ||
                    condition.getType() == esConditionType::TransverseMass ||
                    condition.getType() == esConditionType::InvariantMassUpt) {  // Added for displaced muons
           parseCorrelation(condition, chipNr);
@@ -1767,9 +1769,9 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsig
     unsigned int phiWindow1Lower = -1, phiWindow1Upper = -1, phiWindow2Lower = -1, phiWindow2Upper = -1;
     int isolationLUT = 0xF;  //default is to ignore isolation unless specified.
     int qualityLUT = 0xF;    //default is to ignore quality unless specified.
-    int displacedLUT = 0x0;  // Added for LLP Jets:  single bit LUT:  { 0 = noLLP default, 1 = LLP }
-                             // Note:  Currently assumes that the LSB from hwQual() getter in L1Candidate provides the
-                             //        (single bit) information for the displacedLUT
+    int displacedLUT = 0x0;  // Added for LLP Jets: single bit LUT: { 0 = noLLP default, 1 = LLP }
+                             // Note: Currently assumes that the LSB from hwQual() getter in L1Candidate provides the
+                             // (single bit) information for the displacedLUT
 
     const std::vector<esCut>& cuts = object.getCuts();
     for (size_t kk = 0; kk < cuts.size(); kk++) {
@@ -1870,7 +1872,8 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsig
                                   << objParameter[cnt].phiWindow2Lower << " / 0x" << objParameter[cnt].phiWindow2Upper
                                   << "\n      Isolation LUT for calo object " << cnt << " = 0x"
                                   << objParameter[cnt].isolationLUT << "\n      Quality LUT for calo object " << cnt
-                                  << " = 0x" << objParameter[cnt].qualityLUT << std::dec << std::endl;
+                                  << " = 0x" << objParameter[cnt].qualityLUT << "\n      LLP DISP LUT for calo object "
+                                  << cnt << " = 0x" << objParameter[cnt].displacedLUT << std::dec << std::endl;
 
     cnt++;
   }  //end loop over objects
@@ -2105,7 +2108,8 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
                                 << " = 0x" << objParameter[0].phiWindow2Lower << " / 0x"
                                 << objParameter[0].phiWindow2Upper << "\n      Isolation LUT for calo object "
                                 << " = 0x" << objParameter[0].isolationLUT << "\n      Quality LUT for calo object "
-                                << " = 0x" << objParameter[0].qualityLUT << std::dec << std::endl;
+                                << " = 0x" << objParameter[0].qualityLUT << "\n      LLP DISP LUT for calo object "
+                                << " = 0x" << objParameter[0].displacedLUT << std::dec << std::endl;
 
   // object types - all same caloObjType
   std::vector<GlobalObject> objType(nrObj, caloObjType);
@@ -2748,7 +2752,8 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
                                       << " Max = " << maxV << " precMin = " << cut.getMinimum().index
                                       << " precMax = " << cut.getMaximum().index << std::endl;
         cutType = cutType | 0x20;
-      } else if (cut.getCutType() == esCutType::Mass) {
+      } else if ((cut.getCutType() == esCutType::Mass) ||
+                 (cut.getCutType() == esCutType::MassDeltaR)) {  //Invariant Mass, MassOverDeltaR
         LogDebug("TriggerMenuParser") << "CutType: " << cut.getCutType() << "\tMass Cut minV = " << minV
                                       << " Max = " << maxV << " precMin = " << cut.getMinimum().index
                                       << " precMax = " << cut.getMaximum().index << std::endl;
@@ -2758,6 +2763,8 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
         // cutType = cutType | 0x8;
         if (corrCond.getType() == esConditionType::TransverseMass) {
           cutType = cutType | 0x10;
+        } else if (corrCond.getType() == esConditionType::InvariantMassDeltaR) {
+          cutType = cutType | 0x80;
         } else {
           cutType = cutType | 0x8;
         }
@@ -3009,6 +3016,11 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
       corrThreeBodyParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
       corrThreeBodyParameter.precMassCut = cut.getMinimum().index;
       cutType = cutType | 0x8;
+    } else if (cut.getCutType() == esCutType::MassDeltaR) {
+      corrThreeBodyParameter.minMassCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
+      corrThreeBodyParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
+      corrThreeBodyParameter.precMassCut = cut.getMinimum().index;
+      cutType = cutType | 0x80;
     }
   }
   corrThreeBodyParameter.corrCutType = cutType;
@@ -3183,6 +3195,11 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(const tmeventset
         corrParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
         corrParameter.precMassCut = cut.getMinimum().index;
         cutType = cutType | 0x8;
+      } else if (cut.getCutType() == esCutType::MassDeltaR) {
+        corrParameter.minMassCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
+        corrParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
+        corrParameter.precMassCut = cut.getMinimum().index;
+        cutType = cutType | 0x80;
       }
       if (cut.getCutType() == esCutType::OvRmDeltaEta) {
         //std::cout << "OverlapRemovalDeltaEta Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
