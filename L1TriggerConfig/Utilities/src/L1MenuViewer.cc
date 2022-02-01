@@ -19,11 +19,10 @@ using namespace std;
 class L1MenuViewer : public edm::one::EDAnalyzer<> {
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1GtMenuToken_;
+  const edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1GtMenuToken_;
 
-  explicit L1MenuViewer(const edm::ParameterSet&) : edm::one::EDAnalyzer<>() {
-    l1GtMenuToken_ = esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
-  }
+  explicit L1MenuViewer(const edm::ParameterSet&)
+      : edm::one::EDAnalyzer<>(), l1GtMenuToken_(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>()) {}
   ~L1MenuViewer(void) override = default;
 };
 
