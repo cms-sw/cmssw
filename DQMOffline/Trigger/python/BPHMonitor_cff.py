@@ -150,7 +150,7 @@ Dimuon14_Phi_dRcut = hltBPHmonitoring.clone(
     seagull = 1,
     muoSelection_ref = "abs(eta)<1.5 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ",
     DMSelection_ref = "M>0.95 & M<1.1 & Pt>15 & abs(Eta)<1.2",
-    numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon14_Phi_Barrel_Seagulls_v*"),
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_Dimuon14_Phi_Barrel_Seagulls_v*"]),
     #numGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu0er1p5_SQ_OS_dR_1p4"]),
     denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Dimuon0_LowMass_L1_0er1p5_v*"]),
     #denGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu0er1p5_SQ_OS"]),
