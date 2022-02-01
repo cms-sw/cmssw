@@ -59,8 +59,8 @@ Photon60_DisplacedIdL_monitoring = Photon60_monitoring.clone(
 
 Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring = Photon60_DisplacedIdL_monitoring.clone(
     FolderName = 'HLT/EXO/DisplacedPhoton/Photon60_DisplacedIdL_PFJet350MinPFJet15/',
-    denGenericTriggerEventPSet = dict(andOrHlt = False),
-    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Photon60_R9Id90_CaloIdL_IsoL_v*","HLT_PFHT350MinPFJet15_v*"]),
+    denGenericTriggerEventPSet = dict(andOrHlt = False,
+                                      hltPaths = ["HLT_Photon60_R9Id90_CaloIdL_IsoL_v*","HLT_PFHT350MinPFJet15_v*"]),
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_PFHT350MinPFJet15_v*"])
 )
 
@@ -89,7 +89,7 @@ Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_monitoring = hltobjmo
                 xmin = -0.5,
                 xmax = 200.)
         )
-
+)
 
 
 Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_monitoring = hltobjmonitoring.clone(
