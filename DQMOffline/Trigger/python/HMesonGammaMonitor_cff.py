@@ -12,7 +12,7 @@ HMesonGammamonitoring = hltobjmonitoring.clone(
     doMETHistos = False,
     doJetHistos = False,
     doHTHistos = False,
-    doHMesonGammaHistos = True
+    doHMesonGammaHistos = True,
     #enableMETPlot = True,
     #metSelection = "pt>150",
     numGenericTriggerEventPSet = dict(hltInputTag   = ["TriggerResults","","HLT" ],
