@@ -1,5 +1,5 @@
-#ifndef Geometry_TrackerGeometryBuilder_pixelTopology_h
-#define Geometry_TrackerGeometryBuilder_pixelTopology_h
+#ifndef Geometry_CommonTopologies_SimplePixelTopology_h
+#define Geometry_CommonTopologies_SimplePixelTopology_h
 
 #include <array>
 #include <cstdint>
@@ -287,4 +287,4 @@ namespace phase2PixelTopology {
 
 }  // namespace phase2PixelTopology
 
-#endif  // Geometry_TrackerGeometryBuilder_pixelTopology_h
+#endif  // Geometry_CommonTopologies_SimplePixelTopology_h
