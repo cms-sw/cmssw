@@ -51,9 +51,14 @@ private:
   //  bool isCompatible( const TrajectoryStateOnSurface& ms,
   //	     const MeasurementEstimator& est) const;
 
-  std::array<int, 3> findThreeClosest(std::vector<tkDetUtil::RingPar> ringParams, std::vector<GlobalPoint> ringCrossing, int ringSize) const __attribute__((hot));
+  std::array<int, 3> findThreeClosest(std::vector<tkDetUtil::RingPar> ringParams,
+                                      std::vector<GlobalPoint> ringCrossing,
+                                      int ringSize) const __attribute__((hot));
 
-  bool overlapInR(const TrajectoryStateOnSurface& tsos, int i, double ymax, std::vector<tkDetUtil::RingPar> ringParams) const __attribute__((hot));
+  bool overlapInR(const TrajectoryStateOnSurface& tsos,
+                  int i,
+                  double ymax,
+                  std::vector<tkDetUtil::RingPar> ringParams) const __attribute__((hot));
 
   float computeWindowSize(const GeomDet* det,
                           const TrajectoryStateOnSurface& tsos,
