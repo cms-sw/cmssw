@@ -114,22 +114,21 @@ GeometricSearchTracker *GeometricSearchTrackerBuilder::build(const GeometricDet 
         //hopefully we can get rid of it soon
         if (thisGeomDet->positionBounds().z() < 0) {
           if (thisGeomDet->type() == GeometricDet::PixelPhase2FullDisk ||
-              thisGeomDet->type() == GeometricDet::PixelPhase2ReducedDisk) {
+              thisGeomDet->type() == GeometricDet::PixelPhase2ReducedDisk) 
             theNegPxlFwdLayers.push_back(aPhase1PixelForwardLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
-          } else if (thisGeomDet->type() == GeometricDet::PixelPhase2TDRDisk) {
+          else if (thisGeomDet->type() == GeometricDet::PixelPhase2TDRDisk)
             theNegPxlFwdLayers.push_back(aPhase2EndcapLayerBuilder.build(thisGeomDet, theGeomDetGeometry, false));
-          } else if (thisGeomDet->type() == GeometricDet::PixelPhase2DoubleDisk) {
+          else if (thisGeomDet->type() == GeometricDet::PixelPhase2DoubleDisk) 
             theNegPxlFwdLayers.push_back(aPhase2EndcapLayerDoubleDiskBuilder.build(thisGeomDet, theGeomDetGeometry));
-          }
         } else if (thisGeomDet->positionBounds().z() > 0) {
           if (thisGeomDet->type() == GeometricDet::PixelPhase2FullDisk ||
-              thisGeomDet->type() == GeometricDet::PixelPhase2ReducedDisk) {
+              thisGeomDet->type() == GeometricDet::PixelPhase2ReducedDisk) 
             thePosPxlFwdLayers.push_back(aPhase1PixelForwardLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
-          } else if (thisGeomDet->type() == GeometricDet::PixelPhase2TDRDisk) {
+           else if (thisGeomDet->type() == GeometricDet::PixelPhase2TDRDisk) 
             thePosPxlFwdLayers.push_back(aPhase2EndcapLayerBuilder.build(thisGeomDet, theGeomDetGeometry, false));
-          } else if (thisGeomDet->type() == GeometricDet::PixelPhase2DoubleDisk) {
+           else if (thisGeomDet->type() == GeometricDet::PixelPhase2DoubleDisk) 
             thePosPxlFwdLayers.push_back(aPhase2EndcapLayerDoubleDiskBuilder.build(thisGeomDet, theGeomDetGeometry));
-          }
+          
         } else {
           edm::LogError("TkDetLayers") << "In PixelPhase2EndCap the disks are neither PixelPhase2FullDisk nor "
                                           "PixelPhase2ReducedDisk nor PixelPhase2TDRDisk...";

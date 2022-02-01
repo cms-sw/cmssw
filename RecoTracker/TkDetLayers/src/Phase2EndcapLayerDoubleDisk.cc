@@ -12,8 +12,6 @@
 
 using namespace std;
 
-//typedef GeometricSearchDet::DetWithState DetWithState;
-
 //hopefully is never called!
 const std::vector<const GeometricSearchDet*>& Phase2EndcapLayerDoubleDisk::components() const {
   if (not theComponents) {
@@ -40,7 +38,7 @@ void Phase2EndcapLayerDoubleDisk::fillSubDiskPars(int i) {
 Phase2EndcapLayerDoubleDisk::Phase2EndcapLayerDoubleDisk(vector<const Phase2EndcapSubDisk*>& subDisks)
     : RingedForwardLayer(true), theComponents{nullptr} {
   theSubDisksSize = subDisks.size();
-  LogDebug("TkDetLayers") << "Number of subdisks in Phase2 OT EC layer is " << theSubDisksSize << std::endl;
+  LogDebug("TkDetLayers") << "Number of subdisks in Phase2 IT EC layer is " << theSubDisksSize << std::endl;
   setSurface(computeDisk(subDisks));
 
   for (unsigned int i = 0; i != subDisks.size(); ++i) {
@@ -98,12 +96,12 @@ void Phase2EndcapLayerDoubleDisk::groupedCompatibleDetsV(const TrajectoryStateOn
   std::vector<int> subDiskOrder(theSubDisksSize);
   std::fill(subDiskOrder.begin(), subDiskOrder.end(), 1);
   if (theSubDisksSize > 1) {
-    if (fabs(theComps[0]->position().z()) < fabs(theComps[1]->position().z())) {
+    if (std::abs(theComps[0]->position().z()) < std::abs(theComps[1]->position().z())) {
       for (int i = 0; i < theSubDisksSize; i++) {
         if (i % 2 == 0)
           subDiskOrder[i] = 0;
       }
-    } else if (fabs(theComps[0]->position().z()) > fabs(theComps[1]->position().z())) {
+    } else if (std::abs(theComps[0]->position().z()) > std::abs(theComps[1]->position().z())) {
       std::fill(subDiskOrder.begin(), subDiskOrder.end(), 0);
       for (int i = 0; i < theSubDisksSize; i++) {
         if (i % 2 == 0)
@@ -127,8 +125,6 @@ void Phase2EndcapLayerDoubleDisk::groupedCompatibleDetsV(const TrajectoryStateOn
   // check if next subdisk is found
 
   bool subdisk1ok = subDiskIndices[1] != -1;
-
-  // look for the two rings in the same plane (are they only two?)
 
   // determine if we are propagating from in to out (0) or from out to in (1)
 
@@ -179,30 +175,25 @@ std::array<int, 2> Phase2EndcapLayerDoubleDisk::subDiskIndicesByCrossingProximit
   PropagationDirection propDir(prop.propagationDirection());
   float rho(startingState.transverseCurvature());
 
-  // calculate the crossings with the ring surfaces
-  // rings are assumed to be sorted in R !
+  // calculate the crossings with the subdisk surfaces
 
   Crossing myXing(startPos, startDir, rho, propDir);
 
   std::vector<GlobalPoint> subDiskCrossings;
   subDiskCrossings.reserve(theSubDisksSize);
-  // vector<GlobalVector>  ringXDirections;
 
   for (int i = 0; i < theSubDisksSize; i++) {
     const BoundDisk& theSubDisk = static_cast<const BoundDisk&>(theComps[i]->surface());
     pair<bool, double> pathlen = myXing.pathLength(theSubDisk);
     if (pathlen.first) {
       subDiskCrossings.push_back(GlobalPoint(myXing.position(pathlen.second)));
-      // ringXDirections.push_back( GlobalVector( myXing.direction(pathlen.second )));
     } else {
       // TO FIX.... perhaps there is something smarter to do
-      //throw DetLayerException("trajectory doesn't cross TID rings");
       subDiskCrossings.push_back(GlobalPoint(0., 0., 0.));
-      //  ringXDirections.push_back( GlobalVector( 0.,0.,0.));
     }
   }
 
-  //find three closest rings to the crossing
+  //find two closest subdisks to the crossing
 
   std::array<int, 2> closests = findTwoClosest(subDiskCrossings);
 

@@ -10,11 +10,7 @@
 #include <array>
 #include "DetGroupMerger.h"
 
-//#include "CommonDet/DetLayout/src/DetLessR.h"
-
 using namespace std;
-
-//typedef GeometricSearchDet::DetWithState DetWithState;
 
 //hopefully is never called!
 const std::vector<const GeometricSearchDet*>& Phase2EndcapSubDisk::components() const {
@@ -34,13 +30,7 @@ const std::vector<const GeometricSearchDet*>& Phase2EndcapSubDisk::components() 
 
 void Phase2EndcapSubDisk::fillRingPars(int i) {
   const BoundDisk& ringDisk = static_cast<const BoundDisk&>(theComps[i]->surface());
-  float ringMinZ = std::abs(ringDisk.position().z()) - ringDisk.bounds().thickness() / 2.;
-  float ringMaxZ = std::abs(ringDisk.position().z()) + ringDisk.bounds().thickness() / 2.;
-  RingPar tempPar;
-  tempPar.thetaRingMin = ringDisk.innerRadius() / ringMaxZ;
-  tempPar.thetaRingMax = ringDisk.outerRadius() / ringMinZ;
-  tempPar.theRingR = (ringDisk.innerRadius() + ringDisk.outerRadius()) / 2.;
-  ringPars.push_back(tempPar);
+  ringPars.push_back(tkDetUtil::fillRingParametersFromDisk(ringDisk));
 }
 
 Phase2EndcapSubDisk::Phase2EndcapSubDisk(vector<const Phase2EndcapSingleRing*>& rings)
@@ -110,12 +100,12 @@ void Phase2EndcapSubDisk::groupedCompatibleDetsV(const TrajectoryStateOnSurface&
   std::vector<int> ringOrder(theRingSize);
   std::fill(ringOrder.begin(), ringOrder.end(), 1);
   if (theRingSize > 1) {
-    if (fabs(theComps[0]->position().z()) < fabs(theComps[1]->position().z())) {
+    if (std::abs(theComps[0]->position().z()) < std::abs(theComps[1]->position().z())) {
       for (int i = 0; i < theRingSize; i++) {
         if (i % 2 == 0)
           ringOrder[i] = 0;
       }
-    } else if (fabs(theComps[0]->position().z()) > fabs(theComps[1]->position().z())) {
+    } else if (std::abs(theComps[0]->position().z()) > std::abs(theComps[1]->position().z())) {
       std::fill(ringOrder.begin(), ringOrder.end(), 0);
       for (int i = 0; i < theRingSize; i++) {
         if (i % 2 == 0)
@@ -141,8 +131,8 @@ void Phase2EndcapSubDisk::groupedCompatibleDetsV(const TrajectoryStateOnSurface&
 
   // check if next ring and next next ring are found and if there is overlap
 
-  bool ring1ok = ringIndices[1] != -1 && overlapInR(closestGel.trajectoryState(), ringIndices[1], rWindow);
-  bool ring2ok = ringIndices[2] != -1 && overlapInR(closestGel.trajectoryState(), ringIndices[2], rWindow);
+  bool ring1ok = ringIndices[1] != -1 && overlapInR(closestGel.trajectoryState(), ringIndices[1], rWindow, ringPars);
+  bool ring2ok = ringIndices[2] != -1 && overlapInR(closestGel.trajectoryState(), ringIndices[2], rWindow, ringPars);
 
   // look for the two rings in the same plane (are they only two?)
 
@@ -253,7 +243,7 @@ std::array<int, 3> Phase2EndcapSubDisk::ringIndicesByCrossingProximity(const Tra
 
   //find three closest rings to the crossing
 
-  std::array<int, 3> closests = findThreeClosest(ringCrossings);
+  std::array<int, 3> closests = findThreeClosest(ringPars,ringCrossings,theRingSize);
 
   return closests;
 }
@@ -261,49 +251,13 @@ std::array<int, 3> Phase2EndcapSubDisk::ringIndicesByCrossingProximity(const Tra
 float Phase2EndcapSubDisk::computeWindowSize(const GeomDet* det,
                                              const TrajectoryStateOnSurface& tsos,
                                              const MeasurementEstimator& est) const {
-  const Plane& startPlane = det->surface();
-  MeasurementEstimator::Local2DVector maxDistance = est.maximalLocalDisplacement(tsos, startPlane);
-  return maxDistance.y();
+  return tkDetUtil::computeYdirWindowSize(det, tsos, est);
 }
 
-std::array<int, 3> Phase2EndcapSubDisk::findThreeClosest(std::vector<GlobalPoint> ringCrossing) const {
-  std::array<int, 3> theBins = {{-1, -1, -1}};
-  theBins[0] = 0;
-  float initialR = ringPars[0].theRingR;
-  float rDiff0 = std::abs(ringCrossing[0].perp() - initialR);
-  float rDiff1 = -1.;
-  float rDiff2 = -1.;
-  for (int i = 1; i < theRingSize; i++) {
-    float ringR = ringPars[i].theRingR;
-    float testDiff = std::abs(ringCrossing[i].perp() - ringR);
-    if (testDiff < rDiff0) {
-      rDiff2 = rDiff1;
-      rDiff1 = rDiff0;
-      rDiff0 = testDiff;
-      theBins[2] = theBins[1];
-      theBins[1] = theBins[0];
-      theBins[0] = i;
-    } else if (rDiff1 < 0 || testDiff < rDiff1) {
-      rDiff2 = rDiff1;
-      rDiff1 = testDiff;
-      theBins[2] = theBins[1];
-      theBins[1] = i;
-    } else if (rDiff2 < 0 || testDiff < rDiff2) {
-      rDiff2 = testDiff;
-      theBins[2] = i;
-    }
-  }
-
-  return theBins;
+std::array<int, 3> Phase2EndcapSubDisk::findThreeClosest(std::vector<tkDetUtil::RingPar> ringParams, std::vector<GlobalPoint> ringCrossing, int ringSize) const {
+  return tkDetUtil::findThreeClosest(ringParams,ringCrossing,ringSize); 
 }
 
-bool Phase2EndcapSubDisk::overlapInR(const TrajectoryStateOnSurface& tsos, int index, double ymax) const {
-  // assume "fixed theta window", i.e. margin in local y = r is changing linearly with z
-  float tsRadius = tsos.globalPosition().perp();
-  float thetamin = (max(0., tsRadius - ymax)) / (std::abs(tsos.globalPosition().z()) + 10.f);  // add 10 cm contingency
-  float thetamax = (tsRadius + ymax) / (std::abs(tsos.globalPosition().z()) - 10.f);
-
-  // do the theta regions overlap ?
-
-  return !(thetamin > ringPars[index].thetaRingMax || ringPars[index].thetaRingMin > thetamax);
+bool Phase2EndcapSubDisk::overlapInR(const TrajectoryStateOnSurface& tsos, int index, double ymax, std::vector<tkDetUtil::RingPar> ringParams) const {
+  return tkDetUtil::overlapInR(tsos, index, ymax, ringParams);
 }

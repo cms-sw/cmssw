@@ -6,7 +6,7 @@
 #include "SubLayerCrossings.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
-/** A concrete implementation for TID rings 
+/** A concrete implementation for Phase2 SubDisk rings 
  */
 
 #pragma GCC visibility push(hidden)

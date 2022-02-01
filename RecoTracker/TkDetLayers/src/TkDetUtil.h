@@ -6,6 +6,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 class GeomDet;
 class Plane;
@@ -14,6 +15,10 @@ class TrajectoryStateOnSurface;
 #pragma GCC visibility push(hidden)
 
 namespace tkDetUtil {
+
+  struct RingPar {
+    float theRingR, thetaRingMin, thetaRingMax;
+  };
 
   inline bool overlapInPhi(float phi, const GeomDet& det, float phiWindow) {
     std::pair<float, float> phiRange(phi - phiWindow, phi + phiWindow);
@@ -29,6 +34,15 @@ namespace tkDetUtil {
   float calculatePhiWindow(const MeasurementEstimator::Local2DVector& maxDistance,
                            const TrajectoryStateOnSurface& ts,
                            const Plane& plane);
+
+  float computeYdirWindowSize(const GeomDet* det, const TrajectoryStateOnSurface& tsos, const MeasurementEstimator& est);
+
+  std::array<int, 3> findThreeClosest(std::vector<tkDetUtil::RingPar> ringParams, std::vector<GlobalPoint> ringCrossing, int ringSize);
+
+  bool overlapInR(const TrajectoryStateOnSurface& tsos, int index, double ymax, std::vector<tkDetUtil::RingPar> ringParams);
+ 
+  RingPar fillRingParametersFromDisk(const BoundDisk& ringDisk);
+
 
 }  // namespace tkDetUtil
 

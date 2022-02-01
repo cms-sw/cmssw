@@ -3,6 +3,7 @@
 
 #include "TrackingTools/DetLayers/interface/RingedForwardLayer.h"
 #include "Phase2EndcapSingleRing.h"
+#include "TkDetUtil.h"
 #include <array>
 #include <atomic>
 
@@ -45,9 +46,10 @@ private:
   //  bool isCompatible( const TrajectoryStateOnSurface& ms,
   //	     const MeasurementEstimator& est) const;
 
-  std::array<int, 3> findThreeClosest(std::vector<GlobalPoint>) const __attribute__((hot));
 
-  bool overlapInR(const TrajectoryStateOnSurface& tsos, int i, double ymax) const __attribute__((hot));
+  std::array<int, 3> findThreeClosest(std::vector<tkDetUtil::RingPar> ringParams, std::vector<GlobalPoint> ringCrossing, int ringSize) const __attribute__((hot));
+
+  bool overlapInR(const TrajectoryStateOnSurface& tsos, int i, double ymax, std::vector<tkDetUtil::RingPar> ringParams) const __attribute__((hot));
 
   float computeWindowSize(const GeomDet* det,
                           const TrajectoryStateOnSurface& tsos,
@@ -59,10 +61,7 @@ private:
   std::vector<GeomDet const*> theBasicComps;
   mutable std::atomic<std::vector<const GeometricSearchDet*>*> theComponents;
   std::vector<const Phase2EndcapSingleRing*> theComps;
-  struct RingPar {
-    float theRingR, thetaRingMin, thetaRingMax;
-  };
-  std::vector<RingPar> ringPars;
+  std::vector<tkDetUtil::RingPar> ringPars;
   int theRingSize;
 };
 
