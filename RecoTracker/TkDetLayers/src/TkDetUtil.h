@@ -35,14 +35,17 @@ namespace tkDetUtil {
                            const TrajectoryStateOnSurface& ts,
                            const Plane& plane);
 
-  float computeYdirWindowSize(const GeomDet* det, const TrajectoryStateOnSurface& tsos, const MeasurementEstimator& est);
+  float computeYdirWindowSize(const GeomDet* det,
+                              const TrajectoryStateOnSurface& tsos,
+                              const MeasurementEstimator& est);
 
-  std::array<int, 3> findThreeClosest(std::vector<RingPar> ringParams, std::vector<GlobalPoint> ringCrossing, int ringSize);
+  std::array<int, 3> findThreeClosest(std::vector<RingPar> ringParams,
+                                      std::vector<GlobalPoint> ringCrossing,
+                                      int ringSize);
 
   bool overlapInR(const TrajectoryStateOnSurface& tsos, int index, double ymax, std::vector<RingPar> ringParams);
- 
-  RingPar fillRingParametersFromDisk(const BoundDisk& ringDisk);
 
+  RingPar fillRingParametersFromDisk(const BoundDisk& ringDisk);
 
 }  // namespace tkDetUtil
 

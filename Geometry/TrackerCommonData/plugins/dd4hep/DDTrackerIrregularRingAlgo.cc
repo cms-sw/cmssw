@@ -33,11 +33,11 @@ namespace {
 
     edm::LogVerbatim("TrackerGeom") << "DDTrackerIrregularRingAlgo debug: Parameters for position"
                                     << "ing:: n " << n << " Start, Range " << convertRadToDeg(startAngle) << " "
-                                    << convertRadToDeg(rangeAngle) << " Radius "
-                                    << radius << " Centre " << center[0] << ", " << center[1] << ", " << center[2];
+                                    << convertRadToDeg(rangeAngle) << " Radius " << radius << " Centre " << center[0]
+                                    << ", " << center[1] << ", " << center[2];
 
-    edm::LogVerbatim("TrackerGeom") << "DDTrackerIrregularRingAlgo debug: Parent " << parentName << "\tChild " << childName
-                                    << " NameSpace " << ns.name();
+    edm::LogVerbatim("TrackerGeom") << "DDTrackerIrregularRingAlgo debug: Parent " << parentName << "\tChild "
+                                    << childName << " NameSpace " << ns.name();
 
     Rotation3D flipMatrix, tiltMatrix, phiRotMatrix, globalRotMatrix, phiOwnAxisRotMatrix;  // Identity matrix
 
@@ -80,10 +80,10 @@ namespace {
       double phiy = phix + 90._deg;
       double phiy_ownaxis = phix_ownaxis + 90._deg;
       if (phix_ownaxis != 0.) {
-        LogDebug("TrackerGeom") << "DDTrackerIrregularRingAlgo test: Creating a new rotation: " 
-                                << "\t90., " << convertRadToDeg(phix_ownaxis)  << ", 90.," << convertRadToDeg(phiy_ownaxis)
-                                << ", 0., 0.";
-        phiOwnAxisRotMatrix = makeRotation3D(theta,phix_ownaxis,theta,phiy_ownaxis,0.,0.);
+        LogDebug("TrackerGeom") << "DDTrackerIrregularRingAlgo test: Creating a new rotation: "
+                                << "\t90., " << convertRadToDeg(phix_ownaxis) << ", 90.,"
+                                << convertRadToDeg(phiy_ownaxis) << ", 0., 0.";
+        phiOwnAxisRotMatrix = makeRotation3D(theta, phix_ownaxis, theta, phiy_ownaxis, 0., 0.);
       }
       if (phix != 0.) {
         edm::LogVerbatim("TrackerGeom") << "DDTrackerIrregularRingAlgo test: Creating a new rotation: "
@@ -102,9 +102,9 @@ namespace {
 
       // Positions child with respect to parent
       mother.placeVolume(child, copy, Transform3D(globalRotMatrix, tran));
-      edm::LogVerbatim("TrackerGeom") << "DDTrackerIrregularRingAlgo test " << child.data()->GetName() << " number " << copy
-                                      << " positioned in " << mother.data()->GetName() << " at " << tran << " with "
-                                      << globalRotMatrix;
+      edm::LogVerbatim("TrackerGeom") << "DDTrackerIrregularRingAlgo test " << child.data()->GetName() << " number "
+                                      << copy << " positioned in " << mother.data()->GetName() << " at " << tran
+                                      << " with " << globalRotMatrix;
 
       copy += incrCopyNo;
     }

@@ -243,7 +243,7 @@ std::array<int, 3> Phase2EndcapSubDisk::ringIndicesByCrossingProximity(const Tra
 
   //find three closest rings to the crossing
 
-  std::array<int, 3> closests = findThreeClosest(ringPars,ringCrossings,theRingSize);
+  std::array<int, 3> closests = findThreeClosest(ringPars, ringCrossings, theRingSize);
 
   return closests;
 }
@@ -254,10 +254,15 @@ float Phase2EndcapSubDisk::computeWindowSize(const GeomDet* det,
   return tkDetUtil::computeYdirWindowSize(det, tsos, est);
 }
 
-std::array<int, 3> Phase2EndcapSubDisk::findThreeClosest(std::vector<tkDetUtil::RingPar> ringParams, std::vector<GlobalPoint> ringCrossing, int ringSize) const {
-  return tkDetUtil::findThreeClosest(ringParams,ringCrossing,ringSize); 
+std::array<int, 3> Phase2EndcapSubDisk::findThreeClosest(std::vector<tkDetUtil::RingPar> ringParams,
+                                                         std::vector<GlobalPoint> ringCrossing,
+                                                         int ringSize) const {
+  return tkDetUtil::findThreeClosest(ringParams, ringCrossing, ringSize);
 }
 
-bool Phase2EndcapSubDisk::overlapInR(const TrajectoryStateOnSurface& tsos, int index, double ymax, std::vector<tkDetUtil::RingPar> ringParams) const {
+bool Phase2EndcapSubDisk::overlapInR(const TrajectoryStateOnSurface& tsos,
+                                     int index,
+                                     double ymax,
+                                     std::vector<tkDetUtil::RingPar> ringParams) const {
   return tkDetUtil::overlapInR(tsos, index, ymax, ringParams);
 }

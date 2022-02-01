@@ -252,7 +252,7 @@ std::array<int, 3> Phase2EndcapLayer::ringIndicesByCrossingProximity(const Traje
 
   //find three closest rings to the crossing
 
-  std::array<int, 3> closests = findThreeClosest(ringPars,ringCrossings,theRingSize);
+  std::array<int, 3> closests = findThreeClosest(ringPars, ringCrossings, theRingSize);
 
   return closests;
 }
@@ -263,11 +263,15 @@ float Phase2EndcapLayer::computeWindowSize(const GeomDet* det,
   return tkDetUtil::computeYdirWindowSize(det, tsos, est);
 }
 
-std::array<int, 3> Phase2EndcapLayer::findThreeClosest(std::vector<tkDetUtil::RingPar> ringParams, std::vector<GlobalPoint> ringCrossing, int ringSize) const {
-  return tkDetUtil::findThreeClosest(ringParams,ringCrossing,ringSize); 
+std::array<int, 3> Phase2EndcapLayer::findThreeClosest(std::vector<tkDetUtil::RingPar> ringParams,
+                                                       std::vector<GlobalPoint> ringCrossing,
+                                                       int ringSize) const {
+  return tkDetUtil::findThreeClosest(ringParams, ringCrossing, ringSize);
 }
 
-bool Phase2EndcapLayer::overlapInR(const TrajectoryStateOnSurface& tsos, int index, double ymax, std::vector<tkDetUtil::RingPar> ringParams) const {
+bool Phase2EndcapLayer::overlapInR(const TrajectoryStateOnSurface& tsos,
+                                   int index,
+                                   double ymax,
+                                   std::vector<tkDetUtil::RingPar> ringParams) const {
   return tkDetUtil::overlapInR(tsos, index, ymax, ringParams);
 }
-
