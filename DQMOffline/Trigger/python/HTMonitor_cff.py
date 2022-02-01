@@ -197,7 +197,7 @@ PFMETTypeOne140_PFMHT140_HTmonitoring = hltHTmonitoring.clone(
     FolderName = 'HLT/EXO/MET/PFMETTypeOne140/',
     jetSelection      = "pt > 100 && eta < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1",
     jetSelection_HT   = "pt > 30 && eta < 2.5",
-    numGenericTriggerEventPSet  dict(hltPaths = ["HLT_PFMETTypeOne140_PFMHT140_IDTight_v*"])
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_PFMETTypeOne140_PFMHT140_IDTight_v*"])
 )
 # HLT_PFMET120_PFMHT120_IDTight_PFHT60
 PFMET120_PFMHT120_IDTight_PFHT60_HTmonitoring = hltHTmonitoring.clone(
