@@ -127,7 +127,7 @@ bool l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonShower(
     muShower.setOneTightInTime(((bxPayload[emtfShowerInTimeFrame_] >> emtfShowerOneTightShift_) & 1) == 1);
     muShower.setOneTightOutOfTime(((bxPayload[emtfShowerOOTFrame_] >> emtfShowerOneTightShift_) & 1) == 1);
 
-    return true;
+    return muShower.isValid();
   } else {
     return false;
   }
