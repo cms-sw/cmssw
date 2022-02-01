@@ -19,10 +19,10 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/Records/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
@@ -133,7 +133,11 @@ private:
   edm::ESGetToken<ESChannelStatus, ESChannelStatusRcd> esChannelStatusToken_;
   edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
   edm::ESGetToken<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd> ecalSCDynamicDPhiParametersToken_;
-
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  // edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord > ebGeometryToken_; 
+  // edm::ESGetToken<CaloSubdetectorGeometry, EcalEndcapGeometryRecord > eeGeometryToken_;
+  
   const reco::BeamSpot* beamSpot_;
   const ESChannelStatus* channelStatus_;
   const CaloGeometry* geometry_;

@@ -187,9 +187,12 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet& iConfig, edm::Co
   }
 
   if (isOOTCollection_ || _clustype == PFECALSuperClusterAlgo::kDeepSC) {  // OOT photons or DeepSC
-    //std::cout << "_clustype:" << _clustype << std::endl;
+    
     inputTagBarrelRecHits_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("barrelRecHits"));
     inputTagEndcapRecHits_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("endcapRecHits"));
+
+    caloTopologyToken_ = cc.esConsumes<CaloTopology, CaloTopologyRecord, edm::Transition::BeginLuminosityBlock>();
+    caloGeometryToken_ = cc.esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginLuminosityBlock>(); 
   }
 }
 
@@ -204,16 +207,17 @@ void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
   edm::ESHandle<ESChannelStatus> esChannelStatusHandle_ = setup.getHandle(esChannelStatusToken_);
   channelStatus_ = esChannelStatusHandle_.product();
 
-  edm::ESHandle<CaloGeometry> caloGeometryHandle_;
-  setup.get<CaloGeometryRecord>().get(caloGeometryHandle_);
-  geometry_ = caloGeometryHandle_.product();
-  ebGeom_ = caloGeometryHandle_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  eeGeom_ = caloGeometryHandle_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  esGeom_ = caloGeometryHandle_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  
+  if (_clustype == PFECALSuperClusterAlgo::kDeepSC) {  // DeepSC uses geometry 
+    edm::ESHandle<CaloGeometry> caloGeometryHandle_ = setup.getHandle(caloGeometryToken_);
+    geometry_ = caloGeometryHandle_.product();
+    ebGeom_ = caloGeometryHandle_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    eeGeom_ = caloGeometryHandle_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    esGeom_ = caloGeometryHandle_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
-  edm::ESHandle<CaloTopology> caloTopologyHandle_;
-  setup.get<CaloTopologyRecord>().get(caloTopologyHandle_);
-  topology_ = caloTopologyHandle_.product();
+    edm::ESHandle<CaloTopology> caloTopologyHandle_ = setup.getHandle(caloTopologyToken_); 
+    topology_ = caloTopologyHandle_.product();
+  }
 }
 
 void PFECALSuperClusterAlgo::updateSCParams(const edm::EventSetup& setup) {
