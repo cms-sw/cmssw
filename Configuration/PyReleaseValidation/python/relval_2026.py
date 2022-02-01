@@ -45,5 +45,10 @@ numWFIB.extend([39434.21,39634.21,39634.9921]) #2026D88 prodlike, prodlike PU, p
 numWFIB.extend([39834.0]) #2026D89
 numWFIB.extend([40234.0]) #2026D90
 
+#additional sample for short matrix
+#CloseByPGun
+numWFIB.extend([39496.0]) #CE_E_Front_120um D88
+numWFIB.extend([39500.0]) #CE_H_Coarse_Scint D88
+
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]
