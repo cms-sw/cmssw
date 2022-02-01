@@ -35,7 +35,7 @@ hltTau3Mumonitoring = tau3muMonitoring.clone(
   taus = "hltTauPt15MuPts711Mass1p3to2p1Iso:Taus", # 3-muon candidates
 
   GenericTriggerEventPSet = dict(
-    a ndOr          = False, # https://github.com/cms-sw/cmssw/blob/76d343005c33105be1e01b7b7278c07d753398db/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L249
+    andOr          = False, # https://github.com/cms-sw/cmssw/blob/76d343005c33105be1e01b7b7278c07d753398db/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L249
     andOrHlt       =  True , # https://github.com/cms-sw/cmssw/blob/76d343005c33105be1e01b7b7278c07d753398db/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L114
     hltPaths       = ["HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_v*"],
     # determine the DCS partitions to be active https://github.com/cms-sw/cmssw/blob/b767924e38a6b75340e6e120ece95b648bd11d2d/DataFormats/Scalers/interface/DcsStatus.h#L35
