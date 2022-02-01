@@ -223,37 +223,51 @@ bool HLTDoubletSinglet<T1, T2, T3>::hltFilter(edm::Event& iEvent,
           r3 = coll3[i3];
           p3 = r3->p4();
 
-          auto const Dphi13(std::abs(deltaPhi(p1.phi(), p3.phi())));
-          auto const Dphi23(std::abs(deltaPhi(p2.phi(), p3.phi())));
+          //deltaPhi
+          auto const dPhi13(std::abs(deltaPhi(p1.phi(), p3.phi())));
+          if (cutdphi_ && (min_Dphi_ > dPhi13 || dPhi13 > max_Dphi_))
+            continue;
+          auto const dPhi23(std::abs(deltaPhi(p2.phi(), p3.phi())));
+          if (cutdphi_ && (min_Dphi_ > dPhi23 || dPhi23 > max_Dphi_))
+            continue;
 
-          auto const Deta13(std::abs(p1.eta() - p3.eta()));
-          auto const Deta23(std::abs(p2.eta() - p3.eta()));
+          //deltaEta
+          auto const dEta13(std::abs(p1.eta() - p3.eta()));
+          if (cutdeta_ && (min_Deta_ > dEta13 || dEta13 > max_Deta_))
+            continue;
+          auto const dEta23(std::abs(p2.eta() - p3.eta()));
+          if (cutdeta_ && (min_Deta_ > dEta23 || dEta23 > max_Deta_))
+            continue;
 
+          //deltaR
+          auto const delR2_13(dPhi13 * dPhi13 + dEta13 * dEta13);
+          if (cutdelr_ && (min_DelR2_ > delR2_13 || delR2_13 > max_DelR2_))
+            continue;
+          auto const delR2_23(dPhi23 * dPhi23 + dEta23 * dEta23);
+          if (cutdelr_ && (min_DelR2_ > delR2_23 || delR2_23 > max_DelR2_))
+            continue;
+
+          //Pt and Minv
           p13 = p1 + p3;
+          auto const mInv13(std::abs(p13.mass()));
+          if (cutminv_ && (min_Minv_ > mInv13 || mInv13 > max_Minv_))
+            continue;
+          auto const pt13(p13.pt());
+          if (cutpt_ && (min_Pt_ > pt13 || pt13 > max_Pt_))
+            continue;
+
           p23 = p2 + p3;
-          auto const Minv13(std::abs(p13.mass()));
-          auto const Minv23(std::abs(p23.mass()));
-          auto const Pt13(p13.pt());
-          auto const Pt23(p23.pt());
+          auto const mInv23(std::abs(p23.mass()));
+          if (cutminv_ && (min_Minv_ > mInv23 || mInv23 > max_Minv_))
+            continue;
+          auto const pt23(p23.pt());
+          if (cutpt_ && (min_Pt_ > pt23 || pt23 > max_Pt_))
+            continue;
 
-          auto const DelR2_13(Dphi13 * Dphi13 + Deta13 * Deta13);
-          auto const DelR2_23(Dphi23 * Dphi23 + Deta23 * Deta23);
-
-          if (((!cutdphi_) || ((min_Dphi_ <= Dphi13) && (Dphi13 <= max_Dphi_))) &&
-              ((!cutdphi_) || ((min_Dphi_ <= Dphi23) && (Dphi23 <= max_Dphi_))) &&
-              ((!cutdeta_) || ((min_Deta_ <= Deta13) && (Deta13 <= max_Deta_))) &&
-              ((!cutdeta_) || ((min_Deta_ <= Deta23) && (Deta23 <= max_Deta_))) &&
-              ((!cutminv_) || ((min_Minv_ <= Minv13) && (Minv13 <= max_Minv_))) &&
-              ((!cutminv_) || ((min_Minv_ <= Minv23) && (Minv23 <= max_Minv_))) &&
-              ((!cutdelr_) || ((min_DelR2_ <= DelR2_13) && (DelR2_13 <= max_DelR2_))) &&
-              ((!cutdelr_) || ((min_DelR2_ <= DelR2_23) && (DelR2_23 <= max_DelR2_))) &&
-              ((!cutpt_) || ((min_Pt_ <= Pt13) && (Pt13 <= max_Pt_))) &&
-              ((!cutpt_) || ((min_Pt_ <= Pt23) && (Pt23 <= max_Pt_)))) {
-            n++;
-            filterproduct.addObject(triggerType1_, r1);
-            filterproduct.addObject(triggerType2_, r2);
-            filterproduct.addObject(triggerType3_, r3);
-          }
+          n++;
+          filterproduct.addObject(triggerType1_, r1);
+          filterproduct.addObject(triggerType2_, r2);
+          filterproduct.addObject(triggerType3_, r3);
         }
       }
     }
