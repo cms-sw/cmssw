@@ -17,37 +17,45 @@ public:
 
   SeedingHitSet() = default;
 
-  SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two) : theRecHits({one, two}) { setSize(); }
+  SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two) : SeedingHitSet({one, two}) {}
 
   SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two, ConstRecHitPointer three)
-      : theRecHits({one, two, three}) {
-    setSize();
-  }
+      : SeedingHitSet({one, two, three}) {}
 
   SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two, ConstRecHitPointer three, ConstRecHitPointer four)
-      : theRecHits({one, two, three, four}) {
-    setSize();
+      : SeedingHitSet({one, two, three, four}) {}
+
+  SeedingHitSet(const std::vector<ConstRecHitPointer> &hits) {
+    if (hits.size() >= 2) {
+      auto end = std::find(hits.begin(), hits.end(), nullPtr());
+      auto size = std::distance(hits.begin(), end);
+      if (size >= 2) {
+        theRecHits.reserve(size);
+        std::copy(hits.begin(), end, std::back_inserter(theRecHits));
+      }
+    }
   }
 
-  SeedingHitSet(const std::vector<ConstRecHitPointer> &hits) : theRecHits(hits) { setSize(); }
+  SeedingHitSet(const std::initializer_list<ConstRecHitPointer> &hits) {
+    if (hits.size() >= 2) {
+      auto end = std::find(hits.begin(), hits.end(), nullPtr());
+      auto size = std::distance(hits.begin(), end);
+      if (size >= 2) {
+        theRecHits.reserve(size);
+        std::copy(hits.begin(), end, std::back_inserter(theRecHits));
+      }
+    }
+  }
 
   ConstRecHitPointer const *data() const { return theRecHits.data(); }
 
-  unsigned int size() const { return theSize; }
+  unsigned int size() const { return theRecHits.size(); }
 
   ConstRecHitPointer get(unsigned int i) const { return theRecHits[i]; }
   ConstRecHitPointer operator[](unsigned int i) const { return theRecHits[i]; }
 
 protected:
   std::vector<ConstRecHitPointer> theRecHits;
-  unsigned int theSize = 0;
-
-  void setSize() {
-    theSize = 0;
-    while (theRecHits[++theSize] and theSize < theRecHits.size())
-      ;
-    theSize = theSize > 1 ? theSize : 0;
-  }
 };
 
 #endif
