@@ -2,7 +2,7 @@
 #include <iostream>
 #include <tuple>
 
-#include "Geometry/TrackerGeometryBuilder/interface/pixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
