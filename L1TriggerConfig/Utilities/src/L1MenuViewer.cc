@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,15 +16,15 @@
 
 using namespace std;
 
-class L1MenuViewer : public edm::EDAnalyzer {
+class L1MenuViewer : public edm::one::EDAnalyzer<> {
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1GtMenuToken_;
 
-  explicit L1MenuViewer(const edm::ParameterSet&) : edm::EDAnalyzer() {
+  explicit L1MenuViewer(const edm::ParameterSet&) : edm::one::EDAnalyzer<>() {
     l1GtMenuToken_ = esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
   }
-  ~L1MenuViewer(void) override {}
+  ~L1MenuViewer(void) override = default;
 };
 
 void L1MenuViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
