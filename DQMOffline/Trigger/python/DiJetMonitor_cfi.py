@@ -20,8 +20,7 @@ DiPFjetAve40_Prommonitoring = dijetMonitoring.clone(
                              xmax  = 100.)),
 
     numGenericTriggerEventPSet = dict(andOr = False,
-                                      dbLabel = "JetMETDQMTrigger", # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will ne\
-ed a label per path !                                                                                                                                                        
+                                      dbLabel = "JetMETDQMTrigger", # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !                                                                                                                                                        
                                       andOrHlt      = True, # True:=OR; False:=AND                                                                                           
                                       hltInputTag   = "TriggerResults::HLT" ,
                                       hltPaths      = ["HLT_DiPFJetAve40_v*"], # HLT_ZeroBias_v*                                                                             
