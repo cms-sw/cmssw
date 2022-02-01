@@ -30,7 +30,7 @@ PFJet60_Prommonitoring = hltJetMETmonitoring.clone(
     histoPSet = dict(jetPtThrPSet = dict(
                 nbins =  75 ,
                 xmin  =  0.,
-                xmax  =  150.));
+                xmax  =  150.)),
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_PFJet60_v*"])
 )
 
