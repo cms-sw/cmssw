@@ -111,7 +111,7 @@ hltHIGmonitoring = topMonitoring.clone(
              hltInputTag   = "TriggerResults::HLT",
              errorReplyHlt =  False,
              verbosityLevel = 1,
-             andOrHlt      = True, # True:=OR; False:=AND
+             #andOrHlt      = True, # True:=OR; False:=AND
              hltInputTag   = "TriggerResults::HLT",
              errorReplyHlt =  False ),
 
