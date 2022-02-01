@@ -22,7 +22,7 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 class DetGroupElementZLess {
 public:
   bool operator()(DetGroup a, DetGroup b) {
-    return (fabs(a.front().det()->position().z()) < fabs(b.front().det()->position().z()));
+    return (std::abs(a.front().det()->position().z()) < std::abs(b.front().det()->position().z()));
   }
 };
 
