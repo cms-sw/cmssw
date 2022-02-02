@@ -155,13 +155,13 @@ Dimuon14_Phi_dRcut = hltBPHmonitoring.clone(
     denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Dimuon0_LowMass_L1_0er1p5_v*"]),
     #denGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu0er1p5_SQ_OS"]),
     histoPSet = dict(dRPSet = dict(
-        nbins = 35,
-        xmin  = 0,    
-        xmax  = 0.7),
-    massPSet = cms.PSet(
-        nbins =  10,
-        xmin  = 0.95,
-        xmax  = 1.1)
+                        nbins = 35,
+                        xmin  = 0,    
+                        xmax  = 0.7),
+                    massPSet = dict(
+                        nbins =  10,
+                        xmin  = 0.95,
+                        xmax  = 1.1)
    )
 )
 
@@ -262,14 +262,14 @@ DMu4_PsiPrimeTrk_Displaced_dRcut_low = hltBPHmonitoring.clone(
     muoSelection_ref = "pt>5 & abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ",
     DMSelection_ref = "M>3.4 & M<3.95 & abs(Eta)<2.4",
     max_dR = 1.2,
-    numGenericTriggerEventPSet = dict(hltPaths = "HLT_DoubleMu4_PsiPrimeTrk_Displaced_v*"),
-    #numGenericTriggerEventPSet = dict(l1Algorithms = "L1_DoubleMu4_SQ_OS_dR_Max1p2"),
-    denGenericTriggerEventPSet = dict(hltPaths = "HLT_Dimuon0_LowMass_L1_4_v*"),
-    #denGenericTriggerEventPSet = dict(l1Algorithms = "L1_DoubleMu4_SQ_OS"),
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DoubleMu4_PsiPrimeTrk_Displaced_v*"]),
+    #numGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu4_SQ_OS_dR_Max1p2"]),
+    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Dimuon0_LowMass_L1_4_v*"]),
+    #denGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu4_SQ_OS"]),
     histoPSet = dict(massPSet = dict(
          nbins = 12,   
          xmin  = 3.3,
-         xmax  = 3.9,)   
+         xmax  = 3.9)   
     )
 )
 
@@ -280,10 +280,10 @@ Dimuon25_Jpsi_dRcut = hltBPHmonitoring.clone(
     Jpsi = 1,
     muoSelection_ref = "abs(eta)<1.5 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ",
     DMSelection_ref = "Pt>26 & abs(Eta)<1.5",
-    numGenericTriggerEventPSet = dict(hltPaths = cms.vstring("HLT_Dimuon25_Jpsi_v*"),
-    #numGenericTriggerEventPSet = dict(l1Algorithms = cms.vstring("L1_DoubleMu0er1p5_SQ_OS_dR_1p4"),
-    denGenericTriggerEventPSet = dict(hltPaths = cms.vstring("HLT_Dimuon0_LowMass_L1_0er1p5_v*"),
-    #denGenericTriggerEventPSet = dict(l1Algorithms = cms.vstring("L1_DoubleMu0er1p5_SQ_OS"),
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_Dimuon25_Jpsi_v*"]),
+    #numGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu0er1p5_SQ_OS_dR_1p4"]),
+    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Dimuon0_LowMass_L1_0er1p5_v*"]),
+    #denGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu0er1p5_SQ_OS"]),
     histoPSet = dict(dRPSet = dict(
         nbins = 20,
         xmin  = 0.,
@@ -344,10 +344,10 @@ Dimuon18_PsiPrime_dRcut_low = hltBPHmonitoring.clone(
     muoSelection_ref = "pt>5 && abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ",
     DMSelection_ref = "M>3.4 & M<3.95 & Pt>19 & abs(Eta)<2.4",
     max_dR = 1.2,
-    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_Dimuon18_PsiPrime_v*"])
-    #numGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu4_SQ_OS_dR_Max1p2"])
-    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Dimuon0_LowMass_L1_4_v*"])
-    #denGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu4_SQ_OS"])
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_Dimuon18_PsiPrime_v*"]),
+    #numGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu4_SQ_OS_dR_Max1p2"]),
+    denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Dimuon0_LowMass_L1_4_v*"]),
+    #denGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu4_SQ_OS"]),
     histoPSet = dict(massPSet = dict(
         nbins = 10 ,
         xmin  = 3.4,
@@ -460,10 +460,10 @@ Dimuon0_tripleMu3 = hltBPHmonitoring.clone(
     enum = 6,
     muoSelection_ref = "pt>4 && abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ",
     DMSelection_ref = "abs(Eta)<2.4",
-    numGenericTriggerEventPSet.hltPaths = ["HLT_DoubleMu3_Trk_Tau3mu_NoL1Mass_v*"]),
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DoubleMu3_Trk_Tau3mu_NoL1Mass_v*"]),
     #numGenericTriggerEventPSet = dict(l1Algorithms = ["L1_TripleMu_5SQ_3SQ_0OQ"]),
     denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Dimuon0_LowMass_L1_TM530_v*"]),
-    #denGenericTriggerEventPSet = dict(l1Algorithms = ["L1_TripleMu_5SQ_3SQ_0OQ"])
+    #denGenericTriggerEventPSet = dict(l1Algorithms = ["L1_TripleMu_5SQ_3SQ_0OQ"]),
 )
 
 ###photon 
@@ -637,15 +637,15 @@ DM2_Jpsi_addTrackTrack_Phi = hltBPHmonitoring.clone(
     maxmassTkTk = 1.120,
     minmassJpsiTk = 0.,
     maxmassJpsiTk = 99.,
-    histoPSet.ptBinning = [-0.5, 0, 0.5, 1, 1.5, 2, 4, 8, 10, 12, 14, 16, 18, 20],
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DoubleMu2_Jpsi_DoubleTrk1_Phi1p05_v*"]),
     #numGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu4_SQ_OS_dR_Max1p2 OR L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4"]),
     denGenericTriggerEventPSet = dict(hltPaths = ["HLT_Dimuon0_Jpsi_NoVertexing_v*"]),
     #denGenericTriggerEventPSet = dict(l1Algorithms = ["L1_DoubleMu4_SQ_OS_dR_Max1p2 OR L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4"]),
-    histoPSet = dict(phiPSet = dict(
-        nbins = 32 ,
-        xmin  = -3.2,
-        xmax  = 3.2)
+    histoPSet = dict(ptBinning = [-0.5, 0, 0.5, 1, 1.5, 2, 4, 8, 10, 12, 14, 16, 18, 20],
+                     phiPSet = dict(
+                        nbins = 32,
+                        xmin  = -3.2,
+                        xmax  = 3.2)
     )  
 )
 
