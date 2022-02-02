@@ -659,6 +659,8 @@ h2tb.toModify(g4SimHits,
               CaloSD = dict(
                   EminHits  = [0.0, 0.0, 0.0, 0.0, 0.0],
                   TmaxHits  = [1000.0, 1000.0, 1000.0, 1000.0, 2000.0] ),
+              CaloTrkProcessing = dict(
+                  TestBeam = True ),
               HCalSD = dict(
                   ForTBHCAL = True )
 )
