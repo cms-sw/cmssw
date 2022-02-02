@@ -109,7 +109,6 @@ process.g4SimHits.Physics.Region = 'HcalRegion'
 process.g4SimHits.Physics.DefaultCutValue = 1.
 
 process.g4SimHits.StackingAction.KillGamma = False
-process.g4SimHits.CaloTrkProcessing.TestBeam = True
 process.g4SimHits.CaloSD.BeamPosition = beamPosition
 process.g4SimHits.ECalSD.UseBirkLaw = True
 process.g4SimHits.ECalSD.BirkL3Parametrization = True
@@ -125,9 +124,4 @@ process.g4SimHits.HCalSD.WtFile     = ' '
 process.g4SimHits.HCalSD.UseShowerLibrary    = False
 process.g4SimHits.HCalSD.TestNumberingScheme = False
 process.g4SimHits.HCalSD.UseHF   = False
-process.g4SimHits.HCalSD.ForTBHCAL = True
 process.g4SimHits.HCalSD.ForTBH2 = True
-process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
-                             'HcalTB06BeamDetector',
-                             'EcalSensitiveDetector',
-                             'HcalSensitiveDetector']
