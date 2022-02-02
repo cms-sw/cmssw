@@ -194,7 +194,7 @@ PFJetFwd320_Prommonitoring = hltJetMETmonitoring.clone(
                 nbins = 80 ,
                 xmin  =  0.,
                 xmax  = 800.)),
-    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_PFJetFwd320_v*")
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_PFJetFwd320_v*"])
 )
 
 
