@@ -58,7 +58,32 @@ void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
   MuonGeometryNumbering muonDDDNumbering(muonConstants);
   GEMNumberingScheme gemNumbering(muonConstants);
 
-  bool doSuper = fv.firstChild();
+  // Check for the demonstrator geometry (only 1 chamber of GE2/1)
+  DDFilteredView fvGE2{fv};
+  int nGE21 = 0;
+  bool doSuper = fvGE2.firstChild();
+  while (doSuper) {
+    // getting chamber id from eta partitions
+    fvGE2.firstChild();
+    fvGE2.firstChild();
+    int rawidCh = gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fvGE2.geoHistory()));
+    GEMDetId detIdCh = GEMDetId(rawidCh);
+    if (detIdCh.station() == 2)
+      nGE21++;
+
+    // back to chambers
+    fvGE2.parent();
+    fvGE2.parent();
+    doSuper = (nGE21 < 2 && fvGE2.nextSibling());
+  }
+  bool demonstratorGeometry = nGE21 == 1;
+
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
+                               << demonstratorGeometry;
+#endif
+
+  doSuper = fv.firstChild();
 
   LogDebug("GEMGeometryParsFromDD") << "doSuperChamber = " << doSuper;
   // loop over superchambers
@@ -75,7 +100,12 @@ void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
     // currently there is no superchamber in the geometry
     // only 2 chambers are present separated by a gap.
     // making superchamber out of the first chamber layer including the gap between chambers
-    if (detIdCh.layer() == 1) {  // only make superChambers when doing layer 1
+
+    // In Run 3 we also have a single GE2/1 chamber at layer 2. We
+    // make sure the superchamber gets built but also we build on the
+    // first layer for the other stations so the superchamber is in
+    // the right position there.
+    if ((detIdCh.layer() == 1) || (detIdCh.layer() == 2 and detIdCh.station() == 2 and demonstratorGeometry)) {
       buildSuperChamber(fv, detIdCh, rgeo);
     }
     buildChamber(fv, detIdCh, rgeo);
@@ -246,6 +276,24 @@ void GEMGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
   int theRingLevel = muonConstants.getValue("mg_ring") / theLevelPart;
   int theSectorLevel = muonConstants.getValue("mg_sector") / theLevelPart;
 
+  // Check for the demonstrator geometry (only 1 chamber of GE2/1)
+  auto start = fv.copyNos();
+  int nGE21 = 0;
+  while (nGE21 < 2 && fv.firstChild()) {
+    const auto& history = fv.history();
+    MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
+    GEMDetId detId(gemNum.baseNumberToUnitNumber(num));
+    if (fv.level() == levelChamb && detId.station() == 2) {
+      nGE21++;
+    }
+  }
+  bool demonstratorGeometry = nGE21 == 1;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
+                               << demonstratorGeometry;
+#endif
+
+  fv.goTo(start);
   while (fv.firstChild()) {
     const auto& history = fv.history();
     MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
@@ -267,7 +315,7 @@ void GEMGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
       }
     } else {
       if (fv.level() == levelChamb) {
-        if (detId.layer() == 1) {
+        if ((detId.layer() == 1) || (detId.layer() == 2 and detId.station() == 2 and demonstratorGeometry)) {
           buildSuperChamber(fv, detId, rgeo);
         }
         buildChamber(fv, detId, rgeo);
