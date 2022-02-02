@@ -108,8 +108,8 @@ hltHIGmonitoring = topMonitoring.clone(
     numGenericTriggerEventPSet = dict(
              andOr         =  False,
              andOrHlt      = True,# True:=OR; False:=AND
-             hltInputTag   = "TriggerResults::HLT",
-             errorReplyHlt =  False,
+             #hltInputTag   = "TriggerResults::HLT",
+             #errorReplyHlt =  False,
              verbosityLevel = 1,
              #andOrHlt      = True, # True:=OR; False:=AND
              hltInputTag   = "TriggerResults::HLT",
