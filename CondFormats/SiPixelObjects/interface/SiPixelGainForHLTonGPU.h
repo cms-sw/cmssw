@@ -16,7 +16,7 @@
 #endif  // __device__
 #endif  // __CUDACC__
 
-#include "Geometry/TrackerGeometryBuilder/interface/pixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 struct SiPixelGainForHLTonGPU_DecodingStructure {
