@@ -33,6 +33,8 @@
 #include "L1Trigger/DTTriggerPhase2/interface/MPFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPQualityEnhancerFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPRedundantFilter.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MPCleanHitsFilter.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MPQualityEnhancerFilterBayes.h"
 #include "L1Trigger/DTTriggerPhase2/interface/GlobalCoordsObtainer.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -133,8 +135,9 @@ private:
   std::unique_ptr<MotherGrouping> grouping_obj_;
   std::unique_ptr<MuonPathAnalyzer> mpathanalyzer_;
   std::unique_ptr<MPFilter> mpathqualityenhancer_;
+  std::unique_ptr<MPFilter> mpathqualityenhancerbayes_;
   std::unique_ptr<MPFilter> mpathredundantfilter_;
-  // std::unique_ptr<MPFilter> mpathhitsfilter_;
+  std::unique_ptr<MPFilter> mpathhitsfilter_;
   std::unique_ptr<MuonPathAssociator> mpathassociator_;
   std::shared_ptr<GlobalCoordsObtainer> globalcoordsobtainer_;
 
@@ -221,7 +224,9 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   superCelltimewidth_ = pset.getParameter<double>("superCelltimewidth");
 
   mpathqualityenhancer_ = std::make_unique<MPQualityEnhancerFilter>(pset);
+  mpathqualityenhancerbayes_ = std::make_unique<MPQualityEnhancerFilterBayes>(pset);
   mpathredundantfilter_ = std::make_unique<MPRedundantFilter>(pset);
+  mpathhitsfilter_ = std::make_unique<MPCleanHitsFilter>(pset);
   mpathassociator_ = std::make_unique<MuonPathAssociator>(pset, consumesColl, globalcoordsobtainer_);
   rpc_integrator_ = std::make_unique<RPCIntegrator>(pset, consumesColl);
 
@@ -243,6 +248,8 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
   mpathanalyzer_->initialise(iEventSetup);         // Analyzer object initialisation
   mpathqualityenhancer_->initialise(iEventSetup);  // Filter object initialisation
   mpathredundantfilter_->initialise(iEventSetup);  // Filter object initialisation
+  mpathqualityenhancerbayes_->initialise(iEventSetup);  // Filter object initialisation
+  mpathhitsfilter_->initialise(iEventSetup);
   mpathassociator_->initialise(iEventSetup);       // Associator object initialisation
 
   edm::ESHandle<DTGeometry> geom;
@@ -350,6 +357,9 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   MuonPathPtrs filteredmuonpaths;
   if (algo_ == Standard) {
     mpathredundantfilter_->run(iEvent, iEventSetup, muonpaths, filteredmuonpaths);
+  }
+  else {
+    mpathhitsfilter_->run(iEvent, iEventSetup, muonpaths, filteredmuonpaths);
   }
 
   if (dump_) {
@@ -711,7 +721,9 @@ void DTTrigPhase2Prod::endRun(edm::Run const& iRun, const edm::EventSetup& iEven
   grouping_obj_->finish();
   mpathanalyzer_->finish();
   mpathqualityenhancer_->finish();
+  mpathqualityenhancerbayes_->finish();
   mpathredundantfilter_->finish();
+  mpathhitsfilter_->finish();
   mpathassociator_->finish();
   rpc_integrator_->finish();
 };
