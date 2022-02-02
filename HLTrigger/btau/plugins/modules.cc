@@ -70,12 +70,26 @@ typedef HLTJetTag<reco::PFJet> HLTPFJetTag;
 DEFINE_FWK_MODULE(HLTCaloJetTag);
 DEFINE_FWK_MODULE(HLTPFJetTag);
 
+#include "HLTSumJetTag.h"
+#include "HLTSumJetTag.cc"
+typedef HLTSumJetTag<reco::CaloJet> HLTSumCaloJetTag;
+typedef HLTSumJetTag<reco::PFJet> HLTSumPFJetTag;
+DEFINE_FWK_MODULE(HLTSumCaloJetTag);
+DEFINE_FWK_MODULE(HLTSumPFJetTag);
+
 #include "HLTJetTagWithMatching.h"
 #include "HLTJetTagWithMatching.cc"
 typedef HLTJetTagWithMatching<reco::CaloJet> HLTCaloJetTagWithMatching;
 typedef HLTJetTagWithMatching<reco::PFJet> HLTPFJetTagWithMatching;
 DEFINE_FWK_MODULE(HLTCaloJetTagWithMatching);
 DEFINE_FWK_MODULE(HLTPFJetTagWithMatching);
+
+#include "HLTSumJetTagWithMatching.h"
+#include "HLTSumJetTagWithMatching.cc"
+typedef HLTSumJetTagWithMatching<reco::CaloJet> HLTSumCaloJetTagWithMatching;
+typedef HLTSumJetTagWithMatching<reco::PFJet> HLTSumPFJetTagWithMatching;
+DEFINE_FWK_MODULE(HLTSumCaloJetTagWithMatching);
+DEFINE_FWK_MODULE(HLTSumPFJetTagWithMatching);
 
 #include "HLTCollectionProducer.h"
 typedef HLTCollectionProducer<reco::CaloJet> HLTCaloJetCollectionProducer;
