@@ -48,7 +48,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/pixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
@@ -174,8 +174,7 @@ private:
   // parameters from config file
   double ptmin_;
   double normChi2Max_;
-  int clustSizeYMin_;
-  int clustSizeYMinL4_;
+  std::vector<int> clustSizeYMin_;
   int clustSizeXMax_;
   double residualMax_;
   double clustChargeMaxPerLength_;
@@ -207,8 +206,7 @@ SiPixelLorentzAnglePCLWorker::SiPixelLorentzAnglePCLWorker(const edm::ParameterS
       newmodulelist_(iConfig.getParameter<std::vector<std::string>>("newmodulelist")),
       ptmin_(iConfig.getParameter<double>("ptMin")),
       normChi2Max_(iConfig.getParameter<double>("normChi2Max")),
-      clustSizeYMin_(iConfig.getParameter<int>("clustSizeYMin")),
-      clustSizeYMinL4_(iConfig.getParameter<int>("clustSizeYMinL4")),
+      clustSizeYMin_(iConfig.getParameter<std::vector<int>>("clustSizeYMin")),
       clustSizeXMax_(iConfig.getParameter<int>("clustSizeXMax")),
       residualMax_(iConfig.getParameter<double>("residualMax")),
       clustChargeMaxPerLength_(iConfig.getParameter<double>("clustChargeMaxPerLength")),
@@ -443,7 +441,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           // get qScale_ = templ.qscale() and  templ.r_qMeas_qTrue();
           float cotalpha = trackdirection.x() / trackdirection.z();
           float cotbeta = trackdirection.y() / trackdirection.z();
-          float cotbeta_min = clustSizeYMin_ * ypitch_ / width_;
+          float cotbeta_min = clustSizeYMin_[layer_ - 1] * ypitch_ / width_;
           if (fabs(cotbeta) <= cotbeta_min)
             continue;
           double drdz = sqrt(1. + cotalpha * cotalpha + cotbeta * cotbeta);
@@ -504,7 +502,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           double ylim1 = trackhitCorrY_ - width_ * cotbeta / 2.;
           double ylim2 = trackhitCorrY_ + width_ * cotbeta / 2.;
 
-          int clustSizeY_cut = layer_ < 4 ? clustSizeYMin_ : clustSizeYMinL4_;
+          int clustSizeY_cut = clustSizeYMin_[layer_ - 1];
 
           if (!large_pix && (chi2_ / ndof_) < normChi2Max_ && cluster->sizeY() >= clustSizeY_cut &&
               residualsq < residualMax_ * residualMax_ && cluster->charge() < clusterCharge_cut &&
@@ -867,8 +865,8 @@ void SiPixelLorentzAnglePCLWorker::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("src", edm::InputTag("TrackRefitter"))->setComment("input track collections");
   desc.add<double>("ptMin", 3.)->setComment("minimum pt on tracks");
   desc.add<double>("normChi2Max", 2.)->setComment("maximum reduced chi squared");
-  desc.add<int>("clustSizeYMin", 4)->setComment("minimum cluster size on Y axis for Layer 1-3");
-  desc.add<int>("clustSizeYMinL4", 3)->setComment("minimum cluster size on Y axis for Layer 4");
+  desc.add<std::vector<int>>("clustSizeYMin", {4, 4, 3, 2})
+      ->setComment("minimum cluster size on Y axis for all Barrel Layers");
   desc.add<int>("clustSizeXMax", 5)->setComment("maximum cluster size on X axis");
   desc.add<double>("residualMax", 0.005)->setComment("maximum residual");
   desc.add<double>("clustChargeMaxPerLength", 50000)

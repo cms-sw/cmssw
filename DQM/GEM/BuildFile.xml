@@ -4,12 +4,8 @@
 <use name="FWCore/Utilities"/>
 <use name="DQMServices/Core"/>
 <use name="DataFormats/GEMDigi"/>
-<use name="DataFormats/MuonReco"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/GEMGeometry"/>
-<use name="RecoMuon/TrackingTools"/>
-<use name="TrackingTools/TransientTrack"/>
-<use name="Validation/MuonHits"/>
 <use name="Validation/MuonGEMHits"/>
 <export>
   <lib name="1"/>
