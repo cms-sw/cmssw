@@ -25,6 +25,7 @@ namespace reco {
     static constexpr uint nRechitsFeatures = 4;
     uint maxNClusters;
     uint maxNRechits;
+    uint collectionStrategy;
   };
 
   struct DeepSCInputs {
@@ -53,19 +54,17 @@ namespace reco {
 
     const DeepSCConfiguration cfg_;
     std::unique_ptr<tensorflow::GraphDef> graphDef_;
-    tensorflow::Session * session_;
+    tensorflow::Session* session_;
 
     std::vector<std::pair<float, float>> scalerParamsClusters_;
     std::vector<std::pair<float, float>> scalerParamsWindows_;
-
   };
-
-
 
   class SCProducerCache {
   public:
     SCProducerCache(const edm::ParameterSet& conf);
     std::unique_ptr<const DeepSCGraphEvaluation> deepSCEvaluator;
+    reco::DeepSCConfiguration config;
   };
 
 };  // namespace reco
