@@ -186,7 +186,7 @@ namespace l1t {
     bool operator>=(const HGCalClusterT<C>& cl) const { return !(cl < *this); }
 
   private:
-    bool valid_;
+    bool valid_ = false;
     DetId detId_;
 
     std::unordered_map<uint32_t, edm::Ptr<C>> constituents_;
@@ -195,9 +195,9 @@ namespace l1t {
     GlobalPoint centre_;
     GlobalPoint centreProj_;  // centre projected onto the first HGCal layer
 
-    double mipPt_;
-    double seedMipPt_;
-    double sumPt_;
+    double mipPt_ = 0.;
+    double seedMipPt_ = 0.;
+    double sumPt_ = 0.;
 
     //shower shape
 
