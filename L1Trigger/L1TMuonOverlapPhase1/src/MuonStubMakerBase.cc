@@ -104,7 +104,7 @@ void RpcDigiToStubsConverter::makeStubs(
     ///To find the clusters we have to copy the digis in chamber to sort them (not optimal).
     //  for (auto tdigi = rollDigis.second.first; tdigi != rollDigis.second.second; tdigi++) { std::cout << "RPC DIGIS: " << roll.rawId()<< " "<<roll<<" digi: " << tdigi->strip() <<" bx: " << tdigi->bx() << std::endl; }
     std::vector<RPCDigi> digisCopy;
-    //  std::copy_if(rollDigis.second.first, rollDigis.second.second, std::back_inserter(digisCopy), [](const RPCDigi & aDigi){return (aDigi.bx()==0);} );
+
     for (auto pDigi = rollDigis.second.first; pDigi != rollDigis.second.second; pDigi++) {
       if (pDigi->bx() >= bxFrom && pDigi->bx() <= bxTo) {
         digisCopy.push_back(*pDigi);
@@ -114,8 +114,21 @@ void RpcDigiToStubsConverter::makeStubs(
     std::vector<RpcCluster> clusters = rpcClusterization->getClusters(roll, digisCopy);
 
     for (auto& cluster : clusters) {
-      //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<155<<" roll "<<roll<<" cluster: firstStrip "<<cluster.firstStrip<<" lastStrip "<<cluster.lastStrip<<" halfStrip "<<cluster.halfStrip()<<std::endl;
       addRPCstub(muonStubsInLayers, roll, cluster, iProcessor, procTyp);
+    }
+  }
+
+  //removing the RPC stubs that were mark as dropped in the RpcDigiToStubsConverterOmtf::addRPCstub
+  //10 is the first RPC layer
+  for (unsigned int iLayer = 10; iLayer < muonStubsInLayers.size(); iLayer++) {
+    for (unsigned int iInput = 0; iInput < muonStubsInLayers[iLayer].size(); iInput++) {
+      if (muonStubsInLayers[iLayer][iInput] && muonStubsInLayers[iLayer][iInput]->type == MuonStub::RPC_DROPPED) {
+        LogTrace("l1tOmtfEventPrint") << "RpcDigiToStubsConverter::makeStubs "
+                                      << " iProcessor " << iProcessor << " procTyp " << procTyp
+                                      << " dropping a stub iLayer " << iLayer << " iInput "
+                                      << *(muonStubsInLayers[iLayer][iInput]) << std::endl;
+        muonStubsInLayers[iLayer][iInput].reset();
+      }
     }
   }
 }
