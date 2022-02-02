@@ -12,7 +12,7 @@ HLTSumJetTagWithMatching<T>::HLTSumJetTagWithMatching(const edm::ParameterSet& c
       m_MinJetToSum(config.getParameter<int>("MinJetToSum")),
       m_MaxJetToSum(config.getParameter<int>("MaxJetToSum")),
       m_deltaR(config.getParameter<double>("deltaR")),
-      m_UseMeanValue(config.getParameter<double>("UseMeanValue")),
+      m_UseMeanValue(config.getParameter<bool>("UseMeanValue")),
       m_TriggerType(config.getParameter<int>("TriggerType")) {
   edm::LogInfo("") << " (HLTSumJetTagWithMatching) trigger cuts: " << std::endl
                    << "\ttype of        jets used: " << m_Jets.encode() << std::endl

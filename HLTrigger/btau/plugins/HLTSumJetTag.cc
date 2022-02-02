@@ -11,7 +11,7 @@ HLTSumJetTag<T>::HLTSumJetTag(const edm::ParameterSet& config)
       m_MaxTag(config.getParameter<double>("MaxTag")),
       m_MinJetToSum(config.getParameter<int>("MinJetToSum")),
       m_MaxJetToSum(config.getParameter<int>("MaxJetToSum")),
-      m_UseMeanValue(config.getParameter<int>("UseMeanValue")),
+      m_UseMeanValue(config.getParameter<bool>("UseMeanValue")),
       m_TriggerType(config.getParameter<int>("TriggerType")) {
   edm::LogInfo("") << " (HLTSumJetTag) trigger cuts: " << std::endl
                    << "\ttype of        jets used: " << m_Jets.encode() << std::endl
@@ -35,7 +35,7 @@ void HLTSumJetTag<T>::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("MaxTag", 999999.0);
   desc.add<int>("MinJetToSum", 1);
   desc.add<int>("MaxJetToSum", 99);
-  desc.add<int>("UseMeanValue", true);
+  desc.add<bool>("UseMeanValue", true);
   desc.add<int>("TriggerType", 0);
   descriptions.add(defaultModuleLabel<HLTSumJetTag<T>>(), desc);
 }
