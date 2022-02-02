@@ -7,7 +7,7 @@ nBinsLogX_METplusTrack = 100
 powerLo_METplusTrack = 0.0
 powerHi_METplusTrack = 3.0
 binPowerWidth_METplusTrack = (powerHi_METplusTrack - powerLo_METplusTrack) / nBinsLogX_METplusTrack
- for ibin in range(nBinsLogX_METplusTrack + 1):
+for ibin in range(nBinsLogX_METplusTrack + 1):
    binsLogX_METplusTrack.append( pow(10, powerLo_METplusTrack + ibin * binPowerWidth_METplusTrack) )
 
 hltMETplusTrackMonitoring = metPlusTrackMonitoring.clone(
