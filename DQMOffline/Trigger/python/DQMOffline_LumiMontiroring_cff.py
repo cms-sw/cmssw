@@ -20,17 +20,17 @@ hltLumiMonitor = lumiMonitor.clone(
                         xmin = -0.5 ,
                         xmax = 19999.5),
     
-                puPSet = cms.PSet(
+                puPSet = dict(
                         nbins = 130,
                         xmin =   0. ,
                         xmax =  130.),
     
-                lumiPSet = cms.PSet(
+                lumiPSet = dict(
                         nbins =   440 ,
                         xmin =   0.0 ,
                         xmax = 22000.0),
     
-                pixellumiPSet = cms.PSet(
+                pixellumiPSet = dict(
                         nbins = 300 ,
                         xmin =  0.0 ,
                         xmax = 3.0 )
