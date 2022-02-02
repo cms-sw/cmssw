@@ -41,6 +41,8 @@ Description: Producer for ScoutingPFJets from reco::PFJet objects, ScoutingVerte
 
 #include "DataFormats/Math/interface/libminifloat.h"
 
+#include "RecoBTag/FeatureTools/interface/deep_helpers.h"
+
 class HLTScoutingPFProducer : public edm::global::EDProducer<> {
 public:
   explicit HLTScoutingPFProducer(const edm::ParameterSet &);
@@ -67,6 +69,7 @@ private:
   const bool doJetTags;
   const bool doCandidates;
   const bool doMet;
+  const bool doTrackRelVars_;
 };
 
 //
@@ -87,7 +90,8 @@ HLTScoutingPFProducer::HLTScoutingPFProducer(const edm::ParameterSet &iConfig)
       mantissaPrecision(iConfig.getParameter<int>("mantissaPrecision")),
       doJetTags(iConfig.getParameter<bool>("doJetTags")),
       doCandidates(iConfig.getParameter<bool>("doCandidates")),
-      doMet(iConfig.getParameter<bool>("doMet")) {
+      doMet(iConfig.getParameter<bool>("doMet")),
+      doTrackRelVars_(iConfig.getParameter<bool>("doTrackRelVars")) {
   //register products
   produces<Run3ScoutingPFJetCollection>();
   produces<Run3ScoutingParticleCollection>();
@@ -155,13 +159,50 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
             break;
           ++index_counter;
         }
+        float normchi2{0}, dz{0}, dxy{0}, dzError{0}, dxyError{0}, trk_pt{0}, trk_eta{0}, trk_phi{0};
+        uint8_t lostInnerHits{0}, quality{0};
+        if (doTrackRelVars_) {
+          const auto *trk = cand.bestTrack();
+          if (trk != nullptr) {
+            normchi2 = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->normalizedChi2(), mantissaPrecision);
+            lostInnerHits = btagbtvdeep::lost_inner_hits_from_pfcand(cand);
+            quality = btagbtvdeep::quality_from_pfcand(cand);
+            trk_pt = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->pt(), mantissaPrecision);
+            trk_eta = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->eta(), mantissaPrecision);
+            trk_phi = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->phi(), mantissaPrecision);
 
-        outPFCandidates->emplace_back(MiniFloatConverter::reduceMantissaToNbitsRounding(cand.pt(), mantissaPrecision),
-                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.eta(), mantissaPrecision),
-                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.phi(), mantissaPrecision),
-                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.mass(), mantissaPrecision),
-                                      cand.pdgId(),
-                                      vertex_index);
+            if (not vertexCollection->empty()) {
+              const reco::Vertex &pv = (*vertexCollection)[0];
+
+              dz = trk->dz(pv.position());
+              dzError = MiniFloatConverter::reduceMantissaToNbitsRounding(dz / trk->dzError(), mantissaPrecision);
+              dz = MiniFloatConverter::reduceMantissaToNbitsRounding(dz, mantissaPrecision);
+
+              dxy = trk->dxy(pv.position());
+              dxyError = MiniFloatConverter::reduceMantissaToNbitsRounding(dxy / trk->dxyError(), mantissaPrecision);
+              dxy = MiniFloatConverter::reduceMantissaToNbitsRounding(dxy, mantissaPrecision);
+            }
+          } else {
+            normchi2 = MiniFloatConverter::reduceMantissaToNbitsRounding(999, mantissaPrecision);
+          }
+        }
+        outPFCandidates->emplace_back(
+            MiniFloatConverter::reduceMantissaToNbitsRounding(cand.pt(), mantissaPrecision),
+            MiniFloatConverter::reduceMantissaToNbitsRounding(cand.eta(), mantissaPrecision),
+            MiniFloatConverter::reduceMantissaToNbitsRounding(cand.phi(), mantissaPrecision),
+            MiniFloatConverter::reduceMantissaToNbitsRounding(cand.mass(), mantissaPrecision),
+            cand.pdgId(),
+            vertex_index,
+            normchi2,
+            dz,
+            dxy,
+            dzError,
+            dxyError,
+            lostInnerHits,
+            quality,
+            trk_pt,
+            trk_eta,
+            trk_phi);
       }
     }
   }
@@ -272,6 +313,7 @@ void HLTScoutingPFProducer::fillDescriptions(edm::ConfigurationDescriptions &des
   desc.add<bool>("doCandidates", true);
   desc.add<bool>("doMet", true);
   descriptions.add("hltScoutingPFProducer", desc);
+  desc.add<bool>("doTrackRelVars", true);
 }
 
 // declare this class as a framework plugin

@@ -20,5 +20,6 @@
   <use name="TrackingTools/TransientTrack"/>
   <use name="HLTrigger/HLTcore"/>
   <use name="HLTrigger/JetMET"/>
+  <use name="RecoBTag/FeatureTools"/>
   <flags EDM_PLUGIN="1"/>
 </library>
