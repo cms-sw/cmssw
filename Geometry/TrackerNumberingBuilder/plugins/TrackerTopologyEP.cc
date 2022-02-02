@@ -77,7 +77,8 @@ void TrackerTopologyEP::fillParameters(const PTrackerParameters& ptp,
   pxbVals.ladderMask_ = ptp.vitems[0].vpars[4];      // 0xFF
   pxbVals.moduleMask_ = ptp.vitems[0].vpars[5];      // 0x3F
 
-  if (ptp.vitems[1].vpars.size() > 11) {  //Re-ordered tracker
+  if (ptp.vitems[1].vpars.size() >
+      11) {  //Tracker with subdisk hierarchy level (additional hierarchy level wrt original)
     pxfVals.sideStartBit_ = ptp.vitems[1].vpars[0];
     pxfVals.diskStartBit_ = ptp.vitems[1].vpars[1];
     pxfVals.bladeStartBit_ = ptp.vitems[1].vpars[3];
