@@ -13,17 +13,16 @@ HLTSumJetTag<T>::HLTSumJetTag(const edm::ParameterSet& config)
       m_MaxJetToSum(config.getParameter<int>("MaxJetToSum")),
       m_UseMeanValue(config.getParameter<bool>("UseMeanValue")),
       m_TriggerType(config.getParameter<int>("TriggerType")) {
-  edm::LogInfo("") << " (HLTSumJetTag) trigger cuts: " << std::endl
-                   << "\ttype of        jets used: " << m_Jets.encode() << std::endl
-                   << "\ttype of tagged jets used: " << m_JetTags.encode() << std::endl
-                   << "\tmin/max tag value: [" << m_MinTag << ".." << m_MaxTag << "]" << std::endl
-                   << "\tmin/max number of jets to sum: [" << m_MinJetToSum << ".." << m_MaxJetToSum << "]" << std::endl
-                   << "\tuse mean value of jet tags: " << m_UseMeanValue << std::endl
-                   << "\tTriggerType: " << m_TriggerType << std::endl;
+  edm::LogInfo("") << " (HLTSumJetTag) trigger cuts: \n"
+                   << " \ttype of jets used: " << m_Jets.encode() << " \n"
+                   << " \ttype of tagged jets used: " << m_JetTags.encode() << " \n"
+                   << " \tmin/max tag value: [" << m_MinTag << ".." << m_MaxTag << "]"
+                   << " \n"
+                   << " \tmin/max number of jets to sum: [" << m_MinJetToSum << ".." << m_MaxJetToSum << "]"
+                   << " \n"
+                   << " \tuse mean value of jet tags: " << m_UseMeanValue << " \n"
+                   << " \tTriggerType: " << m_TriggerType << " \n";
 }
-
-template <typename T>
-HLTSumJetTag<T>::~HLTSumJetTag() = default;
 
 template <typename T>
 void HLTSumJetTag<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -89,7 +88,7 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
   for (auto const& jetTag : jetTag_values) {
     if (nJet >= m_MaxJetToSum)
       break;
-    ++nJet;
+    nJet++;
     jetTag_values_selected.push_back(jetTag);
   }
 
@@ -100,7 +99,7 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
   nJet = 0;
   for (auto const& jet : *h_JetTags) {
     jetRef = TRef(h_Jets, jet.first.key());
-    LogTrace("") << "Jet " << nJet << " : Et = " << jet.first->et() << " , tag value = " << jet.second;
+    LogTrace("") << "Jet " << nJet << " : Et = " << jet.first->et() << " , tag value = " << jet.second << "\n";
     nJet++;
     if (std::find(jetTag_values_selected.begin(), jetTag_values_selected.end(), jet.second) !=
         jetTag_values_selected.end()) {  // if found
@@ -109,7 +108,7 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
     }
   }
 
-  if (m_UseMeanValue)
+  if (m_UseMeanValue and not jetTag_values_selected.empty())
     sumJetTag /= jetTag_values_selected.size();
 
   // Accept value of the filter
@@ -127,11 +126,7 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
   }
 
   edm::LogInfo("") << " trigger accept ? = " << accept << " nTag/nJet = " << jetRefCollection.size() << "/" << nJet
-                   << std::endl;
+                   << " \n";
+
   return accept;
 }
-
-typedef HLTSumJetTag<reco::CaloJet> HLTSumCaloJetTag;
-typedef HLTSumJetTag<reco::PFJet> HLTSumPFJetTag;
-DEFINE_FWK_MODULE(HLTSumCaloJetTag);
-DEFINE_FWK_MODULE(HLTSumPFJetTag);
