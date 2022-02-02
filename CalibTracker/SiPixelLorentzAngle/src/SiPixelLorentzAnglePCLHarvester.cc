@@ -85,12 +85,13 @@ public:
 
 private:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
   void findMean(MonitorElement* h_drift_depth_adc_slice_, int i, int i_ring);
   SiPixelLAHarvest::fitResults fitAndStore(std::shared_ptr<SiPixelLorentzAngle> theLA, int i_idx, int i_lay, int i_mod);
 
   // es tokens
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomEsToken_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoEsToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoEsTokenBR_, topoEsTokenER_;
   edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> siPixelLAEsToken_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 
@@ -105,12 +106,14 @@ private:
   SiPixelLorentzAngleCalibrationHistograms hists;
   const SiPixelLorentzAngle* currentLorentzAngle;
   const MagneticField* magField;
+  std::unique_ptr<TrackerTopology> theTrackerTopology;
 };
 
 //------------------------------------------------------------------------------
 SiPixelLorentzAnglePCLHarvester::SiPixelLorentzAnglePCLHarvester(const edm::ParameterSet& iConfig)
     : geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
-      topoEsToken_(esConsumes<edm::Transition::BeginRun>()),
+      topoEsTokenBR_(esConsumes<edm::Transition::BeginRun>()),
+      topoEsTokenER_(esConsumes<edm::Transition::EndRun>()),
       siPixelLAEsToken_(esConsumes<edm::Transition::BeginRun>()),
       magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()),
       newmodulelist_(iConfig.getParameter<std::vector<std::string>>("newmodulelist")),
@@ -128,7 +131,7 @@ SiPixelLorentzAnglePCLHarvester::SiPixelLorentzAnglePCLHarvester(const edm::Para
 void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   // geometry
   const TrackerGeometry* geom = &iSetup.getData(geomEsToken_);
-  const TrackerTopology* tTopo = &iSetup.getData(topoEsToken_);
+  const TrackerTopology* tTopo = &iSetup.getData(topoEsTokenBR_);
 
   magField = &iSetup.getData(magneticFieldToken_);
   currentLorentzAngle = &iSetup.getData(siPixelLAEsToken_);
@@ -136,8 +139,10 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
   PixelTopologyMap map = PixelTopologyMap(geom, tTopo);
   hists.nlay = geom->numberOfLayers(PixelSubdetector::PixelBarrel);
   hists.nModules_.resize(hists.nlay);
+  hists.nLadders_.resize(hists.nlay);
   for (int i = 0; i < hists.nlay; i++) {
     hists.nModules_[i] = map.getPXBModules(i + 1);
+    hists.nLadders_[i] = map.getPXBLadders(i + 1);
   }
 
   // list of modules already filled, then return (we already entered here)
@@ -206,6 +211,13 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
     };
   }
   LogDebug("SiPixelLorentzAnglePCLHarvester") << "Stored a total of " << count << " detIds.";
+}
+
+//------------------------------------------------------------------------------
+void SiPixelLorentzAnglePCLHarvester::endRun(edm::Run const& run, edm::EventSetup const& isetup) {
+  if (!theTrackerTopology) {
+    theTrackerTopology = std::make_unique<TrackerTopology>(isetup.getData(topoEsTokenER_));
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -302,7 +314,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
 
   // book histogram of differences
   MonitorElement* h_diffLA = iBooker.book1D(
-      "h_diffLA", "difference in #mu_{H}; #Delta #mu_{H}/#mu_{H} (old-new)/old [%];n. modules", 100, -3., 3.);
+      "h_diffLA", "difference in #mu_{H}; #Delta #mu_{H}/#mu_{H} (old-new)/old [%];n. modules", 100, -150, 150);
 
   // retrieve the number of bins from the other monitoring histogram
   const auto& maxSect = hists.h_bySectOccupancy_->getNbinsX();
@@ -333,6 +345,33 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     hists.h_bySectLA_->setBinLabel(bin, binName);
     hists.h_bySectDeltaLA_->setBinLabel(bin, binName);
     hists.h_bySectChi2_->setBinLabel(bin, binName);
+  }
+
+  // this will be booked in the Harvesting folder
+  iBooker.setCurrentFolder(fmt::format("{}Harvesting/LorentzAngleMaps", dqmDir_));
+  for (int i = 0; i < hists.nlay; i++) {
+    std::string repName = "h2_byLayerLA_%i";
+    std::string repText = "BPix Layer %i tan#theta_{LA}/B;module number;ladder number;tan#theta_{LA}/B [1/T]";
+
+    hists.h2_byLayerLA_.emplace_back(iBooker.book2D(fmt::sprintf(repName, i + 1),
+                                                    fmt::sprintf(repText, i + 1),
+                                                    hists.nModules_[i],
+                                                    0.5,
+                                                    hists.nModules_[i] + 0.5,
+                                                    hists.nLadders_[i],
+                                                    0.5,
+                                                    hists.nLadders_[i] + 0.5));
+
+    repName = "h2_byLayerDiff_%i";
+    repText = "BPix Layer %i #Delta#mu_{H}/#mu_{H};module number;ladder number;#Delta#mu_{H}/#mu_{H} [%%]";
+    hists.h2_byLayerDiff_.emplace_back(iBooker.book2D(fmt::sprintf(repName, i + 1),
+                                                      fmt::sprintf(repText, i + 1),
+                                                      hists.nModules_[i],
+                                                      0.5,
+                                                      hists.nModules_[i] + 0.5,
+                                                      hists.nLadders_[i],
+                                                      0.5,
+                                                      hists.nLadders_[i] + 0.5));
   }
 
   // clang-format off
@@ -448,14 +487,29 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     float fPixLorentzAnglePerTesla_ = currentLorentzAngle->getLorentzAngle(id);
     if (!LorentzAngle->putLorentzAngle(id, fPixLorentzAnglePerTesla_)) {
       edm::LogError("SiPixelLorentzAnglePCLHarvester")
-          << "[SiPixelLorentzAnglePCLHarvester::dqmEndRun] filling rest of payload: detid already exists";
+          << "[SiPixelLorentzAnglePCLHarvester::dqmEndJob] filling rest of payload: detid already exists";
     }
   }
 
   for (const auto& id : newLADets) {
     float deltaMuHoverMuH = (currentLorentzAngle->getLorentzAngle(id) - LorentzAngle->getLorentzAngle(id)) /
                             currentLorentzAngle->getLorentzAngle(id);
-    h_diffLA->Fill(deltaMuHoverMuH);
+    h_diffLA->Fill(deltaMuHoverMuH * 100.f);
+  }
+
+  // fill the 2D output Lorentz Angle maps
+  for (const auto& [id, value] : LorentzAngle->getLorentzAngles()) {
+    DetId ID = DetId(id);
+    if (ID.subdetId() == PixelSubdetector::PixelBarrel) {
+      const auto& layer = theTrackerTopology->pxbLayer(id);
+      const auto& ladder = theTrackerTopology->pxbLadder(id);
+      const auto& module = theTrackerTopology->pxbModule(id);
+      hists.h2_byLayerLA_[layer - 1]->setBinContent(module, ladder, value);
+
+      float deltaMuHoverMuH =
+          (currentLorentzAngle->getLorentzAngle(id) - value) / currentLorentzAngle->getLorentzAngle(id);
+      hists.h2_byLayerDiff_[layer - 1]->setBinContent(module, ladder, deltaMuHoverMuH * 100.f);
+    }
   }
 
   // fill the DB object record
