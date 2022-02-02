@@ -27,7 +27,6 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
-#include "RecoEcal/EgammaCoreTools/interface/GraphMatrix.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClustersGraph.h"
 #include "RecoEcal/EgammaCoreTools/interface/CalibratedPFCluster.h"
 
@@ -135,9 +134,9 @@ private:
   edm::ESGetToken<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd> ecalSCDynamicDPhiParametersToken_;
   edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
-  // edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord > ebGeometryToken_; 
+  // edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord > ebGeometryToken_;
   // edm::ESGetToken<CaloSubdetectorGeometry, EcalEndcapGeometryRecord > eeGeometryToken_;
-  
+
   const reco::BeamSpot* beamSpot_;
   const ESChannelStatus* channelStatus_;
   const CaloGeometry* geometry_;

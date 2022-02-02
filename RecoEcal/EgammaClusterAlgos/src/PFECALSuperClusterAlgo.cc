@@ -84,52 +84,6 @@ namespace {
     return x_rechits_match / x_rechits_tot > majority;
   }
 
-  std::vector<int> clusterLocalPosition(const CalibClusterPtr& cluster,
-                                        const CaloSubdetectorGeometry* ebGeom_,
-                                        const CaloSubdetectorGeometry* eeGeom_) {
-    std::vector<int> position;  // ieta,iphi,iz or ix,iy,iz
-    position.resize(3);
-    reco::CaloCluster caloBC(*cluster->the_ptr());
-    math::XYZPoint caloPos = caloBC.position();
-    if (cluster->the_ptr()->layer() == PFLayer::ECAL_BARREL) {
-      EBDetId id(ebGeom_->getClosestCell(GlobalPoint(caloPos.x(), caloPos.y(), caloPos.z())));
-      position[0] = id.ieta();
-      position[1] = id.ieta();
-      position[2] = 0;
-    } else if (cluster->the_ptr()->layer() == PFLayer::ECAL_ENDCAP) {
-      EEDetId id(eeGeom_->getClosestCell(GlobalPoint(caloPos.x(), caloPos.y(), caloPos.z())));
-      position[0] = id.ix();
-      position[1] = id.iy();
-      position[2] = id.zside();
-    }
-    return position;
-  }
-
-  DetId clusterDetId(const CalibClusterPtr& cluster,
-                     const CaloSubdetectorGeometry* ebGeom_,
-                     const CaloSubdetectorGeometry* eeGeom_) {
-    DetId clId;
-    reco::CaloCluster caloBC(*cluster->the_ptr());
-    math::XYZPoint caloPos = caloBC.position();
-    if (cluster->the_ptr()->layer() == PFLayer::ECAL_BARREL) {
-      EBDetId id(ebGeom_->getClosestCell(GlobalPoint(caloPos.x(), caloPos.y(), caloPos.z())));
-      clId = id;
-    } else if (cluster->the_ptr()->layer() == PFLayer::ECAL_ENDCAP) {
-      EEDetId id(eeGeom_->getClosestCell(GlobalPoint(caloPos.x(), caloPos.y(), caloPos.z())));
-      clId = id;
-    }
-    return clId;
-  }
-
-  double clusterZside(const CalibClusterPtr& cluster) {
-    double zSide = 0.;
-    if (cluster->the_ptr()->layer() == PFLayer::ECAL_ENDCAP && cluster->eta() < 0.)
-      zSide = -1.;
-    if (cluster->the_ptr()->layer() == PFLayer::ECAL_ENDCAP && cluster->eta() > 0.)
-      zSide = +1.;
-    return zSide;
-  }
-
   bool isClustered(const CalibClusterPtr& x,
                    const CalibClusterPtr seed,
                    const PFECALSuperClusterAlgo::clustering_type type,
@@ -156,7 +110,8 @@ namespace {
 
 }  // namespace
 
-PFECALSuperClusterAlgo::PFECALSuperClusterAlgo(const reco::SCProducerCache* cache) : beamSpot_(nullptr),SCProducerCache_(cache) {}
+PFECALSuperClusterAlgo::PFECALSuperClusterAlgo(const reco::SCProducerCache* cache)
+    : beamSpot_(nullptr), SCProducerCache_(cache) {}
 
 void PFECALSuperClusterAlgo::setPFClusterCalibration(const std::shared_ptr<PFEnergyCalibration>& calib) {
   _pfEnergyCalibration = calib;
@@ -187,12 +142,12 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet& iConfig, edm::Co
   }
 
   if (isOOTCollection_ || _clustype == PFECALSuperClusterAlgo::kDeepSC) {  // OOT photons or DeepSC
-    
+
     inputTagBarrelRecHits_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("barrelRecHits"));
     inputTagEndcapRecHits_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("endcapRecHits"));
 
     caloTopologyToken_ = cc.esConsumes<CaloTopology, CaloTopologyRecord, edm::Transition::BeginLuminosityBlock>();
-    caloGeometryToken_ = cc.esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginLuminosityBlock>(); 
+    caloGeometryToken_ = cc.esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginLuminosityBlock>();
   }
 }
 
@@ -207,15 +162,14 @@ void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
   edm::ESHandle<ESChannelStatus> esChannelStatusHandle_ = setup.getHandle(esChannelStatusToken_);
   channelStatus_ = esChannelStatusHandle_.product();
 
-  
-  if (_clustype == PFECALSuperClusterAlgo::kDeepSC) {  // DeepSC uses geometry 
+  if (_clustype == PFECALSuperClusterAlgo::kDeepSC) {  // DeepSC uses geometry
     edm::ESHandle<CaloGeometry> caloGeometryHandle_ = setup.getHandle(caloGeometryToken_);
     geometry_ = caloGeometryHandle_.product();
     ebGeom_ = caloGeometryHandle_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
     eeGeom_ = caloGeometryHandle_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
     esGeom_ = caloGeometryHandle_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
-    edm::ESHandle<CaloTopology> caloTopologyHandle_ = setup.getHandle(caloTopologyToken_); 
+    edm::ESHandle<CaloTopology> caloTopologyHandle_ = setup.getHandle(caloTopologyToken_);
     topology_ = caloTopologyHandle_.product();
   }
 }
@@ -337,7 +291,7 @@ void PFECALSuperClusterAlgo::buildAllSuperClusters(CalibClusterPtrVector& cluste
     // make sure only seeds appear at the front of the list of clusters
     auto last_seed = std::stable_partition(clusters.begin(), clusters.end(), seedable);
 
-    EcalClustersGraph ecalClusterGraph_ {clusters,
+    EcalClustersGraph ecalClusterGraph_{clusters,
                                         static_cast<int>(std::distance(clusters.begin(), last_seed)),
                                         topology_,
                                         ebGeom_,

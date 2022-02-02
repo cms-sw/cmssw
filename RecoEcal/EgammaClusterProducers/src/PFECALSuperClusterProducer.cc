@@ -38,17 +38,17 @@
 
 class PFECALSuperClusterProducer : public edm::stream::EDProducer<edm::GlobalCache<reco::SCProducerCache>> {
 public:
-    explicit PFECALSuperClusterProducer(const edm::ParameterSet&,  const reco::SCProducerCache* gcache);
+  explicit PFECALSuperClusterProducer(const edm::ParameterSet&, const reco::SCProducerCache* gcache);
   ~PFECALSuperClusterProducer() override;
 
   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-    static std::unique_ptr<reco::SCProducerCache> initializeGlobalCache(const edm::ParameterSet& config){
-        return std::make_unique<reco::SCProducerCache>(config);
-    }
-    
- static void globalEndJob(const reco::SCProducerCache*){};
+  static std::unique_ptr<reco::SCProducerCache> initializeGlobalCache(const edm::ParameterSet& config) {
+    return std::make_unique<reco::SCProducerCache>(config);
+  }
+
+  static void globalEndJob(const reco::SCProducerCache*){};
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -82,6 +82,7 @@ private:
 DEFINE_FWK_MODULE(PFECALSuperClusterProducer);
 
 using namespace std;
+
 using namespace edm;
 
 namespace {
@@ -94,8 +95,9 @@ namespace {
   const std::string EnergyWeight__CalibratedTotal("CalibratedTotal");
 }  // namespace
 
-PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& iConfig, const reco::SCProducerCache* gcache):
-    superClusterAlgo_(gcache) {
+PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& iConfig,
+                                                       const reco::SCProducerCache* gcache)
+    : superClusterAlgo_(gcache) {
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
 
   superClusterAlgo_.setUseRegression(iConfig.getParameter<bool>("useRegression"));
@@ -405,4 +407,3 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
 
   descriptions.add("particleFlowSuperClusterECALMustache", desc);
 }
-

@@ -10,11 +10,8 @@
 
 #include <vector>
 #include <array>
+#include <fstream>
 #include <algorithm>
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp>
 #include "TRandom.h"
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
@@ -40,13 +37,11 @@
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/CalibratedPFCluster.h"
-#include "RecoEcal/EgammaCoreTools/interface/GraphMatrix.h"
+#include "RecoEcal/EgammaCoreTools/interface/GraphMap.h"
 #include "RecoEcal/EgammaCoreTools/interface/DeepSCGraphEvaluation.h"
 
 using namespace std;
 using namespace reco;
-namespace ublas = boost::numeric::ublas;
-
 namespace reco {
 
   class EcalClustersGraph {
@@ -58,14 +53,6 @@ namespace reco {
     uint nSeeds_;
     uint nCls_;
 
-    // Adjacency matrix defining which clusters are inside the seeds windows.
-    // row: seeds (Et ordered), column: clusters (Et ordered)
-    GraphMatrix<int> inWindows_;
-    // Adjacency matrix defining how much each cluster is linked to the seed
-    // row: seeds (Et ordered), column: clusters (Et ordered)
-    GraphMatrix<float> scoreMatrix_;
-    GraphMatrix<float> clusterMatrix_;
-
     //To compute the input variables
     const CaloTopology* topology_;
     const CaloSubdetectorGeometry* ebGeom_;
@@ -74,12 +61,17 @@ namespace reco {
     const EcalRecHitCollection* recHitsEE_;
     const SCProducerCache* SCProducerCache_;
 
+    // GraphMap for handling all the windows and scores
+    const static inline std::vector<uint> NODES_CATEGORIES = {0, 1};  // 0 =normal cluster, 1 seed
+    GraphMap graphMap_;
+    std::vector<std::pair<uint, std::vector<uint>>> finalSuperClusters_;
     std::array<float, 3> locCov_;
     std::pair<double, double> widths_;
-    std::vector<float> thresholds_;
+    float threshold_;
     DeepSCInputs inputs_;
-    TRandom* Rnd;
 
+    std::ofstream outfile;
+    
   public:
     EcalClustersGraph(CalibratedClusterPtrVector clusters,
                       int nSeeds,
@@ -91,7 +83,7 @@ namespace reco {
                       const SCProducerCache* cache);
 
     std::vector<int> clusterPosition(const CaloCluster* cluster);
-    
+
     double deltaPhi(double seed_phi, double cluster_phi) {
       double dphi = seed_phi - cluster_phi;
       if (dphi > TMath::Pi())

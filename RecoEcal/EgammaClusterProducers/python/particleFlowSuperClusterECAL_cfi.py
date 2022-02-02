@@ -5,7 +5,25 @@ from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECALDeepSC_cfi impo
 
 # define the default ECAL clustering (Mustache or Box or DeepSC)
 particleFlowSuperClusterECAL = _particleFlowSuperClusterECALMustache.clone()
-particleFlowDeepSuperClusterECAL = _particleFlowSuperClusterECALDeepSC.clone()
+
+
+particleFlowDeepSuperClusterECALstrategyA = _particleFlowSuperClusterECALDeepSC.clone()
+particleFlowDeepSuperClusterECALstrategyB = _particleFlowSuperClusterECALDeepSC.clone()
+particleFlowDeepSuperClusterECALstrategyC = _particleFlowSuperClusterECALDeepSC.clone()
+
+particleFlowDeepSuperClusterECALstrategyA.deepSuperClusterGraphConfig.collectionStrategy = 0
+particleFlowDeepSuperClusterECALstrategyA.PFSuperClusterCollectionEndcap = "particleFlowDeepSCECALEndcapA"
+particleFlowDeepSuperClusterECALstrategyA.PFSuperClusterCollectionBarrel = "particleFlowDeepSCECALBarrelA"
+
+particleFlowDeepSuperClusterECALstrategyB.deepSuperClusterGraphConfig.collectionStrategy = 1
+particleFlowDeepSuperClusterECALstrategyB.PFSuperClusterCollectionEndcap = "particleFlowDeepSCECALEndcapB"
+particleFlowDeepSuperClusterECALstrategyB.PFSuperClusterCollectionBarrel = "particleFlowDeepSCECALBarrelB"
+
+particleFlowDeepSuperClusterECALstrategyC.deepSuperClusterGraphConfig.collectionStrategy = 2
+particleFlowDeepSuperClusterECALstrategyC.PFSuperClusterCollectionEndcap = "particleFlowDeepSCECALEndcapC"
+particleFlowDeepSuperClusterECALstrategyC.PFSuperClusterCollectionBarrel = "particleFlowDeepSCECALBarrelC"
+
+
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(particleFlowSuperClusterECAL, useDynamicDPhiWindow = False,
