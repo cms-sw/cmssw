@@ -78,7 +78,7 @@ namespace tkDetUtil {
 
   std::array<int, 3> findThreeClosest(const std::vector<RingPar> ringParams,
                                       const std::vector<GlobalPoint> ringCrossing,
-                                      int ringSize) {
+                                      const int ringSize) {
     std::array<int, 3> theBins = {{-1, -1, -1}};
     theBins[0] = 0;
     float initialR = ringParams[0].theRingR;

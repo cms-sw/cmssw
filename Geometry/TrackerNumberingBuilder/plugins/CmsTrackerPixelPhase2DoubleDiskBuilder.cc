@@ -38,15 +38,6 @@ void CmsTrackerPixelPhase2DoubleDiskBuilder<FilteredView>::sortNS(FilteredView& 
 
   std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);
 
-  //switch (det->components().front()->type()) {
-  //  case GeometricDet::panel:
-  //    // nothing to be done because the rings (here named panels) are already sorted ??
-  //    break;
-  //  default:
-  //   edm::LogError("CmsTrackerPixelPhase2Builder")
-  //       << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
-  // }
-
   for (uint32_t i = 0; i < comp.size(); i++) {
     det->component(i)->setGeographicalID(i);
   }

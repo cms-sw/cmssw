@@ -88,7 +88,7 @@ DDTrackerIrregularRingAlgo::DDTrackerIrregularRingAlgo() {
   LogDebug("TrackerGeom") << "DDTrackerIrregularRingAlgo info: Creating an instance";
 }
 
-DDTrackerIrregularRingAlgo::~DDTrackerIrregularRingAlgo() {}
+DDTrackerIrregularRingAlgo::~DDTrackerIrregularRingAlgo() = default;
 
 void DDTrackerIrregularRingAlgo::initialize(const DDNumericArguments& nArgs,
                                             const DDVectorArguments& vArgs,

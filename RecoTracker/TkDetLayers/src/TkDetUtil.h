@@ -41,7 +41,7 @@ namespace tkDetUtil {
 
   std::array<int, 3> findThreeClosest(std::vector<RingPar> ringParams,
                                       std::vector<GlobalPoint> ringCrossing,
-                                      int ringSize);
+                                      const int ringSize);
 
   bool overlapInR(const TrajectoryStateOnSurface& tsos, int index, double ymax, std::vector<RingPar> ringParams);
 
