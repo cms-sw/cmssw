@@ -5,8 +5,8 @@ process.source = cms.Source("RepeatingCachedRootSource", fileName = cms.untracke
 
 process.maxEvents.input = 10000
 
-process.OtherThing = cms.EDProducer("OtherThingProducer")
+process.checker = cms.EDAnalyzer("OtherThingAnalyzer")
 #process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
-process.p = cms.Path(process.OtherThing)
+process.p = cms.Path(process.checker)
 #process.o = cms.EndPath(process.dump)
