@@ -89,6 +89,7 @@ private:
   const reco::Candidate *find_original_muon(const reco::Candidate *muon);
   void assign_4vector(TLorentzVector &Lepton, const pat::Muon *muon, std::string FSRmode);
   void mirror(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
+  void InitialRecoCorrection(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
   void rotate180(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
 
   LHERunInfoProduct::Header give_slha();
@@ -96,8 +97,9 @@ private:
   edm::EDGetTokenT<edm::View<pat::Muon>> muonsCollection_;
   edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
   int particleToEmbed_;
-  bool mirror_, rotate180_;
+  bool mirror_, rotate180_,InitialRecoCorrection_;
   const double tauMass_ = 1.77682;
+  const double muonMass_ = 0.1057;
   const double elMass_ = 0.00051;
   const int embeddingParticles[3]{11, 13, 15};
 
@@ -123,6 +125,7 @@ EmbeddingLHEProducer::EmbeddingLHEProducer(const edm::ParameterSet &iConfig) {
   vertexCollection_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
   particleToEmbed_ = iConfig.getParameter<int>("particleToEmbed");
   mirror_ = iConfig.getParameter<bool>("mirror");
+  InitialRecoCorrection_ = iConfig.getParameter<bool>("InitialRecoCorrection");
   rotate180_ = iConfig.getParameter<bool>("rotate180");
   studyFSRmode_ = iConfig.getUntrackedParameter<std::string>("studyFSRmode", "");
 
@@ -188,6 +191,7 @@ void EmbeddingLHEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iS
     } else if (mu_minus_found && mu_plus_found)
       break;
   }
+  InitialRecoCorrection(positiveLepton,negativeLepton); //corrects Z mass peak to take into account smearing happening due to first muon reconstruction in the selection step
   mirror(positiveLepton, negativeLepton);                    // if no mirror, function does nothing.
   rotate180(positiveLepton, negativeLepton);                 // if no rotate180, function does nothing
   transform_mumu_to_tautau(positiveLepton, negativeLepton);  // if MuonEmbedding, function does nothing.
@@ -421,6 +425,33 @@ void EmbeddingLHEProducer::rotate180(TLorentzVector &positiveLepton, TLorentzVec
   edm::LogInfo("TauEmbedding") << "MuMinus after. Pt: " << negativeLepton.Pt() << " Eta: " << negativeLepton.Eta()
                                << " Phi: " << negativeLepton.Phi() << " Mass: " << negativeLepton.M();
 
+  return;
+}
+
+void EmbeddingLHEProducer::InitialRecoCorrection(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton)
+{
+  if(!InitialRecoCorrection_) return;
+  edm::LogInfo("TauEmbedding")<< "Applying initial reconstruction correction" ;
+  TLorentzVector Z = positiveLepton + negativeLepton;
+
+  edm::LogInfo("TauEmbedding") << "MuMinus before. Pt: " << negativeLepton.Pt() << " Mass: " << negativeLepton.M() ;
+  //std::cout << " MuMinus before. Pt: " << negativeLepton.Pt() << " Mass: " << negativeLepton.M() << " Energy: " << negativeLepton.E() << std::endl;
+  float diLeptonMass=(positiveLepton + negativeLepton).M();
+  if(diLeptonMass>60.&&diLeptonMass<122.) {
+    //std::cout << "DiLeptonMass " << diLeptonMass << std::endl;
+    float zmass=91.1876;
+    float correction_deviation=5.; // to ensure only a correction that drops corresponding to a Gaussian with mean zmass and std. dev. 5 GeV
+    double EmbeddingCorrection = 1.138; // value derived by function fitting to fold embedded mass spectrum back to original selection when using mu -> mu embedding
+    EmbeddingCorrection=EmbeddingCorrection/(EmbeddingCorrection-(EmbeddingCorrection-1.)*exp(-pow((diLeptonMass-zmass),2.)/(2.*pow(correction_deviation,2.))));
+    EmbeddingCorrection=((diLeptonMass + (EmbeddingCorrection - 1.)*zmass)/(diLeptonMass*EmbeddingCorrection));
+    double correctedpositiveLeptonEnergy=std::sqrt(muonMass_*muonMass_+EmbeddingCorrection*positiveLepton.Px()*EmbeddingCorrection*positiveLepton.Px()+EmbeddingCorrection*positiveLepton.Py()*EmbeddingCorrection*positiveLepton.Py()+EmbeddingCorrection*positiveLepton.Pz()*EmbeddingCorrection*positiveLepton.Pz());
+    double correctednegativeLeptonEnergy=std::sqrt(muonMass_*muonMass_+EmbeddingCorrection*negativeLepton.Px()*EmbeddingCorrection*negativeLepton.Px()+EmbeddingCorrection*negativeLepton.Py()*EmbeddingCorrection*negativeLepton.Py()+EmbeddingCorrection*negativeLepton.Pz()*EmbeddingCorrection*negativeLepton.Pz());
+    positiveLepton.SetPxPyPzE(EmbeddingCorrection*positiveLepton.Px(),EmbeddingCorrection*positiveLepton.Py(),EmbeddingCorrection*positiveLepton.Pz(),correctedpositiveLeptonEnergy);
+    negativeLepton.SetPxPyPzE(EmbeddingCorrection*negativeLepton.Px(),EmbeddingCorrection*negativeLepton.Py(),EmbeddingCorrection*negativeLepton.Pz(),correctednegativeLeptonEnergy);
+
+    edm::LogInfo("TauEmbedding") << "MuMinus after. Pt: " << negativeLepton.Pt() << " Mass: " << negativeLepton.M() ;
+    //std::cout << " MuMinus after. Pt: " << negativeLepton.Pt() << " Mass: " << negativeLepton.M() << " Energy: " << negativeLepton.E() << std::endl;
+  }
   return;
 }
 
