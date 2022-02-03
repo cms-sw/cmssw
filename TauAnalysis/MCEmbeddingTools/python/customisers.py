@@ -214,7 +214,7 @@ to_bemanipulate.append(
 
 
 def modify_outputModules(process, keep_drop_list=[], module_veto_list=[]):
-    outputModulesList = [key for key, value in process.outputModules.iteritems()]
+    outputModulesList = [key for key, value in process.outputModules.items()]
     for outputModule in outputModulesList:
         if outputModule in module_veto_list:
             continue
@@ -268,7 +268,7 @@ def customiseSelecting(process, reselect=False):
     process.selecting = cms.Path(process.makePatMuonsZmumuSelection)
     process.schedule.insert(-1, process.selecting)
 
-    outputModulesList = [key for key, value in process.outputModules.iteritems()]
+    outputModulesList = [key for key, value in process.outputModules.items()]
     for outputModule in outputModulesList:
         outputModule = getattr(process, outputModule)
         outputModule.SelectEvents = cms.untracked.PSet(
@@ -518,7 +518,7 @@ def customiseGenerator(process, changeProcessname=True, reselect=False):
 
     return modify_outputModules(
         process,
-        [keepSelected(dataTier), keepCleaned(dataTier), keepSimulated()],
+        [keepSelected(dataTier), keepCleaned(dataTier), keepSimulated(process)],
         ["AODSIMoutput"],
     )
 
@@ -973,7 +973,7 @@ def customiseFilterTTbartoMuMu(process):
 
 def customiseMCFilter(process):
     process.schedule.insert(-1, process.MCFilter)
-    outputModulesList = [key for key, value in process.outputModules.iteritems()]
+    outputModulesList = [key for key, value in process.outputModules.items()]
     for outputModule in outputModulesList:
         outputModule = getattr(process, outputModule)
         outputModule.SelectEvents = cms.untracked.PSet(
