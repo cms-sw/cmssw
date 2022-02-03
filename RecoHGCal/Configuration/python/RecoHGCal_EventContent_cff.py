@@ -45,6 +45,8 @@ def customiseHGCalOnlyEventContent(process):
                                             'keep recoTrackExtras_generalTracks_*_*',
                                             'keep SimTracks_g4SimHits_*_*',
                                             'keep SimVertexs_g4SimHits_*_*',
+                                            'keep *_layerClusterSimClusterAssociationProducer_*_*',
+                                            'keep *_layerClusterCaloParticleAssociationProducer_*_*',
                                             ])
 
     if hasattr(process, 'FEVTDEBUGEventContent'):
