@@ -3,7 +3,6 @@
 
 # Various set of customise functions needed for embedding
 import FWCore.ParameterSet.Config as cms
-from FWCore.ParameterSet.Utilities import cleanUnscheduled
 
 from PhysicsTools.NanoAOD.common_cff import ExtVar
 
