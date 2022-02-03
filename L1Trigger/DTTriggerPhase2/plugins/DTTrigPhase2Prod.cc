@@ -106,7 +106,7 @@ public:
   void setMinimumQuality(MP_QUALITY q);
 
   // data-members
-  DTGeometry const* dtGeo_;
+  const DTGeometry* dtGeo_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
   std::vector<std::pair<int, MuonPath>> primitives_;
 
@@ -124,11 +124,12 @@ private:
   bool do_correlation_;
   int scenario_;
   int df_extended_;
-  std::string geometry_tag_;
+  //  std::string geometry_tag_;
 
   // ParameterSet
   edm::EDGetTokenT<DTDigiCollection> dtDigisToken_;
   edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsLabel_;
+
 
   // Grouping attributes and methods
   int algo_;  // Grouping code
@@ -169,7 +170,7 @@ namespace {
 }  // namespace
 
 DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
-    : qmap_({{9, 9}, {8, 8}, {7, 6}, {6, 7}, {5, 3}, {4, 5}, {3, 4}, {2, 2}, {1, 1}}) {
+  : qmap_({{9, 9}, {8, 8}, {7, 6}, {6, 7}, {5, 3}, {4, 5}, {3, 4}, {2, 2}, {1, 1}}) {
   produces<L1Phase2MuDTPhContainer>();
   produces<L1Phase2MuDTThContainer>();
   produces<L1Phase2MuDTExtPhContainer>();
@@ -192,7 +193,8 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   algo_ = pset.getParameter<int>("algo");
 
   // Local to global coordinates approach
-  geometry_tag_ = pset.getUntrackedParameter<std::string>("geometry_tag", "");
+  //  geometry_tag_ = 
+  //  dtGeomToken_ = consumes<>(pset.getUntrackedParameter<std::string>("geometry_tag", "")); 
 
   edm::ConsumesCollector consumesColl(consumesCollector());
   globalcoordsobtainer_ = std::make_shared<GlobalCoordsObtainer>(pset);
@@ -252,9 +254,10 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
   mpathhitsfilter_->initialise(iEventSetup);
   mpathassociator_->initialise(iEventSetup);       // Associator object initialisation
 
-  edm::ESHandle<DTGeometry> geom;
-  iEventSetup.get<MuonGeometryRecord>().get(geometry_tag_, geom);
-  dtGeo_ = &(*geom);
+  
+  if (auto geom = iEventSetup.getHandle(dtGeomH)){ 
+    dtGeo_ = &(*geom);
+  }
 }
 
 void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {

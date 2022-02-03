@@ -36,8 +36,14 @@ void RPCIntegrator::initialise(const edm::EventSetup& iEventSetup, double shift_
     LogDebug("RPCIntegrator") << "Getting RPC geometry";
 
   const MuonGeometryRecord& geom = iEventSetup.get<MuonGeometryRecord>();
-  dtGeo_ = &geom.get(dtGeomH_);
-  rpcGeo_ = &geom.get(rpcGeomH_);
+  if (auto handle = iEventSetup.getHandle(dtGeomH_)){
+    dtGeo_ = handle.product(); 
+  }
+  
+  if (auto handle = iEventSetup.getHandle(rpcGeomH_)){
+    rpcGeo_ = handle.product();
+  }
+
   shift_back_ = shift_back_fromDT;
 }
 

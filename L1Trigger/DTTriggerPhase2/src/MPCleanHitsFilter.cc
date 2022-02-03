@@ -12,7 +12,6 @@ MPCleanHitsFilter::MPCleanHitsFilter(const ParameterSet& pset) : MPFilter(pset) 
 
   timeTolerance_ = pset.exists("timeTolerance") ? pset.getParameter<int>("timeTolerance") : 999999;
   // probably something close to the max time drift (400ns/2) is a reasonable value 
-  cout << "Time tolerance = " << timeTolerance_ << endl;
 }
 void MPCleanHitsFilter::run(edm::Event &iEvent,
 			    const edm::EventSetup &iEventSetup,

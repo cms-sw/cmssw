@@ -148,7 +148,7 @@ void MPQualityEnhancerFilter::filterCousins(std::vector<metaPrimitive> &inMPaths
 void MPQualityEnhancerFilter::refilteringCousins(std::vector<metaPrimitive> &inMPaths,
                                                  std::vector<metaPrimitive> &outMPaths) {
   if (debug_)
-    std::cout << "filtering: starting cousins refiltering" << std::endl;
+    LogDebug("MPQualityEnhancerFilter") << "filtering: starting cousins refiltering\n";
   int bestI = -1;
   double bestChi2 = 9999;
   bool oneOf4 = false;
