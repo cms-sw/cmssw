@@ -1,12 +1,12 @@
 /** \class TrackMergeremb
  *
- * 
+ *
  * \author Stefan Wayand;
  *         Christian Veelken, LLR
  *
- * 
  *
- * 
+ *
+ *
  *
  */
 #ifndef TauAnalysis_MCEmbeddingTools_TrackMergeremb_H
@@ -18,12 +18,27 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/ParticleFlowReco/interface/PreId.h"
+
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/MuonReco/interface/MuonToMuonMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 #include <string>
@@ -50,12 +65,21 @@ private:
 
   //typedef edm::ValueMap<reco::TrackRef> TrackToTrackMapnew;
   typedef edm::ValueMap<reco::TrackRefVector> TrackToTrackMapnew;
+  typedef edm::ValueMap<reco::GsfTrackRefVector> GsfTrackToTrackMapnew;
+
 
   edm::EDGetTokenT<TrackToTrackMapnew> inputs_fixtrackrefs_;
   edm::EDGetTokenT<reco::TrackCollection> inputs_fixtrackcol_;
 
+  edm::EDGetTokenT<GsfTrackToTrackMapnew> inputs_fixgsftrackrefs_;
+  edm::EDGetTokenT<reco::GsfTrackCollection> inputs_fixgsftrackcol_;
+
   edm::EDGetTokenT<reco::MuonToMuonMap> inputs_fixmurefs_;
   edm::EDGetTokenT<reco::MuonCollection> inputs_fixmucol_;
+
+  edm::EDGetTokenT<reco::SuperClusterCollection> inputs_SC_;
+  edm::EDGetTokenT<reco::ElectronSeedCollection> inputs_rElectronMergedSeeds_;
+  edm::EDGetTokenT<edm::View<TrajectorySeed>> inputs_rElectronMergedSeedViews_;
 };
 
 template <typename T1>
