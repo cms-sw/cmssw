@@ -21,6 +21,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 
 #include "IOPool/Common/interface/RootServiceChecker.h"
 
@@ -44,7 +45,6 @@
 
 namespace edm {
   class RunHelperBase;
-  class RCDelayedReader;
 
   class RepeatingCachedRootSource : public InputSource {
   public:
@@ -55,6 +55,40 @@ namespace edm {
     std::shared_ptr<WrapperBase> getProduct(unsigned int iStreamIndex,
                                             BranchID const& k,
                                             EDProductGetter const* ep) const;
+
+    class RCProductGetter : public EDProductGetter {
+    public:
+      RCProductGetter(RCProductGetter const& iOther) : map_(iOther.map_), wrappers_(iOther.wrappers_) {}
+
+      RCProductGetter const& operator=(RCProductGetter const& iOther) {
+        map_ = iOther.map_;
+        wrappers_ = iOther.wrappers_;
+        return *this;
+      }
+
+      RCProductGetter(std::map<edm::ProductID, size_t> const* iMap,
+                      std::vector<std::shared_ptr<edm::WrapperBase>> const* iWrappers)
+          : map_(iMap), wrappers_(iWrappers) {}
+
+      WrapperBase const* getIt(ProductID const&) const override;
+
+      std::optional<std::tuple<WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
+                                                                                    unsigned int key) const override;
+
+      void getThinnedProducts(ProductID const& pid,
+                              std::vector<WrapperBase const*>& foundContainers,
+                              std::vector<unsigned int>& keys) const override;
+
+      OptionalThinnedKey getThinnedKeyFrom(ProductID const& parent,
+                                           unsigned int key,
+                                           ProductID const& thinned) const override;
+
+    private:
+      unsigned int transitionIndex_() const override;
+
+      std::map<edm::ProductID, size_t> const* map_;
+      std::vector<std::shared_ptr<edm::WrapperBase>> const* wrappers_;
+    };
 
     class RCDelayedReader : public edm::DelayedReader {
     public:
@@ -109,12 +143,14 @@ namespace edm {
     std::unique_ptr<RootFile> rootFile_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
     std::vector<std::vector<std::shared_ptr<edm::WrapperBase>>> cachedWrappers_;
+    std::vector<RCProductGetter> getters_;  //one per cached event
     std::vector<EventAuxiliary> eventAuxs_;
     EventSelectionIDVector selectionIDs_;
     BranchListIndexes branchListIndexes_;
     ProductProvenanceRetriever provRetriever_;
     std::vector<RCDelayedReader> delayedReaders_;  //one per stream
     std::map<edm::BranchID, size_t> branchIDToWrapperIndex_;
+    std::map<edm::ProductID, size_t> productIDToWrapperIndex_;
     std::vector<size_t> streamToCacheIndex_;
     size_t nextEventIndex_ = 0;
     ItemType presentState_ = IsFile;
@@ -144,6 +180,11 @@ RepeatingCachedRootSource::RepeatingCachedRootSource(ParameterSet const& pset, I
       delayedReaders_(desc.allocations_->numberOfStreams()),
       streamToCacheIndex_(desc.allocations_->numberOfStreams(), 0) {
   {
+    getters_.reserve(cachedWrappers_.size());
+    for (auto& cw : cachedWrappers_) {
+      getters_.emplace_back(&productIDToWrapperIndex_, &cw);
+    }
+
     int index = 0;
     std::for_each(delayedReaders_.begin(), delayedReaders_.end(), [&index, this](auto& iR) {
       iR.m_streamIndex = index++;
@@ -190,17 +231,17 @@ void RepeatingCachedRootSource::beginJob() {
   processConfiguration.setParameterSetID(ParameterSet::emptyParameterSetID());
   processConfiguration.setProcessConfigurationID();
 
-  //TODO: to make edm::Ref work we need to find a way to pass in a different EDProductGetter
+  //Thinned collection associations are not supported at this time
   EventPrincipal eventPrincipal(productRegistry(),
-                                std::make_shared<BranchIDListHelper>(),
+                                branchIDListHelper(),
                                 std::make_shared<ThinnedAssociationsHelper>(),
                                 processConfiguration,
                                 nullptr);
-
   {
     RunNumber_t run = 0;
     LuminosityBlockNumber_t lumi = 0;
     auto itAux = eventAuxs_.begin();
+    auto itGetter = getters_.begin();
     for (auto& cache : cachedWrappers_) {
       rootFile_->nextEventEntry();
       rootFile_->readCurrentEvent(eventPrincipal);
@@ -222,10 +263,15 @@ void RepeatingCachedRootSource::beginJob() {
       branchListIndexes_ = eventPrincipal.branchListIndexes();
       {
         auto reader = eventPrincipal.reader();
+        auto& getter = *(itGetter++);
         for (auto const& branchToIndex : branchIDToWrapperIndex_) {
-          cache[branchToIndex.second] = reader->getProduct(branchToIndex.first, &eventPrincipal);
+          cache[branchToIndex.second] = reader->getProduct(branchToIndex.first, &getter);
         }
       }
+    }
+    for (auto const& branchToIndex : branchIDToWrapperIndex_) {
+      auto pid = eventPrincipal.branchIDToProductID(branchToIndex.first);
+      productIDToWrapperIndex_[pid] = branchToIndex.second;
     }
     rootFile_->rewind();
   }
@@ -368,6 +414,30 @@ bool RepeatingCachedRootSource::nextProcessBlock_(ProcessBlockPrincipal& process
 void RepeatingCachedRootSource::readProcessBlock_(ProcessBlockPrincipal& processBlockPrincipal) {
   rootFile_->readProcessBlock_(processBlockPrincipal);
 }
+
+WrapperBase const* RepeatingCachedRootSource::RCProductGetter::getIt(ProductID const& iPID) const {
+  auto itFound = map_->find(iPID);
+  if (itFound == map_->end()) {
+    return nullptr;
+  }
+  return (*wrappers_)[itFound->second].get();
+}
+
+std::optional<std::tuple<WrapperBase const*, unsigned int>>
+RepeatingCachedRootSource::RCProductGetter::getThinnedProduct(ProductID const&, unsigned int key) const {
+  return {};
+};
+
+void RepeatingCachedRootSource::RCProductGetter::getThinnedProducts(ProductID const& pid,
+                                                                    std::vector<WrapperBase const*>& foundContainers,
+                                                                    std::vector<unsigned int>& keys) const {}
+
+OptionalThinnedKey RepeatingCachedRootSource::RCProductGetter::getThinnedKeyFrom(ProductID const& parent,
+                                                                                 unsigned int key,
+                                                                                 ProductID const& thinned) const {
+  return {};
+}
+unsigned int RepeatingCachedRootSource::RCProductGetter::transitionIndex_() const { return 0; }
 
 //
 // const member functions
