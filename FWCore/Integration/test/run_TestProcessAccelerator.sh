@@ -9,11 +9,11 @@ function die { echo Failure $1: status $2 ; exit $2 ; }
 pushd ${LOCAL_TMP_DIR}
 
 echo "*************************************************"
-echo "accelerators=auto"
+echo "accelerators=*"
 cmsRun ${LOCAL_TEST_DIR}/${test}_cfg.py || die "cmsRun ${test}_cfg.py" $?
 
 echo "*************************************************"
-echo "accelerators=auto, enableTest2"
+echo "accelerators=*, enableTest2"
 cmsRun ${LOCAL_TEST_DIR}/${test}_cfg.py -- --enableTest2 || die "cmsRun ${test}_cfg.py -- --enableTest2" $?
 
 echo "*************************************************"

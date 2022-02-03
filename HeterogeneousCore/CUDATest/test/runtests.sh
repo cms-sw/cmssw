@@ -28,7 +28,7 @@ cmsRun ${TEST_DIR}/testCUDASwitch_cfg.py -- --silent || die "cmsRun testCUDASwit
 
 echo "*************************************************"
 echo "CUDA producer configuration with SwitchProducer, force CPU"
-cmsRun ${TEST_DIR}/testCUDASwitch_cfg.py -- --silent --accelerator="" || die "cmsRun testCUDASwitch_cfg.py --silent --accelerator=\"\"" $?
+cmsRun ${TEST_DIR}/testCUDASwitch_cfg.py -- --silent --accelerator="cpu" || die "cmsRun testCUDASwitch_cfg.py --silent --accelerator=\"\"" $?
 
 if [ "x${TARGET}" == "xgpu" ]; then
     echo "*************************************************"

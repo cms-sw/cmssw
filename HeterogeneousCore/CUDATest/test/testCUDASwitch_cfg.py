@@ -28,10 +28,7 @@ if not args.silent:
 
 
 if args.accelerator is not None:
-    if len(args.accelerator) == 0:
-        process.options.accelerators = []
-    else:
-        process.options.accelerators = [args.accelerator]
+    process.options.accelerators = [args.accelerator]
 
 # Flow diagram of the modules
 #
