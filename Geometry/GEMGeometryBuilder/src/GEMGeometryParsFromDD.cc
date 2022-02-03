@@ -43,11 +43,13 @@ void GEMGeometryParsFromDD::build(const DDCompactView* cview,
   // Asking only for the MuonGEM's
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
   DDFilteredView fv(*cview, filter);
+  DDFilteredView fv2(*cview, filter);
 
-  this->buildGeometry(fv, muonConstants, rgeo);
+  this->buildGeometry(fv, fv2, muonConstants, rgeo);
 }
 
 void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
+                                          DDFilteredView& fvGE2,
                                           const MuonGeometryConstants& muonConstants,
                                           RecoIdealGeometry& rgeo) {
   LogDebug("GEMGeometryParsFromDD") << "Building the geometry service";
@@ -59,22 +61,25 @@ void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
   GEMNumberingScheme gemNumbering(muonConstants);
 
   // Check for the demonstrator geometry (only 1 chamber of GE2/1)
-  DDFilteredView fvGE2{fv};
   int nGE21 = 0;
   bool doSuper = fvGE2.firstChild();
   while (doSuper) {
     // getting chamber id from eta partitions
     fvGE2.firstChild();
-    fvGE2.firstChild();
-    int rawidCh = gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fvGE2.geoHistory()));
-    GEMDetId detIdCh = GEMDetId(rawidCh);
-    if (detIdCh.station() == 2)
-      nGE21++;
+    doSuper = fvGE2.firstChild();
+    if (doSuper) {
+      int rawidCh = gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fvGE2.geoHistory()));
+      GEMDetId detIdCh = GEMDetId(rawidCh);
+      if (detIdCh.station() == 2)
+        nGE21++;
 
-    // back to chambers
-    fvGE2.parent();
-    fvGE2.parent();
-    doSuper = (nGE21 < 2 && fvGE2.nextSibling());
+      // back to chambers
+      fvGE2.parent();
+      fvGE2.parent();
+      doSuper = (nGE21 < 2 && fvGE2.nextSibling());
+    } else {
+      edm::LogError("GEMGeometryParsFromDD") << "Failed to find next child volume. Cannot determine presence of GE 2/1";
+    }
   }
   bool demonstratorGeometry = nGE21 == 1;
 
@@ -90,44 +95,48 @@ void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
   while (doSuper) {
     // getting chamber id from eta partitions
     fv.firstChild();
-    fv.firstChild();
-    GEMDetId detIdCh =
-        GEMDetId(gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
-    // back to chambers
-    fv.parent();
-    fv.parent();
+    doSuper = fv.firstChild();
+    if (doSuper) {
+      GEMDetId detIdCh =
+          GEMDetId(gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
+      // back to chambers
+      fv.parent();
+      fv.parent();
 
-    // currently there is no superchamber in the geometry
-    // only 2 chambers are present separated by a gap.
-    // making superchamber out of the first chamber layer including the gap between chambers
+      // currently there is no superchamber in the geometry
+      // only 2 chambers are present separated by a gap.
+      // making superchamber out of the first chamber layer including the gap between chambers
 
-    // In Run 3 we also have a single GE2/1 chamber at layer 2. We
-    // make sure the superchamber gets built but also we build on the
-    // first layer for the other stations so the superchamber is in
-    // the right position there.
-    if ((detIdCh.layer() == 1) || (detIdCh.layer() == 2 and detIdCh.station() == 2 and demonstratorGeometry)) {
-      buildSuperChamber(fv, detIdCh, rgeo);
-    }
-    buildChamber(fv, detIdCh, rgeo);
+      // In Run 3 we also have a single GE2/1 chamber at layer 2. We
+      // make sure the superchamber gets built but also we build on the
+      // first layer for the other stations so the superchamber is in
+      // the right position there.
+      if ((detIdCh.layer() == 1) || (detIdCh.layer() == 2 and detIdCh.station() == 2 and demonstratorGeometry)) {
+        buildSuperChamber(fv, detIdCh, rgeo);
+      }
+      buildChamber(fv, detIdCh, rgeo);
 
-    // loop over chambers
-    // only 1 chamber
-    bool doChambers = fv.firstChild();
-    while (doChambers) {
-      // loop over GEMEtaPartitions
-      bool doEtaPart = fv.firstChild();
-      while (doEtaPart) {
-        GEMDetId detId =
-            GEMDetId(gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
-        buildEtaPartition(fv, detId, rgeo);
+      // loop over chambers
+      // only 1 chamber
+      bool doChambers = fv.firstChild();
+      while (doChambers) {
+        // loop over GEMEtaPartitions
+        bool doEtaPart = fv.firstChild();
+        while (doEtaPart) {
+          GEMDetId detId =
+              GEMDetId(gemNumbering.baseNumberToUnitNumber(muonDDDNumbering.geoHistoryToBaseNumber(fv.geoHistory())));
+          buildEtaPartition(fv, detId, rgeo);
 
-        doEtaPart = fv.nextSibling();
+          doEtaPart = fv.nextSibling();
+        }
+        fv.parent();
+        doChambers = fv.nextSibling();
       }
       fv.parent();
-      doChambers = fv.nextSibling();
+      doSuper = fv.nextSibling();
+    } else {
+      edm::LogError("GEMGeometryParsFromDD") << "Failed to find next child volume. Cannot build GEM chambers.";
     }
-    fv.parent();
-    doSuper = fv.nextSibling();
   }
 }
 
