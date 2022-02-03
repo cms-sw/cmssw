@@ -132,7 +132,7 @@ PFHT780_HTmonitoring = hltHTmonitoring.clone(
 PFHT680_HTmonitoring = hltHTmonitoring.clone(
     FolderName = 'HLT/JME/HT/PFHT680/',
     jetSelection_HT   = "pt > 30 && eta < 2.5",
-    numGenericTriggerEventPSe = dict(hltPaths = ["HLT_PFHT680_v*"])
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_PFHT680_v*"])
 
 )
 #HLT_PFHT590
