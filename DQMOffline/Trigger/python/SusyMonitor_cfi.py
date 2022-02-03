@@ -18,12 +18,12 @@ hltSUSYmonitoring = topMonitoring.clone(
       #lsPSet = dict(
             #nbins = 2500 ),
 
-      ptPSet = cms.PSet(
+      ptPSet = dict(
             nbins =  60 ,
             xmin  =  0 ,
             xmax  = 300 ),
 
-      phiPSet = cms.PSet(
+      phiPSet = dict(
             nbins =  32 ,
             xmin  =  -3.2 ,
             xmax  =  3.2 ),
@@ -56,7 +56,7 @@ hltSUSYmonitoring = topMonitoring.clone(
               xmin  =  0.0 ,
               xmax  = 80.0 ),
 
-        MHTPSet = cms.PSet(
+        MHTPSet = dict(
               nbins =  80,
               xmin  =   60,
               xmax  =   300),
