@@ -1,12 +1,12 @@
 /** \class CollectionMerger
  *
- * 
+ *
  * \author Stefan Wayand;
  *         Christian Veelken, LLR
  *
- * 
  *
- * 
+ *
+ *
  *
  */
 #ifndef TauAnalysis_MCEmbeddingTools_CollectionMerger_H
@@ -19,6 +19,16 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -48,7 +58,13 @@ private:
   typedef T2 BaseHit;
   std::map<std::string, std::vector<edm::EDGetTokenT<MergeCollection> > > inputs_;
 
-  void fill_output_obj(std::unique_ptr<MergeCollection> &output,
+  edm::EDGetTokenT<reco::SuperClusterCollection> inputs_scEB_,inputs_scEE_, inputs_SC_;
+
+  typedef edm::ValueMap<reco::TrackRefVector> TrackToTrackMapnew;
+  edm::EDGetTokenT<TrackToTrackMapnew > inputs_fixtrackrefs_;
+  edm::EDGetTokenT<reco::TrackCollection > inputs_fixtrackcol_;
+
+  void fill_output_obj(edm::Event&, std::unique_ptr<MergeCollection> &output,
                        std::vector<edm::Handle<MergeCollection> > &inputCollections);
   void fill_output_obj_tracker(std::unique_ptr<MergeCollection> &output,
                                std::vector<edm::Handle<MergeCollection> > &inputCollections,
@@ -57,6 +73,12 @@ private:
                             std::vector<edm::Handle<MergeCollection> > &inputCollections);
   void fill_output_obj_muonchamber(std::unique_ptr<MergeCollection> &output,
                                    std::vector<edm::Handle<MergeCollection> > &inputCollections);
+  //seed merger
+  void fill_output_obj_seed(edm::Event&, std::unique_ptr<MergeCollection > & output, std::vector<edm::Handle<MergeCollection> > &inputCollections);
+
+  void willproduce(std::string instance, std::string alias);
+  void willconsume(const edm::ParameterSet& iConfig);
+
 };
 
 template <typename T1, typename T2>
@@ -65,9 +87,11 @@ CollectionMerger<T1, T2>::CollectionMerger(const edm::ParameterSet &iConfig) {
   for (auto const &inCollection : inCollections) {
     inputs_[inCollection.instance()].push_back(consumes<MergeCollection>(inCollection));
   }
+  willconsume(iConfig);
   for (const auto &toproduce : inputs_) {
+    std::string alias( iConfig.getParameter<std::string>( "@module_label" ) );
     //  std::cout<<toproduce.first<<"\t"<<toproduce.second.size()<<std::endl;
-    produces<MergeCollection>(toproduce.first);
+    willproduce(toproduce.first,alias);
   }
 }
 
@@ -85,7 +109,7 @@ void CollectionMerger<T1, T2>::produce(edm::Event &iEvent, const edm::EventSetup
     for (unsigned id = 0; id < input_.second.size(); id++) {
       iEvent.getByToken(input_.second[id], inputCollections[id]);
     }
-    fill_output_obj(output, inputCollections);
+    fill_output_obj(iEvent, output, inputCollections);
     iEvent.put(std::move(output), input_.first);
   }
 }
