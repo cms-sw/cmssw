@@ -55,27 +55,7 @@ Phase2EndcapLayerDoubleDisk::Phase2EndcapLayerDoubleDisk(vector<const Phase2Endc
 }
 
 BoundDisk* Phase2EndcapLayerDoubleDisk::computeDisk(const vector<const Phase2EndcapSubDisk*>& subDisks) const {
-  float theRmin = subDisks.front()->specificSurface().innerRadius();
-  float theRmax = subDisks.front()->specificSurface().outerRadius();
-  float theZmin = subDisks.front()->position().z() - subDisks.front()->surface().bounds().thickness() / 2;
-  float theZmax = subDisks.front()->position().z() + subDisks.front()->surface().bounds().thickness() / 2;
-
-  for (vector<const Phase2EndcapSubDisk*>::const_iterator i = subDisks.begin(); i != subDisks.end(); i++) {
-    float rmin = (**i).specificSurface().innerRadius();
-    float rmax = (**i).specificSurface().outerRadius();
-    float zmin = (**i).position().z() - (**i).surface().bounds().thickness() / 2.;
-    float zmax = (**i).position().z() + (**i).surface().bounds().thickness() / 2.;
-    theRmin = min(theRmin, rmin);
-    theRmax = max(theRmax, rmax);
-    theZmin = min(theZmin, zmin);
-    theZmax = max(theZmax, zmax);
-  }
-
-  float zPos = (theZmax + theZmin) / 2.;
-  PositionType pos(0., 0., zPos);
-  RotationType rot;
-
-  return new BoundDisk(pos, rot, new SimpleDiskBounds(theRmin, theRmax, theZmin - zPos, theZmax - zPos));
+  return tkDetUtil::computeDisk(subDisks);
 }
 
 Phase2EndcapLayerDoubleDisk::~Phase2EndcapLayerDoubleDisk() {
