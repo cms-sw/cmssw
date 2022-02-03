@@ -37,8 +37,8 @@ TEST_CASE("Configuration", s_tag) {
   const std::string test1{"cms.EDProducer('IntProducer', ivalue = cms.int32(1))"};
   const std::string test2{"cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet())"};
 
-  const std::string baseConfig_auto = makeConfig(test1, test2, "'auto'");
-  const std::string baseConfig_cpu = makeConfig(test1, test2, "");
+  const std::string baseConfig_auto = makeConfig(test1, test2, "'*'");
+  const std::string baseConfig_cpu = makeConfig(test1, test2, "'cpu'");
   const std::string baseConfig_cuda = makeConfig(test1, test2, "'gpu-nvidia'");
 
   SECTION("Configuration hash is not changed") {

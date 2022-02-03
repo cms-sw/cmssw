@@ -38,14 +38,16 @@ class SwitchProducerTest(cms.SwitchProducer):
     def __init__(self, **kargs):
         super(SwitchProducerTest,self).__init__(
             dict(
-                test1 = lambda accelerators: ("test1" in accelerators, -10),
-                test2 = lambda accelerators: ("test2" in accelerators, -9),
+                cpu = cms.SwitchProducer.getCpu(),
+                test1 = lambda accelerators: ("test1" in accelerators, 2),
+                test2 = lambda accelerators: ("test2" in accelerators, 3),
             ), **kargs)
 
 process = TestProcess()
 process.options.accelerators = ["{}"]
 process.ProcessAcceleratorTest = ProcessAcceleratorTest()
 process.s = SwitchProducerTest(
+   cpu = cms.EDProducer('IntProducer', ivalue = cms.int32(0)),
    test1 = {},
    test2 = {}
 )
@@ -62,10 +64,10 @@ TEST_CASE("Configuration", s_tag) {
   const std::string test1{"cms.EDProducer('IntProducer', ivalue = cms.int32(1))"};
   const std::string test2{"cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet())"};
 
-  const std::string baseConfig_auto = makeConfig(true, test1, test2, "auto");
+  const std::string baseConfig_auto = makeConfig(true, test1, test2, "*");
   const std::string baseConfig_test1 = makeConfig(true, test1, test2, "test1");
   const std::string baseConfig_test2 = makeConfig(true, test1, test2, "test2");
-  const std::string baseConfigTest2Disabled_auto = makeConfig(false, test1, test2, "auto");
+  const std::string baseConfigTest2Disabled_auto = makeConfig(false, test1, test2, "*");
   const std::string baseConfigTest2Disabled_test1 = makeConfig(false, test1, test2, "test1");
   const std::string baseConfigTest2Disabled_test2 = makeConfig(false, test1, test2, "test2");
 
@@ -118,7 +120,7 @@ TEST_CASE("Configuration", s_tag) {
     REQUIRE_NOTHROW(tester.testLuminosityBlockWithNoEvents());
   }
 
-  SECTION("Test2 enabled, acclerators=auto") {
+  SECTION("Test2 enabled, acclerators=*") {
     edm::test::TestProcessor tester(config_auto);
     auto event = tester.test();
     REQUIRE(event.get<edmtest::IntProduct>()->value == 2);
@@ -136,7 +138,7 @@ TEST_CASE("Configuration", s_tag) {
     REQUIRE(event.get<edmtest::IntProduct>()->value == 2);
   }
 
-  SECTION("Test2 disabled, accelerators=auto") {
+  SECTION("Test2 disabled, accelerators=*") {
     edm::test::TestProcessor tester(configTest2Disabled_auto);
     auto event = tester.test();
     REQUIRE(event.get<edmtest::IntProduct>()->value == 1);
@@ -149,7 +151,8 @@ TEST_CASE("Configuration", s_tag) {
   }
 
   SECTION("Test2 disabled, accelerators=test2") {
-    REQUIRE_THROWS_WITH(edm::test::TestProcessor(configTest2Disabled_test2),
-                        Catch::Contains("Compute accelerators test2 were requested but are not available"));
+    REQUIRE_THROWS_WITH(
+        edm::test::TestProcessor(configTest2Disabled_test2),
+        Catch::Contains("The system has no compute accelerators that match the patterns") && Catch::Contains("test1"));
   }
 }
