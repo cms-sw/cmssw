@@ -56,8 +56,8 @@ void MuonPathAnalyzerInChamber::initialise(const edm::EventSetup &iEventSetup) {
   if (debug_)
     LogDebug("MuonPathAnalyzerInChamber") << "MuonPathAnalyzerInChamber::initialiase";
 
-  const MuonGeometryRecord &geom = iEventSetup.get<MuonGeometryRecord>();
-  dtGeo_ = &geom.get(dtGeomH);
+  auto geom = iEventSetup.getHandle(dtGeomH);
+  dtGeo_ = geom.product();
 }
 
 void MuonPathAnalyzerInChamber::run(edm::Event &iEvent,
