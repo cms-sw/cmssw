@@ -40,16 +40,6 @@ private:
   // private methods for the implementation of groupedCompatibleDets()
   BoundDisk* computeDisk(const std::vector<const Phase2EndcapSingleRing*>& rings) const __attribute__((cold));
 
-  std::array<int, 3> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
-                                                    const Propagator& prop) const;
-
-  //  bool isCompatible( const TrajectoryStateOnSurface& ms,
-  //	     const MeasurementEstimator& est) const;
-
-  std::array<int, 3> findThreeClosest(std::vector<tkDetUtil::RingPar> ringParams,
-                                      std::vector<GlobalPoint> ringCrossing,
-                                      int ringSize) const __attribute__((hot));
-
   bool overlapInR(const TrajectoryStateOnSurface& tsos,
                   int i,
                   double ymax,
