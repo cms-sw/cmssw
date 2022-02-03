@@ -758,7 +758,7 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     # produce local Calo
     process.load("RecoLocalCalo.Configuration.RecoLocalCalo_cff")
     process.merge_step += process.calolocalreco
-    process.merge_step += process.caloglobalreco
+    #process.merge_step += process.caloglobalreco
     process.merge_step += process.reducedHcalRecHitsSequence
 
     # produce hcal towers
@@ -824,12 +824,12 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     process.muons.FillCosmicsIdMap = cms.bool(False)
 
     # seed configuration needed for seedmerger
-    process.load(
-        "RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff"
-    )
-    process.ecalDrivenElectronSeeds.SeedConfiguration = cms.PSet(
-        process.ecalDrivenElectronSeedsParameters
-    )
+    #process.load(
+    #    "RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff"
+    #)
+    #process.ecalDrivenElectronSeeds.SeedConfiguration = cms.PSet(
+    #    process.ecalDrivenElectronSeedsParameters
+    #)
 
     process.merge_step += process.highlevelreco
     # process.merge_step.remove(process.reducedEcalRecHitsEE)
