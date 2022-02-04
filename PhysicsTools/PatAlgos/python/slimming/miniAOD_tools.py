@@ -439,7 +439,7 @@ def miniAOD_customizeCommon(process):
     
         process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
     
-        process.selectedPatJetsPuppi.cut = cms.string("pt > 15")
+        process.selectedPatJetsPuppi.cut = cms.string("pt > 10")
     
         from PhysicsTools.PatAlgos.slimming.applyDeepBtagging_cff import applyDeepBtagging
         applyDeepBtagging( process )
@@ -457,6 +457,8 @@ def miniAOD_customizeCommon(process):
     (~pp_on_AA).toModify(process, _add_jetsPuppi)
 
     pp_on_AA.toModify(process, func = lambda p: addToProcessAndTask('slimmedJetsPuppi', _dummyPatJets.clone(), p, task))
+
+    (_run2_miniAOD_ANY | pA_2016).toModify(process.selectedPatJetsPuppi, cut = "pt > 15")
 
     # Embed pixelClusterTagInfos in slimmedJets
     process.patJets.addTagInfos = True
