@@ -175,9 +175,7 @@ std::array<int, 2> Phase2EndcapLayerDoubleDisk::subDiskIndicesByCrossingProximit
 
   //find two closest subdisks to the crossing
 
-  std::array<int, 2> closests = findTwoClosest(subDiskCrossings);
-
-  return closests;
+  return findTwoClosest(subDiskCrossings);
 }
 
 std::array<int, 2> Phase2EndcapLayerDoubleDisk::findTwoClosest(std::vector<GlobalPoint> subDiskCrossing) const {

@@ -8,7 +8,6 @@
 
 /** A concrete implementation for Phase 2 Endcap/Forward layer 
  *  built out of Phase2EndcapRings
- *  this classs is used for both OT and Pixel detector
  */
 
 #pragma GCC visibility push(hidden)
@@ -41,9 +40,6 @@ private:
 
   std::array<int, 2> subDiskIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
                                                        const Propagator& prop) const;
-
-  //  bool isCompatible( const TrajectoryStateOnSurface& ms,
-  //	     const MeasurementEstimator& est) const;
 
   std::array<int, 2> findTwoClosest(std::vector<GlobalPoint>) const __attribute__((hot));
 
