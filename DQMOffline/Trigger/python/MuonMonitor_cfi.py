@@ -4,7 +4,7 @@ from DQMOffline.Trigger.muonMonitoring_cfi import muonMonitoring
 
 hltMuonmonitoring = muonMonitoring.clone(
     FolderName = 'HLT/Muon/TrkMu16_DoubleTrkMu6NoFiltersNoVtx/',
-    met       = "pfMetEI", # pfMet
+    met       = "pfMet", # pfMet
     muons = "muons", # while pfIsolatedElectronsEI are reco::PFCandidate !
     nmuons = 0,
 
