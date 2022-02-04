@@ -41,7 +41,8 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuBMTrackSegPhi::L1MuBMTrackSegPhi() : m_location(), m_phi(0), m_phib(0), m_quality(Null), m_bx(0) {}
+L1MuBMTrackSegPhi::L1MuBMTrackSegPhi()
+    : m_location(), m_phi(0), m_phib(0), m_quality(Null), m_tag(false), m_bx(0), m_etaFlag(false) {}
 
 L1MuBMTrackSegPhi::L1MuBMTrackSegPhi(
     int wheel_id, int sector_id, int station_id, int phi, int phib, TSQuality quality, bool tag, int bx, bool etaFlag)
