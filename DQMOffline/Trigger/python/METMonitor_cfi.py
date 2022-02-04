@@ -4,8 +4,8 @@ from DQMOffline.Trigger.metMonitoring_cfi import metMonitoring
 
 hltMETmonitoring = metMonitoring.clone(
     FolderName = 'HLT/JME/MET/PFMETNoMu120/',
-    met       = "pfMetEI", # pfMet
-    jets      = "pfJetsEI", # ak4PFJets, ak4PFJetsCHS
+    met       = "pfMet", # pfMet
+    jets      = "ak4PFJets", # ak4PFJets, ak4PFJetsCHS
     electrons = "gedGsfElectrons", # while pfIsolatedElectronsEI are reco::PFCandidate !
     muons     = "muons", # while pfIsolatedMuonsEI are reco::PFCandidate !
 
