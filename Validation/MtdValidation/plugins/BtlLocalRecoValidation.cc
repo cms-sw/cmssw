@@ -63,6 +63,7 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   bool isSameCluster(const FTLCluster&, const FTLCluster&);
+
   // ------------ member data ------------
 
   const std::string folder_;
@@ -430,21 +431,21 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         meCluRhoRes_->Fill(rho_res);
         meCluPhiRes_->Fill(phi_res);
 
+        float x_res = global_point.x() - cluGlobalPosSIM.x();
+        float y_res = global_point.y() - cluGlobalPosSIM.y();
+        float z_res = global_point.z() - cluGlobalPosSIM.z();
+
+        meCluXRes_->Fill(x_res);
+        meCluYRes_->Fill(y_res);
+        meCluZRes_->Fill(z_res);
+
         if (LocalPosDebug_) {
-          float x_res = global_point.x() - cluGlobalPosSIM.x();
-          float y_res = global_point.y() - cluGlobalPosSIM.y();
-          float z_res = global_point.z() - cluGlobalPosSIM.z();
-
-          meCluXRes_->Fill(x_res);
-          meCluYRes_->Fill(y_res);
-          meCluZRes_->Fill(z_res);
-
           if (matchClu && comp != nullptr) {
-            meCluXPull_->Fill(x_res / comp->globalPositionError().cxx());
-            meCluYPull_->Fill(y_res / comp->globalPositionError().cyy());
-            meCluZPull_->Fill(z_res / comp->globalPositionError().czz());
-            meCluXLocalErr_->Fill(comp->localPositionError().xx());
-            meCluYLocalErr_->Fill(comp->localPositionError().yy());
+            meCluXPull_->Fill(x_res / std::sqrt(comp->globalPositionError().cxx()));
+            meCluYPull_->Fill(y_res / std::sqrt(comp->globalPositionError().cyy()));
+            meCluZPull_->Fill(z_res / std::sqrt(comp->globalPositionError().czz()));
+            meCluXLocalErr_->Fill(std::sqrt(comp->localPositionError().xx()));
+            meCluYLocalErr_->Fill(std::sqrt(comp->localPositionError().yy()));
           }
 
           meCluYXLocal_->Fill(local_point.x(), local_point.y());
@@ -689,10 +690,10 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       ibook.book1D("BtlCluRhoRes", "BTL cluster #rho resolution;#rho_{RECO}-#rho_{SIM} [cm]", 100, -0.5, 0.5);
   meCluPhiRes_ =
       ibook.book1D("BtlCluPhiRes", "BTL cluster #phi resolution;#phi_{RECO}-#phi_{SIM} [rad]", 100, -0.03, 0.03);
+  meCluXRes_ = ibook.book1D("BtlCluXRes", "BTL cluster X resolution;X_{RECO}-X_{SIM} [cm]", 100, -3.1, 3.1);
+  meCluYRes_ = ibook.book1D("BtlCluYRes", "BTL cluster Y resolution;Y_{RECO}-Y_{SIM} [cm]", 100, -3.1, 3.1);
+  meCluZRes_ = ibook.book1D("BtlCluZRes", "BTL cluster Z resolution;Z_{RECO}-Z_{SIM} [cm]", 100, -0.2, 0.2);
   if (LocalPosDebug_) {
-    meCluXRes_ = ibook.book1D("BtlCluXRes", "BTL cluster X resolution;X_{RECO}-X_{SIM} [cm]", 100, -3.1, 3.1);
-    meCluYRes_ = ibook.book1D("BtlCluYRes", "BTL cluster Y resolution;Y_{RECO}-Y_{SIM} [cm]", 100, -3.1, 3.1);
-    meCluZRes_ = ibook.book1D("BtlCluZRes", "BTL cluster Z resolution;Z_{RECO}-Z_{SIM} [cm]", 100, -0.2, 0.2);
     meCluXPull_ = ibook.book1D("BtlCluXPull", "BTL cluster X pull;X_{RECO}-X_{SIM}/sigmaX_[RECO]", 100, -5., 5.);
     meCluYPull_ = ibook.book1D("BtlCluYPull", "BTL cluster Y pull;Y_{RECO}-Y_{SIM}/sigmaY_[RECO]", 100, -5., 5.);
     meCluZPull_ = ibook.book1D("BtlCluZPull", "BTL cluster Z pull;Z_{RECO}-Z_{SIM}/sigmaZ_[RECO]", 100, -5., 5.);
@@ -712,10 +713,8 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                     200,
                                     -2.8,
                                     2.8);
-    meCluXLocalErr_ =
-        ibook.book1D("BtlCluXLocalErr", "BTL cluster X local error;sigmaX_{RECO,loc} [cm]", 100, -3.1, 3.1);
-    meCluYLocalErr_ =
-        ibook.book1D("BtlCluYLocalErr", "BTL cluster Y local error;sigmaY_{RECO,loc} [cm]", 100, -3.1, 3.1);
+    meCluXLocalErr_ = ibook.book1D("BtlCluXLocalErr", "BTL cluster X local error;sigmaX_{RECO,loc} [cm]", 30, 0., 3.);
+    meCluYLocalErr_ = ibook.book1D("BtlCluYLocalErr", "BTL cluster Y local error;sigmaY_{RECO,loc} [cm]", 30, 0., 0.9);
   }
   meUnmatchedCluTime_ = ibook.book1D("BtlUnmatchedCluTime", "BTL unmatched cluster time ToA;ToA [ns]", 250, 0, 25);
   meUnmatchedCluEnergy_ =
