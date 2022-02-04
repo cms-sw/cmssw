@@ -753,6 +753,7 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     # process.source.inputCommands.extend(keepSimulated())
     # process.source.inputCommands.extend(keepCleaned())
 
+    process.load('Configuration.StandardSequences.RawToDigi_cff')
     process.load("Configuration.StandardSequences.Reconstruction_Data_cff")
     process.merge_step = cms.Path()
     # produce local Calo
@@ -782,33 +783,6 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     process.load("RecoMuon.MuonIdentification.muons1stStep_cfi")
     process.merge_step += process.muonEcalDetIds
 
-    for akt_manimod in to_bemanipulate:
-        if "MERGE" in akt_manimod.steps:
-            mergCollections_in = cms.VInputTag()
-            for instance in akt_manimod.instance:
-                mergCollections_in.append(
-                    cms.InputTag(
-                        akt_manimod.merge_prefix + akt_manimod.module_name,
-                        instance,
-                        "SIMembedding",
-                    )
-                )
-                mergCollections_in.append(
-                    cms.InputTag(
-                        akt_manimod.merge_prefix + akt_manimod.module_name,
-                        instance,
-                        "LHEembeddingCLEAN",
-                    )
-                )
-            setattr(
-                process,
-                akt_manimod.module_name,
-                cms.EDProducer(
-                    akt_manimod.merger_name, mergCollections=mergCollections_in
-                ),
-            )
-            process.merge_step += getattr(process, akt_manimod.module_name)
-
     process.merge_step += process.doAlldEdXEstimators
     process.merge_step += process.vertexreco
     process.unsortedOfflinePrimaryVertices.beamSpotLabel = cms.InputTag(
@@ -835,22 +809,69 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     # process.merge_step.remove(process.reducedEcalRecHitsEE)
     # process.merge_step.remove(process.reducedEcalRecHitsEB)
 
-    process.merge_step.remove(process.ak4JetTracksAssociatorExplicit)
+    # process.merge_step.remove(process.ak4JetTracksAssociatorExplicit)
 
-    process.merge_step.remove(process.cosmicsVeto)
-    process.merge_step.remove(process.cosmicsVetoTrackCandidates)
+    # process.merge_step.remove(process.cosmicsVeto)
+    # process.merge_step.remove(process.cosmicsVetoTrackCandidates)
     # process.merge_step.remove(process.ecalDrivenGsfElectronCores)
     # process.merge_step.remove(process.ecalDrivenGsfElectrons)
     # process.merge_step.remove(process.gedPhotonsTmp)
     # process.merge_step.remove(process.particleFlowTmp)
 
-    process.merge_step.remove(process.hcalnoise)
+    # process.merge_step.remove(process.hcalnoise)
 
     process.load("CommonTools.ParticleFlow.genForPF2PAT_cff")
 
     # process.muonsFromCosmics.ShowerDigiFillerParameters.dtDigiCollectionLabel = cms.InputTag("simMuonDTDigis")
 
     process.merge_step += process.genForPF2PATSequence
+
+    # Replace manipulated modules contained in merg_step with Mergers, and
+    # put remaining ones into a list to be sorted to avoid deadlocks
+    modules_to_be_ordered = {}
+    # prepare reco list to determine indices
+    reconstruction_modules_list = str(process.RawToDigi).split(",")
+    reconstruction_modules_list += str(process.reconstruction).split(",")
+    for akt_manimod in to_bemanipulate:
+        if "MERGE" in akt_manimod.steps:
+            mergCollections_in = cms.VInputTag()
+            for instance in akt_manimod.instance:
+                mergCollections_in.append(
+                    cms.InputTag(
+                        akt_manimod.merge_prefix + akt_manimod.module_name,
+                        instance,
+                        "SIMembedding",
+                    )
+                )
+                mergCollections_in.append(
+                    cms.InputTag(
+                        akt_manimod.merge_prefix + akt_manimod.module_name,
+                        instance,
+                        "LHEembeddingCLEAN",
+                    )
+                )
+            setattr(
+                process,
+                akt_manimod.module_name,
+                cms.EDProducer(
+                    akt_manimod.merger_name, mergCollections=mergCollections_in
+                ),
+            )
+            if not process.merge_step.contains(getattr(process, akt_manimod.module_name)):
+                modules_to_be_ordered[akt_manimod.module_name] = -1
+    # Determine indices and place them in right order into the list
+    for name,index in modules_to_be_ordered.items():
+        if name in reconstruction_modules_list:
+            modules_to_be_ordered[name] = reconstruction_modules_list.index(name)
+        else:
+            print("ERROR:",name,"not prepared in modules list. Please adapt 'customiseMerging'")
+            sys.exit(1)
+
+    modules_ordered = sorted(list(modules_to_be_ordered.items()), key=lambda x : -x[1])
+    for m in modules_ordered:
+        process.merge_step.insert(0, getattr(process, m[0]))
+
+
     process.schedule.insert(0, process.merge_step)
     # process.load('PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi')
     process = customisoptions(process)
