@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.dijetMonitoring_cfi import dijetMonitoring
 DiPFjetAve40_Prommonitoring = dijetMonitoring.clone(
     FolderName = 'HLT/JME/Jets/AK4/PF/HLT_DiPFJetAve40/',
-    met       = "pfMetEI", # pfMet
+    met       = "pfMet", # pfMet
     #pfjets    = "ak4PFJets", # ak4PFJets, ak4PFJetsCHS
     dijetSrc  = "ak4PFJets", # ak4PFJets, ak4PFJetsCHS
     electrons = "gedGsfElectrons", # while pfIsolatedElectronsEI are reco::PFCandidate !
