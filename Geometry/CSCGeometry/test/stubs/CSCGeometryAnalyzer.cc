@@ -27,13 +27,14 @@ private:
   const int dashedLineWidth_;
   const std::string dashedLine_;
   const std::string myName_;
-  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> ddToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> ddToken_;
 };
 
 CSCGeometryAnalyzer::CSCGeometryAnalyzer(const edm::ParameterSet& iConfig)
-    : dashedLineWidth_(194), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("CSCGeometryAnalyzer") {
-  ddToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
-}
+    : dashedLineWidth_(194),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("CSCGeometryAnalyzer"),
+      ddToken_(esConsumes<CSCGeometry, MuonGeometryRecord>()) {}
 
 CSCGeometryAnalyzer::~CSCGeometryAnalyzer() {}
 
@@ -45,7 +46,7 @@ void CSCGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::cout << "start " << dashedLine_ << std::endl;
   std::cout << "pi = " << dPi << ", radToDeg = " << radToDeg << std::endl;
 
-  edm::ESTransientHandle<CSCGeometry> pDD = iSetup.getTransientHandle(ddToken_);
+  const edm::ESTransientHandle<CSCGeometry> pDD = iSetup.getTransientHandle(ddToken_);
   std::cout << " Geometry node for CSCGeom is  " << &(*pDD) << std::endl;
   std::cout << " I have " << pDD->detTypes().size() << " detTypes" << std::endl;
   std::cout << " I have " << pDD->detUnits().size() << " detUnits" << std::endl;
