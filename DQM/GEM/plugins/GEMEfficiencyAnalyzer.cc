@@ -564,8 +564,6 @@ bool GEMEfficiencyAnalyzer::skipGEMStation(const int station) {
   return skip;
 }
 
-
-
 std::vector<GEMEfficiencyAnalyzer::GEMLayerData> GEMEfficiencyAnalyzer::buildGEMLayers(
     const edm::ESHandle<GEMGeometry>& gem) {
   std::vector<GEMLayerData> layer_vector;
