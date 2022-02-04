@@ -1,5 +1,4 @@
 #include "Phase2EndcapLayer.h"
-//#include "TkDetUtil.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -10,8 +9,6 @@
 
 #include <array>
 #include "DetGroupMerger.h"
-
-//#include "CommonDet/DetLayout/src/DetLessR.h"
 
 using namespace std;
 
@@ -76,7 +73,6 @@ void Phase2EndcapLayer::groupedCompatibleDetsV(const TrajectoryStateOnSurface& s
                                                const MeasurementEstimator& est,
                                                std::vector<DetGroup>& result) const {
   tkDetUtil::groupedCompatibleDetsV(startingState, prop, est, result, theRingSize, theComps, ringPars);
-  return;
 }
 
 float Phase2EndcapLayer::computeWindowSize(const GeomDet* det,

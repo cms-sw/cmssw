@@ -76,8 +76,8 @@ namespace tkDetUtil {
     return maxDistance.y();
   }
 
-  std::array<int, 3> findThreeClosest(const std::vector<RingPar> ringParams,
-                                      const std::vector<GlobalPoint> ringCrossing,
+  std::array<int, 3> findThreeClosest(const std::vector<RingPar>& ringParams,
+                                      const std::vector<GlobalPoint>& ringCrossing,
                                       const int ringSize) {
     std::array<int, 3> theBins = {{-1, -1, -1}};
     theBins[0] = 0;
@@ -109,7 +109,7 @@ namespace tkDetUtil {
     return theBins;
   }
 
-  bool overlapInR(const TrajectoryStateOnSurface& tsos, int index, double ymax, const std::vector<RingPar> ringParams) {
+  bool overlapInR(const TrajectoryStateOnSurface& tsos, int index, double ymax, const std::vector<RingPar>& ringParams) {
     // assume "fixed theta window", i.e. margin in local y = r is changing linearly with z
     float tsRadius = tsos.globalPosition().perp();
     float thetamin =

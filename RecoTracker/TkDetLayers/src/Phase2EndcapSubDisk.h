@@ -51,7 +51,6 @@ private:
 
   void fillRingPars(int i) __attribute__((cold));
 
-private:
   std::vector<GeomDet const*> theBasicComps;
   mutable std::atomic<std::vector<const GeometricSearchDet*>*> theComponents;
   std::vector<const Phase2EndcapSingleRing*> theComps;

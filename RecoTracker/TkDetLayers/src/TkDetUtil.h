@@ -48,11 +48,11 @@ namespace tkDetUtil {
                               const TrajectoryStateOnSurface& tsos,
                               const MeasurementEstimator& est);
 
-  std::array<int, 3> findThreeClosest(std::vector<RingPar> ringParams,
-                                      std::vector<GlobalPoint> ringCrossing,
+  std::array<int, 3> findThreeClosest(const std::vector<RingPar>& ringParams,
+                                      const std::vector<GlobalPoint>& ringCrossing,
                                       const int ringSize);
 
-  bool overlapInR(const TrajectoryStateOnSurface& tsos, int index, double ymax, std::vector<RingPar> ringParams);
+  bool overlapInR(const TrajectoryStateOnSurface& tsos, int index, double ymax, const std::vector<RingPar>& ringParams);
 
   RingPar fillRingParametersFromDisk(const BoundDisk& ringDisk);
 
@@ -60,8 +60,8 @@ namespace tkDetUtil {
   std::array<int, 3> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
                                                     const Propagator& prop,
                                                     const int ringSize,
-                                                    const T diskComponents,
-                                                    const std::vector<RingPar> ringParams) {
+                                                    const T& diskComponents,
+                                                    const std::vector<RingPar>& ringParams) {
     typedef HelixForwardPlaneCrossing Crossing;
     typedef MeasurementEstimator::Local2DVector Local2DVector;
 
@@ -102,8 +102,8 @@ namespace tkDetUtil {
                               const MeasurementEstimator& est,
                               std::vector<DetGroup>& result,
                               const int ringSize,
-                              std::vector<const T*> diskComponents,
-                              const std::vector<RingPar> ringParams) {
+                              const std::vector<const T*>& diskComponents,
+                              const std::vector<RingPar>& ringParams) {
     std::array<int, 3> const& ringIndices =
         ringIndicesByCrossingProximity(startingState, prop, ringSize, diskComponents, ringParams);
     if (ringIndices[0] == -1 || ringIndices[1] == -1 || ringIndices[2] == -1) {
