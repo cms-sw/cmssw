@@ -70,7 +70,7 @@ public:
 private:
   AlgebraicSymMatrix55 thePerigeeError;
   mutable AlgebraicSymMatrix55 thePerigeeWeight;
-  mutable int inverseError;
-  mutable bool weightIsAvailable;
+  mutable int inverseError = 0;
+  mutable bool weightIsAvailable = false;
 };
 #endif
