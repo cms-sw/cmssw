@@ -83,7 +83,7 @@ L1EventTreeProducer::L1EventTreeProducer(const edm::ParameterSet& iConfig)
   bool useAvgVtx = iConfig.getUntrackedParameter<bool>("useAvgVtx", true);
   double maxAllowedWeight = iConfig.getUntrackedParameter<double>("maxAllowedWeight", -1);
 
-  std::make_unique<L1Analysis::L1AnalysisEvent>(
+  l1Event = std::make_unique<L1Analysis::L1AnalysisEvent>(
       puMCFile, puMCHist, puDataFile, puDataHist, useAvgVtx, maxAllowedWeight, consumesCollector());
   l1EventData = l1Event->getData();
 
