@@ -73,7 +73,8 @@ namespace trackerTFP {
         labelIn == "TrackFindingTrackletProducerKFin" || labelIn == "TrackFindingTrackletProducerKF")
       edGetTokenTracksIn_ = consumes<StreamsTrack>(InputTag(labelIn, branchTracks));
     if (labelOut == "TrackerTFPProducerKF" || labelOut == "TrackerTFPProducerDR" ||
-        labelOut == "TrackFindingTrackletProducerKF" || labelOut == "TrackFindingTrackletProducerKFout")
+        labelOut == "TrackFindingTrackletProducerKF" || labelOut == "TrackFindingTrackletProducerKFout" ||
+        labelOut == "TrackFindingTrackletProducerTBout")
       edGetTokenTracksOut_ = consumes<StreamsTrack>(InputTag(labelOut, branchTracks));
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();

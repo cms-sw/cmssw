@@ -241,6 +241,10 @@ namespace trklet {
     bool doMultipleMatches() const { return doMultipleMatches_; }
     bool fakefit() const { return fakefit_; }
     void setFakefit(bool fakefit) { fakefit_ = fakefit; }
+    bool storeTrackBuilderOutput() const { return storeTrackBuilderOutput_; }
+    void setStoreTrackBuilderOutput(bool storeTrackBuilderOutput) {
+      storeTrackBuilderOutput_ = storeTrackBuilderOutput_;
+    }
 
     // configurable
     unsigned int nHelixPar() const { return nHelixPar_; }
@@ -769,7 +773,7 @@ namespace trklet {
     //IR should be set to 108 to match the FW for the summer chain, but ultimately should be at 156
     std::unordered_map<std::string, unsigned int> maxstep_{{"IR", 156},  //IR will run at a higher clock speed to handle
                                                                          //input links running at 25 Gbits/s
-                                                                         //Set to 108 to match firmware project 240 MHz clock
+                                                           //Set to 108 to match firmware project 240 MHz clock
 
                                                            {"VMR", 107},
                                                            {"TE", 107},
@@ -905,6 +909,8 @@ namespace trklet {
 
     // if true, run a dummy fit, producing TTracks directly from output of tracklet pattern reco stage
     bool fakefit_{false};
+    // if true EDProducer fills additionaly bit and clock accurate TrackBuilder EDProduct
+    bool storeTrackBuilderOutput_{false};
 
     unsigned int nHelixPar_{4};  // 4 or 5 param helix fit
     bool extended_{false};       // turn on displaced tracking

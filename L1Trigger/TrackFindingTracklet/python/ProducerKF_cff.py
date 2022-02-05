@@ -8,6 +8,8 @@ from L1Trigger.TrackerTFP.KalmanFilterFormats_cff import TrackTriggerKalmanFilte
 from L1Trigger.TrackFindingTracklet.ChannelAssignment_cff import ChannelAssignment
 from L1Trigger.TrackFindingTracklet.ProducerKF_cfi import TrackFindingTrackletProducerKF_params
 
+TrackFindingTrackletProducerIRin = cms.EDProducer( 'trklet::ProducerIRin', TrackFindingTrackletProducerKF_params )
+TrackFindingTrackletProducerTBout = cms.EDProducer( 'trklet::ProducerTBout', TrackFindingTrackletProducerKF_params )
 TrackFindingTrackletProducerKFin = cms.EDProducer( 'trklet::ProducerKFin', TrackFindingTrackletProducerKF_params )
 TrackFindingTrackletProducerKF = cms.EDProducer( 'trackerTFP::ProducerKF', TrackFindingTrackletProducerKF_params )
 TrackFindingTrackletProducerTT = cms.EDProducer( 'trklet::ProducerTT', TrackFindingTrackletProducerKF_params )

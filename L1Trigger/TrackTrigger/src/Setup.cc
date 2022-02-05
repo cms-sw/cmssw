@@ -480,6 +480,13 @@ namespace tt {
                                                      : trackerTopology_->tidWheel(detId) + offsetLayerDisks_;
   }
 
+  // return tracklet layerId (barrel: [0-5], endcap: [6-10]) for given TTStubRef
+  int Setup::trackletLayerId(const TTStubRef& ttStubRef) const {
+    static constexpr int offsetBarrel = 1;
+    static constexpr int offsetDisks = 5;
+    return this->layerId(ttStubRef) - (this->barrel(ttStubRef) ? offsetBarrel : offsetDisks);
+  }
+
   // true if stub from barrel module
   bool Setup::barrel(const TTStubRef& ttStubRef) const {
     const DetId& detId = ttStubRef->getDetId();

@@ -42,6 +42,8 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 
+#include <deque>
+
 using namespace std;
 using namespace trklet;
 
@@ -414,9 +416,22 @@ void Sector::executeMP() {
 // If using Hybrid, then PurgeDuplicates runs both duplicate removal & KF steps.
 // (unless duplicate removal disabled, in which case FitTrack runs KF).
 
-void Sector::executeFT() {
+void Sector::executeFT(const ChannelAssignment* channelAssignment,
+                       tt::Streams& streamsTrack,
+                       tt::StreamsStub& streamsStub) {
+  int channelTrack(0);
+  const int offsetTrack = isector_ * channelAssignment->numChannels();
   for (auto& i : FT_) {
-    i->execute(isector_);
+    deque<tt::Frame> streamsTrackTmp;
+    vector<deque<tt::FrameStub>> streamsStubTmp(channelAssignment->maxNumProjectionLayers());
+    i->execute(channelAssignment, streamsTrackTmp, streamsStubTmp, isector_);
+    if (!settings_.storeTrackBuilderOutput())
+      continue;
+    const int offestStub = (offsetTrack + channelTrack) * channelAssignment->maxNumProjectionLayers();
+    streamsTrack[offsetTrack + channelTrack++] = tt::Stream(streamsTrackTmp.begin(), streamsTrackTmp.end());
+    int channelStub(0);
+    for (deque<tt::FrameStub>& stream : streamsStubTmp)
+      streamsStub[offestStub + channelStub++] = tt::StreamStub(stream.begin(), stream.end());
   }
 }
 

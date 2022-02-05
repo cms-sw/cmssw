@@ -3,10 +3,12 @@
 #define L1Trigger_TrackFindingTracklet_interface_TrackletEventProcessor_h
 
 #include "L1Trigger/TrackFindingTracklet/interface/Timer.h"
+#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
 
 #include <map>
 #include <memory>
 #include <vector>
+#include <deque>
 #include <string>
 
 namespace trklet {
@@ -24,7 +26,7 @@ namespace trklet {
 
     ~TrackletEventProcessor();
 
-    void init(Settings const& theSettings);
+    void init(Settings const& theSettings, const ChannelAssignment* channelAssignment);
 
     void event(SLHCEvent& ev);
 
@@ -32,10 +34,13 @@ namespace trklet {
 
     const std::vector<Track>& tracks() const { return tracks_; }
 
+    void produce(tt::Streams& streamsTrack, tt::StreamsStub& streamsStub);
+
   private:
     void configure(std::istream& inwire, std::istream& inmem, std::istream& inproc);
 
     const Settings* settings_{nullptr};
+    const ChannelAssignment* channelAssignment_{nullptr};
 
     std::unique_ptr<Globals> globals_;
 
@@ -63,6 +68,8 @@ namespace trklet {
     Timer PDTimer_;
 
     std::vector<Track> tracks_;
+    tt::Streams streamsTrack_;
+    tt::StreamsStub streamsStub_;
   };
 
 };  // namespace trklet
