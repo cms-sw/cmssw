@@ -93,6 +93,8 @@ namespace tt {
     bool useForReconstructable(const TrackingParticle& tp) const { return tpSelectorLoose_(tp); }
     // stub layer id (barrel: 1 - 6, endcap: 11 - 15)
     int layerId(const TTStubRef& ttStubRef) const;
+    // return tracklet layerId (barrel: [0-5], endcap: [6-10]) for given TTStubRef
+    int trackletLayerId(const TTStubRef& ttStubRef) const;
     // true if stub from barrel module
     bool barrel(const TTStubRef& ttStubRef) const;
     // true if stub from barrel module

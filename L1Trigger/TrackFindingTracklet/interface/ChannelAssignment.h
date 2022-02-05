@@ -26,8 +26,10 @@ namespace trklet {
     bool channelId(const TTTrackRef& ttTrackRef, int& channelId);
     // number of used channels
     int numChannels() const { return numChannels_; }
-    // sets layerId (0-7 in sequence the seed type projects to) of given TTStubRef and TTTrackRef, returns false if seeed stub
-    bool layerId(const TTTrackRef& ttTrackRef, const TTStubRef& ttStubRef, int& layerId);
+    // sets layerId (0-7 in sequence the seed type projects to) of given TTStubRef and seedType, returns false if seeed stub
+    bool layerId(int seedType, const TTStubRef& ttStubRef, int& layerId) const;
+    // return tracklet layerId (barrel: [0-5], endcap: [6-10]) for given TTStubRef
+    int trackletLayerId(const TTStubRef& ttStubRef) const { return setup_->trackletLayerId(ttStubRef); };
     // max number layers a sedd type may project to
     int maxNumProjectionLayers() const { return maxNumProjectionLayers_; }
     // map of used DTC tfp channels in InputRouter

@@ -62,8 +62,10 @@ namespace tt {
   typedef std::pair<TTTrackRef, Frame> FrameTrack;
   typedef std::vector<FrameStub> StreamStub;
   typedef std::vector<FrameTrack> StreamTrack;
+  typedef std::vector<Frame> Stream;
   typedef std::vector<StreamStub> StreamsStub;
   typedef std::vector<StreamTrack> StreamsTrack;
+  typedef std::vector<Stream> Streams;
   typedef std::map<TTTrackRef, TTTrackRef> TTTrackRefMap;
   typedef std::vector<TTTrack<Ref_Phase2TrackerDigi_>> TTTracks;
 }  // namespace tt

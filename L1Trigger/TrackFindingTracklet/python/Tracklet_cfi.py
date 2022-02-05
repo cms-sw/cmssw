@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from L1Trigger.TrackTrigger.TrackQualityParams_cfi import *
+from L1Trigger.TrackFindingTracklet.ChannelAssignment_cff import ChannelAssignment
 
 TTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                TTStubSource = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
@@ -21,7 +22,8 @@ TTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                # Quality Flag and Quality params
                                                TrackQuality = cms.bool(True),
                                                TrackQualityPSet = cms.PSet(TrackQualityParams),
-                                               Fakefit = cms.bool(False)
+                                               Fakefit = cms.bool(False), # True causes Tracklet reco to output TTTracks before DR & KF
+                                               StoreTrackBuilderOutput = cms.bool(False) # if True EDProducts for TrackBuilder tracks and stubs will be filled
     )
 
 TTTracksFromExtendedTrackletEmulation = TTTracksFromTrackletEmulation.clone(
