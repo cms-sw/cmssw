@@ -68,10 +68,10 @@ DDHGCalWaferFR::DDHGCalWaferFR() {
 DDHGCalWaferFR::~DDHGCalWaferFR() {}
 
 void DDHGCalWaferFR::initialize(const DDNumericArguments& nArgs,
-                               const DDVectorArguments& vArgs,
-                               const DDMapArguments&,
-                               const DDStringArguments& sArgs,
-                               const DDStringVectorArguments& vsArgs) {
+                                const DDVectorArguments& vArgs,
+                                const DDMapArguments&,
+                                const DDStringArguments& sArgs,
+                                const DDStringVectorArguments& vsArgs) {
   material_ = sArgs["ModuleMaterial"];
   thick_ = nArgs["ModuleThickness"];
   waferSize_ = nArgs["WaferSize"];
@@ -115,7 +115,8 @@ void DDHGCalWaferFR::initialize(const DDNumericArguments& nArgs,
   std::ostringstream st2;
   for (unsigned int i = 0; i < cellOffset_.size(); ++i)
     st2 << " [" << i << "] " << cellOffset_[i];
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << cellOffset_.size() << " types of cells with offsets " << st2.str();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << cellOffset_.size() << " types of cells with offsets "
+                                << st2.str();
   for (unsigned int k = 0; k < cellNames_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cell[" << k << "] " << cellNames_[k];
 #endif
@@ -134,104 +135,105 @@ void DDHGCalWaferFR::execute(DDCompactView& cpv) {
   double R2 = r2 / sqrt3;
   const int nFine(nCells_), nCoarse(nCells_);
   HGCalCell wafer(waferSize_, nFine, nCoarse);
-  for (unsigned int k = 0; k<tag_.size(); ++k){
-  // First the mother
-  std::vector<double> xM = {rM, 0, -rM, -rM, 0, rM};
-  std::vector<double> yM = {RM2, 2 * RM2, RM2, -RM2, -2 * RM2, -RM2};
-  std::vector<double> zw = {-0.5 * thick_, 0.5 * thick_};
-  std::vector<double> zx(2, 0), zy(2, 0), scale(2, 1.0);
-  std::string parentName = parent().name().name();
-  parentName = parentName + tag_[k] + waferTag_;
-  DDSolid solid = DDSolidFactory::extrudedpolygon(parentName, xM, yM, zw, zx, zy, scale);
-  DDName matName(DDSplit(material_).first, DDSplit(material_).second);
-  DDMaterial matter(matName);
-  DDLogicalPart glogM = DDLogicalPart(solid.ddname(), matter, solid);
+  for (unsigned int k = 0; k < tag_.size(); ++k) {
+    // First the mother
+    std::vector<double> xM = {rM, 0, -rM, -rM, 0, rM};
+    std::vector<double> yM = {RM2, 2 * RM2, RM2, -RM2, -2 * RM2, -RM2};
+    std::vector<double> zw = {-0.5 * thick_, 0.5 * thick_};
+    std::vector<double> zx(2, 0), zy(2, 0), scale(2, 1.0);
+    std::string parentName = parent().name().name();
+    parentName = parentName + tag_[k] + waferTag_;
+    DDSolid solid = DDSolidFactory::extrudedpolygon(parentName, xM, yM, zw, zx, zy, scale);
+    DDName matName(DDSplit(material_).first, DDSplit(material_).second);
+    DDMaterial matter(matName);
+    DDLogicalPart glogM = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << solid.name() << " extruded polygon made of " << matName
-                                << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
-                                << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
-                                << " and " << xM.size() << " edges";
-  for (unsigned int kk = 0; kk < xM.size(); ++kk)
-    edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << solid.name() << " extruded polygon made of " << matName
+                                  << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
+                                  << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
+                                  << " and " << xM.size() << " edges";
+    for (unsigned int kk = 0; kk < xM.size(); ++kk)
+      edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif
 
-  // Then the layers
-  std::vector<double> xL = {r2, 0, -r2, -r2, 0, r2};
-  std::vector<double> yL = {R2, 2 * R2, R2, -R2, -2 * R2, -R2};
-  std::vector<DDLogicalPart> glogs(materials_.size());
-  for (unsigned int ii = 0; ii<copyNumber_.size();ii++){
-    copyNumber_[ii] = 1;
-  }
-  double zi(-0.5 * thick_), thickTot(0.0);
-  for (unsigned int l = 0; l < layers_.size(); l++) {
-    unsigned int i = layers_[l];
-    if (copyNumber_[i] == 1) {
-      if (layerType_[i] > 0) {
-        zw[0] = -0.5 * waferThick_;
-        zw[1] = 0.5 * waferThick_;
-      } else {
-        zw[0] = -0.5 * layerThick_[i];
-        zw[1] = 0.5 * layerThick_[i];
-      }
-      std::string layerName = layerNames_[i] + tag_[k] + waferTag_;
-      solid = DDSolidFactory::extrudedpolygon(layerName, xL, yL, zw, zx, zy, scale);
-      DDName matN(DDSplit(materials_[i]).first, DDSplit(materials_[i]).second);
-      DDMaterial matter(matN);
-      glogs[i] = DDLogicalPart(solid.ddname(), matter, solid);
-      
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << solid.name() << " extruded polygon made of " << matN
-                                    << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
-                                    << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
-                                    << " and " << xL.size() << " edges";
-      for (unsigned int kk = 0; kk < xL.size(); ++kk)
-        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xL[kk] << ":" << yL[kk];
-#endif
+    // Then the layers
+    std::vector<double> xL = {r2, 0, -r2, -r2, 0, r2};
+    std::vector<double> yL = {R2, 2 * R2, R2, -R2, -2 * R2, -R2};
+    std::vector<DDLogicalPart> glogs(materials_.size());
+    for (unsigned int ii = 0; ii < copyNumber_.size(); ii++) {
+      copyNumber_[ii] = 1;
     }
-    DDTranslation tran0(0, 0, (zi + 0.5 * layerThick_[i]));
-    DDRotation rot;
-    cpv.position(glogs[i], glogM, copyNumber_[i], tran0, rot);
+    double zi(-0.5 * thick_), thickTot(0.0);
+    for (unsigned int l = 0; l < layers_.size(); l++) {
+      unsigned int i = layers_[l];
+      if (copyNumber_[i] == 1) {
+        if (layerType_[i] > 0) {
+          zw[0] = -0.5 * waferThick_;
+          zw[1] = 0.5 * waferThick_;
+        } else {
+          zw[0] = -0.5 * layerThick_[i];
+          zw[1] = 0.5 * layerThick_[i];
+        }
+        std::string layerName = layerNames_[i] + tag_[k] + waferTag_;
+        solid = DDSolidFactory::extrudedpolygon(layerName, xL, yL, zw, zx, zy, scale);
+        DDName matN(DDSplit(materials_[i]).first, DDSplit(materials_[i]).second);
+        DDMaterial matter(matN);
+        glogs[i] = DDLogicalPart(solid.ddname(), matter, solid);
+
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glogs[i].name() << " number " << copyNumber_[i]
-                                  << " positioned in " << glogM.name() << " at " << tran0 << " with no rotation";
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << solid.name() << " extruded polygon made of " << matN
+                                      << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
+                                      << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
+                                      << " and " << xL.size() << " edges";
+        for (unsigned int kk = 0; kk < xL.size(); ++kk)
+          edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xL[kk] << ":" << yL[kk];
 #endif
-    ++copyNumber_[i];
-    zi += layerThick_[i];
-    thickTot += layerThick_[i];
-    if (layerType_[i] > 0) {
-      //int n2 = nCells_ / 2;
-      for (int u = 0; u < 2 * nCells_; ++u) {
-        for (int v = 0; v < 2 * nCells_; ++v) {
-          if (((v - u) < nCells_) && ((u - v) <= nCells_)) {
-            int placeIndex_ = wafer.HGCalCellPlacementIndex(1, face_[k], orient_[k]);
-            std::pair<double, double> xy1 = wafer.HGCalCellUV2XY1(u, v, placeIndex_, cellType_);
-            double yp = xy1.second;
-            double xp = xy1.first;
-            int cell(0);
-            std::pair<int, int> cell1 = wafer.HGCalCellUV2Cell(u, v, placeIndex_, cellType_);
-            cell = cell1.first + cellOffset_[cell1.second];
-            DDTranslation tran(xp, yp, 0);
-            int copy = HGCalTypes::packCellTypeUV(cellType_, u, v);
-            cpv.position(DDName(cellNames_[cell]), glogs[i], copy, tran, rot);
+      }
+      DDTranslation tran0(0, 0, (zi + 0.5 * layerThick_[i]));
+      DDRotation rot;
+      cpv.position(glogs[i], glogM, copyNumber_[i], tran0, rot);
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("HGCalGeom")
-                << "DDHGCalWaferF: " << cellNames_[cell] << " number " << copy << " positioned in " << glogs[i].name()
-                << " at " << tran << " with no rotation";
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glogs[i].name() << " number " << copyNumber_[i]
+                                    << " positioned in " << glogM.name() << " at " << tran0 << " with no rotation";
 #endif
+      ++copyNumber_[i];
+      zi += layerThick_[i];
+      thickTot += layerThick_[i];
+      if (layerType_[i] > 0) {
+        //int n2 = nCells_ / 2;
+        for (int u = 0; u < 2 * nCells_; ++u) {
+          for (int v = 0; v < 2 * nCells_; ++v) {
+            if (((v - u) < nCells_) && ((u - v) <= nCells_)) {
+              int placeIndex_ = wafer.HGCalCellPlacementIndex(1, face_[k], orient_[k]);
+              std::pair<double, double> xy1 = wafer.HGCalCellUV2XY1(u, v, placeIndex_, cellType_);
+              double yp = xy1.second;
+              double xp = xy1.first;
+              int cell(0);
+              std::pair<int, int> cell1 = wafer.HGCalCellUV2Cell(u, v, placeIndex_, cellType_);
+              cell = cell1.first + cellOffset_[cell1.second];
+              DDTranslation tran(xp, yp, 0);
+              int copy = HGCalTypes::packCellTypeUV(cellType_, u, v);
+              cpv.position(DDName(cellNames_[cell]), glogs[i], copy, tran, rot);
+#ifdef EDM_ML_DEBUG
+              edm::LogVerbatim("HGCalGeom")
+                  << "DDHGCalWaferF: " << cellNames_[cell] << " number " << copy << " positioned in " << glogs[i].name()
+                  << " at " << tran << " with no rotation";
+#endif
+            }
           }
         }
       }
     }
-  }
-  if (std::abs(thickTot - thick_) >= tol) {
-    if (thickTot > thick_) {
-      edm::LogError("HGCalGeom") << "Thickness of the partition " << thick_ << " is smaller than " << thickTot
-                                 << ": thickness of all its components **** ERROR ****";
-    } else {
-      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick_ << " does not match with " << thickTot
-                                   << " of the components";
+    if (std::abs(thickTot - thick_) >= tol) {
+      if (thickTot > thick_) {
+        edm::LogError("HGCalGeom") << "Thickness of the partition " << thick_ << " is smaller than " << thickTot
+                                   << ": thickness of all its components **** ERROR ****";
+      } else {
+        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick_ << " does not match with " << thickTot
+                                     << " of the components";
+      }
     }
   }
-}}
+}
 
 DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHGCalWaferFR, "hgcal:DDHGCalWaferFR");
