@@ -203,6 +203,10 @@ void GEMEfficiencyAnalyzer::bookEfficiencyEtaPartition(DQMStore::IBooker& ibooke
     const int region_id = station->region();
     const int station_id = station->station();
 
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
+
     const std::vector<const GEMSuperChamber*> superchambers = station->superChambers();
     if (not checkRefs(superchambers)) {
       edm::LogError(kLogCategory_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
