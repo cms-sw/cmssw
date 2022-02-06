@@ -1,6 +1,5 @@
 <use name="FWCore/Framework"/>
 <use name="DQMServices/Core"/>
-<use name="DataFormats/Scalers"/> <!--Needed for typeinfo for LumiScalers for UBSAN builds-->
 <use name="HLTrigger/HLTcore"/>
 <use name="boost"/>
 <use name="rootgraphics"/>
