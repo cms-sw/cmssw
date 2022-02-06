@@ -4,12 +4,25 @@ from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process("Demo",eras.run3_GEM)
 
-process.load('Configuration.Geometry.GeometryExtended2021_cff')
-process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+
+
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.XMLFromDBSource.label = cms.string('Extended')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2021', '')
+
+from Configuration.AlCa.autoCond import autoCond
+process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
+
+process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
+process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
+
 process.source = cms.Source("EmptySource")
 
 process.test = cms.EDAnalyzer("GEMGeometryAnalyzer")
