@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// File: DDHGCalWaferFR.cc
+// File: DDHGCalWaferFullRotated.cc
 // Description: Geometry factory class for a full silicon Wafer
 // Created by Sunanda Banerjee, Pruthvi Suryadevara, Indranil Das
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,11 +23,11 @@
 
 //#define EDM_ML_DEBUG
 
-class DDHGCalWaferFR : public DDAlgorithm {
+class DDHGCalWaferFullRotated : public DDAlgorithm {
 public:
   // Constructor and Destructor
-  DDHGCalWaferFR();
-  ~DDHGCalWaferFR() override;
+  DDHGCalWaferFullRotated();
+  ~DDHGCalWaferFullRotated() override;
 
   void initialize(const DDNumericArguments& nArgs,
                   const DDVectorArguments& vArgs,
@@ -59,15 +59,15 @@ private:
   std::string nameSpace_;                // Namespace to be used
 };
 
-DDHGCalWaferFR::DDHGCalWaferFR() {
+DDHGCalWaferFullRotated::DDHGCalWaferFullRotated() {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Creating an instance";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Creating an instance";
 #endif
 }
 
-DDHGCalWaferFR::~DDHGCalWaferFR() {}
+DDHGCalWaferFullRotated::~DDHGCalWaferFullRotated() {}
 
-void DDHGCalWaferFR::initialize(const DDNumericArguments& nArgs,
+void DDHGCalWaferFullRotated::initialize(const DDNumericArguments& nArgs,
                                 const DDVectorArguments& vArgs,
                                 const DDMapArguments&,
                                 const DDStringArguments& sArgs,
@@ -79,7 +79,7 @@ void DDHGCalWaferFR::initialize(const DDNumericArguments& nArgs,
   waferThick_ = nArgs["WaferThickness"];
   waferTag_ = sArgs["WaferTag"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Module " << parent().name() << " made of " << material_ << " T "
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Module " << parent().name() << " made of " << material_ << " T "
                                 << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_ << " T "
                                 << waferThick_;
 #endif
@@ -92,7 +92,7 @@ void DDHGCalWaferFR::initialize(const DDNumericArguments& nArgs,
   layerType_ = dbl_to_int(vArgs["LayerTypes"]);
   copyNumber_.resize(materials_.size(), 1);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << layerNames_.size() << " types of volumes";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << layerNames_.size() << " types of volumes";
   for (unsigned int i = 0; i < layerNames_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames_[i] << " of thickness " << layerThick_[i]
                                   << " filled with " << materials_[i] << " type " << layerType_[i];
@@ -110,21 +110,21 @@ void DDHGCalWaferFR::initialize(const DDNumericArguments& nArgs,
   cellOffset_ = dbl_to_int(vArgs["CellOffset"]);
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cells/Wafer " << nCells_ << " Cell Type " << cellType_
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Cells/Wafer " << nCells_ << " Cell Type " << cellType_
                                 << " NameSpace " << nameSpace_ << " # of cells " << cellNames_.size();
   std::ostringstream st2;
   for (unsigned int i = 0; i < cellOffset_.size(); ++i)
     st2 << " [" << i << "] " << cellOffset_[i];
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << cellOffset_.size() << " types of cells with offsets "
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << cellOffset_.size() << " types of cells with offsets "
                                 << st2.str();
   for (unsigned int k = 0; k < cellNames_.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cell[" << k << "] " << cellNames_[k];
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Cell[" << k << "] " << cellNames_[k];
 #endif
 }
 
-void DDHGCalWaferFR::execute(DDCompactView& cpv) {
+void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "==>> Executing DDHGCalWaferF...";
+  edm::LogVerbatim("HGCalGeom") << "==>> Executing DDHGCalWaferFullRotated...";
 #endif
 
   static constexpr double tol = 0.00001;
@@ -148,7 +148,7 @@ void DDHGCalWaferFR::execute(DDCompactView& cpv) {
     DDMaterial matter(matName);
     DDLogicalPart glogM = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << solid.name() << " extruded polygon made of " << matName
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << solid.name() << " extruded polygon made of " << matName
                                   << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
                                   << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
                                   << " and " << xM.size() << " edges";
@@ -181,7 +181,7 @@ void DDHGCalWaferFR::execute(DDCompactView& cpv) {
         glogs[i] = DDLogicalPart(solid.ddname(), matter, solid);
 
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << solid.name() << " extruded polygon made of " << matN
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << solid.name() << " extruded polygon made of " << matN
                                       << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
                                       << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
                                       << " and " << xL.size() << " edges";
@@ -193,7 +193,7 @@ void DDHGCalWaferFR::execute(DDCompactView& cpv) {
       DDRotation rot;
       cpv.position(glogs[i], glogM, copyNumber_[i], tran0, rot);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glogs[i].name() << " number " << copyNumber_[i]
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << glogs[i].name() << " number " << copyNumber_[i]
                                     << " positioned in " << glogM.name() << " at " << tran0 << " with no rotation";
 #endif
       ++copyNumber_[i];
@@ -216,7 +216,7 @@ void DDHGCalWaferFR::execute(DDCompactView& cpv) {
               cpv.position(DDName(cellNames_[cell]), glogs[i], copy, tran, rot);
 #ifdef EDM_ML_DEBUG
               edm::LogVerbatim("HGCalGeom")
-                  << "DDHGCalWaferF: " << cellNames_[cell] << " number " << copy << " positioned in " << glogs[i].name()
+                  << "DDHGCalWaferFullRotated: " << cellNames_[cell] << " number " << copy << " positioned in " << glogs[i].name()
                   << " at " << tran << " with no rotation";
 #endif
             }
@@ -236,4 +236,4 @@ void DDHGCalWaferFR::execute(DDCompactView& cpv) {
   }
 }
 
-DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHGCalWaferFR, "hgcal:DDHGCalWaferFR");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHGCalWaferFullRotated, "hgcal:DDHGCalWaferFullRotated");
