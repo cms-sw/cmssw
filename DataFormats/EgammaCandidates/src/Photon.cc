@@ -4,7 +4,7 @@
 using namespace reco;
 
 Photon::Photon(const LorentzVector& p4, const Point& caloPos, const PhotonCoreRef& core, const Point& vtx)
-    : RecoCandidate(0, p4, vtx, 22), caloPosition_(caloPos), photonCore_(core), pixelSeed_(false) {}
+  : RecoCandidate(0, p4, vtx, 22), caloPosition_(caloPos), photonCore_(core), pixelSeed_(false),haloTaggerMVAVal_(-999) {}
 
 Photon::Photon(const Photon& rhs)
     : RecoCandidate(rhs),
@@ -19,7 +19,8 @@ Photon::Photon(const Photon& rhs)
       saturationInfo_(rhs.saturationInfo_),
       eCorrections_(rhs.eCorrections_),
       mipVariableBlock_(rhs.mipVariableBlock_),
-      pfIsolation_(rhs.pfIsolation_) {}
+  pfIsolation_(rhs.pfIsolation_),
+  haloTaggerMVAVal_(rhs.haloTaggerMVAVal_) {}
 
 Photon::~Photon() {}
 
