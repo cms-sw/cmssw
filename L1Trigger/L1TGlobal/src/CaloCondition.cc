@@ -528,16 +528,18 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition,
 
   // sanity check LLP DISP ( bit check ) with two-state LUT = {0,1}
   // note that this check is only valid when hwQual contains just the single LLP DISP bit, which is consistent
-  //      with the uGT firmware expectations.  If hwQual is later defined to contain more quality bits, then 
+  //      with the uGT firmware expectations.  If hwQual is later defined to contain more quality bits, then
   //      the below sanity check will have to be changed to include the extra quality bits.
   if (cand.hwQual() > 1) {
     edm::LogError("L1TGlobal") << "\t\t l1t::Candidate has out of range hwQual = " << cand.hwQual() << std::endl;
     return false;
   }
-  
-  bool hasDisplacedLUT  = objPar.displacedLUT & 1;                 // Does this algorithm have an LLP cut defined for the algo in the menu?
-  bool passDisplacedLUT = ( objPar.displacedLUT & cand.hwQual() ); // Did this candidate pass the LLP cut?
-  if (hasDisplacedLUT && !passDisplacedLUT) {                      // Require an inclusive trigger: if LLP cut is not part of algo, ignore cut.
+
+  bool hasDisplacedLUT =
+      objPar.displacedLUT & 1;  // Does this algorithm have an LLP cut defined for the algo in the menu?
+  bool passDisplacedLUT = (objPar.displacedLUT & cand.hwQual());  // Did this candidate pass the LLP cut?
+  if (hasDisplacedLUT &&
+      !passDisplacedLUT) {  // Require an inclusive trigger: if LLP cut is not part of algo, ignore cut.
     LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed displaced requirement" << std::endl;
     return false;
   }
