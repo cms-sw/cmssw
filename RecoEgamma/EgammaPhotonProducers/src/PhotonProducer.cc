@@ -238,9 +238,9 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
 
   if (runMVABasedHaloTagger_) {
     edm::ParameterSet mvaBasedHaloVariableSet = config.getParameter<edm::ParameterSet>("mvaBasedHaloVariableSet");
-    photonMVABasedHaloTagger_ = std::make_unique<PhotonMVABasedHaloTagger>(mvaBasedHaloVariableSet, consumesCollector());
+    photonMVABasedHaloTagger_ =
+        std::make_unique<PhotonMVABasedHaloTagger>(mvaBasedHaloVariableSet, consumesCollector());
   }
-  
 
   // Register the product
   produces<reco::PhotonCollection>(PhotonCollection_);
@@ -498,7 +498,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       newCandidate.setMIPVariables(mipVar);
     }
 
-    if (runMVABasedHaloTagger_) { ///sets values only for EE, for EB it always returns 1
+    if (runMVABasedHaloTagger_) {  ///sets values only for EE, for EB it always returns 1
       double BHmva = photonMVABasedHaloTagger_->calculateMVA(&newCandidate, evt, es);
       newCandidate.setHaloTaggerMVAVal(BHmva);
     }

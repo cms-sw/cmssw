@@ -418,8 +418,8 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
 
   if (recoStep_.isFinal() && runMVABasedHaloTagger_) {
     edm::ParameterSet mvaBasedHaloVariableSet = config.getParameter<edm::ParameterSet>("mvaBasedHaloVariableSet");
-    photonMVABasedHaloTagger_ = std::make_unique<PhotonMVABasedHaloTagger>(mvaBasedHaloVariableSet, consumesCollector());
-
+    photonMVABasedHaloTagger_ =
+        std::make_unique<PhotonMVABasedHaloTagger>(mvaBasedHaloVariableSet, consumesCollector());
   }
 
   ///Get the set for PF cluster isolation calculator
@@ -1068,7 +1068,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     reco::Photon newCandidate(*phoRef);
     iSC++;
 
-    if (runMVABasedHaloTagger_) { ///sets values only for EE, for EB it always returns 1
+    if (runMVABasedHaloTagger_) {  ///sets values only for EE, for EB it always returns 1
       float BHmva = photonMVABasedHaloTagger_->calculateMVA(&newCandidate, evt, es);
       newCandidate.setHaloTaggerMVAVal(BHmva);
     }
