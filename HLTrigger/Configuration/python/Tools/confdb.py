@@ -281,14 +281,20 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     %(process)s.HLTriggerFirstPath.replace(%(process)s.hltGetConditions,%(process)s.hltDummyConditions)
 """
 
-      # fix the Scouting EndPaths
+      # the scouting path issue:
+      # 1) for config fragments, we remove all output modules
+      # 2) however in old style datasets, the scouting output paths also run the unpackers which are needed
+      # 3) therefore they have to keep the scouting path but remove the scouting output module
+      # 4) in new style datasets, aka datasetpaths & finalpaths, the scouting unpackers are on another path and all of this is unnecessary
+      # 5) however its hard to detect whether we have new style or old style so we run this for both
+      # 6) therefore we end up with a superfluous Scouting*OutputPaths which are empty
       for path in self.all_paths:
         match = re.match(r'(Scouting\w+)Output$', path)
         if match:
           module = 'hltOutput' + match.group(1)
           self.data = self.data.replace(path+' = cms.EndPath', path+' = cms.Path')
           self.data = self.data.replace(' + process.'+module, '')
-
+          self.data = self.data.replace(' process.'+module, '')
     else:
 
       # override the process name and adapt the relevant filters
