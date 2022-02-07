@@ -6,34 +6,32 @@ OutALCARECOPPSCalMaxTracks_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring(
         # timing diamonds
-        'keep TotemFEDInfos_ctppsDiamondRawToDigi_*_*',
-        'keep CTPPSDiamondDigiedmDetSetVector_ctppsDiamondRawToDigi_*_*',
-        'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*',
-        'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHits_*_*',
-        'keep CTPPSDiamondLocalTrackedmDetSetVector_ctppsDiamondLocalTracks_*_*',
+        'keep TotemFEDInfos_ctppsDiamondRawToDigiAlCaRecoProducer_*_*',
+        'keep CTPPSDiamondDigiedmDetSetVector_ctppsDiamondRawToDigiAlCaRecoProducer_*_*',
+        'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigiAlCaRecoProducer_*_*',
+        'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHitsAlCaRecoProducer_*_*',
+        'keep CTPPSDiamondLocalTrackedmDetSetVector_ctppsDiamondLocalTracksAlCaRecoProducer_*_*',
         
         #diamond sampic
-        'keep TotemTimingLocalTrackedmDetSetVector_diamondSampicLocalTracks_*_*',
-
-        # TOTEM timing
-        'keep TotemTimingDigiedmDetSetVector_totemTimingRawToDigi_*_*',
-        'keep TotemTimingRecHitedmDetSetVector_totemTimingRecHits_*_*',
+        'keep TotemTimingDigiedmDetSetVector_totemTimingRawToDigiAlCaRecoProducer_*_*',
+        'keep TotemTimingRecHitedmDetSetVector_totemTimingRecHitsAlCaRecoProducer_*_*',
+        'keep TotemTimingLocalTrackedmDetSetVector_diamondSampicLocalTracksAlCaRecoProducer_*_*',        
 
         # tracking pixels
-        'keep CTPPSPixelDigiedmDetSetVector_ctppsPixelDigis_*_*',
-        'keep CTPPSPixelDataErroredmDetSetVector_ctppsPixelDigis_*_*',
-        'keep CTPPSPixelClusteredmDetSetVector_ctppsPixelClusters_*_*',
-        'keep CTPPSPixelRecHitedmDetSetVector_ctppsPixelRecHits_*_*',
-        'keep CTPPSPixelLocalTrackedmDetSetVector_ctppsPixelLocalTracks_*_*',
+        'keep CTPPSPixelDigiedmDetSetVector_ctppsPixelDigisAlCaRecoProducer_*_*',
+        'keep CTPPSPixelDataErroredmDetSetVector_ctppsPixelDigisAlCaRecoProducer_*_*',
+        'keep CTPPSPixelClusteredmDetSetVector_ctppsPixelClustersAlCaRecoProducer_*_*',
+        'keep CTPPSPixelRecHitedmDetSetVector_ctppsPixelRecHitsAlCaRecoProducer_*_*',
+        'keep CTPPSPixelLocalTrackedmDetSetVector_ctppsPixelLocalTracksAlCaRecoProducer_*_*',
 
         # CTPPS common
-        'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
-        'keep recoForwardProtons_ctppsProtons_*_*',
+        'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducerAlCaRecoProducer_*_*',
+        'keep recoForwardProtons_ctppsProtonsAlCaRecoProducer_*_*',
 
         # HLT info
         'keep *_hltGtStage2ObjectMap_*_*', 
         'keep edmTriggerResults_*_*_*', 
-        'keep triggerTriggerEvent_*_*_*'     
+        'keep triggerTriggerEvent_*_*_*'          
     )
 )
 
