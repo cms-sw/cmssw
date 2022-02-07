@@ -20,6 +20,7 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "CondFormats/GeometryObjects/interface/MuonOffsetMap.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 
 #include <string>
@@ -41,10 +42,7 @@ public:
                                  const MuonOffsetMap*,
                                  const MuonGeometryConstants&,
                                  const SensitiveDetectorCatalog&,
-                                 double ePersistentCutGeV,
-                                 bool allMuonsPersistent,
-                                 bool aPrintHits,
-                                 bool dd4hep,
+                                 edm::ParameterSet const& p,
                                  const SimTrackManager*);
   ~MuonSensitiveDetector() override;
   G4bool ProcessHits(G4Step*, G4TouchableHistory*) override;
@@ -61,6 +59,7 @@ protected:
 
 private:
   inline Local3DPoint cmsUnits(const Local3DPoint& v) { return Local3DPoint(v.x() * 0.1, v.y() * 0.1, v.z() * 0.1); }
+  bool acceptHit(uint32_t id);
 
   MuonSlaveSD* slaveMuon;
   MuonSimHitNumberingScheme* numbering;
@@ -87,12 +86,17 @@ private:
   uint32_t newDetUnitId;
   int theTrackID;
 
-  bool printHits;
+  bool printHits_;
   SimHitPrinter* thePrinter;
 
   //--- SimTracks cuts
-  float ePersistentCutGeV;
-  bool allMuonsPersistent;
+  float ePersistentCutGeV_;
+  bool allMuonsPersistent_;
+
+  // For choice of demo chambers
+  bool haveDemo_;
+  bool demoGEM_;
+  bool demoRPC_;
 
   G4ProcessTypeEnumerator* theG4ProcessTypeEnumerator;
 
