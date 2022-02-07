@@ -30,10 +30,12 @@ void HGCalStage1TruncationImpl::run(uint32_t fpga_id,
     double x = position.x();
     double y = position.y();
     double z = position.z();
-    double roverz = std::sqrt(x * x + y * y) / std::abs(z);
-    roverz = (roverz < roz_min_ ? roz_min_ : roverz);
-    roverz = (roverz > roz_max_ ? roz_max_ : roverz);
-    unsigned roverzbin = (roz_bin_size_ > 0. ? unsigned((roverz - roz_min_) / roz_bin_size_) : 0);
+    unsigned roverzbin = 0;
+    if (roz_bin_size_ > 0.) {
+      double roverz = std::sqrt(x * x + y * y) / std::abs(z) - roz_min_;
+      roverz = std::clamp(roverz, 0., roz_max_ - roz_min_);
+      roverzbin = unsigned(roverz / roz_bin_size_);
+    }
     double phi = rotatedphi(x, y, z, sector120);
     unsigned phibin = phiBin(roverzbin, phi);
     unsigned packed_bin = packBin(roverzbin, phibin);

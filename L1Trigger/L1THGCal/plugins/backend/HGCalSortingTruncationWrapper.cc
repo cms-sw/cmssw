@@ -14,7 +14,7 @@
 class HGCalSortingTruncationWrapper : public HGCalStage2FilteringWrapperBase {
 public:
   HGCalSortingTruncationWrapper(const edm::ParameterSet& conf);
-  ~HGCalSortingTruncationWrapper() override {}
+  ~HGCalSortingTruncationWrapper() override = default;
 
   void configure(
       const std::pair<const HGCalTriggerGeometryBase* const, const edm::ParameterSet&>& configuration) override;

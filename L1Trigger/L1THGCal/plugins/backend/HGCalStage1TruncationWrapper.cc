@@ -10,7 +10,7 @@
 class HGCalStage1TruncationWrapper : public HGCalStage1TruncationWrapperBase {
 public:
   HGCalStage1TruncationWrapper(const edm::ParameterSet& conf);
-  ~HGCalStage1TruncationWrapper() override {}
+  ~HGCalStage1TruncationWrapper() override = default;
 
   void configure(
       const std::tuple<const HGCalTriggerGeometryBase* const, const unsigned&, const uint32_t&>& configuration) override;

@@ -23,16 +23,16 @@
 class HGCalBackendStage1Producer : public edm::stream::EDProducer<> {
 public:
   HGCalBackendStage1Producer(const edm::ParameterSet&);
-  ~HGCalBackendStage1Producer() override {}
+  ~HGCalBackendStage1Producer() override = default;
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   // inputs
-  edm::EDGetToken input_cell_, input_sums_;
+  const edm::EDGetToken input_cell_;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
-  edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
+  const edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
 
   std::unique_ptr<HGCalBackendStage1ProcessorBase> backendProcess_;
 

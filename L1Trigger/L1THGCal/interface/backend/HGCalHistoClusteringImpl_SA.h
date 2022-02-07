@@ -12,8 +12,8 @@
 
 class HGCalHistoClusteringImplSA {
 public:
-  HGCalHistoClusteringImplSA();
-  ~HGCalHistoClusteringImplSA() {}
+  HGCalHistoClusteringImplSA() = default;
+  ~HGCalHistoClusteringImplSA() = default;
 
   void runAlgorithm() const;
 

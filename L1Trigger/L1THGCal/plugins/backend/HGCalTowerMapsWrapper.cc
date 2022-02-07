@@ -19,7 +19,7 @@
 class HGCalTowerMapsWrapper : public HGCalTowerMapsWrapperBase {
 public:
   HGCalTowerMapsWrapper(const edm::ParameterSet& conf);
-  ~HGCalTowerMapsWrapper() override {}
+  ~HGCalTowerMapsWrapper() override = default;
 
   void configure(const std::pair<const HGCalTriggerGeometryBase* const, const edm::ParameterSet&>& parameters) override;
 

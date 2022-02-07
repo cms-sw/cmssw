@@ -28,7 +28,7 @@ namespace l1thgcfirmware {
           mipPt_(mipPt),
           index_cmssw_(index_cmssw) {}
 
-    ~HGCalCluster(){};
+    ~HGCalCluster() = default;
 
     float x() const { return x_; }
     float y() const { return y_; }

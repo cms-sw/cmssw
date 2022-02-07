@@ -1,7 +1,5 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalSortingTruncationImpl_SA.h"
 
-HGCalSortingTruncationImplSA::HGCalSortingTruncationImplSA() {}
-
 void HGCalSortingTruncationImplSA::sortAndTruncate_SA(
     const std::vector<l1thgcfirmware::HGCalMulticluster>& inputMulticlusters,
     std::vector<l1thgcfirmware::HGCalMulticluster>& outputMulticlusters,

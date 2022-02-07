@@ -1,8 +1,6 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalStage1TruncationImpl_SA.h"
 #include <cmath>
 
-HGCalStage1TruncationImplSA::HGCalStage1TruncationImplSA() {}
-
 unsigned HGCalStage1TruncationImplSA::run(const l1thgcfirmware::HGCalTriggerCellSACollection& tcs_in,
                                           const l1thgcfirmware::Stage1TruncationConfig& theConf,
                                           l1thgcfirmware::HGCalTriggerCellSACollection& tcs_out) const {
@@ -25,11 +23,12 @@ unsigned HGCalStage1TruncationImplSA::run(const l1thgcfirmware::HGCalTriggerCell
     double x = tc.x();
     double y = tc.y();
     double z = tc.z();
-    double roverz = std::sqrt(x * x + y * y) / std::abs(z);
-    roverz = (roverz < rozmin ? rozmin : roverz);
-    roverz = (roverz > rozmax ? rozmax : roverz);
-
-    unsigned roverzbin = (roz_bin_size > 0. ? unsigned((roverz - rozmin) / roz_bin_size) : 0);
+    unsigned roverzbin = 0;
+    if (roz_bin_size > 0.) {
+      double roverz = std::sqrt(x * x + y * y) / std::abs(z) - rozmin;
+      roverz = std::clamp(roverz, 0., rozmax - rozmin);
+      roverzbin = unsigned(roverz / roz_bin_size);
+    }
     double phi = rotatedphi(x, y, z, sector120);
     int phibin = phiBin(roverzbin, phi, phiedges);
     if (phibin < 0)

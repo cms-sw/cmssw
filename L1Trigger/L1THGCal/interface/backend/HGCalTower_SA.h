@@ -7,11 +7,11 @@ namespace l1thgcfirmware {
 
   class HGCalTower {
   public:
-    HGCalTower() {}
+    HGCalTower() = default;
     HGCalTower(double etEm, double etHad, float eta, float phi, uint32_t rawId)
         : etEm_(etEm), etHad_(etHad), eta_(eta), phi_(phi), id_(rawId) {}
 
-    ~HGCalTower(){};
+    ~HGCalTower() = default;
 
     double etEm() const { return etEm_; }
     double etHad() const { return etHad_; }

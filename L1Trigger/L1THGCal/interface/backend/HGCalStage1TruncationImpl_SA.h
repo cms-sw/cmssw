@@ -11,8 +11,8 @@
 
 class HGCalStage1TruncationImplSA {
 public:
-  HGCalStage1TruncationImplSA();
-  ~HGCalStage1TruncationImplSA() {}
+  HGCalStage1TruncationImplSA() = default;
+  ~HGCalStage1TruncationImplSA() = default;
 
   void runAlgorithm() const;
 

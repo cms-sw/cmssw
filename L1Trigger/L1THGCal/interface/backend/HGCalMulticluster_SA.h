@@ -10,8 +10,7 @@ namespace l1thgcfirmware {
   class HGCalMulticluster {
   public:
     HGCalMulticluster()
-        : hOverEValid_(false),
-          centre_x_(0),
+        : centre_x_(0),
           centre_y_(0),
           centre_z_(0),
           centreProj_x_(0),
@@ -24,7 +23,7 @@ namespace l1thgcfirmware {
 
     void addConstituent(const l1thgcfirmware::HGCalCluster& tc, bool updateCentre = true, float fraction = 1.);
 
-    ~HGCalMulticluster(){};
+    ~HGCalMulticluster() = default;
 
     const std::vector<l1thgcfirmware::HGCalCluster>& constituents() const { return constituents_; }
 
@@ -33,9 +32,6 @@ namespace l1thgcfirmware {
     float sumPt() const { return sumPt_; }
 
   private:
-    float hOverE_;
-    bool hOverEValid_;
-
     // Could replace this with own simple implementation of GlobalPoint?
     // Or just a struct?
     float centre_x_;

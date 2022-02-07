@@ -9,8 +9,8 @@
 
 class HGCalSortingTruncationImplSA {
 public:
-  HGCalSortingTruncationImplSA();
-  ~HGCalSortingTruncationImplSA() {}
+  HGCalSortingTruncationImplSA() = default;
+  ~HGCalSortingTruncationImplSA() = default;
 
   void sortAndTruncate_SA(const std::vector<l1thgcfirmware::HGCalMulticluster>& inputMulticlusters,
                           std::vector<l1thgcfirmware::HGCalMulticluster>& outputMulticlusters,
