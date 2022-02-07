@@ -21,13 +21,6 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-//class DetGroupElementZLess {
-//public:
-//  bool operator()(DetGroup a, DetGroup b) {
-//    return (fabs(a.front().det()->position().z()) < fabs(b.front().det()->position().z()));
-//  }
-//};
-
 Phase2EndcapRing::Phase2EndcapRing(vector<const GeomDet*>& innerDets,
                                    vector<const GeomDet*>& outerDets,
                                    const vector<const GeomDet*>& innerDetBrothers,

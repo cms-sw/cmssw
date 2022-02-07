@@ -13,8 +13,8 @@
 #pragma GCC visibility push(hidden)
 class Phase2EndcapLayerDoubleDisk final : public RingedForwardLayer {
 public:
-  Phase2EndcapLayerDoubleDisk(std::vector<const Phase2EndcapSubDisk*>& subDisks) __attribute__((cold));
-  ~Phase2EndcapLayerDoubleDisk() override __attribute__((cold));
+  Phase2EndcapLayerDoubleDisk(std::vector<const Phase2EndcapSubDisk*>& subDisks);
+  ~Phase2EndcapLayerDoubleDisk() override;
 
   // Default implementations would not properly manage memory
   Phase2EndcapLayerDoubleDisk(const Phase2EndcapLayerDoubleDisk&) = delete;
@@ -24,26 +24,26 @@ public:
 
   const std::vector<const GeomDet*>& basicComponents() const override { return theBasicComps; }
 
-  const std::vector<const GeometricSearchDet*>& components() const override __attribute__((cold));
+  const std::vector<const GeometricSearchDet*>& components() const override;
 
   void groupedCompatibleDetsV(const TrajectoryStateOnSurface& tsos,
                               const Propagator& prop,
                               const MeasurementEstimator& est,
-                              std::vector<DetGroup>& result) const override __attribute__((hot));
+                              std::vector<DetGroup>& result) const override;
 
   // DetLayer interface
   SubDetector subDetector() const override { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2PXEC]; }
 
 private:
   // private methods for the implementation of groupedCompatibleDets()
-  BoundDisk* computeDisk(const std::vector<const Phase2EndcapSubDisk*>& subDisks) const __attribute__((cold));
+  BoundDisk* computeDisk(const std::vector<const Phase2EndcapSubDisk*>& subDisks) const;
 
   std::array<int, 2> subDiskIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
                                                        const Propagator& prop) const;
 
-  std::array<int, 2> findTwoClosest(std::vector<GlobalPoint>) const __attribute__((hot));
+  std::array<int, 2> findTwoClosest(std::vector<GlobalPoint>) const;
 
-  void fillSubDiskPars(int i) __attribute__((cold));
+  void fillSubDiskPars(int i);
 
 private:
   std::vector<GeomDet const*> theBasicComps;

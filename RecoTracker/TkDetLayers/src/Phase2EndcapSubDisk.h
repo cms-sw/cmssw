@@ -9,14 +9,14 @@
 
 /** A concrete implementation for Phase 2 Endcap/Forward layer 
  *  built out of Phase2EndcapSingleRings
- *  this classs is used for both OT and Pixel detector
+ *  this class is used for the inner tracker
  */
 
 #pragma GCC visibility push(hidden)
 class Phase2EndcapSubDisk final : public RingedForwardLayer {
 public:
-  Phase2EndcapSubDisk(std::vector<const Phase2EndcapSingleRing*>& rings) __attribute__((cold));
-  ~Phase2EndcapSubDisk() override __attribute__((cold));
+  Phase2EndcapSubDisk(std::vector<const Phase2EndcapSingleRing*>& rings);
+  ~Phase2EndcapSubDisk() override;
 
   // Default implementations would not properly manage memory
   Phase2EndcapSubDisk(const Phase2EndcapSubDisk&) = delete;
@@ -26,30 +26,30 @@ public:
 
   const std::vector<const GeomDet*>& basicComponents() const override { return theBasicComps; }
 
-  const std::vector<const GeometricSearchDet*>& components() const override __attribute__((cold));
+  const std::vector<const GeometricSearchDet*>& components() const override;
 
   void groupedCompatibleDetsV(const TrajectoryStateOnSurface& tsos,
                               const Propagator& prop,
                               const MeasurementEstimator& est,
-                              std::vector<DetGroup>& result) const override __attribute__((hot));
+                              std::vector<DetGroup>& result) const override;
 
   // DetLayer interface
   SubDetector subDetector() const override { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2PXEC]; }
 
 private:
   // private methods for the implementation of groupedCompatibleDets()
-  BoundDisk* computeDisk(const std::vector<const Phase2EndcapSingleRing*>& rings) const __attribute__((cold));
+  BoundDisk* computeDisk(const std::vector<const Phase2EndcapSingleRing*>& rings) const;
 
   bool overlapInR(const TrajectoryStateOnSurface& tsos,
                   int i,
                   double ymax,
-                  std::vector<tkDetUtil::RingPar> ringParams) const __attribute__((hot));
+                  std::vector<tkDetUtil::RingPar> ringParams) const;
 
   float computeWindowSize(const GeomDet* det,
                           const TrajectoryStateOnSurface& tsos,
-                          const MeasurementEstimator& est) const __attribute__((hot));
+                          const MeasurementEstimator& est) const;
 
-  void fillRingPars(int i) __attribute__((cold));
+  void fillRingPars(int i);
 
   std::vector<GeomDet const*> theBasicComps;
   mutable std::atomic<std::vector<const GeometricSearchDet*>*> theComponents;
