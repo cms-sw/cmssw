@@ -26,7 +26,7 @@ int GEMDQMBase::initGeometry(edm::EventSetup const& iSetup) {
   return 0;
 }
 
-// Borrowed from DQM/GEM/src/GEMOfflineDQMBase.cc
+// Borrowed from DQMOffline/Muon/src/GEMOfflineDQMBase.cc
 int GEMDQMBase::getNumEtaPartitions(const GEMStation* station) {
   const auto&& superchambers = station->superChambers();
   if (not checkRefs(superchambers)) {
