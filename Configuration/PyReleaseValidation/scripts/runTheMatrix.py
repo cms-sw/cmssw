@@ -99,7 +99,7 @@ if __name__ == '__main__':
                      35234.999, #2026D77 ttbar premixing stage1+stage2, PU50 (to be removed when migration to D88 is complete)
                      38634.0, #2026D86 ttbar (to be removed when migration to D88 is complete)
                      39434.0, #2026D88 ttbar
-                     39634.999, #2026D88 ttbar premixing stage1+stage2, PU50
+                     #39634.999, #2026D88 ttbar premixing stage1+stage2, PU50
                      39496.0, #CE_E_Front_120um D88
                      39500.0, #CE_H_Coarse_Scint D88 
                      25202.0, #2016 ttbar UP15 PU
