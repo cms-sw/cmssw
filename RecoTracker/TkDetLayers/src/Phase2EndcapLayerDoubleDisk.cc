@@ -12,20 +12,8 @@
 
 using namespace std;
 
-//hopefully is never called!
 const std::vector<const GeometricSearchDet*>& Phase2EndcapLayerDoubleDisk::components() const {
-  if (not theComponents) {
-    auto temp = std::make_unique<std::vector<const GeometricSearchDet*>>();
-    temp->reserve(15);  // This number is just an upper bound
-    for (auto c : theComps)
-      temp->push_back(c);
-    std::vector<const GeometricSearchDet*>* expected = nullptr;
-    if (theComponents.compare_exchange_strong(expected, temp.get())) {
-      //this thread set the value
-      temp.release();
-    }
-  }
-  return *theComponents;
+  throw cms::Exception("Phase2EndcapLayerDoubleDisk::components() is not implemented");
 }
 
 void Phase2EndcapLayerDoubleDisk::fillSubDiskPars(int i) {

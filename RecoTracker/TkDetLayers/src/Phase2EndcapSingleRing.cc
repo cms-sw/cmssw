@@ -21,13 +21,6 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-//class DetGroupElementZLess {
-//public:
-//  bool operator()(DetGroup a, DetGroup b) {
-//    return (std::abs(a.front().det()->position().z()) < std::abs(b.front().det()->position().z()));
-//  }
-//};
-
 Phase2EndcapSingleRing::Phase2EndcapSingleRing(vector<const GeomDet*>& allDets)
     : GeometricSearchDet(true), theDets(allDets.begin(), allDets.end()) {
   theDisk = ForwardRingDiskBuilderFromDet()(theDets);

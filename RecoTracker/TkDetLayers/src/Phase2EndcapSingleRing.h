@@ -20,7 +20,7 @@ public:
 
   const std::vector<const GeomDet*>& basicComponents() const override { return theDets; }
 
-  const std::vector<const GeometricSearchDet*>& components() const override __attribute__((cold));
+  const std::vector<const GeometricSearchDet*>& components() const override;
 
   std::pair<bool, TrajectoryStateOnSurface> compatible(const TrajectoryStateOnSurface&,
                                                        const Propagator&,
@@ -29,7 +29,7 @@ public:
   void groupedCompatibleDetsV(const TrajectoryStateOnSurface& tsos,
                               const Propagator& prop,
                               const MeasurementEstimator& est,
-                              std::vector<DetGroup>& result) const override __attribute__((hot));
+                              std::vector<DetGroup>& result) const override;
 
   //Extension of interface
   virtual const BoundDisk& specificSurface() const { return *theDisk; }
@@ -37,14 +37,13 @@ public:
 private:
   // private methods for the implementation of groupedCompatibleDets()
 
-  SubLayerCrossing computeCrossing(const TrajectoryStateOnSurface& tsos, PropagationDirection propDir) const
-      __attribute__((hot));
+  SubLayerCrossing computeCrossing(const TrajectoryStateOnSurface& tsos, PropagationDirection propDir) const;
 
   bool addClosest(const TrajectoryStateOnSurface& tsos,
                   const Propagator& prop,
                   const MeasurementEstimator& est,
                   const SubLayerCrossing& crossing,
-                  std::vector<DetGroup>& result) const __attribute__((hot));
+                  std::vector<DetGroup>& result) const;
 
   void searchNeighbors(const TrajectoryStateOnSurface& tsos,
                        const Propagator& prop,
@@ -52,7 +51,7 @@ private:
                        const SubLayerCrossing& crossing,
                        float window,
                        std::vector<DetGroup>& result,
-                       bool checkClosest) const __attribute__((hot));
+                       bool checkClosest) const;
 
   const std::vector<const GeomDet*>& subLayer(int ind) const { return theDets; }
 
