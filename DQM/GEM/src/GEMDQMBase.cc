@@ -26,7 +26,7 @@ int GEMDQMBase::initGeometry(edm::EventSetup const& iSetup) {
   return 0;
 }
 
-// Borrowed from DQMOffline/Muon/src/GEMOfflineDQMBase.cc
+// Borrowed from DQM/GEM/src/GEMOfflineDQMBase.cc
 int GEMDQMBase::getNumEtaPartitions(const GEMStation* station) {
   const auto&& superchambers = station->superChambers();
   if (not checkRefs(superchambers)) {
@@ -64,7 +64,7 @@ int GEMDQMBase::loadChambers() {
     }
   }
 
-  // Borrwed from DQMOffline/Muon/src/GEMOfflineMonitor.cc
+  // Borrwed from https://github.com/cms-sw/cmssw/blob/CMSSW_12_2_0_pre3/DQMOffline/Muon/src/GEMOfflineMonitor.cc
   nMaxNumCh_ = 0;
   for (const GEMRegion* region : GEMGeometry_->regions()) {
     const int region_number = region->region();

@@ -1,4 +1,4 @@
-#include "DQMOffline/Muon/interface/GEMEfficiencyAnalyzer.h"
+#include "DQM/GEM/plugins/GEMEfficiencyAnalyzer.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"

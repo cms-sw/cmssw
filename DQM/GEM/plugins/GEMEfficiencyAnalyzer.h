@@ -1,5 +1,5 @@
-#ifndef DQMOffline_Muon_GEMEfficiencyAnalyzer_h
-#define DQMOffline_Muon_GEMEfficiencyAnalyzer_h
+#ifndef DQM_GEM_GEMEfficiencyAnalyzer_h
+#define DQM_GEM_GEMEfficiencyAnalyzer_h
 
 /** \class GEMEfficiencyAnalyzer
  * 
@@ -9,7 +9,7 @@
  * \author Seungjin Yang <seungjin.yang@cern.ch>
  */
 
-#include "DQMOffline/Muon/interface/GEMOfflineDQMBase.h"
+#include "DQM/GEM/interface/GEMOfflineDQMBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -135,4 +135,4 @@ inline bool GEMEfficiencyAnalyzer::isInsideOut(const reco::Track &track) {
   return track.innerPosition().mag2() > track.outerPosition().mag2();
 }
 
-#endif  // DQMOffline_Muon_GEMEfficiencyAnalyzer_h
+#endif  // DQM_GEM_GEMEfficiencyAnalyzer_h

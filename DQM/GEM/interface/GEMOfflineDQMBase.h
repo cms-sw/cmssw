@@ -1,5 +1,5 @@
-#ifndef DQMOffline_Muon_GEMOfflineDQMBase_h
-#define DQMOffline_Muon_GEMOfflineDQMBase_h
+#ifndef DQM_GEM_GEMOfflineDQMBase_h
+#define DQM_GEM_GEMOfflineDQMBase_h
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -98,4 +98,4 @@ inline GEMDetId GEMOfflineDQMBase::getKey(const GEMDetId& id) {
   return GEMDetId{id.region(), 1, id.station(), id.layer(), id.chamber() % 2, id.roll()};
 }
 
-#endif  // DQMOffline_Muon_GEMOfflineDQMBase_h
+#endif  // DQM_GEM_GEMOfflineDQMBase_h

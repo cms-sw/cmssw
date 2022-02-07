@@ -28,7 +28,7 @@
 
 class GEMDQMBase : public DQMEDAnalyzer {
 public:
-  // Borrwed from DQMOffline/Muon/interface/GEMOfflineDQMBase.h
+  // Borrwed from DQM/GEM/interface/GEMOfflineDQMBase.h
   class BookingHelper {
   public:
     BookingHelper(DQMStore::IBooker &ibooker, const TString &name_suffix, const TString &title_suffix)
@@ -568,7 +568,7 @@ protected:
   Int_t nNumEtaPartitionGE21_;
 };
 
-// Borrwed from DQMOffline/Muon/interface/GEMOfflineDQMBase.h
+// Borrwed from DQM/GEM/interface/GEMOfflineDQMBase.h
 template <typename T>
 inline bool GEMDQMBase::checkRefs(const std::vector<T *> &refs) {
   if (refs.empty())
@@ -578,7 +578,7 @@ inline bool GEMDQMBase::checkRefs(const std::vector<T *> &refs) {
   return true;
 }
 
-// The 'get...' functions in the below are borrwed from DQMOffline/Muon/interface/GEMOfflineDQMBase.h
+// The 'get...' functions in the below are borrwed from DQM/GEM/interface/GEMOfflineDQMBase.h
 inline int GEMDQMBase::getMaxVFAT(const int station) {
   if (station == 1)
     return GEMeMap::maxVFatGE11_;

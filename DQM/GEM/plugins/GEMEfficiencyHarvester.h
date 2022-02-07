@@ -1,5 +1,5 @@
-#ifndef DQMOffline_Muon_GEMEfficiencyHarvester_h
-#define DQMOffline_Muon_GEMEfficiencyHarvester_h
+#ifndef DQM_GEM_GEMEfficiencyHarvester_h
+#define DQM_GEM_GEMEfficiencyHarvester_h
 
 /** \class GEMEfficiencyAnalyzer
  * 
@@ -46,4 +46,4 @@ int GEMEfficiencyHarvester::findResolutionBin(const T& elem, const std::vector<T
   return bin;
 }
 
-#endif  // DQMOffline_Muon_GEMEfficiencyHarvester_h
+#endif  // DQM_GEM_GEMEfficiencyHarvester_h
