@@ -171,7 +171,7 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSModifiedOptic
       }
 
       if (scenario_ == "Lpy") {
-        const double a = 0.42, b = 0.015;  // dimensionless
+        const double a = 2.66, b = 0.015;  // dimensionless
         const double de_Lp_y = factor_ * (a * xi + b) * Lp_y;
         Lp_y += de_Lp_y;
         L_y_N -= de_Lp_y * de_z / 2.;
@@ -188,6 +188,9 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSModifiedOptic
 
       of_N.m_fcn_values[LHCOpticalFunctionsSet::eLpx][i] = Lp_x;
       of_F.m_fcn_values[LHCOpticalFunctionsSet::eLpx][i] = Lp_x;
+
+      of_N.m_fcn_values[LHCOpticalFunctionsSet::eLy][i] = L_y_N;
+      of_F.m_fcn_values[LHCOpticalFunctionsSet::eLy][i] = L_y_F;
 
       of_N.m_fcn_values[LHCOpticalFunctionsSet::eLpy][i] = Lp_y;
       of_F.m_fcn_values[LHCOpticalFunctionsSet::eLpy][i] = Lp_y;
