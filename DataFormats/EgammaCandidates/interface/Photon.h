@@ -581,11 +581,9 @@ namespace reco {
 
     ///MVA based beam halo tagger - trained for EE and for pT > 200 GeV
     float haloTaggerMVAVal() const { return haloTaggerMVAVal_; }
-    
+
     ///set the haloTaggerMVAVal here
-    void setHaloTaggerMVAVal(float x) { 
-      haloTaggerMVAVal_ = x; 
-    }
+    void setHaloTaggerMVAVal(float x) { haloTaggerMVAVal_ = x; }
 
   private:
     /// check overlap with another candidate
