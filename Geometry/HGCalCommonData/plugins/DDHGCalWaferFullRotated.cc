@@ -68,10 +68,10 @@ DDHGCalWaferFullRotated::DDHGCalWaferFullRotated() {
 DDHGCalWaferFullRotated::~DDHGCalWaferFullRotated() {}
 
 void DDHGCalWaferFullRotated::initialize(const DDNumericArguments& nArgs,
-                                const DDVectorArguments& vArgs,
-                                const DDMapArguments&,
-                                const DDStringArguments& sArgs,
-                                const DDStringVectorArguments& vsArgs) {
+                                         const DDVectorArguments& vArgs,
+                                         const DDMapArguments&,
+                                         const DDStringArguments& sArgs,
+                                         const DDStringVectorArguments& vsArgs) {
   material_ = sArgs["ModuleMaterial"];
   thick_ = nArgs["ModuleThickness"];
   waferSize_ = nArgs["WaferSize"];
@@ -79,9 +79,9 @@ void DDHGCalWaferFullRotated::initialize(const DDNumericArguments& nArgs,
   waferThick_ = nArgs["WaferThickness"];
   waferTag_ = sArgs["WaferTag"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Module " << parent().name() << " made of " << material_ << " T "
-                                << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_ << " T "
-                                << waferThick_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Module " << parent().name() << " made of " << material_
+                                << " T " << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_
+                                << " T " << waferThick_;
 #endif
   orient_ = dbl_to_int(vArgs["WaferOrinet"]);
   face_ = dbl_to_int(vArgs["WaferFace"]);
@@ -148,10 +148,10 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
     DDMaterial matter(matName);
     DDLogicalPart glogM = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << solid.name() << " extruded polygon made of " << matName
-                                  << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
-                                  << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
-                                  << " and " << xM.size() << " edges";
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << solid.name() << " extruded polygon made of "
+                                  << matName << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":"
+                                  << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":"
+                                  << scale[1] << " and " << xM.size() << " edges";
     for (unsigned int kk = 0; kk < xM.size(); ++kk)
       edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif
@@ -181,10 +181,10 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
         glogs[i] = DDLogicalPart(solid.ddname(), matter, solid);
 
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << solid.name() << " extruded polygon made of " << matN
-                                      << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
-                                      << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
-                                      << " and " << xL.size() << " edges";
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << solid.name() << " extruded polygon made of "
+                                      << matN << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":"
+                                      << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":"
+                                      << scale[1] << " and " << xL.size() << " edges";
         for (unsigned int kk = 0; kk < xL.size(); ++kk)
           edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xL[kk] << ":" << yL[kk];
 #endif
@@ -216,8 +216,8 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
               cpv.position(DDName(cellNames_[cell]), glogs[i], copy, tran, rot);
 #ifdef EDM_ML_DEBUG
               edm::LogVerbatim("HGCalGeom")
-                  << "DDHGCalWaferFullRotated: " << cellNames_[cell] << " number " << copy << " positioned in " << glogs[i].name()
-                  << " at " << tran << " with no rotation";
+                  << "DDHGCalWaferFullRotated: " << cellNames_[cell] << " number " << copy << " positioned in "
+                  << glogs[i].name() << " at " << tran << " with no rotation";
 #endif
             }
           }
