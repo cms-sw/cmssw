@@ -10,10 +10,10 @@ namespace l1thgcfirmware {
 
   class HGCalTowerMap {
   public:
-    HGCalTowerMap(){};
+    HGCalTowerMap() = default;
     HGCalTowerMap(const std::vector<l1thgcfirmware::HGCalTowerCoord>& tower_ids);
 
-    ~HGCalTowerMap(){};
+    ~HGCalTowerMap() = default;
 
     HGCalTowerMap& operator+=(const HGCalTowerMap& map);
 

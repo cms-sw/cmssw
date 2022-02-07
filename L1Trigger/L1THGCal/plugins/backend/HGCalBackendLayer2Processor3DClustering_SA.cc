@@ -15,7 +15,9 @@
 class HGCalBackendLayer2Processor3DClusteringSA : public HGCalBackendLayer2ProcessorBase {
 public:
   HGCalBackendLayer2Processor3DClusteringSA(const edm::ParameterSet& conf)
-      : HGCalBackendLayer2ProcessorBase(conf), conf_(conf) {
+      : HGCalBackendLayer2ProcessorBase(conf),
+        distributor_(conf.getParameterSet("DistributionParameters")),
+        conf_(conf) {
     multiclusteringHistoSeeding_ = std::make_unique<HGCalHistoSeedingImpl>(
         conf.getParameterSet("C3d_parameters").getParameterSet("histoMax_C3d_seeding_parameters"));
 
@@ -57,10 +59,8 @@ public:
       uint32_t stage1_fpga = geometry()->getStage1FpgaFromModule(module);
       HGCalTriggerGeometryBase::geom_set possible_stage2_fpgas = geometry()->getStage2FpgasFromStage1Fpga(stage1_fpga);
 
-      HGCalStage2ClusterDistribution distributor(conf_.getParameterSet("DistributionParameters"));
-
       HGCalTriggerGeometryBase::geom_set stage2_fpgas =
-          distributor.getStage2FPGAs(stage1_fpga, possible_stage2_fpgas, tc_ptr);
+          distributor_.getStage2FPGAs(stage1_fpga, possible_stage2_fpgas, tc_ptr);
 
       for (auto& fpga : stage2_fpgas) {
         tcs_per_fpga[fpga].push_back(tc_ptr);
@@ -121,6 +121,7 @@ private:
 
   std::vector<std::unique_ptr<HGCalTriggerClusterInterpreterBase>> energy_interpreters_;
 
+  HGCalStage2ClusterDistribution distributor_;
   const edm::ParameterSet conf_;
 };
 

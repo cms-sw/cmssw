@@ -6,8 +6,8 @@
 
 class HGCalTowerMapImplSA {
 public:
-  HGCalTowerMapImplSA() {}
-  ~HGCalTowerMapImplSA() {}
+  HGCalTowerMapImplSA() = default;
+  ~HGCalTowerMapImplSA() = default;
 
   void runAlgorithm(const std::vector<l1thgcfirmware::HGCalTowerMap>& inputTowerMaps_SA,
                     std::vector<l1thgcfirmware::HGCalTower>& outputTowers_SA) const;

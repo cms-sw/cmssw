@@ -3,12 +3,6 @@
 #include <map>
 #include <cmath>
 
-HGCalHistoClusteringImplSA::HGCalHistoClusteringImplSA() {}
-
-// void HGCalHistoClusteringImplSA::runAlgorithm() const {
-
-// }
-
 std::vector<l1thgcfirmware::HGCalMulticluster> HGCalHistoClusteringImplSA::clusterSeedMulticluster_SA(
     const std::vector<l1thgcfirmware::HGCalCluster>& clusters,
     const std::vector<l1thgcfirmware::HGCalSeed>& seeds,
@@ -26,7 +20,8 @@ std::vector<l1thgcfirmware::HGCalMulticluster> HGCalHistoClusteringImplSA::clust
     double radiusCoefficientB =
         configuration.dr_byLayer_coefficientB().empty() ? 0 : configuration.dr_byLayer_coefficientB()[clu.layer()];
 
-    double minDist = radiusCoefficientA + radiusCoefficientB * (configuration.midRadius() - std::abs(clu.eta()));
+    double minDistSqrd = radiusCoefficientA + radiusCoefficientB * (configuration.midRadius() - std::abs(clu.eta()));
+    minDistSqrd *= minDistSqrd;
 
     std::vector<std::pair<int, double>> targetSeedsEnergy;
 
@@ -39,11 +34,11 @@ std::vector<l1thgcfirmware::HGCalMulticluster> HGCalHistoClusteringImplSA::clust
 
       double seedEnergy = seed.energy();
 
-      double d = sqrt((clu.x() - seed.x()) * (clu.x() - seed.x()) + (clu.y() - seed.y()) * (clu.y() - seed.y()));
+      double d = (clu.x() - seed.x()) * (clu.x() - seed.x()) + (clu.y() - seed.y()) * (clu.y() - seed.y());
 
-      if (d < minDist) {
+      if (d < minDistSqrd) {
         // NearestNeighbour
-        minDist = d;
+        minDistSqrd = d;
 
         if (targetSeedsEnergy.empty()) {
           targetSeedsEnergy.emplace_back(iseed, seedEnergy);

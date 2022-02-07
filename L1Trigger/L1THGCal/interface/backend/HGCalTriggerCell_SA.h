@@ -7,7 +7,7 @@ namespace l1thgcfirmware {
 
   class HGCalTriggerCell {
   public:
-    HGCalTriggerCell(){};
+    HGCalTriggerCell() = default;
 
     HGCalTriggerCell(float x,
                      float y,
@@ -30,7 +30,7 @@ namespace l1thgcfirmware {
           mipPt_(mipPt),
           index_cmssw_(index_cmssw) {}
 
-    ~HGCalTriggerCell(){};
+    ~HGCalTriggerCell() = default;
 
     float x() const { return x_; }
     float y() const { return y_; }
