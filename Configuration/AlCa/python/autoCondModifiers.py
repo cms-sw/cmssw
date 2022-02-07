@@ -38,8 +38,8 @@ def autoCondDDD(autoCond):
     CSCRECODIGI_Geometry_ddd    =  ','.join( ['CSCRECODIGI_Geometry_112YV2'            , "CSCRecoDigiParametersRcd"      , connectionString, ""        , "2021-09-28 12:00:00.000"] )
     CSCRECO_Geometry_ddd        =  ','.join( ['CSCRECO_Geometry_112YV2'                , "CSCRecoGeometryRcd"            , connectionString, ""        , "2021-09-28 12:00:00.000"] )
     DTRECO_Geometry_ddd         =  ','.join( ['DTRECO_Geometry_112YV2'                 , "DTRecoGeometryRcd"             , connectionString, ""        , "2021-09-28 12:00:00.000"] )
-    GEMRECO_Geometry_ddd        =  ','.join( ['GEMRECO_Geometry_113YV4'                , "GEMRecoGeometryRcd"            , connectionString, ""        , "2021-09-28 12:00:00.000"] )
-    XMLFILE_Geometry_ddd        =  ','.join( ['XMLFILE_Geometry_121YV1_Extended2021_mc', "GeometryFileRcd"               , connectionString, "Extended", "2021-09-28 12:00:00.000"] )
+    GEMRECO_Geometry_ddd        =  ','.join( ['GEMRECO_Geometry_123YV2'                , "GEMRecoGeometryRcd"            , connectionString, ""        , "2022-02-02 12:00:00.000"] )
+    XMLFILE_Geometry_ddd        =  ','.join( ['XMLFILE_Geometry_123YV1_Extended2021_mc', "GeometryFileRcd"               , connectionString, "Extended", "2022-01-21 12:00:00.000"] )
     HCALParameters_Geometry_ddd =  ','.join( ['HCALParameters_Geometry_112YV2'         , "HcalParametersRcd"             , connectionString, ""        , "2021-09-28 12:00:00.000"] )
     TKRECO_Geometry_ddd         =  ','.join( ['TKRECO_Geometry_120YV2'                 , "IdealGeometryRecord"           , connectionString, ""        , "2021-09-28 12:00:00.000"] )
     CTRECO_Geometry_ddd         =  ','.join( ['CTRECO_Geometry_112YV2'                 , "PCaloTowerRcd"                 , connectionString, ""        , "2021-09-28 12:00:00.000"] )
@@ -49,7 +49,7 @@ def autoCondDDD(autoCond):
     HCALRECO_Geometry_ddd       =  ','.join( ['HCALRECO_Geometry_112YV2'               , "PHcalRcd"                      , connectionString, ""        , "2021-09-28 12:00:00.000"] )
     TKParameters_Geometry_ddd   =  ','.join( ['TKParameters_Geometry_112YV2'           , "PTrackerParametersRcd"         , connectionString, ""        , "2021-09-28 12:00:00.000"] )
     ZDCRECO_Geometry_ddd        =  ','.join( ['ZDCRECO_Geometry_112YV2'                , "PZdcRcd"                       , connectionString, ""        , "2021-09-28 12:00:00.000"] )
-    RPCRECO_Geometry_ddd        =  ','.join( ['RPCRECO_Geometry_112YV2'                , "RPCRecoGeometryRcd"            , connectionString, ""        , "2021-09-28 12:00:00.000"] )
+    RPCRECO_Geometry_ddd        =  ','.join( ['RPCRECO_Geometry_123YV1'                , "RPCRecoGeometryRcd"            , connectionString, ""        , "2022-01-21 12:00:00.000"] )
     PPSRECO_Geometry_ddd        =  ','.join( ['PPSRECO_Geometry_121YV2_2021_mc'        , "VeryForwardIdealGeometryRecord", connectionString, ""        , "2021-12-02 12:00:00.000"] )
 
     for key,val in autoCond.items():
