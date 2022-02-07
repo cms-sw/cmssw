@@ -154,7 +154,7 @@ void PhotonMVABasedHaloTagger::calphoClusCoordinECAL(const CaloGeometry* geo,
     double rhY = rechitPoint.y();
     double rhZ = rechitPoint.z();
 
-    if ((thresholds == nullptr)) {
+    if (thresholds == nullptr) {
       throw cms::Exception("EmptyPFRechHitThresCollection")
           << "In PhotonMVABasedHaloTagger::calphoClusCoordinECAL, EcalPFRecHitThresholds cannot be = nulptr";
     }
@@ -323,7 +323,6 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(
     const GlobalPoint& rechitPoint = geo->getPosition(esrechit->id());
 
     double rhEta = rechitPoint.eta();
-    //double rhPhi = rechitPoint.phi();
     double rhX = rechitPoint.x();
     double rhY = rechitPoint.y();
     double rhZ = rechitPoint.z();
@@ -334,11 +333,6 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(
 
     if (rhE < noiseThrES_)
       continue;
-
-    /*double rho = sqrt(pow(rhX,2) + pow(rhY,2));
-    double dEta = fabs(phoSCEta - rhEta);
-    double dPhi = deltaPhi(phoSCPhi, rhPhi);
-    */
 
     ////try to include RH according to the strips, 11 in X and 11 in Y
     /////////First calculate RH nearest in phi and eta to that of the photon SC
@@ -379,7 +373,6 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(
     const GlobalPoint& rechitPoint = geo->getPosition(esrechit->id());
 
     double rhEta = rechitPoint.eta();
-    double rhPhi = rechitPoint.phi();
     double rhX = rechitPoint.x();
     double rhY = rechitPoint.y();
     double rhZ = rechitPoint.z();
