@@ -121,9 +121,9 @@ process.b = cms.EDAnalyzer("ExceptionGenerator",
     defaultQualifier = cms.untracked.int32(5))
 
 
-process.tcdsRawToDigi = cms.EDProducer("TcdsRawToDigi",
-    InputLabel = cms.InputTag("rawDataCollector")
-)
+import EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi
+process.tcdsRawToDigi = EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
+process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataCollector")
 
 process.p1 = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
 process.p2 = cms.Path(process.b*process.filter2)
