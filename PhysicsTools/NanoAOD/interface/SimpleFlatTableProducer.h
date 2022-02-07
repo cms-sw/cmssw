@@ -397,8 +397,6 @@ protected:
   typedef FuncVariable<StringObjectFunction<T>, int> IntVar;
   typedef FuncVariable<StringObjectFunction<T>, float> FloatVar;
   typedef FuncVariable<StringObjectFunction<T>, uint8_t> UInt8Var;
-  // typedef FuncVariable<StringObjectFunction<T>, uint16_t> UInt16Var;
-  // typedef FuncVariable<StringObjectFunction<T>, uint32_t> UInt32Var;
   typedef FuncVariable<StringCutObjectSelector<T>, bool> BoolVar;
   std::vector<std::unique_ptr<Variable>> vars_;
 };
