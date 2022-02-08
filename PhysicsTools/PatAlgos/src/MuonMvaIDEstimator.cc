@@ -12,7 +12,7 @@ using namespace cms::Ort;
 
 MuonMvaIDEstimator::MuonMvaIDEstimator(const edm::FileInPath &weightsfile) {
   randomForest_ = std::make_unique<ONNXRuntime>(weightsfile.fullPath());
-  std::cout << randomForest_.get() << std::endl;
+  LogDebug("MuonMvaIDEstimator") << randomForest_.get();
 }
 
 void MuonMvaIDEstimator::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
