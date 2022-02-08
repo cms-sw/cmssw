@@ -328,7 +328,11 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
   bool ok(false);
   std::string triggerUse("None");
   if (!triggerEventHandle.isValid()) {
-    edm::LogWarning("IsoTrack") << "Error! Can't get the product " << triggerEvent_.label();
+    if (trigNames_.empty()) {
+      ok = true;
+    } else {
+      edm::LogWarning("IsoTrack") << "Error! Can't get the product " << triggerEvent_.label();
+    }
   } else {
     triggerEvent = *(triggerEventHandle.product());
 
@@ -407,6 +411,17 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
     edm::LogVerbatim("IsoTrack") << "Trigger check gives " << ok << " with " << triggerUse;
 
   //Look at the tracks
+  edm::Handle<reco::TrackCollection> trkCollection;
+  iEvent.getByToken(tok_genTrack_, trkCollection);
+  
+  edm::Handle<reco::MuonCollection> muonEventHandle;
+  iEvent.getByToken(tok_Muon_, muonEventHandle);
+
+  if ((!trkCollection.isValid()) || (!muonEventHandle.isValid())) {
+    edm::LogError("IsoTrack") << "Track collection " << trkCollection.isValid() << " Muon collection " << muonEventHandle.isValid();
+    ok = false;
+  } 
+
   if (ok) {
     h_goodRun->Fill(RunNo);
     tr_goodRun = RunNo;
@@ -419,16 +434,20 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
 
     edm::Handle<reco::VertexCollection> recVtxs;
     iEvent.getByToken(tok_recVtx_, recVtxs);
-    int ntrk(0), ngoodPV(0), nPV(-1);
-    int nvtxs = (int)(recVtxs->size());
-    for (int ind = 0; ind < nvtxs; ind++) {
-      if (!((*recVtxs)[ind].isFake()) && (*recVtxs)[ind].ndof() > 4)
-        ngoodPV++;
-    }
-    for (int i = 0; i < nPVBin_; ++i) {
-      if (ngoodPV >= pvBin_[i] && ngoodPV < pvBin_[i + 1]) {
-        nPV = i;
-        break;
+    int ntrk(0), ngoodPV(0), nPV(-1), nvtxs(0);
+    if (!recVtxs.isValid()) {
+      edm::LogWarning("IsoTrack") << "Cannot find the vertex collection";
+    } else {
+      nvtxs = (int)(recVtxs->size());
+      for (int ind = 0; ind < nvtxs; ind++) {
+	if (!((*recVtxs)[ind].isFake()) && (*recVtxs)[ind].ndof() > 4)
+	  ngoodPV++;
+      }
+      for (int i = 0; i < nPVBin_; ++i) {
+	if (ngoodPV >= pvBin_[i] && ngoodPV < pvBin_[i + 1]) {
+	  nPV = i;
+	  break;
+	}
       }
     }
 
@@ -452,12 +471,6 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
       else
         tr_eventWeight = 0;
     }
-
-    edm::Handle<reco::TrackCollection> trkCollection;
-    iEvent.getByToken(tok_genTrack_, trkCollection);
-
-    edm::Handle<reco::MuonCollection> muonEventHandle;
-    iEvent.getByToken(tok_Muon_, muonEventHandle);
 
     //=== genParticle information
     edm::Handle<reco::GenParticleCollection> genParticles;
