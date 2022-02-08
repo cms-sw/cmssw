@@ -229,6 +229,7 @@ void TritonClient::getResults(std::shared_ptr<tc::InferResult> results) {
       std::vector<int64_t> tmp_shape;
       triton_utils::throwIfError(results->Shape(oname, &tmp_shape),
                                  "getResults(): unable to get output shape for " + oname);
+      if (!noBatch_) tmp_shape.erase(tmp_shape.begin());
       output.setShape(tmp_shape);
       output.computeSizes();
     }
