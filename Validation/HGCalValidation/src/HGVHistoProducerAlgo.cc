@@ -3322,7 +3322,6 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
     std::vector<CaloParticle> const& cP,
     std::vector<size_t> const& cPIndices,
     std::vector<size_t> const& cPSelectedIndices,
-    //const enum validationType,
     std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
     unsigned int layers) const {
   //Each event to be treated as two events:

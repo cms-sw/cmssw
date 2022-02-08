@@ -257,7 +257,7 @@ public:
                                    std::vector<int> thicknesses);
 
   void bookTracksterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
-  enum validationType { Linking = 0, PatternRecognition };
+  enum validationType { Linking = 0, PatternRecognition, PatternRecognition_CP };
   void bookTracksterSTSHistos(DQMStore::IBooker& ibook, Histograms& histograms, const validationType valType);
 
   void layerClusters_to_CaloParticles(const Histograms& histograms,

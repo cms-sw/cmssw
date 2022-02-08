@@ -65,11 +65,11 @@ for elem in simDict:
             V = v.capitalize()
             eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v][0]+"' Num"+metrics[m][1]+"Trackster_"+V+simDict[elem]+" Denom_Trackster_"+V+simDict[elem]+fakerate])
 
-tsToCP_linking = hgcalValidator.label_TSToCPLinking._InputTag__moduleLabel
+tsToCP_linking = str(hgcalValidator.label_TSToCPLinking)
 subdirsTracksters = [prefix+'ticlSimTracksters/'+tsToCP_linking, prefix+'ticlSimTracksters_fromCPs/'+tsToCP_linking]
 subdirsTracksters.extend(prefix+'ticlTracksters'+iteration+'/'+tsToCP_linking for iteration in ticlIterLabelsMerge)
 
-tsToSTS_patternRec = hgcalValidator.label_TSToSTSPR._InputTag__moduleLabel
+tsToSTS_patternRec = str(hgcalValidator.label_TSToSTSPR)
 subdirsTracksters.extend([prefix+'ticlSimTracksters/'+tsToSTS_patternRec, prefix+'ticlSimTracksters_fromCPs/'+tsToSTS_patternRec])
 subdirsTracksters.extend(prefix+'ticlTracksters'+iteration+'/'+tsToSTS_patternRec for iteration in ticlIterLabelsMerge)
 
