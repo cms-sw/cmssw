@@ -126,7 +126,6 @@ private:
   MonitorElement* meCluZRes_[2];
   MonitorElement* meCluXPull_[2];
   MonitorElement* meCluYPull_[2];
-  MonitorElement* meCluZPull_[2];
   MonitorElement* meCluYXLocal_[2];
   MonitorElement* meCluYXLocalSim_[2];
   MonitorElement* meCluXLocalErr_[2];
@@ -500,7 +499,6 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           if (matchClu && comp != nullptr) {
             meCluXPull_[iside]->Fill(x_res / std::sqrt(comp->globalPositionError().cxx()));
             meCluYPull_[iside]->Fill(y_res / std::sqrt(comp->globalPositionError().cyy()));
-            meCluZPull_[iside]->Fill(z_res / std::sqrt(comp->globalPositionError().czz()));
             meCluXLocalErr_[iside]->Fill(std::sqrt(comp->localPositionError().xx()));
             meCluYLocalErr_[iside]->Fill(std::sqrt(comp->localPositionError().yy()));
           }
@@ -1017,10 +1015,6 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
         ibook.book1D("EtlCluYPullZneg", "ETL cluster Y pull (-Z);Y_{RECO}-Y_{SIM}/sigmaY_[RECO] [cm]", 100, -5., 5.);
     meCluYPull_[1] =
         ibook.book1D("EtlCluYPullZpos", "ETL cluster Y pull (+Z);Y_{RECO}-Y_{SIM}/sigmaY_[RECO] [cm]", 100, -5., 5.);
-    meCluZPull_[0] =
-        ibook.book1D("EtlCluZPullZneg", "ETL cluster Z pull (-Z);Z_{RECO}-Z_{SIM}/sigmaZ_[RECO] [cm]", 100, -5., 5.);
-    meCluZPull_[1] =
-        ibook.book1D("EtlCluZPullZpos", "ETL cluster Z pull (+Z);Z_{RECO}-Z_{SIM}/sigmaZ_[RECO] [cm]", 100, -5., 5.);
     meCluYXLocal_[0] = ibook.book2D("EtlCluYXLocalZneg",
                                     "ETL cluster local Y vs X (-Z);X^{local}_{RECO} [cm];Y^{local}_{RECO} [cm]",
                                     100,
