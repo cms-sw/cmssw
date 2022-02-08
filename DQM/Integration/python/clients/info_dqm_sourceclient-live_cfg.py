@@ -45,7 +45,7 @@ process.dqmSaverPB.runNumber = options.runNumber
 # Digitisation: produce the Scalers digis containing DCS bits
 process.load("EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi")
 # Digitisation: produce the TCDS digis containing BST record
-from EventFilter.Utilities.tcdsRawToDigi_cfi import *
+from EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi import *
 process.tcdsDigis = tcdsRawToDigi.clone()
 
 # OnlineMetaDataRawToDigi will put DCSRecord to an event
