@@ -27,30 +27,34 @@ gemOfflineDQMStaMuons = cms.EDFilter("MuonSelector",
 
 gemEfficiencyAnalyzerTightGlb = _gemEfficiencyAnalyzerDefault.clone(
     ServiceParameters = MuonServiceProxy.ServiceParameters.clone(),
-    folder = cms.untracked.string('GEM/Efficiency/type1'),
-    muonTag = cms.InputTag('gemOfflineDQMTightGlbMuons'),
-    name = cms.untracked.string('Tight GLB Muon'),
-    useGlobalMuon = cms.untracked.bool(True),
+    folder = 'GEM/Efficiency/type1',
+    muonTag = 'gemOfflineDQMTightGlbMuons',
+    name = 'Tight GLB Muon',
+    useGlobalMuon = True,
 )
 
 gemEfficiencyAnalyzerSta = _gemEfficiencyAnalyzerDefault.clone(
     ServiceParameters = MuonServiceProxy.ServiceParameters.clone(),
     muonTag = cms.InputTag("gemOfflineDQMStaMuons"),
-    folder = cms.untracked.string('GEM/Efficiency/type2'),
-    name = cms.untracked.string('STA Muon'),
-    useGlobalMuon = cms.untracked.bool(False),
+    folder = 'GEM/Efficiency/type2',
+    name = 'STA Muon',
+    useGlobalMuon = False,
 )
 
 from Configuration.Eras.Modifier_phase2_GEM_cff import phase2_GEM
-phase2_GEM.toModify(
-    gemEfficiencyAnalyzerTightGlb,
-    etaNbins=cms.untracked.int32(15),
-    etaUp=cms.untracked.double(3.0))
+phase2_GEM.toModify(gemEfficiencyAnalyzerTightGlb,
+    etaNbins = 15,
+    etaUp = 3.0,
+    monitorGE21 = True,
+    monitorGE0 = True,
+)
 
-phase2_GEM.toModify(
-    gemEfficiencyAnalyzerSta,
-    etaNbins=cms.untracked.int32(15),
-    etaUp=cms.untracked.double(3.0))
+phase2_GEM.toModify(gemEfficiencyAnalyzerSta,
+    etaNbins = 15,
+    etaUp = 3.0,
+    monitorGE21 = True,
+    monitorGE0 = True,
+)
 
 gemEfficiencyAnalyzerTightGlbSeq = cms.Sequence(
     cms.ignore(gemOfflineDQMTightGlbMuons) *
