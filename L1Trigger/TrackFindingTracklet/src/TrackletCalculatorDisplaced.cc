@@ -691,7 +691,7 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
         continue;
 
       //check r projection in range
-      if (rprojdiskapprox[i] < settings_.rmindisk() || rprojdiskapprox[i] > settings_.rmaxdisk())
+      if (rprojdiskapprox[i] < settings_.rmindisk() || rprojdiskapprox[i] >= settings_.rmaxdisk())
         continue;
 
       projs[N_LAYER + i].init(settings_,
@@ -1097,7 +1097,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
       if (iphiprojdisk[i] >= (1 << settings_.nphibitsstub(0)) - 1)
         continue;
 
-      if (irprojdisk[i] < settings_.rmindisk() / krprojdisk || irprojdisk[i] > settings_.rmaxdisk() / krprojdisk)
+      if (irprojdisk[i] < settings_.rmindisk() / krprojdisk || irprojdisk[i] >= settings_.rmaxdisk() / krprojdisk)
         continue;
 
       projs[N_LAYER + i + 2].init(settings_,
@@ -1494,7 +1494,7 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
         continue;
 
       //Check r range of projection
-      if (irprojdisk[i] < settings_.rmindisk() / krprojdisk || irprojdisk[i] > settings_.rmaxdisk() / krprojdisk)
+      if (irprojdisk[i] < settings_.rmindisk() / krprojdisk || irprojdisk[i] >= settings_.rmaxdisk() / krprojdisk)
         continue;
 
       projs[N_LAYER + i + 1].init(settings_,
