@@ -12,6 +12,101 @@
 #include <memory>
 #include <vector>
 
+// Base class for dumped variables
+class VariableBase {
+public:
+  VariableBase(const std::string &aname, const edm::ParameterSet &cfg)
+      : name_(aname),
+        doc_(cfg.getParameter<std::string>("doc")),
+        precision_(cfg.existsAs<int>("precision") ? cfg.getParameter<int>("precision")
+                                                  : (cfg.existsAs<std::string>("precision") ? -2 : -1)) {}
+  virtual ~VariableBase() {}
+  const std::string &name() const { return name_; }
+
+protected:
+  std::string name_, doc_;
+  int precision_;
+};
+
+// Object member variables and methods
+template <typename ObjType>
+class Variable : public VariableBase {
+public:
+  Variable(const std::string &aname, const edm::ParameterSet &cfg) : VariableBase(aname, cfg) {}
+  virtual void fill(std::vector<const ObjType *> &selobjs, nanoaod::FlatTable &out) const = 0;
+};
+
+template <typename ObjType, typename StringFunctor, typename ValType>
+class FuncVariable : public Variable<ObjType> {
+public:
+  FuncVariable(const std::string &aname, const edm::ParameterSet &cfg)
+      : Variable<ObjType>(aname, cfg),
+        func_(cfg.getParameter<std::string>("expr"), true),
+        precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",
+                       true) {}
+  ~FuncVariable() override {}
+  void fill(std::vector<const ObjType *> &selobjs, nanoaod::FlatTable &out) const override {
+    std::vector<ValType> vals(selobjs.size());
+    for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
+      if constexpr (std::is_same<ValType, float>()) {
+        if (this->precision_ == -2) {
+          vals[i] = MiniFloatConverter::reduceMantissaToNbitsRounding(func_(*selobjs[i]), precisionFunc_(*selobjs[i]));
+        } else {
+          vals[i] = func_(*selobjs[i]);
+        }
+      } else {
+        vals[i] = func_(*selobjs[i]);
+      }
+    }
+    out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
+  }
+
+protected:
+  StringFunctor func_;
+  StringFunctor precisionFunc_;
+};
+
+// External variables: i.e. variables that are not member or methods of the object
+template <typename ObjType>
+class ExtVariable : public VariableBase {
+public:
+  ExtVariable(const std::string &aname, const edm::ParameterSet &cfg) : VariableBase(aname, cfg) {}
+  virtual void fill(const edm::Event &iEvent,
+                    std::vector<edm::Ptr<ObjType>> selptrs,
+                    nanoaod::FlatTable &out) const = 0;
+};
+template <typename ObjType, typename TIn, typename ValType = TIn>
+class ValueMapVariable : public ExtVariable<ObjType> {
+public:
+  ValueMapVariable(const std::string &aname,
+                   const edm::ParameterSet &cfg,
+                   edm::ConsumesCollector &&cc,
+                   bool skipNonExistingSrc = false)
+      : ExtVariable<ObjType>(aname, cfg),
+        skipNonExistingSrc_(skipNonExistingSrc),
+        token_(cc.consumes<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))) {}
+  void fill(const edm::Event &iEvent, std::vector<edm::Ptr<ObjType>> selptrs, nanoaod::FlatTable &out) const override {
+    edm::Handle<edm::ValueMap<TIn>> vmap;
+    iEvent.getByToken(token_, vmap);
+    std::vector<ValType> vals;
+    if (vmap.isValid() || !skipNonExistingSrc_) {
+      vals.resize(selptrs.size());
+      for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
+        vals[i] = (*vmap)[selptrs[i]];
+      }
+    }
+    out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
+  }
+
+protected:
+  const bool skipNonExistingSrc_;
+  edm::EDGetTokenT<edm::ValueMap<TIn>> token_;
+};
+
+// Event producers
+// - ABC
+// - Singleton
+// - Collection
 template <typename T, typename TProd>
 class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
 public:
@@ -21,14 +116,15 @@ public:
         extension_(params.existsAs<bool>("extension") ? params.getParameter<bool>("extension") : false),
         skipNonExistingSrc_(
             params.existsAs<bool>("skipNonExistingSrc") ? params.getParameter<bool>("skipNonExistingSrc") : false),
-        src_(skipNonExistingSrc_ ? mayConsume<TProd>(params.getParameter<edm::InputTag>("src"))
-                                 : consumes<TProd>(params.getParameter<edm::InputTag>("src"))) {
+        src_(consumes<TProd>(params.getParameter<edm::InputTag>("src"))) {
     edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string &vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
       const auto &varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);
       const std::string &type = varPSet.getParameter<std::string>("type");
       if (type == "int")
         vars_.push_back(std::make_unique<IntVar>(vname, varPSet));
+      else if (type == "uint")
+        vars_.push_back(std::make_unique<UIntVar>(vname, varPSet));
       else if (type == "float")
         vars_.push_back(std::make_unique<FloatVar>(vname, varPSet));
       else if (type == "uint8")
@@ -65,69 +161,17 @@ protected:
   const bool skipNonExistingSrc_;
   const edm::EDGetTokenT<TProd> src_;
 
-  class VariableBase {
-  public:
-    VariableBase(const std::string &aname, const edm::ParameterSet &cfg)
-        : name_(aname),
-          doc_(cfg.getParameter<std::string>("doc")),
-          precision_(cfg.existsAs<int>("precision") ? cfg.getParameter<int>("precision")
-                                                    : (cfg.existsAs<std::string>("precision") ? -2 : -1)) {}
-    virtual ~VariableBase() {}
-    const std::string &name() const { return name_; }
-
-  protected:
-    std::string name_, doc_;
-    int precision_;
-  };
-
-  class Variable : public VariableBase {
-  public:
-    Variable(const std::string &aname, const edm::ParameterSet &cfg) : VariableBase(aname, cfg) {}
-    virtual void fill(std::vector<const T *> selobjs, nanoaod::FlatTable &out) const = 0;
-  };
-
-  template <typename StringFunctor, typename ValType>
-  class FuncVariable : public Variable {
-  public:
-    FuncVariable(const std::string &aname, const edm::ParameterSet &cfg)
-        : Variable(aname, cfg),
-          func_(cfg.getParameter<std::string>("expr"), true),
-          precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",
-                         true) {}
-    ~FuncVariable() override {}
-    void fill(std::vector<const T *> selobjs, nanoaod::FlatTable &out) const override {
-      std::vector<ValType> vals(selobjs.size());
-      for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-        if constexpr (std::is_same<ValType, float>()) {
-          if (this->precision_ == -2) {
-            vals[i] =
-                MiniFloatConverter::reduceMantissaToNbitsRounding(func_(*selobjs[i]), precisionFunc_(*selobjs[i]));
-          } else {
-            vals[i] = func_(*selobjs[i]);
-          }
-        } else {
-          vals[i] = func_(*selobjs[i]);
-        }
-      }
-      out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
-    }
-
-  protected:
-    StringFunctor func_;
-    StringFunctor precisionFunc_;
-  };
-  typedef FuncVariable<StringObjectFunction<T>, int> IntVar;
-  typedef FuncVariable<StringObjectFunction<T>, float> FloatVar;
-  typedef FuncVariable<StringObjectFunction<T>, uint8_t> UInt8Var;
-  typedef FuncVariable<StringCutObjectSelector<T>, bool> BoolVar;
-  std::vector<std::unique_ptr<Variable>> vars_;
+  typedef FuncVariable<T, StringObjectFunction<T>, int> IntVar;
+  typedef FuncVariable<T, StringObjectFunction<T>, unsigned int> UIntVar;
+  typedef FuncVariable<T, StringObjectFunction<T>, float> FloatVar;
+  typedef FuncVariable<T, StringObjectFunction<T>, uint8_t> UInt8Var;
+  typedef FuncVariable<T, StringCutObjectSelector<T>, bool> BoolVar;
+  std::vector<std::unique_ptr<Variable<T>>> vars_;
 };
 
 template <typename T>
 class SimpleFlatTableProducer : public SimpleFlatTableProducerBase<T, edm::View<T>> {
 public:
-  typedef SimpleFlatTableProducerBase<T, edm::View<T>> base;
-
   SimpleFlatTableProducer(edm::ParameterSet const &params)
       : SimpleFlatTableProducerBase<T, edm::View<T>>(params),
         singleton_(params.getParameter<bool>("singleton")),
@@ -198,45 +242,12 @@ protected:
   const unsigned int maxLen_;
   const StringCutObjectSelector<T> cut_;
 
-  class ExtVariable : public base::VariableBase {
-  public:
-    ExtVariable(const std::string &aname, const edm::ParameterSet &cfg) : base::VariableBase(aname, cfg) {}
-    virtual void fill(const edm::Event &iEvent, std::vector<edm::Ptr<T>> selptrs, nanoaod::FlatTable &out) const = 0;
-  };
-  template <typename TIn, typename ValType = TIn>
-  class ValueMapVariable : public ExtVariable {
-  public:
-    ValueMapVariable(const std::string &aname,
-                     const edm::ParameterSet &cfg,
-                     edm::ConsumesCollector &&cc,
-                     bool skipNonExistingSrc = false)
-        : ExtVariable(aname, cfg),
-          skipNonExistingSrc_(skipNonExistingSrc),
-          token_(skipNonExistingSrc_ ? cc.mayConsume<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))
-                                     : cc.consumes<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))) {}
-    void fill(const edm::Event &iEvent, std::vector<edm::Ptr<T>> selptrs, nanoaod::FlatTable &out) const override {
-      edm::Handle<edm::ValueMap<TIn>> vmap;
-      iEvent.getByToken(token_, vmap);
-      std::vector<ValType> vals;
-      if (vmap.isValid() || !skipNonExistingSrc_) {
-        vals.resize(selptrs.size());
-        for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-          vals[i] = (*vmap)[selptrs[i]];
-        }
-      }
-      out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
-    }
-
-  protected:
-    const bool skipNonExistingSrc_;
-    edm::EDGetTokenT<edm::ValueMap<TIn>> token_;
-  };
-  typedef ValueMapVariable<int> IntExtVar;
-  typedef ValueMapVariable<float> FloatExtVar;
-  typedef ValueMapVariable<double, float> DoubleExtVar;
-  typedef ValueMapVariable<bool> BoolExtVar;
-  typedef ValueMapVariable<int, uint8_t> UInt8ExtVar;
-  std::vector<std::unique_ptr<ExtVariable>> extvars_;
+  typedef ValueMapVariable<T, int> IntExtVar;
+  typedef ValueMapVariable<T, float> FloatExtVar;
+  typedef ValueMapVariable<T, double, float> DoubleExtVar;
+  typedef ValueMapVariable<T, bool> BoolExtVar;
+  typedef ValueMapVariable<T, int, uint8_t> UInt8ExtVar;
+  std::vector<std::unique_ptr<ExtVariable<T>>> extvars_;
 };
 
 template <typename T>
@@ -288,8 +299,7 @@ public:
         skipNonExistingSrc_(
 
             params.existsAs<bool>("skipNonExistingSrc") ? params.getParameter<bool>("skipNonExistingSrc") : false),
-        src_(skipNonExistingSrc_ ? mayConsume<TProd, edm::InLumi>(params.getParameter<edm::InputTag>("src"))
-                                 : consumes<TProd, edm::InLumi>(params.getParameter<edm::InputTag>("src"))) {
+        src_(consumes<TProd, edm::InLumi>(params.getParameter<edm::InputTag>("src"))) {
     edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string &vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
       const auto &varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);
@@ -343,62 +353,11 @@ protected:
   const bool skipNonExistingSrc_;
   const edm::EDGetTokenT<TProd> src_;
 
-  class VariableBase {
-  public:
-    VariableBase(const std::string &aname, const edm::ParameterSet &cfg)
-        : name_(aname),
-          doc_(cfg.getParameter<std::string>("doc")),
-          precision_(cfg.existsAs<int>("precision") ? cfg.getParameter<int>("precision")
-                                                    : (cfg.existsAs<std::string>("precision") ? -2 : -1)) {}
-    virtual ~VariableBase() {}
-    const std::string &name() const { return name_; }
-
-  protected:
-    std::string name_, doc_;
-    int precision_;
-  };
-
-  class Variable : public VariableBase {
-  public:
-    Variable(const std::string &aname, const edm::ParameterSet &cfg) : VariableBase(aname, cfg) {}
-    virtual void fill(std::vector<const T *> selobjs, nanoaod::FlatTable &out) const = 0;
-  };
-
-  template <typename StringFunctor, typename ValType>
-  class FuncVariable : public Variable {
-  public:
-    FuncVariable(const std::string &aname, const edm::ParameterSet &cfg)
-        : Variable(aname, cfg),
-          func_(cfg.getParameter<std::string>("expr"), true),
-          precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",
-                         true) {}
-    ~FuncVariable() override {}
-    void fill(std::vector<const T *> selobjs, nanoaod::FlatTable &out) const override {
-      std::vector<ValType> vals(selobjs.size());
-      for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-        if constexpr (std::is_same<ValType, float>()) {
-          if (this->precision_ == -2) {
-            vals[i] =
-                MiniFloatConverter::reduceMantissaToNbitsRounding(func_(*selobjs[i]), precisionFunc_(*selobjs[i]));
-          } else {
-            vals[i] = func_(*selobjs[i]);
-          }
-        } else {
-          vals[i] = func_(*selobjs[i]);
-        }
-      }
-      out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
-    }
-
-  protected:
-    StringFunctor func_;
-    StringFunctor precisionFunc_;
-  };
-  typedef FuncVariable<StringObjectFunction<T>, int> IntVar;
-  typedef FuncVariable<StringObjectFunction<T>, float> FloatVar;
-  typedef FuncVariable<StringObjectFunction<T>, uint8_t> UInt8Var;
-  typedef FuncVariable<StringCutObjectSelector<T>, bool> BoolVar;
-  std::vector<std::unique_ptr<Variable>> vars_;
+  typedef FuncVariable<T, StringObjectFunction<T>, int> IntVar;
+  typedef FuncVariable<T, StringObjectFunction<T>, float> FloatVar;
+  typedef FuncVariable<T, StringObjectFunction<T>, uint8_t> UInt8Var;
+  typedef FuncVariable<T, StringCutObjectSelector<T>, bool> BoolVar;
+  std::vector<std::unique_ptr<Variable<T>>> vars_;
 };
 
 // Class for singletons like GenFilterInfo
@@ -470,8 +429,7 @@ public:
         skipNonExistingSrc_(
 
             params.existsAs<bool>("skipNonExistingSrc") ? params.getParameter<bool>("skipNonExistingSrc") : false),
-        src_(skipNonExistingSrc_ ? mayConsume<TProd, edm::InRun>(params.getParameter<edm::InputTag>("src"))
-                                 : consumes<TProd, edm::InRun>(params.getParameter<edm::InputTag>("src"))) {
+        src_(consumes<TProd, edm::InRun>(params.getParameter<edm::InputTag>("src"))) {
     edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string &vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
       const auto &varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);
@@ -482,10 +440,6 @@ public:
         vars_.push_back(std::make_unique<FloatVar>(vname, varPSet));
       else if (type == "uint8")
         vars_.push_back(std::make_unique<UInt8Var>(vname, varPSet));
-      // else if (type == "uint16")
-      //     vars_.push_back(std::make_unique<UInt16Var>(vname, varPSet));
-      // else if (type == "uint32")
-      //     vars_.push_back(std::make_unique<UInt32Var>(vname, varPSet));
       else if (type == "bool")
         vars_.push_back(std::make_unique<BoolVar>(vname, varPSet));
       else
@@ -525,64 +479,11 @@ protected:
   const bool skipNonExistingSrc_;
   const edm::EDGetTokenT<TProd> src_;
 
-  class VariableBase {
-  public:
-    VariableBase(const std::string &aname, const edm::ParameterSet &cfg)
-        : name_(aname),
-          doc_(cfg.getParameter<std::string>("doc")),
-          precision_(cfg.existsAs<int>("precision") ? cfg.getParameter<int>("precision")
-                                                    : (cfg.existsAs<std::string>("precision") ? -2 : -1)) {}
-    virtual ~VariableBase() {}
-    const std::string &name() const { return name_; }
-
-  protected:
-    std::string name_, doc_;
-    int precision_;
-  };
-
-  class Variable : public VariableBase {
-  public:
-    Variable(const std::string &aname, const edm::ParameterSet &cfg) : VariableBase(aname, cfg) {}
-    virtual void fill(std::vector<const T *> selobjs, nanoaod::FlatTable &out) const = 0;
-  };
-
-  template <typename StringFunctor, typename ValType>
-  class FuncVariable : public Variable {
-  public:
-    FuncVariable(const std::string &aname, const edm::ParameterSet &cfg)
-        : Variable(aname, cfg),
-          func_(cfg.getParameter<std::string>("expr"), true),
-          precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",
-                         true) {}
-    ~FuncVariable() override {}
-    void fill(std::vector<const T *> selobjs, nanoaod::FlatTable &out) const override {
-      std::vector<ValType> vals(selobjs.size());
-      for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-        if constexpr (std::is_same<ValType, float>()) {
-          if (this->precision_ == -2) {
-            vals[i] =
-                MiniFloatConverter::reduceMantissaToNbitsRounding(func_(*selobjs[i]), precisionFunc_(*selobjs[i]));
-          } else {
-            vals[i] = func_(*selobjs[i]);
-          }
-        } else {
-          vals[i] = func_(*selobjs[i]);
-        }
-      }
-      out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
-    }
-
-  protected:
-    StringFunctor func_;
-    StringFunctor precisionFunc_;
-  };
-  typedef FuncVariable<StringObjectFunction<T>, int> IntVar;
-  typedef FuncVariable<StringObjectFunction<T>, float> FloatVar;
-  typedef FuncVariable<StringObjectFunction<T>, uint8_t> UInt8Var;
-  // typedef FuncVariable<StringObjectFunction<T>, uint16_t> UInt16Var;
-  // typedef FuncVariable<StringObjectFunction<T>, uint32_t> UInt32Var;
-  typedef FuncVariable<StringCutObjectSelector<T>, bool> BoolVar;
-  std::vector<std::unique_ptr<Variable>> vars_;
+  typedef FuncVariable<T, StringObjectFunction<T>, int> IntVar;
+  typedef FuncVariable<T, StringObjectFunction<T>, float> FloatVar;
+  typedef FuncVariable<T, StringObjectFunction<T>, uint8_t> UInt8Var;
+  typedef FuncVariable<T, StringCutObjectSelector<T>, bool> BoolVar;
+  std::vector<std::unique_ptr<Variable<T>>> vars_;
 };
 
 // Class for singletons like GenFilterInfo
