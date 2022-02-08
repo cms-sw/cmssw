@@ -35,8 +35,8 @@ castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone(
 
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 
-from EventFilter.Utilities.tcdsRawToDigi_cfi import *
-tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
+from EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi import *
+tcdsDigis = EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
 
 from EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi import *
 onlineMetaDataDigis = EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi.onlineMetaDataRawToDigi.clone()
