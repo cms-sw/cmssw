@@ -36,6 +36,9 @@ GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset)
   eta_nbins_ = pset.getUntrackedParameter<int>("etaNbins");
   eta_low_ = pset.getUntrackedParameter<double>("etaLow");
   eta_up_ = pset.getUntrackedParameter<double>("etaUp");
+  monitor_ge11_ = pset.getUntrackedParameter<bool>("monitorGE11");
+  monitor_ge21_ = pset.getUntrackedParameter<bool>("monitorGE21");
+  monitor_ge0_ = pset.getUntrackedParameter<bool>("monitorGE0");
 
   const edm::ParameterSet&& muon_service_parameter = pset.getParameter<edm::ParameterSet>("ServiceParameters");
   muon_service_ = new MuonServiceProxy(muon_service_parameter, consumesCollector());
@@ -70,6 +73,9 @@ void GEMEfficiencyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
     desc.addUntracked<int>("etaNbins", 9);
     desc.addUntracked<double>("etaLow", 1.4);
     desc.addUntracked<double>("etaUp", 2.3);
+    desc.addUntracked<bool>("monitorGE11", true);
+    desc.addUntracked<bool>("monitorGE21", false);
+    desc.addUntracked<bool>("monitorGE0", false);
     {
       edm::ParameterSetDescription psd0;
       psd0.setAllowAnything();
@@ -98,6 +104,9 @@ void GEMEfficiencyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
     desc.addUntracked<int>("etaNbins", 9);
     desc.addUntracked<double>("etaLow", 1.4);
     desc.addUntracked<double>("etaUp", 2.3);
+    desc.addUntracked<bool>("monitorGE11", true);
+    desc.addUntracked<bool>("monitorGE21", false);
+    desc.addUntracked<bool>("monitorGE0", false);
     {
       edm::ParameterSetDescription psd0;
       psd0.setAllowAnything();
@@ -152,6 +161,10 @@ void GEMEfficiencyAnalyzer::bookEfficiencyMomentum(DQMStore::IBooker& ibooker, c
     const int region_id = station->region();
     const int station_id = station->station();
 
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
+
     const GEMDetId&& key = getReStKey(region_id, station_id);
     const TString&& name_suffix = GEMUtils::getSuffixName(region_id, station_id);
     const TString&& title_suffix = GEMUtils::getSuffixTitle(region_id, station_id);
@@ -180,6 +193,10 @@ void GEMEfficiencyAnalyzer::bookEfficiencyChamber(DQMStore::IBooker& ibooker, co
   for (const GEMStation* station : gem->stations()) {
     const int region_id = station->region();
     const int station_id = station->station();
+
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
 
     const std::vector<const GEMSuperChamber*>&& superchambers = station->superChambers();
     if (not checkRefs(superchambers)) {
@@ -217,6 +234,10 @@ void GEMEfficiencyAnalyzer::bookEfficiencyEtaPartition(DQMStore::IBooker& ibooke
     const int region_id = station->region();
     const int station_id = station->station();
 
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
+
     const std::vector<const GEMSuperChamber*>&& superchambers = station->superChambers();
     if (not checkRefs(superchambers)) {
       edm::LogError(kLogCategory_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
@@ -250,6 +271,10 @@ void GEMEfficiencyAnalyzer::bookEfficiencyDetector(DQMStore::IBooker& ibooker, c
   for (const GEMStation* station : gem->stations()) {
     const int region_id = station->region();
     const int station_id = station->station();
+
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
 
     const std::vector<const GEMSuperChamber*>&& superchambers = station->superChambers();
     if (not checkRefs(superchambers)) {
@@ -287,6 +312,10 @@ void GEMEfficiencyAnalyzer::bookResolution(DQMStore::IBooker& ibooker, const edm
   for (const GEMStation* station : gem->stations()) {
     const int region_id = station->region();
     const int station_id = station->station();
+
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
 
     const std::vector<const GEMSuperChamber*>&& superchambers = station->superChambers();
     if (not checkRefs(superchambers)) {
@@ -332,6 +361,10 @@ void GEMEfficiencyAnalyzer::bookMisc(DQMStore::IBooker& ibooker, const edm::ESHa
   for (const GEMStation* station : gem->stations()) {
     const int region_id = station->region();
     const int station_id = station->station();
+
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
 
     const std::vector<const GEMSuperChamber*>&& superchambers = station->superChambers();
     if (not checkRefs(superchambers)) {
@@ -394,11 +427,6 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
   edm::ESHandle<Propagator>&& propagator = muon_service_->propagator("SteppingHelixPropagatorAny");
   if (not propagator.isValid()) {
     edm::LogError(kLogCategory_) << "Propagator is invalid" << std::endl;
-    return;
-  }
-
-  if (rechit_collection->size() < 1) {
-    edm::LogInfo(kLogCategory_) << "empty rechit collection" << std::endl;
     return;
   }
 
@@ -537,6 +565,35 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
   }    // Muon
 }
 
+bool GEMEfficiencyAnalyzer::skipGEMStation(const int station) {
+  bool skip = false;
+
+  if (station == 1) {
+    if (not monitor_ge11_) {
+      LogDebug(kLogCategory_) << "skip GE11 because monitorGE11 is " << std::boolalpha << monitor_ge11_;
+      skip = true;
+    }
+
+  } else if (station == 2) {
+    if (not monitor_ge21_) {
+      LogDebug(kLogCategory_) << "skip GE21 because monitorGE21 is " << std::boolalpha << monitor_ge21_;
+      skip = true;
+    }
+
+  } else if (station == 0) {
+    if (not monitor_ge0_) {
+      LogDebug(kLogCategory_) << "skip GE0 because monitorGE0 is " << std::boolalpha << monitor_ge0_;
+      skip = true;
+    }
+
+  } else {
+    edm::LogError(kLogCategory_) << "got an unexpected GEM station " << station << ". skip this station.";
+    skip = true;
+  }
+
+  return skip;
+}
+
 std::vector<GEMEfficiencyAnalyzer::GEMLayerData> GEMEfficiencyAnalyzer::buildGEMLayers(
     const edm::ESHandle<GEMGeometry>& gem) {
   std::vector<GEMLayerData> layer_vector;
@@ -545,6 +602,10 @@ std::vector<GEMEfficiencyAnalyzer::GEMLayerData> GEMEfficiencyAnalyzer::buildGEM
     const int region_id = station->region();
     const int station_id = station->station();
     const bool is_ge11 = station_id == 1;
+
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
 
     // (layer_id, is_odd) - chambers
     std::map<std::pair<int, bool>, std::vector<const GEMChamber*> > chambers_per_layer;
