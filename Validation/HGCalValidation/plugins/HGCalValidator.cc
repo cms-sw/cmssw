@@ -26,9 +26,9 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClusterPlots")),
       label_LCToCPLinking_(pset.getParameter<edm::InputTag>("label_LCToCPLinking")),
       doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
-      label_TS_(pset.getParameter<edm::InputTag>("label_TS")),
-      label_TSToCPLinking_(pset.getParameter<edm::InputTag>("label_TSToCPLinking")),
-      label_TSToSTSPR_(pset.getParameter<edm::InputTag>("label_TSToSTSPR")),
+      label_TS_(pset.getParameter<std::string>("label_TS")),
+      label_TSToCPLinking_(pset.getParameter<std::string>("label_TSToCPLinking")),
+      label_TSToSTSPR_(pset.getParameter<std::string>("label_TSToSTSPR")),
       label_clustersmask(pset.getParameter<std::vector<edm::InputTag>>("LayerClustersInputMask")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")) {
   //In this way we can easily generalize to associations between other objects also.
@@ -206,17 +206,19 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
 
     ibook.setCurrentFolder(dirName);
 
-    //Booking histograms concerning HGCal tracksters
+    // Booking histograms concerning HGCal tracksters
     if (doTrackstersPlots_) {
       // Generic histos
-      ibook.setCurrentFolder(dirName + "/" + label_TS_.label());
+      ibook.setCurrentFolder(dirName + "/" + label_TS_);
       histoProducerAlgo_->bookTracksterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
       // CP Linking
-      ibook.setCurrentFolder(dirName + "/" + label_TSToCPLinking_.label());
-      histoProducerAlgo_->bookTracksterSTSHistos(ibook, histograms.histoProducerAlgo, 0);
+      ibook.setCurrentFolder(dirName + "/" + label_TSToCPLinking_);
+      histoProducerAlgo_->bookTracksterSTSHistos(
+          ibook, histograms.histoProducerAlgo, HGVHistoProducerAlgo::validationType::Linking);
       // SimTracksters Pattern Recognition
-      ibook.setCurrentFolder(dirName + "/" + label_TSToSTSPR_.label());
-      histoProducerAlgo_->bookTracksterSTSHistos(ibook, histograms.histoProducerAlgo, 1);
+      ibook.setCurrentFolder(dirName + "/" + label_TSToSTSPR_);
+      histoProducerAlgo_->bookTracksterSTSHistos(
+          ibook, histograms.histoProducerAlgo, HGVHistoProducerAlgo::validationType::PatternRecognition);
     }
   }  //end of booking Tracksters loop
 }
@@ -302,7 +304,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   removeCPFromPU(caloParticles, cPIndices);
 
   // ##############################################
-  // fill caloparticles histograms
+  // Fill caloparticles histograms
   // ##############################################
   // HGCRecHit are given to select the SimHits which are also reconstructed
   LogTrace("HGCalValidator") << "\n# of CaloParticles: " << caloParticles.size() << "\n" << std::endl;
@@ -342,7 +344,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   }
 
   // ##############################################
-  // fill simCluster histograms
+  // Fill simCluster histograms
   // ##############################################
   if (doSimClustersPlots_) {
     histoProducerAlgo_->fill_simCluster_histos(
@@ -378,7 +380,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   }
 
   // ##############################################
-  // fill layercluster histograms
+  // Fill layercluster histograms
   // ##############################################
   int w = 0;  //counter counting the number of sets of histograms
   if (doLayerClustersPlots_) {
@@ -408,7 +410,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   }
 
   // ##############################################
-  // fill Trackster histograms
+  // Fill Trackster histograms
   // ##############################################
   for (unsigned int wml = 0; wml < label_tstTokens.size(); wml++) {
     if (doTrackstersPlots_) {

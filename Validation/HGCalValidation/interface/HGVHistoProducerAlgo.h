@@ -257,7 +257,8 @@ public:
                                    std::vector<int> thicknesses);
 
   void bookTracksterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
-  void bookTracksterSTSHistos(DQMStore::IBooker& ibook, Histograms& histograms, const int i);
+  enum validationType { Linking = 0, PatternRecognition };
+  void bookTracksterSTSHistos(DQMStore::IBooker& ibook, Histograms& histograms, const validationType valType);
 
   void layerClusters_to_CaloParticles(const Histograms& histograms,
                                       edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -271,7 +272,7 @@ public:
                                       const hgcal::RecoToSimCollection& recSimColl,
                                       const hgcal::SimToRecoCollection& simRecColl) const;
   void layerClusters_to_SimClusters(const Histograms& histograms,
-                                    int count,
+                                    const int count,
                                     edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                     const reco::CaloClusterCollection& clusters,
                                     edm::Handle<std::vector<SimCluster>> simClusterHandle,
@@ -283,11 +284,11 @@ public:
                                     const hgcal::RecoToSimCollectionWithSimClusters& recSimColl,
                                     const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
   void tracksters_to_SimTracksters(const Histograms& histograms,
-                                   int count,
+                                   const int count,
                                    const ticl::TracksterCollection& Tracksters,
                                    const reco::CaloClusterCollection& layerClusters,
                                    const ticl::TracksterCollection& simTS,
-                                   const int val,
+                                   const validationType valType,
                                    const ticl::TracksterCollection& simTS_fromCP,
                                    std::map<uint, std::vector<uint>> const& simTrackstersMap,
                                    std::vector<SimCluster> const& sC,
@@ -305,7 +306,7 @@ public:
                                 unsigned int layers,
                                 std::unordered_map<DetId, const HGCRecHit*> const&) const;
   void fill_generic_cluster_histos(const Histograms& histograms,
-                                   int count,
+                                   const int count,
                                    edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                    const reco::CaloClusterCollection& clusters,
                                    const Density& densities,
@@ -324,7 +325,7 @@ public:
                               unsigned int layers,
                               std::vector<int> thicknesses) const;
   void fill_simClusterAssociation_histos(const Histograms& histograms,
-                                         int count,
+                                         const int count,
                                          edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                          const reco::CaloClusterCollection& clusters,
                                          edm::Handle<std::vector<SimCluster>> simClusterHandle,
@@ -335,9 +336,9 @@ public:
                                          unsigned int layers,
                                          const hgcal::RecoToSimCollectionWithSimClusters& recSimColl,
                                          const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
-  void fill_cluster_histos(const Histograms& histograms, int count, const reco::CaloCluster& cluster) const;
+  void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
   void fill_trackster_histos(const Histograms& histograms,
-                             int count,
+                             const int count,
                              const ticl::TracksterCollection& Tracksters,
                              const reco::CaloClusterCollection& layerClusters,
                              const ticl::TracksterCollection& simTS,
