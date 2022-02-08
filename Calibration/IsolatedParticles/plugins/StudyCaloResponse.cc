@@ -413,14 +413,15 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
   //Look at the tracks
   edm::Handle<reco::TrackCollection> trkCollection;
   iEvent.getByToken(tok_genTrack_, trkCollection);
-  
+
   edm::Handle<reco::MuonCollection> muonEventHandle;
   iEvent.getByToken(tok_Muon_, muonEventHandle);
 
   if ((!trkCollection.isValid()) || (!muonEventHandle.isValid())) {
-    edm::LogError("IsoTrack") << "Track collection " << trkCollection.isValid() << " Muon collection " << muonEventHandle.isValid();
+    edm::LogError("IsoTrack") << "Track collection " << trkCollection.isValid() << " Muon collection "
+                              << muonEventHandle.isValid();
     ok = false;
-  } 
+  }
 
   if (ok) {
     h_goodRun->Fill(RunNo);
@@ -440,14 +441,14 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
     } else {
       nvtxs = (int)(recVtxs->size());
       for (int ind = 0; ind < nvtxs; ind++) {
-	if (!((*recVtxs)[ind].isFake()) && (*recVtxs)[ind].ndof() > 4)
-	  ngoodPV++;
+        if (!((*recVtxs)[ind].isFake()) && (*recVtxs)[ind].ndof() > 4)
+          ngoodPV++;
       }
       for (int i = 0; i < nPVBin_; ++i) {
-	if (ngoodPV >= pvBin_[i] && ngoodPV < pvBin_[i + 1]) {
-	  nPV = i;
-	  break;
-	}
+        if (ngoodPV >= pvBin_[i] && ngoodPV < pvBin_[i + 1]) {
+          nPV = i;
+          break;
+        }
       }
     }
 
