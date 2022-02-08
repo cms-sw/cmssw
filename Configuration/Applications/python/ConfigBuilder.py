@@ -2218,7 +2218,7 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +=dumpPython(self.process,object)
 
         if self._options.pileup=='HiMixEmbGEN':
-            self.pythonCfgCode += "\nprocess.generator.embeddingMode=cms.bool(True)\n"
+            self.pythonCfgCode += "\nprocess.generator.embeddingMode=cms.int32(1)\n"
 
         # dump all paths
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"

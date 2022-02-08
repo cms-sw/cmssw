@@ -34,7 +34,7 @@ hydjetParameters = cms.PSet(sigmaInelNN = cms.double(70),
                             rotateEventPlane = cms.bool(True),
                             allowEmptyEvents = cms.bool(False),
                             angularSpectrumSelector = cms.int32(0), ## angular emitted gluon spectrum :
-                            embeddingMode = cms.bool(False)
+                            embeddingMode = cms.int32(False)
                             )
 
 pyquenPythiaDefaultBlock = cms.PSet(

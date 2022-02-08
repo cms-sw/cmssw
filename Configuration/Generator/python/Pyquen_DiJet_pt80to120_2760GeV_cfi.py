@@ -19,8 +19,6 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                         bMax = cms.double(0.0) ## max impact param (fm); valid only if cflag_!=0
                         )
 
-generator.embeddingMode = False
-
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/Configuration/Generator/python/Pyquen_DiJet_pt80to120_2760GeV_cfi.py,v $'),

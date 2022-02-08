@@ -1,53 +1,57 @@
-// -*- C++ -*-
-//
-// Package: Hydjet2Analyzer
-// Class: Hydjet2Analyzer
-//
-/**\class HydjetAnalyzer HydjetAnalyzer.cc yetkin/HydjetAnalyzer/src/HydjetAnalyzer.cc
-   Description: <one line class summary>
-   Implementation:
-   <Notes on implementation>
+/**
+   \class Hydjet2Analyzer
+   \brief HepMC events analyzer
+   \version 2.0
+   \authors Yetkin Yilmaz, Andrey Belyaev
 */
-//
-// Original Author: Yetkin Yilmaz
-// Created: Tue Dec 18 09:44:41 EST 2007
-//
-//
+
 // system include files
 #include <cmath>
-#include <memory>
-#include <iostream>
-#include <string>
 #include <fstream>
+#include <iostream>
+#include <memory>
+#include <string>
+
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include "HepMC/GenEvent.h"
 #include "HepMC/HeavyIon.h"
+
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 // root include file
 #include "TFile.h"
 #include "TNtuple.h"
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
+using namespace edm;
 using namespace std;
 static const int MAXPARTICLES = 5000000;
 static const int ETABINS = 3;  // Fix also in branch string
-//
-// class decleration
-//
+
 struct Hydjet2Event {
   int event;
   float b;
@@ -69,6 +73,7 @@ struct Hydjet2Event {
   float phi[MAXPARTICLES];
   int pdg[MAXPARTICLES];
   int chg[MAXPARTICLES];
+
   float vx;
   float vy;
   float vz;
@@ -144,11 +149,14 @@ private:
   double downTetaCut_ = -1.;
   const double pi = 3.14159265358979;
 
-  edm::InputTag src_;
+  edm::EDGetTokenT<edm::HepMCProduct> srcT_;
+  edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> srcTmix_;
+
   edm::InputTag genParticleSrc_;
   edm::InputTag genHIsrc_;
   edm::InputTag simVerticesTag_;
-  edm::ESHandle<ParticleDataTable> pdt;
+  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdt_;
+
   edm::Service<TFileService> f;
 
   //common
@@ -262,17 +270,9 @@ private:
   TH1D *uhv0etah_db;
   TH1D *uhv0etaj_db;
 };
-//
-// constants, enums and typedefs
-//
-//
-// static data member definitions
-//
-//
-// constructors and destructor
-//
+
 Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
-  //now do what ever initialization is needed
+  pdt_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
   fBFileName = iConfig.getUntrackedParameter<std::string>("output_b", "b_values.txt");
   fNFileName = iConfig.getUntrackedParameter<std::string>("output_n", "n_values.txt");
   fMFileName = iConfig.getUntrackedParameter<std::string>("output_m", "m_values.txt");
@@ -286,7 +286,11 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
   }
   etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2.);
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
-  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("VtxSmeared"));
+  srcT_ = mayConsume<HepMCProduct>(
+      iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("generator", "unsmeared")));
+  srcTmix_ = consumes<CrossingFrame<edm::HepMCProduct>>(
+      iConfig.getUntrackedParameter<edm::InputTag>("srcMix", edm::InputTag("mix", "generatorSmeared")));
+
   genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("hiGenParticles"));
   genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("heavyIon"));
   doParticles_ = iConfig.getUntrackedParameter<bool>("doParticles", false);
@@ -302,11 +306,11 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
       uPDG_3 = iConfig.getUntrackedParameter<int>("uPDG_3", uPDG_1);
       upTetaCut_ = iConfig.getUntrackedParameter<double>("uPTetaCut", 0.8);
       downTetaCut_ = iConfig.getUntrackedParameter<double>("dPTetaCut", -1.);
-      uPtBins_ = iConfig.getUntrackedParameter<vector<double> >("PtBins");
-      uEtaBins_ = iConfig.getUntrackedParameter<vector<double> >("EtaBins");
-      uPhiBins_ = iConfig.getUntrackedParameter<vector<double> >("PhiBins");
-      uV2ptBins_ = iConfig.getUntrackedParameter<vector<double> >("v2PtBins");
-      uV2etaBins_ = iConfig.getUntrackedParameter<vector<double> >("v2EtaBins");
+      uPtBins_ = iConfig.getUntrackedParameter<vector<double>>("PtBins");
+      uEtaBins_ = iConfig.getUntrackedParameter<vector<double>>("EtaBins");
+      uPhiBins_ = iConfig.getUntrackedParameter<vector<double>>("PhiBins");
+      uV2ptBins_ = iConfig.getUntrackedParameter<vector<double>>("v2PtBins");
+      uV2etaBins_ = iConfig.getUntrackedParameter<vector<double>>("v2EtaBins");
 
       //Pt
       int PtSize = uPtBins_.size();
@@ -397,19 +401,14 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
           v2etaBins[k] = minV2eta + k * ((maxV2eta - minV2eta) / nintV2eta);
         }
       }
-
     }  //user histo
   }    //do histo
 }
-Hydjet2Analyzer::~Hydjet2Analyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-//
-// member functions
-//
-// ------------ method called to for each event ------------
+Hydjet2Analyzer::~Hydjet2Analyzer() {}
+
+// ------------ method called to for each event  ------------
 void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  auto const &pdt = iSetup.getData(pdt_);
   using namespace edm;
   using namespace HepMC;
   hev_.event = iEvent.id().event();
@@ -438,16 +437,17 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
   if (useHepMCProduct_) {
     //_______________________________________________________________________________________
     if (doCF_) {
-      Handle<CrossingFrame<HepMCProduct> > cf;
-      iEvent.getByLabel(InputTag("mix", "source"), cf);
+      Handle<CrossingFrame<HepMCProduct>> cf;
+      iEvent.getByToken(srcTmix_, cf);
       MixCollection<HepMCProduct> mix(cf.product());
       nmix = mix.size();
-      cout << "Mix Collection Size: " << mix << endl;
+      //cout << "Mix Collection Size: " << mix.size() <<", pileup size: " <<mix.sizePileup() << ", signal: "<<mix.sizeSignal()<< endl;
       MixCollection<HepMCProduct>::iterator mbegin = mix.begin();
       MixCollection<HepMCProduct>::iterator mend = mix.end();
       for (MixCollection<HepMCProduct>::iterator mixit = mbegin; mixit != mend; ++mixit) {
         const GenEvent *subevt = (*mixit).GetEvent();
         int all = subevt->particles_size();
+        //cout << "Subevent size: " << all << " Subevent type (1-signal): "<< (mixit).getTrigger()<<" Source type (pileup=0, cosmics=1, beam halo+ =2, beam halo- =3): "<< (mixit).getSourceType()<<" Bunchcrossing number: "<< mixit.bunch()<<" Impact: " <<subevt->heavy_ion()->impact_parameter()<<endl;
         np += all;
         HepMC::GenEvent::particle_const_iterator begin = subevt->particles_begin();
         HepMC::GenEvent::particle_const_iterator end = subevt->particles_end();
@@ -457,13 +457,15 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
             float eta = (*it)->momentum().eta();
             float phi = (*it)->momentum().phi();
             float pt = (*it)->momentum().perp();
-            const ParticleData *part = pdt->particle(pdg_id);
+            const ParticleData *part = pdt.particle(pdg_id);
             int charge = static_cast<int>(part->charge());
             hev_.pt[hev_.mult] = pt;
             hev_.eta[hev_.mult] = eta;
             hev_.phi[hev_.mult] = phi;
             hev_.pdg[hev_.mult] = pdg_id;
             hev_.chg[hev_.mult] = charge;
+
+            //cout << "Mix Particles: pt= " << pt<<" eta="<<eta<<" phi="<<phi<<" pdg="<< pdg_id<<" charge="<<charge << endl;
             eta = fabs(eta);
             int etabin = 0;
             if (eta > 0.5)
@@ -480,7 +482,7 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
       }
     } else {  //not mixing
       Handle<HepMCProduct> mc;
-      iEvent.getByLabel(src_, mc);
+      iEvent.getByToken(srcT_, mc);
       evt = mc->GetEvent();
       scale = evt->event_scale();
       const HeavyIon *hi = evt->heavy_ion();
@@ -491,13 +493,16 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
         ncoll = hi->Ncoll();
         nhard = hi->Ncoll_hard();
         phi0 = hi->event_plane_angle();
-        phi3 = 0.;  // No HepMC entry for Psi3 exist, but in private code it's possible to use hi->eccentricity();
+        phi3 =
+            hi->eccentricity();  // 0.;  // No HepMC entry for Psi3 exist, but in private code it's possible to use hi->eccentricity();
         if (printLists_) {
           out_b << b << endl;
           out_n << npart << endl;
         }
       }
+
       src = evt->particles_size();
+
       HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
       HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
       for (HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it) {
@@ -514,19 +519,19 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           float e = (*it)->momentum().e();
           float pseudoRapidity = (*it)->momentum().pseudoRapidity();
           int charge = -1;
-          if ((pdt->particle(pdg_id))) {
-            part = pdt->particle(pdg_id);
+          if ((pdt.particle(pdg_id))) {
+            part = pdt.particle(pdg_id);
             charge = static_cast<int>(part->charge());
           }
 
           /*
           if(pdg_id==-130){ //there are not -130 in pdt
-	    part = pdt->particle(130);
-	  }else if(!(pdt->particle(pdg_id))){ //skip if not in PDT!!!
+	    part = pdt.particle(130);
+	  }else if(!(pdt.particle(pdg_id))){ //skip if not in PDT!!!
 	    cout<<" Out of PDT: "<< pdg_id<<endl;
 	    continue;
           }else{
-	    part = pdt->particle(pdg_id);
+	    part = pdt.particle(pdg_id);
           }
 */
           //          int charge = static_cast<int>(part->charge());
@@ -729,6 +734,7 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
       hev_.pdg[hev_.mult] = p.pdgId();
       hev_.chg[hev_.mult] = p.charge();
       double eta = fabs(p.eta());
+
       int etabin = 0;
       if (eta > 0.5)
         etabin = 1;
@@ -745,12 +751,15 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
       iEvent.getByLabel(genHIsrc_, higen);
     }
   }
+
   if (doVertex_) {
     edm::Handle<edm::SimVertexContainer> simVertices;
     iEvent.getByLabel<edm::SimVertexContainer>(simVerticesTag_, simVertices);
+
     if (!simVertices.isValid())
       throw cms::Exception("FatalError") << "No vertices found\n";
     int inum = 0;
+
     edm::SimVertexContainer::const_iterator it = simVertices->begin();
     SimVertex vertex = (*it);
     cout << " Vertex position " << inum << " " << vertex.position().rho() << " " << vertex.position().z() << endl;
@@ -759,9 +768,11 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     vz = vertex.position().z();
     vr = vertex.position().rho();
   }
+
   for (int i = 0; i < 3; ++i) {
     hev_.ptav[i] = hev_.ptav[i] / hev_.n[i];
   }
+
   hev_.b = b;
   hev_.scale = scale;
   hev_.npart = npart;
@@ -783,8 +794,8 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     hNev->Fill(1., 1);
   }
 }
-// ------------ method called once each job just before starting event loop ------------
-void Hydjet2Analyzer::beginRun(const edm::Run &, const edm::EventSetup &iSetup) { iSetup.getData(pdt); }
+// ------------ method called once each job just before starting event loop  ------------
+void Hydjet2Analyzer::beginRun(const edm::Run &, const edm::EventSetup &iSetup) {}
 void Hydjet2Analyzer::beginJob() {
   if (printLists_) {
     out_b.open(fBFileName.c_str());
@@ -800,11 +811,6 @@ void Hydjet2Analyzer::beginJob() {
 
   if (doHistos_) {
     if (userHistos_) {
-      cout << "---------------------------------------------------------------INPUT------------------------------------"
-              "-------------------------------"
-           << endl;
-      cout << "etaCut for pT = " << downTetaCut_ << " - " << upTetaCut_ << endl;
-
       //pt
       uhpt = new TH1D("uhpt", "uhpt", nintPt, ptBins);
       uhptj = new TH1D("uhptj", "uhptj", nintPt, ptBins);
@@ -939,7 +945,7 @@ void Hydjet2Analyzer::beginJob() {
 
   if (doAnalysis_) {
     nt = f->make<TNtuple>("nt", "Mixing Analysis", "mix:np:src:sig");
-    hydjetTree_ = f->make<TTree>("hi", "Tree of Hydjet Events");
+    hydjetTree_ = f->make<TTree>("hi", "Tree of Hydjet2 Events");
     hydjetTree_->Branch("event", &hev_.event, "event/I");
     hydjetTree_->Branch("b", &hev_.b, "b/F");
     hydjetTree_->Branch("npart", &hev_.npart, "npart/F");
@@ -961,6 +967,7 @@ void Hydjet2Analyzer::beginJob() {
       hydjetTree_->Branch("phi", hev_.phi, "phi[mult]/F");
       hydjetTree_->Branch("pdg", hev_.pdg, "pdg[mult]/I");
       hydjetTree_->Branch("chg", hev_.chg, "chg[mult]/I");
+
       hydjetTree_->Branch("vx", &hev_.vx, "vx/F");
       hydjetTree_->Branch("vy", &hev_.vy, "vy/F");
       hydjetTree_->Branch("vz", &hev_.vz, "vz/F");
@@ -968,7 +975,7 @@ void Hydjet2Analyzer::beginJob() {
     }
   }
 }
-// ------------ method called once each job just after ending the event loop ------------
+// ------------ method called once each job just after ending the event loop  ------------
 void Hydjet2Analyzer::endJob() {
   if (doHistos_) {
     dhpt->Write();
