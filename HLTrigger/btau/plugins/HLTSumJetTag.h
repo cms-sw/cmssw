@@ -30,9 +30,7 @@ public:
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
 private:
-  float findTagValueByMinDeltaR2(const T & jet, 
-				 const reco::JetTagCollection & jetTags, 
-				 float maxDeltaR2) const;
+  float findTagValueByMinDeltaR2(const T& jet, const reco::JetTagCollection& jetTags, float maxDeltaR2) const;
 
   const edm::InputTag m_Jets;     // input jet collection
   const edm::InputTag m_JetTags;  // input tag collection
@@ -43,8 +41,8 @@ private:
   const unsigned int m_MinJetToSum;  // min number of jets to be considered in the mean
   const unsigned int m_MaxJetToSum;  // max number of jets to be considered in the mean
   const bool m_UseMeanValue;         // consider mean instead of sum of jet tags
-  const bool m_MatchByDeltaR;  // find jet-tag value by Delta-R matching
-  const bool m_MaxDeltaR;      // max Delta-R to assign jet-tag to a jet via Delta-R matching
+  const bool m_MatchByDeltaR;        // find jet-tag value by Delta-R matching
+  const bool m_MaxDeltaR;            // max Delta-R to assign jet-tag to a jet via Delta-R matching
   const int m_TriggerType;
 };
 
