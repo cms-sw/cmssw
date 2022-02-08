@@ -17,6 +17,8 @@
 #include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "DataFormats/Math/interface/libminifloat.h"
+
 class HLTScoutingPrimaryVertexProducer : public edm::global::EDProducer<> {
 public:
   explicit HLTScoutingPrimaryVertexProducer(const edm::ParameterSet&);
@@ -53,14 +55,14 @@ void HLTScoutingPrimaryVertexProducer::produce(edm::StreamID sid,
 
   if (iEvent.getByToken(vertexCollection_, vertexCollection)) {
     for (auto& vtx : *vertexCollection) {
-      outVertices->emplace_back(vtx.x(),
-                                vtx.y(),
-                                vtx.z(),
-                                vtx.zError(),
-                                vtx.xError(),
-                                vtx.yError(),
+      outVertices->emplace_back(MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.x(), 10),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.y(), 10),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.z(), 10),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.zError(), 10),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.xError(), 10),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.yError(), 10),
                                 vtx.tracksSize(),
-                                vtx.chi2(),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.chi2(), 10),
                                 vtx.ndof(),
                                 vtx.isValid());
     }

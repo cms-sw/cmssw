@@ -45,8 +45,9 @@ private:
   const edm::EDGetTokenT<reco::TrackCollection> otherTrackCollection_;
   const edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
 
-  const int mantissaPrecision;
-  const double vtxMinDist;
+  const int mantissaPrecision_;
+  const double vtxMinDist_;
+  const double ptMin_;
 };
 
 //
@@ -55,8 +56,9 @@ private:
 HLTScoutingTrackProducer::HLTScoutingTrackProducer(const edm::ParameterSet& iConfig)
     : otherTrackCollection_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("OtherTracks"))),
       vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))),
-      mantissaPrecision(iConfig.getParameter<int>("mantissaPrecision")),
-      vtxMinDist(iConfig.getParameter<double>("vtxMinDist")) {
+      mantissaPrecision_(iConfig.getParameter<int>("mantissaPrecision")),
+      vtxMinDist_(iConfig.getParameter<double>("vtxMinDist")),
+      ptMin_(iConfig.getParameter<double>("ptMin")) {
   //register products
   produces<Run3ScoutingTrackCollection>();
 }
@@ -76,8 +78,11 @@ void HLTScoutingTrackProducer::produce(edm::StreamID sid, edm::Event& iEvent, ed
     //match tracks to vertices
     for (auto& trk : *otherTrackCollection) {
       int vtxInd = -1;
-      double min_dist = vtxMinDist;
+      double min_dist = vtxMinDist_;
       int vtxIt = 0;
+
+      if (trk.pt() < ptMin_)
+        continue;
 
       if (iEvent.getByToken(vertexCollection_, vertexCollection)) {
         for (auto& vrt : *vertexCollection) {
@@ -93,40 +98,41 @@ void HLTScoutingTrackProducer::produce(edm::StreamID sid, edm::Event& iEvent, ed
       }
 
       //fill track information
-      outTrack->emplace_back(MiniFloatConverter::reduceMantissaToNbitsRounding(trk.pt(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.eta(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.phi(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.chi2(), mantissaPrecision),
-                             trk.ndof(),
-                             trk.charge(),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dxy(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dz(), mantissaPrecision),
-                             trk.hitPattern().numberOfValidPixelHits(),
-                             trk.hitPattern().trackerLayersWithMeasurement(),
-                             trk.hitPattern().numberOfValidStripHits(),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.qoverp(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.lambda(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dxyError(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dzError(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.qoverpError(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.lambdaError(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.phiError(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dsz(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dszError(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(0, 1), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(0, 2), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(0, 3), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(0, 4), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(1, 2), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(1, 3), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(1, 4), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(2, 3), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(2, 4), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(3, 4), mantissaPrecision),
-                             vtxInd,
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.vx(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.vy(), mantissaPrecision),
-                             MiniFloatConverter::reduceMantissaToNbitsRounding(trk.vz(), mantissaPrecision));
+      outTrack->emplace_back(
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.pt(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.eta(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.phi(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.chi2(), mantissaPrecision_),
+          trk.ndof(),
+          trk.charge(),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dxy(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dz(), mantissaPrecision_),
+          trk.hitPattern().numberOfValidPixelHits(),
+          trk.hitPattern().trackerLayersWithMeasurement(),
+          trk.hitPattern().numberOfValidStripHits(),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.qoverp(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.lambda(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dxyError(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dzError(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.qoverpError(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.lambdaError(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.phiError(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dsz(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.dszError(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(0, 1), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(0, 2), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(0, 3), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(0, 4), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(1, 2), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(1, 3), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(1, 4), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(2, 3), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(2, 4), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.covariance(3, 4), mantissaPrecision_),
+          vtxInd,
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.vx(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.vy(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(trk.vz(), mantissaPrecision_));
     }
   }
 
@@ -141,6 +147,7 @@ void HLTScoutingTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 
   desc.add<int>("mantissaPrecision", 10)->setComment("default float16, change to 23 for float32");
   desc.add<double>("vtxMinDist", 0.01);
+  desc.add<double>("ptMin", 0.3);
   descriptions.add("hltScoutingTrackProducer", desc);
 }
 
