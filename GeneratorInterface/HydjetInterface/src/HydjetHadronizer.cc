@@ -1,6 +1,6 @@
 /**
    \brief Interface to the HYDJET generator (since core v. 1.9.1), produces HepMC events
-   \version 2.0
+   \version 2.1
    \authors Camelia Mironov, Andrey Belyaev
 */
 
@@ -64,7 +64,7 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset, edm::ConsumesCollec
       bmax_(pset.getParameter<double>("bMax")),
       bmin_(pset.getParameter<double>("bMin")),
       cflag_(pset.getParameter<int>("cFlag")),
-      embedding_(pset.getParameter<bool>("embeddingMode")),
+      embedding_(pset.getParameter<int>("embeddingMode")),
       comenergy(pset.getParameter<double>("comEnergy")),
       doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
       docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
