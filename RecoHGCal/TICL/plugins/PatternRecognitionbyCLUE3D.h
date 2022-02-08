@@ -28,6 +28,8 @@ namespace ticl {
     struct ClustersOnLayer {
       std::vector<float> x;
       std::vector<float> y;
+      std::vector<float> z;
+      std::vector<float> r_over_absz;
       std::vector<float> radius;
       std::vector<float> eta;
       std::vector<float> phi;
@@ -46,6 +48,8 @@ namespace ticl {
       void clear() {
         x.clear();
         y.clear();
+        z.clear();
+        r_over_absz.clear();
         radius.clear();
         eta.clear();
         phi.clear();
@@ -63,6 +67,8 @@ namespace ticl {
       void shrink_to_fit() {
         x.shrink_to_fit();
         y.shrink_to_fit();
+        z.shrink_to_fit();
+        r_over_absz.shrink_to_fit();
         radius.shrink_to_fit();
         eta.shrink_to_fit();
         phi.shrink_to_fit();
