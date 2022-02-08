@@ -1,6 +1,6 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_3_0/HIon --type HIon
 
-# /dev/CMSSW_12_3_0/HIon/V23 (CMSSW_12_3_0_pre4)
+# /dev/CMSSW_12_3_0/HIon/V29 (CMSSW_12_3_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V23')
+  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V29')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -3676,32 +3676,22 @@ fragment.streams = cms.PSet(
   HIDQMOnlineBeamspot = cms.vstring( 'HIDQMOnlineBeamspot' ),
   HIExpress = cms.vstring( 'HIExpressPhysics' ),
   HIExpressAlignment = cms.vstring( 'HIExpressAlignment' ),
-  HIPhysicsCommissioning = cms.vstring( 'HIEmptyBX',
+  NanoDST = cms.vstring( 'L1Accept' ),
+  PhysicsHICommissioning = cms.vstring( 'HIEmptyBX',
     'HIHLTPhysics',
     'HIHcalNZS' ),
-  HIPhysicsDoubleMuon = cms.vstring( 'HIDoubleMuon',
+  PhysicsHIDoubleMuon = cms.vstring( 'HIDoubleMuon',
     'HIDoubleMuonPsiPeri' ),
-  HIPhysicsForward = cms.vstring( 'HICastor',
+  PhysicsHIForward = cms.vstring( 'HICastor',
     'HIForward' ),
-  HIPhysicsHardProbes = cms.vstring( 'HIHardProbes' ),
-  HIPhysicsHardProbesLower = cms.vstring( 'HIHardProbesLower' ),
-  HIPhysicsHardProbesPeripheral = cms.vstring( 'HIHardProbesPeripheral' ),
-  HIPhysicsHeavyFlavor = cms.vstring( 'HIHeavyFlavor' ),
-  HIPhysicsHighMultiplicty = cms.vstring( 'HIHighMultiplicityETTAsym' ),
-  HIPhysicsLowMultiplicity = cms.vstring( 'HILowMultiplicity' ),
-  HIPhysicsMinimumBias0 = cms.vstring( 'HIMinimumBias0' ),
-  HIPhysicsMinimumBias1 = cms.vstring( 'HIMinimumBias1' ),
-  HIPhysicsMinimumBias2 = cms.vstring( 'HIMinimumBias2' ),
-  HIPhysicsMinimumBias3 = cms.vstring( 'HIMinimumBias3' ),
-  HIPhysicsMinimumBias4 = cms.vstring( 'HIMinimumBias4' ),
-  HIPhysicsMinimumBias5 = cms.vstring( 'HIMinimumBias5' ),
-  HIPhysicsMinimumBias6 = cms.vstring( 'HIMinimumBias6' ),
-  HIPhysicsMinimumBias7 = cms.vstring( 'HIMinimumBias7' ),
-  HIPhysicsMinimumBias8 = cms.vstring( 'HIMinimumBias8' ),
-  HIPhysicsMinimumBias9 = cms.vstring( 'HIMinimumBias9' ),
-  HIPhysicsSingleMuon = cms.vstring( 'HISingleMuon' ),
-  HITrackerNZS = cms.vstring( 'HITrackerNZS' ),
-  NanoDST = cms.vstring( 'L1Accept' ),
+  PhysicsHIHardProbes = cms.vstring( 'HIHardProbes' ),
+  PhysicsHIHardProbesLower = cms.vstring( 'HIHardProbesLower' ),
+  PhysicsHIHardProbesPeripheral = cms.vstring( 'HIHardProbesPeripheral' ),
+  PhysicsHIHeavyFlavor = cms.vstring( 'HIHeavyFlavor' ),
+  PhysicsHIHighMultiplicity = cms.vstring( 'HIHighMultiplicityETTAsym' ),
+  PhysicsHILowMultiplicity = cms.vstring( 'HILowMultiplicity' ),
+  PhysicsHIMinimumBias0 = cms.vstring( 'HIMinimumBias0' ),
+  PhysicsHIMinimumBias1 = cms.vstring( 'HIMinimumBias1' ),
   PhysicsHIMinimumBias10 = cms.vstring( 'HIMinimumBias10' ),
   PhysicsHIMinimumBias11 = cms.vstring( 'HIMinimumBias11' ),
   PhysicsHIMinimumBias12 = cms.vstring( 'HIMinimumBias12' ),
@@ -3712,6 +3702,14 @@ fragment.streams = cms.PSet(
   PhysicsHIMinimumBias17 = cms.vstring( 'HIMinimumBias17' ),
   PhysicsHIMinimumBias18 = cms.vstring( 'HIMinimumBias18' ),
   PhysicsHIMinimumBias19 = cms.vstring( 'HIMinimumBias19' ),
+  PhysicsHIMinimumBias2 = cms.vstring( 'HIMinimumBias2' ),
+  PhysicsHIMinimumBias3 = cms.vstring( 'HIMinimumBias3' ),
+  PhysicsHIMinimumBias4 = cms.vstring( 'HIMinimumBias4' ),
+  PhysicsHIMinimumBias5 = cms.vstring( 'HIMinimumBias5' ),
+  PhysicsHIMinimumBias6 = cms.vstring( 'HIMinimumBias6' ),
+  PhysicsHIMinimumBias7 = cms.vstring( 'HIMinimumBias7' ),
+  PhysicsHIMinimumBias8 = cms.vstring( 'HIMinimumBias8' ),
+  PhysicsHIMinimumBias9 = cms.vstring( 'HIMinimumBias9' ),
   PhysicsHIMinimumBiasReducedFormat0 = cms.vstring( 'HIMinimumBiasReducedFormat0' ),
   PhysicsHIMinimumBiasReducedFormat1 = cms.vstring( 'HIMinimumBiasReducedFormat1' ),
   PhysicsHIMinimumBiasReducedFormat10 = cms.vstring( 'HIMinimumBiasReducedFormat10' ),
@@ -3724,6 +3722,8 @@ fragment.streams = cms.PSet(
   PhysicsHIMinimumBiasReducedFormat7 = cms.vstring( 'HIMinimumBiasReducedFormat7' ),
   PhysicsHIMinimumBiasReducedFormat8 = cms.vstring( 'HIMinimumBiasReducedFormat8' ),
   PhysicsHIMinimumBiasReducedFormat9 = cms.vstring( 'HIMinimumBiasReducedFormat9' ),
+  PhysicsHISingleMuon = cms.vstring( 'HISingleMuon' ),
+  PhysicsHITrackerNZS = cms.vstring( 'HITrackerNZS' ),
   RPCMON = cms.vstring( 'RPCMonitor' )
 )
 fragment.datasets = cms.PSet( 
