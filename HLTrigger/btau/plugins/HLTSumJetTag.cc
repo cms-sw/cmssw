@@ -13,8 +13,8 @@ HLTSumJetTag<T>::HLTSumJetTag(const edm::ParameterSet& config)
     : HLTFilter(config),
       m_Jets(config.getParameter<edm::InputTag>("Jets")),
       m_JetTags(config.getParameter<edm::InputTag>("JetTags")),
-      m_JetsToken(consumes<std::vector<T>>(m_Jets)),
-      m_JetTagsToken(consumes<reco::JetTagCollection>(m_JetTags)),
+      m_JetsToken(consumes(m_Jets)),
+      m_JetTagsToken(consumes(m_JetTags)),
       m_MinTag(config.getParameter<double>("MinTag")),
       m_MaxTag(config.getParameter<double>("MaxTag")),
       m_MinJetToSum(config.getParameter<unsigned int>("MinJetToSum")),
@@ -69,32 +69,35 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
 
   typedef edm::Ref<std::vector<T>> TRef;
 
-  edm::Handle<std::vector<T>> h_JetsH;
-  event.getByToken(m_JetsToken, h_JetsH);
-  const std::vector<T> h_Jets = *h_JetsH;
-
-  edm::Handle<reco::JetTagCollection> h_JetTagsH;
-  event.getByToken(m_JetTagsToken, h_JetTagsH);
-  const reco::JetTagCollection h_JetTags = *h_JetTagsH;
+  auto const h_Jets = event.getHandle(m_JetsToken);
+  auto const h_JetTags = event.getHandle(m_JetTagsToken);
 
   std::vector<TRef> jetRefCollection;
-  jetRefCollection.reserve(h_Jets.size());
+  jetRefCollection.reserve(h_Jets->size());
 
   std::vector<float> jetTagValues;
-  jetTagValues.reserve(h_Jets.size());
+  jetTagValues.reserve(h_Jets->size());
 
-  //// Loop on jet tags and store values
-  float maxDeltaR2 = m_MaxDeltaR * m_MaxDeltaR;
-  for (size_t iJet = 0; iJet < h_Jets.size(); ++iJet) {
-    jetRefCollection.emplace_back(h_JetsH, iJet);
-    float jetTag = m_MatchByDeltaR ? findTagValueByMinDeltaR2(h_Jets[iJet], h_JetTags, maxDeltaR2)
-                                   : h_JetTags[reco::JetBaseRef(jetRefCollection.back())];
-    jetTagValues.emplace_back(jetTag);
-
-    LogDebug("HLTSumJetTag") << "Input Jets -- Jet[" << iJet << "] (id = " << jetRefCollection.back().id()
-                             << "): tag=" << jetTag << ", pt=" << jetRefCollection.back()->pt()
-                             << ", eta=" << jetRefCollection.back()->eta()
-                             << ", phi=" << jetRefCollection.back()->phi();
+  if (m_MinJetToSum == 0) {
+    // don't apply any selection and return from the filter (save all jets up to m_MaxJetToSum)
+    for (size_t iJet = 0; iJet < h_Jets->size() and iJet < m_MaxJetToSum; ++iJet) {
+      TRef jetRef = TRef(h_Jets, iJet);
+      filterproduct.addObject(m_TriggerType, jetRef);
+    }
+    return true;
+  } else {
+    // save jetTagValues associated to each jet
+    auto const maxDeltaR2 = m_MaxDeltaR * m_MaxDeltaR;
+    for (size_t iJet = 0; iJet < h_Jets->size(); ++iJet) {
+      jetRefCollection.emplace_back(h_Jets, iJet);
+      auto const jetTag = m_MatchByDeltaR ? findTagValueByMinDeltaR2((*h_Jets)[iJet], *h_JetTags, maxDeltaR2)
+                                          : (*h_JetTags)[reco::JetBaseRef(jetRefCollection.back())];
+      jetTagValues.emplace_back(jetTag);
+      LogDebug("HLTSumJetTag") << "Input Jets -- Jet[" << iJet << "] (id = " << jetRefCollection.back().id()
+                               << "): tag=" << jetTag << ", pt=" << jetRefCollection.back()->pt()
+                               << ", eta=" << jetRefCollection.back()->eta()
+                               << ", phi=" << jetRefCollection.back()->phi();
+    }
   }
 
   // sorting from largest to smaller
@@ -110,8 +113,11 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
 
   // sum jet tags and possibly take mean value
   float sumJetTag = 0;
-  for (auto const& idx : jetTagSortedIndices) {
+  for (auto const idx : jetTagSortedIndices) {
     sumJetTag += jetTagValues[idx];
+    LogDebug("HLTSumJetTag") << "Selected Jets -- Jet[" << idx << "] (id = " << jetRefCollection[idx].id()
+                             << "): tag=" << jetTagValues[idx] << ", pt=" << jetRefCollection[idx]->pt()
+                             << ", eta=" << jetRefCollection[idx]->eta() << ", phi=" << jetRefCollection[idx]->phi();
   }
 
   if (m_UseMeanValue and not jetTagSortedIndices.empty()) {
@@ -138,7 +144,7 @@ float HLTSumJetTag<T>::findTagValueByMinDeltaR2(const T& jet,
                                                 float maxDeltaR2) const {
   float ret = -1000;
   for (const auto& jetTag : jetTags) {
-    float tmpDR2 = reco::deltaR2(jet, *(jetTag.first));
+    auto const tmpDR2 = reco::deltaR2(jet, *(jetTag.first));
     if (tmpDR2 < maxDeltaR2) {
       maxDeltaR2 = tmpDR2;
       ret = jetTag.second;

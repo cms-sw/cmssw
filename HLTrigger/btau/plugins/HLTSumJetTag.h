@@ -2,7 +2,6 @@
 #define HLTrigger_btau_HLTSumJetTag_h
 
 #include <vector>
-#include <string>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -11,8 +10,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
