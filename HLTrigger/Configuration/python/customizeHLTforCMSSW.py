@@ -120,6 +120,9 @@ def customisePixelGainForRun2Input(process):
         producer.VCaltoElectronOffset    =  -60
         producer.VCaltoElectronOffset_L1 = -670
 
+    for producer in producers_by_type(process, "SiPixelRawToClusterCUDA"):
+        producer.isRun2 = True
+
     return process
 
 def customisePixelL1ClusterThresholdForRun2Input(process):
