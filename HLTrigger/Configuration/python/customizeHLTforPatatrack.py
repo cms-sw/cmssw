@@ -570,28 +570,27 @@ def customiseEcalLocalReconstruction(process):
     # Reconstructing the ECAL calibrated rechits on gpu works, but is extremely slow.
     # Disable it for the time being, until the performance has been addressed.
     """
-    from RecoLocalCalo.EcalRecProducers.ecalRecHitGPU_cfi import ecalRecHitGPU as _ecalRecHitGPU
-    process.hltEcalRecHitGPU = _ecalRecHitGPU.clone(
+    _clone_if_missing(process, 'hltEcalRecHitGPU', 'RecoLocalCalo.EcalRecProducers.ecalRecHitGPU_cfi', 'ecalRecHitGPU',
         uncalibrecHitsInLabelEB = ("hltEcalUncalibRecHitGPU","EcalUncalibRecHitsEB"),
         uncalibrecHitsInLabelEE = ("hltEcalUncalibRecHitGPU","EcalUncalibRecHitsEE"),
     )
 
-    from RecoLocalCalo.EcalRecProducers.ecalCPURecHitProducer_cfi import ecalCPURecHitProducer as _ecalCPURecHitProducer
-    process.hltEcalRecHitSoA = _ecalCPURecHitProducer.clone(
+    _clone_if_missing(process, 'hltEcalRecHitSoA', 'RecoLocalCalo.EcalRecProducers.ecalCPURecHitProducer_cfi', 'ecalCPURecHitProducer',
         recHitsInLabelEB = ("hltEcalRecHitGPU", "EcalRecHitsEB"),
         recHitsInLabelEE = ("hltEcalRecHitGPU", "EcalRecHitsEE"),
     )
 
     # SwitchProducer wrapping the legacy ECAL calibrated rechits producer or a converter from SoA to legacy format
-    from RecoLocalCalo.EcalRecProducers.ecalRecHitConvertGPU2CPUFormat_cfi import ecalRecHitConvertGPU2CPUFormat as _ecalRecHitConvertGPU2CPUFormat
-    process.hltEcalRecHit = SwitchProducerCUDA(
-        # legacy producer
-        cpu = process.hltEcalRecHit,
-        # convert the ECAL calibrated rechits from SoA to legacy format
-        cuda = _ecalRecHitConvertGPU2CPUFormat.clone(
-            recHitsLabelGPUEB = ("hltEcalRecHitSoA", "EcalRecHitsEB"),
-            recHitsLabelGPUEE = ("hltEcalRecHitSoA", "EcalRecHitsEE"),
+    if not isinstance(process.hltEcalRecHit, SwitchProducerCUDA):
+        process.hltEcalRecHit = SwitchProducerCUDA(
+            # legacy producer
+            cpu = process.hltEcalRecHit,
         )
+
+    # convert the ECAL calibrated rechits from SoA to legacy format
+    _clone_if_missing(process.hltEcalRecHit, 'cuda', 'RecoLocalCalo.EcalRecProducers.ecalRecHitConvertGPU2CPUFormat_cfi', 'ecalRecHitConvertGPU2CPUFormat',
+        recHitsLabelGPUEB = ("hltEcalRecHitSoA", "EcalRecHitsEB"),
+        recHitsLabelGPUEE = ("hltEcalRecHitSoA", "EcalRecHitsEE"),
     )
     """
 
@@ -613,6 +612,36 @@ def customiseEcalLocalReconstruction(process):
         process.hltEcalRecHit.cuda = process.hltEcalRecHit.cpu.clone(
             triggerPrimitiveDigiCollection = 'unused'
         )
+
+
+    # enforce consistent configuration of CPU and GPU modules for timing of ECAL RecHits
+    if process.hltEcalUncalibRecHit.cpu.algoPSet.timealgo == 'RatioMethod':
+        process.hltEcalUncalibRecHitGPU.shouldRunTimingComputation = True
+        process.hltEcalUncalibRecHitSoA.containsTimingInformation = True
+        for _parName in [
+            'EBtimeFitLimits_Lower',
+            'EBtimeFitLimits_Upper',
+            'EEtimeFitLimits_Lower',
+            'EEtimeFitLimits_Upper',
+            'EBtimeConstantTerm',
+            'EEtimeConstantTerm',
+            'EBtimeNconst',
+            'EEtimeNconst',
+            'outOfTimeThresholdGain12pEB',
+            'outOfTimeThresholdGain12pEE',
+            'outOfTimeThresholdGain12mEB',
+            'outOfTimeThresholdGain12mEE',
+            'outOfTimeThresholdGain61pEB',
+            'outOfTimeThresholdGain61pEE',
+            'outOfTimeThresholdGain61mEB',
+            'outOfTimeThresholdGain61mEE',
+        ]:
+            setattr(process.hltEcalUncalibRecHitGPU, _parName, getattr(process.hltEcalUncalibRecHit.cpu.algoPSet, _parName))
+    # note: the "RatioMethod" is the only one available in the GPU implementation
+    elif process.hltEcalUncalibRecHit.cpu.algoPSet.timealgo != 'None':
+        _logMsg = '"process.hltEcalUncalibRecHit.cpu.algoPSet.timealgo = \''+process.hltEcalUncalibRecHit.cpu.algoPSet.timealgo+'\'"'
+        _logMsg += ' has no counterpart in the GPU implementation of the ECAL local reconstruction (use "None" or "RatioMethod")'
+        raise Exception('unsupported configuration: '+_logMsg)
 
 
     # Tasks and Sequences
