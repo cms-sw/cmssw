@@ -1035,7 +1035,7 @@ void EtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<bool>("UncalibRecHitsPlots", false);
   desc.add<double>("HitMinimumAmplitude", 0.33);  // [MIP]
 
-  descriptions.add("etlLocalReco", desc);
+  descriptions.add("etlLocalRecoValid", desc);
 }
 
 DEFINE_FWK_MODULE(EtlLocalRecoValidation);

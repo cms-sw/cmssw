@@ -294,7 +294,7 @@ void BtlDigiHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "FTLBarrel"));
   desc.add<bool>("LocalPositionDebug", false);
 
-  descriptions.add("btlDigiHitsDefault", desc);
+  descriptions.add("btlDigiHitsDefaultValid", desc);
 }
 
 DEFINE_FWK_MODULE(BtlDigiHitsValidation);
