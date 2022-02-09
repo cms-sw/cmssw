@@ -35,20 +35,18 @@ using namespace edm;
 using namespace std;
 using namespace gen;
 
-namespace {
-  int convertStatus(int st) {
-    if (st <= 0)
-      return 0;
-    if (st <= 10)
-      return 1;
-    if (st <= 20)
-      return 2;
-    if (st <= 30)
-      return 3;
-    else
-      return st;
-  }
-}  // namespace
+int HydjetHadronizer::convertStatus(int st) {
+  if (st <= 0)
+    return 0;
+  if (st <= 10)
+    return 1;
+  if (st <= 20)
+    return 2;
+  if (st <= 30)
+    return 3;
+  else
+    return st;
+}
 
 const std::vector<std::string> HydjetHadronizer::theSharedResources = {edm::SharedResourceNames::kPythia6,
                                                                        gen::FortranInstance::kFortranInstance};
@@ -348,7 +346,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
     int hjoffset = isub * 50000;
 
     if (isub != isub_l) {
-      sub_vertices = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), isub);
+      HepMC::GenVertex* sub_vertices = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), isub);
       evt->add_vertex(sub_vertices);
       if (!evt->signal_process_vertex())
         evt->set_signal_process_vertex(sub_vertices);
@@ -405,6 +403,8 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
     }
     ihy++;
   }
+  if (sub_vertices)
+    delete sub_vertices;
   LogDebug("Hydjet_array") << " MULTin ev.:" << hyjets.nhj << ", last index: " << ihy - 1
                            << ", Sub events: " << isub + 1 << ", stable particles: " << stab << std::endl;
 
