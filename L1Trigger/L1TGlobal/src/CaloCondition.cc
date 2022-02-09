@@ -526,12 +526,11 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition,
     return false;
   }
 
-  // sanity check LLP DISP ( bit check ) with two-state LUT = {0,1}
-  // note that this check is only valid when hwQual contains just the single LLP DISP bit, which is consistent
-  //      with the uGT firmware expectations.  If hwQual is later defined to contain more quality bits, then
-  //      the below sanity check will have to be changed to include the extra quality bits.
-  if (cand.hwQual() > 1) {
-    edm::LogError("L1TGlobal") << "\t\t l1t::Candidate has out of range hwQual = " << cand.hwQual() << std::endl;
+  // sanity check for hwQual ( 3-bit wide check corresponding to bits 27-28-29 in the L1T Jet Word ).
+  // note that this check includes the entire 3-bit width of hwQual, of which only the least significant bit
+  // is currently defined (the other two bits are not yet defined).
+  if (cand.hwQual() > 7) {
+    LogDebug("L1TGlobal") << "\t\t l1t::Candidate has out of range hwQual = " << cand.hwQual() << std::endl;
     return false;
   }
 
