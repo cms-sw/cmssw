@@ -495,7 +495,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
   //
   bool receiveMu = true;
-  bool receiveMuShower = false;
+  bool receiveMuShower = true;
   bool receiveEG = true;
   bool receiveTau = true;
   bool receiveJet = true;
