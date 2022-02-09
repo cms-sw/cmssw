@@ -440,12 +440,12 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
     nvtxs = (int)(recVtxs->size());
     for (int ind = 0; ind < nvtxs; ind++) {
       if (!((*recVtxs)[ind].isFake()) && (*recVtxs)[ind].ndof() > 4)
-	ngoodPV++;
+        ngoodPV++;
     }
     for (int i = 0; i < nPVBin_; ++i) {
       if (ngoodPV >= pvBin_[i] && ngoodPV < pvBin_[i + 1]) {
-	nPV = i;
-	break;
+        nPV = i;
+        break;
       }
     }
 
