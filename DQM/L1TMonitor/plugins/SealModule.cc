@@ -42,6 +42,9 @@ DEFINE_FWK_MODULE(L1TStage2uGMTMuon);
 #include "DQM/L1TMonitor/interface/L1TStage2MuonComp.h"
 DEFINE_FWK_MODULE(L1TStage2MuonComp);
 
+#include "DQM/L1TMonitor/interface/L1TStage2MuonShowerComp.h"
+DEFINE_FWK_MODULE(L1TStage2MuonShowerComp);
+
 #include "DQM/L1TMonitor/interface/L1TStage2RegionalMuonCandComp.h"
 DEFINE_FWK_MODULE(L1TStage2RegionalMuonCandComp);
 
