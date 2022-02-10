@@ -26,6 +26,11 @@ HLTSumJetTag<T>::HLTSumJetTag(const edm::ParameterSet& config)
   if (m_MatchByDeltaR and m_MaxDeltaR <= 0) {
     throw cms::Exception("HLTSumJetTag") << "invalid value for parameter \"MaxDeltaR\" (must be > 0): " << m_MaxDeltaR;
   }
+  if (m_MinJetToSum > m_MaxJetToSum) {
+    throw cms::Exception("HLTSumJetTag")
+        << "invalid value for min/max number of jets to sum: parameter \"MinJetToSum\" " << m_MinJetToSum
+        << " must be <= than \"MaxJetToSum\" " << m_MaxJetToSum;
+  }
 
   edm::LogInfo("") << " (HLTSumJetTag) trigger cuts: \n"
                    << " \ttype of jets used: " << m_Jets.encode() << " \n"
@@ -78,10 +83,16 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
   std::vector<float> jetTagValues;
   jetTagValues.reserve(h_Jets->size());
 
-  if (m_MinJetToSum == 0) {
-    // don't apply any selection and return from the filter (save all jets up to m_MaxJetToSum)
+  if (m_MaxJetToSum == 0) {
+    // return false in case max jet is fixed to zero
+    LogDebug("HLTSumJetTag") << "Paramter \"MaxJetToSum\" set to be zero --> Return False";
+    return false;
+  } else if (m_MinJetToSum == 0) {
+    // return all jets up to m_MaxJetToSum if m_MinJetToSum is set to zero
     for (size_t iJet = 0; iJet < h_Jets->size() and iJet < m_MaxJetToSum; ++iJet) {
       TRef jetRef = TRef(h_Jets, iJet);
+      LogDebug("HLTSumJetTag") << "Selected Jets -- Jet[" << iJet << "] (id = " << jetRef.id() << ")"
+                               << ": pt=" << jetRef->pt() << ", eta=" << jetRef->eta() << ", phi=" << jetRef->phi();
       filterproduct.addObject(m_TriggerType, jetRef);
     }
     return true;
@@ -93,8 +104,8 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
       auto const jetTag = m_MatchByDeltaR ? findTagValueByMinDeltaR2((*h_Jets)[iJet], *h_JetTags, maxDeltaR2)
                                           : (*h_JetTags)[reco::JetBaseRef(jetRefCollection.back())];
       jetTagValues.emplace_back(jetTag);
-      LogDebug("HLTSumJetTag") << "Input Jets -- Jet[" << iJet << "] (id = " << jetRefCollection.back().id()
-                               << "): tag=" << jetTag << ", pt=" << jetRefCollection.back()->pt()
+      LogDebug("HLTSumJetTag") << "Input Jets -- Jet[" << iJet << "] (id = " << jetRefCollection.back().id() << ")"
+                               << ": tag=" << jetTag << ", pt=" << jetRefCollection.back()->pt()
                                << ", eta=" << jetRefCollection.back()->eta()
                                << ", phi=" << jetRefCollection.back()->phi();
     }
@@ -115,8 +126,8 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
   float sumJetTag = 0;
   for (auto const idx : jetTagSortedIndices) {
     sumJetTag += jetTagValues[idx];
-    LogDebug("HLTSumJetTag") << "Selected Jets -- Jet[" << idx << "] (id = " << jetRefCollection[idx].id()
-                             << "): tag=" << jetTagValues[idx] << ", pt=" << jetRefCollection[idx]->pt()
+    LogDebug("HLTSumJetTag") << "Selected Jets -- Jet[" << idx << "] (id = " << jetRefCollection[idx].id() << ")"
+                             << ": tag=" << jetTagValues[idx] << ", pt=" << jetRefCollection[idx]->pt()
                              << ", eta=" << jetRefCollection[idx]->eta() << ", phi=" << jetRefCollection[idx]->phi();
   }
 
@@ -133,8 +144,8 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
     }
   }
 
-  LogDebug("HLTSumJetTag") << "Filter Result = " << accept << " (SumJetTag = " << sumJetTag
-                           << ") [UseMeanValue = " << m_UseMeanValue << "]";
+  LogDebug("HLTSumJetTag") << "Filter Result = " << accept << " (SumJetTag = " << sumJetTag << ")"
+                           << " [UseMeanValue = " << m_UseMeanValue << "]";
   return accept;
 }
 
