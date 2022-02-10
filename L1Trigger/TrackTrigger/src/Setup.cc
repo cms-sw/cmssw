@@ -551,7 +551,7 @@ namespace tt {
     const double dPhi = sigma + scat + extra + digi;
     if (dPhi >= maxdPhi_ || dPhi < mindPhi_) {
       cms::Exception exception("out_of_range");
-      exception.addContext("trackerDTC::Setup::dPhi");
+      exception.addContext("tt::Setup::dPhi");
       exception << "Stub phi uncertainty " << dPhi << " "
                 << "is out of range " << mindPhi_ << " to " << maxdPhi_ << ".";
       throw exception;
@@ -568,7 +568,7 @@ namespace tt {
     const double dZ = sigma + digi;
     if (dZ >= maxdZ_ || dZ < mindZ_) {
       cms::Exception exception("out_of_range");
-      exception.addContext("trackerDTC::Setup::dZ");
+      exception.addContext("tt::Setup::dZ");
       exception << "Stub z uncertainty " << dZ << " "
                 << "is out of range " << mindZ_ << " to " << maxdZ_ << ".";
       throw exception;
@@ -793,7 +793,7 @@ namespace tt {
   void Setup::checkDTCId(int dtcId) const {
     if (dtcId < 0 || dtcId >= numDTCsPerRegion_ * numRegions_) {
       cms::Exception exception("out_of_range");
-      exception.addContext("trackerDTC::Setup::checkDTCId");
+      exception.addContext("tt::Setup::checkDTCId");
       exception << "Used DTC Id (" << dtcId << ") "
                 << "is out of range 0 to " << numDTCsPerRegion_ * numRegions_ - 1 << ".";
       throw exception;
@@ -804,7 +804,7 @@ namespace tt {
   void Setup::checkTKLayoutId(int tkLayoutId) const {
     if (tkLayoutId <= 0 || tkLayoutId > numDTCsPerRegion_ * numRegions_) {
       cms::Exception exception("out_of_range");
-      exception.addContext("trackerDTC::Setup::checkTKLayoutId");
+      exception.addContext("tt::Setup::checkTKLayoutId");
       exception << "Used TKLayout Id (" << tkLayoutId << ") "
                 << "is out of range 1 to " << numDTCsPerRegion_ * numRegions_ << ".";
       throw exception;
@@ -817,7 +817,7 @@ namespace tt {
     const bool oorChannel = tfpChannel >= numDTCsPerTFP_ || tfpChannel < 0;
     if (oorRegion || oorChannel) {
       cms::Exception exception("out_of_range");
-      exception.addContext("trackerDTC::Setup::checkTFPIdentifier");
+      exception.addContext("tt::Setup::checkTFPIdentifier");
       if (oorRegion)
         exception << "Requested Processing Region "
                   << "(" << tfpRegion << ") "
