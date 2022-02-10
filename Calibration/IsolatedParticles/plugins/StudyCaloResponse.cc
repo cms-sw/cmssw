@@ -422,7 +422,7 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
 
   if ((!trkCollection.isValid()) || (!muonEventHandle.isValid()) || (!recVtxs.isValid())) {
     edm::LogWarning("StudyCaloResponse") << "Track collection " << trkCollection.isValid() << " Muon collection "
-                              << muonEventHandle.isValid() << " Vertex Collecttion " << recVtxs.isValid();
+                                         << muonEventHandle.isValid() << " Vertex Collecttion " << recVtxs.isValid();
     ok = false;
   }
 
