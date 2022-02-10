@@ -225,6 +225,42 @@ l1tStage2uGMTMuonVsuGMTMuonCopy5 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone(
     muonCollection2Title = "uGMT muons copy 5",
     summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 5"
 )
+
+l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1= DQMEDAnalyzer("L1TStage2MuonShowerComp",
+    muonShowerCollection1 = cms.InputTag("gmtStage2Digis", "MuonShower"),
+    muonShowerCollection2 = cms.InputTag("gmtStage2Digis", "MuonShowerCopy1"),
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/uGMTMuonShowerCopies/uGMTMuonShowerCopy1"),
+    muonShowerCollection1Title = cms.untracked.string("uGMT muon showers"),
+    muonShowerCollection2Title = cms.untracked.string("uGMT muon showers copy 1"),
+    summaryTitle = cms.untracked.string("Summary of comparison between uGMT showers and uGMT shower copy 1"),
+    verbose = cms.untracked.bool(False)
+)
+
+l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy2 = l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1.clone(
+    muonShowerCollection2 = "gmtStage2Digis:MuonShowerCopy2",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonShowerCopies/uGMTMuonShowerCopy2",
+    muonShowerCollection2Title = "uGMT muon showers copy 2",
+    summaryTitle = "Summary of comparison between uGMT showers and uGMT shower copy 2"
+)
+l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy3 = l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1.clone(
+    muonShowerCollection2 = "gmtStage2Digis:MuonShowerCopy3",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonShowerCopies/uGMTMuonShowerCopy3",
+    muonShowerCollection2Title = "uGMT muon showers copy 3",
+    summaryTitle = "Summary of comparison between uGMT showers and uGMT shower copy 3"
+)
+l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy4 = l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1.clone(
+    muonShowerCollection2 = "gmtStage2Digis:MuonShowerCopy4",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonShowerCopies/uGMTMuonShowerCopy4",
+    muonShowerCollection2Title = "uGMT muon showers copy 4",
+    summaryTitle = "Summary of comparison between uGMT showers and uGMT shower copy 4"
+)
+l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy5 = l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1.clone(
+    muonShowerCollection2 = "gmtStage2Digis:MuonShowerCopy5",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonShowerCopies/uGMTMuonShowerCopy5",
+    muonShowerCollection2Title = "uGMT muon showers copy 5",
+    summaryTitle = "Summary of comparison between uGMT showers and uGMT shower copy 5"
+)
+
 # sequences
 l1tStage2uGMTOnlineDQMSeq = cms.Sequence(
     l1tStage2uGMT +
@@ -246,5 +282,10 @@ l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(
     l1tStage2uGMTMuonVsuGMTMuonCopy2 +
     l1tStage2uGMTMuonVsuGMTMuonCopy3 +
     l1tStage2uGMTMuonVsuGMTMuonCopy4 +
-    l1tStage2uGMTMuonVsuGMTMuonCopy5
+    l1tStage2uGMTMuonVsuGMTMuonCopy5 +
+    l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1 +
+    l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy2 +
+    l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy3 +
+    l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy4 +
+    l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy5
 )
