@@ -439,6 +439,11 @@ namespace edm {
     printDependencies_ = optionsPset.getUntrackedParameter<bool>("printDependencies");
     deleteNonConsumedUnscheduledModules_ =
         optionsPset.getUntrackedParameter<bool>("deleteNonConsumedUnscheduledModules");
+    //for now, if have a subProcess, don't allow early delete
+    // In the future we should use the SubProcess's 'keep list' to decide what can be kept
+    if (not hasSubProcesses) {
+      branchesToDeleteEarly_ = optionsPset.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly");
+    }
 
     // Now do general initialization
     ScheduleItems items;
@@ -637,6 +642,13 @@ namespace edm {
           schedule_->deleteModule(description->moduleLabel(), actReg_.get());
         }
       }
+    }
+    // Initialize after the deletion of non-consumed unscheduled
+    // modules to avoid non-consumed non-run modules to keep the
+    // products unnecessarily alive
+    if (not branchesToDeleteEarly_.empty()) {
+      schedule_->initializeEarlyDelete(branchesToDeleteEarly_, *preg_);
+      decltype(branchesToDeleteEarly_)().swap(branchesToDeleteEarly_);
     }
 
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
