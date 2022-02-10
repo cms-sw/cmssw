@@ -81,50 +81,48 @@ namespace edm {
       return ptr;
     }
 
-    void initializeBranchToReadingWorker(ParameterSet const& opts,
+    void initializeBranchToReadingWorker(std::vector<std::string> const& branchesToDeleteEarly,
                                          ProductRegistry const& preg,
                                          std::multimap<std::string, Worker*>& branchToReadingWorker) {
-      // See if any data has been marked to be deleted early (removing any duplicates)
-      auto vBranchesToDeleteEarly = opts.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly");
-      if (not vBranchesToDeleteEarly.empty()) {
-        std::sort(vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end(), std::less<std::string>());
-        vBranchesToDeleteEarly.erase(std::unique(vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end()),
-                                     vBranchesToDeleteEarly.end());
+      auto vBranchesToDeleteEarly = branchesToDeleteEarly;
+      // Remove any duplicates
+      std::sort(vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end(), std::less<std::string>());
+      vBranchesToDeleteEarly.erase(std::unique(vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end()),
+                                   vBranchesToDeleteEarly.end());
 
-        // Are the requested items in the product registry?
-        auto allBranchNames = preg.allBranchNames();
-        //the branch names all end with a period, which we do not want to compare with
-        for (auto& b : allBranchNames) {
-          b.resize(b.size() - 1);
-        }
-        std::sort(allBranchNames.begin(), allBranchNames.end(), std::less<std::string>());
-        std::vector<std::string> temp;
-        temp.reserve(vBranchesToDeleteEarly.size());
+      // Are the requested items in the product registry?
+      auto allBranchNames = preg.allBranchNames();
+      //the branch names all end with a period, which we do not want to compare with
+      for (auto& b : allBranchNames) {
+        b.resize(b.size() - 1);
+      }
+      std::sort(allBranchNames.begin(), allBranchNames.end(), std::less<std::string>());
+      std::vector<std::string> temp;
+      temp.reserve(vBranchesToDeleteEarly.size());
 
-        std::set_intersection(vBranchesToDeleteEarly.begin(),
-                              vBranchesToDeleteEarly.end(),
-                              allBranchNames.begin(),
-                              allBranchNames.end(),
-                              std::back_inserter(temp));
-        vBranchesToDeleteEarly.swap(temp);
-        if (temp.size() != vBranchesToDeleteEarly.size()) {
-          std::vector<std::string> missingProducts;
-          std::set_difference(temp.begin(),
-                              temp.end(),
-                              vBranchesToDeleteEarly.begin(),
-                              vBranchesToDeleteEarly.end(),
-                              std::back_inserter(missingProducts));
-          LogInfo l("MissingProductsForCanDeleteEarly");
-          l << "The following products in the 'canDeleteEarly' list are not available in this job and will be ignored.";
-          for (auto const& n : missingProducts) {
-            l << "\n " << n;
-          }
+      std::set_intersection(vBranchesToDeleteEarly.begin(),
+                            vBranchesToDeleteEarly.end(),
+                            allBranchNames.begin(),
+                            allBranchNames.end(),
+                            std::back_inserter(temp));
+      vBranchesToDeleteEarly.swap(temp);
+      if (temp.size() != vBranchesToDeleteEarly.size()) {
+        std::vector<std::string> missingProducts;
+        std::set_difference(temp.begin(),
+                            temp.end(),
+                            vBranchesToDeleteEarly.begin(),
+                            vBranchesToDeleteEarly.end(),
+                            std::back_inserter(missingProducts));
+        LogInfo l("MissingProductsForCanDeleteEarly");
+        l << "The following products in the 'canDeleteEarly' list are not available in this job and will be ignored.";
+        for (auto const& n : missingProducts) {
+          l << "\n " << n;
         }
-        //set placeholder for the branch, we will remove the nullptr if a
-        // module actually wants the branch.
-        for (auto const& branch : vBranchesToDeleteEarly) {
-          branchToReadingWorker.insert(std::make_pair(branch, static_cast<Worker*>(nullptr)));
-        }
+      }
+      //set placeholder for the branch, we will remove the nullptr if a
+      // module actually wants the branch.
+      for (auto const& branch : vBranchesToDeleteEarly) {
+        branchToReadingWorker.insert(std::make_pair(branch, static_cast<Worker*>(nullptr)));
       }
     }
   }  // namespace
@@ -148,7 +146,6 @@ namespace edm {
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
       std::shared_ptr<ProcessConfiguration> processConfiguration,
-      bool allowEarlyDelete,
       StreamID streamID,
       ProcessContext const* processContext)
       : workerManager_(modReg, areg, actions),
@@ -163,7 +160,6 @@ namespace edm {
         streamID_(streamID),
         streamContext_(streamID_, processContext),
         skippingEvent_(false) {
-    ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
     bool hasPath = false;
     std::vector<std::string> const& pathNames = tns.getTrigPaths();
     std::vector<std::string> const& endPathNames = tns.getEndPaths();
@@ -235,29 +231,15 @@ namespace edm {
       }
     }
     number_of_unscheduled_modules_ = unscheduledLabels.size();
-
-    initializeEarlyDelete(*modReg, opts, preg, allowEarlyDelete);
-
   }  // StreamSchedule::StreamSchedule
 
   void StreamSchedule::initializeEarlyDelete(ModuleRegistry& modReg,
-                                             edm::ParameterSet const& opts,
-                                             edm::ProductRegistry const& preg,
-                                             bool allowEarlyDelete) {
-    //for now, if have a subProcess, don't allow early delete
-    // In the future we should use the SubProcess's 'keep list' to decide what can be kept
-    if (not allowEarlyDelete)
-      return;
-
-    //see if 'canDeleteEarly' was set and if so setup the list with those products actually
-    // registered for this job
+                                             std::vector<std::string> const& branchesToDeleteEarly,
+                                             edm::ProductRegistry const& preg) {
+    // setup the list with those products actually registered for this job
     std::multimap<std::string, Worker*> branchToReadingWorker;
-    initializeBranchToReadingWorker(opts, preg, branchToReadingWorker);
+    initializeBranchToReadingWorker(branchesToDeleteEarly, preg, branchToReadingWorker);
 
-    //If no delete early items have been specified we don't have to do anything
-    if (branchToReadingWorker.empty()) {
-      return;
-    }
     const std::vector<std::string> kEmpty;
     std::map<Worker*, unsigned int> reserveSizeForWorker;
     unsigned int upperLimitOnReadingWorker = 0;
