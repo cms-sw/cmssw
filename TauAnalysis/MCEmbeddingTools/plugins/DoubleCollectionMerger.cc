@@ -7,12 +7,14 @@
 #include "DataFormats/EcalDigi/interface/EESrFlag.h"
 #include "DataFormats/EcalDigi/interface/EBSrFlag.h"
 #include "DataFormats/EcalDigi/src/EcalSrFlag.cc"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
 
 typedef DoubleCollectionMerger<edm::SortedCollection<EESrFlag>, EESrFlag, edm::SortedCollection<EBSrFlag>, EBSrFlag> EcalSrFlagColMerger;
+typedef DoubleCollectionMerger<HBHEDigiCollection, HBHEDataFrame, HcalCalibDigiCollection, HcalCalibDataFrame> HcalDigiColMerger;
 
 // Here some overloaded functions, which are needed such that the right merger function is called for the indivudal Collections
 template <typename T1, typename T2, typename T3, typename T4>
@@ -105,6 +107,20 @@ void  DoubleCollectionMerger<T1,T2,T3,T4>::fill_output_obj_digiflag(std::unique_
   output->sort(); //Do a sort for this collection
 }
 
+template <typename T1, typename T2, typename T3, typename T4>
+void  DoubleCollectionMerger<T1,T2,T3,T4>::fill_output_obj_hcaldigi(std::unique_ptr<MergeCollection1 > & output, std::vector<edm::Handle<MergeCollection1> > &inputCollections)
+{
+  //TODO: implement proper merging, only skeleton for the time-being
+  return;
+}
+
+template <typename T1, typename T2, typename T3, typename T4>
+void  DoubleCollectionMerger<T1,T2,T3,T4>::fill_output_obj_hcaldigi(std::unique_ptr<MergeCollection2 > & output, std::vector<edm::Handle<MergeCollection2> > &inputCollections)
+{
+  //TODO: implement proper merging, only skeleton for the time-being
+  return;
+}
+
 template <>
 void  DoubleCollectionMerger<edm::SortedCollection<EESrFlag>, EESrFlag, edm::SortedCollection<EBSrFlag>, EBSrFlag>::fill_output_obj(std::unique_ptr<MergeCollection1 > & output, std::vector<edm::Handle<MergeCollection1> > &inputCollections)
 {
@@ -117,4 +133,18 @@ void  DoubleCollectionMerger<edm::SortedCollection<EESrFlag>, EESrFlag, edm::Sor
   fill_output_obj_digiflag(output,inputCollections);
 }
 
+template <>
+void  DoubleCollectionMerger<HBHEDigiCollection, HBHEDataFrame, HcalCalibDigiCollection, HcalCalibDataFrame>::fill_output_obj(std::unique_ptr<MergeCollection1 > & output, std::vector<edm::Handle<MergeCollection1> > &inputCollections)
+{
+  fill_output_obj_hcaldigi(output,inputCollections);
+}
+
+template <>
+void  DoubleCollectionMerger<HBHEDigiCollection, HBHEDataFrame, HcalCalibDigiCollection, HcalCalibDataFrame>::fill_output_obj(std::unique_ptr<MergeCollection2 > & output, std::vector<edm::Handle<MergeCollection2> > &inputCollections)
+{
+  fill_output_obj_hcaldigi(output,inputCollections);
+}
+
+
 DEFINE_FWK_MODULE(EcalSrFlagColMerger);
+DEFINE_FWK_MODULE(HcalDigiColMerger);

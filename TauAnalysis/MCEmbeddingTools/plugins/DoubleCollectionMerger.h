@@ -49,6 +49,8 @@ class DoubleCollectionMerger : public  edm::stream::EDProducer<>
   void fill_output_obj(std::unique_ptr<MergeCollection2 > & output2, std::vector<edm::Handle<MergeCollection2> > &inputCollections2);
   void fill_output_obj_digiflag(std::unique_ptr<MergeCollection1 > & output, std::vector<edm::Handle<MergeCollection1> > &inputCollections);
   void fill_output_obj_digiflag(std::unique_ptr<MergeCollection2 > & output, std::vector<edm::Handle<MergeCollection2> > &inputCollections);
+  void fill_output_obj_hcaldigi(std::unique_ptr<MergeCollection1 > & output, std::vector<edm::Handle<MergeCollection1> > &inputCollections);
+  void fill_output_obj_hcaldigi(std::unique_ptr<MergeCollection2 > & output, std::vector<edm::Handle<MergeCollection2> > &inputCollections);
 
 };
 

@@ -133,6 +133,11 @@ to_bemanipulate.append(
 )
 to_bemanipulate.append(
     module_manipulate(
+        module_name="hcalDigis", manipulator_name="HcalDigi", steps=["SIM", "MERGE"]
+    )
+)
+to_bemanipulate.append(
+    module_manipulate(
         module_name="electronMergedSeeds",
         manipulator_name="ElectronSeed",
         steps=["SIM", "MERGE"],
