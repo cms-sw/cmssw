@@ -167,7 +167,6 @@ l1tStage2EmtfOutVsuGMTIn = DQMEDAnalyzer(
 ## Era: Run3_2021; Displaced muons from EMTF used in uGMT from Run-3
 stage2L1Trigger_2021.toModify(l1tStage2EmtfOutVsuGMTIn, hasDisplacementInfo = cms.untracked.bool(True))
 
-# TODO: Run this module only for Run3!
 # compares the unpacked EMTF output regional muon shower collection with the unpacked uGMT input regional muon shower collection from EMTF
 # only muons that do not match are filled in the histograms
 l1tStage2EmtfOutVsuGMTInShowers = DQMEDAnalyzer(
@@ -273,7 +272,6 @@ l1tStage2uGMTOnlineDQMSeq = cms.Sequence(
     l1tStage2BmtfOutVsuGMTIn +
     l1tStage2OmtfOutVsuGMTIn +
     l1tStage2EmtfOutVsuGMTIn
-    # l1tStage2EmtfOutVsuGMTInShowers  # TODO: Once the EMTF shower unpacker becomes available we can enable this module.
 )
 
 l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(
@@ -282,10 +280,23 @@ l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(
     l1tStage2uGMTMuonVsuGMTMuonCopy2 +
     l1tStage2uGMTMuonVsuGMTMuonCopy3 +
     l1tStage2uGMTMuonVsuGMTMuonCopy4 +
-    l1tStage2uGMTMuonVsuGMTMuonCopy5 +
+    l1tStage2uGMTMuonVsuGMTMuonCopy5
+)
+
+
+## Era: Run3_2021; Hadronic showers from EMTF used in uGMT from Run-3
+from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
+
+## TODO: To be enabled once we have unpacked EMTF showers
+# _run3_l1tStage2uGMTOnlineDQMSeq = cms.Sequence(l1tStage2uGMTOnlineDQMSeq.copy() + l1tStage2EmtfOutVsuGMTInShowers)
+# stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTOnlineDQMSeq, _run3_l1tStage2uGMTOnlineDQMSeq)
+
+_run3_l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(l1tStage2uGMTValidationEventOnlineDQMSeq.copy() +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1 +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy2 +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy3 +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy4 +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy5
 )
+stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTValidationEventOnlineDQMSeq, _run3_l1tStage2uGMTValidationEventOnlineDQMSeq)
+

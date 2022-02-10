@@ -155,10 +155,13 @@ l1tStage2uGMTEmulatorOnlineDQMSeq = cms.Sequence(
     l1tStage2uGMTIntermediateEMTFNegEmul +
     l1tStage2uGMTIntermediateEMTFPosEmul +
     l1tdeStage2uGMT +
-    l1tdeStage2uGMTShowers +
     l1tdeStage2uGMTIntermediateBMTF +
     l1tdeStage2uGMTIntermediateOMTFNeg +
     l1tdeStage2uGMTIntermediateOMTFPos +
     l1tdeStage2uGMTIntermediateEMTFNeg +
     l1tdeStage2uGMTIntermediateEMTFPos
 )
+
+_run3_l1tStage2uGMTEmulatorOnlineDQMSeq = cms.Sequence(l1tStage2uGMTEmulatorOnlineDQMSeq.copy() + l1tdeStage2uGMTShowers)
+stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTEmulatorOnlineDQMSeq, _run3_l1tStage2uGMTEmulatorOnlineDQMSeq)
+
