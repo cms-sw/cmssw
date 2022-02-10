@@ -150,6 +150,13 @@ to_bemanipulate.append(
         steps=["SIM", "MERGE"],
     )
 )
+to_bemanipulate.append(
+    module_manipulate(
+        module_name="lowPtGsfElectronSeeds",
+        manipulator_name="LowPtGsfElectronSeed",
+        steps=["SIM", "MERGE"],
+    )
+)
 
 to_bemanipulate.append(
     module_manipulate(

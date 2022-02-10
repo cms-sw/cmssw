@@ -47,6 +47,7 @@ typedef CollectionMerger<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> S
 
 typedef CollectionMerger<std::vector<reco::ElectronSeed>, reco::ElectronSeed> ElectronSeedColMerger;
 typedef CollectionMerger<std::vector<reco::ElectronSeed>, reco::ElectronSeed> EcalDrivenElectronSeedColMerger;
+typedef CollectionMerger<std::vector<reco::ElectronSeed>, reco::ElectronSeed> LowPtGsfElectronSeedColMerger;
 typedef CollectionMerger<edm::SortedCollection<EcalRecHit>, EcalRecHit> EcalRecHitColMerger;
 typedef CollectionMerger<edm::SortedCollection<HBHERecHit>, HBHERecHit> HBHERecHitColMerger;
 typedef CollectionMerger<edm::SortedCollection<HFRecHit>, HFRecHit> HFRecHitColMerger;
@@ -339,6 +340,7 @@ DEFINE_FWK_MODULE(StripColMerger);
 
 DEFINE_FWK_MODULE(ElectronSeedColMerger);
 DEFINE_FWK_MODULE(EcalDrivenElectronSeedColMerger);
+DEFINE_FWK_MODULE(LowPtGsfElectronSeedColMerger);
 
 DEFINE_FWK_MODULE(EcalRecHitColMerger);
 DEFINE_FWK_MODULE(HBHERecHitColMerger);
