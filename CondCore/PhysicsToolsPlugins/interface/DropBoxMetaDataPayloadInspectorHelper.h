@@ -411,8 +411,14 @@ namespace DBoxMetadataHelper {
         // check if printouts are identical for PREP
         eraseAllSubStr(tmpTar, "PREP/tar: ");
         eraseAllSubStr(tmpRef, "PREP/ref: ");
-        if (tmpTar != tmpRef)
+        if (tmpTar != tmpRef) {
           refAndTarIdentical = false;
+        } else {
+          output.clear();
+        }
+
+	// determine the size after having filled the prep- metadata
+        size_t lenAfterPrep = output.size();
 
         // clear the tmps
         tmpTar = "";
@@ -424,8 +430,12 @@ namespace DBoxMetadataHelper {
         // check if printouts are identical for PROD
         eraseAllSubStr(tmpTar, "PROD/tar: ");
         eraseAllSubStr(tmpRef, "PROD/ref: ");
-        if (tmpTar != tmpRef)
+        if (tmpTar != tmpRef) {
           refAndTarIdentical = false;
+        } else {
+          // remove everything after the prep one
+          output.erase(output.end() - lenAfterPrep, output.end());
+        }
 
         // print either "identical" or contents of tags
         if (refAndTarIdentical) {
@@ -455,7 +465,7 @@ namespace DBoxMetadataHelper {
           y_x1.push_back(y);
           s_x1.push_back(ref);
           y_x2.push_back(y);
-          s_x2.push_back("Only in reference, not in target.");
+          s_x2.push_back("#bf{Only in reference, not in target.}");
           y_line.push_back(y - (pitch / 2.));
         }
       }
@@ -467,7 +477,7 @@ namespace DBoxMetadataHelper {
           y_x1.push_back(y);
           s_x1.push_back(tar);
           y_x2.push_back(y);
-          s_x2.push_back("Only in reference, not in target. ");
+          s_x2.push_back("#bf{Only in reference, not in target.}");
           y_line.push_back(y - (pitch / 2.));
         }
       }
