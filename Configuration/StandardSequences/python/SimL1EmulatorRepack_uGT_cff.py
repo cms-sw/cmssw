@@ -17,8 +17,8 @@ import EventFilter.L1TRawToDigi.gtStage2Digis_cfi
 unpackGtStage2 = EventFilter.L1TRawToDigi.gtStage2Digis_cfi.gtStage2Digis.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
-import EventFilter.Utilities.tcdsRawToDigi_cfi
-unpackTcds = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone(
+import EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi
+unpackTcds = EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi.tcdsRawToDigi.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
 from L1Trigger.Configuration.SimL1Emulator_cff import *
