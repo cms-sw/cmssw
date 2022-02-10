@@ -331,7 +331,7 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
     if (trigNames_.empty()) {
       ok = true;
     } else {
-      edm::LogWarning("IsoTrack") << "Error! Can't get the product " << triggerEvent_.label();
+      edm::LogWarning("StudyCaloResponse") << "Error! Can't get the product " << triggerEvent_.label();
     }
   } else {
     triggerEvent = *(triggerEventHandle.product());
@@ -421,7 +421,7 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
   iEvent.getByToken(tok_recVtx_, recVtxs);
 
   if ((!trkCollection.isValid()) || (!muonEventHandle.isValid()) || (!recVtxs.isValid())) {
-    edm::LogError("IsoTrack") << "Track collection " << trkCollection.isValid() << " Muon collection "
+    edm::LogWarning("StudyCaloResponse") << "Track collection " << trkCollection.isValid() << " Muon collection "
                               << muonEventHandle.isValid() << " Vertex Collecttion " << recVtxs.isValid();
     ok = false;
   }
