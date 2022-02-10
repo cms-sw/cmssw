@@ -243,7 +243,7 @@ namespace trklet {
     void setFakefit(bool fakefit) { fakefit_ = fakefit; }
     bool storeTrackBuilderOutput() const { return storeTrackBuilderOutput_; }
     void setStoreTrackBuilderOutput(bool storeTrackBuilderOutput) {
-      storeTrackBuilderOutput_ = storeTrackBuilderOutput_;
+      storeTrackBuilderOutput_ = storeTrackBuilderOutput;
     }
 
     // configurable
