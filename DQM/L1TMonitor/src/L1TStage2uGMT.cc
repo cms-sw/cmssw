@@ -1,18 +1,22 @@
 #include "DQM/L1TMonitor/interface/L1TStage2uGMT.h"
 
 L1TStage2uGMT::L1TStage2uGMT(const edm::ParameterSet& ps)
-    : ugmtMuonToken(consumes<l1t::MuonBxCollection>(ps.getParameter<edm::InputTag>("muonProducer"))),
-      monitorDir(ps.getUntrackedParameter<std::string>("monitorDir")),
-      emul(ps.getUntrackedParameter<bool>("emulator")),
-      verbose(ps.getUntrackedParameter<bool>("verbose")),
+    : ugmtMuonToken_(consumes<l1t::MuonBxCollection>(ps.getParameter<edm::InputTag>("muonProducer"))),
+      ugmtMuonShowerToken_(consumes<l1t::MuonShowerBxCollection>(ps.getParameter<edm::InputTag>("muonShowerProducer"))),
+      monitorDir_(ps.getUntrackedParameter<std::string>("monitorDir")),
+      emul_(ps.getUntrackedParameter<bool>("emulator")),
+      verbose_(ps.getUntrackedParameter<bool>("verbose")),
       displacedQuantities_(ps.getUntrackedParameter<bool>("displacedQuantities")),
+      hadronicShowers_(ps.getUntrackedParameter<bool>("hadronicShowers")),
       etaScale_(0.010875),  // eta scale (CMS DN-2015/017)
       phiScale_(0.010908)   // phi scale (2*pi/576 HW values)
 {
-  if (!emul) {
-    ugmtBMTFToken = consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("bmtfProducer"));
-    ugmtOMTFToken = consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("omtfProducer"));
-    ugmtEMTFToken = consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emtfProducer"));
+  if (!emul_) {
+    ugmtBMTFToken_ = consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("bmtfProducer"));
+    ugmtOMTFToken_ = consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("omtfProducer"));
+    ugmtEMTFToken_ = consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emtfProducer"));
+    ugmtEMTFShowerToken_ =
+        consumes<l1t::RegionalMuonShowerBxCollection>(ps.getParameter<edm::InputTag>("emtfShowerProducer"));
   }
 }
 
@@ -21,23 +25,26 @@ L1TStage2uGMT::~L1TStage2uGMT() {}
 void L1TStage2uGMT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("muonProducer")->setComment("uGMT output muons.");
-  ;
+
   desc.add<edm::InputTag>("bmtfProducer")->setComment("RegionalMuonCands from BMTF.");
   desc.add<edm::InputTag>("omtfProducer")->setComment("RegionalMuonCands from OMTF.");
   desc.add<edm::InputTag>("emtfProducer")->setComment("RegionalMuonCands from EMTF.");
+  desc.add<edm::InputTag>("muonShowerProducer")->setComment("uGMT output showers.");
+  desc.add<edm::InputTag>("emtfShowerProducer")->setComment("RegionalMuonShowers from EMTF.");
   desc.addUntracked<std::string>("monitorDir", "")
       ->setComment("Target directory in the DQM file. Will be created if not existing.");
   desc.addUntracked<bool>("emulator", false)
       ->setComment("Create histograms for muonProducer input only. xmtfProducer inputs are ignored.");
   desc.addUntracked<bool>("verbose", false);
   desc.addUntracked<bool>("displacedQuantities", false);
+  desc.addUntracked<bool>("hadronicShowers", false);
   descriptions.add("l1tStage2uGMT", desc);
 }
 
 void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
-  if (!emul) {
+  if (!emul_) {
     // BMTF Input
-    ibooker.setCurrentFolder(monitorDir + "/BMTFInput");
+    ibooker.setCurrentFolder(monitorDir_ + "/BMTFInput");
 
     ugmtBMTFBX = ibooker.book1D("ugmtBMTFBX", "uGMT BMTF Input BX", 7, -3.5, 3.5);
     ugmtBMTFBX->setAxisTitle("BX", 1);
@@ -98,7 +105,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     ugmtBMTFMuMuDR->setAxisTitle("#DeltaR", 1);
 
     // OMTF Input
-    ibooker.setCurrentFolder(monitorDir + "/OMTFInput");
+    ibooker.setCurrentFolder(monitorDir_ + "/OMTFInput");
 
     ugmtOMTFBX = ibooker.book1D("ugmtOMTFBX", "uGMT OMTF Input BX", 7, -3.5, 3.5);
     ugmtOMTFBX->setAxisTitle("BX", 1);
@@ -165,7 +172,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     ugmtOMTFMuMuDR->setAxisTitle("#DeltaR", 1);
 
     // EMTF Input
-    ibooker.setCurrentFolder(monitorDir + "/EMTFInput");
+    ibooker.setCurrentFolder(monitorDir_ + "/EMTFInput");
 
     ugmtEMTFBX = ibooker.book1D("ugmtEMTFBX", "uGMT EMTF Input BX", 7, -3.5, 3.5);
     ugmtEMTFBX->setAxisTitle("BX", 1);
@@ -240,8 +247,56 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     ugmtEMTFMuMuDR = ibooker.book1D("ugmtEMTFMuMuDR", "uGMT EMTF input muons #DeltaR between sectors", 50, 0., 0.5);
     ugmtEMTFMuMuDR->setAxisTitle("#DeltaR", 1);
 
+    // EMTF muon showers
+    if (hadronicShowers_) {
+      ibooker.setCurrentFolder(monitorDir_ + "/EMTFInput/Muon showers");
+
+      ugmtEMTFShowerTypeOccupancyPerSector = ibooker.book2D(
+          "ugmtEMTFShowerTypeOccupancyPerSector", "Shower type occupancy per sector", 12, 1, 13, 2, 1, 3);
+      ugmtEMTFShowerTypeOccupancyPerSector->setAxisTitle("Processor", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(12, "+6", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(11, "+5", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(10, "+4", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(9, "+3", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(8, "+2", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(7, "+1", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(6, "-6", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(5, "-5", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(4, "-4", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(3, "-3", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(2, "-2", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(1, "-1", 1);
+      ugmtEMTFShowerTypeOccupancyPerSector->setAxisTitle("Shower type", 2);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
+
+      ugmtEMTFShowerTypeOccupancyPerBx =
+          ibooker.book2D("ugmtEMTFShowerTypeOccupancyPerBx", "Shower type occupancy per BX", 7, -3.5, 3.5, 2, 1, 3);
+      ugmtEMTFShowerTypeOccupancyPerBx->setAxisTitle("BX", 1);
+      ugmtEMTFShowerTypeOccupancyPerBx->setAxisTitle("Shower type", 2);
+      ugmtEMTFShowerTypeOccupancyPerBx->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
+      ugmtEMTFShowerTypeOccupancyPerBx->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
+
+      ugmtEMTFShowerSectorOccupancyPerBx = ibooker.book2D(
+          "ugmtEMTFShowerSectorOccupancyPerBx", "Shower BX occupancy per sector", 7, -3.5, 3.5, 12, 1, 13);
+      ugmtEMTFShowerSectorOccupancyPerBx->setAxisTitle("BX", 1);
+      ugmtEMTFShowerSectorOccupancyPerBx->setAxisTitle("Processor", 2);
+      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(12, "+6", 2);
+      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(11, "+5", 2);
+      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(10, "+4", 2);
+      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(9, "+3", 2);
+      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(8, "+2", 2);
+      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(7, "+1", 2);
+      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(6, "-6", 2);
+      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(5, "-5", 2);
+      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(4, "-4", 2);
+      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(3, "-3", 2);
+      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(2, "-2", 2);
+      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(1, "-1", 2);
+    }
+
     // inter-TF muon correlations
-    ibooker.setCurrentFolder(monitorDir + "/muon_correlations");
+    ibooker.setCurrentFolder(monitorDir_ + "/muon_correlations");
 
     ugmtBOMTFposMuMuDEta =
         ibooker.book1D("ugmtBOMTFposMuMuDEta", "uGMT input muons #Delta#eta between BMTF and OMTF+", 100, -0.5, 0.5);
@@ -293,9 +348,9 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   }
 
   // Subsystem Monitoring and Muon Output
-  ibooker.setCurrentFolder(monitorDir);
+  ibooker.setCurrentFolder(monitorDir_);
 
-  if (!emul) {
+  if (!emul_) {
     ugmtBMTFBXvsProcessor =
         ibooker.book2D("ugmtBXvsProcessorBMTF", "uGMT BMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
     ugmtBMTFBXvsProcessor->setAxisTitle("Wedge", 1);
@@ -523,6 +578,15 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   }
   ugmtMuonChargevsLink->setAxisTitle("Charge", 2);
 
+  if (hadronicShowers_) {
+    ugmtMuonShowerTypeOccupancyPerBx =
+        ibooker.book2D("ugmtMuonShowerTypeOccupancyPerBx", "Shower type occupancy per BX", 7, -3.5, 3.5, 2, 1, 3);
+    ugmtMuonShowerTypeOccupancyPerBx->setAxisTitle("BX", 1);
+    ugmtMuonShowerTypeOccupancyPerBx->setAxisTitle("Shower type", 2);
+    ugmtMuonShowerTypeOccupancyPerBx->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
+    ugmtMuonShowerTypeOccupancyPerBx->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
+  }
+
   ugmtMuonBXvshwPt = ibooker.book2D("ugmtMuonBXvshwPt", "uGMT Muon BX vs HW p_{T}", 128, -0.5, 511.5, 5, -2.5, 2.5);
   ugmtMuonBXvshwPt->setAxisTitle("Hardware p_{T}", 1);
   ugmtMuonBXvshwPt->setAxisTitle("BX", 2);
@@ -554,7 +618,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtMuonBXvshwIso->setAxisTitle("BX", 2);
 
   // muon correlations
-  ibooker.setCurrentFolder(monitorDir + "/muon_correlations");
+  ibooker.setCurrentFolder(monitorDir_ + "/muon_correlations");
 
   ugmtMuMuInvMass = ibooker.book1D("ugmtMuMuInvMass", "uGMT dimuon invariant mass", 200, 0., 200.);
   ugmtMuMuInvMass->setAxisTitle("m(#mu#mu) [GeV]", 1);
@@ -680,12 +744,12 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 }
 
 void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
-  if (verbose)
+  if (verbose_)
     edm::LogInfo("L1TStage2uGMT") << "L1TStage2uGMT: analyze..." << std::endl;
 
-  if (!emul) {
+  if (!emul_) {
     edm::Handle<l1t::RegionalMuonCandBxCollection> BMTFBxCollection;
-    e.getByToken(ugmtBMTFToken, BMTFBxCollection);
+    e.getByToken(ugmtBMTFToken_, BMTFBxCollection);
 
     ugmtBMTFnMuons->Fill(BMTFBxCollection->size(0));
 
@@ -734,7 +798,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
 
     edm::Handle<l1t::RegionalMuonCandBxCollection> OMTFBxCollection;
-    e.getByToken(ugmtOMTFToken, OMTFBxCollection);
+    e.getByToken(ugmtOMTFToken_, OMTFBxCollection);
 
     ugmtOMTFnMuons->Fill(OMTFBxCollection->size(0));
 
@@ -789,7 +853,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
 
     edm::Handle<l1t::RegionalMuonCandBxCollection> EMTFBxCollection;
-    e.getByToken(ugmtEMTFToken, EMTFBxCollection);
+    e.getByToken(ugmtEMTFToken_, EMTFBxCollection);
 
     ugmtEMTFnMuons->Fill(EMTFBxCollection->size(0));
 
@@ -842,6 +906,38 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
             ugmtEMTFMuMuDEta->Fill(dEta);
             ugmtEMTFMuMuDPhi->Fill(dPhi);
             ugmtEMTFMuMuDR->Fill(dR);
+          }
+        }
+      }
+    }
+
+    // Fill shower plots
+    if (hadronicShowers_) {
+      edm::Handle<l1t::RegionalMuonShowerBxCollection> EMTFShowersBxCollection;
+      e.getByToken(ugmtEMTFShowerToken_, EMTFShowersBxCollection);
+
+      for (int itBX = EMTFShowersBxCollection->getFirstBX(); itBX <= EMTFShowersBxCollection->getLastBX(); ++itBX) {
+        for (l1t::RegionalMuonShowerBxCollection::const_iterator shower = EMTFShowersBxCollection->begin(itBX);
+             shower != EMTFShowersBxCollection->end(itBX);
+             ++shower) {
+          if (not shower->isValid()) {
+            continue;
+          }
+          if (shower->isOneNominalInTime()) {
+            ugmtEMTFShowerSectorOccupancyPerBx->Fill(
+                itBX, shower->processor() + 1 + (shower->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
+            ugmtEMTFShowerTypeOccupancyPerSector->Fill(
+                shower->processor() + 1 + (shower->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0),
+                IDX_NOMINAL_SHOWER);
+            ugmtEMTFShowerTypeOccupancyPerBx->Fill(itBX, IDX_NOMINAL_SHOWER);
+          }
+          if (shower->isOneTightInTime()) {
+            ugmtEMTFShowerSectorOccupancyPerBx->Fill(
+                itBX, shower->processor() + 1 + (shower->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
+            ugmtEMTFShowerTypeOccupancyPerSector->Fill(
+                shower->processor() + 1 + (shower->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0),
+                IDX_TIGHT_SHOWER);
+            ugmtEMTFShowerTypeOccupancyPerBx->Fill(itBX, IDX_TIGHT_SHOWER);
           }
         }
       }
@@ -921,7 +1017,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
   }
 
   edm::Handle<l1t::MuonBxCollection> MuonBxCollection;
-  e.getByToken(ugmtMuonToken, MuonBxCollection);
+  e.getByToken(ugmtMuonToken_, MuonBxCollection);
 
   ugmtnMuons->Fill(MuonBxCollection->size(0));
 
@@ -1058,6 +1154,28 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
             ugmtMuMuDPhiEneg->Fill(dPhi);
             ugmtMuMuDREneg->Fill(dR);
           }
+        }
+      }
+    }
+  }
+
+  // Fill shower plots
+  if (hadronicShowers_) {
+    edm::Handle<l1t::MuonShowerBxCollection> showersBxCollection;
+    e.getByToken(ugmtMuonShowerToken_, showersBxCollection);
+
+    for (int itBX = showersBxCollection->getFirstBX(); itBX <= showersBxCollection->getLastBX(); ++itBX) {
+      for (l1t::MuonShowerBxCollection::const_iterator shower = showersBxCollection->begin(itBX);
+           shower != showersBxCollection->end(itBX);
+           ++shower) {
+        if (not shower->isValid()) {
+          continue;
+        }
+        if (shower->isOneNominalInTime()) {
+          ugmtMuonShowerTypeOccupancyPerBx->Fill(itBX, IDX_NOMINAL_SHOWER);
+        }
+        if (shower->isOneTightInTime()) {
+          ugmtMuonShowerTypeOccupancyPerBx->Fill(itBX, IDX_TIGHT_SHOWER);
         }
       }
     }
