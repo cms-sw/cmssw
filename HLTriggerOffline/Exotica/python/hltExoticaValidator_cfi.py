@@ -232,3 +232,6 @@ hltExoticaValidator = DQMEDAnalyzer(
     DSTMuons         = DSTMuonsPSet,
     TracklessJets    = TracklessJetsPSet
 )
+
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(hltExoticaValidator, METplusTrack = dict(l1METLabel = None))
