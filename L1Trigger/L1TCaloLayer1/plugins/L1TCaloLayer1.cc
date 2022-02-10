@@ -213,8 +213,7 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         bool fg2 = hcalTp.t0().fineGrain(1);  // prompt
         bool fg3 = hcalTp.t0().fineGrain(2);  // delay 1
         bool fg4 = hcalTp.t0().fineGrain(3);  // delay 2
-        bool fg5 = hcalTp.t0().fineGrain(4);  // MIP
-        bool fg6 = hcalTp.t0().fineGrain(5);  // MIP
+        // note that hcalTp.t0().fineGrain(4) and hcalTp.t0().fineGrain(5) are the reserved MIP bits (not used for LLP logic)
         if (caloPhi <= 72) {
           UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
           uint32_t featureBits = 0;
