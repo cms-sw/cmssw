@@ -384,7 +384,6 @@ namespace DBoxMetadataHelper {
         s_x1.push_back(key);
 
         std::vector<std::string> output;
-        std::string toAppend = "";
 
         std::string tarPrepMetaData = val.getPrepMetaData();
         std::string tarProdMetaData = val.getProdMetaData();
@@ -402,123 +401,25 @@ namespace DBoxMetadataHelper {
         const std::vector<std::string> tarPathsProd = decompose(tarProdMetaData);
         const std::vector<std::string> refPathsProd = decompose(refProdMetaData);
 
-        const int colWidth = 80;
-
         bool refAndTarIdentical = true;
         std::string tmpTar = "";
         std::string tmpRef = "";
 
-        toAppend = "PREP/tar: ";
-        output.push_back("#color[3]{" + toAppend + "}");
-        toAppend.clear();
-        for (unsigned int iPath = 0; iPath < tarPathsPrep.size(); ++iPath) {
-          std::string thisString = tarPathsPrep[iPath];
-
-          // if the line to be added has less than colWidth chars append to current
-          if (thisString.find("userText") == std::string::npos) {
-            // if the line to be added has less than colWidth chars append to current
-            if ((toAppend + thisString).length() < colWidth) {
-              toAppend += thisString;
-            } else {
-              // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
-              output.push_back("#color[3]{" + toAppend + "}");
-              tmpTar += toAppend;
-              toAppend.clear();
-              toAppend += thisString;
-            }
-          }
-          // if it's the last, dump it
-          if (iPath == tarPathsPrep.size() - 1) {
-            output.push_back("#color[3]{" + toAppend + "}");
-            tmpTar += toAppend;
-          }
-        }
-
-        toAppend = "PREP/ref: ";
-        output.push_back("#color[2]{" + toAppend + "}");
-        toAppend.clear();
-        for (unsigned int iPath = 0; iPath < refPathsPrep.size(); ++iPath) {
-          std::string thisString = refPathsPrep[iPath];
-
-          // if the line to be added has less than colWidth chars append to current
-          if (thisString.find("userText") == std::string::npos) {
-            // if the line to be added has less than colWidth chars append to current
-            if ((toAppend + thisString).length() < colWidth) {
-              toAppend += thisString;
-            } else {
-              // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
-              output.push_back("#color[2]{" + toAppend + "}");
-              tmpRef += toAppend;
-              toAppend.clear();
-              toAppend += thisString;
-            }
-          }
-          // if it's the last, dump it
-          if (iPath == refPathsPrep.size() - 1) {
-            output.push_back("#color[2]{" + toAppend + "}");
-            tmpRef += toAppend;
-          }
-        }
+        prepareLine(tarPathsPrep, output, tmpTar, "PREP/tar");
+        prepareLine(refPathsPrep, output, tmpRef, "PREP/ref");
 
         // check if printouts are identical for PREP
         eraseAllSubStr(tmpTar, "PREP/tar: ");
         eraseAllSubStr(tmpRef, "PREP/ref: ");
         if (tmpTar != tmpRef)
           refAndTarIdentical = false;
+
+        // clear the tmps
         tmpTar = "";
         tmpRef = "";
 
-        toAppend = "PROD/tar: ";
-        output.push_back("#color[3]{" + toAppend + "}");
-        toAppend.clear();
-        for (unsigned int iPath = 0; iPath < tarPathsProd.size(); ++iPath) {
-          std::string thisString = tarPathsProd[iPath];
-
-          // if the line to be added has less than colWidth chars append to current
-          if (thisString.find("userText") == std::string::npos) {
-            // if the line to be added has less than colWidth chars append to current
-            if ((toAppend + thisString).length() < colWidth) {
-              toAppend += thisString;
-            } else {
-              // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
-              output.push_back("#color[3]{" + toAppend + "}");
-              tmpTar += toAppend;
-              toAppend.clear();
-              toAppend += thisString;
-            }
-          }
-          // if it's the last, dump it
-          if (iPath == tarPathsProd.size() - 1) {
-            output.push_back("#color[3]{" + toAppend + "}");
-            tmpTar += toAppend;
-          }
-        }
-
-        toAppend = "PROD/ref: ";
-        output.push_back("#color[2]{" + toAppend + "}");
-        toAppend.clear();
-        for (unsigned int iPath = 0; iPath < refPathsProd.size(); ++iPath) {
-          std::string thisString = refPathsProd[iPath];
-
-          // if the line to be added has less than colWidth chars append to current
-          if (thisString.find("userText") == std::string::npos) {
-            // if the line to be added has less than colWidth chars append to current
-            if ((toAppend + thisString).length() < colWidth) {
-              toAppend += thisString;
-            } else {
-              // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
-              output.push_back("#color[2]{" + toAppend + "}");
-              tmpRef += toAppend;
-              toAppend.clear();
-              toAppend += thisString;
-            }
-          }
-          // if it's the last, dump it
-          if (iPath == refPathsProd.size() - 1) {
-            output.push_back("#color[2]{" + toAppend + "}");
-            tmpRef += toAppend;
-          }
-        }
+        prepareLine(tarPathsProd, output, tmpTar, "PROD/tar");
+        prepareLine(refPathsProd, output, tmpRef, "PROD/ref");
 
         // check if printouts are identical for PROD
         eraseAllSubStr(tmpTar, "PROD/tar: ");
@@ -690,6 +591,41 @@ namespace DBoxMetadataHelper {
         }
       }
       return result;
+    }
+
+    void prepareLine(const std::vector<std::string>& thePaths,
+                     std::vector<std::string>& output,
+                     std::string& tmp,
+                     const std::string& header) {
+      const int color = (header.find("tar") == std::string::npos) ? 2 : 3;
+      const int colWidth = 80;
+
+      std::string toAppend = "";
+      toAppend = header;
+      output.push_back("#color[" + std::to_string(color) + "]{" + toAppend + "}");
+      toAppend.clear();
+      for (unsigned int iPath = 0; iPath < thePaths.size(); ++iPath) {
+        std::string thisString = thePaths[iPath];
+
+        // if the line to be added has less than colWidth chars append to current
+        if (thisString.find("userText") == std::string::npos) {
+          // if the line to be added has less than colWidth chars append to current
+          if ((toAppend + thisString).length() < colWidth) {
+            toAppend += thisString;
+          } else {
+            // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
+            output.push_back("#color[" + std::to_string(color) + "]{" + toAppend + "}");
+            tmp += toAppend;
+            toAppend.clear();
+            toAppend += thisString;
+          }
+        }
+        // if it's the last, dump it
+        if (iPath == thePaths.size() - 1) {
+          output.push_back("#color[" + std::to_string(color) + "]{" + toAppend + "}");
+          tmp += toAppend;
+        }
+      }
     }
   };
 }  // namespace DBoxMetadataHelper
