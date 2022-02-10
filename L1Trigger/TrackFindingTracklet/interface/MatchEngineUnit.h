@@ -36,7 +36,8 @@ namespace trklet {
               bool usesecondPlus,
               bool isPSseed,
               Tracklet* proj,
-              bool print);
+              bool print,
+	      int imeu);
 
     bool empty() const { return candmatches_.empty(); }
 
@@ -55,6 +56,8 @@ namespace trklet {
     //needed for consistency with HLS FW version ("_" vs "__" indicating different pipelining stages)
     bool have_() const { return havepair_; }
 
+    void setAlmostFull();
+
     void reset();
 
     unsigned int rptr() const { return candmatches_.rptr(); }
@@ -69,6 +72,7 @@ namespace trklet {
     unsigned int rzbin_;
     unsigned int phibin_;
     int shift_;
+    int imeu_;
 
     unsigned int istub_;
     unsigned int iuse_;
@@ -84,6 +88,9 @@ namespace trklet {
     bool idle_;
 
     unsigned int layerdisk_;
+
+    //Save state at the start of istep 
+    bool almostfullsave_;
 
     //LUT for bend consistency with rinv
     const TrackletLUT& luttable_;

@@ -135,8 +135,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
 
   /*
     The code is organized in three 'steps' corresponding to the PR, ME, and MC functions. The output from
-    the PR step is buffered in a 'circular' buffer, and similarly the ME output is put in a circular buffer. 
-    
+    the PR step is buffered in a 'circular' buffer, and similarly the ME output is put in a circular buffer.     
     The implementation is done in steps, emulating what can be done in firmware. One each step we do:
     
     1) A projection is read and if there is space it is insert into the inputProjBuffer_
@@ -192,7 +191,6 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
       for (auto& matchengine : matchengines_) {
 	cout <<" MEU"<<iMEU<<": "<<matchengine.rptr()<<" "<<matchengine.wptr()
 	     <<" "<<matchengine.idle()<<" "<<matchengine.empty()
-	     <<" "<<matchengine.have_()<<matchengine.have__()
 	     <<" "<<matchengine.TCID();
 	iMEU++;
       }
@@ -201,6 +199,10 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
     */
 
     bool projdone = false;
+
+    for (unsigned int iME = 0; iME < nMatchEngines_; iME++) {
+      matchengines_[iME].setAlmostFull();
+    }
 
     //Step 3
     //Check if we have candidate match to process
@@ -276,7 +278,9 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
                                 tmpProj.use(1, 1),
                                 tmpProj.isPSseed(),
                                 tmpProj.proj(),
-                                print);
+                                print,
+				iME);
+	meactive = true;
         addedProjection = true;
       } else {
         matchengines_[iME].step(print);
@@ -313,7 +317,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
           int nextrabits = 2;
           int overlapbits = nvmbits_ + nextrabits;
 
-          unsigned int extrabits = fpgaphi.bits(fpgaphi.nbits() - overlapbits, nextrabits);
+          unsigned int extrabits = fpgaphi.bits(fpgaphi.nbits() - overlapbits - nextrabits, nextrabits);
 
           unsigned int ivmPlus = iphi;
 
@@ -416,7 +420,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
     //
     //
 
-    if ((projdone && !meactive) || (istep == settings_.maxStep("MP") - 1)) {
+    if ((projdone && !meactive && inputProjBuffer_.rptr()==inputProjBuffer_.wptr() ) || (istep == settings_.maxStep("MP") - 1)) {
       if (settings_.writeMonitorData("MP")) {
         globals_->ofstream("matchprocessor.txt") << getName() << " " << istep << " " << countall << " " << countsel
                                                  << " " << countme << " " << countinputproj << endl;
