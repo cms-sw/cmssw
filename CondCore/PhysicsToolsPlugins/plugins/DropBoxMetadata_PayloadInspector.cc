@@ -112,8 +112,6 @@ namespace {
 
       return true;
     }
-
-  private:
   };
 
   /************************************************
@@ -186,8 +184,6 @@ namespace {
 
       return true;
     }
-
-  private:
   };
 
   using DropBoxMetadata_Compare = DropBoxMetadata_CompareBase<MULTI_IOV, 1>;
