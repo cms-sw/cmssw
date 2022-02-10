@@ -27,9 +27,11 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
                            bool usesecondPlus,
                            bool isPSseed,
                            Tracklet* proj,
-                           bool print) {
+                           bool print,
+			   int imeu) {
   vmstubsmemory_ = vmstubsmemory;
   idle_ = false;
+  imeu_ = imeu;
   nrzbins_ = nrzbins;
   rzbin_ = rzbin;
   phibin_ = phibin;
@@ -69,8 +71,11 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
   goodpair_ = false;
 }
 
+void MatchEngineUnit::setAlmostFull() {
+  almostfullsave_ = candmatches_.nearfull();
+}
+
 void MatchEngineUnit::step(bool print) {
-  bool almostfull = candmatches_.nearfull();
 
   if (goodpair_) {
     if (print)
@@ -82,7 +87,7 @@ void MatchEngineUnit::step(bool print) {
   havepair_ = false;
   goodpair_ = false;
 
-  if (idle() || almostfull)
+  if (idle() || almostfullsave_)
     return;
 
   unsigned int slot = (phibin_ + use_[iuse_].second) * nrzbins_ + rzbin_ + use_[iuse_].first;
