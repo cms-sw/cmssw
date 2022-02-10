@@ -363,7 +363,7 @@ namespace DBoxMetadataHelper {
       y_x2.push_back(y);
       //      s_x2.push_back("#scale[1.2]{tags (target/ref): " + tagName + "/" + theRefTag
       //		     + " in IOVs: " + IOVsinceDisplay + "/" + theRefIOV + "}");
-      s_x2.push_back("#scale[1.2]{Target tag / IOV    :" + tagName + " / " + IOVsinceDisplay + "}");
+      s_x2.push_back("#scale[1.2]{Target tag / IOV :" + tagName + " / " + IOVsinceDisplay + "}");
 
       y -= pitch;
       y_x1.push_back(y);
@@ -409,7 +409,7 @@ namespace DBoxMetadataHelper {
         std::string tmpRef = "";
 
         toAppend = "PREP/tar: ";
-        output.push_back(toAppend);
+        output.push_back("#color[3]{" + toAppend + "}");
         toAppend.clear();
         for (unsigned int iPath = 0; iPath < tarPathsPrep.size(); ++iPath) {
           std::string thisString = tarPathsPrep[iPath];
@@ -421,7 +421,7 @@ namespace DBoxMetadataHelper {
               toAppend += thisString;
             } else {
               // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
-              output.push_back(toAppend);
+              output.push_back("#color[3]{" + toAppend + "}");
               tmpTar += toAppend;
               toAppend.clear();
               toAppend += thisString;
@@ -429,13 +429,13 @@ namespace DBoxMetadataHelper {
           }
           // if it's the last, dump it
           if (iPath == tarPathsPrep.size() - 1) {
-            output.push_back(toAppend);
+            output.push_back("#color[3]{" + toAppend + "}");
             tmpTar += toAppend;
           }
         }
 
         toAppend = "PREP/ref: ";
-        output.push_back(toAppend);
+        output.push_back("#color[2]{" + toAppend + "}");
         toAppend.clear();
         for (unsigned int iPath = 0; iPath < refPathsPrep.size(); ++iPath) {
           std::string thisString = refPathsPrep[iPath];
@@ -447,7 +447,7 @@ namespace DBoxMetadataHelper {
               toAppend += thisString;
             } else {
               // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
-              output.push_back(toAppend);
+              output.push_back("#color[2]{" + toAppend + "}");
               tmpRef += toAppend;
               toAppend.clear();
               toAppend += thisString;
@@ -455,7 +455,7 @@ namespace DBoxMetadataHelper {
           }
           // if it's the last, dump it
           if (iPath == refPathsPrep.size() - 1) {
-            output.push_back(toAppend);
+            output.push_back("#color[2]{" + toAppend + "}");
             tmpRef += toAppend;
           }
         }
@@ -469,7 +469,7 @@ namespace DBoxMetadataHelper {
         tmpRef = "";
 
         toAppend = "PROD/tar: ";
-        output.push_back(toAppend);
+        output.push_back("#color[3]{" + toAppend + "}");
         toAppend.clear();
         for (unsigned int iPath = 0; iPath < tarPathsProd.size(); ++iPath) {
           std::string thisString = tarPathsProd[iPath];
@@ -481,7 +481,7 @@ namespace DBoxMetadataHelper {
               toAppend += thisString;
             } else {
               // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
-              output.push_back(toAppend);
+              output.push_back("#color[3]{" + toAppend + "}");
               tmpTar += toAppend;
               toAppend.clear();
               toAppend += thisString;
@@ -489,13 +489,13 @@ namespace DBoxMetadataHelper {
           }
           // if it's the last, dump it
           if (iPath == tarPathsProd.size() - 1) {
-            output.push_back(toAppend);
+            output.push_back("#color[3]{" + toAppend + "}");
             tmpTar += toAppend;
           }
         }
 
         toAppend = "PROD/ref: ";
-        output.push_back(toAppend);
+        output.push_back("#color[2]{" + toAppend + "}");
         toAppend.clear();
         for (unsigned int iPath = 0; iPath < refPathsProd.size(); ++iPath) {
           std::string thisString = refPathsProd[iPath];
@@ -507,7 +507,7 @@ namespace DBoxMetadataHelper {
               toAppend += thisString;
             } else {
               // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
-              output.push_back(toAppend);
+              output.push_back("#color[2]{" + toAppend + "}");
               tmpRef += toAppend;
               toAppend.clear();
               toAppend += thisString;
@@ -515,7 +515,7 @@ namespace DBoxMetadataHelper {
           }
           // if it's the last, dump it
           if (iPath == refPathsProd.size() - 1) {
-            output.push_back(toAppend);
+            output.push_back("#color[2]{" + toAppend + "}");
             tmpRef += toAppend;
           }
         }
@@ -529,7 +529,7 @@ namespace DBoxMetadataHelper {
         // print either "identical" or contents of tags
         if (refAndTarIdentical) {
           y_x2.push_back(y);
-          s_x2.push_back("identical");
+          s_x2.push_back("#color[4]{identical}");
         } else {
           for (unsigned int br = 0; br < output.size(); br++) {
             y_x2.push_back(y);
@@ -541,7 +541,6 @@ namespace DBoxMetadataHelper {
               y -= pitch;
           }
         }
-
         y_line.push_back(y - (pitch / 2.));
       }
 
@@ -690,7 +689,6 @@ namespace DBoxMetadataHelper {
             previousPos++;  // remove space
         }
       }
-
       return result;
     }
   };
