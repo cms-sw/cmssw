@@ -112,9 +112,10 @@ l1tStage2uGMTZeroSuppFatEvts.monitorDir = cms.untracked.string("L1T/L1TStage2uGM
 
 # List of bins to ignore
 ignoreBins = {
-    'Bmtf' : [1],
-    'Omtf' : [1],
-    'Emtf' : [1]
+    'Bmtf'        : [1],
+    'Omtf'        : [1],
+    'Emtf'        : [1],
+    'EmtfShowers' : [1]
     }
 
 # compares the unpacked BMTF output regional muon collection with the unpacked uGMT input regional muon collection from BMTF
@@ -165,6 +166,21 @@ l1tStage2EmtfOutVsuGMTIn = DQMEDAnalyzer(
 
 ## Era: Run3_2021; Displaced muons from EMTF used in uGMT from Run-3
 stage2L1Trigger_2021.toModify(l1tStage2EmtfOutVsuGMTIn, hasDisplacementInfo = cms.untracked.bool(True))
+
+# TODO: Run this module only for Run3!
+# compares the unpacked EMTF output regional muon shower collection with the unpacked uGMT input regional muon shower collection from EMTF
+# only muons that do not match are filled in the histograms
+l1tStage2EmtfOutVsuGMTInShowers = DQMEDAnalyzer(
+    "L1TStage2RegionalMuonShowerComp",
+    regionalMuonShowerCollection1 = cms.InputTag("emtfStage2Digis"),
+    regionalMuonShowerCollection2 = cms.InputTag("gmtStage2Digis", "EMTF"),
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/EMTFoutput_vs_uGMTinput/Muon Showers"),
+    regionalMuonShowerCollection1Title = cms.untracked.string("EMTF output data"),
+    regionalMuonShowerCollection2Title = cms.untracked.string("uGMT input data from EMTF"),
+    summaryTitle = cms.untracked.string("Summary of comparison between EMTF output showers and uGMT input showers from EMTF"),
+    ignoreBin = cms.untracked.vint32(ignoreBins['EmtfShowers']),
+    verbose = cms.untracked.bool(False),
+)
 
 # The five modules below compare the primary unpacked uGMT muon collection to goes to uGT board 0
 # to the unpacked uGMT muon collections that are sent to uGT boards 1 to 5.
@@ -221,6 +237,7 @@ l1tStage2uGMTOnlineDQMSeq = cms.Sequence(
     l1tStage2BmtfOutVsuGMTIn +
     l1tStage2OmtfOutVsuGMTIn +
     l1tStage2EmtfOutVsuGMTIn
+    # l1tStage2EmtfOutVsuGMTInShowers  # TODO: Once the EMTF shower unpacker becomes available we can enable this module.
 )
 
 l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(
