@@ -30,7 +30,7 @@ void TritonInputHeapResource::copyInput(const void* values, size_t offset) {
   triton_utils::throwIfError(
       data_->data_->AppendRaw(reinterpret_cast<const uint8_t*>(values), data_->byteSizePerBatch_),
       data_->name_ + " toServer(): unable to set data for batch entry " +
-          std::to_string(offset / data_->byteSizePerBatch_));
+          (data_->byteSizePerBatch_ ? std::to_string(offset / data_->byteSizePerBatch_) : ""));
 }
 
 template <>
