@@ -42,6 +42,7 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimTracker/TrackerHitAssociation"/>
+<use name="SimTracker/TrackAssociation"/>
 <use name="TrackPropagation/SteppingHelixPropagator"/>
 <use name="TrackingTools/IPTools"/>
 <use name="TrackingTools/TrackAssociator"/>
