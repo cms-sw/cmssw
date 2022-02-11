@@ -1228,8 +1228,8 @@ muonDict = {
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
             'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
-            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
-            'from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cff import *',
+            'from Geometry.GEMGeometryBuilder.me0Geometry_cff import *',
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
@@ -1275,8 +1275,8 @@ muonDict = {
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
             'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
-            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
-            'from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cff import *',
+            'from Geometry.GEMGeometryBuilder.me0Geometry_cff import *',
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
@@ -1322,8 +1322,8 @@ muonDict = {
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
             'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
-            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
-            'from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cff import *',
+            'from Geometry.GEMGeometryBuilder.me0Geometry_cff import *',
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
@@ -1369,7 +1369,7 @@ muonDict = {
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
             'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
-            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cff import *',
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
@@ -1416,7 +1416,7 @@ muonDict = {
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
             'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
-            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cff import *',
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
