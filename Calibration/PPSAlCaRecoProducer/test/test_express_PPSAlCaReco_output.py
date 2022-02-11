@@ -14,7 +14,7 @@ process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
 
 # track distribution plotter
 process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPlotter",
-  tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
+  tagTracks = cms.InputTag("ctppsLocalTrackLiteProducerAlCaRecoProducer"),
 
   rpId_45_F = cms.uint32(23),
   rpId_45_N = cms.uint32(3),
@@ -26,9 +26,9 @@ process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPl
 
 # reconstruction plotter
 process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
-  tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
-  tagRecoProtonsSingleRP = cms.InputTag("ctppsProtons", "singleRP"),
-  tagRecoProtonsMultiRP = cms.InputTag("ctppsProtons", "multiRP"),
+  tagTracks = cms.InputTag("ctppsLocalTrackLiteProducerAlCaRecoProducer"),
+  tagRecoProtonsSingleRP = cms.InputTag("ctppsProtonsAlCaRecoProducer", "singleRP"),
+  tagRecoProtonsMultiRP = cms.InputTag("ctppsProtonsAlCaRecoProducer", "multiRP"),
 
   rpId_45_F = cms.uint32(23),
   rpId_45_N = cms.uint32(3),
@@ -52,7 +52,6 @@ process.options = cms.PSet(
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data_express')
-# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data_prompt') # --> No LHCInfo, temporarily using the express GT
 
 process.source = cms.Source( 'PoolSource',
     fileNames = cms.untracked.vstring(
