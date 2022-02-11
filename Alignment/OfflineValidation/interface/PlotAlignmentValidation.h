@@ -30,6 +30,7 @@
 #include "TStyle.h"
 #include "TSystem.h"
 #include "TTree.h"
+#include "TTreeReader.h"
 
 #include <algorithm>
 #include <cmath>
@@ -118,15 +119,20 @@ public:
   void plotSubDetResiduals(
       bool plotNormHisto = false,
       unsigned int subDetId =
-          7);  //subDetector number :1.TPB, 2.TBE+, 3.TBE-, 4.TIB, 5.TID+, 6.TID-, 7.TOB, 8.TEC+ or 9.TEC-
-  void plotDMR(
-      const std::string& plotVar = "medianX",
-      Int_t minHits = 50,
-      const std::string& options =
-          "plain");  // plotVar=mean,meanX,meanY,median,rms etc., comma-separated list can be given; minHits=the minimum hits needed for module to appear in plot; options="plain" for regular DMR, "split" for inwards/outwards split, "layers" for layerwise DMR, "layer=N" for Nth layer, or combination of the previous (e.g. "split layers")
+          7); /**<subDetector number :1.TPB, 2.TBE+, 3.TBE-, 4.TIB, 5.TID+, 6.TID-, 7.TOB, 8.TEC+ or 9.TEC- */
+  void plotDMR(const std::string& plotVar = "medianX",
+               Int_t minHits = 50,
+               const std::string& options = "plain",
+               const std::string& filterName = "");
+  /**<
+  * plotVar=mean,meanX,meanY,median,rms etc., comma-separated list can be given; 
+  * minHits=the minimum hits needed for module to appear in plot; 
+  * options="plain" for regular DMR, "split" for inwards/outwards split, "layers" for layerwise DMR, "layer=N" for Nth layer, or combination of the previous (e.g. "split layers")
+  * filterName=rootfile containing tree with module ids to be skipped in plotting (to be used for averaged plots or in debugging)
+  */
   void plotSurfaceShapes(const std::string& options = "layers", const std::string& variable = "");
   void plotChi2(const char* inputFile);
-  // plotSurfaceShapes: options="split","layers"/"layer","subdet"
+  /**< plotSurfaceShapes: options="split","layers"/"layer","subdet" */
   void plotHitMaps();
   void setOutputDir(std::string dir);
   void setTreeBaseDir(std::string dir = "TrackerOfflineValidation");
@@ -141,11 +147,11 @@ public:
       TLegend** myLegend = nullptr,
       bool printModuleIds = false,
       bool validforphase0 =
-          false);  //add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
+          false); /**<add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds */
 
   float twotailedStudentTTestEqualMean(float t, float v);
 
-  // These are helpers for DMR plotting
+  /**< These are helpers for DMR plotting */
 
   struct DMRPlotInfo {
     std::string variable;
@@ -162,6 +168,7 @@ public:
     TH1F* h1;
     TH1F* h2;
     bool firsthisto;
+    std::string filterName;
   };
 
 private:
@@ -189,10 +196,12 @@ private:
 
   void storeHistogramInRootfile(TH1* hist);
   TF1* fitGauss(TH1* hist, int color);
-  //void plotBoxOverview(TCanvas &c1, TList &treeList,std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t filenumber,Int_t minHits);
-  //void plot1DDetailsSubDet(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t minHits);
-  //void plot1DDetailsBarrelLayer(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, Int_t minHits);
-  //void plot1DDetailsDiskWheel(TCanvas &c1, TList &treelist, std::string plot_Var1a,std::string plot_Var1b, Int_t minHits);
+  /**< 
+  * void plotBoxOverview(TCanvas &c1, TList &treeList,std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t filenumber,Int_t minHits);
+  * void plot1DDetailsSubDet(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t minHits);
+  * void plot1DDetailsBarrelLayer(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, Int_t minHits);
+  * void plot1DDetailsDiskWheel(TCanvas &c1, TList &treelist, std::string plot_Var1a,std::string plot_Var1b, Int_t minHits);
+  */
   void plotSS(const std::string& options = "layers", const std::string& variable = "");
   void setHistStyle(TH1& hist, const char* titleX, const char* titleY, int color);
   void setTitleStyle(TNamed& h,

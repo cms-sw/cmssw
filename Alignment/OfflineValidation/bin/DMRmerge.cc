@@ -48,8 +48,7 @@ int merge(int argc, char* argv[]) {
   pt::ptree validation = main_tree.get_child("validation");
 
   //Read all configure variables and set default for missing keys
-  std::string methods =
-      validation.count("methods") ? getVecTokenized(validation, "methods", ",") : "median,rmsNorm";
+  std::string methods = validation.count("methods") ? getVecTokenized(validation, "methods", ",") : "median,rmsNorm";
   std::string curves = validation.count("curves") ? getVecTokenized(validation, "curves", ",") : "plain";
 
   int minimum = validation.count("minimum") ? validation.get<int>("minimum") : 15;
@@ -57,43 +56,48 @@ int merge(int argc, char* argv[]) {
   bool useFit = validation.count("usefit") ? validation.get<bool>("usefit") : false;
   bool bigText = validation.count("bigtext") ? validation.get<bool>("bigtext") : false;
 
-  TkAlStyle::legendheader =
-      validation.count("legendheader") ? validation.get<std::string>("legendheader") : "";
+  TkAlStyle::legendheader = validation.count("legendheader") ? validation.get<std::string>("legendheader") : "";
   TkAlStyle::legendoptions =
       validation.count("legendoptions") ? getVecTokenized(validation, "legendoptions", " ") : "mean rms";
   TkAlStyle::set(INTERNAL, NONE, "", validation.get<std::string>("customrighttitle"));
 
   std::vector<int> moduleids;
-
   if (validation.count("moduleid")) {
     for (const std::pair<std::string, pt::ptree>& childTree : validation.get_child("moduleid")) {
       moduleids.push_back(childTree.second.get_value<int>());
     }
   }
 
-  //Set configuration string for CompareAlignments class
+  //Set configuration string for CompareAlignments class in user defined order
   TString filesAndLabels;
-
+  std::vector<std::pair<std::string, pt::ptree>> alignmentsOrdered;
   for (const std::pair<std::string, pt::ptree>& childTree : alignments) {
+    alignmentsOrdered.push_back(childTree);
+  }
+  std::sort(alignmentsOrdered.begin(),
+            alignmentsOrdered.end(),
+            [](const std::pair<std::string, pt::ptree>& left, const std::pair<std::string, pt::ptree>& right) {
+              return left.second.get<int>("index") < right.second.get<int>("index");
+            });
+  for (const std::pair<std::string, pt::ptree>& childTree : alignmentsOrdered) {
     filesAndLabels +=
         childTree.second.get<std::string>("file") + "/DMR.root=" + childTree.second.get<std::string>("title") + "|" +
         childTree.second.get<std::string>("color") + "|" + childTree.second.get<std::string>("style") + " , ";
   }
-
   filesAndLabels.Remove(filesAndLabels.Length() - 3);
 
   //Do file comparisons
   CompareAlignments comparer(main_tree.get<std::string>("output"));
   comparer.doComparison(filesAndLabels);
 
-  //Create plots
+  //Create plots in user defined order
   gStyle->SetTitleH(0.07);
   gStyle->SetTitleW(1.00);
   gStyle->SetTitleFont(132);
 
   PlotAlignmentValidation plotter(bigText);
 
-  for (const std::pair<std::string, pt::ptree>& childTree : alignments) {
+  for (const std::pair<std::string, pt::ptree>& childTree : alignmentsOrdered) {
     plotter.loadFileList((childTree.second.get<std::string>("file") + "/DMR.root").c_str(),
                          childTree.second.get<std::string>("title"),
                          childTree.second.get<int>("color"),
