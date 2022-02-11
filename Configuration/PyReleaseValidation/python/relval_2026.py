@@ -44,6 +44,7 @@ numWFIB.extend([39434.0,39434.21,39434.5,39434.501,39434.502]) #2026D88, prodlik
 #numWFIB.extend([39634.21,39634.9921]) #2026D88 prodlike PU, prodlike premix stage1+stage2
 numWFIB.extend([39834.0]) #2026D89
 numWFIB.extend([40234.0]) #2026D90
+numWFIB.extend([40634.0]) #2026D91
 
 #additional sample for short matrix
 #CloseByPGun
