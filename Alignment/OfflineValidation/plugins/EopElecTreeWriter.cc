@@ -18,7 +18,7 @@
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -115,12 +115,17 @@ struct EopTriggerType {
 //
 using namespace std;
 
-class EopElecTreeWriter : public edm::EDAnalyzer {
+class EopElecTreeWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit EopElecTreeWriter(const edm::ParameterSet&);
   ~EopElecTreeWriter() override;
 
 private:
+  // ES tokens
+  edm::ESGetToken<MagneticField,IdealMagneticFieldRecord> magFieldToken;
+  edm::ESGetToken<TrackerGeometry,TrackerDigiGeometryRecord> tkGeomToken;
+  edm::ESGetToken<CaloGeometry,CaloGeometryRecord> caloGeomToken;
+
   // Cut flow (events number)
   TH1D* nEvents;
   TH1D* nEventsWithVertex;
@@ -144,7 +149,7 @@ private:
   TH1D* counter2;
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginJob() override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {};
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
@@ -221,6 +226,9 @@ float ecalEta(float EtaParticle, float Zvertex, float RhoVertex) {
 // constructors and destructor
 
 EopElecTreeWriter::EopElecTreeWriter(const edm::ParameterSet& iConfig):
+  magFieldToken(esConsumes()),
+  tkGeomToken(esConsumes()),
+  caloGeomToken(esConsumes()),
   src_(iConfig.getParameter<edm::InputTag>("src")),
   theTrigger_(iConfig.getParameter<std::string>("triggerPath")),
   theFilter_(iConfig.getParameter<std::string>("hltFilter")),
@@ -360,12 +368,9 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   //---------------   for GsfTrack propagation through tracker  ---------------
 
-  edm::ESHandle<MagneticField> magField_;
-  edm::ESHandle<TrackerGeometry> trackerGeom_;
-
-  iSetup.get<IdealMagneticFieldRecord>().get(magField_);
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeom_);
-  MultiTrajectoryStateTransform mtsTransform(trackerGeom_.product(), magField_.product());
+  const MagneticField* magField_ = &iSetup.getData(magFieldToken);
+  const TrackerGeometry* trackerGeom_ = &iSetup.getData(tkGeomToken);
+  MultiTrajectoryStateTransform mtsTransform(trackerGeom_, magField_);
 
   //---------------    Super Cluster    -----------------
 
@@ -382,10 +387,8 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   nEventsWithVertex->Fill(0.5);
 
   // getting calorimeter geometry
-  edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<CaloGeometryRecord>().get(geometry);
-  const CaloGeometry* geo = geometry.product();
-  const CaloSubdetectorGeometry* subGeo = geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const CaloGeometry* geo = &iSetup.getData(caloGeomToken);
+  const CaloSubdetectorGeometry* subGeo = geo->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   if (subGeo == nullptr)
     cout << "ERROR: unable to find SubDetector geometry!!!" << std::endl;
 
@@ -916,9 +919,6 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   }  // loop on tracks
 }  // analyze
-
-// ------------ method called once each job just before starting event loop  ------------
-void EopElecTreeWriter::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void EopElecTreeWriter::endJob() {
