@@ -159,6 +159,25 @@ def customiseFor36639(process):
 
     return process
 
+# HLT customisation for https://github.com/cms-sw/cmssw/pull/36935
+def customiseFor36935(process):
+    """ Customisation to remove parameters from the ParametersetDescription of the
+    EcalUncalibRecHitWorkerMultiFit in PR 36935 (https://github.com/cms-sw/cmssw/pull/36935)
+    """
+    for prod in producers_by_type(process, 'EcalUncalibRecHitProducer'):
+        if prod.algo == 'EcalUncalibRecHitWorkerMultiFit':
+            for par in ['ebSpikeThreshold',
+                        'ebPulseShape',
+                        'eePulseShape',
+                        'chi2ThreshEB_',
+                        'chi2ThreshEE_',
+                        'kPoorRecoFlagEB',
+                        'kPoorRecoFlagEE',
+                        'EcalPulseShapeParameters']:
+                if hasattr(prod.algoPSet, par):
+                    delattr(prod.algoPSet, par)
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -169,5 +188,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor36639(process)
+
+    process = customiseFor36935(process)
 
     return process
