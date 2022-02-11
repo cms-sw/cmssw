@@ -127,6 +127,8 @@ public:
         vars_.push_back(std::make_unique<UIntVar>(vname, varPSet));
       else if (type == "float")
         vars_.push_back(std::make_unique<FloatVar>(vname, varPSet));
+      else if (type == "int8")
+        vars_.push_back(std::make_unique<Int8Var>(vname, varPSet));
       else if (type == "uint8")
         vars_.push_back(std::make_unique<UInt8Var>(vname, varPSet));
       else if (type == "bool")
@@ -164,6 +166,7 @@ protected:
   typedef FuncVariable<T, StringObjectFunction<T>, int> IntVar;
   typedef FuncVariable<T, StringObjectFunction<T>, unsigned int> UIntVar;
   typedef FuncVariable<T, StringObjectFunction<T>, float> FloatVar;
+  typedef FuncVariable<T, StringObjectFunction<T>, int8_t> Int8Var;
   typedef FuncVariable<T, StringObjectFunction<T>, uint8_t> UInt8Var;
   typedef FuncVariable<T, StringCutObjectSelector<T>, bool> BoolVar;
   std::vector<std::unique_ptr<Variable<T>>> vars_;
@@ -192,6 +195,9 @@ public:
         else if (type == "double")
           extvars_.push_back(
               std::make_unique<DoubleExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+        else if (type == "int8")
+          extvars_.push_back(
+              std::make_unique<Int8ExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else if (type == "uint8")
           extvars_.push_back(
               std::make_unique<UInt8ExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
@@ -246,6 +252,7 @@ protected:
   typedef ValueMapVariable<T, float> FloatExtVar;
   typedef ValueMapVariable<T, double, float> DoubleExtVar;
   typedef ValueMapVariable<T, bool> BoolExtVar;
+  typedef ValueMapVariable<T, int, int8_t> Int8ExtVar;
   typedef ValueMapVariable<T, int, uint8_t> UInt8ExtVar;
   std::vector<std::unique_ptr<ExtVariable<T>>> extvars_;
 };
