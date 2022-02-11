@@ -189,14 +189,15 @@ namespace DBoxMetadataHelper {
   class DBMetaDataPlotDisplay {
   public:
     DBMetaDataPlotDisplay(DBoxMetadataHelper::recordMap theMap, std::string theTag, std::string theIOV)
-        : m_Map(theMap), tagName(theTag), IOVsinceDisplay(theIOV) {}
+        : m_Map(theMap), m_tagName(theTag), m_IOVsinceDisplay(theIOV) {}
     ~DBMetaDataPlotDisplay() = default;
 
-    void setImageFileName(std::string theFileName) {
-      imageFileName_ = theFileName;
+    void setImageFileName(const std::string& theFileName) {
+      m_imageFileName = theFileName;
       return;
     }
 
+    //___________________________________________________________________
     void plotMetaDatas() {
       unsigned int mapsize = m_Map.size();
       float pitch = 1. / (mapsize * 1.1);
@@ -215,7 +216,7 @@ namespace DBoxMetadataHelper {
       y_x1.push_back(y);
       s_x1.push_back("#scale[1.2]{Key}");
       y_x2.push_back(y);
-      s_x2.push_back("#scale[1.2]{tag: " + tagName + " in IOV: " + IOVsinceDisplay + "}");
+      s_x2.push_back("#scale[1.2]{tag: " + m_tagName + " in IOV: " + m_IOVsinceDisplay + "}");
 
       y -= pitch / 2.;
       y_line.push_back(y);
@@ -330,11 +331,12 @@ namespace DBoxMetadataHelper {
       }
 
       std::string fileName("DropBoxMetadata_Display.png");
-      if (!imageFileName_.empty())
-        fileName = imageFileName_;
+      if (!m_imageFileName.empty())
+        fileName = m_imageFileName;
       canvas.SaveAs(fileName.c_str());
     }
 
+    //___________________________________________________________________
     void plotDiffWithMetadata(const DBoxMetadataHelper::recordMap& theRefMap,
                               std::string theRefTag,
                               std::string theRefIOV) {
@@ -361,9 +363,7 @@ namespace DBoxMetadataHelper {
       y_x1.push_back(y);
       s_x1.push_back("#scale[1.2]{Key}");
       y_x2.push_back(y);
-      //      s_x2.push_back("#scale[1.2]{tags (target/ref): " + tagName + "/" + theRefTag
-      //		     + " in IOVs: " + IOVsinceDisplay + "/" + theRefIOV + "}");
-      s_x2.push_back("#scale[1.2]{Target tag / IOV :" + tagName + " / " + IOVsinceDisplay + "}");
+      s_x2.push_back("#scale[1.2]{Target tag / IOV :" + m_tagName + " / " + m_IOVsinceDisplay + "}");
 
       y -= pitch;
       y_x1.push_back(y);
@@ -417,7 +417,7 @@ namespace DBoxMetadataHelper {
           output.clear();
         }
 
-	// determine the size after having filled the prep- metadata
+        // determine the size after having filled the prep- metadata
         size_t lenAfterPrep = output.size();
 
         // clear the tmps
@@ -517,17 +517,18 @@ namespace DBoxMetadataHelper {
       }
 
       std::string fileName("DropBoxMetadata_Compare.png");
-      if (!imageFileName_.empty())
-        fileName = imageFileName_;
+      if (!m_imageFileName.empty())
+        fileName = m_imageFileName;
       canvas.SaveAs(fileName.c_str());
     }
 
   private:
-    DBoxMetadataHelper::recordMap m_Map;
-    std::string tagName;
-    std::string IOVsinceDisplay;
-    std::string imageFileName_;
+    DBoxMetadataHelper::recordMap m_Map;  //!< map of the record / metadata associations
+    std::string m_tagName;                //!< tag name
+    std::string m_IOVsinceDisplay;        //!< iov since
+    std::string m_imageFileName;          //!< image file name
 
+    //___________________________________________________________________
     std::string replaceAll(std::string str, const std::string& from, const std::string& to) {
       size_t start_pos = 0;
       while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
@@ -537,11 +538,13 @@ namespace DBoxMetadataHelper {
       return str;
     }
 
+    //___________________________________________________________________
     std::string cleanJson(std::string str) {
       std::string out = replaceAll(str, std::string("&quot;"), std::string("'"));
       return out;
     }
 
+    //___________________________________________________________________
     void eraseAllSubStr(std::string& s, const std::string& toErase) {
       size_t pos = std::string::npos;
       // Search for the substring in string in a loop until nothing is found
@@ -552,6 +555,7 @@ namespace DBoxMetadataHelper {
       return;
     }
 
+    //___________________________________________________________________
     void cleanPrepString(std::string& myString) {
       eraseAllSubStr(myString, "&quot;");
       eraseAllSubStr(myString, "destinationDatabase: oracle://cms_orcoff_prep/CMS_CONDITIONS, ");
@@ -564,6 +568,7 @@ namespace DBoxMetadataHelper {
       return;
     }
 
+    //___________________________________________________________________
     void cleanProdString(std::string& myString) {
       eraseAllSubStr(myString, "&quot;");
       eraseAllSubStr(myString, "destinationDatabase: oracle://cms_orcon_prod/CMS_CONDITIONS, ");
@@ -576,6 +581,7 @@ namespace DBoxMetadataHelper {
       return;
     }
 
+    //___________________________________________________________________
     std::vector<std::string> decompose(const std::string& s) const {
       // decompose 's' into its parts that are separated by 'delimeter_'
       // (similar as in
@@ -603,12 +609,13 @@ namespace DBoxMetadataHelper {
       return result;
     }
 
+    //___________________________________________________________________
     void prepareLine(const std::vector<std::string>& thePaths,
                      std::vector<std::string>& output,
                      std::string& tmp,
                      const std::string& header) {
-      const int color = (header.find("tar") == std::string::npos) ? 2 : 3;
-      const int colWidth = 80;
+      const int color = (header.find("tar") == std::string::npos) ? 2 /*kRed*/ : 3 /*kGreen*/;
+      const int colWidth = 80;  // maximum width of column
 
       std::string toAppend = "";
       toAppend = header;
@@ -616,7 +623,6 @@ namespace DBoxMetadataHelper {
       toAppend.clear();
       for (unsigned int iPath = 0; iPath < thePaths.size(); ++iPath) {
         std::string thisString = thePaths[iPath];
-
         // if the line to be added has less than colWidth chars append to current
         if (thisString.find("userText") == std::string::npos) {
           // if the line to be added has less than colWidth chars append to current
@@ -630,7 +636,6 @@ namespace DBoxMetadataHelper {
             toAppend += thisString;
           }
         }
-        // if it's the last, dump it
         if (iPath == thePaths.size() - 1) {
           output.push_back("#color[" + std::to_string(color) + "]{" + toAppend + "}");
           tmp += toAppend;
