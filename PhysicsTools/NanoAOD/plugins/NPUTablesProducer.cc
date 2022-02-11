@@ -87,7 +87,8 @@ public:
     out.addColumnValue<float>("nTrueInt",
                               nt,
                               "the true mean number of the poisson distribution for this event from which the number "
-                              "of interactions each bunch crossing has been sampled");
+                              "of interactions each bunch crossing has been sampled",
+                              10);
     out.addColumnValue<int>(
         "nPU",
         npu,
