@@ -232,13 +232,8 @@ namespace DBoxMetadataHelper {
         std::string prodMetaData = element.second.getProdMetaData();
 
         // Remove &quot and uninteresting text from output for sake of clarity
-        eraseAllSubStr(prepMetaData, "&quot");
-        eraseAllSubStr(prepMetaData, "destinationDatabase;: ;oracle://cms_orcoff_prep/CMS_CONDITIONS;, ");
-        eraseAllSubStr(prepMetaData, ";since;: null,");
-
-        eraseAllSubStr(prodMetaData, "&quot");
-        eraseAllSubStr(prodMetaData, "destinationDatabase;: ;oracle://cms_orcon_prod/CMS_CONDITIONS;, ");
-        eraseAllSubStr(prodMetaData, ";since;: null,");
+        cleanPrepString(prepMetaData);
+        cleanProdString(prodMetaData);
 
         const std::vector<std::string> pathsPrep = decompose(prepMetaData);
         const std::vector<std::string> pathsProd = decompose(prodMetaData);
@@ -246,17 +241,21 @@ namespace DBoxMetadataHelper {
         const int colWidth = 80;
 
         toAppend = "PREP: ";
+        output.push_back(toAppend);
+        toAppend.clear();
         for (unsigned int iPath = 0; iPath < pathsPrep.size(); ++iPath) {
           std::string thisString = pathsPrep[iPath];
 
-          // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
-            toAppend += thisString;
-          } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
-            output.push_back(toAppend);
-            toAppend.clear();
-            toAppend += thisString;
+          if (thisString.find("userText") == std::string::npos) {
+            // if the line to be added has less than colWidth chars append to current
+            if ((toAppend + thisString).length() < colWidth) {
+              toAppend += thisString;
+            } else {
+              // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
+              output.push_back(toAppend);
+              toAppend.clear();
+              toAppend += thisString;
+            }
           }
           // if it's the last, dump it
           if (iPath == pathsPrep.size() - 1) {
@@ -265,17 +264,21 @@ namespace DBoxMetadataHelper {
         }
 
         toAppend = "PROD: ";
+        output.push_back(toAppend);
+        toAppend.clear();
         for (unsigned int iPath = 0; iPath < pathsProd.size(); ++iPath) {
           std::string thisString = pathsProd[iPath];
 
-          // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
-            toAppend += thisString;
-          } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
-            output.push_back(toAppend);
-            toAppend.clear();
-            toAppend += thisString;
+          if (thisString.find("userText") == std::string::npos) {
+            // if the line to be added has less than colWidth chars append to current
+            if ((toAppend + thisString).length() < colWidth) {
+              toAppend += thisString;
+            } else {
+              // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
+              output.push_back(toAppend);
+              toAppend.clear();
+              toAppend += thisString;
+            }
           }
           // if it's the last, dump it
           if (iPath == pathsProd.size() - 1)
@@ -389,19 +392,10 @@ namespace DBoxMetadataHelper {
         std::string refProdMetaData = refval.getProdMetaData();
 
         // Remove &quot and uninteresting text from output for sake of clarity
-        eraseAllSubStr(tarPrepMetaData, "&quot");
-        eraseAllSubStr(tarPrepMetaData, "destinationDatabase;: ;oracle://cms_orcoff_prep/CMS_CONDITIONS;, ");
-        eraseAllSubStr(tarPrepMetaData, ";since;: null,");
-        eraseAllSubStr(refPrepMetaData, "&quot");
-        eraseAllSubStr(refPrepMetaData, "destinationDatabase;: ;oracle://cms_orcoff_prep/CMS_CONDITIONS;, ");
-        eraseAllSubStr(refPrepMetaData, ";since;: null,");
-
-        eraseAllSubStr(tarProdMetaData, "&quot");
-        eraseAllSubStr(tarProdMetaData, "destinationDatabase;: ;oracle://cms_orcon_prod/CMS_CONDITIONS;, ");
-        eraseAllSubStr(tarProdMetaData, "since;: null, ;");
-        eraseAllSubStr(refProdMetaData, "&quot");
-        eraseAllSubStr(refProdMetaData, "destinationDatabase;: ;oracle://cms_orcon_prod/CMS_CONDITIONS;, ");
-        eraseAllSubStr(refProdMetaData, "since;: null, ;");
+        cleanPrepString(tarPrepMetaData);
+        cleanPrepString(refPrepMetaData);
+        cleanProdString(tarProdMetaData);
+        cleanProdString(refProdMetaData);
 
         const std::vector<std::string> tarPathsPrep = decompose(tarPrepMetaData);
         const std::vector<std::string> refPathsPrep = decompose(refPrepMetaData);
@@ -415,18 +409,23 @@ namespace DBoxMetadataHelper {
         std::string tmpRef = "";
 
         toAppend = "PREP/tar: ";
+        output.push_back(toAppend);
+        toAppend.clear();
         for (unsigned int iPath = 0; iPath < tarPathsPrep.size(); ++iPath) {
           std::string thisString = tarPathsPrep[iPath];
 
           // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
-            toAppend += thisString;
-          } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
-            output.push_back(toAppend);
-            tmpTar += toAppend;
-            toAppend.clear();
-            toAppend += thisString;
+          if (thisString.find("userText") == std::string::npos) {
+            // if the line to be added has less than colWidth chars append to current
+            if ((toAppend + thisString).length() < colWidth) {
+              toAppend += thisString;
+            } else {
+              // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
+              output.push_back(toAppend);
+              tmpTar += toAppend;
+              toAppend.clear();
+              toAppend += thisString;
+            }
           }
           // if it's the last, dump it
           if (iPath == tarPathsPrep.size() - 1) {
@@ -436,18 +435,23 @@ namespace DBoxMetadataHelper {
         }
 
         toAppend = "PREP/ref: ";
+        output.push_back(toAppend);
+        toAppend.clear();
         for (unsigned int iPath = 0; iPath < refPathsPrep.size(); ++iPath) {
           std::string thisString = refPathsPrep[iPath];
 
           // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
-            toAppend += thisString;
-          } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
-            output.push_back(toAppend);
-            tmpRef += toAppend;
-            toAppend.clear();
-            toAppend += thisString;
+          if (thisString.find("userText") == std::string::npos) {
+            // if the line to be added has less than colWidth chars append to current
+            if ((toAppend + thisString).length() < colWidth) {
+              toAppend += thisString;
+            } else {
+              // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
+              output.push_back(toAppend);
+              tmpRef += toAppend;
+              toAppend.clear();
+              toAppend += thisString;
+            }
           }
           // if it's the last, dump it
           if (iPath == refPathsPrep.size() - 1) {
@@ -465,18 +469,23 @@ namespace DBoxMetadataHelper {
         tmpRef = "";
 
         toAppend = "PROD/tar: ";
+        output.push_back(toAppend);
+        toAppend.clear();
         for (unsigned int iPath = 0; iPath < tarPathsProd.size(); ++iPath) {
           std::string thisString = tarPathsProd[iPath];
 
           // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
-            toAppend += thisString;
-          } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
-            output.push_back(toAppend);
-            tmpTar += toAppend;
-            toAppend.clear();
-            toAppend += thisString;
+          if (thisString.find("userText") == std::string::npos) {
+            // if the line to be added has less than colWidth chars append to current
+            if ((toAppend + thisString).length() < colWidth) {
+              toAppend += thisString;
+            } else {
+              // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
+              output.push_back(toAppend);
+              tmpTar += toAppend;
+              toAppend.clear();
+              toAppend += thisString;
+            }
           }
           // if it's the last, dump it
           if (iPath == tarPathsProd.size() - 1) {
@@ -486,18 +495,23 @@ namespace DBoxMetadataHelper {
         }
 
         toAppend = "PROD/ref: ";
+        output.push_back(toAppend);
+        toAppend.clear();
         for (unsigned int iPath = 0; iPath < refPathsProd.size(); ++iPath) {
           std::string thisString = refPathsProd[iPath];
 
           // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
-            toAppend += thisString;
-          } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
-            output.push_back(toAppend);
-            tmpRef += toAppend;
-            toAppend.clear();
-            toAppend += thisString;
+          if (thisString.find("userText") == std::string::npos) {
+            // if the line to be added has less than colWidth chars append to current
+            if ((toAppend + thisString).length() < colWidth) {
+              toAppend += thisString;
+            } else {
+              // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
+              output.push_back(toAppend);
+              tmpRef += toAppend;
+              toAppend.clear();
+              toAppend += thisString;
+            }
           }
           // if it's the last, dump it
           if (iPath == refPathsProd.size() - 1) {
@@ -628,12 +642,37 @@ namespace DBoxMetadataHelper {
       return;
     }
 
+    void cleanPrepString(std::string& myString) {
+      eraseAllSubStr(myString, "&quot;");
+      eraseAllSubStr(myString, "destinationDatabase: oracle://cms_orcoff_prep/CMS_CONDITIONS, ");
+      eraseAllSubStr(myString, "since: null, ");
+      eraseAllSubStr(myString, "{");
+      eraseAllSubStr(myString, "}");
+      eraseAllSubStr(myString, ":");
+      myString = replaceAll(myString, "destinationTags", "destinationTags:");
+      myString = replaceAll(myString, "inputTag", "inputTag:");
+      return;
+    }
+
+    void cleanProdString(std::string& myString) {
+      eraseAllSubStr(myString, "&quot;");
+      eraseAllSubStr(myString, "destinationDatabase: oracle://cms_orcon_prod/CMS_CONDITIONS, ");
+      eraseAllSubStr(myString, "since: null, ");
+      eraseAllSubStr(myString, "{");
+      eraseAllSubStr(myString, "}");
+      eraseAllSubStr(myString, ":");
+      myString = replaceAll(myString, "destinationTags", "destinationTags:");
+      myString = replaceAll(myString, "inputTag", "inputTag:");
+      return;
+    }
+
     std::vector<std::string> decompose(const std::string& s) const {
       // decompose 's' into its parts that are separated by 'delimeter_'
       // (similar as in
       //  Alignment/CommonAlignmentAlgorithm/src/AlignmentParameterSelector.cc)
 
-      const std::string::value_type delimeter_ = ';';  // separator
+      const std::string::value_type delimeter_ = ',';  // separator
+      const std::string::value_type space_ = ' ';      // separator
 
       std::vector<std::string> result;
       if (!(s.size() == 1 && s[0] == delimeter_)) {
@@ -647,6 +686,8 @@ namespace DBoxMetadataHelper {
           }
           result.push_back(s.substr(previousPos, delimiterPos - previousPos));
           previousPos = delimiterPos + 1;  // +1: skip delim
+          if (s[previousPos] == space_)
+            previousPos++;  // remove space
         }
       }
 
