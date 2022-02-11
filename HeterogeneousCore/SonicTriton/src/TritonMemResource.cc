@@ -53,6 +53,9 @@ const uint8_t* TritonOutputHeapResource::copyOutput() {
 template <typename IO>
 TritonCpuShmResource<IO>::TritonCpuShmResource(TritonData<IO>* data, const std::string& name, size_t size)
     : TritonMemResource<IO>(data, name, size) {
+  //mmap of size zero is required to fail by POSIX, but still need to have some shared memory region available for Triton
+  this->size_ = std::max<size_t>(this->size_,1);
+
   //get shared memory region descriptor
   int shm_fd = shm_open(this->name_.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
   if (shm_fd == -1)
@@ -107,7 +110,8 @@ void TritonCpuShmResource<IO>::close() {
 
 template <>
 void TritonInputCpuShmResource::copyInput(const void* values, size_t offset) {
-  std::memcpy(addr_ + offset, values, data_->byteSizePerBatch_);
+  if(size_ > 0)
+    std::memcpy(addr_ + offset, values, data_->byteSizePerBatch_);
 }
 
 template <>
