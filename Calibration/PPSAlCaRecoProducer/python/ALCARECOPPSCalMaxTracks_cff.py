@@ -19,9 +19,9 @@ totemTimingRawToDigiAlCaRecoProducer = _totemTimingRawToDigi.clone(rawDataTag = 
 ctppsPixelDigisAlCaRecoProducer = _ctppsPixelDigis.clone(inputLabel = cms.InputTag('hltPPSCalibrationRaw'))
 
 ctppsRawToDigiTaskAlCaRecoProducer = cms.Task(
-  ctppsDiamondRawToDigiAlCaRecoProducer,
-  totemTimingRawToDigiAlCaRecoProducer,
-  ctppsPixelDigisAlCaRecoProducer
+    ctppsDiamondRawToDigiAlCaRecoProducer,
+    totemTimingRawToDigiAlCaRecoProducer,
+    ctppsPixelDigisAlCaRecoProducer
 )
 
 ALCARECOPPSCalMaxTracksRaw2Digi = cms.Sequence(ctppsRawToDigiTaskAlCaRecoProducer)
@@ -67,7 +67,7 @@ totemTimingRecHitsAlCaRecoProducer = _totemTimingRecHits.clone(digiTag = cms.Inp
 diamondSampicLocalTracksAlCaRecoProducer = _diamondSampicLocalTracks.clone(recHitsTag = 'totemTimingRecHitsAlCaRecoProducer')
 
 diamondSampicLocalReconstructionTaskAlCaRecoProducer = cms.Task(
-		totemTimingRecHitsAlCaRecoProducer,
+    totemTimingRecHitsAlCaRecoProducer,
     diamondSampicLocalTracksAlCaRecoProducer
 )
 
