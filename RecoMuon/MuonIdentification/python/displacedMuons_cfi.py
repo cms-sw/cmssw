@@ -1,6 +1,3 @@
-# This file name is temporary and ment for development only.
-# The content of this file will be moved to displacedMuons_cfi as soon as the complete work flow is in place.
-
 import FWCore.ParameterSet.Config as cms
 
 displacedMuons = cms.EDProducer("MuonProducer",
