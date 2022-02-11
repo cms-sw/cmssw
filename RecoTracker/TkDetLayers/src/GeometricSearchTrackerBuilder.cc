@@ -5,6 +5,7 @@
 #include "Phase2OTBarrelLayerBuilder.h"
 #include "PixelForwardLayerBuilder.h"
 #include "Phase2EndcapLayerBuilder.h"
+#include "Phase2EndcapLayerDoubleDiskBuilder.h"
 #include "TIBLayerBuilder.h"
 #include "TOBLayerBuilder.h"
 #include "TIDLayerBuilder.h"
@@ -25,6 +26,7 @@ GeometricSearchTracker *GeometricSearchTrackerBuilder::build(const GeometricDet 
   PixelForwardLayerBuilder<PixelBlade, PixelForwardLayer> aPixelForwardLayerBuilder;
   PixelForwardLayerBuilder<Phase1PixelBlade, PixelForwardLayerPhase1> aPhase1PixelForwardLayerBuilder;
   Phase2EndcapLayerBuilder aPhase2EndcapLayerBuilder;
+  Phase2EndcapLayerDoubleDiskBuilder aPhase2EndcapLayerDoubleDiskBuilder;
   TIBLayerBuilder aTIBLayerBuilder;
   TOBLayerBuilder aTOBLayerBuilder;
   TIDLayerBuilder aTIDLayerBuilder;
@@ -116,12 +118,17 @@ GeometricSearchTracker *GeometricSearchTrackerBuilder::build(const GeometricDet 
             theNegPxlFwdLayers.push_back(aPhase1PixelForwardLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
           else if (thisGeomDet->type() == GeometricDet::PixelPhase2TDRDisk)
             theNegPxlFwdLayers.push_back(aPhase2EndcapLayerBuilder.build(thisGeomDet, theGeomDetGeometry, false));
+          else if (thisGeomDet->type() == GeometricDet::PixelPhase2DoubleDisk)
+            theNegPxlFwdLayers.push_back(aPhase2EndcapLayerDoubleDiskBuilder.build(thisGeomDet, theGeomDetGeometry));
         } else if (thisGeomDet->positionBounds().z() > 0) {
           if (thisGeomDet->type() == GeometricDet::PixelPhase2FullDisk ||
               thisGeomDet->type() == GeometricDet::PixelPhase2ReducedDisk)
             thePosPxlFwdLayers.push_back(aPhase1PixelForwardLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
           else if (thisGeomDet->type() == GeometricDet::PixelPhase2TDRDisk)
             thePosPxlFwdLayers.push_back(aPhase2EndcapLayerBuilder.build(thisGeomDet, theGeomDetGeometry, false));
+          else if (thisGeomDet->type() == GeometricDet::PixelPhase2DoubleDisk)
+            thePosPxlFwdLayers.push_back(aPhase2EndcapLayerDoubleDiskBuilder.build(thisGeomDet, theGeomDetGeometry));
+
         } else {
           edm::LogError("TkDetLayers") << "In PixelPhase2EndCap the disks are neither PixelPhase2FullDisk nor "
                                           "PixelPhase2ReducedDisk nor PixelPhase2TDRDisk...";
