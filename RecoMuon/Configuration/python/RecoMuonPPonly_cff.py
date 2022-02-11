@@ -82,6 +82,7 @@ muontracking = cms.Sequence(muontrackingTask)
 # Muon Reconstruction
 displacedMuonIdProducerTask = cms.Task(displacedMuons1stStep)
 muonrecoTask = cms.Task(muontrackingTask,muonIdProducerTask, displacedMuonIdProducerTask)
+fastSim.toReplaceWith(muonrecoTask,muonrecoTask.copyAndExclude([displacedMuonIdProducerTask]))
 muonreco = cms.Sequence(muonrecoTask)
 # Muon Reconstruction plus Isolation
 muonreco_plus_isolationTask = cms.Task(muonrecoTask,muIsolationTask)
@@ -117,4 +118,4 @@ muonGlobalReco = cms.Sequence(muonGlobalRecoTask)
 
 ########################################################
 # not commisoned and not relevant in FastSim (?):
-fastSim.toReplaceWith(muonGlobalRecoTask, muonGlobalRecoTask.copyAndExclude([muonreco_with_SET_Task,muonSelectionTypeTask]))
+fastSim.toReplaceWith(muonGlobalRecoTask, muonGlobalRecoTask.copyAndExclude([muonreco_with_SET_Task,muonSelectionTypeTask,displacedMuonIdProducerTask,muIsolationDisplacedTask]))

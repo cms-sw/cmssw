@@ -86,3 +86,6 @@ phase2_tracker.toModify(muonReducedTrackExtras, outputClusters = False)
 
 muonshighlevelrecoTask = cms.Task(muonPFIsolationTask,displacedMuonPFIsolationTask,muons,displacedMuons,muonReducedTrackExtras, displacedMuonReducedTrackExtras)
 muonshighlevelreco = cms.Sequence(muonshighlevelrecoTask)
+
+# displaced sequences do not run in fastsim
+fastSim.toReplaceWith(muonshighlevelrecoTask,muonshighlevelrecoTask.copyAndExclude([displacedMuonPFIsolationTask,displacedMuons,displacedMuonReducedTrackExtras]))
