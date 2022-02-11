@@ -74,6 +74,9 @@ if __name__ == '__main__':
                      136.88811,#2018D JetHT reMINIAOD from UL processing
                      136.793, #2017C DoubleEG
                      136.874, #2018C EGamma
+                     138.4, #2021 MinimumBias prompt reco
+                     138.5, #2021 MinimumBias express
+                     139.001, #2021 MinimumBias offline with HLT step
                      140.53, #2011 HI data
                      140.56, #2018 HI data
                      158.01, #reMiniAOD of 2018 HI MC with pp-like reco
