@@ -691,7 +691,10 @@ void PlotAlignmentValidation::plotSS(const std::string& options, const std::stri
 /*! \fn plotDMR
  *  \brief Main function used to plot DMRs for a single IOV printing the canvases in the output directory and saving histograms and fit funtions in a root file.
  */
-void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits, const std::string& options) {
+void PlotAlignmentValidation::plotDMR(const std::string& variable,
+                                      Int_t minHits,
+                                      const std::string& options,
+                                      const std::string& filterName) {
   // If several, comma-separated values are given in 'variable',
   // call plotDMR with each value separately.
   // If a comma is found, the string is divided to two.
@@ -700,8 +703,8 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
   if (findres != std::string::npos) {
     std::string substring1 = variable.substr(0, findres);
     std::string substring2 = variable.substr(findres + 1, std::string::npos);
-    plotDMR(substring1, minHits, options);
-    plotDMR(substring2, minHits, options);
+    plotDMR(substring1, minHits, options, filterName);
+    plotDMR(substring2, minHits, options, filterName);
     return;
   }
 
@@ -709,8 +712,8 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
   // X and Y added, respectively
   if (variable == "mean" || variable == "median" || variable == "meanNorm" || variable == "rms" ||
       variable == "rmsNorm") {
-    plotDMR(variable + "X", minHits, options);
-    plotDMR(variable + "Y", minHits, options);
+    plotDMR(variable + "X", minHits, options, filterName);
+    plotDMR(variable + "Y", minHits, options, filterName);
     return;
   }
 
@@ -764,6 +767,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
   plotinfo.minHits = minHits;
   plotinfo.plotPlain = plotPlain;
   plotinfo.plotLayers = plotLayers;
+  plotinfo.filterName = filterName;
 
   // width in cm
   // for DMRS, use 100 bins in range +-10 um, bin width 0.2um
@@ -2042,12 +2046,96 @@ void PlotAlignmentValidation::plotDMRHistogram(PlotAlignmentValidation::DMRPlotI
   } else {
     histoname += "";
   }
+
+  //Plotting
   std::string plotVariable =
       getVariableForDMRPlot(histoname.Data(), plotinfo.variable, plotinfo.nbins, plotinfo.min, plotinfo.max);
-  std::string selection = getSelectionForDMRPlot(plotinfo.minHits, plotinfo.subDetId, direction, layer);
-  plotinfo.vars->getTree()->Draw(plotVariable.c_str(), selection.c_str(), "goff");
-  if (gDirectory)
-    gDirectory->GetObject(histoname.Data(), h);
+  std::string selection = "";
+  if (plotinfo.filterName == "") {
+    //Use only default selection and no filter
+    selection = getSelectionForDMRPlot(plotinfo.minHits, plotinfo.subDetId, direction, layer);
+    plotinfo.vars->getTree()->Draw(plotVariable.c_str(), selection.c_str(), "goff");
+    if (gDirectory)
+      gDirectory->GetObject(histoname.Data(), h);
+    if (h && h->GetEntries() > 0) {
+      if (direction == -1) {
+        plotinfo.h1 = h;
+      } else if (direction == 1) {
+        plotinfo.h2 = h;
+      } else {
+        plotinfo.h = h;
+      }
+    }
+  } else {
+    TTreeReader reader(plotinfo.vars->getTree());
+    TTreeReaderValue<Float_t> varToPlot(reader, plotinfo.variable.c_str());
+    TTreeReaderValue<unsigned int> _entries(reader, "entries");
+    TTreeReaderValue<unsigned int> _subDetId(reader, "subDetId");
+    TTreeReaderValue<unsigned int> _moduleId(reader, "moduleId");
+    TTreeReaderValue<Float_t> _zDirection(reader, "zDirection");
+    TTreeReaderValue<Float_t> _rDirection(reader, "rDirection");
+    TTreeReaderValue<unsigned int> _layer(reader, "layer");
+    std::string badModulesFile_ = plotinfo.filterName;
+    TFile* fBadModules = new TFile(badModulesFile_.c_str(), "READ");
+    TTree* tBadModules = (TTree*)fBadModules->Get("alignTree");
+    TTreeReader readerBad(tBadModules);
+    TTreeReaderValue<int> _valid(readerBad, "valid");
+    TTreeReaderValue<int> _bad_id(readerBad, "id");
+    TTreeReaderValue<double> _bad_lumi(readerBad, "lumi");
+
+    //Record which modules were used
+    ofstream fUsedModules;
+    fUsedModules.open("usedModules.txt", ios::out | ios::app);
+
+    //Filter on modules by hand together with base selection
+    for (uint i = 0; i < plotinfo.vars->getTree()->GetEntries(); i++) {
+      reader.SetEntry(i);
+      if (*_entries < uint(plotinfo.minHits))
+        continue;
+      if (*_subDetId != uint(plotinfo.subDetId))
+        continue;
+      if (direction != 0) {
+        if (plotinfo.subDetId == 2) {  // FPIX is split by zDirection
+          if (*_zDirection != direction)
+            continue;
+        } else {
+          if (*_rDirection != direction)
+            continue;
+        }
+      }
+      if (layer > 0) {
+        if (*_layer != uint(layer))
+          continue;
+      }
+      bool isBadModule = false;
+      for (int ibad = 0; ibad < tBadModules->GetEntries(); ibad++) {
+        readerBad.SetEntry(ibad);
+        //if (*_valid == 0) {continue;} //only modules that failed 0 times are OK = very strict
+        if (subdet == "BPIX" || subdet == "FPIX") {
+          if (*_bad_lumi <= 2.0)
+            continue;
+        } else {
+          if (*_bad_lumi <= 7.0)
+            continue;
+        }
+        //modules that misbehave for less than 2/fb are OK = mild strict
+        if (*_moduleId == uint(*_bad_id))
+          isBadModule = true;
+      }
+
+      if (isBadModule)
+        continue;
+      fUsedModules << *_moduleId << "\n";
+      h->Fill(*varToPlot);
+    }
+
+    //Finalize
+    fUsedModules.close();
+    fBadModules->Close();
+    h->SetName(histoname.Data());
+  }
+
+  //Store histogram
   if (h && h->GetEntries() > 0) {
     if (direction == -1) {
       plotinfo.h1 = h;
@@ -2058,8 +2146,9 @@ void PlotAlignmentValidation::plotDMRHistogram(PlotAlignmentValidation::DMRPlotI
     }
   }
   if (plotinfo.variable == "medianX" || plotinfo.variable == "medianY" || plotinfo.variable == "rmsNormX" ||
-      plotinfo.variable == "rmsNormY")
+      plotinfo.variable == "rmsNormY") {
     storeHistogramInRootfile(h);
+  }
 }
 
 void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend) {

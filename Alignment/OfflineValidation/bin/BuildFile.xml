@@ -17,3 +17,4 @@
 <bin name="SplitVmerge" file="SplitVmerge.cc,Options.cc" />
 <bin name="GCP" file="GCP.cc,Options.cc" />
 <bin name="jetHtPlotter" file="jetHtPlotter.cc,JetHtPlotConfiguration.cc,Options.cc" />
+<bin name="haddws" file="haddws.C" />
