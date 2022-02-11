@@ -656,8 +656,9 @@ class FinalPath(_ModuleSequenceType):
         super(FinalPath,self).__init__(*arg,**argv)
     def _placeImpl(self,name,proc):
         proc._placeFinalPath(name,self)
-    def associate(self,task):
-      raise TypeError("FinalPath does not allow associations with Tasks")
+    def associate(self,task=None):
+        if(task!=None):
+            raise TypeError("FinalPath does not allow associations with Tasks")
 
 class Sequence(_ModuleSequenceType,_Sequenceable):
     def __init__(self,*arg,**argv):
