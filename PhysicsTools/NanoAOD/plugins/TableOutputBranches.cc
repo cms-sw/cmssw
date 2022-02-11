@@ -19,6 +19,9 @@ void TableOutputBranches::defineBranchesFromFirstEvent(const nanoaod::FlatTable 
       case nanoaod::FlatTable::ColumnType::Int:
         m_intBranches.emplace_back(var, tab.columnDoc(i), "I");
         break;
+      case nanoaod::FlatTable::ColumnType::Int8:
+        m_int8Branches.emplace_back(var, tab.columnDoc(i), "b");
+        break;
       case nanoaod::FlatTable::ColumnType::UInt8:
         m_uint8Branches.emplace_back(var, tab.columnDoc(i), "b");
         break;
