@@ -14,20 +14,15 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
@@ -42,13 +37,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
-
-#include "TFile.h"
-#include "TTree.h"
-#include "TH1F.h"
-#include "TF1.h"
-#include "TGraph.h"
-#include "TCanvas.h"
 
 class Pi0FixedMassWindowCalibration : public edm::ESProducerLooper {
 public:
@@ -139,9 +127,6 @@ private:
   const edm::EDGetTokenT<EcalRecHitCollection> recHitToken_;
   const edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> intercalibConstantsToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
-
-  // root tree
-  TFile* theFile;
 
   bool isfirstcall_;
 };
