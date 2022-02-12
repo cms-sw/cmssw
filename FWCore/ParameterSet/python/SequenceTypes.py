@@ -450,8 +450,9 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         self.visit(v)
         if v.didReplace():
             self._seq = v.result(self)[0]
-            self._tasks.clear()
-            self.associate(*v.result(self)[1])
+            if v.result(self)[1]:
+              self._tasks.clear()
+              self.associate(*v.result(self)[1])
         return v.didReplace()
     def _replaceIfHeldDirectly(self,original,replacement):
         """Only replaces an 'original' with 'replacement' if 'original' is directly held.
@@ -2103,6 +2104,13 @@ if __name__=="__main__":
             t3 = Task(m5)
             t2.replace(m2,t3)
             self.assertTrue(t2.dumpPython() == "cms.Task(process.m1, process.m3, process.m5)\n")
+            
+            fp = FinalPath()
+            fp.replace(m1,m2)
+            self.assertEqual(fp.dumpPython(), "cms.FinalPath()\n")
+            fp = FinalPath(m1)
+            fp.replace(m1,m2)
+            self.assertEqual(fp.dumpPython(), "cms.FinalPath(process.m2)\n")
 
         def testReplaceIfHeldDirectly(self):
             m1 = DummyModule("m1")
