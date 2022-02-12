@@ -1,5 +1,5 @@
-#ifndef ECALGETLASERDATA_H
-#define ECALGETLASERDATA_H
+#ifndef CondTools_Ecal_EcalGetLaserData_h
+#define CondTools_Ecal_EcalGetLaserData_h
 
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
