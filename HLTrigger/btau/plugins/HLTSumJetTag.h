@@ -33,13 +33,13 @@ private:
   const edm::InputTag m_JetTags;  // input tag collection
   const edm::EDGetTokenT<std::vector<T> > m_JetsToken;
   const edm::EDGetTokenT<reco::JetTagCollection> m_JetTagsToken;
-  const double m_MinTag;             // min tag value
-  const double m_MaxTag;             // max tag value
-  const unsigned int m_MinJetToSum;  // min number of jets to be considered in the sum
-  const unsigned int m_MaxJetToSum;  // max number of jets to be considered in the sum
-  const bool m_UseMeanValue;         // consider mean of jet tags instead of their sum
-  const bool m_MatchByDeltaR;        // find jet-tag value by Delta-R matching
-  const bool m_MaxDeltaR;            // max Delta-R to assign jet-tag to a jet via Delta-R matching
+  const double m_MinTag;       // min tag value
+  const double m_MaxTag;       // max tag value
+  const int m_MinJetToSum;     // min number of jets to be considered in the sum
+  const int m_MaxJetToSum;     // max number of jets to be considered in the sum
+  const bool m_UseMeanValue;   // consider mean of jet tags instead of their sum
+  const bool m_MatchByDeltaR;  // find jet-tag value by Delta-R matching
+  const bool m_MaxDeltaR;      // max Delta-R to assign jet-tag to a jet via Delta-R matching
   const int m_TriggerType;
 };
 
