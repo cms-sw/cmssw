@@ -90,7 +90,10 @@ private:
 // constructors and destructor
 //
 AlCaHEMuonFilter::AlCaHEMuonFilter(edm::ParameterSet const& iConfig, const AlCaHEMuons::Counters* count)
-    : nRun_(0), nAll_(0), nGood_(0), nFinal_(0),
+    : nRun_(0),
+      nAll_(0),
+      nGood_(0),
+      nFinal_(0),
       trigNames_(iConfig.getParameter<std::vector<std::string> >("triggers")),
       processName_(iConfig.getParameter<std::string>("processName")),
       triggerResults_(iConfig.getParameter<edm::InputTag>("triggerResultLabel")),
@@ -106,7 +109,6 @@ AlCaHEMuonFilter::AlCaHEMuonFilter(edm::ParameterSet const& iConfig, const AlCaH
       tok_Muon_(consumes<reco::MuonCollection>(labelMuon_)),
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()) {
-
   // load the parameters and define tokens for access
 
   edm::LogVerbatim("HEMuon") << "Parameters read from config file \n"

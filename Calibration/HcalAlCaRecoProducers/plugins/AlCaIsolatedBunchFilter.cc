@@ -66,13 +66,14 @@ private:
 //
 AlCaIsolatedBunchFilter::AlCaIsolatedBunchFilter(const edm::ParameterSet& iConfig,
                                                  const AlCaIsolatedBunch::Counters* count)
-    : nRun_(0), nAll_(0), nGood_(0),
+    : nRun_(0),
+      nAll_(0),
+      nGood_(0),
       trigJetNames_(iConfig.getParameter<std::vector<std::string> >("triggerJet")),
       trigIsoBunchNames_(iConfig.getParameter<std::vector<std::string> >("triggerIsoBunch")),
       processName_(iConfig.getParameter<std::string>("processName")),
       theTriggerResultsLabel_(iConfig.getParameter<edm::InputTag>("triggerResultLabel")),
       tok_trigRes_(consumes<edm::TriggerResults>(theTriggerResultsLabel_)) {
-
   edm::LogVerbatim("AlCaIsoBunch") << "Input tag for trigger results " << theTriggerResultsLabel_ << " with "
                                    << trigIsoBunchNames_.size() << ":" << trigJetNames_.size() << " trigger names and"
                                    << " process " << processName_ << std::endl;

@@ -79,7 +79,9 @@ private:
 };
 
 AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(edm::ParameterSet const& iConfig, const AlCaHBHEMuons::Counters* count)
-    : nRun_(0), nAll_(0), nGood_(0),
+    : nRun_(0),
+      nAll_(0),
+      nGood_(0),
       labelBS_(iConfig.getParameter<edm::InputTag>("BeamSpotLabel")),
       labelVtx_(iConfig.getParameter<edm::InputTag>("VertexLabel")),
       labelEB_(iConfig.getParameter<edm::InputTag>("EBRecHitLabel")),
@@ -87,7 +89,6 @@ AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(edm::ParameterSet const& iConfig, con
       labelHBHE_(iConfig.getParameter<edm::InputTag>("HBHERecHitLabel")),
       labelMuon_(iConfig.getParameter<edm::InputTag>("MuonLabel")),
       pMuonMin_(iConfig.getParameter<double>("MinimumMuonP")) {
-
   // define tokens for access
   tok_Vtx_ = consumes<reco::VertexCollection>(labelVtx_);
   tok_BS_ = consumes<reco::BeamSpot>(labelBS_);

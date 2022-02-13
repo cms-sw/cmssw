@@ -66,12 +66,13 @@ private:
 //
 AlCaIsolatedBunchSelector::AlCaIsolatedBunchSelector(const edm::ParameterSet& iConfig,
                                                      const AlCaIsolatedBunch::Counters* count)
-    : nRun_(0), nAll_(0), nGood_(0),
+    : nRun_(0),
+      nAll_(0),
+      nGood_(0),
       trigName_(iConfig.getParameter<std::string>("triggerName")),
       processName_(iConfig.getParameter<std::string>("processName")),
       theTriggerResultsLabel_(iConfig.getParameter<edm::InputTag>("triggerResultLabel")),
       tok_trigRes_(consumes<edm::TriggerResults>(theTriggerResultsLabel_)) {
-
   edm::LogVerbatim("AlCaIsoBunch") << "Input tag for trigger results " << theTriggerResultsLabel_
                                    << " with trigger name " << trigName_ << " and process " << processName_
                                    << std::endl;
