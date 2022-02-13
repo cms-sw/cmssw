@@ -346,7 +346,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
     int hjoffset = isub * 50000;
 
     if (isub != isub_l) {
-      HepMC::GenVertex* sub_vertices = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), isub);
+      sub_vertices = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), isub);
       evt->add_vertex(sub_vertices);
       if (!evt->signal_process_vertex())
         evt->set_signal_process_vertex(sub_vertices);
@@ -397,14 +397,11 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
 
       prod_vertex->add_particle_out(particle[ihy]);
       LogDebug("Hydjet_array") << " ---" << mid + 1 << "---> " << ihy + 1 << std::endl;
-
-      if (prods)
-        delete prods;
+      delete prods;
     }
     ihy++;
   }
-  if (sub_vertices)
-    delete sub_vertices;
+  delete sub_vertices;
   LogDebug("Hydjet_array") << " MULTin ev.:" << hyjets.nhj << ", last index: " << ihy - 1
                            << ", Sub events: " << isub + 1 << ", stable particles: " << stab << std::endl;
 
