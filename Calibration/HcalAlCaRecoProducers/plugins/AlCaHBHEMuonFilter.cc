@@ -92,7 +92,10 @@ private:
 // constructors and destructor
 //
 AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(edm::ParameterSet const& iConfig, const AlCaHBHEMuons::Counters* count)
-    : nRun_(0), nAll_(0), nGood_(0), nFinal_(0),
+    : nRun_(0),
+      nAll_(0),
+      nGood_(0),
+      nFinal_(0),
       trigNames_(iConfig.getParameter<std::vector<std::string> >("Triggers")),
       processName_(iConfig.getParameter<std::string>("ProcessName")),
       triggerResults_(iConfig.getParameter<edm::InputTag>("TriggerResultLabel")),
@@ -107,7 +110,6 @@ AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(edm::ParameterSet const& iConfig, const A
       tok_Muon_(consumes<reco::MuonCollection>(labelMuon_)),
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()) {
- 
   // load the parameters and define tokens for access
 
   edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \nProcess " << processName_ << "  Prescale "
