@@ -1,8 +1,39 @@
-import copy
 import FWCore.ParameterSet.Config as cms
+
 from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 from HLTrigger.Configuration.common import *
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
+
+def _load_if_missing(process, label, config, check = True):
+    '''
+    Utility to load file "config" in the process, if the process does not already hold a module named "label"
+     - if "check" is true and "process.label" does not exist after loading "config", an exception is thrown
+    Example: _load_if_missing(process, 'SomeESProducer', 'SubSystem.Package.SomeESProducer_cfi')
+    '''
+    if label not in process.__dict__:
+        process.load(config)
+    if check and label not in process.__dict__:
+        raise Exception('process does not have a module labelled "'+label+'" after loading "'+config+'"')
+
+def _clone(_obj, _label, _config, _original_label = None, _only_if_missing = False, **kwargs):
+    '''
+    Utility to add "_label" to "_obj" using a clone of module "_original_label" from file "_config"
+     - if "_original_label" is not specified, it is set equal to "_label"
+     - if "_only_if_missing" is true and "_obj._label" exists, nothing is done
+    Example: _clone(process, 'hltMyFilter', 'SubSystem.Package.hltSomeFilter_cfi', 'hltSomeFilter',
+               _only_if_missing = False, modArg1 = val1, modArg2 = val2)
+    '''
+    if not _only_if_missing or not hasattr(_obj, _label):
+        if _original_label is None:
+            _original_label = _label
+        _module = __import__(_config, globals(), locals(), [ _original_label ], 0)
+        setattr(_obj, _label, getattr(_module, _original_label).clone(**kwargs))
+
+def _clone_if_missing(_obj, _label, _config, _original_label = None, **kwargs):
+    '''
+    Wrapper of _clone with _only_if_missing=True (for examples, see _clone)
+    '''
+    _clone(_obj, _label, _config, _original_label, _only_if_missing = True, **kwargs)
 
 
 # force the SwitchProducerCUDA choice to pick a specific backend: True for offloading to a gpu, False for running on cpu
@@ -23,12 +54,13 @@ def customiseCommon(process):
 
     # Services
 
-    process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
+    _load_if_missing(process, 'CUDAService', 'HeterogeneousCore.CUDAServices.CUDAService_cfi')
+
     if 'MessageLogger' in process.__dict__:
         process.MessageLogger.CUDAService = cms.untracked.PSet()
 
-    # NVProfilerService is broken in CMSSW 12.0.x and later
-    #process.load("HeterogeneousCore.CUDAServices.NVProfilerService_cfi")
+#    # NVProfilerService is broken in CMSSW 12.0.x and later
+#    _load_if_missing(process, 'NVProfilerService', 'HeterogeneousCore.CUDAServices.NVProfilerService_cfi')
 
 
     # Paths and EndPaths
@@ -38,14 +70,18 @@ def customiseCommon(process):
         del process.hltGetConditions
 
     # produce a boolean to track if the events ar being processed on gpu (true) or cpu (false)
-    process.statusOnGPU = SwitchProducerCUDA(
-        cpu  = cms.EDProducer("BooleanProducer", value = cms.bool(False)),
-        cuda = cms.EDProducer("BooleanProducer", value = cms.bool(True))
-    )
+    if 'statusOnGPU' not in process.__dict__:
+        process.statusOnGPU = SwitchProducerCUDA(
+            cpu  = cms.EDProducer("BooleanProducer", value = cms.bool(False))
+        )
 
-    process.statusOnGPUFilter = cms.EDFilter("BooleanFilter",
-        src = cms.InputTag("statusOnGPU")
-    )
+    if not hasattr(process.statusOnGPU, 'cuda'):
+        process.statusOnGPU.cuda = cms.EDProducer("BooleanProducer", value = cms.bool(True))
+
+    if 'statusOnGPUFilter' not in process.__dict__:
+        process.statusOnGPUFilter = cms.EDFilter("BooleanFilter",
+            src = cms.InputTag("statusOnGPU")
+        )
 
     if 'Status_OnCPU' in process.__dict__:
         replace_with(process.Status_OnCPU, cms.Path(process.statusOnGPU + ~process.statusOnGPUFilter))
@@ -94,67 +130,55 @@ def customisePixelLocalReconstruction(process):
     if not 'HLTDoLocalPixelSequence' in process.__dict__:
         return process
 
-    # FIXME replace the Sequences with empty ones to avoid expanding them during the (re)definition of Modules and EDAliases
 
+    # FIXME replace the Sequences with empty ones to avoid expanding them during the (re)definition of Modules and EDAliases
     process.HLTDoLocalPixelSequence = cms.Sequence()
 
 
     # Event Setup
 
-    process.load("CalibTracker.SiPixelESProducers.siPixelGainCalibrationForHLTGPU_cfi")                 # this should be used only on GPUs, will crash otherwise
-    process.load("CalibTracker.SiPixelESProducers.siPixelROCsStatusAndMappingWrapperESProducer_cfi")    # this should be used only on GPUs, will crash otherwise
-    process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEFastESProducer_cfi")
+    _load_if_missing(process, 'PixelCPEFastESProducer', 'RecoLocalTracker.SiPixelRecHits.PixelCPEFastESProducer_cfi')
+    # these 2 modules should be used only on GPUs, will crash otherwise
+    _load_if_missing(process, 'siPixelGainCalibrationForHLTGPU', 'CalibTracker.SiPixelESProducers.siPixelGainCalibrationForHLTGPU_cfi')
+    _load_if_missing(process, 'siPixelROCsStatusAndMappingWrapperESProducer', 'CalibTracker.SiPixelESProducers.siPixelROCsStatusAndMappingWrapperESProducer_cfi')
 
 
     # Modules and EDAliases
-
     # referenced in HLTDoLocalPixelTask
 
     # transfer the beamspot to the gpu
-    from RecoVertex.BeamSpotProducer.offlineBeamSpotToCUDA_cfi import offlineBeamSpotToCUDA as _offlineBeamSpotToCUDA
-    process.hltOnlineBeamSpotToCUDA = _offlineBeamSpotToCUDA.clone(
-        src = "hltOnlineBeamSpot"
+    _clone_if_missing(process, 'hltOnlineBeamSpotToCUDA', 'RecoVertex.BeamSpotProducer.offlineBeamSpotToCUDA_cfi', 'offlineBeamSpotToCUDA',
+        src = 'hltOnlineBeamSpot'
     )
 
-    # reconstruct the pixel digis and clusters on the gpu
-    from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDA_cfi import siPixelRawToClusterCUDA as _siPixelRawToClusterCUDA
-    if 'hltSiPixelClustersLegacy' in process.__dict__:
-        process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone(
-            # use the same thresholds as the legacy module
-            clusterThreshold_layer1 = process.hltSiPixelClustersLegacy.ClusterThreshold_L1,
-            clusterThreshold_otherLayers = process.hltSiPixelClustersLegacy.ClusterThreshold
-        )
+    if 'hltSiPixelClustersCUDA' not in process.__dict__:
+        # reconstruct the pixel digis and clusters on the gpu
+        _hltSiPixelClustersLegacyLabel = 'hltSiPixelClustersLegacy' if 'hltSiPixelClustersLegacy' in process.__dict__ else 'hltSiPixelClusters'
 
-    else:
-        process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone(
+        _clone(process, 'hltSiPixelClustersCUDA', 'RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDA_cfi', 'siPixelRawToClusterCUDA',
             # use the same thresholds as the legacy module
-            clusterThreshold_layer1 = process.hltSiPixelClusters.ClusterThreshold_L1,
-            clusterThreshold_otherLayers = process.hltSiPixelClusters.ClusterThreshold
+            clusterThreshold_layer1 = getattr(process, _hltSiPixelClustersLegacyLabel).ClusterThreshold_L1,
+            clusterThreshold_otherLayers = getattr(process, _hltSiPixelClustersLegacyLabel).ClusterThreshold,
         )
-
-    # use the pixel channel calibrations scheme for Run 3
-    run3_common.toModify(process.hltSiPixelClustersCUDA, isRun2 = False)
+        # use the pixel channel calibrations scheme for Run 3
+        run3_common.toModify(process.hltSiPixelClustersCUDA, isRun2 = False)
 
     # copy the pixel digis errors to the host
-    from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsSoAFromCUDA_cfi import siPixelDigiErrorsSoAFromCUDA as _siPixelDigiErrorsSoAFromCUDA
-    process.hltSiPixelDigiErrorsSoA = _siPixelDigiErrorsSoAFromCUDA.clone(
-        src = "hltSiPixelClustersCUDA"
+    _clone_if_missing(process, 'hltSiPixelDigiErrorsSoA', 'EventFilter.SiPixelRawToDigi.siPixelDigiErrorsSoAFromCUDA_cfi', 'siPixelDigiErrorsSoAFromCUDA',
+        src = 'hltSiPixelClustersCUDA'
     )
 
     # copy the pixel digis (except errors) and clusters to the host
-    from EventFilter.SiPixelRawToDigi.siPixelDigisSoAFromCUDA_cfi import siPixelDigisSoAFromCUDA as _siPixelDigisSoAFromCUDA
-    process.hltSiPixelDigisSoA = _siPixelDigisSoAFromCUDA.clone(
-        src = "hltSiPixelClustersCUDA"
+    _clone_if_missing(process, 'hltSiPixelDigisSoA', 'EventFilter.SiPixelRawToDigi.siPixelDigisSoAFromCUDA_cfi', 'siPixelDigisSoAFromCUDA',
+        src = 'hltSiPixelClustersCUDA'
     )
 
-    # SwitchProducer wrapping a subset of the legacy pixel digis producer, or the conversion of the pixel digis errors to the legacy format
+    # SwitchProducer: hltSiPixelDigis
     if not isinstance(process.hltSiPixelDigis, SwitchProducerCUDA):
 
-        if 'hltSiPixelDigisLegacy' in process.__dict__:
-            raise Exception('unsupported configuration: "process.hltSiPixelDigis" is not a SwitchProducerCUDA, but "process.hltSiPixelDigisLegacy" already exists')
-
-        # reconstruct the pixel digis on the cpu
-        process.hltSiPixelDigisLegacy = process.hltSiPixelDigis.clone()
+        if 'hltSiPixelDigisLegacy' not in process.__dict__:
+            # reconstruct the pixel digis on the cpu
+            process.hltSiPixelDigisLegacy = process.hltSiPixelDigis.clone()
 
         # SwitchProducer wrapping a subset of the legacy pixel digis producer, or the conversion of the pixel digis errors to the legacy format
         process.hltSiPixelDigis = SwitchProducerCUDA(
@@ -167,24 +191,27 @@ def customisePixelLocalReconstruction(process):
                 )
             )
         )
+
+    elif not hasattr(process.hltSiPixelDigis, 'cpu'):
+        raise Exception('unsupported configuration: "process.hltSiPixelDigis" is a SwitchProducerCUDA, but does not have a "cpu" branch')
+
     # conversion from SoA to legacy format
-    from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoA_cfi import siPixelDigiErrorsFromSoA as _siPixelDigiErrorsFromSoA
-    process.hltSiPixelDigis.cuda = _siPixelDigiErrorsFromSoA.clone(
+    _clone_if_missing(process.hltSiPixelDigis, 'cuda', 'EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoA_cfi', 'siPixelDigiErrorsFromSoA',
         digiErrorSoASrc = "hltSiPixelDigiErrorsSoA",
         UsePhase1 = True
     )
 
-    # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters to the legacy format
+
+    # SwitchProducer: hltSiPixelClusters
     if not isinstance(process.hltSiPixelClusters, SwitchProducerCUDA):
 
-        if 'hltSiPixelClustersLegacy' in process.__dict__:
-            raise Exception('unsupported configuration: "process.hltSiPixelClusters" is not a SwitchProducerCUDA, but "process.hltSiPixelClustersLegacy" already exists')
+        if 'hltSiPixelClustersLegacy' not in process.__dict__:
+            # reconstruct the pixel clusters on the cpu
+            process.hltSiPixelClustersLegacy = process.hltSiPixelClusters.clone(
+                src = "hltSiPixelDigisLegacy"
+            )
 
-        # reconstruct the pixel clusters on the cpu
-        process.hltSiPixelClustersLegacy = process.hltSiPixelClusters.clone(
-            src = "hltSiPixelDigisLegacy"
-        )
-
+        # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters to the legacy format
         process.hltSiPixelClusters = SwitchProducerCUDA(
             # legacy producer
             cpu = cms.EDAlias(
@@ -193,10 +220,13 @@ def customisePixelLocalReconstruction(process):
                 )
             )
         )
+
+    elif not hasattr(process.hltSiPixelClusters, 'cpu'):
+        raise Exception('unsupported configuration: "process.hltSiPixelClusters" is a SwitchProducerCUDA, but does not have a "cpu" branch')
+
     # conversion from SoA to legacy format
-    from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
-    process.hltSiPixelClusters.cuda = _siPixelDigisClustersFromSoA.clone(
-        src = "hltSiPixelDigisSoA",
+    _clone_if_missing(process.hltSiPixelClusters, 'cuda', 'RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi', 'siPixelDigisClustersFromSoA',
+        src = 'hltSiPixelDigisSoA',
         produceDigis = False,
         storeDigis = False,
         # use the same thresholds as the legacy module
@@ -205,56 +235,63 @@ def customisePixelLocalReconstruction(process):
     )
 
     # reconstruct the pixel rechits on the gpu
-    from RecoLocalTracker.SiPixelRecHits.siPixelRecHitCUDA_cfi import siPixelRecHitCUDA as _siPixelRecHitCUDA
-    process.hltSiPixelRecHitsCUDA = _siPixelRecHitCUDA.clone(
-        src = "hltSiPixelClustersCUDA",
-        beamSpot = "hltOnlineBeamSpotToCUDA"
+    _clone_if_missing(process, 'hltSiPixelRecHitsCUDA', 'RecoLocalTracker.SiPixelRecHits.siPixelRecHitCUDA_cfi', 'siPixelRecHitCUDA',
+        src = 'hltSiPixelClustersCUDA',
+        beamSpot = 'hltOnlineBeamSpotToCUDA'
     )
 
     # cpu only: produce the pixel rechits in SoA and legacy format, from the legacy clusters
-    from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi import siPixelRecHitSoAFromLegacy as _siPixelRecHitSoAFromLegacy
-    process.hltSiPixelRecHitSoA = _siPixelRecHitSoAFromLegacy.clone(
-        src = "hltSiPixelClusters",
-        beamSpot = "hltOnlineBeamSpot",
+    _clone_if_missing(process, 'hltSiPixelRecHitSoA', 'RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi', 'siPixelRecHitSoAFromLegacy',
+        src = 'hltSiPixelClusters',
+        beamSpot = 'hltOnlineBeamSpot',
         convertToLegacy = True
     )
 
-    # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
-    from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromCUDA_cfi import siPixelRecHitFromCUDA as _siPixelRecHitFromCUDA
-    process.hltSiPixelRecHits = SwitchProducerCUDA(
-        # legacy producer
-        cpu = cms.EDAlias(
-            hltSiPixelRecHitSoA = cms.VPSet(
-                cms.PSet(type = cms.string("SiPixelRecHitedmNewDetSetVector")),
-                cms.PSet(type = cms.string("uintAsHostProduct"))
+    # SwitchProducer: hltSiPixelRecHits
+    if not isinstance(process.hltSiPixelRecHits, SwitchProducerCUDA):
+        # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
+        process.hltSiPixelRecHits = SwitchProducerCUDA(
+            # legacy producer
+            cpu = cms.EDAlias(
+                hltSiPixelRecHitSoA = cms.VPSet(
+                    cms.PSet(type = cms.string("SiPixelRecHitedmNewDetSetVector")),
+                    cms.PSet(type = cms.string("uintAsHostProduct"))
+                )
             )
-        ),
-        # conversion from SoA to legacy format
-        cuda = _siPixelRecHitFromCUDA.clone(
-            pixelRecHitSrc = "hltSiPixelRecHitsCUDA",
-            src = "hltSiPixelClusters"
         )
+
+    elif not hasattr(process.hltSiPixelRecHits, 'cpu'):
+        raise Exception('unsupported configuration: "process.hltSiPixelRecHits" is a SwitchProducerCUDA, but does not have a "cpu" branch')
+
+    # conversion from SoA to legacy format
+    _clone_if_missing(process.hltSiPixelRecHits, 'cuda', 'RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromCUDA_cfi', 'siPixelRecHitFromCUDA',
+        pixelRecHitSrc = 'hltSiPixelRecHitsCUDA',
+        src = 'hltSiPixelClusters'
     )
 
 
     # Tasks and Sequences
-    if 'HLTDoLocalPixelTask' in process.__dict__ and not isinstance(process.HLTDoLocalPixelTask, cms.Task):
+
+    if 'HLTDoLocalPixelTask' not in process.__dict__:
+        process.HLTDoLocalPixelTask = cms.Task(
+            process.hltOnlineBeamSpotToCUDA,   # transfer the beamspot to the gpu
+            process.hltSiPixelClustersCUDA,    # reconstruct the pixel digis and clusters on the gpu
+            process.hltSiPixelRecHitsCUDA,     # reconstruct the pixel rechits on the gpu
+            process.hltSiPixelDigisSoA,        # copy the pixel digis (except errors) and clusters to the host
+            process.hltSiPixelDigiErrorsSoA,   # copy the pixel digis errors to the host
+            process.hltSiPixelDigisLegacy,     # legacy pixel digis producer
+            process.hltSiPixelDigis,           # SwitchProducer wrapping a subset of the legacy pixel digis producer, or the conversion of the pixel digis errors from SoA
+            process.hltSiPixelClustersLegacy,  # legacy pixel cluster producer
+            process.hltSiPixelClusters,        # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters from SoA
+            process.hltSiPixelClustersCache,   # legacy module, used by the legacy pixel quadruplet producer
+            process.hltSiPixelRecHitSoA,       # pixel rechits on cpu, in SoA & legacy format
+            process.hltSiPixelRecHits,         # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
+        )
+
+    elif not isinstance(process.HLTDoLocalPixelTask, cms.Task):
         raise Exception('unsupported configuration: "process.HLTDoLocalPixelTask" already exists, but it is not a Task')
 
-    process.HLTDoLocalPixelTask = cms.Task(
-          process.hltOnlineBeamSpotToCUDA,   # transfer the beamspot to the gpu
-          process.hltSiPixelClustersCUDA,    # reconstruct the pixel digis and clusters on the gpu
-          process.hltSiPixelRecHitsCUDA,     # reconstruct the pixel rechits on the gpu
-          process.hltSiPixelDigisSoA,        # copy the pixel digis (except errors) and clusters to the host
-          process.hltSiPixelDigiErrorsSoA,   # copy the pixel digis errors to the host
-          process.hltSiPixelDigisLegacy,     # legacy pixel digis producer
-          process.hltSiPixelDigis,           # SwitchProducer wrapping a subset of the legacy pixel digis producer, or the conversion of the pixel digis errors from SoA
-          process.hltSiPixelClustersLegacy,  # legacy pixel cluster producer
-          process.hltSiPixelClusters,        # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters from SoA
-          process.hltSiPixelClustersCache,   # legacy module, used by the legacy pixel quadruplet producer
-          process.hltSiPixelRecHitSoA,       # pixel rechits on cpu, in SoA & legacy format
-          process.hltSiPixelRecHits)         # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
-
+    # redefine HLTDoLocalPixelSequence (it was emptied at the start of this function)
     process.HLTDoLocalPixelSequence = cms.Sequence(process.HLTDoLocalPixelTask)
 
 
@@ -286,112 +323,141 @@ def customisePixelTrackReconstruction(process):
     hasHLTPixelVertexReco = 'HLTRecopixelvertexingSequence' in process.__dict__
 
     # FIXME replace the Sequences with empty ones to avoid expanding them during the (re)definition of Modules and EDAliases
-
     process.HLTRecoPixelTracksSequence = cms.Sequence()
     if hasHLTPixelVertexReco:
         process.HLTRecopixelvertexingSequence = cms.Sequence()
 
 
     # Modules and EDAliases
-
     # referenced in process.HLTRecoPixelTracksTask
 
-    # build pixel ntuplets and pixel tracks in SoA format on gpu
-    from RecoPixelVertexing.PixelTriplets.pixelTracksCUDA_cfi import pixelTracksCUDA as _pixelTracksCUDA
-    process.hltPixelTracksCUDA = _pixelTracksCUDA.clone(
-        idealConditions = False,
-        pixelRecHitSrc = "hltSiPixelRecHitsCUDA",
-        onGPU = True
-    )
-    # use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
-    run3_common.toModify(process.hltPixelTracksCUDA, idealConditions = True)
-
-    # SwitchProducer providing the pixel tracks in SoA format on cpu
-    from RecoPixelVertexing.PixelTrackFitting.pixelTracksSoA_cfi import pixelTracksSoA as _pixelTracksSoA
-    process.hltPixelTracksSoA = SwitchProducerCUDA(
-        # build pixel ntuplets and pixel tracks in SoA format on cpu
-        cpu = _pixelTracksCUDA.clone(
-            idealConditions = False,
-            pixelRecHitSrc = "hltSiPixelRecHitSoA",
-            onGPU = False
-        ),
-        # transfer the pixel tracks in SoA format to the host
-        cuda = _pixelTracksSoA.clone(
-            src = "hltPixelTracksCUDA"
+    # SwitchProducer: hltPixelTracksSoA
+    if not ('hltPixelTracksSoA' in process.__dict__ and isinstance(process.hltPixelTracksSoA, SwitchProducerCUDA)):
+        # build pixel ntuplets and pixel tracks in SoA format on gpu
+        _clone(process, 'hltPixelTracksCUDA', 'RecoPixelVertexing.PixelTriplets.pixelTracksCUDA_cfi', 'pixelTracksCUDA',
+            pixelRecHitSrc = 'hltSiPixelRecHitsCUDA',
+            onGPU = True,
+            idealConditions = False
         )
+        # use quality cuts tuned for Run-2 ideal conditions for all Run-3 workflows
+        run3_common.toModify(process.hltPixelTracksCUDA, idealConditions = True)
+
+        process.hltPixelTracksSoA = SwitchProducerCUDA(
+            # build pixel ntuplets and pixel tracks in SoA format on cpu
+            cpu = process.hltPixelTracksCUDA.clone(
+                pixelRecHitSrc = 'hltSiPixelRecHitSoA',
+                onGPU = False
+            )
+        )
+
+    elif hasattr(process.hltPixelTracksSoA, 'cpu'):
+        # if cpu branch of SwitchProducerCUDA exists, take hltPixelTracksCUDA (gpu)
+        # from hltPixelTracksSoA.cpu (cpu) to enforce same configuration parameters
+        process.hltPixelTracksCUDA = process.hltPixelTracksSoA.cpu.clone(
+            pixelRecHitSrc = "hltSiPixelRecHitsCUDA",
+            onGPU = True
+        )
+
+    else:
+        raise Exception('unsupported configuration: "process.hltPixelTracksSoA" is a SwitchProducerCUDA, but does not have a "cpu" branch')
+
+    # transfer the pixel tracks in SoA format to cpu
+    _clone_if_missing(process.hltPixelTracksSoA, 'cuda', 'RecoPixelVertexing.PixelTrackFitting.pixelTracksSoA_cfi', 'pixelTracksSoA',
+        src = 'hltPixelTracksCUDA'
     )
-    # use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
-    run3_common.toModify(process.hltPixelTracksSoA.cpu, idealConditions = True)
+
 
     # convert the pixel tracks from SoA to legacy format
-    from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import pixelTrackProducerFromSoA as _pixelTrackProducerFromSoA
-    process.hltPixelTracks = _pixelTrackProducerFromSoA.clone(
-        beamSpot = "hltOnlineBeamSpot",
-        pixelRecHitLegacySrc = "hltSiPixelRecHits",
-        trackSrc = "hltPixelTracksSoA"
-    )
+    if process.hltPixelTracks.type_() != 'PixelTrackProducerFromSoA':
+        _clone(process, 'hltPixelTracks', 'RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi', 'pixelTrackProducerFromSoA',
+            beamSpot = 'hltOnlineBeamSpot',
+            pixelRecHitLegacySrc = 'hltSiPixelRecHits',
+            trackSrc = 'hltPixelTracksSoA'
+        )
 
 
     # referenced in process.HLTRecopixelvertexingTask
     if hasHLTPixelVertexReco:
 
-        # build pixel vertices in SoA format on gpu
-        from RecoPixelVertexing.PixelVertexFinding.pixelVerticesCUDA_cfi import pixelVerticesCUDA as _pixelVerticesCUDA
-        process.hltPixelVerticesCUDA = _pixelVerticesCUDA.clone(
-            pixelTrackSrc = "hltPixelTracksCUDA",
-            onGPU = True
+        # SwitchProducer: hltPixelVerticesSoA
+        if not ('hltPixelVerticesSoA' in process.__dict__ and isinstance(process.hltPixelVerticesSoA, SwitchProducerCUDA)):
+            # build pixel vertices in SoA format on gpu
+            _clone(process, 'hltPixelVerticesCUDA', 'RecoPixelVertexing.PixelVertexFinding.pixelVerticesCUDA_cfi', 'pixelVerticesCUDA',
+                pixelTrackSrc = 'hltPixelTracksCUDA',
+                onGPU = True
+            )
+
+            # build or transfer pixel vertices in SoA format on cpu
+            process.hltPixelVerticesSoA = SwitchProducerCUDA(
+                # build pixel vertices in SoA format on cpu
+                cpu = process.hltPixelVerticesCUDA.clone(
+                    pixelTrackSrc = 'hltPixelTracksSoA',
+                    onGPU = False
+                )
+            )
+
+        elif hasattr(process.hltPixelVerticesSoA, 'cpu'):
+            # if cpu branch of SwitchProducerCUDA exists, take hltPixelVerticesCUDA (gpu)
+            # from hltPixelVerticesSoA.cpu (cpu) to enforce same configuration parameters
+            process.hltPixelVerticesCUDA = process.hltPixelVerticesSoA.cpu.clone(
+                pixelTrackSrc = 'hltPixelTracksCUDA',
+                onGPU = True
+            )
+
+        else:
+            raise Exception('unsupported configuration: "process.hltPixelVerticesSoA" is a SwitchProducerCUDA, but does not have a "cpu" branch')
+
+        # transfer the pixel vertices in SoA format to cpu
+        _clone_if_missing(process.hltPixelVerticesSoA, 'cuda', 'RecoPixelVertexing.PixelVertexFinding.pixelVerticesSoA_cfi', 'pixelVerticesSoA',
+            src = 'hltPixelVerticesCUDA'
         )
 
-        # build or transfer pixel vertices in SoA format on cpu
-        from RecoPixelVertexing.PixelVertexFinding.pixelVerticesSoA_cfi import pixelVerticesSoA as _pixelVerticesSoA
-        process.hltPixelVerticesSoA = SwitchProducerCUDA(
-            # build pixel vertices in SoA format on cpu
-            cpu = _pixelVerticesCUDA.clone(
-                pixelTrackSrc = "hltPixelTracksSoA",
-                onGPU = False
-            ),
-            # transfer the pixel vertices in SoA format to cpu
-            cuda = _pixelVerticesSoA.clone(
-                src = "hltPixelVerticesCUDA"
-            )
-        )
 
         # convert the pixel vertices from SoA to legacy format
-        from RecoPixelVertexing.PixelVertexFinding.pixelVertexFromSoA_cfi import pixelVertexFromSoA as _pixelVertexFromSoA
-        process.hltPixelVertices = _pixelVertexFromSoA.clone(
-            src = "hltPixelVerticesSoA",
-            TrackCollection = "hltPixelTracks",
-            beamSpot = "hltOnlineBeamSpot"
-        )
+        if process.hltPixelVertices.type_() != 'PixelVertexProducerFromSoA':
+            _clone(process, 'hltPixelVertices', 'RecoPixelVertexing.PixelVertexFinding.pixelVertexFromSoA_cfi', 'pixelVertexFromSoA',
+                src = 'hltPixelVerticesSoA',
+                TrackCollection = 'hltPixelTracks',
+                beamSpot = 'hltOnlineBeamSpot'
+            )
 
 
     # Tasks and Sequences
-    if 'HLTRecoPixelTracksTask' in process.__dict__ and not isinstance(process.HLTRecoPixelTracksTask, cms.Task):
+
+    if 'HLTRecoPixelTracksTask' not in process.__dict__:
+        process.HLTRecoPixelTracksTask = cms.Task(
+            process.hltPixelTracksTrackingRegions,         # from the original sequence
+            process.hltPixelTracksCUDA,                    # pixel ntuplets on gpu, in SoA format
+            process.hltPixelTracksSoA,                     # pixel ntuplets on cpu, in SoA format
+            process.hltPixelTracks,                        # pixel tracks on cpu, in legacy format
+        )
+
+    elif not isinstance(process.HLTRecoPixelTracksTask, cms.Task):
         raise Exception('unsupported configuration: "process.HLTRecoPixelTracksTask" already exists, but it is not a Task')
 
-    process.HLTRecoPixelTracksTask = cms.Task(
-          process.hltPixelTracksTrackingRegions,            # from the original sequence
-          process.hltPixelTracksCUDA,                       # pixel ntuplets on gpu, in SoA format
-          process.hltPixelTracksSoA,                        # pixel ntuplets on cpu, in SoA format
-          process.hltPixelTracks)                           # pixel tracks on cpu, in legacy format
-
+    # redefine HLTRecoPixelTracksSequence (it was emptied at the start of this function)
     process.HLTRecoPixelTracksSequence = cms.Sequence(process.HLTRecoPixelTracksTask)
 
     if hasHLTPixelVertexReco:
-        if 'HLTRecopixelvertexingTask' in process.__dict__ and not isinstance(process.HLTRecopixelvertexingTask, cms.Task):
+
+        if 'HLTRecopixelvertexingTask' not in process.__dict__:
+            process.HLTRecopixelvertexingTask = cms.Task(
+                process.HLTRecoPixelTracksTask,
+                process.hltPixelVerticesCUDA,              # pixel vertices on gpu, in SoA format
+                process.hltPixelVerticesSoA,               # pixel vertices on cpu, in SoA format
+                process.hltPixelVertices,                  # pixel vertices on cpu, in legacy format
+                process.hltTrimmedPixelVertices,           # from the original sequence
+            )
+
+        elif not isinstance(process.HLTRecopixelvertexingTask, cms.Task):
             raise Exception('unsupported configuration: "process.HLTRecopixelvertexingTask" already exists, but it is not a Task')
 
-        process.HLTRecopixelvertexingTask = cms.Task(
-              process.HLTRecoPixelTracksTask,
-              process.hltPixelVerticesCUDA,                 # pixel vertices on gpu, in SoA format
-              process.hltPixelVerticesSoA,                  # pixel vertices on cpu, in SoA format
-              process.hltPixelVertices,                     # pixel vertices on cpu, in legacy format
-              process.hltTrimmedPixelVertices)              # from the original sequence
-
+        # redefine HLTRecopixelvertexingSequence (it was emptied at the start of this function)
         process.HLTRecopixelvertexingSequence = cms.Sequence(
-              process.hltPixelTracksFitter +                # not used here, kept for compatibility with legacy sequences
-              process.hltPixelTracksFilter,                 # not used here, kept for compatibility with legacy sequences
-              process.HLTRecopixelvertexingTask)
+            process.hltPixelTracksFitter +             # not used here, kept for compatibility with legacy sequences
+            process.hltPixelTracksFilter,              # not used here, kept for compatibility with legacy sequences
+            process.HLTRecopixelvertexingTask,
+        )
 
 
     # done
@@ -406,7 +472,6 @@ def customiseEcalLocalReconstruction(process):
         return process
 
     # FIXME replace the Sequences with empty ones to avoid expanding them during the (re)definition of Modules and EDAliases
-
     process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence()
     if hasHLTEcalPreshowerSeq:
         process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence()
@@ -415,40 +480,39 @@ def customiseEcalLocalReconstruction(process):
 
     # Event Setup
 
-    process.load("EventFilter.EcalRawToDigi.ecalElectronicsMappingGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalGainRatiosGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalPedestalsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalPulseCovariancesGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalPulseShapesGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalSamplesCorrelationGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalTimeBiasCorrectionsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalTimeCalibConstantsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalMultifitParametersGPUESProducer_cfi")
-
-    process.load("RecoLocalCalo.EcalRecProducers.ecalRechitADCToGeVConstantGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalRechitChannelStatusGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalIntercalibConstantsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalLaserAPDPNRatiosGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalLaserAPDPNRatiosRefGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalLaserAlphasGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalLinearCorrectionsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalRecHitParametersGPUESProducer_cfi")
+    _load_if_missing(process, 'ecalElectronicsMappingGPUESProducer', 'EventFilter.EcalRawToDigi.ecalElectronicsMappingGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalGainRatiosGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalGainRatiosGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalPedestalsGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalPedestalsGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalPulseCovariancesGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalPulseCovariancesGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalPulseShapesGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalPulseShapesGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalSamplesCorrelationGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalSamplesCorrelationGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalTimeBiasCorrectionsGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalTimeBiasCorrectionsGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalTimeCalibConstantsGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalTimeCalibConstantsGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalMultifitParametersGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalMultifitParametersGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalRechitADCToGeVConstantGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalRechitADCToGeVConstantGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalRechitChannelStatusGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalRechitChannelStatusGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalIntercalibConstantsGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalIntercalibConstantsGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalLaserAPDPNRatiosGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalLaserAPDPNRatiosGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalLaserAPDPNRatiosRefGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalLaserAPDPNRatiosRefGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalLaserAlphasGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalLaserAlphasGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalLinearCorrectionsGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalLinearCorrectionsGPUESProducer_cfi')
+    _load_if_missing(process, 'ecalRecHitParametersGPUESProducer', 'RecoLocalCalo.EcalRecProducers.ecalRecHitParametersGPUESProducer_cfi')
 
 
     # Modules and EDAliases
 
     # ECAL unpacker running on gpu
-    from EventFilter.EcalRawToDigi.ecalRawToDigiGPU_cfi import ecalRawToDigiGPU as _ecalRawToDigiGPU
-    process.hltEcalDigisGPU = _ecalRawToDigiGPU.clone()
+    _clone_if_missing(process, 'hltEcalDigisGPU', 'EventFilter.EcalRawToDigi.ecalRawToDigiGPU_cfi', 'ecalRawToDigiGPU')
 
-    # SwitchProducer wrapping the legacy ECAL unpacker or the ECAL digi converter from SoA format on gpu to legacy format on cpu
+    # SwitchProducer: hltEcalDigis
     if not isinstance(process.hltEcalDigis, SwitchProducerCUDA):
 
-        if 'hltEcalDigisLegacy' in process.__dict__:
-            raise Exception('unsupported configuration: "process.hltEcalDigis" is not SwitchProducerCUDA, but "process.hltEcalDigisLegacy" already exists')
+        if 'hltEcalDigisLegacy' not in process.__dict__:
+            process.hltEcalDigisLegacy = process.hltEcalDigis.clone()
+        else:
+            raise Exception('unsupported configuration: "process.hltEcalDigis" is not a SwitchProducerCUDA, but "process.hltEcalDigisLegacy" already exists')
 
-        process.hltEcalDigisLegacy = process.hltEcalDigis.clone()
-
+        # SwitchProducer wrapping the legacy ECAL unpacker or the ECAL digi converter from SoA format on gpu to legacy format on cpu
         process.hltEcalDigis = SwitchProducerCUDA(
             # legacy producer
             cpu = cms.EDAlias(
@@ -468,67 +532,65 @@ def customiseEcalLocalReconstruction(process):
                 )
             )
         )
+
     # convert ECAL digis from SoA format on gpu to legacy format on cpu
-    from EventFilter.EcalRawToDigi.ecalCPUDigisProducer_cfi import ecalCPUDigisProducer as _ecalCPUDigisProducer
-    process.hltEcalDigis.cuda = _ecalCPUDigisProducer.clone(
-        digisInLabelEB = ("hltEcalDigisGPU", "ebDigis"),
-        digisInLabelEE = ("hltEcalDigisGPU", "eeDigis"),
+    _clone_if_missing(process.hltEcalDigis, 'cuda', 'EventFilter.EcalRawToDigi.ecalCPUDigisProducer_cfi', 'ecalCPUDigisProducer',
+        digisInLabelEB = ('hltEcalDigisGPU', 'ebDigis'),
+        digisInLabelEE = ('hltEcalDigisGPU', 'eeDigis'),
         produceDummyIntegrityCollections = True
     )
 
     # ECAL multifit running on gpu
-    from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitProducerGPU_cfi import ecalUncalibRecHitProducerGPU as _ecalUncalibRecHitProducerGPU
-    process.hltEcalUncalibRecHitGPU = _ecalUncalibRecHitProducerGPU.clone(
-        digisLabelEB = ("hltEcalDigisGPU", "ebDigis"),
-        digisLabelEE = ("hltEcalDigisGPU", "eeDigis"),
+    _clone_if_missing(process, 'hltEcalUncalibRecHitGPU', 'RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitProducerGPU_cfi', 'ecalUncalibRecHitProducerGPU',
+        digisLabelEB = ('hltEcalDigisGPU', 'ebDigis'),
+        digisLabelEE = ('hltEcalDigisGPU', 'eeDigis'),
         shouldRunTimingComputation = False
     )
 
     # copy the ECAL uncalibrated rechits from gpu to cpu in SoA format
-    from RecoLocalCalo.EcalRecProducers.ecalCPUUncalibRecHitProducer_cfi import ecalCPUUncalibRecHitProducer as _ecalCPUUncalibRecHitProducer
-    process.hltEcalUncalibRecHitSoA = _ecalCPUUncalibRecHitProducer.clone(
-        recHitsInLabelEB = ("hltEcalUncalibRecHitGPU", "EcalUncalibRecHitsEB"),
-        recHitsInLabelEE = ("hltEcalUncalibRecHitGPU", "EcalUncalibRecHitsEE"),
+    _clone_if_missing(process, 'hltEcalUncalibRecHitSoA', 'RecoLocalCalo.EcalRecProducers.ecalCPUUncalibRecHitProducer_cfi', 'ecalCPUUncalibRecHitProducer',
+        recHitsInLabelEB = ('hltEcalUncalibRecHitGPU', 'EcalUncalibRecHitsEB'),
+        recHitsInLabelEE = ('hltEcalUncalibRecHitGPU', 'EcalUncalibRecHitsEE'),
     )
 
-    # SwitchProducer wrapping the legacy ECAL uncalibrated rechits producer or a converter from SoA to legacy format
+    # SwitchProducer: hltEcalUncalibRecHit
     if not isinstance(process.hltEcalUncalibRecHit, SwitchProducerCUDA):
+        # SwitchProducer wrapping the legacy ECAL uncalibrated rechits producer or a converter from SoA to legacy format
         process.hltEcalUncalibRecHit = SwitchProducerCUDA(
             # legacy producer
             cpu = process.hltEcalUncalibRecHit
         )
+
     # convert the ECAL uncalibrated rechits from SoA to legacy format
-    from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitConvertGPU2CPUFormat_cfi import ecalUncalibRecHitConvertGPU2CPUFormat as _ecalUncalibRecHitConvertGPU2CPUFormat
-    process.hltEcalUncalibRecHit.cuda = _ecalUncalibRecHitConvertGPU2CPUFormat.clone(
-        recHitsLabelGPUEB = ("hltEcalUncalibRecHitSoA", "EcalUncalibRecHitsEB"),
-        recHitsLabelGPUEE = ("hltEcalUncalibRecHitSoA", "EcalUncalibRecHitsEE"),
+    _clone_if_missing(process.hltEcalUncalibRecHit, 'cuda', 'RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitConvertGPU2CPUFormat_cfi', 'ecalUncalibRecHitConvertGPU2CPUFormat',
+        recHitsLabelGPUEB = ('hltEcalUncalibRecHitSoA', 'EcalUncalibRecHitsEB'),
+        recHitsLabelGPUEE = ('hltEcalUncalibRecHitSoA', 'EcalUncalibRecHitsEE'),
     )
 
     # Reconstructing the ECAL calibrated rechits on gpu works, but is extremely slow.
     # Disable it for the time being, until the performance has been addressed.
     """
-    from RecoLocalCalo.EcalRecProducers.ecalRecHitGPU_cfi import ecalRecHitGPU as _ecalRecHitGPU
-    process.hltEcalRecHitGPU = _ecalRecHitGPU.clone(
+    _clone_if_missing(process, 'hltEcalRecHitGPU', 'RecoLocalCalo.EcalRecProducers.ecalRecHitGPU_cfi', 'ecalRecHitGPU',
         uncalibrecHitsInLabelEB = ("hltEcalUncalibRecHitGPU","EcalUncalibRecHitsEB"),
         uncalibrecHitsInLabelEE = ("hltEcalUncalibRecHitGPU","EcalUncalibRecHitsEE"),
     )
 
-    from RecoLocalCalo.EcalRecProducers.ecalCPURecHitProducer_cfi import ecalCPURecHitProducer as _ecalCPURecHitProducer
-    process.hltEcalRecHitSoA = _ecalCPURecHitProducer.clone(
+    _clone_if_missing(process, 'hltEcalRecHitSoA', 'RecoLocalCalo.EcalRecProducers.ecalCPURecHitProducer_cfi', 'ecalCPURecHitProducer',
         recHitsInLabelEB = ("hltEcalRecHitGPU", "EcalRecHitsEB"),
         recHitsInLabelEE = ("hltEcalRecHitGPU", "EcalRecHitsEE"),
     )
 
     # SwitchProducer wrapping the legacy ECAL calibrated rechits producer or a converter from SoA to legacy format
-    from RecoLocalCalo.EcalRecProducers.ecalRecHitConvertGPU2CPUFormat_cfi import ecalRecHitConvertGPU2CPUFormat as _ecalRecHitConvertGPU2CPUFormat
-    process.hltEcalRecHit = SwitchProducerCUDA(
-        # legacy producer
-        cpu = process.hltEcalRecHit,
-        # convert the ECAL calibrated rechits from SoA to legacy format
-        cuda = _ecalRecHitConvertGPU2CPUFormat.clone(
-            recHitsLabelGPUEB = ("hltEcalRecHitSoA", "EcalRecHitsEB"),
-            recHitsLabelGPUEE = ("hltEcalRecHitSoA", "EcalRecHitsEE"),
+    if not isinstance(process.hltEcalRecHit, SwitchProducerCUDA):
+        process.hltEcalRecHit = SwitchProducerCUDA(
+            # legacy producer
+            cpu = process.hltEcalRecHit,
         )
+
+    # convert the ECAL calibrated rechits from SoA to legacy format
+    _clone_if_missing(process.hltEcalRecHit, 'cuda', 'RecoLocalCalo.EcalRecProducers.ecalRecHitConvertGPU2CPUFormat_cfi', 'ecalRecHitConvertGPU2CPUFormat',
+        recHitsLabelGPUEB = ("hltEcalRecHitSoA", "EcalRecHitsEB"),
+        recHitsLabelGPUEE = ("hltEcalRecHitSoA", "EcalRecHitsEE"),
     )
     """
 
@@ -540,46 +602,99 @@ def customiseEcalLocalReconstruction(process):
         process.hltEcalRecHit = SwitchProducerCUDA(
             cpu = process.hltEcalRecHit.clone(
                 triggerPrimitiveDigiCollection = ('hltEcalDigisLegacy', 'EcalTriggerPrimitives')
-            ),
-            cuda = process.hltEcalRecHit.clone(
-                triggerPrimitiveDigiCollection = 'unused'
             )
         )
+
+    elif not hasattr(process.hltEcalRecHit, 'cpu'):
+        raise Exception('unsupported configuration: "process.hltEcalRecHit" is a SwitchProducerCUDA, but does not have a "cpu" branch')
+
+    if not hasattr(process.hltEcalRecHit, 'cuda'):
+        process.hltEcalRecHit.cuda = process.hltEcalRecHit.cpu.clone(
+            triggerPrimitiveDigiCollection = 'unused'
+        )
+
+
+    # enforce consistent configuration of CPU and GPU modules for timing of ECAL RecHits
+    if process.hltEcalUncalibRecHit.cpu.algoPSet.timealgo == 'RatioMethod':
+        process.hltEcalUncalibRecHitGPU.shouldRunTimingComputation = True
+        process.hltEcalUncalibRecHitSoA.containsTimingInformation = True
+        for _parName in [
+            'EBtimeFitLimits_Lower',
+            'EBtimeFitLimits_Upper',
+            'EEtimeFitLimits_Lower',
+            'EEtimeFitLimits_Upper',
+            'EBtimeConstantTerm',
+            'EEtimeConstantTerm',
+            'EBtimeNconst',
+            'EEtimeNconst',
+            'outOfTimeThresholdGain12pEB',
+            'outOfTimeThresholdGain12pEE',
+            'outOfTimeThresholdGain12mEB',
+            'outOfTimeThresholdGain12mEE',
+            'outOfTimeThresholdGain61pEB',
+            'outOfTimeThresholdGain61pEE',
+            'outOfTimeThresholdGain61mEB',
+            'outOfTimeThresholdGain61mEE',
+        ]:
+            setattr(process.hltEcalUncalibRecHitGPU, _parName, getattr(process.hltEcalUncalibRecHit.cpu.algoPSet, _parName))
+    # note: the "RatioMethod" is the only one available in the GPU implementation
+    elif process.hltEcalUncalibRecHit.cpu.algoPSet.timealgo != 'None':
+        _logMsg = '"process.hltEcalUncalibRecHit.cpu.algoPSet.timealgo = \''+process.hltEcalUncalibRecHit.cpu.algoPSet.timealgo+'\'"'
+        _logMsg += ' has no counterpart in the GPU implementation of the ECAL local reconstruction (use "None" or "RatioMethod")'
+        raise Exception('unsupported configuration: '+_logMsg)
 
 
     # Tasks and Sequences
 
-    process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask = cms.Task(
-        process.hltEcalDigisGPU,             # unpack ECAL digis on gpu
-        process.hltEcalDigisLegacy,          # legacy producer, referenced in the SwitchProducer
-        process.hltEcalDigis,                # SwitchProducer
-        process.hltEcalUncalibRecHitGPU,     # run ECAL local reconstruction and multifit on gpu
-        process.hltEcalUncalibRecHitSoA,     # needed by hltEcalPhiSymFilter - copy to host
-        process.hltEcalUncalibRecHit,        # needed by hltEcalPhiSymFilter - convert to legacy format
-#       process.hltEcalRecHitGPU,            # make ECAL calibrated rechits on gpu
-#       process.hltEcalRecHitSoA,            # copy to host
-        process.hltEcalDetIdToBeRecovered,   # legacy producer
-        process.hltEcalRecHit)               # legacy producer
+    if 'HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask' not in process.__dict__:
+        process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask = cms.Task(
+            process.hltEcalDigisGPU,             # unpack ECAL digis on gpu
+            process.hltEcalDigisLegacy,          # legacy producer, referenced in the SwitchProducer
+            process.hltEcalDigis,                # SwitchProducer
+            process.hltEcalUncalibRecHitGPU,     # run ECAL local reconstruction and multifit on gpu
+            process.hltEcalUncalibRecHitSoA,     # needed by hltEcalPhiSymFilter - copy to host
+            process.hltEcalUncalibRecHit,        # needed by hltEcalPhiSymFilter - convert to legacy format
+#           process.hltEcalRecHitGPU,            # make ECAL calibrated rechits on gpu
+#           process.hltEcalRecHitSoA,            # copy to host
+            process.hltEcalDetIdToBeRecovered,   # legacy producer
+            process.hltEcalRecHit,               # legacy producer
+        )
 
+    elif not isinstance(process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask, cms.Task):
+        raise Exception('unsupported configuration: "process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask" already exists, but it is not a Task')
+
+    # redefine HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence (it was emptied at the start of this function)
     process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence(
-        process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask)
+        process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask
+    )
 
     if hasHLTEcalPreshowerSeq:
-        process.HLTPreshowerTask = cms.Task(
-            process.hltEcalPreshowerDigis,   # unpack ECAL preshower digis on the host
-            process.hltEcalPreshowerRecHit)  # build ECAL preshower rechits on the host
 
+        if 'HLTPreshowerTask' not in process.__dict__:
+            process.HLTPreshowerTask = cms.Task(
+                process.hltEcalPreshowerDigis,   # unpack ECAL preshower digis on the host
+                process.hltEcalPreshowerRecHit,  # build ECAL preshower rechits on the host
+            )
+
+        elif not isinstance(process.HLTPreshowerTask, cms.Task):
+            raise Exception('unsupported configuration: "process.HLTPreshowerTask" already exists, but it is not a Task')
+
+        # redefine HLTPreshowerSequence (it was emptied at the start of this function)
         process.HLTPreshowerSequence = cms.Sequence(process.HLTPreshowerTask)
 
-        process.HLTDoFullUnpackingEgammaEcalTask = cms.Task(
-            process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask,
-            process.HLTPreshowerTask)
+        if 'HLTDoFullUnpackingEgammaEcalTask' not in process.__dict__:
+            process.HLTDoFullUnpackingEgammaEcalTask = cms.Task(
+                process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask,
+                process.HLTPreshowerTask,
+            )
 
-        process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(
-            process.HLTDoFullUnpackingEgammaEcalTask)
+        elif not isinstance(process.HLTDoFullUnpackingEgammaEcalTask, cms.Task):
+            raise Exception('unsupported configuration: "process.HLTDoFullUnpackingEgammaEcalTask" already exists, but it is not a Task')
 
-        process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence(
-            process.HLTDoFullUnpackingEgammaEcalTask)
+        # redefine sequences (they were emptied at the start of this function)
+        process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(process.HLTDoFullUnpackingEgammaEcalTask)
+        process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence(process.HLTDoFullUnpackingEgammaEcalTask)
+
 
     # done
     return process
@@ -592,7 +707,6 @@ def customiseHcalLocalReconstruction(process):
         return process
 
     # FIXME replace the Sequences with empty ones to avoid expanding them during the (re)definition of Modules and EDAliases
-
     if hasHLTDoLocalHcalSeq:
         process.HLTDoLocalHcalSequence = cms.Sequence()
     process.HLTStoppedHSCPLocalHcalReco = cms.Sequence()
@@ -600,27 +714,30 @@ def customiseHcalLocalReconstruction(process):
 
     # Event Setup
 
-    process.load("EventFilter.HcalRawToDigi.hcalElectronicsMappingGPUESProducer_cfi")
+    _load_if_missing(process, 'hcalElectronicsMappingGPUESProducer', 'EventFilter.HcalRawToDigi.hcalElectronicsMappingGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalChannelQualityGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalChannelQualityGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalGainsGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalGainsGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalGainWidthsGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalGainWidthsGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalLUTCorrsGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalLUTCorrsGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalConvertedPedestalsGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalConvertedPedestalsGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalConvertedPedestalWidthsGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalConvertedPedestalWidthsGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalQIECodersGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalQIECodersGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalRecoParamsWithPulseShapesGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalRecoParamsWithPulseShapesGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalRespCorrsGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalRespCorrsGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalTimeCorrsGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalTimeCorrsGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalQIETypesGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalQIETypesGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalSiPMParametersGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalSiPMParametersGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalSiPMCharacteristicsGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalSiPMCharacteristicsGPUESProducer_cfi')
+    _load_if_missing(process, 'hcalMahiPulseOffsetsGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalMahiPulseOffsetsGPUESProducer_cfi')
 
-    process.load("RecoLocalCalo.HcalRecProducers.hcalChannelQualityGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalGainsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalGainWidthsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalLUTCorrsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalConvertedPedestalsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalConvertedEffectivePedestalsGPUESProducer_cfi")
-    process.hcalConvertedEffectivePedestalsGPUESProducer.label0 = "withTopoEff"
-    process.load("RecoLocalCalo.HcalRecProducers.hcalConvertedPedestalWidthsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalConvertedEffectivePedestalWidthsGPUESProducer_cfi")
-    process.hcalConvertedEffectivePedestalWidthsGPUESProducer.label0 = "withTopoEff"
-    process.hcalConvertedEffectivePedestalWidthsGPUESProducer.label1 = "withTopoEff"
-    process.load("RecoLocalCalo.HcalRecProducers.hcalQIECodersGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalRecoParamsWithPulseShapesGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalRespCorrsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalTimeCorrsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalQIETypesGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalSiPMParametersGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalSiPMCharacteristicsGPUESProducer_cfi")
-    process.load("RecoLocalCalo.HcalRecProducers.hcalMahiPulseOffsetsGPUESProducer_cfi")
+    _clone_if_missing(process, 'hcalConvertedEffectivePedestalsGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalConvertedEffectivePedestalsGPUESProducer_cfi',
+        label0 = 'withTopoEff'
+    )
+
+    _clone_if_missing(process, 'hcalConvertedEffectivePedestalWidthsGPUESProducer', 'RecoLocalCalo.HcalRecProducers.hcalConvertedEffectivePedestalWidthsGPUESProducer_cfi',
+        label0 = 'withTopoEff',
+        label1 = 'withTopoEff'
+    )
 
 
     # Modules and EDAliases
@@ -628,30 +745,28 @@ def customiseHcalLocalReconstruction(process):
     # The HCAL unpacker running on the gpu supports only the HB and HE digis.
     # So, run the legacy unacker on the cpu, then convert the HB and HE digis
     # to SoA format and copy them to the gpu.
-    from EventFilter.HcalRawToDigi.hcalDigisProducerGPU_cfi import hcalDigisProducerGPU as _hcalDigisProducerGPU
-    process.hltHcalDigisGPU = _hcalDigisProducerGPU.clone(
-        hbheDigisLabel = "hltHcalDigis",
-        qie11DigiLabel = "hltHcalDigis",
-        digisLabelF01HE = "",
-        digisLabelF5HB = "",
-        digisLabelF3HB = ""
+
+    _clone_if_missing(process, 'hltHcalDigisGPU', 'EventFilter.HcalRawToDigi.hcalDigisProducerGPU_cfi', 'hcalDigisProducerGPU',
+        hbheDigisLabel = 'hltHcalDigis',
+        qie11DigiLabel = 'hltHcalDigis',
+        digisLabelF01HE = '',
+        digisLabelF5HB = '',
+        digisLabelF3HB = ''
     )
 
     # run the HCAL local reconstruction (including Method 0 and MAHI) on gpu
-    from RecoLocalCalo.HcalRecProducers.hbheRecHitProducerGPU_cfi import hbheRecHitProducerGPU as _hbheRecHitProducerGPU
-    process.hltHbherecoGPU = _hbheRecHitProducerGPU.clone(
-        digisLabelF01HE = "hltHcalDigisGPU",
-        digisLabelF5HB = "hltHcalDigisGPU",
-        digisLabelF3HB = "hltHcalDigisGPU",
-        recHitsLabelM0HBHE = ""
+    _clone_if_missing(process, 'hltHbherecoGPU', 'RecoLocalCalo.HcalRecProducers.hbheRecHitProducerGPU_cfi', 'hbheRecHitProducerGPU',
+        digisLabelF01HE = 'hltHcalDigisGPU',
+        digisLabelF5HB = 'hltHcalDigisGPU',
+        digisLabelF3HB = 'hltHcalDigisGPU',
+        recHitsLabelM0HBHE = ''
     )
 
     # transfer the HCAL rechits to the cpu, and convert them to the legacy format
-    from RecoLocalCalo.HcalRecProducers.hcalCPURecHitsProducer_cfi import hcalCPURecHitsProducer as _hcalCPURecHitsProducer
-    process.hltHbherecoFromGPU = _hcalCPURecHitsProducer.clone(
-        recHitsM0LabelIn = "hltHbherecoGPU",
-        recHitsM0LabelOut = "",
-        recHitsLegacyLabelOut = ""
+    _clone_if_missing(process, 'hltHbherecoFromGPU', 'RecoLocalCalo.HcalRecProducers.hcalCPURecHitsProducer_cfi', 'hcalCPURecHitsProducer',
+        recHitsM0LabelIn = 'hltHbherecoGPU',
+        recHitsM0LabelOut = '',
+        recHitsLegacyLabelOut = ''
     )
 
     # SwitchProducer between the legacy producer and the copy from gpu with conversion
@@ -660,34 +775,53 @@ def customiseHcalLocalReconstruction(process):
             # legacy producer
             cpu = process.hltHbhereco.clone()
         )
-    # alias to the rechits converted to legacy format
-    process.hltHbhereco.cuda = cms.EDAlias(
-        hltHbherecoFromGPU = cms.VPSet(
-            cms.PSet(type = cms.string("HBHERecHitsSorted"))
+
+    elif not hasattr(process.hltHbhereco, 'cpu'):
+        raise Exception('unsupported configuration: "process.hltHbhereco" is a SwitchProducerCUDA, but does not have a "cpu" branch')
+
+    if not hasattr(process.hltHbhereco, 'cuda'):
+        # alias to the rechits converted to legacy format
+        process.hltHbhereco.cuda = cms.EDAlias(
+            hltHbherecoFromGPU = cms.VPSet(
+                cms.PSet(type = cms.string('HBHERecHitsSorted'))
+            )
         )
-    )
+
 
     # Tasks and Sequences
-    if hasHLTDoLocalHcalSeq:
-        process.HLTDoLocalHcalTask = cms.Task(
-            process.hltHcalDigis,       # legacy producer, unpack HCAL digis on cpu
-            process.hltHcalDigisGPU,    # copy to gpu and convert to SoA format
-            process.hltHbherecoGPU,     # run the HCAL local reconstruction (including Method 0 and MAHI) on gpu
-            process.hltHbherecoFromGPU, # transfer the HCAL rechits to the cpu, and convert them to the legacy format
-            process.hltHbhereco,        # SwitchProducer between the legacy producer and the copy from gpu with conversion
-            process.hltHfprereco,       # legacy producer
-            process.hltHfreco,          # legacy producer
-            process.hltHoreco)          # legacy producer
 
+    if hasHLTDoLocalHcalSeq:
+        if 'HLTDoLocalHcalTask' not in process.__dict__:
+            process.HLTDoLocalHcalTask = cms.Task(
+                process.hltHcalDigis,       # legacy producer, unpack HCAL digis on cpu
+                process.hltHcalDigisGPU,    # copy to gpu and convert to SoA format
+                process.hltHbherecoGPU,     # run the HCAL local reconstruction (including Method 0 and MAHI) on gpu
+                process.hltHbherecoFromGPU, # transfer the HCAL rechits to the cpu, and convert them to the legacy format
+                process.hltHbhereco,        # SwitchProducer between the legacy producer and the copy from gpu with conversion
+                process.hltHfprereco,       # legacy producer
+                process.hltHfreco,          # legacy producer
+                process.hltHoreco           # legacy producer
+            )
+
+        elif not isinstance(process.HLTDoLocalHcalTask, cms.Task):
+            raise Exception('unsupported configuration: "process.HLTDoLocalHcalTask" already exists, but it is not a Task')
+
+        # redefine HLTDoLocalHcalSequence (it was emptied at the start of this function)
         process.HLTDoLocalHcalSequence = cms.Sequence(process.HLTDoLocalHcalTask)
 
-    process.HLTStoppedHSCPLocalHcalRecoTask = cms.Task(
-        process.hltHcalDigis,           # legacy producer, unpack HCAL digis on cpu
-        process.hltHcalDigisGPU,        # copy to gpu and convert to SoA format
-        process.hltHbherecoGPU,         # run the HCAL local reconstruction (including Method 0 and MAHI) on gpu
-        process.hltHbherecoFromGPU,     # transfer the HCAL rechits to the cpu, and convert them to the legacy format
-        process.hltHbhereco)            # SwitchProducer between the legacy producer and the copy from gpu with conversion
+    if 'HLTStoppedHSCPLocalHcalRecoTask' not in process.__dict__:
+        process.HLTStoppedHSCPLocalHcalRecoTask = cms.Task(
+            process.hltHcalDigis,           # legacy producer, unpack HCAL digis on cpu
+            process.hltHcalDigisGPU,        # copy to gpu and convert to SoA format
+            process.hltHbherecoGPU,         # run the HCAL local reconstruction (including Method 0 and MAHI) on gpu
+            process.hltHbherecoFromGPU,     # transfer the HCAL rechits to the cpu, and convert them to the legacy format
+            process.hltHbhereco             # SwitchProducer between the legacy producer and the copy from gpu with conversion
+        )
 
+    elif not isinstance(process.HLTStoppedHSCPLocalHcalRecoTask, cms.Task):
+        raise Exception('unsupported configuration: "process.HLTStoppedHSCPLocalHcalRecoTask" already exists, but it is not a Task')
+
+    # redefine HLTStoppedHSCPLocalHcalReco (it was emptied at the start of this function)
     process.HLTStoppedHSCPLocalHcalReco = cms.Sequence(process.HLTStoppedHSCPLocalHcalRecoTask)
 
 
