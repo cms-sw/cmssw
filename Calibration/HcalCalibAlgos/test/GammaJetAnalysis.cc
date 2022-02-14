@@ -981,14 +981,16 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // Get RecHits in HF
-    const edm::Handle<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> hfreco = iEvent.getHandle(tok_HF_);
+    const edm::Handle<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> hfreco =
+        iEvent.getHandle(tok_HF_);
     if (!hfreco.isValid() && !workOnAOD_) {
       edm::LogWarning("GammaJetAnalysis") << "Could not find HFRecHit named " << hfRecHitName_;
       return;
     }
 
     // Get RecHits in HO
-    const edm::Handle<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> horeco = iEvent.getHandle(tok_HO_);
+    const edm::Handle<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> horeco =
+        iEvent.getHandle(tok_HO_);
     if (!horeco.isValid() && !workOnAOD_) {
       edm::LogWarning("GammaJetAnalysis") << "Could not find HORecHit named " << hoRecHitName_;
       return;
