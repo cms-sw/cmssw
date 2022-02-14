@@ -682,3 +682,8 @@ phase2_common.toModify(g4SimHits,
                        MuonSD = dict( 
                        HaveDemoChambers = False ) 
 )
+
+from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
+hgcaltb.toModify(g4SimHits,
+                 OnlySDs = ['AHcalSensitiveDetector', 'HGCSensitiveDetector', 'HGCalTB1601SensitiveDetector', 'HcalTB06BeamDetector']
+)
