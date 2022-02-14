@@ -54,10 +54,10 @@
 namespace cms {
   class HcalConstantsASCIIWriter : public edm::one::EDAnalyzer<> {
   public:
-    explicit HcalConstantsASCIIWriter(const edm::ParameterSet &);
+    explicit HcalConstantsASCIIWriter(const edm::ParameterSet&);
     ~HcalConstantsASCIIWriter();
 
-    virtual void analyze(const edm::Event &, const edm::EventSetup &);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void beginJob();
     virtual void endJob();
 
@@ -66,7 +66,7 @@ namespace cms {
     const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
     const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
 
-    std::ofstream *myout_hcal;
+    std::ofstream* myout_hcal;
     std::string file_input;
     std::string file_output;
   };
@@ -78,9 +78,9 @@ namespace cms {
 // constructors and destructor
 //
 namespace cms {
-  HcalConstantsASCIIWriter::HcalConstantsASCIIWriter(const edm::ParameterSet& iConfig) :
-    tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-    tok_resp_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()) {
+  HcalConstantsASCIIWriter::HcalConstantsASCIIWriter(const edm::ParameterSet& iConfig)
+      : tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+        tok_resp_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()) {
     // get name of output file with histogramms
     file_input = "Calibration/HcalCalibAlgos/data/" + iConfig.getParameter<std::string>("fileInput") + ".txt";
     file_output = "Calibration/HcalCalibAlgos/data/" + iConfig.getParameter<std::string>("fileOutput") + ".txt";

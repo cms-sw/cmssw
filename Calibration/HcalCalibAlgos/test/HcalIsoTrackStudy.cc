@@ -172,7 +172,7 @@ private:
   const bool usePFThresh_;
   const std::string labelBS_, modnam_, prdnam_;
   const edm::InputTag algTag_, extTag_;
-  
+
   const edm::EDGetTokenT<trigger::TriggerEvent> tok_trigEvt_;
   const edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
   const edm::EDGetTokenT<reco::GenParticleCollection> tok_parts_;
@@ -287,10 +287,14 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
       tok_parts_(consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"))),
       tok_bs_(consumes<reco::BeamSpot>(labelBS_)),
       tok_genTrack_(consumes<reco::TrackCollection>(labelGenTrack_)),
-      tok_recVtx_((modnam_.empty()) ? consumes<reco::VertexCollection>(labelRecVtx_) : consumes<reco::VertexCollection>(edm::InputTag(modnam_, labelRecVtx_, prdnam_))),
-      tok_EB_((modnam_.empty()) ? consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_)) : consumes<EcalRecHitCollection>(edm::InputTag(modnam_, labelEB_, prdnam_))),
-      tok_EE_((modnam_.empty()) ? consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_)) : consumes<EcalRecHitCollection>(edm::InputTag(modnam_, labelEE_, prdnam_))),
-      tok_hbhe_((modnam_.empty()) ? consumes<HBHERecHitCollection>(labelHBHE_) : consumes<HBHERecHitCollection>(edm::InputTag(modnam_, labelHBHE_, prdnam_))),
+      tok_recVtx_((modnam_.empty()) ? consumes<reco::VertexCollection>(labelRecVtx_)
+                                    : consumes<reco::VertexCollection>(edm::InputTag(modnam_, labelRecVtx_, prdnam_))),
+      tok_EB_((modnam_.empty()) ? consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_))
+                                : consumes<EcalRecHitCollection>(edm::InputTag(modnam_, labelEB_, prdnam_))),
+      tok_EE_((modnam_.empty()) ? consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_))
+                                : consumes<EcalRecHitCollection>(edm::InputTag(modnam_, labelEE_, prdnam_))),
+      tok_hbhe_((modnam_.empty()) ? consumes<HBHERecHitCollection>(labelHBHE_)
+                                  : consumes<HBHERecHitCollection>(edm::InputTag(modnam_, labelHBHE_, prdnam_))),
       tok_ew_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
       tok_cala_(consumes<CaloTowerCollection>(labelTower_)),
       tok_alg_(consumes<BXVector<GlobalAlgBlk>>(algTag_)),
@@ -307,7 +311,6 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
       nLow_(0),
       nHigh_(0),
       hdc_(nullptr) {
-
   usesResource(TFileService::kSharedResource);
 
   //now do whatever initialization is needed
