@@ -227,7 +227,7 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
   }
 
   // Get RecHits in HB and HE
-  const  edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhereco =
+  const edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhereco =
       iEvent.getHandle(tok_HBHE_);
   if (!hbhereco.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
@@ -236,14 +236,16 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
   }
 
   // Get RecHits in HF
-  const edm::Handle<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> hfreco = iEvent.getHandle(tok_HF_);
+  const edm::Handle<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> hfreco =
+      iEvent.getHandle(tok_HF_);
   if (!hfreco.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HFRecHit named " << hfRecHitName_ << ".\n";
     return;
   }
 
   // Get RecHits in HO
-  const edm::Handle<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> horeco = iEvent.getHandle(tok_HO_);
+  const edm::Handle<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> horeco =
+      iEvent.getHandle(tok_HO_);
   if (!horeco.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HORecHit named " << hoRecHitName_ << ".\n";
     return;
