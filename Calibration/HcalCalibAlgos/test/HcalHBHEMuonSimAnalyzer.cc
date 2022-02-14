@@ -134,18 +134,13 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   bxNumber_ = iEvent.bunchCrossing();
 
   //get Handles to SimTracks and SimHits
-  edm::Handle<edm::SimTrackContainer> SimTk;
-  iEvent.getByToken(tok_SimTk_, SimTk);
-  edm::Handle<edm::SimVertexContainer> SimVtx;
-  iEvent.getByToken(tok_SimVtx_, SimVtx);
+  edm::Handle<edm::SimTrackContainer> SimTk = iEvent.getHandle(tok_SimTk_);
+  edm::Handle<edm::SimVertexContainer> SimVtx = iEvent.getHandle(tok_SimVtx_);
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe
-  edm::Handle<edm::PCaloHitContainer> pcaloeb;
-  iEvent.getByToken(tok_caloEB_, pcaloeb);
-  edm::Handle<edm::PCaloHitContainer> pcaloee;
-  iEvent.getByToken(tok_caloEE_, pcaloee);
-  edm::Handle<edm::PCaloHitContainer> pcalohh;
-  iEvent.getByToken(tok_caloHH_, pcalohh);
+  edm::Handle<edm::PCaloHitContainer> pcaloeb = iEvent.getHandle(tok_caloEB_);
+  edm::Handle<edm::PCaloHitContainer> pcaloee = iEvent.getHandle(tok_caloEE_);
+  edm::Handle<edm::PCaloHitContainer> pcalohh = iEvent.getHandle(tok_caloHH_);
   std::vector<PCaloHit> calohh;
   bool testN(false);
   for (unsigned int k = 1; k < pcalohh->size(); ++k) {

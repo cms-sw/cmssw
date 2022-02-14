@@ -114,7 +114,7 @@ private:
                               edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle,
                               edm::Handle<HBHERecHitCollection>& hbhe,
                               edm::Handle<CaloTowerCollection>& towerHandle,
-                              edm::Handle<reco::GenParticleCollection>& genParticles,
+                              const edm::Handle<reco::GenParticleCollection>& genParticles,
                               const HcalRespCorrs* respCorrs);
   double dR(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
   double trackP(const reco::Track*, const edm::Handle<reco::GenParticleCollection>&);
@@ -423,13 +423,11 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
   eThresholds_ = &iSetup.getData(tok_ecalPFRecHitThresholds_);
 
   //=== genParticle information
-  edm::Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByToken(tok_parts_, genParticles);
+  const edm::Handle<reco::GenParticleCollection> genParticles = iEvent.getHandle(tok_parts_);
 
   bool okC(true);
   //Get track collection
-  edm::Handle<reco::TrackCollection> trkCollection;
-  iEvent.getByToken(tok_genTrack_, trkCollection);
+  edm::Handle<reco::TrackCollection> trkCollection = iEvent.getHandle(tok_genTrack_);
   if (!trkCollection.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
     okC = false;
@@ -437,16 +435,13 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
 
   //event weight for FLAT sample
   t_EventWeight = 1.0;
-  edm::Handle<GenEventInfoProduct> genEventInfo;
-  iEvent.getByToken(tok_ew_, genEventInfo);
+  const edm::Handle<GenEventInfoProduct> genEventInfo = iEvent.getHandle(tok_ew_);
   if (genEventInfo.isValid())
     t_EventWeight = genEventInfo->weight();
 
   //Define the best vertex and the beamspot
-  edm::Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByToken(tok_recVtx_, recVtxs);
-  edm::Handle<reco::BeamSpot> beamSpotH;
-  iEvent.getByToken(tok_bs_, beamSpotH);
+  const edm::Handle<reco::VertexCollection> recVtxs = iEvent.getHandle(tok_recVtx_);
+  const edm::Handle<reco::BeamSpot> beamSpotH = iEvent.getHandle(tok_bs_);
   math::XYZPoint leadPV(0, 0, 0);
   t_goodPV = t_nVtx = 0;
   if (recVtxs.isValid() && !(recVtxs->empty())) {
@@ -470,26 +465,22 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
   }
 #endif
   // RecHits
-  edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-  iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
+  edm::Handle<EcalRecHitCollection> barrelRecHitsHandle = iEvent.getHandle(tok_EB_);
   if (!barrelRecHitsHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
     okC = false;
   }
-  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-  iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle = iEvent.getHandle(tok_EE_);
   if (!endcapRecHitsHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
     okC = false;
   }
-  edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByToken(tok_hbhe_, hbhe);
+  edm::Handle<HBHERecHitCollection> hbhe = iEvent.getHandle(tok_hbhe_);
   if (!hbhe.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
     okC = false;
   }
-  edm::Handle<CaloTowerCollection> caloTower;
-  iEvent.getByToken(tok_cala_, caloTower);
+  edm::Handle<CaloTowerCollection> caloTower = iEvent.getHandle(tok_cala_);
 
   //Propagate tracks to calorimeter surface)
   std::vector<spr::propagatedTrackDirection> trkCaloDirections;
@@ -533,8 +524,7 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
 #endif
 
   //HLT
-  edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByToken(tok_trigRes_, triggerResults);
+  const edm::Handle<edm::TriggerResults> triggerResults = iEvent.getHandle(tok_trigRes_);
   if (triggerResults.isValid()) {
     const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
     const std::vector<std::string>& names = triggerNames.triggerNames();
@@ -586,8 +576,7 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
     t_TracksTight = ntksave[2];
   } else {
     trigger::TriggerEvent triggerEvent;
-    edm::Handle<trigger::TriggerEvent> triggerEventHandle;
-    iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
+    const edm::Handle<trigger::TriggerEvent> triggerEventHandle = iEvent.getHandle(tok_trigEvt_);
     if (!triggerEventHandle.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product " << triggerEvent_.label();
     } else if (okC) {
@@ -946,7 +935,7 @@ std::array<int, 3> HcalIsoTrackStudy::fillTree(std::vector<math::XYZTLorentzVect
                                                edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle,
                                                edm::Handle<HBHERecHitCollection>& hbhe,
                                                edm::Handle<CaloTowerCollection>& tower,
-                                               edm::Handle<reco::GenParticleCollection>& genParticles,
+                                               const edm::Handle<reco::GenParticleCollection>& genParticles,
                                                const HcalRespCorrs* respCorrs) {
   int nSave(0), nLoose(0), nTight(0);
   //Loop over tracks
