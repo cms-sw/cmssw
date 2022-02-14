@@ -70,21 +70,21 @@ private:
   const double hitEthrEE2_, hitEthrEE3_;
   const double hitEthrEELo_, hitEthrEEHi_;
   const std::string labelGenTrack_, labelRecVtx_, labelEB_;
-  const std::string labelEE_, labelHBHE_;
+  const std::string labelEE_, labelHBHE_, labelBS_;
   const bool usePFThresh_;
   double a_charIsoR_;
 
-  edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
-  edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
-  edm::EDGetTokenT<reco::BeamSpot> tok_bs_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
-  edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
+  const edm::EDGetTokenT<reco::BeamSpot> tok_bs_;
+  const edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
+  const edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
+  const edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
 
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> tok_ecalPFRecHitThresholds_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> tok_ecalPFRecHitThresholds_;
 
   const EcalPFRecHitThresholds* eThresholds_;
 
@@ -123,9 +123,21 @@ HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
       labelEB_(iConfig.getParameter<std::string>("labelEBRecHit")),
       labelEE_(iConfig.getParameter<std::string>("labelEERecHit")),
       labelHBHE_(iConfig.getParameter<std::string>("labelHBHERecHit")),
-      usePFThresh_(iConfig.getParameter<bool>("usePFThreshold")) {
-  usesResource(TFileService::kSharedResource);
+      labelBS_(iConfig.getParameter<std::string>("labelBeamSpot")),
+      usePFThresh_(iConfig.getParameter<bool>("usePFThreshold")),
+      tok_bs_(consumes<reco::BeamSpot>(labelBS_)),
+      tok_ew_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
+      tok_genTrack_(consumes<reco::TrackCollection>(labelGenTrack_)),
+      tok_recVtx_(consumes<reco::VertexCollection>(labelRecVtx_)),
+      tok_EB_(consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_))),
+      tok_EE_(consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_))),
+      tok_hbhe_(consumes<HBHERecHitCollection>(labelHBHE_)),
+      tok_bFieldH_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_ecalPFRecHitThresholds_(esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>()) {
 
+  usesResource(TFileService::kSharedResource);
+  
   //now do whatever initialization is needed
   const double isolationRadius(28.9);
   reco::TrackBase::TrackQuality trackQuality_ = reco::TrackBase::qualityByName(theTrackQuality_);
@@ -137,17 +149,9 @@ HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
   // Eta dependent cut uses (maxRestrictionP_ * exp(|ieta|*log(2.5)/18))
   // with the factor for exponential slopeRestrictionP_ = log(2.5)/18
   // maxRestrictionP_ = 8 GeV as came from a study
-  std::string labelBS = iConfig.getParameter<std::string>("labelBeamSpot");
 
-  // define tokens for access
-  tok_bs_ = consumes<reco::BeamSpot>(labelBS);
-  tok_ew_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
-  tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
-  tok_recVtx_ = consumes<reco::VertexCollection>(labelRecVtx_);
-  tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_));
-  tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_));
-  tok_hbhe_ = consumes<HBHERecHitCollection>(labelHBHE_);
-  edm::LogVerbatim("HcalIsoTrack") << "Labels used " << labelBS << " " << labelRecVtx_ << " " << labelGenTrack_ << " "
+  // tokens for access
+  edm::LogVerbatim("HcalIsoTrack") << "Labels used " << labelBS_ << " " << labelRecVtx_ << " " << labelGenTrack_ << " "
                                    << edm::InputTag("ecalRecHit", labelEB_) << " "
                                    << edm::InputTag("ecalRecHit", labelEE_) << " " << labelHBHE_;
 
@@ -160,10 +164,6 @@ HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
                                    << "\nThreshold flag used " << usePFThresh_ << " value for EB " << hitEthrEB_
                                    << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
                                    << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_;
-
-  tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-  tok_ecalPFRecHitThresholds_ = esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>();
 }
 
 void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
