@@ -38,7 +38,7 @@ namespace ticl {
       std::vector<float> energy;
       std::vector<float> rho;
 
-      std::vector<float> delta;
+      std::vector<std::pair<float, int>> delta;
       std::vector<std::pair<int, int>> nearestHigher;
       std::vector<int> clusterIndex;
       std::vector<unsigned int> layerClusterOriginalIdx;
@@ -103,10 +103,15 @@ namespace ticl {
 
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const double criticalDensity_;
+    const double criticalSelfDensity_;
     const int densitySiblingLayers_;
     const double densityEtaPhiDistanceSqr_;
-    const double densityOnSameLayer_;
+    const double densityXYDistanceSqr_;
+    const bool densityOnSameLayer_;
+    const bool useAbsoluteProjectiveScale_;
     const double criticalEtaPhiDistance_;
+    const double criticalXYDistance_;
+    const int criticalZDistanceLyr_;
     const double outlierMultiplier_;
     const int minNumLayerCluster_;
     const std::vector<int> filter_on_categories_;
