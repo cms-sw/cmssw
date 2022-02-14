@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
 
-process = cms.Process('SIM')
+process = cms.Process('SIM', hgcaltb)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -101,9 +102,6 @@ process.VtxSmeared.MinY = -7.5
 process.VtxSmeared.MaxY =  7.5
 process.HGCalTBAnalyzer.doDigis = False
 process.HGCalTBAnalyzer.doRecHits = False
-process.g4SimHits.OnlySDs = ['HGCSensitiveDetector',
-                             'HcalTB06BeamDetector',
-                             'HGCalTB1601SensitiveDetector']
 process.g4SimHits.HGCSD.Detectors = 1
 process.g4SimHits.HGCSD.UseDetector = 1
 
