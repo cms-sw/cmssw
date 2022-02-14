@@ -91,29 +91,28 @@ private:
   double hcalActiveLength_, hcalActiveLengthHot_;
 };
 
-HcalHBHEMuonSimAnalyzer::HcalHBHEMuonSimAnalyzer(const edm::ParameterSet& iConfig) :
-  g4Label_(iConfig.getParameter<std::string>("ModuleLabel")),
-  ebLabel_(iConfig.getParameter<std::string>("EBCollection")),
-  eeLabel_(iConfig.getParameter<std::string>("EECollection")),
-  hcLabel_(iConfig.getParameter<std::string>("HCCollection")),
-  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
-  maxDepth_(iConfig.getUntrackedParameter<int>("MaxDepth", 4)),
-  etaMax_(iConfig.getUntrackedParameter<double>("EtaMax", 3.0)),
-  tMinE_(iConfig.getUntrackedParameter<double>("TimeMinCutECAL", -500.)),
-  tMaxE_(iConfig.getUntrackedParameter<double>("TimeMaxCutECAL", 500.)),
-  tMinH_(iConfig.getUntrackedParameter<double>("TimeMinCutHCAL", -500.)),
-  tMaxH_(iConfig.getUntrackedParameter<double>("TimeMaxCutHCAL", 500.)),
-  tok_SimTk_(consumes<edm::SimTrackContainer>(edm::InputTag(g4Label_))),
-  tok_SimVtx_(consumes<edm::SimVertexContainer>(edm::InputTag(g4Label_))),
-  tok_caloEB_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, ebLabel_))),
-  tok_caloEE_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, eeLabel_))),
-  tok_caloHH_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcLabel_))),
-  tok_ddrec_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
-  tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-  tok_caloTopology_(esConsumes<CaloTopology, CaloTopologyRecord>()),
-  tok_topo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
-  tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()) {
-
+HcalHBHEMuonSimAnalyzer::HcalHBHEMuonSimAnalyzer(const edm::ParameterSet& iConfig)
+    : g4Label_(iConfig.getParameter<std::string>("ModuleLabel")),
+      ebLabel_(iConfig.getParameter<std::string>("EBCollection")),
+      eeLabel_(iConfig.getParameter<std::string>("EECollection")),
+      hcLabel_(iConfig.getParameter<std::string>("HCCollection")),
+      verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
+      maxDepth_(iConfig.getUntrackedParameter<int>("MaxDepth", 4)),
+      etaMax_(iConfig.getUntrackedParameter<double>("EtaMax", 3.0)),
+      tMinE_(iConfig.getUntrackedParameter<double>("TimeMinCutECAL", -500.)),
+      tMaxE_(iConfig.getUntrackedParameter<double>("TimeMaxCutECAL", 500.)),
+      tMinH_(iConfig.getUntrackedParameter<double>("TimeMinCutHCAL", -500.)),
+      tMaxH_(iConfig.getUntrackedParameter<double>("TimeMaxCutHCAL", 500.)),
+      tok_SimTk_(consumes<edm::SimTrackContainer>(edm::InputTag(g4Label_))),
+      tok_SimVtx_(consumes<edm::SimVertexContainer>(edm::InputTag(g4Label_))),
+      tok_caloEB_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, ebLabel_))),
+      tok_caloEE_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, eeLabel_))),
+      tok_caloHH_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcLabel_))),
+      tok_ddrec_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_caloTopology_(esConsumes<CaloTopology, CaloTopologyRecord>()),
+      tok_topo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
+      tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()) {
   //now do what ever initialization is needed
   usesResource(TFileService::kSharedResource);
 

@@ -210,23 +210,23 @@ private:
   //Tokens
   edm::EDGetTokenT<reco::PhotonCollection> tok_Photon_;
   edm::EDGetTokenT<reco::PFJetCollection> tok_PFJet_;
-  edm::EDGetTokenT<std::vector<reco::GenJet> > tok_GenJet_;
-  edm::EDGetTokenT<std::vector<reco::GenParticle> > tok_GenPart_;
+  edm::EDGetTokenT<std::vector<reco::GenJet>> tok_GenJet_;
+  edm::EDGetTokenT<std::vector<reco::GenParticle>> tok_GenPart_;
   edm::EDGetTokenT<GenEventInfoProduct> tok_GenEvInfo_;
-  edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit> > > tok_HBHE_;
-  edm::EDGetTokenT<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit> > > tok_HF_;
-  edm::EDGetTokenT<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit> > > tok_HO_;
-  edm::EDGetTokenT<edm::ValueMap<Bool_t> > tok_loosePhoton_;
-  edm::EDGetTokenT<edm::ValueMap<Bool_t> > tok_tightPhoton_;
-  edm::EDGetTokenT<std::vector<Bool_t> > tok_loosePhotonV_;
-  edm::EDGetTokenT<std::vector<Bool_t> > tok_tightPhotonV_;
+  edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> tok_HBHE_;
+  edm::EDGetTokenT<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> tok_HF_;
+  edm::EDGetTokenT<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> tok_HO_;
+  edm::EDGetTokenT<edm::ValueMap<Bool_t>> tok_loosePhoton_;
+  edm::EDGetTokenT<edm::ValueMap<Bool_t>> tok_tightPhoton_;
+  edm::EDGetTokenT<std::vector<Bool_t>> tok_loosePhotonV_;
+  edm::EDGetTokenT<std::vector<Bool_t>> tok_tightPhotonV_;
   edm::EDGetTokenT<reco::PFCandidateCollection> tok_PFCand_;
   edm::EDGetTokenT<reco::VertexCollection> tok_Vertex_;
   edm::EDGetTokenT<reco::GsfElectronCollection> tok_GsfElec_;
   edm::EDGetTokenT<double> tok_Rho_;
   edm::EDGetTokenT<reco::ConversionCollection> tok_Conv_;
   edm::EDGetTokenT<reco::BeamSpot> tok_BS_;
-  edm::EDGetTokenT<std::vector<reco::Vertex> > tok_PV_;
+  edm::EDGetTokenT<std::vector<reco::Vertex>> tok_PV_;
   edm::EDGetTokenT<reco::PFMETCollection> tok_PFMET_;
   edm::EDGetTokenT<reco::PFMETCollection> tok_PFType1MET_;
   edm::EDGetTokenT<edm::TriggerResults> tok_TrigRes_;
@@ -266,7 +266,7 @@ private:
   float tagPho_HoE_, tagPho_r9_, tagPho_EcalIsoDR04_, tagPho_HcalIsoDR04_, tagPho_HcalIsoDR0412_,
       tagPho_TrkIsoHollowDR04_, tagPho_pfiso_myphoton03_;
   float tagPho_pfiso_myneutral03_;
-  std::vector<std::vector<float> > tagPho_pfiso_mycharged03;
+  std::vector<std::vector<float>> tagPho_pfiso_mycharged03;
   int tagPho_pixelSeed_;
   int tagPho_ConvSafeEleVeto_;
   int tagPho_idTight_, tagPho_idLoose_;
@@ -369,7 +369,6 @@ private:
     }
   };
 };
-
 
 inline void HERE(const char* msg) {
   if (0 && msg)
@@ -974,7 +973,8 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   if (doPFJets_ && (nPFJets_ > 0)) {
     // Get RecHits in HB and HE
-    edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhereco = iEvent.getHandle(tok_HBHE_);
+    edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhereco =
+        iEvent.getHandle(tok_HBHE_);
     if (!hbhereco.isValid() && !workOnAOD_) {
       edm::LogWarning("GammaJetAnalysis") << "Could not find HBHERecHit named " << hbheRecHitName_;
       return;

@@ -113,9 +113,9 @@ private:
   const bool debug_;                    // print debug statements
 
   const edm::EDGetTokenT<reco::PFJetCollection> tok_PFJet_;
-  const edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit> > > tok_HBHE_;
-  const edm::EDGetTokenT<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit> > > tok_HF_;
-  const edm::EDGetTokenT<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit> > > tok_HO_;
+  const edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> tok_HBHE_;
+  const edm::EDGetTokenT<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> tok_HF_;
+  const edm::EDGetTokenT<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> tok_HO_;
   const edm::EDGetTokenT<reco::VertexCollection> tok_Vertex_;
 
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
@@ -184,8 +184,8 @@ private:
   };
 };
 
-DiJetAnalyzer::DiJetAnalyzer(const edm::ParameterSet& iConfig) :
-      pfJetCollName_(iConfig.getParameter<std::string>("pfJetCollName")),
+DiJetAnalyzer::DiJetAnalyzer(const edm::ParameterSet& iConfig)
+    : pfJetCollName_(iConfig.getParameter<std::string>("pfJetCollName")),
       pfJetCorrName_(iConfig.getParameter<std::string>("pfJetCorrName")),
       hbheRecHitName_(iConfig.getParameter<std::string>("hbheRecHitName")),
       hfRecHitName_(iConfig.getParameter<std::string>("hfRecHitName")),
@@ -205,8 +205,7 @@ DiJetAnalyzer::DiJetAnalyzer(const edm::ParameterSet& iConfig) :
       tok_HO_(consumes<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>>(hoRecHitName_)),
       tok_Vertex_(consumes<reco::VertexCollection>(pvCollName_)),
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
-
-      usesResource(TFileService::kSharedResource);
+  usesResource(TFileService::kSharedResource);
 }
 
 //
@@ -228,7 +227,8 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
   }
 
   // Get RecHits in HB and HE
-  edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhereco = iEvent.getHandle(tok_HBHE_);
+  edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhereco =
+      iEvent.getHandle(tok_HBHE_);
   if (!hbhereco.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
         << " could not find HBHERecHit named " << hbheRecHitName_ << ".\n";

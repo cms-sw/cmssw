@@ -135,9 +135,8 @@ HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
       tok_bFieldH_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       tok_ecalPFRecHitThresholds_(esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>()) {
-
   usesResource(TFileService::kSharedResource);
-  
+
   //now do whatever initialization is needed
   const double isolationRadius(28.9);
   reco::TrackBase::TrackQuality trackQuality_ = reco::TrackBase::qualityByName(theTrackQuality_);
