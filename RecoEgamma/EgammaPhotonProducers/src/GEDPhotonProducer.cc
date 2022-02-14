@@ -946,19 +946,23 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       if (candidateP4type_ == "fromEcalEnergy") {
         newCandidate.setP4(newCandidate.p4(reco::Photon::ecal_photons));
         newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
+        newCandidate.setMass(0.0);
       } else if (candidateP4type_ == "fromRegression1") {
         newCandidate.setP4(newCandidate.p4(reco::Photon::regression1));
         newCandidate.setCandidateP4type(reco::Photon::regression1);
+        newCandidate.setMass(0.0);
       } else if (candidateP4type_ == "fromRegression2") {
         newCandidate.setP4(newCandidate.p4(reco::Photon::regression2));
         newCandidate.setCandidateP4type(reco::Photon::regression2);
+        newCandidate.setMass(0.0);
       } else if (candidateP4type_ == "fromRefinedSCRegression") {
         newCandidate.setP4(newCandidate.p4(reco::Photon::regression2));
         newCandidate.setCandidateP4type(reco::Photon::regression2);
+        newCandidate.setMass(0.0);
       }
     } else {
       math::XYZVector gamma_momentum = direction.unit() * scRef->energy();
-      math::XYZTLorentzVectorD p4(gamma_momentum.x(), gamma_momentum.y(), gamma_momentum.z(), scRef->energy());
+      math::PtEtaPhiMLorentzVector p4(gamma_momentum.rho(), gamma_momentum.eta(), gamma_momentum.phi(), 0.0);
       newCandidate.setP4(p4);
       newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
       // Make it an EE photon
@@ -1084,15 +1088,19 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     if (candidateP4type_ == "fromEcalEnergy") {
       newCandidate.setP4(newCandidate.p4(reco::Photon::ecal_photons));
       newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
+      newCandidate.setMass(0.0);
     } else if (candidateP4type_ == "fromRegression1") {
       newCandidate.setP4(newCandidate.p4(reco::Photon::regression1));
       newCandidate.setCandidateP4type(reco::Photon::regression1);
+      newCandidate.setMass(0.0);
     } else if (candidateP4type_ == "fromRegression2") {
       newCandidate.setP4(newCandidate.p4(reco::Photon::regression2));
       newCandidate.setCandidateP4type(reco::Photon::regression2);
+      newCandidate.setMass(0.0);
     } else if (candidateP4type_ == "fromRefinedSCRegression") {
       newCandidate.setP4(newCandidate.p4(reco::Photon::regression2));
       newCandidate.setCandidateP4type(reco::Photon::regression2);
+      newCandidate.setMass(0.0);
     }
 
     outputPhotonCollection.push_back(newCandidate);
