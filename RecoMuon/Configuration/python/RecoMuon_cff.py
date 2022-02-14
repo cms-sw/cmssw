@@ -83,6 +83,7 @@ fastSim.toModify(muonReducedTrackExtras, outputClusters = False)
 # cluster collections are different in phase 2
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(muonReducedTrackExtras, outputClusters = False)
+phase2_tracker.toModify(displacedMuonReducedTrackExtras, outputClusters = False)
 
 muonshighlevelrecoTask = cms.Task(muonPFIsolationTask,displacedMuonPFIsolationTask,muons,displacedMuons,muonReducedTrackExtras, displacedMuonReducedTrackExtras)
 muonshighlevelreco = cms.Sequence(muonshighlevelrecoTask)
