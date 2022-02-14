@@ -129,10 +129,12 @@ namespace edm {
       filePtr_->SetCompressionAlgorithm(ROOT::kLZMA);
     } else if (om_->compressionAlgorithm() == std::string("ZSTD")) {
       filePtr_->SetCompressionAlgorithm(ROOT::kZSTD);
+    } else if (om_->compressionAlgorithm() == std::string("LZ4")) {
+      filePtr_->SetCompressionAlgorithm(ROOT::kLZ4);
     } else {
       throw Exception(errors::Configuration)
           << "PoolOutputModule configured with unknown compression algorithm '" << om_->compressionAlgorithm() << "'\n"
-          << "Allowed compression algorithms are ZLIB, LZMA, and ZSTD\n";
+          << "Allowed compression algorithms are ZLIB, LZMA, LZ4, and ZSTD\n";
     }
     if (-1 != om->eventAutoFlushSize()) {
       eventTree_.setAutoFlush(-1 * om->eventAutoFlushSize());
