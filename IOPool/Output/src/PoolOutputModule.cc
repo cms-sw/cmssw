@@ -463,7 +463,7 @@ namespace edm {
     desc.addUntracked<int>("compressionLevel", 9)->setComment("ROOT compression level of output file.");
     desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")
         ->setComment(
-            "Algorithm used to compress data in the ROOT output file, allowed values are ZLIB, LZMA, and ZSTD");
+            "Algorithm used to compress data in the ROOT output file, allowed values are ZLIB, LZMA, LZ4, and ZSTD");
     desc.addUntracked<int>("basketSize", 16384)->setComment("Default ROOT basket size in output file.");
     desc.addUntracked<int>("eventAuxiliaryBasketSize", 16384)
         ->setComment("Default ROOT basket size in output file for EventAuxiliary branch.");
