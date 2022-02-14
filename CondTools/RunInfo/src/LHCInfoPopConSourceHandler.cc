@@ -21,42 +21,45 @@
 
 namespace cond {
   static const std::pair<const char*, LHCInfo::FillType> s_fillTypeMap[] = {std::make_pair("PROTONS", LHCInfo::PROTONS),
-									    std::make_pair("IONS", LHCInfo::IONS),
-									    std::make_pair("COSMICS", LHCInfo::COSMICS),
-									    std::make_pair("GAP", LHCInfo::GAP)};
+                                                                            std::make_pair("IONS", LHCInfo::IONS),
+                                                                            std::make_pair("COSMICS", LHCInfo::COSMICS),
+                                                                            std::make_pair("GAP", LHCInfo::GAP)};
 
-  static const std::pair<const char*, LHCInfo::ParticleType> s_particleTypeMap[] = {std::make_pair("PROTON", LHCInfo::PROTON),
-										    std::make_pair("PB82", LHCInfo::PB82),
-										    std::make_pair("AR18", LHCInfo::AR18),
-										    std::make_pair("D", LHCInfo::D),
-										    std::make_pair("XE54", LHCInfo::XE54)};
+  static const std::pair<const char*, LHCInfo::ParticleType> s_particleTypeMap[] = {
+      std::make_pair("PROTON", LHCInfo::PROTON),
+      std::make_pair("PB82", LHCInfo::PB82),
+      std::make_pair("AR18", LHCInfo::AR18),
+      std::make_pair("D", LHCInfo::D),
+      std::make_pair("XE54", LHCInfo::XE54)};
 
-    LHCInfo::FillType fillTypeFromString(const std::string& s_fill_type) {
-      for (auto const& i : s_fillTypeMap)
-	if (s_fill_type == i.first)
-	  return i.second;
-      return LHCInfo::UNKNOWN;
-    }
+  LHCInfo::FillType fillTypeFromString(const std::string& s_fill_type) {
+    for (auto const& i : s_fillTypeMap)
+      if (s_fill_type == i.first)
+        return i.second;
+    return LHCInfo::UNKNOWN;
+  }
 
-    LHCInfo::ParticleType particleTypeFromString(const std::string& s_particle_type) {
-      for (auto const& i : s_particleTypeMap)
-	if (s_particle_type == i.first)
-	  return i.second;
-      return LHCInfo::NONE;
-    }
+  LHCInfo::ParticleType particleTypeFromString(const std::string& s_particle_type) {
+    for (auto const& i : s_particleTypeMap)
+      if (s_particle_type == i.first)
+        return i.second;
+    return LHCInfo::NONE;
+  }
 
   namespace impl {
 
-    template <> LHCInfo::FillType from_string(const std::string& attributeValue){
-      return from_string_impl<LHCInfo::FillType,&fillTypeFromString>(attributeValue,LHCInfo::UNKNOWN);
+    template <>
+    LHCInfo::FillType from_string(const std::string& attributeValue) {
+      return from_string_impl<LHCInfo::FillType, &fillTypeFromString>(attributeValue, LHCInfo::UNKNOWN);
     }
 
-    template <> LHCInfo::ParticleType from_string(const std::string& attributeValue){
-      return from_string_impl<LHCInfo::ParticleType,&particleTypeFromString>(attributeValue,LHCInfo::NONE);
+    template <>
+    LHCInfo::ParticleType from_string(const std::string& attributeValue) {
+      return from_string_impl<LHCInfo::ParticleType, &particleTypeFromString>(attributeValue, LHCInfo::NONE);
     }
 
-  }
-}
+  }  // namespace impl
+}  // namespace cond
 
 LHCInfoPopConSourceHandler::LHCInfoPopConSourceHandler(edm::ParameterSet const& pset)
     : m_debug(pset.getUntrackedParameter<bool>("debug", false)),
@@ -105,9 +108,9 @@ namespace LHCInfoImpl {
     return (p != container.begin()) ? p - 1 : container.end();
   }
 
-  bool makeFillPayload( std::unique_ptr<LHCInfo>& targetPayload, const cond::OMSServiceResult& queryResult ){
+  bool makeFillPayload(std::unique_ptr<LHCInfo>& targetPayload, const cond::OMSServiceResult& queryResult) {
     bool ret = false;
-    if(!queryResult.empty()){
+    if (!queryResult.empty()) {
       auto row = *queryResult.begin();
       auto currentFill = row.get<unsigned short>("fill_number");
       auto bunches1 = row.get<unsigned short>("bunches_beam1");
@@ -148,27 +151,26 @@ namespace LHCInfoImpl {
 }  // namespace LHCInfoImpl
 
 size_t LHCInfoPopConSourceHandler::getLumiData(const cond::OMSService& oms,
-					       unsigned short fillId,
+                                               unsigned short fillId,
                                                const boost::posix_time::ptime& beginFillTime,
                                                const boost::posix_time::ptime& endFillTime) {
-
   auto query = oms.query("lumisections");
-  query->addOutputVars({"start_time","delivered_lumi","recorded_lumi"});
-  query->filterEQ("fill_number",fillId).filterGT("start_time",beginFillTime).filterLT("start_time",endFillTime);
+  query->addOutputVars({"start_time", "delivered_lumi", "recorded_lumi"});
+  query->filterEQ("fill_number", fillId).filterGT("start_time", beginFillTime).filterLT("start_time", endFillTime);
   size_t nlumi = 0;
-  if(query->execute()){
-      auto res = query->result();
-      for( auto r: res ){
-        nlumi++;
-        auto lumiTime = r.get<boost::posix_time::ptime>("start_time");
-	auto delivLumi = r.get<float>("delivered_lumi");
-        auto recLumi = r.get<float>("recorded_lumi");
-	LHCInfo* thisLumiSectionInfo = m_fillPayload->cloneFill();
-	m_tmpBuffer.emplace_back(std::make_pair(cond::time::from_boost(lumiTime), thisLumiSectionInfo));
-	LHCInfo& payload = *thisLumiSectionInfo;
-	payload.setDelivLumi(delivLumi);
-	payload.setRecLumi(recLumi);
-      }
+  if (query->execute()) {
+    auto res = query->result();
+    for (auto r : res) {
+      nlumi++;
+      auto lumiTime = r.get<boost::posix_time::ptime>("start_time");
+      auto delivLumi = r.get<float>("delivered_lumi");
+      auto recLumi = r.get<float>("recorded_lumi");
+      LHCInfo* thisLumiSectionInfo = m_fillPayload->cloneFill();
+      m_tmpBuffer.emplace_back(std::make_pair(cond::time::from_boost(lumiTime), thisLumiSectionInfo));
+      LHCInfo& payload = *thisLumiSectionInfo;
+      payload.setDelivLumi(delivLumi);
+      payload.setRecLumi(recLumi);
+    }
   }
   return nlumi;
 }
@@ -233,58 +235,58 @@ namespace LHCInfoImpl {
 void LHCInfoPopConSourceHandler::getDipData(const cond::OMSService& oms,
                                             const boost::posix_time::ptime& beginFillTime,
                                             const boost::posix_time::ptime& endFillTime) {
-  // unsure how to handle this. 
+  // unsure how to handle this.
   // the old implementation is not helping: apparently it is checking only the bunchconfiguration for the first diptime set of values...
   auto query1 = oms.query("diplogger/dip/acc/LHC/RunControl/CirculatingBunchConfig/Beam1");
-  query1->filterGT("dip_time",beginFillTime).filterLT("dip_time",endFillTime);
-  if(query1->execute()){
+  query1->filterGT("dip_time", beginFillTime).filterLT("dip_time", endFillTime);
+  if (query1->execute()) {
     auto res = query1->result();
-    if(!res.empty()){
+    if (!res.empty()) {
       std::bitset<LHCInfo::bunchSlots + 1> bunchConfiguration1(0ULL);
       auto row = *res.begin();
       //auto dipTime = row.get<boost::posix_time::ptime>("dip_time");
       auto vbunchConf1 = row.getArray<unsigned short>("value");
-      for( auto vb: vbunchConf1 ){
-	if( vb!=0){
-	  unsigned short slot = (vb - 1) / 10 + 1;
-	  bunchConfiguration1[slot] = true;
-	}
+      for (auto vb : vbunchConf1) {
+        if (vb != 0) {
+          unsigned short slot = (vb - 1) / 10 + 1;
+          bunchConfiguration1[slot] = true;
+        }
       }
       m_fillPayload->setBunchBitsetForBeam1(bunchConfiguration1);
     }
   }
   auto query2 = oms.query("diplogger/dip/acc/LHC/RunControl/CirculatingBunchConfig/Beam2");
-  query2->filterGT("dip_time",beginFillTime).filterLT("dip_time",endFillTime);
-  if(query2->execute()){
+  query2->filterGT("dip_time", beginFillTime).filterLT("dip_time", endFillTime);
+  if (query2->execute()) {
     auto res = query2->result();
-    if(!res.empty()){
+    if (!res.empty()) {
       std::bitset<LHCInfo::bunchSlots + 1> bunchConfiguration2(0ULL);
       auto row = *res.begin();
       //auto dipTime = row.get<boost::posix_time::ptime>("dip_time");
       auto vbunchConf2 = row.getArray<unsigned short>("value");
-      for( auto vb: vbunchConf2 ){
-	if( vb!=0){
-	  unsigned short slot = (vb - 1) / 10 + 1;
-	  bunchConfiguration2[slot] = true;
-	}
+      for (auto vb : vbunchConf2) {
+        if (vb != 0) {
+          unsigned short slot = (vb - 1) / 10 + 1;
+          bunchConfiguration2[slot] = true;
+        }
       }
       m_fillPayload->setBunchBitsetForBeam2(bunchConfiguration2);
     }
   }
 
   auto query3 = oms.query("diplogger/dip/CMS/LHC/LumiPerBunch");
-  query3->filterGT("dip_time",beginFillTime).filterLT("dip_time",endFillTime);
-  if(query3->execute()){
+  query3->filterGT("dip_time", beginFillTime).filterLT("dip_time", endFillTime);
+  if (query3->execute()) {
     auto res = query3->result();
-    if(!res.empty()){
+    if (!res.empty()) {
       std::vector<float> lumiPerBX;
       auto row = *res.begin();
       //auto dipTime = row.get<boost::posix_time::ptime>("dip_time");
       auto lumiBunchInst = row.getArray<float>("lumi_bunch_inst");
-      for( auto lb: lumiBunchInst ){
-	if( lb!=0.){
+      for (auto lb : lumiBunchInst) {
+        if (lb != 0.) {
           lumiPerBX.push_back(lb);
-	}
+        }
       }
       m_fillPayload->setLumiPerBX(lumiPerBX);
     }
@@ -368,11 +370,13 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
         if (!lumiSectionAttribute.isNull()) {
           lumiSection = lumiSectionAttribute.data<int>();
         }
-        coral::Attribute const& crossingAngleXAttribute = CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_P5_X_URAD")];
+        coral::Attribute const& crossingAngleXAttribute =
+            CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_P5_X_URAD")];
         if (!crossingAngleXAttribute.isNull()) {
           crossingAngle_x = crossingAngleXAttribute.data<float>();
         }
-        coral::Attribute const& crossingAngleYAttribute = CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_P5_Y_URAD")];
+        coral::Attribute const& crossingAngleYAttribute =
+            CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_P5_Y_URAD")];
         if (!crossingAngleYAttribute.isNull()) {
           crossingAngle_y = crossingAngleYAttribute.data<float>();
         }
@@ -621,7 +625,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
   Ref previousFill;
 
   //if a new tag is created, transfer fake fill from 1 to the first fill for the first time
-  if (tagInfo().size==0) {
+  if (tagInfo().size == 0) {
     edm::LogInfo(m_name) << "New tag " << tagInfo().name << "; from " << m_name << "::getNewObjects";
   } else {
     //check what is already inside the database
@@ -688,15 +692,16 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     boost::posix_time::ptime endSampleTime;
 
     cond::OMSService oms;
-    oms.connect( m_omsBaseUrl );
+    oms.connect(m_omsBaseUrl);
     auto query = oms.query("fills");
-    
+
     if (!m_endFill and m_prevPayload->fillNumber() and m_prevPayload->endTime() == 0ULL) {
       // execute the query for the current fill
       edm::LogInfo(m_name) << "Searching started fill #" << m_prevPayload->fillNumber();
-      query->filterEQ("fill_number",m_prevPayload->fillNumber());
+      query->filterEQ("fill_number", m_prevPayload->fillNumber());
       bool foundFill = query->execute();
-      if(foundFill) foundFill= LHCInfoImpl::makeFillPayload(m_fillPayload,query->result());
+      if (foundFill)
+        foundFill = LHCInfoImpl::makeFillPayload(m_fillPayload, query->result());
       if (!foundFill) {
         edm::LogError(m_name) << "Could not find fill #" << m_prevPayload->fillNumber();
         break;
@@ -706,10 +711,12 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     } else {
       edm::LogInfo(m_name) << "Searching new fill after " << boost::posix_time::to_simple_string(targetTime);
       boost::posix_time::ptime startTime = targetTime + boost::posix_time::seconds(1);
-      query->filterNotNull("start_stable_beam").filterGT("start_time",startTime).filterNotNull("fill_number");
-      if(m_endFill) query->filterNotNull("end_time");
+      query->filterNotNull("start_stable_beam").filterGT("start_time", startTime).filterNotNull("fill_number");
+      if (m_endFill)
+        query->filterNotNull("end_time");
       bool foundFill = query->execute();
-      if(foundFill) foundFill= LHCInfoImpl::makeFillPayload(m_fillPayload,query->result());
+      if (foundFill)
+        foundFill = LHCInfoImpl::makeFillPayload(m_fillPayload, query->result());
       if (!foundFill) {
         edm::LogInfo(m_name) << "No fill found - END of job.";
         if (iovAdded)
