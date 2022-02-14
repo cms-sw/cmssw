@@ -604,7 +604,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::LogVerbatim("GammaJetAnalysis") << "nProcessed=" << nProcessed_ << "\n";
 
   // 1st. Get Photons //
-  edm::Handle<reco::PhotonCollection> photons = iEvent.getHandle(tok_Photon_);
+  const edm::Handle<reco::PhotonCollection> photons = iEvent.getHandle(tok_Photon_);
   if (!photons.isValid()) {
     edm::LogWarning("GammaJetAnalysis") << "Could not find PhotonCollection named " << photonCollName_;
     return;
@@ -818,15 +818,15 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   edm::Handle<std::vector<reco::GenJet>> genjets;
   edm::Handle<std::vector<reco::GenParticle>> genparticles;
-  edm::Handle<reco::PFCandidateCollection> pfHandle = iEvent.getHandle(tok_PFCand_);
-  edm::Handle<reco::VertexCollection> vtxHandle = iEvent.getHandle(tok_Vertex_);
-  edm::Handle<reco::GsfElectronCollection> gsfElectronHandle = iEvent.getHandle(tok_GsfElec_);
-  edm::Handle<double> rhoHandle_2012 = iEvent.getHandle(tok_Rho_);
+  const edm::Handle<reco::PFCandidateCollection> pfHandle = iEvent.getHandle(tok_PFCand_);
+  const edm::Handle<reco::VertexCollection> vtxHandle = iEvent.getHandle(tok_Vertex_);
+  const edm::Handle<reco::GsfElectronCollection> gsfElectronHandle = iEvent.getHandle(tok_GsfElec_);
+  const edm::Handle<double> rhoHandle_2012 = iEvent.getHandle(tok_Rho_);
   rho2012_ = *(rhoHandle_2012.product());
   //rho2012_ = -1e6;
 
-  edm::Handle<reco::ConversionCollection> convH = iEvent.getHandle(tok_Conv_);
-  edm::Handle<reco::BeamSpot> beamSpotHandle = iEvent.getHandle(tok_BS_);
+  const edm::Handle<reco::ConversionCollection> convH = iEvent.getHandle(tok_Conv_);
+  const edm::Handle<reco::BeamSpot> beamSpotHandle = iEvent.getHandle(tok_BS_);
 
   HERE("doGenJets");
 
@@ -847,7 +847,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // Get weights
-    edm::Handle<GenEventInfoProduct> genEventInfoProduct = iEvent.getHandle(tok_GenEvInfo_);
+    const edm::Handle<GenEventInfoProduct> genEventInfoProduct = iEvent.getHandle(tok_GenEvInfo_);
     if (!genEventInfoProduct.isValid()) {
       edm::LogWarning("GammaJetAnalysis") << "Could not find GenEventInfoProduct named " << genEventInfoName_;
       return;
@@ -973,7 +973,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   if (doPFJets_ && (nPFJets_ > 0)) {
     // Get RecHits in HB and HE
-    edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhereco =
+    const edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhereco =
         iEvent.getHandle(tok_HBHE_);
     if (!hbhereco.isValid() && !workOnAOD_) {
       edm::LogWarning("GammaJetAnalysis") << "Could not find HBHERecHit named " << hbheRecHitName_;
@@ -981,14 +981,14 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // Get RecHits in HF
-    edm::Handle<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> hfreco = iEvent.getHandle(tok_HF_);
+    const edm::Handle<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> hfreco = iEvent.getHandle(tok_HF_);
     if (!hfreco.isValid() && !workOnAOD_) {
       edm::LogWarning("GammaJetAnalysis") << "Could not find HFRecHit named " << hfRecHitName_;
       return;
     }
 
     // Get RecHits in HO
-    edm::Handle<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> horeco = iEvent.getHandle(tok_HO_);
+    const edm::Handle<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> horeco = iEvent.getHandle(tok_HO_);
     if (!horeco.isValid() && !workOnAOD_) {
       edm::LogWarning("GammaJetAnalysis") << "Could not find HORecHit named " << hoRecHitName_;
       return;
@@ -1042,7 +1042,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     HERE("Get primary vertices");
 
     // Get primary vertices
-    edm::Handle<std::vector<reco::Vertex>> pv = iEvent.getHandle(tok_PV_);
+    const edm::Handle<std::vector<reco::Vertex>> pv = iEvent.getHandle(tok_PV_);
     if (!pv.isValid()) {
       edm::LogWarning("GammaJetAnalysis") << "Could not find Vertex named " << pvCollName_;
       return;
@@ -1709,7 +1709,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       ///h_pfrecoOgen_et->Fill(jer, eventWeight_);
 
       ///// MET /////
-      edm::Handle<reco::PFMETCollection> pfmet_h = iEvent.getHandle(tok_PFMET_);
+      const edm::Handle<reco::PFMETCollection> pfmet_h = iEvent.getHandle(tok_PFMET_);
       if (!pfmet_h.isValid()) {
         edm::LogWarning("GammaJetAnalysis") << " could not find " << pfMETColl;
         return;
@@ -1718,7 +1718,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       met_phi_ = pfmet_h->begin()->phi();
       met_sumEt_ = pfmet_h->begin()->sumEt();
 
-      edm::Handle<reco::PFMETCollection> pfmetType1_h = iEvent.getHandle(tok_PFType1MET_);
+      const edm::Handle<reco::PFMETCollection> pfmetType1_h = iEvent.getHandle(tok_PFType1MET_);
       if (pfmetType1_h.isValid()) {
         metType1_value_ = pfmetType1_h->begin()->et();
         metType1_phi_ = pfmetType1_h->begin()->phi();

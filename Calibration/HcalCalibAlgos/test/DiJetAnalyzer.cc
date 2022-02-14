@@ -219,7 +219,7 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
   pf_Event_ = iEvent.id().event();
 
   // Get PFJets
-  edm::Handle<reco::PFJetCollection> pfjets = iEvent.getHandle(tok_PFJet_);
+  const edm::Handle<reco::PFJetCollection> pfjets = iEvent.getHandle(tok_PFJet_);
   if (!pfjets.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
         << " could not find PFJetCollection named " << pfJetCollName_ << ".\n";
@@ -227,7 +227,7 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
   }
 
   // Get RecHits in HB and HE
-  edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhereco =
+  const  edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhereco =
       iEvent.getHandle(tok_HBHE_);
   if (!hbhereco.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
@@ -236,14 +236,14 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
   }
 
   // Get RecHits in HF
-  edm::Handle<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> hfreco = iEvent.getHandle(tok_HF_);
+  const edm::Handle<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> hfreco = iEvent.getHandle(tok_HF_);
   if (!hfreco.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HFRecHit named " << hfRecHitName_ << ".\n";
     return;
   }
 
   // Get RecHits in HO
-  edm::Handle<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> horeco = iEvent.getHandle(tok_HO_);
+  const edm::Handle<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> horeco = iEvent.getHandle(tok_HO_);
   if (!horeco.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HORecHit named " << hoRecHitName_ << ".\n";
     return;
@@ -276,7 +276,7 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
   }
 
   // Get primary vertices
-  edm::Handle<std::vector<reco::Vertex>> pv = iEvent.getHandle(tok_Vertex_);
+  const edm::Handle<std::vector<reco::Vertex>> pv = iEvent.getHandle(tok_Vertex_);
   if (!pv.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find Vertex named " << pvCollName_ << ".\n";
     return;
