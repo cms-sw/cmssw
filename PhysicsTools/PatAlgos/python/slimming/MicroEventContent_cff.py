@@ -148,6 +148,7 @@ _pp_on_AA_extraCommands = [
     'keep *_hiEvtPlane_*_*',
     'keep *_hiEvtPlaneFlat_*_*',
     'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*',
+    'keep edmGenHIEvent_heavyIon_*_*',
 ]
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
