@@ -30,20 +30,20 @@ namespace cond {
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, &body);
       curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errbuf);
       res = curl_easy_perform(curl);
-      curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &ret);
+      curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &ret);
       if (CURLE_OK == res) {
-	info = body;
+        info = body;
       } else {
-	size_t len = strlen(errbuf);
-	fprintf(stderr, "\nlibcurl: (%d) ", res);
-	if (len)
-	  fprintf(stderr, "%s%s", errbuf, ((errbuf[len - 1] != '\n') ? "\n" : ""));
-	else
-	  fprintf(stderr, "%s\n", curl_easy_strerror(res));
+        size_t len = strlen(errbuf);
+        fprintf(stderr, "\nlibcurl: (%d) ", res);
+        if (len)
+          fprintf(stderr, "%s%s", errbuf, ((errbuf[len - 1] != '\n') ? "\n" : ""));
+        else
+          fprintf(stderr, "%s\n", curl_easy_strerror(res));
       }
       curl_easy_cleanup(curl);
     }
     return ret;
   }
 
-}
+}  // namespace cond
