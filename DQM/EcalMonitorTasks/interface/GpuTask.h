@@ -46,50 +46,50 @@ namespace ecaldqm {
     EcalRecHitCollection const* EECpuRecHits_;
   };
 
-  inline bool GpuTask::analyze(void const* p, Collections collection) {
+  inline bool GpuTask::analyze(void const* collection_data, Collections collection) {
     switch (collection) {
       case kEBCpuDigi:
-        if (p && runGpuTask_)
-          runOnCpuDigis(*static_cast<EBDigiCollection const*>(p), collection);
+        if (collection_data && runGpuTask_)
+          runOnCpuDigis(*static_cast<EBDigiCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEECpuDigi:
-        if (p && runGpuTask_)
-          runOnCpuDigis(*static_cast<EEDigiCollection const*>(p), collection);
+        if (collection_data && runGpuTask_)
+          runOnCpuDigis(*static_cast<EEDigiCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEBGpuDigi:
-        if (p && runGpuTask_)
-          runOnGpuDigis(*static_cast<EBDigiCollection const*>(p), collection);
+        if (collection_data && runGpuTask_)
+          runOnGpuDigis(*static_cast<EBDigiCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEEGpuDigi:
-        if (p && runGpuTask_)
-          runOnGpuDigis(*static_cast<EEDigiCollection const*>(p), collection);
+        if (collection_data && runGpuTask_)
+          runOnGpuDigis(*static_cast<EEDigiCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEBCpuUncalibRecHit:
       case kEECpuUncalibRecHit:
-        if (p && runGpuTask_)
-          runOnCpuUncalibRecHits(*static_cast<EcalUncalibratedRecHitCollection const*>(p), collection);
+        if (collection_data && runGpuTask_)
+          runOnCpuUncalibRecHits(*static_cast<EcalUncalibratedRecHitCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEBGpuUncalibRecHit:
       case kEEGpuUncalibRecHit:
-        if (p && runGpuTask_)
-          runOnGpuUncalibRecHits(*static_cast<EcalUncalibratedRecHitCollection const*>(p), collection);
+        if (collection_data && runGpuTask_)
+          runOnGpuUncalibRecHits(*static_cast<EcalUncalibratedRecHitCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEBCpuRecHit:
       case kEECpuRecHit:
-        if (p && runGpuTask_)
-          runOnCpuRecHits(*static_cast<EcalRecHitCollection const*>(p), collection);
+        if (collection_data && runGpuTask_)
+          runOnCpuRecHits(*static_cast<EcalRecHitCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEBGpuRecHit:
       case kEEGpuRecHit:
-        if (p && runGpuTask_)
-          runOnGpuRecHits(*static_cast<EcalRecHitCollection const*>(p), collection);
+        if (collection_data && runGpuTask_)
+          runOnGpuRecHits(*static_cast<EcalRecHitCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       default:

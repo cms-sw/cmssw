@@ -128,7 +128,7 @@ ecalGpuTask = cms.untracked.PSet(
             description = cms.untracked.string('CPU Uncalibrated Rec Hit reconstructed amplitude')
         ),
         UncalibCpuAmpError = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit amplitude error cpu'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit amplitudeError cpu'),
             kind = cms.untracked.string('TH1F'),
             otype = cms.untracked.string('Ecal2P'),
             btype = cms.untracked.string('User'),
@@ -167,7 +167,7 @@ ecalGpuTask = cms.untracked.PSet(
             description = cms.untracked.string('CPU Uncalibrated Rec Hit reconstructed time jitter')
         ),
         UncalibCpuJitterError = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit jitter error cpu'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit jitterError cpu'),
             kind = cms.untracked.string('TH1F'),
             otype = cms.untracked.string('Ecal2P'),
             btype = cms.untracked.string('User'),
@@ -249,7 +249,7 @@ ecalGpuTask = cms.untracked.PSet(
             description = cms.untracked.string('GPU Uncalibrated Rec Hit reconstructed amplitude')
         ),
         UncalibGpuAmpError = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit amplitude error gpu'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit amplitudeError gpu'),
             kind = cms.untracked.string('TH1F'),
             otype = cms.untracked.string('Ecal2P'),
             btype = cms.untracked.string('User'),
@@ -288,7 +288,7 @@ ecalGpuTask = cms.untracked.PSet(
             description = cms.untracked.string('GPU Uncalibrated Rec Hit reconstructed time jitter')
         ),
         UncalibGpuJitterError = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit jitter error gpu'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit jitterError gpu'),
             kind = cms.untracked.string('TH1F'),
             otype = cms.untracked.string('Ecal2P'),
             btype = cms.untracked.string('User'),
@@ -370,7 +370,7 @@ ecalGpuTask = cms.untracked.PSet(
             description = cms.untracked.string('GPU-CPU difference of Uncalibrated Rec Hit reconstructed amplitude')
         ),
         UncalibGpuCpuAmpError = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit amplitude error gpu-cpu diff'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit amplitudeError gpu-cpu diff'),
             kind = cms.untracked.string('TH1F'),
             otype = cms.untracked.string('Ecal2P'),
             btype = cms.untracked.string('User'),
@@ -409,7 +409,7 @@ ecalGpuTask = cms.untracked.PSet(
             description = cms.untracked.string('GPU-CPU difference of Uncalibrated Rec Hit reconstructed time jitter')
         ),
         UncalibGpuCpuJitterError = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit jitter error gpu-cpu diff'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit jitterError gpu-cpu diff'),
             kind = cms.untracked.string('TH1F'),
             otype = cms.untracked.string('Ecal2P'),
             btype = cms.untracked.string('User'),
