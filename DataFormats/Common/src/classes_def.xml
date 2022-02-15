@@ -10,7 +10,7 @@
  </class>
  <class name="edm::RefCore" ClassVersion="11">
   <version ClassVersion="10" checksum="641105393"/>
-  <version ClassVersion="11" checksum="3425324092"/>
+  <version ClassVersion="11" checksum="3425324093"/>
    <field name="cachePtr_" transient = "true"/>
  </class>
  <ioread sourceClass = "edm::RefCore" version="[1-]" targetClass="edm::RefCore" source="" target="cachePtr_">
