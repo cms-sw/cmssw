@@ -79,8 +79,7 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpTracksters(const std::vector<std::pa
       auto [lyrIdx, soaIdx] = layerIdx2layerandSoa[v];
       auto const &thisLayer = clusters_[lyrIdx];
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
-        edm::LogVerbatim("PatternRecogntionbyCLUE3D")
-            << "TracksterInfo: "
+        edm::LogVerbatim("PatternRecogntionbyCLUE3D_NTP")
             << std::setw(4) << eventNumber << sep
             << std::setw(4) << num << sep
             << std::setw(4) << t.vertices().size() << sep
@@ -769,7 +768,7 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
   iDesc.add<bool>("useAbsoluteProjectiveScale", true)->setComment("Express all cuts in terms of r/z*z_0{,phi} projective variables");
   iDesc.add<double>("criticalEtaPhiDistance", 0.035)->setComment("Minimal distance in eta,phi space from nearestHigher to become a seed");
   iDesc.add<double>("criticalXYDistance", 4.0)->setComment("Minimal distance in cm on the XY plane from nearestHigher to become a seed");
-  iDesc.add<int>("criticalZDistanceLyr", 3)->setComment("Minimal distance in layers along the Z axis from nearestHigher to become a seed");
+  iDesc.add<int>("criticalZDistanceLyr", 5)->setComment("Minimal distance in layers along the Z axis from nearestHigher to become a seed");
   iDesc.add<double>("outlierMultiplier", 2);
   iDesc.add<int>("minNumLayerCluster", 2)->setComment("Not Inclusive");
   iDesc.add<std::string>("eid_input_name", "input");
