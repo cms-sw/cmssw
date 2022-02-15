@@ -11,9 +11,9 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
 
 labelTst = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabelsMerge]
-labelTst.extend(["ticlSimTracksters"])
+labelTst.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
 lcInputMask = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabels]
-lcInputMask.extend(["ticlSimTracksters"])
+lcInputMask.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
 hgcalValidator = DQMEDAnalyzer(
     "HGCalValidator",
 
@@ -25,6 +25,7 @@ hgcalValidator = DQMEDAnalyzer(
     #2DLayerClusters, PFClusters, Tracksters
     label_lcl = layerClusterCaloParticleAssociation.label_lc,
     label_tst = cms.VInputTag(labelTst),
+    label_simTS = cms.InputTag("ticlSimTracksters"),
     label_simTSFromCP = cms.InputTag("ticlSimTracksters", "fromCPs"),
 
     associator = cms.untracked.InputTag("layerClusterCaloParticleAssociationProducer"),
@@ -47,7 +48,9 @@ hgcalValidator = DQMEDAnalyzer(
     label_LCToCPLinking = cms.InputTag("LCToCP_association"),
     #Trackster related plots
     doTrackstersPlots = cms.untracked.bool(True),
-    label_TSToCPLinking = cms.InputTag("TSToCP_linking"),
+    label_TS = cms.string("Morphology"),
+    label_TSToCPLinking = cms.string("TSToCP_linking"),
+    label_TSToSTSPR = cms.string("TSToSTS_patternRecognition"),
 
     #The cumulative material budget in front of each layer. To be more specific, it
     #is the material budget just in front of the active material (not including it).

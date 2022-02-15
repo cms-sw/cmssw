@@ -298,6 +298,27 @@ void PatternRecognitionbyCA<TILES>::mergeTrackstersTRK(
                   std::back_inserter(outTrackster.vertex_multiplicity()));
       }
       tracksters.resize(1);
+
+      // Find duplicate LCs
+      auto &orig_vtx = outTrackster.vertices();
+      auto vtx_sorted{orig_vtx};
+      std::sort(std::begin(vtx_sorted), std::end(vtx_sorted));
+      for (unsigned int iLC = 1; iLC < vtx_sorted.size(); ++iLC) {
+        if (vtx_sorted[iLC] == vtx_sorted[iLC - 1]) {
+          // Clean up duplicate LCs
+          const auto lcIdx = vtx_sorted[iLC];
+          const auto firstEl = std::find(orig_vtx.begin(), orig_vtx.end(), lcIdx);
+          const auto firstPos = std::distance(std::begin(orig_vtx), firstEl);
+          auto iDup = std::find(std::next(firstEl), orig_vtx.end(), lcIdx);
+          while (iDup != orig_vtx.end()) {
+            orig_vtx.erase(iDup);
+            outTrackster.vertex_multiplicity().erase(outTrackster.vertex_multiplicity().begin() +
+                                                     std::distance(std::begin(orig_vtx), iDup));
+            outTrackster.vertex_multiplicity()[firstPos] -= 1;
+            iDup = std::find(std::next(firstEl), orig_vtx.end(), lcIdx);
+          };
+        }
+      }
     }
   }
   output.shrink_to_fit();
