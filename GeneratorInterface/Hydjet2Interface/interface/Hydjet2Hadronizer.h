@@ -73,9 +73,15 @@ namespace gen {
     static const std::vector<std::string> theSharedResources;
 
     inline double nuclear_radius() const;
+
+    int convertStatusForComponents(int, int);
+    int convertStatus(int);
+
     InitialParamsHydjet_t fParams;
     Hydjet2 *hj2;
 
+    bool ev = false;
+    bool separateHydjetComponents_;
     bool rotate_;  // Switch to rotate event plane
     HepMC::GenEvent *evt;
     int nsub_;     // number of sub-events
