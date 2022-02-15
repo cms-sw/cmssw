@@ -17,7 +17,9 @@ import Validation.RecoTrack.plotting.validation as validation
 import Validation.RecoTrack.plotting.html as html
 
 from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
-from Validation.HGCalValidation.PostProcessorHGCAL_cfi import tsToCP_linking, lcToCP_linking
+from Validation.HGCalValidation.PostProcessorHGCAL_cfi import lcToCP_linking, simDict, tsToCP_linking, tsToSTS_patternRec, variables
+
+hgcVal_dqm = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"
 
 #To be able to spot any issues both in -z and +z a layer id was introduced
 #that spans from 0 to 103 for hgcal_v9 geometry. The mapping for hgcal_v9 is:
@@ -38,7 +40,7 @@ if not os.path.isfile(theDQMfile):
 
 #Take general info from the first file is sufficient.
 thefile = TFile( theDQMfile )
-GeneralInfoDirectory = 'DQMData/Run 1/HGCAL/Run summary/HGCalValidator/GeneralInfo'
+GeneralInfoDirectory = hgcVal_dqm + 'GeneralInfo'
 
 if not gDirectory.GetDirectory( GeneralInfoDirectory ):
   print("Error: GeneralInfo directory not found in DQM file, exit")
@@ -1559,66 +1561,61 @@ _merges_sc_zplus = PlotGroup("Eff_Dup_Fake_Merge_Global_zplus", _mergeplots_sc_z
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 
 #--------------------------------------------------------------------------------------------
-# MULTICLUSTERS
+# TRACKSTERS
 #--------------------------------------------------------------------------------------------
-_common_score = {#"title": "Score CaloParticle to Tracksters",
-                 "stat": False,
-                 "ymin": 0.1,
-                 "ymax": 100000,
-                 "xmin": 0,
-                 "xmax": 1.0,
-                 "drawStyle": "hist",
-                 "lineWidth": 1,
-                 "ylog": True
+_common_score = {"stat": False, "legend": False
+                 ,"ymin": 0.1
+                 ,"ymax": 100000
+                 ,"xmin": 0
+                 #,"xmax": 1.0
+                 ,"drawStyle": "hist"
+                 ,"lineWidth": 1
+                 ,"ylog": True
+                 ,"xlog": True
+                 ,"xtitle": "Default"
                 }
 _common_score.update(_legend_common)
-_score_caloparticle_to_tracksters = PlotGroup("ScoreCaloParticlesToTracksters", [
-        Plot("Score_caloparticle2trackster", **_common_score)
-        ], ncols=1)
 
-_common_score = {#"title": "Score Trackster to CaloParticles",
-                 "stat": False,
-                 "ymin": 0.1,
-                 "ymax": 100000,
-                 "xmin": 0,
-                 "xmax": 1.0,
-                 "drawStyle": "hist",
-                 "lineWidth": 1,
-                 "ylog": True
-                }
-_common_score.update(_legend_common)
-_score_trackster_to_caloparticles = PlotGroup("ScoreTrackstersToCaloParticles", [
-        Plot("Score_trackster2caloparticle", **_common_score)
-        ], ncols=1)
+score_to_trackster = ["","Pur","Dupl"]
+_score_caloparticle_to_tracksters = PlotGroup("ScoreCaloParticlesToTracksters", [], ncols=len(score_to_trackster))
+_score_simtrackster_to_tracksters = PlotGroup("ScoreSimTrackstersToTracksters", [], ncols=len(score_to_trackster))
+for score in score_to_trackster:
+    _score_caloparticle_to_tracksters.append(Plot("Score"+score+"_caloparticle2trackster", **_common_score))
+    _score_simtrackster_to_tracksters.append(Plot("Score"+score+"_simtrackster2trackster", **_common_score))
 
-_common_shared= {"title": "Shared Energy CaloParticle To Trackster ",
-                 "stat": False,
-                 "legend": True,
-                 "xmin": 0,
-                 "xmax": 1.0,
-               }
+score_trackster_to = ["","Fake","Merge"]
+_score_trackster_to_caloparticles = PlotGroup("ScoreTrackstersToCaloParticles", [], ncols=len(score_trackster_to))
+_score_trackster_to_simtracksters = PlotGroup("ScoreTrackstersToSimTracksters", [], ncols=len(score_trackster_to))
+for score in score_trackster_to:
+    _score_trackster_to_caloparticles.append(Plot("Score"+score+"_trackster2caloparticle", **_common_score))
+    _score_trackster_to_simtracksters.append(Plot("Score"+score+"_trackster2simtrackster", **_common_score))
+
+
+_common_shared = {"stat": False, "legend": False, "xtitle": 'Default', "ytitle": 'Default'}
 _common_shared.update(_legend_common)
-_shared_plots = [ Plot("SharedEnergy_caloparticle2trackster", **_common_shared) ]
-_common_shared["xmin"] = -4.0
-_common_shared["xmax"] = 4.0
-_shared_plots.extend([Plot("SharedEnergy_caloparticle2trackster_vs_eta", xtitle="CaloParticle #eta", **_common_shared)])
-_shared_plots.extend([Plot("SharedEnergy_caloparticle2trackster_vs_phi", xtitle="CaloParticle #phi", **_common_shared)])
-_sharedEnergy_caloparticle_to_trackster = PlotGroup("SharedEnergy_CaloParticleToTrackster", _shared_plots, ncols=3)
+_common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d", drawStyle="COLZ", adjustMarginRight=0.1, legend=False, xtitle='Default', ytitle='Default')
+#_common_energy_score["ymax"] = 1.
+#_common_energy_score["xmax"] = 1.0
 
-_common_shared= {"title": "Shared Energy Trackster To CaloParticle ",
-                 "stat": False,
-                 "legend": True,
-                 "xmin": 0,
-                 "xmax": 1.0,
-                }
-_common_shared.update(_legend_common)
-_shared_plots2 = [Plot("SharedEnergy_trackster2caloparticle", **_common_shared)]
-_common_shared["xmin"] = -4.0
-_common_shared["xmax"] = 4.0
-_shared_plots2.extend([Plot("SharedEnergy_trackster2caloparticle_vs_eta", xtitle="Trackster #eta", **_common_shared)])
-_shared_plots2.extend([Plot("SharedEnergy_trackster2caloparticle_vs_phi", xtitle="Trackster #phi", **_common_shared)])
-_sharedEnergy_trackster_to_caloparticle = PlotGroup("SharedEnergy_TracksterToCaloParticle", _shared_plots2, ncols=3)
+_sharedEnergy_to_trackster = []
+_sharedEnergy_trackster_to = []
+versions = ["", "_assoc", "_assoc_vs_eta", "_assoc_vs_phi"]
 
+_energyscore_to_trackster = []
+_energyscore_trackster_to = []
+en_vs_score = ["","best","secBest"]
+for val in simDict:
+    _sharedEnergy_to_trackster.append(PlotGroup("SharedEnergy_"+val+"ToTrackster", [], ncols=2))
+    _sharedEnergy_trackster_to.append(PlotGroup("SharedEnergy_TracksterTo"+val, [], ncols=2))
+    for ver in versions:
+        _sharedEnergy_to_trackster[-1].append(Plot("SharedEnergy_"+val.lower()+"2trackster"+ver, **_common_shared))
+        _sharedEnergy_trackster_to[-1].append(Plot("SharedEnergy_trackster2"+val.lower()+ver, **_common_shared))
+
+    _energyscore_to_trackster.append(PlotGroup("Energy_vs_Score_"+val+"ToTracksters", [], ncols=len(en_vs_score)))
+    _energyscore_trackster_to.append(PlotGroup("Energy_vs_Score_TrackstersTo"+val, [], ncols=len(en_vs_score)))
+    for ver in en_vs_score:
+        _energyscore_to_trackster[-1].append(Plot("Energy_vs_Score_"+val.lower()+"2"+ver+"Trackster", **_common_energy_score))
+        _energyscore_trackster_to[-1].append(Plot("Energy_vs_Score_trackster2"+ver+val, **_common_energy_score))
 
 _common_assoc = {#"title": "Cell Association Table",
                  "stat": False,
@@ -1634,81 +1631,74 @@ _cell_association_table = PlotGroup("cellAssociation_table", [
         Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(0,maxlayerzm)
         ], ncols=8 )
 
-_common_eff = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
-_effplots = [Plot("effic_eta", xtitle="", **_common_eff)]
-_effplots.extend([Plot("effic_phi", xtitle="", **_common_eff)])
-_effplots.extend([Plot("globalEfficiencies", xtitle="", **_common_eff)])
-_efficiencies = PlotGroup("Efficiencies", _effplots, ncols=3)
+# Trackster plots
+_common_metric = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
+_common_metric_logx = _common_metric.copy()
+_common_metric_logx["xlog"] = True
 
-_common_purity = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
-_purityplots = [Plot("purity_eta", xtitle="", **_common_purity)]
-_purityplots.extend([Plot("purity_phi", xtitle="", **_common_purity)])
-_purityplots.extend([Plot("globalEfficiencies", xtitle="", **_common_purity)])
-_purities = PlotGroup("Purities", _purityplots, ncols=3)
+_efficiencies = []
+_purities = []
+_duplicates = []
+_fakes = []
+_merges = []
+for val in simDict:
+    _effplots = [Plot("globalEfficiencies", xtitle="", **_common_metric)]
+    _purityplots = [Plot("globalEfficiencies", xtitle="", **_common_metric)]
+    _dupplots = [Plot("globalEfficiencies", xtitle="", **_common_metric)]
+    _fakeplots = [Plot("globalEfficiencies", xtitle="", **_common_metric)]
+    _mergeplots = [Plot("globalEfficiencies", xtitle="", **_common_metric)]
 
-_common_dup = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
-_dupplots = [Plot("duplicate_eta", xtitle="", **_common_dup)]
-_dupplots.extend([Plot("duplicate_phi", xtitle="", **_common_dup)])
-_dupplots.extend([Plot("globalEfficiencies", xtitle="", **_common_dup)])
-_duplicates = PlotGroup("Duplicates", _dupplots, ncols=3)
+    for v in variables:
+        kwargs = _common_metric_logx if v in ["energy","pt"] else _common_metric
+        _effplots.extend([Plot("effic_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _purityplots.extend([Plot("purity_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _dupplots.extend([Plot("duplicate_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _fakeplots.extend([Plot("fake_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _mergeplots.extend([Plot("merge_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
 
-_common_fake = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
-_fakeplots = [Plot("fake_eta", xtitle="", **_common_fake)]
-_fakeplots.extend([Plot("fake_phi", xtitle="", **_common_fake)])
-_fakeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_fake)])
-_fakes = PlotGroup("FakeRate", _fakeplots, ncols=3)
+    _efficiencies.append(PlotGroup("Efficiencies"+simDict[val], _effplots, ncols=3))
+    _purities.append(PlotGroup("Purities"+simDict[val], _purityplots, ncols=3))
+    _duplicates.append(PlotGroup("Duplicates"+simDict[val], _dupplots, ncols=3))
+    _fakes.append(PlotGroup("FakeRate"+simDict[val], _fakeplots, ncols=3))
+    _merges.append(PlotGroup("MergeRate"+simDict[val], _mergeplots, ncols=3))
 
-_common_merge = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
-_mergeplots = [Plot("merge_eta", xtitle="", **_common_merge)]
-_mergeplots.extend([Plot("merge_phi", xtitle="", **_common_merge)])
-_mergeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_merge)])
-_merges = PlotGroup("MergeRate", _mergeplots, ncols=3)
-
-_common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d")
-_common_energy_score["ymax"] = 1.
-_common_energy_score["xmax"] = 1.0
-_energyscore_cp2ts = PlotOnSideGroup("Energy_vs_Score_CaloParticlesToTracksters", Plot("Energy_vs_Score_caloparticle2trackster", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_common_energy_score["ymax"] = 1.
-_common_energy_score["xmax"] = 1.0
-_energyscore_ts2cp = PlotOnSideGroup("Energy_vs_Score_TrackstersToCaloParticles", Plot("Energy_vs_Score_trackster2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
 
 #Coming back to the usual box definition
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "xtitle": "Default"}
 
 _tottracksternum = PlotGroup("TotalNumberofTracksters", [
-  Plot("tottracksternum", xtitle="", **_common)
+  Plot("tottracksternum", **_common)
 ],ncols=1)
 
-_trackster_layernum_plots = [Plot("trackster_firstlayer", xtitle="Trackster First Layer", **_common)]
-_trackster_layernum_plots.extend([Plot("trackster_lastlayer", xtitle="Trackster Last Layer", **_common)])
-_trackster_layernum_plots.extend([Plot("trackster_layersnum", xtitle="Trackster Number of Layers", **_common)])
+_trackster_layernum_plots = [Plot("trackster_firstlayer", **_common)]
+_trackster_layernum_plots.extend([Plot("trackster_lastlayer", **_common)])
+_trackster_layernum_plots.extend([Plot("trackster_layersnum", **_common)])
 _trackster_layernum = PlotGroup("LayerNumbersOfTrackster", _trackster_layernum_plots, ncols=3)
 
 _common["xmax"] = 50
 _clusternum_in_trackster = PlotGroup("NumberofLayerClustersinTrackster",[
-  Plot("clusternum_in_trackster", xtitle="", **_common)
+  Plot("clusternum_in_trackster", **_common)
 ],ncols=1)
 
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
-_common = {"stat": True, "drawStyle": "pcolz", "staty": 0.65}
+_common = {"stat": True, "drawStyle": "pcolz", "staty": 0.65, "xtitle": "Default", "ytitle": "Default"}
 
 _clusternum_in_trackster_vs_layer = PlotGroup("NumberofLayerClustersinTracksterPerLayer",[
-  Plot("clusternum_in_trackster_vs_layer", xtitle="Layer number", ytitle = "<2d Layer Clusters in Trackster>",  **_common)
+  Plot("clusternum_in_trackster_vs_layer", **_common)
 ],ncols=1)
 
 _common["scale"] = 100.
 #, ztitle = "% of clusters" normalizeToUnitArea=True
-_multiplicity_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/ticlTrackstersMerge/multiplicity_numberOfEventsHistogram"
-_multiplicity_zminus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/ticlTrackstersMerge/multiplicity_zminus_numberOfEventsHistogram"
-_multiplicity_zplus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/ticlTrackstersMerge/multiplicity_zplus_numberOfEventsHistogram"
+_multiplicity_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_numberOfEventsHistogram"
+_multiplicity_zminus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_zminus_numberOfEventsHistogram"
+_multiplicity_zplus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_zplus_numberOfEventsHistogram"
 
-_multiplicityOfLCinTST_plots = [Plot("multiplicityOfLCinTST", xtitle="Layer Cluster multiplicity in Tracksters", ytitle = "Cluster size (n_{hit})", 
+_multiplicityOfLCinTST_plots = [Plot("multiplicityOfLCinTST",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]
-_multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layerclusterenergy", xtitle="Layer Cluster multiplicity in Tracksters", ytitle = "Cluster Energy (GeV)", 
+_multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layerclusterenergy",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]) 
-_multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layercluster_zplus", xtitle="Layer Cluster multiplicity in Tracksters", ytitle = "Layer Number", 
+_multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layercluster_zplus",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)])
-_multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layercluster_zminus", xtitle="Layer Cluster multiplicity in Tracksters", ytitle = "Layer Number", 
+_multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layercluster_zminus",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)])
 _multiplicityOfLCinTST = PlotGroup("MultiplicityofLCinTST", _multiplicityOfLCinTST_plots, ncols=2)
 
@@ -1743,19 +1733,19 @@ _clusternum_in_trackster_perlayer_zplus_BH = PlotGroup("NumberofLayerClustersinT
   Plot("clusternum_in_trackster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
 ], ncols=7)
 
-#Coming back to the usual box definition
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
+# Coming back to the usual box definition
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "xtitle": "Default"}
 
-#Some tracksters quantities
-_trackster_eppe_plots = [Plot("trackster_eta", xtitle="Trackster #eta", **_common)]
-_trackster_eppe_plots.extend([Plot("trackster_phi", xtitle="Trackster #phi", **_common)])
-_trackster_eppe_plots.extend([Plot("trackster_pt", xtitle="Trackster p_{T}", **_common)])
-_trackster_eppe_plots.extend([Plot("trackster_energy", xtitle="Trackster Energy", **_common)])
+# Some tracksters quantities
+_trackster_eppe_plots = [Plot("trackster_eta", **_common)]
+_trackster_eppe_plots.extend([Plot("trackster_phi", **_common)])
+_trackster_eppe_plots.extend([Plot("trackster_pt", **_common)])
+_trackster_eppe_plots.extend([Plot("trackster_energy", **_common)])
 _trackster_eppe = PlotGroup("EtaPhiPtEnergy", _trackster_eppe_plots, ncols=2)
 
-_trackster_xyz_plots = [Plot("trackster_x", xtitle="Trackster x", **_common)]
-_trackster_xyz_plots.extend([Plot("trackster_y", xtitle="Trackster y", **_common)])
-_trackster_xyz_plots.extend([Plot("trackster_z", xtitle="Trackster z", **_common)])
+_trackster_xyz_plots = [Plot("trackster_x", **_common)]
+_trackster_xyz_plots.extend([Plot("trackster_y", **_common)])
+_trackster_xyz_plots.extend([Plot("trackster_z", **_common)])
 _trackster_xyz = PlotGroup("XYZ", _trackster_xyz_plots, ncols=3)
 
 #--------------------------------------------------------------------------------------------
@@ -2319,8 +2309,6 @@ def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerCluste
                 purpose=PlotPurpose.Timing, page=layerClustersLabel, section=reg))
 
 #=================================================================================================
-def _hgcalsimClustersFolders(lastDirName):
-    return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/" + hgcalValidator.label_SimClusters._InputTag__moduleLabel + "/"+lastDirName
 
 sc_clusterlevel = [
   # number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint
@@ -2414,14 +2402,14 @@ hgcalSimClustersPlotter = Plotter()
 def append_hgcalSimClustersPlots(collection, name_collection):
   if collection == hgcalValidator.label_SimClustersLevel._InputTag__moduleLabel:
       hgcalSimClustersPlotter.append(collection, [
-                  _hgcalsimClustersFolders(collection)
+                  _hgcalFolders(hgcalValidator.label_SimClusters._InputTag__moduleLabel +"/"+ collection)
                   ], PlotFolder(
                   *sc_clusterlevel,
                   loopSubFolders=False,
                   purpose=PlotPurpose.Timing, page="SimClusters", section=name_collection))
   else:
       hgcalSimClustersPlotter.append(collection, [
-                  _hgcalsimClustersFolders(collection)
+                  _hgcalFolders(hgcalValidator.label_SimClusters._InputTag__moduleLabel +"/"+collection)
                   ], PlotFolder(
                   *sc_ticltracksters,
                   loopSubFolders=False,
@@ -2430,7 +2418,7 @@ def append_hgcalSimClustersPlots(collection, name_collection):
 
 #=================================================================================================
 def _hgcalFolders(lastDirName="hgcalLayerClusters"):
-    return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+lastDirName
+    return hgcVal_dqm + lastDirName
 
 _trackstersPlots = [
   _trackster_eppe,
@@ -2449,36 +2437,61 @@ _trackstersPlots = [
 ]
 
 _trackstersToCPLinkPlots = [
-  _efficiencies,
-  _purities,
-  _duplicates,
-  _fakes,
-  _merges,
+  _efficiencies[0],
+  _purities[0],
+  _duplicates[0],
+  _fakes[0],
+  _merges[0],
   _score_caloparticle_to_tracksters,
   _score_trackster_to_caloparticles,
-  _sharedEnergy_caloparticle_to_trackster,
-  _sharedEnergy_trackster_to_caloparticle,
-  _energyscore_cp2ts,
-  _energyscore_ts2cp,
+  _sharedEnergy_to_trackster[0],
+  _sharedEnergy_trackster_to[0],
+  _energyscore_to_trackster[0],
+  _energyscore_trackster_to[0],
 ]
 
+_trackstersToSTSPRPlots = [
+  _efficiencies[1],
+  _purities[1],
+  _duplicates[1],
+  _fakes[1],
+  _merges[1],
+  _score_simtrackster_to_tracksters,
+  _score_trackster_to_simtracksters,
+  _sharedEnergy_to_trackster[1],
+  _sharedEnergy_trackster_to[1],
+  _energyscore_to_trackster[1],
+  _energyscore_trackster_to[1],
+]
 hgcalTrackstersPlotter = Plotter()
 def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collection = "TrackstersMerge"):
   # Appending generic plots for Tracksters
   hgcalTrackstersPlotter.append(collection, [
-              _hgcalFolders(collection)
+              _hgcalFolders(collection+ "/" + hgcalValidator.label_TS._InputTag__moduleLabel)
               ], PlotFolder(
               *_trackstersPlots,
               loopSubFolders=False,
               purpose=PlotPurpose.Timing, page="Tracksters", section=name_collection))
 
-  # Appending plots for Tracksters to CP linking
+  # Appending plots for Tracksters-CP linking
   hgcalTrackstersPlotter.append(collection, [
               _hgcalFolders(collection + "/" + tsToCP_linking)
               ], PlotFolder(
               *_trackstersToCPLinkPlots,
               loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page=tsToCP_linking.replace('TSToCP_','TICL-'), section=name_collection))
+              purpose=PlotPurpose.Timing
+              #,page=tsToCP_linking.replace('TSToCP_','TICL-')
+              ,page=tsToCP_linking.replace('TSToCP_','Test-TICL').replace('linking','')
+              ,section=name_collection)
+              )
+
+  # Appending plots for Tracksters Pattern Recognition
+  hgcalTrackstersPlotter.append(collection, [
+              _hgcalFolders(collection + "/" + tsToSTS_patternRec)
+              ], PlotFolder(
+              *_trackstersToSTSPRPlots,
+              loopSubFolders=False,
+              purpose=PlotPurpose.Timing, page=tsToSTS_patternRec.replace('TSToSTS_','TICL-'), section=name_collection))
 
   #We append here two PlotFolder because we want the text to be in percent
   #and the number of events are different in zplus and zminus
@@ -2501,7 +2514,7 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
   #            ))
 
 #=================================================================================================
-_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False}
+_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False, "xtitle": "Default", "ytitle": "Default"}
 
 hgcalCaloParticlesPlotter = Plotter()
 def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
@@ -2510,7 +2523,7 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
                     "Energy of Rec-matched Hits vs layer (1SC)",
                     "Rec-matched Hits Sum Energy vs layer"]
 
-  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
+  dqmfolder = hgcVal_dqm + "SelectedCaloParticles/" + collection
   templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
   if not gDirectory.GetDirectory(dqmfolder):
     print("Error: GeneralInfo directory %s not found in DQM file, exit"%dqmfolder)
@@ -2525,7 +2538,6 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
     fileName.ReplaceAll(" ","_")
     pg = PlotGroup(fileName.Data(),[
                   Plot(name,
-                       xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
                        drawCommand = "",
                        normalizeToNumberOfEvents = True, **_common_Calo)
                   ],
@@ -2534,7 +2546,6 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
     if name in list_2D_histos :
         pg = PlotOnSideGroup(plotName.Data(),
                       Plot(name,
-                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
                            drawCommand = "COLZ",
                            normalizeToNumberOfEvents = True, **_common_Calo)
                       ,
@@ -2560,7 +2571,7 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
   groupingFlag = " on Layer "
 
   hgcalTrackstersPlotter = Plotter()
-  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/" + collection
+  dqmfolder = hgcVal_dqm + collection
   #_multiplicity_tracksters_numberOfEventsHistogram = dqmfolder+"/Number of Trackster per Event"
 
   _common["ymin"] = 0.0
@@ -2582,7 +2593,7 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
         for group in grouped:
             if group+groupingFlag in name:
                 grouped[group].append(Plot(name,
-                                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                           xtitle="Default", ytitle="Default",
                                            **_common)
                                      )
     else:
@@ -2590,14 +2601,14 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
         if obj.InheritsFrom("TH2"):
             pg = PlotOnSideGroup(plotName.Data(),
                                  Plot(name,
-                                      xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                      xtitle="Default", ytitle="Default",
                                       drawCommand = "COLZ",
                                       **_common),
                                  ncols=1)
         elif obj.InheritsFrom("TH1"):
             pg = PlotGroup(plotName.Data(),
                            [Plot(name,
-                                 xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                 xtitle="Default", ytitle="Default",
                                  drawCommand = "COLZ", # ineffective for TH1
                                  **_common)
                            ],
@@ -2626,12 +2637,12 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
   return hgcalTrackstersPlotter
 
 #=================================================================================================
-_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False}
+_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False, "xtitle": "Default", "ytitle": "Default"}
 
 hgcalCaloParticlesPlotter = Plotter()
 
 def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
-  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
+  dqmfolder = hgcVal_dqm + "SelectedCaloParticles/" + collection
   print(dqmfolder)
 #  _common["ymin"] = 0.0
   templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
@@ -2647,14 +2658,12 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
     if obj.InheritsFrom("TH2"):
         pg = PlotOnSideGroup(plotName.Data(),
                       Plot(name,
-                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
                            drawCommand = "COLZ",
                            normalizeToNumberOfEvents = True, **_common_Calo),
                       ncols=1)
     elif obj.InheritsFrom("TH1"):
         pg = PlotGroup(plotName.Data(),[
                       Plot(name,
-                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
                            drawCommand = "", # may want to customize for TH2 (colz, etc.)
                            normalizeToNumberOfEvents = True, **_common_Calo)
                       ],
