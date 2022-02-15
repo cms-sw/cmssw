@@ -97,12 +97,16 @@ private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   int matchId(const HcalDetId&, const HcalDetId&);
-  double activeLength(const DetId&);
+  double activeLength(const DetId&, const HcalDDDRecConstants* hdc);
   bool isGoodVertex(const reco::Vertex& vtx);
-  double respCorr(const DetId& id);
+  double respCorr(const DetId& id, const HcalRespCorrs* respCorrs);
   double gainFactor(const HcalDbService* dbserv, const HcalDetId& id);
-  int depth16HE(int ieta, int iphi);
-  bool goodCell(const HcalDetId& hcid, const reco::Track* pTrack, const CaloGeometry* geo, const MagneticField* bField);
+  int depth16HE(int ieta, int iphi, const HcalTopology* theHBHETopology);
+  bool goodCell(const HcalDetId& hcid,
+                const reco::Track* pTrack,
+                const CaloGeometry* geo,
+                const MagneticField* bField,
+                const HcalDDDRecConstants* hdc);
 
   // ----------member data ---------------------------
   HLTConfigProvider hltConfig_;
@@ -115,30 +119,32 @@ private:
   const int verbosity_;
   const bool isItPreRecHit_, writeRespCorr_;
   const std::string fileInCorr_;
-  bool mergedDepth_, useMyCorr_;
-  int nRun_, nAll_, nGood_, maxDepth_;
+  const int maxDepth_;
+  const bool mergedDepth_;
 
-  const HcalDDDRecConstants* hdc_;
-  const HcalTopology* theHBHETopology_;
-  const CaloGeometry* geo_;
-  const HcalRespCorrs* respCorrs_;
+  bool useMyCorr_;
+  int nRun_, nAll_, nGood_;
 
-  edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
-  edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_HBHE_;
-  edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
+  const edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
+  const edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_HBHE_;
+  const edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
 
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
-  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
-  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_chan_;
-  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
-  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
-  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec0_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec1_;
+  const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr0_;
+  const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr1_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom0_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom1_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo0_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo1_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_chan_;
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
 
   //////////////////////////////////////////////////////
   static const int depthMax_ = 7;
@@ -166,39 +172,34 @@ AlCaHcalHBHEMuonProducer::AlCaHcalHBHEMuonProducer(const edm::ParameterSet& iCon
       isItPreRecHit_(iConfig.getUntrackedParameter<bool>("isItPreRecHit", false)),
       writeRespCorr_(iConfig.getUntrackedParameter<bool>("writeRespCorr", false)),
       fileInCorr_(iConfig.getUntrackedParameter<std::string>("fileInCorr", "")),
+      maxDepth_(iConfig.getUntrackedParameter<int>("maxDepth", 4)),
+      mergedDepth_((!isItPreRecHit_) || (collapseDepth_)),
       nRun_(0),
       nAll_(0),
       nGood_(0),
-      hdc_(nullptr),
-      theHBHETopology_(nullptr),
-      respCorrs_(nullptr) {
+      tok_trigRes_(consumes<edm::TriggerResults>(triggerResults_)),
+      tok_Vtx_(consumes<reco::VertexCollection>(labelVtx_)),
+      tok_EB_(consumes<EcalRecHitCollection>(labelEBRecHit_)),
+      tok_EE_(consumes<EcalRecHitCollection>(labelEERecHit_)),
+      tok_HBHE_(consumes<HBHERecHitCollection>(labelHBHERecHit_)),
+      tok_Muon_(consumes<reco::MuonCollection>(labelMuon_)),
+      tok_ddrec0_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_ddrec1_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>()),
+      tok_respcorr0_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>()),
+      tok_respcorr1_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()),
+      tok_geom0_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
+      tok_geom1_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_htopo0_(esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_htopo1_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
+      tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      tok_chan_(esConsumes<EcalChannelStatus, EcalChannelStatusRcd>()),
+      tok_sevlv_(esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()),
+      tok_topo_(esConsumes<CaloTopology, CaloTopologyRecord>()),
+      tok_dbservice_(esConsumes<HcalDbService, HcalDbRecord>()) {
   //now do what ever initialization is needed
-  maxDepth_ = iConfig.getUntrackedParameter<int>("maxDepth", 4);
-  if (maxDepth_ > depthMax_)
-    maxDepth_ = depthMax_;
-  else if (maxDepth_ < 1)
-    maxDepth_ = 4;
-
-  mergedDepth_ = (!isItPreRecHit_) || (collapseDepth_);
-  tok_trigRes_ = consumes<edm::TriggerResults>(triggerResults_);
-  tok_EB_ = consumes<EcalRecHitCollection>(labelEBRecHit_);
-  tok_EE_ = consumes<EcalRecHitCollection>(labelEERecHit_);
-  tok_HBHE_ = consumes<HBHERecHitCollection>(labelHBHERecHit_);
-  tok_Vtx_ = consumes<reco::VertexCollection>(labelVtx_);
-  tok_Muon_ = consumes<reco::MuonCollection>(labelMuon_);
   edm::LogVerbatim("HBHEMuon") << "Labels used: Trig " << triggerResults_ << " Vtx " << labelVtx_ << " EB "
                                << labelEBRecHit_ << " EE " << labelEERecHit_ << " HBHE " << labelHBHERecHit_ << " MU "
                                << labelMuon_;
-
-  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_respcorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
-  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  tok_chan_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
-  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
-  tok_topo_ = esConsumes<CaloTopology, CaloTopologyRecord>();
-  tok_dbservice_ = esConsumes<HcalDbService, HcalDbRecord>();
 
   if (!fileInCorr_.empty()) {
     std::ifstream infile(fileInCorr_.c_str());
@@ -271,11 +272,17 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
   }
 
   // get handles to calogeometry and calotopology
+  const HcalDDDRecConstants* hdc = &iSetup.getData(tok_ddrec1_);
+  const HcalRespCorrs* resp = &iSetup.getData(tok_respcorr1_);
+  const CaloGeometry* geo = &iSetup.getData(tok_geom1_);
+  const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo1_);
   const MagneticField* bField = &iSetup.getData(tok_magField_);
   const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_chan_);
   const EcalSeverityLevelAlgo* sevlv = &iSetup.getData(tok_sevlv_);
   const CaloTopology* caloTopology = &iSetup.getData(tok_topo_);
   const HcalDbService* conditions = &iSetup.getData(tok_dbservice_);
+  HcalRespCorrs* respCorrs = new HcalRespCorrs(*resp);
+  respCorrs->setTopo(theHBHETopology);
 
   // Relevant blocks from iEvent
   auto const& vtx = iEvent.getHandle(tok_Vtx_);
@@ -391,7 +398,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
       if (recMuon->innerTrack().isNonnull()) {
         const reco::Track* pTrack = (recMuon->innerTrack()).get();
-        spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo_, bField, (((verbosity_ / 100) % 10 > 0)));
+        spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, (((verbosity_ / 100) % 10 > 0)));
 
         double activeLengthTot(0), activeLengthHotTot(0);
         double eHcalDepth[depthMax_], eHcalDepthHot[depthMax_];
@@ -430,7 +437,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
         hbheMuon.ehcalDetId_ = ((trackID.detIdEHCAL)());
 
         HcalDetId check(false);
-        std::pair<bool, HcalDetId> info = spr::propagateHCALBack(pTrack, geo_, bField, (((verbosity_ / 100) % 10 > 0)));
+        std::pair<bool, HcalDetId> info = spr::propagateHCALBack(pTrack, geo, bField, (((verbosity_ / 100) % 10 > 0)));
         if (info.first) {
           check = info.second;
         }
@@ -442,7 +449,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                                                           barrelRecHitsHandle,
                                                           endcapRecHitsHandle,
                                                           *theEcalChStatus,
-                                                          geo_,
+                                                          geo,
                                                           caloTopology,
                                                           sevlv,
                                                           1,
@@ -475,11 +482,11 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
           bool hborhe = (std::abs(ieta) == 16);
 
           hbheMuon.hcal1x1Energy_ = spr::eHCALmatrix(
-              theHBHETopology_, closestCell, hbhe, 0, 0, false, true, -100.0, -100.0, -100.0, -100.0, -500., 500., 0);
+              theHBHETopology, closestCell, hbhe, 0, 0, false, true, -100.0, -100.0, -100.0, -100.0, -500., 500., 0);
           hbheMuon.hcal1x1EnergyAux_ = spr::eHCALmatrix(
-              theHBHETopology_, closestCell, hbhe, 0, 0, false, true, -100.0, -100.0, -100.0, -100.0, -500., 500., 1);
+              theHBHETopology, closestCell, hbhe, 0, 0, false, true, -100.0, -100.0, -100.0, -100.0, -500., 500., 1);
           hbheMuon.hcal1x1EnergyRaw_ = spr::eHCALmatrix(
-              theHBHETopology_, closestCell, hbhe, 0, 0, false, true, -100.0, -100.0, -100.0, -100.0, -500., 500., 2);
+              theHBHETopology, closestCell, hbhe, 0, 0, false, true, -100.0, -100.0, -100.0, -100.0, -500., 500., 2);
           std::vector<std::pair<double, int>> ehdepth, ehdepthAux, ehdepthRaw;
           spr::energyHCALCell((HcalDetId)closestCell,
                               hbhe,
@@ -492,7 +499,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                               -500.0,
                               500.0,
                               0,
-                              depth16HE(ieta, iphi),
+                              depth16HE(ieta, iphi, theHBHETopology),
                               (((verbosity_ / 1000) % 10) > 0));
           for (int i = 0; i < depthMax_; ++i)
             eHcalDetId[i] = HcalDetId();
@@ -507,7 +514,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                               -500.0,
                               500.0,
                               1,
-                              depth16HE(ieta, iphi),
+                              depth16HE(ieta, iphi, theHBHETopology),
                               (((verbosity_ / 1000) % 10) > 0));
           spr::energyHCALCell((HcalDetId)closestCell,
                               hbhe,
@@ -520,36 +527,37 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                               -500.0,
                               500.0,
                               2,
-                              depth16HE(ieta, iphi),
+                              depth16HE(ieta, iphi, theHBHETopology),
                               (((verbosity_ / 1000) % 10) > 0));
           for (unsigned int i = 0; i < ehdepth.size(); ++i) {
             HcalSubdetector subdet0 =
-                (hborhe) ? ((ehdepth[i].second >= depth16HE(ieta, iphi)) ? HcalEndcap : HcalBarrel) : subdet;
+                (hborhe) ? ((ehdepth[i].second >= depth16HE(ieta, iphi, theHBHETopology)) ? HcalEndcap : HcalBarrel)
+                         : subdet;
             HcalDetId hcid0(subdet0, ieta, iphi, ehdepth[i].second);
-            double actL = activeLength(DetId(hcid0));
+            double actL = activeLength(DetId(hcid0), hdc);
             double ene = ehdepth[i].first;
             double eneAux = ehdepthAux[i].first;
             double eneRaw = ehdepthRaw[i].first;
             bool tmpC(false);
             if (ene > 0.0) {
-              if (!(theHBHETopology_->validHcal(hcid0))) {
+              if (!(theHBHETopology->validHcal(hcid0))) {
                 edm::LogWarning("HBHEMuon") << "(1) Invalid ID " << hcid0 << " with E = " << ene;
                 edm::LogWarning("HBHEMuon") << HcalDetId(closestCell) << " with " << ehdepth.size() << " depths:";
                 for (const auto& ehd : ehdepth)
                   edm::LogWarning("HBHEMuon") << " " << ehd.second << ":" << ehd.first;
               } else {
-                tmpC = goodCell(hcid0, pTrack, geo_, bField);
+                tmpC = goodCell(hcid0, pTrack, geo, bField, hdc);
                 double enec(ene);
-                double corr = respCorr(DetId(hcid0));
+                double corr = respCorr(DetId(hcid0), respCorrs);
                 if (corr != 0)
                   ene /= corr;
 #ifdef EDM_ML_DEBUG
-                HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
+                HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc->mergedDepthDetId(hcid0) : hcid0;
                 edm::LogVerbatim("HBHEMuon") << hcid0 << ":" << id << " Corr " << corr;
 #endif
                 int depth = ehdepth[i].second - 1;
                 if (collapseDepth_) {
-                  HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                  HcalDetId id = hdc->mergedDepthDetId(hcid0);
                   depth = id.depth() - 1;
                 }
                 eHcalDepth[depth] += ene;
@@ -565,14 +573,14 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
               }
             }
             if (eneAux > 0.0) {
-              if (theHBHETopology_->validHcal(hcid0)) {
+              if (theHBHETopology->validHcal(hcid0)) {
                 double enecAux(eneAux);
-                double corr = respCorr(DetId(hcid0));
+                double corr = respCorr(DetId(hcid0), respCorrs);
                 if (corr != 0)
                   eneAux /= corr;
                 int depth = ehdepthAux[i].second - 1;
                 if (collapseDepth_) {
-                  HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                  HcalDetId id = hdc->mergedDepthDetId(hcid0);
                   depth = id.depth() - 1;
                 }
                 eHcalDepthAux[depth] += eneAux;
@@ -585,14 +593,14 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
               }
             }
             if (eneRaw > 0.0) {
-              if (theHBHETopology_->validHcal(hcid0)) {
+              if (theHBHETopology->validHcal(hcid0)) {
                 double enecRaw(eneRaw);
-                double corr = respCorr(DetId(hcid0));
+                double corr = respCorr(DetId(hcid0), respCorrs);
                 if (corr != 0)
                   eneRaw /= corr;
                 int depth = ehdepthRaw[i].second - 1;
                 if (collapseDepth_) {
-                  HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                  HcalDetId id = hdc->mergedDepthDetId(hcid0);
                   depth = id.depth() - 1;
                 }
                 eHcalDepthRaw[depth] += eneRaw;
@@ -613,7 +621,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
           }
 #endif
           HcalDetId hotCell;
-          spr::eHCALmatrix(geo_, theHBHETopology_, closestCell, hbhe, 1, 1, hotCell, false, 0, false);
+          spr::eHCALmatrix(geo, theHBHETopology, closestCell, hbhe, 1, 1, hotCell, false, 0, false);
           isHot = matchId(closestCell, hotCell);
           if (hotCell != HcalDetId()) {
             subdet = HcalDetId(hotCell).subdet();
@@ -632,7 +640,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                                 -500.0,
                                 500.0,
                                 0,
-                                depth16HE(ieta, iphi),
+                                depth16HE(ieta, iphi, theHBHETopology),
                                 false);
             spr::energyHCALCell(hotCell,
                                 hbhe,
@@ -645,7 +653,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                                 -500.0,
                                 500.0,
                                 1,
-                                depth16HE(ieta, iphi),
+                                depth16HE(ieta, iphi, theHBHETopology),
                                 false);
             spr::energyHCALCell(hotCell,
                                 hbhe,
@@ -658,31 +666,32 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                                 -500.0,
                                 500.0,
                                 2,
-                                depth16HE(ieta, iphi),
+                                depth16HE(ieta, iphi, theHBHETopology),
                                 false);
             for (int i = 0; i < depthMax_; ++i)
               eHcalDetId[i] = HcalDetId();
             for (unsigned int i = 0; i < ehdepth.size(); ++i) {
               HcalSubdetector subdet0 =
-                  (hborhe) ? ((ehdepth[i].second >= depth16HE(ieta, iphi)) ? HcalEndcap : HcalBarrel) : subdet;
+                  (hborhe) ? ((ehdepth[i].second >= depth16HE(ieta, iphi, theHBHETopology)) ? HcalEndcap : HcalBarrel)
+                           : subdet;
               HcalDetId hcid0(subdet0, ieta, iphi, ehdepth[i].second);
-              double actL = activeLength(DetId(hcid0));
+              double actL = activeLength(DetId(hcid0), hdc);
               double ene = ehdepth[i].first;
               bool tmpC(false);
               if (ene > 0.0) {
-                if (!(theHBHETopology_->validHcal(hcid0))) {
+                if (!(theHBHETopology->validHcal(hcid0))) {
                   edm::LogWarning("HBHEMuon") << "(2) Invalid ID " << hcid0 << " with E = " << ene;
                   edm::LogWarning("HBHEMuon") << HcalDetId(hotCell) << " with " << ehdepth.size() << " depths:";
                   for (const auto& ehd : ehdepth)
                     edm::LogWarning("HBHEMuon") << " " << ehd.second << ":" << ehd.first;
                 } else {
-                  tmpC = goodCell(hcid0, pTrack, geo_, bField);
+                  tmpC = goodCell(hcid0, pTrack, geo, bField, hdc);
                   double chg(ene), enec(ene);
-                  double corr = respCorr(DetId(hcid0));
+                  double corr = respCorr(DetId(hcid0), respCorrs);
                   if (corr != 0)
                     ene /= corr;
 #ifdef EDM_ML_DEBUG
-                  HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
+                  HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc->mergedDepthDetId(hcid0) : hcid0;
                   edm::LogVerbatim("HBHEMuon") << hcid0 << ":" << id << " Corr " << corr << " E " << ene << ":" << enec;
 #endif
                   double gain = gainFactor(conditions, hcid0);
@@ -693,7 +702,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
 #endif
                   int depth = ehdepth[i].second - 1;
                   if (collapseDepth_) {
-                    HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                    HcalDetId id = hdc->mergedDepthDetId(hcid0);
                     depth = id.depth() - 1;
                   }
                   eHcalDepthHot[depth] += ene;
@@ -712,9 +721,9 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
               }
               double eneAux = ehdepthAux[i].first;
               if (eneAux > 0.0) {
-                if (theHBHETopology_->validHcal(hcid0)) {
+                if (theHBHETopology->validHcal(hcid0)) {
                   double chgAux(eneAux), enecAux(eneAux);
-                  double corr = respCorr(DetId(hcid0));
+                  double corr = respCorr(DetId(hcid0), respCorrs);
                   if (corr != 0)
                     eneAux /= corr;
                   double gain = gainFactor(conditions, hcid0);
@@ -722,7 +731,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                     chgAux /= gain;
                   int depth = ehdepthAux[i].second - 1;
                   if (collapseDepth_) {
-                    HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                    HcalDetId id = hdc->mergedDepthDetId(hcid0);
                     depth = id.depth() - 1;
                   }
                   eHcalDepthHotAux[depth] += eneAux;
@@ -737,9 +746,9 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
               }
               double eneRaw = ehdepthRaw[i].first;
               if (eneRaw > 0.0) {
-                if (theHBHETopology_->validHcal(hcid0)) {
+                if (theHBHETopology->validHcal(hcid0)) {
                   double chgRaw(eneRaw), enecRaw(eneRaw);
-                  double corr = respCorr(DetId(hcid0));
+                  double corr = respCorr(DetId(hcid0), respCorrs);
                   if (corr != 0)
                     eneRaw /= corr;
                   double gain = gainFactor(conditions, hcid0);
@@ -747,7 +756,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                     chgRaw /= gain;
                   int depth = ehdepthRaw[i].second - 1;
                   if (collapseDepth_) {
-                    HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                    HcalDetId id = hdc->mergedDepthDetId(hcid0);
                     depth = id.depth() - 1;
                   }
                   eHcalDepthHotRaw[depth] += eneRaw;
@@ -775,7 +784,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                                 -500.0,
                                 500.0,
                                 0,
-                                depth16HE(-ieta, iphi),
+                                depth16HE(-ieta, iphi, theHBHETopology),
                                 false);
             spr::energyHCALCell(oppCell,
                                 hbhe,
@@ -788,7 +797,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                                 -500.0,
                                 500.0,
                                 1,
-                                depth16HE(-ieta, iphi),
+                                depth16HE(-ieta, iphi, theHBHETopology),
                                 false);
             spr::energyHCALCell(oppCell,
                                 hbhe,
@@ -801,26 +810,27 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                                 -500.0,
                                 500.0,
                                 2,
-                                depth16HE(-ieta, iphi),
+                                depth16HE(-ieta, iphi, theHBHETopology),
                                 false);
             for (unsigned int i = 0; i < ehdeptho.size(); ++i) {
               HcalSubdetector subdet0 =
-                  (hborhe) ? ((ehdeptho[i].second >= depth16HE(-ieta, iphi)) ? HcalEndcap : HcalBarrel) : subdet;
+                  (hborhe) ? ((ehdeptho[i].second >= depth16HE(-ieta, iphi, theHBHETopology)) ? HcalEndcap : HcalBarrel)
+                           : subdet;
               HcalDetId hcid0(subdet0, -ieta, iphi, ehdeptho[i].second);
               double ene = ehdeptho[i].first;
               if (ene > 0.0) {
-                if (!(theHBHETopology_->validHcal(hcid0))) {
+                if (!(theHBHETopology->validHcal(hcid0))) {
                   edm::LogWarning("HBHEMuon") << "(3) Invalid ID " << hcid0 << " with E = " << ene;
                   edm::LogWarning("HBHEMuon") << oppCell << " with " << ehdeptho.size() << " depths:";
                   for (const auto& ehd : ehdeptho)
                     edm::LogWarning("HBHEMuon") << " " << ehd.second << ":" << ehd.first;
                 } else {
                   double chg(ene);
-                  double corr = respCorr(DetId(hcid0));
+                  double corr = respCorr(DetId(hcid0), respCorrs);
                   if (corr != 0)
                     ene /= corr;
 #ifdef EDM_ML_DEBUG
-                  HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
+                  HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc->mergedDepthDetId(hcid0) : hcid0;
                   edm::LogVerbatim("HBHEMuon")
                       << hcid0 << ":" << id << " Corr " << corr << " E " << ene << ":" << ehdeptho[i].first;
 #endif
@@ -832,7 +842,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
 #endif
                   int depth = ehdeptho[i].second - 1;
                   if (collapseDepth_) {
-                    HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                    HcalDetId id = hdc->mergedDepthDetId(hcid0);
                     depth = id.depth() - 1;
                   }
                   cHcalDepthHotBG[depth] += chg;
@@ -844,9 +854,9 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
               }
               double eneAux = ehdepthoAux[i].first;
               if (eneAux > 0.0) {
-                if (theHBHETopology_->validHcal(hcid0)) {
+                if (theHBHETopology->validHcal(hcid0)) {
                   double chgAux(eneAux);
-                  double corr = respCorr(DetId(hcid0));
+                  double corr = respCorr(DetId(hcid0), respCorrs);
                   if (corr != 0)
                     eneAux /= corr;
                   double gain = gainFactor(conditions, hcid0);
@@ -854,7 +864,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                     chgAux /= gain;
                   int depth = ehdepthoAux[i].second - 1;
                   if (collapseDepth_) {
-                    HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                    HcalDetId id = hdc->mergedDepthDetId(hcid0);
                     depth = id.depth() - 1;
                   }
                   cHcalDepthHotBGAux[depth] += chgAux;
@@ -866,9 +876,9 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
               }
               double eneRaw = ehdepthoRaw[i].first;
               if (eneRaw > 0.0) {
-                if (theHBHETopology_->validHcal(hcid0)) {
+                if (theHBHETopology->validHcal(hcid0)) {
                   double chgRaw(eneRaw);
-                  double corr = respCorr(DetId(hcid0));
+                  double corr = respCorr(DetId(hcid0), respCorrs);
                   if (corr != 0)
                     eneRaw /= corr;
                   double gain = gainFactor(conditions, hcid0);
@@ -876,7 +886,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                     chgRaw /= gain;
                   int depth = ehdepthoRaw[i].second - 1;
                   if (collapseDepth_) {
-                    HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                    HcalDetId id = hdc->mergedDepthDetId(hcid0);
                     depth = id.depth() - 1;
                   }
                   cHcalDepthHotBGRaw[depth] += chgRaw;
@@ -968,11 +978,11 @@ void AlCaHcalHBHEMuonProducer::globalEndJob(const alcaHcalHBHEMuon::Counters* co
 
 // ------------ method called when starting or ending a run  ------------
 void AlCaHcalHBHEMuonProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  hdc_ = &iSetup.getData(tok_ddrec_);
+  const HcalDDDRecConstants* hdc = &iSetup.getData(tok_ddrec0_);
   actHB.clear();
   actHE.clear();
-  actHB = hdc_->getThickActive(0);
-  actHE = hdc_->getThickActive(1);
+  actHB = hdc->getThickActive(0);
+  actHE = hdc->getThickActive(1);
 #ifdef EDM_ML_DEBUG
   unsigned int k1(0), k2(0);
   edm::LogVerbatim("HBHEMuon") << actHB.size() << " Active Length for HB";
@@ -981,8 +991,8 @@ void AlCaHcalHBHEMuonProducer::beginRun(edm::Run const& iRun, edm::EventSetup co
                                  << act.zside << " type " << act.stype << " phi " << act.iphis.size() << ":"
                                  << act.iphis[0] << " L " << act.thick;
     HcalDetId hcid1(HcalBarrel, (act.ieta) * (act.zside), act.iphis[0], act.depth);
-    HcalDetId hcid2 = mergedDepth_ ? hdc_->mergedDepthDetId(hcid1) : hcid1;
-    edm::LogVerbatim("HBHEMuon") << hcid1 << " | " << hcid2 << " L " << activeLength(DetId(hcid2));
+    HcalDetId hcid2 = mergedDepth_ ? hdc->mergedDepthDetId(hcid1) : hcid1;
+    edm::LogVerbatim("HBHEMuon") << hcid1 << " | " << hcid2 << " L " << activeLength(DetId(hcid2), hdc);
     ++k1;
   }
   edm::LogVerbatim("HBHEMuon") << actHE.size() << " Active Length for HE";
@@ -991,8 +1001,8 @@ void AlCaHcalHBHEMuonProducer::beginRun(edm::Run const& iRun, edm::EventSetup co
                                  << act.zside << " type " << act.stype << " phi " << act.iphis.size() << ":"
                                  << act.iphis[0] << " L " << act.thick;
     HcalDetId hcid1(HcalEndcap, (act.ieta) * (act.zside), act.iphis[0], act.depth);
-    HcalDetId hcid2 = mergedDepth_ ? hdc_->mergedDepthDetId(hcid1) : hcid1;
-    edm::LogVerbatim("HBHEMuon") << hcid1 << " | " << hcid2 << " L " << activeLength(DetId(hcid2));
+    HcalDetId hcid2 = mergedDepth_ ? hdc->mergedDepthDetId(hcid1) : hcid1;
+    edm::LogVerbatim("HBHEMuon") << hcid1 << " | " << hcid2 << " L " << activeLength(DetId(hcid2), hdc);
     ++k2;
   }
 #endif
@@ -1001,19 +1011,21 @@ void AlCaHcalHBHEMuonProducer::beginRun(edm::Run const& iRun, edm::EventSetup co
   bool flag = hltConfig_.init(iRun, iSetup, processName_, changed);
   edm::LogVerbatim("HBHEMuon") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init " << flag << std::endl;
 
-  theHBHETopology_ = &iSetup.getData(tok_htopo_);
-  respCorrs_ = &iSetup.getData(tok_respcorr_);
-  geo_ = &iSetup.getData(tok_geom_);
+  const HcalRespCorrs* resp = &iSetup.getData(tok_respcorr0_);
+  const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo0_);
+  const CaloGeometry* geo = &iSetup.getData(tok_geom0_);
+  HcalRespCorrs* respCorrs = new HcalRespCorrs(*resp);
+  respCorrs->setTopo(theHBHETopology);
 
   // Write correction factors for all HB/HE events
   if (writeRespCorr_) {
-    const HcalGeometry* gHcal = static_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
+    const HcalGeometry* gHcal = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
     const std::vector<DetId>& ids = gHcal->getValidDetIds(DetId::Hcal, 0);
     edm::LogVerbatim("HBHEMuon") << "\nTable of Correction Factors for Run " << iRun.run() << "\n";
     for (auto const& id : ids) {
       if ((id.det() == DetId::Hcal) && ((id.subdetId() == HcalBarrel) || (id.subdetId() == HcalEndcap))) {
         edm::LogVerbatim("HBHEMuon") << HcalDetId(id) << " " << id.rawId() << " "
-                                     << (respCorrs_->getValues(id))->getValue();
+                                     << (respCorrs->getValues(id))->getValue();
       }
     }
   }
@@ -1033,15 +1045,15 @@ int AlCaHcalHBHEMuonProducer::matchId(const HcalDetId& id1, const HcalDetId& id2
   return match;
 }
 
-double AlCaHcalHBHEMuonProducer::activeLength(const DetId& id_) {
-  HcalDetId id(id_);
+double AlCaHcalHBHEMuonProducer::activeLength(const DetId& id0, const HcalDDDRecConstants* hdc) {
+  HcalDetId id(id0);
   int ieta = id.ietaAbs();
   int zside = id.zside();
   int iphi = id.iphi();
   std::vector<int> dpths;
   if (mergedDepth_) {
     std::vector<HcalDetId> ids;
-    hdc_->unmergeDepthDetId(id, ids);
+    hdc->unmergeDepthDetId(id, ids);
     for (auto idh : ids)
       dpths.emplace_back(idh.depth());
   } else {
@@ -1080,14 +1092,14 @@ bool AlCaHcalHBHEMuonProducer::isGoodVertex(const reco::Vertex& vtx) {
   return true;
 }
 
-double AlCaHcalHBHEMuonProducer::respCorr(const DetId& id) {
+double AlCaHcalHBHEMuonProducer::respCorr(const DetId& id, const HcalRespCorrs* respCorrs) {
   double cfac(1.0);
   if (useMyCorr_) {
     auto itr = corrValue_.find(id);
     if (itr != corrValue_.end())
       cfac = itr->second;
-  } else if (respCorrs_ != nullptr) {
-    cfac = (respCorrs_->getValues(id))->getValue();
+  } else if (respCorrs != nullptr) {
+    cfac = (respCorrs->getValues(id))->getValue();
   }
   return cfac;
 }
@@ -1100,12 +1112,12 @@ double AlCaHcalHBHEMuonProducer::gainFactor(const HcalDbService* conditions, con
   return gain;
 }
 
-int AlCaHcalHBHEMuonProducer::depth16HE(int ieta, int iphi) {
+int AlCaHcalHBHEMuonProducer::depth16HE(int ieta, int iphi, const HcalTopology* theHBHETopology) {
   // Transition between HB/HE is special
   // For Run 1 or for Plan1 standard reconstruction it is 3
   // For runs beyond 2018 or in Plan1 for HEP17 it is 4
   int zside = (ieta > 0) ? 1 : -1;
-  int depth = theHBHETopology_->dddConstants()->getMinDepth(1, 16, iphi, zside);
+  int depth = theHBHETopology->dddConstants()->getMinDepth(1, 16, iphi, zside);
   if (isItPlan1_ && (!isItPreRecHit_))
     depth = 3;
 #ifdef EDM_ML_DEBUG
@@ -1118,8 +1130,9 @@ int AlCaHcalHBHEMuonProducer::depth16HE(int ieta, int iphi) {
 bool AlCaHcalHBHEMuonProducer::goodCell(const HcalDetId& hcid,
                                         const reco::Track* pTrack,
                                         const CaloGeometry* geo,
-                                        const MagneticField* bField) {
-  std::pair<double, double> rz = hdc_->getRZ(hcid);
+                                        const MagneticField* bField,
+                                        const HcalDDDRecConstants* hdc) {
+  std::pair<double, double> rz = hdc->getRZ(hcid);
   bool typeRZ = (hcid.subdet() == HcalEndcap) ? false : true;
   bool match = spr::propagateHCAL(pTrack, geo, bField, typeRZ, rz, (((verbosity_ / 10000) % 10) > 0));
   return match;
