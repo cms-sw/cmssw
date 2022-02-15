@@ -7,7 +7,7 @@ from DQMOffline.Trigger.SusyMonitor_cfi import hltSUSYmonitoring
 
 SoftMuHardJetMETSUSYmonitoring = hltSUSYmonitoring.clone(
     FolderName = 'HLT/SUSY/SoftMuHardJetMET/',
-    met   = "pfMetEI",
+    met   = "pfMet",
     jets  = "ak4PFJetsCHS",
     muons = "muons",
     HTdefinition     = 'pt>30 & abs(eta)<2.5',
