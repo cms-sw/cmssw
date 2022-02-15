@@ -13,8 +13,6 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag=autoCond['run2_data']
 
-process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
-
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HBHEMuon=dict()
 
