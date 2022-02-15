@@ -3,7 +3,7 @@
 
   <!-- UserData: Core -->
   <class name="pat::UserData"  ClassVersion="10">
-   <version ClassVersion="10" checksum="85383148"/>
+   <version ClassVersion="10" checksum="85383149"/>
   </class>
   <class name="std::vector<pat::UserData *>" />
   <class name="pat::UserDataCollection" />
