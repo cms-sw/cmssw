@@ -183,7 +183,7 @@ void AnalyzerMinbias::endJob() {
   int ii = 0;
   for (std::map<std::pair<int, HcalDetId>, myInfo>::const_iterator itr = myMap_.begin(); itr != myMap_.end(); ++itr) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("AnalyzerMB") << "Fired trigger bit number " << itr->first.first;
+    edm::LogVerbatim("AnalyzerMinimumBias") << "Fired trigger bit number " << itr->first.first;
 #endif
     myInfo info = itr->second;
     if (info.theMB0 > 0) {
@@ -207,7 +207,7 @@ void AnalyzerMinbias::endJob() {
       ieta = itr->first.second.ieta();
       iphi = itr->first.second.iphi();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("AnalyzerMB") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi
+      edm::LogVerbatim("AnalyzerMinimumBias") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi
                                      << " mom0  " << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 "
                                      << mom3_MB << " mom4 " << mom4_MB << " mom0_Noise " << mom0_Noise << " mom1_Noise "
                                      << mom1_Noise << " mom2_Noise " << mom2_Noise << " mom3_Noise " << mom3_Noise
@@ -220,7 +220,7 @@ void AnalyzerMinbias::endJob() {
   }
   cells = ii;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("AnalyzerMB") << "cells " << cells;
+  edm::LogVerbatim("AnalyzerMinimumBias") << "cells " << cells;
 #endif
   hOutputFile_->Write();
   hOutputFile_->cd();
@@ -247,56 +247,56 @@ void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   const edm::Handle<HBHERecHitCollection> hbheNormal = iEvent.getHandle(tok_hbheNormal_);
   if (!hbheNormal.isValid()) {
-    edm::LogVerbatim("AnalyzerMB") << " hbheNormal failed";
+    edm::LogVerbatim("AnalyzerMinimumBias") << " hbheNormal failed";
   } else {
-    edm::LogVerbatim("AnalyzerMB") << " The size of the normal collection " << hbheNormal->size();
+    edm::LogVerbatim("AnalyzerMinimumBias") << " The size of the normal collection " << hbheNormal->size();
   }
 
   const edm::Handle<HBHERecHitCollection> hbheNS = iEvent.getHandle(tok_hbherecoNoise_);
   if (!hbheNS.isValid()) {
-    edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hbheNoise product!";
+    edm::LogWarning("AnalyzerMinimumBias") << "HcalCalibAlgos: Error! can't get hbheNoise product!";
     return;
   }
   const HBHERecHitCollection HithbheNS = *(hbheNS.product());
-  edm::LogVerbatim("AnalyzerMB") << "HBHE NS size of collection " << HithbheNS.size();
+  edm::LogVerbatim("AnalyzerMinimumBias") << "HBHE NS size of collection " << HithbheNS.size();
   if (runNZS_ && HithbheNS.size() != 5184) {
-    edm::LogWarning("AnalyzerMB") << "HBHE NS problem " << rnnum_ << " size " << HithbheNS.size();
+    edm::LogWarning("AnalyzerMinimumBias") << "HBHE NS problem " << rnnum_ << " size " << HithbheNS.size();
     return;
   }
 
   const edm::Handle<HBHERecHitCollection> hbheMB = iEvent.getHandle(tok_hbherecoMB_);
   if (!hbheMB.isValid()) {
-    edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hbhe product!";
+    edm::LogWarning("AnalyzerMinimumBias") << "HcalCalibAlgos: Error! can't get hbhe product!";
     return;
   }
   const HBHERecHitCollection HithbheMB = *(hbheMB.product());
-  edm::LogVerbatim("AnalyzerMB") << "HBHE MB size of collection " << HithbheMB.size();
+  edm::LogVerbatim("AnalyzerMinimumBias") << "HBHE MB size of collection " << HithbheMB.size();
   if (runNZS_ && HithbheMB.size() != 5184) {
-    edm::LogWarning("AnalyzerMB") << "HBHE problem " << rnnum_ << " size " << HithbheMB.size();
+    edm::LogWarning("AnalyzerMinimumBias") << "HBHE problem " << rnnum_ << " size " << HithbheMB.size();
     return;
   }
 
   const edm::Handle<HFRecHitCollection> hfNS = iEvent.getHandle(tok_hfrecoNoise_);
   if (!hfNS.isValid()) {
-    edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hfNoise product!";
+    edm::LogWarning("AnalyzerMinimumBias") << "HcalCalibAlgos: Error! can't get hfNoise product!";
     return;
   }
   const HFRecHitCollection HithfNS = *(hfNS.product());
-  edm::LogVerbatim("AnalyzerMB") << "HF NS size of collection " << HithfNS.size();
+  edm::LogVerbatim("AnalyzerMinimumBias") << "HF NS size of collection " << HithfNS.size();
   if (runNZS_ && HithfNS.size() != 1728) {
-    edm::LogWarning("AnalyzerMB") << "HF NS problem " << rnnum_ << " size " << HithfNS.size();
+    edm::LogWarning("AnalyzerMinimumBias") << "HF NS problem " << rnnum_ << " size " << HithfNS.size();
     return;
   }
 
   const edm::Handle<HFRecHitCollection> hfMB = iEvent.getHandle(tok_hfrecoMB_);
   if (!hfMB.isValid()) {
-    edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hf product!";
+    edm::LogWarning("AnalyzerMinimumBias") << "HcalCalibAlgos: Error! can't get hf product!";
     return;
   }
   const HFRecHitCollection HithfMB = *(hfMB.product());
-  edm::LogVerbatim("AnalyzerMB") << "HF MB size of collection " << HithfMB.size();
+  edm::LogVerbatim("AnalyzerMinimumBias") << "HF MB size of collection " << HithfMB.size();
   if (runNZS_ && HithfMB.size() != 1728) {
-    edm::LogWarning("AnalyzerMB") << "HF problem " << rnnum_ << " size " << HithfMB.size();
+    edm::LogWarning("AnalyzerMinimumBias") << "HF problem " << rnnum_ << " size " << HithfMB.size();
     return;
   }
 
@@ -318,12 +318,12 @@ void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           fill = false;
           std::string algoNameStr = (*itMap).algoName();
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("AnalyzerMB") << "Trigger[" << ii << "] " << algoNameStr << " bit " << algoBit << " entered";
+          edm::LogVerbatim("AnalyzerMinimumBias") << "Trigger[" << ii << "] " << algoNameStr << " bit " << algoBit << " entered";
 #endif
         }
       }
       if (!ok)
-        edm::LogVerbatim("AnalyzerMB") << "No passed L1 Triggers";
+        edm::LogVerbatim("AnalyzerMinimumBias") << "No passed L1 Triggers";
     }
   }
 }
