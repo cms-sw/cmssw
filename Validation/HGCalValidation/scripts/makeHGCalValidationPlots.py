@@ -5,7 +5,7 @@ import os
 import argparse
 from time import time
 
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsMerge
 
 from Validation.RecoTrack.plotting.validation import SeparateValidation, SimpleValidation, SimpleSample
 from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
@@ -14,7 +14,7 @@ import Validation.RecoTrack.plotting.plotting as plotting
 
 simClustersIters = [hgcalValidator.label_SimClustersLevel._InputTag__moduleLabel, "ticlSimTracksters"]
 trackstersIters = ['ticlTracksters'+iteration for iteration in ticlIterLabelsMerge]
-trackstersIters.extend(["ticlSimTracksters"])
+trackstersIters.extend(["ticlSimTracksters", "ticlSimTracksters_fromCPs"])
 
 hitCalLabel = 'hitCalibration'
 hitValLabel = 'hitValidation'
