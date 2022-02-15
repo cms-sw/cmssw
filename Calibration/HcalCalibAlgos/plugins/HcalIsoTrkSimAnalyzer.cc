@@ -265,10 +265,14 @@ HcalIsoTrkSimAnalyzer::HcalIsoTrkSimAnalyzer(const edm::ParameterSet& iConfig)
       tok_trigEvt_(consumes<trigger::TriggerEvent>(triggerEvent_)),
       tok_trigRes_(consumes<edm::TriggerResults>(theTriggerResultsLabel_)),
       tok_bs_(consumes<reco::BeamSpot>(labelBS_)),
-      tok_recVtx_((modnam_.empty()) ? consumes<reco::VertexCollection>(labelRecVtx_) : consumes<reco::VertexCollection>(edm::InputTag(modnam_, labelRecVtx_, prdnam_))),
-      tok_EB_((modnam_.empty()) ? consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_)) : consumes<EcalRecHitCollection>(edm::InputTag(modnam_, labelEB_, prdnam_))),
-      tok_EE_((modnam_.empty()) ? consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_)) : consumes<EcalRecHitCollection>(edm::InputTag(modnam_, labelEE_, prdnam_))),
-      tok_hbhe_((modnam_.empty()) ? consumes<HBHERecHitCollection>(labelHBHE_) : consumes<HBHERecHitCollection>(edm::InputTag(modnam_, labelHBHE_, prdnam_))),
+      tok_recVtx_((modnam_.empty()) ? consumes<reco::VertexCollection>(labelRecVtx_)
+                                    : consumes<reco::VertexCollection>(edm::InputTag(modnam_, labelRecVtx_, prdnam_))),
+      tok_EB_((modnam_.empty()) ? consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_))
+                                : consumes<EcalRecHitCollection>(edm::InputTag(modnam_, labelEB_, prdnam_))),
+      tok_EE_((modnam_.empty()) ? consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_))
+                                : consumes<EcalRecHitCollection>(edm::InputTag(modnam_, labelEE_, prdnam_))),
+      tok_hbhe_((modnam_.empty()) ? consumes<HBHERecHitCollection>(labelHBHE_)
+                                  : consumes<HBHERecHitCollection>(edm::InputTag(modnam_, labelHBHE_, prdnam_))),
       tok_ew_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
       tok_parts_(consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"))),
       tok_cala_(consumes<CaloTowerCollection>(labelTower_)),
@@ -287,7 +291,6 @@ HcalIsoTrkSimAnalyzer::HcalIsoTrkSimAnalyzer(const edm::ParameterSet& iConfig)
       nLow_(0),
       nHigh_(0),
       hdc_(nullptr) {
-
   usesResource(TFileService::kSharedResource);
 
   //now do whatever initialization is needed
@@ -307,7 +310,8 @@ HcalIsoTrkSimAnalyzer::HcalIsoTrkSimAnalyzer(const edm::ParameterSet& iConfig)
     oldDepth_.emplace_back(oldID_[k] % 100);
   }
 
-  l1GtUtils_ = new l1t::L1TGlobalUtil(iConfig, consumesCollector(), *this, algTag_, extTag_, l1t::UseEventSetupIn::Event);
+  l1GtUtils_ =
+      new l1t::L1TGlobalUtil(iConfig, consumesCollector(), *this, algTag_, extTag_, l1t::UseEventSetupIn::Event);
 
   if (modnam_.empty()) {
     edm::LogVerbatim("HcalIsoTrack") << "Labels used " << triggerEvent_ << " " << theTriggerResultsLabel_ << " "

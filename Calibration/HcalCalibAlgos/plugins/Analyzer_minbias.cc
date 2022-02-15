@@ -164,8 +164,8 @@ namespace cms {
 // constructors and destructor
 //
 namespace cms {
-  Analyzer_minbias::Analyzer_minbias(const edm::ParameterSet& iConfig) :
-        fOutputFileName_(iConfig.getUntrackedParameter<std::string>("HistOutFile")),
+  Analyzer_minbias::Analyzer_minbias(const edm::ParameterSet& iConfig)
+      : fOutputFileName_(iConfig.getUntrackedParameter<std::string>("HistOutFile")),
         theRecalib_(iConfig.getParameter<bool>("Recalib")),
         tok_hbhe_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"))),
         tok_ho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputMB"))),
@@ -178,7 +178,6 @@ namespace cms {
         tok_hbheNorm_(consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"))),
         tok_respCorr_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()),
         tok_l1gt_(esConsumes<L1GtTriggerMenu, L1GtTriggerMenuRcd>()) {
-
     usesResource(TFileService::kSharedResource);
     // get name of output file with histogramms
     // get names of modules, producing object collections

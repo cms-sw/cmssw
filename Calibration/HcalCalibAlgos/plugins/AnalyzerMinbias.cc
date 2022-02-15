@@ -115,8 +115,8 @@ private:
   const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respCorr_;
 };
 
-AnalyzerMinbias::AnalyzerMinbias(const edm::ParameterSet& iConfig) : 
-      fOutputFileName(iConfig.getUntrackedParameter<std::string>("HistOutFile")),
+AnalyzerMinbias::AnalyzerMinbias(const edm::ParameterSet& iConfig)
+    : fOutputFileName(iConfig.getUntrackedParameter<std::string>("HistOutFile")),
       runNZS_(iConfig.getUntrackedParameter<bool>("RunNZS", true)),
       theRecalib_(iConfig.getParameter<bool>("Recalib")),
       ignoreL1_(iConfig.getUntrackedParameter<bool>("IgnoreL1", true)),
@@ -129,7 +129,6 @@ AnalyzerMinbias::AnalyzerMinbias(const edm::ParameterSet& iConfig) :
       tok_hbheNormal_(consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"))),
       tok_hltL1GtMap_(consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"))),
       tok_respCorr_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()) {
-
   usesResource(TFileService::kSharedResource);
   // get name of output file with histogramms
   // get token names of modules, producing object collections
