@@ -112,9 +112,10 @@ l1tStage2uGMTZeroSuppFatEvts.monitorDir = cms.untracked.string("L1T/L1TStage2uGM
 
 # List of bins to ignore
 ignoreBins = {
-    'Bmtf' : [1],
-    'Omtf' : [1],
-    'Emtf' : [1]
+    'Bmtf'        : [1],
+    'Omtf'        : [1],
+    'Emtf'        : [1],
+    'EmtfShowers' : [1]
     }
 
 # compares the unpacked BMTF output regional muon collection with the unpacked uGMT input regional muon collection from BMTF
@@ -166,6 +167,20 @@ l1tStage2EmtfOutVsuGMTIn = DQMEDAnalyzer(
 ## Era: Run3_2021; Displaced muons from EMTF used in uGMT from Run-3
 stage2L1Trigger_2021.toModify(l1tStage2EmtfOutVsuGMTIn, hasDisplacementInfo = cms.untracked.bool(True))
 
+# compares the unpacked EMTF output regional muon shower collection with the unpacked uGMT input regional muon shower collection from EMTF
+# only muons that do not match are filled in the histograms
+l1tStage2EmtfOutVsuGMTInShowers = DQMEDAnalyzer(
+    "L1TStage2RegionalMuonShowerComp",
+    regionalMuonShowerCollection1 = cms.InputTag("emtfStage2Digis"),
+    regionalMuonShowerCollection2 = cms.InputTag("gmtStage2Digis", "EMTF"),
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/EMTFoutput_vs_uGMTinput/Muon Showers"),
+    regionalMuonShowerCollection1Title = cms.untracked.string("EMTF output data"),
+    regionalMuonShowerCollection2Title = cms.untracked.string("uGMT input data from EMTF"),
+    summaryTitle = cms.untracked.string("Summary of comparison between EMTF output showers and uGMT input showers from EMTF"),
+    ignoreBin = cms.untracked.vint32(ignoreBins['EmtfShowers']),
+    verbose = cms.untracked.bool(False),
+)
+
 # The five modules below compare the primary unpacked uGMT muon collection to goes to uGT board 0
 # to the unpacked uGMT muon collections that are sent to uGT boards 1 to 5.
 # Only muons that do not match are filled in the histograms
@@ -209,6 +224,42 @@ l1tStage2uGMTMuonVsuGMTMuonCopy5 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone(
     muonCollection2Title = "uGMT muons copy 5",
     summaryTitle = "Summary of comparison between uGMT muons and uGMT muon copy 5"
 )
+
+l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1= DQMEDAnalyzer("L1TStage2MuonShowerComp",
+    muonShowerCollection1 = cms.InputTag("gmtStage2Digis", "MuonShower"),
+    muonShowerCollection2 = cms.InputTag("gmtStage2Digis", "MuonShowerCopy1"),
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/uGMTMuonShowerCopies/uGMTMuonShowerCopy1"),
+    muonShowerCollection1Title = cms.untracked.string("uGMT muon showers"),
+    muonShowerCollection2Title = cms.untracked.string("uGMT muon showers copy 1"),
+    summaryTitle = cms.untracked.string("Summary of comparison between uGMT showers and uGMT shower copy 1"),
+    verbose = cms.untracked.bool(False)
+)
+
+l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy2 = l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1.clone(
+    muonShowerCollection2 = "gmtStage2Digis:MuonShowerCopy2",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonShowerCopies/uGMTMuonShowerCopy2",
+    muonShowerCollection2Title = "uGMT muon showers copy 2",
+    summaryTitle = "Summary of comparison between uGMT showers and uGMT shower copy 2"
+)
+l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy3 = l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1.clone(
+    muonShowerCollection2 = "gmtStage2Digis:MuonShowerCopy3",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonShowerCopies/uGMTMuonShowerCopy3",
+    muonShowerCollection2Title = "uGMT muon showers copy 3",
+    summaryTitle = "Summary of comparison between uGMT showers and uGMT shower copy 3"
+)
+l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy4 = l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1.clone(
+    muonShowerCollection2 = "gmtStage2Digis:MuonShowerCopy4",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonShowerCopies/uGMTMuonShowerCopy4",
+    muonShowerCollection2Title = "uGMT muon showers copy 4",
+    summaryTitle = "Summary of comparison between uGMT showers and uGMT shower copy 4"
+)
+l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy5 = l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1.clone(
+    muonShowerCollection2 = "gmtStage2Digis:MuonShowerCopy5",
+    monitorDir = "L1T/L1TStage2uGMT/uGMTMuonShowerCopies/uGMTMuonShowerCopy5",
+    muonShowerCollection2Title = "uGMT muon showers copy 5",
+    summaryTitle = "Summary of comparison between uGMT showers and uGMT shower copy 5"
+)
+
 # sequences
 l1tStage2uGMTOnlineDQMSeq = cms.Sequence(
     l1tStage2uGMT +
@@ -231,3 +282,21 @@ l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(
     l1tStage2uGMTMuonVsuGMTMuonCopy4 +
     l1tStage2uGMTMuonVsuGMTMuonCopy5
 )
+
+
+## Era: Run3_2021; Hadronic showers from EMTF used in uGMT from Run-3
+from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
+
+## TODO: To be enabled once we have unpacked EMTF showers
+# _run3_l1tStage2uGMTOnlineDQMSeq = cms.Sequence(l1tStage2uGMTOnlineDQMSeq.copy() + l1tStage2EmtfOutVsuGMTInShowers)
+# stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTOnlineDQMSeq, _run3_l1tStage2uGMTOnlineDQMSeq)
+
+_run3_l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(l1tStage2uGMTValidationEventOnlineDQMSeq.copy() +
+    l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1 +
+    l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy2 +
+    l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy3 +
+    l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy4 +
+    l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy5
+)
+stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTValidationEventOnlineDQMSeq, _run3_l1tStage2uGMTValidationEventOnlineDQMSeq)
+
