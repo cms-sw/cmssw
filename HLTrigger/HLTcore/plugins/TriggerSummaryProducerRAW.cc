@@ -78,7 +78,7 @@ void TriggerSummaryProducerRAW::produce(edm::StreamID, edm::Event& iEvent, const
     const string& process(fobs[ifob].provenance()->processName());
     const InputTag tag(label, instance, process);
     LogTrace("TriggerSummaryProducerRaw")
-        << ifob << " " << tag << endl
+        << ifob << " " << tag << "\n"
         << " Sizes: "
         << " 1/" << fobs[ifob]->photonSize() << " 2/" << fobs[ifob]->electronSize() << " 3/" << fobs[ifob]->muonSize()
         << " 4/" << fobs[ifob]->jetSize() << " 5/" << fobs[ifob]->compositeSize() << " 6/" << fobs[ifob]->basemetSize()
@@ -91,27 +91,30 @@ void TriggerSummaryProducerRAW::produce(edm::StreamID, edm::Event& iEvent, const
         << " K/" << fobs[ifob]->l1tjetSize() << " L/" << fobs[ifob]->l1ttauSize() << " M/" << fobs[ifob]->l1tetsumSize()
         << " N/" << fobs[ifob]->l1ttkmuonSize() << " O/" << fobs[ifob]->l1ttkeleSize() << " P/"
         << fobs[ifob]->l1ttkemSize() << " Q/" << fobs[ifob]->l1tpfjetSize() << " R/" << fobs[ifob]->l1tpftauSize()
-        << " S/" << fobs[ifob]->l1thpspftauSize() << " T/" << fobs[ifob]->l1tpftrackSize() << endl;
+        << " S/" << fobs[ifob]->l1thpspftauSize() << " T/" << fobs[ifob]->l1tpftrackSize() << " U/"
+        << fobs[ifob]->l1tmuonShowerSize();
     LogTrace("TriggerSummaryProducerRaw")
         << "TriggerSummaryProducerRaw::addFilterObjects(   )"
         << "\n fobs[ifob]->l1tmuonIds().size() = " << fobs[ifob]->l1tmuonIds().size()
-        << "\n fobs[ifob]->l1tmuonRefs().size() = " << fobs[ifob]->l1tmuonRefs().size() << endl;
+        << "\n fobs[ifob]->l1tmuonRefs().size() = " << fobs[ifob]->l1tmuonRefs().size();
     LogTrace("TriggerSummaryProducerRaw")
         << "TriggerSummaryProducerRaw::addFilterObjects(   )"
         << "\n fobs[ifob]->l1tegammaIds().size() = " << fobs[ifob]->l1tegammaIds().size()
-        << "\n fobs[ifob]->l1tegammaRefs().size() = " << fobs[ifob]->l1tegammaRefs().size() << endl;
-    LogTrace("TriggerSummaryProducerRaw")
-        << "TriggerSummaryProducerRaw::addFilterObjects(   )"
-        << "\n fobs[ifob]->l1tjetIds().size() = " << fobs[ifob]->l1tjetIds().size()
-        << "\n fobs[ifob]->l1tjetRefs().size() = " << fobs[ifob]->l1tjetRefs().size() << endl;
-    LogTrace("TriggerSummaryProducerRaw")
-        << "TriggerSummaryProducerRaw::addFilterObjects(   )"
-        << "\n fobs[ifob]->l1ttauIds().size() = " << fobs[ifob]->l1ttauIds().size()
-        << "\n fobs[ifob]->l1ttauRefs().size() = " << fobs[ifob]->l1ttauRefs().size() << endl;
+        << "\n fobs[ifob]->l1tegammaRefs().size() = " << fobs[ifob]->l1tegammaRefs().size();
+    LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )"
+                                          << "\n fobs[ifob]->l1tjetIds().size() = " << fobs[ifob]->l1tjetIds().size()
+                                          << "\n fobs[ifob]->l1tjetRefs().size() = " << fobs[ifob]->l1tjetRefs().size();
+    LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )"
+                                          << "\n fobs[ifob]->l1ttauIds().size() = " << fobs[ifob]->l1ttauIds().size()
+                                          << "\n fobs[ifob]->l1ttauRefs().size() = " << fobs[ifob]->l1ttauRefs().size();
     LogTrace("TriggerSummaryProducerRaw")
         << "TriggerSummaryProducerRaw::addFilterObjects(   )"
         << "\n fobs[ifob]->l1tetsumIds().size() = " << fobs[ifob]->l1tetsumIds().size()
-        << "\n fobs[ifob]->l1tetsumRefs().size() = " << fobs[ifob]->l1tetsumRefs().size() << endl;
+        << "\n fobs[ifob]->l1tetsumRefs().size() = " << fobs[ifob]->l1tetsumRefs().size();
+    LogTrace("TriggerSummaryProducerRaw")
+        << "TriggerSummaryProducerRaw::addFilterObjects(   )"
+        << "\n fobs[ifob]->l1tmuonShowerIds().size() = " << fobs[ifob]->l1tmuonShowerIds().size()
+        << "\n fobs[ifob]->l1tmuonShowerRefs().size() = " << fobs[ifob]->l1tmuonShowerRefs().size();
     product.addFilterObject(tag, *fobs[ifob]);
   }
 
