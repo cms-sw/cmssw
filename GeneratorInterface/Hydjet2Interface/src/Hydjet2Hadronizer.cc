@@ -1,6 +1,6 @@
 /**
  *    \brief Interface to the HYDJET++ (Hydjet2) generator (since core v. 2.4.3), produces HepMC events
- *    \version 1.0
+ *    \version 1.1
  *    \author Andrey Belyaev
  */
 
@@ -40,38 +40,33 @@ using namespace edm;
 using namespace std;
 using namespace gen;
 
-bool ev = false;
-bool separateHydjetComponents_;
+int Hydjet2Hadronizer::convertStatusForComponents(int sta, int typ) {
+  if (sta == 1 && typ == 0)
+    return 6;
+  if (sta == 1 && typ == 1)
+    return 7;
+  if (sta == 2 && typ == 0)
+    return 16;
+  if (sta == 2 && typ == 1)
+    return 17;
 
-namespace {
-  int convertStatusForComponents(int sta, int typ) {
-    if (sta == 1 && typ == 0)
-      return 6;
-    if (sta == 1 && typ == 1)
-      return 7;
-    if (sta == 2 && typ == 0)
-      return 16;
-    if (sta == 2 && typ == 1)
-      return 17;
+  else
+    return sta;
+}
 
-    else
-      return sta;
+int Hydjet2Hadronizer::convertStatus(int st) {
+  if (!separateHydjetComponents_) {
+    if (st <= 0)
+      return 0;
+    if (st <= 10)
+      return 1;
+    if (st <= 20)
+      return 2;
+    if (st <= 30)
+      return 3;
   }
-
-  int convertStatus(int st) {
-    if (!separateHydjetComponents_) {
-      if (st <= 0)
-        return 0;
-      if (st <= 10)
-        return 1;
-      if (st <= 20)
-        return 2;
-      if (st <= 30)
-        return 3;
-    }
-    return st;
-  }
-}  // namespace
+  return st;
+}
 
 const std::vector<std::string> Hydjet2Hadronizer::theSharedResources = {edm::SharedResourceNames::kPythia6};
 
@@ -408,7 +403,9 @@ bool Hydjet2Hadronizer::get_particles(HepMC::GenEvent *evt) {
   while (ihy < hj2->GetNtot()) {
     if ((hj2->GetiJet().at(ihy)) != isub_l) {
       sub_vertices = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), hj2->GetiJet().at(ihy));
+
       evt->add_vertex(sub_vertices);
+
       if (!evt->signal_process_vertex())
         evt->set_signal_process_vertex(sub_vertices);
       isub_l = hj2->GetiJet().at(ihy);
@@ -457,11 +454,12 @@ bool Hydjet2Hadronizer::get_particles(HepMC::GenEvent *evt) {
       }
       prod_vertex->add_particle_out(particle.at(ihy));
       LogDebug("Hydjet_array") << " ---" << mid + 1 << "---> " << ihy + 1 << std::endl;
-      if (prods)
-        delete prods;
+      delete prods;
     }
     ihy++;
   }
+  delete sub_vertices;
+
   LogDebug("Hydjet_array") << " MULTin ev.:" << hj2->GetNtot() << ", last index: " << ihy - 1
                            << ", stable particles: " << stab << std::endl;
   return kTRUE;

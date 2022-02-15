@@ -220,6 +220,7 @@ bool PyquenHadronizer::generatePartonsAndHadronize() {
   if (!evt->signal_process_vertex())
     evt->set_signal_process_vertex(sub_vertices);
 
+  delete sub_vertices;
   evt->set_signal_process_id(pypars.msti[0]);  // type of the process
   evt->set_event_scale(pypars.pari[16]);       // Q^2
 
