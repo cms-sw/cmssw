@@ -42,8 +42,11 @@ TrackletCalculator::TrackletCalculator(string name, Settings const& settings, Gl
           << "TrackletCalculator::TrackletCalculator phicrit approximation may be invalid! Please check.";
   }
 
+  // reduced config has only one TC, so this must be the first
+  const bool isFirstTC = (iTC_ == 0 || settings_.reduced());
+
   // write the drinv and invt inverse tables
-  if ((settings_.writeInvTable() || settings_.writeHLSInvTable() || settings_.writeTable()) && iTC_ == 0) {
+  if ((settings_.writeInvTable() || settings_.writeHLSInvTable() || settings_.writeTable()) && isFirstTC) {
     void (*writeLUT)(const VarInv&, const string&) = nullptr;
     if (settings.writeInvTable()) {  // Verilog version
       writeLUT = [](const VarInv& x, const string& basename) -> void {
@@ -61,7 +64,7 @@ TrackletCalculator::TrackletCalculator(string name, Settings const& settings, Gl
 
   // write the firmware design for the calculation of the tracklet parameters
   // and projections
-  if ((settings_.writeVerilog() || settings_.writeHLS()) && iTC_ == 0) {
+  if ((settings_.writeVerilog() || settings_.writeHLS()) && isFirstTC) {
     void (*writeDesign)(const vector<VarBase*>&, const string&) = nullptr;
     if (settings.writeVerilog()) {  // Verilog version
       writeDesign = [](const vector<VarBase*>& v, const string& basename) -> void {
