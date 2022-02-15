@@ -43,6 +43,7 @@
 #include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
+#include "PhysicsTools/PatAlgos/interface/MuonMvaIDEstimator.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
 #include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
@@ -59,12 +60,13 @@ namespace pat {
 
     pat::MuonMvaEstimator const& muonMvaEstimator() const { return *muonMvaEstimator_; }
     pat::MuonMvaEstimator const& muonLowPtMvaEstimator() const { return *muonLowPtMvaEstimator_; }
-
+    pat::MuonMvaIDEstimator const& muonMvaIDEstimator() const { return *muonMvaIDEstimator_; }
     pat::SoftMuonMvaEstimator const& softMuonMvaEstimator() const { return *softMuonMvaEstimator_; }
 
   private:
     std::unique_ptr<const pat::MuonMvaEstimator> muonLowPtMvaEstimator_;
     std::unique_ptr<const pat::MuonMvaEstimator> muonMvaEstimator_;
+    std::unique_ptr<const pat::MuonMvaIDEstimator> muonMvaIDEstimator_;
     std::unique_ptr<const pat::SoftMuonMvaEstimator> softMuonMvaEstimator_;
   };
 
@@ -233,6 +235,7 @@ namespace pat {
     edm::EDGetTokenT<edm::ValueMap<float>> PUPPINoLeptonsIsolation_photons_;
     /// standard muon selectors
     bool computeMuonMVA_;
+    bool computeMuonIDMVA_;
     bool computeSoftMuonMVA_;
     bool recomputeBasicSelectors_;
     bool mvaUseJec_;
@@ -330,6 +333,11 @@ PATMuonHeavyObjectCache::PATMuonHeavyObjectCache(const edm::ParameterSet& iConfi
     muonLowPtMvaEstimator_ = std::make_unique<MuonMvaEstimator>(mvaLowPtTrainingFile, mvaDrMax);
   }
 
+  if (iConfig.getParameter<bool>("computeMuonIDMVA")) {
+    edm::FileInPath mvaIDTrainingFile = iConfig.getParameter<edm::FileInPath>("mvaIDTrainingFile");
+    muonMvaIDEstimator_ = std::make_unique<MuonMvaIDEstimator>(mvaIDTrainingFile);
+  }
+
   if (iConfig.getParameter<bool>("computeSoftMuonMVA")) {
     edm::FileInPath softMvaTrainingFile = iConfig.getParameter<edm::FileInPath>("softMvaTrainingFile");
     softMuonMvaEstimator_ = std::make_unique<SoftMuonMvaEstimator>(softMvaTrainingFile);
@@ -340,6 +348,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
     : relMiniIsoPUCorrected_(0),
       useUserData_(iConfig.exists("userData")),
       computeMuonMVA_(false),
+      computeMuonIDMVA_(false),
       computeSoftMuonMVA_(false),
       recomputeBasicSelectors_(false),
       mvaUseJec_(false),
@@ -455,6 +464,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
   // standard selectors
   recomputeBasicSelectors_ = iConfig.getParameter<bool>("recomputeBasicSelectors");
   computeMuonMVA_ = iConfig.getParameter<bool>("computeMuonMVA");
+  computeMuonIDMVA_ = iConfig.getParameter<bool>("computeMuonIDMVA");
   if (computeMuonMVA_ and not computeMiniIso_)
     throw cms::Exception("ConfigurationError") << "MiniIso is needed for Muon MVA calculation.\n";
 
@@ -1035,6 +1045,22 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         muon.setSelector(reco::Muon::LowPtMvaLoose, muon.lowptMvaValue() > -0.60);
         muon.setSelector(reco::Muon::LowPtMvaMedium, muon.lowptMvaValue() > -0.20);
       }
+    }
+
+    // MVA ID
+    float mvaID = 0.0;
+    constexpr int MVAsentinelValue = -99;
+    constexpr float mvaIDmediumCut = 0.08;
+    constexpr float mvaIDtightCut = 0.49;
+    if (computeMuonIDMVA_) {
+      if (muon.isLooseMuon()) {
+        mvaID = globalCache()->muonMvaIDEstimator().computeMVAID(muon)[1];
+      } else {
+        mvaID = MVAsentinelValue;
+      }
+      muon.setMvaIDValue(mvaID);
+      muon.setSelector(reco::Muon::MvaIDwpMedium, muon.mvaIDValue() > mvaIDmediumCut);
+      muon.setSelector(reco::Muon::MvaIDwpTight, muon.mvaIDValue() > mvaIDtightCut);
     }
 
     //SOFT MVA
