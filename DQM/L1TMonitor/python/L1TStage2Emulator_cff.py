@@ -94,6 +94,11 @@ valGmtStage2Digis = simGmtStage2Digis.clone(
     triggerTowerInput = "valGmtCaloSumDigis:TriggerTowerSums"
 )
 
+# uGMT shower
+valGmtShowerDigis = simGmtShowerDigis.clone(
+    showerInput = "gmtStage2Digis:EMTF"
+)
+
 # uGT
 from L1Trigger.L1TGlobal.simGtStage2Digis_cfi import simGtStage2Digis
 from L1Trigger.L1TGlobal.simGtExtFakeProd_cfi import simGtExtFakeProd
@@ -131,7 +136,7 @@ _run3_Stage2L1HardwareValidation = Stage2L1HardwareValidation.copy()
 run3_GEM.toReplaceWith( Stage2L1HardwareValidation, cms.Sequence( valMuonGEMPadDigis + valMuonGEMPadDigiClusters + _run3_Stage2L1HardwareValidation) )
 
 _run3Shower_Stage2L1HardwareValidation = Stage2L1HardwareValidation.copy()
-run3_GEM.toReplaceWith( Stage2L1HardwareValidation, cms.Sequence(_run3Shower_Stage2L1HardwareValidation + valEmtfStage2Showers) )
+run3_GEM.toReplaceWith( Stage2L1HardwareValidation, cms.Sequence(_run3Shower_Stage2L1HardwareValidation + valEmtfStage2Showers + valGmtShowerDigis) )
 
 Stage2L1HardwareValidationForValidationEvents = cms.Sequence(
     valCaloStage2Layer2Digis
