@@ -84,7 +84,7 @@ private:
 HcalHBHENewMuonAnalyzer::HcalHBHENewMuonAnalyzer(const edm::ParameterSet& iConfig)
     : labelHBHEMuonVar_(iConfig.getParameter<edm::InputTag>("hbheMuonLabel")),
       useRaw_(iConfig.getParameter<int>("useRaw")),
-      maxDepth_ (iConfig.getUntrackedParameter<int>("maxDepth", 4)),
+      maxDepth_(iConfig.getUntrackedParameter<int>("maxDepth", 4)),
       tokHBHEMuonVar_(consumes<HcalHBHEMuonVariablesCollection>(labelHBHEMuonVar_)) {
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed

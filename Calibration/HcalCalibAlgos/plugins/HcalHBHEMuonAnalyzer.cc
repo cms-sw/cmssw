@@ -193,11 +193,13 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig)
       modnam_(iConfig.getUntrackedParameter<std::string>("moduleName", "")),
       procnm_(iConfig.getUntrackedParameter<std::string>("processName", "")),
       tok_trigRes_(consumes<edm::TriggerResults>(hlTriggerResults_)),
-      tok_Vtx_((modnam_.empty()) ? consumes<reco::VertexCollection>(labelVtx_) : consumes<reco::VertexCollection>(edm::InputTag(modnam_, labelVtx_, procnm_))),
+      tok_Vtx_((modnam_.empty()) ? consumes<reco::VertexCollection>(labelVtx_)
+                                 : consumes<reco::VertexCollection>(edm::InputTag(modnam_, labelVtx_, procnm_))),
       tok_EB_(consumes<EcalRecHitCollection>(labelEBRecHit_)),
       tok_EE_(consumes<EcalRecHitCollection>(labelEERecHit_)),
       tok_HBHE_(consumes<HBHERecHitCollection>(labelHBHERecHit_)),
-      tok_Muon_((modnam_.empty()) ? consumes<reco::MuonCollection>(labelMuon_) : consumes<reco::MuonCollection>(edm::InputTag(modnam_, labelMuon_, procnm_))),
+      tok_Muon_((modnam_.empty()) ? consumes<reco::MuonCollection>(labelMuon_)
+                                  : consumes<reco::MuonCollection>(edm::InputTag(modnam_, labelMuon_, procnm_))),
       tok_ddrec_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
       tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
       tok_respcorr_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>()),
@@ -210,7 +212,6 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig)
       hdc_(nullptr),
       theHBHETopology_(nullptr),
       respCorrs_(nullptr) {
-
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
   kount_ = 0;
