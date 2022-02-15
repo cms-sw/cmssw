@@ -38,13 +38,13 @@ private:
   void endJob(void) override;
 
   // ----------member data ---------------------------
-  edm::EDGetTokenT<HBHEDigiCollection> inputTokenHBHE_;
-  edm::EDGetTokenT<QIE10DigiCollection> inputTokenHF_;
-  edm::EDGetTokenT<HcalUMNioDigi> ioTokenUMN_;
-  double minFracDiffHBHELaser_, minFracHFLaser_;
-  int minADCHBHE_, minADCHF_;
+  const edm::EDGetTokenT<HBHEDigiCollection> inputTokenHBHE_;
+  const edm::EDGetTokenT<QIE10DigiCollection> inputTokenHF_;
+  const edm::EDGetTokenT<HcalUMNioDigi> ioTokenUMN_;
+  const double minFracDiffHBHELaser_, minFracHFLaser_;
+  const int minADCHBHE_, minADCHF_;
 
-  bool testMode_;
+  const bool testMode_;
   mutable std::array<std::atomic<int>, 16> eventsByType_;
   mutable std::array<std::atomic<int>, 16> passedEventsByType_;
   TH1F *h_hb1_, *h_hb2_, *h_hb3_, *h_hb4_;
