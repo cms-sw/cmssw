@@ -94,7 +94,7 @@ RecAnalyzerHF::RecAnalyzerHF(const edm::ParameterSet& iConfig)
   std::vector<int> depth = iConfig.getUntrackedParameter<std::vector<int>>("HcalDepth");
 
   edm::LogVerbatim("RecAnalyzerHF") << " Flags (IgnoreL1): " << ignoreL1_ << " (NZS) " << nzs_ << " (Noise) " << noise_
-                                  << " (Ratio) " << ratio_;
+                                    << " (Ratio) " << ratio_;
   edm::LogVerbatim("RecAnalyzerHF") << "Thresholds for HF " << eLowHF_ << ":" << eHighHF_;
   for (unsigned int k = 0; k < ieta.size(); ++k) {
     if (std::abs(ieta[k]) >= 29) {
@@ -205,17 +205,16 @@ void RecAnalyzerHF::endJob() {
         depth = itr.first.second.depth();
         iphi = itr.first.second.iphi();
         ieta = itr.first.second.ieta();
-        edm::LogVerbatim("RecAnalyzerHF") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi
-                                        << " F1:mom0  " << mom0_F1 << " mom1 " << mom1_F1 << " mom2 " << mom2_F1
-                                        << " mom3 " << mom3_F1 << " mom4 " << mom4_F1 << " F2:mom0 " << mom0_F2
-                                        << " mom1 " << mom1_F2 << " mom2 " << mom2_F2 << " mom3 " << mom3_F2 << " mom4 "
-                                        << mom4_F2;
+        edm::LogVerbatim("RecAnalyzerHF")
+            << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi << " F1:mom0  " << mom0_F1
+            << " mom1 " << mom1_F1 << " mom2 " << mom2_F1 << " mom3 " << mom3_F1 << " mom4 " << mom4_F1 << " F2:mom0 "
+            << mom0_F2 << " mom1 " << mom1_F2 << " mom2 " << mom2_F2 << " mom3 " << mom3_F2 << " mom4 " << mom4_F2;
         myTree_->Fill();
         cells++;
       }
     }
     edm::LogVerbatim("RecAnalyzerHF") << "cells"
-                                    << " " << cells;
+                                      << " " << cells;
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("RecAnalyzerHF") << "Exiting from RecAnalyzerHF::endjob";
@@ -287,8 +286,8 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
 
 void RecAnalyzerHF::analyzeHcal(const HFPreRecHitCollection& Hithf, int algoBit, bool fill) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RecAnalyzerHF") << "Enter analyzeHcal for bit " << algoBit << " Fill " << fill << " Collection size "
-                                  << Hithf.size();
+  edm::LogVerbatim("RecAnalyzerHF") << "Enter analyzeHcal for bit " << algoBit << " Fill " << fill
+                                    << " Collection size " << Hithf.size();
 #endif
   // Signal part for HF
   for (const auto& hfItr : Hithf) {

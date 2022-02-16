@@ -317,9 +317,10 @@ HOCalibAnalyzer::~HOCalibAnalyzer() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
-  edm::LogVerbatim("HOCalibAnalyzer") << " Total events = " << setw(7) << nevents[0] << " " << setw(7) << nevents[1] << " "
-                              << setw(7) << nevents[2] << " " << setw(7) << nevents[3] << " " << setw(7) << nevents[4]
-                              << " " << setw(7) << nevents[5] << " Selected events # is " << ipass;
+  edm::LogVerbatim("HOCalibAnalyzer") << " Total events = " << setw(7) << nevents[0] << " " << setw(7) << nevents[1]
+                                      << " " << setw(7) << nevents[2] << " " << setw(7) << nevents[3] << " " << setw(7)
+                                      << nevents[4] << " " << setw(7) << nevents[5] << " Selected events # is "
+                                      << ipass;
 }
 
 //
@@ -340,11 +341,11 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   const edm::Handle<HOCalibVariableCollection>& HOCalib = iEvent.getHandle(tok_ho_);
 
   if (nevents[0] % 20000 == 1) {
-    edm::LogVerbatim("HOCalibAnalyzer") << "nmuon event # " << setw(7) << nevents[0] << " " << setw(7) << nevents[1] << " "
-                                << setw(7) << nevents[2] << " " << setw(7) << nevents[3] << " " << setw(7) << nevents[4]
-                                << " " << setw(7) << nevents[5];
+    edm::LogVerbatim("HOCalibAnalyzer") << "nmuon event # " << setw(7) << nevents[0] << " " << setw(7) << nevents[1]
+                                        << " " << setw(7) << nevents[2] << " " << setw(7) << nevents[3] << " "
+                                        << setw(7) << nevents[4] << " " << setw(7) << nevents[5];
     edm::LogVerbatim("HOCalibAnalyzer") << " Run # " << iEvent.id().run() << " Evt # " << iEvent.id().event() << " "
-                                << int(HOCalib.isValid()) << " " << ipass;
+                                        << int(HOCalib.isValid()) << " " << ipass;
   }
 
   if (HOCalib.isValid()) {
