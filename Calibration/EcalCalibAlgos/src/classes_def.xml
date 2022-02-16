@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="EcalPhiSymRecHit" class_version="3"/>
+  <class name="std::vector<EcalPhiSymRecHit>"/>
+  <class name="edm::Wrapper<std::vector<EcalPhiSymRecHit> >"/>
+  
+  <class name="EcalPhiSymInfo" class_version="3"/>
+  <class name="std::vector<EcalPhiSymInfo>"/>
+  <class name="edm::Wrapper<EcalPhiSymInfo>"/>
+</lcgdict>
