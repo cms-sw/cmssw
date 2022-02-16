@@ -21,44 +21,42 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
-class EcalPhiSymRecHit
-{
+class EcalPhiSymRecHit {
 public:
-    //---ctors---
-    EcalPhiSymRecHit();
-    EcalPhiSymRecHit(uint32_t id, unsigned int nMisCalibV, unsigned int status=0);
-    EcalPhiSymRecHit(uint32_t id, std::vector<float>& etValues, unsigned int status=0);
-    
-    //---dtor---
-    ~EcalPhiSymRecHit();
+  //---ctors---
+  EcalPhiSymRecHit();
+  EcalPhiSymRecHit(uint32_t id, unsigned int nMisCalibV, unsigned int status = 0);
+  EcalPhiSymRecHit(uint32_t id, std::vector<float>& etValues, unsigned int status = 0);
 
-    //---getters---
-    inline uint32_t       GetRawId()        const {return id_;};
-    inline unsigned int   GetStatusCode()   const {return chStatus_;};
-    inline uint32_t       GetNhits()        const {return nHits_;};
-    inline unsigned int   GetNSumEt()       const {return etSum_.size();};
-    inline float          GetSumEt(int i=0) const {return etSum_[i];};
-    inline float          GetSumEt2()       const {return et2Sum_;};
-    inline float          GetLCSum()        const {return lcSum_;};
-    inline float          GetLC2Sum()       const {return lc2Sum_;};
+  //---dtor---
+  ~EcalPhiSymRecHit();
 
-    //---utils---
-    void         AddHit(float* etValues, float laserCorr=0);
-    void         AddHit(std::vector<float>& etValues, float laserCorr=0);
-    void         Reset();
+  //---getters---
+  inline uint32_t GetRawId() const { return id_; };
+  inline unsigned int GetStatusCode() const { return chStatus_; };
+  inline uint32_t GetNhits() const { return nHits_; };
+  inline unsigned int GetNSumEt() const { return etSum_.size(); };
+  inline float GetSumEt(int i = 0) const { return etSum_[i]; };
+  inline float GetSumEt2() const { return et2Sum_; };
+  inline float GetLCSum() const { return lcSum_; };
+  inline float GetLC2Sum() const { return lc2Sum_; };
 
-    //---operators---
-    EcalPhiSymRecHit&    operator+=(const EcalPhiSymRecHit& rhs);
+  //---utils---
+  void AddHit(float* etValues, float laserCorr = 0);
+  void AddHit(std::vector<float>& etValues, float laserCorr = 0);
+  void Reset();
+
+  //---operators---
+  EcalPhiSymRecHit& operator+=(const EcalPhiSymRecHit& rhs);
 
 private:
-
-    uint32_t           id_;
-    unsigned int       chStatus_;
-    uint32_t           nHits_;
-    std::vector<float> etSum_;
-    float              et2Sum_;
-    float              lcSum_;
-    float              lc2Sum_;    
+  uint32_t id_;
+  unsigned int chStatus_;
+  uint32_t nHits_;
+  std::vector<float> etSum_;
+  float et2Sum_;
+  float lcSum_;
+  float lc2Sum_;
 };
 
 typedef std::vector<EcalPhiSymRecHit> EcalPhiSymRecHitCollection;

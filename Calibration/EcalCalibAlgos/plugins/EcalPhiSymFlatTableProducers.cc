@@ -16,4 +16,3 @@ DEFINE_FWK_MODULE(EcalPhiSymRecHitFlatTableProducerLumi);
 DEFINE_FWK_MODULE(EcalPhiSymInfoFlatTableProducerLumi);
 DEFINE_FWK_MODULE(EcalPhiSymRecHitFlatTableProducerRun);
 DEFINE_FWK_MODULE(EcalPhiSymInfoFlatTableProducerRun);
-
