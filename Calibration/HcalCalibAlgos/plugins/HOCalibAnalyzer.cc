@@ -317,7 +317,7 @@ HOCalibAnalyzer::~HOCalibAnalyzer() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
-  edm::LogVerbatim("HOCalib") << " Total events = " << setw(7) << nevents[0] << " " << setw(7) << nevents[1] << " "
+  edm::LogVerbatim("HOCalibAnalyzer") << " Total events = " << setw(7) << nevents[0] << " " << setw(7) << nevents[1] << " "
                               << setw(7) << nevents[2] << " " << setw(7) << nevents[3] << " " << setw(7) << nevents[4]
                               << " " << setw(7) << nevents[5] << " Selected events # is " << ipass;
 }
@@ -340,10 +340,10 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   const edm::Handle<HOCalibVariableCollection>& HOCalib = iEvent.getHandle(tok_ho_);
 
   if (nevents[0] % 20000 == 1) {
-    edm::LogVerbatim("HOCalib") << "nmuon event # " << setw(7) << nevents[0] << " " << setw(7) << nevents[1] << " "
+    edm::LogVerbatim("HOCalibAnalyzer") << "nmuon event # " << setw(7) << nevents[0] << " " << setw(7) << nevents[1] << " "
                                 << setw(7) << nevents[2] << " " << setw(7) << nevents[3] << " " << setw(7) << nevents[4]
                                 << " " << setw(7) << nevents[5];
-    edm::LogVerbatim("HOCalib") << " Run # " << iEvent.id().run() << " Evt # " << iEvent.id().event() << " "
+    edm::LogVerbatim("HOCalibAnalyzer") << " Run # " << iEvent.id().run() << " Evt # " << iEvent.id().event() << " "
                                 << int(HOCalib.isValid()) << " " << ipass;
   }
 
@@ -392,13 +392,13 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       for (int ij = 0; ij < 9; ij++) {
         hosig[ij] = (*hoC).hosig[ij];
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HOCalib") << "hosig " << ij << " " << hosig[ij];
+        edm::LogVerbatim("HOCalibAnalyzer") << "hosig " << ij << " " << hosig[ij];
 #endif
       }
       for (int ij = 0; ij < 18; ij++) {
         hocorsig[ij] = (*hoC).hocorsig[ij];
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HOCalib") << "hocorsig " << ij << " " << hocorsig[ij];
+        edm::LogVerbatim("HOCalibAnalyzer") << "hocorsig " << ij << " " << hocorsig[ij];
 #endif
       }
       hocro = (*hoC).hocro;

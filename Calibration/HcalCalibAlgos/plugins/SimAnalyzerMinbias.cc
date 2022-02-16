@@ -115,13 +115,13 @@ void SimAnalyzerMinbias::endJob() {
       mom4_MB = info.theMB4;
       cells++;
 
-      edm::LogVerbatim("AnalyzerMB") << " Result=  " << mysubd << " " << ieta << " " << iphi << " mom0  " << mom0_MB
+      edm::LogVerbatim("SimAnalyzerMinbias") << " Result=  " << mysubd << " " << ieta << " " << iphi << " mom0  " << mom0_MB
                                      << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 "
                                      << mom4_MB;
       myTree_->Fill();
     }
   }
-  edm::LogVerbatim("AnalyzerMB") << "cells " << cells;
+  edm::LogVerbatim("SimAnalyzerMinbias") << "cells " << cells;
 }
 
 //
@@ -131,21 +131,21 @@ void SimAnalyzerMinbias::endJob() {
 // ------------ method called to produce the data  ------------
 
 void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
-  edm::LogVerbatim("AnalyzerMB") << " Start SimAnalyzerMinbias::analyze " << iEvent.id().run() << ":"
+  edm::LogVerbatim("SimAnalyzerMinbias") << " Start SimAnalyzerMinbias::analyze " << iEvent.id().run() << ":"
                                  << iEvent.id().event();
 
   const edm::Handle<edm::HepMCProduct>& evtMC = iEvent.getHandle(tok_evt_);
   if (!evtMC.isValid()) {
-    edm::LogWarning("AnalyzerMB") << "no HepMCProduct found";
+    edm::LogWarning("SimAnalyzerMinbias") << "no HepMCProduct found";
   } else {
     const HepMC::GenEvent* myGenEvent = evtMC->GetEvent();
-    edm::LogVerbatim("AnalyzerMB") << "Event with " << myGenEvent->particles_size() << " particles + "
+    edm::LogVerbatim("SimAnalyzerMinbias") << "Event with " << myGenEvent->particles_size() << " particles + "
                                    << myGenEvent->vertices_size() << " vertices";
   }
 
   const edm::Handle<edm::PCaloHitContainer>& hcalHits = iEvent.getHandle(tok_hcal_);
   if (!hcalHits.isValid()) {
-    edm::LogWarning("AnalyzerMB") << "Error! can't get HcalHits product!";
+    edm::LogWarning("SimAnalyzerMinbias") << "Error! can't get HcalHits product!";
     return;
   }
 
@@ -164,7 +164,7 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
       itr1->second += energyhit;
     }
   }
-  edm::LogVerbatim("AnalyzerMB") << "extract information of " << hitMap.size() << " towers from " << HitHcal->size()
+  edm::LogVerbatim("SimAnalyzerMinbias") << "extract information of " << hitMap.size() << " towers from " << HitHcal->size()
                                  << " hits";
 
   for (std::map<HcalDetId, double>::const_iterator hcalItr = hitMap.begin(); hcalItr != hitMap.end(); ++hcalItr) {
@@ -181,7 +181,7 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     itr1->second.theMB2 += (energyhit * energyhit);
     itr1->second.theMB3 += (energyhit * energyhit * energyhit);
     itr1->second.theMB4 += (energyhit * energyhit * energyhit * energyhit);
-    edm::LogVerbatim("AnalyzerMB") << "ID " << hid << " with energy " << energyhit;
+    edm::LogVerbatim("SimAnalyzerMinbias") << "ID " << hid << " with energy " << energyhit;
   }
 }
 
