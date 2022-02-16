@@ -221,7 +221,7 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
             if (fg)
               featureBits |= 0b01;
             // fg2 should only be set for HF
-            if (absCaloEta > 29 && fg2)
+            if (fg2)
               featureBits |= 0b10;
           }
           if (absCaloEta <= 29)
