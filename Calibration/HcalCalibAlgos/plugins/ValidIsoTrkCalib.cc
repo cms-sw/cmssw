@@ -82,39 +82,36 @@ private:
 
   const CaloGeometry* geo;
   // nothing is done with these tags, so I leave it - cowden
-  edm::InputTag genhbheLabel_;
+  const bool takeGenTracks_;
+  const edm::InputTag genhbheLabel_;
+  const double associationConeSize_;
+  const bool allowMissingInputs_;
+  const std::string AxB_;
+  const double calibrationConeSize_;
+  const int MinNTrackHitsBarrel;
+  const int MinNTECHitsEndcap;
+  const double energyECALmip;
+  const double energyMinIso;
+  const double energyMaxIso;
+  const double maxPNear;
+
+  const edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  const edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  const edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> tok_track_;
+  const edm::EDGetTokenT<reco::TrackCollection> tok_track1_;
+
+  const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_recalibCorrs_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+
   edm::InputTag genhoLabel_;
   std::vector<edm::InputTag> genecalLabel_;
+  std::string outputFileName_;
 
-  edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
-  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
-  edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> tok_track_;
-  edm::EDGetTokenT<reco::TrackCollection> tok_track1_;
-
-  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_recalibCorrs_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-
-  //std::string m_inputTrackLabel;
-  //std::string m_hcalLabel;
-
-  double associationConeSize_;
-  string AxB_;
-  double calibrationConeSize_;
-
-  bool allowMissingInputs_;
-  string outputFileName_;
-  //string calibFactorsFileName_;
-  //  string corrfile;
-
-  bool takeGenTracks_;
-  //bool takeAllRecHits_, takeGenTracks_;
   int gen, iso, pix;
   float genPt[500], genPhi[500], genEta[500];
   float isoPt[500], isoPhi[500], isoEta[500];
   float pixPt[500], pixPhi[500], pixEta[500];
-  //int  hbheiEta[5000],hbheiPhi[5000],hbheDepth[5000];
-  //float hbheEnergy[5000];
 
   int NisoTrk;
   float trackPt, trackE, trackEta, trackPhi;
@@ -122,15 +119,9 @@ private:
   float ptrack, rvert;
   //float eecal, ehcal;
 
-  int MinNTrackHitsBarrel, MinNTECHitsEndcap;
-  double energyECALmip, maxPNear;
-  double energyMinIso, energyMaxIso;
-
   Float_t emEnergy;
   Float_t targetE;
 
-  //TFile* rootFile;
-  //  TTree* tree;
   TTree *tTree, *fTree;
 
   Float_t xTrkEcal;
@@ -149,7 +140,6 @@ private:
   float phiTrack;
   float eECAL;  // Energy deposited in ECAL
   int numHits;  //number of rechits
-  //float e3x3;
 
   float eBeforeDepth1;
   float eAfterDepth1;
@@ -178,60 +168,38 @@ private:
   float numVH, numVS, numValidTrkHits, numValidTrkStrips;
 
   const HcalRespCorrs* respRecalib;
-  //  map<UInt_t, Float_t> CalibFactors;
-  //  Bool_t ReadCalibFactors(string);
 
   TH1F* nTracks;
-
-  edm::Service<TFileService> fs;
-  // int Lumi_n;
 };
 
-ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig) {
+ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig) :
+      takeGenTracks_(iConfig.getUntrackedParameter<bool>("takeGenTracks")),
+      genhbheLabel_(iConfig.getParameter<edm::InputTag>("genHBHE")),
+      associationConeSize_(iConfig.getParameter<double>("associationConeSize")),
+      allowMissingInputs_(iConfig.getUntrackedParameter<bool>("allowMissingInputs", true)),
+      AxB_(iConfig.getParameter<std::string>("AxB")),
+      calibrationConeSize_(iConfig.getParameter<double>("calibrationConeSize")),
+      MinNTrackHitsBarrel(iConfig.getParameter<int>("MinNTrackHitsBarrel")),
+      MinNTECHitsEndcap(iConfig.getParameter<int>("MinNTECHitsEndcap")),
+      energyECALmip(iConfig.getParameter<double>("energyECALmip")),
+      energyMinIso(iConfig.getParameter<double>("energyMinIso")),
+      energyMaxIso(iConfig.getParameter<double>("energyMaxIso")),
+      maxPNear(iConfig.getParameter<double>("maxPNear")),
+      tok_genTrack_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("genTracksLabel"))),
+      tok_hbhe_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"))),
+      tok_ho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"))),
+      tok_track_(consumes<reco::IsolatedPixelTrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("HcalIsolTrackInput"))),
+      tok_track1_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackInput"))),
+      tok_recalibCorrs_(esConsumes(edm::ESInputTag("", "recalibrate"))),
+      tok_geom_(esConsumes()) {
+
   usesResource(TFileService::kSharedResource);
-
-  //takeAllRecHits_=iConfig.getUntrackedParameter<bool>("takeAllRecHits");
-  takeGenTracks_ = iConfig.getUntrackedParameter<bool>("takeGenTracks");
-
-  tok_genTrack_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("genTracksLabel"));
-  genhbheLabel_ = iConfig.getParameter<edm::InputTag>("genHBHE");
-  //genhoLabel_=iConfig.getParameter<edm::InputTag>("genHO");
-  //genecalLabel_=iConfig.getParameter<std::vector<edm::InputTag> >("genECAL");
-
-  // m_hcalLabel = iConfig.getUntrackedParameter<std::string> ("hcalRecHitsLabel","hbhereco");
-
-  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
-  tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
-  //eLabel_=iConfig.getParameter<edm::InputTag>("eInput");
-  tok_track_ =
-      consumes<reco::IsolatedPixelTrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("HcalIsolTrackInput"));
-  tok_track1_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackInput"));
-
-  tok_recalibCorrs_ = esConsumes(edm::ESInputTag("", "recalibrate"));
-  tok_geom_ = esConsumes();
-
-  associationConeSize_ = iConfig.getParameter<double>("associationConeSize");
-  allowMissingInputs_ = iConfig.getUntrackedParameter<bool>("allowMissingInputs", true);
-  //  outputFileName_=iConfig.getParameter<std::string>("outputFileName");
-  //  calibFactorsFileName_=iConfig.getParameter<std::string>("calibFactorsFileName");
-
-  AxB_ = iConfig.getParameter<std::string>("AxB");
-  calibrationConeSize_ = iConfig.getParameter<double>("calibrationConeSize");
-
-  MinNTrackHitsBarrel = iConfig.getParameter<int>("MinNTrackHitsBarrel");
-  MinNTECHitsEndcap = iConfig.getParameter<int>("MinNTECHitsEndcap");
-  energyECALmip = iConfig.getParameter<double>("energyECALmip");
-  energyMinIso = iConfig.getParameter<double>("energyMinIso");
-  energyMaxIso = iConfig.getParameter<double>("energyMaxIso");
-  maxPNear = iConfig.getParameter<double>("maxPNear");
 
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   edm::ConsumesCollector iC = consumesCollector();
   parameters_.loadParameters(parameters, iC);
   trackAssociator_.useDefaultPropagator();
 
-  // taECALCone_=iConfig.getUntrackedParameter<double>("TrackAssociatorECALCone",0.5);
-  //taHCALCone_=iConfig.getUntrackedParameter<double>("TrackAssociatorHCALCone",0.6);
 }
 
 // ------------ method called to for each event  ------------
@@ -735,10 +703,7 @@ void ValidIsoTrkCalib::beginJob() {
 //   if (!ReadCalibFactors(calibFactorsFileName_.c_str() ))
 //     edm::LogVerbatim("HcalIsoTrack")<<"Cant read file with cailib coefficients!! ---";
 #endif
-  //  rootFile = new TFile(outputFileName_.c_str(),"RECREATE");
-
-  //@@@@@@@@@@@@@
-  //TFileDirectory ValDir = fs->mkdir("Validation");
+  edm::Service<TFileService> fs;
 
   nTracks = fs->make<TH1F>("nTracks", "general;number of general tracks", 11, -0.5, 10.5);
 
