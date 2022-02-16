@@ -84,13 +84,13 @@ private:
 
   int mypow_2[31];
 
-  bool m_cosmic;
-  bool m_zeroField;
-  int m_bins;
-  double m_low;
-  double m_ahigh;
-  bool m_histFill;  //Stored signals of individual HO towers with default selection criteria
-  bool m_treeFill;  //Store rootuple without almost any selection criteria except a quality on muon
+  const bool m_cosmic;
+  const bool m_zeroField;
+  const int m_bins;
+  const double m_low;
+  const double m_ahigh;
+  const bool m_histFill;  //Stored signals of individual HO towers with default selection criteria
+  const bool m_treeFill;  //Store rootuple without almost any selection criteria except a quality on muon
 
   int ipass;
 
@@ -130,8 +130,8 @@ private:
   float ncount[ringmx][ncut + 10];
 
   edm::InputTag hoCalibVariableCollectionTag;
-  edm::EDGetTokenT<HOCalibVariableCollection> tok_ho_;
-  edm::EDGetTokenT<HORecHitCollection> tok_allho_;
+  const edm::EDGetTokenT<HOCalibVariableCollection> tok_ho_;
+  const edm::EDGetTokenT<HORecHitCollection> tok_allho_;
   // ----------member data ---------------------------
 };
 
@@ -147,29 +147,27 @@ private:
 // constructors and destructor
 //
 
-HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig) {
+HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig) :
+      m_cosmic(iConfig.getUntrackedParameter<bool>("cosmic", true)),
+      m_zeroField(iConfig.getUntrackedParameter<bool>("zeroField", false)),
+      m_bins(iConfig.getUntrackedParameter<int>("HOSignalBins", 120)),
+      m_low(iConfig.getUntrackedParameter<double>("lowerRange", -1.0)),
+      m_ahigh(iConfig.getUntrackedParameter<double>("upperRange", 29.0)),
+      m_histFill(iConfig.getUntrackedParameter<bool>("histFill", true)),
+      m_treeFill(iConfig.getUntrackedParameter<bool>("treeFill", false)),
+      tok_ho_(consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"))),
+      tok_allho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputTag"))) {
+
   // It is very likely you want the following in your configuration
   // hoCalibVariableCollectionTag = cms.InputTag('hoCalibProducer', 'HOCalibVariableCollection')
 
   usesResource(TFileService::kSharedResource);
 
-  tok_ho_ = consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"));
-  tok_allho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputTag"));
   //now do what ever initialization is needed
   ipass = 0;
   for (int ij = 0; ij < 10; ij++) {
     nevents[ij] = 0;
   }
-
-  m_cosmic = iConfig.getUntrackedParameter<bool>("cosmic", true);
-  m_zeroField = iConfig.getUntrackedParameter<bool>("zeroField", false);
-
-  m_bins = iConfig.getUntrackedParameter<int>("HOSignalBins", 120);
-  m_low = iConfig.getUntrackedParameter<double>("lowerRange", -1.0);
-  m_ahigh = iConfig.getUntrackedParameter<double>("upperRange", 29.0);
-
-  m_histFill = iConfig.getUntrackedParameter<bool>("histFill", true);
-  m_treeFill = iConfig.getUntrackedParameter<bool>("treeFill", false);
 
   edm::Service<TFileService> fs;
 
@@ -340,9 +338,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   ievt = iEvent.id().event();
   ilumi = iEvent.luminosityBlock();
 
-  edm::Handle<HOCalibVariableCollection> HOCalib;
-
-  iEvent.getByToken(tok_ho_, HOCalib);
+  const edm::Handle<HOCalibVariableCollection>& HOCalib = iEvent.getHandle(tok_ho_);
 
   if (nevents[0] % 20000 == 1) {
     edm::LogVerbatim("HOCalib") << "nmuon event # " << setw(7) << nevents[0] << " " << setw(7) << nevents[1] << " "

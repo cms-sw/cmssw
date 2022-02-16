@@ -48,7 +48,7 @@ public:
 
 private:
   // ----------member data ---------------------------
-  double timeCut_;
+  const double timeCut_;
   TTree* myTree_;
 
   // Root tree members
@@ -59,20 +59,17 @@ private:
     myInfo() { theMB0 = theMB1 = theMB2 = theMB3 = theMB4 = 0; }
   };
   std::map<HcalDetId, myInfo> myMap_;
-  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
 };
 
 // constructors and destructor
 
-SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig) {
+SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig) :
+      timeCut_(iConfig.getUntrackedParameter<double>("TimeCut", 500)),
+      tok_evt_(consumes<edm::HepMCProduct>(edm::InputTag("generator"))),
+      tok_hcal_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"))) {
   usesResource(TFileService::kSharedResource);
-  timeCut_ = iConfig.getUntrackedParameter<double>("TimeCut", 500);
-
-  // get token names of modules, producing object collections
-  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
-  tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
-
   edm::LogVerbatim("AnalyzerMB") << "Use Time cut of " << timeCut_ << " ns";
 }
 
@@ -137,8 +134,7 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::LogVerbatim("AnalyzerMB") << " Start SimAnalyzerMinbias::analyze " << iEvent.id().run() << ":"
                                  << iEvent.id().event();
 
-  edm::Handle<edm::HepMCProduct> evtMC;
-  iEvent.getByToken(tok_evt_, evtMC);
+  const edm::Handle<edm::HepMCProduct>& evtMC = iEvent.getHandle(tok_evt_);
   if (!evtMC.isValid()) {
     edm::LogWarning("AnalyzerMB") << "no HepMCProduct found";
   } else {
@@ -147,8 +143,7 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
                                    << myGenEvent->vertices_size() << " vertices";
   }
 
-  edm::Handle<edm::PCaloHitContainer> hcalHits;
-  iEvent.getByToken(tok_hcal_, hcalHits);
+  const edm::Handle<edm::PCaloHitContainer>& hcalHits = iEvent.getHandle(tok_hcal_);
   if (!hcalHits.isValid()) {
     edm::LogWarning("AnalyzerMB") << "Error! can't get HcalHits product!";
     return;

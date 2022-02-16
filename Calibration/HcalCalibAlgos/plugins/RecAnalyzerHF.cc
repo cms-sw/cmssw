@@ -53,13 +53,13 @@ private:
   void analyzeHcal(const HFPreRecHitCollection&, int, bool);
 
   // ----------member data ---------------------------
-  bool ignoreL1_, nzs_, noise_, ratio_, fillTree_;
+  bool nzs_, noise_, ratio_, ignoreL1_, fillTree_;
   double eLowHF_, eHighHF_;
+  std::vector<int> trigbit_;
   std::vector<unsigned int> hcalID_;
   TTree* myTree_;
   TH1D* hist_[2];
   std::vector<std::pair<TH1D*, TH1D*>> histo_;
-  std::vector<int> trigbit_;
   double rnnum_;
   struct myInfo {
     double kount, f11, f12, f13, f14, f21, f22, f23, f24, runcheck;
@@ -76,24 +76,23 @@ private:
 };
 
 // constructors and destructor
-RecAnalyzerHF::RecAnalyzerHF(const edm::ParameterSet& iConfig) {
+RecAnalyzerHF::RecAnalyzerHF(const edm::ParameterSet& iConfig) :
+      nzs_(iConfig.getParameter<bool>("RunNZS")),
+      noise_(iConfig.getParameter<bool>("Noise")),
+      ratio_(iConfig.getParameter<bool>("Ratio")),
+      ignoreL1_(iConfig.getUntrackedParameter<bool>("IgnoreL1", false)),
+      fillTree_(iConfig.getUntrackedParameter<bool>("FillTree", true)),
+      eLowHF_(iConfig.getParameter<double>("ELowHF")),
+      eHighHF_(iConfig.getParameter<double>("EHighHF")),
+      trigbit_(iConfig.getUntrackedParameter<std::vector<int>>("TriggerBits")),
+      tok_hfreco_(consumes<HFPreRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"))),
+      tok_hltL1GtMap_(consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"))) {
+
   usesResource("TFileService");
-  // get name of output file with histogramms
-  nzs_ = iConfig.getParameter<bool>("RunNZS");
-  noise_ = iConfig.getParameter<bool>("Noise");
-  ratio_ = iConfig.getParameter<bool>("Ratio");
-  eLowHF_ = iConfig.getParameter<double>("ELowHF");
-  eHighHF_ = iConfig.getParameter<double>("EHighHF");
-  trigbit_ = iConfig.getUntrackedParameter<std::vector<int>>("TriggerBits");
-  ignoreL1_ = iConfig.getUntrackedParameter<bool>("IgnoreL1", false);
-  fillTree_ = iConfig.getUntrackedParameter<bool>("FillTree", true);
+  // get constants for the ID
   std::vector<int> ieta = iConfig.getUntrackedParameter<std::vector<int>>("HcalIeta");
   std::vector<int> iphi = iConfig.getUntrackedParameter<std::vector<int>>("HcalIphi");
   std::vector<int> depth = iConfig.getUntrackedParameter<std::vector<int>>("HcalDepth");
-
-  // get token names of modules, producing object collections
-  tok_hfreco_ = consumes<HFPreRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
-  tok_hltL1GtMap_ = consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"));
 
   edm::LogVerbatim("RecAnalyzer") << " Flags (IgnoreL1): " << ignoreL1_ << " (NZS) " << nzs_ << " (Noise) " << noise_
                                   << " (Ratio) " << ratio_;
@@ -234,8 +233,7 @@ void RecAnalyzerHF::endJob() {
 void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   rnnum_ = (double)iEvent.run();
 
-  edm::Handle<HFPreRecHitCollection> hf;
-  iEvent.getByToken(tok_hfreco_, hf);
+  const edm::Handle<HFPreRecHitCollection>& hf = iEvent.getHandle(tok_hfreco_);
   if (!hf.isValid()) {
     edm::LogWarning("RecAnalyzer") << "HcalCalibAlgos: Error! can't get hf product!";
     return;
@@ -248,8 +246,7 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
 
   bool select(false);
   if (!trigbit_.empty()) {
-    edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
+    const edm::Handle<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord = iEvent.getHandle(tok_hltL1GtMap_);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
@@ -271,8 +268,7 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   if (ignoreL1_ || (!trigbit_.empty() && select)) {
     analyzeHcal(Hithf, 1, true);
   } else if ((!ignoreL1_) && (trigbit_.empty())) {
-    edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
+    const edm::Handle<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord = iEvent.getHandle(tok_hltL1GtMap_);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       bool ok(false);

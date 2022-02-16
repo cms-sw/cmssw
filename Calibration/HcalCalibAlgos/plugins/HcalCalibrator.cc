@@ -51,7 +51,7 @@ to the actual calibration code in "endJob()".
 class HcalCalibrator : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalCalibrator(const edm::ParameterSet&);
-  ~HcalCalibrator() override;
+  ~HcalCalibrator() override = default;
 
   // Added for running the CaloTower creation algorithm
 
@@ -60,46 +60,46 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  std::string mOutputFile;
-  std::string mInputFileList;
+  const std::string mOutputFile;
+  const std::string mInputFileList;
 
-  std::string mCalibType;
-  std::string mCalibMethod;
-  double mMinTargetE;
-  double mMaxTargetE;
-  double mMinCellE;
-  double mMinEOverP;
-  double mMaxEOverP;
-  double mMaxTrkEmE;
+  const std::string mCalibType;
+  const std::string mCalibMethod;
+  const double mMinTargetE;
+  const double mMaxTargetE;
+  const double mMinCellE;
+  const double mMinEOverP;
+  const double mMaxEOverP;
+  const double mMaxTrkEmE;
 
-  double mMaxEtThirdJet;
-  double mMinDPhiDiJets;
-  bool mSumDepths;
-  bool mSumSmallDepths;
-  bool mCombinePhi;
-  int mHbClusterSize;
-  int mHeClusterSize;
+  const double mMaxEtThirdJet;
+  const double mMinDPhiDiJets;
+  const bool mSumDepths;
+  const bool mSumSmallDepths;
+  const bool mCombinePhi;
+  const int mHbClusterSize;
+  const int mHeClusterSize;
 
-  bool mUseConeClustering;
-  double mMaxConeDist;
+  const bool mUseConeClustering;
+  const double mMaxConeDist;
 
-  int mCalibAbsIEtaMax;
-  int mCalibAbsIEtaMin;
+  const int mCalibAbsIEtaMax;
+  const int mCalibAbsIEtaMin;
 
-  double mMaxProbeJetEmFrac;
-  double mMaxTagJetEmFrac;
-  double mMaxTagJetAbsEta;
-  double mMinTagJetEt;
-  double mMinProbeJetAbsEta;
+  const double mMaxProbeJetEmFrac;
+  const double mMaxTagJetEmFrac;
+  const double mMaxTagJetAbsEta;
+  const double mMinTagJetEt;
+  const double mMinProbeJetAbsEta;
 
-  std::string mPhiSymCorFileName;
-  bool mApplyPhiSymCorFlag;
+  const std::string mPhiSymCorFileName;
+  const bool mApplyPhiSymCorFlag;
 
-  std::string mOutputCorCoefFileName;
-  std::string mHistoFileName;
+  const std::string mOutputCorCoefFileName;
+  const std::string mHistoFileName;
 
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
 
   const CaloGeometry* mTheCaloGeometry;
   const HcalTopology* mTheHcalTopology;
@@ -141,14 +141,9 @@ HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf)
       mPhiSymCorFileName(conf.getUntrackedParameter<std::string>("phiSymCorFileName")),
       mApplyPhiSymCorFlag(conf.getUntrackedParameter<bool>("applyPhiSymCorFlag")),
       mOutputCorCoefFileName(conf.getUntrackedParameter<std::string>("outputCorCoefFileName")),
-      mHistoFileName(conf.getUntrackedParameter<std::string>("histoFileName")) {
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
-}
-
-// destructor
-
-HcalCalibrator::~HcalCalibrator() {}
+      mHistoFileName(conf.getUntrackedParameter<std::string>("histoFileName")),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()) { }
 
 // ------------ method called to for each event  ------------
 
