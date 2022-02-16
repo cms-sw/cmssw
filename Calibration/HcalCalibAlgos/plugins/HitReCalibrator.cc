@@ -56,8 +56,8 @@ namespace cms {
 
 namespace cms {
 
-  HitReCalibrator::HitReCalibrator(const edm::ParameterSet& iConfig) :
-        tok_hbhe_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"))),
+  HitReCalibrator::HitReCalibrator(const edm::ParameterSet& iConfig)
+      : tok_hbhe_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"))),
         tok_ho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"))),
         tok_hf_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"))),
         tok_resp_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()) {
@@ -82,7 +82,7 @@ namespace cms {
     const HcalRespCorrs* jetRecalib = &iSetup.getData(tok_resp_);
 
     try {
-      const edm::Handle<HBHERecHitCollection>&  hbhe = iEvent.getHandle(tok_hbhe_);
+      const edm::Handle<HBHERecHitCollection>& hbhe = iEvent.getHandle(tok_hbhe_);
       const HBHERecHitCollection Hithbhe = *(hbhe.product());
       for (HBHERecHitCollection::const_iterator hbheItr = Hithbhe.begin(); hbheItr != Hithbhe.end(); hbheItr++) {
         DetId id = hbheItr->detid();

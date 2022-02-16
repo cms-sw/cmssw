@@ -126,8 +126,8 @@ private:
 };
 
 // constructors and destructor
-RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) : 
-      runNZS_(iConfig.getParameter<bool>("runNZS")),
+RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig)
+    : runNZS_(iConfig.getParameter<bool>("runNZS")),
       Noise_(iConfig.getParameter<bool>("noise")),
       ignoreL1_(iConfig.getUntrackedParameter<bool>("ignoreL1", false)),
       fillHist_(iConfig.getUntrackedParameter<bool>("fillHisto", false)),
@@ -155,7 +155,6 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) :
       tok_qie10digi_(consumes<QIE10DigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"))),
       tok_gtRec_(consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigisAlCaMB"))),
       tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>()) {
-
   usesResource("TFileService");
 
   // get constants for DetID's

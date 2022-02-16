@@ -172,8 +172,8 @@ private:
   TH1F* nTracks;
 };
 
-ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig) :
-      takeGenTracks_(iConfig.getUntrackedParameter<bool>("takeGenTracks")),
+ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
+    : takeGenTracks_(iConfig.getUntrackedParameter<bool>("takeGenTracks")),
       genhbheLabel_(iConfig.getParameter<edm::InputTag>("genHBHE")),
       associationConeSize_(iConfig.getParameter<double>("associationConeSize")),
       allowMissingInputs_(iConfig.getUntrackedParameter<bool>("allowMissingInputs", true)),
@@ -188,18 +188,17 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig) :
       tok_genTrack_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("genTracksLabel"))),
       tok_hbhe_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"))),
       tok_ho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"))),
-      tok_track_(consumes<reco::IsolatedPixelTrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("HcalIsolTrackInput"))),
+      tok_track_(consumes<reco::IsolatedPixelTrackCandidateCollection>(
+          iConfig.getParameter<edm::InputTag>("HcalIsolTrackInput"))),
       tok_track1_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackInput"))),
       tok_recalibCorrs_(esConsumes(edm::ESInputTag("", "recalibrate"))),
       tok_geom_(esConsumes()) {
-
   usesResource(TFileService::kSharedResource);
 
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   edm::ConsumesCollector iC = consumesCollector();
   parameters_.loadParameters(parameters, iC);
   trackAssociator_.useDefaultPropagator();
-
 }
 
 // ------------ method called to for each event  ------------
