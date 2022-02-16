@@ -123,8 +123,8 @@ private:
   std::vector<PassiveData> store_;
 };
 
-CaloSteppingAction::CaloSteppingAction(const edm::ParameterSet& p) : 
-      iC_(p.getParameter<edm::ParameterSet>("CaloSteppingAction")),
+CaloSteppingAction::CaloSteppingAction(const edm::ParameterSet& p)
+    : iC_(p.getParameter<edm::ParameterSet>("CaloSteppingAction")),
       nameEBSD_(iC_.getParameter<std::vector<std::string> >("EBSDNames")),
       nameEESD_(iC_.getParameter<std::vector<std::string> >("EESDNames")),
       nameHCSD_(iC_.getParameter<std::vector<std::string> >("HCSDNames")),

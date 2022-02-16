@@ -88,12 +88,11 @@ EcalSimHitStudy::EcalSimHitStudy(const edm::ParameterSet& ps)
       tmax_(ps.getUntrackedParameter<double>("TimeCut", 100.0)),
       w0_(ps.getUntrackedParameter<double>("W0", 4.7)),
       selX_(ps.getUntrackedParameter<int>("SelectX", -1)),
-      tok_evt_(consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")))),
-      toks_calo_{edm::vector_transform(hitLab_,
-				       [this](const std::string& name) {
-					 return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name});
-				       })} {
-
+      tok_evt_(consumes<edm::HepMCProduct>(
+          edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")))),
+      toks_calo_{edm::vector_transform(hitLab_, [this](const std::string& name) {
+        return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name});
+      })} {
   usesResource(TFileService::kSharedResource);
 
   edm::LogVerbatim("HitStudy") << "Module Label: " << g4Label_ << "   Hits: " << hitLab_[0] << ", " << hitLab_[1]
