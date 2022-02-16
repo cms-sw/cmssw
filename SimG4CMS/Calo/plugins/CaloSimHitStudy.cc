@@ -63,22 +63,19 @@ private:
   const std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> toks_tkHigh_;
   const std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> toks_tkLow_;
 
-  const std::vector<std::string> muonLab_ = {"MuonRPCHits", 
-					     "MuonCSCHits", 
-					     "MuonDTHits", 
-					     "MuonGEMHits"};
+  const std::vector<std::string> muonLab_ = {"MuonRPCHits", "MuonCSCHits", "MuonDTHits", "MuonGEMHits"};
   const std::vector<std::string> tkHighLab_ = {"TrackerHitsPixelBarrelHighTof",
-					       "TrackerHitsPixelEndcapHighTof",
-					       "TrackerHitsTECHighTof",
-					       "TrackerHitsTIBHighTof",
-					       "TrackerHitsTIDHighTof",
-					       "TrackerHitsTOBHighTof"};
+                                               "TrackerHitsPixelEndcapHighTof",
+                                               "TrackerHitsTECHighTof",
+                                               "TrackerHitsTIBHighTof",
+                                               "TrackerHitsTIDHighTof",
+                                               "TrackerHitsTOBHighTof"};
   const std::vector<std::string> tkLowLab_ = {"TrackerHitsPixelBarrelLowTof",
-					      "TrackerHitsPixelEndcapLowTof",
-					      "TrackerHitsTECLowTof",
-					      "TrackerHitsTIBLowTof",
-					      "TrackerHitsTIDLowTof",
-					      "TrackerHitsTOBLowTof"};
+                                              "TrackerHitsPixelEndcapLowTof",
+                                              "TrackerHitsTECLowTof",
+                                              "TrackerHitsTIBLowTof",
+                                              "TrackerHitsTIDLowTof",
+                                              "TrackerHitsTOBLowTof"};
 
   TH1F *hit_[9], *time_[9], *edepEM_[9], *edepHad_[9], *edep_[9];
   TH1F *etot_[9], *etotg_[9], *timeAll_[9], *hitMu, *hitHigh;
@@ -86,8 +83,8 @@ private:
   TH1F *hitTk_[16], *edepTk_[16], *tofTk_[16], *edepC_[9], *edepT_[9];
 };
 
-CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) :
-      g4Label_(ps.getUntrackedParameter<std::string>("ModuleLabel")),
+CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps)
+    : g4Label_(ps.getUntrackedParameter<std::string>("ModuleLabel")),
       hitLab_(ps.getUntrackedParameter<std::vector<std::string>>("CaloCollection")),
       maxEnergy_(ps.getUntrackedParameter<double>("MaxEnergy", 200.0)),
       tmax_(ps.getUntrackedParameter<double>("TimeCut", 100.0)),
@@ -96,26 +93,24 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) :
       testNumber_(ps.getUntrackedParameter<bool>("TestNumbering", true)),
       tok_evt_(consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel")))),
       toks_calo_{edm::vector_transform(hitLab_,
-                                      [this](const std::string& name) {
-                                        return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name});
-                                      })},
+                                       [this](const std::string& name) {
+                                         return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name});
+                                       })},
       toks_track_{edm::vector_transform(muonLab_,
-                                      [this](const std::string& name) {
-                                        return consumes<edm::PSimHitContainer>(edm::InputTag{g4Label_, name});
-                                      })},
+                                        [this](const std::string& name) {
+                                          return consumes<edm::PSimHitContainer>(edm::InputTag{g4Label_, name});
+                                        })},
       toks_tkHigh_{edm::vector_transform(tkHighLab_,
-                                      [this](const std::string& name) {
-                                        return consumes<edm::PSimHitContainer>(edm::InputTag{g4Label_, name});
-                                      })},
-      toks_tkLow_{edm::vector_transform(tkLowLab_,
-                                      [this](const std::string& name) {
-                                        return consumes<edm::PSimHitContainer>(edm::InputTag{g4Label_, name});
-                                      })} {
-
+                                         [this](const std::string& name) {
+                                           return consumes<edm::PSimHitContainer>(edm::InputTag{g4Label_, name});
+                                         })},
+      toks_tkLow_{edm::vector_transform(tkLowLab_, [this](const std::string& name) {
+        return consumes<edm::PSimHitContainer>(edm::InputTag{g4Label_, name});
+      })} {
   usesResource(TFileService::kSharedResource);
 
-  edm::LogVerbatim("HitStudy") << "Module Label: " << g4Label_ << "   Hits: " << hitLab_[0] << ", " << hitLab_[1] << ", "
-                               << hitLab_[2] << ", " << hitLab_[3] << "   MaxEnergy: " << maxEnergy_
+  edm::LogVerbatim("HitStudy") << "Module Label: " << g4Label_ << "   Hits: " << hitLab_[0] << ", " << hitLab_[1]
+                               << ", " << hitLab_[2] << ", " << hitLab_[3] << "   MaxEnergy: " << maxEnergy_
                                << "  Tmax: " << tmax_ << "  MIP Cut: " << eMIP_;
 
   edm::Service<TFileService> tfile;
@@ -336,7 +331,7 @@ void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const&) {
 
   std::vector<PSimHit> muonHits;
   for (unsigned int i = 0; i < toks_track_.size(); i++) {
-    const edm::Handle<edm::PSimHitContainer>&  hitsTrack = e.getHandle(toks_track_[i]);
+    const edm::Handle<edm::PSimHitContainer>& hitsTrack = e.getHandle(toks_track_[i]);
     if (hitsTrack.isValid()) {
       muonHits.insert(muonHits.end(), hitsTrack->begin(), hitsTrack->end());
       analyzeHits(hitsTrack, i + 12);
@@ -346,7 +341,7 @@ void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const&) {
   hitMu->Fill(double(nhmu));
   std::vector<PSimHit> tkHighHits;
   for (unsigned int i = 0; i < toks_tkHigh_.size(); i++) {
-    const edm::Handle<edm::PSimHitContainer>&  hitsTrack = e.getHandle(toks_tkHigh_[i]);
+    const edm::Handle<edm::PSimHitContainer>& hitsTrack = e.getHandle(toks_tkHigh_[i]);
     if (hitsTrack.isValid()) {
       tkHighHits.insert(tkHighHits.end(), hitsTrack->begin(), hitsTrack->end());
       analyzeHits(hitsTrack, i);
@@ -356,7 +351,7 @@ void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const&) {
   hitHigh->Fill(double(nhtkh));
   std::vector<PSimHit> tkLowHits;
   for (unsigned int i = 0; i < toks_tkLow_.size(); i++) {
-    const edm::Handle<edm::PSimHitContainer>&  hitsTrack = e.getHandle(toks_tkLow_[i]);
+    const edm::Handle<edm::PSimHitContainer>& hitsTrack = e.getHandle(toks_tkLow_[i]);
     if (hitsTrack.isValid()) {
       tkLowHits.insert(tkLowHits.end(), hitsTrack->begin(), hitsTrack->end());
       analyzeHits(hitsTrack, i + 6);

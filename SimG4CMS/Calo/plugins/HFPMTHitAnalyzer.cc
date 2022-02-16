@@ -65,14 +65,14 @@ private:
   TH1F *hHF12_time[3], *hHF12_time_Ewt[3];
 };
 
-HFPMTHitAnalyzer::HFPMTHitAnalyzer(const edm::ParameterSet &iConfig) :
-      g4Label_(iConfig.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits")),
+HFPMTHitAnalyzer::HFPMTHitAnalyzer(const edm::ParameterSet &iConfig)
+    : g4Label_(iConfig.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits")),
       hcalHits_(iConfig.getUntrackedParameter<std::string>("HitCollection", "HcalHits")),
-      tok_evt_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")))),
+      tok_evt_(consumes<edm::HepMCProduct>(
+          edm::InputTag(iConfig.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")))),
       tok_calo_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_))),
       tok_track_(consumes<edm::SimTrackContainer>(edm::InputTag(g4Label_))) {
   usesResource(TFileService::kSharedResource);
-
 }
 
 void HFPMTHitAnalyzer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -203,8 +203,8 @@ void HFPMTHitAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &
   if (event_no % 500 == 0)
     edm::LogVerbatim("HcalSim") << "Event # " << event_no << " processed.";
 
-  const edm::Handle<edm::PCaloHitContainer>& hitsHcal = iEvent.getHandle(tok_calo_);
-  const edm::Handle<edm::SimTrackContainer>& Tracks = iEvent.getHandle(tok_track_);
+  const edm::Handle<edm::PCaloHitContainer> &hitsHcal = iEvent.getHandle(tok_calo_);
+  const edm::Handle<edm::SimTrackContainer> &Tracks = iEvent.getHandle(tok_track_);
   const edm::Handle<edm::HepMCProduct> EvtHandle = iEvent.getHandle(tok_evt_);
   const HepMC::GenEvent *myGenEvent = EvtHandle->GetEvent();
 
