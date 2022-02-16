@@ -147,8 +147,8 @@ private:
 // constructors and destructor
 //
 
-HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig) :
-      m_cosmic(iConfig.getUntrackedParameter<bool>("cosmic", true)),
+HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
+    : m_cosmic(iConfig.getUntrackedParameter<bool>("cosmic", true)),
       m_zeroField(iConfig.getUntrackedParameter<bool>("zeroField", false)),
       m_bins(iConfig.getUntrackedParameter<int>("HOSignalBins", 120)),
       m_low(iConfig.getUntrackedParameter<double>("lowerRange", -1.0)),
@@ -157,7 +157,6 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig) :
       m_treeFill(iConfig.getUntrackedParameter<bool>("treeFill", false)),
       tok_ho_(consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"))),
       tok_allho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputTag"))) {
-
   // It is very likely you want the following in your configuration
   // hoCalibVariableCollectionTag = cms.InputTag('hoCalibProducer', 'HOCalibVariableCollection')
 

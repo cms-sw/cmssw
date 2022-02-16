@@ -143,7 +143,7 @@ HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf)
       mOutputCorCoefFileName(conf.getUntrackedParameter<std::string>("outputCorCoefFileName")),
       mHistoFileName(conf.getUntrackedParameter<std::string>("histoFileName")),
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()) { }
+      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()) {}
 
 // ------------ method called to for each event  ------------
 

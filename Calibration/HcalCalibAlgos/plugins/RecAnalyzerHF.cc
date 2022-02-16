@@ -76,8 +76,8 @@ private:
 };
 
 // constructors and destructor
-RecAnalyzerHF::RecAnalyzerHF(const edm::ParameterSet& iConfig) :
-      nzs_(iConfig.getParameter<bool>("RunNZS")),
+RecAnalyzerHF::RecAnalyzerHF(const edm::ParameterSet& iConfig)
+    : nzs_(iConfig.getParameter<bool>("RunNZS")),
       noise_(iConfig.getParameter<bool>("Noise")),
       ratio_(iConfig.getParameter<bool>("Ratio")),
       ignoreL1_(iConfig.getUntrackedParameter<bool>("IgnoreL1", false)),
@@ -87,7 +87,6 @@ RecAnalyzerHF::RecAnalyzerHF(const edm::ParameterSet& iConfig) :
       trigbit_(iConfig.getUntrackedParameter<std::vector<int>>("TriggerBits")),
       tok_hfreco_(consumes<HFPreRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"))),
       tok_hltL1GtMap_(consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"))) {
-
   usesResource("TFileService");
   // get constants for the ID
   std::vector<int> ieta = iConfig.getUntrackedParameter<std::vector<int>>("HcalIeta");

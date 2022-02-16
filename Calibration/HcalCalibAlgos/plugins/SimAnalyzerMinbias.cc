@@ -65,8 +65,8 @@ private:
 
 // constructors and destructor
 
-SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig) :
-      timeCut_(iConfig.getUntrackedParameter<double>("TimeCut", 500)),
+SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig)
+    : timeCut_(iConfig.getUntrackedParameter<double>("TimeCut", 500)),
       tok_evt_(consumes<edm::HepMCProduct>(edm::InputTag("generator"))),
       tok_hcal_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"))) {
   usesResource(TFileService::kSharedResource);
