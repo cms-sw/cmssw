@@ -668,7 +668,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet>&
       }
 
       double ptPhys = jet->hwPt() * params_->jetLsb();
-      double correction = params[7];
+      double correction;
 
       if (ptPhys < params[8])
         correction = params[7];
