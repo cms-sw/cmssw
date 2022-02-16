@@ -6,7 +6,7 @@ hltSUSYmonitoring = topMonitoring.clone(
   FolderName = 'HLT/SUSY/default/',
   histoPSet = dict(
       lsPSet = dict(
-            nbins =  250 ,
+            nbins =  2500,
             xmin  =    0.,
             xmax  =  2500.),
 
@@ -14,9 +14,6 @@ hltSUSYmonitoring = topMonitoring.clone(
             nbins =   30 ,
             xmin  =   0 ,
             xmax  =  300),
-
-      #lsPSet = dict(
-            #nbins = 2500 ),
 
       ptPSet = dict(
             nbins =  60 ,
