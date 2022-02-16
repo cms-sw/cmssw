@@ -32,7 +32,7 @@ autoCond = {
     # GlobalTag for Run2 HI data
     'run2_data_promptlike_hi'      : '123X_dataRun2_PromptLike_HI_v1',
     # GlobalTag for Run3 HLT: it points to the online GT
-    'run3_hlt'                     : '123X_dataRun3_HLT_v2',
+    'run3_hlt'                     : '123X_dataRun3_HLT_v3',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'              : '123X_dataRun2_HLT_relval_v1',
     # GlobalTag for Run3 data relvals (express GT)
