@@ -356,12 +356,12 @@ class EcalPhiSymRecHitProducerLumi : public edm::global::EDProducer<edm::StreamC
                                      public EcalPhiSymRecHitProducerBase {
 public:
   explicit EcalPhiSymRecHitProducerLumi(const edm::ParameterSet& pSet);
-  ~EcalPhiSymRecHitProducerLumi(){};
+  ~EcalPhiSymRecHitProducerLumi() override{};
 
 private:
   //---methods
   // job
-  void beginJob() { initializeJob(); };
+  void beginJob() override { initializeJob(); };
   // lumi
   std::shared_ptr<PhiSymCache> globalBeginLuminosityBlock(edm::LuminosityBlock const& lumi,
                                                           edm::EventSetup const& setup) const override;
@@ -377,7 +377,7 @@ private:
                                 edm::EventSetup const& setup) const override;
 
   // event
-  void accumulate(edm::StreamID stream, edm::Event const& event, edm::EventSetup const& setup) const;
+  void accumulate(edm::StreamID stream, edm::Event const& event, edm::EventSetup const& setup) const override;
 
   // data members
   edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoTokenLumi_;
@@ -463,12 +463,12 @@ class EcalPhiSymRecHitProducerRun : public edm::global::EDProducer<edm::StreamCa
                                     public EcalPhiSymRecHitProducerBase {
 public:
   explicit EcalPhiSymRecHitProducerRun(const edm::ParameterSet& pSet);
-  ~EcalPhiSymRecHitProducerRun(){};
+  ~EcalPhiSymRecHitProducerRun() override{};
 
 private:
   //---methods
   // job
-  void beginJob() { initializeJob(); };
+  void beginJob() override { initializeJob(); };
   // run
   std::shared_ptr<PhiSymCache> globalBeginRun(edm::Run const& run, edm::EventSetup const& setup) const override;
   void globalEndRun(edm::Run const& run, edm::EventSetup const& setup) const override{};
@@ -478,11 +478,11 @@ private:
                                                           edm::EventSetup const& setup) const override;
   void globalEndLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) const override{};
   // stream
-  std::unique_ptr<PhiSymCache> beginStream(edm::StreamID stream) const;
+  std::unique_ptr<PhiSymCache> beginStream(edm::StreamID stream) const override;
   void streamBeginRun(edm::StreamID stream, edm::Run const& run, edm::EventSetup const& setup) const override;
   void streamEndRun(edm::StreamID stream, edm::Run const& run, edm::EventSetup const& setup) const override;
   // event
-  void accumulate(edm::StreamID stream, edm::Event const& event, edm::EventSetup const& setup) const;
+  void accumulate(edm::StreamID stream, edm::Event const& event, edm::EventSetup const& setup) const override;
 
   // data members
   edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoTokenLumi_;
