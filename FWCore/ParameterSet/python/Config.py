@@ -1159,9 +1159,10 @@ class Process(object):
     def _insertSwitchProducersInto(self, parameterSet, labelModules, labelAliases, itemDict, tracked):
         modules = parameterSet.getVString(tracked, labelModules)
         aliases = parameterSet.getVString(tracked, labelAliases)
+        accelerators = parameterSet.getVString(False, "@selected_accelerators")
         for name,value in itemDict.items():
             value.appendToProcessDescLists_(modules, aliases, name)
-            value.insertInto(parameterSet, name, self.options.accelerators)
+            value.insertInto(parameterSet, name, accelerators)
         modules.sort()
         aliases.sort()
         parameterSet.addVString(tracked, labelModules, modules)
@@ -1443,20 +1444,21 @@ class Process(object):
         pass
 
     def handleProcessAccelerators(self, parameterSet):
-        allAccelerators = set(label for acc in self.__dict__['_Process__accelerators'].values() for label in acc.labels())
         # 'cpu' accelerator is always implicitly there
+        allAccelerators = set(["cpu"])
         availableAccelerators = set(["cpu"])
         for acc in self.__dict__['_Process__accelerators'].values():
-            for l in acc.enabledLabels():
-                availableAccelerators.add(l)
+            allAccelerators.update(acc.labels())
+            availableAccelerators.update(acc.enabledLabels())
         availableAccelerators = sorted(list(availableAccelerators))
         parameterSet.addVString(False, "@available_accelerators", availableAccelerators)
 
         # Resolve wildcards
+        selectedAccelerators = []
         if "*" in self.options.accelerators:
             if len(self.options.accelerators) >= 2:
                 raise ValueError("process.options.accelerators may contain '*' only as the only element, now it has {} elements".format(len(self.options.accelerators)))
-            self.options.accelerators = availableAccelerators
+            selectedAccelerators = availableAccelerators
         else:
             import fnmatch
             resolved = set()
@@ -1474,11 +1476,12 @@ class Process(object):
                     "s" if len(invalid) > 2 else "",
                     ",".join(invalid),
                     ",".join(sorted(list(allAccelerators)))))
-            self.options.accelerators = sorted(list(resolved))
+            selectedAccelerators = sorted(list(resolved))
+        parameterSet.addVString(False, "@selected_accelerators", selectedAccelerators)
 
         # Customize
         for acc in self.__dict__['_Process__accelerators'].values():
-            acc.apply(self)
+            acc.apply(self, selectedAccelerators)
 
     def prefer(self, esmodule,*args,**kargs):
         """Prefer this ES source or producer.  The argument can
@@ -1912,13 +1915,14 @@ class ProcessAccelerator(_ConfigureComponent,_Unlabelable):
         """Override to return a list of strings for the accelerator labels
         that are enabled in the system the job is being run on."""
         return []
-    def apply(self, process):
+    def apply(self, process, accelerators):
         """Override if need to customize the Process at worker node. The
-        available accelerator labels are available via
-        'process.options.accelerators' (the patterns, e.g. '*' have been expanded
-        to concrete labels at this point).
+        selected available accelerator labels are given in the
+        'accelerators' argument (the patterns, e.g. '*' have been
+        expanded to concrete labels).
 
-        This function may touch only untracked parameters."""
+        This function may touch only untracked parameters.
+        """
         pass
 
 # Need to be a module-level function for the configuration with a
@@ -2056,10 +2060,32 @@ if __name__=="__main__":
             return self._labels
         def enabledLabels(self):
             return self._enabled
-        def apply(self, process):
+        def apply(self, process, accelerators):
             process.acceleratorTestProducer = EDProducer("AcceleratorTestProducer")
             process.acceleratorTestPath = Path(process.acceleratorTestProducer)
     specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorTest, "from test import ProcessAcceleratorTest")
+
+    class ProcessAcceleratorTest2(ProcessAccelerator):
+        def __init__(self, enabled=["anothertest3", "anothertest4"]):
+            super(ProcessAcceleratorTest2,self).__init__()
+            self._labels = ["anothertest3", "anothertest4"]
+            self.setEnabled(enabled)
+        def setEnabled(self, enabled):
+            invalid = set(enabled).difference(set(self._labels))
+            if len(invalid) > 0:
+                raise Exception("Tried to enabled nonexistent test accelerators {}".format(",".join(invalid)))
+            self._enabled = enabled[:]
+        def dumpPythonImpl(self,options):
+            result = "{}enabled = [{}]".format(options.indentation(),
+                                               ", ".join(["'{}'".format(e) for e in self._enabled]))
+            return result
+        def labels(self):
+            return self._labels
+        def enabledLabels(self):
+            return self._enabled
+        def apply(self, process, accelerators):
+            pass
+    specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorTest2, "from test import ProcessAcceleratorTest2")
 
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
@@ -3922,10 +3948,9 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             proc = Process("TEST")
             p = TestMakePSet()
             proc.fillProcessDesc(p)
-            self.assertFalse(p.values["options"][1].values["accelerators"][0])
-            self.assertTrue(["cpu"], p.values["options"][1].values["accelerators"][1])
-            self.assertFalse(p.values["@available_accelerators"][0])
             self.assertTrue(["cpu"], p.values["@available_accelerators"][1])
+            self.assertFalse(p.values["@selected_accelerators"][0])
+            self.assertTrue(["cpu"], p.values["@selected_accelerators"][1])
 
             proc = Process("TEST")
             self.assertRaises(TypeError, setattr, proc, "processAcceleratorTest", ProcessAcceleratorTest())
@@ -3984,8 +4009,9 @@ process.ProcessAcceleratorTest = ProcessAcceleratorTest(
 """)
             p = TestMakePSet()
             proc.fillProcessDesc(p)
+            self.assertEqual(["*"], p.values["options"][1].values["accelerators"][1])
             self.assertFalse(p.values["options"][1].values["accelerators"][0])
-            self.assertTrue(["anothertest3", "cpu", "test1", "test2"], p.values["options"][1].values["accelerators"][1])
+            self.assertTrue(["anothertest3", "cpu", "test1", "test2"], p.values["@selected_accelerators"][1])
             self.assertEqual((True, "AcceleratorTestProducer"), p.values["acceleratorTestProducer"][1].values["@module_type"])
             self.assertFalse(p.values["@available_accelerators"][0])
             self.assertTrue(["anothertest3", "cpu", "test1", "test2"], p.values["@available_accelerators"][1])
@@ -3994,7 +4020,7 @@ process.ProcessAcceleratorTest = ProcessAcceleratorTest(
             proc.ProcessAcceleratorTest = ProcessAcceleratorTest(enabled=["test1"])
             p = TestMakePSet()
             proc.fillProcessDesc(p)
-            self.assertEqual(["cpu", "test1"], p.values["options"][1].values["accelerators"][1])
+            self.assertEqual(["cpu", "test1"], p.values["@selected_accelerators"][1])
             self.assertEqual(["cpu", "test1"], p.values["@available_accelerators"][1])
 
             proc = Process("TEST")
@@ -4002,16 +4028,14 @@ process.ProcessAcceleratorTest = ProcessAcceleratorTest(
             proc.options.accelerators = ["test2"]
             p = TestMakePSet()
             proc.fillProcessDesc(p)
-            self.assertEqual(["test2"], p.values["options"][1].values["accelerators"][1])
-            availableAccelerators = p.values["@available_accelerators"][1]
+            self.assertEqual(["test2"], p.values["@selected_accelerators"][1])
             self.assertEqual(["anothertest3", "cpu", "test1", "test2"], p.values["@available_accelerators"][1])
 
             proc = Process("TEST")
             proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
             proc.options.accelerators = ["test*"]
             proc.fillProcessDesc(p)
-            accelerators = p.values["options"][1].values["accelerators"][1]
-            self.assertEqual(["test1", "test2"], p.values["options"][1].values["accelerators"][1])
+            self.assertEqual(["test1", "test2"], p.values["@selected_accelerators"][1])
             self.assertEqual(["anothertest3", "cpu", "test1", "test2"], p.values["@available_accelerators"][1])
 
             proc = Process("TEST")
@@ -4019,8 +4043,16 @@ process.ProcessAcceleratorTest = ProcessAcceleratorTest(
             proc.options.accelerators = ["test2"]
             p = TestMakePSet()
             proc.fillProcessDesc(p)
-            self.assertEqual([], p.values["options"][1].values["accelerators"][1])
+            self.assertEqual([], p.values["@selected_accelerators"][1])
             self.assertEqual(["cpu", "test1"], p.values["@available_accelerators"][1])
+
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
+            proc.options.accelerators = ["cpu*"]
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual(["cpu"], p.values["@selected_accelerators"][1])
+            self.assertEqual(["anothertest3", "cpu", "test1", "test2"], p.values["@available_accelerators"][1])
 
             proc = Process("TEST")
             proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
@@ -4033,6 +4065,23 @@ process.ProcessAcceleratorTest = ProcessAcceleratorTest(
             proc.options.accelerators = ["*", "test1"]
             p = TestMakePSet()
             self.assertRaises(ValueError, proc.fillProcessDesc, p)
+
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
+            proc.ProcessAcceleratorTest2 = ProcessAcceleratorTest2()
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual(["anothertest3", "anothertest4", "cpu", "test1", "test2"], p.values["@selected_accelerators"][1])
+            self.assertEqual(["anothertest3", "anothertest4", "cpu", "test1", "test2"], p.values["@available_accelerators"][1])
+
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
+            proc.ProcessAcceleratorTest2 = ProcessAcceleratorTest2()
+            proc.options.accelerators = ["*test3", "c*"]
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual(["anothertest3", "cpu"], p.values["@selected_accelerators"][1])
+            self.assertEqual(["anothertest3", "anothertest4", "cpu", "test1", "test2"], p.values["@available_accelerators"][1])
 
             proc = Process("TEST")
             proc.ProcessAcceleratorTest = ProcessAcceleratorTest()

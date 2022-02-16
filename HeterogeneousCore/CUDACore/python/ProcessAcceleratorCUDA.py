@@ -14,11 +14,11 @@ class ProcessAcceleratorCUDA(cms.ProcessAccelerator):
             return self.labels()
         else:
             return []
-    def apply(self, process):
+    def apply(self, process, accelerators):
         if not hasattr(process, "CUDAService"):
             process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
 
-        if self._label in process.options.accelerators:
+        if self._label in accelerators:
             process.CUDAService.enabled = True
             process.MessageLogger.CUDAService = cms.untracked.PSet()
         else:
