@@ -7,15 +7,13 @@ hltBTVmonitoring = topMonitoring.clone(
     
     histoPSet = dict(
          lsPSet = dict(
-                nbins = 250,
+                nbins = 2500,
                 xmin  =   0.,
                 xmax  =  2500.),
          metPSet = dict(
                 nbins =  30,
                 xmin  =   0,
-                xmax  = 300),
-        #lsPSet = dict(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-            #   nbins =  2500 ),                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+                xmax  = 300),                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
          ptPSet = dict(
                nbins =  100,
                xmin  =   0,
