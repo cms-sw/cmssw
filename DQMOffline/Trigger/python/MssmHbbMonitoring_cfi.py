@@ -6,7 +6,7 @@ mssmHbbMonitoring = topMonitoring.clone(
   FolderName = 'HLT/HIG/default/',
   histoPSet = dict(
      lsPSet = dict(
-              nbins = 250 ,
+              nbins = 2500,
               xmin  =  0.,
               xmax  = 2500.),
 
@@ -19,9 +19,6 @@ mssmHbbMonitoring = topMonitoring.clone(
               nbins = 100 , #60
               xmin  =   0 ,
               xmax  =  1000), #300
-
-      #lsPSet = dict(
-       #       nbins =  2500 ),
 
       phiPSet = dict(
               nbins =  32  ,
