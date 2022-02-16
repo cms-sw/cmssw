@@ -286,9 +286,9 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ValidIsoTrkCalib") << "Point 0.2.1 after numofvalidhits HB: "
-                                     << trit->hitPattern().numberOfValidHits();
+                                         << trit->hitPattern().numberOfValidHits();
     edm::LogVerbatim("ValidIsoTrkCalib") << "Point 0.2.2 after numofvalidstrips HE: "
-                                     << trit->hitPattern().numberOfValidStripTECHits();
+                                         << trit->hitPattern().numberOfValidStripTECHits();
 #endif
     numVH = trit->hitPattern().numberOfValidHits();
     numVS = trit->hitPattern().numberOfValidStripTECHits();
@@ -302,7 +302,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ValidIsoTrkCalib") << "Point 0.3.  Matched :: pt: " << trit->pt() << " wholeEnergy: " << trackE
-                                     << "  emEnergy: " << emEnergy << "  eta: " << trackEta << " phi: " << trackPhi;
+                                         << "  emEnergy: " << emEnergy << "  eta: " << trackEta << " phi: " << trackPhi;
     edm::LogVerbatim("ValidIsoTrkCalib") << "Point 0.4.  EM energy in cone: " << emEnergy;
 #endif
     TrackDetMatchInfo info = trackAssociator_.associate(
@@ -420,7 +420,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("ValidIsoTrkCalib") << "IN CONE ieta: " << ietahitm << "  iphi: " << iphihitm
-                                         << " depthhit: " << depthhit << "  dr: " << dr << " energy: " << enehit;
+                                             << " depthhit: " << depthhit << "  dr: " << dr << " energy: " << enehit;
 #endif
         //Find a Hit with Maximum Energy
 
@@ -441,10 +441,10 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ValidIsoTrkCalib") << "Hottest ieta: " << MaxHit.ietahitm << "  iphi: " << MaxHit.iphihitm
-                                     << "  dr: " << MaxHit.dr;
+                                         << "  dr: " << MaxHit.dr;
     edm::LogVerbatim("ValidIsoTrkCalib") << "Track   ieta: " << ietatrue << "  iphi: " << iphitrue;
-    edm::LogVerbatim("ValidIsoTrkCalib") << "Point 3.  MaxHit :::En " << MaxHit.hitenergy << "  ieta: " << MaxHit.ietahitm
-                                     << "  iphi: " << MaxHit.iphihitm;
+    edm::LogVerbatim("ValidIsoTrkCalib") << "Point 3.  MaxHit :::En " << MaxHit.hitenergy
+                                         << "  ieta: " << MaxHit.ietahitm << "  iphi: " << MaxHit.iphihitm;
 #endif
 
     Bool_t passCuts = kFALSE;

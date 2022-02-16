@@ -115,9 +115,9 @@ void SimAnalyzerMinbias::endJob() {
       mom4_MB = info.theMB4;
       cells++;
 
-      edm::LogVerbatim("SimAnalyzerMinbias") << " Result=  " << mysubd << " " << ieta << " " << iphi << " mom0  " << mom0_MB
-                                     << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 "
-                                     << mom4_MB;
+      edm::LogVerbatim("SimAnalyzerMinbias")
+          << " Result=  " << mysubd << " " << ieta << " " << iphi << " mom0  " << mom0_MB << " mom1 " << mom1_MB
+          << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 " << mom4_MB;
       myTree_->Fill();
     }
   }
@@ -132,7 +132,7 @@ void SimAnalyzerMinbias::endJob() {
 
 void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   edm::LogVerbatim("SimAnalyzerMinbias") << " Start SimAnalyzerMinbias::analyze " << iEvent.id().run() << ":"
-                                 << iEvent.id().event();
+                                         << iEvent.id().event();
 
   const edm::Handle<edm::HepMCProduct>& evtMC = iEvent.getHandle(tok_evt_);
   if (!evtMC.isValid()) {
@@ -140,7 +140,7 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
   } else {
     const HepMC::GenEvent* myGenEvent = evtMC->GetEvent();
     edm::LogVerbatim("SimAnalyzerMinbias") << "Event with " << myGenEvent->particles_size() << " particles + "
-                                   << myGenEvent->vertices_size() << " vertices";
+                                           << myGenEvent->vertices_size() << " vertices";
   }
 
   const edm::Handle<edm::PCaloHitContainer>& hcalHits = iEvent.getHandle(tok_hcal_);
@@ -164,8 +164,8 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
       itr1->second += energyhit;
     }
   }
-  edm::LogVerbatim("SimAnalyzerMinbias") << "extract information of " << hitMap.size() << " towers from " << HitHcal->size()
-                                 << " hits";
+  edm::LogVerbatim("SimAnalyzerMinbias") << "extract information of " << hitMap.size() << " towers from "
+                                         << HitHcal->size() << " hits";
 
   for (std::map<HcalDetId, double>::const_iterator hcalItr = hitMap.begin(); hcalItr != hitMap.end(); ++hcalItr) {
     HcalDetId hid = hcalItr->first;

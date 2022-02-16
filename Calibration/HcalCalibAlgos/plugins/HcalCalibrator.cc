@@ -174,7 +174,8 @@ void HcalCalibrator::endJob() {
   }
 
   if (mCalibType == "DI_JET" && mCalibMethod != "L3") {
-    edm::LogVerbatim("HcalCalibrator") << "\n\nDiJet calibration can use only the L3 method. Please change the python file.";
+    edm::LogVerbatim("HcalCalibrator")
+        << "\n\nDiJet calibration can use only the L3 method. Please change the python file.";
     return;
   }
 

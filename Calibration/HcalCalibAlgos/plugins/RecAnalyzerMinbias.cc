@@ -188,10 +188,11 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig)
     theRecalib_ = (ndets > 0);
   }
 
-  edm::LogVerbatim("RecAnalyzerMinbias") << " Flags (ReCalib): " << theRecalib_ << " (IgnoreL1): " << ignoreL1_ << " (NZS) "
-                                  << runNZS_ << " and with " << ieta.size() << " detId for full histogram";
-  edm::LogVerbatim("RecAnalyzerMinbias") << "Thresholds for HB " << eLowHB_ << ":" << eHighHB_ << "  for HE " << eLowHE_ << ":"
-                                  << eHighHE_ << "  for HF " << eLowHF_ << ":" << eHighHF_;
+  edm::LogVerbatim("RecAnalyzerMinbias") << " Flags (ReCalib): " << theRecalib_ << " (IgnoreL1): " << ignoreL1_
+                                         << " (NZS) " << runNZS_ << " and with " << ieta.size()
+                                         << " detId for full histogram";
+  edm::LogVerbatim("RecAnalyzerMinbias") << "Thresholds for HB " << eLowHB_ << ":" << eHighHB_ << "  for HE " << eLowHE_
+                                         << ":" << eHighHE_ << "  for HF " << eLowHF_ << ":" << eHighHF_;
   for (unsigned int k = 0; k < ieta.size(); ++k) {
     HcalSubdetector subd = ((std::abs(ieta[k]) > 29)                         ? HcalForward
                             : (std::abs(ieta[k]) > 16)                       ? HcalEndcap
@@ -329,9 +330,9 @@ void RecAnalyzerMinbias::endJob() {
         depth = itr.first.second.depth();
         iphi = itr.first.second.iphi();
         ieta = itr.first.second.ieta();
-        edm::LogVerbatim("RecAnalyzerMinbias") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi
-                                        << " mom0  " << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB
-                                        << " mom3 " << mom3_MB << " mom4 " << mom4_MB;
+        edm::LogVerbatim("RecAnalyzerMinbias")
+            << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi << " mom0  " << mom0_MB
+            << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 " << mom4_MB;
         myTree_->Fill();
         cells++;
       }
@@ -548,8 +549,8 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
   if (genEventInfo.isValid())
     eventWeight = genEventInfo->weight();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RecAnalyzerMinbias") << "Test HB " << HBHEsize << " HF " << HFsize << " Trigger " << trigbit_.size() << ":"
-                                  << select << ":" << ignoreL1_ << " Wt " << eventWeight;
+  edm::LogVerbatim("RecAnalyzerMinbias") << "Test HB " << HBHEsize << " HF " << HFsize << " Trigger " << trigbit_.size()
+                                         << ":" << select << ":" << ignoreL1_ << " Wt " << eventWeight;
 #endif
   if (ignoreL1_ || (!trigbit_.empty() && select)) {
     analyzeHcal(HithbheMB, HithfMB, 1, true, eventWeight);
@@ -650,9 +651,10 @@ void RecAnalyzerMinbias::analyzeHcal(
       herun_->Fill(rnnum_, (double)(count2HE) / countHE);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RecAnalyzerMinbias") << "HBHE " << count2 << ":" << count << ":" << (double)(count2) / count << "\t HB "
-                                  << count2HB << ":" << countHB << ":" << (double)(count2HB) / countHB << "\t HE "
-                                  << count2HE << ":" << countHE << ":" << (double)(count2HE) / countHE;
+  edm::LogVerbatim("RecAnalyzerMinbias") << "HBHE " << count2 << ":" << count << ":" << (double)(count2) / count
+                                         << "\t HB " << count2HB << ":" << countHB << ":"
+                                         << (double)(count2HB) / countHB << "\t HE " << count2HE << ":" << countHE
+                                         << ":" << (double)(count2HE) / countHE;
 #endif
   int countHF(0), count2HF(0);
   // Signal part for HF
@@ -715,7 +717,8 @@ void RecAnalyzerMinbias::analyzeHcal(
     hfrun_->Fill(rnnum_, (double)(count2HF) / countHF);
 #ifdef EDM_ML_DEBUG
   if (count)
-    edm::LogVerbatim("RecAnalyzerMinbias") << "HF " << count2HF << ":" << countHF << ":" << (double)(count2HF) / countHF;
+    edm::LogVerbatim("RecAnalyzerMinbias")
+        << "HF " << count2HF << ":" << countHF << ":" << (double)(count2HF) / countHF;
 #endif
 }
 
