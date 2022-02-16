@@ -67,7 +67,7 @@
 class RecAnalyzerMinbias : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit RecAnalyzerMinbias(const edm::ParameterSet&);
-  ~RecAnalyzerMinbias() override;
+  ~RecAnalyzerMinbias() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -166,7 +166,7 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig)
   std::ifstream infile(cfile_.c_str());
   if (!infile.is_open()) {
     theRecalib_ = false;
-    edm::LogWarning("RecAnalyzer") << "Cannot open '" << cfile_ << "' for the correction file";
+    edm::LogWarning("RecAnalyzerMinbias") << "Cannot open '" << cfile_ << "' for the correction file";
   } else {
     unsigned int ndets(0), nrec(0);
     while (true) {
@@ -184,13 +184,13 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig)
       }
     }
     infile.close();
-    edm::LogVerbatim("RecAnalyzer") << "Reads " << nrec << " correction factors for " << ndets << " detIds";
+    edm::LogVerbatim("RecAnalyzerMinbias") << "Reads " << nrec << " correction factors for " << ndets << " detIds";
     theRecalib_ = (ndets > 0);
   }
 
-  edm::LogVerbatim("RecAnalyzer") << " Flags (ReCalib): " << theRecalib_ << " (IgnoreL1): " << ignoreL1_ << " (NZS) "
+  edm::LogVerbatim("RecAnalyzerMinbias") << " Flags (ReCalib): " << theRecalib_ << " (IgnoreL1): " << ignoreL1_ << " (NZS) "
                                   << runNZS_ << " and with " << ieta.size() << " detId for full histogram";
-  edm::LogVerbatim("RecAnalyzer") << "Thresholds for HB " << eLowHB_ << ":" << eHighHB_ << "  for HE " << eLowHE_ << ":"
+  edm::LogVerbatim("RecAnalyzerMinbias") << "Thresholds for HB " << eLowHB_ << ":" << eHighHB_ << "  for HE " << eLowHE_ << ":"
                                   << eHighHE_ << "  for HF " << eLowHF_ << ":" << eHighHF_;
   for (unsigned int k = 0; k < ieta.size(); ++k) {
     HcalSubdetector subd = ((std::abs(ieta[k]) > 29)                         ? HcalForward
@@ -200,14 +200,12 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig)
                                                                              : HcalBarrel);
     unsigned int id = (HcalDetId(subd, ieta[k], iphi[k], depth[k])).rawId();
     hcalID_.push_back(id);
-    edm::LogVerbatim("RecAnalyzer") << "DetId[" << k << "] " << HcalDetId(id);
+    edm::LogVerbatim("RecAnalyzerMinbias") << "DetId[" << k << "] " << HcalDetId(id);
   }
-  edm::LogVerbatim("RecAnalyzer") << "Select on " << trigbit_.size() << " L1 Trigger selection";
+  edm::LogVerbatim("RecAnalyzerMinbias") << "Select on " << trigbit_.size() << " L1 Trigger selection";
   for (unsigned int k = 0; k < trigbit_.size(); ++k)
-    edm::LogVerbatim("RecAnalyzer") << "Bit[" << k << "] " << trigbit_[k];
+    edm::LogVerbatim("RecAnalyzerMinbias") << "Bit[" << k << "] " << trigbit_[k];
 }
-
-RecAnalyzerMinbias::~RecAnalyzerMinbias() {}
 
 void RecAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   std::vector<int> iarray;
@@ -317,7 +315,7 @@ void RecAnalyzerMinbias::endJob() {
   if (!fillHist_) {
     cells = 0;
     for (const auto& itr : myMap_) {
-      edm::LogVerbatim("RecAnalyzer") << "Fired trigger bit number " << itr.first.first;
+      edm::LogVerbatim("RecAnalyzerMinbias") << "Fired trigger bit number " << itr.first.first;
       myInfo info = itr.second;
       if (info.theMB0 > 0) {
         mom0_MB = info.theMB0;
@@ -331,18 +329,17 @@ void RecAnalyzerMinbias::endJob() {
         depth = itr.first.second.depth();
         iphi = itr.first.second.iphi();
         ieta = itr.first.second.ieta();
-        edm::LogVerbatim("RecAnalyzer") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi
+        edm::LogVerbatim("RecAnalyzerMinbias") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi
                                         << " mom0  " << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB
                                         << " mom3 " << mom3_MB << " mom4 " << mom4_MB;
         myTree_->Fill();
         cells++;
       }
     }
-    edm::LogVerbatim("RecAnalyzer") << "cells"
-                                    << " " << cells;
+    edm::LogVerbatim("RecAnalyzerMinbias") << "cells " << cells;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RecAnalyzer") << "Exiting from RecAnalyzerMinbias::endjob";
+  edm::LogVerbatim("RecAnalyzerMinbias") << "Exiting from RecAnalyzerMinbias::endjob";
 #endif
 }
 
@@ -501,26 +498,26 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   const edm::Handle<HBHERecHitCollection>& hbheMB = iEvent.getHandle(tok_hbherecoMB_);
   if (!hbheMB.isValid()) {
-    edm::LogWarning("RecAnalyzer") << "HcalCalibAlgos: Error! can't get hbhe product!";
+    edm::LogWarning("RecAnalyzerMinbias") << "HcalCalibAlgos: Error! can't get hbhe product!";
     return;
   }
   const HBHERecHitCollection HithbheMB = *(hbheMB.product());
   HBHEsize = HithbheMB.size();
-  edm::LogVerbatim("RecAnalyzer") << "HBHE MB size of collection " << HithbheMB.size();
+  edm::LogVerbatim("RecAnalyzerMinbias") << "HBHE MB size of collection " << HithbheMB.size();
   if (HithbheMB.size() < 5100 && runNZS_) {
-    edm::LogWarning("RecAnalyzer") << "HBHE problem " << rnnum_ << " size " << HBHEsize;
+    edm::LogWarning("RecAnalyzerMinbias") << "HBHE problem " << rnnum_ << " size " << HBHEsize;
   }
 
   const edm::Handle<HFRecHitCollection> hfMB = iEvent.getHandle(tok_hfrecoMB_);
   if (!hfMB.isValid()) {
-    edm::LogWarning("RecAnalyzer") << "HcalCalibAlgos: Error! can't get hf product!";
+    edm::LogWarning("RecAnalyzerMinbias") << "HcalCalibAlgos: Error! can't get hf product!";
     return;
   }
   const HFRecHitCollection HithfMB = *(hfMB.product());
-  edm::LogVerbatim("RecAnalyzer") << "HF MB size of collection " << HithfMB.size();
+  edm::LogVerbatim("RecAnalyzerMinbias") << "HF MB size of collection " << HithfMB.size();
   HFsize = HithfMB.size();
   if (HithfMB.size() < 1700 && runNZS_) {
-    edm::LogWarning("RecAnalyzer") << "HF problem " << rnnum_ << " size " << HFsize;
+    edm::LogWarning("RecAnalyzerMinbias") << "HF problem " << rnnum_ << " size " << HFsize;
   }
 
   bool select(false);
@@ -551,7 +548,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
   if (genEventInfo.isValid())
     eventWeight = genEventInfo->weight();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RecAnalyzer") << "Test HB " << HBHEsize << " HF " << HFsize << " Trigger " << trigbit_.size() << ":"
+  edm::LogVerbatim("RecAnalyzerMinbias") << "Test HB " << HBHEsize << " HF " << HFsize << " Trigger " << trigbit_.size() << ":"
                                   << select << ":" << ignoreL1_ << " Wt " << eventWeight;
 #endif
   if (ignoreL1_ || (!trigbit_.empty() && select)) {
@@ -571,7 +568,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
         }
       }
       if (!ok) {
-        edm::LogVerbatim("RecAnalyzer") << "No passed L1 Trigger found";
+        edm::LogVerbatim("RecAnalyzerMinbias") << "No passed L1 Trigger found";
       }
     }
   }
@@ -653,7 +650,7 @@ void RecAnalyzerMinbias::analyzeHcal(
       herun_->Fill(rnnum_, (double)(count2HE) / countHE);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RecAnalyzer") << "HBHE " << count2 << ":" << count << ":" << (double)(count2) / count << "\t HB "
+  edm::LogVerbatim("RecAnalyzerMinbias") << "HBHE " << count2 << ":" << count << ":" << (double)(count2) / count << "\t HB "
                                   << count2HB << ":" << countHB << ":" << (double)(count2HB) / countHB << "\t HE "
                                   << count2HE << ":" << countHE << ":" << (double)(count2HE) / countHE;
 #endif
@@ -718,7 +715,7 @@ void RecAnalyzerMinbias::analyzeHcal(
     hfrun_->Fill(rnnum_, (double)(count2HF) / countHF);
 #ifdef EDM_ML_DEBUG
   if (count)
-    edm::LogVerbatim("RecAnalyzer") << "HF " << count2HF << ":" << countHF << ":" << (double)(count2HF) / countHF;
+    edm::LogVerbatim("RecAnalyzerMinbias") << "HF " << count2HF << ":" << countHF << ":" << (double)(count2HF) / countHF;
 #endif
 }
 

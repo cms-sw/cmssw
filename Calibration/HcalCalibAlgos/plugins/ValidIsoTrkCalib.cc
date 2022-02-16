@@ -206,10 +206,10 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   try {
     respRecalib = &iSetup.getData(tok_recalibCorrs_);
 
-    edm::LogVerbatim("CalibConstants") << "  Loaded:  OK ";
+    edm::LogVerbatim("ValidIsoTrkCalib") << "  Loaded:  OK ";
 
   } catch (const cms::Exception& e) {
-    edm::LogWarning("CalibConstants") << "   Not Found!! ";
+    edm::LogWarning("ValidIsoTrkCalib") << "   Not Found!! ";
   }
 
   edm::Handle<reco::TrackCollection> generalTracks;
@@ -245,7 +245,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //parameters_.dREcal = taECALCone_;
   //parameters_.dRHcal = taHCALCone_;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "Hello World. TrackCollectionSize: " << isoPixelTracks->size();
+  edm::LogVerbatim("ValidIsoTrkCalib") << "Hello World. TrackCollectionSize: " << isoPixelTracks->size();
 #endif
   if (isoPixelTracks->empty())
     return;
@@ -276,7 +276,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     ptNear = isoMatched->maxPtPxl();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "Point 0.1  isoMatch. ptnear: " << ptNear;
+    edm::LogVerbatim("ValidIsoTrkCalib") << "Point 0.1  isoMatch. ptnear: " << ptNear;
 #endif
     // CUT
     if (trit->hitPattern().numberOfValidHits() < MinNTrackHitsBarrel)
@@ -285,9 +285,9 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       continue;
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "Point 0.2.1 after numofvalidhits HB: "
+    edm::LogVerbatim("ValidIsoTrkCalib") << "Point 0.2.1 after numofvalidhits HB: "
                                      << trit->hitPattern().numberOfValidHits();
-    edm::LogVerbatim("HcalIsoTrack") << "Point 0.2.2 after numofvalidstrips HE: "
+    edm::LogVerbatim("ValidIsoTrkCalib") << "Point 0.2.2 after numofvalidstrips HE: "
                                      << trit->hitPattern().numberOfValidStripTECHits();
 #endif
     numVH = trit->hitPattern().numberOfValidHits();
@@ -301,9 +301,9 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     emEnergy = isoMatched->energyIn();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "Point 0.3.  Matched :: pt: " << trit->pt() << " wholeEnergy: " << trackE
+    edm::LogVerbatim("ValidIsoTrkCalib") << "Point 0.3.  Matched :: pt: " << trit->pt() << " wholeEnergy: " << trackE
                                      << "  emEnergy: " << emEnergy << "  eta: " << trackEta << " phi: " << trackPhi;
-    edm::LogVerbatim("HcalIsoTrack") << "Point 0.4.  EM energy in cone: " << emEnergy;
+    edm::LogVerbatim("ValidIsoTrkCalib") << "Point 0.4.  EM energy in cone: " << emEnergy;
 #endif
     TrackDetMatchInfo info = trackAssociator_.associate(
         iEvent,
@@ -325,11 +325,11 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     zTrkHcal = info.trkGlobPosAtHcal.z();
 
     if (xTrkEcal == 0 && yTrkEcal == 0 && zTrkEcal == 0) {
-      edm::LogVerbatim("HcalIsoTrack") << "zero point at Ecal";
+      edm::LogVerbatim("ValidIsoTrkCalib") << "zero point at Ecal";
       continue;
     }
     if (xTrkHcal == 0 && yTrkHcal == 0 && zTrkHcal == 0) {
-      edm::LogVerbatim("HcalIsoTrack") << "zero point at Hcal";
+      edm::LogVerbatim("ValidIsoTrkCalib") << "zero point at Hcal";
       continue;
     }
 
@@ -359,7 +359,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     //
     usedHits.clear();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "Point 1. Entrance to HBHECollection";
+    edm::LogVerbatim("ValidIsoTrkCalib") << "Point 1. Entrance to HBHECollection";
 #endif
     //float dddeta = 1000.;
     //float dddphi = 1000.;
@@ -419,7 +419,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         }
 
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HcalIsoTrack") << "IN CONE ieta: " << ietahitm << "  iphi: " << iphihitm
+        edm::LogVerbatim("ValidIsoTrkCalib") << "IN CONE ieta: " << ietahitm << "  iphi: " << iphihitm
                                          << " depthhit: " << depthhit << "  dr: " << dr << " energy: " << enehit;
 #endif
         //Find a Hit with Maximum Energy
@@ -440,10 +440,10 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     usedHits.clear();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "Hottest ieta: " << MaxHit.ietahitm << "  iphi: " << MaxHit.iphihitm
+    edm::LogVerbatim("ValidIsoTrkCalib") << "Hottest ieta: " << MaxHit.ietahitm << "  iphi: " << MaxHit.iphihitm
                                      << "  dr: " << MaxHit.dr;
-    edm::LogVerbatim("HcalIsoTrack") << "Track   ieta: " << ietatrue << "  iphi: " << iphitrue;
-    edm::LogVerbatim("HcalIsoTrack") << "Point 3.  MaxHit :::En " << MaxHit.hitenergy << "  ieta: " << MaxHit.ietahitm
+    edm::LogVerbatim("ValidIsoTrkCalib") << "Track   ieta: " << ietatrue << "  iphi: " << iphitrue;
+    edm::LogVerbatim("ValidIsoTrkCalib") << "Point 3.  MaxHit :::En " << MaxHit.hitenergy << "  ieta: " << MaxHit.ietahitm
                                      << "  iphi: " << MaxHit.iphihitm;
 #endif
 
@@ -453,7 +453,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       passCuts = kTRUE;
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "Pont 0.1.1.  trackE:" << trackE << "  emEn: " << emEnergy;
+    edm::LogVerbatim("ValidIsoTrkCalib") << "Pont 0.1.1.  trackE:" << trackE << "  emEn: " << emEnergy;
 #endif
     numHits = 0;
 
@@ -510,7 +510,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           factor = respRecalib->getValues(hhit->id())->getValue();
 
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HcalIsoTrack") << " calib factors: " << factor;
+          edm::LogVerbatim("ValidIsoTrkCalib") << " calib factors: " << factor;
 #endif
 
           if (hhit->id().ieta() == MaxHit.ietahitm && hhit->id().iphi() == MaxHit.iphihitm)
@@ -646,7 +646,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   /* ------------------   Some stuff for general tracks  ----------   ----*/
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << " generalTracks Size: " << generalTracks->size();
+  edm::LogVerbatim("ValidIsoTrkCalib") << " generalTracks Size: " << generalTracks->size();
 #endif
   int n = generalTracks->size();
   nTracks->Fill(n);
@@ -698,10 +698,6 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 // ------------ method called once each job just before starting event loop  ------------
 void ValidIsoTrkCalib::beginJob() {
-#ifdef EDM_ML_DEBUG
-//   if (!ReadCalibFactors(calibFactorsFileName_.c_str() ))
-//     edm::LogVerbatim("HcalIsoTrack")<<"Cant read file with cailib coefficients!! ---";
-#endif
   edm::Service<TFileService> fs;
 
   nTracks = fs->make<TH1F>("nTracks", "general;number of general tracks", 11, -0.5, 10.5);
