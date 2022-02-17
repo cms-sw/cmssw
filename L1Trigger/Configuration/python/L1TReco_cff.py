@@ -52,12 +52,12 @@ stage1L1Trigger.toReplaceWith(L1Reco_L1Extra_L1GtRecord,cms.Sequence())
 stage1L1Trigger.toReplaceWith(L1Reco, cms.Sequence(l1extraParticles))
 
 #
-# Stage-2 Trigger:  fow now, reco Stage-1 as before:
+# Stage-2 Trigger:
 #
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 stage2L1Trigger.toReplaceWith(L1Reco_L1Extra,cms.Sequence())
 stage2L1Trigger.toReplaceWith(L1Reco_L1Extra_L1GtRecord,cms.Sequence())
-stage2L1Trigger.toReplaceWith(L1Reco, cms.Sequence(l1extraParticles))
+stage2L1Trigger.toReplaceWith(L1Reco, cms.Sequence())
 
 #
 # l1L1GtObjectMap does not work properly with fastsim

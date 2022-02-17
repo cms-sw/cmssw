@@ -40,6 +40,10 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet)
       m_l1MuonCollectionsTag(parSet.getParameter<edm::InputTag>("L1MuonInputTag")),  // FIX WHEN UNPACKERS ADDED
       m_l1MuonTag(m_l1MuonCollectionsTag),
       m_l1MuonToken(consumes<l1t::MuonBxCollection>(m_l1MuonTag)),
+      m_l1MuonShowerCollectionsTag(
+          parSet.getParameter<edm::InputTag>("L1MuonShowerInputTag")),  // FIX WHEN UNPACKERS ADDED
+      m_l1MuonShowerTag(m_l1MuonShowerCollectionsTag),
+      m_l1MuonShowerToken(consumes<l1t::MuonShowerBxCollection>(m_l1MuonShowerTag)),
       m_l1EGammaCollectionsTag(parSet.getParameter<edm::InputTag>("L1EGammaInputTag")),  // FIX WHEN UNPACKERS ADDED
       m_l1EGammaTag(m_l1EGammaCollectionsTag),
       m_l1EGammaToken(consumes<l1t::EGammaBxCollection>(m_l1EGammaTag)),
@@ -95,6 +99,7 @@ void HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<edm::InputTag>("L1ObjectMapInputTag", edm::InputTag("hltGtStage2ObjectMap"));
   desc.add<edm::InputTag>("L1GlobalInputTag", edm::InputTag("hltGtStage2Digis"));
   desc.add<edm::InputTag>("L1MuonInputTag", edm::InputTag("hltGmtStage2Digis:Muon"));
+  desc.add<edm::InputTag>("L1MuonShowerInputTag", edm::InputTag("hltGmtStage2Digis:MuonShower"));
   desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("hltCaloStage2Digis:EGamma"));
   desc.add<edm::InputTag>("L1JetInputTag", edm::InputTag("hltCaloStage2Digis:Jet"));
   desc.add<edm::InputTag>("L1TauInputTag", edm::InputTag("hltCaloStage2Digis:Tau"));
@@ -111,6 +116,9 @@ bool HLTL1TSeed::hltFilter(edm::Event& iEvent,
   if (saveTags()) {
     // muons
     filterproduct.addCollectionTag(m_l1MuonTag);
+
+    // muon showers
+    filterproduct.addCollectionTag(m_l1MuonShowerTag);
 
     // egamma
     filterproduct.addCollectionTag(m_l1EGammaTag);
@@ -157,6 +165,24 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
                            << "\t"
                            << "q = "
                            << obj->hwCharge()  // TEMP get hwCharge insead of charge which is not yet set NEED FIX.
+                           << "\t"
+                           << "pt = " << obj->pt() << "\t"
+                           << "eta =  " << obj->eta() << "\t"
+                           << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+  }
+
+  vector<l1t::MuonShowerRef> seedsL1MuShower;
+  filterproduct.getObjects(trigger::TriggerL1MuShower, seedsL1MuShower);
+  const size_t sizeSeedsL1MuShower = seedsL1MuShower.size();
+
+  LogTrace("HLTL1TSeed") << "\n  HLTL1TSeed: seed logical expression = " << m_l1SeedsLogicalExpression << endl;
+
+  LogTrace("HLTL1TSeed") << "\n  L1MuShower seeds:      " << sizeSeedsL1MuShower << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1MuShower; i++) {
+    l1t::MuonShowerRef obj = l1t::MuonShowerRef(seedsL1MuShower[i]);
+
+    LogTrace("HLTL1TSeed") << "\tL1MuShower     "
                            << "\t"
                            << "pt = " << obj->pt() << "\t"
                            << "eta =  " << obj->eta() << "\t"
@@ -410,6 +436,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
   // define index lists for all particle types
 
   std::list<int> listMuon;
+  std::list<int> listMuonShower;
 
   std::list<int> listEG;
 
@@ -689,9 +716,10 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
           switch (objTypeVal) {
             case l1t::gtMu: {
               listMuon.push_back(*itObject);
-            }
-
-            break;
+            } break;
+            case l1t::gtMuShower: {
+              listMuonShower.push_back(*itObject);
+            } break;
             case l1t::gtEG: {
               listEG.push_back(*itObject);
             } break;
@@ -785,6 +813,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
   listMuon.sort();
   listMuon.unique();
 
+  listMuonShower.sort();
+  listMuonShower.unique();
+
   listEG.sort();
   listEG.unique();
 
@@ -867,6 +898,26 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
 
         l1t::MuonRef myref(muons, index);
         filterproduct.addObject(trigger::TriggerL1Mu, myref);
+      }
+    }
+  }
+
+  // Muon Shower
+  if (!listMuonShower.empty()) {
+    edm::Handle<l1t::MuonShowerBxCollection> muonShowers;
+    iEvent.getByToken(m_l1MuonShowerToken, muonShowers);
+
+    if (!muonShowers.isValid()) {
+      edm::LogWarning("HLTL1TSeed") << "\nWarning: L1MuonShowerBxCollection with input tag " << m_l1MuonShowerTag
+                                    << "\nrequested in configuration, but not found in the event."
+                                    << "\nNo muon showers added to filterproduct." << endl;
+    } else {
+      for (std::list<int>::const_iterator itObj = listMuonShower.begin(); itObj != listMuonShower.end(); ++itObj) {
+        // Transform to index for Bx = 0 to begin of BxVector
+        unsigned int index = muonShowers->begin(0) - muonShowers->begin() + *itObj;
+
+        l1t::MuonShowerRef myref(muonShowers, index);
+        filterproduct.addObject(trigger::TriggerL1MuShower, myref);
       }
     }
   }

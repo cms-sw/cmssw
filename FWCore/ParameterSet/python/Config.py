@@ -2719,10 +2719,10 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             self.assertRaises(TypeError,FinalPath,p.es)
 
             t = FinalPath()
-            self.assertTrue(t.dumpPython(PrintOptions()) == 'cms.FinalPath()\n')
+            self.assertEqual(t.dumpPython(PrintOptions()), 'cms.FinalPath()\n')
 
             t = FinalPath(p.a)
-            self.assertTrue(t.dumpPython(PrintOptions()) == 'cms.FinalPath(process.a)\n')
+            self.assertEqual(t.dumpPython(PrintOptions()), 'cms.FinalPath(process.a)\n')
 
             self.assertRaises(TypeError, FinalPath, Task())
             self.assertRaises(TypeError, FinalPath, p.a, Task())
@@ -2730,6 +2730,11 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             p.prod = EDProducer("prodName")
             p.t1 = Task(p.prod)
             self.assertRaises(TypeError, FinalPath, p.a, p.t1, Task(), p.t1)
+            
+            p.t = FinalPath(p.a)
+            p.a = OutputModule("ReplacedOutputModule")
+            self.assertEqual(p.t.dumpPython(PrintOptions()), 'cms.FinalPath(process.a)\n')
+            
         def testCloneSequence(self):
             p = Process("test")
             a = EDAnalyzer("MyAnalyzer")

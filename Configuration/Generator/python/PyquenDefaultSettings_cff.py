@@ -20,12 +20,11 @@ qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.0), ## initial tem
                          doRadiativeEnLoss = cms.bool(True), ## if true, perform partonic radiative en loss
                          doCollisionalEnLoss = cms.bool(False),
                          qgpNumQuarkFlavor = cms.int32(0),  ## number of active quark flavors in qgp; allowed values: 0,1,2,3 
-                         numQuarkFlavor = cms.int32(0) ## to be removed
                          )
 
 pyquenParameters  = cms.PSet(doIsospin = cms.bool(True),
                              angularSpectrumSelector = cms.int32(0), ## angular emitted gluon spectrum :
-                             embeddingMode = cms.bool(False),
+                             embeddingMode = cms.int32(0),
                              )
 
 hydjetParameters = cms.PSet(sigmaInelNN = cms.double(58),
@@ -36,7 +35,7 @@ hydjetParameters = cms.PSet(sigmaInelNN = cms.double(58),
                             maxTransverseRapidity = cms.double(1.),
                             rotateEventPlane = cms.bool(True),
                             allowEmptyEvents = cms.bool(False),
-                            embeddingMode = cms.bool(False)                            
+                            embeddingMode = cms.int32(0)                            
                             )
 
 pyquenPythiaDefaultBlock = cms.PSet(

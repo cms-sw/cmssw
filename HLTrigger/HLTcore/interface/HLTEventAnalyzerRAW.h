@@ -79,6 +79,19 @@ private:
   trigger::Vids l1hfringsIds_;
   trigger::VRl1hfrings l1hfringsRefs_;
 
+  trigger::Vids l1tmuonIds_;
+  trigger::VRl1tmuon l1tmuonRefs_;
+  trigger::Vids l1tmuonShowerIds_;
+  trigger::VRl1tmuonShower l1tmuonShowerRefs_;
+  trigger::Vids l1tegammaIds_;
+  trigger::VRl1tegamma l1tegammaRefs_;
+  trigger::Vids l1tjetIds_;
+  trigger::VRl1tjet l1tjetRefs_;
+  trigger::Vids l1ttauIds_;
+  trigger::VRl1ttau l1ttauRefs_;
+  trigger::Vids l1tetsumIds_;
+  trigger::VRl1tetsum l1tetsumRefs_;
+
   /* Phase-2 */
   trigger::Vids l1ttkmuIds_;
   trigger::VRl1ttkmuon l1ttkmuRefs_;

@@ -1,6 +1,6 @@
 /**
    \brief Interface to the HYDJET generator (since core v. 1.9.1), produces HepMC events
-   \version 2.0
+   \version 2.1
    \authors Camelia Mironov, Andrey Belyaev
 */
 
@@ -35,20 +35,18 @@ using namespace edm;
 using namespace std;
 using namespace gen;
 
-namespace {
-  int convertStatus(int st) {
-    if (st <= 0)
-      return 0;
-    if (st <= 10)
-      return 1;
-    if (st <= 20)
-      return 2;
-    if (st <= 30)
-      return 3;
-    else
-      return st;
-  }
-}  // namespace
+int HydjetHadronizer::convertStatus(int st) {
+  if (st <= 0)
+    return 0;
+  if (st <= 10)
+    return 1;
+  if (st <= 20)
+    return 2;
+  if (st <= 30)
+    return 3;
+  else
+    return st;
+}
 
 const std::vector<std::string> HydjetHadronizer::theSharedResources = {edm::SharedResourceNames::kPythia6,
                                                                        gen::FortranInstance::kFortranInstance};
@@ -64,7 +62,7 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset, edm::ConsumesCollec
       bmax_(pset.getParameter<double>("bMax")),
       bmin_(pset.getParameter<double>("bMin")),
       cflag_(pset.getParameter<int>("cFlag")),
-      embedding_(pset.getParameter<bool>("embeddingMode")),
+      embedding_(pset.getParameter<int>("embeddingMode")),
       comenergy(pset.getParameter<double>("comEnergy")),
       doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
       docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
@@ -399,12 +397,11 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
 
       prod_vertex->add_particle_out(particle[ihy]);
       LogDebug("Hydjet_array") << " ---" << mid + 1 << "---> " << ihy + 1 << std::endl;
-
-      if (prods)
-        delete prods;
+      delete prods;
     }
     ihy++;
   }
+  delete sub_vertices;
   LogDebug("Hydjet_array") << " MULTin ev.:" << hyjets.nhj << ", last index: " << ihy - 1
                            << ", Sub events: " << isub + 1 << ", stable particles: " << stab << std::endl;
 

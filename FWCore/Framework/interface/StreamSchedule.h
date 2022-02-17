@@ -175,7 +175,6 @@ namespace edm {
                    ExceptionToActionTable const& actions,
                    std::shared_ptr<ActivityRegistry> areg,
                    std::shared_ptr<ProcessConfiguration> processConfiguration,
-                   bool allowEarlyDelete,
                    StreamID streamID,
                    ProcessContext const* processContext);
 
@@ -246,6 +245,10 @@ namespace edm {
     /// Delete the module with label iLabel
     void deleteModule(std::string const& iLabel);
 
+    void initializeEarlyDelete(ModuleRegistry& modReg,
+                               std::vector<std::string> const& branchesToDeleteEarly,
+                               edm::ProductRegistry const& preg);
+
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const { return workerManager_.allWorkers(); }
 
@@ -312,10 +315,6 @@ namespace edm {
     void addToAllWorkers(Worker* w);
 
     void resetEarlyDelete();
-    void initializeEarlyDelete(ModuleRegistry& modReg,
-                               edm::ParameterSet const& opts,
-                               edm::ProductRegistry const& preg,
-                               bool allowEarlyDelete);
 
     TrigResConstPtr results() const { return get_underlying_safe(results_); }
     TrigResPtr& results() { return get_underlying_safe(results_); }
