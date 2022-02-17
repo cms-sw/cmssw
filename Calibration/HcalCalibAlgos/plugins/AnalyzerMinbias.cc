@@ -62,7 +62,7 @@ namespace HcalMinbias {}
 class AnalyzerMinbias : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit AnalyzerMinbias(const edm::ParameterSet&);
-  ~AnalyzerMinbias() override;
+  ~AnalyzerMinbias() override = default;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
@@ -89,13 +89,14 @@ private:
   };
 
   // ----------member data ---------------------------
-  std::string fOutputFileName, hcalfile_;
+  const std::string fOutputFileName;
+  const bool runNZS_, theRecalib_, ignoreL1_;
+  std::string hcalfile_;
   std::ofstream* myout_hcal;
-  TFile* hOutputFile;
-  TTree* myTree;
+  TFile* hOutputFile_;
+  TTree* myTree_;
   TH1D *h_Noise[4], *h_Signal[4];
-  bool runNZS_, theRecalib_, ignoreL1_;
-  double rnnum;
+  double rnnum_;
 
   // Root tree members
   double rnnumber;
@@ -106,39 +107,32 @@ private:
   float mom0_Diff, mom1_Diff, mom2_Diff, mom3_Diff, mom4_Diff;
 
   std::map<std::pair<int, HcalDetId>, myInfo> myMap_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_hbherecoMB_, tok_hbherecoNoise_;
-  edm::EDGetTokenT<HFRecHitCollection> tok_hfrecoMB_, tok_hfrecoNoise_;
-  edm::EDGetTokenT<HORecHitCollection> tok_horecoMB_, tok_horecoNoise_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNormal_;
-  edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> tok_hltL1GtMap_;
-  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respCorr_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_hbherecoMB_, tok_hbherecoNoise_;
+  const edm::EDGetTokenT<HORecHitCollection> tok_horecoMB_, tok_horecoNoise_;
+  const edm::EDGetTokenT<HFRecHitCollection> tok_hfrecoMB_, tok_hfrecoNoise_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNormal_;
+  const edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> tok_hltL1GtMap_;
+  const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respCorr_;
 };
 
-AnalyzerMinbias::AnalyzerMinbias(const edm::ParameterSet& iConfig) {
+AnalyzerMinbias::AnalyzerMinbias(const edm::ParameterSet& iConfig)
+    : fOutputFileName(iConfig.getUntrackedParameter<std::string>("HistOutFile")),
+      runNZS_(iConfig.getUntrackedParameter<bool>("RunNZS", true)),
+      theRecalib_(iConfig.getParameter<bool>("Recalib")),
+      ignoreL1_(iConfig.getUntrackedParameter<bool>("IgnoreL1", true)),
+      tok_hbherecoMB_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"))),
+      tok_hbherecoNoise_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputNoise"))),
+      tok_horecoMB_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputMB"))),
+      tok_horecoNoise_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputNoise"))),
+      tok_hfrecoMB_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputMB"))),
+      tok_hfrecoNoise_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputNoise"))),
+      tok_hbheNormal_(consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"))),
+      tok_hltL1GtMap_(consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"))),
+      tok_respCorr_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()) {
   usesResource(TFileService::kSharedResource);
   // get name of output file with histogramms
-  fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile");
-
   // get token names of modules, producing object collections
-  tok_hbherecoMB_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"));
-  tok_horecoMB_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputMB"));
-  tok_hfrecoMB_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputMB"));
-
-  tok_hbherecoNoise_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputNoise"));
-  tok_horecoNoise_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputNoise"));
-  tok_hfrecoNoise_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputNoise"));
-
-  theRecalib_ = iConfig.getParameter<bool>("Recalib");
-  ignoreL1_ = iConfig.getUntrackedParameter<bool>("IgnoreL1", true);
-  runNZS_ = iConfig.getUntrackedParameter<bool>("RunNZS", true);
-
-  tok_hbheNormal_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
-  tok_hltL1GtMap_ = consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"));
-
-  tok_respCorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
 }
-
-AnalyzerMinbias::~AnalyzerMinbias() {}
 
 void AnalyzerMinbias::beginJob() {
   std::string det[4] = {"HB", "HE", "HO", "HF"};
@@ -153,32 +147,32 @@ void AnalyzerMinbias::beginJob() {
   }
 
   edm::Service<TFileService> fs;
-  hOutputFile = new TFile(fOutputFileName.c_str(), "RECREATE");
-  myTree = fs->make<TTree>("RecJet", "RecJet Tree");
-  myTree->Branch("mydet", &mydet, "mydet/I");
-  myTree->Branch("mysubd", &mysubd, "mysubd/I");
-  myTree->Branch("cells", &cells, "cells");
-  myTree->Branch("depth", &depth, "depth/I");
-  myTree->Branch("ieta", &ieta, "ieta/I");
-  myTree->Branch("iphi", &iphi, "iphi/I");
-  myTree->Branch("eta", &eta, "eta/F");
-  myTree->Branch("phi", &phi, "phi/F");
-  myTree->Branch("mom0_MB", &mom0_MB, "mom0_MB/F");
-  myTree->Branch("mom1_MB", &mom1_MB, "mom1_MB/F");
-  myTree->Branch("mom2_MB", &mom2_MB, "mom2_MB/F");
-  myTree->Branch("mom3_MB", &mom3_MB, "mom3_MB/F");
-  myTree->Branch("mom4_MB", &mom4_MB, "mom4_MB/F");
-  myTree->Branch("mom0_Noise", &mom0_Noise, "mom0_Noise/F");
-  myTree->Branch("mom1_Noise", &mom1_Noise, "mom1_Noise/F");
-  myTree->Branch("mom2_Noise", &mom2_Noise, "mom2_Noise/F");
-  myTree->Branch("mom3_Noise", &mom3_Noise, "mom3_Noise/F");
-  myTree->Branch("mom4_Noise", &mom4_Noise, "mom4_Noise/F");
-  myTree->Branch("mom0_Diff", &mom0_Diff, "mom0_Diff/F");
-  myTree->Branch("mom1_Diff", &mom1_Diff, "mom1_Diff/F");
-  myTree->Branch("mom2_Diff", &mom2_Diff, "mom2_Diff/F");
-  myTree->Branch("occup", &occup, "occup/F");
-  myTree->Branch("trigbit", &trigbit, "trigbit/I");
-  myTree->Branch("rnnumber", &rnnumber, "rnnumber/D");
+  hOutputFile_ = new TFile(fOutputFileName.c_str(), "RECREATE");
+  myTree_ = fs->make<TTree>("RecJet", "RecJet Tree");
+  myTree_->Branch("mydet", &mydet, "mydet/I");
+  myTree_->Branch("mysubd", &mysubd, "mysubd/I");
+  myTree_->Branch("cells", &cells, "cells");
+  myTree_->Branch("depth", &depth, "depth/I");
+  myTree_->Branch("ieta", &ieta, "ieta/I");
+  myTree_->Branch("iphi", &iphi, "iphi/I");
+  myTree_->Branch("eta", &eta, "eta/F");
+  myTree_->Branch("phi", &phi, "phi/F");
+  myTree_->Branch("mom0_MB", &mom0_MB, "mom0_MB/F");
+  myTree_->Branch("mom1_MB", &mom1_MB, "mom1_MB/F");
+  myTree_->Branch("mom2_MB", &mom2_MB, "mom2_MB/F");
+  myTree_->Branch("mom3_MB", &mom3_MB, "mom3_MB/F");
+  myTree_->Branch("mom4_MB", &mom4_MB, "mom4_MB/F");
+  myTree_->Branch("mom0_Noise", &mom0_Noise, "mom0_Noise/F");
+  myTree_->Branch("mom1_Noise", &mom1_Noise, "mom1_Noise/F");
+  myTree_->Branch("mom2_Noise", &mom2_Noise, "mom2_Noise/F");
+  myTree_->Branch("mom3_Noise", &mom3_Noise, "mom3_Noise/F");
+  myTree_->Branch("mom4_Noise", &mom4_Noise, "mom4_Noise/F");
+  myTree_->Branch("mom0_Diff", &mom0_Diff, "mom0_Diff/F");
+  myTree_->Branch("mom1_Diff", &mom1_Diff, "mom1_Diff/F");
+  myTree_->Branch("mom2_Diff", &mom2_Diff, "mom2_Diff/F");
+  myTree_->Branch("occup", &occup, "occup/F");
+  myTree_->Branch("trigbit", &trigbit, "trigbit/I");
+  myTree_->Branch("rnnumber", &rnnumber, "rnnumber/D");
 
   myMap_.clear();
 }
@@ -189,7 +183,7 @@ void AnalyzerMinbias::endJob() {
   int ii = 0;
   for (std::map<std::pair<int, HcalDetId>, myInfo>::const_iterator itr = myMap_.begin(); itr != myMap_.end(); ++itr) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("AnalyzerMB") << "Fired trigger bit number " << itr->first.first;
+    edm::LogVerbatim("AnalyzerMinimumBias") << "Fired trigger bit number " << itr->first.first;
 #endif
     myInfo info = itr->second;
     if (info.theMB0 > 0) {
@@ -213,29 +207,29 @@ void AnalyzerMinbias::endJob() {
       ieta = itr->first.second.ieta();
       iphi = itr->first.second.iphi();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("AnalyzerMB") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi
-                                     << " mom0  " << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 "
-                                     << mom3_MB << " mom4 " << mom4_MB << " mom0_Noise " << mom0_Noise << " mom1_Noise "
-                                     << mom1_Noise << " mom2_Noise " << mom2_Noise << " mom3_Noise " << mom3_Noise
-                                     << " mom4_Noise " << mom4_Noise << " mom0_Diff " << mom0_Diff << " mom1_Diff "
-                                     << mom1_Diff << " mom2_Diff " << mom2_Diff;
+      edm::LogVerbatim("AnalyzerMinimumBias")
+          << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi << " mom0  " << mom0_MB << " mom1 "
+          << mom1_MB << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 " << mom4_MB << " mom0_Noise "
+          << mom0_Noise << " mom1_Noise " << mom1_Noise << " mom2_Noise " << mom2_Noise << " mom3_Noise " << mom3_Noise
+          << " mom4_Noise " << mom4_Noise << " mom0_Diff " << mom0_Diff << " mom1_Diff " << mom1_Diff << " mom2_Diff "
+          << mom2_Diff;
 #endif
-      myTree->Fill();
+      myTree_->Fill();
       ii++;
     }
   }
   cells = ii;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("AnalyzerMB") << "cells " << cells;
+  edm::LogVerbatim("AnalyzerMinimumBias") << "cells " << cells;
 #endif
-  hOutputFile->Write();
-  hOutputFile->cd();
-  myTree->Write();
+  hOutputFile_->Write();
+  hOutputFile_->cd();
+  myTree_->Write();
   for (int i = 0; i < 4; i++) {
     h_Noise[i]->Write();
     h_Signal[i]->Write();
   }
-  hOutputFile->Close();
+  hOutputFile_->Close();
 }
 
 //
@@ -245,77 +239,71 @@ void AnalyzerMinbias::endJob() {
 // ------------ method called to produce the data  ------------
 
 void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  rnnum = (float)iEvent.run();
+  rnnum_ = (float)iEvent.run();
   const HcalRespCorrs* myRecalib = nullptr;
   if (theRecalib_) {
     myRecalib = &iSetup.getData(tok_respCorr_);
   }  // theRecalib
 
-  edm::Handle<HBHERecHitCollection> hbheNormal;
-  iEvent.getByToken(tok_hbheNormal_, hbheNormal);
+  const edm::Handle<HBHERecHitCollection> hbheNormal = iEvent.getHandle(tok_hbheNormal_);
   if (!hbheNormal.isValid()) {
-    edm::LogVerbatim("AnalyzerMB") << " hbheNormal failed";
+    edm::LogVerbatim("AnalyzerMinimumBias") << " hbheNormal failed";
   } else {
-    edm::LogVerbatim("AnalyzerMB") << " The size of the normal collection " << hbheNormal->size();
+    edm::LogVerbatim("AnalyzerMinimumBias") << " The size of the normal collection " << hbheNormal->size();
   }
 
-  edm::Handle<HBHERecHitCollection> hbheNS;
-  iEvent.getByToken(tok_hbherecoNoise_, hbheNS);
+  const edm::Handle<HBHERecHitCollection> hbheNS = iEvent.getHandle(tok_hbherecoNoise_);
   if (!hbheNS.isValid()) {
-    edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hbheNoise product!";
+    edm::LogWarning("AnalyzerMinimumBias") << "HcalCalibAlgos: Error! can't get hbheNoise product!";
     return;
   }
   const HBHERecHitCollection HithbheNS = *(hbheNS.product());
-  edm::LogVerbatim("AnalyzerMB") << "HBHE NS size of collection " << HithbheNS.size();
+  edm::LogVerbatim("AnalyzerMinimumBias") << "HBHE NS size of collection " << HithbheNS.size();
   if (runNZS_ && HithbheNS.size() != 5184) {
-    edm::LogWarning("AnalyzerMB") << "HBHE NS problem " << rnnum << " size " << HithbheNS.size();
+    edm::LogWarning("AnalyzerMinimumBias") << "HBHE NS problem " << rnnum_ << " size " << HithbheNS.size();
     return;
   }
 
-  edm::Handle<HBHERecHitCollection> hbheMB;
-  iEvent.getByToken(tok_hbherecoMB_, hbheMB);
+  const edm::Handle<HBHERecHitCollection> hbheMB = iEvent.getHandle(tok_hbherecoMB_);
   if (!hbheMB.isValid()) {
-    edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hbhe product!";
+    edm::LogWarning("AnalyzerMinimumBias") << "HcalCalibAlgos: Error! can't get hbhe product!";
     return;
   }
   const HBHERecHitCollection HithbheMB = *(hbheMB.product());
-  edm::LogVerbatim("AnalyzerMB") << "HBHE MB size of collection " << HithbheMB.size();
+  edm::LogVerbatim("AnalyzerMinimumBias") << "HBHE MB size of collection " << HithbheMB.size();
   if (runNZS_ && HithbheMB.size() != 5184) {
-    edm::LogWarning("AnalyzerMB") << "HBHE problem " << rnnum << " size " << HithbheMB.size();
+    edm::LogWarning("AnalyzerMinimumBias") << "HBHE problem " << rnnum_ << " size " << HithbheMB.size();
     return;
   }
 
-  edm::Handle<HFRecHitCollection> hfNS;
-  iEvent.getByToken(tok_hfrecoNoise_, hfNS);
+  const edm::Handle<HFRecHitCollection> hfNS = iEvent.getHandle(tok_hfrecoNoise_);
   if (!hfNS.isValid()) {
-    edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hfNoise product!";
+    edm::LogWarning("AnalyzerMinimumBias") << "HcalCalibAlgos: Error! can't get hfNoise product!";
     return;
   }
   const HFRecHitCollection HithfNS = *(hfNS.product());
-  edm::LogVerbatim("AnalyzerMB") << "HF NS size of collection " << HithfNS.size();
+  edm::LogVerbatim("AnalyzerMinimumBias") << "HF NS size of collection " << HithfNS.size();
   if (runNZS_ && HithfNS.size() != 1728) {
-    edm::LogWarning("AnalyzerMB") << "HF NS problem " << rnnum << " size " << HithfNS.size();
+    edm::LogWarning("AnalyzerMinimumBias") << "HF NS problem " << rnnum_ << " size " << HithfNS.size();
     return;
   }
 
-  edm::Handle<HFRecHitCollection> hfMB;
-  iEvent.getByToken(tok_hfrecoMB_, hfMB);
+  const edm::Handle<HFRecHitCollection> hfMB = iEvent.getHandle(tok_hfrecoMB_);
   if (!hfMB.isValid()) {
-    edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hf product!";
+    edm::LogWarning("AnalyzerMinimumBias") << "HcalCalibAlgos: Error! can't get hf product!";
     return;
   }
   const HFRecHitCollection HithfMB = *(hfMB.product());
-  edm::LogVerbatim("AnalyzerMB") << "HF MB size of collection " << HithfMB.size();
+  edm::LogVerbatim("AnalyzerMinimumBias") << "HF MB size of collection " << HithfMB.size();
   if (runNZS_ && HithfMB.size() != 1728) {
-    edm::LogWarning("AnalyzerMB") << "HF problem " << rnnum << " size " << HithfMB.size();
+    edm::LogWarning("AnalyzerMinimumBias") << "HF problem " << rnnum_ << " size " << HithfMB.size();
     return;
   }
 
   if (ignoreL1_) {
     analyzeHcal(myRecalib, HithbheNS, HithbheMB, HithfNS, HithfMB, 1, true);
   } else {
-    edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
+    const edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord = iEvent.getHandle(tok_hltL1GtMap_);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       int ii(0);
@@ -330,12 +318,13 @@ void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           fill = false;
           std::string algoNameStr = (*itMap).algoName();
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("AnalyzerMB") << "Trigger[" << ii << "] " << algoNameStr << " bit " << algoBit << " entered";
+          edm::LogVerbatim("AnalyzerMinimumBias")
+              << "Trigger[" << ii << "] " << algoNameStr << " bit " << algoBit << " entered";
 #endif
         }
       }
       if (!ok)
-        edm::LogVerbatim("AnalyzerMB") << "No passed L1 Triggers";
+        edm::LogVerbatim("AnalyzerMinimumBias") << "No passed L1 Triggers";
     }
   }
 }
@@ -374,7 +363,7 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
     itr1->second.theNS2 += (energyhit * energyhit);
     itr1->second.theNS3 += (energyhit * energyhit * energyhit);
     itr1->second.theNS4 += (energyhit * energyhit * energyhit * energyhit);
-    itr1->second.runcheck = rnnum;
+    itr1->second.runcheck = rnnum_;
     if (fill)
       h_Noise[hid.subdet() - 1]->Fill(energyhit);
 
@@ -389,7 +378,7 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
     itr2->second.theNS2 += (energyhit * energyhit);
     itr2->second.theNS3 += (energyhit * energyhit * energyhit);
     itr2->second.theNS4 += (energyhit * energyhit * energyhit * energyhit);
-    itr2->second.runcheck = rnnum;
+    itr2->second.runcheck = rnnum_;
 
   }  // HBHE_NS
 
@@ -422,7 +411,7 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
     itr1->second.theMB2 += (energyhit * energyhit);
     itr1->second.theMB3 += (energyhit * energyhit * energyhit);
     itr1->second.theMB4 += (energyhit * energyhit * energyhit * energyhit);
-    itr1->second.runcheck = rnnum;
+    itr1->second.runcheck = rnnum_;
     float mydiff = 0.0;
     if (itr2 != tmpMap.end()) {
       mydiff = energyhit - (itr2->second.theNS1);
@@ -463,7 +452,7 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
     itr1->second.theNS2 += (energyhit * energyhit);
     itr1->second.theNS3 += (energyhit * energyhit * energyhit);
     itr1->second.theNS4 += (energyhit * energyhit * energyhit * energyhit);
-    itr1->second.runcheck = rnnum;
+    itr1->second.runcheck = rnnum_;
     if (fill)
       h_Noise[hid.subdet() - 1]->Fill(energyhit);
 
@@ -478,7 +467,7 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
     itr2->second.theNS2 += (energyhit * energyhit);
     itr2->second.theNS3 += (energyhit * energyhit * energyhit);
     itr2->second.theNS4 += (energyhit * energyhit * energyhit * energyhit);
-    itr2->second.runcheck = rnnum;
+    itr2->second.runcheck = rnnum_;
 
   }  // HF_NS
 
@@ -514,7 +503,7 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
     itr1->second.theMB2 += (energyhit * energyhit);
     itr1->second.theMB3 += (energyhit * energyhit * energyhit);
     itr1->second.theMB4 += (energyhit * energyhit * energyhit * energyhit);
-    itr1->second.runcheck = rnnum;
+    itr1->second.runcheck = rnnum_;
     float mydiff = 0.0;
     if (itr2 != tmpMap.end()) {
       mydiff = energyhit - (itr2->second.theNS1);
