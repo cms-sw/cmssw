@@ -92,7 +92,7 @@ std::bitset<6> HcalFinegrainBit::compute(const HcalFinegrainBit::TowerTDC& tower
           1;  // deep layers, 3+. If bit13 = 1, energy in deep layers. Require ADC > 0 to ensure valid hit in cell
   }
 
-  // very delayed (100000), slightly delayed (010000), prompt (001000), 2 reserved bits (000110), depth flag (000001)
+  // very delayed (001000), slightly delayed (000100), prompt (000010), depth flag (000001), 2 reserved bits (110000)
   if (DeepEnergy > 0 && EarlyEnergy == 0)
     result[0] = true;  // 000001
   else
