@@ -85,7 +85,7 @@ nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyData + nanoSequ
 nanoTableTaskFS = cms.Task(genParticleTask, particleLevelTask, jetMCTask, muonMCTask, electronMCTask, lowPtElectronMCTask, photonMCTask,
                             tauMCTask, boostedTauMCTask,
                             metMCTable, ttbarCatMCProducersTask, globalTablesMCTask, cms.Task(btagWeightTable), ttbarCategoryTableTask,
-                            genWeightsTableTask, genVertexTablesTask, genParticleTablesTask, particleLevelTablesTask)
+                            genWeightsTableTask, genVertexTablesTask, genParticleTablesTask, genProtonTablesTask, particleLevelTablesTask)
 
 nanoSequenceFS = cms.Sequence(nanoSequenceCommon + cms.Sequence(nanoTableTaskFS))
 
@@ -108,7 +108,7 @@ def nanoAOD_addTauIds(process):
 
 def nanoAOD_addBoostedTauIds(process):
     updatedBoostedTauName = "slimmedTausBoostedNewID"
-    boostedTauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug=False, 
+    boostedTauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug=False,
                                                      originalTauName = "slimmedTausBoosted",
                                                      updatedTauName = updatedBoostedTauName,
                                                      postfix="Boosted",
@@ -121,7 +121,7 @@ def nanoAOD_addBoostedTauIds(process):
     process.boostedTauTask = _boostedTauTask.copy()
 
     return process
- 
+
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
@@ -205,7 +205,7 @@ def nanoAOD_recalibrateMETs(process,isData):
         process.patJetsPuppi.addGenJetMatch = cms.bool(False)
 
         print("nanoAOD_PuppiV15_switch.reclusterJets is true")
-    
+
     runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi", recoMetFromPFCs=bool(nanoAOD_PuppiV15_switch.recoMetFromPFCs), reclusterJets=bool(nanoAOD_PuppiV15_switch.reclusterJets))
     process.nanoSequenceCommon.insert(2,cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
 
@@ -369,10 +369,10 @@ def nanoAOD_customizeMC(process):
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=False))
     return process
 
-###increasing the precision of selected GenParticles.                                                                                                 
+###increasing the precision of selected GenParticles.
 def nanoWmassGenCustomize(process):
     pdgSelection="?(abs(pdgId) == 11|| abs(pdgId)==13 || abs(pdgId)==15 ||abs(pdgId)== 12 || abs(pdgId)== 14 || abs(pdgId)== 16|| abs(pdgId)== 24|| pdgId== 23)"
-    # Keep precision same as default RECO for selected particles                                                                                       
+    # Keep precision same as default RECO for selected particles
     ptPrecision="{}?{}:{}".format(pdgSelection, CandVars.pt.precision.value(),genParticleTable.variables.pt.precision.value())
     process.genParticleTable.variables.pt.precision=cms.string(ptPrecision)
     phiPrecision="{} ? {} : {}".format(pdgSelection, CandVars.phi.precision.value(), genParticleTable.variables.phi.precision.value())
