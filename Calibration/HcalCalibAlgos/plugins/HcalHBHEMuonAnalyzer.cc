@@ -99,30 +99,33 @@ private:
   const bool unCorrect_, collapseDepth_, isItPlan1_;
   const bool ignoreHECorr_, isItPreRecHit_;
   const bool getCharge_, writeRespCorr_;
-  bool mergedDepth_, useMyCorr_;
-  int maxDepth_, kount_;
+  const int maxDepth_;
+  const std::string modnam_, procnm_;
+
+  const edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
+  const edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_HBHE_;
+  const edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
+
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_chan_;
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
 
   const HcalDDDRecConstants* hdc_;
   const HcalTopology* theHBHETopology_;
   const CaloGeometry* geo_;
   HcalRespCorrs* respCorrs_;
 
-  edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
-  edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_HBHE_;
-  edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
-
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
-  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
-  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_chan_;
-  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
-  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
-  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
+  bool mergedDepth_, useMyCorr_;
+  int kount_;
 
   //////////////////////////////////////////////////////
   static const int depthMax_ = 7;
@@ -186,49 +189,44 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig)
       isItPreRecHit_(iConfig.getUntrackedParameter<bool>("isItPreRecHit", false)),
       getCharge_(iConfig.getParameter<bool>("getCharge")),
       writeRespCorr_(iConfig.getUntrackedParameter<bool>("writeRespCorr", false)),
+      maxDepth_(iConfig.getUntrackedParameter<int>("maxDepth", 4)),
+      modnam_(iConfig.getUntrackedParameter<std::string>("moduleName", "")),
+      procnm_(iConfig.getUntrackedParameter<std::string>("processName", "")),
+      tok_trigRes_(consumes<edm::TriggerResults>(hlTriggerResults_)),
+      tok_Vtx_((modnam_.empty()) ? consumes<reco::VertexCollection>(labelVtx_)
+                                 : consumes<reco::VertexCollection>(edm::InputTag(modnam_, labelVtx_, procnm_))),
+      tok_EB_(consumes<EcalRecHitCollection>(labelEBRecHit_)),
+      tok_EE_(consumes<EcalRecHitCollection>(labelEERecHit_)),
+      tok_HBHE_(consumes<HBHERecHitCollection>(labelHBHERecHit_)),
+      tok_Muon_((modnam_.empty()) ? consumes<reco::MuonCollection>(labelMuon_)
+                                  : consumes<reco::MuonCollection>(edm::InputTag(modnam_, labelMuon_, procnm_))),
+      tok_ddrec_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_respcorr_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
+      tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      tok_chan_(esConsumes<EcalChannelStatus, EcalChannelStatusRcd>()),
+      tok_sevlv_(esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()),
+      tok_topo_(esConsumes<CaloTopology, CaloTopologyRecord>()),
+      tok_dbservice_(esConsumes<HcalDbService, HcalDbRecord>()),
       hdc_(nullptr),
       theHBHETopology_(nullptr),
       respCorrs_(nullptr) {
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
   kount_ = 0;
-  maxDepth_ = iConfig.getUntrackedParameter<int>("maxDepth", 4);
-  if (maxDepth_ > depthMax_)
-    maxDepth_ = depthMax_;
-  else if (maxDepth_ < 1)
-    maxDepth_ = 4;
-  std::string modnam = iConfig.getUntrackedParameter<std::string>("moduleName", "");
-  std::string procnm = iConfig.getUntrackedParameter<std::string>("processName", "");
-
   mergedDepth_ = (!isItPreRecHit_) || (collapseDepth_);
-  tok_trigRes_ = consumes<edm::TriggerResults>(hlTriggerResults_);
-  tok_EB_ = consumes<EcalRecHitCollection>(labelEBRecHit_);
-  tok_EE_ = consumes<EcalRecHitCollection>(labelEERecHit_);
-  tok_HBHE_ = consumes<HBHERecHitCollection>(labelHBHERecHit_);
-  if (modnam.empty()) {
-    tok_Vtx_ = consumes<reco::VertexCollection>(labelVtx_);
-    tok_Muon_ = consumes<reco::MuonCollection>(labelMuon_);
+
+  if (modnam_.empty()) {
     edm::LogVerbatim("HBHEMuon") << "Labels used: Trig " << hlTriggerResults_ << " Vtx " << labelVtx_ << " EB "
                                  << labelEBRecHit_ << " EE " << labelEERecHit_ << " HBHE " << labelHBHERecHit_ << " MU "
                                  << labelMuon_;
   } else {
-    tok_Vtx_ = consumes<reco::VertexCollection>(edm::InputTag(modnam, labelVtx_, procnm));
-    tok_Muon_ = consumes<reco::MuonCollection>(edm::InputTag(modnam, labelMuon_, procnm));
     edm::LogVerbatim("HBHEMuon") << "Labels used Trig " << hlTriggerResults_ << "\n  Vtx  "
-                                 << edm::InputTag(modnam, labelVtx_, procnm) << "\n  EB   " << labelEBRecHit_
+                                 << edm::InputTag(modnam_, labelVtx_, procnm_) << "\n  EB   " << labelEBRecHit_
                                  << "\n  EE   " << labelEERecHit_ << "\n  HBHE " << labelHBHERecHit_ << "\n  MU   "
-                                 << edm::InputTag(modnam, labelMuon_, procnm);
+                                 << edm::InputTag(modnam_, labelMuon_, procnm_);
   }
-
-  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_respcorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
-  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  tok_chan_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
-  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
-  tok_topo_ = esConsumes<CaloTopology, CaloTopologyRecord>();
-  tok_dbservice_ = esConsumes<HcalDbService, HcalDbRecord>();
 
   if (!fileInCorr_.empty()) {
     std::ifstream infile(fileInCorr_.c_str());
@@ -298,8 +296,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::LogVerbatim("HBHEMuon") << "Run " << runNumber_ << " Event " << eventNumber_ << " Lumi " << lumiNumber_ << " BX "
                                << bxNumber_ << std::endl;
 #endif
-  edm::Handle<edm::TriggerResults> _Triggers;
-  iEvent.getByToken(tok_trigRes_, _Triggers);
+  const edm::Handle<edm::TriggerResults> _Triggers = iEvent.getHandle(tok_trigRes_);
 #ifdef EDM_ML_DEBUG
   if ((verbosity_ / 10000) % 10 > 0)
     edm::LogVerbatim("HBHEMuon") << "Size of all triggers " << all_triggers_.size();
@@ -342,19 +339,14 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   const HcalDbService* conditions = &iSetup.getData(tok_dbservice_);
 
   // Relevant blocks from iEvent
-  edm::Handle<reco::VertexCollection> vtx;
-  iEvent.getByToken(tok_Vtx_, vtx);
+  const edm::Handle<reco::VertexCollection> vtx = iEvent.getHandle(tok_Vtx_);
 
-  edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-  iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
-  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-  iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+  edm::Handle<EcalRecHitCollection> barrelRecHitsHandle = iEvent.getHandle(tok_EB_);
+  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle = iEvent.getHandle(tok_EE_);
 
-  edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByToken(tok_HBHE_, hbhe);
+  edm::Handle<HBHERecHitCollection> hbhe = iEvent.getHandle(tok_HBHE_);
 
-  edm::Handle<reco::MuonCollection> _Muon;
-  iEvent.getByToken(tok_Muon_, _Muon);
+  const edm::Handle<reco::MuonCollection> _Muon = iEvent.getHandle(tok_Muon_);
 
   // require a good vertex
   math::XYZPoint pvx;

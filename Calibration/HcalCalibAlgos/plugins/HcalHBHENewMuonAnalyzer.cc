@@ -35,7 +35,8 @@ private:
   // ----------member data ---------------------------
   const edm::InputTag labelHBHEMuonVar_;
   const int useRaw_;
-  int maxDepth_, kount_;
+  const int maxDepth_;
+  int kount_;
 
   const edm::EDGetTokenT<HcalHBHEMuonVariablesCollection> tokHBHEMuonVar_;
 
@@ -83,15 +84,11 @@ private:
 HcalHBHENewMuonAnalyzer::HcalHBHENewMuonAnalyzer(const edm::ParameterSet& iConfig)
     : labelHBHEMuonVar_(iConfig.getParameter<edm::InputTag>("hbheMuonLabel")),
       useRaw_(iConfig.getParameter<int>("useRaw")),
+      maxDepth_(iConfig.getUntrackedParameter<int>("maxDepth", 4)),
       tokHBHEMuonVar_(consumes<HcalHBHEMuonVariablesCollection>(labelHBHEMuonVar_)) {
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
   kount_ = 0;
-  maxDepth_ = iConfig.getUntrackedParameter<int>("maxDepth", 4);
-  if (maxDepth_ > depthMax_)
-    maxDepth_ = depthMax_;
-  else if (maxDepth_ < 1)
-    maxDepth_ = 4;
 
   edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \n\t maxDepth__ " << maxDepth_ << "\n\t Labels "
                                << labelHBHEMuonVar_;
