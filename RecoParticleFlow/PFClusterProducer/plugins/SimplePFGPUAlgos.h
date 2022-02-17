@@ -4,6 +4,7 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/DeclsForKernels.h"
 #include "RecoLocalCalo/HcalRecProducers/src/DeclsForKernels.h"
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit.h"
+#include <array>
 
 namespace PFRecHit {
   namespace HCAL {
@@ -16,7 +17,8 @@ namespace PFRecHit {
                   OutputPFRecHitDataGPU&,
                   PersistentDataGPU&,
                   ScratchDataGPU&,
-                  cudaStream_t);
+                  cudaStream_t,
+                  std::array<float,5>& timer);
 
   }
 

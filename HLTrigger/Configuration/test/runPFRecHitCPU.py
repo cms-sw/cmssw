@@ -91,6 +91,7 @@ process = ProcessName(process)
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '120X_mcRun3_2021_realistic_v4', '')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*articleFlow*HBHE*_*_*')
+#process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*articleFlow*_*_*')
 
 # Path and EndPath definitions
 process.endjob_step = cms.EndPath(process.endOfProcess)
@@ -138,13 +139,15 @@ process = customiseEarlyDelete(process)
 #    process.MessageLogger.cerr.FastReport = cms.untracked.PSet( limit = cms.untracked.int32( 10000000 ) )
 
 
+
 ############################
-## Configure GPU producer ##
+## Configure CPU producer ##
 ############################
 
-process.hltParticleFlowRecHitHBHE = cms.EDProducer( "PFHBHERechitProducerGPU",
+process.hltParticleFlowRecHitHBHE = cms.EDProducer( "PFRecHitProducer",
     producers = cms.VPSet(
-      cms.PSet(  src = cms.InputTag( "hltHbherecoGPU" ),
+      #cms.PSet(  src = cms.InputTag( "hltHbherecoFromGPU" ),
+      cms.PSet(  src = cms.InputTag( "hltHbhereco" ),
         name = cms.string( "PFHBHERecHitCreator" ),
         qualityTests = cms.VPSet(
           cms.PSet(  threshold = cms.double( 0.8 ),
@@ -174,7 +177,7 @@ process.hltParticleFlowRecHitHBHE = cms.EDProducer( "PFHBHERechitProducerGPU",
     )
 )
 
-process.hltParticleFlowClusterHBHE = cms.EDProducer( "PFClusterProducerCudaHCAL",
+process.hltParticleFlowClusterHBHE = cms.EDProducer( "PFClusterProducer",
     pfClusterBuilder = cms.PSet( 
       minFracTot = cms.double( 1.0E-20 ),
       stoppingTolerance = cms.double( 1.0E-8 ),
@@ -290,38 +293,3 @@ process.hltParticleFlowClusterHBHE = cms.EDProducer( "PFClusterProducerCudaHCAL"
 )
 
 
-############################
-## Configure CPU producer ##
-############################
-
-#process.hltParticleFlowRecHitHBHE = cms.EDProducer( "PFRecHitProducer",
-#    producers = cms.VPSet(
-#      cms.PSet(  src = cms.InputTag( "hltHbherecoFromGPU" ),
-#        name = cms.string( "PFHBHERecHitCreator" ),
-#        qualityTests = cms.VPSet(
-#          cms.PSet(  threshold = cms.double( 0.8 ),
-#            name = cms.string( "PFRecHitQTestThreshold" ),
-#            cuts = cms.VPSet(
-#              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4 ),
-#                threshold = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
-#                detectorEnum = cms.int32( 1 )
-#              ),
-#              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
-#                threshold = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 ),
-#                detectorEnum = cms.int32( 2 )
-#              )
-#            )
-#          ),
-#          cms.PSet(  flags = cms.vstring( 'Standard' ),
-#            cleaningThresholds = cms.vdouble( 0.0 ),
-#            name = cms.string( "PFRecHitQTestHCALChannel" ),
-#            maxSeverities = cms.vint32( 11 )
-#          )
-#        )
-#      )
-#    ),
-#    navigator = cms.PSet(
-#      name = cms.string( "PFRecHitHCALDenseIdNavigator" ),
-#      hcalEnums = cms.vint32( 1, 2 )
-#    )
-#)

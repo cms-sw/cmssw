@@ -21,14 +21,18 @@
 
 #include <TFile.h>
 #include <TTree.h>
+#include <TH1F.h>
 
 #include <iostream>
 #include <functional>
 #include <optional>
 #include <vector>
+#include <array>
 #include "RecoParticleFlow/PFClusterProducer/plugins/SimplePFGPUAlgos.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHCALDenseIdNavigator.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -36,6 +40,11 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
+
+// Comment out to disable debugging
+#define DEBUG_ENABLE
+
+typedef PFHCALDenseIdNavigator<HcalDetId, HcalTopology, false> PFRecHitHCALDenseIdNavigator;
 
 class PFHBHERechitProducerGPU : public edm::stream::EDProducer <edm::ExternalWork> {
 public:
@@ -71,6 +80,8 @@ private:
 
   hcal::PFRecHitCollection<pf::common::VecStoragePolicy<pf::common::CUDAHostAllocatorAlias>> tmpPFRecHits;
 
+  std::unique_ptr<PFRecHitNavigatorBase> navigator_;
+
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -85,8 +96,8 @@ private:
 
   uint32_t nValidBarrelIds = 0, nValidEndcapIds = 0, nValidDetIds = 0;
   float qTestThresh = 0.;
-  std::vector<std::vector<DetId>> neighboursHcal_;
-  std::vector<unsigned> vDenseIdHcal;
+  std::vector<std::vector<DetId>>* neighboursHcal_;
+  std::vector<unsigned>* vDenseIdHcal;
   std::unordered_map<unsigned, unsigned> detIdToIndex; // Mapping of detId to index. Use this index instead of raw detId to encode neighbours
   std::vector<GlobalPoint> validDetIdPositions;
   unsigned denseIdHcalMax_ = 0;
@@ -94,20 +105,15 @@ private:
 
   bool initCuda = true;
   uint32_t nPFRHTotal = 0;
+
+#ifdef DEBUG_ENABLE
   TTree* tree;
   TFile* f;
+  TH1F *hTimers = new TH1F("timers", "GPU kernel timers ", 5, -0.5, 4.5);
 
-  reco::PFRecHitCollection  __pfrechits;
-  std::vector<float>  __rh_x;
-  std::vector<float>  __rh_y;
-  std::vector<float>  __rh_z;
-  std::vector<float>  __rh_eta;
-  std::vector<float>  __rh_phi;
-  // rechit neighbours4, neighbours8 vectors
-  std::vector<std::vector<int>> __rh_neighbours4;
-  std::vector<std::vector<int>> __rh_neighbours8;
-
-//  std::vector<std::vector<int>> __neigh;
+  std::array<float,5> GPU_timers;
+  Int_t numEvents = 0;
+#endif
 };
 
 
@@ -120,41 +126,45 @@ PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
     
     //: InputRecHitSoA_Token_{consumes<IProductType>(ps.getParameter<edm::InputTag>("recHitsM0LabelIn"))},
     //OutputPFRecHitSoA_Token_(produces<PFRecHitSoAProductType>(ps.getParameter<std::string>("pfRecHitsLabelCUDAHBHE"))) {
+    edm::ConsumesCollector cc = consumesCollector();
+
     produces<reco::PFRecHitCollection>();
     produces<reco::PFRecHitCollection>("Cleaned");
 
-//    tree = new TTree("tree", "tree");
-//    tree->Branch("rechits", "PFRecHitCollection", &__pfrechits);
-//    tree->Branch("rechits_x", &__rh_x);
-//    tree->Branch("rechits_y", &__rh_y);
-//    tree->Branch("rechits_z", &__rh_z);
-//    tree->Branch("rechits_eta", &__rh_eta);
-//    tree->Branch("rechits_phi", &__rh_phi);
-//    tree->Branch("rechits_pt2", &__rh_pt2);
-//    tree->Branch("rechits_neighbours4", &__rh_neighbours4);
-//    tree->Branch("rechits_neighbours8", &__rh_neighbours8);
-
     const auto& prodConf = ps.getParameterSetVector("producers")[0];
     const std::string& prodName = prodConf.getParameter<std::string>("name");
-    std::cout<<"Producer name from config: "<<prodName<<std::endl;
     const auto& qualityConf = prodConf.getParameterSetVector("qualityTests");
 
     const std::string& qualityTestName = qualityConf[0].getParameter<std::string>("name");
     qTestThresh = (float)qualityConf[0].getParameter<double>("threshold");
-    std::cout<<"Quality test name from config: "<<qualityTestName<<std::endl;
 
-    //const auto& navConf = ps.getParameterSet("navigator");
+    const auto& navSet = ps.getParameterSet("navigator");
+    navigator_ = PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"), navSet, cc);
+    
+#ifdef DEBUG_ENABLE
+    tree = new TTree("tree", "tree");
+    tree->Branch("Event", &numEvents);
+    tree->Branch("timers", &GPU_timers);
+  
+    hTimers->GetYaxis()->SetTitle("time (ms)");
+    hTimers->GetXaxis()->SetBinLabel(1, "initializeArrays");
+    hTimers->GetXaxis()->SetBinLabel(2, "buildDetIdMap");
+    hTimers->GetXaxis()->SetBinLabel(3, "applyQTests");
+    hTimers->GetXaxis()->SetBinLabel(4, "applyMask");
+    hTimers->GetXaxis()->SetBinLabel(5, "convertToPFRecHits");
+#endif
 }
 
 
 PFHBHERechitProducerGPU::~PFHBHERechitProducerGPU() {
     topology_.release();
-
-//  f = new TFile("gpuPFRecHits.root", "recreate");
-//  f->cd();
-//  tree->Write();
-//  f->Close();
-//  delete f;
+#ifdef DEBUG_ENABLE
+    TFile* f = new TFile("gpuPFRecHitTimers.root", "recreate");
+    f->cd();
+    tree->Write();
+    hTimers->Write();
+    delete f;
+#endif
 }
 
 void PFHBHERechitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
@@ -177,12 +187,14 @@ unsigned PFHBHERechitProducerGPU::getIdx(const unsigned denseid) {
 }
 
 void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
+    navigator_->init(setup);
     if (!theRecNumberWatcher_.check(setup)) return; 
     
     topoHandle = setup.getHandle(hcalToken_);
     topology_.release();
     topology_.reset(topoHandle.product());
     
+
     // Get list of valid Det Ids for HCAL barrel & endcap once
     geoHandle = setup.getHandle(geomToken_);
     // get the hcal geometry
@@ -194,59 +206,31 @@ void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
     nValidBarrelIds = validBarrelDetIds.size();
     nValidEndcapIds = validEndcapDetIds.size();
     nValidDetIds = nValidBarrelIds + nValidEndcapIds; 
-        
-    neighboursHcal_.clear();
-    vDenseIdHcal.clear();
+    
+    std::cout<<"Found nValidBarrelIds = "<<nValidBarrelIds<<"\tnValidEndcapIds = "<<nValidEndcapIds<<std::endl;
+
     detIdToIndex.clear();
     validDetIdPositions.clear();
 
-    vDenseIdHcal.reserve(nValidDetIds);
     detIdToIndex.reserve(nValidDetIds);
     validDetIdPositions.reserve(nValidDetIds);
+    //vDenseIdHcal.clear();
+    //vDenseIdHcal.reserve(nValidDetIds);
 
-    for (auto hDetId : validBarrelDetIds) {
-      vDenseIdHcal.push_back(topology_.get()->detId2denseId(hDetId));
-    }
-    for (auto hDetId : validEndcapDetIds) {
-      vDenseIdHcal.push_back(topology_.get()->detId2denseId(hDetId));
-    }
-    std::sort(vDenseIdHcal.begin(), vDenseIdHcal.end());
+//    for (auto hDetId : validBarrelDetIds) {
+//      vDenseIdHcal.push_back(topology_.get()->detId2denseId(hDetId));
+//    }
+//    for (auto hDetId : validEndcapDetIds) {
+//      vDenseIdHcal.push_back(topology_.get()->detId2denseId(hDetId));
+//    }
+//    std::sort(vDenseIdHcal.begin(), vDenseIdHcal.end());
+//    neighboursHcal_ = reinterpret_cast<PFRecHitHCALDenseIdNavigator*>(*(&navigator_))->getNeighbours();
+//    std::cout<<"Found neighboursHcal_->.size() = "<<neighboursHcal_->size()<<std::endl;
+    vDenseIdHcal = reinterpret_cast<PFRecHitHCALDenseIdNavigator*>(&(*navigator_))->getValidDenseIds();
+    std::cout<<"Found vDenseIdHcal->size() = "<<vDenseIdHcal->size()<<std::endl;
 
-    // Fill a vector of cell neighbours
-    denseIdHcalMax_ = *max_element(vDenseIdHcal.begin(), vDenseIdHcal.end());
-    denseIdHcalMin_ = *min_element(vDenseIdHcal.begin(), vDenseIdHcal.end());
-    neighboursHcal_.resize(denseIdHcalMax_ - denseIdHcalMin_ + 1);
-    //__neigh.resize(neighboursHcal_.size());
-  
-    auto validNeighbours = [&](const unsigned int denseid) {
-        bool ok = true;
-
-        if (denseid < denseIdHcalMin_ || denseid > denseIdHcalMax_) {
-          ok = false;
-        } else {
-          unsigned index = getIdx(denseid);
-          if (neighboursHcal_.at(index).size() != 9)
-        ok = false;  // the neighbour vector size should be 3x3
-        }
-        return ok;
-    };
-        
-    for (auto denseid : vDenseIdHcal) {
-        DetId N(0);
-        DetId E(0);
-        DetId S(0);
-        DetId W(0);
-        DetId NW(0);
-        DetId NE(0);
-        DetId SW(0);
-        DetId SE(0);
-        std::vector<DetId> neighbours(9, DetId(0));
-
-        // the centre
-        unsigned denseid_c = denseid;
-        DetId detid_c = topology_.get()->denseId2detId(denseid_c);
-        CaloNavigator<HcalDetId> navigator(detid_c, topology_.get());
-
+    for (const auto& denseid : *vDenseIdHcal) {
+        DetId detid_c = topology_.get()->denseId2detId(denseid);
         HcalDetId hid_c   = HcalDetId(detid_c);
         
         if (hid_c.subdet() == HcalBarrel)
@@ -257,134 +241,7 @@ void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
             std::cout<<"Invalid subdetector found for detId "<<hid_c.rawId()<<": "<<hid_c.subdet()<<std::endl;
 
         detIdToIndex[hid_c.rawId()] = detIdToIndex.size();
-        // Using enum in Geometry/CaloTopology/interface/CaloDirection.h
-        // Order: CENTER(NONE),SOUTH,SOUTHEAST,SOUTHWEST,EAST,WEST,NORTHEAST,NORTHWEST,NORTH
-        neighbours.at(NONE) = detid_c;
-
-        navigator.home();
-        E = navigator.east();
-        neighbours.at(EAST) = E;
-        if (hid_c.ieta()>0.){ // positive eta: east -> move to smaller |ieta| (finner phi granularity) first
-            if (E != DetId(0)) {
-                // SE
-                SE = navigator.south();
-                neighbours.at(SOUTHEAST) = SE;
-                // NE
-                navigator.home();
-                navigator.east();
-                NE = navigator.north();
-                neighbours.at(NORTHEAST) = NE;
-            } 
-        } // ieta<0 is handled later.
-
-        navigator.home();
-        W = navigator.west();
-        neighbours.at(WEST) = W;
-        if (hid_c.ieta()<0.){ // negative eta: west -> move to smaller |ieta| (finner phi granularity) first
-            if (W != DetId(0)) {
-                NW = navigator.north();
-                neighbours.at(NORTHWEST) = NW;
-                //
-                navigator.home();
-                navigator.west();
-                SW = navigator.south();
-                neighbours.at(SOUTHWEST) = SW;
-            } 
-        } // ieta>0 is handled later.
-
-        navigator.home();
-        N = navigator.north();
-        neighbours.at(NORTH) = N;
-        if (N != DetId(0)) {
-            if (hid_c.ieta()<0.) { // negative eta: move in phi first then move to east (coarser phi granularity)
-                NE = navigator.east();
-                neighbours.at(NORTHEAST) = NE;
-            }
-            else { // positive eta: move in phi first then move to west (coarser phi granularity)
-                NW = navigator.west();
-                neighbours.at(NORTHWEST) = NW;
-            }
-        }
-
-        navigator.home();
-        S = navigator.south();
-        neighbours.at(SOUTH) = S;
-        if (S != DetId(0)) {
-            if (hid_c.ieta()>0.){ // positive eta: move in phi first then move to west (coarser phi granularity)
-                SW = navigator.west();
-                neighbours.at(SOUTHWEST) = SW;
-            }
-            else { // negative eta: move in phi first then move to east (coarser phi granularity)
-                SE = navigator.east();
-                neighbours.at(SOUTHEAST) = SE;
-            }
-        } 
-
-        unsigned index = getIdx(denseid_c);
-        neighboursHcal_[index] = neighbours;
     }
-    
-
-    //
-    // Check backward compatibility (does a neighbour of a channel have the channel as a neighbour?)
-    //
-    for (auto denseid : vDenseIdHcal) {
-        DetId detid = topology_.get()->denseId2detId(denseid);
-        HcalDetId hid   = HcalDetId(detid);
-        if (detid==DetId(0)) continue;
-        if (!validNeighbours(denseid)) continue;
-        std::vector<DetId> neighbours(9, DetId(0));
-        unsigned index = getIdx(denseid);
-        neighbours = neighboursHcal_.at(index);
-
-        
-        // Loop over neighbours
-        int ineighbour=-1;
-        for (auto neighbour : neighbours) {
-            ineighbour++;
-            if (neighbour==DetId(0)) continue;
-            //HcalDetId hidn  = HcalDetId(neighbour);
-            std::vector<DetId> neighboursOfNeighbour(9, DetId(0));
-            std::unordered_set<unsigned int> listOfNeighboursOfNeighbour; // list of neighbours of neighbour
-            unsigned denseidNeighbour = topology_.get()->detId2denseId(neighbour);
-            if (!validNeighbours(denseidNeighbour)) continue;
-            neighboursOfNeighbour = neighboursHcal_.at(getIdx(denseidNeighbour));
-
-            //
-            // Loop over neighbours of neighbours
-            for (auto neighbourOfNeighbour : neighboursOfNeighbour) {
-                if (neighbourOfNeighbour==DetId(0)) continue;
-                unsigned denseidNeighbourOfNeighbour = topology_.get()->detId2denseId(neighbourOfNeighbour);    
-                if (!validNeighbours(denseidNeighbourOfNeighbour)) continue;
-                listOfNeighboursOfNeighbour.insert(denseidNeighbourOfNeighbour);
-            }
-
-        
-            if (listOfNeighboursOfNeighbour.find(denseid)==listOfNeighboursOfNeighbour.end()){ 
-            // this neighbour is not backward compatible. ignore in the canse of HE phi segmentation change boundary
-                if (hid.subdet()==HcalBarrel || hid.subdet()==HcalEndcap) {
-//                 std::cout << "This neighbor does not have the original channel as its neighbor. Ignore: "  
-//                        << detid.det() << " " << hid.ieta() << " " << hid.iphi() << " " << hid.depth() << " "  
-//                        << neighbour.det() << " " << hidn.ieta() << " " << hidn.iphi() << " " << hidn.depth() 
-//                        << std::endl; 
-                    neighboursHcal_[index][ineighbour] = DetId(0);
-                }
-            }
-        } // loop over neighbours
-//        std::vector<int> nb(neighboursHcal_[index].size(), -999);
-//        for (int i = 0; i < (int)neighboursHcal_[index].size(); i++)
-//            nb.at(i) = neighboursHcal_[index].at(i);
-//        __neigh[index] = nb;
-    } // loop over vDenseIdHcal
-    
-    
-//    TFile* _f = new TFile("gpuNeighbors.root", "recreate");
-//    TTree* _t = new TTree("tree", "tree");
-//    _t->Branch("neigh", &__neigh);
-//    _t->Fill();
-//    _f->cd();
-//    _t->Write();
-//    _f->Close();
     
     initCuda = true;    // (Re)initialize cuda arrays
 }
@@ -392,7 +249,8 @@ void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
 void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
 				      edm::EventSetup const& setup,
 				      edm::WaitingTaskWithArenaHolder holder) {
-
+    
+    GPU_timers.fill(0.0);
     //auto start = std::chrono::high_resolution_clock::now();
 
     auto const& HBHERecHitSoAProduct = event.get(InputRecHitSoA_Token_);
@@ -404,13 +262,13 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
     //std::cout << "num input rechits = " << num_rechits << "\tctx.stream() = " << ctx.stream() << std::endl;
 
     // Lambda function to copy arrays to CPU for testing
-    auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
-        using vector_type = typename std::remove_reference<decltype(dest)>::type;
-        using src_data_type = typename std::remove_pointer<decltype(src)>::type;
-        using type = typename vector_type::value_type;
-        static_assert(std::is_same<src_data_type, type>::value && "Dest and Src data types do not match");
-        cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
-    };  
+//    auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
+//        using vector_type = typename std::remove_reference<decltype(dest)>::type;
+//        using src_data_type = typename std::remove_pointer<decltype(src)>::type;
+//        using type = typename vector_type::value_type;
+//        static_assert(std::is_same<src_data_type, type>::value && "Dest and Src data types do not match");
+//        cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
+//    };  
     
     auto lambdaToTransferSize = [&ctx](auto& dest, auto* src, auto size) {
         using vector_type = typename std::remove_reference<decltype(dest)>::type;
@@ -420,13 +278,6 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
         cudaCheck(cudaMemcpyAsync(dest.data(), src, size * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
     };  
   
-//    unsigned testDetId = 1158694936;
-//    std::cout<<"Neighbors of "<<testDetId<<":\n";
-//    for (auto& n : neighboursHcal_[getIdx(topology_.get()->detId2denseId(testDetId))]) {
-//        if (n != testDetId) std::cout<<"\t"<<n.rawId()<<std::endl;
-//    }
-//    std::cout<<std::endl;
-        
     outputGPU.allocate(num_rechits, ctx.stream());
 
     if (initCuda) {
@@ -434,24 +285,25 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
         persistentDataCPU.allocate(nValidDetIds, ctx.stream());
         persistentDataGPU.allocate(nValidDetIds, ctx.stream());
         scratchDataGPU.allocate(nValidDetIds, ctx.stream());
-        //outputGPU.allocate(nValidDetIds, ctx.stream());
 
         uint32_t nRHTotal = 0;
-        for (const auto& denseId : vDenseIdHcal) {
+        for (const auto& denseId : *vDenseIdHcal) {
             DetId detId = topology_.get()->denseId2detId(denseId);
             HcalDetId hid(detId.rawId());
 
             persistentDataCPU.rh_pos[nRHTotal] = make_float3(validDetIdPositions.at(nRHTotal).x(), validDetIdPositions.at(nRHTotal).y(), validDetIdPositions.at(nRHTotal).z());
             persistentDataCPU.rh_detId[nRHTotal] = hid.rawId();
-            uint32_t centerIndex = getIdx(denseId);
-
+            auto neigh = reinterpret_cast<PFRecHitHCALDenseIdNavigator*>(&(*navigator_))->getNeighbours(denseId);
             for (uint32_t n = 0; n < 8; n++) {
                 // cmssdt.cern.ch/lxr/source/RecoParticleFlow/PFClusterProducer/interface/PFHCALDenseIdNavigator.h#0087
                 // Order: CENTER(NONE),SOUTH,SOUTHEAST,SOUTHWEST,EAST,WEST,NORTHEAST,NORTHWEST,NORTH
                 // neighboursHcal_[centerIndex][0] is the rechit itself. Skip for neighbour array
                 // If no neighbour exists in a direction, the value will be 0
-                if (neighboursHcal_[centerIndex][n+1].rawId() != 0) {
-                    persistentDataCPU.rh_neighbours[nRHTotal*8 + n] = detIdToIndex[neighboursHcal_[centerIndex][n+1].rawId()];
+                // Some neighbors from HF included! Need to test if these are included in the map!
+                //auto neighDetId = neighboursHcal_[centerIndex][n+1].rawId();
+                auto neighDetId = neigh[n+1].rawId();
+                if (neighDetId > 0 && detIdToIndex.find(neighDetId) != detIdToIndex.end()) {
+                    persistentDataCPU.rh_neighbours[nRHTotal*8 + n] = detIdToIndex[neighDetId];
                 }
                 else
                     persistentDataCPU.rh_neighbours[nRHTotal*8 + n] = -1;
@@ -475,15 +327,15 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
   }
 
 
-  // Copy rechit raw energy
-  lambdaToTransfer(tmpRecHits.timeM0, HBHERecHitSoA.timeM0.get());
-  lambdaToTransfer(tmpRecHits.energyM0, HBHERecHitSoA.energyM0.get());
-  lambdaToTransfer(tmpRecHits.energy, HBHERecHitSoA.energy.get());
-  lambdaToTransfer(tmpRecHits.chi2, HBHERecHitSoA.chi2.get());
-  lambdaToTransfer(tmpRecHits.did, HBHERecHitSoA.did.get());
+  // Copy rechit raw energy to CPU for testing
+//  lambdaToTransfer(tmpRecHits.timeM0, HBHERecHitSoA.timeM0.get());
+//  lambdaToTransfer(tmpRecHits.energyM0, HBHERecHitSoA.energyM0.get());
+//  lambdaToTransfer(tmpRecHits.energy, HBHERecHitSoA.energy.get());
+//  lambdaToTransfer(tmpRecHits.chi2, HBHERecHitSoA.chi2.get());
+//  lambdaToTransfer(tmpRecHits.did, HBHERecHitSoA.did.get());
 
   // Copying is done asynchronously, so make sure it's finished before trying to read the CPU values!
-  if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
+//  if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
 
 
 //  std::vector<int> sortFailed; 
@@ -501,7 +353,7 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
 //  }
   
   // Entry point for GPU calls 
-  PFRecHit::HCAL::entryPoint(HBHERecHitSoA, outputGPU, persistentDataGPU, scratchDataGPU, ctx.stream());
+  PFRecHit::HCAL::entryPoint(HBHERecHitSoA, outputGPU, persistentDataGPU, scratchDataGPU, ctx.stream(), GPU_timers);
 
   if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
   // For testing, copy back PFRecHit SoA data to CPU
@@ -579,63 +431,17 @@ void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
  
   printf("pfrhLegacy->size() = %d\tpfrhLegacyCleaned->size() = %d\n\n", (int)pfrhLegacy->size(), (int)pfrhLegacyCleaned->size());
 
-
-  __pfrechits = *pfrhLegacy;
-  __rh_x.clear();
-  __rh_x.reserve((int)pfrhLegacy->size());
-  __rh_y.clear();
-  __rh_y.reserve((int)pfrhLegacy->size());
-  __rh_z.clear();
-  __rh_z.reserve((int)pfrhLegacy->size());
-  __rh_eta.clear();
-  __rh_eta.reserve((int)pfrhLegacy->size());
-  __rh_phi.clear();
-  __rh_phi.reserve((int)pfrhLegacy->size());
-  __rh_neighbours4.clear();
-  __rh_neighbours4.reserve((int)pfrhLegacy->size());
-  __rh_neighbours8.clear();
-  __rh_neighbours8.reserve((int)pfrhLegacy->size());
-  
-  for (auto& pfrh : *pfrhLegacy) {
-    auto pos = pfrh.position();
-    __rh_x.push_back(pos.x());
-    __rh_y.push_back(pos.y());
-    __rh_z.push_back(pos.z());
-    __rh_eta.push_back(pfrh.positionREP().eta());
-    __rh_phi.push_back(pfrh.positionREP().phi());
-    std::vector<int> n4, n8;
-    for (auto n : pfrh.neighbours4()) {
-        n4.push_back(n);
-    }
-  
-    for (auto n : pfrh.neighbours8()) {
-        n8.push_back(n);
-    }
-
-    __rh_neighbours4.push_back(n4);
-    __rh_neighbours8.push_back(n8);
-  }
-//  tree->Fill();
-//  tree = new TTree("tree", "tree");
-//  tree->Branch("detId", &tmpRecHits.did);
-//  tree->Branch("chi2", &tmpRecHits.chi2);
-//  tree->Branch("energy", &tmpRecHits.energy);
-//  tree->Branch("energyM0", &tmpRecHits.energyM0);
-//  tree->Branch("timeM0", &tmpRecHits.timeM0);
-//  tree->Branch("pfrh_depth", &tmpPFRecHits.pfrh_depth);
-//  tree->Branch("pfrh_energy", &tmpPFRecHits.pfrh_energy);
-//  tree->Fill();
-//
-//  f = new TFile("inputRechits.root", "recreate");
-//  f->cd();
-//  tree->Write();
-//  f->Close();
-//  delete f;
-  
   event.put(std::move(pfrhLegacy), "");
   event.put(std::move(pfrhLegacyCleaned), "Cleaned");
 
   tmpPFRecHits.resize(0);
+
+#ifdef DEBUG_ENABLE
+  for (int i = 0; i < (int)GPU_timers.size(); i++)
+    hTimers->Fill(i, GPU_timers[i]);
+  tree->Fill();
+  numEvents++;
+#endif
 }
 
 DEFINE_FWK_MODULE(PFHBHERechitProducerGPU);

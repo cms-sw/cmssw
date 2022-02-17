@@ -856,6 +856,8 @@ __device__ void dev_hcalFastCluster_optimizedComplex(int topoId,
         notDone = true;
         debug = false;
         //debug = true;
+        //debug = (topoId == 4) ? true : false;
+        //debug = (nSeeds == 2 && ( (topoSeedList[topoSeedBegin]==11 && topoSeedList[topoSeedBegin+1]==5) || (topoSeedList[topoSeedBegin]==5 && topoSeedList[topoSeedBegin+1]==11) )) ? true : false;
         //debug = (topoId == 432 || topoId == 438 || topoId == 439) ? true : false;
         //debug = (topoId == 1 || topoId == 5 || topoId == 6 || topoId == 8 || topoId == 9 || topoId == 10 || topoId == 12 || topoId == 13) ? true : false;
         
@@ -1117,8 +1119,13 @@ __device__ void dev_hcalFastCluster_original(int topoId,
         gridStride = blockDim.x;
         iter = 0;
         notDone = true;
+        //debug = true;
         debug = false;
-        
+        //int s0 = topoSeedList[topoSeedBegin];
+        //debug = (s0==33 || s0==49 || s0==50 || s0==57 || s0==58 || s0==59 || s0==36 || s0==37 || s0==39 || s0==46 || s0==55 || s0==61 || s0==63 || s0==99 || s0==105 || s0==112 || s0==114 || s0==122 || s0==109 || s0==116 || s0==66 || s0==67 || s0==72 || s0==74 || s0==75 || s0==81 || s0==70 || s0==76 || s0==78 || s0==353 || s0==360 || s0==362 || s0==368 || s0==377 || s0==378 || s0==366 || s0==373 || s0==375 || s0==382 || s0==2 || s0==11 || s0==16 || s0==26 || s0==12 || s0==14 || s0==22 || s0==29 || s0==31 || s0==323 || s0==328 || s0==331 || s0==344 || s0==345 || s0==325 || s0==326 || s0==349 || s0==163 || s0==177 || s0==165 || s0==175 || s0==182 || s0==190 || s0==130 || s0==138 || s0==146 || s0==153 || s0==155 || s0==135 || s0==141 || s0==149 || s0==151 || s0==157 || s0==159 || s0==234 || s0==248 || s0==250 || s0==254 || s0==418 || s0==424 || s0==421 || s0==422 || s0==429 || s0==431 || s0==436 || s0==438 || s0==444 || s0==446 || s0==202 || s0==209 || s0==196 || s0==207 || s0==384 || s0==386 || s0==394 || s0==402 || s0==411 || s0==388 || s0==391 || s0==397 || s0==405 || s0==412 || s0==414 || s0==305 || s0==309 || s0==480 || s0==483 || s0==488 || s0==498 || s0==506 || s0==486 || s0==494 || s0==500 || s0==509 || s0==259 || s0==264 || s0==267 || s0==275 || s0==280 || s0==282 || s0==269 || s0==271 || s0==278 || s0==284 || s0==450 || s0==458 || s0==466 || s0==472 || s0==475 || s0==469 || s0==479 || s0==548 || s0==550 || s0==565 || s0==608 || s0==617 || s0==613 || s0==615 || s0==620 || s0==623 || s0==639 || s0==592 || s0==595 || s0==589 || s0==597 || s0==599 || s0==604 || s0==866 || s0==872 || s0==874 || s0==881 || s0==886 || s0==892 || s0==841 || s0==858 || s0==846 || s0==855 || s0==860 || s0==701 || s0==702 || s0==643 || s0==646 || s0==654 || s0==662 || s0==739 || s0==746 || s0==752 || s0==755 || s0==740 || s0==743 || s0==759 || s0==767 || s0==531 || s0==525 || s0==527 || s0==543 || s0==929 || s0==945 || s0==934 || s0==956 || s0==959 || s0==704 || s0==705 || s0==707 || s0==714 || s0==720 || s0==723 || s0==728 || s0==729 || s0==730 || s0==731 || s0==708 || s0==710 || s0==718 || s0==725 || s0==732 || s0==735 || s0==993 || s0==995 || s0==1008 || s0==1010 || s0==1014 || s0==1015 || s0==1020 || s0==896 || s0==898 || s0==920 || s0==922 || s0==903 || s0==910 || s0==918 || s0==800 || s0==809 || s0==804 || s0==805 || s0==822 || s0==777 || s0==779 || s0==786 || s0==792 || s0==794 || s0==772 || s0==780 || s0==781 || s0==798 || s0==960 || s0==978 || s0==984 || s0==964 || s0==966 || s0==973 || s0==975 || s0==980 || s0==981 || s0==1059 || s0==1072 || s0==1081 || s0==1070 || s0==1076 || s0==1079 || s0==1086 || s0==1147 || s0==1124 || s0==1135 || s0==1141 || s0==1149 || s0==1090 || s0==1098 || s0==1114 || s0==1095 || s0==1109 || s0==1119 || s0==1386 || s0==1387 || s0==1401 || s0==1396 || s0==1404 || s0==1347 || s0==1352 || s0==1355 || s0==1360 || s0==1185 || s0==1186 || s0==1194 || s0==1203 || s0==1210 || s0==1189 || s0==1207 || s0==1034 || s0==1040 || s0==1042 || s0==1049 || s0==1031 || s0==1044 || s0==1047 || s0==1154 || s0==1161 || s0==1177 || s0==1157 || s0==1164 || s0==1166 || s0==1172 || s0==1180 || s0==1249 || s0==1250 || s0==1251 || s0==1258 || s0==1266 || s0==1255 || s0==1260 || s0==1262 || s0==1270 || s0==1276 || s0==1409 || s0==1411 || s0==1418 || s0==1426 || s0==1427 || s0==1435 || s0==1415 || s0==1420 || s0==1422 || s0==1430 || s0==1441 || s0==1442 || s0==1443 || s0==1449 || s0==1458 || s0==1464 || s0==1467 || s0==1447 || s0==1461 || s0==1504 || s0==1515 || s0==1520 || s0==1529 || s0==1509 || s0==1511 || s0==1517 || s0==1524 || s0==1527 || s0==1532 || s0==1534 || s0==1320 || s0==1323 || s0==1331 || s0==1338 || s0==1317 || s0==1326 || s0==1335 || s0==1343 || s0==1218 || s0==1233 || s0==1234 || s0==1242 || s0==1243 || s0==1228 || s0==1230 || s0==1237 || s0==1239 || s0==1244 || s0==1481 || s0==1479 || s0==1492 || s0==1283 || s0==1289 || s0==1290 || s0==1304 || s0==1307 || s0==1293 || s0==1536 || s0==1539 || s0==1546 || s0==1553 || s0==1541 || s0==1557 || s0==1558 || s0==2114) ? true : false;
+
+        //debug = (nSeeds == 2 && ( (topoSeedList[topoSeedBegin]==11 && topoSeedList[topoSeedBegin+1]==5) || (topoSeedList[topoSeedBegin]==5 && topoSeedList[topoSeedBegin+1]==11) )) ? true : false;
+
         int i = topoSeedList[topoSeedBegin]; 
         if(pfrh_layer[i] == PFLayer::HCAL_BARREL1)       rhENormInv = recHitEnergyNormInvEB_vec[pfrh_depth[i] - 1]; 
         else if (pfrh_layer[i] == PFLayer::HCAL_ENDCAP)  rhENormInv = recHitEnergyNormInvEE_vec[pfrh_depth[i] - 1]; 
@@ -1177,7 +1184,7 @@ __device__ void dev_hcalFastCluster_original(int topoId,
         const auto norm =
             (frac < minFractionInCalc ? 0.0f : max(0.0f, logf(rh_energy * rhENormInv)));
         if (isDebug)
-            printf("\t\t\trechit %d: norm = %f\tfrac = %f\trh_energy = %f\tpos = (%f, %f, %f)\n", rhInd, norm, frac, rh_energy, rechitPos.x, rechitPos.y, rechitPos.z);
+            printf("\t\trechit %d: norm = %f\tfrac = %f\trh_energy = %f\tpos = (%f, %f, %f)\n", rhInd, norm, frac, rh_energy, rechitPos.x, rechitPos.y, rechitPos.z);
         
         pos4.x += rechitPos.x * norm;
         pos4.y += rechitPos.y * norm;
@@ -2553,9 +2560,9 @@ __global__ void hcalFastCluster_selection(size_t nRH,
         }
         else if (nSeeds <= 100 && nRHTopo - nSeeds < 256) {
             dev_hcalFastCluster_optimizedComplex(topoId, nSeeds, nRHTopo, pfrh_x, pfrh_y, pfrh_z, pfrh_energy, pfrh_layer, pfrh_depth, pfrh_neighbours, pcrhfrac, pcrhfracind, seedFracOffsets, topoSeedOffsets, topoSeedList, pfcIter);
+            //dev_hcalFastCluster_original(topoId, nSeeds, nRHTopo, pfrh_x, pfrh_y, pfrh_z, pfrh_energy, pfrh_layer, pfrh_depth, pfrh_neighbours, pcrhfrac, pcrhfracind, seedFracOffsets, topoSeedOffsets, topoSeedList, pfcIter);
         }
         else if (nSeeds <= 400 && (nRHTopo - nSeeds <= 1500)) {
-            if (threadIdx.x == 0) printf("WARNING: Topo cluster %d has %d seeds and %d rechits. This will not be clustered efficiently\n", topoId, nSeeds, nRHTopo);
             dev_hcalFastCluster_original(topoId, nSeeds, nRHTopo, pfrh_x, pfrh_y, pfrh_z, pfrh_energy, pfrh_layer, pfrh_depth, pfrh_neighbours, pcrhfrac, pcrhfracind, seedFracOffsets, topoSeedOffsets, topoSeedList, pfcIter);
         }
         else {
@@ -3244,6 +3251,7 @@ __global__ void topoClusterContraction(size_t size,
 
     } while (notDone);
 
+    
     // Now determine the number of seeds and rechits in each topo cluster
     for (int rhIdx = threadIdx.x; rhIdx < size; rhIdx += blockDim.x) {
         int topoId = pfrh_parent[rhIdx];
@@ -3256,7 +3264,6 @@ __global__ void topoClusterContraction(size_t size,
         }
     }
     __syncthreads();
-    
     
     
     // Determine offsets for topo ID seed array
@@ -3281,6 +3288,7 @@ __global__ void topoClusterContraction(size_t size,
     }
     __syncthreads();
 
+    
     // Determine seed offsets for rechit fraction array
     for (int rhIdx = threadIdx.x; rhIdx < size; rhIdx += blockDim.x) {
         rhCount[rhIdx] = 1; // Reset this counter array
@@ -3297,10 +3305,10 @@ __global__ void topoClusterContraction(size_t size,
         }
     }
     __syncthreads();
-    if (threadIdx.x == 0) {
-        *pcrhFracSize = totalSeedFracOffset;
-        printf("At the end of topoClusterContraction, found *pcrhFracSize = %d\n", *pcrhFracSize);
-    }
+//    if (threadIdx.x == 0) {
+//        *pcrhFracSize = totalSeedFracOffset;
+//        printf("At the end of topoClusterContraction, found *pcrhFracSize = %d\n", *pcrhFracSize);
+//    }
 }
 
 // Prefill the rechit index for all PFCluster fractions
@@ -3432,7 +3440,6 @@ __global__ void topoClusterLinking(int nRH,
     int* pfrh_edgeId,
     int* pfrh_edgeList,
     int* pfrh_edgeMask,
-    //const bool* pfrh_passTopoThresh,
     const int* pfrh_passTopoThresh,
     int* topoIter) {
 
@@ -3541,6 +3548,11 @@ __global__ void topoClusterLinking(int nRH,
 
     } while (notDone);
     *topoIter = iter;
+#ifdef DEBUG_GPU_HCAL
+    if (threadIdx.x == 0) {
+        printf("*** Topo clustering converged in %d iterations ***\n", iter);
+    } __syncthreads();
+#endif
 }
 
 __device__ __forceinline__ void sortSwap(int* toSort, int a, int b) {
@@ -3719,7 +3731,7 @@ __global__ void prepareTopoInputs(int nRH,
     {
         nEdgeArray[threadIdx.x] = 0;
         nEdgeArraySummed[threadIdx.x] = 0;
-        if (threadIdx.x == 0) printf("\n--- Now on iter % d ---", iter);
+        //if (threadIdx.x == 0) printf("\n--- Now on iter % d ---", iter);
         __syncthreads();
 
         pos = iter * blockDim.x * 8;
@@ -3840,7 +3852,7 @@ __global__ void prepareTopoInputs(int nRH,
 
     nEdgeArray[threadIdx.x] = 0;
     nEdgeArraySummed[threadIdx.x] = 0;
-    if (threadIdx.x == 0) printf("\n--- Now on iter %d (final) ---\n", maxIter-1);
+    //if (threadIdx.x == 0) printf("\n--- Now on iter %d (final) ---\n", maxIter-1);
     __syncthreads();
 
     pos = (maxIter - 1) * blockDim.x * 8;
@@ -4173,7 +4185,7 @@ void PFRechitToPFCluster_HCAL_entryPoint(cudaStream_t cudaStream,
     cudaEventRecord(stop, cudaStream);
     cudaEventSynchronize(stop);   
     cudaEventElapsedTime(&timer[4], start, stop);
-    printf("\nprepareTopoInputs took %f ms\n", timer[4]);
+    //printf("\nprepareTopoInputs took %f ms\n", timer[4]);
 
     compareEdgeArrays<<<1,1,0,cudaStream>>>(
         outputGPU.nEdges.get(),
