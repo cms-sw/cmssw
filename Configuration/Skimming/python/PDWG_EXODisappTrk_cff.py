@@ -72,7 +72,7 @@ hltDisappTrk.andOr = True
 disappTrkSelection=cms.EDFilter("TrackSelector", 
     src = cms.InputTag("generalTracks"),
     cut = cms.string('pt > 25 && abs(eta()) < 2.1'),
-    filter = cms.bool(False)
+    filter = cms.bool(True)
 )
 
 # disappTrk skim sequence
