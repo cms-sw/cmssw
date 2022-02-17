@@ -1,5 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-# This modifier is for turning on gpu validation DQM modules
+from Configuration.ProcessModifiers.gpu_cff import *
+from Configuration.ProcessModifiers.gpuValidationEcal_cff import *
 
-gpuValidation =  cms.Modifier()
+# This modifier chain is for turning on DQM modules used for gpu validation
+
+gpuValidation =  cms.ModifierChain(
+    gpu,
+    gpuValidationEcal
+)
