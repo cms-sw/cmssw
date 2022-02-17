@@ -32,7 +32,7 @@ namespace trackerTFP {
     void beginRun(const Run& iEvent, const EventSetup& iSetup) override;
     void analyze(const Event& iEvent, const EventSetup& iSetup) override;
     void endRun(const Run& iEvent, const EventSetup& iSetup) override {}
-    void endJob() override {}
+    void endJob() override;
 
   private:
     //
@@ -57,6 +57,10 @@ namespace trackerTFP {
     const Setup* setup_;
     //
     const Demonstrator* demonstrator_;
+    //
+    int nEvents_;
+    //
+    int nEventsSuccessful_;
   };
 
   AnalyzerDemonstrator::AnalyzerDemonstrator(const ParameterSet& iConfig) {
@@ -82,6 +86,8 @@ namespace trackerTFP {
     // initial ES product
     setup_ = nullptr;
     demonstrator_ = nullptr;
+    nEvents_ = 0;
+    nEventsSuccessful_ = 0;
   }
 
   void AnalyzerDemonstrator::beginRun(const Run& iEvent, const EventSetup& iSetup) {
@@ -92,11 +98,13 @@ namespace trackerTFP {
   }
 
   void AnalyzerDemonstrator::analyze(const Event& iEvent, const EventSetup& iSetup) {
+    nEvents_++;
     vector<vector<Frame>> input;
     vector<vector<Frame>> output;
     convert(iEvent, edGetTokenTracksIn_, edGetTokenStubsIn_, input);
     convert(iEvent, edGetTokenTracksOut_, edGetTokenStubsOut_, output);
-    demonstrator_->analyze(input, output);
+    if (demonstrator_->analyze(input, output))
+      nEventsSuccessful_++;
   }
 
   //
@@ -148,6 +156,12 @@ namespace trackerTFP {
     vector<Frame>& bvs = bits.back();
     bvs.reserve(collection.size());
     transform(collection.begin(), collection.end(), back_inserter(bvs), [](const auto& frame) { return frame.second; });
+  }
+
+  void AnalyzerDemonstrator::endJob() {
+    stringstream log;
+    log << "Successrate: " << nEventsSuccessful_ << " / " << nEvents_ << " = " << nEventsSuccessful_ / (double)nEvents_;
+    LogPrint("L1Trigger/TrackerTFP") << log.str();
   }
 
 }  // namespace trackerTFP

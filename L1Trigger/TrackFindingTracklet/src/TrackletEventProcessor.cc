@@ -184,6 +184,8 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
   globals_->event() = &ev;
 
   tracks_.clear();
+  for (tt::StreamStub& streamStub : streamsStub_)
+    streamStub.clear();
 
   eventnum_++;
   bool first = (eventnum_ == 1);

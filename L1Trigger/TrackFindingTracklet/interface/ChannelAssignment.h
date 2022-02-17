@@ -23,10 +23,10 @@ namespace trklet {
     ChannelAssignment(const edm::ParameterSet& iConfig, const tt::Setup* setup);
     ~ChannelAssignment() {}
     // sets channelId of given TTTrackRef from TrackBuilder or PurgeDuplicate (if enabled), return false if track outside pt range
-    bool channelId(const TTTrackRef& ttTrackRef, int& channelId);
+    bool channelId(const TTTrackRef& ttTrackRef, int& channelId) const;
     // number of used channels
     int numChannels() const { return numChannels_; }
-    // sets layerId (0-7 in sequence the seed type projects to) of given TTStubRef and seedType, returns false if seeed stub
+    // sets layerId (0-7 in sequence the seed type projects to) aka stub channel id of given TTStubRef and seedType, returns false if seeed stub
     bool layerId(int seedType, const TTStubRef& ttStubRef, int& layerId) const;
     // return tracklet layerId (barrel: [0-5], endcap: [6-10]) for given TTStubRef
     int trackletLayerId(const TTStubRef& ttStubRef) const { return setup_->trackletLayerId(ttStubRef); };
@@ -48,7 +48,7 @@ namespace trklet {
     int numSeedTypes_;
     // number of used channels
     int numChannels_;
-    // max number layers a sedd type may project to
+    // max number layers a seed type may project to
     int maxNumProjectionLayers_;
     // seeding layers of seed types using default layer id [barrel: 1-6, discs: 11-15]
     std::vector<std::vector<int>> seedTypesSeedLayers_;

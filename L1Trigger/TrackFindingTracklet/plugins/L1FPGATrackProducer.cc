@@ -254,7 +254,6 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
 
   // book ES product to assign tracks and stubs to InputRouter input channel and TrackBuilder output channel
   esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
-  // book ES product for track trigger cinfiguration
   esGetToken_ = esConsumes<tt::Setup, tt::SetupRcd, edm::Transition::BeginRun>();
   // initial ES products
   channelAssignment_ = nullptr;
@@ -274,6 +273,8 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
 
   settings.setFakefit(iConfig.getParameter<bool>("Fakefit"));
   settings.setStoreTrackBuilderOutput(iConfig.getParameter<bool>("StoreTrackBuilderOutput"));
+  settings.setRemovalType(iConfig.getParameter<string>("RemovalType"));
+  settings.setDoMultipleMatches(iConfig.getParameter<bool>("DoMultipleMatches"));
 
   if (extended_) {
     settings.setTableTEDFile(tableTEDFile.fullPath());

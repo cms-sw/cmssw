@@ -145,6 +145,7 @@ namespace trklet {
       iEvent.getByToken<Streams>(edGetTokenTracks_, handleTracks);
       channelId = 0;
       for (const Stream& streamTrack : *handleTracks) {
+        const int nTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int& sum, const Frame& f){ return sum += f.any() ? 1 : 0; });
         StreamTrack& accepted = streamAcceptedTracks[channelId];
         StreamTrack& lost = streamLostTracks[channelId];
         auto limit = streamTrack.end();
@@ -154,6 +155,14 @@ namespace trklet {
         lost.reserve(distance(limit, streamTrack.end()));
         int nFrame(0);
         const deque<TTTrackRef>& ttTracks = ttTrackRefs[channelId++];
+        if ((int)ttTracks.size() != nTracks) {
+          cms::Exception exception("LogicError.");
+          const int region = channelId / channelAssignment_->numChannels();
+          const int channel = channelId % channelAssignment_->numChannels();
+          exception << "Region " << region << " output channel " << channel << " has " << nTracks << " tracks found in f/w but created " << ttTracks.size() << " TTTracks.";
+          exception.addContext("trklet::ProducerTBout::produce");
+          throw exception;
+        }
         auto toFrameTrack = [&nFrame, &ttTracks](const Frame& frame) {
           if (frame.any())
             return FrameTrack(ttTracks[nFrame++], frame);

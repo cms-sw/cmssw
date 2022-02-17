@@ -65,6 +65,7 @@ namespace trklet {
     edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
+    esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
     // initial ES products
     setup_ = nullptr;
     channelAssignment_ = nullptr;

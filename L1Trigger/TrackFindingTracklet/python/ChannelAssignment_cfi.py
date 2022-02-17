@@ -8,7 +8,7 @@ ChannelAssignment_params = cms.PSet (
 
   SeedTypesReduced = cms.vstring( "L1L2", "L2L3", "L3L4", "L5L6", "D1D2", "D3D4", "L1D1", "L2D1" ), # seed types used in reduced tracklet algorithm (position gives int value)
 
-  MaxNumProjectionLayers     = cms.int32( 8 ), # max number layers a sedd type may project to
+  MaxNumProjectionLayers     = cms.int32( 8 ), # max number layers a seed type may project to
   SeedTypesSeedLayersReduced = cms.PSet (      # seeding layers of seed types in reduced config using default layer id [barrel: 1-6, discs: 11-15]
     L1L2 = cms.vint32(  1,  2 ),
     L2L3 = cms.vint32(  2,  3 ),
@@ -30,6 +30,6 @@ ChannelAssignment_params = cms.PSet (
     L2D1 = cms.vint32(  1, 12, 13, 14 )
   ),
 
-  IRChannelsIn = cms.vint32( range(0, 48) ) # map of used DTC tfp channels in InputRouter
+  IRChannelsIn = cms.vint32( range(0, 48) ) # vector of DTC id indexed by connected IR module id (from order in processingmodules.dat)
 
 )

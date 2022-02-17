@@ -1,4 +1,7 @@
 ################################################################################################
+# This script runs DTC + prompt tracklet + KF interface + new KF emulator with analyzer for each step
+# allowing to identify problems quickly during developement.
+# This script is a specialized and light-weight version of L1TrackNtupleMaker_cfg.py
 # To run execute do
 # cmsRun L1Trigger/TrackFindingTracklet/test/HybridTracksNewKF_cfg.py
 # where the arguments take default values if you don't specify them. You can change defaults below.
@@ -26,22 +29,24 @@ process.load( 'L1Trigger.TrackerDTC.ProducerED_cff' )
 process.load( 'L1Trigger.TrackerDTC.Analyzer_cff' )
 # L1 tracking => hybrid emulation 
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
+from L1Trigger.TrackFindingTracklet.Customize_cff import *
+newKFConfig( process )
 #--- Load code that analyzes hybrid emulation 
 process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
 # load code that fits hybrid tracks
-process.load( 'L1Trigger.TrackFindingTracklet.ProducerKF_cff' )
+process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
 
 # load and configure TrackTriggerAssociation
 process.load( 'SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff' )
 process.TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag(
-  process.TrackFindingTrackletProducerKF_params.LabelTT.value(),
-  process.TrackFindingTrackletProducerKF_params.BranchAcceptedTracks.value()
+  process.TrackFindingTrackletProducer_params.LabelTT.value(),
+  process.TrackFindingTrackletProducer_params.BranchAcceptedTracks.value()
 ) )
 
 # build schedule
 process.mc = cms.Sequence( process.StubAssociator )
 process.dtc = cms.Sequence( process.TrackerDTCProducer + process.TrackerDTCAnalyzer )
-process.tracklet = cms.Sequence( process.L1TrackletTracks + process.TrackFindingTrackletAnalyzerTracklet )
+process.tracklet = cms.Sequence( process.L1HybridTracks + process.TrackFindingTrackletAnalyzerTracklet )
 process.interIn = cms.Sequence( process.TrackFindingTrackletProducerKFin + process.TrackFindingTrackletAnalyzerKFin )
 process.kf = cms.Sequence( process.TrackFindingTrackletProducerKF + process.TrackFindingTrackletAnalyzerKF )
 process.TTTracks = cms.Sequence( process.TrackFindingTrackletProducerTT + process.TrackFindingTrackletProducerAS + process.TrackTriggerAssociatorTracks )
