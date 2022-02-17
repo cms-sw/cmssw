@@ -402,7 +402,7 @@ void Sector::executeME() {
 
 void Sector::executeMC() {
   for (auto& i : MC_) {
-    i->execute(phimin_);
+    i->execute(isector_,phimin_);
   }
 }
 

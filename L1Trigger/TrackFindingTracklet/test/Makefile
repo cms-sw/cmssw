@@ -221,7 +221,11 @@ DEPDIR = .deps
 
 MAKEDEPEND = makedepend -I../../.. -IdummyIncl -f- $< | sed 's/..\/src/lib/' > .deps/$*.d
 
-SRCS = $(wildcard ../src/*.cc)
+SRCSTMP = $(wildcard ../src/*.cc)
+
+DONTCOMPILE = $(wildcard ../src/*ChannelAssignment*.cc)
+
+SRCS = $(filter-out $(DONTCOMPILE), $(SRCSTMP)) 
 
 OBJS = $(SRCS:../src/%.cc=lib/%.o)
 

@@ -28,7 +28,7 @@ namespace trklet {
     void addOutput(MemoryBase* memory, std::string output) override;
     void addInput(MemoryBase* memory, std::string input) override;
 
-    void execute(double phioffset);
+    void execute(unsigned int iSector, double phioffset);
 
     std::vector<std::pair<std::pair<Tracklet*, int>, const Stub*> > mergeMatches(
         std::vector<CandidateMatchMemory*>& candmatch);

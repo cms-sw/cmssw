@@ -325,4 +325,6 @@ int main(const int argc, const char **argv) {
   }
 
   eventProcessor.printSummary();
+
+  exit(0);
 }
