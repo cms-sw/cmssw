@@ -236,12 +236,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
   edm::ParameterSet mipVariableSet = config.getParameter<edm::ParameterSet>("mipVariableSet");
   photonMIPHaloTagger_.setup(mipVariableSet, consumesCollector());
 
-  if (runMVABasedHaloTagger_) {
-    edm::ParameterSet mvaBasedHaloVariableSet = config.getParameter<edm::ParameterSet>("mvaBasedHaloVariableSet");
-    photonMVABasedHaloTagger_ =
-        std::make_unique<PhotonMVABasedHaloTagger>(mvaBasedHaloVariableSet, consumesCollector());
-  }
-
   // Register the product
   produces<reco::PhotonCollection>(PhotonCollection_);
 }
@@ -496,11 +490,6 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     if (subdet == EcalBarrel && runMIPTagger_) {
       photonMIPHaloTagger_.MIPcalculate(&newCandidate, evt, es, mipVar);
       newCandidate.setMIPVariables(mipVar);
-    }
-
-    if (runMVABasedHaloTagger_) {  ///sets values only for EE, for EB it always returns 1
-      double BHmva = photonMVABasedHaloTagger_->calculateMVA(&newCandidate, evt, es);
-      newCandidate.setHaloTaggerMVAVal(BHmva);
     }
 
     /// Pre-selection loose  isolation cuts

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from RecoEgamma.EgammaIsolationAlgos.egammaHBHERecHitThreshold_cff import egammaHBHERecHit
 
-pathToHaloMVATrainingFile = "RecoEgamma/PhotonIdentification/data/beamHaloTaggerID/xgboostToTMVA_BHtagger.xml"
+pathToHaloMVATrainingFile = "$CMSSW_BASE/src/RecoEgamma/PhotonIdentification/data/beamHaloTaggerID/xgboostToTMVA_BHtagger.root"
 mvaHaloVariable = cms.PSet(
     #required inputs
     trainingFileName = cms.string(pathToHaloMVATrainingFile),
