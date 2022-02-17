@@ -77,21 +77,23 @@ import L1Trigger.L1THGCalUtilities.customNtuples as ntuple
 chains = HGCalTriggerChains()
 # Register algorithms
 ## VFE
-chains.register_vfe("Floatingpoint", vfe.create_vfe)
+chains.register_vfe("Floatingpoint", vfe.CreateVfe())
 ## ECON
-chains.register_concentrator("Supertriggercell", concentrator.create_supertriggercell)
-chains.register_concentrator("Threshold", concentrator.create_threshold)
-chains.register_concentrator("Bestchoice", concentrator.create_bestchoice)
-chains.register_concentrator("AutoEncoder", concentrator.create_autoencoder)
+chains.register_concentrator("Supertriggercell", concentrator.CreateSuperTriggerCell())
+chains.register_concentrator("Threshold", concentrator.CreateThreshold())
+chains.register_concentrator("Bestchoice", concentrator.CreateBestChoice())
+chains.register_concentrator("AutoEncoder", concentrator.CreateAutoencoder())
 ## BE1
-chains.register_backend1("Dummy", clustering2d.create_dummy)
+chains.register_backend1("Dummy", clustering2d.CreateDummy())
 ## BE2
-chains.register_backend2("Histomax", clustering3d.create_histoMax)
+chains.register_backend2("Histomax", clustering3d.CreateHistoMax())
 # Register selector
-chains.register_selector("Genmatch", selectors.create_genmatch)
+chains.register_selector("Genmatch", selectors.CreateGenMatch())
+
+
 # Register ntuples
 ntuple_list = ['event', 'gen', 'multiclusters']
-chains.register_ntuple("Genclustersntuple", lambda p,i : ntuple.create_ntuple(p,i, ntuple_list))
+chains.register_ntuple("Genclustersntuple", ntuple.CreateNtuple(ntuple_list))
 
 # Register trigger chains
 concentrator_algos = ['Supertriggercell', 'Threshold', 'Bestchoice', 'AutoEncoder']
