@@ -19,7 +19,7 @@ genWeightValidation = DQMEDAnalyzer('GenWeightValidation',
     rapidityRange = cms.double(2.4),
     rapidityNbin = cms.int32(120),
     jetEtaCut = cms.double(2.4),
-    nJetsNbin = cms.int32(7),
+    nJetsNbin = cms.int32(20),
     jetPtRange = cms.double(200.),
     jetPtNbin = cms.int32(100)
 )
