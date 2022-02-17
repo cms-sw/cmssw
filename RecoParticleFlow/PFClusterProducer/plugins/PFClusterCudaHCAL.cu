@@ -3305,10 +3305,10 @@ __global__ void topoClusterContraction(size_t size,
         }
     }
     __syncthreads();
-//    if (threadIdx.x == 0) {
-//        *pcrhFracSize = totalSeedFracOffset;
-//        printf("At the end of topoClusterContraction, found *pcrhFracSize = %d\n", *pcrhFracSize);
-//    }
+    if (threadIdx.x == 0) {
+        *pcrhFracSize = totalSeedFracOffset;
+        //printf("At the end of topoClusterContraction, found *pcrhFracSize = %d\n", *pcrhFracSize);
+    }
 }
 
 // Prefill the rechit index for all PFCluster fractions
@@ -3549,9 +3549,9 @@ __global__ void topoClusterLinking(int nRH,
     } while (notDone);
     *topoIter = iter;
 #ifdef DEBUG_GPU_HCAL
-    if (threadIdx.x == 0) {
-        printf("*** Topo clustering converged in %d iterations ***\n", iter);
-    } __syncthreads();
+//    if (threadIdx.x == 0) {
+//        printf("*** Topo clustering converged in %d iterations ***\n", iter);
+//    } __syncthreads();
 #endif
 }
 
@@ -4077,9 +4077,9 @@ __global__ void compareEdgeArrays(int* gpu_nEdges,
         }
 
         if (mismatches_edgeId > 0) printf("Mismatches in edgeId: %d\n", mismatches_edgeId);
-            else printf("All values in edgeId match for GPU & CPU\n");
+            else printf("All values in edgeId match for GPU & CPU\n\n");
         if (mismatches_edgeList > 0) printf("Mismatches in edgeList: %d\n", mismatches_edgeList);
-            else printf("All values in edgeList match for GPU & CPU\n");
+            else printf("All values in edgeList match for GPU & CPU\n\n");
     }
 }
 
