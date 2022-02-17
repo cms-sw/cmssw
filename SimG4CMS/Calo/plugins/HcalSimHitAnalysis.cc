@@ -59,8 +59,8 @@ private:
   TH2F *poszp_[ndets_], *poszn_[ndets_];
 };
 
-HcalSimHitAnalysis::HcalSimHitAnalysis(const edm::ParameterSet& ps) :
-      g4Label_(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
+HcalSimHitAnalysis::HcalSimHitAnalysis(const edm::ParameterSet& ps)
+    : g4Label_(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
       hcalHits_(ps.getUntrackedParameter<std::string>("HitCollection", "HcalHits")),
       verbose_(ps.getUntrackedParameter<bool>("Verbose", false)),
       testNumber_(ps.getUntrackedParameter<bool>("TestNumber", true)),
@@ -68,7 +68,6 @@ HcalSimHitAnalysis::HcalSimHitAnalysis(const edm::ParameterSet& ps) :
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       tok_HRNDC_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>()) {
   usesResource(TFileService::kSharedResource);
-
 
   edm::LogVerbatim("HitStudy") << "Module Label: " << g4Label_ << "   Hits: " << hcalHits_ << " testNumber "
                                << testNumber_;

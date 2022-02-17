@@ -75,7 +75,6 @@ private:
   // Private Tuples
   std::unique_ptr<HcalTestHistoClass> tuples_;
 
-
   // to read from ParameterSet
   const edm::ParameterSet m_Anal;
   double eta0_, phi0_;
@@ -83,7 +82,6 @@ private:
   const std::vector<std::string> names_;
   //Keep parameters to instantiate HcalTestHistoClass later
   const std::string fileName_;
-
 
   // Numbering scheme
   edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> ddconsToken_;
@@ -103,8 +101,8 @@ private:
   double mudist_[20];  // Distance of muon from central part
 };
 
-HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p) : 
-      addTower_(3),
+HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
+    : addTower_(3),
       m_Anal(p.getParameter<edm::ParameterSet>("HcalTestAnalysis")),
       eta0_(m_Anal.getParameter<double>("Eta0")),
       phi0_(m_Anal.getParameter<double>("Phi0")),
@@ -113,7 +111,6 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p) :
       names_(m_Anal.getParameter<std::vector<std::string> >("Names")),
       fileName_(m_Anal.getParameter<std::string>("FileName")),
       hcons_(nullptr) {
-
   org_.reset(nullptr);
 
   tuples_.reset(nullptr);

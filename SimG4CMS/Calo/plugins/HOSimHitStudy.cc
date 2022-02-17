@@ -79,20 +79,20 @@ private:
 };
 
 HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet &ps)
-  : g4Label_(ps.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits")),
-    hitLab_(ps.getParameter<std::vector<std::string> >("HitCollection")),
-    maxEnergy_(ps.getUntrackedParameter<double>("MaxEnergy", 200.0)),
-    scaleEB_(ps.getUntrackedParameter<double>("ScaleEB", 1.0)),
-    scaleHB_(ps.getUntrackedParameter<double>("ScaleHB", 100.0)),
-    scaleHO_(ps.getUntrackedParameter<double>("ScaleHO", 2.0)),
-    tcut_(ps.getUntrackedParameter<double>("TimeCut", 100.0)),
-    scheme_(ps.getUntrackedParameter<bool>("TestNumbering", false)),
-    print_(ps.getUntrackedParameter<bool>("PrintExcessEnergy", true)),
-    tok_evt_(consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")))),
-    toks_calo_{edm::vector_transform(hitLab_,
-				     [this](const std::string& name) {
-				       return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name});
-				     })} {
+    : g4Label_(ps.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits")),
+      hitLab_(ps.getParameter<std::vector<std::string>>("HitCollection")),
+      maxEnergy_(ps.getUntrackedParameter<double>("MaxEnergy", 200.0)),
+      scaleEB_(ps.getUntrackedParameter<double>("ScaleEB", 1.0)),
+      scaleHB_(ps.getUntrackedParameter<double>("ScaleHB", 100.0)),
+      scaleHO_(ps.getUntrackedParameter<double>("ScaleHO", 2.0)),
+      tcut_(ps.getUntrackedParameter<double>("TimeCut", 100.0)),
+      scheme_(ps.getUntrackedParameter<bool>("TestNumbering", false)),
+      print_(ps.getUntrackedParameter<bool>("PrintExcessEnergy", true)),
+      tok_evt_(consumes<edm::HepMCProduct>(
+          edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")))),
+      toks_calo_{edm::vector_transform(hitLab_, [this](const std::string &name) {
+        return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name});
+      })} {
   usesResource(TFileService::kSharedResource);
 
   edm::LogVerbatim("HitStudy") << "HOSimHitStudy::Module Label: " << g4Label_ << "   Hits: " << hitLab_[0] << ", "
@@ -364,7 +364,7 @@ void HOSimHitStudy::beginJob() {
 void HOSimHitStudy::analyze(const edm::Event &e, const edm::EventSetup &) {
   edm::LogVerbatim("HitStudy") << "HOSimHitStudy::Run = " << e.id().run() << " Event = " << e.id().event();
 
-  const edm::Handle<edm::HepMCProduct>& EvtHandle = e.getHandle(tok_evt_);
+  const edm::Handle<edm::HepMCProduct> &EvtHandle = e.getHandle(tok_evt_);
   const HepMC::GenEvent *myGenEvent = EvtHandle->GetEvent();
 
   eInc = etaInc = phiInc = 0;
@@ -384,7 +384,7 @@ void HOSimHitStudy::analyze(const edm::Event &e, const edm::EventSetup &) {
       ecalHits.clear();
     else
       hcalHits.clear();
-    const edm::Handle<edm::PCaloHitContainer>&  hitsCalo = e.getHandle(toks_calo_[i]);
+    const edm::Handle<edm::PCaloHitContainer> &hitsCalo = e.getHandle(toks_calo_[i]);
     if (hitsCalo.isValid())
       getHits = true;
     edm::LogVerbatim("HitStudy") << "HOSimHitStudy::Input flag " << hitLab_[i] << " getHits flag " << getHits;

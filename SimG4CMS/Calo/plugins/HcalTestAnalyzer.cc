@@ -42,10 +42,8 @@ private:
   int kount_;
 };
 
-HcalTestAnalyzer::HcalTestAnalyzer(const edm::ParameterSet&) : 
-      tree_(nullptr), 
-      tokHist_(consumes<HcalTestHistoClass>(edm::InputTag("g4SimHits"))),
-      kount_(0) {
+HcalTestAnalyzer::HcalTestAnalyzer(const edm::ParameterSet&)
+    : tree_(nullptr), tokHist_(consumes<HcalTestHistoClass>(edm::InputTag("g4SimHits"))), kount_(0) {
   usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   if (fs.isAvailable()) {

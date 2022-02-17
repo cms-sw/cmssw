@@ -56,7 +56,6 @@ HcalSimHitDump::HcalSimHitDump(const edm::ParameterSet& ps)
       testNumber_(ps.getParameter<bool>("TestNumber")),
       toks_calo_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_))),
       nevt_(0) {
-  
   edm::LogVerbatim("HitStudy") << "HcalSimHitDump::Module Label: " << g4Label_ << "   Hits: " << hitLab_ << " MaxEvent "
                                << maxEvent_ << " TestNumbering " << testNumber_;
 }
