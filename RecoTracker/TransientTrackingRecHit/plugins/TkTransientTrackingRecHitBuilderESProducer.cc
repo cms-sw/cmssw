@@ -110,15 +110,13 @@ std::unique_ptr<TransientTrackingRecHitBuilder> TkTransientTrackingRecHitBuilder
 
 void TkTransientTrackingRecHitBuilderESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-
-  desc.add<std::string>("ComponentName");
-  desc.add<bool>("ComputeCoarseLocalPositionFromDisk");
-  desc.add<std::string>("StripCPE")->setComment("Using \"Fake\" disables use of StripCPE");
-  desc.add<std::string>("PixelCPE")->setComment("Using \"Fake\" disables use of PixelCPE");
-  desc.add<std::string>("Matcher")->setComment("Using \"Fake\" disables use of SiStripRecHitMatcher");
+  desc.add<std::string>("ComponentName", "Fake");
+  desc.add<bool>("ComputeCoarseLocalPositionFromDisk", false);
+  desc.add<std::string>("StripCPE", "Fake")->setComment("Using \"Fake\" disables use of StripCPE");
+  desc.add<std::string>("PixelCPE", "Fake")->setComment("Using \"Fake\" disables use of PixelCPE");
+  desc.add<std::string>("Matcher", "Fake")->setComment("Using \"Fake\" disables use of SiStripRecHitMatcher");
   desc.add<std::string>("Phase2StripCPE", "")->setComment("Using empty string disables use of Phase2StripCPE");
-
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(TkTransientTrackingRecHitBuilderESProducer);
