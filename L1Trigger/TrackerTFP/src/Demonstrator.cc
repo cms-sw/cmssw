@@ -23,7 +23,7 @@ namespace trackerTFP {
         numRegions_(setup->numRegions()) {}
 
   // plays input through modelsim and compares result with output
-  void Demonstrator::analyze(const vector<vector<Frame>>& input, const vector<vector<Frame>>& output) const {
+  bool Demonstrator::analyze(const vector<vector<Frame>>& input, const vector<vector<Frame>>& output) const {
     stringstream ss;
     // converts input into stringstream
     convert(input, ss);
@@ -32,7 +32,7 @@ namespace trackerTFP {
     // converts output into stringstream
     convert(output, ss);
     // compares output with modelsim output
-    compare(ss);
+    return compare(ss);
   }
 
   // converts streams of bv into stringstream
@@ -81,7 +81,7 @@ namespace trackerTFP {
   }
 
   // compares stringstream with modelsim output
-  void Demonstrator::compare(stringstream& ss) const {
+  bool Demonstrator::compare(stringstream& ss) const {
     // write ss to disk
     fstream fs;
     fs.open(dirPre_.c_str(), fstream::out);
@@ -101,12 +101,13 @@ namespace trackerTFP {
     string token;
     while (getline(ss, token))
       n++;
-    if (n != 4) {
+    /*if (n != 4) {
       cms::Exception exception("RunTimeError.");
       exception.addContext("trackerTFP::Demonstrator::compare");
       exception << "Bit error detected.";
       throw exception;
-    }
+    }*/
+    return n == 4;
   }
 
   // creates emp file header

@@ -23,7 +23,9 @@ TTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                TrackQuality = cms.bool(True),
                                                TrackQualityPSet = cms.PSet(TrackQualityParams),
                                                Fakefit = cms.bool(False), # True causes Tracklet reco to output TTTracks before DR & KF
-                                               StoreTrackBuilderOutput = cms.bool(False) # if True EDProducts for TrackBuilder tracks and stubs will be filled
+                                               StoreTrackBuilderOutput = cms.bool(False), # if True EDProducts for TrackBuilder tracks and stubs will be filled
+                                               RemovalType = cms.string("merge"), # Duplicate track removal
+                                               DoMultipleMatches = cms.bool(True) # Allow tracklet tracks multiple stubs per layer
     )
 
 TTTracksFromExtendedTrackletEmulation = TTTracksFromTrackletEmulation.clone(
@@ -36,18 +38,4 @@ TTTracksFromExtendedTrackletEmulation = TTTracksFromTrackletEmulation.clone(
                                                # Quality Flag and Quality params
                                                TrackQuality = cms.bool(False),
                                                TrackQualityPSet = cms.PSet(TrackQualityParams)
-    )
-# The included files correspond to the reduced "Summer Chain" configuration
-# These files can be modified to emulate any other reduced configuration
-TTTracksFromReducedTrackletEmulation = TTTracksFromTrackletEmulation.clone(
-                                               Reduced = cms.bool(True),
-                                               # specifying where the reduced configuration files are
-                                               memoryModulesFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/reduced_memorymodules.dat'),
-                                               processingModulesFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/reduced_processingmodules.dat'),
-                                               wiresFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/reduced_wires.dat'),
-    )
-
-# this is to run Tracklet pattern reco with new KF
-TrackletTracksFromTrackletEmulation = TTTracksFromTrackletEmulation.clone(
-                                               Fakefit = cms.bool(True)
     )

@@ -104,7 +104,7 @@ namespace trklet {
   }
 
   // sets channelId of given TTTrackRef, return false if track outside pt range
-  bool ChannelAssignment::channelId(const TTTrackRef& ttTrackRef, int& channelId) {
+  bool ChannelAssignment::channelId(const TTTrackRef& ttTrackRef, int& channelId) const {
     if (!useDuplicateRemoval_) {
       const int seedType = ttTrackRef->trackSeedType();
       if (seedType >= numSeedTypes_) {

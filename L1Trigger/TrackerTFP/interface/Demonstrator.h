@@ -22,7 +22,7 @@ namespace trackerTFP {
     Demonstrator(const edm::ParameterSet& iConfig, const tt::Setup* setup);
     ~Demonstrator() {}
     // plays input through modelsim and compares result with output
-    void analyze(const std::vector<std::vector<tt::Frame>>& input,
+    bool analyze(const std::vector<std::vector<tt::Frame>>& input,
                  const std::vector<std::vector<tt::Frame>>& output) const;
 
   private:
@@ -31,7 +31,7 @@ namespace trackerTFP {
     // plays stringstream through modelsim
     void sim(const std::stringstream& ss) const;
     // compares stringstream with modelsim output
-    void compare(std::stringstream& ss) const;
+    bool compare(std::stringstream& ss) const;
     // creates emp file header
     std::string header(int numChannel) const;
     // creates 6 frame gap between packets

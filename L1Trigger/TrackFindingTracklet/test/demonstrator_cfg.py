@@ -25,6 +25,8 @@ process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
 process.load( 'L1Trigger.TrackFindingTracklet.ProducerKF_cff' )
 #--- Load code that compares s/w with f/w
 process.load( 'L1Trigger.TrackerTFP.Demonstrator_cff' )
+from L1Trigger.TrackFindingTracklet.Customize_cff import *
+reducedConfig( process )
 
 # build schedule
 process.tt = cms.Sequence (  process.TrackerDTCProducer
