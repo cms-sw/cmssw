@@ -6,7 +6,7 @@
 
 namespace cond {
 
-  //
+  // callback to obtain the Get result
   static size_t getBodyCallback(void* contents, size_t size, size_t nmemb, void* ptr) {
     // Cast ptr to std::string pointer and append contents to that string
     ((std::string*)ptr)->append((char*)contents, size * nmemb);

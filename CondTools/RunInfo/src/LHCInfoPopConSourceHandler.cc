@@ -244,7 +244,6 @@ void LHCInfoPopConSourceHandler::getDipData(const cond::OMSService& oms,
     if (!res.empty()) {
       std::bitset<LHCInfo::bunchSlots + 1> bunchConfiguration1(0ULL);
       auto row = *res.begin();
-      //auto dipTime = row.get<boost::posix_time::ptime>("dip_time");
       auto vbunchConf1 = row.getArray<unsigned short>("value");
       for (auto vb : vbunchConf1) {
         if (vb != 0) {
@@ -262,7 +261,6 @@ void LHCInfoPopConSourceHandler::getDipData(const cond::OMSService& oms,
     if (!res.empty()) {
       std::bitset<LHCInfo::bunchSlots + 1> bunchConfiguration2(0ULL);
       auto row = *res.begin();
-      //auto dipTime = row.get<boost::posix_time::ptime>("dip_time");
       auto vbunchConf2 = row.getArray<unsigned short>("value");
       for (auto vb : vbunchConf2) {
         if (vb != 0) {
@@ -281,7 +279,6 @@ void LHCInfoPopConSourceHandler::getDipData(const cond::OMSService& oms,
     if (!res.empty()) {
       std::vector<float> lumiPerBX;
       auto row = *res.begin();
-      //auto dipTime = row.get<boost::posix_time::ptime>("dip_time");
       auto lumiBunchInst = row.getArray<float>("lumi_bunch_inst");
       for (auto lb : lumiBunchInst) {
         if (lb != 0.) {
@@ -307,6 +304,7 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
   CTPPSDataQuery->addToOutputList(std::string("DIP_UPDATE_TIME"));
   CTPPSDataQuery->addToOutputList(std::string("LHC_STATE"));
   CTPPSDataQuery->addToOutputList(std::string("LHC_COMMENT"));
+  // this variable has not been found in the above schema. Need to check with PPS if a replacement is needed/available
   //CTPPSDataQuery->addToOutputList(std::string("CTPPS_STATUS"));
   CTPPSDataQuery->addToOutputList(std::string("LUMI_SECTION"));
   CTPPSDataQuery->addToOutputList(std::string("XING_ANGLE_P5_X_URAD"));
@@ -328,6 +326,7 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
   CTPPSDataOutput.extend<coral::TimeStamp>(std::string("DIP_UPDATE_TIME"));
   CTPPSDataOutput.extend<std::string>(std::string("LHC_STATE"));
   CTPPSDataOutput.extend<std::string>(std::string("LHC_COMMENT"));
+  // see above comment...
   //CTPPSDataOutput.extend<std::string>(std::string("CTPPS_STATUS"));
   CTPPSDataOutput.extend<int>(std::string("LUMI_SECTION"));
   CTPPSDataOutput.extend<float>(std::string("XING_ANGLE_P5_X_URAD"));
@@ -362,6 +361,7 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
         if (!lhcCommentAttribute.isNull()) {
           lhcComment = lhcCommentAttribute.data<std::string>();
         }
+        // missing variable in the new schema - see comments above
         //coral::Attribute const& ctppsStatusAttribute = CTPPSDataCursor.currentRow()[std::string("CTPPS_STATUS")];
         //if (!ctppsStatusAttribute.isNull()) {
         //  ctppsStatus = ctppsStatusAttribute.data<std::string>();
