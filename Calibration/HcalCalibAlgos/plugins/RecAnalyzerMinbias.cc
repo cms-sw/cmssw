@@ -67,7 +67,7 @@
 class RecAnalyzerMinbias : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit RecAnalyzerMinbias(const edm::ParameterSet&);
-  ~RecAnalyzerMinbias() override;
+  ~RecAnalyzerMinbias() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -82,11 +82,14 @@ private:
   void analyzeHcal(const HBHERecHitCollection&, const HFRecHitCollection&, int, bool, double);
 
   // ----------member data ---------------------------
-  bool theRecalib_, ignoreL1_, runNZS_, Noise_;
-  bool fillHist_, extraHist_, init_;
-  double eLowHB_, eHighHB_, eLowHE_, eHighHE_;
-  double eLowHF_, eHighHF_, eMin_;
-  int runMin_, runMax_;
+  const bool runNZS_, Noise_, ignoreL1_;
+  const bool fillHist_, extraHist_;
+  const double eLowHB_, eHighHB_, eLowHE_, eHighHE_;
+  const double eLowHF_, eHighHF_, eMin_;
+  const int runMin_, runMax_;
+  const std::vector<int> trigbit_;
+  const std::string cfile_;
+  bool theRecalib_, init_;
   std::map<DetId, double> corrFactor_;
   std::vector<unsigned int> hcalID_;
   TTree *myTree_, *myTree1_;
@@ -98,7 +101,6 @@ private:
   TProfile *hbherun_, *hbrun_, *herun_, *hfrun_;
   std::vector<TH1D*> histo_;
   std::map<HcalDetId, TH1D*> histHC_;
-  std::vector<int> trigbit_;
   double rnnum_;
   struct myInfo {
     double theMB0, theMB1, theMB2, theMB3, theMB4, runcheck;
@@ -110,64 +112,61 @@ private:
   float mom0_MB, mom1_MB, mom2_MB, mom3_MB, mom4_MB;
   int HBHEsize, HFsize;
   std::map<std::pair<int, HcalDetId>, myInfo> myMap_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_hbherecoMB_;
-  edm::EDGetTokenT<HFRecHitCollection> tok_hfrecoMB_;
-  edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> tok_hltL1GtMap_;
-  edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
-  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhedigi_;
-  edm::EDGetTokenT<QIE11DigiCollection> tok_qie11digi_;
-  edm::EDGetTokenT<HODigiCollection> tok_hodigi_;
-  edm::EDGetTokenT<HFDigiCollection> tok_hfdigi_;
-  edm::EDGetTokenT<QIE10DigiCollection> tok_qie10digi_;
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_gtRec_;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_hbherecoMB_;
+  const edm::EDGetTokenT<HFRecHitCollection> tok_hfrecoMB_;
+  const edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> tok_hltL1GtMap_;
+  const edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
+  const edm::EDGetTokenT<HBHEDigiCollection> tok_hbhedigi_;
+  const edm::EDGetTokenT<QIE11DigiCollection> tok_qie11digi_;
+  const edm::EDGetTokenT<HODigiCollection> tok_hodigi_;
+  const edm::EDGetTokenT<HFDigiCollection> tok_hfdigi_;
+  const edm::EDGetTokenT<QIE10DigiCollection> tok_qie10digi_;
+  const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_gtRec_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
 };
 
 // constructors and destructor
-RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) : init_(false) {
+RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig)
+    : runNZS_(iConfig.getParameter<bool>("runNZS")),
+      Noise_(iConfig.getParameter<bool>("noise")),
+      ignoreL1_(iConfig.getUntrackedParameter<bool>("ignoreL1", false)),
+      fillHist_(iConfig.getUntrackedParameter<bool>("fillHisto", false)),
+      extraHist_(iConfig.getUntrackedParameter<bool>("extraHisto", false)),
+      eLowHB_(iConfig.getParameter<double>("eLowHB")),
+      eHighHB_(iConfig.getParameter<double>("eHighHB")),
+      eLowHE_(iConfig.getParameter<double>("eLowHE")),
+      eHighHE_(iConfig.getParameter<double>("eHighHE")),
+      eLowHF_(iConfig.getParameter<double>("eLowHF")),
+      eHighHF_(iConfig.getParameter<double>("eHighHF")),
+      eMin_(iConfig.getUntrackedParameter<double>("eMin", 2.0)),
+      runMin_(iConfig.getUntrackedParameter<int>("RunMin", 308327)),
+      runMax_(iConfig.getUntrackedParameter<int>("RunMax", 315250)),
+      trigbit_(iConfig.getUntrackedParameter<std::vector<int>>("triggerBits")),
+      cfile_(iConfig.getUntrackedParameter<std::string>("corrFile")),
+      init_(false),
+      tok_hbherecoMB_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"))),
+      tok_hfrecoMB_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputMB"))),
+      tok_hltL1GtMap_(consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"))),
+      tok_ew_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
+      tok_hbhedigi_(consumes<HBHEDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"))),
+      tok_qie11digi_(consumes<QIE11DigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"))),
+      tok_hodigi_(consumes<HODigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"))),
+      tok_hfdigi_(consumes<HFDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"))),
+      tok_qie10digi_(consumes<QIE10DigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"))),
+      tok_gtRec_(consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigisAlCaMB"))),
+      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>()) {
   usesResource("TFileService");
 
-  // get name of output file with histogramms
-  runNZS_ = iConfig.getParameter<bool>("runNZS");
-  Noise_ = iConfig.getParameter<bool>("noise");
-  eLowHB_ = iConfig.getParameter<double>("eLowHB");
-  eHighHB_ = iConfig.getParameter<double>("eHighHB");
-  eLowHE_ = iConfig.getParameter<double>("eLowHE");
-  eHighHE_ = iConfig.getParameter<double>("eHighHE");
-  eLowHF_ = iConfig.getParameter<double>("eLowHF");
-  eHighHF_ = iConfig.getParameter<double>("eHighHF");
-  eMin_ = iConfig.getUntrackedParameter<double>("eMin", 2.0);
-  // The following run range is suited to study 2017 commissioning period
-  runMin_ = iConfig.getUntrackedParameter<int>("RunMin", 308327);
-  runMax_ = iConfig.getUntrackedParameter<int>("RunMax", 315250);
-  trigbit_ = iConfig.getUntrackedParameter<std::vector<int>>("triggerBits");
-  ignoreL1_ = iConfig.getUntrackedParameter<bool>("ignoreL1", false);
-  std::string cfile = iConfig.getUntrackedParameter<std::string>("corrFile");
-  fillHist_ = iConfig.getUntrackedParameter<bool>("fillHisto", false);
-  extraHist_ = iConfig.getUntrackedParameter<bool>("extraHisto", false);
+  // get constants for DetID's
   std::vector<int> ieta = iConfig.getUntrackedParameter<std::vector<int>>("hcalIeta");
   std::vector<int> iphi = iConfig.getUntrackedParameter<std::vector<int>>("hcalIphi");
   std::vector<int> depth = iConfig.getUntrackedParameter<std::vector<int>>("hcalDepth");
 
-  // get token names of modules, producing object collections
-  tok_hbherecoMB_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"));
-  tok_hfrecoMB_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputMB"));
-  tok_hltL1GtMap_ = consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"));
-  tok_ew_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
-  tok_hbhedigi_ = consumes<HBHEDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"));
-  tok_qie11digi_ = consumes<QIE11DigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"));
-  tok_hodigi_ = consumes<HODigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"));
-  tok_hfdigi_ = consumes<HFDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"));
-  tok_qie10digi_ = consumes<QIE10DigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"));
-  tok_gtRec_ = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigisAlCaMB"));
-
-  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-
   // Read correction factors
-  std::ifstream infile(cfile.c_str());
+  std::ifstream infile(cfile_.c_str());
   if (!infile.is_open()) {
     theRecalib_ = false;
-    edm::LogWarning("RecAnalyzer") << "Cannot open '" << cfile << "' for the correction file";
+    edm::LogWarning("RecAnalyzerMinbias") << "Cannot open '" << cfile_ << "' for the correction file";
   } else {
     unsigned int ndets(0), nrec(0);
     while (true) {
@@ -185,14 +184,15 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) : init_
       }
     }
     infile.close();
-    edm::LogVerbatim("RecAnalyzer") << "Reads " << nrec << " correction factors for " << ndets << " detIds";
+    edm::LogVerbatim("RecAnalyzerMinbias") << "Reads " << nrec << " correction factors for " << ndets << " detIds";
     theRecalib_ = (ndets > 0);
   }
 
-  edm::LogVerbatim("RecAnalyzer") << " Flags (ReCalib): " << theRecalib_ << " (IgnoreL1): " << ignoreL1_ << " (NZS) "
-                                  << runNZS_ << " and with " << ieta.size() << " detId for full histogram";
-  edm::LogVerbatim("RecAnalyzer") << "Thresholds for HB " << eLowHB_ << ":" << eHighHB_ << "  for HE " << eLowHE_ << ":"
-                                  << eHighHE_ << "  for HF " << eLowHF_ << ":" << eHighHF_;
+  edm::LogVerbatim("RecAnalyzerMinbias") << " Flags (ReCalib): " << theRecalib_ << " (IgnoreL1): " << ignoreL1_
+                                         << " (NZS) " << runNZS_ << " and with " << ieta.size()
+                                         << " detId for full histogram";
+  edm::LogVerbatim("RecAnalyzerMinbias") << "Thresholds for HB " << eLowHB_ << ":" << eHighHB_ << "  for HE " << eLowHE_
+                                         << ":" << eHighHE_ << "  for HF " << eLowHF_ << ":" << eHighHF_;
   for (unsigned int k = 0; k < ieta.size(); ++k) {
     HcalSubdetector subd = ((std::abs(ieta[k]) > 29)                         ? HcalForward
                             : (std::abs(ieta[k]) > 16)                       ? HcalEndcap
@@ -201,14 +201,12 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) : init_
                                                                              : HcalBarrel);
     unsigned int id = (HcalDetId(subd, ieta[k], iphi[k], depth[k])).rawId();
     hcalID_.push_back(id);
-    edm::LogVerbatim("RecAnalyzer") << "DetId[" << k << "] " << HcalDetId(id);
+    edm::LogVerbatim("RecAnalyzerMinbias") << "DetId[" << k << "] " << HcalDetId(id);
   }
-  edm::LogVerbatim("RecAnalyzer") << "Select on " << trigbit_.size() << " L1 Trigger selection";
+  edm::LogVerbatim("RecAnalyzerMinbias") << "Select on " << trigbit_.size() << " L1 Trigger selection";
   for (unsigned int k = 0; k < trigbit_.size(); ++k)
-    edm::LogVerbatim("RecAnalyzer") << "Bit[" << k << "] " << trigbit_[k];
+    edm::LogVerbatim("RecAnalyzerMinbias") << "Bit[" << k << "] " << trigbit_[k];
 }
-
-RecAnalyzerMinbias::~RecAnalyzerMinbias() {}
 
 void RecAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   std::vector<int> iarray;
@@ -318,7 +316,7 @@ void RecAnalyzerMinbias::endJob() {
   if (!fillHist_) {
     cells = 0;
     for (const auto& itr : myMap_) {
-      edm::LogVerbatim("RecAnalyzer") << "Fired trigger bit number " << itr.first.first;
+      edm::LogVerbatim("RecAnalyzerMinbias") << "Fired trigger bit number " << itr.first.first;
       myInfo info = itr.second;
       if (info.theMB0 > 0) {
         mom0_MB = info.theMB0;
@@ -332,18 +330,17 @@ void RecAnalyzerMinbias::endJob() {
         depth = itr.first.second.depth();
         iphi = itr.first.second.iphi();
         ieta = itr.first.second.ieta();
-        edm::LogVerbatim("RecAnalyzer") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi
-                                        << " mom0  " << mom0_MB << " mom1 " << mom1_MB << " mom2 " << mom2_MB
-                                        << " mom3 " << mom3_MB << " mom4 " << mom4_MB;
+        edm::LogVerbatim("RecAnalyzerMinbias")
+            << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi << " mom0  " << mom0_MB
+            << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 " << mom4_MB;
         myTree_->Fill();
         cells++;
       }
     }
-    edm::LogVerbatim("RecAnalyzer") << "cells"
-                                    << " " << cells;
+    edm::LogVerbatim("RecAnalyzerMinbias") << "cells " << cells;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RecAnalyzer") << "Exiting from RecAnalyzerMinbias::endjob";
+  edm::LogVerbatim("RecAnalyzerMinbias") << "Exiting from RecAnalyzerMinbias::endjob";
 #endif
 }
 
@@ -423,8 +420,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   if (extraHist_) {
     double amplitudefullHB(0), amplitudefullHE(0), amplitudefullHF(0);
-    edm::Handle<HBHEDigiCollection> hbhedigi;
-    iEvent.getByToken(tok_hbhedigi_, hbhedigi);
+    const edm::Handle<HBHEDigiCollection>& hbhedigi = iEvent.getHandle(tok_hbhedigi_);
     if (hbhedigi.isValid()) {
       for (auto const& digi : *(hbhedigi.product())) {
         int nTS = digi.size();
@@ -448,8 +444,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
     }
 
-    edm::Handle<QIE11DigiCollection> qie11digi;
-    iEvent.getByToken(tok_qie11digi_, qie11digi);
+    const edm::Handle<QIE11DigiCollection>& qie11digi = iEvent.getHandle(tok_qie11digi_);
     if (qie11digi.isValid()) {
       for (QIE11DataFrame const digi : *(qie11digi.product())) {
         double amplitudefullTSs = 0.;
@@ -468,8 +463,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
     }
 
-    edm::Handle<HFDigiCollection> hfdigi;
-    iEvent.getByToken(tok_hfdigi_, hfdigi);
+    const edm::Handle<HFDigiCollection>& hfdigi = iEvent.getHandle(tok_hfdigi_);
     if (hfdigi.isValid()) {
       for (auto const& digi : *(hfdigi.product())) {
         int nTS = digi.size();
@@ -485,8 +479,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
     }
 
-    edm::Handle<QIE10DigiCollection> qie10digi;
-    iEvent.getByToken(tok_qie10digi_, qie10digi);
+    const edm::Handle<QIE10DigiCollection>& qie10digi = iEvent.getHandle(tok_qie10digi_);
     if (qie10digi.isValid()) {
       for (QIE10DataFrame const digi : *(qie10digi.product())) {
         double amplitudefullTSs = 0.;
@@ -504,36 +497,33 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     h_AmplitudeHF_->Fill(amplitudefullHF);
   }
 
-  edm::Handle<HBHERecHitCollection> hbheMB;
-  iEvent.getByToken(tok_hbherecoMB_, hbheMB);
+  const edm::Handle<HBHERecHitCollection>& hbheMB = iEvent.getHandle(tok_hbherecoMB_);
   if (!hbheMB.isValid()) {
-    edm::LogWarning("RecAnalyzer") << "HcalCalibAlgos: Error! can't get hbhe product!";
+    edm::LogWarning("RecAnalyzerMinbias") << "HcalCalibAlgos: Error! can't get hbhe product!";
     return;
   }
   const HBHERecHitCollection HithbheMB = *(hbheMB.product());
   HBHEsize = HithbheMB.size();
-  edm::LogVerbatim("RecAnalyzer") << "HBHE MB size of collection " << HithbheMB.size();
+  edm::LogVerbatim("RecAnalyzerMinbias") << "HBHE MB size of collection " << HithbheMB.size();
   if (HithbheMB.size() < 5100 && runNZS_) {
-    edm::LogWarning("RecAnalyzer") << "HBHE problem " << rnnum_ << " size " << HBHEsize;
+    edm::LogWarning("RecAnalyzerMinbias") << "HBHE problem " << rnnum_ << " size " << HBHEsize;
   }
 
-  edm::Handle<HFRecHitCollection> hfMB;
-  iEvent.getByToken(tok_hfrecoMB_, hfMB);
+  const edm::Handle<HFRecHitCollection> hfMB = iEvent.getHandle(tok_hfrecoMB_);
   if (!hfMB.isValid()) {
-    edm::LogWarning("RecAnalyzer") << "HcalCalibAlgos: Error! can't get hf product!";
+    edm::LogWarning("RecAnalyzerMinbias") << "HcalCalibAlgos: Error! can't get hf product!";
     return;
   }
   const HFRecHitCollection HithfMB = *(hfMB.product());
-  edm::LogVerbatim("RecAnalyzer") << "HF MB size of collection " << HithfMB.size();
+  edm::LogVerbatim("RecAnalyzerMinbias") << "HF MB size of collection " << HithfMB.size();
   HFsize = HithfMB.size();
   if (HithfMB.size() < 1700 && runNZS_) {
-    edm::LogWarning("RecAnalyzer") << "HF problem " << rnnum_ << " size " << HFsize;
+    edm::LogWarning("RecAnalyzerMinbias") << "HF problem " << rnnum_ << " size " << HFsize;
   }
 
   bool select(false);
   if (!trigbit_.empty()) {
-    edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
+    const edm::Handle<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord = iEvent.getHandle(tok_hltL1GtMap_);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
@@ -555,19 +545,17 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   //event weight for FLAT sample and PU information
   double eventWeight = 1.0;
-  edm::Handle<GenEventInfoProduct> genEventInfo;
-  iEvent.getByToken(tok_ew_, genEventInfo);
+  const edm::Handle<GenEventInfoProduct>& genEventInfo = iEvent.getHandle(tok_ew_);
   if (genEventInfo.isValid())
     eventWeight = genEventInfo->weight();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RecAnalyzer") << "Test HB " << HBHEsize << " HF " << HFsize << " Trigger " << trigbit_.size() << ":"
-                                  << select << ":" << ignoreL1_ << " Wt " << eventWeight;
+  edm::LogVerbatim("RecAnalyzerMinbias") << "Test HB " << HBHEsize << " HF " << HFsize << " Trigger " << trigbit_.size()
+                                         << ":" << select << ":" << ignoreL1_ << " Wt " << eventWeight;
 #endif
   if (ignoreL1_ || (!trigbit_.empty() && select)) {
     analyzeHcal(HithbheMB, HithfMB, 1, true, eventWeight);
   } else if ((!ignoreL1_) && (trigbit_.empty())) {
-    edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
+    const edm::Handle<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord = iEvent.getHandle(tok_hltL1GtMap_);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       bool ok(false);
@@ -581,7 +569,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
         }
       }
       if (!ok) {
-        edm::LogVerbatim("RecAnalyzer") << "No passed L1 Trigger found";
+        edm::LogVerbatim("RecAnalyzerMinbias") << "No passed L1 Trigger found";
       }
     }
   }
@@ -663,9 +651,10 @@ void RecAnalyzerMinbias::analyzeHcal(
       herun_->Fill(rnnum_, (double)(count2HE) / countHE);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RecAnalyzer") << "HBHE " << count2 << ":" << count << ":" << (double)(count2) / count << "\t HB "
-                                  << count2HB << ":" << countHB << ":" << (double)(count2HB) / countHB << "\t HE "
-                                  << count2HE << ":" << countHE << ":" << (double)(count2HE) / countHE;
+  edm::LogVerbatim("RecAnalyzerMinbias") << "HBHE " << count2 << ":" << count << ":" << (double)(count2) / count
+                                         << "\t HB " << count2HB << ":" << countHB << ":"
+                                         << (double)(count2HB) / countHB << "\t HE " << count2HE << ":" << countHE
+                                         << ":" << (double)(count2HE) / countHE;
 #endif
   int countHF(0), count2HF(0);
   // Signal part for HF
@@ -728,7 +717,8 @@ void RecAnalyzerMinbias::analyzeHcal(
     hfrun_->Fill(rnnum_, (double)(count2HF) / countHF);
 #ifdef EDM_ML_DEBUG
   if (count)
-    edm::LogVerbatim("RecAnalyzer") << "HF " << count2HF << ":" << countHF << ":" << (double)(count2HF) / countHF;
+    edm::LogVerbatim("RecAnalyzerMinbias")
+        << "HF " << count2HF << ":" << countHF << ":" << (double)(count2HF) / countHF;
 #endif
 }
 
