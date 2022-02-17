@@ -14,6 +14,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <filesystem>
+#include <algorithm>
 
 using namespace std;
 using namespace trklet;
@@ -113,15 +114,23 @@ void MatchCalculator::addInput(MemoryBase* memory, string input) {
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " could not find input " << input;
 }
 
-void MatchCalculator::execute(double phioffset) {
+void MatchCalculator::execute(unsigned int iSector, double phioffset) {
   unsigned int countall = 0;
   unsigned int countsel = 0;
+
+  //bool print = getName() == "MC_L4PHIC" && iSector == 3;
 
   Tracklet* oldTracklet = nullptr;
 
   std::vector<std::pair<std::pair<Tracklet*, int>, const Stub*> > mergedMatches = mergeMatches(matches_);
 
-  for (unsigned int j = 0; j < mergedMatches.size(); j++) {
+  // Number of clock cycles the pipeline in HLS takes to process the projection merging to 
+  // produce the first projectio
+  unsigned int mergedepth = 3;
+
+  unsigned int maxProc =  std::min(settings_.maxStep("MC") - mergedepth, (unsigned int)mergedMatches.size());
+
+  for (unsigned int j = 0; j < maxProc; j++) {
     if (settings_.debugTracklet() && j == 0) {
       edm::LogVerbatim("Tracklet") << getName() << " has " << mergedMatches.size() << " candidate matches";
     }
