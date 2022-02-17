@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ttrhbwor = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
     StripCPE = cms.string('Fake'),
+    Phase2StripCPE = cms.string(''),
     ComponentName = cms.string('WithoutRefit'),
     PixelCPE = cms.string('Fake'),
     Matcher = cms.string('Fake'),
@@ -10,7 +11,6 @@ ttrhbwor = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
 
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(ttrhbwor, 
-                             Phase2StripCPE = cms.string('Phase2StripCPE'),
-                             StripCPE = cms.string('FakeStripCPE')
-                             )
+                             Phase2StripCPE = 'Phase2StripCPE',
+                             StripCPE = 'FakeStripCPE')
 
