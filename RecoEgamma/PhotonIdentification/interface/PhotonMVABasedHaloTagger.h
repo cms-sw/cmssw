@@ -5,8 +5,8 @@
  2. JetMET POG: https://indico.cern.ch/event/1027614/contributions/4314949/attachments/2224472/3767396/beamHalo_12April.pdf
  */
 
-#ifndef PhotonMVABasedHaloTagger_H
-#define PhotonMVABasedHaloTagger_H
+#ifndef RecoEgamma_PhotonIdentification_PhotonMVABasedHaloTagger_h
+#define RecoEgamma_PhotonIdentification_PhotonMVABasedHaloTagger_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -27,22 +27,24 @@
 class PhotonMVABasedHaloTagger {
 public:
   PhotonMVABasedHaloTagger(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);
-  virtual ~PhotonMVABasedHaloTagger(){};
 
-  double calculateMVA(const reco::Photon* pho, const edm::Event& iEvent, const edm::EventSetup& es);
+  double calculateMVA(const reco::Photon* pho,
+                      const GBRForest* gbr_,
+                      const edm::Event& iEvent,
+                      const edm::EventSetup& es);
 
   void calphoClusCoordinECAL(const CaloGeometry* geo,
                              const reco::Photon*,
                              const EcalPFRecHitThresholds* thresholds,
-                             edm::Handle<EcalRecHitCollection> ecalrechitCollHandle);
+                             const EcalRecHitCollection& ecalRecHits);
 
   void calmatchedHBHECoordForBothHypothesis(const CaloGeometry* geo,
                                             const reco::Photon*,
-                                            edm::Handle<HBHERecHitCollection> hbheHitHandle);
+                                            const HBHERecHitCollection& HBHERecHits);
 
   void calmatchedESCoordForBothHypothesis(const CaloGeometry* geo,
                                           const reco::Photon*,
-                                          edm::Handle<EcalRecHitCollection> esrechitCollHandle);
+                                          const EcalRecHitCollection& ESRecHits);
 
   double calAngleBetweenEEAndSubDet(int nhits, double subdetClusX, double subdetClusY, double subdetClusZ);
 
@@ -74,7 +76,6 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> EEecalCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> ESCollection_;
   edm::EDGetTokenT<HBHERecHitCollection> HBHERecHitsCollection_;
-  std::unique_ptr<const GBRForest> gbr_;
 };
 
 #endif  // PhotonMVABasedHaloTagger_H

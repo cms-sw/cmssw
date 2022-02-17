@@ -51,6 +51,8 @@
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/HcalPFClusterIsolation.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 class CacheData {
 public:
@@ -67,9 +69,18 @@ public:
       config.outputDim = pset_dnn.getParameter<uint>("outputDim");
       const auto useEBModelInGap = pset_dnn.getParameter<bool>("useEBModelInGap");
       photonDNNEstimator = std::make_unique<PhotonDNNEstimator>(config, useEBModelInGap);
+      ///for MVA based beam halo tagger in the EE
+    }
+    const auto runMVABasedHaloTagger = conf.getParameter<bool>("runMVABasedHaloTagger");
+    edm::ParameterSet mvaBasedHaloVariableSet = conf.getParameter<edm::ParameterSet>("mvaBasedHaloVariableSet");
+    auto trainingFileName_ = mvaBasedHaloVariableSet.getParameter<std::string>("trainingFileName");
+    if (runMVABasedHaloTagger) {
+      TFile* regressionFile = TFile::Open(trainingFileName_.c_str());
+      haloTaggerGBR = std::unique_ptr<GBRForest>(regressionFile->Get<GBRForest>("gbrForest"));
     }
   }
   std::unique_ptr<const PhotonDNNEstimator> photonDNNEstimator;
+  std::unique_ptr<const GBRForest> haloTaggerGBR;
 };
 
 class GEDPhotonProducer : public edm::stream::EDProducer<edm::GlobalCache<CacheData>> {
@@ -1069,7 +1080,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     iSC++;
 
     if (runMVABasedHaloTagger_) {  ///sets values only for EE, for EB it always returns 1
-      float BHmva = photonMVABasedHaloTagger_->calculateMVA(&newCandidate, evt, es);
+      float BHmva = photonMVABasedHaloTagger_->calculateMVA(&newCandidate, globalCache()->haloTaggerGBR.get(), evt, es);
       newCandidate.setHaloTaggerMVAVal(BHmva);
     }
 
