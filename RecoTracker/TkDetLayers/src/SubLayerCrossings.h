@@ -6,9 +6,11 @@
 #pragma GCC visibility push(hidden)
 class SubLayerCrossing {
 public:
-  SubLayerCrossing() {}
-  SubLayerCrossing(int sli, int cdi, const GlobalPoint& pos) : pos_(pos), subLayerIndex_(sli), closestDetIndex_(cdi) {}
+  SubLayerCrossing() : isValid_(false) {}
+  SubLayerCrossing(int sli, int cdi, const GlobalPoint& pos)
+      : pos_(pos), subLayerIndex_(sli), closestDetIndex_(cdi), isValid_(true) {}
 
+  bool isValid() { return isValid_; }
   int subLayerIndex() const { return subLayerIndex_; }
   int closestDetIndex() const { return closestDetIndex_; }
   const GlobalPoint& position() const { return pos_; }
@@ -17,6 +19,7 @@ private:
   GlobalPoint pos_;
   int subLayerIndex_;
   int closestDetIndex_;
+  bool isValid_;
 };
 
 class SubLayerCrossings {

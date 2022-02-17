@@ -7,33 +7,32 @@
 
 // system include files
 #include <cmath>
-#include <memory>
-#include <iostream>
-#include <string>
 #include <fstream>
+#include <iostream>
+#include <memory>
+#include <string>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/HeavyIon.h"
@@ -44,9 +43,9 @@
 #include "TFile.h"
 #include "TNtuple.h"
 
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 using namespace edm;
 using namespace std;
@@ -154,13 +153,14 @@ private:
   const double pi = 3.14159265358979;
 
   edm::EDGetTokenT<edm::HepMCProduct> srcT_;
-  edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > srcTmix_;
+  edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> srcTmix_;
 
   // edm::InputTag src_;
   edm::InputTag genParticleSrc_;
   edm::InputTag genHIsrc_;
   edm::InputTag simVerticesTag_;
-  edm::ESHandle<ParticleDataTable> pdt;
+  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdt_;
+
   edm::Service<TFileService> f;
 
   //common
@@ -287,6 +287,7 @@ private:
 //
 HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet &iConfig) {
   //now do what ever initialization is needed
+  pdt_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
   fBFileName = iConfig.getUntrackedParameter<std::string>("output_b", "b_values.txt");
   fNFileName = iConfig.getUntrackedParameter<std::string>("output_n", "n_values.txt");
   fMFileName = iConfig.getUntrackedParameter<std::string>("output_m", "m_values.txt");
@@ -302,7 +303,7 @@ HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet &iConfig) {
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
   srcT_ = mayConsume<HepMCProduct>(
       iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("generator", "unsmeared")));
-  srcTmix_ = consumes<CrossingFrame<edm::HepMCProduct> >(
+  srcTmix_ = consumes<CrossingFrame<edm::HepMCProduct>>(
       iConfig.getUntrackedParameter<edm::InputTag>("srcMix", edm::InputTag("mix", "generatorSmeared")));
 
   // src_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("VtxSmeared"));
@@ -321,11 +322,11 @@ HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet &iConfig) {
       uPDG_3 = iConfig.getUntrackedParameter<int>("uPDG_3", uPDG_1);
       upTetaCut_ = iConfig.getUntrackedParameter<double>("uPTetaCut", 0.8);
       downTetaCut_ = iConfig.getUntrackedParameter<double>("dPTetaCut", -1.);
-      uPtBins_ = iConfig.getUntrackedParameter<vector<double> >("PtBins");
-      uEtaBins_ = iConfig.getUntrackedParameter<vector<double> >("EtaBins");
-      uPhiBins_ = iConfig.getUntrackedParameter<vector<double> >("PhiBins");
-      uV2ptBins_ = iConfig.getUntrackedParameter<vector<double> >("v2PtBins");
-      uV2etaBins_ = iConfig.getUntrackedParameter<vector<double> >("v2EtaBins");
+      uPtBins_ = iConfig.getUntrackedParameter<vector<double>>("PtBins");
+      uEtaBins_ = iConfig.getUntrackedParameter<vector<double>>("EtaBins");
+      uPhiBins_ = iConfig.getUntrackedParameter<vector<double>>("PhiBins");
+      uV2ptBins_ = iConfig.getUntrackedParameter<vector<double>>("v2PtBins");
+      uV2etaBins_ = iConfig.getUntrackedParameter<vector<double>>("v2EtaBins");
 
       //Pt
       int PtSize = uPtBins_.size();
@@ -430,6 +431,7 @@ HydjetAnalyzer::~HydjetAnalyzer() {
 //
 // ------------ method called to for each event  ------------
 void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  auto const &pdt = iSetup.getData(pdt_);
   using namespace edm;
   using namespace HepMC;
   hev_.event = iEvent.id().event();
@@ -458,7 +460,7 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   if (useHepMCProduct_) {
     //_______________________________________________________________________________________
     if (doCF_) {
-      Handle<CrossingFrame<HepMCProduct> > cf;
+      Handle<CrossingFrame<HepMCProduct>> cf;
       iEvent.getByToken(srcTmix_, cf);
       MixCollection<HepMCProduct> mix(cf.product());
       nmix = mix.size();
@@ -478,7 +480,7 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
             float eta = (*it)->momentum().eta();
             float phi = (*it)->momentum().phi();
             float pt = (*it)->momentum().perp();
-            const ParticleData *part = pdt->particle(pdg_id);
+            const ParticleData *part = pdt.particle(pdg_id);
             int charge = static_cast<int>(part->charge());
             hev_.pt[hev_.mult] = pt;
             hev_.eta[hev_.mult] = eta;
@@ -540,19 +542,19 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
           float e = (*it)->momentum().e();
           float pseudoRapidity = (*it)->momentum().pseudoRapidity();
           int charge = -1;
-          if ((pdt->particle(pdg_id))) {
-            part = pdt->particle(pdg_id);
+          if ((pdt.particle(pdg_id))) {
+            part = pdt.particle(pdg_id);
             charge = static_cast<int>(part->charge());
           }
 
           /*
           if(pdg_id==-130){ //there are not -130 in pdt
-	    part = pdt->particle(130);
-	  }else if(!(pdt->particle(pdg_id))){ //skip if not in PDT!!!
+	    part = pdt.particle(130);
+	  }else if(!(pdt.particle(pdg_id))){ //skip if not in PDT!!!
 	    cout<<" Out of PDT: "<< pdg_id<<endl;
 	    continue;
           }else{
-	    part = pdt->particle(pdg_id);
+	    part = pdt.particle(pdg_id);
           }
 */
           //          int charge = static_cast<int>(part->charge());
@@ -816,7 +818,7 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   }
 }
 // ------------ method called once each job just before starting event loop  ------------
-void HydjetAnalyzer::beginRun(const edm::Run &, const edm::EventSetup &iSetup) { iSetup.getData(pdt); }
+void HydjetAnalyzer::beginRun(const edm::Run &, const edm::EventSetup &iSetup) {}
 void HydjetAnalyzer::beginJob() {
   if (printLists_) {
     out_b.open(fBFileName.c_str());
@@ -832,11 +834,6 @@ void HydjetAnalyzer::beginJob() {
 
   if (doHistos_) {
     if (userHistos_) {
-      cout << "---------------------------------------------------------------INPUT------------------------------------"
-              "-------------------------------"
-           << endl;
-      cout << "etaCut for pT = " << downTetaCut_ << " - " << upTetaCut_ << endl;
-
       //pt
       uhpt = new TH1D("uhpt", "uhpt", nintPt, ptBins);
       uhptj = new TH1D("uhptj", "uhptj", nintPt, ptBins);

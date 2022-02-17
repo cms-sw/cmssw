@@ -3,6 +3,8 @@
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonShower.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -27,14 +29,17 @@ protected:
 private:
   l1t::tftype getTfOrigin(const int tfMuonIndex);
 
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtBMTFToken;
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtOMTFToken;
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtEMTFToken;
-  edm::EDGetTokenT<l1t::MuonBxCollection> ugmtMuonToken;
-  std::string monitorDir;
-  bool emul;
-  bool verbose;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtBMTFToken_;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtOMTFToken_;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtEMTFToken_;
+  edm::EDGetTokenT<l1t::MuonBxCollection> ugmtMuonToken_;
+  edm::EDGetTokenT<l1t::RegionalMuonShowerBxCollection> ugmtEMTFShowerToken_;
+  edm::EDGetTokenT<l1t::MuonShowerBxCollection> ugmtMuonShowerToken_;
+  std::string monitorDir_;
+  bool emul_;
+  bool verbose_;
   bool displacedQuantities_;
+  bool hadronicShowers_;
 
   const float etaScale_;
   const float phiScale_;
@@ -93,6 +98,10 @@ private:
   MonitorElement* ugmtEMTFMuMuDEta;
   MonitorElement* ugmtEMTFMuMuDPhi;
   MonitorElement* ugmtEMTFMuMuDR;
+
+  MonitorElement* ugmtEMTFShowerTypeOccupancyPerSector;
+  MonitorElement* ugmtEMTFShowerTypeOccupancyPerBx;
+  MonitorElement* ugmtEMTFShowerSectorOccupancyPerBx;
 
   MonitorElement* ugmtBOMTFposMuMuDEta;
   MonitorElement* ugmtBOMTFposMuMuDPhi;
@@ -161,6 +170,9 @@ private:
   MonitorElement* ugmtMuonBXvshwIso;
   MonitorElement* ugmtMuonChargevsLink;
 
+  // Output shower plots
+  MonitorElement* ugmtMuonShowerTypeOccupancyPerBx;
+
   // muon correlations
   MonitorElement* ugmtMuMuInvMass;
   MonitorElement* ugmtMuMuInvMassAtVtx;
@@ -200,6 +212,9 @@ private:
   MonitorElement* ugmtMuMuDEtaEneg;
   MonitorElement* ugmtMuMuDPhiEneg;
   MonitorElement* ugmtMuMuDREneg;
+
+  static constexpr unsigned IDX_TIGHT_SHOWER{2};
+  static constexpr unsigned IDX_NOMINAL_SHOWER{1};
 };
 
 #endif

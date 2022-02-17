@@ -205,6 +205,7 @@ private:
   edm::GetterOfProducts<reco::PFJetCollection> getPFJetCollection_;
   edm::GetterOfProducts<reco::PFTauCollection> getPFTauCollection_;
   edm::GetterOfProducts<l1t::MuonBxCollection> getL1TMuonParticleCollection_;
+  edm::GetterOfProducts<l1t::MuonShowerBxCollection> getL1TMuonShowerParticleCollection_;
   edm::GetterOfProducts<l1t::EGammaBxCollection> getL1TEGammaParticleCollection_;
   edm::GetterOfProducts<l1t::JetBxCollection> getL1TJetParticleCollection_;
   edm::GetterOfProducts<l1t::TauBxCollection> getL1TTauParticleCollection_;

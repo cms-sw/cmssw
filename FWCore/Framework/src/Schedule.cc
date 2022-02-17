@@ -722,7 +722,6 @@ namespace edm {
                                                                                actions,
                                                                                areg,
                                                                                processConfiguration,
-                                                                               !hasSubprocesses,
                                                                                StreamID{i},
                                                                                processContext));
     }
@@ -1429,6 +1428,13 @@ namespace edm {
       stream->deleteModule(iLabel);
     }
     moduleRegistry_->deleteModule(iLabel, areg->preModuleDestructionSignal_, areg->postModuleDestructionSignal_);
+  }
+
+  void Schedule::initializeEarlyDelete(std::vector<std::string> const& branchesToDeleteEarly,
+                                       edm::ProductRegistry const& preg) {
+    for (auto& stream : streamSchedules_) {
+      stream->initializeEarlyDelete(*moduleRegistry(), branchesToDeleteEarly, preg);
+    }
   }
 
   std::vector<ModuleDescription const*> Schedule::getAllModuleDescriptions() const {

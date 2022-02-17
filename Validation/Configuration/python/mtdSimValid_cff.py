@@ -1,16 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
 # MTD validation sequences
-from Validation.MtdValidation.btlSimHits_cfi import btlSimHits 
-from Validation.MtdValidation.btlDigiHits_cfi import btlDigiHits 
-from Validation.MtdValidation.btlLocalReco_cfi import btlLocalReco
-from Validation.MtdValidation.etlLocalReco_cfi import etlLocalReco
-from Validation.MtdValidation.etlSimHits_cfi import etlSimHits
-from Validation.MtdValidation.etlDigiHits_cfi import etlDigiHits
-from Validation.MtdValidation.mtdTracks_cfi import mtdTracks
-from Validation.MtdValidation.vertices4D_cfi import vertices4D
+from Validation.MtdValidation.btlSimHitsValid_cfi import btlSimHitsValid
+from Validation.MtdValidation.btlDigiHitsValid_cfi import btlDigiHitsValid
+from Validation.MtdValidation.btlLocalRecoValid_cfi import btlLocalRecoValid
+from Validation.MtdValidation.etlLocalRecoValid_cfi import etlLocalRecoValid
+from Validation.MtdValidation.etlSimHitsValid_cfi import etlSimHitsValid
+from Validation.MtdValidation.etlDigiHitsValid_cfi import etlDigiHitsValid
+from Validation.MtdValidation.mtdTracksValid_cfi import mtdTracksValid
+from Validation.MtdValidation.vertices4DValid_cfi import vertices4DValid
 
-mtdSimValid  = cms.Sequence(btlSimHits  + etlSimHits )
-mtdDigiValid = cms.Sequence(btlDigiHits + etlDigiHits)
-mtdRecoValid = cms.Sequence(btlLocalReco  + etlLocalReco + mtdTracks + vertices4D)
+mtdSimValid  = cms.Sequence(btlSimHitsValid  + etlSimHitsValid )
+mtdDigiValid = cms.Sequence(btlDigiHitsValid + etlDigiHitsValid)
+mtdRecoValid = cms.Sequence(btlLocalRecoValid  + etlLocalRecoValid + mtdTracksValid + vertices4DValid)
 

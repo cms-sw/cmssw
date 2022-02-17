@@ -551,7 +551,7 @@ void EtlSimHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("hitMinimumEnergy1Dis", 0.1);    // [MeV]
   desc.add<double>("hitMinimumEnergy2Dis", 0.001);  // [MeV]
 
-  descriptions.add("etlSimHits", desc);
+  descriptions.add("etlSimHitsValid", desc);
 }
 
 DEFINE_FWK_MODULE(EtlSimHitsValidation);

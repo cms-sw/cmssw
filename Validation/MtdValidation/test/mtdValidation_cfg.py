@@ -27,29 +27,29 @@ process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)
 
 # --- BTL Validation
-process.load("Validation.MtdValidation.btlSimHits_cfi")
-process.load("Validation.MtdValidation.btlDigiHits_cfi")
-process.load("Validation.MtdValidation.btlLocalReco_cfi")
-btlValidation = cms.Sequence(process.btlSimHits + process.btlDigiHits + process.btlLocalReco)
+process.load("Validation.MtdValidation.btlSimHitsValid_cfi")
+process.load("Validation.MtdValidation.btlDigiHitsValid_cfi")
+process.load("Validation.MtdValidation.btlLocalRecoValid_cfi")
+btlValidation = cms.Sequence(process.btlSimHitsValid + process.btlDigiHitsValid + process.btlLocalRecoValid)
 
 # --- ETL Validation
-process.load("Validation.MtdValidation.etlSimHits_cfi")
-process.load("Validation.MtdValidation.etlDigiHits_cfi")
-process.load("Validation.MtdValidation.etlLocalReco_cfi")
-etlValidation = cms.Sequence(process.etlSimHits + process.etlDigiHits + process.etlLocalReco)
+process.load("Validation.MtdValidation.etlSimHitsValid_cfi")
+process.load("Validation.MtdValidation.etlDigiHitsValid_cfi")
+process.load("Validation.MtdValidation.etlLocalRecoValid_cfi")
+etlValidation = cms.Sequence(process.etlSimHitsValid + process.etlDigiHitsValid + process.etlLocalRecoValid)
 
 # --- Global Validation
-process.load("Validation.MtdValidation.mtdTracks_cfi")
+process.load("Validation.MtdValidation.mtdTracksValid_cfi")
 
 process.btlDigiHits.LocalPositionDebug = True
 process.etlDigiHits.LocalPositionDebug = True
 process.btlLocalReco.LocalPositionDebug = True
 process.etlLocalReco.LocalPositionDebug = True
 
-process.load("Validation.MtdValidation.vertices4D_cfi")
+process.load("Validation.MtdValidation.vertices4DValid_cfi")
 
 process.DQMStore = cms.Service("DQMStore")
 
 process.load("DQMServices.FileIO.DQMFileSaverOnline_cfi")
 
-process.p = cms.Path( process.mix + btlValidation + etlValidation + process.mtdTracks + process.vertices4D + process.dqmSaver)
+process.p = cms.Path( process.mix + btlValidation + etlValidation + process.mtdTracksValid + process.vertices4DValid + process.dqmSaver)

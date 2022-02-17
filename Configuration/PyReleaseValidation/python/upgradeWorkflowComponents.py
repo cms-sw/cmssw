@@ -65,6 +65,8 @@ upgradeKeys[2026] = [
     '2026D89PU',
     '2026D90',
     '2026D90PU',
+    '2026D91',
+    '2026D91PU',
 ]
 
 # pre-generation of WF numbers
@@ -468,7 +470,7 @@ class UpgradeWorkflow_mlpf(UpgradeWorkflow):
         if 'Reco' in step:
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and '2021' in key
+        return (fragment=="TTbar_14TeV" or fragment=="QCD_FlatPt_15_3000HS_14") and '2021PU' in key
 
 upgradeWFs['mlpf'] = UpgradeWorkflow_mlpf(
     steps = [
@@ -1599,6 +1601,13 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T27',
         'Era' : 'Phase2C11I13T27M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D91' : {
+        'Geom' : 'Extended2026D91',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T30',
+        'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
 }
