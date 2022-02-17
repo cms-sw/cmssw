@@ -78,15 +78,14 @@ void GenWeightValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   nEvt->Fill(0.5, weight);
   nlogWgt->Fill(std::log10(weights.at(idxGenEvtInfo).size()), weight);
 
-  if ((int)weights.at(idxGenEvtInfo).size() <= idxMax)
+  if ( weights.at(idxGenEvtInfo).size() < 1 )
     return; // no weights in GenEventInfo
 
-  for (unsigned idx = 0; idx < weights.at(idxGenEvtInfo).size(); idx++) {
-    if ( weights.at(idxGenEvtInfo).size() < 2 )
-      continue;
-
+  for (unsigned idx = 0; idx < weights.at(idxGenEvtInfo).size(); idx++)
     wgtVal->Fill(weights.at(idxGenEvtInfo)[idx]/weights.at(idxGenEvtInfo)[1], weight);
-  }
+
+  if ((int)weights.at(idxGenEvtInfo).size() <= idxMax)
+    return; // no PS weights in GenEventInfo
 
   edm::Handle<reco::GenParticleCollection> ptcls;
   iEvent.getByToken(genParticleToken,ptcls);

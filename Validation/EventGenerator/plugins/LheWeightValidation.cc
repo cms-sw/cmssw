@@ -89,16 +89,22 @@ void LheWeightValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& 
 
 void LheWeightValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<LHEEventProduct> lheEvt;
-  iEvent.getByToken(lheEvtToken,lheEvt);
-  weight = 1.;
+
+  if ( !lheEvtToken.isUninitialized() )
+    iEvent.getByToken(lheEvtToken,lheEvt);
+
+  if ( !lheEvt.isValid() )
+    return; // do nothing if there is no LHE product
+
   orgWgt = lheEvt->originalXWGTUP();
+  weight = orgWgt/std::abs(orgWgt);
   weights = lheEvt->weights();
 
   nEvt->Fill(0.5, weight);
   nlogWgt->Fill(std::log10(lheEvt->weights().size()), weight);
 
   for (unsigned idx = 0; idx < lheEvt->weights().size(); idx++)
-    wgtVal->Fill(weights[idx].wgt/orgWgt, weight);
+    wgtVal->Fill(weights[idx].wgt/orgWgt);
 
   edm::Handle<reco::GenParticleCollection> ptcls;
   iEvent.getByToken(genParticleToken,ptcls);
@@ -146,15 +152,22 @@ void LheWeightValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 void LheWeightValidation::fillTemplates(std::vector<std::unique_ptr<TH1F>>& scaleVar, std::vector<std::unique_ptr<TH1F>>& pdfVar, std::vector<MonitorElement*>& tmps, float obs) {
   tmps.at(0)->Fill(obs,weight);
 
-  for (int iWgt = 0; iWgt < nScaleVar; iWgt++)
-    scaleVar.at(iWgt)->Fill(obs,weights[iWgt].wgt/orgWgt);
+  if ( static_cast<int>(weights.size()) >= nScaleVar ) {
+    for (int iWgt = 0; iWgt < nScaleVar; iWgt++)
+      scaleVar.at(iWgt)->Fill(obs,weights[iWgt].wgt/orgWgt);
+  }
 
-  for (int iWgt = 0; iWgt < nPdfVar; iWgt++)
-    pdfVar.at(iWgt)->Fill(obs,weights[idxPdfStart+iWgt].wgt/orgWgt);
+  if ( static_cast<int>(weights.size()) >= idxPdfEnd ) {
+    for (int iWgt = 0; iWgt < nPdfVar; iWgt++)
+      pdfVar.at(iWgt)->Fill(obs,weights[idxPdfStart+iWgt].wgt/orgWgt);
+  }
 
 }
 
 void LheWeightValidation::dqmEndRun(const edm::Run& r, const edm::EventSetup& c) {
+  if ( lheEvtToken.isUninitialized() )
+    return;
+
   envelop(leadLepPtScaleVar,leadLepPtTemp);
   pdfRMS(leadLepPtPdfVar,leadLepPtTemp);
   envelop(leadLepEtaScaleVar,leadLepEtaTemp);
@@ -184,12 +197,18 @@ void LheWeightValidation::dqmEndRun(const edm::Run& r, const edm::EventSetup& c)
 void LheWeightValidation::envelop(const std::vector<std::unique_ptr<TH1F>>& var, std::vector<MonitorElement*>& tmps) {
   if ( var.size() < 1 )
     return;
+
   for (int b = 0; b < var.at(0)->GetNbinsX()+2; b++) {
     float valU = var.at(0)->GetBinContent(b);
     float valD = valU;
+
     if (valU==0.)
       continue;
+
     for (unsigned v = 1; v < var.size(); v++) {
+      if ( var.at(v)->GetEntries()==0. )
+        continue;
+
       valU = std::max( valU, (float)var.at(v)->GetBinContent(b) );
       valD = std::min( valD, (float)var.at(v)->GetBinContent(b) );
     }
@@ -208,18 +227,25 @@ void LheWeightValidation::envelop(const std::vector<std::unique_ptr<TH1F>>& var,
 void LheWeightValidation::pdfRMS(const std::vector<std::unique_ptr<TH1F>>& var, std::vector<MonitorElement*>& tmps) {
   if ( var.size() < 1 )
     return;
+
   float denom = var.size();
   for (int b = 0; b < tmps.at(0)->getNbinsX()+2; b++) {
     float valNom = tmps.at(0)->getBinContent(b);
     float rmsSq = 0.;
     if (valNom==0.)
       continue;
+
     for (unsigned v = 0; v < var.size(); v++) {
+      if ( var.at(v)->GetEntries()==0. )
+        continue;
+
       float dev = (float)var.at(v)->GetBinContent(b) - valNom;
       rmsSq += dev*dev;
     }
+
     float rms = std::sqrt(rmsSq/denom);
-    float rmsup = valNom+rms; float rmsdn = valNom-rms;
+    float rmsup = valNom+rms;
+    float rmsdn = valNom-rms;
     tmps.at(5)->setBinContent(b,rmsup);
     tmps.at(6)->setBinContent(b,rmsdn);
   }
