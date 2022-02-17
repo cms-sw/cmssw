@@ -14,7 +14,7 @@ WeightManager::WeightManager(const ParameterSet& iConfig, edm::ConsumesCollector
     _hepmcCollection = iConfig.getParameter<InputTag>("hepmcCollection");
     hepmcCollectionToken_ = iC.consumes<HepMCProduct>(_hepmcCollection);
   } else {
-    _genEventInfos = iConfig.getParameter<std::vector<InputTag> >("genEventInfos");
+    _genEventInfos = iConfig.getParameter<std::vector<InputTag>>("genEventInfos");
     for (unsigned int i = 0; i < _genEventInfos.size(); i++)
       genEventInfosTokens_.push_back(iC.consumes<GenEventInfoProduct>(_genEventInfos[i]));
   }
