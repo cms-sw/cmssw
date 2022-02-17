@@ -23,22 +23,22 @@ HLTSumJetTag<T>::HLTSumJetTag(const edm::ParameterSet& config)
       m_MatchByDeltaR(config.getParameter<bool>("MatchByDeltaR")),
       m_MaxDeltaR(config.getParameter<double>("MaxDeltaR")),
       m_TriggerType(config.getParameter<int>("TriggerType")) {
-  // MaxDR has to be positive if matching with DR option is enabled
+  // MaxDR must be positive if matching-by-DR option is enabled
   if (m_MatchByDeltaR and m_MaxDeltaR <= 0) {
     throw cms::Exception("HLTSumJetTag") << "invalid value for parameter \"MaxDeltaR\" (must be > 0): " << m_MaxDeltaR;
   }
-  // Min has to be smaller or equal than Max otherwise exception
-  if (m_MinJetToSum > m_MaxJetToSum) {
+  // Min must be smaller or equal than Max (unless Max<0)
+  if (m_MaxJetToSum >= 0 and m_MinJetToSum > m_MaxJetToSum) {
     throw cms::Exception("HLTSumJetTag")
-        << "invalid value for min/max number of jets to sum: parameter \"MinJetToSum\" " << m_MinJetToSum
-        << " must be <= than \"MaxJetToSum\" " << m_MaxJetToSum;
+        << "invalid value for min/max number of jets to sum: parameter \"MinJetToSum\" (" << m_MinJetToSum
+        << ") must be <= than \"MaxJetToSum\" (" << m_MaxJetToSum << ") if \"MaxJetToSum\" >= 0";
   }
 
   edm::LogInfo("") << " (HLTSumJetTag) trigger cuts: \n"
                    << " \ttype of jets used: " << m_Jets.encode() << " \n"
                    << " \ttype of tagged jets used: " << m_JetTags.encode() << " \n"
-                   << " \tmin/max tag value: [" << m_MinTag << ".." << m_MaxTag << "] \n"
-                   << " \tmin/max number of jets to sum: [" << m_MinJetToSum << ".." << m_MaxJetToSum << "] \n"
+                   << " \tmin/max tag value: [" << m_MinTag << ", " << m_MaxTag << "] \n"
+                   << " \tmin/max number of jets to sum: [" << m_MinJetToSum << ", " << m_MaxJetToSum << "] \n"
                    << " \tuse mean value of jet tags: " << m_UseMeanValue << " \n"
                    << " \tassign jet-tag values by Delta-R matching: " << m_MatchByDeltaR << "\n"
                    << " \tmax Delta-R for jet-tag assignment by Delta-R matching: " << m_MaxDeltaR << "\n"
@@ -54,7 +54,7 @@ void HLTSumJetTag<T>::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("MinTag", 0.);
   desc.add<double>("MaxTag", 999999.0);
   desc.add<int>("MinJetToSum", 1);
-  desc.add<int>("MaxJetToSum", 99);
+  desc.add<int>("MaxJetToSum", -1);
   desc.add<bool>("UseMeanValue", true);
   desc.add<bool>("MatchByDeltaR", false);
   desc.add<double>("MaxDeltaR", 0.4);
@@ -62,11 +62,6 @@ void HLTSumJetTag<T>::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descriptions.add(defaultModuleLabel<HLTSumJetTag<T>>(), desc);
 }
 
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 template <typename T>
 bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
                                 const edm::EventSetup& setup,
@@ -87,17 +82,29 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
 
   if (m_MaxJetToSum == 0) {
     // return false in case max jet is set to zero --> because no sum can be computed
-    LogDebug("HLTSumJetTag") << "Parameter \"MaxJetToSum\" set to be zero --> Return False";
+    LogDebug("HLTSumJetTag") << "Parameter \"MaxJetToSum\" set to zero --> Return False";
     return false;
   }
 
   // save jetTagValues associated to each jet
   auto const maxDeltaR2 = m_MaxDeltaR * m_MaxDeltaR;
   for (size_t iJet = 0; iJet < h_Jets->size(); ++iJet) {
-    jetRefCollection.emplace_back(h_Jets, iJet);
-    auto const jetTag = m_MatchByDeltaR ? findTagValueByMinDeltaR2((*h_Jets)[iJet], *h_JetTags, maxDeltaR2)
-                                        : (*h_JetTags)[reco::JetBaseRef(jetRefCollection.back())];
+    TRef const jetRef(h_Jets, iJet);
+
+    float jetTag = -1;
+    if (m_MatchByDeltaR) {
+      // if match-by-DR is used, update jetTag by reference and use it only if the matching is valid
+      if (not findTagValueByMinDeltaR2(jetTag, (*h_Jets)[iJet], *h_JetTags, maxDeltaR2)) {
+        continue;
+      }
+    } else {
+      // operator[] checks consistency between h_Jets and h_JetTags
+      jetTag = (*h_JetTags)[reco::JetBaseRef(jetRef)];
+    }
+
+    jetRefCollection.emplace_back(jetRef);
     jetTagValues.emplace_back(jetTag);
+
     LogDebug("HLTSumJetTag") << "Input Jets -- Jet[" << iJet << "] (id = " << jetRefCollection.back().id() << ")"
                              << ": tag=" << jetTag << ", pt=" << jetRefCollection.back()->pt()
                              << ", eta=" << jetRefCollection.back()->eta()
@@ -128,20 +135,15 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
     sumJetTag /= jetTagSortedIndices.size();
   }
 
-  // filter decision
-  bool accept = false;
-  if (m_MaxJetToSum < 0 and sumJetTag >= m_MinTag and sumJetTag <= m_MaxTag)
-    // if max is set negative all jets are considered in the sum and sum-jet tag has to be min < sum < max
-    accept = true;
-  else if (m_MaxJetToSum > 0 and int(jetTagSortedIndices.size()) >= m_MinJetToSum and sumJetTag >= m_MinTag and
-           sumJetTag <= m_MaxTag)
-    // whereas if max is positive the tag collection have to contain at least min number of jets with sum-jet tag in  min < sum < max
-    accept = true;
+  // filter decision: (number of tagged jets >= min) and (minTag <= SumTag <= maxTag)
+  auto const accept =
+      (int(jetTagSortedIndices.size()) >= m_MinJetToSum and m_MinTag <= sumJetTag and sumJetTag <= m_MaxTag);
 
-  LogDebug("HLTSumJetTag") << "Filter Result = " << accept << " (SumJetTag = " << sumJetTag << ")"
-                           << " [UseMeanValue = " << m_UseMeanValue << "]";
+  LogDebug("HLTSumJetTag") << "Filter Result = " << accept << " (SumJetTag = " << sumJetTag
+                           << ", Num. of Jets = " << jetTagSortedIndices.size()
+                           << ") [UseMeanValue = " << m_UseMeanValue << "]";
 
-  // build output collection
+  // if accept, fill TriggerFilterObjectWithRefs
   if (accept) {
     for (auto const idx : jetTagSortedIndices) {
       filterproduct.addObject(m_TriggerType, jetRefCollection[idx]);
@@ -152,15 +154,17 @@ bool HLTSumJetTag<T>::hltFilter(edm::Event& event,
 }
 
 template <typename T>
-float HLTSumJetTag<T>::findTagValueByMinDeltaR2(const T& jet,
-                                                const reco::JetTagCollection& jetTags,
-                                                float maxDeltaR2) const {
-  float ret = -1000;
+bool HLTSumJetTag<T>::findTagValueByMinDeltaR2(float& jetTagValue,
+                                               const T& jet,
+                                               const reco::JetTagCollection& jetTags,
+                                               float maxDeltaR2) const {
+  bool ret = false;
   for (const auto& jetTag : jetTags) {
     auto const tmpDR2 = reco::deltaR2(jet, *(jetTag.first));
     if (tmpDR2 < maxDeltaR2) {
       maxDeltaR2 = tmpDR2;
-      ret = jetTag.second;
+      jetTagValue = jetTag.second;
+      ret = true;
     }
   }
 
