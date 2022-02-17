@@ -440,10 +440,6 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       nevents[5]++;
       int iphi = abs(isect) % 100;
 
-      int tmpsect = int((iphi + 1) / 6.) + 1;
-      if (tmpsect > 12)
-        tmpsect = 1;
-
       int iring = 0;
 
       int iring2 = iring + 2;
