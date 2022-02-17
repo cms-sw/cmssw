@@ -102,6 +102,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
           const CaloTower& tow = CaloTools::getTower(towers, CaloTools::caloEta(ieta), iphi);
 
           int seedEt = tow.hwPt();
+          int iDelay = (tow.hwQual() & 0b0100) >> 2;
           int iEt = seedEt;
           bool satSeed = false;
           bool vetoCandidate = false;
@@ -117,6 +118,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
           for (int deta = -4; deta < 5; ++deta) {
             for (int dphi = -4; dphi < 5; ++dphi) {
               int towEt = 0;
+              int towDelay = 0;
               int ietaTest = ieta + deta;
               int iphiTest = iphi + dphi;
 
@@ -135,6 +137,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
               // check jet mask and sum tower et
               const CaloTower& towTest = CaloTools::getTower(towers, CaloTools::caloEta(ietaTest), iphiTest);
               towEt = towTest.hwPt();
+              towDelay = (towTest.hwQual() & 0b0100) >> 2;
 
               if (mask_[8 - (dphi + 4)][deta + 4] == 0)
                 continue;
@@ -145,8 +148,11 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 
               if (vetoCandidate)
                 break;
-              else
+              else {
                 iEt += towEt;
+                if (abs(ieta) < 29 && abs(ietaTest) < 29)
+                  iDelay += towDelay;  // don't include HF feature bits in HBHE flagged jets
+              }
             }
             if (vetoCandidate)
               break;
@@ -239,6 +245,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
               iEt = CaloTools::kSatJet;
 
             jet.setHwPt(iEt);
+            if (iDelay >= 2)
+              jet.setHwQual(1);
             jet.setRawEt((short int)rawEt);
             jet.setSeedEt((short int)seedEt);
             jet.setTowerIEta((short int)caloEta);
