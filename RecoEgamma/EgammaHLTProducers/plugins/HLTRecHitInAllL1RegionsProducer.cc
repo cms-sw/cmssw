@@ -50,18 +50,21 @@ class L1RegionDataBase {
 public:
   virtual ~L1RegionDataBase() {}
   virtual void getEtaPhiRegions(const edm::Event&,
-                                std::vector<RectangularEtaPhiRegion>&,
-                                const L1CaloGeometry&) const = 0;
+                                const edm::EventSetup&,
+                                std::vector<RectangularEtaPhiRegion>&) const = 0;
 };
 
 template <typename T1>
 class L1RegionData : public L1RegionDataBase {
 private:
-  double minEt_;
-  double maxEt_;
-  double regionEtaMargin_;
-  double regionPhiMargin_;
-  edm::EDGetTokenT<T1> token_;
+  double const minEt_;
+  double const maxEt_;
+  double const regionEtaMargin_;
+  double const regionPhiMargin_;
+  edm::EDGetTokenT<T1> const token_;
+  edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> l1CaloGeometryToken_;
+
+  void eventSetupConsumes(edm::ConsumesCollector& consumesColl);
 
 public:
   L1RegionData(const edm::ParameterSet& para, edm::ConsumesCollector& consumesColl)
@@ -69,9 +72,13 @@ public:
         maxEt_(para.getParameter<double>("maxEt")),
         regionEtaMargin_(para.getParameter<double>("regionEtaMargin")),
         regionPhiMargin_(para.getParameter<double>("regionPhiMargin")),
-        token_(consumesColl.consumes<T1>(para.getParameter<edm::InputTag>("inputColl"))) {}
+        token_(consumesColl.consumes<T1>(para.getParameter<edm::InputTag>("inputColl"))) {
+    eventSetupConsumes(consumesColl);
+  }
 
-  void getEtaPhiRegions(const edm::Event&, std::vector<RectangularEtaPhiRegion>&, const L1CaloGeometry&) const override;
+  void getEtaPhiRegions(const edm::Event&,
+                        const edm::EventSetup&,
+                        std::vector<RectangularEtaPhiRegion>&) const override;
   template <typename T2>
   static typename T2::const_iterator beginIt(const T2& coll) {
     return coll.begin();
@@ -114,20 +121,17 @@ private:
   std::vector<edm::EDGetTokenT<RecHitCollectionType>> recHitTokens_;
 
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
-  const edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> l1CaloGeometryToken_;
 };
 
 template <typename RecHitType>
 HLTRecHitInAllL1RegionsProducer<RecHitType>::HLTRecHitInAllL1RegionsProducer(const edm::ParameterSet& para)
-    : caloGeometryToken_{esConsumes()}, l1CaloGeometryToken_{esConsumes()} {
+    : caloGeometryToken_{esConsumes()} {
   const std::vector<edm::ParameterSet> l1InputRegions =
       para.getParameter<std::vector<edm::ParameterSet>>("l1InputRegions");
   for (auto& pset : l1InputRegions) {
     const std::string type = pset.getParameter<std::string>("type");
-    l1RegionData_.emplace_back(createL1RegionData(
-        type,
-        pset,
-        consumesCollector()));  //meh I was going to use a factory but it was going to be overly complex for my needs
+    // meh I was going to use a factory but it was going to be overly complex for my needs
+    l1RegionData_.emplace_back(createL1RegionData(type, pset, consumesCollector()));
   }
   recHitLabels_ = para.getParameter<std::vector<edm::InputTag>>("recHitLabels");
   productLabels_ = para.getParameter<std::vector<std::string>>("productLabels");
@@ -137,6 +141,7 @@ HLTRecHitInAllL1RegionsProducer<RecHitType>::HLTRecHitInAllL1RegionsProducer(con
     produces<RecHitCollectionType>(productLabels_[collNr]);
   }
 }
+
 template <typename RecHitType>
 void HLTRecHitInAllL1RegionsProducer<RecHitType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -206,14 +211,11 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
   // get the collection geometry:
   auto const& caloGeom = setup.getData(caloGeometryToken_);
 
-  // Get the CaloGeometry
-  auto const& l1CaloGeom = setup.getData(l1CaloGeometryToken_);
-
   std::vector<RectangularEtaPhiRegion> regions;
   std::for_each(l1RegionData_.begin(),
                 l1RegionData_.end(),
-                [&event, &regions, l1CaloGeom](const std::unique_ptr<L1RegionDataBase>& input) {
-                  input->getEtaPhiRegions(event, regions, l1CaloGeom);
+                [&event, &setup, &regions](const std::unique_ptr<L1RegionDataBase>& input) {
+                  input->getEtaPhiRegions(event, setup, regions);
                 });
 
   for (size_t recHitCollNr = 0; recHitCollNr < recHitTokens_.size(); recHitCollNr++) {
@@ -275,9 +277,12 @@ L1RegionDataBase* HLTRecHitInAllL1RegionsProducer<RecHitType>::createL1RegionDat
 }
 
 template <typename L1CollType>
+void L1RegionData<L1CollType>::eventSetupConsumes(edm::ConsumesCollector&) {}
+
+template <typename L1CollType>
 void L1RegionData<L1CollType>::getEtaPhiRegions(const edm::Event& event,
-                                                std::vector<RectangularEtaPhiRegion>& regions,
-                                                const L1CaloGeometry&) const {
+                                                const edm::EventSetup&,
+                                                std::vector<RectangularEtaPhiRegion>& regions) const {
   edm::Handle<L1CollType> l1Cands;
   event.getByToken(token_, l1Cands);
 
@@ -294,11 +299,17 @@ void L1RegionData<L1CollType>::getEtaPhiRegions(const edm::Event& event,
 }
 
 template <>
-void L1RegionData<l1extra::L1JetParticleCollection>::getEtaPhiRegions(const edm::Event& event,
-                                                                      std::vector<RectangularEtaPhiRegion>& regions,
-                                                                      const L1CaloGeometry& l1CaloGeom) const {
+void L1RegionData<l1extra::L1JetParticleCollection>::eventSetupConsumes(edm::ConsumesCollector& consumesColl) {
+  l1CaloGeometryToken_ = consumesColl.esConsumes();
+}
+
+template <>
+void L1RegionData<l1extra::L1JetParticleCollection>::getEtaPhiRegions(
+    const edm::Event& event, const edm::EventSetup& setup, std::vector<RectangularEtaPhiRegion>& regions) const {
   edm::Handle<l1extra::L1JetParticleCollection> l1Cands;
   event.getByToken(token_, l1Cands);
+
+  auto const& l1CaloGeom = setup.getData(l1CaloGeometryToken_);
 
   for (const auto& l1Cand : *l1Cands) {
     if (l1Cand.et() >= minEt_ && l1Cand.et() < maxEt_) {
@@ -323,11 +334,17 @@ void L1RegionData<l1extra::L1JetParticleCollection>::getEtaPhiRegions(const edm:
 }
 
 template <>
-void L1RegionData<l1extra::L1EmParticleCollection>::getEtaPhiRegions(const edm::Event& event,
-                                                                     std::vector<RectangularEtaPhiRegion>& regions,
-                                                                     const L1CaloGeometry& l1CaloGeom) const {
+void L1RegionData<l1extra::L1EmParticleCollection>::eventSetupConsumes(edm::ConsumesCollector& consumesColl) {
+  l1CaloGeometryToken_ = consumesColl.esConsumes();
+}
+
+template <>
+void L1RegionData<l1extra::L1EmParticleCollection>::getEtaPhiRegions(
+    const edm::Event& event, const edm::EventSetup& setup, std::vector<RectangularEtaPhiRegion>& regions) const {
   edm::Handle<l1extra::L1EmParticleCollection> l1Cands;
   event.getByToken(token_, l1Cands);
+
+  auto const& l1CaloGeom = setup.getData(l1CaloGeometryToken_);
 
   for (const auto& l1Cand : *l1Cands) {
     if (l1Cand.et() >= minEt_ && l1Cand.et() < maxEt_) {
@@ -353,5 +370,6 @@ void L1RegionData<l1extra::L1EmParticleCollection>::getEtaPhiRegions(const edm::
 
 typedef HLTRecHitInAllL1RegionsProducer<EcalRecHit> HLTEcalRecHitInAllL1RegionsProducer;
 DEFINE_FWK_MODULE(HLTEcalRecHitInAllL1RegionsProducer);
+
 typedef HLTRecHitInAllL1RegionsProducer<EcalUncalibratedRecHit> HLTEcalUncalibratedRecHitInAllL1RegionsProducer;
 DEFINE_FWK_MODULE(HLTEcalUncalibratedRecHitInAllL1RegionsProducer);
