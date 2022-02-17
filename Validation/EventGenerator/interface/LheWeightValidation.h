@@ -28,22 +28,33 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 
-class TH1F; // forward declaration for ROOT
+class TH1F;  // forward declaration for ROOT
 
 class LheWeightValidation : public DQMOneEDAnalyzer<> {
 public:
-  explicit LheWeightValidation(const edm::ParameterSet &);
+  explicit LheWeightValidation(const edm::ParameterSet&);
   ~LheWeightValidation() override;
-  void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
   void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
-  void bookTemplates(std::vector<std::unique_ptr<TH1F>>& scaleVar, std::vector<std::unique_ptr<TH1F>>& pdfVar, std::vector<MonitorElement*>& tmps,
-    std::string name, std::string title, int nbin, float low, float high, std::string xtitle, std::string ytitle);
+  void bookTemplates(std::vector<std::unique_ptr<TH1F>>& scaleVar,
+                     std::vector<std::unique_ptr<TH1F>>& pdfVar,
+                     std::vector<MonitorElement*>& tmps,
+                     std::string name,
+                     std::string title,
+                     int nbin,
+                     float low,
+                     float high,
+                     std::string xtitle,
+                     std::string ytitle);
 
-  void fillTemplates(std::vector<std::unique_ptr<TH1F>>& scaleVar, std::vector<std::unique_ptr<TH1F>>& pdfVar, std::vector<MonitorElement*>& tmps, float obs);
+  void fillTemplates(std::vector<std::unique_ptr<TH1F>>& scaleVar,
+                     std::vector<std::unique_ptr<TH1F>>& pdfVar,
+                     std::vector<MonitorElement*>& tmps,
+                     float obs);
 
   void envelop(const std::vector<std::unique_ptr<TH1F>>& var, std::vector<MonitorElement*>& tmps);
   void pdfRMS(const std::vector<std::unique_ptr<TH1F>>& var, std::vector<MonitorElement*>& tmps);
@@ -83,7 +94,7 @@ private:
   int nJetsNbin, jetPtNbin;
   double jetPtCut, jetEtaCut, jetPtRange;
 
-  int nScaleVar; // including Nominal
+  int nScaleVar;  // including Nominal
   int idxPdfStart, idxPdfEnd, nPdfVar;
 };
 

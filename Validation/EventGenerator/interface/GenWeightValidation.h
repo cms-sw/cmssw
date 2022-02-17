@@ -35,22 +35,29 @@ public:
   void dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) override;
 
 private:
-  void bookTemplates(std::vector<MonitorElement*>& tmps, std::string name, std::string title, int nbin, float low, float high, std::string xtitle, std::string ytitle);
-  void fillTemplates(std::vector<MonitorElement*>& tmps, float obs);
+  void bookTemplates(std::vector<MonitorElement *> &tmps,
+                     std::string name,
+                     std::string title,
+                     int nbin,
+                     float low,
+                     float high,
+                     std::string xtitle,
+                     std::string ytitle);
+  void fillTemplates(std::vector<MonitorElement *> &tmps, float obs);
   WeightManager wmanager_;
-  DQMHelper* dqm;
+  DQMHelper *dqm;
 
   double weight;
   std::vector<std::vector<double>> weights;
 
-  MonitorElement* nEvt;
-  MonitorElement* nlogWgt;
-  MonitorElement* wgtVal;
-  std::vector<MonitorElement*> leadLepPtTemp;
-  std::vector<MonitorElement*> leadLepEtaTemp;
-  std::vector<MonitorElement*> jetMultTemp;
-  std::vector<MonitorElement*> leadJetPtTemp;
-  std::vector<MonitorElement*> leadJetEtaTemp;
+  MonitorElement *nEvt;
+  MonitorElement *nlogWgt;
+  MonitorElement *wgtVal;
+  std::vector<MonitorElement *> leadLepPtTemp;
+  std::vector<MonitorElement *> leadLepEtaTemp;
+  std::vector<MonitorElement *> jetMultTemp;
+  std::vector<MonitorElement *> leadJetPtTemp;
+  std::vector<MonitorElement *> leadJetEtaTemp;
 
   edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken;
   edm::EDGetTokenT<reco::GenJetCollection> genJetToken;

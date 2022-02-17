@@ -32,7 +32,7 @@ private:
   edm::InputTag _hepmcCollection;
 
   edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
-  std::vector<edm::EDGetTokenT<GenEventInfoProduct> > genEventInfosTokens_;
+  std::vector<edm::EDGetTokenT<GenEventInfoProduct>> genEventInfosTokens_;
 };
 
 #endif
