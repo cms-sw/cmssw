@@ -32,7 +32,7 @@ PhotonMVABasedHaloTagger::PhotonMVABasedHaloTagger(const edm::ParameterSet& conf
 }
 
 double PhotonMVABasedHaloTagger::calculateMVA(const reco::Photon* pho,
-					      const GBRForest* gbr_,
+                                              const GBRForest* gbr_,
                                               const edm::Event& iEvent,
                                               const edm::EventSetup& es) {
   bool isEB = pho->isEB();
@@ -44,8 +44,8 @@ double PhotonMVABasedHaloTagger::calculateMVA(const reco::Photon* pho,
   double rho_ = iEvent.get(rhoLabel_);
 
   // Get all the RecHits
-  const auto& ecalRecHitsBarrel = iEvent.get(EBecalCollection_); 
-  const auto& ecalRecHitsEndcap = iEvent.get(EEecalCollection_);  
+  const auto& ecalRecHitsBarrel = iEvent.get(EBecalCollection_);
+  const auto& ecalRecHitsEndcap = iEvent.get(EEecalCollection_);
   const auto& esRecHits = iEvent.get(ESCollection_);
   const auto& hbheRecHits = iEvent.get(HBHERecHitsCollection_);
 
@@ -59,7 +59,6 @@ double PhotonMVABasedHaloTagger::calculateMVA(const reco::Photon* pho,
   noZS::EcalClusterLazyTools lazyToolnoZS(
       iEvent, ecalClusterToolsESGetTokens_.get(es), EBecalCollection_, EEecalCollection_);
 
-  
   ///calculate the energy weighted X, Y and Z position of the photon cluster
   if (isEB)
     calphoClusCoordinECAL(geo, pho, &thresholds, ecalRecHitsBarrel);
@@ -130,7 +129,7 @@ void PhotonMVABasedHaloTagger::calphoClusCoordinECAL(const CaloGeometry* geo,
   double phoSCEta = pho->superCluster()->eta();
   double phoSCPhi = pho->superCluster()->phi();
 
-  for (const auto& ecalrechit : ecalRecHits){
+  for (const auto& ecalrechit : ecalRecHits) {
     auto const det = ecalrechit.id();
     double rhE = ecalrechit.energy();
     const GlobalPoint& rechitPoint = geo->getPosition(det);
@@ -149,7 +148,6 @@ void PhotonMVABasedHaloTagger::calphoClusCoordinECAL(const CaloGeometry* geo,
     float rhThres = 0.0;
     rhThres = (*thresholds)[det];
 
-
     if (rhE <= rhThres)
       continue;
 
@@ -157,9 +155,8 @@ void PhotonMVABasedHaloTagger::calphoClusCoordinECAL(const CaloGeometry* geo,
       continue;
 
     double dR2 = reco::deltaR2(rhEta, rhPhi, phoSCEta, phoSCPhi);
-    
 
-    if (dR2 < 0.2*0.2) {
+    if (dR2 < 0.2 * 0.2) {
       ecalClusX_ += rhX * rhE;
       ecalClusY_ += rhY * rhE;
       ecalClusZ_ += rhZ * rhE;
@@ -175,8 +172,9 @@ void PhotonMVABasedHaloTagger::calphoClusCoordinECAL(const CaloGeometry* geo,
   }  //if(ecalClusNhits_>0)
 }
 
-void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(
-    const CaloGeometry* geo, const reco::Photon* pho, const HBHERecHitCollection& HBHERecHits) {
+void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(const CaloGeometry* geo,
+                                                                    const reco::Photon* pho,
+                                                                    const HBHERecHitCollection& HBHERecHits) {
   hcalClusX_samedPhi_ = 0;
   hcalClusY_samedPhi_ = 0;
   hcalClusZ_samedPhi_ = 0;
@@ -194,7 +192,7 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(
   double phoSCPhi = pho->superCluster()->phi();
 
   // Loop over HBHERecHit's
-  for (const auto& hbherechit : HBHERecHits){
+  for (const auto& hbherechit : HBHERecHits) {
     HcalDetId det = hbherechit.id();
     const GlobalPoint& rechitPoint = geo->getPosition(det);
 
@@ -227,8 +225,9 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(
 
     double dRho2 = pow(rhX - ecalClusX_, 2) + pow(rhY - ecalClusY_, 2);
 
-    if (rho2 >= 31*31 && rho2 <= 172*172 && dRho2 <= 26*26 &&
-        std::abs(dPhi) < 0.15) {  ///only valid for the EE; this is 26 cm; hit within 3x3 of HCAL centered at the EECAL xtal
+    if (rho2 >= 31 * 31 && rho2 <= 172 * 172 && dRho2 <= 26 * 26 &&
+        std::abs(dPhi) <
+            0.15) {  ///only valid for the EE; this is 26 cm; hit within 3x3 of HCAL centered at the EECAL xtal
       hcalClusX_samedPhi_ += rhX * rhE;
       hcalClusY_samedPhi_ += rhY * rhE;
       hcalClusZ_samedPhi_ += rhZ * rhE;
@@ -240,7 +239,7 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(
 
     double dR2 = reco::deltaR2(phoSCEta, phoSCPhi, rhEta, rhPhi);
 
-    if (dR2 < 0.15*0.15 && !isRHBehindECAL) {  ///dont use hits which are just behind the ECAL in the same phi region
+    if (dR2 < 0.15 * 0.15 && !isRHBehindECAL) {  ///dont use hits which are just behind the ECAL in the same phi region
       hcalClusX_samedR_ += rhX * rhE;
       hcalClusY_samedR_ += rhY * rhE;
       hcalClusZ_samedR_ += rhZ * rhE;
@@ -263,8 +262,9 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(
   }  //if(hcalClusNhits_samedR_>0)
 }
 
-void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(
-    const CaloGeometry* geo, const reco::Photon* pho, const EcalRecHitCollection& ESRecHits) {
+void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(const CaloGeometry* geo,
+                                                                  const reco::Photon* pho,
+                                                                  const EcalRecHitCollection& ESRecHits) {
   preshowerX_samedPhi_ = 0;
   preshowerY_samedPhi_ = 0;
   preshowerZ_samedPhi_ = 0;
@@ -296,7 +296,7 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(
   double cos_phi = cos(phoSCPhi);
   double sin_phi = sin(phoSCPhi);
 
-  for (const auto& esrechit : ESRecHits){
+  for (const auto& esrechit : ESRecHits) {
     const GlobalPoint& rechitPoint = geo->getPosition(esrechit.id());
 
     double rhEta = rechitPoint.eta();
@@ -318,7 +318,9 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(
     double dRho2 = pow(rhX - ecalClusX_, 2) + pow(rhY - ecalClusY_, 2);
 
     if (dRho2 < tmpDiffdRho &&
-        dRho2 < 2.2*2.2) {  ////i.e. hit is required to be within the ----> seems better match with the data compared to 2.47
+        dRho2 <
+            2.2 *
+                2.2) {  ////i.e. hit is required to be within the ----> seems better match with the data compared to 2.47
 
       tmpDiffdRho = dRho2;
       matchX_samephi = rhX;
@@ -346,7 +348,7 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(
   ////Now calculate the sum in +/- 5 strips in X and y around the matched RH
   //+/5  strips mean = 5*~2mm = +/-10 mm = 1 cm
 
-  for (const auto& esrechit : ESRecHits){
+  for (const auto& esrechit : ESRecHits) {
     const GlobalPoint& rechitPoint = geo->getPosition(esrechit.id());
 
     double rhEta = rechitPoint.eta();
