@@ -106,19 +106,7 @@ private:
   const int useRaw_, verbosity_;
   const std::string theTrackQuality_, fileInCorr_;
   const bool ignoreHECorr_, isItPreRecHit_, writeRespCorr_;
-  bool mergedDepth_, useMyCorr_;
-  int maxDepth_, kount_;
-  spr::trackSelectionParameters selectionParameter_;
-
-  const HcalDDDRecConstants* hdc_;
-  const HcalTopology* theHBHETopology_;
-  const CaloGeometry* geo_;
-  HcalRespCorrs* respCorrs_;
-  const MagneticField* bField_;
-  const EcalChannelStatus* theEcalChStatus_;
-  const EcalSeverityLevelAlgo* sevlv_;
-  const CaloTopology* caloTopology_;
-  const HcalDbService* conditions_;
+  const int maxDepth_;
 
   edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
@@ -136,6 +124,20 @@ private:
   edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
   edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
+
+  bool mergedDepth_, useMyCorr_;
+  int kount_;
+  spr::trackSelectionParameters selectionParameter_;
+
+  const HcalDDDRecConstants* hdc_;
+  const HcalTopology* theHBHETopology_;
+  const CaloGeometry* geo_;
+  HcalRespCorrs* respCorrs_;
+  const MagneticField* bField_;
+  const EcalChannelStatus* theEcalChStatus_;
+  const EcalSeverityLevelAlgo* sevlv_;
+  const CaloTopology* caloTopology_;
+  const HcalDbService* conditions_;
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle_;
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle_;
@@ -194,6 +196,22 @@ HcalHBHEMuonHighEtaAnalyzer::HcalHBHEMuonHighEtaAnalyzer(const edm::ParameterSet
       ignoreHECorr_(iConfig.getUntrackedParameter<bool>("ignoreHECorr", false)),
       isItPreRecHit_(iConfig.getUntrackedParameter<bool>("isItPreRecHit", false)),
       writeRespCorr_(iConfig.getUntrackedParameter<bool>("writeRespCorr", false)),
+      maxDepth_(iConfig.getUntrackedParameter<int>("maxDepth", 7)),
+      tok_Vtx_(consumes<reco::VertexCollection>(labelVtx_)),
+      tok_EB_(consumes<EcalRecHitCollection>(labelEBRecHit_)),
+      tok_EE_(consumes<EcalRecHitCollection>(labelEERecHit_)),
+      tok_HBHE_(consumes<HBHERecHitCollection>(labelHBHERecHit_)),
+      tok_Muon_(consumes<reco::MuonCollection>(labelMuon_)),
+      tok_genTrack_(consumes<reco::TrackCollection>(labelGenTrack_)),
+      tok_ddrec_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_respcorr_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
+      tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      tok_chan_(esConsumes<EcalChannelStatus, EcalChannelStatusRcd>()),
+      tok_sevlv_(esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()),
+      tok_topo_(esConsumes<CaloTopology, CaloTopologyRecord>()),
+      tok_dbservice_(esConsumes<HcalDbService, HcalDbRecord>()),
       hdc_(nullptr),
       theHBHETopology_(nullptr),
       respCorrs_(nullptr),
@@ -201,11 +219,6 @@ HcalHBHEMuonHighEtaAnalyzer::HcalHBHEMuonHighEtaAnalyzer(const edm::ParameterSet
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
   kount_ = 0;
-  maxDepth_ = iConfig.getUntrackedParameter<int>("maxDepth", 7);
-  if (maxDepth_ > depthMax_)
-    maxDepth_ = depthMax_;
-  else if (maxDepth_ < 1)
-    maxDepth_ = 4;
 
   reco::TrackBase::TrackQuality trackQuality = reco::TrackBase::qualityByName(theTrackQuality_);
   selectionParameter_.minPt = iConfig.getUntrackedParameter<double>("minTrackPt");
@@ -218,25 +231,9 @@ HcalHBHEMuonHighEtaAnalyzer::HcalHBHEMuonHighEtaAnalyzer(const edm::ParameterSet
   selectionParameter_.maxInMiss = selectionParameter_.maxOutMiss = 2;
 
   mergedDepth_ = (!isItPreRecHit_) || (collapseDepth_);
-  tok_EB_ = consumes<EcalRecHitCollection>(labelEBRecHit_);
-  tok_EE_ = consumes<EcalRecHitCollection>(labelEERecHit_);
-  tok_HBHE_ = consumes<HBHERecHitCollection>(labelHBHERecHit_);
-  tok_Vtx_ = consumes<reco::VertexCollection>(labelVtx_);
-  tok_Muon_ = consumes<reco::MuonCollection>(labelMuon_);
-  tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
   edm::LogVerbatim("HBHEMuon") << "Labels used: Track " << labelGenTrack_ << " Vtx " << labelVtx_ << " EB "
                                << labelEBRecHit_ << " EE " << labelEERecHit_ << " HBHE " << labelHBHERecHit_ << " MU "
                                << labelMuon_;
-
-  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_respcorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
-  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  tok_chan_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
-  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
-  tok_topo_ = esConsumes<CaloTopology, CaloTopologyRecord>();
-  tok_dbservice_ = esConsumes<HcalDbService, HcalDbRecord>();
 
   if (!fileInCorr_.empty()) {
     std::ifstream infile(fileInCorr_.c_str());
@@ -375,8 +372,7 @@ void HcalHBHEMuonHighEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::E
   conditions_ = &iSetup.getData(tok_dbservice_);
 
   // Relevant blocks from iEvent
-  edm::Handle<reco::VertexCollection> vtx;
-  iEvent.getByToken(tok_Vtx_, vtx);
+  const edm::Handle<reco::VertexCollection> vtx = iEvent.getHandle(tok_Vtx_);
 
   iEvent.getByToken(tok_EB_, barrelRecHitsHandle_);
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle_);
@@ -499,8 +495,7 @@ void HcalHBHEMuonHighEtaAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup
 }
 
 bool HcalHBHEMuonHighEtaAnalyzer::analyzeMuon(const edm::Event& iEvent, math::XYZPoint& leadPV) {
-  edm::Handle<reco::MuonCollection> _Muon;
-  iEvent.getByToken(tok_Muon_, _Muon);
+  const edm::Handle<reco::MuonCollection> _Muon = iEvent.getHandle(tok_Muon_);
   bool accept = false;
 
   if (_Muon.isValid()) {
@@ -564,8 +559,7 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeMuon(const edm::Event& iEvent, math::XY
 
 bool HcalHBHEMuonHighEtaAnalyzer::analyzeHadron(const edm::Event& iEvent, math::XYZPoint& leadPV) {
   //Get track collection
-  edm::Handle<reco::TrackCollection> trkCollection;
-  iEvent.getByToken(tok_genTrack_, trkCollection);
+  edm::Handle<reco::TrackCollection> trkCollection = iEvent.getHandle(tok_genTrack_);
   bool accept = false;
 
   if (!trkCollection.isValid()) {
