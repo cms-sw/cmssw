@@ -73,18 +73,17 @@ public:
     }
     const auto runMVABasedHaloTagger = conf.getParameter<bool>("runMVABasedHaloTagger");
     edm::ParameterSet mvaBasedHaloVariableSet = conf.getParameter<edm::ParameterSet>("mvaBasedHaloVariableSet");
-    auto trainingFileName_ = mvaBasedHaloVariableSet.getParameter<edm::FileInPath>(("trainingFileName")).fullPath().c_str();
+    auto trainingFileName_ =
+        mvaBasedHaloVariableSet.getParameter<edm::FileInPath>(("trainingFileName")).fullPath().c_str();
     if (runMVABasedHaloTagger) {
       TFile* regressionFile = TFile::Open(trainingFileName_);
       //std::unique_ptr<GBRForest> up(gbrForestFile.Get<GBRForest>("gbrForest"));
 
       haloTaggerGBR = std::unique_ptr<GBRForest>(regressionFile->Get<GBRForest>("gbrForest"));
     }
-
   }
   std::unique_ptr<const PhotonDNNEstimator> photonDNNEstimator;
   std::unique_ptr<const GBRForest> haloTaggerGBR;
-
 };
 
 class GEDPhotonProducer : public edm::stream::EDProducer<edm::GlobalCache<CacheData>> {
