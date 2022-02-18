@@ -41,7 +41,7 @@ void GenWeightValidation::bookHistograms(DQMStore::IBooker& i, edm::Run const&, 
   // Number of analyzed events
   nEvt = dqm->book1dHisto("nEvt", "n analyzed Events", 1, 0., 1., "bin", "Number of Events");
   nlogWgt = dqm->book1dHisto("nlogWgt", "Log10(n weights)", 100, 0., 3., "log_{10}(nWgts)", "Number of Events");
-  wgtVal = dqm->book1dHisto("wgtVal", "weights", 100, -1.5, 3., "weight", "Number of Weigths");
+  wgtVal = dqm->book1dHisto("wgtVal", "weights", 100, -1.5, 3., "weight", "Number of Weights");
   bookTemplates(leadLepPtTemp,
                 "leadLepPt",
                 "leading lepton Pt",
@@ -104,14 +104,14 @@ void GenWeightValidation::bookTemplates(std::vector<MonitorElement*>& tmps,
 void GenWeightValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 
 void GenWeightValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  weight = 1.;
   weights = wmanager_.weightsCollection(iEvent);
-
-  nEvt->Fill(0.5, weight);
-  nlogWgt->Fill(std::log10(weights.at(idxGenEvtInfo).size()), weight);
 
   if (weights.at(idxGenEvtInfo).empty())
     return;  // no weights in GenEventInfo
+
+  weight = weights.at(idxGenEvtInfo)[0]/std::abs(weights.at(idxGenEvtInfo)[0]);
+  nEvt->Fill(0.5, weight);
+  nlogWgt->Fill(std::log10(weights.at(idxGenEvtInfo).size()), weight);
 
   for (unsigned idx = 0; idx < weights.at(idxGenEvtInfo).size(); idx++)
     wgtVal->Fill(weights.at(idxGenEvtInfo)[idx] / weights.at(idxGenEvtInfo)[1], weight);
