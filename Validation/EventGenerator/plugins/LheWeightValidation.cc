@@ -7,9 +7,10 @@
 using namespace edm;
 
 LheWeightValidation::LheWeightValidation(const edm::ParameterSet& iPSet) {
+  lheLabel_ = iPSet.getParameter<edm::InputTag>("lheProduct"),
   genParticleToken = consumes<reco::GenParticleCollection>(iPSet.getParameter<edm::InputTag>("genParticles"));
-  lheEvtToken = consumes<LHEEventProduct>(iPSet.getParameter<edm::InputTag>("lheProduct"));
-  lheRunToken = consumes<LHERunInfoProduct, edm::InRun>(iPSet.getParameter<edm::InputTag>("lheProduct"));
+  lheEvtToken = consumes<LHEEventProduct>(lheLabel_);
+  lheRunToken = consumes<LHERunInfoProduct, edm::InRun>(lheLabel_);
   genJetToken = consumes<reco::GenJetCollection>(iPSet.getParameter<edm::InputTag>("genJets"));
   dumpLHEheader = iPSet.getParameter<bool>("dumpLHEheader");
   nScaleVar = iPSet.getParameter<int>("nScaleVar");
@@ -32,7 +33,14 @@ LheWeightValidation::LheWeightValidation(const edm::ParameterSet& iPSet) {
 
 LheWeightValidation::~LheWeightValidation() {}
 
-void LheWeightValidation::bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) {
+void LheWeightValidation::bookHistograms(DQMStore::IBooker& i, edm::Run const& iRun, edm::EventSetup const&) {
+  // check LHE product exists
+  edm::Handle<LHERunInfoProduct> lheInfo;
+  iRun.getByLabel(lheLabel_, lheInfo);
+
+  if (!lheInfo.isValid())
+    return;
+
   ///Setting the DQM top directories
   std::string folderName = "Generator/LHEWeight";
   dqm = new DQMHelper(&i);
@@ -41,7 +49,7 @@ void LheWeightValidation::bookHistograms(DQMStore::IBooker& i, edm::Run const&, 
   // Number of analyzed events
   nEvt = dqm->book1dHisto("nEvt", "n analyzed Events", 1, 0., 1., "bin", "Number of Events");
   nlogWgt = dqm->book1dHisto("nlogWgt", "Log10(n weights)", 100, 0., 5., "log_{10}(nWgts)", "Number of Events");
-  wgtVal = dqm->book1dHisto("wgtVal", "weights", 100, -1.5, 3., "weight", "Number of Weigths");
+  wgtVal = dqm->book1dHisto("wgtVal", "weights", 100, -1.5, 3., "weight", "Number of Weights");
 
   bookTemplates(leadLepPtScaleVar,
                 leadLepPtPdfVar,
@@ -230,8 +238,14 @@ void LheWeightValidation::fillTemplates(std::vector<std::unique_ptr<TH1F>>& scal
   }
 }
 
-void LheWeightValidation::dqmEndRun(const edm::Run& r, const edm::EventSetup& c) {
-  if (lheEvtToken.isUninitialized())
+void LheWeightValidation::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& c) {
+  if (lheRunToken.isUninitialized())
+    return;
+
+  edm::Handle<LHERunInfoProduct> lheInfo;
+  iRun.getByToken(lheRunToken, lheInfo);
+
+  if (!lheInfo.isValid())
     return;
 
   envelop(leadLepPtScaleVar, leadLepPtTemp);
@@ -245,11 +259,8 @@ void LheWeightValidation::dqmEndRun(const edm::Run& r, const edm::EventSetup& c)
   envelop(leadJetEtaScaleVar, leadJetEtaTemp);
   pdfRMS(leadJetEtaPdfVar, leadJetEtaTemp);
 
-  edm::Handle<LHERunInfoProduct> run;
-  r.getByToken(lheRunToken, run);
-
   if (dumpLHEheader) {
-    for (auto it = run->headers_begin(); it != run->headers_end(); it++) {
+    for (auto it = lheInfo->headers_begin(); it != lheInfo->headers_end(); it++) {
       std::cout << "Header start" << std::endl;
       std::cout << "Tag: " << it->tag() << std::endl;
       for (const auto& l : it->lines()) {

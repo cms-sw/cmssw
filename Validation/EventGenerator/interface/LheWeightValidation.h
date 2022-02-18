@@ -83,6 +83,7 @@ private:
   std::vector<std::unique_ptr<TH1F>> leadJetEtaScaleVar;
   std::vector<std::unique_ptr<TH1F>> leadJetEtaPdfVar;
 
+  edm::InputTag lheLabel_;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken;
   edm::EDGetTokenT<LHEEventProduct> lheEvtToken;
   edm::EDGetTokenT<LHERunInfoProduct> lheRunToken;
