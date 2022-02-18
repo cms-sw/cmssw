@@ -8,13 +8,13 @@ ecalPhiSymRecHitLumiTableEB = cms.EDProducer("EcalPhiSymRecHitFlatTableProducerL
                                              name = cms.string("EcalPhiSymEB"),
                                              doc  = cms.string("ECAL RecHits with information summed over a LS"),
                                              variables = cms.PSet(
-                                                 id       = Var("GetRawId()", int, doc="ECAL PhiSym rechits: channel detector id"),
-                                                 status   = Var("GetStatusCode()", int, doc="ECAL PhiSym rechits: channel status"),
-                                                 nHits    = Var("GetNhits()", int, doc="ECAL PhiSym rechits: number of recorded hits"),
-                                                 sumEt    = Var("GetSumEt(0)", float, doc="ECAL PhiSym rechits: nominal et", precision=23),
-                                                 sumEt2   = Var("GetSumEt2()", float, doc="ECAL PhiSym rechits: sum et^2", precision=23),
-                                                 sumLC    = Var("GetLCSum()", float, doc="ECAL PhiSym rechits: laser correction", precision=23),
-                                                 sumLC2   = Var("GetLC2Sum()", float, doc="ECAL PhiSym rechits: sum lc^2", precision=23)
+                                                 id       = Var("rawId()", int, doc="ECAL PhiSym rechits: channel detector id"),
+                                                 status   = Var("statusCode()", int, doc="ECAL PhiSym rechits: channel status"),
+                                                 nHits    = Var("nHits()", int, doc="ECAL PhiSym rechits: number of recorded hits"),
+                                                 sumEt    = Var("sumEt(0)", float, doc="ECAL PhiSym rechits: nominal et", precision=23),
+                                                 sumEt2   = Var("sumEt2()", float, doc="ECAL PhiSym rechits: sum et^2", precision=23),
+                                                 sumLC    = Var("lcSum()", float, doc="ECAL PhiSym rechits: laser correction", precision=23),
+                                                 sumLC2   = Var("lc2Sum()", float, doc="ECAL PhiSym rechits: sum lc^2", precision=23)
                                              )
                                      )
 
@@ -34,8 +34,14 @@ ecalPhiSymInfoLumiTable = cms.EDProducer("EcalPhiSymInfoFlatTableProducerLumi",
                                              nEvents = Var("nEvents()", int, doc="Total number of events recorded"),
                                              nLumis = Var("nLumis()", int, doc="Total number of lumis recorded"),
                                              fill = Var("fillNumber()", int, doc="LHC fill number"),
-                                             delivLumi = Var("delivLumi()", int, doc="LHC delivered integrated luminosity"),
-                                             recLumi = Var("recLumi()", int, doc="CMS recorded integrated luminosity")))
+                                             delivLumi = Var("delivLumi()", float, doc="LHC delivered integrated luminosity"),
+                                             recLumi = Var("recLumi()", float, doc="CMS recorded integrated luminosity"),
+                                             nMis = Var("nMis()", float, doc="Number of mis-calibration steps injected (nominal value excluded)"),
+                                             minMisEB = Var("minMisEB()", float, doc="Minimum mis-calibration value in EB"),
+                                             maxMisEB = Var("maxMisEB()", float, doc="Maximum mis-calibration value in EB"),
+                                             minMisEE = Var("minMisEE()", float, doc="Minimum mis-calibration value in EE"),
+                                             maxMisEE = Var("maxMisEE()", float, doc="Maximum mis-calibration value in EE")))
+
 
 # Run flat table producers
 ecalPhiSymRecHitRunTableEB = cms.EDProducer("EcalPhiSymRecHitFlatTableProducerRun",

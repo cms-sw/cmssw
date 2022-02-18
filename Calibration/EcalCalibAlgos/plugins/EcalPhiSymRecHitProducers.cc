@@ -8,10 +8,6 @@
 //         Created:  Wed, 16 Mar 2022 15:52:48 GMT
 //
 //
-
-#ifndef _ECAL_PHISYM_RECHIT_PRODUCERS_
-#define _ECAL_PHISYM_RECHIT_PRODUCERS_
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -73,10 +69,7 @@ public:
   // job
   void initializeJob();
   // event
-  void processEvent(edm::StreamID stream,
-                    edm::Event const& event,
-                    edm::EventSetup const& setup,
-                    PhiSymCache* cache) const;
+  void processEvent(edm::Event const& event, edm::EventSetup const& setup, PhiSymCache* cache) const;
   // helpers
   void initializeStreamCache(PhiSymCache* cache) const;
   void initializeGlobalCache(edm::EventSetup const& setup,
@@ -103,9 +96,9 @@ protected:
   int nMisCalib_;
   int nSumEtValues_;
   vector<double> misCalibRangeEB_;
-  float misCalibStepsEB_[11];
+  vector<float> misCalibStepsEB_;
   vector<double> misCalibRangeEE_;
-  float misCalibStepsEE_[11];
+  vector<float> misCalibStepsEE_;
   //---geometry
   EcalRingCalibrationTools calibRing_;
   static const short kNRingsEB = EcalRingCalibrationTools::N_RING_BARREL;
@@ -149,9 +142,11 @@ void EcalPhiSymRecHitProducerBase::initializeJob() {
     etCutsEE_[iRing + ringsInOneEE] = -1;
   }
 
-  //---misCalib value init (nMisCalib is half oj the correct value!)
-  float misCalibStepEB = fabs(misCalibRangeEB_[1] - misCalibRangeEB_[0]) / (nMisCalib_ * 2);
-  float misCalibStepEE = fabs(misCalibRangeEE_[1] - misCalibRangeEE_[0]) / (nMisCalib_ * 2);
+  //---misCalib value init (nMisCalib is half of the correct value!)
+  float misCalibStepEB = std::abs(misCalibRangeEB_[1] - misCalibRangeEB_[0]) / (nMisCalib_ * 2);
+  float misCalibStepEE = std::abs(misCalibRangeEE_[1] - misCalibRangeEE_[0]) / (nMisCalib_ * 2);
+  misCalibStepsEB_.resize(nSumEtValues_);
+  misCalibStepsEE_.resize(nSumEtValues_);
   for (int iMis = -nMisCalib_; iMis <= nMisCalib_; ++iMis) {
     //--- 0 -> 0; -i -> [1...n/2]; +i -> [n/2+1...n]
     int index = iMis > 0 ? iMis + nMisCalib_ : iMis == 0 ? 0 : iMis + nMisCalib_ + 1;
@@ -160,16 +155,15 @@ void EcalPhiSymRecHitProducerBase::initializeJob() {
   }
 }
 
-void EcalPhiSymRecHitProducerBase::processEvent(edm::StreamID stream,
-                                                edm::Event const& event,
+void EcalPhiSymRecHitProducerBase::processEvent(edm::Event const& event,
                                                 edm::EventSetup const& setup,
                                                 PhiSymCache* streamCache) const {
   uint64_t totHitsEB = 0;
   uint64_t totHitsEE = 0;
 
   //---get recHits collections
-  auto barrelRecHitsHandle = event.get(ebToken_);
-  auto endcapRecHitsHandle = event.get(eeToken_);
+  auto barrelRecHits = event.get(ebToken_);
+  auto endcapRecHits = event.get(eeToken_);
 
   //---get the laser corrections
   edm::Timestamp evtTimeStamp(event.time().value());
@@ -181,7 +175,7 @@ void EcalPhiSymRecHitProducerBase::processEvent(edm::StreamID stream,
   auto endcapGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
 
   //---EB---
-  for (auto& recHit : barrelRecHitsHandle) {
+  for (auto& recHit : barrelRecHits) {
     float energy = recHit.energy();
     EBDetId ebHit = EBDetId(recHit.id());
     int ring = calibRing_.getRingIndex(ebHit);
@@ -191,7 +185,7 @@ void EcalPhiSymRecHitProducerBase::processEvent(edm::StreamID stream,
     float eta = barrelGeometry->getGeometry(ebHit)->getPosition().eta();
 
     //---compute et + miscalibration
-    float etValues[nSumEtValues_];
+    vector<float> etValues(nSumEtValues_, 0);
     //---one can do this in one for loop from -nMis to +nMis but in this way the
     //---program is faster
     //---NOTE: nMisCalib is half on the value set in the cfg python
@@ -219,11 +213,11 @@ void EcalPhiSymRecHitProducerBase::processEvent(edm::StreamID stream,
       ++totHitsEB;
     //---update the rechHit sumEt
     streamCache->recHitCollEB.at(ebHit.denseIndex())
-        .AddHit(etValues, laser.getLaserCorrection(recHit.id(), evtTimeStamp));
+        .addHit(etValues, laser.getLaserCorrection(recHit.id(), evtTimeStamp));
   }
 
   //---EE---
-  for (auto& recHit : endcapRecHitsHandle) {
+  for (auto& recHit : endcapRecHits) {
     EEDetId eeHit = EEDetId(recHit.id());
     int ring = calibRing_.getRingIndex(eeHit) - kNRingsEB;
     float energy = recHit.energy();
@@ -233,7 +227,7 @@ void EcalPhiSymRecHitProducerBase::processEvent(edm::StreamID stream,
     float eta = endcapGeometry->getGeometry(eeHit)->getPosition().eta();
 
     //---compute et + miscalibration
-    float etValues[nSumEtValues_];
+    vector<float> etValues(nSumEtValues_, 0);
     //---one can do this in one for loop from -nMis to +nMis but in this way the
     //---program is faster
     //---NOTE: nMisCalib is half on the value set in the cfg python
@@ -261,7 +255,7 @@ void EcalPhiSymRecHitProducerBase::processEvent(edm::StreamID stream,
       ++totHitsEE;
     //---update the rechHit sumEt
     streamCache->recHitCollEE.at(eeHit.denseIndex())
-        .AddHit(etValues, laser.getLaserCorrection(recHit.id(), evtTimeStamp));
+        .addHit(etValues, laser.getLaserCorrection(recHit.id(), evtTimeStamp));
   }
 
   //---update the lumi info
@@ -294,21 +288,20 @@ void EcalPhiSymRecHitProducerBase::initializeGlobalCache(
   cache->clear();
 
   //---get the ecal geometry
-  auto geometry = &setup.getData(geoToken);
+  const auto* geometry = &setup.getData(geoToken);
   calibRing_.setCaloGeometry(geometry);
 
   //---get the channels status
   auto const& chStatus = setup.getData(chStatusToken);
 
-  auto barrelGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  auto endcapGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  const auto* barrelGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const auto* endcapGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   barrelDetIds_ = barrelGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
   endcapDetIds_ = endcapGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
   cache->recHitCollEB.resize(barrelDetIds_.size());
   cache->recHitCollEE.resize(endcapDetIds_.size());
   for (auto& ebDetId : barrelDetIds_) {
     EBDetId id(ebDetId);
-    ;
     cache->recHitCollEB.at(id.denseIndex()) =
         EcalPhiSymRecHit(ebDetId.rawId(), nSumEtValues_, chStatus[id].getStatusCode());
     int ring = calibRing_.getRingIndex(id);
@@ -325,7 +318,7 @@ void EcalPhiSymRecHitProducerBase::initializeGlobalCache(
     cache->recHitCollEE.at(id.denseIndex()) =
         EcalPhiSymRecHit(eeDetId.rawId(), nSumEtValues_, chStatus[id].getStatusCode());
     //---set eCutEE if first pass
-    if (ring < ringsInOneEE && etCutsEE_[ring] == -1 && id.ix() == 50) {
+    if (ring < ringsInOneEE && etCutsEE_[ring] == -1 && id.ix() == EEDetId::IX_MAX / 2) {
       auto cellGeometry = endcapGeometry->getGeometry(id);
       etCutsEE_[ring] = eThresholdsEE_[ring] / cosh(cellGeometry->getPosition().eta()) + etCutEE_;
       etCutsEE_[ring + ringsInOneEE] = etCutsEE_[ring];
@@ -342,9 +335,9 @@ void EcalPhiSymRecHitProducerBase::sumCache(PhiSymCache* streamCache, PhiSymCach
   cache->ecalLumiInfo += streamCache->ecalLumiInfo;
 
   for (unsigned int i = 0; i < cache->recHitCollEB.size(); ++i)
-    cache->recHitCollEB.at(i) += streamCache->recHitCollEB.at(i);
+    cache->recHitCollEB[i] += streamCache->recHitCollEB[i];
   for (unsigned int i = 0; i < cache->recHitCollEE.size(); ++i)
-    cache->recHitCollEE.at(i) += streamCache->recHitCollEE.at(i);
+    cache->recHitCollEE[i] += streamCache->recHitCollEE[i];
 }
 
 //****************************************************************************************
@@ -421,12 +414,11 @@ void EcalPhiSymRecHitProducerLumi::globalEndLuminosityBlockProduce(edm::Luminosi
   auto cache = luminosityBlockCache(lumi.index());
 
   //---put the collections in the LuminosityBlocks tree
-  auto ecalLumiInfo = std::make_unique<EcalPhiSymInfo>();
-  *ecalLumiInfo = cache->ecalLumiInfo;
-  auto recHitCollEB = std::make_unique<EcalPhiSymRecHitCollection>();
-  *recHitCollEB = cache->recHitCollEB;
-  auto recHitCollEE = std::make_unique<EcalPhiSymRecHitCollection>();
-  *recHitCollEE = cache->recHitCollEE;
+  auto ecalLumiInfo = std::make_unique<EcalPhiSymInfo>(cache->ecalLumiInfo);
+  ecalLumiInfo->setMiscalibInfo(
+      nMisCalib_ * 2, misCalibRangeEB_[0], misCalibRangeEB_[1], misCalibRangeEE_[0], misCalibRangeEE_[1]);
+  auto recHitCollEB = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEB);
+  auto recHitCollEE = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEB);
 
   lumi.put(std::move(ecalLumiInfo));
   lumi.put(std::move(recHitCollEB), "EB");
@@ -450,7 +442,7 @@ void EcalPhiSymRecHitProducerLumi::streamEndLuminosityBlock(edm::StreamID stream
 void EcalPhiSymRecHitProducerLumi::accumulate(edm::StreamID stream,
                                               edm::Event const& event,
                                               edm::EventSetup const& setup) const {
-  processEvent(stream, event, setup, streamCache(stream));
+  processEvent(event, setup, streamCache(stream));
 }
 
 //****************************************************************************************
@@ -548,12 +540,11 @@ void EcalPhiSymRecHitProducerRun::globalEndRunProduce(edm::Run& run, edm::EventS
   auto cache = runCache(run.index());
 
   //---put the collections in the Runs tree
-  auto ecalLumiInfo = std::make_unique<EcalPhiSymInfo>();
-  *ecalLumiInfo = cache->ecalLumiInfo;
-  auto recHitCollEB = std::make_unique<EcalPhiSymRecHitCollection>();
-  *recHitCollEB = cache->recHitCollEB;
-  auto recHitCollEE = std::make_unique<EcalPhiSymRecHitCollection>();
-  *recHitCollEE = cache->recHitCollEE;
+  auto ecalLumiInfo = std::make_unique<EcalPhiSymInfo>(cache->ecalLumiInfo);
+  ecalLumiInfo->setMiscalibInfo(
+      nMisCalib_ * 2, misCalibRangeEB_[0], misCalibRangeEB_[1], misCalibRangeEE_[0], misCalibRangeEE_[1]);
+  auto recHitCollEB = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEB);
+  auto recHitCollEE = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEE);
 
   run.put(std::move(ecalLumiInfo));
   run.put(std::move(recHitCollEB), "EB");
@@ -563,10 +554,8 @@ void EcalPhiSymRecHitProducerRun::globalEndRunProduce(edm::Run& run, edm::EventS
 void EcalPhiSymRecHitProducerRun::accumulate(edm::StreamID stream,
                                              edm::Event const& event,
                                              edm::EventSetup const& setup) const {
-  processEvent(stream, event, setup, streamCache(stream));
+  processEvent(event, setup, streamCache(stream));
 }
 
 DEFINE_FWK_MODULE(EcalPhiSymRecHitProducerLumi);
 DEFINE_FWK_MODULE(EcalPhiSymRecHitProducerRun);
-
-#endif
