@@ -173,7 +173,7 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     doc = cms.string("slimmedPhotons after basic selection (" + finalPhotons.cut.value()+")"),
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table for the photons
-    variables = cms.PSet(CandVars,
+    variables = cms.PSet(P3Vars,
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
         electronIdx = Var("?hasUserCand('electron')?userCand('electron').key():-1", int, doc="index of the associated electron (-1 if none)"),
         energyErr = Var("getCorrectedEnergyError('regression2')",float,doc="energy error of the cluster from regression",precision=6),
