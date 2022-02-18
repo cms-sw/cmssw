@@ -16,7 +16,8 @@ class ProcessAcceleratorCUDA(cms.ProcessAccelerator):
             return []
     def apply(self, process, accelerators):
         if not hasattr(process, "CUDAService"):
-            process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
+            from HeterogeneousCore.CUDAServices.CUDAService_cfi import CUDAService
+            process.add_(CUDAService)
 
         if self._label in accelerators:
             process.CUDAService.enabled = True

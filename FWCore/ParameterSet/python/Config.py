@@ -1480,8 +1480,9 @@ class Process(object):
         parameterSet.addVString(False, "@selected_accelerators", selectedAccelerators)
 
         # Customize
+        wrapped = ProcessForProcessAccelerator(self)
         for acc in self.__dict__['_Process__accelerators'].values():
-            acc.apply(self, selectedAccelerators)
+            acc.apply(wrapped, selectedAccelerators)
 
     def prefer(self, esmodule,*args,**kargs):
         """Prefer this ES source or producer.  The argument can
@@ -1883,10 +1884,14 @@ class ProcessAccelerator(_ConfigureComponent,_Unlabelable):
     specific customization can be applied to the Process on a worker
     node at the point where the python configuration is serialized for C++.
 
-    The customizations must touch only untracked parameters. Each
-    deriving class should have a specific unit test enabling all
-    combinations of accelerators and assert that the configuration
-    hash does not change."""
+    The customization must not change the configuration hash. To
+    enforce this reuirement, the customization gets a
+    ProcessForProcessAccelerator wrapper that gives access to only
+    those parts of the configuration that can be changed. Nevertheless
+    it would be good to have specific unit test for each deriving
+    class to ensure that all combinations of the enabled accelerators
+    give the same configuration hash.
+    """
     def __init__(self):
         pass
     def _place(self, name, proc):
@@ -1924,6 +1929,28 @@ class ProcessAccelerator(_ConfigureComponent,_Unlabelable):
         This function may touch only untracked parameters.
         """
         pass
+
+class ProcessForProcessAccelerator(object):
+    """This class is inteded to wrap the Process object to constrain the
+    available functionality for ProcessAccelerator.apply()"""
+    def  __init__(self, process):
+        self.__process = process
+    def __getattr__(self, label):
+        value = getattr(self.__process, label)
+        if not isinstance(value, Service):
+            raise TypeError("ProcessAccelerator.apply() can get only Services. Tried to get {} with label {}".format(str(type(value)), label))
+        return value
+    def __setattr__(self, label, value):
+        if label == "_ProcessForProcessAccelerator__process":
+            super().__setattr__(label, value)
+        else:
+            if not isinstance(value, Service):
+                raise TypeError("ProcessAccelerator.apply() can only set Services. Tried to set {} with label {}".format(str(type(value)), label))
+            setattr(self.__process, label, value)
+    def add_(self, value):
+        if not isinstance(value, Service):
+            raise TypeError("ProcessAccelerator.apply() can only add Services. Tried to set {} with label {}".format(str(type(value)), label))
+        self.__process.add_(value)
 
 # Need to be a module-level function for the configuration with a
 # SwitchProducer to be pickleable.
@@ -2061,8 +2088,7 @@ if __name__=="__main__":
         def enabledLabels(self):
             return self._enabled
         def apply(self, process, accelerators):
-            process.acceleratorTestProducer = EDProducer("AcceleratorTestProducer")
-            process.acceleratorTestPath = Path(process.acceleratorTestProducer)
+            process.AcceleratorTestService = Service("AcceleratorTestService")
     specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorTest, "from test import ProcessAcceleratorTest")
 
     class ProcessAcceleratorTest2(ProcessAccelerator):
@@ -3944,6 +3970,20 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p = Process('PROCESS')
             p.extend(f)
             self.assertTrue(hasattr(p,'fltr'))
+        def testProcessForProcessAccelerator(self):
+            proc = Process("TEST")
+            p = ProcessForProcessAccelerator(proc)
+            p.TestService = Service("TestService")
+            self.assertTrue(hasattr(proc, "TestService"))
+            self.assertEqual(proc.TestService.type_(), "TestService")
+            self.assertRaises(TypeError, setattr, p, "a", EDProducer("Foo"))
+            p.add_(Service("TestServiceTwo"))
+            self.assertTrue(hasattr(proc, "TestServiceTwo"))
+            self.assertEqual(proc.TestServiceTwo.type_(), "TestServiceTwo")
+            p.TestService.foo = untracked.uint32(42)
+            self.assertEqual(proc.TestService.foo.value(), 42)
+            proc.mod = EDProducer("Producer")
+            self.assertRaises(TypeError, getattr, p, "mod")
         def testProcessAccelerator(self):
             proc = Process("TEST")
             p = TestMakePSet()
@@ -4012,7 +4052,7 @@ process.ProcessAcceleratorTest = ProcessAcceleratorTest(
             self.assertEqual(["*"], p.values["options"][1].values["accelerators"][1])
             self.assertFalse(p.values["options"][1].values["accelerators"][0])
             self.assertTrue(["anothertest3", "cpu", "test1", "test2"], p.values["@selected_accelerators"][1])
-            self.assertEqual((True, "AcceleratorTestProducer"), p.values["acceleratorTestProducer"][1].values["@module_type"])
+            self.assertEqual("AcceleratorTestService", p.values["services"][1][0].values["@service_type"][1])
             self.assertFalse(p.values["@available_accelerators"][0])
             self.assertTrue(["anothertest3", "cpu", "test1", "test2"], p.values["@available_accelerators"][1])
 
