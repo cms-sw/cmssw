@@ -71,11 +71,11 @@ def ecal_phisym_flattables(process, produce_by_run : bool=False):
     for imis in range(1, nmis+1):
         # get the naming and indexing right.
         if imis<nmis/2+1:
-            var_name = 'sumEt_m'+str(abs(imis-(nmis/2)-1))
-            var = Var(f'GetSumEt({imis})', float, doc='ECAL PhiSym rechits: '+str(imis-(nmis/2)-1)+'*miscalib et', precision=23)
+            var_name = 'sumEt_m'+str(abs(int(imis-(nmis/2)-1)))
+            var = Var(f'sumEt({imis})', float, doc='ECAL PhiSym rechits: '+str(imis-(nmis/2)-1)+'*miscalib et', precision=23)
         else:
-            var_name = 'sumEt_p'+str(imis-(nmis/2))
-            var = Var(f'GetSumEt({imis})', float, doc='ECAL PhiSym rechits: '+str(imis-(nmis/2))+'*miscalib et', precision=23)
+            var_name = 'sumEt_p'+str(int(imis-(nmis/2)))
+            var = Var(f'sumEt({imis})', float, doc='ECAL PhiSym rechits: '+str(imis-(nmis/2))+'*miscalib et', precision=23)
         
         if produce_by_run:
             setattr(process.ecalPhiSymRecHitRunTableEB.variables, var_name, var)

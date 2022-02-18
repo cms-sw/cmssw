@@ -1,5 +1,5 @@
-#ifndef ECAL_PHISYM_RECHIT_H
-#define ECAL_PHISYM_RECHIT_H
+#ifndef Calibration_EcalCalibAlgos_EcalPhiSymRecHit_h
+#define Calibration_EcalCalibAlgos_EcalPhiSymRecHit_h
 
 /** \class EcalPhiSymRecHit
  * 
@@ -29,22 +29,21 @@ public:
   EcalPhiSymRecHit(uint32_t id, std::vector<float>& etValues, unsigned int status = 0);
 
   //---dtor---
-  ~EcalPhiSymRecHit();
+  ~EcalPhiSymRecHit() = default;
 
   //---getters---
-  inline uint32_t GetRawId() const { return id_; };
-  inline unsigned int GetStatusCode() const { return chStatus_; };
-  inline uint32_t GetNhits() const { return nHits_; };
-  inline unsigned int GetNSumEt() const { return etSum_.size(); };
-  inline float GetSumEt(int i = 0) const { return etSum_[i]; };
-  inline float GetSumEt2() const { return et2Sum_; };
-  inline float GetLCSum() const { return lcSum_; };
-  inline float GetLC2Sum() const { return lc2Sum_; };
+  inline uint32_t rawId() const { return id_; };
+  inline unsigned int statusCode() const { return chStatus_; };
+  inline uint32_t nHits() const { return nHits_; };
+  inline unsigned int nSumEt() const { return etSum_.size(); };
+  inline float sumEt(int i = 0) const { return etSum_[i]; };
+  inline float sumEt2() const { return et2Sum_; };
+  inline float lcSum() const { return lcSum_; };
+  inline float lc2Sum() const { return lc2Sum_; };
 
   //---utils---
-  void AddHit(float* etValues, float laserCorr = 0);
-  void AddHit(std::vector<float>& etValues, float laserCorr = 0);
-  void Reset();
+  void addHit(const std::vector<float>& etValues, const float laserCorr = 0);
+  void reset();
 
   //---operators---
   EcalPhiSymRecHit& operator+=(const EcalPhiSymRecHit& rhs);

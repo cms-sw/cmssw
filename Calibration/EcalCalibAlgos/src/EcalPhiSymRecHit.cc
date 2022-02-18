@@ -16,26 +16,19 @@ EcalPhiSymRecHit::EcalPhiSymRecHit(uint32_t id, std::vector<float>& etValues, un
       lcSum_(0),
       lc2Sum_(0) {}
 
-//**********destructor********************************************************************
-EcalPhiSymRecHit::~EcalPhiSymRecHit() {}
-
 //**********utils*************************************************************************
-
-void EcalPhiSymRecHit::AddHit(float* etValues, float laserCorr) {
+void EcalPhiSymRecHit::addHit(const std::vector<float>& etValues, const float laserCorr) {
   if (etValues[0] > 0.) {
     ++nHits_;
-    etSum_[0] += etValues[0];
     et2Sum_ += etValues[0] * etValues[0];
     lcSum_ += laserCorr;
     lc2Sum_ += laserCorr * laserCorr;
   }
-  for (unsigned int i = 0; i < etSum_.size(); ++i)
+  for (unsigned int i = 0; i < std::min(etSum_.size(), etValues.size()); ++i)
     etSum_[i] += etValues[i];
 }
 
-void EcalPhiSymRecHit::AddHit(std::vector<float>& etValues, float laserCorr) { AddHit(etValues.data()); }
-
-void EcalPhiSymRecHit::Reset() {
+void EcalPhiSymRecHit::reset() {
   nHits_ = 0.;
   et2Sum_ = 0.;
   lcSum_ = 0.;
@@ -48,13 +41,13 @@ void EcalPhiSymRecHit::Reset() {
 EcalPhiSymRecHit& EcalPhiSymRecHit::operator+=(const EcalPhiSymRecHit& rhs) {
   // assume same id, do not check channel status
   assert("EcalPhiSymRecHit operator+= : attempting to sum RecHits belonging to different channels" &&
-         (id_ == rhs.GetRawId()));
-  nHits_ += rhs.GetNhits();
-  et2Sum_ += rhs.GetSumEt2();
-  lcSum_ += rhs.GetLCSum();
-  lc2Sum_ += rhs.GetLC2Sum();
+         (id_ == rhs.rawId()));
+  nHits_ += rhs.nHits();
+  et2Sum_ += rhs.sumEt2();
+  lcSum_ += rhs.lcSum();
+  lc2Sum_ += rhs.lc2Sum();
   for (unsigned int i = 0; i < etSum_.size(); ++i)
-    etSum_[i] += rhs.GetSumEt(i);
+    etSum_[i] += rhs.sumEt(i);
 
   return *this;
 }

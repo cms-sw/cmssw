@@ -1,7 +1,7 @@
-#ifndef ECAL_PHISYM_INFO_H
-#define ECAL_PHISYM_INFO_H
+#ifndef Calibration_EcalCalibAlgos_EcalPhiSymInfo_h
+#define Calibration_EcalCalibAlgos_EcalPhiSymInfo_h
 
-/** \class EcalPhiSymRecHit
+/** \class EcalPhiSymInfo
  * 
  * EcalPhiSym calibration lumi/run based information
  * 
@@ -14,7 +14,18 @@ class EcalPhiSymInfo {
 public:
   //---ctors---
   EcalPhiSymInfo()
-      : totHitsEB_(0), totHitsEE_(0), nEvents_(0), nLumis_(0), fillNumber_(0), delivLumi_(0), recLumi_(0) {}
+      : totHitsEB_(0),
+        totHitsEE_(0),
+        nEvents_(0),
+        nLumis_(0),
+        fillNumber_(0),
+        delivLumi_(0),
+        recLumi_(0),
+        nMis_(0),
+        minMisEB_(0),
+        maxMisEB_(0),
+        minMisEE_(0),
+        maxMisEE_(0) {}
 
   EcalPhiSymInfo(
       uint64_t hitsEB, uint64_t hitsEE, uint64_t nEvents, uint32_t nLumis, uint16_t fill, float delivLumi, float recLumi)
@@ -24,10 +35,25 @@ public:
         nLumis_(nLumis),
         fillNumber_(fill),
         delivLumi_(delivLumi),
-        recLumi_(recLumi) {}
+        recLumi_(recLumi),
+        nMis_(0),
+        minMisEB_(0),
+        maxMisEB_(0),
+        minMisEE_(0),
+        maxMisEE_(0) {}
 
   //---dtor---
-  ~EcalPhiSymInfo(){};
+  ~EcalPhiSymInfo() = default;
+
+  //---setters---
+  inline void setMiscalibInfo(
+      const int& nmis, const float& minEB, const float& maxEB, const float& minEE, const float& maxEE) {
+    nMis_ = nmis;
+    minMisEB_ = minEB;
+    maxMisEB_ = maxEB;
+    minMisEE_ = minEE;
+    maxMisEE_ = maxEE;
+  };
 
   //---getters---
   inline uint64_t totHits() const { return totHitsEB_ + totHitsEE_; };
@@ -38,6 +64,11 @@ public:
   inline uint16_t fillNumber() const { return fillNumber_; };
   inline float delivLumi() const { return delivLumi_; };
   inline float recLumi() const { return recLumi_; };
+  inline uint8_t nMis() const { return nMis_; };
+  inline float minMisEB() const { return minMisEB_; };
+  inline float maxMisEB() const { return maxMisEB_; };
+  inline float minMisEE() const { return minMisEE_; };
+  inline float maxMisEE() const { return maxMisEE_; };
 
   //---operators---
   EcalPhiSymInfo& operator+=(const EcalPhiSymInfo& rhs) {
@@ -67,6 +98,11 @@ private:
   uint16_t fillNumber_;
   float delivLumi_;
   float recLumi_;
+  uint8_t nMis_;
+  float minMisEB_;
+  float maxMisEB_;
+  float minMisEE_;
+  float maxMisEE_;
 };
 
 #endif

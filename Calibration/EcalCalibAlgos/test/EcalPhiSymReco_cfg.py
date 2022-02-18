@@ -38,11 +38,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryExtended2018Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2018Reco_cff')
 
-from CondCore.CondDB.CondDB_cfi import *
-process.GlobalTag = cms.ESSource("PoolDBESSource",
-                                 connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                                 globaltag = cms.string('123X_dataRun2_v1')
-)
+# use auto:run2_data to be able to test on run2 data for the time being.
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 # Source data
 # skip bad events
