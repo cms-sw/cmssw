@@ -288,8 +288,29 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
             GlobalPoint(param[0], param[1], param[2]), GlobalVector(param[3], param[4], param[5]), state.charge, &mf),
         CurvilinearTrajectoryError(cov));
     if (!fts.curvilinearError().posDef()) {
-      edm::LogInfo("MkFitOutputConverter") << "Curvilinear error not pos-def\n"
-                                           << fts.curvilinearError().matrix() << "\ncandidate ignored";
+      edm::LogInfo("MkFitOutputConverter")
+          << "Curvilinear error not pos-def\n"
+          << fts.curvilinearError().matrix() << "\ncandidate " << candIndex << "ignored";
+      continue;
+    }
+
+    //Sylvester's rule, start from the smaller submatrix size
+    double det = 0;
+    if ((!fts.curvilinearError().matrix().Sub<AlgebraicSymMatrix22>(0, 0).Det(det)) || det < 0) {
+      edm::LogInfo("MkFitOutputConverter")
+          << "Fail pos-def check sub2.det for candidate " << candIndex << " with fts " << fts;
+      continue;
+    } else if ((!fts.curvilinearError().matrix().Sub<AlgebraicSymMatrix33>(0, 0).Det(det)) || det < 0) {
+      edm::LogInfo("MkFitOutputConverter")
+          << "Fail pos-def check sub3.det for candidate " << candIndex << " with fts " << fts;
+      continue;
+    } else if ((!fts.curvilinearError().matrix().Sub<AlgebraicSymMatrix44>(0, 0).Det(det)) || det < 0) {
+      edm::LogInfo("MkFitOutputConverter")
+          << "Fail pos-def check sub4.det for candidate " << candIndex << " with fts " << fts;
+      continue;
+    } else if ((!fts.curvilinearError().matrix().Det2(det)) || det < 0) {
+      edm::LogInfo("MkFitOutputConverter")
+          << "Fail pos-def check det for candidate " << candIndex << " with fts " << fts;
       continue;
     }
 
