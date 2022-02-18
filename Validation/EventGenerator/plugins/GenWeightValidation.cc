@@ -6,68 +6,68 @@
 using namespace edm;
 
 GenWeightValidation::GenWeightValidation(const edm::ParameterSet& iPSet) : wmanager_(iPSet, consumesCollector()) {
-  genParticleToken = consumes<reco::GenParticleCollection>(iPSet.getParameter<edm::InputTag>("genParticles"));
-  genJetToken = consumes<reco::GenJetCollection>(iPSet.getParameter<edm::InputTag>("genJets"));
-  idxGenEvtInfo = iPSet.getParameter<int>("whichGenEventInfo");
-  idxFSRup = iPSet.getParameter<int>("idxFSRup");
-  idxFSRdown = iPSet.getParameter<int>("idxFSRdown");
-  idxISRup = iPSet.getParameter<int>("idxISRup");
-  idxISRdown = iPSet.getParameter<int>("idxISRdown");
-  leadLepPtRange = iPSet.getParameter<double>("leadLepPtRange");
-  leadLepPtNbin = iPSet.getParameter<int>("leadLepPtNbin");
-  leadLepPtCut = iPSet.getParameter<double>("leadLepPtCut");
-  lepEtaCut = iPSet.getParameter<double>("lepEtaCut");
-  rapidityRange = iPSet.getParameter<double>("rapidityRange");
-  rapidityNbin = iPSet.getParameter<int>("rapidityNbin");
-  jetPtCut = iPSet.getParameter<double>("jetPtCut");
-  jetEtaCut = iPSet.getParameter<double>("jetEtaCut");
-  nJetsNbin = iPSet.getParameter<int>("nJetsNbin");
-  jetPtRange = iPSet.getParameter<double>("jetPtRange");
-  jetPtNbin = iPSet.getParameter<int>("jetPtNbin");
+  genParticleToken_ = consumes<reco::GenParticleCollection>(iPSet.getParameter<edm::InputTag>("genParticles"));
+  genJetToken_ = consumes<reco::GenJetCollection>(iPSet.getParameter<edm::InputTag>("genJets"));
+  idxGenEvtInfo_ = iPSet.getParameter<int>("whichGenEventInfo");
+  idxFSRup_ = iPSet.getParameter<int>("idxFSRup");
+  idxFSRdown_ = iPSet.getParameter<int>("idxFSRdown");
+  idxISRup_ = iPSet.getParameter<int>("idxISRup");
+  idxISRdown_ = iPSet.getParameter<int>("idxISRdown");
+  leadLepPtRange_ = iPSet.getParameter<double>("leadLepPtRange");
+  leadLepPtNbin_ = iPSet.getParameter<int>("leadLepPtNbin");
+  leadLepPtCut_ = iPSet.getParameter<double>("leadLepPtCut");
+  lepEtaCut_ = iPSet.getParameter<double>("lepEtaCut");
+  rapidityRange_ = iPSet.getParameter<double>("rapidityRange");
+  rapidityNbin_ = iPSet.getParameter<int>("rapidityNbin");
+  jetPtCut_ = iPSet.getParameter<double>("jetPtCut");
+  jetEtaCut_ = iPSet.getParameter<double>("jetEtaCut");
+  nJetsNbin_ = iPSet.getParameter<int>("nJetsNbin");
+  jetPtRange_ = iPSet.getParameter<double>("jetPtRange");
+  jetPtNbin_ = iPSet.getParameter<int>("jetPtNbin");
 
-  std::vector<int> idxs = {idxFSRup, idxFSRdown, idxISRup, idxISRdown};
+  std::vector<int> idxs = {idxFSRup_, idxFSRdown_, idxISRup_, idxISRdown_};
   std::sort(idxs.begin(), idxs.end(), std::greater<int>());
-  idxMax = idxs.at(0);
+  idxMax_ = idxs.at(0);
 }
 
 GenWeightValidation::~GenWeightValidation() {}
 
-void GenWeightValidation::bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) {
+void GenWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run const&, edm::EventSetup const&) {
   ///Setting the DQM top directories
   std::string folderName = "Generator/GenWeight";
-  dqm = new DQMHelper(&i);
-  i.setCurrentFolder(folderName);
+  dqm_ = new DQMHelper(&iBook);
+  iBook.setCurrentFolder(folderName);
 
   // Number of analyzed events
-  nEvt = dqm->book1dHisto("nEvt", "n analyzed Events", 1, 0., 1., "bin", "Number of Events");
-  nlogWgt = dqm->book1dHisto("nlogWgt", "Log10(n weights)", 100, 0., 3., "log_{10}(nWgts)", "Number of Events");
-  wgtVal = dqm->book1dHisto("wgtVal", "weights", 100, -1.5, 3., "weight", "Number of Weights");
-  bookTemplates(leadLepPtTemp,
+  nEvt_ = dqm_->book1dHisto("nEvt", "n analyzed Events", 1, 0., 1., "bin", "Number of Events");
+  nlogWgt_ = dqm_->book1dHisto("nlogWgt", "Log10(n weights)", 100, 0., 3., "log_{10}(nWgts)", "Number of Events");
+  wgtVal_ = dqm_->book1dHisto("wgtVal", "weights", 100, -1.5, 3., "weight", "Number of Weights");
+  bookTemplates(leadLepPtTemp_,
                 "leadLepPt",
                 "leading lepton Pt",
-                leadLepPtNbin,
+                leadLepPtNbin_,
                 0.,
-                leadLepPtRange,
+                leadLepPtRange_,
                 "Pt_{l} (GeV)",
                 "Number of Events");
-  bookTemplates(leadLepEtaTemp,
+  bookTemplates(leadLepEtaTemp_,
                 "leadLepEta",
                 "leading lepton #eta",
-                rapidityNbin,
-                -rapidityRange,
-                rapidityRange,
+                rapidityNbin_,
+                -rapidityRange_,
+                rapidityRange_,
                 "#eta_{l}",
                 "Number of Events");
   bookTemplates(
-      jetMultTemp, "JetMultiplicity", "Gen jet multiplicity", nJetsNbin, 0, nJetsNbin, "n", "Number of Events");
+      jetMultTemp_, "JetMultiplicity", "Gen jet multiplicity", nJetsNbin_, 0, nJetsNbin_, "n", "Number of Events");
   bookTemplates(
-      leadJetPtTemp, "leadJetPt", "leading Gen jet Pt", jetPtNbin, 0., jetPtRange, "Pt_{j} (GeV)", "Number of Events");
-  bookTemplates(leadJetEtaTemp,
+      leadJetPtTemp_, "leadJetPt", "leading Gen jet Pt", jetPtNbin_, 0., jetPtRange_, "Pt_{j} (GeV)", "Number of Events");
+  bookTemplates(leadJetEtaTemp_,
                 "leadJetEta",
                 "leading Gen jet #eta",
-                rapidityNbin,
-                -rapidityRange,
-                rapidityRange,
+                rapidityNbin_,
+                -rapidityRange_,
+                rapidityRange_,
                 "#eta_{j}",
                 "Number of Events");
 
@@ -82,54 +82,54 @@ void GenWeightValidation::bookTemplates(std::vector<MonitorElement*>& tmps,
                                         float high,
                                         std::string xtitle,
                                         std::string ytitle) {
-  tmps.push_back(dqm->book1dHisto(name, title, nbin, low, high, xtitle, ytitle));
-  tmps.push_back(dqm->book1dHisto(name + "FSRup", title + " FSR up", nbin, low, high, xtitle, ytitle));
-  tmps.push_back(dqm->book1dHisto(name + "FSRdn", title + " FSR down", nbin, low, high, xtitle, ytitle));
-  tmps.push_back(dqm->book1dHisto(
+  tmps.push_back(dqm_->book1dHisto(name, title, nbin, low, high, xtitle, ytitle));
+  tmps.push_back(dqm_->book1dHisto(name + "FSRup", title + " FSR up", nbin, low, high, xtitle, ytitle));
+  tmps.push_back(dqm_->book1dHisto(name + "FSRdn", title + " FSR down", nbin, low, high, xtitle, ytitle));
+  tmps.push_back(dqm_->book1dHisto(
       name + "FSRup_ratio", "Ratio of " + title + " FSR up / Nominal", nbin, low, high, xtitle, ytitle));
   tmps.at(3)->setEfficiencyFlag();
-  tmps.push_back(dqm->book1dHisto(
+  tmps.push_back(dqm_->book1dHisto(
       name + "FSRdn_ratio", "Ratio of " + title + " FSR down / Nominal", nbin, low, high, xtitle, ytitle));
   tmps.at(4)->setEfficiencyFlag();
-  tmps.push_back(dqm->book1dHisto(name + "ISRup", title + " ISR up", nbin, low, high, xtitle, ytitle));
-  tmps.push_back(dqm->book1dHisto(name + "ISRdn", title + " ISR down", nbin, low, high, xtitle, ytitle));
-  tmps.push_back(dqm->book1dHisto(
+  tmps.push_back(dqm_->book1dHisto(name + "ISRup", title + " ISR up", nbin, low, high, xtitle, ytitle));
+  tmps.push_back(dqm_->book1dHisto(name + "ISRdn", title + " ISR down", nbin, low, high, xtitle, ytitle));
+  tmps.push_back(dqm_->book1dHisto(
       name + "ISRup_ratio", "Ratio of " + title + " ISR up / Nominal", nbin, low, high, xtitle, ytitle));
   tmps.at(7)->setEfficiencyFlag();
-  tmps.push_back(dqm->book1dHisto(
+  tmps.push_back(dqm_->book1dHisto(
       name + "ISRdn_ratio", "Ratio of " + title + " ISR down / Nominal", nbin, low, high, xtitle, ytitle));
   tmps.at(8)->setEfficiencyFlag();
 }  // to get ratio plots correctly - need to modify PostProcessor_cff.py as well!
 
-void GenWeightValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
+void GenWeightValidation::dqmBeginRun(const edm::Run&, const edm::EventSetup&) {}
 
 void GenWeightValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  weights = wmanager_.weightsCollection(iEvent);
+  weights_ = wmanager_.weightsCollection(iEvent);
 
-  if (weights.at(idxGenEvtInfo).empty())
+  if (weights_.at(idxGenEvtInfo_).empty())
     return;  // no weights in GenEventInfo
 
-  weight = weights.at(idxGenEvtInfo)[0]/std::abs(weights.at(idxGenEvtInfo)[0]);
-  nEvt->Fill(0.5, weight);
-  nlogWgt->Fill(std::log10(weights.at(idxGenEvtInfo).size()), weight);
+  weight_ = weights_.at(idxGenEvtInfo_)[0]/std::abs(weights_.at(idxGenEvtInfo_)[0]);
+  nEvt_->Fill(0.5, weight_);
+  nlogWgt_->Fill(std::log10(weights_.at(idxGenEvtInfo_).size()), weight_);
 
-  for (unsigned idx = 0; idx < weights.at(idxGenEvtInfo).size(); idx++)
-    wgtVal->Fill(weights.at(idxGenEvtInfo)[idx] / weights.at(idxGenEvtInfo)[1], weight);
+  for (unsigned idx = 0; idx < weights_.at(idxGenEvtInfo_).size(); idx++)
+    wgtVal_->Fill(weights_.at(idxGenEvtInfo_)[idx] / weights_.at(idxGenEvtInfo_)[1], weight_);
 
-  if ((int)weights.at(idxGenEvtInfo).size() <= idxMax)
+  if ((int)weights_.at(idxGenEvtInfo_).size() <= idxMax_)
     return;  // no PS weights in GenEventInfo
 
   edm::Handle<reco::GenParticleCollection> ptcls;
-  iEvent.getByToken(genParticleToken, ptcls);
+  iEvent.getByToken(genParticleToken_, ptcls);
   edm::Handle<reco::GenJetCollection> genjets;
-  iEvent.getByToken(genJetToken, genjets);
+  iEvent.getByToken(genJetToken_, genjets);
 
   std::vector<reco::GenParticleRef> leptons;
 
   for (unsigned iptc = 0; iptc < ptcls->size(); iptc++) {
     reco::GenParticleRef ptc(ptcls, iptc);
     if (ptc->status() == 1 && (std::abs(ptc->pdgId()) == 11 || std::abs(ptc->pdgId()) == 13)) {
-      if (ptc->pt() > leadLepPtCut && std::abs(ptc->eta()) < lepEtaCut)
+      if (ptc->pt() > leadLepPtCut_ && std::abs(ptc->eta()) < lepEtaCut_)
         leptons.push_back(ptc);
     }
   }
@@ -138,8 +138,8 @@ void GenWeightValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   if (!leptons.empty()) {
     reco::GenParticleRef leadLep = leptons.at(0);
-    fillTemplates(leadLepPtTemp, leadLep->pt());
-    fillTemplates(leadLepEtaTemp, leadLep->eta());
+    fillTemplates(leadLepPtTemp_, leadLep->pt());
+    fillTemplates(leadLepEtaTemp_, leadLep->eta());
   }
 
   std::vector<reco::GenJetRef> genjetVec;
@@ -147,25 +147,25 @@ void GenWeightValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   for (unsigned igj = 0; igj < genjets->size(); igj++) {
     reco::GenJetRef genjet(genjets, igj);
 
-    if (genjet->pt() > jetPtCut && std::abs(genjet->eta()) < jetEtaCut)
+    if (genjet->pt() > jetPtCut_ && std::abs(genjet->eta()) < jetEtaCut_)
       genjetVec.push_back(genjet);
   }
 
-  fillTemplates(jetMultTemp, (float)genjetVec.size());
+  fillTemplates(jetMultTemp_, (float)genjetVec.size());
 
   if (!genjetVec.empty()) {
     std::sort(genjetVec.begin(), genjetVec.end(), HepMCValidationHelper::sortByPtRef<reco::GenJetRef>);
 
     auto leadJet = genjetVec.at(0);
-    fillTemplates(leadJetPtTemp, leadJet->pt());
-    fillTemplates(leadJetEtaTemp, leadJet->eta());
+    fillTemplates(leadJetPtTemp_, leadJet->pt());
+    fillTemplates(leadJetEtaTemp_, leadJet->eta());
   }
 }  //analyze
 
 void GenWeightValidation::fillTemplates(std::vector<MonitorElement*>& tmps, float obs) {
-  tmps.at(0)->Fill(obs, weight);
-  tmps.at(1)->Fill(obs, weights.at(idxGenEvtInfo)[idxFSRup] / weights.at(idxGenEvtInfo)[1]);
-  tmps.at(2)->Fill(obs, weights.at(idxGenEvtInfo)[idxFSRdown] / weights.at(idxGenEvtInfo)[1]);
-  tmps.at(5)->Fill(obs, weights.at(idxGenEvtInfo)[idxISRup] / weights.at(idxGenEvtInfo)[1]);
-  tmps.at(6)->Fill(obs, weights.at(idxGenEvtInfo)[idxISRdown] / weights.at(idxGenEvtInfo)[1]);
+  tmps.at(0)->Fill(obs, weight_);
+  tmps.at(1)->Fill(obs, weights_.at(idxGenEvtInfo_)[idxFSRup_] / weights_.at(idxGenEvtInfo_)[1]);
+  tmps.at(2)->Fill(obs, weights_.at(idxGenEvtInfo_)[idxFSRdown_] / weights_.at(idxGenEvtInfo_)[1]);
+  tmps.at(5)->Fill(obs, weights_.at(idxGenEvtInfo_)[idxISRup_] / weights_.at(idxGenEvtInfo_)[1]);
+  tmps.at(6)->Fill(obs, weights_.at(idxGenEvtInfo_)[idxISRdown_] / weights_.at(idxGenEvtInfo_)[1]);
 }

@@ -31,8 +31,8 @@ public:
   explicit GenWeightValidation(const edm::ParameterSet &);
   ~GenWeightValidation() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
 
 private:
   void bookTemplates(std::vector<MonitorElement *> &tmps,
@@ -45,28 +45,28 @@ private:
                      std::string ytitle);
   void fillTemplates(std::vector<MonitorElement *> &tmps, float obs);
   WeightManager wmanager_;
-  DQMHelper *dqm;
+  DQMHelper *dqm_;
 
-  double weight;
-  std::vector<std::vector<double>> weights;
+  double weight_;
+  std::vector<std::vector<double>> weights_;
 
-  MonitorElement *nEvt;
-  MonitorElement *nlogWgt;
-  MonitorElement *wgtVal;
-  std::vector<MonitorElement *> leadLepPtTemp;
-  std::vector<MonitorElement *> leadLepEtaTemp;
-  std::vector<MonitorElement *> jetMultTemp;
-  std::vector<MonitorElement *> leadJetPtTemp;
-  std::vector<MonitorElement *> leadJetEtaTemp;
+  MonitorElement *nEvt_;
+  MonitorElement *nlogWgt_;
+  MonitorElement *wgtVal_;
+  std::vector<MonitorElement *> leadLepPtTemp_;
+  std::vector<MonitorElement *> leadLepEtaTemp_;
+  std::vector<MonitorElement *> jetMultTemp_;
+  std::vector<MonitorElement *> leadJetPtTemp_;
+  std::vector<MonitorElement *> leadJetEtaTemp_;
 
-  edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken;
-  edm::EDGetTokenT<reco::GenJetCollection> genJetToken;
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
+  edm::EDGetTokenT<reco::GenJetCollection> genJetToken_;
 
-  int idxGenEvtInfo, idxFSRup, idxFSRdown, idxISRup, idxISRdown, leadLepPtNbin, rapidityNbin;
-  int idxMax;
-  double leadLepPtRange, leadLepPtCut, lepEtaCut, rapidityRange;
-  int nJetsNbin, jetPtNbin;
-  double jetPtCut, jetEtaCut, jetPtRange;
+  int idxGenEvtInfo_, idxFSRup_, idxFSRdown_, idxISRup_, idxISRdown_, leadLepPtNbin_, rapidityNbin_;
+  int idxMax_;
+  double leadLepPtRange_, leadLepPtCut_, lepEtaCut_, rapidityRange_;
+  int nJetsNbin_, jetPtNbin_;
+  double jetPtCut_, jetEtaCut_, jetPtRange_;
 };
 
 #endif

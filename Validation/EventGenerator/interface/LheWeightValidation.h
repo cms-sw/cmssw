@@ -35,9 +35,9 @@ public:
   explicit LheWeightValidation(const edm::ParameterSet&);
   ~LheWeightValidation() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
-  void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void dqmEndRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   void bookTemplates(std::vector<std::unique_ptr<TH1F>>& scaleVar,
@@ -58,45 +58,45 @@ private:
 
   void envelop(const std::vector<std::unique_ptr<TH1F>>& var, std::vector<MonitorElement*>& tmps);
   void pdfRMS(const std::vector<std::unique_ptr<TH1F>>& var, std::vector<MonitorElement*>& tmps);
-  DQMHelper* dqm;
+  DQMHelper* dqm_;
 
-  double weight, orgWgt;
-  std::vector<LHEEventProduct::WGT> weights;
+  double weight_, orgWgt_;
+  std::vector<LHEEventProduct::WGT> weights_;
 
-  MonitorElement* nEvt;
-  MonitorElement* nlogWgt;
-  MonitorElement* wgtVal;
-  std::vector<MonitorElement*> leadLepPtTemp;
-  std::vector<MonitorElement*> leadLepEtaTemp;
-  std::vector<MonitorElement*> jetMultTemp;
-  std::vector<MonitorElement*> leadJetPtTemp;
-  std::vector<MonitorElement*> leadJetEtaTemp;
+  MonitorElement* nEvt_;
+  MonitorElement* nlogWgt_;
+  MonitorElement* wgtVal_;
+  std::vector<MonitorElement*> leadLepPtTemp_;
+  std::vector<MonitorElement*> leadLepEtaTemp_;
+  std::vector<MonitorElement*> jetMultTemp_;
+  std::vector<MonitorElement*> leadJetPtTemp_;
+  std::vector<MonitorElement*> leadJetEtaTemp_;
 
-  std::vector<std::unique_ptr<TH1F>> leadLepPtScaleVar;
-  std::vector<std::unique_ptr<TH1F>> leadLepPtPdfVar;
-  std::vector<std::unique_ptr<TH1F>> leadLepEtaScaleVar;
-  std::vector<std::unique_ptr<TH1F>> leadLepEtaPdfVar;
-  std::vector<std::unique_ptr<TH1F>> jetMultScaleVar;
-  std::vector<std::unique_ptr<TH1F>> jetMultPdfVar;
-  std::vector<std::unique_ptr<TH1F>> leadJetPtScaleVar;
-  std::vector<std::unique_ptr<TH1F>> leadJetPtPdfVar;
-  std::vector<std::unique_ptr<TH1F>> leadJetEtaScaleVar;
-  std::vector<std::unique_ptr<TH1F>> leadJetEtaPdfVar;
+  std::vector<std::unique_ptr<TH1F>> leadLepPtScaleVar_;
+  std::vector<std::unique_ptr<TH1F>> leadLepPtPdfVar_;
+  std::vector<std::unique_ptr<TH1F>> leadLepEtaScaleVar_;
+  std::vector<std::unique_ptr<TH1F>> leadLepEtaPdfVar_;
+  std::vector<std::unique_ptr<TH1F>> jetMultScaleVar_;
+  std::vector<std::unique_ptr<TH1F>> jetMultPdfVar_;
+  std::vector<std::unique_ptr<TH1F>> leadJetPtScaleVar_;
+  std::vector<std::unique_ptr<TH1F>> leadJetPtPdfVar_;
+  std::vector<std::unique_ptr<TH1F>> leadJetEtaScaleVar_;
+  std::vector<std::unique_ptr<TH1F>> leadJetEtaPdfVar_;
 
   edm::InputTag lheLabel_;
-  edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken;
-  edm::EDGetTokenT<LHEEventProduct> lheEvtToken;
-  edm::EDGetTokenT<LHERunInfoProduct> lheRunToken;
-  edm::EDGetTokenT<reco::GenJetCollection> genJetToken;
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
+  edm::EDGetTokenT<LHEEventProduct> lheEvtToken_;
+  edm::EDGetTokenT<LHERunInfoProduct> lheRunToken_;
+  edm::EDGetTokenT<reco::GenJetCollection> genJetToken_;
 
-  bool dumpLHEheader;
-  int leadLepPtNbin, rapidityNbin;
-  double leadLepPtRange, leadLepPtCut, lepEtaCut, rapidityRange;
-  int nJetsNbin, jetPtNbin;
-  double jetPtCut, jetEtaCut, jetPtRange;
+  bool dumpLHEheader_;
+  int leadLepPtNbin_, rapidityNbin_;
+  double leadLepPtRange_, leadLepPtCut_, lepEtaCut_, rapidityRange_;
+  int nJetsNbin_, jetPtNbin_;
+  double jetPtCut_, jetEtaCut_, jetPtRange_;
 
-  int nScaleVar;  // including Nominal
-  int idxPdfStart, idxPdfEnd, nPdfVar;
+  int nScaleVar_;  // including Nominal
+  int idxPdfStart_, idxPdfEnd_, nPdfVar_;
 };
 
 #endif
