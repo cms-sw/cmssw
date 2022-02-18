@@ -10,7 +10,7 @@ def fwConfig(process):
   process.TrackTriggerSetup.Firmware.FreqBE = 240
   process.TTTracksFromTrackletEmulation.RemovalType = ""
   process.TTTracksFromTrackletEmulation.DoMultipleMatches = False
-  process.TTTracksFromTrackletEmulation.EmulateTB = True
+  process.TTTracksFromTrackletEmulation.StoreTrackBuilderOutput = True
   process.ChannelAssignment.UseDuplicateRemoval = False
 
 # configures track finding s/w to behave as a subchain of processing steps
