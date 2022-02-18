@@ -183,6 +183,12 @@ float const LHCInfo::crossingAngle() const { return LHCInfoImpl::getOneParam(m_f
 
 float const LHCInfo::betaStar() const { return LHCInfoImpl::getOneParam(m_floatParams, BETA_STAR); }
 
+float const LHCInfo::xingAngleP5X() const { return LHCInfoImpl::getOneParam(m_floatParams, XING_ANGLE_P5_X); }
+float const LHCInfo::xingAngleP5Y() const { return LHCInfoImpl::getOneParam(m_floatParams, XING_ANGLE_P5_Y); }
+
+float const LHCInfo::betaStarP5X() const { return LHCInfoImpl::getOneParam(m_floatParams, BETA_STAR_P5_X); }
+float const LHCInfo::betaStarP5Y() const { return LHCInfoImpl::getOneParam(m_floatParams, BETA_STAR_P5_Y); }
+
 float const LHCInfo::intensityForBeam1() const { return LHCInfoImpl::getOneParam(m_floatParams, INTENSITY_1); }
 
 float const LHCInfo::intensityForBeam2() const { return LHCInfoImpl::getOneParam(m_floatParams, INTENSITY_2); }
@@ -298,6 +304,16 @@ void LHCInfo::setParticleTypeForBeam2(LHCInfo::ParticleTypeId const& particleTyp
 void LHCInfo::setCrossingAngle(float const& angle) { LHCInfoImpl::setOneParam(m_floatParams, CROSSING_ANGLE, angle); }
 
 void LHCInfo::setBetaStar(float const& betaStar) { LHCInfoImpl::setOneParam(m_floatParams, BETA_STAR, betaStar); }
+
+void LHCInfo::setXingAngleP5X(float const& angle) { LHCInfoImpl::setOneParam(m_floatParams, XING_ANGLE_P5_X, angle); }
+void LHCInfo::setXingAngleP5Y(float const& angle) { LHCInfoImpl::setOneParam(m_floatParams, XING_ANGLE_P5_Y, angle); }
+
+void LHCInfo::setBetaStarP5X(float const& betaStar) {
+  LHCInfoImpl::setOneParam(m_floatParams, BETA_STAR_P5_X, betaStar);
+}
+void LHCInfo::setBetaStarP5Y(float const& betaStar) {
+  LHCInfoImpl::setOneParam(m_floatParams, BETA_STAR_P5_Y, betaStar);
+}
 
 void LHCInfo::setIntensityForBeam1(float const& intensity) {
   LHCInfoImpl::setOneParam(m_floatParams, INTENSITY_1, intensity);

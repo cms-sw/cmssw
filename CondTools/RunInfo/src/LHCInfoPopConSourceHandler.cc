@@ -3,6 +3,7 @@
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
 #include "CondTools/RunInfo/interface/LHCInfoPopConSourceHandler.h"
+#include "CondTools/RunInfo/interface/OMSAccess.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/IQuery.h"
@@ -18,6 +19,48 @@
 #include <vector>
 #include <cmath>
 
+namespace cond {
+  static const std::pair<const char*, LHCInfo::FillType> s_fillTypeMap[] = {std::make_pair("PROTONS", LHCInfo::PROTONS),
+                                                                            std::make_pair("IONS", LHCInfo::IONS),
+                                                                            std::make_pair("COSMICS", LHCInfo::COSMICS),
+                                                                            std::make_pair("GAP", LHCInfo::GAP)};
+
+  static const std::pair<const char*, LHCInfo::ParticleType> s_particleTypeMap[] = {
+      std::make_pair("PROTON", LHCInfo::PROTON),
+      std::make_pair("PB82", LHCInfo::PB82),
+      std::make_pair("AR18", LHCInfo::AR18),
+      std::make_pair("D", LHCInfo::D),
+      std::make_pair("XE54", LHCInfo::XE54)};
+
+  LHCInfo::FillType fillTypeFromString(const std::string& s_fill_type) {
+    for (auto const& i : s_fillTypeMap)
+      if (s_fill_type == i.first)
+        return i.second;
+    return LHCInfo::UNKNOWN;
+  }
+
+  LHCInfo::ParticleType particleTypeFromString(const std::string& s_particle_type) {
+    for (auto const& i : s_particleTypeMap)
+      if (s_particle_type == i.first)
+        return i.second;
+    return LHCInfo::NONE;
+  }
+
+  namespace impl {
+
+    template <>
+    LHCInfo::FillType from_string(const std::string& attributeValue) {
+      return from_string_impl<LHCInfo::FillType, &fillTypeFromString>(attributeValue, LHCInfo::UNKNOWN);
+    }
+
+    template <>
+    LHCInfo::ParticleType from_string(const std::string& attributeValue) {
+      return from_string_impl<LHCInfo::ParticleType, &particleTypeFromString>(attributeValue, LHCInfo::NONE);
+    }
+
+  }  // namespace impl
+}  // namespace cond
+
 LHCInfoPopConSourceHandler::LHCInfoPopConSourceHandler(edm::ParameterSet const& pset)
     : m_debug(pset.getUntrackedParameter<bool>("debug", false)),
       m_startTime(),
@@ -29,6 +72,7 @@ LHCInfoPopConSourceHandler::LHCInfoPopConSourceHandler(edm::ParameterSet const& 
       m_ecalConnectionString(pset.getUntrackedParameter<std::string>("ecalConnectionString", "")),
       m_dipSchema(pset.getUntrackedParameter<std::string>("DIPSchema", "")),
       m_authpath(pset.getUntrackedParameter<std::string>("authenticationPath", "")),
+      m_omsBaseUrl(pset.getUntrackedParameter<std::string>("omsBaseUrl", "")),
       m_fillPayload(),
       m_prevPayload(),
       m_tmpBuffer() {
@@ -64,151 +108,25 @@ namespace LHCInfoImpl {
     return (p != container.begin()) ? p - 1 : container.end();
   }
 
-  bool makeFillDataQuery(cond::persistency::Session& session,
-                         const std::string& conditionString,
-                         const coral::AttributeList& fillDataBindVariables,
-                         std::unique_ptr<LHCInfo>& targetPayload,
-                         bool debug) {
-    coral::ISchema& runTimeLoggerSchema = session.nominalSchema();
-    //prepare the query for table 1:
-    std::unique_ptr<coral::IQuery> fillDataQuery(runTimeLoggerSchema.newQuery());
-    //FROM clause
-    fillDataQuery->addToTableList(std::string("RUNTIME_SUMMARY"));
-    //SELECT clause
-    fillDataQuery->addToOutputList(std::string("LHCFILL"));
-    fillDataQuery->addToOutputList(std::string("NBUNCHESBEAM1"));
-    fillDataQuery->addToOutputList(std::string("NBUNCHESBEAM2"));
-    fillDataQuery->addToOutputList(std::string("NCOLLIDINGBUNCHES"));
-    fillDataQuery->addToOutputList(std::string("NTARGETBUNCHES"));
-    fillDataQuery->addToOutputList(std::string("RUNTIME_TYPE_ID"));
-    fillDataQuery->addToOutputList(std::string("PARTY1"));
-    fillDataQuery->addToOutputList(std::string("PARTY2"));
-    fillDataQuery->addToOutputList(std::string("INTENSITYBEAM1"));
-    fillDataQuery->addToOutputList(std::string("INTENSITYBEAM2"));
-    fillDataQuery->addToOutputList(std::string("ENERGY"));
-    fillDataQuery->addToOutputList(std::string("CREATETIME"));
-    fillDataQuery->addToOutputList(std::string("BEGINTIME"));
-    fillDataQuery->addToOutputList(std::string("ENDTIME"));
-    fillDataQuery->addToOutputList(std::string("INJECTIONSCHEME"));
-    //WHERE clause
-    fillDataQuery->setCondition(conditionString, fillDataBindVariables);
-    //ORDER BY clause
-    std::string orderStr("BEGINTIME");
-    //define query output
-    coral::AttributeList fillDataOutput;
-    fillDataOutput.extend<unsigned short>(std::string("LHCFILL"));
-    fillDataOutput.extend<unsigned short>(std::string("NBUNCHESBEAM1"));
-    fillDataOutput.extend<unsigned short>(std::string("NBUNCHESBEAM2"));
-    fillDataOutput.extend<unsigned short>(std::string("NCOLLIDINGBUNCHES"));
-    fillDataOutput.extend<unsigned short>(std::string("NTARGETBUNCHES"));
-    fillDataOutput.extend<int>(std::string("RUNTIME_TYPE_ID"));
-    fillDataOutput.extend<int>(std::string("PARTY1"));
-    fillDataOutput.extend<int>(std::string("PARTY2"));
-    fillDataOutput.extend<float>(std::string("INTENSITYBEAM1"));
-    fillDataOutput.extend<float>(std::string("INTENSITYBEAM2"));
-    fillDataOutput.extend<float>(std::string("ENERGY"));
-    fillDataOutput.extend<coral::TimeStamp>(std::string("CREATETIME"));
-    fillDataOutput.extend<coral::TimeStamp>(std::string("BEGINTIME"));
-    fillDataOutput.extend<coral::TimeStamp>(std::string("ENDTIME"));
-    fillDataOutput.extend<std::string>(std::string("INJECTIONSCHEME"));
-    fillDataQuery->defineOutput(fillDataOutput);
-    fillDataQuery->limitReturnedRows(1);
-    //execute the query
-    coral::ICursor& fillDataCursor = fillDataQuery->execute();
-    //
-    unsigned short currentFill = 0;
-    unsigned short bunches1 = 0, bunches2 = 0, collidingBunches = 0, targetBunches = 0;
-    LHCInfo::FillTypeId fillType = LHCInfo::UNKNOWN;
-    LHCInfo::ParticleTypeId particleType1 = LHCInfo::NONE, particleType2 = LHCInfo::NONE;
-    float intensityBeam1 = 0., intensityBeam2 = 0., energy = 0.;
-    coral::TimeStamp stableBeamStartTimeStamp, beamDumpTimeStamp;
-    cond::Time_t creationTime = 0ULL, stableBeamStartTime = 0ULL, beamDumpTime = 0ULL;
-    std::string injectionScheme("None");
-    std::ostringstream ss;
+  bool makeFillPayload(std::unique_ptr<LHCInfo>& targetPayload, const cond::OMSServiceResult& queryResult) {
     bool ret = false;
-    if (fillDataCursor.next()) {
-      ret = true;
-      if (debug) {
-        std::ostringstream qs;
-        fillDataCursor.currentRow().toOutputStream(qs);
-      }
-      coral::Attribute const& fillAttribute = fillDataCursor.currentRow()[std::string("LHCFILL")];
-      if (!fillAttribute.isNull()) {
-        currentFill = fillAttribute.data<unsigned short>();
-      }
-      coral::Attribute const& bunches1Attribute = fillDataCursor.currentRow()[std::string("NBUNCHESBEAM1")];
-      if (!bunches1Attribute.isNull()) {
-        bunches1 = bunches1Attribute.data<unsigned short>();
-      }
-      coral::Attribute const& bunches2Attribute = fillDataCursor.currentRow()[std::string("NBUNCHESBEAM2")];
-      if (!bunches2Attribute.isNull()) {
-        bunches2 = bunches2Attribute.data<unsigned short>();
-      }
-      coral::Attribute const& collidingBunchesAttribute = fillDataCursor.currentRow()[std::string("NCOLLIDINGBUNCHES")];
-      if (!collidingBunchesAttribute.isNull()) {
-        collidingBunches = collidingBunchesAttribute.data<unsigned short>();
-      }
-      coral::Attribute const& targetBunchesAttribute = fillDataCursor.currentRow()[std::string("NTARGETBUNCHES")];
-      if (!targetBunchesAttribute.isNull()) {
-        targetBunches = targetBunchesAttribute.data<unsigned short>();
-      }
-      //RUNTIME_TYPE_ID IS NOT NULL
-      fillType =
-          static_cast<LHCInfo::FillTypeId>(fillDataCursor.currentRow()[std::string("RUNTIME_TYPE_ID")].data<int>());
-      coral::Attribute const& particleType1Attribute = fillDataCursor.currentRow()[std::string("PARTY1")];
-      if (!particleType1Attribute.isNull()) {
-        particleType1 = static_cast<LHCInfo::ParticleTypeId>(particleType1Attribute.data<int>());
-      }
-      coral::Attribute const& particleType2Attribute = fillDataCursor.currentRow()[std::string("PARTY2")];
-      if (!particleType2Attribute.isNull()) {
-        particleType2 = static_cast<LHCInfo::ParticleTypeId>(particleType2Attribute.data<int>());
-      }
-      coral::Attribute const& intensityBeam1Attribute = fillDataCursor.currentRow()[std::string("INTENSITYBEAM1")];
-      if (!intensityBeam1Attribute.isNull()) {
-        intensityBeam1 = intensityBeam1Attribute.data<float>();
-      }
-      coral::Attribute const& intensityBeam2Attribute = fillDataCursor.currentRow()[std::string("INTENSITYBEAM2")];
-      if (!intensityBeam2Attribute.isNull()) {
-        intensityBeam2 = intensityBeam2Attribute.data<float>();
-      }
-      coral::Attribute const& energyAttribute = fillDataCursor.currentRow()[std::string("ENERGY")];
-      if (!energyAttribute.isNull()) {
-        energy = energyAttribute.data<float>();
-      }
-    }
-    if (ret) {
-      //CREATETIME IS NOT NULL
-      creationTime = cond::time::from_boost(
-          fillDataCursor.currentRow()[std::string("CREATETIME")].data<coral::TimeStamp>().time());
-      //BEGINTIME is imposed to be NOT NULL in the WHERE clause
-      stableBeamStartTimeStamp = fillDataCursor.currentRow()[std::string("BEGINTIME")].data<coral::TimeStamp>();
-      stableBeamStartTime = cond::time::from_boost(stableBeamStartTimeStamp.time());
-      coral::Attribute const& beamDumpTimeAttribute = fillDataCursor.currentRow()[std::string("ENDTIME")];
-      if (!beamDumpTimeAttribute.isNull()) {
-        beamDumpTimeStamp = beamDumpTimeAttribute.data<coral::TimeStamp>();
-        beamDumpTime = cond::time::from_boost(beamDumpTimeStamp.time());
-      }
-      coral::Attribute const& injectionSchemeAttribute = fillDataCursor.currentRow()[std::string("INJECTIONSCHEME")];
-      if (!injectionSchemeAttribute.isNull()) {
-        injectionScheme = injectionSchemeAttribute.data<std::string>();
-      }
-      //fix an inconsistency in RunTimeLogger: if the fill type is defined, the particle type should reflect it!
-      if (fillType != LHCInfo::UNKNOWN && (particleType1 == LHCInfo::NONE || particleType2 == LHCInfo::NONE)) {
-        switch (fillType) {
-          case LHCInfo::PROTONS:
-            particleType1 = LHCInfo::PROTON;
-            particleType2 = LHCInfo::PROTON;
-            break;
-          case LHCInfo::IONS:
-            particleType1 = LHCInfo::PB82;
-            particleType2 = LHCInfo::PB82;
-            break;
-          case LHCInfo::UNKNOWN:
-          case LHCInfo::COSMICS:
-          case LHCInfo::GAP:
-            break;
-        }
-      }
+    if (!queryResult.empty()) {
+      auto row = *queryResult.begin();
+      auto currentFill = row.get<unsigned short>("fill_number");
+      auto bunches1 = row.get<unsigned short>("bunches_beam1");
+      auto bunches2 = row.get<unsigned short>("bunches_beam2");
+      auto collidingBunches = row.get<unsigned short>("bunches_colliding");
+      auto targetBunches = row.get<unsigned short>("bunches_target");
+      auto fillType = row.get<LHCInfo::FillType>("fill_type_runtime");
+      auto particleType1 = row.get<LHCInfo::ParticleType>("fill_type_party1");
+      auto particleType2 = row.get<LHCInfo::ParticleType>("fill_type_party2");
+      auto intensityBeam1 = row.get<float>("intensity_beam1");
+      auto intensityBeam2 = row.get<float>("intensity_beam2");
+      auto energy = row.get<float>("energy");
+      auto creationTime = row.get<boost::posix_time::ptime>("start_time");
+      auto stableBeamStartTime = row.get<boost::posix_time::ptime>("start_stable_beam");
+      auto beamDumpTime = row.get<boost::posix_time::ptime>("end_time");
+      auto injectionScheme = row.get<std::string>("injection_scheme");
       targetPayload = std::make_unique<LHCInfo>();
       targetPayload->setFillNumber(currentFill);
       targetPayload->setBunchesInBeam1(bunches1);
@@ -221,110 +139,38 @@ namespace LHCInfoImpl {
       targetPayload->setIntensityForBeam1(intensityBeam1);
       targetPayload->setIntensityForBeam2(intensityBeam2);
       targetPayload->setEnergy(energy);
-      targetPayload->setCreationTime(creationTime);
-      targetPayload->setBeginTime(stableBeamStartTime);
-      targetPayload->setEndTime(beamDumpTime);
+      targetPayload->setCreationTime(cond::time::from_boost(creationTime));
+      targetPayload->setBeginTime(cond::time::from_boost(stableBeamStartTime));
+      targetPayload->setEndTime(cond::time::from_boost(beamDumpTime));
       targetPayload->setInjectionScheme(injectionScheme);
+      ret = true;
     }
     return ret;
   }
 
 }  // namespace LHCInfoImpl
 
-bool LHCInfoPopConSourceHandler::getNextFillData(cond::persistency::Session& session,
-                                                 const boost::posix_time::ptime& targetTime,
-                                                 bool ended) {
-  // Prepare the WHERE clause
-  coral::AttributeList fillDataBindVariables;
-  fillDataBindVariables.extend<coral::TimeStamp>(std::string("targetTime"));
-  fillDataBindVariables[std::string("targetTime")].data<coral::TimeStamp>() =
-      coral::TimeStamp(targetTime + boost::posix_time::seconds(1));
-  //by imposing BEGINTIME IS NOT NULL, we remove fills which never went into stable beams,
-  //by additionally imposing ENDTIME IS NOT NULL, we select only finished fills
-  std::string conditionStr = "BEGINTIME IS NOT NULL AND CREATETIME > :targetTime AND LHCFILL IS NOT NULL";
-  if (ended)
-    conditionStr += " AND ENDTIME IS NOT NULL";
-  return LHCInfoImpl::makeFillDataQuery(session, conditionStr, fillDataBindVariables, m_fillPayload, m_debug);
-}
-
-bool LHCInfoPopConSourceHandler::getFillData(cond::persistency::Session& session, unsigned short fillId) {
-  // Prepare the WHERE clause
-  coral::AttributeList fillDataBindVariables;
-  fillDataBindVariables.extend<unsigned short>(std::string("fillId"));
-  fillDataBindVariables[std::string("fillId")].data<unsigned short>() = fillId;
-  std::string conditionStr = "LHCFILL=:fillId";
-  return LHCInfoImpl::makeFillDataQuery(session, conditionStr, fillDataBindVariables, m_fillPayload, m_debug);
-}
-
-size_t LHCInfoPopConSourceHandler::getLumiData(cond::persistency::Session& session,
+size_t LHCInfoPopConSourceHandler::getLumiData(const cond::OMSService& oms,
+                                               unsigned short fillId,
                                                const boost::posix_time::ptime& beginFillTime,
                                                const boost::posix_time::ptime& endFillTime) {
-  coral::ISchema& runTimeLoggerSchema = session.nominalSchema();
-  //prepare the query for table 2:
-  std::unique_ptr<coral::IQuery> fillDataQuery2(runTimeLoggerSchema.newQuery());
-  //FROM clause
-  fillDataQuery2->addToTableList(std::string("LUMI_SECTIONS"));
-  //SELECT clause
-  fillDataQuery2->addToOutputList(std::string("DELIVLUMI"));
-  fillDataQuery2->addToOutputList(std::string("LIVELUMI"));
-  fillDataQuery2->addToOutputList(std::string("INSTLUMI"));
-  fillDataQuery2->addToOutputList(std::string("INSTLUMIERROR"));
-  fillDataQuery2->addToOutputList(std::string("STARTTIME"));
-  fillDataQuery2->addToOutputList(std::string("LHCFILL"));
-  //WHERE clause
-  coral::AttributeList fillDataBindVariables;
-  fillDataBindVariables.extend<coral::TimeStamp>(std::string("start"));
-  fillDataBindVariables.extend<coral::TimeStamp>(std::string("stop"));
-  fillDataBindVariables[std::string("start")].data<coral::TimeStamp>() = coral::TimeStamp(beginFillTime);
-  fillDataBindVariables[std::string("stop")].data<coral::TimeStamp>() = coral::TimeStamp(endFillTime);
-  std::string conditionStr = "DELIVLUMI IS NOT NULL AND STARTTIME >= :start AND STARTTIME< :stop";
-  fillDataQuery2->setCondition(conditionStr, fillDataBindVariables);
-  //ORDER BY clause
-  fillDataQuery2->addToOrderList(std::string("STARTTIME"));
-  //define query output*/
-  coral::AttributeList fillDataOutput2;
-  fillDataOutput2.extend<float>(std::string("DELIVEREDLUMI"));
-  fillDataOutput2.extend<float>(std::string("RECORDEDLUMI"));
-  fillDataOutput2.extend<float>(std::string("INSTLUMI"));
-  fillDataOutput2.extend<float>(std::string("INSTLUMIERROR"));
-  fillDataOutput2.extend<coral::TimeStamp>(std::string("STARTTIME"));
-  fillDataOutput2.extend<int>(std::string("LHCFILL"));
-  fillDataQuery2->defineOutput(fillDataOutput2);
-  //execute the query
-  coral::ICursor& fillDataCursor2 = fillDataQuery2->execute();
-
+  auto query = oms.query("lumisections");
+  query->addOutputVars({"start_time", "delivered_lumi", "recorded_lumi"});
+  query->filterEQ("fill_number", fillId).filterGT("start_time", beginFillTime).filterLT("start_time", endFillTime);
   size_t nlumi = 0;
-  while (fillDataCursor2.next()) {
-    nlumi++;
-    float delivLumi = 0., recLumi = 0., instLumi = 0, instLumiErr = 0.;
-    cond::Time_t since = 0;
-    coral::Attribute const& delivLumiAttribute = fillDataCursor2.currentRow()[std::string("DELIVEREDLUMI")];
-    if (!delivLumiAttribute.isNull()) {
-      delivLumi = delivLumiAttribute.data<float>() / 1000.;
+  if (query->execute()) {
+    auto res = query->result();
+    for (auto r : res) {
+      nlumi++;
+      auto lumiTime = r.get<boost::posix_time::ptime>("start_time");
+      auto delivLumi = r.get<float>("delivered_lumi");
+      auto recLumi = r.get<float>("recorded_lumi");
+      LHCInfo* thisLumiSectionInfo = m_fillPayload->cloneFill();
+      m_tmpBuffer.emplace_back(std::make_pair(cond::time::from_boost(lumiTime), thisLumiSectionInfo));
+      LHCInfo& payload = *thisLumiSectionInfo;
+      payload.setDelivLumi(delivLumi);
+      payload.setRecLumi(recLumi);
     }
-    coral::Attribute const& recLumiAttribute = fillDataCursor2.currentRow()[std::string("RECORDEDLUMI")];
-    if (!recLumiAttribute.isNull()) {
-      recLumi = recLumiAttribute.data<float>() / 1000.;
-    }
-    coral::Attribute const& instLumiAttribute = fillDataCursor2.currentRow()[std::string("INSTLUMI")];
-    if (!instLumiAttribute.isNull()) {
-      instLumi = instLumiAttribute.data<float>() / 1000.;
-    }
-    coral::Attribute const& instLumiErrAttribute = fillDataCursor2.currentRow()[std::string("INSTLUMIERROR")];
-    if (!instLumiErrAttribute.isNull()) {
-      instLumiErr = instLumiErrAttribute.data<float>() / 1000.;
-    }
-    coral::Attribute const& startLumiSectionAttribute = fillDataCursor2.currentRow()[std::string("STARTTIME")];
-    if (!startLumiSectionAttribute.isNull()) {
-      since = cond::time::from_boost(startLumiSectionAttribute.data<coral::TimeStamp>().time());
-    }
-    LHCInfo* thisLumiSectionInfo = m_fillPayload->cloneFill();
-    m_tmpBuffer.emplace_back(std::make_pair(since, thisLumiSectionInfo));
-    LHCInfo& payload = *thisLumiSectionInfo;
-    payload.setDelivLumi(delivLumi);
-    payload.setRecLumi(recLumi);
-    payload.setInstLumi(instLumi);
-    payload.setInstLumiError(instLumiErr);
   }
   return nlumi;
 }
@@ -386,147 +232,62 @@ namespace LHCInfoImpl {
   };
 }  // namespace LHCInfoImpl
 
-bool LHCInfoPopConSourceHandler::getDipData(cond::persistency::Session& session,
+void LHCInfoPopConSourceHandler::getDipData(const cond::OMSService& oms,
                                             const boost::posix_time::ptime& beginFillTime,
                                             const boost::posix_time::ptime& endFillTime) {
-  //run the third and fourth query against the schema hosting detailed DIP information
-  coral::ISchema& beamCondSchema = session.coralSession().schema(m_dipSchema);
-  //start the transaction against the DIP "deep" database backend schema
-  //prepare the WHERE clause for both queries
-  coral::AttributeList bunchConfBindVariables;
-  bunchConfBindVariables.extend<coral::TimeStamp>(std::string("beginFillTime"));
-  bunchConfBindVariables.extend<coral::TimeStamp>(std::string("endFillTime"));
-  bunchConfBindVariables[std::string("beginFillTime")].data<coral::TimeStamp>() = coral::TimeStamp(beginFillTime);
-  bunchConfBindVariables[std::string("endFillTime")].data<coral::TimeStamp>() = coral::TimeStamp(endFillTime);
-  std::string conditionStr = std::string("DIPTIME >= :beginFillTime and DIPTIME< :endFillTime");
-  //define the output types for both queries
-  coral::AttributeList bunchConfOutput;
-  bunchConfOutput.extend<coral::TimeStamp>(std::string("DIPTIME"));
-  bunchConfOutput.extend<unsigned short>(std::string("BUCKET"));
-  //execute query for Beam 1
-  std::unique_ptr<coral::IQuery> bunchConf1Query(beamCondSchema.newQuery());
-  bunchConf1Query->addToTableList(std::string("LHC_CIRCBUNCHCONFIG_BEAM1"),
-                                  std::string("BEAMCONF\", TABLE( BEAMCONF.VALUE ) \"BUCKETS"));
-  bunchConf1Query->addToOutputList(std::string("BEAMCONF.DIPTIME"), std::string("DIPTIME"));
-  bunchConf1Query->addToOutputList(std::string("BUCKETS.COLUMN_VALUE"), std::string("BUCKET"));
-  bunchConf1Query->setCondition(conditionStr, bunchConfBindVariables);
-  bunchConf1Query->addToOrderList(std::string("DIPTIME"));
-  bunchConf1Query->limitReturnedRows(LHCInfo::availableBunchSlots);  //maximum number of filled bunches
-  bunchConf1Query->defineOutput(bunchConfOutput);
-
-  coral::ICursor& bunchConf1Cursor = bunchConf1Query->execute();
-  std::bitset<LHCInfo::bunchSlots + 1> bunchConfiguration1(0ULL);
-  bool ret = false;
-  cond::Time_t lumiSectionTime = 0;
-  while (bunchConf1Cursor.next()) {
-    if (m_debug) {
-      std::ostringstream b1s;
-      bunchConf1Cursor.currentRow().toOutputStream(b1s);
-    }
-    coral::Attribute const& dipTimeAttribute = bunchConf1Cursor.currentRow()[std::string("DIPTIME")];
-    coral::Attribute const& bunchConf1Attribute = bunchConf1Cursor.currentRow()[std::string("BUCKET")];
-    if (!dipTimeAttribute.isNull() and !bunchConf1Attribute.isNull()) {
-      cond::Time_t dipTime = cond::time::from_boost(dipTimeAttribute.data<coral::TimeStamp>().time());
-      // assuming only one sample has been selected...
-      unsigned short slot = (bunchConf1Attribute.data<unsigned short>() - 1) / 10 + 1;
-      if (lumiSectionTime == 0 or lumiSectionTime == dipTime) {
-        bunchConfiguration1[slot] = true;
-      } else
-        break;
-      lumiSectionTime = dipTime;
+  // unsure how to handle this.
+  // the old implementation is not helping: apparently it is checking only the bunchconfiguration for the first diptime set of values...
+  auto query1 = oms.query("diplogger/dip/acc/LHC/RunControl/CirculatingBunchConfig/Beam1");
+  query1->filterGT("dip_time", beginFillTime).filterLT("dip_time", endFillTime);
+  if (query1->execute()) {
+    auto res = query1->result();
+    if (!res.empty()) {
+      std::bitset<LHCInfo::bunchSlots + 1> bunchConfiguration1(0ULL);
+      auto row = *res.begin();
+      auto vbunchConf1 = row.getArray<unsigned short>("value");
+      for (auto vb : vbunchConf1) {
+        if (vb != 0) {
+          unsigned short slot = (vb - 1) / 10 + 1;
+          bunchConfiguration1[slot] = true;
+        }
+      }
+      m_fillPayload->setBunchBitsetForBeam1(bunchConfiguration1);
     }
   }
-  if (ret) {
-    m_fillPayload->setBunchBitsetForBeam1(bunchConfiguration1);
+  auto query2 = oms.query("diplogger/dip/acc/LHC/RunControl/CirculatingBunchConfig/Beam2");
+  query2->filterGT("dip_time", beginFillTime).filterLT("dip_time", endFillTime);
+  if (query2->execute()) {
+    auto res = query2->result();
+    if (!res.empty()) {
+      std::bitset<LHCInfo::bunchSlots + 1> bunchConfiguration2(0ULL);
+      auto row = *res.begin();
+      auto vbunchConf2 = row.getArray<unsigned short>("value");
+      for (auto vb : vbunchConf2) {
+        if (vb != 0) {
+          unsigned short slot = (vb - 1) / 10 + 1;
+          bunchConfiguration2[slot] = true;
+        }
+      }
+      m_fillPayload->setBunchBitsetForBeam2(bunchConfiguration2);
+    }
   }
 
-  //execute query for Beam 2
-  std::unique_ptr<coral::IQuery> bunchConf2Query(beamCondSchema.newQuery());
-  bunchConf2Query->addToTableList(std::string("LHC_CIRCBUNCHCONFIG_BEAM2"),
-                                  std::string("BEAMCONF\", TABLE( BEAMCONF.VALUE ) \"BUCKETS"));
-  bunchConf2Query->addToOutputList(std::string("BEAMCONF.DIPTIME"), std::string("DIPTIME"));
-  bunchConf2Query->addToOutputList(std::string("BUCKETS.COLUMN_VALUE"), std::string("BUCKET"));
-  bunchConf2Query->setCondition(conditionStr, bunchConfBindVariables);
-  bunchConf2Query->addToOrderList(std::string("DIPTIME"));
-  bunchConf2Query->limitReturnedRows(LHCInfo::availableBunchSlots);  //maximum number of filled bunches
-  bunchConf2Query->defineOutput(bunchConfOutput);
-  coral::ICursor& bunchConf2Cursor = bunchConf2Query->execute();
-
-  std::bitset<LHCInfo::bunchSlots + 1> bunchConfiguration2(0ULL);
-  ret = false;
-  lumiSectionTime = 0;
-  while (bunchConf2Cursor.next()) {
-    if (m_debug) {
-      std::ostringstream b2s;
-      bunchConf2Cursor.currentRow().toOutputStream(b2s);
-    }
-    coral::Attribute const& dipTimeAttribute = bunchConf2Cursor.currentRow()[std::string("DIPTIME")];
-    coral::Attribute const& bunchConf2Attribute = bunchConf2Cursor.currentRow()[std::string("BUCKET")];
-    if (!dipTimeAttribute.isNull() and !bunchConf2Attribute.isNull()) {
-      ret = true;
-      cond::Time_t dipTime = cond::time::from_boost(dipTimeAttribute.data<coral::TimeStamp>().time());
-      // assuming only one sample has been selected...
-      unsigned short slot = (bunchConf2Attribute.data<unsigned short>() - 1) / 10 + 1;
-      if (lumiSectionTime == 0 or lumiSectionTime == dipTime) {
-        bunchConfiguration2[slot] = true;
-      } else
-        break;
-      lumiSectionTime = dipTime;
+  auto query3 = oms.query("diplogger/dip/CMS/LHC/LumiPerBunch");
+  query3->filterGT("dip_time", beginFillTime).filterLT("dip_time", endFillTime);
+  if (query3->execute()) {
+    auto res = query3->result();
+    if (!res.empty()) {
+      std::vector<float> lumiPerBX;
+      auto row = *res.begin();
+      auto lumiBunchInst = row.getArray<float>("lumi_bunch_inst");
+      for (auto lb : lumiBunchInst) {
+        if (lb != 0.) {
+          lumiPerBX.push_back(lb);
+        }
+      }
+      m_fillPayload->setLumiPerBX(lumiPerBX);
     }
   }
-  if (ret) {
-    m_fillPayload->setBunchBitsetForBeam2(bunchConfiguration2);
-  }
-  //execute query for lumiPerBX
-  std::unique_ptr<coral::IQuery> lumiDataQuery(beamCondSchema.newQuery());
-  lumiDataQuery->addToTableList(std::string("CMS_LHC_LUMIPERBUNCH"),
-                                std::string("LUMIPERBUNCH\", TABLE( LUMIPERBUNCH.LUMI_BUNCHINST ) \"VALUE"));
-  lumiDataQuery->addToOutputList(std::string("LUMIPERBUNCH.DIPTIME"), std::string("DIPTIME"));
-  lumiDataQuery->addToOutputList(std::string("VALUE.COLUMN_VALUE"), std::string("LUMI_BUNCH"));
-  coral::AttributeList lumiDataBindVariables;
-  lumiDataBindVariables.extend<coral::TimeStamp>(std::string("beginFillTime"));
-  lumiDataBindVariables.extend<coral::TimeStamp>(std::string("endFillTime"));
-  lumiDataBindVariables[std::string("beginFillTime")].data<coral::TimeStamp>() = coral::TimeStamp(beginFillTime);
-  lumiDataBindVariables[std::string("endFillTime")].data<coral::TimeStamp>() = coral::TimeStamp(endFillTime);
-  conditionStr = std::string("DIPTIME BETWEEN :beginFillTime AND :endFillTime");
-  lumiDataQuery->setCondition(conditionStr, lumiDataBindVariables);
-  lumiDataQuery->addToOrderList(std::string("DIPTIME"));
-  lumiDataQuery->limitReturnedRows(3564);  //Maximum number of bunches.
-  //define query output
-  coral::AttributeList lumiDataOutput;
-  lumiDataOutput.extend<coral::TimeStamp>(std::string("DIPTIME"));
-  lumiDataOutput.extend<float>(std::string("LUMI_BUNCH"));
-  lumiDataQuery->defineOutput(lumiDataOutput);
-  //execute the query
-  coral::ICursor& lumiDataCursor = lumiDataQuery->execute();
-
-  std::vector<float> lumiPerBX;
-  ret = false;
-  lumiSectionTime = 0;
-  while (lumiDataCursor.next()) {
-    if (m_debug) {
-      std::ostringstream lpBX;
-      lumiDataCursor.currentRow().toOutputStream(lpBX);
-    }
-    coral::Attribute const& dipTimeAttribute = lumiDataCursor.currentRow()[std::string("DIPTIME")];
-    coral::Attribute const& lumiBunchAttribute = lumiDataCursor.currentRow()[std::string("LUMI_BUNCH")];
-    if (!dipTimeAttribute.isNull() and !lumiBunchAttribute.isNull()) {
-      ret = true;
-      cond::Time_t dipTime = cond::time::from_boost(dipTimeAttribute.data<coral::TimeStamp>().time());
-      // assuming only one sample has been selected...
-      float lumi_b = lumiBunchAttribute.data<float>();
-      if (lumiSectionTime == 0 or lumiSectionTime == dipTime) {
-        if (lumi_b != 0.00)
-          lumiPerBX.push_back(lumi_b);
-      } else
-        break;
-      lumiSectionTime = dipTime;
-    }
-  }
-  if (ret) {
-    m_fillPayload->setLumiPerBX(lumiPerBX);
-  }
-  return ret;
 }
 
 bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& session,
@@ -534,19 +295,22 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
                                               const boost::posix_time::ptime& endFillTime) {
   //run the fifth query against the CTPPS schema
   //Initializing the CMS_CTP_CTPPS_COND schema.
-  coral::ISchema& CTPPS = session.coralSession().schema("CMS_CTP_CTPPS_COND");
+  coral::ISchema& CTPPS = session.coralSession().schema("CMS_PPS_SPECT_COND");
   //execute query for CTPPS Data
   std::unique_ptr<coral::IQuery> CTPPSDataQuery(CTPPS.newQuery());
   //FROM clause
-  CTPPSDataQuery->addToTableList(std::string("CTPPS_LHC_MACHINE_PARAMS"));
+  CTPPSDataQuery->addToTableList(std::string("PPS_LHC_MACHINE_PARAMS"));
   //SELECT clause
   CTPPSDataQuery->addToOutputList(std::string("DIP_UPDATE_TIME"));
   CTPPSDataQuery->addToOutputList(std::string("LHC_STATE"));
   CTPPSDataQuery->addToOutputList(std::string("LHC_COMMENT"));
-  CTPPSDataQuery->addToOutputList(std::string("CTPPS_STATUS"));
+  // this variable has not been found in the above schema. Need to check with PPS if a replacement is needed/available
+  //CTPPSDataQuery->addToOutputList(std::string("CTPPS_STATUS"));
   CTPPSDataQuery->addToOutputList(std::string("LUMI_SECTION"));
-  CTPPSDataQuery->addToOutputList(std::string("XING_ANGLE_URAD"));
-  CTPPSDataQuery->addToOutputList(std::string("BETA_STAR_CMS"));
+  CTPPSDataQuery->addToOutputList(std::string("XING_ANGLE_P5_X_URAD"));
+  CTPPSDataQuery->addToOutputList(std::string("XING_ANGLE_P5_Y_URAD"));
+  CTPPSDataQuery->addToOutputList(std::string("BETA_STAR_P5_X_M"));
+  CTPPSDataQuery->addToOutputList(std::string("BETA_STAR_P5_Y_M"));
   //WHERE CLAUSE
   coral::AttributeList CTPPSDataBindVariables;
   CTPPSDataBindVariables.extend<coral::TimeStamp>(std::string("beginFillTime"));
@@ -562,17 +326,20 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
   CTPPSDataOutput.extend<coral::TimeStamp>(std::string("DIP_UPDATE_TIME"));
   CTPPSDataOutput.extend<std::string>(std::string("LHC_STATE"));
   CTPPSDataOutput.extend<std::string>(std::string("LHC_COMMENT"));
-  CTPPSDataOutput.extend<std::string>(std::string("CTPPS_STATUS"));
+  // see above comment...
+  //CTPPSDataOutput.extend<std::string>(std::string("CTPPS_STATUS"));
   CTPPSDataOutput.extend<int>(std::string("LUMI_SECTION"));
-  CTPPSDataOutput.extend<float>(std::string("XING_ANGLE_URAD"));
-  CTPPSDataOutput.extend<float>(std::string("BETA_STAR_CMS"));
+  CTPPSDataOutput.extend<float>(std::string("XING_ANGLE_P5_X_URAD"));
+  CTPPSDataOutput.extend<float>(std::string("XING_ANGLE_P5_Y_URAD"));
+  CTPPSDataOutput.extend<float>(std::string("BETA_STAR_P5_X_M"));
+  CTPPSDataOutput.extend<float>(std::string("BETA_STAR_P5_Y_M"));
   CTPPSDataQuery->defineOutput(CTPPSDataOutput);
   //execute the query
   coral::ICursor& CTPPSDataCursor = CTPPSDataQuery->execute();
   cond::Time_t dipTime = 0;
   std::string lhcState = "", lhcComment = "", ctppsStatus = "";
   unsigned int lumiSection = 0;
-  float crossingAngle = 0., betastar = 0.;
+  float crossingAngle_x = 0., crossingAngle_y = 0., betastar_x = 0., betastar_y = 0.;
 
   bool ret = false;
   LHCInfoImpl::LumiSectionFilter filter(m_tmpBuffer);
@@ -594,27 +361,40 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
         if (!lhcCommentAttribute.isNull()) {
           lhcComment = lhcCommentAttribute.data<std::string>();
         }
-        coral::Attribute const& ctppsStatusAttribute = CTPPSDataCursor.currentRow()[std::string("CTPPS_STATUS")];
-        if (!ctppsStatusAttribute.isNull()) {
-          ctppsStatus = ctppsStatusAttribute.data<std::string>();
-        }
+        // missing variable in the new schema - see comments above
+        //coral::Attribute const& ctppsStatusAttribute = CTPPSDataCursor.currentRow()[std::string("CTPPS_STATUS")];
+        //if (!ctppsStatusAttribute.isNull()) {
+        //  ctppsStatus = ctppsStatusAttribute.data<std::string>();
+        //}
         coral::Attribute const& lumiSectionAttribute = CTPPSDataCursor.currentRow()[std::string("LUMI_SECTION")];
         if (!lumiSectionAttribute.isNull()) {
           lumiSection = lumiSectionAttribute.data<int>();
         }
-        coral::Attribute const& crossingAngleAttribute = CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_URAD")];
-        if (!crossingAngleAttribute.isNull()) {
-          crossingAngle = crossingAngleAttribute.data<float>();
+        coral::Attribute const& crossingAngleXAttribute =
+            CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_P5_X_URAD")];
+        if (!crossingAngleXAttribute.isNull()) {
+          crossingAngle_x = crossingAngleXAttribute.data<float>();
         }
-        coral::Attribute const& betaStarAttribute = CTPPSDataCursor.currentRow()[std::string("BETA_STAR_CMS")];
-        if (!betaStarAttribute.isNull()) {
-          betastar = betaStarAttribute.data<float>();
+        coral::Attribute const& crossingAngleYAttribute =
+            CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_P5_Y_URAD")];
+        if (!crossingAngleYAttribute.isNull()) {
+          crossingAngle_y = crossingAngleYAttribute.data<float>();
+        }
+        coral::Attribute const& betaStarXAttribute = CTPPSDataCursor.currentRow()[std::string("BETA_STAR_P5_X_M")];
+        if (!betaStarXAttribute.isNull()) {
+          betastar_x = betaStarXAttribute.data<float>();
+        }
+        coral::Attribute const& betaStarYAttribute = CTPPSDataCursor.currentRow()[std::string("BETA_STAR_P5_Y_M")];
+        if (!betaStarYAttribute.isNull()) {
+          betastar_y = betaStarYAttribute.data<float>();
         }
         for (auto it = filter.current(); it != m_tmpBuffer.end(); it++) {
           // set the current values to all of the payloads of the lumi section samples after the current since
           LHCInfo& payload = *(it->second);
-          payload.setCrossingAngle(crossingAngle);
-          payload.setBetaStar(betastar);
+          payload.setXingAngleP5X(crossingAngle_x);
+          payload.setXingAngleP5Y(crossingAngle_y);
+          payload.setBetaStarP5X(betastar_x);
+          payload.setBetaStarP5Y(betastar_y);
           payload.setLhcState(lhcState);
           payload.setLhcComment(lhcComment);
           payload.setCtppsStatus(ctppsStatus);
@@ -845,7 +625,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
   Ref previousFill;
 
   //if a new tag is created, transfer fake fill from 1 to the first fill for the first time
-  if (tagInfo().name.empty()) {
+  if (tagInfo().size == 0) {
     edm::LogInfo(m_name) << "New tag " << tagInfo().name << "; from " << m_name << "::getNewObjects";
   } else {
     //check what is already inside the database
@@ -857,9 +637,10 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
   }
 
   cond::Time_t lastSince = tagInfo().lastInterval.since;
-  if (lastSince == 0) {
+  if (tagInfo().isEmpty()) {
     // for a new or empty tag, an empty payload should be added on top with since=1
     addEmptyPayload(1);
+    lastSince = 1;
   } else {
     edm::LogInfo(m_name) << "The last Iov in tag " << tagInfo().name << " valid since " << lastSince << "from "
                          << m_name << "::getNewObjects";
@@ -909,12 +690,18 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     boost::posix_time::ptime targetTime = cond::time::to_boost(targetSince);
     boost::posix_time::ptime startSampleTime;
     boost::posix_time::ptime endSampleTime;
+
+    cond::OMSService oms;
+    oms.connect(m_omsBaseUrl);
+    auto query = oms.query("fills");
+
     if (!m_endFill and m_prevPayload->fillNumber() and m_prevPayload->endTime() == 0ULL) {
       // execute the query for the current fill
-      session.transaction().start(true);
       edm::LogInfo(m_name) << "Searching started fill #" << m_prevPayload->fillNumber();
-      bool foundFill = getFillData(session, m_prevPayload->fillNumber());
-      session.transaction().commit();
+      query->filterEQ("fill_number", m_prevPayload->fillNumber());
+      bool foundFill = query->execute();
+      if (foundFill)
+        foundFill = LHCInfoImpl::makeFillPayload(m_fillPayload, query->result());
       if (!foundFill) {
         edm::LogError(m_name) << "Could not find fill #" << m_prevPayload->fillNumber();
         break;
@@ -922,10 +709,14 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
       updateEcal = true;
       startSampleTime = cond::time::to_boost(lastSince);
     } else {
-      session.transaction().start(true);
       edm::LogInfo(m_name) << "Searching new fill after " << boost::posix_time::to_simple_string(targetTime);
-      bool foundFill = getNextFillData(session, targetTime, m_endFill);
-      session.transaction().commit();
+      boost::posix_time::ptime startTime = targetTime + boost::posix_time::seconds(1);
+      query->filterNotNull("start_stable_beam").filterGT("start_time", startTime).filterNotNull("fill_number");
+      if (m_endFill)
+        query->filterNotNull("end_time");
+      bool foundFill = query->execute();
+      if (foundFill)
+        foundFill = LHCInfoImpl::makeFillPayload(m_fillPayload, query->result());
       if (!foundFill) {
         edm::LogInfo(m_name) << "No fill found - END of job.";
         if (iovAdded)
@@ -948,13 +739,13 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
       targetSince = endFillTime;
     }
 
-    session.transaction().start(true);
-    getDipData(session, startSampleTime, endSampleTime);
-    size_t nlumi = getLumiData(session, startSampleTime, endSampleTime);
+    getDipData(oms, startSampleTime, endSampleTime);
+    size_t nlumi = getLumiData(oms, lhcFill, startSampleTime, endSampleTime);
     edm::LogInfo(m_name) << "Found " << nlumi << " lumisections during the fill " << lhcFill;
     boost::posix_time::ptime flumiStart = cond::time::to_boost(m_tmpBuffer.front().first);
     boost::posix_time::ptime flumiStop = cond::time::to_boost(m_tmpBuffer.back().first);
     edm::LogInfo(m_name) << "First lumi starts at " << flumiStart << " last lumi starts at " << flumiStop;
+    session.transaction().start(true);
     getCTTPSData(session, startSampleTime, endSampleTime);
     session.transaction().commit();
     session2.transaction().start(true);
