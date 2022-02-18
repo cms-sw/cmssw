@@ -17,9 +17,9 @@ options.parseArguments()
 # - VarParsing options
 
 # use Varparsing object
-#events = Events (options)
+events = Events (options)
 # use single file name
-events = Events ("root://cmsxrootd.fnal.gov///store/mc/RunIISummer20UL17MiniAODv2/DYJetsToMuMu_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUForMUOVal_106X_mc2017_realistic_v9-v2/100000/002FD620-0EF8-F044-9D21-7303C48FF2A0.root")
+#events = Events ('../../../myFWLite/JpsiMuMu_miniaod-230-1.root')
 
 # create handle outside of loop
 handle  = Handle ("std::vector<pat::Muon>")
@@ -31,7 +31,7 @@ label = ("slimmedMuons")
 # Create histograms, etc.
 ROOT.gROOT.SetBatch()        # don't pop up canvases
 ROOT.gROOT.SetStyle('Plain') # white background
-zmassHist = ROOT.TH1F ("zmass", "Z Candidate Mass", 50, 20, 220)
+JpsimassHist = ROOT.TH1F ("Jpsimass", "Jpsi Candidate Mass", 100, 2.9, 3.3)
 
 # loop over events
 for event in events:
@@ -52,10 +52,9 @@ for event in events:
                                            innerMuon.pz(), innerMuon.energy())
             outer4v = ROOT.TLorentzVector (outerMuon.px(), outerMuon.py(),
                                            outerMuon.pz(), outerMuon.energy())
-            zmassHist.Fill( (inner4v + outer4v).M() )
+            JpsimassHist.Fill( (inner4v + outer4v).M() )
 
 # make a canvas, draw, and save it
 c1 = ROOT.TCanvas()
-zmassHist.Draw()
-c1.Print ("zmass_py.png")
-
+JpsimassHist.Draw()
+c1.Print ("Jpsimass_py.png")
