@@ -60,8 +60,14 @@ void GenWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run cons
                 "Number of Events");
   bookTemplates(
       jetMultTemp_, "JetMultiplicity", "Gen jet multiplicity", nJetsNbin_, 0, nJetsNbin_, "n", "Number of Events");
-  bookTemplates(
-      leadJetPtTemp_, "leadJetPt", "leading Gen jet Pt", jetPtNbin_, 0., jetPtRange_, "Pt_{j} (GeV)", "Number of Events");
+  bookTemplates(leadJetPtTemp_,
+                "leadJetPt",
+                "leading Gen jet Pt",
+                jetPtNbin_,
+                0.,
+                jetPtRange_,
+                "Pt_{j} (GeV)",
+                "Number of Events");
   bookTemplates(leadJetEtaTemp_,
                 "leadJetEta",
                 "leading Gen jet #eta",
@@ -109,7 +115,7 @@ void GenWeightValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (weights_.at(idxGenEvtInfo_).empty())
     return;  // no weights in GenEventInfo
 
-  weight_ = weights_.at(idxGenEvtInfo_)[0]/std::abs(weights_.at(idxGenEvtInfo_)[0]);
+  weight_ = weights_.at(idxGenEvtInfo_)[0] / std::abs(weights_.at(idxGenEvtInfo_)[0]);
   nEvt_->Fill(0.5, weight_);
   nlogWgt_->Fill(std::log10(weights_.at(idxGenEvtInfo_).size()), weight_);
 
