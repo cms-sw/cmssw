@@ -537,15 +537,21 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
                 iHists.h_drift_depth_noadc_.at(i_index)->Fill(drift, depth, 1.);
                 iHists.h_bySectOccupancy_->Fill(i_index - 1);  // histogram starts at 0
 
-                if (module_ >= 3 && module_ <= 6 && (layer_ == 3 || layer_ == 4)) {
-                  int i_index_merge = (module_ - 1) / 2 + (layer_ - 3) * 2 +
-                                      iHists.nlay * iHists.nModules_[iHists.nlay - 1] +
-                                      (int)iHists.BPixnewDetIds_.size();
-
-                  iHists.h_drift_depth_adc_.at(i_index_merge)->Fill(drift, depth, pixinfo_.adc[j]);
-                  iHists.h_drift_depth_adc2_.at(i_index_merge)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
-                  iHists.h_drift_depth_noadc_.at(i_index_merge)->Fill(drift, depth, 1.);
-                  iHists.h_bySectOccupancy_->Fill(i_index_merge - 1);
+                if (tracker->getDetectorType(subDetID) == TrackerGeometry::ModuleType::Ph1PXB) {
+                  if ((module_ == 3 || module_ == 5) && (layer_ == 3 || layer_ == 4)) {
+                    int i_index_merge = i_index + 1;
+                    iHists.h_drift_depth_adc_.at(i_index_merge)->Fill(drift, depth, pixinfo_.adc[j]);
+                    iHists.h_drift_depth_adc2_.at(i_index_merge)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
+                    iHists.h_drift_depth_noadc_.at(i_index_merge)->Fill(drift, depth, 1.);
+                    iHists.h_bySectOccupancy_->Fill(i_index_merge - 1);
+                  }
+                  if ((module_ == 4 || module_ == 6) && (layer_ == 3 || layer_ == 4)) {
+                    int i_index_merge = i_index - 1;
+                    iHists.h_drift_depth_adc_.at(i_index_merge)->Fill(drift, depth, pixinfo_.adc[j]);
+                    iHists.h_drift_depth_adc2_.at(i_index_merge)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
+                    iHists.h_drift_depth_noadc_.at(i_index_merge)->Fill(drift, depth, 1.);
+                    iHists.h_bySectOccupancy_->Fill(i_index_merge - 1);
+                  }
                 }
 
               } else {
@@ -705,12 +711,11 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
                                                   edm::Run const& run,
                                                   edm::EventSetup const& iSetup) {
   // book the by partition monitoring
-  const auto maxSect = iHists.nlay * iHists.nModules_[iHists.nlay - 1] + (int)iHists.BPixnewDetIds_.size() +
-                       4;  // add 4 more for combined modules
+  const auto maxSect = iHists.nlay * iHists.nModules_[iHists.nlay - 1] + (int)iHists.BPixnewDetIds_.size();
 
   iBooker.setCurrentFolder(fmt::sprintf("%s/SectorMonitoring", folder_.data()));
   iHists.h_bySectOccupancy_ = iBooker.book1D(
-      "h_bySectorOccupancy", "hit occupancy by sector;pixel sector;hits on track", maxSect, -0.5, maxSect + 0.5);
+      "h_bySectorOccupancy", "hit occupancy by sector;pixel sector;hits on track", maxSect, -0.5, maxSect - 0.5);
 
   iBooker.setCurrentFolder(folder_);
   static constexpr double min_depth_ = -100.;
@@ -736,26 +741,6 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
               i_layer,
               i_module);
       iHists.h_mean_[i_index] = iBooker.book1D(name, title, hist_depth_, min_depth_, max_depth_);
-
-      if ((i_module == 3 || i_module == 5) && (i_layer == 3 || i_layer == 4)) {
-        int i_index_merge = (i_module - 1) / 2 + (i_layer - 3) * 2 + iHists.nlay * iHists.nModules_[iHists.nlay - 1] +
-                            (int)iHists.BPixnewDetIds_.size();
-
-        std::string binName = fmt::sprintf("BPix Layer%i Module %i and Module %i", i_layer, i_module, i_module + 1);
-        LogDebug("SiPixelLorentzAnglePCLWorker") << " i_index_merge: " << i_index_merge << " bin name: " << binName
-                                                 << " (i_layer: " << i_layer << " i_module:" << i_module << " and "
-                                                 << " i_module:" << i_module + 1 << ")";
-
-        iHists.h_bySectOccupancy_->setBinLabel(i_index_merge, binName);
-
-        sprintf(name, "h_mean_layer%i_module%i_and_module%i", i_layer, i_module, i_module + 1);
-        sprintf(title,
-                "average drift vs depth layer%i module%i_and_module%i; production depth [#mum]; #LTdrift#GT [#mum]",
-                i_layer,
-                i_module,
-                i_module + 1);
-        iHists.h_mean_[i_index_merge] = iBooker.book1D(name, title, hist_depth_, min_depth_, max_depth_);
-      }
     }
   }
   for (int i = 0; i < (int)iHists.BPixnewDetIds_.size(); i++) {
@@ -798,50 +783,6 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
       sprintf(title, "depth vs drift layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
       iHists.h_drift_depth_[i_index] =
           iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
-
-      // merge modules 3 and 4 at L3 & L4, merge modules 5 and 6 at L3 & L4
-      if ((i_module == 3 || i_module == 5) && (i_layer == 3 || i_layer == 4)) {
-        unsigned int i_index_merge = (i_module - 1) / 2 + (i_layer - 3) * 2 +
-                                     iHists.nlay * iHists.nModules_[iHists.nlay - 1] +
-                                     (int)iHists.BPixnewDetIds_.size();
-
-        sprintf(name, "h_drift_depth_adc_layer%i_module%i_and_module%i", i_layer, i_module, i_module + 1);
-        sprintf(title,
-                "depth vs drift (ADC) layer%i module%i_and_module%i; drift [#mum]; production depth [#mum]",
-                i_layer,
-                i_module,
-                i_module + 1);
-        iHists.h_drift_depth_adc_[i_index_merge] =
-            iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
-
-        sprintf(name, "h_drift_depth_adc2_layer%i_module%i_and_module%i", i_layer, i_module, i_module + 1);
-        sprintf(title,
-                "depth vs drift (ADC^{2}) layer%i module%i_and_module%i; drift [#mum]; production depth [#mum]",
-                i_layer,
-                i_module,
-                i_module + 1);
-        iHists.h_drift_depth_adc2_[i_index_merge] =
-            iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
-
-        sprintf(name, "h_drift_depth_noadc_layer%i_module%i_and_module%i", i_layer, i_module, i_module + 1);
-        sprintf(title,
-                "depth vs drift (no ADC) layer%i module%i_and_module%i; drift [#mum]; production depth [#mum]",
-                i_layer,
-                i_module,
-                i_module + 1);
-        iHists.h_drift_depth_noadc_[i_index_merge] =
-            iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
-
-        sprintf(name, "h_drift_depth_layer%i_module%i_and_module%i", i_layer, i_module, i_module + 1);
-        sprintf(title,
-                "depth vs drift layer%i module%i_and_module%i; drift [#mum]; production depth [#mum]",
-                i_layer,
-                i_module,
-                i_module + 1);
-
-        iHists.h_drift_depth_[i_index_merge] =
-            iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
-      }
     }
   }
 
