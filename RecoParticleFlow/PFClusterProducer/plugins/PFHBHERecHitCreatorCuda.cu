@@ -319,7 +319,8 @@ namespace PFRecHit {
             rh_mask[i] = (recHits_energy[i] >= threshold); 
         }
     }
-
+    
+    
     __global__ void applyMaskSerial(uint32_t nRHIn,
                               uint32_t* nPFRHOut,
                               //const bool* rh_mask,
@@ -327,9 +328,8 @@ namespace PFRecHit {
                               int* pfrhToInputIdx,
                               int* inputToPFRHIdx) {
 
-        extern __shared__ uint16_t cleanedList[];
+        extern __shared__ uint16_t serial_cleanedList[];
         __shared__ uint16_t cleanedTotal, pos;
-        cleanedTotal = 0;
 
         pos = cleanedTotal = 0;
         for (uint16_t i = 0; i < nRHIn; i++) {
@@ -339,15 +339,51 @@ namespace PFRecHit {
                 pos++;
             }
             else {
-                cleanedList[cleanedTotal] = i;
+                serial_cleanedList[cleanedTotal] = i;
                 cleanedTotal++;
             }
         }
         for (uint16_t i = 0; i < cleanedTotal; i++) {
+            pfrhToInputIdx[pos+i] = serial_cleanedList[i];
+            inputToPFRHIdx[serial_cleanedList[i]] = pos+i;
+        }
+        *nPFRHOut = pos;    // Total number of PFRecHits passing cuts
+    }
+
+    
+    __global__ void applyMask(uint32_t nRHIn,
+                              uint32_t* nPFRHOut,
+                              //const bool* rh_mask,
+                              const int* rh_mask,
+                              int* pfrhToInputIdx,
+                              int* inputToPFRHIdx) {
+
+        extern __shared__ uint32_t cleanedList[];
+        __shared__ uint32_t cleanedTotal, pos;
+        
+        if (threadIdx.x == 0) {
+            pos = cleanedTotal = 0;
+        } __syncthreads();
+
+        for (uint32_t i = threadIdx.x; i < nRHIn; i += blockDim.x) {
+            if (rh_mask[i]) {
+                int k = atomicAdd(&pos, 1);
+                pfrhToInputIdx[k] = i;
+                inputToPFRHIdx[i] = k;
+            }
+            else {
+                int k = atomicAdd(&cleanedTotal, 1);
+                cleanedList[k] = i;
+            }
+        }
+        __syncthreads();
+
+        for (uint32_t i = threadIdx.x; i < cleanedTotal; i += blockDim.x) {
             pfrhToInputIdx[pos+i] = cleanedList[i];
             inputToPFRHIdx[cleanedList[i]] = pos+i;
         }
-        *nPFRHOut = pos;    // Total number of PFRecHits passing cuts
+        __syncthreads();
+        if (threadIdx.x == 0) *nPFRHOut = pos;    // Total number of PFRecHits passing cuts
     }
 
     __global__ void initializeArrays(//bool* rh_mask,
@@ -443,7 +479,7 @@ namespace PFRecHit {
       cudaEventRecord(start, cudaStream);
 #endif
       
-      applyMaskSerial<<<1, 1, nRHIn * sizeof(short), cudaStream>>>(nRHIn, d_nPFRHOut, scratchDataGPU.rh_mask.get(), scratchDataGPU.pfrhToInputIdx.get(), scratchDataGPU.inputToPFRHIdx.get());
+      applyMask<<<1, 256, nRHIn * sizeof(int), cudaStream>>>(nRHIn, d_nPFRHOut, scratchDataGPU.rh_mask.get(), scratchDataGPU.pfrhToInputIdx.get(), scratchDataGPU.inputToPFRHIdx.get());
       cudaCheck(cudaGetLastError());
 
 #ifdef DEBUG_ENABLE

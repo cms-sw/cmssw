@@ -162,6 +162,7 @@ PFHBHERechitProducerGPU::~PFHBHERechitProducerGPU() {
     TFile* f = new TFile("gpuPFRecHitTimers.root", "recreate");
     f->cd();
     tree->Write();
+    hTimers->Scale(1. / numEvents);
     hTimers->Write();
     delete f;
 #endif
