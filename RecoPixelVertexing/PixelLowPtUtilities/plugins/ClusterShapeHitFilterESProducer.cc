@@ -40,6 +40,7 @@ private:
   const std::string pixelShapeFile;
   const std::string pixelShapeFileL1;
   const float minGoodPixelCharge_, minGoodStripCharge_;
+  const bool isPhase2_;
   const bool cutOnPixelCharge_, cutOnStripCharge_;
   const bool cutOnPixelShape_, cutOnStripShape_;
 };
@@ -50,6 +51,7 @@ ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer(const edm::Para
       pixelShapeFileL1(iConfig.getParameter<std::string>("PixelShapeFileL1")),
       minGoodPixelCharge_(0),
       minGoodStripCharge_(clusterChargeCut(iConfig)),
+      isPhase2_(iConfig.getParameter<bool>("isPhase2")),
       cutOnPixelCharge_(false),
       cutOnStripCharge_(minGoodStripCharge_ > 0),
       cutOnPixelShape_(iConfig.getParameter<bool>("doPixelShapeCut")),
@@ -63,7 +65,9 @@ ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer(const edm::Para
   geoToken_ = cc.consumes();
   topolToken_ = cc.consumes();
   pixelToken_ = cc.consumes();
-  stripToken_ = cc.consumes();
+  if (!isPhase2_) {
+    stripToken_ = cc.consumes();
+  }
 }
 
 /*****************************************************************************/
@@ -71,12 +75,17 @@ ClusterShapeHitFilterESProducer::ReturnType ClusterShapeHitFilterESProducer::pro
     const ClusterShapeHitFilter::Record& iRecord) {
   using namespace edm::es;
 
+  const SiStripLorentzAngle* theSiStripLorentzAngle = nullptr;
+  if (!isPhase2_) {
+    theSiStripLorentzAngle = &iRecord.get(stripToken_);
+  }
+
   // Produce the filter using the plugin factory
   ClusterShapeHitFilterESProducer::ReturnType aFilter(new ClusterShapeHitFilter(&iRecord.get(geoToken_),
                                                                                 &iRecord.get(topolToken_),
                                                                                 &iRecord.get(fieldToken_),
                                                                                 &iRecord.get(pixelToken_),
-                                                                                &iRecord.get(stripToken_),
+                                                                                theSiStripLorentzAngle,
                                                                                 pixelShapeFile,
                                                                                 pixelShapeFileL1));
 
@@ -91,6 +100,7 @@ void ClusterShapeHitFilterESProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<std::string>("PixelShapeFile");
   desc.add<std::string>("PixelShapeFileL1");
   desc.add<std::string>("ComponentName");
+  desc.add<bool>("isPhase2", false);
   desc.add<bool>("doPixelShapeCut", true);
   desc.add<bool>("doStripShapeCut", true);
 

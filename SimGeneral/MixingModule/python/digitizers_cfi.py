@@ -101,6 +101,10 @@ premix_stage2.toModify(theDigitizers,
     )
 )
 
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(theDigitizers,
+                        strip = None)
+
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
 
