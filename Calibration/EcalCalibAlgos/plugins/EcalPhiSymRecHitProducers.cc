@@ -41,11 +41,9 @@
 #include "Calibration/EcalCalibAlgos/interface/EcalPhiSymRecHit.h"
 #include "Calibration/EcalCalibAlgos/interface/EcalPhiSymInfo.h"
 
-using namespace std;
-
 //---Wrapper to handle cross-stream data
 struct PhiSymCache {
-  mutable EcalPhiSymInfo ecalLumiInfo;
+    mutable EcalPhiSymInfo ecalLumiInfo;
   mutable EcalPhiSymRecHitCollection recHitCollEB;
   mutable EcalPhiSymRecHitCollection recHitCollEE;
 
@@ -88,17 +86,17 @@ protected:
   mutable edm::EDGetTokenT<EBRecHitCollection> ebToken_;
   mutable edm::EDGetTokenT<EBRecHitCollection> eeToken_;
   float etCutEB_;
-  vector<double> eThresholdsEB_;
+    std::vector<double> eThresholdsEB_;
   float etCutEE_;
-  vector<double> A_;
-  vector<double> B_;
+  std::vector<double> A_;
+  std::vector<double> B_;
   float thrEEmod_;
   int nMisCalib_;
   int nSumEtValues_;
-  vector<double> misCalibRangeEB_;
-  vector<float> misCalibStepsEB_;
-  vector<double> misCalibRangeEE_;
-  vector<float> misCalibStepsEE_;
+  std::vector<double> misCalibRangeEB_;
+  std::vector<float> misCalibStepsEB_;
+  std::vector<double> misCalibRangeEE_;
+  std::vector<float> misCalibStepsEE_;
   //---geometry
   EcalRingCalibrationTools calibRing_;
   static const short kNRingsEB = EcalRingCalibrationTools::N_RING_BARREL;
@@ -116,15 +114,15 @@ EcalPhiSymRecHitProducerBase::EcalPhiSymRecHitProducerBase(const edm::ParameterS
       ebToken_(cc.consumes<EBRecHitCollection>(pSet.getParameter<edm::InputTag>("barrelHitCollection"))),
       eeToken_(cc.consumes<EBRecHitCollection>(pSet.getParameter<edm::InputTag>("endcapHitCollection"))),
       etCutEB_(pSet.getParameter<double>("etCut_barrel")),
-      eThresholdsEB_(pSet.getParameter<vector<double> >("eThresholds_barrel")),
+      eThresholdsEB_(pSet.getParameter<std::vector<double> >("eThresholds_barrel")),
       etCutEE_(pSet.getParameter<double>("etCut_endcap")),
-      A_(pSet.getParameter<vector<double> >("A")),
-      B_(pSet.getParameter<vector<double> >("B")),
+      A_(pSet.getParameter<std::vector<double> >("A")),
+      B_(pSet.getParameter<std::vector<double> >("B")),
       thrEEmod_(pSet.getParameter<double>("thrEEmod")),
       nMisCalib_(pSet.getParameter<int>("nMisCalib") / 2),
       nSumEtValues_(nMisCalib_ * 2 + 1),
-      misCalibRangeEB_(pSet.getParameter<vector<double> >("misCalibRangeEB")),
-      misCalibRangeEE_(pSet.getParameter<vector<double> >("misCalibRangeEE")) {}
+      misCalibRangeEB_(pSet.getParameter<std::vector<double> >("misCalibRangeEB")),
+      misCalibRangeEE_(pSet.getParameter<std::vector<double> >("misCalibRangeEE")) {}
 
 void EcalPhiSymRecHitProducerBase::initializeJob() {
   //---set E thresholds, Et cuts and miscalib steps
@@ -185,7 +183,7 @@ void EcalPhiSymRecHitProducerBase::processEvent(edm::Event const& event,
     float eta = barrelGeometry->getGeometry(ebHit)->getPosition().eta();
 
     //---compute et + miscalibration
-    vector<float> etValues(nSumEtValues_, 0);
+    std::vector<float> etValues(nSumEtValues_, 0);
     //---one can do this in one for loop from -nMis to +nMis but in this way the
     //---program is faster
     //---NOTE: nMisCalib is half on the value set in the cfg python
@@ -227,7 +225,7 @@ void EcalPhiSymRecHitProducerBase::processEvent(edm::Event const& event,
     float eta = endcapGeometry->getGeometry(eeHit)->getPosition().eta();
 
     //---compute et + miscalibration
-    vector<float> etValues(nSumEtValues_, 0);
+    std::vector<float> etValues(nSumEtValues_, 0);
     //---one can do this in one for loop from -nMis to +nMis but in this way the
     //---program is faster
     //---NOTE: nMisCalib is half on the value set in the cfg python
@@ -317,6 +315,7 @@ void EcalPhiSymRecHitProducerBase::initializeGlobalCache(
     int ring = calibRing_.getRingIndex(id) - kNRingsEB;
     cache->recHitCollEE.at(id.denseIndex()) =
         EcalPhiSymRecHit(eeDetId.rawId(), nSumEtValues_, chStatus[id].getStatusCode());
+    cache->recHitCollEE.at(id.denseIndex()).setEERing(ring<kNRingsEE/2 ? ring-kNRingsEE/2 : ring-kNRingsEE/2 + 1);
     //---set eCutEE if first pass
     if (ring < ringsInOneEE && etCutsEE_[ring] == -1 && id.ix() == EEDetId::IX_MAX / 2) {
       auto cellGeometry = endcapGeometry->getGeometry(id);
@@ -332,7 +331,7 @@ void EcalPhiSymRecHitProducerBase::sumCache(PhiSymCache* streamCache, PhiSymCach
   //    in the sum to make sure that info like fillNumber and channel status
   //    are preserved since they are set in the global initialization and not
   //    in the stream one.
-  cache->ecalLumiInfo += streamCache->ecalLumiInfo;
+    cache->ecalLumiInfo += streamCache->ecalLumiInfo;
 
   for (unsigned int i = 0; i < cache->recHitCollEB.size(); ++i)
     cache->recHitCollEB[i] += streamCache->recHitCollEB[i];
@@ -418,7 +417,7 @@ void EcalPhiSymRecHitProducerLumi::globalEndLuminosityBlockProduce(edm::Luminosi
   ecalLumiInfo->setMiscalibInfo(
       nMisCalib_ * 2, misCalibRangeEB_[0], misCalibRangeEB_[1], misCalibRangeEE_[0], misCalibRangeEE_[1]);
   auto recHitCollEB = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEB);
-  auto recHitCollEE = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEB);
+  auto recHitCollEE = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEE);
 
   lumi.put(std::move(ecalLumiInfo));
   lumi.put(std::move(recHitCollEB), "EB");
