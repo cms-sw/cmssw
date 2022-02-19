@@ -31,7 +31,7 @@
 class HcalSimHitDump : public edm::one::EDAnalyzer<> {
 public:
   HcalSimHitDump(const edm::ParameterSet& ps);
-  ~HcalSimHitDump() override {}
+  ~HcalSimHitDump() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -45,7 +45,7 @@ private:
   const std::string g4Label_, hitLab_;
   const int maxEvent_;
   const bool testNumber_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> toks_calo_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> toks_calo_;
   int nevt_;
 };
 
@@ -54,10 +54,8 @@ HcalSimHitDump::HcalSimHitDump(const edm::ParameterSet& ps)
       hitLab_(ps.getParameter<std::string>("HCCollection")),
       maxEvent_(ps.getParameter<int>("MaxEvent")),
       testNumber_(ps.getParameter<bool>("TestNumber")),
+      toks_calo_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_))),
       nevt_(0) {
-  // register for data access
-  toks_calo_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_));
-
   edm::LogVerbatim("HitStudy") << "HcalSimHitDump::Module Label: " << g4Label_ << "   Hits: " << hitLab_ << " MaxEvent "
                                << maxEvent_ << " TestNumbering " << testNumber_;
 }
@@ -78,8 +76,7 @@ void HcalSimHitDump::analyze(const edm::Event& e, const edm::EventSetup&) {
 
   if (nevt_ <= maxEvent_) {
     std::vector<PCaloHit> hcHits;
-    edm::Handle<edm::PCaloHitContainer> hitsCalo;
-    e.getByToken(toks_calo_, hitsCalo);
+    const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(toks_calo_);
     if (hitsCalo.isValid()) {
       edm::LogVerbatim("HitStudy") << "HcalValidation: get valid hist for Hcal";
       std::vector<PCaloHit> caloHits;
