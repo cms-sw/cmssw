@@ -49,12 +49,12 @@ private:
   std::vector<double> radLen_, intLen_, stepLen_;
 };
 
-HGCalTBMBProducer::HGCalTBMBProducer(const edm::ParameterSet& p) :
-      m_p(p.getParameter<edm::ParameterSet>("HGCalTBMB")),
+HGCalTBMBProducer::HGCalTBMBProducer(const edm::ParameterSet& p)
+    : m_p(p.getParameter<edm::ParameterSet>("HGCalTBMB")),
       listNames_(m_p.getParameter<std::vector<std::string> >("DetectorNames")),
       stopName_(m_p.getParameter<std::string>("StopName")),
       stopZ_(m_p.getParameter<double>("MaximumZ")),
-      nList_(listNames_.size()) { 
+      nList_(listNames_.size()) {
   edm::LogVerbatim("HGCSim") << "HGCalTBMBProducer initialized for " << nList_ << " volumes";
   for (unsigned int k = 0; k < nList_; ++k)
     edm::LogVerbatim("HGCSim") << " [" << k << "] " << listNames_[k];
