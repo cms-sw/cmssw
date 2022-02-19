@@ -103,11 +103,10 @@ private:
 // constructors and destructor
 //
 
-HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet& p) :
-      m_Anal(p.getParameter<edm::ParameterSet>("HcalTB02Analysis")),
+HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet& p)
+    : m_Anal(p.getParameter<edm::ParameterSet>("HcalTB02Analysis")),
       hcalOnly(m_Anal.getUntrackedParameter<bool>("HcalClusterOnly", true)),
       names(m_Anal.getParameter<std::vector<std::string> >("Names")) {
-
   produces<HcalTB02HistoClass>();
 
   edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis:: Initialised as observer of "
