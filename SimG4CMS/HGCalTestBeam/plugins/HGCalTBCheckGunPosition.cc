@@ -42,7 +42,7 @@
 class HGCalTBCheckGunPostion : public edm::stream::EDFilter<> {
 public:
   explicit HGCalTBCheckGunPostion(const edm::ParameterSet&);
-  ~HGCalTBCheckGunPostion() = default;
+  ~HGCalTBCheckGunPostion() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -75,8 +75,8 @@ private:
 //
 // constructor
 //
-HGCalTBCheckGunPostion::HGCalTBCheckGunPostion(const edm::ParameterSet& iConfig) :
-      labelGen_(iConfig.getParameter<edm::InputTag>("HepMCProductLabel")),
+HGCalTBCheckGunPostion::HGCalTBCheckGunPostion(const edm::ParameterSet& iConfig)
+    : labelGen_(iConfig.getParameter<edm::InputTag>("HepMCProductLabel")),
       verbosity_(iConfig.getUntrackedParameter<bool>("Verbosity", false)),
       method2_(iConfig.getUntrackedParameter<bool>("Method2", false)),
       hepMCproductLabel_(consumes<edm::HepMCProduct>(labelGen_)) {

@@ -209,10 +209,14 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
       tok_hgcPHBH_(consumes<edm::PassiveHitContainer>(labelPassiveBH_)),
       tok_hgcPHCMSE_(consumes<edm::PassiveHitContainer>(labelPassiveCMSE_)),
       tok_hgcPHBeam_(consumes<edm::PassiveHitContainer>(labelPassiveBeam_)),
-      tokDDDEE_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_))),
-      tokGeomEE_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_))),
-      tokDDDFH_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_))),
-      tokGeomFH_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_))) {
+      tokDDDEE_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorEE_))),
+      tokGeomEE_(
+          esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_))),
+      tokDDDFH_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorFH_))),
+      tokGeomFH_(
+          esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_))) {
   usesResource("TFileService");
   ahcalGeom_ = std::make_unique<AHCalGeometry>(iConfig);
 
@@ -242,14 +246,14 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: GeneratorSource = " << labelGen_;
   if (ifEE_)
-    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorEE_ << " with tags " << labelHitEE_ << ", " << labelDigiEE_
-                               << ", " << labelRHitEE_;
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorEE_ << " with tags " << labelHitEE_ << ", "
+                               << labelDigiEE_ << ", " << labelRHitEE_;
   if (ifFH_)
-    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorFH_ << " with tags " << labelHitFH_ << ", " << labelDigiFH_
-                               << ", " << labelRHitFH_;
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorFH_ << " with tags " << labelHitFH_ << ", "
+                               << labelDigiFH_ << ", " << labelRHitFH_;
   if (ifBH_)
-    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorBH_ << " with tags " << labelHitBH_ << ", " << labelDigiFH_
-                               << ", " << labelRHitBH_;
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorBH_ << " with tags " << labelHitBH_ << ", "
+                               << labelDigiFH_ << ", " << labelRHitBH_;
   if (ifBeam_)
     edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorBeam_ << " with tags " << labelHitBeam_;
 #endif

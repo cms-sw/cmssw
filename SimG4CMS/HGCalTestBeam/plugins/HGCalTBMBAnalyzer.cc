@@ -37,11 +37,11 @@ private:
   std::vector<TH1D *> me100_, me200_, me300_;
 };
 
-HGCalTBMBAnalyzer::HGCalTBMBAnalyzer(const edm::ParameterSet &p) :
-  listNames_(p.getParameter<std::vector<std::string>>("detectorNames")),
-  labelMBCalo_(p.getParameter<edm::InputTag>("labelMBCalo")),
-  nList_(listNames_.size()),
-  tokMBCalo_(consumes<MaterialAccountingCaloCollection>(labelMBCalo_)) {
+HGCalTBMBAnalyzer::HGCalTBMBAnalyzer(const edm::ParameterSet &p)
+    : listNames_(p.getParameter<std::vector<std::string>>("detectorNames")),
+      labelMBCalo_(p.getParameter<edm::InputTag>("labelMBCalo")),
+      nList_(listNames_.size()),
+      tokMBCalo_(consumes<MaterialAccountingCaloCollection>(labelMBCalo_)) {
   edm::LogVerbatim("HGCSim") << "HGCalTBMBAnalyzer initialized for " << nList_ << " volumes";
   for (unsigned int k = 0; k < nList_; ++k)
     edm::LogVerbatim("HGCSim") << " [" << k << "] " << listNames_[k];

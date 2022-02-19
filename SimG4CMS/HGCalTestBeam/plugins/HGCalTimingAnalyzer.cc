@@ -85,7 +85,9 @@ HGCalTimingAnalyzer::HGCalTimingAnalyzer(const edm::ParameterSet& iConfig)
       groupHits_(iConfig.getParameter<bool>("GroupHits")),
       timeUnit_((!groupHits_) ? 0.000001 : (iConfig.getParameter<double>("TimeUnit"))),
       doTree_(iConfig.getUntrackedParameter<bool>("DoTree", false)),
-      idBeams_((iConfig.getParameter<std::vector<int>>("IDBeams")).empty() ? idBeamDef_ : (iConfig.getParameter<std::vector<int>>("IDBeams"))),
+      idBeams_((iConfig.getParameter<std::vector<int>>("IDBeams")).empty()
+                   ? idBeamDef_
+                   : (iConfig.getParameter<std::vector<int>>("IDBeams"))),
       tokDDD_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag("", detectorEE_))),
       labelGen_(iConfig.getParameter<edm::InputTag>("GeneratorSrc")),
