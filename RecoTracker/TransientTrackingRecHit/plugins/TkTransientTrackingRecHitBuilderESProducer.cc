@@ -76,7 +76,7 @@ TkTransientTrackingRecHitBuilderESProducer::TkTransientTrackingRecHitBuilderESPr
 std::unique_ptr<TransientTrackingRecHitBuilder> TkTransientTrackingRecHitBuilderESProducer::produce(
     const TransientRecHitRecord& iRecord) {
   const StripClusterParameterEstimator* sp = nullptr;
-  if (spToken_) {
+  if (spToken_ && !p2OTToken_) {  // no strips in Phase-2
     sp = &iRecord.get(*spToken_);
   }
 
