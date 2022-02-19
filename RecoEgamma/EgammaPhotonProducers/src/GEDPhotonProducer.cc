@@ -73,12 +73,9 @@ public:
     }
     const auto runMVABasedHaloTagger = conf.getParameter<bool>("runMVABasedHaloTagger");
     edm::ParameterSet mvaBasedHaloVariableSet = conf.getParameter<edm::ParameterSet>("mvaBasedHaloVariableSet");
-    auto trainingFileName_ =
-        mvaBasedHaloVariableSet.getParameter<edm::FileInPath>(("trainingFileName")).fullPath().c_str();
+    auto trainingFileName_ = mvaBasedHaloVariableSet.getParameter<edm::FileInPath>(("trainingFileName")).fullPath();
     if (runMVABasedHaloTagger) {
-      TFile* regressionFile = TFile::Open(trainingFileName_);
-      //std::unique_ptr<GBRForest> up(gbrForestFile.Get<GBRForest>("gbrForest"));
-
+      TFile* regressionFile = TFile::Open(trainingFileName_.c_str());
       haloTaggerGBR = std::unique_ptr<GBRForest>(regressionFile->Get<GBRForest>("gbrForest"));
     }
   }
