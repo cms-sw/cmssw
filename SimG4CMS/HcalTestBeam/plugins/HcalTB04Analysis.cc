@@ -147,8 +147,8 @@ private:
 // constructors and destructor
 //
 
-HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet& p) : 
-      m_Anal(p.getParameter<edm::ParameterSet>("HcalTB04Analysis")),
+HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet& p)
+    : m_Anal(p.getParameter<edm::ParameterSet>("HcalTB04Analysis")),
       hcalOnly(m_Anal.getParameter<bool>("HcalOnly")),
       mode(m_Anal.getParameter<int>("Mode")),
       type(m_Anal.getParameter<int>("Type")),
@@ -159,9 +159,8 @@ HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet& p) :
       scaleHO(m_Anal.getParameter<double>("ScaleHO")),
       scaleHE0(m_Anal.getParameter<double>("ScaleHE0")),
       names(m_Anal.getParameter<std::vector<std::string> >("Names")),
-      myQie(nullptr), 
+      myQie(nullptr),
       histo(nullptr) {
-
   double fMinEta = m_Anal.getParameter<double>("MinEta");
   double fMaxEta = m_Anal.getParameter<double>("MaxEta");
   double fMinPhi = m_Anal.getParameter<double>("MinPhi");

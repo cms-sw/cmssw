@@ -81,7 +81,7 @@ private:
   const double m_widthHcal;
   const double m_factEcal;
   const double m_factHcal;
-  const double m_eMIP; 
+  const double m_eMIP;
 
   int count;
   int m_idxetaEcal;
@@ -92,8 +92,8 @@ private:
   std::unique_ptr<HcalTB06Histo> m_histo;
 };
 
-HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet& p) :
-      m_ECAL(p.getParameter<bool>("ECAL")),
+HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet& p)
+    : m_ECAL(p.getParameter<bool>("ECAL")),
       m_eta(p.getParameter<double>("MinEta")),
       m_phi(p.getParameter<double>("MinPhi")),
       m_ener(p.getParameter<double>("MinE")),
@@ -110,7 +110,6 @@ HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet& p) :
       m_eMIP(m_ptb.getParameter<double>("MIP")),
       count(0) {
   usesResource("TFileService");
-
 
   double minEta = p.getParameter<double>("MinEta");
   double maxEta = p.getParameter<double>("MaxEta");
