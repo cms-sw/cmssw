@@ -22,6 +22,8 @@ ecalPhiSymRecHitLumiTableEE = ecalPhiSymRecHitLumiTableEB.clone(
     src  = cms.InputTag("EcalPhiSymRecHitProducerLumi", "EE"),
     name = cms.string("EcalPhiSymEE")
 )                                                    
+# iring is saved only for EE channels
+setattr(ecalPhiSymRecHitLumiTableEE.variables, 'ring', Var("eeRing()", int, doc="ECAL PhiSym rechits: EE channel ring index"))
 
 ecalPhiSymInfoLumiTable = cms.EDProducer("EcalPhiSymInfoFlatTableProducerLumi",
                                          src  = cms.InputTag("EcalPhiSymRecHitProducerLumi"),
@@ -57,6 +59,8 @@ ecalPhiSymRecHitRunTableEE = ecalPhiSymRecHitRunTableEB.clone(
     src  = cms.InputTag("EcalPhiSymRecHitProducerRun", "EE"),
     name = cms.string("EcalPhiSymEE")
 )                                                    
+# iring is saved only for EE channels
+setattr(ecalPhiSymRecHitRunTableEE.variables, 'ring', Var("eeRing()", int, doc="ECAL PhiSym rechits: EE channel ring index"))
 
 ecalPhiSymInfoRunTable = cms.EDProducer("EcalPhiSymInfoFlatTableProducerRun",
                                         src  = cms.InputTag("EcalPhiSymRecHitProducerRun"),

@@ -2,13 +2,14 @@
 
 //**********constructors******************************************************************
 EcalPhiSymRecHit::EcalPhiSymRecHit()
-    : id_(0), chStatus_(0), nHits_(0), etSum_(1, 0.), et2Sum_(0), lcSum_(0), lc2Sum_(0) {}
+    : id_(0), eeRing_(0), chStatus_(0), nHits_(0), etSum_(1, 0.), et2Sum_(0), lcSum_(0), lc2Sum_(0) {}
 
 EcalPhiSymRecHit::EcalPhiSymRecHit(uint32_t id, unsigned int nMisCalibV, unsigned int status)
-    : id_(id), chStatus_(status), nHits_(0), etSum_(nMisCalibV, 0.), et2Sum_(0), lcSum_(0), lc2Sum_(0) {}
+    : id_(id), eeRing_(0), chStatus_(status), nHits_(0), etSum_(nMisCalibV, 0.), et2Sum_(0), lcSum_(0), lc2Sum_(0) {}
 
 EcalPhiSymRecHit::EcalPhiSymRecHit(uint32_t id, std::vector<float>& etValues, unsigned int status)
     : id_(id),
+      eeRing_(0), 
       chStatus_(status),
       nHits_(0),
       etSum_(etValues.begin(), etValues.end()),
