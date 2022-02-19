@@ -429,6 +429,9 @@ streamPhysicsHILowMultiplicity_datasetHILowMultiplicity_selector.triggerConditio
 )
 
 
+# stream PhysicsHILowMultiplicityReducedFormat
+
+
 # stream PhysicsHIMinimumBias0
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHIMinimumBias0_datasetHIMinimumBias0_selector
