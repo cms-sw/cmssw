@@ -147,7 +147,6 @@ MeasurementTrackerESProducer::MeasurementTrackerESProducer(const edm::ParameterS
   }
 
   pixelCPEToken_ = c.consumes(edm::ESInputTag("", p.getParameter<std::string>("PixelCPE")));
-  stripCPEToken_ = c.consumes(edm::ESInputTag("", p.getParameter<std::string>("StripCPE")));
   hitMatcherToken_ = c.consumes(edm::ESInputTag("", p.getParameter<std::string>("HitMatcher")));
   trackerTopologyToken_ = c.consumes();
   trackerGeomToken_ = c.consumes();
@@ -158,6 +157,8 @@ MeasurementTrackerESProducer::MeasurementTrackerESProducer(const edm::ParameterS
   if (not phase2.empty()) {
     usePhase2_ = true;
     phase2TrackerCPEToken_ = c.consumes(edm::ESInputTag("", phase2));
+  } else {
+    stripCPEToken_ = c.consumes(edm::ESInputTag("", p.getParameter<std::string>("StripCPE")));
   }
 }
 
@@ -180,12 +181,15 @@ std::unique_ptr<MeasurementTracker> MeasurementTrackerESProducer::produce(const 
   }
 
   const ClusterParameterEstimator<Phase2TrackerCluster1D> *ptr_phase2TrackerCPE = nullptr;
+  const StripClusterParameterEstimator *ptr_SiStripTrackerCPE = nullptr;
   if (usePhase2_) {
     ptr_phase2TrackerCPE = &iRecord.get(phase2TrackerCPEToken_);
+  } else {
+    ptr_SiStripTrackerCPE = &iRecord.get(stripCPEToken_);
   }
   return std::make_unique<MeasurementTrackerImpl>(badStripCuts_,
                                                   &iRecord.get(pixelCPEToken_),
-                                                  &iRecord.get(stripCPEToken_),
+                                                  ptr_SiStripTrackerCPE,
                                                   &iRecord.get(hitMatcherToken_),
                                                   &iRecord.get(trackerTopologyToken_),
                                                   &iRecord.get(trackerGeomToken_),
