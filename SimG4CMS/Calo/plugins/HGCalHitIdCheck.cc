@@ -73,8 +73,7 @@ void HGcalHitIdCheck::analyze(const edm::Event& e, const edm::EventSetup& iS) {
   const HGCalGeometry* geom = &iS.getData(geomToken_);
   const std::vector<DetId>& validIds = geom->getValidDetIds();
 
-  edm::Handle<edm::PCaloHitContainer> hitsCalo;
-  e.getByToken(tok_calo_, hitsCalo);
+  const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(tok_calo_);
   bool getHits = (hitsCalo.isValid());
   uint32_t nhits = (getHits) ? hitsCalo->size() : 0;
   uint32_t good(0), all(0);

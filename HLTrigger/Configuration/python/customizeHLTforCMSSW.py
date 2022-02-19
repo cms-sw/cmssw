@@ -144,39 +144,6 @@ def customiseFor2018Input(process):
 
     return process
 
-# HLT customisation for https://github.com/cms-sw/cmssw/pull/36639
-def customiseFor36639(process):
-    """Customisation for change of cfi template of the EDProducer "PFCandidatePrimaryVertexSorter" wrt 12_3_0_pre4.
-    This customisation can be removed once menus are migrated to 12_3_0_pre5.
-    Ref: https://github.com/cms-sw/cmssw/pull/36639
-    """
-    for producer in producers_by_type(process, 'PFCandidatePrimaryVertexSorter'):
-        if hasattr(producer, 'assignment') and hasattr(producer.assignment, 'NumOfPUVtxsForCharged'):
-            if isinstance(producer.assignment.NumOfPUVtxsForCharged, cms.int32):
-                producer.assignment.NumOfPUVtxsForCharged = cms.uint32(max(0, producer.assignment.NumOfPUVtxsForCharged.value()))
-            elif not isinstance(producer.assignment.NumOfPUVtxsForCharged, cms.uint32):
-                raise Exception('invalid type for parameter "assignment.NumOfPUVtxsForCharged":\n'+producer.dumpPython())
-
-    return process
-
-# HLT customisation for https://github.com/cms-sw/cmssw/pull/36935
-def customiseFor36935(process):
-    """ Customisation to remove parameters from the ParametersetDescription of the
-    EcalUncalibRecHitWorkerMultiFit in PR 36935 (https://github.com/cms-sw/cmssw/pull/36935)
-    """
-    for prod in producers_by_type(process, 'EcalUncalibRecHitProducer'):
-        if prod.algo == 'EcalUncalibRecHitWorkerMultiFit':
-            for par in ['ebSpikeThreshold',
-                        'ebPulseShape',
-                        'eePulseShape',
-                        'chi2ThreshEB_',
-                        'chi2ThreshEE_',
-                        'kPoorRecoFlagEB',
-                        'kPoorRecoFlagEE',
-                        'EcalPulseShapeParameters']:
-                if hasattr(prod.algoPSet, par):
-                    delattr(prod.algoPSet, par)
-    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -187,8 +154,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseFor36639(process)
-
-    process = customiseFor36935(process)
 
     return process
