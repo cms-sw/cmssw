@@ -61,14 +61,13 @@ private:
   TH1I *mType_;
 };
 
-XtalDedxAnalysis::XtalDedxAnalysis(const edm::ParameterSet &ps) :
-      caloHitSource_(ps.getParameter<edm::InputTag>("caloHitSource")),
+XtalDedxAnalysis::XtalDedxAnalysis(const edm::ParameterSet &ps)
+    : caloHitSource_(ps.getParameter<edm::InputTag>("caloHitSource")),
       simTkLabel_(ps.getParameter<std::string>("moduleLabelTk")),
       energyMax_(ps.getParameter<double>("energyMax")),
       tok_calo_(consumes<edm::PCaloHitContainer>(caloHitSource_)),
       tok_tk_(consumes<edm::SimTrackContainer>(edm::InputTag(simTkLabel_))),
       tok_vtx_(consumes<edm::SimVertexContainer>(edm::InputTag(simTkLabel_))) {
-
   usesResource(TFileService::kSharedResource);
   edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis::Source " << caloHitSource_ << " Track Label "
                                         << simTkLabel_ << " Energy Max " << energyMax_;
@@ -129,10 +128,10 @@ void XtalDedxAnalysis::analyze(const edm::Event &e, const edm::EventSetup &) {
   edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis::Run = " << e.id().run() << " Event = " << e.id().event();
 #endif
   std::vector<PCaloHit> caloHits;
-  const edm::Handle<edm::PCaloHitContainer>& pCaloHits = e.getHandle(tok_calo_);
+  const edm::Handle<edm::PCaloHitContainer> &pCaloHits = e.getHandle(tok_calo_);
 
-  const edm::Handle<edm::SimTrackContainer>& simTk = e.getHandle(tok_tk_);
-  const edm::Handle<edm::SimVertexContainer>& simVtx = e.getHandle(tok_vtx_);
+  const edm::Handle<edm::SimTrackContainer> &simTk = e.getHandle(tok_tk_);
+  const edm::Handle<edm::SimVertexContainer> &simVtx = e.getHandle(tok_vtx_);
 
   if (pCaloHits.isValid()) {
     caloHits.insert(caloHits.end(), pCaloHits->begin(), pCaloHits->end());
