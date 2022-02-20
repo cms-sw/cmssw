@@ -63,7 +63,7 @@ private:
 
 //__________________________________________________________________________________________________
 CherenkovAnalysis::CherenkovAnalysis(const edm::ParameterSet &iConfig)
-    : maxEnergy_(iConfig.getParameter<double>("maxEnergy")), 
+    : maxEnergy_(iConfig.getParameter<double>("maxEnergy")),
       nBinsEnergy_(iConfig.getParameter<int>("nBinsEnergy")),
       tok_calo_(consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("caloHitSource"))) {
   usesResource(TFileService::kSharedResource);
@@ -89,7 +89,7 @@ void CherenkovAnalysis::fillDescriptions(edm::ConfigurationDescriptions &descrip
 
 //__________________________________________________________________________________________________
 void CherenkovAnalysis::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  const edm::Handle<edm::PCaloHitContainer>& pCaloHits = iEvent.getHandle(tok_calo_);
+  const edm::Handle<edm::PCaloHitContainer> &pCaloHits = iEvent.getHandle(tok_calo_);
 
   double totalEnergy = 0;
 
