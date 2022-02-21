@@ -25,11 +25,11 @@ namespace reco {
     static constexpr uint nRechitsFeatures = 4;
     uint maxNClusters;
     uint maxNRechits;
+    uint batchSize;
     uint collectionStrategy;
   };
 
   struct DeepSCInputs {
-    uint batchSize;
     std::vector<std::vector<std::vector<double>>> clustersX;
     std::vector<std::vector<std::vector<std::vector<double>>>> hitsX;
     std::vector<std::vector<double>> windowX;
@@ -44,7 +44,7 @@ namespace reco {
     std::vector<double> scaleClusterFeatures(const std::vector<double>& input) const;
     std::vector<double> scaleWindowFeatures(const std::vector<double>& inputs) const;
 
-    std::vector<std::vector<float>> evaluate(const DeepSCInputs& inputs) const;
+    std::vector<std::vector<float>> evaluate(const DeepSCInputs& inputs) const ;
 
   private:
     void initTensorFlowGraphAndSession();
@@ -58,6 +58,7 @@ namespace reco {
 
     std::vector<std::pair<float, float>> scalerParamsClusters_;
     std::vector<std::pair<float, float>> scalerParamsWindows_;
+
   };
 
   class SCProducerCache {

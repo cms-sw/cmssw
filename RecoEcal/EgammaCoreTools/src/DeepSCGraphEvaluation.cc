@@ -6,7 +6,9 @@
 #include <fstream>
 using namespace reco;
 
-DeepSCGraphEvaluation::DeepSCGraphEvaluation(const DeepSCConfiguration& cfg) : cfg_(cfg) {
+DeepSCGraphEvaluation::DeepSCGraphEvaluation(const DeepSCConfiguration& cfg)
+  : cfg_(cfg)
+{
   tensorflow::setLogging("0");
   // Init TF graph and session objects
   initTensorFlowGraphAndSession();
@@ -21,6 +23,8 @@ DeepSCGraphEvaluation::DeepSCGraphEvaluation(const DeepSCConfiguration& cfg) : c
     throw cms::Exception("WrongConfiguration") << "Mismatch between number of input features for Clusters and "
                                                << "parameters in the scaler file.";
   }
+
+
 }
 
 DeepSCGraphEvaluation::~DeepSCGraphEvaluation() {
@@ -73,118 +77,141 @@ std::vector<double> DeepSCGraphEvaluation::scaleWindowFeatures(const std::vector
   return out;
 }
 
-std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInputs& inputs) const {
+std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInputs& inputs) const  {
   /*
    Evaluate the DeepSC model
   */
   LogDebug("DeepSCGraphEvaluation") << "Starting evaluation";
-  // Input tensors initialization
-  tensorflow::Tensor clsX{tensorflow::DT_FLOAT, {inputs.batchSize, cfg_.maxNClusters, cfg_.nClusterFeatures}};
-  tensorflow::Tensor windX{tensorflow::DT_FLOAT, {inputs.batchSize, cfg_.nWindowFeatures}};
-  tensorflow::Tensor hitsX{tensorflow::DT_FLOAT,
-                           {inputs.batchSize, cfg_.maxNClusters, cfg_.maxNRechits, cfg_.nRechitsFeatures}};
-  tensorflow::Tensor isSeedX{tensorflow::DT_FLOAT, {inputs.batchSize, cfg_.maxNClusters, 1}};
-  tensorflow::Tensor nClsSize{tensorflow::DT_FLOAT, {inputs.batchSize}};
 
-  float* C = clsX.flat<float>().data();
-  // Look on batch dim
-  for (const auto& cls_data : inputs.clustersX) {
-    // Loop on clusters
-    for (size_t k = 0; k < cfg_.maxNClusters; k++) {
-      // Loop on features
-      for (size_t z = 0; z < cfg_.nClusterFeatures; z++, C++) {  //--> note the double loop on the tensor pointer
-        if (k < cls_data.size()) {
-          *C = float(cls_data[k][z]);
-        } else {
-          *C = 0.;
-        }
-      }
-    }
-  }
+  // Inputs
+  tensorflow::Tensor clsX_ {tensorflow::DT_FLOAT, {cfg_.batchSize, cfg_.maxNClusters, cfg_.nClusterFeatures}};
+  tensorflow::Tensor windX_ {tensorflow::DT_FLOAT, {cfg_.batchSize, cfg_.nWindowFeatures}};
+  tensorflow::Tensor hitsX_ {tensorflow::DT_FLOAT, {cfg_.batchSize, cfg_.maxNClusters, cfg_.maxNRechits, cfg_.nRechitsFeatures}};
+  tensorflow::Tensor isSeedX_ {tensorflow::DT_FLOAT, {cfg_.batchSize, cfg_.maxNClusters, 1}};
+  tensorflow::Tensor  nClsSize_ {tensorflow::DT_FLOAT, {cfg_.batchSize}};
 
-  float* W = windX.flat<float>().data();
-  // Look on batch dim
-  for (const auto& wind_features : inputs.windowX) {
-    // Loop on features
-    for (size_t k = 0; k < cfg_.nWindowFeatures; k++, W++) {  //--> note the double loop on the tensor pointer
-      *W = float(wind_features[k]);
-    }
-  }
-
-  float* H = hitsX.flat<float>().data();
-  size_t iW = -1;
-  // Look on batch dim
-  for (const auto& hits_data : inputs.hitsX) {
-    iW++;
-    size_t ncls_in_window = hits_data.size();
-    // Loop on clusters
-    for (size_t k = 0; k < cfg_.maxNClusters; k++) {  //--> note the triple loop on the tensor pointer
-      // Check padding
-      size_t nhits_in_cluster;
-      if (k < ncls_in_window)
-        nhits_in_cluster = hits_data[k].size();
-      else
-        nhits_in_cluster = 0;
-
-      // Loop on hits
-      for (size_t j = 0; j < cfg_.maxNRechits; j++) {  //--> note the triple loop on the tensor pointer
-        // Check the number of clusters and hits for padding
-        bool ok = j < nhits_in_cluster;
-        // Loop on rechits features
-        for (size_t z = 0; z < cfg_.nRechitsFeatures; z++, H++) {  //--> note the triple loop on the tensor pointe
-          if (ok)
-            *H = float(hits_data[k][j][z]);
-          else
-            *H = 0.;
-        }
-      }
-    }
-  }
-
-  float* S = isSeedX.flat<float>().data();
-  // Look on batch dim
-  for (const auto& isSeed_data : inputs.isSeed) {
-    // Loop on clusters
-    for (size_t k = 0; k < cfg_.maxNClusters; k++, S++) {  //--> note the double loop on the tensor pointer
-      if (k < isSeed_data.size()) {
-        *S = float(isSeed_data[k]);
-      } else {
-        *S = 0.;
-      }
-    }
-  }
-
-  float* M = nClsSize.flat<float>().data();
-  for (size_t k = 0; k < inputs.batchSize; k++, M++) {
-    *M = float(inputs.clustersX[k].size());
-  }
-
-  std::vector<std::pair<std::string, tensorflow::Tensor>> feed_dict = {
-      {"input_1", clsX}, {"input_2", windX}, {"input_3", hitsX}, {"input_4", isSeedX}, {"input_5", nClsSize}};
-
-  // prepare tensorflow outputs
-  std::vector<tensorflow::Tensor> outputs_tf;
-  // // Define the output and run
+// Final output
   std::vector<std::vector<float>> outputs_clustering;
-  // // Run the models
-  LogDebug("DeepSCGraphEvaluation") << "Run model";
-  tensorflow::run(session_, feed_dict, {"Identity", "Identity_1", "Identity_2", "Identity_3"}, &outputs_tf);
 
-  // Reading the 1st output: clustering probability
-  // const auto& r = outputs_tf[0].tensor<float, 3>();
+  // We need to split the total inputs in N batches of size batchSize (configured in the producer)
+  // being careful with the last batch which will have less than batchSize elements
+  size_t nInputs = inputs.clustersX.size(); 
+  uint iB = -1; // batch index
+  while(nInputs > 0){
+    iB++; // go to next batch
+    size_t nItems;
+    if (nInputs >= cfg_.batchSize ) {
+     nItems = cfg_.batchSize;
+     nInputs -= cfg_.batchSize;
+    }else{
+      nItems = nInputs;
+      nInputs = 0;
+    }   
+    // Input tensors initialization
+    clsX_.flat<float>().setZero();
+    windX_.flat<float>().setZero();
+    hitsX_.flat<float>().setZero();
+    isSeedX_.flat<float>().setZero();
+    nClsSize_.flat<float>().setZero();
 
-  float* y_cl = outputs_tf[0].flat<float>().data();
-  // Iterate on the clusters for each window
-  for (size_t b = 0; b < inputs.batchSize; b++) {
-    uint ncls = inputs.clustersX[b].size();
-    std::vector<float> cl_output(ncls);
-    for (size_t c = 0; c < ncls; c++) {
-      float y = y_cl[b * cfg_.maxNClusters + c];
-      cl_output[c] = 1 / (1 + TMath::Exp(-y));
+    float* C = clsX_.flat<float>().data();
+    // Look on batch dim
+    for(size_t b = 0; b< nItems; b++){
+      const auto& cls_data = inputs.clustersX[iB*cfg_.batchSize + b];
+      // Loop on clusters
+      for (size_t k = 0; k < cfg_.maxNClusters; k++) {
+        // Loop on features
+        for (size_t z = 0; z < cfg_.nClusterFeatures; z++, C++) { 
+          if (k < cls_data.size()) {
+            *C = float(cls_data[k][z]);
+          } else {
+            *C = 0.;
+          }
+        }
+      }
     }
-    outputs_clustering.push_back(cl_output);
-  }
 
+    float* W = windX_.flat<float>().data();
+    // Look on batch dim
+    for(size_t b = 0; b< nItems; b++){
+      const auto& wind_features = inputs.windowX[iB*cfg_.batchSize + b];
+      // Loop on features
+      for (size_t k = 0; k < cfg_.nWindowFeatures; k++, W++) {  
+        *W = float(wind_features[k]);
+      }
+    }
+
+    float* H = hitsX_.flat<float>().data();
+    // Look on batch dim
+    for(size_t b = 0; b< nItems; b++){
+      const auto& hits_data = inputs.hitsX[iB*cfg_.batchSize + b];
+      size_t ncls_in_window = hits_data.size();
+      // Loop on clusters
+      for (size_t k = 0; k < cfg_.maxNClusters; k++) { 
+        // Check padding
+        size_t nhits_in_cluster;
+        if (k < ncls_in_window)
+          nhits_in_cluster = hits_data[k].size();
+        else
+          nhits_in_cluster = 0;
+
+        // Loop on hits
+        for (size_t j = 0; j < cfg_.maxNRechits; j++) {
+          // Check the number of clusters and hits for padding
+          bool ok = j < nhits_in_cluster;
+          // Loop on rechits features
+          for (size_t z = 0; z < cfg_.nRechitsFeatures; z++, H++) { 
+            if (ok)
+              *H = float(hits_data[k][j][z]);
+            else
+              *H = 0.;
+          }
+        }
+      }
+    }
+
+    float* S = isSeedX_.flat<float>().data();
+    // Look on batch dim
+    for(size_t b = 0; b< nItems; b++){
+      const auto& isSeed_data = inputs.isSeed[iB*cfg_.batchSize + b];
+      // Loop on clusters
+      for (size_t k = 0; k < cfg_.maxNClusters; k++, S++) {  
+        if (k < isSeed_data.size()) {
+          *S = float(isSeed_data[k]);
+        } else {
+          *S = 0.;
+        }
+      }
+    }
+
+    float* M = nClsSize_.flat<float>().data();
+    for(size_t b = 0; b< nItems; b++, M++){
+      *M = float(inputs.clustersX[iB*cfg_.batchSize + b].size());
+    }
+
+    std::vector<std::pair<std::string, tensorflow::Tensor>> feed_dict = {
+      {"input_1", clsX_}, {"input_2", windX_}, {"input_3", hitsX_}, {"input_4", isSeedX_}, {"input_5", nClsSize_}};
+
+    // prepare tensorflow outputs
+    std::vector<tensorflow::Tensor> outputs_tf;
+    // // Define the output and run
+    // // Run the models
+    LogDebug("DeepSCGraphEvaluation") << "Run model";
+    tensorflow::run(session_, feed_dict, {"Identity", "Identity_1", "Identity_2", "Identity_3"}, &outputs_tf);
+    // Reading the 1st output: clustering probability
+    float* y_cl = outputs_tf[0].flat<float>().data();
+    // Iterate on the clusters for each window
+    for (size_t b = 0; b < nItems; b++) {
+      uint ncls = inputs.clustersX[iB*cfg_.batchSize + b].size();
+      std::vector<float> cl_output(ncls);
+      for (size_t c = 0; c < ncls; c++) {
+        float y = y_cl[b * cfg_.maxNClusters + c];
+        // Applying sigmoid to logit
+        cl_output[c] = 1 / (1 + TMath::Exp(-y));
+      }
+      outputs_clustering.push_back(cl_output);
+    }  
+  }
   return outputs_clustering;
 }
 
@@ -202,8 +229,8 @@ SCProducerCache::SCProducerCache(const edm::ParameterSet& conf) {
     config.nWindowFeatures = pset_dnn.getParameter<uint>("nWindowFeatures");
     config.maxNClusters = pset_dnn.getParameter<uint>("maxNClusters");
     config.maxNRechits = pset_dnn.getParameter<uint>("maxNRechits");
+    config.batchSize = pset_dnn.getParameter<uint>("batchSize");
     config.collectionStrategy = pset_dnn.getParameter<uint>("collectionStrategy");
     deepSCEvaluator = std::make_unique<DeepSCGraphEvaluation>(config);
   }
-  
 }
