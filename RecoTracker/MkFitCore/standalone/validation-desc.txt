@@ -1,0 +1,549 @@
+EDIT HISTORY
+** KPM 16/09/18: move id + label explanation to index-desc.txt
+** KPM 06/08/18: moved preface to README **
+** KPM 11/07/18: added a preface but still need to update this for newest methods/revisions... **
+** KPM 25/02/18: still need to update methods for setting mc/cmssw track id **
+
+PREFACE: This file is a compendium on how the validation runs within mkFit, which makes use of the TTreeValidation class and other supporting macros.  
+
+===================
+ Table of Contents
+===================
+
+A. Overview of code
+B. Overview of routine calls in mkFit
+C. Explanation of validation routines
+  I. Tracks and Extras Prep
+  II. Track Association Routines
+  III. TTree Filling
+D. Definitions of efficiency, fake rate, and duplicate rate
+E. Overview of scripts
+F. Hit map/remapping logic
+G. Extra info on ID and mask assignments
+H. Special note about duplicate rate
+
+=====================
+ A. Overview of code
+=====================
+
+TTreeValidation will only compile the necessary ROOT code with WITH_ROOT:=1 enabled (either manually editting Makefile.config, or at the command line). Always do a make clean before compiling with ROOT, as the code is ifdef'ed. To hide the heavy-duty functions from the main code, TTreeValidation inherits from the virtual class "Validation", and overrides the common functions.  The TTreeValidation object is created once per number of events in flight. The Event object obtains a reference to the validation object (store as a data member "validation_"), so it is up to the Event object to reset some of the data members of the TTreeValidation object on every event.
+
+Three types of validation exist within TTreeValidation:
+[1.] "Building validation", enabled with Config::sim_val, via the command line option: --sim-val [--read-sim-trackstates, for pulls]
+[2.] "CMSSW external tracks building validation", enabled with Config::cmssw_val, via a minimum of the command line options: --cmssw-val --read-cmssw-tracks --geom CMS-2017 --seed-input cmssw [and potentially a seed cleaning --seed-cleaning <str>, and also specifying which cmssw matching --cmssw-matching <str>]
+[3.] "Fit validation", enabled with Config::fit_val, via the command line option: --fit-val
+
+We will ignore fit validation for the moment. The main idea behind the other two is that the validation routines are called outside of the standard timed sections, and as such, we do not care too much about performance, as long as it takes a reasonable amount of time to complete. Of course, the full wall clock time matters when running multiple events in flight, and because there is a lot of I/O as well as moves and stores that would hurt the performance with the validation enabled, these routines are ignored if the command line option "--silent" is enabled.
+
+The building validation takes advantage of filling two trees per event per track, namely:
+[1.] 
+  - efftree (filled once per sim track) 
+  - frtree (filled once per seed track)
+[2.] 
+  - cmsswefftree (filled once per cmssw external track)
+  - cmsswfrtree (filled once per mkFit build track)
+
+[1.] validation exists in the following combinations of geometry seed source:
+  - ToyMC, with --seed-input ["sim", "find]
+  - CMSSW, with --seed-input ["sim", "cmssw"] (+ --seed-cleaning <str> [<str>: "n2", "badlabel", "pure", "none"], + --cmssw-matching <str> [<str>: "trkparam", "hit", "label"])
+
+Upon instantiation of the TTreeValidation object, the respective ROOT trees are defined and allocated on the heap, along with setting the addresses of all the branches. After the building is completed in mkFit, we have to have the tracks in their standard event containers, namely: seedTracks_, candidateTracks_, and fitTracks_. In the standard combinatorial or clone engine, we have to copy out the built tracks from event of combined candidates into candidateTracks_ via: builder.quality_store_tracks() in mkFit/buildtestMPlex.cc.  Since we do not yet have fitting after building, we just set the fitTracks_ equal to the candidateTracks_.  For ease, I will from now on refer to the candidateTracks_ as buildTracks_.
+
+As a reminder, the sim tracks are stored in the Event.cc as simTracks_, while the CMSSW reco tracks are stored as cmsswTracks_. Each track collection has an associated TrackExtra collection, which is stored as {trackname}Extra_ inside the Event object.  It is indexed the same as the collection it references, i.e. track[0] has an associated extra extra[0]. The TrackExtra object contains the mcTrackID, seedID, and cmsswTrackID each mkFit track is associated to. The validation also makes use of simHitsInfo_ (container for storing mcTrackID for each hit), layerHits_, and simTrackStates_ (used for pulls).  See Section B and C for explanations on how the track matching is performed and track information is saved.  Essentially, we store two sets of maps, one which has a key that is an index to the reference track (MC or CMSSW) and a vector of indices for those that match it (for seeds, build tracks, and fit tracks), and the second map which maps the seed track index to its corresponding build and fit tracks.  The reason for having a sim match map for seeds, build tracks, and fit tracks is to keep track of how well the efficiency/fake rate/duplicate improves/degrades with potential cuts between them. And the same reason for having a map of seed to build as well as seed to fit. 
+
+Following each event, each of the track and extra objects are cleared. In addition, the association maps are cleared and reset. After the main loop over events expires, the ROOT file is written out with the TTrees saved via: val.saveTTrees() in mkFit.cc. The destructor for the validation then deletes the trees. The output is "valtree.root", appended by the thread number if using multiple events in flight.  From here, we then take advantage of the following files:
+
+- runValidation.C // macro used for turning TTrees into efficiency/fake rate/duplicate rate plots
+- PlotValidation.cpp/.hh // source code for doing calculations
+- makeValidation.C // plots on a single canvas results for Best Hit (BH), Standard Combinatorial (STD), and Clone Engine (CE)
+
+======================================
+ B. Outline of routine calls in mkFit
+======================================
+
+The following routines are then called after the building (MkBuilder.cc, Event.cc, TTreeValidation.cc, Track.cc):
+
+[1.] builder.sim_val()
+   : (actually run clean_cms_simtracks() when using CMS geom and using sim tracks as reference set)
+   : remap_seed_hits()
+   : remap_cand_hits()
+   : prep_recotracks()
+     : prep_tracks(seedtracks,seedextras)
+       : m_event->validation_.alignTracks(tracks,extras,false)
+     : prep_tracks(buildtracks,buildextras)
+       : m_event->validation_.alignTracks(tracks,extras,false)
+     : prep_tracks(fittracks,fitextras)
+       : m_event->validation_.alignTracks(tracks,extras,false)
+   : if (cmssw-seeds) m_event->clean_cms_simtracks() // label which simtracks are not findable: already set if using sim seeds
+   : m_event->Validate()
+     : validation_.setTrackExtras(*this) 
+       : if (sim seeds) extra.setMCTrackIDInfoByLabel() // Require 50% of found hits after seed to match label of seed/sim track
+         : modifyRecTrackID()
+       : if (--seed-input cmssw || find) extra.setMCTrackIDInfo() // Require 75% of found hits to match a single sim track
+         : modifyRecTrackID()
+     : validation_.makeSimTkToRecoTksMaps(*this)
+       : mapRefTkToRecoTks(seedtracks,seedextras,simToSeedMap) // map key = mcTrackID, map value = vector of seed labels
+       : mapRefTkToRecoTks(buildtracks,buildextras,simToBuildMap) // map key = mcTrackID, map value = vector of build labels
+       : mapRefTkToRecoTks(fittracks,fitextras,simToFitMap) // map key = mcTrackID, map value = vector of fit labels
+     : validation_.makeSeedTkToRecoTkMaps(*this)
+       : mapSeedTkToRecoTk(buildtracks,buildextras,seedToBuildMap) // map key = seedID, map value = build track label
+       : mapSeedTkToRecoTk(fittracks,fitextras,seedToFitMap) // map key = seedID, map value = fit track label
+     : validation_.fillEfficiencyTree(*this)
+     : validation_.fillFakeRateTree(*this)	
+
+[2.] builder.cmssw_val()
+   : (actually runs m_event->validation.makeSeedTkToCMSSWTkMap() from MkBuilder::prepare_seeds())
+   : (when using N^2 cleanings, Event::clean_cms_seedtracks(), or if not using N^2 cleaning, Event::use_seeds_from_cmsswtracks())
+   : remap_cand_hits()
+   : prep_recotracks()
+     : prep_tracks(buildtracks,buildextras)
+       : m_event->validation_.alignTracks(tracks,extras,false)
+   : prep_cmsswtracks()
+     : prep_tracks(cmsswtracks,cmsswextras)	
+       : m_event->validation_.alignTracks(tracks,extras,false)	
+   : m_event->Validate()
+     : validation_.setTrackExtras(*this)
+       : storeSeedAndMCID() 
+       : if (--cmssw-matching trkparam) extra.setCMSSWTrackIDInfoByTrkParams() // Chi2 and dphi matching (also incudes option for nHits matching)
+    	 : modifyRecTrackID()		      
+       : else if (--cmssw-matching hit) extra.setCMSSWTrackIDInfoByHits() // Chi2 and dphi matching (also incudes option for nHits matching)
+    	 : modifyRecTrackID()		      
+       : else if (--cmssw-matching label) extra.setCMSSWTrackIDInfoByLabel() // 50% hit sharing after seed
+    	 : modifyRecTrackID()		      
+     : validation_.makeCMSSWTkToRecoTksMaps(*this)
+       : mapRefTkToRecoTks(buildtracks,buildextras,cmsswToBuildMap)
+     : validation_.fillCMSSWEfficiencyTree(*this)	
+     : validation_.fillCMSSWFakeRateTree(*this)	
+
+=======================================
+ C. Explanation of validation routines
+=======================================
+
+- map/remap hit functions: see notes in section E. Essentially, validation needs all hit indices inside tracks to match the hit indices inside ev.layerHits_.
+
++++++++++++++++++++++++++++
+ I. Tracks and Extras Prep
++++++++++++++++++++++++++++
+
+- clean_cms_simtracks()
+  : loop over sim tracks
+    : mark sim track status not findable if (nLayers < [Config::cmsSelMinLayers == 8])
+    : tracks are not removed from collection, just have this bit set. this way the mcTrackID == position in vector == label
+
+- clean_cms_seedtracks()
+  : cmssw seed tracks are cleaned according to closeness in deta, dphi, dR to other cmssw seed tracks--> duplicate removal
+  : loop over cleaned seed tracks, and if label_ == -1, then incrementally decrease label (so second -1 seed is -2, third is -3)
+
+- prep_tracks(tracks,extras) 
+  : Loop over all track collections in consideration
+    : sort hits inside track by layer : needed for counting unique layers and for association routines
+    : emplace_back a track extra, initialized with the label of the track (which happens to be its seed ID) // if using sim seeds, we know that seed ID == sim ID
+  : m_event->validation_.alignTracks(tracks,extras,alignExtra)   
+
+- alignTracks(tracks,extras,alignExtra)
+  : if alignExtra == true // needed for when a reco track collection, which was previously labeled by its label() == seedID, created its track extra at the same time but the track collection has been moved or sorted
+    : create temporary track extra collection, size of track collection
+    : loop over tracks
+      : set tmp extra to the old track extra collection matching the track label
+    : set the old track extra to equal the new collection
+  : loop over tracks
+    : set the track label equal to the index inside the vector // needed for filling routines which rely on maps of indices between two track collections
+
+- prep_cmsswtracks()
+  : Stanard prep_tracks()
+  : loop over cmssw tracks
+    : Count unique layers = nLayers
+    : set status of cmssw track to notFindable() if: (nUniqueLayers() < [Config::cmsSelMinLayers == 8]) // same criteria for "notFindable()" cmssw sim tracks used for seeds
+
+++++++++++++++++++++++++++++++++
+ II. Track Association Routines
+++++++++++++++++++++++++++++++++
+
+- setTrackExtras(&Event)    
+  : if [1.]
+    : loop over seed tracks
+      : setMCTrackIDInfo(true) : Require 75% of found hits to match a single sim track
+    : loop over build tracks
+       : if (sim seeds) setMCTrackIDInfoByLabel() : Require 50% of found hits after seed to match label of seed/sim track
+       : if (cms seeds) setMCTrackIDInfo(false) : Require 75% of found hits to match a single sim track
+    : loop over fit tracks 
+      : same options as build tracks   
+  : if [2.]
+    : setupCMSSWMatching()
+      : first loop over cmssw tracks
+        : create a vector of "reduced tracks" that stores 1./pt, eta, and associated covariances in reduced track states
+        : add cmssw label to a map of lyr, map of idx, vector of labels
+        : also include track momentum phi, and a list of hits inside a map. map key = layer, map value = vector of hit indices
+    : loop over build tracks
+      : setCMSSWTrackIDInfo() : require matching by chi2 and dphi
+    : storeMCandSeedID()
+
+- modifyRecTrackID() 
+  // Config::nMinFoundHits = 7, Config::nlayers_per_seed = 4 or 3 
+  // nCandHits = trk.nFoundHits() OR trk.nFoundHits()-Config::nlayers_per_seed (see calling function)
+  // nMinHits = Config::nMinFoundHits OR Config::nMinFoundHits-Config::nlayers_per_seed (see calling function)
+  : if track has been marked as a duplicate, mc/cmsswTrackID = -10
+  : else if (mc/cmsswTrackID >= 0) (i.e. the track has successfully matched)
+    : if mc/cmsswTrack is findable
+      : if nCandHits < nMinHits, mc/cmsswTrackID = -2
+    : else
+      : if nCandHits < nMinHits, mc/cmsswTrackID = -3 
+      : else mc/cmsswTrackID = -4 (track is long enough, matched, but that sim track that is unfindable)
+  : else if (mc/cmsswTrackID == -1)
+    : if matching by label, and ref track exists
+      : if ref track is findable
+        : if nCandHits < minHits, ID = -5
+      : else 
+        : if nCandHits < nMinHits, ID = -6
+	: else, ID = -7
+    : else (not matching by label, or ref track does not exist
+      : if nCandHits < nMinHits, ID = -8
+      : else, ID = -9
+  -->return potentially new ID assignment
+
+- setMCTrackIDInfoByLabel()
+  : Loop over found hits on build track after seed
+    : count the hits who have a mcTrackID == seedID_ (i.e. seedID == simTrack label == mcTrackID)
+  : if hits are found after seed
+    : if 50% are matched, mcTrackID == seedID_
+    : else, mcTrackID == -1
+  : mcTrackID = modifyRecTrackID() // nCandhits = nFoundHits-nlayers_per_seed, nMinHits = Config::nMinFoundHits - Config::nlayers_per_seed		      
+    
+- setMCTrackIDInfo(isSeedTrack)
+  : Loop over all found hits on build track (includes seed hits)
+    : count the mcTrackID that appears most from the hits
+  : if 75% of hits on reco track match a single sim track, mcTrackID == mcTrackID of single sim track
+  : else, mcTrackID == -1
+  : if (!isSeedTrack)
+    : modifyRecTrackID() // nCandHits = nFoundHits, nMinHits = Config::nMinFoundHits
+
+- setCMSSWTrackIDInfo()
+  : Loop over all cmssw "reduced" tracks
+    : if helix chi2 < [Config::minCMSSWMatchChi2 == 50]
+      : append label of cmssw track to a vector, along with chi2
+  : sort vector by chi2
+  : loop over label vector
+    : swim cmssw track momentum phi from phi0 to mkFit reco track
+    : if abs(wrapphi(dphi)) < [Config::minCMSSWMatchdPhi == 0.03]
+      : see if dphi < currently best stored mindphi, and if yes, then set this as the new mindphi + label as matched cmsswTrackID
+      : if using nHits matching, check for nHits matched --> currently not used nor tuned
+  : if no label is found, cmsswTrackID == -1
+  : modifyRefTrackID() // nCandHits and nMinHits same as setMCTrackIDInfo()
+
+- setCMSSWTrackIDInfoByLabel()
+  : want to match the hits on the reco track to those on the CMSSW track
+  : loop over hits on reco track after seed
+    : get hit idx and lyr
+      : if the cmssw track has this lyr, loop over hit indices on cmssw track with this layer
+        : if cmssw hit idx matches reco idx, increment nHitsMatched_
+  : follow same logic as setMCTrackIDInfoByLabel() for setting cmsswTrackID
+  : modifyRecTrackID() // nCandHits and nMinHits same as setMCTrackIDInfoByLabel()
+  
+- mapRefTkToRecoTks(tracks,extras,map)
+  : Loop over reco tracks
+    : get track extra for track
+    : if [1.], map[extra.mcTrackID()].push_back(track.label()) // reminder, label() now equals index inside track vector!
+    : if [2.], map[extra.cmsswTrackID()].push_back(track.label()) // reminder, label() now equals index inside track vector!
+  : Loop over pairs in map
+    : if vector of labels size == 1, get track extra for label, and set duplicate index == 0
+    : else
+      : make temp track vector from track labels, sort track vector by nHits (and sum hit chi2 if tracks have same nHits)
+      : set vector of labels to sorted tracks
+      : loop over vector labels
+      	: get track extra for label, and set duplicate index++ 
+
+- mapSeedTkToRecoTk(tracks,extras,map)
+  : loop over reco tracks
+    : map[extra.seedID()] = track.label()
+
+- makeSeedTkToCMSSWTkMap(event)
+  : this is run BEFORE seed cleaning AND BEFORE the seeds are sorted in eta in prepare_seeds()
+  : if seed track index in vector == cmssw track label(), store map key = seed track label(), map value = cmssw track label() in seedToCmsswMap (seedID of cmssw track)
+
+- storeMCandSeedID()
+  : reminder: both the candidate tracks and the cmssw tracks have had their labels reassigned, but their original labels were stored in their track extra seedIDs.  reminder, seedID of candidate track points to the label of the seed track.  label on seed track == sim track reference, if it exists!
+  : loop over candidate tracks
+    : set mcTrackID == seedID_ of track
+    : if seedToCmsswMap[cand.label()] exists, then set the seedID equal to the mapped value (i.e. the seedID of the cmssw track!)
+    : else, set seedID == -1
+  : After this is run, to get the matching CMSSW track, we then need to loop over the CMSSW track extras with an index based loop, popping out when the cmsswextra[i].seedID() == buidextra[j].seedID()
+
+++++++++++++++++++++
+ III. TTree Filling
+++++++++++++++++++++
+
+- fillEfficiencyTree()
+  : loop over simtracks
+    : get mcTrackID (i.e. simTrack.label())
+    : store sim track gen info
+    : if simToSeedMap[mcTrackID] has value
+      : mcmask == 1
+      : get first seed track matched (i.e. the one with the highest nHits --> or lowest sum hit chi2 as provided by sort from above)
+      : store seed track parameters
+      : store nHits, nlayers, last layer, chi2
+      : store duplicate info: nTrks_matched from size() of mapped vector of labels, and duplicateMask == seedtrack.isDuplicate()
+      : get last found hit index
+      	: store hit parameters
+	: if mcTrackID of hit == mcTrackID of sim track // ONLY for when simtrackstates are stored, i.e. in ToyMC only at the moment
+	  : store sim track state momentum info from this layer (from simTrackStates[mcHitID])
+	: else get sim track state of mcTrackID, then store momentum info
+    : else
+      : mcmask == 0, or == -1 if simtrack.isNotFindable()
+    : if simToBuildMap[mcTrackID] has value
+      : repeat as above
+    : if simToFitMap[mcTrackID] has value
+      : repeat as above
+    : fill efftree
+
+- fillFakeRateTree()
+  : loop over seed tracks
+    : get seedID of seed track from track extra
+    : fill seed track parameters + last hit info, nhits, etc
+    : assign mcmask info based on mcTrackID from track extra (see section D and G for explanation of mask assignments)
+    : if mcmask == 1
+      : store gen sim momentum parameters
+      : store nhits info, last layer
+      : store duplicate info: iTh track matched from seedtrack extra, duplicateMask == seedtrack.isDuplicate()
+      : if last hit found has a valid mcHitID
+      	: store sim track state momentum info from simTrackStates[mcHitID]
+    : if seedToBuildMap[seedID] has value
+      : fill build track parameters + last hit info, nhits, etc
+      : assign mcmask info based on mcTrackID from track extra (see section D and G for explanation of mask assignments)
+      : if mcmask == 1
+      	: store gen sim momentum parameters
+        : store nhits info, last layer, duplicate info as above
+        : if last hit found has a valid mcHitID
+      	  : store sim track state momentum info from simTrackStates[mcHitID]
+    : if seedToFitMap[seedID] has value
+      : same as above
+    : fill frtree
+
+- fillCMSSWEfficiencyTree()
+  : loop over cmsswtracks
+    : get label of cmsswtrack, seedID
+    : store cmssw track PCA parameters + nhits, nlayers, last layer
+    : if cmsswToBuilddMap[cmsswtrack.label()] has value
+      : get first build track matched (i.e. the one with the highest nHits --> or lowest sum hit chi2 as provided by sort from above)
+      : store build track parameters + errors
+      : store nHits, nlayers, last layer, last hit parameters, hit and helix chi2, duplicate info, seedID
+      : swim cmssw phi to mkFit track, store it
+    : fill cmsswefftree
+
+- fillCMSSWFakeRateTree()
+  : loop over build tracks
+    : store build track parameters + errors
+    : store nHits, nlayers, last layer, last hit parameters, hit and helix chi2, duplicate info, seedID
+    : get cmsswTrackID, assign cmsswmask according to section D and G
+    : if cmsswmask == 1 
+      : store cmssw track PCA parameters + nhits, nlayers, last layer, seedID
+      : swim cmssw phi to mkFit track, store it
+    : fill cmsswefftree
+
+=============================================================
+ D. Definitions of efficiency, fake rate, and duplicate rate
+=============================================================
+
+Use rootValidation.C to create efficiency, fake rate, and duplicate rate vs. pT, phi, eta. This macro compiles PlotValidation.cpp/.hh. Efficiency uses sim track momentum info. Fake rate uses the reco track momentum. For [1.], plots are made for seed, build, and fit tracks. For [2.], the plots are only against the build tracks. See G. for more details on ID assignments.
+
+root -l -b -q runValidation.C\([agruments]\)
+
+Argument list: 
+First is additional input name of root file [def = ""]
+Second argument is boolean to compute momentum pulls: currently implemented only when sim track states are available (ToyMC validation only)! [def = false]
+Third argument is boolean to do special CMSSW validation [def = false]
+Fourth argument == true to move input root file to output directory, false to keep input file where it is. [def = true]
+Fifth argument is a bool to save the image files [def = false]
+Last argument is output type of plots [def = "pdf"]
+
+Efficiency [PlotValidation::PlotEfficiency()]
+  numerator:   sim tracks with at least one reco track with mcTrackID >= 0 (mcmask_[reco] == 1)
+  denominator: all findable sim tracks (mcmask_[reco] = 0 || == 1)
+  mcmask_[reco] == - 1 excluded from both numerator and denominator because this sim track was not findable!
+
+Fake Rate (with only long reco tracks: Config::inclusiveShorts == false) [PlotValidation::PlotFakeRate()]
+  numerator:   reco tracks with mcTrackID == -1 || == -9
+  denominator: reco tracks with mcTrackID >=  0 || == -1 || == -9
+  mcTrackID | mcmask_[reco] 
+     >= 0   |     1
+    -1,-9   |     0
+     -10    |    -2
+     else   |    -1 // OR the seed track does produce a build/fit track as determined by the seedToBuild/FitMap
+
+N.B. In the MTV-Like SimVal: the requirement on minHits is removed, so all reco tracks are considered.
+ - For the efficiency: only simtracks from the hard scatter (with some quality cuts on d0, dz, and eta) are considered for the denominator and numerator. If a simtrack from the hard-scatter is unmatched, it will not enter the numerator.
+ - For the FR: all reco tracks (regardless of nHits) are in the denominator, and only those that are unmatched to any simtrack are in the numerator. Compared to the standard FR definition, we now allow reco tracks that are matched to any simtrack (regardless of quality of the simtrack, if its from PU, etc.) to enter the denominator. 
+- This means that tracks with mcTrackID == -4 will now have a mcmask_[reco] == 2 for MTV-Like simtrack validation. 
+
+Fake Rate (with all reco tracks: Config::inclusiveShorts == true, enabled with command line option: --inc-shorts) [PlotValidation::PlotFakeRate()]
+  numerator:   reco tracks with mcTrackID == -1 || == -5 || ==  -8 || ==  -9
+  denominator: reco tracks with mcTrackID >=  0 || == -2 || == -1 || == -5 || == -8 || == -9
+  mcTrackID  | mcmask_[reco] 
+    >= 0     |     1
+ -1,-5,-8,-9 |     0
+    -10      |    -2
+     -2      |     2   
+    else     |    -1 // OR the seed track does produce a build/fit track as determined by the seedToBuild/FitMap
+
+Duplicate Rate [PlotValidation::PlotDuplicateRate()], see special note in section H
+  numerator:   sim tracks with more than reco track match (duplmask_[reco] == 1), or another way is nTrks_matched_[reco] > 1
+  denominator: sim tracks with at least one reco track with mcTrackID >= 0 (duplmask_[reco] != -1), or mcmask_[reco] == 1
+
+========================
+ E. Overview of scripts
+========================
+
+I. ./validation-snb-toymc-fulldet-build.sh
+Runs ToyMC full detector tracking for BH, STD, CE, for 400 events with nTracks/event = 2500. Sim seeds only.
+
+To move the images + text files and clean up directory:
+./web/move-toymcval.sh ${outdir name}
+
+II. ./validation-snb-cmssw-10mu-fulldet-build.sh
+Runs CMSSW full detector tracking for BH, STD, CE, for ~1000 events with 10 muons/event, with sim and cmssw seeds, using N^2 cleaning for cmssw seeds.
+Samples are split by eta region. Building is run for each region:
+- ECN2: 2.4 < eta < 1.7
+- ECN1: 1.75 < eta < 0.55
+- BRL: |eta| < 0.6
+- ECP1: 0.55 < eta < 1.75
+- ECP2: 1.7 < eta < 2.4
+
+Validation plots are produced for each sample (region), seeding source, and building routine. At the very end, validation trees are hadd'ed for each region in a given seed source + building routine. Plots are produced again to yield "full-detector" tracking.
+
+To move the images + text files and clean up directory:
+./web/move-cmsswval-10mu.sh ${outdir name}
+
+III. ./validation-snb-cmssw-10mu-fulldet-extrectracks.sh
+Same as II., but now only run with cmssw seeds (as we are comparing directly to cmssw output as the reference).
+
+To move the images + text files and clean up directory:
+./web/move-cmsswval-10mu-extrectracks.sh ${outdir name}
+
+IV. ./validation-snb-cmssw-ttbar-fulldet.sh
+Runs CMSSW full detector tracking for BH, STD, CE, for three different ttbar samples with 100 events each, with sim and cmssw seeds, using N^2 cleaning for cmssw seeds.
+TTbar samples:
+- No PU
+- PU 35
+- PU 70
+
+To move the images + text files and clean up directory:
+./web/move-cmsswval-ttbar.sh ${outdir name}
+
+V. ./validation-snb-cmssw-ttbar-fulldet.sh
+Same as IV., but now only run with cmssw seeds, using cmssw rec tracks as the reference set of tracks.
+
+To move the images + text files and clean up directory:
+./web/move-cmsswval-ttbar-extrectracks.sh ${outdir name}
+
+============================
+ F. Hit map/remapping logic
+============================
+
+*** Originally from mkFit/MkBuilder.cc ***
+
+All built candidate tracks have all hit indices pointing to m_event_of_hits.m_layers_of_hits[layer].m_hits (LOH)
+MC seeds (both CMSSW and toyMC),as well as CMSSW seeds, have seed hit indices pointing to global HitVec m_event->layerHits_[layer] (GLH)
+Found seeds from our code have all seed hit indices pointing to LOH.
+So.. to have universal seed fitting function --> have seed hits point to LOH no matter their origin.
+This means that all MC and CMSSW seeds must be "mapped" from GLH to LOH: map_seed_hits().
+Now InputTracksAndHits() for seed fit will use LOH instead of GLH.
+The output tracks of the seed fitting are now stored in m_event->seedTracks_.
+
+Then building proceeds as normal, using m_event->seedTracks_ as input no matter the choice of seeds. 
+
+For the validation, we can reuse the TrackExtra setMCTrackIDInfo() with a few tricks.
+Since setMCTrackIDInfo by necessity uses GLH, we then need ALL track collections (seed, candidate, fit) to their hits point back to GLH.
+There are also two validation options: w/ or w/o ROOT.
+
+W/ ROOT uses the TTreValidation class which needs seedTracks_, candidateTracks_, and fitTracks_ all stored in m_event.
+The fitTracks_ collection for now is just a copy of candidateTracks_ (eventually may have cuts and things that affect which tracks to fit).
+So... need to "remap" seedTracks_ hits from LOH to GLH with remap_seed_hits().
+And also copy in tracks from EtaBin* to candidateTracks_, and then remap hits from LOH to GLH with quality_store_tracks() and remap_cand_hits().
+W/ ROOT uses sim_val()
+
+W/O ROOT is a bit simpler... as we only need to do the copy out tracks from EtaBin* and then remap just candidateTracks_.
+This uses quality_output()
+
+N.B.1 Since fittestMPlex at the moment is not "end-to-end" with candidate tracks, we can still use the GLH version of InputTracksAndHits()
+N.B.2 Since we inflate LOH by 2% more than GLH, hit indices in building only go to GLH, so all loops are sized to GLH.
+
+==========================================
+ G. Extra info on ID and mask assignments
+==========================================
+
+*** Originally from Track.cc ***
+
+Three basic quantities determine the track ID: 
+ 1. matching criterion (50% after seed for *ByLabel(), 75% for other hit matching, or via chi2+dphi)
+ 2. nCandidateHits found compared nMinHits
+ 3. findability of reference track (if applicable)
+
+Three outcomes exist for each quantity:
+ 1. matching criterion
+    a. reco track passed the matching criterion in set*TrackIDInfo*(): M
+    b. reco track failed the matching criterion in set*TrackIDInfo*(): N
+    c. reco track never made it past its seed, so matching selection by hit matching via reference track label does not exist in set*TrackIDInfoByLabel(): N/A
+ 2. nCandHits compared to nMinHits
+    a. reco track has greater than or equal to the min hits requirement (i.e. is long enough): L
+    b. reco track has less than the min hits requirement (i.e. short): S
+    c. reco track is a pure seed, and calling function is set*TrackIDInfoByLabel(): O, by definition then O also equals S
+ 3. findability of reference track
+    a. reference track is findable (nUniqueLayers >= 8 && pT > 0.5): isF
+    b. reference track is NOT findable (nUniqueLayers < 8 || pT < 0.5): unF
+    c. reference track does not exist in set*TrackIDInfoByLabel(), or we are using set*TrackIDInfo(): ?
+
+*** Originally from TTreeValidation.cc ***
+
+** Mask assignments **
+
+_[reco] = {seed,build,fit}
+
+Logic is as follows: any negative integer means that track is excluded from both the numerator and denominator. A mask with a value greater than 1 means that the track is included in the denominator, but not the numerator.
+
+--> mcmask_[reco] == 1,"associated" reco to sim track [possible duplmask_[reco] == 1,0] {eff and FR}, enter numer and denom of eff, enter denom only of FR
+--> mcmask_[reco] == 0,"unassociated" reco to sim track. by definition no duplicates (no reco to associate to sim tracks!) [possible duplmask_[reco] == -1 {eff and FR}], enter denom only of eff, enter numer and denom of FR
+--> mcmask_[reco] == -1, sim or reco track excluded from denominator (and therefore numerator) [possible duplmask_[reco] == -1] {eff and FR}
+--> mcmask_[reco] == -2, reco track excluded from denominator because it does not exist (and therefore numerator) [possible duplmask_[reco] == -2] {FR}
+--> mcmask_[reco] == 2, reco track included in demoninator of FR, but will not enter numerator: for short "matched" tracks {FR only}
+
+--> nTkMatches_[reco] > 1,   n reco tracks associated to the same sim track ID {eff only}
+--> nTkMatches_[reco] == 1,  1 reco track associated to single sim track ID {eff only}
+--> nTkMatches_[reco] == -99, no reco to sim match {eff only}
+
+--> mcTSmask_[reco] == 1, reco track is associated to sim track, and sim track contains the same hit as the last hit on the reco track
+--> mcTSmask_[reco] == 0, reco track is associated to sim track, and either A) sim track does not contain the last hit found on the reco track or B) the sim trackstates were not read in (still save sim info from gen position via --try-to-save-sim-info
+--> mcTSmask_[reco] == -1, reco track is unassociated to sim track
+--> mcTSmask_[reco] == -2, reco track is associated to sim track, and we fail == 1 and == 0
+--> mcTSmask_[reco] == -3, reco track is unassociated to seed track {FR only}
+
+excluding position variables, as position could be -99!
+--> reco var == -99, "unassociated" reco to sim track [possible mcmask_[reco] == 0,-1,2; possible duplmask_[reco] == -1] {eff only}
+--> sim  var == -99, "unassociated" reco to sim track [possible mcmask_[reco] == 0,-1,2; possible duplmask_[reco] == -1] {FR only}
+--> reco/sim var == -100, "no matching seed to build/fit" track, fill all reco/sim variables -100 [possible mcmask_[reco] == -1, possible duplmask_[reco] == -1] {FR only}
+--> sim  var == -101, reco track is "associated" to sim track, however, sim track does have a hit on the layer the reco track is on
+
+--> seedmask_[reco] == 1, matching seed to reco/fit track [possible mcmask_[reco] == 0,1,2; possible duplmask_[reco] == 0,1,-1] {FR only}
+--> seedmask_[reco] == 0, no matching seed to reco/fit track [possible mcmask_[reco] == -2; possible duplmask_[reco] == -2] {FR only}
+
+--> duplmask_[reco] == 0, only "associated" reco to sim track [possible mcmask_[reco] == 1] {eff and FR}
+--> duplmask_[reco] == 1, more than one "associated" reco to sim track [possible mcmask_[reco] == 1] {eff and FR}
+--> duplmask_[reco] == -1, no "associated" reco to sim track [possible mcmask_[reco] == 0,-1,-2] {eff and FR}
+--> duplmask_[reco] == -2, no matching built/fit track for given seed [possible mcmask_[reco] == -2] {FR only}
+
+--> reco var == -10, variable not yet implemented for given track object
+
+position reco variables
+--> layers_[reco]    ==  -1, reco unassociated to sim tk {eff only}
+--> reco pos+err var == -2000, reco tk is unassociated to sim tk {eff only}
+--> reco pos+err var == -3000, reco tk is unassociated to seed tk {FR only}
+
+======================================
+ H. Special note about duplicate rate
+======================================
+
+*** Originally from PlotValidation.cpp ***
+
+Currently, TEfficiency does not allow you to fill a weighted number in the numerator and NOT the denominator.
+In other words, we cannot fill numerator n-1 times sim track is matched, while denominator is just filled once.
+As a result, DR is simply if a sim track is duplicated once, and not how many times it is duplicated. 
+
+We can revert back to the n-1 filling for the numerator to weight by the amount of times a sim track is duplicated, but this would mean going back to the TH1Fs, and then using the binomial errors (or computing by hand the CP errors or something), in the case that the DR in any bin > 1... This would break the flow of the printouts as well as the stacking macro, but could be done with some mild pain.

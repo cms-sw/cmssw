@@ -13,9 +13,9 @@
 #include "createPhase1TrackerGeometry.h"
 
 // mkFit includes
-#include "ConfigWrapper.h"
-#include "TrackerInfo.h"
-#include "mkFit/IterationConfig.h"
+#include "RecoTracker/MkFitCore/interface/ConfigWrapper.h"
+#include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
+#include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 
 #include <atomic>
 
