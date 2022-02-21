@@ -514,7 +514,7 @@ std::pair<unsigned int, unsigned int> MillePedeAlignmentAlgorithm::addReferenceT
              ++itPoint) {
           if (this->addGlobalData(setup, eventInfo, refTrajPtr, iHit++, *itPoint) < 0)
             return hitResultXy;
-          if (itPoint->hasMeasurement() >= 1)
+          if (itPoint->numMeasurements() >= 1)
             ++numPointsWithMeas;
         }
       }
