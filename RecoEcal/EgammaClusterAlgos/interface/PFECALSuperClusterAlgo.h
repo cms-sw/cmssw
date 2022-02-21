@@ -48,7 +48,7 @@
 #include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
 #include "CondFormats/DataRecord/interface/EcalSCDynamicDPhiParametersRcd.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/DeepSCGraphEvaluation.h"
+#include "RecoEcal/EgammaCoreTools/interface/SCProducerCache.h"
 
 #include <vector>
 #include <memory>

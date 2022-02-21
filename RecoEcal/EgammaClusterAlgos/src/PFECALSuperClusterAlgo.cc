@@ -286,8 +286,7 @@ void PFECALSuperClusterAlgo::buildAllSuperClusters(CalibClusterPtrVector& cluste
     }
 
   } else {
-    //TEST EcalClustersGraph
-
+    // EcalClustersGraph utility class for DeepSC algorithm application
     // make sure only seeds appear at the front of the list of clusters
     auto last_seed = std::stable_partition(clusters.begin(), clusters.end(), seedable);
 
@@ -299,28 +298,19 @@ void PFECALSuperClusterAlgo::buildAllSuperClusters(CalibClusterPtrVector& cluste
                                         barrelRecHits_,
                                         endcapRecHits_,
                                         SCProducerCache_};
-
-    // check which clusters are inside the dynamic windows ('1') and which are out ('0')
+    // Build sub-regions of the detector where the DeepSC algo will be run
     ecalClusterGraph_.initWindows();
-
-    // for each pfCluster inside a window ('1'),i.e. a matrix row, fill the variables needed for evaluating the GraphNet
+    // For each sub-region, prepare the DeepSC input tensors
     ecalClusterGraph_.fillVariables();
-
-    // for each window evaluate the GrpahNet score of any pfCluster inside the windwo ('1')
+    // Evaluate the DeepSC algorithm and save the scores
     ecalClusterGraph_.evaluateScores();
-    ecalClusterGraph_.printDebugInfo();
-
-    // first keep all pfClusters with a score greater than a threshold (seed-eta and seed-et dependent),
-    // then reduce elements and remove duplicates (pfClusters in many windows)
+    // Select the final SuperCluster using the CollectionStrategy defined in the cfi
     ecalClusterGraph_.setThresholds();
     ecalClusterGraph_.selectClusters();
-
-    // for each window make a superCluster out of the remaining pfClusters in the window ('1')
+    // Extract the final SuperCluster collection
     std::vector<std::pair<CalibratedClusterPtr, CalibratedClusterPtrVector>> windows = ecalClusterGraph_.getWindows();
     for (unsigned int iw = 0; iw < windows.size(); iw++)
       buildSuperCluster(windows.at(iw).first, windows.at(iw).second);
-
-    ecalClusterGraph_.clearWindows();
   }
 }
 
@@ -407,6 +397,7 @@ void PFECALSuperClusterAlgo::buildSuperCluster(CalibClusterPtr& seed, CalibClust
     clustered = clustered_tmp;
     clusters.erase(clusters.begin(), not_clustered);
   } else {
+    // if the DeepSC is used all the clusters passed to the buildSuperCluster function have been already selected
     clustered = clusters;
   }
 

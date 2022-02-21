@@ -16,7 +16,6 @@
 <use name="CalibCalorimetry/EcalLaserCorrection"/>
 <use name="PhysicsTools/TensorFlow"/>
 <use name="clhep"/>
-<use name="boost"/>
 <export>
   <lib name="1"/>
 </export>
