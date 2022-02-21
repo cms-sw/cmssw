@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.EventContent.EventContent_cff import AODSIMEventContent
 EXODisappTrkSkimContent = AODSIMEventContent.clone()
-
 EXODisappTrkSkimContent.outputCommands.append('drop *')
 EXODisappTrkSkimContent.outputCommands.append('keep *_reducedHcalRecHits_*_*')
 EXODisappTrkSkimContent.outputCommands.append('keep *_reducedEcalRecHits*_*_*')
