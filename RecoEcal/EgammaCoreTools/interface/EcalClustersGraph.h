@@ -36,6 +36,7 @@
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
+#include "CommonTools/RecoAlgos/interface/FKDTree.h"
 #include "RecoEcal/EgammaCoreTools/interface/CalibratedPFCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/GraphMap.h"
 #include "RecoEcal/EgammaCoreTools/interface/DeepSCGraphEvaluation.h"
@@ -61,16 +62,22 @@ namespace reco {
     const EcalRecHitCollection* recHitsEE_;
     const SCProducerCache* SCProducerCache_;
 
+    // K2-Tree for windows formation
+    FKDTree<float, 2> kTree_;
+    
     // GraphMap for handling all the windows and scores
     const static inline std::vector<uint> NODES_CATEGORIES = {0, 1};  // 0 =normal cluster, 1 seed
     GraphMap graphMap_;
+    
     std::vector<std::pair<uint, std::vector<uint>>> finalSuperClusters_;
     std::array<float, 3> locCov_;
     std::pair<double, double> widths_;
     float threshold_;
     DeepSCInputs inputs_;
 
+#ifdef EDM_ML_DEBUG
     std::ofstream outfile;
+#endif
     
   public:
     EcalClustersGraph(CalibratedClusterPtrVector clusters,
