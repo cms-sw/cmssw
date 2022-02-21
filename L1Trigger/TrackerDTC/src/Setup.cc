@@ -357,7 +357,7 @@ namespace trackerDTC {
   // check if geometry is supported
   void Setup::checkGeometry() {
     //FIX ME: Can we assume that geometry used in dd4hep wf supports L1Track?
-    if(!fromDD4hep_){
+    if (!fromDD4hep_){
       const vector<string>& geomXMLFiles = pSetGC_->getParameter<vector<string>>(sgXMLLabel_);
       string version;
       for (const string& geomXMLFile : geomXMLFiles) {
@@ -379,7 +379,7 @@ namespace trackerDTC {
       }
     }
   }
-
+  
   // convert configuration of TTStubAlgorithm
   void Setup::consumeStubAlgorithm() {
     numTiltedLayerRings_ = pSetSA_->getParameter<vector<double>>("NTiltedRings");
