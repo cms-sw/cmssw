@@ -43,12 +43,25 @@
 
 //---Wrapper to handle cross-stream data
 struct PhiSymCache {
-    mutable EcalPhiSymInfo ecalLumiInfo;
-  mutable EcalPhiSymRecHitCollection recHitCollEB;
-  mutable EcalPhiSymRecHitCollection recHitCollEE;
+    mutable tbb::concurrent_vector<EcalPhiSymInfo> ecalLumiInfo;
+    mutable tbb::concurrent_vector<EcalPhiSymRecHit> recHitCollEB;
+    mutable tbb::concurrent_vector<EcalPhiSymRecHit> recHitCollEE;
 
   void clear() {
-    ecalLumiInfo = EcalPhiSymInfo();
+      ecalLumiInfo.clear();
+    recHitCollEB.clear();
+    recHitCollEE.clear();
+  }
+};
+
+//---Wrapper to handle stream data
+struct PhiSymStreamCache {
+    mutable EcalPhiSymInfo ecalLumiInfo;
+    mutable EcalPhiSymRecHitCollection recHitCollEB;
+    mutable EcalPhiSymRecHitCollection recHitCollEE;
+
+  void clear() {
+      ecalLumiInfo = EcalPhiSymInfo();
     recHitCollEB.clear();
     recHitCollEE.clear();
   }
@@ -67,14 +80,14 @@ public:
   // job
   void initializeJob();
   // event
-  void processEvent(edm::Event const& event, edm::EventSetup const& setup, PhiSymCache* cache) const;
+  void processEvent(edm::Event const& event, edm::EventSetup const& setup, PhiSymStreamCache* cache) const;
   // helpers
-  void initializeStreamCache(PhiSymCache* cache) const;
+  void initializeStreamCache(PhiSymStreamCache* cache) const;
   void initializeGlobalCache(edm::EventSetup const& setup,
                              edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const& chStatusToken,
                              edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const& geoToken,
                              std::shared_ptr<PhiSymCache>& cache) const;
-  void sumCache(PhiSymCache* streamCache, PhiSymCache const* cache) const;
+  void sumCache(PhiSymStreamCache* streamCache, PhiSymCache const* cache) const;
 
   //---data memebers
   // available to derived classes
@@ -155,7 +168,7 @@ void EcalPhiSymRecHitProducerBase::initializeJob() {
 
 void EcalPhiSymRecHitProducerBase::processEvent(edm::Event const& event,
                                                 edm::EventSetup const& setup,
-                                                PhiSymCache* streamCache) const {
+                                                PhiSymStreamCache* streamCache) const {
   uint64_t totHitsEB = 0;
   uint64_t totHitsEE = 0;
 
@@ -261,7 +274,7 @@ void EcalPhiSymRecHitProducerBase::processEvent(edm::Event const& event,
   streamCache->ecalLumiInfo += thisEvent;
 }
 
-void EcalPhiSymRecHitProducerBase::initializeStreamCache(PhiSymCache* cache) const {
+void EcalPhiSymRecHitProducerBase::initializeStreamCache(PhiSymStreamCache* cache) const {
   //---Initialize the per-stream RecHitCollection
   //   both collections are initialized to contain the total
   //   number of crystals, ordered accrodingly to the hashedIndex.
@@ -325,13 +338,13 @@ void EcalPhiSymRecHitProducerBase::initializeGlobalCache(
   }
 }
 
-void EcalPhiSymRecHitProducerBase::sumCache(PhiSymCache* streamCache, PhiSymCache const* cache) const {
+void EcalPhiSymRecHitProducerBase::sumCache(PhiSymStreamCache* streamCache, PhiSymCache const* cache) const {
   //--- this could be improved.
   //    One has to make sure that the streamCache is the right hand argument
   //    in the sum to make sure that info like fillNumber and channel status
   //    are preserved since they are set in the global initialization and not
   //    in the stream one.
-    cache->ecalLumiInfo += streamCache->ecalLumiInfo;
+    cache->ecalLumiInfo[0] += streamCache->ecalLumiInfo;
 
   for (unsigned int i = 0; i < cache->recHitCollEB.size(); ++i)
     cache->recHitCollEB[i] += streamCache->recHitCollEB[i];
@@ -341,7 +354,7 @@ void EcalPhiSymRecHitProducerBase::sumCache(PhiSymCache* streamCache, PhiSymCach
 
 //****************************************************************************************
 // Lumi producer
-class EcalPhiSymRecHitProducerLumi : public edm::global::EDProducer<edm::StreamCache<PhiSymCache>,
+class EcalPhiSymRecHitProducerLumi : public edm::global::EDProducer<edm::StreamCache<PhiSymStreamCache>,
                                                                     edm::LuminosityBlockCache<PhiSymCache>,
                                                                     edm::EndLuminosityBlockProducer,
                                                                     edm::Accumulator>,
@@ -360,7 +373,7 @@ private:
   void globalEndLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) const override{};
   void globalEndLuminosityBlockProduce(edm::LuminosityBlock& lumi, edm::EventSetup const& setup) const override;
   // stream
-  std::unique_ptr<PhiSymCache> beginStream(edm::StreamID stream) const override;
+  std::unique_ptr<PhiSymStreamCache> beginStream(edm::StreamID stream) const override;
   void streamBeginLuminosityBlock(edm::StreamID stream,
                                   edm::LuminosityBlock const& lumi,
                                   edm::EventSetup const& setup) const override;
@@ -398,14 +411,14 @@ std::shared_ptr<PhiSymCache> EcalPhiSymRecHitProducerLumi::globalBeginLuminosity
 
   //---Reset global cache
   initializeGlobalCache(setup, chStatusTokenLumi_, geoTokenLumi_, cache);
-  cache->ecalLumiInfo += thisLumi;
+  cache->ecalLumiInfo.push_back(thisLumi);
 
   return cache;
 }
 
-std::unique_ptr<PhiSymCache> EcalPhiSymRecHitProducerLumi::beginStream(edm::StreamID stream) const {
+std::unique_ptr<PhiSymStreamCache> EcalPhiSymRecHitProducerLumi::beginStream(edm::StreamID stream) const {
   //---create stream cache
-  return std::make_unique<PhiSymCache>();
+  return std::make_unique<PhiSymStreamCache>();
 }
 
 void EcalPhiSymRecHitProducerLumi::globalEndLuminosityBlockProduce(edm::LuminosityBlock& lumi,
@@ -413,11 +426,11 @@ void EcalPhiSymRecHitProducerLumi::globalEndLuminosityBlockProduce(edm::Luminosi
   auto cache = luminosityBlockCache(lumi.index());
 
   //---put the collections in the LuminosityBlocks tree
-  auto ecalLumiInfo = std::make_unique<EcalPhiSymInfo>(cache->ecalLumiInfo);
+  auto ecalLumiInfo = std::make_unique<EcalPhiSymInfo>(cache->ecalLumiInfo[0]);
   ecalLumiInfo->setMiscalibInfo(
       nMisCalib_ * 2, misCalibRangeEB_[0], misCalibRangeEB_[1], misCalibRangeEE_[0], misCalibRangeEE_[1]);
-  auto recHitCollEB = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEB);
-  auto recHitCollEE = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEE);
+  auto recHitCollEB = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEB.begin(), cache->recHitCollEB.end());
+  auto recHitCollEE = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEE.begin(), cache->recHitCollEE.end());
 
   lumi.put(std::move(ecalLumiInfo));
   lumi.put(std::move(recHitCollEB), "EB");
@@ -446,7 +459,7 @@ void EcalPhiSymRecHitProducerLumi::accumulate(edm::StreamID stream,
 
 //****************************************************************************************
 // Run producer
-class EcalPhiSymRecHitProducerRun : public edm::global::EDProducer<edm::StreamCache<PhiSymCache>,
+class EcalPhiSymRecHitProducerRun : public edm::global::EDProducer<edm::StreamCache<PhiSymStreamCache>,
                                                                    edm::RunCache<PhiSymCache>,
                                                                    edm::LuminosityBlockCache<PhiSymCache>,
                                                                    edm::EndRunProducer,
@@ -469,7 +482,7 @@ private:
                                                           edm::EventSetup const& setup) const override;
   void globalEndLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) const override{};
   // stream
-  std::unique_ptr<PhiSymCache> beginStream(edm::StreamID stream) const override;
+  std::unique_ptr<PhiSymStreamCache> beginStream(edm::StreamID stream) const override;
   void streamBeginRun(edm::StreamID stream, edm::Run const& run, edm::EventSetup const& setup) const override;
   void streamEndRun(edm::StreamID stream, edm::Run const& run, edm::EventSetup const& setup) const override;
   // event
@@ -495,6 +508,7 @@ EcalPhiSymRecHitProducerRun::EcalPhiSymRecHitProducerRun(const edm::ParameterSet
 std::shared_ptr<PhiSymCache> EcalPhiSymRecHitProducerRun::globalBeginRun(edm::Run const& run,
                                                                          edm::EventSetup const& setup) const {
   auto cache = std::make_shared<PhiSymCache>();
+  cache->ecalLumiInfo.push_back(EcalPhiSymInfo());
   initializeGlobalCache(setup, chStatusTokenRun_, geoTokenRun_, cache);
   return cache;
 }
@@ -510,15 +524,15 @@ std::shared_ptr<PhiSymCache> EcalPhiSymRecHitProducerRun::globalBeginLuminosityB
   const auto& lhcinfo = setup.getData(lhcInfoTokenLumi_);
   EcalPhiSymInfo thisLumi(0, 0, 0, 1, lhcinfo.fillNumber(), lhcinfo.delivLumi(), lhcinfo.recLumi());
 
-  runCache(lumi.getRun().index())->ecalLumiInfo += thisLumi;
+  runCache(lumi.getRun().index())->ecalLumiInfo[0] += thisLumi;
 
   // dummy cache, it won't be used
   return std::make_shared<PhiSymCache>();
 }
 
-std::unique_ptr<PhiSymCache> EcalPhiSymRecHitProducerRun::beginStream(edm::StreamID stream) const {
+std::unique_ptr<PhiSymStreamCache> EcalPhiSymRecHitProducerRun::beginStream(edm::StreamID stream) const {
   //---create stream cache
-  return std::make_unique<PhiSymCache>();
+  return std::make_unique<PhiSymStreamCache>();
 }
 
 void EcalPhiSymRecHitProducerRun::streamBeginRun(edm::StreamID stream,
@@ -539,11 +553,11 @@ void EcalPhiSymRecHitProducerRun::globalEndRunProduce(edm::Run& run, edm::EventS
   auto cache = runCache(run.index());
 
   //---put the collections in the Runs tree
-  auto ecalLumiInfo = std::make_unique<EcalPhiSymInfo>(cache->ecalLumiInfo);
+  auto ecalLumiInfo = std::make_unique<EcalPhiSymInfo>(cache->ecalLumiInfo[0]);
   ecalLumiInfo->setMiscalibInfo(
       nMisCalib_ * 2, misCalibRangeEB_[0], misCalibRangeEB_[1], misCalibRangeEE_[0], misCalibRangeEE_[1]);
-  auto recHitCollEB = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEB);
-  auto recHitCollEE = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEE);
+  auto recHitCollEB = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEB.begin(), cache->recHitCollEB.end());
+  auto recHitCollEE = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEE.begin(), cache->recHitCollEE.end());
 
   run.put(std::move(ecalLumiInfo));
   run.put(std::move(recHitCollEB), "EB");
