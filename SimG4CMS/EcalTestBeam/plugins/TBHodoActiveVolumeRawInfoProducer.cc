@@ -45,21 +45,19 @@ private:
 using namespace cms;
 using namespace std;
 
-TBHodoActiveVolumeRawInfoProducer::TBHodoActiveVolumeRawInfoProducer(const edm::ParameterSet &ps) :
-  myThreshold(0.05E-3),
-  m_EcalToken(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalTBH4BeamHits"))) {
-
+TBHodoActiveVolumeRawInfoProducer::TBHodoActiveVolumeRawInfoProducer(const edm::ParameterSet &ps)
+    : myThreshold(0.05E-3),
+      m_EcalToken(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalTBH4BeamHits"))) {
   produces<EcalTBHodoscopeRawInfo>();
 
   theTBHodoGeom_ = std::make_unique<EcalTBHodoscopeGeometry>();
-
 }
 
 void TBHodoActiveVolumeRawInfoProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
   std::unique_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
 
   // caloHit container
-  const edm::Handle<edm::PCaloHitContainer>& pCaloHit = event.getHandle(m_EcalToken);
+  const edm::Handle<edm::PCaloHitContainer> &pCaloHit = event.getHandle(m_EcalToken);
   const edm::PCaloHitContainer *caloHits = nullptr;
   if (pCaloHit.isValid()) {
     caloHits = pCaloHit.product();

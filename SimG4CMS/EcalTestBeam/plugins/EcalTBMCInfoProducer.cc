@@ -62,11 +62,10 @@ private:
   std::unique_ptr<EcalTBCrystalMap> theTestMap;
 
   std::unique_ptr<ROOT::Math::Rotation3D> fromCMStoTB;
-
 };
 
-EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps) 
-   :  fMinEta(ps.getParameter<double>("MinEta")),
+EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps)
+    : fMinEta(ps.getParameter<double>("MinEta")),
       fMaxEta(ps.getParameter<double>("MaxEta")),
       fMinPhi(ps.getParameter<double>("MinPhi")),
       fMaxPhi(ps.getParameter<double>("MaxPhi")),
@@ -76,7 +75,6 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps)
       beamXoff(ps.getParameter<double>("BeamMeanX")),
       beamYoff(ps.getParameter<double>("BeamMeanX")),
       GenVtxToken(consumes<edm::HepMCProduct>(edm::InputTag("moduleLabelVtx", "source"))) {
-
   produces<PEcalTBInfo>();
 
   edm::FileInPath CrystalMapFile = ps.getParameter<edm::FileInPath>("CrystalMapFile");
@@ -162,7 +160,7 @@ void EcalTBMCInfoProducer::produce(edm::Event &event, const edm::EventSetup &eve
 
   partXhodo = partYhodo = 0.;
 
-  const edm::Handle<edm::HepMCProduct>& GenEvt = event.getHandle(GenVtxToken);
+  const edm::Handle<edm::HepMCProduct> &GenEvt = event.getHandle(GenVtxToken);
 
   const HepMC::GenEvent *Evt = GenEvt->GetEvent();
   HepMC::GenEvent::vertex_const_iterator Vtx = Evt->vertices_begin();

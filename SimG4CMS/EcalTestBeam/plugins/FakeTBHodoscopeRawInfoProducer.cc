@@ -40,9 +40,8 @@ private:
   const edm::EDGetTokenT<PEcalTBInfo> ecalTBInfo_;
 };
 
-FakeTBHodoscopeRawInfoProducer::FakeTBHodoscopeRawInfoProducer(const edm::ParameterSet &ps) :
-  ecalTBInfo_(consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"))) {
-
+FakeTBHodoscopeRawInfoProducer::FakeTBHodoscopeRawInfoProducer(const edm::ParameterSet &ps)
+    : ecalTBInfo_(consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"))) {
   produces<EcalTBHodoscopeRawInfo>();
 
   theTBHodoGeom_ = std::make_unique<EcalTBHodoscopeGeometry>();
@@ -53,7 +52,7 @@ void FakeTBHodoscopeRawInfoProducer::produce(edm::Event &event, const edm::Event
 
   // get the vertex information from the event
 
-  const edm::Handle<PEcalTBInfo>& theEcalTBInfo = event.getHandle(ecalTBInfo_);
+  const edm::Handle<PEcalTBInfo> &theEcalTBInfo = event.getHandle(ecalTBInfo_);
 
   double partXhodo = theEcalTBInfo->evXbeam();
   double partYhodo = theEcalTBInfo->evYbeam();
