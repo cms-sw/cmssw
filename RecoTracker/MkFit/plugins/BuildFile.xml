@@ -29,7 +29,6 @@
   <use name="TrackingTools/TrackFitters"/>
   <use name="TrackingTools/TrajectoryState"/>
   <use name="TrackingTools/TransientTrackingRecHit"/>
-  <use name="mkfit"/>
   <use name="rootmath"/>
   <flags EDM_PLUGIN="1"/>
 </library>

@@ -37,9 +37,9 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 // mkFit indludes
-#include "LayerNumberConverter.h"
-#include "Track.h"
-#include "mkFit/HitStructures.h"
+#include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
+#include "RecoTracker/MkFitCore/interface/Track.h"
+#include "RecoTracker/MkFitCore/interface/HitStructures.h"
 
 namespace {
   template <typename T>
