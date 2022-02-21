@@ -14,7 +14,7 @@ using namespace std;
 using namespace edm;
 
 namespace trackerDTC {
-  
+
   /*! \class  trackerDTC::ProducerES
    *  \brief  Class to produce setup of Track Trigger emulators
    *  \author Thomas Schuh
@@ -25,7 +25,7 @@ namespace trackerDTC {
     ProducerES(const ParameterSet& iConfig);
     ~ProducerES() override {}
     unique_ptr<Setup> produce(const SetupRcd& setupRcd);
-    
+
   private:
     const ParameterSet iConfig_;
     ESGetToken<StubAlgorithm, TTStubAlgorithmRecord> getTokenTTStubAlgorithm_;
@@ -37,7 +37,7 @@ namespace trackerDTC {
     ESGetToken<cms::DDCompactView, IdealGeometryRecord> getTokenGeometryConfigurationDD4hep_;
     bool fromDD4hep_;
   };
-  
+
   ProducerES::ProducerES(const ParameterSet& iConfig) : iConfig_(iConfig) {
     fromDD4hep_ = iConfig.getParameter<bool>("fromDD4hep");
     auto cc = setWhatProduced(this);
@@ -51,7 +51,7 @@ namespace trackerDTC {
     else
       getTokenGeometryConfiguration_ = cc.consumes();
   }
-  
+
   unique_ptr<Setup> ProducerES::produce(const SetupRcd& setupRcd) {
     const MagneticField& magneticField = setupRcd.get(getTokenMagneticField_);
     const TrackerGeometry& trackerGeometry = setupRcd.get(getTokenTrackerGeometry_);
@@ -59,37 +59,38 @@ namespace trackerDTC {
     const TrackerDetToDTCELinkCablingMap& cablingMap = setupRcd.get(getTokenCablingMap_);
     const ESHandle<StubAlgorithm> handleStubAlgorithm = setupRcd.getHandle(getTokenTTStubAlgorithm_);
     const ParameterSetID& pSetIdTTStubAlgorithm = handleStubAlgorithm.description()->pid_;
-    const StubAlgorithmOfficial& stubAlgoritm = *dynamic_cast<const StubAlgorithmOfficial*>(&setupRcd.get(getTokenTTStubAlgorithm_));
+    const StubAlgorithmOfficial& stubAlgoritm =
+        *dynamic_cast<const StubAlgorithmOfficial*>(&setupRcd.get(getTokenTTStubAlgorithm_));
     const ParameterSet& pSetStubAlgorithm = getParameterSet(handleStubAlgorithm.description()->pid_);
-    if (fromDD4hep_){
-      const ESHandle<cms::DDCompactView> handleGeometryConfiguration = setupRcd.getHandle(getTokenGeometryConfigurationDD4hep_);
+    if (fromDD4hep_) {
+      const ESHandle<cms::DDCompactView> handleGeometryConfiguration =
+          setupRcd.getHandle(getTokenGeometryConfigurationDD4hep_);
       const ParameterSetID& pSetIdGeometryConfiguration = handleGeometryConfiguration.description()->pid_;
       const ParameterSet& pSetGeometryConfiguration = getParameterSet(handleGeometryConfiguration.description()->pid_);
       return make_unique<Setup>(iConfig_,
-				magneticField,
-				trackerGeometry,
-				trackerTopology,
-				cablingMap,
-				stubAlgoritm,
-				pSetStubAlgorithm,
-				pSetGeometryConfiguration,
-				pSetIdTTStubAlgorithm,
-				pSetIdGeometryConfiguration);
-    }
-    else{
+                                magneticField,
+                                trackerGeometry,
+                                trackerTopology,
+                                cablingMap,
+                                stubAlgoritm,
+                                pSetStubAlgorithm,
+                                pSetGeometryConfiguration,
+                                pSetIdTTStubAlgorithm,
+                                pSetIdGeometryConfiguration);
+    } else {
       const ESHandle<DDCompactView> handleGeometryConfiguration = setupRcd.getHandle(getTokenGeometryConfiguration_);
       const ParameterSetID& pSetIdGeometryConfiguration = handleGeometryConfiguration.description()->pid_;
       const ParameterSet& pSetGeometryConfiguration = getParameterSet(handleGeometryConfiguration.description()->pid_);
       return make_unique<Setup>(iConfig_,
-				magneticField,
-				trackerGeometry,
-				trackerTopology,
-				cablingMap,
-				stubAlgoritm,
-				pSetStubAlgorithm,
-				pSetGeometryConfiguration,
-				pSetIdTTStubAlgorithm,
-				pSetIdGeometryConfiguration);
+                                magneticField,
+                                trackerGeometry,
+                                trackerTopology,
+                                cablingMap,
+                                stubAlgoritm,
+                                pSetStubAlgorithm,
+                                pSetGeometryConfiguration,
+                                pSetIdTTStubAlgorithm,
+                                pSetIdGeometryConfiguration);
     }
   }
 }  // namespace trackerDTC
