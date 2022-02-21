@@ -29,6 +29,7 @@
 
 // std includes
 #include <functional>
+#include <mutex>
 
 class MkFitProducer : public edm::global::EDProducer<edm::StreamCache<mkfit::MkBuilderWrapper>> {
 public:
@@ -61,6 +62,10 @@ private:
   const bool mkFitSilent_;
   const bool limitConcurrency_;
 };
+
+namespace {
+  std::once_flag constructOnce;
+}
 
 MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
     : pixelHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("pixelHits"))},
@@ -98,9 +103,10 @@ MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
         << "Invalid value for parameter 'buildingRoutine' " << build << ", allowed are bestHit, standard, cloneEngine";
   }
 
-  // TODO: what to do when we have multiple instances of MkFitProducer in a job?
-  mkfit::MkBuilderWrapper::populate();
-  mkfit::ConfigWrapper::initializeForCMSSW();
+  std::call_once(constructOnce, []() {
+    mkfit::MkBuilderWrapper::populate();
+    mkfit::ConfigWrapper::initializeForCMSSW();
+  });
 }
 
 void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
