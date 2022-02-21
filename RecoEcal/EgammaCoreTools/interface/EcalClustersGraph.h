@@ -36,10 +36,18 @@
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
-#include "CommonTools/RecoAlgos/interface/FKDTree.h"
 #include "RecoEcal/EgammaCoreTools/interface/CalibratedPFCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/GraphMap.h"
-#include "RecoEcal/EgammaCoreTools/interface/DeepSCGraphEvaluation.h"
+#include "RecoEcal/EgammaCoreTools/interface/SCProducerCache.h"
+
+/*
+ * class:  EcalClustersGraph 
+ * Authors:  D.Valsecchi, B.Marzocchi
+ * Date:  January 2022
+ * 
+ * Utility class to handle all the PFClusters in ECAL as a graph.
+ * The DeepSC algorithm is applied on sub-graphs of clusters to form SuperCluster.
+ */
 
 using namespace std;
 using namespace reco;
@@ -62,23 +70,16 @@ namespace reco {
     const EcalRecHitCollection* recHitsEE_;
     const SCProducerCache* SCProducerCache_;
 
-    // K2-Tree for windows formation
-    FKDTree<float, 2> kTree_;
-    
     // GraphMap for handling all the windows and scores
-    const static inline std::vector<uint> NODES_CATEGORIES = {0, 1};  // 0 =normal cluster, 1 seed
     GraphMap graphMap_;
-    
-    std::vector<std::pair<uint, std::vector<uint>>> finalSuperClusters_;
-    std::array<float, 3> locCov_;
-    std::pair<double, double> widths_;
+    GraphMap::CollectionStrategy strategy_;
     float threshold_;
     DeepSCInputs inputs_;
 
-#ifdef EDM_ML_DEBUG
-    std::ofstream outfile;
-#endif
-    
+    std::vector<std::pair<uint, std::vector<uint>>> finalSuperClusters_;
+    std::array<float, 3> locCov_;
+    std::pair<double, double> widths_;
+
   public:
     EcalClustersGraph(CalibratedClusterPtrVector clusters,
                       int nSeeds,
@@ -120,13 +121,11 @@ namespace reco {
 
     double scoreThreshold(const CaloCluster* cluster);
     void initWindows();
-    void clearWindows();
 
     void setThresholds();
     void evaluateScores();
     void selectClusters();
 
-    void printDebugInfo();
     std::vector<std::pair<CalibratedClusterPtr, CalibratedClusterPtrVector>> getWindows();
   };
 

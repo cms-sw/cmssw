@@ -2,7 +2,6 @@
 #define RecoEcal_EgammaCoreTools_DeepSCGraphEvaluation_h
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 #include <array>
 #include <memory>
@@ -26,7 +25,7 @@ namespace reco {
     uint maxNClusters;
     uint maxNRechits;
     uint batchSize;
-    uint collectionStrategy;
+    std::string collectionStrategy;
   };
 
   struct DeepSCInputs {
@@ -44,7 +43,7 @@ namespace reco {
     std::vector<double> scaleClusterFeatures(const std::vector<double>& input) const;
     std::vector<double> scaleWindowFeatures(const std::vector<double>& inputs) const;
 
-    std::vector<std::vector<float>> evaluate(const DeepSCInputs& inputs) const ;
+    std::vector<std::vector<float>> evaluate(const DeepSCInputs& inputs) const;
 
   private:
     void initTensorFlowGraphAndSession();
@@ -58,14 +57,6 @@ namespace reco {
 
     std::vector<std::pair<float, float>> scalerParamsClusters_;
     std::vector<std::pair<float, float>> scalerParamsWindows_;
-
-  };
-
-  class SCProducerCache {
-  public:
-    SCProducerCache(const edm::ParameterSet& conf);
-    std::unique_ptr<const DeepSCGraphEvaluation> deepSCEvaluator;
-    reco::DeepSCConfiguration config;
   };
 
 };  // namespace reco
