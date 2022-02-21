@@ -7,7 +7,7 @@ EXODisappTrkSkimContent.outputCommands.append('keep *_reducedHcalRecHits_*_*')
 EXODisappTrkSkimContent.outputCommands.append('keep *_reducedEcalRecHits*_*_*')
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi as _hltHighLevel
-hltDisappTrk = _hltHighLevel.clone(
+hltDisappTrk = _hltHighLevel.hltHighLevel.clone(
    throw = False,
    andOr = True,
    HLTPaths = [
