@@ -29,7 +29,7 @@ EcalClustersGraph::EcalClustersGraph(CalibratedClusterPtrVector clusters,
       recHitsEB_(recHitsEB),
       recHitsEE_(recHitsEE),
       SCProducerCache_(cache),
-      graphMap_(clusters.size(), EcalClustersGraph::NODES_CATEGORIES) {
+      graphMap_(clusters.size()) {
   // Prepare the batch size of the tensor inputs == number of windows
   inputs_.clustersX.resize(nSeeds_);
   inputs_.windowX.resize(nSeeds_);
@@ -39,15 +39,26 @@ EcalClustersGraph::EcalClustersGraph(CalibratedClusterPtrVector clusters,
   // Init the graph nodes
   for (size_t i = 0; i < nCls_; i++) {
     if (i < nSeeds_)
-      graphMap_.addNode(i, 1);
+      graphMap_.addNode(i, GraphMap::NodeCategory::kSeed);
     else
-      graphMap_.addNode(i, 0);
+      graphMap_.addNode(i, GraphMap::NodeCategory::kNode);
+  }
+
+  // Select the collection strategy from the config
+  if (SCProducerCache_->config.collectionStrategy == "Cascade") {
+    strategy_ = GraphMap::CollectionStrategy::Cascade;
+  } else if (SCProducerCache_->config.collectionStrategy == "CollectAndMerge") {
+    strategy_ = GraphMap::CollectionStrategy::CollectAndMerge;
+  } else if (SCProducerCache_->config.collectionStrategy == "SeedsFirst") {
+    strategy_ = GraphMap::CollectionStrategy::SeedsFirst;
+  } else if (SCProducerCache_->config.collectionStrategy == "CascadeHighest") {
+    strategy_ = GraphMap::CollectionStrategy::CascadeHighest;
+  } else {
+    edm::LogWarning("EcalClustersGraph") << "GraphMap::CollectionStrategy not recognized. Default to Cascade";
+    strategy_ = GraphMap::CollectionStrategy::Cascade;
   }
 
   LogTrace("EcalClustersGraph") << "EcalClustersGraph created. nSeeds " << nSeeds_ << ", nClusters " << nCls_ << endl;
-#ifdef EDM_ML_DEBUG
-  outfile.open("graph_debug.txt", std::ios_base::app);
-#endif
 }
 
 std::vector<int> EcalClustersGraph::clusterPosition(const CaloCluster* cluster) {
@@ -57,7 +68,7 @@ std::vector<int> EcalClustersGraph::clusterPosition(const CaloCluster* cluster) 
   int iphi = -999;
   int iz = -99;
 
-  math::XYZPoint caloPos = cluster->position();
+  const math::XYZPoint& caloPos = cluster->position();
   if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_BARREL) {
     EBDetId eb_id(ebGeom_->getClosestCell(GlobalPoint(caloPos.x(), caloPos.y(), caloPos.z())));
     ieta = eb_id.ieta();
@@ -124,10 +135,6 @@ std::vector<double> EcalClustersGraph::dynamicWindow(double seedEta) {
 }
 
 void EcalClustersGraph::initWindows() {
-#ifdef EDM_ML_DEBUG
-  outfile << "[";
-#endif 
-    
   for (uint is = 0; is < nSeeds_; is++) {
     std::vector<int> seedLocal = clusterPosition((*clusters_.at(is)).the_ptr().get());
     double seed_eta = clusters_.at(is)->eta();
@@ -146,22 +153,8 @@ void EcalClustersGraph::initWindows() {
       if (seedLocal[2] == clusterLocal[2] && deta >= width[0] && deta <= width[1] && fabs(dphi) <= width[2]) {
         graphMap_.addEdge(is, icl);
       }
-
-      #ifdef EDM_ML_DEBUG
-      if (is==0){
-        outfile << "(" << icl << "," << clusterLocal[0] << "," << clusterLocal[1] << ","<< clusterLocal[2] << ","
-                << (*clusters_.at(icl)).the_ptr().get()->energy()/ TMath::CosH(cl_eta) <<  "),";
-      }
-      #endif
     }
   }
-#ifdef EDM_ML_DEBUG
-  outfile << "]\n";
-#endif
-}
-
-void EcalClustersGraph::clearWindows() {
-  //......
 }
 
 std::pair<double, double> EcalClustersGraph::computeCovariances(const CaloCluster* cluster) {
@@ -184,13 +177,11 @@ std::pair<double, double> EcalClustersGraph::computeCovariances(const CaloCluste
   for (std::vector<std::pair<DetId, float>>::const_iterator hit = detId.begin(); hit != detId.end(); ++hit) {
     if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_BARREL) {
       rHit = recHitsEB_->find((*hit).first);
-      //FIXME: THIS IS JUST A WORKAROUND A FIX SHOULD BE APPLIED
       if (rHit == recHitsEB_->end()) {
         continue;
       }
     } else if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_ENDCAP) {
       rHit = recHitsEE_->find((*hit).first);
-      //FIXME: THIS IS JUST A WORKAROUND A FIX SHOULD BE APPLIED
       if (rHit == recHitsEE_->end()) {
         continue;
       }
@@ -315,7 +306,7 @@ std::vector<double> EcalClustersGraph::computeShowerShapes(const CaloCluster* cl
 std::vector<std::vector<double>> EcalClustersGraph::fillHits(const CaloCluster* cluster) {
   const std::vector<std::pair<DetId, float>>& hitsAndFractions = cluster->hitsAndFractions();
   std::vector<std::vector<double>> out(hitsAndFractions.size());
-  if (hitsAndFractions.size() == 0) {
+  if (hitsAndFractions.empty()) {
     edm::LogError("EcalClustersGraph") << "No hits in cluster!!";
   }
   for (unsigned int i = 0; i < hitsAndFractions.size(); i++) {
@@ -323,12 +314,10 @@ std::vector<std::vector<double>> EcalClustersGraph::fillHits(const CaloCluster* 
     if (hitsAndFractions[i].first.subdetId() == EcalBarrel) {
       double energy = (*recHitsEB_->find(hitsAndFractions[i].first)).energy();
       EBDetId eb_id(hitsAndFractions[i].first);
-      rechit[0] = eb_id.ieta();  //ieta
-      rechit[1] = eb_id.iphi();  //iphi
-      rechit[2] = 0.;            //iz
-      // rechit[3] = energy; //energy
+      rechit[0] = eb_id.ieta();                         //ieta
+      rechit[1] = eb_id.iphi();                         //iphi
+      rechit[2] = 0.;                                   //iz
       rechit[3] = energy * hitsAndFractions[i].second;  //energy * fraction
-                                                        // rechit[5] = hitsAndFractions[i].second; //fraction
     } else if (hitsAndFractions[i].first.subdetId() == EcalEndcap) {
       double energy = (*recHitsEE_->find(hitsAndFractions[i].first)).energy();
       EEDetId ee_id(hitsAndFractions[i].first);
@@ -339,8 +328,6 @@ std::vector<std::vector<double>> EcalClustersGraph::fillHits(const CaloCluster* 
       if (ee_id.zside() > 0)
         rechit[2] = +1.;                                //iz
       rechit[3] = energy * hitsAndFractions[i].second;  //energy * fraction
-      // rechit[3] = energy; //energy
-      // rechit[5] = hitsAndFractions[i].second; //fraction
     } else {
       edm::LogError("EcalClustersGraph") << "Rechit is not either EB or EE!!";
     }
@@ -350,10 +337,8 @@ std::vector<std::vector<double>> EcalClustersGraph::fillHits(const CaloCluster* 
 }
 
 std::vector<double> EcalClustersGraph::computeVariables(const CaloCluster* seed, const CaloCluster* cluster) {
-  std::vector<double> cl_vars(12);  //TODO == PUT dynamic configuration
-  //showerShapes_ = computeShowerShapes(cluster,false);
+  std::vector<double> cl_vars(12);  //TODO dynamic configuration
   std::vector<int> clusterLocal = clusterPosition(cluster);
-
   cl_vars[0] = cluster->energy();                                //cl_energy
   cl_vars[1] = cluster->energy() / TMath::CosH(cluster->eta());  //cl_et
   cl_vars[2] = cluster->eta();                                   //cl_eta
@@ -431,9 +416,6 @@ void EcalClustersGraph::fillVariables() {
 void EcalClustersGraph::evaluateScores() {
   // Evaluate model
   const auto& scores = SCProducerCache_->deepSCEvaluator->evaluate(inputs_);
-#ifdef EDM_ML_DEBUG
-  outfile << "[";
-#endif
   for (uint i = 0; i < nSeeds_; ++i) {
     uint k = 0;
     for (auto const& j : graphMap_.getOutEdges(i)) {
@@ -441,71 +423,30 @@ void EcalClustersGraph::evaluateScores() {
       // Not symmetrically, in order to save multiple values for seeds in other
       // seeds windows.
       graphMap_.setAdjMatrix(i, j, scores[i][k]);
-#ifdef EDM_ML_DEBUG
-      // Output the graph in the txt file
-      outfile << "("<< i << "," << j << "," << scores[i][k] << "),";
-#endif
       k++;
     }
   }
-#ifdef EDM_ML_DEBUG
-  outfile << "]\n";
-#endif
-}
-
-void EcalClustersGraph::printDebugInfo() {
-  // LogDebug("EcalClustersGraph") << "In window matrix:";
-  // for (uint i = 0; i < nSeeds_; ++i){
-  //   for (uint j = 0; j < nCls_; ++j) {
-  //     std::cout << inWindows_.Get(i, j) << ",";
-  //   }
-  //   std::cout << std::endl;
-  // }
-  // LogDebug("EcalClustersGraph") << "Score matrix:";
-  // for (uint i = 0; i < nSeeds_; ++i){
-  //   for (uint j = 0; j < nCls_; ++j) {
-  //     std::cout << scoreMatrix_.Get(i, j) << ",";
-  //   }
-  //   std::cout << std::endl;
-  // }
-  // LogDebug("EcalClustersGraph") << "Clusters ieta,iphi,iz,en";
-  // for (uint j = 0; j < nCls_; ++j) {
-  //   const auto cluster = (*clusters_.at(j)).the_ptr().get();
-  //   std::vector<int> clusterLocal = clusterPosition(cluster);
-  //   std::cout << clusterLocal[0] << "," << clusterLocal[1]<< "," << clusterLocal[2] << "," << cluster->energy() << std::endl;
-  //}
 }
 
 void EcalClustersGraph::setThresholds() {
+  // Simple global threshold for the moment
   threshold_ = 0.5;
 }
 
 void EcalClustersGraph::selectClusters() {
-  finalSuperClusters_ = graphMap_.collectNodes(static_cast<GraphMap::CollectionStrategy>(SCProducerCache_->config.collectionStrategy), threshold_);
-  LogTrace("EcalClustersGraph") << "Final SuperClusters";
-
-#ifdef EDM_ML_DEBUG
-  outfile << "[";
-  for (const auto & [sc, cls] : finalSuperClusters_){
-    LogTrace("EcalClustersGraph")  << "Seed: " << sc << "\t"; 
-    for (const auto & c : cls){
-      LogTrace("EcalClustersGraph" ) << c << " ";
-      outfile << "(" << sc << "," << c <<  "),";
-    }
-  }
-  outfile << "]\n";
-#endif
+  // Collect the final superClusters as subgraphs
+  finalSuperClusters_ = graphMap_.collectNodes(strategy_, threshold_);
 }
 
 std::vector<std::pair<CalibratedClusterPtr, CalibratedClusterPtrVector>> EcalClustersGraph::getWindows() {
   std::vector<std::pair<CalibratedClusterPtr, CalibratedClusterPtrVector>> windows;
-  for (const auto & [is, cls] : finalSuperClusters_){
-       CalibratedClusterPtr seed = clusters_[is];
-       CalibratedClusterPtrVector clusters_inWindow;
-       for(const auto & ic : cls){
-         clusters_inWindow.push_back(clusters_[ic]);
-       }
-       windows.push_back({seed, clusters_inWindow});
+  for (const auto& [is, cls] : finalSuperClusters_) {
+    CalibratedClusterPtr seed = clusters_[is];
+    CalibratedClusterPtrVector clusters_inWindow;
+    for (const auto& ic : cls) {
+      clusters_inWindow.push_back(clusters_[ic]);
+    }
+    windows.push_back({seed, clusters_inWindow});
   }
   return windows;
 }

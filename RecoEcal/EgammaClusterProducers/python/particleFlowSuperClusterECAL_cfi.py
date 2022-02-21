@@ -2,28 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECALMustache_cfi import particleFlowSuperClusterECALMustache as _particleFlowSuperClusterECALMustache
 from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECALDeepSC_cfi import particleFlowSuperClusterECALDeepSC as _particleFlowSuperClusterECALDeepSC
-
 # define the default ECAL clustering (Mustache or Box or DeepSC)
 particleFlowSuperClusterECAL = _particleFlowSuperClusterECALMustache.clone()
 
-
-particleFlowDeepSuperClusterECALstrategyA = _particleFlowSuperClusterECALDeepSC.clone()
-particleFlowDeepSuperClusterECALstrategyB = _particleFlowSuperClusterECALDeepSC.clone()
-particleFlowDeepSuperClusterECALstrategyC = _particleFlowSuperClusterECALDeepSC.clone()
-
-particleFlowDeepSuperClusterECALstrategyA.deepSuperClusterGraphConfig.collectionStrategy = 0
-particleFlowDeepSuperClusterECALstrategyA.PFSuperClusterCollectionEndcap = "particleFlowDeepSCECALEndcapA"
-particleFlowDeepSuperClusterECALstrategyA.PFSuperClusterCollectionBarrel = "particleFlowDeepSCECALBarrelA"
-
-particleFlowDeepSuperClusterECALstrategyB.deepSuperClusterGraphConfig.collectionStrategy = 1
-particleFlowDeepSuperClusterECALstrategyB.PFSuperClusterCollectionEndcap = "particleFlowDeepSCECALEndcapB"
-particleFlowDeepSuperClusterECALstrategyB.PFSuperClusterCollectionBarrel = "particleFlowDeepSCECALBarrelB"
-
-particleFlowDeepSuperClusterECALstrategyC.deepSuperClusterGraphConfig.collectionStrategy = 2
-particleFlowDeepSuperClusterECALstrategyC.PFSuperClusterCollectionEndcap = "particleFlowDeepSCECALEndcapC"
-particleFlowDeepSuperClusterECALstrategyC.PFSuperClusterCollectionBarrel = "particleFlowDeepSCECALBarrelC"
-
-
+from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
+run3_ecalclustering.toReplaceWith(particleFlowSuperClusterECAL, _particleFlowSuperClusterECALDeepSC.clone())
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(particleFlowSuperClusterECAL, useDynamicDPhiWindow = False,
@@ -35,3 +18,4 @@ egamma_lowPt_exclusive.toModify(particleFlowSuperClusterECAL,
                                 thresh_SCEt = 1.0,
                                 thresh_PFClusterSeedBarrel = 0.5,
                                 thresh_PFClusterSeedEndcap = 0.5)
+
