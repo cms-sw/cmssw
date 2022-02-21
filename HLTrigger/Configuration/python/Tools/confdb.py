@@ -464,7 +464,7 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
 
   def overrideOutput(self):
     # if not runnign on Hilton, override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
-    # note for Run3 ShmStreamConsumer has been replaced with EvFOutputModule
+    # note for Run3 ShmStreamConsumer has been replaced with EvFOutputModule  and later GlobalEvFOutputModule
     # so we also do a replace there
     if not self.config.hilton:
       self.data = re.sub(
@@ -474,6 +474,11 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
       )
       self.data = re.sub(
         r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"EvFOutputModule" *,\n    use_compression = cms.untracked.bool\( True \),\n    compression_algorithm = cms.untracked.string\( "ZLIB" \),\n    compression_level = cms.untracked.int32\( 1 \),\n    lumiSection_interval = cms.untracked.int32\( 0 \),\n(.+?),\n    psetMap = cms.untracked.InputTag\( "hltPSetMap" \)\n',
+        r'\1hltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),\n\3\n',
+        self.data,0,re.DOTALL
+      )
+      self.data = re.sub(
+        r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"GlobalEvFOutputModule" *,\n    use_compression = cms.untracked.bool\( True \),\n    compression_algorithm = cms.untracked.string\( "ZLIB" \),\n    compression_level = cms.untracked.int32\( 1 \),\n    lumiSection_interval = cms.untracked.int32\( 0 \),\n(.+?),\n    psetMap = cms.untracked.InputTag\( "hltPSetMap" \)\n',
         r'\1hltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),\n\3\n',
         self.data,0,re.DOTALL
       )
