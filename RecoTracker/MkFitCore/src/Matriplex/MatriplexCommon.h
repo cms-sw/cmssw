@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #define _mm_malloc(a, b) aligned_alloc(b, a)
 #define _mm_free(p) free(p)
-#define _mm_prefetch(a,b)  __builtin_prefetch(a)
+#define _mm_prefetch(a, b) __builtin_prefetch(a)
 #endif
 
 #if defined(MPLEX_USE_INTRINSICS)
