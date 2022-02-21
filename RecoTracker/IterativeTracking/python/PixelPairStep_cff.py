@@ -361,6 +361,9 @@ pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
 )
 fastSim.toModify(pixelPairStepTracks, TTRHBuilder = 'WithoutRefit')
 
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(pixelPairStepTracks, TrajectoryInEvent = True)
+
 # Final selection
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 pixelPairStep =  TrackMVAClassifierPrompt.clone(
