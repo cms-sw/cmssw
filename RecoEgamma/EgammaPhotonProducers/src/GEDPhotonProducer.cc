@@ -75,8 +75,7 @@ public:
     edm::ParameterSet mvaBasedHaloVariableSet = conf.getParameter<edm::ParameterSet>("mvaBasedHaloVariableSet");
     auto trainingFileName_ = mvaBasedHaloVariableSet.getParameter<edm::FileInPath>(("trainingFileName")).fullPath();
     if (runMVABasedHaloTagger) {
-      TFile* regressionFile = TFile::Open(trainingFileName_.c_str());
-      haloTaggerGBR = std::unique_ptr<GBRForest>(regressionFile->Get<GBRForest>("gbrForest"));
+      haloTaggerGBR = createGBRForest(trainingFileName_);
     }
   }
   std::unique_ptr<const PhotonDNNEstimator> photonDNNEstimator;
