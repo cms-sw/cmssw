@@ -5,8 +5,8 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 
-#include "LayerNumberConverter.h"
-#include "TrackerInfo.h"
+#include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
+#include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 
 namespace {
   bool isPlusSide(const TrackerTopology& ttopo, DetId detid) {
