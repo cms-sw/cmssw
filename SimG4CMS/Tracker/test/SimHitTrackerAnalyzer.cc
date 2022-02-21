@@ -91,10 +91,14 @@ SimHitTrackerAnalyzer::SimHitTrackerAnalyzer(const edm::ParameterSet& iConfig)
       SimHitLabel(iConfig.getUntrackedParameter("moduleLabelHit", std::string("g4SimHits"))),
       tokSimTk_(consumes<edm::SimTrackContainer>(SimTkLabel)),
       tokSimVtx_(consumes<edm::SimVertexContainer>(SimVtxLabel)),
-      tokPixelBarrelHitsLowTof_(consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelBarrelLowTof"))),
-      tokPixelBarrelHitsHighTof_(consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelBarrelHighTof"))),
-      tokPixelEndcapHitsLowTof_(consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelEndcapLowTof"))),
-      tokPixelEndcapHitsHighTof_(consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelEndcapHighTof"))),
+      tokPixelBarrelHitsLowTof_(
+          consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelBarrelLowTof"))),
+      tokPixelBarrelHitsHighTof_(
+          consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelBarrelHighTof"))),
+      tokPixelEndcapHitsLowTof_(
+          consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelEndcapLowTof"))),
+      tokPixelEndcapHitsHighTof_(
+          consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelEndcapHighTof"))),
       tokTIBHitsLowTof_(consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsTIBLowTof"))),
       tokTIBHitsHighTof_(consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsTIBHighTof"))),
       tokTIDHitsLowTof_(consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsTIDLowTof"))),
@@ -117,20 +121,20 @@ void SimHitTrackerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   std::vector<SimVertex> theSimVertexes;
 
   //   Handle<HepMCProduct> MCEvt;
-  auto const & SimTk = iEvent.getHandle(tokSimTk_);
-  auto const & SimVtx = iEvent.getHandle(tokSimVtx_);
-  auto const & PixelBarrelHitsLowTof = iEvent.getHandle(tokPixelBarrelHitsLowTof_);
-  auto const & PixelBarrelHitsHighTof = iEvent.getHandle(tokPixelBarrelHitsHighTof_);
-  auto const & PixelEndcapHitsLowTof = iEvent.getHandle(tokPixelEndcapHitsLowTof_);
-  auto const & PixelEndcapHitsHighTof = iEvent.getHandle(tokPixelEndcapHitsHighTof_);
-  auto const & TIBHitsLowTof = iEvent.getHandle(tokTIBHitsLowTof_);
-  auto const & TIBHitsHighTof = iEvent.getHandle(tokTIBHitsHighTof_);
-  auto const & TIDHitsLowTof = iEvent.getHandle(tokTIDHitsLowTof_);
-  auto const & TIDHitsHighTof = iEvent.getHandle(tokTIDHitsHighTof_);
-  auto const & TOBHitsLowTof = iEvent.getHandle(tokTOBHitsLowTof_);
-  auto const & TOBHitsHighTof = iEvent.getHandle(tokTOBHitsHighTof_);
-  auto const & TECHitsLowTof = iEvent.getHandle(tokTECHitsLowTof_);
-  auto const & TECHitsHighTof = iEvent.getHandle(tokTECHitsHighTof_);
+  auto const& SimTk = iEvent.getHandle(tokSimTk_);
+  auto const& SimVtx = iEvent.getHandle(tokSimVtx_);
+  auto const& PixelBarrelHitsLowTof = iEvent.getHandle(tokPixelBarrelHitsLowTof_);
+  auto const& PixelBarrelHitsHighTof = iEvent.getHandle(tokPixelBarrelHitsHighTof_);
+  auto const& PixelEndcapHitsLowTof = iEvent.getHandle(tokPixelEndcapHitsLowTof_);
+  auto const& PixelEndcapHitsHighTof = iEvent.getHandle(tokPixelEndcapHitsHighTof_);
+  auto const& TIBHitsLowTof = iEvent.getHandle(tokTIBHitsLowTof_);
+  auto const& TIBHitsHighTof = iEvent.getHandle(tokTIBHitsHighTof_);
+  auto const& TIDHitsLowTof = iEvent.getHandle(tokTIDHitsLowTof_);
+  auto const& TIDHitsHighTof = iEvent.getHandle(tokTIDHitsHighTof_);
+  auto const& TOBHitsLowTof = iEvent.getHandle(tokTOBHitsLowTof_);
+  auto const& TOBHitsHighTof = iEvent.getHandle(tokTOBHitsHighTof_);
+  auto const& TECHitsLowTof = iEvent.getHandle(tokTECHitsLowTof_);
+  auto const& TECHitsHighTof = iEvent.getHandle(tokTECHitsHighTof_);
 
   theSimTracks.insert(theSimTracks.end(), SimTk->begin(), SimTk->end());
   theSimVertexes.insert(theSimVertexes.end(), SimVtx->begin(), SimVtx->end());
