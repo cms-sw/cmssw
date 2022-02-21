@@ -470,14 +470,14 @@ namespace DBoxMetadataHelper {
         }
       }
 
-      // Second, check if there are records in targe which are not in reference
+      // Second, check if there are records in target which are not in reference
       for (const auto& tar : tar_records) {
         if (std::find(ref_records.begin(), ref_records.end(), tar) == ref_records.end()) {
           y -= pitch;
           y_x1.push_back(y);
           s_x1.push_back(tar);
           y_x2.push_back(y);
-          s_x2.push_back("#bf{Only in reference, not in target.}");
+          s_x2.push_back("#bf{Only in target, not in reference.}");
           y_line.push_back(y - (pitch / 2.));
         }
       }
