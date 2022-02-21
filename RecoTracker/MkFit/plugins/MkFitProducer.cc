@@ -18,11 +18,11 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 // mkFit includes
-#include "ConfigWrapper.h"
-#include "LayerNumberConverter.h"
-#include "mkFit/buildtestMPlex.h"
-#include "mkFit/IterationConfig.h"
-#include "mkFit/MkBuilderWrapper.h"
+#include "RecoTracker/MkFitCore/interface/ConfigWrapper.h"
+#include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
+#include "RecoTracker/MkFitCMS/interface/runFunctions.h"
+#include "RecoTracker/MkFitCore/interface/IterationConfig.h"
+#include "RecoTracker/MkFitCore/interface/MkBuilderWrapper.h"
 
 // TBB includes
 #include "oneapi/tbb/task_arena.h"
@@ -54,7 +54,6 @@ private:
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   const edm::ESGetToken<mkfit::IterationConfig, TrackerRecoGeometryRecord> mkFitIterConfigToken_;
   const edm::EDPutTokenT<MkFitOutputWrapper> putToken_;
-  std::function<double(mkfit::Event&, mkfit::MkBuilder&)> buildFunction_;
   const float minGoodStripCharge_;
   const bool seedCleaning_;
   const bool backwardFitInCMSSW_;
@@ -101,7 +100,7 @@ MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
 
   // TODO: what to do when we have multiple instances of MkFitProducer in a job?
   mkfit::MkBuilderWrapper::populate();
-  mkfit::ConfigWrapper::initializeForCMSSW(mkFitSilent_);
+  mkfit::ConfigWrapper::initializeForCMSSW();
 }
 
 void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -134,12 +133,9 @@ void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& description
 }
 
 std::unique_ptr<mkfit::MkBuilderWrapper> MkFitProducer::beginStream(edm::StreamID iID) const {
-  return std::make_unique<mkfit::MkBuilderWrapper>();
+  return std::make_unique<mkfit::MkBuilderWrapper>(mkFitSilent_);
 }
 
-namespace {
-  std::once_flag geometryFlag;
-}
 void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   const auto& pixelHits = iEvent.get(pixelHitsToken_);
   const auto& stripHits = iEvent.get(stripHitsToken_);
@@ -179,13 +175,6 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
   } else {
     stripClusterChargeCut(iEvent.get(stripClusterChargeToken_), stripMask);
   }
-
-  // Initialize the number of layers, has to be done exactly once in
-  // the whole program.
-  // TODO: the mechanism needs to be improved...
-  std::call_once(geometryFlag, [nlayers = mkFitGeom.layerNumberConverter().nLayers()]() {
-    mkfit::ConfigWrapper::setNTotalLayers(nlayers);
-  });
 
   // seeds need to be mutable because of the possible cleaning
   auto seeds_mutable = seeds.seeds();
