@@ -25,7 +25,7 @@ namespace trackerDTC {
     ProducerES(const ParameterSet& iConfig);
     ~ProducerES() override {}
     unique_ptr<Setup> produce(const SetupRcd& setupRcd);
-
+    
   private:
     const ParameterSet iConfig_;
     ESGetToken<StubAlgorithm, TTStubAlgorithmRecord> getTokenTTStubAlgorithm_;
@@ -37,7 +37,7 @@ namespace trackerDTC {
     ESGetToken<cms::DDCompactView, IdealGeometryRecord> getTokenGeometryConfigurationDD4hep_;
     bool fromDD4hep_;
   };
-
+  
   ProducerES::ProducerES(const ParameterSet& iConfig) : iConfig_(iConfig) {
     fromDD4hep_ = iConfig.getParameter<bool>("fromDD4hep");
     auto cc = setWhatProduced(this);
@@ -51,7 +51,7 @@ namespace trackerDTC {
     else
       getTokenGeometryConfiguration_ = cc.consumes();
   }
-
+  
   unique_ptr<Setup> ProducerES::produce(const SetupRcd& setupRcd) {
     const MagneticField& magneticField = setupRcd.get(getTokenMagneticField_);
     const TrackerGeometry& trackerGeometry = setupRcd.get(getTokenTrackerGeometry_);
