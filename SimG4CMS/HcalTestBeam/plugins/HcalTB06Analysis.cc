@@ -71,7 +71,7 @@ private:
   const double m_ener;
   const std::vector<int> m_PDG;
 
-  const edm::EDGetTokenT<edm::PCaloHitContainer> m_EcalToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> m_EcalToken;
   const edm::EDGetTokenT<edm::PCaloHitContainer> m_HcalToken;
   const edm::EDGetTokenT<edm::PCaloHitContainer> m_BeamToken;
 
@@ -98,7 +98,6 @@ HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet& p)
       m_phi(p.getParameter<double>("MinPhi")),
       m_ener(p.getParameter<double>("MinE")),
       m_PDG(p.getParameter<std::vector<int> >("PartID")),
-      m_EcalToken(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"))),
       m_HcalToken(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"))),
       m_BeamToken(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalTB06BeamHits"))),
       m_ptb(p.getParameter<edm::ParameterSet>("TestBeamAnalysis")),
@@ -110,7 +109,8 @@ HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet& p)
       m_eMIP(m_ptb.getParameter<double>("MIP")),
       count(0) {
   usesResource("TFileService");
-
+  if (m_ECAL)
+    m_EcalToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"));
   double minEta = p.getParameter<double>("MinEta");
   double maxEta = p.getParameter<double>("MaxEta");
   double minPhi = p.getParameter<double>("MinPhi");
