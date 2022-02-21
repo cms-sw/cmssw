@@ -36,8 +36,8 @@ private:
   const edm::EDGetTokenT<PEcalTBInfo> ecalTBInfo_;
 };
 
-FakeTBEventHeaderProducer::FakeTBEventHeaderProducer(const edm::ParameterSet &ps) :
-  ecalTBInfo_(consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"))) {
+FakeTBEventHeaderProducer::FakeTBEventHeaderProducer(const edm::ParameterSet &ps)
+    : ecalTBInfo_(consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"))) {
   produces<EcalTBEventHeader>();
 }
 
@@ -47,7 +47,7 @@ void FakeTBEventHeaderProducer::produce(edm::Event &event, const edm::EventSetup
   // get the vertex information from the event
 
   const PEcalTBInfo *theEcalTBInfo = nullptr;
-  const edm::Handle<PEcalTBInfo>& EcalTBInfo = event.getHandle(ecalTBInfo_);
+  const edm::Handle<PEcalTBInfo> &EcalTBInfo = event.getHandle(ecalTBInfo_);
   if (EcalTBInfo.isValid()) {
     theEcalTBInfo = EcalTBInfo.product();
   } else {
