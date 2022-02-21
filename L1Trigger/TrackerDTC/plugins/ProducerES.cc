@@ -14,7 +14,7 @@ using namespace std;
 using namespace edm;
 
 namespace trackerDTC {
-
+  
   /*! \class  trackerDTC::ProducerES
    *  \brief  Class to produce setup of Track Trigger emulators
    *  \author Thomas Schuh
@@ -59,8 +59,7 @@ namespace trackerDTC {
     const TrackerDetToDTCELinkCablingMap& cablingMap = setupRcd.get(getTokenCablingMap_);
     const ESHandle<StubAlgorithm> handleStubAlgorithm = setupRcd.getHandle(getTokenTTStubAlgorithm_);
     const ParameterSetID& pSetIdTTStubAlgorithm = handleStubAlgorithm.description()->pid_;
-    const StubAlgorithmOfficial& stubAlgoritm =
-      *dynamic_cast<const StubAlgorithmOfficial*>(&setupRcd.get(getTokenTTStubAlgorithm_));
+    const StubAlgorithmOfficial& stubAlgoritm = *dynamic_cast<const StubAlgorithmOfficial*>(&setupRcd.get(getTokenTTStubAlgorithm_));
     const ParameterSet& pSetStubAlgorithm = getParameterSet(handleStubAlgorithm.description()->pid_);
     if (fromDD4hep_){
       const ESHandle<cms::DDCompactView> handleGeometryConfiguration = setupRcd.getHandle(getTokenGeometryConfigurationDD4hep_);
