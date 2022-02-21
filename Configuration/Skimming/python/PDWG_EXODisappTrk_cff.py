@@ -7,19 +7,15 @@ EXODisappTrkSkimContent.outputCommands.append('drop *')
 EXODisappTrkSkimContent.outputCommands.append('keep *_reducedHcalRecHits_*_*')
 EXODisappTrkSkimContent.outputCommands.append('keep *_reducedEcalRecHits*_*_*')
 
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-
-hltDisappTrk = copy.deepcopy(hltHighLevel)
-hltDisappTrk.throw = cms.bool(False)
-
-hltDisappTrk.HLTPaths = [
-    #"HLT_MET105_IsoTrk50_v*",
-    "MC_PFMET_v17"
-]
-
-hltDisappTrk.throw = False
-hltDisappTrk.andOr = True
+import HLTrigger.HLTfilters.hltHighLevel_cfi as _hltHighLevel
+hltDisappTrk = _hltHighLevel.clone(
+   throw = False,
+   andOr = True,
+   HLTPaths = [
+      #"HLT_MET105_IsoTrk50_v*",
+      "MC_PFMET_v17"
+   ]
+)
 
 disappTrkSelection=cms.EDFilter("TrackSelector", 
     src = cms.InputTag("generalTracks"),
