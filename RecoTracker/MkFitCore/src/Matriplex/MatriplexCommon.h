@@ -10,7 +10,14 @@
 // Intrinsics -- preamble
 //==============================================================================
 
+#if defined(__x86_64__)
 #include "immintrin.h"
+#else
+#include <stdlib.h>
+#define _mm_malloc(a, b) aligned_alloc(b, a)
+#define _mm_free(p) free(p)
+#define _mm_prefetch(a, b) __builtin_prefetch(a)
+#endif
 
 #if defined(MPLEX_USE_INTRINSICS)
 // This seems unnecessary: __AVX__ is usually defined for all higher ISA extensions
