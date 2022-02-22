@@ -109,6 +109,7 @@ namespace ticl {
     const double densityXYDistanceSqr_;
     const double kernelDensityFactor_;
     const bool densityOnSameLayer_;
+    const bool nearestHigherOnSameLayer_;
     const bool useAbsoluteProjectiveScale_;
     const double criticalEtaPhiDistance_;
     const double criticalXYDistance_;

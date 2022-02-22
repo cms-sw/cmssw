@@ -28,6 +28,7 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
       densityXYDistanceSqr_(conf.getParameter<double>("densityXYDistanceSqr")),
       kernelDensityFactor_(conf.getParameter<double>("kernelDensityFactor")),
       densityOnSameLayer_(conf.getParameter<bool>("densityOnSameLayer")),
+      nearestHigherOnSameLayer_(conf.getParameter<bool>("nearestHigherOnSameLayer")),
       useAbsoluteProjectiveScale_(conf.getParameter<bool>("useAbsoluteProjectiveScale")),
       criticalEtaPhiDistance_(conf.getParameter<double>("criticalEtaPhiDistance")),
       criticalXYDistance_(conf.getParameter<double>("criticalXYDistance")),
@@ -613,6 +614,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
     std::pair<int, int> i_nearestHigher(-1, -1);
     std::pair<float, int> nearest_distances(maxDelta, std::numeric_limits<int>::max());
     for (int currentLayer = minLayer; currentLayer <= maxLayer; currentLayer++) {
+      if (! nearestHigherOnSameLayer_ && (layerId == currentLayer))
+        continue;
       const auto &tileOnLayer = tiles[currentLayer];
       int etaWindow = 3;
       int phiWindow = 3;
@@ -767,6 +770,7 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
   iDesc.add<double>("densityXYDistanceSqr", 16 /*6.76*/)->setComment("in cm, 2.6*2.6, distance on the transverse plane to consider for local density");
   iDesc.add<double>("kernelDensityFactor", 0.2)->setComment("Kernel factor to be applied to other LC while computing the local density");
   iDesc.add<bool>("densityOnSameLayer", false);
+  iDesc.add<bool>("nearestHigherOnSameLayer", false)->setComment("Allow the nearestHigher to be located on the same layer");
   iDesc.add<bool>("useAbsoluteProjectiveScale", true)->setComment("Express all cuts in terms of r/z*z_0{,phi} projective variables");
   iDesc.add<double>("criticalEtaPhiDistance", 0.035)->setComment("Minimal distance in eta,phi space from nearestHigher to become a seed");
   iDesc.add<double>("criticalXYDistance", 4.0)->setComment("Minimal distance in cm on the XY plane from nearestHigher to become a seed");
