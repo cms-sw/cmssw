@@ -99,7 +99,11 @@ private:
   void resetSizes();
   triton::client::InferenceServerGrpcClient* client();
   template <typename DT>
-  void checkType() const { if(!triton_utils::checkType<DT>(dtype_)) throw cms::Exception("TritonDataError") << name_ << ": inconsistent data type " << typeid(DT).name() << " for " << dname_; }
+  void checkType() const {
+    if (!triton_utils::checkType<DT>(dtype_))
+      throw cms::Exception("TritonDataError")
+          << name_ << ": inconsistent data type " << typeid(DT).name() << " for " << dname_;
+  }
 
   //helpers
   bool anyNeg(const ShapeView& vec) const {
