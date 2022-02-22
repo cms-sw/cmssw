@@ -105,16 +105,18 @@ private:
   double timeOfFlight(int det, int layer, double eta);
 
 private:
+  // to read from parameter set
+  const edm::ParameterSet m_Anal;
+  const bool hcalOnly;
+  const int mode, type;
+  const double ecalNoise, beamOffset;
+  const double scaleHB0, scaleHB16, scaleHO, scaleHE0;
+  const std::vector<std::string> names;
+
   HcalQie* myQie;
   HcalTB04Histo* histo;
 
-  // to read from parameter set
-  bool hcalOnly;
-  int mode, type;
-  double ecalNoise, beamOffset;
   int iceta, icphi;
-  double scaleHB0, scaleHB16, scaleHO, scaleHE0;
-  std::vector<std::string> names;
   G4RotationMatrix* beamline_RM;
 
   // Constants for the run
@@ -145,18 +147,20 @@ private:
 // constructors and destructor
 //
 
-HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet& p) : myQie(nullptr), histo(nullptr) {
-  edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTB04Analysis");
-  hcalOnly = m_Anal.getParameter<bool>("HcalOnly");
-  mode = m_Anal.getParameter<int>("Mode");
-  type = m_Anal.getParameter<int>("Type");
-  ecalNoise = m_Anal.getParameter<double>("EcalNoise");
-  scaleHB0 = m_Anal.getParameter<double>("ScaleHB0");
-  scaleHB16 = m_Anal.getParameter<double>("ScaleHB16");
-  scaleHO = m_Anal.getParameter<double>("ScaleHO");
-  scaleHE0 = m_Anal.getParameter<double>("ScaleHE0");
-  names = m_Anal.getParameter<std::vector<std::string> >("Names");
-  beamOffset = -m_Anal.getParameter<double>("BeamPosition") * cm;
+HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet& p)
+    : m_Anal(p.getParameter<edm::ParameterSet>("HcalTB04Analysis")),
+      hcalOnly(m_Anal.getParameter<bool>("HcalOnly")),
+      mode(m_Anal.getParameter<int>("Mode")),
+      type(m_Anal.getParameter<int>("Type")),
+      ecalNoise(m_Anal.getParameter<double>("EcalNoise")),
+      beamOffset(-m_Anal.getParameter<double>("BeamPosition") * CLHEP::cm),
+      scaleHB0(m_Anal.getParameter<double>("ScaleHB0")),
+      scaleHB16(m_Anal.getParameter<double>("ScaleHB16")),
+      scaleHO(m_Anal.getParameter<double>("ScaleHO")),
+      scaleHE0(m_Anal.getParameter<double>("ScaleHE0")),
+      names(m_Anal.getParameter<std::vector<std::string> >("Names")),
+      myQie(nullptr),
+      histo(nullptr) {
   double fMinEta = m_Anal.getParameter<double>("MinEta");
   double fMaxEta = m_Anal.getParameter<double>("MaxEta");
   double fMinPhi = m_Anal.getParameter<double>("MinPhi");
