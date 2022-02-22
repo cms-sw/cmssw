@@ -37,6 +37,7 @@ namespace ticl {
 
       std::vector<float> energy;
       std::vector<float> rho;
+      std::vector<float> z_extension;
 
       std::vector<std::pair<float, int>> delta;
       std::vector<std::pair<int, int>> nearestHigher;
@@ -56,6 +57,7 @@ namespace ticl {
         cells.clear();
         energy.clear();
         rho.clear();
+        z_extension.clear();
         delta.clear();
         nearestHigher.clear();
         clusterIndex.clear();
@@ -75,6 +77,7 @@ namespace ticl {
         cells.shrink_to_fit();
         energy.shrink_to_fit();
         rho.shrink_to_fit();
+        z_extension.shrink_to_fit();
         delta.shrink_to_fit();
         nearestHigher.shrink_to_fit();
         clusterIndex.shrink_to_fit();
@@ -100,6 +103,7 @@ namespace ticl {
     void dumpTiles(const TILES&) const;
 
     std::vector<ClustersOnLayer> clusters_;
+    std::vector<float> layersPosZ_;
 
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const double criticalDensity_;
@@ -111,6 +115,7 @@ namespace ticl {
     const bool densityOnSameLayer_;
     const bool nearestHigherOnSameLayer_;
     const bool useAbsoluteProjectiveScale_;
+    const bool rescaleDensityByZ_;;
     const double criticalEtaPhiDistance_;
     const double criticalXYDistance_;
     const int criticalZDistanceLyr_;
