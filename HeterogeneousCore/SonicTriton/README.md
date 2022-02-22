@@ -153,6 +153,20 @@ Servers have several available parameters:
 * `privateKey`: for SSL, name of file containing PEM encoding of user's private key, if any
 * `certificateChain`: for SSL, name of file containing PEM encoding of user's certificate chain, if any
 
+The fallback server has a separate set of options, mostly related to the invocation of `cmsTriton`:
+* `enable`: enable the fallback server
+* `debug`: enable debugging (equivalent to `-c` in `cmsTriton`)
+* `verbose`: enable verbose output in logs (equivalent to `-v` in `cmsTriton`)
+* `useDocker`: use Docker instead of Singularity (equivalent to `-d` in `cmsTriton`)
+* `useGPU`: run on local GPU (equivalent to `-g` in `cmsTriton`)
+* `retries`: number of retries when starting container (passed to `-r [num]` in `cmsTriton` if >= 0; default: -1)
+* `wait`: maximum time to wait for server to start (passed to `-w time` in `cmsTriton` if >= 0; default: -1)
+* `instanceBaseName`: base name for server instance if random names are enabled (default: triton_server_instance)
+* `instanceName`: specific name for server instance as alternative to random name (passed to `-n [name]` in `cmsTriton` if non-empty)
+* `tempDir`: specific name for server temporary directory (passed to `-t [dir]` in `cmsTriton` if non-empty; if `"."`, uses `cmsTriton` default)
+* `imageName`: server image name (passed to `-i [name]` in `cmsTriton` if non-empty)
+* `sandboxName`: Singularity sandbox directory (passed to `-s [dir]` in `cmsTriton` if non-empty)
+
 ## Examples
 
 Several example producers (running image classification networks or Graph Attention Network) can be found in the [test](./test) directory.
