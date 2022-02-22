@@ -41,30 +41,23 @@
 #include "Calibration/EcalCalibAlgos/interface/EcalPhiSymRecHit.h"
 #include "Calibration/EcalCalibAlgos/interface/EcalPhiSymInfo.h"
 
-//---Wrapper to handle cross-stream data
-struct PhiSymCache {
-    mutable tbb::concurrent_vector<EcalPhiSymInfo> ecalLumiInfo;
-    mutable tbb::concurrent_vector<EcalPhiSymRecHit> recHitCollEB;
-    mutable tbb::concurrent_vector<EcalPhiSymRecHit> recHitCollEE;
+//---Wrapper to handle stream data
+struct PhiSymStreamCache {
+  mutable EcalPhiSymInfo ecalLumiInfo;
+  mutable EcalPhiSymRecHitCollection recHitCollEB;
+  mutable EcalPhiSymRecHitCollection recHitCollEE;
 
   void clear() {
-      ecalLumiInfo.clear();
+    ecalLumiInfo = EcalPhiSymInfo();
     recHitCollEB.clear();
     recHitCollEE.clear();
   }
 };
 
-//---Wrapper to handle stream data
-struct PhiSymStreamCache {
-    mutable EcalPhiSymInfo ecalLumiInfo;
-    mutable EcalPhiSymRecHitCollection recHitCollEB;
-    mutable EcalPhiSymRecHitCollection recHitCollEE;
+struct PhiSymCache {
+  mutable tbb::concurrent_vector<PhiSymStreamCache> c;
 
-  void clear() {
-      ecalLumiInfo = EcalPhiSymInfo();
-    recHitCollEB.clear();
-    recHitCollEE.clear();
-  }
+  void clear() { c.clear(); }
 };
 
 //****************************************************************************************
@@ -86,8 +79,8 @@ public:
   void initializeGlobalCache(edm::EventSetup const& setup,
                              edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const& chStatusToken,
                              edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const& geoToken,
-                             std::shared_ptr<PhiSymCache>& cache) const;
-  void sumCache(PhiSymStreamCache* streamCache, PhiSymCache const* cache) const;
+                             std::shared_ptr<PhiSymCache>& vcache) const;
+  void sumCache(tbb::concurrent_vector<PhiSymStreamCache>& vcache) const;
 
   //---data memebers
   // available to derived classes
@@ -99,7 +92,7 @@ protected:
   mutable edm::EDGetTokenT<EBRecHitCollection> ebToken_;
   mutable edm::EDGetTokenT<EBRecHitCollection> eeToken_;
   float etCutEB_;
-    std::vector<double> eThresholdsEB_;
+  std::vector<double> eThresholdsEB_;
   float etCutEE_;
   std::vector<double> A_;
   std::vector<double> B_;
@@ -295,8 +288,11 @@ void EcalPhiSymRecHitProducerBase::initializeGlobalCache(
     edm::EventSetup const& setup,
     edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const& chStatusToken,
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const& geoToken,
-    std::shared_ptr<PhiSymCache>& cache) const {
-  cache->clear();
+    std::shared_ptr<PhiSymCache>& vcache) const {
+  vcache->c.clear();
+  vcache->c.push_back(PhiSymStreamCache());
+
+  auto& cache = vcache->c[0];
 
   //---get the ecal geometry
   const auto* geometry = &setup.getData(geoToken);
@@ -309,11 +305,11 @@ void EcalPhiSymRecHitProducerBase::initializeGlobalCache(
   const auto* endcapGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   barrelDetIds_ = barrelGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
   endcapDetIds_ = endcapGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
-  cache->recHitCollEB.resize(barrelDetIds_.size());
-  cache->recHitCollEE.resize(endcapDetIds_.size());
+  cache.recHitCollEB.resize(barrelDetIds_.size());
+  cache.recHitCollEE.resize(endcapDetIds_.size());
   for (auto& ebDetId : barrelDetIds_) {
     EBDetId id(ebDetId);
-    cache->recHitCollEB.at(id.denseIndex()) =
+    cache.recHitCollEB.at(id.denseIndex()) =
         EcalPhiSymRecHit(ebDetId.rawId(), nSumEtValues_, chStatus[id].getStatusCode());
     int ring = calibRing_.getRingIndex(id);
     //---set etCut if first pass
@@ -326,9 +322,10 @@ void EcalPhiSymRecHitProducerBase::initializeGlobalCache(
   for (auto& eeDetId : endcapDetIds_) {
     EEDetId id(eeDetId);
     int ring = calibRing_.getRingIndex(id) - kNRingsEB;
-    cache->recHitCollEE.at(id.denseIndex()) =
+    cache.recHitCollEE.at(id.denseIndex()) =
         EcalPhiSymRecHit(eeDetId.rawId(), nSumEtValues_, chStatus[id].getStatusCode());
-    cache->recHitCollEE.at(id.denseIndex()).setEERing(ring<kNRingsEE/2 ? ring-kNRingsEE/2 : ring-kNRingsEE/2 + 1);
+    cache.recHitCollEE.at(id.denseIndex())
+        .setEERing(ring < kNRingsEE / 2 ? ring - kNRingsEE / 2 : ring - kNRingsEE / 2 + 1);
     //---set eCutEE if first pass
     if (ring < ringsInOneEE && etCutsEE_[ring] == -1 && id.ix() == EEDetId::IX_MAX / 2) {
       auto cellGeometry = endcapGeometry->getGeometry(id);
@@ -338,18 +335,17 @@ void EcalPhiSymRecHitProducerBase::initializeGlobalCache(
   }
 }
 
-void EcalPhiSymRecHitProducerBase::sumCache(PhiSymStreamCache* streamCache, PhiSymCache const* cache) const {
-  //--- this could be improved.
-  //    One has to make sure that the streamCache is the right hand argument
-  //    in the sum to make sure that info like fillNumber and channel status
-  //    are preserved since they are set in the global initialization and not
-  //    in the stream one.
-    cache->ecalLumiInfo[0] += streamCache->ecalLumiInfo;
-
-  for (unsigned int i = 0; i < cache->recHitCollEB.size(); ++i)
-    cache->recHitCollEB[i] += streamCache->recHitCollEB[i];
-  for (unsigned int i = 0; i < cache->recHitCollEE.size(); ++i)
-    cache->recHitCollEE[i] += streamCache->recHitCollEE[i];
+void EcalPhiSymRecHitProducerBase::sumCache(tbb::concurrent_vector<PhiSymStreamCache>& vcache) const {
+  //---The first element of the cache is the "global" cache that
+  //   contains static global information. The stream partial sums are
+  //   stored from index=1
+  for (unsigned int is = 1; is < vcache.size(); ++is) {
+    vcache[0].ecalLumiInfo += vcache[is].ecalLumiInfo;
+    for (unsigned int i = 0; i < vcache[0].recHitCollEB.size(); ++i)
+      vcache[0].recHitCollEB[i] += vcache[is].recHitCollEB[i];
+    for (unsigned int i = 0; i < vcache[0].recHitCollEE.size(); ++i)
+      vcache[0].recHitCollEE[i] += vcache[is].recHitCollEE[i];
+  }
 }
 
 //****************************************************************************************
@@ -381,7 +377,7 @@ private:
                                 edm::LuminosityBlock const& lumi,
                                 edm::EventSetup const& setup) const override;
 
-  // event
+  //  overrideevent
   void accumulate(edm::StreamID stream, edm::Event const& event, edm::EventSetup const& setup) const override;
 
   // data members
@@ -411,9 +407,28 @@ std::shared_ptr<PhiSymCache> EcalPhiSymRecHitProducerLumi::globalBeginLuminosity
 
   //---Reset global cache
   initializeGlobalCache(setup, chStatusTokenLumi_, geoTokenLumi_, cache);
-  cache->ecalLumiInfo.push_back(thisLumi);
+  cache->c[0].ecalLumiInfo = thisLumi;
 
   return cache;
+}
+
+void EcalPhiSymRecHitProducerLumi::globalEndLuminosityBlockProduce(edm::LuminosityBlock& lumi,
+                                                                   edm::EventSetup const& setup) const {
+  auto& vcache = luminosityBlockCache(lumi.index())->c;
+  sumCache(vcache);
+
+  //---put the collections in the LuminosityBlocks tree
+  auto ecalLumiInfo = std::make_unique<EcalPhiSymInfo>(vcache[0].ecalLumiInfo);
+  ecalLumiInfo->setMiscalibInfo(
+      nMisCalib_ * 2, misCalibRangeEB_[0], misCalibRangeEB_[1], misCalibRangeEE_[0], misCalibRangeEE_[1]);
+  auto recHitCollEB =
+      std::make_unique<EcalPhiSymRecHitCollection>(vcache[0].recHitCollEB.begin(), vcache[0].recHitCollEB.end());
+  auto recHitCollEE =
+      std::make_unique<EcalPhiSymRecHitCollection>(vcache[0].recHitCollEE.begin(), vcache[0].recHitCollEE.end());
+
+  lumi.put(std::move(ecalLumiInfo));
+  lumi.put(std::move(recHitCollEB), "EB");
+  lumi.put(std::move(recHitCollEE), "EE");
 }
 
 std::unique_ptr<PhiSymStreamCache> EcalPhiSymRecHitProducerLumi::beginStream(edm::StreamID stream) const {
@@ -421,34 +436,18 @@ std::unique_ptr<PhiSymStreamCache> EcalPhiSymRecHitProducerLumi::beginStream(edm
   return std::make_unique<PhiSymStreamCache>();
 }
 
-void EcalPhiSymRecHitProducerLumi::globalEndLuminosityBlockProduce(edm::LuminosityBlock& lumi,
-                                                                   edm::EventSetup const& setup) const {
-  auto cache = luminosityBlockCache(lumi.index());
-
-  //---put the collections in the LuminosityBlocks tree
-  auto ecalLumiInfo = std::make_unique<EcalPhiSymInfo>(cache->ecalLumiInfo[0]);
-  ecalLumiInfo->setMiscalibInfo(
-      nMisCalib_ * 2, misCalibRangeEB_[0], misCalibRangeEB_[1], misCalibRangeEE_[0], misCalibRangeEE_[1]);
-  auto recHitCollEB = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEB.begin(), cache->recHitCollEB.end());
-  auto recHitCollEE = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEE.begin(), cache->recHitCollEE.end());
-
-  lumi.put(std::move(ecalLumiInfo));
-  lumi.put(std::move(recHitCollEB), "EB");
-  lumi.put(std::move(recHitCollEE), "EE");
-}
-
 void EcalPhiSymRecHitProducerLumi::streamBeginLuminosityBlock(edm::StreamID stream,
                                                               edm::LuminosityBlock const& lumi,
                                                               edm::EventSetup const& setup) const {
-  //---Reset cache
+  //---Reset stream cache
   initializeStreamCache(streamCache(stream));
 }
 
 void EcalPhiSymRecHitProducerLumi::streamEndLuminosityBlock(edm::StreamID stream,
                                                             edm::LuminosityBlock const& lumi,
                                                             edm::EventSetup const& setup) const {
-  //---sum data from different streams into the common lumi cache
-  sumCache(streamCache(stream), luminosityBlockCache(lumi.index()));
+  //---add stream cache to global cache container
+  luminosityBlockCache(lumi.index())->c.push_back(*streamCache(stream));
 }
 
 void EcalPhiSymRecHitProducerLumi::accumulate(edm::StreamID stream,
@@ -482,7 +481,7 @@ private:
                                                           edm::EventSetup const& setup) const override;
   void globalEndLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) const override{};
   // stream
-  std::unique_ptr<PhiSymStreamCache> beginStream(edm::StreamID stream) const override;
+  std::unique_ptr<PhiSymStreamCache> be overrideginStream(edm::StreamID stream) const override;
   void streamBeginRun(edm::StreamID stream, edm::Run const& run, edm::EventSetup const& setup) const override;
   void streamEndRun(edm::StreamID stream, edm::Run const& run, edm::EventSetup const& setup) const override;
   // event
@@ -508,7 +507,6 @@ EcalPhiSymRecHitProducerRun::EcalPhiSymRecHitProducerRun(const edm::ParameterSet
 std::shared_ptr<PhiSymCache> EcalPhiSymRecHitProducerRun::globalBeginRun(edm::Run const& run,
                                                                          edm::EventSetup const& setup) const {
   auto cache = std::make_shared<PhiSymCache>();
-  cache->ecalLumiInfo.push_back(EcalPhiSymInfo());
   initializeGlobalCache(setup, chStatusTokenRun_, geoTokenRun_, cache);
   return cache;
 }
@@ -524,7 +522,7 @@ std::shared_ptr<PhiSymCache> EcalPhiSymRecHitProducerRun::globalBeginLuminosityB
   const auto& lhcinfo = setup.getData(lhcInfoTokenLumi_);
   EcalPhiSymInfo thisLumi(0, 0, 0, 1, lhcinfo.fillNumber(), lhcinfo.delivLumi(), lhcinfo.recLumi());
 
-  runCache(lumi.getRun().index())->ecalLumiInfo[0] += thisLumi;
+  runCache(lumi.getRun().index())->c[0].ecalLumiInfo += thisLumi;
 
   // dummy cache, it won't be used
   return std::make_shared<PhiSymCache>();
@@ -538,26 +536,29 @@ std::unique_ptr<PhiSymStreamCache> EcalPhiSymRecHitProducerRun::beginStream(edm:
 void EcalPhiSymRecHitProducerRun::streamBeginRun(edm::StreamID stream,
                                                  edm::Run const& run,
                                                  edm::EventSetup const& setup) const {
-  //---Reset global cache
+  //---Reset and add this stream cache to the global cache container.
   initializeStreamCache(streamCache(stream));
 }
 
 void EcalPhiSymRecHitProducerRun::streamEndRun(edm::StreamID stream,
                                                edm::Run const& run,
                                                edm::EventSetup const& setup) const {
-  //---sum data from different streams into the common run cache
-  sumCache(streamCache(stream), runCache(run.index()));
+  //---add stream cache to global cache container
+  runCache(run.index())->c.push_back(*streamCache(stream));
 }
 
 void EcalPhiSymRecHitProducerRun::globalEndRunProduce(edm::Run& run, edm::EventSetup const& setup) const {
-  auto cache = runCache(run.index());
+  auto& vcache = runCache(run.index())->c;
+  sumCache(vcache);
 
   //---put the collections in the Runs tree
-  auto ecalLumiInfo = std::make_unique<EcalPhiSymInfo>(cache->ecalLumiInfo[0]);
+  auto ecalLumiInfo = std::make_unique<EcalPhiSymInfo>(vcache[0].ecalLumiInfo);
   ecalLumiInfo->setMiscalibInfo(
       nMisCalib_ * 2, misCalibRangeEB_[0], misCalibRangeEB_[1], misCalibRangeEE_[0], misCalibRangeEE_[1]);
-  auto recHitCollEB = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEB.begin(), cache->recHitCollEB.end());
-  auto recHitCollEE = std::make_unique<EcalPhiSymRecHitCollection>(cache->recHitCollEE.begin(), cache->recHitCollEE.end());
+  auto recHitCollEB =
+      std::make_unique<EcalPhiSymRecHitCollection>(vcache[0].recHitCollEB.begin(), vcache[0].recHitCollEB.end());
+  auto recHitCollEE =
+      std::make_unique<EcalPhiSymRecHitCollection>(vcache[0].recHitCollEE.begin(), vcache[0].recHitCollEE.end());
 
   run.put(std::move(ecalLumiInfo));
   run.put(std::move(recHitCollEB), "EB");
