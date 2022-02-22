@@ -254,7 +254,7 @@ void TritonOutputData::reset() {
 template class TritonData<tc::InferInput>;
 template class TritonData<tc::InferRequestedOutput>;
 
-template TritonInputContainer<bool> TritonInputData::allocate(bool reserve);
+template TritonInputContainer<char> TritonInputData::allocate(bool reserve);
 template TritonInputContainer<uint8_t> TritonInputData::allocate(bool reserve);
 template TritonInputContainer<uint16_t> TritonInputData::allocate(bool reserve);
 template TritonInputContainer<uint32_t> TritonInputData::allocate(bool reserve);
@@ -266,7 +266,7 @@ template TritonInputContainer<int64_t> TritonInputData::allocate(bool reserve);
 template TritonInputContainer<float> TritonInputData::allocate(bool reserve);
 template TritonInputContainer<double> TritonInputData::allocate(bool reserve);
 
-template void TritonInputData::toServer(TritonInputContainer<bool> data_in);
+template void TritonInputData::toServer(TritonInputContainer<char> data_in);
 template void TritonInputData::toServer(TritonInputContainer<uint8_t> data_in);
 template void TritonInputData::toServer(TritonInputContainer<uint16_t> data_in);
 template void TritonInputData::toServer(TritonInputContainer<uint32_t> data_in);
@@ -278,7 +278,7 @@ template void TritonInputData::toServer(TritonInputContainer<int64_t> data_in);
 template void TritonInputData::toServer(TritonInputContainer<float> data_in);
 template void TritonInputData::toServer(TritonInputContainer<double> data_in);
 
-template TritonOutput<bool> TritonOutputData::fromServer() const;
+template TritonOutput<char> TritonOutputData::fromServer() const;
 template TritonOutput<uint8_t> TritonOutputData::fromServer() const;
 template TritonOutput<uint16_t> TritonOutputData::fromServer() const;
 template TritonOutput<uint32_t> TritonOutputData::fromServer() const;
