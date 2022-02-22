@@ -75,7 +75,9 @@ stage2L1Trigger.toModify(SiStripMonitorClusterBPTX,
         l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
         l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
         ReadPrescalesFromFile = cms.bool(True)
-    )
+    ),
+    PixelDCSfilter = dict(stage2 = cms.bool(True)),
+    StripDCSfilter = dict(stage2 = cms.bool(True))
 )
 
 # refitter ### (FIXME rename, move)

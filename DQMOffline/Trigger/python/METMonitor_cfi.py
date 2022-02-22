@@ -37,3 +37,9 @@ hltMETmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltMETmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
 #hltMETmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_IsoMu27_v*");
 hltMETmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring();
+
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(hltMETmonitoring,
+                         numGenericTriggerEventPSet = dict(stage2 = cms.bool(True)),
+                         denGenericTriggerEventPSet = dict(stage2 = cms.bool(True)))
+
