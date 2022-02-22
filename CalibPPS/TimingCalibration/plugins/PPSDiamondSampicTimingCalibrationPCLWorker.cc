@@ -61,10 +61,12 @@ private:
   void dqmAnalyze(edm::Event const&,
                   edm::EventSetup const&,
                   Histograms_PPSDiamondSampicTimingCalibrationPCLWorker const&) const override;
-  
-  template<typename T>
-  bool searchForProduct(edm::Event const& iEvent, const std::vector<edm::EDGetTokenT<T>>& tokens, 
-                        const std::vector<edm::InputTag>& tags, edm::Handle<T>& handle) const;
+
+  template <typename T>
+  bool searchForProduct(edm::Event const& iEvent,
+                        const std::vector<edm::EDGetTokenT<T>>& tokens,
+                        const std::vector<edm::InputTag>& tags,
+                        edm::Handle<T>& handle) const;
 
   // ------------ member data ------------
   std::vector<edm::InputTag> digiTags_;
@@ -84,13 +86,10 @@ PPSDiamondSampicTimingCalibrationPCLWorker::PPSDiamondSampicTimingCalibrationPCL
       RecHitTags_(iConfig.getParameter<std::vector<edm::InputTag>>("totemTimingRecHitTags")),
       geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
       folder_(iConfig.getParameter<std::string>("folder")) {
-
-      for (auto& tag : digiTags_)
-        totemTimingDigiTokens_.push_back(consumes<edm::DetSetVector<TotemTimingDigi>>(tag));
-      for (auto& tag : RecHitTags_)
-        totemTimingRecHitTokens_.push_back(consumes<edm::DetSetVector<TotemTimingRecHit>>(tag));
-
-
+  for (auto& tag : digiTags_)
+    totemTimingDigiTokens_.push_back(consumes<edm::DetSetVector<TotemTimingDigi>>(tag));
+  for (auto& tag : RecHitTags_)
+    totemTimingRecHitTokens_.push_back(consumes<edm::DetSetVector<TotemTimingRecHit>>(tag));
 }
 
 PPSDiamondSampicTimingCalibrationPCLWorker::~PPSDiamondSampicTimingCalibrationPCLWorker() {}
@@ -101,7 +100,6 @@ void PPSDiamondSampicTimingCalibrationPCLWorker::dqmAnalyze(
     edm::Event const& iEvent,
     edm::EventSetup const& iSetup,
     Histograms_PPSDiamondSampicTimingCalibrationPCLWorker const& histos) const {
-
   edm::Handle<edm::DetSetVector<TotemTimingDigi>> timingDigi;
   edm::Handle<edm::DetSetVector<TotemTimingRecHit>> timingRecHit;
 
@@ -170,23 +168,24 @@ void PPSDiamondSampicTimingCalibrationPCLWorker::fillDescriptions(edm::Configura
 
 //------------------------------------------------------------------------------
 
-template<typename T>
-bool PPSDiamondSampicTimingCalibrationPCLWorker::searchForProduct(edm::Event const& iEvent, const std::vector<edm::EDGetTokenT<T>>& tokens, 
-                                                                  const std::vector<edm::InputTag>& tags, edm::Handle<T>& handle) const{
+template <typename T>
+bool PPSDiamondSampicTimingCalibrationPCLWorker::searchForProduct(edm::Event const& iEvent,
+                                                                  const std::vector<edm::EDGetTokenT<T>>& tokens,
+                                                                  const std::vector<edm::InputTag>& tags,
+                                                                  edm::Handle<T>& handle) const {
   bool foundProduct = false;
   for (unsigned int i = 0; i < tokens.size(); i++)
     if (auto h = iEvent.getHandle(tokens[i])) {
-      handle=h;
+      handle = h;
       foundProduct = true;
       edm::LogInfo("searchForProduct") << "Found a product with " << tags[i];
       break;
     }
-  
+
   if (!foundProduct)
     throw edm::Exception(edm::errors::ProductNotFound) << "Could not find a product with any of the selected labels.";
 
   return foundProduct;
-  
 }
 
 DEFINE_FWK_MODULE(PPSDiamondSampicTimingCalibrationPCLWorker);
