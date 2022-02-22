@@ -12,8 +12,7 @@
 template <typename... Capabilities>
 class TritonOneEDAnalyzer : public SonicOneEDAnalyzer<TritonClient, Capabilities...> {
 public:
-  TritonOneEDAnalyzer(edm::ParameterSet const& cfg)
-      : SonicOneEDAnalyzer<TritonClient, Capabilities...>(cfg) {
+  TritonOneEDAnalyzer(edm::ParameterSet const& cfg) : SonicOneEDAnalyzer<TritonClient, Capabilities...>(cfg) {
     edm::Service<TritonService> ts;
     ts->addModel(this->clientPset_.template getParameter<std::string>("modelName"),
                  this->clientPset_.template getParameter<edm::FileInPath>("modelConfigPath").fullPath());
