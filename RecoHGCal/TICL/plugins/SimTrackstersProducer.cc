@@ -57,6 +57,7 @@ private:
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
   hgcal::RecHitTools rhtools_;
   const double fractionCut_;
+  const double energyCut_;
 };
 DEFINE_FWK_MODULE(SimTrackstersProducer);
 
@@ -73,7 +74,8 @@ SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
       associatorMapCaloParticleToReco_token_(
           consumes(ps.getParameter<edm::InputTag>("layerClusterCaloParticleAssociator"))),
       geom_token_(esConsumes()),
-      fractionCut_(ps.getParameter<double>("fractionCut")) {
+      fractionCut_(ps.getParameter<double>("fractionCut")),
+      energyCut_(ps.getParameter<double>("energyCut")) {
   produces<TracksterCollection>();
   produces<std::vector<float>>();
   produces<TracksterCollection>("fromCPs");
@@ -95,6 +97,7 @@ void SimTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("layerClusterCaloParticleAssociator",
                           edm::InputTag("layerClusterCaloParticleAssociationProducer"));
   desc.add<double>("fractionCut", 0.);
+  desc.add<double>("energyCut", 2.);
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -136,6 +139,9 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     if (cp.g4Tracks()[0].crossedBoundary()) {
       regr_energy = cp.g4Tracks()[0].getMomentumAtBoundary().energy();
 
+      if (regr_energy < energyCut_)
+        continue;
+
       addTrackster(cpIndex,
                    lcVec,
                    inputClusterMask,
@@ -155,6 +161,9 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
         const auto& lcVec = it->val;
         auto const& sc = *(scRef);
         auto const scIndex = &sc - &simclusters[0];
+
+        if (sc.g4Tracks()[0].getMomentumAtBoundary().energy() < energyCut_)
+          continue;
 
         addTrackster(scIndex,
                      lcVec,
