@@ -30,6 +30,7 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
       densityOnSameLayer_(conf.getParameter<bool>("densityOnSameLayer")),
       nearestHigherOnSameLayer_(conf.getParameter<bool>("nearestHigherOnSameLayer")),
       useAbsoluteProjectiveScale_(conf.getParameter<bool>("useAbsoluteProjectiveScale")),
+      rescaleDensityByZ_(conf.getParameter<bool>("rescaleDensityByZ")),
       criticalEtaPhiDistance_(conf.getParameter<double>("criticalEtaPhiDistance")),
       criticalXYDistance_(conf.getParameter<double>("criticalXYDistance")),
       criticalZDistanceLyr_(conf.getParameter<int>("criticalZDistanceLyr")),
@@ -97,6 +98,7 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpTracksters(const std::vector<std::pa
             << std::setw(10) << thisLayer.energy[soaIdx] << sep
             << std::setw(10) << thisLayer.radius[soaIdx] << sep
             << std::setw(10) << thisLayer.rho[soaIdx] << sep
+            << std::setw(10) << thisLayer.z_extension[soaIdx] << sep
             << std::setw(10) << thisLayer.delta[soaIdx].first << sep
             << std::setw(10) << thisLayer.delta[soaIdx].second << sep
             << std::setw(4) << thisLayer.isSeed[soaIdx];
@@ -133,6 +135,7 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const std::vector<std::pair
           << std::setw(10) << thisLayer.energy[num] << ", "
           << std::setw(10) << (thisLayer.energy[num]/thisLayer.rho[num]) << ", "
           << std::setw(10) << thisLayer.rho[num] << ", "
+          << std::setw(10) << thisLayer.z_extension[num] << ", "
           << std::setw(10) << thisLayer.delta[num].first << ", "
           << std::setw(10) << thisLayer.delta[num].second << ", "
           << std::setw(10) << thisLayer.nearestHigher[num].first << ", "
@@ -168,12 +171,21 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
 
   const int eventNumber = input.ev.eventAuxiliary().event();
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "New Event";
+    edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "New Event";
   }
 
   edm::EventSetup const &es = input.es;
   const CaloGeometry &geom = es.getData(caloGeomToken_);
   rhtools_.setGeometry(geom);
+
+  // Assume identical Z-positioning between positive and negative sides.
+  // Also, layers inside the HGCAL geometry start from 1.
+  for (unsigned int i = 0; i < rhtools_.lastLayer(); ++i) {
+    layersPosZ_.push_back(rhtools_.getPositionLayer(i+1).z());
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+        edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Layer " << i << " located at Z: " << layersPosZ_.back();
+      }
+  }
 
   clusters_.clear();
   clusters_.resize(2 * rhtools_.lastLayer(false));
@@ -231,6 +243,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     clusters_[layer].layerClusterOriginalIdx.emplace_back(layerIdx++);
     clusters_[layer].nearestHigher.emplace_back(-1, -1);
     clusters_[layer].rho.emplace_back(0.f);
+    clusters_[layer].z_extension.emplace_back(0.f);
     clusters_[layer].delta.emplace_back(std::make_pair(std::numeric_limits<float>::max(), std::numeric_limits<int>::max()));
   }
   for (unsigned int layer = 0; layer < clusters_.size(); layer++) {
@@ -485,6 +498,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
       minLayer = std::max(layerId - densitySiblingLayers_, lastLayerPerSide);
       maxLayer = std::min(layerId + densitySiblingLayers_, maxLayer);
     }
+    float deltaLayersZ = std::abs(layersPosZ_[maxLayer % lastLayerPerSide] - layersPosZ_[minLayer % lastLayerPerSide]);
+
     for (int currentLayer = minLayer; currentLayer <= maxLayer; currentLayer++) {
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
         edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "RefLayer: " << layerId << " SoaIDX: " << i;
@@ -565,13 +580,23 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
               auto energyToAdd = (clustersOnLayer.layerClusterOriginalIdx[i] == otherClusterIdx ? 1.f : kernelDensityFactor_*factor_same_layer_different_cluster) *
                 clustersLayer.energy[layerandSoa.second];
               clustersOnLayer.rho[i] += energyToAdd;
-              edm::LogVerbatim("PatternRecogntionbyCLUE3D")
-                << "Adding " << energyToAdd << " partial " << clustersOnLayer.rho[i];
+              clustersOnLayer.z_extension[i] = deltaLayersZ;
+              if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+                edm::LogVerbatim("PatternRecognitionbyCLUE3D")
+                  << "Adding " << energyToAdd << " partial " << clustersOnLayer.rho[i];
+              }
             }
           }  // end of loop on possible compatible clusters
         }    // end of loop over phi-bin region
       }      // end of loop over eta-bin region
     }        // end of loop on the sibling layers
+    if (rescaleDensityByZ_) {
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+        edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Rescaling original density: " << clustersOnLayer.rho[i]
+          << " by Z: " << deltaLayersZ << " to final density/cm: " << clustersOnLayer.rho[i]/deltaLayersZ;
+      }
+      clustersOnLayer.rho[i] /= deltaLayersZ;
+    }
   }          // end of loop over clusters on this layer
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
@@ -772,6 +797,7 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
   iDesc.add<bool>("densityOnSameLayer", false);
   iDesc.add<bool>("nearestHigherOnSameLayer", false)->setComment("Allow the nearestHigher to be located on the same layer");
   iDesc.add<bool>("useAbsoluteProjectiveScale", true)->setComment("Express all cuts in terms of r/z*z_0{,phi} projective variables");
+  iDesc.add<bool>("rescaleDensityByZ", false)->setComment("Rescale local density by the extension of the Z 'volume' explored. The transvere dimension is, at present, fixed and factored out.");
   iDesc.add<double>("criticalEtaPhiDistance", 0.035)->setComment("Minimal distance in eta,phi space from nearestHigher to become a seed");
   iDesc.add<double>("criticalXYDistance", 4.0)->setComment("Minimal distance in cm on the XY plane from nearestHigher to become a seed");
   iDesc.add<int>("criticalZDistanceLyr", 5)->setComment("Minimal distance in layers along the Z axis from nearestHigher to become a seed");
