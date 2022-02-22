@@ -20,28 +20,22 @@
 
 // system include files
 #include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
-
-#include "DQMServices/Core/interface/DQMStore.h"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <cstdint>
+
+// user include files
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class SiStripDetCabling;
 

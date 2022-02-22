@@ -20,15 +20,16 @@
 
 // system include files
 #include <memory>
+#include <iomanip>
+#include <string>
+#include <cstdint>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // data formats
@@ -41,12 +42,8 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
-
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <iomanip>
-#include <string>
-#include <cstdint>
 
 class ApvAnalysisFactory;
 class SiStripDetCabling;
