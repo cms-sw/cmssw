@@ -12,9 +12,9 @@
 template <typename G, typename... Capabilities>
 class TritonEDFilterT : public SonicEDFilter<TritonClient, edm::GlobalCache<G>, Capabilities...> {
 public:
-  TritonEDFilterT(edm::ParameterSet const& cfg, const std::string& debugName)
+  TritonEDFilterT(edm::ParameterSet const& cfg)
       : SonicEDFilter<TritonClient, edm::GlobalCache<G>, Capabilities...>(
-            cfg, debugName, cfg.getParameterSet("Client").getUntrackedParameter<bool>("verbose")) {}
+            cfg, cfg.getParameterSet("Client").getUntrackedParameter<bool>("verbose")) {}
 
   //use this function to avoid calling TritonService functions Nstreams times
   static std::unique_ptr<G> initializeGlobalCache(edm::ParameterSet const& pset) {

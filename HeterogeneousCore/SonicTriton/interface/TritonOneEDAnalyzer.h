@@ -12,9 +12,9 @@
 template <typename... Capabilities>
 class TritonOneEDAnalyzer : public SonicOneEDAnalyzer<TritonClient, Capabilities...> {
 public:
-  TritonOneEDAnalyzer(edm::ParameterSet const& cfg, const std::string& debugName)
+  TritonOneEDAnalyzer(edm::ParameterSet const& cfg)
       : SonicOneEDAnalyzer<TritonClient, Capabilities...>(
-            cfg, debugName, cfg.getParameterSet("Client").getUntrackedParameter<bool>("verbose")) {
+            cfg, cfg.getParameterSet("Client").getUntrackedParameter<bool>("verbose")) {
     edm::Service<TritonService> ts;
     const auto& clientPset = cfg.getParameterSet("Client");
     ts->addModel(clientPset.getParameter<std::string>("modelName"),
