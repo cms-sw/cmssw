@@ -43,9 +43,9 @@
 
 //---Wrapper to handle stream data
 struct PhiSymStreamCache {
-  mutable EcalPhiSymInfo ecalLumiInfo;
-  mutable EcalPhiSymRecHitCollection recHitCollEB;
-  mutable EcalPhiSymRecHitCollection recHitCollEE;
+  EcalPhiSymInfo ecalLumiInfo;
+  EcalPhiSymRecHitCollection recHitCollEB;
+  EcalPhiSymRecHitCollection recHitCollEE;
 
   void clear() {
     ecalLumiInfo = EcalPhiSymInfo();
@@ -76,7 +76,7 @@ public:
   void processEvent(edm::Event const& event, edm::EventSetup const& setup, PhiSymStreamCache* cache) const;
   // helpers
   void initializeStreamCache(PhiSymStreamCache* cache) const;
-  void initializeGlobalCache(edm::EventSetup const& setup,
+  void initializePhiSymCache(edm::EventSetup const& setup,
                              edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const& chStatusToken,
                              edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const& geoToken,
                              std::shared_ptr<PhiSymCache>& vcache) const;
@@ -284,7 +284,7 @@ void EcalPhiSymRecHitProducerBase::initializeStreamCache(PhiSymStreamCache* cach
   }
 }
 
-void EcalPhiSymRecHitProducerBase::initializeGlobalCache(
+void EcalPhiSymRecHitProducerBase::initializePhiSymCache(
     edm::EventSetup const& setup,
     edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const& chStatusToken,
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const& geoToken,
@@ -406,7 +406,7 @@ std::shared_ptr<PhiSymCache> EcalPhiSymRecHitProducerLumi::globalBeginLuminosity
   EcalPhiSymInfo thisLumi(0, 0, 0, 1, lhcinfo.fillNumber(), lhcinfo.delivLumi(), lhcinfo.recLumi());
 
   //---Reset global cache
-  initializeGlobalCache(setup, chStatusTokenLumi_, geoTokenLumi_, cache);
+  initializePhiSymCache(setup, chStatusTokenLumi_, geoTokenLumi_, cache);
   cache->c[0].ecalLumiInfo = thisLumi;
 
   return cache;
@@ -481,7 +481,7 @@ private:
                                                           edm::EventSetup const& setup) const override;
   void globalEndLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) const override{};
   // stream
-  std::unique_ptr<PhiSymStreamCache> be overrideginStream(edm::StreamID stream) const override;
+  std::unique_ptr<PhiSymStreamCache> beginStream(edm::StreamID stream) const override;
   void streamBeginRun(edm::StreamID stream, edm::Run const& run, edm::EventSetup const& setup) const override;
   void streamEndRun(edm::StreamID stream, edm::Run const& run, edm::EventSetup const& setup) const override;
   // event
@@ -507,7 +507,7 @@ EcalPhiSymRecHitProducerRun::EcalPhiSymRecHitProducerRun(const edm::ParameterSet
 std::shared_ptr<PhiSymCache> EcalPhiSymRecHitProducerRun::globalBeginRun(edm::Run const& run,
                                                                          edm::EventSetup const& setup) const {
   auto cache = std::make_shared<PhiSymCache>();
-  initializeGlobalCache(setup, chStatusTokenRun_, geoTokenRun_, cache);
+  initializePhiSymCache(setup, chStatusTokenRun_, geoTokenRun_, cache);
   return cache;
 }
 
