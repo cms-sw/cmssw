@@ -26,6 +26,7 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
       densitySiblingLayers_(conf.getParameter<int>("densitySiblingLayers")),
       densityEtaPhiDistanceSqr_(conf.getParameter<double>("densityEtaPhiDistanceSqr")),
       densityXYDistanceSqr_(conf.getParameter<double>("densityXYDistanceSqr")),
+      kernelDensityFactor_(conf.getParameter<double>("kernelDensityFactor")),
       densityOnSameLayer_(conf.getParameter<bool>("densityOnSameLayer")),
       useAbsoluteProjectiveScale_(conf.getParameter<bool>("useAbsoluteProjectiveScale")),
       criticalEtaPhiDistance_(conf.getParameter<double>("criticalEtaPhiDistance")),
@@ -559,8 +560,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
               edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Distance[cm]: " << (dist*clustersOnLayer.z[i]);
             }
             if (reachable) {
-              float factor_same_layer_different_cluster = (onSameLayer && !densityOnSameLayer_) ? 0.f : 0.5f;
-              auto energyToAdd = (clustersOnLayer.layerClusterOriginalIdx[i] == otherClusterIdx ? 1.f : 0.5f*factor_same_layer_different_cluster) *
+              float factor_same_layer_different_cluster = (onSameLayer && !densityOnSameLayer_) ? 0.f : 1.f;
+              auto energyToAdd = (clustersOnLayer.layerClusterOriginalIdx[i] == otherClusterIdx ? 1.f : kernelDensityFactor_*factor_same_layer_different_cluster) *
                 clustersLayer.energy[layerandSoa.second];
               clustersOnLayer.rho[i] += energyToAdd;
               edm::LogVerbatim("PatternRecogntionbyCLUE3D")
@@ -761,9 +762,10 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
   iDesc.add<int>("algo_verbosity", 0);
   iDesc.add<double>("criticalDensity", 4)->setComment("in GeV");
   iDesc.add<double>("criticalSelfDensity", 0.15 /* roughly 1/(densitySiblingLayers+1) */)->setComment("Minimum ratio of self_energy/local_density to become a seed.");
-  iDesc.add<int>("densitySiblingLayers", 5)->setComment("inclusive, layers to consider while computing local density");
+  iDesc.add<int>("densitySiblingLayers", 5)->setComment("inclusive, layers to consider while computing local density and searching for nearestHigher higher");
   iDesc.add<double>("densityEtaPhiDistanceSqr", 0.0008);
   iDesc.add<double>("densityXYDistanceSqr", 16 /*6.76*/)->setComment("in cm, 2.6*2.6, distance on the transverse plane to consider for local density");
+  iDesc.add<double>("kernelDensityFactor", 0.2)->setComment("Kernel factor to be applied to other LC while computing the local density");
   iDesc.add<bool>("densityOnSameLayer", false);
   iDesc.add<bool>("useAbsoluteProjectiveScale", true)->setComment("Express all cuts in terms of r/z*z_0{,phi} projective variables");
   iDesc.add<double>("criticalEtaPhiDistance", 0.035)->setComment("Minimal distance in eta,phi space from nearestHigher to become a seed");
