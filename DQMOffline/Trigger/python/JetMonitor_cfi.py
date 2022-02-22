@@ -39,3 +39,8 @@ hltJetMETmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltJetMETmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltJetMETmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
 
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(hltJetMETmonitoring,
+                         numGenericTriggerEventPSet = dict(stage2 = cms.bool(True)),
+                         denGenericTriggerEventPSet = dict(stage2 = cms.bool(True)))
+
