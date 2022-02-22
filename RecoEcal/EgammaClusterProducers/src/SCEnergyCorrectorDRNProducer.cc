@@ -57,7 +57,7 @@ private:
 };
 
 SCEnergyCorrectorDRNProducer::SCEnergyCorrectorDRNProducer(const edm::ParameterSet& iConfig)
-    : TritonEDProducer<>(iConfig, "SCEnergyCorrectorDRNProducer"),
+    : TritonEDProducer<>(iConfig),
       energyCorrector_(iConfig.getParameterSet("correctorCfg"), consumesCollector()),
       inputSCToken_(consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("inputSCs"))) {
   produces<reco::SuperClusterCollection>();
