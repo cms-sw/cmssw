@@ -1,6 +1,6 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_3_0/HIon --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_12_3_0/HIon/V30 (CMSSW_12_3_0_pre5)
+# /dev/CMSSW_12_3_0/HIon/V36 (CMSSW_12_3_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V30')
+  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V36')
 )
 
 process.transferSystem = cms.PSet( 
@@ -12357,7 +12357,16 @@ process.hltParticleFlowClusterECALUnseeded = cms.EDProducer( "CorrectedECALPFClu
     minimumPSEnergy = cms.double( 0.0 ),
     skipPS = cms.bool( False ),
     inputPS = cms.InputTag( "hltParticleFlowClusterPSUnseeded" ),
-    energyCorrector = cms.PSet(  applyCrackCorrections = cms.bool( False ) ),
+    energyCorrector = cms.PSet( 
+      applyCrackCorrections = cms.bool( False ),
+      srfAwareCorrection = cms.bool( True ),
+      applyMVACorrections = cms.bool( True ),
+      maxPtForMVAEvaluation = cms.double( 300.0 ),
+      recHitsEBLabel = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
+      recHitsEELabel = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
+      ebSrFlagLabel = cms.InputTag( "hltEcalDigis" ),
+      eeSrFlagLabel = cms.InputTag( "hltEcalDigis" )
+    ),
     inputECAL = cms.InputTag( "hltParticleFlowClusterECALUncorrectedUnseeded" )
 )
 process.hltParticleFlowClusterHBHE = cms.EDProducer( "PFClusterProducer",
@@ -14242,7 +14251,16 @@ process.hltParticleFlowClusterECALPPOnAA = cms.EDProducer( "CorrectedECALPFClust
     minimumPSEnergy = cms.double( 0.0 ),
     skipPS = cms.bool( False ),
     inputPS = cms.InputTag( "hltParticleFlowClusterPSPPOnAA" ),
-    energyCorrector = cms.PSet(  applyCrackCorrections = cms.bool( False ) ),
+    energyCorrector = cms.PSet( 
+      applyCrackCorrections = cms.bool( False ),
+      srfAwareCorrection = cms.bool( True ),
+      applyMVACorrections = cms.bool( True ),
+      maxPtForMVAEvaluation = cms.double( 300.0 ),
+      recHitsEBLabel = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
+      recHitsEELabel = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
+      ebSrFlagLabel = cms.InputTag( "hltEcalDigis" ),
+      eeSrFlagLabel = cms.InputTag( "hltEcalDigis" )
+    ),
     inputECAL = cms.InputTag( "hltParticleFlowClusterECALUncorrectedPPOnAA" )
 )
 process.hltParticleFlowSuperClusterECALPPOnAA = cms.EDProducer( "PFECALSuperClusterProducer",
