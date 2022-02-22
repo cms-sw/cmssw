@@ -60,13 +60,13 @@ namespace geant_units {
     constexpr double operator"" _g_per_mole(long double mass) { return mass * 1._g / 1._mole; }
 
     // Add these conversion functions to this namespace for convenience
-    using angle_units::operators::convertCmToMm;
-    using angle_units::operators::convertMmToCm;
     using angle_units::operators::convertCm2ToMm2;
-    using angle_units::operators::convertMm3ToM3;
+    using angle_units::operators::convertCmToMm;
     using angle_units::operators::convertGeVToKeV;
     using angle_units::operators::convertGeVToMeV;
     using angle_units::operators::convertMeVToGeV;
+    using angle_units::operators::convertMm3ToM3;
+    using angle_units::operators::convertMmToCm;
 
     // Convert Geant units to desired units
     template <class NumType>

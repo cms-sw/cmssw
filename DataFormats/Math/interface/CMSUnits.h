@@ -38,13 +38,13 @@ namespace cms_units {
     constexpr double operator"" _TeV(long double energy) { return energy * 1.e3_GeV; }
 
     // Add these conversion functions to this namespace for convenience
-    using angle_units::operators::convertCmToMm;
-    using angle_units::operators::convertMmToCm;
-    using angle_units::operators::convertMm3ToM3;
     using angle_units::operators::convertCm2ToMm2;
+    using angle_units::operators::convertCmToMm;
     using angle_units::operators::convertGeVToKeV;
     using angle_units::operators::convertGeVToMeV;
     using angle_units::operators::convertMeVToGeV;
+    using angle_units::operators::convertMm3ToM3;
+    using angle_units::operators::convertMmToCm;
 
   }  // namespace operators
 }  // namespace cms_units
