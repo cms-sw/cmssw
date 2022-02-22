@@ -9,7 +9,7 @@ EcalPhiSymRecHit::EcalPhiSymRecHit(uint32_t id, unsigned int nMisCalibV, unsigne
 
 EcalPhiSymRecHit::EcalPhiSymRecHit(uint32_t id, std::vector<float>& etValues, unsigned int status)
     : id_(id),
-      eeRing_(0), 
+      eeRing_(0),
       chStatus_(status),
       nHits_(0),
       etSum_(etValues.begin(), etValues.end()),

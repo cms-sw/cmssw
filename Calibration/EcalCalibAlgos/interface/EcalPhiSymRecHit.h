@@ -33,7 +33,7 @@ public:
 
   //---getters---
   inline uint32_t rawId() const { return id_; };
-    inline int8_t eeRing() const { return eeRing_; };
+  inline int8_t eeRing() const { return eeRing_; };
   inline unsigned int statusCode() const { return chStatus_; };
   inline uint32_t nHits() const { return nHits_; };
   inline unsigned int nSumEt() const { return etSum_.size(); };
@@ -42,9 +42,9 @@ public:
   inline float lcSum() const { return lcSum_; };
   inline float lc2Sum() const { return lc2Sum_; };
 
-    //---setters---
-    void setEERing(const int8_t& eering) { eeRing_ = eering; };
-    
+  //---setters---
+  void setEERing(const int8_t& eering) { eeRing_ = eering; };
+
   //---utils---
   void addHit(const std::vector<float>& etValues, const float laserCorr = 0);
   void reset();
@@ -54,7 +54,7 @@ public:
 
 private:
   uint32_t id_;
-    int8_t eeRing_;
+  int8_t eeRing_;
   unsigned int chStatus_;
   uint32_t nHits_;
   std::vector<float> etSum_;
