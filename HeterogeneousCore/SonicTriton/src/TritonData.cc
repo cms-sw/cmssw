@@ -1,7 +1,6 @@
 #include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonMemResource.h"
-#include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "model_config.pb.h"
@@ -264,7 +263,6 @@ template TritonInputContainer<int8_t> TritonInputData::allocate(bool reserve);
 template TritonInputContainer<int16_t> TritonInputData::allocate(bool reserve);
 template TritonInputContainer<int32_t> TritonInputData::allocate(bool reserve);
 template TritonInputContainer<int64_t> TritonInputData::allocate(bool reserve);
-template TritonInputContainer<Float16_t> TritonInputData::allocate(bool reserve);
 template TritonInputContainer<float> TritonInputData::allocate(bool reserve);
 template TritonInputContainer<double> TritonInputData::allocate(bool reserve);
 
@@ -277,7 +275,6 @@ template void TritonInputData::toServer(TritonInputContainer<int8_t> data_in);
 template void TritonInputData::toServer(TritonInputContainer<int16_t> data_in);
 template void TritonInputData::toServer(TritonInputContainer<int32_t> data_in);
 template void TritonInputData::toServer(TritonInputContainer<int64_t> data_in);
-template void TritonInputData::toServer(TritonInputContainer<Float16_t> data_in);
 template void TritonInputData::toServer(TritonInputContainer<float> data_in);
 template void TritonInputData::toServer(TritonInputContainer<double> data_in);
 
@@ -290,6 +287,5 @@ template TritonOutput<int8_t> TritonOutputData::fromServer() const;
 template TritonOutput<int16_t> TritonOutputData::fromServer() const;
 template TritonOutput<int32_t> TritonOutputData::fromServer() const;
 template TritonOutput<int64_t> TritonOutputData::fromServer() const;
-template TritonOutput<Float16_t> TritonOutputData::fromServer() const;
 template TritonOutput<float> TritonOutputData::fromServer() const;
 template TritonOutput<double> TritonOutputData::fromServer() const;

@@ -3,6 +3,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Span.h"
+#include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 
 #include <vector>
 #include <string>
@@ -98,9 +99,7 @@ private:
   void resetSizes();
   triton::client::InferenceServerGrpcClient* client();
   template <typename DT>
-  void checkType() { if(!checkTypeImpl<DT>()) throw cms::Exception("TritonDataError") << name_ << ": inconsistent data type " << typeid(DT).name() << " for " << dname_; }
-  template <typename DT>
-  bool checkTypeImpl() { return false; }
+  void checkType() const { if(!triton_utils::checkType<DT>(dtype_)) throw cms::Exception("TritonDataError") << name_ << ": inconsistent data type " << typeid(DT).name() << " for " << dname_; }
 
   //helpers
   bool anyNeg(const ShapeView& vec) const {
@@ -175,46 +174,6 @@ template <>
 void TritonInputData::createObject(triton::client::InferInput** ioptr);
 template <>
 void TritonOutputData::createObject(triton::client::InferRequestedOutput** ioptr);
-
-//more explicit specializations
-//FP16 (half precision) is a special case because no C++ primitive exists
-//options: uint16_t (e.g. using libminifloat) or Float16_t (from ROOT)
-template <typename IO>
-template <>
-void TritonData<IO>::checkTypeImpl<bool>() { return dtype_==inference::DataType::TYPE_BOOL; }
-template <typename IO>
-template <>
-void TritonData<IO>::checkTypeImpl<uint8_t>() { return dtype_==inference::DataType::TYPE_UINT8; }
-template <typename IO>
-template <>
-void TritonData<IO>::checkTypeImpl<uint16_t>() { return dtype_==inference::DataType::TYPE_UINT16 or dtype_==inference::DataType::TYPE_FP16; }
-template <typename IO>
-template <>
-void TritonData<IO>::checkTypeImpl<uint32_t>() { return dtype_==inference::DataType::TYPE_UINT32; }
-template <typename IO>
-template <>
-void TritonData<IO>::checkTypeImpl<uint64_t>() { return dtype_==inference::DataType::TYPE_UINT64; }
-template <typename IO>
-template <>
-void TritonData<IO>::checkTypeImpl<int8_t>() { return dtype_==inference::DataType::TYPE_INT8; }
-template <typename IO>
-template <>
-void TritonData<IO>::checkTypeImpl<int16_t>() { return dtype_==inference::DataType::TYPE_INT16; }
-template <typename IO>
-template <>
-void TritonData<IO>::checkTypeImpl<int32_t>() { return dtype_==inference::DataType::TYPE_INT32; }
-template <typename IO>
-template <>
-void TritonData<IO>::checkTypeImpl<int64_t>() { return dtype_==inference::DataType::TYPE_INT64; }
-template <typename IO>
-template <>
-void TritonData<IO>::checkTypeImpl<Float16_t>() { return dtype_==inference::DataType::TYPE_FP16; }
-template <typename IO>
-template <>
-void TritonData<IO>::checkTypeImpl<float>() { return dtype_==inference::DataType::TYPE_FP32; }
-template <typename IO>
-template <>
-void TritonData<IO>::checkTypeImpl<double>() { return dtype_==inference::DataType::TYPE_FP64; }
 
 //explicit template instantiation declarations
 extern template class TritonData<triton::client::InferInput>;
