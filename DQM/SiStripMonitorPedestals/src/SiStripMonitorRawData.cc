@@ -17,21 +17,16 @@
 //
 //
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <FWCore/Framework/interface/EventSetup.h>
-
 #include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorRawData.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // std
 #include <algorithm>

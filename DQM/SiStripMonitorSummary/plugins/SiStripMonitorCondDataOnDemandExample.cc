@@ -37,12 +37,6 @@ SiStripMonitorCondDataOnDemandExample::SiStripMonitorCondDataOnDemandExample(edm
 // -----
 
 //
-// ----- Destructor
-//
-SiStripMonitorCondDataOnDemandExample::~SiStripMonitorCondDataOnDemandExample() {}
-// -----
-
-//
 // ----- beginRun
 //
 void SiStripMonitorCondDataOnDemandExample::beginRun(edm::Run const &run, edm::EventSetup const &eSetup) {
