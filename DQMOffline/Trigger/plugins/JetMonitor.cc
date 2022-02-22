@@ -668,6 +668,7 @@ void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   genericTriggerEventPSet.add<std::string>("hltDBKey", "");
   genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
   genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 1);
+  genericTriggerEventPSet.add<bool>("stage2", false);
 
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
