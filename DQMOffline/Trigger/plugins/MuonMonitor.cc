@@ -370,6 +370,8 @@ void MuonMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 1);
   genericTriggerEventPSet.add<bool>("andOrL1", false);
   genericTriggerEventPSet.add<bool>("l1BeforeMask", false);
+  genericTriggerEventPSet.add<bool>("stage2", false);
+
   genericTriggerEventPSet.add<std::vector<std::string>>("l1Algorithms", {});
 
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
