@@ -412,7 +412,6 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   //server parameters should not affect the physics results
   descClient.addUntracked<std::string>("preferredServer", "");
   descClient.addUntracked<unsigned>("timeout");
-  descClient.addUntracked<bool>("verbose", false);
   descClient.addUntracked<bool>("useSharedMemory", true);
   descClient.addUntracked<std::string>("compression", "");
   descClient.addUntracked<std::vector<std::string>>("outputs", {});

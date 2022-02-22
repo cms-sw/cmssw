@@ -16,8 +16,8 @@ public:
   //typedef to simplify usage
   typedef typename Client::Output Output;
   //constructor
-  SonicEDProducer(edm::ParameterSet const& cfg, bool verbose = true)
-      : SonicAcquirer<Client, edm::stream::EDProducer<edm::ExternalWork, Capabilities...>>(cfg, verbose) {}
+  SonicEDProducer(edm::ParameterSet const& cfg)
+      : SonicAcquirer<Client, edm::stream::EDProducer<edm::ExternalWork, Capabilities...>>(cfg) {}
   //destructor
   ~SonicEDProducer() override = default;
 
