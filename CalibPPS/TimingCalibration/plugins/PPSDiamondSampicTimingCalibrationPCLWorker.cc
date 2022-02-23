@@ -69,14 +69,14 @@ private:
                         edm::Handle<T>& handle) const;
 
   // ------------ member data ------------
-  std::vector<edm::InputTag> digiTags_;
-  std::vector<edm::InputTag> RecHitTags_;
+  const std::vector<edm::InputTag> digiTags_;
+  const std::vector<edm::InputTag> RecHitTags_;
 
   std::vector<edm::EDGetTokenT<edm::DetSetVector<TotemTimingDigi>>> totemTimingDigiTokens_;
   std::vector<edm::EDGetTokenT<edm::DetSetVector<TotemTimingRecHit>>> totemTimingRecHitTokens_;
 
-  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
-  std::string folder_;
+  const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
+  const std::string folder_;
 };
 
 //------------------------------------------------------------------------------
