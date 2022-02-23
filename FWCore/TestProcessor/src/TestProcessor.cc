@@ -32,6 +32,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
+#include "FWCore/Framework/interface/ensureAvailableAccelerators.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
@@ -93,6 +94,8 @@ namespace edm {
       auto psetPtr = desc.parameterSet();
 
       validateTopLevelParameterSets(psetPtr.get());
+
+      ensureAvailableAccelerators(*psetPtr);
 
       labelOfTestModule_ = psetPtr->getParameter<std::string>("@moduleToTest");
 
