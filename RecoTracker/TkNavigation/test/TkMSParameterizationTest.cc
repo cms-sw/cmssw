@@ -1,29 +1,23 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "RecoTracker/TkNavigation/interface/TkMSParameterization.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/Record/interface/TkMSParameterizationRecord.h"
+#include "RecoTracker/TkNavigation/interface/TkMSParameterization.h"
 
-class TkMSParameterizationTest final : public edm::EDAnalyzer {
+class TkMSParameterizationTest final : public edm::one::EDAnalyzer<> {
 public:
-  explicit TkMSParameterizationTest(const edm::ParameterSet&) {}
+  explicit TkMSParameterizationTest(const edm::ParameterSet&) : tkMsParamToken_(esConsumes()) {}
 
 private:
+  const edm::ESGetToken<TkMSParameterization, TkMSParameterizationRecord> tkMsParamToken_;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
 void TkMSParameterizationTest::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   using namespace tkMSParameterization;
-  edm::ESHandle<TkMSParameterization> paramH;
-  iSetup.get<TkMSParameterizationRecord>().get(paramH);
-
-  auto const& msParam = *paramH;
+  auto const& msParam = iSetup.getData(tkMsParamToken_);
 
   // test MSParam
   {
