@@ -44,6 +44,8 @@ namespace mkfit {
     m_iteration_hit_mask = ihm;
   }
 
+  void MkFinder::setup_bkfit(const PropagationConfig &pc) { m_prop_config = &pc; }
+
   void MkFinder::release() {
     m_prop_config = nullptr;
     m_iteration_params = nullptr;
