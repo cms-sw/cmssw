@@ -583,6 +583,8 @@ namespace mkfit {
 
           ++rng;
         }  // end of loop over candidates in a tbb chunk
+
+        mkfndr->release();
       });  // end parallel_for over candidates in a region
     });    // end of parallel_for_each over regions
   }
@@ -878,6 +880,7 @@ namespace mkfit {
           }
 
         }  // end of layer loop
+        mkfndr->release();
 
         // final sorting
         for (int iseed = start_seed; iseed < end_seed; ++iseed) {
@@ -920,6 +923,7 @@ namespace mkfit {
         // loop over layers
         find_tracks_in_layers(*cloner, mkfndr.get(), iteration_dir, seeds.begin(), seeds.end(), region);
 
+        mkfndr->release();
         cloner->release();
       });
     });
@@ -1283,9 +1287,9 @@ namespace mkfit {
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
     const SteeringParams &st_par = m_job->steering_params(region);
     const PropagationConfig &prop_config = PropagationConfig::get_default();
+    mkfndr->setup_bkfit(prop_config);
 
     int step = NN;
-
     for (int icand = start_cand; icand < end_cand; icand += step) {
       int end = std::min(icand + NN, end_cand);
 
@@ -1357,6 +1361,7 @@ namespace mkfit {
       }
 #endif
     }
+    mkfndr->release();
   }
 
 }  // end namespace mkfit
