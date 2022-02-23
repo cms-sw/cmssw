@@ -17,30 +17,32 @@
 //
 
 #include <memory>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
 
 class ConversionSeedFilterCharge : public edm::global::EDProducer<> {
 public:
   explicit ConversionSeedFilterCharge(const edm::ParameterSet&);
-  ~ConversionSeedFilterCharge() override;
+  ~ConversionSeedFilterCharge() override = default;
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken;
+
   edm::EDGetTokenT<TrajectorySeedCollection> inputCollPos;
   edm::EDGetTokenT<TrajectorySeedCollection> inputCollNeg;
   const double deltaPhiCut, deltaCotThetaCut, deltaRCut, deltaZCut;
@@ -49,7 +51,9 @@ private:
 };
 
 ConversionSeedFilterCharge::ConversionSeedFilterCharge(const edm::ParameterSet& cfg)
-    : inputCollPos(consumes<TrajectorySeedCollection>(cfg.getParameter<edm::InputTag>("seedCollectionPos"))),
+    : geomToken(esConsumes()),
+      mfToken(esConsumes()),
+      inputCollPos(consumes<TrajectorySeedCollection>(cfg.getParameter<edm::InputTag>("seedCollectionPos"))),
       inputCollNeg(consumes<TrajectorySeedCollection>(cfg.getParameter<edm::InputTag>("seedCollectionNeg"))),
       deltaPhiCut(cfg.getParameter<double>("deltaPhiCut")),
       deltaCotThetaCut(cfg.getParameter<double>("deltaCotThetaCut")),
@@ -59,8 +63,6 @@ ConversionSeedFilterCharge::ConversionSeedFilterCharge(const edm::ParameterSet& 
   produces<TrajectorySeedCollection>();
 }
 
-ConversionSeedFilterCharge::~ConversionSeedFilterCharge() {}
-
 void ConversionSeedFilterCharge::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   using namespace std;
@@ -69,10 +71,8 @@ void ConversionSeedFilterCharge::produce(edm::StreamID, edm::Event& iEvent, cons
   Handle<TrajectorySeedCollection> pInNeg;
   iEvent.getByToken(inputCollNeg, pInNeg);
 
-  edm::ESHandle<TrackerGeometry> theG;
-  iSetup.get<TrackerDigiGeometryRecord>().get(theG);
-  edm::ESHandle<MagneticField> theMF;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+  const TrackerGeometry* theG = &iSetup.getData(geomToken);
+  const MagneticField* theMF = &iSetup.getData(mfToken);
 
   auto result = std::make_unique<TrajectorySeedCollection>();
   result->reserve(pInPos->size());
@@ -86,7 +86,7 @@ void ConversionSeedFilterCharge::produce(edm::StreamID, edm::Event& iEvent, cons
       PTrajectoryStateOnDet state1 = iS1->startingState();
       DetId detId1(state1.detId());
       TrajectoryStateOnSurface tsos1 =
-          trajectoryStateTransform::transientState(state1, &(theG->idToDet(detId1)->surface()), theMF.product());
+          trajectoryStateTransform::transientState(state1, &(theG->idToDet(detId1)->surface()), theMF);
       double phi1 = tsos1.globalMomentum().phi();
       double cotTheta1 = 1 / tan(tsos1.globalMomentum().theta());
       double r1 = tsos1.globalPosition().perp();
@@ -98,7 +98,7 @@ void ConversionSeedFilterCharge::produce(edm::StreamID, edm::Event& iEvent, cons
         PTrajectoryStateOnDet state2 = iS2->startingState();
         DetId detId2(state2.detId());
         TrajectoryStateOnSurface tsos2 =
-            trajectoryStateTransform::transientState(state2, &(theG->idToDet(detId2)->surface()), theMF.product());
+            trajectoryStateTransform::transientState(state2, &(theG->idToDet(detId2)->surface()), theMF);
 
         double deltaPhi = fabs(reco::deltaPhi(phi1, tsos2.globalMomentum().phi()));
         double deltaCotTheta = fabs(cotTheta1 - 1 / tan(tsos2.globalMomentum().theta()));
