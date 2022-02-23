@@ -14,9 +14,9 @@ from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import ctppsDiamondRawToDigi 
 from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import totemTimingRawToDigi as _totemTimingRawToDigi
 from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import ctppsPixelDigis as _ctppsPixelDigis
 
-ctppsDiamondRawToDigiAlCaRecoProducer  = _ctppsDiamondRawToDigi.clone(rawDataTag = cms.InputTag('hltPPSCalibrationRaw'))
-totemTimingRawToDigiAlCaRecoProducer = _totemTimingRawToDigi.clone(rawDataTag = cms.InputTag('hltPPSCalibrationRaw') )
-ctppsPixelDigisAlCaRecoProducer = _ctppsPixelDigis.clone(inputLabel = cms.InputTag('hltPPSCalibrationRaw'))
+ctppsDiamondRawToDigiAlCaRecoProducer  = _ctppsDiamondRawToDigi.clone(rawDataTag = 'hltPPSCalibrationRaw')
+totemTimingRawToDigiAlCaRecoProducer = _totemTimingRawToDigi.clone(rawDataTag = 'hltPPSCalibrationRaw')
+ctppsPixelDigisAlCaRecoProducer = _ctppsPixelDigis.clone(inputLabel = 'hltPPSCalibrationRaw')
 
 ctppsRawToDigiTaskAlCaRecoProducer = cms.Task(
     ctppsDiamondRawToDigiAlCaRecoProducer,
@@ -49,7 +49,7 @@ ctppsPixelLocalReconstructionTaskAlCaRecoProducer = cms.Task(
 
 from RecoPPS.Local.ctppsDiamondRecHits_cfi import ctppsDiamondRecHits as _ctppsDiamondRecHits
 from RecoPPS.Local.ctppsDiamondLocalTracks_cfi import ctppsDiamondLocalTracks as _ctppsDiamondLocalTracks
-ctppsDiamondRecHitsAlCaRecoProducer = _ctppsDiamondRecHits.clone(digiTag = cms.InputTag('ctppsDiamondRawToDigiAlCaRecoProducer','TimingDiamond'))
+ctppsDiamondRecHitsAlCaRecoProducer = _ctppsDiamondRecHits.clone(digiTag = 'ctppsDiamondRawToDigiAlCaRecoProducer:TimingDiamond')
 ctppsDiamondLocalTracksAlCaRecoProducer = _ctppsDiamondLocalTracks.clone(recHitsTag = 'ctppsDiamondRecHitsAlCaRecoProducer')
 
 ctppsDiamondLocalReconstructionTaskAlCaRecoProducer = cms.Task(
@@ -63,7 +63,7 @@ ctppsDiamondLocalReconstructionTaskAlCaRecoProducer = cms.Task(
 from RecoPPS.Local.totemTimingRecHits_cfi import totemTimingRecHits as _totemTimingRecHits
 from RecoPPS.Local.diamondSampicLocalTracks_cfi import diamondSampicLocalTracks as _diamondSampicLocalTracks
 
-totemTimingRecHitsAlCaRecoProducer = _totemTimingRecHits.clone(digiTag = cms.InputTag('totemTimingRawToDigiAlCaRecoProducer','TotemTiming'))
+totemTimingRecHitsAlCaRecoProducer = _totemTimingRecHits.clone(digiTag = 'totemTimingRawToDigiAlCaRecoProducer:TotemTiming')
 diamondSampicLocalTracksAlCaRecoProducer = _diamondSampicLocalTracks.clone(recHitsTag = 'totemTimingRecHitsAlCaRecoProducer')
 
 diamondSampicLocalReconstructionTaskAlCaRecoProducer = cms.Task(
