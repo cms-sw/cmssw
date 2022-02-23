@@ -1,13 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-TTRHBuilderAngleAndTemplate = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
-    StripCPE = cms.string('StripCPEfromTrackAngle'),
-    Phase2StripCPE = cms.string(''),
-    ComponentName = cms.string('WithAngleAndTemplate'),
-    PixelCPE = cms.string('PixelCPETemplateReco'),
-    Matcher = cms.string('StandardMatcher'),
-    ComputeCoarseLocalPositionFromDisk = cms.bool(False),
-)
+from RecoTracker.TransientTrackingRecHit.tkTransientTrackingRecHitBuilderESProducer_cfi import tkTransientTrackingRecHitBuilderESProducer
+TTRHBuilderAngleAndTemplate = tkTransientTrackingRecHitBuilderESProducer.clone(StripCPE = 'StripCPEfromTrackAngle',
+                                                                               Phase2StripCPE = '',
+                                                                               ComponentName = 'WithAngleAndTemplate',
+                                                                               PixelCPE = 'PixelCPETemplateReco',
+                                                                               Matcher = 'StandardMatcher',
+                                                                               ComputeCoarseLocalPositionFromDisk = False)
 
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(TTRHBuilderAngleAndTemplate, 
