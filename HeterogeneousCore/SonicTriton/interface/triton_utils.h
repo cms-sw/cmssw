@@ -72,7 +72,7 @@ inline bool triton_utils::checkType<double>(inference::DataType dtype) {
 
 //helper to turn triton error into exception
 //implemented as a macro to avoid constructing the MSG string for successful function calls
-#define tritonThrowIfError(X, MSG)                                                                            \
+#define TRITON_THROW_IF_ERROR(X, MSG)                                                                         \
   {                                                                                                           \
     triton::client::Error err = (X);                                                                          \
     if (!err.IsOk())                                                                                          \
