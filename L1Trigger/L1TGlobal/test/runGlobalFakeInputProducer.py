@@ -230,7 +230,6 @@ process.simGtExtFakeProd.setBptxOR    = cms.bool(True)
 
 ## Run the Stage 2 uGT emulator
 process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cfi')
-process.simGtStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
 process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
 process.simGtStage2Digis.ExtInputTag = cms.InputTag("simGtExtFakeProd")
 process.simGtStage2Digis.MuonInputTag = cms.InputTag("gtInput")
