@@ -1,15 +1,12 @@
-#include <FWCore/Framework/interface/MakerMacros.h>
-
-#include <DataFormats/Common/interface/DetSetVector.h>
-
-#include <DataFormats/SiStripCommon/interface/SiStripEventSummary.h>
-#include <DataFormats/SiStripDigi/interface/SiStripDigi.h>
-#include <DataFormats/SiStripDigi/interface/SiStripRawDigi.h>
-#include <DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/EventSetupRecord.h>
-
-#include <Alignment/LaserAlignment/interface/LASGlobalLoop.h>
+#include "Alignment/LaserAlignment/interface/LASGlobalLoop.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -40,11 +37,6 @@ RawDataConverter::RawDataConverter(const edm::ParameterSet& iConfig)
   theDigiModuleLabels = iConfig.getParameter<std::vector<std::string> >("DigiModuleLabels");
   theProductInstanceLabels = iConfig.getParameter<std::vector<std::string> >("ProductInstanceLabels");
 }
-
-///
-///
-///
-RawDataConverter::~RawDataConverter() {}
 
 ///
 ///
