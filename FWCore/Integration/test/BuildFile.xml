@@ -147,6 +147,8 @@
     <use name="FWCore/Utilities"/>
   </bin>
 
+  <test name="TestIntegrationProcessAccelerator" command="run_TestProcessAccelerator.sh"/>
+
   <test name="CatchStdExceptiontest" command="CatchStdExceptiontest.sh"/>
 
   <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
@@ -175,6 +177,16 @@
     <use name="FWCore/TestProcessor"/>
     <use name="DataFormats/Provenance"/>
     <use name="catch2"/>
+  </bin>
+
+  <bin file="ProcessAccelerator_t.cpp">
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ParameterSetReader"/>
+    <use name="FWCore/TestProcessor"/>
+    <use name="DataFormats/Provenance"/>
+    <use name="catch2"/>
+    <use name="fmt"/>
   </bin>
 
   <bin file="EDAlias_t.cpp">
