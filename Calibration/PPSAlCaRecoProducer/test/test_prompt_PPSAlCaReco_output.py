@@ -38,23 +38,11 @@ process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstruc
   outputFile = cms.string("alcareco_protons_prompt.root")
 )
 
-import HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi
-process.hltAOD = HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi.hltEventAnalyzerAOD.clone()
-process.hltAOD.processName = cms.string("HLTX")
-process.hltAOD.triggerResults = cms.InputTag("TriggerResults","","HLTX")
-process.hltAOD.triggerEvent   = cms.InputTag("hltTriggerSummaryAOD","","HLTX")
-process.hltAOD.triggerName = cms.string("HLT_PPSMaxTracksPerRP4_v1")
-process.hltAOD.stageL1Trigger = cms.uint32(2)
-
-process.MessageLogger.HLTEventAnalyzerAOD=dict()
-
 process.p = cms.Path(
-  process.hltAOD
-  * process.ctppsLHCInfoPlotter
+  process.ctppsLHCInfoPlotter
   * process.ctppsTrackDistributionPlotter
   * process.ctppsProtonReconstructionPlotter
 )
-
 
 process.options = cms.PSet(
     wantSummary = cms.untracked.bool( True ),
