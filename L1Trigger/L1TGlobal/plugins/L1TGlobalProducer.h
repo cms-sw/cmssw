@@ -98,9 +98,6 @@ private:
   const std::vector<std::vector<double>>* m_prescaleFactorsAlgoTrig;
   std::vector<std::vector<double>> m_initialPrescaleFactorsAlgoTrig;
 
-  /// CSV file for prescales
-  std::string m_prescalesFile;
-
   uint m_currentLumi;
 
   /// trigger masks & veto masks
