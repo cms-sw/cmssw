@@ -1262,6 +1262,10 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   genericTriggerEventPSet.add<bool>("l1BeforeMask", true);
   genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 0);
   genericTriggerEventPSet.add<bool>("stage2", false);
+  genericTriggerEventPSet.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag("gtStage2Digis"));
+  genericTriggerEventPSet.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"));
+  genericTriggerEventPSet.add<bool>("ReadPrescalesFromFile", false);
+
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
 

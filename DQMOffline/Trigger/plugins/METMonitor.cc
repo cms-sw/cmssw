@@ -392,6 +392,9 @@ void METMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
   genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 1);
   genericTriggerEventPSet.add<bool>("stage2", false);
+  genericTriggerEventPSet.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag("gtStage2Digis"));
+  genericTriggerEventPSet.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"));
+  genericTriggerEventPSet.add<bool>("ReadPrescalesFromFile", false);
 
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
