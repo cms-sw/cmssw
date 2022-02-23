@@ -36,10 +36,10 @@ private:
   const bool newGEM_;
 };
 
-GEMDetIdAnalyzer::GEMDetIdAnalyzer(const edm::ParameterSet& iConfig) :
-      gemRecHit_(consumes<GEMRecHitCollection>(iConfig.getParameter<edm::InputTag>("gemInputLabel"))),
+GEMDetIdAnalyzer::GEMDetIdAnalyzer(const edm::ParameterSet& iConfig)
+    : gemRecHit_(consumes<GEMRecHitCollection>(iConfig.getParameter<edm::InputTag>("gemInputLabel"))),
       me0RecHit_(consumes<ME0RecHitCollection>(iConfig.getParameter<edm::InputTag>("me0InputLabel"))),
-      newGEM_(iConfig.getParameter<bool>("newGEMDetID")) { }
+      newGEM_(iConfig.getParameter<bool>("newGEMDetID")) {}
 
 void GEMDetIdAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
