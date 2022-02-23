@@ -97,16 +97,14 @@ ClusterShapeHitFilterESProducer::ReturnType ClusterShapeHitFilterESProducer::pro
 /*****************************************************************************/
 void ClusterShapeHitFilterESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("PixelShapeFile");
-  desc.add<std::string>("PixelShapeFileL1");
-  desc.add<std::string>("ComponentName");
+  desc.add<std::string>("PixelShapeFile", "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase0.par");
+  desc.add<std::string>("PixelShapeFileL1", "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase0.par");
+  desc.add<std::string>("ComponentName", "");
   desc.add<bool>("isPhase2", false);
   desc.add<bool>("doPixelShapeCut", true);
   desc.add<bool>("doStripShapeCut", true);
-
-  desc.add<edm::ParameterSetDescription>("clusterChargeCut", getFilledConfigurationDescription4CCCNoDefault());
-
-  descriptions.addDefault(desc);
+  desc.add<edm::ParameterSetDescription>("clusterChargeCut", getConfigurationDescription4CCC(CCC::kNone));
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(ClusterShapeHitFilterESProducer);
