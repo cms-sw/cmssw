@@ -4,8 +4,8 @@ class SwitchProducerTest(cms.SwitchProducer):
     def __init__(self, **kargs):
         super(SwitchProducerTest,self).__init__(
             dict(
-                test1 = lambda: (True, -10),
-                test2 = lambda: (True, -9)
+                test1 = lambda accelerators: (True, -10),
+                test2 = lambda accelerators: (True, -9)
             ), **kargs)
 
 process = cms.Process("PROD1")

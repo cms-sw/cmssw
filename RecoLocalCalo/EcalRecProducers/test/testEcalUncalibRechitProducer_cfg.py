@@ -8,7 +8,7 @@ process = cms.Process('RECO', eras.Run2_2018)
 process.load('Configuration.StandardSequences.Services_cff')
 #process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('HeterogeneousCore.CUDAServices.CUDAService_cfi')
+process.load('HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi')
 #process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
@@ -200,8 +200,3 @@ process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring('ProductNotFound'),
     wantSummary = cms.untracked.bool(True)
 )
-
-# report CUDAService messages
-process.MessageLogger.categories.append("CUDAService")
-
-
