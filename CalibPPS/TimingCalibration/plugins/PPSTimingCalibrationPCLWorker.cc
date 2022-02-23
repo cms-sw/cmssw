@@ -47,9 +47,9 @@ private:
                         const std::vector<edm::InputTag>& tags,
                         edm::Handle<T>& handle) const;
 
-  std::vector<edm::InputTag> RecHitTags_;
+  const std::vector<edm::InputTag> RecHitTags_;
   std::vector<edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit>>> diamondRecHitTokens_;
-  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
+  const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
 
   const std::string dqmDir_;
 };

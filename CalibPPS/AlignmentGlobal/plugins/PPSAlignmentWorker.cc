@@ -88,17 +88,17 @@ private:
   };
 
   // ------------ member data ------------
-  edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenBookHistograms_;
-  edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenAnalyze_;
+  const edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenBookHistograms_;
+  const edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenAnalyze_;
 
-  std::vector<edm::InputTag> tracksTags_;
+  const std::vector<edm::InputTag> tracksTags_;
   std::vector<edm::EDGetTokenT<CTPPSLocalTrackLiteCollection>> tracksTokens_;
 
   SectorData sectorData45_;
   SectorData sectorData56_;
 
-  std::string dqmDir_;
-  bool debug_;
+  const std::string dqmDir_;
+  const bool debug_;
 };
 
 // -------------------------------- DQMEDAnalyzer methods --------------------------------
