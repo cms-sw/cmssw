@@ -496,8 +496,9 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         self.visit(v)
         if v.didRemove():
             self._seq = v.result(self)[0]
-            self._tasks.clear()
-            self.associate(*v.result(self)[1])
+            if v.result(self)[1]:
+              self._tasks.clear()
+              self.associate(*v.result(self)[1])
         return v.didRemove()
     def resolve(self, processDict,keepIfCannotResolve=False):
         if self._seq is not None:
@@ -2338,6 +2339,12 @@ if __name__=="__main__":
             self.assertTrue(t3.dumpPython() == "cms.Task(process.m2)\n")
             t3.remove(m2)
             self.assertTrue(t3.dumpPython() == "cms.Task()\n")
+            fp = FinalPath(m1+m2)
+            fp.remove(m1)
+            self.assertEqual(fp.dumpPython(), "cms.FinalPath(process.m2)\n")
+            fp = FinalPath(m1)
+            fp.remove(m1)
+            self.assertEqual(fp.dumpPython(), "cms.FinalPath()\n")
 
         def testCopyAndExclude(self):
             a = DummyModule("a")
