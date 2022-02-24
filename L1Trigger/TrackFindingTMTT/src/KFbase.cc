@@ -600,6 +600,8 @@ namespace tmtt {
     TVectorD delta = vd - hx;
 
     // Calculate higher order corrections to residuals.
+    // TO DO: Check if these could be determined using Tracklet/HT input track helix params,
+    //        so only need applying at input to KF, instead of very iteration?
 
     if (not settings_->kalmanHOfw()) {
       TVectorD correction(2);
@@ -618,6 +620,11 @@ namespace tmtt {
 
         deltaS = (1. / 6.) * (stub->r()) * pow(corr, 2);
         correction[1] -= deltaS * tanL;
+
+        if (nHelixPar_ == 5) {
+          float d0 = vecX[D0];
+          correction[0] += (1. / 6.) * pow(d0/stub->r(), 3); // Division by r hard in FPGA? 
+        }
       }
 
       if ((not stub->barrel()) && not(stub->psModule())) {
