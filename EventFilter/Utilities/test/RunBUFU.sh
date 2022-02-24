@@ -27,14 +27,6 @@ cp ${SCRIPTDIR}/unittest_FU.py ${OUTDIR}
 cd ${OUTDIR}
 
 rm -rf $OUTDIR/{ramdisk,data,*.log}
-echo "Running test with index JSONs"
-CMDLINE_STARTBU="cmsRun startBU.py runNumber=101 fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=0"
-CMDLINE_STARTFU="cmsRun unittest_FU.py runNumber=101 fffBaseDir=${OUTDIR}"
-${CMDLINE_STARTBU} > out_1_bu.log 2>&1 || die "${CMDLINE_STARTBU}" $? $OUTDIR
-${CMDLINE_STARTFU} > out_1_fu.log 2>&1 || die "${CMDLINE_STARTFU}" $? $OUTDIR out_1_fu.log
-
-
-rm -rf $OUTDIR/{ramdisk,data}
 
 #if [ ! $RET -eq 0 ]; then
 # echo "exit with error code $RET"
@@ -43,8 +35,12 @@ rm -rf $OUTDIR/{ramdisk,data}
 #fi
 
 echo "Running test with FRD file header (no index JSONs)"
-CMDLINE_STARTBU="cmsRun startBU.py runNumber=101 fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=1"
-CMDLINE_STARTFU="cmsRun unittest_FU.py runNumber=101 fffBaseDir=${OUTDIR}"
+CMDLINE_STARTBU="cmsRun startBU.py runNumber=100101 fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=1"
+CMDLINE_STARTFU="cmsRun unittest_FU.py runNumber=100101 fffBaseDir=${OUTDIR}"
+
+#make DQM dir
+
+CMDLINE_STARTFU="cmsRun check_DQM.py runNumber=100101 fffBaseDir=${OUTDIR}"
 ${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || die "${CMDLINE_STARTBU}" $? $OUTDIR
 ${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || die "${CMDLINE_STARTFU}" $? $OUTDIR out_2_fu.log
 
