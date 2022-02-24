@@ -91,8 +91,7 @@ private:
 
 class TritonGraphProducer : public TritonEDProducer<> {
 public:
-  explicit TritonGraphProducer(edm::ParameterSet const& cfg)
-      : TritonEDProducer<>(cfg, "TritonGraphProducer"), helper_(cfg) {}
+  explicit TritonGraphProducer(edm::ParameterSet const& cfg) : TritonEDProducer<>(cfg), helper_(cfg) {}
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     helper_.makeInput(iEvent, iInput);
   }
@@ -120,7 +119,7 @@ DEFINE_FWK_MODULE(TritonGraphProducer);
 
 class TritonGraphFilter : public TritonEDFilter<> {
 public:
-  explicit TritonGraphFilter(edm::ParameterSet const& cfg) : TritonEDFilter<>(cfg, "TritonGraphFilter"), helper_(cfg) {}
+  explicit TritonGraphFilter(edm::ParameterSet const& cfg) : TritonEDFilter<>(cfg), helper_(cfg) {}
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     helper_.makeInput(iEvent, iInput);
   }
@@ -149,8 +148,7 @@ DEFINE_FWK_MODULE(TritonGraphFilter);
 
 class TritonGraphAnalyzer : public TritonOneEDAnalyzer<> {
 public:
-  explicit TritonGraphAnalyzer(edm::ParameterSet const& cfg)
-      : TritonOneEDAnalyzer<>(cfg, "TritonGraphAnalyzer"), helper_(cfg) {}
+  explicit TritonGraphAnalyzer(edm::ParameterSet const& cfg) : TritonOneEDAnalyzer<>(cfg), helper_(cfg) {}
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     helper_.makeInput(iEvent, iInput);
   }
