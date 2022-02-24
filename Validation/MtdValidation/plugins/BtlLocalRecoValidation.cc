@@ -152,9 +152,7 @@ private:
   MonitorElement* meCluXLocalErr_;
   MonitorElement* meCluYLocalErr_;
 
-  MonitorElement* meUnmatchedCluEta_;
   MonitorElement* meUnmatchedCluEnergy_;
-  MonitorElement* meUnmatchedCluTime_;
 
   // --- UncalibratedRecHits histograms
 
@@ -464,8 +462,6 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       }  // if ( cluTimeSIM > 0. &&  cluEneSIM > 0. )
       else {
         meUnmatchedCluEnergy_->Fill(cluster.energy());
-        meUnmatchedCluTime_->Fill(cluster.time());
-        meUnmatchedCluEta_->Fill(global_point.eta());
       }
 
     }  // cluster loop
@@ -720,10 +716,8 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
     meCluXLocalErr_ = ibook.book1D("BtlCluXLocalErr", "BTL cluster X local error;sigmaX_{RECO,loc} [cm]", 30, 0., 3.);
     meCluYLocalErr_ = ibook.book1D("BtlCluYLocalErr", "BTL cluster Y local error;sigmaY_{RECO,loc} [cm]", 30, 0., 0.9);
   }
-  meUnmatchedCluTime_ = ibook.book1D("BtlUnmatchedCluTime", "BTL unmatched cluster time ToA;ToA [ns]", 250, 0, 25);
   meUnmatchedCluEnergy_ =
       ibook.book1D("BtlUnmatchedCluEnergy", "BTL unmatched cluster energy;E_{RECO} [MeV]", 100, 0, 20);
-  meUnmatchedCluEta_ = ibook.book1D("BtlUnmatchedCluEta", "BTL unmatched cluster #eta;#eta_{RECO}", 100, -1.55, 1.55);
 
   // --- UncalibratedRecHits histograms
 

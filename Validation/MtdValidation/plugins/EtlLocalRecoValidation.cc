@@ -131,9 +131,7 @@ private:
   MonitorElement* meCluXLocalErr_[2];
   MonitorElement* meCluYLocalErr_[2];
 
-  MonitorElement* meUnmatchedCluEta_[2];
   MonitorElement* meUnmatchedCluEnergy_[2];
-  MonitorElement* meUnmatchedCluTime_[2];
 
   // --- UncalibratedRecHits histograms
 
@@ -509,8 +507,6 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       }  // if ( cluTimeSIM > 0. &&  cluEneSIM > 0. )
       else {
         meUnmatchedCluEnergy_[iside]->Fill(cluster.energy());
-        meUnmatchedCluTime_[iside]->Fill(cluster.time());
-        meUnmatchedCluEta_[iside]->Fill(std::abs(global_point.eta()));
       }
 
     }  // cluster loop
@@ -1056,18 +1052,10 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
     meCluYLocalErr_[1] =
         ibook.book1D("EtlCluYLocalErrPos", "ETL cluster Y local error (+Z);sigmaY_{RECO,loc} [cm]", 50, 0., 0.2);
   }
-  meUnmatchedCluTime_[0] =
-      ibook.book1D("EtlUnmatchedCluTimeNeg", "ETL unmatched cluster time ToA (-Z);ToA [ns]", 250, 0, 25);
-  meUnmatchedCluTime_[1] =
-      ibook.book1D("EtlUnmatchedCluTimePos", "ETL unmatched cluster time ToA (+Z);ToA [ns]", 250, 0, 25);
   meUnmatchedCluEnergy_[0] =
       ibook.book1D("EtlUnmatchedCluEnergyNeg", "ETL unmatched cluster energy (-Z);E_{RECO} [MeV]", 100, 0, 20);
   meUnmatchedCluEnergy_[1] =
       ibook.book1D("EtlUnmatchedCluEnergyPos", "ETL unmatched cluster energy (+Z);E_{RECO} [MeV]", 100, 0, 20);
-  meUnmatchedCluEta_[0] =
-      ibook.book1D("EtlUnmatchedCluEtaNeg", "ETL unmatched cluster |#eta| (-Z);#eta_{RECO}", 100, 1.55, 3.1);
-  meUnmatchedCluEta_[1] =
-      ibook.book1D("EtlUnmatchedCluEtaPos", "ETL unmatched cluster |#eta| (+Z);#eta_{RECO}", 100, 1.55, 3.1);
 
   // --- UncalibratedRecHits histograms
 
