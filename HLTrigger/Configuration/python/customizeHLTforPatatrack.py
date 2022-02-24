@@ -54,7 +54,7 @@ def customiseCommon(process):
 
     # Services
 
-    _load_if_missing(process, 'ProcessAcceleratorCUDA', 'HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi')
+    process.load('Configuration.StandardSequences.Accelerators_cff')
 
 #    # NVProfilerService is broken in CMSSW 12.0.x and later
 #    _load_if_missing(process, 'NVProfilerService', 'HeterogeneousCore.CUDAServices.NVProfilerService_cfi')
