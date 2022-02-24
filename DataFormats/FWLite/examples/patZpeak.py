@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 from builtins import range
 import ROOT
@@ -18,13 +18,15 @@ options.parseArguments()
 
 # use Varparsing object
 events = Events (options)
+# use single file name
+#events = Events ("root://cmsxrootd.fnal.gov///store/mc/RunIISummer20UL17MiniAODv2/DYJetsToMuMu_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUForMUOVal_106X_mc2017_realistic_v9-v2/100000/002FD620-0EF8-F044-9D21-7303C48FF2A0.root")
 
 # create handle outside of loop
 handle  = Handle ("std::vector<pat::Muon>")
 
 # for now, label is just a tuple of strings that is initialized just
 # like and edm::InputTag
-label = ("selectedLayer1Muons")
+label = ("slimmedMuons")
 
 # Create histograms, etc.
 ROOT.gROOT.SetBatch()        # don't pop up canvases
@@ -39,7 +41,7 @@ for event in events:
     muons = handle.product()
     # use muons to make Z peak
     numMuons = len (muons)
-    if muons < 2: continue
+    if numMuons < 2: continue
     for outer in range (numMuons - 1):
         outerMuon = muons[outer]
         for inner in range (outer + 1, numMuons):
@@ -56,3 +58,4 @@ for event in events:
 c1 = ROOT.TCanvas()
 zmassHist.Draw()
 c1.Print ("zmass_py.png")
+
