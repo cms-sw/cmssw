@@ -27,6 +27,8 @@
 #include "RecoTauTag/HLTProducers/interface/PFJetsMaxInvMassModule.h"
 #include "RecoTauTag/HLTProducers/interface/PFTauL1TJetsMatching.h"
 
+#include "RecoTauTag/HLTProducers/interface/PFJetsTauCorrelationCondition.h"
+
 typedef L1TJetsMatching<reco::PFJet> L1TPFJetsMatching;
 typedef L1TJetsMatching<reco::CaloJet> L1TCaloJetsMatching;
 
@@ -60,3 +62,4 @@ DEFINE_FWK_MODULE(L1TPFJetsMatching);
 DEFINE_FWK_MODULE(PFJetsTauOverlapRemoval);
 DEFINE_FWK_MODULE(PFJetsMaxInvMassModule);
 DEFINE_FWK_MODULE(PFTauL1TJetsMatching);
+DEFINE_FWK_MODULE(PFJetsTauCorrelationCondition);
