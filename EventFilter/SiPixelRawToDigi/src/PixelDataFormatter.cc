@@ -210,9 +210,14 @@ void PixelDataFormatter::interpretRawData(
       }
     }
 
-    GlobalPixel global = rocp->toGlobal(*local);  // global pixel coordinate (in module)
-    (*detDigis).data.emplace_back(global.row, global.col, adc);
-    LogTrace("") << (*detDigis).data.back();
+    if (detDigis) {
+      GlobalPixel global = rocp->toGlobal(*local);  // global pixel coordinate (in module)
+      (*detDigis).data.emplace_back(global.row, global.col, adc);
+      LogTrace("") << (*detDigis).data.back();
+    } else {
+      LogError("NullPointerException") << "@SUB=PixelDataFormatter::interpretRawData"
+                                       << "DetSet pointer not set. This is not supposed to happen.";
+    }
   }
 }
 
