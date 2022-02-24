@@ -23,7 +23,9 @@
 #include <zlib.h>
 
 namespace edm {
-  StreamerOutputModuleCommon::StreamerOutputModuleCommon(ParameterSet const& ps, SelectedProducts const* selections, std::string const& moduleLabel)
+  StreamerOutputModuleCommon::StreamerOutputModuleCommon(ParameterSet const& ps,
+                                                         SelectedProducts const* selections,
+                                                         std::string const& moduleLabel)
       :
 
         serializer_(selections),
@@ -93,7 +95,6 @@ namespace edm {
     Bytef const* buf = (Bytef const*)(moduleLabel.data());
     crc = crc32(crc, buf, moduleLabel.length());
     outputModuleId_ = static_cast<uint32>(crc);
-
   }
 
   StreamerOutputModuleCommon::~StreamerOutputModuleCommon() {}
