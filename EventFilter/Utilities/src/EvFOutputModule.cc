@@ -149,7 +149,8 @@ namespace evf {
 
   void EvFOutputModule::beginRun(edm::RunForOutput const& run) {
     //create run Cache holding JSON file writer and variables
-    jsonWriter_ = std::make_unique<EvFOutputJSONWriter>(ps_, &keptProducts()[edm::InEvent], streamLabel_, description().moduleLabel());
+    jsonWriter_ = std::make_unique<EvFOutputJSONWriter>(
+        ps_, &keptProducts()[edm::InEvent], streamLabel_, description().moduleLabel());
 
     //output INI file (non-const). This doesn't require globalBeginRun to be finished
     const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(streamLabel_);
