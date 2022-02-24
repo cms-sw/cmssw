@@ -1,6 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibPPS.AlignmentGlobal.ppsAlignmentWorker_cfi import ppsAlignmentWorker
+from CalibPPS.AlignmentGlobal.ppsAlignmentWorker_cfi import ppsAlignmentWorker as ppsAlignmentWorker_
+
+ppsAlignmentWorker = ppsAlignmentWorker_.clone()
+ppsAlignmentWorker.tracksTags = cms.VInputTag(
+    cms.InputTag("ctppsLocalTrackLiteProducer"),
+    cms.InputTag("ctppsLocalTrackLiteProducerAlCaRecoProducer")
+)
 
 MEtoEDMConvertPPSAlignment = cms.EDProducer('MEtoEDMConverter',
     Name=cms.untracked.string('MEtoEDMConverter'),
