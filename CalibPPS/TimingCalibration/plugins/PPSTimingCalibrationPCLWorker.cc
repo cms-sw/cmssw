@@ -41,8 +41,15 @@ private:
                       const edm::EventSetup&,
                       TimingCalibrationHistograms&) const override;
 
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit>> diamondRecHitToken_;
-  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
+  template <typename T>
+  bool searchForProduct(edm::Event const& iEvent,
+                        const std::vector<edm::EDGetTokenT<T>>& tokens,
+                        const std::vector<edm::InputTag>& tags,
+                        edm::Handle<T>& handle) const;
+
+  const std::vector<edm::InputTag> RecHitTags_;
+  std::vector<edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit>>> diamondRecHitTokens_;
+  const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
 
   const std::string dqmDir_;
 };
@@ -50,10 +57,12 @@ private:
 //------------------------------------------------------------------------------
 
 PPSTimingCalibrationPCLWorker::PPSTimingCalibrationPCLWorker(const edm::ParameterSet& iConfig)
-    : diamondRecHitToken_(
-          consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(iConfig.getParameter<edm::InputTag>("diamondRecHitTag"))),
+    : RecHitTags_(iConfig.getParameter<std::vector<edm::InputTag>>("diamondRecHitTags")),
       geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
-      dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {}
+      dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {
+  for (auto& tag : RecHitTags_)
+    diamondRecHitTokens_.push_back(consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(tag));
+}
 
 //------------------------------------------------------------------------------
 
@@ -85,9 +94,10 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
 void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent,
                                                const edm::EventSetup& iSetup,
                                                const TimingCalibrationHistograms& iHists) const {
-  // then extract the rechits information for later processing
   edm::Handle<edm::DetSetVector<CTPPSDiamondRecHit>> dsv_rechits;
-  iEvent.getByToken(diamondRecHitToken_, dsv_rechits);
+  // then extract the rechits information for later processing
+  searchForProduct(iEvent, diamondRecHitTokens_, RecHitTags_, dsv_rechits);
+
   // ensure timing detectors rechits are found in the event content
   if (dsv_rechits->empty()) {
     edm::LogWarning("PPSTimingCalibrationPCLWorker:dqmAnalyze") << "No rechits retrieved from the event content.";
@@ -115,12 +125,32 @@ void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent,
 
 void PPSTimingCalibrationPCLWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("diamondRecHitTag", edm::InputTag("ctppsDiamondUncalibRecHits"))
+  desc.add<std::vector<edm::InputTag>>("diamondRecHitTags", {edm::InputTag("ctppsDiamondRecHits")})
       ->setComment("input tag for the PPS diamond detectors rechits");
   desc.add<std::string>("dqmDir", "AlCaReco/PPSTimingCalibrationPCL")
       ->setComment("output path for the various DQM plots");
 
   descriptions.addWithDefaultLabel(desc);
+}
+
+template <typename T>
+bool PPSTimingCalibrationPCLWorker::searchForProduct(edm::Event const& iEvent,
+                                                     const std::vector<edm::EDGetTokenT<T>>& tokens,
+                                                     const std::vector<edm::InputTag>& tags,
+                                                     edm::Handle<T>& handle) const {
+  bool foundProduct = false;
+  for (unsigned int i = 0; i < tokens.size(); i++)
+    if (auto h = iEvent.getHandle(tokens[i])) {
+      handle = h;
+      foundProduct = true;
+      edm::LogInfo("searchForProduct") << "Found a product with " << tags[i];
+      break;
+    }
+
+  if (!foundProduct)
+    throw edm::Exception(edm::errors::ProductNotFound) << "Could not find a product with any of the selected labels.";
+
+  return foundProduct;
 }
 
 DEFINE_FWK_MODULE(PPSTimingCalibrationPCLWorker);
