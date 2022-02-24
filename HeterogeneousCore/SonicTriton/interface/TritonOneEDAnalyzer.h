@@ -12,13 +12,10 @@
 template <typename... Capabilities>
 class TritonOneEDAnalyzer : public SonicOneEDAnalyzer<TritonClient, Capabilities...> {
 public:
-  TritonOneEDAnalyzer(edm::ParameterSet const& cfg, const std::string& debugName)
-      : SonicOneEDAnalyzer<TritonClient, Capabilities...>(
-            cfg, debugName, cfg.getParameterSet("Client").getUntrackedParameter<bool>("verbose")) {
+  TritonOneEDAnalyzer(edm::ParameterSet const& cfg) : SonicOneEDAnalyzer<TritonClient, Capabilities...>(cfg) {
     edm::Service<TritonService> ts;
-    const auto& clientPset = cfg.getParameterSet("Client");
-    ts->addModel(clientPset.getParameter<std::string>("modelName"),
-                 clientPset.getParameter<edm::FileInPath>("modelConfigPath").fullPath());
+    ts->addModel(this->clientPset_.template getParameter<std::string>("modelName"),
+                 this->clientPset_.template getParameter<edm::FileInPath>("modelConfigPath").fullPath());
   }
 };
 
