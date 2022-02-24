@@ -4,6 +4,7 @@ TrackFindingTrackletProducer_params = cms.PSet (
 
   InputTag             = cms.InputTag( "TTTracksFromTrackletEmulation", "Level1TTTracks"), #
   InputTagDTC          = cms.InputTag( "TrackerDTCProducer", "StubAccepted"),              #
+  LabelTBout           = cms.string  ( "TrackFindingTrackletProducerTBout" ),              #
   LabelKFin            = cms.string  ( "TrackFindingTrackletProducerKFin"  ),              #
   LabelKF              = cms.string  ( "TrackFindingTrackletProducerKF"    ),              #
   LabelTT              = cms.string  ( "TrackFindingTrackletProducerTT"    ),              #

@@ -714,20 +714,20 @@ namespace tt {
     kfWidthLayerCount_ = ceil(log2(zhtMaxStubsPerLayer_));
   }
 
-  // returns bit accurate position of a stub from a given tfp identifier region [0-8] channel [0-47]
-  GlobalPoint Setup::stubPos(bool hybrid, const FrameStub& frame, int tfpRegion, int tfpChannel) const {
+  // returns bit accurate position of a stub from a given tfp region [0-8]
+  GlobalPoint Setup::stubPos(bool hybrid, const FrameStub& frame, int region) const {
     GlobalPoint p;
     if (frame.first.isNull())
       return p;
     TTBV bv(frame.second);
     if (hybrid) {
       const DetId& detId = frame.first->getDetId();
-      const int dtcId = Setup::dtcId(tfpRegion, tfpChannel);
-      const bool barrel = detId.subdetId() == StripSubdetector::TOB;
-      const bool psModule = Setup::psModule(dtcId);
+      const bool barrel = this->barrel(frame.first);
       const int layerId =
           (barrel ? trackerTopology_->layer(detId) : trackerTopology_->tidWheel(detId)) - offsetLayerId_;
-      const bool side = Setup::side(dtcId);
+      const bool psModule = this->psModule(frame.first);
+      const GlobalPoint gp = this->stubPos(frame.first);
+      const bool side = gp.z() > 0.;
       SensorModule::Type type;
       if (barrel && psModule)
         type = SensorModule::BarrelPS;
@@ -747,17 +747,17 @@ namespace tt {
       const double baseR = hybridBasesR_.at(type);
       // parse bit vector
       bv >>= 1 + hybridWidthLayerId_ + widthBend + widthAlpha;
-      double phi = (bv.val(widthPhi) + .5) * basePhi - hybridRangePhi_ / 2.;
+      double phi = bv.val(basePhi, widthPhi) - hybridRangePhi_ / 2.;
       bv >>= widthPhi;
-      double z = (bv.val(widthZ, 0, true) + .5) * baseZ;
+      double z = bv.val(baseZ, widthZ, 0, true);
       bv >>= widthZ;
-      double r = (bv.val(widthR, 0, barrel) + .5) * baseR;
+      double r = bv.val(baseR, widthR, 0, barrel);
       if (barrel) {
         r += hybridLayerRs_.at(layerId);
       } else {
         z += hybridDiskZs_.at(layerId) * (side ? 1. : -1.);
       }
-      phi = deltaPhi(phi + tfpRegion * baseRegion_);
+      phi = deltaPhi(phi + region * baseRegion_);
       if (type == SensorModule::Disk2S) {
         r = bv.val(widthR);
         r = disk2SRs_.at(layerId).at((int)r);
@@ -772,7 +772,7 @@ namespace tt {
       double r = (bv.val(tmttWidthR_, 0, true) + .5) * tmttBaseR_;
       bv >>= tmttWidthR_;
       r = r + chosenRofPhi_;
-      phi = deltaPhi(phi + tfpRegion * baseRegion_);
+      phi = deltaPhi(phi + region * baseRegion_);
       p = GlobalPoint(GlobalPoint::Cylindrical(r, phi, z));
     }
     return p;
