@@ -21,8 +21,8 @@ namespace l1t {
         bool useHMTBits_{false};
         bool useNNBits_{false};
 
-        int nominalShower_ = 3;
-        int tightShower_ = 4;
+        int nominalShower_ = 2;
+        int tightShower_ = 3;
       };
 
       // class SPBlockPacker : public Packer { // "SPBlockPacker" inherits from "Packer"
