@@ -17,8 +17,7 @@ HcalTBSource::HcalTBSource(const edm::ParameterSet& pset, edm::InputSourceDescri
     : edm::ProducerSourceFromFiles(pset, desc, true),
       m_quiet(pset.getUntrackedParameter<bool>("quiet", true)),
       m_onlyRemapped(pset.getUntrackedParameter<bool>("onlyRemapped", false)),
-      m_skip(pset.getUntrackedParameter<uint32_t>("skipEvents",0)) 
-{
+      m_skip(pset.getUntrackedParameter<uint32_t>("skipEvents", 0)) {
   m_tree = nullptr;
   m_fileCounter = -1;
   m_file = nullptr;
