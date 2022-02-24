@@ -276,7 +276,8 @@ namespace evf {
   }
 
   std::unique_ptr<edm::StreamerOutputModuleCommon> GlobalEvFOutputModule::beginStream(edm::StreamID) const {
-    return std::make_unique<edm::StreamerOutputModuleCommon>(ps_, &keptProducts()[edm::InEvent], description().moduleLabel());
+    return std::make_unique<edm::StreamerOutputModuleCommon>(
+        ps_, &keptProducts()[edm::InEvent], description().moduleLabel());
   }
 
   std::shared_ptr<GlobalEvFOutputJSONDef> GlobalEvFOutputModule::globalBeginRun(edm::RunForOutput const& run) const {
