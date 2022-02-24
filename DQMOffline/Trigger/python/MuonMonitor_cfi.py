@@ -39,3 +39,14 @@ hltMuonmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltMuonmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltMuonmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
 
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(hltMuonmonitoring,
+                         numGenericTriggerEventPSet = dict(stage2 = cms.bool(True),
+                                                           l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           ReadPrescalesFromFile = cms.bool(True)),
+                         denGenericTriggerEventPSet = dict(stage2 = cms.bool(True),
+                                                           l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           ReadPrescalesFromFile = cms.bool(True)))
+
