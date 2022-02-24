@@ -79,10 +79,10 @@ namespace tt {
     const TrackerGeometry* trackerGeometry() const { return trackerGeometry_; }
     // TrackerTopology
     const TrackerTopology* trackerTopology() const { return trackerTopology_; }
-    // returns bit accurate position of a stub from a given tfp identifier region [0-8] channel [0-47]
-    GlobalPoint stubPos(bool hybrid, const tt::FrameStub& frame, int tfpRegion, int tfpChannel) const;
     // returns global TTStub position
     GlobalPoint stubPos(const TTStubRef& ttStubRef) const;
+    // returns bit accurate position of a stub from a given tfp region [0-8]
+    GlobalPoint stubPos(bool hybrid, const tt::FrameStub& frame, int region) const;
     // empty trackerDTC EDProduct
     TTDTC ttDTC() const { return TTDTC(numRegions_, numOverlappingRegions_, numDTCsPerRegion_); }
     // checks if stub collection is considered forming a reconstructable track

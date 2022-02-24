@@ -51,7 +51,8 @@ process.interIn = cms.Sequence( process.TrackFindingTrackletProducerKFin + proce
 process.kf = cms.Sequence( process.TrackFindingTrackletProducerKF + process.TrackFindingTrackletAnalyzerKF )
 process.TTTracks = cms.Sequence( process.TrackFindingTrackletProducerTT + process.TrackFindingTrackletProducerAS + process.TrackTriggerAssociatorTracks )
 process.interOut = cms.Sequence( process.TrackFindingTrackletProducerKFout + process.TrackFindingTrackletAnalyzerKFout )
-process.tt = cms.Path( process.mc + process.dtc + process.tracklet + process.interIn + process.kf + process.TTTracks + process.interOut )
+process.TBout = cms.Sequence( process.TrackFindingTrackletProducerTBout + process.TrackFindingTrackletAnalyzerTBout )
+process.tt = cms.Path( process.mc + process.dtc + process.tracklet + process.TBout + process.interIn + process.kf + process.TTTracks + process.interOut )
 process.schedule = cms.Schedule( process.tt )
 
 # create options

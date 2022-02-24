@@ -237,10 +237,6 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   }
 
   produces<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>("Level1TTTracks").setBranchAlias("Level1TTTracks");
-  // book ED output token for clock and bit accurate TrackBuilder tracks
-  edPutTokenTracks_ = produces<Streams>("Level1TTTracks");
-  // book ED output token for clock and bit accurate TrackBuilder stubs
-  edPutTokenStubs_ = produces<StreamsStub>("Level1TTTracks");
 
   asciiEventOutName_ = iConfig.getUntrackedParameter<string>("asciiFileName", "");
 
@@ -258,7 +254,11 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
     tableTREFile = iConfig.getParameter<edm::FileInPath>("tableTREFile");
   }
 
-  // book ES product to assign tracks and stubs to InputRouter input channel and TrackBuilder output channel
+  // book ED output token for clock and bit accurate tracks
+  edPutTokenTracks_ = produces<Streams>("Level1TTTracks");
+  // book ED output token for clock and bit accurate stubs
+  edPutTokenStubs_ = produces<StreamsStub>("Level1TTTracks");
+  // book ES product
   esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
   esGetToken_ = esConsumes<tt::Setup, tt::SetupRcd, edm::Transition::BeginRun>();
   // initial ES products
@@ -316,9 +316,9 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
     cms::Exception exception("ConfigurationNotSupported.");
     exception.addContext("L1FPGATrackProducer::produce");
     if (settings.doMultipleMatches())
-      exception << "Stroing of TrackBuilder output does not support doMultipleMatches.";
+      exception << "Storing of TrackBuilder output does not support doMultipleMatches.";
     if (settings.removalType() != "")
-      exception << "Stroing of TrackBuilder output does not support duplicate removal.";
+      exception << "Storing of TrackBuilder output does not support duplicate removal.";
     throw exception;
   }
 }
