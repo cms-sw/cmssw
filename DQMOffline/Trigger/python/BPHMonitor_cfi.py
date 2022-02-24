@@ -4,9 +4,6 @@ from DQMOffline.Trigger.bphMonitoring_cfi import bphMonitoring as _bphMonitoring
 
 hltBPHmonitoring = _bphMonitoring.clone()
 
-from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-stage2L1Trigger.toModify(hltBPHmonitoring, stageL1Trigger = 2)
-
 #hltBPHmonitoring.options = cms.untracked.PSet(
 #    SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
@@ -117,3 +114,16 @@ hltBPHmonitoring.denGenericTriggerEventPSet.hltPaths  = cms.vstring( "HLT_Mu7p5_
 hltBPHmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltBPHmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
+
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(hltBPHmonitoring,
+                         stageL1Trigger = 2,
+                         numGenericTriggerEventPSet = dict(stage2 = cms.bool(True),
+                                                           l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           ReadPrescalesFromFile = cms.bool(True)),
+                         denGenericTriggerEventPSet = dict(stage2 = cms.bool(True),
+                                                           l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           ReadPrescalesFromFile = cms.bool(True)))
+
