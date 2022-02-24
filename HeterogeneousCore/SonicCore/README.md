@@ -15,7 +15,7 @@ To implement a concrete derived producer class, the following skeleton can be us
 class MyProducer : public SonicEDProducer<Client>
 {
 public:
-  explicit MyProducer(edm::ParameterSet const& cfg) : SonicEDProducer<Client>(cfg, "MyProducer") {
+  explicit MyProducer(edm::ParameterSet const& cfg) : SonicEDProducer<Client>(cfg) {
     //do any necessary operations
   }
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {

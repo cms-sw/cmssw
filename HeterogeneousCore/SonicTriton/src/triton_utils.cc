@@ -1,7 +1,4 @@
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
-#include "HeterogeneousCore/SonicTriton/interface/TritonException.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include <sstream>
 #include <experimental/iterator>
@@ -18,10 +15,6 @@ namespace triton_utils {
     return msg.str();
   }
 
-  void throwIfError(const Error& err, std::string_view msg) {
-    if (!err.IsOk())
-      throw TritonException("TritonFailure") << msg << (err.Message().empty() ? "" : ": " + err.Message());
-  }
 }  // namespace triton_utils
 
 template std::string triton_utils::printColl(const edm::Span<std::vector<int64_t>::const_iterator>& coll,

@@ -3,6 +3,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Span.h"
+#include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 
 #include <vector>
 #include <string>
@@ -11,6 +12,7 @@
 #include <algorithm>
 #include <memory>
 #include <atomic>
+#include <typeinfo>
 
 #include "grpc_client.h"
 #include "grpc_service.pb.h"
@@ -96,6 +98,12 @@ private:
   void computeSizes();
   void resetSizes();
   triton::client::InferenceServerGrpcClient* client();
+  template <typename DT>
+  void checkType() const {
+    if (!triton_utils::checkType<DT>(dtype_))
+      throw cms::Exception("TritonDataError")
+          << name_ << ": inconsistent data type " << typeid(DT).name() << " for " << dname_;
+  }
 
   //helpers
   bool anyNeg(const ShapeView& vec) const {
