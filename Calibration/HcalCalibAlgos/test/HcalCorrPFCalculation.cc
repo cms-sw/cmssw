@@ -186,7 +186,6 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   }
 
   const HBHERecHitCollection& Hithbhe = ev.get(tok_hbhe_);
-  ;
   const HFRecHitCollection& Hithf = ev.get(tok_hf_);
   //  const HORecHitCollection & Hitho = ev.get(tok_ho_);
 
