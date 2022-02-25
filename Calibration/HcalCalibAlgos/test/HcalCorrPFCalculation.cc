@@ -119,8 +119,8 @@ private:
   const edm::ESGetToken<HcalPFCorrs, HcalPFCorrsRcd> tok_pfcorr_;
 };
 
-HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) 
-  :   Respcorr_(iConfig.getUntrackedParameter<bool>("RespcorrAdd", false)),
+HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig)
+    : Respcorr_(iConfig.getUntrackedParameter<bool>("RespcorrAdd", false)),
       PFcorr_(iConfig.getUntrackedParameter<bool>("PFcorrAdd", false)),
       Conecorr_(iConfig.getUntrackedParameter<bool>("ConeCorrAdd", true)),
       clusterConeSize_(iConfig.getParameter<double>("clusterConeSize")),
@@ -139,7 +139,6 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig)
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       tok_resp_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()),
       tok_pfcorr_(esConsumes<HcalPFCorrs, HcalPFCorrsRcd>()) {
-
   usesResource(TFileService::kSharedResource);
 
   // should maybe add these options to configuration - cowden
@@ -186,19 +185,19 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     edm::LogWarning("CalibConstants") << "   Not Found!! ";
   }
 
-  const edm::Handle<HBHERecHitCollection> & hbhe = ev.getHandle(tok_hbhe_);
+  const edm::Handle<HBHERecHitCollection>& hbhe = ev.getHandle(tok_hbhe_);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
-  const edm::Handle<HFRecHitCollection> & hfcoll =  ev.getHandle(tok_hf_);
+  const edm::Handle<HFRecHitCollection>& hfcoll = ev.getHandle(tok_hf_);
   const HFRecHitCollection Hithf = *(hfcoll.product());
 
-  const edm::Handle<HORecHitCollection> & hocoll = ev.getHandle(tok_ho_);
+  const edm::Handle<HORecHitCollection>& hocoll = ev.getHandle(tok_ho_);
   const HORecHitCollection Hitho = *(hocoll.product());
 
-  const edm::Handle<EERecHitCollection> & ecalEE = ev.getHandle(tok_EE_);
+  const edm::Handle<EERecHitCollection>& ecalEE = ev.getHandle(tok_EE_);
   const EERecHitCollection HitecalEE = *(ecalEE.product());
 
-  const edm::Handle<EBRecHitCollection> & ecalEB = ev.getHandle(tok_EB_);
+  const edm::Handle<EBRecHitCollection>& ecalEB = ev.getHandle(tok_EB_);
   const EBRecHitCollection HitecalEB = *(ecalEB.product());
 
   // temporary collection of EB+EE recHits
@@ -211,7 +210,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   }
   const EcalRecHitCollection Hitecal = *tmpEcalRecHitCollection;
 
-  const edm::Handle<reco::TrackCollection> & generalTracks = ev.getHandle(tok_tracks_);
+  const edm::Handle<reco::TrackCollection>& generalTracks = ev.getHandle(tok_tracks_);
 
   geo = &c.getData(tok_geom_);
 
@@ -244,7 +243,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   // MC information
 
-  const edm::Handle<edm::HepMCProduct> & evtMC = ev.getHandle(tok_gen_);
+  const edm::Handle<edm::HepMCProduct>& evtMC = ev.getHandle(tok_gen_);
   if (!evtMC.isValid()) {
     edm::LogVerbatim("HcalCalib") << "no HepMCProduct found";
   } else {
