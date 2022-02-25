@@ -108,22 +108,22 @@ private:
   const bool ignoreHECorr_, isItPreRecHit_, writeRespCorr_;
   const int maxDepth_;
 
-  edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_HBHE_;
-  edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
-  edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
+  const edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_HBHE_;
+  const edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
+  const edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
 
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
-  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
-  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_chan_;
-  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
-  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
-  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_chan_;
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
 
   bool mergedDepth_, useMyCorr_;
   int kount_;
