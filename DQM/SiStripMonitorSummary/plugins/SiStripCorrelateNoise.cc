@@ -1,9 +1,8 @@
 #include "DQM/SiStripMonitorSummary/plugins/SiStripCorrelateNoise.h"
-
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "TCanvas.h"
 
 SiStripCorrelateNoise::SiStripCorrelateNoise(const edm::ParameterSet &iConfig)
@@ -19,10 +18,6 @@ SiStripCorrelateNoise::SiStripCorrelateNoise(const edm::ParameterSet &iConfig)
   file->cd();
   tkmap = new TrackerMap();
 }
-
-SiStripCorrelateNoise::~SiStripCorrelateNoise() {}
-
-//
 
 void SiStripCorrelateNoise::beginRun(const edm::Run &run, const edm::EventSetup &es) {
   if (noiseWatcher_.check(es)) {

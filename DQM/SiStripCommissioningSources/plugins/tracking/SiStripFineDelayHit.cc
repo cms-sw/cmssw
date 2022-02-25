@@ -24,14 +24,11 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -42,10 +39,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include <DataFormats/SiStripCommon/interface/ConstantsForRunType.h>
-#include <DataFormats/SiStripCommon/interface/SiStripFedKey.h>
-#include <CondFormats/SiStripObjects/interface/FedChannelConnection.h>
-
+#include "DataFormats/SiStripCommon/interface/ConstantsForRunType.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
@@ -53,15 +49,14 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include <Geometry/CommonTopologies/interface/Topology.h>
-#include <Geometry/CommonTopologies/interface/StripTopology.h>
-
-#include <TrackingTools/PatternTools/interface/Trajectory.h>
-
+#include "Geometry/CommonTopologies/interface/Topology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DQM/SiStripCommissioningSources/plugins/tracking/SiStripFineDelayHit.h"
 #include "DQM/SiStripCommissioningSources/plugins/tracking/SiStripFineDelayTLA.h"
 #include "DQM/SiStripCommissioningSources/plugins/tracking/SiStripFineDelayTOF.h"
 
+// ROOT includes
 #include "TMath.h"
 
 //
