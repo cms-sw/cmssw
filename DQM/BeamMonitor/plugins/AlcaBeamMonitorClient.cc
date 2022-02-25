@@ -70,6 +70,8 @@ void AlcaBeamMonitorClient::beginRun(const edm::Run& r, const EventSetup& contex
 void AlcaBeamMonitorClient::analyze(const Event& iEvent, const EventSetup& iSetup) {}
 
 //----------------------------------------------------------------------------------------------------------------------
+void AlcaBeamMonitorClient::beginLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {}
+
 void AlcaBeamMonitorClient::endLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {
   MonitorElement* tmp = nullptr;
   tmp = dbe_->get(monitorName_ + "Service/hHistoLumiValues");

@@ -55,8 +55,7 @@ void BeamConditionsMonitor::beginJob() {
   h_y0_lumi->getTH1()->SetOption("E1");
 }
 
-//--------------------------------------------------------
-void BeamConditionsMonitor::beginRun(const edm::Run& r, const EventSetup& context) {}
+
 
 //--------------------------------------------------------
 void BeamConditionsMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
@@ -75,8 +74,7 @@ void BeamConditionsMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, c
   h_x0_lumi->ShiftFillLast(condBeamSpot.x(), condBeamSpot.xError(), 1);
   h_y0_lumi->ShiftFillLast(condBeamSpot.y(), condBeamSpot.yError(), 1);
 }
-//--------------------------------------------------------
-void BeamConditionsMonitor::endRun(const Run& r, const EventSetup& context) {}
+
 //--------------------------------------------------------
 void BeamConditionsMonitor::endJob() {}
 

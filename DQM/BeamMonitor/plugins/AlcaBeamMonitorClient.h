@@ -12,7 +12,7 @@
 #include <string>
 // CMS
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -20,7 +20,7 @@
 //#include "DataFormats/VertexReco/interface/Vertex.h"
 //#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-class AlcaBeamMonitorClient : public edm::EDAnalyzer {
+class AlcaBeamMonitorClient : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks,edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
@@ -31,6 +31,7 @@ public:
 protected:
   void beginJob(void) override;
   void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   void endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
   void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;

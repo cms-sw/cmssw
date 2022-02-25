@@ -14,7 +14,7 @@
 #include <vector>
 #include <map>
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -27,7 +27,7 @@
 // class declaration
 //
 
-class PixelVTXMonitor : public edm::EDAnalyzer {
+class PixelVTXMonitor : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
