@@ -19,9 +19,11 @@ class ProcessAcceleratorCUDA(cms.ProcessAccelerator):
             from HeterogeneousCore.CUDAServices.CUDAService_cfi import CUDAService
             process.add_(CUDAService)
 
+        if not hasattr(process.MessageLogger, "CUDAService"):
+            process.MessageLogger.CUDAService = cms.untracked.PSet()
+
         if self._label in accelerators:
             process.CUDAService.enabled = True
-            process.MessageLogger.CUDAService = cms.untracked.PSet()
         else:
             process.CUDAService.enabled = False
             
