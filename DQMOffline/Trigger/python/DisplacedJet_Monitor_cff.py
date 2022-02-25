@@ -27,7 +27,6 @@ trackingMonitorHLTDisplacedJet = cms.Sequence(
     +DisplacedJetIter4TracksMonitoringHLT
 )
 
-
 hltHT_HT425_Prommonitoring = hltHTmonitoring.clone(
     FolderName = 'HLT/EXO/DisplacedJet/HT/HT_425/',
     jetSelection_HT = "pt > 40 && eta < 3.0",
@@ -39,7 +38,6 @@ hltHT_HT400_DisplacedDijet40_DisplacedTrack_Prommonitoring = hltHTmonitoring.clo
     jetSelection = "pt>40 && eta<2.0",
     jetSelection_HT  = "pt > 40 && eta < 3.0",
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_HT400_DisplacedDijet40_DisplacedTrack_v*"])
-
 )
 
 hltHT_HT430_DisplacedDijet40_DisplacedTrack_Prommonitoring = hltHTmonitoring.clone(
@@ -54,7 +52,6 @@ hltHT_HT430_DisplacedDijet60_DisplacedTrack_Prommonitoring = hltHTmonitoring.clo
     jetSelection = "pt>60 && eta<2.0",
     jetSelection_HT  = "pt > 40 && eta < 3.0",
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_HT430_DisplacedDijet60_DisplacedTrack_v*"])
-
 )
 
 hltHT_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring = hltHTmonitoring.clone(
@@ -88,7 +85,6 @@ hltJet_HT400_DisplacedDijet40_DisplacedTrack_Prommonitoring = hltJetMETmonitorin
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_HT400_DisplacedDijet40_DisplacedTrack_v*"])
 )
 
-
 hltJet_HT430_DisplacedDijet40_DisplacedTrack_Prommonitoring = hltJetMETmonitoring.clone(
     jetSrc = "ak4CaloJets",
     FolderName = 'HLT/EXO/DisplacedJet/Jet/HLT_CaloJet_HT430_DisplacedDijet40_DisplacedTrack',
@@ -98,7 +94,6 @@ hltJet_HT430_DisplacedDijet40_DisplacedTrack_Prommonitoring = hltJetMETmonitorin
     histoPSet = dict(jetptBinning = [20.,26.,28.,30.,32.,34.,36.,38.,40.,42.,44.,46.,48.,50.,55.,60.,70.,80.,100.,120.,170.,220.,300.,400.]),
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_HT430_DisplacedDijet40_DisplacedTrack_v*"])
 )
-
 
 hltJet_HT430_DisplacedDijet60_DisplacedTrack_Prommonitoring = hltJetMETmonitoring.clone(
     jetSrc = "ak4CaloJets",
@@ -110,7 +105,6 @@ hltJet_HT430_DisplacedDijet60_DisplacedTrack_Prommonitoring = hltJetMETmonitorin
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_HT430_DisplacedDijet60_DisplacedTrack_v*"])
 )
 
-
 hltJet_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring = hltJetMETmonitoring.clone(
     jetSrc = "ak4CaloJets",
     FolderName = 'HLT/EXO/DisplacedJet/Jet/HLT_CaloJet_HT500_DisplacedDijet40_DisplacedTrack',
@@ -120,7 +114,6 @@ hltJet_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring = hltJetMETmonitorin
     histoPSet = dict(jetptBinning = [20.,26.,28.,30.,32.,34.,36.,38.,40.,42.,44.,46.,48.,50.,55.,60.,70.,80.,100.,120.,170.,220.,300.,400.]),
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_HT500_DisplacedDijet40_DisplacedTrack_v*"])
 )
-
 
 hltJet_HT550_DisplacedDijet60_Inclusive_Prommonitoring = hltJetMETmonitoring.clone(
     jetSrc = "ak4CaloJets",
@@ -132,7 +125,6 @@ hltJet_HT550_DisplacedDijet60_Inclusive_Prommonitoring = hltJetMETmonitoring.clo
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_HT550_DisplacedDijet60_Inclusive_v*"])
 )
 
-
 hltJet_HT650_DisplacedDijet60_Inclusive_Prommonitoring = hltJetMETmonitoring.clone(
     jetSrc = "ak4CaloJets",
     FolderName = 'HLT/EXO/DisplacedJet/Jet/HLT_CaloJet_HT650_DisplacedDijet60_Inclusive',
@@ -143,9 +135,7 @@ hltJet_HT650_DisplacedDijet60_Inclusive_Prommonitoring = hltJetMETmonitoring.clo
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_HT650_DisplacedDijet60_Inclusive_v*"])
 )
 
-
 exoHLTDisplacedJetmonitoring = cms.Sequence(
-
  hltHT_HT425_Prommonitoring
 +hltHT_HT400_DisplacedDijet40_DisplacedTrack_Prommonitoring
 +hltHT_HT430_DisplacedDijet40_DisplacedTrack_Prommonitoring
