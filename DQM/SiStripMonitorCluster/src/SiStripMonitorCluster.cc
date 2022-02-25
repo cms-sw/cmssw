@@ -6,19 +6,20 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
+
+// std library includes
 #include <cmath>
 #include <fstream>
 #include <numeric>
 #include <vector>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
-#include "FWCore/Utilities/interface/Transition.h"
+#include <iostream>
 
-#include "TNamed.h"
-
+// user includes
 #include "CalibTracker/SiStripCommon/interface/SiStripDCSStatus.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+#include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
+#include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorCluster.h"
@@ -26,15 +27,15 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-#include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
-#include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
-#include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
-
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
-#include <iostream>
+// ROOT includes
+#include "TNamed.h"
 #include "TMath.h"
 
 //--------------------------------------------------------------------------------------------
