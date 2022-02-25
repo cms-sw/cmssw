@@ -36,19 +36,6 @@ def _clone_if_missing(_obj, _label, _config, _original_label = None, **kwargs):
     _clone(_obj, _label, _config, _original_label, _only_if_missing = True, **kwargs)
 
 
-# force the SwitchProducerCUDA choice to pick a specific backend: True for offloading to a gpu, False for running on cpu
-def forceGpuOffload(status = True):
-    import HeterogeneousCore.CUDACore.SwitchProducerCUDA
-    HeterogeneousCore.CUDACore.SwitchProducerCUDA._cuda_enabled_cached = bool(status)
-
-
-# reset the SwitchProducerCUDA choice to pick a backend depending on the availability of a supported gpu
-def resetGpuOffload():
-    import HeterogeneousCore.CUDACore.SwitchProducerCUDA
-    HeterogeneousCore.CUDACore.SwitchProducerCUDA._cuda_enabled_cached = None
-    HeterogeneousCore.CUDACore.SwitchProducerCUDA._switch_cuda()
-
-
 # customisation for running the Patatrack reconstruction, common parts
 def customiseCommon(process):
 
