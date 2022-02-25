@@ -22,7 +22,7 @@
 // class declaration
 //
 
-class BeamMonitorBx : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks,edm::one::WatchRuns> {
+class BeamMonitorBx : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks, edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;

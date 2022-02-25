@@ -55,8 +55,6 @@ void BeamConditionsMonitor::beginJob() {
   h_y0_lumi->getTH1()->SetOption("E1");
 }
 
-
-
 //--------------------------------------------------------
 void BeamConditionsMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
   countLumi_++;

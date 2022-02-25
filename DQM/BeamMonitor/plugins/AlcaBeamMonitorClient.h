@@ -20,7 +20,7 @@
 //#include "DataFormats/VertexReco/interface/Vertex.h"
 //#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-class AlcaBeamMonitorClient : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks,edm::one::WatchRuns> {
+class AlcaBeamMonitorClient : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks, edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
