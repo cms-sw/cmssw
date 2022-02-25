@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: reHLT --processName reHLT -s HLT:@relval2021 --conditions 120X_mcRun3_2021_realistic_v4 --datatier GEN-SIM-DIGI-RAW -n 10 --eventcontent FEVTDEBUGHLT --geometry DB:Extended --era Run3 --customise=HLTrigger/Configuration/customizeHLTforPatatrack.customizeHLTforPatatrackTriplets --filein /store/relval/CMSSW_12_0_0_pre6/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_120X_mcRun3_2021_realistic_v4_JIRA_129-v1/00000/79c06ed5-929b-4a57-a4f2-1ae90e6b38c5.root
+# with command line options: reHLT --processName reHLT -s HLT:@relval2021 --conditions auto:phase1_2021_realistic --datatier GEN-SIM-DIGI-RAW -n 5 --eventcontent FEVTDEBUGHLT --geometry DB:Extended --era Run3 --customise=HLTrigger/Configuration/customizeHLTforPatatrack.customizeHLTforPatatrack --filein /store/relval/CMSSW_12_3_0_pre5/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/123X_mcRun3_2021_realistic_v6-v1/10000/2639d8f2-aaa6-4a78-b7c2-9100a6717e6c.root
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
@@ -21,16 +21,14 @@ process.load('HLTrigger.Configuration.HLT_GRun_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100),
+    input = cms.untracked.int32(5),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-    #skipEvents=cms.untracked.uint32(95),
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_12_0_0_pre6/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_120X_mcRun3_2021_realistic_v4_JIRA_129-v1/00000/79c06ed5-929b-4a57-a4f2-1ae90e6b38c5.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_12_3_0_pre5/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/123X_mcRun3_2021_realistic_v6-v1/10000/2639d8f2-aaa6-4a78-b7c2-9100a6717e6c.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -65,7 +63,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('reHLT nevts:10'),
+    annotation = cms.untracked.string('reHLT nevts:5'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -89,7 +87,7 @@ from HLTrigger.Configuration.CustomConfigs import ProcessName
 process = ProcessName(process)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '120X_mcRun3_2021_realistic_v4', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*articleFlow*HBHE*_*_*')
 
 # Path and EndPath definitions
@@ -97,8 +95,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 # Schedule definition
-process.schedule = cms.Schedule()
-process.schedule.extend(process.HLTSchedule)
+# process.schedule imported from cff in HLTrigger.Configuration
 process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
@@ -106,10 +103,10 @@ associatePatAlgosToolsTask(process)
 # customisation of the process.
 
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforPatatrack
-from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrackTriplets 
+from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack 
 
-#call to customisation function customizeHLTforPatatrackTriplets imported from HLTrigger.Configuration.customizeHLTforPatatrack
-process = customizeHLTforPatatrackTriplets(process)
+#call to customisation function customizeHLTforPatatrack imported from HLTrigger.Configuration.customizeHLTforPatatrack
+process = customizeHLTforPatatrack(process)
 
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
 from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC 
@@ -126,17 +123,6 @@ process = customizeHLTforMC(process)
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
 # End adding early deletion
-
-#process.load( "HLTrigger.Timer.FastTimerService_cfi" )
-#if 'MessageLogger' in process.__dict__:
-#    process.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
-#    process.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
-#    process.MessageLogger.L1TGlobalSummary = cms.untracked.PSet()
-#    process.MessageLogger.HLTrigReport = cms.untracked.PSet()
-#    process.MessageLogger.FastReport = cms.untracked.PSet()
-#    process.MessageLogger.ThroughputService = cms.untracked.PSet()
-#    process.MessageLogger.cerr.FastReport = cms.untracked.PSet( limit = cms.untracked.int32( 10000000 ) )
-
 
 ############################
 ## Configure GPU producer ##
@@ -288,40 +274,3 @@ process.hltParticleFlowClusterHBHE = cms.EDProducer( "PFClusterProducerCudaHCAL"
     ),
     recHitsSource = cms.InputTag( "hltParticleFlowRecHitHBHE" )
 )
-
-
-############################
-## Configure CPU producer ##
-############################
-
-#process.hltParticleFlowRecHitHBHE = cms.EDProducer( "PFRecHitProducer",
-#    producers = cms.VPSet(
-#      cms.PSet(  src = cms.InputTag( "hltHbherecoFromGPU" ),
-#        name = cms.string( "PFHBHERecHitCreator" ),
-#        qualityTests = cms.VPSet(
-#          cms.PSet(  threshold = cms.double( 0.8 ),
-#            name = cms.string( "PFRecHitQTestThreshold" ),
-#            cuts = cms.VPSet(
-#              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4 ),
-#                threshold = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
-#                detectorEnum = cms.int32( 1 )
-#              ),
-#              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
-#                threshold = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 ),
-#                detectorEnum = cms.int32( 2 )
-#              )
-#            )
-#          ),
-#          cms.PSet(  flags = cms.vstring( 'Standard' ),
-#            cleaningThresholds = cms.vdouble( 0.0 ),
-#            name = cms.string( "PFRecHitQTestHCALChannel" ),
-#            maxSeverities = cms.vint32( 11 )
-#          )
-#        )
-#      )
-#    ),
-#    navigator = cms.PSet(
-#      name = cms.string( "PFRecHitHCALDenseIdNavigator" ),
-#      hcalEnums = cms.vint32( 1, 2 )
-#    )
-#)
