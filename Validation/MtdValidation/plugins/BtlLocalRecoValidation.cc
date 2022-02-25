@@ -461,7 +461,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       }  // if ( cluTimeSIM > 0. &&  cluEneSIM > 0. )
       else {
-        meUnmatchedCluEnergy_->Fill(cluster.energy());
+        meUnmatchedCluEnergy_->Fill(std::log10(cluster.energy()));
       }
 
     }  // cluster loop
@@ -717,7 +717,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
     meCluYLocalErr_ = ibook.book1D("BtlCluYLocalErr", "BTL cluster Y local error;sigmaY_{RECO,loc} [cm]", 30, 0., 0.9);
   }
   meUnmatchedCluEnergy_ =
-      ibook.book1D("BtlUnmatchedCluEnergy", "BTL unmatched cluster energy;E_{RECO} [MeV]", 100, 0, 20);
+      ibook.book1D("BtlUnmatchedCluEnergy", "BTL unmatched cluster log10(energy);log10(E_{RECO} [MeV])", 5, -3, 2);
 
   // --- UncalibratedRecHits histograms
 
