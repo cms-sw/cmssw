@@ -185,14 +185,9 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     edm::LogWarning("CalibConstants") << "   Not Found!! ";
   }
 
-  const edm::Handle<HBHERecHitCollection>& hbhe = ev.getHandle(tok_hbhe_);
-  const HBHERecHitCollection Hithbhe = *(hbhe.product());
-
-  const edm::Handle<HFRecHitCollection>& hfcoll = ev.getHandle(tok_hf_);
-  const HFRecHitCollection Hithf = *(hfcoll.product());
-
-  const edm::Handle<HORecHitCollection>& hocoll = ev.getHandle(tok_ho_);
-  const HORecHitCollection Hitho = *(hocoll.product());
+  const HBHERecHitCollection & Hithbhe = ev.get(tok_hbhe_);;
+  const HFRecHitCollection & Hithf = ev.get(tok_hf_);
+  //  const HORecHitCollection & Hitho = ev.get(tok_ho_);
 
   const edm::Handle<EERecHitCollection>& ecalEE = ev.getHandle(tok_EE_);
   const EERecHitCollection HitecalEE = *(ecalEE.product());
