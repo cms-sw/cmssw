@@ -604,8 +604,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
     t_TracksTight = ntksave[2];
   } else {
     trigger::TriggerEvent triggerEvent;
-    edm::Handle<trigger::TriggerEvent> triggerEventHandle;
-    iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
+    const edm::Handle<trigger::TriggerEvent>& triggerEventHandle = iEvent.getHandle(tok_trigEvt_);
     if (!triggerEventHandle.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product " << triggerEvent_.label();
     } else if (okC) {
