@@ -506,7 +506,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       }  // if ( cluTimeSIM > 0. &&  cluEneSIM > 0. )
       else {
-        meUnmatchedCluEnergy_[iside]->Fill(cluster.energy());
+        meUnmatchedCluEnergy_[iside]->Fill(std::log10(cluster.energy()));
       }
 
     }  // cluster loop
@@ -1052,10 +1052,10 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
     meCluYLocalErr_[1] =
         ibook.book1D("EtlCluYLocalErrPos", "ETL cluster Y local error (+Z);sigmaY_{RECO,loc} [cm]", 50, 0., 0.2);
   }
-  meUnmatchedCluEnergy_[0] =
-      ibook.book1D("EtlUnmatchedCluEnergyNeg", "ETL unmatched cluster energy (-Z);E_{RECO} [MeV]", 100, 0, 20);
-  meUnmatchedCluEnergy_[1] =
-      ibook.book1D("EtlUnmatchedCluEnergyPos", "ETL unmatched cluster energy (+Z);E_{RECO} [MeV]", 100, 0, 20);
+  meUnmatchedCluEnergy_[0] = ibook.book1D(
+      "EtlUnmatchedCluEnergyNeg", "ETL unmatched cluster log10(energy) (-Z);log10(E_{RECO} [MeV])", 5, -3, 2);
+  meUnmatchedCluEnergy_[1] = ibook.book1D(
+      "EtlUnmatchedCluEnergyPos", "ETL unmatched cluster log10(energy) (+Z);log10(E_{RECO} [MeV])", 5, -3, 2);
 
   // --- UncalibratedRecHits histograms
 
