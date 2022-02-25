@@ -105,8 +105,10 @@ private:
   const edm::EDPutTokenT<std::vector<SeedStopInfo>> putSeedStopInfoToken_;
 
   const float qualityMaxInvPt_;
+  const float qualityMinTheta_;
   const float qualityMaxRsq_;
   const float qualityMaxZ_;
+  const float qualityMaxPosErrSq_;
   const bool qualitySignPt_;
 };
 
@@ -128,8 +130,10 @@ MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
       putTrackCandidateToken_{produces<TrackCandidateCollection>()},
       putSeedStopInfoToken_{produces<std::vector<SeedStopInfo>>()},
       qualityMaxInvPt_{float(iConfig.getParameter<double>("qualityMaxInvPt"))},
+      qualityMinTheta_{float(iConfig.getParameter<double>("qualityMinTheta"))},
       qualityMaxRsq_{float(pow(iConfig.getParameter<double>("qualityMaxR"), 2))},
       qualityMaxZ_{float(iConfig.getParameter<double>("qualityMaxZ"))},
+      qualityMaxPosErrSq_{float(pow(iConfig.getParameter<double>("qualityMaxPosErr"), 2))},
       qualitySignPt_{iConfig.getParameter<bool>("qualitySignPt")} {}
 
 void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -146,8 +150,10 @@ void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add("propagatorOpposite", edm::ESInputTag{"", "PropagatorWithMaterialOpposite"});
 
   desc.add<double>("qualityMaxInvPt", 100)->setComment("max(1/pt) for converted tracks");
+  desc.add<double>("qualityMinTheta", 0.01)->setComment("lower bound on theta (or pi-theta) for converted tracks");
   desc.add<double>("qualityMaxR", 120)->setComment("max(R) for the state position for converted tracks");
   desc.add<double>("qualityMaxZ", 280)->setComment("max(|Z|) for the state position for converted tracks");
+  desc.add<double>("qualityMaxPosErr", 100)->setComment("max position error for converted tracks");
   desc.add<bool>("qualitySignPt", true)->setComment("check sign of 1/pt for converted tracks");
 
   descriptions.addWithDefaultLabel(desc);
@@ -207,7 +213,10 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
 
     // state: check for basic quality first
     if (cand.state().invpT() > qualityMaxInvPt_ || (qualitySignPt_ && cand.state().invpT() < 0) ||
-        cand.state().posRsq() > qualityMaxRsq_ || std::abs(cand.state().z()) > qualityMaxZ_) {
+        cand.state().theta() < qualityMinTheta_ || (M_PI - cand.state().theta()) < qualityMinTheta_ ||
+        cand.state().posRsq() > qualityMaxRsq_ || std::abs(cand.state().z()) > qualityMaxZ_ ||
+        (cand.state().errors.At(0, 0) + cand.state().errors.At(1, 1) + cand.state().errors.At(2, 2)) >
+            qualityMaxPosErrSq_) {
       edm::LogInfo("MkFitOutputConverter")
           << "Candidate " << candIndex << " failed state quality checks" << cand.state().parameters;
       continue;
