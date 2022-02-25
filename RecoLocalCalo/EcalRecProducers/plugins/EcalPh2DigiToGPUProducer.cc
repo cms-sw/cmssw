@@ -40,7 +40,7 @@
 #include "DeclsForKernelsPh2WeightsGPU.h"
 #include "DeclsForKernels.h"
 
-#include "EcalPh2DigiToGPUConverterAlgoGPU.h"
+//#include "EcalPh2DigiToGPUConverterAlgoGPU.h"
 
 //Input Phase2 digis EBDigiCollectionPh2
 //Produces GPU digis cms::cuda::Product<ecal::DigisCollection<calo::common::DevStoragePolicy>

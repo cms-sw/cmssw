@@ -25,13 +25,23 @@ process.load('RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2GPU_cff')
 process.load('RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10),
+    input = cms.untracked.int32(-1),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
+process.load('HLTrigger.Timer.FastTimerService_cfi')
+process.FastTimerService.enableDQM = False
+process.FastTimerService.printRunSummary = False
+process.FastTimerService.printJobSummary = True
+process.FastTimerService.writeJSONSummary = True
+process.FastTimerService.jsonFileName = 'resources.json'
+process.MessageLogger.FastReport = cms.untracked.PSet()
+
+
+
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/data/user/csandeve/CMSSW_12_2_0_pre3/src/RecoLocalCalo/EcalRecProducers/test/step2_digi_cmssw_12_X.root'),
+    fileNames = cms.untracked.vstring('file:/data/user/csandeve/RelValTTbar_14TeV_ecaldigi_123X_mcRun4_realistic_v3_2026D77noPU-v1.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
