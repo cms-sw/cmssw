@@ -4,26 +4,26 @@
 //
 
 // system include files
-#include <memory>
+#include <cassert>
+#include <fstream>
 #include <iostream>
+#include <memory>
 
 // user include files
 #include "DQM/SiStripMonitorDigi/interface/SiStripBaselineValidator.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Common/interface/DetSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Common/interface/DetSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 //ROOT inclusion
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TString.h"
-#include <cassert>
-#include <fstream>
 
 class TFile;
 
@@ -35,8 +35,6 @@ SiStripBaselineValidator::SiStripBaselineValidator(const edm::ParameterSet& conf
   moduleRawDigiToken_ =
       consumes<edm::DetSetVector<SiStripDigi> >(conf.getParameter<edm::InputTag>("srcProcessedRawDigi"));
 }
-
-SiStripBaselineValidator::~SiStripBaselineValidator() {}
 
 void SiStripBaselineValidator::bookHistograms(DQMStore::IBooker& ibooker,
                                               const edm::Run& run,
