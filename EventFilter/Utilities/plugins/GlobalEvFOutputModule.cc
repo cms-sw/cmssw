@@ -290,14 +290,15 @@ namespace evf {
   }
 
   std::unique_ptr<edm::StreamerOutputModuleCommon> GlobalEvFOutputModule::beginStream(edm::StreamID) const {
-    return std::make_unique<edm::StreamerOutputModuleCommon>(ps_, &keptProducts()[edm::InEvent]);
+    return std::make_unique<edm::StreamerOutputModuleCommon>(
+        ps_, &keptProducts()[edm::InEvent], description().moduleLabel());
   }
 
   std::shared_ptr<GlobalEvFOutputJSONDef> GlobalEvFOutputModule::globalBeginRun(edm::RunForOutput const& run) const {
     //create run Cache holding JSON file writer and variables
     auto jsonDef = std::make_unique<GlobalEvFOutputJSONDef>();
 
-    edm::StreamerOutputModuleCommon streamerCommon(ps_, &keptProducts()[edm::InEvent]);
+    edm::StreamerOutputModuleCommon streamerCommon(ps_, &keptProducts()[edm::InEvent], description().moduleLabel());
 
     //output INI file (non-const). This doesn't require globalBeginRun to be finished
     const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(streamLabel_);
