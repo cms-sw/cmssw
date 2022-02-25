@@ -2,82 +2,72 @@
 //
 // Package:    HLTrigger/JetMET
 // Class:      HLTScoutingPrimaryVertexProducer
-
-// system include files
-#include <memory>
-
-// user include files
+//
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
-#include "DataFormats/Math/interface/deltaR.h"
-
 #include "DataFormats/Math/interface/libminifloat.h"
+
+#include <memory>
+#include <utility>
 
 class HLTScoutingPrimaryVertexProducer : public edm::global::EDProducer<> {
 public:
   explicit HLTScoutingPrimaryVertexProducer(const edm::ParameterSet&);
-  ~HLTScoutingPrimaryVertexProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const final;
-  const edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
+
+  edm::EDGetTokenT<reco::VertexCollection> const vertexCollToken_;
+  int const mantissaPrecision_;
 };
 
-//
-// constructors and destructor
-//
 HLTScoutingPrimaryVertexProducer::HLTScoutingPrimaryVertexProducer(const edm::ParameterSet& iConfig)
-    : vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))) {
-  //register products
+    : vertexCollToken_(consumes(iConfig.getParameter<edm::InputTag>("vertexCollection"))),
+      mantissaPrecision_(iConfig.getParameter<int>("mantissaPrecision")) {
   produces<Run3ScoutingVertexCollection>("primaryVtx");
 }
 
-HLTScoutingPrimaryVertexProducer::~HLTScoutingPrimaryVertexProducer() = default;
-
-// ------------ method called to produce the data  ------------
 void HLTScoutingPrimaryVertexProducer::produce(edm::StreamID sid,
                                                edm::Event& iEvent,
                                                edm::EventSetup const& setup) const {
-  using namespace edm;
+  auto outVertices = std::make_unique<Run3ScoutingVertexCollection>();
 
-  //get vertices
-  Handle<reco::VertexCollection> vertexCollection;
+  auto const vertexCollHandle = iEvent.getHandle(vertexCollToken_);
 
-  std::unique_ptr<Run3ScoutingVertexCollection> outVertices(new Run3ScoutingVertexCollection());
-
-  if (iEvent.getByToken(vertexCollection_, vertexCollection)) {
-    for (auto& vtx : *vertexCollection) {
-      outVertices->emplace_back(MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.x(), 10),
-                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.y(), 10),
-                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.z(), 10),
-                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.zError(), 10),
-                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.xError(), 10),
-                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.yError(), 10),
+  if (vertexCollHandle.isValid()) {
+    outVertices->reserve(vertexCollHandle->size());
+    for (auto const& vtx : *vertexCollHandle) {
+      outVertices->emplace_back(MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.x(), mantissaPrecision_),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.y(), mantissaPrecision_),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.z(), mantissaPrecision_),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.zError(), mantissaPrecision_),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.xError(), mantissaPrecision_),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.yError(), mantissaPrecision_),
                                 vtx.tracksSize(),
-                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.chi2(), 10),
+                                MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.chi2(), mantissaPrecision_),
                                 vtx.ndof(),
                                 vtx.isValid());
     }
   }
 
-  //put output
   iEvent.put(std::move(outVertices), "primaryVtx");
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HLTScoutingPrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
-  descriptions.add("hltScoutingPrimaryVertexProducer", desc);
+  desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"))
+      ->setComment("InputTag of input collection of primary vertices");
+  desc.add<int>("mantissaPrecision", 10)->setComment("default float16, change to 23 for float32");
+  descriptions.addWithDefaultLabel(desc);
 }
 
-// declare this class as a framework plugin
 DEFINE_FWK_MODULE(HLTScoutingPrimaryVertexProducer);
