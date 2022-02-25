@@ -96,7 +96,7 @@ bool HGCalTBCheckGunPostion::filter(edm::Event& iEvent, const edm::EventSetup& i
   const edm::Handle<edm::HepMCProduct>& hepmc = iEvent.getHandle(hepMCproductLabel_);
 #ifdef EDM_ML_DEBUG
   if (verbosity_)
-    edm::LogVerbatim("HGCSim") << "isHandle valid: " << isHandle valid;
+    edm::LogVerbatim("HGCSim") << "is hepmc Handle valid: " << hepmc.isValid();
 #endif
   double x(0), y(0);
 
@@ -111,7 +111,7 @@ bool HGCalTBCheckGunPostion::filter(edm::Event& iEvent, const edm::EventSetup& i
       x = (*p)->position().x() / 10.;  // in cm
       y = (*p)->position().y() / 10.;  // in cm
 #ifdef EDM_ML_DEBUG
-      z = (*p)->position().z() / 10.;  // in cm
+      double z = (*p)->position().z() / 10.;  // in cm
       if (verbosity_)
         edm::LogVerbatim("HGCSim") << " x: " << (*p)->position().x() << ":" << x << " y: " << (*p)->position().y()
                                    << ":" << y << " z: " << (*p)->position().z() << ":" << z;
