@@ -1,24 +1,25 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Alignment/LaserAlignment/interface/LASGlobalData.h"
-#include <DataFormats/Common/interface/DetSetVector.h>
-#include <FWCore/Framework/interface/Event.h>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Alignment/LaserAlignment/interface/LASGlobalLoop.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Forward declarations
 class TFile;
 class TTree;
 
-class RawDataConverter : public edm::EDAnalyzer {
+class RawDataConverter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit RawDataConverter(const edm::ParameterSet&);
-  ~RawDataConverter() override;
+  ~RawDataConverter() override = default;
 
 private:
   enum DigiType { ZeroSuppressed, VirginRaw, ProcessedRaw, Unknown };
   void beginJob() override;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override{};
   void endJob() override;
 
   void fillDetectorId(void);

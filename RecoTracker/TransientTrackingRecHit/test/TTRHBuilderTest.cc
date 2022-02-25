@@ -1,53 +1,43 @@
-#include <memory>
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
+// user includes
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
-
-#include "FWCore/Framework/interface/Event.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
+#include <memory>
 #include <iostream>
 #include <string>
 
 using namespace edm;
 
-class TTRHBuilderTest : public edm::EDAnalyzer {
+class TTRHBuilderTest : public edm::global::EDAnalyzer<> {
 public:
-  TTRHBuilderTest(const edm::ParameterSet& pset) { conf_ = pset; }
+  TTRHBuilderTest(const edm::ParameterSet& pset)
+      : cpeName_(pset.getParameter<std::string>("TTRHBuilder")),
+        ttrhToken_(esConsumes(edm::ESInputTag("", cpeName_))) {}
+  //pixelCPEToken_(esConsumes(edm::ESInputTag("",cpeName_))){}
+  ~TTRHBuilderTest() = default;
 
-  ~TTRHBuilderTest() {}
-
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  virtual void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const& iSetup) const {
     using namespace std;
 
-    //     std::string cpeName = conf_.getParameter<std::string>("PixelCPE");
-    //     cout <<" Asking for the CPE with name "<<cpeName<<endl;
+    // edm::LogPrint("TTRBuilderTest") <<" Asking for the CPE with name "<<cpeName<<endl;
+    // const PixelClusterParameterEstimator* theEstimator = &iSetup.getData(pixelCPEToken_);
 
-    //     edm::ESHandle<PixelClusterParameterEstimator> theEstimator;
-    //     setup.get<TrackerCPERecord>().get(cpeName,theEstimator);
-
-    std::string cpeName = conf_.getParameter<std::string>("TTRHBuilder");
-    cout << " Asking for the TTRHBuilder with name " << cpeName << endl;
-
-    edm::ESHandle<TransientTrackingRecHitBuilder> theB;
-    setup.get<TransientRecHitRecord>().get(cpeName, theB);
-    auto& r = *theB;
-    cout << " Got a " << typeid(r).name() << endl;
-    //    cout <<" Strip CPE "<<theB->stripClusterParameterEstimator()<<endl;
-    //    cout <<" Pixel CPE "<<theB->pixelClusterParameterEstimator()<<endl;
+    edm::LogPrint("TTRHBuilderTest") << " Asking for the TTRHBuilder with name " << cpeName_ << endl;
+    const TransientTrackingRecHitBuilder* r = &iSetup.getData(ttrhToken_);
+    edm::LogPrint("TTRBuilderTest") << " Got a " << typeid(r).name() << endl;
   }
 
 private:
-  edm::ParameterSet conf_;
+  const std::string cpeName_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhToken_;
+  //const edm::ESGetToken<PixelClusterParameterEstimator,TrackerCPERecord> pixelCPEToken_;
 };

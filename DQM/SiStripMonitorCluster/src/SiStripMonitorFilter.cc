@@ -5,16 +5,15 @@
 //
 // class SiStripMonitorFilter SiStripMonitorFilter.cc
 // DQM/SiStripMonitorCluster/src/SiStripMonitorFilter.cc
-#include <vector>
 
+#include <vector>
 #include <iostream>
 #include <numeric>
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorFilter.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 SiStripMonitorFilter::SiStripMonitorFilter(const edm::ParameterSet& iConfig) {
   FilterDirectory = "FilterResults";

@@ -214,7 +214,7 @@ class Looper(_ConfigureComponent,_TypedParameterizable):
 
 # Need to be a module-level function for the configuration with a
 # SwitchProducer to be pickleable.
-def _switch_cpu():
+def _switch_cpu(accelerators):
     return (True, 1)
 
 class SwitchProducer(EDProducer):
@@ -257,21 +257,21 @@ class SwitchProducer(EDProducer):
         """Returns a function that returns the priority for a CPU "computing device". Intended to be used by deriving classes."""
         return _switch_cpu
 
-    def _chooseCase(self):
+    def _chooseCase(self, accelerators):
         """Returns the name of the chosen case."""
         cases = self.parameterNames_()
         bestCase = None
         for case in cases:
-            (enabled, priority) = self._caseFunctionDict[case]()
+            (enabled, priority) = self._caseFunctionDict[case](accelerators)
             if enabled and (bestCase is None or bestCase[0] < priority):
                 bestCase = (priority, case)
         if bestCase is None:
             raise RuntimeError("All cases '%s' were disabled" % (str(cases)))
         return bestCase[1]
 
-    def _getProducer(self):
+    def _getProducer(self, accelerators):
         """Returns the EDroducer of the chosen case"""
-        return self.__dict__[self._chooseCase()]
+        return self.__dict__[self._chooseCase(accelerators)]
 
     @staticmethod
     def __typeIsValid(typ):
@@ -378,7 +378,7 @@ class SwitchProducer(EDProducer):
             else:
                 modules.append(self.caseLabel_(myname, case))
 
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, accelerators):
         for case in self.parameterNames_():
             producer = self.__dict__[case]
             producer.insertInto(parameterSet, self.caseLabel_(myname, case))
@@ -387,7 +387,7 @@ class SwitchProducer(EDProducer):
         newpset.addString(True, "@module_type", "SwitchProducer")
         newpset.addString(True, "@module_edm_type", "EDProducer")
         newpset.addVString(True, "@all_cases", [myname+"@"+p for p in self.parameterNames_()])
-        newpset.addString(False, "@chosen_case", myname+"@"+self._chooseCase())
+        newpset.addString(False, "@chosen_case", myname+"@"+self._chooseCase(accelerators))
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
 
     def _placeImpl(self,name,proc):
@@ -423,23 +423,9 @@ if __name__ == "__main__":
         def __init__(self, **kargs):
             super(SwitchProducerTest,self).__init__(
                 dict(
-                    test1 = lambda: (True, -10),
-                    test2 = lambda: (True, -9),
-                    test3 = lambda: (True, -8)
-                ), **kargs)
-    class SwitchProducerTest1Dis(SwitchProducer):
-        def __init__(self, **kargs):
-            super(SwitchProducerTest1Dis,self).__init__(
-                dict(
-                    test1 = lambda: (False, -10),
-                    test2 = lambda: (True, -9)
-                ), **kargs)
-    class SwitchProducerTest2Dis(SwitchProducer):
-        def __init__(self, **kargs):
-            super(SwitchProducerTest2Dis,self).__init__(
-                dict(
-                    test1 = lambda: (True, -10),
-                    test2 = lambda: (False, -9)
+                    test1 = lambda accelerators: ("test1" in accelerators, -10),
+                    test2 = lambda accelerators: ("test2" in accelerators, -9),
+                    test3 = lambda accelerators: ("test3" in accelerators, -8)
                 ), **kargs)
     class SwitchProducerPickleable(SwitchProducer):
         def __init__(self, **kargs):
@@ -566,16 +552,14 @@ if __name__ == "__main__":
             self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = SwitchProducerTest(test1 = EDProducer("Foo"))))
 
             # Case decision
+            accelerators = ["test1", "test2", "test3"]
             sp = SwitchProducerTest(test1 = EDProducer("Foo"), test2 = EDProducer("Bar"))
-            self.assertEqual(sp._getProducer().type_(), "Bar")
-            sp = SwitchProducerTest1Dis(test1 = EDProducer("Foo"), test2 = EDProducer("Bar"))
-            self.assertEqual(sp._getProducer().type_(), "Bar")
-            sp = SwitchProducerTest2Dis(test1 = EDProducer("Foo"), test2 = EDProducer("Bar"))
-            self.assertEqual(sp._getProducer().type_(), "Foo")
+            self.assertEqual(sp._getProducer(["test1", "test2", "test3"]).type_(), "Bar")
+            self.assertEqual(sp._getProducer(["test2", "test3"]).type_(), "Bar")
+            self.assertEqual(sp._getProducer(["test1", "test3"]).type_(), "Foo")
             sp = SwitchProducerTest(test1 = EDProducer("Bar"))
-            self.assertEqual(sp._getProducer().type_(), "Bar")
-            sp = SwitchProducerTest1Dis(test1 = EDProducer("Bar"))
-            self.assertRaises(RuntimeError, sp._getProducer)
+            self.assertEqual(sp._getProducer(["test1", "test2", "test3"]).type_(), "Bar")
+            self.assertRaises(RuntimeError, sp._getProducer, ["test2", "test3"])
 
             # Mofications
             from .Types import int32, string, PSet
@@ -593,7 +577,7 @@ if __name__ == "__main__":
             self.assertEqual(cl.test2.type_(), "Bar")
             self.assertEqual(cl.test2.aa.value(), 11)
             self.assertEqual(cl.test2.bb.cc.value(), 12)
-            self.assertEqual(sp._getProducer().type_(), "Bar")
+            self.assertEqual(sp._getProducer(accelerators).type_(), "Bar")
             # Modify clone
             cl.test1.a = 3
             self.assertEqual(cl.test1.a.value(), 3)

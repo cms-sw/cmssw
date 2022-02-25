@@ -36,8 +36,11 @@ GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset)
   eta_nbins_ = pset.getUntrackedParameter<int>("etaNbins");
   eta_low_ = pset.getUntrackedParameter<double>("etaLow");
   eta_up_ = pset.getUntrackedParameter<double>("etaUp");
+  monitor_ge11_ = pset.getUntrackedParameter<bool>("monitorGE11");
+  monitor_ge21_ = pset.getUntrackedParameter<bool>("monitorGE21");
+  monitor_ge0_ = pset.getUntrackedParameter<bool>("monitorGE0");
 
-  const edm::ParameterSet&& muon_service_parameter = pset.getParameter<edm::ParameterSet>("ServiceParameters");
+  const edm::ParameterSet muon_service_parameter = pset.getParameter<edm::ParameterSet>("ServiceParameters");
   muon_service_ = new MuonServiceProxy(muon_service_parameter, consumesCollector());
 
   const double eps = std::numeric_limits<double>::epsilon();
@@ -70,6 +73,9 @@ void GEMEfficiencyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
     desc.addUntracked<int>("etaNbins", 9);
     desc.addUntracked<double>("etaLow", 1.4);
     desc.addUntracked<double>("etaUp", 2.3);
+    desc.addUntracked<bool>("monitorGE11", true);
+    desc.addUntracked<bool>("monitorGE21", false);
+    desc.addUntracked<bool>("monitorGE0", false);
     {
       edm::ParameterSetDescription psd0;
       psd0.setAllowAnything();
@@ -77,34 +83,6 @@ void GEMEfficiencyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
     }
     descriptions.add("gemEfficiencyAnalyzerDefault", desc);
   }  // beam scenario
-
-  // cosmic scenario
-  {
-    edm::ParameterSetDescription desc;
-    desc.addUntracked<std::string>("name", "GlobalMuon");  // FIXME
-    desc.addUntracked<std::string>("folder", "GEM/Efficiency/type0");
-    desc.add<edm::InputTag>("recHitTag", edm::InputTag("gemRecHits"));
-    desc.add<edm::InputTag>("muonTag", edm::InputTag("muons"));
-    desc.addUntracked<bool>("isCosmics", true);
-    desc.addUntracked<bool>("useGlobalMuon", false);
-    desc.add<bool>("useSkipLayer", true);
-    desc.add<bool>("useOnlyME11", true);
-    desc.add<double>("residualRPhiCut", 5.0);  // TODO need to be tuned
-    desc.add<bool>("usePropRErrorCut", true);
-    desc.add<double>("propRErrorCut", 1.0);
-    desc.add<bool>("usePropPhiErrorCut", true);
-    desc.add<double>("propPhiErrorCut", 0.001);
-    desc.addUntracked<std::vector<double> >("ptBins", {0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120.});
-    desc.addUntracked<int>("etaNbins", 9);
-    desc.addUntracked<double>("etaLow", 1.4);
-    desc.addUntracked<double>("etaUp", 2.3);
-    {
-      edm::ParameterSetDescription psd0;
-      psd0.setAllowAnything();
-      desc.add<edm::ParameterSetDescription>("ServiceParameters", psd0);
-    }
-    descriptions.add("gemEfficiencyAnalyzerCosmicsDefault", desc);
-  }  // cosmics
 }
 
 void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
@@ -152,11 +130,15 @@ void GEMEfficiencyAnalyzer::bookEfficiencyMomentum(DQMStore::IBooker& ibooker, c
     const int region_id = station->region();
     const int station_id = station->station();
 
-    const GEMDetId&& key = getReStKey(region_id, station_id);
-    const TString&& name_suffix = GEMUtils::getSuffixName(region_id, station_id);
-    const TString&& title_suffix = GEMUtils::getSuffixTitle(region_id, station_id);
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
 
-    const TString&& title = name_.c_str() + title_suffix;
+    const GEMDetId key = getReStKey(region_id, station_id);
+    const TString name_suffix = GEMUtils::getSuffixName(region_id, station_id);
+    const TString title_suffix = GEMUtils::getSuffixTitle(region_id, station_id);
+
+    const TString title = name_.c_str() + title_suffix;
 
     TH1F* h_muon_pt = new TH1F("muon_pt" + name_suffix, title, pt_nbinsx, &pt_bins_[0]);
     h_muon_pt->SetXTitle(pt_x_title);
@@ -181,7 +163,11 @@ void GEMEfficiencyAnalyzer::bookEfficiencyChamber(DQMStore::IBooker& ibooker, co
     const int region_id = station->region();
     const int station_id = station->station();
 
-    const std::vector<const GEMSuperChamber*>&& superchambers = station->superChambers();
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
+
+    const std::vector<const GEMSuperChamber*> superchambers = station->superChambers();
     if (not checkRefs(superchambers)) {
       edm::LogError(kLogCategory_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
       return;
@@ -191,9 +177,9 @@ void GEMEfficiencyAnalyzer::bookEfficiencyChamber(DQMStore::IBooker& ibooker, co
     for (const GEMChamber* chamber : superchambers[0]->chambers()) {
       const int layer_id = chamber->id().layer();
 
-      const TString&& name_suffix = GEMUtils::getSuffixName(region_id, station_id, layer_id);
-      const TString&& title_suffix = GEMUtils::getSuffixTitle(region_id, station_id, layer_id);
-      const GEMDetId&& key = getReStLaKey(chamber->id());
+      const TString name_suffix = GEMUtils::getSuffixName(region_id, station_id, layer_id);
+      const TString title_suffix = GEMUtils::getSuffixTitle(region_id, station_id, layer_id);
+      const GEMDetId key = getReStLaKey(chamber->id());
 
       me_chamber_[key] =
           ibooker.book1D("chamber" + name_suffix, name_.c_str() + title_suffix, num_chambers, 0.5, num_chambers + 0.5);
@@ -217,7 +203,11 @@ void GEMEfficiencyAnalyzer::bookEfficiencyEtaPartition(DQMStore::IBooker& ibooke
     const int region_id = station->region();
     const int station_id = station->station();
 
-    const std::vector<const GEMSuperChamber*>&& superchambers = station->superChambers();
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
+
+    const std::vector<const GEMSuperChamber*> superchambers = station->superChambers();
     if (not checkRefs(superchambers)) {
       edm::LogError(kLogCategory_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
       return;
@@ -227,9 +217,9 @@ void GEMEfficiencyAnalyzer::bookEfficiencyEtaPartition(DQMStore::IBooker& ibooke
       const int layer_id = chamber->id().layer();
       const int num_ieta = chamber->nEtaPartitions();
 
-      const TString&& name_suffix = GEMUtils::getSuffixName(region_id, station_id, layer_id);
-      const TString&& title_suffix = GEMUtils::getSuffixTitle(region_id, station_id, layer_id);
-      const GEMDetId&& key = getReStLaKey(chamber->id());
+      const TString name_suffix = GEMUtils::getSuffixName(region_id, station_id, layer_id);
+      const TString title_suffix = GEMUtils::getSuffixTitle(region_id, station_id, layer_id);
+      const GEMDetId key = getReStLaKey(chamber->id());
 
       me_ieta_[key] = ibooker.book1D("ieta" + name_suffix, name_.c_str() + title_suffix, num_ieta, 0.5, num_ieta + 0.5);
       me_ieta_[key]->setAxisTitle("i#eta");
@@ -251,7 +241,11 @@ void GEMEfficiencyAnalyzer::bookEfficiencyDetector(DQMStore::IBooker& ibooker, c
     const int region_id = station->region();
     const int station_id = station->station();
 
-    const std::vector<const GEMSuperChamber*>&& superchambers = station->superChambers();
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
+
+    const std::vector<const GEMSuperChamber*> superchambers = station->superChambers();
     if (not checkRefs(superchambers)) {
       edm::LogError(kLogCategory_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
       return;
@@ -263,9 +257,9 @@ void GEMEfficiencyAnalyzer::bookEfficiencyDetector(DQMStore::IBooker& ibooker, c
       const int layer_id = chamber->id().layer();
       const int num_ieta = chamber->nEtaPartitions();
 
-      const TString&& name_suffix = GEMUtils::getSuffixName(region_id, station_id, layer_id);
-      const TString&& title_suffix = GEMUtils::getSuffixTitle(region_id, station_id, layer_id);
-      const GEMDetId&& key = getReStLaKey(chamber->id());
+      const TString name_suffix = GEMUtils::getSuffixName(region_id, station_id, layer_id);
+      const TString title_suffix = GEMUtils::getSuffixTitle(region_id, station_id, layer_id);
+      const GEMDetId key = getReStLaKey(chamber->id());
 
       me_detector_[key] = ibooker.book2D("detector" + name_suffix,
                                          name_.c_str() + title_suffix,
@@ -288,13 +282,17 @@ void GEMEfficiencyAnalyzer::bookResolution(DQMStore::IBooker& ibooker, const edm
     const int region_id = station->region();
     const int station_id = station->station();
 
-    const std::vector<const GEMSuperChamber*>&& superchambers = station->superChambers();
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
+
+    const std::vector<const GEMSuperChamber*> superchambers = station->superChambers();
     if (not checkRefs(superchambers)) {
       edm::LogError(kLogCategory_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
       return;
     }
 
-    const std::vector<const GEMChamber*>& chambers = superchambers[0]->chambers();
+    const std::vector<const GEMChamber*> chambers = superchambers[0]->chambers();
     if (not checkRefs(chambers)) {
       edm::LogError(kLogCategory_) << "failed to get a valid vector of GEMChamber ptrs" << std::endl;
       return;
@@ -303,10 +301,10 @@ void GEMEfficiencyAnalyzer::bookResolution(DQMStore::IBooker& ibooker, const edm
     for (const GEMEtaPartition* eta_partition : chambers[0]->etaPartitions()) {
       const int ieta = eta_partition->id().roll();
 
-      const GEMDetId&& key = getReStEtKey(eta_partition->id());
+      const GEMDetId key = getReStEtKey(eta_partition->id());
       // TODO
-      const TString&& name_suffix = TString::Format("_GE%+.2d_R%d", region_id * (station_id * 10 + 1), ieta);
-      const TString&& title =
+      const TString name_suffix = TString::Format("_GE%+.2d_R%d", region_id * (station_id * 10 + 1), ieta);
+      const TString title =
           name_.c_str() + TString::Format(" : GE%+.2d Roll %d", region_id * (station_id * 10 + 1), ieta);
 
       me_residual_rphi_[key] =
@@ -333,7 +331,11 @@ void GEMEfficiencyAnalyzer::bookMisc(DQMStore::IBooker& ibooker, const edm::ESHa
     const int region_id = station->region();
     const int station_id = station->station();
 
-    const std::vector<const GEMSuperChamber*>&& superchambers = station->superChambers();
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
+
+    const std::vector<const GEMSuperChamber*> superchambers = station->superChambers();
     if (not checkRefs(superchambers)) {
       edm::LogError(kLogCategory_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
       return;
@@ -341,9 +343,9 @@ void GEMEfficiencyAnalyzer::bookMisc(DQMStore::IBooker& ibooker, const edm::ESHa
     // ignore layer ids
     const int num_ch = superchambers.size();
 
-    const GEMDetId&& key = getReStKey(region_id, station_id);
-    const TString&& name_suffix = GEMUtils::getSuffixName(region_id, station_id);
-    const TString&& title_suffix = GEMUtils::getSuffixTitle(region_id, station_id);
+    const GEMDetId key = getReStKey(region_id, station_id);
+    const TString name_suffix = GEMUtils::getSuffixName(region_id, station_id);
+    const TString title_suffix = GEMUtils::getSuffixTitle(region_id, station_id);
     me_prop_chamber_[key] = ibooker.book1D("prop_chamber" + name_suffix, title_suffix, num_ch, 0.5, num_ch + 0.5);
     me_prop_chamber_[key]->setAxisTitle("Destination Chamber Id", 1);
     me_prop_chamber_[key]->setAxisTitle("Entries", 2);
@@ -391,7 +393,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
   }
 
   muon_service_->update(setup);
-  edm::ESHandle<Propagator>&& propagator = muon_service_->propagator("SteppingHelixPropagatorAny");
+  edm::ESHandle<Propagator> propagator = muon_service_->propagator("SteppingHelixPropagatorAny");
   if (not propagator.isValid()) {
     edm::LogError(kLogCategory_) << "Propagator is invalid" << std::endl;
     return;
@@ -407,7 +409,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
     return;
   }
 
-  const std::vector<GEMLayerData>&& layer_vector = buildGEMLayers(gem);
+  const std::vector<GEMLayerData> layer_vector = buildGEMLayers(gem);
 
   for (const reco::Muon& muon : *muon_view) {
     const reco::Track* track = getTrack(muon);
@@ -416,7 +418,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       continue;
     }
 
-    const reco::TransientTrack&& transient_track = transient_track_builder->build(track);
+    const reco::TransientTrack transient_track = transient_track_builder->build(track);
     if (not transient_track.isValid()) {
       edm::LogError(kLogCategory_) << "failed to build TransientTrack" << std::endl;
       continue;
@@ -428,7 +430,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
         continue;
       }
 
-      const auto&& [start_state, start_id] = getStartingState(transient_track, layer, global_tracking_geometry);
+      const auto [start_state, start_id] = getStartingState(transient_track, layer, global_tracking_geometry);
 
       if (not start_state.isValid()) {
         edm::LogInfo(kLogCategory_) << "failed to get a starting state" << std::endl;
@@ -441,13 +443,13 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       }
 
       // the trajectory state on the destination surface
-      const TrajectoryStateOnSurface&& dest_state = propagator->propagate(start_state, *(layer.disk));
+      const TrajectoryStateOnSurface dest_state = propagator->propagate(start_state, *(layer.disk));
       if (not dest_state.isValid()) {
         edm::LogInfo(kLogCategory_) << "failed to propagate a muon" << std::endl;
         continue;
       }
 
-      const GlobalPoint&& dest_global_pos = dest_state.globalPosition();
+      const GlobalPoint dest_global_pos = dest_state.globalPosition();
 
       if (not checkBounds(dest_global_pos, (*layer.disk))) {
         edm::LogInfo(kLogCategory_) << "failed to pass checkBounds" << std::endl;
@@ -460,19 +462,19 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
         continue;
       }
 
-      const BoundPlane& surface = eta_partition->surface();
+      const BoundPlane surface = eta_partition->surface();
 
-      const LocalPoint&& dest_local_pos = eta_partition->toLocal(dest_global_pos);
-      const LocalError&& dest_local_err = dest_state.localError().positionError();
-      const GlobalError& dest_global_err = ErrorFrameTransformer().transform(dest_local_err, surface);
+      const LocalPoint dest_local_pos = eta_partition->toLocal(dest_global_pos);
+      const LocalError dest_local_err = dest_state.localError().positionError();
+      const GlobalError dest_global_err = ErrorFrameTransformer().transform(dest_local_err, surface);
 
       const double dest_global_r_err = std::sqrt(dest_global_err.rerr(dest_global_pos));
       const double dest_global_phi_err = std::sqrt(dest_global_err.phierr(dest_global_pos));
 
-      const GEMDetId&& gem_id = eta_partition->id();
-      const GEMDetId&& rs_key = getReStKey(gem_id);
-      const GEMDetId&& rsl_key = getReStLaKey(gem_id);
-      const GEMDetId&& rse_key = getReStEtKey(gem_id);
+      const GEMDetId gem_id = eta_partition->id();
+      const GEMDetId rs_key = getReStKey(gem_id);
+      const GEMDetId rsl_key = getReStLaKey(gem_id);
+      const GEMDetId rse_key = getReStEtKey(gem_id);
 
       const int chamber_id = gem_id.chamber();
       const int ieta = gem_id.ieta();
@@ -503,7 +505,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       fillME(me_ieta_, rsl_key, ieta);
       fillME(me_detector_, rsl_key, chamber_id, ieta);
 
-      const auto&& [hit, residual_rphi] = findClosetHit(dest_global_pos, rechit_collection->get(gem_id), eta_partition);
+      const auto [hit, residual_rphi] = findClosetHit(dest_global_pos, rechit_collection->get(gem_id), eta_partition);
 
       if (hit == nullptr) {
         edm::LogInfo(kLogCategory_) << "failed to find a hit" << std::endl;
@@ -524,8 +526,8 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       fillME(me_ieta_matched_, rsl_key, gem_id.ieta());
       fillME(me_detector_matched_, rsl_key, gem_id.chamber(), ieta);
 
-      const LocalPoint&& hit_local_pos = hit->localPosition();
-      const LocalError&& hit_local_err = hit->localPositionError();
+      const LocalPoint hit_local_pos = hit->localPosition();
+      const LocalError hit_local_err = hit->localPositionError();
 
       const float residual_y = dest_local_pos.y() - hit_local_pos.y();
       const float pull_y = residual_y / std::sqrt(dest_local_err.yy() + hit_local_err.yy());
@@ -537,6 +539,35 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
   }    // Muon
 }
 
+bool GEMEfficiencyAnalyzer::skipGEMStation(const int station) {
+  bool skip = false;
+
+  if (station == 1) {
+    if (not monitor_ge11_) {
+      LogDebug(kLogCategory_) << "skip GE11 because monitorGE11 is " << std::boolalpha << monitor_ge11_;
+      skip = true;
+    }
+
+  } else if (station == 2) {
+    if (not monitor_ge21_) {
+      LogDebug(kLogCategory_) << "skip GE21 because monitorGE21 is " << std::boolalpha << monitor_ge21_;
+      skip = true;
+    }
+
+  } else if (station == 0) {
+    if (not monitor_ge0_) {
+      LogDebug(kLogCategory_) << "skip GE0 because monitorGE0 is " << std::boolalpha << monitor_ge0_;
+      skip = true;
+    }
+
+  } else {
+    edm::LogError(kLogCategory_) << "got an unexpected GEM station " << station << ". skip this station.";
+    skip = true;
+  }
+
+  return skip;
+}
+
 std::vector<GEMEfficiencyAnalyzer::GEMLayerData> GEMEfficiencyAnalyzer::buildGEMLayers(
     const edm::ESHandle<GEMGeometry>& gem) {
   std::vector<GEMLayerData> layer_vector;
@@ -545,6 +576,10 @@ std::vector<GEMEfficiencyAnalyzer::GEMLayerData> GEMEfficiencyAnalyzer::buildGEM
     const int region_id = station->region();
     const int station_id = station->station();
     const bool is_ge11 = station_id == 1;
+
+    if (skipGEMStation(station_id)) {
+      continue;
+    }
 
     // (layer_id, is_odd) - chambers
     std::map<std::pair<int, bool>, std::vector<const GEMChamber*> > chambers_per_layer;
@@ -581,7 +616,7 @@ std::vector<GEMEfficiencyAnalyzer::GEMLayerData> GEMEfficiencyAnalyzer::buildGEM
 
       // the bounds from min and max R and Z in the local coordinates.
       SimpleDiskBounds* bounds = new SimpleDiskBounds(rmin, rmax, zmin, zmax);
-      const Disk::DiskPointer&& layer = Disk::build(position, rotation, bounds);
+      const Disk::DiskPointer layer = Disk::build(position, rotation, bounds);
 
       layer_vector.emplace_back(layer, chamber_vector, region_id, station_id, layer_id);
     }  // layer
@@ -651,14 +686,14 @@ std::pair<TrajectoryStateOnSurface, DetId> GEMEfficiencyAnalyzer::findStartingSt
 
   // TODO optimize this loop because hits should be ordered..
   for (auto rechit = transient_track.recHitsBegin(); rechit != transient_track.recHitsEnd(); rechit++) {
-    const DetId&& det_id = (*rechit)->geographicalId();
+    const DetId det_id = (*rechit)->geographicalId();
 
     if (MuonHitHelper::isGEM(det_id.rawId())) {
       continue;
     }
 
     const GeomDet* det = geometry->idToDet(det_id);
-    const GlobalPoint&& global_position = det->toGlobal((*rechit)->localPosition());
+    const GlobalPoint global_position = det->toGlobal((*rechit)->localPosition());
     const float distance = std::abs(layer.disk->localZclamped(global_position));
     if (distance < min_distance) {
       found = true;
@@ -704,7 +739,7 @@ bool GEMEfficiencyAnalyzer::skipLayer(const reco::Track* track, const GEMLayerDa
 }
 
 bool GEMEfficiencyAnalyzer::checkBounds(const GlobalPoint& global_point, const Plane& plane) {
-  const LocalPoint&& local_point = plane.toLocal(global_point);
+  const LocalPoint local_point = plane.toLocal(global_point);
   const LocalPoint local_point_2d(local_point.x(), local_point.y(), 0.0f);
   return plane.bounds().inside(local_point_2d);
 }
@@ -731,7 +766,7 @@ std::pair<const GEMRecHit*, float> GEMEfficiencyAnalyzer::findClosetHit(const Gl
                                                                         const GEMRecHitCollection::range& range,
                                                                         const GEMEtaPartition* eta_partition) {
   const StripTopology& topology = eta_partition->specificTopology();
-  const LocalPoint&& dest_local_pos = eta_partition->toLocal(dest_global_pos);
+  const LocalPoint dest_local_pos = eta_partition->toLocal(dest_global_pos);
   const float dest_local_x = dest_local_pos.x();
   const float dest_local_y = dest_local_pos.y();
 
@@ -739,7 +774,7 @@ std::pair<const GEMRecHit*, float> GEMEfficiencyAnalyzer::findClosetHit(const Gl
   float min_residual_rphi = 1e6;
 
   for (auto hit = range.first; hit != range.second; ++hit) {
-    const LocalPoint&& hit_local_pos = hit->localPosition();
+    const LocalPoint hit_local_pos = hit->localPosition();
     const float hit_local_phi = topology.stripAngle(eta_partition->strip(hit_local_pos));
 
     const float residual_x = dest_local_x - hit_local_pos.x();

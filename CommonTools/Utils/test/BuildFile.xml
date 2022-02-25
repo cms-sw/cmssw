@@ -15,6 +15,9 @@
 </bin>
 
 <bin name="testExpressionEvaluator" file="testExpressionEvaluator.cc,testRunner.cpp">
+  <ifrelease name="_ASAN_">
+    <flags NO_TEST_PREFIX="1"/>
+  </ifrelease>
   <use name="Geometry/CommonDetUnit"/>
   <use name="DataFormats/TrackReco"/>
   <use name="DataFormats/TrackerRecHit2D"/>
@@ -29,6 +32,9 @@
 </bin>
 
 <bin file="ExpressionEvaluatorUnitTest.cpp">
+  <ifrelease name="_ASAN_">
+    <flags NO_TEST_PREFIX="1"/>
+  </ifrelease>
   <flags CXXFLAGS="-fopenmp"/>
   <use name="CommonTools/Utils"/>
 </bin>

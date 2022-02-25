@@ -77,16 +77,30 @@ void TrackerTopologyEP::fillParameters(const PTrackerParameters& ptp,
   pxbVals.ladderMask_ = ptp.vitems[0].vpars[4];      // 0xFF
   pxbVals.moduleMask_ = ptp.vitems[0].vpars[5];      // 0x3F
 
-  pxfVals.sideStartBit_ = ptp.vitems[1].vpars[0];
-  pxfVals.diskStartBit_ = ptp.vitems[1].vpars[1];
-  pxfVals.bladeStartBit_ = ptp.vitems[1].vpars[2];
-  pxfVals.panelStartBit_ = ptp.vitems[1].vpars[3];
-  pxfVals.moduleStartBit_ = ptp.vitems[1].vpars[4];
-  pxfVals.sideMask_ = ptp.vitems[1].vpars[5];
-  pxfVals.diskMask_ = ptp.vitems[1].vpars[6];
-  pxfVals.bladeMask_ = ptp.vitems[1].vpars[7];
-  pxfVals.panelMask_ = ptp.vitems[1].vpars[8];
-  pxfVals.moduleMask_ = ptp.vitems[1].vpars[9];
+  if (ptp.vitems[1].vpars.size() >
+      11) {  //Tracker with subdisk hierarchy level (additional hierarchy level wrt original)
+    pxfVals.sideStartBit_ = ptp.vitems[1].vpars[0];
+    pxfVals.diskStartBit_ = ptp.vitems[1].vpars[1];
+    pxfVals.bladeStartBit_ = ptp.vitems[1].vpars[3];
+    pxfVals.panelStartBit_ = ptp.vitems[1].vpars[4];
+    pxfVals.moduleStartBit_ = ptp.vitems[1].vpars[5];
+    pxfVals.sideMask_ = ptp.vitems[1].vpars[6];
+    pxfVals.diskMask_ = ptp.vitems[1].vpars[7];
+    pxfVals.bladeMask_ = ptp.vitems[1].vpars[9];
+    pxfVals.panelMask_ = ptp.vitems[1].vpars[10];
+    pxfVals.moduleMask_ = ptp.vitems[1].vpars[11];
+  } else {  //Original tracker
+    pxfVals.sideStartBit_ = ptp.vitems[1].vpars[0];
+    pxfVals.diskStartBit_ = ptp.vitems[1].vpars[1];
+    pxfVals.bladeStartBit_ = ptp.vitems[1].vpars[2];
+    pxfVals.panelStartBit_ = ptp.vitems[1].vpars[3];
+    pxfVals.moduleStartBit_ = ptp.vitems[1].vpars[4];
+    pxfVals.sideMask_ = ptp.vitems[1].vpars[5];
+    pxfVals.diskMask_ = ptp.vitems[1].vpars[6];
+    pxfVals.bladeMask_ = ptp.vitems[1].vpars[7];
+    pxfVals.panelMask_ = ptp.vitems[1].vpars[8];
+    pxfVals.moduleMask_ = ptp.vitems[1].vpars[9];
+  }
 
   // TEC: 6
   tecVals.sideStartBit_ = ptp.vitems[5].vpars[0];

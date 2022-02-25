@@ -680,7 +680,7 @@ void BtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<bool>("UncalibRecHitsPlots", false);
   desc.add<double>("HitMinimumAmplitude", 30.);  // [pC]
 
-  descriptions.add("btlLocalReco", desc);
+  descriptions.add("btlLocalRecoValid", desc);
 }
 
 DEFINE_FWK_MODULE(BtlLocalRecoValidation);

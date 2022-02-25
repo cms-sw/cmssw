@@ -260,6 +260,17 @@ SKIMStreamEXODisplacedJet = cms.FilteredStream(
     dataTier = cms.untracked.string('USER')
     )
 
+from Configuration.Skimming.PDWG_EXODisappTrk_cff import *
+EXODisappTrkPath = cms.Path(EXODisappTrkSkimSequence)
+SKIMStreamEXODisappTrk = cms.FilteredStream(
+    responsible = 'PDWG', 
+    name = 'EXODisappTrk', 
+    paths = (EXODisappTrkPath),
+    content = EXODisappTrkSkimContent.outputCommands, 
+    selectEvents = cms.untracked.PSet(), 
+    dataTier = cms.untracked.string('AOD')
+    )
+
 #####################
 # For the Data on Data Mixing in TSG
 from HLTrigger.Configuration.HLT_Fake1_cff import fragment as _fragment

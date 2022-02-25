@@ -13,7 +13,9 @@
  *                - indexing
  *                - correlations with overlap object removal
  *                - displaced muons by R.Cavanaugh
- *
+ * \new features: R. Cavanaugh
+ *                - displaced muons
+ *                - LLP displaced jets
  * \new features: Elisa Fontanesi
  *                - extended for three-body correlation conditions
  * \new features: Dragana Pilipovic
@@ -334,42 +336,39 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
         } else if (condition.getType() == esConditionType::Externals) {
           parseExternal(condition, chipNr);
 
+          //parse CorrelationWithOverlapRemoval
+        } else if (condition.getType() == esConditionType::CaloCaloCorrelationOvRm ||
+                   condition.getType() == esConditionType::InvariantMassOvRm ||
+                   condition.getType() == esConditionType::TransverseMassOvRm ||
+                   condition.getType() == esConditionType::DoubleJetOvRm ||
+                   condition.getType() == esConditionType::DoubleTauOvRm) {
+          parseCorrelationWithOverlapRemoval(condition, chipNr);
+
         } else if (condition.getType() == esConditionType::SingleEgammaOvRm ||
                    condition.getType() == esConditionType::DoubleEgammaOvRm ||
                    condition.getType() == esConditionType::TripleEgammaOvRm ||
                    condition.getType() == esConditionType::QuadEgammaOvRm ||
                    condition.getType() == esConditionType::SingleTauOvRm ||
-                   condition.getType() == esConditionType::DoubleTauOvRm ||
                    condition.getType() == esConditionType::TripleTauOvRm ||
                    condition.getType() == esConditionType::QuadTauOvRm ||
                    condition.getType() == esConditionType::SingleJetOvRm ||
-                   condition.getType() == esConditionType::DoubleJetOvRm ||
                    condition.getType() == esConditionType::TripleJetOvRm ||
                    condition.getType() == esConditionType::QuadJetOvRm) {
-          edm::LogError("TriggerMenuParser")
-              << std::endl
-              << "SingleEgammaOvRm" << std::endl
-              << "DoubleEgammaOvRm" << std::endl
-              << "TripleEgammaOvRm" << std::endl
-              << "QuadEgammaOvRm" << std::endl
-              << "SingleTauOvRm" << std::endl
-              << "DoubleTauOvRm" << std::endl
-              << "TripleTauOvRm" << std::endl
-              << "QuadTauOvRm" << std::endl
-              << "SingleJetOvRm" << std::endl
-              << "DoubleJetOvRm" << std::endl
-              << "TripleJetOvRm" << std::endl
-              << "QuadJetOvRm" << std::endl
-              << "The above conditions types OvRm are not implemented yet in the parser. Please remove alogrithms that "
-                 "use this type of condtion from L1T Menu!"
-              << std::endl;
-
-        }
-        //parse CorrelationWithOverlapRemoval
-        else if (condition.getType() == esConditionType::CaloCaloCorrelationOvRm ||
-                 condition.getType() == esConditionType::InvariantMassOvRm ||
-                 condition.getType() == esConditionType::TransverseMassOvRm) {
-          parseCorrelationWithOverlapRemoval(condition, chipNr);
+          edm::LogError("TriggerMenuParser") << std::endl
+                                             << "\n SingleEgammaOvRm"
+                                             << "\n DoubleEgammaOvRm"
+                                             << "\n TripleEgammaOvRm"
+                                             << "\n QuadEgammaOvRm"
+                                             << "\n SingleTauOvRm"
+                                             << "\n TripleTauOvRm"
+                                             << "\n QuadTauOvRm"
+                                             << "\n SingleJetOvRm"
+                                             << "\n TripleJetOvRm"
+                                             << "\n QuadJetOvRm"
+                                             << "\n The above conditions types OvRm are not implemented yet in the "
+                                                "parser. Please remove alogrithms that "
+                                                "use this type of condtion from L1T Menu!"
+                                             << std::endl;
         }
 
       }  //if condition is a new one
@@ -1767,6 +1766,9 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsig
     unsigned int phiWindow1Lower = -1, phiWindow1Upper = -1, phiWindow2Lower = -1, phiWindow2Upper = -1;
     int isolationLUT = 0xF;  //default is to ignore isolation unless specified.
     int qualityLUT = 0xF;    //default is to ignore quality unless specified.
+    int displacedLUT = 0x0;  // Added for LLP Jets: single bit LUT: { 0 = noLLP default, 1 = LLP }
+                             // Note: Currently assumes that the LSB from hwQual() getter in L1Candidate provides the
+                             // (single bit) information for the displacedLUT
 
     const std::vector<esCut>& cuts = object.getCuts();
     for (size_t kk = 0; kk < cuts.size(); kk++) {
@@ -1822,6 +1824,10 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsig
           qualityLUT = l1tstr2int(cut.getData());
 
         } break;
+        case esCutType::Displaced: {  // Added for LLP Jets
+          displacedLUT = l1tstr2int(cut.getData());
+
+        } break;
         case esCutType::Isolation: {
           isolationLUT = l1tstr2int(cut.getData());
 
@@ -1846,7 +1852,8 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsig
     objParameter[cnt].phiWindow2Lower = phiWindow2Lower;
     objParameter[cnt].phiWindow2Upper = phiWindow2Upper;
     objParameter[cnt].isolationLUT = isolationLUT;
-    objParameter[cnt].qualityLUT = qualityLUT;  //TO DO: Must add
+    objParameter[cnt].qualityLUT = qualityLUT;      //TO DO: Must add
+    objParameter[cnt].displacedLUT = displacedLUT;  // Added for LLP Jets
 
     // Output for debugging
     LogDebug("TriggerMenuParser") << "\n      Calo ET high thresholds (hex) for calo object " << caloObjType << " "
@@ -1862,7 +1869,8 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsig
                                   << objParameter[cnt].phiWindow2Lower << " / 0x" << objParameter[cnt].phiWindow2Upper
                                   << "\n      Isolation LUT for calo object " << cnt << " = 0x"
                                   << objParameter[cnt].isolationLUT << "\n      Quality LUT for calo object " << cnt
-                                  << " = 0x" << objParameter[cnt].qualityLUT << std::dec << std::endl;
+                                  << " = 0x" << objParameter[cnt].qualityLUT << "\n      LLP DISP LUT for calo object "
+                                  << cnt << " = 0x" << objParameter[cnt].displacedLUT << std::dec << std::endl;
 
     cnt++;
   }  //end loop over objects
@@ -1993,6 +2001,9 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
   unsigned int phiWindow1Lower = -1, phiWindow1Upper = -1, phiWindow2Lower = -1, phiWindow2Upper = -1;
   int isolationLUT = 0xF;  //default is to ignore isolation unless specified.
   int qualityLUT = 0xF;    //default is to ignore quality unless specified.
+  int displacedLUT = 0x0;  // Added for LLP Jets:  single bit LUT:  { 0 = noLLP default, 1 = LLP }
+                           // Note:  Currently assume that the hwQual() getter in L1Candidate provides the
+                           //        (single bit) information for the displacedLUT
 
   const std::vector<esCut>& cuts = corrCalo->getCuts();
   for (size_t kk = 0; kk < cuts.size(); kk++) {
@@ -2048,6 +2059,10 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
         qualityLUT = l1tstr2int(cut.getData());
 
       } break;
+      case esCutType::Displaced: {  // Added for LLP Jets
+        displacedLUT = l1tstr2int(cut.getData());
+
+      } break;
       case esCutType::Isolation: {
         isolationLUT = l1tstr2int(cut.getData());
 
@@ -2072,7 +2087,8 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
   objParameter[0].phiWindow2Lower = phiWindow2Lower;
   objParameter[0].phiWindow2Upper = phiWindow2Upper;
   objParameter[0].isolationLUT = isolationLUT;
-  objParameter[0].qualityLUT = qualityLUT;  //TO DO: Must add
+  objParameter[0].qualityLUT = qualityLUT;      //TO DO: Must add
+  objParameter[0].displacedLUT = displacedLUT;  // Added for LLP Jets
 
   // Output for debugging
   LogDebug("TriggerMenuParser") << "\n      Calo ET high threshold (hex) for calo object " << caloObjType << " "
@@ -2089,7 +2105,8 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
                                 << " = 0x" << objParameter[0].phiWindow2Lower << " / 0x"
                                 << objParameter[0].phiWindow2Upper << "\n      Isolation LUT for calo object "
                                 << " = 0x" << objParameter[0].isolationLUT << "\n      Quality LUT for calo object "
-                                << " = 0x" << objParameter[0].qualityLUT << std::dec << std::endl;
+                                << " = 0x" << objParameter[0].qualityLUT << "\n      LLP DISP LUT for calo object "
+                                << " = 0x" << objParameter[0].displacedLUT << std::dec << std::endl;
 
   // object types - all same caloObjType
   std::vector<GlobalObject> objType(nrObj, caloObjType);

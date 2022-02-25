@@ -41,7 +41,11 @@ public:
     BEAM2_RF = 12,
     INST_LUMI = 13,
     INST_LUMI_ERR = 14,
-    FSIZE = 15
+    XING_ANGLE_P5_X = 15,
+    XING_ANGLE_P5_Y = 16,
+    BETA_STAR_P5_X = 17,
+    BETA_STAR_P5_Y = 18,
+    FSIZE = 19
   };
   enum TimeParamIndex { CREATE_TIME = 0, BEGIN_TIME = 1, END_TIME = 2, TSIZE = 3 };
   enum StringParamIndex { INJECTION_SCHEME = 0, LHC_STATE = 1, LHC_COMMENT = 2, CTPPS_STATUS = 3, SSIZE = 4 };
@@ -96,6 +100,12 @@ public:
   float const instLumi() const;
 
   float const instLumiError() const;
+
+  float const xingAngleP5X() const;
+  float const xingAngleP5Y() const;
+
+  float const betaStarP5X() const;
+  float const betaStarP5Y() const;
 
   cond::Time_t const createTime() const;
 
@@ -163,6 +173,12 @@ public:
   void setCrossingAngle(float const& angle);
 
   void setBetaStar(float const& betaStar);
+
+  void setXingAngleP5X(float const& angle);
+  void setXingAngleP5Y(float const& angle);
+
+  void setBetaStarP5X(float const& betaStar);
+  void setBetaStarP5Y(float const& betaStar);
 
   void setIntensityForBeam1(float const& intensity);
 

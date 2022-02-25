@@ -79,8 +79,8 @@ int l1t::LUT::readHeader_(std::istream& stream) {
       std::string version;      //currently not doing anything with this
       std::string headerField;  //currently not doing anything with this
       if (lineStream >> headerField >> version >> nrBitsAddress_ >> nrBitsData_) {
-        addressMask_ = nrBitsAddress_ != 32 ? (0x1 << nrBitsAddress_) - 1 : ~0x0;
-        dataMask_ = (0x1 << nrBitsData_) - 1;
+        addressMask_ = nrBitsAddress_ != 32 ? (0x1U << nrBitsAddress_) - 1 : ~0x0;
+        dataMask_ = (0x1U << nrBitsData_) - 1;
         stream.seekg(startPos);
         return SUCCESS;
       }

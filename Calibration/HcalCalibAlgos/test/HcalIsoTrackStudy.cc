@@ -114,7 +114,7 @@ private:
                               edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle,
                               edm::Handle<HBHERecHitCollection>& hbhe,
                               edm::Handle<CaloTowerCollection>& towerHandle,
-                              edm::Handle<reco::GenParticleCollection>& genParticles,
+                              const edm::Handle<reco::GenParticleCollection>& genParticles,
                               const HcalRespCorrs* respCorrs);
   double dR(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
   double trackP(const reco::Track*, const edm::Handle<reco::GenParticleCollection>&);
@@ -170,36 +170,40 @@ private:
   const double mapR_;
   const bool get2Ddist_;
   const bool usePFThresh_;
+  const std::string labelBS_, modnam_, prdnam_;
+  const edm::InputTag algTag_, extTag_;
+
+  const edm::EDGetTokenT<trigger::TriggerEvent> tok_trigEvt_;
+  const edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> tok_parts_;
+  const edm::EDGetTokenT<reco::BeamSpot> tok_bs_;
+  const edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
+  const edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  const edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
+  const edm::EDGetTokenT<CaloTowerCollection> tok_cala_;
+  const edm::EDGetTokenT<BXVector<GlobalAlgBlk>> tok_alg_;
+
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_ecalChStatus_;
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
+  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> tok_ecalPFRecHitThresholds_;
+
   unsigned int nRun_, nLow_, nHigh_;
   double a_charIsoR_, a_coneR1_, a_coneR2_;
   const HcalDDDRecConstants* hdc_;
   const EcalPFRecHitThresholds* eThresholds_;
   std::vector<double> etabins_, phibins_;
   double etadist_, phidist_, etahalfdist_, phihalfdist_;
-  edm::EDGetTokenT<trigger::TriggerEvent> tok_trigEvt_;
-  edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
-  edm::EDGetTokenT<reco::GenParticleCollection> tok_parts_;
-  edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
-  edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
-  edm::EDGetTokenT<reco::BeamSpot> tok_bs_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
-  edm::EDGetTokenT<CaloTowerCollection> tok_cala_;
-  edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
-  edm::EDGetTokenT<BXVector<GlobalAlgBlk>> tok_alg_;
 
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
-  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_ecalChStatus_;
-  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
-  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
-  edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> tok_ecalPFRecHitThresholds_;
-
-  TTree *tree, *tree2;
+  TTree *tree_, *tree2_;
   unsigned int t_RunNo, t_EventNo;
   int t_Run, t_Event, t_DataType, t_ieta, t_iphi;
   int t_goodPV, t_nVtx, t_nTrk;
@@ -273,6 +277,36 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
       mapR_(iConfig.getUntrackedParameter<double>("mapRadius", 34.98)),
       get2Ddist_(iConfig.getUntrackedParameter<bool>("get2Ddist", false)),
       usePFThresh_(iConfig.getParameter<bool>("usePFThreshold")),
+      labelBS_(iConfig.getParameter<std::string>("labelBeamSpot")),
+      modnam_(iConfig.getUntrackedParameter<std::string>("moduleName", "")),
+      prdnam_(iConfig.getUntrackedParameter<std::string>("producerName", "")),
+      algTag_(iConfig.getParameter<edm::InputTag>("algInputTag")),
+      extTag_(iConfig.getParameter<edm::InputTag>("extInputTag")),
+      tok_trigEvt_(consumes<trigger::TriggerEvent>(triggerEvent_)),
+      tok_trigRes_(consumes<edm::TriggerResults>(theTriggerResultsLabel_)),
+      tok_parts_(consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"))),
+      tok_bs_(consumes<reco::BeamSpot>(labelBS_)),
+      tok_genTrack_(consumes<reco::TrackCollection>(labelGenTrack_)),
+      tok_recVtx_((modnam_.empty()) ? consumes<reco::VertexCollection>(labelRecVtx_)
+                                    : consumes<reco::VertexCollection>(edm::InputTag(modnam_, labelRecVtx_, prdnam_))),
+      tok_EB_((modnam_.empty()) ? consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_))
+                                : consumes<EcalRecHitCollection>(edm::InputTag(modnam_, labelEB_, prdnam_))),
+      tok_EE_((modnam_.empty()) ? consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_))
+                                : consumes<EcalRecHitCollection>(edm::InputTag(modnam_, labelEE_, prdnam_))),
+      tok_hbhe_((modnam_.empty()) ? consumes<HBHERecHitCollection>(labelHBHE_)
+                                  : consumes<HBHERecHitCollection>(edm::InputTag(modnam_, labelHBHE_, prdnam_))),
+      tok_ew_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
+      tok_cala_(consumes<CaloTowerCollection>(labelTower_)),
+      tok_alg_(consumes<BXVector<GlobalAlgBlk>>(algTag_)),
+      tok_ddrec_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_bFieldH_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      tok_ecalChStatus_(esConsumes<EcalChannelStatus, EcalChannelStatusRcd>()),
+      tok_sevlv_(esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_caloTopology_(esConsumes<CaloTopology, CaloTopologyRecord>()),
+      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
+      tok_resp_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()),
+      tok_ecalPFRecHitThresholds_(esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>()),
       nRun_(0),
       nLow_(0),
       nHigh_(0),
@@ -301,42 +335,21 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
   // Eta dependent cut uses (maxRestrictionP_ * exp(|ieta|*log(2.5)/18))
   // with the factor for exponential slopeRestrictionP_ = log(2.5)/18
   // maxRestrictionP_ = 8 GeV as came from a study
-  std::string labelBS = iConfig.getParameter<std::string>("labelBeamSpot");
-  std::string modnam = iConfig.getUntrackedParameter<std::string>("moduleName", "");
-  std::string prdnam = iConfig.getUntrackedParameter<std::string>("producerName", "");
-  edm::InputTag algTag = iConfig.getParameter<edm::InputTag>("algInputTag");
-  edm::InputTag extTag = iConfig.getParameter<edm::InputTag>("extInputTag");
-  l1GtUtils_ = new l1t::L1TGlobalUtil(iConfig, consumesCollector(), *this, algTag, extTag);
+  l1GtUtils_ = new l1t::L1TGlobalUtil(iConfig, consumesCollector(), *this, algTag_, extTag_);
   // define tokens for access
-  tok_trigEvt_ = consumes<trigger::TriggerEvent>(triggerEvent_);
-  tok_trigRes_ = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
-  tok_bs_ = consumes<reco::BeamSpot>(labelBS);
-  tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
-  tok_ew_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
-  tok_parts_ = consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"));
-  tok_cala_ = consumes<CaloTowerCollection>(labelTower_);
-  tok_alg_ = consumes<BXVector<GlobalAlgBlk>>(algTag);
 
-  if (modnam.empty()) {
-    tok_recVtx_ = consumes<reco::VertexCollection>(labelRecVtx_);
-    tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_));
-    tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_));
-    tok_hbhe_ = consumes<HBHERecHitCollection>(labelHBHE_);
+  if (modnam_.empty()) {
     edm::LogVerbatim("HcalIsoTrack") << "Labels used " << triggerEvent_ << " " << theTriggerResultsLabel_ << " "
-                                     << labelBS << " " << labelRecVtx_ << " " << labelGenTrack_ << " "
+                                     << labelBS_ << " " << labelRecVtx_ << " " << labelGenTrack_ << " "
                                      << edm::InputTag("ecalRecHit", labelEB_) << " "
                                      << edm::InputTag("ecalRecHit", labelEE_) << " " << labelHBHE_ << " "
                                      << labelTower_;
   } else {
-    tok_recVtx_ = consumes<reco::VertexCollection>(edm::InputTag(modnam, labelRecVtx_, prdnam));
-    tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag(modnam, labelEB_, prdnam));
-    tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag(modnam, labelEE_, prdnam));
-    tok_hbhe_ = consumes<HBHERecHitCollection>(edm::InputTag(modnam, labelHBHE_, prdnam));
     edm::LogVerbatim("HcalIsoTrack") << "Labels used " << triggerEvent_ << " " << theTriggerResultsLabel_ << " "
-                                     << labelBS << " " << edm::InputTag(modnam, labelRecVtx_, prdnam) << " "
-                                     << labelGenTrack_ << " " << edm::InputTag(modnam, labelEB_, prdnam) << " "
-                                     << edm::InputTag(modnam, labelEE_, prdnam) << " "
-                                     << edm::InputTag(modnam, labelHBHE_, prdnam) << " " << labelTower_;
+                                     << labelBS_ << " " << edm::InputTag(modnam_, labelRecVtx_, prdnam_) << " "
+                                     << labelGenTrack_ << " " << edm::InputTag(modnam_, labelEB_, prdnam_) << " "
+                                     << edm::InputTag(modnam_, labelEE_, prdnam_) << " "
+                                     << edm::InputTag(modnam_, labelHBHE_, prdnam_) << " " << labelTower_;
   }
 
   edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n"
@@ -365,16 +378,6 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
   for (unsigned int k = 0; k < trigNames_.size(); ++k) {
     edm::LogVerbatim("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
   }
-
-  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  tok_ecalChStatus_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
-  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
-  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
-  tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
-  tok_ecalPFRecHitThresholds_ = esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>();
 
   for (int i = 0; i < 10; i++)
     phibins_.push_back(-M_PI + 0.1 * (2 * i + 1) * M_PI);
@@ -420,13 +423,11 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
   eThresholds_ = &iSetup.getData(tok_ecalPFRecHitThresholds_);
 
   //=== genParticle information
-  edm::Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByToken(tok_parts_, genParticles);
+  const edm::Handle<reco::GenParticleCollection> genParticles = iEvent.getHandle(tok_parts_);
 
   bool okC(true);
   //Get track collection
-  edm::Handle<reco::TrackCollection> trkCollection;
-  iEvent.getByToken(tok_genTrack_, trkCollection);
+  edm::Handle<reco::TrackCollection> trkCollection = iEvent.getHandle(tok_genTrack_);
   if (!trkCollection.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
     okC = false;
@@ -434,16 +435,13 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
 
   //event weight for FLAT sample
   t_EventWeight = 1.0;
-  edm::Handle<GenEventInfoProduct> genEventInfo;
-  iEvent.getByToken(tok_ew_, genEventInfo);
+  const edm::Handle<GenEventInfoProduct> genEventInfo = iEvent.getHandle(tok_ew_);
   if (genEventInfo.isValid())
     t_EventWeight = genEventInfo->weight();
 
   //Define the best vertex and the beamspot
-  edm::Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByToken(tok_recVtx_, recVtxs);
-  edm::Handle<reco::BeamSpot> beamSpotH;
-  iEvent.getByToken(tok_bs_, beamSpotH);
+  const edm::Handle<reco::VertexCollection> recVtxs = iEvent.getHandle(tok_recVtx_);
+  const edm::Handle<reco::BeamSpot> beamSpotH = iEvent.getHandle(tok_bs_);
   math::XYZPoint leadPV(0, 0, 0);
   t_goodPV = t_nVtx = 0;
   if (recVtxs.isValid() && !(recVtxs->empty())) {
@@ -467,26 +465,22 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
   }
 #endif
   // RecHits
-  edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-  iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
+  edm::Handle<EcalRecHitCollection> barrelRecHitsHandle = iEvent.getHandle(tok_EB_);
   if (!barrelRecHitsHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
     okC = false;
   }
-  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-  iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle = iEvent.getHandle(tok_EE_);
   if (!endcapRecHitsHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
     okC = false;
   }
-  edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByToken(tok_hbhe_, hbhe);
+  edm::Handle<HBHERecHitCollection> hbhe = iEvent.getHandle(tok_hbhe_);
   if (!hbhe.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
     okC = false;
   }
-  edm::Handle<CaloTowerCollection> caloTower;
-  iEvent.getByToken(tok_cala_, caloTower);
+  edm::Handle<CaloTowerCollection> caloTower = iEvent.getHandle(tok_cala_);
 
   //Propagate tracks to calorimeter surface)
   std::vector<spr::propagatedTrackDirection> trkCaloDirections;
@@ -530,8 +524,7 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
 #endif
 
   //HLT
-  edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByToken(tok_trigRes_, triggerResults);
+  const edm::Handle<edm::TriggerResults> triggerResults = iEvent.getHandle(tok_trigRes_);
   if (triggerResults.isValid()) {
     const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
     const std::vector<std::string>& names = triggerNames.triggerNames();
@@ -583,8 +576,7 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
     t_TracksTight = ntksave[2];
   } else {
     trigger::TriggerEvent triggerEvent;
-    edm::Handle<trigger::TriggerEvent> triggerEventHandle;
-    iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
+    const edm::Handle<trigger::TriggerEvent> triggerEventHandle = iEvent.getHandle(tok_trigEvt_);
     if (!triggerEventHandle.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product " << triggerEvent_.label();
     } else if (okC) {
@@ -701,60 +693,60 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                    << ":" << t_TracksTight;
 #endif
   t_TrigPassSel = (t_TracksSaved > 0);
-  tree2->Fill();
+  tree2_->Fill();
 }
 
 void HcalIsoTrackStudy::beginJob() {
   edm::Service<TFileService> fs;
-  tree = fs->make<TTree>("CalibTree", "CalibTree");
+  tree_ = fs->make<TTree>("CalibTree", "CalibTree");
 
-  tree->Branch("t_Run", &t_Run, "t_Run/I");
-  tree->Branch("t_Event", &t_Event, "t_Event/I");
-  tree->Branch("t_DataType", &t_DataType, "t_DataType/I");
-  tree->Branch("t_ieta", &t_ieta, "t_ieta/I");
-  tree->Branch("t_iphi", &t_iphi, "t_iphi/I");
-  tree->Branch("t_EventWeight", &t_EventWeight, "t_EventWeight/D");
-  tree->Branch("t_nVtx", &t_nVtx, "t_nVtx/I");
-  tree->Branch("t_nTrk", &t_nTrk, "t_nTrk/I");
-  tree->Branch("t_goodPV", &t_goodPV, "t_goodPV/I");
+  tree_->Branch("t_Run", &t_Run, "t_Run/I");
+  tree_->Branch("t_Event", &t_Event, "t_Event/I");
+  tree_->Branch("t_DataType", &t_DataType, "t_DataType/I");
+  tree_->Branch("t_ieta", &t_ieta, "t_ieta/I");
+  tree_->Branch("t_iphi", &t_iphi, "t_iphi/I");
+  tree_->Branch("t_EventWeight", &t_EventWeight, "t_EventWeight/D");
+  tree_->Branch("t_nVtx", &t_nVtx, "t_nVtx/I");
+  tree_->Branch("t_nTrk", &t_nTrk, "t_nTrk/I");
+  tree_->Branch("t_goodPV", &t_goodPV, "t_goodPV/I");
   if (((mode_ / 10) % 10) == 1) {
-    tree->Branch("t_l1pt", &t_l1pt, "t_l1pt/D");
-    tree->Branch("t_l1eta", &t_l1eta, "t_l1eta/D");
-    tree->Branch("t_l1phi", &t_l1phi, "t_l1phi/D");
-    tree->Branch("t_l3pt", &t_l3pt, "t_l3pt/D");
-    tree->Branch("t_l3eta", &t_l3eta, "t_l3eta/D");
-    tree->Branch("t_l3phi", &t_l3phi, "t_l3phi/D");
+    tree_->Branch("t_l1pt", &t_l1pt, "t_l1pt/D");
+    tree_->Branch("t_l1eta", &t_l1eta, "t_l1eta/D");
+    tree_->Branch("t_l1phi", &t_l1phi, "t_l1phi/D");
+    tree_->Branch("t_l3pt", &t_l3pt, "t_l3pt/D");
+    tree_->Branch("t_l3eta", &t_l3eta, "t_l3eta/D");
+    tree_->Branch("t_l3phi", &t_l3phi, "t_l3phi/D");
   }
-  tree->Branch("t_p", &t_p, "t_p/D");
-  tree->Branch("t_pt", &t_pt, "t_pt/D");
-  tree->Branch("t_phi", &t_phi, "t_phi/D");
+  tree_->Branch("t_p", &t_p, "t_p/D");
+  tree_->Branch("t_pt", &t_pt, "t_pt/D");
+  tree_->Branch("t_phi", &t_phi, "t_phi/D");
 
   t_mapP = new std::vector<double>();
   t_mapPt = new std::vector<double>();
   t_mapEta = new std::vector<double>();
   t_mapPhi = new std::vector<double>();
-  tree->Branch("t_mapP", "std::vector<double>", &t_mapP);
-  tree->Branch("t_mapPt", "std::vector<double>", &t_mapPt);
-  tree->Branch("t_mapEta", "std::vector<double>", &t_mapEta);
-  tree->Branch("t_mapPhi", "std::vector<double>", &t_mapPhi);
+  tree_->Branch("t_mapP", "std::vector<double>", &t_mapP);
+  tree_->Branch("t_mapPt", "std::vector<double>", &t_mapPt);
+  tree_->Branch("t_mapEta", "std::vector<double>", &t_mapEta);
+  tree_->Branch("t_mapPhi", "std::vector<double>", &t_mapPhi);
 
-  tree->Branch("t_mindR1", &t_mindR1, "t_mindR1/D");
-  tree->Branch("t_mindR2", &t_mindR2, "t_mindR2/D");
-  tree->Branch("t_eMipDR", &t_eMipDR, "t_eMipDR/D");
-  tree->Branch("t_eHcal", &t_eHcal, "t_eHcal/D");
-  tree->Branch("t_eHcal10", &t_eHcal10, "t_eHcal10/D");
-  tree->Branch("t_eHcal30", &t_eHcal30, "t_eHcal30/D");
-  tree->Branch("t_hmaxNearP", &t_hmaxNearP, "t_hmaxNearP/D");
-  tree->Branch("t_emaxNearP", &t_emaxNearP, "t_emaxNearP/D");
-  tree->Branch("t_eAnnular", &t_eAnnular, "t_eAnnular/D");
-  tree->Branch("t_hAnnular", &t_hAnnular, "t_hAnnular/D");
-  tree->Branch("t_rhoh", &t_rhoh, "t_rhoh/D");
-  tree->Branch("t_selectTk", &t_selectTk, "t_selectTk/O");
-  tree->Branch("t_qltyFlag", &t_qltyFlag, "t_qltyFlag/O");
-  tree->Branch("t_qltyMissFlag", &t_qltyMissFlag, "t_qltyMissFlag/O");
-  tree->Branch("t_qltyPVFlag", &t_qltyPVFlag, "t_qltyPVFlag/O");
-  tree->Branch("t_gentrackP", &t_gentrackP, "t_gentrackP/D");
-  tree->Branch("t_gentrackE", &t_gentrackE, "t_gentrackE/D");
+  tree_->Branch("t_mindR1", &t_mindR1, "t_mindR1/D");
+  tree_->Branch("t_mindR2", &t_mindR2, "t_mindR2/D");
+  tree_->Branch("t_eMipDR", &t_eMipDR, "t_eMipDR/D");
+  tree_->Branch("t_eHcal", &t_eHcal, "t_eHcal/D");
+  tree_->Branch("t_eHcal10", &t_eHcal10, "t_eHcal10/D");
+  tree_->Branch("t_eHcal30", &t_eHcal30, "t_eHcal30/D");
+  tree_->Branch("t_hmaxNearP", &t_hmaxNearP, "t_hmaxNearP/D");
+  tree_->Branch("t_emaxNearP", &t_emaxNearP, "t_emaxNearP/D");
+  tree_->Branch("t_eAnnular", &t_eAnnular, "t_eAnnular/D");
+  tree_->Branch("t_hAnnular", &t_hAnnular, "t_hAnnular/D");
+  tree_->Branch("t_rhoh", &t_rhoh, "t_rhoh/D");
+  tree_->Branch("t_selectTk", &t_selectTk, "t_selectTk/O");
+  tree_->Branch("t_qltyFlag", &t_qltyFlag, "t_qltyFlag/O");
+  tree_->Branch("t_qltyMissFlag", &t_qltyMissFlag, "t_qltyMissFlag/O");
+  tree_->Branch("t_qltyPVFlag", &t_qltyPVFlag, "t_qltyPVFlag/O");
+  tree_->Branch("t_gentrackP", &t_gentrackP, "t_gentrackP/D");
+  tree_->Branch("t_gentrackE", &t_gentrackE, "t_gentrackE/D");
 
   t_DetIds = new std::vector<unsigned int>();
   t_DetIds1 = new std::vector<unsigned int>();
@@ -769,44 +761,44 @@ void HcalIsoTrackStudy::beginJob() {
   t_HitEnergyHC = new std::vector<double>();
   t_HitDistHC = new std::vector<double>();
   t_trgbits = new std::vector<bool>();
-  tree->Branch("t_DetIds", "std::vector<unsigned int>", &t_DetIds);
-  tree->Branch("t_HitEnergies", "std::vector<double>", &t_HitEnergies);
+  tree_->Branch("t_DetIds", "std::vector<unsigned int>", &t_DetIds);
+  tree_->Branch("t_HitEnergies", "std::vector<double>", &t_HitEnergies);
   if (((mode_ / 10) % 10) == 1) {
-    tree->Branch("t_trgbits", "std::vector<bool>", &t_trgbits);
+    tree_->Branch("t_trgbits", "std::vector<bool>", &t_trgbits);
   }
   if ((mode_ % 10) == 1) {
-    tree->Branch("t_DetIds1", "std::vector<unsigned int>", &t_DetIds1);
-    tree->Branch("t_HitEnergies1", "std::vector<double>", &t_HitEnergies1);
-    tree->Branch("t_DetIds3", "std::vector<unsigned int>", &t_DetIds3);
-    tree->Branch("t_HitEnergies3", "std::vector<double>", &t_HitEnergies3);
-    tree->Branch("t_DetIdEC", "std::vector<unsigned int>", &t_DetIdEC);
-    tree->Branch("t_HitEnergyEC", "std::vector<double>", &t_HitEnergyEC);
-    tree->Branch("t_HitDistEC", "std::vector<double>", &t_HitDistEC);
-    tree->Branch("t_DetIdHC", "std::vector<unsigned int>", &t_DetIdHC);
-    tree->Branch("t_HitEnergyHC", "std::vector<double>", &t_HitEnergyHC);
-    tree->Branch("t_HitDistHC", "std::vector<double>", &t_HitDistHC);
+    tree_->Branch("t_DetIds1", "std::vector<unsigned int>", &t_DetIds1);
+    tree_->Branch("t_HitEnergies1", "std::vector<double>", &t_HitEnergies1);
+    tree_->Branch("t_DetIds3", "std::vector<unsigned int>", &t_DetIds3);
+    tree_->Branch("t_HitEnergies3", "std::vector<double>", &t_HitEnergies3);
+    tree_->Branch("t_DetIdEC", "std::vector<unsigned int>", &t_DetIdEC);
+    tree_->Branch("t_HitEnergyEC", "std::vector<double>", &t_HitEnergyEC);
+    tree_->Branch("t_HitDistEC", "std::vector<double>", &t_HitDistEC);
+    tree_->Branch("t_DetIdHC", "std::vector<unsigned int>", &t_DetIdHC);
+    tree_->Branch("t_HitEnergyHC", "std::vector<double>", &t_HitEnergyHC);
+    tree_->Branch("t_HitDistHC", "std::vector<double>", &t_HitDistHC);
   }
-  tree2 = fs->make<TTree>("EventInfo", "Event Information");
+  tree2_ = fs->make<TTree>("EventInfo", "Event Information");
 
-  tree2->Branch("t_RunNo", &t_RunNo, "t_RunNo/i");
-  tree2->Branch("t_EventNo", &t_EventNo, "t_EventNo/i");
-  tree2->Branch("t_Tracks", &t_Tracks, "t_Tracks/I");
-  tree2->Branch("t_TracksProp", &t_TracksProp, "t_TracksProp/I");
-  tree2->Branch("t_TracksSaved", &t_TracksSaved, "t_TracksSaved/I");
-  tree2->Branch("t_TracksLoose", &t_TracksLoose, "t_TracksLoose/I");
-  tree2->Branch("t_TracksTight", &t_TracksTight, "t_TracksTight/I");
-  tree2->Branch("t_TrigPass", &t_TrigPass, "t_TrigPass/O");
-  tree2->Branch("t_TrigPassSel", &t_TrigPassSel, "t_TrigPassSel/O");
-  tree2->Branch("t_L1Bit", &t_L1Bit, "t_L1Bit/O");
-  tree2->Branch("t_allvertex", &t_allvertex, "t_allvertex/I");
+  tree2_->Branch("t_RunNo", &t_RunNo, "t_RunNo/i");
+  tree2_->Branch("t_EventNo", &t_EventNo, "t_EventNo/i");
+  tree2_->Branch("t_Tracks", &t_Tracks, "t_Tracks/I");
+  tree2_->Branch("t_TracksProp", &t_TracksProp, "t_TracksProp/I");
+  tree2_->Branch("t_TracksSaved", &t_TracksSaved, "t_TracksSaved/I");
+  tree2_->Branch("t_TracksLoose", &t_TracksLoose, "t_TracksLoose/I");
+  tree2_->Branch("t_TracksTight", &t_TracksTight, "t_TracksTight/I");
+  tree2_->Branch("t_TrigPass", &t_TrigPass, "t_TrigPass/O");
+  tree2_->Branch("t_TrigPassSel", &t_TrigPassSel, "t_TrigPassSel/O");
+  tree2_->Branch("t_L1Bit", &t_L1Bit, "t_L1Bit/O");
+  tree2_->Branch("t_allvertex", &t_allvertex, "t_allvertex/I");
   t_hltbits = new std::vector<bool>();
   t_ietaAll = new std::vector<int>();
   t_ietaGood = new std::vector<int>();
   t_trackType = new std::vector<int>();
-  tree2->Branch("t_ietaAll", "std::vector<int>", &t_ietaAll);
-  tree2->Branch("t_ietaGood", "std::vector<int>", &t_ietaGood);
-  tree2->Branch("t_trackType", "std::vector<int>", &t_trackType);
-  tree2->Branch("t_hltbits", "std::vector<bool>", &t_hltbits);
+  tree2_->Branch("t_ietaAll", "std::vector<int>", &t_ietaAll);
+  tree2_->Branch("t_ietaGood", "std::vector<int>", &t_ietaGood);
+  tree2_->Branch("t_trackType", "std::vector<int>", &t_trackType);
+  tree2_->Branch("t_hltbits", "std::vector<bool>", &t_hltbits);
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -943,7 +935,7 @@ std::array<int, 3> HcalIsoTrackStudy::fillTree(std::vector<math::XYZTLorentzVect
                                                edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle,
                                                edm::Handle<HBHERecHitCollection>& hbhe,
                                                edm::Handle<CaloTowerCollection>& tower,
-                                               edm::Handle<reco::GenParticleCollection>& genParticles,
+                                               const edm::Handle<reco::GenParticleCollection>& genParticles,
                                                const HcalRespCorrs* respCorrs) {
   int nSave(0), nLoose(0), nTight(0);
   //Loop over tracks
@@ -1191,7 +1183,7 @@ std::array<int, 3> HcalIsoTrackStudy::fillTree(std::vector<math::XYZTLorentzVect
           }
         }
         if (accept) {
-          tree->Fill();
+          tree_->Fill();
           nSave++;
           int type(0);
           if (t_eMipDR < 1.0) {

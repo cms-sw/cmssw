@@ -107,7 +107,7 @@ private:
                               edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle,
                               edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle,
                               edm::Handle<HBHERecHitCollection>& hbhe,
-                              edm::Handle<CaloTowerCollection>& towerHandle,
+                              const edm::Handle<CaloTowerCollection>& towerHandle,
                               edm::Handle<reco::GenParticleCollection>& genParticles,
                               const HcalRespCorrs* respCorrs);
   double dR(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
@@ -147,24 +147,19 @@ private:
   const std::vector<int> oldID_, newDepth_;
   const bool hep17_;
   const bool usePFThresh_;
-  unsigned int nRun_, nLow_, nHigh_;
-  double a_charIsoR_, a_coneR1_, a_coneR2_;
-  const HcalDDDRecConstants* hdc_;
-  const EcalPFRecHitThresholds* eThresholds_;
+  const std::string labelBS_, modnam_, prdnam_;
+  const edm::InputTag algTag_, extTag_;
 
-  std::vector<double> etabins_, phibins_;
-  std::vector<int> oldDet_, oldEta_, oldDepth_;
-  double etadist_, phidist_, etahalfdist_, phihalfdist_;
   edm::EDGetTokenT<trigger::TriggerEvent> tok_trigEvt_;
   edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
-  edm::EDGetTokenT<reco::GenParticleCollection> tok_parts_;
-  edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
   edm::EDGetTokenT<reco::BeamSpot> tok_bs_;
+  edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
-  edm::EDGetTokenT<CaloTowerCollection> tok_cala_;
   edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
+  edm::EDGetTokenT<reco::GenParticleCollection> tok_parts_;
+  edm::EDGetTokenT<CaloTowerCollection> tok_cala_;
   edm::EDGetTokenT<BXVector<GlobalAlgBlk> > tok_alg_;
 
   edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
@@ -177,6 +172,15 @@ private:
   edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
   edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
   edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> tok_ecalPFRecHitThresholds_;
+
+  unsigned int nRun_, nLow_, nHigh_;
+  double a_charIsoR_, a_coneR1_, a_coneR2_;
+  const HcalDDDRecConstants* hdc_;
+  const EcalPFRecHitThresholds* eThresholds_;
+
+  std::vector<double> etabins_, phibins_;
+  std::vector<int> oldDet_, oldEta_, oldDepth_;
+  double etadist_, phidist_, etahalfdist_, phihalfdist_;
 
   TTree *tree, *tree2;
   unsigned int t_RunNo, t_EventNo;
@@ -253,6 +257,36 @@ HcalIsoTrkSimAnalyzer::HcalIsoTrkSimAnalyzer(const edm::ParameterSet& iConfig)
       newDepth_(iConfig.getUntrackedParameter<std::vector<int> >("newDepth")),
       hep17_(iConfig.getUntrackedParameter<bool>("hep17")),
       usePFThresh_(iConfig.getParameter<bool>("usePFThreshold")),
+      labelBS_(iConfig.getParameter<std::string>("labelBeamSpot")),
+      modnam_(iConfig.getUntrackedParameter<std::string>("moduleName", "")),
+      prdnam_(iConfig.getUntrackedParameter<std::string>("producerName", "")),
+      algTag_(iConfig.getParameter<edm::InputTag>("algInputTag")),
+      extTag_(iConfig.getParameter<edm::InputTag>("extInputTag")),
+      tok_trigEvt_(consumes<trigger::TriggerEvent>(triggerEvent_)),
+      tok_trigRes_(consumes<edm::TriggerResults>(theTriggerResultsLabel_)),
+      tok_bs_(consumes<reco::BeamSpot>(labelBS_)),
+      tok_recVtx_((modnam_.empty()) ? consumes<reco::VertexCollection>(labelRecVtx_)
+                                    : consumes<reco::VertexCollection>(edm::InputTag(modnam_, labelRecVtx_, prdnam_))),
+      tok_EB_((modnam_.empty()) ? consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_))
+                                : consumes<EcalRecHitCollection>(edm::InputTag(modnam_, labelEB_, prdnam_))),
+      tok_EE_((modnam_.empty()) ? consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_))
+                                : consumes<EcalRecHitCollection>(edm::InputTag(modnam_, labelEE_, prdnam_))),
+      tok_hbhe_((modnam_.empty()) ? consumes<HBHERecHitCollection>(labelHBHE_)
+                                  : consumes<HBHERecHitCollection>(edm::InputTag(modnam_, labelHBHE_, prdnam_))),
+      tok_ew_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
+      tok_parts_(consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"))),
+      tok_cala_(consumes<CaloTowerCollection>(labelTower_)),
+      tok_alg_(consumes<BXVector<GlobalAlgBlk> >(algTag_)),
+      tok_ddrec_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_bFieldH_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      tok_ecalChStatus_(esConsumes<EcalChannelStatus, EcalChannelStatusRcd>()),
+      tok_sevlv_(esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_caloTopology_(esConsumes<CaloTopology, CaloTopologyRecord>()),
+      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
+      tok_resp_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()),
+      tok_pdt_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()),
+      tok_ecalPFRecHitThresholds_(esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>()),
       nRun_(0),
       nLow_(0),
       nHigh_(0),
@@ -269,11 +303,6 @@ HcalIsoTrkSimAnalyzer::HcalIsoTrkSimAnalyzer(const edm::ParameterSet& iConfig)
   // Eta dependent cut uses (maxRestrictionP_ * exp(|ieta|*log(2.5)/18))
   // with the factor for exponential slopeRestrictionP_ = log(2.5)/18
   // maxRestrictionP_ = 8 GeV as came from a study
-  std::string labelBS = iConfig.getParameter<std::string>("labelBeamSpot");
-  std::string modnam = iConfig.getUntrackedParameter<std::string>("moduleName", "");
-  std::string prdnam = iConfig.getUntrackedParameter<std::string>("producerName", "");
-  edm::InputTag algTag = iConfig.getParameter<edm::InputTag>("algInputTag");
-  edm::InputTag extTag = iConfig.getParameter<edm::InputTag>("extInputTag");
 
   for (unsigned int k = 0; k < oldID_.size(); ++k) {
     oldDet_.emplace_back((oldID_[k] / 10000) % 10);
@@ -281,48 +310,22 @@ HcalIsoTrkSimAnalyzer::HcalIsoTrkSimAnalyzer(const edm::ParameterSet& iConfig)
     oldDepth_.emplace_back(oldID_[k] % 100);
   }
 
-  l1GtUtils_ = new l1t::L1TGlobalUtil(iConfig, consumesCollector(), *this, algTag, extTag, l1t::UseEventSetupIn::Event);
-  // define tokens for access
-  tok_trigEvt_ = consumes<trigger::TriggerEvent>(triggerEvent_);
-  tok_trigRes_ = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
-  tok_bs_ = consumes<reco::BeamSpot>(labelBS);
-  tok_ew_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
-  tok_parts_ = consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"));
-  tok_cala_ = consumes<CaloTowerCollection>(labelTower_);
-  tok_alg_ = consumes<BXVector<GlobalAlgBlk> >(algTag);
+  l1GtUtils_ =
+      new l1t::L1TGlobalUtil(iConfig, consumesCollector(), *this, algTag_, extTag_, l1t::UseEventSetupIn::Event);
 
-  if (modnam.empty()) {
-    tok_recVtx_ = consumes<reco::VertexCollection>(labelRecVtx_);
-    tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_));
-    tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_));
-    tok_hbhe_ = consumes<HBHERecHitCollection>(labelHBHE_);
+  if (modnam_.empty()) {
     edm::LogVerbatim("HcalIsoTrack") << "Labels used " << triggerEvent_ << " " << theTriggerResultsLabel_ << " "
-                                     << labelBS << " " << labelRecVtx_ << " " << labelGenTrack_ << " "
+                                     << labelBS_ << " " << labelRecVtx_ << " " << labelGenTrack_ << " "
                                      << edm::InputTag("ecalRecHit", labelEB_) << " "
                                      << edm::InputTag("ecalRecHit", labelEE_) << " " << labelHBHE_ << " "
                                      << labelTower_;
   } else {
-    tok_recVtx_ = consumes<reco::VertexCollection>(edm::InputTag(modnam, labelRecVtx_, prdnam));
-    tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag(modnam, labelEB_, prdnam));
-    tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag(modnam, labelEE_, prdnam));
-    tok_hbhe_ = consumes<HBHERecHitCollection>(edm::InputTag(modnam, labelHBHE_, prdnam));
     edm::LogVerbatim("HcalIsoTrack") << "Labels used " << triggerEvent_ << " " << theTriggerResultsLabel_ << " "
-                                     << labelBS << " " << edm::InputTag(modnam, labelRecVtx_, prdnam) << " "
-                                     << labelGenTrack_ << " " << edm::InputTag(modnam, labelEB_, prdnam) << " "
-                                     << edm::InputTag(modnam, labelEE_, prdnam) << " "
-                                     << edm::InputTag(modnam, labelHBHE_, prdnam) << " " << labelTower_;
+                                     << labelBS_ << " " << edm::InputTag(modnam_, labelRecVtx_, prdnam_) << " "
+                                     << labelGenTrack_ << " " << edm::InputTag(modnam_, labelEB_, prdnam_) << " "
+                                     << edm::InputTag(modnam_, labelEE_, prdnam_) << " "
+                                     << edm::InputTag(modnam_, labelHBHE_, prdnam_) << " " << labelTower_;
   }
-
-  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  tok_ecalChStatus_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
-  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
-  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
-  tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
-  tok_pdt_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
-  tok_ecalPFRecHitThresholds_ = esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>();
 
   edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n"
                                    << "\t minPt " << ptMin_ << "\t etaMax " << etaMax_ << "\t a_coneR " << a_coneR_
@@ -412,13 +415,13 @@ void HcalIsoTrkSimAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup co
 
   //event weight for FLAT sample
   t_EventWeight = 1.0;
-  edm::Handle<GenEventInfoProduct> genEventInfo = iEvent.getHandle(tok_ew_);
+  const edm::Handle<GenEventInfoProduct> genEventInfo = iEvent.getHandle(tok_ew_);
   if (genEventInfo.isValid())
     t_EventWeight = genEventInfo->weight();
 
   //Define the best vertex and the beamspot
-  edm::Handle<reco::VertexCollection> recVtxs = iEvent.getHandle(tok_recVtx_);
-  edm::Handle<reco::BeamSpot> beamSpotH = iEvent.getHandle(tok_bs_);
+  const edm::Handle<reco::VertexCollection> recVtxs = iEvent.getHandle(tok_recVtx_);
+  const edm::Handle<reco::BeamSpot> beamSpotH = iEvent.getHandle(tok_bs_);
   math::XYZPoint leadPV(0, 0, 0);
   t_goodPV = t_nVtx = 0;
   if (recVtxs.isValid() && !(recVtxs->empty())) {
@@ -457,7 +460,7 @@ void HcalIsoTrkSimAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup co
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
     okC = false;
   }
-  edm::Handle<CaloTowerCollection> caloTower = iEvent.getHandle(tok_cala_);
+  const edm::Handle<CaloTowerCollection> caloTower = iEvent.getHandle(tok_cala_);
 
   //Propagate tracks to calorimeter surface)
   std::vector<spr::propagatedGenParticleID> trackIDs =
@@ -484,7 +487,6 @@ void HcalIsoTrkSimAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup co
   t_L1Bit = true;
   t_TrigPass = false;
 
-  edm::Handle<edm::TriggerResults> triggerResults;
   if (!ignoreTrigger_) {
     //L1
     l1GtUtils_->retrieveL1(iEvent, iSetup, tok_alg_);
@@ -501,7 +503,7 @@ void HcalIsoTrkSimAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup co
 #endif
 
     //HLT
-    iEvent.getByToken(tok_trigRes_, triggerResults);
+    const edm::Handle<edm::TriggerResults> triggerResults = iEvent.getHandle(tok_trigRes_);
     if (triggerResults.isValid()) {
       const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
       const std::vector<std::string>& names = triggerNames.triggerNames();
@@ -559,6 +561,7 @@ void HcalIsoTrkSimAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup co
       edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product " << triggerEvent_.label();
     } else if (okC) {
       triggerEvent = *(triggerEventHandle.product());
+      const edm::Handle<edm::TriggerResults> triggerResults = iEvent.getHandle(tok_trigRes_);
       const trigger::TriggerObjectCollection& TOC(triggerEvent.getObjects());
       bool done(false);
       if (triggerResults.isValid()) {
@@ -879,7 +882,7 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
                                                    edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle,
                                                    edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle,
                                                    edm::Handle<HBHERecHitCollection>& hbhe,
-                                                   edm::Handle<CaloTowerCollection>& tower,
+                                                   const edm::Handle<CaloTowerCollection>& tower,
                                                    edm::Handle<reco::GenParticleCollection>& genParticles,
                                                    const HcalRespCorrs* respCorrs) {
   int nSave(0), nLoose(0), nTight(0);

@@ -68,4 +68,67 @@ namespace tkDetUtil {
     return phiWindow;
   }
 
+  float computeYdirWindowSize(const GeomDet* det,
+                              const TrajectoryStateOnSurface& tsos,
+                              const MeasurementEstimator& est) {
+    const Plane& startPlane = det->surface();
+    MeasurementEstimator::Local2DVector maxDistance = est.maximalLocalDisplacement(tsos, startPlane);
+    return maxDistance.y();
+  }
+
+  std::array<int, 3> findThreeClosest(const std::vector<RingPar>& ringParams,
+                                      const std::vector<GlobalPoint>& ringCrossing,
+                                      const int ringSize) {
+    std::array<int, 3> theBins = {{-1, -1, -1}};
+    theBins[0] = 0;
+    float initialR = ringParams[0].theRingR;
+    float rDiff0 = std::abs(ringCrossing[0].perp() - initialR);
+    float rDiff1 = -1.;
+    float rDiff2 = -1.;
+    for (int i = 1; i < ringSize; i++) {
+      float ringR = ringParams[i].theRingR;
+      float testDiff = std::abs(ringCrossing[i].perp() - ringR);
+      if (testDiff < rDiff0) {
+        rDiff2 = rDiff1;
+        rDiff1 = rDiff0;
+        rDiff0 = testDiff;
+        theBins[2] = theBins[1];
+        theBins[1] = theBins[0];
+        theBins[0] = i;
+      } else if (rDiff1 < 0 || testDiff < rDiff1) {
+        rDiff2 = rDiff1;
+        rDiff1 = testDiff;
+        theBins[2] = theBins[1];
+        theBins[1] = i;
+      } else if (rDiff2 < 0 || testDiff < rDiff2) {
+        rDiff2 = testDiff;
+        theBins[2] = i;
+      }
+    }
+
+    return theBins;
+  }
+
+  bool overlapInR(const TrajectoryStateOnSurface& tsos, int index, double ymax, const std::vector<RingPar>& ringParams) {
+    // assume "fixed theta window", i.e. margin in local y = r is changing linearly with z
+    float tsRadius = tsos.globalPosition().perp();
+    float thetamin =
+        (std::max(0., tsRadius - ymax)) / (std::abs(tsos.globalPosition().z()) + 10.f);  // add 10 cm contingency
+    float thetamax = (tsRadius + ymax) / (std::abs(tsos.globalPosition().z()) - 10.f);
+
+    // do the theta regions overlap ?
+
+    return !(thetamin > ringParams[index].thetaRingMax || ringParams[index].thetaRingMin > thetamax);
+  }
+
+  RingPar fillRingParametersFromDisk(const BoundDisk& ringDisk) {
+    float ringMinZ = std::abs(ringDisk.position().z()) - ringDisk.bounds().thickness() / 2.;
+    float ringMaxZ = std::abs(ringDisk.position().z()) + ringDisk.bounds().thickness() / 2.;
+    RingPar tempPar;
+    tempPar.thetaRingMin = ringDisk.innerRadius() / ringMaxZ;
+    tempPar.thetaRingMax = ringDisk.outerRadius() / ringMinZ;
+    tempPar.theRingR = (ringDisk.innerRadius() + ringDisk.outerRadius()) / 2.;
+    return tempPar;
+  }
+
 }  // namespace tkDetUtil

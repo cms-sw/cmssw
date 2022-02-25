@@ -81,7 +81,6 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<int>("Verbosity", 0);
   desc.addUntracked<bool>("PrintL1Menu", false);
   desc.add<std::string>("TriggerMenuLuminosity", "startup");
-  desc.add<std::string>("PrescaleCSVFile", "prescale_L1TGlobal.csv");
   descriptions.add("L1TGlobalProducer", desc);
 }
 
@@ -495,7 +494,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
   //
   bool receiveMu = true;
-  bool receiveMuShower = false;
+  bool receiveMuShower = true;
   bool receiveEG = true;
   bool receiveTau = true;
   bool receiveJet = true;

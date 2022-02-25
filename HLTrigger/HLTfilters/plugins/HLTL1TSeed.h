@@ -110,6 +110,11 @@ private:
   edm::InputTag m_l1MuonTag;
   edm::EDGetTokenT<l1t::MuonBxCollection> m_l1MuonToken;
 
+  /// Meta InputTag for L1 Muon collection
+  edm::InputTag m_l1MuonShowerCollectionsTag;
+  edm::InputTag m_l1MuonShowerTag;
+  edm::EDGetTokenT<l1t::MuonShowerBxCollection> m_l1MuonShowerToken;
+
   /// Meta InputTag for L1 Egamma collection
   edm::InputTag m_l1EGammaCollectionsTag;
   edm::InputTag m_l1EGammaTag;

@@ -65,6 +65,8 @@ upgradeKeys[2026] = [
     '2026D89PU',
     '2026D90',
     '2026D90PU',
+    '2026D91',
+    '2026D91PU',
 ]
 
 # pre-generation of WF numbers
@@ -468,7 +470,7 @@ class UpgradeWorkflow_mlpf(UpgradeWorkflow):
         if 'Reco' in step:
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and '2021' in key
+        return (fragment=="TTbar_14TeV" or fragment=="QCD_FlatPt_15_3000HS_14") and '2021PU' in key
 
 upgradeWFs['mlpf'] = UpgradeWorkflow_mlpf(
     steps = [
@@ -912,7 +914,13 @@ class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
         # temporarily remove trigger & downstream steps
         mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}
         if 'Digi' in step:
-            mods['-s'] = 'DIGI:pdigi_valid'
+            mods['-s'] = 'DIGI:pdigi_valid,DIGI2RAW'
+        elif 'Reco' in step:
+            mods['-s'] = 'RAW2DIGI,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly'
+            mods['--datatier'] = 'GEN-SIM-RECO,DQMIO'
+            mods['--eventcontent'] = 'FEVTDEBUGHLT,DQM'
+        elif 'HARVEST' in step:
+            mods['-s'] = 'HARVESTING:@ecalOnlyValidation+@ecal'
         stepDict[stepName][k] = merge([mods, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and '2026' in key
@@ -1564,7 +1572,7 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D86',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11I13M9',
+        'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D87' : {
@@ -1578,7 +1586,7 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D88',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11I13M9',
+        'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D89' : {
@@ -1593,6 +1601,13 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T27',
         'Era' : 'Phase2C11I13T27M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D91' : {
+        'Geom' : 'Extended2026D91',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T30',
+        'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
 }
