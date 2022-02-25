@@ -16,7 +16,8 @@ using namespace std;
 HcalTBSource::HcalTBSource(const edm::ParameterSet& pset, edm::InputSourceDescription const& desc)
     : edm::ProducerSourceFromFiles(pset, desc, true),
       m_quiet(pset.getUntrackedParameter<bool>("quiet", true)),
-      m_onlyRemapped(pset.getUntrackedParameter<bool>("onlyRemapped", false)) {
+      m_onlyRemapped(pset.getUntrackedParameter<bool>("onlyRemapped", false)),
+      m_skip(pset.getUntrackedParameter<uint32_t>("skipEvents", 0)) {
   m_tree = nullptr;
   m_fileCounter = -1;
   m_file = nullptr;
@@ -139,7 +140,7 @@ bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::Event
     // ZERO is unacceptable for a run number from a technical point of view
     id = EventID((m_eventInfo->getRunNumber() == 0 ? 1 : m_eventInfo->getRunNumber()),
                  id.luminosityBlock(),
-                 m_eventInfo->getEventNumber() + m_eventNumberOffset);
+                 m_eventInfo->getEventNumber() + m_eventNumberOffset + m_skip);
   } else {
     id = EventID(m_fileCounter + 10, id.luminosityBlock(), m_i + 1);
   }
