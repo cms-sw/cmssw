@@ -35,9 +35,6 @@ protected:
   // BeginJob
   void beginJob() override;
 
-  // BeginRun
-  // void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
-
   // Fake Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
@@ -45,9 +42,6 @@ protected:
 
   // DQM Client Diagnostic
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
-
-  // EndRun
-  // void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   // Endjob
   void endJob() override;
