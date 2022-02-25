@@ -214,9 +214,9 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   const edm::Handle<reco::TrackCollection>& generalTracks = iEvent.getHandle(tok_genTrack_);
 
-  const edm::Handle<reco::TrackCollection> & isoProdTracks = iEvent.getHandle(tok_track1_);
+  const edm::Handle<reco::TrackCollection>& isoProdTracks = iEvent.getHandle(tok_track1_);
 
-  const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & isoPixelTracks = iEvent.getHandle(tok_track_);
+  const edm::Handle<reco::IsolatedPixelTrackCandidateCollection>& isoPixelTracks = iEvent.getHandle(tok_track_);
   //edm::Handle<reco::TrackCollection> isoPixelTracks;
 
   /*

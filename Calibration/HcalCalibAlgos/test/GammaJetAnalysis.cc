@@ -197,15 +197,15 @@ private:
   const std::string pvCollName_;           // label for primary vertex collection
   const std::string prodProcess_;          // the producer process for AOD=2
 
-  const bool allowNoPhoton_;                         // whether module is used for dijet analysis
-  const double photonPtMin_;                         // lowest value of the leading photon pT
-  const double photonJetDPhiMin_;                    // phi angle between the leading photon and the leading jet
-  const double jetEtMin_;                            // lowest value of the leading jet ET
-  const double jet2EtMax_;                           // largest value of the subleading jet ET
-  const double jet3EtMax_;                           // largest value of the third jet ET
+  const bool allowNoPhoton_;                   // whether module is used for dijet analysis
+  const double photonPtMin_;                   // lowest value of the leading photon pT
+  const double photonJetDPhiMin_;              // phi angle between the leading photon and the leading jet
+  const double jetEtMin_;                      // lowest value of the leading jet ET
+  const double jet2EtMax_;                     // largest value of the subleading jet ET
+  const double jet3EtMax_;                     // largest value of the third jet ET
   std::vector<std::string> photonTrigNamesV_;  // photon trigger names
   std::vector<std::string> jetTrigNamesV_;     // jet trigger names
-  const bool writeTriggerPrescale_;                  // whether attempt to record the prescale
+  const bool writeTriggerPrescale_;            // whether attempt to record the prescale
 
   bool doPFJets_;   // use PFJets
   bool doGenJets_;  // use GenJets
@@ -503,7 +503,8 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
       hoRecHitName_(iConfig.getParameter<std::string>("hoRecHitName")),
       rootHistFilename_(iConfig.getParameter<std::string>("rootHistFilename")),
       pvCollName_(iConfig.getParameter<std::string>("pvCollName")),
-      prodProcess_((iConfig.exists("prodProcess")) ? iConfig.getUntrackedParameter<std::string>("prodProcess") : "MYGAMMA"),
+      prodProcess_((iConfig.exists("prodProcess")) ? iConfig.getUntrackedParameter<std::string>("prodProcess")
+                                                   : "MYGAMMA"),
       allowNoPhoton_(iConfig.getParameter<bool>("allowNoPhoton")),
       photonPtMin_(iConfig.getParameter<double>("photonPtMin")),
       photonJetDPhiMin_(iConfig.getParameter<double>("photonJetDPhiMin")),
@@ -519,7 +520,6 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
       ignoreHLT_(iConfig.getUntrackedParameter<bool>("ignoreHLT", false)),
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hltPrescaleProvider_(iConfig, consumesCollector(), *this) {
-
   usesResource(TFileService::kSharedResource);
   // set parameters
 

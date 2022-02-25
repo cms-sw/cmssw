@@ -81,9 +81,9 @@ void HcalLaserTest::fillDescriptions(edm::ConfigurationDescriptions& description
 }
 
 void HcalLaserTest::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-  const edm::Handle<HBHEDigiCollection> & hbhe_digi = iEvent.getHandle(inputTokenHBHE_);
+  const edm::Handle<HBHEDigiCollection>& hbhe_digi = iEvent.getHandle(inputTokenHBHE_);
 
-  const edm::Handle<QIE10DigiCollection> & hf_digi = iEvent.getHandle(inputTokenHF_);
+  const edm::Handle<QIE10DigiCollection>& hf_digi = iEvent.getHandle(inputTokenHF_);
 
   // Count digis in good, bad RBXes.  ('bad' RBXes see no laser signal)
   double badrbxfracHBHE(0), goodrbxfracHBHE(0), rbxfracHF(0);
@@ -97,7 +97,7 @@ void HcalLaserTest::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   // where the laser firing location "laserType"
   // is tagged by the UMNio board for eventType==14
 
-  const edm::Handle<HcalUMNioDigi> & cumn = iEvent.getHandle(ioTokenUMN_);
+  const edm::Handle<HcalUMNioDigi>& cumn = iEvent.getHandle(ioTokenUMN_);
 
   eventType = static_cast<int>(cumn->eventType());
   laserType = static_cast<int>(cumn->valueUserWord(0));
