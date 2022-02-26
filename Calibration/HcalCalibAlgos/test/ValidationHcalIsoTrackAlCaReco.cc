@@ -120,21 +120,19 @@ std::pair<int, int> ValidationHcalIsoTrackAlCaReco::towerIndex(double eta, doubl
   return std::pair<int, int>(ieta, iphi);
 }
 
-ValidationHcalIsoTrackAlCaReco::ValidationHcalIsoTrackAlCaReco(const edm::ParameterSet& iConfig) {
-  tok_simTrack_ = consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("simTracksTag"));
-
-  folderName_ = iConfig.getParameter<std::string>("folderName");
-  saveToFile_ = iConfig.getParameter<bool>("saveToFile");
-  outRootFileName_ = iConfig.getParameter<std::string>("outputRootFileName");
-  tok_hlt_ = consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel"));
-  hltFilterTag_ = iConfig.getParameter<edm::InputTag>("hltL3FilterLabel");
-  tok_arITr_ = consumes<reco::IsolatedPixelTrackCandidateCollection>(
-      iConfig.getParameter<edm::InputTag>("alcarecoIsoTracksLabel"));
-  recoTrLabel_ = iConfig.getParameter<edm::InputTag>("recoTracksLabel");
-  pThr_ = iConfig.getUntrackedParameter<double>("pThrL3", 0);
-  heLow_ = iConfig.getUntrackedParameter<double>("lowerHighEnergyCut", 40);
-  heLow_ = iConfig.getUntrackedParameter<double>("upperHighEnergyCut", 60);
-
+ValidationHcalIsoTrackAlCaReco::ValidationHcalIsoTrackAlCaReco(const edm::ParameterSet& iConfig)
+    : folderName_(iConfig.getParameter<std::string>("folderName")),
+      saveToFile_(iConfig.getParameter<bool>("saveToFile")),
+      outRootFileName_(iConfig.getParameter<std::string>("outputRootFileName")),
+      hltFilterTag_(iConfig.getParameter<edm::InputTag>("hltL3FilterLabel")),
+      recoTrLabel_(iConfig.getParameter<edm::InputTag>("recoTracksLabel")),
+      pThr_(iConfig.getUntrackedParameter<double>("pThrL3", 0)),
+      heLow_(iConfig.getUntrackedParameter<double>("lowerHighEnergyCut", 40)),
+      heUp_(iConfig.getUntrackedParameter<double>("upperHighEnergyCut", 60)),
+      tok_hlt_(consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel"))),
+      tok_arITr_(consumes<reco::IsolatedPixelTrackCandidateCollection>(
+          iConfig.getParameter<edm::InputTag>("alcarecoIsoTracksLabel"))),
+      tok_simTrack_(consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("simTracksTag"))) {
   nTotal = 0;
   nHLTL3accepts = 0;
 }
@@ -144,11 +142,9 @@ ValidationHcalIsoTrackAlCaReco::~ValidationHcalIsoTrackAlCaReco() {}
 void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   nTotal++;
 
-  edm::Handle<trigger::TriggerEvent> trEv;
-  iEvent.getByToken(tok_hlt_, trEv);
+  const edm::Handle<trigger::TriggerEvent>& trEv = iEvent.getHandle(tok_hlt_);
 
-  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> recoIsoTracks;
-  iEvent.getByToken(tok_arITr_, recoIsoTracks);
+  const edm::Handle<reco::IsolatedPixelTrackCandidateCollection>& recoIsoTracks = iEvent.getHandle(tok_arITr_);
 
   const trigger::TriggerObjectCollection& TOCol(trEv->getObjects());
 
@@ -243,8 +239,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
 
   edm::LogVerbatim("HcalIsoTrack") << "\n  End / Start ";
 
-  edm::Handle<edm::SimTrackContainer> simTracks;
-  iEvent.getByToken<edm::SimTrackContainer>(tok_simTrack_, simTracks);
+  const edm::Handle<edm::SimTrackContainer>& simTracks = iEvent.getHandle(tok_simTrack_);
 
   for (reco::IsolatedPixelTrackCandidateCollection::const_iterator bll = recoIsoTracks->begin();
        bll != recoIsoTracks->end();
