@@ -22,7 +22,7 @@ using namespace hcaldqm::filter;
 class HcalGPUComparisonTask : public hcaldqm::DQTask {
 public:
   HcalGPUComparisonTask(edm::ParameterSet const&);
-  ~HcalGPUComparisonTask() override {}
+  ~HcalGPUComparisonTask() override = default;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   std::shared_ptr<hcaldqm::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const&,
