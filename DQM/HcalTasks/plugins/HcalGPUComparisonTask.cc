@@ -47,13 +47,12 @@ private:
 };
 
 HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
-    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
-  tagHBHE_ref_ = ps.getUntrackedParameter<edm::InputTag>("tagHBHE_ref", edm::InputTag("hltHbhereco@cpu"));
-  tagHBHE_target_ = ps.getUntrackedParameter<edm::InputTag>("tagHBHE_target", edm::InputTag("hltHbhereco@cuda"));
-
-  tokHBHE_ref_ = consumes<HBHERecHitCollection>(tagHBHE_ref_);
-  tokHBHE_target_ = consumes<HBHERecHitCollection>(tagHBHE_target_);
-}
+    : DQTask(ps),
+      tagHBHE_ref_(ps.getUntrackedParameter<edm::InputTag>("tagHBHE_ref", edm::InputTag("hltHbhereco@cpu"))),
+      tagHBHE_target_(ps.getUntrackedParameter<edm::InputTag>("tagHBHE_target", edm::InputTag("hltHbhereco@cuda"))),
+      tokHBHE_ref_(consumes<HBHERecHitCollection>(tagHBHE_ref_)),
+      tokHBHE_target_(consumes<HBHERecHitCollection>(tagHBHE_target_)),
+      hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {}
 
 /* virtual */ void HcalGPUComparisonTask::bookHistograms(DQMStore::IBooker& ib,
                                                          edm::Run const& r,
