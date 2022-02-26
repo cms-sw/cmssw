@@ -246,5 +246,16 @@ from Configuration.Eras.Modifier_run2_egamma_2018_cff import run2_egamma_2018
 
 (run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018).toReplaceWith(regressionModifier,regressionModifier106XUL)
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(regressionModifier106XUL.eleRegs.ecalOnlyMean,
+      rangeMinHighEt = 0.2,
+      rangeMaxHighEt = 2.0
+)
+
+run3_common.toModify(regressionModifier106XUL.phoRegs.ecalOnlyMean,
+      rangeMinHighEt = 0.2,
+      rangeMaxHighEt = 2.0
+)
+
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
 egamma_lowPt_exclusive.toReplaceWith(regressionModifier,regressionModifier103XLowPtPho)
