@@ -137,16 +137,22 @@ namespace mkfit {
   template <typename C, typename A1, typename A2, unsigned NB_first = 8 * sizeof(C), unsigned NB_count = 8 * sizeof(C)>
   struct binnor {
     static_assert(std::is_same<typename A1::real_t, typename A2::real_t>());
+    static_assert(A1::c_M + A2::c_M <= 32);
 
+    static constexpr unsigned c_A1_mask = (1 << A1::c_M) - 1;
     static constexpr unsigned c_A2_Mout_mask = ~(((1 << A2::c_M2N_shift) - 1) << A1::c_M);
 
-    // Pair of axis bin indices.
+    // Pair of axis bin indices packed into unsigned.
     struct B_pair {
-      typename A1::index_t bin1 : A1::c_M;
-      typename A2::index_t bin2 : A2::c_M;
+      unsigned int packed_value; // bin1 in A1::c_M lower bits, bin2 above
 
-      B_pair() : bin1(0), bin2(0) {}
-      B_pair(typename A1::index_t i1, typename A2::index_t i2) : bin1(i1), bin2(i2) {}
+      B_pair() : packed_value(0) {}
+      B_pair(typename A1::index_t i1, typename A2::index_t i2) : packed_value(i2 << A1::c_M | i1) {}
+
+      typename A1::index_t bin1() const { return packed_value & c_A1_mask; }
+      typename A2::index_t bin2() const { return packed_value >> A1::c_M; }
+
+      unsigned int mask_A2_M_bins() const { return packed_value & c_A2_Mout_mask; }
     };
 
     // Bin content pair.
@@ -170,7 +176,7 @@ namespace mkfit {
 
     // Access
 
-    B_pair m_bin_to_n_bin(B_pair m_bin) { return {m_a1.M_bin_to_N_bin(m_bin.bin1), m_a2.M_bin_to_N_bin(m_bin.bin2)}; }
+    B_pair m_bin_to_n_bin(B_pair m_bin) { return {m_a1.M_bin_to_N_bin(m_bin.bin1()), m_a2.M_bin_to_N_bin(m_bin.bin2())}; }
 
     B_pair get_n_bin(typename A1::index_t n1, typename A2::index_t n2) const { return {n1, n2}; }
 
@@ -178,9 +184,9 @@ namespace mkfit {
       return {m_a1.R_to_N_bin(r1), m_a2.R_to_N_bin(r2)};
     }
 
-    C_pair &ref_content(B_pair n_bin) { return m_bins[n_bin.bin2 * m_a1.size_of_N() + n_bin.bin1]; }
+    C_pair &ref_content(B_pair n_bin) { return m_bins[n_bin.bin2() * m_a1.size_of_N() + n_bin.bin1()]; }
 
-    C_pair get_content(B_pair n_bin) const { return m_bins[n_bin.bin2 * m_a1.size_of_N() + n_bin.bin1]; }
+    C_pair get_content(B_pair n_bin) const { return m_bins[n_bin.bin2() * m_a1.size_of_N() + n_bin.bin1()]; }
 
     C_pair get_content(typename A1::index_t n1, typename A2::index_t n2) const {
       return m_bins[n2 * m_a1.size_of_N() + n1];
@@ -218,7 +224,7 @@ namespace mkfit {
       std::iota(m_ranks.begin(), m_ranks.end(), 0);
 
       std::sort(m_ranks.begin(), m_ranks.end(), [&](auto &a, auto &b) {
-        return (m_cons[a].raw & c_A2_Mout_mask) < (m_cons[b].raw & c_A2_Mout_mask);
+        return m_cons[a].mask_A2_M_bins() < m_cons[b].mask_A2_M_bins();
       });
 
       for (C i = 0; i < m_ranks.size(); ++i) {
