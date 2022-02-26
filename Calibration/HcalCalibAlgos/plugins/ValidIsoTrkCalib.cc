@@ -212,15 +212,12 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     edm::LogWarning("ValidIsoTrkCalib") << "   Not Found!! ";
   }
 
-  edm::Handle<reco::TrackCollection> generalTracks;
-  iEvent.getByToken(tok_genTrack_, generalTracks);
+  const edm::Handle<reco::TrackCollection>& generalTracks = iEvent.getHandle(tok_genTrack_);
 
-  edm::Handle<reco::TrackCollection> isoProdTracks;
-  iEvent.getByToken(tok_track1_, isoProdTracks);
+  const edm::Handle<reco::TrackCollection>& isoProdTracks = iEvent.getHandle(tok_track1_);
 
-  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isoPixelTracks;
+  const edm::Handle<reco::IsolatedPixelTrackCandidateCollection>& isoPixelTracks = iEvent.getHandle(tok_track_);
   //edm::Handle<reco::TrackCollection> isoPixelTracks;
-  iEvent.getByToken(tok_track_, isoPixelTracks);
 
   /*
   edm::Handle<EcalRecHitCollection> ecal;
@@ -228,8 +225,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   const EcalRecHitCollection Hitecal = *(ecal.product());
   */
 
-  edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByToken(tok_hbhe_, hbhe);
+  const edm::Handle<HBHERecHitCollection>& hbhe = iEvent.getHandle(tok_hbhe_);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
   geo = &iSetup.getData(tok_geom_);

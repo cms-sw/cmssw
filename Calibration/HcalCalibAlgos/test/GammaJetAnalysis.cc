@@ -177,35 +177,40 @@ private:
   void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
   // parameters
-  int debug_;  // print debug statements
-  unsigned int debugEvent;
+  const int debug_;  // print debug statements
+  const unsigned int debugEvent;
   int debugHLTTrigNames;
 
-  edm::InputTag rhoCollection_;
-  edm::InputTag pfType1METColl, pfMETColl;
+  const edm::InputTag rhoCollection_;
+  const edm::InputTag pfType1METColl, pfMETColl;
 
-  std::string photonCollName_;       // label for the photon collection
-  std::string pfJetCollName_;        // label for the PF jet collection
-  std::string pfJetCorrName_;        // label for the PF jet correction service
-  std::string genJetCollName_;       // label for the genjet collection
-  std::string genParticleCollName_;  // label for the genparticle collection
-  std::string genEventInfoName_;     // label for the generator event info collection
-  std::string hbheRecHitName_;       // label for HBHERecHits collection
-  std::string hfRecHitName_;         // label for HFRecHit collection
-  std::string hoRecHitName_;         // label for HORecHit collection
-  std::string rootHistFilename_;     // name of the histogram file
-  std::string pvCollName_;           // label for primary vertex collection
-  std::string prodProcess_;          // the producer process for AOD=2
+  const std::string photonCollName_;       // label for the photon collection
+  const std::string pfJetCollName_;        // label for the PF jet collection
+  const std::string pfJetCorrName_;        // label for the PF jet correction service
+  const std::string genJetCollName_;       // label for the genjet collection
+  const std::string genParticleCollName_;  // label for the genparticle collection
+  const std::string genEventInfoName_;     // label for the generator event info collection
+  const std::string hbheRecHitName_;       // label for HBHERecHits collection
+  const std::string hfRecHitName_;         // label for HFRecHit collection
+  const std::string hoRecHitName_;         // label for HORecHit collection
+  const std::string rootHistFilename_;     // name of the histogram file
+  const std::string pvCollName_;           // label for primary vertex collection
+  const std::string prodProcess_;          // the producer process for AOD=2
 
-  bool allowNoPhoton_;                         // whether module is used for dijet analysis
-  double photonPtMin_;                         // lowest value of the leading photon pT
-  double photonJetDPhiMin_;                    // phi angle between the leading photon and the leading jet
-  double jetEtMin_;                            // lowest value of the leading jet ET
-  double jet2EtMax_;                           // largest value of the subleading jet ET
-  double jet3EtMax_;                           // largest value of the third jet ET
+  const bool allowNoPhoton_;                   // whether module is used for dijet analysis
+  const double photonPtMin_;                   // lowest value of the leading photon pT
+  const double photonJetDPhiMin_;              // phi angle between the leading photon and the leading jet
+  const double jetEtMin_;                      // lowest value of the leading jet ET
+  const double jet2EtMax_;                     // largest value of the subleading jet ET
+  const double jet3EtMax_;                     // largest value of the third jet ET
   std::vector<std::string> photonTrigNamesV_;  // photon trigger names
   std::vector<std::string> jetTrigNamesV_;     // jet trigger names
-  bool writeTriggerPrescale_;                  // whether attempt to record the prescale
+  const bool writeTriggerPrescale_;            // whether attempt to record the prescale
+
+  bool doPFJets_;   // use PFJets
+  bool doGenJets_;  // use GenJets
+  int workOnAOD_;
+  bool ignoreHLT_;
 
   //Tokens
   edm::EDGetTokenT<reco::PhotonCollection> tok_Photon_;
@@ -230,11 +235,7 @@ private:
   edm::EDGetTokenT<reco::PFMETCollection> tok_PFMET_;
   edm::EDGetTokenT<reco::PFMETCollection> tok_PFType1MET_;
   edm::EDGetTokenT<edm::TriggerResults> tok_TrigRes_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  bool doPFJets_;   // use PFJets
-  bool doGenJets_;  // use GenJets
-  int workOnAOD_;
-  bool ignoreHLT_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
   // root file/histograms
   TTree* misc_tree_;  // misc.information. Will be filled only once
@@ -485,43 +486,42 @@ inline unsigned int helper_findTrigger(const std::vector<std::string>& list, con
 // -------------------------------------------------
 
 GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
-    : hltPrescaleProvider_(iConfig, consumesCollector(), *this) {
+    : debug_(iConfig.getUntrackedParameter<int>("debug", 0)),
+      debugEvent(iConfig.getUntrackedParameter<unsigned int>("debugEvent", 0)),
+      debugHLTTrigNames(iConfig.getUntrackedParameter<int>("debugHLTTrigNames", 1)),
+      rhoCollection_(iConfig.getParameter<edm::InputTag>("rhoColl")),
+      pfType1METColl(iConfig.getParameter<edm::InputTag>("PFMETTYPE1Coll")),
+      pfMETColl(iConfig.getParameter<edm::InputTag>("PFMETColl")),
+      photonCollName_(iConfig.getParameter<std::string>("photonCollName")),
+      pfJetCollName_(iConfig.getParameter<std::string>("pfJetCollName")),
+      pfJetCorrName_(iConfig.getParameter<std::string>("pfJetCorrName")),
+      genJetCollName_(iConfig.getParameter<std::string>("genJetCollName")),
+      genParticleCollName_(iConfig.getParameter<std::string>("genParticleCollName")),
+      genEventInfoName_(iConfig.getParameter<std::string>("genEventInfoName")),
+      hbheRecHitName_(iConfig.getParameter<std::string>("hbheRecHitName")),
+      hfRecHitName_(iConfig.getParameter<std::string>("hfRecHitName")),
+      hoRecHitName_(iConfig.getParameter<std::string>("hoRecHitName")),
+      rootHistFilename_(iConfig.getParameter<std::string>("rootHistFilename")),
+      pvCollName_(iConfig.getParameter<std::string>("pvCollName")),
+      prodProcess_((iConfig.exists("prodProcess")) ? iConfig.getUntrackedParameter<std::string>("prodProcess")
+                                                   : "MYGAMMA"),
+      allowNoPhoton_(iConfig.getParameter<bool>("allowNoPhoton")),
+      photonPtMin_(iConfig.getParameter<double>("photonPtMin")),
+      photonJetDPhiMin_(iConfig.getParameter<double>("photonJetDPhiMin")),
+      jetEtMin_(iConfig.getParameter<double>("jetEtMin")),
+      jet2EtMax_(iConfig.getParameter<double>("jet2EtMax")),
+      jet3EtMax_(iConfig.getParameter<double>("jet3EtMax")),
+      photonTrigNamesV_(iConfig.getParameter<std::vector<std::string>>("photonTriggers")),
+      jetTrigNamesV_(iConfig.getParameter<std::vector<std::string>>("jetTriggers")),
+      writeTriggerPrescale_(iConfig.getParameter<bool>("writeTriggerPrescale")),
+      doPFJets_(iConfig.getParameter<bool>("doPFJets")),
+      doGenJets_(iConfig.getParameter<bool>("doGenJets")),
+      workOnAOD_(iConfig.getParameter<int>("workOnAOD")),
+      ignoreHLT_(iConfig.getUntrackedParameter<bool>("ignoreHLT", false)),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      hltPrescaleProvider_(iConfig, consumesCollector(), *this) {
   usesResource(TFileService::kSharedResource);
   // set parameters
-  debug_ = iConfig.getUntrackedParameter<int>("debug", 0);
-  debugHLTTrigNames = iConfig.getUntrackedParameter<int>("debugHLTTrigNames", 1);
-  debugEvent = iConfig.getUntrackedParameter<unsigned int>("debugEvent", 0);
-  pfMETColl = iConfig.getParameter<edm::InputTag>("PFMETColl");
-  pfType1METColl = iConfig.getParameter<edm::InputTag>("PFMETTYPE1Coll");
-  rhoCollection_ = iConfig.getParameter<edm::InputTag>("rhoColl");
-  photonCollName_ = iConfig.getParameter<std::string>("photonCollName");
-  pfJetCollName_ = iConfig.getParameter<std::string>("pfJetCollName");
-  pfJetCorrName_ = iConfig.getParameter<std::string>("pfJetCorrName");
-  genJetCollName_ = iConfig.getParameter<std::string>("genJetCollName");
-  genParticleCollName_ = iConfig.getParameter<std::string>("genParticleCollName");
-  genEventInfoName_ = iConfig.getParameter<std::string>("genEventInfoName");
-  hbheRecHitName_ = iConfig.getParameter<std::string>("hbheRecHitName");
-  hfRecHitName_ = iConfig.getParameter<std::string>("hfRecHitName");
-  hoRecHitName_ = iConfig.getParameter<std::string>("hoRecHitName");
-  rootHistFilename_ = iConfig.getParameter<std::string>("rootHistFilename");
-  pvCollName_ = iConfig.getParameter<std::string>("pvCollName");
-  prodProcess_ = "MYGAMMA";
-  if (iConfig.exists("prodProcess"))
-    prodProcess_ = iConfig.getUntrackedParameter<std::string>("prodProcess");
-
-  allowNoPhoton_ = iConfig.getParameter<bool>("allowNoPhoton");
-  photonPtMin_ = iConfig.getParameter<double>("photonPtMin");
-  photonJetDPhiMin_ = iConfig.getParameter<double>("photonJetDPhiMin");
-  jetEtMin_ = iConfig.getParameter<double>("jetEtMin");
-  jet2EtMax_ = iConfig.getParameter<double>("jet2EtMax");
-  jet3EtMax_ = iConfig.getParameter<double>("jet3EtMax");
-  photonTrigNamesV_ = iConfig.getParameter<std::vector<std::string>>("photonTriggers");
-  jetTrigNamesV_ = iConfig.getParameter<std::vector<std::string>>("jetTriggers");
-  writeTriggerPrescale_ = iConfig.getParameter<bool>("writeTriggerPrescale");
-  doPFJets_ = iConfig.getParameter<bool>("doPFJets");
-  doGenJets_ = iConfig.getParameter<bool>("doGenJets");
-  workOnAOD_ = iConfig.getParameter<int>("workOnAOD");
-  ignoreHLT_ = iConfig.getUntrackedParameter<bool>("ignoreHLT", false);
 
   eventWeight_ = 1.0;
   eventPtHat_ = 0.;
@@ -590,7 +590,6 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
       HLTlabel.ReplaceAll("HLT", "reHLT");
     tok_TrigRes_ = consumes<edm::TriggerResults>(edm::InputTag(prod, HLTlabel.Data(), an));
   }
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 }
 
 //
