@@ -77,7 +77,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
       andOrDcs_ = config.getParameter<bool>("andOrDcs");
       dcsInputTag_ = config.getParameter<edm::InputTag>("dcsInputTag");
       dcsInputToken_ = iC.mayConsume<DcsStatusCollection>(dcsInputTag_);
-      dcsPartitions_ = config.getParameter<std::vector<int> >("dcsPartitions");
+      dcsPartitions_ = config.getParameter<std::vector<int>>("dcsPartitions");
       errorReplyDcs_ = config.getParameter<bool>("errorReplyDcs");
     } else {
       onDcs_ = false;
@@ -86,7 +86,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
       andOrGt_ = config.getParameter<bool>("andOrGt");
       gtInputTag_ = config.getParameter<edm::InputTag>("gtInputTag");
       gtInputToken_ = iC.mayConsume<L1GlobalTriggerReadoutRecord>(gtInputTag_);
-      gtLogicalExpressions_ = config.getParameter<std::vector<std::string> >("gtStatusBits");
+      gtLogicalExpressions_ = config.getParameter<std::vector<std::string>>("gtStatusBits");
       errorReplyGt_ = config.getParameter<bool>("errorReplyGt");
       if (config.exists("gtEvmInputTag")) {
         gtEvmInputTag_ = config.getParameter<edm::InputTag>("gtEvmInputTag");
@@ -103,7 +103,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
         stage2_ = config.getParameter<bool>("stage2");
       else
         stage2_ = false;
-      l1LogicalExpressionsCache_ = config.getParameter<std::vector<std::string> >("l1Algorithms");
+      l1LogicalExpressionsCache_ = config.getParameter<std::vector<std::string>>("l1Algorithms");
       errorReplyL1_ = config.getParameter<bool>("errorReplyL1");
       if (config.exists("l1DBKey"))
         l1DBKey_ = config.getParameter<std::string>("l1DBKey");
@@ -116,7 +116,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
       andOrHlt_ = config.getParameter<bool>("andOrHlt");
       hltInputTag_ = config.getParameter<edm::InputTag>("hltInputTag");
       hltInputToken_ = iC.mayConsume<edm::TriggerResults>(hltInputTag_);
-      hltLogicalExpressionsCache_ = config.getParameter<std::vector<std::string> >("hltPaths");
+      hltLogicalExpressionsCache_ = config.getParameter<std::vector<std::string>>("hltPaths");
       errorReplyHlt_ = config.getParameter<bool>("errorReplyHlt");
       if (config.exists("hltDBKey"))
         hltDBKey_ = config.getParameter<std::string>("hltDBKey");
@@ -128,7 +128,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
     else {
       if (config.exists("dbLabel"))
         dbLabel_ = config.getParameter<std::string>("dbLabel");
-      watchDB_ = std::make_unique<edm::ESWatcher<AlCaRecoTriggerBitsRcd> >();
+      watchDB_ = std::make_unique<edm::ESWatcher<AlCaRecoTriggerBitsRcd>>();
     }
   }
 
@@ -203,7 +203,7 @@ void GenericTriggerEventFlag::initRun(const edm::Run& run, const edm::EventSetup
     if (stage2_) {
       l1uGt_->retrieveL1Setup(setup);
 
-      const std::vector<std::pair<std::string, double> > prescales = l1uGt_->prescales();
+      const std::vector<std::pair<std::string, double>> prescales = l1uGt_->prescales();
       for (const auto& ip : prescales)
         algoNames.push_back(ip.first);
     } else {
@@ -769,4 +769,27 @@ bool GenericTriggerEventFlag::allHLTPathsAreValid() const {
   }
 
   return true;
+}
+
+void GenericTriggerEventFlag::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("ReadPrescalesFromFile", false);
+  desc.add<bool>("andOr", false);
+  desc.add<bool>("andOrDcs", false);
+  desc.add<bool>("andOrHlt", false);
+  desc.add<bool>("andOrL1", false);
+  desc.add<bool>("errorReplyDcs", false);
+  desc.add<bool>("errorReplyHlt", false);
+  desc.add<bool>("errorReplyL1", false);
+  desc.add<bool>("l1BeforeMask", false);
+  desc.add<bool>("stage2", false);
+  desc.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi"));
+  desc.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT"));
+  desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag("gtStage2Digis"));
+  desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"));
+  desc.add<std::string>("dbLabel", "");
+  desc.add<std::string>("hltDBKey", "");
+  desc.add<std::vector<int>>("dcsPartitions", {});
+  desc.add<std::vector<std::string>>("hltPaths", {});
+  desc.add<std::vector<std::string>>("l1Algorithms", {});
+  desc.add<unsigned int>("verbosityLevel", 0);
 }
