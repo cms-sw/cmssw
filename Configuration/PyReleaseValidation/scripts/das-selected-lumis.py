@@ -37,13 +37,14 @@ def process_lumi(data):
     else:
       lumi_nums = lumi_info['lumi']['number']
       lumi_file = lumi_info['file']['name']
-    if not isinstance(lumi_nums[0], list): lumi_rang = [ [n,n] for n in lumi_nums ]
+    if isinstance(lumi_nums, int): lumi_rang = [ [lumi_nums, lumi_nums] ]
+    elif not isinstance(lumi_nums[0], list): lumi_rang = [ [n,n] for n in lumi_nums ]
     else: lumi_rang = lumi_nums
     for sub_list in lumi_rang:
       if check_lumi_ranges(input_range,tuple(sub_list)):
         output_files_list.append(lumi_file)
         break
-  for out_file_name in output_files_list:
+  for out_file_name in set(output_files_list):
     print(out_file_name)
 
 #Get file names for desired lumi ranges
