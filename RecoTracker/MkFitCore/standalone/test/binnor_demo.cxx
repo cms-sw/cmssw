@@ -1,4 +1,4 @@
-#include "binnor.h"
+#include "../../interface/binnor.h"
 #include <random>
 
 // build as:
@@ -29,8 +29,8 @@ int main()
 
     axis<float, unsigned short, 12, 6> eta(-2.6, 2.6, 20u);
 
-    printf("Axis eta: M-bits=%d, N-bits=%d    n_bins=%d\n",
-           eta.c_M, eta.c_N, eta.m_n_bins);
+    printf("Axis eta: M-bits=%d, N-bits=%d  m_bins=%d n_bins=%d\n",
+           eta.c_M, eta.c_N, eta.size_of_M(), eta.size_of_N());
 
     binnor<unsigned int, decltype(phi), decltype(eta), 24, 8> b(phi, eta);
 
@@ -65,16 +65,16 @@ int main()
     //     printf("%3d  %3d  phi=%f  eta=%f\n", i, b.m_ranks[i], t.phi, t.eta);
     // }
 
-    printf("\n\n--- Single bin access:\n\n");
+    printf("\n\n--- Single bin access for (phi, eta) = (0,0):\n\n");
     auto nbin = b.get_n_bin(0.f, 0.f);
     auto cbin = b.get_content(0.f, 0.f);
-    printf("For (phi 0, eta 0; %u, %u) got first %d, count %d\n", nbin.bin1, nbin.bin2, cbin.first, cbin.count);
+    printf("For (phi 0, eta 0; %u, %u) got first %d, count %d\n", nbin.bin1(), nbin.bin2(), cbin.first, cbin.count);
     for (auto i = cbin.first; i < cbin.first + cbin.count; ++i) {
         const track &t = tracks[ b.m_ranks[i] ];
         printf("%3d  %3d  phi=%f  eta=%f\n", i, b.m_ranks[i], t.phi, t.eta);
     }
 
-    printf("\n\n--- Range access:\n\n");
+    printf("\n\n--- Range access for phi=[(-PI+0.02 +- 0.1], eta=[1.3 +- .2]:\n\n");
     auto phi_rng = phi.Rrdr_to_N_bins(-PI+0.02, 0.1);
     auto eta_rng = eta.Rrdr_to_N_bins(1.3, .2);
     printf("phi bin range: %u, %u; eta %u, %u\n", phi_rng.begin, phi_rng.end, eta_rng.begin, eta_rng.end);
