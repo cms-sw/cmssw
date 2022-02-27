@@ -117,13 +117,13 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
 #endif
   const CaloGeometry* geo = &iSetup.getData(tok_geom_);
 
-  const edm::Handle<EcalRecHitCollection> & ecalEB = iEvent.getHandle(tok_eb);
-  const edm::Handle<EcalRecHitCollection> & ecalEE = iEvent.getHandle(tok_ee);
+  const edm::Handle<EcalRecHitCollection>& ecalEB = iEvent.getHandle(tok_eb);
+  const edm::Handle<EcalRecHitCollection>& ecalEE = iEvent.getHandle(tok_ee);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "ecal Collections isValid: " << ecalEB.isValid() << "/" << ecalEE.isValid();
 #endif
 
-  const edm::Handle<trigger::TriggerFilterObjectWithRefs> & trigCand = iEvent.getHandle(tok_trigcand);
+  const edm::Handle<trigger::TriggerFilterObjectWithRefs>& trigCand = iEvent.getHandle(tok_trigcand);
 
   std::vector<edm::Ref<reco::IsolatedPixelTrackCandidateCollection> > isoPixTrackRefs;
   trigCand->getObjects(trigger::TriggerTrack, isoPixTrackRefs);
