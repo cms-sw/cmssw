@@ -96,6 +96,8 @@
 //
 #include "HLTrigger/JetMET/interface/HLTExclDiJetFilter.h"
 #include "HLTrigger/JetMET/src/HLTExclDiJetFilter.cc"
+//
+#include "HLTrigger/JetMET/interface/HLTPFJetsMatchedToFilteredJetsProducer.h"
 
 using namespace reco;
 using namespace trigger;
@@ -248,3 +250,9 @@ DEFINE_FWK_MODULE(HLTFatPFJetMassFilter);
 
 DEFINE_FWK_MODULE(HLTExclDiCaloJetFilter);
 DEFINE_FWK_MODULE(HLTExclDiPFJetFilter);
+
+typedef HLTPFJetsMatchedToFilteredJetsProducer<reco::CaloJetRef> HLTPFJetsMatchedToFilteredCaloJetsProducer;
+DEFINE_FWK_MODULE(HLTPFJetsMatchedToFilteredCaloJetsProducer);
+
+typedef HLTPFJetsMatchedToFilteredJetsProducer<reco::PFJetRef> HLTPFJetsMatchedToFilteredPFJetsProducer;
+DEFINE_FWK_MODULE(HLTPFJetsMatchedToFilteredPFJetsProducer);
