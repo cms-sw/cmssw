@@ -50,8 +50,8 @@ private:
   }
 };
 
-HcalCableMapper::HcalCableMapper(edm::ParameterSet const &conf) :
-      tok_hbhe_(consumes<HBHEDigiCollection>(conf.getParameter<edm::InputTag>("hbheLabel"))),
+HcalCableMapper::HcalCableMapper(edm::ParameterSet const &conf)
+    : tok_hbhe_(consumes<HBHEDigiCollection>(conf.getParameter<edm::InputTag>("hbheLabel"))),
       tok_ho_(consumes<HODigiCollection>(conf.getParameter<edm::InputTag>("hoLabel"))),
       tok_hf_(consumes<HFDigiCollection>(conf.getParameter<edm::InputTag>("hfLabel"))) {}
 
@@ -158,9 +158,9 @@ void HcalCableMapper::process(const PathSet &ps, const IdMap &im) {
 }
 
 void HcalCableMapper::analyze(edm::Event const &e, edm::EventSetup const &c) {
-  const edm::Handle<HBHEDigiCollection> & hbhe = e.getHandle(tok_hbhe_);
-  const edm::Handle<HFDigiCollection> & hf = e.getHandle(tok_hf_);
-  const edm::Handle<HODigiCollection> & ho =  e.getHandle(tok_ho_);
+  const edm::Handle<HBHEDigiCollection> &hbhe = e.getHandle(tok_hbhe_);
+  const edm::Handle<HFDigiCollection> &hf = e.getHandle(tok_hf_);
+  const edm::Handle<HODigiCollection> &ho = e.getHandle(tok_ho_);
 
   record(*(hbhe.product()));
   record(*(hf.product()));
