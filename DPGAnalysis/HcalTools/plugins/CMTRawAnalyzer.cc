@@ -496,6 +496,7 @@ private:
   /////////////////////////////////////////////
   int flagfitshunt1pedorledlowintensity_;
   int flagLaserRaddam_;
+  int flagToUseDigiCollectionsORNot_;
   int flagIterativeMethodCalibrationGroupDigi_;
   int flagIterativeMethodCalibrationGroupReco_;
   int flagtoaskrunsorls_;
@@ -2436,6 +2437,7 @@ CMTRawAnalyzer::CMTRawAnalyzer(const edm::ParameterSet& iConfig)
   usePedestalSubtraction_ = iConfig.getUntrackedParameter<bool>("usePedestalSubtraction");
   usecontinuousnumbering_ = iConfig.getUntrackedParameter<bool>("usecontinuousnumbering");
   flagLaserRaddam_ = iConfig.getParameter<int>("flagLaserRaddam");
+  flagToUseDigiCollectionsORNot_ = iConfig.getParameter<int>("flagToUseDigiCollectionsORNot");
   flagIterativeMethodCalibrationGroupDigi_ = iConfig.getParameter<int>("flagIterativeMethodCalibrationGroupDigi");
   flagIterativeMethodCalibrationGroupReco_ = iConfig.getParameter<int>("flagIterativeMethodCalibrationGroupReco");
   flagfitshunt1pedorledlowintensity_ = iConfig.getParameter<int>("flagfitshunt1pedorledlowintensity");
@@ -4170,6 +4172,9 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////       END of GENERAL NULLING       ////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    if (flagToUseDigiCollectionsORNot_ != 0 ) {
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////      START of DigiCollections running:          ///////////////////////////////////
     ////////////////////////////////////////////////////////////////////
     if (flagupgradeqie1011_ != 2 && flagupgradeqie1011_ != 3 && flagupgradeqie1011_ != 6 && flagupgradeqie1011_ != 7 &&
@@ -4588,6 +4593,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       h_totalAmplitudeHO->Fill(totalAmplitudeHO);
       h_totalAmplitudeHOperEvent->Fill(float(eventcounter), totalAmplitudeHO);
     }  //ho.isValid(
+  }// flagToUseDigiCollectionsORNot_
 
     //////////////////////////////////// RecHits for phi-symmetry monitoring of calibration group:
     // AZ 04.11.2019
@@ -4630,12 +4636,12 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
           //std::cout<<sub<<std::endl;
           if (hid.depth() == 1 && sub == 1 && hid.iphi() == 25) {
-            if (verbosity == -9063)
+            if (verbosity < 0)
               std::cout << " Noise,sub = " << sub << " mdepth = " << hid.depth() << "  ieta= " << hid.ieta()
                         << "  iphi= " << hid.iphi() << "  energyhit= " << energyhit << std::endl;
           }
           if (hid.depth() == 1 && sub == 2 && hid.iphi() == 25) {
-            if (verbosity == -9063)
+            if (verbosity < 0)
               std::cout << " Noise,sub = " << sub << " mdepth = " << hid.depth() << "  ieta= " << hid.ieta()
                         << "  iphi= " << hid.iphi() << "  energyhit= " << energyhit << std::endl;
           }
@@ -4679,7 +4685,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
           //std::cout<<sub<<std::endl;
           if (hid.iphi() == 25) {
-            if (verbosity == -9065)
+            if (verbosity < 0)
               std::cout << "HF Noise,sub = " << sub << " mdepth = " << hid.depth() << "  ieta= " << hid.ieta()
                         << "  iphi= " << hid.iphi() << "  energyhit= " << energyhit << std::endl;
           }
@@ -4731,12 +4737,12 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
           //std::cout<<sub<<std::endl;
           if (hid.depth() == 1 && sub == 1 && hid.iphi() == 25) {
-            if (verbosity == -9062)
+            if (verbosity < 0)
               std::cout << "HBHE Signal,sub = " << sub << " mdepth = " << hid.depth() << "  ieta= " << hid.ieta()
                         << "  iphi= " << hid.iphi() << "  energyhit= " << energyhit << std::endl;
           }
           if (hid.depth() == 1 && sub == 2 && hid.iphi() == 25) {
-            if (verbosity == -9062)
+            if (verbosity < 0)
               std::cout << "HBHE Signal,sub = " << sub << " mdepth = " << hid.depth() << "  ieta= " << hid.ieta()
                         << "  iphi= " << hid.iphi() << "  energyhit= " << energyhit << std::endl;
           }
@@ -4780,7 +4786,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
           //std::cout<<sub<<std::endl;
           if (hid.iphi() == 25) {
-            if (verbosity == -9064)
+            if (verbosity < 0)
               std::cout << "HF Signal,sub = " << sub << " mdepth = " << hid.depth() << "  ieta= " << hid.ieta()
                         << "  iphi= " << hid.iphi() << "  energyhit= " << energyhit << std::endl;
           }
@@ -4831,7 +4837,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                 if (tocamplchannel[k0][k1][k2][k3] != 0) {
                   sumoverphi += tocamplchannel[k0][k1][k2][k3];
                   ++nsumoverphi;
-                  if (verbosity == -9504)
+                  if (verbosity < 0)
                     std::cout << "==== nsumoverphi = " << nsumoverphi << "  sumoverphi = " << sumoverphi
                               << "  k1 = " << k1 << "  k2 = " << k2 << " kkk = " << kkk << "  k3 = " << k3 << std::endl;
                 }  //if != 0
@@ -4840,7 +4846,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               for (int k3 = 0; k3 < nphi; k3++) {
                 if (nsumoverphi != 0) {
                   maprphinorm[k0][k1][k2][k3] = tocamplchannel[k0][k1][k2][k3] / (sumoverphi / nsumoverphi);
-                  if (verbosity == -9504)
+                  if (verbosity < 0)
                     std::cout << "nsumoverphi= " << nsumoverphi << " sumoverphi= " << sumoverphi << " k1= " << k1
                               << " k2= " << k2 << " kkk= " << kkk << " k3= " << k3
                               << " maprphinorm= " << maprphinorm[k0][k1][k2][k3] << std::endl;
@@ -6070,7 +6076,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     ///////////////////////////////////////////////////
     if (++local_event % 100 == 0) {
-      if (verbosity == -22)
+      if (verbosity < 0)
         std::cout << "run " << Run << " processing events " << local_event << " ok, "
                   << ", lumi " << lumi << ", numOfLaserEv " << numOfLaserEv << std::endl;
     }
@@ -6573,13 +6579,13 @@ void CMTRawAnalyzer::beginJob() {
     h_amplitudechannel2_HF4 = fs_->make<TH2F>("h_amplitudechannel2_HF4", " ", neta, -41., 41., nphi, 0., bphi);
 
     // Reco
-    h_energyhitSignal_HB = fs_->make<TH1F>("h_energyhitSignal_HB", " ", npfit, 0., 0.);  //
-    h_energyhitSignal_HE = fs_->make<TH1F>("h_energyhitSignal_HE", " ", npfit, 0., 0.);  //
-    h_energyhitSignal_HF = fs_->make<TH1F>("h_energyhitSignal_HF", " ", npfit, 0., 0.);  //
-    h_energyhitNoise_HB = fs_->make<TH1F>("h_energyhitNoise_HB", " ", npfit, 0., 0.);    //
-    h_energyhitNoise_HE = fs_->make<TH1F>("h_energyhitNoise_HE", " ", npfit, 0., 0.);    //
-    h_energyhitNoise_HF = fs_->make<TH1F>("h_energyhitNoise_HF", " ", npfit, 0., 0.);    //
-
+    h_energyhitSignal_HB = fs_->make<TH1F>("h_energyhitSignal_HB", " ", npfit, -0.22, 0.22);
+    h_energyhitSignal_HE = fs_->make<TH1F>("h_energyhitSignal_HE", " ", npfit, -0.22, 0.22);
+    h_energyhitSignal_HF = fs_->make<TH1F>("h_energyhitSignal_HF", " ", npfit, -6.6, 6.6);
+    h_energyhitNoise_HB = fs_->make<TH1F>("h_energyhitNoise_HB", " ", npfit, -0.22, 0.22);
+    h_energyhitNoise_HE = fs_->make<TH1F>("h_energyhitNoise_HE", " ", npfit, -0.22, 0.22);
+    h_energyhitNoise_HF = fs_->make<TH1F>("h_energyhitNoise_HF", " ", npfit, -4.4, 4.4);
+    
     //HB:
     h_recSignalEnergy0_HB1 = fs_->make<TH2F>("h_recSignalEnergy0_HB1", " ", neta, -41., 41., nphi, 0., bphi);
     h_recSignalEnergy1_HB1 = fs_->make<TH2F>("h_recSignalEnergy1_HB1", " ", neta, -41., 41., nphi, 0., bphi);
@@ -7982,7 +7988,7 @@ void CMTRawAnalyzer::beginJob() {
 void CMTRawAnalyzer::fillDigiErrors(HBHEDigiCollection::const_iterator& digiItr) {
   CaloSamples toolOriginal;  // TS
   //    double tool[100];
-  if (verbosity == -22)
+  if (verbosity < 0)
     std::cout << "**************   in loop over Digis   counter =     " << nnnnnnhbhe << std::endl;
   HcalDetId cell(digiItr->id());
   int mdepth = cell.depth();
