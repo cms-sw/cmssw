@@ -26,6 +26,7 @@
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
 #include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
+#include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -58,6 +59,8 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
+  bool isSameCluster(const FTLCluster&, const FTLCluster&);
+
   // ------------ member data ------------
 
   const std::string folder_;
@@ -71,6 +74,7 @@ private:
   edm::EDGetTokenT<FTLUncalibratedRecHitCollection> etlUncalibRecHitsToken_;
   edm::EDGetTokenT<CrossingFrame<PSimHit> > etlSimHitsToken_;
   edm::EDGetTokenT<FTLClusterCollection> etlRecCluToken_;
+  edm::EDGetTokenT<MTDTrackingDetSetVector> mtdTrackingHitToken_;
 
   edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
   edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
@@ -120,8 +124,14 @@ private:
   MonitorElement* meCluXRes_[2];
   MonitorElement* meCluYRes_[2];
   MonitorElement* meCluZRes_[2];
+  MonitorElement* meCluXPull_[2];
+  MonitorElement* meCluYPull_[2];
   MonitorElement* meCluYXLocal_[2];
   MonitorElement* meCluYXLocalSim_[2];
+  MonitorElement* meCluXLocalErr_[2];
+  MonitorElement* meCluYLocalErr_[2];
+
+  MonitorElement* meUnmatchedCluEnergy_[2];
 
   // --- UncalibratedRecHits histograms
 
@@ -137,6 +147,11 @@ private:
   MonitorElement* meTimeResEta_[2][nBinsEta_];
 };
 
+bool EtlLocalRecoValidation::isSameCluster(const FTLCluster& clu1, const FTLCluster& clu2) {
+  return clu1.id() == clu2.id() && clu1.size() == clu2.size() && clu1.x() == clu2.x() && clu1.y() == clu2.y() &&
+         clu1.time() == clu2.time();
+}
+
 // ------------ constructor and destructor --------------
 EtlLocalRecoValidation::EtlLocalRecoValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
@@ -151,6 +166,7 @@ EtlLocalRecoValidation::EtlLocalRecoValidation(const edm::ParameterSet& iConfig)
         consumes<FTLUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("uncalibRecHitsTag"));
   etlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("simHitsTag"));
   etlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTag"));
+  mtdTrackingHitToken_ = consumes<MTDTrackingDetSetVector>(iConfig.getParameter<edm::InputTag>("trkHitTag"));
 
   mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
@@ -182,6 +198,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   auto etlRecHitsHandle = makeValid(iEvent.getHandle(etlRecHitsToken_));
   auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
   auto etlRecCluHandle = makeValid(iEvent.getHandle(etlRecCluToken_));
+  auto mtdTrkHitHandle = makeValid(iEvent.getHandle(mtdTrackingHitToken_));
   MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
 
   // --- Loop over the ETL SIM hits
@@ -437,10 +454,25 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       }  // ihit loop
 
-      // --- Fill the cluster resolution histograms
-      if (cluTimeSIM > 0. && cluEneSIM > 0.) {
-        int iside = (cluId.zside() == -1 ? 0 : 1);
+      // Find the MTDTrackingRecHit corresponding to the cluster
+      MTDTrackingRecHit* comp(nullptr);
+      bool matchClu = false;
+      const auto& trkHits = (*mtdTrkHitHandle)[detIdObject];
+      for (const auto& trkHit : trkHits) {
+        if (isSameCluster(trkHit.mtdCluster(), cluster)) {
+          comp = trkHit.clone();
+          matchClu = true;
+          break;
+        }
+      }
+      if (!matchClu) {
+        edm::LogWarning("BtlLocalRecoValidation")
+            << "No valid TrackingRecHit corresponding to cluster, detId = " << detIdObject.rawId();
+      }
 
+      // --- Fill the cluster resolution histograms
+      int iside = (cluId.zside() == -1 ? 0 : 1);
+      if (cluTimeSIM > 0. && cluEneSIM > 0.) {
         cluTimeSIM /= cluEneSIM;
 
         Local3DPoint cluLocalPosSIM(cluLocXSIM / cluEneSIM, cluLocYSIM / cluEneSIM, cluLocZSIM / cluEneSIM);
@@ -462,11 +494,20 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         meCluTPullvsE_[iside]->Fill(cluEneSIM, time_res / cluster.timeError());
 
         if (LocalPosDebug_) {
+          if (matchClu && comp != nullptr) {
+            meCluXPull_[iside]->Fill(x_res / std::sqrt(comp->globalPositionError().cxx()));
+            meCluYPull_[iside]->Fill(y_res / std::sqrt(comp->globalPositionError().cyy()));
+            meCluXLocalErr_[iside]->Fill(std::sqrt(comp->localPositionError().xx()));
+            meCluYLocalErr_[iside]->Fill(std::sqrt(comp->localPositionError().yy()));
+          }
           meCluYXLocal_[iside]->Fill(local_point.x(), local_point.y());
           meCluYXLocalSim_[iside]->Fill(cluLocalPosSIM.x(), cluLocalPosSIM.y());
         }
 
       }  // if ( cluTimeSIM > 0. &&  cluEneSIM > 0. )
+      else {
+        meUnmatchedCluEnergy_[iside]->Fill(std::log10(cluster.energy()));
+      }
 
     }  // cluster loop
 
@@ -962,6 +1003,14 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meCluZRes_[1] =
       ibook.book1D("EtlCluZResZpos", "ETL cluster Z resolution (+Z);Z_{RECO}-Z_{SIM} [cm]", 100, -0.003, 0.003);
   if (LocalPosDebug_) {
+    meCluXPull_[0] =
+        ibook.book1D("EtlCluXPullZneg", "ETL cluster X pull (-Z);X_{RECO}-X_{SIM}/sigmaX_[RECO] [cm]", 100, -5., 5.);
+    meCluXPull_[1] =
+        ibook.book1D("EtlCluXPullZpos", "ETL cluster X pull (+Z);X_{RECO}-X_{SIM}/sigmaX_[RECO] [cm]", 100, -5., 5.);
+    meCluYPull_[0] =
+        ibook.book1D("EtlCluYPullZneg", "ETL cluster Y pull (-Z);Y_{RECO}-Y_{SIM}/sigmaY_[RECO] [cm]", 100, -5., 5.);
+    meCluYPull_[1] =
+        ibook.book1D("EtlCluYPullZpos", "ETL cluster Y pull (+Z);Y_{RECO}-Y_{SIM}/sigmaY_[RECO] [cm]", 100, -5., 5.);
     meCluYXLocal_[0] = ibook.book2D("EtlCluYXLocalZneg",
                                     "ETL cluster local Y vs X (-Z);X^{local}_{RECO} [cm];Y^{local}_{RECO} [cm]",
                                     100,
@@ -994,7 +1043,19 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                        200,
                                        -1.1,
                                        1.1);
+    meCluXLocalErr_[0] =
+        ibook.book1D("EtlCluXLocalErrNeg", "ETL cluster X local error (-Z);sigmaX_{RECO,loc} [cm]", 50, 0., 0.2);
+    meCluXLocalErr_[1] =
+        ibook.book1D("EtlCluXLocalErrPos", "ETL cluster X local error (+Z);sigmaX_{RECO,loc} [cm]", 50, 0., 0.2);
+    meCluYLocalErr_[0] =
+        ibook.book1D("EtlCluYLocalErrNeg", "ETL cluster Y local error (-Z);sigmaY_{RECO,loc} [cm]", 50., 0., 0.2);
+    meCluYLocalErr_[1] =
+        ibook.book1D("EtlCluYLocalErrPos", "ETL cluster Y local error (+Z);sigmaY_{RECO,loc} [cm]", 50, 0., 0.2);
   }
+  meUnmatchedCluEnergy_[0] = ibook.book1D(
+      "EtlUnmatchedCluEnergyNeg", "ETL unmatched cluster log10(energy) (-Z);log10(E_{RECO} [MeV])", 5, -3, 2);
+  meUnmatchedCluEnergy_[1] = ibook.book1D(
+      "EtlUnmatchedCluEnergyPos", "ETL unmatched cluster log10(energy) (+Z);log10(E_{RECO} [MeV])", 5, -3, 2);
 
   // --- UncalibratedRecHits histograms
 
@@ -1029,6 +1090,7 @@ void EtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("uncalibRecHitsTag", edm::InputTag("mtdUncalibratedRecHits", "FTLEndcap"));
   desc.add<edm::InputTag>("simHitsTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsEndcap"));
   desc.add<edm::InputTag>("recCluTag", edm::InputTag("mtdClusters", "FTLEndcap"));
+  desc.add<edm::InputTag>("trkHitTag", edm::InputTag("mtdTrackingRecHits"));
   desc.add<double>("hitMinimumEnergy1Dis", 1.);     // [MeV]
   desc.add<double>("hitMinimumEnergy2Dis", 0.001);  // [MeV]
   desc.add<bool>("LocalPositionDebug", false);
