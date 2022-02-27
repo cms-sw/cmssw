@@ -9,8 +9,6 @@ BSOnlineJobName = 'BeamSpotOnlineHLT'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 
-#from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-#process = cms.Process("BeamMonitor", Run2_2018) # FIMXE
 import sys
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process("BeamMonitor", Run3)
