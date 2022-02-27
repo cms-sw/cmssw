@@ -11,7 +11,8 @@ unitTest = False
 if 'unitTest=True' in sys.argv:
     unitTest=True
 
-process = cms.Process("RPCDQM")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("RPCDQM", Run3)
 
 ############## Event Source #####################
 
