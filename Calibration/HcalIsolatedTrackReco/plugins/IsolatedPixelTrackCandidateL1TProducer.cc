@@ -181,21 +181,21 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
   std::vector<reco::TrackRef> pixelTrackRefs;
 
   for (unsigned int iPix = 0; iPix < toks_pix_.size(); iPix++) {
-    const edm::Handle<reco::TrackCollection> & iPixCol = theEvent.getHandle(toks_pix_[iPix]);
+    const edm::Handle<reco::TrackCollection>& iPixCol = theEvent.getHandle(toks_pix_[iPix]);
     for (reco::TrackCollection::const_iterator pit = iPixCol->begin(); pit != iPixCol->end(); pit++) {
       pixelTrackRefs.push_back(reco::TrackRef(iPixCol, pit - iPixCol->begin()));
     }
   }
 
-  const edm::Handle<l1t::TauBxCollection> & l1eTauJets = theEvent.getHandle(tok_l1_);
+  const edm::Handle<l1t::TauBxCollection>& l1eTauJets = theEvent.getHandle(tok_l1_);
 
-  const edm::Handle<reco::VertexCollection> & pVert = theEvent.getHandle(tok_vert_);
+  const edm::Handle<reco::VertexCollection>& pVert = theEvent.getHandle(tok_vert_);
 
   double ptTriggered = -10;
   double etaTriggered = -100;
   double phiTriggered = -100;
 
-  const edm::Handle<trigger::TriggerFilterObjectWithRefs> & l1trigobj = theEvent.getHandle(tok_hlt_);
+  const edm::Handle<trigger::TriggerFilterObjectWithRefs>& l1trigobj = theEvent.getHandle(tok_hlt_);
 
   std::vector<edm::Ref<l1t::TauBxCollection> > l1tauobjref;
   std::vector<edm::Ref<l1t::JetBxCollection> > l1jetobjref;

@@ -33,15 +33,14 @@ private:
   const edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
 };
 
-SubdetFEDSelector::SubdetFEDSelector(const edm::ParameterSet& iConfig) : 
-      getEcal_(iConfig.getParameter<bool>("getECAL")),
+SubdetFEDSelector::SubdetFEDSelector(const edm::ParameterSet& iConfig)
+    : getEcal_(iConfig.getParameter<bool>("getECAL")),
       getHcal_(iConfig.getParameter<bool>("getHCAL")),
       getStrip_(iConfig.getParameter<bool>("getSiStrip")),
       getPixel_(iConfig.getParameter<bool>("getSiPixel")),
       getMuon_(iConfig.getParameter<bool>("getMuon")),
       getTrigger_(iConfig.getParameter<bool>("getTrigger")),
       tok_raw_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInputLabel"))) {
-
   produces<FEDRawDataCollection>();
 }
 
@@ -50,7 +49,7 @@ SubdetFEDSelector::~SubdetFEDSelector() {}
 void SubdetFEDSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   auto producedData = std::make_unique<FEDRawDataCollection>();
 
-  const edm::Handle<FEDRawDataCollection> & rawIn = iEvent.getHandle(tok_raw_);
+  const edm::Handle<FEDRawDataCollection>& rawIn = iEvent.getHandle(tok_raw_);
 
   std::vector<int> selFEDs;
 

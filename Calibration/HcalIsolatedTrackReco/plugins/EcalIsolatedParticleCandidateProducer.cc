@@ -73,17 +73,16 @@ private:
   // ----------member data ---------------------------
 };
 
-EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(const edm::ParameterSet& conf) :
-  InConeSize_(conf.getParameter<double>("EcalInnerConeSize")),
-  OutConeSize_(conf.getParameter<double>("EcalOuterConeSize")),
-  hitCountEthr_(conf.getParameter<double>("ECHitCountEnergyThreshold")),
-  hitEthr_(conf.getParameter<double>("ECHitEnergyThreshold")),
-  tok_l1tau_(consumes<l1extra::L1JetParticleCollection>(conf.getParameter<edm::InputTag>("L1eTauJetsSource"))),
-  tok_hlt_(consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("L1GTSeedLabel"))),
-  tok_EB_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBrecHitCollectionLabel"))),
-  tok_EE_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EErecHitCollectionLabel"))),
-  tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
-
+EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(const edm::ParameterSet& conf)
+    : InConeSize_(conf.getParameter<double>("EcalInnerConeSize")),
+      OutConeSize_(conf.getParameter<double>("EcalOuterConeSize")),
+      hitCountEthr_(conf.getParameter<double>("ECHitCountEnergyThreshold")),
+      hitEthr_(conf.getParameter<double>("ECHitEnergyThreshold")),
+      tok_l1tau_(consumes<l1extra::L1JetParticleCollection>(conf.getParameter<edm::InputTag>("L1eTauJetsSource"))),
+      tok_hlt_(consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("L1GTSeedLabel"))),
+      tok_EB_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBrecHitCollectionLabel"))),
+      tok_EE_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EErecHitCollectionLabel"))),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   //register your products
   produces<reco::IsolatedPixelTrackCandidateCollection>();
 }
@@ -104,7 +103,7 @@ void EcalIsolatedParticleCandidateProducer::produce(edm::StreamID,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "get tau";
 #endif
-  const edm::Handle<l1extra::L1JetParticleCollection> & l1Taus = iEvent.getHandle(tok_l1tau_);
+  const edm::Handle<l1extra::L1JetParticleCollection>& l1Taus = iEvent.getHandle(tok_l1tau_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "get geom";
@@ -114,14 +113,14 @@ void EcalIsolatedParticleCandidateProducer::produce(edm::StreamID,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "get ec rechit";
 #endif
-  const edm::Handle<EcalRecHitCollection> & ecalEB = iEvent.getHandle(tok_EB_);
-  const edm::Handle<EcalRecHitCollection> & ecalEE = iEvent.getHandle(tok_EE_);
+  const edm::Handle<EcalRecHitCollection>& ecalEB = iEvent.getHandle(tok_EB_);
+  const edm::Handle<EcalRecHitCollection>& ecalEE = iEvent.getHandle(tok_EE_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "get l1 trig obj";
 #endif
 
-  const edm::Handle<trigger::TriggerFilterObjectWithRefs> & l1trigobj = iEvent.getHandle(tok_hlt_);
+  const edm::Handle<trigger::TriggerFilterObjectWithRefs>& l1trigobj = iEvent.getHandle(tok_hlt_);
 
   std::vector<edm::Ref<l1t::TauBxCollection> > l1tauobjref;
   std::vector<edm::Ref<l1t::JetBxCollection> > l1jetobjref;

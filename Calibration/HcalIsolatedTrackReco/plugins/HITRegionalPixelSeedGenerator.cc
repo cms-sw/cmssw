@@ -48,9 +48,8 @@ public:
         usetracks_(m_regionPSet.getParameter<bool>("useTracks")),
         fixedReg_(m_regionPSet.getParameter<bool>("fixedReg")),
         useIsoTracks_(m_regionPSet.getParameter<bool>("useIsoTracks")),
-        token_bfield(iC.esConsumes()), 
+        token_bfield(iC.esConsumes()),
         token_msmaker(iC.esConsumes()) {
-
     edm::LogVerbatim("HITRegionalPixelSeedGenerator") << "Enter the HITRegionalPixelSeedGenerator";
 
     if (usetracks_)
@@ -61,7 +60,8 @@ public:
       token_isoTrack =
           iC.consumes<trigger::TriggerFilterObjectWithRefs>(m_regionPSet.getParameter<edm::InputTag>("isoTrackSrc"));
     if (usejets_)
-      token_l1jet = iC.consumes<l1extra::L1JetParticleCollection>(m_regionPSet.getParameter<edm::InputTag>("l1tjetSrc"));
+      token_l1jet =
+          iC.consumes<l1extra::L1JetParticleCollection>(m_regionPSet.getParameter<edm::InputTag>("l1tjetSrc"));
   }
 
   ~HITRegionalPixelSeedGenerator() override = default;
@@ -76,9 +76,9 @@ public:
     auto const& msmaker = es.getData(token_msmaker);
 
     if (usetracks_) {
-      const edm::Handle<reco::TrackCollection> &  tracks = e.getHandle(token_trks);
+      const edm::Handle<reco::TrackCollection>& tracks = e.getHandle(token_trks);
 
-      const reco::VertexCollection & vertCollection = e.get(token_vertex);
+      const reco::VertexCollection& vertCollection = e.get(token_vertex);
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
 
       if (!vertCollection.empty()) {
@@ -109,13 +109,13 @@ public:
     }
 
     if (useIsoTracks_) {
-      const edm::Handle<trigger::TriggerFilterObjectWithRefs> & isotracks = e.getHandle(token_isoTrack);
+      const edm::Handle<trigger::TriggerFilterObjectWithRefs>& isotracks = e.getHandle(token_isoTrack);
 
       std::vector<edm::Ref<reco::IsolatedPixelTrackCandidateCollection> > isoPixTrackRefs;
 
       isotracks->getObjects(trigger::TriggerTrack, isoPixTrackRefs);
 
-      const reco::VertexCollection & vertCollection = e.get(token_vertex);
+      const reco::VertexCollection& vertCollection = e.get(token_vertex);
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
 
       if (!vertCollection.empty()) {
@@ -147,8 +147,8 @@ public:
     }
 
     if (usejets_) {
-      const edm::Handle<l1extra::L1JetParticleCollection> & jets = e.getHandle(token_l1jet);
-      const reco::VertexCollection & vertCollection = e.get(token_vertex);
+      const edm::Handle<l1extra::L1JetParticleCollection>& jets = e.getHandle(token_l1jet);
+      const reco::VertexCollection& vertCollection = e.get(token_vertex);
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
       if (!vertCollection.empty()) {
         originz = ci->z();
@@ -174,7 +174,7 @@ public:
                                cos(2 * atan(exp(-etaCenter_))));
       GlobalPoint vertex(0, 0, originz);
 
-      const reco::VertexCollection & vertCollection = e.get(token_vertex);
+      const reco::VertexCollection& vertCollection = e.get(token_vertex);
       if (!vertCollection.empty()) {
         //      reco::VertexCollection::const_iterator ci = vertCollection.begin();
         //      originz = ci->z();
