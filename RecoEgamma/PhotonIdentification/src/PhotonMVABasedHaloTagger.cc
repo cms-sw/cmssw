@@ -156,7 +156,7 @@ void PhotonMVABasedHaloTagger::calphoClusCoordinECAL(const CaloGeometry* geo,
 
     double dR2 = reco::deltaR2(rhEta, rhPhi, phoSCEta, phoSCPhi);
 
-    if (dR2 < 0.2 * 0.2) {
+    if (dR2 < dr2Max_ECALClus_) {
       ecalClusX_ += rhX * rhE;
       ecalClusY_ += rhY * rhE;
       ecalClusZ_ += rhZ * rhE;
@@ -206,9 +206,11 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(const CaloGe
     int depth = det.depth();
 
     if ((det.subdet() == HcalBarrel and (depth < 1 or depth > int(recHitEThresholdHB_.size()))) or
-        (det.subdet() == HcalEndcap and (depth < 1 or depth > int(recHitEThresholdHE_.size()))))
+        (det.subdet() == HcalEndcap and (depth < 1 or depth > int(recHitEThresholdHE_.size())))){
       edm::LogWarning("PhotonMVABasedHaloTagger")
-          << " hit in subdet " << det.subdet() << " has an unaccounted for depth of " << depth << "!!";
+          << " hit in subdet " << det.subdet() << " has an unaccounted for depth of " << depth << "!! Leaving this hit!!";
+      continue;
+    }
 
     const bool goodHBe = det.subdet() == HcalBarrel and rhE > recHitEThresholdHB_[depth - 1];
     const bool goodHEe = det.subdet() == HcalEndcap and rhE > recHitEThresholdHE_[depth - 1];
@@ -224,10 +226,9 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(const CaloGe
     bool isRHBehindECAL = false;
 
     double dRho2 = pow(rhX - ecalClusX_, 2) + pow(rhY - ecalClusY_, 2);
-
-    if (rho2 >= 31 * 31 && rho2 <= 172 * 172 && dRho2 <= 26 * 26 &&
-        std::abs(dPhi) <
-            0.15) {  ///only valid for the EE; this is 26 cm; hit within 3x3 of HCAL centered at the EECAL xtal
+    
+    ///only valid for the EE; this is 26 cm; hit within 3x3 of HCAL centered at the EECAL xtal
+    if (rho2 >= rho2Min_ECALpos_ && rho2 <= rho2Max_ECALpos_ && dRho2 <= dRho2Max_HCALClus_SamePhi_ && std::abs(dPhi) < dPhiMax_HCALClus_SamePhi_) {  
       hcalClusX_samedPhi_ += rhX * rhE;
       hcalClusY_samedPhi_ += rhY * rhE;
       hcalClusZ_samedPhi_ += rhZ * rhE;
@@ -239,7 +240,7 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(const CaloGe
 
     double dR2 = reco::deltaR2(phoSCEta, phoSCPhi, rhEta, rhPhi);
 
-    if (dR2 < 0.15 * 0.15 && !isRHBehindECAL) {  ///dont use hits which are just behind the ECAL in the same phi region
+    if (dR2 <  dR2Max_HCALClus_SamePhi_ && !isRHBehindECAL) {  ///dont use hits which are just behind the ECAL in the same phi region
       hcalClusX_samedR_ += rhX * rhE;
       hcalClusY_samedR_ += rhY * rhE;
       hcalClusZ_samedR_ += rhZ * rhE;
@@ -315,12 +316,10 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(const CaloGeom
     /////////First calculate RH nearest in phi and eta to that of the photon SC
 
     //////same phi ----> the X and Y should be similar
+    ////i.e. hit is required to be within the ----> seems better match with the data compared to 2.47
     double dRho2 = pow(rhX - ecalClusX_, 2) + pow(rhY - ecalClusY_, 2);
 
-    if (dRho2 < tmpDiffdRho &&
-        dRho2 <
-            2.2 *
-                2.2) {  ////i.e. hit is required to be within the ----> seems better match with the data compared to 2.47
+    if (dRho2 < tmpDiffdRho && dRho2 < dRho2Max_ESClus_) {
 
       tmpDiffdRho = dRho2;
       matchX_samephi = rhX;
@@ -368,7 +367,7 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(const CaloGeom
     double dX_samephi = std::abs(matchX_samephi - rhX);
     double dY_samephi = std::abs(matchY_samephi - rhY);
 
-    if ((dX_samephi < 1 && dY_samephi < 1) && foundESRH_samephi) {
+    if ((dX_samephi < dXY_ESClus_SamePhi_ && dY_samephi < dXY_ESClus_SamePhi_) && foundESRH_samephi) {
       preshowerX_samedPhi_ += rhX * rhE;
       preshowerY_samedPhi_ += rhY * rhE;
       preshowerZ_samedPhi_ += rhZ * rhE;
@@ -381,7 +380,7 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(const CaloGeom
     double dX_samedR = std::abs(matchX_samedR - rhX);
     double dY_samedR = std::abs(matchY_samedR - rhY);
 
-    if (!isRHBehindECAL && foundESRH_samedR && (dX_samedR < 1 && dY_samedR < 1)) {
+    if (!isRHBehindECAL && foundESRH_samedR && (dX_samedR < dXY_ESClus_SamedR_ && dY_samedR < dXY_ESClus_SamedR_)) {
       preshowerX_samedR_ += rhX * rhE;
       preshowerY_samedR_ += rhY * rhE;
       preshowerZ_samedR_ += rhZ * rhE;

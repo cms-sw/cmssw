@@ -33,6 +33,8 @@ public:
                       const edm::Event& iEvent,
                       const edm::EventSetup& es);
 
+
+private:
   void calphoClusCoordinECAL(const CaloGeometry* geo,
                              const reco::Photon*,
                              const EcalPFRecHitThresholds* thresholds,
@@ -48,7 +50,7 @@ public:
 
   double calAngleBetweenEEAndSubDet(int nhits, double subdetClusX, double subdetClusY, double subdetClusZ);
 
-private:
+
   int hcalClusNhits_samedPhi_, hcalClusNhits_samedR_;
   int ecalClusNhits_, preshowerNhits_samedPhi_, preshowerNhits_samedR_;
   double hcalClusX_samedPhi_, hcalClusY_samedPhi_, hcalClusZ_samedPhi_, hcalClusX_samedR_, hcalClusY_samedR_,
@@ -64,8 +66,6 @@ private:
   EgammaHcalIsolation::arrayHB recHitEThresholdHB_;
   EgammaHcalIsolation::arrayHE recHitEThresholdHE_;
 
-  std::string trainingFileName_;
-
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
   const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
@@ -76,6 +76,18 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> EEecalCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> ESCollection_;
   edm::EDGetTokenT<HBHERecHitCollection> HBHERecHitsCollection_;
+
+  ///values of dR etc to cluster the hits in various sub-detectors
+  static constexpr float dr2Max_ECALClus_ = 0.2*0.2;
+  static constexpr float rho2Min_ECALpos_ = 31 * 31; //cm
+  static constexpr float rho2Max_ECALpos_ = 172 * 172; //cm
+  static constexpr float dRho2Max_HCALClus_SamePhi_ = 26 * 26; //cm
+  static constexpr float dPhiMax_HCALClus_SamePhi_ = 0.15;
+  static constexpr float dR2Max_HCALClus_SamePhi_ = 0.15 * 0.15;
+  static constexpr float dRho2Max_ESClus_ = 2.2 * 2.2; //cm
+  static constexpr float dXY_ESClus_SamePhi_ = 1; ///cm
+  static constexpr float dXY_ESClus_SamedR_ = 1; ///cm
+  
 };
 
 #endif  // PhotonMVABasedHaloTagger_H
