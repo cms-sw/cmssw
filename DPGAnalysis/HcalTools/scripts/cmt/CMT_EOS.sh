@@ -125,7 +125,7 @@ echo 'Run numbers for processing'
 echo "${runList}"
 echo -e "list complete\n"
 
-#processing
+echo 'processing'
 
 for i in ${runList} ; do
     runnumber=$i
@@ -143,7 +143,8 @@ for i in ${runList} ; do
 # always copy root file from /eos !!!
 ##    if [ ! -s Global_${runnumber}.root ] ; then
 ##	xrdcp root://eoscms//eos/cms/$HistoDir/Global_$runnumber.root Global_$runnumber.root
-	xrdcp -f root://eoscms//eos/cms/$HistoDir/Global_$runnumber.root Global_$runnumber.root
+#	xrdcp -f root://eoscms//eos/cms/$HistoDir/Global_$runnumber.root Global_$runnumber.root
+cp /eos/cms/$HistoDir/Global_$runnumber.root Global_$runnumber.root
 	status="$?"
 	if [ ! ${status} -eq 0 ] ; then
 	    echo "failed to get file Global_${runnumber}.root"
@@ -151,7 +152,9 @@ for i in ${runList} ; do
 	fi
 ##    fi
     
-    #CMT processing
+
+	echo 'CMT processing'
+
     echo -e "\nRemoteMonitoringGLOBAL\n" >> ${logFile}
     ./../../macros/cmt/RemoteMonitoringGLOBAL.cc.exe Global_$runnumber.root 2>&1 | tee -a ${logFile}
     if [ ! $? -eq 0 ] ; then
@@ -227,7 +230,7 @@ for i in ${runList} ; do
     rm *.html
     rm *.png 
     rm -rf dir-CMT-GLOBAL_*
-    rm *.root
+#    rm *.root
 #
 
 #---------------
