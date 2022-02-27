@@ -65,11 +65,8 @@ void IPTCorrector::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 void IPTCorrector::produce(edm::StreamID, edm::Event& theEvent, edm::EventSetup const&) const {
   auto trackCollection = std::make_unique<reco::IsolatedPixelTrackCandidateCollection>();
 
-  edm::Handle<reco::TrackCollection> corTracks;
-  theEvent.getByToken(tok_cor_, corTracks);
-
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> fiCand;
-  theEvent.getByToken(tok_uncor_, fiCand);
+  const edm::Handle<reco::TrackCollection>& corTracks = theEvent.getHandle(tok_cor_);
+  const edm::Handle<trigger::TriggerFilterObjectWithRefs>& fiCand = theEvent.getHandle(tok_uncor_);
 
   std::vector<edm::Ref<reco::IsolatedPixelTrackCandidateCollection> > isoPixTrackRefs;
 

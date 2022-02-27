@@ -34,37 +34,37 @@
 class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 public:
   explicit HITRegionalPixelSeedGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
-      : token_bfield(iC.esConsumes()), token_msmaker(iC.esConsumes()) {
+      : m_regionPSet(conf.getParameter<edm::ParameterSet>("RegionPSet")),
+        ptmin(m_regionPSet.getParameter<double>("ptMin")),
+        originradius(m_regionPSet.getParameter<double>("originRadius")),
+        halflength(m_regionPSet.getParameter<double>("originHalfLength")),
+        etaCenter_(m_regionPSet.getParameter<double>("etaCenter")),
+        phiCenter_(m_regionPSet.getParameter<double>("phiCenter")),
+        deltaTrackEta(m_regionPSet.getParameter<double>("deltaEtaTrackRegion")),
+        deltaTrackPhi(m_regionPSet.getParameter<double>("deltaPhiTrackRegion")),
+        deltaL1JetEta(m_regionPSet.getParameter<double>("deltaEtaL1JetRegion")),
+        deltaL1JetPhi(m_regionPSet.getParameter<double>("deltaPhiL1JetRegion")),
+        usejets_(m_regionPSet.getParameter<bool>("useL1Jets")),
+        usetracks_(m_regionPSet.getParameter<bool>("useTracks")),
+        fixedReg_(m_regionPSet.getParameter<bool>("fixedReg")),
+        useIsoTracks_(m_regionPSet.getParameter<bool>("useIsoTracks")),
+        token_bfield(iC.esConsumes()),
+        token_msmaker(iC.esConsumes()) {
     edm::LogVerbatim("HITRegionalPixelSeedGenerator") << "Enter the HITRegionalPixelSeedGenerator";
 
-    edm::ParameterSet regionPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
-
-    ptmin = regionPSet.getParameter<double>("ptMin");
-    originradius = regionPSet.getParameter<double>("originRadius");
-    halflength = regionPSet.getParameter<double>("originHalfLength");
-    etaCenter_ = regionPSet.getParameter<double>("etaCenter");
-    phiCenter_ = regionPSet.getParameter<double>("phiCenter");
-    deltaTrackEta = regionPSet.getParameter<double>("deltaEtaTrackRegion");
-    deltaTrackPhi = regionPSet.getParameter<double>("deltaPhiTrackRegion");
-    deltaL1JetEta = regionPSet.getParameter<double>("deltaEtaL1JetRegion");
-    deltaL1JetPhi = regionPSet.getParameter<double>("deltaPhiL1JetRegion");
-    usejets_ = regionPSet.getParameter<bool>("useL1Jets");
-    usetracks_ = regionPSet.getParameter<bool>("useTracks");
-    useIsoTracks_ = regionPSet.getParameter<bool>("useIsoTracks");
-    fixedReg_ = regionPSet.getParameter<bool>("fixedReg");
-
     if (usetracks_)
-      token_trks = iC.consumes<reco::TrackCollection>(regionPSet.getParameter<edm::InputTag>("trackSrc"));
+      token_trks = iC.consumes<reco::TrackCollection>(m_regionPSet.getParameter<edm::InputTag>("trackSrc"));
     if (usetracks_ || useIsoTracks_ || fixedReg_ || usejets_)
-      token_vertex = iC.consumes<reco::VertexCollection>(regionPSet.getParameter<edm::InputTag>("vertexSrc"));
+      token_vertex = iC.consumes<reco::VertexCollection>(m_regionPSet.getParameter<edm::InputTag>("vertexSrc"));
     if (useIsoTracks_)
       token_isoTrack =
-          iC.consumes<trigger::TriggerFilterObjectWithRefs>(regionPSet.getParameter<edm::InputTag>("isoTrackSrc"));
+          iC.consumes<trigger::TriggerFilterObjectWithRefs>(m_regionPSet.getParameter<edm::InputTag>("isoTrackSrc"));
     if (usejets_)
-      token_l1jet = iC.consumes<l1extra::L1JetParticleCollection>(regionPSet.getParameter<edm::InputTag>("l1tjetSrc"));
+      token_l1jet =
+          iC.consumes<l1extra::L1JetParticleCollection>(m_regionPSet.getParameter<edm::InputTag>("l1tjetSrc"));
   }
 
-  ~HITRegionalPixelSeedGenerator() override {}
+  ~HITRegionalPixelSeedGenerator() override = default;
 
   std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override {
     std::vector<std::unique_ptr<TrackingRegion> > result;
@@ -76,12 +76,9 @@ public:
     auto const& msmaker = es.getData(token_msmaker);
 
     if (usetracks_) {
-      edm::Handle<reco::TrackCollection> tracks;
-      e.getByToken(token_trks, tracks);
+      const edm::Handle<reco::TrackCollection>& tracks = e.getHandle(token_trks);
 
-      edm::Handle<reco::VertexCollection> vertices;
-      e.getByToken(token_vertex, vertices);
-      const reco::VertexCollection vertCollection = *(vertices.product());
+      const reco::VertexCollection& vertCollection = e.get(token_vertex);
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
 
       if (!vertCollection.empty()) {
@@ -112,16 +109,13 @@ public:
     }
 
     if (useIsoTracks_) {
-      edm::Handle<trigger::TriggerFilterObjectWithRefs> isotracks;
-      e.getByToken(token_isoTrack, isotracks);
+      const edm::Handle<trigger::TriggerFilterObjectWithRefs>& isotracks = e.getHandle(token_isoTrack);
 
       std::vector<edm::Ref<reco::IsolatedPixelTrackCandidateCollection> > isoPixTrackRefs;
 
       isotracks->getObjects(trigger::TriggerTrack, isoPixTrackRefs);
 
-      edm::Handle<reco::VertexCollection> vertices;
-      e.getByToken(token_vertex, vertices);
-      const reco::VertexCollection vertCollection = *(vertices.product());
+      const reco::VertexCollection& vertCollection = e.get(token_vertex);
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
 
       if (!vertCollection.empty()) {
@@ -153,12 +147,8 @@ public:
     }
 
     if (usejets_) {
-      edm::Handle<l1extra::L1JetParticleCollection> jets;
-      e.getByToken(token_l1jet, jets);
-
-      edm::Handle<reco::VertexCollection> vertices;
-      e.getByToken(token_vertex, vertices);
-      const reco::VertexCollection vertCollection = *(vertices.product());
+      const edm::Handle<l1extra::L1JetParticleCollection>& jets = e.getHandle(token_l1jet);
+      const reco::VertexCollection& vertCollection = e.get(token_vertex);
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
       if (!vertCollection.empty()) {
         originz = ci->z();
@@ -184,9 +174,7 @@ public:
                                cos(2 * atan(exp(-etaCenter_))));
       GlobalPoint vertex(0, 0, originz);
 
-      edm::Handle<reco::VertexCollection> vertices;
-      e.getByToken(token_vertex, vertices);
-      const reco::VertexCollection vertCollection = *(vertices.product());
+      const reco::VertexCollection& vertCollection = e.get(token_vertex);
       if (!vertCollection.empty()) {
         //      reco::VertexCollection::const_iterator ci = vertCollection.begin();
         //      originz = ci->z();
@@ -202,25 +190,26 @@ public:
   }
 
 private:
-  float ptmin;
-  float originradius;
-  float halflength;
-  double etaCenter_;
-  double phiCenter_;
-  float deltaTrackEta;
-  float deltaTrackPhi;
-  float deltaL1JetEta;
-  float deltaL1JetPhi;
-  bool usejets_;
-  bool usetracks_;
-  bool fixedReg_;
-  bool useIsoTracks_;
+  const edm::ParameterSet m_regionPSet;
+  const float ptmin;
+  const float originradius;
+  const float halflength;
+  const double etaCenter_;
+  const double phiCenter_;
+  const float deltaTrackEta;
+  const float deltaTrackPhi;
+  const float deltaL1JetEta;
+  const float deltaL1JetPhi;
+  const bool usejets_;
+  const bool usetracks_;
+  const bool fixedReg_;
+  const bool useIsoTracks_;
   edm::EDGetTokenT<reco::TrackCollection> token_trks;
   edm::EDGetTokenT<reco::VertexCollection> token_vertex;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> token_isoTrack;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> token_l1jet;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_bfield;
-  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> token_msmaker;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_bfield;
+  const edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> token_msmaker;
 };
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
