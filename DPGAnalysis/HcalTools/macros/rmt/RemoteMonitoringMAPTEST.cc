@@ -72,7 +72,6 @@ int main(int argc, char *argv[]) {
   // with TfileService implementation, change everywhere below:     hreffile->Get     to     refdir->FindObjectAny
   // with TfileService implementation, change everywhere below:     hfile->Get     to     dir->FindObjectAny
 
-
   double MIN_M[7][5];
   double MAX_M[7][5];
   double MIN_C[7][5];

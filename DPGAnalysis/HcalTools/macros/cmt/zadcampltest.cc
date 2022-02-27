@@ -150,11 +150,11 @@ int main(int argc, char *argv[]) {
 
   //	TFile *hfile1= new TFile("LED_284352.root", "READ");
   //	TFile *hfile1= new TFile("LEDtest.root", "READ");
-//  TFile *hfile1 = new TFile("Global_346445.root", "READ");
+  //  TFile *hfile1 = new TFile("Global_346445.root", "READ");
 
   TFile *hfile1 = new TFile("Global_346300.root", "READ");
-//          TH1D *hist1(nullptr);
-//            hist1 = (TH1D *)dir->FindObjectAny("h_mapDepth1_HE");
+  //          TH1D *hist1(nullptr);
+  //            hist1 = (TH1D *)dir->FindObjectAny("h_mapDepth1_HE");
 
   //	TFile *hfile2= new TFile("LED_284902.root", "READ");
   //	TFile *hfile2= new TFile("LED_284499.root", "READ");
@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
   c1->Divide(2, 4);
 
   c1->cd(1);
-//  TH2F *Zzzdepth1hef1 = (TH2F *)hfile1->Get("h_mapDepth1_HE");
+  //  TH2F *Zzzdepth1hef1 = (TH2F *)hfile1->Get("h_mapDepth1_HE");
   TH2F *Zzzdepth1hef1 = (TH2F *)dir->FindObjectAny("h_mapDepth1_HE");
   gPad->SetGridy();
   gPad->SetGridx();

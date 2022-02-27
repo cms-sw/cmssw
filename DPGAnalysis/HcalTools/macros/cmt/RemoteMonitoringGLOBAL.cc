@@ -67,12 +67,12 @@ int main(int argc, char *argv[]) {
        {0., 0., 0., 0., 1., 0., 0., 0.},
        {0., 1., 1., 0., 0., 0., 0., 0.}},  //CapID  0,HB,HE,HO,HF
       //      {{0.,0.,0.,0.,0.,0.,0.,0.}, {0.,35.,35.,0.,0.,0.,0.,0.}, {0.,100.,140.,150.,0.,0.,0.,0.},                         {0.,0.,0.,0.,100.,0.,0.,0.}, {0.,170.,110.,170.,110.,0.,0.,0.} },  //Amplitude  0,HB,HE,HO,HF
-//
-//      {{0., 0., 0., 0., 0., 0., 0., 0.},
-//       {0., 10., 10., 10., 10., 0., 0., 0.},
-//       {0., 10., 10., 10., 10., 10., 10., 10.},
-//       {0., 0., 0., 0., 10., 0., 0., 0.},
-//       {0., 10., 10., 10., 10., 0., 0., 0.}},  //Amplitude  0,HB,HE,HO,HF
+      //
+      //      {{0., 0., 0., 0., 0., 0., 0., 0.},
+      //       {0., 10., 10., 10., 10., 0., 0., 0.},
+      //       {0., 10., 10., 10., 10., 10., 10., 10.},
+      //       {0., 0., 0., 0., 10., 0., 0., 0.},
+      //       {0., 10., 10., 10., 10., 0., 0., 0.}},  //Amplitude  0,HB,HE,HO,HF
       {{0., 0., 0., 0., 0., 0., 0., 0.},
        {0., 3500., 3500., 3500., 3500., 0., 0., 0.},
        {0., 12000., 4500., 3500., 3500., 4000., 4500., 5500.},
@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 
   //======================================================================
   // Prepare histograms and plot them to .png files
-//  TCanvas *cHB = new TCanvas("cHB", "cHB", 200, 10, 700, 900);
+  //  TCanvas *cHB = new TCanvas("cHB", "cHB", 200, 10, 700, 900);
   TCanvas *cHB = new TCanvas("cHB", "cHB", 1000, 500);
   TCanvas *cHE = new TCanvas("cHE", "cHE", 1500, 500);
   TCanvas *cONE = new TCanvas("cONE", "cONE", 500, 500);
@@ -180,7 +180,7 @@ int main(int argc, char *argv[]) {
   LumLum->SetMarkerColor(4);
   LumLum->SetLineColor(0);
   LumLum->SetMinimum(0.8);
-  LumLum->GetXaxis()->SetRangeUser(0, MaxLumDanila+5.);
+  LumLum->GetXaxis()->SetRangeUser(0, MaxLumDanila + 5.);
   LumLum->Draw("Error");
 
   cHB->cd(2);
@@ -208,7 +208,7 @@ int main(int argc, char *argv[]) {
   LumiEv->SetMarkerColor(4);
   LumiEv->SetLineColor(0);
   //      LumiEv->SetMinimum(0.8);
-  LumiEv->GetXaxis()->SetRangeUser(0, MaxLum+5.);
+  LumiEv->GetXaxis()->SetRangeUser(0, MaxLum + 5.);
   LumiEv->Draw("Error");
 
   cHB->Print("LumiEvent.png");
