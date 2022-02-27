@@ -151,11 +151,11 @@ int main(int argc, char *argv[]) {
 
   //	TFile *hfile1= new TFile("LED_284352.root", "READ");
   //	TFile *hfile1= new TFile("LEDtest.root", "READ");
-//  TFile *hfile1 = new TFile("Global_346445.root", "READ");
+  //  TFile *hfile1 = new TFile("Global_346445.root", "READ");
 
   TFile *hfile1 = new TFile("Global_346511.root", "READ");
-//          TH1D *hist1(nullptr);
-//            hist1 = (TH1D *)dir->FindObjectAny("h_mapDepth1_HE");
+  //          TH1D *hist1(nullptr);
+  //            hist1 = (TH1D *)dir->FindObjectAny("h_mapDepth1_HE");
 
   //	TFile *hfile2= new TFile("LED_284902.root", "READ");
   //	TFile *hfile2= new TFile("LED_284499.root", "READ");
@@ -169,7 +169,7 @@ int main(int argc, char *argv[]) {
 
   //
 
-//    TCanvas *c1 = new TCanvas("c1", "Hcal4test", 200, 10, 700, 900);
+  //    TCanvas *c1 = new TCanvas("c1", "Hcal4test", 200, 10, 700, 900);
   TCanvas *c1 = new TCanvas("c1", "Hcal4test", 1000, 500);
 
   hfile1->ls();
@@ -190,8 +190,8 @@ int main(int argc, char *argv[]) {
   TH1F *LumLum = (TH1F *)dir->FindObjectAny("h_lsnumber_per_eachLS");
   int MaxLumDanila = LumLum->GetBinContent(LumLum->GetMaximumBin());  // old variant of Danila
   cout << " MaxLumDanila=     " << MaxLumDanila << endl;
-//  gPad->SetGridy();
-//  gPad->SetGridx();
+  //  gPad->SetGridy();
+  //  gPad->SetGridx();
   LumLum->SetMarkerStyle(21);
   LumLum->SetMarkerSize(0.8);
   LumLum->GetYaxis()->SetLabelSize(0.04);
@@ -201,7 +201,7 @@ int main(int argc, char *argv[]) {
   LumLum->SetMarkerColor(4);
   LumLum->SetLineColor(0);
   LumLum->SetMinimum(0.8);
-  LumLum->GetXaxis()->SetRangeUser(0, MaxLumDanila+5.);
+  LumLum->GetXaxis()->SetRangeUser(0, MaxLumDanila + 5.);
   LumLum->Draw("Error");
 
   c1->cd(2);
@@ -215,8 +215,8 @@ int main(int argc, char *argv[]) {
   }
   cout << " Nev in bin of MaxLum =     " << MaxLum0 << " MaxLum=     " << MaxLum << endl;
 
-//  gPad->SetGridy();
-//  gPad->SetGridx();
+  //  gPad->SetGridy();
+  //  gPad->SetGridx();
   gPad->SetLogy();
   //            gPad->SetLogx();
   LumiEv->GetYaxis()->SetLabelSize(0.04);
@@ -228,15 +228,12 @@ int main(int argc, char *argv[]) {
   LumiEv->SetMarkerColor(4);
   LumiEv->SetLineColor(0);
   LumiEv->SetMinimum(0.8);
-  LumiEv->GetXaxis()->SetRangeUser(0, MaxLum+5.);
+  LumiEv->GetXaxis()->SetRangeUser(0, MaxLum + 5.);
   LumiEv->Draw("Error");
 
-
-
   c1->Update();
-//  cHB->Print("LumiEvent.png");
-//  cHB->Clear();
-
+  //  cHB->Print("LumiEvent.png");
+  //  cHB->Clear();
 
   //========================================================================================== 2
   //======================================================================
@@ -244,14 +241,13 @@ int main(int argc, char *argv[]) {
   //================
   //======================================================================
 
-//      h_lsnumber_per_eachLS->Fill(float(lscounter), float(lumi));
-//        h_nevents_per_eachLS->Fill(float(lscounter), float(nevcounter));  //
-//        h_nls_per_run->Fill(float(lscounterrun));
-//        h_nevents_per_eachRealLS->Fill(float(lscounterM1), float(nevcounter));  //
-//      h_nevents_per_LS->Fill(float(nevcounter));
-//      h_nevents_per_LSzoom->Fill(float(nevcounter));
-//        h_nls_per_run10->Fill(float(lscounterrun10));
-
+  //      h_lsnumber_per_eachLS->Fill(float(lscounter), float(lumi));
+  //        h_nevents_per_eachLS->Fill(float(lscounter), float(nevcounter));  //
+  //        h_nls_per_run->Fill(float(lscounterrun));
+  //        h_nevents_per_eachRealLS->Fill(float(lscounterM1), float(nevcounter));  //
+  //      h_nevents_per_LS->Fill(float(nevcounter));
+  //      h_nevents_per_LSzoom->Fill(float(nevcounter));
+  //        h_nls_per_run10->Fill(float(lscounterrun10));
 
   c1->Clear();
   c1->Divide(2, 4);
@@ -260,8 +256,8 @@ int main(int argc, char *argv[]) {
   TH1F *MilMil = (TH1F *)dir->FindObjectAny("h_lsnumber_per_eachLS");
   int MaxMilDanila = MilMil->GetBinContent(MilMil->GetMaximumBin());  // old variant of Danila
   cout << " MaxMilDanila=     " << MaxMilDanila << endl;
-//    gPad->SetGridy();
-//    gPad->SetGridx();
+  //    gPad->SetGridy();
+  //    gPad->SetGridx();
   MilMil->GetYaxis()->SetLabelSize(0.04);
   MilMil->SetTitle("Cont. number per LS  \b");
   MilMil->SetXTitle("Cont.number \b");
@@ -285,8 +281,8 @@ int main(int argc, char *argv[]) {
   }
   cout << " MaxMil0=     " << MaxMil0 << " MaxMil=     " << MaxMil << endl;
 
-//    gPad->SetGridy();
-//    gPad->SetGridx();
+  //    gPad->SetGridy();
+  //    gPad->SetGridx();
   gPad->SetLogy();
   //            gPad->SetLogx();
   MiliEv->GetYaxis()->SetLabelSize(0.04);
@@ -312,9 +308,9 @@ int main(int argc, char *argv[]) {
   }
   cout << "nls_per_run =     " << MaxGir0 << " Maxnls_per_run=     " << MaxGir << endl;
 
-//    gPad->SetGridy();
-//    gPad->SetGridx();
-//  gPad->SetLogy();
+  //    gPad->SetGridy();
+  //    gPad->SetGridx();
+  //  gPad->SetLogy();
   //            gPad->SetLogx();
   GiriEv->GetYaxis()->SetLabelSize(0.04);
   GiriEv->SetTitle("Number of LS per run");
@@ -339,8 +335,8 @@ int main(int argc, char *argv[]) {
   }
   cout << " MaxSum0=     " << MaxSum0 << " MaxSum=     " << MaxSum << endl;
 
-    gPad->SetGridy();
-    gPad->SetGridx();
+  gPad->SetGridy();
+  gPad->SetGridx();
   gPad->SetLogy();
   //            gPad->SetLogx();
   SumiEv->GetYaxis()->SetLabelSize(0.04);
@@ -423,7 +419,6 @@ int main(int argc, char *argv[]) {
   //      LediEv->SetMinimum(0.8);
   LediEv->GetXaxis()->SetRangeUser(0, MaxLed);
   LediEv->Draw("Error");
-
 
   c1->Update();
 
