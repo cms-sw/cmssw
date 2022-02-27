@@ -1399,7 +1399,7 @@ muonDict = {
         ],
         3 : [
             'Geometry/MuonSimData/data/PhaseII/v2/muonSens.xml',
-            'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',
+            'Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml',
             'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
             'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
             'Geometry/RPCGeometryBuilder/data/2026/v1/RPCSpecs.xml',
