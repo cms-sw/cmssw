@@ -206,9 +206,10 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(const CaloGe
     int depth = det.depth();
 
     if ((det.subdet() == HcalBarrel and (depth < 1 or depth > int(recHitEThresholdHB_.size()))) or
-        (det.subdet() == HcalEndcap and (depth < 1 or depth > int(recHitEThresholdHE_.size())))){
+        (det.subdet() == HcalEndcap and (depth < 1 or depth > int(recHitEThresholdHE_.size())))) {
       edm::LogWarning("PhotonMVABasedHaloTagger")
-          << " hit in subdet " << det.subdet() << " has an unaccounted for depth of " << depth << "!! Leaving this hit!!";
+          << " hit in subdet " << det.subdet() << " has an unaccounted for depth of " << depth
+          << "!! Leaving this hit!!";
       continue;
     }
 
@@ -226,9 +227,10 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(const CaloGe
     bool isRHBehindECAL = false;
 
     double dRho2 = pow(rhX - ecalClusX_, 2) + pow(rhY - ecalClusY_, 2);
-    
+
     ///only valid for the EE; this is 26 cm; hit within 3x3 of HCAL centered at the EECAL xtal
-    if (rho2 >= rho2Min_ECALpos_ && rho2 <= rho2Max_ECALpos_ && dRho2 <= dRho2Max_HCALClus_SamePhi_ && std::abs(dPhi) < dPhiMax_HCALClus_SamePhi_) {  
+    if (rho2 >= rho2Min_ECALpos_ && rho2 <= rho2Max_ECALpos_ && dRho2 <= dRho2Max_HCALClus_SamePhi_ &&
+        std::abs(dPhi) < dPhiMax_HCALClus_SamePhi_) {
       hcalClusX_samedPhi_ += rhX * rhE;
       hcalClusY_samedPhi_ += rhY * rhE;
       hcalClusZ_samedPhi_ += rhZ * rhE;
@@ -240,7 +242,8 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(const CaloGe
 
     double dR2 = reco::deltaR2(phoSCEta, phoSCPhi, rhEta, rhPhi);
 
-    if (dR2 <  dR2Max_HCALClus_SamePhi_ && !isRHBehindECAL) {  ///dont use hits which are just behind the ECAL in the same phi region
+    if (dR2 < dR2Max_HCALClus_SamePhi_ &&
+        !isRHBehindECAL) {  ///dont use hits which are just behind the ECAL in the same phi region
       hcalClusX_samedR_ += rhX * rhE;
       hcalClusY_samedR_ += rhY * rhE;
       hcalClusZ_samedR_ += rhZ * rhE;
@@ -320,7 +323,6 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(const CaloGeom
     double dRho2 = pow(rhX - ecalClusX_, 2) + pow(rhY - ecalClusY_, 2);
 
     if (dRho2 < tmpDiffdRho && dRho2 < dRho2Max_ESClus_) {
-
       tmpDiffdRho = dRho2;
       matchX_samephi = rhX;
       matchY_samephi = rhY;

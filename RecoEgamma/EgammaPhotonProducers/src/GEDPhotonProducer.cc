@@ -69,8 +69,8 @@ public:
       config.outputDim = pset_dnn.getParameter<uint>("outputDim");
       const auto useEBModelInGap = pset_dnn.getParameter<bool>("useEBModelInGap");
       photonDNNEstimator = std::make_unique<PhotonDNNEstimator>(config, useEBModelInGap);
-      ///for MVA based beam halo tagger in the EE
     }
+    ///for MVA based beam halo tagger in the EE
     const auto runMVABasedHaloTagger = conf.getParameter<bool>("runMVABasedHaloTagger");
     edm::ParameterSet mvaBasedHaloVariableSet = conf.getParameter<edm::ParameterSet>("mvaBasedHaloVariableSet");
     auto trainingFileName_ = mvaBasedHaloVariableSet.getParameter<edm::FileInPath>(("trainingFileName")).fullPath();
