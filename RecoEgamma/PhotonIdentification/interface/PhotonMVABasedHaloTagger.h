@@ -33,7 +33,6 @@ public:
                       const edm::Event& iEvent,
                       const edm::EventSetup& es);
 
-
 private:
   void calphoClusCoordinECAL(const CaloGeometry* geo,
                              const reco::Photon*,
@@ -49,7 +48,6 @@ private:
                                           const EcalRecHitCollection& ESRecHits);
 
   double calAngleBetweenEEAndSubDet(int nhits, double subdetClusX, double subdetClusY, double subdetClusZ);
-
 
   int hcalClusNhits_samedPhi_, hcalClusNhits_samedR_;
   int ecalClusNhits_, preshowerNhits_samedPhi_, preshowerNhits_samedR_;
@@ -78,16 +76,15 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> HBHERecHitsCollection_;
 
   ///values of dR etc to cluster the hits in various sub-detectors
-  static constexpr float dr2Max_ECALClus_ = 0.2*0.2;
-  static constexpr float rho2Min_ECALpos_ = 31 * 31; //cm
-  static constexpr float rho2Max_ECALpos_ = 172 * 172; //cm
-  static constexpr float dRho2Max_HCALClus_SamePhi_ = 26 * 26; //cm
+  static constexpr float dr2Max_ECALClus_ = 0.2 * 0.2;
+  static constexpr float rho2Min_ECALpos_ = 31 * 31;            //cm
+  static constexpr float rho2Max_ECALpos_ = 172 * 172;          //cm
+  static constexpr float dRho2Max_HCALClus_SamePhi_ = 26 * 26;  //cm
   static constexpr float dPhiMax_HCALClus_SamePhi_ = 0.15;
   static constexpr float dR2Max_HCALClus_SamePhi_ = 0.15 * 0.15;
-  static constexpr float dRho2Max_ESClus_ = 2.2 * 2.2; //cm
-  static constexpr float dXY_ESClus_SamePhi_ = 1; ///cm
-  static constexpr float dXY_ESClus_SamedR_ = 1; ///cm
-  
+  static constexpr float dRho2Max_ESClus_ = 2.2 * 2.2;  //cm
+  static constexpr float dXY_ESClus_SamePhi_ = 1;       ///cm
+  static constexpr float dXY_ESClus_SamedR_ = 1;        ///cm
 };
 
 #endif  // PhotonMVABasedHaloTagger_H
