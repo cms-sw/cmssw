@@ -144,7 +144,7 @@ namespace mkfit {
 
     // Pair of axis bin indices packed into unsigned.
     struct B_pair {
-      unsigned int packed_value; // bin1 in A1::c_M lower bits, bin2 above
+      unsigned int packed_value;  // bin1 in A1::c_M lower bits, bin2 above
 
       B_pair() : packed_value(0) {}
       B_pair(typename A1::index_t i1, typename A2::index_t i2) : packed_value(i2 << A1::c_M | i1) {}
@@ -176,7 +176,9 @@ namespace mkfit {
 
     // Access
 
-    B_pair m_bin_to_n_bin(B_pair m_bin) { return {m_a1.M_bin_to_N_bin(m_bin.bin1()), m_a2.M_bin_to_N_bin(m_bin.bin2())}; }
+    B_pair m_bin_to_n_bin(B_pair m_bin) {
+      return {m_a1.M_bin_to_N_bin(m_bin.bin1()), m_a2.M_bin_to_N_bin(m_bin.bin2())};
+    }
 
     B_pair get_n_bin(typename A1::index_t n1, typename A2::index_t n2) const { return {n1, n2}; }
 
