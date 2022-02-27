@@ -29,9 +29,9 @@ private:
 
   std::map<HcalDetId, std::vector<SampleSet>> fullHistory_;
   IdMap IdSet;
-  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
-  edm::EDGetTokenT<HODigiCollection> tok_ho_;
-  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+  const edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  const edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  const edm::EDGetTokenT<HFDigiCollection> tok_hf_;
 
   template <class DigiCollection>
   void record(const DigiCollection &digis) {
@@ -50,11 +50,10 @@ private:
   }
 };
 
-HcalCableMapper::HcalCableMapper(edm::ParameterSet const &conf) {
-  tok_hbhe_ = consumes<HBHEDigiCollection>(conf.getParameter<edm::InputTag>("hbheLabel"));
-  tok_ho_ = consumes<HODigiCollection>(conf.getParameter<edm::InputTag>("hoLabel"));
-  tok_hf_ = consumes<HFDigiCollection>(conf.getParameter<edm::InputTag>("hfLabel"));
-}
+HcalCableMapper::HcalCableMapper(edm::ParameterSet const &conf) :
+      tok_hbhe_(consumes<HBHEDigiCollection>(conf.getParameter<edm::InputTag>("hbheLabel"))),
+      tok_ho_(consumes<HODigiCollection>(conf.getParameter<edm::InputTag>("hoLabel"))),
+      tok_hf_(consumes<HFDigiCollection>(conf.getParameter<edm::InputTag>("hfLabel"))) {}
 
 constexpr char const *det_names[] = {"Zero", "HcalBarrel", "HcalEndcap", "HcalForward", "HcalOuter"};
 
@@ -159,17 +158,13 @@ void HcalCableMapper::process(const PathSet &ps, const IdMap &im) {
 }
 
 void HcalCableMapper::analyze(edm::Event const &e, edm::EventSetup const &c) {
-  edm::Handle<HBHEDigiCollection> hbhe;
-  e.getByToken(tok_hbhe_, hbhe);
+  const edm::Handle<HBHEDigiCollection> & hbhe = e.getHandle(tok_hbhe_);
+  const edm::Handle<HFDigiCollection> & hf = e.getHandle(tok_hf_);
+  const edm::Handle<HODigiCollection> & ho =  e.getHandle(tok_ho_);
 
-  edm::Handle<HFDigiCollection> hf;
-  e.getByToken(tok_hf_, hf);
-  edm::Handle<HODigiCollection> ho;
-  e.getByToken(tok_ho_, ho);
-
-  record(*hbhe);
-  record(*hf);
-  record(*ho);
+  record(*(hbhe.product()));
+  record(*(hf.product()));
+  record(*(ho.product()));
 }
 
 void HcalCableMapper::endJob() {
