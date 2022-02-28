@@ -22,6 +22,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -56,11 +58,16 @@ public:
    */
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
+  /** Brief framework fillDescription
+   */
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 private:
   const edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> cablingToken_; /*!< ES token for the cabling */
   edm::FileInPath tfp_;        /*!< File Path for the tickmark scan with the APV gains. */
   double gainThreshold_;       /*!< Threshold for accepting the APV gain in the tickmark scan file. */
   double dummyAPVGain_;        /*!< Dummy value for the APV gain. */
+  bool doGainNormalization_;   /*!< Normalize the tickmark for the APV gain. */
   bool putDummyIntoUncabled_;  /*!< Flag for putting the dummy gain in the channels not actuall cabled. */
   bool putDummyIntoUnscanned_; /*!< Flag for putting the dummy gain in the chennals not scanned. */
   bool putDummyIntoOffChannels_; /*!< Flag for putting the dummy gain in the channels that were off during the tickmark scan. */
@@ -141,6 +148,8 @@ private:
   /** Brief Convert online APV id into offline APV id.
    */
   int online2offline(uint16_t onlineAPV_id, uint16_t totalAPVs) const;
+
+  static constexpr float k_GainNormalizationFactor = 640.f;
 };
 
 static const struct clean_up {
@@ -161,16 +170,16 @@ SiStripApvGainFromFileBuilder::~SiStripApvGainFromFileBuilder() {
 
 SiStripApvGainFromFileBuilder::SiStripApvGainFromFileBuilder(const edm::ParameterSet& iConfig)
     : cablingToken_(esConsumes()),
-      tfp_(iConfig.getUntrackedParameter<edm::FileInPath>("tickFile",
-                                                          edm::FileInPath("CondTools/SiStrip/data/tickheight.txt"))),
-      gainThreshold_(iConfig.getUntrackedParameter<double>("gainThreshold", 0.)),
-      dummyAPVGain_(iConfig.getUntrackedParameter<double>("dummyAPVGain", 690. / 640.)),
-      putDummyIntoUncabled_(iConfig.getUntrackedParameter<bool>("putDummyIntoUncabled", false)),
-      putDummyIntoUnscanned_(iConfig.getUntrackedParameter<bool>("putDummyIntoUnscanned", false)),
-      putDummyIntoOffChannels_(iConfig.getUntrackedParameter<bool>("putDummyIntoOffChannels", 0.)),
-      putDummyIntoBadChannels_(iConfig.getUntrackedParameter<bool>("putDummyIntoBadChannels", 0.)),
-      outputMaps_(iConfig.getUntrackedParameter<bool>("outputMaps", false)),
-      outputSummary_(iConfig.getUntrackedParameter<bool>("outputSummary", false)) {}
+      tfp_(iConfig.getParameter<edm::FileInPath>("tickFile")),
+      gainThreshold_(iConfig.getParameter<double>("gainThreshold")),
+      dummyAPVGain_(iConfig.getParameter<double>("dummyAPVGain")),
+      doGainNormalization_(iConfig.getParameter<bool>("doGainNormalization")),
+      putDummyIntoUncabled_(iConfig.getParameter<bool>("putDummyIntoUncabled")),
+      putDummyIntoUnscanned_(iConfig.getParameter<bool>("putDummyIntoUnscanned")),
+      putDummyIntoOffChannels_(iConfig.getParameter<bool>("putDummyIntoOffChannels")),
+      putDummyIntoBadChannels_(iConfig.getParameter<bool>("putDummyIntoBadChannels")),
+      outputMaps_(iConfig.getParameter<bool>("outputMaps")),
+      outputSummary_(iConfig.getParameter<bool>("outputSummary")) {}
 
 void SiStripApvGainFromFileBuilder::analyze(const edm::Event& evt, const edm::EventSetup& iSetup) {
   //unsigned int run=evt.id().run();
@@ -282,6 +291,10 @@ void SiStripApvGainFromFileBuilder::analyze(const edm::Event& evt, const edm::Ev
         if (gain != 999999.) {
           summary.is_scanned = true;
           if (gain > gainThreshold_) {
+            if (doGainNormalization_) {
+              // divide the tickmark by the normalization factor (640)
+              gain /= k_GainNormalizationFactor;
+            }
             summary.gain_in_db = gain;
             if (!summary.is_connected)
               ex_summary_.push_back(summary);
@@ -320,7 +333,7 @@ void SiStripApvGainFromFileBuilder::analyze(const edm::Event& evt, const edm::Ev
         }
 
         theSiStripVector.push_back(summary.gain_in_db);
-
+        LogTrace("SiStripApvGainFromFileBuilder") << "output gain:" << summary.gain_in_db << std::endl;
       } catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
         edm::LogError("MappingError") << "@SUB=analyze"
@@ -601,6 +614,22 @@ void SiStripApvGainFromFileBuilder::gain_from_maps(uint32_t det_id,
 
 int SiStripApvGainFromFileBuilder::online2offline(uint16_t onlineAPV_id, uint16_t totalAPVs) const {
   return (onlineAPV_id >= totalAPVs) ? onlineAPV_id - 2 : onlineAPV_id;
+}
+
+void SiStripApvGainFromFileBuilder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Conditions Builder for SiStripApvGain Objects (G1 gain) from tickmark height file");
+  desc.add<edm::FileInPath>("tickFile", edm::FileInPath("CondTools/SiStrip/data/tickheight.txt"));
+  desc.add<double>("gainThreshold", 0.)->setComment("threshold to retain the scan vale");
+  desc.add<double>("dummyAPVGain", (690. / k_GainNormalizationFactor));  // from TDR
+  desc.add<bool>("doGainNormalization", false)->setComment("normalize the output gain in DB by 640");
+  desc.add<bool>("putDummyIntoUncabled", false)->setComment("use default gain for uncabled APVs");
+  desc.add<bool>("putDummyIntoUnscanned", false)->setComment("use default gain for unscanned APVs");
+  desc.add<bool>("putDummyIntoOffChannels", false)->setComment("use default gain for APVs reading HV off modules");
+  desc.add<bool>("putDummyIntoBadChannels", false)->setComment("use default gain for bad APV channels");
+  desc.add<bool>("outputMaps", false)->setComment("prints ouput maps");
+  desc.add<bool>("outputSummary", false)->setComment("prints output summary");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
