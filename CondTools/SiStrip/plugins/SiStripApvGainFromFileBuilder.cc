@@ -143,7 +143,7 @@ private:
   int online2offline(uint16_t onlineAPV_id, uint16_t totalAPVs) const;
 };
 
-struct clean_up {
+static const struct clean_up {
   void operator()(SiStripApvGainFromFileBuilder::Gain* el) {
     if (el != nullptr) {
       el->clear();
@@ -400,13 +400,18 @@ void SiStripApvGainFromFileBuilder::read_tickmark() {
       }
 
       // insert the gain value in the map
-      std::pair<Gain::iterator, bool> ret = map->insert(std::pair<uint32_t, float>(det_id, tick_h));
-      if (ret.second == false) {
-        edm::LogError("MapError") << "@SUB=read_tickmark"
-                                  << "Cannot not insert gain for detector id " << det_id
-                                  << " into the internal map: detector id already in the map." << std::endl;
-      }
+      if (map) {
+        std::pair<Gain::iterator, bool> ret = map->insert(std::pair<uint32_t, float>(det_id, tick_h));
 
+        if (ret.second == false) {
+          edm::LogError("MapError") << "@SUB=read_tickmark"
+                                    << "Cannot not insert gain for detector id " << det_id
+                                    << " into the internal map: detector id already in the map." << std::endl;
+        }
+      } else {
+        edm::LogError("MapError") << "@SUB=read_tickmark"
+                                  << "Cannot get the online-offline APV mapping!" << std::endl;
+      }
     } else if (thickmark_heights.eof()) {
       edm::LogInfo("SiStripApvGainFromFileBuilder") << "@SUB=read_tickmark"
                                                     << "EOF of " << filename.c_str() << " reached." << std::endl;
