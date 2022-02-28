@@ -8,7 +8,7 @@ from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 
-nano from Configuration.Eras.Era_Run3_cff import Run3
+from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process("DQM", Run3)
 
 
