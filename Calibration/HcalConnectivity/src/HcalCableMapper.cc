@@ -2,6 +2,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <cstdio>
 #include <iostream>
@@ -16,9 +17,8 @@ class HcalCableMapper : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalCableMapper(edm::ParameterSet const &conf);
   ~HcalCableMapper() override = default;
-  void analyze(edm::Event const &e, edm::EventSetup const &c) override;
+  void analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
   void endJob() override;
-  // std::string sourceDigi_;
 private:
   typedef std::vector<HcalQIESample> SampleSet;
 
@@ -107,17 +107,17 @@ void HcalCableMapper::process(const PathSet &ps, const IdMap &im) {
           (H_slot == eid.htrSlot()) && (G_Dcc == eid.dccid()) && (crate == eid.readoutVMECrateId()) &&
           (iphi == dd.iphi()) && (depth == dd.depth()) && (ieta == dd.ietaAbs()) && (TB == eid.htrTopBottom()) &&
           (det == dd.subdet())) {  //&&(z_ieta==dd.zside())
-        std::cout << "Pathway match" << std::endl;
+        edm::LogVerbatim("HcalCableMapper") << "Pathway match";
       } else {
         is_header = " Header found";
 
-        std::cout << " Digi ID: " << dd << is_header << " ieta: " << eta_sign << ieta << " iphi: " << iphi
+        edm::LogVerbatim("HcalCableMapper") << " Digi ID: " << dd << is_header << " ieta: " << eta_sign << ieta << " iphi: " << iphi
                   << " Depth: " << depth << " Detector: " << det_name << " Spigot: " << spigot << "/" << eid.spigot()
                   << " Fiber: " << fiber + 1 << "/" << eid.fiberIndex() << " Fiber Channel: " << fiber_chan << "/"
                   << eid.fiberChanId() << " Crate: " << crate << "/" << eid.readoutVMECrateId()
                   << " Global Dcc: " << G_Dcc << "/" << eid.dccid() << " HTR Slot: " << H_slot << "/ " << eid.htrSlot()
                   << " Top/Bottom: " << TB << "/" << eid.htrTopBottom() << " RBX: " << (RBX_7 * 128 + RBX)
-                  << " RM: " << RM + 1 << " RM Card: " << RM_card + 1 << " RM Channel: " << RM_chan << std::endl;
+                  << " RM: " << RM + 1 << " RM Card: " << RM_card + 1 << " RM Channel: " << RM_chan;
       }
     } else if (ieta + 64 == 0x75) {
       ieta = ((ss[2].adc()) & 0x3F);
@@ -139,32 +139,31 @@ void HcalCableMapper::process(const PathSet &ps, const IdMap &im) {
           (H_slot == eid.htrSlot()) && (G_Dcc == eid.dccid()) && (TB == eid.htrTopBottom()) &&
           (crate == eid.readoutVMECrateId()) && (iphi == dd.iphi()) && (depth == dd.depth()) && (det == dd.subdet()) &&
           (ieta == dd.ietaAbs())) {
-        std::cout << "Pathway match (SHIFT)" << std::endl;
+        edm::LogVerbatim("HcalCableMapper") << "Pathway match (SHIFT)";
       } else {
         is_header = " DATA SHIFT";
 
-        std::cout << " Digi ID: " << dd << is_header << " ieta: " << eta_sign << ieta << " iphi: " << iphi
+        edm::LogVerbatim("HcalCableMapper") << " Digi ID: " << dd << is_header << " ieta: " << eta_sign << ieta << " iphi: " << iphi
                   << " Depth: " << depth << " Detector: " << det_name << " Spigot: " << spigot << "/" << eid.spigot()
                   << " Fiber: " << fiber + 1 << "/" << eid.fiberIndex() << " Fiber Channel: " << fiber_chan << "/"
                   << eid.fiberChanId() << " Crate: " << crate << "/" << eid.readoutVMECrateId()
                   << " Global Dcc: " << G_Dcc << "/" << eid.dccid() << " HTR Slot: " << H_slot << "/ " << eid.htrSlot()
-                  << " Top/Bottom: " << TB << "/" << eid.htrTopBottom() << " RBX: " << (RBX_7 * 128 + RBX) << std::endl;
+                  << " Top/Bottom: " << TB << "/" << eid.htrTopBottom() << " RBX: " << (RBX_7 * 128 + RBX);
       }
     } else {
-      std::cout << " Digi ID: " << dd << " +NO HEADER+  "
-                << " RBX: " << (RBX_7 * 128 + RBX) << std::endl;
+      edm::LogVerbatim("HcalCableMapper") << " Digi ID: " << dd << " +NO HEADER+   RBX: " << (RBX_7 * 128 + RBX);
     }
   }
 }
 
-void HcalCableMapper::analyze(edm::Event const &e, edm::EventSetup const &c) {
-  const edm::Handle<HBHEDigiCollection> &hbhe = e.getHandle(tok_hbhe_);
-  const edm::Handle<HFDigiCollection> &hf = e.getHandle(tok_hf_);
-  const edm::Handle<HODigiCollection> &ho = e.getHandle(tok_ho_);
+void HcalCableMapper::analyze(edm::Event const &iEvent, edm::EventSetup const &) {
+  const HBHEDigiCollection &hbhe = iEvent.get(tok_hbhe_);
+  const HFDigiCollection &hf = iEvent.get(tok_hf_);
+  const HODigiCollection &ho = iEvent.get(tok_ho_);
 
-  record(*(hbhe.product()));
-  record(*(hf.product()));
-  record(*(ho.product()));
+  record(hbhe);
+  record(hf);
+  record(ho);
 }
 
 void HcalCableMapper::endJob() {
