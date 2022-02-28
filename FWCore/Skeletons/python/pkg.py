@@ -147,6 +147,7 @@ class AbstractPkg(object):
                  '__date__': self.date,
                  '__class__': self.pname,
                  '__class_lowercase__': self.pname.lower(),
+                 '__class_space__': " "*len(self.pname),
                  '__name__': self.pname,
                  '__subsys__': self.config.get('subsystem', 'Subsystem')}
         args = self.config.get('args', None)
