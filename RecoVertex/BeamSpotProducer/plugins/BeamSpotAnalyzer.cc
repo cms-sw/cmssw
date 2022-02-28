@@ -9,7 +9,6 @@ ________________________________________________________________**/
 
 // C++ standard
 #include <string>
-#include <string>
 
 // CMS
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
