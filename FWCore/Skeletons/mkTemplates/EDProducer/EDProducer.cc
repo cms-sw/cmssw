@@ -78,11 +78,11 @@ private:
 //
 // constructors and destructor
 //
-__class__::__class__(const edm::ParameterSet& iConfig)
+@default__class__::__class__(const edm::ParameterSet& iConfig) {
+@example_myparticle__class__::__class__(const edm::ParameterSet& iConfig)
 @example_myparticle    : muonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
 @example_myparticle      electronToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
-@example_myparticle      putToken_(produces<MyParticleCollection>("particles"))
-{
+@example_myparticle      putToken_(produces<MyParticleCollection>("particles")) {
   //register your products
   /* Examples
   produces<ExampleData2>();

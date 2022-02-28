@@ -109,6 +109,10 @@ class AbstractPkg(object):
             if  line.find(tag) != -1:
               line = ''
               return line
+        if len(keep_etags) == 0:
+            return line.replace('@default', '')
+        if '@default' in line:
+            return ''
         return line
 
     def write(self, fname, tmpl_name, kwds):
