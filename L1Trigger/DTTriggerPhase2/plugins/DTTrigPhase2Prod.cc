@@ -124,6 +124,7 @@ private:
   bool do_correlation_;
   int scenario_;
   int df_extended_;
+  int max_index_;
   //  std::string geometry_tag_;
 
   // ParameterSet
@@ -183,6 +184,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   scenario_ = pset.getParameter<int>("scenario");
 
   df_extended_ = pset.getParameter<int>("df_extended");
+  max_index_ = pset.getParameter<int>("max_primitives") - 1;
 
   dtDigisToken_ = consumes<DTDigiCollection>(pset.getParameter<edm::InputTag>("digiTag"));
 
@@ -788,7 +790,8 @@ void DTTrigPhase2Prod::assignIndex(std::vector<metaPrimitive>& inMPaths) {
   for (auto& prims : primsPerBX) {
     assignIndexPerBX(prims.second);
     for (const auto& primitive : prims.second)
-      inMPaths.push_back(primitive);
+      if (primitive.index <= max_index_)
+        inMPaths.push_back(primitive);
   }
 }
 
