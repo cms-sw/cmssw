@@ -35,6 +35,7 @@ using namespace trigger;
 
 HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig)
     : HLTFilter(iConfig),
+      prop_(iConfig, consumesCollector()), 
       beamspotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
       beamspotToken_(consumes<reco::BeamSpot>(beamspotTag_)),
       candTag_(iConfig.getParameter<InputTag>("CandTag")),
@@ -113,6 +114,10 @@ void HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("L1MatchingdR", 0.3);
   desc.add<bool>("MatchToPreviousCand", true);
   desc.add<edm::InputTag>("InputLinks", edm::InputTag(""));
+  desc.add<bool>("useSimpleGeometry", true);
+  desc.add<bool>("useStation2", true);
+  desc.add<string>("useTrack", "tracker");
+  desc.add<string>("useState", "atVertex");
   descriptions.add("hltMuonL3PreFilter", desc);
 }
 
@@ -127,6 +132,8 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent,
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
+
+  prop_.init(iSetup);
 
   if (saveTags())
     filterproduct.addCollectionTag(candTag_);
@@ -224,11 +231,19 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent,
         }  //MTL loop
 
         if (!l1CandTag_.label().empty() && check_l1match) {
+	  TrajectoryStateOnSurface propagated = prop_.extrapolate(*tk);
+	  float etaForMatch = cand->eta();
+	  float phiForMatch = cand->phi();
+          if (propagated.isValid()) {
+                etaForMatch = propagated.globalPosition().eta();
+                phiForMatch = propagated.globalPosition().phi();
+	  }	  
           iEvent.getByToken(l1CandToken_, level1Cands);
           level1Cands->getObjects(trigger::TriggerL1Mu, vl1cands);
           const unsigned int nL1Muons(vl1cands.size());
           for (unsigned int il1 = 0; il1 != nL1Muons; ++il1) {
-            if (deltaR(cand->eta(), cand->phi(), vl1cands[il1]->eta(), vl1cands[il1]->phi()) < L1MatchingdR_) {
+            if (deltaR2(etaForMatch, phiForMatch, vl1cands[il1]->eta(), vl1cands[il1]->phi()) <
+                L1MatchingdR_ * L1MatchingdR_) {
               MuonToL3s[i] = RecoChargedCandidateRef(cand);
             }
           }

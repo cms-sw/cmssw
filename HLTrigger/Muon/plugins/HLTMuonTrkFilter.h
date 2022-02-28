@@ -4,8 +4,10 @@
 //  based on HLTDiMuonGlbTrkFilter.h
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -21,6 +23,7 @@ public:
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
 private:
+  mutable PropagateToMuon prop_;
   // WARNING: two input collection represent should be aligned and represent
   // the same list of muons, just stored in different containers
   edm::InputTag m_muonsTag;                             // input collection of muons
