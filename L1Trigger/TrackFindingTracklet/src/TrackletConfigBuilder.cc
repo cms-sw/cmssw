@@ -285,7 +285,7 @@ double TrackletConfigBuilder::rinv(double r1, double phi1, double r2, double phi
   return 2 * sin(deltaphi) / sqrt(r2 * r2 + r1 * r1 - 2 * r1 * r2 * cos(deltaphi));
 }
 
-std::string TrackletConfigBuilder::iSeedStr(unsigned int iSeed) {
+std::string TrackletConfigBuilder::iSeedStr(unsigned int iSeed) const {
   static std::string name[8] = {"L1L2", "L2L3", "L3L4", "L5L6", "D1D2", "D3D4", "L1D1", "L2D1"};
 
   assert(iSeed < 8);
@@ -300,14 +300,14 @@ std::string TrackletConfigBuilder::numStr(unsigned int i) {
   return num[i];
 }
 
-std::string TrackletConfigBuilder::iTCStr(unsigned int iTC) {
+std::string TrackletConfigBuilder::iTCStr(unsigned int iTC) const {
   static std::string name[12] = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"};
 
   assert(iTC < 12);
   return name[iTC];
 }
 
-std::string TrackletConfigBuilder::iRegStr(unsigned int iReg, unsigned int iSeed) {
+std::string TrackletConfigBuilder::iRegStr(unsigned int iReg, unsigned int iSeed) const {
   static std::string name[8] = {"A", "B", "C", "D", "E", "F", "G", "H"};
 
   static std::string nameOverlap[8] = {"X", "Y", "Z", "W", "Q", "R", "S", "T"};
@@ -326,7 +326,7 @@ std::string TrackletConfigBuilder::iRegStr(unsigned int iReg, unsigned int iSeed
   return name[iReg];
 }
 
-std::string TrackletConfigBuilder::TCName(unsigned int iSeed, unsigned int iTC) {
+std::string TrackletConfigBuilder::TCName(unsigned int iSeed, unsigned int iTC) const {
   if (combinedmodules_) {
     return "TP_" + iSeedStr(iSeed) + iTCStr(iTC);
   } else {
@@ -341,11 +341,11 @@ std::string TrackletConfigBuilder::LayerName(unsigned int ilayer) {
 std::string TrackletConfigBuilder::TPROJName(unsigned int iSeed,
                                              unsigned int iTC,
                                              unsigned int ilayer,
-                                             unsigned int ireg) {
+                                             unsigned int ireg) const {
   return "TPROJ_" + iSeedStr(iSeed) + iTCStr(iTC) + "_" + LayerName(ilayer) + "PHI" + iTCStr(ireg);
 }
 
-std::string TrackletConfigBuilder::PRName(unsigned int ilayer, unsigned int ireg) {
+std::string TrackletConfigBuilder::PRName(unsigned int ilayer, unsigned int ireg) const {
   if (combinedmodules_) {
     return "MP_" + LayerName(ilayer) + "PHI" + iTCStr(ireg);
   } else {
@@ -376,7 +376,7 @@ std::string TrackletConfigBuilder::SPName(unsigned int l1,
                                           unsigned int l2,
                                           unsigned int ireg2,
                                           unsigned int ivm2,
-                                          unsigned int iseed) {
+                                          unsigned int iseed) const {
   return "SP_" + LayerName(l1) + "PHI" + iRegStr(ireg1, iseed) + numStr(ivm1) + "_" + LayerName(l2) + "PHI" +
          iRegStr(ireg2, iseed) + numStr(ivm2);
 }
@@ -390,7 +390,7 @@ std::string TrackletConfigBuilder::SPDName(unsigned int l1,
                                            unsigned int l3,
                                            unsigned int ireg3,
                                            unsigned int ivm3,
-                                           unsigned int iseed) {
+                                           unsigned int iseed) const {
   return "SPD_" + LayerName(l1) + "PHI" + iRegStr(ireg1, iseed) + numStr(ivm1) + "_" + LayerName(l2) + "PHI" +
          iRegStr(ireg2, iseed) + numStr(ivm2) + "_" + LayerName(l3) + "PHI" + iRegStr(ireg3, iseed) + numStr(ivm3);
 }
@@ -401,7 +401,7 @@ std::string TrackletConfigBuilder::TEName(unsigned int l1,
                                           unsigned int l2,
                                           unsigned int ireg2,
                                           unsigned int ivm2,
-                                          unsigned int iseed) {
+                                          unsigned int iseed) const {
   return "TE_" + LayerName(l1) + "PHI" + iRegStr(ireg1, iseed) + numStr(ivm1) + "_" + LayerName(l2) + "PHI" +
          iRegStr(ireg2, iseed) + numStr(ivm2);
 }
@@ -412,31 +412,31 @@ std::string TrackletConfigBuilder::TEDName(unsigned int l1,
                                            unsigned int l2,
                                            unsigned int ireg2,
                                            unsigned int ivm2,
-                                           unsigned int iseed) {
+                                           unsigned int iseed) const {
   return "TED_" + LayerName(l1) + "PHI" + iRegStr(ireg1, iseed) + numStr(ivm1) + "_" + LayerName(l2) + "PHI" +
          iRegStr(ireg2, iseed) + numStr(ivm2);
 }
 
-std::string TrackletConfigBuilder::TParName(unsigned int l1, unsigned int l2, unsigned int l3, unsigned int itc) {
+std::string TrackletConfigBuilder::TParName(unsigned int l1, unsigned int l2, unsigned int l3, unsigned int itc) const {
   return "TPAR_" + LayerName(l1) + LayerName(l2) + LayerName(l3) + iTCStr(itc);
 }
 
-std::string TrackletConfigBuilder::TCDName(unsigned int l1, unsigned int l2, unsigned int l3, unsigned int itc) {
+std::string TrackletConfigBuilder::TCDName(unsigned int l1, unsigned int l2, unsigned int l3, unsigned int itc) const {
   return "TCD_" + LayerName(l1) + LayerName(l2) + LayerName(l3) + iTCStr(itc);
 }
 
 std::string TrackletConfigBuilder::TPROJName(
-    unsigned int l1, unsigned int l2, unsigned int l3, unsigned int itc, unsigned int projlayer, unsigned int projreg) {
+    unsigned int l1, unsigned int l2, unsigned int l3, unsigned int itc, unsigned int projlayer, unsigned int projreg) const {
   return "TPROJ_" + LayerName(l1) + LayerName(l2) + LayerName(l3) + iTCStr(itc) + "_" + LayerName(projlayer) + "PHI" +
          iTCStr(projreg);
 }
 
-std::string TrackletConfigBuilder::FTName(unsigned int l1, unsigned int l2, unsigned int l3) {
+std::string TrackletConfigBuilder::FTName(unsigned int l1, unsigned int l2, unsigned int l3) const {
   return "FT_" + LayerName(l1) + LayerName(l2) + LayerName(l3);
 }
 
 std::string TrackletConfigBuilder::TREName(
-    unsigned int l1, unsigned int ireg1, unsigned int l2, unsigned int ireg2, unsigned int iseed, unsigned int count) {
+    unsigned int l1, unsigned int ireg1, unsigned int l2, unsigned int ireg2, unsigned int iseed, unsigned int count) const {
   return "TRE_" + LayerName(l1) + iRegStr(ireg1, iseed) + LayerName(l2) + iRegStr(ireg2, iseed) + "_" + numStr(count);
 }
 
@@ -447,13 +447,9 @@ std::string TrackletConfigBuilder::STName(unsigned int l1,
                                           unsigned int l3,
                                           unsigned int ireg3,
                                           unsigned int iseed,
-                                          unsigned int count) {
+                                          unsigned int count) const {
   return "ST_" + LayerName(l1) + iRegStr(ireg1, iseed) + LayerName(l2) + iRegStr(ireg2, iseed) + "_" + LayerName(l3) +
          iRegStr(ireg3, iseed) + "_" + numStr(count);
-}
-
-std::string TrackletConfigBuilder::TCNAme(unsigned int iseed, unsigned int iTC) {
-  return "TC_" + iSeedStr(iseed) + iTCStr(iTC);
 }
 
 void TrackletConfigBuilder::writeSPMemories(std::ostream& os, std::ostream& memories, std::ostream& modules) {
@@ -479,7 +475,7 @@ void TrackletConfigBuilder::writeSPMemories(std::ostream& os, std::ostream& memo
 
         os << SPName(l1, TE1 / NVMTE_[iSeed].first, TE1, l2, TE2 / NVMTE_[iSeed].second, TE2, iSeed) << " input=> "
            << TEName(l1, TE1 / NVMTE_[iSeed].first, TE1, l2, TE2 / NVMTE_[iSeed].second, TE2, iSeed)
-           << ".stubpairout output=> " << TCNAme(iSeed, iTC) << ".stubpairin" << std::endl;
+           << ".stubpairout output=> " << TCName(iSeed, iTC) << ".stubpairin" << std::endl;
       }
     }
   }
@@ -1061,10 +1057,12 @@ void TrackletConfigBuilder::writeCTMemories(std::ostream& os, std::ostream& memo
 
 void TrackletConfigBuilder::writeILMemories(std::ostream& os, std::ostream& memories, std::ostream& modules) {
   //FIXME these should not be hardcoded - but for now wanted to avoid reading file
-  string dtcname[52];
-  unsigned int layerdisk[52];
-  double phimin[52];
-  double phimax[52];
+  //Possible solution  https://github.com/tomalin/cmssw/blob/ian_TxtFiles/TrackFindingTrackletHLS/src/TxtFileWriter.cc#L28
+  constexpr unsigned int nSize = 52;
+  string dtcname[nSize];
+  unsigned int layerdisk[nSize];
+  double phimin[nSize];
+  double phimax[nSize];
 
   dtcname[0] = "PS10G_1";
   layerdisk[0] = 0;
@@ -1278,7 +1276,7 @@ void TrackletConfigBuilder::writeILMemories(std::ostream& os, std::ostream& memo
   double dphi = 0.5 * dphisectorHG_ - M_PI / NSector_;
 
   string olddtc = "";
-  for (unsigned int i = 0; i < 52; i++) {
+  for (unsigned int i = 0; i < nSize; i++) {
     if (olddtc != dtcname[i]) {
       modules << "InputRouter: IR_" << dtcname[i] << "_A" << std::endl;
       modules << "InputRouter: IR_" << dtcname[i] << "_B" << std::endl;
@@ -1292,7 +1290,7 @@ void TrackletConfigBuilder::writeILMemories(std::ostream& os, std::ostream& memo
     olddtc = dtcname[i];
   }
 
-  for (unsigned int i = 0; i < 52; i++) {
+  for (unsigned int i = 0; i < nSize; i++) {
     double phimintmp = phimin[i] + dphi;
     double phimaxtmp = phimax[i] + dphi;
 

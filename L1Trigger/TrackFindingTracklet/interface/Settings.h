@@ -428,6 +428,10 @@ namespace trklet {
       return bendcut;
     }
 
+    // DTC in given ATCA crate slot.
+    std::string slotToDTCname(unsigned int slot) const {return slotToDTCname_.at(slot);}
+
+    // Tracker layers read by given DTC.
     const std::vector<int>& dtcLayers(const std::string& dtcName) const {
       auto iter = dtclayers_.find(dtcName);
       assert(iter != dtclayers_.end());
@@ -497,6 +501,8 @@ namespace trklet {
          {{3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2}},
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1}}}};
 
+    std::vector<std::string> slotToDTCname_{"PS10G_1","PS10G_2","PS10G_3","PS10G_4","PS_1","PS_2","2S_1","2S_2","2S_3","2S_4","2S_5","2S_6"};
+
     std::map<std::string, std::vector<int> > dtclayers_{{"PS10G_1", {0, 6, 8, 10}},
                                                         {"PS10G_2", {0, 7, 9}},
                                                         {"PS10G_3", {1, 7}},
@@ -540,6 +546,7 @@ namespace trklet {
 
     double ptcutte_{1.8};  //Minimum pt in TE
 
+    // VALUE AUTOMATICALLY INCREASED FOR EXTENDED TRACKING BY PYTHON CFG
     unsigned int nbitstrackletindex_{7};  //Bits used to store the tracklet index
 
     unsigned int nbitsitc_{4};           //Bits used to store the iTC, a unique
@@ -892,35 +899,38 @@ namespace trklet {
     unsigned int minIndStubs_{3};  // not used with merge removal
 
 #ifdef USEHYBRID
+    // Duplicate track removal algo. VALUE HERE OVERRIDDEN BY PYTHON CFG
     std::string removalType_{"merge"};
     // "CompareBest" (recommended) Compares only the best stub in each track for each region (best = smallest phi residual)
     // and will merge the two tracks if stubs are shared in three or more regions
     // "CompareAll" Compares all stubs in a region, looking for matches, and will merge the two tracks if stubs are shared in three or more regions
     std::string mergeComparison_{"CompareBest"};
     bool doKF_{true};
-#endif
-
-#ifndef USEHYBRID
-    bool doKF_{false};
+#else
     std::string removalType_{"ichi"};
     std::string mergeComparison_{""};
+    bool doKF_{false};
 #endif
 
+    // VALUE OVERRIDDEN BY PYTHON CFG
     // When false, match calculator does not save multiple matches, even when doKF=true.
     // This is a temporary fix for compatibilty with HLS. We will need to implement multiple match
     // printing in emulator eventually, possibly after CMSSW-integration inspired rewrites
     // Use false when generating HLS files, use true when doing full hybrid tracking
     bool doMultipleMatches_{true};
 
+    // NEXT 2 VALUES OVERRIDDEN BY PYTHON CFG
     // if true, run a dummy fit, producing TTracks directly from output of tracklet pattern reco stage
     bool fakefit_{false};
-    // if true EDProducer fills additionaly bit and clock accurate TrackBuilder EDProduct
+    // if true, EDProducer fills additional bit & clock accurate TrackBuilder EDProduct
     bool storeTrackBuilderOutput_{false};
 
+    // NEXT 3 VALUES OVERRIDDEN BY PYTHON CFG
     unsigned int nHelixPar_{4};  // 4 or 5 param helix fit
     bool extended_{false};       // turn on displaced tracking
-    bool combined_{false};       // use combined TP (TE+TC) and MP (PR+ME+MC) configuration
     bool reduced_{false};        // use reduced (Summer Chain) config
+
+    bool combined_{false};       // use combined TP (TE+TC) and MP (PR+ME+MC) configuration
 
     std::string skimfile_{""};  //if not empty events will be written out in ascii format to this file
 
