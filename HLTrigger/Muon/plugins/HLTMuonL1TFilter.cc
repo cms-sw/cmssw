@@ -111,18 +111,14 @@ bool HLTMuonL1TFilter::hltFilter(edm::Event& iEvent,
       MuonRef muon(allMuons, distance(allMuons->begin(allMuons->getFirstBX()), it));
 
       // Only select muons that were selected in the previous level
-      //new matching that also works if the collections are not one and the same
       bool matchPrevL1 = false;
       int prevSize = prevMuons.size();
-      for (int it2=0; it2<prevSize;it2++){
-         if (deltaR2(muon->eta(),muon->phi(),prevMuons[it2]->eta(),prevMuons[it2]->phi()) < 0.1) matchPrevL1 = true;
+      for (int it2 = 0; it2 < prevSize; it2++) {
+        if (deltaR2(muon->eta(), muon->phi(), prevMuons[it2]->eta(), prevMuons[it2]->phi()) < 0.1)
+          matchPrevL1 = true;
       }
       if (!matchPrevL1)
-         continue;
-      // old matching that fails 
-      //if (find(prevMuons.begin(), prevMuons.end(), muon) == prevMuons.end())
-        //continue;
-        
+        continue;
 
       //check maxEta cut
       if (fabs(muon->eta()) > maxEta_)

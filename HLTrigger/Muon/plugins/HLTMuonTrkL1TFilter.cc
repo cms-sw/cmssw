@@ -26,8 +26,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 HLTMuonTrkL1TFilter::HLTMuonTrkL1TFilter(const edm::ParameterSet& iConfig)
-  : HLTFilter(iConfig),
-    prop_(iConfig, consumesCollector()) {
+    : HLTFilter(iConfig), prop_(iConfig, consumesCollector()) {
   m_muonsTag = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
   m_muonsToken = consumes<reco::MuonCollection>(m_muonsTag);
   m_candsTag = iConfig.getParameter<edm::InputTag>("inputCandCollection");
@@ -110,8 +109,8 @@ bool HLTMuonTrkL1TFilter::hltFilter(edm::Event& iEvent,
       float etaForMatch = cand->eta();
       float phiForMatch = cand->phi();
       if (propagated.isValid()) {
-          etaForMatch = propagated.globalPosition().eta();
-          phiForMatch = propagated.globalPosition().phi();
+        etaForMatch = propagated.globalPosition().eta();
+        phiForMatch = propagated.globalPosition().phi();
       }
       bool matchl1 = false;
       for (auto l1cand = vl1cands_begin; l1cand != vl1cands_end; ++l1cand) {

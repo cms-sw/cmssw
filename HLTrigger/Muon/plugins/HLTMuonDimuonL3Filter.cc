@@ -293,8 +293,8 @@ bool HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent,
           float etaForMatch = cand->eta();
           float phiForMatch = cand->phi();
           if (propagated.isValid()) {
-              etaForMatch = propagated.globalPosition().eta();
-              phiForMatch = propagated.globalPosition().phi();
+            etaForMatch = propagated.globalPosition().eta();
+            phiForMatch = propagated.globalPosition().phi();
           }
           iEvent.getByToken(l1CandToken_, level1Cands);
           level1Cands->getObjects(trigger::TriggerL1Mu, vl1cands);

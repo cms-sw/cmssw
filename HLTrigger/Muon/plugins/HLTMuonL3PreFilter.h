@@ -80,8 +80,6 @@ private:
   const bool devDebug_;
   const edm::InputTag theL3LinksLabel;
   const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
-
-
 };
 
 #endif  //HLTMuonL3PreFilter_h

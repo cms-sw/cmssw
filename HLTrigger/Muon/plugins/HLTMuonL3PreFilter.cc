@@ -35,7 +35,7 @@ using namespace trigger;
 
 HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig)
     : HLTFilter(iConfig),
-      prop_(iConfig, consumesCollector()), 
+      prop_(iConfig, consumesCollector()),
       beamspotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
       beamspotToken_(consumes<reco::BeamSpot>(beamspotTag_)),
       candTag_(iConfig.getParameter<InputTag>("CandTag")),
@@ -231,13 +231,13 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent,
         }  //MTL loop
 
         if (!l1CandTag_.label().empty() && check_l1match) {
-	  TrajectoryStateOnSurface propagated = prop_.extrapolate(*tk);
-	  float etaForMatch = cand->eta();
-	  float phiForMatch = cand->phi();
+          TrajectoryStateOnSurface propagated = prop_.extrapolate(*tk);
+          float etaForMatch = cand->eta();
+          float phiForMatch = cand->phi();
           if (propagated.isValid()) {
-                etaForMatch = propagated.globalPosition().eta();
-                phiForMatch = propagated.globalPosition().phi();
-	  }	  
+            etaForMatch = propagated.globalPosition().eta();
+            phiForMatch = propagated.globalPosition().phi();
+          }
           iEvent.getByToken(l1CandToken_, level1Cands);
           level1Cands->getObjects(trigger::TriggerL1Mu, vl1cands);
           const unsigned int nL1Muons(vl1cands.size());
