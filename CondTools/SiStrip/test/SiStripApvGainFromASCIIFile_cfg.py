@@ -61,11 +61,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-process.prod = cms.EDAnalyzer("SiStripApvGainFromFileBuilder",
-    outputMaps    = cms.untracked.bool(True),
-    outputSummary = cms.untracked.bool(True),
-)
-
+from CondTools.SiStrip.siStripApvGainFromFileBuilder_cfi import siStripApvGainFromFileBuilder
+process.prod = siStripApvGainFromFileBuilder.clone(doGainNormalization = True,      # do normalize the gains
+                                                   putDummyIntoUncabled = True,     # all defects to default
+                                                   putDummyIntoUnscanned = True,    # all defects to default
+                                                   putDummyIntoOffChannels = True,  # all defects to default
+                                                   putDummyIntoBadChannels = True,  # all defects to default
+                                                   outputMaps = True,
+                                                   outputSummary = True)
 process.p = cms.Path(process.prod)
 
 
