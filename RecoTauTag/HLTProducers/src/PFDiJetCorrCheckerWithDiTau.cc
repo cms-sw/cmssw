@@ -77,7 +77,7 @@ void PFDiJetCorrCheckerWithDiTau::fillDescriptions(edm::ConfigurationDescription
       ->setComment("Input collection of PFTaus that have passed ID and isolation requirements");
   desc.add<double>("extraTauPtCut", 45)->setComment("In case of asymmetric tau pt cuts");
   desc.add<double>("mjjMin", 500)->setComment("VBF dijet mass condition");
-  desc.add<double>("Min_dR", 0.5)->setComment("Minimum dR between PFJets and filtered PFTaus");
+  desc.add<double>("dRmin", 0.5)->setComment("Minimum dR between PFJets and filtered PFTaus");
   descriptions.setComment(
       "This module produces a collection of PFJets that are cross-cleaned with respect to PFTaus passing a HLT "
       "filter.");
