@@ -61,12 +61,13 @@ private:
       const volumeIterator itr, G4LogicalVolume *plv, unsigned int copy, double time, double energy, bool flag);
 
 private:
-  std::vector<std::string> LVNames_;
+  const edm::ParameterSet m_Passive;
+  const std::vector<std::string> LVNames_;
+  const std::string motherName_;
+  const int addlevel_;
   G4VPhysicalVolume *topPV_;
   G4LogicalVolume *topLV_;
   std::map<G4LogicalVolume *, std::pair<unsigned int, std::string>> mapLV_;
-  std::string motherName_;
-  int addlevel_;
 
   // some private members for ananlysis
   unsigned int count_;
@@ -74,13 +75,15 @@ private:
   std::map<std::pair<G4LogicalVolume *, unsigned int>, std::array<double, 3>> store_;
 };
 
-HGCPassive::HGCPassive(const edm::ParameterSet &p) : topPV_(nullptr), topLV_(nullptr), count_(0), init_(false) {
-  edm::ParameterSet m_Passive = p.getParameter<edm::ParameterSet>("HGCPassive");
-  LVNames_ = m_Passive.getParameter<std::vector<std::string>>("LVNames");
-  motherName_ = m_Passive.getParameter<std::string>("MotherName");
-  bool dd4hep = m_Passive.getParameter<bool>("IfDD4hep");
-  addlevel_ = dd4hep ? 1 : 0;
-
+HGCPassive::HGCPassive(const edm::ParameterSet &p)
+    : m_Passive(p.getParameter<edm::ParameterSet>("HGCPassive")),
+      LVNames_(m_Passive.getParameter<std::vector<std::string>>("LVNames")),
+      motherName_(m_Passive.getParameter<std::string>("MotherName")),
+      addlevel_((m_Passive.getParameter<bool>("IfDD4hep")) ? 1 : 0),
+      topPV_(nullptr),
+      topLV_(nullptr),
+      count_(0),
+      init_(false) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "Name of the mother volume " << motherName_ << " AddLevel " << addlevel_;
   unsigned k(0);

@@ -40,20 +40,21 @@ private:
   bool stopAfter(const G4Step*);
   int findVolume(const G4VTouchable* touch, bool stop) const;
 
-  std::vector<std::string> listNames_;
-  std::string stopName_;
-  double stopZ_;
-  unsigned int nList_;
+  const edm::ParameterSet m_p;
+  const std::vector<std::string> listNames_;
+  const std::string stopName_;
+  const double stopZ_;
+  const unsigned int nList_;
   MaterialAccountingCaloCollection matcoll_;
   std::vector<double> radLen_, intLen_, stepLen_;
 };
 
-HGCalTBMBProducer::HGCalTBMBProducer(const edm::ParameterSet& p) {
-  edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("HGCalTBMB");
-  listNames_ = m_p.getParameter<std::vector<std::string> >("DetectorNames");
-  stopName_ = m_p.getParameter<std::string>("StopName");
-  stopZ_ = m_p.getParameter<double>("MaximumZ");
-  nList_ = listNames_.size();
+HGCalTBMBProducer::HGCalTBMBProducer(const edm::ParameterSet& p)
+    : m_p(p.getParameter<edm::ParameterSet>("HGCalTBMB")),
+      listNames_(m_p.getParameter<std::vector<std::string> >("DetectorNames")),
+      stopName_(m_p.getParameter<std::string>("StopName")),
+      stopZ_(m_p.getParameter<double>("MaximumZ")),
+      nList_(listNames_.size()) {
   edm::LogVerbatim("HGCSim") << "HGCalTBMBProducer initialized for " << nList_ << " volumes";
   for (unsigned int k = 0; k < nList_; ++k)
     edm::LogVerbatim("HGCSim") << " [" << k << "] " << listNames_[k];
