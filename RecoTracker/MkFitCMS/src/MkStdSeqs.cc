@@ -139,9 +139,9 @@ namespace mkfit {
 
       axis_pow2_u1<float, unsigned short, 16, 8> ax_phi(-Const::PI, Const::PI);
       axis<float, unsigned short, 8, 8> ax_eta(-3.0, 3.0, 30u);
-      binnor<unsigned int, decltype(ax_phi), decltype(ax_eta), 24, 8> b(ax_phi, ax_eta);
+      binnor<unsigned int, decltype(ax_phi), decltype(ax_eta), 24, 8> phi_eta_binnor(ax_phi, ax_eta);
 
-      b.begin_registration(ns);
+      phi_eta_binnor.begin_registration(ns);
 
       for (int ts = 0; ts < ns; ts++) {
         const Track &tk = seeds[ts];
@@ -158,40 +158,36 @@ namespace mkfit {
         z[ts] = tk.z();
         d0[ts] = tk.d0BeamSpot(bspot.x, bspot.y);
 
-        b.register_entry_safe(
+        phi_eta_binnor.register_entry_safe(
             oldPhi[ts],
             eta[ts]);  // If one is sure values are *within* axis ranges: b.register_entry(oldPhi[ts], eta[ts]);
       }
 
-      b.finalize_registration();
+      phi_eta_binnor.finalize_registration();
 
       for (int sorted_ts = 0; sorted_ts < ns; sorted_ts++) {
-        int ts = b.m_ranks[sorted_ts];
+        int ts = phi_eta_binnor.m_ranks[sorted_ts];
 
         if (not writetrack[ts])
-          continue;  //FIXME: this speed up prevents transitive masking; check build cost!
+          continue;  // Note: this speed up prevents transitive masking (possibly marginal gain).
 
         const float oldPhi1 = oldPhi[ts];
         const float pos2_first = pos2[ts];
-        const float Eta1 = eta[ts];
-        const float Pt1 = pt[ts];
+        const float eta1 = eta[ts];
+        const float pt1 = pt[ts];
         const float invptq_first = invptq[ts];
 
         // To study some more details -- need EventOfHits for this
         int n_ovlp_hits_added = 0;
-        // int  n_ovlp_hits_same_module = 0;
-        // int  n_ovlp_hits_shared = 0;
-        // int  n_ovlp_tracks = 0;
 
-        //these two loops may be put inside the class
-        auto phi_rng = ax_phi.Rrdr_to_N_bins(oldPhi[ts], 0.08);
-        auto eta_rng = ax_eta.Rrdr_to_N_bins(eta[ts], .1);
+        auto phi_rng = ax_phi.Rrdr_to_N_bins(oldPhi[ts], 0.08f);
+        auto eta_rng = ax_eta.Rrdr_to_N_bins(eta[ts], .1f);
 
         for (auto i_phi = phi_rng.begin; i_phi != phi_rng.end; i_phi = ax_phi.next_N_bin(i_phi)) {
           for (auto i_eta = eta_rng.begin; i_eta != eta_rng.end; i_eta = ax_eta.next_N_bin(i_eta)) {
-            const auto cbin = b.get_content(i_phi, i_eta);
+            const auto cbin = phi_eta_binnor.get_content(i_phi, i_eta);
             for (auto i = cbin.first; i < cbin.end(); ++i) {
-              int tss = b.m_ranks[i];
+              int tss = phi_eta_binnor.m_ranks[i];
 
               if (not writetrack[ts])
                 continue;
@@ -200,19 +196,19 @@ namespace mkfit {
               if (tss == ts)
                 continue;
 
-              const float Pt2 = pt[tss];
+              const float pt2 = pt[tss];
 
-              ////// Always require charge consistency. If different charge is assigned, do not remove seed-track
+              // Always require charge consistency. If different charge is assigned, do not remove seed-track
               if (charge[tss] != charge[ts])
                 continue;
 
-              const float thisDPt = std::abs(Pt2 - Pt1);
-              ////// Require pT consistency between seeds. If dpT is large, do not remove seed-track.
-              if (thisDPt > dpt_common * (Pt1))
+              const float thisDPt = std::abs(pt2 - pt1);
+              // Require pT consistency between seeds. If dpT is large, do not remove seed-track.
+              if (thisDPt > dpt_common * pt1)
                 continue;
 
-              const float Eta2 = eta[tss];
-              const float deta2 = std::pow(Eta1 - Eta2, 2);
+              const float eta2 = eta[tss];
+              const float deta2 = std::pow(eta1 - eta2, 2);
 
               const float oldPhi2 = oldPhi[tss];
 
@@ -233,11 +229,11 @@ namespace mkfit {
               const float thisDZ = z[ts] - z[tss] - thisDXY * (ctheta[ts] + ctheta[tss]);
               const float dz2 = thisDZ * thisDZ;
 
-              ////// Reject tracks within dR-dz elliptical window.
-              ////// Adaptive thresholds, based on observation that duplicates are more abundant at large pseudo-rapidity and low track pT
+              // Reject tracks within dR-dz elliptical window.
+              // Adaptive thresholds, based on observation that duplicates are more abundant at large pseudo-rapidity and low track pT
               bool overlapping = false;
-              if (std::abs(Eta1) < etamax_brl) {
-                if (Pt1 > ptmin_hpt) {
+              if (std::abs(eta1) < etamax_brl) {
+                if (pt1 > ptmin_hpt) {
                   if (dz2 * dzmax2_inv_bh + dr2 * drmax2_inv_bh < 1.0f)
                     overlapping = true;
                 } else {
@@ -245,7 +241,7 @@ namespace mkfit {
                     overlapping = true;
                 }
               } else {
-                if (Pt1 > ptmin_hpt) {
+                if (pt1 > ptmin_hpt) {
                   if (dz2 * dzmax2_inv_eh + dr2 * drmax2_inv_eh < 1.0f)
                     overlapping = true;
                 } else {
@@ -266,10 +262,10 @@ namespace mkfit {
                   i1 = tss;
                 }
                 // Add hits from tk2 to the seed we are keeping.
-                // NOTE: We only have 3 bits in Track::Status for number of seed hits.
+                // NOTE: We have a limit in Track::Status for the number of seed hits.
                 //       There is a check at entry and after adding of a new hit.
                 Track &tk = seeds[i1];
-                if (merge_hits && tk.nTotalHits() < 15) {
+                if (merge_hits && tk.nTotalHits() < Track::Status::kMaxSeedHits) {
                   const Track &tk2 = seeds[i2];
                   //We are not actually fitting to the extra hits; use chi2 of 0
                   float fakeChi2 = 0.0;
@@ -288,7 +284,7 @@ namespace mkfit {
                       if (unique) {
                         tk.addHitIdx(tk2.getHitIdx(j), tk2.getHitLyr(j), fakeChi2);
                         ++n_ovlp_hits_added;
-                        if (tk.nTotalHits() >= 15)
+                        if (tk.nTotalHits() >= Track::Status::kMaxSeedHits)
                           break;
                       }
                     }
@@ -461,7 +457,7 @@ namespace mkfit {
           int b = trk.getHitIdx(i);
           auto range = theHitMap.equal_range(b * 1000 + a);
           for (auto it = range.first; it != range.second; ++it) {
-            if (std::abs(it->second) >= itrack)
+            if (std::abs(it->second) >= (int)itrack)
               continue;  // don't check your own hits (==) nor sym. checks (>)
             if (i == 0 && it->second < 0)
               continue;  // shared first - first is not counted
