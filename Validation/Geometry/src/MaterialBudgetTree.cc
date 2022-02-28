@@ -229,5 +229,5 @@ void MaterialBudgetTree::endOfRun() {
   }
 
   delete outFile;
-  unlink(tmpName.c_str()); // Clean up temp file
+  unlink(tmpName.c_str());  // Clean up temp file
 }
