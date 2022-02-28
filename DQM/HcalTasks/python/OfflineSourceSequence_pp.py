@@ -10,6 +10,7 @@ from DQM.HcalTasks.DigiTask import digiTask
 from DQM.HcalTasks.RawTask import rawTask
 from DQM.HcalTasks.TPTask import tpTask
 from DQM.HcalTasks.RecHitTask import recHitTask, recHitPreRecoTask
+from DQM.HcalTasks.hcalGPUComparisonTask_cfi import hcalGPUComparisonTask
 
 #   set processing type to Offine
 digiTask.ptype = 1
@@ -17,6 +18,7 @@ tpTask.ptype = 1
 recHitTask.ptype = 1
 rawTask.ptype = 1
 recHitPreRecoTask.ptype = 1
+hcalGPUComparisonTask.ptype = 1
 
 #   set the label for Emulator TP Task
 tpTask.tagEmul = "valHcalTriggerPrimitiveDigis"
@@ -31,6 +33,17 @@ hcalOnlyOfflineSourceSequence = cms.Sequence(
     digiTask +
     recHitPreRecoTask +
     rawTask )
+
+hcalOnlyOfflineSourceSequenceGPU = cms.Sequence(
+    digiTask +
+    recHitTask +
+    rawTask +
+    hcalGPUComparisonTask
+)
+
+from Configuration.ProcessModifiers.gpuValidationHcal_cff import gpuValidationHcal
+gpuValidationHcal.toReplaceWith(hcalOnlyOfflineSourceSequence, hcalOnlyOfflineSourceSequenceGPU)
+
 
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 _phase1_hcalOnlyOfflineSourceSequence = hcalOnlyOfflineSourceSequence.copy()
