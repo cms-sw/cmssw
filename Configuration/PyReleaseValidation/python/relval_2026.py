@@ -39,7 +39,7 @@ numWFIB.extend([37834.0]) #2026D84
 numWFIB.extend([38234.0]) #2026D85
 numWFIB.extend([38634.0]) #2026D86
 numWFIB.extend([39034.0]) #2026D87
-numWFIB.extend([39434.0,39434.21,39434.5,39434.501,39434.502,39434.911]) #2026D88, prodlike, pixelTrackingOnly, Patatrack local reconstruction on CPU, Patatrack local reconstruction on GPU, DD4hep
+numWFIB.extend([39434.0,39434.21,39434.5,39434.501,39434.502]) #2026D88, prodlike, pixelTrackingOnly, Patatrack local reconstruction on CPU, Patatrack local reconstruction on GPU
 #numWFIB.extend([39634.99,39634.999]) #2026D88 premixing combined stage1+stage2 (ttbar+PU200, ttbar+PU50 for PR test)
 #numWFIB.extend([39634.21,39634.9921]) #2026D88 prodlike PU, prodlike premix stage1+stage2
 numWFIB.extend([39834.0]) #2026D89
