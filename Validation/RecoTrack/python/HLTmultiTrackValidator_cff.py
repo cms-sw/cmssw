@@ -6,16 +6,7 @@ from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff impo
 hltTrackValidator = hltMultiTrackValidator.clone(
     label = [
         "hltPixelTracks",
-        "hltIter0PFlowTrackSelectionHighPurity",
-        "hltIter1PFlowTrackSelectionHighPurity",
-        "hltIter1Merged",
-        "hltIter2PFlowTrackSelectionHighPurity",
-        "hltIter2Merged",
-        "hltMergedTracks",
-#        "hltIter3PFlowTrackSelectionHighPurity",
-#        "hltIter3Merged",
-#        "hltIter4PFlowTrackSelectionHighPurity",
-#        "hltIter4Merged",
+        "hltMergedTracks"
     ]
 )
 
