@@ -31,28 +31,28 @@ namespace trklet {
     //
 
     //Seed string, eg. L1L2
-    std::string iSeedStr(unsigned int iSeed);
+    std::string iSeedStr(unsigned int iSeed) const;
 
     //Return unsigned as string
     static std::string numStr(unsigned int i);
 
-    //Retunr iTC as string - ie A, B, C, etc
-    std::string iTCStr(unsigned int iTC);
+    //Return iTC as string - ie A, B, C, etc
+    std::string iTCStr(unsigned int iTC) const;
 
     //The region string A, B, C etc for layers and disks; X, Y, Z etc for overlap
-    std::string iRegStr(unsigned int iReg, unsigned int iSeed);
+    std::string iRegStr(unsigned int iReg, unsigned int iSeed) const;
 
     //TC Name
-    std::string TCName(unsigned int iSeed, unsigned int iTC);
+    std::string TCName(unsigned int iSeed, unsigned int iTC) const;
 
     //Name of layer or disk, e.g. L1 or D1
     static std::string LayerName(unsigned int ilayer);
 
     //Tracklet projection name
-    std::string TPROJName(unsigned int iSeed, unsigned int iTC, unsigned int ilayer, unsigned int ireg);
+    std::string TPROJName(unsigned int iSeed, unsigned int iTC, unsigned int ilayer, unsigned int ireg) const;
 
     //Projection router name
-    std::string PRName(unsigned int ilayer, unsigned int ireg);
+    std::string PRName(unsigned int ilayer, unsigned int ireg) const;
 
   private:
     //
@@ -113,7 +113,7 @@ namespace trklet {
                        unsigned int l2,
                        unsigned int ireg2,
                        unsigned int ivm2,
-                       unsigned int iseed);
+                       unsigned int iseed) const;
 
     //StubPaur displaced name
     std::string SPDName(unsigned int l1,
@@ -125,7 +125,7 @@ namespace trklet {
                         unsigned int l3,
                         unsigned int ireg3,
                         unsigned int ivm3,
-                        unsigned int iseed);
+                        unsigned int iseed) const;
 
     //Stub Triplet name
     std::string STName(unsigned int l1,
@@ -135,7 +135,7 @@ namespace trklet {
                        unsigned int l3,
                        unsigned int ireg3,
                        unsigned int iseed,
-                       unsigned int count);
+                       unsigned int count) const;
 
     //TrackletEngine name
     std::string TEName(unsigned int l1,
@@ -144,7 +144,7 @@ namespace trklet {
                        unsigned int l2,
                        unsigned int ireg2,
                        unsigned int ivm2,
-                       unsigned int iseed);
+                       unsigned int iseed) const;
 
     //Triplet engine name
     std::string TREName(unsigned int l1,
@@ -152,7 +152,7 @@ namespace trklet {
                         unsigned int l2,
                         unsigned int ireg2,
                         unsigned int iseed,
-                        unsigned int count);
+                        unsigned int count) const;
 
     //TrackletEngine displaced name
     std::string TEDName(unsigned int l1,
@@ -161,13 +161,13 @@ namespace trklet {
                         unsigned int l2,
                         unsigned int ireg2,
                         unsigned int ivm2,
-                        unsigned int iseed);
+                        unsigned int iseed) const;
 
     //Tracklet parameter memory name
-    std::string TParName(unsigned int l1, unsigned int l2, unsigned int l3, unsigned int itc);
+    std::string TParName(unsigned int l1, unsigned int l2, unsigned int l3, unsigned int itc) const;
 
     //TrackletCalculator displaced name
-    std::string TCDName(unsigned int l1, unsigned int l2, unsigned int l3, unsigned int itc);
+    std::string TCDName(unsigned int l1, unsigned int l2, unsigned int l3, unsigned int itc) const;
 
     //TrackletProjection name
     std::string TPROJName(unsigned int l1,
@@ -175,13 +175,10 @@ namespace trklet {
                           unsigned int l3,
                           unsigned int itc,
                           unsigned int projlay,
-                          unsigned int projreg);
+                          unsigned int projreg) const;
 
     //FitTrack module name
-    std::string FTName(unsigned int l1, unsigned int l2, unsigned int l3);
-
-    //TrackletCalculator name
-    std::string TCNAme(unsigned int iseed, unsigned int iTC);
+    std::string FTName(unsigned int l1, unsigned int l2, unsigned int l3) const;
 
     //
     // This group of methods are used to print out the configuration as a file
@@ -213,8 +210,9 @@ namespace trklet {
     void writeILMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
 
     //
-    // Store constants extracted from Settings
+    //--- Store constants extracted from Settings
     //
+
     unsigned int NSector_;  //Number of sectors
     double rcrit_;          //critical radius that defines the sector
 
