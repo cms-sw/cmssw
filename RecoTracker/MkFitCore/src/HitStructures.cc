@@ -1,7 +1,7 @@
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
 
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
-#include "RecoTracker/MkFitCore/src/Matriplex/Memory.h"
+#include "Matriplex/Memory.h"
 #include "Ice/IceRevisitedRadix.h"
 
 #include "Debug.h"
