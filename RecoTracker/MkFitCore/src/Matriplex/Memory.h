@@ -10,10 +10,8 @@ namespace Matriplex {
     return size & mask ? (size & ~mask) + 64 : size;
   }
 
-  inline void* aligned_alloc64(std::size_t size) {
-    return std::aligned_alloc(64, round_up_align64(size));
-  }
+  inline void* aligned_alloc64(std::size_t size) { return std::aligned_alloc(64, round_up_align64(size)); }
 
-}
+}  // namespace Matriplex
 
 #endif
