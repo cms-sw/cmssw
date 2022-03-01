@@ -49,19 +49,19 @@ namespace mkfit {
           m_last_M_bin(M_size - 1),
           m_last_N_bin(N_size - 1) {}
 
-    I R_to_M_bin(R r) const { return (r - m_R_min) * m_M_fac; }
-    I R_to_N_bin(R r) const { return (r - m_R_min) * m_N_fac; }
+    I from_R_to_M_bin(R r) const { return (r - m_R_min) * m_M_fac; }
+    I from_R_to_N_bin(R r) const { return (r - m_R_min) * m_N_fac; }
 
-    I R_to_M_bin_safe(R r) const { return r <= m_R_min ? 0 : (r >= m_R_max ? m_last_M_bin : R_to_M_bin(r)); }
-    I R_to_N_bin_safe(R r) const { return r <= m_R_min ? 0 : (r >= m_R_max ? m_last_N_bin : R_to_N_bin(r)); }
+    I from_R_to_M_bin_safe(R r) const { return r <= m_R_min ? 0 : (r >= m_R_max ? m_last_M_bin : from_R_to_M_bin(r)); }
+    I from_R_to_N_bin_safe(R r) const { return r <= m_R_min ? 0 : (r >= m_R_max ? m_last_N_bin : from_R_to_N_bin(r)); }
 
-    I M_bin_to_N_bin(I m) const { return m >> c_M2N_shift; }
+    I from_M_bin_to_N_bin(I m) const { return m >> c_M2N_shift; }
 
-    I_pair Rminmax_to_N_bins(R rmin, R rmax) const {
-      return I_pair(R_to_N_bin_safe(rmin), R_to_N_bin_safe(rmax) + I{1});
+    I_pair from_R_minmax_to_N_bins(R rmin, R rmax) const {
+      return I_pair(from_R_to_N_bin_safe(rmin), from_R_to_N_bin_safe(rmax) + I{1});
     }
 
-    I_pair Rrdr_to_N_bins(R r, R dr) const { return Rminmax_to_N_bins(r - dr, r + dr); }
+    I_pair from_R_rdr_to_N_bins(R r, R dr) const { return from_R_minmax_to_N_bins(r - dr, r + dr); }
     I next_N_bin(I bin) const { return bin + 1; }
   };
 
@@ -87,14 +87,17 @@ namespace mkfit {
 
     axis_pow2_u1(R min, R max) : axis_pow2_base<R, I, M, N>(min, max) {}
 
-    I R_to_M_bin_safe(R r) const { return this->R_to_M_bin(r) & c_M_mask; }
-    I R_to_N_bin_safe(R r) const { return this->R_to_N_bin(r) & c_N_mask; }
+    I from_R_to_M_bin_safe(R r) const { return this->from_R_to_M_bin(r) & c_M_mask; }
+    I from_R_to_N_bin_safe(R r) const { return this->from_R_to_N_bin(r) & c_N_mask; }
 
-    typename axis_base<R, I, M, N>::I_pair Rminmax_to_N_bins(R rmin, R rmax) const {
-      return typename axis_base<R, I, M, N>::I_pair(R_to_N_bin_safe(rmin), (this->R_to_N_bin(rmax) + I{1}) & c_N_mask);
+    typename axis_base<R, I, M, N>::I_pair from_R_minmax_to_N_bins(R rmin, R rmax) const {
+      return typename axis_base<R, I, M, N>::I_pair(from_R_to_N_bin_safe(rmin),
+                                                    (this->from_R_to_N_bin(rmax) + I{1}) & c_N_mask);
     }
 
-    typename axis_base<R, I, M, N>::I_pair Rrdr_to_N_bins(R r, R dr) const { return Rminmax_to_N_bins(r - dr, r + dr); }
+    typename axis_base<R, I, M, N>::I_pair from_R_rdr_to_N_bins(R r, R dr) const {
+      return from_R_minmax_to_N_bins(r - dr, r + dr);
+    }
     I next_N_bin(I bin) const { return (bin + 1) & c_N_mask; }
   };
 
@@ -177,13 +180,13 @@ namespace mkfit {
     // Access
 
     B_pair m_bin_to_n_bin(B_pair m_bin) {
-      return {m_a1.M_bin_to_N_bin(m_bin.bin1()), m_a2.M_bin_to_N_bin(m_bin.bin2())};
+      return {m_a1.from_M_bin_to_N_bin(m_bin.bin1()), m_a2.from_M_bin_to_N_bin(m_bin.bin2())};
     }
 
     B_pair get_n_bin(typename A1::index_t n1, typename A2::index_t n2) const { return {n1, n2}; }
 
     B_pair get_n_bin(typename A1::real_t r1, typename A2::real_t r2) const {
-      return {m_a1.R_to_N_bin(r1), m_a2.R_to_N_bin(r2)};
+      return {m_a1.from_R_to_N_bin(r1), m_a2.from_R_to_N_bin(r2)};
     }
 
     C_pair &ref_content(B_pair n_bin) { return m_bins[n_bin.bin2() * m_a1.size_of_N() + n_bin.bin1()]; }
@@ -209,11 +212,11 @@ namespace mkfit {
     void begin_registration(C n_items) { m_cons.reserve(n_items); }
 
     void register_entry(typename A1::real_t r1, typename A2::real_t r2) {
-      m_cons.push_back({m_a1.R_to_M_bin(r1), m_a2.R_to_M_bin(r2)});
+      m_cons.push_back({m_a1.from_R_to_M_bin(r1), m_a2.from_R_to_M_bin(r2)});
     }
 
     void register_entry_safe(typename A1::real_t r1, typename A2::real_t r2) {
-      m_cons.push_back({m_a1.R_to_M_bin_safe(r1), m_a2.R_to_M_bin_safe(r2)});
+      m_cons.push_back({m_a1.from_R_to_M_bin_safe(r1), m_a2.from_R_to_M_bin_safe(r2)});
     }
 
     // Do M-binning outside, potentially using R_to_M_bin_safe().

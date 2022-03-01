@@ -179,8 +179,8 @@ namespace mkfit {
         // To study some more details -- need EventOfHits for this
         int n_ovlp_hits_added = 0;
 
-        auto phi_rng = ax_phi.Rrdr_to_N_bins(oldPhi[ts], 0.08f);
-        auto eta_rng = ax_eta.Rrdr_to_N_bins(eta[ts], .1f);
+        auto phi_rng = ax_phi.from_R_rdr_to_N_bins(oldPhi[ts], 0.08f);
+        auto eta_rng = ax_eta.from_R_rdr_to_N_bins(eta[ts], .1f);
 
         for (auto i_phi = phi_rng.begin; i_phi != phi_rng.end; i_phi = ax_phi.next_N_bin(i_phi)) {
           for (auto i_eta = eta_rng.begin; i_eta != eta_rng.end; i_eta = ax_eta.next_N_bin(i_eta)) {
