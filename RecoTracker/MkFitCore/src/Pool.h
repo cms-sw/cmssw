@@ -1,7 +1,7 @@
 #ifndef RecoTracker_MkFitCore_src_Pool_h
 #define RecoTracker_MkFitCore_src_Pool_h
 
-#include "RecoTracker/MkFitCore/src/Matriplex/Memory.h"
+#include "Matriplex/Memory.h"
 #include "oneapi/tbb/concurrent_queue.h"
 
 namespace mkfit {
