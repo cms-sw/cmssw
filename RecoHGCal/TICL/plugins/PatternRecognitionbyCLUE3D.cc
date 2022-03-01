@@ -230,6 +230,27 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     // below, too.
     float radius_x = sqrt((sum_sqr_x - (sum_x * sum_x) * invClsize) * invClsize);
     float radius_y = sqrt((sum_sqr_y - (sum_y * sum_y) * invClsize) * invClsize);
+
+    // The case of single cell layer clusters has to be handled differently.
+
+    if (invClsize == 1.) {
+      auto detId = lc.hitsAndFractions()[0].first;
+      // Silicon case
+      if (rhtools_.isSilicon(detId)) {
+        radius_x = radius_y = rhtools_.getRadiusToSide(detId);
+        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+          edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Single cell cluster in silicon: " << radius_x << ", " << radius_y;
+        }
+      } else {
+        auto const &point = rhtools_.getPosition(detId);
+        auto const &eta_phi_window = rhtools_.getScintDEtaDPhi(detId);
+        radius_x = radius_y = point.perp() * eta_phi_window.second;
+        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+          edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Single cell cluster in scintillator: " << radius_x << ", " << radius_y;
+          edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Single cell cluster eta-phi span: " << eta_phi_window.first << ", " << eta_phi_window.second;
+        }
+      }
+    }
     clusters_[layer].x.emplace_back(lc.x());
     clusters_[layer].y.emplace_back(lc.y());
     clusters_[layer].z.emplace_back(lc.z());
