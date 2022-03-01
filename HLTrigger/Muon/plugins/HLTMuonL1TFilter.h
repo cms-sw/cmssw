@@ -38,6 +38,10 @@ private:
   /// pT threshold
   double minPt_;
 
+  /// max dRs for L1 candidate matching
+  double maxDR_;
+  double maxDR2_;
+
   /// Quality codes:
   /// to be updated with new L1 quality definitions
   int qualityBitMask_;
