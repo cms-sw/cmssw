@@ -30,6 +30,7 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
       densityOnSameLayer_(conf.getParameter<bool>("densityOnSameLayer")),
       nearestHigherOnSameLayer_(conf.getParameter<bool>("nearestHigherOnSameLayer")),
       useAbsoluteProjectiveScale_(conf.getParameter<bool>("useAbsoluteProjectiveScale")),
+      useClusterDimensionXY_(conf.getParameter<bool>("useClusterDimensionXY")),
       rescaleDensityByZ_(conf.getParameter<bool>("rescaleDensityByZ")),
       criticalEtaPhiDistance_(conf.getParameter<double>("criticalEtaPhiDistance")),
       criticalXYDistance_(conf.getParameter<double>("criticalXYDistance")),
@@ -552,11 +553,18 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
             }
             bool reachable = false;
             if (useAbsoluteProjectiveScale_) {
+              if (useClusterDimensionXY_) {
+                auto deltaR_sqr = (clustersOnLayer.r_over_absz[i]*clustersOnLayer.z[i] - clustersLayer.r_over_absz[layerandSoa.second]*clustersOnLayer.z[i]) *
+                  (clustersOnLayer.r_over_absz[i]*clustersOnLayer.z[i] - clustersLayer.r_over_absz[layerandSoa.second]*clustersOnLayer.z[i]);
+                reachable = deltaR_sqr < 4.*clustersOnLayer.radius[i]*clustersOnLayer.radius[i];
+              }
+              else {
               reachable = isReachable(clustersOnLayer.r_over_absz[i]*clustersOnLayer.z[i],
                   clustersLayer.r_over_absz[layerandSoa.second]*clustersOnLayer.z[i],
                   clustersOnLayer.phi[i],
                   clustersLayer.phi[layerandSoa.second],
                   densityXYDistanceSqr_);
+              }
             } else {
               reachable = (reco::deltaR2(clustersOnLayer.eta[i],
                     clustersOnLayer.phi[i],
@@ -797,6 +805,7 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
   iDesc.add<bool>("densityOnSameLayer", false);
   iDesc.add<bool>("nearestHigherOnSameLayer", false)->setComment("Allow the nearestHigher to be located on the same layer");
   iDesc.add<bool>("useAbsoluteProjectiveScale", true)->setComment("Express all cuts in terms of r/z*z_0{,phi} projective variables");
+  iDesc.add<bool>("useClusterDimensionXY", true)->setComment("Boolean. If true use the estimated cluster radius to determine the cluster compatibility while computing the local density");
   iDesc.add<bool>("rescaleDensityByZ", false)->setComment("Rescale local density by the extension of the Z 'volume' explored. The transvere dimension is, at present, fixed and factored out.");
   iDesc.add<double>("criticalEtaPhiDistance", 0.035)->setComment("Minimal distance in eta,phi space from nearestHigher to become a seed");
   iDesc.add<double>("criticalXYDistance", 4.0)->setComment("Minimal distance in cm on the XY plane from nearestHigher to become a seed");

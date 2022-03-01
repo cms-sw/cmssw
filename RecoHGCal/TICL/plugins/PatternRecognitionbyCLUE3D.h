@@ -115,6 +115,7 @@ namespace ticl {
     const bool densityOnSameLayer_;
     const bool nearestHigherOnSameLayer_;
     const bool useAbsoluteProjectiveScale_;
+    const bool useClusterDimensionXY_;
     const bool rescaleDensityByZ_;;
     const double criticalEtaPhiDistance_;
     const double criticalXYDistance_;
