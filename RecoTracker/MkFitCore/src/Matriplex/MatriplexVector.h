@@ -2,7 +2,7 @@
 #define RecoTracker_MkFitCore_src_Matriplex_MatriplexVector_h
 
 #include "Matriplex.h"
-
+#include "Memory.h"
 #include <vector>
 #include <cassert>
 
@@ -18,7 +18,7 @@ namespace Matriplex {
     typedef typename MP::value_type T;
 
   public:
-    MatriplexVector(idx_t n) : fN(n) { fV = (MP*)std::aligned_alloc(64, sizeof(MP) * fN); }
+    MatriplexVector(idx_t n) : fN(n) { fV = (MP*) aligned_alloc64(sizeof(MP) * fN); }
 
     ~MatriplexVector() { std::free(fV); }
 
