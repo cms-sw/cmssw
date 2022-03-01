@@ -6,13 +6,14 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("GeneratorInterface.Hydjet2Interface.hydjet2Default_cfi")
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 process.ana = cms.EDAnalyzer('Hydjet2Analyzer',
 
 		doHistos = cms.untracked.bool(True),
                 userHistos = cms.untracked.bool(False),
-		#doAnalysis = cms.untracked.bool(True),
+		doAnalysis = cms.untracked.bool(False),
+                doTestEvent = cms.untracked.bool(False), # for debuging event output information
 
 		###Settings for USER histos
 
@@ -58,6 +59,38 @@ process.ana = cms.EDAnalyzer('Hydjet2Analyzer',
 
 #to separate hydro and jet parts of hydjet2	
 process.generator.separateHydjetComponents = cms.untracked.bool(True)
+Debug = None
+
+if Debug:
+	process.load("FWCore.MessageLogger.MessageLogger_cfi")
+
+	process.MessageLogger = cms.Service("MessageLogger",
+
+		destinations     = cms.untracked.vstring('LogDebug_Hydjet2'),
+		categories       = cms.untracked.vstring(
+                	                        	'Hydjet2',
+                        	                	'Hydjet2_array'
+                                		        ),
+		LogDebug_Hydjet2 = cms.untracked.PSet(
+        		threshold =  cms.untracked.string('DEBUG'), #Priority: DEBUG < INFO < WARNING < ERROR
+        		DEBUG   = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
+        		INFO    = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+        		WARNING = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+        		ERROR   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+			#Categores
+        		Hydjet2  = cms.untracked.PSet(
+                        	limit = cms.untracked.int32(-1), # number of masseges 
+                        	timespan = cms.untracked.int32(0)     #time to resete limit counter in seconds
+                        	),
+
+        		Hydjet2_array  = cms.untracked.PSet(
+                        	limit = cms.untracked.int32(-1), # number of masseges 
+                        	timespan = cms.untracked.int32(0)     #time to resete limit counter in seconds
+                        	)
+
+			),
+			debugModules     = cms.untracked.vstring('*')
+		)
 
 process.TFileService = cms.Service('TFileService',
 	fileName = cms.string('Hydjet2_MB_5020GeV.root')
