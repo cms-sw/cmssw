@@ -171,7 +171,7 @@ namespace {
 }  // namespace
 
 DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
-  : qmap_({{9, 9}, {8, 8}, {7, 6}, {6, 7}, {5, 3}, {4, 5}, {3, 4}, {2, 2}, {1, 1}}) {
+  : qmap_({{8, 8}, {7, 7}, {6, 6}, {4, 4}, {3, 3}, {2, 2}, {1, 1}}) {
   produces<L1Phase2MuDTPhContainer>();
   produces<L1Phase2MuDTThContainer>();
   produces<L1Phase2MuDTExtPhContainer>();
@@ -829,7 +829,7 @@ void DTTrigPhase2Prod::assignIndexPerBX(std::vector<metaPrimitive>& inMPaths) {
 }
 
 int DTTrigPhase2Prod::assignQualityOrder(const metaPrimitive& mP) const {
-  if (mP.quality > 9 || mP.quality < 1)
+  if (mP.quality > 8 || mP.quality < 1)
     return -1;
 
   return qmap_.find(mP.quality)->second;
