@@ -22,7 +22,7 @@ process.CalibratedDigis.scenario = 0
 
 # STD
 process.dtTriggerPhase2PrimitiveDigis.algo = 0 ## initial grouping
-process.dtTriggerPhase2PrimitiveDigis.df_extended = 2
+process.dtTriggerPhase2PrimitiveDigis.df_extended = 0
 
 
 # COMPARISON WITH FW
@@ -55,9 +55,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring(
                                    'drop *',
                                    'keep *_CalibratedDigis_*_*',
-                                   'keep *_dtTriggerPhase2BayesPrimitiveDigis_*_*',
-                                   'keep *_dtTriggerPhase2StdPrimitiveDigis_*_*',
-                                   'keep *_genParticles_*_*',
+                                   'keep L1Phase2MuDT??Container_dtTriggerPhase2PrimitiveDigis_*_*',
                                ),
                                fileName = cms.untracked.string('DTTriggerPhase2Primitives.root')
 )
