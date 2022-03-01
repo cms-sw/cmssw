@@ -1,7 +1,7 @@
 /**
    \class HydjetAnalyzer
    \brief HepMC events analyzer
-   \version 2.0
+   \version 2.1
    \authors Yetkin Yilmaz, Andrey Belyaev
 */
 
@@ -13,7 +13,7 @@
 #include <string>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -42,6 +42,7 @@
 // root include file
 #include "TFile.h"
 #include "TNtuple.h"
+#include "TH1.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -49,12 +50,10 @@
 
 using namespace edm;
 using namespace std;
-static const int MAXPARTICLES = 5000000;
-static const int ETABINS = 3;  // Fix also in branch string
-//
-// class decleration
-//
-
+namespace {
+  static const int MAXPARTICLES = 5000000;
+  static const int ETABINS = 3;  // Fix also in branch string
+}  // namespace
 struct HydjetEvent {
   int event;
   float b;
@@ -82,16 +81,15 @@ struct HydjetEvent {
   float vz;
   float vr;
 };
-class HydjetAnalyzer : public edm::EDAnalyzer {
+class HydjetAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HydjetAnalyzer(const edm::ParameterSet &);
   ~HydjetAnalyzer();
 
 private:
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
-  virtual void beginJob();
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
-  virtual void endJob();
+  void beginJob() final;
+  void analyze(const edm::Event &, const edm::EventSetup &) final;
+  void endJob() final;
   // ----------member data ---------------------------
   std::ofstream out_b;
   std::string fBFileName;
@@ -155,13 +153,10 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> srcT_;
   edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> srcTmix_;
 
-  // edm::InputTag src_;
   edm::InputTag genParticleSrc_;
   edm::InputTag genHIsrc_;
   edm::InputTag simVerticesTag_;
-  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdt_;
-
-  edm::Service<TFileService> f;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> pdtToken_;
 
   //common
   TH1D *dhpt;
@@ -274,20 +269,8 @@ private:
   TH1D *uhv0etah_db;
   TH1D *uhv0etaj_db;
 };
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet &iConfig) {
-  //now do what ever initialization is needed
-  pdt_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
   fBFileName = iConfig.getUntrackedParameter<std::string>("output_b", "b_values.txt");
   fNFileName = iConfig.getUntrackedParameter<std::string>("output_n", "n_values.txt");
   fMFileName = iConfig.getUntrackedParameter<std::string>("output_m", "m_values.txt");
@@ -306,13 +289,13 @@ HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet &iConfig) {
   srcTmix_ = consumes<CrossingFrame<edm::HepMCProduct>>(
       iConfig.getUntrackedParameter<edm::InputTag>("srcMix", edm::InputTag("mix", "generatorSmeared")));
 
-  // src_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("VtxSmeared"));
   genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("hiGenParticles"));
   genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("heavyIon"));
+
+  if (useHepMCProduct_)
+    pdtToken_ = esConsumes();
   doParticles_ = iConfig.getUntrackedParameter<bool>("doParticles", false);
-
   doHistos_ = iConfig.getUntrackedParameter<bool>("doHistos", false);
-
   if (doHistos_) {
     userHistos_ = iConfig.getUntrackedParameter<bool>("userHistos", false);
     if (userHistos_) {
@@ -417,21 +400,13 @@ HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet &iConfig) {
           v2etaBins[k] = minV2eta + k * ((maxV2eta - minV2eta) / nintV2eta);
         }
       }
-
     }  //user histo
   }    //do histo
 }
-HydjetAnalyzer::~HydjetAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+HydjetAnalyzer::~HydjetAnalyzer() {}
 
-//
-// member functions
-//
 // ------------ method called to for each event  ------------
 void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  auto const &pdt = iSetup.getData(pdt_);
   using namespace edm;
   using namespace HepMC;
   hev_.event = iEvent.id().event();
@@ -458,7 +433,8 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   int sig = -1;
   int src = -1;
   if (useHepMCProduct_) {
-    //_______________________________________________________________________________________
+    edm::ESHandle<ParticleDataTable> pdt = iSetup.getHandle(pdtToken_);
+
     if (doCF_) {
       Handle<CrossingFrame<HepMCProduct>> cf;
       iEvent.getByToken(srcTmix_, cf);
@@ -480,7 +456,7 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
             float eta = (*it)->momentum().eta();
             float phi = (*it)->momentum().phi();
             float pt = (*it)->momentum().perp();
-            const ParticleData *part = pdt.particle(pdg_id);
+            const ParticleData *part = pdt->particle(pdg_id);
             int charge = static_cast<int>(part->charge());
             hev_.pt[hev_.mult] = pt;
             hev_.eta[hev_.mult] = eta;
@@ -506,7 +482,6 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     } else {  //not mixing
       Handle<HepMCProduct> mc;
       iEvent.getByToken(srcT_, mc);
-      // iEvent.getByLabel(src_, mc);
       evt = mc->GetEvent();
       scale = evt->event_scale();
       const HeavyIon *hi = evt->heavy_ion();
@@ -517,7 +492,8 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
         ncoll = hi->Ncoll();
         nhard = hi->Ncoll_hard();
         phi0 = hi->event_plane_angle();
-        phi3 = 0.;  // No HepMC entry for Psi3 exist, but in private code it's possible to use hi->eccentricity();
+        phi3 =
+            hi->eccentricity();  // 0.;  // No HepMC entry for Psi3 exist, but in private code it's possible to use hi->eccentricity();
         if (printLists_) {
           out_b << b << endl;
           out_n << npart << endl;
@@ -542,8 +518,8 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
           float e = (*it)->momentum().e();
           float pseudoRapidity = (*it)->momentum().pseudoRapidity();
           int charge = -1;
-          if ((pdt.particle(pdg_id))) {
-            part = pdt.particle(pdg_id);
+          if ((pdt->particle(pdg_id))) {
+            part = pdt->particle(pdg_id);
             charge = static_cast<int>(part->charge());
           }
 
@@ -818,7 +794,6 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   }
 }
 // ------------ method called once each job just before starting event loop  ------------
-void HydjetAnalyzer::beginRun(const edm::Run &, const edm::EventSetup &iSetup) {}
 void HydjetAnalyzer::beginJob() {
   if (printLists_) {
     out_b.open(fBFileName.c_str());
@@ -967,6 +942,8 @@ void HydjetAnalyzer::beginJob() {
   }
 
   if (doAnalysis_) {
+    usesResource(TFileService::kSharedResource);
+    edm::Service<TFileService> f;
     nt = f->make<TNtuple>("nt", "Mixing Analysis", "mix:np:src:sig");
     hydjetTree_ = f->make<TTree>("hi", "Tree of Hydjet Events");
     hydjetTree_->Branch("event", &hev_.event, "event/I");
