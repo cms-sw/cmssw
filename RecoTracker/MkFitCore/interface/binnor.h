@@ -5,7 +5,7 @@
 #include <cmath>
 #include <numeric>
 #include <vector>
-
+#include <cassert>
 #include <cstdio>
 
 namespace mkfit {
@@ -47,7 +47,10 @@ namespace mkfit {
           m_M_fac(M_size / (max - min)),
           m_N_fac(N_size / (max - min)),
           m_last_M_bin(M_size - 1),
-          m_last_N_bin(N_size - 1) {}
+          m_last_N_bin(N_size - 1) {
+            // Requested number of bins must fit within the intended bit-field (declared by binnor, later).
+           assert(N_size <= (1 << N));
+          }
 
     I from_R_to_M_bin(R r) const { return (r - m_R_min) * m_M_fac; }
     I from_R_to_N_bin(R r) const { return (r - m_R_min) * m_N_fac; }
@@ -67,6 +70,7 @@ namespace mkfit {
 
   // axis_pow2_base
   //---------------
+  // Assumes the numbers of fine/normal bins are powers of 2 that are inferred directly from the number of bits.
   template <typename R, typename I, unsigned M, unsigned N>
   struct axis_pow2_base : public axis_base<R, I, M, N> {
     static constexpr unsigned c_M_end = 1 << M;
@@ -80,6 +84,8 @@ namespace mkfit {
 
   // axis_pow2_u1
   //-------------
+  // Specialization of axis_pow2 for the "U(1)" case where the coordinate is periodic with period (Rmax - Rmin).
+  // In the "safe" methods below, bit masking serves as the modulo operator for out-of-range bin numbers.
   template <typename R, typename I, unsigned M, unsigned N>
   struct axis_pow2_u1 : public axis_pow2_base<R, I, M, N> {
     static constexpr I c_M_mask = (1 << M) - 1;
@@ -133,7 +139,18 @@ namespace mkfit {
 
   // binnor
   //---------------
-  // C - bin content type
+  // To build and populate bins, do the following:
+  // 1. Construct two axis objects, giving numbers of bits and bins, and extents.
+  // 2. Construct a binnor from the axis objects, and begin_registration on it.
+  // 3. Loop register_entry (optional: _safe) over pairs of coordinates, to fill
+  //    m_cons with the corresponding pairs of bin indices (B_pairs).
+  // 4. Call finalize_registration, which sorts m_ranks based on m_cons, making
+  //    m_ranks into an in-order map into m_cons (as well as the inputs that were
+  //    used to fill it). Final counts for all the bins, as well as starting
+  //    indices for the bins (within m_ranks), are computed and stored in packed
+  //    form (i.e., bit-fields) in m_bins.
+  //
+  // C - bin content type, to hold "bin population coordinates" in packed form (bit-fields)
   // A1, A2 - axis types
   // NB_first, NB_count - number of bits for storage of { first, count } pairs
 
@@ -142,8 +159,8 @@ namespace mkfit {
     static_assert(std::is_same<typename A1::real_t, typename A2::real_t>());
     static_assert(A1::c_M + A2::c_M <= 32);
 
-    static constexpr unsigned c_A1_mask = (1 << A1::c_M) - 1;
-    static constexpr unsigned c_A2_Mout_mask = ~(((1 << A2::c_M2N_shift) - 1) << A1::c_M);
+    static constexpr unsigned int c_A1_mask = (1 << A1::c_M) - 1;
+    static constexpr unsigned int c_A2_Mout_mask = ~(((1 << A2::c_M2N_shift) - 1) << A1::c_M);
 
     // Pair of axis bin indices packed into unsigned.
     struct B_pair {
@@ -158,7 +175,7 @@ namespace mkfit {
       unsigned int mask_A2_M_bins() const { return packed_value & c_A2_Mout_mask; }
     };
 
-    // Bin content pair.
+    // Bin content pair (bit-fields).
     struct C_pair {
       C first : NB_first;
       C count : NB_count;
@@ -198,7 +215,7 @@ namespace mkfit {
     }
 
     C_pair get_content(typename A1::real_t r1, typename A2::real_t r2) const {
-      return get_content(m_a1.R_to_N_bin(r1), m_a2.R_to_N_bin(r2));
+      return get_content(m_a1.from_R_to_N_bin(r1), m_a2.from_R_to_N_bin(r2));
     }
 
     // Filling
