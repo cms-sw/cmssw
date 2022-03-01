@@ -1,3 +1,19 @@
+// -*- C++ -*-
+//
+// Package:    CondTools/SiStrip
+// Class:      SiStripApvGainFromFileBuilder
+//
+/**\class SiStripApvGainFromFileBuilder SiStripApvGainFromFileBuilder.cc
+   Description: Created SiStripApvGain paylaods from tickmark height input ASCII files coming from
+                SiStrip opto-gain scans.
+*/
+//
+//  Original Author: A. Di Mattia
+//  Contributors:    M. Musich    (modernization)
+//
+//  Created:  Wed, 1 Mar 2022 14:26:18 GMT
+//
+
 // STL includes
 #include <algorithm>
 #include <cstdint>
@@ -150,6 +166,7 @@ private:
   int online2offline(uint16_t onlineAPV_id, uint16_t totalAPVs) const;
 
   static constexpr float k_GainNormalizationFactor = 640.f;
+  static constexpr float k_InvalidGain = 999999.f;
 };
 
 static const struct clean_up {
@@ -185,7 +202,7 @@ void SiStripApvGainFromFileBuilder::analyze(const edm::Event& evt, const edm::Ev
   //unsigned int run=evt.id().run();
 
   edm::LogInfo("SiStripApvGainFromFileBuilder") << "@SUB=analyze"
-                                                << "Insert SiStripApvGain Data." << std::endl;
+                                                << "Insert SiStripApvGain Data.";
   this->read_tickmark();
 
   if (outputMaps_) {
@@ -214,7 +231,7 @@ void SiStripApvGainFromFileBuilder::analyze(const edm::Event& evt, const edm::Ev
     // check if det id is correct and if it is actually cabled in the detector
     if (it.first == 0 || it.first == 0xFFFFFFFF) {
       edm::LogError("DetIdNotGood") << "@SUB=analyze"
-                                    << "Wrong det id: " << it.first << "  ... neglecting!" << std::endl;
+                                    << "Wrong det id: " << it.first << "  ... neglecting!";
       continue;
     }
 
@@ -231,10 +248,10 @@ void SiStripApvGainFromFileBuilder::analyze(const edm::Event& evt, const edm::Ev
 
     // check consistency among FED cabling and ideal cabling, exit on error
     if (!connection.empty() && nAPVs != (uint16_t)it.second.nApvs) {
-      edm::LogError("SiStripCablingError") << "@SUB=analyze"
-                                           << "det id " << it.first << ": APV number from FedCabling (" << nAPVs
-                                           << ") is different from the APV number retrieved from the ideal cabling ("
-                                           << it.second.nApvs << ")." << std::endl;
+      edm::LogError("SiStripCablingError")
+          << "@SUB=analyze"
+          << "det id " << it.first << ": APV number from FedCabling (" << nAPVs
+          << ") is different from the APV number retrieved from the ideal cabling (" << it.second.nApvs << ").";
       throw("Inconsistency on the number of APVs.");
     }
 
@@ -247,7 +264,7 @@ void SiStripApvGainFromFileBuilder::analyze(const edm::Event& evt, const edm::Ev
     //}
 
     //Gather the APV online id
-    std::vector<std::pair<int, float>> tickmark_for_detId(it.second.nApvs, std::pair<int, float>(-1, 999999.));
+    std::vector<std::pair<int, float>> tickmark_for_detId(it.second.nApvs, std::pair<int, float>(-1, k_InvalidGain));
     for (unsigned int ca = 0; ca < connection.size(); ca++) {
       if (connection[ca] != nullptr) {
         uint16_t id1 = (connection[ca])->i2cAddr(0) % 32;
@@ -288,7 +305,7 @@ void SiStripApvGainFromFileBuilder::analyze(const edm::Event& evt, const edm::Ev
             << summary.FED_ch << "   " << std::setw(3) << summary.i2cAdd << "   " << std::setw(7)
             << summary.gain_from_scan << std::endl;
 
-        if (gain != 999999.) {
+        if (gain != k_InvalidGain) {
           summary.is_scanned = true;
           if (gain > gainThreshold_) {
             if (doGainNormalization_) {
@@ -301,43 +318,30 @@ void SiStripApvGainFromFileBuilder::analyze(const edm::Event& evt, const edm::Ev
             else
               summary_.push_back(summary);
           } else {
-            if (gain == 0.) {
-              if (putDummyIntoOffChannels_)
-                summary.gain_in_db = dummyAPVGain_;
-              else
-                summary.gain_in_db = 0.;
+            if (gain == 0.f) {
+              summary.gain_in_db = (putDummyIntoOffChannels_ ? dummyAPVGain_ : 0.f);
               ex_summary_.push_back(summary);
-            }
-            if (gain < 0.) {
-              if (putDummyIntoBadChannels_)
-                summary.gain_in_db = dummyAPVGain_;
-              else
-                summary.gain_in_db = 0.;
+            } else if (gain < 0.f) {
+              summary.gain_in_db = (putDummyIntoBadChannels_ ? dummyAPVGain_ : 0.f);
               ex_summary_.push_back(summary);
             }
           }
         } else {
           summary.is_scanned = false;
           if (!summary.is_connected) {
-            if (putDummyIntoUncabled_)
-              summary.gain_in_db = dummyAPVGain_;
-            else
-              summary.gain_in_db = 0.;
+            summary.gain_in_db = (putDummyIntoUncabled_ ? dummyAPVGain_ : 0.f);
           } else {
-            if (putDummyIntoUnscanned_)
-              summary.gain_in_db = dummyAPVGain_;
-            else
-              summary.gain_in_db = 0.;
+            summary.gain_in_db = (putDummyIntoUnscanned_ ? dummyAPVGain_ : 0.f);
           }
           ex_summary_.push_back(summary);
         }
 
         theSiStripVector.push_back(summary.gain_in_db);
-        LogTrace("SiStripApvGainFromFileBuilder") << "output gain:" << summary.gain_in_db << std::endl;
+        LogTrace("SiStripApvGainFromFileBuilder") << "output gain:" << summary.gain_in_db;
       } catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
         edm::LogError("MappingError") << "@SUB=analyze"
-                                      << "Job end prematurely." << std::endl;
+                                      << "Job end prematurely.";
         return;
       }
     }
@@ -345,7 +349,7 @@ void SiStripApvGainFromFileBuilder::analyze(const edm::Event& evt, const edm::Ev
     SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
     if (!obj->put(it.first, range))
       edm::LogError("IndexError") << "@SUB=analyze"
-                                  << "detid already exists." << std::endl;
+                                  << "detid already exists.";
   }
 
   if (outputSummary_)
@@ -362,7 +366,7 @@ void SiStripApvGainFromFileBuilder::analyze(const edm::Event& evt, const edm::Ev
     }
   } else {
     edm::LogError("DBServiceNotAvailable") << "@SUB=analyze"
-                                           << "DB Service is unavailable" << std::endl;
+                                           << "DB Service is unavailable";
   }
 }
 
@@ -373,8 +377,7 @@ void SiStripApvGainFromFileBuilder::read_tickmark() {
 
   if (!thickmark_heights.is_open()) {
     edm::LogError("FileNotFound") << "@SUB=read_ticlmark"
-                                  << "File with thickmark height file " << filename.c_str() << " cannot be opened!"
-                                  << std::endl;
+                                  << "File with thickmark height file " << filename.c_str() << " cannot be opened!";
     return;
   }
 
@@ -404,11 +407,12 @@ void SiStripApvGainFromFileBuilder::read_tickmark() {
 
       // retrieve the map corresponding to the gain collection
       Gain* map = nullptr;
-      if (tick_h > 0.) {
+      if (tick_h > 0.f) {
         map = get_map(&gains_, APV_id);
-      } else if (tick_h < 0.) {
+      } else if (tick_h < 0.f) {
         map = get_map(&negative_gains_, APV_id);
-      } else if (tick_h == 0.) {
+      } else {
+        // if tick_h == 0.f
         map = get_map(&null_gains_, APV_id);
       }
 
@@ -419,19 +423,19 @@ void SiStripApvGainFromFileBuilder::read_tickmark() {
         if (ret.second == false) {
           edm::LogError("MapError") << "@SUB=read_tickmark"
                                     << "Cannot not insert gain for detector id " << det_id
-                                    << " into the internal map: detector id already in the map." << std::endl;
+                                    << " into the internal map: detector id already in the map.";
         }
       } else {
         edm::LogError("MapError") << "@SUB=read_tickmark"
-                                  << "Cannot get the online-offline APV mapping!" << std::endl;
+                                  << "Cannot get the online-offline APV mapping!";
       }
     } else if (thickmark_heights.eof()) {
       edm::LogInfo("SiStripApvGainFromFileBuilder") << "@SUB=read_tickmark"
-                                                    << "EOF of " << filename.c_str() << " reached." << std::endl;
+                                                    << "EOF of " << filename.c_str() << " reached.";
       break;
     } else if (thickmark_heights.fail()) {
       edm::LogError("FileiReadError") << "@SUB=read_tickmark"
-                                      << "error while reading " << filename.c_str() << std::endl;
+                                      << "error while reading " << filename.c_str();
       break;
     }
   }
@@ -573,7 +577,7 @@ void SiStripApvGainFromFileBuilder::gain_from_maps(uint32_t det_id,
       if (map != nullptr) {
         Gain::const_iterator el = map->find(det_id);
         if (el != map->end()) {
-          if (gain[offlineAPV_id].second != 999999.)
+          if (gain[offlineAPV_id].second != k_InvalidGain)
             throw(ex_msg.str());
           gain[offlineAPV_id].second = el->second;
         }
@@ -587,7 +591,7 @@ void SiStripApvGainFromFileBuilder::gain_from_maps(uint32_t det_id,
       if (map != nullptr) {
         Gain::const_iterator el = map->find(det_id);
         if (el != map->end()) {
-          if (gain[offlineAPV_id].second != 999999.)
+          if (gain[offlineAPV_id].second != k_InvalidGain)
             throw(ex_msg.str());
           gain[offlineAPV_id].second = el->second;
         }
@@ -601,7 +605,7 @@ void SiStripApvGainFromFileBuilder::gain_from_maps(uint32_t det_id,
       if (map != nullptr) {
         Gain::const_iterator el = map->find(det_id);
         if (el != map->end()) {
-          if (gain[offlineAPV_id].second != 999999.)
+          if (gain[offlineAPV_id].second != k_InvalidGain)
             throw(ex_msg.str());
           gain[offlineAPV_id].second = el->second;
         }
