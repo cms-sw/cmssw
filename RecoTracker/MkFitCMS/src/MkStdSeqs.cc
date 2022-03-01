@@ -158,9 +158,8 @@ namespace mkfit {
         z[ts] = tk.z();
         d0[ts] = tk.d0BeamSpot(bspot.x, bspot.y);
 
-        phi_eta_binnor.register_entry_safe(
-            oldPhi[ts],
-            eta[ts]);  // If one is sure values are *within* axis ranges: b.register_entry(oldPhi[ts], eta[ts]);
+        phi_eta_binnor.register_entry_safe(oldPhi[ts], eta[ts]);
+        // If one is sure values are *within* axis ranges: b.register_entry(oldPhi[ts], eta[ts]);
       }
 
       phi_eta_binnor.finalize_registration();
@@ -430,7 +429,7 @@ namespace mkfit {
       const auto ntracks = tracks.size();
 
       std::vector<float> ctheta(ntracks);
-      std::multimap<int, int> theHitMap;
+      std::multimap<int, int> hitMap;
 
       for (auto itrack = 0U; itrack < ntracks; itrack++) {
         auto &trk = tracks[itrack];
@@ -440,7 +439,7 @@ namespace mkfit {
             continue;
           int a = trk.getHitLyr(i);
           int b = trk.getHitIdx(i);
-          theHitMap.insert(std::make_pair(b * 1000 + a, i > 0 ? itrack : -itrack));  //negative for first hit in trk
+          hitMap.insert(std::make_pair(b * 1000 + a, i > 0 ? itrack : -itrack));  //negative for first hit in trk
         }
       }
 
@@ -449,29 +448,27 @@ namespace mkfit {
         auto phi1 = trk.momPhi();
         auto ctheta1 = ctheta[itrack];
 
-        std::map<int, int> theSharingMap;
+        std::map<int, int> sharingMap;
         for (int i = 0; i < trk.nTotalHits(); ++i) {
           if (trk.getHitIdx(i) < 0)
             continue;
           int a = trk.getHitLyr(i);
           int b = trk.getHitIdx(i);
-          auto range = theHitMap.equal_range(b * 1000 + a);
+          auto range = hitMap.equal_range(b * 1000 + a);
           for (auto it = range.first; it != range.second; ++it) {
             if (std::abs(it->second) >= (int)itrack)
               continue;  // don't check your own hits (==) nor sym. checks (>)
             if (i == 0 && it->second < 0)
               continue;  // shared first - first is not counted
-            theSharingMap[std::abs(it->second)]++;
+            sharingMap[std::abs(it->second)]++;
           }
         }
 
-        for (const auto &elem : theSharingMap) {
+        for (const auto &elem : sharingMap) {
           auto &track2 = tracks[elem.first];
 
-          //these dctheta dphi are wasting time here -> need to remove these checks and revisit the fraction WP
+          // broad dctheta-dphi compatibility checks; keep mostly to preserve consistency with old results
           auto dctheta = std::abs(ctheta[elem.first] - ctheta1);
-          if (dctheta > 1.)
-            continue;
           if (dctheta > 1.)
             continue;
 
@@ -479,7 +476,7 @@ namespace mkfit {
           if (dphi > 1.)
             continue;
 
-          if ((elem.second) >= ((std::min(trk.nFoundHits(), track2.nFoundHits())) * (fraction))) {
+          if (elem.second >= std::min(trk.nFoundHits(), track2.nFoundHits()) * fraction) {
             if (trk.score() > track2.score())
               track2.setDuplicateValue(true);
             else
