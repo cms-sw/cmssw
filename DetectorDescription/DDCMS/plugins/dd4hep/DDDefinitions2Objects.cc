@@ -1172,6 +1172,13 @@ static void convert_boolean(cms::DDParsingContext* context, xml_h element) {
     Converter<DDLTransform3D>(context->description, context, &trafo)(element);
     ns.context()->unresolvedShapes.emplace(nam,
                                            DDParsingContext::BooleanShape<TYPE>(solidName[0], solidName[1], trafo));
+    if (solids[0].isValid() == false) {
+      printout(ERROR, "DD4CMS", "++ Solid not defined yet: %s", solidName[0].c_str());
+    }
+    if (solids[1].isValid() == false) {
+      printout(ERROR, "DD4CMS", "++ Solid not defined yet: %s", solidName[1].c_str());
+    }
+    printout(ERROR, "DD4CMS", "++ Re-order XML files to prevent references to undefined solids");
   }
   if (!boolean.isValid()) {
     // Delay processing the shape
