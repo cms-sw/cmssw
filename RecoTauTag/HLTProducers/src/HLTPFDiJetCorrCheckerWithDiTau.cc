@@ -8,15 +8,14 @@ The module stores j1, j2 of any (j1, j2, t1, t2) that satisfies the conditions a
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "Math/GenVector/VectorUtil.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -25,74 +24,80 @@ The module stores j1, j2 of any (j1, j2, t1, t2) that satisfies the conditions a
 //
 // class definition
 //
-class HLTPFDiJetCorrCheckerWithDiTau : public edm::stream::EDProducer<> {
+class HLTPFDiJetCorrCheckerWithDiTau : public edm::global::EDProducer<> {
+public:
+  explicit HLTPFDiJetCorrCheckerWithDiTau(const edm::ParameterSet&);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauSrc_;
   const edm::EDGetTokenT<reco::PFJetCollection> pfJetSrc_;
   const double extraTauPtCut_;
   const double mjjMin_;
-  const double matchingR2_;
+  const double dRmin_, dRmin2_;
   // pt comparator
   GreaterByPt<reco::PFJet> pTComparator_;
-
-public:
-  explicit HLTPFDiJetCorrCheckerWithDiTau(const edm::ParameterSet&);
-  ~HLTPFDiJetCorrCheckerWithDiTau() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 };
 
 //
 // class declaration
 //
 HLTPFDiJetCorrCheckerWithDiTau::HLTPFDiJetCorrCheckerWithDiTau(const edm::ParameterSet& iConfig)
-    : tauSrc_(consumes(iConfig.getParameter<edm::InputTag>("TauSrc"))),
-      pfJetSrc_(consumes(iConfig.getParameter<edm::InputTag>("PFJetSrc"))),
+    : tauSrc_(consumes(iConfig.getParameter<edm::InputTag>("tauSrc"))),
+      pfJetSrc_(consumes(iConfig.getParameter<edm::InputTag>("pfJetSrc"))),
       extraTauPtCut_(iConfig.getParameter<double>("extraTauPtCut")),
       mjjMin_(iConfig.getParameter<double>("mjjMin")),
-      matchingR2_(std::pow(iConfig.getParameter<double>("dRmin"), 2)) {
+      dRmin_(iConfig.getParameter<double>("dRmin")),
+      dRmin2_(dRmin_ * dRmin_) {
+  if (dRmin_ <= 0.) {
+    throw cms::Exception("HLTPFDiJetCorrCheckerWithDiTau")
+        << "invalid value for parameter \"dRmin\" (must be > 0): " << dRmin_;
+  }
   produces<reco::PFJetCollection>();
 }
-HLTPFDiJetCorrCheckerWithDiTau::~HLTPFDiJetCorrCheckerWithDiTau() {}
 
-void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
-  std::unique_ptr<reco::PFJetCollection> cleanedPFJets(new reco::PFJetCollection);
+void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const {
+  auto const& pfJets = iEvent.get(pfJetSrc_);
 
-  edm::Handle<reco::PFJetCollection> pfJets;
-  iEvent.getByToken(pfJetSrc_, pfJets);
+  auto cleanedPFJets = std::make_unique<reco::PFJetCollection>();
+  cleanedPFJets->reserve(pfJets.size());
 
   trigger::VRpftau taus;
   iEvent.get(tauSrc_).getObjects(trigger::TriggerTau, taus);
 
   std::set<unsigned int> indices;
 
-  if (pfJets->size() > 1 && taus.size() > 1) {
-    for (unsigned int iJet1 = 0; iJet1 < pfJets->size(); iJet1++) {
-      for (unsigned int iJet2 = iJet1 + 1; iJet2 < pfJets->size(); iJet2++) {
+  if (pfJets.size() > 1 && taus.size() > 1) {
+    for (unsigned int iJet1 = 0; iJet1 < pfJets.size(); iJet1++) {
+      for (unsigned int iJet2 = iJet1 + 1; iJet2 < pfJets.size(); iJet2++) {
         bool correctComb = false;
-        const reco::PFJet& myPFJet1 = (*pfJets)[iJet1];
-        const reco::PFJet& myPFJet2 = (*pfJets)[iJet2];
+        const reco::PFJet& myPFJet1 = pfJets[iJet1];
+        const reco::PFJet& myPFJet2 = pfJets[iJet2];
 
         if ((myPFJet1.p4() + myPFJet2.p4()).M() < mjjMin_)
           continue;
 
         for (unsigned int iTau1 = 0; iTau1 < taus.size(); iTau1++) {
-          if (reco::deltaR2(taus[iTau1]->p4(), myPFJet1.p4()) < matchingR2_)
+          if (reco::deltaR2(taus[iTau1]->p4(), myPFJet1.p4()) < dRmin2_)
             continue;
-          if (reco::deltaR2(taus[iTau1]->p4(), myPFJet2.p4()) < matchingR2_)
+          if (reco::deltaR2(taus[iTau1]->p4(), myPFJet2.p4()) < dRmin2_)
             continue;
 
           for (unsigned int iTau2 = iTau1 + 1; iTau2 < taus.size(); iTau2++) {
-            if (reco::deltaR2(taus[iTau2]->p4(), myPFJet1.p4()) < matchingR2_)
-              continue;
-            if (reco::deltaR2(taus[iTau2]->p4(), myPFJet2.p4()) < matchingR2_)
-              continue;
-
             if (taus[iTau1]->pt() < extraTauPtCut_ && taus[iTau2]->pt() < extraTauPtCut_)
               continue;
 
+            if (reco::deltaR2(taus[iTau2]->p4(), myPFJet1.p4()) < dRmin2_)
+              continue;
+            if (reco::deltaR2(taus[iTau2]->p4(), myPFJet2.p4()) < dRmin2_)
+              continue;
+
             correctComb = true;
+            break;
           }
+          if (correctComb)
+            break;
         }
 
         if (correctComb) {
@@ -103,7 +108,7 @@ void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::Event& iEvent, const edm::Even
     }
 
     for (const auto& i : indices)
-      cleanedPFJets->push_back((*pfJets)[i]);
+      cleanedPFJets->emplace_back(pfJets[i]);
   }
   // sort jets in pt
   std::sort(cleanedPFJets->begin(), cleanedPFJets->end(), pTComparator_);
@@ -112,8 +117,8 @@ void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::Event& iEvent, const edm::Even
 
 void HLTPFDiJetCorrCheckerWithDiTau::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("PFJetSrc", edm::InputTag("hltAK4PFJetsCorrected"))->setComment("Input collection of PFJets");
-  desc.add<edm::InputTag>("TauSrc", edm::InputTag("hltSinglePFTau20TrackPt1LooseChargedIsolationReg"))
+  desc.add<edm::InputTag>("pfJetSrc", edm::InputTag("hltAK4PFJetsCorrected"))->setComment("Input collection of PFJets");
+  desc.add<edm::InputTag>("tauSrc", edm::InputTag("hltSinglePFTau20TrackPt1LooseChargedIsolationReg"))
       ->setComment("Input collection of PFTaus that have passed ID and isolation requirements");
   desc.add<double>("extraTauPtCut", 45)->setComment("In case of asymmetric tau pt cuts");
   desc.add<double>("mjjMin", 500)->setComment("VBF dijet mass condition");
@@ -121,12 +126,11 @@ void HLTPFDiJetCorrCheckerWithDiTau::fillDescriptions(edm::ConfigurationDescript
   descriptions.setComment(
       "This module produces a collection of PFJets that are cross-cleaned with respect to PFTaus passing a HLT "
       "filter.");
-  descriptions.add("HLTPFDiJetCorrCheckerWithDiTau", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //
 // module registration
 //
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HLTPFDiJetCorrCheckerWithDiTau);
