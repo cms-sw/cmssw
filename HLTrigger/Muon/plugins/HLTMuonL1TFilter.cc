@@ -117,18 +117,6 @@ bool HLTMuonL1TFilter::hltFilter(edm::Event& iEvent,
     for (auto it = allMuons->begin(ibx); it != allMuons->end(ibx); it++) {
       MuonRef muon(allMuons, distance(allMuons->begin(allMuons->getFirstBX()), it));
 
-      // Only select muons that were selected in the previous level
-      bool matchPrevL1 = false;
-      int prevSize = prevMuons.size();
-      for (int it2 = 0; it2 < prevSize; it2++) {
-        if (deltaR2(muon->eta(), muon->phi(), prevMuons[it2]->eta(), prevMuons[it2]->phi()) < maxDR2_) {
-          matchPrevL1 = true;
-          break;
-        }
-      }
-      if (!matchPrevL1)
-        continue;
-
       //check maxEta cut
       if (fabs(muon->eta()) > maxEta_)
         continue;
@@ -143,6 +131,18 @@ bool HLTMuonL1TFilter::hltFilter(edm::Event& iEvent,
         if ((quality & qualityBitMask_) == 0)
           continue;
       }
+
+      // Only select muons that were selected in the previous level
+      bool matchPrevL1 = false;
+      int prevSize = prevMuons.size();
+      for (int it2 = 0; it2 < prevSize; it2++) {
+        if (deltaR2(muon->eta(), muon->phi(), prevMuons[it2]->eta(), prevMuons[it2]->phi()) < maxDR2_) {
+          matchPrevL1 = true;
+          break;
+        }
+      }
+      if (!matchPrevL1)
+        continue;
 
       //we have a good candidate
       n++;
