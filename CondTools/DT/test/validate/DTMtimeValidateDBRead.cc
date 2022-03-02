@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,8 +34,6 @@ DTMtimeValidateDBRead::DTMtimeValidateDBRead(edm::ParameterSet const& p)
       dtrecoCondToken_(esConsumes()) {}
 
 DTMtimeValidateDBRead::DTMtimeValidateDBRead(int i) : dtmtTimeToken_(esConsumes()), dtrecoCondToken_(esConsumes()) {}
-
-DTMtimeValidateDBRead::~DTMtimeValidateDBRead() {}
 
 void DTMtimeValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& context) {
   using namespace edm::eventsetup;
