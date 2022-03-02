@@ -304,13 +304,9 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
   CTPPSDataQuery->addToOutputList(std::string("DIP_UPDATE_TIME"));
   CTPPSDataQuery->addToOutputList(std::string("LHC_STATE"));
   CTPPSDataQuery->addToOutputList(std::string("LHC_COMMENT"));
-  // this variable has not been found in the above schema. Need to check with PPS if a replacement is needed/available
-  //CTPPSDataQuery->addToOutputList(std::string("CTPPS_STATUS"));
   CTPPSDataQuery->addToOutputList(std::string("LUMI_SECTION"));
   CTPPSDataQuery->addToOutputList(std::string("XING_ANGLE_P5_X_URAD"));
-  CTPPSDataQuery->addToOutputList(std::string("XING_ANGLE_P5_Y_URAD"));
   CTPPSDataQuery->addToOutputList(std::string("BETA_STAR_P5_X_M"));
-  CTPPSDataQuery->addToOutputList(std::string("BETA_STAR_P5_Y_M"));
   //WHERE CLAUSE
   coral::AttributeList CTPPSDataBindVariables;
   CTPPSDataBindVariables.extend<coral::TimeStamp>(std::string("beginFillTime"));
@@ -326,20 +322,16 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
   CTPPSDataOutput.extend<coral::TimeStamp>(std::string("DIP_UPDATE_TIME"));
   CTPPSDataOutput.extend<std::string>(std::string("LHC_STATE"));
   CTPPSDataOutput.extend<std::string>(std::string("LHC_COMMENT"));
-  // see above comment...
-  //CTPPSDataOutput.extend<std::string>(std::string("CTPPS_STATUS"));
   CTPPSDataOutput.extend<int>(std::string("LUMI_SECTION"));
   CTPPSDataOutput.extend<float>(std::string("XING_ANGLE_P5_X_URAD"));
-  CTPPSDataOutput.extend<float>(std::string("XING_ANGLE_P5_Y_URAD"));
   CTPPSDataOutput.extend<float>(std::string("BETA_STAR_P5_X_M"));
-  CTPPSDataOutput.extend<float>(std::string("BETA_STAR_P5_Y_M"));
   CTPPSDataQuery->defineOutput(CTPPSDataOutput);
   //execute the query
   coral::ICursor& CTPPSDataCursor = CTPPSDataQuery->execute();
   cond::Time_t dipTime = 0;
   std::string lhcState = "", lhcComment = "", ctppsStatus = "";
   unsigned int lumiSection = 0;
-  float crossingAngle_x = 0., crossingAngle_y = 0., betastar_x = 0., betastar_y = 0.;
+  float crossingAngle = 0., betastar = 0.;
 
   bool ret = false;
   LHCInfoImpl::LumiSectionFilter filter(m_tmpBuffer);
@@ -361,11 +353,6 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
         if (!lhcCommentAttribute.isNull()) {
           lhcComment = lhcCommentAttribute.data<std::string>();
         }
-        // missing variable in the new schema - see comments above
-        //coral::Attribute const& ctppsStatusAttribute = CTPPSDataCursor.currentRow()[std::string("CTPPS_STATUS")];
-        //if (!ctppsStatusAttribute.isNull()) {
-        //  ctppsStatus = ctppsStatusAttribute.data<std::string>();
-        //}
         coral::Attribute const& lumiSectionAttribute = CTPPSDataCursor.currentRow()[std::string("LUMI_SECTION")];
         if (!lumiSectionAttribute.isNull()) {
           lumiSection = lumiSectionAttribute.data<int>();
@@ -373,28 +360,17 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
         coral::Attribute const& crossingAngleXAttribute =
             CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_P5_X_URAD")];
         if (!crossingAngleXAttribute.isNull()) {
-          crossingAngle_x = crossingAngleXAttribute.data<float>();
-        }
-        coral::Attribute const& crossingAngleYAttribute =
-            CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_P5_Y_URAD")];
-        if (!crossingAngleYAttribute.isNull()) {
-          crossingAngle_y = crossingAngleYAttribute.data<float>();
+          crossingAngle = crossingAngleXAttribute.data<float>();
         }
         coral::Attribute const& betaStarXAttribute = CTPPSDataCursor.currentRow()[std::string("BETA_STAR_P5_X_M")];
         if (!betaStarXAttribute.isNull()) {
-          betastar_x = betaStarXAttribute.data<float>();
-        }
-        coral::Attribute const& betaStarYAttribute = CTPPSDataCursor.currentRow()[std::string("BETA_STAR_P5_Y_M")];
-        if (!betaStarYAttribute.isNull()) {
-          betastar_y = betaStarYAttribute.data<float>();
+          betastar = betaStarXAttribute.data<float>();
         }
         for (auto it = filter.current(); it != m_tmpBuffer.end(); it++) {
           // set the current values to all of the payloads of the lumi section samples after the current since
           LHCInfo& payload = *(it->second);
-          payload.setXingAngleP5X(crossingAngle_x);
-          payload.setXingAngleP5Y(crossingAngle_y);
-          payload.setBetaStarP5X(betastar_x);
-          payload.setBetaStarP5Y(betastar_y);
+          payload.setCrossingAngle(crossingAngle);
+          payload.setBetaStar(betastar);
           payload.setLhcState(lhcState);
           payload.setLhcComment(lhcComment);
           payload.setCtppsStatus(ctppsStatus);
