@@ -79,7 +79,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
       dcsInputToken_ = iC.mayConsume<DcsStatusCollection>(dcsInputTag_);
       dcsRecordInputTag_ = config.getParameter<edm::InputTag>("dcsRecordInputTag");
       dcsRecordToken_ = iC.mayConsume<DCSRecord>(dcsRecordInputTag_);
-      dcsPartitions_ = config.getParameter<std::vector<int> >("dcsPartitions");
+      dcsPartitions_ = config.getParameter<std::vector<int>>("dcsPartitions");
       errorReplyDcs_ = config.getParameter<bool>("errorReplyDcs");
     } else {
       onDcs_ = false;
@@ -289,6 +289,7 @@ bool GenericTriggerEventFlag::acceptDcs(const edm::Event& event) {
   edm::Handle<DCSRecord> dcsRecord;
   event.getByToken(dcsRecordToken_, dcsRecord);
 
+  // none of the DCS products is valid
   if (!dcsStatus.isValid() && !dcsRecord.isValid()) {
     if (verbose_ > 1)
       edm::LogWarning("GenericTriggerEventFlag")
@@ -297,10 +298,21 @@ bool GenericTriggerEventFlag::acceptDcs(const edm::Event& event) {
           << " ==> decision: " << errorReplyDcs_;
     return errorReplyDcs_;
   }
-  if ((*dcsStatus).empty()) {
+  if (dcsStatus.isValid() && (*dcsStatus).empty()) {
     if (event.eventAuxiliary().isRealData()) {
-      useDCSRecord = true;
+      // this is the Data case for >= Run3, DCSStatus is available (unpacked), but empty
+      // becasue SCAL is not in data-taking. In this case we fall back to s/w FED 1022
+      if (dcsRecord.isValid()) {
+        useDCSRecord = true;
+      } else {
+        if (verbose_ > 1)
+          edm::LogWarning("GenericTriggerEventFlag")
+              << "DCSRecord product with InputTag \"" << dcsRecordInputTag_.encode()
+              << "\" empty ==> decision: " << errorReplyDcs_;
+        return errorReplyDcs_;
+      }
     } else {
+      // this is the case in which the DCS status is empty, but it's not real data.
       if (verbose_ > 1)
         edm::LogWarning("GenericTriggerEventFlag")
             << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode()
