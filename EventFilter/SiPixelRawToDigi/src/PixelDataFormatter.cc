@@ -111,6 +111,8 @@ void PixelDataFormatter::interpretRawData(
   int link = -1;
   int roc = -1;
   int layer = 0;
+  unsigned int rawId = 0;
+  unsigned int nrawId = 0;
   PixelROC const* rocp = nullptr;
   bool skipROC = false;
   edm::DetSet<PixelDigi>* detDigis = nullptr;
@@ -147,7 +149,7 @@ void PixelDataFormatter::interpretRawData(
         skipROC = true;
         continue;
       }
-      auto rawId = rocp->rawId();
+      rawId = rocp->rawId();
       bool barrel = PixelModuleName::isBarrel(rawId);
       if (barrel)
         layer = PixelROC::bpixLayerPhase1(rawId);
@@ -163,10 +165,6 @@ void PixelDataFormatter::interpretRawData(
       skipROC = modulesToUnpack_ && (modulesToUnpack_->find(rawId) == modulesToUnpack_->end());
       if (skipROC)
         continue;
-
-      detDigis = &digis.find_or_insert(rawId);
-      if ((*detDigis).empty())
-        (*detDigis).data.reserve(32);  // avoid the first relocations
     }
 
     // skip is roc to be skipped ot invalid
@@ -204,9 +202,22 @@ void PixelDataFormatter::interpretRawData(
       local = std::make_unique<LocalPixel>(localDP);  // local pixel coordinate
     }
 
-    GlobalPixel global = rocp->toGlobal(*local);  // global pixel coordinate (in module)
-    (*detDigis).data.emplace_back(global.row, global.col, adc);
-    LogTrace("") << (*detDigis).data.back();
+    if (nrawId != rawId) {
+      nrawId = rawId;
+      detDigis = &digis.find_or_insert(rawId);
+      if ((*detDigis).empty()) {
+        (*detDigis).data.reserve(32);  // avoid the first relocations
+      }
+    }
+
+    if (detDigis) {
+      GlobalPixel global = rocp->toGlobal(*local);  // global pixel coordinate (in module)
+      (*detDigis).data.emplace_back(global.row, global.col, adc);
+      LogTrace("") << (*detDigis).data.back();
+    } else {
+      LogError("NullPointerException") << "@SUB=PixelDataFormatter::interpretRawData"
+                                       << "DetSet pointer not set. This is not supposed to happen.";
+    }
   }
 }
 
