@@ -70,6 +70,14 @@ private:
                              C4& itemsMany,
                              const std::string& nameMany);
 
+  template <class C1, class C2, class C3, class C4>
+  void matchLowPtToElectron(const C1& refProdOne,
+			    C2& itemsOne,
+			    const std::string& nameOne,
+			    const C3& refProdMany,
+			    C4& itemsMany,
+			    const std::string& nameMany);
+
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -79,6 +87,7 @@ private:
   const edm::EDGetTokenT<edm::View<pat::Jet>> jets_;
   const edm::EDGetTokenT<edm::View<pat::Muon>> muons_;
   const edm::EDGetTokenT<edm::View<pat::Electron>> electrons_;
+  const edm::EDGetTokenT<edm::View<pat::Electron>> lowPtElectrons_;
   const edm::EDGetTokenT<edm::View<pat::Tau>> taus_;
   const edm::EDGetTokenT<edm::View<pat::Photon>> photons_;
 };
@@ -90,6 +99,7 @@ PATObjectCrossLinker::PATObjectCrossLinker(const edm::ParameterSet& params)
     : jets_(consumes<edm::View<pat::Jet>>(params.getParameter<edm::InputTag>("jets"))),
       muons_(consumes<edm::View<pat::Muon>>(params.getParameter<edm::InputTag>("muons"))),
       electrons_(consumes<edm::View<pat::Electron>>(params.getParameter<edm::InputTag>("electrons"))),
+      lowPtElectrons_(consumes<edm::View<pat::Electron>>(params.getParameter<edm::InputTag>("lowPtElectrons"))),
       taus_(consumes<edm::View<pat::Tau>>(params.getParameter<edm::InputTag>("taus"))),
       photons_(consumes<edm::View<pat::Photon>>(params.getParameter<edm::InputTag>("photons")))
 
@@ -97,6 +107,7 @@ PATObjectCrossLinker::PATObjectCrossLinker(const edm::ParameterSet& params)
   produces<std::vector<pat::Jet>>("jets");
   produces<std::vector<pat::Muon>>("muons");
   produces<std::vector<pat::Electron>>("electrons");
+  produces<std::vector<pat::Electron>>("lowPtElectrons");
   produces<std::vector<pat::Tau>>("taus");
   produces<std::vector<pat::Photon>>("photons");
 }
@@ -159,6 +170,37 @@ void PATObjectCrossLinker::matchElectronToPhoton(const C1& refProdOne,
   }
 }
 
+template <class C1, class C2, class C3, class C4>
+void PATObjectCrossLinker::matchLowPtToElectron(const C1& refProdOne,
+						C2& itemsOne,
+						const std::string& nameOne,
+						const C3& refProdMany,
+						C4& itemsMany,
+						const std::string& nameMany) {
+  size_t ji = 0;
+  for (auto& j : itemsOne) {
+    std::vector<size_t> idxs;
+    std::vector<float> vdr2;
+    size_t mi = 0;
+    for (auto& m : itemsMany) {
+      float dr2 = deltaR2(m,j);
+      if (dr2<1.e-6) { // deltaR < 1.e-3
+        m.addUserCand(nameOne, reco::CandidatePtr(refProdOne.id(), ji, refProdOne.productGetter()));
+	idxs.push_back(mi);
+	vdr2.push_back(dr2);
+      }
+      mi++;
+    }
+    std::sort(idxs.begin(),idxs.end(),[&](float a, float b) -> bool { return vdr2[a] < vdr2[b]; });
+    edm::PtrVector<reco::Candidate> overlaps(refProdMany.id());
+    for ( auto idx : idxs ) {
+      overlaps.push_back(reco::CandidatePtr(refProdMany.id(), idx, refProdMany.productGetter()));
+    }
+    j.setOverlaps(nameMany, overlaps);
+    ji++;
+  }
+}
+
 void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   edm::Handle<edm::View<pat::Jet>> jetsIn;
@@ -182,6 +224,13 @@ void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iS
     electrons->push_back(e);
   auto eleRefProd = iEvent.getRefBeforePut<std::vector<pat::Electron>>("electrons");
 
+  edm::Handle<edm::View<pat::Electron>> lowPtElectronsIn;
+  iEvent.getByToken(lowPtElectrons_, lowPtElectronsIn);
+  auto lowPtElectrons = std::make_unique<std::vector<pat::Electron>>();
+  for (const auto& e : *lowPtElectronsIn)
+    lowPtElectrons->push_back(e);
+  auto lowPtEleRefProd = iEvent.getRefBeforePut<std::vector<pat::Electron>>("lowPtElectrons");
+
   edm::Handle<edm::View<pat::Tau>> tausIn;
   iEvent.getByToken(taus_, tausIn);
   auto taus = std::make_unique<std::vector<pat::Tau>>();
@@ -202,10 +251,12 @@ void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iS
   matchOneToMany(jetRefProd, *jets, "jet", phRefProd, *photons, "photons");
 
   matchElectronToPhoton(eleRefProd, *electrons, "electron", phRefProd, *photons, "photons");
+  matchLowPtToElectron(lowPtEleRefProd, *lowPtElectrons, "lowPtElectron", eleRefProd, *electrons, "electrons");
 
   iEvent.put(std::move(jets), "jets");
   iEvent.put(std::move(muons), "muons");
   iEvent.put(std::move(electrons), "electrons");
+  iEvent.put(std::move(lowPtElectrons), "lowPtElectrons");
   iEvent.put(std::move(taus), "taus");
   iEvent.put(std::move(photons), "photons");
 }
