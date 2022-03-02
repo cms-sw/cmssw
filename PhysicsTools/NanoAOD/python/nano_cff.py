@@ -363,9 +363,9 @@ def nanoAOD_customizeCommon(process):
     (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(nanoAOD_tau_switch, idsToAdd = ["deepTau2017v2p1"])
     (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(process, lambda p : nanoAOD_addTauIds(p, nanoAOD_tau_switch.idsToAdd.value()))
     nanoAOD_boostedTau_switch = cms.PSet(
-        idsToAdd = cms.vstring("2017v2", "dR0p32017v2", "newDM2017v2","againstEle2018")
+        idsToAdd = cms.vstring()
     )
-    run3_nanoAOD_devel.toModify(nanoAOD_boostedTau_switch, idsToAdd = [])
+    run2_nanoAOD_106Xv2.toModify(nanoAOD_boostedTau_switch, idsToAdd = ["2017v2", "dR0p32017v2", "newDM2017v2","againstEle2018"])
     (~(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1)).toModify(process, lambda p : nanoAOD_addBoostedTauIds(p, nanoAOD_boostedTau_switch.idsToAdd.value()))
     return process
 

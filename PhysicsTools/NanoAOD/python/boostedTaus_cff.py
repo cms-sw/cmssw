@@ -10,10 +10,10 @@ from PhysicsTools.NanoAOD.taus_cff import _tauId2WPMask,_tauId5WPMask,_tauId7WPM
 
 finalBoostedTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTausBoosted"),
-    cut = cms.string("pt > 40 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017') || tauID('byVVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017') || tauID('byVVLooseIsolationMVArun2017v2DBnewDMwLT2017'))")
+    cut = cms.string("pt > 40 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2DBnewDMwLT'))")
 )
-run3_nanoAOD_devel.toModify(finalBoostedTaus,
-                            cut = "pt > 40 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2DBnewDMwLT'))"
+run2_nanoAOD_106Xv2.toModify(finalBoostedTaus,
+                             cut = "pt > 40 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017') || tauID('byVVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017') || tauID('byVVLooseIsolationMVArun2017v2DBnewDMwLT2017'))"
 )
 
 boostedTauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
@@ -45,9 +45,12 @@ _boostedTauVarsBase = cms.PSet(P4Vars,
 _boostedTauVarsMVAIso = cms.PSet(
        rawMVAoldDM2017v2 = Var("tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017')",float, doc="byIsolationMVArun2DBoldDMwLT raw output discriminator (2017v2)",precision=10),
        rawMVAnewDM2017v2 = Var("tauID('byIsolationMVArun2017v2DBnewDMwLTraw2017')",float,doc='byIsolationMVArun2DBnewDMwLT raw output discriminator (2017v2)',precision=10),
-       rawMVAoldDMdR032017v2 = Var("tauID('byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017')",float,doc='byIsolationMVArun2DBoldDMdR0p3wLT raw output discriminator (2017v2)'),
        idMVAnewDM2017v2 = _tauId7WPMask("by%sIsolationMVArun2017v2DBnewDMwLT2017", doc="IsolationMVArun2DBnewDMwLT ID working point (2017v2)"),
        idMVAoldDM2017v2 = _tauId7WPMask("by%sIsolationMVArun2017v2DBoldDMwLT2017",doc="IsolationMVArun2DBoldDMwLT ID working point (2017v2)"),
+)
+#MVA 2017 v2 dR<0.3 variables
+_boostedTauVarsMVAIsoDr03 = cms.PSet(
+       rawMVAoldDMdR032017v2 = Var("tauID('byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017')",float,doc='byIsolationMVArun2DBoldDMdR0p3wLT raw output discriminator (2017v2)'),
        idMVAoldDMdR032017v2 = _tauId7WPMask("by%sIsolationMVArun2017v2DBoldDMdR0p3wLT2017",doc="IsolationMVArun2DBoldDMdR0p3wLT ID working point (2017v2)")
 )
 #AntiEle MVA 2018 variables
@@ -62,13 +65,14 @@ boostedTauTable.variables = cms.PSet(
     _boostedTauVarsMVAIso,
     _boostedTauVarsAntiEleMVA
 )
-run3_nanoAOD_devel.toModify(boostedTauTable.variables,
-                            rawMVAoldDM2017v2 = Var("tauID('byIsolationMVArun2DBoldDMwLTraw')",float, doc="byIsolationMVArun2DBoldDMwLT raw output discriminator (2017v2)",precision=10),
-                            rawMVAnewDM2017v2 = Var("tauID('byIsolationMVArun2DBnewDMwLTraw')",float,doc='byIsolationMVArun2DBnewDMwLT raw output discriminator (2017v2)',precision=10),
-                            rawMVAoldDMdR032017v2 = None,
-                            idMVAnewDM2017v2 = _tauId7WPMask("by%sIsolationMVArun2DBnewDMwLT", doc="IsolationMVArun2DBnewDMwLT ID working point (2017v2)"),
-                            idMVAoldDM2017v2 = _tauId7WPMask("by%sIsolationMVArun2DBoldDMwLT",doc="IsolationMVArun2DBoldDMwLT ID working point (2017v2)"),
-                            idMVAoldDMdR032017v2 = None
+_boostedTauVarsWithDr03 = cms.PSet(
+    _boostedTauVarsBase,
+    _boostedTauVarsMVAIso,
+    _boostedTauVarsMVAIsoDr03,
+    _boostedTauVarsAntiEleMVA
+)
+run2_nanoAOD_106Xv2.toModify(boostedTauTable,
+                             variables = _boostedTauVarsWithDr03
 )
 
 boostedTausMCMatchLepTauForTable = tausMCMatchLepTauForTable.clone(
@@ -83,7 +87,7 @@ boostedTausMCMatchHadTauForTable = tausMCMatchHadTauForTable.clone(
 boostedTauMCTable = tauMCTable.clone(
     src = boostedTauTable.src,
     mcMap = cms.InputTag("boostedTausMCMatchLepTauForTable"),
-    mcMapVisTau = cms.InputTag("boostedTausMCMatchHadTauForTable"),                         
+    mcMapVisTau = cms.InputTag("boostedTausMCMatchHadTauForTable"),
     objName = boostedTauTable.name,
 )
 
