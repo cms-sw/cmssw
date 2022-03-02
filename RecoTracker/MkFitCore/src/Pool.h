@@ -1,6 +1,7 @@
 #ifndef RecoTracker_MkFitCore_src_Pool_h
 #define RecoTracker_MkFitCore_src_Pool_h
 
+#include "Matriplex/Memory.h"
 #include "oneapi/tbb/concurrent_queue.h"
 
 namespace mkfit {
@@ -38,7 +39,7 @@ namespace mkfit {
     }
 
   private:
-    TT *create() { return new (std::aligned_alloc(64, sizeof(TT))) TT; };
+    TT *create() { return new (Matriplex::aligned_alloc64(sizeof(TT))) TT; };
 
     void destroy(TT *x) {
       x->~TT();

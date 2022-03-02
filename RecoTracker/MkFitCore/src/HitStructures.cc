@@ -1,7 +1,7 @@
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
 
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
-
+#include "Matriplex/Memory.h"
 #include "Ice/IceRevisitedRadix.h"
 
 #include "Debug.h"
@@ -17,7 +17,7 @@ namespace mkfit {
 
 #ifdef COPY_SORTED_HITS
   void LayerOfHits::alloc_hits(int size) {
-    m_hits = (Hit *)std::aligned_alloc(64, sizeof(Hit) * size);
+    m_hits = (Hit *)Matriplex::aligned_alloc64(sizeof(Hit) * size);
     m_capacity = size;
     for (int ihit = 0; ihit < m_capacity; ihit++) {
       m_hits[ihit] = Hit();
