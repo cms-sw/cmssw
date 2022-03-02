@@ -73,7 +73,7 @@ finalLowPtElectrons = cms.EDFilter(
 
 lowPtElectronTable = cms.EDProducer(
     "SimpleCandidateFlatTableProducer",
-    src = cms.InputTag("finalLowPtElectrons"),
+    src = cms.InputTag("linkedObjects","lowPtElectrons"),
     cut = cms.string(""),
     name= cms.string("LowPtElectron"),
     doc = cms.string("slimmedLowPtElectrons after basic selection (" + finalLowPtElectrons.cut.value()+")"),
@@ -82,6 +82,8 @@ lowPtElectronTable = cms.EDProducer(
     variables = cms.PSet(
         # Basic variables
         CandVars,
+        # Overlaps with PF electron
+        electronIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", int, doc="index of the overlapping PF electron (-1 if none)"),
         # BDT scores and WPs
         embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
         ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score"),

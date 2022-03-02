@@ -59,11 +59,13 @@ private:
   virtual void objectSelection(const edm::View<pat::Jet>& jets,
                                const edm::View<pat::Muon>& muons,
                                const edm::View<pat::Electron>& eles,
+                               const edm::View<pat::Electron>& lowPtEles,
                                const edm::View<pat::Tau>& taus,
                                const edm::View<pat::Photon>& photons,
                                std::vector<uint8_t>& jetBits,
                                std::vector<uint8_t>& muonBits,
                                std::vector<uint8_t>& eleBits,
+                               std::vector<uint8_t>& loWptEleBits,
                                std::vector<uint8_t>& tauBits,
                                std::vector<uint8_t>& photonBits){};
 
@@ -79,16 +81,19 @@ private:
   const edm::EDGetTokenT<edm::View<pat::Jet>> jets_;
   const edm::EDGetTokenT<edm::View<pat::Muon>> muons_;
   const edm::EDGetTokenT<edm::View<pat::Electron>> electrons_;
+  const edm::EDGetTokenT<edm::View<pat::Electron>> lowPtElectrons_;
   const edm::EDGetTokenT<edm::View<pat::Tau>> taus_;
   const edm::EDGetTokenT<edm::View<pat::Photon>> photons_;
   const StringCutObjectSelector<pat::Jet> jetSel_;
   const StringCutObjectSelector<pat::Muon> muonSel_;
   const StringCutObjectSelector<pat::Electron> electronSel_;
+  const StringCutObjectSelector<pat::Electron> lowPtElectronSel_;
   const StringCutObjectSelector<pat::Tau> tauSel_;
   const StringCutObjectSelector<pat::Photon> photonSel_;
   const std::string jetName_;
   const std::string muonName_;
   const std::string electronName_;
+  const std::string lowPtElectronName_;
   const std::string tauName_;
   const std::string photonName_;
 };
