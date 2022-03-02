@@ -517,6 +517,34 @@ upgradeWFs['mlpf'].step3 = {
     '--procModifiers': 'mlpf'
 }
 
+
+# ECAL DeepSC clustering studies workflow
+class UpgradeWorkflow_ecalclustering(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=="ZEE_14") and '2021PU' in key
+
+upgradeWFs['ecalDeepSC'] = UpgradeWorkflow_ecalclustering(
+    steps = [
+        'Reco',
+        'RecoNano',
+    ],
+    PU = [
+        'Reco',
+        'RecoNano',
+    ],
+    suffix = '_ecalDeepSC',
+    offset = 0.19,
+)
+upgradeWFs['ecalDeepSC'].step3 = {
+    '--datatier': 'RECOSIM,MINIAODSIM,NANOAODSIM,DQMIO',
+    '--eventcontent': 'RECOSIM,MINIAODSIM,NANOEDMAODSIM,DQM',
+    '--procModifiers': 'ecal_deepsc'
+}   
+
+
 # photonDRN workflows
 class UpgradeWorkflow_photonDRN(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -542,6 +570,7 @@ upgradeWFs['photonDRN'] = UpgradeWorkflow_photonDRN(
 upgradeWFs['photonDRN'].step3 = {
     '--procModifiers': 'enableSonicTriton,photonDRN'
 }
+
 
 # Patatrack workflows:
 #   - 2018 conditions, TTbar
