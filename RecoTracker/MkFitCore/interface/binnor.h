@@ -48,9 +48,9 @@ namespace mkfit {
           m_N_fac(N_size / (max - min)),
           m_last_M_bin(M_size - 1),
           m_last_N_bin(N_size - 1) {
-            // Requested number of bins must fit within the intended bit-field (declared by binnor, later).
-           assert(N_size <= (1 << N));
-          }
+      // Requested number of bins must fit within the intended bit-field (declared by binnor, later).
+      assert(N_size <= (1 << N));
+    }
 
     I from_R_to_M_bin(R r) const { return (r - m_R_min) * m_M_fac; }
     I from_R_to_N_bin(R r) const { return (r - m_R_min) * m_N_fac; }
