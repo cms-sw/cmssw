@@ -4,25 +4,34 @@
 #include <string>
 
 // user include files
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
+class SiStripBadStripFromASCIIFile : public ConditionDBWriter<SiStripBadStrip> {
+public:
+  explicit SiStripBadStripFromASCIIFile(const edm::ParameterSet& iConfig);
+  ~SiStripBadStripFromASCIIFile() override = default;
 
-#include "CalibTracker/SiStripQuality/plugins/SiStripBadStripFromASCIIFile.h"
+private:
+  std::unique_ptr<SiStripBadStrip> getNewObject() override;
+  edm::FileInPath fp_;
+  bool printdebug_;
+};
 
 using namespace std;
-
 SiStripBadStripFromASCIIFile::SiStripBadStripFromASCIIFile(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig),
       printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)) {
@@ -136,3 +145,6 @@ std::unique_ptr<SiStripBadStrip> SiStripBadStripFromASCIIFile::getNewObject() {
 
   return SiStripBadStrip_;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripBadStripFromASCIIFile);
