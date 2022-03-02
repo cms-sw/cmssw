@@ -231,6 +231,7 @@ for modifier in run2_egamma_2016, run2_egamma_2017, run2_egamma_2018 :
         pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
         eCorr = Var("userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')",float,doc="ratio of the calibrated energy/miniaod energy"),
+        hoe = Var("hadTowOverEm()",float,doc="H over E (Run2)",precision=8),
     )
 
 #these eras have the energy correction in the mini
