@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
@@ -138,6 +139,8 @@ public:
   bool accept(const edm::Event& event, const edm::EventSetup& setup);  // To be called from analyze/filter() methods
 
   bool allHLTPathsAreValid() const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC, bool stage1Valid);
