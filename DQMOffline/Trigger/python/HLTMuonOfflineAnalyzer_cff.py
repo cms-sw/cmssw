@@ -8,7 +8,7 @@ globalMuonParams = cms.PSet(
     recoCuts = cms.untracked.string("isGlobalMuon && abs(eta) < 2.4"),
     hltCuts  = cms.untracked.string("abs(eta) < 2.4"),
 )
-
+'''
 trackerMuonParams = cms.PSet(
     d0Cut = cms.untracked.double(2.0),
     z0Cut = cms.untracked.double(25.0),
@@ -44,13 +44,13 @@ looseMuonParams = cms.PSet(
         ])),
     hltCuts  = cms.untracked.string("abs(eta) < 2.4"),
 )
-
+'''
 
 globalAnalyzerTnP = hltMuonOfflineAnalyzer.clone()
 globalAnalyzerTnP.destination = "HLT/Muon/DistributionsGlobal"
 globalAnalyzerTnP.targetParams = globalMuonParams
 #globalAnalyzerTnP.probeParams = cms.PSet()
-
+'''
 trackerAnalyzerTnP = hltMuonOfflineAnalyzer.clone()
 trackerAnalyzerTnP.destination = "HLT/Muon/DistributionsTracker"
 trackerAnalyzerTnP.targetParams = trackerMuonParams
@@ -65,7 +65,7 @@ looseAnalyzerTnP = hltMuonOfflineAnalyzer.clone()
 looseAnalyzerTnP.destination = "HLT/Muon/DistributionsLoose"
 looseAnalyzerTnP.targetParams = looseMuonParams
 #tightAnalyzer.probeParams = cms.PSet() 
-
+'''
 
 refPathsList = cms.vstring(
     "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
@@ -88,7 +88,7 @@ globalAnalyzerRef.requiredTriggers = cms.untracked.vstring(
     "HLT_Mu17_TrkIsoVVL_v")
 
 #globalAnalyzerRef.probeParams = cms.PSet()
-
+'''
 trackerAnalyzerRef = hltMuonOfflineAnalyzer.clone()
 trackerAnalyzerRef.destination = "HLT/Muon/DistributionsTracker"
 trackerAnalyzerRef.targetParams = trackerMuonParams
@@ -113,21 +113,21 @@ looseAnalyzerRef.hltPathsToCheck = refPathsList
 looseAnalyzerRef.requiredTriggers = cms.untracked.vstring(
     "HLT_Mu17_TrkIsoVVL_v")
 #tightAnalyzer.probeParams = cms.PSet() 
-
+'''
 
 
 refPathsList19 =  cms.vstring(
-    "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8_v", 
-    "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8_v"  ,
-    "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_v"        ,
-    "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_v",
-    "HLT_Mu20_Mu10_DZ_v",
-    "HLT_Mu20_Mu10_SameSign_DZ_v",
-    "HLT_Mu20_Mu10_SameSign_v",
-    "HLT_Mu20_Mu10_v",
+    #"HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8_v", 
+    #"HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8_v"  ,
+    #"HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_v"        ,
+    #"HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_v",
+    #"HLT_Mu20_Mu10_DZ_v",
+    #"HLT_Mu20_Mu10_SameSign_DZ_v",
+    #"HLT_Mu20_Mu10_SameSign_v",
+    #"HLT_Mu20_Mu10_v",
     "HLT_Mu23_Mu12_DZ_v",
-    "HLT_Mu23_Mu12_SameSign_DZ_v",
-    "HLT_Mu23_Mu12_SameSign_v",
+    #"HLT_Mu23_Mu12_SameSign_DZ_v",
+    #HLT_Mu23_Mu12_SameSign_v",
     "HLT_Mu23_Mu12_v"
     )
 
@@ -139,7 +139,7 @@ globalAnalyzerRef19.requiredTriggers = cms.untracked.vstring(
     "HLT_Mu19_TrkIsoVVL_v")
 
 #globalAnalyzerRef19.probeParams = cms.PSet()
-
+'''
 trackerAnalyzerRef19 = hltMuonOfflineAnalyzer.clone()
 trackerAnalyzerRef19.destination = "HLT/Muon/DistributionsTracker"
 trackerAnalyzerRef19.targetParams = trackerMuonParams
@@ -163,10 +163,10 @@ looseAnalyzerRef19.hltPathsToCheck = refPathsList19
 looseAnalyzerRef19.requiredTriggers = cms.untracked.vstring(
     "HLT_Mu19_TrkIsoVVL_v")
 #tightAnalyzer.probeParams = cms.PSet() 
+'''
 
 
-
-
+'''
 hltMuonOfflineAnalyzers = cms.Sequence(
     globalAnalyzerTnP  *
     trackerAnalyzerTnP *
@@ -181,10 +181,17 @@ hltMuonOfflineAnalyzers = cms.Sequence(
     tightAnalyzerRef19   *
     looseAnalyzerRef19
 )
+'''
+hltMuonOfflineAnalyzers = cms.Sequence(
+    globalAnalyzerTnP  *
+    globalAnalyzerRef  *
+    globalAnalyzerRef19
+)
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+'''
 for muAna in [globalAnalyzerTnP.targetParams, trackerAnalyzerTnP.targetParams, 
               tightAnalyzerTnP.targetParams, looseAnalyzerTnP.targetParams,
               globalAnalyzerRef.targetParams, trackerAnalyzerRef.targetParams, 
@@ -195,5 +202,14 @@ for muAna in [globalAnalyzerTnP.binParams, trackerAnalyzerTnP.binParams,
               tightAnalyzerTnP.binParams, looseAnalyzerTnP.binParams,
               globalAnalyzerRef.binParams, trackerAnalyzerRef.binParams,
               tightAnalyzerRef.binParams, looseAnalyzerRef.binParams]:
+    for e in [pA_2016, ppRef_2017, pp_on_AA]:
+	    e.toModify(muAna, ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.))
+'''
+for muAna in [globalAnalyzerTnP.targetParams, 
+              globalAnalyzerRef.targetParams]:
+    for e in [pA_2016, ppRef_2017, pp_on_AA]:
+	    e.toModify(muAna, ptCut_Jpsi = cms.untracked.double( 5.0))
+for muAna in [globalAnalyzerTnP.binParams, 
+              globalAnalyzerRef.binParams]:
     for e in [pA_2016, ppRef_2017, pp_on_AA]:
 	    e.toModify(muAna, ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.))
