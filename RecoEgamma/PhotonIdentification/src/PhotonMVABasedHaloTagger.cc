@@ -145,8 +145,7 @@ void PhotonMVABasedHaloTagger::calphoClusCoordinECAL(const CaloGeometry* geo,
           << "In PhotonMVABasedHaloTagger::calphoClusCoordinECAL, EcalPFRecHitThresholds cannot be = nulptr";
     }
 
-    float rhThres = 0.0;
-    rhThres = (*thresholds)[det];
+    float rhThres = (*thresholds)[det];
 
     if (rhE <= rhThres)
       continue;
@@ -221,36 +220,37 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(const CaloGe
     if (phoSCEta * rhEta < 0)
       continue;  ///Should be on the same side of Z
 
-    double rho2 = pow(rhX, 2) + pow(rhY, 2);
     double dPhi = deltaPhi(phoSCPhi, rhPhi);
 
-    bool isRHBehindECAL = false;
-
-    double dRho2 = pow(rhX - ecalClusX_, 2) + pow(rhY - ecalClusY_, 2);
-
     ///only valid for the EE; this is 26 cm; hit within 3x3 of HCAL centered at the EECAL xtal
-    if (rho2 >= rho2Min_ECALpos_ && rho2 <= rho2Max_ECALpos_ && dRho2 <= dRho2Max_HCALClus_SamePhi_ &&
-        std::abs(dPhi) < dPhiMax_HCALClus_SamePhi_) {
-      hcalClusX_samedPhi_ += rhX * rhE;
-      hcalClusY_samedPhi_ += rhY * rhE;
-      hcalClusZ_samedPhi_ += rhZ * rhE;
-      hcalClusE_samedPhi_ += rhE;
-      hcalClusNhits_samedPhi_++;
-      isRHBehindECAL = true;
-
+    bool isRHBehindECAL = std::abs(dPhi) < dPhiMax_HCALClus_SamePhi_;
+    if (isRHBehindECAL) {
+      double rho2 = pow(rhX, 2) + pow(rhY, 2);
+      isRHBehindECAL &= (rho2 >= rho2Min_ECALpos_ && rho2 <= rho2Max_ECALpos_);
+      if (isRHBehindECAL) {
+        double dRho2 = pow(rhX - ecalClusX_, 2) + pow(rhY - ecalClusY_, 2);
+        isRHBehindECAL &= dRho2 <= dRho2Max_HCALClus_SamePhi_;
+        if (isRHBehindECAL) {
+          hcalClusX_samedPhi_ += rhX * rhE;
+          hcalClusY_samedPhi_ += rhY * rhE;
+          hcalClusZ_samedPhi_ += rhZ * rhE;
+          hcalClusE_samedPhi_ += rhE;
+          hcalClusNhits_samedPhi_++;
+        }
+      }
     }  //if(rho>=31 && rho<=172)
 
-    double dR2 = reco::deltaR2(phoSCEta, phoSCPhi, rhEta, rhPhi);
-
-    if (dR2 < dR2Max_HCALClus_SamePhi_ &&
-        !isRHBehindECAL) {  ///dont use hits which are just behind the ECAL in the same phi region
-      hcalClusX_samedR_ += rhX * rhE;
-      hcalClusY_samedR_ += rhY * rhE;
-      hcalClusZ_samedR_ += rhZ * rhE;
-      hcalClusE_samedR_ += rhE;
-      hcalClusNhits_samedR_++;
+    ///dont use hits which are just behind the ECAL in the same phi region
+    if (!isRHBehindECAL) {
+      double dR2 = reco::deltaR2(phoSCEta, phoSCPhi, rhEta, rhPhi);
+      if (dR2 < dR2Max_HCALClus_SamePhi_) {
+        hcalClusX_samedR_ += rhX * rhE;
+        hcalClusY_samedR_ += rhY * rhE;
+        hcalClusZ_samedR_ += rhZ * rhE;
+        hcalClusE_samedR_ += rhE;
+        hcalClusNhits_samedR_++;
+      }
     }
-
   }  //for(int ih=0; ih<nMatchedHBHErh[ipho]; ih++)
 
   if (hcalClusNhits_samedPhi_ > 0) {
@@ -363,34 +363,36 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(const CaloGeom
     if (rhE < noiseThrES_)
       continue;
 
-    bool isRHBehindECAL = false;
-
     ///same phi
-    double dX_samephi = std::abs(matchX_samephi - rhX);
-    double dY_samephi = std::abs(matchY_samephi - rhY);
-
-    if ((dX_samephi < dXY_ESClus_SamePhi_ && dY_samephi < dXY_ESClus_SamePhi_) && foundESRH_samephi) {
-      preshowerX_samedPhi_ += rhX * rhE;
-      preshowerY_samedPhi_ += rhY * rhE;
-      preshowerZ_samedPhi_ += rhZ * rhE;
-      preshowerE_samedPhi_ += rhE;
-      preshowerNhits_samedPhi_++;
-      isRHBehindECAL = true;
+    bool isRHBehindECAL = foundESRH_samephi;
+    if (isRHBehindECAL) {
+      double dX_samephi = std::abs(matchX_samephi - rhX);
+      double dY_samephi = std::abs(matchY_samephi - rhY);
+      isRHBehindECAL &= (dX_samephi < dXY_ESClus_SamePhi_ && dY_samephi < dXY_ESClus_SamePhi_);
+      if (isRHBehindECAL) {
+        preshowerX_samedPhi_ += rhX * rhE;
+        preshowerY_samedPhi_ += rhY * rhE;
+        preshowerZ_samedPhi_ += rhZ * rhE;
+        preshowerE_samedPhi_ += rhE;
+        preshowerNhits_samedPhi_++;
+      }
     }
 
     ///same dR
-    double dX_samedR = std::abs(matchX_samedR - rhX);
-    double dY_samedR = std::abs(matchY_samedR - rhY);
+    if (!isRHBehindECAL && foundESRH_samedR) {
+      double dX_samedR = std::abs(matchX_samedR - rhX);
+      double dY_samedR = std::abs(matchY_samedR - rhY);
 
-    if (!isRHBehindECAL && foundESRH_samedR && (dX_samedR < dXY_ESClus_SamedR_ && dY_samedR < dXY_ESClus_SamedR_)) {
-      preshowerX_samedR_ += rhX * rhE;
-      preshowerY_samedR_ += rhY * rhE;
-      preshowerZ_samedR_ += rhZ * rhE;
-      preshowerE_samedR_ += rhE;
-      preshowerNhits_samedR_++;
+      if (dX_samedR < dXY_ESClus_SamedR_ && dY_samedR < dXY_ESClus_SamedR_) {
+        preshowerX_samedR_ += rhX * rhE;
+        preshowerY_samedR_ += rhY * rhE;
+        preshowerZ_samedR_ += rhZ * rhE;
+        preshowerE_samedR_ += rhE;
+        preshowerNhits_samedR_++;
+      }
     }
-
   }  ///for(int ih=0; ih<nMatchedESrh[ipho]; ih++)
+
   if (preshowerNhits_samedPhi_ > 0) {
     preshowerX_samedPhi_ = preshowerX_samedPhi_ / preshowerE_samedPhi_;
     preshowerY_samedPhi_ = preshowerY_samedPhi_ / preshowerE_samedPhi_;
