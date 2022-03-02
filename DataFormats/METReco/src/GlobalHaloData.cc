@@ -16,6 +16,15 @@ GlobalHaloData::GlobalHaloData() {
   dMEx_ = 0.;
   dMEy_ = 0.;
   dSumEt_ = 0.;
+
+  segmentisEBcalomatched = false;
+  segmentisEEcalomatched = false;
+  segmentisHBcalomatched = false;
+  segmentisHEcalomatched = false;
+  halopatternfoundEB = false;
+  halopatternfoundEE = false;
+  halopatternfoundHB = false;
+  halopatternfoundHE = false;
 }
 
 reco::CaloMET GlobalHaloData::GetCorrectedCaloMET(const reco::CaloMET& RawMET) const {
