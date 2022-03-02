@@ -1,13 +1,48 @@
-#include "RecoTauTag/HLTProducers/interface/PFDiJetCorrCheckerWithDiTau.h"
+/** Description: Check correlation between PFJet pairs and filtered PFTau pairs and store the PFJet pairs.
+For (j1, j2, t1, t2) where j1, j2 from the PFJet collection and t1, t2 from the filtered PFTau collection,
+the module checks if there is no overlap (within dRmin) between j1, j2, t1, t2, i.e. they are 4 different objects.
+In addition, the module imposes the following cuts:
+* mjjMin: the min invariant mass cut on (j1, j2)
+* extraTauPtCut: the leading tau pt cut on (t1, t2) (under the assumption t1, t2 are products of a subleading pt filter with minN = 2)
+The module stores j1, j2 of any (j1, j2, t1, t2) that satisfies the conditions above. */
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 //
+// class definition
+//
+class HLTPFDiJetCorrCheckerWithDiTau : public edm::stream::EDProducer<> {
+private:
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauSrc_;
+  const edm::EDGetTokenT<reco::PFJetCollection> pfJetSrc_;
+  const double extraTauPtCut_;
+  const double mjjMin_;
+  const double matchingR2_;
+
+public:
+  explicit HLTPFDiJetCorrCheckerWithDiTau(const edm::ParameterSet&);
+  ~HLTPFDiJetCorrCheckerWithDiTau() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+};
+
+//
 // class declaration
 //
-PFDiJetCorrCheckerWithDiTau::PFDiJetCorrCheckerWithDiTau(const edm::ParameterSet& iConfig)
+HLTPFDiJetCorrCheckerWithDiTau::HLTPFDiJetCorrCheckerWithDiTau(const edm::ParameterSet& iConfig)
     : tauSrc_(consumes(iConfig.getParameter<edm::InputTag>("TauSrc"))),
       pfJetSrc_(consumes(iConfig.getParameter<edm::InputTag>("PFJetSrc"))),
       extraTauPtCut_(iConfig.getParameter<double>("extraTauPtCut")),
@@ -15,9 +50,9 @@ PFDiJetCorrCheckerWithDiTau::PFDiJetCorrCheckerWithDiTau(const edm::ParameterSet
       matchingR2_(std::pow(iConfig.getParameter<double>("dRmin"), 2)) {
   produces<reco::PFJetCollection>();
 }
-PFDiJetCorrCheckerWithDiTau::~PFDiJetCorrCheckerWithDiTau() {}
+HLTPFDiJetCorrCheckerWithDiTau::~HLTPFDiJetCorrCheckerWithDiTau() {}
 
-void PFDiJetCorrCheckerWithDiTau::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
+void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
   std::unique_ptr<reco::PFJetCollection> cleanedPFJets(new reco::PFJetCollection);
 
   edm::Handle<reco::PFJetCollection> pfJets;
@@ -70,7 +105,7 @@ void PFDiJetCorrCheckerWithDiTau::produce(edm::Event& iEvent, const edm::EventSe
   iEvent.put(std::move(cleanedPFJets));
 }
 
-void PFDiJetCorrCheckerWithDiTau::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTPFDiJetCorrCheckerWithDiTau::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("PFJetSrc", edm::InputTag("hltAK4PFJetsCorrected"))->setComment("Input collection of PFJets");
   desc.add<edm::InputTag>("TauSrc", edm::InputTag("hltSinglePFTau20TrackPt1LooseChargedIsolationReg"))
@@ -81,5 +116,12 @@ void PFDiJetCorrCheckerWithDiTau::fillDescriptions(edm::ConfigurationDescription
   descriptions.setComment(
       "This module produces a collection of PFJets that are cross-cleaned with respect to PFTaus passing a HLT "
       "filter.");
-  descriptions.add("PFDiJetCorrCheckerWithDiTau", desc);
+  descriptions.add("HLTPFDiJetCorrCheckerWithDiTau", desc);
 }
+
+//
+// module registration
+//
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTPFDiJetCorrCheckerWithDiTau);
