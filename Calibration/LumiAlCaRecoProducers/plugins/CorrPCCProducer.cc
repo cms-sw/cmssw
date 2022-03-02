@@ -4,8 +4,9 @@ class:   CorrPCCProducer.cc
 description: Computes the type 1 and type 2 corrections to the luminosity
                 type 1 - first (spillover from previous BXs real clusters)
                 type 2 - after (comes from real activation)
+                pedestal - is a constant noise term for low lumi period
 
-authors:Sam Higginbotham (shigginb@cern.ch) and Chris Palmer (capalmer@cern.ch) 
+authors:Sam Higginbotham (shigginb@cern.ch) and Chris Palmer (capalmer@cern.ch) , Jose Benitez (jose.benitez@cern.ch)
 
 ________________________________________________________________**/
 #include <memory>
