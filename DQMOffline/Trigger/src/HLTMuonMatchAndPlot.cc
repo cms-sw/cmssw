@@ -222,7 +222,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
     // Muon cannot be a tag because doesn't match an hlt muon
     if (matches[i] >= targetMuons.size())
       continue;
-  }    // End loop over targetMuons.
+  }  // End loop over targetMuons.
 
   // fill eff histograms for reference trigger method
   // Denominator: events passing reference trigger and two target muons
