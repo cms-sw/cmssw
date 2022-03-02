@@ -20,6 +20,7 @@ The module stores j1, j2 of any (j1, j2, t1, t2) that satisfies the conditions a
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 
 //
 // class definition
@@ -31,6 +32,8 @@ private:
   const double extraTauPtCut_;
   const double mjjMin_;
   const double matchingR2_;
+  // pt comparator
+  GreaterByPt<reco::PFJet> pTComparator_;
 
 public:
   explicit HLTPFDiJetCorrCheckerWithDiTau(const edm::ParameterSet&);
@@ -102,6 +105,8 @@ void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::Event& iEvent, const edm::Even
     for (const auto& i : indices)
       cleanedPFJets->push_back((*pfJets)[i]);
   }
+  // sort jets in pt
+  std::sort(cleanedPFJets->begin(), cleanedPFJets->end(), pTComparator_);
   iEvent.put(std::move(cleanedPFJets));
 }
 
