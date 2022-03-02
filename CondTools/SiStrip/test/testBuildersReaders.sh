@@ -36,7 +36,7 @@ echo -e " Done with the readers \n\n"
 sleep 5
 
 ## do the builders from file
-for entry in "${LOCAL_TEST_DIR}/"SiStripApv*FromASCIIFile_cfg.py
+for entry in "${LOCAL_TEST_DIR}/"SiStrip*FromASCIIFile_cfg.py
 do
   echo "===== Test \"cmsRun $entry \" ===="
   (cmsRun $entry) || die "Failure using cmsRun $entry" $?
