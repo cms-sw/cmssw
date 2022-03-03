@@ -72,11 +72,11 @@ private:
 
   template <class C1, class C2, class C3, class C4>
   void matchLowPtToElectron(const C1& refProdOne,
-			    C2& itemsOne,
-			    const std::string& nameOne,
-			    const C3& refProdMany,
-			    C4& itemsMany,
-			    const std::string& nameMany);
+                            C2& itemsOne,
+                            const std::string& nameOne,
+                            const C3& refProdMany,
+                            C4& itemsMany,
+                            const std::string& nameMany);
 
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -172,28 +172,28 @@ void PATObjectCrossLinker::matchElectronToPhoton(const C1& refProdOne,
 
 template <class C1, class C2, class C3, class C4>
 void PATObjectCrossLinker::matchLowPtToElectron(const C1& refProdOne,
-						C2& itemsOne,
-						const std::string& nameOne,
-						const C3& refProdMany,
-						C4& itemsMany,
-						const std::string& nameMany) {
+                                                C2& itemsOne,
+                                                const std::string& nameOne,
+                                                const C3& refProdMany,
+                                                C4& itemsMany,
+                                                const std::string& nameMany) {
   size_t ji = 0;
   for (auto& j : itemsOne) {
     std::vector<size_t> idxs;
     std::vector<float> vdr2;
     size_t mi = 0;
     for (auto& m : itemsMany) {
-      float dr2 = deltaR2(m,j);
-      if (dr2<1.e-6) { // deltaR < 1.e-3
+      float dr2 = deltaR2(m, j);
+      if (dr2 < 1.e-6) {  // deltaR < 1.e-3
         m.addUserCand(nameOne, reco::CandidatePtr(refProdOne.id(), ji, refProdOne.productGetter()));
-	idxs.push_back(mi);
-	vdr2.push_back(dr2);
+        idxs.push_back(mi);
+        vdr2.push_back(dr2);
       }
       mi++;
     }
-    std::sort(idxs.begin(),idxs.end(),[&](float a, float b) -> bool { return vdr2[a] < vdr2[b]; });
+    std::sort(idxs.begin(), idxs.end(), [&](float a, float b) -> bool { return vdr2[a] < vdr2[b]; });
     edm::PtrVector<reco::Candidate> overlaps(refProdMany.id());
-    for ( auto idx : idxs ) {
+    for (auto idx : idxs) {
       overlaps.push_back(reco::CandidatePtr(refProdMany.id(), idx, refProdMany.productGetter()));
     }
     j.setOverlaps(nameMany, overlaps);
