@@ -124,6 +124,9 @@ private:
   edm::InputTag EBRecHitsName_, EERecHitsName_, ESRecHitsName_;
   edm::EDGetTokenT<EcalRecHitCollection> EBRecHitsToken_, EERecHitsToken_, ESRecHitsToken_;
 
+  edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+
   size_t nPart_, nValidPart_;
 
   bool isEB(const T& part);
@@ -132,8 +135,8 @@ private:
 };
 
 template <typename T>
-DRNCorrectionProducerT<T>::DRNCorrectionProducerT(const edm::ParameterSet& iConfig)
-    : TritonEDProducer<>(iConfig, "DRNCorrectionProducerT"),
+DRNCorrectionProducerT<T>::DRNCorrectionProducerT(const edm::ParameterSet& iConfig) : 
+      TritonEDProducer<>(iConfig),
       particleSource_{iConfig.getParameter<edm::InputTag>("particleSource")},
       particleToken_(consumes(particleSource_)),
       rhoName_{iConfig.getParameter<edm::InputTag>("rhoName")},
@@ -143,8 +146,9 @@ DRNCorrectionProducerT<T>::DRNCorrectionProducerT(const edm::ParameterSet& iConf
       ESRecHitsName_{iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsES")},
       EBRecHitsToken_(consumes<EcalRecHitCollection>(EBRecHitsName_)),
       EERecHitsToken_(consumes<EcalRecHitCollection>(EERecHitsName_)),
-      ESRecHitsToken_(consumes<EcalRecHitCollection>(ESRecHitsName_))
-{
+      ESRecHitsToken_(consumes<EcalRecHitCollection>(ESRecHitsName_)),
+      pedToken_(esConsumes()),
+      geomToken_(esConsumes()){
   produces<edm::ValueMap<std::pair<float, float>>>();
 }
 
@@ -179,12 +183,9 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
   edm::Handle<EcalRecHitCollection> EERecHits = iEvent.getHandle(EERecHitsToken_);
   edm::Handle<EcalRecHitCollection> ESRecHits = iEvent.getHandle(ESRecHitsToken_);
 
-  edm::ESHandle<EcalPedestals> ped;
-  edm::ESHandle<CaloGeometry> pG;
+  const auto& ped = &iSetup.getData(pedToken_);
+  const auto& geo = &iSetup.getData(geomToken_);
 
-  iSetup.get<EcalPedestalsRcd>().get(ped);
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
   const CaloSubdetectorGeometry* ecalEBGeom =
       static_cast<const CaloSubdetectorGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
   const CaloSubdetectorGeometry* ecalEEGeom =

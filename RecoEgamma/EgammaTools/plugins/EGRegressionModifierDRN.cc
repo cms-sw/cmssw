@@ -161,7 +161,7 @@ void EGRegressionModifierDRN::modifyObject(reco::GsfElectron& ele) const {
 
   throw cms::Exception("EGRegressionModifierDRN")  
     << "Electron energy corrections not fully implemented yet:" << std::endl 
-    << "Still need E/p combination" << std::endl;
+    << "Still need E/p combination" << std::endl
     << "Do not enable DRN for electrons" << std::endl;
 
   const std::pair<float, float> trackerCombo(1.0, 1.0); //TODO: compute E/p combination
@@ -183,7 +183,7 @@ void EGRegressionModifierDRN::modifyObject(pat::Electron& ele) const {
 
   throw cms::Exception("EGRegressionModifierDRN")  
     << "Electron energy corrections not fully implemented yet:" << std::endl 
-    << "Still need E/p combination" << std::endl;
+    << "Still need E/p combination" << std::endl
     << "Do not enable DRN for electrons" << std::endl;
 
   const std::pair<float, float> trackerCombo(1.0, 1.0); //TODO: compute E/p combination
