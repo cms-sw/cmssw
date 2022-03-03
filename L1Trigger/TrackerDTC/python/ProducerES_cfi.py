@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 TrackTrigger_params = cms.PSet (
 
+    fromDD4hep = cms.bool(False),
+
   # Parameter to check if configured Tracker Geometry is supported
   SupportedGeometry = cms.PSet (
     XMLLabel    = cms.string ("geomXMLFiles"                                    ), # label of ESProducer/ESSource

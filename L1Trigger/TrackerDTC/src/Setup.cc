@@ -35,6 +35,8 @@ namespace trackerDTC {
         pSetGC_(&pSetGeometryConfiguration),
         pSetIdTTStubAlgorithm_(pSetIdTTStubAlgorithm),
         pSetIdGeometryConfiguration_(pSetIdGeometryConfiguration),
+        // DD4hep
+        fromDD4hep_(iConfig.getParameter<bool>("fromDD4hep")),
         // Parameter to check if configured Tracker Geometry is supported
         pSetSG_(iConfig.getParameter<ParameterSet>("SupportedGeometry")),
         sgXMLLabel_(pSetSG_.getParameter<string>("XMLLabel")),
@@ -354,24 +356,27 @@ namespace trackerDTC {
 
   // check if geometry is supported
   void Setup::checkGeometry() {
-    const vector<string>& geomXMLFiles = pSetGC_->getParameter<vector<string>>(sgXMLLabel_);
-    string version;
-    for (const string& geomXMLFile : geomXMLFiles) {
-      const auto begin = geomXMLFile.find(sgXMLPath_) + sgXMLPath_.size();
-      const auto end = geomXMLFile.find(sgXMLFile_);
-      if (begin != string::npos && end != string::npos)
-        version = geomXMLFile.substr(begin, end - begin - 1);
-    }
-    if (version.empty()) {
-      cms::Exception exception("LogicError");
-      exception << "No " << sgXMLPath_ << "*/" << sgXMLFile_ << " found in GeometryConfiguration";
-      exception.addContext("tt::Setup::checkGeometry");
-      throw exception;
-    }
-    if (find(sgXMLVersions_.begin(), sgXMLVersions_.end(), version) == sgXMLVersions_.end()) {
-      configurationSupported_ = false;
-      LogWarning("ConfigurationNotSupported")
-          << "Geometry Configuration " << sgXMLPath_ << version << "/" << sgXMLFile_ << " is not supported. ";
+    //FIX ME: Can we assume that geometry used in dd4hep wf supports L1Track?
+    if (!fromDD4hep_) {
+      const vector<string>& geomXMLFiles = pSetGC_->getParameter<vector<string>>(sgXMLLabel_);
+      string version;
+      for (const string& geomXMLFile : geomXMLFiles) {
+        const auto begin = geomXMLFile.find(sgXMLPath_) + sgXMLPath_.size();
+        const auto end = geomXMLFile.find(sgXMLFile_);
+        if (begin != string::npos && end != string::npos)
+          version = geomXMLFile.substr(begin, end - begin - 1);
+      }
+      if (version.empty()) {
+        cms::Exception exception("LogicError");
+        exception << "No " << sgXMLPath_ << "*/" << sgXMLFile_ << " found in GeometryConfiguration";
+        exception.addContext("tt::Setup::checkGeometry");
+        throw exception;
+      }
+      if (find(sgXMLVersions_.begin(), sgXMLVersions_.end(), version) == sgXMLVersions_.end()) {
+        configurationSupported_ = false;
+        LogWarning("ConfigurationNotSupported")
+            << "Geometry Configuration " << sgXMLPath_ << version << "/" << sgXMLFile_ << " is not supported. ";
+      }
     }
   }
 
