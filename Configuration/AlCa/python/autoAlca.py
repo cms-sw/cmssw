@@ -131,4 +131,6 @@ AlCaNoConcurrentLumis = [
     'PromptCalibProdSiPixelAli',       # AlignmentProducerAsAnalyzer, MillePedeFileConverter
     'PromptCalibProdBeamSpotHP',       # AlcaBeamSpotProducer
     'PromptCalibProdBeamSpotHPLowPU',  # AlcaBeamSpotProducer
+    'AlCaPCCRandom',                   # AlcaPCCIntegrator 
+    'AlCaPCCZeroBias'                  # AlcaPCCIntegrator
 ]
