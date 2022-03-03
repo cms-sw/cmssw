@@ -57,24 +57,25 @@ namespace BeamSpotPI {
   };
 
   /************************************************/
-  inline std::string getStringFromParamEnum(const parameters& parameter) {
+  inline std::string getStringFromParamEnum(const parameters& parameter,
+                                            const bool addUnits = false /*not used by default*/) {
     switch (parameter) {
       case X:
-        return "X";
+        return (addUnits ? "X [cm]" : "X");
       case Y:
-        return "Y";
+        return (addUnits ? "Y [cm]" : "Y");
       case Z:
-        return "Z";
+        return (addUnits ? "Z [cm]" : "Z");
       case sigmaX:
-        return "sigmaX";
+        return (addUnits ? "#sigma_{X} [cm]" : "sigmaX");
       case sigmaY:
-        return "sigmaY";
+        return (addUnits ? "#sigma_{Y} [cm]" : "sigmaY");
       case sigmaZ:
-        return "sigmaZ";
+        return (addUnits ? "#sigma_{Z} [cm]" : "sigmaZ");
       case dxdz:
-        return "dx/dz";
+        return (addUnits ? "#frac{dX}{dZ} [rad]" : "dx/dz");
       case dydz:
-        return "dy/dz";
+        return (addUnits ? "#frac{dY}{dZ} [rad]" : "dy/dz");
       default:
         return "should never be here";
     }
@@ -381,7 +382,10 @@ namespace BeamSpotPI {
     bool isOnline_;
     std::shared_ptr<PayloadType> m_payload;
 
-    /************************************************/
+    /**
+     * Can't use BeamSpotPI::getStringFromParamEnum becasue it needs to be overridden
+     * for the BeamSpotOnlineObjects case.
+     */
     virtual std::string getStringFromTypeEnum(const parameters& parameter) const {
       switch (parameter) {
         case X:
@@ -457,10 +461,7 @@ namespace BeamSpotPI {
       canvas.cd(1)->SetGrid();
 
       auto h2_BSParameters = std::make_unique<TH2F>("Parameters", "", 2, 0.0, 2.0, 8, 0, 8.);
-      auto h2_BSShadow =
-          std::make_unique<TH2F>("Shadow", ";;;#Delta parameter (payload A - payload B)", 2, 0.0, 2.0, 8, 0, 8.);
       h2_BSParameters->SetStats(false);
-      h2_BSShadow->SetStats(false);
 
       std::function<double(parameters, bool)> cutFunctor = [this](parameters my_param, bool isError) {
         double ret(-999.);
@@ -515,31 +516,26 @@ namespace BeamSpotPI {
 
       h2_BSParameters->GetXaxis()->SetBinLabel(1, "Value");
       h2_BSParameters->GetXaxis()->SetBinLabel(2, "Error");
-      h2_BSShadow->GetXaxis()->SetBinLabel(1, "Value");
-      h2_BSShadow->GetXaxis()->SetBinLabel(2, "Error");
 
       unsigned int yBin = 8;
       for (int foo = parameters::X; foo <= parameters::dydz; foo++) {
         parameters param = static_cast<parameters>(foo);
-        std::string theLabel = getStringFromTypeEnum(param);
+        std::string theLabel = BeamSpotPI::getStringFromParamEnum(param, true /*use units*/);
         h2_BSParameters->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
         h2_BSParameters->SetBinContent(1, yBin, cutFunctor(param, false));
         h2_BSParameters->SetBinContent(2, yBin, cutFunctor(param, true));
-        h2_BSShadow->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
-        h2_BSShadow->SetBinContent(1, yBin, cutFunctor(param, false));
-        h2_BSShadow->SetBinContent(2, yBin, cutFunctor(param, true));
         yBin--;
       }
 
       h2_BSParameters->GetXaxis()->LabelsOption("h");
       h2_BSParameters->GetYaxis()->SetLabelSize(0.05);
       h2_BSParameters->GetXaxis()->SetLabelSize(0.05);
-      h2_BSShadow->GetXaxis()->LabelsOption("h");
-      h2_BSShadow->GetYaxis()->SetLabelSize(0.05);
-      h2_BSShadow->GetXaxis()->SetLabelSize(0.05);
+      h2_BSParameters->SetMarkerSize(1.5);
+
+      auto h2_BSShadow = (TH2F*)(h2_BSParameters->Clone("shadow"));
+      h2_BSShadow->GetZaxis()->SetTitle("#Delta parameter (payload A - payload B)");
       h2_BSShadow->GetZaxis()->CenterTitle();
       h2_BSShadow->GetZaxis()->SetTitleOffset(1.5);
-      h2_BSParameters->SetMarkerSize(1.5);
 
       // this is the fine gradient palette (blue to red)
       double max = h2_BSShadow->GetMaximum();
@@ -587,36 +583,15 @@ namespace BeamSpotPI {
     }
 
   public:
+    /**
+     * In case an extension to the BeamSpotOnlineObjects case will be needed in future
+     */
     virtual std::shared_ptr<TH2F> fillTheExtraHistogram() const { return nullptr; }
 
   protected:
     bool isOnline_;
     std::shared_ptr<PayloadType> f_payload;
     std::shared_ptr<PayloadType> l_payload;
-
-    /************************************************/
-    virtual std::string getStringFromTypeEnum(const parameters& parameter) const {
-      switch (parameter) {
-        case X:
-          return "X [cm]";
-        case Y:
-          return "Y [cm]";
-        case Z:
-          return "Z [cm]";
-        case sigmaX:
-          return "#sigma_{X} [cm]";
-        case sigmaY:
-          return "#sigma_{Y} [cm]";
-        case sigmaZ:
-          return "#sigma_{Z} [cm]";
-        case dxdz:
-          return "#frac{dX}{dZ} [rad]";
-        case dydz:
-          return "#frac{dY}{dZ} [rad]";
-        default:
-          return "should never be here";
-      }
-    }
   };
 }  // namespace BeamSpotPI
 
