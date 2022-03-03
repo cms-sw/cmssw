@@ -4,7 +4,6 @@ from DQMOffline.Trigger.ObjMonitor_cfi import hltobjmonitoring
 
 # HLT_
 DiJetVBFmonitoring = hltobjmonitoring.clone(
-    #FolderName = 'HLT/Higgs/VBFMET/DiJet/',
     FolderName = 'HLT/HIG/VBFMET/DiJet/',
     numGenericTriggerEventPSet = dict(hltInputTag   = "TriggerResults::HLT",
                                       hltPaths = ["HLT_DiJet110_35_Mjj650_PFMET110_v*","HLT_DiJet110_35_Mjj650_PFMET120_v*","HLT_DiJet110_35_Mjj650_PFMET130_v*"]),
@@ -15,7 +14,6 @@ DiJetVBFmonitoring = hltobjmonitoring.clone(
     #metSelection = "pt>150",
 )
 TripleJetVBFmonitoring = DiJetVBFmonitoring.clone(
-#FolderName = 'HLT/Higgs/VBFMET/TripleJet/',
     FolderName = 'HLT/HIG/VBFMET/TripleJet/',
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_TripleJet110_35_35_Mjj650_PFMET110_v*","HLT_TripleJet110_35_35_Mjj650_PFMET120_v*","HLT_TripleJet110_35_35_Mjj650_PFMET130_v*"])
 )
