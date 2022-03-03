@@ -107,6 +107,7 @@ hltBPHmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 hltBPHmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
 #hltBPHmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+#hltBPHmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltBPHmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltBPHmonitoring.denGenericTriggerEventPSet.hltPaths  = cms.vstring( "HLT_Mu7p5_Track2_Jpsi_v*" )#reference
 #hltBPHmonitoring.denGenericTriggerEventPSet.l1Algorithms      = cms.vstring("L1_DoubleMu0_SQ") # HLT_ZeroBias_v*

@@ -18,6 +18,7 @@ hltRazorMonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
 hltRazorMonitoring.denGenericTriggerEventPSet.andOr          = cms.bool( False )
 hltRazorMonitoring.denGenericTriggerEventPSet.andOrHlt       = cms.bool( True )
 hltRazorMonitoring.denGenericTriggerEventPSet.dcsInputTag    = cms.InputTag( "scalersRawToDigi" )
+hltRazorMonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag ( "onlineMetaDataDigis" )
 hltRazorMonitoring.denGenericTriggerEventPSet.dcsPartitions  = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltRazorMonitoring.denGenericTriggerEventPSet.andOrDcs       = cms.bool( False )
 hltRazorMonitoring.denGenericTriggerEventPSet.errorReplyDcs  = cms.bool( True )
