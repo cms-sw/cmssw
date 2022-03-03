@@ -319,7 +319,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   // retrieve the number of bins from the other monitoring histogram
   const auto& maxSect = hists.h_bySectOccupancy_->getNbinsX();
   const double lo = -0.5;
-  const double hi = maxSect + 0.5;
+  const double hi = maxSect - 0.5;
 
   // this will be booked in the Harvesting folder
   iBooker.setCurrentFolder(fmt::format("{}Harvesting/SectorMonitoring", dqmDir_));
@@ -337,7 +337,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
       iBooker.book1D("h_bySectorChi2", "Fit #chi^{2}/ndf by sector;pixel sector; fit #chi^{2}/ndf", maxSect, lo, hi);
 
   // copy the bin labels from the occupancy histogram
-  for (int bin = 1; bin < maxSect; bin++) {
+  for (int bin = 1; bin <= maxSect; bin++) {
     const auto& binName = hists.h_bySectOccupancy_->getTH1()->GetXaxis()->GetBinLabel(bin);
     hists.h_bySectMeasLA_->setBinLabel(bin, binName);
     hists.h_bySectSetLA_->setBinLabel(bin, binName);
