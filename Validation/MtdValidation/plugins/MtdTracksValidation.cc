@@ -163,6 +163,13 @@ private:
   MonitorElement* meBarrelPprobKvsp_;
   MonitorElement* meEndcapPprobPvsp_;
   MonitorElement* meEndcapPprobKvsp_;
+
+  MonitorElement* meBarrelTruePi_;
+  MonitorElement* meBarrelTrueK_;
+  MonitorElement* meBarrelTrueP_;
+  MonitorElement* meEndcapTruePi_;
+  MonitorElement* meEndcapTrueK_;
+  MonitorElement* meEndcapTrueP_;
 };
 
 // ------------ constructor and destructor --------------
@@ -435,6 +442,23 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
               meMVATrackZposResTot_->Fill(dZ);
               meMVATrackMatchedEffPtTot_->Fill(trackGen.pt());
               meMVATrackMatchedEffEtaTot_->Fill(std::abs(trackGen.eta()));
+              if (std::abs(trackGen.eta()) < 1.5) {
+                if (std::abs(genP->pdg_id()) == 211) {
+                  meBarrelTruePi_->Fill(trackGen.p());
+                } else if (std::abs(genP->pdg_id()) == 321) {
+                  meBarrelTrueK_->Fill(trackGen.p());
+                } else if (std::abs(genP->pdg_id()) == 2212) {
+                  meBarrelTrueP_->Fill(trackGen.p());
+                }
+              } else if (std::abs(trackGen.eta()) > 1.6) {
+                if (std::abs(genP->pdg_id()) == 211) {
+                  meEndcapTruePi_->Fill(trackGen.p());
+                } else if (std::abs(genP->pdg_id()) == 321) {
+                  meEndcapTrueK_->Fill(trackGen.p());
+                } else if (std::abs(genP->pdg_id()) == 2212) {
+                  meEndcapTrueP_->Fill(trackGen.p());
+                }
+              }
               if (pullT > -9999.) {
                 meMVATrackResTot_->Fill(dT);
                 meMVATrackPullTot_->Fill(pullT);
@@ -607,6 +631,13 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         "EndcapPprobPvsp", "Probability true p as p vs p, |eta| > 1.6;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
     meEndcapPprobKvsp_ = ibook.book2D(
         "EndcapPprobKvsp", "Probability true p as K vs p, |eta| > 1.6;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+
+    meBarrelTruePi_ = ibook.book1D("BarrelTruePi", "True pi momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+    meBarrelTrueK_ = ibook.book1D("BarrelTrueK", "True k momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+    meBarrelTrueP_ = ibook.book1D("BarrelTrueP", "True p momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+    meEndcapTruePi_ = ibook.book1D("EndcapTruePi", "True pi momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+    meEndcapTrueK_ = ibook.book1D("EndcapTrueK", "True k momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+    meEndcapTrueP_ = ibook.book1D("EndcapTrueP", "True p momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
   }
 }
 
