@@ -4,12 +4,13 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
 process = cms.Process('mtdValidation',Phase2C11I13M9)
 
-
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load("FWCore.MessageService.MessageLogger_cfi")
-
-process.load("Configuration.Geometry.GeometryExtended2026D76Reco_cff")
-
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+
+process.load("Configuration.Geometry.GeometryExtended2026D77Reco_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -45,11 +46,24 @@ process.btlDigiHits.LocalPositionDebug = True
 process.etlDigiHits.LocalPositionDebug = True
 process.btlLocalReco.LocalPositionDebug = True
 process.etlLocalReco.LocalPositionDebug = True
+process.mtdTracksValid.testPID = True
 
 process.load("Validation.MtdValidation.vertices4DValid_cfi")
 
-process.DQMStore = cms.Service("DQMStore")
+process.validation = cms.Sequence(btlValidation + etlValidation + process.mtdTracksValid + process.vertices4DValid)
 
-process.load("DQMServices.FileIO.DQMFileSaverOnline_cfi")
+process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('DQMIO'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string('file:step3_inDQM.root'),
+    outputCommands = process.DQMEventContent.outputCommands,
+    splitLevel = cms.untracked.int32(0)
+)
 
-process.p = cms.Path( process.mix + btlValidation + etlValidation + process.mtdTracksValid + process.vertices4DValid + process.dqmSaver)
+process.p = cms.Path( process.mix + process.validation )
+process.endjob_step = cms.EndPath(process.endOfProcess)
+process.DQMoutput_step = cms.EndPath( process.DQMoutput )
+
+process.schedule = cms.Schedule( process.p , process.endjob_step , process.DQMoutput_step )
