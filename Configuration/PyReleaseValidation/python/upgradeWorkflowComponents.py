@@ -681,10 +681,12 @@ upgradeWFs['PatatrackECALOnlyGPU'] = PatatrackWorkflow(
 
 upgradeWFs['PatatrackECALOnlyGPUValidation'] = PatatrackWorkflow(
     digi = {
+        '--accelerators': 'gpu-nvidia'
         '--procModifiers': 'gpu,gpuValidationEcal'
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
+        '--accelerators': 'gpu-nvidia'
         '--procModifiers': 'gpu,gpuValidationEcal'
     },
     harvest = {
