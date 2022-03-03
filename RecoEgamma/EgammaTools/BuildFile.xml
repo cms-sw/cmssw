@@ -17,6 +17,7 @@
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="DataFormats/ParticleFlowReco"/>
 <use name="PhysicsTools/TensorFlow" />
+<use name="HeterogeneousCore/SonicTriton"/>
 <export>
   <lib name="1"/>
 </export>
