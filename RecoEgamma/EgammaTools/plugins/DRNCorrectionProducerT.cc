@@ -357,7 +357,7 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
         vdatafES.push_back(flagVal);
 
         //fill batchES
-        vdataBatchES.push_back(partNum); //ES hits only exist for EE particles
+        vdataBatchES.push_back(partNum); 
       }  //end iterate over ES hits
     } //end iterate over ES clusters
 
