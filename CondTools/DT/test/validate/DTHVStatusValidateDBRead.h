@@ -17,7 +17,7 @@ public:
   explicit DTHVStatusValidateDBRead(edm::ParameterSet const& p);
   explicit DTHVStatusValidateDBRead(int i);
   ~DTHVStatusValidateDBRead() override = default;
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void endJob() override;
 
 private:
