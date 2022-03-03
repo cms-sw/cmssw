@@ -87,7 +87,9 @@ private:
   void fillGradient();
   std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > overlayEtaReferences();
   void produceAndSaveSummaryPlot(const edm::EventSetup &);
-  bool m_saveSummaryPlot;
+
+  const bool m_saveSummaryPlot;
+  const edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
   std::vector<TH2F *> m_plots;
   std::set<std::string> m_group_names;
   std::vector<MaterialAccountingGroup *> m_groups;
@@ -107,8 +109,9 @@ private:
   std::map<std::string, std::pair<float, float> > m_values;
 };
 
-ListGroups::ListGroups(const edm::ParameterSet &iPSet) {
-  m_saveSummaryPlot = iPSet.getUntrackedParameter<bool>("SaveSummaryPlot");
+ListGroups::ListGroups(const edm::ParameterSet &iPSet)
+    : m_saveSummaryPlot(iPSet.getUntrackedParameter<bool>("SaveSummaryPlot")),
+      ddToken_(esConsumes<DDCompactView, IdealGeometryRecord>()) {
   m_plots.clear();
   m_groups.clear();
   TColor::InitializeColors();
@@ -312,8 +315,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
                                  kOpenCross,
                                  kFullStar};
 
-  edm::ESTransientHandle<DDCompactView> hDdd;
-  setup.get<IdealGeometryRecord>().get(hDdd);
+  edm::ESTransientHandle<DDCompactView> hDdd = setup.getTransientHandle(ddToken_);
 
   for (const auto &n : m_group_names) {
     m_groups.push_back(new MaterialAccountingGroup(n, *hDdd));
@@ -424,8 +426,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
 }
 
 void ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
-  edm::ESTransientHandle<DDCompactView> hDdd;
-  setup.get<IdealGeometryRecord>().get(hDdd);
+  edm::ESTransientHandle<DDCompactView> hDdd = setup.getTransientHandle(ddToken_);
 
   DDSpecificsHasNamedValueFilter filter{"TrackingMaterialGroup"};
   DDFilteredView fv(*hDdd, filter);

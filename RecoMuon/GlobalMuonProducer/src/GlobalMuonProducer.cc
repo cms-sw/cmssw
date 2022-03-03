@@ -39,6 +39,10 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("GLBTrajBuilderParameters");
   InputTag trackCollectionTag = parameterSet.getParameter<InputTag>("TrackerCollectionLabel");
   trajectoryBuilderParameters.addParameter<InputTag>("TrackerCollectionLabel", trackCollectionTag);
+  InputTag vertexCollectionTag = parameterSet.getParameter<InputTag>("VertexCollectionLabel");
+  trajectoryBuilderParameters.addParameter<InputTag>("VertexCollectionLabel", vertexCollectionTag);
+  bool selectHighPurity_ = parameterSet.getParameter<bool>("selectHighPurity");
+  trajectoryBuilderParameters.addParameter<bool>("selectHighPurity", selectHighPurity_);
 
   // STA Muon Collection Label
   theSTACollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");

@@ -1,6 +1,6 @@
 //  #include "TrackerReco/GsfPattern/src/MultiStatePropagation.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateAssembler.h"
-
+#include "TrackingTools/GsfTools/interface/GetComponents.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 template <class T>
@@ -9,8 +9,11 @@ std::pair<TrajectoryStateOnSurface, double> MultiStatePropagation<T>::propagateW
   // weighted path length
   double sWeight(0.);
   double sWeightPath(0.);
+
   // decomposition of input state
-  MultiTSOS const& input = tsos.components();
+  GetComponents comps(tsos);
+  auto const& input = comps();
+
   // vector of result states
   MultiTrajectoryStateAssembler result;
   //

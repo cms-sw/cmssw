@@ -284,6 +284,8 @@ namespace edm {
     preESModuleSignal_.connect(std::cref(iOther.preESModuleSignal_));
     postESModuleSignal_.connect(std::cref(iOther.postESModuleSignal_));
 
+    postESModuleRegistrationSignal_.connect(std::cref(iOther.postESModuleRegistrationSignal_));
+
     //preModuleSignal_.connect(std::cref(iOther.preModuleSignal_));
     //postModuleSignal_.connect(std::cref(iOther.postModuleSignal_));
 
@@ -500,6 +502,8 @@ namespace edm {
 
     copySlotsToFrom(preESModuleSignal_, iOther.preESModuleSignal_);
     copySlotsToFromReverse(postESModuleSignal_, iOther.postESModuleSignal_);
+
+    copySlotsToFromReverse(postESModuleRegistrationSignal_, iOther.postESModuleRegistrationSignal_);
     /*
     copySlotsToFrom(preModuleSignal_, iOther.preModuleSignal_);
     copySlotsToFromReverse(postModuleSignal_, iOther.postModuleSignal_);

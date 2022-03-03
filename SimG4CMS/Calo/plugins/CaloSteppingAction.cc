@@ -106,36 +106,40 @@ private:
   std::unique_ptr<HcalNumberingScheme> hcNumberingScheme_;
   std::unique_ptr<CaloSlaveSD> slave_[nSD_];
 
-  std::vector<std::string> nameEBSD_, nameEESD_, nameHCSD_;
-  std::vector<std::string> nameHitC_;
+  const edm::ParameterSet iC_;
+  const std::vector<std::string> nameEBSD_, nameEESD_, nameHCSD_;
+  const std::vector<std::string> nameHitC_;
   std::vector<const G4LogicalVolume*> volEBSD_, volEESD_, volHCSD_;
   std::map<const G4LogicalVolume*, double> xtalMap_;
   std::map<const G4LogicalVolume*, std::string> mapLV_;
-  int allSteps_, count_, eventID_;
-  double slopeLY_, birkC1EC_, birkSlopeEC_;
-  double birkCutEC_, birkC1HC_, birkC2HC_;
-  double birkC3HC_, timeSliceUnit_;
+  const int allSteps_;
+  const double slopeLY_, birkC1EC_, birkSlopeEC_;
+  const double birkCutEC_, birkC1HC_, birkC2HC_;
+  const double birkC3HC_, timeSliceUnit_;
+  int count_, eventID_;
   std::map<std::pair<int, CaloHitID>, CaloGVHit> hitMap_[nSD_];
   typedef std::tuple<const G4LogicalVolume*, uint32_t, int, int, double, double, double, double, double, double, double>
       PassiveData;
   std::vector<PassiveData> store_;
 };
 
-CaloSteppingAction::CaloSteppingAction(const edm::ParameterSet& p) : count_(0) {
+CaloSteppingAction::CaloSteppingAction(const edm::ParameterSet& p)
+    : iC_(p.getParameter<edm::ParameterSet>("CaloSteppingAction")),
+      nameEBSD_(iC_.getParameter<std::vector<std::string> >("EBSDNames")),
+      nameEESD_(iC_.getParameter<std::vector<std::string> >("EESDNames")),
+      nameHCSD_(iC_.getParameter<std::vector<std::string> >("HCSDNames")),
+      nameHitC_(iC_.getParameter<std::vector<std::string> >("HitCollNames")),
+      allSteps_(iC_.getParameter<int>("AllSteps")),
+      slopeLY_(iC_.getParameter<double>("SlopeLightYield")),
+      birkC1EC_(iC_.getParameter<double>("BirkC1EC")),
+      birkSlopeEC_(iC_.getParameter<double>("BirkSlopeEC")),
+      birkCutEC_(iC_.getParameter<double>("BirkCutEC")),
+      birkC1HC_(iC_.getParameter<double>("BirkC1HC")),
+      birkC2HC_(iC_.getParameter<double>("BirkC2HC")),
+      birkC3HC_(iC_.getParameter<double>("BirkC3HC")),
+      timeSliceUnit_(iC_.getUntrackedParameter<double>("TimeSliceUnit", 1.0)),
+      count_(0) {
   edm::ParameterSet iC = p.getParameter<edm::ParameterSet>("CaloSteppingAction");
-  nameEBSD_ = iC.getParameter<std::vector<std::string> >("EBSDNames");
-  nameEESD_ = iC.getParameter<std::vector<std::string> >("EESDNames");
-  nameHCSD_ = iC.getParameter<std::vector<std::string> >("HCSDNames");
-  nameHitC_ = iC.getParameter<std::vector<std::string> >("HitCollNames");
-  allSteps_ = iC.getParameter<int>("AllSteps");
-  slopeLY_ = iC.getParameter<double>("SlopeLightYield");
-  birkC1EC_ = iC.getParameter<double>("BirkC1EC");
-  birkSlopeEC_ = iC.getParameter<double>("BirkSlopeEC");
-  birkCutEC_ = iC.getParameter<double>("BirkCutEC");
-  birkC1HC_ = iC.getParameter<double>("BirkC1HC");
-  birkC2HC_ = iC.getParameter<double>("BirkC2HC");
-  birkC3HC_ = iC.getParameter<double>("BirkC3HC");
-  timeSliceUnit_ = iC.getUntrackedParameter<double>("TimeSliceUnit", 1.0);
 
   edm::LogVerbatim("Step") << "CaloSteppingAction:: " << nameEBSD_.size() << " names for EB SD's";
   for (unsigned int k = 0; k < nameEBSD_.size(); ++k)

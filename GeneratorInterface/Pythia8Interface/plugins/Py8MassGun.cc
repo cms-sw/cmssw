@@ -51,6 +51,11 @@ namespace gen {
     if (pSize > 2)
       return false;
 
+    int NTotParticles = fPartIDs.size();
+
+    // energy below is dummy, it is not used
+    (fMasterGen->event).append(990, -11, 0, 0, 2, 1 + NTotParticles, 0, 0, 0., 0., 0., 15000., 15000.);
+
     // Pick a flat mass range
     double phi, eta, the, ee, pp;
     double m0 = (fMaxM - fMinM) * randomEngine().flat() + fMinM;
@@ -77,10 +82,10 @@ namespace gen {
       double pY = pAbs * sinTheta * sin(phi);
       double pZ = pAbs * cosTheta;
 
-      (fMasterGen->event).append(fPartIDs[0], 1, 0, 0, pX, pY, pZ, e1, m1);
-      (fMasterGen->event).append(fPartIDs[1], 1, 0, 0, -pX, -pY, -pZ, e2, m2);
+      (fMasterGen->event).append(fPartIDs[0], 1, 1, 0, 0, 0, 0, 0, pX, pY, pZ, e1, m1);
+      (fMasterGen->event).append(fPartIDs[1], 1, 1, 0, 0, 0, 0, 0, -pX, -pY, -pZ, e2, m2);
     } else {
-      (fMasterGen->event).append(fPartIDs[0], 1, 0, 0, 0.0, 0.0, 0.0, m0, m0);
+      (fMasterGen->event).append(fPartIDs[0], 1, 1, 0, 0, 0, 0, 0, 0.0, 0.0, 0.0, m0, m0);
     }
 
     //now the boost (from input params)

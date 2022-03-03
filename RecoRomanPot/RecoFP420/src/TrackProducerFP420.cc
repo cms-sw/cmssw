@@ -7,7 +7,6 @@
 #include "RecoRomanPot/RecoFP420/interface/TrackProducerFP420.h"
 #include <cstdio>
 #include <gsl/gsl_fit.h>
-#include <vector>
 #include <iostream>
 using namespace std;
 
@@ -104,29 +103,29 @@ TrackProducerFP420::TrackProducerFP420(int asn0,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle<ClusterCollectionFP420> input,
-                                                                     int det) {
+                                                                     int det) const {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   std::vector<TrackFP420> rhits;
-  int restracks = 10;  // max # tracks
+  int constexpr restracks = 10;  // max # tracks
   rhits.reserve(restracks);
   rhits.clear();
-  double Ax[10];
-  double Bx[10];
-  double Cx[10];
-  int Mx[10];
-  double Ay[10];
-  double By[10];
-  double Cy[10];
-  int My[10];
-  double AxW[10];
-  double BxW[10];
-  double CxW[10];
-  int MxW[10];
-  double AyW[10];
-  double ByW[10];
-  double CyW[10];
-  int MyW[10];
+  double Ax[restracks];
+  double Bx[restracks];
+  double Cx[restracks];
+  int Mx[restracks];
+  double Ay[restracks];
+  double By[restracks];
+  double Cy[restracks];
+  int My[restracks];
+  double AxW[restracks];
+  double BxW[restracks];
+  double CxW[restracks];
+  int MxW[restracks];
+  double AyW[restracks];
+  double ByW[restracks];
+  double CyW[restracks];
+  int MyW[restracks];
   if (verbos > 0) {
     std::cout << "===============================================================================" << std::endl;
     std::cout << "=================================================================" << std::endl;
@@ -149,19 +148,19 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
     return rhits;
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  int zbeg = 1, zmax = 3;  // means layer 1 and 2 in superlayer, i.e. for loop: 1,2
+  int constexpr zbeg = 1, zmax = 3;  // means layer 1 and 2 in superlayer, i.e. for loop: 1,2
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //   .
-  int reshits1 = 12;  // is max # cl in sensor of copyinlayer=1
-  int reshits2 = 24;  // (reshits2-reshits1) is max # cl in sensors of copyinlayers= 2 or 3
-  //  int resplanes = 20;
-  int nX[20], nY[20];  // resplanes =20 NUMBER OF PLANES; nX, nY - # cl for every X and Y plane
-  int uX[20], uY[20];  // resplanes =20 NUMBER OF PLANES; nX, nY - current # cl used for every X and Y plane
-  double zX[24][20], xX[24][20], wX[24][20];
-  double zY[24][20], yY[24][20], wY[24][20];
-  double yXW[24][20], wXW[24][20];
-  double xYW[24][20], wYW[24][20];
-  bool qX[24][20], qY[24][20];
+  int constexpr reshits1 = 12;                 // is max # cl in sensor of copyinlayer=1
+  int constexpr reshits2 = 24;                 // (reshits2-reshits1) is max # cl in sensors of copyinlayers= 2 or 3
+  int constexpr resplanes = 20;                // Number of planes
+  int nX[resplanes] = {}, nY[resplanes] = {};  // #cl for every X and Y plane
+  int uX[resplanes] = {}, uY[resplanes] = {};  // #cl used for every X and Y plane
+  double zX[reshits2][resplanes], xX[reshits2][resplanes], wX[reshits2][resplanes];
+  double zY[reshits2][resplanes], yY[reshits2][resplanes], wY[reshits2][resplanes];
+  double yXW[reshits2][resplanes], wXW[reshits2][resplanes];
+  double xYW[reshits2][resplanes], wYW[reshits2][resplanes];
+  bool qX[reshits2][resplanes], qY[reshits2][resplanes];
   //   .
   int txf = 0;
   int txs1 = 0;
@@ -243,13 +242,12 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
           if (justlayer == 1) {
             if (orientation == 1)
               zcurrent += (ZGapLDet + ZSiDet / 2);
-            if (orientation == 2)
+            else if (orientation == 2)
               zcurrent += zBlade - (ZGapLDet + ZSiDet / 2);
-          }
-          if (justlayer == 2) {
+          } else if (justlayer == 2) {
             if (orientation == 1)
               zcurrent += (ZGapLDet + ZSiDet / 2) + zBlade + gapBlade;
-            if (orientation == 2)
+            else if (orientation == 2)
               zcurrent += 2 * zBlade + gapBlade - (ZGapLDet + ZSiDet / 2);
           }
           //   .
@@ -270,29 +268,25 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
           //   .
           if (justlayer == 2) {
             // X-type: x-coord
-            if (UseHalfPitchShiftInX == true) {
+            if (UseHalfPitchShiftInX) {
               dXXcur += Xshift;
             }
             // X-type: y-coord
-            if (UseHalfPitchShiftInXW == true) {
+            if (UseHalfPitchShiftInXW) {
               dXXWcur -= Yshift;
             }
           }
           //
           double XXXDelta = 0.0;
-          if (copyinlayer == 2) {
-            XXXDelta = XsensorSize;
-          }
-          if (copyinlayer == 3) {
-            XXXDelta = 2. * XsensorSize;
-          }
           double YYYDelta = 0.0;
           if (copyinlayer == 2) {
+            XXXDelta = XsensorSize;
             YYYDelta = XsensorSize;
-          }
-          if (copyinlayer == 3) {
+          } else if (copyinlayer == 3) {
+            XXXDelta = 2. * XsensorSize;
             YYYDelta = 2. * XsensorSize;
           }
+
           //   .
           //   GET CLUSTER collection  !!!!
           //   .
@@ -355,8 +349,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
                           << " bigger reservated number of hits"
                           << " zcurrent=" << zY[nY[ii] - 1][ii] << " copyinlayer= " << copyinlayer << " ii= " << ii
                           << std::endl;
-              }
-              if (copyinlayer != 1 && nY[ii] > reshits2) {
+              } else if (copyinlayer != 1 && nY[ii] > reshits2) {
                 nY[ii] = reshits2;
                 std::cout << "WARNING-ERROR:TrackproducerFP420: currentclust.size()= " << currentclust.size()
                           << " bigger reservated number of hits"
@@ -402,8 +395,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
                           << " currentclust.size()= " << currentclust.size() << " copyinlayer= " << copyinlayer
                           << " ii= " << ii << std::endl;
                 nX[ii] = reshits1;
-              }
-              if (copyinlayer != 1 && nX[ii] > reshits2) {
+              } else if (copyinlayer != 1 && nX[ii] > reshits2) {
                 std::cout << "WARNING-ERROR:TrackproducerFP420: nX[ii]= " << nX[ii]
                           << " bigger reservated number of hits"
                           << " currentclust.size()= " << currentclust.size() << " copyinlayer= " << copyinlayer
@@ -497,9 +489,8 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
   //======================    start road finder   =============================================================================
   //===========================================================================================================================
 
-  //  int nitMax=5;// max # iterations to find track
-  int nitMax =
-      10;  // max # iterations to find track using go over of different XZ and YZ fits to find the good chi2X and chi2Y simultaneously(!!!)
+  // max # iterations to find track using go over of different XZ and YZ fits to find the good chi2X and chi2Y simultaneously(!!!)
+  int constexpr nitMax = 10;
 
   // criteria for track selection:
   // track is selected if for 1st station #cl >=pys1Cut
@@ -508,7 +499,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 
   //  int  pys1Cut = 3, pyssCut = 3, pyallCut= 6; // before geom. update
   //  int  pys1Cut = 2, pyssCut = 2, pyallCut= 4; // bad for 5 layers per station
-  int pys1Cut = 3, pyssCut = 1, pyallCut = 5;
+  int constexpr pys1Cut = 3, pyssCut = 1, pyallCut = 5;
 
   //  double yyyvtx = 0.0, xxxvtx = -15;  //mm
 
@@ -570,7 +561,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
     //
     //
     double tg0 = 0.;
-    int qAcl[20], qAii[20], fip = 0, niteration = 0;
+    int qAcl[resplanes], qAii[resplanes], fip = 0, niteration = 0;
     int ry = 0, rys1 = 0, ryss = 0;
     int tas1 = tys1, tass = tyss, taf = tyf;
     bool SelectTracks = true;
@@ -578,9 +569,9 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //   .
 
-    double yA[24][20], zA[24][20], wA[24][20];
-    int nA[20], uA[20];
-    bool qA[24][20];
+    double yA[reshits2][resplanes], zA[reshits2][resplanes], wA[reshits2][resplanes];
+    int nA[resplanes], uA[resplanes];
+    bool qA[reshits2][resplanes];
     //
     // Y:
     //======================    start road finder  for xytypecurrent = 1      ===========================================================
@@ -1068,7 +1059,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
       std::cout << " numberXtracks= " << numberXtracks << " numberYtracks= " << numberYtracks << std::endl;
     }
     if (numberXtracks > 0) {
-      int newxnum[10], newynum[10];  // max # tracks = restracks = 10
+      int newxnum[restracks], newynum[restracks];  // max # tracks = restracks = 10
       int nmathed = 0;
       do {
         double dthmin = 999999.;

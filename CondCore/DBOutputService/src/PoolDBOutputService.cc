@@ -28,6 +28,8 @@ void cond::service::PoolDBOutputService::fillRecord(edm::ParameterSet& recordPse
 
   thisrecord.m_onlyAppendUpdatePolicy = recordPset.getUntrackedParameter<bool>("onlyAppendUpdatePolicy", false);
 
+  thisrecord.m_refreshTime = recordPset.getUntrackedParameter<unsigned int>("refreshTime", 1);
+
   m_records.insert(std::make_pair(thisrecord.m_idName, thisrecord));
 
   cond::UserLogInfo userloginfo;
@@ -44,7 +46,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet&
       m_logheaders() {
   std::string timetypestr = iConfig.getUntrackedParameter<std::string>("timetype", "runnumber");
   m_timetype = cond::time::timeTypeFromName(timetypestr);
-  m_autoCommit = iConfig.getUntrackedParameter<bool>("autoCommit", false);
+  m_autoCommit = iConfig.getUntrackedParameter<bool>("autoCommit", true);
   m_writeTransactionDelay = iConfig.getUntrackedParameter<unsigned int>("writeTransactionDelay", 0);
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters");
   m_connection.setParameters(connectionPset);
@@ -56,7 +58,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet&
   if (saveLogsOnDb)
     m_logger.setDbDestination(connectionString);
   // implicit start
-  doStartTransaction();
+  //doStartTransaction();
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters toPut = iConfig.getParameter<Parameters>("toPut");
   for (Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut)
@@ -102,7 +104,9 @@ void cond::service::PoolDBOutputService::lockRecords() {
       editor.lock();
     }
   }
-  doCommitTransaction();
+  if (m_autoCommit) {
+    doCommitTransaction();
+  }
   scope.close();
 }
 
@@ -117,7 +121,9 @@ void cond::service::PoolDBOutputService::releaseLocks() {
       editor.unlock();
     }
   }
-  doCommitTransaction();
+  if (m_autoCommit) {
+    doCommitTransaction();
+  }
   scope.close();
 }
 
@@ -126,7 +132,23 @@ std::string cond::service::PoolDBOutputService::tag(const std::string& recordNam
 }
 
 bool cond::service::PoolDBOutputService::isNewTagRequest(const std::string& recordName) {
-  Record& myrecord = this->lookUpRecord(recordName);
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  bool doCommit = false;
+  if (!m_transactionActive) {
+    m_session.transaction().start(true);
+    doCommit = true;
+  }
+  bool dbexists = false;
+  try {
+    dbexists = initDB(true);
+  } catch (const std::exception& er) {
+    cond::throwException(std::string(er.what()), "PoolDBOutputService::isNewTagRequest");
+  }
+  if (doCommit)
+    m_session.transaction().commit();
+  if (!dbexists)
+    return true;
+  auto& myrecord = this->lookUpRecord(recordName);
   return myrecord.m_isNewTag;
 }
 
@@ -139,6 +161,10 @@ void cond::service::PoolDBOutputService::doStartTransaction() {
 
 void cond::service::PoolDBOutputService::doCommitTransaction() {
   if (m_transactionActive) {
+    if (m_writeTransactionDelay) {
+      m_logger.logWarning() << "Waiting " << m_writeTransactionDelay << "s before commit the changes...";
+      ::sleep(m_writeTransactionDelay);
+    }
     m_session.transaction().commit();
     m_transactionActive = false;
   }
@@ -154,18 +180,32 @@ void cond::service::PoolDBOutputService::commitTransaction() {
   doCommitTransaction();
 }
 
-void cond::service::PoolDBOutputService::initDB() {
+bool cond::service::PoolDBOutputService::initDB(bool readOnly) {
   if (!m_dbInitialised) {
-    if (!m_session.existsDatabase())
+    if (!m_session.existsDatabase()) {
+      if (readOnly)
+        return false;
       m_session.createDatabase();
-    else {
+    } else {
       for (auto& iR : m_records) {
-        if (m_session.existsIov(iR.second.m_tag))
+        if (m_session.existsIov(iR.second.m_tag)) {
           iR.second.m_isNewTag = false;
+        }
       }
     }
     m_dbInitialised = true;
   }
+  return m_dbInitialised;
+}
+
+cond::service::PoolDBOutputService::Record& cond::service::PoolDBOutputService::getRecord(
+    const std::string& recordName) {
+  std::map<std::string, Record>::iterator it = m_records.find(recordName);
+  if (it == m_records.end()) {
+    cond::throwException("The record \"" + recordName + "\" has not been registered.",
+                         "PoolDBOutputService::getRecord");
+  }
+  return it->second;
 }
 
 void cond::service::PoolDBOutputService::postEndJob() { commitTransaction(); }
@@ -204,6 +244,9 @@ void cond::service::PoolDBOutputService::forceInit() {
   cond::persistency::TransactionScope scope(m_session.transaction());
   try {
     initDB();
+    if (m_autoCommit) {
+      doCommitTransaction();
+    }
   } catch (const std::exception& er) {
     cond::throwException(std::string(er.what()), "PoolDBOutputService::forceInit");
   }
@@ -223,16 +266,16 @@ void cond::service::PoolDBOutputService::createNewIOV(const std::string& firstPa
                                                       cond::Time_t firstSinceTime,
                                                       const std::string& recordName) {
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  Record& myrecord = this->lookUpRecord(recordName);
-  if (!myrecord.m_isNewTag) {
-    cond::throwException(myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
-  }
-  m_logger.logInfo() << "Creating new tag " << myrecord.m_tag << ", adding iov with since " << firstSinceTime
-                     << " pointing to payload id " << firstPayloadId;
   doStartTransaction();
   cond::persistency::TransactionScope scope(m_session.transaction());
   try {
     this->initDB();
+    auto& myrecord = this->getRecord(recordName);
+    if (!myrecord.m_isNewTag) {
+      cond::throwException(myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
+    }
+    m_logger.logInfo() << "Creating new tag " << myrecord.m_tag << ", adding iov with since " << firstSinceTime
+                       << " pointing to payload id " << firstPayloadId;
     cond::persistency::IOVEditor editor =
         m_session.createIovForPayload(firstPayloadId, myrecord.m_tag, myrecord.m_timetype, cond::SYNCH_ANY);
     editor.setDescription("New Tag");
@@ -240,12 +283,16 @@ void cond::service::PoolDBOutputService::createNewIOV(const std::string& firstPa
     cond::UserLogInfo a = this->lookUpUserLogInfo(myrecord.m_idName);
     editor.flush(a.usertext);
     myrecord.m_isNewTag = false;
+    if (m_autoCommit) {
+      doCommitTransaction();
+    }
   } catch (const std::exception& er) {
     cond::throwException(std::string(er.what()), "PoolDBOutputService::createNewIov");
   }
   scope.close();
 }
 
+// private method
 void cond::service::PoolDBOutputService::createNewIOV(const std::string& firstPayloadId,
                                                       const std::string payloadType,
                                                       cond::Time_t firstSinceTime,
@@ -265,17 +312,24 @@ void cond::service::PoolDBOutputService::createNewIOV(const std::string& firstPa
 bool cond::service::PoolDBOutputService::appendSinceTime(const std::string& payloadId,
                                                          cond::Time_t time,
                                                          const std::string& recordName) {
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  Record& myrecord = this->lookUpRecord(recordName);
-  if (myrecord.m_isNewTag) {
-    cond::throwException(std::string("Cannot append to non-existing tag ") + myrecord.m_tag,
-                         "PoolDBOutputService::appendSinceTime");
-  }
   bool ret = false;
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   doStartTransaction();
   cond::persistency::TransactionScope scope(m_session.transaction());
   try {
+    bool dbexists = this->initDB();
+    if (!dbexists) {
+      cond::throwException(std::string("Target database does not exist."), "PoolDBOutputService::appendSinceTime");
+    }
+    auto& myrecord = this->lookUpRecord(recordName);
+    if (myrecord.m_isNewTag) {
+      cond::throwException(std::string("Cannot append to non-existing tag ") + myrecord.m_tag,
+                           "PoolDBOutputService::appendSinceTime");
+    }
     ret = appendSinceTime(payloadId, time, myrecord);
+    if (m_autoCommit) {
+      doCommitTransaction();
+    }
   } catch (const std::exception& er) {
     cond::throwException(std::string(er.what()), "PoolDBOutputService::appendSinceTime");
   }
@@ -283,9 +337,10 @@ bool cond::service::PoolDBOutputService::appendSinceTime(const std::string& payl
   return ret;
 }
 
+// private method
 bool cond::service::PoolDBOutputService::appendSinceTime(const std::string& payloadId,
                                                          cond::Time_t time,
-                                                         Record& myrecord) {
+                                                         const Record& myrecord) {
   m_logger.logInfo() << "Updating existing tag " << myrecord.m_tag << ", adding iov with since " << time;
   try {
     cond::persistency::IOVEditor editor = m_session.editIov(myrecord.m_tag);
@@ -302,30 +357,36 @@ void cond::service::PoolDBOutputService::eraseSinceTime(const std::string& paylo
                                                         cond::Time_t sinceTime,
                                                         const std::string& recordName) {
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  Record& myrecord = this->lookUpRecord(recordName);
-  if (myrecord.m_isNewTag) {
-    cond::throwException(std::string("Cannot delete from non-existing tag ") + myrecord.m_tag,
-                         "PoolDBOutputService::appendSinceTime");
-  }
-  m_logger.logInfo() << "Updating existing tag " << myrecord.m_tag << ", removing iov with since " << sinceTime
-                     << " pointing to payload id " << payloadId;
   doStartTransaction();
   cond::persistency::TransactionScope scope(m_session.transaction());
   try {
+    bool dbexists = this->initDB();
+    if (!dbexists) {
+      cond::throwException(std::string("Target database does not exist."), "PoolDBOutputService::eraseSinceTime");
+    }
+    auto& myrecord = this->lookUpRecord(recordName);
+    if (myrecord.m_isNewTag) {
+      cond::throwException(std::string("Cannot delete from non-existing tag ") + myrecord.m_tag,
+                           "PoolDBOutputService::appendSinceTime");
+    }
+    m_logger.logInfo() << "Updating existing tag " << myrecord.m_tag << ", removing iov with since " << sinceTime
+                       << " pointing to payload id " << payloadId;
     cond::persistency::IOVEditor editor = m_session.editIov(myrecord.m_tag);
     editor.erase(sinceTime, payloadId);
     cond::UserLogInfo a = this->lookUpUserLogInfo(recordName);
     editor.flush(a.usertext);
-
+    if (m_autoCommit) {
+      doCommitTransaction();
+    }
   } catch (const std::exception& er) {
     cond::throwException(std::string(er.what()), "PoolDBOutputService::eraseSinceTime");
   }
   scope.close();
 }
 
-cond::service::PoolDBOutputService::Record& cond::service::PoolDBOutputService::lookUpRecord(
+const cond::service::PoolDBOutputService::Record& cond::service::PoolDBOutputService::lookUpRecord(
     const std::string& recordName) {
-  std::map<std::string, Record>::iterator it = m_records.find(recordName);
+  std::map<std::string, Record>::const_iterator it = m_records.find(recordName);
   if (it == m_records.end()) {
     cond::throwException("The record \"" + recordName + "\" has not been registered.",
                          "PoolDBOutputService::lookUpRecord");
@@ -343,18 +404,25 @@ cond::UserLogInfo& cond::service::PoolDBOutputService::lookUpUserLogInfo(const s
 
 void cond::service::PoolDBOutputService::closeIOV(Time_t lastTill, const std::string& recordName) {
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  Record& myrecord = lookUpRecord(recordName);
-  if (myrecord.m_isNewTag) {
-    cond::throwException(std::string("Cannot close non-existing tag ") + myrecord.m_tag,
-                         "PoolDBOutputService::closeIOV");
-  }
-  m_logger.logInfo() << "Updating existing tag " << myrecord.m_tag << ", closing with end of validity " << lastTill;
   doStartTransaction();
   cond::persistency::TransactionScope scope(m_session.transaction());
   try {
+    bool dbexists = this->initDB();
+    if (!dbexists) {
+      cond::throwException(std::string("Target database does not exist."), "PoolDBOutputService::closeIOV");
+    }
+    auto& myrecord = lookUpRecord(recordName);
+    if (myrecord.m_isNewTag) {
+      cond::throwException(std::string("Cannot close non-existing tag ") + myrecord.m_tag,
+                           "PoolDBOutputService::closeIOV");
+    }
+    m_logger.logInfo() << "Updating existing tag " << myrecord.m_tag << ", closing with end of validity " << lastTill;
     cond::persistency::IOVEditor editor = m_session.editIov(myrecord.m_tag);
     editor.setEndOfValidity(lastTill);
     editor.flush("Tag closed.");
+    if (m_autoCommit) {
+      doCommitTransaction();
+    }
   } catch (const std::exception& er) {
     cond::throwException(std::string(er.what()), "PoolDBOutputService::closeIOV");
   }
@@ -371,28 +439,40 @@ void cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string
 
 // Still required.
 bool cond::service::PoolDBOutputService::getTagInfo(const std::string& recordName, cond::TagInfo_t& result) {
-  Record& record = lookUpRecord(recordName);
+  auto& record = lookUpRecord(recordName);
   result.name = record.m_tag;
   m_logger.logDebug() << "Fetching tag info for " << record.m_tag;
-  doStartTransaction();
   bool ret = false;
-  cond::persistency::TransactionScope scope(m_session.transaction());
-  try {
-    //use iovproxy to find out.
-    if (m_session.existsIov(record.m_tag)) {
-      cond::persistency::IOVProxy iov = m_session.readIov(record.m_tag);
-      result.lastInterval = iov.getLast();
-      ret = true;
-    }
-  } catch (const std::exception& er) {
-    cond::throwException(std::string(er.what()), "PoolDBOutputService::tagInfo");
+  //use iovproxy to find out.
+  if (m_session.existsIov(record.m_tag)) {
+    cond::persistency::IOVProxy iov = m_session.readIov(record.m_tag);
+    result.lastInterval = iov.getLast();
+    ret = true;
   }
-  scope.close();
   return ret;
 }
 
 // Still required.
 bool cond::service::PoolDBOutputService::tagInfo(const std::string& recordName, cond::TagInfo_t& result) {
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  return getTagInfo(recordName, result);
+  bool ret = false;
+  bool doCommit = false;
+  if (!m_transactionActive) {
+    m_session.transaction().start(true);
+    doCommit = true;
+  }
+  bool dbexists = false;
+  cond::persistency::TransactionScope scope(m_session.transaction());
+  try {
+    dbexists = initDB(true);
+    if (dbexists) {
+      ret = getTagInfo(recordName, result);
+    }
+  } catch (const std::exception& er) {
+    cond::throwException(std::string(er.what()), "PoolDBOutputService::tagInfo");
+  }
+  if (doCommit)
+    m_session.transaction().commit();
+  scope.close();
+  return ret;
 }

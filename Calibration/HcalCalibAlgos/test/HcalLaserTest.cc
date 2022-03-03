@@ -38,13 +38,13 @@ private:
   void endJob(void) override;
 
   // ----------member data ---------------------------
-  edm::EDGetTokenT<HBHEDigiCollection> inputTokenHBHE_;
-  edm::EDGetTokenT<QIE10DigiCollection> inputTokenHF_;
-  edm::EDGetTokenT<HcalUMNioDigi> ioTokenUMN_;
-  double minFracDiffHBHELaser_, minFracHFLaser_;
-  int minADCHBHE_, minADCHF_;
+  const edm::EDGetTokenT<HBHEDigiCollection> inputTokenHBHE_;
+  const edm::EDGetTokenT<QIE10DigiCollection> inputTokenHF_;
+  const edm::EDGetTokenT<HcalUMNioDigi> ioTokenUMN_;
+  const double minFracDiffHBHELaser_, minFracHFLaser_;
+  const int minADCHBHE_, minADCHF_;
 
-  bool testMode_;
+  const bool testMode_;
   mutable std::array<std::atomic<int>, 16> eventsByType_;
   mutable std::array<std::atomic<int>, 16> passedEventsByType_;
   TH1F *h_hb1_, *h_hb2_, *h_hb3_, *h_hb4_;
@@ -81,11 +81,9 @@ void HcalLaserTest::fillDescriptions(edm::ConfigurationDescriptions& description
 }
 
 void HcalLaserTest::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-  edm::Handle<HBHEDigiCollection> hbhe_digi;
-  iEvent.getByToken(inputTokenHBHE_, hbhe_digi);
+  const edm::Handle<HBHEDigiCollection>& hbhe_digi = iEvent.getHandle(inputTokenHBHE_);
 
-  edm::Handle<QIE10DigiCollection> hf_digi;
-  iEvent.getByToken(inputTokenHF_, hf_digi);
+  const edm::Handle<QIE10DigiCollection>& hf_digi = iEvent.getHandle(inputTokenHF_);
 
   // Count digis in good, bad RBXes.  ('bad' RBXes see no laser signal)
   double badrbxfracHBHE(0), goodrbxfracHBHE(0), rbxfracHF(0);
@@ -99,8 +97,7 @@ void HcalLaserTest::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   // where the laser firing location "laserType"
   // is tagged by the UMNio board for eventType==14
 
-  edm::Handle<HcalUMNioDigi> cumn;
-  iEvent.getByToken(ioTokenUMN_, cumn);
+  const edm::Handle<HcalUMNioDigi>& cumn = iEvent.getHandle(ioTokenUMN_);
 
   eventType = static_cast<int>(cumn->eventType());
   laserType = static_cast<int>(cumn->valueUserWord(0));

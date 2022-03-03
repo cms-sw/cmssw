@@ -16,7 +16,7 @@
 #endif  // __device__
 #endif  // __CUDACC__
 
-#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 struct SiPixelGainForHLTonGPU_DecodingStructure {
@@ -35,7 +35,6 @@ public:
       uint32_t moduleInd, int col, int row, bool& isDeadColumn, bool& isNoisyColumn) const {
     auto range = rangeAndCols_[moduleInd].first;
     auto nCols = rangeAndCols_[moduleInd].second;
-
     // determine what averaged data block we are in (there should be 1 or 2 of these depending on if plaquette is 1 by X or 2 by X
     unsigned int lengthOfColumnData = (range.second - range.first) / nCols;
     unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block
@@ -60,7 +59,7 @@ public:
   constexpr float decodePed(unsigned int ped) const { return float(ped) * pedPrecision_ + minPed_; }
 
   DecodingStructure* v_pedestals_;
-  std::pair<Range, int> rangeAndCols_[gpuClustering::maxNumModules];
+  std::pair<Range, int> rangeAndCols_[phase1PixelTopology::numberOfModules];
 
   float minPed_, maxPed_, minGain_, maxGain_;
   float pedPrecision_, gainPrecision_;

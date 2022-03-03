@@ -4,9 +4,6 @@
 #include <set>
 #include <vector>
 
-#include "tbb/task_arena.h"
-#include "tbb/tbb.h"
-
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,10 +18,8 @@
 using namespace ticl;
 
 template <typename TILES>
-PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::ParameterSet &conf,
-                                                              const CacheBase *cache,
-                                                              edm::ConsumesCollector iC)
-    : PatternRecognitionAlgoBaseT<TILES>(conf, cache, iC),
+PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
+    : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
       caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       criticalDensity_(conf.getParameter<double>("criticalDensity")),
       densitySiblingLayers_(conf.getParameter<int>("densitySiblingLayers")),
@@ -38,24 +33,15 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
       eidOutputNameId_(conf.getParameter<std::string>("eid_output_name_id")),
       eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
       eidNLayers_(conf.getParameter<int>("eid_n_layers")),
-      eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
-      eidSession_(nullptr) {
-  // mount the tensorflow graph onto the session when set
-  const TrackstersCache *trackstersCache = dynamic_cast<const TrackstersCache *>(cache);
-  if (trackstersCache == nullptr || trackstersCache->eidGraphDef == nullptr) {
-    throw cms::Exception("MissingGraphDef")
-        << "PatternRecognitionbyCLUE3D received an empty graph definition from the global cache";
-  }
-  eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
-}
+      eidNClusters_(conf.getParameter<int>("eid_n_clusters")){};
 
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
   constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
   constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
-  auto lastLayerPerSide = (unsigned int)(rhtools_.lastLayer(false));
-  unsigned int maxLayer = 2 * lastLayerPerSide - 1;
-  for (unsigned int layer = 0; layer <= maxLayer; layer++) {
+  auto lastLayerPerSide = static_cast<int>(rhtools_.lastLayer(false));
+  int maxLayer = 2 * lastLayerPerSide - 1;
+  for (int layer = 0; layer <= maxLayer; layer++) {
     for (int ieta = 0; ieta < nEtaBin; ieta++) {
       auto offset = ieta * nPhiBin;
       for (int phi = 0; phi < nPhiBin; phi++) {
@@ -219,13 +205,13 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     clusters_[layer].followers.resize(clusters_[layer].x.size());
   }
 
-  auto lastLayerPerSide = (unsigned int)(rhtools_.lastLayer(false));
-  unsigned int maxLayer = 2 * lastLayerPerSide - 1;
+  auto lastLayerPerSide = static_cast<int>(rhtools_.lastLayer(false));
+  int maxLayer = 2 * lastLayerPerSide - 1;
   std::vector<int> numberOfClustersPerLayer(maxLayer, 0);
-  for (unsigned int i = 0; i <= maxLayer; i++) {
+  for (int i = 0; i <= maxLayer; i++) {
     calculateLocalDensity(input.tiles, i, layerIdx2layerandSoa);
   }
-  for (unsigned int i = 0; i <= maxLayer; i++) {
+  for (int i = 0; i <= maxLayer; i++) {
     calculateDistanceToHigher(input.tiles, i, layerIdx2layerandSoa);
   }
 
@@ -277,7 +263,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(false), false).z());
 
   // run energy regression and ID
-  energyRegressionAndID(input.layerClusters, result);
+  energyRegressionAndID(input.layerClusters, input.tfSession, result);
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
     for (auto const &t : result) {
       edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Barycenter: " << t.barycenter();
@@ -301,6 +287,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
 
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
+                                                              const tensorflow::Session *eidSession,
                                                               std::vector<Trackster> &tracksters) {
   // Energy regression and particle identification strategy:
   //
@@ -413,7 +400,7 @@ void PatternRecognitionbyCLUE3D<TILES>::energyRegressionAndID(const std::vector<
   }
 
   // run the inference (7)
-  tensorflow::run(eidSession_, inputList, outputNames, &outputs);
+  tensorflow::run(const_cast<tensorflow::Session *>(eidSession), inputList, outputNames, &outputs);
 
   // store regressed energy per trackster (8)
   if (!eidOutputNameEnergy_.empty()) {
@@ -440,7 +427,7 @@ void PatternRecognitionbyCLUE3D<TILES>::energyRegressionAndID(const std::vector<
 
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
-    const TILES &tiles, const unsigned int layerId, const std::vector<std::pair<int, int>> &layerIdx2layerandSoa) {
+    const TILES &tiles, const int layerId, const std::vector<std::pair<int, int>> &layerIdx2layerandSoa) {
   constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
   constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
   auto &clustersOnLayer = clusters_[layerId];
@@ -457,17 +444,17 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
 
   for (unsigned int i = 0; i < numberOfClusters; i++) {
     // We need to partition the two sides of the HGCAL detector
-    auto lastLayerPerSide = static_cast<unsigned int>(rhtools_.lastLayer(false)) - 1;
-    unsigned int minLayer = 0;
-    unsigned int maxLayer = 2 * lastLayerPerSide - 1;
+    auto lastLayerPerSide = static_cast<int>(rhtools_.lastLayer(false));
+    int minLayer = 0;
+    int maxLayer = 2 * lastLayerPerSide - 1;
     if (layerId < lastLayerPerSide) {
       minLayer = std::max(layerId - densitySiblingLayers_, minLayer);
       maxLayer = std::min(layerId + densitySiblingLayers_, lastLayerPerSide - 1);
     } else {
-      minLayer = std::max(layerId - densitySiblingLayers_, lastLayerPerSide + 1);
+      minLayer = std::max(layerId - densitySiblingLayers_, lastLayerPerSide);
       maxLayer = std::min(layerId + densitySiblingLayers_, maxLayer);
     }
-    for (unsigned int currentLayer = minLayer; currentLayer <= maxLayer; currentLayer++) {
+    for (int currentLayer = minLayer; currentLayer <= maxLayer; currentLayer++) {
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
         edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "RefLayer: " << layerId << " SoaIDX: " << i;
         edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "NextLayer: " << currentLayer;
@@ -477,8 +464,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
         edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "onSameLayer: " << onSameLayer;
       }
-      int etaWindow = onSameLayer ? 2 : 1;
-      int phiWindow = onSameLayer ? 2 : 1;
+      const int etaWindow = 2;
+      const int phiWindow = 2;
       int etaBinMin = std::max(tileOnLayer.etaBin(clustersOnLayer.eta[i]) - etaWindow, 0);
       int etaBinMax = std::min(tileOnLayer.etaBin(clustersOnLayer.eta[i]) + etaWindow, nEtaBin);
       int phiBinMin = tileOnLayer.phiBin(clustersOnLayer.phi[i]) - phiWindow;
@@ -559,7 +546,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
 
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
-    const TILES &tiles, const unsigned int layerId, const std::vector<std::pair<int, int>> &layerIdx2layerandSoa) {
+    const TILES &tiles, const int layerId, const std::vector<std::pair<int, int>> &layerIdx2layerandSoa) {
   constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
   constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
   auto &clustersOnLayer = clusters_[layerId];
@@ -573,9 +560,9 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
           << tiles[layerId].etaBin(clustersOnLayer.phi[i]);
     }
     // We need to partition the two sides of the HGCAL detector
-    auto lastLayerPerSide = static_cast<unsigned int>(rhtools_.lastLayer(false));
-    unsigned int minLayer = 0;
-    unsigned int maxLayer = 2 * lastLayerPerSide - 1;
+    auto lastLayerPerSide = static_cast<int>(rhtools_.lastLayer(false));
+    int minLayer = 0;
+    int maxLayer = 2 * lastLayerPerSide - 1;
     if (layerId < lastLayerPerSide) {
       minLayer = std::max(layerId - densitySiblingLayers_, minLayer);
       maxLayer = std::min(layerId + densitySiblingLayers_, lastLayerPerSide - 1);
@@ -586,10 +573,10 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
     float maxDelta = std::numeric_limits<float>::max();
     float i_delta = maxDelta;
     std::pair<int, int> i_nearestHigher(-1, -1);
-    for (unsigned int currentLayer = minLayer; currentLayer <= maxLayer; currentLayer++) {
+    for (int currentLayer = minLayer; currentLayer <= maxLayer; currentLayer++) {
       const auto &tileOnLayer = tiles[currentLayer];
-      int etaWindow = 2;
-      int phiWindow = 2;
+      int etaWindow = 3;
+      int phiWindow = 3;
       int etaBinMin = std::max(tileOnLayer.etaBin(clustersOnLayer.eta[i]) - etaWindow, 0);
       int etaBinMax = std::min(tileOnLayer.etaBin(clustersOnLayer.eta[i]) + etaWindow, nEtaBin);
       int phiBinMin = tileOnLayer.phiBin(clustersOnLayer.phi[i]) - phiWindow;
@@ -629,10 +616,10 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
               // update i_nearestHigher
               i_nearestHigher = layerandSoa;
             }
-          }
-        }
-      }
-    }
+          }  // End of loop on clusters
+        }    // End of loop on phi bins
+      }      // End of loop on eta bins
+    }        // End of loop on layers
 
     bool foundNearestHigherInEtaPhiCylinder = (i_delta != maxDelta);
     if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
@@ -649,7 +636,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
       clustersOnLayer.delta[i] = maxDelta;
       clustersOnLayer.nearestHigher[i] = {-1, -1};
     }
-  }
+  }  // End of loop on clusters
 }
 
 template <typename TILES>
@@ -684,7 +671,8 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
               << "Found follower on Layer " << layer << " SOAidx: " << i << " attached to cluster on layer: " << lyrIdx
               << " SOAidx: " << soaIdx;
         }
-        clusters_[lyrIdx].followers[soaIdx].emplace_back(layer, i);
+        if (lyrIdx >= 0)
+          clusters_[lyrIdx].followers[soaIdx].emplace_back(layer, i);
       } else {
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
           edm::LogVerbatim("PatternRecogntionbyCLUE3D")
@@ -721,7 +709,7 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
   iDesc.add<bool>("densityOnSameLayer", false);
   iDesc.add<double>("criticalEtaPhiDistance", 0.035);
   iDesc.add<double>("outlierMultiplier", 2);
-  iDesc.add<int>("minNumLayerCluster", 5)->setComment("Not Inclusive");
+  iDesc.add<int>("minNumLayerCluster", 2)->setComment("Not Inclusive");
   iDesc.add<std::string>("eid_input_name", "input");
   iDesc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
   iDesc.add<std::string>("eid_output_name_id", "output/id_probabilities");

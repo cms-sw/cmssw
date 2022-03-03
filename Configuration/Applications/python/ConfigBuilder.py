@@ -113,9 +113,11 @@ def filesFromList(fileName,s=None):
         elif (line.find(".root")!=-1):
             entry=line.replace("\n","")
             prim.append(entry)
-    # remove any duplicates
-    prim = sorted(list(set(prim)))
-    sec = sorted(list(set(sec)))
+    # remove any duplicates but keep the order
+    file_seen = set()
+    prim = [f for f in prim if not (f in file_seen or file_seen.add(f))]
+    file_seen = set()
+    sec = [f for f in sec if not (f in file_seen or file_seen.add(f))]
     if s:
         if not hasattr(s,"fileNames"):
             s.fileNames=cms.untracked.vstring(prim)
@@ -966,7 +968,6 @@ class ConfigBuilder(object):
         self.PATDefaultCFF="Configuration/StandardSequences/PAT_cff"
         self.NANODefaultCFF="PhysicsTools/NanoAOD/nano_cff"
         self.NANOGENDefaultCFF="PhysicsTools/NanoAOD/nanogen_cff"
-        self.EIDefaultCFF=None
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
         self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
@@ -1006,7 +1007,6 @@ class ConfigBuilder(object):
         else:
             self.RECODefaultSeq='reconstruction_fromRECO'
         self.RECOSIMDefaultSeq='recosim'
-        self.EIDefaultSeq='top'
         self.POSTRECODefaultSeq=None
         self.L1HwValDefaultSeq='L1HwVal'
         self.DQMDefaultSeq='DQMOffline'
@@ -1735,18 +1735,6 @@ class ConfigBuilder(object):
         else:
             self._options.customisation_file.insert(0, '.'.join([self.NANOGENDefaultCFF, custom]))
 
-    def prepare_EI(self, sequence = None):
-        ''' Enrich the schedule with event interpretation '''
-        from Configuration.StandardSequences.EventInterpretation import EventInterpretation
-        if sequence in EventInterpretation:
-            self.EIDefaultCFF = EventInterpretation[sequence]
-            sequence = 'EIsequence'
-        else:
-            raise Exception('Cannot set %s event interpretation'%( sequence) )
-        self.loadDefaultOrSpecifiedCFF(sequence,self.EIDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'eventinterpretaion_step')
-        return
-
     def prepare_SKIM(self, sequence = "all"):
         ''' Enrich the schedule with skimming fragments'''
         skimConfig = self.loadDefaultOrSpecifiedCFF(sequence,self.SKIMDefaultCFF)
@@ -2230,7 +2218,7 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +=dumpPython(self.process,object)
 
         if self._options.pileup=='HiMixEmbGEN':
-            self.pythonCfgCode += "\nprocess.generator.embeddingMode=cms.bool(True)\n"
+            self.pythonCfgCode += "\nprocess.generator.embeddingMode=cms.int32(1)\n"
 
         # dump all paths
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"

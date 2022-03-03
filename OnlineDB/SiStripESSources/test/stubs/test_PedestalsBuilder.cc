@@ -1,5 +1,4 @@
-
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,11 +15,11 @@
    @class test_PedestalsBuilder 
    @brief Simple class that analyzes Digis produced by RawToDigi unpacker
 */
-class test_PedestalsBuilder : public edm::EDAnalyzer {
+class test_PedestalsBuilder : public edm::global::EDAnalyzer<> {
 public:
   test_PedestalsBuilder(const edm::ParameterSet&) : pedToken_(esConsumes()) {}
   virtual ~test_PedestalsBuilder() override = default;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
 
 private:
   const edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedToken_;
@@ -30,7 +29,7 @@ using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
-void test_PedestalsBuilder::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+void test_PedestalsBuilder::analyze(edm::StreamID, const edm::Event& event, const edm::EventSetup& setup) const {
   LogTrace(mlCabling_) << "[test_PedestalsBuilder::" << __func__ << "]"
                        << " Dumping all FED connections...";
 

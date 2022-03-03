@@ -31,6 +31,7 @@ def miniAOD_customizeCommon(process):
 
     process.patMuons.computeMiniIso = True
     process.patMuons.computeMuonMVA = True
+    process.patMuons.computeMuonIDMVA = True
     process.patMuons.computeSoftMuonMVA = True
 
     process.patMuons.addTriggerMatching = True
@@ -199,7 +200,6 @@ def miniAOD_customizeCommon(process):
 
     #  ==================  CHSMET 
     process.load("CommonTools.ParticleFlow.pfCHS_cff")
-    task.add(process.packedPrimaryVertexAssociationJME)
     task.add(process.pfCHS)
 
     from RecoMET.METProducers.pfMet_cfi import pfMet

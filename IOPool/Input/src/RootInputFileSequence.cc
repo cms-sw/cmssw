@@ -245,7 +245,7 @@ namespace edm {
     std::list<std::string> exInfo;
     {
       std::unique_ptr<InputSource::FileOpenSentry> sentry(
-          input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
+          input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_) : nullptr);
       edm::Service<edm::storage::StatisticsSenderService> service;
       if (service.isAvailable()) {
         service->openingFile(lfn(), inputType, -1);

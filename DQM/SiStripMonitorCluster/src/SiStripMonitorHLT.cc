@@ -5,18 +5,16 @@
 //
 // class SiStripMonitorHLT SiStripMonitorHLT.cc
 // DQM/SiStripMonitorCluster/src/SiStripMonitorHLT.cc
-#include <vector>
 
+#include <vector>
 #include <iostream>
 #include <numeric>
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorHLT.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig) {
   HLTDirectory = "HLTResults";

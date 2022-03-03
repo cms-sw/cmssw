@@ -412,7 +412,7 @@ int SideBandSubtract::doGlobalFit() {
     cout << "Beginning SideBand Subtraction\n";
 
   if (ModelPDF != nullptr && Data != nullptr && SeparationVariable != nullptr) {
-    fit_result = ModelPDF->fitTo(*Data, "r");
+    fit_result = ModelPDF->fitTo(*Data);
   } else {
     cerr << "ERROR: doGobalFit, no ModelPDF, SeparationVariable or Data specified\n";
     return -1;

@@ -46,10 +46,10 @@ private:
   void analyzeHits(std::vector<PCaloHit> &, const std::vector<SimTrack> &);
 
   //user parameters
-  std::string g4Label, hcalHits;
-  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
-  edm::EDGetTokenT<edm::SimTrackContainer> tok_track_;
+  const std::string g4Label_, hcalHits_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> tok_track_;
 
   int event_no;
 
@@ -65,16 +65,14 @@ private:
   TH1F *hHF12_time[3], *hHF12_time_Ewt[3];
 };
 
-HFPMTHitAnalyzer::HFPMTHitAnalyzer(const edm::ParameterSet &iConfig) {
+HFPMTHitAnalyzer::HFPMTHitAnalyzer(const edm::ParameterSet &iConfig)
+    : g4Label_(iConfig.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits")),
+      hcalHits_(iConfig.getUntrackedParameter<std::string>("HitCollection", "HcalHits")),
+      tok_evt_(consumes<edm::HepMCProduct>(
+          edm::InputTag(iConfig.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")))),
+      tok_calo_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_))),
+      tok_track_(consumes<edm::SimTrackContainer>(edm::InputTag(g4Label_))) {
   usesResource(TFileService::kSharedResource);
-
-  tok_evt_ = consumes<edm::HepMCProduct>(
-      edm::InputTag(iConfig.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")));
-  g4Label = iConfig.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits");
-  hcalHits = iConfig.getUntrackedParameter<std::string>("HitCollection", "HcalHits");
-
-  tok_calo_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hcalHits));
-  tok_track_ = consumes<edm::SimTrackContainer>(edm::InputTag(g4Label));
 }
 
 void HFPMTHitAnalyzer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -205,15 +203,9 @@ void HFPMTHitAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &
   if (event_no % 500 == 0)
     edm::LogVerbatim("HcalSim") << "Event # " << event_no << " processed.";
 
-  std::vector<PCaloHit> caloHits;
-  edm::Handle<edm::PCaloHitContainer> hitsHcal;
-  iEvent.getByToken(tok_calo_, hitsHcal);
-  std::vector<SimTrack> simTracks;
-  edm::Handle<edm::SimTrackContainer> Tracks;
-  iEvent.getByToken(tok_track_, Tracks);
-
-  edm::Handle<edm::HepMCProduct> EvtHandle;
-  iEvent.getByToken(tok_evt_, EvtHandle);
+  const edm::Handle<edm::PCaloHitContainer> &hitsHcal = iEvent.getHandle(tok_calo_);
+  const edm::Handle<edm::SimTrackContainer> &Tracks = iEvent.getHandle(tok_track_);
+  const edm::Handle<edm::HepMCProduct> EvtHandle = iEvent.getHandle(tok_evt_);
   const HepMC::GenEvent *myGenEvent = EvtHandle->GetEvent();
 
   float orig_energy = 0;
@@ -223,6 +215,7 @@ void HFPMTHitAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &
     hHF_MC_e->Fill(orig_energy);
   }
 
+  std::vector<PCaloHit> caloHits;
   caloHits.insert(caloHits.end(), hitsHcal->begin(), hitsHcal->end());
   analyzeHits(caloHits, *Tracks);
 }

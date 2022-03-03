@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -53,7 +53,7 @@ using namespace std;
 
 enum testMuChamberType { DT, RPC, CSC };
 
-class Geant4ePropagatorAnalyzer : public edm::EDAnalyzer {
+class Geant4ePropagatorAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit Geant4ePropagatorAnalyzer(const edm::ParameterSet &);
   ~Geant4ePropagatorAnalyzer() override {}
@@ -67,6 +67,12 @@ public:
                        const FreeTrajectoryState &ftsTrack);
 
 protected:
+  // tokens
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken;
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken;
+
   int theRun;
   int theEvent;
 
@@ -132,7 +138,11 @@ protected:
 };
 
 Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet &iConfig)
-    : theRun(-1),
+    : magFieldToken(esConsumes()),
+      dtGeomToken(esConsumes()),
+      rpcGeomToken(esConsumes()),
+      cscGeomToken(esConsumes()),
+      theRun(-1),
       theEvent(-1),
       thePropagator(nullptr),
       G4VtxSrc_(iConfig.getParameter<edm::InputTag>("G4VtxSrc")),
@@ -279,8 +289,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
 
   ///////////////////////////////////////
   // Construct Magnetic Field
-  ESHandle<MagneticField> bField;
-  iSetup.get<IdealMagneticFieldRecord>().get(bField);
+  const ESHandle<MagneticField> bField = iSetup.getHandle(magFieldToken);
   if (bField.isValid())
     LogDebug("Geant4e") << "G4e -- Magnetic field is valid. Value in (0,0,0): "
                         << bField->inTesla(GlobalPoint(0, 0, 0)).mag() << " Tesla";
@@ -291,15 +300,15 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
   // Build geometry
 
   //- DT...
-  iSetup.get<MuonGeometryRecord>().get(theDTGeomESH);
+  theDTGeomESH = iSetup.getHandle(dtGeomToken);
   LogDebug("Geant4e") << "Got DTGeometry";
 
   //- CSC...
-  iSetup.get<MuonGeometryRecord>().get(theCSCGeomESH);
+  theCSCGeomESH = iSetup.getHandle(cscGeomToken);
   LogDebug("Geant4e") << "Got CSCGeometry";
 
   //- RPC...
-  iSetup.get<MuonGeometryRecord>().get(theRPCGeomESH);
+  theRPCGeomESH = iSetup.getHandle(rpcGeomToken);
   LogDebug("Geant4e") << "Got RPCGeometry";
 
   ///////////////////////////////////////

@@ -4,9 +4,6 @@ from DQMOffline.Trigger.bphMonitoring_cfi import bphMonitoring as _bphMonitoring
 
 hltBPHmonitoring = _bphMonitoring.clone()
 
-from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-stage2L1Trigger.toModify(hltBPHmonitoring, stageL1Trigger = 2)
-
 #hltBPHmonitoring.options = cms.untracked.PSet(
 #    SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
@@ -110,6 +107,7 @@ hltBPHmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 hltBPHmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
 #hltBPHmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+#hltBPHmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltBPHmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltBPHmonitoring.denGenericTriggerEventPSet.hltPaths  = cms.vstring( "HLT_Mu7p5_Track2_Jpsi_v*" )#reference
 #hltBPHmonitoring.denGenericTriggerEventPSet.l1Algorithms      = cms.vstring("L1_DoubleMu0_SQ") # HLT_ZeroBias_v*
@@ -117,3 +115,16 @@ hltBPHmonitoring.denGenericTriggerEventPSet.hltPaths  = cms.vstring( "HLT_Mu7p5_
 hltBPHmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltBPHmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
+
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(hltBPHmonitoring,
+                         stageL1Trigger = 2,
+                         numGenericTriggerEventPSet = dict(stage2 = cms.bool(True),
+                                                           l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           ReadPrescalesFromFile = cms.bool(True)),
+                         denGenericTriggerEventPSet = dict(stage2 = cms.bool(True),
+                                                           l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           ReadPrescalesFromFile = cms.bool(True)))
+

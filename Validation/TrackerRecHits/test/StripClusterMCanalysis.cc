@@ -32,13 +32,12 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -64,7 +63,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -80,16 +78,14 @@
 // class declaration
 //
 
-class StripClusterMCanalysis : public edm::EDAnalyzer {
+class StripClusterMCanalysis : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit StripClusterMCanalysis(const edm::ParameterSet&);
-
   ~StripClusterMCanalysis() override;
 
 private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   typedef std::pair<unsigned int, unsigned int> simHitCollectionID;
   typedef std::pair<simHitCollectionID, unsigned int> simhitAddr;
@@ -101,13 +97,14 @@ private:
   // ----------member data ---------------------------
 
 private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   edm::ParameterSet conf_;
   edm::InputTag beamSpotLabel_;
   edm::InputTag primaryVertexLabel_;
   edm::InputTag stripClusterSourceLabel_;
   edm::InputTag stripSimLinkLabel_;
   int printOut_;
-
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   edm::EDGetTokenT<reco::VertexCollection> primaryVertexToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
@@ -181,24 +178,20 @@ private:
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 StripClusterMCanalysis::StripClusterMCanalysis(const edm::ParameterSet& iConfig)
-    : conf_(iConfig),
+    : topoToken_(esConsumes()),
+      tkGeomToken_(esConsumes()),
+      conf_(iConfig),
       beamSpotLabel_(iConfig.getParameter<edm::InputTag>("beamSpot")),
       primaryVertexLabel_(iConfig.getParameter<edm::InputTag>("primaryVertex")),
       stripClusterSourceLabel_(iConfig.getParameter<edm::InputTag>("stripClusters")),
       stripSimLinkLabel_(iConfig.getParameter<edm::InputTag>("stripSimLinks")),
       printOut_(iConfig.getUntrackedParameter<int>("printOut")) {
   //now do whatever initialization is needed
+  usesResource(TFileService::kSharedResource);
+
   beamSpotToken_ = consumes<reco::BeamSpot>(beamSpotLabel_);
   primaryVertexToken_ = consumes<reco::VertexCollection>(primaryVertexLabel_);
   clusterToken_ = consumes<edmNew::DetSetVector<SiStripCluster> >(stripClusterSourceLabel_);
@@ -213,10 +206,7 @@ StripClusterMCanalysis::StripClusterMCanalysis(const edm::ParameterSet& iConfig)
   }
 }
 
-StripClusterMCanalysis::~StripClusterMCanalysis() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+StripClusterMCanalysis::~StripClusterMCanalysis() = default;
 
 //
 // member functions
@@ -233,9 +223,7 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
   evCnt_++;
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);  // PR#7802
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(topoToken_);
 
   // Get the beam spot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -299,9 +287,7 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
   iEvent.getByToken(clusterToken_, dsv_SiStripCluster);
 
   iEvent.getByToken(stripSimlinkToken_, stripdigisimlink);
-
-  edm::ESHandle<TrackerGeometry> tkgeom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tkgeom);
+  edm::ESHandle<TrackerGeometry> tkgeom = iSetup.getHandle(tkGeomToken_);
   if (!tkgeom.isValid()) {
     std::cout << "Unable to find TrackerDigiGeometryRecord in event!";
     return;
@@ -581,9 +567,6 @@ void StripClusterMCanalysis::beginJob() {
   hZvSec = fs->make<TH1F>("hZvSec", "Zvertex, secondary", 48, -15, 15);
   evCnt_ = 0;
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void StripClusterMCanalysis::endJob() {}
 
 void StripClusterMCanalysis::makeMap(const edm::Event& theEvent) {
   //  The simHit collections are specified in trackerContainers, and can

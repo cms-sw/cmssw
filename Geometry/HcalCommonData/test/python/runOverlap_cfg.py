@@ -1,29 +1,18 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
 
-process = cms.Process("PROD")
+process = cms.Process("PROD",Run3_DDD)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("Geometry.CMSCommonData.hcalOnlyGeometryXML_cfi")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
-    ),
-    cout = cms.untracked.PSet(
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        enable = cms.untracked.bool(True)
-    )
-)
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.HCalGeom=dict()
 
 process.Timing = cms.Service("Timing")
 

@@ -2,6 +2,8 @@
 
 HLTriggerFirstPath
 
+Status_OnCPU	#	CMSHLT-2206
+Status_OnGPU	#	CMSHLT-2206
 HLT_EcalCalibration_v*
 HLT_HcalCalibration_v*
 HLT_HIPhysics_v*

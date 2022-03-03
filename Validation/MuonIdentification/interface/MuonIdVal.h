@@ -38,7 +38,6 @@
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"

@@ -61,8 +61,6 @@ private:
   edm::InputTag barrelEcalHits_;
   edm::InputTag endcapEcalHits_;
 
-  edm::ESHandle<CaloTopology> theCaloTopo_;
-
   std::string vertexProducer_;
   float sample_;
 
@@ -206,10 +204,6 @@ void SimplePhotonAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup&
 
   using namespace edm;  // needed for all fwk related classes
   edm::LogInfo("PhotonAnalyzer") << "Analyzing event number: " << evt.id() << "\n";
-
-  // get the  calo topology  from the event setup:
-  edm::ESHandle<CaloTopology> pTopology;
-  es.get<CaloTopologyRecord>().get(theCaloTopo_);
 
   // Get the  corrected  photon collection (set in the configuration) which also contains infos about conversions
 

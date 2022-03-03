@@ -55,3 +55,19 @@ cmsRun  ${LOCAL_TEST_DIR}/SiPixelBadModuleByHandBuilder_cfg.py || die "Failure r
 
 echo -e "TESTING Reading SiPixelQuality DB object ...\n\n"
 cmsRun  ${LOCAL_TEST_DIR}/SiPixelBadModuleReader_cfg.py || die "Failure running SiPixelBadModuleReader_cfg.py" $?
+
+echo -e "TESTING SiPixelQualityProbabilities codes ...\n\n"
+
+echo -e "TESTING Writing SiPixelQualityProbabilities DB object ...\n\n"
+cmsRun  ${LOCAL_TEST_DIR}/SiPixelQualityProbabilitiesTestWriter_cfg.py || die "Failure running SiPixelQualityProbabilitiesTestWriter_cfg.py" $?
+
+echo -e "TESTING Reading SiPixelQualityProbabilities DB object ...\n\n"
+cmsRun  ${LOCAL_TEST_DIR}/SiPixelQualityProbabilitiesTestReader_cfg.py || die "Failure running SiPixelQualityProbabilitiesTestReader_cfg.py" $?
+
+echo -e "TESTING SiPixelFEDChannelContainer codes ...\n\n"
+
+echo -e "TESTING Writing SiPixelFEDChannelContainer DB object ...\n\n"
+cmsRun  ${LOCAL_TEST_DIR}/FastSiPixelFEDChannelContainerFromQuality_cfg.py || die "Failure running FastSiPixelFEDChannelContainerFromQuality_cfg.py" $?
+
+echo -e "TESTING Reading SiPixelFEDChannelContainer DB object ...\n\n"
+cmsRun  ${LOCAL_TEST_DIR}/SiPixelFEDChannelContainerTestReader_cfg.py || die "Failure running SiPixelFEDChannelContainerTestReader_cfg.py" $?

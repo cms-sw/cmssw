@@ -3,7 +3,7 @@
  * Works in  v352
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -426,7 +426,7 @@ void HotPixels::print(int events, int fed_id) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main program
-class findHotPixels : public edm::EDAnalyzer {
+class findHotPixels : public edm::one::EDAnalyzer<> {
 public:
   /// ctor
   explicit findHotPixels(const edm::ParameterSet &cfg) : theConfig(cfg) {
@@ -434,11 +434,9 @@ public:
   }
 
   /// dtor
-  virtual ~findHotPixels() {}
+  virtual ~findHotPixels() = default;
 
   void beginJob();
-
-  //void beginRun( const edm::EventSetup& ) {}
 
   // end of job
   void endJob();

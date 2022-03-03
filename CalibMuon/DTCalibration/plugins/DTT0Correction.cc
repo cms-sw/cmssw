@@ -55,7 +55,7 @@ void DTT0Correction::beginRun(const edm::Run& run, const edm::EventSetup& setup)
 
 void DTT0Correction::endJob() {
   // Create the object to be written to DB
-  DTT0* t0NewMap = new DTT0();
+  DTT0 t0NewMap;
 
   // Loop over all channels
   for (vector<const DTSuperLayer*>::const_iterator sl = muonGeom_->superLayers().begin();
@@ -82,7 +82,7 @@ void DTT0Correction::endJob() {
           dtCalibration::DTT0Data t0Corr = correctionAlgo_->correction(wireId);
           float t0MeanNew = t0Corr.mean;
           float t0RMSNew = t0Corr.rms;
-          t0NewMap->set(wireId, t0MeanNew, t0RMSNew, DTTimeUnits::counts);
+          t0NewMap.set(wireId, t0MeanNew, t0RMSNew, DTTimeUnits::counts);
 
           LogVerbatim("Calibration") << "New t0 for: " << wireId << " mean from " << t0Mean << " to " << t0MeanNew
                                      << " rms from " << t0RMS << " to " << t0RMSNew << endl;
@@ -90,7 +90,7 @@ void DTT0Correction::endJob() {
           LogError("Calibration") << e.explainSelf();
           // Set db to the old value, if it was there in the first place
           if (!status) {
-            t0NewMap->set(wireId, t0Mean, t0RMS, DTTimeUnits::counts);
+            t0NewMap.set(wireId, t0Mean, t0RMS, DTTimeUnits::counts);
             LogVerbatim("Calibration") << "Keep old t0 for: " << wireId << " mean " << t0Mean << " rms " << t0RMS
                                        << endl;
           }

@@ -12,8 +12,8 @@ void L1Analysis::L1AnalysisL1UpgradeTfMuonShower::SetTfMuonShower(const l1t::Reg
          ++it) {
       if (it->isValid()) {
         l1upgradetfmuonshower_.tfMuonShowerBx.push_back(ibx);
-        l1upgradetfmuonshower_.tfMuonShowerEndcap.push_back(it->endcap());
-        l1upgradetfmuonshower_.tfMuonShowerSector.push_back(it->sector());
+        l1upgradetfmuonshower_.tfMuonShowerEndcap.push_back(it->trackFinderType() == l1t::tftype::emtf_pos ? 1 : -1);
+        l1upgradetfmuonshower_.tfMuonShowerSector.push_back(it->processor() + 1);
         l1upgradetfmuonshower_.tfMuonShowerOneNominal.push_back(it->isOneNominalInTime());
         l1upgradetfmuonshower_.tfMuonShowerOneTight.push_back(it->isOneTightInTime());
         l1upgradetfmuonshower_.tfMuonShowerTwoLoose.push_back(it->isTwoLooseInTime());

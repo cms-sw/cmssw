@@ -33,78 +33,78 @@ public:
   virtual ~BeamSpotObjects() {}
 
   /// set XYZ position
-  void SetPosition(double x, double y, double z) {
+  void setPosition(double x, double y, double z) {
     position_[0] = x;
     position_[1] = y;
     position_[2] = z;
   };
   /// set sigma Z, RMS bunch length
-  void SetSigmaZ(double val) { sigmaZ_ = val; }
+  void setSigmaZ(double val) { sigmaZ_ = val; }
   /// set dxdz slope, crossing angle
-  void Setdxdz(double val) { dxdz_ = val; }
+  void setdxdz(double val) { dxdz_ = val; }
   /// set dydz slope, crossing angle in XZ
-  void Setdydz(double val) { dydz_ = val; }
+  void setdydz(double val) { dydz_ = val; }
   /// set average transverse beam width X
-  void SetBeamWidthX(double val) { beamwidthX_ = val; }
+  void setBeamWidthX(double val) { beamwidthX_ = val; }
   /// set average transverse beam width Y
-  void SetBeamWidthY(double val) { beamwidthY_ = val; }
+  void setBeamWidthY(double val) { beamwidthY_ = val; }
   /// set beam width X error
-  void SetBeamWidthXError(double val) { beamwidthXError_ = val; }
+  void setBeamWidthXError(double val) { beamwidthXError_ = val; }
   /// set beam width Y error
-  void SetBeamWidthYError(double val) { beamwidthYError_ = val; }
+  void setBeamWidthYError(double val) { beamwidthYError_ = val; }
   /// set i,j element of the full covariance matrix 7x7
-  void SetCovariance(int i, int j, double val) { covariance_[i][j] = val; }
+  void setCovariance(int i, int j, double val) { covariance_[i][j] = val; }
   /// set beam type
-  void SetType(int type) { type_ = type; }
+  void setType(int type) { type_ = type; }
   /// set emittance
-  void SetEmittanceX(double val) { emittanceX_ = val; }
+  void setEmittanceX(double val) { emittanceX_ = val; }
   /// set emittance
-  void SetEmittanceY(double val) { emittanceY_ = val; }
+  void setEmittanceY(double val) { emittanceY_ = val; }
   /// set beta star
-  void SetBetaStar(double val) { betaStar_ = val; }
+  void setBetaStar(double val) { betaStar_ = val; }
 
   /// get X beam position
-  double GetX() const { return position_[0]; }
+  double x() const { return position_[0]; }
   /// get Y beam position
-  double GetY() const { return position_[1]; }
+  double y() const { return position_[1]; }
   /// get Z beam position
-  double GetZ() const { return position_[2]; }
+  double z() const { return position_[2]; }
   /// get sigma Z, RMS bunch length
-  double GetSigmaZ() const { return sigmaZ_; }
+  double sigmaZ() const { return sigmaZ_; }
   /// get average transverse beam width
-  double GetBeamWidthX() const { return beamwidthX_; }
+  double beamWidthX() const { return beamwidthX_; }
   /// get average transverse beam width
-  double GetBeamWidthY() const { return beamwidthY_; }
+  double beamWidthY() const { return beamwidthY_; }
   /// get dxdz slope, crossing angle in XZ
-  double Getdxdz() const { return dxdz_; }
+  double dxdz() const { return dxdz_; }
   /// get dydz slope, crossing angle in YZ
-  double Getdydz() const { return dydz_; }
+  double dydz() const { return dydz_; }
   /// get i,j element of the full covariance matrix 7x7
-  double GetCovariance(int i, int j) const { return covariance_[i][j]; }
+  double covariance(int i, int j) const { return covariance_[i][j]; }
   /// get X beam position Error
-  double GetXError() const { return sqrt(covariance_[0][0]); }
+  double xError() const { return sqrt(covariance_[0][0]); }
   /// get Y beam position Error
-  double GetYError() const { return sqrt(covariance_[1][1]); }
+  double yError() const { return sqrt(covariance_[1][1]); }
   /// get Z beam position Error
-  double GetZError() const { return sqrt(covariance_[2][2]); }
+  double zError() const { return sqrt(covariance_[2][2]); }
   /// get sigma Z, RMS bunch length Error
-  double GetSigmaZError() const { return sqrt(covariance_[3][3]); }
+  double sigmaZError() const { return sqrt(covariance_[3][3]); }
   /// get average transverse beam width error ASSUME the same for X and Y
-  double GetBeamWidthXError() const { return sqrt(covariance_[6][6]); }
+  double beamWidthXError() const { return sqrt(covariance_[6][6]); }
   /// get average transverse beam width error X = Y
-  double GetBeamWidthYError() const { return sqrt(covariance_[6][6]); }
+  double beamWidthYError() const { return sqrt(covariance_[6][6]); }
   /// get dxdz slope, crossing angle in XZ Error
-  double GetdxdzError() const { return sqrt(covariance_[4][4]); }
+  double dxdzError() const { return sqrt(covariance_[4][4]); }
   /// get dydz slope, crossing angle in YZ Error
-  double GetdydzError() const { return sqrt(covariance_[5][5]); }
+  double dydzError() const { return sqrt(covariance_[5][5]); }
   /// get beam type
-  int GetBeamType() const { return type_; }
+  int beamType() const { return type_; }
   /// get emittance
-  double GetEmittanceX() const { return emittanceX_; }
+  double emittanceX() const { return emittanceX_; }
   /// get emittance
-  double GetEmittanceY() const { return emittanceY_; }
+  double emittanceY() const { return emittanceY_; }
   /// get beta star
-  double GetBetaStar() const { return betaStar_; }
+  double betaStar() const { return betaStar_; }
 
   /// print beam spot parameters
   void print(std::stringstream& ss) const;

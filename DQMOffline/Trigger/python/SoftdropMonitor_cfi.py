@@ -16,7 +16,7 @@ hltSoftdropmonitoring.histoPSet.htPSet = cms.PSet(
   xmin  = cms.double(   -0.5),
   xmax  = cms.double(19999.5),
 )
-hltSoftdropmonitoring.met       = cms.InputTag("pfMetEI")
+hltSoftdropmonitoring.met       = cms.InputTag("pfMet")
 hltSoftdropmonitoring.jets      = cms.InputTag("ak8PFJetsPuppiSoftDrop") # dont set this to non-SoftdropJets
 hltSoftdropmonitoring.electrons = cms.InputTag("gedGsfElectrons")
 hltSoftdropmonitoring.muons     = cms.InputTag("muons")
@@ -31,6 +31,7 @@ hltSoftdropmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltSoftdropmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltSoftdropmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltSoftdropmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltSoftdropmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29
 hltSoftdropmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltSoftdropmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )

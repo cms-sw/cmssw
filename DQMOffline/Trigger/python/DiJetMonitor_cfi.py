@@ -13,7 +13,7 @@ DiPFjetAve40_Prommonitoring.histoPSet.dijetPtThrPSet = cms.PSet(
   xmin  = cms.double(   0.),
   xmax  = cms.double(100.),
 )
-DiPFjetAve40_Prommonitoring.met       = cms.InputTag("pfMetEI") # pfMet
+DiPFjetAve40_Prommonitoring.met       = cms.InputTag("pfMet") # pfMet
 #DiPFjetAve40_Prommonitoring.pfjets    = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 DiPFjetAve40_Prommonitoring.dijetSrc  = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 DiPFjetAve40_Prommonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
@@ -30,6 +30,7 @@ DiPFjetAve40_Prommonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint
 
 DiPFjetAve40_Prommonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 DiPFjetAve40_Prommonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+DiPFjetAve40_Prommonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 DiPFjetAve40_Prommonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 DiPFjetAve40_Prommonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 DiPFjetAve40_Prommonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )

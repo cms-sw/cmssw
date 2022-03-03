@@ -1388,21 +1388,21 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
   BSOnline.setLastAnalyzedLumi(LSRange.second);
   BSOnline.setLastAnalyzedRun(frun);
   BSOnline.setLastAnalyzedFill(0);  // To be updated with correct LHC Fill number
-  BSOnline.SetPosition(bs.x0(), bs.y0(), bs.z0());
-  BSOnline.SetSigmaZ(bs.sigmaZ());
-  BSOnline.SetBeamWidthX(bs.BeamWidthX());
-  BSOnline.SetBeamWidthY(bs.BeamWidthY());
-  BSOnline.SetBeamWidthXError(bs.BeamWidthXError());
-  BSOnline.SetBeamWidthYError(bs.BeamWidthYError());
-  BSOnline.Setdxdz(bs.dxdz());
-  BSOnline.Setdydz(bs.dydz());
-  BSOnline.SetType(bs.type());
-  BSOnline.SetEmittanceX(bs.emittanceX());
-  BSOnline.SetEmittanceY(bs.emittanceY());
-  BSOnline.SetBetaStar(bs.betaStar());
+  BSOnline.setPosition(bs.x0(), bs.y0(), bs.z0());
+  BSOnline.setSigmaZ(bs.sigmaZ());
+  BSOnline.setBeamWidthX(bs.BeamWidthX());
+  BSOnline.setBeamWidthY(bs.BeamWidthY());
+  BSOnline.setBeamWidthXError(bs.BeamWidthXError());
+  BSOnline.setBeamWidthYError(bs.BeamWidthYError());
+  BSOnline.setdxdz(bs.dxdz());
+  BSOnline.setdydz(bs.dydz());
+  BSOnline.setType(bs.type());
+  BSOnline.setEmittanceX(bs.emittanceX());
+  BSOnline.setEmittanceY(bs.emittanceY());
+  BSOnline.setBetaStar(bs.betaStar());
   for (int i = 0; i < 7; ++i) {
     for (int j = 0; j < 7; ++j) {
-      BSOnline.SetCovariance(i, j, bs.covariance(i, j));
+      BSOnline.setCovariance(i, j, bs.covariance(i, j));
     }
   }
   BSOnline.setNumTracks(50);

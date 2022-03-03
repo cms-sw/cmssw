@@ -93,8 +93,8 @@ hltSUSYmonitoring.histoPSet.HTBinning2D  = cms.vdouble(0,20,40,70,100,150,200,40
 hltSUSYmonitoring.histoPSet.phiBinning2D = cms.vdouble(-3.1416,-1.8849,-0.6283,0.6283,1.8849,3.1416)
 
 
-hltSUSYmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltSUSYmonitoring.jets      = cms.InputTag("ak4PFJetsCHS") # ak4PFJets, ak4PFJetsCHS, pfJetsEI
+hltSUSYmonitoring.met       = cms.InputTag("pfMet") # pfMet
+hltSUSYmonitoring.jets      = cms.InputTag("ak4PFJetsCHS") # ak4PFJets, ak4PFJetsCHS, ak4PFJets
 hltSUSYmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltSUSYmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 #Suvankar
@@ -118,6 +118,7 @@ hltSUSYmonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# Tru
 hltSUSYmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltSUSYmonitoring.denGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltSUSYmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltSUSYmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltSUSYmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltSUSYmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltSUSYmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )

@@ -28,7 +28,7 @@ The model information from the server can be printed by enabling `verbose` outpu
 * `modelVersion`: version number of model (default: -1, use latest available version on server)
 * `modelConfigPath`: path to `config.pbtxt` file for the model (using `edm::FileInPath`)
 * `preferredServer`: name of preferred server, for testing (see [Services](#services) below)
-* `timeout`: maximum allowed time for a request
+* `timeout`: maximum allowed time for a request (disabled with 0)
 * `outputs`: optional, specify which output(s) the server should send
 * `verbose`: enable verbose printouts (default: false)
 * `useSharedMemory`: enable use of shared memory (see [below](#shared-memory)) with local servers (default: true)
@@ -152,6 +152,20 @@ Servers have several available parameters:
 * `rootCertificates`: for SSL, name of file containing PEM encoding of server root certificates, if any
 * `privateKey`: for SSL, name of file containing PEM encoding of user's private key, if any
 * `certificateChain`: for SSL, name of file containing PEM encoding of user's certificate chain, if any
+
+The fallback server has a separate set of options, mostly related to the invocation of `cmsTriton`:
+* `enable`: enable the fallback server
+* `debug`: enable debugging (equivalent to `-c` in `cmsTriton`)
+* `verbose`: enable verbose output in logs (equivalent to `-v` in `cmsTriton`)
+* `useDocker`: use Docker instead of Singularity (equivalent to `-d` in `cmsTriton`)
+* `useGPU`: run on local GPU (equivalent to `-g` in `cmsTriton`)
+* `retries`: number of retries when starting container (passed to `-r [num]` in `cmsTriton` if >= 0; default: -1)
+* `wait`: maximum time to wait for server to start (passed to `-w time` in `cmsTriton` if >= 0; default: -1)
+* `instanceBaseName`: base name for server instance if random names are enabled (default: triton_server_instance)
+* `instanceName`: specific name for server instance as alternative to random name (passed to `-n [name]` in `cmsTriton` if non-empty)
+* `tempDir`: specific name for server temporary directory (passed to `-t [dir]` in `cmsTriton` if non-empty; if `"."`, uses `cmsTriton` default)
+* `imageName`: server image name (passed to `-i [name]` in `cmsTriton` if non-empty)
+* `sandboxName`: Singularity sandbox directory (passed to `-s [dir]` in `cmsTriton` if non-empty)
 
 ## Examples
 

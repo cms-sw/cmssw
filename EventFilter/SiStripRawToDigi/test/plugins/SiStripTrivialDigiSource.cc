@@ -1,7 +1,4 @@
-
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -24,7 +21,8 @@
 // -----------------------------------------------------------------------------
 //
 SiStripTrivialDigiSource::SiStripTrivialDigiSource(const edm::ParameterSet& pset)
-    : meanOcc_(pset.getUntrackedParameter<double>("MeanOccupancy", 1.)),
+    : esTokenCabling_(esConsumes()),
+      meanOcc_(pset.getUntrackedParameter<double>("MeanOccupancy", 1.)),
       rmsOcc_(pset.getUntrackedParameter<double>("RmsOccupancy", 0.1)),
       ped_(pset.getUntrackedParameter<int>("PedestalLevel", 100)),
       raw_(pset.getUntrackedParameter<bool>("FedRawDataMode", false)),
@@ -43,13 +41,12 @@ SiStripTrivialDigiSource::~SiStripTrivialDigiSource() {
 
 // -----------------------------------------------------------------------------
 //
-void SiStripTrivialDigiSource::produce(edm::Event& event, const edm::EventSetup& setup) {
+void SiStripTrivialDigiSource::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
   LogTrace("TrivialDigiSource") << "[SiStripRawToDigiModule::" << __func__ << "]"
                                 << " Analyzing run/event " << event.id().run() << "/" << event.id().event();
 
   // Retrieve cabling
-  edm::ESHandle<SiStripFedCabling> cabling;
-  setup.get<SiStripFedCablingRcd>().get(cabling);
+  edm::ESHandle<SiStripFedCabling> cabling = setup.getHandle(esTokenCabling_);
 
   // Temp container
   typedef std::vector<edm::DetSet<SiStripDigi>> digi_work_vector;

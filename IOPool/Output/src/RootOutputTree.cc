@@ -22,7 +22,7 @@
 
 #include <limits>
 
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 
 namespace edm {
 
@@ -366,7 +366,7 @@ namespace edm {
     } else {
       // Isolate the fill operation so that IMT doesn't grab other large tasks
       // that could lead to PoolOutputModule stalling
-      tbb::this_task_arena::isolate([&] { tree_->Fill(); });
+      oneapi::tbb::this_task_arena::isolate([&] { tree_->Fill(); });
     }
   }
 

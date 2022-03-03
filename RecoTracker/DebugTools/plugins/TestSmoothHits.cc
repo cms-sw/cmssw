@@ -29,17 +29,27 @@ TestSmoothHits::TestSmoothHits(const edm::ParameterSet& iConfig) : trackerHitAss
   sname = iConfig.getParameter<std::string>("Smoother");
   mineta = iConfig.getParameter<double>("mineta");
   maxeta = iConfig.getParameter<double>("maxeta");
+
+  theGToken = esConsumes<edm::Transition::BeginRun>();
+  theMFToken = esConsumes<edm::Transition::BeginRun>();
+  thePropagatorToken = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", propagatorName));
+  theBuilderToken = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", builderName));
+  fitToken = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", fname));
+  smoothToken = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", sname));
+  tTopoToken = esConsumes();
+
+  theTCCollectionToken = consumes(edm::InputTag(srcName));
 }
 
 TestSmoothHits::~TestSmoothHits() {}
 
 void TestSmoothHits::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
-  iSetup.get<TrackerDigiGeometryRecord>().get(theG);
-  iSetup.get<IdealMagneticFieldRecord>().get(theMF);
-  iSetup.get<TrackingComponentsRecord>().get(propagatorName, thePropagator);
-  iSetup.get<TransientRecHitRecord>().get(builderName, theBuilder);
-  iSetup.get<TrajectoryFitter::Record>().get(fname, fit);
-  iSetup.get<TrajectoryFitter::Record>().get(sname, smooth);
+  theG = iSetup.getHandle(theGToken);
+  theMF = iSetup.getHandle(theMFToken);
+  thePropagator = iSetup.getHandle(thePropagatorToken);
+  theBuilder = iSetup.getHandle(theBuilderToken);
+  fit = iSetup.getHandle(fitToken);
+  smooth = iSetup.getHandle(smoothToken);
 
   file = new TFile("testSmoothHits.root", "recreate");
   for (int i = 0; i != 6; i++)
@@ -190,12 +200,11 @@ void TestSmoothHits::beginRun(edm::Run const& run, const edm::EventSetup& iSetup
 
 void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = iSetup.getHandle(tTopoToken);
 
   LogTrace("TestSmoothHits") << "new event" << std::endl;
 
-  iEvent.getByLabel(srcName, theTCCollection);
+  theTCCollection = iEvent.getHandle(theTCCollectionToken);
   TrackerHitAssociator hitAssociator(iEvent, trackerHitAssociatorConfig_);
 
   TrajectoryStateCombiner combiner;

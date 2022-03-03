@@ -59,6 +59,8 @@ private:
 
   edm::EDGetTokenT<std::vector<Trajectory> > inputTraj_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theBToken_;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalGeometryToken_;
 
   FakeCPE fakeCPE;
 };
@@ -76,15 +78,16 @@ private:
 //
 FakeCPEFiller::FakeCPEFiller(const edm::ParameterSet& iConfig)
     : inputTraj_(consumes<std::vector<Trajectory> >(edm::InputTag("FinalTracks"))),
-      trackerHitAssociatorConfig_(iConfig, consumesCollector()) {}
+      trackerHitAssociatorConfig_(iConfig, consumesCollector()),
+      theBToken_(esConsumes(edm::ESInputTag("", "Fake"))),
+      globalGeometryToken_(esConsumes()) {}
 
 // ------------ method called on each new Event  ------------
 bool FakeCPEFiller::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   bool accept = true;
   fakeCPE.map().clear();
 
-  edm::ESHandle<TransientTrackingRecHitBuilder> theB;
-  iSetup.get<TransientRecHitRecord>().get("Fake", theB);
+  edm::ESHandle<TransientTrackingRecHitBuilder> theB = iSetup.getHandle(theBToken_);
 
   auto const& ttb = static_cast<TkTransientTrackingRecHitBuilder const&>(*theB);
   const_cast<StripFakeCPE*>(static_cast<StripFakeCPE const*>(ttb.stripClusterParameterEstimator()))
@@ -94,8 +97,7 @@ bool FakeCPEFiller::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   using namespace edm;
 
-  edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
+  edm::ESHandle<GlobalTrackingGeometry> globalGeometry = iSetup.getHandle(globalGeometryToken_);
 
   Handle<std::vector<Trajectory> > trajH;
   iEvent.getByToken(inputTraj_, trajH);

@@ -13,14 +13,16 @@ namespace ticl {
   template <typename TILES>
   class PatternRecognitionbyCA final : public PatternRecognitionAlgoBaseT<TILES> {
   public:
-    PatternRecognitionbyCA(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector iC);
+    PatternRecognitionbyCA(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
     ~PatternRecognitionbyCA() override;
 
     void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                         std::vector<Trackster>& result,
                         std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
-    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& result);
+    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters,
+                               const tensorflow::Session*,
+                               std::vector<Trackster>& result);
     void emptyTrackstersFromSeedsTRK(std::vector<Trackster>& tracksters,
                                      std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation,
                                      const edm::ProductID& collectionID) const;
@@ -62,6 +64,7 @@ namespace ticl {
 
     hgcal::RecHitTools rhtools_;
     tensorflow::Session* eidSession_;
+    const std::vector<double> siblings_maxRSquared_;
 
     static const int eidNFeatures_ = 3;
   };

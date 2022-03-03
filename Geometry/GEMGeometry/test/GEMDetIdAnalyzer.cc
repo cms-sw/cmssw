@@ -32,15 +32,14 @@ protected:
   void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
 private:
-  edm::EDGetToken gemRecHit_, me0RecHit_;
-  bool newGEM_;
+  const edm::EDGetToken gemRecHit_, me0RecHit_;
+  const bool newGEM_;
 };
 
-GEMDetIdAnalyzer::GEMDetIdAnalyzer(const edm::ParameterSet& iConfig) {
-  gemRecHit_ = consumes<GEMRecHitCollection>(iConfig.getParameter<edm::InputTag>("gemInputLabel"));
-  me0RecHit_ = consumes<ME0RecHitCollection>(iConfig.getParameter<edm::InputTag>("me0InputLabel"));
-  newGEM_ = iConfig.getParameter<bool>("newGEMDetID");
-}
+GEMDetIdAnalyzer::GEMDetIdAnalyzer(const edm::ParameterSet& iConfig)
+    : gemRecHit_(consumes<GEMRecHitCollection>(iConfig.getParameter<edm::InputTag>("gemInputLabel"))),
+      me0RecHit_(consumes<ME0RecHitCollection>(iConfig.getParameter<edm::InputTag>("me0InputLabel"))),
+      newGEM_(iConfig.getParameter<bool>("newGEMDetID")) {}
 
 void GEMDetIdAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -51,8 +50,7 @@ void GEMDetIdAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descript
 }
 
 void GEMDetIdAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-  edm::Handle<GEMRecHitCollection> gemRecHits;
-  iEvent.getByToken(gemRecHit_, gemRecHits);
+  const edm::Handle<GEMRecHitCollection>& gemRecHits = iEvent.getHandle(gemRecHit_);
   if (!gemRecHits.isValid()) {
     edm::LogError("GEMAnalysis") << "GEM RecHit is not valid";
   } else {
@@ -65,8 +63,7 @@ void GEMDetIdAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& 
     }
   }
 
-  edm::Handle<ME0RecHitCollection> me0RecHits;
-  iEvent.getByToken(me0RecHit_, me0RecHits);
+  const edm::Handle<ME0RecHitCollection>& me0RecHits = iEvent.getHandle(me0RecHit_);
   if (!me0RecHits.isValid()) {
     edm::LogError("GEMAnalysis") << "ME0 RecHit is not valid";
   } else {

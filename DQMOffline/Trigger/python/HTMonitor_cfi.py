@@ -14,8 +14,8 @@ hltHTmonitoring.histoPSet.htPSet = cms.PSet(
   xmin  = cms.double(   -0.5),
   xmax  = cms.double(19999.5),
 )
-hltHTmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltHTmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
+hltHTmonitoring.met       = cms.InputTag("pfMet") # pfMet
+hltHTmonitoring.jets      = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 hltHTmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltHTmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
@@ -30,6 +30,7 @@ hltHTmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltHTmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltHTmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltHTmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltHTmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltHTmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltHTmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )

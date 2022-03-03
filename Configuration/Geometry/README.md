@@ -66,6 +66,9 @@ Tracker:
 * T25: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v7.0.2): Based on (v6.1.5) (T24/T21), but with 3D sensors in TBPX L1. Compatible with DD4hep library.
 * T26: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v7.0.3): Based on (v6.1.5) (T24/T21), but with 3D sensors in TBPX L1 and 50x50 pixel aspect ratio in TFPX and TEPX. Compatible with DD4hep library.
 * T27: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v8.0.0): Based on (v7.0.2) (T25), but with bricked pixels in the central rod of TBPX L2 and in the central 3 rods of TBPX L3+4. All pixels in TFPX and TEPX are bricked. Compatible with DD4hep library.
+* T28: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v8.0.2): Based on (v7.0.2) (T25), but with bricked pixels in the central rod of TBPX L2+L3 and in the central 3 rods of TBPX L4, as well as in TFPX disks 5-8 and in TEPX. The other barrel pixels, and those in TFPX disks 1-4, are 25x100 mum planar. Compatible with DD4hep library.
+* T29: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v8.0.3): Based on (v7.0.2) (T25), but with bricked pixels in the central rod of TBPX L2+L3 and in the central 3 rods of TBPX L4, and with 50x50 mum pixels in TFPX and TEPX. Compatible with DD4hep library.
+* T30: Phase2 titled tracker. Exploratory geometry *only to be used in D91 for now*. Outer Tracker (v8.0.1): based on v8.0.0 with updated TB2S spacing. Inner Tracker (v6.4.0): based on v6.1.5 but TFPX with more realistic module positions.
 
 Calorimeters:
 * C9: HGCal (v11 post TDR HGCal Geometry w/ corner centering for HE part) + Phase2 HCAL and EB + Tracker cables (used in 2026D49)
@@ -107,6 +110,7 @@ The script also handles the common and forward elements of the geometry:
 * F5: same as F4 but changes due to HFNose
 * F6: same as F4 with modifications needed for BRM and forward shield
 * F7: same as F6 with modifications needed for HFNose
+* F8: same as F6 or F7 without BRM
 
 Several detector combinations have been generated:
 * D49 = T15+C9+M4+I10+O4+F2 (HLT TDR baseline)
@@ -126,3 +130,6 @@ Several detector combinations have been generated:
 * D86 = T24+C17+M10+I14+O8+F6
 * D87 = T27+C14+M9+I13+O7+F6
 * D88 = T24+C17+M10+I15+O9+F6
+* D89 = T28+C14+M9+I13+O7+F8
+* D90 = T29+C14+M9+I13+O7+F8
+* D91 = T30+C17+M10+I15+O9+F6

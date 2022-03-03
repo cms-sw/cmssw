@@ -1,7 +1,7 @@
 #ifndef ECALPNGRAPHS_h
 #define ECALPNGRAPHS_h
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
@@ -17,7 +17,7 @@
 #include "TFile.h"
 #include "TGraph.h"
 
-class EcalPnGraphs : public edm::EDAnalyzer {
+class EcalPnGraphs : public edm::one::EDAnalyzer<> {
 public:
   EcalPnGraphs(const edm::ParameterSet& ps);
   ~EcalPnGraphs() override;

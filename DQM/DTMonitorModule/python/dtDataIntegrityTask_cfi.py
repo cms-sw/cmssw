@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 dtDataIntegrityTask = DQMEDAnalyzer('DTDataIntegrityTask',
                                      fedIntegrityFolder = cms.untracked.string('DT/FEDIntegrity'),
+                                     nLinksForFatal     = cms.untracked.int32(15),
                                      processingMode     = cms.untracked.string('Online'),
 				     dtFEDlabel         =  cms.InputTag('dtDataIntegrityUnpacker')
 )
@@ -14,8 +15,10 @@ dtDataIntegrityTaskOffline = DQMEDAnalyzer('DTDataIntegrityROSOffline',
                                      dtROS25Label       = cms.InputTag('dtDataIntegrityUnpacker'),
 )
 
-dtDataIntegrityUrosOffline = DQMEDAnalyzer('DTDataIntegrityUrosOffline',
+dtDataIntegrityUrosOffline = DQMEDAnalyzer('DTDataIntegrityTask',
                                      fedIntegrityFolder = cms.untracked.string('DT/FEDIntegrity'),
+                                     nLinksForFatal     = cms.untracked.int32(15),
+                                     processingMode     = cms.untracked.string('Offline'),
                                      dtFEDlabel         =  cms.InputTag('dtDataIntegrityUnpacker')
 )
 

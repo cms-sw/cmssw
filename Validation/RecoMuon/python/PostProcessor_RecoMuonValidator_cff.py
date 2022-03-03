@@ -34,27 +34,27 @@ postProcessorRecoMuon = DQMEDHarvester("DQMGenericClient",
 )
 
 # for each type monitored
-postProcessorRecoMuonGlb = postProcessorRecoMuon.clone()
-postProcessorRecoMuonGlb.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Glb")
-
-postProcessorRecoMuonTrk = postProcessorRecoMuon.clone()
-postProcessorRecoMuonTrk.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Trk")
-
-postProcessorRecoMuonSta = postProcessorRecoMuon.clone()
-postProcessorRecoMuonSta.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Sta")
-
-postProcessorRecoMuonTgt = postProcessorRecoMuon.clone()
-postProcessorRecoMuonTgt.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Tgt")
-
-postProcessorRecoMuonGlbPF = postProcessorRecoMuon.clone()
-postProcessorRecoMuonGlbPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_GlbPF")
-
-postProcessorRecoMuonTrkPF = postProcessorRecoMuon.clone()
-postProcessorRecoMuonTrkPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_TrkPF")
-
-postProcessorRecoMuonStaPF = postProcessorRecoMuon.clone()
-postProcessorRecoMuonStaPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_StaPF")
-
+postProcessorRecoMuonGlb = postProcessorRecoMuon.clone(
+    subDirs = ["Muons/RecoMuonV/RecoMuon_MuonAssoc_Glb"]
+)
+postProcessorRecoMuonTrk = postProcessorRecoMuon.clone(
+    subDirs = ["Muons/RecoMuonV/RecoMuon_MuonAssoc_Trk"]
+)
+postProcessorRecoMuonSta = postProcessorRecoMuon.clone(
+    subDirs = ["Muons/RecoMuonV/RecoMuon_MuonAssoc_Sta"]
+)
+postProcessorRecoMuonTgt = postProcessorRecoMuon.clone(
+    subDirs = ["Muons/RecoMuonV/RecoMuon_MuonAssoc_Tgt"]
+)
+postProcessorRecoMuonGlbPF = postProcessorRecoMuon.clone(
+    subDirs = ["Muons/RecoMuonV/RecoMuon_MuonAssoc_GlbPF"]
+)
+postProcessorRecoMuonTrkPF = postProcessorRecoMuon.clone(
+    subDirs = ["Muons/RecoMuonV/RecoMuon_MuonAssoc_TrkPF"]
+)
+postProcessorRecoMuonStaPF = postProcessorRecoMuon.clone(
+    subDirs = ["Muons/RecoMuonV/RecoMuon_MuonAssoc_StaPF"]
+)
 #not sure about this one, which types are monitored
 postProcessorRecoMuonComp = DQMEDHarvester(
     "DQMGenericClient",

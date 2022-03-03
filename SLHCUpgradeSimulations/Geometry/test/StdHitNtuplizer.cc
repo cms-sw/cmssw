@@ -1,44 +1,7 @@
-// File: StdHitNtuplizer.cc
-// Description: see StdHitNtuplizer.h
-// Authors: H. Cheung
-//--------------------------------------------------------------
-
-#include "SLHCUpgradeSimulations/Geometry/test/StdHitNtuplizer.h"
-
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-// DataFormats
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/Ref.h"
-
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-
-// Geometry
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+/** \class StdHitNtuplizer
+ * File: StdHitNtuplizer.cc
+ * Authors: H. Cheung
+ ************************************************************/
 
 // For ROOT
 #include <TROOT.h>
@@ -52,6 +15,121 @@
 #include <memory>
 #include <string>
 #include <iostream>
+
+// USER INCLUDES
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+
+class StdHitNtuplizer : public edm::one::EDAnalyzer<> {
+public:
+  explicit StdHitNtuplizer(const edm::ParameterSet& conf);
+  virtual ~StdHitNtuplizer();
+  virtual void beginJob();
+  virtual void endJob();
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& es);
+
+protected:
+  void fillEvt(const edm::Event&);
+  void fillSRecHit(const int subid,
+                   SiStripRecHit2DCollection::DetSet::const_iterator pixeliter,
+                   const GeomDet* theGeom);
+  void fillSRecHit(const int subid,
+                   SiStripMatchedRecHit2DCollection::DetSet::const_iterator pixeliter,
+                   const GeomDet* theGeom);
+  void fillSRecHit(const int subid, const FastTrackerRecHit& hit, const GeomDet* theGeom);
+  //void fillPRecHit(const int subid, SiPixelRecHitCollection::const_iterator pixeliter,
+  //                 const GeomDet* PixGeom);
+  void fillPRecHit(const int subid,
+                   const int layer_num,
+                   SiPixelRecHitCollection::DetSet::const_iterator pixeliter,
+                   const int num_simhit,
+                   std::vector<PSimHit>::const_iterator closest_simhit,
+                   const GeomDet* PixGeom);
+  void fillPRecHit(const int subid, trackingRecHit_iterator pixeliter, const GeomDet* PixGeom);
+
+private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geom_esToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topo_esToken;
+  edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  edm::InputTag src_;
+  edm::InputTag rphiRecHits_;
+  edm::InputTag stereoRecHits_;
+  edm::InputTag matchedRecHits_;
+
+  void init();
+
+  //--- Structures for ntupling:
+  struct evt {
+    int run;
+    int evtnum;
+
+    void init();
+  } evt_, stripevt_;
+
+  struct RecHit {
+    float x;
+    float y;
+    float xx;
+    float xy;
+    float yy;
+    float row;
+    float col;
+    float gx;
+    float gy;
+    float gz;
+    int subid;
+    int layer;
+    int nsimhit;
+    float hx, hy;
+    float tx, ty;
+    float theta, phi;
+
+    void init();
+  } recHit_, striprecHit_;
+
+  TFile* tfile_;
+  TTree* pixeltree_;
+  TTree* striptree_;
+  TTree* pixeltree2_;
+};
 
 using namespace std;
 using namespace edm;
@@ -71,7 +149,7 @@ StdHitNtuplizer::StdHitNtuplizer(edm::ParameterSet const& conf)
       striptree_(0),
       pixeltree2_(0) {}
 
-StdHitNtuplizer::~StdHitNtuplizer() {}
+StdHitNtuplizer::~StdHitNtuplizer() = default;
 
 void StdHitNtuplizer::endJob() {
   std::cout << " StdHitNtuplizer::endJob" << std::endl;

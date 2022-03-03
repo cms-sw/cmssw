@@ -42,6 +42,7 @@
 
 <bin file="phase1PixelTopology_t.cu">
   <use name="HeterogeneousCore/CUDAUtilities"/>
+  <use name="Geometry/CommonTopologies" source_only="1"/>
   <use name="cuda"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>

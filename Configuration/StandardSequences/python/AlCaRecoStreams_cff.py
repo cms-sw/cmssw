@@ -131,10 +131,10 @@ from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
 ###############################################################
 # Timing calibration
 from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_cff import *
-from CalibPPS.TimingCalibration.ALCARECOPPSTimingCalib_cff import *
-from CalibPPS.TimingCalibration.ALCARECOPPSDiamondSampicTimingCalib_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPromptCalibProdPPSTimingCalib_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPromptCalibProdPPSDiamondSampicTimingCalib_cff import *
 # Alignment
-from CalibPPS.AlignmentGlobal.ALCARECOPPSAlignment_cff import *
+from CalibPPS.AlignmentGlobal.ALCARECOPromptCalibProdPPSAlignment_cff import *
 
 ###############################################################
 # nonbeam alcas
@@ -164,6 +164,9 @@ from CalibTracker.SiPixelQuality.ALCARECOPromptCalibProdSiPixel_cff import *
 
 from Calibration.EcalCalibAlgos.ALCARECOPromptCalibProdEcalPedestals_cff import *
 from Calibration.LumiAlCaRecoProducers.ALCARECOPromptCalibProdLumiPCC_cff import *
+
+from Calibration.PPSAlCaRecoProducer.ALCARECOPPSCalMaxTracks_cff import *
+
 ###############################################################
 # hotline skim workflows
 ###############################################################
@@ -243,9 +246,10 @@ pathALCARECOMuAlZMuMuGeneralTracks = cms.Path(seqALCARECOMuAlZMuMuGeneralTracks)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps)
 pathALCARECOMuAlOverlapsGeneralTracks = cms.Path(seqALCARECOMuAlOverlapsGeneralTracks)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
-pathALCARECOPPSTimingCalib = cms.Path(taskALCARECOPPSTimingCalib)
-pathALCARECOPPSDiamondSampicTimingCalib = cms.Path(taskALCARECOPPSDiamondSampicTimingCalib)
-pathALCARECOPPSAlignment = cms.Path(taskALCARECOPPSAlignment)
+pathALCARECOPromptCalibProdPPSTimingCalib = cms.Path(taskALCARECOPromptCalibProdPPSTimingCalib)
+pathALCARECOPromptCalibProdPPSDiamondSampicTimingCalib = cms.Path(taskALCARECOPromptCalibProdPPSDiamondSampicTimingCalib)
+pathALCARECOPromptCalibProdPPSAlignment = cms.Path(taskALCARECOPromptCalibProdPPSAlignment)
+pathALCARECOPPSCalMaxTracks = cms.Path(seqALCARECOPPSCalMaxTracksReco)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHaloDQM)
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps)
 pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo)
@@ -888,30 +892,30 @@ ALCARECOStreamTkAlLAS = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOStreamPPSTimingCalib = cms.FilteredStream(
+ALCARECOStreamPromptCalibProdPPSTimingCalib = cms.FilteredStream(
 	responsible = 'Laurent Forthomme',
-	name = 'PPSTimingCalib',
-	paths  = (pathALCARECOPPSTimingCalib),
-	content = OutALCARECOPPSTimingCalib.outputCommands,
-	selectEvents = OutALCARECOPPSTimingCalib.SelectEvents,
+	name = 'ALCARECOStreamPromptCalibProdPPSTimingCalib',
+	paths  = (pathALCARECOPromptCalibProdPPSTimingCalib),
+	content = OutALCARECOPromptCalibProdPPSTimingCalib.outputCommands,
+	selectEvents = OutALCARECOPromptCalibProdPPSTimingCalib.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 	
-ALCARECOStreamPPSDiamondSampicTimingCalib = cms.FilteredStream(
+ALCARECOStreamPromptCalibProdPPSDiamondSampicTimingCalib = cms.FilteredStream(
 	responsible = 'Christopher Misan',
-	name = 'PPSDiamondSampicTimingCalib',
-	paths  = (pathALCARECOPPSDiamondSampicTimingCalib),
-	content = OutALCARECOPPSDiamondSampicTimingCalib.outputCommands,
-	selectEvents = OutALCARECOPPSDiamondSampicTimingCalib.SelectEvents,
+	name = 'ALCARECOStreamPromptCalibProdPPSDiamondSampicTimingCalib',
+	paths  = (pathALCARECOPromptCalibProdPPSDiamondSampicTimingCalib),
+	content = OutALCARECOPromptCalibProdPPSDiamondSampicTimingCalib.outputCommands,
+	selectEvents = OutALCARECOPromptCalibProdPPSDiamondSampicTimingCalib.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOStreamPPSAlignment = cms.FilteredStream(
+ALCARECOStreamPromptCalibProdPPSAlignment = cms.FilteredStream(
 	responsible = 'Mateusz Kocot',
-	name = 'PPSAlignment',
-	paths = (pathALCARECOPPSAlignment),
-	content = OutALCARECOPPSAlignment.outputCommands,
-	selectEvents = OutALCARECOPPSAlignment.SelectEvents,
+	name = 'PromptCalibProdPPSAlignment',
+	paths = (pathALCARECOPromptCalibProdPPSAlignment),
+	content = OutALCARECOPromptCalibProdPPSAlignment.outputCommands,
+	selectEvents = OutALCARECOPromptCalibProdPPSAlignment.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 )
 
@@ -1025,6 +1029,14 @@ ALCARECOStreamPromptCalibProdLumiPCC = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
+ALCARECOStreamPPSCalMaxTracks = cms.FilteredStream(
+	responsible = 'Leszek Grzanka',
+	name = 'PPSCalMaxTracks',
+	paths  = (pathALCARECOPPSCalMaxTracks),
+	content = OutALCARECOPPSCalMaxTracks.outputCommands,
+	selectEvents = OutALCARECOPPSCalMaxTracks.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
 
 ALCARECOStreamHotline = cms.FilteredStream(
         responsible = 'Dustin Anderson',

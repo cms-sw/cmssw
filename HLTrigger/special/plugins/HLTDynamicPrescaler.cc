@@ -1,23 +1,22 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-class HLTDynamicPrescaler : public edm::EDFilter {
+class HLTDynamicPrescaler : public edm::global::EDFilter<> {
 public:
   explicit HLTDynamicPrescaler(edm::ParameterSet const& configuration);
   ~HLTDynamicPrescaler() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  bool filter(edm::Event& event, edm::EventSetup const& setup) override;
+  bool filter(edm::StreamID, edm::Event& event, edm::EventSetup const& setup) const override;
 
 private:
-  unsigned int m_count;  // event counter
-  unsigned int m_scale;  // accept one event every m_scale, which will change dynamically
+  mutable std::atomic<unsigned int> m_count;  // event counter
 };
 
-HLTDynamicPrescaler::HLTDynamicPrescaler(edm::ParameterSet const& configuration) : m_count(0), m_scale(1) {}
+HLTDynamicPrescaler::HLTDynamicPrescaler(edm::ParameterSet const& configuration) : m_count(0) {}
 
 HLTDynamicPrescaler::~HLTDynamicPrescaler() = default;
 
@@ -27,16 +26,15 @@ void HLTDynamicPrescaler::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.add("hltDynamicPrescaler", desc);
 }
 
-bool HLTDynamicPrescaler::filter(edm::Event& event, edm::EventSetup const& setup) {
-  ++m_count;
+bool HLTDynamicPrescaler::filter(edm::StreamID, edm::Event& event, edm::EventSetup const& setup) const {
+  auto count = ++m_count;
 
-  if (m_count % m_scale)
-    return false;
+  unsigned int dynamicScale = 1;
+  while (count > dynamicScale * 10) {
+    dynamicScale *= 10;
+  }
 
-  if (m_count == m_scale * 10)
-    m_scale = m_count;
-
-  return true;
+  return (0 == count % dynamicScale);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

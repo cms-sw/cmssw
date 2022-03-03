@@ -44,7 +44,7 @@
 class HGCalTimingAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HGCalTimingAnalyzer(edm::ParameterSet const&);
-  ~HGCalTimingAnalyzer() override;
+  ~HGCalTimingAnalyzer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -58,16 +58,20 @@ private:
                         edm::Handle<edm::SimVertexContainer> const& SimVtx);
 
   edm::Service<TFileService> fs_;
+  const std::vector<int> idBeamDef_ = {1001};
   const std::string detectorEE_, detectorBeam_;
+  const bool groupHits_;
+  const double timeUnit_;
+  const bool doTree_;
+  const std::vector<int> idBeams_;
   const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDD_;
   const HGCalDDDConstants* hgcons_;
-  bool doTree_, groupHits_;
-  double timeUnit_;
-  std::vector<int> idBeams_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hitsEE_, tok_hitsBeam_;
-  edm::EDGetTokenT<edm::SimTrackContainer> tok_simTk_;
-  edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
-  edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
+  const edm::InputTag labelGen_;
+  const std::string labelHitEE_, labelHitBeam_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> tok_simTk_;
+  const edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hitsEE_, tok_hitsBeam_;
   TTree* tree_;
   std::vector<uint32_t> simHitCellIdEE_, simHitCellIdBeam_;
   std::vector<float> simHitCellEnEE_, simHitCellEnBeam_;
@@ -78,19 +82,27 @@ private:
 HGCalTimingAnalyzer::HGCalTimingAnalyzer(const edm::ParameterSet& iConfig)
     : detectorEE_(iConfig.getParameter<std::string>("DetectorEE")),
       detectorBeam_(iConfig.getParameter<std::string>("DetectorBeam")),
+      groupHits_(iConfig.getParameter<bool>("GroupHits")),
+      timeUnit_((!groupHits_) ? 0.000001 : (iConfig.getParameter<double>("TimeUnit"))),
+      doTree_(iConfig.getUntrackedParameter<bool>("DoTree", false)),
+      idBeams_((iConfig.getParameter<std::vector<int>>("IDBeams")).empty()
+                   ? idBeamDef_
+                   : (iConfig.getParameter<std::vector<int>>("IDBeams"))),
       tokDDD_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
-          edm::ESInputTag("", detectorEE_))) {
+          edm::ESInputTag("", detectorEE_))),
+      labelGen_(iConfig.getParameter<edm::InputTag>("GeneratorSrc")),
+      labelHitEE_(iConfig.getParameter<std::string>("CaloHitSrcEE")),
+      labelHitBeam_(iConfig.getParameter<std::string>("CaloHitSrcBeam")),
+      tok_hepMC_(consumes<edm::HepMCProduct>(labelGen_)),
+      tok_simTk_(consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"))),
+      tok_simVtx_(consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"))),
+      tok_hitsEE_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", labelHitEE_))),
+      tok_hitsBeam_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", labelHitBeam_))) {
   usesResource("TFileService");
 
   // now do whatever initialization is needed
   // Group hits (if groupHits_ = true) if hits come within timeUnit_
-  groupHits_ = iConfig.getParameter<bool>("GroupHits");
-  timeUnit_ = iConfig.getParameter<double>("TimeUnit");
   // Only look into the beam counters with ID's as in idBeams_
-  idBeams_ = iConfig.getParameter<std::vector<int>>("IDBeams");
-  doTree_ = iConfig.getUntrackedParameter<bool>("DoTree", false);
-  if (!groupHits_)
-    timeUnit_ = 0.000001;
 #ifdef EDM_ML_DEBUG
   std::ostringstream st1;
   st1 << "HGCalTimingAnalyzer:: Group Hits " << groupHits_ << " in " << timeUnit_ << " IdBeam " << idBeams_.size()
@@ -98,30 +110,12 @@ HGCalTimingAnalyzer::HGCalTimingAnalyzer(const edm::ParameterSet& iConfig)
   for (const auto& id : idBeams_)
     st1 << " " << id;
   edm::LogVerbatim("HGCSim") << st1.str();
-#endif
-  if (idBeams_.empty())
-    idBeams_.push_back(1001);
 
-  edm::InputTag tmp0 = iConfig.getParameter<edm::InputTag>("GeneratorSrc");
-  tok_hepMC_ = consumes<edm::HepMCProduct>(tmp0);
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalTimingAnalyzer:: GeneratorSource = " << tmp0;
-#endif
-  tok_simTk_ = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
-  tok_simVtx_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
-  std::string tmp1 = iConfig.getParameter<std::string>("CaloHitSrcEE");
-  tok_hitsEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", tmp1));
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalTimingAnalyzer:: Detector " << detectorEE_ << " with tags " << tmp1;
-#endif
-  tmp1 = iConfig.getParameter<std::string>("CaloHitSrcBeam");
-  tok_hitsBeam_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", tmp1));
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalTimingAnalyzer:: Detector " << detectorBeam_ << " with tags " << tmp1;
+  edm::LogVerbatim("HGCSim") << "HGCalTimingAnalyzer:: GeneratorSource = " << labelGen_;
+  edm::LogVerbatim("HGCSim") << "HGCalTimingAnalyzer:: Detector " << detectorEE_ << " with tags " << labelHitEE_;
+  edm::LogVerbatim("HGCSim") << "HGCalTimingAnalyzer:: Detector " << detectorBeam_ << " with tags " << labelHitBeam_;
 #endif
 }
-
-HGCalTimingAnalyzer::~HGCalTimingAnalyzer() {}
 
 void HGCalTimingAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -167,8 +161,7 @@ void HGCalTimingAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetu
 void HGCalTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 #ifdef EDM_ML_DEBUG
   // Generator input
-  edm::Handle<edm::HepMCProduct> evtMC;
-  iEvent.getByToken(tok_hepMC_, evtMC);
+  const edm::Handle<edm::HepMCProduct>& evtMC = iEvent.getHandle(tok_hepMC_);
   if (!evtMC.isValid()) {
     edm::LogWarning("HGCal") << "no HepMCProduct found";
   } else {
@@ -183,10 +176,8 @@ void HGCalTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 #endif
 
   // Now the Simhits
-  edm::Handle<edm::SimTrackContainer> SimTk;
-  iEvent.getByToken(tok_simTk_, SimTk);
-  edm::Handle<edm::SimVertexContainer> SimVtx;
-  iEvent.getByToken(tok_simVtx_, SimVtx);
+  const edm::Handle<edm::SimTrackContainer>& SimTk = iEvent.getHandle(tok_simTk_);
+  const edm::Handle<edm::SimVertexContainer>& SimVtx = iEvent.getHandle(tok_simVtx_);
   analyzeSimTracks(SimTk, SimVtx);
 
   simHitCellIdEE_.clear();
@@ -196,9 +187,8 @@ void HGCalTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   simHitCellTmEE_.clear();
   simHitCellTmBeam_.clear();
 
-  edm::Handle<edm::PCaloHitContainer> theCaloHitContainers;
   std::vector<PCaloHit> caloHits;
-  iEvent.getByToken(tok_hitsEE_, theCaloHitContainers);
+  const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainers = iEvent.getHandle(tok_hitsEE_);
   if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorEE_ << " has " << theCaloHitContainers->size()
@@ -213,14 +203,14 @@ void HGCalTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 #endif
   }
 
-  iEvent.getByToken(tok_hitsBeam_, theCaloHitContainers);
-  if (theCaloHitContainers.isValid()) {
+  const edm::Handle<edm::PCaloHitContainer>& caloHitContainerBeam = iEvent.getHandle(tok_hitsBeam_);
+  if (caloHitContainerBeam.isValid()) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorBeam_ << " has " << theCaloHitContainers->size()
+    edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorBeam_ << " has " << caloHitContainerBeam->size()
                                << " hits";
 #endif
     caloHits.clear();
-    caloHits.insert(caloHits.end(), theCaloHitContainers->begin(), theCaloHitContainers->end());
+    caloHits.insert(caloHits.end(), caloHitContainerBeam->begin(), caloHitContainerBeam->end());
     analyzeSimHits(1, caloHits);
   } else {
 #ifdef EDM_ML_DEBUG

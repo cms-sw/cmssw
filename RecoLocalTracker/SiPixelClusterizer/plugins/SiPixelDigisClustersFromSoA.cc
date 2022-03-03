@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 
 // local include(s)
 #include "PixelClusterizerBase.h"
@@ -41,6 +42,7 @@ private:
 
   const bool produceDigis_;
   const bool storeDigis_;
+  const bool isPhase2_;
 };
 
 SiPixelDigisClustersFromSoA::SiPixelDigisClustersFromSoA(const edm::ParameterSet& iConfig)
@@ -50,7 +52,8 @@ SiPixelDigisClustersFromSoA::SiPixelDigisClustersFromSoA(const edm::ParameterSet
       clusterThresholds_{iConfig.getParameter<int>("clusterThreshold_layer1"),
                          iConfig.getParameter<int>("clusterThreshold_otherLayers")},
       produceDigis_(iConfig.getParameter<bool>("produceDigis")),
-      storeDigis_(iConfig.getParameter<bool>("produceDigis") & iConfig.getParameter<bool>("storeDigis")) {
+      storeDigis_(iConfig.getParameter<bool>("produceDigis") & iConfig.getParameter<bool>("storeDigis")),
+      isPhase2_(iConfig.getParameter<bool>("isPhase2")) {
   if (produceDigis_)
     digiPutToken_ = produces<edm::DetSetVector<PixelDigi>>();
 }
@@ -62,6 +65,7 @@ void SiPixelDigisClustersFromSoA::fillDescriptions(edm::ConfigurationDescription
   desc.add<int>("clusterThreshold_otherLayers", kSiPixelClusterThresholdsDefaultPhase1.otherLayers);
   desc.add<bool>("produceDigis", true);
   desc.add<bool>("storeDigis", true);
+  desc.add<bool>("isPhase2", false);
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -69,14 +73,14 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
   const auto& digis = iEvent.get(digiGetToken_);
   const uint32_t nDigis = digis.size();
   const auto& ttopo = iSetup.getData(topoToken_);
-
+  auto maxModules = isPhase2_ ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
   std::unique_ptr<edm::DetSetVector<PixelDigi>> collection;
   if (produceDigis_)
     collection = std::make_unique<edm::DetSetVector<PixelDigi>>();
   if (storeDigis_)
-    collection->reserve(gpuClustering::maxNumModules);
+    collection->reserve(maxModules);
   auto outputClusters = std::make_unique<SiPixelClusterCollectionNew>();
-  outputClusters->reserve(gpuClustering::maxNumModules, nDigis / 2);
+  outputClusters->reserve(maxModules, nDigis / 2);
 
   edm::DetSet<PixelDigi>* detDigis = nullptr;
   uint32_t detId = 0;
@@ -113,7 +117,7 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
     for (int32_t ic = 0; ic < nclus + 1; ++ic) {
       auto const& acluster = aclusters[ic];
       // in any case we cannot  go out of sync with gpu...
-      if (acluster.charge < clusterThreshold)
+      if (acluster.charge < clusterThreshold and !isPhase2_)
         edm::LogWarning("SiPixelDigisClustersFromSoA") << "cluster below charge Threshold "
                                                        << "Layer/DetId/clusId " << layer << '/' << detId << '/' << ic
                                                        << " size/charge " << acluster.isize << '/' << acluster.charge;

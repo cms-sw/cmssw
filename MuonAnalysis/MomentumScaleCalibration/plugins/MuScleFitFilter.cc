@@ -5,7 +5,7 @@
 // User include files
 // ------------------
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -33,14 +33,13 @@
 // Class declaration
 // -----------------
 
-class MuScleFitFilter : public edm::EDFilter {
+class MuScleFitFilter : public edm::stream::EDFilter<> {
 public:
   explicit MuScleFitFilter(const edm::ParameterSet&);
   ~MuScleFitFilter() override;
 
 private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override{};
 
   // Member data
   // -----------
@@ -71,7 +70,7 @@ MuScleFitFilter::MuScleFitFilter(const edm::ParameterSet& iConfig) {
   debug = iConfig.getUntrackedParameter<bool>("debug", false);
 
   if (debug)
-    std::cout << "Constructor" << std::endl;
+    edm::LogPrint("MuScleFitFilter") << "Constructor" << std::endl;
 
   // Parameters
   // ----------
@@ -102,8 +101,8 @@ MuScleFitFilter::MuScleFitFilter(const edm::ParameterSet& iConfig) {
 // Destructor
 // ----------
 MuScleFitFilter::~MuScleFitFilter() {
-  std::cout << "Total number of events read    = " << eventsRead << std::endl;
-  std::cout << "Total number of events written = " << eventsWritten << std::endl;
+  edm::LogPrint("MuScleFitFilter") << "Total number of events read    = " << eventsRead << std::endl;
+  edm::LogPrint("MuScleFitFilter") << "Total number of events written = " << eventsWritten << std::endl;
 }
 
 // Member functions
@@ -122,7 +121,7 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
   std::unique_ptr<reco::MuonCollection> muons(new reco::MuonCollection());
 
   if (debug)
-    std::cout << "Looking for muons of the right kind" << std::endl;
+    edm::LogPrint("MuScleFitFilter") << "Looking for muons of the right kind" << std::endl;
 
   if (theMuonType == 1) {  // GlobalMuons
 
@@ -130,10 +129,10 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
     // -------------
     edm::Handle<reco::MuonCollection> glbMuons;
     if (debug)
-      std::cout << "Handle defined" << std::endl;
+      edm::LogPrint("MuScleFitFilter") << "Handle defined" << std::endl;
     event.getByToken(theGlbMuonsToken, glbMuons);
     if (debug)
-      std::cout << "Global muons: " << glbMuons->size() << std::endl;
+      edm::LogPrint("MuScleFitFilter") << "Global muons: " << glbMuons->size() << std::endl;
 
     // Store the muon
     // --------------
@@ -141,8 +140,8 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
     for (glbMuon = glbMuons->begin(); glbMuon != glbMuons->end(); ++glbMuon) {
       muons->push_back(*glbMuon);
       if (debug) {
-        std::cout << "  Reconstructed muon: pT = " << glbMuon->p4().Pt() << "  Eta = " << glbMuon->p4().Eta()
-                  << std::endl;
+        edm::LogPrint("MuScleFitFilter") << "  Reconstructed muon: pT = " << glbMuon->p4().Pt()
+                                         << "  Eta = " << glbMuon->p4().Eta() << std::endl;
       }
     }
   } else if (theMuonType == 2) {  // StandaloneMuons
@@ -152,7 +151,7 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
     edm::Handle<reco::TrackCollection> saMuons;
     event.getByToken(theSaMuonsToken, saMuons);
     if (debug)
-      std::cout << "Standalone muons: " << saMuons->size() << std::endl;
+      edm::LogPrint("MuScleFitFilter") << "Standalone muons: " << saMuons->size() << std::endl;
 
     // Store the muon
     // --------------
@@ -172,7 +171,7 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
     edm::Handle<reco::TrackCollection> tracks;
     event.getByToken(theTracksToken, tracks);
     if (debug)
-      std::cout << "Tracker tracks: " << tracks->size() << std::endl;
+      edm::LogPrint("MuScleFitFilter") << "Tracker tracks: " << tracks->size() << std::endl;
 
     // Store the muon
     // -------------
@@ -186,7 +185,7 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
       muons->push_back(muon);
     }
   } else {
-    std::cout << "Wrong muon type! Aborting." << std::endl;
+    edm::LogPrint("MuScleFitFilter") << "Wrong muon type! Aborting." << std::endl;
     abort();
   }
 
@@ -201,7 +200,8 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
   if (muons->size() >= minimumMuonsNumber) {
     for (muon1 = muons->begin(); muon1 != muons->end(); ++muon1) {
       if (debug) {
-        std::cout << "  Reconstructed muon: pT = " << muon1->p4().Pt() << "  Eta = " << muon1->p4().Eta() << std::endl;
+        edm::LogPrint("MuScleFitFilter") << "  Reconstructed muon: pT = " << muon1->p4().Pt()
+                                         << "  Eta = " << muon1->p4().Eta() << std::endl;
       }
 
       // Recombine all the possible Z from reconstructed muons
@@ -221,25 +221,25 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
               if (*mMinCut == *mMaxCut && *mMaxCut == -1) {
                 resfound = true;
                 if (debug) {
-                  std::cout << "Acceptiong event because mMinCut = " << *mMinCut << " = mMaxCut = " << *mMaxCut
-                            << std::endl;
+                  edm::LogPrint("MuScleFitFilter")
+                      << "Acceptiong event because mMinCut = " << *mMinCut << " = mMaxCut = " << *mMaxCut << std::endl;
                 }
               } else if (Z.mass() > *mMinCut && Z.mass() < *mMaxCut) {
                 resfound = true;
                 if (debug) {
-                  std::cout << "One particle found with mass = " << Z.mass() << std::endl;
+                  edm::LogPrint("MuScleFitFilter") << "One particle found with mass = " << Z.mass() << std::endl;
                 }
               }
             }
           }
         }
       } else if (debug) {
-        std::cout << "Not enough reconstructed muons to make a resonance" << std::endl;
+        edm::LogPrint("MuScleFitFilter") << "Not enough reconstructed muons to make a resonance" << std::endl;
       }
     }
   } else if (debug) {
-    std::cout << "Skipping event because muons = " << muons->size() << " < "
-              << "minimumMuonsNumber(" << minimumMuonsNumber << ")" << std::endl;
+    edm::LogPrint("MuScleFitFilter") << "Skipping event because muons = " << muons->size() << " < "
+                                     << "minimumMuonsNumber(" << minimumMuonsNumber << ")" << std::endl;
   }
 
   // Store the event if it has a dimuon pair with mass within defined boundaries

@@ -27,7 +27,7 @@ Implementation:
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include <string>
 #include <iostream>
@@ -41,7 +41,7 @@ Implementation:
 // class declaration
 //
 
-class EcalFEDWithCRCErrorProducer : public edm::EDProducer {
+class EcalFEDWithCRCErrorProducer : public edm::one::EDProducer<> {
 public:
   explicit EcalFEDWithCRCErrorProducer(const edm::ParameterSet&);
   ~EcalFEDWithCRCErrorProducer() override;

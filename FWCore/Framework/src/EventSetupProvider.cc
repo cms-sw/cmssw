@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/Framework/interface/NumberOfConcurrentIOVs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -38,11 +39,9 @@ namespace edm {
   namespace eventsetup {
 
     EventSetupProvider::EventSetupProvider(ActivityRegistry const* activityRegistry,
-                                           tbb::task_arena* taskArena,
                                            unsigned subProcessIndex,
                                            const PreferredProviderInfo* iInfo)
         : activityRegistry_(activityRegistry),
-          taskArena_(taskArena),
           mustFinishConfiguration_(true),
           subProcessIndex_(subProcessIndex),
           preferredProviderInfo_((nullptr != iInfo) ? (new PreferredProviderInfo(*iInfo)) : nullptr),
@@ -91,6 +90,9 @@ namespace edm {
     void EventSetupProvider::add(std::shared_ptr<DataProxyProvider> iProvider) {
       assert(iProvider.get() != nullptr);
       dataProviders_->push_back(iProvider);
+      if (activityRegistry_) {
+        activityRegistry_->postESModuleRegistrationSignal_(iProvider->description());
+      }
     }
 
     void EventSetupProvider::replaceExisting(std::shared_ptr<DataProxyProvider> dataProxyProvider) {
@@ -698,7 +700,7 @@ namespace edm {
 
       if (needNewEventSetupImpl) {
         //cannot use make_shared because constructor is private
-        eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl(taskArena_));
+        eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl());
         newEventSetupImpl = true;
         eventSetupImpl_->setKeyIters(recordKeys_.begin(), recordKeys_.end());
 

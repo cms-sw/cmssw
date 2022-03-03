@@ -10,7 +10,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.TFileService = cms.Service("TFileService",fileName = cms.string('HFShowerLibrary.root') )
 
 process.photon = cms.EDAnalyzer('HcalForwardLibWriter',
-    HcalForwardLibWriterParameters = cms.PSet(
+    hcalForwardLibWriterParameters = cms.PSet(
 	FileName = cms.FileInPath('SimG4CMS/ShowerLibraryProducer/data/fileList.txt'),
 	Nbins = cms.int32(16),
 	Nshowers = cms.int32(10000),

@@ -37,6 +37,7 @@
 #include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 #include "FWCore/Framework/interface/streamTransitionAsync.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/ensureAvailableAccelerators.h"
 #include "FWCore/Framework/interface/globalTransitionAsync.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -87,7 +88,7 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
-#include "tbb/task.h"
+#include "oneapi/tbb/task.h"
 
 //Used for CPU affinity
 #ifndef __APPLE__
@@ -372,6 +373,7 @@ namespace edm {
       fileModeNoMerge_ = (fileMode == "NOMERGE");
     }
     forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun");
+    ensureAvailableAccelerators(*parameterSet);
 
     //threading
     unsigned int nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfThreads");
@@ -439,6 +441,11 @@ namespace edm {
     printDependencies_ = optionsPset.getUntrackedParameter<bool>("printDependencies");
     deleteNonConsumedUnscheduledModules_ =
         optionsPset.getUntrackedParameter<bool>("deleteNonConsumedUnscheduledModules");
+    //for now, if have a subProcess, don't allow early delete
+    // In the future we should use the SubProcess's 'keep list' to decide what can be kept
+    if (not hasSubProcesses) {
+      branchesToDeleteEarly_ = optionsPset.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly");
+    }
 
     // Now do general initialization
     ScheduleItems items;
@@ -638,6 +645,13 @@ namespace edm {
         }
       }
     }
+    // Initialize after the deletion of non-consumed unscheduled
+    // modules to avoid non-consumed non-run modules to keep the
+    // products unnecessarily alive
+    if (not branchesToDeleteEarly_.empty()) {
+      schedule_->initializeEarlyDelete(branchesToDeleteEarly_, *preg_);
+      decltype(branchesToDeleteEarly_)().swap(branchesToDeleteEarly_);
+    }
 
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
 
@@ -685,7 +699,7 @@ namespace edm {
     actReg_->postBeginJobSignal_();
 
     FinalWaitingTask last;
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
     using namespace edm::waiting_task::chain;
     first([this](auto nextTask) {
       for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
@@ -715,7 +729,7 @@ namespace edm {
     using namespace edm::waiting_task::chain;
 
     edm::FinalWaitingTask waitTask;
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
 
     {
       //handle endStream transitions
@@ -782,10 +796,6 @@ namespace edm {
   int EventProcessor::totalEventsPassed() const { return schedule_->totalEventsPassed(); }
 
   int EventProcessor::totalEventsFailed() const { return schedule_->totalEventsFailed(); }
-
-  void EventProcessor::enableEndPaths(bool active) { schedule_->enableEndPaths(active); }
-
-  bool EventProcessor::endPathsEnabled() const { return schedule_->endPathsEnabled(); }
 
   void EventProcessor::clearCounters() { schedule_->clearCounters(); }
 
@@ -1498,7 +1508,7 @@ namespace edm {
     }
 
     unsigned int streamIndex = 0;
-    tbb::task_arena arena{tbb::task_arena::attach()};
+    oneapi::tbb::task_arena arena{oneapi::tbb::task_arena::attach()};
     for (; streamIndex < preallocations_.numberOfStreams() - 1; ++streamIndex) {
       arena.enqueue([this, streamIndex, h = iHolder]() { handleNextEventForStreamAsync(h, streamIndex); });
     }

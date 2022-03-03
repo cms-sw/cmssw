@@ -27,7 +27,7 @@
 // CMS and user include files:
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 //#include <FWCore/Framework/interface/EventSetup.h>
@@ -87,7 +87,7 @@ unsigned int myCounters::prevrun = 0;
 //
 //
 //
-class Triplet : public edm::EDAnalyzer {
+class Triplet : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit Triplet(const edm::ParameterSet &);
   ~Triplet();
@@ -121,7 +121,7 @@ private:
 
   TH1D *h000, *h001, *h002, *h003, *h004, *h005, *h006, *h007, *h008, *h009;
   TH1D *h010, *h011, *h012, *h013, *h014, *h015, *h016, *h017, *h018, *h019;
-  TH1D *h020, *h021, *h022, *h023, *h024, *h025, *h026, *h027, *h028, *h029;
+  TH1D *h020, *h021, *h022, *h023, *h024, *h025, *h028, *h029;
   TH1D *h030, *h031, *h032, *h033, *h034, *h035, *h036, *h037, *h038, *h039;
   TH1D *h040, *h041, *h042, *h043, *h044, *h045, *h046, *h047, *h048, *h049;
   TH1D *h050, *h051, *h052, *h053, *h054, *h055, *h056, *h057, *h058, *h059;
@@ -176,6 +176,7 @@ private:
 // constructor:
 //
 Triplet::Triplet(const edm::ParameterSet &iConfig) {
+  usesResource(TFileService::kSharedResource);
   bsToken_ = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
   vtxToken_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
   trackToken_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
@@ -187,15 +188,13 @@ Triplet::Triplet(const edm::ParameterSet &iConfig) {
   transientTrackingRecHitBuilderToken_ =
       esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", "WithTrackAngle"));
 
-  std::cout << "Triplet constructed\n";
+  edm::LogPrint("Triplet") << "Triplet constructed\n";
 }
 //
 // destructor:
 //
-Triplet::~Triplet() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+Triplet::~Triplet() = default;
+
 //
 // member functions:
 // method called once each job just before starting event loop
@@ -231,9 +230,6 @@ void Triplet::beginJob() {
   h023 = fs->make<TH1D>("h023", "best vertex x;x [cm]", 100, -0.25, 0.25);
   h024 = fs->make<TH1D>("h024", "best vertex y;y [cm]", 100, -0.25, 0.25);
   h025 = fs->make<TH1D>("h025", "best vertex z;z [cm]", 100, -25, 25);
-
-  //h026 = fs->make<TH1D>("h026", "Sum Et; Sum Et [GeV]", 100, 0, 1000 );
-  //h027 = fs->make<TH1D>("h027", "MET; MET [GeV]", 100, 0, 200 );
 
   h028 = fs->make<TH1D>("h028", "sum track pt; sum track Pt [GeV]", 100, 0, 500);
   h029 = fs->make<TH1D>("h029", "sum primary track charge; sum track charge", 41, -20.5, 20.5);
@@ -399,9 +395,9 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   if (myCounters::prevrun != iEvent.run()) {
     time_t unixZeit = iEvent.time().unixTime();
 
-    cout << "new run " << iEvent.run();
-    cout << ", LumiBlock " << iEvent.luminosityBlock();
-    cout << " taken " << ctime(&unixZeit);  // ctime has endline
+    edm::LogPrint("Triplet") << "new run " << iEvent.run();
+    edm::LogPrint("Triplet") << ", LumiBlock " << iEvent.luminosityBlock();
+    edm::LogPrint("Triplet") << " taken " << ctime(&unixZeit);  // ctime has endline
 
     myCounters::prevrun = iEvent.run();
 
@@ -435,10 +431,10 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     bsP = XYZPoint(rbs->x0(), rbs->y0(), rbs->z0());
 
     if (idbg) {
-      cout << "beam spot x " << rbs->x0();
-      cout << ", y " << rbs->y0();
-      cout << ", z " << rbs->z0();
-      cout << endl;
+      edm::LogPrint("Triplet") << "beam spot x " << rbs->x0();
+      edm::LogPrint("Triplet") << ", y " << rbs->y0();
+      edm::LogPrint("Triplet") << ", z " << rbs->z0();
+      edm::LogPrint("Triplet");
     }
 
   }  // bs valid
@@ -484,13 +480,13 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
         h017->Fill(iVertex->ndof());
 
         if (idbg) {
-          cout << "vertex";
-          cout << ": x " << iVertex->x();
-          cout << ", y " << iVertex->y();
-          cout << ", z " << iVertex->z();
-          cout << ", ndof " << iVertex->ndof();
-          cout << ", sumpt " << iVertex->p4().pt();
-          cout << endl;
+          edm::LogPrint("Triplet") << "vertex";
+          edm::LogPrint("Triplet") << ": x " << iVertex->x();
+          edm::LogPrint("Triplet") << ", y " << iVertex->y();
+          edm::LogPrint("Triplet") << ", z " << iVertex->z();
+          edm::LogPrint("Triplet") << ", ndof " << iVertex->ndof();
+          edm::LogPrint("Triplet") << ", sumpt " << iVertex->p4().pt();
+          edm::LogPrint("Triplet");
         }
 
         if (iVertex->hasRefittedTracks())
@@ -546,19 +542,6 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //}
   //
   //--------------------------------------------------------------------
-  // MET:
-  //
-  //   edm::Handle< edm::View<reco::PFMET> > pfMEThandle;
-  //   iEvent.getByLabel("pfMet", pfMEThandle);
-
-  //   if( !pfMEThandle.failedToGet() && pfMEThandle.isValid()){
-
-  //     h026->Fill( pfMEThandle->front().sumEt() );
-  //     h027->Fill( pfMEThandle->front().et() );
-
-  //   }
-  //
-  //--------------------------------------------------------------------
   // tracks:
   //
   Handle<TrackCollection> tracks;
@@ -577,7 +560,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomToken_);
 
   if (!pDD.isValid()) {
-    cout << "Unable to find TrackerDigiGeometry. Return\n";
+    edm::LogPrint("Triplet") << "Unable to find TrackerDigiGeometry. Return\n";
     return;
   }
   //
@@ -588,78 +571,78 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     uint32_t mysubDet = mydetId.subdetId();
 
     if (idbg) {
-      cout << "Det " << mydetId.det();
-      cout << ", subDet " << mydetId.subdetId();
+      edm::LogPrint("Triplet") << "Det " << mydetId.det();
+      edm::LogPrint("Triplet") << ", subDet " << mydetId.subdetId();
 
       if (mysubDet == PixelSubdetector::PixelBarrel) {
-        cout << ": PXB layer " << tTopo->pxbLayer(mydetId);
-        cout << ", ladder " << tTopo->pxbLadder(mydetId);
-        cout << ", module " << tTopo->pxbModule(mydetId);
-        cout << ", at R " << (*idet)->position().perp();
-        cout << ", F " << (*idet)->position().barePhi() * wt;
-        cout << ", z " << (*idet)->position().z();
-        cout << endl;
-        cout << "rot x";
-        cout << "\t" << (*idet)->rotation().xx();
-        cout << "\t" << (*idet)->rotation().xy();
-        cout << "\t" << (*idet)->rotation().xz();
-        cout << endl;
-        cout << "rot y";
-        cout << "\t" << (*idet)->rotation().yx();
-        cout << "\t" << (*idet)->rotation().yy();
-        cout << "\t" << (*idet)->rotation().yz();
-        cout << endl;
-        cout << "rot z";
-        cout << "\t" << (*idet)->rotation().zx();
-        cout << "\t" << (*idet)->rotation().zy();
-        cout << "\t" << (*idet)->rotation().zz();
-        cout << endl;
+        edm::LogPrint("Triplet") << ": PXB layer " << tTopo->pxbLayer(mydetId);
+        edm::LogPrint("Triplet") << ", ladder " << tTopo->pxbLadder(mydetId);
+        edm::LogPrint("Triplet") << ", module " << tTopo->pxbModule(mydetId);
+        edm::LogPrint("Triplet") << ", at R " << (*idet)->position().perp();
+        edm::LogPrint("Triplet") << ", F " << (*idet)->position().barePhi() * wt;
+        edm::LogPrint("Triplet") << ", z " << (*idet)->position().z();
+        edm::LogPrint("Triplet");
+        edm::LogPrint("Triplet") << "rot x";
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().xx();
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().xy();
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().xz();
+        edm::LogPrint("Triplet");
+        edm::LogPrint("Triplet") << "rot y";
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().yx();
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().yy();
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().yz();
+        edm::LogPrint("Triplet");
+        edm::LogPrint("Triplet") << "rot z";
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().zx();
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().zy();
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().zz();
+        edm::LogPrint("Triplet");
         //
         // normal vector: includes alignment (varies from module to module along z on one ladder)
         // neighbouring ladders alternate with inward/outward orientation
         //
-        cout << "normal";
-        cout << ": x " << (*idet)->surface().normalVector().x();
-        cout << ", y " << (*idet)->surface().normalVector().y();
-        cout << ", z " << (*idet)->surface().normalVector().z();
-        cout << ", f " << (*idet)->surface().normalVector().barePhi() * wt;
+        edm::LogPrint("Triplet") << "normal";
+        edm::LogPrint("Triplet") << ": x " << (*idet)->surface().normalVector().x();
+        edm::LogPrint("Triplet") << ", y " << (*idet)->surface().normalVector().y();
+        edm::LogPrint("Triplet") << ", z " << (*idet)->surface().normalVector().z();
+        edm::LogPrint("Triplet") << ", f " << (*idet)->surface().normalVector().barePhi() * wt;
 
       }  //PXB
 
       if (mysubDet == PixelSubdetector::PixelEndcap) {
-        cout << ": PXD side " << tTopo->pxfSide(mydetId);
-        cout << ", disk " << tTopo->pxfDisk(mydetId);
-        cout << ", blade " << tTopo->pxfBlade(mydetId);
-        cout << ", panel " << tTopo->pxfPanel(mydetId);
-        cout << ", module " << tTopo->pxfModule(mydetId);
-        cout << ", at R " << (*idet)->position().perp();
-        cout << ", F " << (*idet)->position().barePhi() * wt;
-        cout << ", z " << (*idet)->position().z();
-        cout << endl;
-        cout << "rot x";
-        cout << "\t" << (*idet)->rotation().xx();
-        cout << "\t" << (*idet)->rotation().xy();
-        cout << "\t" << (*idet)->rotation().xz();
-        cout << endl;
-        cout << "rot y";
-        cout << "\t" << (*idet)->rotation().yx();
-        cout << "\t" << (*idet)->rotation().yy();
-        cout << "\t" << (*idet)->rotation().yz();
-        cout << endl;
-        cout << "rot z";
-        cout << "\t" << (*idet)->rotation().zx();
-        cout << "\t" << (*idet)->rotation().zy();
-        cout << "\t" << (*idet)->rotation().zz();
-        cout << endl;
-        cout << "normal";
-        cout << ": x " << (*idet)->surface().normalVector().x();
-        cout << ", y " << (*idet)->surface().normalVector().y();
-        cout << ", z " << (*idet)->surface().normalVector().z();
-        cout << ", f " << (*idet)->surface().normalVector().barePhi() * wt;
+        edm::LogPrint("Triplet") << ": PXD side " << tTopo->pxfSide(mydetId);
+        edm::LogPrint("Triplet") << ", disk " << tTopo->pxfDisk(mydetId);
+        edm::LogPrint("Triplet") << ", blade " << tTopo->pxfBlade(mydetId);
+        edm::LogPrint("Triplet") << ", panel " << tTopo->pxfPanel(mydetId);
+        edm::LogPrint("Triplet") << ", module " << tTopo->pxfModule(mydetId);
+        edm::LogPrint("Triplet") << ", at R " << (*idet)->position().perp();
+        edm::LogPrint("Triplet") << ", F " << (*idet)->position().barePhi() * wt;
+        edm::LogPrint("Triplet") << ", z " << (*idet)->position().z();
+        edm::LogPrint("Triplet");
+        edm::LogPrint("Triplet") << "rot x";
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().xx();
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().xy();
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().xz();
+        edm::LogPrint("Triplet");
+        edm::LogPrint("Triplet") << "rot y";
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().yx();
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().yy();
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().yz();
+        edm::LogPrint("Triplet");
+        edm::LogPrint("Triplet") << "rot z";
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().zx();
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().zy();
+        edm::LogPrint("Triplet") << "\t" << (*idet)->rotation().zz();
+        edm::LogPrint("Triplet");
+        edm::LogPrint("Triplet") << "normal";
+        edm::LogPrint("Triplet") << ": x " << (*idet)->surface().normalVector().x();
+        edm::LogPrint("Triplet") << ", y " << (*idet)->surface().normalVector().y();
+        edm::LogPrint("Triplet") << ", z " << (*idet)->surface().normalVector().z();
+        edm::LogPrint("Triplet") << ", f " << (*idet)->surface().normalVector().barePhi() * wt;
 
       }  //PXD
 
-      cout << endl;
+      edm::LogPrint("Triplet");
 
     }  //idbg
 
@@ -707,13 +690,13 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     h043->Fill(pt);
 
     if (idbg) {
-      cout << "Track " << kk;
-      cout << ": pt " << iTrack->pt();
-      cout << ", eta " << iTrack->eta();
-      cout << ", phi " << iTrack->phi() * wt;
-      cout << ", dxyv " << iTrack->dxy(vtxP);
-      cout << ", dzv " << iTrack->dz(vtxP);
-      cout << endl;
+      edm::LogPrint("Triplet") << "Track " << kk;
+      edm::LogPrint("Triplet") << ": pt " << iTrack->pt();
+      edm::LogPrint("Triplet") << ", eta " << iTrack->eta();
+      edm::LogPrint("Triplet") << ", phi " << iTrack->phi() * wt;
+      edm::LogPrint("Triplet") << ", dxyv " << iTrack->dxy(vtxP);
+      edm::LogPrint("Triplet") << ", dzv " << iTrack->dz(vtxP);
+      edm::LogPrint("Triplet");
     }
 
     const reco::HitPattern &hp = iTrack->hitPattern();
@@ -739,7 +722,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
 
     TrajectoryStateClosestToPoint tscp = tTrack.trajectoryStateClosestToPoint(origin);
 
-    //cout<<pt<<" "<<kap<<" ";
+    //edm::LogPrint("Triplet")<<pt<<" "<<kap<<" ";
 
     if (tscp.isValid()) {
       h057->Fill(tscp.referencePoint().x());  // 0.0
@@ -768,7 +751,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     double tmp1 = (kap1 - kap);
     h049->Fill(tmp1);
 
-    //cout<<pt<<" "<<kap<<" "<<tmp<<" "<<charge<<" "<<kap1<<endl;
+    //edm::LogPrint("Triplet")<<pt<<" "<<kap<<" "<<tmp<<" "<<charge<<" "<<kap1<<endl;
 
     double cf = cos(phi);
     double sf = sin(phi);
@@ -850,13 +833,13 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
       if (mysubDet != PixelSubdetector::PixelBarrel)
         continue;
       /*
-	cout << ": PXB layer " << tTopo->pxbLayer(mydetId);
-	cout << ", ladder " << tTopo->pxbLadder(mydetId);
-	cout << ", module " << tTopo->pxbModule(mydetId);
-	cout << ", at R1 " << (*idet)->position().perp();
-	cout << ", F " << (*idet)->position().barePhi()*wt;
-	cout << ", z " << (*idet)->position().z();
-	cout << endl;
+	edm::LogPrint("Triplet") << ": PXB layer " << tTopo->pxbLayer(mydetId);
+	edm::LogPrint("Triplet") << ", ladder " << tTopo->pxbLadder(mydetId);
+	edm::LogPrint("Triplet") << ", module " << tTopo->pxbModule(mydetId);
+	edm::LogPrint("Triplet") << ", at R1 " << (*idet)->position().perp();
+	edm::LogPrint("Triplet") << ", F " << (*idet)->position().barePhi()*wt;
+	edm::LogPrint("Triplet") << ", z " << (*idet)->position().z();
+	edm::LogPrint("Triplet") ;
       */
 
       if (tTopo->pxbLayer(mydetId) == 1) {
@@ -879,12 +862,12 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
         // neighbouring ladders alternate with inward/outward orientation
         //
         /*
-	  cout << "normal";
-	  cout << ": x " << (*idet)->surface().normalVector().x();
-	  cout << ", y " << (*idet)->surface().normalVector().y();
-	  cout << ", z " << (*idet)->surface().normalVector().z();
-	  cout << ", f " << (*idet)->surface().normalVector().barePhi()*wt;
-	  cout << endl;
+	  edm::LogPrint("Triplet") << "normal";
+	  edm::LogPrint("Triplet") << ": x " << (*idet)->surface().normalVector().x();
+	  edm::LogPrint("Triplet") << ", y " << (*idet)->surface().normalVector().y();
+	  edm::LogPrint("Triplet") << ", z " << (*idet)->surface().normalVector().z();
+	  edm::LogPrint("Triplet") << ", f " << (*idet)->surface().normalVector().barePhi()*wt;
+	  edm::LogPrint("Triplet") ;
 	*/
 
         double phiN = (*idet)->surface().normalVector().barePhi();  //normal vector
@@ -979,7 +962,7 @@ void Triplet::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
           // enum Detector { Tracker=1, Muon=2, Ecal=3, Hcal=4, Calo=5 };
 
           if (detId.det() != 1) {
-            cout << "rec hit ID = " << detId.det() << " not in tracker!?!?\n";
+            edm::LogPrint("Triplet") << "rec hit ID = " << detId.det() << " not in tracker!?!?\n";
             continue;
           }
 
@@ -1286,7 +1269,7 @@ void Triplet::triplets(double x1,
   double r3 = sqrt(x3 * x3 + y3 * y3);
 
   if (r3 - r1 < 2.0)
-    cout << "warn r1 = " << r1 << ", r3 = " << r3 << endl;
+    edm::LogPrint("Triplet") << "warn r1 = " << r1 << ", r3 = " << r3;
   //
   // Calculate the centre of the helix in xy-projection that
   // transverses the two spacepoints. The points with the same
@@ -1400,7 +1383,7 @@ void Triplet::triplets(double x1,
 //----------------------------------------------------------------------
 // method called just after ending the event loop:
 //
-void Triplet::endJob() { std::cout << "end of job after " << myCounters::neve << " events.\n"; }
+void Triplet::endJob() { edm::LogPrint("Triplet") << "end of job after " << myCounters::neve << " events.\n"; }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(Triplet);

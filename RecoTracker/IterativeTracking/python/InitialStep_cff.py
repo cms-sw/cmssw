@@ -198,12 +198,12 @@ trackingPhase2PU140.toModify(initialStepChi2Est,
 
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('initialStepTrajectoryFilter')),
+    trajectoryFilter = dict(refToPSet_ = 'initialStepTrajectoryFilter'),
     alwaysUseInvalidHits = True,
     maxCand = 3,
     estimator = 'initialStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7)
+    maxDPhiForLooperReconstruction = 2.0,
+    maxPtForLooperReconstruction = 0.7,
 )
 trackingNoLoopers.toModify(initialStepTrajectoryBuilder,
                            maxPtForLooperReconstruction = 0.0)
@@ -222,11 +222,11 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 _initialStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'initialStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('initialStepTrajectoryBuilder')),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'initialStepTrajectoryBuilder'),
     doSeedingRegionRebuilding = True,
-    useHitsSplitting = True
+    useHitsSplitting = True,
 )
 initialStepTrackCandidates = _initialStepTrackCandidatesCkf.clone()
 
@@ -274,6 +274,9 @@ initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.cl
     Fitter        = 'FlexibleKFFittingSmoother'
 )
 fastSim.toModify(initialStepTracks, TTRHBuilder = 'WithoutRefit')
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(initialStepTracks, TrajectoryInEvent = True)
 
 #vertices
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices as _offlinePrimaryVertices

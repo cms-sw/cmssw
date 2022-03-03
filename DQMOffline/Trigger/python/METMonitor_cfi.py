@@ -15,8 +15,8 @@ hltMETmonitoring.histoPSet.metPSet = cms.PSet(
   xmax  = cms.double(19999.5),
 )
 
-hltMETmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltMETmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
+hltMETmonitoring.met       = cms.InputTag("pfMet") # pfMet
+hltMETmonitoring.jets      = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 hltMETmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltMETmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
@@ -31,9 +31,22 @@ hltMETmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltMETmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltMETmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltMETmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltMETmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltMETmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltMETmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltMETmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
 #hltMETmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_IsoMu27_v*");
 hltMETmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring();
+
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(hltMETmonitoring,
+                         numGenericTriggerEventPSet = dict(stage2 = cms.bool(True),
+                                                           l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           ReadPrescalesFromFile = cms.bool(True)),
+                         denGenericTriggerEventPSet = dict(stage2 = cms.bool(True),
+                                                           l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           ReadPrescalesFromFile = cms.bool(True)))
+

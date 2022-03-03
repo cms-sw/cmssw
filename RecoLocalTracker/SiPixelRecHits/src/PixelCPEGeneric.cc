@@ -55,7 +55,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
 
   // Upgrade means phase 2
-  isUpgrade_ = conf.getParameter<bool>("Upgrade");
+  isPhase2_ = conf.getParameter<bool>("Upgrade");
 
   // For cosmics force the use of simple errors
   if ((DoCosmics_))

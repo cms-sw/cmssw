@@ -123,14 +123,13 @@ hiDetachedQuadStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimato
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiDetachedQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter = dict(refToPSet_ = 'hiDetachedQuadStepTrajectoryFilter'),
-    maxCand = 4,#4 for pp
+    maxCand = 4, # 4 for pp
     estimator = 'hiDetachedQuadStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),#2.0 for pp
+    maxDPhiForLooperReconstruction = 2.0, # 2.0 for pp
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
     # of the outermost Tracker barrel layer (B=3.8T)
-    maxPtForLooperReconstruction = cms.double(0.7),# 0.7 for pp
+    maxPtForLooperReconstruction = 0.7, # 0.7 for pp
     alwaysUseInvalidHits = False
 )
 
@@ -142,11 +141,10 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiDetachedQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'hiDetachedQuadStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
     TrajectoryBuilderPSet = dict(refToPSet_ = 'hiDetachedQuadStepTrajectoryBuilder'),
-    TrajectoryBuilder = 'hiDetachedQuadStepTrajectoryBuilder',
-    clustersToSkip = cms.InputTag('hiDetachedQuadStepClusters'),
+    clustersToSkip = 'hiDetachedQuadStepClusters',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )

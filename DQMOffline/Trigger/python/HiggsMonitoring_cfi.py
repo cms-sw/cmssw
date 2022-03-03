@@ -94,8 +94,8 @@ hltHIGmonitoring.histoPSet.HTBinning2D  = cms.vdouble(0,20,40,70,100,150,200,400
 hltHIGmonitoring.histoPSet.phiBinning2D = cms.vdouble(-3.1416,-2.5132,-1.8849,-1.2566,-0.6283,0,0.6283,1.2566,1.8849,2.5132,3.1416)
 
 
-hltHIGmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltHIGmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
+hltHIGmonitoring.met       = cms.InputTag("pfMet") # pfMet
+hltHIGmonitoring.jets      = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 hltHIGmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltHIGmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 hltHIGmonitoring.vertices  = cms.InputTag("offlinePrimaryVertices")
@@ -122,6 +122,7 @@ hltHIGmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True
 hltHIGmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltHIGmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltHIGmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltHIGmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltHIGmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltHIGmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltHIGmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )

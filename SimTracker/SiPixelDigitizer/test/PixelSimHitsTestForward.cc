@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -62,7 +62,7 @@ using namespace edm;
 // class decleration
 //
 
-class PixelSimHitsTestForward : public edm::EDAnalyzer {
+class PixelSimHitsTestForward : public edm::one::EDAnalyzer<> {
 public:
   explicit PixelSimHitsTestForward(const edm::ParameterSet &);
   ~PixelSimHitsTestForward();

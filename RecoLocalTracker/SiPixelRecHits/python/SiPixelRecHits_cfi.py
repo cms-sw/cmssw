@@ -22,13 +22,21 @@ siPixelRecHitsPreSplitting = SwitchProducerCUDA(
 )
 
 # convert the pixel rechits from legacy to SoA format
-from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi import siPixelRecHitSoAFromLegacy as siPixelRecHitsPreSplittingSoA
+from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi import siPixelRecHitSoAFromLegacy as _siPixelRecHitsPreSplittingSoA
+siPixelRecHitsPreSplittingSoA = _siPixelRecHitsPreSplittingSoA.clone(convertToLegacy=True)
+# phase 2 tracker modifier
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(siPixelRecHitsPreSplittingSoA,
+    isPhase2 = True)
+# modifier used to prompt patatrack pixel tracks reconstruction on cpu
+from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
+pixelNtupletFit.toModify(siPixelRecHitsPreSplitting,
+    cpu = siPixelRecHitsPreSplittingSoA.clone()
+)
 
 siPixelRecHitsPreSplittingTask = cms.Task(
-    # SwitchProducer wrapping the legacy pixel rechit producer
-    siPixelRecHitsPreSplitting,
-    # convert the pixel rechits from legacy to SoA format
-    siPixelRecHitsPreSplittingSoA
+    # SwitchProducer wrapping the legacy pixel rechit producer or the cpu SoA producer
+    siPixelRecHitsPreSplitting
 )
 
 # reconstruct the pixel rechits on the gpu
@@ -39,14 +47,21 @@ siPixelRecHitsPreSplittingCUDA = _siPixelRecHitCUDA.clone(
 
 # transfer the pixel rechits to the host and convert them from SoA
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromCUDA_cfi import siPixelRecHitFromCUDA as _siPixelRecHitFromCUDA
-gpu.toModify(siPixelRecHitsPreSplitting, 
-    cuda = _siPixelRecHitFromCUDA.clone()
-)
 
-gpu.toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
+(gpu & pixelNtupletFit).toModify(siPixelRecHitsPreSplitting,
+    cpu = cms.EDAlias(
+            siPixelRecHitsPreSplittingSoA = cms.VPSet(
+                 cms.PSet(type = cms.string("SiPixelRecHitedmNewDetSetVector")),
+                 cms.PSet(type = cms.string("uintAsHostProduct"))
+             )
+         ),
+    cuda = _siPixelRecHitFromCUDA.clone())
+
+(gpu & pixelNtupletFit).toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
     # reconstruct the pixel rechits on the gpu
     siPixelRecHitsPreSplittingCUDA,
-    # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
+    # producing and converting on cpu
+    siPixelRecHitsPreSplittingSoA,
+    # SwitchProducer wrapping an EDAlias on cpu or the converter from SoA to legacy on gpu
     siPixelRecHitsPreSplittingTask.copy()
 ))
-

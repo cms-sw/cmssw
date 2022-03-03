@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include "CUDADataFormats/Track/interface/TrajectoryStateSoAT.h"
-#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 
 #include "CUDADataFormats/Common/interface/HeterogeneousSoA.h"

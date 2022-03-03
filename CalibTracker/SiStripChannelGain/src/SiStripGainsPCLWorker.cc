@@ -387,9 +387,6 @@ void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
 }
 
 //********************************************************************************//
-void SiStripGainsPCLWorker::beginJob() {}
-
-//********************************************************************************//
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripGainsPCLWorker::checkBookAPVColls(const TrackerGeometry* bareTkGeomPtr,
                                               APVGain::APVGainHistograms& histograms) const {

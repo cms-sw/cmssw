@@ -34,8 +34,20 @@ hltJetMETmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
 
 hltJetMETmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltJetMETmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltJetMETmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltJetMETmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltJetMETmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltJetMETmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltJetMETmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
+
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(hltJetMETmonitoring,
+                         numGenericTriggerEventPSet = dict(stage2 = cms.bool(True),
+                                                           l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           ReadPrescalesFromFile = cms.bool(True)),
+                         denGenericTriggerEventPSet = dict(stage2 = cms.bool(True),
+                                                           l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                           ReadPrescalesFromFile = cms.bool(True)))
 

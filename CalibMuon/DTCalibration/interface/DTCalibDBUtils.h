@@ -25,17 +25,17 @@ public:
   /// Write the payload to the DB using PoolDBOutputService.
   /// New payload are created in the DB, existing payload are appended.
   template <typename T>
-  static void writeToDB(std::string record, T* payload) {
+  static void writeToDB(std::string record, const T& payload) {
     // Write the ttrig object to DB
     edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
     if (dbOutputSvc.isAvailable()) {
       try {
         if (dbOutputSvc->isNewTagRequest(record)) {
           //create mode
-          dbOutputSvc->writeOne<T>(payload, dbOutputSvc->beginOfTime(), record);
+          dbOutputSvc->writeOneIOV<T>(payload, dbOutputSvc->beginOfTime(), record);
         } else {
           //append mode. Note: correct PoolDBESSource must be loaded
-          dbOutputSvc->writeOne<T>(payload, dbOutputSvc->currentTime(), record);
+          dbOutputSvc->writeOneIOV<T>(payload, dbOutputSvc->currentTime(), record);
         }
       } catch (const cond::Exception& er) {
         std::cout << er.what() << std::endl;

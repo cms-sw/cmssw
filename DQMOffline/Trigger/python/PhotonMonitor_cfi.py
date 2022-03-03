@@ -14,8 +14,8 @@ hltPhotonmonitoring.histoPSet.photonPSet = cms.PSet(
   xmin  = cms.double(  0.0),
   xmax  = cms.double(5000),
 )
-hltPhotonmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
-hltPhotonmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
+hltPhotonmonitoring.met       = cms.InputTag("pfMet") # pfMet
+hltPhotonmonitoring.jets      = cms.InputTag("ak4PFJets") # ak4PFJets, ak4PFJetsCHS
 hltPhotonmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltPhotonmonitoring.photons = cms.InputTag("gedPhotons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 
@@ -34,6 +34,7 @@ hltPhotonmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "Tr
 hltPhotonmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_PFJet40_v*","HLT_PFJet60_v*","HLT_PFJet80_v*") # HLT_ZeroBias_v*
 hltPhotonmonitoring.denGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltPhotonmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltPhotonmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltPhotonmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltPhotonmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltPhotonmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )

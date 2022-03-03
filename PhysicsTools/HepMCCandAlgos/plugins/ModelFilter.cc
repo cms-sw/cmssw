@@ -1,10 +1,45 @@
-#include "PhysicsTools/HepMCCandAlgos/interface/ModelFilter.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <cstdlib>
+
+/**
+    The ModelFilter class will select events in a "soup" MC
+    (like the SUSY signal MC) from the comments of LHEEventProduct
+    that match "modelTag". The user can require the value of that
+    parameter to lie between a min and max value.
+ */
+
+namespace edm {
+
+  class ModelFilter : public edm::global::EDFilter<> {
+  public:
+    explicit ModelFilter(const edm::ParameterSet&);
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    typedef std::vector<std::string>::const_iterator comments_const_iterator;
+
+  private:
+    bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+    static std::vector<std::string> split(std::string const& fstring, std::string const& splitter);
+
+    edm::EDGetTokenT<LHEEventProduct> tokenSource_;
+    std::string modelTag_;
+    std::vector<double> parameterMins_;
+    std::vector<double> parameterMaxs_;
+  };
+
+}  // namespace edm
 
 using namespace std;
 using namespace edm;
@@ -16,9 +51,7 @@ ModelFilter::ModelFilter(const edm::ParameterSet& iConfig) {
   parameterMaxs_ = iConfig.getParameter<vector<double> >("parameterMaxs");
 }
 
-ModelFilter::~ModelFilter() {}
-
-bool ModelFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool ModelFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   Handle<LHEEventProduct> product;
   iEvent.getByToken(tokenSource_, product);
   comments_const_iterator comment;
@@ -33,10 +66,10 @@ bool ModelFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       parameters = split(tempString, "_");
 
       if (parameters.size() - 1 != parameterMins_.size()) {
-        std::cout << "Error: number of modeParameters does not match number of parameters in file" << std::endl;
+        edm::LogError("ModelFilter") << "number of modeParameters does not match number of parameters in file";
         return false;
       } else if (parameterMins_.size() != parameterMaxs_.size()) {
-        std::cout << "Error: umber of parameter mins != number parameter maxes" << std::endl;
+        edm::LogError("ModelFilter") << "Error: umber of parameter mins != number parameter maxes";
       } else {
         for (unsigned i = 0; i < parameterMins_.size(); i++) {
           if (parameterMins_[i] > atof(parameters[i + 1].c_str()) ||
@@ -48,25 +81,25 @@ bool ModelFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
     }
   }
-  std::cout << "FAILED: " << *comment << std::endl;
+  edm::LogInfo("ModelFilter") << "FAILED: " << *comment;
   return false;
 }
-void ModelFilter::beginJob() {}
-
-void ModelFilter::endJob() {}
-
 void ModelFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.add<InputTag>("source");
+  desc.add<string>("modelTag");
+  desc.add<vector<double> >("parameterMins");
+  desc.add<vector<double> >("parameterMaxs");
+
   descriptions.addDefault(desc);
 }
-vector<string> ModelFilter::split(string fstring, string splitter) {
+vector<string> ModelFilter::split(string const& fstring, string const& splitter) {
   vector<string> returnVector;
   size_t cursor;
   string beforeSplitter;
   string afterSplitter = fstring;
   if (fstring.find(splitter) == string::npos) {
-    std::cout << "No " << splitter << " found" << std::endl;
+    edm::LogInfo("ModelFilter") << "No " << splitter << " found";
     returnVector.push_back(fstring);
     return returnVector;
   } else {

@@ -1,0 +1,9 @@
+<use name="FWCore/Framework"/>
+<use name="DQMServices/Core"/>
+<use name="HLTrigger/HLTcore"/>
+<use name="boost"/>
+<use name="rootgraphics"/>
+<export>
+  <flags SEALPLUGIN="1"/>
+  <lib name="1"/>
+</export>

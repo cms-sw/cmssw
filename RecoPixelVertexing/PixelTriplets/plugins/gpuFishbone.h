@@ -8,7 +8,7 @@
 #include <limits>
 
 #include "DataFormats/Math/interface/approx_atan2.h"
-#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/VecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 

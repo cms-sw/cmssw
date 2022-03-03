@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
 
-process = cms.Process('SIM')
+process = cms.Process('SIM', hgcaltb)
 
 # import of standard configurations
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -75,10 +76,6 @@ process.VtxSmeared.MinY = -7.5
 process.VtxSmeared.MaxY =  7.5
 process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
-process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
-                             'HGCSensitiveDetector',
-                             'HGCalTB1601SensitiveDetector',
-                             'HcalTB06BeamDetector']
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

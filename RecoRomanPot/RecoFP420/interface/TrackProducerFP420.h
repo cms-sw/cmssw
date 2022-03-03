@@ -3,15 +3,9 @@
 
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FP420Cluster/interface/TrackFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
@@ -62,7 +56,7 @@ public:
   //  //std::vector<TrackFP420> trackFinderVar2(ClusterCollectionFP420 input);
 
   //    std::vector<TrackFP420> trackFinderSophisticated(ClusterCollectionFP420 input);
-  std::vector<TrackFP420> trackFinderSophisticated(edm::Handle<ClusterCollectionFP420> input, int det);
+  std::vector<TrackFP420> trackFinderSophisticated(edm::Handle<ClusterCollectionFP420> input, int det) const;
 
   //  std::vector<TrackFP420> trackFinder3D(ClusterCollectionFP420 input);
 

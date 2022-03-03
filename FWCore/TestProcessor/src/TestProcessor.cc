@@ -32,6 +32,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
+#include "FWCore/Framework/interface/ensureAvailableAccelerators.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
@@ -80,7 +81,7 @@ namespace edm {
     // constructors and destructor
     //
     TestProcessor::TestProcessor(Config const& iConfig, ServiceToken iToken)
-        : globalControl_(tbb::global_control::max_allowed_parallelism, 1),
+        : globalControl_(oneapi::tbb::global_control::max_allowed_parallelism, 1),
           arena_(1),
           espController_(std::make_unique<eventsetup::EventSetupsController>()),
           historyAppender_(std::make_unique<HistoryAppender>()),
@@ -93,6 +94,8 @@ namespace edm {
       auto psetPtr = desc.parameterSet();
 
       validateTopLevelParameterSets(psetPtr.get());
+
+      ensureAvailableAccelerators(*psetPtr);
 
       labelOfTestModule_ = psetPtr->getParameter<std::string>("@moduleToTest");
 

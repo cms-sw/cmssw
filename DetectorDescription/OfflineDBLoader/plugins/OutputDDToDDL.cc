@@ -53,6 +53,7 @@ private:
   int m_rotNumSeed;
   std::string m_fname;
   std::ostream* m_xos;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
 };
 
 bool ddsvaluesCmp::operator()(const DDsvalues_type& sv1, const DDsvalues_type& sv2) const {
@@ -89,6 +90,8 @@ OutputDDToDDL::OutputDDToDDL(const edm::ParameterSet& iConfig) : m_fname() {
   (*m_xos) << "xsi:schemaLocation=\"http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd\">"
            << std::endl;
   (*m_xos) << std::fixed << std::setprecision(18);
+
+  ddToken_ = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
 }
 
 OutputDDToDDL::~OutputDDToDDL() {
@@ -100,8 +103,7 @@ OutputDDToDDL::~OutputDDToDDL() {
 void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   std::cout << "OutputDDToDDL::beginRun" << std::endl;
 
-  edm::ESTransientHandle<DDCompactView> pDD;
-  es.get<IdealGeometryRecord>().get(pDD);
+  edm::ESTransientHandle<DDCompactView> pDD = es.getTransientHandle(ddToken_);
 
   using Graph = DDCompactView::Graph;
   using adjl_iterator = Graph::const_adj_iterator;

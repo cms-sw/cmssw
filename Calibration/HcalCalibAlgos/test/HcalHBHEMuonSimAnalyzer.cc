@@ -58,24 +58,21 @@ private:
   unsigned int matchId(const HcalDetId&, const HcalDetId&);
   double activeLength(const DetId&);
 
-  std::string g4Label_, ebLabel_, eeLabel_;
-  std::string hcLabel_;
-  int verbosity_, maxDepth_;
-  double etaMax_;
+  const std::string g4Label_, ebLabel_, eeLabel_, hcLabel_;
+  const int verbosity_, maxDepth_;
+  const double etaMax_, tMinE_, tMaxE_, tMinH_, tMaxH_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> tok_SimTk_;
+  const edm::EDGetTokenT<edm::SimVertexContainer> tok_SimVtx_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEB_, tok_caloEE_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloHH_;
+
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+
   std::vector<HcalDDDRecConstants::HcalActiveLength> actHB_, actHE_;
-
-  double tMinE_, tMaxE_, tMinH_, tMaxH_;
-  edm::Service<TFileService> fs_;
-  edm::EDGetTokenT<edm::SimTrackContainer> tok_SimTk_;
-  edm::EDGetTokenT<edm::SimVertexContainer> tok_SimVtx_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEB_, tok_caloEE_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloHH_;
-
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
 
   const HcalDDDRecConstants* hcons_;
 
@@ -94,41 +91,34 @@ private:
   double hcalActiveLength_, hcalActiveLengthHot_;
 };
 
-HcalHBHEMuonSimAnalyzer::HcalHBHEMuonSimAnalyzer(const edm::ParameterSet& iConfig) {
-  usesResource(TFileService::kSharedResource);
-
+HcalHBHEMuonSimAnalyzer::HcalHBHEMuonSimAnalyzer(const edm::ParameterSet& iConfig)
+    : g4Label_(iConfig.getParameter<std::string>("ModuleLabel")),
+      ebLabel_(iConfig.getParameter<std::string>("EBCollection")),
+      eeLabel_(iConfig.getParameter<std::string>("EECollection")),
+      hcLabel_(iConfig.getParameter<std::string>("HCCollection")),
+      verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
+      maxDepth_(iConfig.getUntrackedParameter<int>("MaxDepth", 4)),
+      etaMax_(iConfig.getUntrackedParameter<double>("EtaMax", 3.0)),
+      tMinE_(iConfig.getUntrackedParameter<double>("TimeMinCutECAL", -500.)),
+      tMaxE_(iConfig.getUntrackedParameter<double>("TimeMaxCutECAL", 500.)),
+      tMinH_(iConfig.getUntrackedParameter<double>("TimeMinCutHCAL", -500.)),
+      tMaxH_(iConfig.getUntrackedParameter<double>("TimeMaxCutHCAL", 500.)),
+      tok_SimTk_(consumes<edm::SimTrackContainer>(edm::InputTag(g4Label_))),
+      tok_SimVtx_(consumes<edm::SimVertexContainer>(edm::InputTag(g4Label_))),
+      tok_caloEB_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, ebLabel_))),
+      tok_caloEE_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, eeLabel_))),
+      tok_caloHH_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcLabel_))),
+      tok_ddrec_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_caloTopology_(esConsumes<CaloTopology, CaloTopologyRecord>()),
+      tok_topo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
+      tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()) {
   //now do what ever initialization is needed
-  g4Label_ = iConfig.getParameter<std::string>("ModuleLabel");
-  ebLabel_ = iConfig.getParameter<std::string>("EBCollection");
-  eeLabel_ = iConfig.getParameter<std::string>("EECollection");
-  hcLabel_ = iConfig.getParameter<std::string>("HCCollection");
-  verbosity_ = iConfig.getUntrackedParameter<int>("Verbosity", 0);
-  maxDepth_ = iConfig.getUntrackedParameter<int>("MaxDepth", 4);
-  etaMax_ = iConfig.getUntrackedParameter<double>("EtaMax", 3.0);
-  tMinE_ = iConfig.getUntrackedParameter<double>("TimeMinCutECAL", -500.);
-  tMaxE_ = iConfig.getUntrackedParameter<double>("TimeMaxCutECAL", 500.);
-  tMinH_ = iConfig.getUntrackedParameter<double>("TimeMinCutHCAL", -500.);
-  tMaxH_ = iConfig.getUntrackedParameter<double>("TimeMaxCutHCAL", 500.);
-
-  tok_SimTk_ = consumes<edm::SimTrackContainer>(edm::InputTag(g4Label_));
-  tok_SimVtx_ = consumes<edm::SimVertexContainer>(edm::InputTag(g4Label_));
-  tok_caloEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, ebLabel_));
-  tok_caloEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, eeLabel_));
-  tok_caloHH_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcLabel_));
-  if (maxDepth_ > depthMax_)
-    maxDepth_ = depthMax_;
-  else if (maxDepth_ < 1)
-    maxDepth_ = 4;
+  usesResource(TFileService::kSharedResource);
 
   edm::LogVerbatim("HBHEMuon") << "Labels: " << g4Label_ << ":" << ebLabel_ << ":" << eeLabel_ << ":" << hcLabel_
                                << "\nVerbosity " << verbosity_ << " MaxDepth " << maxDepth_ << " Maximum Eta "
                                << etaMax_ << " tMin|tMax " << tMinE_ << ":" << tMaxE_ << ":" << tMinH_ << ":" << tMaxH_;
-
-  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
-  tok_topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
-  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 }
 
 void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -144,18 +134,13 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   bxNumber_ = iEvent.bunchCrossing();
 
   //get Handles to SimTracks and SimHits
-  edm::Handle<edm::SimTrackContainer> SimTk;
-  iEvent.getByToken(tok_SimTk_, SimTk);
-  edm::Handle<edm::SimVertexContainer> SimVtx;
-  iEvent.getByToken(tok_SimVtx_, SimVtx);
+  edm::Handle<edm::SimTrackContainer> SimTk = iEvent.getHandle(tok_SimTk_);
+  edm::Handle<edm::SimVertexContainer> SimVtx = iEvent.getHandle(tok_SimVtx_);
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe
-  edm::Handle<edm::PCaloHitContainer> pcaloeb;
-  iEvent.getByToken(tok_caloEB_, pcaloeb);
-  edm::Handle<edm::PCaloHitContainer> pcaloee;
-  iEvent.getByToken(tok_caloEE_, pcaloee);
-  edm::Handle<edm::PCaloHitContainer> pcalohh;
-  iEvent.getByToken(tok_caloHH_, pcalohh);
+  edm::Handle<edm::PCaloHitContainer> pcaloeb = iEvent.getHandle(tok_caloEB_);
+  edm::Handle<edm::PCaloHitContainer> pcaloee = iEvent.getHandle(tok_caloEE_);
+  edm::Handle<edm::PCaloHitContainer> pcalohh = iEvent.getHandle(tok_caloHH_);
   std::vector<PCaloHit> calohh;
   bool testN(false);
   for (unsigned int k = 1; k < pcalohh->size(); ++k) {
@@ -169,8 +154,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     }
   }
   if (testN) {
-    for (edm::PCaloHitContainer::const_iterator itr = pcalohh->begin(); itr != pcalohh->end(); ++itr) {
-      PCaloHit hit(*itr);
+    for (auto hit : (*(pcalohh.product()))) {
       DetId newid = HcalHitRelabeller::relabel(hit.id(), hcons_);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HBHEMuon") << "Old ID " << std::hex << hit.id() << std::dec << " New " << HcalDetId(newid);
@@ -199,10 +183,10 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   std::vector<double> hcalActiveLength, hcalActiveLengthHot;
 
   // Loop over all SimTracks
-  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
-    if ((std::abs(simTrkItr->type()) == idMuon_) && (simTrkItr->vertIndex() == 0) &&
-        (std::abs(simTrkItr->momentum().eta()) < etaMax_)) {
-      unsigned int thisTrk = simTrkItr->trackId();
+  for (const auto& simTrkItr : (*(SimTk.product()))) {
+    if ((std::abs(simTrkItr.type()) == idMuon_) && (simTrkItr.vertIndex() == 0) &&
+        (std::abs(simTrkItr.momentum().eta()) < etaMax_)) {
+      unsigned int thisTrk = simTrkItr.trackId();
       spr::propagatedTrackDirection trkD = spr::propagateCALO(thisTrk, SimTk, SimVtx, geo, bField, debug);
 
       double eEcal(0), eHcal(0), activeLengthTot(0), activeLengthHotTot(0);
@@ -215,9 +199,9 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
 #ifdef EDM_ML_DEBUG
       if ((verbosity_ % 10) > 0)
-        edm::LogVerbatim("HBHEMuon") << "Track Type " << simTrkItr->type() << " Vertex " << simTrkItr->vertIndex()
-                                     << " Charge " << simTrkItr->charge() << " Momentum " << simTrkItr->momentum().P()
-                                     << ":" << simTrkItr->momentum().eta() << ":" << simTrkItr->momentum().phi()
+        edm::LogVerbatim("HBHEMuon") << "Track Type " << simTrkItr.type() << " Vertex " << simTrkItr.vertIndex()
+                                     << " Charge " << simTrkItr.charge() << " Momentum " << simTrkItr.momentum().P()
+                                     << ":" << simTrkItr.momentum().eta() << ":" << simTrkItr.momentum().phi()
                                      << " ECAL|HCAL " << trkD.okECAL << ":" << trkD.okHCAL << " Point "
                                      << trkD.pointECAL << ":" << trkD.pointHCAL << " Direction "
                                      << trkD.directionECAL.eta() << ":" << trkD.directionECAL.phi() << " | "
@@ -370,7 +354,8 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 }
 
 void HcalHBHEMuonSimAnalyzer::beginJob() {
-  tree_ = fs_->make<TTree>("TREE", "TREE");
+  edm::Service<TFileService> fs;
+  tree_ = fs->make<TTree>("TREE", "TREE");
   tree_->Branch("Run_No", &runNumber_);
   tree_->Branch("Event_No", &eventNumber_);
   tree_->Branch("LumiNumber", &lumiNumber_);

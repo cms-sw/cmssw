@@ -16,8 +16,8 @@
 #include "FWCore/Concurrency/interface/ThreadsController.h"
 
 namespace edm {
-  std::unique_ptr<tbb::global_control> ThreadsController::makeStackSize(size_t iStackSize) {
-    return std::make_unique<tbb::global_control>(tbb::global_control::thread_stack_size, iStackSize);
+  std::unique_ptr<oneapi::tbb::global_control> ThreadsController::makeStackSize(size_t iStackSize) {
+    return std::make_unique<oneapi::tbb::global_control>(oneapi::tbb::global_control::thread_stack_size, iStackSize);
   }
 
 }  // namespace edm

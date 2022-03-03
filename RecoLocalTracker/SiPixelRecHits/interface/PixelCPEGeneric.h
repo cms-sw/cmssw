@@ -87,7 +87,7 @@ protected:
 
   bool DoCosmics_;
   bool IrradiationBiasCorrection_;
-  bool isUpgrade_;
+  bool isPhase2_;
   bool NoTemplateErrorsWhenNoTrkAngles_;
 
   //--- DB Error Parametrization object, new light templates

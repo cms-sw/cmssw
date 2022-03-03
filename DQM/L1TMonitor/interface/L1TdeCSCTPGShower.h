@@ -31,19 +31,33 @@ private:
 
   std::string monitorDir_;
 
-  MonitorElement* lctShowerDataSummary_denom_;
-  MonitorElement* lctShowerDataSummary_num_;
-  MonitorElement* alctShowerDataSummary_denom_;
-  MonitorElement* alctShowerDataSummary_num_;
-  MonitorElement* clctShowerDataSummary_denom_;
-  MonitorElement* clctShowerDataSummary_num_;
+  MonitorElement* lctShowerDataNomSummary_denom_;
+  MonitorElement* lctShowerDataNomSummary_num_;
+  MonitorElement* alctShowerDataNomSummary_denom_;
+  MonitorElement* alctShowerDataNomSummary_num_;
+  MonitorElement* clctShowerDataNomSummary_denom_;
+  MonitorElement* clctShowerDataNomSummary_num_;
 
-  MonitorElement* lctShowerEmulSummary_denom_;
-  MonitorElement* lctShowerEmulSummary_num_;
-  MonitorElement* alctShowerEmulSummary_denom_;
-  MonitorElement* alctShowerEmulSummary_num_;
-  MonitorElement* clctShowerEmulSummary_denom_;
-  MonitorElement* clctShowerEmulSummary_num_;
+  MonitorElement* lctShowerEmulNomSummary_denom_;
+  MonitorElement* lctShowerEmulNomSummary_num_;
+  MonitorElement* alctShowerEmulNomSummary_denom_;
+  MonitorElement* alctShowerEmulNomSummary_num_;
+  MonitorElement* clctShowerEmulNomSummary_denom_;
+  MonitorElement* clctShowerEmulNomSummary_num_;
+
+  MonitorElement* lctShowerDataTightSummary_denom_;
+  MonitorElement* lctShowerDataTightSummary_num_;
+  MonitorElement* alctShowerDataTightSummary_denom_;
+  MonitorElement* alctShowerDataTightSummary_num_;
+  MonitorElement* clctShowerDataTightSummary_denom_;
+  MonitorElement* clctShowerDataTightSummary_num_;
+
+  MonitorElement* lctShowerEmulTightSummary_denom_;
+  MonitorElement* lctShowerEmulTightSummary_num_;
+  MonitorElement* alctShowerEmulTightSummary_denom_;
+  MonitorElement* alctShowerEmulTightSummary_num_;
+  MonitorElement* clctShowerEmulTightSummary_denom_;
+  MonitorElement* clctShowerEmulTightSummary_num_;
 };
 
 #endif

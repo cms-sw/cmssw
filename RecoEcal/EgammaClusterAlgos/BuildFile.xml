@@ -14,6 +14,7 @@
 <use name="Geometry/CaloTopology"/>
 <use name="RecoEgamma/EgammaTools"/>
 <use name="RecoParticleFlow/PFClusterTools"/>
+<use name="HeterogeneousCore/SonicTriton"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>

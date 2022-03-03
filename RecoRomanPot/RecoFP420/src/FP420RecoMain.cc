@@ -11,6 +11,7 @@
 
 #include "RecoRomanPot/RecoFP420/interface/FP420RecoMain.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FP420Cluster/interface/TrackFP420.h"
 #include "DataFormats/FP420Cluster/interface/TrackCollectionFP420.h"
 #include "DataFormats/FP420Cluster/interface/RecoFP420.h"

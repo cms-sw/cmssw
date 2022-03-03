@@ -11,7 +11,7 @@
 
  Usage:
     This class can be used to have tasks wait to be spawned until a resource is available.
- Tasks that want to use the resource are added to the list by calling add(tbb::task*).
+ Tasks that want to use the resource are added to the list by calling add(oneapi::tbb::task*).
  When the resource becomes available one calls doneWaiting() and then any waiting tasks will
  be spawned. If a call to add() is made after doneWaiting() the newly added task will
  immediately be spawned.
@@ -27,7 +27,7 @@
     CalcTask(edm::WaitingTaskList* iWL, Value* v):
     m_waitList(iWL), m_output(v) {}
  
-    tbb::task* execute() {
+    oneapi::tbb::task* execute() {
      std::exception_ptr ptr;
      try {
        *m_output = doCalculation();
@@ -51,15 +51,15 @@
 
  In another part we can start the calculation
  \code
- tbb::task* calc = new(tbb::task::allocate_root()) CalcTask(&waitList,&v);
- tbb::task::spawn(calc);
+ oneapi::tbb::task* calc = new(oneapi::tbb::task::allocate_root()) CalcTask(&waitList,&v);
+ oneapi::tbb::task::spawn(calc);
  \endcode
  
  Finally in some unrelated part of the code we can create tasks that need the calculation
  \code
- tbb::task* t1 = makeTask1(v);
+ oneapi::tbb::task* t1 = makeTask1(v);
  waitList.add(t1);
- tbb::task* t2 = makeTask2(v);
+ oneapi::tbb::task* t2 = makeTask2(v);
  waitList.add(t2);
  \endcode
 
@@ -108,7 +108,7 @@ namespace edm {
        * then be run.
        * Calls to add() and doneWaiting() can safely be done concurrently.
        */
-    void add(tbb::task_group*, WaitingTask*);
+    void add(oneapi::tbb::task_group*, WaitingTask*);
 
     ///Adds task to the waiting list
     /**Calls to add() and doneWaiting() can safely be done concurrently.
@@ -140,7 +140,7 @@ namespace edm {
 
     struct WaitNode {
       WaitingTask* m_task;
-      tbb::task_group* m_group;
+      oneapi::tbb::task_group* m_group;
       std::atomic<WaitNode*> m_next;
       bool m_fromCache;
 
@@ -149,7 +149,7 @@ namespace edm {
       WaitNode* nextNode() const { return m_next; }
     };
 
-    WaitNode* createNode(tbb::task_group* iGroup, WaitingTask* iTask);
+    WaitNode* createNode(oneapi::tbb::task_group* iGroup, WaitingTask* iTask);
 
     // ---------- member data --------------------------------
     std::atomic<WaitNode*> m_head;

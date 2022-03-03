@@ -23,7 +23,7 @@ Test of the EventProcessor class.
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "tbb/global_control.h"
+#include "oneapi/tbb/global_control.h"
 
 #include <regex>
 
@@ -50,7 +50,8 @@ public:
   void setUp() {
     //std::cout << "setting up testeventprocessor" << std::endl;
     if (not m_control) {
-      m_control = std::make_unique<tbb::global_control>(tbb::global_control::max_allowed_parallelism, 1);
+      m_control =
+          std::make_unique<oneapi::tbb::global_control>(oneapi::tbb::global_control::max_allowed_parallelism, 1);
     }
     doInit();
     m_handler = std::make_unique<edm::AssertHandler>();  // propagate_const<T> has no reset() function
@@ -68,7 +69,7 @@ public:
 
 private:
   edm::propagate_const<std::unique_ptr<edm::AssertHandler>> m_handler;
-  edm::propagate_const<std::unique_ptr<tbb::global_control>> m_control;
+  edm::propagate_const<std::unique_ptr<oneapi::tbb::global_control>> m_control;
   void work() {
     //std::cout << "work in testeventprocessor" << std::endl;
     std::string configuration(

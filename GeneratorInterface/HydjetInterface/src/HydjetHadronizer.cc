@@ -1,6 +1,6 @@
 /**
    \brief Interface to the HYDJET generator (since core v. 1.9.1), produces HepMC events
-   \version 2.0
+   \version 2.2
    \authors Camelia Mironov, Andrey Belyaev
 */
 
@@ -35,20 +35,18 @@ using namespace edm;
 using namespace std;
 using namespace gen;
 
-namespace {
-  int convertStatus(int st) {
-    if (st <= 0)
-      return 0;
-    if (st <= 10)
-      return 1;
-    if (st <= 20)
-      return 2;
-    if (st <= 30)
-      return 3;
-    else
-      return st;
-  }
-}  // namespace
+int HydjetHadronizer::convertStatus(int st) {
+  if (st <= 0)
+    return 0;
+  if (st <= 10)
+    return 1;
+  if (st <= 20)
+    return 2;
+  if (st <= 30)
+    return 3;
+  else
+    return st;
+}
 
 const std::vector<std::string> HydjetHadronizer::theSharedResources = {edm::SharedResourceNames::kPythia6,
                                                                        gen::FortranInstance::kFortranInstance};
@@ -64,7 +62,7 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset, edm::ConsumesCollec
       bmax_(pset.getParameter<double>("bMax")),
       bmin_(pset.getParameter<double>("bMin")),
       cflag_(pset.getParameter<int>("cFlag")),
-      embedding_(pset.getParameter<bool>("embeddingMode")),
+      embedding_(pset.getParameter<int>("embeddingMode")),
       comenergy(pset.getParameter<double>("comEnergy")),
       doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
       docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
@@ -286,23 +284,22 @@ bool HydjetHadronizer::generatePartonsAndHadronize() {
     nsub_++;
 
   // event information
-  HepMC::GenEvent* evt = new HepMC::GenEvent();
+  std::unique_ptr<HepMC::GenEvent> evt = std::make_unique<HepMC::GenEvent>();
+  std::unique_ptr<edm::HepMCProduct> HepMCEvt = std::make_unique<edm::HepMCProduct>();
 
   if (nhard_ > 0 || nsoft_ > 0)
-    get_particles(evt);
+    get_particles(evt.get());
 
   evt->set_signal_process_id(pypars.msti[0]);  // type of the process
   evt->set_event_scale(pypars.pari[16]);       // Q^2
-  add_heavy_ion_rec(evt);
+  add_heavy_ion_rec(evt.get());
 
   if (fVertex_) {
     // generate new vertex & apply the shift
-
     // Copy the HepMC::GenEvent
-    std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(evt));
-
+    HepMCEvt = std::make_unique<edm::HepMCProduct>(evt.get());
     HepMCEvt->applyVtxGen(fVertex_);
-    evt = new HepMC::GenEvent((*HepMCEvt->GetEvent()));
+    evt = std::make_unique<HepMC::GenEvent>(*HepMCEvt->GetEvent());
   }
 
   HepMC::HEPEVT_Wrapper::check_hepevt_consistency();
@@ -310,7 +307,7 @@ bool HydjetHadronizer::generatePartonsAndHadronize() {
                           << " Entries number: " << HepMC::HEPEVT_Wrapper::number_entries() << " Max. entries "
                           << HepMC::HEPEVT_Wrapper::max_number_entries() << std::endl;
 
-  event().reset(evt);
+  event() = std::move(evt);
   return true;
 }
 
@@ -324,7 +321,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
   // The SubEvent information is kept by storing indeces of main vertices
   // of subevents as a vector in GenHIEvent.
 
-  LogDebug("SubEvent") << " Number of sub events " << nsub_;
+  LogDebug("Hydjet") << " Number of sub events " << nsub_;
   LogDebug("Hydjet") << " Number of hard events " << hyjpar.njet;
   LogDebug("Hydjet") << " Number of hard particles " << nhard_;
   LogDebug("Hydjet") << " Number of soft particles " << nsoft_;
@@ -338,7 +335,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
   vector<HepMC::GenParticle*> primary_particle(hyjets.nhj);
   vector<HepMC::GenParticle*> particle(hyjets.nhj);
 
-  HepMC::GenVertex* sub_vertices = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), 0);  // just initialization
+  HepMC::GenVertex* sub_vertices = nullptr;  // just initialization
 
   // contain the last index in for each subevent
   vector<int> index(nsub_);
@@ -369,15 +366,19 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
 
     if (hyjets.khj[2][ihy] == 0) {
       primary_particle[ihy] = build_hyjet(ihy, ihy + 1);
-      sub_vertices->add_particle_out(primary_particle[ihy]);
+      if (!sub_vertices)
+        LogError("Hydjet_array") << "##### HYDJET2: Vertex not initialized!";
+      else
+        sub_vertices->add_particle_out(primary_particle[ihy]);
       LogDebug("Hydjet_array") << " ---> " << ihy + 1 << std::endl;
     } else {
       particle[ihy] = build_hyjet(ihy, ihy + 1);
       int mid = hyjets.khj[2][ihy] - hjoffset + index[isub];
       int mid_t = mid;
-      while ((mid < ihy) && (hyjets.khj[1][mid] < 100) && (hyjets.khj[3][mid + 1] - hjoffset + index[isub] == ihy))
+      while (((mid + 1) < ihy) && (std::abs(hyjets.khj[1][mid]) < 100) &&
+             (hyjets.khj[3][mid + 1] - hjoffset + index[isub] <= ihy))
         mid++;
-      if (hyjets.khj[1][mid] < 100)
+      if (std::abs(hyjets.khj[1][mid]) < 100)
         mid = mid_t;
 
       HepMC::GenParticle* mother = primary_particle.at(mid);
@@ -399,9 +400,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
 
       prod_vertex->add_particle_out(particle[ihy]);
       LogDebug("Hydjet_array") << " ---" << mid + 1 << "---> " << ihy + 1 << std::endl;
-
-      if (prods)
-        delete prods;
+      delete prods;
     }
     ihy++;
   }

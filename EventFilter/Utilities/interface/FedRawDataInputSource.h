@@ -8,8 +8,8 @@
 #include <mutex>
 #include <thread>
 
-#include "tbb/concurrent_queue.h"
-#include "tbb/concurrent_vector.h"
+#include "oneapi/tbb/concurrent_queue.h"
+#include "oneapi/tbb/concurrent_vector.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"

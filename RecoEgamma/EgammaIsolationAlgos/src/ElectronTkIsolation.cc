@@ -107,7 +107,11 @@ double ElectronTkIsolation::getPtTracks(const reco::GsfElectron* electron) const
 bool ElectronTkIsolation::passAlgo(const reco::TrackBase& trk) const {
   int algo = trk.algo();
   bool rejAlgo = std::binary_search(algosToReject_.begin(), algosToReject_.end(), algo);
-  return rejAlgo == false;
+  //check also the originalAlgo in case the track is reconstructed by more than one
+  algo = trk.originalAlgo();
+  //reject only if both algo and originalAlgo are not acceptable
+  rejAlgo &= std::binary_search(algosToReject_.begin(), algosToReject_.end(), algo);
+  return !rejAlgo;
 }
 
 void ElectronTkIsolation::setAlgosToReject() {

@@ -8,7 +8,6 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,7 +37,7 @@
 using namespace std;
 
 namespace cms {
-  ClusterizerFP420::ClusterizerFP420(const edm::ParameterSet& conf) : conf_(conf) {
+  ClusterizerFP420::ClusterizerFP420(const edm::ParameterSet& conf) {
     std::string alias(conf.getParameter<std::string>("@module_label"));
 
     produces<ClusterCollectionFP420>().setBranchAlias(alias);
@@ -46,21 +45,18 @@ namespace cms {
     trackerContainers.clear();
     trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
 
-    verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
-    dn0 = conf_.getParameter<int>("NumberFP420Detectors");
-    sn0 = conf_.getParameter<int>("NumberFP420Stations");
-    pn0 = conf_.getParameter<int>("NumberFP420SPlanes");
+    verbosity = conf.getUntrackedParameter<int>("VerbosityLevel");
+    dn0 = conf.getParameter<int>("NumberFP420Detectors");
+    sn0 = conf.getParameter<int>("NumberFP420Stations");
+    pn0 = conf.getParameter<int>("NumberFP420SPlanes");
     rn0 = 7;
     if (verbosity > 0) {
       std::cout << "Creating a ClusterizerFP420" << std::endl;
       std::cout << "ClusterizerFP420: dn0=" << dn0 << " sn0=" << sn0 << " pn0=" << pn0 << " rn0=" << rn0 << std::endl;
     }
 
-    sClusterizerFP420_ = new FP420ClusterMain(conf_, dn0, sn0, pn0, rn0);
+    sClusterizerFP420_ = std::make_unique<FP420ClusterMain>(conf, dn0, sn0, pn0, rn0);
   }
-
-  // Virtual destructor needed.
-  ClusterizerFP420::~ClusterizerFP420() { delete sClusterizerFP420_; }
 
   //Get at the beginning
   void ClusterizerFP420::beginJob() {
@@ -96,7 +92,7 @@ namespace cms {
     //    }
   }
 
-  void ClusterizerFP420::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  void ClusterizerFP420::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
     //  beginJob;
     // be lazy and include the appropriate namespaces
     using namespace edm;
@@ -200,7 +196,7 @@ namespace cms {
     if (verbosity > 0) {
       std::cout << "ClusterizerFP420: OK2" << std::endl;
     }
-    sClusterizerFP420_->run(input, soutput.get(), noise);
+    sClusterizerFP420_->run(input, soutput.get());
 
     if (verbosity > 0) {
       std::cout << "ClusterizerFP420: OK3" << std::endl;

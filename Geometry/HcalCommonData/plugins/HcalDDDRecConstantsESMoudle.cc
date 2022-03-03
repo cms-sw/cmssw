@@ -50,7 +50,7 @@ private:
 
 HcalDDDRecConstantsESModule::HcalDDDRecConstantsESModule(const edm::ParameterSet& iConfig) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "constructing HcalDDDRecConstantsESModule";
+  edm::LogVerbatim("HCalGeom") << "constructing HcalDDDRecConstantsESModule";
 #endif
   auto cc = setWhatProduced(this);
   parToken_ = cc.consumesFrom<HcalParameters, HcalParametersRcd>(edm::ESInputTag{});
@@ -67,7 +67,7 @@ void HcalDDDRecConstantsESModule::fillDescriptions(edm::ConfigurationDescription
 // ------------ method called to produce the data  ------------
 HcalDDDRecConstantsESModule::ReturnType HcalDDDRecConstantsESModule::produce(const HcalRecNumberingRecord& iRecord) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "in HcalDDDRecConstantsESModule::produce";
+  edm::LogVerbatim("HCalGeom") << "in HcalDDDRecConstantsESModule::produce";
 #endif
   const auto& par = iRecord.get(parToken_);
   const auto& hdc = iRecord.get(hdcToken_);

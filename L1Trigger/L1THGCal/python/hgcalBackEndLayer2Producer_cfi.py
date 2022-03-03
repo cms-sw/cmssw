@@ -22,7 +22,6 @@ FH_DR_GROUP = 6
 BH_DR_GROUP = 12
 MAX_LAYERS = 52
 
-
 dr_layerbylayer = ([0] + # no layer 0
         [0.015]*EE_DR_GROUP + [0.020]*EE_DR_GROUP + [0.030]*EE_DR_GROUP + [0.040]*EE_DR_GROUP + # EM
         [0.040]*FH_DR_GROUP + [0.050]*FH_DR_GROUP + # FH
@@ -56,7 +55,6 @@ seed_smoothing_hcal = cms.vdouble(
         1., 1., 1., 1., 1.,
         1., 1., 1., 1., 1.,
         )
-
 
 distance_C3d_params = cms.PSet(type_multicluster=cms.string('dRC3d'),
                                dR_multicluster=cms.double(0.01),
@@ -100,6 +98,10 @@ histoMax_C3d_clustering_params = cms.PSet(dR_multicluster=cms.double(0.03),
                                )
 
 
+histoMax_C3d_sorting_truncation_params = cms.PSet(AlgoName = cms.string('HGCalSortingTruncationWrapper'),
+                                                  maxTCs=cms.uint32(80),
+                               )
+
 # >= V9 samples have a different definition of the dEdx calibrations. To account for it
 # we rescale the thresholds of the clustering seeds
 # (see https://indico.cern.ch/event/806845/contributions/3359859/attachments/1815187/2966402/19-03-20_EGPerf_HGCBE.pdf
@@ -110,6 +112,7 @@ phase2_hgcalV10.toModify(histoMax_C3d_seeding_params,
 
 
 histoMaxVariableDR_C3d_params = histoMax_C3d_clustering_params.clone(
+        AlgoName = cms.string('HGCalHistoClusteringWrapper'),
         dR_multicluster = cms.double(0.),
         dR_multicluster_byLayer_coefficientA = cms.vdouble(dr_layerbylayer),
         dR_multicluster_byLayer_coefficientB = cms.vdouble([0]*(MAX_LAYERS+1))
@@ -140,6 +143,7 @@ histoMax_C3d_params = cms.PSet(
         type_multicluster=cms.string('Histo'),
         histoMax_C3d_clustering_parameters = histoMaxVariableDR_C3d_params.clone(),
         histoMax_C3d_seeding_parameters = histoMax_C3d_seeding_params.clone(),
+        histoMax_C3d_sorting_truncation_parameters = histoMax_C3d_sorting_truncation_params.clone(),
         )
 
 
@@ -175,6 +179,11 @@ hgcalBackEndLayer2Producer = cms.EDProducer(
     ProcessorParameters = be_proc.clone()
     )
 
+hgcalBackEndStage2Producer = cms.EDProducer(
+    "HGCalBackendLayer2Producer",
+    InputCluster = cms.InputTag('hgcalBackEndStage1Producer:HGCalBackendStage1Processor'),
+    ProcessorParameters = be_proc.clone()
+    )
 
 hgcalBackEndLayer2ProducerHFNose = hgcalBackEndLayer2Producer.clone(
     InputCluster = cms.InputTag('hgcalBackEndLayer1ProducerHFNose:HGCalBackendLayer1Processor2DClustering'),

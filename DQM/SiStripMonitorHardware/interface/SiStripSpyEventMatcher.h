@@ -171,7 +171,7 @@ namespace sistrip {
     std::unique_ptr<edm::VectorInputSource> const source_;
     std::unique_ptr<edm::ProcessConfiguration> processConfiguration_;
     std::unique_ptr<edm::EventPrincipal> eventPrincipal_;
-    static const char* mlLabel_;
+    static const char* const mlLabel_;
   };
 
   template <class T>

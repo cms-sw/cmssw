@@ -31,52 +31,33 @@ public:
 
 private:
   // ----------member data ---------------------------
-  edm::ParameterSet pset_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propToken_;
+  const std::string myName_;
+  const std::string propName_;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
-TSCBLBuilderWithPropagatorESProducer::TSCBLBuilderWithPropagatorESProducer(const edm::ParameterSet& p) {
-  //the following line is needed to tell the framework what
-  // data is being produced
-  std::string myName = p.getParameter<std::string>("ComponentName");
-  pset_ = p;
-  setWhatProduced(this, myName);
-
+TSCBLBuilderWithPropagatorESProducer::TSCBLBuilderWithPropagatorESProducer(const edm::ParameterSet& p)
+    : myName_(p.getParameter<std::string>("ComponentName")), propName_(p.getParameter<std::string>("Propagator")) {
+  auto cc = setWhatProduced(this, myName_);
   //now do what ever other initialization is needed
+  propToken_ = cc.consumes(edm::ESInputTag{"", propName_});
 }
 
-TSCBLBuilderWithPropagatorESProducer::~TSCBLBuilderWithPropagatorESProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+TSCBLBuilderWithPropagatorESProducer::~TSCBLBuilderWithPropagatorESProducer() = default;
 
 //
 // member functions
 //
-
 // ------------ method called to produce the data  ------------
 TSCBLBuilderWithPropagatorESProducer::ReturnType TSCBLBuilderWithPropagatorESProducer::produce(
     const TrackingComponentsRecord& iRecord) {
   using namespace edm::es;
-  std::string propname = pset_.getParameter<std::string>("Propagator");
 
-  edm::ESHandle<Propagator> theProp;
-  iRecord.get(propname, theProp);
-
-  const Propagator* pro = theProp.product();
-
+  const Propagator* pro = &iRecord.get(propToken_);
   auto pTSCBLBuilderWithPropagator = std::make_unique<TSCBLBuilderWithPropagator>(*pro);
-
   return pTSCBLBuilderWithPropagator;
 }
 

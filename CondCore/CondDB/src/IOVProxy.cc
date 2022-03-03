@@ -226,13 +226,6 @@ namespace cond {
       return niov > 0;
     }
 
-    //void IOVProxy::reload(){
-    //  if(m_data.get() && !m_data->tagInfo.empty()) {
-    //	if(m_data->range) loadRange( m_data->tag,  m_data->groupLowerIov, m_data->groupHigherIov, m_data->snapshotTime );
-    //	else load( m_data->tag, m_data->snapshotTime, m_data->full );
-    //  }
-    //}
-
     void IOVProxy::resetIOVCache() {
       if (m_data.get()) {
         m_data->groupLowerIov = cond::time::MAX_VAL;
@@ -324,9 +317,7 @@ namespace cond {
       m_data->numberOfQueries++;
     }
 
-    cond::Iov_t IOVProxy::getInterval(cond::Time_t time) { return getInterval(time, cond::time::MAX_VAL); }
-
-    cond::Iov_t IOVProxy::getInterval(cond::Time_t time, cond::Time_t defaultIovSize) {
+    cond::Iov_t IOVProxy::getInterval(cond::Time_t time) {
       if (!m_data.get())
         throwException("No tag has been loaded.", "IOVProxy::getInterval");
       checkTransaction("IOVProxy::getInterval");
@@ -379,17 +370,6 @@ namespace cond {
         retVal.till = tillVal;
       //
       retVal.payloadId = std::get<1>(*iIov);
-      if (retVal.till == cond::time::MAX_VAL && defaultIovSize != cond::time::MAX_VAL) {
-        if (defaultIovSize == 0) {
-          // ???? why?
-          retVal.clear();
-        } else {
-          retVal.since = time;
-          retVal.till = retVal.since + defaultIovSize - 1;
-          if (time > retVal.till)
-            retVal.till = time;
-        }
-      }
       return retVal;
     }
 

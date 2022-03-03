@@ -7,7 +7,7 @@
 #include <atomic>
 #include <map>
 #include <memory>
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 namespace edm::storage {
   class StorageAccount {
@@ -49,7 +49,7 @@ namespace edm::storage {
             timeMin{0.},
             timeMax{0.} {}
 
-      //NOTE: This is needed by tbb::concurrent_unordered_map when it
+      //NOTE: This is needed by oneapi::tbb::concurrent_unordered_map when it
       // is constructing a new one. This would not give correct results
       // if the object being passed were being updated, but that is not
       // the case for operator[]
@@ -116,8 +116,8 @@ namespace edm::storage {
       int m_value;
     };
 
-    typedef tbb::concurrent_unordered_map<int, Counter> OperationStats;
-    typedef tbb::concurrent_unordered_map<int, OperationStats> StorageStats;
+    typedef oneapi::tbb::concurrent_unordered_map<int, Counter> OperationStats;
+    typedef oneapi::tbb::concurrent_unordered_map<int, OperationStats> StorageStats;
 
     static char const* operationName(Operation operation);
     static StorageClassToken tokenForStorageClassName(std::string const& iName);

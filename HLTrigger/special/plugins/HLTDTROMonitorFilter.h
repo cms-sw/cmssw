@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -21,7 +21,7 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HLTDTROMonitorFilter : public edm::EDFilter {
+class HLTDTROMonitorFilter : public edm::global::EDFilter<> {
 public:
   /// Constructor
   HLTDTROMonitorFilter(const edm::ParameterSet&);
@@ -30,12 +30,10 @@ public:
   ~HLTDTROMonitorFilter() override;
 
   // Operations
-  bool filter(edm::Event& event, const edm::EventSetup& setup) override;
+  bool filter(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-protected:
 private:
-  edm::InputTag inputLabel;
   edm::EDGetTokenT<FEDRawDataCollection> inputToken;
 };
 #endif

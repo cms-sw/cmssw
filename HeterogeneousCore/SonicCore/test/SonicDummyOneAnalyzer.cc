@@ -12,7 +12,7 @@ namespace sonictest {
   class SonicDummyOneAnalyzer : public SonicOneEDAnalyzer<DummyClient> {
   public:
     explicit SonicDummyOneAnalyzer(edm::ParameterSet const& cfg)
-        : SonicOneEDAnalyzer<DummyClient>(cfg, "SonicDummyOneAnalyzer"),
+        : SonicOneEDAnalyzer<DummyClient>(cfg),
           input_(cfg.getParameter<int>("input")),
           expected_(cfg.getParameter<int>("expected")) {}
 

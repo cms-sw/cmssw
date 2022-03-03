@@ -119,7 +119,6 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     userFloats = cms.PSet(
         mvaID = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v2Values"),
         mvaID_Fall17V1p1 = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1p1Values"),
-        mvaID_Spring16nonTrigV1 = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values"),
         PFIsoChg = cms.InputTag("isoForPho:PFIsoChg"),
         PFIsoAll = cms.InputTag("isoForPho:PFIsoAll"),
     ),
@@ -132,11 +131,6 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
         cutbasedIDV1_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-loose"),
         cutbasedIDV1_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-medium"),
         cutbasedIDV1_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-tight"),
-        cutID_Spring16_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose"),
-        cutID_Spring16_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium"),
-        cutID_Spring16_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight"),
-        mvaID_Spring16nonTrigV1_WP90 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp90"),
-        mvaID_Spring16nonTrigV1_WP80 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp80"),
     ),
     userInts = cms.PSet(
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForPho"),
@@ -189,7 +183,7 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         cutBased = Var(
             "userInt('cutbasedID_loose')+userInt('cutbasedID_medium')+userInt('cutbasedID_tight')",
             int,
-            doc="cut-based ID bitmap, Fall17V2, (0:fail, 1:loose, 2:medium, 3:tight)"
+            doc="cut-based ID bitmap, Fall17V2, (0:fail, 1:loose, 2:medium, 3:tight)",
         ),
         cutBased_Fall17V1Bitmap = Var(
             "userInt('cutbasedIDV1_loose')+2*userInt('cutbasedIDV1_medium')+4*userInt('cutbasedIDV1_tight')",
@@ -199,7 +193,7 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         vidNestedWPBitmap = Var(
             "userInt('VIDNestedWPBitmap')",
             int,
-            doc="Fall17V2 " + make_bitmapVID_docstring(photon_id_modules_WorkingPoints_nanoAOD)
+            doc="Fall17V2 " + make_bitmapVID_docstring(photon_id_modules_WorkingPoints_nanoAOD),
         ),
         electronVeto = Var("passElectronVeto()",bool,doc="pass electron veto"),
         pixelSeed = Var("hasPixelSeed()",bool,doc="has pixel seed"),
@@ -235,6 +229,17 @@ for modifier in run2_nanoAOD_94X2016,:
     )
 
 for modifier in run2_nanoAOD_94X2016, run2_miniAOD_80XLegacy:
+    modifier.toModify(slimmedPhotonsWithUserData.userFloats,
+        mvaID_Spring16nonTrigV1 = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values"),
+                  )
+    modifier.toModify(slimmedPhotonsWithUserData.userIntFromBools,
+        cutID_Spring16_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose"),
+        cutID_Spring16_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium"),
+        cutID_Spring16_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight"),
+        mvaID_Spring16nonTrigV1_WP90 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp90"),
+        mvaID_Spring16nonTrigV1_WP80 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp80"),
+
+    )
     modifier.toModify(slimmedPhotonsWithUserData.userInts,
         VIDNestedWPBitmap_Spring16V2p2 = cms.InputTag("bitmapVIDForPhoSpring16V2p2"),
     )
@@ -327,8 +332,7 @@ photonMCTask = cms.Task(photonsMCMatchForTable, photonMCTable)
                               VIDNestedWPBitmap = None,)
 (run3_nanoAOD_devel).toModify(slimmedPhotonsWithUserData.userFloats,
                               mvaID = None,
-                              mvaID_Fall17V1p1 = None,
-                              mvaID_Spring16nonTrigV1 = None)
+                              mvaID_Fall17V1p1 = None)
 (run3_nanoAOD_devel).toModify(photonTable.variables,
                               cutBased = None,
                               cutBased_Fall17V1Bitmap = None,

@@ -11,14 +11,16 @@ namespace ticl {
   template <typename TILES>
   class PatternRecognitionbyCLUE3D final : public PatternRecognitionAlgoBaseT<TILES> {
   public:
-    PatternRecognitionbyCLUE3D(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector);
+    PatternRecognitionbyCLUE3D(const edm::ParameterSet& conf, edm::ConsumesCollector);
     ~PatternRecognitionbyCLUE3D() override = default;
 
     void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                         std::vector<Trackster>& result,
                         std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
-    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& result);
+    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters,
+                               const tensorflow::Session*,
+                               std::vector<Trackster>& result);
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
@@ -82,8 +84,8 @@ namespace ticl {
         c.shrink_to_fit();
       }
     }
-    void calculateLocalDensity(const TILES&, const unsigned int layerId, const std::vector<std::pair<int, int>>&);
-    void calculateDistanceToHigher(const TILES&, const unsigned int layerId, const std::vector<std::pair<int, int>>&);
+    void calculateLocalDensity(const TILES&, const int layerId, const std::vector<std::pair<int, int>>&);
+    void calculateDistanceToHigher(const TILES&, const int layerId, const std::vector<std::pair<int, int>>&);
     int findAndAssignTracksters(const TILES&, const std::vector<std::pair<int, int>>&);
     void dumpClusters(const std::vector<std::pair<int, int>>& layerIdx2layerandSoa, const int) const;
     void dumpTracksters(const std::vector<std::pair<int, int>>& layerIdx2layerandSoa,

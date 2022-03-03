@@ -5,18 +5,12 @@ from DQMOffline.JetMET.jetAnalyzer_cff   import *
 from DQMOffline.JetMET.SUSYDQMAnalyzer_cfi  import *
 from RecoMET.METFilters.metFilters_cff import*
 
-HcalStripHaloFilterDQM=HcalStripHaloFilter.clone(
-    taggingMode = cms.bool(True))
-CSCTightHaloFilterDQM=CSCTightHaloFilter.clone(
-    taggingMode = cms.bool(True))
-CSCTightHalo2015FilterDQM=CSCTightHalo2015Filter.clone(
-    taggingMode = cms.bool(True))
-eeBadScFilterDQM=eeBadScFilter.clone(
-    taggingMode = cms.bool(True))
-EcalDeadCellTriggerPrimitiveFilterDQM=EcalDeadCellTriggerPrimitiveFilter.clone(
-    taggingMode = cms.bool(True))
-EcalDeadCellBoundaryEnergyFilterDQM=EcalDeadCellBoundaryEnergyFilter.clone(
-    taggingMode = cms.bool(True)) 
+HcalStripHaloFilterDQM=HcalStripHaloFilter.clone(taggingMode = True)
+CSCTightHaloFilterDQM=CSCTightHaloFilter.clone(taggingMode = True)
+CSCTightHalo2015FilterDQM=CSCTightHalo2015Filter.clone(taggingMode = True)
+eeBadScFilterDQM=eeBadScFilter.clone(taggingMode = True)
+EcalDeadCellTriggerPrimitiveFilterDQM=EcalDeadCellTriggerPrimitiveFilter.clone(taggingMode = True)
+EcalDeadCellBoundaryEnergyFilterDQM=EcalDeadCellBoundaryEnergyFilter.clone(taggingMode = True) 
 
 # empty string: no correction applied
 jetDQMAnalyzerAk4CaloUncleaned.runcosmics = cms.untracked.bool(True)

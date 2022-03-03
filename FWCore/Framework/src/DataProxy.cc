@@ -103,18 +103,8 @@ namespace edm {
                                EventSetupImpl const* iEventSetupImpl,
                                ESParentContext const& iParent) const {
       if (!cacheIsValid()) {
-        auto token = ServiceRegistry::instance().presentToken();
-        std::exception_ptr exceptPtr{};
-        iEventSetupImpl->taskArena()->execute([this, &exceptPtr, &iRecord, &iKey, iEventSetupImpl, token, iParent]() {
-          exceptPtr = syncWait([&, this](WaitingTaskHolder&& holder) {
-            prefetchAsync(std::move(holder), iRecord, iKey, iEventSetupImpl, token, iParent);
-          });
-        });
-        cache_ = getAfterPrefetchImpl();
-        cacheIsValid_.store(true, std::memory_order_release);
-        if (exceptPtr) {
-          std::rethrow_exception(exceptPtr);
-        }
+        throw edm::Exception(errors::LogicError) << "DataProxy::get called without first doing prefetch.\nThis should "
+                                                    "not be able to happen.\nPlease contact framework developers";
       }
       return getAfterPrefetch(iRecord, iKey, iTransiently);
     }

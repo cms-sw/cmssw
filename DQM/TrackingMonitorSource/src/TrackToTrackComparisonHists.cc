@@ -291,18 +291,7 @@ void TrackToTrackComparisonHists::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("dzWRTPvCut", 1e6);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
-  genericTriggerEventPSet.add<bool>("andOr", false);
-  genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi"));
-  genericTriggerEventPSet.add<std::vector<int> >("dcsPartitions", {24, 25, 26, 27, 28, 29});  // 24-27: strip, 28-29
-  genericTriggerEventPSet.add<bool>("andOrDcs", false);
-  genericTriggerEventPSet.add<bool>("errorReplyDcs", true);
-  genericTriggerEventPSet.add<std::string>("dbLabel", "");
-  genericTriggerEventPSet.add<bool>("andOrHlt", true);  // True:=OR; False:=AND
-  genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT"));
-  genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths", {});
-  genericTriggerEventPSet.add<std::string>("hltDBKey", "");
-  genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
-  genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 1);
+  GenericTriggerEventFlag::fillPSetDescription(genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("genericTriggerEventPSet", genericTriggerEventPSet);
 
   edm::ParameterSetDescription histoPSet;

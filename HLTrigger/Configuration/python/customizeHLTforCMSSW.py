@@ -20,7 +20,6 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-
 def customiseHCALFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC using the old readout for the HCAL barel"""
 
@@ -67,7 +66,6 @@ def customiseHCALFor2018Input(process):
 
     # done
     return process
-
 
 def customiseFor2017DtUnpacking(process):
     """Adapt the HLT to run the legacy DT unpacking
@@ -122,6 +120,9 @@ def customisePixelGainForRun2Input(process):
         producer.VCaltoElectronOffset    =  -60
         producer.VCaltoElectronOffset_L1 = -670
 
+    for producer in producers_by_type(process, "SiPixelRawToClusterCUDA"):
+        producer.isRun2 = True
+
     return process
 
 def customisePixelL1ClusterThresholdForRun2Input(process):
@@ -144,14 +145,27 @@ def customiseFor2018Input(process):
     return process
 
 
+
+def customiseFor37046(process):
+    """ Customisation to remove the PrescaleCSVFile parameter from the ParametersetDescription of the L1TGlobalProducer
+     in PR 37046 (https://github.com/cms-sw/cmssw/pull/37046)
+    """
+    for prod in producers_by_type(process, 'L1TGlobalProducer'):
+        if hasattr(prod, 'PrescaleCSVFile'):
+            delattr(prod, 'PrescaleCSVFile')
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
-    
+
     # if the gpu modifier is enabled, make the Pixel, ECAL and HCAL reconstruction offloadable to a GPU
     from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack
     gpu.makeProcessModifier(customizeHLTforPatatrack).apply(process)
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    process = customiseFor37046(process)
 
     return process

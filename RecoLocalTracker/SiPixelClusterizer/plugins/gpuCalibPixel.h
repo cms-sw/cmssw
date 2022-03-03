@@ -7,16 +7,24 @@
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainForHLTonGPU.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 
 namespace gpuCalibPixel {
 
   using gpuClustering::invalidModuleId;
 
+  // calibrationConstants
   // valid for run2
   constexpr float VCaltoElectronGain = 47;         // L2-4: 47 +- 4.7
   constexpr float VCaltoElectronGain_L1 = 50;      // L1:   49.6 +- 2.6
   constexpr float VCaltoElectronOffset = -60;      // L2-4: -60 +- 130
   constexpr float VCaltoElectronOffset_L1 = -670;  // L1:   -670 +- 220
+  constexpr int VCalChargeThreshold = 100;
+  //for phase2
+  constexpr float ElectronPerADCGain = 600;
+  constexpr int8_t Phase2ReadoutMode = 3;
+  constexpr uint16_t Phase2DigiBaseline = 1500;
+  constexpr uint8_t Phase2KinkADC = 8;
 
   template <bool isRun2>
   __global__ void calibDigis(uint16_t* id,
@@ -34,7 +42,7 @@ namespace gpuCalibPixel {
     // zero for next kernels...
     if (0 == first)
       clusModuleStart[0] = moduleStart[0] = 0;
-    for (int i = first; i < gpuClustering::maxNumModules; i += gridDim.x * blockDim.x) {
+    for (int i = first; i < phase1PixelTopology::numberOfModules; i += gridDim.x * blockDim.x) {
       nClustersInModule[i] = 0;
     }
 
@@ -65,6 +73,50 @@ namespace gpuCalibPixel {
       }
     }
   }
+
+  __global__ void calibDigisPhase2(uint16_t* id,
+                                   uint16_t* adc,
+                                   int numElements,
+                                   uint32_t* __restrict__ moduleStart,        // just to zero first
+                                   uint32_t* __restrict__ nClustersInModule,  // just to zero them
+                                   uint32_t* __restrict__ clusModuleStart     // just to zero first
+  ) {
+    int first = blockDim.x * blockIdx.x + threadIdx.x;
+    // zero for next kernels...
+
+    if (0 == first)
+      clusModuleStart[0] = moduleStart[0] = 0;
+    for (int i = first; i < phase2PixelTopology::numberOfModules; i += gridDim.x * blockDim.x) {
+      nClustersInModule[i] = 0;
+    }
+
+    for (int i = first; i < numElements; i += gridDim.x * blockDim.x) {
+      if (invalidModuleId == id[i])
+        continue;
+
+      constexpr int mode = (Phase2ReadoutMode < -1 ? -1 : Phase2ReadoutMode);
+
+      if constexpr (mode < 0)
+        adc[i] = int(adc[i] * ElectronPerADCGain);
+      else {
+        if (adc[i] < Phase2KinkADC)
+          adc[i] = int((adc[i] - 0.5) * ElectronPerADCGain);
+        else {
+          constexpr int8_t dspp = (Phase2ReadoutMode < 10 ? Phase2ReadoutMode : 10);
+          constexpr int8_t ds = int8_t(dspp <= 1 ? 1 : (dspp - 1) * (dspp - 1));
+
+          adc[i] -= (Phase2KinkADC - 1);
+          adc[i] *= ds;
+          adc[i] += (Phase2KinkADC - 1);
+
+          adc[i] = uint16_t((adc[i] + 0.5 * ds) * ElectronPerADCGain);
+        }
+
+        adc[i] += int(Phase2DigiBaseline);
+      }
+    }
+  }
+
 }  // namespace gpuCalibPixel
 
 #endif  // RecoLocalTracker_SiPixelClusterizer_plugins_gpuCalibPixel_h

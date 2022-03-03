@@ -20,7 +20,7 @@ Implementation:
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,10 +47,10 @@ Implementation:
 // class declaration
 //
 
-class L1UpgradeTfMuonTreeProducer : public edm::EDAnalyzer {
+class L1UpgradeTfMuonTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1UpgradeTfMuonTreeProducer(const edm::ParameterSet&);
-  ~L1UpgradeTfMuonTreeProducer() override;
+  ~L1UpgradeTfMuonTreeProducer() override = default;
 
 private:
   void beginJob(void) override;
@@ -80,14 +80,14 @@ private:
   TTree* tree_;
 
   // EDM input tags
-  edm::EDGetTokenT<FEDRawDataCollection> fedToken_;
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> bmtfMuonToken_;
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> bmtf2MuonToken_;
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> omtfMuonToken_;
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> emtfMuonToken_;
+  const edm::EDGetTokenT<FEDRawDataCollection> fedToken_;
+  const edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> bmtfMuonToken_;
+  const edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> bmtf2MuonToken_;
+  const edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> omtfMuonToken_;
+  const edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> emtfMuonToken_;
 
-  edm::EDGetTokenT<L1MuDTChambPhContainer> bmtfPhInputToken_;
-  edm::EDGetTokenT<L1MuDTChambThContainer> bmtfThInputToken_;
+  const edm::EDGetTokenT<L1MuDTChambPhContainer> bmtfPhInputToken_;
+  const edm::EDGetTokenT<L1MuDTChambThContainer> bmtfThInputToken_;
 
   // EDM handles
   edm::Handle<FEDRawDataCollection> feds_;
@@ -95,22 +95,21 @@ private:
   unsigned getAlgoFwVersion();
 };
 
-L1UpgradeTfMuonTreeProducer::L1UpgradeTfMuonTreeProducer(const edm::ParameterSet& iConfig) {
+L1UpgradeTfMuonTreeProducer::L1UpgradeTfMuonTreeProducer(const edm::ParameterSet& iConfig)
+    : fedToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("feds"))),
+      bmtfMuonToken_(
+          consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfMuonToken"))),
+      bmtf2MuonToken_(
+          consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("bmtf2MuonToken"))),
+      omtfMuonToken_(
+          consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("omtfMuonToken"))),
+      emtfMuonToken_(
+          consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("emtfMuonToken"))),
+      bmtfPhInputToken_(
+          consumes<L1MuDTChambPhContainer>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfInputPhMuonToken"))),
+      bmtfThInputToken_(
+          consumes<L1MuDTChambThContainer>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfInputThMuonToken"))) {
   isEMU_ = iConfig.getParameter<bool>("isEMU");
-  fedToken_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("feds"));
-  bmtfMuonToken_ =
-      consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfMuonToken"));
-  bmtf2MuonToken_ =
-      consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("bmtf2MuonToken"));
-  omtfMuonToken_ =
-      consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("omtfMuonToken"));
-  emtfMuonToken_ =
-      consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("emtfMuonToken"));
-  bmtfPhInputToken_ =
-      consumes<L1MuDTChambPhContainer>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfInputPhMuonToken"));
-  bmtfThInputToken_ =
-      consumes<L1MuDTChambThContainer>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfInputThMuonToken"));
-
   maxL1UpgradeTfMuon_ = iConfig.getParameter<unsigned int>("maxL1UpgradeTfMuon");
 
   l1UpgradeBmtfData = l1UpgradeBmtf.getData();
@@ -118,6 +117,8 @@ L1UpgradeTfMuonTreeProducer::L1UpgradeTfMuonTreeProducer(const edm::ParameterSet
   l1UpgradeOmtfData = l1UpgradeOmtf.getData();
   l1UpgradeEmtfData = l1UpgradeEmtf.getData();
   l1UpgradeBmtfInputsData = l1UpgradeBmtfInputs.getData();
+
+  usesResource(TFileService::kSharedResource);
 
   // set up output
   tree_ = fs_->make<TTree>("L1UpgradeTfMuonTree", "L1UpgradeTfMuonTree");
@@ -129,8 +130,6 @@ L1UpgradeTfMuonTreeProducer::L1UpgradeTfMuonTreeProducer(const edm::ParameterSet
   tree_->Branch(
       "L1UpgradeBmtfInputs", "L1Analysis::L1AnalysisBMTFInputsDataFormat", &l1UpgradeBmtfInputsData, 32000, 3);
 }
-
-L1UpgradeTfMuonTreeProducer::~L1UpgradeTfMuonTreeProducer() {}
 
 //
 // member functions
@@ -160,9 +159,10 @@ void L1UpgradeTfMuonTreeProducer::analyze(const edm::Event& iEvent, const edm::E
 
   l1UpgradeBmtf.Reset();
   l1UpgradeKBmtf.Reset();
-  l1UpgradeKBmtf.SetKalmanMuon();
+  l1UpgradeKBmtf.SetRun3Muons();
   l1UpgradeOmtf.Reset();
   l1UpgradeEmtf.Reset();
+  l1UpgradeEmtf.SetRun3Muons();
   l1UpgradeBmtfInputs.Reset();
 
   edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfMuon;

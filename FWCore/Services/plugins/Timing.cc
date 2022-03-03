@@ -73,8 +73,8 @@ namespace edm {
       void preSourceRun(RunIndex);
       void postSourceRun(RunIndex);
 
-      void preOpenFile(std::string const&, bool);
-      void postOpenFile(std::string const&, bool);
+      void preOpenFile(std::string const&);
+      void postOpenFile(std::string const&);
 
       void preModule(ModuleDescription const& md);
       void postModule(ModuleDescription const& md);
@@ -553,9 +553,9 @@ namespace edm {
 
     void Timing::postSourceRun(RunIndex index) { postCommon(); }
 
-    void Timing::preOpenFile(std::string const& lfn, bool b) { pushStack(configuredInTopLevelProcess_); }
+    void Timing::preOpenFile(std::string const& lfn) { pushStack(configuredInTopLevelProcess_); }
 
-    void Timing::postOpenFile(std::string const& lfn, bool b) { postCommon(); }
+    void Timing::postOpenFile(std::string const& lfn) { postCommon(); }
 
     void Timing::preModule(ModuleDescription const&) { pushStack(configuredInTopLevelProcess_); }
 

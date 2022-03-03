@@ -6,7 +6,7 @@ bool SiStripBackPlaneCorrection::putBackPlaneCorrection(const uint32_t& detid, f
   std::map<unsigned int, float>::const_iterator id = m_BPC.find(detid);
   if (id != m_BPC.end()) {
     edm::LogError("SiStripBackPlaneCorrection")
-        << "SiStripBackPlaneCorrection for DetID " << detid << " is already stored. Skippig this put" << std::endl;
+        << "SiStripBackPlaneCorrection for DetID " << detid << " is already stored. Skipping this put" << std::endl;
     return false;
   } else
     m_BPC[detid] = value;
