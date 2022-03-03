@@ -34,6 +34,7 @@ hltJetMETmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
 
 hltJetMETmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltJetMETmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltJetMETmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltJetMETmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltJetMETmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltJetMETmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
