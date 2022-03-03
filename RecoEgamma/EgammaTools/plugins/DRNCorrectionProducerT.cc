@@ -73,9 +73,7 @@ namespace {
   //correction factor is transformed by sigmoid and "logratioflip target"
   float correction(float x) { return exp(-logcorrection(x)); }
 
-  inline float rescale(float x, float min, float range){
-    return (x-min)/range;
-  }
+  inline float rescale(float x, float min, float range) { return (x - min) / range; }
 
   //resolution is transformed by softplus function
   float resolution(float x) { return log(1 + exp(x)); }
@@ -91,7 +89,7 @@ namespace {
 
   const float Z_MIN = -330.0f;
   const float Z_RANGE = 660.0f;
-  
+
   const float NOISE_MIN = 0.9f;
   const float NOISE_RANGE = 3.0f;
 
@@ -101,7 +99,7 @@ namespace {
   const float ES_MIN = 0.0f;
   const float ES_RANGE = 0.1f;
 
-}  //anon namespace for private utility constants and functions
+}  // namespace
 
 template <typename T>
 class DRNCorrectionProducerT : public TritonEDProducer<> {
@@ -135,8 +133,8 @@ private:
 };
 
 template <typename T>
-DRNCorrectionProducerT<T>::DRNCorrectionProducerT(const edm::ParameterSet& iConfig) : 
-      TritonEDProducer<>(iConfig),
+DRNCorrectionProducerT<T>::DRNCorrectionProducerT(const edm::ParameterSet& iConfig)
+    : TritonEDProducer<>(iConfig),
       particleSource_{iConfig.getParameter<edm::InputTag>("particleSource")},
       particleToken_(consumes(particleSource_)),
       rhoName_{iConfig.getParameter<edm::InputTag>("rhoName")},
@@ -148,22 +146,22 @@ DRNCorrectionProducerT<T>::DRNCorrectionProducerT(const edm::ParameterSet& iConf
       EERecHitsToken_(consumes<EcalRecHitCollection>(EERecHitsName_)),
       ESRecHitsToken_(consumes<EcalRecHitCollection>(ESRecHitsName_)),
       pedToken_(esConsumes()),
-      geomToken_(esConsumes()){
+      geomToken_(esConsumes()) {
   produces<edm::ValueMap<std::pair<float, float>>>();
 }
 
 template <typename T>
-bool DRNCorrectionProducerT<T>::isEB(const T& part){
-  return part.superCluster()->seed()->hitsAndFractions().at(0).first.subdetId() == EcalBarrel; 
+bool DRNCorrectionProducerT<T>::isEB(const T& part) {
+  return part.superCluster()->seed()->hitsAndFractions().at(0).first.subdetId() == EcalBarrel;
 }
 
 template <typename T>
-bool DRNCorrectionProducerT<T>::isEE(const T& part){
-  return part.superCluster()->seed()->hitsAndFractions().at(0).first.subdetId() == EcalEndcap; 
+bool DRNCorrectionProducerT<T>::isEE(const T& part) {
+  return part.superCluster()->seed()->hitsAndFractions().at(0).first.subdetId() == EcalEndcap;
 }
 
 template <typename T>
-bool DRNCorrectionProducerT<T>::skip(const T& part){
+bool DRNCorrectionProducerT<T>::skip(const T& part) {
   /*
    * Separated out from acquire() and produce() to ensure that skipping check is identical in both
    * N.B. in MiniAOD there are sometimes particles with no RecHits
@@ -214,13 +212,13 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
   for (auto& part : *particles_) {
     const reco::SuperClusterRef& sc = part.superCluster();
 
-    if(skip(part))
+    if (skip(part))
       continue;
 
     nHitsECAL += sc->hitsAndFractions().size();
 
     for (auto iES = sc->preshowerClustersBegin(); iES != sc->preshowerClustersEnd(); ++iES) {
-       nHitsES += (*iES)->hitsAndFractions().size();
+      nHitsES += (*iES)->hitsAndFractions().size();
     }
 
     ++nValidPart_;
@@ -288,7 +286,7 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
     std::vector<std::pair<DetId, float>> hitsAndFractions = sc->hitsAndFractions();
     EcalRecHitCollection::const_iterator hit;
 
-    if (hitsAndFractions.empty()) //skip particles without RecHits
+    if (hitsAndFractions.empty())  //skip particles without RecHits
       continue;
 
     //iterate over ECAL hits...
@@ -307,8 +305,8 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
       vdataxECAL.push_back(rescale(pos.x(), XY_MIN, XY_RANGE));
       vdataxECAL.push_back(rescale(pos.y(), XY_MIN, XY_RANGE));
       vdataxECAL.push_back(rescale(pos.z(), Z_MIN, Z_RANGE));
-      vdataxECAL.push_back(rescale(hit->energy() * detitr.second, ECAL_MIN, ECAL_RANGE));     
-      vdataxECAL.push_back(rescale(ped->find(detitr.first)->rms(1), NOISE_MIN, NOISE_RANGE));  
+      vdataxECAL.push_back(rescale(hit->energy() * detitr.second, ECAL_MIN, ECAL_RANGE));
+      vdataxECAL.push_back(rescale(ped->find(detitr.first)->rms(1), NOISE_MIN, NOISE_RANGE));
 
       //fill fECAL
       int64_t flagVal = 0;
@@ -357,18 +355,17 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
         vdatafES.push_back(flagVal);
 
         //fill batchES
-        vdataBatchES.push_back(partNum); 
+        vdataBatchES.push_back(partNum);
       }  //end iterate over ES hits
-    } //end iterate over ES clusters
+    }    //end iterate over ES clusters
 
     //fill gx
     vdataGx.push_back(rescale(rho, RHO_MIN, RHO_RANGE));
     vdataGx.push_back(rescale(part.hadronicOverEm(), HOE_MIN, HOE_RANGE));
 
-
     //increment particle number
     ++partNum;
-  }  // end iterate over particles 
+  }  // end iterate over particles
 
   /*
    * Convert input tensors to server data format
@@ -387,7 +384,6 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
 
 template <typename T>
 void DRNCorrectionProducerT<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup, Output const& iOutput) {
-
   particles_ = iEvent.getHandle(particleToken_);
 
   std::vector<std::pair<float, float>> corrections;
@@ -395,24 +391,24 @@ void DRNCorrectionProducerT<T>::produce(edm::Event& iEvent, const edm::EventSetu
 
   //if there are no particles, the fromServer() call will fail
   //but we can just put() an empty valueMap
-  if(nPart_){
+  if (nPart_) {
     const auto& muOut = iOutput.at("mu").fromServer<float>();
     const auto& sigmaOut = iOutput.at("sigma").fromServer<float>();
 
-    unsigned i=0;
+    unsigned i = 0;
     float mu, sigma, Epred, sigmaPred, rawE;
     for (unsigned iPart = 0; iPart < nPart_; ++iPart) {
       const auto& part = particles_->at(iPart);
-      if(!skip(part)) { 
-        mu = correction(muOut[0][0 + 6 * i]); 
-        sigma = resolution(sigmaOut[0][0 + 5 * i]); 
+      if (!skip(part)) {
+        mu = correction(muOut[0][0 + 6 * i]);
+        sigma = resolution(sigmaOut[0][0 + 5 * i]);
         ++i;
 
         rawE = particles_->at(iPart).superCluster()->rawEnergy();
         Epred = mu * rawE;
         sigmaPred = sigma * rawE;
         corrections.emplace_back(Epred, sigmaPred);
-      } else{
+      } else {
         corrections.emplace_back(-1.0f, -1.0f);
       }
     }
