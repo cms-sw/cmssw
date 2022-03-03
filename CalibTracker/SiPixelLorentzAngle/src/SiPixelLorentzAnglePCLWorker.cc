@@ -536,6 +536,24 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
                 iHists.h_drift_depth_adc2_.at(i_index)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
                 iHists.h_drift_depth_noadc_.at(i_index)->Fill(drift, depth, 1.);
                 iHists.h_bySectOccupancy_->Fill(i_index - 1);  // histogram starts at 0
+
+                if (tracker->getDetectorType(subDetID) == TrackerGeometry::ModuleType::Ph1PXB) {
+                  if ((module_ == 3 || module_ == 5) && (layer_ == 3 || layer_ == 4)) {
+                    int i_index_merge = i_index + 1;
+                    iHists.h_drift_depth_adc_.at(i_index_merge)->Fill(drift, depth, pixinfo_.adc[j]);
+                    iHists.h_drift_depth_adc2_.at(i_index_merge)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
+                    iHists.h_drift_depth_noadc_.at(i_index_merge)->Fill(drift, depth, 1.);
+                    iHists.h_bySectOccupancy_->Fill(i_index_merge - 1);
+                  }
+                  if ((module_ == 4 || module_ == 6) && (layer_ == 3 || layer_ == 4)) {
+                    int i_index_merge = i_index - 1;
+                    iHists.h_drift_depth_adc_.at(i_index_merge)->Fill(drift, depth, pixinfo_.adc[j]);
+                    iHists.h_drift_depth_adc2_.at(i_index_merge)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
+                    iHists.h_drift_depth_noadc_.at(i_index_merge)->Fill(drift, depth, 1.);
+                    iHists.h_bySectOccupancy_->Fill(i_index_merge - 1);
+                  }
+                }
+
               } else {
                 int new_index = iHists.nModules_[iHists.nlay - 1] +
                                 (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + DetId_index;
@@ -697,7 +715,7 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
 
   iBooker.setCurrentFolder(fmt::sprintf("%s/SectorMonitoring", folder_.data()));
   iHists.h_bySectOccupancy_ = iBooker.book1D(
-      "h_bySectorOccupancy", "hit occupancy by sector;pixel sector;hits on track", maxSect, -0.5, maxSect + 0.5);
+      "h_bySectorOccupancy", "hit occupancy by sector;pixel sector;hits on track", maxSect, -0.5, maxSect - 0.5);
 
   iBooker.setCurrentFolder(folder_);
   static constexpr double min_depth_ = -100.;
