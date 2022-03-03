@@ -56,6 +56,7 @@ hltNoBPTXmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
 
 hltNoBPTXmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltNoBPTXmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltNoBPTXmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltNoBPTXmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltNoBPTXmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltNoBPTXmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
