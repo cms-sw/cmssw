@@ -76,14 +76,14 @@ private:
   template <typename T>
   struct partVars {
     edm::InputTag source;
-    edm::EDGetTokenT<edm::View<T>> token; 
+    edm::EDGetTokenT<edm::View<T>> token;
     edm::View<T> particles;
-    
+
     edm::InputTag correctionsSource;
     edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> correctionsToken;
     edm::ValueMap<std::pair<float, float>> corrections;
 
-    partVars(const edm::ParameterSet& config, edm::ConsumesCollector& cc){
+    partVars(const edm::ParameterSet& config, edm::ConsumesCollector& cc) {
       source = config.getParameter<edm::InputTag>("source");
       token = cc.consumes(source);
 
@@ -101,45 +101,43 @@ private:
 };
 
 EGRegressionModifierDRN::EGRegressionModifierDRN(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
-    : ModifyObjectValueBase(conf){
+    : ModifyObjectValueBase(conf) {
+  if (conf.exists("patPhotons")) {
+    patPhotons_ = std::make_unique<partVars<pat::Photon>>(conf.getParameterSet("patPhotons"), cc);
+  }
 
-    if (conf.exists("patPhotons")){
-      patPhotons_ = std::make_unique<partVars<pat::Photon>>(conf.getParameterSet("patPhotons"), cc);
-    }
+  if (conf.exists("gedPhotons")) {
+    gedPhotons_ = std::make_unique<partVars<reco::Photon>>(conf.getParameterSet("gedPhotons"), cc);
+  }
 
-    if (conf.exists("gedPhotons")){
-      gedPhotons_ = std::make_unique<partVars<reco::Photon>>(conf.getParameterSet("gedPhotons"), cc);
-    }
+  if (conf.exists("patElectrons")) {
+    patElectrons_ = std::make_unique<partVars<pat::Electron>>(conf.getParameterSet("patElectrons"), cc);
+  }
 
-    if (conf.exists("patElectrons")){
-      patElectrons_ = std::make_unique<partVars<pat::Electron>>(conf.getParameterSet("patElectrons"), cc);
-    }
-
-    if (conf.exists("gsfElectrons")){
-      gsfElectrons_ = std::make_unique<partVars<reco::GsfElectron>>(conf.getParameterSet("gsfElectrons"), cc);
-    }
+  if (conf.exists("gsfElectrons")) {
+    gsfElectrons_ = std::make_unique<partVars<reco::GsfElectron>>(conf.getParameterSet("gsfElectrons"), cc);
+  }
 }
 
 EGRegressionModifierDRN::~EGRegressionModifierDRN() {}
 
 void EGRegressionModifierDRN::setEvent(const edm::Event& evt) {
-
-  if (patElectrons_){
+  if (patElectrons_) {
     patElectrons_->particles = evt.get(patElectrons_->token);
     patElectrons_->corrections = evt.get(patElectrons_->correctionsToken);
   }
 
-  if (patPhotons_){
+  if (patPhotons_) {
     patPhotons_->particles = evt.get(patPhotons_->token);
     patPhotons_->corrections = evt.get(patPhotons_->correctionsToken);
   }
 
-  if (gsfElectrons_){
+  if (gsfElectrons_) {
     gsfElectrons_->particles = evt.get(gsfElectrons_->token);
     gsfElectrons_->corrections = evt.get(gsfElectrons_->correctionsToken);
   }
 
-  if (gedPhotons_){
+  if (gedPhotons_) {
     gedPhotons_->particles = evt.get(gedPhotons_->token);
     gedPhotons_->corrections = evt.get(gedPhotons_->correctionsToken);
   }
@@ -148,75 +146,75 @@ void EGRegressionModifierDRN::setEvent(const edm::Event& evt) {
 void EGRegressionModifierDRN::setEventContent(const edm::EventSetup& iSetup) {}
 
 void EGRegressionModifierDRN::modifyObject(reco::GsfElectron& ele) const {
-  if(!gsfElectrons_)
+  if (!gsfElectrons_)
     return;
 
   const std::pair<float, float>& correction = gsfElectrons_->getCorrection(ele);
 
-  if(correction.first <= 0)
+  if (correction.first <= 0)
     return;
 
   ele.setCorrectedEcalEnergy(correction.first, true);
   ele.setCorrectedEcalEnergyError(correction.second);
 
-  throw cms::Exception("EGRegressionModifierDRN")  
-    << "Electron energy corrections not fully implemented yet:" << std::endl 
-    << "Still need E/p combination" << std::endl
-    << "Do not enable DRN for electrons" << std::endl;
+  throw cms::Exception("EGRegressionModifierDRN")
+      << "Electron energy corrections not fully implemented yet:" << std::endl
+      << "Still need E/p combination" << std::endl
+      << "Do not enable DRN for electrons" << std::endl;
 
-  const std::pair<float, float> trackerCombo(1.0, 1.0); //TODO: compute E/p combination
+  const std::pair<float, float> trackerCombo(1.0, 1.0);  //TODO: compute E/p combination
   const math::XYZTLorentzVector newP4 = ele.p4() * trackerCombo.first / ele.p4().t();
   ele.correctMomentum(newP4, ele.trackMomentumError(), trackerCombo.second);
 }
 
 void EGRegressionModifierDRN::modifyObject(pat::Electron& ele) const {
-  if(!patElectrons_)
+  if (!patElectrons_)
     return;
 
   const std::pair<float, float>& correction = patElectrons_->getCorrection(ele);
 
-  if(correction.first <= 0)
+  if (correction.first <= 0)
     return;
 
   ele.setCorrectedEcalEnergy(correction.first, true);
   ele.setCorrectedEcalEnergyError(correction.second);
 
-  throw cms::Exception("EGRegressionModifierDRN")  
-    << "Electron energy corrections not fully implemented yet:" << std::endl 
-    << "Still need E/p combination" << std::endl
-    << "Do not enable DRN for electrons" << std::endl;
+  throw cms::Exception("EGRegressionModifierDRN")
+      << "Electron energy corrections not fully implemented yet:" << std::endl
+      << "Still need E/p combination" << std::endl
+      << "Do not enable DRN for electrons" << std::endl;
 
-  const std::pair<float, float> trackerCombo(1.0, 1.0); //TODO: compute E/p combination
+  const std::pair<float, float> trackerCombo(1.0, 1.0);  //TODO: compute E/p combination
   const math::XYZTLorentzVector newP4 = ele.p4() * trackerCombo.first / ele.p4().t();
   ele.correctMomentum(newP4, ele.trackMomentumError(), trackerCombo.second);
 }
 
 void EGRegressionModifierDRN::modifyObject(pat::Photon& pho) const {
-  if(!patPhotons_)
+  if (!patPhotons_)
     return;
   const std::pair<float, float>& correction = patPhotons_->getCorrection(pho);
 
-  if(correction.first <= 0) 
-    return; 
+  if (correction.first <= 0)
+    return;
 
   pho.setCorrectedEnergy(pat::Photon::P4type::regression2, correction.first, correction.second, true);
 }
 
 void EGRegressionModifierDRN::modifyObject(reco::Photon& pho) const {
-  if(!gedPhotons_)
+  if (!gedPhotons_)
     return;
 
   const std::pair<float, float>& correction = gedPhotons_->getCorrection(pho);
 
-  if(correction.first <= 0)
+  if (correction.first <= 0)
     return;
 
   pho.setCorrectedEnergy(reco::Photon::P4type::regression2, correction.first, correction.second, true);
 };
 
 template <typename T>
-const std::pair<float, float> EGRegressionModifierDRN::partVars<T>::getCorrection(T& part) const{
-  math::XYZTLorentzVectorD partP4 = part.p4();
+const std::pair<float, float> EGRegressionModifierDRN::partVars<T>::getCorrection(T& part) const {
+  const math::XYZTLorentzVectorD& partP4 = part.p4();
 
   bool matched = false;
   unsigned i;
@@ -230,10 +228,9 @@ const std::pair<float, float> EGRegressionModifierDRN::partVars<T>::getCorrectio
   }
 
   if (!matched) {
-    throw cms::Exception("EGRegressionModifierDRN") 
-      << "Matching failed in EGRegressionModifierDRN" << std::endl
-      << "This should not have been possible" << std::endl;
-    return std::pair<float,float>(-1., -1.);
+    throw cms::Exception("EGRegressionModifierDRN") << "Matching failed in EGRegressionModifierDRN" << std::endl
+                                                    << "This should not have been possible" << std::endl;
+    return std::pair<float, float>(-1., -1.);
   }
 
   edm::Ptr<T> ptr = particles.ptrAt(i);
