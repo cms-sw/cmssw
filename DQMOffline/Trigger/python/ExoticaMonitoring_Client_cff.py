@@ -237,12 +237,12 @@ exoticaClient = cms.Sequence(
 from DQMOffline.Trigger.TrackingMonitoring_Client_cff import *
 
 #DisplacedJet Track Monitoring
-trackingforDisplacedJetEffFromHitPatternHLT = trackingEffFromHitPatternHLT.clone()
-trackingforDisplacedJetEffFromHitPatternHLT.subDirs = cms.untracked.vstring(
+trackingforDisplacedJetEffFromHitPatternHLT = trackingEffFromHitPatternHLT.clone(
+    subDirs = [
     "HLT/EXO/DisplacedJet/Tracking/iter2MergedForBTag/HitEffFromHitPattern*",
     "HLT/EXO/DisplacedJet/Tracking/iter4ForDisplaced/HitEffFromHitPattern*",
+]
 )
-
 trackingForDisplacedJetMonitorClientHLT  = cms.Sequence(
     trackingforDisplacedJetEffFromHitPatternHLT
 )
