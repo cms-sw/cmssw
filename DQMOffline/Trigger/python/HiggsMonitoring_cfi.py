@@ -106,18 +106,17 @@ hltHIGmonitoring = topMonitoring.clone(
     numGenericTriggerEventPSet = dict(
              andOr         =  False,
              andOrHlt      = True,# True:=OR; False:=AND
-             #hltInputTag   = "TriggerResults::HLT",
-             #errorReplyHlt =  False,
              verbosityLevel = 1,
-             #andOrHlt      = True, # True:=OR; False:=AND
              hltInputTag   = "TriggerResults::HLT",
              errorReplyHlt =  False ),
 
     denGenericTriggerEventPSet = dict(
             andOr         = False,
             dcsInputTag   = "scalersRawToDigi",
+            dcsRecordInputTag = "onlineMetaDataDigis",
             dcsPartitions = [24, 25, 26, 27, 28, 29], # 24-27: strip, 28-29: pixel, we should add all other detectors !
             andOrDcs      =  False,
             errorReplyDcs =  True,
             verbosityLevel = 1)
 )
+

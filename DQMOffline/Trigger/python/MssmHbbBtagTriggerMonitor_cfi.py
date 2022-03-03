@@ -4,6 +4,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 triggerFlagPSet = cms.PSet(
   dcsInputTag = cms.InputTag('scalersRawToDigi'),
+  dcsRecordInputTag = cms.InputTag('onlineMetaDataDigis'),
   dcsPartitions = cms.vint32( 24, 25, 26, 27, 28, 29 ),
   andOrDcs = cms.bool(False),
   errorReplyDcs = cms.bool(True),

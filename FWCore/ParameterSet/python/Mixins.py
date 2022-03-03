@@ -219,7 +219,6 @@ class _Parameterizable(object):
             return getattr(self, params, None)
         for param in params:
             lastParam = getattr(lastParam, param, None)
-            print(str(lastParam))
             if lastParam == None:
                 return None
         return lastParam

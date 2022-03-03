@@ -3,7 +3,6 @@
 </ifrelease>
 <test name="TestDQMOnlineClient-beam_dqm_sourceclient" command="runtest.sh beam_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-beampixel_dqm_sourceclient" command="runtest.sh beampixel_dqm_sourceclient-live_cfg.py"/>
-<test name="TestDQMOnlineClient-castor_dqm_sourceclient" command="runtest.sh castor_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-csc_dqm_sourceclient" command="runtest.sh csc_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-ctpps_dqm_sourceclient" command="runtest.sh ctpps_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-dt4ml_dqm_sourceclient" command="runtest.sh dt4ml_dqm_sourceclient-live_cfg.py"/>

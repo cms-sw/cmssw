@@ -17,7 +17,8 @@ hltHTmonitoring = htMonitoring.clone(
                  htPSet = dict(
                       nbins =  200,
                       xmin  =  -0.5,
-                      xmax  = 19999.5)),
+                      xmax  = 19999.5)
+     ),
 
     numGenericTriggerEventPSet = dict(
           andOr         =  False,
@@ -32,9 +33,11 @@ hltHTmonitoring = htMonitoring.clone(
    denGenericTriggerEventPSet = dict(
           andOr         =  False,
           dcsInputTag   = "scalersRawToDigi",
+          dcsRecordInputTag = "onlineMetaDataDigis",
           dcsPartitions = [24, 25, 26, 27, 28, 29], # 24-27: strip, 28-29: pixel, we should add all other detectors !
           andOrDcs      = False,
           errorReplyDcs = True,
           verbosityLevel = 0,
           hltPaths      = ["HLT_IsoMu27_v*"])
 )
+

@@ -20,9 +20,11 @@ hltRazorMonitoring = razorMonitoring.clone(
         andOr          = False,
         andOrHlt       =  True,
         dcsInputTag    =  "scalersRawToDigi",
+        dcsRecordInputTag = "onlineMetaDataDigis",
         dcsPartitions  = [24, 25, 26, 27, 28, 29], # 24-27: strip, 28-29: pixel, we should add all other detectors !
         andOrDcs       =  False,
         errorReplyDcs  = True ,
         verbosityLevel = 1,
         hltPaths = ["HLT_Ele27_WPTight_Gsf*", "HLT_Ele30_WPTight_Gsf*", "HLT_Ele32_WPTight_Gsf*"])
 )
+

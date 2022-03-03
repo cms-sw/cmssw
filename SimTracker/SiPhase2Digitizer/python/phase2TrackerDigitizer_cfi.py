@@ -250,4 +250,19 @@ _premixStage1ModifyDict = dict(
         AddThresholdSmearing = False,
     ),
 )
+
 premix_stage1.toModify(phase2TrackerDigitizer, **_premixStage1ModifyDict)
+
+from Configuration.ProcessModifiers.enableXTalkInPhase2Pixel_cff import enableXTalkInPhase2Pixel
+_enableXTalkInPhase2PixelModifyDict = dict( 
+    PixelDigitizerAlgorithm = dict(
+        AddXTalk = True, 
+        Odd_row_interchannelCoupling_next_row = 0.00,
+        Even_row_interchannelCoupling_next_row = 0.06
+        )
+)
+
+enableXTalkInPhase2Pixel.toModify(phase2TrackerDigitizer, **_enableXTalkInPhase2PixelModifyDict)
+
+
+

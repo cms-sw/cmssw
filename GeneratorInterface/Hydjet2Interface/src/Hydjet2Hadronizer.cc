@@ -1,6 +1,6 @@
 /**
  *    \brief Interface to the HYDJET++ (Hydjet2) generator (since core v. 2.4.3), produces HepMC events
- *    \version 1.1
+ *    \version 1.2
  *    \author Andrey Belyaev
  */
 
@@ -329,21 +329,22 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize() {
     nsub_++;
 
   // event information
-  HepMC::GenEvent *evt = new HepMC::GenEvent();
+  std::unique_ptr<HepMC::GenEvent> evt = std::make_unique<HepMC::GenEvent>();
+  std::unique_ptr<edm::HepMCProduct> HepMCEvt = std::make_unique<edm::HepMCProduct>();
 
   if (nhard_ > 0 || nsoft_ > 0)
-    get_particles(evt);
+    get_particles(evt.get());
 
   evt->set_signal_process_id(pypars.msti[0]);  // type of the process
   evt->set_event_scale(pypars.pari[16]);       // Q^2
-  add_heavy_ion_rec(evt);
+  add_heavy_ion_rec(evt.get());
 
   if (fVertex_) {
     // generate new vertex & apply the shift
     // Copy the HepMC::GenEvent
-    std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(evt));
+    HepMCEvt = std::make_unique<edm::HepMCProduct>(evt.get());
     HepMCEvt->applyVtxGen(fVertex_);
-    evt = new HepMC::GenEvent((*HepMCEvt->GetEvent()));
+    evt = std::make_unique<HepMC::GenEvent>(*HepMCEvt->GetEvent());
   }
 
   HepMC::HEPEVT_Wrapper::check_hepevt_consistency();
@@ -351,7 +352,7 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize() {
                           << " Entries number: " << HepMC::HEPEVT_Wrapper::number_entries() << " Max. entries "
                           << HepMC::HEPEVT_Wrapper::max_number_entries() << std::endl;
 
-  event().reset(evt);
+  event() = std::move(evt);
   return kTRUE;
 }
 
@@ -385,27 +386,23 @@ void Hydjet2Hadronizer::rotateEvtPlane() {
 
 //_____________________________________________________________________
 bool Hydjet2Hadronizer::get_particles(HepMC::GenEvent *evt) {
-  LogDebug("SubEvent") << " Number of sub events " << nsub_;
-  LogDebug("Hydjet") << " Number of hard events " << hj2->GetNjet();
-  LogDebug("Hydjet") << " Number of hard particles " << nhard_;
-  LogDebug("Hydjet") << " Number of soft particles " << nsoft_;
-  LogDebug("Hydjet") << " nhard_ + nsoft_ = " << nhard_ + nsoft_ << " Ntot = " << hj2->GetNtot() << endl;
+  LogDebug("Hydjet2") << " Number of sub events " << nsub_;
+  LogDebug("Hydjet2") << " Number of hard events " << hj2->GetNjet();
+  LogDebug("Hydjet2") << " Number of hard particles " << nhard_;
+  LogDebug("Hydjet2") << " Number of soft particles " << nsoft_;
+  LogDebug("Hydjet2") << " nhard_ + nsoft_ = " << nhard_ + nsoft_ << " Ntot = " << hj2->GetNtot() << endl;
 
   int ihy = 0;
   int isub_l = -1;
   int stab = 0;
 
-  vector<HepMC::GenParticle *> primary_particle(hj2->GetNtot());
   vector<HepMC::GenParticle *> particle(hj2->GetNtot());
-
-  HepMC::GenVertex *sub_vertices = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), 0);  // just initialization
+  HepMC::GenVertex *sub_vertices = nullptr;
 
   while (ihy < hj2->GetNtot()) {
     if ((hj2->GetiJet().at(ihy)) != isub_l) {
       sub_vertices = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), hj2->GetiJet().at(ihy));
-
       evt->add_vertex(sub_vertices);
-
       if (!evt->signal_process_vertex())
         evt->set_signal_process_vertex(sub_vertices);
       isub_l = hj2->GetiJet().at(ihy);
@@ -413,55 +410,55 @@ bool Hydjet2Hadronizer::get_particles(HepMC::GenEvent *evt) {
 
     if ((hj2->GetFinal().at(ihy)) == 1)  //convertStatus(hj2->GetPythiaStatus().at(ihy)) == 1)
       stab++;
-    LogDebug("Hydjet_array") << ihy << " MULTin ev.:" << hj2->GetNtot() << " SubEv.#" << hj2->GetiJet().at(ihy)
-                             << " Part #" << ihy + 1 << ", PDG: " << hj2->GetPdg().at(ihy) << " (st. "
-                             << convertStatus(hj2->GetPythiaStatus().at(ihy))
-                             << ") mother=" << hj2->GetMotherIndex().at(ihy) + 1 << ", childs ("
-                             << hj2->GetFirstDaughterIndex().at(ihy) + 1 << "-"
-                             << hj2->GetLastDaughterIndex().at(ihy) + 1 << "), vtx (" << hj2->GetX().at(ihy) << ","
-                             << hj2->GetY().at(ihy) << "," << hj2->GetZ().at(ihy) << ") " << std::endl;
+    LogDebug("Hydjet2_array") << ihy << " MULTin ev.:" << hj2->GetNtot() << " SubEv.#" << hj2->GetiJet().at(ihy)
+                              << " Part #" << ihy + 1 << ", PDG: " << hj2->GetPdg().at(ihy) << " (st. "
+                              << convertStatus(hj2->GetPythiaStatus().at(ihy))
+                              << ") mother=" << hj2->GetMotherIndex().at(ihy) + 1 << ", childs ("
+                              << hj2->GetFirstDaughterIndex().at(ihy) + 1 << "-"
+                              << hj2->GetLastDaughterIndex().at(ihy) + 1 << "), vtx (" << hj2->GetX().at(ihy) << ","
+                              << hj2->GetY().at(ihy) << "," << hj2->GetZ().at(ihy) << ") " << std::endl;
 
     if ((hj2->GetMotherIndex().at(ihy)) <= 0) {
-      primary_particle.at(ihy) = build_hyjet2(ihy, ihy + 1);
-      sub_vertices->add_particle_out(primary_particle.at(ihy));
-      LogDebug("Hydjet_array") << " ---> " << ihy + 1 << std::endl;
+      particle.at(ihy) = build_hyjet2(ihy, ihy + 1);
+      if (!sub_vertices)
+        LogError("Hydjet2_array") << "##### HYDJET2: Vertex not initialized!";
+      else
+        sub_vertices->add_particle_out(particle.at(ihy));
+      LogDebug("Hydjet2_array") << " ---> " << ihy + 1 << std::endl;
     } else {
       particle.at(ihy) = build_hyjet2(ihy, ihy + 1);
       int mid = hj2->GetMotherIndex().at(ihy);
-      int mid_t = mid;
 
-      while ((mid < ihy) && ((hj2->GetPdg().at(ihy)) < 100) && ((hj2->GetFirstDaughterIndex().at(ihy)) == ihy))
+      while (((mid + 1) < ihy) && (std::abs(hj2->GetPdg().at(mid)) < 100) &&
+             ((hj2->GetFirstDaughterIndex().at(mid + 1)) <= ihy)) {
         mid++;
-
-      if ((hj2->GetPdg().at(ihy)) < 100)
-        mid = mid_t;
-
-      HepMC::GenParticle *mother = primary_particle.at(mid);
-      HepMC::GenVertex *prods = build_hyjet2_vertex(ihy, (hj2->GetiJet().at(ihy)));
-
-      if (!mother) {
-        mother = particle.at(mid);
-        primary_particle.at(mid) = mother;
+        LogDebug("Hydjet2_array") << "======== MID changed to " << mid
+                                  << " ======== PDG(mid) = " << hj2->GetPdg().at(mid) << std::endl;
       }
 
+      if (std::abs(hj2->GetPdg().at(mid)) < 100) {
+        mid = hj2->GetMotherIndex().at(ihy);
+        LogDebug("Hydjet2_array") << "======== MID changed BACK to " << mid
+                                  << " ======== PDG(mid) = " << hj2->GetPdg().at(mid) << std::endl;
+      }
+
+      HepMC::GenParticle *mother = particle.at(mid);
       HepMC::GenVertex *prod_vertex = mother->end_vertex();
+
       if (!prod_vertex) {
-        prod_vertex = prods;
+        prod_vertex = build_hyjet2_vertex(ihy, (hj2->GetiJet().at(ihy)));
         prod_vertex->add_particle_in(mother);
-        LogDebug("Hydjet_array") << " <--- " << mid + 1 << std::endl;
+        LogDebug("Hydjet2_array") << " <--- " << mid + 1 << std::endl;
         evt->add_vertex(prod_vertex);
-        prods = nullptr;
       }
       prod_vertex->add_particle_out(particle.at(ihy));
-      LogDebug("Hydjet_array") << " ---" << mid + 1 << "---> " << ihy + 1 << std::endl;
-      delete prods;
+      LogDebug("Hydjet2_array") << " ---" << mid + 1 << "---> " << ihy + 1 << std::endl;
     }
     ihy++;
   }
-  delete sub_vertices;
 
-  LogDebug("Hydjet_array") << " MULTin ev.:" << hj2->GetNtot() << ", last index: " << ihy - 1
-                           << ", stable particles: " << stab << std::endl;
+  LogDebug("Hydjet2_array") << " MULTin ev.:" << hj2->GetNtot() << ", last index: " << ihy - 1
+                            << ", stable particles: " << stab << std::endl;
   return kTRUE;
 }
 

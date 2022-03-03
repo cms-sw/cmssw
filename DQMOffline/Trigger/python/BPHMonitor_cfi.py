@@ -107,6 +107,7 @@ hltBPHmonitoring = _bphMonitoring.clone(
         andOr         = False,
         andOrHlt      = True,# True:=OR; False:=AND
         #dcsInputTag   =  "scalersRawToDigi",
+        #dcsRecordInputTag = "onlineMetaDataDigis",
         hltInputTag   =  "TriggerResults::HLT" ,
         hltPaths  = ["HLT_Mu7p5_Track2_Jpsi_v*" ], #reference
         #l1Algorithms      = ["L1_DoubleMu0_SQ"], # HLT_ZeroBias_v*
@@ -116,6 +117,7 @@ hltBPHmonitoring = _bphMonitoring.clone(
         verbosityLevel = 0,
     )
 )
+
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 stage2L1Trigger.toModify(hltBPHmonitoring,
                          stageL1Trigger = 2,

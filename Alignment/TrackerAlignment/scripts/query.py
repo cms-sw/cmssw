@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #-*- coding: ISO-8859-1 -*-
 #
 # Copyright 2008 Cornell University, Ithaca, NY 14853. All rights reserved.

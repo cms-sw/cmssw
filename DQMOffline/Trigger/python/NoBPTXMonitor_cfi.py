@@ -61,9 +61,11 @@ hltNoBPTXmonitoring = NoBPTXMonitoring.clone(
     denGenericTriggerEventPSet = dict(
         andOr         =  False,
         dcsInputTag   =  "scalersRawToDigi",
+        dcsRecordInputTag = "onlineMetaDataDigis",
         dcsPartitions = [ 24, 25, 26, 27, 28, 29], # 24-27: strip, 28-29: pixel, we should add all other detectors !
         andOrDcs      = False,
         errorReplyDcs = True, 
         verbosityLevel = 1)
 )
+
 
