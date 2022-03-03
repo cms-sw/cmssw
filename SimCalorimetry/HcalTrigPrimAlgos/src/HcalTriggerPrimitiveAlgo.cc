@@ -446,9 +446,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       unsigned int sample = samples[ibin + i];
 
       if (fix_saturation_ && (sample_saturation.size() > ibin + i))
-        check_sat = (sample_saturation[ibin + i] | (sample > QIE11_MAX_LINEARIZATION_ET));
-      else if (sample > QIE11_MAX_LINEARIZATION_ET)
-        sample = QIE11_MAX_LINEARIZATION_ET;
+        check_sat = sample_saturation[ibin + i];
 
       // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 0.5
       double segmentationFactor = 1.0;
