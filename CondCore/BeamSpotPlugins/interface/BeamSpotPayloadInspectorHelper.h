@@ -405,6 +405,219 @@ namespace BeamSpotPI {
       }
     }
   };
+
+  /************************************************
+    Display of Beam Spot parameters difference
+  *************************************************/
+  template <class PayloadType, cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class DisplayParametersDiff : public cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags> {
+  public:
+    DisplayParametersDiff()
+        : cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags>("Display of BeamSpot parameters differences") {
+      if constexpr (std::is_same_v<PayloadType, BeamSpotOnlineObjects>) {
+        isOnline_ = true;
+      } else {
+        isOnline_ = false;
+      }
+    }
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      l_payload = this->fetchPayload(std::get<1>(lastiov));
+      f_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      TCanvas canvas("Beam Spot Parameters Difference Summary", "Beam Spot Parameters Difference summary", 1000, 1000);
+      canvas.cd(1);
+
+      canvas.cd(1)->SetTopMargin(0.08);
+      canvas.cd(1)->SetBottomMargin(0.06);
+      canvas.cd(1)->SetLeftMargin(0.14);
+      canvas.cd(1)->SetRightMargin(0.16);
+      canvas.cd(1)->Modified();
+      canvas.cd(1)->SetGrid();
+
+      auto h2_BSParameters = std::make_unique<TH2F>("Parameters", "", 2, 0.0, 2.0, 8, 0, 8.);
+      auto h2_BSShadow =
+          std::make_unique<TH2F>("Shadow", ";;;#Delta parameter (payload A - payload B)", 2, 0.0, 2.0, 8, 0, 8.);
+      h2_BSParameters->SetStats(false);
+      h2_BSShadow->SetStats(false);
+
+      std::function<double(parameters, bool)> cutFunctor = [this](parameters my_param, bool isError) {
+        double ret(-999.);
+        if (!isError) {
+          switch (my_param) {
+            case X:
+              return (f_payload->x() - l_payload->x());
+            case Y:
+              return (f_payload->y() - l_payload->y());
+            case Z:
+              return (f_payload->z() - l_payload->z());
+            case sigmaX:
+              return (f_payload->beamWidthX() - l_payload->beamWidthX());
+            case sigmaY:
+              return (f_payload->beamWidthY() - l_payload->beamWidthY());
+            case sigmaZ:
+              return (f_payload->sigmaZ() - l_payload->sigmaZ());
+            case dxdz:
+              return (f_payload->dxdz() - l_payload->dxdz());
+            case dydz:
+              return (f_payload->dydz() - l_payload->dydz());
+            case END_OF_TYPES:
+              return ret;
+            default:
+              return ret;
+          }
+        } else {
+          switch (my_param) {
+            case X:
+              return (f_payload->xError() - l_payload->xError());
+            case Y:
+              return (f_payload->yError() - l_payload->yError());
+            case Z:
+              return (f_payload->zError() - l_payload->zError());
+            case sigmaX:
+              return (f_payload->beamWidthXError() - l_payload->beamWidthXError());
+            case sigmaY:
+              return (f_payload->beamWidthYError() - l_payload->beamWidthYError());
+            case sigmaZ:
+              return (f_payload->sigmaZError() - l_payload->sigmaZError());
+            case dxdz:
+              return (f_payload->dxdzError() - l_payload->dxdzError());
+            case dydz:
+              return (f_payload->dydzError() - l_payload->dydzError());
+            case END_OF_TYPES:
+              return ret;
+            default:
+              return ret;
+          }
+        }
+      };
+
+      h2_BSParameters->GetXaxis()->SetBinLabel(1, "Value");
+      h2_BSParameters->GetXaxis()->SetBinLabel(2, "Error");
+      h2_BSShadow->GetXaxis()->SetBinLabel(1, "Value");
+      h2_BSShadow->GetXaxis()->SetBinLabel(2, "Error");
+
+      unsigned int yBin = 8;
+      for (int foo = parameters::X; foo <= parameters::dydz; foo++) {
+        parameters param = static_cast<parameters>(foo);
+        std::string theLabel = getStringFromTypeEnum(param);
+        h2_BSParameters->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
+        h2_BSParameters->SetBinContent(1, yBin, cutFunctor(param, false));
+        h2_BSParameters->SetBinContent(2, yBin, cutFunctor(param, true));
+        h2_BSShadow->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
+        h2_BSShadow->SetBinContent(1, yBin, cutFunctor(param, false));
+        h2_BSShadow->SetBinContent(2, yBin, cutFunctor(param, true));
+        yBin--;
+      }
+
+      h2_BSParameters->GetXaxis()->LabelsOption("h");
+      h2_BSParameters->GetYaxis()->SetLabelSize(0.05);
+      h2_BSParameters->GetXaxis()->SetLabelSize(0.05);
+      h2_BSShadow->GetXaxis()->LabelsOption("h");
+      h2_BSShadow->GetYaxis()->SetLabelSize(0.05);
+      h2_BSShadow->GetXaxis()->SetLabelSize(0.05);
+      h2_BSShadow->GetZaxis()->CenterTitle();
+      h2_BSShadow->GetZaxis()->SetTitleOffset(1.5);
+      h2_BSParameters->SetMarkerSize(1.5);
+
+      // this is the fine gradient palette (blue to red)
+      double max = h2_BSShadow->GetMaximum();
+      double min = h2_BSShadow->GetMinimum();
+      double val_white = 0.;
+      double per_white = (max != min) ? ((val_white - min) / (max - min)) : 0.5;
+
+      const int Number = 3;
+      double Red[Number] = {0., 1., 1.};
+      double Green[Number] = {0., 1., 0.};
+      double Blue[Number] = {1., 1., 0.};
+      double Stops[Number] = {0., per_white, 1.};
+      int nb = 256;
+      h2_BSShadow->SetContour(nb);
+      TColor::CreateGradientColorTable(Number, Stops, Red, Green, Blue, nb);
+
+      h2_BSShadow->Draw("colz");
+      h2_BSParameters->Draw("TEXTsame");
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.025);
+      ltx.SetTextAlign(11);
+
+      auto l_runLS = BeamSpotPI::unpack(std::get<0>(lastiov));
+      auto f_runLS = BeamSpotPI::unpack(std::get<0>(firstiov));
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                         1 - gPad->GetTopMargin() + 0.03,
+                         ("#splitline{A = #color[4]{" + f_tagname + "}}{B = #color[4]{" + l_tagname + "}}").c_str());
+      } else {
+        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                         1 - gPad->GetTopMargin() + 0.03,
+                         ("#splitline{#color[4]{" + f_tagname + "}}{A = " + std::to_string(l_runLS.first) + "," +
+                          std::to_string(l_runLS.second) + " B =" + std::to_string(f_runLS.first) + "," +
+                          std::to_string(f_runLS.second) + "}")
+                             .c_str());
+      }
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+
+  public:
+    virtual std::shared_ptr<TH2F> fillTheExtraHistogram() const { return nullptr; }
+
+  protected:
+    bool isOnline_;
+    std::shared_ptr<PayloadType> f_payload;
+    std::shared_ptr<PayloadType> l_payload;
+
+    /************************************************/
+    virtual std::string getStringFromTypeEnum(const parameters& parameter) const {
+      switch (parameter) {
+        case X:
+          return "X [cm]";
+        case Y:
+          return "Y [cm]";
+        case Z:
+          return "Z [cm]";
+        case sigmaX:
+          return "#sigma_{X} [cm]";
+        case sigmaY:
+          return "#sigma_{Y} [cm]";
+        case sigmaZ:
+          return "#sigma_{Z} [cm]";
+        case dxdz:
+          return "#frac{dX}{dZ} [rad]";
+        case dydz:
+          return "#frac{dY}{dZ} [rad]";
+        default:
+          return "should never be here";
+      }
+    }
+  };
 }  // namespace BeamSpotPI
 
 #endif
