@@ -37,17 +37,7 @@ globalAnalyzerRef.requiredTriggers = cms.untracked.vstring(
 #globalAnalyzerRef.probeParams = cms.PSet()
 
 refPathsList19 =  cms.vstring(
-    #"HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8_v", 
-    #"HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8_v"  ,
-    #"HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_v"        ,
-    #"HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_v",
-    #"HLT_Mu20_Mu10_DZ_v",
-    #"HLT_Mu20_Mu10_SameSign_DZ_v",
-    #"HLT_Mu20_Mu10_SameSign_v",
-    #"HLT_Mu20_Mu10_v",
     "HLT_Mu23_Mu12_DZ_v",
-    #"HLT_Mu23_Mu12_SameSign_DZ_v",
-    #HLT_Mu23_Mu12_SameSign_v",
     "HLT_Mu23_Mu12_v"
     )
 
