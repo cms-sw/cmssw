@@ -118,6 +118,7 @@ hltSUSYmonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# Tru
 hltSUSYmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltSUSYmonitoring.denGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltSUSYmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltSUSYmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltSUSYmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltSUSYmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltSUSYmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )

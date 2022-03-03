@@ -109,6 +109,7 @@ hltTOPmonitoring.denGenericTriggerEventPSet.andOrHlt      = True # True:=OR; Fal
 hltTOPmonitoring.denGenericTriggerEventPSet.hltInputTag   = "TriggerResults::HLT"
 hltTOPmonitoring.denGenericTriggerEventPSet.errorReplyHlt = False
 hltTOPmonitoring.denGenericTriggerEventPSet.dcsInputTag   = "scalersRawToDigi"
+hltTOPmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = "onlineMetaDataDigis"
 hltTOPmonitoring.denGenericTriggerEventPSet.dcsPartitions = [24, 25, 26, 27, 28, 29] # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltTOPmonitoring.denGenericTriggerEventPSet.andOrDcs      = False
 hltTOPmonitoring.denGenericTriggerEventPSet.errorReplyDcs = True

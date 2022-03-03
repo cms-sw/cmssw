@@ -34,6 +34,7 @@ hltMuonmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "Trig
 hltMuonmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("") # HLT_ZeroBias_v*
 hltMuonmonitoring.denGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltMuonmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltMuonmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 hltMuonmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltMuonmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltMuonmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
