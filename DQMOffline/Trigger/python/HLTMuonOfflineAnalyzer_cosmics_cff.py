@@ -24,21 +24,23 @@ allMuonParams = cms.PSet(
     hltCuts  = cms.untracked.string("abs(eta) < 2.0"),
 )
 
-barrelAnalyzer = hltMuonOfflineAnalyzer.clone()
-barrelAnalyzer.destination = "HLT/Muon/DistributionsBarrel"
-barrelAnalyzer.targetParams = barrelMuonParams
+barrelAnalyzer = hltMuonOfflineAnalyzer.clone(
+    destination = "HLT/Muon/DistributionsBarrel",
+    targetParams = barrelMuonParams
+)
 barrelAnalyzer.probeParams = cms.PSet()
 
-endcapAnalyzer = hltMuonOfflineAnalyzer.clone()
-endcapAnalyzer.destination = "HLT/Muon/DistributionsEndcap"
-endcapAnalyzer.targetParams = endcapMuonParams
+endcapAnalyzer = hltMuonOfflineAnalyzer.clone(
+    destination = "HLT/Muon/DistributionsEndcap",
+    targetParams = endcapMuonParams
+)
 endcapAnalyzer.probeParams = cms.PSet()
 
-allAnalyzer = hltMuonOfflineAnalyzer.clone()
-allAnalyzer.destination = "HLT/Muon/DistributionsAll"
-allAnalyzer.targetParams = allMuonParams
-allAnalyzer.probeParams = allMuonParams
-
+allAnalyzer = hltMuonOfflineAnalyzer.clone(
+    destination = "HLT/Muon/DistributionsAll",
+    targetParams = allMuonParams,
+    probeParams = allMuonParams
+)
 hltMuonOfflineAnalyzers = cms.Sequence(
     barrelAnalyzer *
     endcapAnalyzer *
