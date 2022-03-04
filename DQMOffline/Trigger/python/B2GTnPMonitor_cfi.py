@@ -107,7 +107,7 @@ egammaStdHistConfigs = cms.VPSet(
 egammaStdFiltersToMonitor= cms.VPSet(
     cms.PSet(
         folderName = cms.string("HLT/B2G/HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165"),
-        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("55:99999")),),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges= ["55:99999"]),),
         filterName = cms.string("hltEle50CaloIdVTGsfTrkIdTCentralPFJet165EleCleaned"),
         histTitle = cms.string(""),
         tagExtraFilter = cms.string(""),
@@ -134,9 +134,10 @@ B2GegHLTDQMOfflineTnPSource = DQMEDAnalyzer("HLTEleTagAndProbeOfflineSource",
 
 from RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff import egmGsfElectronIDs
 
-B2GegmGsfElectronIDsForDQM = egmGsfElectronIDs.clone()
-B2GegmGsfElectronIDsForDQM.physicsObjectsIDs = cms.VPSet()
-B2GegmGsfElectronIDsForDQM.physicsObjectSrc == cms.InputTag('gedGsfElectrons')
+B2GegmGsfElectronIDsForDQM = egmGsfElectronIDs.clone(
+    physicsObjectsIDs = cms.VPSet(),
+    physicsObjectSrc = 'gedGsfElectrons'
+)
 #note: be careful here to when selecting new ids that the vid tools doesnt do extra setup for them
 #for example the HEEP cuts need an extra producer which vid tools automatically handles
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
