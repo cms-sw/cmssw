@@ -12,6 +12,7 @@
 #include <thrust/device_vector.h>
 #include <unistd.h>
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 //Global Varaibles
 int sizeOfVector = 200;             //default size.
@@ -111,6 +112,7 @@ void newLineTitle(int line, const std::string &title);
 void printResultEach(std::vector<Timing> &timing, int type, bool standerDeviationPrint);
 
 int main(int argc, char *argv[]) {
+  cms::cudatest::requireDevices();
   int c;  //to get parameters from user.
   while ((c = getopt(argc, argv, "s:a:t:p:fq")) != -1) {
     switch (c) {
