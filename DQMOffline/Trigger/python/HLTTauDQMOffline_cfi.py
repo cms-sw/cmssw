@@ -141,7 +141,7 @@ def TriggerSelectionParameters(hltpaths):
 
 
 hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
-    DQMBaseFolder = cms.untracked.string("HLT/TAU/TagAndProbe"),
+    DQMBaseFolder = "HLT/TAU/TagAndProbe",
     Matching = cms.PSet(                                                                                                                                                                             
         doMatching            = cms.untracked.bool(True),                                                                                                                                            
         matchFilters          = cms.untracked.VPSet(                                                                                                                                                 
