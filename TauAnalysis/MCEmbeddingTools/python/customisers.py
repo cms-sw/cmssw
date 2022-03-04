@@ -89,6 +89,13 @@ to_bemanipulate.append(
         steps=["SIM", "MERGE"],
     )
 )
+to_bemanipulate.append(
+    module_manipulate(
+        module_name="lowPtGsfEleGsfTracks",
+        manipulator_name="GsfTrack",
+        steps=["SIM", "MERGE"],
+    )
+)
 
 to_bemanipulate.append(
     module_manipulate(
