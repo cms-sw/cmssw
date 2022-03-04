@@ -25,8 +25,6 @@ namespace edmtest {
 
   DTCompactMapDump::DTCompactMapDump(int i) {}
 
-  DTCompactMapDump::~DTCompactMapDump() {}
-
   void DTCompactMapDump::analyze(const edm::Event& e, const edm::EventSetup& context) {}
 
   void DTCompactMapDump::endJob() {
