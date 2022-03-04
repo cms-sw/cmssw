@@ -135,7 +135,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
@@ -184,6 +184,16 @@ public:
   }
 
   ~ConditionDBWriter() override { edm::LogInfo("ConditionDBWriter::~ConditionDBWriter()") << std::endl; }
+
+  // utility method to validate configurations of inherited classes
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    desc.add<bool>("SinceAppendMode");
+    desc.add<std::string>("IOVMode");
+    desc.add<std::string>("Record");
+    desc.add<bool>("doStoreOnDB");
+    desc.addUntracked<bool>("TimeFromEndRun", false);
+    desc.addUntracked<bool>("TimeFromStartOfRunRange", false);
+  }
 
 private:
   // method to be implemented by derived class. Must return a pointer to the DB object to be stored, which must have been created with "new". The derived class looses control on it (must not "delete" it at any time in its code!)
