@@ -15,9 +15,11 @@
     <use name="cuda"/>
   </bin>
 
-</iftool>
-
-<bin name="cudaTimeMeasurement" file="cudaTimeMeasurement.cu">
+  <bin name="cudaTimeMeasurement" file="cudaTimeMeasurement.cu">
     <use name="cuda"/>
     <flags TEST_RUNNER_CMD="cudaTimeMeasurement -a10 -t100 -s10000 -q -p12345"/>
 </bin>
+
+
+</iftool>
+
