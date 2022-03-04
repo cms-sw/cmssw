@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,7 +21,7 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 
 namespace edmtest {
-  class DTKeyedConfigDump : public edm::EDAnalyzer {
+  class DTKeyedConfigDump : public edm::one::EDAnalyzer<> {
   public:
     explicit DTKeyedConfigDump(edm::ParameterSet const& p);
 
