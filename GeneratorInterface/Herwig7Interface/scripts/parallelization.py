@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This script sets up parallel jobs for the build, integrate and run
 # step when using Herwig with the CMSSW framework.
