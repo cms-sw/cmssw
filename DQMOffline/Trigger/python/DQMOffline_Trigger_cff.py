@@ -96,9 +96,9 @@ from DQMOffline.Trigger.HLTInclusiveVBFSource_cfi import *
 #from DQMOffline.Trigger.heavyionUCCDQM_cfi import * # OBSOLETE
 
 import DQMServices.Components.DQMEnvironment_cfi
-dqmEnvHLT = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvHLT.subSystemFolder = 'HLT'
-
+dqmEnvHLT = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone(
+    subSystemFolder = 'HLT'
+)
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 dqmInfoHLTMon = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('HLT')
