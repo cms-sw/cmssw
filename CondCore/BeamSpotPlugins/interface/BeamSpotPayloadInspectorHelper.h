@@ -2,21 +2,24 @@
 #define CONDCORE_BEAMSPOTPLUGINS_BEAMSPOTPAYLOADINSPECTORHELPER_H
 
 // User includes
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
 
-// ROOT includes
-
+// system includes
+#include <fmt/printf.h>
 #include <memory>
 #include <sstream>
+
+// ROOT includes
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TH2F.h"
 #include "TLatex.h"
+
+//#define MMDEBUG  /* to make it verbose */
 
 namespace BeamSpotPI {
 
@@ -80,6 +83,68 @@ namespace BeamSpotPI {
         return "should never be here";
     }
   }
+
+  /**
+   * Helper class for operations on the Beam Spot Parameters
+   * It's a simplified representation of the beamspot
+   * data used as the underlying type for data transfers and comparisons
+   */
+  template <class PayloadType>
+  class BSParamsHelper {
+    typedef std::array<double, 8> bshelpdata;
+
+  public:
+    BSParamsHelper(const std::shared_ptr<PayloadType>& bs) {
+      // fill in the central values
+      m_values[0] = bs->x(), m_values[1] = bs->y(), m_values[2] = bs->z();
+      m_values[3] = bs->beamWidthX(), m_values[4] = bs->beamWidthY(), m_values[5] = bs->sigmaZ();
+      m_values[6] = bs->dxdz(), m_values[7] = bs->dydz();
+
+      // fill in the errors
+      m_errors[0] = bs->xError(), m_errors[1] = bs->yError(), m_errors[2] = bs->zError();
+      m_errors[3] = bs->beamWidthXError(), m_errors[4] = bs->beamWidthYError(), m_errors[5] = bs->sigmaZError();
+      m_errors[6] = bs->dxdzError(), m_errors[7] = bs->dydzError();
+    }
+
+    void printDebug(std::stringstream& ss) {
+      ss << "Dumping BeamSpot parameters Data:" << std::endl;
+      for (uint i = parameters::X; i <= parameters::dydz; i++) {
+        parameters par = static_cast<parameters>(i);
+        ss << getStringFromParamEnum(par) << " : " << m_values[i] << std::endl;
+        ss << getStringFromParamEnum(par) << " error: " << m_errors[i] << std::endl;
+        ss << std::endl;
+      }
+    }
+
+    inline const bshelpdata centralValues() const { return m_values; }
+    inline const bshelpdata errors() const { return m_errors; }
+
+    // get the difference in values
+    const bshelpdata diffCentralValues(const BSParamsHelper& bs2, const bool isPull = false) const {
+      bshelpdata ret;
+      for (uint i = parameters::X; i <= parameters::dydz; i++) {
+        ret[i] = this->centralValues()[i] - bs2.centralValues()[i];
+        if (isPull)
+          (this->centralValues()[i] != 0.) ? ret[i] /= this->centralValues()[i] : 0.;
+      }
+      return ret;
+    }
+
+    // get the difference in errors
+    const bshelpdata diffErrors(const BSParamsHelper& bs2, const bool isPull = false) const {
+      bshelpdata ret;
+      for (uint i = parameters::X; i <= parameters::dydz; i++) {
+        ret[i] = this->errors()[i] - bs2.errors()[i];
+        if (isPull)
+          (this->errors()[i] != 0.) ? ret[i] /= this->errors()[i] : 0.;
+      }
+      return ret;
+    }
+
+  private:
+    bshelpdata m_values; /* central values */
+    bshelpdata m_errors; /* errors */
+  };
 
   /************************************************
     template classes (history)
@@ -460,80 +525,48 @@ namespace BeamSpotPI {
       canvas.cd(1)->Modified();
       canvas.cd(1)->SetGrid();
 
+      // for the "text"-filled histogram
       auto h2_BSParameters = std::make_unique<TH2F>("Parameters", "", 2, 0.0, 2.0, 8, 0, 8.);
       h2_BSParameters->SetStats(false);
-
-      std::function<double(parameters, bool)> cutFunctor = [this](parameters my_param, bool isError) {
-        double ret(-999.);
-        if (!isError) {
-          switch (my_param) {
-            case X:
-              return (f_payload->x() - l_payload->x());
-            case Y:
-              return (f_payload->y() - l_payload->y());
-            case Z:
-              return (f_payload->z() - l_payload->z());
-            case sigmaX:
-              return (f_payload->beamWidthX() - l_payload->beamWidthX());
-            case sigmaY:
-              return (f_payload->beamWidthY() - l_payload->beamWidthY());
-            case sigmaZ:
-              return (f_payload->sigmaZ() - l_payload->sigmaZ());
-            case dxdz:
-              return (f_payload->dxdz() - l_payload->dxdz());
-            case dydz:
-              return (f_payload->dydz() - l_payload->dydz());
-            case END_OF_TYPES:
-              return ret;
-            default:
-              return ret;
-          }
-        } else {
-          switch (my_param) {
-            case X:
-              return (f_payload->xError() - l_payload->xError());
-            case Y:
-              return (f_payload->yError() - l_payload->yError());
-            case Z:
-              return (f_payload->zError() - l_payload->zError());
-            case sigmaX:
-              return (f_payload->beamWidthXError() - l_payload->beamWidthXError());
-            case sigmaY:
-              return (f_payload->beamWidthYError() - l_payload->beamWidthYError());
-            case sigmaZ:
-              return (f_payload->sigmaZError() - l_payload->sigmaZError());
-            case dxdz:
-              return (f_payload->dxdzError() - l_payload->dxdzError());
-            case dydz:
-              return (f_payload->dydzError() - l_payload->dydzError());
-            case END_OF_TYPES:
-              return ret;
-            default:
-              return ret;
-          }
-        }
-      };
-
       h2_BSParameters->GetXaxis()->SetBinLabel(1, "Value");
       h2_BSParameters->GetXaxis()->SetBinLabel(2, "Error");
+      h2_BSParameters->GetXaxis()->LabelsOption("h");
+      h2_BSParameters->GetYaxis()->SetLabelSize(0.05);
+      h2_BSParameters->GetXaxis()->SetLabelSize(0.05);
+      h2_BSParameters->SetMarkerSize(1.5);
+
+      // prepare the arrays to fill the histogram
+      BeamSpotPI::BSParamsHelper fBS(f_payload);
+      BeamSpotPI::BSParamsHelper lBS(l_payload);
+
+#ifdef MM_DEBUG
+      std::stringstream ss1, ss2;
+      edm::LogPrint("") << "**** first payload";
+      fBS.printDebug(ss1);
+      edm::LogPrint("") << ss1.str();
+      edm::LogPrint("") << "**** last payload";
+      lBS.printDebug(ss2);
+      edm::LogPrint("") << ss2.str();
+#endif
+
+      const auto diffPars = fBS.diffCentralValues(lBS);
+      const auto diffErrors = fBS.diffErrors(lBS);
+      //const auto pullPars = fBS.diffCentralValues(lBS,true /*normalize*/);
+      //const auto pullErrors = fBS.diffErrors(lBS,true /*normalize*/);
 
       unsigned int yBin = 8;
       for (int foo = parameters::X; foo <= parameters::dydz; foo++) {
         parameters param = static_cast<parameters>(foo);
         std::string theLabel = BeamSpotPI::getStringFromParamEnum(param, true /*use units*/);
         h2_BSParameters->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
-        h2_BSParameters->SetBinContent(1, yBin, cutFunctor(param, false));
-        h2_BSParameters->SetBinContent(2, yBin, cutFunctor(param, true));
+        h2_BSParameters->SetBinContent(1, yBin, diffPars[foo]); /* profiting of the parameters enum indexing */
+        h2_BSParameters->SetBinContent(2, yBin, diffErrors[foo]);
         yBin--;
       }
 
-      h2_BSParameters->GetXaxis()->LabelsOption("h");
-      h2_BSParameters->GetYaxis()->SetLabelSize(0.05);
-      h2_BSParameters->GetXaxis()->SetLabelSize(0.05);
-      h2_BSParameters->SetMarkerSize(1.5);
-
+      // for the "colz"-filled histogram (clonde from the text-based one)
       auto h2_BSShadow = (TH2F*)(h2_BSParameters->Clone("shadow"));
-      h2_BSShadow->GetZaxis()->SetTitle("#Delta parameter (payload A - payload B)");
+      h2_BSShadow->GetZaxis()->SetTitle("#Delta Parameter(payload A - payload B)");
       h2_BSShadow->GetZaxis()->CenterTitle();
       h2_BSShadow->GetZaxis()->SetTitleOffset(1.5);
 
@@ -560,20 +593,24 @@ namespace BeamSpotPI {
       ltx.SetTextSize(0.025);
       ltx.SetTextAlign(11);
 
+      // compute the (run,LS) pairs
       auto l_runLS = BeamSpotPI::unpack(std::get<0>(lastiov));
+      std::string l_runLSs = "(" + std::to_string(l_runLS.first) + "," + std::to_string(l_runLS.second) + ")";
       auto f_runLS = BeamSpotPI::unpack(std::get<0>(firstiov));
+      std::string f_runLSs = "(" + std::to_string(f_runLS.first) + "," + std::to_string(f_runLS.second) + ")";
 
       if (this->m_plotAnnotations.ntags == 2) {
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.03,
-                         ("#splitline{A = #color[4]{" + f_tagname + "}}{B = #color[4]{" + l_tagname + "}}").c_str());
+        ltx.DrawLatexNDC(
+            gPad->GetLeftMargin() - 0.1,
+            1 - gPad->GetTopMargin() + 0.015,
+            (fmt::sprintf(
+                 "#splitline{A = #color[4]{%s}: %s}{B = #color[4]{%s}: %s}", f_tagname, f_runLSs, l_tagname, l_runLSs))
+                .c_str());
       } else {
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.03,
-                         ("#splitline{#color[4]{" + f_tagname + "}}{A = " + std::to_string(l_runLS.first) + "," +
-                          std::to_string(l_runLS.second) + " B =" + std::to_string(f_runLS.first) + "," +
-                          std::to_string(f_runLS.second) + "}")
-                             .c_str());
+        ltx.DrawLatexNDC(
+            gPad->GetLeftMargin() - 0.1,
+            1 - gPad->GetTopMargin() + 0.015,
+            (fmt::sprintf("#splitline{#color[4]{%s}}{A = %s | B = %s}", f_tagname, l_runLSs, f_runLSs)).c_str());
       }
 
       std::string fileName(this->m_imageFileName);
