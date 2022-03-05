@@ -11,6 +11,22 @@ namespace mkfit {
     m_zmax = z2;
   }
 
+  void LayerInfo::extend_limits(float r, float z) {
+    if (z > m_zmax)
+      m_zmax = z;
+    if (z < m_zmin)
+      m_zmin = z;
+    if (r > m_rout)
+      m_rout = r;
+    if (r < m_rin)
+      m_rin = r;
+  }
+
+  void LayerInfo::set_r_in_out(float r1, float r2) {
+    m_rin = r1;
+    m_rout = r2;
+  }
+
   void LayerInfo::set_r_hole_range(float rh1, float rh2) {
     m_has_r_range_hole = true;
     m_hole_r_min = rh1;

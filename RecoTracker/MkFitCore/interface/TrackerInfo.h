@@ -32,6 +32,8 @@ namespace mkfit {
 
     void set_layer_type(LayerType_e t) { m_layer_type = t; }
     void set_limits(float r1, float r2, float z1, float z2);
+    void extend_limits(float r, float z);
+    void set_r_in_out(float r1, float r2);
     void set_propagate_to(float pto) { m_propagate_to = pto; }
     void set_r_hole_range(float rh1, float rh2);
     void set_q_bin(float qb) { m_q_bin = qb; }
