@@ -2,6 +2,7 @@
 #define DataFormats_Scouting_Run3Scouting_HitPatternPOD_h
 
 #include <vector>
+#include <cstdint>
 
 struct Run3ScoutingHitPatternPOD {
   uint8_t hitCount;
