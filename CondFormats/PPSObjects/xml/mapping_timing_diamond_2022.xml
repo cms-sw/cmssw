@@ -185,6 +185,7 @@
 <!--      <diamond_channel id="30"        hw_id="0x41F"           FEDId="582"             GOHId="4"               IdxInFiber="15"/>-->
         </rp_plane_diamond>
       </rp_detector_set>
+    </station>
     <station id="2">        <!-- 220 m near-->
       <rp_detector_set id="2">        <!-- Timing -->
         <rp_plane_diamond id="0"> 
