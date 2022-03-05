@@ -1,5 +1,5 @@
-#ifndef DataFormats_Scouting_Run3Scouting_HitPatternPOD_h
-#define DataFormats_Scouting_Run3Scouting_HitPatternPOD_h
+#ifndef DataFormats_Scouting_Run3ScoutingHitPatternPOD_h
+#define DataFormats_Scouting_Run3ScoutingHitPatternPOD_h
 
 #include <vector>
 #include <cstdint>

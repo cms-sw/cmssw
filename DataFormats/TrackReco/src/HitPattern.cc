@@ -40,9 +40,9 @@ HitPattern::HitPattern(const Run3ScoutingHitPatternPOD& other)
       endInner(other.endInner),
       beginOuter(other.beginOuter),
       endOuter(other.endOuter) {
-  const static unsigned short max_vector_length_ =
+  const unsigned short max_vector_length =
       (other.hitPattern.size() > HitPattern::ARRAY_LENGTH) ? HitPattern::ARRAY_LENGTH : other.hitPattern.size();
-  std::copy(other.hitPattern.begin(), other.hitPattern.begin() + max_vector_length_, this->hitPattern);
+  std::copy(other.hitPattern.begin(), other.hitPattern.begin() + max_vector_length, this->hitPattern);
 }
 
 HitPattern::~HitPattern() { ; }
@@ -1028,15 +1028,15 @@ bool HitPattern::insertExpectedOuterHit(const uint16_t pattern) {
 }
 
 Run3ScoutingHitPatternPOD HitPattern::run3ScoutingHitPatternPOD() const {
-  Run3ScoutingHitPatternPOD run3ScoutingHitPatternPOD_;
-  run3ScoutingHitPatternPOD_.hitCount = hitCount;
-  run3ScoutingHitPatternPOD_.beginTrackHits = beginTrackHits;
-  run3ScoutingHitPatternPOD_.endTrackHits = endTrackHits;
-  run3ScoutingHitPatternPOD_.beginInner = beginInner;
-  run3ScoutingHitPatternPOD_.endInner = endInner;
-  run3ScoutingHitPatternPOD_.beginOuter = beginOuter;
-  run3ScoutingHitPatternPOD_.endOuter = endOuter;
-  run3ScoutingHitPatternPOD_.hitPattern.insert(
-      run3ScoutingHitPatternPOD_.hitPattern.begin(), hitPattern, hitPattern + HitPattern::ARRAY_LENGTH);
-  return run3ScoutingHitPatternPOD_;
+  Run3ScoutingHitPatternPOD run3ScoutingHitPatternPOD;
+  run3ScoutingHitPatternPOD.hitCount = hitCount;
+  run3ScoutingHitPatternPOD.beginTrackHits = beginTrackHits;
+  run3ScoutingHitPatternPOD.endTrackHits = endTrackHits;
+  run3ScoutingHitPatternPOD.beginInner = beginInner;
+  run3ScoutingHitPatternPOD.endInner = endInner;
+  run3ScoutingHitPatternPOD.beginOuter = beginOuter;
+  run3ScoutingHitPatternPOD.endOuter = endOuter;
+  run3ScoutingHitPatternPOD.hitPattern.insert(
+      run3ScoutingHitPatternPOD.hitPattern.begin(), hitPattern, hitPattern + HitPattern::ARRAY_LENGTH);
+  return run3ScoutingHitPatternPOD;
 }
