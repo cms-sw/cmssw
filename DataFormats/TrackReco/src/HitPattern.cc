@@ -32,6 +32,19 @@ HitPattern::HitPattern(const HitPattern& other)
   memcpy(this->hitPattern, other.hitPattern, sizeof(uint16_t) * HitPattern::ARRAY_LENGTH);
 }
 
+HitPattern::HitPattern(const Run3ScoutingHitPatternPOD& other)
+    : hitCount(other.hitCount),
+      beginTrackHits(other.beginTrackHits),
+      endTrackHits(other.endTrackHits),
+      beginInner(other.beginInner),
+      endInner(other.endInner),
+      beginOuter(other.beginOuter),
+      endOuter(other.endOuter) {
+  const static unsigned short max_vector_length_ =
+      (other.hitPattern.size() > HitPattern::ARRAY_LENGTH) ? HitPattern::ARRAY_LENGTH : other.hitPattern.size();
+  std::copy(other.hitPattern.begin(), other.hitPattern.begin() + max_vector_length_, this->hitPattern);
+}
+
 HitPattern::~HitPattern() { ; }
 
 HitPattern& HitPattern::operator=(const HitPattern& other) {
@@ -1012,4 +1025,18 @@ bool HitPattern::insertExpectedOuterHit(const uint16_t pattern) {
   endOuter++;
 
   return true;
+}
+
+Run3ScoutingHitPatternPOD HitPattern::run3ScoutingHitPatternPOD() const {
+  Run3ScoutingHitPatternPOD run3ScoutingHitPatternPOD_;
+  run3ScoutingHitPatternPOD_.hitCount = hitCount;
+  run3ScoutingHitPatternPOD_.beginTrackHits = beginTrackHits;
+  run3ScoutingHitPatternPOD_.endTrackHits = endTrackHits;
+  run3ScoutingHitPatternPOD_.beginInner = beginInner;
+  run3ScoutingHitPatternPOD_.endInner = endInner;
+  run3ScoutingHitPatternPOD_.beginOuter = beginOuter;
+  run3ScoutingHitPatternPOD_.endOuter = endOuter;
+  run3ScoutingHitPatternPOD_.hitPattern.insert(
+      run3ScoutingHitPatternPOD_.hitPattern.begin(), hitPattern, hitPattern + HitPattern::ARRAY_LENGTH);
+  return run3ScoutingHitPatternPOD_;
 }
