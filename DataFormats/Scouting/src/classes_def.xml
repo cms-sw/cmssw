@@ -44,8 +44,9 @@
       <version ClassVersion="3" checksum="1086011373"/>
       <version ClassVersion="4" checksum="1250202632"/>
   </class>
-  <class name="Run3ScoutingMuon" ClassVersion="3">
+  <class name="Run3ScoutingMuon" ClassVersion="4">
       <version ClassVersion="3" checksum="3882497397"/>
+      <version ClassVersion="4" checksum="4206297195"/>
   </class>
   <class name="Run3ScoutingPhoton" ClassVersion="4">
       <version ClassVersion="3" checksum="1683146807"/>
@@ -54,6 +55,7 @@
   <class name="Run3ScoutingTrack" ClassVersion="3">
       <version ClassVersion="3" checksum="3352318277"/>
   </class>
+  <class name="Run3ScoutingHitPatternPOD"/>
   <class name="std::vector<ScoutingCaloJet>"/>
   <class name="std::vector<ScoutingPFJet>"/>
   <class name="std::vector<ScoutingParticle>"/>

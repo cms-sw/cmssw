@@ -2,6 +2,7 @@
 #define DataFormats_Run3ScoutingMuon_h
 
 #include <vector>
+#include "DataFormats/Scouting/interface/Run3ScoutingHitPatternPOD.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 // Class for holding muon information, for use in data scouting
@@ -63,8 +64,8 @@ public:
                    float trk_vx,
                    float trk_vy,
                    float trk_vz,
-                   reco::HitPattern trk_hitPattern,
-                   std::vector<int> vtxIndx)
+                   std::vector<int> vtxIndx,
+                   Run3ScoutingHitPatternPOD trk_hitPattern)
       : pt_(pt),
         eta_(eta),
         phi_(phi),
@@ -119,8 +120,8 @@ public:
         trk_vx_(trk_vx),
         trk_vy_(trk_vy),
         trk_vz_(trk_vz),
-        trk_hitPattern_(trk_hitPattern),
-        vtxIndx_(std::move(vtxIndx)) {}
+        vtxIndx_(std::move(vtxIndx)),
+        trk_hitPattern_(trk_hitPattern) {}
   //default constructor
   Run3ScoutingMuon()
       : pt_(0),
@@ -237,8 +238,8 @@ public:
   float trk_vx() const { return trk_vx_; }
   float trk_vy() const { return trk_vy_; }
   float trk_vz() const { return trk_vz_; }
-  reco::HitPattern const& trk_hitPattern() const { return trk_hitPattern_; }
   std::vector<int> const& vtxIndx() const { return vtxIndx_; }
+  Run3ScoutingHitPatternPOD const& trk_hitPattern() const { return trk_hitPattern_; }
 
 private:
   float pt_;
@@ -295,8 +296,8 @@ private:
   float trk_vx_;
   float trk_vy_;
   float trk_vz_;
-  reco::HitPattern trk_hitPattern_;
   std::vector<int> vtxIndx_;
+  Run3ScoutingHitPatternPOD trk_hitPattern_;
 };
 
 typedef std::vector<Run3ScoutingMuon> Run3ScoutingMuonCollection;
