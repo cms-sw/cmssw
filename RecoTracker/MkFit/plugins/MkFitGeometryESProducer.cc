@@ -34,12 +34,11 @@
 
 //------------------------------------------------------------------------------
 
-
 class MkFitGeometryESProducer : public edm::ESProducer {
 public:
-  MkFitGeometryESProducer(const edm::ParameterSet& iConfig);
+  MkFitGeometryESProducer(const edm::ParameterSet &iConfig);
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void considerPoint(const GlobalPoint &gp, mkfit::LayerInfo &lay_info);
   void fillShapeAndPlacement(const GeomDet *det, mkfit::TrackerInfo &trk_info);
@@ -50,7 +49,7 @@ public:
   void addTIDGeometry(mkfit::TrackerInfo &trk_info);
   void addTECGeometry(mkfit::TrackerInfo &trk_info);
 
-  std::unique_ptr<MkFitGeometry> produce(const TrackerRecoGeometryRecord& iRecord);
+  std::unique_ptr<MkFitGeometry> produce(const TrackerRecoGeometryRecord &iRecord);
 
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
@@ -59,46 +58,39 @@ private:
 
   const TrackerTopology *m_trackerTopo = nullptr;
   const TrackerGeometry *m_trackerGeom = nullptr;
-  mkfit::LayerNumberConverter   m_layerNrConv = { mkfit::TkLayout::phase1 };
+  mkfit::LayerNumberConverter m_layerNrConv = {mkfit::TkLayout::phase1};
 };
 
-MkFitGeometryESProducer::MkFitGeometryESProducer(const edm::ParameterSet& iConfig) {
+MkFitGeometryESProducer::MkFitGeometryESProducer(const edm::ParameterSet &iConfig) {
   auto cc = setWhatProduced(this);
   geomToken_ = cc.consumes();
   trackerToken_ = cc.consumes();
   ttopoToken_ = cc.consumes();
 }
 
-void MkFitGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MkFitGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.addWithDefaultLabel(desc);
 }
 
 //------------------------------------------------------------------------------
 
-void MkFitGeometryESProducer::considerPoint(const GlobalPoint &gp, mkfit::LayerInfo &li)
-{
+void MkFitGeometryESProducer::considerPoint(const GlobalPoint &gp, mkfit::LayerInfo &li) {
   // Use radius squared during bounding-region search.
   float r = gp.perp2(), z = gp.z();
-  // need this is a function in LayerInfo
-  // float  m_rin, m_rout, m_zmin, m_zmax;
-  if (z > li.m_zmax) li.m_zmax = z;
-  if (z < li.m_zmin) li.m_zmin = z;
-  if (r > li.m_rout) li.m_rout = r;
-  if (r < li.m_rin)  li.m_rin  = r;
+  li.extend_limits(r, z);
 }
 
-void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet* det, mkfit::TrackerInfo &trk_info)
-{
+void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det, mkfit::TrackerInfo &trk_info) {
   DetId detid = det->geographicalId();
-  
+
   float xy[4][2];
   float dz;
-  const Bounds* b = &((det->surface()).bounds());
+  const Bounds *b = &((det->surface()).bounds());
 
-  if (const TrapezoidalPlaneBounds* b2 = dynamic_cast<const TrapezoidalPlaneBounds*>(b)) {
+  if (const TrapezoidalPlaneBounds *b2 = dynamic_cast<const TrapezoidalPlaneBounds *>(b)) {
     // Trapezoidal
-    std::array<const float, 4> const& par = b2->parameters();
+    std::array<const float, 4> const &par = b2->parameters();
 
     // These parameters are half-lengths, as in CMSIM/GEANT3
     // https://github.com/trackreco/cmssw/blob/master/Fireworks/Core/src/FWGeometry.cc#L241
@@ -152,40 +144,49 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet* det, mkfit::T
        fXY[7][0] =  bl2;    fXY[7][1] = -h2;   dz
      }
      */
-    xy[0][0] = -par[0]; xy[0][1] = -par[3];
-    xy[1][0] = -par[1]; xy[1][1] =  par[3];
-    xy[2][0] =  par[1]; xy[2][1] =  par[3];
-    xy[3][0] =  par[0]; xy[3][1] = -par[3];
+    xy[0][0] = -par[0];
+    xy[0][1] = -par[3];
+    xy[1][0] = -par[1];
+    xy[1][1] = par[3];
+    xy[2][0] = par[1];
+    xy[2][1] = par[3];
+    xy[3][0] = par[0];
+    xy[3][1] = -par[3];
     dz = par[2];
 
     // printf("TRAP 0x%x %f %f %f %f\n", detid.rawId(), par[0], par[1], par[2], par[3]);
-  }
-  else if (const RectangularPlaneBounds* b2 = dynamic_cast<const RectangularPlaneBounds*>(b)) {
+  } else if (const RectangularPlaneBounds *b2 = dynamic_cast<const RectangularPlaneBounds *>(b)) {
     // Rectangular
-    float dx = b2->width() * 0.5;      // half width
-    float dy = b2->length() * 0.5;     // half length
-    xy[0][0] = -dx; xy[0][1] = -dy;
-    xy[1][0] = -dx; xy[1][1] =  dy;
-    xy[2][0] =  dx; xy[2][1] =  dy;
-    xy[3][0] =  dx; xy[3][1] = -dy;
+    float dx = b2->width() * 0.5;   // half width
+    float dy = b2->length() * 0.5;  // half length
+    xy[0][0] = -dx;
+    xy[0][1] = -dy;
+    xy[1][0] = -dx;
+    xy[1][1] = dy;
+    xy[2][0] = dx;
+    xy[2][1] = dy;
+    xy[3][0] = dx;
+    xy[3][1] = -dy;
     dz = b2->thickness() * 0.5;  // half thickness
 
     // printf("RECT 0x%x %f %f %f\n", detid.rawId(), dx, dy, dz);
   }
 
   const bool useMatched = false;
-  int lay = m_layerNrConv.convertLayerNumber(detid.subdetId(), m_trackerTopo->layer(detid), useMatched,
-                                             m_trackerTopo->isStereo(detid),
-                                             m_trackerTopo->side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap));
+  int lay =
+      m_layerNrConv.convertLayerNumber(detid.subdetId(),
+                                       m_trackerTopo->layer(detid),
+                                       useMatched,
+                                       m_trackerTopo->isStereo(detid),
+                                       m_trackerTopo->side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap));
 
-  mkfit::LayerInfo &layer_info = trk_info.m_layers[lay];
-  for (int i = 0; i < 4; ++i)
-  {
+  mkfit::LayerInfo &layer_info = trk_info.layer_nc(lay);
+  for (int i = 0; i < 4; ++i) {
     Local3DPoint lp1(xy[i][0], xy[i][1], -dz);
-    Local3DPoint lp2(xy[i][0], xy[i][1],  dz);
+    Local3DPoint lp2(xy[i][0], xy[i][1], dz);
 
-    considerPoint(det->surface().toGlobal( lp1 ), layer_info);
-    considerPoint(det->surface().toGlobal( lp2 ), layer_info);
+    considerPoint(det->surface().toGlobal(lp1), layer_info);
+    considerPoint(det->surface().toGlobal(lp2), layer_info);
   }
 }
 
@@ -243,7 +244,7 @@ void MkFitGeometryESProducer::addTECGeometry(mkfit::TrackerInfo &trk_info) {
 
 //------------------------------------------------------------------------------
 
-std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRecoGeometryRecord& iRecord) {
+std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRecoGeometryRecord &iRecord) {
   auto trackerInfo = std::make_unique<mkfit::TrackerInfo>();
 
   // QQQQ m_trackerGeom = &iRecord.get(geomTokenReco_);
@@ -266,8 +267,8 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
   }
 
   // Prepare layer boundaries for bounding-box search
-  for (auto &li : trackerInfo->m_layers)
-    li.set_limits(1e9, 0, 1e9, -1e9);
+  for (int i = 0; i < trackerInfo->n_layers(); ++i)
+    trackerInfo->layer_nc(i).set_limits(1e9, 0, 1e9, -1e9);
 
   // This is sort of CMS-2017 specific ... but fireworks code uses it for PhaseII as well
   // split in Fireworks, could really iterate over trackerGeometry->dets()
@@ -279,16 +280,15 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
   addTECGeometry(*trackerInfo);
 
   // r_in/out kept as squres until here, root them
-  for (auto &li : trackerInfo->m_layers)
-  {
-    li.m_rin  = std::sqrt(li.m_rin);
-    li.m_rout = std::sqrt(li.m_rout);
+  for (int i = 0; i < trackerInfo->n_layers(); ++i) {
+    auto &li = trackerInfo->layer_nc(i);
+    li.set_r_in_out(std::sqrt(li.rin()), std::sqrt(li.rout()));
   }
 
   // missing setup of bins ets (as in standalone Geoms/CMS-2017.cc and mk_trk_info.C)
 
   return std::make_unique<MkFitGeometry>(
-    iRecord.get(geomToken_), iRecord.get(trackerToken_), iRecord.get(ttopoToken_), std::move(trackerInfo));
+      iRecord.get(geomToken_), iRecord.get(trackerToken_), iRecord.get(ttopoToken_), std::move(trackerInfo));
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(MkFitGeometryESProducer);
