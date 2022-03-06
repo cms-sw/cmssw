@@ -48,6 +48,8 @@ EXOMonopoleSkimContent.outputCommands.append('keep *_offlinePrimaryVertices_*_*'
 EXOMonopoleSkimContent.outputCommands.append('keep *_gedGsfElectrons_*_*')
 EXOMonopoleSkimContent.outputCommands.append('keep *_photons_*_*')
 EXOMonopoleSkimContent.outputCommands.append('keep *_pfMet_*_*')
+EXOMonopoleSkimContent.outputCommands.append('keep *_offlineBeamSpot_*_*')
+EXOMonopoleSkimContent.outputCommands.append('keep *_siPixelDigis_*_*')
 
 # monopole skim sequence
 EXOMonopoleSkimSequence = cms.Sequence(hltMonopole)
