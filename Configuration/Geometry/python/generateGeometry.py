@@ -26,6 +26,7 @@ class GeometryGenerator(object):
         self.deprecatedSubdets = deprecatedSubdets
         self.detectorVersionType = detectorVersionType
         self.detectorVersionNull = self.detectorVersionType(0)
+        self.dd4hepDetectorVersion = 91 #If detectorVersion > 91, add warning to add also DD4hep in Configuration/StandardSequences/python/GeometryConf.py
 
     def generateGeom(self, detectorTuple, args):
         detectorVersion = self.detectorPrefix+str(args.detectorVersionManual)
@@ -202,6 +203,8 @@ class GeometryGenerator(object):
             if not 'Extended'+self.detectorYear+detectorVersion in GeometryConf.keys():
                 print("Please add this line in Configuration/StandardSequences/python/GeometryConf.py:")
                 print("    'Extended"+self.detectorYear+detectorVersion+"' : 'Extended"+self.detectorYear+detectorVersion+",Extended"+self.detectorYear+detectorVersion+"Reco',")
+                if self.detectorYear == "2026" and int(args.v_detector) > self.dd4hepDetectorVersion:
+                    print("    'DD4hepExtended"+self.detectorYear+detectorVersion+"' : 'DD4hepExtended"+self.detectorYear+detectorVersion+",DD4hepExtended"+self.detectorYear+detectorVersion+"Reco',")
 
         errorList = []
 
