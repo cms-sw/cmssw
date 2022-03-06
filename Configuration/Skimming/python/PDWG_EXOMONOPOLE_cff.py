@@ -23,20 +23,27 @@ hltMonopole.andOr = True
 
 from Configuration.EventContent.EventContent_cff import AODEventContent
 EXOMonopoleSkimContent = AODEventContent.clone()
+EXOMonopoleSkimContent.outputCommands.append('drop *')
 EXOMonopoleSkimContent.outputCommands.append('keep *_hybridSuperClusters_*_*')
+EXOMonopoleSkimContent.outputCommands.append('keep *_multi5x5SuperClusters_multi5x5EndcapBasicClusters_*')
 EXOMonopoleSkimContent.outputCommands.append('keep *_multi5x5SuperClusters_multi5x5EndcapSuperClusters_*')
 EXOMonopoleSkimContent.outputCommands.append('keep *_multi5x5SuperClusters_uncleanOnlyMulti5x5EndcapBasicClusters_*')
 EXOMonopoleSkimContent.outputCommands.append('keep *_multi5x5SuperClusters_uncleanOnlyMulti5x5EndcapSuperClusters_*')
+EXOMonopoleSkimContent.outputCommands.append('keep *_uncleanSCRecovered_uncleanHybridBarrelBasicClusters_*') 
+EXOMonopoleSkimContent.outputCommands.append('keep *_uncleanEERecovered_uncleanEndcapBasicClusters_*')
 EXOMonopoleSkimContent.outputCommands.append('keep *_siStripClusters_*_*')
 EXOMonopoleSkimContent.outputCommands.append('keep *_siPixelClusters_*_*')
-EXOMonopoleSkimContent.outputCommands.append('drop *_generalTracks_*_*')
 EXOMonopoleSkimContent.outputCommands.append('keep *_generalTracks_*_*')
 EXOMonopoleSkimContent.outputCommands.append('drop *_generalTracks_QualityMasks_*')
 EXOMonopoleSkimContent.outputCommands.append('keep *_ecalRecHit_EcalRecHitsEB_*')
 EXOMonopoleSkimContent.outputCommands.append('keep *_ecalRecHit_EcalRecHitsEE_*')
 EXOMonopoleSkimContent.outputCommands.append('keep *_hbhereco_*_*')
+EXOMonopoleSkimContent.outputCommands.append('keep edmTriggerResults_TriggerResults_*_*')
+EXOMonopoleSkimContent.outputCommands.append('keep *_hltTriggerSummaryAOD_*_*')
+EXOMonopoleSkimContent.outputCommands.append('keep *_offlinePrimaryVertices_*_*')
+EXOMonopoleSkimContent.outputCommands.append('keep *_gedGsfElectrons_*_*')
+EXOMonopoleSkimContent.outputCommands.append('keep *_photons_*_*')
+EXOMonopoleSkimContent.outputCommands.append('keep *_pfMet_*_*')
 
 # monopole skim sequence
-EXOMonopoleSkimSequence = cms.Sequence(
-    hltMonopole
-    )
+EXOMonopoleSkimSequence = cms.Sequence(hltMonopole)
