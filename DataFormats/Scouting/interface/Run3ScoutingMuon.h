@@ -3,7 +3,6 @@
 
 #include <vector>
 #include "DataFormats/Scouting/interface/Run3ScoutingHitPatternPOD.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 
 // Class for holding muon information, for use in data scouting
 // IMPORTANT: the content of this class should be changed only in backwards compatible ways!
