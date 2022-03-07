@@ -8,7 +8,7 @@ Photon::Photon(const LorentzVector& p4, const Point& caloPos, const PhotonCoreRe
       caloPosition_(caloPos),
       photonCore_(core),
       pixelSeed_(false),
-      haloTaggerMVAVal_(-999) {}
+      haloTaggerMVAVal_(99) {}
 
 Photon::Photon(const Photon& rhs)
     : RecoCandidate(rhs),
