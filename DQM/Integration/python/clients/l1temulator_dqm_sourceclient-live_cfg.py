@@ -8,7 +8,8 @@ from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("L1TEmuDQMlive")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("L1TEmuDQMlive", Run3)
 
 
 #----------------------------
