@@ -2,7 +2,8 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
-process = cms.Process("DTDQM")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("DTDQM", Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
