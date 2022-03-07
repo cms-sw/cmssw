@@ -237,13 +237,9 @@ from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeAllMC
 #call to customisation function miniAOD_customizeAllMC imported from PhysicsTools.PatAlgos.slimming.miniAOD_tools
 process = miniAOD_customizeAllMC(process)
 
-from Validation.Performance.TimeMemoryInfo import customise as customise_profile
+from PhysicsTools.PatAlgos.slimming.enableDRN import customise
 
-process = customise_profile(process)
-
-from PhysicsTools.PatAlgos.slimming.enableDRN import enableDRN
-
-process = enableDRN(process)
+process = customise(process)
 
 process.TritonService.verbose = cms.untracked.bool(True)
 process.TritonService.fallback.verbose = cms.untracked.bool(True)
