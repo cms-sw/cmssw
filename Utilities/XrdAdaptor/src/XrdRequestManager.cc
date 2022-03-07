@@ -122,6 +122,7 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
     : m_serverToAdvertise(nullptr),
       m_timeout(XRD_DEFAULT_TIMEOUT),
       m_nextInitialSourceToggle(false),
+      m_redirectLimitDelayScale(1),
       m_name(filename),
       m_flags(flags),
       m_perms(perms),
@@ -595,6 +596,7 @@ void XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::sh
   std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
   if (status.IsOK()) {
     edm::LogVerbatim("XrdAdaptorInternal") << "Successfully opened new source: " << source->PrettyID() << std::endl;
+    m_redirectLimitDelayScale = 1;
     for (const auto &s : m_activeSources) {
       if (source->ID() == s->ID()) {
         edm::LogVerbatim("XrdAdaptorInternal")
@@ -625,7 +627,12 @@ void XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::sh
     }
   } else {  // File-open failure - wait at least 120s before next attempt.
     edm::LogVerbatim("XrdAdaptorInternal") << "Got failure when trying to open a new source" << std::endl;
-    m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
+    int delayScale = 1;
+    if (status.status == XrdCl::errRedirectLimit) {
+      m_redirectLimitDelayScale = std::min(2 * m_redirectLimitDelayScale, 100);
+      delayScale = m_redirectLimitDelayScale;
+    }
+    m_nextActiveSourceCheck.tv_sec += delayScale * XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
   }
 }
 
@@ -1031,14 +1038,6 @@ void XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRo
          << "' (errno=" << status->errNo << ", code=" << status->code << ")";
       ex.addContext("In XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts()");
       manager->addConnections(ex);
-
-      // Brian, should we do something like this:
-      // if (status.status == XrdCl::errRedirectLimit) {
-      //   // The following method does not exist (yet), would probaly need a multiplier for OPEN_DELAY.
-      //   // Note that with XCache cluster one will never get multiple sources.
-      //   manager->increaseMultiSourceInterval();
-      // }
-
       m_promise.set_exception(std::make_exception_ptr(ex));
     }
   }
