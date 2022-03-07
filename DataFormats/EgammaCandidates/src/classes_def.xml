@@ -18,7 +18,7 @@
    <version ClassVersion="14" checksum="753726370"/>
   </class>
   <ioread sourceClass="reco::Photon" version="[1-17]" source="" targetClass="reco::Photon" target="haloTaggerMVAVal_">
-   <![CDATA[haloTaggerMVAVal_ = -99;]]>
+   <![CDATA[haloTaggerMVAVal_ = 99;]]>
    </ioread>
   <class name="reco::Conversion" ClassVersion="11">
    <version ClassVersion="10" checksum="2140222741"/>
