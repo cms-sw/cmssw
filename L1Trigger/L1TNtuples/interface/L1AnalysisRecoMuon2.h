@@ -34,7 +34,7 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoVertexDataFormat.h"
 
 // track extrapolation
-#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
+#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuonSetup.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 namespace L1Analysis {
@@ -62,6 +62,9 @@ namespace L1Analysis {
 
   private:
     L1AnalysisRecoMuon2DataFormat recoMuon_;
+
+    const PropagateToMuonSetup muPropagatorSetup1st_;
+    const PropagateToMuonSetup muPropagatorSetup2nd_;
 
     PropagateToMuon muPropagator1st_;
     PropagateToMuon muPropagator2nd_;

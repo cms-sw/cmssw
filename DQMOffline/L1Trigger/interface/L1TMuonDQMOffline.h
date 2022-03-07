@@ -27,7 +27,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
+#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuonSetup.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -98,13 +98,13 @@ private:
   double matchHlt(edm::Handle<trigger::TriggerEvent>& triggerEvent, const reco::Muon* mu);
 
   // Cut and Matching
-  void getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection>& gmtCands);
+  void getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection>& gmtCands, PropagateToMuon const& propagator);
   void getTightMuons(edm::Handle<reco::MuonCollection>& muons, const reco::Vertex& vertex);
   void getProbeMuons(edm::Handle<edm::TriggerResults>& trigResults, edm::Handle<trigger::TriggerEvent>& trigEvent);
 
   HLTConfigProvider m_hltConfig;
 
-  PropagateToMuon m_propagator;
+  PropagateToMuonSetup const m_propagatorSetup;
 
   std::vector<float> getHistBinsEff(EffType eff);
   std::tuple<int, double, double> getHistBinsRes(ResType res);
