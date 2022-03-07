@@ -98,6 +98,13 @@ namespace {
 
   typedef DisplayParameters<BeamSpotObjects> BeamSpotParameters;
 
+  /************************************************
+    Display of Beam Spot parameters Differences
+  *************************************************/
+
+  typedef DisplayParametersDiff<BeamSpotObjects, cond::payloadInspector::MULTI_IOV, 1> BeamSpotParametersDiffSingleTag;
+  typedef DisplayParametersDiff<BeamSpotObjects, cond::payloadInspector::SINGLE_IOV, 2> BeamSpotParametersDiffTwoTags;
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(BeamSpot) {
@@ -107,6 +114,8 @@ PAYLOAD_INSPECTOR_MODULE(BeamSpot) {
   PAYLOAD_INSPECTOR_CLASS(BeamSpot_y);
   PAYLOAD_INSPECTOR_CLASS(BeamSpot_xy);
   PAYLOAD_INSPECTOR_CLASS(BeamSpotParameters);
+  PAYLOAD_INSPECTOR_CLASS(BeamSpotParametersDiffSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(BeamSpotParametersDiffTwoTags);
   PAYLOAD_INSPECTOR_CLASS(BeamSpot_HistoryX);
   PAYLOAD_INSPECTOR_CLASS(BeamSpot_HistoryY);
   PAYLOAD_INSPECTOR_CLASS(BeamSpot_HistoryZ);
