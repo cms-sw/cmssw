@@ -3,7 +3,7 @@
 //root -b -q -l 'RemoteMonitoringMAP.C+("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMweb/histos/LED_214513.root","/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMweb/histos/LED_214512.root")'
 //root -b -q -l 'RemoteMonitoringMAP.C+(" /afs/cern.ch/work/d/dtlisov/private/Monitoring/histos/LED_211659.root","/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMweb/histos/LED_214512.root")'
 //
-//  HistBadTSshapesHF.pn    0. Entries for each channel.   MapRateEntryHF.png
+//
 //
 #include "LogEleMapdb.h"
 
@@ -33,6 +33,7 @@ using namespace std;
 //inline void HERE(const char *msg) { std::cout << msg << std::endl; }
 
 int main(int argc, char *argv[]) {
+  std::string dirnm = "Analyzer";
   gROOT->Reset();
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
@@ -62,7 +63,9 @@ int main(int argc, char *argv[]) {
     refrunnumber += refname[i];
 
   TFile *hfile = new TFile(fname, "READ");
-  TFile *hreffile = new TFile(refname, "READ");
+  hfile->ls();
+  TDirectory *dir = (TDirectory *)hfile->FindObjectAny(dirnm.c_str());
+  //TFile *hreffile = new TFile(refname, "READ");
   //megatile channels
   //CUTS:    [test][subdetector]             CapID(Test=1;  ADC amplitude Am(Test= 2);  Width for Wm(Test=3);     Ratio cut for Rm(Test=4);  TS mean for TNm(test=5);   TS max  for TXm(Test=6);
   double MIN_M[7][5] = {{0., 0., 0., 0., 0.},
@@ -99,6 +102,7 @@ int main(int argc, char *argv[]) {
   //    double porog[5] = {0., 200., 200., 100., 100.}; // Cut for GS test in pro cents
   double Pedest[2][5] = {{0., 0.2, 0.9, 0.1, 0.2}, {0., 0.2, 0.2, 0.1, 0.16}};  //Cuts for Pedestal  and pedestal  Width
   //======================================================================
+  // with TfileService implementation, change everywhere below:     hfile->Get     to     dir->FindObjectAny
   //======================================================================
   // Prepare histograms and plot them to .png files
 
@@ -156,39 +160,39 @@ int main(int argc, char *argv[]) {
   TH1F *hist_SumADC0[5][ALLDEPTH];  // 1d  histogramm for TS shape subdet, depth -> test 43
   TH1F *hist_SumADC1[5][ALLDEPTH];  // 1d  histogramm for TS shape subdet, depth -> test 43
 
-  Map_SUB[1][1] = (TH2F *)hfile->Get("h_mapDepth1_HB");
-  Map_SUB[1][2] = (TH2F *)hfile->Get("h_mapDepth2_HB");
-  Map_SUB[1][3] = (TH2F *)hfile->Get("h_mapDepth3_HB");
-  Map_SUB[1][4] = (TH2F *)hfile->Get("h_mapDepth4_HB");
-  Map_SUB[2][1] = (TH2F *)hfile->Get("h_mapDepth1_HE");
-  Map_SUB[2][2] = (TH2F *)hfile->Get("h_mapDepth2_HE");
-  Map_SUB[2][3] = (TH2F *)hfile->Get("h_mapDepth3_HE");
-  Map_SUB[2][4] = (TH2F *)hfile->Get("h_mapDepth4_HE");
-  Map_SUB[2][5] = (TH2F *)hfile->Get("h_mapDepth5_HE");
-  Map_SUB[2][6] = (TH2F *)hfile->Get("h_mapDepth6_HE");
-  Map_SUB[2][7] = (TH2F *)hfile->Get("h_mapDepth7_HE");
-  Map_SUB[3][4] = (TH2F *)hfile->Get("h_mapDepth4_HO");
-  Map_SUB[4][1] = (TH2F *)hfile->Get("h_mapDepth1_HF");
-  Map_SUB[4][2] = (TH2F *)hfile->Get("h_mapDepth2_HF");
-  Map_SUB[4][3] = (TH2F *)hfile->Get("h_mapDepth3_HF");
-  Map_SUB[4][4] = (TH2F *)hfile->Get("h_mapDepth4_HF");
+  Map_SUB[1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1_HB");
+  Map_SUB[1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2_HB");
+  Map_SUB[1][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3_HB");
+  Map_SUB[1][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4_HB");
+  Map_SUB[2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1_HE");
+  Map_SUB[2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2_HE");
+  Map_SUB[2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3_HE");
+  Map_SUB[2][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4_HE");
+  Map_SUB[2][5] = (TH2F *)dir->FindObjectAny("h_mapDepth5_HE");
+  Map_SUB[2][6] = (TH2F *)dir->FindObjectAny("h_mapDepth6_HE");
+  Map_SUB[2][7] = (TH2F *)dir->FindObjectAny("h_mapDepth7_HE");
+  Map_SUB[3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4_HO");
+  Map_SUB[4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1_HF");
+  Map_SUB[4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2_HF");
+  Map_SUB[4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3_HF");
+  Map_SUB[4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4_HF");
 
-  Map_SUBGOOD[1][1] = (TH2F *)hfile->Get("h_mapDepth1_HB");
-  Map_SUBGOOD[1][2] = (TH2F *)hfile->Get("h_mapDepth2_HB");
-  Map_SUBGOOD[1][3] = (TH2F *)hfile->Get("h_mapDepth3_HB");
-  Map_SUBGOOD[1][4] = (TH2F *)hfile->Get("h_mapDepth4_HB");
-  Map_SUBGOOD[2][1] = (TH2F *)hfile->Get("h_mapDepth1_HE");
-  Map_SUBGOOD[2][2] = (TH2F *)hfile->Get("h_mapDepth2_HE");
-  Map_SUBGOOD[2][3] = (TH2F *)hfile->Get("h_mapDepth3_HE");
-  Map_SUBGOOD[2][4] = (TH2F *)hfile->Get("h_mapDepth4_HE");
-  Map_SUBGOOD[2][5] = (TH2F *)hfile->Get("h_mapDepth5_HE");
-  Map_SUBGOOD[2][6] = (TH2F *)hfile->Get("h_mapDepth6_HE");
-  Map_SUBGOOD[2][7] = (TH2F *)hfile->Get("h_mapDepth7_HE");
-  Map_SUBGOOD[3][4] = (TH2F *)hfile->Get("h_mapDepth4_HO");
-  Map_SUBGOOD[4][1] = (TH2F *)hfile->Get("h_mapDepth1_HF");
-  Map_SUBGOOD[4][2] = (TH2F *)hfile->Get("h_mapDepth2_HF");
-  Map_SUBGOOD[4][3] = (TH2F *)hfile->Get("h_mapDepth3_HF");
-  Map_SUBGOOD[4][4] = (TH2F *)hfile->Get("h_mapDepth4_HF");
+  Map_SUBGOOD[1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1_HB");
+  Map_SUBGOOD[1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2_HB");
+  Map_SUBGOOD[1][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3_HB");
+  Map_SUBGOOD[1][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4_HB");
+  Map_SUBGOOD[2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1_HE");
+  Map_SUBGOOD[2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2_HE");
+  Map_SUBGOOD[2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3_HE");
+  Map_SUBGOOD[2][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4_HE");
+  Map_SUBGOOD[2][5] = (TH2F *)dir->FindObjectAny("h_mapDepth5_HE");
+  Map_SUBGOOD[2][6] = (TH2F *)dir->FindObjectAny("h_mapDepth6_HE");
+  Map_SUBGOOD[2][7] = (TH2F *)dir->FindObjectAny("h_mapDepth7_HE");
+  Map_SUBGOOD[3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4_HO");
+  Map_SUBGOOD[4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1_HF");
+  Map_SUBGOOD[4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2_HF");
+  Map_SUBGOOD[4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3_HF");
+  Map_SUBGOOD[4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4_HF");
 
   //+++++++++++++++++++++++++++++
   //Test 0 Entries
@@ -278,24 +282,24 @@ int main(int argc, char *argv[]) {
   //Test 1 (Cm) Rate of Cap ID errors
   //+++++++++++++++++++++++++++++
 
-  Map_Ampl[1][1][1] = (TH2F *)hfile->Get("h_mapDepth1Error_HB");
-  Map_Ampl[1][1][2] = (TH2F *)hfile->Get("h_mapDepth2Error_HB");
-  Map_Ampl[1][2][1] = (TH2F *)hfile->Get("h_mapDepth1Error_HE");
-  Map_Ampl[1][2][2] = (TH2F *)hfile->Get("h_mapDepth2Error_HE");
-  Map_Ampl[1][2][3] = (TH2F *)hfile->Get("h_mapDepth3Error_HE");
-  Map_Ampl[1][3][4] = (TH2F *)hfile->Get("h_mapDepth4Error_HO");
-  Map_Ampl[1][4][1] = (TH2F *)hfile->Get("h_mapDepth1Error_HF");
-  Map_Ampl[1][4][2] = (TH2F *)hfile->Get("h_mapDepth2Error_HF");
+  Map_Ampl[1][1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1Error_HB");
+  Map_Ampl[1][1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2Error_HB");
+  Map_Ampl[1][2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1Error_HE");
+  Map_Ampl[1][2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2Error_HE");
+  Map_Ampl[1][2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3Error_HE");
+  Map_Ampl[1][3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Error_HO");
+  Map_Ampl[1][4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1Error_HF");
+  Map_Ampl[1][4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2Error_HF");
 
-  Map_Ampl[1][2][4] = (TH2F *)hfile->Get("h_mapDepth4Error_HE");
-  Map_Ampl[1][2][5] = (TH2F *)hfile->Get("h_mapDepth5Error_HE");
-  Map_Ampl[1][2][6] = (TH2F *)hfile->Get("h_mapDepth6Error_HE");
-  Map_Ampl[1][2][7] = (TH2F *)hfile->Get("h_mapDepth7Error_HE");
-  Map_Ampl[1][4][3] = (TH2F *)hfile->Get("h_mapDepth3Error_HF");
-  Map_Ampl[1][4][4] = (TH2F *)hfile->Get("h_mapDepth4Error_HF");
+  Map_Ampl[1][2][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Error_HE");
+  Map_Ampl[1][2][5] = (TH2F *)dir->FindObjectAny("h_mapDepth5Error_HE");
+  Map_Ampl[1][2][6] = (TH2F *)dir->FindObjectAny("h_mapDepth6Error_HE");
+  Map_Ampl[1][2][7] = (TH2F *)dir->FindObjectAny("h_mapDepth7Error_HE");
+  Map_Ampl[1][4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3Error_HF");
+  Map_Ampl[1][4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Error_HF");
 
-  Map_Ampl[1][1][3] = (TH2F *)hfile->Get("h_mapDepth3Error_HB");
-  Map_Ampl[1][1][4] = (TH2F *)hfile->Get("h_mapDepth4Error_HB");
+  Map_Ampl[1][1][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3Error_HB");
+  Map_Ampl[1][1][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Error_HB");
 
   for (int sub = 1; sub <= 4; sub++) {  //Subdetector: 1-HB, 2-HE, 3-HF, 4-HO
                                         //     if (sub==1) cHB->Divide(2,1);
@@ -382,141 +386,141 @@ int main(int argc, char *argv[]) {
   //Test 2 (Am) ADC amplitude
   //+++++++++++++++++++++++++++++
 
-  Map_Ampl[2][1][1] = (TH2F *)hfile->Get("h_mapDepth1ADCAmpl225_HB");
-  Map_Ampl[2][1][2] = (TH2F *)hfile->Get("h_mapDepth2ADCAmpl225_HB");
-  Map_Ampl[2][2][1] = (TH2F *)hfile->Get("h_mapDepth1ADCAmpl225_HE");
-  Map_Ampl[2][2][2] = (TH2F *)hfile->Get("h_mapDepth2ADCAmpl225_HE");
-  Map_Ampl[2][2][3] = (TH2F *)hfile->Get("h_mapDepth3ADCAmpl225_HE");
-  Map_Ampl[2][3][4] = (TH2F *)hfile->Get("h_mapDepth4ADCAmpl225_HO");
-  Map_Ampl[2][4][1] = (TH2F *)hfile->Get("h_mapDepth1ADCAmpl225_HF");
-  Map_Ampl[2][4][2] = (TH2F *)hfile->Get("h_mapDepth2ADCAmpl225_HF");
+  Map_Ampl[2][1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1ADCAmpl225_HB");
+  Map_Ampl[2][1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2ADCAmpl225_HB");
+  Map_Ampl[2][2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1ADCAmpl225_HE");
+  Map_Ampl[2][2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2ADCAmpl225_HE");
+  Map_Ampl[2][2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3ADCAmpl225_HE");
+  Map_Ampl[2][3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4ADCAmpl225_HO");
+  Map_Ampl[2][4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1ADCAmpl225_HF");
+  Map_Ampl[2][4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2ADCAmpl225_HF");
 
-  Map_Ampl[2][2][4] = (TH2F *)hfile->Get("h_mapDepth4ADCAmpl225_HE");
-  Map_Ampl[2][2][5] = (TH2F *)hfile->Get("h_mapDepth5ADCAmpl225_HE");
-  Map_Ampl[2][2][6] = (TH2F *)hfile->Get("h_mapDepth6ADCAmpl225_HE");
-  Map_Ampl[2][2][7] = (TH2F *)hfile->Get("h_mapDepth7ADCAmpl225_HE");
-  Map_Ampl[2][4][3] = (TH2F *)hfile->Get("h_mapDepth3ADCAmpl225_HF");
-  Map_Ampl[2][4][4] = (TH2F *)hfile->Get("h_mapDepth4ADCAmpl225_HF");
+  Map_Ampl[2][2][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4ADCAmpl225_HE");
+  Map_Ampl[2][2][5] = (TH2F *)dir->FindObjectAny("h_mapDepth5ADCAmpl225_HE");
+  Map_Ampl[2][2][6] = (TH2F *)dir->FindObjectAny("h_mapDepth6ADCAmpl225_HE");
+  Map_Ampl[2][2][7] = (TH2F *)dir->FindObjectAny("h_mapDepth7ADCAmpl225_HE");
+  Map_Ampl[2][4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3ADCAmpl225_HF");
+  Map_Ampl[2][4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4ADCAmpl225_HF");
 
-  Map_Ampl[2][1][3] = (TH2F *)hfile->Get("h_mapDepth3ADCAmpl225_HB");
-  Map_Ampl[2][1][4] = (TH2F *)hfile->Get("h_mapDepth4ADCAmpl225_HB");
+  Map_Ampl[2][1][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3ADCAmpl225_HB");
+  Map_Ampl[2][1][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4ADCAmpl225_HB");
 
-  HistAmpl[2][1] = (TH1F *)hfile->Get("h_ADCAmpl_HB");
-  HistAmpl[2][2] = (TH1F *)hfile->Get("h_ADCAmpl_HE");
-  HistAmpl[2][3] = (TH1F *)hfile->Get("h_ADCAmpl_HO");
-  HistAmpl[2][4] = (TH1F *)hfile->Get("h_ADCAmpl_HF");
+  HistAmpl[2][1] = (TH1F *)dir->FindObjectAny("h_ADCAmpl_HB");
+  HistAmpl[2][2] = (TH1F *)dir->FindObjectAny("h_ADCAmpl_HE");
+  HistAmpl[2][3] = (TH1F *)dir->FindObjectAny("h_ADCAmpl_HO");
+  HistAmpl[2][4] = (TH1F *)dir->FindObjectAny("h_ADCAmpl_HF");
 
   //+++++++++++++++++++++++++++++
   //Test 3 (Wm) Rate of RMS
   //+++++++++++++++++++++++++++++
 
-  Map_Ampl[3][1][1] = (TH2F *)hfile->Get("h_mapDepth1Amplitude225_HB");
-  Map_Ampl[3][1][2] = (TH2F *)hfile->Get("h_mapDepth2Amplitude225_HB");
-  Map_Ampl[3][2][1] = (TH2F *)hfile->Get("h_mapDepth1Amplitude225_HE");
-  Map_Ampl[3][2][2] = (TH2F *)hfile->Get("h_mapDepth2Amplitude225_HE");
-  Map_Ampl[3][2][3] = (TH2F *)hfile->Get("h_mapDepth3Amplitude225_HE");
-  Map_Ampl[3][3][4] = (TH2F *)hfile->Get("h_mapDepth4Amplitude225_HO");
-  Map_Ampl[3][4][1] = (TH2F *)hfile->Get("h_mapDepth1Amplitude225_HF");
-  Map_Ampl[3][4][2] = (TH2F *)hfile->Get("h_mapDepth2Amplitude225_HF");
+  Map_Ampl[3][1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1Amplitude225_HB");
+  Map_Ampl[3][1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2Amplitude225_HB");
+  Map_Ampl[3][2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1Amplitude225_HE");
+  Map_Ampl[3][2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2Amplitude225_HE");
+  Map_Ampl[3][2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3Amplitude225_HE");
+  Map_Ampl[3][3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Amplitude225_HO");
+  Map_Ampl[3][4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1Amplitude225_HF");
+  Map_Ampl[3][4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2Amplitude225_HF");
 
-  Map_Ampl[3][2][4] = (TH2F *)hfile->Get("h_mapDepth4Amplitude225_HE");
-  Map_Ampl[3][2][5] = (TH2F *)hfile->Get("h_mapDepth5Amplitude225_HE");
-  Map_Ampl[3][2][6] = (TH2F *)hfile->Get("h_mapDepth6Amplitude225_HE");
-  Map_Ampl[3][2][7] = (TH2F *)hfile->Get("h_mapDepth7Amplitude225_HE");
-  Map_Ampl[3][4][3] = (TH2F *)hfile->Get("h_mapDepth3Amplitude225_HF");
-  Map_Ampl[3][4][4] = (TH2F *)hfile->Get("h_mapDepth4Amplitude225_HF");
+  Map_Ampl[3][2][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Amplitude225_HE");
+  Map_Ampl[3][2][5] = (TH2F *)dir->FindObjectAny("h_mapDepth5Amplitude225_HE");
+  Map_Ampl[3][2][6] = (TH2F *)dir->FindObjectAny("h_mapDepth6Amplitude225_HE");
+  Map_Ampl[3][2][7] = (TH2F *)dir->FindObjectAny("h_mapDepth7Amplitude225_HE");
+  Map_Ampl[3][4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3Amplitude225_HF");
+  Map_Ampl[3][4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Amplitude225_HF");
 
-  Map_Ampl[3][1][3] = (TH2F *)hfile->Get("h_mapDepth3Amplitude225_HB");
-  Map_Ampl[3][1][4] = (TH2F *)hfile->Get("h_mapDepth4Amplitude225_HB");
+  Map_Ampl[3][1][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3Amplitude225_HB");
+  Map_Ampl[3][1][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Amplitude225_HB");
 
-  HistAmpl[3][1] = (TH1F *)hfile->Get("h_Amplitude_HB");
-  HistAmpl[3][2] = (TH1F *)hfile->Get("h_Amplitude_HE");
-  HistAmpl[3][3] = (TH1F *)hfile->Get("h_Amplitude_HO");
-  HistAmpl[3][4] = (TH1F *)hfile->Get("h_Amplitude_HF");
+  HistAmpl[3][1] = (TH1F *)dir->FindObjectAny("h_Amplitude_HB");
+  HistAmpl[3][2] = (TH1F *)dir->FindObjectAny("h_Amplitude_HE");
+  HistAmpl[3][3] = (TH1F *)dir->FindObjectAny("h_Amplitude_HO");
+  HistAmpl[3][4] = (TH1F *)dir->FindObjectAny("h_Amplitude_HF");
 
   //+++++++++++++++++++++++++++++
   //Test 4 (Rm) Rate of ratio 4 near max TS/ All TS
   //+++++++++++++++++++++++++++++
 
-  Map_Ampl[4][1][1] = (TH2F *)hfile->Get("h_mapDepth1Ampl047_HB");
-  Map_Ampl[4][1][2] = (TH2F *)hfile->Get("h_mapDepth2Ampl047_HB");
-  Map_Ampl[4][2][1] = (TH2F *)hfile->Get("h_mapDepth1Ampl047_HE");
-  Map_Ampl[4][2][2] = (TH2F *)hfile->Get("h_mapDepth2Ampl047_HE");
-  Map_Ampl[4][2][3] = (TH2F *)hfile->Get("h_mapDepth3Ampl047_HE");
-  Map_Ampl[4][3][4] = (TH2F *)hfile->Get("h_mapDepth4Ampl047_HO");
-  Map_Ampl[4][4][1] = (TH2F *)hfile->Get("h_mapDepth1Ampl047_HF");
-  Map_Ampl[4][4][2] = (TH2F *)hfile->Get("h_mapDepth2Ampl047_HF");
+  Map_Ampl[4][1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1Ampl047_HB");
+  Map_Ampl[4][1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2Ampl047_HB");
+  Map_Ampl[4][2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1Ampl047_HE");
+  Map_Ampl[4][2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2Ampl047_HE");
+  Map_Ampl[4][2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3Ampl047_HE");
+  Map_Ampl[4][3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Ampl047_HO");
+  Map_Ampl[4][4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1Ampl047_HF");
+  Map_Ampl[4][4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2Ampl047_HF");
 
-  Map_Ampl[4][2][4] = (TH2F *)hfile->Get("h_mapDepth4Ampl047_HE");
-  Map_Ampl[4][2][5] = (TH2F *)hfile->Get("h_mapDepth5Ampl047_HE");
-  Map_Ampl[4][2][6] = (TH2F *)hfile->Get("h_mapDepth6Ampl047_HE");
-  Map_Ampl[4][2][7] = (TH2F *)hfile->Get("h_mapDepth7Ampl047_HE");
-  Map_Ampl[4][4][3] = (TH2F *)hfile->Get("h_mapDepth3Ampl047_HF");
-  Map_Ampl[4][4][4] = (TH2F *)hfile->Get("h_mapDepth4Ampl047_HF");
+  Map_Ampl[4][2][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Ampl047_HE");
+  Map_Ampl[4][2][5] = (TH2F *)dir->FindObjectAny("h_mapDepth5Ampl047_HE");
+  Map_Ampl[4][2][6] = (TH2F *)dir->FindObjectAny("h_mapDepth6Ampl047_HE");
+  Map_Ampl[4][2][7] = (TH2F *)dir->FindObjectAny("h_mapDepth7Ampl047_HE");
+  Map_Ampl[4][4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3Ampl047_HF");
+  Map_Ampl[4][4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Ampl047_HF");
 
-  Map_Ampl[4][1][3] = (TH2F *)hfile->Get("h_mapDepth3Ampl047_HB");
-  Map_Ampl[4][1][4] = (TH2F *)hfile->Get("h_mapDepth4Ampl047_HB");
+  Map_Ampl[4][1][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3Ampl047_HB");
+  Map_Ampl[4][1][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Ampl047_HB");
 
-  HistAmpl[4][1] = (TH1F *)hfile->Get("h_Ampl_HB");
-  HistAmpl[4][2] = (TH1F *)hfile->Get("h_Ampl_HE");
-  HistAmpl[4][3] = (TH1F *)hfile->Get("h_Ampl_HO");
-  HistAmpl[4][4] = (TH1F *)hfile->Get("h_Ampl_HF");
+  HistAmpl[4][1] = (TH1F *)dir->FindObjectAny("h_Ampl_HB");
+  HistAmpl[4][2] = (TH1F *)dir->FindObjectAny("h_Ampl_HE");
+  HistAmpl[4][3] = (TH1F *)dir->FindObjectAny("h_Ampl_HO");
+  HistAmpl[4][4] = (TH1F *)dir->FindObjectAny("h_Ampl_HF");
 
   //+++++++++++++++++++++++++++++
   //Test 5 (TNm) Mean position in 1-8 TS range
   //+++++++++++++++++++++++++++++
 
-  Map_Ampl[5][1][1] = (TH2F *)hfile->Get("h_mapDepth1TSmeanA225_HB");
-  Map_Ampl[5][1][2] = (TH2F *)hfile->Get("h_mapDepth2TSmeanA225_HB");
-  Map_Ampl[5][2][1] = (TH2F *)hfile->Get("h_mapDepth1TSmeanA225_HE");
-  Map_Ampl[5][2][2] = (TH2F *)hfile->Get("h_mapDepth2TSmeanA225_HE");
-  Map_Ampl[5][2][3] = (TH2F *)hfile->Get("h_mapDepth3TSmeanA225_HE");
-  Map_Ampl[5][3][4] = (TH2F *)hfile->Get("h_mapDepth4TSmeanA225_HO");
-  Map_Ampl[5][4][1] = (TH2F *)hfile->Get("h_mapDepth1TSmeanA225_HF");
-  Map_Ampl[5][4][2] = (TH2F *)hfile->Get("h_mapDepth2TSmeanA225_HF");
+  Map_Ampl[5][1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1TSmeanA225_HB");
+  Map_Ampl[5][1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2TSmeanA225_HB");
+  Map_Ampl[5][2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1TSmeanA225_HE");
+  Map_Ampl[5][2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2TSmeanA225_HE");
+  Map_Ampl[5][2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3TSmeanA225_HE");
+  Map_Ampl[5][3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmeanA225_HO");
+  Map_Ampl[5][4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1TSmeanA225_HF");
+  Map_Ampl[5][4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2TSmeanA225_HF");
 
-  Map_Ampl[5][2][4] = (TH2F *)hfile->Get("h_mapDepth4TSmeanA225_HE");
-  Map_Ampl[5][2][5] = (TH2F *)hfile->Get("h_mapDepth5TSmeanA225_HE");
-  Map_Ampl[5][2][6] = (TH2F *)hfile->Get("h_mapDepth6TSmeanA225_HE");
-  Map_Ampl[5][2][7] = (TH2F *)hfile->Get("h_mapDepth7TSmeanA225_HE");
-  Map_Ampl[5][4][3] = (TH2F *)hfile->Get("h_mapDepth3TSmeanA225_HF");
-  Map_Ampl[5][4][4] = (TH2F *)hfile->Get("h_mapDepth4TSmeanA225_HF");
+  Map_Ampl[5][2][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmeanA225_HE");
+  Map_Ampl[5][2][5] = (TH2F *)dir->FindObjectAny("h_mapDepth5TSmeanA225_HE");
+  Map_Ampl[5][2][6] = (TH2F *)dir->FindObjectAny("h_mapDepth6TSmeanA225_HE");
+  Map_Ampl[5][2][7] = (TH2F *)dir->FindObjectAny("h_mapDepth7TSmeanA225_HE");
+  Map_Ampl[5][4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3TSmeanA225_HF");
+  Map_Ampl[5][4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmeanA225_HF");
 
-  Map_Ampl[5][1][3] = (TH2F *)hfile->Get("h_mapDepth3TSmeanA225_HB");
-  Map_Ampl[5][1][4] = (TH2F *)hfile->Get("h_mapDepth4TSmeanA225_HB");
+  Map_Ampl[5][1][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3TSmeanA225_HB");
+  Map_Ampl[5][1][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmeanA225_HB");
 
-  HistAmpl[5][1] = (TH1F *)hfile->Get("h_TSmeanA_HB");
-  HistAmpl[5][2] = (TH1F *)hfile->Get("h_TSmeanA_HE");
-  HistAmpl[5][3] = (TH1F *)hfile->Get("h_TSmeanA_HO");
-  HistAmpl[5][4] = (TH1F *)hfile->Get("h_TSmeanA_HF");
+  HistAmpl[5][1] = (TH1F *)dir->FindObjectAny("h_TSmeanA_HB");
+  HistAmpl[5][2] = (TH1F *)dir->FindObjectAny("h_TSmeanA_HE");
+  HistAmpl[5][3] = (TH1F *)dir->FindObjectAny("h_TSmeanA_HO");
+  HistAmpl[5][4] = (TH1F *)dir->FindObjectAny("h_TSmeanA_HF");
 
   //+++++++++++++++++++++++++++++
   //Test 6 (TXm) Maximum position in 1-8 TS range
   //+++++++++++++++++++++++++++++
 
-  Map_Ampl[6][1][1] = (TH2F *)hfile->Get("h_mapDepth1TSmaxA225_HB");
-  Map_Ampl[6][1][2] = (TH2F *)hfile->Get("h_mapDepth2TSmaxA225_HB");
-  Map_Ampl[6][2][1] = (TH2F *)hfile->Get("h_mapDepth1TSmaxA225_HE");
-  Map_Ampl[6][2][2] = (TH2F *)hfile->Get("h_mapDepth2TSmaxA225_HE");
-  Map_Ampl[6][2][3] = (TH2F *)hfile->Get("h_mapDepth3TSmaxA225_HE");
-  Map_Ampl[6][3][4] = (TH2F *)hfile->Get("h_mapDepth4TSmaxA225_HO");
-  Map_Ampl[6][4][1] = (TH2F *)hfile->Get("h_mapDepth1TSmaxA225_HF");
-  Map_Ampl[6][4][2] = (TH2F *)hfile->Get("h_mapDepth2TSmaxA225_HF");
+  Map_Ampl[6][1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1TSmaxA225_HB");
+  Map_Ampl[6][1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2TSmaxA225_HB");
+  Map_Ampl[6][2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1TSmaxA225_HE");
+  Map_Ampl[6][2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2TSmaxA225_HE");
+  Map_Ampl[6][2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3TSmaxA225_HE");
+  Map_Ampl[6][3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmaxA225_HO");
+  Map_Ampl[6][4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1TSmaxA225_HF");
+  Map_Ampl[6][4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2TSmaxA225_HF");
 
-  Map_Ampl[6][2][4] = (TH2F *)hfile->Get("h_mapDepth4TSmaxA225_HE");
-  Map_Ampl[6][2][5] = (TH2F *)hfile->Get("h_mapDepth5TSmaxA225_HE");
-  Map_Ampl[6][2][6] = (TH2F *)hfile->Get("h_mapDepth6TSmaxA225_HE");
-  Map_Ampl[6][2][7] = (TH2F *)hfile->Get("h_mapDepth7TSmaxA225_HE");
-  Map_Ampl[6][4][3] = (TH2F *)hfile->Get("h_mapDepth3TSmaxA225_HF");
-  Map_Ampl[6][4][4] = (TH2F *)hfile->Get("h_mapDepth4TSmaxA225_HF");
+  Map_Ampl[6][2][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmaxA225_HE");
+  Map_Ampl[6][2][5] = (TH2F *)dir->FindObjectAny("h_mapDepth5TSmaxA225_HE");
+  Map_Ampl[6][2][6] = (TH2F *)dir->FindObjectAny("h_mapDepth6TSmaxA225_HE");
+  Map_Ampl[6][2][7] = (TH2F *)dir->FindObjectAny("h_mapDepth7TSmaxA225_HE");
+  Map_Ampl[6][4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3TSmaxA225_HF");
+  Map_Ampl[6][4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmaxA225_HF");
 
-  Map_Ampl[6][1][3] = (TH2F *)hfile->Get("h_mapDepth3TSmaxA225_HB");
-  Map_Ampl[6][1][4] = (TH2F *)hfile->Get("h_mapDepth4TSmaxA225_HB");
+  Map_Ampl[6][1][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3TSmaxA225_HB");
+  Map_Ampl[6][1][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmaxA225_HB");
 
-  HistAmpl[6][1] = (TH1F *)hfile->Get("h_TSmaxA_HB");
-  HistAmpl[6][2] = (TH1F *)hfile->Get("h_TSmaxA_HE");
-  HistAmpl[6][3] = (TH1F *)hfile->Get("h_TSmaxA_HO");
-  HistAmpl[6][4] = (TH1F *)hfile->Get("h_TSmaxA_HF");
+  HistAmpl[6][1] = (TH1F *)dir->FindObjectAny("h_TSmaxA_HB");
+  HistAmpl[6][2] = (TH1F *)dir->FindObjectAny("h_TSmaxA_HE");
+  HistAmpl[6][3] = (TH1F *)dir->FindObjectAny("h_TSmaxA_HO");
+  HistAmpl[6][4] = (TH1F *)dir->FindObjectAny("h_TSmaxA_HF");
 
   for (int test = 2; test <= 6; test++) {  //Test: 2-Am, 3-Wm, 4-Rm, 5-TNm, 6-TXm,
     for (int sub = 1; sub <= 4; sub++) {   //Subdetector: 1-HB, 2-HE, 3-HF, 4-HO
@@ -677,32 +681,32 @@ int main(int argc, char *argv[]) {
           cONE->Divide(2,1);
 	  if(test == 2 && sub == 2 ) {
 	    cONE->cd(2);
-	    TH1F *kjkjkhj2= (TH1F*)hfile->Get("h_ADCAmpl_HE");kjkjkhj2->Draw("");kjkjkhj2->SetTitle("HE, All Depth: shunt6");
+	    TH1F *kjkjkhj2= (TH1F*)dir->FindObjectAny("h_ADCAmpl_HE");kjkjkhj2->Draw("");kjkjkhj2->SetTitle("HE, All Depth: shunt6");
 	  }
 	  if(test == 2 && sub == 1 ) {
 	    cONE->cd(2);
-	    TH1F *kjkjkhj1= (TH1F*)hfile->Get("h_ADCAmpl_HB");kjkjkhj1->Draw("");kjkjkhj1->SetTitle("HB, All Depth: shunt6");
+	    TH1F *kjkjkhj1= (TH1F*)dir->FindObjectAny("h_ADCAmpl_HB");kjkjkhj1->Draw("");kjkjkhj1->SetTitle("HB, All Depth: shunt6");
 	  }
 */
 
       cONE->Divide(3, 1);
       if (test == 2 && sub == 2) {
         cONE->cd(2);
-        TH1F *kjkjkhj2 = (TH1F *)hfile->Get("h_AmplitudeHEtest1");
+        TH1F *kjkjkhj2 = (TH1F *)dir->FindObjectAny("h_AmplitudeHEtest1");
         kjkjkhj2->Draw("");
         kjkjkhj2->SetTitle("HE, All Depth: shunt1");
         cONE->cd(3);
-        TH1F *kjkjkhj3 = (TH1F *)hfile->Get("h_AmplitudeHEtest6");
+        TH1F *kjkjkhj3 = (TH1F *)dir->FindObjectAny("h_AmplitudeHEtest6");
         kjkjkhj3->Draw("");
         kjkjkhj3->SetTitle("HE, All Depth: shunt6");
       }
       if (test == 2 && sub == 1) {
         cONE->cd(2);
-        TH1F *kjkjkhb2 = (TH1F *)hfile->Get("h_AmplitudeHBtest1");
+        TH1F *kjkjkhb2 = (TH1F *)dir->FindObjectAny("h_AmplitudeHBtest1");
         kjkjkhb2->Draw("");
         kjkjkhb2->SetTitle("HB, All Depth: shunt1");
         cONE->cd(3);
-        TH1F *kjkjkhb3 = (TH1F *)hfile->Get("h_AmplitudeHBtest6");
+        TH1F *kjkjkhb3 = (TH1F *)dir->FindObjectAny("h_AmplitudeHBtest6");
         kjkjkhb3->Draw("");
         kjkjkhb3->SetTitle("HB, All Depth: shunt6");
       }
@@ -864,75 +868,75 @@ int main(int argc, char *argv[]) {
   //Test 31, 32 Pedestal, pedestalWidths
   //++++++++++++++++++++++++++++++++++++
 
-  Map_Ampl[31][1][1] = (TH2F *)hfile->Get("h_mapDepth1pedestal_HB");
-  Map_Ampl[31][1][2] = (TH2F *)hfile->Get("h_mapDepth2pedestal_HB");
-  Map_Ampl[31][1][3] = (TH2F *)hfile->Get("h_mapDepth3pedestal_HB");
-  Map_Ampl[31][1][4] = (TH2F *)hfile->Get("h_mapDepth4pedestal_HB");
-  Map_Ampl[31][2][1] = (TH2F *)hfile->Get("h_mapDepth1pedestal_HE");
-  Map_Ampl[31][2][2] = (TH2F *)hfile->Get("h_mapDepth2pedestal_HE");
-  Map_Ampl[31][2][3] = (TH2F *)hfile->Get("h_mapDepth3pedestal_HE");
-  Map_Ampl[31][2][4] = (TH2F *)hfile->Get("h_mapDepth4pedestal_HE");
-  Map_Ampl[31][2][5] = (TH2F *)hfile->Get("h_mapDepth5pedestal_HE");
-  Map_Ampl[31][2][6] = (TH2F *)hfile->Get("h_mapDepth6pedestal_HE");
-  Map_Ampl[31][2][7] = (TH2F *)hfile->Get("h_mapDepth7pedestal_HE");
-  Map_Ampl[31][3][4] = (TH2F *)hfile->Get("h_mapDepth4pedestal_HO");
-  Map_Ampl[31][4][1] = (TH2F *)hfile->Get("h_mapDepth1pedestal_HF");
-  Map_Ampl[31][4][2] = (TH2F *)hfile->Get("h_mapDepth2pedestal_HF");
-  Map_Ampl[31][4][3] = (TH2F *)hfile->Get("h_mapDepth3pedestal_HF");
-  Map_Ampl[31][4][4] = (TH2F *)hfile->Get("h_mapDepth4pedestal_HF");
+  Map_Ampl[31][1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1pedestal_HB");
+  Map_Ampl[31][1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2pedestal_HB");
+  Map_Ampl[31][1][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3pedestal_HB");
+  Map_Ampl[31][1][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4pedestal_HB");
+  Map_Ampl[31][2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1pedestal_HE");
+  Map_Ampl[31][2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2pedestal_HE");
+  Map_Ampl[31][2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3pedestal_HE");
+  Map_Ampl[31][2][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4pedestal_HE");
+  Map_Ampl[31][2][5] = (TH2F *)dir->FindObjectAny("h_mapDepth5pedestal_HE");
+  Map_Ampl[31][2][6] = (TH2F *)dir->FindObjectAny("h_mapDepth6pedestal_HE");
+  Map_Ampl[31][2][7] = (TH2F *)dir->FindObjectAny("h_mapDepth7pedestal_HE");
+  Map_Ampl[31][3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4pedestal_HO");
+  Map_Ampl[31][4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1pedestal_HF");
+  Map_Ampl[31][4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2pedestal_HF");
+  Map_Ampl[31][4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3pedestal_HF");
+  Map_Ampl[31][4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4pedestal_HF");
 
-  Map_Ampl[32][1][1] = (TH2F *)hfile->Get("h_mapDepth1pedestalw_HB");
-  Map_Ampl[32][1][2] = (TH2F *)hfile->Get("h_mapDepth2pedestalw_HB");
-  Map_Ampl[32][1][3] = (TH2F *)hfile->Get("h_mapDepth3pedestalw_HB");
-  Map_Ampl[32][1][4] = (TH2F *)hfile->Get("h_mapDepth4pedestalw_HB");
-  Map_Ampl[32][2][1] = (TH2F *)hfile->Get("h_mapDepth1pedestalw_HE");
-  Map_Ampl[32][2][2] = (TH2F *)hfile->Get("h_mapDepth2pedestalw_HE");
-  Map_Ampl[32][2][3] = (TH2F *)hfile->Get("h_mapDepth3pedestalw_HE");
-  Map_Ampl[32][2][4] = (TH2F *)hfile->Get("h_mapDepth4pedestalw_HE");
-  Map_Ampl[32][2][5] = (TH2F *)hfile->Get("h_mapDepth5pedestalw_HE");
-  Map_Ampl[32][2][6] = (TH2F *)hfile->Get("h_mapDepth6pedestalw_HE");
-  Map_Ampl[32][2][7] = (TH2F *)hfile->Get("h_mapDepth7pedestalw_HE");
-  Map_Ampl[32][3][4] = (TH2F *)hfile->Get("h_mapDepth4pedestalw_HO");
-  Map_Ampl[32][4][1] = (TH2F *)hfile->Get("h_mapDepth1pedestalw_HF");
-  Map_Ampl[32][4][2] = (TH2F *)hfile->Get("h_mapDepth2pedestalw_HF");
-  Map_Ampl[32][4][3] = (TH2F *)hfile->Get("h_mapDepth3pedestalw_HF");
-  Map_Ampl[32][4][4] = (TH2F *)hfile->Get("h_mapDepth4pedestalw_HF");
+  Map_Ampl[32][1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1pedestalw_HB");
+  Map_Ampl[32][1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2pedestalw_HB");
+  Map_Ampl[32][1][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3pedestalw_HB");
+  Map_Ampl[32][1][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4pedestalw_HB");
+  Map_Ampl[32][2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1pedestalw_HE");
+  Map_Ampl[32][2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2pedestalw_HE");
+  Map_Ampl[32][2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3pedestalw_HE");
+  Map_Ampl[32][2][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4pedestalw_HE");
+  Map_Ampl[32][2][5] = (TH2F *)dir->FindObjectAny("h_mapDepth5pedestalw_HE");
+  Map_Ampl[32][2][6] = (TH2F *)dir->FindObjectAny("h_mapDepth6pedestalw_HE");
+  Map_Ampl[32][2][7] = (TH2F *)dir->FindObjectAny("h_mapDepth7pedestalw_HE");
+  Map_Ampl[32][3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4pedestalw_HO");
+  Map_Ampl[32][4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1pedestalw_HF");
+  Map_Ampl[32][4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2pedestalw_HF");
+  Map_Ampl[32][4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3pedestalw_HF");
+  Map_Ampl[32][4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4pedestalw_HF");
 
-  HistPed[1][1][0] = (TH1F *)hfile->Get("h_pedestal0_HB");
-  HistPed[1][1][1] = (TH1F *)hfile->Get("h_pedestal1_HB");
-  HistPed[1][1][2] = (TH1F *)hfile->Get("h_pedestal2_HB");
-  HistPed[1][1][3] = (TH1F *)hfile->Get("h_pedestal3_HB");
-  HistPed[2][1][0] = (TH1F *)hfile->Get("h_pedestalw0_HB");
-  HistPed[2][1][1] = (TH1F *)hfile->Get("h_pedestalw1_HB");
-  HistPed[2][1][2] = (TH1F *)hfile->Get("h_pedestalw2_HB");
-  HistPed[2][1][3] = (TH1F *)hfile->Get("h_pedestalw3_HB");
+  HistPed[1][1][0] = (TH1F *)dir->FindObjectAny("h_pedestal0_HB");
+  HistPed[1][1][1] = (TH1F *)dir->FindObjectAny("h_pedestal1_HB");
+  HistPed[1][1][2] = (TH1F *)dir->FindObjectAny("h_pedestal2_HB");
+  HistPed[1][1][3] = (TH1F *)dir->FindObjectAny("h_pedestal3_HB");
+  HistPed[2][1][0] = (TH1F *)dir->FindObjectAny("h_pedestalw0_HB");
+  HistPed[2][1][1] = (TH1F *)dir->FindObjectAny("h_pedestalw1_HB");
+  HistPed[2][1][2] = (TH1F *)dir->FindObjectAny("h_pedestalw2_HB");
+  HistPed[2][1][3] = (TH1F *)dir->FindObjectAny("h_pedestalw3_HB");
 
-  HistPed[1][2][0] = (TH1F *)hfile->Get("h_pedestal0_HE");
-  HistPed[1][2][1] = (TH1F *)hfile->Get("h_pedestal1_HE");
-  HistPed[1][2][2] = (TH1F *)hfile->Get("h_pedestal2_HE");
-  HistPed[1][2][3] = (TH1F *)hfile->Get("h_pedestal3_HE");
-  HistPed[2][2][0] = (TH1F *)hfile->Get("h_pedestalw0_HE");
-  HistPed[2][2][1] = (TH1F *)hfile->Get("h_pedestalw1_HE");
-  HistPed[2][2][2] = (TH1F *)hfile->Get("h_pedestalw2_HE");
-  HistPed[2][2][3] = (TH1F *)hfile->Get("h_pedestalw3_HE");
+  HistPed[1][2][0] = (TH1F *)dir->FindObjectAny("h_pedestal0_HE");
+  HistPed[1][2][1] = (TH1F *)dir->FindObjectAny("h_pedestal1_HE");
+  HistPed[1][2][2] = (TH1F *)dir->FindObjectAny("h_pedestal2_HE");
+  HistPed[1][2][3] = (TH1F *)dir->FindObjectAny("h_pedestal3_HE");
+  HistPed[2][2][0] = (TH1F *)dir->FindObjectAny("h_pedestalw0_HE");
+  HistPed[2][2][1] = (TH1F *)dir->FindObjectAny("h_pedestalw1_HE");
+  HistPed[2][2][2] = (TH1F *)dir->FindObjectAny("h_pedestalw2_HE");
+  HistPed[2][2][3] = (TH1F *)dir->FindObjectAny("h_pedestalw3_HE");
 
-  HistPed[1][3][0] = (TH1F *)hfile->Get("h_pedestal0_HO");
-  HistPed[1][3][1] = (TH1F *)hfile->Get("h_pedestal1_HO");
-  HistPed[1][3][2] = (TH1F *)hfile->Get("h_pedestal2_HO");
-  HistPed[1][3][3] = (TH1F *)hfile->Get("h_pedestal3_HO");
-  HistPed[2][3][0] = (TH1F *)hfile->Get("h_pedestalw0_HO");
-  HistPed[2][3][1] = (TH1F *)hfile->Get("h_pedestalw1_HO");
-  HistPed[2][3][2] = (TH1F *)hfile->Get("h_pedestalw2_HO");
-  HistPed[2][3][3] = (TH1F *)hfile->Get("h_pedestalw3_HO");
+  HistPed[1][3][0] = (TH1F *)dir->FindObjectAny("h_pedestal0_HO");
+  HistPed[1][3][1] = (TH1F *)dir->FindObjectAny("h_pedestal1_HO");
+  HistPed[1][3][2] = (TH1F *)dir->FindObjectAny("h_pedestal2_HO");
+  HistPed[1][3][3] = (TH1F *)dir->FindObjectAny("h_pedestal3_HO");
+  HistPed[2][3][0] = (TH1F *)dir->FindObjectAny("h_pedestalw0_HO");
+  HistPed[2][3][1] = (TH1F *)dir->FindObjectAny("h_pedestalw1_HO");
+  HistPed[2][3][2] = (TH1F *)dir->FindObjectAny("h_pedestalw2_HO");
+  HistPed[2][3][3] = (TH1F *)dir->FindObjectAny("h_pedestalw3_HO");
 
-  HistPed[1][4][0] = (TH1F *)hfile->Get("h_pedestal0_HF");
-  HistPed[1][4][1] = (TH1F *)hfile->Get("h_pedestal1_HF");
-  HistPed[1][4][2] = (TH1F *)hfile->Get("h_pedestal2_HF");
-  HistPed[1][4][3] = (TH1F *)hfile->Get("h_pedestal3_HF");
-  HistPed[2][4][0] = (TH1F *)hfile->Get("h_pedestalw0_HF");
-  HistPed[2][4][1] = (TH1F *)hfile->Get("h_pedestalw1_HF");
-  HistPed[2][4][2] = (TH1F *)hfile->Get("h_pedestalw2_HF");
-  HistPed[2][4][3] = (TH1F *)hfile->Get("h_pedestalw3_HF");
+  HistPed[1][4][0] = (TH1F *)dir->FindObjectAny("h_pedestal0_HF");
+  HistPed[1][4][1] = (TH1F *)dir->FindObjectAny("h_pedestal1_HF");
+  HistPed[1][4][2] = (TH1F *)dir->FindObjectAny("h_pedestal2_HF");
+  HistPed[1][4][3] = (TH1F *)dir->FindObjectAny("h_pedestal3_HF");
+  HistPed[2][4][0] = (TH1F *)dir->FindObjectAny("h_pedestalw0_HF");
+  HistPed[2][4][1] = (TH1F *)dir->FindObjectAny("h_pedestalw1_HF");
+  HistPed[2][4][2] = (TH1F *)dir->FindObjectAny("h_pedestalw2_HF");
+  HistPed[2][4][3] = (TH1F *)dir->FindObjectAny("h_pedestalw3_HF");
 
   for (int test = 31; test <= 32; test++) {  //Test: 31-Pedestals, 32-pedestal Widths,
     for (int sub = 1; sub <= 4; sub++) {     //Subdetector: 1-HB, 2-HE, 3-HO, 4-HF
@@ -1124,14 +1128,14 @@ int main(int argc, char *argv[]) {
   //++++++++++++++++++++++++++++++++++++
 
   cPED->Clear();
-  Map_Ped[1][1] = (TH2F *)hfile->Get("h2_pedvsampl_HB");
-  Map_Ped[1][2] = (TH2F *)hfile->Get("h2_pedvsampl_HE");
-  Map_Ped[1][3] = (TH2F *)hfile->Get("h2_pedvsampl_HO");
-  Map_Ped[1][4] = (TH2F *)hfile->Get("h2_pedvsampl_HF");
-  Map_Ped[2][1] = (TH2F *)hfile->Get("h2_pedwvsampl_HB");
-  Map_Ped[2][2] = (TH2F *)hfile->Get("h2_pedwvsampl_HE");
-  Map_Ped[2][3] = (TH2F *)hfile->Get("h2_pedwvsampl_HO");
-  Map_Ped[2][4] = (TH2F *)hfile->Get("h2_pedwvsampl_HF");
+  Map_Ped[1][1] = (TH2F *)dir->FindObjectAny("h2_pedvsampl_HB");
+  Map_Ped[1][2] = (TH2F *)dir->FindObjectAny("h2_pedvsampl_HE");
+  Map_Ped[1][3] = (TH2F *)dir->FindObjectAny("h2_pedvsampl_HO");
+  Map_Ped[1][4] = (TH2F *)dir->FindObjectAny("h2_pedvsampl_HF");
+  Map_Ped[2][1] = (TH2F *)dir->FindObjectAny("h2_pedwvsampl_HB");
+  Map_Ped[2][2] = (TH2F *)dir->FindObjectAny("h2_pedwvsampl_HE");
+  Map_Ped[2][3] = (TH2F *)dir->FindObjectAny("h2_pedwvsampl_HO");
+  Map_Ped[2][4] = (TH2F *)dir->FindObjectAny("h2_pedwvsampl_HF");
   for (int sub = 1; sub <= 4; sub++) {  //Subdetector: 1-HB, 2-HE, 3-HO, 4-HF
     cPED->Divide(2, 1);
     for (int test = 1; test <= 2; test++) {
@@ -1179,25 +1183,25 @@ int main(int argc, char *argv[]) {
   //++++++++++++++++++++++++++++++++++++
 
   cONE->Clear();
-  hist_GoodTSshape[1] = (TH1F *)hfile->Get("h_shape_good_channels_HB");
-  hist_GoodTSshape[2] = (TH1F *)hfile->Get("h_shape_good_channels_HE");
-  hist_GoodTSshape[3] = (TH1F *)hfile->Get("h_shape_good_channels_HO");
-  hist_GoodTSshape[4] = (TH1F *)hfile->Get("h_shape_good_channels_HF");
+  hist_GoodTSshape[1] = (TH1F *)dir->FindObjectAny("h_shape_good_channels_HB");
+  hist_GoodTSshape[2] = (TH1F *)dir->FindObjectAny("h_shape_good_channels_HE");
+  hist_GoodTSshape[3] = (TH1F *)dir->FindObjectAny("h_shape_good_channels_HO");
+  hist_GoodTSshape[4] = (TH1F *)dir->FindObjectAny("h_shape_good_channels_HF");
 
-  hist_GoodTSshape0[1] = (TH1F *)hfile->Get("h_shape0_good_channels_HB");
-  hist_GoodTSshape0[2] = (TH1F *)hfile->Get("h_shape0_good_channels_HE");
-  hist_GoodTSshape0[3] = (TH1F *)hfile->Get("h_shape0_good_channels_HO");
-  hist_GoodTSshape0[4] = (TH1F *)hfile->Get("h_shape0_good_channels_HF");
+  hist_GoodTSshape0[1] = (TH1F *)dir->FindObjectAny("h_shape0_good_channels_HB");
+  hist_GoodTSshape0[2] = (TH1F *)dir->FindObjectAny("h_shape0_good_channels_HE");
+  hist_GoodTSshape0[3] = (TH1F *)dir->FindObjectAny("h_shape0_good_channels_HO");
+  hist_GoodTSshape0[4] = (TH1F *)dir->FindObjectAny("h_shape0_good_channels_HF");
 
-  hist_BadTSshape[1] = (TH1F *)hfile->Get("h_shape_bad_channels_HB");
-  hist_BadTSshape[2] = (TH1F *)hfile->Get("h_shape_bad_channels_HE");
-  hist_BadTSshape[3] = (TH1F *)hfile->Get("h_shape_bad_channels_HO");
-  hist_BadTSshape[4] = (TH1F *)hfile->Get("h_shape_bad_channels_HF");
+  hist_BadTSshape[1] = (TH1F *)dir->FindObjectAny("h_shape_bad_channels_HB");
+  hist_BadTSshape[2] = (TH1F *)dir->FindObjectAny("h_shape_bad_channels_HE");
+  hist_BadTSshape[3] = (TH1F *)dir->FindObjectAny("h_shape_bad_channels_HO");
+  hist_BadTSshape[4] = (TH1F *)dir->FindObjectAny("h_shape_bad_channels_HF");
 
-  hist_BadTSshape0[1] = (TH1F *)hfile->Get("h_shape0_bad_channels_HB");
-  hist_BadTSshape0[2] = (TH1F *)hfile->Get("h_shape0_bad_channels_HE");
-  hist_BadTSshape0[3] = (TH1F *)hfile->Get("h_shape0_bad_channels_HO");
-  hist_BadTSshape0[4] = (TH1F *)hfile->Get("h_shape0_bad_channels_HF");
+  hist_BadTSshape0[1] = (TH1F *)dir->FindObjectAny("h_shape0_bad_channels_HB");
+  hist_BadTSshape0[2] = (TH1F *)dir->FindObjectAny("h_shape0_bad_channels_HE");
+  hist_BadTSshape0[3] = (TH1F *)dir->FindObjectAny("h_shape0_bad_channels_HO");
+  hist_BadTSshape0[4] = (TH1F *)dir->FindObjectAny("h_shape0_bad_channels_HF");
 
   cONE->cd(1);
 
@@ -1270,25 +1274,25 @@ int main(int argc, char *argv[]) {
   //+++++++++++++++++++++++++++++
   //Entries in different TSs:
   //+++++++++++++++++++++++++++++
-  Map_SUBTS[1][1] = (TH2F *)hfile->Get("h_mapDepth1TS2_HB");
-  Map_SUBTS[1][2] = (TH2F *)hfile->Get("h_mapDepth2TS2_HB");
-  Map_SUBTS[1][3] = (TH2F *)hfile->Get("h_mapDepth3TS2_HB");
-  Map_SUBTS[1][4] = (TH2F *)hfile->Get("h_mapDepth4TS2_HB");
+  Map_SUBTS[1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1TS2_HB");
+  Map_SUBTS[1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2TS2_HB");
+  Map_SUBTS[1][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3TS2_HB");
+  Map_SUBTS[1][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4TS2_HB");
 
-  Map_SUBTS[2][1] = (TH2F *)hfile->Get("h_mapDepth1TS2_HE");
-  Map_SUBTS[2][2] = (TH2F *)hfile->Get("h_mapDepth2TS2_HE");
-  Map_SUBTS[2][3] = (TH2F *)hfile->Get("h_mapDepth3TS2_HE");
-  Map_SUBTS[2][4] = (TH2F *)hfile->Get("h_mapDepth4TS2_HE");
-  Map_SUBTS[2][5] = (TH2F *)hfile->Get("h_mapDepth5TS2_HE");
-  Map_SUBTS[2][6] = (TH2F *)hfile->Get("h_mapDepth6TS2_HE");
-  Map_SUBTS[2][7] = (TH2F *)hfile->Get("h_mapDepth7TS2_HE");
+  Map_SUBTS[2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1TS2_HE");
+  Map_SUBTS[2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2TS2_HE");
+  Map_SUBTS[2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3TS2_HE");
+  Map_SUBTS[2][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4TS2_HE");
+  Map_SUBTS[2][5] = (TH2F *)dir->FindObjectAny("h_mapDepth5TS2_HE");
+  Map_SUBTS[2][6] = (TH2F *)dir->FindObjectAny("h_mapDepth6TS2_HE");
+  Map_SUBTS[2][7] = (TH2F *)dir->FindObjectAny("h_mapDepth7TS2_HE");
 
-  Map_SUBTS[3][4] = (TH2F *)hfile->Get("h_mapDepth4TS012_HO");
+  Map_SUBTS[3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4TS012_HO");
 
-  Map_SUBTS[4][1] = (TH2F *)hfile->Get("h_mapDepth1TS1_HF");
-  Map_SUBTS[4][2] = (TH2F *)hfile->Get("h_mapDepth2TS1_HF");
-  Map_SUBTS[4][3] = (TH2F *)hfile->Get("h_mapDepth3TS1_HF");
-  Map_SUBTS[4][4] = (TH2F *)hfile->Get("h_mapDepth4TS1_HF");
+  Map_SUBTS[4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1TS1_HF");
+  Map_SUBTS[4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2TS1_HF");
+  Map_SUBTS[4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3TS1_HF");
+  Map_SUBTS[4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4TS1_HF");
 
   for (int sub = 1; sub <= 4; sub++) {  //Subdetector: 1-HB, 2-HE, 3-HF, 4-HO
                                         //     if (sub==1) cHB->Divide(2,1);
@@ -1605,7 +1609,7 @@ int main(int argc, char *argv[]) {
   cmain1->Divide(2, 2);
 
   cmain1->cd(1);
-  TH1F *JDBEYESJ0 = (TH1F *)hfile->Get("h_totalAmplitudeHBperEvent");
+  TH1F *JDBEYESJ0 = (TH1F *)dir->FindObjectAny("h_totalAmplitudeHBperEvent");
   JDBEYESJ0->SetStats(0);
   JDBEYESJ0->SetMarkerStyle(20);
   JDBEYESJ0->SetMarkerSize(0.8);
@@ -1620,7 +1624,7 @@ int main(int argc, char *argv[]) {
   JDBEYESJ0->Clear();
 
   cmain1->cd(2);
-  TH1F *JDBEYESJ1 = (TH1F *)hfile->Get("h_totalAmplitudeHEperEvent");
+  TH1F *JDBEYESJ1 = (TH1F *)dir->FindObjectAny("h_totalAmplitudeHEperEvent");
   JDBEYESJ1->SetStats(0);
   JDBEYESJ1->SetMarkerStyle(20);
   JDBEYESJ1->SetMarkerSize(0.8);
@@ -1635,7 +1639,7 @@ int main(int argc, char *argv[]) {
   JDBEYESJ1->Clear();
 
   cmain1->cd(3);
-  TH1F *JDBEYESJ2 = (TH1F *)hfile->Get("h_totalAmplitudeHFperEvent");
+  TH1F *JDBEYESJ2 = (TH1F *)dir->FindObjectAny("h_totalAmplitudeHFperEvent");
   JDBEYESJ2->SetStats(0);
   JDBEYESJ2->SetMarkerStyle(20);
   JDBEYESJ2->SetMarkerSize(0.8);
@@ -1650,7 +1654,7 @@ int main(int argc, char *argv[]) {
   JDBEYESJ2->Clear();
 
   cmain1->cd(4);
-  TH1F *JDBEYESJ3 = (TH1F *)hfile->Get("h_totalAmplitudeHOperEvent");
+  TH1F *JDBEYESJ3 = (TH1F *)dir->FindObjectAny("h_totalAmplitudeHOperEvent");
   JDBEYESJ3->SetStats(0);
   JDBEYESJ3->SetMarkerStyle(20);
   JDBEYESJ3->SetMarkerSize(0.8);
@@ -2243,7 +2247,7 @@ int main(int argc, char *argv[]) {
     htmlFile << "<br>" << std::endl;
     htmlFile << "<a href=\"#Top\">to top</a><br>\n";
 
-    /////////////////////////////////////////////////////////////////   AZ 19.03
+    /////////////////////////////////////////////////////////////////   AZ 19.03.2018
     /*     
 //     htmlFile << "<h3> 2.B.List of Bad channels (rate > 0.1) and its rates for each RMT criteria (for GS - %) </h3>"<< std::endl;
 
