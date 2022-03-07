@@ -31,6 +31,7 @@ LheWeightValidation::LheWeightValidation(const edm::ParameterSet& iPSet)
 void LheWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run const& iRun, edm::EventSetup const&) {
   // check LHE product exists
   edm::Handle<LHERunInfoProduct> lheInfo;
+  // getByToken throws an exception unless we're in the endRun (see https://github.com/cms-sw/cmssw/pull/18499)
   iRun.getByLabel(lheLabel_, lheInfo);
 
   if (!lheInfo.isValid())
