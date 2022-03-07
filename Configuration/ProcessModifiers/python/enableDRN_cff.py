@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
-def enableDRN(process):
+def _enableDRN(process):
   process.load("PhysicsTools.PatAlgos.slimming.patPhotonDRNCorrector_cfi")
   process.DRNTask = cms.Task(process.patPhotonsDRN)
   process.schedule.associate(process.DRNTask)
@@ -15,3 +15,6 @@ def enableDRN(process):
   )
 
   return process
+
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+enableDRN = cms.ProcessModifier(Run2_2018, _enableDRN)
