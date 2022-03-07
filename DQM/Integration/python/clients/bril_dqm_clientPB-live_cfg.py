@@ -2,7 +2,8 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-process = cms.Process("HARVESTING")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("HARVESTING", Run3)
 
 #----------------------------
 #### Histograms Source
