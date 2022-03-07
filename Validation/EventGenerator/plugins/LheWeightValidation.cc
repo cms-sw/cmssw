@@ -5,29 +5,28 @@
 
 using namespace edm;
 
-LheWeightValidation::LheWeightValidation(const edm::ParameterSet& iPSet):
-  lheLabel_(iPSet.getParameter<edm::InputTag>("lheProduct")),
-  genParticleToken_(consumes<reco::GenParticleCollection>(iPSet.getParameter<edm::InputTag>("genParticles"))),
-  lheEvtToken_(consumes<LHEEventProduct>(lheLabel_)),
-  lheRunToken_(consumes<LHERunInfoProduct, edm::InRun>(lheLabel_)),
-  genJetToken_(consumes<reco::GenJetCollection>(iPSet.getParameter<edm::InputTag>("genJets"))),
-  dumpLHEheader_(iPSet.getParameter<bool>("dumpLHEheader")),
-  leadLepPtNbin_(iPSet.getParameter<int>("leadLepPtNbin")),
-  rapidityNbin_(iPSet.getParameter<int>("rapidityNbin")),
-  leadLepPtRange_(iPSet.getParameter<double>("leadLepPtRange")),
-  leadLepPtCut_(iPSet.getParameter<double>("leadLepPtCut")),
-  lepEtaCut_(iPSet.getParameter<double>("lepEtaCut")),
-  rapidityRange_(iPSet.getParameter<double>("rapidityRange")),
-  nJetsNbin_(iPSet.getParameter<int>("nJetsNbin")),
-  jetPtNbin_(iPSet.getParameter<int>("jetPtNbin")),
-  jetPtCut_(iPSet.getParameter<double>("jetPtCut")),
-  jetEtaCut_(iPSet.getParameter<double>("jetEtaCut")),
-  jetPtRange_(iPSet.getParameter<double>("jetPtRange")),
-  nScaleVar_(iPSet.getParameter<int>("nScaleVar")),
-  idxPdfStart_(iPSet.getParameter<int>("idxPdfStart")),
-  idxPdfEnd_(iPSet.getParameter<int>("idxPdfEnd")),
-  nPdfVar_(idxPdfEnd_ - idxPdfStart_ + 1)
-{}
+LheWeightValidation::LheWeightValidation(const edm::ParameterSet& iPSet)
+    : lheLabel_(iPSet.getParameter<edm::InputTag>("lheProduct")),
+      genParticleToken_(consumes<reco::GenParticleCollection>(iPSet.getParameter<edm::InputTag>("genParticles"))),
+      lheEvtToken_(consumes<LHEEventProduct>(lheLabel_)),
+      lheRunToken_(consumes<LHERunInfoProduct, edm::InRun>(lheLabel_)),
+      genJetToken_(consumes<reco::GenJetCollection>(iPSet.getParameter<edm::InputTag>("genJets"))),
+      dumpLHEheader_(iPSet.getParameter<bool>("dumpLHEheader")),
+      leadLepPtNbin_(iPSet.getParameter<int>("leadLepPtNbin")),
+      rapidityNbin_(iPSet.getParameter<int>("rapidityNbin")),
+      leadLepPtRange_(iPSet.getParameter<double>("leadLepPtRange")),
+      leadLepPtCut_(iPSet.getParameter<double>("leadLepPtCut")),
+      lepEtaCut_(iPSet.getParameter<double>("lepEtaCut")),
+      rapidityRange_(iPSet.getParameter<double>("rapidityRange")),
+      nJetsNbin_(iPSet.getParameter<int>("nJetsNbin")),
+      jetPtNbin_(iPSet.getParameter<int>("jetPtNbin")),
+      jetPtCut_(iPSet.getParameter<double>("jetPtCut")),
+      jetEtaCut_(iPSet.getParameter<double>("jetEtaCut")),
+      jetPtRange_(iPSet.getParameter<double>("jetPtRange")),
+      nScaleVar_(iPSet.getParameter<int>("nScaleVar")),
+      idxPdfStart_(iPSet.getParameter<int>("idxPdfStart")),
+      idxPdfEnd_(iPSet.getParameter<int>("idxPdfEnd")),
+      nPdfVar_(idxPdfEnd_ - idxPdfStart_ + 1) {}
 
 void LheWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run const& iRun, edm::EventSetup const&) {
   // check LHE product exists

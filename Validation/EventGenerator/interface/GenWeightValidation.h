@@ -32,15 +32,15 @@ public:
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
 
 private:
-  void bookTemplates(DQMHelper& aDqmHelper,
+  void bookTemplates(DQMHelper &aDqmHelper,
                      std::vector<MonitorElement *> &tmps,
-                     const std::string& name,
-                     const std::string& title,
+                     const std::string &name,
+                     const std::string &title,
                      int nbin,
                      float low,
                      float high,
-                     const std::string& xtitle,
-                     const std::string& ytitle);
+                     const std::string &xtitle,
+                     const std::string &ytitle);
   void fillTemplates(std::vector<MonitorElement *> &tmps, float obs);
   WeightManager wmanager_;
 

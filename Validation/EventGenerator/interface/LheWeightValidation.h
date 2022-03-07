@@ -92,7 +92,7 @@ private:
   const int nJetsNbin_, jetPtNbin_;
   const double jetPtCut_, jetEtaCut_, jetPtRange_;
 
-  const int nScaleVar_; // including Nominal
+  const int nScaleVar_;  // including Nominal
   const int idxPdfStart_, idxPdfEnd_, nPdfVar_;
 };
 

@@ -5,27 +5,26 @@
 
 using namespace edm;
 
-GenWeightValidation::GenWeightValidation(const edm::ParameterSet& iPSet):
-  wmanager_(iPSet, consumesCollector()),
-  genParticleToken_(consumes<reco::GenParticleCollection>(iPSet.getParameter<edm::InputTag>("genParticles"))),
-  genJetToken_(consumes<reco::GenJetCollection>(iPSet.getParameter<edm::InputTag>("genJets"))),
-  idxGenEvtInfo_(iPSet.getParameter<int>("whichGenEventInfo")),
-  idxFSRup_(iPSet.getParameter<int>("idxFSRup")),
-  idxFSRdown_(iPSet.getParameter<int>("idxFSRdown")),
-  idxISRup_(iPSet.getParameter<int>("idxISRup")),
-  idxISRdown_(iPSet.getParameter<int>("idxISRdown")),
-  leadLepPtNbin_(iPSet.getParameter<int>("leadLepPtNbin")),
-  rapidityNbin_(iPSet.getParameter<int>("rapidityNbin")),
-  leadLepPtRange_(iPSet.getParameter<double>("leadLepPtRange")),
-  leadLepPtCut_(iPSet.getParameter<double>("leadLepPtCut")),
-  lepEtaCut_(iPSet.getParameter<double>("lepEtaCut")),
-  rapidityRange_(iPSet.getParameter<double>("rapidityRange")),
-  nJetsNbin_(iPSet.getParameter<int>("nJetsNbin")),
-  jetPtNbin_(iPSet.getParameter<int>("jetPtNbin")),
-  jetPtCut_(iPSet.getParameter<double>("jetPtCut")),
-  jetEtaCut_(iPSet.getParameter<double>("jetEtaCut")),
-  jetPtRange_(iPSet.getParameter<double>("jetPtRange"))
-{
+GenWeightValidation::GenWeightValidation(const edm::ParameterSet& iPSet)
+    : wmanager_(iPSet, consumesCollector()),
+      genParticleToken_(consumes<reco::GenParticleCollection>(iPSet.getParameter<edm::InputTag>("genParticles"))),
+      genJetToken_(consumes<reco::GenJetCollection>(iPSet.getParameter<edm::InputTag>("genJets"))),
+      idxGenEvtInfo_(iPSet.getParameter<int>("whichGenEventInfo")),
+      idxFSRup_(iPSet.getParameter<int>("idxFSRup")),
+      idxFSRdown_(iPSet.getParameter<int>("idxFSRdown")),
+      idxISRup_(iPSet.getParameter<int>("idxISRup")),
+      idxISRdown_(iPSet.getParameter<int>("idxISRdown")),
+      leadLepPtNbin_(iPSet.getParameter<int>("leadLepPtNbin")),
+      rapidityNbin_(iPSet.getParameter<int>("rapidityNbin")),
+      leadLepPtRange_(iPSet.getParameter<double>("leadLepPtRange")),
+      leadLepPtCut_(iPSet.getParameter<double>("leadLepPtCut")),
+      lepEtaCut_(iPSet.getParameter<double>("lepEtaCut")),
+      rapidityRange_(iPSet.getParameter<double>("rapidityRange")),
+      nJetsNbin_(iPSet.getParameter<int>("nJetsNbin")),
+      jetPtNbin_(iPSet.getParameter<int>("jetPtNbin")),
+      jetPtCut_(iPSet.getParameter<double>("jetPtCut")),
+      jetEtaCut_(iPSet.getParameter<double>("jetEtaCut")),
+      jetPtRange_(iPSet.getParameter<double>("jetPtRange")) {
   std::vector<int> idxs = {idxFSRup_, idxFSRdown_, idxISRup_, idxISRdown_};
   std::sort(idxs.begin(), idxs.end(), std::greater<int>());
   idxMax_ = idxs.at(0);
