@@ -2,21 +2,24 @@
 #define CONDCORE_BEAMSPOTPLUGINS_BEAMSPOTPAYLOADINSPECTORHELPER_H
 
 // User includes
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
 
-// ROOT includes
-
+// system includes
+#include <fmt/printf.h>
 #include <memory>
 #include <sstream>
+
+// ROOT includes
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TH2F.h"
 #include "TLatex.h"
+
+//#define MMDEBUG  /* to make it verbose */
 
 namespace BeamSpotPI {
 
@@ -57,28 +60,91 @@ namespace BeamSpotPI {
   };
 
   /************************************************/
-  inline std::string getStringFromParamEnum(const parameters& parameter) {
+  inline std::string getStringFromParamEnum(const parameters& parameter,
+                                            const bool addUnits = false /*not used by default*/) {
     switch (parameter) {
       case X:
-        return "X";
+        return (addUnits ? "X [cm]" : "X");
       case Y:
-        return "Y";
+        return (addUnits ? "Y [cm]" : "Y");
       case Z:
-        return "Z";
+        return (addUnits ? "Z [cm]" : "Z");
       case sigmaX:
-        return "sigmaX";
+        return (addUnits ? "#sigma_{X} [cm]" : "sigmaX");
       case sigmaY:
-        return "sigmaY";
+        return (addUnits ? "#sigma_{Y} [cm]" : "sigmaY");
       case sigmaZ:
-        return "sigmaZ";
+        return (addUnits ? "#sigma_{Z} [cm]" : "sigmaZ");
       case dxdz:
-        return "dx/dz";
+        return (addUnits ? "#frac{dX}{dZ} [rad]" : "dx/dz");
       case dydz:
-        return "dy/dz";
+        return (addUnits ? "#frac{dY}{dZ} [rad]" : "dy/dz");
       default:
         return "should never be here";
     }
   }
+
+  /**
+   * Helper class for operations on the Beam Spot Parameters
+   * It's a simplified representation of the beamspot
+   * data used as the underlying type for data transfers and comparisons
+   */
+  template <class PayloadType>
+  class BSParamsHelper {
+    typedef std::array<double, 8> bshelpdata;
+
+  public:
+    BSParamsHelper(const std::shared_ptr<PayloadType>& bs) {
+      // fill in the central values
+      m_values[0] = bs->x(), m_values[1] = bs->y(), m_values[2] = bs->z();
+      m_values[3] = bs->beamWidthX(), m_values[4] = bs->beamWidthY(), m_values[5] = bs->sigmaZ();
+      m_values[6] = bs->dxdz(), m_values[7] = bs->dydz();
+
+      // fill in the errors
+      m_errors[0] = bs->xError(), m_errors[1] = bs->yError(), m_errors[2] = bs->zError();
+      m_errors[3] = bs->beamWidthXError(), m_errors[4] = bs->beamWidthYError(), m_errors[5] = bs->sigmaZError();
+      m_errors[6] = bs->dxdzError(), m_errors[7] = bs->dydzError();
+    }
+
+    void printDebug(std::stringstream& ss) {
+      ss << "Dumping BeamSpot parameters Data:" << std::endl;
+      for (uint i = parameters::X; i <= parameters::dydz; i++) {
+        parameters par = static_cast<parameters>(i);
+        ss << getStringFromParamEnum(par) << " : " << m_values[i] << std::endl;
+        ss << getStringFromParamEnum(par) << " error: " << m_errors[i] << std::endl;
+        ss << std::endl;
+      }
+    }
+
+    inline const bshelpdata centralValues() const { return m_values; }
+    inline const bshelpdata errors() const { return m_errors; }
+
+    // get the difference in values
+    const bshelpdata diffCentralValues(const BSParamsHelper& bs2, const bool isPull = false) const {
+      bshelpdata ret;
+      for (uint i = parameters::X; i <= parameters::dydz; i++) {
+        ret[i] = this->centralValues()[i] - bs2.centralValues()[i];
+        if (isPull)
+          (this->centralValues()[i] != 0.) ? ret[i] /= this->centralValues()[i] : 0.;
+      }
+      return ret;
+    }
+
+    // get the difference in errors
+    const bshelpdata diffErrors(const BSParamsHelper& bs2, const bool isPull = false) const {
+      bshelpdata ret;
+      for (uint i = parameters::X; i <= parameters::dydz; i++) {
+        ret[i] = this->errors()[i] - bs2.errors()[i];
+        if (isPull)
+          (this->errors()[i] != 0.) ? ret[i] /= this->errors()[i] : 0.;
+      }
+      return ret;
+    }
+
+  private:
+    bshelpdata m_values; /* central values */
+    bshelpdata m_errors; /* errors */
+  };
 
   /************************************************
     template classes (history)
@@ -381,7 +447,10 @@ namespace BeamSpotPI {
     bool isOnline_;
     std::shared_ptr<PayloadType> m_payload;
 
-    /************************************************/
+    /**
+     * Can't use BeamSpotPI::getStringFromParamEnum becasue it needs to be overridden
+     * for the BeamSpotOnlineObjects case.
+     */
     virtual std::string getStringFromTypeEnum(const parameters& parameter) const {
       switch (parameter) {
         case X:
@@ -404,6 +473,162 @@ namespace BeamSpotPI {
           return "should never be here";
       }
     }
+  };
+
+  /************************************************
+    Display of Beam Spot parameters difference
+  *************************************************/
+  template <class PayloadType, cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class DisplayParametersDiff : public cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags> {
+  public:
+    DisplayParametersDiff()
+        : cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags>("Display of BeamSpot parameters differences") {
+      if constexpr (std::is_same_v<PayloadType, BeamSpotOnlineObjects>) {
+        isOnline_ = true;
+      } else {
+        isOnline_ = false;
+      }
+    }
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      l_payload = this->fetchPayload(std::get<1>(lastiov));
+      f_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      TCanvas canvas("Beam Spot Parameters Difference Summary", "Beam Spot Parameters Difference summary", 1000, 1000);
+      canvas.cd(1);
+
+      canvas.cd(1)->SetTopMargin(0.08);
+      canvas.cd(1)->SetBottomMargin(0.06);
+      canvas.cd(1)->SetLeftMargin(0.14);
+      canvas.cd(1)->SetRightMargin(0.16);
+      canvas.cd(1)->Modified();
+      canvas.cd(1)->SetGrid();
+
+      // for the "text"-filled histogram
+      auto h2_BSParameters = std::make_unique<TH2F>("Parameters", "", 2, 0.0, 2.0, 8, 0, 8.);
+      h2_BSParameters->SetStats(false);
+      h2_BSParameters->GetXaxis()->SetBinLabel(1, "Value");
+      h2_BSParameters->GetXaxis()->SetBinLabel(2, "Error");
+      h2_BSParameters->GetXaxis()->LabelsOption("h");
+      h2_BSParameters->GetYaxis()->SetLabelSize(0.05);
+      h2_BSParameters->GetXaxis()->SetLabelSize(0.05);
+      h2_BSParameters->SetMarkerSize(1.5);
+
+      // prepare the arrays to fill the histogram
+      BeamSpotPI::BSParamsHelper fBS(f_payload);
+      BeamSpotPI::BSParamsHelper lBS(l_payload);
+
+#ifdef MM_DEBUG
+      std::stringstream ss1, ss2;
+      edm::LogPrint("") << "**** first payload";
+      fBS.printDebug(ss1);
+      edm::LogPrint("") << ss1.str();
+      edm::LogPrint("") << "**** last payload";
+      lBS.printDebug(ss2);
+      edm::LogPrint("") << ss2.str();
+#endif
+
+      const auto diffPars = fBS.diffCentralValues(lBS);
+      const auto diffErrors = fBS.diffErrors(lBS);
+      //const auto pullPars = fBS.diffCentralValues(lBS,true /*normalize*/);
+      //const auto pullErrors = fBS.diffErrors(lBS,true /*normalize*/);
+
+      unsigned int yBin = 8;
+      for (int foo = parameters::X; foo <= parameters::dydz; foo++) {
+        parameters param = static_cast<parameters>(foo);
+        std::string theLabel = BeamSpotPI::getStringFromParamEnum(param, true /*use units*/);
+        h2_BSParameters->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
+        h2_BSParameters->SetBinContent(1, yBin, diffPars[foo]); /* profiting of the parameters enum indexing */
+        h2_BSParameters->SetBinContent(2, yBin, diffErrors[foo]);
+        yBin--;
+      }
+
+      // for the "colz"-filled histogram (clonde from the text-based one)
+      auto h2_BSShadow = (TH2F*)(h2_BSParameters->Clone("shadow"));
+      h2_BSShadow->GetZaxis()->SetTitle("#Delta Parameter(payload A - payload B)");
+      h2_BSShadow->GetZaxis()->CenterTitle();
+      h2_BSShadow->GetZaxis()->SetTitleOffset(1.5);
+
+      // this is the fine gradient palette (blue to red)
+      double max = h2_BSShadow->GetMaximum();
+      double min = h2_BSShadow->GetMinimum();
+      double val_white = 0.;
+      double per_white = (max != min) ? ((val_white - min) / (max - min)) : 0.5;
+
+      const int Number = 3;
+      double Red[Number] = {0., 1., 1.};
+      double Green[Number] = {0., 1., 0.};
+      double Blue[Number] = {1., 1., 0.};
+      double Stops[Number] = {0., per_white, 1.};
+      int nb = 256;
+      h2_BSShadow->SetContour(nb);
+      TColor::CreateGradientColorTable(Number, Stops, Red, Green, Blue, nb);
+
+      h2_BSShadow->Draw("colz");
+      h2_BSParameters->Draw("TEXTsame");
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.025);
+      ltx.SetTextAlign(11);
+
+      // compute the (run,LS) pairs
+      auto l_runLS = BeamSpotPI::unpack(std::get<0>(lastiov));
+      std::string l_runLSs = "(" + std::to_string(l_runLS.first) + "," + std::to_string(l_runLS.second) + ")";
+      auto f_runLS = BeamSpotPI::unpack(std::get<0>(firstiov));
+      std::string f_runLSs = "(" + std::to_string(f_runLS.first) + "," + std::to_string(f_runLS.second) + ")";
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        ltx.DrawLatexNDC(
+            gPad->GetLeftMargin() - 0.1,
+            1 - gPad->GetTopMargin() + 0.015,
+            (fmt::sprintf(
+                 "#splitline{A = #color[4]{%s}: %s}{B = #color[4]{%s}: %s}", f_tagname, f_runLSs, l_tagname, l_runLSs))
+                .c_str());
+      } else {
+        ltx.DrawLatexNDC(
+            gPad->GetLeftMargin() - 0.1,
+            1 - gPad->GetTopMargin() + 0.015,
+            (fmt::sprintf("#splitline{#color[4]{%s}}{A = %s | B = %s}", f_tagname, l_runLSs, f_runLSs)).c_str());
+      }
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+
+  public:
+    /**
+     * In case an extension to the BeamSpotOnlineObjects case will be needed in future
+     */
+    virtual std::shared_ptr<TH2F> fillTheExtraHistogram() const { return nullptr; }
+
+  protected:
+    bool isOnline_;
+    std::shared_ptr<PayloadType> f_payload;
+    std::shared_ptr<PayloadType> l_payload;
   };
 }  // namespace BeamSpotPI
 
