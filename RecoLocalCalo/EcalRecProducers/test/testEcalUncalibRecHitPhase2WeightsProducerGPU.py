@@ -3,11 +3,12 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Phase2C10_cff import Phase2C10
 from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 from Configuration.ProcessModifiers.gpu_cff import gpu
+from Configuration.ProcessModifiers.gpuValidationEcal_cff import gpuValidationEcal
 
 #from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2_cff import *
 #from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 
-process = cms.Process('RECO',Phase2C10,phase2_ecal_devel, gpu)
+process = cms.Process('RECO',Phase2C10,phase2_ecal_devel, gpu, gpuValidationEcal)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -21,11 +22,12 @@ process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 process.load('RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2GPU_cff')
 process.load('RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1),
+    input = cms.untracked.int32(100),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -41,7 +43,7 @@ process.MessageLogger.FastReport = cms.untracked.PSet()
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/data/user/csandeve/RelValTTbar_14TeV_ecaldigi_123X_mcRun4_realistic_v3_2026D77noPU-v1.root'),
+    fileNames = cms.untracked.vstring('/store/group/dpg_ecal/comm_ecal/upgrade/Phase2CMSSW///RelValTTbar_14TeV_ecaldigi_123X_mcRun4_realistic_v3_2026D77noPU-v1.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -79,9 +81,14 @@ process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.19 $')
 )
 
+# Set up the DQM GPU validation task
+process.ecalMonitorTaskEcalOnly.workers = ["GpuTask"]
+process.ecalMonitorTaskEcalOnly.collectionTags.EBCpuUncalibRecHit = "ecalUncalibRecHitPhase2new@cpu:EcalUncalibRecHitsEB"
+process.ecalMonitorTaskEcalOnly.collectionTags.EBGpuUncalibRecHit = "ecalUncalibRecHitPhase2new@cuda:EcalUncalibRecHitsEB"
+
 # Output definition
 outputCommand = process.FEVTDEBUGHLTEventContent.outputCommands
-outputCommand.append('keep *_ecalUncalibRecHitPhase2_*_RECO')
+outputCommand.append('keep *_ecalUncalibRecHitPhase2*_*_RECO')
 process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('GEN-SIM-RECO'),
@@ -89,72 +96,6 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     ),
     fileName = cms.untracked.string('file:step3GPU.root'),
     outputCommands = outputCommand,
-    splitLevel = cms.untracked.int32(0)
-)
-
-process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
-    compressionAlgorithm = cms.untracked.string('LZMA'),
-    compressionLevel = cms.untracked.int32(4),
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('MINIAODSIM'),
-        filterName = cms.untracked.string('')
-    ),
-    dropMetaData = cms.untracked.string('ALL'),
-    eventAutoFlushCompressedSize = cms.untracked.int32(-900),
-    fastCloning = cms.untracked.bool(False),
-    fileName = cms.untracked.string('file:step3GPU_inMINIAODSIM.root'),
-    outputCommands = process.MINIAODSIMEventContent.outputCommands,
-    overrideBranchesSplitLevel = cms.untracked.VPSet(
-        cms.untracked.PSet(
-            branch = cms.untracked.string('patPackedCandidates_packedPFCandidates__*'),
-            splitLevel = cms.untracked.int32(99)
-        ), 
-        cms.untracked.PSet(
-            branch = cms.untracked.string('recoGenParticles_prunedGenParticles__*'),
-            splitLevel = cms.untracked.int32(99)
-        ), 
-        cms.untracked.PSet(
-            branch = cms.untracked.string('patTriggerObjectStandAlones_slimmedPatTrigger__*'),
-            splitLevel = cms.untracked.int32(99)
-        ), 
-        cms.untracked.PSet(
-            branch = cms.untracked.string('patPackedGenParticles_packedGenParticles__*'),
-            splitLevel = cms.untracked.int32(99)
-        ), 
-        cms.untracked.PSet(
-            branch = cms.untracked.string('patJets_slimmedJets__*'),
-            splitLevel = cms.untracked.int32(99)
-        ), 
-        cms.untracked.PSet(
-            branch = cms.untracked.string('recoVertexs_offlineSlimmedPrimaryVertices__*'),
-            splitLevel = cms.untracked.int32(99)
-        ), 
-        cms.untracked.PSet(
-            branch = cms.untracked.string('recoCaloClusters_reducedEgamma_reducedESClusters_*'),
-            splitLevel = cms.untracked.int32(99)
-        ), 
-        cms.untracked.PSet(
-            branch = cms.untracked.string('EcalRecHitsSorted_reducedEgamma_reducedEBRecHits_*'),
-            splitLevel = cms.untracked.int32(99)
-        ), 
-        cms.untracked.PSet(
-            branch = cms.untracked.string('EcalRecHitsSorted_reducedEgamma_reducedEERecHits_*'),
-            splitLevel = cms.untracked.int32(99)
-        ), 
-        cms.untracked.PSet(
-            branch = cms.untracked.string('recoGenJets_slimmedGenJets__*'),
-            splitLevel = cms.untracked.int32(99)
-        ), 
-        cms.untracked.PSet(
-            branch = cms.untracked.string('patJets_slimmedJetsPuppi__*'),
-            splitLevel = cms.untracked.int32(99)
-        ), 
-        cms.untracked.PSet(
-            branch = cms.untracked.string('EcalRecHitsSorted_reducedEgamma_reducedESRecHits_*'),
-            splitLevel = cms.untracked.int32(99)
-        )
-    ),
-    overrideInputFileSplitLevels = cms.untracked.bool(True),
     splitLevel = cms.untracked.int32(0)
 )
 
@@ -180,11 +121,13 @@ process.reconstruction_step = cms.Path(cms.Sequence(cms.Task(
     process.bunchSpacingProducer,
     process.ecalUncalibRecHitPhase2Task
 )))
+process.dqmoffline_step = cms.EndPath(process.DQMOfflineEcalOnly)
 
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
+process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.L1Reco_step,process.reconstruction_step,process.FEVTDEBUGHLToutput_step)
+process.schedule = cms.Schedule(process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.FEVTDEBUGHLToutput_step,process.DQMoutput_step)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
