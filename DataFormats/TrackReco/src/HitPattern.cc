@@ -1028,15 +1028,14 @@ bool HitPattern::insertExpectedOuterHit(const uint16_t pattern) {
 }
 
 Run3ScoutingHitPatternPOD HitPattern::run3ScoutingHitPatternPOD() const {
-  Run3ScoutingHitPatternPOD run3ScoutingHitPatternPOD;
-  run3ScoutingHitPatternPOD.hitCount = hitCount;
-  run3ScoutingHitPatternPOD.beginTrackHits = beginTrackHits;
-  run3ScoutingHitPatternPOD.endTrackHits = endTrackHits;
-  run3ScoutingHitPatternPOD.beginInner = beginInner;
-  run3ScoutingHitPatternPOD.endInner = endInner;
-  run3ScoutingHitPatternPOD.beginOuter = beginOuter;
-  run3ScoutingHitPatternPOD.endOuter = endOuter;
-  run3ScoutingHitPatternPOD.hitPattern.insert(
-      run3ScoutingHitPatternPOD.hitPattern.begin(), hitPattern, hitPattern + HitPattern::ARRAY_LENGTH);
-  return run3ScoutingHitPatternPOD;
+  Run3ScoutingHitPatternPOD result{
+      .hitCount = hitCount,
+      .beginTrackHits = beginTrackHits,
+      .endTrackHits = endTrackHits,
+      .beginInner = beginInner,
+      .endInner = endInner,
+      .beginOuter = beginOuter,
+      .endOuter = endOuter,
+      .hitPattern = std::vector<uint16_t>(hitPattern, hitPattern + HitPattern::ARRAY_LENGTH)};
+  return result;
 }

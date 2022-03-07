@@ -1,5 +1,5 @@
-#ifndef DataFormats_Run3ScoutingMuon_h
-#define DataFormats_Run3ScoutingMuon_h
+#ifndef DataFormats_Scouting_Run3ScoutingMuon_h
+#define DataFormats_Scouting_Run3ScoutingMuon_h
 
 #include <vector>
 #include "DataFormats/Scouting/interface/Run3ScoutingHitPatternPOD.h"
