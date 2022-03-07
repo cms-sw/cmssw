@@ -30,5 +30,6 @@ pfTICL = cms.EDProducer("PFTICLProducer",
     trackTimeErrorMap = cms.InputTag("tofPID","sigmat0"),
     trackTimeQualityMap = cms.InputTag("mtdTrackQualityMVA","mtdQualMVA"),
     trackTimeValueMap = cms.InputTag("tofPID","t0"),
+    useMTDTiming = cms.bool(True),                    
     useTimingAverage = cms.bool(False)
 )
