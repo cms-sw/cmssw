@@ -5,11 +5,11 @@
 # with command line options: step2 -s PAT,VALIDATION:@miniAODValidation,DQM:@miniAODDQM --era Run2_2018 -n 100 --process PAT --conditions auto:phase1_2018_realistic --mc --scenario pp --eventcontent MINIAODSIM,DQM --datatier MINIAODSIM,DQMIO --procModifiers run2_miniAOD_UL_preSummer20 --no_exec --filein filelist:filelist --fileout file:step2.root
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run2_2018_DRN_cff import Run2_2018_DRN
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.ProcessModifiers.run2_miniAOD_UL_preSummer20_cff import run2_miniAOD_UL_preSummer20
 from Configuration.ProcessModifiers.enableSonicTriton_cff import enableSonicTriton
 
-process = cms.Process('PAT',Run2_2018_DRN,run2_miniAOD_UL_preSummer20, enableSonicTriton)
+process = cms.Process('PAT',Run2_2018,run2_miniAOD_UL_preSummer20, enableSonicTriton)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -25,7 +25,6 @@ process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMServices.Core.DQMStoreNonLegacy_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.ProcessModifiers.enableDRN_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100),
@@ -242,9 +241,9 @@ from Validation.Performance.TimeMemoryInfo import customise as customise_profile
 
 process = customise_profile(process)
 
-#from PhysicsTools.PatAlgos.slimming.enableDRN import enableDRN
+from PhysicsTools.PatAlgos.slimming.enableDRN import enableDRN
 
-#process = enableDRN(process)
+process = enableDRN(process)
 
 process.TritonService.verbose = cms.untracked.bool(True)
 process.TritonService.fallback.verbose = cms.untracked.bool(True)
