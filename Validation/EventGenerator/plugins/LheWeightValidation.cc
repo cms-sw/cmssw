@@ -1,37 +1,33 @@
 #include "Validation/EventGenerator/interface/LheWeightValidation.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "Validation/EventGenerator/interface/DQMHelper.h"
 #include "Validation/EventGenerator/interface/HepMCValidationHelper.h"
 
 using namespace edm;
 
-LheWeightValidation::LheWeightValidation(const edm::ParameterSet& iPSet) {
-  lheLabel_ = iPSet.getParameter<edm::InputTag>("lheProduct"),
-  genParticleToken_ = consumes<reco::GenParticleCollection>(iPSet.getParameter<edm::InputTag>("genParticles"));
-  lheEvtToken_ = consumes<LHEEventProduct>(lheLabel_);
-  lheRunToken_ = consumes<LHERunInfoProduct, edm::InRun>(lheLabel_);
-  genJetToken_ = consumes<reco::GenJetCollection>(iPSet.getParameter<edm::InputTag>("genJets"));
-  dumpLHEheader_ = iPSet.getParameter<bool>("dumpLHEheader");
-  nScaleVar_ = iPSet.getParameter<int>("nScaleVar");
-  idxPdfStart_ = iPSet.getParameter<int>("idxPdfStart");
-  idxPdfEnd_ = iPSet.getParameter<int>("idxPdfEnd");
-  leadLepPtRange_ = iPSet.getParameter<double>("leadLepPtRange");
-  leadLepPtNbin_ = iPSet.getParameter<int>("leadLepPtNbin");
-  leadLepPtCut_ = iPSet.getParameter<double>("leadLepPtCut");
-  lepEtaCut_ = iPSet.getParameter<double>("lepEtaCut");
-  rapidityRange_ = iPSet.getParameter<double>("rapidityRange");
-  rapidityNbin_ = iPSet.getParameter<int>("rapidityNbin");
-  jetPtCut_ = iPSet.getParameter<double>("jetPtCut");
-  jetEtaCut_ = iPSet.getParameter<double>("jetEtaCut");
-  nJetsNbin_ = iPSet.getParameter<int>("nJetsNbin");
-  jetPtRange_ = iPSet.getParameter<double>("jetPtRange");
-  jetPtNbin_ = iPSet.getParameter<int>("jetPtNbin");
-
-  nPdfVar_ = idxPdfEnd_ - idxPdfStart_ + 1;
-}
-
-LheWeightValidation::~LheWeightValidation() {}
+LheWeightValidation::LheWeightValidation(const edm::ParameterSet& iPSet):
+  lheLabel_(iPSet.getParameter<edm::InputTag>("lheProduct")),
+  genParticleToken_(consumes<reco::GenParticleCollection>(iPSet.getParameter<edm::InputTag>("genParticles"))),
+  lheEvtToken_(consumes<LHEEventProduct>(lheLabel_)),
+  lheRunToken_(consumes<LHERunInfoProduct, edm::InRun>(lheLabel_)),
+  genJetToken_(consumes<reco::GenJetCollection>(iPSet.getParameter<edm::InputTag>("genJets"))),
+  dumpLHEheader_(iPSet.getParameter<bool>("dumpLHEheader")),
+  leadLepPtNbin_(iPSet.getParameter<int>("leadLepPtNbin")),
+  rapidityNbin_(iPSet.getParameter<int>("rapidityNbin")),
+  leadLepPtRange_(iPSet.getParameter<double>("leadLepPtRange")),
+  leadLepPtCut_(iPSet.getParameter<double>("leadLepPtCut")),
+  lepEtaCut_(iPSet.getParameter<double>("lepEtaCut")),
+  rapidityRange_(iPSet.getParameter<double>("rapidityRange")),
+  nJetsNbin_(iPSet.getParameter<int>("nJetsNbin")),
+  jetPtNbin_(iPSet.getParameter<int>("jetPtNbin")),
+  jetPtCut_(iPSet.getParameter<double>("jetPtCut")),
+  jetEtaCut_(iPSet.getParameter<double>("jetEtaCut")),
+  jetPtRange_(iPSet.getParameter<double>("jetPtRange")),
+  nScaleVar_(iPSet.getParameter<int>("nScaleVar")),
+  idxPdfStart_(iPSet.getParameter<int>("idxPdfStart")),
+  idxPdfEnd_(iPSet.getParameter<int>("idxPdfEnd")),
+  nPdfVar_(idxPdfEnd_ - idxPdfStart_ + 1)
+{}
 
 void LheWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run const& iRun, edm::EventSetup const&) {
   // check LHE product exists
@@ -43,15 +39,16 @@ void LheWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run cons
 
   ///Setting the DQM top directories
   std::string folderName = "Generator/LHEWeight";
-  dqm_ = new DQMHelper(&iBook);
+  DQMHelper aDqmHelper(&iBook);
   iBook.setCurrentFolder(folderName);
 
   // Number of analyzed events
-  nEvt_ = dqm_->book1dHisto("nEvt", "n analyzed Events", 1, 0., 1., "bin", "Number of Events");
-  nlogWgt_ = dqm_->book1dHisto("nlogWgt", "Log10(n weights)", 100, 0., 5., "log_{10}(nWgts)", "Number of Events");
-  wgtVal_ = dqm_->book1dHisto("wgtVal", "weights", 100, -1.5, 3., "weight", "Number of Weights");
+  nEvt_ = aDqmHelper.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1., "bin", "Number of Events");
+  nlogWgt_ = aDqmHelper.book1dHisto("nlogWgt", "Log10(n weights)", 100, 0., 5., "log_{10}(nWgts)", "Number of Events");
+  wgtVal_ = aDqmHelper.book1dHisto("wgtVal", "weights", 100, -1.5, 3., "weight", "Number of Weights");
 
-  bookTemplates(leadLepPtScaleVar_,
+  bookTemplates(aDqmHelper,
+                leadLepPtScaleVar_,
                 leadLepPtPdfVar_,
                 leadLepPtTemp_,
                 "leadLepPt",
@@ -61,7 +58,8 @@ void LheWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run cons
                 leadLepPtRange_,
                 "Pt_{l} (GeV)",
                 "Number of Events");
-  bookTemplates(leadLepEtaScaleVar_,
+  bookTemplates(aDqmHelper,
+                leadLepEtaScaleVar_,
                 leadLepEtaPdfVar_,
                 leadLepEtaTemp_,
                 "leadLepEta",
@@ -71,7 +69,8 @@ void LheWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run cons
                 rapidityRange_,
                 "#eta_{l}",
                 "Number of Events");
-  bookTemplates(jetMultScaleVar_,
+  bookTemplates(aDqmHelper,
+                jetMultScaleVar_,
                 jetMultPdfVar_,
                 jetMultTemp_,
                 "JetMultiplicity",
@@ -81,7 +80,8 @@ void LheWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run cons
                 nJetsNbin_,
                 "n",
                 "Number of Events");
-  bookTemplates(leadJetPtScaleVar_,
+  bookTemplates(aDqmHelper,
+                leadJetPtScaleVar_,
                 leadJetPtPdfVar_,
                 leadJetPtTemp_,
                 "leadJetPt",
@@ -91,7 +91,8 @@ void LheWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run cons
                 jetPtRange_,
                 "Pt_{j} (GeV)",
                 "Number of Events");
-  bookTemplates(leadJetEtaScaleVar_,
+  bookTemplates(aDqmHelper,
+                leadJetEtaScaleVar_,
                 leadJetEtaPdfVar_,
                 leadJetEtaTemp_,
                 "leadJetEta",
@@ -105,35 +106,36 @@ void LheWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run cons
   return;
 }
 
-void LheWeightValidation::bookTemplates(std::vector<std::unique_ptr<TH1F>>& scaleVar,
+void LheWeightValidation::bookTemplates(DQMHelper& aDqmHelper,
+                                        std::vector<std::unique_ptr<TH1F>>& scaleVar,
                                         std::vector<std::unique_ptr<TH1F>>& pdfVar,
                                         std::vector<MonitorElement*>& tmps,
-                                        std::string name,
-                                        std::string title,
+                                        const std::string& name,
+                                        const std::string& title,
                                         int nbin,
                                         float low,
                                         float high,
-                                        std::string xtitle,
-                                        std::string ytitle) {
-  tmps.push_back(dqm_->book1dHisto(name, title, nbin, low, high, xtitle, ytitle));
-  tmps.push_back(dqm_->book1dHisto(name + "ScaleUp", title + " scale up", nbin, low, high, xtitle, ytitle));
+                                        const std::string& xtitle,
+                                        const std::string& ytitle) {
+  tmps.push_back(aDqmHelper.book1dHisto(name, title, nbin, low, high, xtitle, ytitle));
+  tmps.push_back(aDqmHelper.book1dHisto(name + "ScaleUp", title + " scale up", nbin, low, high, xtitle, ytitle));
   tmps.at(1)->getTH1()->Sumw2(false);
-  tmps.push_back(dqm_->book1dHisto(name + "ScaleDn", title + " scale down", nbin, low, high, xtitle, ytitle));
+  tmps.push_back(aDqmHelper.book1dHisto(name + "ScaleDn", title + " scale down", nbin, low, high, xtitle, ytitle));
   tmps.at(2)->getTH1()->Sumw2(false);
-  tmps.push_back(dqm_->book1dHisto(
+  tmps.push_back(aDqmHelper.book1dHisto(
       name + "ScaleUp_ratio", "Ratio of " + title + " scale upper envelop / Nominal", nbin, low, high, xtitle, ytitle));
   tmps.at(3)->setEfficiencyFlag();
-  tmps.push_back(dqm_->book1dHisto(
+  tmps.push_back(aDqmHelper.book1dHisto(
       name + "ScaleDn_ratio", "Ratio of " + title + " scale lower envelop / Nominal", nbin, low, high, xtitle, ytitle));
   tmps.at(4)->setEfficiencyFlag();
-  tmps.push_back(dqm_->book1dHisto(name + "PdfUp", title + " PDF upper RMS", nbin, low, high, xtitle, ytitle));
+  tmps.push_back(aDqmHelper.book1dHisto(name + "PdfUp", title + " PDF upper RMS", nbin, low, high, xtitle, ytitle));
   tmps.at(5)->getTH1()->Sumw2(false);
-  tmps.push_back(dqm_->book1dHisto(name + "PdfDn", title + " PDF lower RMS", nbin, low, high, xtitle, ytitle));
+  tmps.push_back(aDqmHelper.book1dHisto(name + "PdfDn", title + " PDF lower RMS", nbin, low, high, xtitle, ytitle));
   tmps.at(6)->getTH1()->Sumw2(false);
-  tmps.push_back(dqm_->book1dHisto(
+  tmps.push_back(aDqmHelper.book1dHisto(
       name + "PdfUp_ratio", "Ratio of " + title + " PDF upper RMS / Nominal", nbin, low, high, xtitle, ytitle));
   tmps.at(7)->setEfficiencyFlag();
-  tmps.push_back(dqm_->book1dHisto(
+  tmps.push_back(aDqmHelper.book1dHisto(
       name + "PdfDn_ratio", "Ratio of " + title + " PDF lower RMS / Nominal", nbin, low, high, xtitle, ytitle));
   tmps.at(8)->setEfficiencyFlag();
 

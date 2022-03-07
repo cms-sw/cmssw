@@ -1,48 +1,48 @@
 #include "Validation/EventGenerator/interface/GenWeightValidation.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "Validation/EventGenerator/interface/DQMHelper.h"
 #include "Validation/EventGenerator/interface/HepMCValidationHelper.h"
+
 using namespace edm;
 
-GenWeightValidation::GenWeightValidation(const edm::ParameterSet& iPSet) : wmanager_(iPSet, consumesCollector()) {
-  genParticleToken_ = consumes<reco::GenParticleCollection>(iPSet.getParameter<edm::InputTag>("genParticles"));
-  genJetToken_ = consumes<reco::GenJetCollection>(iPSet.getParameter<edm::InputTag>("genJets"));
-  idxGenEvtInfo_ = iPSet.getParameter<int>("whichGenEventInfo");
-  idxFSRup_ = iPSet.getParameter<int>("idxFSRup");
-  idxFSRdown_ = iPSet.getParameter<int>("idxFSRdown");
-  idxISRup_ = iPSet.getParameter<int>("idxISRup");
-  idxISRdown_ = iPSet.getParameter<int>("idxISRdown");
-  leadLepPtRange_ = iPSet.getParameter<double>("leadLepPtRange");
-  leadLepPtNbin_ = iPSet.getParameter<int>("leadLepPtNbin");
-  leadLepPtCut_ = iPSet.getParameter<double>("leadLepPtCut");
-  lepEtaCut_ = iPSet.getParameter<double>("lepEtaCut");
-  rapidityRange_ = iPSet.getParameter<double>("rapidityRange");
-  rapidityNbin_ = iPSet.getParameter<int>("rapidityNbin");
-  jetPtCut_ = iPSet.getParameter<double>("jetPtCut");
-  jetEtaCut_ = iPSet.getParameter<double>("jetEtaCut");
-  nJetsNbin_ = iPSet.getParameter<int>("nJetsNbin");
-  jetPtRange_ = iPSet.getParameter<double>("jetPtRange");
-  jetPtNbin_ = iPSet.getParameter<int>("jetPtNbin");
-
+GenWeightValidation::GenWeightValidation(const edm::ParameterSet& iPSet):
+  wmanager_(iPSet, consumesCollector()),
+  genParticleToken_(consumes<reco::GenParticleCollection>(iPSet.getParameter<edm::InputTag>("genParticles"))),
+  genJetToken_(consumes<reco::GenJetCollection>(iPSet.getParameter<edm::InputTag>("genJets"))),
+  idxGenEvtInfo_(iPSet.getParameter<int>("whichGenEventInfo")),
+  idxFSRup_(iPSet.getParameter<int>("idxFSRup")),
+  idxFSRdown_(iPSet.getParameter<int>("idxFSRdown")),
+  idxISRup_(iPSet.getParameter<int>("idxISRup")),
+  idxISRdown_(iPSet.getParameter<int>("idxISRdown")),
+  leadLepPtNbin_(iPSet.getParameter<int>("leadLepPtNbin")),
+  rapidityNbin_(iPSet.getParameter<int>("rapidityNbin")),
+  leadLepPtRange_(iPSet.getParameter<double>("leadLepPtRange")),
+  leadLepPtCut_(iPSet.getParameter<double>("leadLepPtCut")),
+  lepEtaCut_(iPSet.getParameter<double>("lepEtaCut")),
+  rapidityRange_(iPSet.getParameter<double>("rapidityRange")),
+  nJetsNbin_(iPSet.getParameter<int>("nJetsNbin")),
+  jetPtNbin_(iPSet.getParameter<int>("jetPtNbin")),
+  jetPtCut_(iPSet.getParameter<double>("jetPtCut")),
+  jetEtaCut_(iPSet.getParameter<double>("jetEtaCut")),
+  jetPtRange_(iPSet.getParameter<double>("jetPtRange"))
+{
   std::vector<int> idxs = {idxFSRup_, idxFSRdown_, idxISRup_, idxISRdown_};
   std::sort(idxs.begin(), idxs.end(), std::greater<int>());
   idxMax_ = idxs.at(0);
 }
 
-GenWeightValidation::~GenWeightValidation() {}
-
 void GenWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run const&, edm::EventSetup const&) {
   ///Setting the DQM top directories
   std::string folderName = "Generator/GenWeight";
-  dqm_ = new DQMHelper(&iBook);
+  DQMHelper aDqmHelper(&iBook);
   iBook.setCurrentFolder(folderName);
 
   // Number of analyzed events
-  nEvt_ = dqm_->book1dHisto("nEvt", "n analyzed Events", 1, 0., 1., "bin", "Number of Events");
-  nlogWgt_ = dqm_->book1dHisto("nlogWgt", "Log10(n weights)", 100, 0., 3., "log_{10}(nWgts)", "Number of Events");
-  wgtVal_ = dqm_->book1dHisto("wgtVal", "weights", 100, -1.5, 3., "weight", "Number of Weights");
-  bookTemplates(leadLepPtTemp_,
+  nEvt_ = aDqmHelper.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1., "bin", "Number of Events");
+  nlogWgt_ = aDqmHelper.book1dHisto("nlogWgt", "Log10(n weights)", 100, 0., 3., "log_{10}(nWgts)", "Number of Events");
+  wgtVal_ = aDqmHelper.book1dHisto("wgtVal", "weights", 100, -1.5, 3., "weight", "Number of Weights");
+  bookTemplates(aDqmHelper,
+                leadLepPtTemp_,
                 "leadLepPt",
                 "leading lepton Pt",
                 leadLepPtNbin_,
@@ -50,7 +50,8 @@ void GenWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run cons
                 leadLepPtRange_,
                 "Pt_{l} (GeV)",
                 "Number of Events");
-  bookTemplates(leadLepEtaTemp_,
+  bookTemplates(aDqmHelper,
+                leadLepEtaTemp_,
                 "leadLepEta",
                 "leading lepton #eta",
                 rapidityNbin_,
@@ -58,9 +59,17 @@ void GenWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run cons
                 rapidityRange_,
                 "#eta_{l}",
                 "Number of Events");
-  bookTemplates(
-      jetMultTemp_, "JetMultiplicity", "Gen jet multiplicity", nJetsNbin_, 0, nJetsNbin_, "n", "Number of Events");
-  bookTemplates(leadJetPtTemp_,
+  bookTemplates(aDqmHelper,
+                jetMultTemp_,
+                "JetMultiplicity",
+                "Gen jet multiplicity",
+                nJetsNbin_,
+                0,
+                nJetsNbin_,
+                "n",
+                "Number of Events");
+  bookTemplates(aDqmHelper,
+                leadJetPtTemp_,
                 "leadJetPt",
                 "leading Gen jet Pt",
                 jetPtNbin_,
@@ -68,7 +77,8 @@ void GenWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run cons
                 jetPtRange_,
                 "Pt_{j} (GeV)",
                 "Number of Events");
-  bookTemplates(leadJetEtaTemp_,
+  bookTemplates(aDqmHelper,
+                leadJetEtaTemp_,
                 "leadJetEta",
                 "leading Gen jet #eta",
                 rapidityNbin_,
@@ -80,29 +90,30 @@ void GenWeightValidation::bookHistograms(DQMStore::IBooker& iBook, edm::Run cons
   return;
 }
 
-void GenWeightValidation::bookTemplates(std::vector<MonitorElement*>& tmps,
-                                        std::string name,
-                                        std::string title,
+void GenWeightValidation::bookTemplates(DQMHelper& aDqmHelper,
+                                        std::vector<MonitorElement*>& tmps,
+                                        const std::string& name,
+                                        const std::string& title,
                                         int nbin,
                                         float low,
                                         float high,
-                                        std::string xtitle,
-                                        std::string ytitle) {
-  tmps.push_back(dqm_->book1dHisto(name, title, nbin, low, high, xtitle, ytitle));
-  tmps.push_back(dqm_->book1dHisto(name + "FSRup", title + " FSR up", nbin, low, high, xtitle, ytitle));
-  tmps.push_back(dqm_->book1dHisto(name + "FSRdn", title + " FSR down", nbin, low, high, xtitle, ytitle));
-  tmps.push_back(dqm_->book1dHisto(
+                                        const std::string& xtitle,
+                                        const std::string& ytitle) {
+  tmps.push_back(aDqmHelper.book1dHisto(name, title, nbin, low, high, xtitle, ytitle));
+  tmps.push_back(aDqmHelper.book1dHisto(name + "FSRup", title + " FSR up", nbin, low, high, xtitle, ytitle));
+  tmps.push_back(aDqmHelper.book1dHisto(name + "FSRdn", title + " FSR down", nbin, low, high, xtitle, ytitle));
+  tmps.push_back(aDqmHelper.book1dHisto(
       name + "FSRup_ratio", "Ratio of " + title + " FSR up / Nominal", nbin, low, high, xtitle, ytitle));
   tmps.at(3)->setEfficiencyFlag();
-  tmps.push_back(dqm_->book1dHisto(
+  tmps.push_back(aDqmHelper.book1dHisto(
       name + "FSRdn_ratio", "Ratio of " + title + " FSR down / Nominal", nbin, low, high, xtitle, ytitle));
   tmps.at(4)->setEfficiencyFlag();
-  tmps.push_back(dqm_->book1dHisto(name + "ISRup", title + " ISR up", nbin, low, high, xtitle, ytitle));
-  tmps.push_back(dqm_->book1dHisto(name + "ISRdn", title + " ISR down", nbin, low, high, xtitle, ytitle));
-  tmps.push_back(dqm_->book1dHisto(
+  tmps.push_back(aDqmHelper.book1dHisto(name + "ISRup", title + " ISR up", nbin, low, high, xtitle, ytitle));
+  tmps.push_back(aDqmHelper.book1dHisto(name + "ISRdn", title + " ISR down", nbin, low, high, xtitle, ytitle));
+  tmps.push_back(aDqmHelper.book1dHisto(
       name + "ISRup_ratio", "Ratio of " + title + " ISR up / Nominal", nbin, low, high, xtitle, ytitle));
   tmps.at(7)->setEfficiencyFlag();
-  tmps.push_back(dqm_->book1dHisto(
+  tmps.push_back(aDqmHelper.book1dHisto(
       name + "ISRdn_ratio", "Ratio of " + title + " ISR down / Nominal", nbin, low, high, xtitle, ytitle));
   tmps.at(8)->setEfficiencyFlag();
 }  // to get ratio plots correctly - need to modify PostProcessor_cff.py as well!

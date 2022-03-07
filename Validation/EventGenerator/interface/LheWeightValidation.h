@@ -2,14 +2,11 @@
 #define LHEWEIGHTVALIDATION_H
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -33,23 +30,24 @@ class TH1F;  // forward declaration for ROOT
 class LheWeightValidation : public DQMOneEDAnalyzer<> {
 public:
   explicit LheWeightValidation(const edm::ParameterSet&);
-  ~LheWeightValidation() override;
+  ~LheWeightValidation() override = default;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void dqmEndRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
-  void bookTemplates(std::vector<std::unique_ptr<TH1F>>& scaleVar,
+  void bookTemplates(DQMHelper& aDqmHelper,
+                     std::vector<std::unique_ptr<TH1F>>& scaleVar,
                      std::vector<std::unique_ptr<TH1F>>& pdfVar,
                      std::vector<MonitorElement*>& tmps,
-                     std::string name,
-                     std::string title,
+                     const std::string& name,
+                     const std::string& title,
                      int nbin,
                      float low,
                      float high,
-                     std::string xtitle,
-                     std::string ytitle);
+                     const std::string& xtitle,
+                     const std::string& ytitle);
 
   void fillTemplates(std::vector<std::unique_ptr<TH1F>>& scaleVar,
                      std::vector<std::unique_ptr<TH1F>>& pdfVar,
@@ -58,7 +56,6 @@ private:
 
   void envelop(const std::vector<std::unique_ptr<TH1F>>& var, std::vector<MonitorElement*>& tmps);
   void pdfRMS(const std::vector<std::unique_ptr<TH1F>>& var, std::vector<MonitorElement*>& tmps);
-  DQMHelper* dqm_;
 
   double weight_, orgWgt_;
   std::vector<LHEEventProduct::WGT> weights_;
@@ -83,20 +80,20 @@ private:
   std::vector<std::unique_ptr<TH1F>> leadJetEtaScaleVar_;
   std::vector<std::unique_ptr<TH1F>> leadJetEtaPdfVar_;
 
-  edm::InputTag lheLabel_;
-  edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
-  edm::EDGetTokenT<LHEEventProduct> lheEvtToken_;
-  edm::EDGetTokenT<LHERunInfoProduct> lheRunToken_;
-  edm::EDGetTokenT<reco::GenJetCollection> genJetToken_;
+  const edm::InputTag lheLabel_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
+  const edm::EDGetTokenT<LHEEventProduct> lheEvtToken_;
+  const edm::EDGetTokenT<LHERunInfoProduct> lheRunToken_;
+  const edm::EDGetTokenT<reco::GenJetCollection> genJetToken_;
 
-  bool dumpLHEheader_;
-  int leadLepPtNbin_, rapidityNbin_;
-  double leadLepPtRange_, leadLepPtCut_, lepEtaCut_, rapidityRange_;
-  int nJetsNbin_, jetPtNbin_;
-  double jetPtCut_, jetEtaCut_, jetPtRange_;
+  const bool dumpLHEheader_;
+  const int leadLepPtNbin_, rapidityNbin_;
+  const double leadLepPtRange_, leadLepPtCut_, lepEtaCut_, rapidityRange_;
+  const int nJetsNbin_, jetPtNbin_;
+  const double jetPtCut_, jetEtaCut_, jetPtRange_;
 
-  int nScaleVar_;  // including Nominal
-  int idxPdfStart_, idxPdfEnd_, nPdfVar_;
+  const int nScaleVar_; // including Nominal
+  const int idxPdfStart_, idxPdfEnd_, nPdfVar_;
 };
 
 #endif
