@@ -10,9 +10,9 @@ echo "myStart: set dir pwd"
 set m=`pwd`
 
 cd ${m}
-setenv SCRAM_ARCH slc7_amd64_gcc900
-cmsrel CMSSW_12_2_0_pre1
-cd CMSSW_12_2_0_pre1/src 
+setenv SCRAM_ARCH slc7_amd64_gcc10
+cmsrel CMSSW_12_3_0_pre4
+cd CMSSW_12_3_0_pre4/src 
 
 mkdir DPGAnalysis
 cd DPGAnalysis
