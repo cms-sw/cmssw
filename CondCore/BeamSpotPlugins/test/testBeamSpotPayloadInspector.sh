@@ -19,6 +19,8 @@ if [ -f *.png ]; then
     rm *.png
 fi
 
+echo "Tesing the trend plots plots"
+
 for i in "${types[@]}"
 do
     for j in "${coordinates[@]}"
@@ -33,5 +35,33 @@ do
 	    --iovs '{"start_iov": "1406876667346979", "end_iov": "1406876667347162"}' \
 	    --db Prod \
 	    --test;
+
+	mv *.png  $W_DIR/results/${i}_${j}.png
     done
 done
+
+echo "Tesing the parameters difference plots"
+
+getPayloadData.py \
+    --plugin pluginBeamSpot_PayloadInspector \
+    --plot plot_BeamSpotParametersDiffSingleTag \
+    --tag BeamSpotObjects_PCL_byLumi_v0_prompt \
+    --time_type Lumi \
+    --iovs '{"start_iov": "1406859487477814", "end_iov": "1488257707672138"}' \
+    --db Prod \
+    --test ;
+
+mv *.png  $W_DIR/results/BeamSpotParametersDiffSingleTag.png
+
+getPayloadData.py \
+    --plugin pluginBeamSpot_PayloadInspector \
+    --plot plot_BeamSpotParametersDiffTwoTags \
+    --tag BeamSpotObjects_Realistic25ns_900GeV_2021PilotBeams_v2_mc \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --tagtwo BeamSpotObjects_Realistic25ns_900GeV_2021PilotBeams_v1_mc \
+    --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test ;
+
+mv *.png  $W_DIR/results/BeamSpotParametersDiffTwoTags.png
