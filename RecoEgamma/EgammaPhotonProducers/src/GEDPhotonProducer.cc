@@ -1106,5 +1106,3 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     outputPhotonCollection.push_back(newCandidate);
   }
 }
-
-
