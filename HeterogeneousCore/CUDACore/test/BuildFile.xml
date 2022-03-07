@@ -16,4 +16,12 @@
     <use name="cuda"/>
   </bin>
 
+  <bin name="cudaTimeMeasurement" file="cudaTimeMeasurement.cu">
+    <use name="cuda"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <flags TEST_RUNNER_CMD="cudaTimeMeasurement -a10 -t100 -s10000 -q -p12345"/>
+</bin>
+
+
 </iftool>
+
