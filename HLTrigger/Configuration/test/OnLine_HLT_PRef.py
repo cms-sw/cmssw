@@ -1,6 +1,6 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_3_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_12_3_0/PRef/V42 (CMSSW_12_3_0_pre5)
+# /dev/CMSSW_12_3_0/PRef/V51 (CMSSW_12_3_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/PRef/V42')
+  tableName = cms.string('/dev/CMSSW_12_3_0/PRef/V51')
 )
 
 process.transferSystem = cms.PSet( 
@@ -3681,6 +3681,19 @@ process.hltESPDisplacedDijethltPromptTrackCountingESProducerLong = cms.ESProduce
   trackQualityClass = cms.string( "any" ),
   nthTrack = cms.int32( -1 )
 )
+process.hltESPDisplacedDijethltPromptTrackCountingESProducerShortSig5 = cms.ESProducer( "PromptTrackCountingESProducer",
+  impactParameterType = cms.int32( 1 ),
+  minimumImpactParameter = cms.double( -1.0 ),
+  useSignedImpactParameterSig = cms.bool( False ),
+  maximumDistanceToJetAxis = cms.double( 999999.0 ),
+  deltaR = cms.double( -1.0 ),
+  deltaRmin = cms.double( 0.0 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  maxImpactParameter = cms.double( 0.05 ),
+  maxImpactParameterSig = cms.double( 5.0 ),
+  trackQualityClass = cms.string( "any" ),
+  nthTrack = cms.int32( -1 )
+)
 process.hltESPDisplacedDijethltTrackCounting2D1st = cms.ESProducer( "TrackCountingESProducer",
   a_dR = cms.double( -0.001053 ),
   b_dR = cms.double( 0.6263 ),
@@ -3692,6 +3705,26 @@ process.hltESPDisplacedDijethltTrackCounting2D1st = cms.ESProducer( "TrackCounti
   max_pT_dRcut = cms.double( 0.1 ),
   max_pT_trackPTcut = cms.double( 3.0 ),
   minimumImpactParameter = cms.double( 0.05 ),
+  useSignedImpactParameterSig = cms.bool( False ),
+  impactParameterType = cms.int32( 1 ),
+  maximumDistanceToJetAxis = cms.double( 9999999.0 ),
+  deltaR = cms.double( -1.0 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  nthTrack = cms.int32( 1 ),
+  trackQualityClass = cms.string( "any" ),
+  useVariableJTA = cms.bool( False )
+)
+process.hltESPDisplacedDijethltTrackCounting2D1stLoose = cms.ESProducer( "TrackCountingESProducer",
+  a_dR = cms.double( -0.001053 ),
+  b_dR = cms.double( 0.6263 ),
+  a_pT = cms.double( 0.005263 ),
+  b_pT = cms.double( 0.3684 ),
+  min_pT = cms.double( 120.0 ),
+  max_pT = cms.double( 500.0 ),
+  min_pT_dRcut = cms.double( 0.5 ),
+  max_pT_dRcut = cms.double( 0.1 ),
+  max_pT_trackPTcut = cms.double( 3.0 ),
+  minimumImpactParameter = cms.double( 0.03 ),
   useSignedImpactParameterSig = cms.bool( False ),
   impactParameterType = cms.int32( 1 ),
   maximumDistanceToJetAxis = cms.double( 9999999.0 ),
@@ -8309,10 +8342,10 @@ process.hltEcalUncalibRecHit = SwitchProducerCUDA(
        algoPSet = cms.PSet( 
          EBtimeFitLimits_Upper = cms.double( 1.4 ),
          EEtimeFitLimits_Lower = cms.double( 0.2 ),
-         timealgo = cms.string( "None" ),
+         timealgo = cms.string( "RatioMethod" ),
          EBtimeNconst = cms.double( 28.5 ),
          prefitMaxChiSqEE = cms.double( 10.0 ),
-         outOfTimeThresholdGain12mEB = cms.double( 5.0 ),
+         outOfTimeThresholdGain12mEB = cms.double( 1000.0 ),
          outOfTimeThresholdGain12mEE = cms.double( 1000.0 ),
          EEtimeFitParameters = cms.vdouble( -2.390548, 3.553628, -17.62341, 67.67538, -133.213, 140.7432, -75.41106, 16.20277 ),
          prefitMaxChiSqEB = cms.double( 25.0 ),
@@ -8326,7 +8359,7 @@ process.hltEcalUncalibRecHit = SwitchProducerCUDA(
          dynamicPedestalsEE = cms.bool( False ),
          selectiveBadSampleCriteriaEE = cms.bool( False ),
          outOfTimeThresholdGain61pEE = cms.double( 1000.0 ),
-         outOfTimeThresholdGain61pEB = cms.double( 5.0 ),
+         outOfTimeThresholdGain61pEB = cms.double( 1000.0 ),
          activeBXs = cms.vint32( -5, -4, -3, -2, -1, 0, 1, 2, 3, 4 ),
          doPrefitEB = cms.bool( False ),
          addPedestalUncertaintyEE = cms.double( 0.0 ),
@@ -8334,7 +8367,7 @@ process.hltEcalUncalibRecHit = SwitchProducerCUDA(
          gainSwitchUseMaxSampleEB = cms.bool( True ),
          EEtimeNconst = cms.double( 31.8 ),
          EEamplitudeFitParameters = cms.vdouble( 1.89, 1.4 ),
-         outOfTimeThresholdGain12pEB = cms.double( 5.0 ),
+         outOfTimeThresholdGain12pEB = cms.double( 1000.0 ),
          gainSwitchUseMaxSampleEE = cms.bool( False ),
          mitigateBadSamplesEB = cms.bool( False ),
          outOfTimeThresholdGain12pEE = cms.double( 1000.0 ),
@@ -8347,7 +8380,7 @@ process.hltEcalUncalibRecHit = SwitchProducerCUDA(
          outOfTimeThresholdGain61mEE = cms.double( 1000.0 ),
          EEtimeConstantTerm = cms.double( 1.0 ),
          EBtimeConstantTerm = cms.double( 0.6 ),
-         outOfTimeThresholdGain61mEB = cms.double( 5.0 )
+         outOfTimeThresholdGain61mEB = cms.double( 1000.0 )
        )
    ),
  )
@@ -8417,7 +8450,7 @@ process.hltEcalRecHit = SwitchProducerCUDA(
        EELaserMAX = cms.double( 8.0 ),
        logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
        recoverEEIsolatedChannels = cms.bool( False ),
-       skipTimeCalib = cms.bool( True )
+       skipTimeCalib = cms.bool( False )
    ),
  )
 process.hltHbhereco = SwitchProducerCUDA(
