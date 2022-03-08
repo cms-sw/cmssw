@@ -20,8 +20,6 @@ namespace edmtest {
 
   DTMapPrint::DTMapPrint(int i) {}
 
-  DTMapPrint::~DTMapPrint() {}
-
   void DTMapPrint::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
     // Context is not used.
