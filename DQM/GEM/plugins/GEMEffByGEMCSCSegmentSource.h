@@ -45,6 +45,7 @@ class GEMEffByGEMCSCSegmentSource : public GEMOfflineDQMBase {
   const edm::EDGetTokenT<GEMCSCSegmentCollection> kGEMCSCSegmentToken_;
   const edm::EDGetTokenT<reco::MuonCollection> kMuonToken_;
   const bool kUseMuon_;
+  const uint32_t kMinCSCRecHits_;
   const std::string kFolder_;
   const std::string kLogCategory_;
 

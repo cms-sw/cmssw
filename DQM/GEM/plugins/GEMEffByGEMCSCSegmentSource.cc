@@ -8,6 +8,7 @@ GEMEffByGEMCSCSegmentSource::GEMEffByGEMCSCSegmentSource(const edm::ParameterSet
       kGEMCSCSegmentToken_(consumes<GEMCSCSegmentCollection>(parameter_set.getParameter<edm::InputTag>("gemcscSegmentTag"))),
       kMuonToken_(consumes<reco::MuonCollection>(parameter_set.getParameter<edm::InputTag>("muonTag"))),
       kUseMuon_(parameter_set.getUntrackedParameter<bool>("useMuon")),
+      kMinCSCRecHits_(parameter_set.getUntrackedParameter<uint32_t>("minCSCRecHits")),
       kFolder_(parameter_set.getUntrackedParameter<std::string>("folder")),
       kLogCategory_(parameter_set.getUntrackedParameter<std::string>("logCategory")) {
 }
@@ -19,6 +20,7 @@ void GEMEffByGEMCSCSegmentSource::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("gemcscSegmentTag", edm::InputTag("gemcscSegments"));
   desc.add<edm::InputTag>("muonTag", edm::InputTag("muons"));
   desc.addUntracked<bool>("useMuon", false);
+  desc.addUntracked<uint32_t>("minCSCRecHits", 6u);
   desc.addUntracked<std::string>("folder", "GEM/Efficiency/GEMCSCSegment");
   desc.addUntracked<std::string>("logCategory", "GEMEffByGEMCSCSegmentSource");
   descriptions.addWithDefaultLabel(desc);
@@ -176,6 +178,15 @@ void GEMEffByGEMCSCSegmentSource::analyze(const edm::Event& event, const edm::Ev
   for (edm::OwnVector<GEMCSCSegment>::const_iterator iter = gemcsc_segment_collection->begin(); iter != gemcsc_segment_collection->end(); iter++) {
     const GEMCSCSegment& gemcsc_segment = *iter;
 
+    if (gemcsc_segment.cscRecHits().size() < kMinCSCRecHits_) {
+      LogDebug(kLogCategory_) << "failed to pass minCSCRecHits cut"
+                              << " gemcsc_segment.cscRecHits().size() == "
+                              << gemcsc_segment.cscRecHits().size()
+                              << " (minCSCRecHits == "
+                              << kMinCSCRecHits_ << ")";
+      continue;
+    }
+
     const CSCDetId csc_id = gemcsc_segment.cscDetId();
     if (csc_id.isME11()) {
       analyzeME11GE11Segment(gemcsc_segment);
@@ -288,7 +299,7 @@ bool GEMEffByGEMCSCSegmentSource::isME11SegmentMatched(const CSCSegment& csc_seg
   bool found = false;
 
   const CSCDetId csc_id = csc_segment.cscDetId();
-  if (csc_id.isME11()) {
+  if (not csc_id.isME11()) {
     return false;
   }
 
