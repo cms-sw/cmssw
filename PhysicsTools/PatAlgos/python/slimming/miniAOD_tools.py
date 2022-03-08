@@ -439,7 +439,7 @@ def miniAOD_customizeCommon(process):
     
         process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
     
-        process.selectedPatJetsPuppi.cut = cms.string("pt > 15")
+        process.selectedPatJetsPuppi.cut = cms.string("pt > 10")
     
         from PhysicsTools.PatAlgos.slimming.applyDeepBtagging_cff import applyDeepBtagging
         applyDeepBtagging( process )
