@@ -8,11 +8,10 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-HcalSimHitsClient::HcalSimHitsClient(const edm::ParameterSet &iConfig) {
-  dirName_ = iConfig.getParameter<std::string>("DQMDirName");
-  verbose_ = iConfig.getUntrackedParameter<bool>("Verbosity", false);
-  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-}
+HcalSimHitsClient::HcalSimHitsClient(const edm::ParameterSet &iConfig) :
+  dirName_(iConfig.getParameter<std::string>("DQMDirName")),
+  verbose_(iConfig.getUntrackedParameter<bool>("Verbosity", false)),
+  tok_HRNDC_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()) { }
 
 HcalSimHitsClient::~HcalSimHitsClient() {}
 

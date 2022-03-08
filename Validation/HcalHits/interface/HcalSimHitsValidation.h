@@ -42,7 +42,7 @@
 class HcalSimHitsValidation : public DQMOneEDAnalyzer<> {
 public:
   HcalSimHitsValidation(edm::ParameterSet const &conf);
-  ~HcalSimHitsValidation() override;
+  ~HcalSimHitsValidation() override = default;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
@@ -57,12 +57,12 @@ private:
   std::string outputFile_;
   std::string g4Label_, hcalHits_, ebHits_, eeHits_;
 
-  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_ecalEB_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_ecalEE_;
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_ecalEB_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_ecalEE_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
   const HcalDDDRecConstants *hcons_;
   const CaloGeometry *geometry_;
