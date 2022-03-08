@@ -35,12 +35,16 @@ autoCond = {
     'run2_hlt_relval'              : '123X_dataRun2_HLT_relval_v2',
     # GlobalTag for Run3 HLT: it points to the online GT
     'run3_hlt'                     : '123X_dataRun3_HLT_v5',
+    # GlobalTag with fixed snapshot time for Run3 HLT RelVals: customizations to run with fixed L1 Menu
+    'run3_hlt_relval'              : '123X_dataRun3_HLT_relval_v1',
     # GlobalTag for Run3 data relvals (express GT)
     'run3_data_express'            : '123X_dataRun3_Express_v4',
     # GlobalTag for Run3 data relvals
     'run3_data_prompt'             : '123X_dataRun3_Prompt_v5',
     # GlobalTag for Run3 offline data reprocessing
     'run3_data'                    : '123X_dataRun3_v4',
+    # GlobalTag for Run3 data relvals: allows customization to run with fixed L1 menu
+    'run3_data_relval'             : '123X_dataRun3_relval_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'           : '123X_mc2017_design_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
