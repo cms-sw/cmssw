@@ -62,8 +62,8 @@ private:
   const int ietaMin_, ietaMax_, depthMax_;
   const double rmin_, rmax_, zmin_, zmax_;
   const int nbinR_, nbinZ_, verbosity_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
   const HcalDDDRecConstants* hcons_;
 
   //histogram related stuff
@@ -74,9 +74,7 @@ private:
 };
 
 HcalGeomCheck::HcalGeomCheck(const edm::ParameterSet& iConfig)
-    :
-
-      caloHitSource_(iConfig.getParameter<std::string>("caloHitSource")),
+    : caloHitSource_(iConfig.getParameter<std::string>("caloHitSource")),
       ietaMin_(iConfig.getUntrackedParameter<int>("ietaMin", -41)),
       ietaMax_(iConfig.getUntrackedParameter<int>("ietaMax", 41)),
       depthMax_(iConfig.getUntrackedParameter<int>("depthMax", 7)),
