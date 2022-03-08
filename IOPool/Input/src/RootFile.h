@@ -231,9 +231,9 @@ namespace edm {
     bool nextProcessBlock_(ProcessBlockPrincipal&);
     void readProcessBlock_(ProcessBlockPrincipal&);
 
-    void readRun_(RunPrincipal& runPrincipal);
+    bool readRun_(RunPrincipal& runPrincipal);
     void readFakeRun_(RunPrincipal& runPrincipal);
-    void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
+    bool readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
     std::string const& file() const { return file_; }
     std::shared_ptr<ProductRegistry const> productRegistry() const { return productRegistry_; }
     // IndexIntoFile::EntryNumber_t const& entryNumber() const {return indexIntoFileIter().entry();}

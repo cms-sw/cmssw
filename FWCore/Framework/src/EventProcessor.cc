@@ -1232,17 +1232,19 @@ namespace edm {
       endRun(phid, run, globalBeginSucceeded, cleaningUpAfterException);
 
       if (globalBeginSucceeded) {
-        FinalWaitingTask t;
         RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
-        MergeableRunProductMetadata* mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
-        mergeableRunProductMetadata->preWriteRun();
-        writeRunAsync(edm::WaitingTaskHolder{taskGroup_, &t}, phid, run, mergeableRunProductMetadata);
-        do {
-          taskGroup_.wait();
-        } while (not t.done());
-        mergeableRunProductMetadata->postWriteRun();
-        if (t.exceptionPtr()) {
-          std::rethrow_exception(*t.exceptionPtr());
+        if (runPrincipal.continueState() != RunPrincipal::kWillBeContinued) {
+          FinalWaitingTask t;
+          MergeableRunProductMetadata* mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
+          mergeableRunProductMetadata->preWriteRun();
+          writeRunAsync(edm::WaitingTaskHolder{taskGroup_, &t}, phid, run, mergeableRunProductMetadata);
+          do {
+            taskGroup_.wait();
+          } while (not t.done());
+          mergeableRunProductMetadata->postWriteRun();
+          if (t.exceptionPtr()) {
+            std::rethrow_exception(*t.exceptionPtr());
+          }
         }
       }
     }
@@ -1782,7 +1784,7 @@ namespace edm {
 
   void EventProcessor::writeLumiAsync(WaitingTaskHolder task, LuminosityBlockPrincipal& lumiPrincipal) {
     using namespace edm::waiting_task;
-    if (not lumiPrincipal.willBeContinued()) {
+    if (lumiPrincipal.continueState() != LuminosityBlockPrincipal::kWillBeContinued) {
       chain::first([&](auto nextTask) {
         ServiceRegistry::Operate op(serviceToken_);
 
@@ -1801,6 +1803,7 @@ namespace edm {
     for (auto& s : subProcesses_) {
       s.deleteLumiFromCache(*iStatus.lumiPrincipal());
     }
+    iStatus.lumiPrincipal()->setContinueState(LuminosityBlockPrincipal::kUninitialized);
     iStatus.lumiPrincipal()->clearPrincipal();
     //FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
