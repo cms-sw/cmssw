@@ -85,9 +85,9 @@ triggerOfflineDQMSource.remove(egammaMonitorHLT)
 triggerOfflineDQMSource.remove(ak4PFL1FastL2L3CorrectorChain)
 
 globalAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-trackerAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-tightAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-looseAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+#trackerAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+#tightAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+#looseAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 
 from DQMOffline.EGamma.egammaDQMOffline_cff import *
 #egammaDQMOffline.remove(electronAnalyzerSequence)
