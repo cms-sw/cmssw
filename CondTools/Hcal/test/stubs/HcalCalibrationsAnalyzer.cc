@@ -14,7 +14,7 @@ R.Ofierzynski - 2.Oct. 2007
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,18 +36,26 @@ using namespace std;
 
 namespace edmtest
 {
-  class HcalCalibrationsAnalyzer : public edm::EDAnalyzer
+  class HcalCalibrationsAnalyzer : public edm::one::EDAnalyzer<>
   {
   public:
-    explicit  HcalCalibrationsAnalyzer(edm::ParameterSet const& p) 
-    { }
-    explicit  HcalCalibrationsAnalyzer(int i) 
-    { }
-    virtual ~ HcalCalibrationsAnalyzer() { }
+    explicit  HcalCalibrationsAnalyzer(edm::ParameterSet const& p);
+    ~ HcalCalibrationsAnalyzer() override = default;
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   private:
+    const edm::ESGetToken<HcalPedestalWidths, HcalPedestalWidthsRcd> tok_pPedWs_;
+    const edm::ESGetToken<HcalGains, HcalGainsRcd> tok_pGains_;
+    const edm::ESGetToken<HcalGainWidths, HcalGainWidthsRcd> tok_pGainWs_;
+    const edm::ESGetToken<HcalPedestals, HcalPedestalsRcd> tok_pPeds_;
   };
   
+
+  HcalCalibrationsAnalyzer::HcalCalibrationsAnalyzer(edm::ParameterSet const&) :
+//      tok_pPedsW_(esConsumes<HcalPedestalWidths, HcalPedestalWisthssRcd>()),
+//      tok_pGains_(esConsumes<HcalGains, HcalGainsRcd>()),
+//      tok_pGainWs_(esConsumes<HcalGainWidths, HcalGainWidthsRcd>()),
+        tok_pPeds_(esConsumes<HcalPedestals, HcalPedestalsRcd>())  {}
+
   void
    HcalCalibrationsAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   {
@@ -55,14 +63,10 @@ namespace edmtest
     // Context is not used.
     std::cout <<"HcalCalibrationsAnalyzer::analyze-> I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
     std::cout <<"HcalCalibrationsAnalyzer::analyze->  ---EVENT NUMBER "<<e.id().run() <<std::endl;
-    edm::ESHandle<HcalPedestals> pPeds;
-    context.get<HcalPedestalsRcd>().get(pPeds);
-//    edm::eventsetup::ESHandle<HcalPedestalWidths> pPedWs;
-//    context.get<HcalPedestalWidthsRcd>().get(pPedWs);
-//    edm::eventsetup::ESHandle<HcalGains> pGains;
-//    context.get<HcalGainsRcd>().get(pGains);
-//    edm::eventsetup::ESHandle<HcalGainWidths> pGainWs;
-//    context.get<HcalGainWidthsRcd>().get(pGainWs);
+    const auto& pPeds = context.getHandle(tok_pPeds_);
+//  const auto& pPedWs = context.getHandle(tok_pPedWs_);
+//  const auto& pGains = context.getHandle(tok_pGains_);
+//  const auto& pGainWs = context.getHandle(tok_pGainWs_);
     //call tracker code
     //
 
