@@ -29,7 +29,10 @@ namespace reco {
     struct SaturationInfo;
 
     /// default constructor
-    Photon() : RecoCandidate() { pixelSeed_ = false; }
+    Photon() : RecoCandidate() {
+      pixelSeed_ = false;
+      haloTaggerMVAVal_ = 99;
+    }
 
     /// copy constructor
     Photon(const Photon&);
