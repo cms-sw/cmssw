@@ -20,8 +20,6 @@ namespace edmtest {
 
   DTRangeT0Print::DTRangeT0Print(int i) {}
 
-  DTRangeT0Print::~DTRangeT0Print() {}
-
   void DTRangeT0Print::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
     // Context is not used.

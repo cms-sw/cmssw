@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,12 +15,12 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 
 namespace edmtest {
-  class DTMapPrint : public edm::EDAnalyzer {
+  class DTMapPrint : public edm::one::EDAnalyzer<> {
   public:
     explicit DTMapPrint(edm::ParameterSet const& p);
     explicit DTMapPrint(int i);
-    virtual ~DTMapPrint();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~DTMapPrint() override = default;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
     edm::ESGetToken<DTReadOutMapping, DTReadOutMappingRcd> es_token;
