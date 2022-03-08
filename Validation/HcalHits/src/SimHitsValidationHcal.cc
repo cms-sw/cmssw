@@ -4,20 +4,17 @@
 
 //#define DebugLog
 
-SimHitsValidationHcal::SimHitsValidationHcal(const edm::ParameterSet &ps) {
-  g4Label_ = ps.getParameter<std::string>("ModuleLabel");
-  hcalHits_ = ps.getParameter<std::string>("HitCollection");
-  verbose_ = ps.getParameter<bool>("Verbose");
-  testNumber_ = ps.getParameter<bool>("TestNumber");
-
-  tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_));
-  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+SimHitsValidationHcal::SimHitsValidationHcal(const edm::ParameterSet &ps) :
+      g4Label_(ps.getParameter<std::string>("ModuleLabel")),
+      hcalHits_(ps.getParameter<std::string>("HitCollection")),
+      verbose_(ps.getParameter<bool>("Verbose")),
+      testNumber_(ps.getParameter<bool>("TestNumber")),
+      tok_hits_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_))),
+      tok_HRNDC_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()) {
 
   edm::LogVerbatim("HitsValidationHcal") << "Module Label: " << g4Label_ << "   Hits: " << hcalHits_
                                          << " TestNumbering " << testNumber_;
 }
-
-SimHitsValidationHcal::~SimHitsValidationHcal() {}
 
 void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
   const auto &pHRNDC = es.getData(tok_HRNDC_);
@@ -150,17 +147,16 @@ void SimHitsValidationHcal::analyze(const edm::Event &e, const edm::EventSetup &
 #ifdef DebugLog
   edm::LogVerbatim("HitsValidationHcal") << "Run = " << e.id().run() << " Event = " << e.id().event();
 #endif
-  std::vector<PCaloHit> caloHits;
-  edm::Handle<edm::PCaloHitContainer> hitsHcal;
 
   bool getHits = false;
-  e.getByToken(tok_hits_, hitsHcal);
+  const edm::Handle<edm::PCaloHitContainer> & hitsHcal = e.getHandle(tok_hits_);
   if (hitsHcal.isValid())
     getHits = true;
 #ifdef DebugLog
   edm::LogVerbatim("HitsValidationHcal") << "HitsValidationHcal.: Input flags Hits " << getHits;
 #endif
   if (getHits) {
+   std::vector<PCaloHit> caloHits;
     caloHits.insert(caloHits.end(), hitsHcal->begin(), hitsHcal->end());
 #ifdef DebugLog
     edm::LogVerbatim("HitsValidationHcal") << "testNumber_:" << testNumber_;
