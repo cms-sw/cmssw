@@ -259,7 +259,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     const reco::TrackRef mtdTrackref = reco::TrackRef(iEvent.getHandle(RecTrackToken_), trackAssoc[trackref]);
     const reco::Track track = *mtdTrackref;
 
-    if (track.pt() < trackMinPt_)
+    if (track.pt() < trackMinPt_ || std::abs(track.eta()) > trackMaxEta_)
       continue;
 
     meTracktmtd_->Fill(tMtd[trackref]);
@@ -442,21 +442,23 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
               meMVATrackZposResTot_->Fill(dZ);
               meMVATrackMatchedEffPtTot_->Fill(trackGen.pt());
               meMVATrackMatchedEffEtaTot_->Fill(std::abs(trackGen.eta()));
-              if (std::abs(trackGen.eta()) < 1.5) {
-                if (std::abs(genP->pdg_id()) == 211) {
-                  meBarrelTruePi_->Fill(trackGen.p());
-                } else if (std::abs(genP->pdg_id()) == 321) {
-                  meBarrelTrueK_->Fill(trackGen.p());
-                } else if (std::abs(genP->pdg_id()) == 2212) {
-                  meBarrelTrueP_->Fill(trackGen.p());
-                }
-              } else if (std::abs(trackGen.eta()) > 1.6) {
-                if (std::abs(genP->pdg_id()) == 211) {
-                  meEndcapTruePi_->Fill(trackGen.p());
-                } else if (std::abs(genP->pdg_id()) == 321) {
-                  meEndcapTrueK_->Fill(trackGen.p());
-                } else if (std::abs(genP->pdg_id()) == 2212) {
-                  meEndcapTrueP_->Fill(trackGen.p());
+              if (testPID_) {
+                if (std::abs(trackGen.eta()) < trackMinEta_) {
+                  if (std::abs(genP->pdg_id()) == 211) {
+                    meBarrelTruePi_->Fill(trackGen.p());
+                  } else if (std::abs(genP->pdg_id()) == 321) {
+                    meBarrelTrueK_->Fill(trackGen.p());
+                  } else if (std::abs(genP->pdg_id()) == 2212) {
+                    meBarrelTrueP_->Fill(trackGen.p());
+                  }
+                } else if (std::abs(trackGen.eta()) > trackMinEta_) {
+                  if (std::abs(genP->pdg_id()) == 211) {
+                    meEndcapTruePi_->Fill(trackGen.p());
+                  } else if (std::abs(genP->pdg_id()) == 321) {
+                    meEndcapTrueK_->Fill(trackGen.p());
+                  } else if (std::abs(genP->pdg_id()) == 2212) {
+                    meEndcapTrueP_->Fill(trackGen.p());
+                  }
                 }
               }
               if (pullT > -9999.) {
@@ -470,7 +472,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                   double dbetaK = c_cm_ns * (tMtd[trackref] - treco - tofK[trackref]) / pathLength[trackref];
                   double dbetaP = c_cm_ns * (tMtd[trackref] - treco - tofP[trackref]) / pathLength[trackref];
 
-                  if (std::abs(trackGen.eta()) < 1.5) {
+                  if (std::abs(trackGen.eta()) < trackMinEta_) {
                     if (std::abs(genP->pdg_id()) == 211) {
                       meBarrelPiDBetavsp_->Fill(trackGen.p(), dbetaPi);
                       meBarrelPiprobPivsp_->Fill(trackGen.p(), probPi[trackref]);
@@ -485,7 +487,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                       meBarrelPprobPvsp_->Fill(trackGen.p(), probP[trackref]);
                       meBarrelPprobKvsp_->Fill(trackGen.p(), probK[trackref]);
                     }
-                  } else if (std::abs(trackGen.eta()) > 1.6) {
+                  } else if (std::abs(trackGen.eta()) > trackMinEta_) {
                     if (std::abs(genP->pdg_id()) == 211) {
                       meEndcapPiDBetavsp_->Fill(trackGen.p(), dbetaPi);
                       meEndcapPiprobPivsp_->Fill(trackGen.p(), probPi[trackref]);
@@ -591,53 +593,53 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meBarrelPiDBetavsp_ = ibook.bookProfile(
         "BarrelPiDBetavsp", "DeltaBeta true pi as pi vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., -0.1, 0.1, "S");
     meEndcapPiDBetavsp_ = ibook.bookProfile(
-        "EndcapPiDBetavsp", "DeltaBeta true pi as pi vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., -0.1, 0.1, "S");
+        "EndcapPiDBetavsp", "DeltaBeta true pi as pi vs p, |eta| > 1.5;p [GeV]; dBeta", 25, 0., 10., -0.1, 0.1, "S");
     meBarrelKDBetavsp_ = ibook.bookProfile(
         "BarrelKDBetavsp", "DeltaBeta true K as K vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., -0.1, 0.1, "S");
     meEndcapKDBetavsp_ = ibook.bookProfile(
-        "EndcapKDBetavsp", "DeltaBeta true K as K vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., -0.1, 0.1, "S");
+        "EndcapKDBetavsp", "DeltaBeta true K as K vs p, |eta| > 1.5;p [GeV]; dBeta", 25, 0., 10., -0.1, 0.1, "S");
     meBarrelPDBetavsp_ = ibook.bookProfile(
         "BarrelPDBetavsp", "DeltaBeta true p as p vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., -0.1, 0.1, "S");
     meEndcapPDBetavsp_ = ibook.bookProfile(
-        "EndcapPDBetavsp", "DeltaBeta true p as p vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., -0.1, 0.1, "S");
+        "EndcapPDBetavsp", "DeltaBeta true p as p vs p, |eta| > 1.5;p [GeV]; dBeta", 25, 0., 10., -0.1, 0.1, "S");
 
     meBarrelPiprobPivsp_ = ibook.book2D(
-        "BarrelPiprobPivsp", "Probability true pi as pi vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "BarrelPiprobPivsp", "Probability true pi as pi vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
     meBarrelPiprobKvsp_ = ibook.book2D(
-        "BarrelPiprobKvsp", "Probability true pi as K vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "BarrelPiprobKvsp", "Probability true pi as K vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
     meEndcapPiprobPivsp_ = ibook.book2D(
-        "EndcapPiprobPivsp", "Probability true pi as pi vs p, |eta| > 1.6;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "EndcapPiprobPivsp", "Probability true pi as pi vs p, |eta| > 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
     meEndcapPiprobKvsp_ = ibook.book2D(
-        "EndcapPiprobKvsp", "Probability true pi as K vs p, |eta| > 1.6;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "EndcapPiprobKvsp", "Probability true pi as K vs p, |eta| > 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
 
     meBarrelKprobPivsp_ = ibook.book2D(
-        "BarrelKprobPivsp", "Probability true K as pi vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "BarrelKprobPivsp", "Probability true K as pi vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
     meBarrelKprobKvsp_ = ibook.book2D(
-        "BarrelKprobKvsp", "Probability true K as K vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "BarrelKprobKvsp", "Probability true K as K vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
     meBarrelKprobPvsp_ = ibook.book2D(
-        "BarrelKprobPvsp", "Probability true K as p vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "BarrelKprobPvsp", "Probability true K as p vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
     meEndcapKprobPivsp_ = ibook.book2D(
-        "EndcapKprobPivsp", "Probability true K as pi vs p, |eta| > 1.6;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "EndcapKprobPivsp", "Probability true K as pi vs p, |eta| > 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
     meEndcapKprobKvsp_ = ibook.book2D(
-        "EndcapKprobKvsp", "Probability true K as K vs p, |eta| > 1.6;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "EndcapKprobKvsp", "Probability true K as K vs p, |eta| > 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
     meEndcapKprobPvsp_ = ibook.book2D(
-        "EndcapKprobPvsp", "Probability true K as p vs p, |eta| > 1.6;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "EndcapKprobPvsp", "Probability true K as p vs p, |eta| > 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
 
     meBarrelPprobPvsp_ = ibook.book2D(
-        "BarrelPprobPvsp", "Probability true p as p vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "BarrelPprobPvsp", "Probability true p as p vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
     meBarrelPprobKvsp_ = ibook.book2D(
-        "BarrelPprobKvsp", "Probability true p as K vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "BarrelPprobKvsp", "Probability true p as K vs p, |eta| < 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
     meEndcapPprobPvsp_ = ibook.book2D(
-        "EndcapPprobPvsp", "Probability true p as p vs p, |eta| > 1.6;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "EndcapPprobPvsp", "Probability true p as p vs p, |eta| > 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
     meEndcapPprobKvsp_ = ibook.book2D(
-        "EndcapPprobKvsp", "Probability true p as K vs p, |eta| > 1.6;p [GeV]; prob", 25, 0., 10., 50, 0., 1.);
+        "EndcapPprobKvsp", "Probability true p as K vs p, |eta| > 1.5;p [GeV]; prob", 25, 0., 10., 51, 0., 1.02);
 
     meBarrelTruePi_ = ibook.book1D("BarrelTruePi", "True pi momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
     meBarrelTrueK_ = ibook.book1D("BarrelTrueK", "True k momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
     meBarrelTrueP_ = ibook.book1D("BarrelTrueP", "True p momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meEndcapTruePi_ = ibook.book1D("EndcapTruePi", "True pi momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
-    meEndcapTrueK_ = ibook.book1D("EndcapTrueK", "True k momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
-    meEndcapTrueP_ = ibook.book1D("EndcapTrueP", "True p momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+    meEndcapTruePi_ = ibook.book1D("EndcapTruePi", "True pi momentum spectrum, |eta| > 1.5;p [GeV]", 25, 0., 10.);
+    meEndcapTrueK_ = ibook.book1D("EndcapTrueK", "True k momentum spectrum, |eta| > 1.5;p [GeV]", 25, 0., 10.);
+    meEndcapTrueP_ = ibook.book1D("EndcapTrueP", "True p momentum spectrum, |eta| > 1.5;p [GeV]", 25, 0., 10.);
   }
 }
 
@@ -669,9 +671,9 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("probPi", edm::InputTag("tofPID:probPi"));
   desc.add<edm::InputTag>("probK", edm::InputTag("tofPID:probK"));
   desc.add<edm::InputTag>("probP", edm::InputTag("tofPID:probP"));
-  desc.add<double>("trackMinimumPt", 1.0);  // [GeV]
+  desc.add<double>("trackMinimumPt", 0.7);  // [GeV]
   desc.add<double>("trackMinimumEta", 1.5);
-  desc.add<double>("trackMaximumEta", 3.2);
+  desc.add<double>("trackMaximumEta", 3.);
   desc.add<bool>("testPID", false);
 
   descriptions.add("mtdTracksValid", desc);
