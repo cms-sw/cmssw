@@ -7,7 +7,7 @@ from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 from EventFilter.CTPPSRawToDigi.totemVFATRawToDigi_cfi import totemVFATRawToDigi
 
 totemTimingRawToDigi = totemVFATRawToDigi.clone(
-    subSystem = cms.string('TotemTiming'),
+    subSystem = 'TotemTiming',
     
     fedIds = cms.vuint32(586, 587),
     
@@ -31,4 +31,4 @@ totemTimingRawToDigi = totemVFATRawToDigi.clone(
 
 # for Run 2 backward compatibility
 (ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(totemTimingRawToDigi,
-fedIds = cms.vuint32())
+fedIds = [] )
