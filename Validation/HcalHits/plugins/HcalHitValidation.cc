@@ -96,9 +96,9 @@ HcalHitValidation::HcalHitValidation(const edm::ParameterSet &ps)
       tok_iN_(consumes<PHcalValidInfoNxN>(edm::InputTag(g4Label, nxNInfo))),
       tok_iJ_(consumes<PHcalValidInfoJets>(edm::InputTag(g4Label, jetsInfo))) {
   edm::LogVerbatim("HcalHitValid") << "Module Label: " << g4Label << "   Hits: " << hcalHits << " / " << checkHit_
-                               << "   LayerInfo: " << layerInfo << " / " << checkLay_ << "  NxNInfo: " << nxNInfo
-                               << " / " << checkNxN_ << "  jetsInfo: " << jetsInfo << " / " << checkJet_
-                               << "   Output: " << outFile_ << "   Usage of TestNumberingScheme " << scheme_;
+                                   << "   LayerInfo: " << layerInfo << " / " << checkLay_ << "  NxNInfo: " << nxNInfo
+                                   << " / " << checkNxN_ << "  jetsInfo: " << jetsInfo << " / " << checkJet_
+                                   << "   Output: " << outFile_ << "   Usage of TestNumberingScheme " << scheme_;
 }
 
 void HcalHitValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &) {
