@@ -13,10 +13,10 @@ void GEMEffByGEMCSCSegmentClient::fillDescriptions(edm::ConfigurationDescription
   descriptions.addWithDefaultLabel(desc);
 }
 
-void GEMEffByGEMCSCSegmentClient::dqmEndLuminosityBlock(DQMStore::IBooker & booker,
-                                            DQMStore::IGetter & getter,
-                                            edm::LuminosityBlock const &,
-                                            edm::EventSetup const &) {
+void GEMEffByGEMCSCSegmentClient::dqmEndLuminosityBlock(DQMStore::IBooker& booker,
+                                                        DQMStore::IGetter& getter,
+                                                        edm::LuminosityBlock const&,
+                                                        edm::EventSetup const&) {
   eff_calculator_->drawEfficiency(booker, getter, kFolder_ + "/Efficiency");
   eff_calculator_->drawEfficiency(booker, getter, kFolder_ + "/Misc");
 }

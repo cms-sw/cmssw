@@ -10,8 +10,10 @@ GEMDQMEfficiencyCalculator::GEMDQMEfficiencyCalculator() {}
 GEMDQMEfficiencyCalculator::~GEMDQMEfficiencyCalculator() {}
 
 //
-TProfile* GEMDQMEfficiencyCalculator::computeEfficiency(
-    const TH1F* passed, const TH1F* total, const char* name, const char* title) {
+TProfile* GEMDQMEfficiencyCalculator::computeEfficiency(const TH1F* passed,
+                                                        const TH1F* total,
+                                                        const char* name,
+                                                        const char* title) {
   if (not TEfficiency::CheckConsistency(*passed, *total)) {
     edm::LogError(kLogCategory_) << "failed to pass TEfficiency::CheckConsistency. " << name;
     return nullptr;
@@ -49,9 +51,9 @@ TProfile* GEMDQMEfficiencyCalculator::computeEfficiency(
 
 //
 TH2F* GEMDQMEfficiencyCalculator::computeEfficiency(const TH2F* passed,
-                                             const TH2F* total,
-                                                const char* name,
-                                                const char* title) {
+                                                    const TH2F* total,
+                                                    const char* name,
+                                                    const char* title) {
   if (not TEfficiency::CheckConsistency(*passed, *total)) {
     edm::LogError(kLogCategory_) << "failed to pass TEfficiency::CheckConsistency. " << name;
     return nullptr;
@@ -81,11 +83,9 @@ TH2F* GEMDQMEfficiencyCalculator::computeEfficiency(const TH2F* passed,
   return eff_hist;
 }
 
-void GEMDQMEfficiencyCalculator::drawEfficiency(
-    DQMStore::IBooker& ibooker,
-    DQMStore::IGetter& igetter,
-    const std::string& folder) {
-
+void GEMDQMEfficiencyCalculator::drawEfficiency(DQMStore::IBooker& ibooker,
+                                                DQMStore::IGetter& igetter,
+                                                const std::string& folder) {
   ibooker.setCurrentFolder(folder);
   igetter.setCurrentFolder(folder);
 
@@ -184,7 +184,6 @@ void GEMDQMEfficiencyCalculator::drawEfficiency(
     } else {
       edm::LogError(kLogCategory_) << "not implemented";
       continue;
-
     }
 
   }  // me_pairs

@@ -21,24 +21,24 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 class GEMEffByGEMCSCSegmentSource : public GEMOfflineDQMBase {
- public:
+public:
   explicit GEMEffByGEMCSCSegmentSource(const edm::ParameterSet &);
   ~GEMEffByGEMCSCSegmentSource() override;
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
- private:
+private:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
-  void bookEfficiencyChamber(DQMStore::IBooker&, const edm::ESHandle<GEMGeometry>&);
-  void bookMisc(DQMStore::IBooker&, const edm::ESHandle<GEMGeometry>&);
-  MonitorElement* bookNumerator1D(DQMStore::IBooker&, MonitorElement*);
+  void bookEfficiencyChamber(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
+  void bookMisc(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
+  MonitorElement *bookNumerator1D(DQMStore::IBooker &, MonitorElement *);
 
   // ME11-GE11 segments
-  void analyzeME11GE11Segment(const GEMCSCSegment&);
-  void checkCoincidenceGE11(const GEMRecHit*, const GEMRecHit*, const GEMCSCSegment&);
-  void findMatchedME11Segments(const reco::MuonCollection*);
-  bool isME11SegmentMatched(const CSCSegment&);
+  void analyzeME11GE11Segment(const GEMCSCSegment &);
+  void checkCoincidenceGE11(const GEMRecHit *, const GEMRecHit *, const GEMCSCSegment &);
+  void findMatchedME11Segments(const reco::MuonCollection *);
+  bool isME11SegmentMatched(const CSCSegment &);
 
   // const member data (mainly parameters)
   const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> kGEMTokenBeginRun_;
@@ -50,7 +50,7 @@ class GEMEffByGEMCSCSegmentSource : public GEMOfflineDQMBase {
   const std::string kLogCategory_;
 
   // member data
-  std::vector<const CSCSegment*> matched_me11_segment_vector_;
+  std::vector<const CSCSegment *> matched_me11_segment_vector_;
 
   // MonitorElement
   MEMap me_chamber_;  // 1D, (region, station, layer)
@@ -60,6 +60,5 @@ class GEMEffByGEMCSCSegmentSource : public GEMOfflineDQMBase {
   MEMap me_csc_chamber_type_;
   MEMap me_csc_chamber_type_matched_;
 };
-
 
 #endif  // DQM_GEM_GEMEffByGEMCSCSegmentSource_h
