@@ -88,8 +88,8 @@ private:
   TH1D *meHEP17EneHit_, *meHEP17EneHit2_;
 };
 
-HcalSimHitCheck::HcalSimHitCheck(const edm::ParameterSet &ps) :
-      g4Label(ps.getParameter<std::string>("moduleLabel")),
+HcalSimHitCheck::HcalSimHitCheck(const edm::ParameterSet &ps)
+    : g4Label(ps.getParameter<std::string>("moduleLabel")),
       hcalHits(ps.getParameter<std::string>("HitCollection")),
       outFile_(ps.getParameter<std::string>("outputFile")),
       verbose_(ps.getParameter<int>("Verbose")),
@@ -98,7 +98,6 @@ HcalSimHitCheck::HcalSimHitCheck(const edm::ParameterSet &ps) :
       hep17_(ps.getParameter<bool>("hep17")),
       tok_hits_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hcalHits))),
       tok_HRNDC_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()) {
-     
   edm::LogVerbatim("HcalSim") << "Module Label: " << g4Label << "   Hits: " << hcalHits << " / " << checkHit_
                               << "   Output: " << outFile_;
 }
@@ -307,19 +306,19 @@ void HcalSimHitCheck::analyze(const edm::Event &e, const edm::EventSetup &) {
 
   bool getHits = false;
   if (checkHit_) {
-    const edm::Handle<edm::PCaloHitContainer> & hitsHcal = e.getHandle(tok_hits_);
+    const edm::Handle<edm::PCaloHitContainer> &hitsHcal = e.getHandle(tok_hits_);
     if (hitsHcal.isValid()) {
       getHits = true;
       if (verbose_ > 0)
-	edm::LogVerbatim("HcalSim") << "HcalValidation: Input flags Hits " << getHits;
+        edm::LogVerbatim("HcalSim") << "HcalValidation: Input flags Hits " << getHits;
       std::vector<PCaloHit> caloHits;
       caloHits.insert(caloHits.end(), hitsHcal->begin(), hitsHcal->end());
       if (verbose_ > 0)
-	edm::LogVerbatim("HcalSim") << "HcalValidation: Hit buffer " << caloHits.size();
+        edm::LogVerbatim("HcalSim") << "HcalValidation: Hit buffer " << caloHits.size();
       analyzeHits(caloHits);
     } else {
       if (verbose_ > 0)
-	edm::LogVerbatim("HcalSim") << "HcalValidation: Input flags Hits " << getHits;
+        edm::LogVerbatim("HcalSim") << "HcalValidation: Input flags Hits " << getHits;
     }
   }
 }

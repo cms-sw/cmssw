@@ -123,17 +123,16 @@ private:
   MonitorElement *genpart_GammaB_counts;
 };
 
-ZdcSimHitStudy::ZdcSimHitStudy(const edm::ParameterSet &ps) :
-  g4Label(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
-  zdcHits(ps.getUntrackedParameter<std::string>("HitCollection", "ZdcHits")),
-  outFile_(ps.getUntrackedParameter<std::string>("outputFile", "zdcHitStudy.root")),
-  verbose_(ps.getUntrackedParameter<bool>("Verbose", false)),
-  checkHit_(true),
-  tok_gen_(consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"))),
-  tok_hits_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, zdcHits))) {
-
-  edm::LogVerbatim("ZdcSimHitStudy")
-      << "Module Label: " << g4Label << "   Hits: " << zdcHits << " / " << checkHit_ << "   Output: " << outFile_;
+ZdcSimHitStudy::ZdcSimHitStudy(const edm::ParameterSet &ps)
+    : g4Label(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
+      zdcHits(ps.getUntrackedParameter<std::string>("HitCollection", "ZdcHits")),
+      outFile_(ps.getUntrackedParameter<std::string>("outputFile", "zdcHitStudy.root")),
+      verbose_(ps.getUntrackedParameter<bool>("Verbose", false)),
+      checkHit_(true),
+      tok_gen_(consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"))),
+      tok_hits_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, zdcHits))) {
+  edm::LogVerbatim("ZdcSimHitStudy") << "Module Label: " << g4Label << "   Hits: " << zdcHits << " / " << checkHit_
+                                     << "   Output: " << outFile_;
 }
 
 void ZdcSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
@@ -619,7 +618,7 @@ void ZdcSimHitStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   using namespace edm;
   bool gotGenParticles = true;
 
-  const edm::Handle<reco::GenParticleCollection> & genhandle = iEvent.getHandle(tok_gen_);
+  const edm::Handle<reco::GenParticleCollection> &genhandle = iEvent.getHandle(tok_gen_);
 
   if (!(genhandle.isValid())) {
     gotGenParticles = false;  // this is the same kind of boolean except for the
@@ -631,7 +630,7 @@ void ZdcSimHitStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   /// HISTOS///////////////////////////////////
 
   if (gotGenParticles) {  // if the boolean was able to find the leaf
-                                  // "genparticles" then do this
+                          // "genparticles" then do this
     for (reco::GenParticleCollection::const_iterator gen = genhandle->begin(); gen != genhandle->end();
          ++gen)  // here we iterate over all generated particles
     {
@@ -710,7 +709,7 @@ void ZdcSimHitStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 
   bool getHits = false;
   if (checkHit_) {
-    const edm::Handle<edm::PCaloHitContainer> & hitsZdc = iEvent.getHandle(tok_hits_);
+    const edm::Handle<edm::PCaloHitContainer> &hitsZdc = iEvent.getHandle(tok_hits_);
     if (hitsZdc.isValid()) {
       getHits = true;
       std::vector<PCaloHit> caloHits;

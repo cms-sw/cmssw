@@ -78,8 +78,8 @@ private:
   MonitorElement *meHEP17EneHit_, *meHEP17EneHit2_;
 };
 
-HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet &ps) :
-      g4Label(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
+HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet &ps)
+    : g4Label(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
       hcalHits(ps.getUntrackedParameter<std::string>("HitCollection", "HcalHits")),
       outFile_(ps.getUntrackedParameter<std::string>("outputFile", "hcHit.root")),
       verbose_(ps.getUntrackedParameter<bool>("Verbose", false)),
@@ -88,9 +88,8 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet &ps) :
       hep17_(ps.getParameter<bool>("hep17")),
       tok_hits_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hcalHits))),
       tok_HRNDC_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()) {
-    
   edm::LogVerbatim("HcalSim") << "Module Label: " << g4Label << "   Hits: " << hcalHits << " / " << checkHit_
-                          << "   Output: " << outFile_;
+                              << "   Output: " << outFile_;
 }
 
 void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
@@ -261,7 +260,7 @@ void HcalSimHitStudy::analyze(const edm::Event &e, const edm::EventSetup &) {
 
   bool getHits = false;
   if (checkHit_) {
-    const edm::Handle<edm::PCaloHitContainer> & hitsHcal = e.getHandle(tok_hits_);
+    const edm::Handle<edm::PCaloHitContainer> &hitsHcal = e.getHandle(tok_hits_);
     if (hitsHcal.isValid()) {
       getHits = true;
       std::vector<PCaloHit> caloHits;
