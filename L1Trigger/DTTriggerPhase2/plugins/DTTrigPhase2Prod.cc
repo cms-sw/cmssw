@@ -131,7 +131,6 @@ private:
   edm::EDGetTokenT<DTDigiCollection> dtDigisToken_;
   edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsLabel_;
 
-
   // Grouping attributes and methods
   int algo_;  // Grouping code
   std::unique_ptr<MotherGrouping> grouping_obj_;
@@ -171,7 +170,7 @@ namespace {
 }  // namespace
 
 DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
-  : qmap_({{8, 8}, {7, 7}, {6, 6}, {4, 4}, {3, 3}, {2, 2}, {1, 1}}) {
+    : qmap_({{8, 8}, {7, 7}, {6, 6}, {4, 4}, {3, 3}, {2, 2}, {1, 1}}) {
   produces<L1Phase2MuDTPhContainer>();
   produces<L1Phase2MuDTThContainer>();
   produces<L1Phase2MuDTExtPhContainer>();
@@ -195,8 +194,8 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   algo_ = pset.getParameter<int>("algo");
 
   // Local to global coordinates approach
-  //  geometry_tag_ = 
-  //  dtGeomToken_ = consumes<>(pset.getUntrackedParameter<std::string>("geometry_tag", "")); 
+  //  geometry_tag_ =
+  //  dtGeomToken_ = consumes<>(pset.getUntrackedParameter<std::string>("geometry_tag", ""));
 
   edm::ConsumesCollector consumesColl(consumesCollector());
   globalcoordsobtainer_ = std::make_shared<GlobalCoordsObtainer>(pset);
@@ -248,16 +247,15 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
   if (debug_)
     LogDebug("DTTrigPhase2Prod") << "beginRun: getting DT geometry";
 
-  grouping_obj_->initialise(iEventSetup);          // Grouping object initialisation
-  mpathanalyzer_->initialise(iEventSetup);         // Analyzer object initialisation
-  mpathqualityenhancer_->initialise(iEventSetup);  // Filter object initialisation
-  mpathredundantfilter_->initialise(iEventSetup);  // Filter object initialisation
+  grouping_obj_->initialise(iEventSetup);               // Grouping object initialisation
+  mpathanalyzer_->initialise(iEventSetup);              // Analyzer object initialisation
+  mpathqualityenhancer_->initialise(iEventSetup);       // Filter object initialisation
+  mpathredundantfilter_->initialise(iEventSetup);       // Filter object initialisation
   mpathqualityenhancerbayes_->initialise(iEventSetup);  // Filter object initialisation
   mpathhitsfilter_->initialise(iEventSetup);
-  mpathassociator_->initialise(iEventSetup);       // Associator object initialisation
+  mpathassociator_->initialise(iEventSetup);  // Associator object initialisation
 
-  
-  if (auto geom = iEventSetup.getHandle(dtGeomH)){ 
+  if (auto geom = iEventSetup.getHandle(dtGeomH)) {
     dtGeo_ = &(*geom);
   }
 }
@@ -362,8 +360,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   MuonPathPtrs filteredmuonpaths;
   if (algo_ == Standard) {
     mpathredundantfilter_->run(iEvent, iEventSetup, muonpaths, filteredmuonpaths);
-  }
-  else {
+  } else {
     mpathhitsfilter_->run(iEvent, iEventSetup, muonpaths, filteredmuonpaths);
   }
 

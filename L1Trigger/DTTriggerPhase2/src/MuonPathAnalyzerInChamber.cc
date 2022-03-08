@@ -346,7 +346,7 @@ void MuonPathAnalyzerInChamber::buildLateralities(MuonPathPtr &mpath) {
   /* We generate all the possible laterality combinations compatible with the built 
      group in the previous step*/
   lateralities_.push_back(TLateralities());
-  for (int ilat = 0; ilat < NLayers; ilat++) {
+  for (int ilat = 0; ilat < cmsdt::NUM_LAYERS_2SL; ilat++) {
     // Get value from input
     LATERAL_CASES lr = (mpath->lateralComb())[ilat];
     if (debug_)
@@ -394,7 +394,7 @@ void MuonPathAnalyzerInChamber::buildLateralities(MuonPathPtr &mpath) {
   if (debug_) {
     for (unsigned int iall = 0; iall < lateralities_.size(); iall++) {
       LogDebug("MuonPathAnalyzerInChamber") << iall << " -> [";
-      for (int ilat = 0; ilat < NLayers; ilat++) {
+      for (int ilat = 0; ilat < cmsdt::NUM_LAYERS_2SL; ilat++) {
         if (ilat != 0)
           LogDebug("MuonPathAnalyzerInChamber") << ",";
         LogDebug("MuonPathAnalyzerInChamber") << lateralities_[iall][ilat];
