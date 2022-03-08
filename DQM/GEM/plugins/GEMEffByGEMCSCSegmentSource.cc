@@ -5,13 +5,13 @@
 GEMEffByGEMCSCSegmentSource::GEMEffByGEMCSCSegmentSource(const edm::ParameterSet& parameter_set)
     : GEMOfflineDQMBase(parameter_set),
       kGEMTokenBeginRun_(esConsumes<edm::Transition::BeginRun>()),
-      kGEMCSCSegmentToken_(consumes<GEMCSCSegmentCollection>(parameter_set.getParameter<edm::InputTag>("gemcscSegmentTag"))),
+      kGEMCSCSegmentToken_(
+          consumes<GEMCSCSegmentCollection>(parameter_set.getParameter<edm::InputTag>("gemcscSegmentTag"))),
       kMuonToken_(consumes<reco::MuonCollection>(parameter_set.getParameter<edm::InputTag>("muonTag"))),
       kUseMuon_(parameter_set.getUntrackedParameter<bool>("useMuon")),
       kMinCSCRecHits_(parameter_set.getUntrackedParameter<uint32_t>("minCSCRecHits")),
       kFolder_(parameter_set.getUntrackedParameter<std::string>("folder")),
-      kLogCategory_(parameter_set.getUntrackedParameter<std::string>("logCategory")) {
-}
+      kLogCategory_(parameter_set.getUntrackedParameter<std::string>("logCategory")) {}
 
 GEMEffByGEMCSCSegmentSource::~GEMEffByGEMCSCSegmentSource() {}
 
@@ -39,8 +39,8 @@ void GEMEffByGEMCSCSegmentSource::bookHistograms(DQMStore::IBooker& ibooker,
   bookMisc(ibooker, gem);
 }
 
-
-void GEMEffByGEMCSCSegmentSource::bookEfficiencyChamber(DQMStore::IBooker& ibooker, const edm::ESHandle<GEMGeometry>& gem) {
+void GEMEffByGEMCSCSegmentSource::bookEfficiencyChamber(DQMStore::IBooker& ibooker,
+                                                        const edm::ESHandle<GEMGeometry>& gem) {
   ibooker.setCurrentFolder(kFolder_ + "/Efficiency");
 
   for (const GEMStation* station : gem->stations()) {
@@ -71,7 +71,8 @@ void GEMEffByGEMCSCSegmentSource::bookEfficiencyChamber(DQMStore::IBooker& ibook
         me_chamber_matched_[key] = bookNumerator1D(ibooker, me_chamber_[key]);
 
         if (kUseMuon_) {
-          me_muon_chamber_[key] = ibooker.book1D("muon_chamber" + name_suffix, title_suffix, num_chambers, 0.5, num_chambers + 0.5);
+          me_muon_chamber_[key] =
+              ibooker.book1D("muon_chamber" + name_suffix, title_suffix, num_chambers, 0.5, num_chambers + 0.5);
           me_muon_chamber_[key]->setAxisTitle("Chamber", 1);
           for (int binx = 1; binx <= num_chambers; binx++) {
             me_muon_chamber_[key]->setBinLabel(binx, std::to_string(binx), 1);
@@ -79,18 +80,16 @@ void GEMEffByGEMCSCSegmentSource::bookEfficiencyChamber(DQMStore::IBooker& ibook
           me_muon_chamber_matched_[key] = bookNumerator1D(ibooker, me_muon_chamber_[key]);
         }
       }  // layer
-    
+
     } else {
       LogDebug(kLogCategory_) << "skip " << GEMUtils::getSuffixTitle(region_id, station_id);
       continue;
-
     }
-  }    // station
+  }  // station
 }
 
 void GEMEffByGEMCSCSegmentSource::bookMisc(DQMStore::IBooker& ibooker, const edm::ESHandle<GEMGeometry>& gem) {
   ibooker.setCurrentFolder(kFolder_ + "/Misc");
-
 
   for (const GEMStation* station : gem->stations()) {
     const int region_id = station->region();
@@ -119,17 +118,17 @@ void GEMEffByGEMCSCSegmentSource::bookMisc(DQMStore::IBooker& ibooker, const edm
         }
         me_csc_chamber_type_matched_[key] = bookNumerator1D(ibooker, me_csc_chamber_type_[key]);
 
-      } // layer
+      }  // layer
 
     } else {
       LogDebug(kLogCategory_) << "skip " << GEMUtils::getSuffixTitle(region_id, station_id);
       continue;
-
     }
-  } // region-station
+  }  // region-station
 }
 
-dqm::impl::MonitorElement* GEMEffByGEMCSCSegmentSource::bookNumerator1D(DQMStore::IBooker& ibooker, MonitorElement* me) {
+dqm::impl::MonitorElement* GEMEffByGEMCSCSegmentSource::bookNumerator1D(DQMStore::IBooker& ibooker,
+                                                                        MonitorElement* me) {
   const std::string name = me->getName() + "_matched";
   TH1F* hist = dynamic_cast<TH1F*>(me->getTH1F()->Clone(name.c_str()));
   return ibooker.book1D(name, hist);
@@ -145,7 +144,6 @@ void GEMEffByGEMCSCSegmentSource::analyze(const edm::Event& event, const edm::Ev
   } else {
     edm::LogError(kLogCategory_) << "invalid GEMCSCSegmentCollection";
     return;
-
   }
 
   const reco::MuonCollection* muon_collection = nullptr;
@@ -156,7 +154,6 @@ void GEMEffByGEMCSCSegmentSource::analyze(const edm::Event& event, const edm::Ev
     } else {
       edm::LogError(kLogCategory_) << "invalid reco::MuonCollection";
       return;
-
     }
   }
 
@@ -175,15 +172,15 @@ void GEMEffByGEMCSCSegmentSource::analyze(const edm::Event& event, const edm::Ev
 
   //////////////////////////////////////////////////////////////////////////////
   // main loop
-  for (edm::OwnVector<GEMCSCSegment>::const_iterator iter = gemcsc_segment_collection->begin(); iter != gemcsc_segment_collection->end(); iter++) {
+  for (edm::OwnVector<GEMCSCSegment>::const_iterator iter = gemcsc_segment_collection->begin();
+       iter != gemcsc_segment_collection->end();
+       iter++) {
     const GEMCSCSegment& gemcsc_segment = *iter;
 
     if (gemcsc_segment.cscRecHits().size() < kMinCSCRecHits_) {
       LogDebug(kLogCategory_) << "failed to pass minCSCRecHits cut"
-                              << " gemcsc_segment.cscRecHits().size() == "
-                              << gemcsc_segment.cscRecHits().size()
-                              << " (minCSCRecHits == "
-                              << kMinCSCRecHits_ << ")";
+                              << " gemcsc_segment.cscRecHits().size() == " << gemcsc_segment.cscRecHits().size()
+                              << " (minCSCRecHits == " << kMinCSCRecHits_ << ")";
       continue;
     }
 
@@ -193,12 +190,10 @@ void GEMEffByGEMCSCSegmentSource::analyze(const edm::Event& event, const edm::Ev
 
     } else {
       LogDebug(kLogCategory_) << "skip " << csc_id;
-      continue; 
-
+      continue;
     }
-  } // GEMCSCSegment
+  }  // GEMCSCSegment
 }
-
 
 void GEMEffByGEMCSCSegmentSource::analyzeME11GE11Segment(const GEMCSCSegment& gemcsc_segment) {
   const GEMRecHit* ge11_hit_layer1 = nullptr;
@@ -209,8 +204,7 @@ void GEMEffByGEMCSCSegmentSource::analyzeME11GE11Segment(const GEMCSCSegment& ge
     const GEMDetId gem_id = gem_hit.gemId();
 
     if (not gem_id.isGE11()) {
-      edm::LogWarning(kLogCategory_) << "CSCSegment is in " << csc_id
-                                     << " but GEMRecHit is in " << gem_id
+      edm::LogWarning(kLogCategory_) << "CSCSegment is in " << csc_id << " but GEMRecHit is in " << gem_id
                                      << ". skip this GEMCSCSegment."
                                      << "check if RecoLocalMuon/GEMCSCSegment/plugins/GEMCSCSegAlgoRR.cc has changed.";
       return;
@@ -227,12 +221,11 @@ void GEMEffByGEMCSCSegmentSource::analyzeME11GE11Segment(const GEMCSCSegment& ge
       edm::LogError(kLogCategory_) << "isGE11 but got unexpected layer " << gem_id << ". skip this GEMCSCSegment.";
       return;
     }
-  } // GEMRecHit
+  }  // GEMRecHit
 
   checkCoincidenceGE11(ge11_hit_layer1, ge11_hit_layer2, gemcsc_segment);
   checkCoincidenceGE11(ge11_hit_layer2, ge11_hit_layer1, gemcsc_segment);
 }
-
 
 void GEMEffByGEMCSCSegmentSource::checkCoincidenceGE11(const GEMRecHit* trigger_layer_hit,
                                                        const GEMRecHit* detection_layer_hit,
@@ -288,13 +281,12 @@ void GEMEffByGEMCSCSegmentSource::findMatchedME11Segments(const reco::MuonCollec
           continue;
         }
         matched_me11_segment_vector_.push_back(segment_match.cscSegmentRef.get());
-      } // MuonSegmentMatch
-    } // MuonChamberMatch
-  } // MuonCollection
+      }  // MuonSegmentMatch
+    }    // MuonChamberMatch
+  }      // MuonCollection
 }
 
-
-// TODO 
+// TODO
 bool GEMEffByGEMCSCSegmentSource::isME11SegmentMatched(const CSCSegment& csc_segment) {
   bool found = false;
 
@@ -304,11 +296,16 @@ bool GEMEffByGEMCSCSegmentSource::isME11SegmentMatched(const CSCSegment& csc_seg
   }
 
   for (const CSCSegment* matched_segment : matched_me11_segment_vector_) {
-    if (csc_id != matched_segment->cscDetId()) continue;
-    if (csc_segment.localPosition().x() != matched_segment->localPosition().x()) continue;
-    if (csc_segment.localPosition().y() != matched_segment->localPosition().y()) continue;
-    if (csc_segment.localPosition().z() != matched_segment->localPosition().z()) continue;
-    if (csc_segment.time() != matched_segment->time()) continue;
+    if (csc_id != matched_segment->cscDetId())
+      continue;
+    if (csc_segment.localPosition().x() != matched_segment->localPosition().x())
+      continue;
+    if (csc_segment.localPosition().y() != matched_segment->localPosition().y())
+      continue;
+    if (csc_segment.localPosition().z() != matched_segment->localPosition().z())
+      continue;
+    if (csc_segment.time() != matched_segment->time())
+      continue;
 
     found = true;
   }
