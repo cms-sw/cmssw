@@ -4,7 +4,7 @@ CaloHTPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
 #        "HLT_HT900_v",         # Run2
 #        "HLT_HT300_v",         # Run2
-        "HLT_ECALHT800_v",     # Run2 7e33
+#        "HLT_ECALHT800_v",     # Run2 7e33 # Not claimed path for Run3
 #        "HLT_Photon90_CaloIdL_PFHT600_v" # 50ns backup menu
 #        "HLT_HT650_v",           
 #        "HLT_HT410to430_v",        # 2016 menu

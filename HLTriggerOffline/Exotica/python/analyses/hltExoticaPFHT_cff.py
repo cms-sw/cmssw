@@ -19,7 +19,9 @@ PFHTPSet = cms.PSet(
         #"DST_HT450_PFReco_PFBTagCSVReco_PFScouting_v", # Moved to DSTJets category
         #"DST_L1HTT125ORHTT150ORHTT175_PFReco_PFBTagCSVReco_PFScouting_v", # Moved to DSTJets category
         #"DST_CaloJet40_PFReco_PFBTagCSVReco_PFScouting_v" # Moved to DSTJets category
-        "HLT_PFHT350MinPFJet15_v" #2017
+#        "HLT_PFHT350MinPFJet15_v" #2017 # Not claimed path for Run3
+        "HLT_PFHT1050_v",
+        "HLT_PFHT250_v"
         ),
     recPFMHTLabel  = cms.InputTag("recoExoticaValidationHT"),
     recPFJetLabel  = cms.InputTag("ak4PFJets"),
@@ -30,5 +32,8 @@ PFHTPSet = cms.PSet(
     # -- Analysis specific binnings
     parametersTurnOn = cms.vdouble(0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 470, 
                                    500, 550, 600, 650, 700, 800, 900, 1000
-                                   )
+                                   ),
+    parametersTurnOnSumEt = cms.vdouble(    0,  100,  200,  300,  400,  500,  600,  700,  800,  900,
+                                         1000, 1100, 1200, 1300, 1400, 1600, 1800, 2000
+                                       )
 )

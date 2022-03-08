@@ -4,8 +4,12 @@ LowPtDielectronPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
 #        "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v", # Run2
 #        "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v",    # Run1 & Run2
-        "HLT_DoubleEle33_CaloIdL_MW_v",            # 2016 menu
+#        "HLT_DoubleEle33_CaloIdL_MW_v",            # 2016 menu # Not claimed path for Run3
 #        "HLT_DoubleEle33_CaloIdL_v"                # 2016 menu
+        "HLT_DoubleEle25_CaloIdL_MW_v",
+        "HLT_DoubleEle27_CaloIdL_MW_v",
+        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
+        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v"
         ),
     recElecLabel  = cms.InputTag("gedGsfElectrons"),
     # -- Analysis specific cuts
