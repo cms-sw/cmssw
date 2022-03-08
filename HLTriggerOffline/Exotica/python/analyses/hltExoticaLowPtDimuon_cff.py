@@ -8,6 +8,9 @@ LowPtDimuonPSet = cms.PSet(
         #"HLT_Mu17_Mu8_v",    # Run1
         #"HLT_Mu17_TkMu8_v",  # Run1
         #"HLT_Mu22_TkMu8_v"   # Run1
+        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v",
+        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v",
+        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"
         ),
     recMuonLabel  = cms.InputTag("muons"),
     # -- Analysis specific cuts

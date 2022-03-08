@@ -5,7 +5,7 @@ HTDisplacedJetsPSet = cms.PSet(
 #        "HLT_HT200_v",
 #        "HLT_HT275_v",
 #        "HLT_HT325_v",
-        "HLT_HT425_v",
+        "HLT_HT425_v", # Claimed path for Run3
 #        "HLT_HT575_v",
         
 #        "HLT_HT650_DisplacedDijet80_Inclusive_v",
@@ -30,16 +30,18 @@ HTDisplacedJetsPSet = cms.PSet(
 #        "HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v",
 #        "HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v",
 #        "HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_v",
-        # Loose Threshold paths.
+        # Loose Threshold path for Run3s.
 #        "HLT_VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_v",
 #        "HLT_HT400_DisplacedDijet40_Inclusive_v",
 #        "HLT_HT250_DisplacedDijet40_DisplacedTrack_v",
 #        "HLT_VBF_DisplacedJet40_Hadronic_2PromptTrack_v",
         #2017 
-        "HLT_HT430_DisplacedDijet40_DisplacedTrack_v",
-        "HLT_HT430_DisplacedDijet60_DisplacedTrack_v",
+        "HLT_HT430_DisplacedDijet40_DisplacedTrack_v", # Claimed path for Run3
+        "HLT_HT430_DisplacedDijet60_DisplacedTrack_v", # Claimed path for Run3
 #        "HLT_HT430_DisplacedDijet80_DisplacedTrack_v",
-        "HLT_HT650_DisplacedDijet60_Inclusive_v"
+        "HLT_HT650_DisplacedDijet60_Inclusive_v", # Claimed path for Run3
+        "HLT_HT400_DisplacedDijet40_DisplacedTrack_v",
+        "HLT_HT550_DisplacedDijet60_Inclusive_v"
         ),
     recPFMHTLabel  = cms.InputTag("recoExoticaValidationHT"),
     recPFJetLabel  = cms.InputTag("ak4PFJets"),
@@ -50,10 +52,11 @@ HTDisplacedJetsPSet = cms.PSet(
     # -- Analysis specific binnings
     parametersTurnOn = cms.vdouble(0, 50, 100, 150,
                                    200, 220, 240, 260, 280, 300,
-                                   320, 340, 360, 380, 400,
-                                   420, 440, 460, 480, 500,
-                                   520, 540, 560, 580, 600,
-                                   620, 640, 660, 680, 700,
-                                   750, 800, 850, 900, 950, 1000,
-                                   1100, 1200, 1300, 1400, 1500)
+                                   320, 340, 360, 380, 400, 420,
+                                   440, 460, 480, 500, 520, 540,
+                                   560, 580, 600, 650, 700, 750,
+                                   800, 850, 900, 1100, 1300, 1500),
+    parametersTurnOnSumEt = cms.vdouble(    0,  100,  200,  300,  400,  500,  600,  700,  800,  900,
+                                         1000, 1100, 1200, 1300, 1400, 1500
+                                       )
 )
