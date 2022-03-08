@@ -7,7 +7,12 @@ from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 from EventFilter.CTPPSRawToDigi.totemVFATRawToDigi_cfi import totemVFATRawToDigi
 
 ctppsDiamondRawToDigi = totemVFATRawToDigi.clone(
-    subSystem = cms.string('TimingDiamond'),
+    subSystem = 'TimingDiamond',
+    fedIds = [579, 581, 582, 583],
+    RawToDigi = dict(
+        testCRC = 0,                     # no need to test CRC for diamond frames
+        testECMostFrequent = 0, # show error in the DQM and then DAQ is sending resync, no need to test in the unpacker
+    )
     fedIds = cms.vuint32(579, 581, 582, 583),
     RawToDigi = totemVFATRawToDigi.RawToDigi.clone(
         testCRC = cms.uint32(0), # no need to test CRC for diamond frames
@@ -17,4 +22,4 @@ ctppsDiamondRawToDigi = totemVFATRawToDigi.clone(
 
 # for Run 2 backward compatibility
 (ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(ctppsDiamondRawToDigi,
-fedIds = cms.vuint32())
+fedIds = [] )
