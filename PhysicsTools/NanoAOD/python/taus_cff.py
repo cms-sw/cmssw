@@ -11,20 +11,21 @@ from PhysicsTools.NanoAOD.taus_updatedMVAIds_cff import *
 
 
 finalTaus = cms.EDFilter("PATTauRefSelector",
-    src = cms.InputTag("slimmedTausUpdated"),
+    src = cms.InputTag("slimmedTaus"),
     cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet'))")
 )
 
 for era in [run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
     era.toModify(finalTaus,
+                 src = cms.InputTag("slimmedTausUpdated"),
                  cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT2015') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2') || tauID('byVVVLooseDeepTau2017v2p1VSjet'))")
     )
-for era in [run2_nanoAOD_94XMiniAODv1,]:
+for era in [run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_92X]:
     era.toModify(finalTaus,
+                 src = cms.InputTag("slimmedTausUpdated"),
                  cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v1') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2') || tauID('byVVVLooseDeepTau2017v2p1VSjet'))")
     )
 run2_miniAOD_80XLegacy.toModify(finalTaus,
-                                src = cms.InputTag("slimmedTaus"),
                                 cut =  cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT'))")
     )
 
@@ -246,9 +247,11 @@ tauMCTable = cms.EDProducer("CandMCMatchTableProducer",
 )
 
 
-tauTask = cms.Task( patTauMVAIDsTask,finalTaus)
+tauTask = cms.Task(finalTaus)
 
-run2_miniAOD_80XLegacy.toReplaceWith(tauTask, cms.Task(finalTaus))
+for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, \
+            run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
+    era.toReplaceWith(tauTask, cms.Task(patTauMVAIDsTask,finalTaus))
 
 tauTablesTask = cms.Task(tauTable)
 

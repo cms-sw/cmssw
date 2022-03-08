@@ -487,15 +487,9 @@ produceAndDiscriminateHPSPFTausTask = cms.Task(
     hpsPFTauDiscriminationByDecayModeFinding, # CV: kept for backwards compatibility
     hpsPFTauBasicDiscriminatorsTask,
     hpsPFTauBasicDiscriminatorsdR03Task,
-    hpsPFTauDiscriminationByLooseElectronRejection,
-    hpsPFTauDiscriminationByMediumElectronRejection,
-    hpsPFTauDiscriminationByTightElectronRejection,
-    hpsPFTauDiscriminationByMVA6rawElectronRejection,
-    hpsPFTauDiscriminationByMVA6ElectronRejection,
     hpsPFTauDiscriminationByDeadECALElectronRejection,
     hpsPFTauDiscriminationByMuonRejection3,
-    hpsPFTauVertexAndImpactParametersTask,
-    hpsPFTauMVAIsolation2Task
+    hpsPFTauVertexAndImpactParametersTask
     )
 
 produceAndDiscriminateHPSPFTaus = cms.Sequence(
