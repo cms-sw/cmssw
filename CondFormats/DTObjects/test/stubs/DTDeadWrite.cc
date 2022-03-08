@@ -24,8 +24,6 @@ namespace edmtest {
 
   DTDeadWrite::DTDeadWrite(int i) {}
 
-  DTDeadWrite::~DTDeadWrite() {}
-
   void DTDeadWrite::analyze(const edm::Event& e, const edm::EventSetup& context) {
     std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
     std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
