@@ -22,7 +22,7 @@ void HcalSimHitsClient::beginRun(edm::Run const &run, edm::EventSetup const &c) 
   maxDepthHO_ = hcons->getMaxDepth(3);
 
   edm::LogVerbatim("HitsValidationHcal") << " Maximum Depths HB:" << maxDepthHB_ << " HE:" << maxDepthHE_
-                                     << " HO:" << maxDepthHO_ << " HF:" << maxDepthHF_;
+                                         << " HO:" << maxDepthHO_ << " HF:" << maxDepthHF_;
 }
 
 void HcalSimHitsClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) { runClient_(ib, ig); }
