@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
-from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
+from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma_modifications
 
 def customise(process):
   process.load("PhysicsTools.PatAlgos.slimming.patPhotonDRNCorrector_cfi")
   process.DRNTask = cms.Task(process.patPhotonsDRN)
   process.schedule.associate(process.DRNTask)
-  process.slimmedPhotons.modifierConfig.modifications.append(
+  egamma_modifications.append(
     cms.PSet( modifierName = cms.string("EGRegressionModifierDRN"),
       patPhotons = cms.PSet(
         source = cms.InputTag('selectedPatPhotons'),
