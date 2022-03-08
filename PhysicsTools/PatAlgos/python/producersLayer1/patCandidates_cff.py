@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.lowPtElectronProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cff import *
+from PhysicsTools.PatAlgos.producersLayer1.displacedMuonProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.photonProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.ootPhotonProducer_cff import *
@@ -16,6 +17,7 @@ patCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
         cms.InputTag("patElectrons"),
         cms.InputTag("patLowPtElectrons"),
         cms.InputTag("patMuons"),
+        cms.InputTag("patDisplacedMuons"),
         cms.InputTag("patTaus"),
         cms.InputTag("patPhotons"),
         cms.InputTag("patOOTPhotons"),
@@ -28,6 +30,7 @@ patCandidatesTask = cms.Task(
     makePatElectronsTask,
     makePatLowPtElectronsTask,
     makePatMuonsTask,
+    makePatDisplacedMuonsTask,
     makePatTausTask,
     makePatPhotonsTask,
     makePatOOTPhotonsTask,
