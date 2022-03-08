@@ -8,7 +8,7 @@ from EventFilter.CTPPSRawToDigi.totemVFATRawToDigi_cfi import totemVFATRawToDigi
 
 ctppsDiamondRawToDigi = totemVFATRawToDigi.clone(
     subSystem = 'TimingDiamond',
-    fedIds = [579, 581, 582, 583],
+    fedIds = [579, 581, 582, 583], #as declared in DataFormats/FEDRawData/interface/FEDNumbering.h
     RawToDigi = dict(
         testCRC = 0,                     # no need to test CRC for diamond frames
         testECMostFrequent = 0, # show error in the DQM and then DAQ is sending resync, no need to test in the unpacker

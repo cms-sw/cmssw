@@ -9,7 +9,7 @@ from EventFilter.CTPPSRawToDigi.totemVFATRawToDigi_cfi import totemVFATRawToDigi
 totemTimingRawToDigi = totemVFATRawToDigi.clone(
     subSystem = 'TotemTiming',
     
-    fedIds = cms.vuint32(586, 587),
+    fedIds = cms.vuint32(586, 587), #as declared in DataFormats/FEDRawData/interface/FEDNumbering.h
     
     RawToDigi = cms.PSet(
     verbosity = cms.untracked.uint32(0),
