@@ -124,6 +124,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingHitPatternPOD.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "FWCore/Utilities/interface/Likely.h"
@@ -228,6 +229,8 @@ namespace reco {
     ~HitPattern();
 
     HitPattern(const HitPattern &other);
+
+    HitPattern(const Run3ScoutingHitPatternPOD &other);
 
     HitPattern &operator=(const HitPattern &other);
 
@@ -423,6 +426,9 @@ namespace reco {
     int numberOfDTStationsWithRPhiView() const;
     int numberOfDTStationsWithRZView() const;
     int numberOfDTStationsWithBothViews() const;
+
+    // fill Run3ScoutingHitPatternPOD struct
+    Run3ScoutingHitPatternPOD run3ScoutingHitPatternPOD() const;
 
     //only used by ROOT IO rule to read v12 HitPatterns
     static bool fillNewHitPatternWithOldHitPattern_v12(const uint16_t oldHitPattern[],
