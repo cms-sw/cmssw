@@ -430,7 +430,7 @@ namespace mkfit {
 
   void MkBuilder::find_tracks_load_seeds_BH(const TrackVec &in_seeds) {
     // bool debug = true;
-
+    assert(!in_seeds.empty());
     m_tracks.reserve(in_seeds.size());
     m_tracks.clear();
 
@@ -595,9 +595,8 @@ namespace mkfit {
 
   void MkBuilder::find_tracks_load_seeds(const TrackVec &in_seeds) {
     // This will sort seeds according to iteration configuration.
-
-    // m_tracks can be used for BkFit.
-    m_tracks.clear();
+    assert(!in_seeds.empty());
+    m_tracks.clear();  // m_tracks can be used for BkFit.
 
     m_event_of_comb_cands.reset((int)in_seeds.size(), m_job->max_max_cands());
 
