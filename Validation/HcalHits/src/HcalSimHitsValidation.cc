@@ -2,26 +2,26 @@
 #include "Validation/HcalHits/interface/HcalSimHitsValidation.h"
 
 HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const &conf)
-    : tok_evt_(consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"))),
+    : g4Label_(conf.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits")),
+      hcalHits_(conf.getUntrackedParameter<std::string>("HcalHitCollection", "HcalHits")),
+      ebHits_(conf.getUntrackedParameter<std::string>("EBHitCollection", "EcalHitsEB")),
+      eeHits_(conf.getUntrackedParameter<std::string>("EEHitCollection", "EcalHitsEE")),
+      hf1_(conf.getParameter<double>("hf1")),
+      hf2_(conf.getParameter<double>("hf2")),
+      outputFile_(conf.getUntrackedParameter<std::string>("outputFile", "myfile.root")),
+      testNumber_(conf.getUntrackedParameter<bool>("TestNumber", false)),
+      auxPlots_(conf.getUntrackedParameter<bool>("auxiliaryPlots", false)),
+      tok_evt_(consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"))),
       tok_hcal_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_))),
       tok_ecalEB_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, ebHits_))),
       tok_ecalEE_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, eeHits_))),
       tok_HRNDC_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   // DQM ROOT output
-  outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
-  testNumber_ = conf.getUntrackedParameter<bool>("TestNumber", false);
-  auxPlots_ = conf.getUntrackedParameter<bool>("auxiliaryPlots", false);
 
   // register for data access
-  g4Label_ = conf.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits");
-  hcalHits_ = conf.getUntrackedParameter<std::string>("HcalHitCollection", "HcalHits");
-  ebHits_ = conf.getUntrackedParameter<std::string>("EBHitCollection", "EcalHitsEB");
-  eeHits_ = conf.getUntrackedParameter<std::string>("EEHitCollection", "EcalHitsEE");
 
   // import sampling factors
-  hf1_ = conf.getParameter<double>("hf1");
-  hf2_ = conf.getParameter<double>("hf2");
 
   if (!outputFile_.empty()) {
     edm::LogVerbatim("OutputInfo") << " Hcal SimHit Task histograms will be saved to '" << outputFile_.c_str() << "'";

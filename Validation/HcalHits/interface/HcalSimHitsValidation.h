@@ -54,8 +54,15 @@ private:
   double phi12(double phi1, double en1, double phi2, double en2);
   double dPhiWsign(double phi1, double phi2);
 
-  std::string outputFile_;
-  std::string g4Label_, hcalHits_, ebHits_, eeHits_;
+  const std::string g4Label_, hcalHits_, ebHits_, eeHits_;
+
+  // sampling factors
+  const double hf1_;
+  const double hf2_;
+
+  const std::string outputFile_;
+  const bool testNumber_;
+  const bool auxPlots_;
 
   const edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
@@ -68,9 +75,6 @@ private:
   const CaloGeometry *geometry_;
   int maxDepthHB_, maxDepthHE_;
   int maxDepthHO_, maxDepthHF_;
-
-  bool testNumber_;
-  bool auxPlots_;
 
   // Hits counters
   std::vector<MonitorElement *> Nhb;
@@ -106,10 +110,6 @@ private:
 
   // counter
   int nevtot;
-
-  // sampling factors
-  double hf1_;
-  double hf2_;
 };
 
 #endif

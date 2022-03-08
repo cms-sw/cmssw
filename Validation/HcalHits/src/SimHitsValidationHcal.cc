@@ -2,7 +2,7 @@
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "Validation/HcalHits/interface/SimHitsValidationHcal.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 SimHitsValidationHcal::SimHitsValidationHcal(const edm::ParameterSet &ps)
     : g4Label_(ps.getParameter<std::string>("ModuleLabel")),
@@ -71,7 +71,7 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const
   // float ieta_max_HO = iEtaHOMax + 1.5;
   // int ieta_bins_HO = (int) (ieta_max_HO - ieta_min_HO);
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitsValidationHcal") << " Maximum Depths HB:" << maxDepthHB_ << " HE:" << maxDepthHE_
                                          << " HO:" << maxDepthHO_ << " HF:" << maxDepthHF_;
 #endif
@@ -143,7 +143,7 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const
 }
 
 void SimHitsValidationHcal::analyze(const edm::Event &e, const edm::EventSetup &) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitsValidationHcal") << "Run = " << e.id().run() << " Event = " << e.id().event();
 #endif
 
@@ -151,13 +151,13 @@ void SimHitsValidationHcal::analyze(const edm::Event &e, const edm::EventSetup &
   const edm::Handle<edm::PCaloHitContainer> &hitsHcal = e.getHandle(tok_hits_);
   if (hitsHcal.isValid())
     getHits = true;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitsValidationHcal") << "HitsValidationHcal.: Input flags Hits " << getHits;
 #endif
   if (getHits) {
     std::vector<PCaloHit> caloHits;
     caloHits.insert(caloHits.end(), hitsHcal->begin(), hitsHcal->end());
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitsValidationHcal") << "testNumber_:" << testNumber_;
 #endif
     if (testNumber_) {
@@ -165,12 +165,12 @@ void SimHitsValidationHcal::analyze(const edm::Event &e, const edm::EventSetup &
         unsigned int id_ = caloHits[i].id();
         HcalDetId hid = HcalHitRelabeller::relabel(id_, hcons);
         caloHits[i].setID(hid.rawId());
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HitsValidationHcal") << "Hit[" << i << "] " << hid;
 #endif
       }
     }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitsValidationHcal") << "HitsValidationHcal: Hit buffer " << caloHits.size();
 #endif
     analyzeHits(caloHits);
@@ -233,7 +233,7 @@ void SimHitsValidationHcal::analyzeHits(std::vector<PCaloHit> &hits) {
     }
     map_try[id0] = ensum;
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitsValidationHcal")
         << "Hit[" << i << "] ID " << std::dec << " " << id << std::dec << " Det " << id.det() << " Sub " << subdet
         << " depth " << depth << " depthX " << dep << " Eta " << eta << " Phi " << id.iphi() << " E " << energy
@@ -289,7 +289,7 @@ void SimHitsValidationHcal::analyzeHits(std::vector<PCaloHit> &hits) {
       meHcalEnergyl250_[types.second]->Fill(etax, phix, ensum.e250);
     }
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitsValidationHcal")
         << " energy of tower =" << (*itr).first.first << " in time 25ns is == " << (*itr).second.e25
         << " in time 25-50ns == " << (*itr).second.e50 << " in time 50-100ns == " << (*itr).second.e100
@@ -338,7 +338,7 @@ SimHitsValidationHcal::etaRange SimHitsValidationHcal::getLimits(idType type) {
     low = -41;
     high = 41;
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HitsValidationHcal") << "Subdetector:" << type.subdet << " z:" << type.z
                                          << " range.first:" << range.first << " and second:" << range.second;
   edm::LogVerbatim("HitsValidationHcal") << "bins: " << bins << " low:" << low << " high:" << high;

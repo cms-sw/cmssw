@@ -46,7 +46,7 @@ private:
 
 public:
   explicit HcalSimHitsClient(const edm::ParameterSet &);
-  ~HcalSimHitsClient() override;
+  ~HcalSimHitsClient() override = default;
 
   void beginRun(edm::Run const &run, edm::EventSetup const &c) override;
   virtual void runClient_(DQMStore::IBooker &, DQMStore::IGetter &);
