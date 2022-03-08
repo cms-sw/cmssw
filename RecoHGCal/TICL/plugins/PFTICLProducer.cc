@@ -61,7 +61,7 @@ void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("trackTimeErrorMap", edm::InputTag("tofPID:sigmat0"));
   desc.add<edm::InputTag>("trackTimeQualityMap", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
   desc.add<double>("timingQualityThreshold", 0.5);
-  desc.addOptional<bool>("useMTDTiming", true);
+  desc.add<bool>("useMTDTiming", true);
   desc.add<bool>("useTimingAverage", false);
   // For PFMuonAlgo
   desc.add<edm::InputTag>("muonSrc", edm::InputTag("muons1stStep"));
