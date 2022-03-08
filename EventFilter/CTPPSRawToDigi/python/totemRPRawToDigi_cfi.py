@@ -8,7 +8,7 @@ from EventFilter.CTPPSRawToDigi.totemVFATRawToDigi_cfi import totemVFATRawToDigi
 
 totemRPRawToDigi = totemVFATRawToDigi.clone(
     subSystem = 'TrackingStrip',
-    fedIds = [578, 580, 584, 585]
+    fedIds = [578, 580, 584, 585] #as declared in DataFormats/FEDRawData/interface/FEDNumbering.h
 )
 
 # for Run 2 backward compatibility
