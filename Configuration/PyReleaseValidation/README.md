@@ -71,6 +71,7 @@ The offsets currently in use are:
 * 0.914: DDD DB
 * 0.101: Phase-2 aging, 1000fb-1
 * 0.103: Phase-2 aging, 3000fb-1
+* 0.111: Phase-2 HLT:75e33
 * 0.201: HGCAL special TICL Pattern recognition Workflows: clue3D
 * 0.202: HGCAL special TICL Pattern recognition Workflows: FastJet
 * 0.9001: Sonic Triton

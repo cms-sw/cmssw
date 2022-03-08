@@ -1048,6 +1048,23 @@ upgradeWFs['Aging3000'].suffix = 'Aging3000'
 upgradeWFs['Aging3000'].offset = 0.103
 upgradeWFs['Aging3000'].lumi = '3000'
 
+class UpgradeWorkflow_Phase2HLT75e33(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'DigiTrigger' in step: # for Phase-2
+            stepDict[stepName][k] = merge([{'-s': 'DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:75e33'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and ('2026' in key)
+upgradeWFs['Phase2HLT75e33'] = UpgradeWorkflow_Phase2HLT75e33(
+    steps = [
+        'DigiTrigger',
+    ],
+    PU = [
+        'DigiTrigger',
+    ],
+    suffix = '_HLT75e33',
+    offset = 0.111,
+)
+
 # Specifying explicitly the --filein is not nice but that was the
 # easiest way to "skip" the output of step2 (=premixing stage1) for
 # filein (as it goes to pileup_input). It works (a bit accidentally
