@@ -120,7 +120,7 @@ public:
         trk_vy_(trk_vy),
         trk_vz_(trk_vz),
         vtxIndx_(std::move(vtxIndx)),
-        trk_hitPattern_(trk_hitPattern) {}
+        trk_hitPattern_(std::move(trk_hitPattern)) {}
   //default constructor
   Run3ScoutingMuon()
       : pt_(0),
