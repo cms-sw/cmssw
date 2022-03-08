@@ -9,6 +9,14 @@ slimmedMuonTrackExtras = muonReducedTrackExtras.clone(muonTag = "selectedPatMuon
                                                                 pixelClusterTag = "muonReducedTrackExtras",
                                                                 stripClusterTag = "muonReducedTrackExtras")
 
+from RecoMuon.MuonIdentification.displacedMuonReducedTrackExtras_cfi import displacedMuonReducedTrackExtras
+slimmedDisplacedMuonTrackExtras = displacedMuonReducedTrackExtras.clone(muonTag = "selectedPatDisplacedMuons",
+                                                                cut = "pt > 4.5",
+                                                                trackExtraTags = ["displacedMuonReducedTrackExtras", "displacedStandAloneMuons"],
+                                                                trackExtraAssocs = ["displacedMuonReducedTrackExtras"],
+                                                                pixelClusterTag = "displacedMuonReducedTrackExtras",
+                                                                stripClusterTag = "displacedMuonReducedTrackExtras")
+
 # no clusters in fastsim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(slimmedMuonTrackExtras, outputClusters = False)

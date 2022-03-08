@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.lowPtElectronSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
+from PhysicsTools.PatAlgos.selectionLayer1.displacedMuonSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.photonSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.ootPhotonSelector_cff import *
@@ -16,6 +17,7 @@ selectedPatCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
         cms.InputTag("selectedPatElectrons"),
         cms.InputTag("selectedPatLowPtElectrons"),
         cms.InputTag("selectedPatMuons"),
+        cms.InputTag("selectedPatDisplacedMuons"),
         cms.InputTag("selectedPatTaus"),
         cms.InputTag("selectedPatPhotons"),
         cms.InputTag("selectedPatOOTPhotons"),
@@ -27,6 +29,7 @@ selectedPatCandidatesTask = cms.Task(
     selectedPatElectrons,
     selectedPatLowPtElectrons,
     selectedPatMuons,
+    selectedPatDisplacedMuons,
     selectedPatTaus,
     selectedPatPhotons,
     selectedPatOOTPhotons,
