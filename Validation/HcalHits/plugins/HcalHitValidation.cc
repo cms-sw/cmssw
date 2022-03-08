@@ -78,8 +78,8 @@ private:
   MonitorElement *meEneJet_, *meEtaJet_, *mePhiJet_;
 };
 
-HcalHitValidation::HcalHitValidation(const edm::ParameterSet &ps) :
-      g4Label(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
+HcalHitValidation::HcalHitValidation(const edm::ParameterSet &ps)
+    : g4Label(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
       hcalHits(ps.getUntrackedParameter<std::string>("HitCollection", "HcalHits")),
       layerInfo(ps.getUntrackedParameter<std::string>("LayerInfo", "PHcalValidInfoLayer")),
       nxNInfo(ps.getUntrackedParameter<std::string>("NxNInfo", "PHcalValidInfoNxN")),
@@ -95,7 +95,6 @@ HcalHitValidation::HcalHitValidation(const edm::ParameterSet &ps) :
       tok_iL_(consumes<PHcalValidInfoLayer>(edm::InputTag(g4Label, layerInfo))),
       tok_iN_(consumes<PHcalValidInfoNxN>(edm::InputTag(g4Label, nxNInfo))),
       tok_iJ_(consumes<PHcalValidInfoJets>(edm::InputTag(g4Label, jetsInfo))) {
-
   edm::LogInfo("HcalHitValid") << "Module Label: " << g4Label << "   Hits: " << hcalHits << " / " << checkHit_
                                << "   LayerInfo: " << layerInfo << " / " << checkLay_ << "  NxNInfo: " << nxNInfo
                                << " / " << checkNxN_ << "  jetsInfo: " << jetsInfo << " / " << checkJet_
@@ -235,7 +234,7 @@ void HcalHitValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
 
   bool getHits = false;
   if (checkHit_) {
-    const edm::Handle<edm::PCaloHitContainer> & hitsHcal =  e.getHandle(tok_hh_);
+    const edm::Handle<edm::PCaloHitContainer> &hitsHcal = e.getHandle(tok_hh_);
     if (hitsHcal.isValid())
       getHits = true;
     if (getHits) {
@@ -248,7 +247,7 @@ void HcalHitValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
 
   bool getLayer = false;
   if (checkLay_) {
-    const edm::Handle<PHcalValidInfoLayer> & infoLayer =  e.getHandle(tok_iL_);
+    const edm::Handle<PHcalValidInfoLayer> &infoLayer = e.getHandle(tok_iL_);
     if (infoLayer.isValid()) {
       getLayer = true;
       analyzeLayer(infoLayer);
@@ -257,7 +256,7 @@ void HcalHitValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
 
   bool getNxN = false;
   if (checkNxN_) {
-    const edm::Handle<PHcalValidInfoNxN> & infoNxN = e.getHandle(tok_iN_);
+    const edm::Handle<PHcalValidInfoNxN> &infoNxN = e.getHandle(tok_iN_);
     if (infoNxN.isValid()) {
       getNxN = true;
       analyzeNxN(infoNxN);
@@ -266,7 +265,7 @@ void HcalHitValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
 
   bool getJets = false;
   if (checkJet_) {
-    const edm::Handle<PHcalValidInfoJets> & infoJets = e.getHandle(tok_iJ_);
+    const edm::Handle<PHcalValidInfoJets> &infoJets = e.getHandle(tok_iJ_);
     if (infoJets.isValid()) {
       getJets = true;
       analyzeJets(infoJets);
@@ -275,7 +274,6 @@ void HcalHitValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
 
   edm::LogVerbatim("HcalHitValid") << "HcalValidation: Input flags Hits " << getHits << ", Layer " << getLayer
                                    << ", NxN " << getNxN << ", Jets " << getJets;
-
 }
 
 void HcalHitValidation::analyzeHits(std::vector<PCaloHit> &hits) {

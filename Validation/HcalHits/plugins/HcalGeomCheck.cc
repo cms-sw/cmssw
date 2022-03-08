@@ -110,7 +110,7 @@ void HcalGeomCheck::fillDescriptions(edm::ConfigurationDescriptions& description
 
 void HcalGeomCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Now the hits
-  const edm::Handle<edm::PCaloHitContainer> & theCaloHitContainer = iEvent.getHandle(tok_hits_);
+  const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainer = iEvent.getHandle(tok_hits_);
   if (theCaloHitContainer.isValid()) {
     if (verbosity_ > 0)
       edm::LogVerbatim("HcalValidation") << " PcalohitItr = " << theCaloHitContainer->size();
