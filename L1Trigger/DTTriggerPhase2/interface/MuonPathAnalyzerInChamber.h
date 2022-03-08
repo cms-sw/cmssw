@@ -7,8 +7,7 @@
 // Previous definitions and declarations
 // ===============================================================================
 namespace {
-  constexpr int NLayers = 8;
-  typedef std::array<cmsdt::LATERAL_CASES, NLayers> TLateralities;
+  typedef std::array<cmsdt::LATERAL_CASES, cmsdt::NUM_LAYERS_2SL> TLateralities;
 }  // namespace
 // ===============================================================================
 // Class declarations
@@ -65,7 +64,10 @@ private:
   void buildLateralities(MuonPathPtr &mpath);
   void setLateralitiesInMP(MuonPathPtr &mpath, TLateralities lat);
   void setWirePosAndTimeInMP(MuonPathPtr &mpath);
-  void calculateFitParameters(MuonPathPtr &mpath, TLateralities lat, int present_layer[NLayers], int &lat_added);
+  void calculateFitParameters(MuonPathPtr &mpath,
+                              TLateralities lat,
+                              int present_layer[cmsdt::NUM_LAYERS_2SL],
+                              int &lat_added);
 
   void evaluateQuality(MuonPathPtr &mPath);
   int totalNumValLateralities_;
@@ -79,7 +81,7 @@ private:
   cmsdt::MP_QUALITY minQuality_;
   float chiSquareThreshold_;
   short minHits4Fit_;
-  int cellLayout_[NLayers];
+  int cellLayout_[cmsdt::NUM_LAYERS_2SL];
   bool splitPathPerSL_;
 
   // global coordinates

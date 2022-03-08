@@ -15,35 +15,34 @@
 // ===============================================================================
 
 class MPCleanHitsFilter : public MPFilter {
- public:
+public:
   // Constructors and destructor
   MPCleanHitsFilter(const edm::ParameterSet& pset);
   ~MPCleanHitsFilter() override;
 
   // Main methods
-  void initialise(const edm::EventSetup& iEventSetup) override {};
-  void run(edm::Event &iEvent,
-           const edm::EventSetup &iEventSetup,
-           std::vector<cmsdt::metaPrimitive> &inMPath,
-           std::vector<cmsdt::metaPrimitive> &outMPath) override {};
+  void initialise(const edm::EventSetup& iEventSetup) override{};
+  void run(edm::Event& iEvent,
+           const edm::EventSetup& iEventSetup,
+           std::vector<cmsdt::metaPrimitive>& inMPath,
+           std::vector<cmsdt::metaPrimitive>& outMPath) override{};
 
   void run(edm::Event& iEvent,
-	   const edm::EventSetup& iEventSetup,
-	   MuonPathPtrs& inMPath,
-	   MuonPathPtrs& outMPath) override;
+           const edm::EventSetup& iEventSetup,
+           MuonPathPtrs& inMPath,
+           MuonPathPtrs& outMPath) override;
 
-  void finish() override {};
+  void finish() override{};
 
   // Other public methods
-  void removeOutliers(MuonPathPtr &mpath);
+  void removeOutliers(MuonPathPtr& mpath);
 
-  double getMeanTime(MuonPathPtr &mpath);
+  double getMeanTime(MuonPathPtr& mpath);
 
-  void setTimeTolerance(int time) { timeTolerance_ = time; } 
-  int  getTimeTolerance()         { return timeTolerance_; }
+  void setTimeTolerance(int time) { timeTolerance_ = time; }
+  int getTimeTolerance() { return timeTolerance_; }
 
-
- private:
+private:
   // Private attributes
   bool debug_;
   int timeTolerance_;

@@ -22,9 +22,9 @@ MPQualityEnhancerFilterBayes::~MPQualityEnhancerFilterBayes() {}
 void MPQualityEnhancerFilterBayes::initialise(const edm::EventSetup &iEventSetup) {}
 
 void MPQualityEnhancerFilterBayes::run(edm::Event &iEvent,
-				       const edm::EventSetup &iEventSetup,
-				       std::vector<metaPrimitive> &inMPaths,
-				       std::vector<metaPrimitive> &outMPaths) {
+                                       const edm::EventSetup &iEventSetup,
+                                       std::vector<metaPrimitive> &inMPaths,
+                                       std::vector<metaPrimitive> &outMPaths) {
   // std::vector<metaPrimitive> buff;
   // std::vector<metaPrimitive> buff2;
 
@@ -60,31 +60,33 @@ int MPQualityEnhancerFilterBayes::areCousins(metaPrimitive mp, metaPrimitive sec
 
   cout << "Comparing mp:" << endl;
   cout << "ID: wheel " << mpId.wheel() << ", station " << mpId.station() << ", sector " << mpId.sector() << endl;
-  cout << "ID: wheel " << second_mpId.wheel() << ", station " << second_mpId.station() << ", sector " << second_mpId.sector() << endl;
- 
-  cout << mp.wi1 << "(" << mp.tdc1 << ")" << " "
-       << mp.wi2 << "(" << mp.tdc2 << ")" << " "  
-       << mp.wi3 << "(" << mp.tdc3 << ")" << " "  
-       << mp.wi4 << "(" << mp.tdc4 << ")" << " "  
-       << mp.wi5 << "(" << mp.tdc5 << ")" << " "  
-       << mp.wi6 << "(" << mp.tdc6 << ")" << " "  
-       << mp.wi7 << "(" << mp.tdc7 << ")" << " "  
-       << mp.wi8 << "(" << mp.tdc8 << ")" << " "  << endl;
-  cout << second_mp.wi1 << "(" << second_mp.tdc1 << ")" << " "
-       << second_mp.wi2 << "(" << second_mp.tdc2 << ")" << " "  
-       << second_mp.wi3 << "(" << second_mp.tdc3 << ")" << " "  
-       << second_mp.wi4 << "(" << second_mp.tdc4 << ")" << " "  
-       << second_mp.wi5 << "(" << second_mp.tdc5 << ")" << " "  
-       << second_mp.wi6 << "(" << second_mp.tdc6 << ")" << " "  
-       << second_mp.wi7 << "(" << second_mp.tdc7 << ")" << " "  
-       << second_mp.wi8 << "(" << second_mp.tdc8 << ")" << " "  << endl;
+  cout << "ID: wheel " << second_mpId.wheel() << ", station " << second_mpId.station() << ", sector "
+       << second_mpId.sector() << endl;
+
+  cout << mp.wi1 << "(" << mp.tdc1 << ")"
+       << " " << mp.wi2 << "(" << mp.tdc2 << ")"
+       << " " << mp.wi3 << "(" << mp.tdc3 << ")"
+       << " " << mp.wi4 << "(" << mp.tdc4 << ")"
+       << " " << mp.wi5 << "(" << mp.tdc5 << ")"
+       << " " << mp.wi6 << "(" << mp.tdc6 << ")"
+       << " " << mp.wi7 << "(" << mp.tdc7 << ")"
+       << " " << mp.wi8 << "(" << mp.tdc8 << ")"
+       << " " << endl;
+  cout << second_mp.wi1 << "(" << second_mp.tdc1 << ")"
+       << " " << second_mp.wi2 << "(" << second_mp.tdc2 << ")"
+       << " " << second_mp.wi3 << "(" << second_mp.tdc3 << ")"
+       << " " << second_mp.wi4 << "(" << second_mp.tdc4 << ")"
+       << " " << second_mp.wi5 << "(" << second_mp.tdc5 << ")"
+       << " " << second_mp.wi6 << "(" << second_mp.tdc6 << ")"
+       << " " << second_mp.wi7 << "(" << second_mp.tdc7 << ")"
+       << " " << second_mp.wi8 << "(" << second_mp.tdc8 << ")"
+       << " " << endl;
 
   int output = 0;
   //  if (mp.rawId != second_mp.rawId){
   // metaPrimitives must be in the same chamber to be cousins
-  if (mpId.wheel()   != second_mpId.wheel()   ||
-      mpId.station() != second_mpId.station() ||
-      mpId.sector()  != second_mpId.sector()){
+  if (mpId.wheel() != second_mpId.wheel() || mpId.station() != second_mpId.station() ||
+      mpId.sector() != second_mpId.sector()) {
     cout << "Not in the same chamber" << endl;
     return output;
   }
@@ -139,9 +141,8 @@ int MPQualityEnhancerFilterBayes::shareSL(metaPrimitive mp, metaPrimitive second
   DTSuperLayerId second_mpId(second_mp.rawId);
 
   int output = 0;
-  if (mpId.wheel()   != second_mpId.wheel()   ||
-      mpId.station() != second_mpId.station() ||
-      mpId.sector()  != second_mpId.sector()){
+  if (mpId.wheel() != second_mpId.wheel() || mpId.station() != second_mpId.station() ||
+      mpId.sector() != second_mpId.sector()) {
     return output;
   }
 
@@ -151,52 +152,52 @@ int MPQualityEnhancerFilterBayes::shareSL(metaPrimitive mp, metaPrimitive second
   int SL1_shared = 0;
   int SL3_shared = 0;
 
-  if (mp.wi1 != -1 and mp.tdc1 != -1){
+  if (mp.wi1 != -1 and mp.tdc1 != -1) {
     ++SL1;
-    if (mp.wi1 == second_mp.wi1 and mp.tdc1 == second_mp.tdc1){
+    if (mp.wi1 == second_mp.wi1 and mp.tdc1 == second_mp.tdc1) {
       ++SL1_shared;
     }
   }
-  if (mp.wi2 != -1 and mp.tdc2 != -1){
+  if (mp.wi2 != -1 and mp.tdc2 != -1) {
     ++SL1;
-    if (mp.wi2 == second_mp.wi2 and mp.tdc2 == second_mp.tdc2){
+    if (mp.wi2 == second_mp.wi2 and mp.tdc2 == second_mp.tdc2) {
       ++SL1_shared;
     }
   }
-  if (mp.wi3 != -1 and mp.tdc3 != -1){
+  if (mp.wi3 != -1 and mp.tdc3 != -1) {
     ++SL1;
-    if (mp.wi3 == second_mp.wi3 and mp.tdc3 == second_mp.tdc3){
+    if (mp.wi3 == second_mp.wi3 and mp.tdc3 == second_mp.tdc3) {
       ++SL1_shared;
     }
   }
-  if (mp.wi4 != -1 and mp.tdc4 != -1){
+  if (mp.wi4 != -1 and mp.tdc4 != -1) {
     ++SL1;
-    if (mp.wi4 == second_mp.wi4 and mp.tdc4 == second_mp.tdc4){
+    if (mp.wi4 == second_mp.wi4 and mp.tdc4 == second_mp.tdc4) {
       ++SL1_shared;
     }
   }
 
-  if (mp.wi5 != -1 and mp.tdc5 != -1){
+  if (mp.wi5 != -1 and mp.tdc5 != -1) {
     ++SL3;
-    if (mp.wi5 == second_mp.wi5 and mp.tdc5 == second_mp.tdc5){
+    if (mp.wi5 == second_mp.wi5 and mp.tdc5 == second_mp.tdc5) {
       ++SL3_shared;
     }
   }
-  if (mp.wi6 != -1 and mp.tdc6 != -1){
+  if (mp.wi6 != -1 and mp.tdc6 != -1) {
     ++SL3;
-    if (mp.wi6 == second_mp.wi6 and mp.tdc6 == second_mp.tdc6){
+    if (mp.wi6 == second_mp.wi6 and mp.tdc6 == second_mp.tdc6) {
       ++SL3_shared;
     }
   }
-  if (mp.wi7 != -1 and mp.tdc7 != -1){
+  if (mp.wi7 != -1 and mp.tdc7 != -1) {
     ++SL3;
-    if (mp.wi7 == second_mp.wi7 and mp.tdc7 == second_mp.tdc7){
+    if (mp.wi7 == second_mp.wi7 and mp.tdc7 == second_mp.tdc7) {
       ++SL3_shared;
     }
   }
-  if (mp.wi8 != -1 and mp.tdc8 != -1){
+  if (mp.wi8 != -1 and mp.tdc8 != -1) {
     ++SL3;
-    if (mp.wi8 == second_mp.wi8 and mp.tdc8 == second_mp.tdc8){
+    if (mp.wi8 == second_mp.wi8 and mp.tdc8 == second_mp.tdc8) {
       ++SL3_shared;
     }
   }
@@ -208,7 +209,7 @@ int MPQualityEnhancerFilterBayes::shareSL(metaPrimitive mp, metaPrimitive second
   return output;
 }
 
-int MPQualityEnhancerFilterBayes::BX(metaPrimitive mp){
+int MPQualityEnhancerFilterBayes::BX(metaPrimitive mp) {
   int bx;
   bx = (int)round(mp.t0 / (float)LHC_CLK_FREQ);
   return bx;
@@ -225,7 +226,7 @@ int MPQualityEnhancerFilterBayes::rango(metaPrimitive mp) {
 }
 
 void MPQualityEnhancerFilterBayes::filterCousins(std::vector<metaPrimitive> &inMPaths,
-						 std::vector<metaPrimitive> &outMPaths) {
+                                                 std::vector<metaPrimitive> &outMPaths) {
   // int primo_index = 0;
   // bool oneof4 = false; // quality >= 6, for the moment. So, correlated primitives
   // int bestI = -1;
@@ -235,15 +236,15 @@ void MPQualityEnhancerFilterBayes::filterCousins(std::vector<metaPrimitive> &inM
   bool keep_this[inMPaths.size()];
   for (unsigned int k = 0; k < inMPaths.size(); k++) {
     keep_this[k] = true;
-  }  
-  
+  }
+
   // If we have just one mpath, save it
   if (inMPaths.size() == 1) {
     if (debug_) {
       printmP(inMPaths[0]);
     }
     outMPaths.push_back(inMPaths[0]);
-  } 
+  }
   // More than one mpath
   else if (inMPaths.size() > 1) {
     for (int i = 0; i < int(inMPaths.size()); i++) {
@@ -251,69 +252,68 @@ void MPQualityEnhancerFilterBayes::filterCousins(std::vector<metaPrimitive> &inM
         printmP(inMPaths[i]);
       }
       // If we have already decided to reject the candidate, skip it
-      if (keep_this[i] == false) continue;
+      if (keep_this[i] == false)
+        continue;
       for (int j = i + 1; j < int(inMPaths.size()); j++) {
-	// If we have already decided to reject the candidate, skip it
-	if (keep_this[j] == false) continue;
-	// Case they are the same, keep the first one
-	if (areSame(inMPaths[i], inMPaths[j]) == true)
-	  keep_this[i] = false;
-	// Case they are cousins, keep the best one
-	if (areCousins(inMPaths[i], inMPaths[j]) != 0) {	  
-	  cout << "They are cousins" << endl;
+        // If we have already decided to reject the candidate, skip it
+        if (keep_this[j] == false)
+          continue;
+        // Case they are the same, keep the first one
+        if (areSame(inMPaths[i], inMPaths[j]) == true)
+          keep_this[i] = false;
+        // Case they are cousins, keep the best one
+        if (areCousins(inMPaths[i], inMPaths[j]) != 0) {
+          cout << "They are cousins" << endl;
 
-	  // In case both are correlated, they have to share a full SL         
-	  if (inMPaths[i].quality > 5 && inMPaths[j].quality > 5 && shareSL(inMPaths[i], inMPaths[j]) == 0) {
-	    cout << "But don't share a whole SL" << endl;
-	    continue;
-	  }
-	  
-	  // Compare only if rango is the same (both correlated or both not-correlated)
-	  // if (rango(inMPaths[i]) != rango(inMPaths[j])) continue;
+          // In case both are correlated, they have to share a full SL
+          if (inMPaths[i].quality > 5 && inMPaths[j].quality > 5 && shareSL(inMPaths[i], inMPaths[j]) == 0) {
+            cout << "But don't share a whole SL" << endl;
+            continue;
+          }
 
-	  // If rango is the same, keep higher quality one
-	  // Still, keep lower-quality one if it has lower Chi2 
-	  // and if its BX is different to the higher-quality one
-	  if (inMPaths[i].quality > inMPaths[j].quality){
-	    if ( (inMPaths[i].chi2 < inMPaths[j].chi2)
-		 || BX(inMPaths[i]) == BX(inMPaths[j]) )
-	      keep_this[j] = false;
-	  }
-	  else if (inMPaths[i].quality < inMPaths[j].quality){
-	    if ( (inMPaths[i].chi2 > inMPaths[j].chi2)
-		 || BX(inMPaths[i]) == BX(inMPaths[j]) )
-	      keep_this[i] = false;
-	  }
-	  else{ // if they have same quality
-	    // If quality is 8, keep both
-	    // if (inMPaths[i].quality >= 8) continue;
-	    // Otherwise, keep the one with better Chi2
-	    // and also the one with worse Chi2 if its BX is different
-	    // else{
-	    if (inMPaths[i].chi2 > inMPaths[j].chi2 && BX(inMPaths[i]) == BX(inMPaths[j]))
-	      keep_this[i] = false;
-	    else if (inMPaths[i].chi2 < inMPaths[j].chi2 && BX(inMPaths[i]) == BX(inMPaths[j]))
-	      keep_this[j] = false;
-	    else continue;
-	    //}
-	  }
-	}
+          // Compare only if rango is the same (both correlated or both not-correlated)
+          // if (rango(inMPaths[i]) != rango(inMPaths[j])) continue;
+
+          // If rango is the same, keep higher quality one
+          // Still, keep lower-quality one if it has lower Chi2
+          // and if its BX is different to the higher-quality one
+          if (inMPaths[i].quality > inMPaths[j].quality) {
+            if ((inMPaths[i].chi2 < inMPaths[j].chi2) || BX(inMPaths[i]) == BX(inMPaths[j]))
+              keep_this[j] = false;
+          } else if (inMPaths[i].quality < inMPaths[j].quality) {
+            if ((inMPaths[i].chi2 > inMPaths[j].chi2) || BX(inMPaths[i]) == BX(inMPaths[j]))
+              keep_this[i] = false;
+          } else {  // if they have same quality
+            // If quality is 8, keep both
+            // if (inMPaths[i].quality >= 8) continue;
+            // Otherwise, keep the one with better Chi2
+            // and also the one with worse Chi2 if its BX is different
+            // else{
+            if (inMPaths[i].chi2 > inMPaths[j].chi2 && BX(inMPaths[i]) == BX(inMPaths[j]))
+              keep_this[i] = false;
+            else if (inMPaths[i].chi2 < inMPaths[j].chi2 && BX(inMPaths[i]) == BX(inMPaths[j]))
+              keep_this[j] = false;
+            else
+              continue;
+            //}
+          }
+        }
       }
     }
     // Finally, fill the output with accepted candidates
     for (int i = 0; i < int(inMPaths.size()); i++)
       if (keep_this[i] == true)
-      outMPaths.push_back(inMPaths[i]);
+        outMPaths.push_back(inMPaths[i]);
   }
 }
 
 void MPQualityEnhancerFilterBayes::printmP(metaPrimitive mP) {
   DTSuperLayerId slId(mP.rawId);
-  LogDebug("MPQualityEnhancerFilterBayes") << slId << "\t"
-                                      << " " << setw(2) << left << mP.wi1 << " " << setw(2) << left << mP.wi2 << " "
-                                      << setw(2) << left << mP.wi3 << " " << setw(2) << left << mP.wi4 << " " << setw(5)
-                                      << left << mP.tdc1 << " " << setw(5) << left << mP.tdc2 << " " << setw(5) << left
-                                      << mP.tdc3 << " " << setw(5) << left << mP.tdc4 << " " << setw(10) << right
-                                      << mP.x << " " << setw(9) << left << mP.tanPhi << " " << setw(5) << left << mP.t0
-                                      << " " << setw(13) << left << mP.chi2 << " r:" << rango(mP);
+  LogDebug("MPQualityEnhancerFilterBayes")
+      << slId << "\t"
+      << " " << setw(2) << left << mP.wi1 << " " << setw(2) << left << mP.wi2 << " " << setw(2) << left << mP.wi3 << " "
+      << setw(2) << left << mP.wi4 << " " << setw(5) << left << mP.tdc1 << " " << setw(5) << left << mP.tdc2 << " "
+      << setw(5) << left << mP.tdc3 << " " << setw(5) << left << mP.tdc4 << " " << setw(10) << right << mP.x << " "
+      << setw(9) << left << mP.tanPhi << " " << setw(5) << left << mP.t0 << " " << setw(13) << left << mP.chi2
+      << " r:" << rango(mP);
 }
