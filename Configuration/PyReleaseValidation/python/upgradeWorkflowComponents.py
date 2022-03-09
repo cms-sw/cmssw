@@ -679,7 +679,22 @@ upgradeWFs['PatatrackECALOnlyGPU'] = PatatrackWorkflow(
     offset = 0.512,
 )
 
-# add here a .513 workflow for GPU vs CPU validation
+upgradeWFs['PatatrackECALOnlyGPUValidation'] = PatatrackWorkflow(
+    digi = {
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'gpuValidation'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@ecalOnlyValidation+@ecal'
+    },
+    suffix = 'Patatrack_ECALOnlyGPU_Validation',
+    offset = 0.513,
+)
 
 upgradeWFs['PatatrackECALOnlyGPUProfiling'] = PatatrackWorkflow(
     digi = {
