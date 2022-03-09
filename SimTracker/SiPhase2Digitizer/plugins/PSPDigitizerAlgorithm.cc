@@ -61,12 +61,14 @@ bool PSPDigitizerAlgorithm::isAboveThreshold(const DigitizerUtility::SimHitInfo*
 //  Check whether the Hit is in the Inefficient Bias Rail Region
 //
 bool PSPDigitizerAlgorithm::isInBiasRailRegion(const PSimHit& hit) const {
-  static const float implant = 0.1467;  // Implant length (1.467 mm)
-  static const float bRail = 0.00375;   // Bias Rail region which causes inefficiency (37.5micron)
-  float block_len = 16 * implant + 15.5 * bRail;
+  constexpr float implant    = 0.1467;  // Implant length (1.467 mm)
+  constexpr float bRail      = 0.00375;   // Bias Rail region which causes inefficiency (37.5micron)
+  // Do coordinate transformation of the local Y from module middle point considering 32 implants and 31 inter-impant regions with bias rail
+  constexpr float block_len  = 16 * implant + 15.5 * bRail;
+  constexpr float block_unit = implant + bRail;
   float yin = hit.entryPoint().y() + block_len;
   float yout = hit.exitPoint().y() + block_len;
-  if (std::fmod(yin, (implant + bRail)) > implant || std::fmod(yout, (implant + bRail)) > implant)
+  if (std::fmod(yin, block_unit) > implant || std::fmod(yout, block_unit) > implant)
     return true;
   else
     return false;
