@@ -6,6 +6,6 @@ from DQM.EcalMonitorTasks.EcalMonitorTask_cfi import *
 from Configuration.ProcessModifiers.gpuValidationEcal_cff import gpuValidationEcal
 from DQM.EcalMonitorTasks.ecalGpuTask_cfi import ecalGpuTask
 
-gpuValidationEcal.toModify(ecalGpuTask.params, runGpuTask = cms.untracked.bool(True))
+gpuValidationEcal.toModify(ecalGpuTask.params, runGpuTask = True)
 gpuValidationEcal.toModify(ecalMonitorTask.workers, func = lambda workers: workers.append("GpuTask"))
 gpuValidationEcal.toModify(ecalMonitorTask, workerParameters = dict(GpuTask = ecalGpuTask))
