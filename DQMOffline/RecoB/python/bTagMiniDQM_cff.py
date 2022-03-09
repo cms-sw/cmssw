@@ -114,3 +114,13 @@ addSequences(bTagMiniValidationSource,
              regions={'Global': Etaregions['Global']}, # only for global Eta range
              globalPSet=bTagMiniValidationGlobal,
              label='bTagDeepCSVValidation')
+
+
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+from Configuration.ProcessModifiers.miniAOD_skip_trackExtras_cff import miniAOD_skip_trackExtras
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+
+_mAOD = (pp_on_AA | miniAOD_skip_trackExtras | run2_miniAOD_94XFall17)
+_mAOD.toReplaceWith(bTagMiniDQMSource, bTagMiniDQMSource.copyAndExclude([bTagSVDQM, patJetsSVInfoTask]))
+_mAOD.toReplaceWith(bTagMiniValidationSource, bTagMiniValidationSource.copyAndExclude([bTagSVDQM, patJetsSVInfoTask]))
