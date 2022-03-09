@@ -35,10 +35,17 @@ totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSource
     ),
     # 2018
     cms.PSet(
-      validityRange = cms.EventRange("311626:min - 999999999:max"),
+      validityRange = cms.EventRange("311626:min - 339999:max"),
       mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2018.xml"),
       maskFileNames = cms.vstring()
+    ),
+    # 2022
+    cms.PSet(
+      validityRange = cms.EventRange("340000:min - 999999999:max"),
+      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2022.xml"),
+      maskFileNames = cms.vstring()
     )
+    
   )
 )
 
@@ -76,10 +83,17 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
     ),
     # 2018
     cms.PSet(
-      validityRange = cms.EventRange("310001:min - 999999999:max"),
+      validityRange = cms.EventRange("310001:min - 339999:max"),
       mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_timing_diamond_2018.xml"),
       maskFileNames = cms.vstring()
+    ),
+    # 2022
+    cms.PSet(
+      validityRange = cms.EventRange("340000:min - 999999999:max"),
+      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_timing_diamond_2022.xml"),
+      maskFileNames = cms.vstring()
     )
+    
   )
 )
 
@@ -99,8 +113,14 @@ totemDAQMappingESSourceXML_TotemTiming = cms.ESSource("TotemDAQMappingESSourceXM
     ),
     # 2018
     cms.PSet(
-      validityRange = cms.EventRange("310001:min - 999999999:max"),
+      validityRange = cms.EventRange("310001:min - 339999:max"),
       mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_totem_timing_2018.xml"),
+      maskFileNames = cms.vstring()
+    ),
+    # 2022
+    cms.PSet(
+      validityRange = cms.EventRange("340000:min - 999999999:max"),
+      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_totem_timing_2022.xml"),
       maskFileNames = cms.vstring()
     )
   )
