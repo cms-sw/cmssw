@@ -53,6 +53,7 @@ The offsets currently in use are:
 * 0.17: Run-3 deep core seeding for JetCore iteration
 * 0.21: Production-like sequence
 * 0.24: 0 Tesla (Run-2, Run-3)
+* 0.31: Photon energy corrections with DRN architecture
 * 0.61: `phase2_ecal_devel` era
 * 0.91: Track DNN modifier
 * 0.97: Premixing stage1
