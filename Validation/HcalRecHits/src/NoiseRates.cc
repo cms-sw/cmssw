@@ -14,8 +14,8 @@
 // constructors and destructor
 //
 
-NoiseRates::NoiseRates(const edm::ParameterSet &iConfig) :
-      outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root")),
+NoiseRates::NoiseRates(const edm::ParameterSet &iConfig)
+    : outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root")),
       rbxCollName_(iConfig.getUntrackedParameter<edm::InputTag>("rbxCollName")),
       minRBXEnergy_(iConfig.getUntrackedParameter<double>("minRBXEnergy")),
       minHitEnergy_(iConfig.getUntrackedParameter<double>("minHitEnergy")),
@@ -96,7 +96,7 @@ void NoiseRates::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetu
   lumiCountMap_[lumiSection]++;
 
   // get the RBX Noise collection
-  const edm::Handle<reco::HcalNoiseRBXCollection> & handle = iEvent.getHandle(tok_rbx_);
+  const edm::Handle<reco::HcalNoiseRBXCollection> &handle = iEvent.getHandle(tok_rbx_);
   if (!handle.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
         << " could not find HcalNoiseRBXCollection named " << rbxCollName_ << ".\n";
@@ -104,7 +104,7 @@ void NoiseRates::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetu
   }
 
   // get the Noise summary object
-  const edm::Handle<HcalNoiseSummary> & summary_h = iEvent.getHandle(noisetoken_);
+  const edm::Handle<HcalNoiseSummary> &summary_h = iEvent.getHandle(noisetoken_);
   if (!summary_h.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseSummary.\n";
     return;
