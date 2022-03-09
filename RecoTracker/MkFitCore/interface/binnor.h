@@ -5,7 +5,7 @@
 #include <cmath>
 #include <numeric>
 #include <vector>
-
+#include <cassert>
 #include <cstdio>
 
 namespace mkfit {
@@ -47,26 +47,30 @@ namespace mkfit {
           m_M_fac(M_size / (max - min)),
           m_N_fac(N_size / (max - min)),
           m_last_M_bin(M_size - 1),
-          m_last_N_bin(N_size - 1) {}
-
-    I R_to_M_bin(R r) const { return (r - m_R_min) * m_M_fac; }
-    I R_to_N_bin(R r) const { return (r - m_R_min) * m_N_fac; }
-
-    I R_to_M_bin_safe(R r) const { return r <= m_R_min ? 0 : (r >= m_R_max ? m_last_M_bin : R_to_M_bin(r)); }
-    I R_to_N_bin_safe(R r) const { return r <= m_R_min ? 0 : (r >= m_R_max ? m_last_N_bin : R_to_N_bin(r)); }
-
-    I M_bin_to_N_bin(I m) const { return m >> c_M2N_shift; }
-
-    I_pair Rminmax_to_N_bins(R rmin, R rmax) const {
-      return I_pair(R_to_N_bin_safe(rmin), R_to_N_bin_safe(rmax) + I{1});
+          m_last_N_bin(N_size - 1) {
+      // Requested number of bins must fit within the intended bit-field (declared by binnor, later).
+      assert(N_size <= (1 << N));
     }
 
-    I_pair Rrdr_to_N_bins(R r, R dr) const { return Rminmax_to_N_bins(r - dr, r + dr); }
+    I from_R_to_M_bin(R r) const { return (r - m_R_min) * m_M_fac; }
+    I from_R_to_N_bin(R r) const { return (r - m_R_min) * m_N_fac; }
+
+    I from_R_to_M_bin_safe(R r) const { return r <= m_R_min ? 0 : (r >= m_R_max ? m_last_M_bin : from_R_to_M_bin(r)); }
+    I from_R_to_N_bin_safe(R r) const { return r <= m_R_min ? 0 : (r >= m_R_max ? m_last_N_bin : from_R_to_N_bin(r)); }
+
+    I from_M_bin_to_N_bin(I m) const { return m >> c_M2N_shift; }
+
+    I_pair from_R_minmax_to_N_bins(R rmin, R rmax) const {
+      return I_pair(from_R_to_N_bin_safe(rmin), from_R_to_N_bin_safe(rmax) + I{1});
+    }
+
+    I_pair from_R_rdr_to_N_bins(R r, R dr) const { return from_R_minmax_to_N_bins(r - dr, r + dr); }
     I next_N_bin(I bin) const { return bin + 1; }
   };
 
   // axis_pow2_base
   //---------------
+  // Assumes the numbers of fine/normal bins are powers of 2 that are inferred directly from the number of bits.
   template <typename R, typename I, unsigned M, unsigned N>
   struct axis_pow2_base : public axis_base<R, I, M, N> {
     static constexpr unsigned c_M_end = 1 << M;
@@ -80,6 +84,8 @@ namespace mkfit {
 
   // axis_pow2_u1
   //-------------
+  // Specialization of axis_pow2 for the "U(1)" case where the coordinate is periodic with period (Rmax - Rmin).
+  // In the "safe" methods below, bit masking serves as the modulo operator for out-of-range bin numbers.
   template <typename R, typename I, unsigned M, unsigned N>
   struct axis_pow2_u1 : public axis_pow2_base<R, I, M, N> {
     static constexpr I c_M_mask = (1 << M) - 1;
@@ -87,14 +93,17 @@ namespace mkfit {
 
     axis_pow2_u1(R min, R max) : axis_pow2_base<R, I, M, N>(min, max) {}
 
-    I R_to_M_bin_safe(R r) const { return this->R_to_M_bin(r) & c_M_mask; }
-    I R_to_N_bin_safe(R r) const { return this->R_to_N_bin(r) & c_N_mask; }
+    I from_R_to_M_bin_safe(R r) const { return this->from_R_to_M_bin(r) & c_M_mask; }
+    I from_R_to_N_bin_safe(R r) const { return this->from_R_to_N_bin(r) & c_N_mask; }
 
-    typename axis_base<R, I, M, N>::I_pair Rminmax_to_N_bins(R rmin, R rmax) const {
-      return typename axis_base<R, I, M, N>::I_pair(R_to_N_bin_safe(rmin), (this->R_to_N_bin(rmax) + I{1}) & c_N_mask);
+    typename axis_base<R, I, M, N>::I_pair from_R_minmax_to_N_bins(R rmin, R rmax) const {
+      return typename axis_base<R, I, M, N>::I_pair(from_R_to_N_bin_safe(rmin),
+                                                    (this->from_R_to_N_bin(rmax) + I{1}) & c_N_mask);
     }
 
-    typename axis_base<R, I, M, N>::I_pair Rrdr_to_N_bins(R r, R dr) const { return Rminmax_to_N_bins(r - dr, r + dr); }
+    typename axis_base<R, I, M, N>::I_pair from_R_rdr_to_N_bins(R r, R dr) const {
+      return from_R_minmax_to_N_bins(r - dr, r + dr);
+    }
     I next_N_bin(I bin) const { return (bin + 1) & c_N_mask; }
   };
 
@@ -130,26 +139,43 @@ namespace mkfit {
 
   // binnor
   //---------------
-  // C - bin content type
+  // To build and populate bins, do the following:
+  // 1. Construct two axis objects, giving numbers of bits and bins, and extents.
+  // 2. Construct a binnor from the axis objects, and begin_registration on it.
+  // 3. Loop register_entry (optional: _safe) over pairs of coordinates, to fill
+  //    m_cons with the corresponding pairs of bin indices (B_pairs).
+  // 4. Call finalize_registration, which sorts m_ranks based on m_cons, making
+  //    m_ranks into an in-order map into m_cons (as well as the inputs that were
+  //    used to fill it). Final counts for all the bins, as well as starting
+  //    indices for the bins (within m_ranks), are computed and stored in packed
+  //    form (i.e., bit-fields) in m_bins.
+  //
+  // C - bin content type, to hold "bin population coordinates" in packed form (bit-fields)
   // A1, A2 - axis types
   // NB_first, NB_count - number of bits for storage of { first, count } pairs
 
   template <typename C, typename A1, typename A2, unsigned NB_first = 8 * sizeof(C), unsigned NB_count = 8 * sizeof(C)>
   struct binnor {
     static_assert(std::is_same<typename A1::real_t, typename A2::real_t>());
+    static_assert(A1::c_M + A2::c_M <= 32);
 
-    static constexpr unsigned c_A2_Mout_mask = ~(((1 << A2::c_M2N_shift) - 1) << A1::c_M);
+    static constexpr unsigned int c_A1_mask = (1 << A1::c_M) - 1;
+    static constexpr unsigned int c_A2_Mout_mask = ~(((1 << A2::c_M2N_shift) - 1) << A1::c_M);
 
-    // Pair of axis bin indices.
+    // Pair of axis bin indices packed into unsigned.
     struct B_pair {
-      typename A1::index_t bin1 : A1::c_M;
-      typename A2::index_t bin2 : A2::c_M;
+      unsigned int packed_value;  // bin1 in A1::c_M lower bits, bin2 above
 
-      B_pair() : bin1(0), bin2(0) {}
-      B_pair(typename A1::index_t i1, typename A2::index_t i2) : bin1(i1), bin2(i2) {}
+      B_pair() : packed_value(0) {}
+      B_pair(typename A1::index_t i1, typename A2::index_t i2) : packed_value(i2 << A1::c_M | i1) {}
+
+      typename A1::index_t bin1() const { return packed_value & c_A1_mask; }
+      typename A2::index_t bin2() const { return packed_value >> A1::c_M; }
+
+      unsigned int mask_A2_M_bins() const { return packed_value & c_A2_Mout_mask; }
     };
 
-    // Bin content pair.
+    // Bin content pair (bit-fields).
     struct C_pair {
       C first : NB_first;
       C count : NB_count;
@@ -170,24 +196,26 @@ namespace mkfit {
 
     // Access
 
-    B_pair m_bin_to_n_bin(B_pair m_bin) { return {m_a1.M_bin_to_N_bin(m_bin.bin1), m_a2.M_bin_to_N_bin(m_bin.bin2)}; }
+    B_pair m_bin_to_n_bin(B_pair m_bin) {
+      return {m_a1.from_M_bin_to_N_bin(m_bin.bin1()), m_a2.from_M_bin_to_N_bin(m_bin.bin2())};
+    }
 
     B_pair get_n_bin(typename A1::index_t n1, typename A2::index_t n2) const { return {n1, n2}; }
 
     B_pair get_n_bin(typename A1::real_t r1, typename A2::real_t r2) const {
-      return {m_a1.R_to_N_bin(r1), m_a2.R_to_N_bin(r2)};
+      return {m_a1.from_R_to_N_bin(r1), m_a2.from_R_to_N_bin(r2)};
     }
 
-    C_pair &ref_content(B_pair n_bin) { return m_bins[n_bin.bin2 * m_a1.size_of_N() + n_bin.bin1]; }
+    C_pair &ref_content(B_pair n_bin) { return m_bins[n_bin.bin2() * m_a1.size_of_N() + n_bin.bin1()]; }
 
-    C_pair get_content(B_pair n_bin) const { return m_bins[n_bin.bin2 * m_a1.size_of_N() + n_bin.bin1]; }
+    C_pair get_content(B_pair n_bin) const { return m_bins[n_bin.bin2() * m_a1.size_of_N() + n_bin.bin1()]; }
 
     C_pair get_content(typename A1::index_t n1, typename A2::index_t n2) const {
       return m_bins[n2 * m_a1.size_of_N() + n1];
     }
 
     C_pair get_content(typename A1::real_t r1, typename A2::real_t r2) const {
-      return get_content(m_a1.R_to_N_bin(r1), m_a2.R_to_N_bin(r2));
+      return get_content(m_a1.from_R_to_N_bin(r1), m_a2.from_R_to_N_bin(r2));
     }
 
     // Filling
@@ -201,11 +229,11 @@ namespace mkfit {
     void begin_registration(C n_items) { m_cons.reserve(n_items); }
 
     void register_entry(typename A1::real_t r1, typename A2::real_t r2) {
-      m_cons.push_back({m_a1.R_to_M_bin(r1), m_a2.R_to_M_bin(r2)});
+      m_cons.push_back({m_a1.from_R_to_M_bin(r1), m_a2.from_R_to_M_bin(r2)});
     }
 
     void register_entry_safe(typename A1::real_t r1, typename A2::real_t r2) {
-      m_cons.push_back({m_a1.R_to_M_bin_safe(r1), m_a2.R_to_M_bin_safe(r2)});
+      m_cons.push_back({m_a1.from_R_to_M_bin_safe(r1), m_a2.from_R_to_M_bin_safe(r2)});
     }
 
     // Do M-binning outside, potentially using R_to_M_bin_safe().
@@ -218,7 +246,7 @@ namespace mkfit {
       std::iota(m_ranks.begin(), m_ranks.end(), 0);
 
       std::sort(m_ranks.begin(), m_ranks.end(), [&](auto &a, auto &b) {
-        return (m_cons[a].raw & c_A2_Mout_mask) < (m_cons[b].raw & c_A2_Mout_mask);
+        return m_cons[a].mask_A2_M_bins() < m_cons[b].mask_A2_M_bins();
       });
 
       for (C i = 0; i < m_ranks.size(); ++i) {
