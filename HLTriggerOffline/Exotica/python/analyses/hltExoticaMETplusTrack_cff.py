@@ -12,7 +12,6 @@ METplusTrackPSet = cms.PSet(
     recElecLabel  = cms.InputTag("gedGsfElectrons"),
     #recTrackLabel = cms.InputTag("generalTracks"),
     #hltMETLabel   = cms.InputTag("hltMetClean"),
-    #l1METLabel    = cms.InputTag("l1extraParticles","MET"),                    
     # -- Analysis specific cuts
     minCandidates = cms.uint32(1),
     # -- Analysis specific binnings
