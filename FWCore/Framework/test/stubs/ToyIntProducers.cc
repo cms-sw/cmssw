@@ -119,6 +119,12 @@ namespace edmtest {
         : token_{produces<IntProduct>()}, value_(p.getParameter<int>("ivalue")) {}
     void produce(edm::Event& e, edm::EventSetup const& c) override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("ivalue");
+      descriptions.addDefault(desc);
+    }
+
   private:
     edm::EDPutTokenT<IntProduct> token_;
     int value_;
@@ -373,13 +379,20 @@ namespace edmtest {
     explicit AddIntsProducer(edm::ParameterSet const& p)
         : putToken_{produces<IntProduct>()},
           otherPutToken_{produces<IntProduct>("other")},
-          onlyGetOnEvent_(p.getUntrackedParameter<unsigned int>("onlyGetOnEvent", 0u)) {
+          onlyGetOnEvent_(p.getUntrackedParameter<unsigned int>("onlyGetOnEvent")) {
       auto const& labels = p.getParameter<std::vector<edm::InputTag>>("labels");
       for (auto const& label : labels) {
         tokens_.emplace_back(consumes(label));
       }
     }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<unsigned int>("onlyGetOnEvent", 0u);
+      desc.add<std::vector<edm::InputTag>>("labels");
+      descriptions.addDefault(desc);
+    }
 
   private:
     std::vector<edm::EDGetTokenT<IntProduct>> tokens_;
