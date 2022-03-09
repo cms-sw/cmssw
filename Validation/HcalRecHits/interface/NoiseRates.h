@@ -52,8 +52,8 @@ private:
 
   // parameters
   const edm::InputTag rbxCollName_;  // label for the rbx collection
-  const double minRBXEnergy_;  // RBX energy threshold
-  const double minHitEnergy_;  // RecHit energy threshold
+  const double minRBXEnergy_;        // RBX energy threshold
+  const double minHitEnergy_;        // RecHit energy threshold
   const bool useAllHistos_;
 
   const edm::EDGetTokenT<reco::HcalNoiseRBXCollection> tok_rbx_;
