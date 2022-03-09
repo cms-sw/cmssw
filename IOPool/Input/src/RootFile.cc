@@ -370,7 +370,7 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
     }
 
-    ThinnedAssociationsHelper* thinnedAssociationsHelperPtr; // must remain in scope through getEntry()
+    ThinnedAssociationsHelper* thinnedAssociationsHelperPtr;  // must remain in scope through getEntry()
     if (inputType != InputType::SecondarySource) {
       fileThinnedAssociationsHelper_ =
           std::make_unique<ThinnedAssociationsHelper>();  // propagate_const<T> has no reset() function
