@@ -490,6 +490,36 @@ upgradeWFs['mlpf'].step3 = {
     '--procModifiers': 'mlpf'
 }
 
+# photonDRN workflows
+class UpgradeWorkflow_photonDRN(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        #print(step, stepName, k)
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        #print("\t",stepDict[stepName][k])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        #return '2018' in key 
+        return True
+
+upgradeWFs['photonDRN'] = UpgradeWorkflow_photonDRN(
+    steps = [
+        'Reco',
+        'RecoNano',
+    ],
+    PU = [
+        'Reco',
+        'RecoNano',
+    ],
+    suffix = '_photonDRN',
+    offset = 0.31,
+)
+upgradeWFs['photonDRN'].step3 = {
+    #'--datatier': 'GEN-SIM-RECO,RECOSIM,MINIAODSIM,NANOAODSIM,DQMIO',
+    #'--eventcontent': 'FEVTDEBUGHLT,RECOSIM,MINIAODSIM,NANOEDMAODSIM,DQM',
+    '--procModifiers': 'enableSonicTriton',
+    '--customise' : 'PhysicsTools/PatAlgos/slimming/enableDRN'
+}
+
 # Patatrack workflows:
 #   - 2018 conditions, TTbar
 #   - 2018 conditions, Z->mumu,
