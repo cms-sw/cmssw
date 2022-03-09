@@ -532,7 +532,7 @@ namespace mkfit {
               }
             }
 
-            if (layer_plan_it.is_pickup_only() || layer_of_hits.nHits() == 0)
+            if (layer_plan_it.is_pickup_only())
               continue;
 
             dcall(pre_prop_print(curr_layer, mkfndr.get()));
@@ -801,7 +801,7 @@ namespace mkfit {
 
           dprintf("  Number of candidates to process: %d, nHits in layer: %d\n", theEndCand, layer_of_hits.nHits());
 
-          if (layer_plan_it.is_pickup_only() || theEndCand == 0 || layer_of_hits.nHits() == 0)
+          if (layer_plan_it.is_pickup_only() || theEndCand == 0)
             continue;
 
           // vectorized loop
@@ -1012,7 +1012,7 @@ namespace mkfit {
       // XXXXMT There might be cases in endcap where all tracks will miss the
       // next layer, but only relevant if we do geometric selection before.
 
-      if (pickup_only || theEndCand == 0 || layer_of_hits.nHits() == 0)
+      if (pickup_only || theEndCand == 0)
         continue;
 
       cloner.begin_layer(curr_layer);
