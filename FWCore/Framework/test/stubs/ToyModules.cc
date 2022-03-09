@@ -378,7 +378,9 @@ namespace edmtest {
       if (product.value < threshold_) {
         return false;
       }
-      iEvent.emplace(putToken_, product);
+      if (shouldProduce_) {
+        iEvent.emplace(putToken_, product);
+      }
       return true;
     }
 
