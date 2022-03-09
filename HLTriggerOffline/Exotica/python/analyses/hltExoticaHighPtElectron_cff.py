@@ -4,7 +4,6 @@ HighPtElectronPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
 #        "HLT_Ele145_CaloIdVT_GsfTrkIdT_v", # Not claimed path for Run3
 #        "HLT_Ele200_CaloIdVT_GsfTrkIdT_v", # Not claimed path for Run3
-#        "HLT_Ele105_CaloIdVT_GsfTrkIdT_v", # Run2 proposal
         "HLT_Ele115_CaloIdVT_GsfTrkIdT_v"  # 50ns backup menu # Claimed path for Run3
         ),
     recElecLabel  = cms.InputTag("gedGsfElectrons"),
