@@ -29,7 +29,7 @@
 class HcalDumpHits : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit HcalDumpHits(const edm::ParameterSet&);
-  ~HcalDumpHits() override {}
+  ~HcalDumpHits() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -79,8 +79,7 @@ void HcalDumpHits::beginRun(const edm::Run&, const edm::EventSetup& iSetup) { hc
 
 void HcalDumpHits::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   // first SimHits
-  edm::Handle<edm::PCaloHitContainer> theCaloHitContainer;
-  iEvent.getByToken(simHitSource_, theCaloHitContainer);
+  const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainer = iEvent.getHandle(simHitSource_);
   if (theCaloHitContainer.isValid()) {
     edm::LogVerbatim("HcalValidation") << theCaloHitContainer->size() << " SimHits in HCAL";
     unsigned int k(0);
@@ -93,8 +92,7 @@ void HcalDumpHits::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   }
 
   // Digis (HBHE/HF/HO)
-  edm::Handle<QIE11DigiCollection> hbheDigiCollection;
-  iEvent.getByToken(hbheDigiSource_, hbheDigiCollection);
+  const edm::Handle<QIE11DigiCollection>& hbheDigiCollection = iEvent.getHandle(hbheDigiSource_);
   if (hbheDigiCollection.isValid()) {
     edm::LogVerbatim("HcalValidation") << hbheDigiCollection->size() << " Digis for HB/HE";
     unsigned int k(0);
@@ -109,8 +107,7 @@ void HcalDumpHits::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
       ++k;
     }
   }
-  edm::Handle<QIE10DigiCollection> hfDigiCollection;
-  iEvent.getByToken(hfDigiSource_, hfDigiCollection);
+  const edm::Handle<QIE10DigiCollection>& hfDigiCollection = iEvent.getHandle(hfDigiSource_);
   if (hfDigiCollection.isValid()) {
     edm::LogVerbatim("HcalValidation") << hfDigiCollection->size() << " Digis for HF";
     unsigned int k(0);
@@ -125,8 +122,7 @@ void HcalDumpHits::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
       ++k;
     }
   }
-  edm::Handle<HODigiCollection> hoDigiCollection;
-  iEvent.getByToken(hoDigiSource_, hoDigiCollection);
+  const edm::Handle<HODigiCollection>& hoDigiCollection = iEvent.getHandle(hoDigiSource_);
   if (hoDigiCollection.isValid()) {
     edm::LogVerbatim("HcalValidation") << hoDigiCollection->size() << " Digis for HO";
     unsigned int k(0);
@@ -142,8 +138,7 @@ void HcalDumpHits::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   }
 
   // RecHits (HBHE/HF/HO)
-  edm::Handle<HBHERecHitCollection> hbhecoll;
-  iEvent.getByToken(hbheRecHitSource_, hbhecoll);
+  const edm::Handle<HBHERecHitCollection>& hbhecoll = iEvent.getHandle(hbheRecHitSource_);
   if (hbhecoll.isValid()) {
     edm::LogVerbatim("HcalValidation") << hbhecoll->size() << " RecHits for HB/HE";
     unsigned int k(0);
@@ -153,8 +148,7 @@ void HcalDumpHits::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
       ++k;
     }
   }
-  edm::Handle<HFRecHitCollection> hfcoll;
-  iEvent.getByToken(hfRecHitSource_, hfcoll);
+  const edm::Handle<HFRecHitCollection>& hfcoll = iEvent.getHandle(hfRecHitSource_);
   if (hfcoll.isValid()) {
     edm::LogVerbatim("HcalValidation") << hfcoll->size() << " RecHits for HF";
     unsigned int k(0);
@@ -164,8 +158,7 @@ void HcalDumpHits::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
       ++k;
     }
   }
-  edm::Handle<HORecHitCollection> hocoll;
-  iEvent.getByToken(hoRecHitSource_, hocoll);
+  const edm::Handle<HORecHitCollection>& hocoll = iEvent.getHandle(hoRecHitSource_);
   if (hocoll.isValid()) {
     edm::LogVerbatim("HcalValidation") << hocoll->size() << " RecHits for HO";
     unsigned int k(0);
