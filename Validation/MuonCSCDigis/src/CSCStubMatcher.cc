@@ -141,7 +141,7 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
     if (isME1a)
       ring = 1;
     CSCDetId ch_id2(ch_id.endcap(), ch_id.station(), ring, ch_id.chamber(), 0);
-    auto id2 = ch_id2.rawId();// CLCTs should be sorted into the det of the CLCTs.
+    auto id2 = ch_id2.rawId();  // CLCTs should be sorted into the det of the CLCTs.
 
     const auto& clcts_in_det = clcts.get(ch_id2);
 
@@ -196,7 +196,8 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
       }
     }
     if (chamber_to_clcts_[id2].size() > 2) {
-      edm::LogInfo("CSCStubMatcher") << "WARNING!!! too many CLCTs " << chamber_to_clcts_[id2].size() << " in " << ch_id2;
+      edm::LogInfo("CSCStubMatcher") << "WARNING!!! too many CLCTs " << chamber_to_clcts_[id2].size() << " in "
+                                     << ch_id2;
       for (auto& c : chamber_to_clcts_[id2])
         edm::LogInfo("CSCStubMatcher") << "  " << c;
     }
@@ -223,7 +224,7 @@ void CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts) {
     if (ring == 4)
       ring = 1;  //use ME1b id to get ALCTs
     CSCDetId ch_id2(ch_id.endcap(), ch_id.station(), ring, ch_id.chamber(), 0);
-    auto id2 = ch_id2.rawId(); // ALCTs should be sorted into the det of the ALCTs.
+    auto id2 = ch_id2.rawId();  // ALCTs should be sorted into the det of the ALCTs.
 
     const auto& alcts_in_det = alcts.get(ch_id2);
     for (auto a = alcts_in_det.first; a != alcts_in_det.second; ++a) {
@@ -255,7 +256,8 @@ void CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts) {
       }
     }
     if (chamber_to_alcts_[id2].size() > 2) {
-      edm::LogInfo("CSCStubMatcher") << "WARNING!!! too many ALCTs " << chamber_to_alcts_[id2].size() << " in " << ch_id;
+      edm::LogInfo("CSCStubMatcher") << "WARNING!!! too many ALCTs " << chamber_to_alcts_[id2].size() << " in "
+                                     << ch_id;
       for (auto& a : chamber_to_alcts_[id2])
         edm::LogInfo("CSCStubMatcher") << "  " << a;
     }
@@ -284,7 +286,7 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
     if (ring == 4)
       ring = 1;
     CSCDetId ch_id2(ch_id.endcap(), ch_id.station(), ring, ch_id.chamber(), 0);
-    auto id2 = ch_id2.rawId(); // LCTs should be sorted into the det of the LCTs.
+    auto id2 = ch_id2.rawId();  // LCTs should be sorted into the det of the LCTs.
 
     const auto& lcts_in_det = lcts.get(ch_id2);
 
@@ -648,9 +650,9 @@ GlobalPoint CSCStubMatcher::getGlobalPosition(unsigned int rawId, const CSCCorre
   float fractional_strip = lct.getFractionalStrip();
   // case ME1/1
   if (cscId.station() == 1 and (cscId.ring() == 4 || cscId.ring() == 1)) {
-    int ring = 1; // Default to ME1/b
+    int ring = 1;  // Default to ME1/b
     if (lct.getStrip() > CSCConstants::MAX_HALF_STRIP_ME1B) {
-      ring = 4; // Change to ME1/a if the HalfStrip Number exceeds the range of ME1/b
+      ring = 4;  // Change to ME1/a if the HalfStrip Number exceeds the range of ME1/b
       fractional_strip -= CSCConstants::NUM_STRIPS_ME1B;
     }
     CSCDetId cscId_(cscId.endcap(), cscId.station(), ring, cscId.chamber(), cscId.layer());
