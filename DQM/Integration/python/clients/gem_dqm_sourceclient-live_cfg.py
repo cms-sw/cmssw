@@ -27,15 +27,11 @@ process.dqmSaverPB.runNumber = options.runNumber
 
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
-process.load("EventFilter.GEMRawToDigi.muonGEMDigis_cfi")
-process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
-process.load('EventFilter.CSCRawToDigi.cscUnpacker_cfi')
-process.load('RecoLocalMuon.CSCRecHitD.cscRecHitD_cfi')
-process.load('RecoLocalMuon.CSCSegment.cscSegments_cfi')
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('RecoLocalMuon.GEMCSCSegment.gemcscSegments_cfi')
 process.load("DQM.GEM.GEMDQM_cff")
 process.load("DQM.GEM.gemEffByGEMCSCSegment_cff")
-
 
 process.muonCSCDigis.InputObjects = "rawDataCollector"
 if (process.runType.getRunType() == process.runType.hi_run):
