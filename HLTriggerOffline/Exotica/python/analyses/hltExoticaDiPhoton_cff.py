@@ -8,7 +8,7 @@ DiPhotonPSet = cms.PSet(
         "HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_NoPixelVeto_Mass55_v", # Claimed path for Run3
         "HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_NoPixelVeto_v", # Claimed path for Run3
         "HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v", # Claimed path for Run3
-        "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v" # Claimed path for Run3
+        #"HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v" # Claimed path for Run3 but not existent anymore in CMSSW_12_3_X
         ),
     recElecLabel  = cms.InputTag("gedGsfElectrons"),
     #recPhotonLabel  = cms.InputTag("gedPhotons"),
