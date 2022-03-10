@@ -122,17 +122,18 @@ void GenWeightValidation::dqmBeginRun(const edm::Run&, const edm::EventSetup&) {
 void GenWeightValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   weights_ = wmanager_.weightsCollection(iEvent);
 
-  if (weights_.at(idxGenEvtInfo_).empty())
-    return;  // no weights in GenEventInfo
+  unsigned weightsSize = weights_.at(idxGenEvtInfo_).size();
+  if (weightsSize < 2)
+    return;  // no baseline weight in GenEventInfo
 
   weight_ = weights_.at(idxGenEvtInfo_)[0] / std::abs(weights_.at(idxGenEvtInfo_)[0]);
   nEvt_->Fill(0.5, weight_);
-  nlogWgt_->Fill(std::log10(weights_.at(idxGenEvtInfo_).size()), weight_);
+  nlogWgt_->Fill(std::log10(weightsSize), weight_);
 
-  for (unsigned idx = 0; idx < weights_.at(idxGenEvtInfo_).size(); idx++)
+  for (unsigned idx = 0; idx < weightsSize; idx++)
     wgtVal_->Fill(weights_.at(idxGenEvtInfo_)[idx] / weights_.at(idxGenEvtInfo_)[1], weight_);
 
-  if ((int)weights_.at(idxGenEvtInfo_).size() <= idxMax_)
+  if ((int)weightsSize <= idxMax_)
     return;  // no PS weights in GenEventInfo
 
   edm::Handle<reco::GenParticleCollection> ptcls;
