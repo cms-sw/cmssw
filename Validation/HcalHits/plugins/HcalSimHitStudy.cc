@@ -27,7 +27,7 @@
 class HcalSimHitStudy : public DQMEDAnalyzer {
 public:
   HcalSimHitStudy(const edm::ParameterSet &ps);
-  ~HcalSimHitStudy() override;
+  ~HcalSimHitStudy() override = default;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
@@ -42,7 +42,6 @@ private:
   int maxDepthHB_, maxDepthHE_;
   int maxDepthHO_, maxDepthHF_;
   int maxDepth_;
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
 
   int iphi_bins;
   float iphi_min, iphi_max;
@@ -55,10 +54,10 @@ private:
   int ieta_bins_HF;
   float ieta_min_HF, ieta_max_HF;
 
-  std::string g4Label, hcalHits, outFile_;
-  bool verbose_, checkHit_, testNumber_, hep17_;
-
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
+  const std::string g4Label, hcalHits, outFile_;
+  const bool verbose_, checkHit_, testNumber_, hep17_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
 
   MonitorElement *meAllNHit_, *meBadDetHit_, *meBadSubHit_, *meBadIdHit_;
   MonitorElement *meHBNHit_, *meHENHit_, *meHONHit_, *meHFNHit_;
@@ -79,23 +78,19 @@ private:
   MonitorElement *meHEP17EneHit_, *meHEP17EneHit2_;
 };
 
-HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet &ps) {
-  g4Label = ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits");
-  hcalHits = ps.getUntrackedParameter<std::string>("HitCollection", "HcalHits");
-  outFile_ = ps.getUntrackedParameter<std::string>("outputFile", "hcHit.root");
-  verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
-  testNumber_ = ps.getParameter<bool>("TestNumber");
-  hep17_ = ps.getParameter<bool>("hep17");
-  checkHit_ = true;
-
-  tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hcalHits));
-  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-
-  edm::LogInfo("HcalSim") << "Module Label: " << g4Label << "   Hits: " << hcalHits << " / " << checkHit_
-                          << "   Output: " << outFile_;
+HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet &ps)
+    : g4Label(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
+      hcalHits(ps.getUntrackedParameter<std::string>("HitCollection", "HcalHits")),
+      outFile_(ps.getUntrackedParameter<std::string>("outputFile", "hcHit.root")),
+      verbose_(ps.getUntrackedParameter<bool>("Verbose", false)),
+      checkHit_(true),
+      testNumber_(ps.getParameter<bool>("TestNumber")),
+      hep17_(ps.getParameter<bool>("hep17")),
+      tok_hits_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hcalHits))),
+      tok_HRNDC_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()) {
+  edm::LogVerbatim("HcalSim") << "Module Label: " << g4Label << "   Hits: " << hcalHits << " / " << checkHit_
+                              << "   Output: " << outFile_;
 }
-
-HcalSimHitStudy::~HcalSimHitStudy() {}
 
 void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
   hcons_ = &es.getData(tok_HRNDC_);
@@ -263,23 +258,19 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
 void HcalSimHitStudy::analyze(const edm::Event &e, const edm::EventSetup &) {
   edm::LogVerbatim("HcalSim") << "Run = " << e.id().run() << " Event = " << e.id().event();
 
-  std::vector<PCaloHit> caloHits;
-  edm::Handle<edm::PCaloHitContainer> hitsHcal;
-
   bool getHits = false;
   if (checkHit_) {
-    e.getByToken(tok_hits_, hitsHcal);
-    if (hitsHcal.isValid())
+    const edm::Handle<edm::PCaloHitContainer> &hitsHcal = e.getHandle(tok_hits_);
+    if (hitsHcal.isValid()) {
       getHits = true;
+      std::vector<PCaloHit> caloHits;
+      caloHits.insert(caloHits.end(), hitsHcal->begin(), hitsHcal->end());
+      edm::LogVerbatim("HcalSim") << "HcalValidation: Hit buffer " << caloHits.size();
+      analyzeHits(caloHits);
+    }
   }
 
   edm::LogVerbatim("HcalSim") << "HcalValidation: Input flags Hits " << getHits;
-
-  if (getHits) {
-    caloHits.insert(caloHits.end(), hitsHcal->begin(), hitsHcal->end());
-    edm::LogVerbatim("HcalSim") << "HcalValidation: Hit buffer " << caloHits.size();
-    analyzeHits(caloHits);
-  }
 }
 
 void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {

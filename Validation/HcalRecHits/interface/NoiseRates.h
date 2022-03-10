@@ -41,25 +41,24 @@
 class NoiseRates : public DQMEDAnalyzer {
 public:
   explicit NoiseRates(const edm::ParameterSet &);
-  ~NoiseRates() override;
+  ~NoiseRates() override = default;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  std::string outputFile_;
+  const std::string outputFile_;
 
   // parameters
-  edm::InputTag rbxCollName_;  // label for the rbx collection
-  edm::EDGetTokenT<reco::HcalNoiseRBXCollection> tok_rbx_;
-  double minRBXEnergy_;  // RBX energy threshold
-  double minHitEnergy_;  // RecHit energy threshold
+  const edm::InputTag rbxCollName_;  // label for the rbx collection
+  const double minRBXEnergy_;        // RBX energy threshold
+  const double minHitEnergy_;        // RecHit energy threshold
+  const bool useAllHistos_;
 
-  bool useAllHistos_;
-
+  const edm::EDGetTokenT<reco::HcalNoiseRBXCollection> tok_rbx_;
   // Hcal Noise Summary Parameters
-  edm::EDGetTokenT<HcalNoiseSummary> noisetoken_;
+  const edm::EDGetTokenT<HcalNoiseSummary> noisetoken_;
 
   MonitorElement *hLumiBlockCount_;
   MonitorElement *hRBXEnergy_;
