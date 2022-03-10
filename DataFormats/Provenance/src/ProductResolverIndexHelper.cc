@@ -70,6 +70,32 @@ namespace edm {
       TypeID const wrappedTypeID = TypeID(wrappedType.typeInfo());
       return getContainedTypeFromWrapper(wrappedTypeID, className);
     }
+
+    bool typeIsViewCompatible(TypeID const& requestedViewType,
+                              TypeID const& wrappedtypeID,
+                              std::string const& className) {
+      auto elementType = getContainedTypeFromWrapper(wrappedtypeID, className);
+      if (elementType == TypeID(typeid(void)) or elementType == TypeID()) {
+        //the wrapped type is not a container
+        return false;
+      }
+      if (elementType == requestedViewType) {
+        return true;
+      }
+      //need to check for inheritance match
+      std::vector<std::string> missingDictionaries;
+      std::vector<TypeWithDict> baseTypes;
+      if (!public_base_classes(missingDictionaries, elementType, baseTypes)) {
+        return false;
+      }
+      for (auto const& base : baseTypes) {
+        if (TypeID(base.typeInfo()) == requestedViewType) {
+          return true;
+        }
+      }
+      return false;
+    }
+
   }  // namespace productholderindexhelper
 
   ProductResolverIndexHelper::ProductResolverIndexHelper()
