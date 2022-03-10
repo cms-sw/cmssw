@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
+#include "DataFormats/L1Trigger/interface/Vertex.h"
 #include "DataFormats/L1TCorrelator/interface/TkJet.h"
 #include "DataFormats/L1TCorrelator/interface/TkJetFwd.h"
 
@@ -18,7 +18,7 @@ namespace l1t {
     TkHTMiss(const LorentzVector& p4,
              double EtTotal,
              const edm::RefProd<TkJetCollection>& jetCollRef = edm::RefProd<TkJetCollection>(),
-             const edm::Ref<TkPrimaryVertexCollection>& aVtxRef = edm::Ref<TkPrimaryVertexCollection>(),
+             const edm::Ref<VertexCollection>& aVtxRef = edm::Ref<VertexCollection>(),
              int bx = 0);
 
     // ---------- const member functions ---------------------
@@ -32,7 +32,7 @@ namespace l1t {
     int bx() const { return bx_; }
     float vtx() const { return zvtx_; }
     const edm::RefProd<TkJetCollection>& jetCollectionRef() const { return jetCollectionRef_; }
-    const edm::Ref<TkPrimaryVertexCollection>& vtxRef() const { return vtxRef_; }
+    const edm::Ref<VertexCollection>& vtxRef() const { return vtxRef_; }
 
     // ---------- member functions ---------------------------
     void setEtTotal(double EtTotal) { etTot_ = EtTotal; }
@@ -49,7 +49,7 @@ namespace l1t {
     double etTotalPU_;  // HT from jets that don't come from zvtx
 
     edm::RefProd<TkJetCollection> jetCollectionRef_;
-    edm::Ref<TkPrimaryVertexCollection> vtxRef_;
+    edm::Ref<VertexCollection> vtxRef_;
 
     int bx_;
   };

@@ -20,7 +20,7 @@ L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
                                                        # are considered. (unused in default configuration)
     RelativeIsolation = cms.bool( True ),	# default = True. The isolation variable is relative if True,
 						# else absolute.
-    # Cut on the (Trk-based) isolation: only the L1TkEmParticle for which
+    # Cut on the (Trk-based) isolation: only the L1TkElectron for which
     # the isolation is below RelIsoCut are written into
     # the output collection. When RelIsoCut < 0, no cut is applied.
 		# When RelativeIsolation = False, IsoCut is in GeV.

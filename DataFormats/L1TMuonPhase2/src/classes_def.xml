@@ -1,0 +1,29 @@
+<lcgdict>
+ <selection>
+
+ <class name="l1t::MuonStub"/>
+ <class name="std::vector<l1t::MuonStub>"/>
+ <class name="l1t::MuonStubCollection"/>
+ <class name="edm::Wrapper<l1t::MuonStubCollection >"/>
+ <class name="edm::Wrapper<std::vector<l1t::MuonStub > >"/>
+ <class name="edm::Ref<l1t::MuonStubCollection>" splitLevel="0"/>
+ <class name="edm::Wrapper<edm::Ref<l1t::MuonStubCollection > >"/>
+
+
+ <class name="l1t::TrackerMuon"/>
+ <class name="std::vector<l1t::TrackerMuon>"/>
+ <class name="l1t::TrackerMuonCollection"/>
+ <class name="edm::Wrapper<l1t::TrackerMuonCollection >"/>
+ <class name="edm::Wrapper<std::vector<l1t::TrackerMuon > >"/>
+ <class name="edm::Ref<l1t::TrackerMuonCollection>" splitLevel="0"/>
+ <class name="edm::Wrapper<edm::Ref<l1t::TrackerMuonCollection > >"/>
+
+ <class name="l1t::SAMuon"/>
+ <class name="std::vector<l1t::SAMuon>"/>
+ <class name="l1t::SAMuonCollection"/>
+ <class name="edm::Wrapper<l1t::SAMuonCollection >"/>
+ <class name="edm::Wrapper<std::vector<l1t::SAMuon > >"/>
+ <class name="edm::Ref<l1t::SAMuonCollection>" splitLevel="0"/>
+ <class name="edm::Wrapper<edm::Ref<l1t::SAMuonCollection > >"/>
+ </selection>
+</lcgdict>
