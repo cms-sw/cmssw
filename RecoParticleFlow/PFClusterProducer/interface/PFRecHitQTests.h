@@ -95,9 +95,9 @@ public:
 
   PFRecHitQTestHCALChannel(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
       : PFRecHitQTestBase(iConfig, cc),
-        flagStr_(iConfig.getParameter<std::vector<std::string> >("flags")),
-        thresholds_(iConfig.getParameter<std::vector<int> >("maxSeverities")),
-        cleanThresholds_(iConfig.getParameter<std::vector<double> >("cleaningThresholds")),
+        flagStr_(iConfig.getParameter<std::vector<std::string>>("flags")),
+        thresholds_(iConfig.getParameter<std::vector<int>>("maxSeverities")),
+        cleanThresholds_(iConfig.getParameter<std::vector<double>>("cleaningThresholds")),
         topoToken_(cc.esConsumes()),
         qualityToken_(cc.esConsumes(edm::ESInputTag("", "withTopo"))),
         severityToken_(cc.esConsumes()) {
@@ -201,7 +201,7 @@ public:
   PFRecHitQTestHCALTimeVsDepth() {}
 
   PFRecHitQTestHCALTimeVsDepth(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitQTestBase(iConfig, cc), psets_(iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts")) {
+      : PFRecHitQTestBase(iConfig, cc), psets_(iConfig.getParameter<std::vector<edm::ParameterSet>>("cuts")) {
     for (auto& pset : psets_) {
       depths_.push_back(pset.getParameter<int>("depth"));
       minTimes_.push_back(pset.getParameter<double>("minTime"));
@@ -251,19 +251,19 @@ protected:
 };
 
 //
-//  Quality test that applies threshold  as a function of depth
+//  Quality test that applies threshold as a function of depth
 //
 class PFRecHitQTestHCALThresholdVsDepth : public PFRecHitQTestBase {
 public:
   PFRecHitQTestHCALThresholdVsDepth() {}
 
   PFRecHitQTestHCALThresholdVsDepth(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitQTestBase(iConfig, cc), psets_(iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts")) {
+      : PFRecHitQTestBase(iConfig, cc), psets_(iConfig.getParameter<std::vector<edm::ParameterSet>>("cuts")) {
     for (auto& pset : psets_) {
-      depths_ = pset.getParameter<std::vector<int> >("depth");
-      thresholds_ = pset.getParameter<std::vector<double> >("threshold");
-      detector_ = pset.getParameter<int>("detectorEnum");
-      if (thresholds_.size() != depths_.size()) {
+      depths_.push_back(pset.getParameter<std::vector<int>>("depth"));
+      thresholds_.push_back(pset.getParameter<std::vector<double>>("threshold"));
+      detector_.push_back(pset.getParameter<int>("detectorEnum"));
+      if (thresholds_[thresholds_.size() - 1].size() != depths_[depths_.size() - 1].size()) {
         throw cms::Exception("InvalidPFRecHitThreshold") << "PFRecHitThreshold mismatch with the numbers of depths";
       }
     }
@@ -289,20 +289,24 @@ public:
 
 protected:
   std::vector<edm::ParameterSet> psets_;
-  std::vector<int> depths_;
-  std::vector<double> thresholds_;
-  int detector_;
+  std::vector<std::vector<int>> depths_;
+  std::vector<std::vector<double>> thresholds_;
+  std::vector<int> detector_;
 
   bool test(unsigned aDETID, double energy, double time, bool& clean) {
     HcalDetId detid(aDETID);
 
-    for (unsigned int i = 0; i < thresholds_.size(); ++i) {
-      if (detid.depth() == depths_[i] && detid.subdet() == detector_) {
-        if (energy < thresholds_[i]) {
-          clean = false;
-          return false;
+    for (unsigned int d = 0; d < detector_.size(); ++d) {
+      if (detid.subdet() != detector_[d])
+        continue;
+      for (unsigned int i = 0; i < thresholds_[d].size(); ++i) {
+        if (detid.depth() == depths_[d][i]) {
+          if (energy < thresholds_[d][i]) {
+            clean = false;
+            return false;
+          }
+          break;
         }
-        break;
       }
     }
     return true;
@@ -361,7 +365,7 @@ public:
 
   PFRecHitQTestECALMultiThreshold(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
       : PFRecHitQTestBase(iConfig, cc),
-        thresholds_(iConfig.getParameter<std::vector<double> >("thresholds")),
+        thresholds_(iConfig.getParameter<std::vector<double>>("thresholds")),
         applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals")),
         geomToken_(cc.esConsumes()) {
     if (thresholds_.size() != EcalRingCalibrationTools::N_RING_TOTAL)
