@@ -82,7 +82,7 @@ void GEMEffByGEMCSCSegmentSource::bookEfficiencyChamber(DQMStore::IBooker& ibook
       }  // layer
 
     } else {
-      LogDebug(kLogCategory_) << "skip " << GEMUtils::getSuffixTitle(region_id, station_id);
+      LogDebug(kLogCategory_) << "skip " << station->getName();
       continue;
     }
   }  // station
@@ -110,18 +110,33 @@ void GEMEffByGEMCSCSegmentSource::bookMisc(DQMStore::IBooker& ibooker, const edm
         const TString title_suffix = GEMUtils::getSuffixTitle(region_id, station_id, layer_id);
         const GEMDetId key = getReStLaKey(chamber->id());
 
-        // ME11-GE11 segments
-        me_csc_chamber_type_[key] = ibooker.book1D("me11_type" + name_suffix, title_suffix, 10, 0.5, 10.5);
+        // num_csc_hits
+        me_num_csc_hits_[key] = ibooker.book1D("num_csc_hits" + name_suffix, title_suffix, 4, 2.5, 6.5);
+        me_num_csc_hits_[key]->setAxisTitle("Number of CSCRecHits", 1);
+
+        me_num_csc_hits_matched_[key] = bookNumerator1D(ibooker, me_num_csc_hits_[key]);
+
+        // reduced_chi2
+        me_reduced_chi2_[key] = ibooker.book1D("reduced_chi2" + name_suffix, title_suffix, 30, 0, 3);
+        me_reduced_chi2_[key]->setAxisTitle("#chi^{2} / dof", 1);
+
+        me_reduced_chi2_matched_[key] = bookNumerator1D(ibooker, me_reduced_chi2_[key]);
+
+        // CSC chamber type
+        // https://github.com/cms-sw/cmssw/blob/CMSSW_12_3_0_pre5/DataFormats/MuonDetId/interface/CSCDetId.h#L187-L193
+        me_csc_chamber_type_[key] = ibooker.book1D("csc_chamber_type" + name_suffix, title_suffix, 10, 0.5, 10.5);
+        me_csc_chamber_type_[key]->setAxisTitle("CSC chamber type", 1);
         for (int chamber_type = 1; chamber_type <= 10; chamber_type++) {
           const std::string label = CSCDetId::chamberName(chamber_type);
           me_csc_chamber_type_[key]->setBinLabel(chamber_type, label, 1);
         }
+
         me_csc_chamber_type_matched_[key] = bookNumerator1D(ibooker, me_csc_chamber_type_[key]);
 
       }  // layer
 
     } else {
-      LogDebug(kLogCategory_) << "skip " << GEMUtils::getSuffixTitle(region_id, station_id);
+      LogDebug(kLogCategory_) << "skip " << station->getName();
       continue;
     }
   }  // region-station
@@ -177,13 +192,6 @@ void GEMEffByGEMCSCSegmentSource::analyze(const edm::Event& event, const edm::Ev
        iter++) {
     const GEMCSCSegment& gemcsc_segment = *iter;
 
-    if (gemcsc_segment.cscRecHits().size() < kMinCSCRecHits_) {
-      LogDebug(kLogCategory_) << "failed to pass minCSCRecHits cut"
-                              << " gemcsc_segment.cscRecHits().size() == " << gemcsc_segment.cscRecHits().size()
-                              << " (minCSCRecHits == " << kMinCSCRecHits_ << ")";
-      continue;
-    }
-
     const CSCDetId csc_id = gemcsc_segment.cscDetId();
     if (csc_id.isME11()) {
       analyzeME11GE11Segment(gemcsc_segment);
@@ -237,26 +245,43 @@ void GEMEffByGEMCSCSegmentSource::checkCoincidenceGE11(const GEMRecHit* trigger_
 
   const GEMDetId trigger_layer_id = trigger_layer_hit->gemId();
   const int detection_layer = trigger_layer_id.layer() == 1 ? 2 : 1;
+  // detection layer key
   // GEMDetId(int region, int ring, int station, int layer, int chamber, int ieta)
-  const GEMDetId detection_layer_key{trigger_layer_id.region(), 1, trigger_layer_id.station(), detection_layer, 0, 0};
+  const GEMDetId key{trigger_layer_id.region(), 1, trigger_layer_id.station(), detection_layer, 0, 0};
 
   const int chamber = trigger_layer_id.chamber();
   const bool is_matched = kUseMuon_ ? isME11SegmentMatched(gemcsc_segment.cscSegment()) : false;
+
+  const int num_csc_hits = gemcsc_segment.cscRecHits().size();
+  // TODO fillMEWithinLimits
+  const double reduced_chi2 = std::min(gemcsc_segment.chi2() / gemcsc_segment.degreesOfFreedom(), 2.9999);
   const int csc_chamber_type = gemcsc_segment.cscDetId().iChamberType();
 
-  // twofold coincidence rate
-  fillME(me_chamber_, detection_layer_key, chamber);
-  fillME(me_csc_chamber_type_, detection_layer_key, csc_chamber_type);
-  if (is_matched) {
-    fillME(me_muon_chamber_, detection_layer_key, chamber);
+  // TODO add a method
+  const bool is_good = gemcsc_segment.cscRecHits().size() >= kMinCSCRecHits_;
+
+  fillME(me_num_csc_hits_, key, num_csc_hits);
+  fillME(me_reduced_chi2_, key, reduced_chi2);
+  fillME(me_csc_chamber_type_, key, csc_chamber_type);
+  if (detection_layer_hit) {
+    fillME(me_num_csc_hits_matched_, key, num_csc_hits);
+    fillME(me_reduced_chi2_matched_, key, reduced_chi2);
+    fillME(me_csc_chamber_type_matched_, key, csc_chamber_type);
   }
 
-  // threefold coincidence rate
-  if (detection_layer_hit) {
-    fillME(me_chamber_matched_, detection_layer_key, chamber);
-    fillME(me_csc_chamber_type_matched_, detection_layer_key, csc_chamber_type);
+  if (is_good) {
+    // twofold coincidence rate
+    fillME(me_chamber_, key, chamber);
     if (is_matched) {
-      fillME(me_muon_chamber_matched_, detection_layer_key, chamber);
+      fillME(me_muon_chamber_, key, chamber);
+    }
+
+    // threefold coincidence rate
+    if (detection_layer_hit) {
+      fillME(me_chamber_matched_, key, chamber);
+      if (is_matched) {
+        fillME(me_muon_chamber_matched_, key, chamber);
+      }
     }
   }
 }
