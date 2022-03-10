@@ -76,7 +76,7 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   // L1 primary vertex
   edm::Handle<VertexCollection> L1VertexHandle;
   iEvent.getByToken(pvToken_, L1VertexHandle);
-  std::vector<Vertex>::const_iterator vtxIter;
+  //std::vector<Vertex>::const_iterator vtxIter;
 
   // L1 track-trigger jets
   edm::Handle<TkJetCollection> L1TkJetsHandle;
