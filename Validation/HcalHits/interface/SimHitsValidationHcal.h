@@ -29,7 +29,7 @@
 class SimHitsValidationHcal : public DQMEDAnalyzer {
 public:
   SimHitsValidationHcal(const edm::ParameterSet &ps);
-  ~SimHitsValidationHcal() override;
+  ~SimHitsValidationHcal() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
@@ -78,12 +78,12 @@ private:
   std::pair<int, int> histId(int subdet, int eta, int depth, unsigned int dep);
 
   bool initialized;
-  std::string g4Label_, hcalHits_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
+  const std::string g4Label_, hcalHits_;
+  const bool verbose_, testNumber_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
   const HcalDDDRecConstants *hcons;
   std::vector<idType> types;
-  bool verbose_, testNumber_;
   int maxDepthHB_, maxDepthHE_;
   int maxDepthHO_, maxDepthHF_;
 

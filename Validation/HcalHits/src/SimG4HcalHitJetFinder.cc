@@ -12,7 +12,7 @@
 
 SimG4HcalHitJetFinder::SimG4HcalHitJetFinder(double cone) : jetcone(cone) {}
 
-SimG4HcalHitJetFinder::~SimG4HcalHitJetFinder() { edm::LogInfo("ValidHcal") << "SimG4HcalHitJetFinder:: Deleting"; }
+SimG4HcalHitJetFinder::~SimG4HcalHitJetFinder() { edm::LogVerbatim("ValidHcal") << "SimG4HcalHitJetFinder:: Deleting"; }
 
 void SimG4HcalHitJetFinder::setCone(double cone) { jetcone = cone; }
 
