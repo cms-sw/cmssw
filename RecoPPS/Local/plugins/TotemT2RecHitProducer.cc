@@ -30,6 +30,7 @@
 #include "Geometry/Records/interface/TotemGeometryRcd.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
+#include "CondFormats/DataRecord/interface/PPSTimingCalibrationLUTRcd.h"
 
 class TotemT2RecHitProducer : public edm::stream::EDProducer<> {
 public:
@@ -42,6 +43,7 @@ private:
 
   edm::EDGetTokenT<edm::DetSetVector<TotemT2Digi> > digiToken_;
   edm::ESGetToken<PPSTimingCalibration, PPSTimingCalibrationRcd> timingCalibrationToken_;
+  edm::ESGetToken<PPSTimingCalibrationLUT, PPSTimingCalibrationLUTRcd> timingCalibrationLUTToken_;
   edm::ESGetToken<TotemGeometry, TotemGeometryRcd> geometryToken_;
   /// A watcher to detect timing calibration changes.
   edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
@@ -71,7 +73,8 @@ void TotemT2RecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   if (!digis->empty()) {
     if (applyCalib_ && calibWatcher_.check(iSetup)) {
       edm::ESHandle<PPSTimingCalibration> hTimingCalib = iSetup.getHandle(timingCalibrationToken_);
-      algo_.setCalibration(*hTimingCalib);
+      edm::ESHandle<PPSTimingCalibrationLUT> hTimingCalibLUT = iSetup.getHandle(timingCalibrationLUTToken_);
+      algo_.setCalibration(*hTimingCalib, *hTimingCalibLUT);
     }
     // get the geometry
     edm::ESHandle<TotemGeometry> geometry = iSetup.getHandle(geometryToken_);
