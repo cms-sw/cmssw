@@ -8,13 +8,10 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-HcalSimHitsClient::HcalSimHitsClient(const edm::ParameterSet &iConfig) {
-  dirName_ = iConfig.getParameter<std::string>("DQMDirName");
-  verbose_ = iConfig.getUntrackedParameter<bool>("Verbosity", false);
-  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-}
-
-HcalSimHitsClient::~HcalSimHitsClient() {}
+HcalSimHitsClient::HcalSimHitsClient(const edm::ParameterSet &iConfig)
+    : dirName_(iConfig.getParameter<std::string>("DQMDirName")),
+      verbose_(iConfig.getUntrackedParameter<bool>("Verbosity", false)),
+      tok_HRNDC_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()) {}
 
 void HcalSimHitsClient::beginRun(edm::Run const &run, edm::EventSetup const &c) {
   const auto &pHRNDC = c.getData(tok_HRNDC_);
@@ -24,8 +21,8 @@ void HcalSimHitsClient::beginRun(edm::Run const &run, edm::EventSetup const &c) 
   maxDepthHF_ = hcons->getMaxDepth(2);
   maxDepthHO_ = hcons->getMaxDepth(3);
 
-  edm::LogInfo("HitsValidationHcal") << " Maximum Depths HB:" << maxDepthHB_ << " HE:" << maxDepthHE_
-                                     << " HO:" << maxDepthHO_ << " HF:" << maxDepthHF_;
+  edm::LogVerbatim("HitsValidationHcal") << " Maximum Depths HB:" << maxDepthHB_ << " HE:" << maxDepthHE_
+                                         << " HO:" << maxDepthHO_ << " HF:" << maxDepthHF_;
 }
 
 void HcalSimHitsClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) { runClient_(ib, ig); }
@@ -34,25 +31,25 @@ void HcalSimHitsClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
   ig.setCurrentFolder(dirName_);
 
   if (verbose_)
-    edm::LogInfo("HitsValidationHcal") << "runClient";
+    edm::LogVerbatim("HitsValidationHcal") << "runClient";
 
   std::vector<MonitorElement *> hcalMEs;
 
   std::vector<std::string> fullPathHLTFolders = ig.getSubdirs();
   for (unsigned int i = 0; i < fullPathHLTFolders.size(); i++) {
     if (verbose_)
-      edm::LogInfo("HitsValidationHcal") << "fullPath: " << fullPathHLTFolders[i];
+      edm::LogVerbatim("HitsValidationHcal") << "fullPath: " << fullPathHLTFolders[i];
     ig.setCurrentFolder(fullPathHLTFolders[i]);
 
     std::vector<std::string> fullSubPathHLTFolders = ig.getSubdirs();
     for (unsigned int j = 0; j < fullSubPathHLTFolders.size(); j++) {
       if (verbose_)
-        edm::LogInfo("HitsValidationHcal") << "fullSub: " << fullSubPathHLTFolders[j];
+        edm::LogVerbatim("HitsValidationHcal") << "fullSub: " << fullSubPathHLTFolders[j];
 
       if (strcmp(fullSubPathHLTFolders[j].c_str(), "HcalHitsV/SimHitsValidationHcal") == 0) {
         hcalMEs = ig.getContents(fullSubPathHLTFolders[j]);
         if (verbose_)
-          edm::LogInfo("HitsValidationHcal") << "hltMES size : " << hcalMEs.size();
+          edm::LogVerbatim("HitsValidationHcal") << "hltMES size : " << hcalMEs.size();
         if (!SimHitsEndjob(hcalMEs))
           edm::LogWarning("HitsValidationHcal") << "Error in SimhitEndjob!";
       }
@@ -117,7 +114,7 @@ int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement *> &hcalME
 
   double nevent = Energy[0]->getEntries();
   if (verbose_)
-    edm::LogInfo("HitsValidationHcal") << "nevent : " << nevent;
+    edm::LogVerbatim("HitsValidationHcal") << "nevent : " << nevent;
 
   float cont[nTime][divisions.size()];
   float en[nType1], tme[nType1];
@@ -169,13 +166,13 @@ int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement *> &hcalME
 std::vector<std::string> HcalSimHitsClient::getHistogramTypes() {
   int maxDepth = std::max(maxDepthHB_, maxDepthHE_);
   if (verbose_)
-    edm::LogInfo("HitsValidationHcal") << "Max depth 1st step:: " << maxDepth;
+    edm::LogVerbatim("HitsValidationHcal") << "Max depth 1st step:: " << maxDepth;
   maxDepth = std::max(maxDepth, maxDepthHF_);
   if (verbose_)
-    edm::LogInfo("HitsValidationHcal") << "Max depth 2nd step:: " << maxDepth;
+    edm::LogVerbatim("HitsValidationHcal") << "Max depth 2nd step:: " << maxDepth;
   maxDepth = std::max(maxDepth, maxDepthHO_);
   if (verbose_)
-    edm::LogInfo("HitsValidationHcal") << "Max depth 3rd step:: " << maxDepth;
+    edm::LogVerbatim("HitsValidationHcal") << "Max depth 3rd step:: " << maxDepth;
   std::vector<std::string> divisions;
   char name1[20];
 
