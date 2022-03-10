@@ -473,8 +473,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                   double dbetaK = c_cm_ns * (tMtd[trackref] - treco - tofK[trackref]) / pathLength[trackref];
                   double dbetaP = c_cm_ns * (tMtd[trackref] - treco - tofP[trackref]) / pathLength[trackref];
 
-                  bool noPID =
-                      probPi[trackref] == -1 || (probPi[trackref] == 1 && probK[trackref] == 0 && probP[trackref] == 0);
+                  bool noPID = probPi[trackref] == -1 || isnan(probPi[trackref]) ||
+                               (probPi[trackref] == 1 && probK[trackref] == 0 && probP[trackref] == 0);
                   bool isPi = !noPID && 1. - probPi[trackref] < minProbHeavy_;
                   bool isK = !noPID && !isPi && probK[trackref] > probP[trackref];
                   bool isP = !noPID && !isPi && !isK;
@@ -486,7 +486,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                         << "No match between mass hyp. and time: " << std::abs(genP->pdg_id()) << " mass hyp pi/k/p "
                         << isPi << " " << isK << " " << isP << " t0/t0safe " << t0Pid[trackref] << " "
                         << t0Safe[trackref] << " tMtd - tof pi/K/p " << tMtd[trackref] - tofPi[trackref] << " "
-                        << tMtd[trackref] - tofK[trackref] << " " << tMtd[trackref] - tofP[trackref];
+                        << tMtd[trackref] - tofK[trackref] << " " << tMtd[trackref] - tofP[trackref] << " Prob pi/K/p "
+                        << probPi[trackref] << " " << probK[trackref] << " " << probP[trackref];
+                    ;
                   }
 
                   if (std::abs(trackGen.eta()) < trackMaxBtlEta_) {
