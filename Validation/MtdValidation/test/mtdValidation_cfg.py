@@ -14,6 +14,12 @@ process.load("Configuration.Geometry.GeometryExtended2026D77Reco_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
+#Setup FWK for multithreaded
+process.options.numberOfThreads = 4
+process.options.numberOfStreams = 0
+process.options.numberOfConcurrentLuminosityBlocks = 0
+process.options.eventSetup.numberOfConcurrentIOVs = 1
+
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(100),
 )
@@ -41,14 +47,15 @@ etlValidation = cms.Sequence(process.etlSimHitsValid + process.etlDigiHitsValid 
 
 # --- Global Validation
 process.load("Validation.MtdValidation.mtdTracksValid_cfi")
-
-process.btlDigiHits.LocalPositionDebug = True
-process.etlDigiHits.LocalPositionDebug = True
-process.btlLocalReco.LocalPositionDebug = True
-process.etlLocalReco.LocalPositionDebug = True
-process.mtdTracksValid.testPID = True
-
 process.load("Validation.MtdValidation.vertices4DValid_cfi")
+
+process.btlDigiHitsValid.LocalPositionDebug = True
+process.etlDigiHitsValid.LocalPositionDebug = True
+process.btlLocalRecoValid.LocalPositionDebug = True
+process.etlLocalRecoValid.LocalPositionDebug = True
+process.mtdTracksValid.pidPlots = True
+process.vertices4Dvalid.pidPlots = True
+process.vertices4Dvalid.optionalPlots = True
 
 process.validation = cms.Sequence(btlValidation + etlValidation + process.mtdTracksValid + process.vertices4DValid)
 
