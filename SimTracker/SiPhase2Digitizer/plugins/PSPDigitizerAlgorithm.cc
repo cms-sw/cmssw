@@ -24,7 +24,9 @@ PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf, edm:
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),
                                       conf.getParameter<ParameterSet>("PSPDigitizerAlgorithm"),
                                       iC),
-      geomToken_(iC.esConsumes()) {
+      geomToken_(iC.esConsumes()),
+      addBiasRailInefficiency_(
+          conf.getParameter<ParameterSet>("PSPDigitizerAlgorithm").getParameter<bool>("AddBiasRailInefficiency")) {
   if (use_LorentzAngle_DB_)
     siPhase2OTLorentzAngleToken_ = iC.esConsumes();
   pixelFlag_ = false;
@@ -34,13 +36,16 @@ PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf, edm:
                                     << "threshold in electron Endcap = " << theThresholdInE_Endcap_
                                     << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
                                     << theElectronPerADC_ << " " << theAdcFullScale_ << " The delta cut-off is set to "
-                                    << tMax_ << " pix-inefficiency " << addPixelInefficiency_;
+                                    << tMax_ << " pix-inefficiency " << addPixelInefficiency_
+                                    << "Bias Rail Inefficiency " << addBiasRailInefficiency_;
 }
 PSPDigitizerAlgorithm::~PSPDigitizerAlgorithm() { LogDebug("PSPDigitizerAlgorithm") << "Algorithm deleted"; }
 //
 // -- Select the Hit for Digitization (sigScale will be implemented in future)
 //
 bool PSPDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, double& sigScale) const {
+  if (addBiasRailInefficiency_ && isInBiasRailRegion(hit))
+    return false;
   double toa = hit.tof() - tCorr;
   return (toa > theTofLowerCut_ && toa < theTofUpperCut_);
 }
@@ -51,4 +56,20 @@ bool PSPDigitizerAlgorithm::isAboveThreshold(const DigitizerUtility::SimHitInfo*
                                              float charge,
                                              float thr) const {
   return (charge >= thr);
+}
+//
+//  Check whether the Hit is in the Inefficient Bias Rail Region
+//
+bool PSPDigitizerAlgorithm::isInBiasRailRegion(const PSimHit& hit) const {
+  constexpr float implant = 0.1467;  // Implant length (1.467 mm)
+  constexpr float bRail = 0.00375;   // Bias Rail region which causes inefficiency (37.5micron)
+  // Do coordinate transformation of the local Y from module middle point considering 32 implants and 31 inter-impant regions with bias rail
+  constexpr float block_len = 16 * implant + 15.5 * bRail;
+  constexpr float block_unit = implant + bRail;
+  float yin = hit.entryPoint().y() + block_len;
+  float yout = hit.exitPoint().y() + block_len;
+  if (std::fmod(yin, block_unit) > implant || std::fmod(yout, block_unit) > implant)
+    return true;
+  else
+    return false;
 }
