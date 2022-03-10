@@ -21,8 +21,8 @@ global_phi_t L1TkEtMissEmuTrackTransform::localToGlobalPhi(TTTrack_TrackWord::ph
     tempPhi = tempPhi + PhiMax;
   } else if (tempPhi > PhiMax) {
     tempPhi = tempPhi - PhiMax;
-  } else
-    tempPhi = tempPhi;
+  }  // else
+  //  tempPhi = tempPhi;
 
   global_phi_t globalPhi = global_phi_t(tempPhi);
 

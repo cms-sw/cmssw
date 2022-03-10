@@ -119,13 +119,13 @@ namespace l1tmhtemu {
     if (x >= 0 && y >= 0) {
       phi = 0;
       sign = true;
-      x = x;
-      y = y;
+      //x = x;
+      //y = y;
     } else if (x < 0 && y >= 0) {
       phi = kMHTPhiBins >> 1;
       sign = false;
       x = -x;
-      y = y;
+      //y = y;
     } else if (x < 0 && y < 0) {
       phi = kMHTPhiBins >> 1;
       sign = true;
@@ -134,7 +134,7 @@ namespace l1tmhtemu {
     } else {
       phi = kMHTPhiBins;
       sign = false;
-      x = x;
+      //x = x;
       y = -y;
     }
 
