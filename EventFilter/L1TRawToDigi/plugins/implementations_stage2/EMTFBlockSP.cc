@@ -317,9 +317,11 @@ namespace l1t {
         // Track_.set_GMT(mu_);
 
         // Set Regional Muon Showers
-        muShower_.setTFIdentifiers(Track_.Sector() - 1, (Track_.Endcap() == 1) ? emtf_pos : emtf_neg);
-        muShower_.setOneNominalInTime(SP_.HMT() == nominalShower_ ? true : false);
-        muShower_.setOneTightInTime(SP_.HMT() == tightShower_ ? true : false);
+        if (useHMTBits_){
+          muShower_.setTFIdentifiers(Track_.Sector() - 1, (Track_.Endcap() == 1) ? emtf_pos : emtf_neg);
+          muShower_.setOneNominalInTime(SP_.HMT() == nominalShower_ ? true : false);
+          muShower_.setOneTightInTime(SP_.HMT() == tightShower_ ? true : false);
+        }
 
         ///////////////////////
         // Match hits to tracks
