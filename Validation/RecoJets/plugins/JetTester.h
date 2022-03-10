@@ -29,7 +29,6 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
