@@ -65,7 +65,7 @@ namespace edm {
 
         result_type operator()(first_argument_type iContainer, second_argument_type iBarCode) {
           //return iContainer.getHepMCData().barcode_to_particle(iBarCode);
-          return 0;
+          return nullptr;
         }
       };
 
@@ -81,7 +81,7 @@ namespace edm {
 
         result_type operator()(first_argument_type iContainer, second_argument_type iBarCode) {
           //return iContainer.getHepMCData().barcode_to_vertex(iBarCode);
-          return 0;
+          return nullptr;
         }
       };
 
