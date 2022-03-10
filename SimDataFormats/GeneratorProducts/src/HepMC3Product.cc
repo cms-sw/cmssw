@@ -64,7 +64,7 @@ void HepMC3Product::boostToLab(TMatrixD const* lorentz, std::string const& type)
       return;
     }
 
-    for (const HepMC3::GenVertexPtr vt: evt_->vertices() ) {
+    for (const HepMC3::GenVertexPtr& vt: evt_->vertices()) {
       // change basis to lorentz boost definition: (t,x,z,y)
       TMatrixD p4(4, 1);
       p4(0, 0) = vt->position().t();
@@ -85,7 +85,7 @@ void HepMC3Product::boostToLab(TMatrixD const* lorentz, std::string const& type)
       return;
     }
 
-    for (const HepMC3::GenParticlePtr part: evt_->particles() ) {
+    for (const HepMC3::GenParticlePtr& part: evt_->particles()) {
       // change basis to lorentz boost definition: (E,Px,Pz,Py)
       TMatrixD p4(4, 1);
       p4(0, 0) = part->momentum().e();

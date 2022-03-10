@@ -17,17 +17,17 @@ GenEventInfoProduct3::GenEventInfoProduct3()
     : signalProcessID_(0), qScale_(-1.), alphaQCD_(-1.), alphaQED_(-1.), nMEPartons_(-1), nMEPartonsFiltered_(-1) {}
 
 GenEventInfoProduct3::GenEventInfoProduct3(const HepMC3::GenEvent *evt)
-: weights_(evt->weights().begin(), evt->weights().end()), nMEPartons_(-1), nMEPartonsFiltered_(-1) {
+    : weights_(evt->weights().begin(), evt->weights().end()), nMEPartons_(-1), nMEPartonsFiltered_(-1) {
   std::shared_ptr<HepMC3::IntAttribute> A_signal_process_id = evt->attribute<HepMC3::IntAttribute>("signal_process_id");
   std::shared_ptr<HepMC3::DoubleAttribute> A_event_scale = evt->attribute<HepMC3::DoubleAttribute>("event_scale");
   std::shared_ptr<HepMC3::DoubleAttribute> A_alphaQCD = evt->attribute<HepMC3::DoubleAttribute>("alphaQCD");
   std::shared_ptr<HepMC3::DoubleAttribute> A_alphaQED = evt->attribute<HepMC3::DoubleAttribute>("alphaQED");
   //std::shared_ptr<HepMC3::IntAttribute> A_mpi = evt->attribute<HepMC3::IntAttribute>("mpi");
 
-  signalProcessID_ = A_signal_process_id?(A_signal_process_id->value()) : 0;
-  qScale_ = A_event_scale?(A_event_scale->value()) : 0.0;
-  alphaQCD_ = A_alphaQCD?(A_alphaQCD->value()) : 0.0;
-  alphaQED_ = A_alphaQED?(A_alphaQED->value()) : 0.0;
+  signalProcessID_ = A_signal_process_id ? (A_signal_process_id->value()) : 0;
+  qScale_ = A_event_scale ? (A_event_scale->value()) : 0.0;
+  alphaQCD_ = A_alphaQCD ? (A_alphaQCD->value()) : 0.0;
+  alphaQED_ = A_alphaQED ? (A_alphaQED->value()) : 0.0;
 
   std::shared_ptr<HepMC3::GenPdfInfo> A_pdf = evt->attribute<HepMC3::GenPdfInfo>("GenPdfInfo");
   if (A_pdf) {
