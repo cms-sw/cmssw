@@ -217,10 +217,10 @@ private:
   static constexpr double maxRank_ = 8.;
   static constexpr double maxTry_ = 10.;
   static constexpr double zWosMatchMax_ = 1.;
-  static constexpr double etacutGEN_ = 4.;  // |eta| < 4;
-  static constexpr double etacutREC_ = 3.;  // |eta| < 3;
-  static constexpr double pTcutBTL_ = 0.7;      // PT > 0.7 GeV
-  static constexpr double pTcutETL_ = 0.1;      // PT > 0.1 GeV
+  static constexpr double etacutGEN_ = 4.;   // |eta| < 4;
+  static constexpr double etacutREC_ = 3.;   // |eta| < 3;
+  static constexpr double pTcutBTL_ = 0.7;   // PT > 0.7 GeV
+  static constexpr double pTcutETL_ = 0.1;   // PT > 0.1 GeV
   static constexpr double deltaZcut_ = 0.1;  // dz separation 1 mm
   static constexpr double trackMaxBtlEta_ = 1.5;
   static constexpr double trackMinEtlEta_ = 1.6;
@@ -1347,8 +1347,8 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               double dbetaK = c_cm_ns * (tMtd[*iTrack] - treco - tofK[*iTrack]) / pathLength[*iTrack];
               double dbetaP = c_cm_ns * (tMtd[*iTrack] - treco - tofP[*iTrack]) / pathLength[*iTrack];
 
-              bool noPID =
-                  probPi[*iTrack] == -1 || (probPi[*iTrack] == 1 && probK[*iTrack] == 0 && probP[*iTrack] == 0);
+              bool noPID = probPi[*iTrack] == -1 || isnan(probPi[*iTrack]) ||
+                           (probPi[*iTrack] == 1 && probK[*iTrack] == 0 && probP[*iTrack] == 0);
               bool isPi = !noPID && 1. - probPi[*iTrack] < minProbHeavy_;
               bool isK = !noPID && !isPi && probK[*iTrack] > probP[*iTrack];
               bool isP = !noPID && !isPi && !isK;
@@ -1356,11 +1356,12 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               if ((isPi && std::abs(tMtd[*iTrack] - tofPi[*iTrack] - t0Pid[*iTrack]) > tol_) ||
                   (isK && std::abs(tMtd[*iTrack] - tofK[*iTrack] - t0Pid[*iTrack]) > tol_) ||
                   (isP && std::abs(tMtd[*iTrack] - tofP[*iTrack] - t0Pid[*iTrack]) > tol_)) {
-                edm::LogWarning("MtdTracksValidation")
+                edm::LogWarning("Primary4DVertexValidation")
                     << "No match between mass hyp. and time: " << std::abs((*tp_info)->pdgId()) << " mass hyp pi/k/p "
                     << isPi << " " << isK << " " << isP << " t0/t0safe " << t0Pid[*iTrack] << " " << t0Safe[*iTrack]
                     << " tMtd - tof pi/K/p " << tMtd[*iTrack] - tofPi[*iTrack] << " " << tMtd[*iTrack] - tofK[*iTrack]
-                    << " " << tMtd[*iTrack] - tofP[*iTrack];
+                    << " " << tMtd[*iTrack] - tofP[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " "
+                    << probK[*iTrack] << " " << probP[*iTrack];
               }
 
               if (std::abs((*iTrack)->eta()) < trackMaxBtlEta_) {
@@ -1376,7 +1377,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                   } else if (isP) {
                     meBarrelTruePiAsP_->Fill((*iTrack)->p());
                   } else {
-                    edm::LogWarning("MtdTracksValidation")
+                    edm::LogWarning("Primary4DVertexValidation")
                         << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
                         << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
                         << probP[*iTrack];
@@ -1392,7 +1393,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                   } else if (isP) {
                     meBarrelTrueKAsP_->Fill((*iTrack)->p());
                   } else {
-                    edm::LogWarning("MtdTracksValidation")
+                    edm::LogWarning("Primary4DVertexValidation")
                         << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
                         << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
                         << probP[*iTrack];
@@ -1408,7 +1409,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                   } else if (isP) {
                     meBarrelTruePAsP_->Fill((*iTrack)->p());
                   } else {
-                    edm::LogWarning("MtdTracksValidation")
+                    edm::LogWarning("Primary4DVertexValidation")
                         << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
                         << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
                         << probP[*iTrack];
@@ -1427,7 +1428,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                   } else if (isP) {
                     meEndcapTruePiAsP_->Fill((*iTrack)->p());
                   } else {
-                    edm::LogWarning("MtdTracksValidation")
+                    edm::LogWarning("Primary4DVertexValidation")
                         << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
                         << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
                         << probP[*iTrack];
@@ -1443,7 +1444,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                   } else if (isP) {
                     meEndcapTrueKAsP_->Fill((*iTrack)->p());
                   } else {
-                    edm::LogWarning("MtdTracksValidation")
+                    edm::LogWarning("Primary4DVertexValidation")
                         << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
                         << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
                         << probP[*iTrack];
@@ -1459,7 +1460,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                   } else if (isP) {
                     meEndcapTruePAsP_->Fill((*iTrack)->p());
                   } else {
-                    edm::LogWarning("MtdTracksValidation")
+                    edm::LogWarning("Primary4DVertexValidation")
                         << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
                         << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
                         << probP[*iTrack];
