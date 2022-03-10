@@ -57,6 +57,11 @@ private:
   MEMap me_chamber_matched_;
   MEMap me_muon_chamber_;  // 1D, (region, station, layer)
   MEMap me_muon_chamber_matched_;
+  // misc
+  MEMap me_num_csc_hits_;
+  MEMap me_num_csc_hits_matched_;
+  MEMap me_reduced_chi2_;
+  MEMap me_reduced_chi2_matched_;
   MEMap me_csc_chamber_type_;
   MEMap me_csc_chamber_type_matched_;
 };
