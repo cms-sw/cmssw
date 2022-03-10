@@ -55,13 +55,13 @@ EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
   if (x >= 0 && y >= 0) {
     phi = 0;
     sign = true;
-    x = x;
-    y = y;
+    //x = x;
+    //y = y;
   } else if (x < 0 && y >= 0) {
     phi = mPhiScale >> 1;
     sign = false;
     x = -x;
-    y = y;
+    //y = y;
   } else if (x < 0 && y < 0) {
     phi = mPhiScale >> 1;
     sign = true;
@@ -70,7 +70,7 @@ EtMiss Cordic::toPolar(Et_t x, Et_t y) const {
   } else {
     phi = mPhiScale;
     sign = false;
-    x = x;
+    //x = x;
     y = -y;
   }
 

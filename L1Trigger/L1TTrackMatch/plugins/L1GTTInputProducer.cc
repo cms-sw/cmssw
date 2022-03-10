@@ -76,7 +76,7 @@ private:
   static constexpr double kPTErrThresh = 5;                    // error threshold in percent
   static constexpr double kSynchrotron = (1.0 / (0.3 * 3.8));  // 1/(0.3*B) for 1/R to 1/pT conversion
   static constexpr unsigned int kPtLutSize = (1 << ConversionBitWidths::kPTOutputSize);
-  static constexpr unsigned int kEtaLutSize = (1 << ConversionBitWidths::kEtaOutputSize - 1);
+  static constexpr unsigned int kEtaLutSize = (1 << (ConversionBitWidths::kEtaOutputSize - 1));
 
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1Track;
   typedef std::vector<L1Track> TTTrackCollection;
