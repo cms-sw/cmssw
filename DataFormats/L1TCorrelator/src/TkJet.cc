@@ -15,7 +15,7 @@ TkJet::TkJet(const LorentzVector& p4,
              const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
              float jetvtx)
     : L1Candidate(p4), jetRef_(jetRef), trkPtrs_(trkPtrs), JetVtx_(jetvtx) {}
-TkJet::TkJet(const LorentzVector& p4,
+/*TkJet::TkJet(const LorentzVector& p4,
              const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
              float jetvtx,
              unsigned int ntracks,
@@ -28,7 +28,24 @@ TkJet::TkJet(const LorentzVector& p4,
       ntracks_(ntracks),
       tighttracks_(tighttracks),
       displacedtracks_(displacedtracks),
-      tightdisplacedtracks_(tightdisplacedtracks) {}
+      tightdisplacedtracks_(tightdisplacedtracks) {}*/
+TkJet::TkJet(const LorentzVector& p4,
+             const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
+             float jetvtx,
+             unsigned int ntracks,
+             unsigned int tighttracks,
+             unsigned int displacedtracks,
+             unsigned int tightdisplacedtracks,
+             bool displacedTag)
+    : L1Candidate(p4),
+      trkPtrs_(trkPtrs),
+      JetVtx_(jetvtx),
+      ntracks_(ntracks),
+      tighttracks_(tighttracks),
+      displacedtracks_(displacedtracks),
+      tightdisplacedtracks_(tightdisplacedtracks),
+      displacedTag_(displacedTag) {}
+
 int TkJet::bx() const {
   // in the producer TkJetProducer.cc, we keep only jets with bx = 0
   return 0;

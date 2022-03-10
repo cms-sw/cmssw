@@ -17,7 +17,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -98,7 +97,7 @@ private:
 
   const edm::EDGetTokenT<EGammaBxCollection> egToken_;
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
-  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 };
 
 //
@@ -108,7 +107,7 @@ L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iC
     : egToken_(consumes<EGammaBxCollection>(iConfig.getParameter<edm::InputTag>("L1EGammaInputTag"))),
       trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {
+      tGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {
   // label of the collection produced
   // e.g. EG or IsoEG if all objects are kept
   // EGIsoTrk or IsoEGIsoTrk if only the EG or IsoEG
@@ -149,8 +148,8 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
   std::unique_ptr<TkElectronCollection> result(new TkElectronCollection);
 
   // geometry needed to call pTFrom2Stubs
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  const TrackerGeometry* tGeom = geomHandle.product();
+  const TrackerGeometry& tGeom = iSetup.getData(tGeomToken_);
+  const TrackerGeometry* tGeometry = &tGeom;
 
   // the L1EGamma objects
   edm::Handle<EGammaBxCollection> eGammaHandle;
@@ -169,8 +168,8 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
     return;
   }
   if (!L1TTTrackHandle.isValid()) {
-    throw cms::Exception("TkEmProducer") << "\nWarning: L1TTTrackCollectionType not found in the event. Exit."
-                                         << std::endl;
+    throw cms::Exception("L1TkElectronTrackProducer")
+        << "\nWarning: L1TTTrackCollectionType not found in the event. Exit." << std::endl;
     return;
   }
 
@@ -196,7 +195,7 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
     for (trackIter = L1TTTrackHandle->begin(); trackIter != L1TTTrackHandle->end(); ++trackIter) {
       edm::Ptr<L1TTTrackType> L1TrackPtr(L1TTTrackHandle, itr);
       double trkPt_fit = trackIter->momentum().perp();
-      double trkPt_stubs = pTFrom2Stubs::pTFrom2(trackIter, tGeom);
+      double trkPt_stubs = pTFrom2Stubs::pTFrom2(trackIter, tGeometry);
       double trkPt = trkPt_fit;
       if (useTwoStubsPT_)
         trkPt = trkPt_stubs;
