@@ -70,6 +70,7 @@ private:
   static constexpr double deltaZcut_ = 0.1;    // dz separation 1 mm
   static constexpr double deltaPTcut_ = 0.05;  // dPT < 5%
   static constexpr double deltaDRcut_ = 0.03;  // DeltaR separation
+  static constexpr double tol_ = 1.e-4;        // tolerance on reconstructed track time, [ns]
 
   static constexpr float c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
 
@@ -477,6 +478,16 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                   bool isPi = !noPID && 1. - probPi[trackref] < minProbHeavy_;
                   bool isK = !noPID && !isPi && probK[trackref] > probP[trackref];
                   bool isP = !noPID && !isPi && !isK;
+
+                  if ((isPi && std::abs(tMtd[trackref] - tofPi[trackref] - t0Pid[trackref]) > tol_) ||
+                      (isK && std::abs(tMtd[trackref] - tofK[trackref] - t0Pid[trackref]) > tol_) ||
+                      (isP && std::abs(tMtd[trackref] - tofP[trackref] - t0Pid[trackref]) > tol_)) {
+                    edm::LogWarning("MtdTracksValidation")
+                        << "No match between mass hyp. and time: " << std::abs(genP->pdg_id()) << " mass hyp pi/k/p "
+                        << isPi << " " << isK << " " << isP << " t0/t0safe " << t0Pid[trackref] << " "
+                        << t0Safe[trackref] << " tMtd - tof pi/K/p " << tMtd[trackref] - tofPi[trackref] << " "
+                        << tMtd[trackref] - tofK[trackref] << " " << tMtd[trackref] - tofP[trackref];
+                  }
 
                   if (std::abs(trackGen.eta()) < trackMaxBtlEta_) {
                     meBarrelMatchedp_->Fill(trackGen.p());
