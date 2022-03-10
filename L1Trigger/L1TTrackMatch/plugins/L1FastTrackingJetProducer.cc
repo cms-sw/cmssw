@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -91,6 +90,7 @@ private:
   edm::EDGetTokenT<std::vector<l1t::Vertex>> pvToken_;
   const edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> genToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 };
 
 // constructor
@@ -100,7 +100,8 @@ L1FastTrackingJetProducer::L1FastTrackingJetProducer(const edm::ParameterSet& iC
       pvToken_(consumes<std::vector<l1t::Vertex>>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag"))),
       genToken_(
           consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(iConfig.getParameter<edm::InputTag>("GenInfo"))),
-      tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
+      tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
+      tGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("", ""))) {
   trkZMax_ = (float)iConfig.getParameter<double>("trk_zMax");
   trkChi2dofMax_ = (float)iConfig.getParameter<double>("trk_chi2dofMax");
   trkBendChi2Max_ = iConfig.getParameter<double>("trk_bendChi2Max");
@@ -142,6 +143,7 @@ void L1FastTrackingJetProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   // Tracker Topology
   const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
+  //const TrackerGeometry& tGeom = iSetup.getData(tGeomToken_);
 
   edm::Handle<std::vector<l1t::Vertex>> L1VertexHandle;
   iEvent.getByToken(pvToken_, L1VertexHandle);
@@ -161,9 +163,9 @@ void L1FastTrackingJetProducer::produce(edm::Event& iEvent, const edm::EventSetu
         theStubs = iterL1Track->getStubRefs();
     int trk_nstub = (int)theStubs.size();
 
-    if (std::abs(trk_z0) > trkZMax_)
+    if (fabs(trk_z0) > trkZMax_)
       continue;
-    if (std::abs(iterL1Track->momentum().eta()) > trkEtaMax_)
+    if (fabs(iterL1Track->momentum().eta()) > trkEtaMax_)
       continue;
     if (trk_pt < trkPtMin_)
       continue;
@@ -191,7 +193,7 @@ void L1FastTrackingJetProducer::produce(edm::Event& iEvent, const edm::EventSetu
     }
     if (trk_nPS < trkNPSStubMin_)
       continue;
-    if (std::abs(recoVtx - trk_z0) > deltaZ0Cut_)
+    if (fabs(recoVtx - trk_z0) > deltaZ0Cut_)
       continue;
     if (!iEvent.isRealData()) {
       edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> trk_ptr(TTTrackHandle, this_l1track);

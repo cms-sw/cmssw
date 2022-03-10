@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+using namespace std;
 
 //Each individual box in the eta and phi dimension.
 //  Also used to store final cluster data for each zbin.
@@ -16,6 +17,7 @@ struct EtaPhiBin {
   bool used;
   float phi;  //average phi value (halfway b/t min and max)
   float eta;  //average eta value
+  std::vector<unsigned int> trackidx;
 };
 
 //store important information for plots
