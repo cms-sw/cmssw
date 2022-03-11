@@ -38,7 +38,7 @@ patDisplacedMuons = patMuons.clone(
     genParticleMatch = "displacedMuonMatch", # deactivated
 
     # high level selections
-    embedHighLevelSelection = cms.bool(False),
+    embedHighLevelSelection = cms.bool(True),
     beamLineSrc             = cms.InputTag("offlineBeamSpot"),
     pvSrc                   = cms.InputTag("offlinePrimaryVertices"),
 
