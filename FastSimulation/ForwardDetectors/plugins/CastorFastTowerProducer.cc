@@ -49,7 +49,8 @@
 //
 // constructors and destructor
 //
-CastorFastTowerProducer::CastorFastTowerProducer(const edm::ParameterSet& iConfig) : tokGenPart_(consumes<reco::GenParticleCollection>(edm::InputTag{"genParticles"})) {
+CastorFastTowerProducer::CastorFastTowerProducer(const edm::ParameterSet& iConfig)
+    : tokGenPart_(consumes<reco::GenParticleCollection>(edm::InputTag{"genParticles"})) {
   //register your products
   produces<CastorTowerCollection>();
 
