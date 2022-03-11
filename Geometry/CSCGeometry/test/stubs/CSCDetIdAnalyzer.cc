@@ -19,7 +19,7 @@
 class CSCDetIdAnalyzer : public edm::EDAnalyzer {
 public:
   explicit CSCDetIdAnalyzer(const edm::ParameterSet&);
-  ~CSCDetIdAnalyzer();
+  ~CSCDetIdAnalyzer() override = default;
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
@@ -29,10 +29,14 @@ private:
   const int dashedLineWidth_;
   const std::string dashedLine_;
   const std::string myName_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> tokGeom_;
 };
 
 CSCDetIdAnalyzer::CSCDetIdAnalyzer(const edm::ParameterSet& iConfig)
-    : dashedLineWidth_(140), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("CSCDetIdAnalyzer") {
+    : dashedLineWidth_(140),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("CSCDetIdAnalyzer"),
+      tokGeom_(esConsumes()) {
   std::cout << dashedLine_ << std::endl;
   std::cout << "Welcome to " << myName_ << std::endl;
   std::cout << dashedLine_ << std::endl;
@@ -52,8 +56,6 @@ CSCDetIdAnalyzer::CSCDetIdAnalyzer(const edm::ParameterSet& iConfig)
   std::cout << dashedLine_ << std::endl;
 }
 
-CSCDetIdAnalyzer::~CSCDetIdAnalyzer() {}
-
 void CSCDetIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const double dPi = Geom::pi();
   const double radToDeg = 180. / dPi;
@@ -62,8 +64,7 @@ void CSCDetIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   std::cout << "start " << dashedLine_ << std::endl;
   std::cout << "pi = " << dPi << ", radToDeg = " << radToDeg << std::endl;
 
-  edm::ESHandle<CSCGeometry> pDD;
-  iSetup.get<MuonGeometryRecord>().get(pDD);
+  const edm::ESHandle<CSCGeometry>& pDD = iSetup.getHandle(tokGeom_);
   std::cout << " Geometry node for CSCGeom is  " << &(*pDD) << std::endl;
   std::cout << " I have " << pDD->detTypes().size() << " detTypes" << std::endl;
   std::cout << " I have " << pDD->detUnits().size() << " detUnits" << std::endl;
