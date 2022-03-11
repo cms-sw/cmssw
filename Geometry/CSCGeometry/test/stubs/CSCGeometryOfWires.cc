@@ -34,7 +34,10 @@ private:
 };
 
 CSCGeometryOfWires::CSCGeometryOfWires(const edm::ParameterSet& iConfig)
-  : dashedLineWidth_(101), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("CSCGeometryOfWires"), tokGeom_(esConsumes()) {}
+    : dashedLineWidth_(101),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("CSCGeometryOfWires"),
+      tokGeom_(esConsumes()) {}
 
 void CSCGeometryOfWires::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const double dPi = Geom::pi();

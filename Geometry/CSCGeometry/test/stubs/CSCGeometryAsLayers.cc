@@ -31,7 +31,10 @@ private:
 };
 
 CSCGeometryAsLayers::CSCGeometryAsLayers(const edm::ParameterSet& iConfig)
-  : dashedLineWidth_(194), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("CSCGeometryAsLayers"), tokGeom_(esConsumes()) {}
+    : dashedLineWidth_(194),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("CSCGeometryAsLayers"),
+      tokGeom_(esConsumes()) {}
 
 void CSCGeometryAsLayers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const double dPi = Geom::pi();

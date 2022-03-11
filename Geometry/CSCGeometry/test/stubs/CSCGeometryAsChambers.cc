@@ -30,7 +30,10 @@ private:
 };
 
 CSCGeometryAsChambers::CSCGeometryAsChambers(const edm::ParameterSet& iConfig)
-  : dashedLineWidth_(132), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("CSCGeometryAsChambers"), tokGeom_(esConsumes()) {}
+    : dashedLineWidth_(132),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("CSCGeometryAsChambers"),
+      tokGeom_(esConsumes()) {}
 
 void CSCGeometryAsChambers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::cout << myName() << ": Analyzer..." << std::endl;
