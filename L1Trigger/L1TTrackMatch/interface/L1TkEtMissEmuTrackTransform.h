@@ -17,17 +17,15 @@
 **        : 
 */
 
-using namespace l1tmetemu;
-
 // Internal Word used by EtMiss Emulation, producer expects this wordtype
 struct InternalEtWord {
-  z_t pV;
-  z_t z0;
+  l1tmetemu::z_t pV;
+  l1tmetemu::z_t z0;
 
-  pt_t pt;
-  eta_t eta;
-  global_phi_t globalPhi;
-  nstub_t nstubs;
+  l1tmetemu::pt_t pt;
+  l1tmetemu::eta_t eta;
+  l1tmetemu::global_phi_t globalPhi;
+  l1tmetemu::nstub_t nstubs;
 
   TTTrack_TrackWord::hit_t Hitpattern;
   TTTrack_TrackWord::bendChi2_t bendChi2;
@@ -52,21 +50,21 @@ public:
   InternalEtWord transformTrack(track& track_ref, vertex& PV);
 
   // Converts local int phi to global int phi
-  global_phi_t localToGlobalPhi(TTTrack_TrackWord::phi_t local_phi, global_phi_t sector_shift);
+  l1tmetemu::global_phi_t localToGlobalPhi(TTTrack_TrackWord::phi_t local_phi, l1tmetemu::global_phi_t sector_shift);
 
   // Function to count stubs in hitpattern
-  nstub_t countNStub(TTTrack_TrackWord::hit_t Hitpattern);
+  l1tmetemu::nstub_t countNStub(TTTrack_TrackWord::hit_t Hitpattern);
 
-  std::vector<global_phi_t> generatePhiSliceLUT(unsigned int N);
+  std::vector<l1tmetemu::global_phi_t> generatePhiSliceLUT(unsigned int N);
 
-  std::vector<global_phi_t> getPhiQuad() const { return phiQuadrants; }
-  std::vector<global_phi_t> getPhiShift() const { return phiShift; }
+  std::vector<l1tmetemu::global_phi_t> getPhiQuad() const { return phiQuadrants; }
+  std::vector<l1tmetemu::global_phi_t> getPhiShift() const { return phiShift; }
 
   void setGTTinput(bool input) { GTTinput_ = input; }
 
 private:
-  std::vector<global_phi_t> phiQuadrants;
-  std::vector<global_phi_t> phiShift;
+  std::vector<l1tmetemu::global_phi_t> phiQuadrants;
+  std::vector<l1tmetemu::global_phi_t> phiShift;
 
   bool GTTinput_ = false;
 };
@@ -86,7 +84,8 @@ InternalEtWord L1TkEtMissEmuTrackTransform::transformTrack(track& track_ref, ver
     } else {
       temp_pt = track_ref.getRinvWord();
     }
-    Outword.pt = transformSignedValue(temp_pt * 2, TTTrack_TrackWord::TrackBitWidths::kRinvSize, kInternalPtWidth);
+    Outword.pt = l1tmetemu::transformSignedValue(
+        temp_pt * 2, TTTrack_TrackWord::TrackBitWidths::kRinvSize, l1tmetemu::kInternalPtWidth);
 
     if ((track_ref.getTanlWord() & (1 << (TTTrack_TrackWord::TrackBitWidths::kTanlSize - 1))) != 0) {
       // Only Want Magnitude of Eta for cuts and track to vertex association so
@@ -95,16 +94,17 @@ InternalEtWord L1TkEtMissEmuTrackTransform::transformTrack(track& track_ref, ver
     } else {
       temp_eta = track_ref.getTanlWord();
     }
-    Outword.eta = transformSignedValue(temp_eta, TTTrack_TrackWord::TrackBitWidths::kTanlSize, kInternalEtaWidth);
+    Outword.eta = l1tmetemu::transformSignedValue(
+        temp_eta, TTTrack_TrackWord::TrackBitWidths::kTanlSize, l1tmetemu::kInternalEtaWidth);
 
   } else {
     track_ref.setTrackWordBits();
     // Change track word digitization to digitization expected by track MET
-    Outword.pt = digitizeSignedValue<TTTrack_TrackWord::rinv_t>(
-        track_ref.momentum().perp(), kInternalPtWidth, l1tmetemu::kStepPt);
+    Outword.pt = l1tmetemu::digitizeSignedValue<TTTrack_TrackWord::rinv_t>(
+        track_ref.momentum().perp(), l1tmetemu::kInternalPtWidth, l1tmetemu::kStepPt);
 
-    Outword.eta = digitizeSignedValue<TTTrack_TrackWord::tanl_t>(
-        abs(track_ref.momentum().eta()), kInternalEtaWidth, l1tmetemu::kStepEta);
+    Outword.eta = l1tmetemu::digitizeSignedValue<TTTrack_TrackWord::tanl_t>(
+        abs(track_ref.momentum().eta()), l1tmetemu::kInternalEtaWidth, l1tmetemu::kStepEta);
   }
 
   Outword.chi2rphidof = track_ref.getChi2RPhiWord();
@@ -117,14 +117,15 @@ InternalEtWord L1TkEtMissEmuTrackTransform::transformTrack(track& track_ref, ver
   Outword.phi = track_ref.phi();
   Outword.globalPhi = localToGlobalPhi(track_ref.getPhiWord(), phiShift[track_ref.phiSector()]);
 
-  unsigned int temp_pv = digitizeSignedValue<TTTrack_TrackWord::z0_t>(
+  unsigned int temp_pv = l1tmetemu::digitizeSignedValue<TTTrack_TrackWord::z0_t>(
       PV.z0(),
       TTTrack_TrackWord::TrackBitWidths::kZ0Size,
       TTTrack_TrackWord::stepZ0);  // Convert vertex to integer representation
   //Rescale to internal representations
-  Outword.z0 =
-      transformSignedValue(track_ref.getZ0Word(), TTTrack_TrackWord::TrackBitWidths::kZ0Size, kInternalVTXWidth);
-  Outword.pV = transformSignedValue(temp_pv, TTTrack_TrackWord::TrackBitWidths::kZ0Size, kInternalVTXWidth);
+  Outword.z0 = l1tmetemu::transformSignedValue(
+      track_ref.getZ0Word(), TTTrack_TrackWord::TrackBitWidths::kZ0Size, l1tmetemu::kInternalVTXWidth);
+  Outword.pV = l1tmetemu::transformSignedValue(
+      temp_pv, TTTrack_TrackWord::TrackBitWidths::kZ0Size, l1tmetemu::kInternalVTXWidth);
 
   return Outword;
 }

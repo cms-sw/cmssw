@@ -12,14 +12,12 @@
 **        : 
 */
 
-using namespace l1tmetemu;
-
 class Cordic {
 public:
   Cordic();
   Cordic(int aPhiScale, int aMagnitudeBits, const int aSteps, bool debug);
 
-  EtMiss toPolar(Et_t x, Et_t y) const;
+  l1tmetemu::EtMiss toPolar(l1tmetemu::Et_t x, l1tmetemu::Et_t y) const;
 
 private:
   // Scale for Phi calculation to maintain precision
@@ -34,9 +32,9 @@ private:
   const bool debug;
 
   // To calculate atan
-  std::vector<METphi_t> atanLUT;
+  std::vector<l1tmetemu::METphi_t> atanLUT;
   // To normalise final magnitude
-  std::vector<Et_t> magNormalisationLUT;
+  std::vector<l1tmetemu::Et_t> magNormalisationLUT;
 };
 
 #endif

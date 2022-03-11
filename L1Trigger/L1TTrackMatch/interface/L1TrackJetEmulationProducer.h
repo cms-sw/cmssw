@@ -7,8 +7,6 @@
 #include <cstdlib>
 #include "DataFormats/L1Trigger/interface/TkJetWord.h"
 
-using namespace std;
-
 //For precision studies
 const int PT_EXTRABITS = 0;
 const int ETA_EXTRABITS = 0;

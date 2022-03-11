@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 //Each individual box in the eta and phi dimension.
 //  Also used to store final cluster data for each zbin.
 struct EtaPhiBin {
