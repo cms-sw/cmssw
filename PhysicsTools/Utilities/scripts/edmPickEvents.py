@@ -131,10 +131,10 @@ def getFileNames_dasgoclient(event):
         out, err = proc.communicate()
     exit_code = proc.returncode
     if err or (exit_code != 0):
-        print("DAS query error: return code\n--- Standard output---".format(exit_code))
-        print(out)
+        print("DAS query error: return code {0}\n--- Standard output---".format(exit_code))
+        print(out.decode('utf8'))
         print("--- Standard error---")
-        print(err)
+        print(err.decode('utf8'))
         print("--- End --")
         exit(1)
     else:
@@ -146,7 +146,7 @@ def getFileNames_dasgoclient(event):
                         files.append(fname)
         except json.decoder.JSONDecodeError:
             print("dasgoclient returned invalid JSON:")
-            print(out)
+            print(out.decode('utf8'))
             print("-- End --")
             exit(1)
     return files
