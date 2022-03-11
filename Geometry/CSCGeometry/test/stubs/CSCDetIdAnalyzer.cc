@@ -33,7 +33,10 @@ private:
 };
 
 CSCDetIdAnalyzer::CSCDetIdAnalyzer(const edm::ParameterSet& iConfig)
-  : dashedLineWidth_(140), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("CSCDetIdAnalyzer"), tokGeom_(esConsumes()) {
+    : dashedLineWidth_(140),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("CSCDetIdAnalyzer"),
+      tokGeom_(esConsumes()) {
   std::cout << dashedLine_ << std::endl;
   std::cout << "Welcome to " << myName_ << std::endl;
   std::cout << dashedLine_ << std::endl;

@@ -37,7 +37,11 @@ private:
 };
 
 CSCGACwithB::CSCGACwithB(const edm::ParameterSet& iConfig)
-  : dashedLineWidth_(175), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("CSCGACwithB"), tokGeom_(esConsumes()), tokField_(esConsumes()) {}
+    : dashedLineWidth_(175),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("CSCGACwithB"),
+      tokGeom_(esConsumes()),
+      tokField_(esConsumes()) {}
 
 void CSCGACwithB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::cout << myName() << ": Analyzer..." << std::endl;
