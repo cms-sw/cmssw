@@ -14,7 +14,6 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace std;
 // Namespace that defines constants and types used by the EtMiss Emulation
 // Includes functions for writing LUTs and converting to integer representations
 namespace l1tmetemu {
@@ -85,8 +84,8 @@ namespace l1tmetemu {
   };
 
   std::vector<global_phi_t> generateCosLUT(unsigned int size);
-  std::vector<eta_t> generateEtaRegionLUT(vector<double> EtaRegions);
-  std::vector<z_t> generateDeltaZLUT(vector<double> DeltaZBins);
+  std::vector<eta_t> generateEtaRegionLUT(std::vector<double> EtaRegions);
+  std::vector<z_t> generateDeltaZLUT(std::vector<double> DeltaZBins);
 
   template <typename T>
   T digitizeSignedValue(double value, unsigned int nBits, double lsb) {

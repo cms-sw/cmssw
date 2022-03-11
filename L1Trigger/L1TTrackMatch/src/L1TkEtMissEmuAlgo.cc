@@ -1,5 +1,7 @@
 #include "L1Trigger/L1TTrackMatch/interface/L1TkEtMissEmuAlgo.h"
 
+using namespace std;
+
 namespace l1tmetemu {
   std::vector<global_phi_t> generateCosLUT(unsigned int size) {  // Fill cosine LUT with integer values
     float phi = 0;

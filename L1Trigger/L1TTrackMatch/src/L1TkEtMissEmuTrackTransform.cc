@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+using namespace l1tmetemu;
+
 void L1TkEtMissEmuTrackTransform::generateLUTs() {
   phiQuadrants = generatePhiSliceLUT(l1tmetemu::kNQuadrants);
   phiShift = generatePhiSliceLUT(l1tmetemu::kNSector);

@@ -16,7 +16,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/L1Trigger/interface/TkJetWord.h"
 
-using namespace std;
 // Namespace that defines constants and types used by the HTMiss Emulation
 
 namespace l1tmhtemu {
