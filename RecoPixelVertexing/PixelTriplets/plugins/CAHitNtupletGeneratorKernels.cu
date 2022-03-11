@@ -1,4 +1,5 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/CAHitNtupletGeneratorKernelsImpl.h"
+#include <mutex>
 
 template <>
 void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *tracks_d, cudaStream_t cudaStream) {
@@ -330,9 +331,14 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
 
 #ifdef DUMP_GPU_TK_TUPLES
   static std::atomic<int> iev(0);
-  ++iev;
-  kernel_print_found_ntuplets<<<1, 32, 0, cudaStream>>>(
-      hh.view(), tuples_d, tracks_d, quality_d, device_hitToTuple_.get(), 100, iev);
+  static std::mutex lock;
+  {
+    std::lock_guard<std::mutex> guard(lock);  
+    ++iev;
+    kernel_print_found_ntuplets<<<1, 32, 0, cudaStream>>>(
+        hh.view(), tuples_d, tracks_d, quality_d, device_hitToTuple_.get(), 100, iev);
+    cudaStreamSynchronize(cudaStream);
+  }
 #endif
 }
 
