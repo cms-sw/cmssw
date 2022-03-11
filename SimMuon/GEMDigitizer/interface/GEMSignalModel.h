@@ -47,15 +47,7 @@ private:
   bool digitizeOnlyMuons_;
   double resolutionX_;
 
-  const int muonPdgId;
   const double cspeed;
-  const double momConvFact;
-  const double elecMomCut1;
-  const double elecMomCut2;
-  const double elecEffLowCoeff;
-  const double elecEffLowParam0;
-  const double elecEffMidCoeff;
-  const double elecEffMidParam0;
-  const double elecEffMidParam1;
+  const double energyMinCut;
 };
 #endif
