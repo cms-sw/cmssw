@@ -135,7 +135,7 @@ def getFileNames_dasgoclient(event):
         print(out.decode('utf8'))
         print("--- Standard error---")
         print(err.decode('utf8'))
-        print("--- End --")
+        print("--- End ---")
         exit(1)
     else:
         try:
@@ -147,7 +147,7 @@ def getFileNames_dasgoclient(event):
         except json.decoder.JSONDecodeError:
             print("dasgoclient returned invalid JSON:")
             print(out.decode('utf8'))
-            print("-- End --")
+            print("--- End ---")
             exit(1)
     return files
 
