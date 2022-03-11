@@ -433,11 +433,6 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
     fragments = []
     #In the case of simulation we want to split the plots in specific folder
     if opt.OBJ == 'simulation': processCmd('mkdir HGCValid_SimClusters_Plots HGCValid_CaloParticles_Plots')
-    ##In the case of tracksters. We want to split the results.
-    #if opt.OBJ == 'tracksters': 
-    #   for tracksterCollection in trackstersIters:    
-    #       processCmd('mkdir -p HGCValid_Tracksters_Plots/plots_%s_tracksters_%s HGCValid_Test-TICL_Plots/plots_%s_tracksters_%s HGCValid_TICL-patternRecognition_Plots/plots_%s_tracksters_%s' %(samplename,tracksterCollection,samplename,tracksterCollection,samplename,tracksterCollection) )
-    #Now  that we have them in eos lets produce plots
     #Let's loop through RelVals
     for infi in phase2samples_noPU:
         samplename = infi.filename(NewRelease).replace("DQM_V0001_R000000001__","").replace("__DQMIO.root","")
