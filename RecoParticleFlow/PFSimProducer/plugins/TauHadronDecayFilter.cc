@@ -38,7 +38,7 @@ public:
 
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override {};
+  void endRun(const edm::Run&, const edm::EventSetup&) override{};
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
@@ -67,7 +67,8 @@ void TauHadronDecayFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
 using namespace edm;
 using namespace std;
 
-TauHadronDecayFilter::TauHadronDecayFilter(const edm::ParameterSet& iConfig) : tokPdt_(esConsumes<edm::Transition::BeginRun>()) {
+TauHadronDecayFilter::TauHadronDecayFilter(const edm::ParameterSet& iConfig)
+    : tokPdt_(esConsumes<edm::Transition::BeginRun>()) {
   //now do what ever initialization is needed
 
   particleFilter_ = iConfig.getParameter<edm::ParameterSet>("ParticleFilter");
