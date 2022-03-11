@@ -3,5 +3,7 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="DQM/GEM"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/GEMObjects"/>
   <use name="DQMServices/Core"/>
 </library>

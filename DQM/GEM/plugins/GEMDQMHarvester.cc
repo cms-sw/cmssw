@@ -27,19 +27,61 @@ public:
   ~GEMDQMHarvester() override{};
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
+  typedef std::tuple<int, int> IdChamber;
+  typedef std::tuple<int, int, int> IdVFAT;
+  typedef struct PreStatusInfo {
+    int nLumiStart;
+    int nLumiEnd;
+    int nStatus;
+  } StatusInfo;
+
+  class NumStatus {
+  public:
+    NumStatus(Float_t fNumTotal = 0,
+              Float_t fNumOcc = 0,
+              Float_t fNumErrVFAT = 0,
+              Float_t fNumWarnVFAT = 0,
+              Float_t fNumErrOH = 0,
+              Float_t fNumWarnOH = 0,
+              Float_t fNumErrAMC = 0,
+              Float_t fNumWarnAMC = 0,
+              Float_t fNumErrAMC13 = 0)
+        : fNumTotal_(fNumTotal),
+          fNumOcc_(fNumOcc),
+          fNumErrVFAT_(fNumErrVFAT),
+          fNumWarnVFAT_(fNumWarnVFAT),
+          fNumErrOH_(fNumErrOH),
+          fNumWarnOH_(fNumWarnOH),
+          fNumErrAMC_(fNumErrAMC),
+          fNumWarnAMC_(fNumWarnAMC),
+          fNumErrAMC13_(fNumErrAMC13) {}
+    float fNumTotal_;
+    float fNumOcc_;
+    float fNumErrVFAT_;
+    float fNumWarnVFAT_;
+    float fNumErrOH_;
+    float fNumWarnOH_;
+    float fNumErrAMC_;
+    float fNumWarnAMC_;
+    float fNumErrAMC13_;
+  };
+
 protected:
   void dqmEndLuminosityBlock(DQMStore::IBooker &,
                              DQMStore::IGetter &,
-                             edm::LuminosityBlock const &,
+                             edm::LuminosityBlock const &iLumi,
                              edm::EventSetup const &) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override{};  // Cannot use; it is called after dqmSaver
 
-  void drawSummaryHistogram(edm::Service<DQMStore> &store);
+  void drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t nLumiCurr);
+  void createTableWatchingSummary();
   void copyLabels(MonitorElement *h2Src, MonitorElement *h2Dst);
   void createSummaryHist(edm::Service<DQMStore> &store,
                          MonitorElement *h2Src,
                          MonitorElement *&h2Sum,
-                         std::vector<std::string> &listLayers);
+                         std::vector<std::string> &listLayers,
+                         std::map<std::string, int> &mapIdxLayer,
+                         std::map<int, int> &mapNumChPerChamber);
   void createSummaryVFAT(edm::Service<DQMStore> &store,
                          MonitorElement *h2Src,
                          std::string strSuffix,
@@ -47,16 +89,34 @@ protected:
   Float_t refineSummaryHistogram(std::string strName,
                                  MonitorElement *h2Sum,
                                  MonitorElement *h2SrcOcc,
-                                 MonitorElement *h2SrcAllNum,
+                                 MonitorElement *h2SrcStatusA,
                                  MonitorElement *h2SrcStatusE,
-                                 MonitorElement *h2SrcStatusW);
+                                 MonitorElement *h2SrcStatusW,
+                                 MonitorElement *h2SrcStatusEVFAT,
+                                 MonitorElement *h2SrcStatusWVFAT,
+                                 MonitorElement *h2SrcStatusEOH,
+                                 MonitorElement *h2SrcStatusWOH,
+                                 MonitorElement *h2SrcStatusEAMC,
+                                 MonitorElement *h2SrcStatusWAMC,
+                                 MonitorElement *h2SrcStatusEAMC13,
+                                 Int_t nLumiCurr);
   Int_t refineSummaryVFAT(std::string strName,
                           MonitorElement *h2Sum,
                           MonitorElement *h2SrcOcc,
                           MonitorElement *h2SrcStatusE,
-                          MonitorElement *h2SrcStatusW);
+                          MonitorElement *h2SrcStatusW,
+                          Int_t nLumiCurr,
+                          Int_t nIdxLayer);
   Int_t assessOneBin(
-      std::string strName, Int_t nIdxX, Int_t nIdxY, Float_t fAll, Float_t fNumOcc, Float_t fNumWarn, Float_t fNumErr);
+      std::string strName, Int_t nIdxX, Int_t nIdxY, Float_t fAll, Float_t fNumOcc, Float_t fNumErr, Float_t fNumWarn);
+
+  Int_t UpdateStatusChamber(Int_t nIdxLayer, Int_t nIdxCh, Int_t nLumiCurr, NumStatus numStatus);
+  Int_t UpdateStatusChamber(Int_t nIdxLayer, Int_t nIdxCh, Int_t nIdxVFAT, Int_t nLumiCurr, NumStatus numStatus);
+  Int_t UpdateStatusChamber(std::vector<StatusInfo> &listStatus,
+                            NumStatus &numStatus,
+                            Int_t nLumiCurr,
+                            NumStatus numStatusNew);
+  void createLumiFuncHist(edm::Service<DQMStore> &store, std::string strSuffix, Int_t nIdxLayer, Int_t nLumiCurr);
 
   Float_t fCutErr_, fCutLowErr_, fCutWarn_;
 
@@ -64,16 +124,47 @@ protected:
   const std::string strDirRecHit_ = "GEM/RecHits";
   const std::string strDirStatus_ = "GEM/DAQStatus";
 
+  const Int_t nCodeFine_ = 1;
+  const Int_t nCodeError_ = 2;
+  const Int_t nCodeWarning_ = 3;
+  const Int_t nCodeLowError_ = 4;
+
+  const Int_t nBitWarnVFAT_ = 7;
+  const Int_t nBitErrVFAT_ = 6;
+  const Int_t nBitWarnOH_ = 5;
+  const Int_t nBitErrOH_ = 4;
+  const Int_t nBitWarnAMC_ = 3;
+  const Int_t nBitErrAMC_ = 2;
+  const Int_t nBitErrAMC13_ = 1;
+  const Int_t nBitOcc_ = 0;
+
+  const Int_t nNumVFATs_ = 24;
+
+  const Int_t nMaxLumi_ = 6000;  // From DQMServices/Components/plugins/DQMProvInfo.h
+  //const Int_t nResolutionLumi_ = 5;
+  Int_t nResolutionLumi_;
+
   typedef std::vector<std::vector<Float_t>> TableStatusOcc;
   typedef std::vector<std::vector<Int_t>> TableStatusNum;
 
+  std::map<IdChamber, std::vector<StatusInfo>> mapStatusChambersSummary_;
+  std::map<IdVFAT, std::vector<StatusInfo>> mapStatusVFATsSummary_;
+  std::map<IdChamber, NumStatus> mapNumStatusChambersSummary_;
+  std::map<IdVFAT, NumStatus> mapNumStatusVFATsSummary_;
+
   std::vector<std::string> listLayer_;
+  std::map<std::string, int> mapIdxLayer_;  // All indices in the following objects start at 1
+  std::map<int, int> mapNumChPerChamber_;
+  std::map<int, MonitorElement *> mapHistLumiFunc_;
+  Bool_t bIsStatusChambersInit_;
 };
 
 GEMDQMHarvester::GEMDQMHarvester(const edm::ParameterSet &cfg) {
   fCutErr_ = cfg.getParameter<double>("cutErr");
   fCutLowErr_ = cfg.getParameter<double>("cutLowErr");
   fCutWarn_ = cfg.getParameter<double>("cutWarn");
+  nResolutionLumi_ = cfg.getParameter<int>("resolutionLumi");
+  bIsStatusChambersInit_ = false;
 }
 
 void GEMDQMHarvester::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -81,24 +172,33 @@ void GEMDQMHarvester::fillDescriptions(edm::ConfigurationDescriptions &descripti
   desc.add<double>("cutErr", 0.05);
   desc.add<double>("cutLowErr", 0.00);
   desc.add<double>("cutWarn", 0.05);
+  desc.add<int>("resolutionLumi", 1);
   descriptions.add("GEMDQMHarvester", desc);
 }
 
 void GEMDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &,
                                             DQMStore::IGetter &,
-                                            edm::LuminosityBlock const &,
+                                            edm::LuminosityBlock const &iLumi,
                                             edm::EventSetup const &) {
   edm::Service<DQMStore> store;
-  drawSummaryHistogram(store);
+  Int_t nLumiCurr = iLumi.id().luminosityBlock();
+  drawSummaryHistogram(store, nLumiCurr);
 }
 
-void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
+void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t nLumiCurr) {
   Float_t fReportSummary = -1.0;
 
   std::string strSrcDigiOcc = "GEM/Digis/summaryOccDigi";
   std::string strSrcStatusA = "GEM/DAQStatus/chamberAllStatus";
-  std::string strSrcStatusW = "GEM/DAQStatus/chamberWarnings";
   std::string strSrcStatusE = "GEM/DAQStatus/chamberErrors";
+  std::string strSrcStatusW = "GEM/DAQStatus/chamberWarnings";
+  std::string strSrcStatusEVFAT = "GEM/DAQStatus/chamberVFATErrors";
+  std::string strSrcStatusWVFAT = "GEM/DAQStatus/chamberVFATWarnings";
+  std::string strSrcStatusEOH = "GEM/DAQStatus/chamberOHErrors";
+  std::string strSrcStatusWOH = "GEM/DAQStatus/chamberOHWarnings";
+  std::string strSrcStatusEAMC = "GEM/DAQStatus/chamberAMCErrors";
+  std::string strSrcStatusWAMC = "GEM/DAQStatus/chamberAMCWarnings";
+  std::string strSrcStatusEAMC13 = "GEM/DAQStatus/chamberAMC13Errors";
 
   std::string strSrcVFATOcc = "GEM/Digis/det";
   std::string strSrcVFATStatusW = "GEM/DAQStatus/vfat_statusWarnSum";
@@ -108,18 +208,42 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
 
   MonitorElement *h2SrcDigiOcc = store->get(strSrcDigiOcc);
   MonitorElement *h2SrcStatusA = store->get(strSrcStatusA);
-  MonitorElement *h2SrcStatusW = store->get(strSrcStatusW);
   MonitorElement *h2SrcStatusE = store->get(strSrcStatusE);
+  MonitorElement *h2SrcStatusW = store->get(strSrcStatusW);
+  MonitorElement *h2SrcStatusEVFAT = store->get(strSrcStatusEVFAT);
+  MonitorElement *h2SrcStatusWVFAT = store->get(strSrcStatusWVFAT);
+  MonitorElement *h2SrcStatusEOH = store->get(strSrcStatusEOH);
+  MonitorElement *h2SrcStatusWOH = store->get(strSrcStatusWOH);
+  MonitorElement *h2SrcStatusEAMC = store->get(strSrcStatusEAMC);
+  MonitorElement *h2SrcStatusWAMC = store->get(strSrcStatusWAMC);
+  MonitorElement *h2SrcStatusEAMC13 = store->get(strSrcStatusEAMC13);
 
   std::string strTitleSummary = "summary";
 
-  if (h2SrcDigiOcc != nullptr && h2SrcStatusA != nullptr && h2SrcStatusW != nullptr && h2SrcStatusE != nullptr) {
+  if (h2SrcDigiOcc != nullptr && h2SrcStatusA != nullptr && h2SrcStatusE != nullptr && h2SrcStatusW != nullptr &&
+      h2SrcStatusEVFAT != nullptr && h2SrcStatusWVFAT != nullptr && h2SrcStatusEOH != nullptr &&
+      h2SrcStatusWOH != nullptr && h2SrcStatusEAMC != nullptr && h2SrcStatusWAMC != nullptr &&
+      h2SrcStatusEAMC13 != nullptr) {
     MonitorElement *h2Sum = nullptr;
-    createSummaryHist(store, h2SrcStatusE, h2Sum, listLayer_);
-    fReportSummary =
-        refineSummaryHistogram(strTitleSummary, h2Sum, h2SrcDigiOcc, h2SrcStatusA, h2SrcStatusE, h2SrcStatusW);
+    createSummaryHist(store, h2SrcStatusEOH, h2Sum, listLayer_, mapIdxLayer_, mapNumChPerChamber_);
+    createTableWatchingSummary();
+    fReportSummary = refineSummaryHistogram(strTitleSummary,
+                                            h2Sum,
+                                            h2SrcDigiOcc,
+                                            h2SrcStatusA,
+                                            h2SrcStatusE,
+                                            h2SrcStatusW,
+                                            h2SrcStatusEVFAT,
+                                            h2SrcStatusWVFAT,
+                                            h2SrcStatusEOH,
+                                            h2SrcStatusWOH,
+                                            h2SrcStatusEAMC,
+                                            h2SrcStatusWAMC,
+                                            h2SrcStatusEAMC13,
+                                            nLumiCurr);
 
     for (const auto &strSuffix : listLayer_) {
+      auto nIdxLayer = mapIdxLayer_[strSuffix];
       MonitorElement *h2SrcVFATOcc = store->get(strSrcVFATOcc + strSuffix);
       MonitorElement *h2SrcVFATStatusW = store->get(strSrcVFATStatusW + strSuffix);
       MonitorElement *h2SrcVFATStatusE = store->get(strSrcVFATStatusE + strSuffix);
@@ -128,15 +252,35 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
 
       MonitorElement *h2SumVFAT = nullptr;
       createSummaryVFAT(store, h2SrcVFATStatusE, strSuffix, h2SumVFAT);
-      refineSummaryVFAT(strSuffix, h2SumVFAT, h2SrcVFATOcc, h2SrcVFATStatusE, h2SrcVFATStatusW);
+      refineSummaryVFAT(strSuffix, h2SumVFAT, h2SrcVFATOcc, h2SrcVFATStatusE, h2SrcVFATStatusW, nLumiCurr, nIdxLayer);
       TString strNewTitle = h2SrcVFATStatusE->getTitle();
       h2SumVFAT->setTitle((const char *)strNewTitle.ReplaceAll("errors", "errors/warnings"));
       h2SumVFAT->setXTitle(h2SrcVFATStatusE->getAxisTitle(1));
       h2SumVFAT->setYTitle(h2SrcVFATStatusE->getAxisTitle(2));
+
+      createLumiFuncHist(store, strSuffix, nIdxLayer, nLumiCurr);
     }
   }
 
   store->bookFloat("reportSummary")->Fill(fReportSummary);
+}
+
+void GEMDQMHarvester::createTableWatchingSummary() {
+  if (bIsStatusChambersInit_)
+    return;
+
+  for (const auto &[nIdxLayer, nNumCh] : mapNumChPerChamber_) {
+    for (Int_t i = 1; i <= nNumCh; i++) {
+      mapStatusChambersSummary_[{nIdxLayer, i}] = std::vector<StatusInfo>();
+      mapNumStatusChambersSummary_[{nIdxLayer, i}] = NumStatus();
+      for (Int_t j = 1; j <= nNumVFATs_; j++) {
+        mapStatusVFATsSummary_[{nIdxLayer, i, j}] = std::vector<StatusInfo>();
+        mapNumStatusVFATsSummary_[{nIdxLayer, i, j}] = NumStatus();
+      }
+    }
+  }
+
+  bIsStatusChambersInit_ = true;
 }
 
 void GEMDQMHarvester::copyLabels(MonitorElement *h2Src, MonitorElement *h2Dst) {
@@ -156,7 +300,9 @@ void GEMDQMHarvester::copyLabels(MonitorElement *h2Src, MonitorElement *h2Dst) {
 void GEMDQMHarvester::createSummaryHist(edm::Service<DQMStore> &store,
                                         MonitorElement *h2Src,
                                         MonitorElement *&h2Sum,
-                                        std::vector<std::string> &listLayers) {
+                                        std::vector<std::string> &listLayers,
+                                        std::map<std::string, int> &mapIdxLayer,
+                                        std::map<int, int> &mapNumChPerChamber) {
   //store->setCurrentFolder(strDirSummary_);
 
   Int_t nBinX = h2Src->getNbinsX(), nBinY = h2Src->getNbinsY();
@@ -166,14 +312,21 @@ void GEMDQMHarvester::createSummaryHist(edm::Service<DQMStore> &store,
   h2Sum->setYTitle("Layer");
 
   listLayers.clear();
+  mapIdxLayer.clear();
+  mapNumChPerChamber.clear();
+
   for (Int_t i = 1; i <= nBinX; i++)
     h2Sum->setBinLabel(i, h2Src->getTH2F()->GetXaxis()->GetBinLabel(i), 1);
   for (Int_t i = 1; i <= nBinY; i++) {
     std::string strLabelFull = h2Src->getTH2F()->GetYaxis()->GetBinLabel(i);
+    Int_t nBinXActual = (Int_t)(h2Src->getBinContent(0, i) + 0.5);
     auto nPos = strLabelFull.find(';');
     auto strLabel = strLabelFull.substr(0, nPos);
+    auto strLayer = strLabelFull.substr(nPos + 1);
     listLayers.push_back(strLabelFull.substr(nPos + 1));
     h2Sum->setBinLabel(i, strLabel, 2);
+    mapIdxLayer[strLayer] = i;
+    mapNumChPerChamber[i] = nBinXActual;
   }
 }
 
@@ -190,15 +343,15 @@ void GEMDQMHarvester::createSummaryVFAT(edm::Service<DQMStore> &store,
 }
 
 Int_t GEMDQMHarvester::assessOneBin(
-    std::string strName, Int_t nIdxX, Int_t nIdxY, Float_t fAll, Float_t fNumOcc, Float_t fNumWarn, Float_t fNumErr) {
+    std::string strName, Int_t nIdxX, Int_t nIdxY, Float_t fAll, Float_t fNumOcc, Float_t fNumErr, Float_t fNumWarn) {
   if (fNumErr > fCutErr_ * fAll)  // The error status criterion
-    return 2;
+    return nCodeError_;
   else if (fNumErr > fCutLowErr_ * fAll)  // The low-error status criterion
-    return 4;
+    return nCodeLowError_;
   else if (fNumWarn > fCutWarn_ * fAll)  // The warning status criterion
-    return 3;
+    return nCodeWarning_;
   else if (fNumOcc > 0)
-    return 1;
+    return nCodeFine_;
 
   return 0;
 }
@@ -209,7 +362,15 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(std::string strName,
                                                 MonitorElement *h2SrcOcc,
                                                 MonitorElement *h2SrcStatusA,
                                                 MonitorElement *h2SrcStatusE,
-                                                MonitorElement *h2SrcStatusW) {
+                                                MonitorElement *h2SrcStatusW,
+                                                MonitorElement *h2SrcStatusEVFAT,
+                                                MonitorElement *h2SrcStatusWVFAT,
+                                                MonitorElement *h2SrcStatusEOH,
+                                                MonitorElement *h2SrcStatusWOH,
+                                                MonitorElement *h2SrcStatusEAMC,
+                                                MonitorElement *h2SrcStatusWAMC,
+                                                MonitorElement *h2SrcStatusEAMC13,
+                                                Int_t nLumiCurr) {
   Int_t nBinY = h2Sum->getNbinsY();
   Int_t nAllBin = 0, nFineBin = 0;
   for (Int_t j = 1; j <= nBinY; j++) {
@@ -218,10 +379,27 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(std::string strName,
     for (Int_t i = 1; i <= nBinX; i++) {
       Float_t fOcc = h2SrcOcc->getBinContent(i, j);
       Float_t fStatusAll = h2SrcStatusA->getBinContent(i, j);
-      Float_t fStatusWarn = h2SrcStatusW->getBinContent(i, j);
       Float_t fStatusErr = h2SrcStatusE->getBinContent(i, j);
+      Float_t fStatusWarn = h2SrcStatusW->getBinContent(i, j);
+      Float_t fStatusErrVFAT = h2SrcStatusEVFAT->getBinContent(i, j);
+      Float_t fStatusWarnVFAT = h2SrcStatusWVFAT->getBinContent(i, j);
+      Float_t fStatusErrOH = h2SrcStatusEOH->getBinContent(i, j);
+      Float_t fStatusWarnOH = h2SrcStatusWOH->getBinContent(i, j);
+      Float_t fStatusErrAMC = h2SrcStatusEAMC->getBinContent(i, j);
+      Float_t fStatusWarnAMC = h2SrcStatusWAMC->getBinContent(i, j);
+      Float_t fStatusErrAMC13 = h2SrcStatusEAMC13->getBinContent(i, j);
+      NumStatus numStatus(fStatusAll,
+                          fOcc,
+                          fStatusErrVFAT,
+                          fStatusWarnVFAT,
+                          fStatusErrOH,
+                          fStatusWarnOH,
+                          fStatusErrAMC,
+                          fStatusWarnAMC,
+                          fStatusErrAMC13);
+      UpdateStatusChamber(j, i, nLumiCurr, numStatus);
 
-      Int_t nRes = assessOneBin(strName, i, j, fStatusAll, fOcc, fStatusWarn, fStatusErr);
+      Int_t nRes = assessOneBin(strName, i, j, fStatusAll, fOcc, fStatusErr, fStatusWarn);
       if (nRes == 1)
         nFineBin++;
 
@@ -237,22 +415,181 @@ Int_t GEMDQMHarvester::refineSummaryVFAT(std::string strName,
                                          MonitorElement *h2Sum,
                                          MonitorElement *h2SrcOcc,
                                          MonitorElement *h2SrcStatusE,
-                                         MonitorElement *h2SrcStatusW) {
+                                         MonitorElement *h2SrcStatusW,
+                                         Int_t nLumiCurr,
+                                         Int_t nIdxLayer) {
   Int_t nBinY = h2Sum->getNbinsY();
   for (Int_t j = 1; j <= nBinY; j++) {
     Int_t nBinX = h2Sum->getNbinsX();
     for (Int_t i = 1; i <= nBinX; i++) {
       Float_t fOcc = h2SrcOcc->getBinContent(i, j);
-      Float_t fStatusWarn = h2SrcStatusW->getBinContent(i, j);
       Float_t fStatusErr = h2SrcStatusE->getBinContent(i, j);
-      Float_t fStatusAll = fOcc + fStatusWarn + fStatusErr;
+      Float_t fStatusWarn = h2SrcStatusW->getBinContent(i, j);
+      Float_t fStatusAll = fOcc + fStatusErr + fStatusWarn;
+      NumStatus numStatus(fStatusAll, fOcc, fStatusErr, fStatusWarn, 0, 0, 0, 0, 0);
+      UpdateStatusChamber(nIdxLayer, i, j, nLumiCurr, numStatus);
 
-      Int_t nRes = assessOneBin(strName, i, j, fStatusAll, fOcc, fStatusWarn, fStatusErr);
+      Int_t nRes = assessOneBin(strName, i, j, fStatusAll, fOcc, fStatusErr, fStatusWarn);
       h2Sum->setBinContent(i, j, (Float_t)nRes);
     }
   }
 
   return 0;
+}
+
+Int_t GEMDQMHarvester::UpdateStatusChamber(Int_t nIdxLayer, Int_t nIdxCh, Int_t nLumiCurr, NumStatus numStatus) {
+  if (!bIsStatusChambersInit_)
+    return 0;
+  if (0 >= nIdxCh || nIdxCh > mapNumChPerChamber_[nIdxLayer])
+    return 0;
+  auto &listStatus = mapStatusChambersSummary_[{nIdxLayer, nIdxCh}];
+  auto &numStatusPrev = mapNumStatusChambersSummary_[{nIdxLayer, nIdxCh}];
+  return UpdateStatusChamber(listStatus, numStatusPrev, nLumiCurr, numStatus);
+}
+
+Int_t GEMDQMHarvester::UpdateStatusChamber(
+    Int_t nIdxLayer, Int_t nIdxCh, Int_t nIdxVFAT, Int_t nLumiCurr, NumStatus numStatus) {
+  if (!bIsStatusChambersInit_)
+    return 0;
+  if (0 >= nIdxCh || nIdxCh > mapNumChPerChamber_[nIdxLayer])
+    return 0;
+  if (0 >= nIdxVFAT || nIdxVFAT > nNumVFATs_)
+    return 0;
+  auto &listStatus = mapStatusVFATsSummary_[{nIdxLayer, nIdxCh, nIdxVFAT}];
+  auto &numStatusPrev = mapNumStatusVFATsSummary_[{nIdxLayer, nIdxCh, nIdxVFAT}];
+  return UpdateStatusChamber(listStatus, numStatusPrev, nLumiCurr, numStatus);
+}
+
+Int_t GEMDQMHarvester::UpdateStatusChamber(std::vector<StatusInfo> &listStatus,
+                                           NumStatus &numStatus,
+                                           Int_t nLumiCurr,
+                                           NumStatus numStatusNew) {
+  // First of all, the current lumi section will be assessed, of which the result will be stored in nStatus
+  Int_t nStatus = 0;
+
+  Float_t fNumAddErrVFAT = numStatusNew.fNumErrVFAT_ - numStatus.fNumErrVFAT_;
+  Float_t fNumAddWarnVFAT = numStatusNew.fNumWarnVFAT_ - numStatus.fNumWarnVFAT_;
+  Float_t fNumAddErrOH = numStatusNew.fNumErrOH_ - numStatus.fNumErrOH_;
+  Float_t fNumAddWarnOH = numStatusNew.fNumWarnOH_ - numStatus.fNumWarnOH_;
+  Float_t fNumAddErrAMC = numStatusNew.fNumErrAMC_ - numStatus.fNumErrAMC_;
+  Float_t fNumAddWarnAMC = numStatusNew.fNumWarnAMC_ - numStatus.fNumWarnAMC_;
+  Float_t fNumAddErrAMC13 = numStatusNew.fNumErrAMC13_ - numStatus.fNumErrAMC13_;
+
+  numStatus.fNumTotal_ = numStatusNew.fNumTotal_;
+  numStatus.fNumOcc_ = numStatusNew.fNumOcc_;
+  numStatus.fNumErrVFAT_ = numStatusNew.fNumErrVFAT_;
+  numStatus.fNumWarnVFAT_ = numStatusNew.fNumWarnVFAT_;
+  numStatus.fNumErrOH_ = numStatusNew.fNumErrOH_;
+  numStatus.fNumWarnOH_ = numStatusNew.fNumWarnOH_;
+  numStatus.fNumErrAMC_ = numStatusNew.fNumErrAMC_;
+  numStatus.fNumWarnAMC_ = numStatusNew.fNumWarnAMC_;
+  numStatus.fNumErrAMC13_ = numStatusNew.fNumErrAMC13_;
+
+  nStatus = (numStatusNew.fNumOcc_ > 0 ? 1 << nBitOcc_ : 0) | (fNumAddErrAMC13 > 0 ? 1 << nBitErrAMC13_ : 0) |
+            (fNumAddErrAMC > 0 ? 1 << nBitErrAMC_ : 0) | (fNumAddWarnAMC > 0 ? 1 << nBitWarnAMC_ : 0) |
+            (fNumAddErrOH > 0 ? 1 << nBitErrOH_ : 0) | (fNumAddWarnOH > 0 ? 1 << nBitWarnOH_ : 0) |
+            (fNumAddErrVFAT > 0 ? 1 << nBitErrVFAT_ : 0) | (fNumAddWarnVFAT > 0 ? 1 << nBitWarnVFAT_ : 0);
+
+  // Only used in the next if statement; See statusLast
+  StatusInfo statusNew;
+  statusNew.nLumiStart = nLumiCurr;
+  statusNew.nLumiEnd = nLumiCurr;
+  statusNew.nStatus = nStatus;
+
+  if (listStatus.empty()) {
+    listStatus.push_back(statusNew);
+  } else {
+    auto &statusLastPre = listStatus.back();
+    if (statusLastPre.nStatus == nStatus) {
+      statusLastPre.nLumiEnd = nLumiCurr;
+    } else {
+      listStatus.push_back(statusNew);
+    }
+  }
+
+  return 0;
+}
+
+void GEMDQMHarvester::createLumiFuncHist(edm::Service<DQMStore> &store,
+                                         std::string strSuffix,
+                                         Int_t nIdxLayer,
+                                         Int_t nLumiCurr) {
+  auto &nNumCh = mapNumChPerChamber_[nIdxLayer];
+
+  MonitorElement *h2Summary;
+
+  //Int_t nLumiCurrLowRes = ( ( nLumiCurr - 1 ) / nResolutionLumi_ ) * nResolutionLumi_;
+  Int_t nNumBinLumi = ((nLumiCurr - 1) / nResolutionLumi_) + 1;
+  Int_t nMaxBin = 0;
+
+  // Creating or Summoning the corresponding histogram
+  if (mapHistLumiFunc_.find(nIdxLayer) == mapHistLumiFunc_.end()) {
+    store->setCurrentFolder(strDirSummary_);
+    h2Summary = store->book2S("chamberStatus_inLumi" + strSuffix,
+                              "Chamber status on lumi-block " + strSuffix.substr(1),
+                              nMaxLumi_ / nResolutionLumi_,
+                              1.0,
+                              (Float_t)(nMaxLumi_ + 1),
+                              //nNumBinLumi, 1.0, (Float_t)( nLumiCurr + 1 ),
+                              nNumCh,
+                              0.5,
+                              nNumCh + 0.5);
+    mapHistLumiFunc_[nIdxLayer] = h2Summary;
+
+    h2Summary->setXTitle("Luminosity block");
+    h2Summary->setYTitle("Chamber");
+    for (Int_t i = 1; i <= nNumCh; i++) {
+      h2Summary->setBinLabel(i, Form("%i", i), 2);
+    }
+  } else {
+    h2Summary = mapHistLumiFunc_[nIdxLayer];
+  }
+
+  for (Int_t nIdxCh = 1; nIdxCh <= nNumCh; nIdxCh++) {
+    auto &listStatus = mapStatusChambersSummary_[{nIdxLayer, nIdxCh}];
+
+    Int_t nIdxStatus = 0;
+    for (Int_t nIdxLumi = 0; nIdxLumi < nNumBinLumi; nIdxLumi++) {
+      // Lumis covered by these values (nLumiStart <=, <= nLumiEnd) are counted for the current bin
+      Int_t nLumiStart = 1 + nIdxLumi * nResolutionLumi_;
+      Int_t nLumiEnd = (1 + nIdxLumi) * nResolutionLumi_;
+      if (nLumiEnd > nLumiCurr)
+        nLumiEnd = nLumiCurr;
+
+      Int_t nStatusSum = 0;
+      while (true) {  // No worries, nIdxStatus must increase and reach at listStatus.size()
+        // True: It was too past so that
+        //       the lumi range of listStatus[ nIdxStatus ] is out of the coverage of the current bin
+        if (listStatus[nIdxStatus].nLumiEnd < nLumiStart) {
+          nIdxStatus++;
+          if (nIdxStatus >= (int)listStatus.size()) {
+            break;  // For safety
+          }
+          continue;
+        }
+
+        nStatusSum = listStatus[nIdxStatus].nStatus;
+
+        // True: This is the last item of listStatus which is covered by the current bin
+        if (nIdxStatus + 1 >= (int)listStatus.size() || listStatus[nIdxStatus].nLumiEnd >= nLumiEnd) {
+          break;
+        }
+
+        nIdxStatus++;
+        if (nIdxStatus >= (int)listStatus.size()) {
+          break;  // For safety
+        }
+      }
+
+      h2Summary->setBinContent(nIdxLumi + 1, nIdxCh, nStatusSum);
+      if (nMaxBin < nIdxLumi + 1)
+        nMaxBin = nIdxLumi + 1;
+    }
+  }
+
+  for (Int_t nX = 1; nX <= nMaxBin; nX++) {
+    h2Summary->setBinContent(nX, 0, 1);
+  }
 }
 
 DEFINE_FWK_MODULE(GEMDQMHarvester);
