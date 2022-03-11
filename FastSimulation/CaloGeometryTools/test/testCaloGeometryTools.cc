@@ -84,7 +84,8 @@ private:
 //
 // constructors and destructor
 //
-testCaloGeometryTools::testCaloGeometryTools(const edm::ParameterSet& iConfig) : tokCaloTopo_(esConsumes()), tokCaloGeom_(esConsumes()) {
+testCaloGeometryTools::testCaloGeometryTools(const edm::ParameterSet& iConfig)
+    : tokCaloTopo_(esConsumes()), tokCaloGeom_(esConsumes()) {
   myHistos = Histos::instance();
   myHistos->book("h100", 150, 0., 1.5, 100, 0., 35.);
 }
@@ -103,8 +104,8 @@ void testCaloGeometryTools::analyze(const edm::Event& iEvent, const edm::EventSe
 
   RandomEngineAndDistribution random(iEvent.streamID());
 
-  const edm::ESHandle<CaloTopology> & theCaloTopology = iSetup.getHandle(tokCaloTopo_);
-  const edm::ESHandle<CaloGeometry> & pG = iSetup.getHandle(tokCaloGeom_);
+  const edm::ESHandle<CaloTopology>& theCaloTopology = iSetup.getHandle(tokCaloTopo_);
+  const edm::ESHandle<CaloGeometry>& pG = iSetup.getHandle(tokCaloGeom_);
 
   // Setup the tools
   double bField000 = 4.;
