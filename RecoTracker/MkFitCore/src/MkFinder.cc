@@ -714,7 +714,7 @@ namespace mkfit {
   void MkFinder::addBestHit(const LayerOfHits &layer_of_hits, const int N_proc, const FindingFoos &fnd_foos) {
     // debug = true;
 
-    MatriplexHitPacker mhp(*layer_of_hits.hitArray());
+    MatriplexHitPacker mhp(layer_of_hits.hitArray());
 
     float minChi2[NN];
     int bestHit[NN];
@@ -926,7 +926,7 @@ namespace mkfit {
                                 const FindingFoos &fnd_foos) {
     // bool debug = true;
 
-    MatriplexHitPacker mhp(*layer_of_hits.hitArray());
+    MatriplexHitPacker mhp(layer_of_hits.hitArray());
 
     int maxSize = 0;
 
@@ -1141,7 +1141,7 @@ namespace mkfit {
                                            const FindingFoos &fnd_foos) {
     // bool debug = true;
 
-    MatriplexHitPacker mhp(*layer_of_hits.hitArray());
+    MatriplexHitPacker mhp(layer_of_hits.hitArray());
 
     int maxSize = 0;
 
@@ -1358,7 +1358,7 @@ namespace mkfit {
   void MkFinder::bkFitInputTracks(TrackVec &cands, int beg, int end) {
     // Uses HitOnTrack vector from Track directly + a local cursor array to current hit.
 
-    MatriplexTrackPacker mtp(cands[beg]);
+    MatriplexTrackPacker mtp(&cands[beg]);
 
     int itrack = 0;
 
@@ -1385,7 +1385,7 @@ namespace mkfit {
     // XXXX - shall we assume only TrackCand-zero is needed and that we can freely
     // bork the HoTNode array?
 
-    MatriplexTrackPacker mtp(eocss[beg][0]);
+    MatriplexTrackPacker mtp(&eocss[beg][0]);
 
     int itrack = 0;
 
