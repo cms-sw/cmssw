@@ -53,5 +53,3 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_updateJets_fromMiniAOD_cfg.py || die 'Failure 
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_onlyMuons_cfg.py || die 'Failure using patTuple_onlyMuons_cfg.py' $?
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_onlyPhotons_cfg.py || die 'Failure using patTuple_onlyPhotons_cfg.py' $?
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_onlyTaus_cfg.py || die 'Failure using patTuple_onlyTaus_cfg.py' $?
-
-cmsRun ${LOCAL_TEST_DIR}/DRNTest_cfg.py || die "Failure using DRNtest" $?
