@@ -13,7 +13,7 @@
 //
 //
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -30,7 +30,7 @@
 #include <iostream>
 #include <memory>
 
-class TauHadronDecayFilter : public edm::EDFilter {
+class TauHadronDecayFilter : public edm::one::EDFilter<edm::one::WatchRuns> {
 public:
   explicit TauHadronDecayFilter(const edm::ParameterSet&);
 
@@ -38,9 +38,11 @@ public:
 
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {};
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tokPdt_;
   edm::ParameterSet particleFilter_;
   std::unique_ptr<FSimEvent> mySimEvent;
 };
@@ -65,7 +67,7 @@ void TauHadronDecayFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
 using namespace edm;
 using namespace std;
 
-TauHadronDecayFilter::TauHadronDecayFilter(const edm::ParameterSet& iConfig) {
+TauHadronDecayFilter::TauHadronDecayFilter(const edm::ParameterSet& iConfig) : tokPdt_(esConsumes<edm::Transition::BeginRun>()) {
   //now do what ever initialization is needed
 
   particleFilter_ = iConfig.getParameter<edm::ParameterSet>("ParticleFilter");
@@ -107,9 +109,8 @@ bool TauHadronDecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
 void TauHadronDecayFilter::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   // init Particle data table (from Pythia)
-  edm::ESHandle<HepPDT::ParticleDataTable> pdt;
+  const edm::ESHandle<HepPDT::ParticleDataTable>& pdt = es.getHandle(tokPdt_);
   // edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
 
-  es.getData(pdt);
-  mySimEvent->initializePdt(&(*pdt));
+  mySimEvent->initializePdt(pdt.product());
 }
