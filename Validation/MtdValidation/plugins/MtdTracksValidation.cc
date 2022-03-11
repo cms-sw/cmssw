@@ -153,6 +153,9 @@ private:
   MonitorElement* meBarrelMatchedp_;
   MonitorElement* meEndcapMatchedp_;
 
+  MonitorElement* meBarrelNoPIDtype_;
+  MonitorElement* meEndcapNoPIDtype_;
+
   MonitorElement* meBarrelTruePiNoPID_;
   MonitorElement* meBarrelTrueKNoPID_;
   MonitorElement* meBarrelTruePNoPID_;
@@ -473,8 +476,15 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                   double dbetaK = c_cm_ns * (tMtd[trackref] - treco - tofK[trackref]) / pathLength[trackref];
                   double dbetaP = c_cm_ns * (tMtd[trackref] - treco - tofP[trackref]) / pathLength[trackref];
 
-                  bool noPID = probPi[trackref] == -1 || isnan(probPi[trackref]) ||
-                               (probPi[trackref] == 1 && probK[trackref] == 0 && probP[trackref] == 0);
+                  unsigned int noPIDtype = 0;
+                  if (probPi[trackref] == -1) {
+                    noPIDtype = 1;
+                  } else if (isnan(probPi[trackref])) {
+                    noPIDtype = 2;
+                  } else if (probPi[trackref] == 1 && probK[trackref] == 0 && probP[trackref] == 0) {
+                    noPIDtype = 3;
+                  }
+                  bool noPID = noPIDtype > 0;
                   bool isPi = !noPID && 1. - probPi[trackref] < minProbHeavy_;
                   bool isK = !noPID && !isPi && probK[trackref] > probP[trackref];
                   bool isP = !noPID && !isPi && !isK;
@@ -493,6 +503,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
                   if (std::abs(trackGen.eta()) < trackMaxBtlEta_) {
                     meBarrelMatchedp_->Fill(trackGen.p());
+                    meBarrelNoPIDtype_->Fill(noPIDtype + 0.5);
                     if (std::abs(genP->pdg_id()) == 211) {
                       meBarrelPiDBetavsp_->Fill(trackGen.p(), dbetaPi);
                       if (noPID) {
@@ -544,6 +555,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                     }
                   } else if (std::abs(trackGen.eta()) > trackMinEtlEta_ && std::abs(trackGen.eta()) < trackMaxEtlEta_) {
                     meEndcapMatchedp_->Fill(trackGen.p());
+                    meEndcapNoPIDtype_->Fill(noPIDtype + 0.5);
                     if (std::abs(genP->pdg_id()) == 211) {
                       meEndcapPiDBetavsp_->Fill(trackGen.p(), dbetaPi);
                       if (noPID) {
@@ -698,6 +710,9 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         "BarrelMatchedp", "MVA matched track with MTD momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
     meEndcapMatchedp_ = ibook.book1D(
         "EndcapMatchedp", "MVA matched track with MTD momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+
+    meBarrelNoPIDtype_ = ibook.book1D("BarrelNoPIDtype", "Barrel PID failure category", 4, 0., 4.);
+    meEndcapNoPIDtype_ = ibook.book1D("EndcapNoPIDtype", "Endcap PID failure category", 4, 0., 4.);
 
     meBarrelTruePiNoPID_ =
         ibook.book1D("BarrelTruePiNoPID", "True pi NoPID momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);

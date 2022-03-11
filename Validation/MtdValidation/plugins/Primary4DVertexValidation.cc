@@ -340,6 +340,9 @@ private:
   MonitorElement* meBarrelMatchedp_;
   MonitorElement* meEndcapMatchedp_;
 
+  MonitorElement* meBarrelNoPIDtype_;
+  MonitorElement* meEndcapNoPIDtype_;
+
   MonitorElement* meBarrelTruePiNoPID_;
   MonitorElement* meBarrelTrueKNoPID_;
   MonitorElement* meBarrelTruePNoPID_;
@@ -710,6 +713,12 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
         "BarrelMatchedp", "MVA matched track with MTD momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
     meEndcapMatchedp_ = ibook.book1D(
         "EndcapMatchedp", "MVA matched track with MTD momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+
+    meBarrelNoPIDtype_ = ibook.book1D("BarrelNoPIDtype", "Barrel PID failure category", 4, 0., 4.);
+    meEndcapNoPIDtype_ = ibook.book1D("EndcapNoPIDtype", "Endcap PID failure category", 4, 0., 4.);
+
+    meBarrelNoPIDtype_ = ibook.book1D("BarrelNoPIDtype", "Barrel PID failure category", 4, 0., 4.);
+    meEndcapNoPIDtype_ = ibook.book1D("EndcapNoPIDtype", "Endcap PID failure category", 4, 0., 4.);
 
     meBarrelTruePiNoPID_ =
         ibook.book1D("BarrelTruePiNoPID", "True pi NoPID momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
@@ -1347,8 +1356,15 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               double dbetaK = c_cm_ns * (tMtd[*iTrack] - treco - tofK[*iTrack]) / pathLength[*iTrack];
               double dbetaP = c_cm_ns * (tMtd[*iTrack] - treco - tofP[*iTrack]) / pathLength[*iTrack];
 
-              bool noPID = probPi[*iTrack] == -1 || isnan(probPi[*iTrack]) ||
-                           (probPi[*iTrack] == 1 && probK[*iTrack] == 0 && probP[*iTrack] == 0);
+              unsigned int noPIDtype = 0;
+              if (probPi[*iTrack] == -1) {
+                noPIDtype = 1;
+              } else if (isnan(probPi[*iTrack])) {
+                noPIDtype = 2;
+              } else if (probPi[*iTrack] == 1 && probK[*iTrack] == 0 && probP[*iTrack] == 0) {
+                noPIDtype = 3;
+              }
+              bool noPID = noPIDtype > 0;
               bool isPi = !noPID && 1. - probPi[*iTrack] < minProbHeavy_;
               bool isK = !noPID && !isPi && probK[*iTrack] > probP[*iTrack];
               bool isP = !noPID && !isPi && !isK;
@@ -1366,6 +1382,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
               if (std::abs((*iTrack)->eta()) < trackMaxBtlEta_) {
                 meBarrelMatchedp_->Fill((*iTrack)->p());
+                meBarrelNoPIDtype_->Fill(noPIDtype + 0.5);
                 if (std::abs((*tp_info)->pdgId()) == 211) {
                   meBarrelPiDBetavsp_->Fill((*iTrack)->p(), dbetaPi);
                   if (noPID) {
@@ -1417,6 +1434,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                 }
               } else if (std::abs((*iTrack)->eta()) > trackMinEtlEta_ && std::abs((*iTrack)->eta()) < trackMaxEtlEta_) {
                 meEndcapMatchedp_->Fill((*iTrack)->p());
+                meEndcapNoPIDtype_->Fill(noPIDtype + 0.5);
                 if (std::abs((*tp_info)->pdgId()) == 211) {
                   meEndcapPiDBetavsp_->Fill((*iTrack)->p(), dbetaPi);
                   if (noPID) {
