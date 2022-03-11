@@ -27,10 +27,9 @@ private:
   const std::vector<std::string> pCaloHitInstanceLabels;
 };
 
-EmptySimHits::EmptySimHits(const edm::ParameterSet& iConfig) :
-      pSimHitInstanceLabels(iConfig.getParameter<std::vector<std::string> >("pSimHitInstanceLabels")),
+EmptySimHits::EmptySimHits(const edm::ParameterSet& iConfig)
+    : pSimHitInstanceLabels(iConfig.getParameter<std::vector<std::string> >("pSimHitInstanceLabels")),
       pCaloHitInstanceLabels(iConfig.getParameter<std::vector<std::string> >("pCaloHitInstanceLabels")) {
-
   for (size_t i = 0; i < pSimHitInstanceLabels.size(); i++) {
     produces<edm::PSimHitContainer>(pSimHitInstanceLabels[i]);
   }
