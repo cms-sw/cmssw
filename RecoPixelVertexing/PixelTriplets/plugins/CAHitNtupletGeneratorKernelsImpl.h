@@ -863,6 +863,7 @@ __global__ void kernel_print_found_ntuplets(TrackingRecHit2DSOAView const *__res
                                             int32_t maxPrint,
                                             int iev) {
   constexpr auto loose = pixelTrack::Quality::loose;
+  auto const &hh = *hhp;
   auto const &foundNtuplets = *ptuples;
   auto const &tracks = *ptracks;
   int first = blockDim.x * blockIdx.x + threadIdx.x;
@@ -871,7 +872,7 @@ __global__ void kernel_print_found_ntuplets(TrackingRecHit2DSOAView const *__res
     if (nh < 3)
       continue;
     if (quality[i] < loose) continue;
-    printf("TK: %d %d %d %d %f %f %f %f %f %f %f %d %d %d %d %d %d\n",
+    printf("TK: %d %d %d %d %f %f %f %f %f %f %f %.3f %.3f %.3f %.3f %.3f %.3f\n",
            10000 * iev + i,
            int(quality[i]),
            nh,
@@ -884,12 +885,12 @@ __global__ void kernel_print_found_ntuplets(TrackingRecHit2DSOAView const *__res
            tracks.zip(i),
            //           asinhf(fit_results[i].par(3)),
            tracks.chi2(i),
-           *foundNtuplets.begin(i),
-           *(foundNtuplets.begin(i) + 1),
-           *(foundNtuplets.begin(i) + 2),
-           nh > 3 ? int(*(foundNtuplets.begin(i) + 3)) : -1,
-           nh > 4 ? int(*(foundNtuplets.begin(i) + 4)) : -1,
-           nh > 5 ? int(*(foundNtuplets.begin(i) + nh-1)) : -1);
+           hh.zGlobal(*foundNtuplets.begin(i)),
+           hh.zGlobal(*(foundNtuplets.begin(i) + 1)),
+           hh.zGlobal(*(foundNtuplets.begin(i) + 2)),
+           nh > 3 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + 3))) : 0,
+           nh > 4 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + 4))) : 0,
+           nh > 5 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + nh-1))) : 0);
   }
 }
 
