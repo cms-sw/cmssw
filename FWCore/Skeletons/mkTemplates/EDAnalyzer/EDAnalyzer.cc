@@ -47,7 +47,7 @@ using reco::TrackCollection;
 class __class__ : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit __class__(const edm::ParameterSet&);
-  ~__class__();
+  ~__class__() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
