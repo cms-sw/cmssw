@@ -20,7 +20,6 @@ private:
   const std::string _label;
   edm::ESGetToken<TrackerInteractionGeometry, TrackerInteractionGeometryRecord> tokenGeom_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenBField_;
-
 };
 
 #endif

@@ -7,7 +7,8 @@
 
 #include <memory>
 
-MagneticFieldMapESProducer::MagneticFieldMapESProducer(const edm::ParameterSet& p) : _label(p.getUntrackedParameter<std::string>("trackerGeometryLabel", "")) {
+MagneticFieldMapESProducer::MagneticFieldMapESProducer(const edm::ParameterSet& p)
+    : _label(p.getUntrackedParameter<std::string>("trackerGeometryLabel", "")) {
   //    theTrackerMaterial = p.getParameter<edm::ParameterSet>("TrackerMaterial");
 
   auto cc = setWhatProduced(this);
@@ -20,8 +21,10 @@ MagneticFieldMapESProducer::MagneticFieldMapESProducer(const edm::ParameterSet& 
 MagneticFieldMapESProducer::~MagneticFieldMapESProducer() {}
 
 std::unique_ptr<MagneticFieldMap> MagneticFieldMapESProducer::produce(const MagneticFieldMapRecord& iRecord) {
-  const edm::ESHandle<TrackerInteractionGeometry> & theInteractionGeometry = iRecord.getRecord<TrackerInteractionGeometryRecord>().getHandle(tokenGeom_);
-  const edm::ESHandle<MagneticField> & theMagneticField = iRecord.getRecord<IdealMagneticFieldRecord>().getHandle(tokenBField_);
+  const edm::ESHandle<TrackerInteractionGeometry>& theInteractionGeometry =
+      iRecord.getRecord<TrackerInteractionGeometryRecord>().getHandle(tokenGeom_);
+  const edm::ESHandle<MagneticField>& theMagneticField =
+      iRecord.getRecord<IdealMagneticFieldRecord>().getHandle(tokenBField_);
 
   return std::make_unique<MagneticFieldMap>(theMagneticField.product(), theInteractionGeometry.product());
 }
