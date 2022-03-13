@@ -187,9 +187,6 @@ hltExoticaValidator = DQMEDAnalyzer(
     hltMET_genCut   = cms.string("pt > 75"),
     hltMET_recCut   = cms.string("pt > 75"),  
    
-    l1MET_genCut    = cms.string("pt > 75"),
-    l1MET_recCut    = cms.string("pt > 75"),  
-   
     # The specific parameters per analysis: the name of the parameter set has to be 
     # the same as the defined ones in the 'analysis' datamember. Each analysis is a PSet
     # with the mandatory attributes:
@@ -232,6 +229,3 @@ hltExoticaValidator = DQMEDAnalyzer(
     DSTMuons         = DSTMuonsPSet,
     TracklessJets    = TracklessJetsPSet
 )
-
-from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-stage2L1Trigger.toModify(hltExoticaValidator, METplusTrack = dict(l1METLabel = None))
