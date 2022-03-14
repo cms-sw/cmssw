@@ -217,7 +217,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
         clus.push_back(ic);
         ++ndigi;
       }
-      assert(clust.originalId() == ic);  // make sure hits and clus are in sync
+
       if (convert2Legacy_)
         clusterRef.emplace_back(edmNew::makeRefTo(hclusters, &clust));
       ic++;
