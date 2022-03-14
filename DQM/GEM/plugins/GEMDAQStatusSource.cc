@@ -10,6 +10,7 @@ GEMDAQStatusSource::GEMDAQStatusSource(const edm::ParameterSet &cfg) : GEMDQMBas
   tagAMC13_ = consumes<GEMAMC13StatusCollection>(cfg.getParameter<edm::InputTag>("AMC13InputLabel"));
 
   nAMCSlots_ = cfg.getParameter<Int_t>("AMCSlots");
+  gemEMapToken_ = esConsumes<GEMeMap, GEMeMapRcd, edm::Transition::BeginRun>();
 }
 
 void GEMDAQStatusSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -23,6 +24,40 @@ void GEMDAQStatusSource::fillDescriptions(edm::ConfigurationDescriptions &descri
   desc.addUntracked<std::string>("logCategory", "GEMDAQStatusSource");
 
   descriptions.add("GEMDAQStatusSource", desc);
+}
+
+void GEMDAQStatusSource::LoadROMap(edm::EventSetup const &iSetup) {
+  auto gemROMap = std::make_shared<GEMROMapping>();
+  //if (useDBEMap_)
+  if (true) {
+    const auto &eMap = iSetup.getData(gemEMapToken_);
+    auto gemEMap = std::make_unique<GEMeMap>(eMap);
+    gemEMap->convert(*gemROMap);
+
+    for (auto imap : gemEMap->theChamberMap_) {
+      int nNumChamber = (int)imap.fedId.size();
+      for (int i = 0; i < nNumChamber; i++) {
+        unsigned int fedId = imap.fedId[i];
+        uint8_t amcNum = imap.amcNum[i];
+        uint8_t gebId = imap.gebId[i];
+        GEMROMapping::chamEC geb_ec{fedId, amcNum, gebId};
+        GEMROMapping::chamDC geb_dc = gemROMap->chamberPos(geb_ec);
+        GEMDetId gemChId = geb_dc.detId;
+
+        mapFEDIdToRe_[fedId] = gemChId.region();
+        mapAMC13ToListChamber_[fedId].push_back(gemChId);
+        mapAMCToListChamber_[{fedId, amcNum}].push_back(gemChId);
+      }
+    }
+
+    gemEMap.reset();
+  } else {
+    // no EMap in DB, using dummy
+    // FIXME: How to add mapFEDIdToRe_ and mapDetIdToAMC_??
+    auto gemEMap = std::make_unique<GEMeMap>();
+    gemEMap->convertDummy(*gemROMap);
+    gemEMap.reset();
+  }
 }
 
 void GEMDAQStatusSource::SetLabelAMC13Status(MonitorElement *h2Status) {
@@ -91,6 +126,9 @@ void GEMDAQStatusSource::SetLabelVFATStatus(MonitorElement *h2Status) {
 }
 
 void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &iSetup) {
+  LoadROMap(iSetup);
+  if (mapAMC13ToListChamber_.empty() || mapAMCToListChamber_.empty())
+    return;
   initGeometry(iSetup);
   if (GEMGeometry_ == nullptr)
     return;
@@ -145,10 +183,24 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   h2SummaryStatusAll = CreateSummaryHist(ibooker, "chamberAllStatus");
   h2SummaryStatusWarning = CreateSummaryHist(ibooker, "chamberWarnings");
   h2SummaryStatusError = CreateSummaryHist(ibooker, "chamberErrors");
+  h2SummaryStatusVFATWarning = CreateSummaryHist(ibooker, "chamberVFATWarnings");
+  h2SummaryStatusVFATError = CreateSummaryHist(ibooker, "chamberVFATErrors");
+  h2SummaryStatusOHWarning = CreateSummaryHist(ibooker, "chamberOHWarnings");
+  h2SummaryStatusOHError = CreateSummaryHist(ibooker, "chamberOHErrors");
+  h2SummaryStatusAMCWarning = CreateSummaryHist(ibooker, "chamberAMCWarnings");
+  h2SummaryStatusAMCError = CreateSummaryHist(ibooker, "chamberAMCErrors");
+  h2SummaryStatusAMC13Error = CreateSummaryHist(ibooker, "chamberAMC13Errors");
 
   h2SummaryStatusAll->setTitle("Summary of all number of OH or VFAT status of each chambers");
-  h2SummaryStatusWarning->setTitle("Summary of OH or VFAT warnings of each chambers");
-  h2SummaryStatusError->setTitle("Summary of OH or VFAT errors of each chambers");
+  h2SummaryStatusWarning->setTitle("Summary of all warnings of each chambers");
+  h2SummaryStatusError->setTitle("Summary of all errors of each chambers");
+  h2SummaryStatusVFATWarning->setTitle("Summary of VFAT warnings of each chambers");
+  h2SummaryStatusVFATError->setTitle("Summary of VFAT errors of each chambers");
+  h2SummaryStatusOHWarning->setTitle("Summary of OH warnings of each chambers");
+  h2SummaryStatusOHError->setTitle("Summary of OH errors of each chambers");
+  h2SummaryStatusAMCWarning->setTitle("Summary of AMC warnings of each chambers");
+  h2SummaryStatusAMCError->setTitle("Summary of AMC errors of each chambers");
+  h2SummaryStatusAMC13Error->setTitle("Summary of AMC13 errors of each chambers");
 }
 
 int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
@@ -204,6 +256,17 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
   event.getByToken(tagAMC_, gemAMC);
   event.getByToken(tagAMC13_, gemAMC13);
 
+  std::map<ME4IdsKey, bool> mapChamberAll;
+  std::map<ME4IdsKey, bool> mapChamberWarning;
+  std::map<ME4IdsKey, bool> mapChamberError;
+  std::map<ME4IdsKey, bool> mapChamberVFATWarning;
+  std::map<ME4IdsKey, bool> mapChamberVFATError;
+  std::map<ME4IdsKey, bool> mapChamberOHWarning;
+  std::map<ME4IdsKey, bool> mapChamberOHError;
+  std::map<ME4IdsKey, bool> mapChamberAMCWarning;
+  std::map<ME4IdsKey, bool> mapChamberAMCError;
+  std::map<ME4IdsKey, bool> mapChamberAMC13Error;
+
   for (auto amc13It = gemAMC13->begin(); amc13It != gemAMC13->end(); ++amc13It) {
     int fedId = (*amc13It).first;
     if (mapFEDIdToRe_.find(fedId) == mapFEDIdToRe_.end())
@@ -245,8 +308,16 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       if (errors.wrongFedId)
         FillWithRiseErr(h2AMC13Status_, nXBin, 10, bErr);
 
-      if (!bWarn && !bErr)
+      if (!bWarn && !bErr) {
         h2AMC13Status_->Fill(nXBin, 1);
+      } else {
+        auto &listChamber = mapAMC13ToListChamber_[fedId];
+        for (auto gid : listChamber) {
+          ME4IdsKey key4Ch{gid.region(), gid.station(), gid.layer(), gid.chamber()};
+          if (bErr)
+            mapChamberAMC13Error[key4Ch] = false;
+        }
+      }
     }
   }
 
@@ -298,15 +369,20 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       if (errors.BC0locked)
         FillWithRiseErr(h2AMCStatus, nAMCNum, 12, bErr);
 
-      if (!bWarn && !bErr)
+      if (!bWarn && !bErr) {
         h2AMCStatus->Fill(nAMCNum, 1);
+      } else {
+        auto &listChamber = mapAMCToListChamber_[{fedId, nAMCNum}];
+        for (auto gid : listChamber) {
+          ME4IdsKey key4Ch{gid.region(), gid.station(), gid.layer(), gid.chamber()};
+          if (bErr)
+            mapChamberAMCError[key4Ch] = false;
+          if (bWarn)
+            mapChamberAMCWarning[key4Ch] = false;
+        }
+      }
     }
   }
-
-  // WARNING: ME4IdsKey for region, station, layer, chamber (not iEta)
-  std::map<ME4IdsKey, bool> mapChamberAll;
-  std::map<ME4IdsKey, bool> mapChamberWarning;
-  std::map<ME4IdsKey, bool> mapChamberError;
 
   for (auto ohIt = gemOH->begin(); ohIt != gemOH->end(); ++ohIt) {
     GEMDetId gid = (*ohIt).first;
@@ -356,9 +432,9 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       if (!bWarn && !bErr)
         mapStatusOH_.Fill(key3, gid.chamber(), 1);
       if (bWarn)
-        mapChamberWarning[key4] = false;
+        mapChamberOHWarning[key4] = false;
       if (bErr)
-        mapChamberError[key4] = false;
+        mapChamberOHError[key4] = false;
       mapChamberAll[key4] = true;
     }
   }
@@ -407,9 +483,9 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       if (!bWarn && !bErr)
         mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 1);
       if (bWarn)
-        mapChamberWarning[key4Ch] = false;
+        mapChamberVFATWarning[key4Ch] = false;
       if (bErr)
-        mapChamberError[key4Ch] = false;
+        mapChamberVFATError[key4Ch] = false;
       if (bWarn)
         mapStatusWarnVFATPerLayer_.Fill(key3, gid.chamber(), nIdxVFAT);
       if (bErr)
@@ -425,21 +501,19 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     h2SummaryStatusAll->Fill(nChamber, mapStationToIdx_[key3]);
   }
 
-  // Summarizing the warning occupancy
-  for (auto const &[key4, bWarning] : mapChamberWarning) {
-    if (mapChamberError.find(key4) != mapChamberError.end())  // Avoiding any double-counting
-      continue;
-    ME3IdsKey key3 = key4Tokey3(key4);
-    Int_t nChamber = keyToChamber(key4);
-    h2SummaryStatusWarning->Fill(nChamber, mapStationToIdx_[key3]);
-  }
+  // Summarizing all presence of status of each chamber
+  FillStatusSummaryPlot(mapChamberAll, h2SummaryStatusAll);
+  // Summarizing all the error and warning occupancy
+  FillStatusSummaryPlot(mapChamberVFATWarning, h2SummaryStatusVFATWarning, &mapChamberWarning);
+  FillStatusSummaryPlot(mapChamberVFATError, h2SummaryStatusVFATError, &mapChamberError);
+  FillStatusSummaryPlot(mapChamberOHWarning, h2SummaryStatusOHWarning, &mapChamberWarning);
+  FillStatusSummaryPlot(mapChamberOHError, h2SummaryStatusOHError, &mapChamberError);
+  FillStatusSummaryPlot(mapChamberAMCWarning, h2SummaryStatusAMCWarning, &mapChamberWarning);
+  FillStatusSummaryPlot(mapChamberAMCError, h2SummaryStatusAMCError, &mapChamberError);
+  FillStatusSummaryPlot(mapChamberAMC13Error, h2SummaryStatusAMC13Error, &mapChamberError);
 
-  // Summarizing the error occupancy
-  for (auto const &[key4, bErr] : mapChamberError) {
-    ME3IdsKey key3 = key4Tokey3(key4);
-    Int_t nChamber = keyToChamber(key4);
-    h2SummaryStatusError->Fill(nChamber, mapStationToIdx_[key3]);
-  }
+  FillStatusSummaryPlot(mapChamberWarning, h2SummaryStatusWarning);
+  FillStatusSummaryPlot(mapChamberError, h2SummaryStatusError);
 }
 
 DEFINE_FWK_MODULE(GEMDAQStatusSource);
