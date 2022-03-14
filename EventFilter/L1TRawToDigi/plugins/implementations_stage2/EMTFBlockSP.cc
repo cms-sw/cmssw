@@ -16,13 +16,6 @@ namespace l1t {
         bool unpack(const Block& block,
                     UnpackerCollections* coll) override;  // Apparently it's always good to use override in C++
         // virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
-
-      private:
-        bool useHMTBits_{false};
-        bool useNNBits_{false};
-
-        int nominalShower_ = 2;
-        int tightShower_ = 3;
       };
 
       // class SPBlockPacker : public Packer { // "SPBlockPacker" inherits from "Packer"
@@ -184,12 +177,11 @@ namespace l1t {
         auto payload = block.payload();
 
         // FW version is computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)
-        if (getAlgoVersion() >= 11098) {  // FW versions >= 26.10.2021
-          useNNBits_ = true;
-        }
-        if (getAlgoVersion() >= 11306) {  // FW versions >= 10.01.2022
-          useHMTBits_ = true;
-        }
+        bool useNNBits_  = getAlgoVersion() >= 11098;  // FW versions >= 26.10.2021
+        bool useHMTBits_ = getAlgoVersion() >= 11306;  // FW versions >= 10.01.2022
+
+        static constexpr int nominalShower_ = 2;
+        static constexpr int tightShower_   = 3;
 
         // Check Format of Payload
         l1t::emtf::SP SP_;
