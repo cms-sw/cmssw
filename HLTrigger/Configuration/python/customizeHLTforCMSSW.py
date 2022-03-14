@@ -144,6 +144,15 @@ def customiseFor2018Input(process):
 
     return process
 
+def customiseFor37231(process):
+    """ Customisation to fix the typo of Reccord in PR 37231 (https://github.com/cms-sw/cmssw/pull/37231) """
+
+    for prod in producers_by_type(process, 'DeDxEstimatorProducer'):
+        if hasattr(prod, 'Reccord'):
+            delattr(prod, 'Reccord')
+            setattr(prod, 'Record', cms.string("SiStripDeDxMip_3D_Rcd"))
+
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -155,4 +164,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
+    process = customiseFor37231(process)
+
     return process
+
