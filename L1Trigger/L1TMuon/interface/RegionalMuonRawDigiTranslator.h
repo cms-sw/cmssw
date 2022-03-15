@@ -27,7 +27,7 @@ namespace l1t {
                                         uint32_t& raw_data_32_63,
                                         bool isKbmtf,
                                         bool useEmtfDisplacementInfo);
-    void generatePackedShowerPayload(const RegionalMuonShower& shower,
+    static void generatePackedShowerPayload(const RegionalMuonShower& shower,
                                             std::array<uint32_t, 6>& payload,
                                             bool useEmtfNominalTightShowers,
                                             bool useEmtfLooseShowers);
