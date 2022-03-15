@@ -130,8 +130,10 @@ namespace mkfit {
     }
 
     bool is_stereo() const { return m_layer_info->is_stereo(); }
+    bool is_pixel() const { return m_layer_info->is_pixel(); }
 
     // Sub-detector type
+    /*
     bool is_pixb_lyr() const { return m_layer_info->is_pixb_lyr(); }
     bool is_pixe_lyr() const { return m_layer_info->is_pixe_lyr(); }
     bool is_pix_lyr() const { return m_layer_info->is_pix_lyr(); }
@@ -139,6 +141,7 @@ namespace mkfit {
     bool is_tob_lyr() const { return m_layer_info->is_tob_lyr(); }
     bool is_tid_lyr() const { return m_layer_info->is_tid_lyr(); }
     bool is_tec_lyr() const { return m_layer_info->is_tec_lyr(); }
+    */
 
   private:
     // Constants for phi-bin access / index manipulation.
@@ -724,9 +727,9 @@ namespace mkfit {
       const HoTNode& hot_node = m_comb_candidate->hot_node(ch);
       int thisL = hot_node.m_hot.layer;
       if (thisL >= 0 && (hot_node.m_hot.index >= 0 || hot_node.m_hot.index == -9)) {
-        if (trk_inf.is_pix_lyr(thisL))
+        if (trk_inf[thisL].is_pixel())
           ++pix;
-        else if (trk_inf.is_stereo(thisL)) {
+        else if (trk_inf[thisL].is_stereo()) {
           ++stereo;
           if (thisL == prevL)
             doubleStereo = thisL;
@@ -756,9 +759,9 @@ namespace mkfit {
       const HoTNode& hot_node = m_comb_candidate->hot_node(ch);
       int thisL = hot_node.m_hot.layer;
       if (thisL >= 0 && (hot_node.m_hot.index >= 0 || hot_node.m_hot.index == -9) && thisL != prevL) {
-        if (trk_inf.is_pix_lyr(thisL))
+        if (trk_inf[thisL].is_pixel())
           ++pix;
-        else if (trk_inf.is_stereo(thisL))
+        else if (trk_inf[thisL].is_stereo())
           ++stereo;
         else {
           //mono if not pixel, nor stereo - can be matched to stereo

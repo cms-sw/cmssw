@@ -33,6 +33,17 @@ namespace mkfit {
     m_hole_r_max = rh2;
   }
 
+  void LayerInfo::print_layer() const {
+    // clang-format off
+    printf("Layer %2d  r(%7.4f, %7.4f) z(% 9.4f, % 9.4f) is_brl=%d, is_pix=%d, is_stereo=%d, q_bin=%.2f\n",
+           m_layer_id,
+           m_rin, m_rout, m_zmin, m_zmax,
+           is_barrel(), m_is_pixel, m_is_stereo, m_q_bin);
+    if (m_has_r_range_hole)
+      printf("          has_r_range_hole: %.2f -> %.2f\n", m_hole_r_min, m_hole_r_max);
+    // clang-format on
+  }
+
   //==============================================================================
   // TrackerInfo
   //==============================================================================

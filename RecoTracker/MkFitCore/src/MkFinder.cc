@@ -987,7 +987,7 @@ namespace mkfit {
           dprint("chi2=" << chi2);
           if (chi2 < max_c2) {
             bool isCompatible = true;
-            if (!layer_of_hits.is_pix_lyr()) {
+            if (!layer_of_hits.is_pixel()) {
               //check module compatibility via long strip side = L/sqrt(12)
               isCompatible =
                   isStripQCompatible(itrack, layer_of_hits.is_barrel(), m_Err[iP], propPar, m_msErr, m_msPar);
@@ -1035,7 +1035,7 @@ namespace mkfit {
             dprint("chi2=" << chi2);
             if (chi2 < max_c2) {
               bool isCompatible = true;
-              if (!layer_of_hits.is_pix_lyr()) {
+              if (!layer_of_hits.is_pixel()) {
                 //check module compatibility via long strip side = L/sqrt(12)
                 isCompatible =
                     isStripQCompatible(itrack, layer_of_hits.is_barrel(), m_Err[iP], propPar, m_msErr, m_msPar);
@@ -1047,7 +1047,7 @@ namespace mkfit {
               if (isCompatible) {
                 bool hitExists = false;
                 int maxHits = m_NFoundHits(itrack, 0, 0);
-                if (layer_of_hits.is_pix_lyr()) {
+                if (layer_of_hits.is_pixel()) {
                   for (int i = 0; i <= maxHits; ++i) {
                     if (i > 2)
                       break;
@@ -1201,7 +1201,7 @@ namespace mkfit {
           dprint("chi2=" << chi2 << " for trkIdx=" << itrack << " hitIdx=" << m_XHitArr.At(itrack, hit_cnt, 0));
           if (chi2 < max_c2) {
             bool isCompatible = true;
-            if (!layer_of_hits.is_pix_lyr()) {
+            if (!layer_of_hits.is_pixel()) {
               //check module compatibility via long strip side = L/sqrt(12)
               isCompatible =
                   isStripQCompatible(itrack, layer_of_hits.is_barrel(), m_Err[iP], propPar, m_msErr, m_msPar);
@@ -1215,7 +1215,7 @@ namespace mkfit {
               CombCandidate &ccand = cloner.combCandWithOriginalIndex(m_SeedIdx(itrack, 0, 0));
               bool hitExists = false;
               int maxHits = m_NFoundHits(itrack, 0, 0);
-              if (layer_of_hits.is_pix_lyr()) {
+              if (layer_of_hits.is_pixel()) {
                 for (int i = 0; i <= maxHits; ++i) {
                   if (i > 2)
                     break;
