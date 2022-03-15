@@ -8,7 +8,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -17,14 +17,12 @@
 
 namespace gen {
 
-  class DataCardFileWriter : public edm::EDAnalyzer {
+  class DataCardFileWriter : public edm::stream::EDAnalyzer<> {
   public:
     DataCardFileWriter(const edm::ParameterSet&);
     ~DataCardFileWriter() override{};
 
-    void beginJob() override{};
     void analyze(const edm::Event&, const edm::EventSetup&) override{};
-    void endJob() override{};
   };
 
 };  // namespace gen
