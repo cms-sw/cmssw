@@ -37,6 +37,8 @@ namespace mkfit {
     void set_propagate_to(float pto) { m_propagate_to = pto; }
     void set_r_hole_range(float rh1, float rh2);
     void set_q_bin(float qb) { m_q_bin = qb; }
+    void set_subdet(int sd) { m_subdet = sd; }
+    void set_is_pixel(bool p) { m_is_pixel = p; }
     void set_is_stereo(bool s) { m_is_stereo = s; }
 
     int layer_id() const { return m_layer_id; }
@@ -49,23 +51,17 @@ namespace mkfit {
     float z_mean() const { return 0.5f * (m_zmin + m_zmax); }
     float propagate_to() const { return m_propagate_to; }
     float q_bin() const { return m_q_bin; }
-    bool is_stereo() const { return m_is_stereo; }
 
+    int subdet() const { return m_subdet; }
     bool is_barrel() const { return m_layer_type == Barrel; }
+    bool is_pixel() const { return m_is_pixel; }
+    bool is_stereo() const { return m_is_stereo; }
 
     bool is_within_z_limits(float z) const { return z > m_zmin && z < m_zmax; }
     bool is_within_r_limits(float r) const { return r > m_rin && r < m_rout; }
     bool is_within_q_limits(float q) const { return is_barrel() ? is_within_z_limits(q) : is_within_r_limits(q); }
 
     bool is_in_r_hole(float r) const { return m_has_r_range_hole ? is_in_r_hole_no_check(r) : false; }
-
-    bool is_pixb_lyr() const { return m_is_pixb_lyr; }
-    bool is_pixe_lyr() const { return m_is_pixe_lyr; }
-    bool is_pix_lyr() const { return (m_is_pixb_lyr || m_is_pixe_lyr); }
-    bool is_tib_lyr() const { return m_is_tib_lyr; }
-    bool is_tob_lyr() const { return m_is_tob_lyr; }
-    bool is_tid_lyr() const { return m_is_tid_lyr; }
-    bool is_tec_lyr() const { return m_is_tec_lyr; }
 
     WSR_Result is_within_z_sensitive_region(float z, float dz) const {
       if (z > m_zmax + dz || z < m_zmin - dz)
@@ -90,29 +86,14 @@ namespace mkfit {
       return WSR_Result(WSR_Edge, false);
     }
 
-    void print_layer() const {
-      printf("Layer %2d  r(%7.4f, %7.4f) z(% 9.4f, % 9.4f) is_brl=%d\n",
-             m_layer_id,
-             m_rin,
-             m_rout,
-             m_zmin,
-             m_zmax,
-             is_barrel());
-    }
-
-    // To be cleaned out with other geometry cleanup
-    bool m_is_pixb_lyr = false;
-    bool m_is_pixe_lyr = false;
-    bool m_is_tib_lyr = false;
-    bool m_is_tob_lyr = false;
-    bool m_is_tid_lyr = false;
-    bool m_is_tec_lyr = false;
+    void print_layer() const;
 
   private:
     bool is_in_r_hole_no_check(float r) const { return r > m_hole_r_min && r < m_hole_r_max; }
 
     int m_layer_id = -1;
     LayerType_e m_layer_type = Undef;
+    int m_subdet;  // sub-detector id, not used in core mkFit
 
     float m_rin, m_rout, m_zmin, m_zmax;
     float m_propagate_to;
@@ -121,6 +102,7 @@ namespace mkfit {
     float m_hole_r_min, m_hole_r_max;  // This could be turned into std::function when needed.
     bool m_has_r_range_hole = false;
     bool m_is_stereo = false;
+    bool m_is_pixel = false;
   };
 
   //==============================================================================
@@ -150,16 +132,11 @@ namespace mkfit {
 
     const LayerInfo& operator[](int l) const { return m_layers[l]; }
 
-    bool is_stereo(int i) const { return m_layers[i].is_stereo(); }
-    bool is_pixb_lyr(int i) const { return m_layers[i].is_pixb_lyr(); }
-    bool is_pixe_lyr(int i) const { return m_layers[i].is_pixe_lyr(); }
-    bool is_pix_lyr(int i) const { return m_layers[i].is_pix_lyr(); }
-    bool is_tib_lyr(int i) const { return m_layers[i].is_tib_lyr(); }
-    bool is_tob_lyr(int i) const { return m_layers[i].is_tob_lyr(); }
-    bool is_tid_lyr(int i) const { return m_layers[i].is_tid_lyr(); }
-    bool is_tec_lyr(int i) const { return m_layers[i].is_tec_lyr(); }
-
     const LayerInfo& outer_barrel_layer() const { return m_layers[m_barrel.back()]; }
+
+    const std::vector<int>& barrel_layers() const { return m_barrel; }
+    const std::vector<int>& endcap_pos_layers() const { return m_ecap_pos; }
+    const std::vector<int>& endcap_neg_layers() const { return m_ecap_neg; }
 
   private:
     int new_layer(LayerInfo::LayerType_e type);

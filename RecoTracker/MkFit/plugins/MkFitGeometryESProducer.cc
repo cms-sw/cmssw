@@ -11,8 +11,6 @@
 
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 
-#include "createPhase1TrackerGeometry.h"
-
 // mkFit includes
 #include "RecoTracker/MkFitCore/interface/ConfigWrapper.h"
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
@@ -40,8 +38,34 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
+  std::unique_ptr<MkFitGeometry> produce(const TrackerRecoGeometryRecord &iRecord);
+
+private:
+  struct gap_collector {
+    struct interval {
+      float x, y;
+    };
+
+    void reset_current() { m_current = {std::numeric_limits<float>::max(), -std::numeric_limits<float>::max()}; }
+    void extend_current(float q) {
+      m_current.x = std::min(m_current.x, q);
+      m_current.y = std::max(m_current.y, q);
+    }
+    void add_current() { add_interval(m_current.x, m_current.y); }
+
+    void add_interval(float x, float y);
+
+    void sqrt_elements();
+    bool find_gap(interval &itvl, float eps);
+    void print_gaps();
+
+    std::list<interval> m_coverage;
+    interval m_current;
+  };
+  typedef std::unordered_map<int, gap_collector> layer_gap_map_t;
+
   void considerPoint(const GlobalPoint &gp, mkfit::LayerInfo &lay_info);
-  void fillShapeAndPlacement(const GeomDet *det, mkfit::TrackerInfo &trk_info);
+  void fillShapeAndPlacement(const GeomDet *det, mkfit::TrackerInfo &trk_info, layer_gap_map_t *lgc_map = nullptr);
   void addPixBGeometry(mkfit::TrackerInfo &trk_info);
   void addPixEGeometry(mkfit::TrackerInfo &trk_info);
   void addTIBGeometry(mkfit::TrackerInfo &trk_info);
@@ -49,9 +73,6 @@ public:
   void addTIDGeometry(mkfit::TrackerInfo &trk_info);
   void addTECGeometry(mkfit::TrackerInfo &trk_info);
 
-  std::unique_ptr<MkFitGeometry> produce(const TrackerRecoGeometryRecord &iRecord);
-
-private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> trackerToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
@@ -75,13 +96,93 @@ void MkFitGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions &d
 
 //------------------------------------------------------------------------------
 
+void MkFitGeometryESProducer::gap_collector::add_interval(float x, float y) {
+  if (x > y)
+    std::swap(x, y);
+  bool handled = false;
+  for (auto i = m_coverage.begin(); i != m_coverage.end(); ++i) {
+    if (y < i->x) {  // fully on 'left'
+      m_coverage.insert(i, {x, y});
+      handled = true;
+      break;
+    } else if (x > i->y) {  // fully on 'right'
+      continue;
+    } else if (x < i->x) {  // sticking out on 'left'
+      i->x = x;
+      handled = true;
+      break;
+    } else if (y > i->y) {  // sticking out on 'right'
+      i->y = y;
+      // check for overlap with the next interval, potentially merge
+      auto j = i;
+      ++j;
+      if (j != m_coverage.end() && i->y >= j->x) {
+        i->y = j->y;
+        m_coverage.erase(j);
+      }
+      handled = true;
+      break;
+    } else {  // contained in current interval
+      handled = true;
+      break;
+    }
+  }
+  if (!handled) {
+    m_coverage.push_back({x, y});
+  }
+}
+
+void MkFitGeometryESProducer::gap_collector::sqrt_elements() {
+  for (auto &itvl : m_coverage) {
+    itvl.x = std::sqrt(itvl.x);
+    itvl.y = std::sqrt(itvl.y);
+  }
+}
+
+bool MkFitGeometryESProducer::gap_collector::find_gap(interval &itvl, float eps) {
+  auto i = m_coverage.begin();
+  while (i != m_coverage.end()) {
+    auto j = i;
+    ++j;
+    if (j != m_coverage.end()) {
+      if (j->x - i->y > eps) {
+        itvl = {i->y, j->x};
+        return true;
+      }
+      i = j;
+    } else {
+      break;
+    }
+  }
+  return false;
+}
+
+void MkFitGeometryESProducer::gap_collector::print_gaps() {
+  auto i = m_coverage.begin();
+  while (i != m_coverage.end()) {
+    auto j = i;
+    ++j;
+    if (j != m_coverage.end()) {
+      printf("(%f, %f)->%f ", i->y, j->x, j->x - i->y);
+      i = j;
+    } else {
+      break;
+    }
+  }
+  printf("\n");
+}
+
+//------------------------------------------------------------------------------
+
 void MkFitGeometryESProducer::considerPoint(const GlobalPoint &gp, mkfit::LayerInfo &li) {
   // Use radius squared during bounding-region search.
   float r = gp.perp2(), z = gp.z();
   li.extend_limits(r, z);
 }
 
-void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det, mkfit::TrackerInfo &trk_info) {
+void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
+                                                    mkfit::TrackerInfo &trk_info,
+                                                    layer_gap_map_t *lgc_map) {
   DetId detid = det->geographicalId();
 
   float xy[4][2];
@@ -170,6 +271,8 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det, mkfit::T
     dz = b2->thickness() * 0.5;  // half thickness
 
     // printf("RECT 0x%x %f %f %f\n", detid.rawId(), dx, dy, dz);
+  } else {
+    throw std::runtime_error("unsupported Bounds class");
   }
 
   const bool useMatched = false;
@@ -181,13 +284,28 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det, mkfit::T
                                        m_trackerTopo->side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap));
 
   mkfit::LayerInfo &layer_info = trk_info.layer_nc(lay);
+  if (lgc_map) {
+    (*lgc_map)[lay].reset_current();
+  }
   for (int i = 0; i < 4; ++i) {
     Local3DPoint lp1(xy[i][0], xy[i][1], -dz);
     Local3DPoint lp2(xy[i][0], xy[i][1], dz);
-
-    considerPoint(det->surface().toGlobal(lp1), layer_info);
-    considerPoint(det->surface().toGlobal(lp2), layer_info);
+    GlobalPoint gp1 = det->surface().toGlobal(lp1);
+    GlobalPoint gp2 = det->surface().toGlobal(lp2);
+    considerPoint(gp1, layer_info);
+    considerPoint(gp2, layer_info);
+    if (lgc_map) {
+      (*lgc_map)[lay].extend_current(gp1.perp2());
+      (*lgc_map)[lay].extend_current(gp2.perp2());
+    }
   }
+  if (lgc_map) {
+    (*lgc_map)[lay].add_current();
+  }
+  // Set some layer parameters (repeatedly, would require hard-coding otherwise)
+  layer_info.set_subdet(detid.subdetId());
+  layer_info.set_is_pixel(detid.subdetId() <= 2);
+  layer_info.set_is_stereo(m_trackerTopo->isStereo(detid));
 }
 
 //==============================================================================
@@ -237,11 +355,56 @@ void MkFitGeometryESProducer::addTIDGeometry(mkfit::TrackerInfo &trk_info) {
 }
 
 void MkFitGeometryESProducer::addTECGeometry(mkfit::TrackerInfo &trk_info) {
+  // For TEC we also need to discover hole in radial extents.
+  layer_gap_map_t lgc_map;
   for (auto &det : m_trackerGeom->detsTEC()) {
-    fillShapeAndPlacement(det, trk_info);
+    fillShapeAndPlacement(det, trk_info, &lgc_map);
+  }
+  // Now loop over the gap_collectors and see if there is a coverage gap.
+  gap_collector::interval itvl;
+  for (auto &[layer, gcol] : lgc_map) {
+    gcol.sqrt_elements();
+    if (gcol.find_gap(itvl, 0.5)) {
+      printf("TEC layer %d, gap: %f -> %f, width = %f\n", layer, itvl.x, itvl.y, itvl.y - itvl.x);
+      trk_info.layer_nc(layer).set_r_hole_range(itvl.x, itvl.y);
+    }
   }
 }
 
+//------------------------------------------------------------------------------
+// clang-format off
+namespace {
+  const float phase1QBins_sa[] = { // in mk_trk_info.C
+    /* PIXB */
+    2.0, 2.0, 2.0, 2.0,
+    /* TIB, TOB */
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5,
+    /* PIXE+ */
+    1.0, 1.0, 1.0,
+    /* TID+, TEC+ */
+    5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5,
+    /* PIXE- */
+    1.0, 1.0, 1.0,
+    /* TID-, TEC- */
+    5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5
+  };
+
+  const float phase1QBins[] = { // from createPhase1TrackerGeometryAutoGen.acc
+    /* PIXB */
+    2.0, 2.0, 2.0, 2.0,
+    /* TIB, TOB */
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5,
+    /* PIXE+ */
+    1.0, 1.0, 1.0,
+    /* TID+, TEC+ */
+    5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+    /* PIXE- */
+    1.0, 1.0, 1.0,
+    /* TID-, TEC- */
+    5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
+  };
+}
+// clang-format on
 //------------------------------------------------------------------------------
 
 std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRecoGeometryRecord &iRecord) {
@@ -268,10 +431,10 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
 
   // Prepare layer boundaries for bounding-box search
   for (int i = 0; i < trackerInfo->n_layers(); ++i)
-    trackerInfo->layer_nc(i).set_limits(1e9, 0, 1e9, -1e9);
+    trackerInfo->layer_nc(i).set_limits(
+        std::numeric_limits<float>::max(), 0, std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
 
-  // This is sort of CMS-2017 specific ... but fireworks code uses it for PhaseII as well
-  // split in Fireworks, could really iterate over trackerGeometry->dets()
+  // This is sort of CMS-2017 specific ... but fireworks code uses it for PhaseII as well.
   addPixBGeometry(*trackerInfo);
   addPixEGeometry(*trackerInfo);
   addTIBGeometry(*trackerInfo);
@@ -283,9 +446,9 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
   for (int i = 0; i < trackerInfo->n_layers(); ++i) {
     auto &li = trackerInfo->layer_nc(i);
     li.set_r_in_out(std::sqrt(li.rin()), std::sqrt(li.rout()));
+    li.set_propagate_to(li.is_barrel() ? li.r_mean() : li.z_mean());
+    li.set_q_bin(phase1QBins[i]);
   }
-
-  // missing setup of bins ets (as in standalone Geoms/CMS-2017.cc and mk_trk_info.C)
 
   return std::make_unique<MkFitGeometry>(
       iRecord.get(geomToken_), iRecord.get(trackerToken_), iRecord.get(ttopoToken_), std::move(trackerInfo));
