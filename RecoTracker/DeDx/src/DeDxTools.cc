@@ -296,7 +296,7 @@ namespace deDxTools {
     if (Record == "SiStripDeDxElectron_3D_Rcd") {
       return iCC.esConsumes<H3DD, SiStripDeDxElectron_3D_Rcd, edm::Transition::BeginRun>();
     }
-    throw cms::Exception("WrongRecord for dEdx") << "The reccord : " << Record << "is unknown\n";
+    throw cms::Exception("WrongRecord for dEdx") << "The record : " << Record << "is unknown\n";
   }
 
   PhysicsTools::Calibration::HistogramD3D const& getHistogramD3D(edm::EventSetup const& iES,
