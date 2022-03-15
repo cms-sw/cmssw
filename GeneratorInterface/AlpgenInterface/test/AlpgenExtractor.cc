@@ -5,7 +5,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -17,20 +17,21 @@
 // class decleration
 //
 
-class AlpgenExtractor : public edm::EDAnalyzer {
+class AlpgenExtractor : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit AlpgenExtractor(const edm::ParameterSet&);
-  ~AlpgenExtractor();
+  ~AlpgenExtractor() override = default;
 
 private:
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
   void writeHeader(const std::vector<LHERunInfoProduct::Header>::const_iterator, const std::string);
   // ----------member data ---------------------------
-  std::string unwParFile_;
-  std::string wgtFile_;
-  std::string parFile_;
+  const std::string unwParFile_;
+  const std::string wgtFile_;
+  const std::string parFile_;
+  const edm::EDGetTokenT<LHERunInfoProduct> tokenLHERun_;
 };
 
 //
@@ -47,13 +48,9 @@ private:
 AlpgenExtractor::AlpgenExtractor(const edm::ParameterSet& iConfig)
     : unwParFile_(iConfig.getUntrackedParameter<std::string>("unwParFile")),
       wgtFile_(iConfig.getUntrackedParameter<std::string>("wgtFile")),
-      parFile_(iConfig.getUntrackedParameter<std::string>("parFile")) {
+      parFile_(iConfig.getUntrackedParameter<std::string>("parFile")),
+      tokenLHERun_(consumes<LHERunInfoProduct, edm::InRun>(edm::InputTag("source"))) {
   //now do what ever initialization is needed
-}
-
-AlpgenExtractor::~AlpgenExtractor() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -62,8 +59,7 @@ AlpgenExtractor::~AlpgenExtractor() {
 
 // ------------ method called to for each run    ------------
 void AlpgenExtractor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::Handle<LHERunInfoProduct> runInfo;
-  iRun.getByLabel("source", runInfo);
+  const edm::Handle<LHERunInfoProduct> & runInfo = iRun.getHandle(tokenLHERun_);
   std::cout << "Found " << runInfo->headers_size() << " headers." << std::endl;
 
   std::vector<LHERunInfoProduct::Header>::const_iterator headers = runInfo->headers_begin();
@@ -80,14 +76,6 @@ void AlpgenExtractor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
   headers++;
   writeHeader(headers, parFile_);
 }
-
-// ------------ method called to for each event  ------------
-void AlpgenExtractor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
-
-// ------------ method called once each job just before starting event loop  ------------
-
-// ------------ method called once each job just after ending the event loop  ------------
-void AlpgenExtractor::endJob() {}
 
 void AlpgenExtractor::writeHeader(std::vector<LHERunInfoProduct::Header>::const_iterator header,
                                   const std::string filename) {
