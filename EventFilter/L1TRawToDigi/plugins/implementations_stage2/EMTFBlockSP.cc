@@ -177,11 +177,11 @@ namespace l1t {
         auto payload = block.payload();
 
         // FW version is computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)
-        bool useNNBits_  = getAlgoVersion() >= 11098;  // FW versions >= 26.10.2021
+        bool useNNBits_ = getAlgoVersion() >= 11098;   // FW versions >= 26.10.2021
         bool useHMTBits_ = getAlgoVersion() >= 11306;  // FW versions >= 10.01.2022
 
         static constexpr int nominalShower_ = 2;
-        static constexpr int tightShower_   = 3;
+        static constexpr int tightShower_ = 3;
 
         // Check Format of Payload
         l1t::emtf::SP SP_;
