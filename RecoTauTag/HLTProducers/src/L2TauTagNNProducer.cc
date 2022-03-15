@@ -184,8 +184,7 @@ private:
                       const reco::BeamSpot& beamspot,
                       const MagneticField* magfi);
   std::vector<int> selectGoodVertices(const ZVertexSoA& patavtx_soa,
-                                      const pixelTrack::TrackSoA& patatracks_tsoa,
-                                      const std::vector<int>& TrackGood);
+                                      const pixelTrack::TrackSoA& patatracks_tsoa);
   std::pair<float, float> impactParameter(int it,
                                           const pixelTrack::TrackSoA& patatracks_tsoa,
                                           float patatrackPhi,
@@ -341,20 +340,28 @@ void L2TauNNProducer::checknan(tensorflow::Tensor& tensor, int debugLevel) {
                                         << L2TauTagNNv1::varNameMap.at(static_cast<L2TauTagNNv1::NNInputs>(var_idx))
                                         << "\t var_idx = " << var_idx << "\t eta_idx = " << eta_idx
                                         << "\t phi_idx = " << phi_idx << "\t tau_idx = " << tau_idx << std::endl;
-            if (debugLevel > 2) {
+            if (debugLevel > 2 ) {
               edm::LogWarning("InputVar") << "other vars in same cell \n";
               if (var_idx + 1 < tensor_shape.at(3))
                 edm::LogWarning("InputVar") << L2TauTagNNv1::varNameMap.at(static_cast<NNInputs>(var_idx + 1))
-                                            << "\t = " << getCell(static_cast<NNInputs>(var_idx + 1)) << std::endl;
+                                            << "\t = " << getCell(static_cast<NNInputs>(var_idx + 1))
+                                            << "\t var_idx = " << var_idx << "\t eta_idx = " << eta_idx
+                                            << "\t phi_idx = " << phi_idx << "\t tau_idx = " << tau_idx << std::endl;;
               if (var_idx + 2 < tensor_shape.at(3))
                 edm::LogWarning("InputVar") << L2TauTagNNv1::varNameMap.at(static_cast<NNInputs>(var_idx + 2))
-                                            << "\t = " << getCell(static_cast<NNInputs>(var_idx + 2)) << std::endl;
+                                            << "\t = " << getCell(static_cast<NNInputs>(var_idx + 2))
+                                            << "\t var_idx = " << var_idx << "\t eta_idx = " << eta_idx
+                                            << "\t phi_idx = " << phi_idx << "\t tau_idx = " << tau_idx << std::endl;;
               if (var_idx + 3 < tensor_shape.at(3))
                 edm::LogWarning("InputVar") << L2TauTagNNv1::varNameMap.at(static_cast<NNInputs>(var_idx + 3))
-                                            << "\t = " << getCell(static_cast<NNInputs>(var_idx + 3)) << std::endl;
+                                            << "\t = " << getCell(static_cast<NNInputs>(var_idx + 3))
+                                            << "\t var_idx = " << var_idx << "\t eta_idx = " << eta_idx
+                                            << "\t phi_idx = " << phi_idx << "\t tau_idx = " << tau_idx << std::endl;;
               if (var_idx + 4 < tensor_shape.at(3))
                 edm::LogWarning("InputVar") << L2TauTagNNv1::varNameMap.at(static_cast<NNInputs>(var_idx + 4))
-                                            << "\t = " << getCell(static_cast<NNInputs>(var_idx + 4)) << std::endl;
+                                            << "\t = " << getCell(static_cast<NNInputs>(var_idx + 4))
+                                            << "\t var_idx = " << var_idx << "\t eta_idx = " << eta_idx
+                                            << "\t phi_idx = " << phi_idx << "\t tau_idx = " << tau_idx << std::endl;;
             }
           }
         }
@@ -567,8 +574,7 @@ void L2TauNNProducer::fillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
 }
 
 std::vector<int> L2TauNNProducer::selectGoodVertices(const ZVertexSoA& patavtx_soa,
-                                                     const pixelTrack::TrackSoA& patatracks_tsoa,
-                                                     const std::vector<int>& TrackGood) {
+                                                     const pixelTrack::TrackSoA& patatracks_tsoa) {
   auto maxTracks = patatracks_tsoa.stride();
   const int nv = patavtx_soa.nvFinal;
   std::vector<int> VtxGood;
@@ -579,9 +585,8 @@ std::vector<int> L2TauNNProducer::selectGoodVertices(const ZVertexSoA& patavtx_s
   std::vector<double> maxChi2_;
   std::vector<double> pTSquaredSum(nv);
 
-  for (int j = nv - 1; j >= 0; --j) {
+  for (int vtx_idx = nv - 1; vtx_idx >= 0; --vtx_idx) {
     std::vector<int> trk_ass_to_vtx;
-    auto vtx_idx = patavtx_soa.sortInd[j];
     assert(vtx_idx < nv);
     for (int trk_idx = 0; trk_idx < maxTracks; trk_idx++) {
       int vtx_ass_to_track = patavtx_soa.idv[trk_idx];
@@ -618,14 +623,12 @@ std::vector<int> L2TauNNProducer::selectGoodVertices(const ZVertexSoA& patavtx_s
   });
   auto const minFOM_fromFrac = pTSquaredSum[sortIdxs.front()] * fractionSumPt2_;
 
-  for (int j = nv - 1; j >= 0; --j) {
-    auto idx = patavtx_soa.sortInd[j];
-
+  for (int vtx_idx = nv - 1; vtx_idx >= 0; --vtx_idx) {
     if (VtxGood.size() >= maxVtx_) {
       break;
     }
-    if (pTSquaredSum[idx] >= minFOM_fromFrac && pTSquaredSum[idx] > minSumPt2_) {
-      VtxGood.push_back(idx);
+    if (pTSquaredSum[vtx_idx] >= minFOM_fromFrac && pTSquaredSum[vtx_idx] > minSumPt2_) {
+      VtxGood.push_back(vtx_idx);
     }
   }
   return VtxGood;
@@ -663,6 +666,8 @@ std::pair<float, float> L2TauNNProducer::impactParameter(int it,
   return std::make_pair(patatrackDxy, patatrackDz);
 }
 
+
+
 void L2TauNNProducer::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
                                      const std::vector<l1t::TauRef>& allTaus,
                                      const pixelTrack::TrackSoA& patatracks_tsoa,
@@ -699,7 +704,7 @@ void L2TauNNProducer::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
       TrackGood.push_back(it);
     }
 
-    std::vector<int> VtxGood = selectGoodVertices(patavtx_soa, patatracks_tsoa, TrackGood);
+    std::vector<int> VtxGood = selectGoodVertices( patavtx_soa, patatracks_tsoa);
 
     for (const auto it : TrackGood) {
       const float patatrackPt = patatracks_tsoa.pt[it];
@@ -767,7 +772,6 @@ std::vector<float> L2TauNNProducer::getTauScore(const tensorflow::Tensor& cellGr
 void L2TauNNProducer::produce(edm::Event& event, const edm::EventSetup& eventsetup) {
   std::vector<std::vector<size_t>> TauCollectionMap(L1TauDesc_.size());
   l1t::TauVectorRef allTaus;
-
   for (size_t inp_idx = 0; inp_idx < L1TauDesc_.size(); inp_idx++) {
     l1t::TauVectorRef l1Taus;
     auto const& l1TriggeredTaus = event.get(L1TauDesc_[inp_idx].inputToken_);
@@ -831,7 +835,7 @@ void L2TauNNProducer::produce(edm::Event& event, const edm::EventSetup& eventset
     for (size_t tau_pos = 0; tau_pos < nTau; ++tau_pos) {
       const auto tau_idx = TauCollectionMap[inp_idx][tau_pos];
       if (debugLevel_ > 0) {
-        edm::LogInfo("DebugInfo") << event.id().event() << " \t " << (allTaus[tau_idx])->pt() << " \t "
+        edm::LogWarning("outcomeInfo")<< "event id " << event.id().event() << " \t L1 Tau Pt " << (allTaus[tau_idx])->pt() << " \t score "
                                   << tau_score.at(tau_idx) << std::endl;
       }
       (*tau_tags)[tau_pos] = tau_score.at(tau_idx);
