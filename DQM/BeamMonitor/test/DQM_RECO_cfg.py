@@ -113,7 +113,8 @@ process.dqmTKStatus = cms.EDAnalyzer("TKStatus",
 )
 ###
 
-process.pp = cms.Path(process.dqmTKStatus*
+process.pp = cms.Path(process.onlineMetaDataDigis*
+                      process.dqmTKStatus*
                       #process.hltLevel1GTSeed*
                       process.dqmBeamMonitor+
                       #process.dqmBeamMonitorBx+
