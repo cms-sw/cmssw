@@ -50,7 +50,8 @@ private:
   TH1D* invmass_histo;
 };
 
-H4muAnalyzer::H4muAnalyzer(const edm::ParameterSet& iConfig) : hepMCToken_(consumes<edm::HepMCProduct>(edm::InputTag("VtxSmeared"))) {
+H4muAnalyzer::H4muAnalyzer(const edm::ParameterSet& iConfig)
+    : hepMCToken_(consumes<edm::HepMCProduct>(edm::InputTag("VtxSmeared"))) {
   usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   invmass_histo = fs->make<TH1D>("invmass_histo", "invmass_histo", 60, 170, 180);
@@ -59,7 +60,7 @@ H4muAnalyzer::H4muAnalyzer(const edm::ParameterSet& iConfig) : hepMCToken_(consu
 // ------------ method called to for each event  ------------
 void H4muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get HepMC::GenEvent ...
-  const edm::Handle<edm::HepMCProduct> & evt_h = iEvent.getHandle(hepMCToken_);
+  const edm::Handle<edm::HepMCProduct>& evt_h = iEvent.getHandle(hepMCToken_);
   const HepMC::GenEvent* evt = evt_h->GetEvent();
 
   // look for stable muons
