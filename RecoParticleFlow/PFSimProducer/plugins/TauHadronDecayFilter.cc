@@ -69,14 +69,12 @@ TauHadronDecayFilter::TauHadronDecayFilter(const edm::ParameterSet& iConfig)
     : tokPdt_(esConsumes<edm::Transition::BeginRun>()),
       simtracksToken_(consumes<std::vector<SimTrack>>(edm::InputTag("g4SimHits"))),
       simvertexToken_(consumes<std::vector<SimVertex>>(edm::InputTag("g4SimHits"))) {
-
   particleFilter_ = iConfig.getParameter<edm::ParameterSet>("ParticleFilter");
 
   mySimEvent = std::make_unique<FSimEvent>(particleFilter_);
 }
 
 bool TauHadronDecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   mySimEvent->fill(iEvent.get(simtracksToken_), iEvent.get(simvertexToken_));
 
   if (mySimEvent->nTracks() >= 2) {
@@ -91,7 +89,7 @@ bool TauHadronDecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     switch (std::abs(decayproduct.type())) {
       case 11:  // electrons
       case 13:  // muons
-	edm::LogWarning("PFProducer") << "TauHadronDecayFilter: selecting single tau events with hadronic decay.";
+        edm::LogWarning("PFProducer") << "TauHadronDecayFilter: selecting single tau events with hadronic decay.";
         // mySimEvent->print();
         return false;
       default:
