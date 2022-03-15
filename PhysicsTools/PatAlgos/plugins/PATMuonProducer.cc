@@ -1051,7 +1051,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float mvaID = 0.0;
     constexpr int MVAsentinelValue = -99;
     constexpr float mvaIDmediumCut = 0.08;
-    constexpr float mvaIDtightCut = 0.49;
+    constexpr float mvaIDtightCut = 0.12;
     if (computeMuonIDMVA_) {
       if (muon.isLooseMuon()) {
         mvaID = globalCache()->muonMvaIDEstimator().computeMVAID(muon)[1];
