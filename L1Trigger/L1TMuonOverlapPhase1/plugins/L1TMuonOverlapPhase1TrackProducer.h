@@ -2,7 +2,6 @@
 #define L1T_OmtfP1_L1TMuonOverlapPhase1TrackProducer_H
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFReconstruction.h"
-//#include "L1Trigger/L1TMuonOverlapPhase1/src/Omtf/OMTFReconstruction.cc"
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
