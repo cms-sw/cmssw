@@ -14,7 +14,6 @@
 //
 
 #include "FWCore/Framework/interface/one/EDFilter.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -43,6 +42,8 @@ private:
 
   // ----------member data ---------------------------
   const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tokPdt_;
+  const edm::EDGetTokenT<std::vector<SimTrack>> simtracksToken_;
+  const edm::EDGetTokenT<std::vector<SimVertex>> simvertexToken_;
   edm::ParameterSet particleFilter_;
   std::unique_ptr<FSimEvent> mySimEvent;
 };
@@ -64,12 +65,10 @@ void TauHadronDecayFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
   descriptions.add("tauHadronDecayFilter", desc);
 }
 
-using namespace edm;
-using namespace std;
-
 TauHadronDecayFilter::TauHadronDecayFilter(const edm::ParameterSet& iConfig)
-    : tokPdt_(esConsumes<edm::Transition::BeginRun>()) {
-  //now do what ever initialization is needed
+    : tokPdt_(esConsumes<edm::Transition::BeginRun>()),
+      simtracksToken_(consumes<std::vector<SimTrack>>(edm::InputTag("g4SimHits"))),
+      simvertexToken_(consumes<std::vector<SimVertex>>(edm::InputTag("g4SimHits"))) {
 
   particleFilter_ = iConfig.getParameter<edm::ParameterSet>("ParticleFilter");
 
@@ -77,26 +76,22 @@ TauHadronDecayFilter::TauHadronDecayFilter(const edm::ParameterSet& iConfig)
 }
 
 bool TauHadronDecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  Handle<vector<SimTrack> > simTracks;
-  iEvent.getByLabel("g4SimHits", simTracks);
-  Handle<vector<SimVertex> > simVertices;
-  iEvent.getByLabel("g4SimHits", simVertices);
 
-  mySimEvent->fill(*simTracks, *simVertices);
+  mySimEvent->fill(iEvent.get(simtracksToken_), iEvent.get(simvertexToken_));
 
   if (mySimEvent->nTracks() >= 2) {
     FSimTrack& gene = mySimEvent->track(0);
-    if (abs(gene.type()) != 15) {
+    if (std::abs(gene.type()) != 15) {
       // first particle is not a tau.
       // -> do not filter
       return true;
     }
 
     FSimTrack& decayproduct = mySimEvent->track(1);
-    switch (abs(decayproduct.type())) {
+    switch (std::abs(decayproduct.type())) {
       case 11:  // electrons
       case 13:  // muons
-        LogWarning("PFProducer") << "TauHadronDecayFilter: selecting single tau events with hadronic decay." << endl;
+	edm::LogWarning("PFProducer") << "TauHadronDecayFilter: selecting single tau events with hadronic decay.";
         // mySimEvent->print();
         return false;
       default:
@@ -110,8 +105,5 @@ bool TauHadronDecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
 void TauHadronDecayFilter::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   // init Particle data table (from Pythia)
-  const edm::ESHandle<HepPDT::ParticleDataTable>& pdt = es.getHandle(tokPdt_);
-  // edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
-
-  mySimEvent->initializePdt(pdt.product());
+  mySimEvent->initializePdt(&es.getData(tokPdt_));
 }
