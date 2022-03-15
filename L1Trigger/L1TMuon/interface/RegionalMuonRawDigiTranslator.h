@@ -19,13 +19,13 @@ namespace l1t {
     static bool fillRegionalMuonShower(
         RegionalMuonShower& muShower, std::vector<uint32_t> bxPayload, int proc, tftype tf, bool useEmtfShowers);
     void generatePackedDataWords(const RegionalMuonCand& mu,
-                                        uint32_t& raw_data_00_31,
-                                        uint32_t& raw_data_32_63,
-                                        bool isKbmtf,
-                                        bool useEmtfDisplacementInfo);
+                                 uint32_t& raw_data_00_31,
+                                 uint32_t& raw_data_32_63,
+                                 bool isKbmtf,
+                                 bool useEmtfDisplacementInfo);
     void generatePackedShowerPayload(const RegionalMuonShower& shower,
-                                            std::array<uint32_t, 6>& payload,
-                                            bool useEmtfShowers);
+                                     std::array<uint32_t, 6>& payload,
+                                     bool useEmtfShowers);
     uint64_t generate64bitDataWord(const RegionalMuonCand& mu, bool isKbmtf, bool useEmtfDisplacementInfo);
     static int generateRawTrkAddress(const RegionalMuonCand&, bool isKalman);
 
