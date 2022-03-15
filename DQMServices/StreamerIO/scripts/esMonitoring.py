@@ -226,7 +226,7 @@ class AsyncLineReaderMixin(object):
         #    return
 
         self.line_buf.append(rbuf)
-        if "\n" in rbuf:
+        if b"\n" in rbuf:
             # split whatever we have
             spl = "".join(self.line_buf).split("\n")
 
