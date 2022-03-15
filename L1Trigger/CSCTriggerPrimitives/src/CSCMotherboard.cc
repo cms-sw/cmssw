@@ -735,10 +735,6 @@ void CSCMotherboard::encodeHighMultiplicityBits() {
     case 3:
       matchShowers(anode_showers, cathode_showers, true);
       break;
-    case 3:
-      inTimeHMT_ = anodeInTime & cathodeInTime;
-      outTimeHMT_ = anodeOutTime & cathodeOutTime;
-      break;
     default:
       std::copy(std::begin(anode_showers), std::end(anode_showers), std::begin(showers_));
       break;
