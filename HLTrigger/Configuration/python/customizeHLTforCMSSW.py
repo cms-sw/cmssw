@@ -149,8 +149,8 @@ def customiseFor37231(process):
 
     for prod in producers_by_type(process, 'DeDxEstimatorProducer'):
         if hasattr(prod, 'Reccord'):
+            prod.Record = prod.Reccord
             delattr(prod, 'Reccord')
-            setattr(prod, 'Record', cms.string("SiStripDeDxMip_3D_Rcd"))
 
     return process
 
