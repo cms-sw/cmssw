@@ -11,18 +11,19 @@ std::unique_ptr<StripClusterizerAlgorithm> StripClusterizerAlgorithmFactory::cre
   std::string algorithm = conf.getParameter<std::string>("Algorithm");
 
   if (algorithm == "ThreeThresholdAlgorithm") {
-    return std::unique_ptr<StripClusterizerAlgorithm>(
-        new ThreeThresholdAlgorithm(iC.esConsumes<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd>(
-                                        edm::ESInputTag{"", conf.getParameter<std::string>("ConditionsLabel")}),
-                                    conf.getParameter<double>("ChannelThreshold"),
-                                    conf.getParameter<double>("SeedThreshold"),
-                                    conf.getParameter<double>("ClusterThreshold"),
-                                    conf.getParameter<unsigned>("MaxSequentialHoles"),
-                                    conf.getParameter<unsigned>("MaxSequentialBad"),
-                                    conf.getParameter<unsigned>("MaxAdjacentBad"),
-                                    conf.getParameter<unsigned>("MaxClusterSize"),
-                                    conf.getParameter<bool>("RemoveApvShots"),
-                                    clusterChargeCut(conf)));
+    return std::unique_ptr<StripClusterizerAlgorithm>(new ThreeThresholdAlgorithm(
+        iC.esConsumes<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd>(
+            edm::ESInputTag{"", conf.getParameter<std::string>("ConditionsLabel")}),
+        conf.getParameter<double>("ChannelThreshold"),
+        conf.getParameter<double>("SeedThreshold"),
+        conf.getParameter<double>("ClusterThreshold"),
+        conf.getParameter<unsigned>("MaxSequentialHoles"),
+        conf.getParameter<unsigned>("MaxSequentialBad"),
+        conf.getParameter<unsigned>("MaxAdjacentBad"),
+        // existsAs test should be removed once MaxClusterSize is in the HLT config
+        conf.existsAs<unsigned>("MaxClusterSize") ? conf.getParameter<unsigned>("MaxClusterSize") : 3U * 256U,
+        conf.getParameter<bool>("RemoveApvShots"),
+        clusterChargeCut(conf)));
   }
 
   if (algorithm == "OldThreeThresholdAlgorithm") {
@@ -42,8 +43,8 @@ void StripClusterizerAlgorithmFactory::fillDescriptions(edm::ParameterSetDescrip
   clusterizer.add("MaxSequentialHoles", 0U);
   clusterizer.add("MaxSequentialBad", 1U);
   clusterizer.add("MaxAdjacentBad", 0U);
-  clusterizer.add("MaxClusterSize", 3U * 256U);
+  clusterizer.addOptional("MaxClusterSize", 3U * 256U);  // eventually should be add()
   clusterizer.add("RemoveApvShots", true);
   clusterizer.add("setDetId", true);
-  clusterizer.add("clusterChargeCut", getFilledConfigurationDescription4CCC());
+  clusterizer.add("clusterChargeCut", getConfigurationDescription4CCC(CCC::kNone));
 }

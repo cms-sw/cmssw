@@ -18,7 +18,7 @@
 #include "StripDataView.cuh"
 
 //#define GPU_DEBUG
-#ifdef EDM_ML_DEBUG
+#if defined(EDM_ML_DEBUG) || defined(GPU_DEBUG)
 #define GPU_CHECK
 #include <stdio.h>
 #endif
@@ -351,7 +351,6 @@ namespace stripgpu {
           const fedId_t fed = chanlocs->fedID(chan);
           const fedCh_t channel = chanlocs->fedCh(chan);
           trueCluster[i] = (adcSum * conditions->invthick(fed, channel)) > minGoodCharge;
-          const auto det = chanlocs->detID(chan);
           const auto bary_i = static_cast<float>(sumx) / static_cast<float>(suma);
           barycenter[i] = static_cast<float>(stripId[left] & stripIndexMask) + bary_i + 0.5f;
           clusterSize[i] = j;

@@ -21,6 +21,8 @@ siStripClusterizerFromRaw = cms.EDProducer("SiStripClusterizerFromRaw",
 
 siStripClusterizerFromRaw.Clusterizer.MaxClusterSize = cms.uint32(16)
 
+siStripClusterizerFromRawGPU.Clusterizer = DefaultClusterizer
+
 siStripClusters = SwitchProducerCUDA(
     cpu = siStripClusterizerFromRaw,
 )

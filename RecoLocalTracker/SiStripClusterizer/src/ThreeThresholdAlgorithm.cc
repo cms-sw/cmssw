@@ -82,7 +82,8 @@ inline void ThreeThresholdAlgorithm::addToCandidate(State& state, uint16_t strip
   while (++state.lastStrip < strip)
     state.ADCs.push_back(0);  // pad holes
 
-  state.ADCs.push_back(adc);
+  if (state.ADCs.size() <= MaxClusterSize)
+    state.ADCs.push_back(adc);
   state.noiseSquared += Noise * Noise;
 }
 
