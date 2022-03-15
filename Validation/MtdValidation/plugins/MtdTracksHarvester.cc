@@ -321,7 +321,7 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
       !meBarrelTrueKAsK || !meBarrelTruePAsK || !meEndcapTruePiAsK || !meEndcapTrueKAsK || !meEndcapTruePAsK ||
       !meBarrelTruePiAsP || !meBarrelTrueKAsP || !meBarrelTruePAsP || !meEndcapTruePiAsP || !meEndcapTrueKAsP ||
       !meEndcapTruePAsP) {
-    edm::LogError("Primary4DVertexHarvester") << "PID Monitoring histograms not found!" << std::endl;
+    edm::LogWarning("Primary4DVertexHarvester") << "PID Monitoring histograms not found!" << std::endl;
     return;
   }
 
