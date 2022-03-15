@@ -19,7 +19,7 @@
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenParticle.h>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,39 +35,36 @@
 // class declaration
 //
 
-class H4muAnalyzer : public edm::EDAnalyzer {
+class H4muAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit H4muAnalyzer(const edm::ParameterSet&);
-  ~H4muAnalyzer();
+  ~H4muAnalyzer() override = default;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 
+  const edm::EDGetTokenT<edm::HepMCProduct> hepMCToken_;
   TH1D* weight_histo;
   TH1D* invmass_histo;
 };
 
-H4muAnalyzer::H4muAnalyzer(const edm::ParameterSet& iConfig) {
+H4muAnalyzer::H4muAnalyzer(const edm::ParameterSet& iConfig) : hepMCToken_(consumes<edm::HepMCProduct>(edm::InputTag("VtxSmeared"))) {
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   invmass_histo = fs->make<TH1D>("invmass_histo", "invmass_histo", 60, 170, 180);
 }
 
-H4muAnalyzer::~H4muAnalyzer() {}
-
 // ------------ method called to for each event  ------------
 void H4muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-
   // get HepMC::GenEvent ...
-  Handle<HepMCProduct> evt_h;
-  iEvent.getByLabel("VtxSmeared", evt_h);
+  const edm::Handle<edm::HepMCProduct> & evt_h = iEvent.getHandle(hepMCToken_);
   const HepMC::GenEvent* evt = evt_h->GetEvent();
 
   // look for stable muons
   std::vector<HepMC::GenParticle*> muons;
-  for (HepMC::GenEvent::particle_const_iterator it = evt->particles_begin(); it != evt->particles_end(); ++it) {
+  for (auto it = evt->particles_begin(); it != evt->particles_end(); ++it) {
     if (std::abs((*it)->pdg_id()) == 13 && (*it)->status() == 1)
       muons.push_back(*it);
   }
