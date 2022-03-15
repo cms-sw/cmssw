@@ -73,7 +73,7 @@ ZeeAnalyzer::ZeeAnalyzer(const edm::ParameterSet& iConfig)
     : hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")),
       genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag")),
       outputFilename(iConfig.getUntrackedParameter<std::string>("OutputFilename", "dummy.root")),
-      tokHepMC_(consumes<edm::HepMCProduct>(hepMCProductTag_)), 
+      tokHepMC_(consumes<edm::HepMCProduct>(hepMCProductTag_)),
       tokEvent_(consumes<GenEventInfoProduct>(genEventInfoProductTag_)) {
   usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
@@ -94,10 +94,10 @@ void ZeeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   using namespace edm;
 
   // get HepMC::GenEvent ...
-  const edm::Handle<edm::HepMCProduct> & evt_h = iEvent.getHandle(tokHepMC_);
+  const edm::Handle<edm::HepMCProduct>& evt_h = iEvent.getHandle(tokHepMC_);
   HepMC::GenEvent* evt = new HepMC::GenEvent(*(evt_h->GetEvent()));
 
-  const edm::Handle<GenEventInfoProduct> & evt_info = iEvent.getHandle(tokEvent_);
+  const edm::Handle<GenEventInfoProduct>& evt_info = iEvent.getHandle(tokEvent_);
 
   double weight = evt_info->weight();
   if (weight)
@@ -146,9 +146,7 @@ void ZeeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void ZeeAnalyzer::endJob() {
-  std::cout << " total sum wieghts = " << sumWeights << std::endl;
-}
+void ZeeAnalyzer::endJob() { std::cout << " total sum wieghts = " << sumWeights << std::endl; }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ZeeAnalyzer);
