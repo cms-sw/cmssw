@@ -59,7 +59,7 @@ AlpgenExtractor::AlpgenExtractor(const edm::ParameterSet& iConfig)
 
 // ------------ method called to for each run    ------------
 void AlpgenExtractor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  const edm::Handle<LHERunInfoProduct> & runInfo = iRun.getHandle(tokenLHERun_);
+  const edm::Handle<LHERunInfoProduct>& runInfo = iRun.getHandle(tokenLHERun_);
   std::cout << "Found " << runInfo->headers_size() << " headers." << std::endl;
 
   std::vector<LHERunInfoProduct::Header>::const_iterator headers = runInfo->headers_begin();
