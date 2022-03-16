@@ -230,3 +230,4 @@ const std::pair<float, float> EGRegressionModifierDRN::partVars<T>::getCorrectio
 }
 
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory, EGRegressionModifierDRN, "EGRegressionModifierDRN");
+
