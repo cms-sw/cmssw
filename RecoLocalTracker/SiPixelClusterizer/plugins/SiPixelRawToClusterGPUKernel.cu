@@ -440,6 +440,16 @@ namespace pixelgpudetails {
         }
       }
 
+     // remove duplicate pixels (for the time being keep first
+     auto noADC = sipixelconstants::removeADC(ww);
+     auto noADCm1 =  sipixelconstants::removeADC(word[gIndex-1]);  // yes reading one word before buffer
+     // auto noADCp1 =  sipixelconstants::removeADC(word[gIndex+1]);  // fine we are reading one word bejond end of buffer
+     if (noADC==noADCm1) {
+       auto globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
+       printf("dup pix at %d %d\n",globalPix.row,globalPix.col);  
+       continue;
+     }
+
       pixelgpudetails::Pixel globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
       xx[gIndex] = globalPix.row;  // origin shifting by 1 0-159
       yy[gIndex] = globalPix.col;  // origin shifting by 1 0-415
