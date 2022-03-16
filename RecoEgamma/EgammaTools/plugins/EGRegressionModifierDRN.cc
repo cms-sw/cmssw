@@ -9,8 +9,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -43,7 +41,6 @@
 class EGRegressionModifierDRN : public ModifyObjectValueBase {
 public:
   EGRegressionModifierDRN(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
-  ~EGRegressionModifierDRN() override;
 
   void setEvent(const edm::Event&) final;
   void setEventContent(const edm::EventSetup&) final;
@@ -55,16 +52,15 @@ public:
   void modifyObject(pat::Photon&) const final;
 
 private:
-  //edm::Event event_;
   template <typename T>
   struct partVars {
     edm::InputTag source;
     edm::EDGetTokenT<edm::View<T>> token;
-    edm::View<T> particles;
+    const edm::View<T>* particles;
 
     edm::InputTag correctionsSource;
     edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> correctionsToken;
-    edm::ValueMap<std::pair<float, float>> corrections;
+    const edm::ValueMap<std::pair<float, float>>* corrections;
 
     bool userFloat;
     std::string energyFloat, resFloat;
@@ -87,7 +83,7 @@ private:
 
     const std::pair<float, float> getCorrection(T& part) const;
 
-    const void doUserFloat(T& part, std::pair<float, float>& correction) const{
+    const void doUserFloat(T& part, const std::pair<float, float>& correction) const{
       part.addUserFloat(energyFloat, correction.first);
       part.addUserFloat(resFloat, correction.second);
     }
@@ -117,8 +113,6 @@ EGRegressionModifierDRN::EGRegressionModifierDRN(const edm::ParameterSet& conf, 
     gsfElectrons_ = std::make_unique<partVars<reco::GsfElectron>>(conf.getParameterSet("gsfElectrons"), cc);
   }
 }
-
-EGRegressionModifierDRN::~EGRegressionModifierDRN() {}
 
 void EGRegressionModifierDRN::setEvent(const edm::Event& evt) {
   if (patElectrons_) {
@@ -216,8 +210,8 @@ const std::pair<float, float> EGRegressionModifierDRN::partVars<T>::getCorrectio
 
   bool matched = false;
   unsigned i;
-  for (i = 0; i < particles.size(); ++i) {
-    const T& partIter = particles.at(i);
+  for (i = 0; i < particles->size(); ++i) {
+    const T& partIter = particles->at(i);
     const auto& p4Iter = partIter.p4();
     if (p4Iter == partP4) {
       matched = true;
@@ -234,7 +228,7 @@ const std::pair<float, float> EGRegressionModifierDRN::partVars<T>::getCorrectio
 
   edm::Ptr<T> ptr = particles.ptrAt(i);
 
-  std::pair<float, float> correction = corrections[ptr];
+  std::pair<float, float> correction = (*corrections)[ptr];
 
   return correction;
 }

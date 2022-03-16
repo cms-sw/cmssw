@@ -40,7 +40,7 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
-#include <math.h>
+#include <cmath.h>
 
 /*
  * DRNCorrectionProducerT
@@ -54,20 +54,20 @@
  */
 
 namespace {
-  float sigmoid(float x) { return 1.0f / (1.0f + std::expf(-x)); }
+  float sigmoid(float x) { return 1.0f / (1.0f + std::exp(-x)); }
 
   float logcorrection(float x) {
-    static float ln2 = std::logf(2);
+    static float ln2 = std::log(2);
     return ln2 * 2 * (sigmoid(x) - 0.5);
   }
 
   //correction factor is transformed by sigmoid and "logratioflip target"
-  float correction(float x) { return std::expf(-logcorrection(x)); }
+  float correction(float x) { return std::exp(-logcorrection(x)); }
 
   inline float rescale(float x, float min, float range) { return (x - min) / range; }
 
   //resolution is transformed by softplus function
-  float resolution(float x) { return log(1 + std::expf(x)); }
+  float resolution(float x) { return std::log(1 + std::exp(x)); }
 
   const float RHO_MIN = 0.0f;
   const float RHO_RANGE = 13.0f;
