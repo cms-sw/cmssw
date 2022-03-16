@@ -116,23 +116,23 @@ EGRegressionModifierDRN::EGRegressionModifierDRN(const edm::ParameterSet& conf, 
 
 void EGRegressionModifierDRN::setEvent(const edm::Event& evt) {
   if (patElectrons_) {
-    patElectrons_->particles = evt.get(patElectrons_->token);
-    patElectrons_->corrections = evt.get(patElectrons_->correctionsToken);
+    patElectrons_->particles = &evt.get(patElectrons_->token);
+    patElectrons_->corrections = &evt.get(patElectrons_->correctionsToken);
   }
 
   if (patPhotons_) {
-    patPhotons_->particles = evt.get(patPhotons_->token);
-    patPhotons_->corrections = evt.get(patPhotons_->correctionsToken);
+    patPhotons_->particles = &evt.get(patPhotons_->token);
+    patPhotons_->corrections = &evt.get(patPhotons_->correctionsToken);
   }
 
   if (gsfElectrons_) {
-    gsfElectrons_->particles = evt.get(gsfElectrons_->token);
-    gsfElectrons_->corrections = evt.get(gsfElectrons_->correctionsToken);
+    gsfElectrons_->particles = &evt.get(gsfElectrons_->token);
+    gsfElectrons_->corrections = &evt.get(gsfElectrons_->correctionsToken);
   }
 
   if (gedPhotons_) {
-    gedPhotons_->particles = evt.get(gedPhotons_->token);
-    gedPhotons_->corrections = evt.get(gedPhotons_->correctionsToken);
+    gedPhotons_->particles = &evt.get(gedPhotons_->token);
+    gedPhotons_->corrections = &evt.get(gedPhotons_->correctionsToken);
   }
 }
 
@@ -144,9 +144,7 @@ void EGRegressionModifierDRN::modifyObject(reco::GsfElectron& ele) const {
 
   const std::pair<float, float>& correction = gsfElectrons_->getCorrection(ele);
 
-  if (gsfElectrons_->userFloat){
-    gsfElectrons_->doUserFloat(ele, correction);
-  } else if (correction.first > 0 && correction.second > 0) {
+  if (correction.first > 0 && correction.second > 0) {
     ele.setCorrectedEcalEnergy(correction.first, true);
     ele.setCorrectedEcalEnergyError(correction.second);
   }
@@ -196,9 +194,7 @@ void EGRegressionModifierDRN::modifyObject(reco::Photon& pho) const {
 
   const std::pair<float, float>& correction = gedPhotons_->getCorrection(pho);
 
-  if(patPhotons_->userFloat){
-    patPhotons_->doUserFloat(pho, correction);
-  } else if (correction.first > 0 && correction.second > 0) {
+  if (correction.first > 0 && correction.second > 0) {
     pho.setCorrectedEnergy(reco::Photon::P4type::regression2, 
         correction.first, correction.second, true);
   }
@@ -226,7 +222,7 @@ const std::pair<float, float> EGRegressionModifierDRN::partVars<T>::getCorrectio
     return std::pair<float, float>(-1., -1.);
   }
 
-  edm::Ptr<T> ptr = particles.ptrAt(i);
+  edm::Ptr<T> ptr = particles->ptrAt(i);
 
   std::pair<float, float> correction = (*corrections)[ptr];
 

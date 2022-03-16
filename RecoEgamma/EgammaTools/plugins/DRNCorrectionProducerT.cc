@@ -40,7 +40,7 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
-#include <cmath.h>
+#include <cmath>
 
 /*
  * DRNCorrectionProducerT
