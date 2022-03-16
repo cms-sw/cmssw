@@ -8,7 +8,6 @@
     <use name="HeterogeneousCore/CUDACore"/>
     <use name="catch2"/>
     <use name="cuda"/>
-    <use name="fmt"/>
   </bin>
 
   <bin file="testStreamEvent.cu" name="testHeterogeneousCoreCUDACoreStreamEvent">
@@ -22,6 +21,12 @@
     <flags TEST_RUNNER_CMD="cudaTimeMeasurement -a10 -t100 -s10000 -q -p12345"/>
 </bin>
 
+<bin name="mpiCudaGeneric" file="mpiCudaGeneric.cu">
+    <use name="openmpi"/>
+    <use name="cuda"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <flags TEST_RUNNER_CMD="cmsenv_mpirun  -np 2 mpiCudaGeneric -t100 -a10 -s200000 -p123"/>
+</bin>
 
 </iftool>
 
