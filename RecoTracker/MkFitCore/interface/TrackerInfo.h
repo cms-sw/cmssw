@@ -23,12 +23,12 @@ namespace mkfit {
 
   struct ModuleInfo {
     SVector3 m_pos;
-    SVector3 m_normal;
-    SVector3 m_phidir;
+    SVector3 m_zdir;
+    SVector3 m_xdir;
     unsigned int m_detid;
 
     ModuleInfo(SVector3 pos, SVector3 nor, SVector3 phi, unsigned int id)
-        : m_pos(pos), m_normal(nor), m_phidir(phi), m_detid(id) {}
+        : m_pos(pos), m_zdir(nor), m_xdir(phi), m_detid(id) {}
   };
 
   //==============================================================================
