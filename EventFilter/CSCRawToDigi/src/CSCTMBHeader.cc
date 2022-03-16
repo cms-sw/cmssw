@@ -72,7 +72,7 @@ CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision)
       } else if (isOTMB_Run2_fw || isTMB_Run2_fw || isRun2_df) {
         theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2(firmwareRevision));
       } else if (isTMB_Run3_fw) {
-        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_TMB());
+        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_CCLUT());
       }
     }
   } else if (firmwareVersion == 2013) {
@@ -182,7 +182,7 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short *buf) : theHeaderFormat() {
           } else if (isOTMB_Run2_fw || isTMB_Run2_fw || isRun2_df) {
             theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2(buf));
           } else if (isTMB_Run3_fw) {
-            theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_TMB(buf));
+            theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_CCLUT(buf));
           }
 
         } else {

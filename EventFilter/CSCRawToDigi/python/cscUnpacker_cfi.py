@@ -11,6 +11,6 @@ muonCSCDigis = muonCSCDCCUnpacker.clone(
 ## in Run-3 include GEMs
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( muonCSCDigis,
-                   useGEMs = False,
+                   useGEMs = True,
                    useCSCShowers = True
 )

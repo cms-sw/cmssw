@@ -33,6 +33,8 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   uint16_t clct1_xky() const override { return 0; }
   uint16_t hmt_nhits() const override { return 0; }
   uint16_t hmt_ALCTMatchTime() const override { return 0; }
+  uint16_t alctHMT() const override { return 0; }
+  uint16_t clctHMT() const override { return 0; }
   uint16_t gem_enabled_fibers() const override { return 0; }
   uint16_t gem_fifo_tbins() const override { return 0; }
   uint16_t gem_fifo_pretrig() const override { return 0; }
@@ -45,8 +47,12 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) override;
   ///returns CorrelatedLCT digis
   std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const override;
-  ///returns HMT Shower digi
+  ///returns lct HMT Shower digi
   CSCShowerDigi showerDigi(uint32_t idlayer) const override { return CSCShowerDigi(); }
+  ///returns anode HMT Shower digi
+  CSCShowerDigi anodeShowerDigi(uint32_t idlayer) const override { return CSCShowerDigi(); }
+  ///returns cathode HMT Shower digi
+  CSCShowerDigi cathodeShowerDigi(uint32_t idlayer) const override { return CSCShowerDigi(); }
 
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags
@@ -65,6 +71,8 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   void addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) override;
   void addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) override;
   void addShower(const CSCShowerDigi& digi) override {}
+  void addAnodeShower(const CSCShowerDigi& digi) override {}
+  void addCathodeShower(const CSCShowerDigi& digi) override {}
 
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 

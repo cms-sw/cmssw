@@ -190,7 +190,7 @@ int CSCTMBData::UnpackTMB(const uint16_t* buf) {
     firmwareRevision = buf[b0cLine + 7] & 0x7fff;
     Ntbins = buf[b0cLine + 19] & 0xF8;
     if ((firmwareRevision < 0x4000) /* New Run3 (O)TMB firmware revision format */
-        && (((firmwareRevision >> 9) & 0x2) == 0x2))
+        && (((firmwareRevision >> 9) & 0x3) == 0x3))
       isGEMfirmware = true;
 
     if (isGEMfirmware) {
