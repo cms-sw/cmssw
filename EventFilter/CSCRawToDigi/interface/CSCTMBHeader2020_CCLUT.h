@@ -36,7 +36,8 @@ struct CSCTMBHeader2020_CCLUT : public CSCVTMBHeaderFormat {
             ((bits.hmt_nhits_bits_high & 0x1F) << 2));
   }
   uint16_t hmt_ALCTMatchTime() const override { return bits.hmt_match_win; }
-
+  uint16_t alctHMT() const override { return bits.anode_hmt; }
+  uint16_t clctHMT() const override { return bits.cathode_hmt; }
   uint16_t gem_enabled_fibers() const override { return 0; }
   uint16_t gem_fifo_tbins() const override { return 0; }
   uint16_t gem_fifo_pretrig() const override { return 0; }
@@ -53,8 +54,12 @@ struct CSCTMBHeader2020_CCLUT : public CSCVTMBHeaderFormat {
   std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) override;
   ///returns CorrelatedLCT digis
   std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const override;
-  ///returns HMT Shower digi
+  ///returns lct HMT Shower digi
   CSCShowerDigi showerDigi(uint32_t idlayer) const override;
+  ///returns anode HMT Shower digi
+  CSCShowerDigi anodeShowerDigi(uint32_t idlayer) const override;
+  ///returns cathode HMT Shower digi
+  CSCShowerDigi cathodeShowerDigi(uint32_t idlayer) const override;
 
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags
@@ -73,6 +78,8 @@ struct CSCTMBHeader2020_CCLUT : public CSCVTMBHeaderFormat {
   void addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) override;
   void addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) override;
   void addShower(const CSCShowerDigi& digi) override;
+  void addAnodeShower(const CSCShowerDigi& digi) override;
+  void addCathodeShower(const CSCShowerDigi& digi) override;
 
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 
@@ -144,8 +151,7 @@ struct CSCTMBHeader2020_CCLUT : public CSCVTMBHeaderFormat {
     unsigned activeCFEBs_2 : 2, readCFEBs_2 : 2, cfeb_badbits_found_2 : 2, parity_err_cfeb_ram_2 : 2,
         CFEBsEnabled_2 : 2, buf_fence_cnt_is_peak : 1, mxcfeb : 1, trig_source_vec : 2, tmb_trig_pulse : 1, flag40 : 1;
     unsigned run3_trig_df : 1, gem_enable : 1, hmt_match_win : 4, tmb_alct_only_ro : 1, tmb_clct_only_ro : 1,
-        tmb_match_ro : 1, tmb_trig_keep : 1, tmb_non_trig_keep : 1, lyr_thresh_pretrig : 3, layer_trig_en : 1,
-        flag41 : 1;
+        tmb_match_ro : 1, tmb_trig_keep : 1, tmb_non_trig_keep : 1, cathode_hmt : 2, anode_hmt : 2, flag41 : 1;
     unsigned e0bline : 16;
   } bits;
 };

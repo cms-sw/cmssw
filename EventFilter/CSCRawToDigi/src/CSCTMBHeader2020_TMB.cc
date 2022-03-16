@@ -119,6 +119,18 @@ CSCShowerDigi CSCTMBHeader2020_TMB::showerDigi(uint32_t idlayer) const {
   return result;
 }
 
+CSCShowerDigi CSCTMBHeader2020_TMB::anodeShowerDigi(uint32_t idlayer) const {
+  uint16_t cscid = 0;
+  CSCShowerDigi result(bits.anode_hmt & 0x3, 0, cscid);  // 2-bits intime, no out of time
+  return result;
+}
+
+CSCShowerDigi CSCTMBHeader2020_TMB::cathodeShowerDigi(uint32_t idlayer) const {
+  uint16_t cscid = 0;
+  CSCShowerDigi result(bits.cathode_hmt & 0x3, 0, cscid);  // 2-bits intime, no out of time
+  return result;
+}
+
 void CSCTMBHeader2020_TMB::addALCT0(const CSCALCTDigi& digi) {
   throw cms::Exception("In CSC TMBHeaderFormat 2007, ALCTs belong in  ALCT header");
 }
@@ -209,6 +221,16 @@ void CSCTMBHeader2020_TMB::addShower(const CSCShowerDigi& digi) {
   bits.MPC_Muon_HMT_high = (hmt_bits >> 1) & 0x7;
 }
 
+void CSCTMBHeader2020_TMB::addAnodeShower(const CSCShowerDigi& digi) {
+  uint16_t hmt_bits = digi.bitsInTime() & 0x3;
+  bits.anode_hmt = hmt_bits;
+}
+
+void CSCTMBHeader2020_TMB::addCathodeShower(const CSCShowerDigi& digi) {
+  uint16_t hmt_bits = digi.bitsInTime() & 0x3;
+  bits.cathode_hmt = hmt_bits;
+}
+
 void CSCTMBHeader2020_TMB::print(std::ostream& os) const {
   os << "...............(O)TMB2020 TMB Run3 Header.................."
      << "\n";
@@ -250,5 +272,6 @@ void CSCTMBHeader2020_TMB::print(std::ostream& os) const {
      << " L/R bend = " << bits.MPC_Muon1_clct_LR << "\n";
 
   os << " clct_5bit_pattern_id = " << (bits.MPC_Muon_clct_pattern_low | (bits.MPC_Muon_clct_pattern_bit5 << 4))
-     << " HMT = " << (bits.MPC_Muon_HMT_bit0 | (bits.MPC_Muon_HMT_high << 1)) << "\n";
+     << " HMT = " << (bits.MPC_Muon_HMT_bit0 | (bits.MPC_Muon_HMT_high << 1)) << ", alctHMT = " << bits.anode_hmt
+     << ", clctHMT = " << bits.cathode_hmt << "\n";
 }
