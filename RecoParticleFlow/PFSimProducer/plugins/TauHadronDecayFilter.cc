@@ -102,6 +102,6 @@ bool TauHadronDecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 void TauHadronDecayFilter::beginRun(const edm::Run& run, const edm::EventSetup& es) {
-  // init Particle data table (from Pythia)
+  // initialize Particle data table (from Pythia)
   mySimEvent->initializePdt(&es.getData(tokPdt_));
 }
