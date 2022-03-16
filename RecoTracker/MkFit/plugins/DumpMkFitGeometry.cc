@@ -38,10 +38,32 @@ void DumpMkFitGeometry::analyze(const edm::Event& iEvent, const edm::EventSetup&
   const auto& mkfg = iSetup.getData(m_mkfGeoToken);
   const mkfit::TrackerInfo& ti = mkfg.trackerInfo();
 
-  printf("MkFitGeompetry ptr = %p, n_layers = %d\n", &mkfg, ti.n_layers());
-
-  for (int i = 0; i < ti.n_layers(); ++i)
-    ti.layer(i).print_layer();
+  printf("DumpMkFitGeometry geom_ptr=%p, n_layers = %d\n", &mkfg, ti.n_layers());
+  if (m_level > 0) {
+    int n_modules = 0;
+    for (int i = 0; i < ti.n_layers(); ++i) {
+      const mkfit::LayerInfo& li = ti.layer(i);
+      li.print_layer();
+      n_modules += li.n_modules();
+      if (m_level > 1) {
+        printf("  Detailed module list N=%d\n", li.n_modules());
+        for (int j = 0; j < li.n_modules(); ++j) {
+          const mkfit::ModuleInfo& mi = li.module_info(j);
+          auto* p = mi.m_pos.Array();
+          auto* z = mi.m_normal.Array();
+          auto* x = mi.m_phidir.Array();
+          // clang-format off
+          printf("Layer %d, mid=%u; detid=0x%x pos=%.3f,%.3f,%.3f, "
+                 "norm=%.3f,%.3f,%.3f, phi=%.3f,%.3f,%.3f\n",
+                 i, j, mi.m_detid, p[0], p[1], p[2],
+                 z[0], z[1], z[2], x[0], x[1], x[2]);
+          // clang-format on
+        }
+        printf("\n");
+      }
+    }
+    printf("DumpMkFitGeometry finished, n_modules=%d\n", n_modules);
+  }
 }
 
 void DumpMkFitGeometry::beginJob(void) {}

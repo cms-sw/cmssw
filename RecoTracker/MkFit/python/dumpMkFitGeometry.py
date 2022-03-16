@@ -34,13 +34,15 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 process.add_(cms.ESProducer("MkFitGeometryESProducer"))
 
-defaultOutputFileName="some-file.xyzz"
+defaultOutputFileName="phase1-trackerinfo.bin"
 
+# level: 0 - no printout; 1 - print layers, 2 - print modules
+# outputFileName: binary dump file; no dump if empty string
 process.dump = cms.EDAnalyzer("DumpMkFitGeometry",
-                              level   = cms.untracked.int32(1),
+                              level   = cms.untracked.int32(2),
                               tagInfo = cms.untracked.string('no-tag'),
                        outputFileName = cms.untracked.string(defaultOutputFileName)
                               )
 
-print("Dumping geometry in " , defaultOutputFileName, "\n"); 
+print("NOT YET IMPLEMENTED: Dumping geometry in ", defaultOutputFileName, "\n");
 process.p = cms.Path(process.dump)
