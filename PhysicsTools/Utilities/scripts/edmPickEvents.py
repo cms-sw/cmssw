@@ -83,16 +83,16 @@ class Event (dict):
 ## Subroutines ##
 #################
 
-def getFileNames(event, client=None):
+def getFileNames(event, client=None, timeout=15):
     """Return files for given DAS query"""
     if  client == 'das_client':
         return getFileNames_das_client(event)
     elif client == 'dasgoclient':
-        return getFileNames_dasgoclient(event)
+        return getFileNames_dasgoclient(event, timeout)
     # default action
     for path in os.getenv('PATH').split(':'):
         if  os.path.isfile(os.path.join(path, 'dasgoclient')):
-            return getFileNames_dasgoclient(event)
+            return getFileNames_dasgoclient(event, timeout)
     return getFileNames_das_client(event)
 
 def getFileNames_das_client(event):
@@ -118,19 +118,21 @@ def getFileNames_das_client(event):
 
     return files
 
-def getFileNames_dasgoclient(event):
+def getFileNames_dasgoclient(event, timeout=15):
     """Return files for given DAS query via dasgoclient"""
     query = "file dataset=%(dataset)s run=%(run)i lumi=%(lumi)i" % event
     cmd = ['dasgoclient', '-query', query, '-json']
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     files = []
     try:
-        out, err = proc.communicate(timeout=15)
-    except TimeoutExpired:
+        out, err = proc.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
         proc.kill()
+        print("DAS query timeout")
         out, err = proc.communicate()
     exit_code = proc.returncode
     if err or (exit_code != 0):
+        print("DAS command:",cmd)
         print("DAS query error: return code {0}\n--- Standard output---".format(exit_code))
         print(out.decode('utf8'))
         print("--- Standard error---")
@@ -268,6 +270,9 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
     parser.add_option ('--das-client', dest='das_cli', type='string',
                        default=das_cli,
                        help="Specify das client to use (default '%s')" % das_cli )
+    parser.add_option ('--das-client-timeout', dest='dasClientTimeout', type='int',
+                       default=15,
+                       help = 'Timeout in seconds after which das client command should be timed out.')
     (options, args) = parser.parse_args()
 
 
@@ -344,7 +349,7 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
         files = []
         eventPurgeList = []
         for event in eventList:
-            eventFiles = getFileNames(event, options.das_cli)
+            eventFiles = getFileNames(event, options.das_cli, options.dasClientTimeout)
             if eventFiles == ['[]']: # event not contained in the input dataset
                 print("** WARNING: ** According to a DAS query, run = %i; lumi = %i; event = %i not contained in %s.  Skipping."%(event.run,event.lumi,event.event,event.dataset))
                 eventPurgeList.append( event )
