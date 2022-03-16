@@ -50,8 +50,8 @@ void DumpMkFitGeometry::analyze(const edm::Event& iEvent, const edm::EventSetup&
         for (int j = 0; j < li.n_modules(); ++j) {
           const mkfit::ModuleInfo& mi = li.module_info(j);
           auto* p = mi.m_pos.Array();
-          auto* z = mi.m_normal.Array();
-          auto* x = mi.m_phidir.Array();
+          auto* z = mi.m_zdir.Array();
+          auto* x = mi.m_xdir.Array();
           // clang-format off
           printf("Layer %d, mid=%u; detid=0x%x pos=%.3f,%.3f,%.3f, "
                  "norm=%.3f,%.3f,%.3f, phi=%.3f,%.3f,%.3f\n",
