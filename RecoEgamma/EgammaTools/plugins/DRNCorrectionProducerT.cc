@@ -124,12 +124,9 @@ DRNCorrectionProducerT<T>::DRNCorrectionProducerT(const edm::ParameterSet& iConf
     : TritonEDProducer<>(iConfig),
       particleToken_(consumes(iConfig.getParameter<edm::InputTag>("particleSource"))),
       rhoToken_(consumes(iConfig.getParameter<edm::InputTag>("rhoName"))),
-      EBRecHitsToken_(consumes<EcalRecHitCollection>(
-            iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsEB"))),
-      EERecHitsToken_(consumes<EcalRecHitCollection>(
-            iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsEE"))),
-      ESRecHitsToken_(consumes<EcalRecHitCollection>(
-            iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsES"))),
+      EBRecHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsEB"))),
+      EERecHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsEE"))),
+      ESRecHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsES"))),
       pedToken_(esConsumes()),
       geomToken_(esConsumes()) {
   produces<edm::ValueMap<std::pair<float, float>>>();
