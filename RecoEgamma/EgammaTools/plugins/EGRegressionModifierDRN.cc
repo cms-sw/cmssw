@@ -72,18 +72,18 @@ private:
       correctionsSource = config.getParameter<edm::InputTag>("correctionsSource");
       correctionsToken = cc.consumes(correctionsSource);
 
-      if(config.exists("energyFloat")){
-        userFloat=true;
+      if (config.exists("energyFloat")) {
+        userFloat = true;
         energyFloat = config.getParameter<std::string>("energyFloat");
         resFloat = config.getParameter<std::string>("resFloat");
-      } else{
-        userFloat=false;
+      } else {
+        userFloat = false;
       }
     }
 
     const std::pair<float, float> getCorrection(T& part) const;
 
-    const void doUserFloat(T& part, const std::pair<float, float>& correction) const{
+    const void doUserFloat(T& part, const std::pair<float, float>& correction) const {
       part.addUserFloat(energyFloat, correction.first);
       part.addUserFloat(resFloat, correction.second);
     }
@@ -161,7 +161,7 @@ void EGRegressionModifierDRN::modifyObject(pat::Electron& ele) const {
 
   const std::pair<float, float>& correction = patElectrons_->getCorrection(ele);
 
-  if(patElectrons_->userFloat){
+  if (patElectrons_->userFloat) {
     patElectrons_->doUserFloat(ele, correction);
   } else if (correction.first > 0 && correction.second > 0) {
     ele.setCorrectedEcalEnergy(correction.first, true);
@@ -180,11 +180,10 @@ void EGRegressionModifierDRN::modifyObject(pat::Photon& pho) const {
 
   const std::pair<float, float>& correction = patPhotons_->getCorrection(pho);
 
-  if(patPhotons_->userFloat){
+  if (patPhotons_->userFloat) {
     patPhotons_->doUserFloat(pho, correction);
   } else if (correction.first > 0 && correction.second > 0) {
-    pho.setCorrectedEnergy(pat::Photon::P4type::regression2, 
-        correction.first, correction.second, true);
+    pho.setCorrectedEnergy(pat::Photon::P4type::regression2, correction.first, correction.second, true);
   }
 }
 
@@ -195,8 +194,7 @@ void EGRegressionModifierDRN::modifyObject(reco::Photon& pho) const {
   const std::pair<float, float>& correction = gedPhotons_->getCorrection(pho);
 
   if (correction.first > 0 && correction.second > 0) {
-    pho.setCorrectedEnergy(reco::Photon::P4type::regression2, 
-        correction.first, correction.second, true);
+    pho.setCorrectedEnergy(reco::Photon::P4type::regression2, correction.first, correction.second, true);
   }
 };
 
@@ -216,9 +214,8 @@ const std::pair<float, float> EGRegressionModifierDRN::partVars<T>::getCorrectio
   }
 
   if (!matched) {
-    throw cms::Exception("EGRegressionModifierDRN") 
-      << "Matching failed in EGRegressionModifierDRN" << std::endl
-      << "This should not have been possible" << std::endl;
+    throw cms::Exception("EGRegressionModifierDRN") << "Matching failed in EGRegressionModifierDRN" << std::endl
+                                                    << "This should not have been possible" << std::endl;
     return std::pair<float, float>(-1., -1.);
   }
 
@@ -230,4 +227,3 @@ const std::pair<float, float> EGRegressionModifierDRN::partVars<T>::getCorrectio
 }
 
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory, EGRegressionModifierDRN, "EGRegressionModifierDRN");
-
