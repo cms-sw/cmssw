@@ -32,43 +32,39 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config)
   // Get masked- and dead-strip information from file
   applyMasking_ = config.getParameter<bool>("applyMasking");
   if (applyMasking_) {
-    if (config.existsAs<edm::FileInPath>("maskFile")) {
       maskSource_ = MaskSource::File;
-      std::ifstream inputFile(config.getParameter<edm::FileInPath>("maskFile").fullPath());
-      if (!inputFile) {
+      std::ifstream inputmaskFile(config.getParameter<edm::FileInPath>("maskFile").fullPath());
+      if (!inputmaskFile) {
         throw cms::Exception("GEMRecHitProducer") << "Masked Strips File cannot not be opened";
       }
       theGEMMaskedStripsObj = std::make_unique<GEMMaskedStrips>();
-      while (inputFile.good()) {
+      while (inputmaskFile.good()) {
         GEMMaskedStrips::MaskItem Item;
-        inputFile >> Item.rawId >> Item.strip;
-        if (inputFile.good())
+        inputmaskFile >> Item.rawId >> Item.strip;
+        if (inputmaskFile.good())
           theGEMMaskedStripsObj->fillMaskVec(Item);
       }
-      inputFile.close();
-    }
+      inputmaskFile.close();
 
-    if (config.existsAs<edm::FileInPath>("deadFile")) {
       deadSource_ = MaskSource::File;
-      std::ifstream inputFile(config.getParameter<edm::FileInPath>("deadFile").fullPath());
-      if (!inputFile) {
+      std::ifstream inputdeadFile(config.getParameter<edm::FileInPath>("deadFile").fullPath());
+      if (!inputdeadFile) {
         throw cms::Exception("GEMRecHitProducer") << "Dead Strips File cannot not be opened";
       }
       theGEMDeadStripsObj = std::make_unique<GEMDeadStrips>();
-      while (inputFile.good()) {
+      while (inputdeadFile.good()) {
         GEMDeadStrips::DeadItem Item;
-        inputFile >> Item.rawId >> Item.strip;
-        if (inputFile.good())
+        inputdeadFile >> Item.rawId >> Item.strip;
+        if (inputdeadFile.good())
           theGEMDeadStripsObj->fillDeadVec(Item);
       }
-      inputFile.close();
-    }
-    if (maskSource_ == MaskSource::EventSetup) {
-      maskedStripsToken_ = esConsumes<GEMMaskedStrips, GEMMaskedStripsRcd, edm::Transition::BeginRun>();
-    }
-    if (deadSource_ == MaskSource::EventSetup) {
-      deadStripsToken_ = esConsumes<GEMDeadStrips, GEMDeadStripsRcd, edm::Transition::BeginRun>();
-    }
+      inputdeadFile.close();
+      if (maskSource_ == MaskSource::EventSetup) {
+        maskedStripsToken_ = esConsumes<GEMMaskedStrips, GEMMaskedStripsRcd, edm::Transition::BeginRun>();
+      }
+      if (deadSource_ == MaskSource::EventSetup) {
+        deadStripsToken_ = esConsumes<GEMDeadStrips, GEMDeadStripsRcd, edm::Transition::BeginRun>();
+      }
   }
 }
 
