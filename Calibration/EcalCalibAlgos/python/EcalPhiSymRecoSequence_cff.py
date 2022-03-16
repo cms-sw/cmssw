@@ -144,3 +144,29 @@ def ecal_phisym_output(process,
         outputs.append(process.EcalPhiSymOutput)
 
     return outputs
+
+def customise(process):
+    """
+    Function to customize the process produced by cmsDriver.
+    The customisation works for a process that satisfies the following conditions:
+    - Run on /AlCaPhiSym/*/RAW data
+    - Run the following sequence (-s option of cmsDriver): 
+    RECO:bunchSpacingProducer+ecalMultiFitUncalibRecHitTask+ecalCalibratedRecHitTask,ALCA:EcalPhiSymByRun (or EcalPhiSymByLumi)
+    """
+    
+    # Change input collection for the /AlCaPhiSym/*/RAW stream dataformat
+    process.ecalMultiFitUncalibRecHit.cpu.EBdigiCollection = cms.InputTag("hltEcalPhiSymFilter", "phiSymEcalDigisEB")
+    process.ecalMultiFitUncalibRecHit.cpu.EEdigiCollection = cms.InputTag("hltEcalPhiSymFilter", "phiSymEcalDigisEE")
+    process.ecalRecHit.cpu.killDeadChannels = cms.bool( False )
+    process.ecalRecHit.cpu.recoverEBVFE = cms.bool( False )
+    process.ecalRecHit.cpu.recoverEEVFE = cms.bool( False )
+    process.ecalRecHit.cpu.recoverEBFE = cms.bool( False )
+    process.ecalRecHit.cpu.recoverEEFE = cms.bool( False )
+    process.ecalRecHit.cpu.recoverEEIsolatedChannels = cms.bool( False )
+    process.ecalRecHit.cpu.recoverEBIsolatedChannels = cms.bool( False )
+
+    process.schedule.remove(process.ALCARECOStreamEcalPhiSymByRunOutPath)
+    process.ALCARECOStreamEcalPhiSymByRunOutNanoPath = cms.EndPath(ecal_phisym_output(process, save_flatnano=True)[0])
+    process.schedule.append(process.ALCARECOStreamEcalPhiSymByRunOutNanoPath)
+
+    return process
