@@ -89,7 +89,7 @@ private:
 
     const std::pair<float, float> getCorrection(T& part) const;
 
-    const bool doUserFloat(T& part, std::pair<float, float>& correction) const{
+    const void doUserFloat(T& part, std::pair<float, float>& correction) const{
       part.addUserFloat(energyFloat, correction.first);
       part.addUserFloat(resFloat, correction.second);
     }
@@ -152,7 +152,7 @@ void EGRegressionModifierDRN::modifyObject(reco::GsfElectron& ele) const {
 
   const std::pair<float, float>& correction = gsfElectrons_->getCorrection(ele);
 
-  if (gsfElectrons_.userFloat){
+  if (gsfElectrons_->userFloat){
     gsfElectrons_.doUserFloat(ele, correction);
   } else if (correction.first > 0 && correction.second > 0) {
     ele.setCorrectedEcalEnergy(correction.first, true);
@@ -171,7 +171,7 @@ void EGRegressionModifierDRN::modifyObject(pat::Electron& ele) const {
 
   const std::pair<float, float>& correction = patElectrons_->getCorrection(ele);
 
-  if(patElectrons_.userFloat){
+  if(patElectrons_->userFloat){
     patElectrons_.doUserFloat(ele, correction);
   } else if (correction.first > 0 && correction.second > 0) {
     ele.setCorrectedEcalEnergy(correction.first, true);
@@ -190,7 +190,7 @@ void EGRegressionModifierDRN::modifyObject(pat::Photon& pho) const {
 
   const std::pair<float, float>& correction = patPhotons_->getCorrection(pho);
 
-  if(patPhotons_.userFloat){
+  if(patPhotons_->userFloat){
     patPhotons_.doUserFloat(pho, correction);
   } else if (correction.first > 0 && correction.second > 0) {
     pho.setCorrectedEnergy(pat::Photon::P4type::regression2, 
@@ -204,7 +204,7 @@ void EGRegressionModifierDRN::modifyObject(reco::Photon& pho) const {
 
   const std::pair<float, float>& correction = gedPhotons_->getCorrection(pho);
 
-  if(patPhotons_.userFloat){
+  if(patPhotons_->userFloat){
     patPhotons_.doUserFloat(pho, correction);
   } else if (correction.first > 0 && correction.second > 0) {
     pho.setCorrectedEnergy(reco::Photon::P4type::regression2, 
