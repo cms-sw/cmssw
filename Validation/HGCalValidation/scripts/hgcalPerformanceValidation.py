@@ -22,6 +22,10 @@ from collections import OrderedDict
 from Validation.RecoTrack.plotting.validation import Sample, Validation
 from Validation.HGCalValidation.hgcalHtml import _sampleName,_pageNameMap,_summary,_summobj,_MatBudSections,_geoPageNameMap,_individualmaterials,_matPageNameMap,_individualmatplots,_individualMatPlotsDesc,_hideShowFun,_allmaterialsplots,_allmaterialsPlotsDesc, _fromvertexplots, _fromVertexPlotsDesc
 
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsMerge
+trackstersIters = ['ticlTracksters'+iteration for iteration in ticlIterLabelsMerge]
+trackstersIters.extend(["ticlSimTracksters", "ticlSimTracksters_fromCPs"])
+
 #------------------------------------------------------------------------------------------
 #Parsing input options
 def parseOptions():
@@ -83,7 +87,14 @@ def putype(t):
 #------------------------------------------------------------------------------------------
 #thereleases = { "CMSSW 11_1_X" : ["CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre3","CMSSW_11_1_0_pre2"] }
 thereleases = OrderedDict()
-thereleases = { "CMSSW 12_2_X" : [
+thereleases = { "CMSSW 12_3_X" : [
+    "CMSSW_12_3_0_pre5_D88_vs_CMSSW_12_3_0_pre5_D77",
+    "CMSSW_12_3_0_pre5_D77_vs_CMSSW_12_3_0_pre3_D77",
+    "CMSSW_12_3_0_pre4_vs_CMSSW_12_3_0_pre3",
+    "CMSSW_12_3_0_pre3_vs_CMSSW_12_3_0_pre2"
+                ],
+                "CMSSW 12_2_X" : [
+    "CMSSW_12_2_0_vs_CMSSW_12_2_0_pre3",
     "CMSSW_12_2_0_pre3_D88_vs_CMSSW_12_2_0_pre3_D77",
     "CMSSW_12_2_0_pre3_vs_CMSSW_12_2_0_pre2",
     "CMSSW_12_2_0_pre2_vs_CMSSW_12_1_0_pre5"
@@ -160,9 +171,9 @@ geometryTests = { "Material budget" : [
 
 GeoScenario = "Extended2026D77_vs_Extended2026D88"
 
-RefRelease='CMSSW_12_2_0_pre3'
+RefRelease='CMSSW_12_3_0_pre5'
 
-NewRelease='CMSSW_12_2_0_pre3'
+NewRelease='CMSSW_12_3_0_pre5'
 
 NotNormalRelease = "normal"
 NotNormalRefRelease = "normal"
@@ -422,7 +433,6 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
     fragments = []
     #In the case of simulation we want to split the plots in specific folder
     if opt.OBJ == 'simulation': processCmd('mkdir HGCValid_SimClusters_Plots HGCValid_CaloParticles_Plots')
-    #Now  that we have them in eos lets produce plots
     #Let's loop through RelVals
     for infi in phase2samples_noPU:
         samplename = infi.filename(NewRelease).replace("DQM_V0001_R000000001__","").replace("__DQMIO.root","")
@@ -436,6 +446,11 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
         print("="*40)
         print(samplename)
         print("="*40)
+
+        #In the case of tracksters. We want to split the results.
+        if opt.OBJ == 'tracksters':
+           for tracksterCollection in trackstersIters:
+               processCmd('mkdir -p HGCValid_Tracksters_Plots/plots_%s_%s HGCValid_Test-TICL_Plots/plots_%s_%s HGCValid_TICL-patternRecognition_Plots/plots_%s_%s' %(samplename,tracksterCollection,samplename,tracksterCollection,samplename,tracksterCollection) )
 
         inputpathRef = ""
         if RefRelease != None: inputpathRef = RefRepository +'/' + RefRelease +'/'
@@ -487,16 +502,39 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
                 processCmd('echo "  <hr>" >> HGCValid_%s_Plots/index_%s.html '%(opt.HTMLVALNAME, samplename) )
                 
             if opt.OBJ == 'tracksters':
-                processCmd('mv HGCValid_%s_Plots/plots_%s_Tracksters.html HGCValid_%s_Plots/index.html'%(opt.HTMLVALNAME,samplename,opt.HTMLVALNAME))
-                processCmd('awk \'NR>=6&&NR<=209\' HGCValid_%s_Plots/index.html > HGCValid_%s_Plots/index_%s.html '% (opt.HTMLVALNAME,opt.HTMLVALNAME, samplename))
-                processCmd('echo "  <br/>" >> HGCValid_%s_Plots/index_%s.html '%(opt.HTMLVALNAME, samplename) )
-                processCmd('echo "  <hr>" >> HGCValid_%s_Plots/index_%s.html '%(opt.HTMLVALNAME, samplename) )
+                processCmd('mv HGCValid_%s_Plots/plots_%s_Tracksters.html HGCValid_Tracksters_Plots/index.html'%(opt.HTMLVALNAME,samplename))
+                processCmd('mv HGCValid_%s_Plots/plots_%s_Test-TICL.html HGCValid_Test-TICL_Plots/index.html'%(opt.HTMLVALNAME,samplename))
+                processCmd('mv HGCValid_%s_Plots/plots_%s_TICL-patternRecognition.html HGCValid_TICL-patternRecognition_Plots/index.html'%(opt.HTMLVALNAME,samplename))
+                processCmd('awk \'NR>=6&&NR<=135\' HGCValid_Tracksters_Plots/index.html > HGCValid_Tracksters_Plots/index_%s.html ' %(samplename))
+                processCmd('awk \'NR>=6&&NR<=117\' HGCValid_Test-TICL_Plots/index.html > HGCValid_Test-TICL_Plots/index_%s.html '% (samplename))
+                processCmd('awk \'NR>=6&&NR<=117\' HGCValid_TICL-patternRecognition_Plots/index.html > HGCValid_TICL-patternRecognition_Plots/index_%s.html '% (samplename))
+                processCmd('echo "  <br/>" >> HGCValid_Tracksters_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <br/>" >> HGCValid_Test-TICL_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <br/>" >> HGCValid_TICL-patternRecognition_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <hr>" >> HGCValid_Tracksters_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <hr>" >> HGCValid_Test-TICL_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <hr>" >> HGCValid_TICL-patternRecognition_Plots/index_%s.html '%(samplename) )
+                #Now move the plots also to the relevant folders
+                for tracksterCollection in trackstersIters:
+                    #Linking
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*_Link HGCValid_Test-TICL_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*CaloParticle*Trackster* HGCValid_Test-TICL_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*Trackster*CaloParticle* HGCValid_Test-TICL_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    #Pattern recognition
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*_PR HGCValid_TICL-patternRecognition_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*SimTrackster*Trackster* HGCValid_TICL-patternRecognition_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*Trackster*SimTrackster* HGCValid_TICL-patternRecognition_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    #Tracksters
+                    for gr in ['EtaPhiPtEnergy','XYZ','TotalNumberofTracksters','NumberofLayerClustersinTrackster','NumberofLayerClustersinTracksterPerLayer','NumberofLayerClustersinTracksterPerLayer_zminus_EE','NumberofLayerClustersinTracksterPerLayer_zminus_FH','NumberofLayerClustersinTracksterPerLayer_zminus_BH','NumberofLayerClustersinTracksterPerLayer_zplus_EE','NumberofLayerClustersinTracksterPerLayer_zplus_FH','NumberofLayerClustersinTracksterPerLayer_zplus_BH','LayerNumbersOfTrackster','MultiplicityofLCinTST']:
+                        processCmd('mv HGCValid_%s_Plots/plots_%s_%s/%s HGCValid_Tracksters_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,gr,samplename,tracksterCollection))
 
-            if opt.OBJ == 'simulation':              
+
+            if  opt.OBJ == 'simulation':              
+
                 processCmd('mv HGCValid_%s_Plots/plots_%s_SimClusters.html HGCValid_SimClusters_Plots/index.html'%(opt.HTMLVALNAME,samplename))
                 processCmd('mv HGCValid_%s_Plots/plots_%s_CaloParticles.html HGCValid_CaloParticles_Plots/index.html'%(opt.HTMLVALNAME,samplename))
-                processCmd('awk \'NR>=6&&NR<=158\' HGCValid_SimClusters_Plots/index.html > HGCValid_SimClusters_Plots/index_%s.html '% (samplename))
-                processCmd('awk \'NR>=6&&NR<=304\' HGCValid_CaloParticles_Plots/index.html > HGCValid_CaloParticles_Plots/index_%s.html '% (samplename))
+                processCmd('awk \'NR>=6&&NR<=157\' HGCValid_SimClusters_Plots/index.html > HGCValid_SimClusters_Plots/index_%s.html '% (samplename))
+                processCmd('awk \'NR>=6&&NR<=331\' HGCValid_CaloParticles_Plots/index.html > HGCValid_CaloParticles_Plots/index_%s.html '% (samplename))
                 processCmd('echo "  <br/>" >> HGCValid_SimClusters_Plots/index_%s.html '%(samplename) )
                 processCmd('echo "  <br/>" >> HGCValid_CaloParticles_Plots/index_%s.html '%(samplename) )
                 processCmd('echo "  <hr>" >> HGCValid_SimClusters_Plots/index_%s.html '%(samplename) )
@@ -510,6 +548,10 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
         if opt.OBJ == 'simulation': 
             fragments.append( 'HGCValid_SimClusters_Plots/index_%s.html'% (samplename) )
             fragments.append( 'HGCValid_CaloParticles_Plots/index_%s.html'% (samplename) )
+        elif opt.OBJ == 'tracksters':
+            fragments.append( 'HGCValid_Tracksters_Plots/index_%s.html'% (samplename) )
+            fragments.append( 'HGCValid_Test-TICL_Plots/index_%s.html'% (samplename) )
+            fragments.append( 'HGCValid_TICL-patternRecognition_Plots/index_%s.html'% (samplename) )
         else:
             fragments.append( 'HGCValid_%s_Plots/index_%s.html'% (opt.HTMLVALNAME, samplename) )
 
@@ -518,6 +560,8 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
     indexfiles = []
     if opt.OBJ == 'simulation': 
         indexfiles = ["SimClusters","CaloParticles"]
+    elif opt.OBJ == 'tracksters':
+        indexfiles = ["Tracksters","Test-TICL","TICL-patternRecognition"]
     else: 
         indexfiles = [opt.HTMLVALNAME]
 
@@ -527,7 +571,7 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
         #Write preamble
         index_file.write('<html>\n')
         index_file.write(' <head>\n')
-        index_file.write('  <title>HGCal validation %s </title>\n' %(ind) )
+        index_file.write('  <title>HGCAL validation %s </title>\n' %(ind) )
         index_file.write(' </head>\n')
         index_file.write(' <body>\n')
 
@@ -852,7 +896,7 @@ if (opt.GATHER != None) :
                     #print(df[obj][ind])          
                     print(j)
                     #index_file.write(' <li><a href="plots_%s_%s">%s</a></li>   \n' %(samplename, df[obj][ind], df[obj][ind].partition("/")[2] ))
-                    if "tracksters" in j:
+                    if "Tracksters" in j or "Test-TICL" in j or "TICL-patternRecognition" in j:
                         index_file.write(' <li><a href="../HGCValid_%s_Plots/plots_%s_%s">%s</a></li>   \n' %(j, samplename, column, column.replace("ticlTracksters","") ))
                     else:
                         index_file.write(' <li><a href="../HGCValid_%s_Plots/plots_%s_%s">%s</a></li>   \n' %(j, samplename, column, column.partition("/")[2] ))
@@ -915,10 +959,10 @@ if (opt.GATHER != None) :
     #Write preamble
     index_file.write('<html>\n')
     index_file.write(' <head>\n')
-    index_file.write('  <title> <h2> HGCal validation results for %s </h2> </title>\n' %(localoutputdir) )
+    index_file.write('  <title> <h2> HGCAL validation results for %s </h2> </title>\n' %(localoutputdir) )
     index_file.write(' </head>\n')
     index_file.write(' <body>\n')
-    index_file.write(' <h2> HGCal validation results for %s </h2> \n' %(localoutputdir) )
+    index_file.write(' <h2> HGCAL validation results for %s </h2> \n' %(localoutputdir) )
 
     for obj in objects:
         print(obj)
