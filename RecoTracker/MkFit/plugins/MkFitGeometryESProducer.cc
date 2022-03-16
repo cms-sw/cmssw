@@ -74,8 +74,8 @@ private:
   void addTECGeometry(mkfit::TrackerInfo &trk_info);
 
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
-  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> trackerToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
+  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> trackerToken_;
 
   const TrackerTopology *m_trackerTopo = nullptr;
   const TrackerGeometry *m_trackerGeom = nullptr;
@@ -85,8 +85,8 @@ private:
 MkFitGeometryESProducer::MkFitGeometryESProducer(const edm::ParameterSet &iConfig) {
   auto cc = setWhatProduced(this);
   geomToken_ = cc.consumes();
-  trackerToken_ = cc.consumes();
   ttopoToken_ = cc.consumes();
+  trackerToken_ = cc.consumes();
 }
 
 void MkFitGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -302,6 +302,11 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
   if (lgc_map) {
     (*lgc_map)[lay].add_current();
   }
+  // Module information
+  auto p = det->position();
+  auto z = det->rotation().z();
+  auto x = det->rotation().x();
+  layer_info.register_module({{p.x(), p.y(), p.z()}, {z.x(), z.y(), z.z()}, {x.x(), x.y(), x.z()}, detid.rawId()});
   // Set some layer parameters (repeatedly, would require hard-coding otherwise)
   layer_info.set_subdet(detid.subdetId());
   layer_info.set_is_pixel(detid.subdetId() <= 2);
@@ -374,34 +379,13 @@ void MkFitGeometryESProducer::addTECGeometry(mkfit::TrackerInfo &trk_info) {
 //------------------------------------------------------------------------------
 // clang-format off
 namespace {
-  const float phase1QBins_sa[] = { // in mk_trk_info.C
-    /* PIXB */
-    2.0, 2.0, 2.0, 2.0,
-    /* TIB, TOB */
-    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5,
-    /* PIXE+ */
-    1.0, 1.0, 1.0,
-    /* TID+, TEC+ */
-    5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5,
-    /* PIXE- */
-    1.0, 1.0, 1.0,
-    /* TID-, TEC- */
-    5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5
-  };
-
-  const float phase1QBins[] = { // from createPhase1TrackerGeometryAutoGen.acc
-    /* PIXB */
-    2.0, 2.0, 2.0, 2.0,
-    /* TIB, TOB */
-    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5,
-    /* PIXE+ */
-    1.0, 1.0, 1.0,
-    /* TID+, TEC+ */
-    5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
-    /* PIXE- */
-    1.0, 1.0, 1.0,
-    /* TID-, TEC- */
-    5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
+  const float phase1QBins[] = {
+    // PIXB, TIB, TOB
+    2.0, 2.0, 2.0, 2.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5, 9.5,
+    // PIXE+, TID+, TEC+
+    1.0, 1.0, 1.0, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5,
+    // PIXE-, TID-, TEC-
+    1.0, 1.0, 1.0, 5.6, 5.6, 5.6, 5.6, 5.6, 5.6, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5, 10.25, 7.5
   };
 }
 // clang-format on
@@ -410,10 +394,7 @@ namespace {
 std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRecoGeometryRecord &iRecord) {
   auto trackerInfo = std::make_unique<mkfit::TrackerInfo>();
 
-  // QQQQ m_trackerGeom = &iRecord.get(geomTokenReco_);
   m_trackerGeom = &iRecord.get(geomToken_);
-  m_trackerTopo = &iRecord.get(ttopoToken_);
-
   m_trackerTopo = &iRecord.get(ttopoToken_);
 
   // std::string path = "Geometry/TrackerCommonData/data/";
@@ -430,10 +411,12 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
   }
 
   // Prepare layer boundaries for bounding-box search
-  for (int i = 0; i < trackerInfo->n_layers(); ++i)
-    trackerInfo->layer_nc(i).set_limits(
+  for (int i = 0; i < trackerInfo->n_layers(); ++i) {
+    auto &li = trackerInfo->layer_nc(i);
+    li.set_limits(
         std::numeric_limits<float>::max(), 0, std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
-
+    li.reserve_modules(256);
+  }
   // This is sort of CMS-2017 specific ... but fireworks code uses it for PhaseII as well.
   addPixBGeometry(*trackerInfo);
   addPixEGeometry(*trackerInfo);
@@ -448,6 +431,9 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
     li.set_r_in_out(std::sqrt(li.rin()), std::sqrt(li.rout()));
     li.set_propagate_to(li.is_barrel() ? li.r_mean() : li.z_mean());
     li.set_q_bin(phase1QBins[i]);
+    unsigned int maxsid = li.shrink_modules();
+    // Make sure the short id fits in the 12 bits...
+    assert(maxsid < (int)1 << 11);
   }
 
   return std::make_unique<MkFitGeometry>(

@@ -1,14 +1,11 @@
 #ifndef RecoTracker_MkFitCore_interface_TrackerInfo_h
 #define RecoTracker_MkFitCore_interface_TrackerInfo_h
 
+#include "RecoTracker/MkFitCore/interface/MatrixSTypes.h"
 #include <string>
 #include <vector>
 
 namespace mkfit {
-
-  class IterationsInfo;
-
-  //==============================================================================
 
   enum WithinSensitiveRegion_e { WSR_Undef = -1, WSR_Inside = 0, WSR_Edge, WSR_Outside };
 
@@ -20,6 +17,18 @@ namespace mkfit {
     WSR_Result() : m_wsr(WSR_Undef), m_in_gap(false) {}
 
     WSR_Result(WithinSensitiveRegion_e wsr, bool in_gap) : m_wsr(wsr), m_in_gap(in_gap) {}
+  };
+
+  //==============================================================================
+
+  struct ModuleInfo {
+    SVector3 m_pos;
+    SVector3 m_normal;
+    SVector3 m_phidir;
+    unsigned int m_detid;
+
+    ModuleInfo(SVector3 pos, SVector3 nor, SVector3 phi, unsigned int id)
+        : m_pos(pos), m_normal(nor), m_phidir(phi), m_detid(id) {}
   };
 
   //==============================================================================
@@ -88,6 +97,23 @@ namespace mkfit {
 
     void print_layer() const;
 
+    // module & detid interface
+    void reserve_modules(int nm) { m_modules.reserve(nm); }
+    unsigned int register_module(ModuleInfo&& mi) {
+      unsigned int pos = m_modules.size();
+      m_modules.emplace_back(mi);
+      m_detid2sid[mi.m_detid] = pos;
+      return pos;
+    }
+    unsigned int shrink_modules() {
+      m_modules.shrink_to_fit();
+      return m_modules.size() - 1;
+    }
+
+    unsigned int short_id(unsigned int detid) const { return m_detid2sid.at(detid); }
+    int n_modules() const { return m_modules.size(); }
+    const ModuleInfo& module_info(unsigned int sid) const { return m_modules[sid]; }
+
   private:
     bool is_in_r_hole_no_check(float r) const { return r > m_hole_r_min && r < m_hole_r_max; }
 
@@ -103,6 +129,9 @@ namespace mkfit {
     bool m_has_r_range_hole = false;
     bool m_is_stereo = false;
     bool m_is_pixel = false;
+
+    std::unordered_map<unsigned int, unsigned int> m_detid2sid;
+    std::vector<ModuleInfo> m_modules;
   };
 
   //==============================================================================
