@@ -93,7 +93,8 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps)
       testNumber_(ps.getUntrackedParameter<bool>("TestNumbering", true)) {
   usesResource(TFileService::kSharedResource);
 
-  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")));
+  tok_evt_ =
+      consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")));
   for (unsigned i = 0; i != hitLab_.size(); i++)
     toks_calo_.emplace_back(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_[i])));
   for (unsigned i = 0; i != muonLab_.size(); i++)
