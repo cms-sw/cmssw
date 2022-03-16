@@ -7,11 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -44,12 +40,7 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
-#include <sstream>
-#include <string>
-#include <vector>
-#include <random>
-
-#include <iostream>
+#include <math.h>
 
 /*
  * DRNCorrectionProducerT
@@ -63,20 +54,20 @@
  */
 
 namespace {
-  float sigmoid(float x) { return 1.0f / (1.0f + exp(-x)); }
+  float sigmoid(float x) { return 1.0f / (1.0f + std::expf(-x)); }
 
   float logcorrection(float x) {
-    static float ln2 = log(2);
+    static float ln2 = std::logf(2);
     return ln2 * 2 * (sigmoid(x) - 0.5);
   }
 
   //correction factor is transformed by sigmoid and "logratioflip target"
-  float correction(float x) { return exp(-logcorrection(x)); }
+  float correction(float x) { return std::expf(-logcorrection(x)); }
 
   inline float rescale(float x, float min, float range) { return (x - min) / range; }
 
   //resolution is transformed by softplus function
-  float resolution(float x) { return log(1 + exp(x)); }
+  float resolution(float x) { return log(1 + std::expf(x)); }
 
   const float RHO_MIN = 0.0f;
   const float RHO_RANGE = 13.0f;
@@ -112,14 +103,10 @@ public:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup, Output const& iOutput) override;
 
 private:
-  const edm::InputTag particleSource_;
   edm::EDGetTokenT<edm::View<T>> particleToken_;
-  edm::Handle<edm::View<T>> particles_;
 
-  const edm::InputTag rhoName_;
   edm::EDGetTokenT<double> rhoToken_;
 
-  edm::InputTag EBRecHitsName_, EERecHitsName_, ESRecHitsName_;
   edm::EDGetTokenT<EcalRecHitCollection> EBRecHitsToken_, EERecHitsToken_, ESRecHitsToken_;
 
   edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedToken_;
@@ -135,16 +122,14 @@ private:
 template <typename T>
 DRNCorrectionProducerT<T>::DRNCorrectionProducerT(const edm::ParameterSet& iConfig)
     : TritonEDProducer<>(iConfig),
-      particleSource_{iConfig.getParameter<edm::InputTag>("particleSource")},
-      particleToken_(consumes(particleSource_)),
-      rhoName_{iConfig.getParameter<edm::InputTag>("rhoName")},
-      rhoToken_(consumes(rhoName_)),
-      EBRecHitsName_{iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsEB")},
-      EERecHitsName_{iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsEE")},
-      ESRecHitsName_{iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsES")},
-      EBRecHitsToken_(consumes<EcalRecHitCollection>(EBRecHitsName_)),
-      EERecHitsToken_(consumes<EcalRecHitCollection>(EERecHitsName_)),
-      ESRecHitsToken_(consumes<EcalRecHitCollection>(ESRecHitsName_)),
+      particleToken_(consumes(iConfig.getParameter<edm::InputTag>("particleSource"))),
+      rhoToken_(consumes(iConfig.getParameter<edm::InputTag>("rhoName"))),
+      EBRecHitsToken_(consumes<EcalRecHitCollection>(
+            iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsEB"))),
+      EERecHitsToken_(consumes<EcalRecHitCollection>(
+            iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsEE"))),
+      ESRecHitsToken_(consumes<EcalRecHitCollection>(
+            iConfig.getParameter<edm::InputTag>("reducedEcalRecHitsES"))),
       pedToken_(esConsumes()),
       geomToken_(esConsumes()) {
   produces<edm::ValueMap<std::pair<float, float>>>();
@@ -175,7 +160,7 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
   /*
    * Get products from event and event setup
    */
-  particles_ = iEvent.getHandle(particleToken_);
+  const auto& particles_ = iEvent.getHandle(particleToken_);
   float rho = iEvent.get(rhoToken_);
   edm::Handle<EcalRecHitCollection> EBRecHits = iEvent.getHandle(EBRecHitsToken_);
   edm::Handle<EcalRecHitCollection> EERecHits = iEvent.getHandle(EERecHitsToken_);
@@ -384,7 +369,7 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
 
 template <typename T>
 void DRNCorrectionProducerT<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup, Output const& iOutput) {
-  particles_ = iEvent.getHandle(particleToken_);
+  const auto& particles_ = iEvent.getHandle(particleToken_);
 
   std::vector<std::pair<float, float>> corrections;
   corrections.reserve(nPart_);
@@ -404,7 +389,7 @@ void DRNCorrectionProducerT<T>::produce(edm::Event& iEvent, const edm::EventSetu
         sigma = resolution(sigmaOut[0][0 + 5 * i]);
         ++i;
 
-        rawE = particles_->at(iPart).superCluster()->rawEnergy();
+        rawE = part.superCluster()->rawEnergy();
         Epred = mu * rawE;
         sigmaPred = sigma * rawE;
         corrections.emplace_back(Epred, sigmaPred);
@@ -440,7 +425,6 @@ using GedPhotonDRNCorrectionProducer = DRNCorrectionProducerT<reco::Photon>;
 using GsfElectronDRNCorrectionProducer = DRNCorrectionProducerT<reco::GsfElectron>;
 using PatElectronDRNCorrectionProducer = DRNCorrectionProducerT<pat::Electron>;
 
-//DEFINE_FWK_MODULE(DRNCorrectionProducerT);
 DEFINE_FWK_MODULE(PatPhotonDRNCorrectionProducer);
 DEFINE_FWK_MODULE(GedPhotonDRNCorrectionProducer);
 DEFINE_FWK_MODULE(GsfElectronDRNCorrectionProducer);

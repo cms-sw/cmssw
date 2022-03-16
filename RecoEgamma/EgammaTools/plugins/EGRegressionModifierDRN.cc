@@ -28,8 +28,6 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include <vdt/vdtMath.h>
-
 /*
  * EGRegressionModifierDRN
  *
