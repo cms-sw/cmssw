@@ -165,8 +165,11 @@ def customise(process):
     process.ecalRecHit.cpu.recoverEEIsolatedChannels = cms.bool( False )
     process.ecalRecHit.cpu.recoverEBIsolatedChannels = cms.bool( False )
 
-    process.schedule.remove(process.ALCARECOStreamEcalPhiSymByRunOutPath)
-    process.ALCARECOStreamEcalPhiSymByRunOutNanoPath = cms.EndPath(ecal_phisym_output(process, save_flatnano=True)[0])
-    process.schedule.append(process.ALCARECOStreamEcalPhiSymByRunOutNanoPath)
+    if "ALCARECOStreamEcalPhiSymByRunOutPath" in process.pathNames():
+        process.schedule.remove(process.ALCARECOStreamEcalPhiSymByRunOutPath)
+    if "ALCARECOStreamEcalPhiSymByLumiOutPath" in process.pathNames():
+        process.schedule.remove(process.ALCARECOStreamEcalPhiSymByLumiOutPath)
+    process.ALCARECOStreamEcalPhiSymOutNanoPath = cms.EndPath(ecal_phisym_output(process, save_flatnano=True)[0])
+    process.schedule.append(process.ALCARECOStreamEcalPhiSymOutNanoPath)
 
     return process
