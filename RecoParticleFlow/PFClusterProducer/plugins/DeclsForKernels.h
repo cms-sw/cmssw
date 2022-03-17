@@ -231,7 +231,6 @@ namespace PFClustering {
       cms::cuda::device::unique_ptr<int[]> pfNeighEightInd;
       cms::cuda::device::unique_ptr<int[]> pfrh_edgeId;
       cms::cuda::device::unique_ptr<int[]> pfrh_edgeList;
-      cms::cuda::device::unique_ptr<int[]> pfrh_edgeMask;
 
       cms::cuda::device::unique_ptr<float4[]> pfc_pos4;
       cms::cuda::device::unique_ptr<float4[]> pfc_prevPos4;
@@ -252,7 +251,6 @@ namespace PFClustering {
         pfNeighEightInd = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH*8, cudaStream);
         pfrh_edgeId = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH*config.maxNeighbors, cudaStream);
         pfrh_edgeList = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH*config.maxNeighbors, cudaStream);
-        pfrh_edgeMask = cms::cuda::make_device_unique<int[]>(sizeof(int)*config.maxRH*config.maxNeighbors, cudaStream);
 
         pfc_pos4 = cms::cuda::make_device_unique<float4[]>(sizeof(float4)*config.maxRH, cudaStream);
         pfc_prevPos4 = cms::cuda::make_device_unique<float4[]>(sizeof(float4)*config.maxRH, cudaStream);

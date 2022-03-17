@@ -22,7 +22,9 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5),
+    #input = cms.untracked.int32(5),
+    input = cms.untracked.int32(100),
+    #input = cms.untracked.int32(1000),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -124,42 +126,94 @@ from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEar
 process = customiseEarlyDelete(process)
 # End adding early deletion
 
+process.load( "HLTrigger.Timer.FastTimerService_cfi" )
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
+    process.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
+    process.MessageLogger.L1TGlobalSummary = cms.untracked.PSet()
+    process.MessageLogger.HLTrigReport = cms.untracked.PSet()
+    process.MessageLogger.FastReport = cms.untracked.PSet()
+    process.MessageLogger.ThroughputService = cms.untracked.PSet()
+    process.MessageLogger.cerr.FastReport = cms.untracked.PSet( limit = cms.untracked.int32( 10000000 ) )
+
 ############################
 ## Configure CPU producer ##
 ############################
 
-process.hltParticleFlowRecHitHBHE = cms.EDProducer( "PFRecHitProducer",
-    producers = cms.VPSet(
-      #cms.PSet(  src = cms.InputTag( "hltHbherecoFromGPU" ),
-      cms.PSet(  src = cms.InputTag( "hltHbhereco" ),
-        name = cms.string( "PFHBHERecHitCreator" ),
-        qualityTests = cms.VPSet(
-          cms.PSet(  threshold = cms.double( 0.8 ),
-            name = cms.string( "PFRecHitQTestHCALThresholdVsDepth" ),
-            cuts = cms.VPSet(
-              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4 ),
-                threshold = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
-                detectorEnum = cms.int32( 1 )
-              ),
-              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
-                threshold = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 ),
-                detectorEnum = cms.int32( 2 )
-              )
-            )
-          ),
-          cms.PSet(  flags = cms.vstring( 'Standard' ),
-            cleaningThresholds = cms.vdouble( 0.0 ),
-            name = cms.string( "PFRecHitQTestHCALChannel" ),
-            maxSeverities = cms.vint32( 11 )
-          )
-        )
-      )
-    ),
+process.hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
     navigator = cms.PSet(
-      name = cms.string( "PFRecHitHCALDenseIdNavigator" ),
-      hcalEnums = cms.vint32( 1, 2 )
-    )
+        hcalEnums = cms.vint32(1, 2),
+        name = cms.string('PFRecHitHCALDenseIdNavigator')
+    ),
+    producers = cms.VPSet(cms.PSet(
+        name = cms.string('PFHBHERecHitCreator'),
+        qualityTests = cms.VPSet(
+            cms.PSet(
+                cuts = cms.VPSet(
+                    cms.PSet(
+                        depth = cms.vint32(1, 2, 3, 4),
+                        detectorEnum = cms.int32(1),
+                        threshold = cms.vdouble(0.1, 0.2, 0.3, 0.3)
+                    ),
+                    cms.PSet(
+                        depth = cms.vint32(
+                            1, 2, 3, 4, 5,
+                            6, 7
+                        ),
+                        detectorEnum = cms.int32(2),
+                        threshold = cms.vdouble(
+                            0.1, 0.2, 0.2, 0.2, 0.2,
+                            0.2, 0.2
+                        )
+                    )
+                ),
+                name = cms.string('PFRecHitQTestHCALThresholdVsDepth'),
+                threshold = cms.double(0.8)
+            ),
+            cms.PSet(
+                cleaningThresholds = cms.vdouble(0.0),
+                flags = cms.vstring('Standard'),
+                maxSeverities = cms.vint32(11),
+                name = cms.string('PFRecHitQTestHCALChannel')
+            )
+        ),
+        src = cms.InputTag("hltHbhereco")
+    ))
 )
+
+
+#process.hltParticleFlowRecHitHBHE = cms.EDProducer( "PFRecHitProducer",
+#    producers = cms.VPSet(
+#      #cms.PSet(  src = cms.InputTag( "hltHbherecoFromGPU" ),
+#      cms.PSet(  src = cms.InputTag( "hltHbhereco" ),
+#        name = cms.string( "PFHBHERecHitCreator" ),
+#        qualityTests = cms.VPSet(
+#          cms.PSet(  threshold = cms.double( 0.8 ),
+#            name = cms.string( "PFRecHitQTestHCALThresholdVsDepth" ),
+#            cuts = cms.VPSet(
+#              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4 ),
+#                threshold = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
+#                detectorEnum = cms.int32( 1 )
+#              ),
+#              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
+#                threshold = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 ),
+#                detectorEnum = cms.int32( 2 )
+#              )
+#            )
+#          ),
+#          cms.PSet(  flags = cms.vstring( 'Standard' ),
+#            cleaningThresholds = cms.vdouble( 0.0 ),
+#            name = cms.string( "PFRecHitQTestHCALChannel" ),
+#            maxSeverities = cms.vint32( 11 )
+#          )
+#        )
+#      )
+#    ),
+#    navigator = cms.PSet(
+#      name = cms.string( "PFRecHitHCALDenseIdNavigator" ),
+#      hcalEnums = cms.vint32( 1, 2 )
+#    )
+#)
 
 process.hltParticleFlowClusterHBHE = cms.EDProducer( "PFClusterProducer",
     pfClusterBuilder = cms.PSet( 

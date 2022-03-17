@@ -22,7 +22,9 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5),
+    #input = cms.untracked.int32(5),
+    input = cms.untracked.int32(100),
+    #input = cms.untracked.int32(1000),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -103,10 +105,14 @@ associatePatAlgosToolsTask(process)
 # customisation of the process.
 
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforPatatrack
-from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack 
+from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack, customiseCommon, customiseHcalLocalReconstruction 
+
+# only enable Hcal GPU
+process = customiseCommon(process)
+process = customiseHcalLocalReconstruction(process)
 
 #call to customisation function customizeHLTforPatatrack imported from HLTrigger.Configuration.customizeHLTforPatatrack
-process = customizeHLTforPatatrack(process)
+#process = customizeHLTforPatatrack(process)
 
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
 from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC 
@@ -123,6 +129,16 @@ process = customizeHLTforMC(process)
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
 # End adding early deletion
+
+process.load( "HLTrigger.Timer.FastTimerService_cfi" )
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
+    process.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
+    process.MessageLogger.L1TGlobalSummary = cms.untracked.PSet()
+    process.MessageLogger.HLTrigReport = cms.untracked.PSet()
+    process.MessageLogger.FastReport = cms.untracked.PSet()
+    process.MessageLogger.ThroughputService = cms.untracked.PSet()
+    process.MessageLogger.cerr.FastReport = cms.untracked.PSet( limit = cms.untracked.int32( 10000000 ) )
 
 ############################
 ## Configure GPU producer ##

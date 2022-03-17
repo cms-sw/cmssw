@@ -24,13 +24,13 @@
 #endif
 
 // Uncomment to enable GPU debugging
-#define DEBUG_GPU_HCAL
+//#define DEBUG_GPU_HCAL
 
 // Uncomment to fill TTrees
-#define DEBUG_HCAL_TREES
+//#define DEBUG_HCAL_TREES
 
 // Uncomment to save cluster collections in TTree
-#define DEBUG_SAVE_CLUSTERS
+//#define DEBUG_SAVE_CLUSTERS
 
 
 PFClusterProducerCudaHCAL::PFClusterProducerCudaHCAL(const edm::ParameterSet& conf)
@@ -99,7 +99,7 @@ PFClusterProducerCudaHCAL::PFClusterProducerCudaHCAL(const edm::ParameterSet& co
   clusterTree->Branch("pfrh_neighboursGPU", &__pfrh_neighboursGPU);
 
 #endif
-#if defined DEBUG_HCAL_TREES && defined DEBUG_SAVE_CLUSTERS
+#ifdef DEBUG_SAVE_CLUSTERS
   clusterTree->Branch("initialClusters", "PFClusterCollection", &__initialClusters);
   clusterTree->Branch("pfClusters", "PFClusterCollection", &__pfClusters);
   clusterTree->Branch("pfClustersFromCuda", "PFClusterCollection", &__pfClustersFromCuda);
@@ -274,7 +274,7 @@ PFClusterProducerCudaHCAL::~PFClusterProducerCudaHCAL()
   freeCudaMemory();
 
   MyFile->cd();
-#ifdef DEBUG_HCAL_TREES  
+#if defined DEBUG_HCAL_TREES || defined DEBUG_SAVE_CLUSTERS 
   clusterTree->Write();
 #endif
   nFracs_vs_nRH->Write();
@@ -326,20 +326,20 @@ PFClusterProducerCudaHCAL::~PFClusterProducerCudaHCAL()
   deltaEn->Write();
   deltaEta->Write();
   deltaPhi->Write();
-#ifdef DEBUG_GPU_HCAL
-  std::cout<<"\n--- CPU/GPU Comparison plots ---\nPlot\t\tEntries\tMean\t\tRMS\n\n"
+
+  if (doComparison) {
+    std::cout<<"\n--- CPU/GPU Comparison plots ---\nPlot\t\tEntries\tMean\t\tRMS\n\n"
            <<"deltaRH\t\t"<<deltaRH->GetEntries()<<"\t"<<deltaRH->GetMean()<<((deltaRH->GetMean()==0) ? "\t\t" : "\t")<<deltaRH->GetRMS()<<std::endl
            <<"deltaEn\t\t"<<deltaEn->GetEntries()<<"\t"<<deltaEn->GetMean()<<"\t"<<deltaEn->GetRMS()<<std::endl
            <<"deltaEta\t"<<deltaEta->GetEntries()<<"\t"<<deltaEta->GetMean()<<"\t"<<deltaEta->GetRMS()<<std::endl
            <<"deltaPhi\t"<<deltaPhi->GetEntries()<<"\t"<<deltaPhi->GetMean()<<"\t"<<deltaPhi->GetRMS()<<std::endl<<std::endl;
-#endif
+  }
   
   if (numEvents > 10) {
       // Skip first 10 entries
       hTimers->Scale(1. / (numEvents - 10.));
   }
   hTimers->Write();
-  // MyFile->Close();
   delete MyFile;
 }
 
@@ -385,7 +385,9 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     cms::cuda::ScopedContextAcquire ctx{PFRecHitsProduct, std::move(holder)};
     auto const& PFRecHits = ctx.get(PFRecHitsProduct);
     cudaStream = ctx.stream();
+    nRH = PFRecHits.size; 
 
+#ifdef DEBUG_HCAL_TREES
     std::cout<<"Found GPU PFRecHits with size = "<<PFRecHits.size<<"\tcleaned size = "<<PFRecHits.sizeCleaned<<std::endl;
 
     hcal::PFRecHitCollection<pf::common::VecStoragePolicy<pf::common::CUDAHostAllocatorAlias>> tmpPFRecHits;
@@ -401,16 +403,8 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 
     lambdaToTransferSize(tmpPFRecHits.pfrh_detId, PFRecHits.pfrh_detId.get(), PFRecHits.size);
     lambdaToTransferSize(tmpPFRecHits.pfrh_neighbours, PFRecHits.pfrh_neighbours.get(), 8*PFRecHits.size);
-//    lambdaToTransferSize(tmpPFRecHits.pfrh_layer, PFRecHits.pfrh_layer.get(), PFRecHits.size);
-//    lambdaToTransferSize(tmpPFRecHits.pfrh_pt2, PFRecHits.pfrh_pt2.get(), PFRecHits.size);
     if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
-//
-//    std::cout<<"\nPFClusterProducer found first 10 PFRecHit detIds:\n";
-//    for (int i = 0; i < 10; i++) {
-//        std::cout<<tmpPFRecHits.pfrh_detId.at(i)<<std::endl;
-//    }
-//    std::cout<<std::endl;
-
+#endif
 
     if (numEvents == 0) {
         // Only allocate Cuda memory on first event
@@ -432,7 +426,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 
   edm::Handle<reco::PFRecHitCollection> rechits;
   event.getByToken(_rechitsLabel, rechits);
-//  std::cout<<"\n===== Now on event "<<numEvents<<" with "<<rechits->size()<<" HCAL rechits ====="<<std::endl;
+//  std::cout<<"\n===== Now on event "<<numEvents<<" with "<<nRH<<" HCAL rechits ====="<<std::endl;
 
 #ifdef DEBUG_HCAL_TREES
   GPU_timers.fill(0.0);
@@ -473,17 +467,16 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   _initialClustering->updateEvent(event);
 
 
-  size_t rh_size = rechits->size();
-  int numbytes_float = rh_size*sizeof(float);
-  int numbytes_int = rh_size*sizeof(int);
+  int numbytes_float = (int)rechits->size()*sizeof(float);
+  int numbytes_int = (int)rechits->size()*sizeof(int);
+  int totalNeighbours = 0;     // Running count of 8 neighbour edges for edgeId, edgeList
   
   int p=0; 
   
 //  std::cout<<"-----------------------------------------"<<std::endl;
-//  std::cout<<" HCAL: Event "<<numEvents<<" has "<<rechits->size()<<" rechits"<<std::endl;
+//  std::cout<<" HCAL: Event "<<numEvents<<" has "<<nRH<<" rechits"<<std::endl;
 //  std::cout<<"-----------------------------------------"<<std::endl;
   
-  int totalNeighbours = 0;     // Running count of 8 neighbour edges for edgeId, edgeList
   for (auto rh: *rechits){
 //    if (p >= 10) break;
     inputCPU.pfrh_x[p]=rh.position().x();
@@ -523,10 +516,6 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
         }
         else { inputCPU.pfNeighEightInd[8*p + i] = -1; }
     }
-//    for (auto& dup: duplicates) {
-//        if (dup.second > 1)
-//            std::cout<<"Rechit "<<p<<" has "<<dup.second<<" instances of neighbor: "<<dup.first<<std::endl;
-//    }
 
     for (auto nh: theneighboursFour) {
         n4.push_back((int)nh);
@@ -548,8 +537,6 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   }//end of rechit loop  
 
 
-  nEdges = totalNeighbours;
-  nRH = (int)rechits->size();
 #ifdef DEBUG_GPU_HCAL
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
@@ -557,6 +544,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   cudaEventRecord(start, cudaStream);
 #endif
 
+#ifdef DEBUG_GPU_HCAL
   // Copy arrays to GPU memory
   cudaCheck(cudaMemcpyAsync(inputGPU.pfrh_x.get(), inputCPU.pfrh_x.get(), numbytes_float, cudaMemcpyHostToDevice, cudaStream));
   cudaCheck(cudaMemcpyAsync(inputGPU.pfrh_y.get(), inputCPU.pfrh_y.get(), numbytes_float, cudaMemcpyHostToDevice, cudaStream));
@@ -568,6 +556,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   cudaCheck(cudaMemcpyAsync(inputGPU.pfNeighFourInd.get(), inputCPU.pfNeighFourInd.get(), numbytes_int*4, cudaMemcpyHostToDevice, cudaStream));  
   cudaCheck(cudaMemcpyAsync(inputGPU.pfrh_edgeId.get(), inputCPU.pfrh_edgeId.get(), sizeof(int)*totalNeighbours, cudaMemcpyHostToDevice, cudaStream));  
   cudaCheck(cudaMemcpyAsync(inputGPU.pfrh_edgeList.get(), inputCPU.pfrh_edgeList.get(), sizeof(int)*totalNeighbours, cudaMemcpyHostToDevice, cudaStream));  
+#endif
 
 #ifdef DEBUG_GPU_HCAL
   cudaEventRecord(stop, cudaStream);
@@ -577,9 +566,10 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 //  cudaEventRecord(start);
 #endif
      
-     float kernelTimers[8] = {0.0};
-     
+  float kernelTimers[8] = {0.0};
+    
   if (cudaStreamQuery(cudaStream) != cudaSuccess) cudaCheck(cudaStreamSynchronize(cudaStream));
+
      PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream,
                           (int)totalNeighbours,
                           PFRecHits,
@@ -590,53 +580,16 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
                           kernelTimers
                           );
 
-     /*
-     PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_CCLClustering(cudaStream,
-                          (int)rh_size, 
-					      (int)totalNeighbours,
-                          inputGPU.pfrh_x.get(),  
-					      inputGPU.pfrh_y.get(),  
-					      inputGPU.pfrh_z.get(), 
-					      inputGPU.pfrh_energy.get(), 
-					      inputGPU.pfrh_pt2.get(), 	
-					      outputGPU.pfrh_isSeed.get(),
-					      outputGPU.pfrh_topoId.get(),
-					      inputGPU.pfrh_layer.get(), 
-					      inputGPU.pfrh_depth.get(), 
-					      inputGPU.pfNeighEightInd.get(), 
-					      inputGPU.pfNeighFourInd.get(), 
-					      inputGPU.pfrh_edgeId.get(), 
-					      inputGPU.pfrh_edgeList.get(), 
-					      inputGPU.pfrh_edgeMask.get(), 
-					      outputGPU.pfrh_passTopoThresh.get(),
-                          outputGPU.pcrh_fracInd.get(),
-					      outputGPU.pcrh_frac.get(),
-					      inputGPU.pcrh_fracSum.get(),
-					      inputGPU.rhcount.get(),
-					      outputGPU.topoSeedCount.get(),
-                          outputGPU.topoRHCount.get(),
-                          outputGPU.seedFracOffsets.get(),
-                          outputGPU.topoSeedOffsets.get(),
-                          outputGPU.topoSeedList.get(),
-                          inputGPU.pfc_pos4.get(),
-                          inputGPU.pfc_prevPos4.get(),
-                          inputGPU.pfc_energy.get(),
-                          kernelTimers,
-                          outputGPU.topoIter.get(),
-                          outputGPU.pfc_iter.get(),
-                          outputGPU.pcrhFracSize.get()
-                          );
-    */
-
+  
   if (cudaStreamQuery(cudaStream) != cudaSuccess) cudaCheck(cudaStreamSynchronize(cudaStream));
   cudaCheck(cudaMemcpyAsync(outputCPU.topoIter.get(), outputGPU.topoIter.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
   cudaCheck(cudaMemcpyAsync(outputCPU.pcrhFracSize.get(), outputGPU.pcrhFracSize.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
+  cudaCheck(cudaMemcpyAsync(outputCPU.nEdges.get(), outputGPU.nEdges.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
   if (cudaStreamQuery(cudaStream) != cudaSuccess) cudaCheck(cudaStreamSynchronize(cudaStream));
 
   // Total size of allocated rechit fraction arrays (includes some extra padding for rechits that don't end up passing cuts)
   nFracs = outputCPU.pcrhFracSize[0];
-  //std::cout<<"Finished PFClustering Cuda kernels. Found nFracs = "<<nFracs<<std::endl;
-
+  nEdges = outputCPU.nEdges[0];
 #ifdef DEBUG_GPU_HCAL
   GPU_timers[1] = kernelTimers[0];  // Seeding
   GPU_timers[2] = kernelTimers[1];  // Topo clustering
@@ -668,10 +621,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_isSeed.get()    , outputGPU.pfrh_isSeed.get()  , numbytes_int , cudaMemcpyDeviceToHost, cudaStream));
   cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_topoId.get()    , outputGPU.pfrh_topoId.get()  , numbytes_int , cudaMemcpyDeviceToHost, cudaStream));
 
-  //std::cout<<"Now copying pfrh_passTopoThresh"<<std::endl;
-  //cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_passTopoThresh.get(), outputGPU.pfrh_passTopoThresh.get(), sizeof(bool)*rh_size, cudaMemcpyDeviceToHost, cudaStream));
-  cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_passTopoThresh.get(), outputGPU.pfrh_passTopoThresh.get(), sizeof(int)*rh_size, cudaMemcpyDeviceToHost, cudaStream));
-  //std::cout<<"Done copying pfrh_passTopoThresh"<<std::endl;
+  cudaCheck(cudaMemcpyAsync(outputCPU.pfrh_passTopoThresh.get(), outputGPU.pfrh_passTopoThresh.get(), sizeof(int)*nRH, cudaMemcpyDeviceToHost, cudaStream));
 
 #ifdef DEBUG_GPU_HCAL
   cudaEventRecord(stop, cudaStream);
@@ -682,8 +632,8 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   if (cudaStreamQuery(cudaStream) != cudaSuccess) cudaCheck(cudaStreamSynchronize(cudaStream));
 
 #ifdef DEBUG_GPU_HCAL
-  nFracs_vs_nRH->Fill(rh_size, nFracs);
-  for (int topoId = 0; topoId < (int)rh_size; topoId++) {
+  nFracs_vs_nRH->Fill(nRH, nFracs);
+  for (int topoId = 0; topoId < (int)nRH; topoId++) {
     int nPFCIter = outputCPU.pfc_iter[topoId]; // Number of iterations for PF clustering to converge
     int nSeeds = outputCPU.topoSeedCount[topoId];
     int nRHTopo = outputCPU.topoRHCount[topoId];
@@ -702,22 +652,11 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     }
   }
 #endif
-/* 
-    // Test seeds here
-    if (doComparison) {
-        std::vector<bool> mask(rechits->size(), true);
-        std::vector<bool> seedable(rechits->size(), false);
-        _seedFinder->findSeeds(rechits, mask, seedable);
-        for (int r = 0; r < (int)rh_size; r++) {
-            if (seedable[r] != (bool)outputCPU.pfrh_isSeed[r])
-                std::cout<<"--> CPU?GPU seed flag mismatch for rechit "<<r<<std::endl;
-        }
-    }
-*/
+    
     std::unordered_map<int, std::vector<int>> nTopoRechits;
     std::unordered_map<int, int> nTopoSeeds;
 
-    for(int rh=0; rh<(int)rechits->size();rh++){
+    for(int rh=0; rh<nRH;rh++){
         int topoId = outputCPU.pfrh_topoId[rh];
         if (topoId > -1) {
             // Valid topo id
@@ -742,10 +681,10 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     nPFCluster_GPU->Fill(intTopoCount);
 
   if(doComparison){ 
-      for(unsigned int i=0;i<rh_size;i++){
+      for(int i=0;i<nRH;i++){
         int topoIda = outputCPU.pfrh_topoId[i];
         if (nTopoSeeds.count(topoIda) == 0) continue;
-        for(unsigned int j=0;j<8;j++){
+        for(int j=0;j<8;j++){
           if(inputCPU.pfNeighEightInd[i*8+j]>-1 && outputCPU.pfrh_topoId[inputCPU.pfNeighEightInd[i*8+j]]!=topoIda && outputCPU.pfrh_passTopoThresh[i*8+j]) std::cout<<"HCAL HAS DIFFERENT TOPOID "<<i<<"  "<<j<<"  "<<topoIda<<"  "<<outputCPU.pfrh_topoId[inputCPU.pfNeighEightInd[i*8+j]]<<std::endl; 
         }
       }
@@ -753,27 +692,22 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   
   topoIter = outputCPU.topoIter[0];
   topoIterations->Fill(topoIter);
-  topoIter_vs_nRH->Fill(rh_size, topoIter);
+  topoIter_vs_nRH->Fill(nRH, topoIter);
 
   //auto pfClustersFromCuda = std::make_unique<reco::PFClusterCollection>();
   pfClustersFromCuda.reset(new reco::PFClusterCollection);
   
-  for(int n=0; n<(int)rh_size; n++){
+  for(int n=0; n<(int)nRH; n++){
     #ifdef DEBUG_HCAL_TREES
     __rh_isSeed.push_back(outputCPU.pfrh_isSeed[n]);
     #endif
     if(outputCPU.pfrh_isSeed[n]==1){
-//    int topoId = outputCPU.pfrh_topoId[n];
-//    if(outputCPU.pfrh_isSeed[n]==1 && topoId > -1 && outputCPU.topoRHCount[topoId] < 33 && outputCPU.topoSeedCount[topoId] == 1)
       reco::PFCluster temp;
       temp.setSeed((*rechits)[n].detId());
       int offset = outputCPU.seedFracOffsets[n];
       int topoId = outputCPU.pfrh_topoId[n];
       int nSeeds = outputCPU.topoSeedCount[topoId];
-      //std::cout<<"\tCluster (seed "<<n<<")\toffset = "<<offset<<"\ttopoId = "<<topoId<<"\tnSeeds = "<<nSeeds<<"\tnFrac = "<<outputCPU.topoRHCount[topoId] - nSeeds + 1<<std::endl;
-      //std::cout<<"Seed "<<n<<" has topoId "<<topoId<<"\toffset "<<offset<<std::endl;
       for(int k=offset;k < (offset + outputCPU.topoRHCount[topoId] - nSeeds + 1);k++){
-        //std::cout<<"\tNow on k = "<<k<<"\tindex = "<<outputCPU.pcrh_fracInd[k]<<"\tfrac = "<<outputCPU.pcrh_frac[k]<<std::endl;
         if(outputCPU.pcrh_fracInd[k] > -1 && outputCPU.pcrh_frac[k] > 0.0){
           const reco::PFRecHitRef& refhit = reco::PFRecHitRef(rechits,outputCPU.pcrh_fracInd[k]);
           temp.addRecHitFraction( reco::PFRecHitFraction(refhit, outputCPU.pcrh_frac[k]) );
@@ -791,7 +725,9 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     }   
   }
 
-//  std::cout<<"Done creating pfClustersFromCuda"<<std::endl;
+#ifdef DEBUG_SAVE_CLUSTERS
+    __pfClustersFromCuda = *pfClustersFromCuda;      // For TTree
+#endif
   
   //if (_energyCorrector) {
   //  _energyCorrector->correctEnergies(*pfClustersFromCuda);
@@ -800,11 +736,11 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   float sumEn_CPU = 0.;
   if(doComparison)
   {
-    std::vector<bool> mask(rechits->size(), true);
-    std::vector<bool> seedable(rechits->size(), false);
+    std::vector<bool> mask(nRH, true);
+    std::vector<bool> seedable(nRH, false);
     _seedFinder->findSeeds(rechits, mask, seedable);
 #ifdef DEBUG_HCAL_TREES
-    __rh_isSeedCPU.resize(rechits->size());
+    __rh_isSeedCPU.resize(nRH);
     for (int i = 0; i < (int)seedable.size(); i++)
         __rh_isSeedCPU[i] = (int)seedable[i];
 #endif
@@ -812,7 +748,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 
     auto initialClusters = std::make_unique<reco::PFClusterCollection>();
     _initialClustering->buildClusters(rechits, mask, seedable, *initialClusters);
-#if defined DEBUG_HCAL_TREES && defined DEBUG_SAVE_CLUSTERS
+#ifdef DEBUG_SAVE_CLUSTERS
     __initialClusters = *initialClusters;  // For TTree
 #endif
     int topoRhCount=0;
@@ -839,24 +775,15 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     int seedSumGPU=0;
     int maskSize = 0;
     for (int j=0;j<(int)seedable.size(); j++) seedSumCPU=seedSumCPU+seedable[j];
-    for (int j=0;j<(int)rh_size; j++) seedSumGPU=seedSumGPU + outputCPU.pfrh_isSeed[j];
+    for (int j=0;j<(int)nRH; j++) seedSumGPU=seedSumGPU + outputCPU.pfrh_isSeed[j];
     for (int j=0;j<(int)mask.size(); j++) maskSize=maskSize +mask[j];
     
     
-    
-    //std::cout<<"HCAL sum CPU seeds: "<<seedSumCPU<<std::endl;
-    /*
-    std::cout<<"sum GPU seeds: "<<seedSumGPU<<std::endl;
-    //std::cout<<"sum rechits  : "<<rh_size<<std::endl;
-    std::cout<<"sum mask  : "<<maskSize<<std::endl;
-    */
-
     sumSeed_CPU->Fill(seedSumCPU);
     sumSeed_GPU->Fill(seedSumGPU);
     deltaSumSeed->Fill(seedSumGPU - seedSumCPU);
 
-//    std::cout<<"Now on pfClusters"<<std::endl;    
-    auto pfClusters = std::make_unique<reco::PFClusterCollection>();
+    pfClusters = std::make_unique<reco::PFClusterCollection>();
     pfClusters.reset(new reco::PFClusterCollection);
     if (_pfClusterBuilder) {  // if we've defined a re-clustering step execute it
       _pfClusterBuilder->buildClusters(*initialClusters, seedable, *pfClusters);
@@ -865,9 +792,8 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
       pfClusters->insert(pfClusters->end(), initialClusters->begin(), initialClusters->end());
     }
 
-//    std::cout<<"Done with pfClusters"<<std::endl;    
     int totalRHPF_CPU = 0, totalRHPF_GPU = 0;
-#if defined DEBUG_HCAL_TREES && defined DEBUG_SAVE_CLUSTERS
+#ifdef DEBUG_SAVE_CLUSTERS
     __pfClusters = *pfClusters;  // For TTree
 #endif
     for(auto pfc : *pfClusters)
@@ -930,9 +856,7 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 
     nRHperPFCTotal_CPU = totalRHPF_CPU;
     nRHperPFCTotal_GPU = totalRHPF_GPU;
-#if defined DEBUG_HCAL_TREES && defined DEBUG_SAVE_CLUSTERS
-    __pfClustersFromCuda = *pfClustersFromCuda;      // For TTree
-#endif
+    
     for(auto pfc : *pfClustersFromCuda)
     {
         nRH_perPFCluster_GPU->Fill(pfc.recHitFractions().size());
@@ -949,9 +873,14 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   }
 #endif
 
-#ifdef DEBUG_HCAL_TREES
+#if defined DEBUG_HCAL_TREES || defined DEBUG_SAVE_CLUSTERS
   clusterTree->Fill();
 #endif
+  if (doComparison)
+    std::cout<<"For "<<nRH<<" input PFRecHits, found nEdges = "<<nEdges<<"  nFracs = "<<nFracs<<"  (CPU) pfClusters->size() = "<<(int)pfClusters->size()<<"  (GPU) pfClustersFromCuda->size() = "<<(int)pfClustersFromCuda->size()<<std::endl<<std::endl;
+  else
+    std::cout<<"For "<<nRH<<" input PFRecHits, found nEdges = "<<nEdges<<"  nFracs = "<<nFracs<<"  (GPU) pfClustersFromCuda->size() = "<<pfClustersFromCuda->size()<<std::endl<<std::endl;
+  
   numEvents++;
 }
 

@@ -42,7 +42,7 @@
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
 // Comment out to disable debugging
-#define DEBUG_ENABLE
+//#define DEBUG_ENABLE
 
 typedef PFHCALDenseIdNavigator<HcalDetId, HcalTopology, false> PFRecHitHCALDenseIdNavigator;
 
@@ -76,8 +76,6 @@ private:
   PFRecHit::HCAL::OutputPFRecHitDataGPU outputGPU;
   cms::cuda::ContextState cudaState_;
 
-  hcal::RecHitCollection<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>> tmpRecHits;
-
   hcal::PFRecHitCollection<pf::common::VecStoragePolicy<pf::common::CUDAHostAllocatorAlias>> tmpPFRecHits;
 
   std::unique_ptr<PFRecHitNavigatorBase> navigator_;
@@ -105,13 +103,13 @@ private:
 
   bool initCuda = true;
   uint32_t nPFRHTotal = 0;
+  std::array<float,5> GPU_timers;
 
 #ifdef DEBUG_ENABLE
   TTree* tree;
   TFile* f;
   TH1F *hTimers = new TH1F("timers", "GPU kernel timers ", 5, -0.5, 4.5);
 
-  std::array<float,5> GPU_timers;
   Int_t numEvents = 0;
 #endif
 };
@@ -253,13 +251,11 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
     
     GPU_timers.fill(0.0);
     //auto start = std::chrono::high_resolution_clock::now();
-
+    
     auto const& HBHERecHitSoAProduct = event.get(InputRecHitSoA_Token_);
     cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder), cudaState_};
-    //cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder)};
     auto const& HBHERecHitSoA = ctx.get(HBHERecHitSoAProduct);
     size_t num_rechits = HBHERecHitSoA.size;
-    tmpRecHits.resize(num_rechits);
     //std::cout << "num input rechits = " << num_rechits << "\tctx.stream() = " << ctx.stream() << std::endl;
 
     // Lambda function to copy arrays to CPU for testing
@@ -271,14 +267,6 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
 //        cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
 //    };  
     
-    auto lambdaToTransferSize = [&ctx](auto& dest, auto* src, auto size) {
-        using vector_type = typename std::remove_reference<decltype(dest)>::type;
-        using src_data_type = typename std::remove_pointer<decltype(src)>::type;
-        using type = typename vector_type::value_type;
-        static_assert(std::is_same<src_data_type, type>::value && "Dest and Src data types do not match");
-        cudaCheck(cudaMemcpyAsync(dest.data(), src, size * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
-    };  
-  
     outputGPU.allocate(num_rechits, ctx.stream());
 
     if (initCuda) {
@@ -327,38 +315,21 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
     return;
   }
 
-
-  // Copy rechit raw energy to CPU for testing
-//  lambdaToTransfer(tmpRecHits.timeM0, HBHERecHitSoA.timeM0.get());
-//  lambdaToTransfer(tmpRecHits.energyM0, HBHERecHitSoA.energyM0.get());
-//  lambdaToTransfer(tmpRecHits.energy, HBHERecHitSoA.energy.get());
-//  lambdaToTransfer(tmpRecHits.chi2, HBHERecHitSoA.chi2.get());
-//  lambdaToTransfer(tmpRecHits.did, HBHERecHitSoA.did.get());
-
-  // Copying is done asynchronously, so make sure it's finished before trying to read the CPU values!
-//  if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
-
-
-//  std::vector<int> sortFailed; 
-//  for (int i = 0; i < (int)tmpRecHits.did.size()-1; i++) {
-//    if (tmpRecHits.did[i] > tmpRecHits.did[i+1]) {
-//        sortFailed.push_back(i);
-//    }
-//  }
-//  if ((int)sortFailed.size() == 0) std::cout<<"Input rechits are sorted!"<<std::endl;
-//  else {
-//    std::cout<<"Input rechits are NOT sorted ("<<sortFailed.size()<<" instances)!"<<std::endl;
-//    for (auto& i: sortFailed) {
-//        std::cout<<"\ti = "<<i<<"\t"<<tmpRecHits.did[i]<<" -> "<<tmpRecHits.did[i+1]<<std::endl;
-//    }
-//  }
   
   // Entry point for GPU calls 
   PFRecHit::HCAL::entryPoint(HBHERecHitSoA, outputGPU, persistentDataGPU, scratchDataGPU, ctx.stream(), GPU_timers);
 
   if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
-  // For testing, copy back PFRecHit SoA data to CPU
-  //cudaDeviceSynchronize();
+
+  // Copy back PFRecHit SoA data to CPU
+    auto lambdaToTransferSize = [&ctx](auto& dest, auto* src, auto size) {
+        using vector_type = typename std::remove_reference<decltype(dest)>::type;
+        using src_data_type = typename std::remove_pointer<decltype(src)>::type;
+        using type = typename vector_type::value_type;
+        static_assert(std::is_same<src_data_type, type>::value && "Dest and Src data types do not match");
+        cudaCheck(cudaMemcpyAsync(dest.data(), src, size * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
+    };  
+  
   nPFRHTotal = outputGPU.PFRecHits.size + outputGPU.PFRecHits.sizeCleaned;
   tmpPFRecHits.resize(nPFRHTotal);
   tmpPFRecHits.size = outputGPU.PFRecHits.size;
@@ -383,11 +354,11 @@ void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
   
   cms::cuda::ScopedContextProduce ctx{cudaState_};
   ctx.emplace(event, OutputPFRecHitSoA_Token_, std::move(outputGPU.PFRecHits));
-
-  const CaloSubdetectorGeometry* hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-  const CaloSubdetectorGeometry* hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
   auto pfrhLegacy = std::make_unique<reco::PFRecHitCollection>();
   auto pfrhLegacyCleaned = std::make_unique<reco::PFRecHitCollection>();
+  
+  const CaloSubdetectorGeometry* hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
+  const CaloSubdetectorGeometry* hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
   
   pfrhLegacy->reserve(tmpPFRecHits.size);
   pfrhLegacyCleaned->reserve(tmpPFRecHits.sizeCleaned);
@@ -412,7 +383,6 @@ void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
     reco::PFRecHit pfrh(thisCell, hid.rawId(), layer, tmpPFRecHits.pfrh_energy[i]);
     pfrh.setTime(tmpPFRecHits.pfrh_time[i]);
     pfrh.setDepth(hid.depth());
-    //pfrh.setDepth(tmpPFRecHits.pfrh_depth[i]);
 
     
     std::vector<int> etas     = {0,  1,  0, -1,  1,  1, -1, -1};
@@ -429,8 +399,9 @@ void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
     else
         pfrhLegacyCleaned->push_back(pfrh);
   }
- 
-  printf("pfrhLegacy->size() = %d\tpfrhLegacyCleaned->size() = %d\n\n", (int)pfrhLegacy->size(), (int)pfrhLegacyCleaned->size());
+//#ifdef DEBUG_ENABLE 
+//  printf("pfrhLegacy->size() = %d\tpfrhLegacyCleaned->size() = %d\n\n", (int)pfrhLegacy->size(), (int)pfrhLegacyCleaned->size());
+//#endif
 
   event.put(std::move(pfrhLegacy), "");
   event.put(std::move(pfrhLegacyCleaned), "Cleaned");

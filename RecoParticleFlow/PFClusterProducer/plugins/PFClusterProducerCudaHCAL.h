@@ -182,8 +182,8 @@ private:
   void acquire(edm::Event const&, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   
-  bool doComparison=true;
-  //bool doComparison=false;
+  //bool doComparison=true;
+  bool doComparison=false;
 
 
   using IProductType = cms::cuda::Product<hcal::PFRecHitCollection<pf::common::DevStoragePolicy>>;
@@ -208,6 +208,8 @@ private:
   PFClustering::HCAL::ScratchDataGPU scratchGPU;
 
   std::unique_ptr<reco::PFClusterCollection> pfClustersFromCuda;
+  // CPU clusters
+  std::unique_ptr<reco::PFClusterCollection> pfClusters;
 
 };
 
