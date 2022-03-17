@@ -513,8 +513,7 @@ upgradeWFs['photonDRN'] = UpgradeWorkflow_photonDRN(
     offset = 0.31,
 )
 upgradeWFs['photonDRN'].step3 = {
-    '--procModifiers': 'enableSonicTriton',
-    '--customise' : 'PhysicsTools/PatAlgos/slimming/enableDRN'
+    '--procModifiers': 'enableSonicTriton,photonDRN'
 }
 
 # Patatrack workflows:
