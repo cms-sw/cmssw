@@ -6,23 +6,23 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <vector>
 
-class ParticleDecayProducer : public edm::EDProducer {
+class ParticleDecayProducer : public edm::global::EDProducer<> {
 public:
   explicit ParticleDecayProducer(const edm::ParameterSet&);
-  ~ParticleDecayProducer() override;
+  ~ParticleDecayProducer() override = default;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   edm::EDGetTokenT<reco::CandidateCollection> genCandidatesToken_;
-  int motherPdgId_;
-  std::vector<int> daughtersPdgId_;
-  std::string decayChain_;
+  const int motherPdgId_;
+  const std::vector<int> daughtersPdgId_;
+  const std::string decayChain_;
   std::vector<std::string> valias;
 };
 
@@ -53,13 +53,9 @@ ParticleDecayProducer::ParticleDecayProducer(const edm::ParameterSet& iConfig)
   }
 }
 
-// destructor
-ParticleDecayProducer::~ParticleDecayProducer() {}
-
-void ParticleDecayProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void ParticleDecayProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
   // get gen particle candidates
-  edm::Handle<CandidateCollection> genCandidatesCollection;
-  iEvent.getByToken(genCandidatesToken_, genCandidatesCollection);
+  const edm::Handle<CandidateCollection> genCandidatesCollection = iEvent.getHandle(genCandidatesToken_);
 
   unique_ptr<CandidateCollection> mothercands(new CandidateCollection);
   unique_ptr<CandidateCollection> daughterscands(new CandidateCollection);
@@ -90,5 +86,4 @@ void ParticleDecayProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 DEFINE_FWK_MODULE(ParticleDecayProducer);
