@@ -85,7 +85,7 @@ private:
       i=0;
     }
 
-    const std::pair<float, float> getCorrection(T& part) const;
+    const std::pair<float, float> getCorrection(T& part);
 
     const void doUserFloat(T& part, const std::pair<float, float>& correction) const {
       part.addUserFloat(energyFloat, correction.first);
@@ -207,9 +207,7 @@ void EGRegressionModifierDRN::modifyObject(reco::Photon& pho) const {
 };
 
 template <typename T>
-const std::pair<float, float> EGRegressionModifierDRN::partVars<T>::getCorrection(T& part) const {
-  const math::XYZTLorentzVectorD& partP4 = part.p4();
-
+const std::pair<float, float> EGRegressionModifierDRN::partVars<T>::getCorrection(T& part) {
   edm::Ptr<T> ptr = particles->ptrAt(i++);
 
   std::pair<float, float> correction = (*corrections)[ptr];
