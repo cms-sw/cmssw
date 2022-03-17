@@ -44,7 +44,7 @@ process.options = cms.untracked.PSet(
 	SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
-process_name='ZTT'
+process_name='QCD'
 
 process_dict = {
 'ZMM':'/store/relval/CMSSW_11_0_0_pre10/RelValZMM_13/MINIAODSIM/110X_mcRun2_asymptotic_v2-v1/10000/2085AB00-3B9C-664F-A31A-32852CE6F284.root',

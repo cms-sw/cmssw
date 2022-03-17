@@ -9,7 +9,7 @@ from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 
 process = cms.Process('HARVESTING',Run2_2018)
 
-process_name = 'ZTT'
+process_name = 'QCD'
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

@@ -10,6 +10,7 @@ cmsenv
 git cms-addpkg Validation/RecoTau
 git cms-addpkg Configuration/DataProcessing
 git cms-addpkg Configuration/StandardSequences
+git cms-addpkg DataFormats/TauReco
 scram b -j 8
 git remote add ece_cmssw https://github.com/easilar/cmssw.git
 git pull ece_cmssw CMSSW_11_0_X
