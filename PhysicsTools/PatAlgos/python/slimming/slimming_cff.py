@@ -92,6 +92,7 @@ pp_on_AA.toReplaceWith(
 from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
 run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(primaryVertexAssociationCleaned,slimmingTask.copy()))
 run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(primaryVertexWithBSAssociationCleaned,slimmingTask.copy()))
+run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(pfEGammaToCandidateRemapperCleaned,slimmingTask.copy()))
 
 from RecoHI.HiTracking.miniAODVertexRecovery_cff import offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery
 pp_on_AA.toReplaceWith(

@@ -66,6 +66,7 @@ HiBadParticleCleaner::HiBadParticleCleaner(const edm::ParameterSet& iConfig)
   produces<bool>();
   produces<reco::PFCandidateCollection>();
   produces<reco::PFCandidateCollection>("removed");
+  produces<edm::ValueMap<reco::PFCandidateRef>>();
 }
 
 //
@@ -91,7 +92,11 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
 
   bool foundBadCandidate = false;
 
+  int n = pfCandidates->size();
+  std::vector<int> oldToNew(n);
+  int iPF = -1;
   for (const reco::PFCandidate& pfCandidate : *pfCandidates) {
+    iPF++;
     if (pfCandidate.particleId() == reco::PFCandidate::ParticleType::mu)  // muon cleaning
     {
       if (pfCandidate.pt() > minMuonPt_) {
@@ -128,6 +133,7 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
 
           if (sig3d > maxSigLoose_) {
             pBadCandidateCollection->push_back(pfCandidate);
+            oldToNew[iPF] = -1*(pBadCandidateCollection->size());
             foundBadCandidate = true;
             continue;
           }
@@ -135,12 +141,14 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
           if (track->pt() < pfCandidate.pt() / 1.5 || track->pt() > pfCandidate.pt() * 1.5) {
             foundBadCandidate = true;
             pBadCandidateCollection->push_back(pfCandidate);
+            oldToNew[iPF] = -1*(pBadCandidateCollection->size());
             continue;
           }
           if (track->originalAlgo() == reco::TrackBase::muonSeededStepOutIn &&
               track->hitPattern().trackerLayersWithMeasurement() < minTrackerLayersForMuonTight_) {
             foundBadCandidate = true;
             pBadCandidateCollection->push_back(pfCandidate);
+            oldToNew[iPF] = -1*(pBadCandidateCollection->size());
             continue;
           }
         }
@@ -156,6 +164,7 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
         if ((nHits < minTrackNHits_ && nPixelHits < minPixelNHits_) || nHits == 3) {
           foundBadCandidate = true;
           pBadCandidateCollection->push_back(pfCandidate);
+          oldToNew[iPF] = -1*(pBadCandidateCollection->size());
           continue;
         }
 
@@ -176,12 +185,14 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
         if (sig3d > maxSigLoose_) {
           foundBadCandidate = true;
           pBadCandidateCollection->push_back(pfCandidate);
+          oldToNew[iPF] = -1*(pBadCandidateCollection->size());
           continue;
         }
 
         if (sig3d > maxSigTight_ && nHits < minTrackNHits_) {
           foundBadCandidate = true;
           pBadCandidateCollection->push_back(pfCandidate);
+          oldToNew[iPF] = -1*(pBadCandidateCollection->size());
           continue;
         }
 
@@ -192,12 +203,14 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
           if (sig3d > maxSigLoose_) {
             foundBadCandidate = true;
             pBadCandidateCollection->push_back(pfCandidate);
+            oldToNew[iPF] = -1*(pBadCandidateCollection->size());
             continue;
           }
 
           if (nHits < minTrackNHits_) {
             foundBadCandidate = true;
             pBadCandidateCollection->push_back(pfCandidate);
+            oldToNew[iPF] = -1*(pBadCandidateCollection->size());
             continue;
           }
         }
@@ -208,18 +221,21 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
           if (sig3d > maxSigTight_) {
             foundBadCandidate = true;
             pBadCandidateCollection->push_back(pfCandidate);
+            oldToNew[iPF] = -1*(pBadCandidateCollection->size());
             continue;
           }
 
           if (nHits < minTrackNHits_) {
             foundBadCandidate = true;
             pBadCandidateCollection->push_back(pfCandidate);
+            oldToNew[iPF] = -1*(pBadCandidateCollection->size());
             continue;
           }
 
           if (nPixelHits < minPixelNHits_) {
             foundBadCandidate = true;
             pBadCandidateCollection->push_back(pfCandidate);
+            oldToNew[iPF] = -1*(pBadCandidateCollection->size());
             continue;
           }
         }
@@ -227,15 +243,34 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
     }
 
     pOutputCandidateCollection->push_back(pfCandidate);
-
+    oldToNew[iPF] = (pOutputCandidateCollection->size());
   }  // end loop over pf candidates
 
   bool pass = !foundBadCandidate;
 
-  iEvent.put(std::move(pOutputCandidateCollection));
-  iEvent.put(std::move(pBadCandidateCollection), "removed");
+  edm::OrphanHandle<std::vector<reco::PFCandidate>> newpf = iEvent.put(std::move(pOutputCandidateCollection));
+  edm::OrphanHandle<std::vector<reco::PFCandidate>> badpf = iEvent.put(std::move(pBadCandidateCollection), "removed");
 
   iEvent.put(std::make_unique<bool>(pass));
+
+  std::unique_ptr<edm::ValueMap<reco::PFCandidateRef>> pf2pf(new edm::ValueMap<reco::PFCandidateRef>());
+  edm::ValueMap<reco::PFCandidateRef>::Filler filler(*pf2pf);
+
+  std::vector<reco::PFCandidateRef> refs;
+  refs.reserve(n);
+
+  // old to new
+  for (iPF = 0; iPF < n; ++iPF) {
+    if (oldToNew[iPF] > 0) {
+      refs.push_back(reco::PFCandidateRef(newpf, oldToNew[iPF] - 1));
+    } else {
+      refs.push_back(reco::PFCandidateRef(badpf, -oldToNew[iPF] - 1));
+    }
+  }
+  filler.insert(pfCandidates, refs.begin(), refs.end());
+
+  filler.fill();
+  iEvent.put(std::move(pf2pf));
 }
 
 //define this as a plug-in
