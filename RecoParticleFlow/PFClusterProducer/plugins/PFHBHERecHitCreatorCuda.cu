@@ -491,8 +491,7 @@ namespace PFRecHit {
       // Apply PFRecHit threshold & quality tests
 
       //applyQTests<<<(nRHIn+127)/128, 256, 0, cudaStream>>>(nRHIn, scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
-      //applyDepthThresholdQTests<<<(nRHIn+127)/128, 256, 0, cudaStream>>>(nRHIn, scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
-      applyDepthThresholdQTests<<<(nRHIn+31)/32, 32, 0, cudaStream>>>(nRHIn, scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
+      applyDepthThresholdQTests<<<(nRHIn+127)/128, 256, 0, cudaStream>>>(nRHIn, scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
       cudaCheck(cudaGetLastError());
 
 #ifdef DEBUG_ENABLE
@@ -523,8 +522,7 @@ namespace PFRecHit {
 #endif
 
       // Fill output PFRecHit arrays
-      //convert_rechits_to_PFRechits<<<(nRHIn+31)/32, 128, 0, cudaStream>>>(
-      convert_rechits_to_PFRechits<<<(nRHIn+31)/32, 32, 0, cudaStream>>>(
+      convert_rechits_to_PFRechits<<<(nRHIn+31)/32, 128, 0, cudaStream>>>(
             nRHIn,
             d_nPFRHOut,
             d_nPFRHCleaned,
