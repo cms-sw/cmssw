@@ -146,7 +146,7 @@ egammaHIPhotonIsolationModifier = cms.PSet(
     )
 
 photonDRNModifier = cms.PSet(
-      modifierName = cms.strong("EGRegressionModifierDRN"),
+      modifierName = cms.string("EGRegressionModifierDRN"),
       patPhotons = cms.PSet(
           source = cms.InputTag("selectedPatPhotons"),
           correctionsSource = cms.InputTag('patPhotonsDRN')
@@ -183,4 +183,4 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(egamma_modifications, appendEgammaHIPhotonIsolationModifier)
 
 from Configuration.ProcessModifiers.photonDRN_cff import photonDRN
-photonDRN.toMOdify(egamma_modifications, appendPhotonDRNModifier)
+photonDRN.toModify(egamma_modifications, appendPhotonDRNModifier)
