@@ -9,10 +9,7 @@
 */
 
 #include <vector>
-#include <array>
-#include <fstream>
-#include <algorithm>
-#include "TRandom.h"
+#include <cmath>
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "FWCore/Utilities/interface/isFinite.h"
@@ -21,8 +18,9 @@
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -54,13 +52,51 @@ using namespace reco;
 namespace reco {
 
   class EcalClustersGraph {
+  public:
     typedef std::shared_ptr<CalibratedPFCluster> CalibratedClusterPtr;
     typedef std::vector<CalibratedClusterPtr> CalibratedClusterPtrVector;
+    typedef std::vector<std::pair<CalibratedClusterPtr, CalibratedClusterPtrVector>> EcalGraphOutput;
+
+    EcalClustersGraph(CalibratedClusterPtrVector clusters,
+                      int nSeeds,
+                      const CaloTopology* topology,
+                      const CaloSubdetectorGeometry* ebGeom,
+                      const CaloSubdetectorGeometry* eeGeom,
+                      const EcalRecHitCollection* recHitsEB,
+                      const EcalRecHitCollection* recHitsEE,
+                      const SCProducerCache* cache);
+
+    std::vector<int> clusterPosition(const CaloCluster* cluster);
+
+    // Sign flip deltaEta as in the Mustache
+    double deltaEta(double seed_eta, double cluster_eta) { return (1 - 2 * (seed_eta < 0)) * (cluster_eta - seed_eta); }
+    std::vector<double> dynamicWindow(double seedEta);
+
+    std::vector<double> computeVariables(const CaloCluster* seed, const CaloCluster* cluster);
+    std::vector<std::vector<double>> fillHits(const CaloCluster* cluster);
+    std::vector<double> computeWindowVariables(const std::vector<std::vector<double>>& clusters);
+
+    std::pair<double, double> computeCovariances(const CaloCluster* cluster);
+    std::vector<double> computeShowerShapes(const CaloCluster* cluster, bool full5x5);
+
+    void fillVariables();
+
+    double scoreThreshold(const CaloCluster* cluster);
+    void initWindows();
+
+    void setThresholds();
+    void evaluateScores();
+    void selectClusters();
+
+    EcalGraphOutput getGraphOutput();
 
   private:
     CalibratedClusterPtrVector clusters_;
     uint nSeeds_;
     uint nCls_;
+
+    std::array<float, 3> locCov_;
+    std::pair<double, double> widths_;
 
     //To compute the input variables
     const CaloTopology* topology_;
@@ -75,58 +111,6 @@ namespace reco {
     GraphMap::CollectionStrategy strategy_;
     float threshold_;
     DeepSCInputs inputs_;
-
-    std::vector<std::pair<uint, std::vector<uint>>> finalSuperClusters_;
-    std::array<float, 3> locCov_;
-    std::pair<double, double> widths_;
-
-  public:
-    EcalClustersGraph(CalibratedClusterPtrVector clusters,
-                      int nSeeds,
-                      const CaloTopology* topology,
-                      const CaloSubdetectorGeometry* ebGeom,
-                      const CaloSubdetectorGeometry* eeGeom,
-                      const EcalRecHitCollection* recHitsEB,
-                      const EcalRecHitCollection* recHitsEE,
-                      const SCProducerCache* cache);
-
-    std::vector<int> clusterPosition(const CaloCluster* cluster);
-
-    double deltaPhi(double seed_phi, double cluster_phi) {
-      double dphi = seed_phi - cluster_phi;
-      if (dphi > TMath::Pi())
-        dphi -= 2 * TMath::Pi();
-      if (dphi < -TMath::Pi())
-        dphi += 2 * TMath::Pi();
-      return dphi;
-    }
-
-    double deltaEta(double seed_eta, double cluster_eta) {
-      double deta = 0.;
-      if (seed_eta > 0.)
-        deta = cluster_eta - seed_eta;
-      if (seed_eta <= 0.)
-        deta = seed_eta - cluster_eta;
-      return deta;
-    }
-    std::vector<double> dynamicWindow(double seedEta);
-
-    std::pair<double, double> computeCovariances(const CaloCluster* cluster);
-    std::vector<double> computeShowerShapes(const CaloCluster* cluster, bool full5x5);
-    std::vector<double> computeVariables(const CaloCluster* seed, const CaloCluster* cluster);
-    std::vector<std::vector<double>> fillHits(const CaloCluster* cluster);
-    std::vector<double> computeWindowVariables(const std::vector<std::vector<double>>& clusters);
-
-    void fillVariables();
-
-    double scoreThreshold(const CaloCluster* cluster);
-    void initWindows();
-
-    void setThresholds();
-    void evaluateScores();
-    void selectClusters();
-
-    std::vector<std::pair<CalibratedClusterPtr, CalibratedClusterPtrVector>> getWindows();
   };
 
 }  // namespace reco

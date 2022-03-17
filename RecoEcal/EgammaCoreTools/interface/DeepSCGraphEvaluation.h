@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <functional>
+#include <cmath>
 
 //author: Davide Valsecchi
 //description:
@@ -28,6 +29,14 @@ namespace reco {
     std::string collectionStrategy;
   };
 
+  /*
+   * Structure representing the detector windows of a single events, to be evaluated with the DeepSC model.
+   * The index structure is described in the following
+   * - clusterX = [ window, cluster, nClusterFeatures[double] ] --> vector of features for each cluster
+   * - hitsX = [window, cluster, hit, nRechitsFeatires[double]] --> vector of features for each RecHit
+   * - windowX = [window, nWindowFeatures[double]] --> vector of summary features of the window
+   * - isSeed [window, cluster[bool]] --> mask indicating the seed cluster in each window  
+   */
   struct DeepSCInputs {
     std::vector<std::vector<std::vector<double>>> clustersX;
     std::vector<std::vector<std::vector<std::vector<double>>>> hitsX;
