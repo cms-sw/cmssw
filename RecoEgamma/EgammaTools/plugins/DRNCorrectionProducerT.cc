@@ -173,9 +173,9 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
   const CaloSubdetectorGeometry* ecalESGeom =
       static_cast<const CaloSubdetectorGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
 
-  const EcalRecHitCollection* recHitsEB = EBRecHits.product();
-  const EcalRecHitCollection* recHitsEE = EERecHits.product();
-  const EcalRecHitCollection* recHitsES = ESRecHits.product();
+  const auto& recHitsEB = iEvent.get(EBRecHitsToken_);
+  const auto& recHitsEE = iEvent.get(EERecHitsToken_);
+  const auto& recHitsES = iEvent.get(ESRecHitsToken_);
 
   nPart_ = particles_->size();
 
