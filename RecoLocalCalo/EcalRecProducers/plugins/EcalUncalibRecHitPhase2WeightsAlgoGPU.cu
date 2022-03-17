@@ -21,17 +21,14 @@
 
 //#define ECAL_RECO_CUDA_DEBUG
 
-namespace ecal
-{
-  namespace weights
-  {
+namespace ecal {
+  namespace weights {
 
     void entryPoint(ecal::DigisCollection<calo::common::DevStoragePolicy> const& ebDigis,
                     EventOutputDataGPUWeights& eventOutputGPU,
                     cms::cuda::device::unique_ptr<double[]>& weights_d,
                     // cms::cuda::device::unique_ptr<uint16_t[]>& debug_d,
-                    cudaStream_t cudaStream)
-    {
+                    cudaStream_t cudaStream) {
       unsigned int totalChannels = ebDigis.size ;
 
     
@@ -43,18 +40,15 @@ namespace ecal
 
      
       Phase2WeightsKernel <<<blocks_1d, threads_1d, shared_bytes, cudaStream>>> (ebDigis.data.get(), 
-                                                                  ebDigis.ids.get(),
-                                                                  eventOutputGPU.recHitsEB.amplitude.get(),
-                                                                  eventOutputGPU.recHitsEB.did.get(),
-                                                                  totalChannels,
-                                                                  weights_d.get(),
-                                                                  eventOutputGPU.recHitsEB.flags.get()
-                                                                  // ,debug_d.get()
-                                                                  );
+                                                                                 ebDigis.ids.get(),
+                                                                                 eventOutputGPU.recHitsEB.amplitude.get(),
+                                                                                 eventOutputGPU.recHitsEB.did.get(),
+                                                                                 totalChannels,
+                                                                                 weights_d.get(),
+                                                                                 eventOutputGPU.recHitsEB.flags.get()
+                                                                                 // ,debug_d.get()
+                                                                                 );
       cudaCheck(cudaGetLastError());
-
-    
-
 
     }
 

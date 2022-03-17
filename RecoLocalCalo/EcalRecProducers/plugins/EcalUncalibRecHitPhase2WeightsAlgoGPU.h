@@ -13,7 +13,7 @@ namespace ecal {
     void entryPoint(ecal::DigisCollection<calo::common::DevStoragePolicy> const&,
                     EventOutputDataGPUWeights&,
                     cms::cuda::device::unique_ptr<double[]>& ,
-                    // cms::cuda::device::unique_ptr<double[]>& ,
+                    // cms::cuda::device::unique_ptr<uint16_t[]>& ,
                     cudaStream_t);
 
   }  // namespace weights
