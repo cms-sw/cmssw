@@ -1,10 +1,5 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClustersGraph.h"
-#include <algorithm>
 #include <cmath>
-#include "TVector2.h"
-#include "TMath.h"
-#include <iostream>
-#include <fstream>
 
 using namespace std;
 using namespace reco;
@@ -94,7 +89,7 @@ std::vector<double> EcalClustersGraph::dynamicWindow(double seedEta) {
   std::vector<double> window;
   window.resize(3);
 
-  double eta = fabs(seedEta);
+  double eta = std::abs(seedEta);
   double deta_down = 0.;
   double deta_up = 0.;
   double dphi = 0.;
@@ -136,171 +131,27 @@ std::vector<double> EcalClustersGraph::dynamicWindow(double seedEta) {
 
 void EcalClustersGraph::initWindows() {
   for (uint is = 0; is < nSeeds_; is++) {
-    std::vector<int> seedLocal = clusterPosition((*clusters_.at(is)).the_ptr().get());
-    double seed_eta = clusters_.at(is)->eta();
-    double seed_phi = clusters_.at(is)->phi();
-    std::vector<double> width = dynamicWindow(seed_eta);
+    const auto& seedLocal = clusterPosition((*clusters_[is]).the_ptr().get());
+    double seed_eta = clusters_[is]->eta();
+    double seed_phi = clusters_[is]->phi();
+    const auto& width = dynamicWindow(seed_eta);
     // Add a self loop on the seed node
     graphMap_.addEdge(is, is);
 
     for (uint icl = 0; icl < nCls_; icl++) {
-      std::vector<int> clusterLocal = clusterPosition((*clusters_.at(icl)).the_ptr().get());
-      double cl_eta = clusters_.at(icl)->eta();
-      double cl_phi = clusters_.at(icl)->phi();
+      if (is == icl)
+        continue;
+      const auto& clusterLocal = clusterPosition((*clusters_[icl]).the_ptr().get());
+      double cl_eta = clusters_[icl]->eta();
+      double cl_phi = clusters_[icl]->phi();
       double dphi = deltaPhi(seed_phi, cl_phi);
       double deta = deltaEta(seed_eta, cl_eta);
 
-      if (seedLocal[2] == clusterLocal[2] && deta >= width[0] && deta <= width[1] && fabs(dphi) <= width[2]) {
+      if (seedLocal[2] == clusterLocal[2] && deta >= width[0] && deta <= width[1] && std::abs(dphi) <= width[2]) {
         graphMap_.addEdge(is, icl);
       }
     }
   }
-}
-
-std::pair<double, double> EcalClustersGraph::computeCovariances(const CaloCluster* cluster) {
-  double etaWidth = 0.;
-  double phiWidth = 0.;
-  double numeratorEtaWidth = 0;
-  double numeratorPhiWidth = 0;
-
-  double clEnergy = cluster->energy();
-  double denominator = clEnergy;
-
-  double clEta = cluster->position().eta();
-  double clPhi = cluster->position().phi();
-
-  std::shared_ptr<const CaloCellGeometry> this_cell;
-  EcalRecHitCollection::const_iterator rHit;
-
-  const std::vector<std::pair<DetId, float>>& detId = cluster->hitsAndFractions();
-  // Loop over recHits associated with the given SuperCluster
-  for (std::vector<std::pair<DetId, float>>::const_iterator hit = detId.begin(); hit != detId.end(); ++hit) {
-    if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_BARREL) {
-      rHit = recHitsEB_->find((*hit).first);
-      if (rHit == recHitsEB_->end()) {
-        continue;
-      }
-    } else if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_ENDCAP) {
-      rHit = recHitsEE_->find((*hit).first);
-      if (rHit == recHitsEE_->end()) {
-        continue;
-      }
-    }
-
-    if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_BARREL) {
-      this_cell = ebGeom_->getGeometry(rHit->id());
-    } else if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_ENDCAP) {
-      this_cell = eeGeom_->getGeometry(rHit->id());
-    }
-    if (this_cell == nullptr) {
-      //edm::LogInfo("SuperClusterShapeAlgo") << "pointer to the cell in Calculate_Covariances is NULL!";
-      continue;
-    }
-
-    GlobalPoint position = this_cell->getPosition();
-    //take into account energy fractions
-    double energyHit = rHit->energy() * hit->second;
-
-    //form differences
-    double dPhi = position.phi() - clPhi;
-    if (dPhi > +Geom::pi()) {
-      dPhi = Geom::twoPi() - dPhi;
-    }
-    if (dPhi < -Geom::pi()) {
-      dPhi = Geom::twoPi() + dPhi;
-    }
-
-    double dEta = position.eta() - clEta;
-
-    if (energyHit > 0) {
-      numeratorEtaWidth += energyHit * dEta * dEta;
-      numeratorPhiWidth += energyHit * dPhi * dPhi;
-    }
-
-    etaWidth = sqrt(numeratorEtaWidth / denominator);
-    phiWidth = sqrt(numeratorPhiWidth / denominator);
-  }
-
-  return std::make_pair(etaWidth, phiWidth);
-}
-
-std::vector<double> EcalClustersGraph::computeShowerShapes(const CaloCluster* cluster, bool full5x5 = false) {
-  std::vector<double> showerVars_;
-  showerVars_.resize(8);
-  float e1 = 1.;
-  float e4 = 0.;
-
-  if (full5x5) {
-    if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_BARREL) {
-      locCov_ = noZS::EcalClusterTools::localCovariances(*cluster, recHitsEB_, topology_);
-      widths_ = computeCovariances(cluster);
-      e1 = noZS::EcalClusterTools::eMax(*cluster, recHitsEB_);
-      e4 = noZS::EcalClusterTools::eTop(*cluster, recHitsEB_, topology_) +
-           noZS::EcalClusterTools::eRight(*cluster, recHitsEB_, topology_) +
-           noZS::EcalClusterTools::eBottom(*cluster, recHitsEB_, topology_) +
-           noZS::EcalClusterTools::eLeft(*cluster, recHitsEB_, topology_);
-      showerVars_[0] = noZS::EcalClusterTools::e3x3(*cluster, recHitsEB_, topology_) / cluster->energy();  //r9
-      showerVars_[1] = sqrt(locCov_[0]);                                      //sigmaietaieta
-      showerVars_[2] = locCov_[1];                                            //sigmaietaiphi
-      showerVars_[3] = (!edm::isFinite(locCov_[2])) ? 0. : sqrt(locCov_[2]);  //sigmaiphiiphi
-      showerVars_[4] = (e1 != 0.) ? 1. - e4 / e1 : -999.;                     //swiss_cross
-      showerVars_[5] = cluster->hitsAndFractions().size();                    //nXtals
-      showerVars_[6] = widths_.first;                                         //etaWidth
-      showerVars_[7] = widths_.second;                                        //phiWidth
-    } else if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_ENDCAP) {
-      locCov_ = noZS::EcalClusterTools::localCovariances(*cluster, recHitsEE_, topology_);
-      widths_ = computeCovariances(cluster);
-      e1 = noZS::EcalClusterTools::eMax(*cluster, recHitsEE_);
-      e4 = noZS::EcalClusterTools::eTop(*cluster, recHitsEE_, topology_) +
-           noZS::EcalClusterTools::eRight(*cluster, recHitsEE_, topology_) +
-           noZS::EcalClusterTools::eBottom(*cluster, recHitsEE_, topology_) +
-           noZS::EcalClusterTools::eLeft(*cluster, recHitsEE_, topology_);
-      showerVars_[0] = noZS::EcalClusterTools::e3x3(*cluster, recHitsEE_, topology_) / cluster->energy();  //r9
-      showerVars_[1] = sqrt(locCov_[0]);                                      //sigmaietaieta
-      showerVars_[2] = locCov_[1];                                            //sigmaietaiphi
-      showerVars_[3] = (!edm::isFinite(locCov_[2])) ? 0. : sqrt(locCov_[2]);  //sigmaiphiiphi
-      showerVars_[4] = (e1 != 0.) ? 1. - e4 / e1 : -999.;                     //swiss_cross
-      showerVars_[5] = cluster->hitsAndFractions().size();                    //nXtals
-      showerVars_[6] = widths_.first;                                         //etaWidth
-      showerVars_[7] = widths_.second;                                        //phiWidth
-    }
-  } else {
-    if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_BARREL) {
-      locCov_ = EcalClusterTools::localCovariances(*cluster, recHitsEB_, topology_);
-      widths_ = computeCovariances(cluster);
-      e1 = EcalClusterTools::eMax(*cluster, recHitsEB_);
-      e4 = EcalClusterTools::eTop(*cluster, recHitsEB_, topology_) +
-           EcalClusterTools::eRight(*cluster, recHitsEB_, topology_) +
-           EcalClusterTools::eBottom(*cluster, recHitsEB_, topology_) +
-           EcalClusterTools::eLeft(*cluster, recHitsEB_, topology_);
-      showerVars_[0] = EcalClusterTools::e3x3(*cluster, recHitsEB_, topology_) / cluster->energy();  //r9
-      showerVars_[1] = sqrt(locCov_[0]);                                                             //sigmaietaieta
-      showerVars_[2] = locCov_[1];                                                                   //sigmaietaiphi
-      showerVars_[3] = (!edm::isFinite(locCov_[2])) ? 0. : sqrt(locCov_[2]);                         //sigmaiphiiphi
-      showerVars_[4] = (e1 != 0.) ? 1. - e4 / e1 : -999.;                                            //swiss_cross
-      showerVars_[5] = cluster->hitsAndFractions().size();                                           //nXtals
-      showerVars_[6] = widths_.first;                                                                //etaWidth
-      showerVars_[7] = widths_.second;                                                               //phiWidth
-    } else if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_ENDCAP) {
-      locCov_ = EcalClusterTools::localCovariances(*cluster, recHitsEE_, topology_);
-      widths_ = computeCovariances(cluster);
-      e1 = EcalClusterTools::eMax(*cluster, recHitsEE_);
-      e4 = EcalClusterTools::eTop(*cluster, recHitsEE_, topology_) +
-           EcalClusterTools::eRight(*cluster, recHitsEE_, topology_) +
-           EcalClusterTools::eBottom(*cluster, recHitsEE_, topology_) +
-           EcalClusterTools::eLeft(*cluster, recHitsEE_, topology_);
-      showerVars_[0] = EcalClusterTools::e3x3(*cluster, recHitsEE_, topology_) / cluster->energy();  //r9
-      showerVars_[1] = sqrt(locCov_[0]);                                                             //sigmaietaieta
-      showerVars_[2] = locCov_[1];                                                                   //sigmaietaiphi
-      showerVars_[3] = (!edm::isFinite(locCov_[2])) ? 0. : sqrt(locCov_[2]);                         //sigmaiphiiphi
-      showerVars_[4] = (e1 != 0.) ? 1. - e4 / e1 : -999.;                                            //swiss_cross
-      showerVars_[5] = cluster->hitsAndFractions().size();                                           //nXtals
-      showerVars_[6] = widths_.first;                                                                //etaWidth
-      showerVars_[7] = widths_.second;                                                               //phiWidth
-    }
-  }
-
-  return showerVars_;
 }
 
 std::vector<std::vector<double>> EcalClustersGraph::fillHits(const CaloCluster* cluster) {
@@ -338,20 +189,19 @@ std::vector<std::vector<double>> EcalClustersGraph::fillHits(const CaloCluster* 
 
 std::vector<double> EcalClustersGraph::computeVariables(const CaloCluster* seed, const CaloCluster* cluster) {
   std::vector<double> cl_vars(12);  //TODO dynamic configuration
-  std::vector<int> clusterLocal = clusterPosition(cluster);
-  cl_vars[0] = cluster->energy();                                //cl_energy
-  cl_vars[1] = cluster->energy() / TMath::CosH(cluster->eta());  //cl_et
-  cl_vars[2] = cluster->eta();                                   //cl_eta
-  cl_vars[3] = cluster->phi();                                   //cl_phi
-  cl_vars[4] = clusterLocal[0];                                  //cl_ieta/ix
-  cl_vars[5] = clusterLocal[1];                                  //cl_iphi/iy
-  cl_vars[6] = clusterLocal[2];                                  //cl_iz
-  cl_vars[7] = deltaEta(seed->eta(), cluster->eta());            //cl_dEta
-  cl_vars[8] = deltaPhi(seed->phi(), cluster->phi());            //cl_dPhi
-  cl_vars[9] = seed->energy() - cluster->energy();               //cl_dEnergy
-  cl_vars[10] =
-      (seed->energy() / TMath::CosH(seed->eta())) - (cluster->energy() / TMath::CosH(cluster->eta()));  //cl_dEt
-  cl_vars[11] = cluster->hitsAndFractions().size();                                                     // nxtals
+  const auto& clusterLocal = clusterPosition(cluster);
+  cl_vars[0] = cluster->energy();                              //cl_energy
+  cl_vars[1] = cluster->energy() / std::cosh(cluster->eta());  //cl_et
+  cl_vars[2] = cluster->eta();                                 //cl_eta
+  cl_vars[3] = cluster->phi();                                 //cl_phi
+  cl_vars[4] = clusterLocal[0];                                //cl_ieta/ix
+  cl_vars[5] = clusterLocal[1];                                //cl_iphi/iy
+  cl_vars[6] = clusterLocal[2];                                //cl_iz
+  cl_vars[7] = deltaEta(seed->eta(), cluster->eta());          //cl_dEta
+  cl_vars[8] = deltaPhi(seed->phi(), cluster->phi());          //cl_dPhi
+  cl_vars[9] = seed->energy() - cluster->energy();             //cl_dEnergy
+  cl_vars[10] = (seed->energy() / std::cosh(seed->eta())) - (cluster->energy() / std::cosh(cluster->eta()));  //cl_dEt
+  cl_vars[11] = cluster->hitsAndFractions().size();                                                           // nxtals
   return cl_vars;
 }
 
@@ -393,14 +243,127 @@ std::vector<double> EcalClustersGraph::computeWindowVariables(const std::vector<
   return out;
 }
 
+std::pair<double, double> EcalClustersGraph::computeCovariances(const CaloCluster* cluster) {
+  double etaWidth = 0.;
+  double phiWidth = 0.;
+  double numeratorEtaWidth = 0;
+  double numeratorPhiWidth = 0;
+  double clEnergy = cluster->energy();
+  double denominator = clEnergy;
+  double clEta = cluster->position().eta();
+  double clPhi = cluster->position().phi();
+  std::shared_ptr<const CaloCellGeometry> this_cell;
+  EcalRecHitCollection::const_iterator rHit;
+
+  const std::vector<std::pair<DetId, float>>& detId = cluster->hitsAndFractions();
+  // Loop over recHits associated with the given SuperCluster
+  for (std::vector<std::pair<DetId, float>>::const_iterator hit = detId.begin(); hit != detId.end(); ++hit) {
+    if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_BARREL) {
+      rHit = recHitsEB_->find((*hit).first);
+      if (rHit == recHitsEB_->end()) {
+        continue;
+      }
+    } else if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_ENDCAP) {
+      rHit = recHitsEE_->find((*hit).first);
+      if (rHit == recHitsEE_->end()) {
+        continue;
+      }
+    }
+
+    if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_BARREL) {
+      this_cell = ebGeom_->getGeometry(rHit->id());
+    } else if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_ENDCAP) {
+      this_cell = eeGeom_->getGeometry(rHit->id());
+    }
+    if (this_cell == nullptr) {
+      continue;
+    }
+
+    GlobalPoint position = this_cell->getPosition();
+    //take into account energy fractions
+    double energyHit = rHit->energy() * hit->second;
+    //form differences
+    double dPhi = deltaPhi(position.phi(), clPhi);
+    double dEta = position.eta() - clEta;
+    if (energyHit > 0) {
+      numeratorEtaWidth += energyHit * dEta * dEta;
+      numeratorPhiWidth += energyHit * dPhi * dPhi;
+    }
+    etaWidth = sqrt(numeratorEtaWidth / denominator);
+    phiWidth = sqrt(numeratorPhiWidth / denominator);
+  }
+
+  return std::make_pair(etaWidth, phiWidth);
+}
+
+std::vector<double> EcalClustersGraph::computeShowerShapes(const CaloCluster* cluster, bool full5x5 = false) {
+  std::vector<double> showerVars_;
+  showerVars_.resize(8);
+  widths_ = computeCovariances(cluster);
+  float e1 = 1.;
+  float e4 = 0.;
+  float r9 = 0.;
+
+  if (full5x5) {
+    if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_BARREL) {
+      locCov_ = noZS::EcalClusterTools::localCovariances(*cluster, recHitsEB_, topology_);
+      e1 = noZS::EcalClusterTools::eMax(*cluster, recHitsEB_);
+      e4 = noZS::EcalClusterTools::eTop(*cluster, recHitsEB_, topology_) +
+           noZS::EcalClusterTools::eRight(*cluster, recHitsEB_, topology_) +
+           noZS::EcalClusterTools::eBottom(*cluster, recHitsEB_, topology_) +
+           noZS::EcalClusterTools::eLeft(*cluster, recHitsEB_, topology_);
+      r9 = noZS::EcalClusterTools::e3x3(*cluster, recHitsEB_, topology_) / cluster->energy();  //r9
+
+    } else if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_ENDCAP) {
+      locCov_ = noZS::EcalClusterTools::localCovariances(*cluster, recHitsEE_, topology_);
+      e1 = noZS::EcalClusterTools::eMax(*cluster, recHitsEE_);
+      e4 = noZS::EcalClusterTools::eTop(*cluster, recHitsEE_, topology_) +
+           noZS::EcalClusterTools::eRight(*cluster, recHitsEE_, topology_) +
+           noZS::EcalClusterTools::eBottom(*cluster, recHitsEE_, topology_) +
+           noZS::EcalClusterTools::eLeft(*cluster, recHitsEE_, topology_);
+      r9 = noZS::EcalClusterTools::e3x3(*cluster, recHitsEE_, topology_) / cluster->energy();  //r9
+    }
+  } else {
+    if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_BARREL) {
+      locCov_ = EcalClusterTools::localCovariances(*cluster, recHitsEB_, topology_);
+      e1 = EcalClusterTools::eMax(*cluster, recHitsEB_);
+      e4 = EcalClusterTools::eTop(*cluster, recHitsEB_, topology_) +
+           EcalClusterTools::eRight(*cluster, recHitsEB_, topology_) +
+           EcalClusterTools::eBottom(*cluster, recHitsEB_, topology_) +
+           EcalClusterTools::eLeft(*cluster, recHitsEB_, topology_);
+      r9 = EcalClusterTools::e3x3(*cluster, recHitsEB_, topology_) / cluster->energy();  //r9
+    } else if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_ENDCAP) {
+      locCov_ = EcalClusterTools::localCovariances(*cluster, recHitsEE_, topology_);
+      e1 = EcalClusterTools::eMax(*cluster, recHitsEE_);
+      e4 = EcalClusterTools::eTop(*cluster, recHitsEE_, topology_) +
+           EcalClusterTools::eRight(*cluster, recHitsEE_, topology_) +
+           EcalClusterTools::eBottom(*cluster, recHitsEE_, topology_) +
+           EcalClusterTools::eLeft(*cluster, recHitsEE_, topology_);
+      r9 = EcalClusterTools::e3x3(*cluster, recHitsEE_, topology_) / cluster->energy();
+    }
+  }
+  showerVars_[0] = r9;
+  showerVars_[1] = sqrt(locCov_[0]);                                      //sigmaietaieta
+  showerVars_[2] = locCov_[1];                                            //sigmaietaiphi
+  showerVars_[3] = (!edm::isFinite(locCov_[2])) ? 0. : sqrt(locCov_[2]);  //sigmaiphiiphi
+  showerVars_[4] = (e1 != 0.) ? 1. - e4 / e1 : -999.;                     //swiss_cross
+  showerVars_[5] = cluster->hitsAndFractions().size();                    //nXtals
+  showerVars_[6] = widths_.first;                                         //etaWidth
+  showerVars_[7] = widths_.second;                                        //phiWidth
+
+  return showerVars_;
+}
+
 void EcalClustersGraph::fillVariables() {
+  LogDebug("EcalClustersGraph") << "Fill variables";
   //Looping on all the seeds (window)
   for (uint is = 0; is < nSeeds_; is++) {
-    const auto seedPointer = (*clusters_.at(is)).the_ptr().get();
+    const auto seedPointer = (*clusters_[is]).the_ptr().get();
     std::vector<std::vector<double>> unscaledClusterFeatures;
     // Loop on all the clusters
-    for (const auto& ic : graphMap_.getOutEdges(is)) {
-      const auto clPointer = (*clusters_.at(ic)).the_ptr().get();
+    for (const auto ic : graphMap_.getOutEdges(is)) {
+      LogTrace("EcalClustersGraph") << "seed: " << is << ", out edge --> " << ic;
+      const auto clPointer = (*clusters_[ic]).the_ptr().get();
       const auto& rawClX = computeVariables(seedPointer, clPointer);
       unscaledClusterFeatures.push_back(rawClX);
       inputs_.clustersX[is].push_back(SCProducerCache_->deepSCEvaluator->scaleClusterFeatures(rawClX));
@@ -418,11 +381,13 @@ void EcalClustersGraph::evaluateScores() {
   const auto& scores = SCProducerCache_->deepSCEvaluator->evaluate(inputs_);
   for (uint i = 0; i < nSeeds_; ++i) {
     uint k = 0;
+    LogTrace("EcalClustersGraph") << "Score) seed: " << i << ":";
     for (auto const& j : graphMap_.getOutEdges(i)) {
       // Fill the scores from seed --> node (i --> j)
       // Not symmetrically, in order to save multiple values for seeds in other
       // seeds windows.
       graphMap_.setAdjMatrix(i, j, scores[i][k]);
+      LogTrace("EcalClustersGraph") << "\t" << i << "-->" << j << ": " << scores[i][k];
       k++;
     }
   }
@@ -435,18 +400,19 @@ void EcalClustersGraph::setThresholds() {
 
 void EcalClustersGraph::selectClusters() {
   // Collect the final superClusters as subgraphs
-  finalSuperClusters_ = graphMap_.collectNodes(strategy_, threshold_);
+  graphMap_.collectNodes(strategy_, threshold_);
 }
 
-std::vector<std::pair<CalibratedClusterPtr, CalibratedClusterPtrVector>> EcalClustersGraph::getWindows() {
-  std::vector<std::pair<CalibratedClusterPtr, CalibratedClusterPtrVector>> windows;
+EcalClustersGraph::EcalGraphOutput EcalClustersGraph::getGraphOutput() {
+  EcalClustersGraph::EcalGraphOutput finalWindows_;
+  const auto& finalSuperClusters_ = graphMap_.getGraphOutput();
   for (const auto& [is, cls] : finalSuperClusters_) {
     CalibratedClusterPtr seed = clusters_[is];
     CalibratedClusterPtrVector clusters_inWindow;
     for (const auto& ic : cls) {
       clusters_inWindow.push_back(clusters_[ic]);
     }
-    windows.push_back({seed, clusters_inWindow});
+    finalWindows_.push_back({seed, clusters_inWindow});
   }
-  return windows;
+  return finalWindows_;
 }

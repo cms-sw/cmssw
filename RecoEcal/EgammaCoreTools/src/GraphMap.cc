@@ -63,38 +63,38 @@ std::vector<float> GraphMap::getAdjMatrixCol(const uint j) const {
 //=================================================
 // Debugging info
 void GraphMap::printGraphMap() {
-  std::cout << "OUT edges" << std::endl;
+  edm::LogVerbatim("GraphMap") << "OUT edges" << std::endl;
   uint seed = 0;
   for (const auto &s : edgesOut_) {
-    std::cout << "cl: " << seed << " --> ";
+    edm::LogVerbatim("GraphMap") << "cl: " << seed << " --> ";
     for (const auto &e : s) {
-      std::cout << e << " (" << adjMatrix_[{seed, e}] << ") ";
+      edm::LogVerbatim("GraphMap") << e << " (" << adjMatrix_[{seed, e}] << ") ";
     }
-    std::cout << std::endl;
+    edm::LogVerbatim("GraphMap") << std::endl;
     seed++;
   }
-  std::cout << std::endl << "IN edges" << std::endl;
+  edm::LogVerbatim("GraphMap") << std::endl << "IN edges" << std::endl;
   seed = 0;
   for (const auto &s : edgesIn_) {
-    std::cout << "cl: " << seed << " <-- ";
+    edm::LogVerbatim("GraphMap") << "cl: " << seed << " <-- ";
     for (const auto &e : s) {
-      std::cout << e << " (" << adjMatrix_[{e, seed}] << ") ";
+      edm::LogVerbatim("GraphMap") << e << " (" << adjMatrix_[{e, seed}] << ") ";
     }
-    std::cout << std::endl;
+    edm::LogVerbatim("GraphMap") << std::endl;
     seed++;
   }
-  std::cout << std::endl << "AdjMatrix" << std::endl;
+  edm::LogVerbatim("GraphMap") << std::endl << "AdjMatrix" << std::endl;
   for (const auto &s : nodesCategories_[NodeCategory::kSeed]) {
     for (size_t n = 0; n < nNodes_; n++) {
-      std::cout << std::setprecision(2) << adjMatrix_[{s, n}] << " ";
+      edm::LogVerbatim("GraphMap") << std::setprecision(2) << adjMatrix_[{s, n}] << " ";
     }
-    std::cout << std::endl;
+    edm::LogVerbatim("GraphMap") << std::endl;
   }
 }
 
 //--------------------------------------------------------------
 // Nodes collection algorithms
-const GraphMap::GraphOutput &GraphMap::collectNodes(GraphMap::CollectionStrategy strategy, float threshold) {
+void GraphMap::collectNodes(GraphMap::CollectionStrategy strategy, float threshold) {
   // Clear any stored graph output
   graphOutput_.clear();
 
@@ -126,8 +126,6 @@ const GraphMap::GraphOutput &GraphMap::collectNodes(GraphMap::CollectionStrategy
     assignHighestScoreEdge();
     collectCascading(threshold);
   }
-
-  return graphOutput_;
 }
 
 //----------------------------------------

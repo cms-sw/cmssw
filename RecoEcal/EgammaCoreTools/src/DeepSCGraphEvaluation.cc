@@ -191,7 +191,7 @@ std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInpu
     // // Define the output and run
     // // Run the models
     LogDebug("DeepSCGraphEvaluation") << "Run model";
-    tensorflow::run(session_, feed_dict, {"Identity", "Identity_1", "Identity_2", "Identity_3"}, &outputs_tf);
+    tensorflow::run(session_, feed_dict, {"cl_class", "wind_class"}, &outputs_tf);
     // Reading the 1st output: clustering probability
     float* y_cl = outputs_tf[0].flat<float>().data();
     // Iterate on the clusters for each window
@@ -201,10 +201,11 @@ std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInpu
       for (size_t c = 0; c < ncls; c++) {
         float y = y_cl[b * cfg_.maxNClusters + c];
         // Applying sigmoid to logit
-        cl_output[c] = 1 / (1 + TMath::Exp(-y));
+        cl_output[c] = 1 / (1 + std::exp(-y));
       }
       outputs_clustering.push_back(cl_output);
     }
   }
+
   return outputs_clustering;
 }
