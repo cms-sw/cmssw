@@ -104,3 +104,14 @@ pp_on_AA.toModify(
     hiPhotonIsolationMapInput = "photonIsolationHIProducerppGED",
     hiPhotonIsolationMapOutput = "photonIsolationHIProducerppGED"
 )
+
+from RecoHI.HiJetAlgos.HiBadParticleCleaner_cfi import cleanedParticleFlow
+from CommonTools.ParticleFlow.pfEGammaToCandidateRemapper_cfi import pfEGammaToCandidateRemapper as pfEGammaToCandidateRemapperCleaned
+pfEGammaToCandidateRemapperCleaned.pf2pf = cms.InputTag("cleanedParticleFlow")
+
+from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
+run2_miniAOD_pp_on_AA_103X.toModify(
+    reducedEgamma,
+    photonsPFValMap = cms.InputTag("pfEGammaToCandidateRemapperCleaned:photons"),
+    gsfElectronsPFValMap = cms.InputTag("pfEGammaToCandidateRemapperCleaned:electrons")
+)
