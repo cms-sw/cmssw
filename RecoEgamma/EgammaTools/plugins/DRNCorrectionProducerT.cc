@@ -273,7 +273,7 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
         hit = recHitsEB.find(detitr.first);
       } else {
         geom = ecalEEGeom->getGeometry(id);
-        hit = recHitsEE.ind(detitr.first);
+        hit = recHitsEE.find(detitr.first);
       }
 
       //fill xECAL
