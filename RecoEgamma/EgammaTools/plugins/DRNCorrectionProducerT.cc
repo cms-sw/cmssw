@@ -159,9 +159,6 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
    */
   const auto& particles_ = iEvent.getHandle(particleToken_);
   float rho = iEvent.get(rhoToken_);
-  edm::Handle<EcalRecHitCollection> EBRecHits = iEvent.getHandle(EBRecHitsToken_);
-  edm::Handle<EcalRecHitCollection> EERecHits = iEvent.getHandle(EERecHitsToken_);
-  edm::Handle<EcalRecHitCollection> ESRecHits = iEvent.getHandle(ESRecHitsToken_);
 
   const auto& ped = &iSetup.getData(pedToken_);
   const auto& geo = &iSetup.getData(geomToken_);
@@ -268,18 +265,15 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
     std::vector<std::pair<DetId, float>> hitsAndFractions = sc->hitsAndFractions();
     EcalRecHitCollection::const_iterator hit;
 
-    if (hitsAndFractions.empty())  //skip particles without RecHits
-      continue;
-
     //iterate over ECAL hits...
     for (const auto& detitr : hitsAndFractions) {
       DetId id = detitr.first.rawId();
       if (isEB(part)) {
         geom = ecalEBGeom->getGeometry(id);
-        hit = recHitsEB->find(detitr.first);
+        hit = recHitsEB.find(detitr.first);
       } else {
         geom = ecalEEGeom->getGeometry(id);
-        hit = recHitsEE->find(detitr.first);
+        hit = recHitsEE.ind(detitr.first);
       }
 
       //fill xECAL
@@ -319,7 +313,7 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
     //iterate over ES clusters...
     for (auto iES = sc->preshowerClustersBegin(); iES != sc->preshowerClustersEnd(); ++iES) {
       for (const auto& ESitr : (*iES)->hitsAndFractions()) {  //iterate over ES hits
-        hit = recHitsES->find(ESitr.first);
+        hit = recHitsES.find(ESitr.first);
         geom = ecalESGeom->getGeometry(ESitr.first);
         auto& pos = geom->getPosition();
 
