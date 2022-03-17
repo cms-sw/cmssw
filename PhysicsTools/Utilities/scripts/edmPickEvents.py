@@ -124,31 +124,15 @@ def getFileNames_dasgoclient(event):
     cmd = ['dasgoclient', '-query', query, '-json']
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     files = []
-    try:
-        out, err = proc.communicate(timeout=15)
-    except TimeoutExpired:
-        proc.kill()
-        out, err = proc.communicate()
-    exit_code = proc.returncode
-    if err or (exit_code != 0):
-        print("DAS query error: return code {0}\n--- Standard output---".format(exit_code))
-        print(out.decode('utf8'))
-        print("--- Standard error---")
-        print(err.decode('utf8'))
-        print("--- End ---")
-        exit(1)
+    err = proc.stderr.read()
+    if  err:
+        print("DAS error: %s" % err)
     else:
-        try:
-            for row in json.loads(out):
-                for rec in row.get('file', []):
-                    fname = rec.get('name', '')
-                    if fname:
-                        files.append(fname)
-        except json.decoder.JSONDecodeError:
-            print("dasgoclient returned invalid JSON:")
-            print(out.decode('utf8'))
-            print("--- End ---")
-            exit(1)
+        for row in json.load(proc.stdout):
+            for rec in row.get('file', []):
+                fname = rec.get('name', '')
+                if fname:
+                    files.append(fname)
     return files
 
 def fullCPMpath():
