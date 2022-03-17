@@ -102,3 +102,7 @@ from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),
                                        offlineSlimmedPrimaryVertices4D)
 phase2_timing.toReplaceWith(slimmingTask,_phase2_timing_slimmingTask)
+
+from PhysicsTools.PatAlgos.slimming.patPhotonDRNCorrector_cfi import patPhotonsDRN
+from Configuration.ProcessModifiers.photonDRN_cff import photonDRN
+photonDRN.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), patPhotonsDRN))
