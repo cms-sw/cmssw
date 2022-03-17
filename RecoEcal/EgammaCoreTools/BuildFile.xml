@@ -4,6 +4,7 @@
 <use name="DataFormats/ParticleFlowReco"/>
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/CaloRecHit"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/MessageLogger"/>
@@ -11,8 +12,8 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/EcalAlgo"/>
-<use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="Geometry/Records"/>
+<use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="CalibCalorimetry/EcalLaserCorrection"/>
 <use name="PhysicsTools/TensorFlow"/>
 <use name="clhep"/>

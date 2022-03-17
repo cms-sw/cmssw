@@ -18,7 +18,6 @@ namespace reco {
   class GraphMap {
   public:
     GraphMap(uint nNodes);
-    ~GraphMap(){};
 
     enum NodeCategory { kNode, kSeed, kNcategories };
 
@@ -57,7 +56,8 @@ namespace reco {
     typedef std::vector<std::pair<uint, std::vector<uint>>> GraphOutput;
     typedef std::map<uint, std::vector<uint>> GraphOutputMap;
     // Apply the collection algorithms
-    const GraphOutput &collectNodes(GraphMap::CollectionStrategy strategy, float threshold);
+    void collectNodes(GraphMap::CollectionStrategy strategy, float threshold);
+    const GraphOutput &getGraphOutput() { return graphOutput_; };
 
   private:
     uint nNodes_;

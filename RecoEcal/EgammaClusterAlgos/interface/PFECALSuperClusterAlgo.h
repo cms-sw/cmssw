@@ -61,15 +61,13 @@
   \date July 2012
 */
 
-// class SCProducerCache;
+typedef std::shared_ptr<CalibratedPFCluster> CalibratedClusterPtr;
+typedef std::vector<CalibratedClusterPtr> CalibratedClusterPtrVector;
 
 class PFECALSuperClusterAlgo {
 public:
   enum clustering_type { kBOX = 1, kMustache = 2, kDeepSC = 3 };
   enum energy_weight { kRaw, kCalibratedNoPS, kCalibratedTotal };
-
-  typedef std::shared_ptr<CalibratedPFCluster> CalibratedClusterPtr;
-  typedef std::vector<CalibratedClusterPtr> CalibratedClusterPtrVector;
 
   /// constructor
   PFECALSuperClusterAlgo(const SCProducerCache* cache);
@@ -134,8 +132,6 @@ private:
   edm::ESGetToken<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd> ecalSCDynamicDPhiParametersToken_;
   edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
-  // edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord > ebGeometryToken_;
-  // edm::ESGetToken<CaloSubdetectorGeometry, EcalEndcapGeometryRecord > eeGeometryToken_;
 
   const reco::BeamSpot* beamSpot_;
   const ESChannelStatus* channelStatus_;
@@ -157,7 +153,10 @@ private:
   clustering_type _clustype;
   energy_weight _eweight;
   void buildAllSuperClusters(CalibratedClusterPtrVector&, double seedthresh);
-  void buildSuperCluster(CalibratedClusterPtr&, CalibratedClusterPtrVector&);
+  void buildAllSuperClustersMustache(CalibratedClusterPtrVector&, double seedthresh);
+  void buildAllSuperClustersDeepSC(CalibratedClusterPtrVector&, double seedthresh);
+  void buildMustache(CalibratedClusterPtr&, CalibratedClusterPtrVector&);
+  void finalizeSuperCluster(CalibratedClusterPtr& seed, CalibratedClusterPtrVector& clustered, bool isEE);
 
   bool verbose_;
 

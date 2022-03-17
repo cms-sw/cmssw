@@ -5,8 +5,8 @@ from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECALDeepSC_cfi impo
 # define the default ECAL clustering (Mustache or Box or DeepSC)
 particleFlowSuperClusterECAL = _particleFlowSuperClusterECALMustache.clone()
 
-from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
-run3_ecalclustering.toReplaceWith(particleFlowSuperClusterECAL, _particleFlowSuperClusterECALDeepSC.clone())
+from Configuration.ProcessModifiers.ecal_deepsc_cff import ecal_deepsc
+ecal_deepsc.toReplaceWith(particleFlowSuperClusterECAL, _particleFlowSuperClusterECALDeepSC.clone())
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(particleFlowSuperClusterECAL, useDynamicDPhiWindow = False,
