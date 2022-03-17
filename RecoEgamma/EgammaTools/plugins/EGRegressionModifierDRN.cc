@@ -65,6 +65,8 @@ private:
     bool userFloat;
     std::string energyFloat, resFloat;
 
+    unsigned i;
+
     partVars(const edm::ParameterSet& config, edm::ConsumesCollector& cc) {
       source = config.getParameter<edm::InputTag>("source");
       token = cc.consumes(source);
@@ -79,6 +81,8 @@ private:
       } else {
         userFloat = false;
       }
+
+      i=0;
     }
 
     const std::pair<float, float> getCorrection(T& part) const;
@@ -118,21 +122,25 @@ void EGRegressionModifierDRN::setEvent(const edm::Event& evt) {
   if (patElectrons_) {
     patElectrons_->particles = &evt.get(patElectrons_->token);
     patElectrons_->corrections = &evt.get(patElectrons_->correctionsToken);
+    patElectrons_->i = 0;
   }
 
   if (patPhotons_) {
     patPhotons_->particles = &evt.get(patPhotons_->token);
     patPhotons_->corrections = &evt.get(patPhotons_->correctionsToken);
+    patPhotons_->i = 0;
   }
 
   if (gsfElectrons_) {
     gsfElectrons_->particles = &evt.get(gsfElectrons_->token);
     gsfElectrons_->corrections = &evt.get(gsfElectrons_->correctionsToken);
+    gsfElectrons_->i = 0;
   }
 
   if (gedPhotons_) {
     gedPhotons_->particles = &evt.get(gedPhotons_->token);
     gedPhotons_->corrections = &evt.get(gedPhotons_->correctionsToken);
+    gedPhotons_->i = 0;
   }
 }
 
@@ -202,24 +210,7 @@ template <typename T>
 const std::pair<float, float> EGRegressionModifierDRN::partVars<T>::getCorrection(T& part) const {
   const math::XYZTLorentzVectorD& partP4 = part.p4();
 
-  bool matched = false;
-  unsigned i;
-  for (i = 0; i < particles->size(); ++i) {
-    const T& partIter = particles->at(i);
-    const auto& p4Iter = partIter.p4();
-    if (p4Iter == partP4) {
-      matched = true;
-      break;
-    }
-  }
-
-  if (!matched) {
-    throw cms::Exception("EGRegressionModifierDRN") << "Matching failed in EGRegressionModifierDRN" << std::endl
-                                                    << "This should not have been possible" << std::endl;
-    return std::pair<float, float>(-1., -1.);
-  }
-
-  edm::Ptr<T> ptr = particles->ptrAt(i);
+  edm::Ptr<T> ptr = particles->ptrAt(i++);
 
   std::pair<float, float> correction = (*corrections)[ptr];
 
