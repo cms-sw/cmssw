@@ -149,7 +149,9 @@ photonDRNModifier = cms.PSet(
       modifierName = cms.string("EGRegressionModifierDRN"),
       patPhotons = cms.PSet(
           source = cms.InputTag("selectedPatPhotons"),
-          correctionsSource = cms.InputTag('patPhotonsDRN')
+          correctionsSource = cms.InputTag('patPhotonsDRN'),
+          energyFloat = cms.string("energyDRN"),
+          resFloat = cms.string("resolutionDRN")
         )
     )
 
