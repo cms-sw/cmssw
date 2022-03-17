@@ -82,7 +82,7 @@ private:
         userFloat = false;
       }
 
-      i=0;
+      i = 0;
     }
 
     const std::pair<float, float> getCorrection(T& part);
