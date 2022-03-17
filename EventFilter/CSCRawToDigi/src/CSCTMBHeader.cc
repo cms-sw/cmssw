@@ -376,7 +376,7 @@ void CSCTMBHeader::selfTest(int firmwareVersion, int firmwareRevision) {
         if (major_ver == 1) {
           isRun2_df = true;
         }
-        if ((isGEM_fw || isCCLUT_HMT_fw) && !isRun2_df && !isOTMB_Run2_fw && !isTMB_Run2_fw) {
+        if ((isGEM_fw || isCCLUT_HMT_fw || isTMB_Run3_fw) && !isRun2_df && !isOTMB_Run2_fw && !isTMB_Run2_fw) {
           clct0 = CSCCLCTDigi(
               1, 6, 6, 1, 0, (120 % 32), (120 / 32), 2, 1, 3, 0xebf, CSCCLCTDigi::Version::Run3, true, false, 2, 6);
           clct1 = CSCCLCTDigi(
