@@ -40,12 +40,6 @@
 #include "DeclsForKernelsPh2WeightsGPU.h"
 #include "DeclsForKernels.h"
 
-//#include "EcalPh2DigiToGPUConverterAlgoGPU.h"
-
-//Input Phase2 digis EBDigiCollectionPh2
-//Produces GPU digis cms::cuda::Product<ecal::DigisCollection<calo::common::DevStoragePolicy>
-
-
 
 class EcalPh2DigiToGPUProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -66,8 +60,6 @@ private:
 
   cms::cuda::ContextState cudaState_;
 
-
-  // uint32_t checkSize_;
 
 };
 
@@ -110,7 +102,6 @@ std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> idsebtmp;
 std::vector<uint16_t, cms::cuda::HostAllocator<uint16_t>> dataebtmp;
 
 
-
 //resize vectors to number of digis * size needed per digi
 
 idsebtmp.resize(neb_ );
@@ -133,8 +124,7 @@ dataebtmp.resize(neb_ * EcalDataFrame_Ph2::MAXSAMPLES);
         //get samples from input digi
         EcalLiteDTUSample thisSample = dataFrame[sample];
         //assign adc data to output
-        dataebtmp.data()[i * nSamples + sample] = thisSample.adc();
-
+        dataebtmp.data()[i * nSamples + sample] = thisSample.raw();
       }
       i++;
 
@@ -152,14 +142,6 @@ dataebtmp.resize(neb_ * EcalDataFrame_Ph2::MAXSAMPLES);
                                 dataebtmp.size() * sizeof(uint16_t),
                                 cudaMemcpyHostToDevice,
                                 ctx.stream()));
-
-
-
-
-  //execute cuda kernel
-
-  // ecal::multifit::entryPoint(ebdigis_,  ctx.stream());
-
 
 }
 

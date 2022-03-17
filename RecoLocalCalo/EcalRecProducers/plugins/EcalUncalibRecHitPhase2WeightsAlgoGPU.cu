@@ -29,21 +29,16 @@ namespace ecal
     void entryPoint(ecal::DigisCollection<calo::common::DevStoragePolicy> const& ebDigis,
                     EventOutputDataGPUWeights& eventOutputGPU,
                     cms::cuda::device::unique_ptr<double[]>& weights_d,
-                    // cms::cuda::device::unique_ptr<double[]>& debug_d,
+                    // cms::cuda::device::unique_ptr<uint16_t[]>& debug_d,
                     cudaStream_t cudaStream)
     {
-      // using digis_type = std::vector<uint16_t>;
-      // using dids_type = std::vector<uint32_t>;
-
       unsigned int totalChannels = ebDigis.size ;
 
     
-      unsigned int nchannels_per_block = 32;
-      unsigned int threads_1d = 10 * nchannels_per_block;
+      unsigned int nchannels_per_block = 64;
+      unsigned int threads_1d = nchannels_per_block;
       unsigned int blocks_1d = (totalChannels / threads_1d) + 1;
-      // unsigned int blocks_1d = 192;
-      
-      // unsigned int blocks_1d = threads_1d > 10 * totalChannels ? 1 : (totalChannels * 10 + threads_1d - 1) / threads_1d;
+
       int shared_bytes = nchannels_per_block * EcalDataFrame_Ph2::MAXSAMPLES * (sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(char) + sizeof(bool));
 
      

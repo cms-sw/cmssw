@@ -45,12 +45,10 @@ void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::string>("recHitsOutLabelEB", "EcalUncalibRecHitsEB");
   
   desc.add<bool>("containsTimingInformation", false);
-  desc.add<bool>("produceEE", false);
+  desc.add<bool>("produceEE", true);
 
-  // if(produceEE_){
   desc.add<edm::InputTag>("recHitsInLabelEE", edm::InputTag{"ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEE"});
   desc.add<std::string>("recHitsOutLabelEE", "EcalUncalibRecHitsEE");
-  // }
 
   confDesc.add("ecalCPUUncalibRecHitProducer", desc);
 
@@ -80,6 +78,8 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
   
   auto const& ebRecHits = ctx.get(ebRecHitsProduct);
   
+   
+
   // resize the output buffers
   recHitsEB_.resize(ebRecHits.size);
 
@@ -104,6 +104,10 @@ if(produceEE_){
   lambdaToTransfer(recHitsEB_.pedestal, ebRecHits.pedestal.get());
   lambdaToTransfer(recHitsEB_.flags, ebRecHits.flags.get());
 
+
+
+
+
   if(produceEE_){
   auto const& eeRecHitsProduct = event.get(recHitsInEEToken_);
   auto const& eeRecHits = ctx.get(eeRecHitsProduct);
@@ -124,17 +128,18 @@ if(produceEE_){
     lambdaToTransfer(recHitsEB_.jitter, ebRecHits.jitter.get());
     lambdaToTransfer(recHitsEB_.jitterError, ebRecHits.jitterError.get());
   }
-  
+
 }
 
 void EcalCPUUncalibRecHitProducer::produce(edm::Event& event, edm::EventSetup const& setup) {
-  
   // tmp vectors
   auto recHitsOutEB = std::make_unique<OutputProduct>(std::move(recHitsEB_));
   // put into event
   event.put(recHitsOutEBToken_, std::move(recHitsOutEB));
 
+   
   
+
   if(produceEE_){
   auto recHitsOutEE = std::make_unique<OutputProduct>(std::move(recHitsEE_));
   event.put(recHitsOutEEToken_, std::move(recHitsOutEE));

@@ -18,6 +18,9 @@
 #include "EcalUncalibRecHitPhase2WeightsAlgoGPU.h"
 #include "DeclsForKernelsPh2WeightsGPU.h"
 
+
+#include <chrono>
+
 class EcalUncalibRecHitPhase2WeightsProducerGPU : public edm::stream::EDProducer<edm::ExternalWork>
 {
 public:
@@ -51,7 +54,12 @@ private:
   cms::cuda::ContextState cudaState_;
 
   uint32_t neb_;
-  
+
+// timing
+  std::chrono::time_point<std::chrono::system_clock> start_, end_;
+  std::chrono::duration<float> duration_;
+  int event_counter_;
+  float ms_[8900];
 };
 
 // constructor with initialisation of elements
@@ -67,6 +75,10 @@ EcalUncalibRecHitPhase2WeightsProducerGPU::EcalUncalibRecHitPhase2WeightsProduce
         // configParameters_.tRise = tRise_;
         // configParameters_.tFall = tFall_;
         // configParameters_.weights = weights_;
+
+        // timing
+  // start_ = std::chrono::high_resolution_clock::now();
+        // event_counter_ = 0;
       }
 
 // fill descriptions which describes parameters and has the weights
@@ -105,6 +117,16 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::acquire(edm::Event const &event,
                                            edm::EventSetup const &setup,
                                            edm::WaitingTaskWithArenaHolder holder)
 {
+        // timing
+
+// end_ = std::chrono::high_resolution_clock::now();
+// duration_ = end_ - start_;
+// float ms = duration_.count()*1000;
+// start_ = std::chrono::high_resolution_clock::now();
+// std::cout<< ms << "ms constructor \n";
+
+
+
   // cuda products
   auto const &ebDigisProduct = event.get(digisTokenEB_);
   // raii
@@ -132,19 +154,9 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::acquire(edm::Event const &event,
 // output on GPU
   eventOutputDataGPU_.allocate(neb_, ctx.stream());
 
-  // // // scratch mem
-// cms::cuda::device::unique_ptr<ecal::multifit::SampleVector::Scalar[]> samples;
-// using element_type = typename std::remove_reference_t<decltype(samples)>::element_type;
-// constexpr auto svlength = ecal::multifit::getLength<ecal::multifit::SampleVector>();
-// uint32_t size = ebDigis.size * svlength;
-// samples = cms::cuda::make_device_unique<element_type[]>(size, ctx.stream());
-        
-  // ecal::multifit::EventDataForScratchGPUWeights eventDataForScratchGPU;
-  // eventDataForScratchGPU.allocate(configParameters_, ctx.stream());
-
-// cms::cuda::device::unique_ptr<double[]> debug_d = cms::cuda::make_device_unique<double[]>(EcalDataFrame_Ph2::MAXSAMPLES, ctx.stream());
-// std::vector<double> debug_h;
-// debug_h.resize(EcalDataFrame_Ph2::MAXSAMPLES);
+// cms::cuda::device::unique_ptr<uint16_t[]> debug_d = cms::cuda::make_device_unique<uint16_t[]>(EcalDataFrame_Ph2::MAXSAMPLES, ctx.stream()); //debug
+// std::vector<uint16_t> debug_h;   //debug
+// debug_h.resize(EcalDataFrame_Ph2::MAXSAMPLES);   //debug
 
  ecal::weights::entryPoint(
       ebDigis, 
@@ -153,19 +165,46 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::acquire(edm::Event const &event,
       // debug_d,
       ctx.stream());
 
-// cudaCheck(cudaMemcpyAsync(debug_h.data(),
-//                                 debug_d.get(),
-//                                 EcalDataFrame_Ph2::MAXSAMPLES * sizeof(double),
-//                                 cudaMemcpyDeviceToHost,
-//                                 ctx.stream()));
-// for(int i; i<EcalDataFrame_Ph2::MAXSAMPLES; i++){
-// printf("%lf\n", debug_h.data()[i]);
-// }
+// timing
+// end_ = std::chrono::high_resolution_clock::now();
+// duration_ = end_ - start_;
+// ms = 0.;
+// ms = duration_.count()*1000;
+// start_ = std::chrono::high_resolution_clock::now();    //kernel timing
+// std::cout<< ms << "ms aquire\n";
+
+
+
+// cudaCheck(cudaMemcpyAsync(debug_h.data(),   //debug
+//                                 debug_d.get(),    //debug
+//                                 EcalDataFrame_Ph2::MAXSAMPLES * sizeof(double),    //debug
+//                                 cudaMemcpyDeviceToHost,    //debug
+//                                 ctx.stream()));    //debug
+// for(int i =0; i<EcalDataFrame_Ph2::MAXSAMPLES; i++){    //debug
+// std::cout << debug_h.data()[i]<<"GPUraw\n";    //debug
+// }   //debug
 
 }
 
 void EcalUncalibRecHitPhase2WeightsProducerGPU::produce(edm::Event& event, const edm::EventSetup& setup) 
 {
+  // kernel timing
+//   end_ = std::chrono::high_resolution_clock::now();
+// duration_ = end_ - start_;
+// float ms = 0.;
+// ms = duration_.count()*1000;
+
+// ms_[event_counter_] = ms;
+// event_counter_ ++;
+
+// if (event_counter_ == 8900){
+// for (int i =0; i< event_counter_;i++){
+// std::cout<< ms_[i] << "\n";}
+// }
+
+// start_ = std::chrono::high_resolution_clock::now();
+
+
   //DurationMeasurer<std::chrono::milliseconds> timer{std::string{"produce duration"}};
   cms::cuda::ScopedContextProduce ctx{cudaState_};
 
@@ -174,6 +213,15 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::produce(edm::Event& event, const
 
   // put into the event
   ctx.emplace(event, recHitsTokenEB_, std::move(eventOutputDataGPU_.recHitsEB));
+
+
+// timing
+// end_ = std::chrono::high_resolution_clock::now();
+// duration_ = end_ - start_;
+// ms = duration_.count()*1000;
+// start_ = std::chrono::high_resolution_clock::now();
+// std::cout<< ms << "ms produce\n";
+
 
 }
 

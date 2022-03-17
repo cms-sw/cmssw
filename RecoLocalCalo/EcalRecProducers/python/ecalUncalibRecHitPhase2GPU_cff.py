@@ -27,7 +27,8 @@ ecalUncalibRecHitPhase2GPU = _ecalUncalibRecHitPhase2GPU.clone(
 # copy the uncalibrated rechits from GPU to CPU
 from RecoLocalCalo.EcalRecProducers.ecalCPUUncalibRecHitProducer_cfi import ecalCPUUncalibRecHitProducer as _ecalCPUUncalibRecHitProducer
 ecalMultiFitUncalibRecHitSoAnew = _ecalCPUUncalibRecHitProducer.clone(
-  recHitsInLabelEB = cms.InputTag('ecalUncalibRecHitPhase2GPU', 'EcalUncalibRecHitsEB')
+  recHitsInLabelEB = cms.InputTag('ecalUncalibRecHitPhase2GPU', 'EcalUncalibRecHitsEB'),
+  produceEE = cms.bool(False)
   #recHitsInLabelEE = cms.InputTag('ecalUncalibRecHitPhase2GPU', 'EcalUncalibRecHitsEB'),
 )
 
@@ -36,7 +37,8 @@ ecalMultiFitUncalibRecHitSoAnew = _ecalCPUUncalibRecHitProducer.clone(
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitConvertGPU2CPUFormat_cfi import ecalUncalibRecHitConvertGPU2CPUFormat as _ecalUncalibRecHitConvertGPU2CPUFormat
 gpu.toModify(ecalUncalibRecHitPhase2new,
   cuda = _ecalUncalibRecHitConvertGPU2CPUFormat.clone(
-  recHitsLabelGPUEB = cms.InputTag('ecalMultiFitUncalibRecHitSoAnew', 'EcalUncalibRecHitsEB')
+  recHitsLabelGPUEB = cms.InputTag('ecalMultiFitUncalibRecHitSoAnew', 'EcalUncalibRecHitsEB'),
+  produceEE = cms.bool(False)
 # recHitsLabelGPUEE = cms.InputTag('ecalMultiFitUncalibRecHitSoAnew', 'EcalUncalibRecHitsEE')
     )
 )

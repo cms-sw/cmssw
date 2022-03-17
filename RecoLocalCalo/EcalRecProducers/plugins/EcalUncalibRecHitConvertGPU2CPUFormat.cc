@@ -33,14 +33,10 @@ void EcalUncalibRecHitConvertGPU2CPUFormat::fillDescriptions(edm::ConfigurationD
  
   desc.add<std::string>("recHitsLabelCPUEB", "EcalUncalibRecHitsEB");
   
-  desc.add<bool>("produceEE", false);
+  desc.add<bool>("produceEE", true);
 
-  // if(produceEE_)
-  // {
   desc.add<edm::InputTag>("recHitsLabelGPUEE", edm::InputTag("ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEE"));
   desc.add<std::string>("recHitsLabelCPUEE", "EcalUncalibRecHitsEE");
-  // }
-
 
   confDesc.add("ecalUncalibRecHitConvertGPU2CPUFormat", desc);
 }
@@ -78,7 +74,6 @@ void EcalUncalibRecHitConvertGPU2CPUFormat::produce(edm::Event& event, edm::Even
     for (uint32_t sample = 0; sample < EcalDataFrame::MAXSAMPLES; ++sample)
       (*recHitsCPUEB)[i].setOutOfTimeAmplitude(sample, hRecHitsGPUEB->amplitudesAll[offset + sample]);
   }
-
   if(produceEE_){  
   event.getByToken(recHitsGPUEE_, hRecHitsGPUEE);
   auto recHitsCPUEE = std::make_unique<EEUncalibratedRecHitCollection>();
