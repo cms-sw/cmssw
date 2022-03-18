@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 MuonNoBptxPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v", # 2017 proposal # Claimed path for Run3
-        "HLT_L2Mu10_NoVertex_NoBPTX_v", # Claimed path for Run3
-        "HLT_L2Mu10_NoVertex_NoBPTX3BX_v", # Claimed path for Run3
+#        "HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v", # 2017 proposal # Claimed path for Run3, but a backup so no need to monitor it closely here
+#        "HLT_L2Mu10_NoVertex_NoBPTX_v", # Claimed path for Run3, but a control path so no need to monitor it closely here
+#        "HLT_L2Mu10_NoVertex_NoBPTX3BX_v", # Claimed path for Run3, but a control path so no need to monitor it closely here
         "HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v" # Claimed path for Run3
         ),
     #recMuonLabel  = cms.InputTag("muons"),
