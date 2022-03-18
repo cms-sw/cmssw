@@ -1,3 +1,4 @@
+#include <DetectorDescription/Core/interface/Material.h>
 #include <DetectorDescription/Core/interface/DDMaterial.h>
 #include <DetectorDescription/Core/interface/DDPartSelection.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
@@ -628,6 +629,33 @@ void DDCoreToDDXMLOutput::material(const DDMaterial& material, std::ostream& xos
   }
 }
 
+void DDCoreToDDXMLOutput::material(const DDI::rep_type<DDName, std::unique_ptr<DDI::Material>>& matPair,
+                                   std::ostream& xos) {
+  const DDI::Material& material = *(matPair.second);
+  int noc = material.noOfConstituents();
+  if (noc == 0) {
+    xos << "<ElementaryMaterial name=\"" << matPair.first << "\""
+        << " density=\"" << std::scientific << std::setprecision(5) << convertUnitsTo(1._mg_per_cm3, material.density())
+        << "*mg/cm3\""
+        << " atomicWeight=\"" << std::fixed << convertUnitsTo(1._g_per_mole, material.a()) << "*g/mole\""
+        << std::setprecision(0) << std::fixed << " atomicNumber=\"" << material.z() << "\"/>" << std::endl;
+  } else {
+    xos << "<CompositeMaterial name=\"" << matPair.first << "\""
+        << " density=\"" << std::scientific << std::setprecision(5) << convertUnitsTo(1._mg_per_cm3, material.density())
+        << "*mg/cm3\""
+        << " method=\"mixture by weight\">" << std::endl;
+
+    int j = 0;
+    for (; j < noc; ++j) {
+      xos << "<MaterialFraction fraction=\"" << std::fixed << std::setprecision(9) << material.constituent(j).second
+          << "\">" << std::endl;
+      xos << "<rMaterial name=\"" << material.constituent(j).first.name() << "\"/>" << std::endl;
+      xos << "</MaterialFraction>" << std::endl;
+    }
+    xos << "</CompositeMaterial>" << std::endl;
+  }
+}
+
 void DDCoreToDDXMLOutput::material(const std::string& matName,
                                    double density,
                                    const std::vector<cms::DDParsingContext::CompositeMaterial>& matRefs,
@@ -896,6 +924,40 @@ void DDCoreToDDXMLOutput::specpar(const std::pair<DDsvalues_type, std::set<const
   std::string spname = madeName + ostr.str();
   xos << "<SpecPar name=\"" << spname << "\" eval=\"false\">" << std::endl;
   for (const auto& psit : pssv.second) {
+    xos << "<PartSelector path=\"" << *psit << "\"/>" << std::endl;
+  }
+
+  // =========  ... and iterate over all DDValues...
+  for (const auto& vit : pssv.first) {
+    const DDValue& v = vit.second;
+    size_t s = v.size();
+    size_t i = 0;
+    // ============  ... all actual values with the same name
+    const std::vector<std::string>& strvec = v.strings();
+    if (v.isEvaluated()) {
+      for (; i < s; ++i) {
+        xos << "<Parameter name=\"" << v.name() << "\""
+            << " value=\"" << v[i] << "\""
+            << " eval=\"true\"/>" << std::endl;
+      }
+    } else {
+      for (; i < s; ++i) {
+        xos << "<Parameter name=\"" << v.name() << "\""
+            << " value=\"" << strvec[i] << "\""
+            << " eval=\"false\"/>" << std::endl;
+      }
+    }
+  }
+
+  xos << "</SpecPar>" << std::endl;
+}
+
+void DDCoreToDDXMLOutput::specpar(
+    const DDName& name,
+    const std::pair<DDsvalues_type, std::pair<DDName, std::set<const DDPartSelection*>>>& pssv,
+    std::ostream& xos) {
+  xos << "<SpecPar name=\"" << name << "\" eval=\"false\">" << std::endl;
+  for (const auto& psit : pssv.second.second) {
     xos << "<PartSelector path=\"" << *psit << "\"/>" << std::endl;
   }
 

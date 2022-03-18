@@ -127,16 +127,17 @@ public:
 
   void lockdown();
 
+  DDI::Store<DDName, std::unique_ptr<DDI::Material>> matStore_;
+  DDI::Store<DDName, std::unique_ptr<DDI::Specific>> specStore_;
+
 private:
   void swap(DDCompactView&);
 
   std::unique_ptr<DDCompactViewImpl> rep_;
   std::unique_ptr<DDPosData> worldpos_;
 
-  DDI::Store<DDName, std::unique_ptr<DDI::Material>> matStore_;
   DDI::Store<DDName, std::unique_ptr<DDI::Solid>> solidStore_;
   DDI::Store<DDName, std::unique_ptr<DDI::LogicalPart>> lpStore_;
-  DDI::Store<DDName, std::unique_ptr<DDI::Specific>> specStore_;
   DDI::Store<DDName, std::unique_ptr<DDRotationMatrix>> rotStore_;
 
   Vectors vectors_;

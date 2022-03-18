@@ -5,12 +5,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/Specific.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -117,6 +118,7 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   // had to write operator< for DDPartSelection and DDPartSelectionLevel
   // the output from such an effort is different than this one.
   std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp> specStore;
+  std::map<const DDsvalues_type, std::pair<DDName, std::set<const DDPartSelection*>>, ddsvaluesCmp> specStore2;
   std::set<DDRotation> rotStore;
 
   DDCoreToDDXMLOutput out;
@@ -137,6 +139,21 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   }
   std::cout << "m_fname = " << m_fname << " namespace = " << out.ns_ << std::endl;
   std::string ns_ = out.ns_;
+
+  const auto& storeTmp = pDD->specStore_;
+  //  DDI::Store<DDName, std::unique_ptr<DDI::Specific>> specStore_;
+  auto specIt = storeTmp.beginConst();
+  auto specEnd = storeTmp.endConst();
+  // std::map<name_type,prep_type> reg_.begin/end;
+  // typedef rep_type<name_type, pimpl_type> Rep_type;
+  // typedef Rep_type* prep_type;
+  for (; specIt != specEnd; specIt++) {
+    const auto& spec = specIt->second->second;
+    specStore2[spec->specifics()].first = specIt->first;
+    for (auto partIt = spec->selection().begin(); partIt != spec->selection().end(); ++partIt) {
+      specStore2[spec->specifics()].second.insert(&(*partIt));
+    }
+  }
 
   (*m_xos) << std::fixed << std::setprecision(18);
 
@@ -178,11 +195,17 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   (*m_xos) << std::scientific << std::setprecision(18);
 
   (*m_xos) << "<MaterialSection label=\"" << ns_ << "\">" << std::endl;
-  for (const auto& it : matStore) {
-    if (!it.isDefined().second)
-      continue;
-    out.material(it, *m_xos);
+  const auto& mstoreTmp = pDD->matStore_;
+  auto matIt = mstoreTmp.beginConst();
+  auto matEnd = mstoreTmp.endConst();
+  for (; matIt != matEnd; matIt++) {
+    out.material(*(matIt->second), *m_xos);
   }
+  // for (const auto& it : matStore) {
+  // if (!it.isDefined().second)
+  // continue;
+  // out.material(it, *m_xos);
+  // }
   (*m_xos) << "</MaterialSection>" << std::endl;
   (*m_xos) << "<RotationSection label=\"" << ns_ << "\">" << std::endl;
   (*m_xos) << std::fixed << std::setprecision(18);
@@ -218,11 +241,12 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   (*m_xos) << "</LogicalPartSection>" << std::endl;
 
   (*m_xos) << std::fixed << std::setprecision(18);
-  std::map<DDsvalues_type, std::set<const DDPartSelection*> >::const_iterator mit(specStore.begin()),
-      mend(specStore.end());
+  // std::map<DDsvalues_type, std::set<const DDPartSelection*> >::const_iterator mit(specStore.begin()), mend(specStore.end());
+  std::map<DDsvalues_type, std::pair<DDName, std::set<const DDPartSelection*>>>::const_iterator mit(specStore2.begin()),
+      mend(specStore2.end());
   (*m_xos) << "<SpecParSection label=\"" << ns_ << "\">" << std::endl;
   for (; mit != mend; ++mit) {
-    out.specpar(*mit, *m_xos);
+    out.specpar(mit->second.first, *mit, *m_xos);
   }
   (*m_xos) << "</SpecParSection>" << std::endl;
 }

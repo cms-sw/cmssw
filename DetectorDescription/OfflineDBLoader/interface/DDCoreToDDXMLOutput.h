@@ -43,6 +43,7 @@ struct DDCoreToDDXMLOutput {
 
   void element(const TGeoMaterial* element, std::ostream& xos);
   void material(const DDMaterial& material, std::ostream& xos);
+  void material(const DDI::rep_type<DDName, std::unique_ptr<DDI::Material>>& matPair, std::ostream& xos);
   void material(const std::string& matName,
                 double density,
                 const std::vector<cms::DDParsingContext::CompositeMaterial>& matRefs,
@@ -73,6 +74,9 @@ struct DDCoreToDDXMLOutput {
   void specpar(const DDSpecifics& sp, std::ostream& xos);
   void specpar(const std::pair<DDsvalues_type, std::set<const DDPartSelection*>>& pssv, std::ostream& xos);
   void specpar(const std::string& name, const dd4hep::SpecPar& specPar, std::ostream& xos);
+  void specpar(const DDName& name,
+               const std::pair<DDsvalues_type, std::pair<DDName, std::set<const DDPartSelection*>>>& pssv,
+               std::ostream& xos);
 
   static std::string trimShapeName(const std::string& solidName);
   std::string ns_;  // default namespace

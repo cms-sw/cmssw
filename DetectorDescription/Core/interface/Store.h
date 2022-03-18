@@ -46,6 +46,8 @@ namespace DDI {
 
     auto begin() { return reg_.begin(); }
     auto end() { return reg_.end(); }
+    auto beginConst() const { return reg_.begin(); }
+    auto endConst() const { return reg_.end(); }
     auto size() const { return reg_.size(); }
 
     // empty shell or fetch from registry
