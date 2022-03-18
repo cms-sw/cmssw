@@ -6,7 +6,7 @@ import os
 options = VarParsing.VarParsing ('analysis')
 
 options.register ('runNumber',
-                  100001, # default value
+                  100101, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Run Number")
@@ -54,7 +54,7 @@ process.maxEvents = cms.untracked.PSet(
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(options.numThreads),
     numberOfStreams = cms.untracked.uint32(options.numFwkStreams),
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1) # ShmStreamConsumer requires synchronization at LuminosityBlock boundaries
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(2)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(threshold = cms.untracked.string( "ERROR" )),
@@ -142,7 +142,7 @@ process.streamA = cms.OutputModule("EvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Physics' ))
 )
 
-process.streamB = cms.OutputModule("EvFOutputModule",
+process.streamB = cms.OutputModule("GlobalEvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Muon' ))
 )
 
@@ -163,7 +163,6 @@ process.DQMStore = cms.Service( "DQMStore",
 
 from DQMServices.FileIO.DQMFileSaverPB_cfi import dqmSaver
 process.hltDQMFileSaver = dqmSaver
-
 
 process.daqHistoTest = cms.EDProducer("DaqTestHistograms",
     numberOfHistograms = cms.untracked.uint32(50),
