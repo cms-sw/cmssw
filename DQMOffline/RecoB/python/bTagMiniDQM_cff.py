@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff import patJets
 
 # add jets with pfSecondaryVertexTagInfos
 patJetsSVInfo = patJets.clone(
-    tagInfoSources = cms.VInputTag('pfSecondaryVertexTagInfos'),
+    tagInfoSources = ['pfSecondaryVertexTagInfos'],
     addTagInfos = True
 )
 patJetsSVInfoTask = cms.Task(patJetsSVInfo)
