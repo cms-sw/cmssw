@@ -57,10 +57,10 @@ namespace LHAPDF {
 
 /////////////////////////////////////////////////////////////////////////////////////
 LHECOMWeightProducer::LHECOMWeightProducer(const edm::ParameterSet& pset)
-  : lheTag_(pset.getParameter<edm::InputTag>("lheSrc")),
-    _newECMS(pset.getParameter<double>("NewECMS")),
-    tokenLHERun_(consumes<LHERunInfoProduct, edm::InRun>(lheTag_)),
-    tokenLHEEvent_(consumes<LHEEventProduct>(lheTag_)) {
+    : lheTag_(pset.getParameter<edm::InputTag>("lheSrc")),
+      _newECMS(pset.getParameter<double>("NewECMS")),
+      tokenLHERun_(consumes<LHERunInfoProduct, edm::InRun>(lheTag_)),
+      tokenLHEEvent_(consumes<LHEEventProduct>(lheTag_)) {
   std::stringstream labelStr;
   labelStr << "com"
            << "To" << _newECMS;

@@ -50,7 +50,7 @@ void LHEWriter::beginRun(const edm::Run &run, const edm::EventSetup &es) {
 }
 
 void LHEWriter::endRun(const edm::Run &run, const edm::EventSetup &es) {
-  const edm::Handle<LHERunInfoProduct>& product = run.getHandle(tokenLHERunInfo_);
+  const edm::Handle<LHERunInfoProduct> &product = run.getHandle(tokenLHERunInfo_);
   //run.getByLabel("source", product);
   //run.getByToken(tokenLHERunInfo_, product);
 
@@ -65,7 +65,7 @@ void LHEWriter::endRun(const edm::Run &run, const edm::EventSetup &es) {
 }
 
 void LHEWriter::analyze(const edm::Event &event, const edm::EventSetup &es) {
-  const edm::Handle<LHEEventProduct>& product = event.getHandle(tokenLHEEvent_);
+  const edm::Handle<LHEEventProduct> &product = event.getHandle(tokenLHEEvent_);
   //event.getByLabel("source", product);
   //event.getByToken(tokenLHEEvent_, product);
 
