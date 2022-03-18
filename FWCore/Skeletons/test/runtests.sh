@@ -10,7 +10,7 @@ cd $SCRAM_TEST_NAME
 scram -a $SCRAM_ARCH project $CMSSW_VERSION
 cd $CMSSW_VERSION/src
 eval `scram run -sh`
-git cms-init
+git init
 
 # Copy FWCore/Skeletons in cause unit test is run during PR tests which contains changes for FWCore/Skeletons
 if [ -d $OLD_CMSSW_BASE/src/FWCore/Skeletons ] ; then
