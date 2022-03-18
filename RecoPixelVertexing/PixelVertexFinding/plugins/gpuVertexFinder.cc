@@ -18,7 +18,7 @@ namespace gpuVertexFinder {
   // split vertices with a chi2/NDoF greater than this
   constexpr float maxChi2ForSplit = 9.f;
 
-  __global__ void loadTracks(TkSoA const* ptracks, ZVertexSoA* soa, WorkSpace* pws, float ptMin) {
+  __global__ void loadTracks(TkSoA const* ptracks, ZVertexSoA* soa, WorkSpace* pws, float ptMin, float ptMax) {
     assert(ptracks);
     assert(soa);
     auto const& tracks = *ptracks;
@@ -43,6 +43,9 @@ namespace gpuVertexFinder {
 
       if (pt < ptMin)
         continue;
+
+      // clamp pt
+      pt = std::min(pt,ptMax);
 
       auto& data = *pws;
       auto it = atomicAdd(&data.ntrks, 1);
@@ -93,13 +96,13 @@ namespace gpuVertexFinder {
 #endif
 
 #ifdef __CUDACC__
-  ZVertexHeterogeneous Producer::makeAsync(cudaStream_t stream, TkSoA const* tksoa, float ptMin) const {
+  ZVertexHeterogeneous Producer::makeAsync(cudaStream_t stream, TkSoA const* tksoa, float ptMin, float ptMax) const {
 #ifdef PIXVERTEX_DEBUG_PRODUCE
     std::cout << "producing Vertices on GPU" << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
     ZVertexHeterogeneous vertices(cms::cuda::make_device_unique<ZVertexSoA>(stream));
 #else
-  ZVertexHeterogeneous Producer::make(TkSoA const* tksoa, float ptMin) const {
+  ZVertexHeterogeneous Producer::make(TkSoA const* tksoa, float ptMin, float ptMax) const {
 #ifdef PIXVERTEX_DEBUG_PRODUCE
     std::cout << "producing Vertices on  CPU" << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
@@ -119,11 +122,11 @@ namespace gpuVertexFinder {
     init<<<1, 1, 0, stream>>>(soa, ws_d.get());
     auto blockSize = 128;
     auto numberOfBlocks = (TkSoA::stride() + blockSize - 1) / blockSize;
-    loadTracks<<<numberOfBlocks, blockSize, 0, stream>>>(tksoa, soa, ws_d.get(), ptMin);
+    loadTracks<<<numberOfBlocks, blockSize, 0, stream>>>(tksoa, soa, ws_d.get(), ptMin,ptMax);
     cudaCheck(cudaGetLastError());
 #else
     init(soa, ws_d.get());
-    loadTracks(tksoa, soa, ws_d.get(), ptMin);
+    loadTracks(tksoa, soa, ws_d.get(), ptMin,ptMax);
 #endif
 
 #ifdef __CUDACC__
