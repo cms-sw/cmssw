@@ -13,6 +13,7 @@
 //
 
 // system include files
+#include <iomanip>
 #include <memory>
 
 // user include files
@@ -45,8 +46,6 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-#include <iomanip>
-
 //
 // class decleration
 //
@@ -67,8 +66,11 @@ private:
   void testBorderCrossing();
   int pass_;
 
-  CaloGeometryHelper* myGeometry;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> tokCaloTopo_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokCaloGeom_;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tokPdt_;
 
+  CaloGeometryHelper* myGeometry;
   GammaFunctionGenerator* aGammaGenerator;
   FSimEvent* mySimEvent;
 };
@@ -84,7 +86,10 @@ private:
 //
 // constructors and destructor
 //
-testEcalHitMaker::testEcalHitMaker(const edm::ParameterSet& iConfig) {
+testEcalHitMaker::testEcalHitMaker(const edm::ParameterSet& iConfig)
+    : tokCaloTopo_(esConsumes<edm::Transition::BeginRun>()),
+      tokCaloGeom_(esConsumes<edm::Transition::BeginRun>()),
+      tokPdt_(esConsumes<edm::Transition::BeginRun>()) {
   aGammaGenerator = new GammaFunctionGenerator();
 
   mySimEvent = new FSimEvent(iConfig.getParameter<edm::ParameterSet>("TestParticleFilter"));
@@ -93,22 +98,18 @@ testEcalHitMaker::testEcalHitMaker(const edm::ParameterSet& iConfig) {
 }
 
 void testEcalHitMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
+  const edm::ESHandle<CaloTopology>& theCaloTopology = iSetup.getHandle(tokCaloTopo_);
+  const edm::ESHandle<CaloGeometry>& pG = iSetup.getHandle(tokCaloGeom_);
 
   // Setup the tools
   double bField000 = 4.;
-  myGeometry->setupGeometry(*pG);
-  myGeometry->setupTopology(*theCaloTopology);
+  myGeometry->setupGeometry(*(pG.product()));
+  myGeometry->setupTopology(*(theCaloTopology.product()));
   myGeometry->initialize(bField000);
 
   // init Particle data table (from Pythia)
-  edm::ESHandle<HepPDT::ParticleDataTable> pdt;
-  iSetup.getData(pdt);
-  mySimEvent->initializePdt(&(*pdt));
+  const edm::ESHandle<HepPDT::ParticleDataTable>& pdt = iSetup.getHandle(tokPdt_);
+  mySimEvent->initializePdt(pdt.product());
   std::cout << " done with beginRun " << std::endl;
 }
 
