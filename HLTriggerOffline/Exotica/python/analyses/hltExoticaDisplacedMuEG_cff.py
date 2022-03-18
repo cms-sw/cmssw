@@ -3,9 +3,10 @@ import FWCore.ParameterSet.Config as cms
 DisplacedMuEGPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_Mu43NoFiltersNoVtx_Photon43_CaloIdL_v", # 2017 displaced e-mu (main) # Claimed path for Run3
-        "HLT_Mu48NoFiltersNoVtx_Photon48_CaloIdL_v", # 2017 displaced e-mu (backup) # Claimed path for Run3
+#        "HLT_Mu48NoFiltersNoVtx_Photon48_CaloIdL_v", # 2017 displaced e-mu (backup) # Claimed path for Run3, but a backup so no need to monitor it closely here
         "HLT_Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_v", # 2017 displaced e-mu, muon with dxy> 0.01cm (main) # Claimed path for Run3
-        "HLT_Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_v", # 2017 displaced e-mu, muon with dxy> 0.01cm (backup) # Claimed path for Run3
+#        "HLT_Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_v", # 2017 displaced e-mu, muon with dxy> 0.01cm (backup) # Claimed path for Run3, but a backup so no need to monitor it closely here
+        "HLT_Mu20NoFiltersNoVtxDisplaced_Photon20_CaloCustomId_v", # New Run3 path
         ),
     recElecLabel  = cms.InputTag("gedGsfElectrons"),
     recMuonLabel  = cms.InputTag("muons"),
