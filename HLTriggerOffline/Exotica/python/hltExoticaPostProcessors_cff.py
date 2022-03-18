@@ -102,6 +102,7 @@ hltExoticaPostJetNoBptx = make_exo_postprocessor("JetNoBptx")
 hltExoticaPostMuonNoBptx = make_exo_postprocessor("MuonNoBptx")
 hltExoticaPostDisplacedMuEG = make_exo_postprocessor("DisplacedMuEG")
 hltExoticaPostDisplacedDimuon = make_exo_postprocessor("DisplacedDimuon")
+hltExoticaPostDisplacedL2Dimuon = make_exo_postprocessor("DisplacedL2Dimuon")
 hltExoticaPostMonojet = make_exo_postprocessor("Monojet")
 hltExoticaPostMonojetBackup = make_exo_postprocessor("MonojetBackup")
 hltExoticaPostPureMET = make_exo_postprocessor("PureMET")
@@ -136,6 +137,7 @@ hltExoticaPostProcessors = cms.Sequence(
     # Displaced paths
     hltExoticaPostDisplacedMuEG +
     hltExoticaPostDisplacedDimuon +
+    hltExoticaPostDisplacedL2Dimuon +
     # Others
     hltExoticaPostMonojet +
     hltExoticaPostMonojetBackup +
