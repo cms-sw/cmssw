@@ -3,12 +3,12 @@
 
 // Castorobject includes
 #include "DataFormats/CastorReco/interface/CastorTower.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 //
 // class decleration
@@ -27,6 +27,7 @@ private:
   typedef math::XYZPointD Point;
   typedef ROOT::Math::RhoEtaPhiPoint TowerPoint;
   typedef std::vector<reco::CastorTower> CastorTowerCollection;
+  const edm::EDGetTokenT<reco::GenParticleCollection> tokGenPart_;
 };
 
 #endif
