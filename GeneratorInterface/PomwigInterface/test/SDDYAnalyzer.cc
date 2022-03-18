@@ -60,12 +60,11 @@ private:
 
 ////////// Source code ////////////////////////////////////////////////
 /// Constructor
-SDDYAnalyzer::SDDYAnalyzer(const edm::ParameterSet& pset) :
-      genParticlesToken_(consumes<reco::GenParticleCollection>(pset.getParameter<edm::InputTag>("GenParticleTag"))),
+SDDYAnalyzer::SDDYAnalyzer(const edm::ParameterSet& pset)
+    : genParticlesToken_(consumes<reco::GenParticleCollection>(pset.getParameter<edm::InputTag>("GenParticleTag"))),
       particle1Id_(pset.getParameter<int>("Particle1Id")),
       particle2Id_(pset.getParameter<int>("Particle2Id")),
       debug(pset.getUntrackedParameter<bool>("debug", false)) {
-
   usesResource(TFileService::kSharedResource);
 
   if (debug) {
@@ -103,7 +102,7 @@ void SDDYAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&) {
   nevents++;
 
   // Generator Information
-  const edm::Handle<reco::GenParticleCollection> & genParticles = ev.getHandle(genParticlesToken_);
+  const edm::Handle<reco::GenParticleCollection>& genParticles = ev.getHandle(genParticlesToken_);
   double pz1max = 0.;
   double pz2min = 0.;
   reco::GenParticleCollection::const_iterator proton1 = genParticles->end();
