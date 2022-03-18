@@ -1,0 +1,34 @@
+[
+   {  "site": "T1_US_FNAL",
+      "volume": "FNAL_dCache_EOS",
+      "protocols": [
+         {  "protocol": "XRootD",
+            "access": "global-rw",
+            "comment": "xrootd write to dCache/EOS endpoint directly",
+            "rules": [
+               {  "lfn": "/+store/temp/user/(.*)",
+                  "pfn": "root://cmseos.fnal.gov//eos/uscms/store/temp/user/$1"
+               },
+               {  "lfn": "/+store/(.*)",
+                  "pfn": "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/$1"
+               }
+            ]
+         }
+      ],
+      "type": "DISK",
+      "rse": "T1_US_FNAL_Disk",
+      "fts": [ "https://cmsfts3.fnal.gov:8446", "https://fts3-cms.cern.ch:8446" ]
+   },
+   {  "site": "T1_US_FNAL",
+      "volume": "American_Federation",
+      "protocols": [
+         {  "protocol": "XRootD",
+            "access": "global-ro",
+            "prefix": "root://cmsxrootd.fnal.gov"
+         }
+      ],
+      "type": "DISK",
+      "rse": null,
+      "fts": []
+   }
+]

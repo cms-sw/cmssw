@@ -59,11 +59,11 @@ namespace {
 
   std::string defaultURL() {
     std::string returnValue;
-    const char *tmp = std::getenv("CMS_PATH");
+    const char *tmp = std::getenv("SITECONFIG_PATH");
     if (tmp) {
       returnValue = tmp;
     }
-    returnValue += "/SITECONF/local/JobConfig/site-local-config.xml";
+    returnValue += "/JobConfig/site-local-config.xml";
     return returnValue;
   }
 
@@ -76,6 +76,7 @@ namespace edm {
 
     SiteLocalConfigService::SiteLocalConfigService(ParameterSet const &pset)
         : m_url(pset.getUntrackedParameter<std::string>("siteLocalConfigFileUrl", defaultURL())),
+          m_trivialDataCatalogs(),
           m_dataCatalogs(),
           m_frontierConnect(),
           m_rfioType("castor"),
@@ -102,7 +103,8 @@ namespace edm {
           m_statisticsDestination(),
           m_statisticsAddrInfo(nullptr),
           m_statisticsInfoAvail(false),
-          m_siteName() {
+          m_siteName(),
+          m_subSiteName() {
       this->parse(m_url);
 
       //apply overrides
@@ -150,20 +152,60 @@ namespace edm {
       }
     }
 
-    std::vector<std::string> const &SiteLocalConfigService::dataCatalogs(void) const {
+    std::vector<std::string> const &SiteLocalConfigService::trivialDataCatalogs() const {
       if (!m_connected) {
-        //throw cms::Exception("Incomplete configuration")
-        //    << "Valid site-local-config not found at " << m_url;
-        // Return PoolFileCatalog.xml for now
         static std::vector<std::string> const tmp{"file:PoolFileCatalog.xml"};
         return tmp;
       }
 
-      if (m_dataCatalogs.empty()) {
-        throw cms::Exception("Incomplete configuration") << "Did not find catalogs in event-data section in " << m_url;
+      if (m_trivialDataCatalogs.empty()) {
+        cms::Exception ex("SiteLocalConfigService");
+        ex << "Did not find catalogs in event-data section in " << m_url;
+        ex.addContext("edm::SiteLocalConfigService::trivialDataCatalogs()");
+        throw ex;
       }
 
+      return m_trivialDataCatalogs;
+    }
+
+    std::vector<edm::CatalogAttributes> const &SiteLocalConfigService::dataCatalogs() const {
+      if (!m_connected) {
+        cms::Exception ex("SiteLocalConfigService");
+        ex << "Incomplete configuration. Valid site-local-config not found at " << m_url;
+        ex.addContext("edm::SiteLocalConfigService::dataCatalogs()");
+        throw ex;
+      }
+      if (m_dataCatalogs.empty()) {
+        cms::Exception ex("SiteLocalConfigService");
+        ex << "Did not find catalogs in data-access section in " << m_url;
+        ex.addContext("edm::SiteLocalConfigService::dataCatalogs()");
+        throw ex;
+      }
       return m_dataCatalogs;
+    }
+
+    std::filesystem::path const SiteLocalConfigService::storageDescriptionPath(
+        edm::CatalogAttributes const &aDataCatalog) const {
+      std::string siteconfig_path = std::string(std::getenv("SITECONFIG_PATH"));
+      std::filesystem::path filename_storage;
+      //not a cross site use local path given in SITECONFIG_PATH
+      if (aDataCatalog.site == aDataCatalog.storageSite) {
+        //it is a site (no defined subSite), use local path given in SITECONFIG_PATH
+        if (aDataCatalog.subSite.empty())
+          filename_storage = siteconfig_path + "/storage.json";
+        //it is a subsite, move one level up
+        else
+          filename_storage = siteconfig_path + "/../storage.json";
+      } else {  //cross site
+        //it is a site (no defined subSite), move one level up
+        if (aDataCatalog.subSite.empty())
+          filename_storage = siteconfig_path + "/../" + aDataCatalog.storageSite + "/storage.json";
+        //it is a subsite, move two levels up
+        else
+          filename_storage = siteconfig_path + "/../../" + aDataCatalog.storageSite + "/storage.json";
+      }
+
+      return filename_storage;
     }
 
     std::string const SiteLocalConfigService::frontierConnect(std::string const &servlet) const {
@@ -268,9 +310,26 @@ namespace edm {
     }
 
     std::string const &SiteLocalConfigService::siteName() const { return m_siteName; }
+    std::string const &SiteLocalConfigService::subSiteName() const { return m_subSiteName; }
     bool SiteLocalConfigService::useLocalConnectString() const { return m_useLocalConnectString; }
     std::string const &SiteLocalConfigService::localConnectPrefix() const { return m_localConnectPrefix; }
     std::string const &SiteLocalConfigService::localConnectSuffix() const { return m_localConnectSuffix; }
+
+    void SiteLocalConfigService::getCatalog(tinyxml2::XMLElement const &cat, std::string site, std::string subSite) {
+      edm::CatalogAttributes aCatalog;
+      aCatalog.site = site;
+      aCatalog.subSite = subSite;
+      auto tmp_site = std::string(safe(cat.Attribute("site")));
+      //no site attribute in the data catalog defined in <data-access>, so storage site is from <site> block of site_local_config.xml, which is the input parameter "site" of this method
+      if (tmp_site.empty())
+        aCatalog.storageSite = site;
+      //now storage site is explicitly defined in <data-access>
+      else
+        aCatalog.storageSite = tmp_site;
+      aCatalog.volume = std::string(safe(cat.Attribute("volume")));
+      aCatalog.protocol = std::string(safe(cat.Attribute("protocol")));
+      m_dataCatalogs.push_back(aCatalog);
+    }
 
     void SiteLocalConfigService::parse(std::string const &url) {
       tinyxml2::XMLDocument doc;
@@ -282,6 +341,7 @@ namespace edm {
       // The Site Config has the following format
       // <site-local-config>
       // <site name="FNAL">
+      // <subsite name="FNAL_SUBSITE">
       //   <event-data>
       //     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
       //     <rfiotype value="castor"/>
@@ -305,144 +365,180 @@ namespace edm {
       //        <protocol prefix="file"/>
       //     </native-protocols>
       //   </source-config>
+      // </subsite>
       // </site>
       // </site-local-config>
+
       auto rootElement = doc.RootElement();
 
       for (auto site = rootElement->FirstChildElement("site"); site != nullptr;
            site = site->NextSiblingElement("site")) {
+        auto subSite = site->FirstChildElement("subsite");
+
         // Parse the site name
         m_siteName = safe(site->Attribute("name"));
+        m_subSiteName = std::string();
+        if (subSite)
+          m_subSiteName = safe(subSite->Attribute("name"));
 
         // Parsing of the event data section
-        {
-          auto eventData = site->FirstChildElement("event-data");
-          if (eventData) {
-            auto catalog = eventData->FirstChildElement("catalog");
-            if (catalog) {
-              m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
+        auto eventData = site->FirstChildElement("event-data");
+        if (subSite)
+          eventData = subSite->FirstChildElement("event-data");
+        if (eventData) {
+          auto catalog = eventData->FirstChildElement("catalog");
+          if (catalog) {
+            m_trivialDataCatalogs.push_back(safe(catalog->Attribute("url")));
+            catalog = catalog->NextSiblingElement("catalog");
+            while (catalog) {
+              m_trivialDataCatalogs.push_back(safe(catalog->Attribute("url")));
               catalog = catalog->NextSiblingElement("catalog");
-              while (catalog) {
-                m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
-                catalog = catalog->NextSiblingElement("catalog");
-              }
             }
-            auto rfiotype = eventData->FirstChildElement("rfiotype");
-            if (rfiotype) {
-              m_rfioType = safe(rfiotype->Attribute("value"));
+          }
+          auto rfiotype = eventData->FirstChildElement("rfiotype");
+          if (rfiotype) {
+            m_rfioType = safe(rfiotype->Attribute("value"));
+          }
+        }
+
+        //data-access
+        //let store catalog entry as: SITE,SUBSITE,STORAGE_SITE,VOLUME,PROTOCOL
+        //       SITE: from <site name= /> element
+        //       SUBSITE: from <subsite name= /> element. SUBSITE=SITE for site
+        //       STORAGE_SITE, VOLUME and PROTOCOL: from <catalog site= volume= protocol= /> in <data-access>. If "site" attribute is not defined inside <catalog />, STORAGE_SITE is SITE
+        //Therefore
+        //1. if STORAGE_SITE = SITE, use local storage.json since STORAGE_SITE is not a cross site
+        //2. if SUBSITE is empty, this is a site. Otherwise, this is a subsite. These are used to define the path to locate the storage.json in FileLocator. This path is provided by storageDescriptionPath() method of this class.
+        //get data-access
+        auto dataAccess = site->FirstChildElement("data-access");
+        if (subSite)
+          dataAccess = subSite->FirstChildElement("data-access");
+        if (dataAccess) {
+          //get catalogs
+          auto catalog = dataAccess->FirstChildElement("catalog");
+          if (catalog) {
+            //add all info for the first catlog here
+            getCatalog(*catalog, m_siteName, m_subSiteName);
+            //get next catlog
+            catalog = catalog->NextSiblingElement("catalog");
+            while (catalog) {
+              //add all info for the current catlog here
+              getCatalog(*catalog, m_siteName, m_subSiteName);
+              //get next catlog
+              catalog = catalog->NextSiblingElement("catalog");
             }
           }
         }
 
         // Parsing of the calib-data section
-        {
-          auto calibData = site->FirstChildElement("calib-data");
+        auto calibData = site->FirstChildElement("calib-data");
+        if (subSite)
+          calibData = subSite->FirstChildElement("calib-data");
 
-          if (calibData) {
-            auto frontierConnect = calibData->FirstChildElement("frontier-connect");
+        if (calibData) {
+          auto frontierConnect = calibData->FirstChildElement("frontier-connect");
 
+          if (frontierConnect) {
+            m_frontierConnect = _toParenString(*frontierConnect);
+          }
+          auto localConnect = calibData->FirstChildElement("local-connect");
+          if (localConnect) {
             if (frontierConnect) {
-              m_frontierConnect = _toParenString(*frontierConnect);
+              throw cms::Exception("Illegal site local configuration")
+                  << "It is illegal to include both frontier-connect and local-connect in the same XML file";
             }
-            auto localConnect = calibData->FirstChildElement("local-connect");
-            if (localConnect) {
-              if (frontierConnect) {
-                throw cms::Exception("Illegal site local configuration")
-                    << "It is illegal to include both frontier-connect and local-connect in the same XML file";
-              }
-              m_useLocalConnectString = true;
-              auto connectString = localConnect->FirstChildElement("connectString");
-              if (connectString) {
-                m_localConnectPrefix = safe(connectString->Attribute("prefix"));
-                m_localConnectSuffix = safe(connectString->Attribute("suffix"));
-              }
+            m_useLocalConnectString = true;
+            auto connectString = localConnect->FirstChildElement("connectString");
+            if (connectString) {
+              m_localConnectPrefix = safe(connectString->Attribute("prefix"));
+              m_localConnectSuffix = safe(connectString->Attribute("suffix"));
             }
           }
         }
 
         // Parsing of the source config section
-        {
-          auto sourceConfig = site->FirstChildElement("source-config");
+        auto sourceConfig = site->FirstChildElement("source-config");
+        if (subSite)
+          sourceConfig = subSite->FirstChildElement("source-config");
 
-          if (sourceConfig) {
-            auto cacheTempDir = sourceConfig->FirstChildElement("cache-temp-dir");
+        if (sourceConfig) {
+          auto cacheTempDir = sourceConfig->FirstChildElement("cache-temp-dir");
 
-            if (cacheTempDir) {
-              m_cacheTempDir = safe(cacheTempDir->Attribute("name"));
-              m_cacheTempDirPtr = &m_cacheTempDir;
+          if (cacheTempDir) {
+            m_cacheTempDir = safe(cacheTempDir->Attribute("name"));
+            m_cacheTempDirPtr = &m_cacheTempDir;
+          }
+
+          auto cacheMinFree = sourceConfig->FirstChildElement("cache-min-free");
+
+          if (cacheMinFree) {
+            //TODO what did xerces do if it couldn't convert?
+            m_cacheMinFree = cacheMinFree->DoubleAttribute("value");
+            m_cacheMinFreePtr = &m_cacheMinFree;
+          }
+
+          auto cacheHint = sourceConfig->FirstChildElement("cache-hint");
+
+          if (cacheHint) {
+            m_cacheHint = safe(cacheHint->Attribute("value"));
+            m_cacheHintPtr = &m_cacheHint;
+          }
+
+          auto cloneCacheHint = sourceConfig->FirstChildElement("clone-cache-hint");
+
+          if (cloneCacheHint) {
+            m_cloneCacheHint = safe(cloneCacheHint->Attribute("value"));
+            m_cloneCacheHintPtr = &m_cloneCacheHint;
+          }
+
+          auto readHint = sourceConfig->FirstChildElement("read-hint");
+
+          if (readHint) {
+            m_readHint = safe(readHint->Attribute("value"));
+            m_readHintPtr = &m_readHint;
+          }
+
+          auto ttreeCacheSize = sourceConfig->FirstChildElement("ttree-cache-size");
+
+          if (ttreeCacheSize) {
+            m_ttreeCacheSize = ttreeCacheSize->UnsignedAttribute("value");
+            m_ttreeCacheSizePtr = &m_ttreeCacheSize;
+          }
+
+          auto timeout = sourceConfig->FirstChildElement("timeout-in-seconds");
+
+          if (timeout) {
+            m_timeout = timeout->UnsignedAttribute("value");
+            m_timeoutPtr = &m_timeout;
+          }
+
+          auto statsDest = sourceConfig->FirstChildElement("statistics-destination");
+
+          if (statsDest) {
+            m_statisticsDestination = safe(statsDest->Attribute("endpoint"));
+            if (m_statisticsDestination.empty()) {
+              m_statisticsDestination = safe(statsDest->Attribute("name"));
             }
+            std::string tmpStatisticsInfo = safe(statsDest->Attribute("info"));
+            boost::split(m_statisticsInfo, tmpStatisticsInfo, boost::is_any_of("\t ,"));
+            m_statisticsInfoAvail = !tmpStatisticsInfo.empty();
+          }
 
-            auto cacheMinFree = sourceConfig->FirstChildElement("cache-min-free");
+          auto prefetching = sourceConfig->FirstChildElement("prefetching");
 
-            if (cacheMinFree) {
-              //TODO what did xerces do if it couldn't convert?
-              m_cacheMinFree = cacheMinFree->DoubleAttribute("value");
-              m_cacheMinFreePtr = &m_cacheMinFree;
+          if (prefetching) {
+            m_enablePrefetching = prefetching->BoolAttribute("value");
+            m_enablePrefetchingPtr = &m_enablePrefetching;
+          }
+
+          auto nativeProtocol = sourceConfig->FirstChildElement("native-protocols");
+
+          if (nativeProtocol) {
+            for (auto child = nativeProtocol->FirstChildElement(); child != nullptr;
+                 child = child->NextSiblingElement()) {
+              m_nativeProtocols.push_back(safe(child->Attribute("prefix")));
             }
-
-            auto cacheHint = sourceConfig->FirstChildElement("cache-hint");
-
-            if (cacheHint) {
-              m_cacheHint = safe(cacheHint->Attribute("value"));
-              m_cacheHintPtr = &m_cacheHint;
-            }
-
-            auto cloneCacheHint = sourceConfig->FirstChildElement("clone-cache-hint");
-
-            if (cloneCacheHint) {
-              m_cloneCacheHint = safe(cloneCacheHint->Attribute("value"));
-              m_cloneCacheHintPtr = &m_cloneCacheHint;
-            }
-
-            auto readHint = sourceConfig->FirstChildElement("read-hint");
-
-            if (readHint) {
-              m_readHint = safe(readHint->Attribute("value"));
-              m_readHintPtr = &m_readHint;
-            }
-
-            auto ttreeCacheSize = sourceConfig->FirstChildElement("ttree-cache-size");
-
-            if (ttreeCacheSize) {
-              m_ttreeCacheSize = ttreeCacheSize->UnsignedAttribute("value");
-              m_ttreeCacheSizePtr = &m_ttreeCacheSize;
-            }
-
-            auto timeout = sourceConfig->FirstChildElement("timeout-in-seconds");
-
-            if (timeout) {
-              m_timeout = timeout->UnsignedAttribute("value");
-              m_timeoutPtr = &m_timeout;
-            }
-
-            auto statsDest = sourceConfig->FirstChildElement("statistics-destination");
-
-            if (statsDest) {
-              m_statisticsDestination = safe(statsDest->Attribute("endpoint"));
-              if (m_statisticsDestination.empty()) {
-                m_statisticsDestination = safe(statsDest->Attribute("name"));
-              }
-              std::string tmpStatisticsInfo = safe(statsDest->Attribute("info"));
-              boost::split(m_statisticsInfo, tmpStatisticsInfo, boost::is_any_of("\t ,"));
-              m_statisticsInfoAvail = !tmpStatisticsInfo.empty();
-            }
-
-            auto prefetching = sourceConfig->FirstChildElement("prefetching");
-
-            if (prefetching) {
-              m_enablePrefetching = prefetching->BoolAttribute("value");
-              m_enablePrefetchingPtr = &m_enablePrefetching;
-            }
-
-            auto nativeProtocol = sourceConfig->FirstChildElement("native-protocols");
-
-            if (nativeProtocol) {
-              for (auto child = nativeProtocol->FirstChildElement(); child != nullptr;
-                   child = child->NextSiblingElement()) {
-                m_nativeProtocols.push_back(safe(child->Attribute("prefix")));
-              }
-              m_nativeProtocolsPtr = &m_nativeProtocols;
-            }
+            m_nativeProtocolsPtr = &m_nativeProtocols;
           }
         }
       }

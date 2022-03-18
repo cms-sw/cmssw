@@ -1,8 +1,12 @@
 <site-local-config>
 <site name="DUMMY">
+<subsite name="DUMMY_SUB_SITE">
   <event-data>
     <catalog url="trivialcatalog_file:/dummy/storage.xml?protocol=dcap"/>
   </event-data>
+  <data-access>
+    <catalog site="DUMMY_CROSS_SITE" volume="CMSXrootdFederation" protocol="XRootD"/>
+  </data-access>
   <local-stage-out>
     <se-name value="cmssrm.dummy.foo"/>
     <command value="srm"/>
@@ -14,5 +18,6 @@
       <proxy url="http://cmsfrontier.dummy.foo:3128"/>
     </frontier-connect>
   </calib-data>
+</subsite>
 </site>
 </site-local-config>
