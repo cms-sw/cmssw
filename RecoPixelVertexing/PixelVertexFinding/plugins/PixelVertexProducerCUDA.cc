@@ -44,6 +44,7 @@ private:
 
   // Tracking cuts before sending tracks to vertex algo
   const float ptMin_;
+  const float ptMax_;
 };
 
 PixelVertexProducerCUDA::PixelVertexProducerCUDA(const edm::ParameterSet& conf)
@@ -56,7 +57,8 @@ PixelVertexProducerCUDA::PixelVertexProducerCUDA(const edm::ParameterSet& conf)
                conf.getParameter<double>("eps"),
                conf.getParameter<double>("errmax"),
                conf.getParameter<double>("chi2max")),
-      ptMin_(conf.getParameter<double>("PtMin"))  // 0.5 GeV
+      ptMin_(conf.getParameter<double>("PtMin")),  // 0.5 GeV
+      ptMax_(conf.getParameter<double>("PtMax"))  // 75. GeV
 {
   if (onGPU_) {
     tokenGPUTrack_ =
@@ -85,6 +87,7 @@ void PixelVertexProducerCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("chi2max", 9.);   // max normalized distance to cluster
 
   desc.add<double>("PtMin", 0.5);
+  desc.add<double>("PtMax", 75.);
   desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksCUDA"));
 
   auto label = "pixelVerticesCUDA";
@@ -102,7 +105,7 @@ void PixelVertexProducerCUDA::produceOnGPU(edm::StreamID streamID,
 
   assert(tracks);
 
-  ctx.emplace(iEvent, tokenGPUVertex_, gpuAlgo_.makeAsync(ctx.stream(), tracks, ptMin_));
+  ctx.emplace(iEvent, tokenGPUVertex_, gpuAlgo_.makeAsync(ctx.stream(), tracks, ptMin_, ptMax_));
 }
 
 void PixelVertexProducerCUDA::produceOnCPU(edm::StreamID streamID,
@@ -127,7 +130,7 @@ void PixelVertexProducerCUDA::produceOnCPU(edm::StreamID streamID,
   std::cout << "found " << nt << " tracks in cpu SoA for Vertexing at " << tracks << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
 
-  iEvent.emplace(tokenCPUVertex_, gpuAlgo_.make(tracks, ptMin_));
+  iEvent.emplace(tokenCPUVertex_, gpuAlgo_.make(tracks, ptMin_, ptMax_));
 }
 
 void PixelVertexProducerCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
