@@ -44,7 +44,7 @@ private:
 };
 
 ExhumeAnalyzer::ExhumeAnalyzer(const edm::ParameterSet& pset)
-  : genParticlesToken_(consumes<reco::GenParticleCollection>(pset.getParameter<edm::InputTag>("GenParticleTag"))),
+    : genParticlesToken_(consumes<reco::GenParticleCollection>(pset.getParameter<edm::InputTag>("GenParticleTag"))),
       Ebeam_(pset.getParameter<double>("EBeam")) {}
 
 void ExhumeAnalyzer::beginJob() {
@@ -63,7 +63,7 @@ void ExhumeAnalyzer::beginJob() {
 
 void ExhumeAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   // Generator Information
-  const edm::Handle<reco::GenParticleCollection> & genParticles = event.getHandle(genParticlesToken_);
+  const edm::Handle<reco::GenParticleCollection>& genParticles = event.getHandle(genParticlesToken_);
 
   // Look for protons
   double pz1max = 0.;

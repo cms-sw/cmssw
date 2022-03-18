@@ -74,7 +74,7 @@ private:
 //
 // constructors and destructor
 //
-LHE2HepMCConverter::LHE2HepMCConverter(const edm::ParameterSet& iConfig) 
+LHE2HepMCConverter::LHE2HepMCConverter(const edm::ParameterSet& iConfig)
     : _lheRunSrc(nullptr),
       _lheEventSrcTag(iConfig.getParameter<edm::InputTag>("LHEEventProduct")),
       _lheRunSrcTag(iConfig.getParameter<edm::InputTag>("LHERunInfoProduct")),
@@ -82,7 +82,6 @@ LHE2HepMCConverter::LHE2HepMCConverter(const edm::ParameterSet& iConfig)
       runInfoProductToken_(consumes<LHERunInfoProduct, edm::InRun>(_lheRunSrcTag)) {
   //register your products
   produces<edm::HepMCProduct>("unsmeared");
-
 }
 
 //
@@ -92,7 +91,7 @@ LHE2HepMCConverter::LHE2HepMCConverter(const edm::ParameterSet& iConfig)
 // ------------ method called to produce the data  ------------
 void LHE2HepMCConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  const edm::Handle<LHEEventProduct> & lheEventSrc = iEvent.getHandle(eventProductToken_);
+  const edm::Handle<LHEEventProduct>& lheEventSrc = iEvent.getHandle(eventProductToken_);
 
   HepMC::GenEvent* evt = new HepMC::GenEvent();
   HepMC::GenVertex* v = new HepMC::GenVertex();

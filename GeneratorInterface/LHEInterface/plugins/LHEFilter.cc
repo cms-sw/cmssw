@@ -26,10 +26,11 @@ private:
   const edm::EDGetTokenT<edm::HepMCProduct> hepMCToken_;
 };
 
-LHEFilter::LHEFilter(const edm::ParameterSet &params) : hepMCToken_(consumes<edm::HepMCProduct>(params.getParameter<edm::InputTag>("src"))) {}
+LHEFilter::LHEFilter(const edm::ParameterSet &params)
+    : hepMCToken_(consumes<edm::HepMCProduct>(params.getParameter<edm::InputTag>("src"))) {}
 
 bool LHEFilter::filter(edm::Event &event, const edm::EventSetup &es) {
-  const edm::Handle<edm::HepMCProduct>& product = event.getHandle(hepMCToken_);
+  const edm::Handle<edm::HepMCProduct> &product = event.getHandle(hepMCToken_);
 
   return product->GetEvent();
 }

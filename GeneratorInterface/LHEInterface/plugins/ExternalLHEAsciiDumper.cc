@@ -53,7 +53,7 @@ ExternalLHEAsciiDumper::ExternalLHEAsciiDumper(const edm::ParameterSet& ps)
 // ------------ method called once each job just after ending the event loop  ------------
 
 void ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&) {
-  const edm::Handle<LHEXMLStringProduct> & LHEAscii = iRun.getHandle(LHEAsciiToken_);
+  const edm::Handle<LHEXMLStringProduct>& LHEAscii = iRun.getHandle(LHEAsciiToken_);
 
   const std::vector<std::string>& lheOutputs = LHEAscii->getStrings();
 
