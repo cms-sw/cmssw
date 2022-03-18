@@ -441,13 +441,13 @@ namespace pixelgpudetails {
         }
       }
 
-     // remove duplicate pixels (for the time being keep first
+     // remove duplicate pixels (for the time being keep second to reproduce current CPU behaviour)
      auto noADC = sipixelconstants::removeADC(ww);
-     auto noADCm1 =  sipixelconstants::removeADC(gIndex==0 ? 0 : word[gIndex-1]);
-     // auto noADCp1 =  sipixelconstants::removeADC(gIndex==lastWord ? 0 :  word[gIndex+1]);
-     if (noADC==noADCm1) {
+     // auto noADCm1 =  sipixelconstants::removeADC(gIndex==0 ? 0 : word[gIndex-1]);
+     auto noADCp1 =  sipixelconstants::removeADC(gIndex==lastWord ? 0 :  word[gIndex+1]);
+     if (noADC==noADCp1) {
        auto globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
-       printf("dup pix at %d %d\n",globalPix.row,globalPix.col);  
+       printf("dup pix at %d %d %d\n",detId.moduleId,globalPix.row,globalPix.col);  
        continue;
      }
 

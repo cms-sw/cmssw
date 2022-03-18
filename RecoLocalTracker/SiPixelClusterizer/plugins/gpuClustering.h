@@ -103,6 +103,14 @@ namespace gpuClustering {
           printf("too many pixels in module %d: %d > %d\n", thisModuleId, msize - firstPixel, maxPixInModule);
           msize = maxPixInModule + firstPixel;
         }
+        /*
+        /// dump
+       if (thisModuleId==1) {
+        printf ("dump for mod 1\n");
+        for (int k = int(firstPixel); k< msize; ++k) printf ("%d %d\n",x[k],y[k]);
+        printf ("end dump for mod 1\n");
+       }
+       */
       }
 
       __syncthreads();
@@ -204,6 +212,7 @@ namespace gpuClustering {
             continue;
           auto l = nnn[k]++;
           assert(l < maxNeighbours);
+          if (l>=5) printf("too many Neighbours! %d %d %d\n",thisModuleId, x[i], y[i]);
           nn[k][l] = *p;
         }
       }
