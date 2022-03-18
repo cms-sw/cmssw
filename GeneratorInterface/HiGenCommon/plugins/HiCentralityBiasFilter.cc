@@ -77,7 +77,7 @@ private:
 //
 // constructors and destructor
 //
-HiCentralityBiasFilter::HiCentralityBiasFilter(const edm::ParameterSet& iConfig) 
+HiCentralityBiasFilter::HiCentralityBiasFilter(const edm::ParameterSet& iConfig)
     : hepmcSrc_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("generatorSmeared"))),
       func_(iConfig.getParameter<string>("function")),
       par_(iConfig.getParameter<vector<double> >("parameters")) {
@@ -94,7 +94,7 @@ bool HiCentralityBiasFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 
   CLHEP::HepRandomEngine& engine = rng_->getEngine(iEvent.streamID());
 
-  const edm::Handle<HepMCProduct> & mc = iEvent.getHandle(hepmcSrc_);
+  const edm::Handle<HepMCProduct>& mc = iEvent.getHandle(hepmcSrc_);
   const HepMC::GenEvent* evt = mc->GetEvent();
 
   const HepMC::HeavyIon* hi = evt->heavy_ion();

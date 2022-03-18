@@ -16,8 +16,8 @@
 #include "CLHEP/Vector/LorentzVector.h"
 
 Z2muAnalyzer::Z2muAnalyzer(const edm::ParameterSet& iConfig)
-  : hepMCToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("hepMCProductTag"))),
-    outputFilename(iConfig.getUntrackedParameter<std::string>("OutputFilename", "dummy.root")) {
+    : hepMCToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("hepMCProductTag"))),
+      outputFilename(iConfig.getUntrackedParameter<std::string>("OutputFilename", "dummy.root")) {
   usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   invmass_histo = fs->make<TH1D>("invmass_histo", "invmass_histo", 100, 0., 100.);
@@ -26,7 +26,7 @@ Z2muAnalyzer::Z2muAnalyzer(const edm::ParameterSet& iConfig)
 // ------------ method called to for each event  ------------
 void Z2muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get HepMC::GenEvent ...
-  const edm::Handle<edm::HepMCProduct> & evt_h = iEvent.getHandle(hepMCToken_);
+  const edm::Handle<edm::HepMCProduct>& evt_h = iEvent.getHandle(hepMCToken_);
   HepMC::GenEvent* evt = new HepMC::GenEvent(*(evt_h->GetEvent()));
 
   // look for stable muons

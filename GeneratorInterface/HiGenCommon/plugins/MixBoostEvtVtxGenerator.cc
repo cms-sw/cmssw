@@ -216,7 +216,7 @@ TMatrixD* MixBoostEvtVtxGenerator::GetInvLorentzBoost() {
 HepMC::FourVector* MixBoostEvtVtxGenerator::getVertex(Event& evt) {
   const HepMC::GenEvent* inev = nullptr;
 
-  const edm::Handle<CrossingFrame<HepMCProduct> > & cf = evt.getHandle(mixLabel);
+  const edm::Handle<CrossingFrame<HepMCProduct> >& cf = evt.getHandle(mixLabel);
   MixCollection<HepMCProduct> mix(cf.product());
 
   const HepMCProduct& bkg = mix.getObject(1);
@@ -255,7 +255,7 @@ HepMC::FourVector* MixBoostEvtVtxGenerator::getVertex(Event& evt) {
 }
 
 HepMC::FourVector* MixBoostEvtVtxGenerator::getRecVertex(Event& evt) {
-  const edm::Handle<reco::VertexCollection> & input = evt.getHandle(vtxLabel);
+  const edm::Handle<reco::VertexCollection>& input = evt.getHandle(vtxLabel);
 
   double aX, aY, aZ;
 
@@ -271,7 +271,7 @@ HepMC::FourVector* MixBoostEvtVtxGenerator::getRecVertex(Event& evt) {
 }
 
 void MixBoostEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
-  const edm::Handle<HepMCProduct> & HepUnsmearedMCEvt = evt.getHandle(signalLabel);
+  const edm::Handle<HepMCProduct>& HepUnsmearedMCEvt = evt.getHandle(signalLabel);
 
   // Copy the HepMC::GenEvent
   HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());

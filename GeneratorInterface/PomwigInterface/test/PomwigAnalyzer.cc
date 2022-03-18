@@ -21,7 +21,7 @@ void PomwigAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace edm;
 
   // get HepMC::GenEvent ...
-  const edm::Handle<edm::HepMCProduct> & evt_h = iEvent.getHandle(hepMCToken_);
+  const edm::Handle<edm::HepMCProduct>& evt_h = iEvent.getHandle(hepMCToken_);
   HepMC::GenEvent* evt = new HepMC::GenEvent(*(evt_h->GetEvent()));
 
   // look for protons

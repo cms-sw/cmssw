@@ -69,8 +69,8 @@ struct jetptcomp {
 } myjetptcomp;
 
 /// Constructor
-SDDijetsAnalyzer::SDDijetsAnalyzer(const edm::ParameterSet& pset) :
-      genParticlesToken_(consumes<reco::GenParticleCollection>(pset.getParameter<edm::InputTag>("GenParticleTag"))),
+SDDijetsAnalyzer::SDDijetsAnalyzer(const edm::ParameterSet& pset)
+    : genParticlesToken_(consumes<reco::GenParticleCollection>(pset.getParameter<edm::InputTag>("GenParticleTag"))),
       tok_jets_(consumes<reco::GenJetCollection>(pset.getParameter<edm::InputTag>("GenJetTag"))),
       Ebeam(pset.getParameter<double>("EBeam")),
       debug(pset.getUntrackedParameter<bool>("debug", false)) {
@@ -106,7 +106,7 @@ void SDDijetsAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&) {
   nevents++;
 
   // Generator Information
-  const edm::Handle<reco::GenParticleCollection> & genParticles = ev.getHandle(genParticlesToken_);
+  const edm::Handle<reco::GenParticleCollection>& genParticles = ev.getHandle(genParticlesToken_);
   double pz1max = 0.;
   double pz2min = 0.;
   reco::GenParticleCollection::const_iterator proton1 = genParticles->end();
@@ -152,7 +152,7 @@ void SDDijetsAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&) {
     hProtonPt2->Fill(proton2->pt() * proton2->pt());
   }
 
-  const edm::Handle<reco::GenJetCollection> & genJets = ev.getHandle(tok_jets_);
+  const edm::Handle<reco::GenJetCollection>& genJets = ev.getHandle(tok_jets_);
   if (genJets->size() < 2)
     return;
 

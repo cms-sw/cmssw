@@ -81,8 +81,8 @@ HighMultiplicityGenFilter::HighMultiplicityGenFilter(const edm::ParameterSet& iC
 // ------------ method called on each new Event  ------------
 bool HighMultiplicityGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   bool accepted = false;
-  const edm::Handle<edm::HepMCProduct> & evt = iEvent.getHandle(hepmcSrc);
-  const edm::ESHandle<ParticleDataTable> & pdt = iSetup.getHandle(pdtToken_);
+  const edm::Handle<edm::HepMCProduct>& evt = iEvent.getHandle(hepmcSrc);
+  const edm::ESHandle<ParticleDataTable>& pdt = iSetup.getHandle(pdtToken_);
 
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
 
