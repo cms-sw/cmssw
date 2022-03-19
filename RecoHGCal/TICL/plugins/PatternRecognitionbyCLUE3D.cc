@@ -864,7 +864,7 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
       ->setComment("Allow the nearestHigher to be located on the same layer");
   iDesc.add<bool>("useAbsoluteProjectiveScale", true)
       ->setComment("Express all cuts in terms of r/z*z_0{,phi} projective variables");
-  iDesc.add<bool>("useClusterDimensionXY", true)
+  iDesc.add<bool>("useClusterDimensionXY", false)
       ->setComment(
           "Boolean. If true use the estimated cluster radius to determine the cluster compatibility while computing "
           "the local density");
