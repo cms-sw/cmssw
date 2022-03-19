@@ -216,6 +216,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     int layer = rhtools_.getLayerWithOffset(firstHitDetId) - 1 +
                 rhtools_.lastLayer(false) * ((rhtools_.zside(firstHitDetId) + 1) >> 1);
     assert(layer >= 0);
+    auto detId = lc.hitsAndFractions()[0].first;
 
     layerIdx2layerandSoa.emplace_back(layer, clusters_[layer].x.size());
     float sum_x = 0.;
@@ -247,7 +248,6 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     // The case of single cell layer clusters has to be handled differently.
 
     if (invClsize == 1.) {
-      auto detId = lc.hitsAndFractions()[0].first;
       // Silicon case
       if (rhtools_.isSilicon(detId)) {
         radius_x = radius_y = rhtools_.getRadiusToSide(detId);
@@ -274,6 +274,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     clusters_[layer].eta.emplace_back(lc.eta());
     clusters_[layer].phi.emplace_back(lc.phi());
     clusters_[layer].cells.push_back(lc.hitsAndFractions().size());
+    clusters_[layer].isSilicon.push_back(rhtools_.isSilicon(detId));
     clusters_[layer].energy.emplace_back(lc.energy());
     clusters_[layer].isSeed.push_back(false);
     clusters_[layer].clusterIndex.emplace_back(-1);
@@ -597,11 +598,22 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
                                         clustersLayer.phi[layerandSoa.second],
                                         clustersOnLayer.radius[i] * clustersOnLayer.radius[i]);
               } else {
-                reachable = isReachable(clustersOnLayer.r_over_absz[i] * clustersOnLayer.z[i],
-                                        clustersLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i],
-                                        clustersOnLayer.phi[i],
-                                        clustersLayer.phi[layerandSoa.second],
-                                        densityXYDistanceSqr_);
+                // Still differentiate between silicon and Scintillator.
+                // Silicon has yet to be studied further.
+                if (clustersOnLayer.isSilicon[i]) {
+                reachable = isReachable(clustersOnLayer.r_over_absz[i] *
+                    clustersOnLayer.z[i],
+                    clustersLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i],
+                    clustersOnLayer.phi[i],
+                    clustersLayer.phi[layerandSoa.second],
+                    densityXYDistanceSqr_);
+                } else {
+                  reachable = isReachable(clustersOnLayer.r_over_absz[i] * clustersOnLayer.z[i],
+                      clustersLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i],
+                      clustersOnLayer.phi[i],
+                      clustersLayer.phi[layerandSoa.second],
+                      clustersOnLayer.radius[i] * clustersOnLayer.radius[i]);
+                }
               }
             } else {
               reachable = (reco::deltaR2(clustersOnLayer.eta[i],

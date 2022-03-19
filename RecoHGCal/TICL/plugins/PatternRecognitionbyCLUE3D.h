@@ -34,6 +34,7 @@ namespace ticl {
       std::vector<float> eta;
       std::vector<float> phi;
       std::vector<int> cells;
+      std::vector<uint8_t> isSilicon;
 
       std::vector<float> energy;
       std::vector<float> rho;
@@ -55,6 +56,7 @@ namespace ticl {
         eta.clear();
         phi.clear();
         cells.clear();
+        isSilicon.clear();
         energy.clear();
         rho.clear();
         z_extension.clear();
@@ -75,6 +77,7 @@ namespace ticl {
         eta.shrink_to_fit();
         phi.shrink_to_fit();
         cells.shrink_to_fit();
+        isSilicon.shrink_to_fit();
         energy.shrink_to_fit();
         rho.shrink_to_fit();
         z_extension.shrink_to_fit();
