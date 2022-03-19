@@ -591,11 +591,11 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
             bool reachable = false;
             if (useAbsoluteProjectiveScale_) {
               if (useClusterDimensionXY_) {
-                auto deltaR_sqr = (clustersOnLayer.r_over_absz[i] * clustersOnLayer.z[i] -
-                                   clustersLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i]) *
-                                  (clustersOnLayer.r_over_absz[i] * clustersOnLayer.z[i] -
-                                   clustersLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i]);
-                reachable = deltaR_sqr < 4. * clustersOnLayer.radius[i] * clustersOnLayer.radius[i];
+                reachable = isReachable(clustersOnLayer.r_over_absz[i] * clustersOnLayer.z[i],
+                                        clustersLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i],
+                                        clustersOnLayer.phi[i],
+                                        clustersLayer.phi[layerandSoa.second],
+                                        clustersOnLayer.radius[i] * clustersOnLayer.radius[i]);
               } else {
                 reachable = isReachable(clustersOnLayer.r_over_absz[i] * clustersOnLayer.z[i],
                                         clustersLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i],
