@@ -723,9 +723,15 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
                                             clustersOnOtherLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i],
                                             clustersOnLayer.phi[i],
                                             clustersOnOtherLayer.phi[layerandSoa.second]);
+              // TODO: does that really make sense?
+              // The real logic should be:
+              // Among all the LC that falls within my "reachability" distance
+              // in the XY plane, take the closest in Z with higher local
+              // density.
               // Add Z-scale to the final distance
-              dist = dist_transverse + (clustersOnLayer.z[i] - clustersOnOtherLayer.z[layerandSoa.second]) *
-                                           (clustersOnLayer.z[i] - clustersOnOtherLayer.z[layerandSoa.second]);
+              dist = dist_transverse;// + (clustersOnLayer.z[i] -
+//                  clustersOnOtherLayer.z[layerandSoa.second]) *
+//                                           (clustersOnLayer.z[i] - clustersOnOtherLayer.z[layerandSoa.second]);
             } else {
               dist = reco::deltaR2(clustersOnLayer.eta[i],
                                    clustersOnLayer.phi[i],
