@@ -58,7 +58,7 @@ PixelVertexProducerCUDA::PixelVertexProducerCUDA(const edm::ParameterSet& conf)
                conf.getParameter<double>("errmax"),
                conf.getParameter<double>("chi2max")),
       ptMin_(conf.getParameter<double>("PtMin")),  // 0.5 GeV
-      ptMax_(conf.getParameter<double>("PtMax"))  // 75. GeV
+      ptMax_(conf.getParameter<double>("PtMax"))   // 75. GeV
 {
   if (onGPU_) {
     tokenGPUTrack_ =

@@ -333,7 +333,7 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
   static std::atomic<int> iev(0);
   static std::mutex lock;
   {
-    std::lock_guard<std::mutex> guard(lock);  
+    std::lock_guard<std::mutex> guard(lock);
     ++iev;
     kernel_print_found_ntuplets<<<1, 32, 0, cudaStream>>>(
         hh.view(), tuples_d, tracks_d, quality_d, device_hitToTuple_.get(), 1000000, iev);

@@ -129,7 +129,7 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   cms::cuda::finalizeBulk(device_hitTuple_apc_, tuples_d);
 
   kernel_fillHitDetIndices(tuples_d, hh.view(), detId_d);
-  kernel_fillNLayers(tracks_d,device_hitTuple_apc_);
+  kernel_fillNLayers(tracks_d, device_hitTuple_apc_);
 
   // remove duplicates (tracks that share a doublet)
   kernel_earlyDuplicateRemover(device_theCells_.get(), device_nCells_, tracks_d, quality_d, params_.dupPassThrough_);
@@ -210,7 +210,6 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
     kernel_doStatsForHitInTracks(device_hitToTuple_.get(), counters_);
     kernel_doStatsForTracks(tuples_d, quality_d, counters_);
   }
-
 
 #ifdef DUMP_GPU_TK_TUPLES
   static std::atomic<int> iev(0);

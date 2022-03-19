@@ -561,10 +561,11 @@ __global__ void kernel_fillNLayers(TkSoA *__restrict__ ptracks, cms::cuda::Atomi
   auto &tracks = *ptracks;
   auto first = blockIdx.x * blockDim.x + threadIdx.x;
   auto ntracks = apc->get().m;
-  if (0==first) tracks.setNTracks(ntracks);
+  if (0 == first)
+    tracks.setNTracks(ntracks);
   for (int idx = first, nt = ntracks; idx < nt; idx += gridDim.x * blockDim.x) {
     auto nHits = tracks.nHits(idx);
-    assert (nHits >=3);
+    assert(nHits >= 3);
     tracks.nLayers(idx) = tracks.computeNumberOfLayers(idx);
   }
 }
@@ -872,7 +873,8 @@ __global__ void kernel_print_found_ntuplets(TrackingRecHit2DSOAView const *__res
     auto nh = foundNtuplets.size(i);
     if (nh < 3)
       continue;
-    if (quality[i] < loose) continue;
+    if (quality[i] < loose)
+      continue;
     printf("TK: %d %d %d %d %f %f %f %f %f %f %f %.3f %.3f %.3f %.3f %.3f %.3f\n",
            10000 * iev + i,
            int(quality[i]),
@@ -891,7 +893,7 @@ __global__ void kernel_print_found_ntuplets(TrackingRecHit2DSOAView const *__res
            hh.zGlobal(*(foundNtuplets.begin(i) + 2)),
            nh > 3 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + 3))) : 0,
            nh > 4 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + 4))) : 0,
-           nh > 5 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + nh-1))) : 0);
+           nh > 5 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + nh - 1))) : 0);
   }
 }
 
