@@ -45,8 +45,8 @@ public:
 
   eigenSoA::ScalarSoA<int8_t, S> nLayers;
 
-  constexpr int nTracks() const { return nTracks_;}
-  constexpr void setNTracks(int n) { nTracks_=n;}
+  constexpr int nTracks() const { return nTracks_; }
+  constexpr void setNTracks(int n) { nTracks_ = n; }
 
   constexpr int nHits(int i) const { return detIndices.size(i); }
 
@@ -84,9 +84,8 @@ public:
   HitContainer hitIndices;
   HitContainer detIndices;
 
-private: 
+private:
   int nTracks_;
-
 };
 
 namespace pixelTrack {

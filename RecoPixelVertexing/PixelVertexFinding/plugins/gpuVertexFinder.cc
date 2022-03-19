@@ -28,7 +28,7 @@ namespace gpuVertexFinder {
     auto first = blockIdx.x * blockDim.x + threadIdx.x;
     for (int idx = first, nt = tracks.nTracks(); idx < nt; idx += gridDim.x * blockDim.x) {
       auto nHits = tracks.nHits(idx);
-      assert(nHits >3);
+      assert(nHits >= 3);
 
       // initialize soa...
       soa->idv[idx] = -1;
@@ -44,7 +44,7 @@ namespace gpuVertexFinder {
         continue;
 
       // clamp pt
-      pt = std::min(pt,ptMax);
+      pt = std::min(pt, ptMax);
 
       auto& data = *pws;
       auto it = atomicAdd(&data.ntrks, 1);
@@ -121,11 +121,11 @@ namespace gpuVertexFinder {
     init<<<1, 1, 0, stream>>>(soa, ws_d.get());
     auto blockSize = 128;
     auto numberOfBlocks = (TkSoA::stride() + blockSize - 1) / blockSize;
-    loadTracks<<<numberOfBlocks, blockSize, 0, stream>>>(tksoa, soa, ws_d.get(), ptMin,ptMax);
+    loadTracks<<<numberOfBlocks, blockSize, 0, stream>>>(tksoa, soa, ws_d.get(), ptMin, ptMax);
     cudaCheck(cudaGetLastError());
 #else
     init(soa, ws_d.get());
-    loadTracks(tksoa, soa, ws_d.get(), ptMin,ptMax);
+    loadTracks(tksoa, soa, ws_d.get(), ptMin, ptMax);
 #endif
 
 #ifdef __CUDACC__
