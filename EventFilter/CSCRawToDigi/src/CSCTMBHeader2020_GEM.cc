@@ -19,6 +19,10 @@ CSCTMBHeader2020_GEM::CSCTMBHeader2020_GEM() {
   bits.firmRevCode = 0x601;
   bits.nTBins = 12;
   bits.nCFEBs = 7;
+  /// Set default GEM-OTMB readout configuration
+  /// 12 time bins, all 4 GEM fibers enabled
+  bits.fifo_tbins_gem_ = 12;
+  bits.gem_enabled_fibers_ = 0xf;
 }
 
 CSCTMBHeader2020_GEM::CSCTMBHeader2020_GEM(const unsigned short* buf) { memcpy(data(), buf, sizeInWords() * 2); }

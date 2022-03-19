@@ -79,7 +79,7 @@ private:
   CSCTMBHeader theTMBHeader;
   CSCComparatorData theComparatorData;
   CSCRPCData theRPCData;
-  CSCGEMData* theGEMData;
+  CSCGEMData theGEMData;
   /// The TMB scope is not present in most of data hence its dynamic
   bool theTMBScopeIsPresent;
   CSCTMBScope* theTMBScope;

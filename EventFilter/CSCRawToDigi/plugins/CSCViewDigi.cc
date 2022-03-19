@@ -6,7 +6,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,8 +22,10 @@
 #include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 
-class CSCViewDigi : public edm::EDAnalyzer {
+class CSCViewDigi : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCViewDigi(const edm::ParameterSet&);
   ~CSCViewDigi() override;
@@ -35,6 +37,7 @@ private:
   bool WiresDigiDump, AlctDigiDump, ClctDigiDump, CorrClctDigiDump;
   bool StripDigiDump, ComparatorDigiDump, RpcDigiDump, StatusDigiDump;
   bool DDUStatusDigiDump, DCCStatusDigiDump;
+  bool gemPadsDigiDump, showerDigiDump;
 
   edm::EDGetTokenT<CSCWireDigiCollection> wd_token;
   edm::EDGetTokenT<CSCStripDigiCollection> sd_token;
@@ -46,6 +49,11 @@ private:
   edm::EDGetTokenT<CSCDCCFormatStatusDigiCollection> st_token;
   edm::EDGetTokenT<CSCDDUStatusDigiCollection> dd_token;
   edm::EDGetTokenT<CSCDCCStatusDigiCollection> dc_token;
+  edm::EDGetTokenT<GEMPadDigiClusterCollection> gem_token;
+  edm::EDGetTokenT<CSCShowerDigiCollection> lct_shwr_token;
+  edm::EDGetTokenT<CSCShowerDigiCollection> anode_shwr_token;
+  edm::EDGetTokenT<CSCShowerDigiCollection> cathode_shwr_token;
+  edm::EDGetTokenT<CSCShowerDigiCollection> alct_anode_shwr_token;
 };
 
 CSCViewDigi::CSCViewDigi(const edm::ParameterSet& conf) {
@@ -59,6 +67,12 @@ CSCViewDigi::CSCViewDigi(const edm::ParameterSet& conf) {
   st_token = consumes<CSCDCCFormatStatusDigiCollection>(conf.getParameter<edm::InputTag>("statusDigiTag"));
   dd_token = consumes<CSCDDUStatusDigiCollection>(conf.getParameter<edm::InputTag>("DDUstatusDigiTag"));
   dc_token = consumes<CSCDCCStatusDigiCollection>(conf.getParameter<edm::InputTag>("DCCstatusDigiTag"));
+  gem_token = consumes<GEMPadDigiClusterCollection>(conf.getParameter<edm::InputTag>("gemPadsDigiTag"));
+  lct_shwr_token = consumes<CSCShowerDigiCollection>(conf.getParameter<edm::InputTag>("lctShowerDigiTag"));
+  anode_shwr_token = consumes<CSCShowerDigiCollection>(conf.getParameter<edm::InputTag>("anodeShowerDigiTag"));
+  cathode_shwr_token = consumes<CSCShowerDigiCollection>(conf.getParameter<edm::InputTag>("cathodeShowerDigiTag"));
+  alct_anode_shwr_token =
+      consumes<CSCShowerDigiCollection>(conf.getParameter<edm::InputTag>("alct_anodeShowerDigiTag"));
 
   WiresDigiDump = conf.getUntrackedParameter<bool>("WiresDigiDump", false);
   StripDigiDump = conf.getUntrackedParameter<bool>("StripDigiDump", false);
@@ -70,6 +84,8 @@ CSCViewDigi::CSCViewDigi(const edm::ParameterSet& conf) {
   StatusDigiDump = conf.getUntrackedParameter<bool>("StatusDigiDump", false);
   DDUStatusDigiDump = conf.getUntrackedParameter<bool>("DDUStatus", false);
   DCCStatusDigiDump = conf.getUntrackedParameter<bool>("DCCStatus", false);
+  gemPadsDigiDump = conf.getUntrackedParameter<bool>("GEMPadsDigiDump", false);
+  showerDigiDump = conf.getUntrackedParameter<bool>("ShowerDigiDump", false);
 }
 
 CSCViewDigi::~CSCViewDigi() {}
@@ -87,6 +103,11 @@ void CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<CSCDCCFormatStatusDigiCollection> statusdigis;
   edm::Handle<CSCDDUStatusDigiCollection> DDUstatusdigi;
   edm::Handle<CSCDCCStatusDigiCollection> DCCstatusdigi;
+  edm::Handle<GEMPadDigiClusterCollection> gemPadsClusters;
+  edm::Handle<CSCShowerDigiCollection> lctShower;
+  edm::Handle<CSCShowerDigiCollection> anodeShower;
+  edm::Handle<CSCShowerDigiCollection> cathodeShower;
+  edm::Handle<CSCShowerDigiCollection> alct_anodeShower;
 
   iEvent.getByToken(wd_token, wires);
   iEvent.getByToken(sd_token, strips);
@@ -104,6 +125,16 @@ void CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   if (DCCStatusDigiDump)
     iEvent.getByToken(dc_token, DCCstatusdigi);
+
+  if (gemPadsDigiDump)
+    iEvent.getByToken(gem_token, gemPadsClusters);
+
+  if (showerDigiDump) {
+    iEvent.getByToken(lct_shwr_token, lctShower);
+    iEvent.getByToken(anode_shwr_token, anodeShower);
+    iEvent.getByToken(cathode_shwr_token, cathodeShower);
+    iEvent.getByToken(alct_anode_shwr_token, alct_anodeShower);
+  }
 
   if (WiresDigiDump) {
     std::cout << std::endl;
@@ -244,6 +275,65 @@ void CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     for (CSCDCCStatusDigiCollection::DigiRangeIterator j = DCCstatusdigi->begin(); j != DCCstatusdigi->end(); j++) {
       std::vector<CSCDCCStatusDigi>::const_iterator digiItr = (*j).second.first;
       std::vector<CSCDCCStatusDigi>::const_iterator last = (*j).second.second;
+      for (; digiItr != last; ++digiItr) {
+        digiItr->print();
+      }
+    }
+  }
+
+  if (showerDigiDump) {
+    std::cout << std::endl;
+    std::cout << "Event " << iEvent.id() << std::endl;
+    std::cout << std::endl;
+    std::cout << "********lct Shower Digis********" << std::endl;
+    for (CSCShowerDigiCollection::DigiRangeIterator j = lctShower->begin(); j != lctShower->end(); j++) {
+      std::vector<CSCShowerDigi>::const_iterator digiItr = (*j).second.first;
+      std::vector<CSCShowerDigi>::const_iterator last = (*j).second.second;
+      for (; digiItr != last; ++digiItr) {
+        std::cout << *digiItr << std::endl;
+      }
+    }
+
+    std::cout << "********cathode Shower Digis********" << std::endl;
+    for (CSCShowerDigiCollection::DigiRangeIterator j = cathodeShower->begin(); j != cathodeShower->end(); j++) {
+      std::vector<CSCShowerDigi>::const_iterator digiItr = (*j).second.first;
+      std::vector<CSCShowerDigi>::const_iterator last = (*j).second.second;
+      for (; digiItr != last; ++digiItr) {
+        std::cout << *digiItr << std::endl;
+      }
+    }
+
+    std::cout << "********anode Shower Digis********" << std::endl;
+    for (CSCShowerDigiCollection::DigiRangeIterator j = anodeShower->begin(); j != anodeShower->end(); j++) {
+      std::vector<CSCShowerDigi>::const_iterator digiItr = (*j).second.first;
+      std::vector<CSCShowerDigi>::const_iterator last = (*j).second.second;
+      for (; digiItr != last; ++digiItr) {
+        std::cout << *digiItr << std::endl;
+      }
+    }
+
+    std::cout << "********ALCT anode Shower Digis********" << std::endl;
+    for (CSCShowerDigiCollection::DigiRangeIterator j = alct_anodeShower->begin(); j != alct_anodeShower->end(); j++) {
+      std::vector<CSCShowerDigi>::const_iterator digiItr = (*j).second.first;
+      std::vector<CSCShowerDigi>::const_iterator last = (*j).second.second;
+      for (; digiItr != last; ++digiItr) {
+        if (digiItr->isValid())
+          std::cout << *digiItr << " bx: " << digiItr->getCSCID() << std::endl;
+      }
+    }
+  }
+
+  if (gemPadsDigiDump) {
+    std::cout << std::endl;
+    std::cout << "Event " << iEvent.id() << std::endl;
+    std::cout << std::endl;
+    std::cout << "********GEMPadDigiCluster Digis********" << std::endl;
+    for (GEMPadDigiClusterCollection::DigiRangeIterator j = gemPadsClusters->begin(); j != gemPadsClusters->end();
+         j++) {
+      GEMDetId gemdetid = (*j).first;
+      std::vector<GEMPadDigiCluster>::const_iterator digiItr = (*j).second.first;
+      std::vector<GEMPadDigiCluster>::const_iterator last = (*j).second.second;
+      std::cout << "GEM" << gemdetid << std::endl;
       for (; digiItr != last; ++digiItr) {
         digiItr->print();
       }

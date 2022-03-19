@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,7 +30,7 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 
-class DigiAnalyzer : public edm::EDAnalyzer {
+class DigiAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit DigiAnalyzer(edm::ParameterSet const& conf);
   void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
