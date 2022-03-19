@@ -91,7 +91,7 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
 
   kernel_fillHitDetIndices<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, hh.view(), detId_d);
   cudaCheck(cudaGetLastError());
-  kernel_fillNLayers<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tracks_d);
+  kernel_fillNLayers<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tracks_d, device_hitTuple_apc_);
   cudaCheck(cudaGetLastError());
 
   // remove duplicates (tracks that share a doublet)

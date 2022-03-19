@@ -26,10 +26,9 @@ namespace gpuVertexFinder {
     auto const* quality = tracks.qualityData();
 
     auto first = blockIdx.x * blockDim.x + threadIdx.x;
-    for (int idx = first, nt = TkSoA::stride(); idx < nt; idx += gridDim.x * blockDim.x) {
+    for (int idx = first, nt = tracks.nTracks(); idx < nt; idx += gridDim.x * blockDim.x) {
       auto nHits = tracks.nHits(idx);
-      if (nHits == 0)
-        break;  // this is a guard: maybe we need to move to nTracks...
+      assert(nHits >3);
 
       // initialize soa...
       soa->idv[idx] = -1;
