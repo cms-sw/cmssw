@@ -557,13 +557,14 @@ __global__ void kernel_fillHitDetIndices(HitContainer const *__restrict__ tuples
   }
 }
 
-__global__ void kernel_fillNLayers(TkSoA *__restrict__ ptracks) {
+__global__ void kernel_fillNLayers(TkSoA *__restrict__ ptracks, cms::cuda::AtomicPairCounter *apc) {
   auto &tracks = *ptracks;
   auto first = blockIdx.x * blockDim.x + threadIdx.x;
-  for (int idx = first, nt = TkSoA::stride(); idx < nt; idx += gridDim.x * blockDim.x) {
+  auto ntracks = apc->get().m;
+  if (0==first) tracks.setNTracks(ntracks);
+  for (int idx = first, nt = ntracks; idx < nt; idx += gridDim.x * blockDim.x) {
     auto nHits = tracks.nHits(idx);
-    if (nHits == 0)
-      break;  // this is a guard: maybe we need to move to nTracks...
+    assert (nHits >=3);
     tracks.nLayers(idx) = tracks.computeNumberOfLayers(idx);
   }
 }
