@@ -102,13 +102,14 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpTracksters(const std::vector<std::pa
 }
 
 template <typename TILES>
-void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const std::vector<std::pair<int, int>> &layerIdx2layerandSoa,
+void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const TILES &tiles,
+                                                     const std::vector<std::pair<int, int>> &layerIdx2layerandSoa,
                                                      const int eventNumber) const {
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
     edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-        << "[evt, layer, isSeed, x, y, z, r_over_absz, eta, phi, cells, energy, energy/rho, rho, z_extension, "
-           "delta_tr, delta_lyr, "
-           " nearestHighLayer, nearestHighSoaIdx, radius, clusterIdx, layerClusterOriginalIdx, SOAidx";
+        << "[evt, lyr, Seed,      x,       y,       z, r/|z|,   eta,   phi, etab, phib, cells, enrgy, e/rho,   rho, z_ext, "
+           "dlt_tr,\t     dlt_lyr, "
+           " nestHL, nestHSoaIdx, radius, clIdx, lClOrigIdx, SOAidx";
   }
 
   for (unsigned int layer = 0; layer < clusters_.size(); layer++) {
@@ -117,17 +118,42 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const std::vector<std::pair
     for (auto v : thisLayer.x) {
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
         edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-            << "ClusterInfo: " << std::setw(8) << eventNumber << ", " << std::setw(4) << layer << ", " << std::setw(4)
-            << thisLayer.isSeed[num] << ", " << std::setw(8) << v << ", " << std::setw(8) << thisLayer.y[num] << ", "
-            << std::setw(8) << thisLayer.z[num] << ", " << std::setw(8) << thisLayer.r_over_absz[num] << ", "
-            << std::setw(8) << thisLayer.eta[num] << ", " << std::setw(8) << thisLayer.phi[num] << ", " << std::setw(4)
-            << thisLayer.cells[num] << ", " << std::setw(10) << thisLayer.energy[num] << ", " << std::setw(10)
-            << (thisLayer.energy[num] / thisLayer.rho[num]) << ", " << std::setw(10) << thisLayer.rho[num] << ", "
-            << std::setw(10) << thisLayer.z_extension[num] << ", " << std::setw(10) << thisLayer.delta[num].first
-            << ", " << std::setw(10) << thisLayer.delta[num].second << ", " << std::setw(10)
-            << thisLayer.nearestHigher[num].first << ", " << std::setw(10) << thisLayer.nearestHigher[num].second
-            << ", " << std::setw(10) << thisLayer.radius[num] << ", " << std::setw(10) << thisLayer.clusterIndex[num]
-            << ", " << std::setw(10) << thisLayer.layerClusterOriginalIdx[num] << ", " << std::setw(4) << num;
+          .format("{:>4d},", eventNumber)
+          .format("{:>4d},", layer)
+          .format("{:>5d}, ", thisLayer.isSeed[num])
+          .format("{:05.3f}, ", v)
+          .format("{:05.3f}, ", thisLayer.y[num])
+          .format("{:05.3f}, ", thisLayer.z[num])
+          .format("{:05.3f}, ", thisLayer.r_over_absz[num])
+          .format("{:05.3f}, ", thisLayer.eta[num])
+          .format("{:05.3f}, ", thisLayer.phi[num])
+          .format("{:>5d}, ", tiles[layer].etaBin(thisLayer.eta[num]))
+          .format("{:>5d}, ", tiles[layer].phiBin(thisLayer.phi[num]))
+          .format("{:>4d}, ", thisLayer.cells[num])
+          .format("{:05.3f}, ", thisLayer.energy[num])
+          .format("{:05.3f}, ", thisLayer.energy[num]/thisLayer.rho[num])
+          .format("{:05.3f}, ", thisLayer.rho[num])
+          .format("{:05.3f}, ", thisLayer.z_extension[num])
+          .format("{:05.3g},", thisLayer.delta[num].first)
+          .format("\t{:>12d}, ", thisLayer.delta[num].second)
+          .format("{:>4d}, ", thisLayer.nearestHigher[num].first)
+          .format("{:>8d}, ", thisLayer.nearestHigher[num].second)
+          .format("{:05.3f}, ", thisLayer.radius[num])
+          .format("{:>4d},", thisLayer.clusterIndex[num])
+          .format("{:>4d},", thisLayer.layerClusterOriginalIdx[num])
+          .format("{:>4d}, ", num)
+          .format("ClusterInfo");
+//            << "ClusterInfo: " << std::setw(8) << eventNumber << ", " << std::setw(4) << layer << ", " << std::setw(4)
+//            << thisLayer.isSeed[num] << ", " << std::setw(8) << v << ", " << std::setw(8) << thisLayer.y[num] << ", "
+//            << std::setw(8) << thisLayer.z[num] << ", " << std::setw(8) << thisLayer.r_over_absz[num] << ", "
+//            << std::setw(8) << thisLayer.eta[num] << ", " << std::setw(8) << thisLayer.phi[num] << ", " << std::setw(4)
+//            << thisLayer.cells[num] << ", " << std::setw(10) << thisLayer.energy[num] << ", " << std::setw(10)
+//            << (thisLayer.energy[num] / thisLayer.rho[num]) << ", " << std::setw(10) << thisLayer.rho[num] << ", "
+//            << std::setw(10) << thisLayer.z_extension[num] << ", " << std::setw(10) << thisLayer.delta[num].first
+//            << ", " << std::setw(10) << thisLayer.delta[num].second << ", " << std::setw(10)
+//            << thisLayer.nearestHigher[num].first << ", " << std::setw(10) << thisLayer.nearestHigher[num].second
+//            << ", " << std::setw(10) << thisLayer.radius[num] << ", " << std::setw(10) << thisLayer.clusterIndex[num]
+//            << ", " << std::setw(10) << thisLayer.layerClusterOriginalIdx[num] << ", " << std::setw(4) << num;
       }
       ++num;
     }
@@ -213,6 +239,10 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     // below, too.
     float radius_x = sqrt((sum_sqr_x - (sum_x * sum_x) * invClsize) * invClsize);
     float radius_y = sqrt((sum_sqr_y - (sum_y * sum_y) * invClsize) * invClsize);
+    if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+      edm::LogVerbatim("PatternRecognitionbyCLUE3D")
+        .format("Cluster rx: {:5.3f}, ry: {:5.3f}, r: {:5.3f}, cells: {:>4d}", radius_x, radius_y, (radius_x+radius_y), lc.hitsAndFractions().size());
+    }
 
     // The case of single cell layer clusters has to be handled differently.
 
@@ -223,7 +253,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
         radius_x = radius_y = rhtools_.getRadiusToSide(detId);
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
           edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-              << "Single cell cluster in silicon: " << radius_x << ", " << radius_y;
+            .format("Single cell cluster in silicon. rx: {:5.3f}, ry: {:5.3f}", radius_x, radius_y);
         }
       } else {
         auto const &point = rhtools_.getPosition(detId);
@@ -231,9 +261,8 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
         radius_x = radius_y = point.perp() * eta_phi_window.second;
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
           edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-              << "Single cell cluster in scintillator: " << radius_x << ", " << radius_y;
-          edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-              << "Single cell cluster eta-phi span: " << eta_phi_window.first << ", " << eta_phi_window.second;
+            .format("Single cell cluster in scintillator. rx: {:5.3f}, ry: {:5.3f}", radius_x, radius_y)
+            .format("eta-span: {5.3f}, phi-span: {5.3f}", eta_phi_window.first, eta_phi_window.second);
         }
       }
     }
@@ -272,7 +301,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
   auto nTracksters = findAndAssignTracksters(input.tiles, layerIdx2layerandSoa);
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
     edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Reconstructed " << nTracksters << " tracksters" << std::endl;
-    dumpClusters(layerIdx2layerandSoa, eventNumber);
+    dumpClusters(input.tiles, layerIdx2layerandSoa, eventNumber);
   }
 
   // Build Trackster
@@ -592,6 +621,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
                   clustersOnLayer.r_over_absz[i] * std::abs(clustersOnLayer.phi[i]),
                   clustersLayer.r_over_absz[layerandSoa.second] * std::abs(clustersLayer.phi[layerandSoa.second]));
               edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Distance[cm]: " << (dist * clustersOnLayer.z[i]);
+              edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Energy Other:   " << clustersLayer.energy[layerandSoa.second];
+              edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Cluster radius: " << clustersOnLayer.radius[i];
             }
             if (reachable) {
               float factor_same_layer_different_cluster = (onSameLayer && !densityOnSameLayer_) ? 0.f : 1.f;
@@ -642,7 +673,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
       edm::LogVerbatim("PatternRecognitionbyCLUE3D")
           << "Starting searching nearestHigher on " << layerId << " with rho: " << clustersOnLayer.rho[i]
           << " at eta, phi: " << tiles[layerId].etaBin(clustersOnLayer.eta[i]) << ", "
-          << tiles[layerId].etaBin(clustersOnLayer.phi[i]);
+          << tiles[layerId].phiBin(clustersOnLayer.phi[i]);
     }
     // We need to partition the two sides of the HGCAL detector
     auto lastLayerPerSide = static_cast<int>(rhtools_.lastLayer(false));
@@ -675,7 +706,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
           int iphi = ((iphi_it % nPhiBin + nPhiBin) % nPhiBin);
           if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
             edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-                << "Searching nearestHigher on " << currentLayer << " eta, phi: " << ieta << ", " << iphi_it;
+                << "Searching nearestHigher on " << currentLayer << " eta, phi: " << ieta << ", " << iphi_it
+                << " " << iphi << " " << offset << " " << (offset+iphi);
           }
           for (auto otherClusterIdx : tileOnLayer[offset + iphi]) {
             auto const &layerandSoa = layerIdx2layerandSoa[otherClusterIdx];
