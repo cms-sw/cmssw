@@ -24,7 +24,6 @@ CSCTMBData::CSCTMBData()
       theE0FLine(0),
       theTMBHeader(2007, 0x50c3),
       theComparatorData(&theTMBHeader),
-      theGEMData(nullptr),
       theTMBScopeIsPresent(false),
       theTMBScope(nullptr),
       theTMBMiniScopeIsPresent(false),
@@ -43,7 +42,6 @@ CSCTMBData::CSCTMBData(int firmwareVersion, int firmwareRevision, int cfebs)
       theE0FLine(0),
       theTMBHeader(firmwareVersion, firmwareRevision),
       theComparatorData(&theTMBHeader),
-      theGEMData(nullptr),
       theTMBScopeIsPresent(false),
       theTMBScope(nullptr),
       theTMBMiniScopeIsPresent(false),
@@ -57,14 +55,21 @@ CSCTMBData::CSCTMBData(int firmwareVersion, int firmwareRevision, int cfebs)
       theGEMDataIsPresent(false) {
   theTMBHeader.setNCFEBs(cfebs);
   theComparatorData = CSCComparatorData(&theTMBHeader);
-  theTMBTrailer = CSCTMBTrailer(theTMBHeader.sizeInWords() + theComparatorData.sizeInWords(), firmwareVersion);
+  int wordCnt = theTMBHeader.sizeInWords() + theComparatorData.sizeInWords();
+  /// check if this is OTMB GEM fw
+  /// pre-allocate GEM data block and adjust expected TMB data word count
+  if ((firmwareVersion == 2020) && (((firmwareRevision >> 9) & 0x3) == 3)) {
+    theGEMDataIsPresent = true;
+    theGEMData = CSCGEMData();  // 12 GEM tbins, 0xf - 4 GEM fibers enabled
+    wordCnt += theGEMData.sizeInWords();
+  }
+  theTMBTrailer = CSCTMBTrailer(wordCnt, firmwareVersion);
 }
 
 CSCTMBData::CSCTMBData(const uint16_t* buf)
     : theOriginalBuffer(buf),
       theTMBHeader(2007, 0x50c3),
       theComparatorData(&theTMBHeader),
-      theGEMData(nullptr),
       theTMBScopeIsPresent(false),
       theTMBScope(nullptr),
       theTMBMiniScopeIsPresent(false),
@@ -112,12 +117,6 @@ CSCTMBData::CSCTMBData(const CSCTMBData& data)
   } else {
     theTMBBlockedCFEB = nullptr;
   }
-
-  if (theGEMDataIsPresent) {
-    theGEMData = new CSCGEMData(*(data.theGEMData));
-  } else {
-    theGEMData = nullptr;
-  }
 }
 
 CSCTMBData::~CSCTMBData() {
@@ -134,11 +133,6 @@ CSCTMBData::~CSCTMBData() {
   if (theBlockedCFEBIsPresent) {
     delete theTMBBlockedCFEB;
     theBlockedCFEBIsPresent = false;
-  }
-
-  if (theGEMDataIsPresent) {
-    delete theGEMData;
-    theGEMDataIsPresent = false;
   }
 }
 
@@ -195,16 +189,13 @@ int CSCTMBData::UnpackTMB(const uint16_t* buf) {
 
     if (isGEMfirmware) {
       GEMFibersMask = buf[b0cLine + 36] & 0xf;  // GEM enabled fibers 4-bits mask
-      /// Handling of enabled GEM fibers is not yet properly implemented in the firmware
+      /// Handling of enabled GEM fibers is not implemented in the firmware
       // for (int i = 0; i < 4; i++)
       //  NGEMEnabled += (buf[b0cLine + 36] >> i) & 0x1;  // Get number of enabled GEM fibers
       NGEMEnabled = 4;                              // Currently always assume that all 4 fibers are enabled
       NGEMtbins = (buf[b0cLine + 36] >> 5) & 0x1F;  // Get GEM tbins
     }
-    //    } else {
-    {
-      NRPCtbins = (buf[b0cLine + 36] >> 5) & 0x1F;  // Get RPC tbins
-    }
+    NRPCtbins = (buf[b0cLine + 36] >> 5) & 0x1F;  // Get RPC tbins
   } else if (buf[b0cLine] == 0x6b0c) {
     firmwareVersion = 2006;
     Ntbins = buf[b0cLine + 1] & 0x1f;
@@ -278,9 +269,8 @@ int CSCTMBData::UnpackTMB(const uint16_t* buf) {
     int d04Line = findLine(buf, 0x6d04, currentPosition, currentPosition + MaxSizeGEM);
     if (d04Line != -1) {
       theGEMDataIsPresent = true;
-      theGEMData = new CSCGEMData(buf + c04Line, d04Line - c04Line + 1, GEMFibersMask);
-      if (theGEMData != nullptr)
-        currentPosition += theGEMData->sizeInWords();
+      theGEMData = CSCGEMData(buf + c04Line, d04Line - c04Line + 1, GEMFibersMask);
+      currentPosition += theGEMData.sizeInWords();
     } else {
       LogTrace("CSCTMBData|CSCRawToDigi") << "CSCTMBData::corrupt GEM data! Failed to find end! ";
       return 0;
@@ -419,7 +409,7 @@ CSCTMBMiniScope& CSCTMBData::tmbMiniScope() const {
 CSCGEMData* CSCTMBData::gemData() const {
   if (!theGEMDataIsPresent)
     throw("No GEM Data in this chamber");
-  return theGEMData;
+  return const_cast<CSCGEMData*>(&theGEMData);
 }
 
 std::bitset<22> CSCTMBData::nextCRC22_D16(const std::bitset<16>& D, const std::bitset<22>& C) {
@@ -457,8 +447,15 @@ boost::dynamic_bitset<> CSCTMBData::pack() {
   boost::dynamic_bitset<> comparatorData =
       bitset_utilities::ushortToBitset(theComparatorData.sizeInWords() * 16, theComparatorData.data());
   result = bitset_utilities::append(result, comparatorData);
+
+  /// Add packed GEM data to TMB data block
+  if (theGEMDataIsPresent) {
+    boost::dynamic_bitset<> gemData =
+        bitset_utilities::ushortToBitset(theGEMData.sizeInWords() * 16, theGEMData.data());
+    result = bitset_utilities::append(result, gemData);
+  }
+
   boost::dynamic_bitset<> newResult = result;
-  //  theTMBTrailer.setCRC(TMBCRCcalc());
 
   boost::dynamic_bitset<> tmbTrailer =
       bitset_utilities::ushortToBitset(theTMBTrailer.sizeInWords() * 16, theTMBTrailer.data());

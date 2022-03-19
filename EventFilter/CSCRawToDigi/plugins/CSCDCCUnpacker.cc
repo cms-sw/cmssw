@@ -625,11 +625,14 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
                     int gem_region = (layer.endcap() == 1) ? 1 : -1;
                     for (unsigned ieta = 0; ieta < 8; ieta++) {
                       // GE11 eta needs to be reversed from 0-7 to 8-1
-                      GEMDetId gemid(gem_region, layer.ring(), layer.station(), igem + 1, gem_chamber, 8 - ieta);
+                      GEMDetId gemid(gem_region, layer.ring(), layer.station(), igem + 1, gem_chamber, ieta + 1);
                       std::vector<GEMPadDigiCluster> gemDigis =
-                          cscData[iCSC].tmbData()->gemData()->etaDigis(igem, ieta);
-                      if (!gemDigis.empty())
+                          cscData[iCSC].tmbData()->gemData()->etaDigis(igem, 7 - ieta);
+                      if (!gemDigis.empty()) {
+                        /* std::cout << "GEM" << gemid << std::endl;
+                        for (auto it : gemDigis) it.print(); */
                         gemProduct->move(std::make_pair(gemDigis.begin(), gemDigis.end()), gemid);
+                      }
                     }
                   }
                 }

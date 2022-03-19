@@ -104,7 +104,7 @@ void CSCDCCEventData::addChamber(
 
   /// Set DDU format_version field in header depending on desired format version
   unsigned ddu_fmt_version = 0x6;  // 2005 Format
-  if (format_version == 2013)
+  if (format_version >= 2013)
     ddu_fmt_version = 0x7;  /// 2013 Format
 
   if (dduIndex == -1) {

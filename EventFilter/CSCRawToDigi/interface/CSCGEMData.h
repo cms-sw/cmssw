@@ -31,6 +31,11 @@ public:
   /// turns on the debug flag for this class
   static void setDebug(bool debugValue) { debug = debugValue; }
 
+  /// Add and pack GEMPadDigiCluster digis
+  void addEtaPadCluster(const GEMPadDigiCluster &digi, int gem_chamber, int eta_roll);
+
+  unsigned short *data() { return theData; }
+
 private:
   int getPartitionNumber(int address, int nPads) const;
   int getPartitionStripNumber(int address, int nPads, int etaPart) const;
