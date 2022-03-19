@@ -851,11 +851,11 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
   iDesc.add<double>("criticalDensity", 4)->setComment("in GeV");
   iDesc.add<double>("criticalSelfDensity", 0.15 /* roughly 1/(densitySiblingLayers+1) */)
       ->setComment("Minimum ratio of self_energy/local_density to become a seed.");
-  iDesc.add<int>("densitySiblingLayers", 5)
+  iDesc.add<int>("densitySiblingLayers", 3)
       ->setComment(
           "inclusive, layers to consider while computing local density and searching for nearestHigher higher");
   iDesc.add<double>("densityEtaPhiDistanceSqr", 0.0008);
-  iDesc.add<double>("densityXYDistanceSqr", 16 /*6.76*/)
+  iDesc.add<double>("densityXYDistanceSqr", 3.24 /*6.76*/)
       ->setComment("in cm, 2.6*2.6, distance on the transverse plane to consider for local density");
   iDesc.add<double>("kernelDensityFactor", 0.2)
       ->setComment("Kernel factor to be applied to other LC while computing the local density");
@@ -872,9 +872,9 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
       ->setComment(
           "Rescale local density by the extension of the Z 'volume' explored. The transvere dimension is, at present, "
           "fixed and factored out.");
-  iDesc.add<double>("criticalEtaPhiDistance", 0.035)
+  iDesc.add<double>("criticalEtaPhiDistance", 0.025)
       ->setComment("Minimal distance in eta,phi space from nearestHigher to become a seed");
-  iDesc.add<double>("criticalXYDistance", 4.0)
+  iDesc.add<double>("criticalXYDistance", 1.8)
       ->setComment("Minimal distance in cm on the XY plane from nearestHigher to become a seed");
   iDesc.add<int>("criticalZDistanceLyr", 5)
       ->setComment("Minimal distance in layers along the Z axis from nearestHigher to become a seed");
