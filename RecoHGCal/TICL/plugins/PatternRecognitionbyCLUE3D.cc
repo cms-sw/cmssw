@@ -107,8 +107,8 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const TILES &tiles,
                                                      const int eventNumber) const {
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
     edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-        << "[evt, lyr, Seed,      x,       y,       z, r/|z|,   eta,   phi, etab, phib, cells, enrgy, e/rho,   rho, z_ext, "
-           "dlt_tr,\t     dlt_lyr, "
+        << "[evt, lyr, Seed,      x,       y,       z, r/|z|,   eta,   phi, etab,  phib, cells, enrgy, e/rho,   rho,   z_ext, "
+           "   dlt_tr,   dlt_lyr, "
            " nestHL, nestHSoaIdx, radius, clIdx, lClOrigIdx, SOAidx";
   }
 
@@ -118,18 +118,31 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const TILES &tiles,
     for (auto v : thisLayer.x) {
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
         edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-            << std::setw(4) << eventNumber << ", " << std::setw(4) << layer << ", " << std::setw(5)
-            << thisLayer.isSeed[num] << ", " << std::setw(5) << v << ", " << std::setw(5) << thisLayer.y[num] << ", "
-            << std::setw(5) << thisLayer.z[num] << ", " << std::setw(5) << thisLayer.r_over_absz[num] << ", "
-            << std::setw(5) << thisLayer.eta[num] << ", " << std::setw(5) << thisLayer.phi[num] << ", "
-            << std::setw(5) << tiles[layer].etaBin(thisLayer.eta[num]) << ", " << std::setw(5) << tiles[layer].phiBin(thisLayer.phi[num]) << ", "
-            << std::setw(4) << thisLayer.cells[num] << ", " << std::setw(5) << thisLayer.energy[num] << ", " << std::setw(5)
-            << (thisLayer.energy[num] / thisLayer.rho[num]) << ", " << std::setw(5) << thisLayer.rho[num] << ", "
-            << std::setw(5) << thisLayer.z_extension[num] << ", " << std::setw(5) << thisLayer.delta[num].first
-            << ", " << std::setw(10) << thisLayer.delta[num].second << ", " << std::setw(4)
-            << thisLayer.nearestHigher[num].first << ", " << std::setw(10) << thisLayer.nearestHigher[num].second
-            << ", " << std::setw(5) << thisLayer.radius[num] << ", " << std::setw(5) << thisLayer.clusterIndex[num]
-            << ", " << std::setw(4) << thisLayer.layerClusterOriginalIdx[num] << ", " << std::setw(4) << num << ", ClusterInfo";
+            << std::setw(4) << eventNumber << ", "
+            << std::setw(3) << layer << ", "
+            << std::setw(4) << thisLayer.isSeed[num] << ", "
+            << std::setprecision(3) << std::fixed << v << ", "
+            << thisLayer.y[num] << ", "
+            << thisLayer.z[num] << ", "
+            << thisLayer.r_over_absz[num] << ", "
+            << thisLayer.eta[num] << ", "
+            << thisLayer.phi[num] << ", "
+            << std::setw(5) << tiles[layer].etaBin(thisLayer.eta[num]) << ", "
+            << std::setw(5) << tiles[layer].phiBin(thisLayer.phi[num]) << ", "
+            << std::setw(4) << thisLayer.cells[num] << ", "
+            << std::setprecision(3) << thisLayer.energy[num] << ", "
+            << (thisLayer.energy[num] / thisLayer.rho[num]) << ", "
+            << thisLayer.rho[num] << ", "
+            << thisLayer.z_extension[num] << ", "
+            << std::scientific << thisLayer.delta[num].first << ", "
+            << std::setw(10) << thisLayer.delta[num].second << ", "
+            << std::setw(5) << thisLayer.nearestHigher[num].first << ", "
+            << std::setw(10) << thisLayer.nearestHigher[num].second << ", "
+            << std::defaultfloat << std::setprecision(3) << thisLayer.radius[num] << ", "
+            << std::setw(5) << thisLayer.clusterIndex[num] << ", "
+            << std::setw(4) << thisLayer.layerClusterOriginalIdx[num] << ", "
+            << std::setw(4) << num
+            << ", ClusterInfo";
       }
       ++num;
     }
@@ -646,9 +659,6 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
       clustersOnLayer.rho[i] /= deltaLayersZ;
     }
   }  // end of loop over clusters on this layer
-  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
-    edm::LogVerbatim("PatternRecognitionbyCLUE3D") << std::endl;
-  }
 }
 
 template <typename TILES>
