@@ -175,7 +175,7 @@ AlCa_HIEcalPi0EEonly_v*	#	CMSHLT-1680
 AlCa_HIEcalEtaEBonly_v*	#	CMSHLT-1680
 AlCa_HIEcalEtaEEonly_v*	#	CMSHLT-1680
 
-## EndPath ##
+## EndPaths / FinalPaths ##
 
 PhysicsEndOfFillOutput
 PhysicsCommissioningOutput
