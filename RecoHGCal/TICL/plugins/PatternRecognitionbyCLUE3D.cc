@@ -118,42 +118,18 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const TILES &tiles,
     for (auto v : thisLayer.x) {
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
         edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-          .format("{:>4d},", eventNumber)
-          .format("{:>4d},", layer)
-          .format("{:>5d}, ", thisLayer.isSeed[num])
-          .format("{:05.3f}, ", v)
-          .format("{:05.3f}, ", thisLayer.y[num])
-          .format("{:05.3f}, ", thisLayer.z[num])
-          .format("{:05.3f}, ", thisLayer.r_over_absz[num])
-          .format("{:05.3f}, ", thisLayer.eta[num])
-          .format("{:05.3f}, ", thisLayer.phi[num])
-          .format("{:>5d}, ", tiles[layer].etaBin(thisLayer.eta[num]))
-          .format("{:>5d}, ", tiles[layer].phiBin(thisLayer.phi[num]))
-          .format("{:>4d}, ", thisLayer.cells[num])
-          .format("{:05.3f}, ", thisLayer.energy[num])
-          .format("{:05.3f}, ", thisLayer.energy[num]/thisLayer.rho[num])
-          .format("{:05.3f}, ", thisLayer.rho[num])
-          .format("{:05.3f}, ", thisLayer.z_extension[num])
-          .format("{:05.3g},", thisLayer.delta[num].first)
-          .format("\t{:>12d}, ", thisLayer.delta[num].second)
-          .format("{:>4d}, ", thisLayer.nearestHigher[num].first)
-          .format("{:>8d}, ", thisLayer.nearestHigher[num].second)
-          .format("{:05.3f}, ", thisLayer.radius[num])
-          .format("{:>4d},", thisLayer.clusterIndex[num])
-          .format("{:>4d},", thisLayer.layerClusterOriginalIdx[num])
-          .format("{:>4d}, ", num)
-          .format("ClusterInfo");
-//            << "ClusterInfo: " << std::setw(8) << eventNumber << ", " << std::setw(4) << layer << ", " << std::setw(4)
-//            << thisLayer.isSeed[num] << ", " << std::setw(8) << v << ", " << std::setw(8) << thisLayer.y[num] << ", "
-//            << std::setw(8) << thisLayer.z[num] << ", " << std::setw(8) << thisLayer.r_over_absz[num] << ", "
-//            << std::setw(8) << thisLayer.eta[num] << ", " << std::setw(8) << thisLayer.phi[num] << ", " << std::setw(4)
-//            << thisLayer.cells[num] << ", " << std::setw(10) << thisLayer.energy[num] << ", " << std::setw(10)
-//            << (thisLayer.energy[num] / thisLayer.rho[num]) << ", " << std::setw(10) << thisLayer.rho[num] << ", "
-//            << std::setw(10) << thisLayer.z_extension[num] << ", " << std::setw(10) << thisLayer.delta[num].first
-//            << ", " << std::setw(10) << thisLayer.delta[num].second << ", " << std::setw(10)
-//            << thisLayer.nearestHigher[num].first << ", " << std::setw(10) << thisLayer.nearestHigher[num].second
-//            << ", " << std::setw(10) << thisLayer.radius[num] << ", " << std::setw(10) << thisLayer.clusterIndex[num]
-//            << ", " << std::setw(10) << thisLayer.layerClusterOriginalIdx[num] << ", " << std::setw(4) << num;
+            << std::setw(4) << eventNumber << ", " << std::setw(4) << layer << ", " << std::setw(5)
+            << thisLayer.isSeed[num] << ", " << std::setw(5) << v << ", " << std::setw(5) << thisLayer.y[num] << ", "
+            << std::setw(5) << thisLayer.z[num] << ", " << std::setw(5) << thisLayer.r_over_absz[num] << ", "
+            << std::setw(5) << thisLayer.eta[num] << ", " << std::setw(5) << thisLayer.phi[num] << ", "
+            << std::setw(5) << tiles[layer].etaBin(thisLayer.eta[num]) << ", " << std::setw(5) << tiles[layer].phiBin(thisLayer.phi[num]) << ", "
+            << std::setw(4) << thisLayer.cells[num] << ", " << std::setw(5) << thisLayer.energy[num] << ", " << std::setw(5)
+            << (thisLayer.energy[num] / thisLayer.rho[num]) << ", " << std::setw(5) << thisLayer.rho[num] << ", "
+            << std::setw(5) << thisLayer.z_extension[num] << ", " << std::setw(5) << thisLayer.delta[num].first
+            << ", " << std::setw(10) << thisLayer.delta[num].second << ", " << std::setw(4)
+            << thisLayer.nearestHigher[num].first << ", " << std::setw(10) << thisLayer.nearestHigher[num].second
+            << ", " << std::setw(5) << thisLayer.radius[num] << ", " << std::setw(5) << thisLayer.clusterIndex[num]
+            << ", " << std::setw(4) << thisLayer.layerClusterOriginalIdx[num] << ", " << std::setw(4) << num << ", ClusterInfo";
       }
       ++num;
     }
@@ -242,7 +218,10 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     float radius_y = sqrt((sum_sqr_y - (sum_y * sum_y) * invClsize) * invClsize);
     if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
       edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-        .format("Cluster rx: {:5.3f}, ry: {:5.3f}, r: {:5.3f}, cells: {:>4d}", radius_x, radius_y, (radius_x+radius_y), lc.hitsAndFractions().size());
+        << "cluster rx: " << std::setw(5) << radius_x
+        << ", ry: " << std::setw(5) << radius_y
+        << ", r:  " << std::setw(5) << (radius_x+radius_y)
+        << ", cells: " << std::setw(4) << lc.hitsAndFractions().size();
     }
 
     // The case of single cell layer clusters has to be handled differently.
@@ -253,7 +232,9 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
         radius_x = radius_y = rhtools_.getRadiusToSide(detId);
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
           edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-            .format("Single cell cluster in silicon. rx: {:5.3f}, ry: {:5.3f}", radius_x, radius_y);
+            << "Single cell cluster in silicon, rx: "
+            << std::setw(5) << radius_x << ", ry: "
+            << std::setw(5) << radius_y;
         }
       } else {
         auto const &point = rhtools_.getPosition(detId);
@@ -261,8 +242,11 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
         radius_x = radius_y = point.perp() * eta_phi_window.second;
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
           edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-            .format("Single cell cluster in scintillator. rx: {:5.3f}, ry: {:5.3f}", radius_x, radius_y)
-            .format("eta-span: {5.3f}, phi-span: {5.3f}", eta_phi_window.first, eta_phi_window.second);
+            << "Single cell cluster in scintillator. rx: "
+            << std::setw(5) << radius_x << ", ry: "
+            << std::setw(5) << radius_y << ", eta-span: "
+            << std::setw(5) << eta_phi_window.first << ", phi-span: "
+            << std::setw(5) << eta_phi_window.second;
         }
       }
     }
