@@ -96,8 +96,7 @@ public:
     m_zErrorBeamSpot = regPSet.getParameter<double>("zErrorBeamSpot");
     m_ptRanges = regPSet.getParameter<std::vector<double>>("ptRanges");
     if (m_ptRanges.size() < 2) {
-      edm::LogError("L1MuonSeededTrackingRegionsProducer")
-          << "Size of ptRanges does not be less than 2" << std::endl;
+      edm::LogError("L1MuonSeededTrackingRegionsProducer") << "Size of ptRanges does not be less than 2" << std::endl;
     }
     m_deltaEtas = regPSet.getParameter<std::vector<double>>("deltaEtas");
     if (m_deltaEtas.size() != m_ptRanges.size() - 1) {

@@ -48,8 +48,7 @@ void MuonTrackingRegionByPtBuilder::build(const edm::ParameterSet& par, edm::Con
   // Parameterized ROIs depending on the pt
   ptRanges_ = par.getParameter<std::vector<double>>("ptRanges");
   if (ptRanges_.size() < 2) {
-    edm::LogError("MuonTrackingRegionByPtBuilder")
-        << "Size of ptRanges does not be less than 2." << std::endl;
+    edm::LogError("MuonTrackingRegionByPtBuilder") << "Size of ptRanges does not be less than 2." << std::endl;
   }
 
   deltaEtas_ = par.getParameter<std::vector<double>>("deltaEtas");
@@ -94,7 +93,7 @@ void MuonTrackingRegionByPtBuilder::build(const edm::ParameterSet& par, edm::Con
 // Member function to be compatible with TrackingRegionProducerFactory: create many ROI for many tracks
 //
 std::vector<std::unique_ptr<TrackingRegion>> MuonTrackingRegionByPtBuilder::regions(const edm::Event& ev,
-                                                                                const edm::EventSetup& es) const {
+                                                                                    const edm::EventSetup& es) const {
   std::vector<std::unique_ptr<TrackingRegion>> result;
 
   edm::Handle<reco::TrackCollection> tracks;
@@ -112,7 +111,8 @@ std::vector<std::unique_ptr<TrackingRegion>> MuonTrackingRegionByPtBuilder::regi
 //
 // Call region on Track from TrackRef
 //
-std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionByPtBuilder::region(const reco::TrackRef& track) const {
+std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionByPtBuilder::region(
+    const reco::TrackRef& track) const {
   return region(*track);
 }
 
@@ -127,9 +127,8 @@ void MuonTrackingRegionByPtBuilder::setEvent(const edm::Event& event, const edm:
 //
 //	Main member function called to create the ROI
 //
-std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionByPtBuilder::region(const reco::Track& staTrack,
-                                                                                   const edm::Event& ev,
-                                                                                   const edm::EventSetup& es) const {
+std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionByPtBuilder::region(
+    const reco::Track& staTrack, const edm::Event& ev, const edm::EventSetup& es) const {
   // get track momentum/direction at vertex
   const math::XYZVector& mom = staTrack.momentum();
   GlobalVector dirVector(mom.x(), mom.y(), mom.z());
@@ -208,11 +207,11 @@ std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionByPtBuilder::
                                                                   theOnDemand,
                                                                   measurementTracker);
 
-  LogDebug("MuonTrackingRegionByPtBuilder") << "the region parameters are:\n"
-                                        << "\n dirVector: " << dirVector << "\n vertexPos: " << vertexPos
-                                        << "\n minPt: " << minPt << "\n deltaR:" << deltaR << "\n deltaZ:" << deltaZ
-                                        << "\n region_dEta:" << region_dEta << "\n region_dPhi:" << region_dPhi
-                                        << "\n on demand parameter: " << static_cast<int>(theOnDemand);
+  LogDebug("MuonTrackingRegionByPtBuilder")
+      << "the region parameters are:\n"
+      << "\n dirVector: " << dirVector << "\n vertexPos: " << vertexPos << "\n minPt: " << minPt
+      << "\n deltaR:" << deltaR << "\n deltaZ:" << deltaZ << "\n region_dEta:" << region_dEta
+      << "\n region_dPhi:" << region_dPhi << "\n on demand parameter: " << static_cast<int>(theOnDemand);
 
   return region;
 }
