@@ -31,7 +31,19 @@ static constexpr float matching_factor_eta = 3.;
 static constexpr float matching_factor_phi = 4.;
 static constexpr float min_mu_propagator_p = 3.5;
 static constexpr float min_mu_propagator_barrel_pT = 3.5;
+static constexpr float min_mu_propagator_barrel_eta = 1.1;
 static constexpr float max_mu_propagator_eta = 2.5;
+static constexpr float sigmaEtaTP_barrel = 0.0288;
+static constexpr float sigmaEtaTP_overlap = 0.025;
+static constexpr float sigmaEtaTP_endcap = 0.0144;
+static constexpr float sigmaPhiTP_value = 0.0126;
+static constexpr float eta_boundary1 = 1.55;
+static constexpr float eta_boundary1 = 1.65;
+static constexpr float eta_boundary1 = 2.4;
+static constexpr float sigmaEta_scaling = 0.100;
+static constexpr float sigmaPhi_scaling = 0.106;
+static constexpr float scaling_to_2ndstation = 850.;
+static constexpr float deta_tkz_scaling = 550.;
 
 using namespace l1t;
 
@@ -259,7 +271,7 @@ L1TkGlbMuonProducer::PropState L1TkGlbMuonProducer::propagateToGMT(const L1TkGlb
   L1TkGlbMuonProducer::PropState dest;
   if (tk_p < min_mu_propagator_p)
     return dest;
-  if (tk_aeta < 1.1 && tk_pt < min_mu_propagator_barrel_pT)
+  if (tk_aeta < min_mu_propagator_barrel_eta && tk_pt < min_mu_propagator_barrel_pT)
     return dest;
   if (tk_aeta > max_mu_propagator_eta)
     return dest;
@@ -271,16 +283,16 @@ L1TkGlbMuonProducer::PropState L1TkGlbMuonProducer::propagateToGMT(const L1TkGlb
   float deta = 0;
   float etaProp = tk_aeta;
 
-  if (tk_aeta < 1.1) {
-    etaProp = 1.1;
-    deta = tk_z / 550. / cosh(tk_aeta);
+  if (tk_aeta < min_mu_propagator_barrel_eta) {
+    etaProp = min_mu_propagator_barrel_eta;
+    deta = tk_z / deta_tkz_scaling / cosh(tk_aeta);
   } else {
-    float delta = tk_z / 850.;  //roughly scales as distance to 2nd station
+    float delta = tk_z / scaling_to_2ndstation;  //roughly scales as distance to 2nd station
     if (tk_eta > 0)
       delta *= -1;
     dzCorrPhi = 1. + delta;
 
-    float zOzs = tk_z / 850.;
+    float zOzs = tk_z / scaling_to_2ndstation;
     if (tk_eta > 0)
       deta = zOzs / (1. - zOzs);
     else
@@ -294,23 +306,23 @@ L1TkGlbMuonProducer::PropState L1TkGlbMuonProducer::propagateToGMT(const L1TkGlb
   dest.phi = resPhi;
   dest.pt = tk_pt;  //not corrected for eloss
 
-  dest.sigmaEta = 0.100 / tk_pt;  //multiple scattering term
-  dest.sigmaPhi = 0.106 / tk_pt;  //need a better estimate for these
+  dest.sigmaEta = sigmaEta_scaling / tk_pt;  //multiple scattering term
+  dest.sigmaPhi = sigmaPhi_scaling / tk_pt;  //need a better estimate for these
   return dest;
 }
 
 double L1TkGlbMuonProducer::sigmaEtaTP(const Muon& l1mu) const {
   float l1mu_eta = l1mu.eta();
-  if (std::abs(l1mu_eta) <= 1.55)
-    return 0.0288;
-  else if (std::abs(l1mu_eta) > 1.55 && std::abs(l1mu_eta) <= 1.65)
-    return 0.025;
-  else if (std::abs(l1mu_eta) > 1.65 && std::abs(l1mu_eta) <= 2.4)
-    return 0.0144;
-  return 0.0288;
+  if (std::abs(l1mu_eta) <= eta_boundary1)
+    return sigmaEtaTP_loweta;
+  else if (std::abs(l1mu_eta) > eta_boundary1 && std::abs(l1mu_eta) <= eta_boundary2)
+    return sigmaEtaTP_mediumeta;
+  else if (std::abs(l1mu_eta) > eta_boundary2 && std::abs(l1mu_eta) <= eta_boundary3)
+    return sigmaEtaTP_higheta;
+  return sigmaEtaTP_loweta;
 }
 
-double L1TkGlbMuonProducer::sigmaPhiTP(const Muon& mu) const { return 0.0126; }
+double L1TkGlbMuonProducer::sigmaPhiTP(const Muon& mu) const { return sigmaPhiTP_value; }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TkGlbMuonProducer);
