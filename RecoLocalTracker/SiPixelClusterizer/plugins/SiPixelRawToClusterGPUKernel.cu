@@ -446,8 +446,8 @@ namespace pixelgpudetails {
      // auto noADCm1 =  sipixelconstants::removeADC(gIndex==0 ? 0 : word[gIndex-1]);
      auto noADCp1 =  sipixelconstants::removeADC(gIndex==lastWord ? 0 :  word[gIndex+1]);
      if (noADC==noADCp1) {
-       auto globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
-       printf("dup pix at %d %d %d\n",detId.moduleId,globalPix.row,globalPix.col);  
+       // auto globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
+       // printf("dup pix at %d %d %d\n",detId.moduleId,globalPix.row,globalPix.col);  
        continue;
      }
 
@@ -667,7 +667,8 @@ namespace pixelgpudetails {
       std::cout << "CUDA findClus kernel launch with " << blocks << " blocks of " << threadsPerBlock << " threads\n";
 #endif
 
-      findClus<false><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
+      findClus<false><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().rawIdArr(),
+                                                              digis_d.view().moduleInd(),
                                                               digis_d.view().xx(),
                                                               digis_d.view().yy(),
                                                               clusters_d.moduleStart(),
@@ -774,7 +775,8 @@ namespace pixelgpudetails {
     threadsPerBlock = 256;
     blocks = phase2PixelTopology::numberOfModules;
 
-    findClus<true><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
+    findClus<true><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().rawIdArr(),
+                                                           digis_d.view().moduleInd(),
                                                            digis_d.view().xx(),
                                                            digis_d.view().yy(),
                                                            clusters_d.moduleStart(),
