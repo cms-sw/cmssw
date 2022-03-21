@@ -211,7 +211,7 @@ void DeepCoreSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& i
   for (const auto& jet : cores) {  // jet loop
 
     if (jet.pt() > ptMin_) {
-      std::set<long long int> ids;
+      std::set<unsigned long long int> ids;
       const reco::Vertex& jetVertex = vertices[0];
 
       std::vector<GlobalVector> splitClustDirSet =
@@ -329,8 +329,8 @@ void DeepCoreSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& i
                 const GlobalVector globSeedDir(
                     GlobalVector::Polar(Geom::Theta<double>(track_theta), Geom::Phi<double>(track_phi), normdirR));
                 LocalVector localSeedDir = globDet->surface().toLocal(globSeedDir);
-                int64_t seedid = (int64_t(xx * 200.) << 0) + (int64_t(yy * 200.) << 16) +
-                                 (int64_t(track_eta * 400.) << 32) + (int64_t(track_phi * 400.) << 48);
+                uint64_t seedid = (uint64_t(xx * 200.) << 0) + (uint64_t(yy * 200.) << 16) +
+                                  (uint64_t(track_eta * 400.) << 32) + (uint64_t(track_phi * 400.) << 48);
                 if (ids.count(seedid) != 0) {
                   continue;
                 }

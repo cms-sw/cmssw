@@ -35,9 +35,9 @@ struct __class__Worker {
 class __class__ : public TFWLiteSelector<__class__Worker> {
 public:
   __class__();
-  ~__class__();
-  void begin(TList*&);
-  void terminate(TList&);
+  ~__class__() override;
+  void begin(TList*&) override;
+  void terminate(TList&) override;
 
 private:
   __class__(__class__ const&);

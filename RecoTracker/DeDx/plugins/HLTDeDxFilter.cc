@@ -115,6 +115,11 @@ bool HLTDeDxFilter::hltFilter(edm::Event& iEvent,
 
   bool accept = false;
   int NTracks = 0;
+
+  // early return
+  if (trackCollection.empty())
+    return accept;
+
   //fill local arrays for eta, phi, and pt
   float eta[trackCollection.size()], phi[trackCollection.size()], pt[trackCollection.size()];
   for (unsigned int i = 0; i < trackCollection.size(); i++) {

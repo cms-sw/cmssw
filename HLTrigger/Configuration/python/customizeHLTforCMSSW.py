@@ -144,17 +144,15 @@ def customiseFor2018Input(process):
 
     return process
 
+def customiseFor37231(process):
+    """ Customisation to fix the typo of Reccord in PR 37231 (https://github.com/cms-sw/cmssw/pull/37231) """
 
+    for prod in producers_by_type(process, 'DeDxEstimatorProducer'):
+        if hasattr(prod, 'Reccord'):
+            prod.Record = prod.Reccord
+            delattr(prod, 'Reccord')
 
-def customiseFor37046(process):
-    """ Customisation to remove the PrescaleCSVFile parameter from the ParametersetDescription of the L1TGlobalProducer
-     in PR 37046 (https://github.com/cms-sw/cmssw/pull/37046)
-    """
-    for prod in producers_by_type(process, 'L1TGlobalProducer'):
-        if hasattr(prod, 'PrescaleCSVFile'):
-            delattr(prod, 'PrescaleCSVFile')
     return process
-
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -166,6 +164,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customiseFor37046(process)
+    process = customiseFor37231(process)
 
     return process
+

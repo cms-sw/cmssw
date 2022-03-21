@@ -1,29 +1,45 @@
 ////////// Header section /////////////////////////////////////////////
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "TH1F.h"
 
-class SDDijetsAnalyzer : public edm::EDAnalyzer {
+class SDDijetsAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// Constructor
   SDDijetsAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~SDDijetsAnalyzer();
+  ~SDDijetsAnalyzer() override = default;
 
   // Operations
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   //virtual void beginJob(const edm::EventSetup& eventSetup) ;
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
   // Input from cfg file
-  edm::InputTag genParticlesTag_;
-  edm::InputTag genJetsTag_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
+  const edm::EDGetTokenT<reco::GenJetCollection> tok_jets_;
+  const double Ebeam;
+  const bool debug;
 
   // Histograms
   TH1F* hJet1Pt;
@@ -41,25 +57,9 @@ private:
   TH1F* hProtonPt2;
 
   int nevents;
-  bool debug;
-  double Ebeam;
 };
 
 ////////// Source code ////////////////////////////////////////////////
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 struct jetptcomp {
   bool operator()(std::pair<reco::GenJetCollection::const_iterator, double> jet1,
@@ -69,15 +69,13 @@ struct jetptcomp {
 } myjetptcomp;
 
 /// Constructor
-SDDijetsAnalyzer::SDDijetsAnalyzer(const edm::ParameterSet& pset) {
-  genParticlesTag_ = pset.getParameter<edm::InputTag>("GenParticleTag");
-  genJetsTag_ = pset.getParameter<edm::InputTag>("GenJetTag");
-  Ebeam = pset.getParameter<double>("EBeam");
-  debug = pset.getUntrackedParameter<bool>("debug", false);
+SDDijetsAnalyzer::SDDijetsAnalyzer(const edm::ParameterSet& pset)
+    : genParticlesToken_(consumes<reco::GenParticleCollection>(pset.getParameter<edm::InputTag>("GenParticleTag"))),
+      tok_jets_(consumes<reco::GenJetCollection>(pset.getParameter<edm::InputTag>("GenJetTag"))),
+      Ebeam(pset.getParameter<double>("EBeam")),
+      debug(pset.getUntrackedParameter<bool>("debug", false)) {
+  usesResource(TFileService::kSharedResource);
 }
-
-/// Destructor
-SDDijetsAnalyzer::~SDDijetsAnalyzer() {}
 
 void SDDijetsAnalyzer::beginJob() {
   edm::Service<TFileService> fs;
@@ -108,8 +106,7 @@ void SDDijetsAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&) {
   nevents++;
 
   // Generator Information
-  edm::Handle<reco::GenParticleCollection> genParticles;
-  ev.getByLabel(genParticlesTag_, genParticles);
+  const edm::Handle<reco::GenParticleCollection>& genParticles = ev.getHandle(genParticlesToken_);
   double pz1max = 0.;
   double pz2min = 0.;
   reco::GenParticleCollection::const_iterator proton1 = genParticles->end();
@@ -155,8 +152,7 @@ void SDDijetsAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&) {
     hProtonPt2->Fill(proton2->pt() * proton2->pt());
   }
 
-  edm::Handle<reco::GenJetCollection> genJets;
-  ev.getByLabel(genJetsTag_, genJets);
+  const edm::Handle<reco::GenJetCollection>& genJets = ev.getHandle(tok_jets_);
   if (genJets->size() < 2)
     return;
 

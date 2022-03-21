@@ -29,15 +29,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 @example_stream#include "DQMServices/Core/interface/MonitorElement.h"
-
+@example_stream
 //
 // class declaration
 //
 
 @example_globalstruct Histograms___class__ {
-@example_global dqm::reco::MonitorElement* histo_;
+@example_global  dqm::reco::MonitorElement* histo_;
 @example_global};
-
+@example_global
 @example_streamclass __class__ : public DQMEDAnalyzer {
 @example_globalclass __class__ : public DQMGlobalEDAnalyzer<Histograms___class__> {
 public:
@@ -104,7 +104,9 @@ __class__::~__class__() {
 @example_stream  exampleTProfile2D_->Fill(eventCount_ / 10, eventCount_ / 10, eventCount_ / 10.f);
 @example_stream}
 @example_stream
-@example_streamvoid __class__::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& run, edm::EventSetup const& iSetup) {
+@example_streamvoid __class__::bookHistograms(DQMStore::IBooker& ibook,
+@example_stream     __class_space__                 edm::Run const& run,
+@example_stream     __class_space__                 edm::EventSetup const& iSetup) {
 @example_stream  ibook.setCurrentFolder(folder_);
 @example_stream
 @example_stream  example_ = ibook.book1D("EXAMPLE", "Example 1D", 20, 0., 10.);
@@ -115,20 +117,19 @@ __class__::~__class__() {
 @example_stream}
 
 @example_globalvoid __class__::dqmAnalyze(edm::Event const& iEvent,
-@example_global                           edm::EventSetup const& iSetup,
-@example_global                           Histograms___class__ const& histos) const {
+@example_global     __class_space__             edm::EventSetup const& iSetup,
+@example_global     __class_space__             Histograms___class__ const& histos) const {
 @example_global  histos.histo_->Fill(1.);
 @example_global}
 @example_global
-
 @example_globalvoid __class__::bookHistograms(DQMStore::IBooker& ibook,
-@example_global                               edm::Run const& run,
-@example_global                               edm::EventSetup const& iSetup,
-@example_global                               Histograms___class__& histos) const {
+@example_global     __class_space__                 edm::Run const& run,
+@example_global     __class_space__                 edm::EventSetup const& iSetup,
+@example_global     __class_space__                 Histograms___class__& histos) const {
 @example_global  ibook.setCurrentFolder(folder_);
 @example_global  histos.histo_ = ibook.book1D("EXAMPLE", "EXAMPLE", 10, 0., 10.);
 @example_global}
-
+@example_global
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void __class__::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // The following says we do not know what parameters are allowed so do no
