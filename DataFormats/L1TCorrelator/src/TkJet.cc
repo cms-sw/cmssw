@@ -15,20 +15,6 @@ TkJet::TkJet(const LorentzVector& p4,
              const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
              float jetvtx)
     : L1Candidate(p4), jetRef_(jetRef), trkPtrs_(trkPtrs), JetVtx_(jetvtx) {}
-/*TkJet::TkJet(const LorentzVector& p4,
-             const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
-             float jetvtx,
-             unsigned int ntracks,
-             unsigned int tighttracks,
-             unsigned int displacedtracks,
-             unsigned int tightdisplacedtracks)
-    : L1Candidate(p4),
-      trkPtrs_(trkPtrs),
-      JetVtx_(jetvtx),
-      ntracks_(ntracks),
-      tighttracks_(tighttracks),
-      displacedtracks_(displacedtracks),
-      tightdisplacedtracks_(tightdisplacedtracks) {}*/
 TkJet::TkJet(const LorentzVector& p4,
              const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
              float jetvtx,
