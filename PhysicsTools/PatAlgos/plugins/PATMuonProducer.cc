@@ -1031,6 +1031,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const double edB3D = std::abs(muon.edB(pat::Muon::PV3D));
       const double sip3D = edB3D > 0 ? dB3D / edB3D : 0.0;
       const double dz = std::abs(muon.muonBestTrack()->dz(primaryVertex.position()));
+      const double dxy = std::abs(muon.muonBestTrack()->dxy(primaryVertex.position()));
 
       // muon preselection
       if (muon.pt() > 5 and muon.isLooseMuon() and muon.passed(reco::Muon::MiniIsoLoose) and sip3D < 8.0 and
@@ -1060,7 +1061,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       muon.setMvaIDValue(mvaID);
       muon.setSelector(reco::Muon::MvaIDwpMedium, muon.mvaIDValue() > mvaIDmediumCut);
-      muon.setSelector(reco::Muon::MvaIDwpTight, muon.mvaIDValue() > mvaIDtightCut);
+      muon.setSelector(reco::Muon::MvaIDwpTight, muon.mvaIDValue() > mvaIDtightCut and dz < 0.5 and dxy < 0.2);
     }
 
     //SOFT MVA
