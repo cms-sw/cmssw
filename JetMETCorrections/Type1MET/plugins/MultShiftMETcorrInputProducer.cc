@@ -38,6 +38,11 @@ MultShiftMETcorrInputProducer::MultShiftMETcorrInputProducer(const edm::Paramete
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
   pflow_ = consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("srcPFlow"));
   vertices_ = consumes<edm::View<reco::Vertex>>(cfg.getParameter<edm::InputTag>("vertexCollection"));
+  
+  // if the parameter exsits use the value how it was set
+  if(cfg.existsAs<bool>("useGoodVertices")) useGoodVertices_ = cfg.getParameter<bool>("useGoodVertices");
+  // if not, reproduce the previous behaviour of this module, which corresponds to 'true'
+  else useGoodVertices_ = true;
 
   edm::InputTag srcWeights = cfg.getParameter<edm::InputTag>("srcWeights");
   if (!srcWeights.label().empty())
@@ -88,12 +93,16 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   if (!hpv.isValid()) {
     edm::LogError("MultShiftMETcorrInputProducer::produce") << "could not find vertex collection ";
   }
-  std::vector<reco::Vertex> goodVertices;
-  for (unsigned i = 0; i < hpv->size(); i++) {
-    if ((*hpv)[i].ndof() > 4 && (fabs((*hpv)[i].z()) <= 24.) && (fabs((*hpv)[i].position().rho()) <= 2.0))
-      goodVertices.push_back((*hpv)[i]);
+  uint ngoodVertices = 0;
+  if(useGoodVertices_) {
+      for (unsigned i = 0; i < hpv->size(); i++) {
+        if ((*hpv)[i].ndof() > 4 && (fabs((*hpv)[i].z()) <= 24.) && (fabs((*hpv)[i].position().rho()) <= 2.0))
+          ngoodVertices += 1;
+      }
   }
-  int ngoodVertices = goodVertices.size();
+  else {
+      ngoodVertices = hpv->size();
+  }
 
   for (unsigned i = 0; i < counts_.size(); i++)
     counts_[i] = 0;
@@ -106,18 +115,20 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   edm::Handle<edm::ValueMap<float>> weights;
   if (!weightsToken_.isUninitialized())
     evt.getByToken(weightsToken_, weights);
-  for (unsigned i = 0; i < particleFlow->size(); ++i) {
-    const reco::Candidate& c = particleFlow->at(i);
-    for (unsigned j = 0; j < type_.size(); j++) {
-      if (abs(c.pdgId()) == translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(type_[j]))) {
-        if ((c.eta() > etaMin_[j]) and (c.eta() < etaMax_[j])) {
-          float weight = (!weightsToken_.isUninitialized()) ? (*weights)[particleFlow->ptrAt(i)] : 1.0;
-          counts_[j] += (weight > 0);
-          sumPt_[j] += c.pt() * weight;
-          continue;
+  if(std::find(varType_.begin(),varType_.end(),0)!=varType_.end() || std::find(varType_.begin(),varType_.end(),2)!=varType_.end()) {
+      for (unsigned i = 0; i < particleFlow->size(); ++i) {
+        const reco::Candidate& c = particleFlow->at(i);
+        for (unsigned j = 0; j < type_.size(); j++) {
+          if (abs(c.pdgId()) == translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(type_[j]))) {
+            if ((c.eta() > etaMin_[j]) and (c.eta() < etaMax_[j])) {
+              float weight = (!weightsToken_.isUninitialized()) ? (*weights)[particleFlow->ptrAt(i)] : 1.0;
+              counts_[j] += (weight > 0);
+              sumPt_[j] += c.pt() * weight;
+              continue;
+            }
+          }
         }
       }
-    }
   }
 
   //MM: loop over all constituent types and sum each correction
