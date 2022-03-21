@@ -44,7 +44,7 @@
 class EcalPh2DigiToGPUProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   explicit EcalPh2DigiToGPUProducer(const edm::ParameterSet& ps);
-  ~EcalPh2DigiToGPUProducer() override;
+  ~EcalPh2DigiToGPUProducer() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void acquire(edm::Event const& event, edm::EventSetup const& setup, edm::WaitingTaskWithArenaHolder holder) override;
@@ -76,9 +76,6 @@ void EcalPh2DigiToGPUProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 EcalPh2DigiToGPUProducer::EcalPh2DigiToGPUProducer(const edm::ParameterSet &ps)
 : ebDigiCollectionToken_(consumes<EBDigiCollectionPh2>(ps.getParameter<edm::InputTag>("BarrelDigis"))),
   digisCollectionTokenEB_(produces<cms::cuda::Product<ecal::DigisCollection<calo::common::DevStoragePolicy>>>(ps.getParameter<std::string>("digisLabelEB"))) {}
-
-EcalPh2DigiToGPUProducer::~EcalPh2DigiToGPUProducer() {}
-
 
 
 void EcalPh2DigiToGPUProducer::acquire(edm::Event const& event, edm::EventSetup const& setup, edm::WaitingTaskWithArenaHolder holder) {

@@ -24,9 +24,8 @@
 class EcalUncalibRecHitPhase2WeightsProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   explicit EcalUncalibRecHitPhase2WeightsProducerGPU(edm::ParameterSet const &ps);
-  ~EcalUncalibRecHitPhase2WeightsProducerGPU() override;
+  ~EcalUncalibRecHitPhase2WeightsProducerGPU() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions &);
-
 
 private:
   void acquire(edm::Event const &, edm::EventSetup const &, edm::WaitingTaskWithArenaHolder) override;
@@ -41,11 +40,6 @@ private:
   const edm::EDGetTokenT<InputProduct> digisTokenEB_;
   using OutputProduct = cms::cuda::Product<ecal::UncalibratedRecHit<calo::common::DevStoragePolicy>>;
   const edm::EDPutTokenT<OutputProduct> recHitsTokenEB_;
-
-  // const edm::ESGetToken<EcalGainRatiosGPU, EcalGainRatiosRcd> gainRatiosToken_;
-
-  // configuration parameters
-  // ecal::multifit::ConfigurationParametersWeights configParameters_;
 
   // event data
   ecal::weights::EventOutputDataGPUWeights eventOutputDataGPU_;
@@ -76,6 +70,7 @@ EcalUncalibRecHitPhase2WeightsProducerGPU::EcalUncalibRecHitPhase2WeightsProduce
         // start_ = std::chrono::high_resolution_clock::now();
         // event_counter_ = 0;
       }
+
 
 // fill descriptions which describes parameters and has the weights
 void EcalUncalibRecHitPhase2WeightsProducerGPU::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -163,7 +158,7 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::acquire(edm::Event const &event,
   // duration_ = end_ - start_;
   // ms = 0.;
   // ms = duration_.count()*1000;
-  // start_ = std::chrono::high_resolution_clock::now();    //kernel timing
+  start_ = std::chrono::high_resolution_clock::now();    //kernel timing
   // std::cout<< ms << "ms aquire\n";
 
 
@@ -181,18 +176,18 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::acquire(edm::Event const &event,
 
 void EcalUncalibRecHitPhase2WeightsProducerGPU::produce(edm::Event& event, const edm::EventSetup& setup) {
   // kernel timing
-  //   end_ = std::chrono::high_resolution_clock::now();
-  // duration_ = end_ - start_;
-  // float ms = 0.;
-  // ms = duration_.count()*1000;
+  end_ = std::chrono::high_resolution_clock::now();
+  duration_ = end_ - start_;
+  float ms = 0.;
+  ms = duration_.count()*1000;
 
-  // ms_[event_counter_] = ms;
-  // event_counter_ ++;
+  ms_[event_counter_] = ms;
+  event_counter_ ++;
 
-  // if (event_counter_ == 8900){
-  // for (int i =0; i< event_counter_;i++){
-  // std::cout<< ms_[i] << "\n";}
-  // }
+  if (event_counter_ == 8900){
+  for (int i =0; i< event_counter_;i++){
+  std::cout<< ms_[i] << "\n";}
+  }
 
   // start_ = std::chrono::high_resolution_clock::now();
 
