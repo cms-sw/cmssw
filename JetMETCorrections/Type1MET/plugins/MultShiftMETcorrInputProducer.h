@@ -42,6 +42,7 @@ private:
   edm::EDGetTokenT<edm::View<reco::Vertex>> vertices_;
   std::string moduleLabel_;
   edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
+  bool useGoodVertices_;
 
   std::vector<edm::ParameterSet> cfgCorrParameters_;
 
