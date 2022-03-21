@@ -184,8 +184,7 @@ private:
                       const reco::BeamSpot& beamspot,
                       const MagneticField* magfi);
   std::vector<int> selectGoodVertices(const ZVertexSoA& patavtx_soa,
-                                      const pixelTrack::TrackSoA& patatracks_tsoa,
-                                      const std::vector<int>& TrackGood);
+                                      const pixelTrack::TrackSoA& patatracks_tsoa );
   std::pair<float, float> impactParameter(int it,
                                           const pixelTrack::TrackSoA& patatracks_tsoa,
                                           float patatrackPhi,
@@ -567,31 +566,33 @@ void L2TauNNProducer::fillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
 }
 
 std::vector<int> L2TauNNProducer::selectGoodVertices(const ZVertexSoA& patavtx_soa,
-                                                     const pixelTrack::TrackSoA& patatracks_tsoa,
-                                                     const std::vector<int>& TrackGood) {
-  auto maxTracks = patatracks_tsoa.stride();
-  const int nv = patavtx_soa.nvFinal;
-  std::vector<int> VtxGood;
-  if (nv == 0)
-    return VtxGood;
-  VtxGood.reserve(nv);
+                                                     const pixelTrack::TrackSoA& patatracks_tsoa) {
+   auto maxTracks = patatracks_tsoa.stride();
+   const int nv = patavtx_soa.nvFinal;
+   std::vector<int> VtxGood;
+   if (nv == 0)
+     return VtxGood;
+   VtxGood.reserve(nv);
 
-  std::vector<double> maxChi2_;
-  std::vector<double> pTSquaredSum(nv);
+   std::vector<double> maxChi2_;
+   std::vector<double> pTSquaredSum(nv);
 
-  for (int j = nv - 1; j >= 0; --j) {
-    std::vector<int> trk_ass_to_vtx;
-    auto vtx_idx = patavtx_soa.sortInd[j];
-    assert(vtx_idx < nv);
-    for (int trk_idx = 0; trk_idx < maxTracks; trk_idx++) {
-      int vtx_ass_to_track = patavtx_soa.idv[trk_idx];
-      if (vtx_ass_to_track == int16_t(vtx_idx))
-        trk_ass_to_vtx.push_back(trk_idx);
-    }
-    auto nt = trk_ass_to_vtx.size();
-    if (nt == 0) {
-      continue;
-    }
+   for (int j = nv - 1; j >= 0; --j) {
+     std::vector<int> trk_ass_to_vtx;
+     auto vtx_idx = patavtx_soa.sortInd[j];
+     assert(vtx_idx < nv);
+     for (int trk_idx = 0; trk_idx < maxTracks; trk_idx++) {
+       auto nHits = patatracks_tsoa.nHits(trk_idx);
+       if (nHits == 0)
+         break;
+       int vtx_ass_to_track = patavtx_soa.idv[trk_idx];
+       if (vtx_ass_to_track == int16_t(vtx_idx))
+         trk_ass_to_vtx.push_back(trk_idx);
+     }
+     auto nt = trk_ass_to_vtx.size();
+     if (nt == 0) {
+       continue;
+     }
     if (nt < 2) {
       trk_ass_to_vtx.clear();
       continue;
@@ -699,7 +700,7 @@ void L2TauNNProducer::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
       TrackGood.push_back(it);
     }
 
-    std::vector<int> VtxGood = selectGoodVertices(patavtx_soa, patatracks_tsoa, TrackGood);
+    std::vector<int> VtxGood = selectGoodVertices(patavtx_soa, patatracks_tsoa);
 
     for (const auto it : TrackGood) {
       const float patatrackPt = patatracks_tsoa.pt[it];
@@ -831,7 +832,8 @@ void L2TauNNProducer::produce(edm::Event& event, const edm::EventSetup& eventset
     for (size_t tau_pos = 0; tau_pos < nTau; ++tau_pos) {
       const auto tau_idx = TauCollectionMap[inp_idx][tau_pos];
       if (debugLevel_ > 0) {
-        edm::LogInfo("DebugInfo") << event.id().event() << " \t " << (allTaus[tau_idx])->pt() << " \t "
+        std::cout << event.id().event() << " \t " << (allTaus[tau_idx])->pt() << " \t "
+        //edm::LogInfo("DebugInfo") << event.id().event() << " \t " << (allTaus[tau_idx])->pt() << " \t "
                                   << tau_score.at(tau_idx) << std::endl;
       }
       (*tau_tags)[tau_pos] = tau_score.at(tau_idx);
