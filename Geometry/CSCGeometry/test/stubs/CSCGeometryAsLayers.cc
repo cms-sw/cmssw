@@ -15,7 +15,7 @@
 class CSCGeometryAsLayers : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCGeometryAsLayers(const edm::ParameterSet&);
-  ~CSCGeometryAsLayers() override;
+  ~CSCGeometryAsLayers() override = default;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
@@ -27,12 +27,14 @@ private:
   const int dashedLineWidth_;
   const std::string dashedLine_;
   const std::string myName_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> tokGeom_;
 };
 
 CSCGeometryAsLayers::CSCGeometryAsLayers(const edm::ParameterSet& iConfig)
-    : dashedLineWidth_(194), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("CSCGeometryAsLayers") {}
-
-CSCGeometryAsLayers::~CSCGeometryAsLayers() {}
+    : dashedLineWidth_(194),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("CSCGeometryAsLayers"),
+      tokGeom_(esConsumes()) {}
 
 void CSCGeometryAsLayers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const double dPi = Geom::pi();
@@ -42,8 +44,7 @@ void CSCGeometryAsLayers::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::cout << "start " << dashedLine_ << std::endl;
   std::cout << "pi = " << dPi << ", radToDeg = " << radToDeg << std::endl;
 
-  edm::ESHandle<CSCGeometry> pgeom;
-  iSetup.get<MuonGeometryRecord>().get(pgeom);
+  const edm::ESHandle<CSCGeometry>& pgeom = iSetup.getHandle(tokGeom_);
   std::cout << " Geometry node for CSCGeom is  " << &(*pgeom) << std::endl;
   std::cout << " I have " << pgeom->dets().size() << " detectors" << std::endl;
   std::cout << " I have " << pgeom->detTypes().size() << " types"

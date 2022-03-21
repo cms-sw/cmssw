@@ -8,21 +8,20 @@
 //#include "CLHEP/Vector/LorentzVector.h"
 
 PomwigAnalyzer::PomwigAnalyzer(const edm::ParameterSet& iConfig)
-    : hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")) {
-  outputFilename = iConfig.getUntrackedParameter<std::string>("OutputFilename", "dummy.root");
-  hist_t = new TH1D("hist_t", "t proton", 100, -1.4, 0);
-  hist_xigen = new TH1D("hist_xigen", "#xi proton", 100, 0., 0.1);
+    : hepMCToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("hepMCProductTag"))),
+      outputFilename(iConfig.getUntrackedParameter<std::string>("OutputFilename", "dummy.root")) {
+  usesResource(TFileService::kSharedResource);
+  edm::Service<TFileService> fs;
+  hist_t = fs->make<TH1D>("hist_t", "t proton", 100, -1.4, 0);
+  hist_xigen = fs->make<TH1D>("hist_xigen", "#xi proton", 100, 0., 0.1);
 }
-
-PomwigAnalyzer::~PomwigAnalyzer() {}
 
 // ------------ method called to for each event  ------------
 void PomwigAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   // get HepMC::GenEvent ...
-  Handle<HepMCProduct> evt_h;
-  iEvent.getByLabel(hepMCProductTag_, evt_h);
+  const edm::Handle<edm::HepMCProduct>& evt_h = iEvent.getHandle(hepMCToken_);
   HepMC::GenEvent* evt = new HepMC::GenEvent(*(evt_h->GetEvent()));
 
   // look for protons
@@ -68,11 +67,7 @@ void PomwigAnalyzer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void PomwigAnalyzer::endJob() {
-  // save histograms into file
-  TFile file(outputFilename.c_str(), "RECREATE");
-  hist_t->Write();
-  hist_xigen->Write();
-  file.Close();
+  // save histograms into file by TFileService
 }
 
 //define this as a plug-in

@@ -5,3 +5,8 @@
   <use name="millepede"/>
   <flags USE_UNITTEST_DIR="1"/>
 </test>
+<bin name="testPedeCampaign" file="TestDriver.cpp">
+  <flags TEST_RUNNER_ARGS="/bin/bash Alignment/MillePedeAlignmentAlgorithm/test test_pede.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+

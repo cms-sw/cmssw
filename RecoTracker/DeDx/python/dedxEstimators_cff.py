@@ -33,7 +33,7 @@ dedxHarmonic2 = _mod.DeDxEstimatorProducer.clone(
     fraction       = 0.4,        #Used only if estimator='truncated'
     exponent       = -2.0,       #Used only if estimator='generic'
 
-    Reccord            = "SiStripDeDxMip_3D_Rcd", #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
+    Record            = "SiStripDeDxMip_3D_Rcd", #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
     ProbabilityMode    = "Accumulation",          #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
 )
 

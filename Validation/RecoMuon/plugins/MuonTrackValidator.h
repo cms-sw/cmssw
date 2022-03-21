@@ -6,7 +6,6 @@
 *
 */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Validation/RecoMuon/plugins/MuonTrackValidatorBase.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 

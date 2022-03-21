@@ -430,7 +430,7 @@ namespace mkfit {
 
   void MkBuilder::find_tracks_load_seeds_BH(const TrackVec &in_seeds) {
     // bool debug = true;
-
+    assert(!in_seeds.empty());
     m_tracks.reserve(in_seeds.size());
     m_tracks.clear();
 
@@ -512,10 +512,10 @@ namespace mkfit {
                           m_job->m_iter_config.m_layer_configs[curr_layer],
                           m_job->get_mask_for_layer(curr_layer));
 
-            dprint("at layer " << curr_layer);
             const LayerOfHits &layer_of_hits = m_job->m_event_of_hits[curr_layer];
             const LayerInfo &layer_info = trk_info.layer(curr_layer);
             const FindingFoos &fnd_foos = FindingFoos::get_finding_foos(layer_info.is_barrel());
+            dprint("at layer " << curr_layer << ", nHits in layer " << layer_of_hits.nHits());
 
             // Pick up seeds that become active on current layer -- unless already fully loaded.
             if (curr_tridx < rng.n_proc()) {
@@ -595,9 +595,8 @@ namespace mkfit {
 
   void MkBuilder::find_tracks_load_seeds(const TrackVec &in_seeds) {
     // This will sort seeds according to iteration configuration.
-
-    // m_tracks can be used for BkFit.
-    m_tracks.clear();
+    assert(!in_seeds.empty());
+    m_tracks.clear();  // m_tracks can be used for BkFit.
 
     m_event_of_comb_cands.reset((int)in_seeds.size(), m_job->max_max_cands());
 
@@ -799,6 +798,8 @@ namespace mkfit {
                                                          prev_layer,
                                                          layer_plan_it.is_pickup_only(),
                                                          iteration_dir);
+
+          dprintf("  Number of candidates to process: %d, nHits in layer: %d\n", theEndCand, layer_of_hits.nHits());
 
           if (layer_plan_it.is_pickup_only() || theEndCand == 0)
             continue;
@@ -1002,7 +1003,7 @@ namespace mkfit {
       const int theEndCand = find_tracks_unroll_candidates(
           seed_cand_idx, start_seed, end_seed, curr_layer, prev_layer, pickup_only, iteration_dir);
 
-      dprintf("  Number of candidates to process: %d\n", theEndCand);
+      dprintf("  Number of candidates to process: %d, nHits in layer: %d\n", theEndCand, layer_of_hits.nHits());
 
       // Don't bother messing with the clone engine if there are no candidates
       // (actually it crashes, so this protection is needed).

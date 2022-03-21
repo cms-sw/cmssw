@@ -129,7 +129,7 @@ namespace mkfit {
     // This might not be true for the last chunk!
     // assert(end - beg == NN);
 
-    MatriplexTrackPacker mtp(tracks[beg]);
+    MatriplexTrackPacker mtp(&tracks[beg]);
 
     for (int i = beg; i < end; ++i) {
       int itrack = i - beg;
@@ -147,7 +147,7 @@ namespace mkfit {
 
     // CopyIn seems fast enough, but indirections are quite slow.
     for (int hi = 0; hi < m_Nhits; ++hi) {
-      MatriplexHitPacker mhp(layerHits[hi][0]);
+      MatriplexHitPacker mhp(layerHits[hi].data());
 
       for (int i = beg; i < end; ++i) {
         const int hidx = tracks[i].getHitIdx(hi);
@@ -276,8 +276,8 @@ namespace mkfit {
     // XXXX MT Here the same idx array WAS used for slurping in of tracks and
     // hots. With this, two index arrays are built, one within each packer.
 
-    MatriplexTrackPacker mtp(tracks[beg]);
-    MatriplexHoTPacker mhotp(*tracks[beg].getHitsOnTrackArray());
+    MatriplexTrackPacker mtp(&tracks[beg]);
+    MatriplexHoTPacker mhotp(tracks[beg].getHitsOnTrackArray());
 
     int itrack = 0;
 
@@ -310,7 +310,7 @@ namespace mkfit {
 
     for (int ii = 0; ii < m_Nhits; ++ii) {
       // XXXX Assuming hit index corresponds to layer!
-      MatriplexHitPacker mhp(layersohits[ii][0]);
+      MatriplexHitPacker mhp(layersohits[ii].data());
 
       for (int i = 0; i < N_proc; ++i) {
         const int hidx = m_HoTArr[ii](i, 0, 0).index;
