@@ -106,10 +106,10 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const TILES &tiles,
                                                      const std::vector<std::pair<int, int>> &layerIdx2layerandSoa,
                                                      const int eventNumber) const {
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
-    edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-        << "[evt, lyr, Seed,      x,       y,       z, r/|z|,   eta,   phi, etab,  phib, cells, enrgy, e/rho,   rho,   z_ext, "
-           "   dlt_tr,   dlt_lyr, "
-           " nestHL, nestHSoaIdx, radius, clIdx, lClOrigIdx, SOAidx";
+    edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "[evt, lyr, Seed,      x,       y,       z, r/|z|,   eta,   phi, "
+                                                      "etab,  phib, cells, enrgy, e/rho,   rho,   z_ext, "
+                                                      "   dlt_tr,   dlt_lyr, "
+                                                      " nestHL, nestHSoaIdx, radius, clIdx, lClOrigIdx, SOAidx";
   }
 
   for (unsigned int layer = 0; layer < clusters_.size(); layer++) {
@@ -118,31 +118,19 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const TILES &tiles,
     for (auto v : thisLayer.x) {
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
         edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-            << std::setw(4) << eventNumber << ", "
-            << std::setw(3) << layer << ", "
-            << std::setw(4) << thisLayer.isSeed[num] << ", "
-            << std::setprecision(3) << std::fixed << v << ", "
-            << thisLayer.y[num] << ", "
-            << thisLayer.z[num] << ", "
-            << thisLayer.r_over_absz[num] << ", "
-            << thisLayer.eta[num] << ", "
-            << thisLayer.phi[num] << ", "
-            << std::setw(5) << tiles[layer].etaBin(thisLayer.eta[num]) << ", "
-            << std::setw(5) << tiles[layer].phiBin(thisLayer.phi[num]) << ", "
-            << std::setw(4) << thisLayer.cells[num] << ", "
-            << std::setprecision(3) << thisLayer.energy[num] << ", "
-            << (thisLayer.energy[num] / thisLayer.rho[num]) << ", "
-            << thisLayer.rho[num] << ", "
-            << thisLayer.z_extension[num] << ", "
-            << std::scientific << thisLayer.delta[num].first << ", "
-            << std::setw(10) << thisLayer.delta[num].second << ", "
-            << std::setw(5) << thisLayer.nearestHigher[num].first << ", "
-            << std::setw(10) << thisLayer.nearestHigher[num].second << ", "
-            << std::defaultfloat << std::setprecision(3) << thisLayer.radius[num] << ", "
-            << std::setw(5) << thisLayer.clusterIndex[num] << ", "
-            << std::setw(4) << thisLayer.layerClusterOriginalIdx[num] << ", "
-            << std::setw(4) << num
-            << ", ClusterInfo";
+            << std::setw(4) << eventNumber << ", " << std::setw(3) << layer << ", " << std::setw(4)
+            << thisLayer.isSeed[num] << ", " << std::setprecision(3) << std::fixed << v << ", " << thisLayer.y[num]
+            << ", " << thisLayer.z[num] << ", " << thisLayer.r_over_absz[num] << ", " << thisLayer.eta[num] << ", "
+            << thisLayer.phi[num] << ", " << std::setw(5) << tiles[layer].etaBin(thisLayer.eta[num]) << ", "
+            << std::setw(5) << tiles[layer].phiBin(thisLayer.phi[num]) << ", " << std::setw(4) << thisLayer.cells[num]
+            << ", " << std::setprecision(3) << thisLayer.energy[num] << ", "
+            << (thisLayer.energy[num] / thisLayer.rho[num]) << ", " << thisLayer.rho[num] << ", "
+            << thisLayer.z_extension[num] << ", " << std::scientific << thisLayer.delta[num].first << ", "
+            << std::setw(10) << thisLayer.delta[num].second << ", " << std::setw(5)
+            << thisLayer.nearestHigher[num].first << ", " << std::setw(10) << thisLayer.nearestHigher[num].second
+            << ", " << std::defaultfloat << std::setprecision(3) << thisLayer.radius[num] << ", " << std::setw(5)
+            << thisLayer.clusterIndex[num] << ", " << std::setw(4) << thisLayer.layerClusterOriginalIdx[num] << ", "
+            << std::setw(4) << num << ", ClusterInfo";
       }
       ++num;
     }
@@ -231,10 +219,9 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     float radius_y = sqrt((sum_sqr_y - (sum_y * sum_y) * invClsize) * invClsize);
     if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
       edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-        << "cluster rx: " << std::setw(5) << radius_x
-        << ", ry: " << std::setw(5) << radius_y
-        << ", r:  " << std::setw(5) << (radius_x+radius_y)
-        << ", cells: " << std::setw(4) << lc.hitsAndFractions().size();
+          << "cluster rx: " << std::setw(5) << radius_x << ", ry: " << std::setw(5) << radius_y
+          << ", r:  " << std::setw(5) << (radius_x + radius_y) << ", cells: " << std::setw(4)
+          << lc.hitsAndFractions().size();
     }
 
     // The case of single cell layer clusters has to be handled differently.
@@ -244,10 +231,8 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
       if (rhtools_.isSilicon(detId)) {
         radius_x = radius_y = rhtools_.getRadiusToSide(detId);
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
-          edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-            << "Single cell cluster in silicon, rx: "
-            << std::setw(5) << radius_x << ", ry: "
-            << std::setw(5) << radius_y;
+          edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Single cell cluster in silicon, rx: " << std::setw(5)
+                                                         << radius_x << ", ry: " << std::setw(5) << radius_y;
         }
       } else {
         auto const &point = rhtools_.getPosition(detId);
@@ -255,11 +240,9 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
         radius_x = radius_y = point.perp() * eta_phi_window.second;
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
           edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-            << "Single cell cluster in scintillator. rx: "
-            << std::setw(5) << radius_x << ", ry: "
-            << std::setw(5) << radius_y << ", eta-span: "
-            << std::setw(5) << eta_phi_window.first << ", phi-span: "
-            << std::setw(5) << eta_phi_window.second;
+              << "Single cell cluster in scintillator. rx: " << std::setw(5) << radius_x << ", ry: " << std::setw(5)
+              << radius_y << ", eta-span: " << std::setw(5) << eta_phi_window.first << ", phi-span: " << std::setw(5)
+              << eta_phi_window.second;
         }
       }
     }
@@ -598,18 +581,17 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
                 // Still differentiate between silicon and Scintillator.
                 // Silicon has yet to be studied further.
                 if (clustersOnLayer.isSilicon[i]) {
-                reachable = isReachable(clustersOnLayer.r_over_absz[i] *
-                    clustersOnLayer.z[i],
-                    clustersLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i],
-                    clustersOnLayer.phi[i],
-                    clustersLayer.phi[layerandSoa.second],
-                    densityXYDistanceSqr_);
+                  reachable = isReachable(clustersOnLayer.r_over_absz[i] * clustersOnLayer.z[i],
+                                          clustersLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i],
+                                          clustersOnLayer.phi[i],
+                                          clustersLayer.phi[layerandSoa.second],
+                                          densityXYDistanceSqr_);
                 } else {
                   reachable = isReachable(clustersOnLayer.r_over_absz[i] * clustersOnLayer.z[i],
-                      clustersLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i],
-                      clustersOnLayer.phi[i],
-                      clustersLayer.phi[layerandSoa.second],
-                      clustersOnLayer.radius[i] * clustersOnLayer.radius[i]);
+                                          clustersLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i],
+                                          clustersOnLayer.phi[i],
+                                          clustersLayer.phi[layerandSoa.second],
+                                          clustersOnLayer.radius[i] * clustersOnLayer.radius[i]);
                 }
               }
             } else {
@@ -630,7 +612,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
                   clustersOnLayer.r_over_absz[i] * std::abs(clustersOnLayer.phi[i]),
                   clustersLayer.r_over_absz[layerandSoa.second] * std::abs(clustersLayer.phi[layerandSoa.second]));
               edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Distance[cm]: " << (dist * clustersOnLayer.z[i]);
-              edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Energy Other:   " << clustersLayer.energy[layerandSoa.second];
+              edm::LogVerbatim("PatternRecognitionbyCLUE3D")
+                  << "Energy Other:   " << clustersLayer.energy[layerandSoa.second];
               edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Cluster radius: " << clustersOnLayer.radius[i];
             }
             if (reachable) {
@@ -712,8 +695,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
           int iphi = ((iphi_it % nPhiBin + nPhiBin) % nPhiBin);
           if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
             edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-                << "Searching nearestHigher on " << currentLayer << " eta, phi: " << ieta << ", " << iphi_it
-                << " " << iphi << " " << offset << " " << (offset+iphi);
+                << "Searching nearestHigher on " << currentLayer << " eta, phi: " << ieta << ", " << iphi_it << " "
+                << iphi << " " << offset << " " << (offset + iphi);
           }
           for (auto otherClusterIdx : tileOnLayer[offset + iphi]) {
             auto const &layerandSoa = layerIdx2layerandSoa[otherClusterIdx];
@@ -735,9 +718,9 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
               // in the XY plane, take the closest in Z with higher local
               // density.
               // Add Z-scale to the final distance
-              dist = dist_transverse;// + (clustersOnLayer.z[i] -
-//                  clustersOnOtherLayer.z[layerandSoa.second]) *
-//                                           (clustersOnLayer.z[i] - clustersOnOtherLayer.z[layerandSoa.second]);
+              dist = dist_transverse;  // + (clustersOnLayer.z[i] -
+                                       //                  clustersOnOtherLayer.z[layerandSoa.second]) *
+              //                                           (clustersOnLayer.z[i] - clustersOnOtherLayer.z[layerandSoa.second]);
             } else {
               dist = reco::deltaR2(clustersOnLayer.eta[i],
                                    clustersOnLayer.phi[i],
@@ -807,9 +790,9 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
                     (clustersOnLayer.energy[i] / clustersOnLayer.rho[i] > criticalSelfDensity_);
       if (!clustersOnLayer.isSilicon[i]) {
         isSeed = (clustersOnLayer.delta[i].first > clustersOnLayer.radius[i] ||
-            clustersOnLayer.delta[i].second > criticalZDistanceLyr_) &&
-          (clustersOnLayer.rho[i] >= criticalDensity_) &&
-          (clustersOnLayer.energy[i] / clustersOnLayer.rho[i] > criticalSelfDensity_);
+                  clustersOnLayer.delta[i].second > criticalZDistanceLyr_) &&
+                 (clustersOnLayer.rho[i] >= criticalDensity_) &&
+                 (clustersOnLayer.energy[i] / clustersOnLayer.rho[i] > criticalSelfDensity_);
       }
       bool isOutlier = (clustersOnLayer.delta[i].first > outlierMultiplier_ * critical_transverse_distance) &&
                        (clustersOnLayer.rho[i] < criticalDensity_);
