@@ -10,21 +10,11 @@
 
 */
 
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
-#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
 #include "MuonAnalysis/MuonAssociators/interface/trackStateEnums.h"
 
