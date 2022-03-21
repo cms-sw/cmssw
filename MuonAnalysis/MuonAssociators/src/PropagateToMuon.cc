@@ -3,7 +3,6 @@
 #include <cmath>
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
@@ -11,8 +10,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 PropagateToMuon::PropagateToMuon(edm::ESHandle<MagneticField> magfield,
                                  edm::ESHandle<Propagator> propagator,

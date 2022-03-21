@@ -1,18 +1,8 @@
 #include "MuonAnalysis/MuonAssociators/interface/PropagateToMuonSetup.h"
 
-#include <cmath>
-
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-
-#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 PropagateToMuonSetup::PropagateToMuonSetup(const edm::ParameterSet &iConfig, edm::ConsumesCollector iC)
     : useSimpleGeometry_(iConfig.getParameter<bool>("useSimpleGeometry")),
