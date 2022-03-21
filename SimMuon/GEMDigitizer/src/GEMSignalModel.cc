@@ -34,7 +34,8 @@ void GEMSignalModel::simulate(const GEMEtaPartition* roll,
                               DetectorHitMap& detectorHitMap_) {
   const GEMStripTopology* top(dynamic_cast<const GEMStripTopology*>(&(roll->topology())));
   for (const auto& hit : simHits) {
-    if (hit.energyLoss() < energyMinCut) continue;
+    if (hit.energyLoss() < energyMinCut)
+      continue;
     const int bx(getSimHitBx(&hit, engine));
     if (bx != 0 and bx0filter_)
       continue;
