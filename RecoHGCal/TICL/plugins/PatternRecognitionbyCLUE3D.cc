@@ -805,6 +805,12 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
                      clustersOnLayer.delta[i].second > criticalZDistanceLyr_) &&
                     (clustersOnLayer.rho[i] >= criticalDensity_) &&
                     (clustersOnLayer.energy[i] / clustersOnLayer.rho[i] > criticalSelfDensity_);
+      if (!clustersOnLayer.isSilicon[i]) {
+        isSeed = (clustersOnLayer.delta[i].first > clustersOnLayer.radius[i] ||
+            clustersOnLayer.delta[i].second > criticalZDistanceLyr_) &&
+          (clustersOnLayer.rho[i] >= criticalDensity_) &&
+          (clustersOnLayer.energy[i] / clustersOnLayer.rho[i] > criticalSelfDensity_);
+      }
       bool isOutlier = (clustersOnLayer.delta[i].first > outlierMultiplier_ * critical_transverse_distance) &&
                        (clustersOnLayer.rho[i] < criticalDensity_);
       if (isSeed) {
