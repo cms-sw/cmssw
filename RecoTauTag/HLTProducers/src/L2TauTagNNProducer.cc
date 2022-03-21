@@ -832,8 +832,7 @@ void L2TauNNProducer::produce(edm::Event& event, const edm::EventSetup& eventset
     for (size_t tau_pos = 0; tau_pos < nTau; ++tau_pos) {
       const auto tau_idx = TauCollectionMap[inp_idx][tau_pos];
       if (debugLevel_ > 0) {
-        std::cout << event.id().event() << " \t " << (allTaus[tau_idx])->pt() << " \t "
-        //edm::LogInfo("DebugInfo") << event.id().event() << " \t " << (allTaus[tau_idx])->pt() << " \t "
+        edm::LogInfo("DebugInfo") << event.id().event() << " \t " << (allTaus[tau_idx])->pt() << " \t "
                                   << tau_score.at(tau_idx) << std::endl;
       }
       (*tau_tags)[tau_pos] = tau_score.at(tau_idx);
