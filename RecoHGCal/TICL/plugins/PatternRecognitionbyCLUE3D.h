@@ -122,7 +122,6 @@ namespace ticl {
     const bool useAbsoluteProjectiveScale_;
     const bool useClusterDimensionXY_;
     const bool rescaleDensityByZ_;
-    ;
     const double criticalEtaPhiDistance_;
     const double criticalXYDistance_;
     const int criticalZDistanceLyr_;
