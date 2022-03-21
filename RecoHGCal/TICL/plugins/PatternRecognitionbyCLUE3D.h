@@ -99,7 +99,9 @@ namespace ticl {
     void calculateLocalDensity(const TILES&, const int layerId, const std::vector<std::pair<int, int>>&);
     void calculateDistanceToHigher(const TILES&, const int layerId, const std::vector<std::pair<int, int>>&);
     int findAndAssignTracksters(const TILES&, const std::vector<std::pair<int, int>>&);
-    void dumpClusters(const TILES &tiles, const std::vector<std::pair<int, int>>& layerIdx2layerandSoa, const int) const;
+    void dumpClusters(const TILES& tiles,
+                      const std::vector<std::pair<int, int>>& layerIdx2layerandSoa,
+                      const int) const;
     void dumpTracksters(const std::vector<std::pair<int, int>>& layerIdx2layerandSoa,
                         const int,
                         const std::vector<Trackster>&) const;
