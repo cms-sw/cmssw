@@ -33,6 +33,11 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "HepMC/GenRanges.h"
@@ -55,6 +60,9 @@ private:
   const bool mvaRecSel(const reco::TrackBase&, const reco::Vertex&, const double&, const double&);
   const bool mvaGenRecMatch(const HepMC::GenParticle&, const double&, const reco::TrackBase&);
 
+  const edm::Ref<std::vector<TrackingParticle>>* getMatchedTP(const reco::TrackBaseRef&);
+  const bool genSelBPH(const HepMC::GenParticle&);
+
   // ------------ member data ------------
 
   const std::string folder_;
@@ -63,6 +71,8 @@ private:
   const float trackMinEtlEta_;
   const float trackMaxEtlEta_;
   const float minProbHeavy_;
+
+  bool optionalPlots_;
 
   static constexpr double etacutGEN_ = 4.;     // |eta| < 4;
   static constexpr double etacutREC_ = 3.;     // |eta| < 3;
@@ -74,14 +84,16 @@ private:
 
   static constexpr float c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
 
-  const bool pidPlots_;
-
   edm::EDGetTokenT<reco::TrackCollection> GenRecTrackToken_;
   edm::EDGetTokenT<reco::TrackCollection> RecTrackToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> RecVertexToken_;
 
   edm::EDGetTokenT<edm::HepMCProduct> HepMCProductToken_;
 
+  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
+  edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
+  edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
+  edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
   edm::EDGetTokenT<edm::ValueMap<int>> trackAssocToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> pathLengthToken_;
 
@@ -103,6 +115,9 @@ private:
 
   edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
   edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleTableToken_;
+
+  const reco::RecoToSimCollection* r2s_;
+  const reco::SimToRecoCollection* s2r_;
 
   MonitorElement* meBTLTrackRPTime_;
   MonitorElement* meBTLTrackEffEtaTot_;
@@ -150,8 +165,8 @@ private:
   MonitorElement* meBarrelPDBetavsp_;
   MonitorElement* meEndcapPDBetavsp_;
 
-  MonitorElement* meBarrelMatchedp_;
-  MonitorElement* meEndcapMatchedp_;
+  MonitorElement* meBarrelPIDp_;
+  MonitorElement* meEndcapPIDp_;
 
   MonitorElement* meBarrelNoPIDtype_;
   MonitorElement* meEndcapNoPIDtype_;
@@ -193,11 +208,18 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
       trackMinEtlEta_(iConfig.getParameter<double>("trackMinimumEtlEta")),
       trackMaxEtlEta_(iConfig.getParameter<double>("trackMaximumEtlEta")),
       minProbHeavy_(iConfig.getParameter<double>("minProbHeavy")),
-      pidPlots_(iConfig.getUntrackedParameter<bool>("pidPlots")) {
+      optionalPlots_(iConfig.getUntrackedParameter<bool>("optionalPlots")) {
   GenRecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagG"));
   RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
   RecVertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTagV"));
   HepMCProductToken_ = consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("inputTagH"));
+  trackingParticleCollectionToken_ =
+      consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("SimTag"));
+  trackingVertexCollectionToken_ = consumes<TrackingVertexCollection>(iConfig.getParameter<edm::InputTag>("SimTag"));
+  simToRecoAssociationToken_ =
+      consumes<reco::SimToRecoCollection>(iConfig.getParameter<edm::InputTag>("TPtoRecoTrackAssoc"));
+  recoToSimAssociationToken_ =
+      consumes<reco::RecoToSimCollection>(iConfig.getParameter<edm::InputTag>("TPtoRecoTrackAssoc"));
   trackAssocToken_ = consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("trackAssocSrc"));
   pathLengthToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pathLengthSrc"));
   tmtdToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("tmtd"));
@@ -410,14 +432,25 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
   }  //RECO tracks loop
 
-  // reco-gen matching used for MVA quality flag
   const auto& primRecoVtx = *(RecVertexHandle.product()->begin());
   double treco = primRecoVtx.t();
 
+  // generator level information (HepMC format)
   auto GenEventHandle = makeValid(iEvent.getHandle(HepMCProductToken_));
   const HepMC::GenEvent* mc = GenEventHandle->GetEvent();
   double zsim = convertMmToCm((*(mc->vertices_begin()))->position().z());
   double tsim = (*(mc->vertices_begin()))->position().t() * CLHEP::mm / CLHEP::c_light;
+
+  // TrackingParticle collections and association maps
+  //auto tpCollectionH = makeValid(iEvent.getHandle(trackingParticleCollectionToken_));
+  //const auto& tpColl = tpCollectionH.product();
+  //auto tvCollectionH = makeValid(iEvent.getHandle(trackingVertexCollectionToken_));
+
+  //auto simToRecoH = makeValid(iEvent.getHandle(simToRecoAssociationToken_));
+  //s2r_ = simToRecoH.product();
+
+  auto recoToSimH = makeValid(iEvent.getHandle(recoToSimAssociationToken_));
+  r2s_ = recoToSimH.product();
 
   auto pdt = iSetup.getHandle(particleTableToken_);
   const HepPDT::ParticleDataTable* pdTable = pdt.product();
@@ -437,6 +470,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       bool noCrack = std::abs(trackGen.eta()) < trackMaxBtlEta_ || std::abs(trackGen.eta()) > trackMinEtlEta_;
 
+      // reco-gen matching used for MVA quality flag
       if (mvaRecSel(trackGen, primRecoVtx, t0Safe[trackref], Sigmat0Safe[trackref])) {
         if (noCrack) {
           meMVATrackEffPtTot_->Fill(trackGen.pt());
@@ -470,145 +504,157 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                   meMVATrackMatchedEffPtMtd_->Fill(trackGen.pt());
                 }
                 meMVATrackMatchedEffEtaMtd_->Fill(std::abs(trackGen.eta()));
-
-                if (pidPlots_) {
-                  double dbetaPi = c_cm_ns * (tMtd[trackref] - treco - tofPi[trackref]) / pathLength[trackref];
-                  double dbetaK = c_cm_ns * (tMtd[trackref] - treco - tofK[trackref]) / pathLength[trackref];
-                  double dbetaP = c_cm_ns * (tMtd[trackref] - treco - tofP[trackref]) / pathLength[trackref];
-
-                  unsigned int noPIDtype = 0;
-                  if (probPi[trackref] == -1) {
-                    noPIDtype = 1;
-                  } else if (isnan(probPi[trackref])) {
-                    noPIDtype = 2;
-                  } else if (probPi[trackref] == 1 && probK[trackref] == 0 && probP[trackref] == 0) {
-                    noPIDtype = 3;
-                  }
-                  bool noPID = noPIDtype > 0;
-                  bool isPi = !noPID && 1. - probPi[trackref] < minProbHeavy_;
-                  bool isK = !noPID && !isPi && probK[trackref] > probP[trackref];
-                  bool isP = !noPID && !isPi && !isK;
-
-                  if ((isPi && std::abs(tMtd[trackref] - tofPi[trackref] - t0Pid[trackref]) > tol_) ||
-                      (isK && std::abs(tMtd[trackref] - tofK[trackref] - t0Pid[trackref]) > tol_) ||
-                      (isP && std::abs(tMtd[trackref] - tofP[trackref] - t0Pid[trackref]) > tol_)) {
-                    edm::LogWarning("MtdTracksValidation")
-                        << "No match between mass hyp. and time: " << std::abs(genP->pdg_id()) << " mass hyp pi/k/p "
-                        << isPi << " " << isK << " " << isP << " t0/t0safe " << t0Pid[trackref] << " "
-                        << t0Safe[trackref] << " tMtd - tof pi/K/p " << tMtd[trackref] - tofPi[trackref] << " "
-                        << tMtd[trackref] - tofK[trackref] << " " << tMtd[trackref] - tofP[trackref] << " Prob pi/K/p "
-                        << probPi[trackref] << " " << probK[trackref] << " " << probP[trackref];
-                    ;
-                  }
-
-                  if (std::abs(trackGen.eta()) < trackMaxBtlEta_) {
-                    meBarrelMatchedp_->Fill(trackGen.p());
-                    meBarrelNoPIDtype_->Fill(noPIDtype + 0.5);
-                    if (std::abs(genP->pdg_id()) == 211) {
-                      meBarrelPiDBetavsp_->Fill(trackGen.p(), dbetaPi);
-                      if (noPID) {
-                        meBarrelTruePiNoPID_->Fill(trackGen.p());
-                      } else if (isPi) {
-                        meBarrelTruePiAsPi_->Fill(trackGen.p());
-                      } else if (isK) {
-                        meBarrelTruePiAsK_->Fill(trackGen.p());
-                      } else if (isP) {
-                        meBarrelTruePiAsP_->Fill(trackGen.p());
-                      } else {
-                        edm::LogWarning("MtdTracksValidation")
-                            << "No PID class: " << std::abs(genP->pdg_id()) << " t0/t0safe " << t0Pid[trackref] << " "
-                            << t0Safe[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref] << " "
-                            << probP[trackref];
-                      }
-                    } else if (std::abs(genP->pdg_id()) == 321) {
-                      meBarrelKDBetavsp_->Fill(trackGen.p(), dbetaK);
-                      if (noPID) {
-                        meBarrelTrueKNoPID_->Fill(trackGen.p());
-                      } else if (isPi) {
-                        meBarrelTrueKAsPi_->Fill(trackGen.p());
-                      } else if (isK) {
-                        meBarrelTrueKAsK_->Fill(trackGen.p());
-                      } else if (isP) {
-                        meBarrelTrueKAsP_->Fill(trackGen.p());
-                      } else {
-                        edm::LogWarning("MtdTracksValidation")
-                            << "No PID class: " << std::abs(genP->pdg_id()) << " t0/t0safe " << t0Pid[trackref] << " "
-                            << t0Safe[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref] << " "
-                            << probP[trackref];
-                      }
-                    } else if (std::abs(genP->pdg_id()) == 2212) {
-                      meBarrelPDBetavsp_->Fill(trackGen.p(), dbetaP);
-                      if (noPID) {
-                        meBarrelTruePNoPID_->Fill(trackGen.p());
-                      } else if (isPi) {
-                        meBarrelTruePAsPi_->Fill(trackGen.p());
-                      } else if (isK) {
-                        meBarrelTruePAsK_->Fill(trackGen.p());
-                      } else if (isP) {
-                        meBarrelTruePAsP_->Fill(trackGen.p());
-                      } else {
-                        edm::LogWarning("MtdTracksValidation")
-                            << "No PID class: " << std::abs(genP->pdg_id()) << " t0/t0safe " << t0Pid[trackref] << " "
-                            << t0Safe[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref] << " "
-                            << probP[trackref];
-                      }
-                    }
-                  } else if (std::abs(trackGen.eta()) > trackMinEtlEta_ && std::abs(trackGen.eta()) < trackMaxEtlEta_) {
-                    meEndcapMatchedp_->Fill(trackGen.p());
-                    meEndcapNoPIDtype_->Fill(noPIDtype + 0.5);
-                    if (std::abs(genP->pdg_id()) == 211) {
-                      meEndcapPiDBetavsp_->Fill(trackGen.p(), dbetaPi);
-                      if (noPID) {
-                        meEndcapTruePiNoPID_->Fill(trackGen.p());
-                      } else if (isPi) {
-                        meEndcapTruePiAsPi_->Fill(trackGen.p());
-                      } else if (isK) {
-                        meEndcapTruePiAsK_->Fill(trackGen.p());
-                      } else if (isP) {
-                        meEndcapTruePiAsP_->Fill(trackGen.p());
-                      } else {
-                        edm::LogWarning("MtdTracksValidation")
-                            << "No PID class: " << std::abs(genP->pdg_id()) << " t0/t0safe " << t0Pid[trackref] << " "
-                            << t0Safe[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref] << " "
-                            << probP[trackref];
-                      }
-                    } else if (std::abs(genP->pdg_id()) == 321) {
-                      meEndcapKDBetavsp_->Fill(trackGen.p(), dbetaK);
-                      if (noPID) {
-                        meEndcapTrueKNoPID_->Fill(trackGen.p());
-                      } else if (isPi) {
-                        meEndcapTrueKAsPi_->Fill(trackGen.p());
-                      } else if (isK) {
-                        meEndcapTrueKAsK_->Fill(trackGen.p());
-                      } else if (isP) {
-                        meEndcapTrueKAsP_->Fill(trackGen.p());
-                      } else {
-                        edm::LogWarning("MtdTracksValidation")
-                            << "No PID class: " << std::abs(genP->pdg_id()) << " t0/t0safe " << t0Pid[trackref] << " "
-                            << t0Safe[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref] << " "
-                            << probP[trackref];
-                      }
-                    } else if (std::abs(genP->pdg_id()) == 2212) {
-                      meEndcapPDBetavsp_->Fill(trackGen.p(), dbetaP);
-                      if (noPID) {
-                        meEndcapTruePNoPID_->Fill(trackGen.p());
-                      } else if (isPi) {
-                        meEndcapTruePAsPi_->Fill(trackGen.p());
-                      } else if (isK) {
-                        meEndcapTruePAsK_->Fill(trackGen.p());
-                      } else if (isP) {
-                        meEndcapTruePAsP_->Fill(trackGen.p());
-                      } else {
-                        edm::LogWarning("MtdTracksValidation")
-                            << "No PID class: " << std::abs(genP->pdg_id()) << " t0/t0safe " << t0Pid[trackref] << " "
-                            << t0Safe[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref] << " "
-                            << probP[trackref];
-                      }
-                    }
-                  }
-                }
               }
               break;
+            }
+          }
+        }
+      }
+
+      // for PID study select only tracks with associated time information
+
+      if (Sigmat0Safe[trackref] == -1.) {
+        continue;
+      }
+
+      reco::TrackBaseRef tbrTrk(trackref);
+      auto tp_info = getMatchedTP(tbrTrk);
+      if (tp_info != nullptr) {
+        double dbetaPi = c_cm_ns * (tMtd[trackref] - treco - tofPi[trackref]) / pathLength[trackref];
+        double dbetaK = c_cm_ns * (tMtd[trackref] - treco - tofK[trackref]) / pathLength[trackref];
+        double dbetaP = c_cm_ns * (tMtd[trackref] - treco - tofP[trackref]) / pathLength[trackref];
+
+        unsigned int noPIDtype = 0;
+        if (probPi[trackref] == -1) {
+          noPIDtype = 1;
+        } else if (isnan(probPi[trackref])) {
+          noPIDtype = 2;
+        } else if (probPi[trackref] == 1 && probK[trackref] == 0 && probP[trackref] == 0) {
+          noPIDtype = 3;
+        }
+        bool noPID = noPIDtype > 0;
+        bool isPi = !noPID && 1. - probPi[trackref] < minProbHeavy_;
+        bool isK = !noPID && !isPi && probK[trackref] > probP[trackref];
+        bool isP = !noPID && !isPi && !isK;
+
+        if ((isPi && std::abs(tMtd[trackref] - tofPi[trackref] - t0Pid[trackref]) > tol_) ||
+            (isK && std::abs(tMtd[trackref] - tofK[trackref] - t0Pid[trackref]) > tol_) ||
+            (isP && std::abs(tMtd[trackref] - tofP[trackref] - t0Pid[trackref]) > tol_)) {
+          edm::LogWarning("MtdTracksValidation")
+              << "No match between mass hyp. and time: " << std::abs((*tp_info)->pdgId()) << " mass hyp pi/k/p " << isPi
+              << " " << isK << " " << isP << " t0/t0safe " << t0Pid[trackref] << " " << t0Safe[trackref]
+              << " tMtd - tof pi/K/p " << tMtd[trackref] - tofPi[trackref] << " " << tMtd[trackref] - tofK[trackref]
+              << " " << tMtd[trackref] - tofP[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref]
+              << " " << probP[trackref];
+          ;
+        }
+
+        if (std::abs(trackGen.eta()) < trackMaxBtlEta_) {
+          meBarrelPIDp_->Fill(trackGen.p());
+          meBarrelNoPIDtype_->Fill(noPIDtype + 0.5);
+          if (optionalPlots_) {
+            if (std::abs((*tp_info)->pdgId()) == 211) {
+              meBarrelPiDBetavsp_->Fill(trackGen.p(), dbetaPi);
+              if (noPID) {
+                meBarrelTruePiNoPID_->Fill(trackGen.p());
+              } else if (isPi) {
+                meBarrelTruePiAsPi_->Fill(trackGen.p());
+              } else if (isK) {
+                meBarrelTruePiAsK_->Fill(trackGen.p());
+              } else if (isP) {
+                meBarrelTruePiAsP_->Fill(trackGen.p());
+              } else {
+                edm::LogWarning("MtdTracksValidation")
+                    << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[trackref] << " "
+                    << t0Safe[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref] << " "
+                    << probP[trackref];
+              }
+            } else if (std::abs((*tp_info)->pdgId()) == 321) {
+              meBarrelKDBetavsp_->Fill(trackGen.p(), dbetaK);
+              if (noPID) {
+                meBarrelTrueKNoPID_->Fill(trackGen.p());
+              } else if (isPi) {
+                meBarrelTrueKAsPi_->Fill(trackGen.p());
+              } else if (isK) {
+                meBarrelTrueKAsK_->Fill(trackGen.p());
+              } else if (isP) {
+                meBarrelTrueKAsP_->Fill(trackGen.p());
+              } else {
+                edm::LogWarning("MtdTracksValidation")
+                    << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[trackref] << " "
+                    << t0Safe[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref] << " "
+                    << probP[trackref];
+              }
+            } else if (std::abs((*tp_info)->pdgId()) == 2212) {
+              meBarrelPDBetavsp_->Fill(trackGen.p(), dbetaP);
+              if (noPID) {
+                meBarrelTruePNoPID_->Fill(trackGen.p());
+              } else if (isPi) {
+                meBarrelTruePAsPi_->Fill(trackGen.p());
+              } else if (isK) {
+                meBarrelTruePAsK_->Fill(trackGen.p());
+              } else if (isP) {
+                meBarrelTruePAsP_->Fill(trackGen.p());
+              } else {
+                edm::LogWarning("MtdTracksValidation")
+                    << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[trackref] << " "
+                    << t0Safe[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref] << " "
+                    << probP[trackref];
+              }
+            }
+          }
+        } else if (std::abs(trackGen.eta()) > trackMinEtlEta_ && std::abs(trackGen.eta()) < trackMaxEtlEta_) {
+          meEndcapPIDp_->Fill(trackGen.p());
+          meEndcapNoPIDtype_->Fill(noPIDtype + 0.5);
+          if (optionalPlots_) {
+            if (std::abs((*tp_info)->pdgId()) == 211) {
+              meEndcapPiDBetavsp_->Fill(trackGen.p(), dbetaPi);
+              if (noPID) {
+                meEndcapTruePiNoPID_->Fill(trackGen.p());
+              } else if (isPi) {
+                meEndcapTruePiAsPi_->Fill(trackGen.p());
+              } else if (isK) {
+                meEndcapTruePiAsK_->Fill(trackGen.p());
+              } else if (isP) {
+                meEndcapTruePiAsP_->Fill(trackGen.p());
+              } else {
+                edm::LogWarning("MtdTracksValidation")
+                    << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[trackref] << " "
+                    << t0Safe[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref] << " "
+                    << probP[trackref];
+              }
+            } else if (std::abs((*tp_info)->pdgId()) == 321) {
+              meEndcapKDBetavsp_->Fill(trackGen.p(), dbetaK);
+              if (noPID) {
+                meEndcapTrueKNoPID_->Fill(trackGen.p());
+              } else if (isPi) {
+                meEndcapTrueKAsPi_->Fill(trackGen.p());
+              } else if (isK) {
+                meEndcapTrueKAsK_->Fill(trackGen.p());
+              } else if (isP) {
+                meEndcapTrueKAsP_->Fill(trackGen.p());
+              } else {
+                edm::LogWarning("MtdTracksValidation")
+                    << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[trackref] << " "
+                    << t0Safe[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref] << " "
+                    << probP[trackref];
+              }
+            } else if (std::abs((*tp_info)->pdgId()) == 2212) {
+              meEndcapPDBetavsp_->Fill(trackGen.p(), dbetaP);
+              if (noPID) {
+                meEndcapTruePNoPID_->Fill(trackGen.p());
+              } else if (isPi) {
+                meEndcapTruePAsPi_->Fill(trackGen.p());
+              } else if (isK) {
+                meEndcapTruePAsK_->Fill(trackGen.p());
+              } else if (isP) {
+                meEndcapTruePAsP_->Fill(trackGen.p());
+              } else {
+                edm::LogWarning("MtdTracksValidation")
+                    << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[trackref] << " "
+                    << t0Safe[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref] << " "
+                    << probP[trackref];
+              }
             }
           }
         }
@@ -692,7 +738,13 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meMVATrackZposResTot_ = ibook.book1D(
       "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for associated tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
 
-  if (pidPlots_) {
+  meBarrelPIDp_ = ibook.book1D("BarrelPIDp", "PID track with MTD momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meEndcapPIDp_ = ibook.book1D("EndcapPIDp", "PID track with MTD momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+
+  meBarrelNoPIDtype_ = ibook.book1D("BarrelNoPIDtype", "Barrel PID failure category", 4, 0., 4.);
+  meEndcapNoPIDtype_ = ibook.book1D("EndcapNoPIDtype", "Endcap PID failure category", 4, 0., 4.);
+
+  if (optionalPlots_) {
     meBarrelPiDBetavsp_ = ibook.book2D(
         "BarrelPiDBetavsp", "DeltaBeta true pi as pi vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
     meEndcapPiDBetavsp_ = ibook.book2D(
@@ -705,14 +757,6 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         "BarrelPDBetavsp", "DeltaBeta true p as p vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
     meEndcapPDBetavsp_ = ibook.book2D(
         "EndcapPDBetavsp", "DeltaBeta true p as p vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
-
-    meBarrelMatchedp_ = ibook.book1D(
-        "BarrelMatchedp", "MVA matched track with MTD momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meEndcapMatchedp_ = ibook.book1D(
-        "EndcapMatchedp", "MVA matched track with MTD momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
-
-    meBarrelNoPIDtype_ = ibook.book1D("BarrelNoPIDtype", "Barrel PID failure category", 4, 0., 4.);
-    meEndcapNoPIDtype_ = ibook.book1D("EndcapNoPIDtype", "Endcap PID failure category", 4, 0., 4.);
 
     meBarrelTruePiNoPID_ =
         ibook.book1D("BarrelTruePiNoPID", "True pi NoPID momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
@@ -778,6 +822,8 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("inputTagT", edm::InputTag("trackExtenderWithMTD"));
   desc.add<edm::InputTag>("inputTagV", edm::InputTag("offlinePrimaryVertices4D"));
   desc.add<edm::InputTag>("inputTagH", edm::InputTag("generatorSmeared"));
+  desc.add<edm::InputTag>("SimTag", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.add<edm::InputTag>("TPtoRecoTrackAssoc", edm::InputTag("trackingParticleRecoTrackAsssociation"));
   desc.add<edm::InputTag>("tmtd", edm::InputTag("trackExtenderWithMTD:generalTracktmtd"));
   desc.add<edm::InputTag>("sigmatmtd", edm::InputTag("trackExtenderWithMTD:generalTracksigmatmtd"));
   desc.add<edm::InputTag>("t0Src", edm::InputTag("trackExtenderWithMTD:generalTrackt0"));
@@ -801,7 +847,7 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("trackMinimumEtlEta", 1.6);
   desc.add<double>("trackMaximumEtlEta", 3.);
   desc.add<double>("minProbHeavy", 0.75);
-  desc.addUntracked<bool>("pidPlots", false);
+  desc.addUntracked<bool>("optionalPlots", false);
 
   descriptions.add("mtdTracksValid", desc);
 }
@@ -835,6 +881,40 @@ const bool MtdTracksValidation::mvaGenRecMatch(const HepMC::GenParticle& genP,
   double genPT = genP.momentum().perp();
   match =
       std::abs(genPT - trk.pt()) < trk.pt() * deltaPTcut_ && dR < deltaDRcut_ && std::abs(trk.vz() - zsim) < deltaZcut_;
+  return match;
+}
+
+const edm::Ref<std::vector<TrackingParticle>>* MtdTracksValidation::getMatchedTP(const reco::TrackBaseRef& recoTrack) {
+  auto found = r2s_->find(recoTrack);
+
+  // no matching or no unique matching
+  if (found == r2s_->end() || r2s_->numberOfAssociations(recoTrack) > 1) {
+    return nullptr;
+  }
+
+  // reco track matched
+  for (const auto& tp : found->val) {
+    if (tp.first->eventId().bunchCrossing() == 0 && tp.first->eventId().event() == 0)
+      return &tp.first;
+  }
+
+  // no match
+  return nullptr;
+}
+
+const bool MtdTracksValidation::genSelBPH(const HepMC::GenParticle& genP) {
+  bool match = false;
+  if (genP.status() != 1 || (std::abs(genP.pdg_id()) != 211 && std::abs(genP.pdg_id()) != 321)) {
+    return match;
+  }
+  HepMC::GenVertex* orig0 = genP.production_vertex();
+  if (orig0->particles_in_size() > 0 && std::abs((*orig0->particles_in_const_begin())->pdg_id()) == 313) {
+    HepMC::GenVertex* orig1 = (*orig0->particles_in_const_begin())->production_vertex();
+    if (orig1->particles_in_size() > 0 && std::abs((*orig1->particles_in_const_begin())->pdg_id()) == 511) {
+      match = true;
+      //edm::LogWarning("MtdTracksValidation") << genP.pdg_id() << " " << orig1->particles_in_size() << " " << std::abs((*orig0->particles_in_const_begin())->pdg_id()) << " " << std::abs((*orig1->particles_in_const_begin())->pdg_id());
+    }
+  }
   return match;
 }
 

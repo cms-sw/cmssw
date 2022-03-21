@@ -219,8 +219,7 @@ private:
   static constexpr double zWosMatchMax_ = 1.;
   static constexpr double etacutGEN_ = 4.;   // |eta| < 4;
   static constexpr double etacutREC_ = 3.;   // |eta| < 3;
-  static constexpr double pTcutBTL_ = 0.7;   // PT > 0.7 GeV
-  static constexpr double pTcutETL_ = 0.1;   // PT > 0.1 GeV
+  static constexpr double pTcut_ = 0.7;      // PT > 0.7 GeV
   static constexpr double deltaZcut_ = 0.1;  // dz separation 1 mm
   static constexpr double trackMaxBtlEta_ = 1.5;
   static constexpr double trackMinEtlEta_ = 1.6;
@@ -232,7 +231,6 @@ private:
   bool use_only_charged_tracks_;
   bool debug_;
   bool optionalPlots_;
-  bool pidPlots_;
 
   const double minProbHeavy_;
   const double trackweightTh_;
@@ -337,8 +335,8 @@ private:
   MonitorElement* meBarrelPDBetavsp_;
   MonitorElement* meEndcapPDBetavsp_;
 
-  MonitorElement* meBarrelMatchedp_;
-  MonitorElement* meEndcapMatchedp_;
+  MonitorElement* meBarrelPIDp_;
+  MonitorElement* meEndcapPIDp_;
 
   MonitorElement* meBarrelNoPIDtype_;
   MonitorElement* meEndcapNoPIDtype_;
@@ -378,7 +376,6 @@ Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iC
       use_only_charged_tracks_(iConfig.getParameter<bool>("useOnlyChargedTracks")),
       debug_(iConfig.getUntrackedParameter<bool>("debug")),
       optionalPlots_(iConfig.getUntrackedParameter<bool>("optionalPlots")),
-      pidPlots_(iConfig.getUntrackedParameter<bool>("pidPlots")),
       minProbHeavy_(iConfig.getParameter<double>("minProbHeavy")),
       trackweightTh_(iConfig.getParameter<double>("trackweightTh")),
       mvaTh_(iConfig.getParameter<double>("mvaTh")),
@@ -695,83 +692,71 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                      1.);
   }
 
-  if (pidPlots_) {
-    meBarrelPiDBetavsp_ = ibook.book2D(
-        "BarrelPiDBetavsp", "DeltaBeta true pi as pi vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
-    meEndcapPiDBetavsp_ = ibook.book2D(
-        "EndcapPiDBetavsp", "DeltaBeta true pi as pi vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
-    meBarrelKDBetavsp_ = ibook.book2D(
-        "BarrelKDBetavsp", "DeltaBeta true K as K vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
-    meEndcapKDBetavsp_ = ibook.book2D(
-        "EndcapKDBetavsp", "DeltaBeta true K as K vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
-    meBarrelPDBetavsp_ = ibook.book2D(
-        "BarrelPDBetavsp", "DeltaBeta true p as p vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
-    meEndcapPDBetavsp_ = ibook.book2D(
-        "EndcapPDBetavsp", "DeltaBeta true p as p vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
+  meBarrelPiDBetavsp_ = ibook.book2D(
+      "BarrelPiDBetavsp", "DeltaBeta true pi as pi vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
+  meEndcapPiDBetavsp_ = ibook.book2D(
+      "EndcapPiDBetavsp", "DeltaBeta true pi as pi vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
+  meBarrelKDBetavsp_ = ibook.book2D(
+      "BarrelKDBetavsp", "DeltaBeta true K as K vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
+  meEndcapKDBetavsp_ = ibook.book2D(
+      "EndcapKDBetavsp", "DeltaBeta true K as K vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
+  meBarrelPDBetavsp_ = ibook.book2D(
+      "BarrelPDBetavsp", "DeltaBeta true p as p vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
+  meEndcapPDBetavsp_ = ibook.book2D(
+      "EndcapPDBetavsp", "DeltaBeta true p as p vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
 
-    meBarrelMatchedp_ = ibook.book1D(
-        "BarrelMatchedp", "MVA matched track with MTD momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meEndcapMatchedp_ = ibook.book1D(
-        "EndcapMatchedp", "MVA matched track with MTD momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+  meBarrelPIDp_ = ibook.book1D("BarrelPIDp", "PID track MTD momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meEndcapPIDp_ = ibook.book1D("EndcapPIDp", "PID track with MTD momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
 
-    meBarrelNoPIDtype_ = ibook.book1D("BarrelNoPIDtype", "Barrel PID failure category", 4, 0., 4.);
-    meEndcapNoPIDtype_ = ibook.book1D("EndcapNoPIDtype", "Endcap PID failure category", 4, 0., 4.);
+  meBarrelNoPIDtype_ = ibook.book1D("BarrelNoPIDtype", "Barrel PID failure category", 4, 0., 4.);
+  meEndcapNoPIDtype_ = ibook.book1D("EndcapNoPIDtype", "Endcap PID failure category", 4, 0., 4.);
 
-    meBarrelNoPIDtype_ = ibook.book1D("BarrelNoPIDtype", "Barrel PID failure category", 4, 0., 4.);
-    meEndcapNoPIDtype_ = ibook.book1D("EndcapNoPIDtype", "Endcap PID failure category", 4, 0., 4.);
+  meBarrelNoPIDtype_ = ibook.book1D("BarrelNoPIDtype", "Barrel PID failure category", 4, 0., 4.);
+  meEndcapNoPIDtype_ = ibook.book1D("EndcapNoPIDtype", "Endcap PID failure category", 4, 0., 4.);
 
-    meBarrelTruePiNoPID_ =
-        ibook.book1D("BarrelTruePiNoPID", "True pi NoPID momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meBarrelTrueKNoPID_ =
-        ibook.book1D("BarrelTrueKNoPID", "True k NoPID momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meBarrelTruePNoPID_ =
-        ibook.book1D("BarrelTruePNoPID", "True p NoPID momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meEndcapTruePiNoPID_ =
-        ibook.book1D("EndcapTruePiNoPID", "True NoPIDpi momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
-    meEndcapTrueKNoPID_ =
-        ibook.book1D("EndcapTrueKNoPID", "True k NoPID momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
-    meEndcapTruePNoPID_ =
-        ibook.book1D("EndcapTruePNoPID", "True p NoPID momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+  meBarrelTruePiNoPID_ =
+      ibook.book1D("BarrelTruePiNoPID", "True pi NoPID momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meBarrelTrueKNoPID_ =
+      ibook.book1D("BarrelTrueKNoPID", "True k NoPID momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meBarrelTruePNoPID_ =
+      ibook.book1D("BarrelTruePNoPID", "True p NoPID momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meEndcapTruePiNoPID_ =
+      ibook.book1D("EndcapTruePiNoPID", "True NoPIDpi momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+  meEndcapTrueKNoPID_ =
+      ibook.book1D("EndcapTrueKNoPID", "True k NoPID momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+  meEndcapTruePNoPID_ =
+      ibook.book1D("EndcapTruePNoPID", "True p NoPID momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
 
-    meBarrelTruePiAsPi_ =
-        ibook.book1D("BarrelTruePiAsPi", "True pi as pi momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meBarrelTruePiAsK_ =
-        ibook.book1D("BarrelTruePiAsK", "True pi as k momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meBarrelTruePiAsP_ =
-        ibook.book1D("BarrelTruePiAsP", "True pi as p momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meEndcapTruePiAsPi_ =
-        ibook.book1D("EndcapTruePiAsPi", "True pi as pi momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
-    meEndcapTruePiAsK_ =
-        ibook.book1D("EndcapTruePiAsK", "True pi as k momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
-    meEndcapTruePiAsP_ =
-        ibook.book1D("EndcapTruePiAsP", "True pi as p momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+  meBarrelTruePiAsPi_ =
+      ibook.book1D("BarrelTruePiAsPi", "True pi as pi momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meBarrelTruePiAsK_ =
+      ibook.book1D("BarrelTruePiAsK", "True pi as k momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meBarrelTruePiAsP_ =
+      ibook.book1D("BarrelTruePiAsP", "True pi as p momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meEndcapTruePiAsPi_ =
+      ibook.book1D("EndcapTruePiAsPi", "True pi as pi momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+  meEndcapTruePiAsK_ =
+      ibook.book1D("EndcapTruePiAsK", "True pi as k momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+  meEndcapTruePiAsP_ =
+      ibook.book1D("EndcapTruePiAsP", "True pi as p momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
 
-    meBarrelTrueKAsPi_ =
-        ibook.book1D("BarrelTrueKAsPi", "True k as pi momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meBarrelTrueKAsK_ =
-        ibook.book1D("BarrelTrueKAsK", "True k as k momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meBarrelTrueKAsP_ =
-        ibook.book1D("BarrelTrueKAsP", "True k as p momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meEndcapTrueKAsPi_ =
-        ibook.book1D("EndcapTrueKAsPi", "True k as pi momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
-    meEndcapTrueKAsK_ =
-        ibook.book1D("EndcapTrueKAsK", "True k as k momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
-    meEndcapTrueKAsP_ =
-        ibook.book1D("EndcapTrueKAsP", "True k as p momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+  meBarrelTrueKAsPi_ =
+      ibook.book1D("BarrelTrueKAsPi", "True k as pi momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meBarrelTrueKAsK_ = ibook.book1D("BarrelTrueKAsK", "True k as k momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meBarrelTrueKAsP_ = ibook.book1D("BarrelTrueKAsP", "True k as p momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meEndcapTrueKAsPi_ =
+      ibook.book1D("EndcapTrueKAsPi", "True k as pi momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+  meEndcapTrueKAsK_ = ibook.book1D("EndcapTrueKAsK", "True k as k momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+  meEndcapTrueKAsP_ = ibook.book1D("EndcapTrueKAsP", "True k as p momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
 
-    meBarrelTruePAsPi_ =
-        ibook.book1D("BarrelTruePAsPi", "True p as pi momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meBarrelTruePAsK_ =
-        ibook.book1D("BarrelTruePAsK", "True p as k momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meBarrelTruePAsP_ =
-        ibook.book1D("BarrelTruePAsP", "True p as p momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
-    meEndcapTruePAsPi_ =
-        ibook.book1D("EndcapTruePAsPi", "True p as pi momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
-    meEndcapTruePAsK_ =
-        ibook.book1D("EndcapTruePAsK", "True p as k momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
-    meEndcapTruePAsP_ =
-        ibook.book1D("EndcapTruePAsP", "True p as p momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
-  }
+  meBarrelTruePAsPi_ =
+      ibook.book1D("BarrelTruePAsPi", "True p as pi momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meBarrelTruePAsK_ = ibook.book1D("BarrelTruePAsK", "True p as k momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meBarrelTruePAsP_ = ibook.book1D("BarrelTruePAsP", "True p as p momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
+  meEndcapTruePAsPi_ =
+      ibook.book1D("EndcapTruePAsPi", "True p as pi momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+  meEndcapTruePAsK_ = ibook.book1D("EndcapTruePAsK", "True p as k momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+  meEndcapTruePAsP_ = ibook.book1D("EndcapTruePAsP", "True p as p momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
 }
 
 bool Primary4DVertexValidation::matchRecoTrack2SimSignal(const reco::TrackBaseRef& recoTrack) {
@@ -1351,138 +1336,136 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             }
             meMVATrackMatchedEffEtaMtd_->Fill(std::abs((*iTrack)->eta()));
 
-            if (pidPlots_) {
-              double dbetaPi = c_cm_ns * (tMtd[*iTrack] - treco - tofPi[*iTrack]) / pathLength[*iTrack];
-              double dbetaK = c_cm_ns * (tMtd[*iTrack] - treco - tofK[*iTrack]) / pathLength[*iTrack];
-              double dbetaP = c_cm_ns * (tMtd[*iTrack] - treco - tofP[*iTrack]) / pathLength[*iTrack];
+            double dbetaPi = c_cm_ns * (tMtd[*iTrack] - treco - tofPi[*iTrack]) / pathLength[*iTrack];
+            double dbetaK = c_cm_ns * (tMtd[*iTrack] - treco - tofK[*iTrack]) / pathLength[*iTrack];
+            double dbetaP = c_cm_ns * (tMtd[*iTrack] - treco - tofP[*iTrack]) / pathLength[*iTrack];
 
-              unsigned int noPIDtype = 0;
-              if (probPi[*iTrack] == -1) {
-                noPIDtype = 1;
-              } else if (isnan(probPi[*iTrack])) {
-                noPIDtype = 2;
-              } else if (probPi[*iTrack] == 1 && probK[*iTrack] == 0 && probP[*iTrack] == 0) {
-                noPIDtype = 3;
-              }
-              bool noPID = noPIDtype > 0;
-              bool isPi = !noPID && 1. - probPi[*iTrack] < minProbHeavy_;
-              bool isK = !noPID && !isPi && probK[*iTrack] > probP[*iTrack];
-              bool isP = !noPID && !isPi && !isK;
+            unsigned int noPIDtype = 0;
+            if (probPi[*iTrack] == -1) {
+              noPIDtype = 1;
+            } else if (isnan(probPi[*iTrack])) {
+              noPIDtype = 2;
+            } else if (probPi[*iTrack] == 1 && probK[*iTrack] == 0 && probP[*iTrack] == 0) {
+              noPIDtype = 3;
+            }
+            bool noPID = noPIDtype > 0;
+            bool isPi = !noPID && 1. - probPi[*iTrack] < minProbHeavy_;
+            bool isK = !noPID && !isPi && probK[*iTrack] > probP[*iTrack];
+            bool isP = !noPID && !isPi && !isK;
 
-              if ((isPi && std::abs(tMtd[*iTrack] - tofPi[*iTrack] - t0Pid[*iTrack]) > tol_) ||
-                  (isK && std::abs(tMtd[*iTrack] - tofK[*iTrack] - t0Pid[*iTrack]) > tol_) ||
-                  (isP && std::abs(tMtd[*iTrack] - tofP[*iTrack] - t0Pid[*iTrack]) > tol_)) {
-                edm::LogWarning("Primary4DVertexValidation")
-                    << "No match between mass hyp. and time: " << std::abs((*tp_info)->pdgId()) << " mass hyp pi/k/p "
-                    << isPi << " " << isK << " " << isP << " t0/t0safe " << t0Pid[*iTrack] << " " << t0Safe[*iTrack]
-                    << " tMtd - tof pi/K/p " << tMtd[*iTrack] - tofPi[*iTrack] << " " << tMtd[*iTrack] - tofK[*iTrack]
-                    << " " << tMtd[*iTrack] - tofP[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " "
-                    << probK[*iTrack] << " " << probP[*iTrack];
-              }
+            if ((isPi && std::abs(tMtd[*iTrack] - tofPi[*iTrack] - t0Pid[*iTrack]) > tol_) ||
+                (isK && std::abs(tMtd[*iTrack] - tofK[*iTrack] - t0Pid[*iTrack]) > tol_) ||
+                (isP && std::abs(tMtd[*iTrack] - tofP[*iTrack] - t0Pid[*iTrack]) > tol_)) {
+              edm::LogWarning("Primary4DVertexValidation")
+                  << "No match between mass hyp. and time: " << std::abs((*tp_info)->pdgId()) << " mass hyp pi/k/p "
+                  << isPi << " " << isK << " " << isP << " t0/t0safe " << t0Pid[*iTrack] << " " << t0Safe[*iTrack]
+                  << " tMtd - tof pi/K/p " << tMtd[*iTrack] - tofPi[*iTrack] << " " << tMtd[*iTrack] - tofK[*iTrack]
+                  << " " << tMtd[*iTrack] - tofP[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack]
+                  << " " << probP[*iTrack];
+            }
 
-              if (std::abs((*iTrack)->eta()) < trackMaxBtlEta_) {
-                meBarrelMatchedp_->Fill((*iTrack)->p());
-                meBarrelNoPIDtype_->Fill(noPIDtype + 0.5);
-                if (std::abs((*tp_info)->pdgId()) == 211) {
-                  meBarrelPiDBetavsp_->Fill((*iTrack)->p(), dbetaPi);
-                  if (noPID) {
-                    meBarrelTruePiNoPID_->Fill((*iTrack)->p());
-                  } else if (isPi) {
-                    meBarrelTruePiAsPi_->Fill((*iTrack)->p());
-                  } else if (isK) {
-                    meBarrelTruePiAsK_->Fill((*iTrack)->p());
-                  } else if (isP) {
-                    meBarrelTruePiAsP_->Fill((*iTrack)->p());
-                  } else {
-                    edm::LogWarning("Primary4DVertexValidation")
-                        << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
-                        << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
-                        << probP[*iTrack];
-                  }
-                } else if (std::abs((*tp_info)->pdgId()) == 321) {
-                  meBarrelKDBetavsp_->Fill((*iTrack)->p(), dbetaK);
-                  if (noPID) {
-                    meBarrelTrueKNoPID_->Fill((*iTrack)->p());
-                  } else if (isPi) {
-                    meBarrelTrueKAsPi_->Fill((*iTrack)->p());
-                  } else if (isK) {
-                    meBarrelTrueKAsK_->Fill((*iTrack)->p());
-                  } else if (isP) {
-                    meBarrelTrueKAsP_->Fill((*iTrack)->p());
-                  } else {
-                    edm::LogWarning("Primary4DVertexValidation")
-                        << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
-                        << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
-                        << probP[*iTrack];
-                  }
-                } else if (std::abs((*tp_info)->pdgId()) == 2212) {
-                  meBarrelPDBetavsp_->Fill((*iTrack)->p(), dbetaP);
-                  if (noPID) {
-                    meBarrelTruePNoPID_->Fill((*iTrack)->p());
-                  } else if (isPi) {
-                    meBarrelTruePAsPi_->Fill((*iTrack)->p());
-                  } else if (isK) {
-                    meBarrelTruePAsK_->Fill((*iTrack)->p());
-                  } else if (isP) {
-                    meBarrelTruePAsP_->Fill((*iTrack)->p());
-                  } else {
-                    edm::LogWarning("Primary4DVertexValidation")
-                        << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
-                        << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
-                        << probP[*iTrack];
-                  }
+            if (std::abs((*iTrack)->eta()) < trackMaxBtlEta_) {
+              meBarrelPIDp_->Fill((*iTrack)->p());
+              meBarrelNoPIDtype_->Fill(noPIDtype + 0.5);
+              if (std::abs((*tp_info)->pdgId()) == 211) {
+                meBarrelPiDBetavsp_->Fill((*iTrack)->p(), dbetaPi);
+                if (noPID) {
+                  meBarrelTruePiNoPID_->Fill((*iTrack)->p());
+                } else if (isPi) {
+                  meBarrelTruePiAsPi_->Fill((*iTrack)->p());
+                } else if (isK) {
+                  meBarrelTruePiAsK_->Fill((*iTrack)->p());
+                } else if (isP) {
+                  meBarrelTruePiAsP_->Fill((*iTrack)->p());
+                } else {
+                  edm::LogWarning("Primary4DVertexValidation")
+                      << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
+                      << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
+                      << probP[*iTrack];
                 }
-              } else if (std::abs((*iTrack)->eta()) > trackMinEtlEta_ && std::abs((*iTrack)->eta()) < trackMaxEtlEta_) {
-                meEndcapMatchedp_->Fill((*iTrack)->p());
-                meEndcapNoPIDtype_->Fill(noPIDtype + 0.5);
-                if (std::abs((*tp_info)->pdgId()) == 211) {
-                  meEndcapPiDBetavsp_->Fill((*iTrack)->p(), dbetaPi);
-                  if (noPID) {
-                    meEndcapTruePiNoPID_->Fill((*iTrack)->p());
-                  } else if (isPi) {
-                    meEndcapTruePiAsPi_->Fill((*iTrack)->p());
-                  } else if (isK) {
-                    meEndcapTruePiAsK_->Fill((*iTrack)->p());
-                  } else if (isP) {
-                    meEndcapTruePiAsP_->Fill((*iTrack)->p());
-                  } else {
-                    edm::LogWarning("Primary4DVertexValidation")
-                        << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
-                        << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
-                        << probP[*iTrack];
-                  }
-                } else if (std::abs((*tp_info)->pdgId()) == 321) {
-                  meEndcapKDBetavsp_->Fill((*iTrack)->p(), dbetaK);
-                  if (noPID) {
-                    meEndcapTrueKNoPID_->Fill((*iTrack)->p());
-                  } else if (isPi) {
-                    meEndcapTrueKAsPi_->Fill((*iTrack)->p());
-                  } else if (isK) {
-                    meEndcapTrueKAsK_->Fill((*iTrack)->p());
-                  } else if (isP) {
-                    meEndcapTrueKAsP_->Fill((*iTrack)->p());
-                  } else {
-                    edm::LogWarning("Primary4DVertexValidation")
-                        << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
-                        << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
-                        << probP[*iTrack];
-                  }
-                } else if (std::abs((*tp_info)->pdgId()) == 2212) {
-                  meEndcapPDBetavsp_->Fill((*iTrack)->p(), dbetaP);
-                  if (noPID) {
-                    meEndcapTruePNoPID_->Fill((*iTrack)->p());
-                  } else if (isPi) {
-                    meEndcapTruePAsPi_->Fill((*iTrack)->p());
-                  } else if (isK) {
-                    meEndcapTruePAsK_->Fill((*iTrack)->p());
-                  } else if (isP) {
-                    meEndcapTruePAsP_->Fill((*iTrack)->p());
-                  } else {
-                    edm::LogWarning("Primary4DVertexValidation")
-                        << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
-                        << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
-                        << probP[*iTrack];
-                  }
+              } else if (std::abs((*tp_info)->pdgId()) == 321) {
+                meBarrelKDBetavsp_->Fill((*iTrack)->p(), dbetaK);
+                if (noPID) {
+                  meBarrelTrueKNoPID_->Fill((*iTrack)->p());
+                } else if (isPi) {
+                  meBarrelTrueKAsPi_->Fill((*iTrack)->p());
+                } else if (isK) {
+                  meBarrelTrueKAsK_->Fill((*iTrack)->p());
+                } else if (isP) {
+                  meBarrelTrueKAsP_->Fill((*iTrack)->p());
+                } else {
+                  edm::LogWarning("Primary4DVertexValidation")
+                      << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
+                      << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
+                      << probP[*iTrack];
+                }
+              } else if (std::abs((*tp_info)->pdgId()) == 2212) {
+                meBarrelPDBetavsp_->Fill((*iTrack)->p(), dbetaP);
+                if (noPID) {
+                  meBarrelTruePNoPID_->Fill((*iTrack)->p());
+                } else if (isPi) {
+                  meBarrelTruePAsPi_->Fill((*iTrack)->p());
+                } else if (isK) {
+                  meBarrelTruePAsK_->Fill((*iTrack)->p());
+                } else if (isP) {
+                  meBarrelTruePAsP_->Fill((*iTrack)->p());
+                } else {
+                  edm::LogWarning("Primary4DVertexValidation")
+                      << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
+                      << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
+                      << probP[*iTrack];
+                }
+              }
+            } else if (std::abs((*iTrack)->eta()) > trackMinEtlEta_ && std::abs((*iTrack)->eta()) < trackMaxEtlEta_) {
+              meEndcapPIDp_->Fill((*iTrack)->p());
+              meEndcapNoPIDtype_->Fill(noPIDtype + 0.5);
+              if (std::abs((*tp_info)->pdgId()) == 211) {
+                meEndcapPiDBetavsp_->Fill((*iTrack)->p(), dbetaPi);
+                if (noPID) {
+                  meEndcapTruePiNoPID_->Fill((*iTrack)->p());
+                } else if (isPi) {
+                  meEndcapTruePiAsPi_->Fill((*iTrack)->p());
+                } else if (isK) {
+                  meEndcapTruePiAsK_->Fill((*iTrack)->p());
+                } else if (isP) {
+                  meEndcapTruePiAsP_->Fill((*iTrack)->p());
+                } else {
+                  edm::LogWarning("Primary4DVertexValidation")
+                      << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
+                      << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
+                      << probP[*iTrack];
+                }
+              } else if (std::abs((*tp_info)->pdgId()) == 321) {
+                meEndcapKDBetavsp_->Fill((*iTrack)->p(), dbetaK);
+                if (noPID) {
+                  meEndcapTrueKNoPID_->Fill((*iTrack)->p());
+                } else if (isPi) {
+                  meEndcapTrueKAsPi_->Fill((*iTrack)->p());
+                } else if (isK) {
+                  meEndcapTrueKAsK_->Fill((*iTrack)->p());
+                } else if (isP) {
+                  meEndcapTrueKAsP_->Fill((*iTrack)->p());
+                } else {
+                  edm::LogWarning("Primary4DVertexValidation")
+                      << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
+                      << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
+                      << probP[*iTrack];
+                }
+              } else if (std::abs((*tp_info)->pdgId()) == 2212) {
+                meEndcapPDBetavsp_->Fill((*iTrack)->p(), dbetaP);
+                if (noPID) {
+                  meEndcapTruePNoPID_->Fill((*iTrack)->p());
+                } else if (isPi) {
+                  meEndcapTruePAsPi_->Fill((*iTrack)->p());
+                } else if (isK) {
+                  meEndcapTruePAsK_->Fill((*iTrack)->p());
+                } else if (isP) {
+                  meEndcapTruePAsP_->Fill((*iTrack)->p());
+                } else {
+                  edm::LogWarning("Primary4DVertexValidation")
+                      << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
+                      << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
+                      << probP[*iTrack];
                 }
               }
             }
@@ -1777,7 +1760,6 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<bool>("useOnlyChargedTracks", true);
   desc.addUntracked<bool>("debug", false);
   desc.addUntracked<bool>("optionalPlots", false);
-  desc.addUntracked<bool>("pidPlots", false);
   desc.add<double>("trackweightTh", 0.5);
   desc.add<double>("mvaTh", 0.01);
   desc.add<double>("minProbHeavy", 0.75);
@@ -1797,8 +1779,7 @@ const bool Primary4DVertexValidation::mvaTPSel(const TrackingParticle& tp) {
   if (tp.status() != 1) {
     return match;
   }
-  double pTcut = std::abs(tp.eta()) < trackMaxBtlEta_ ? pTcutBTL_ : pTcutETL_;
-  match = tp.charge() != 0 && tp.pt() > pTcut && std::abs(tp.eta()) < etacutGEN_;
+  match = tp.charge() != 0 && tp.pt() > pTcut_ && std::abs(tp.eta()) < etacutGEN_;
   return match;
 }
 
@@ -1807,8 +1788,7 @@ const bool Primary4DVertexValidation::mvaRecSel(const reco::TrackBase& trk,
                                                 const double& t0,
                                                 const double& st0) {
   bool match = false;
-  double pTcut = std::abs(trk.eta()) < trackMaxBtlEta_ ? pTcutBTL_ : pTcutETL_;
-  match = trk.pt() > pTcut && std::abs(trk.eta()) < etacutREC_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
+  match = trk.pt() > pTcut_ && std::abs(trk.eta()) < etacutREC_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
   if (st0 > 0.) {
     match = match && std::abs(t0 - vtx.t()) < 3. * st0;
   }
