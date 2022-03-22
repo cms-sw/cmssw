@@ -8,7 +8,10 @@ LIB_CMS := ../libMicCMS.so
 MAIN    := ../mkFit
 WRMEMF  := ../writeMemoryFile
 
-TGTS := ${LIB_CMS} ${MAIN} ${WRMEMF}
+TGTS := ${LIB_CMS} ${MAIN}
+ifdef WITH_ROOT
+TGTS += ${WRMEMF}
+endif
 
 .PHONY: all clean distclean
 

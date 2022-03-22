@@ -177,4 +177,4 @@ namespace {
 
 }  // namespace
 
-void* TrackerInfoCrator_ptr = (void*)Create_CylCowWLids;
+void* TrackerInfoCreator_ptr = (void*)Create_CylCowWLids;
