@@ -22,4 +22,5 @@
 <use name="TrackingTools/KalmanUpdators"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/TrajectoryState"/>
+<use name="MuonAnalysis/MuonAssociators"/>
 <flags EDM_PLUGIN="1"/>

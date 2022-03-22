@@ -9,7 +9,7 @@
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
 
-#include "HLTriggerOffline/Muon/interface/L1MuonMatcherAlgo.h"
+#include "MuonAnalysis/MuonAssociators/interface/L1MuonMatcherAlgo.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -51,7 +51,6 @@ class HLTMuonPlotter {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
-  using ESTokens = hltriggeroffline::L1MuonMatcherAlgo::ESTokens;
 
   HLTMuonPlotter(const edm::ParameterSet &,
                  std::string,
@@ -60,7 +59,7 @@ public:
                  const std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
                                   edm::EDGetTokenT<reco::GenParticleCollection>,
                                   edm::EDGetTokenT<reco::MuonCollection>> &,
-                 const ESTokens &);
+                 edm::ConsumesCollector &&);
 
   ~HLTMuonPlotter() {
     delete genMuonSelector_;
@@ -75,13 +74,6 @@ public:
                     edm::EDGetTokenT<reco::GenParticleCollection>,
                     edm::EDGetTokenT<reco::MuonCollection>>
   getTokens(const edm::ParameterSet &, edm::ConsumesCollector &&);
-
-  static std::tuple<edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>,
-                    edm::ESGetToken<Propagator, TrackingComponentsRecord>,
-                    edm::ESGetToken<Propagator, TrackingComponentsRecord>,
-                    edm::ESGetToken<Propagator, TrackingComponentsRecord>,
-                    edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord>>
-      getESTokens(edm::ConsumesCollector);
 
 private:
   struct MatchStruct {
@@ -137,7 +129,7 @@ private:
   StringCutObjectSelector<reco::GenParticle> *genMuonSelector_;
   StringCutObjectSelector<reco::Muon> *recMuonSelector_;
 
-  hltriggeroffline::L1MuonMatcherAlgo l1Matcher_;
+  L1MuonMatcherAlgo l1Matcher_;
 
   std::map<std::string, MonitorElement *> elements_;
 };
