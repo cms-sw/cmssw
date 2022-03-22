@@ -173,7 +173,7 @@ namespace mkfit {
               fname.c_str(),
               errno,
               strerror(errno));
-      throw std::runtime_error("Filed opening file in TrackerInfo::read_bin_file");
+      throw std::runtime_error("Failed opening file in TrackerInfo::read_bin_file");
     }
     GeomFileHeader fh;
     fread(&fh, sizeof(GeomFileHeader), 1, fp);
