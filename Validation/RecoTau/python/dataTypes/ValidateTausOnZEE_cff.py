@@ -19,7 +19,7 @@ selectElectrons = cms.EDProducer(
     )
 )
 
-selectStableElectrons = genParticlesForJets.clone(src = cms.InputTag("selectElectrons"))
+selectStableElectrons = genParticlesForJets.clone(src = "selectElectrons")
 
 #objectTypeSelectedTauValDenominatorModule = copy.deepcopy(iterativeCone5GenJets)
 #objectTypeSelectedTauValDenominatorModule.src = cms.InputTag("selectElectronsForGenJets")

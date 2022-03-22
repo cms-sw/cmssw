@@ -91,7 +91,6 @@ process.AlCaRecoTriggerBitsRcdCreate = cms.EDAnalyzer(
     triggerListsAdd = Triggers,
 )
 
-#import CondCore.DBCommon.CondDBSetup_cfi
 import CondCore.CondDB.CondDB_cfi as CondDB_cfi 
 process.PoolDBOutputService = cms.Service(
     "PoolDBOutputService",

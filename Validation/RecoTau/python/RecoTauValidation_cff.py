@@ -25,16 +25,16 @@ tauValidationMiniAODQCD = tauValidationMiniAODZTT.clone(
   ExtensionName = 'QCD'
 )
 tauValidationMiniAODRealData = tauValidationMiniAODZTT.clone(
-  RefCollection = cms.InputTag("CleanedPFJets"),
-  ExtensionName = cms.string('JETHT')
+  RefCollection = "CleanedPFJets",
+  ExtensionName = 'JETHT'
 )
 tauValidationMiniAODRealElectronsData = tauValidationMiniAODZTT.clone(
-  RefCollection = cms.InputTag("ElZLegs","theProbeLeg"),
-  ExtensionName = cms.string("DoubleElectron")
+  RefCollection = "ElZLegs:theProbeLeg",
+  ExtensionName = 'DoubleElectron'
 )
 tauValidationMiniAODRealMuonsData = tauValidationMiniAODZTT.clone(
-  RefCollection = cms.InputTag("MuZLegs","theProbeLeg"),
-  ExtensionName = cms.string('DoubleMuon')
+  RefCollection = "MuZLegs:theProbeLeg",
+  ExtensionName = 'DoubleMuon'
 )
 
 

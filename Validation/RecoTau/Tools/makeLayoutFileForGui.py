@@ -16,7 +16,9 @@ defaultPlots = [
     'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr/VLooseCombinedIsolationDBSumPtCorrEff%s'],
     ]
 
-muonrejplots = ['RecoTauV/standardValidation/hpsPFTauProducerRealMuonsData_hpsPFTauDiscriminationByLooseMuonRejection/LooseMuonRejectionEff%s', 'RecoTauV/standardValidation/hpsPFTauProducerRealMuonsData_hpsPFTauDiscriminationByMediumMuonRejection/MediumMuonRejectionEff%s', 'RecoTauV/standardValidation/hpsPFTauProducerRealMuonsData_hpsPFTauDiscriminationByTightMuonRejection/TightMuonRejectionEff%s']
+muonrejplots = ['RecoTauV/standardValidation/hpsPFTauProducerRealMuonsData_hpsPFTauDiscriminationByLooseMuonRejection/LooseMuonRejectionEff%s',
+                'RecoTauV/standardValidation/hpsPFTauProducerRealMuonsData_hpsPFTauDiscriminationByMediumMuonRejection/MediumMuonRejectionEff%s',
+                'RecoTauV/standardValidation/hpsPFTauProducerRealMuonsData_hpsPFTauDiscriminationByTightMuonRejection/TightMuonRejectionEff%s']
 
 elerejplots = [
     ['RecoTauV/standardValidation/hpsPFTauProducerRealElectronsData_hpsPFTauDiscriminationByLooseElectronRejection/LooseElectronRejectionEff%s',

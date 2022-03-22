@@ -487,11 +487,9 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
        RefJet != ReferenceCollection->end();
        RefJet++) {
     float dRmin = 0.15;
-    int matchedTauIndex;
+    int matchedTauIndex = -99;
     float gendRmin = 0.15;
-    int genmatchedTauIndex;
-    matchedTauIndex = -99;
-    genmatchedTauIndex = -99;
+    int genmatchedTauIndex = -99;
     for (unsigned iTau = 0; iTau < taus->size(); iTau++) {
       pat::TauRef tau(taus, iTau);
 

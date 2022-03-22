@@ -18,6 +18,7 @@ PFJetsId = cms.EDFilter(
     cut = cms.string("chargedHadronEnergyFraction > 0.0 & neutralHadronEnergyFraction < 0.99 & neutralHadronEnergyFraction < 0.99 & chargedEmEnergyFraction < 0.99 & chargedEmEnergyFraction < 0.99 & neutralEmEnergyFraction < 0.99 & chargedMultiplicity > 0 & nConstituents > 1"),
     filter = cms.bool(False)
 	)
+
 CleanedPFJets = cms.EDProducer("TauValJetViewCleaner",
     srcObject            = cms.InputTag( "kinematicSelectedPFJets" ),
     srcObjectsToRemove   = cms.VInputTag( cms.InputTag("muons"), cms.InputTag("gedGsfElectrons") ),

@@ -19,7 +19,7 @@ selectMuons = cms.EDProducer(
     )
 )
 
-selectStableMuons = genParticlesForJets.clone(src = cms.InputTag("selectMuons"))
+selectStableMuons = genParticlesForJets.clone(src = "selectMuons")
 
 kinematicSelectedTauValDenominatorZMM = cms.EDFilter(
    "CandPtrSelector",
