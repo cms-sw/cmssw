@@ -105,7 +105,7 @@ namespace mkfit {
       path += search_path[si];
       std::string sopath = path + soname;
       if (stat(sopath.c_str(), &st) == 0) {
-        printf("mkfit::execTrackerInfoCreatorPlugin processing '%s'\n", sopath.c_str());
+        printf("execTrackerInfoCreatorPlugin processing '%s'\n", sopath.c_str());
 
         void *h = dlopen(sopath.c_str(), RTLD_LAZY);
         if (!h) {
@@ -120,12 +120,12 @@ namespace mkfit {
         }
 
         std::string binpath = path + binname;
-        if (stat(binpath.c_str(), &st) == 0) {
-          printf("mkfit::execTrackerInfoCreatorPlugin found TrackerInfo binary file '%s'\n", binpath.c_str());
+        int binsr = stat(binpath.c_str(), &st);
+        printf("execTrackerInfoCreatorPlugin has%s found TrackerInfo binary file '%s'\n",
+               binsr ? " NOT" : "",
+               binpath.c_str());
+        if (binsr == 0)
           ti.read_bin_file(binpath);
-        } else {
-          printf("mkfit::execTrackerInfoCreatorPlugin has NOT found TrackerInfo binary file '%s'\n", binpath.c_str());
-        }
 
         TrackerInfoCreator_foo foo = (TrackerInfoCreator_foo)(*p2f);
         foo(ti, ii, verbose);
