@@ -9,6 +9,8 @@
  */
 
 #include <vector>
+#include <cstdint>
+#include <cassert>
 
 class EcalPhiSymInfo {
 public:
