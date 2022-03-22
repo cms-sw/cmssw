@@ -190,7 +190,6 @@ L1Muon2RecoTreeProducer::~L1Muon2RecoTreeProducer() {
 //
 // member functions
 //
-
 // ------------ method called to for each event  ------------
 void L1Muon2RecoTreeProducer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   muon->init(iSetup);
