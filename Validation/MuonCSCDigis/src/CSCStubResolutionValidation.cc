@@ -102,7 +102,8 @@ void CSCStubResolutionValidation::analyze(const edm::Event& e, const edm::EventS
       // calculate deltastrip for ME1/a. Basically, we need to subtract 64 from the CLCT key strip to
       // compare with key strip as obtained through the fit to simhits positions.
       int deltaStrip = 0;
-      if (cscId.station() == 1 and cscId.ring() == 4 and clct.getKeyStrip() > CSCConstants::MAX_HALF_STRIP_ME1B)
+      if (cscId.station() == 1 and (cscId.ring() == 4 or cscId.ring() == 1) and
+          clct.getKeyStrip() > CSCConstants::MAX_HALF_STRIP_ME1B)
         deltaStrip = CSCConstants::NUM_STRIPS_ME1B;
 
       // fractional strip
