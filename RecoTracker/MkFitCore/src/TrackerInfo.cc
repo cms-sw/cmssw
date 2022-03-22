@@ -169,7 +169,7 @@ namespace mkfit {
     FILE* fp = fopen(fname.c_str(), "r");
     if (!fp) {
       fprintf(stderr,
-              "TrackerInfo::read_bin_file error opening file '%s', errno=%d: '%s'",
+              "TrackerInfo::read_bin_file error opening file '%s', errno=%d: '%s'\n",
               fname.c_str(),
               errno,
               strerror(errno));

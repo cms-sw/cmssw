@@ -41,7 +41,7 @@ using namespace mkfit;
 //==============================================================================
 
 void initGeom() {
-  std::cout << "Constructing SimpleGeometry Cylinder geometry" << std::endl;
+  std::cout << "Constructing geometry '" << Config::geomPlugin << "'\n";
 
   // NB: we currently assume that each node is a layer, and that layers
   // are added starting from the center
