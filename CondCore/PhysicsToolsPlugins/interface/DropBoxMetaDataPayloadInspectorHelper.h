@@ -238,13 +238,13 @@ namespace DBoxMetadataHelper {
         toAppend.clear();
         for (unsigned int iPath = 0; iPath < pathsPrep.size(); ++iPath) {
           std::string thisString = pathsPrep[iPath];
-
+          // skip userText since we want to see actual contents, not metadata
           if (thisString.find("userText") == std::string::npos) {
-            // if the line to be added has less than colWidth chars append to current
-            if ((toAppend + thisString).length() < colWidth) {
+            // if the line to be added has less than colWidth chars, and is not a new tag ("inputTag"), append to current
+            if ((toAppend + thisString).length() < colWidth && thisString.find("inputTag") != 0) {
               toAppend += thisString;
             } else {
-              // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
+              // else if the line exceeds colWidth chars or this is a new tag ("inputTag"), dump in the vector and resume from scratch
               output.push_back(toAppend);
               toAppend.clear();
               toAppend += thisString;
@@ -264,10 +264,10 @@ namespace DBoxMetadataHelper {
 
           if (thisString.find("userText") == std::string::npos) {
             // if the line to be added has less than colWidth chars append to current
-            if ((toAppend + thisString).length() < colWidth) {
+            if ((toAppend + thisString).length() < colWidth && thisString.find("inputTag") != 0) {
               toAppend += thisString;
             } else {
-              // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
+              // else if the line exceeds colWidth chars or this is a new tag ("inputTag"), dump in the vector and resume from scratch
               output.push_back(toAppend);
               toAppend.clear();
               toAppend += thisString;
@@ -615,13 +615,13 @@ namespace DBoxMetadataHelper {
       toAppend.clear();
       for (unsigned int iPath = 0; iPath < thePaths.size(); ++iPath) {
         std::string thisString = thePaths[iPath];
-        // if the line to be added has less than colWidth chars append to current
+        // skip userText since we want to compare actual contents, not metadata
         if (thisString.find("userText") == std::string::npos) {
-          // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
+          // if the line to be added has less than colWidth chars, and is not a new tag ("inputTag"), append to current
+          if ((toAppend + thisString).length() < colWidth && thisString.find("inputTag") != 0) {
             toAppend += thisString;
           } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scrach
+            // else if the line exceeds colWidth chars or this is a new tag ("inputTag"), dump in the vector and resume from scratch
             output.push_back("#color[" + std::to_string(color) + "]{" + toAppend + "}");
             tmp += toAppend;
             toAppend.clear();
