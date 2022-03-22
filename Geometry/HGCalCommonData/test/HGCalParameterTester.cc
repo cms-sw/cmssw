@@ -130,8 +130,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
   } else if (mode_ == 1) {
     // Wafers of 8-inch format
     edm::LogVerbatim("HGCalGeom") << "DetectorType: " << phgp->detectorType_;
-    edm::LogVerbatim("HGCalGeom") << "Wafer Parameters: " << phgp->waferSize_ << ":" << phgp->waferR_ << ":" << phgp->waferThick_ << ":"
-              << phgp->sensorSeparation_ << ":" << phgp->mouseBite_;
+    edm::LogVerbatim("HGCalGeom") << "Wafer Parameters: " << phgp->waferSize_ << ":" << phgp->waferR_ << ":"
+                                  << phgp->waferThick_ << ":" << phgp->sensorSeparation_ << ":" << phgp->mouseBite_;
     myPrint("waferThickness", phgp->waferThickness_, 10);
     edm::LogVerbatim("HGCalGeom") << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_;
     edm::LogVerbatim("HGCalGeom") << "nSectors_: " << phgp->nSectors_;
@@ -144,15 +144,17 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("CellThickness", phgp->cellThickness_, 10);
     myPrint("radius100to200", phgp->radius100to200_, 10);
     myPrint("radius200to300", phgp->radius200to300_, 10);
-    edm::LogVerbatim("HGCalGeom") << "choiceType " << phgp->choiceType_ << "   nCornerCut " << phgp->nCornerCut_ << "  fracAreaMin "
-              << phgp->fracAreaMin_ << "  zMinForRad " << phgp->zMinForRad_;
+    edm::LogVerbatim("HGCalGeom") << "choiceType " << phgp->choiceType_ << "   nCornerCut " << phgp->nCornerCut_
+                                  << "  fracAreaMin " << phgp->fracAreaMin_ << "  zMinForRad " << phgp->zMinForRad_;
 
     myPrint("CellSize", phgp->cellSize_, 10);
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);
     myPrint("LayerCenter", phgp->layerCenter_, 20);
-    edm::LogVerbatim("HGCalGeom") << "Layer Rotation " << phgp->layerRotation_ << "   with " << phgp->layerRotV_.size() << "  parameters";
+    edm::LogVerbatim("HGCalGeom") << "Layer Rotation " << phgp->layerRotation_ << "   with " << phgp->layerRotV_.size()
+                                  << "  parameters";
     for (unsigned int k = 0; k < phgp->layerRotV_.size(); ++k)
-      edm::LogVerbatim("HGCalGeom") << "Element[" << k << "] " << phgp->layerRotV_[k].first << ":" << phgp->layerRotV_[k].second;
+      edm::LogVerbatim("HGCalGeom") << "Element[" << k << "] " << phgp->layerRotV_[k].first << ":"
+                                    << phgp->layerRotV_[k].second;
     myPrint("slopeMin", phgp->slopeMin_, 10);
     myPrint("zFrontMin", phgp->zFrontMin_, 10);
     myPrint("rMinFront", phgp->rMinFront_, 10);
@@ -211,7 +213,11 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
       unsigned int kk(0);
       std::unordered_map<int32_t, HGCalParameters::waferInfo>::const_iterator itr = phgp->waferInfoMap_.begin();
       for (; itr != phgp->waferInfoMap_.end(); ++itr, ++kk)
-        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << itr->first << "[" << HGCalWaferIndex::waferLayer(itr->first) << ", " << HGCalWaferIndex::waferU(itr->first) << ", " << HGCalWaferIndex::waferV(itr->first) << "] (" << (itr->second).type << ", " << (itr->second).part << ", " << (itr->second).orient << ")";
+        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << itr->first << "["
+                                      << HGCalWaferIndex::waferLayer(itr->first) << ", "
+                                      << HGCalWaferIndex::waferU(itr->first) << ", "
+                                      << HGCalWaferIndex::waferV(itr->first) << "] (" << (itr->second).type << ", "
+                                      << (itr->second).part << ", " << (itr->second).orient << ")";
     }
   } else {
     // Tpaezoid (scintillator) type
@@ -291,7 +297,12 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
       unsigned int kk(0);
       std::unordered_map<int32_t, HGCalParameters::tileInfo>::const_iterator itr = phgp->tileInfoMap_.begin();
       for (; itr != phgp->tileInfoMap_.end(); ++itr, ++kk)
-        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << itr->first << "[" << HGCalTileIndex::tileLayer(itr->first) << ", " << HGCalTileIndex::tileRing(itr->first) << ", " << HGCalTileIndex::tilePhi(itr->first) << "] (" << (itr->second).type << ", " << (itr->second).sipm << std::hex << ", " << (itr->second).hex[0] << ", " << (itr->second).hex[1] << ", " << (itr->second).hex[2] << ", " << (itr->second).hex[3] << ")" << std::dec;
+        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << itr->first << "[" << HGCalTileIndex::tileLayer(itr->first)
+                                      << ", " << HGCalTileIndex::tileRing(itr->first) << ", "
+                                      << HGCalTileIndex::tilePhi(itr->first) << "] (" << (itr->second).type << ", "
+                                      << (itr->second).sipm << std::hex << ", " << (itr->second).hex[0] << ", "
+                                      << (itr->second).hex[1] << ", " << (itr->second).hex[2] << ", "
+                                      << (itr->second).hex[3] << ")" << std::dec;
     }
   }
 
@@ -415,7 +426,8 @@ void HGCalParameterTester::printWaferType(HGCalParameters const* phgp) const {
   if (!kounts.empty()) {
     edm::LogVerbatim("HGCalGeom") << "Summary of waferTypes ==========================";
     for (itr = kounts.begin(); itr != kounts.end(); ++itr)
-      edm::LogVerbatim("HGCalGeom") << "Type (" << (itr->first).first << ":" << (itr->first).second << ") Kount " << itr->second;
+      edm::LogVerbatim("HGCalGeom") << "Type (" << (itr->first).first << ":" << (itr->first).second << ") Kount "
+                                    << itr->second;
   }
 }
 

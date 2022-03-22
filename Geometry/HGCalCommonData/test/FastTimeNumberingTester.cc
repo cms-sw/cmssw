@@ -61,7 +61,8 @@ FastTimeNumberingTester::FastTimeNumberingTester(const edm::ParameterSet&)
 // ------------ method called to produce the data  ------------
 void FastTimeNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const FastTimeDDDConstants& fTnDC = iSetup.getData(token_);
-  edm::LogVerbatim("HGCalGeom") << "Fast timing device with " << fTnDC.getCells(1) << ":" << fTnDC.getCells(2) << " cells for barrel and endcap";
+  edm::LogVerbatim("HGCalGeom") << "Fast timing device with " << fTnDC.getCells(1) << ":" << fTnDC.getCells(2)
+                                << " cells for barrel and endcap";
   for (int type = 1; type <= 2; ++type) {
     for (int ix = 0; ix < 400; ++ix) {
       for (int iy = 0; iy < 400; ++iy) {
@@ -70,7 +71,8 @@ void FastTimeNumberingTester::analyze(const edm::Event& iEvent, const edm::Event
           edm::LogVerbatim("HGCalGeom") << "Valid ID " << id1 << " and " << id2;
         } else {
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "ix = " << ix << ", iy = " << iy << " is not valid for " << "FastTime type " << type;
+          edm::LogVerbatim("HGCalGeom") << "ix = " << ix << ", iy = " << iy << " is not valid for "
+                                        << "FastTime type " << type;
 #endif
         }
         iy += 9;
